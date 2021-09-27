@@ -8,7 +8,7 @@ https://discord.com/api/oauth2/authorize?client_id=812381127943782502&permission
 
 The bot has currently two systems:
 
-## Count Success in a pool
+## Count success in a pool
 
 Add the bot to the channel and use the slash command: '/count_successes start'. You need to provide the sides of the dice and the
 target number as parameter. By clicking on a button a number of dice will be rolled and the count of the dice with
@@ -19,8 +19,13 @@ Darkness (sides: 10, target 7) or Shadowrun (sides: 6, target 4).
 
 ## Fate
 
-Add the bot to the channel and use the slash command: '/fate start' to active the fate system.
+Add the bot to the channel and use the slash command: '/fate start' to active the fate system. There are two types simple
+and with modifier:
 
+### Simple
 ![fate_example.png](fate_example.png)
+
+### With modifier buttons
+![fate_with_modifier.png](fate_with_modifier.png)
 
 Please let me know if another system is needed.
