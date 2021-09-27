@@ -3,35 +3,25 @@ package de.janno.discord.command;
 import com.google.common.collect.ImmutableList;
 import de.janno.discord.dice.DiceResult;
 import de.janno.discord.dice.DiceUtils;
-import de.janno.discord.persistance.IPersistable;
-import de.janno.discord.persistance.SerializedChannelConfig;
 import discord4j.common.util.Snowflake;
+import discord4j.core.event.domain.interaction.ComponentInteractEvent;
 import discord4j.core.object.command.ApplicationCommandInteractionOption;
 import discord4j.core.object.component.ActionRow;
 import discord4j.core.object.component.Button;
 import discord4j.core.object.component.LayoutComponent;
+import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 
 @Slf4j
-public class FateCommand extends AbstractCommand<Void> implements IPersistable {
+public class FateCommand extends AbstractCommand {
 
     private static final String COMMAND_NAME = "fate";
     private static final String BUTTON_MESSAGE = "Click a button to roll four fate dice";
 
     public FateCommand(Snowflake botUserId) {
-        super(new ConfigRegistry<>(COMMAND_NAME, null), botUserId);
-    }
-
-    @Override
-    public List<SerializedChannelConfig> getChannelConfig() {
-        return configRegistry.getAllChannelConfig();
-    }
-
-    @Override
-    public void setChannelConfig(List<SerializedChannelConfig> channelConfigs) {
-        configRegistry.setAllChannelConfig(channelConfigs);
+        super(new ActiveButtonsCache(), botUserId);
     }
 
     @Override
@@ -50,17 +40,27 @@ public class FateCommand extends AbstractCommand<Void> implements IPersistable {
     }
 
     @Override
-    protected Void createConfig() {
-        return null;
+    protected List<String> getConfigValuesFromStartOptions(ApplicationCommandInteractionOption options) {
+        return ImmutableList.of();
     }
 
     @Override
-    protected Void setConfigValuesFromStartOptions(ApplicationCommandInteractionOption options, Void config) {
-        return null;
+    protected List<String> getConfigFromEvent(ComponentInteractEvent event) {
+        return ImmutableList.of();
     }
 
     @Override
-    protected DiceResult rollDice(Snowflake channelId, String buttonId) {
+    protected String getValueFromEvent(ComponentInteractEvent event) {
+        return event.getCustomId().split(CONFIG_DELIMITER)[1];
+    }
+
+    @Override
+    protected boolean matchingButtonCustomId(String buttonCustomId) {
+        return buttonCustomId.startsWith(COMMAND_NAME + CONFIG_DELIMITER);
+    }
+
+    @Override
+    protected DiceResult rollDice(Snowflake channelId, String buttonValue, List<String> config) {
         List<Integer> rollResult = DiceUtils.rollFate();
 
         String title = String.format("4dF = %d", DiceUtils.fateResult(rollResult));
@@ -68,16 +68,21 @@ public class FateCommand extends AbstractCommand<Void> implements IPersistable {
         log.info(String.format("%s %s", title, details)
                 .replace("▢", "0")
                 .replace("＋", "+")
-                .replace("─", "-")
+                .replace("−", "-")
         );
         return new DiceResult(title, details);
     }
 
     @Override
-    protected List<LayoutComponent> getButtonLayout() {
+    protected List<LayoutComponent> getButtonLayout(List<String> config) {
         return ImmutableList.of(
                 ActionRow.of(
-                        Button.primary("roll", "Roll 4dF")
+                        Button.primary(createButtonCustomId(COMMAND_NAME, "roll", config), "Roll 4dF")
                 ));
+    }
+
+    @Value
+    public class Config {
+        boolean showModifier;
     }
 }

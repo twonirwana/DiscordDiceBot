@@ -1,9 +1,6 @@
 package de.janno.discord;
 
-import de.janno.discord.command.IComponentInteractEventHandler;
 import de.janno.discord.command.*;
-import de.janno.discord.persistance.IPersistable;
-import de.janno.discord.persistance.Persistence;
 import discord4j.common.util.Snowflake;
 import discord4j.core.DiscordClient;
 import discord4j.core.event.ReactiveEventAdapter;
@@ -14,8 +11,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-
-import java.util.stream.Collectors;
 
 @Slf4j
 public class DiceSystem {
@@ -30,7 +25,11 @@ public class DiceSystem {
      * - optional delay button remove
      * - optional config the max number of dice selection
      * - system that compares slashCommand in code with the current and updates if there are changes
-     * - Refactoring
+     * - Fate with Modifiers
+     * - Fate - to Minus character
+     * - stop command to clear
+     * - timed cache for the ConfigRegestry
+     * - add number of channels in the statistics
      **/
 
     /**
@@ -59,16 +58,6 @@ public class DiceSystem {
                 .addSlashCommand(new StatisticCommand())
                 .registerSlashCommands(discordClient);
 
-
-        Persistence persistence = new Persistence(slashCommandRegistry.getSlashCommands().stream()
-                .filter(s -> s instanceof IPersistable)
-                .map(s -> (IPersistable) s)
-                .collect(Collectors.toList())
-        );
-        persistence.loadAll();
-
-
-
         discordClient.withGateway(gw -> gw.on(new ReactiveEventAdapter() {
 
                     @Override
@@ -78,13 +67,11 @@ public class DiceSystem {
                                 .filter(command -> command.getName().equals(event.getCommandName()))
                                 .next()
                                 .flatMap(command -> command.handleSlashCommandEvent(event))
-                                .doOnEach(t -> persistence.acceptSaveTrigger(t.get()))
                                 .onErrorResume(e -> {
                                     log.error("SlashCommandEvent Exception: ", e);
                                     return Mono.empty();
                                 });
                     }
-
 
                     @Override
                     @NonNull
@@ -102,6 +89,4 @@ public class DiceSystem {
                 .block();
 
     }
-
-
 }

@@ -50,7 +50,7 @@ public class DiceUtils {
     public static String convertFateNumberToString(List<Integer> results) {
         return "[" + results.stream().map(i -> {
             if (i < 0) {
-                return "─";
+                return "−";
             } else if (i > 0) {
                 return "＋";
             } else {

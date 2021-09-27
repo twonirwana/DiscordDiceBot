@@ -1,6 +1,6 @@
 package de.janno.discord;
 
-import de.janno.discord.command.ConfigRegistry;
+import de.janno.discord.command.ActiveButtonsCache;
 import discord4j.common.util.Snowflake;
 import discord4j.core.object.component.LayoutComponent;
 import discord4j.core.object.entity.Member;
@@ -59,32 +59,29 @@ public class DiscordMessageUtils {
     public static Mono<Void> deleteMessage(
             @NonNull Mono<MessageChannel> channel,
             @NonNull Snowflake channelId,
-            @NonNull ConfigRegistry<?> configRegistry,
+            @NonNull ActiveButtonsCache activeButtonsCache,
             @NonNull Snowflake toKeep) {
-        if (configRegistry.channelIsRegistered(channelId)) {
-            return channel
-                    .flux()
-                    .flatMap(c -> {
-                        List<Snowflake> allButtonsWithoutTheLast = configRegistry.getAllWithoutOneAndRemoveThem(channelId, toKeep);
-                        return Flux.fromIterable(allButtonsWithoutTheLast).flatMap(c::getMessageById);
-                    })
-                    .onErrorResume(e -> {
-                        log.info("Button was not found");
-                        return Mono.empty();
-                    })
-                    .flatMap(Message::delete).then();
-        }
-        return Mono.empty();
+        return channel
+                .flux()
+                .flatMap(c -> {
+                    List<Snowflake> allButtonsWithoutTheLast = activeButtonsCache.getAllWithoutOneAndRemoveThem(channelId, toKeep);
+                    return Flux.fromIterable(allButtonsWithoutTheLast).flatMap(c::getMessageById);
+                })
+                .onErrorResume(e -> {
+                    log.info("Button was not found");
+                    return Mono.empty();
+                })
+                .flatMap(Message::delete).then();
     }
 
-    public static Function<TextChannel, Mono<Message>> createButtonMessage(@NonNull ConfigRegistry<?> configRegistry,
+    public static Function<TextChannel, Mono<Message>> createButtonMessage(@NonNull ActiveButtonsCache activeButtonsCache,
                                                                            @NonNull String buttonMessage,
                                                                            @NonNull List<LayoutComponent> buttons) {
         return channel -> channel.createMessage(msg -> {
             msg.setContent(buttonMessage);
             msg.setComponents(buttons);
         }).map(m -> {
-            configRegistry.addChannelWithButton(m.getChannelId(), m.getId());
+            activeButtonsCache.addChannelWithButton(m.getChannelId(), m.getId());
             return m;
         });
     }

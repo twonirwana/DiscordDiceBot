@@ -1,7 +1,6 @@
 package de.janno.discord.command;
 
 import de.janno.discord.dice.DiceUtils;
-import de.janno.discord.persistance.Trigger;
 import discord4j.core.event.domain.interaction.SlashCommandEvent;
 import discord4j.discordjson.json.ApplicationCommandRequest;
 import lombok.NonNull;
@@ -27,9 +26,8 @@ public class StatisticCommand implements ISlashCommand {
     }
 
     @Override
-    public Mono<Trigger> handleSlashCommandEvent(@NonNull SlashCommandEvent event) {
-        return event.reply(encodeUTF8(DiceUtils.getResultStaticMap()))
-                .then(Mono.just(Trigger.NONE));
+    public Mono<Void> handleSlashCommandEvent(@NonNull SlashCommandEvent event) {
+        return event.reply(encodeUTF8(DiceUtils.getResultStaticMap()));
     }
 
 

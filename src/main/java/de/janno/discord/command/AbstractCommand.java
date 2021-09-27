@@ -2,14 +2,11 @@ package de.janno.discord.command;
 
 import com.google.common.collect.ImmutableList;
 import de.janno.discord.dice.DiceResult;
-import de.janno.discord.persistance.Trigger;
 import discord4j.common.util.Snowflake;
 import discord4j.core.event.domain.interaction.ComponentInteractEvent;
 import discord4j.core.event.domain.interaction.InteractionCreateEvent;
 import discord4j.core.event.domain.interaction.SlashCommandEvent;
 import discord4j.core.object.command.ApplicationCommandInteractionOption;
-import discord4j.core.object.component.ActionRow;
-import discord4j.core.object.component.Button;
 import discord4j.core.object.component.LayoutComponent;
 import discord4j.core.object.entity.User;
 import discord4j.core.object.entity.channel.TextChannel;
@@ -22,20 +19,28 @@ import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static de.janno.discord.DiscordMessageUtils.*;
 
 @Slf4j
-public abstract class AbstractCommand<T> implements ISlashCommand, IComponentInteractEventHandler {
+public abstract class AbstractCommand implements ISlashCommand, IComponentInteractEventHandler {
 
     protected static final String ACTION_STOP = "stop";
     protected static final String ACTION_START = "start";
-    protected final ConfigRegistry<T> configRegistry;
+    protected static final String CONFIG_DELIMITER = ",";
+    protected final ActiveButtonsCache activeButtonsCache;
     protected final Snowflake botUserId;
 
-    protected AbstractCommand(ConfigRegistry<T> configRegistry, Snowflake botUserId) {
-        this.configRegistry = configRegistry;
+    protected AbstractCommand(ActiveButtonsCache activeButtonsCache, Snowflake botUserId) {
+        this.activeButtonsCache = activeButtonsCache;
         this.botUserId = botUserId;
+    }
+
+    protected static String createButtonCustomId(String system, String value, List<String> config) {
+        return Stream.concat(Stream.of(system, value), config.stream())
+                .collect(Collectors.joining(CONFIG_DELIMITER));
     }
 
     protected List<ApplicationCommandOptionData> getStartOptions() {
@@ -66,14 +71,13 @@ public abstract class AbstractCommand<T> implements ISlashCommand, IComponentInt
 
     @Override
     public Mono<Void> handleComponentInteractEvent(@NonNull ComponentInteractEvent event) {
-        if (!configRegistry.channelIsRegistered(event.getInteraction().getChannelId())) {
+        if (!matchingButtonCustomId(event.getCustomId())) {
             return Mono.empty();
         }
         return Mono.just(event)
                 .map(InteractionCreateEvent::getInteraction)
                 .flatMap(i -> Mono.justOrEmpty(i.getMessage()))
                 .filter(m -> botUserId.equals(m.getAuthor().map(User::getId).orElse(null)))
-                .filter(m -> getButtonMessage().equals(m.getContent())) //otherwise we react to other buttons Todo use list of existing button ids, not the message but only if the buttonIds are persisted
                 .flatMap(buttonMessage -> event
                         .acknowledge() //don't edit the message, we use it to identify the message
                         .onErrorResume(t -> {
@@ -83,23 +87,25 @@ public abstract class AbstractCommand<T> implements ISlashCommand, IComponentInt
                         .then(buttonMessage.getChannel()
                                 .ofType(TextChannel.class)
                                 .flatMap(channel -> {
-                                            DiceResult result = rollDice(channel.getId(), event.getCustomId());
+                                            DiceResult result = rollDice(channel.getId(), getValueFromEvent(event), getConfigFromEvent(event));
                                             return createEmbedMessageWithReference(channel, result.getResultTitle(), result.getResultDetails(), event.getInteraction().getMember().orElseThrow())
                                                     .retry();//not sure way this is needed but sometimes we get Connection reset in the event acknowledge and then here an error
                                         }
                                 )
                         ).then(buttonMessage.getChannel()
                                 .ofType(TextChannel.class)
-                                .flatMap(createButtonMessage(configRegistry, getButtonMessage(), getButtonLayout()))
-                                .flatMap(m -> deleteMessage(m.getChannel(), m.getChannelId(), configRegistry, m.getId()))
+                                .flatMap(createButtonMessage(activeButtonsCache, getButtonMessage(), getButtonLayout(getConfigFromEvent(event))))
+                                .flatMap(m -> deleteMessage(m.getChannel(), m.getChannelId(), activeButtonsCache, m.getId()))
                         )
                 );
     }
 
-    public Mono<Trigger> handleSlashCommandEvent(@NonNull SlashCommandEvent event) {
+    public Mono<Void> handleSlashCommandEvent(@NonNull SlashCommandEvent event) {
         if (getName().equals(event.getCommandName())) {
             if (event.getOption(ACTION_STOP).isPresent()) {
-                configRegistry.removeChannel(event.getInteraction().getChannelId());
+                activeButtonsCache.removeChannel(event.getInteraction().getChannelId());
+                log.info("Stop {} in {}", getName(), event.getInteraction().getChannelId());
+
                 return event.reply()
                         .withContent("Stop " + getName() + " in channel")
                         .then(event.getInteraction()
@@ -109,22 +115,20 @@ public abstract class AbstractCommand<T> implements ISlashCommand, IComponentInt
                                         .content("Removing all buttons in channel")
                                         //todo add messageReference
                                         .build()))
-                                .flatMap(m -> deleteAllButtonMessagesOfTheBot(m.getChannel().ofType(TextChannel.class), m.getId(), botUserId, getButtonMessage()).then()))
-                        .then(Mono.just(Trigger.SAVE));
+                                .flatMap(m -> deleteAllButtonMessagesOfTheBot(m.getChannel().ofType(TextChannel.class), m.getId(), botUserId, getButtonMessage()).then()));
 
             } else if (event.getOption(ACTION_START).isPresent()) {
                 ApplicationCommandInteractionOption options = event.getOption(ACTION_START).get();
-                T config = configRegistry.getConfigForChannelOrDefault(event.getInteraction().getChannelId(), createConfig());
-                config = setConfigValuesFromStartOptions(options, config);
-                configRegistry.setChannelConfig(event.getInteraction().getChannelId(), config);
-                String startReplay = String.format("Start %s in channel", getName());
+                List<String> config = getConfigValuesFromStartOptions(options);
+                String startReplay = String.format("Start %s in channel", getName()); //todo channel name
                 if (config != null) {
                     startReplay = startReplay + ". " + config;
                 }
+                log.info(startReplay + " " + event.getCommandId());
                 return event.reply(startReplay)
                         .then(event.getInteraction().getChannel().ofType(TextChannel.class)
-                                .flatMap(createButtonMessage(configRegistry, getButtonMessage(), getButtonLayout())))
-                        .then(Mono.just(Trigger.SAVE));
+                                .flatMap(createButtonMessage(activeButtonsCache, getButtonMessage(), getButtonLayout(config))))
+                        .then();
 
             }
 
@@ -134,35 +138,24 @@ public abstract class AbstractCommand<T> implements ISlashCommand, IComponentInt
 
     protected abstract String getButtonMessage();
 
-    protected abstract T createConfig();
+    protected abstract List<String> getConfigValuesFromStartOptions(ApplicationCommandInteractionOption options);
 
-    protected abstract T setConfigValuesFromStartOptions(ApplicationCommandInteractionOption options, T config);
+    protected abstract DiceResult rollDice(Snowflake channelId, String buttonValue, List<String> config);
 
-    protected abstract DiceResult rollDice(Snowflake channelId, String buttonId);
+    protected abstract List<LayoutComponent> getButtonLayout(List<String> config);
 
-    protected List<LayoutComponent> getButtonLayout() {
-        return ImmutableList.of(
-                ActionRow.of(
-                        //              ID,  label
-                        Button.primary("1", "1"),
-                        Button.primary("2", "2"),
-                        Button.primary("3", "3"),
-                        Button.primary("4", "4"),
-                        Button.primary("5", "5")
-                ),
-                ActionRow.of(
-                        Button.primary("6", "6"),
-                        Button.primary("7", "7"),
-                        Button.primary("8", "8"),
-                        Button.primary("9", "9"),
-                        Button.primary("10", "10")
-                ),
-                ActionRow.of(
-                        Button.primary("11", "11"),
-                        Button.primary("12", "12"),
-                        Button.primary("13", "13"),
-                        Button.primary("14", "14"),
-                        Button.primary("15", "15")
-                ));
+    protected List<String> getConfigFromEvent(ComponentInteractEvent event) {
+        ImmutableList.Builder<String> builder = ImmutableList.builder();
+        String[] split = event.getCustomId().split(CONFIG_DELIMITER);
+        for (int i = 2; i < split.length; i++) {
+            builder.add(split[i]);
+        }
+        return builder.build();
     }
+
+    protected String getValueFromEvent(ComponentInteractEvent event) {
+        return event.getCustomId().split(CONFIG_DELIMITER)[1];
+    }
+
+    protected abstract boolean matchingButtonCustomId(String buttonCustomId);
 }
