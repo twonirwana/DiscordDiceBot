@@ -1,5 +1,6 @@
 package de.janno.discord;
 
+import com.google.common.collect.ImmutableList;
 import de.janno.discord.command.*;
 import discord4j.common.util.Snowflake;
 import discord4j.core.DiscordClient;
@@ -25,8 +26,6 @@ public class DiceSystem {
      * - optional delay button remove
      * - optional config the max number of dice selection
      * - system that compares slashCommand in code with the current and updates if there are changes
-     * - Fate with Modifiers
-     * - add number of channels in the statistics
      * - Discor4j upgrade
      **/
 
@@ -48,12 +47,13 @@ public class DiceSystem {
     public DiceSystem(String token) {
         DiscordClient discordClient = DiscordClient.create(token);
         Snowflake botUserId = discordClient.getCoreResources().getSelfId();
-
-
+        FateCommand fateCommand = new FateCommand(botUserId);
+        CountSuccessesCommand countSuccessesCommand = new CountSuccessesCommand(botUserId);
+        StatisticCommand statisticCommand = new StatisticCommand(ImmutableList.of(fateCommand, countSuccessesCommand));
         SlashCommandRegistry slashCommandRegistry = SlashCommandRegistry.builder()
-                .addSlashCommand(new FateCommand(botUserId))
-                .addSlashCommand(new CountSuccessesCommand(botUserId))
-                .addSlashCommand(new StatisticCommand())
+                .addSlashCommand(fateCommand)
+                .addSlashCommand(countSuccessesCommand)
+                .addSlashCommand(statisticCommand)
                 .registerSlashCommands(discordClient);
 
         discordClient.withGateway(gw -> gw.on(new ReactiveEventAdapter() {

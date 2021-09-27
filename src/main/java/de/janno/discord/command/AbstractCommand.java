@@ -141,7 +141,7 @@ public abstract class AbstractCommand implements ISlashCommand, IComponentIntera
 
     protected abstract List<LayoutComponent> getButtonLayout(List<String> config);
 
-    protected String getConfigDescription(List<String> config){
+    protected String getConfigDescription(List<String> config) {
         return "";
     }
 
@@ -159,4 +159,8 @@ public abstract class AbstractCommand implements ISlashCommand, IComponentIntera
     }
 
     protected abstract boolean matchingButtonCustomId(String buttonCustomId);
+
+    public String getStatistics() {
+        return String.format("%s is currently used in approximately %d channels", getName(), activeButtonsCache.getChannelInCache());
+    }
 }

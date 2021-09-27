@@ -6,11 +6,19 @@ import discord4j.discordjson.json.ApplicationCommandRequest;
 import lombok.NonNull;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import static de.janno.discord.DiscordMessageUtils.encodeUTF8;
 
 public class StatisticCommand implements ISlashCommand {
 
     private static final String COMMAND_NAME = "statistics";
+    private final List<? extends AbstractCommand> commands;
+
+    public StatisticCommand(List<? extends AbstractCommand> commands) {
+        this.commands = commands;
+    }
 
     @Override
     public String getName() {
@@ -27,7 +35,8 @@ public class StatisticCommand implements ISlashCommand {
 
     @Override
     public Mono<Void> handleSlashCommandEvent(@NonNull SlashCommandEvent event) {
-        return event.reply(encodeUTF8(DiceUtils.getResultStaticMap()));
+        return event.reply(encodeUTF8("Total of all dice roll results: " + DiceUtils.getResultStaticMap() + ", "
+                + commands.stream().map(AbstractCommand::getStatistics).collect(Collectors.joining(", "))));
     }
 
 

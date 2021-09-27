@@ -47,4 +47,7 @@ public class ActiveButtonsCache {
         channel2ButtonMessageIds.invalidate(channelId);
     }
 
+    public long getChannelInCache() {
+        return channel2ButtonMessageIds.size();
+    }
 }
