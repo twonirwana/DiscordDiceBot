@@ -6,11 +6,11 @@ import de.janno.discord.dice.DiceUtils;
 import discord4j.common.util.Snowflake;
 import discord4j.core.object.command.ApplicationCommandInteractionOption;
 import discord4j.core.object.command.ApplicationCommandInteractionOptionValue;
+import discord4j.core.object.command.ApplicationCommandOption;
 import discord4j.core.object.component.ActionRow;
 import discord4j.core.object.component.Button;
 import discord4j.core.object.component.LayoutComponent;
 import discord4j.discordjson.json.ApplicationCommandOptionData;
-import discord4j.rest.util.ApplicationCommandOptionType;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
@@ -45,13 +45,13 @@ public class CountSuccessesCommand extends AbstractCommand {
                         .name(ACTION_SIDE_OPTION)
                         .required(true)
                         .description("Dice side")
-                        .type(ApplicationCommandOptionType.INTEGER.getValue())
+                        .type(ApplicationCommandOption.Type.INTEGER.getValue())
                         .build(),
                 ApplicationCommandOptionData.builder()
                         .name(ACTION_TARGET_OPTION)
                         .required(true)
                         .description("Target number")
-                        .type(ApplicationCommandOptionType.INTEGER.getValue())
+                        .type(ApplicationCommandOption.Type.INTEGER.getValue())
                         .build());
     }
 

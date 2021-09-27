@@ -5,8 +5,8 @@ import de.janno.discord.command.*;
 import discord4j.common.util.Snowflake;
 import discord4j.core.DiscordClient;
 import discord4j.core.event.ReactiveEventAdapter;
-import discord4j.core.event.domain.interaction.ComponentInteractEvent;
-import discord4j.core.event.domain.interaction.SlashCommandEvent;
+import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
+import discord4j.core.event.domain.interaction.ComponentInteractionEvent;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.reactivestreams.Publisher;
@@ -26,7 +26,7 @@ public class DiceSystem {
      * - optional delay button remove
      * - optional config the max number of dice selection
      * - system that compares slashCommand in code with the current and updates if there are changes
-     * - Discor4j upgrade
+     * - make the button message description depending of the config
      **/
 
     /**
@@ -58,9 +58,10 @@ public class DiceSystem {
 
         discordClient.withGateway(gw -> gw.on(new ReactiveEventAdapter() {
 
+
                     @Override
                     @NonNull
-                    public Publisher<?> onSlashCommand(@NonNull SlashCommandEvent event) {
+                    public Publisher<?> onChatInputInteraction(@NonNull ChatInputInteractionEvent event) {
                         return Flux.fromIterable(slashCommandRegistry.getSlashCommands())
                                 .filter(command -> command.getName().equals(event.getCommandName()))
                                 .next()
@@ -73,7 +74,7 @@ public class DiceSystem {
 
                     @Override
                     @NonNull
-                    public Publisher<?> onComponentInteract(@NonNull ComponentInteractEvent event) {
+                    public Publisher<?> onComponentInteraction(@NonNull ComponentInteractionEvent event) {
                         return Flux.fromIterable(slashCommandRegistry.getSlashCommands())
                                 .ofType(IComponentInteractEventHandler.class)
                                 .flatMap(command -> command.handleComponentInteractEvent(event))

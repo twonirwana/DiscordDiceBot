@@ -3,17 +3,17 @@ package de.janno.discord.command;
 import com.google.common.collect.ImmutableList;
 import de.janno.discord.dice.DiceResult;
 import discord4j.common.util.Snowflake;
-import discord4j.core.event.domain.interaction.ComponentInteractEvent;
+import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
+import discord4j.core.event.domain.interaction.ComponentInteractionEvent;
 import discord4j.core.event.domain.interaction.InteractionCreateEvent;
-import discord4j.core.event.domain.interaction.SlashCommandEvent;
 import discord4j.core.object.command.ApplicationCommandInteractionOption;
+import discord4j.core.object.command.ApplicationCommandOption;
 import discord4j.core.object.component.LayoutComponent;
 import discord4j.core.object.entity.User;
 import discord4j.core.object.entity.channel.TextChannel;
 import discord4j.core.spec.MessageCreateSpec;
 import discord4j.discordjson.json.ApplicationCommandOptionData;
 import discord4j.discordjson.json.ApplicationCommandRequest;
-import discord4j.rest.util.ApplicationCommandOptionType;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
@@ -57,20 +57,20 @@ public abstract class AbstractCommand implements ISlashCommand, IComponentIntera
                 .addOption(ApplicationCommandOptionData.builder()
                         .name(ACTION_START)
                         .description("Start")
-                        .type(ApplicationCommandOptionType.SUB_COMMAND.getValue())
+                        .type(ApplicationCommandOption.Type.SUB_COMMAND.getValue())
                         .addAllOptions(getStartOptions())
                         .build())
                 .addOption(ApplicationCommandOptionData.builder()
                         .name(ACTION_CLEAR)
                         .description("Clear")
-                        .type(ApplicationCommandOptionType.SUB_COMMAND.getValue())
+                        .type(ApplicationCommandOption.Type.SUB_COMMAND.getValue())
                         .build()
                 )
                 .build();
     }
 
     @Override
-    public Mono<Void> handleComponentInteractEvent(@NonNull ComponentInteractEvent event) {
+    public Mono<Void> handleComponentInteractEvent(@NonNull ComponentInteractionEvent event) {
         if (!matchingButtonCustomId(event.getCustomId())) {
             return Mono.empty();
         }
@@ -79,7 +79,7 @@ public abstract class AbstractCommand implements ISlashCommand, IComponentIntera
                 .flatMap(i -> Mono.justOrEmpty(i.getMessage()))
                 .filter(m -> botUserId.equals(m.getAuthor().map(User::getId).orElse(null)))
                 .flatMap(buttonMessage -> event
-                        .acknowledge() //don't edit the message, we use it to identify the message
+                        .deferEdit() //don't edit the message, we use it to identify the message
                         .onErrorResume(t -> {
                             log.error("Error on acknowledge button event", t);
                             return Mono.empty();
@@ -100,7 +100,8 @@ public abstract class AbstractCommand implements ISlashCommand, IComponentIntera
                 );
     }
 
-    public Mono<Void> handleSlashCommandEvent(@NonNull SlashCommandEvent event) {
+    @Override
+    public Mono<Void> handleSlashCommandEvent(@NonNull ChatInputInteractionEvent event) {
         if (getName().equals(event.getCommandName())) {
             if (event.getOption(ACTION_CLEAR).isPresent()) {
                 activeButtonsCache.removeChannel(event.getInteraction().getChannelId());
@@ -145,7 +146,7 @@ public abstract class AbstractCommand implements ISlashCommand, IComponentIntera
         return "";
     }
 
-    protected List<String> getConfigFromEvent(ComponentInteractEvent event) {
+    protected List<String> getConfigFromEvent(ComponentInteractionEvent event) {
         ImmutableList.Builder<String> builder = ImmutableList.builder();
         String[] split = event.getCustomId().split(CONFIG_DELIMITER);
         for (int i = 2; i < split.length; i++) {
@@ -154,7 +155,7 @@ public abstract class AbstractCommand implements ISlashCommand, IComponentIntera
         return builder.build();
     }
 
-    protected String getValueFromEvent(ComponentInteractEvent event) {
+    protected String getValueFromEvent(ComponentInteractionEvent event) {
         return event.getCustomId().split(CONFIG_DELIMITER)[1];
     }
 

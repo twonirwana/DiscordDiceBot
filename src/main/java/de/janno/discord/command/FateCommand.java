@@ -6,12 +6,12 @@ import de.janno.discord.dice.DiceUtils;
 import discord4j.common.util.Snowflake;
 import discord4j.core.object.command.ApplicationCommandInteractionOption;
 import discord4j.core.object.command.ApplicationCommandInteractionOptionValue;
+import discord4j.core.object.command.ApplicationCommandOption;
 import discord4j.core.object.component.ActionRow;
 import discord4j.core.object.component.Button;
 import discord4j.core.object.component.LayoutComponent;
 import discord4j.discordjson.json.ApplicationCommandOptionChoiceData;
 import discord4j.discordjson.json.ApplicationCommandOptionData;
-import discord4j.rest.util.ApplicationCommandOptionType;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
@@ -52,7 +52,7 @@ public class FateCommand extends AbstractCommand {
                 .name(ACTION_MODIFIER_OPTION)
                 .required(true)
                 .description("Show modifier buttons")
-                .type(ApplicationCommandOptionType.STRING.getValue())
+                .type(ApplicationCommandOption.Type.STRING.getValue())
                 .addChoice(ApplicationCommandOptionChoiceData.builder().name(ACTION_MODIFIER_OPTION_SIMPLE).value(ACTION_MODIFIER_OPTION_SIMPLE).build())
                 .addChoice(ApplicationCommandOptionChoiceData.builder().name(ACTION_MODIFIER_OPTION_MODIFIER).value(ACTION_MODIFIER_OPTION_MODIFIER).build())
                 .build());

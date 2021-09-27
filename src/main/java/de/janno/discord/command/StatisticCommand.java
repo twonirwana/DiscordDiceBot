@@ -1,7 +1,7 @@
 package de.janno.discord.command;
 
 import de.janno.discord.dice.DiceUtils;
-import discord4j.core.event.domain.interaction.SlashCommandEvent;
+import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.discordjson.json.ApplicationCommandRequest;
 import lombok.NonNull;
 import reactor.core.publisher.Mono;
@@ -34,7 +34,7 @@ public class StatisticCommand implements ISlashCommand {
     }
 
     @Override
-    public Mono<Void> handleSlashCommandEvent(@NonNull SlashCommandEvent event) {
+    public Mono<Void> handleSlashCommandEvent(@NonNull ChatInputInteractionEvent event) {
         return event.reply(encodeUTF8("Total of all dice roll results: " + DiceUtils.getResultStaticMap() + ", "
                 + commands.stream().map(AbstractCommand::getStatistics).collect(Collectors.joining(", "))));
     }
