@@ -22,7 +22,6 @@ import static de.janno.discord.dice.DiceUtils.MINUS;
 public class FateCommand extends AbstractCommand {
 
     private static final String COMMAND_NAME = "fate";
-    private static final String BUTTON_MESSAGE = "Click a button to roll four fate dice";
     private static final String ACTION_MODIFIER_OPTION = "type";
     private static final String ACTION_MODIFIER_OPTION_SIMPLE = "simple";
     private static final String ACTION_MODIFIER_OPTION_MODIFIER = "with_modifier";
@@ -42,8 +41,11 @@ public class FateCommand extends AbstractCommand {
     }
 
     @Override
-    protected String getButtonMessage() {
-        return BUTTON_MESSAGE;
+    protected String getButtonMessage(List<String> config) {
+        if (ACTION_MODIFIER_OPTION_MODIFIER.equals(config.get(0))) {
+            return "Click a button to roll four fate dice and add the value of the button";
+        }
+        return "Click a button to roll four fate dice";
     }
 
     @Override
@@ -86,7 +88,7 @@ public class FateCommand extends AbstractCommand {
             int resultWithModifier = DiceUtils.fateResult(rollResult) + modifier;
             String title = String.format("4dF %s = %d", modifierString, resultWithModifier);
             String details = DiceUtils.convertFateNumberToString(rollResult);
-            log.info(String.format("%s: %s", title, details)
+            log.info(String.format("%s - %s: %s", channelId.asString(), title, details)
                     .replace("▢", "0")
                     .replace("＋", "+")
                     .replace(MINUS, "-")
@@ -95,7 +97,7 @@ public class FateCommand extends AbstractCommand {
         } else {
             String title = String.format("4dF = %d", DiceUtils.fateResult(rollResult));
             String details = DiceUtils.convertFateNumberToString(rollResult);
-            log.info(String.format("%s: %s", title, details)
+            log.info(String.format("%s - %s: %s", channelId.asString(), title, details)
                     .replace("▢", "0")
                     .replace("＋", "+")
                     .replace(MINUS, "-")

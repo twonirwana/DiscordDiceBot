@@ -69,7 +69,7 @@ public class SlashCommandRegistry {
 
             //update existing
             //todo check for changes in existing commands
-
+/*
             buttonSlashCommandMap.values().stream()
                     .filter(sc -> applicationCommandData.containsKey(sc.getName()))
                     .forEach(sc -> {
@@ -80,7 +80,7 @@ public class SlashCommandRegistry {
                                         .doOnEach(acd -> log.info("Update command: " + acd))
                                         .block();
                             }
-                    );
+                    );*/
             return new SlashCommandRegistry(slashCommands);
         }
 

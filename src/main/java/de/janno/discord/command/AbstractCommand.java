@@ -79,7 +79,7 @@ public abstract class AbstractCommand implements ISlashCommand, IComponentIntera
                 .flatMap(i -> Mono.justOrEmpty(i.getMessage()))
                 .filter(m -> botUserId.equals(m.getAuthor().map(User::getId).orElse(null)))
                 .flatMap(buttonMessage -> event
-                        .deferEdit() //don't edit the message, we use it to identify the message
+                        .edit("rolling..")
                         .onErrorResume(t -> {
                             log.error("Error on acknowledge button event", t);
                             return Mono.empty();
@@ -94,7 +94,7 @@ public abstract class AbstractCommand implements ISlashCommand, IComponentIntera
                                 )
                         ).then(buttonMessage.getChannel()
                                 .ofType(TextChannel.class)
-                                .flatMap(createButtonMessage(activeButtonsCache, getButtonMessage(), getButtonLayout(getConfigFromEvent(event))))
+                                .flatMap(createButtonMessage(activeButtonsCache, getButtonMessage(getConfigFromEvent(event)), getButtonLayout(getConfigFromEvent(event))))
                                 .flatMap(m -> deleteMessage(m.getChannel(), m.getChannelId(), activeButtonsCache, m.getId()))
                         )
                 );
@@ -105,27 +105,26 @@ public abstract class AbstractCommand implements ISlashCommand, IComponentIntera
         if (getName().equals(event.getCommandName())) {
             if (event.getOption(ACTION_CLEAR).isPresent()) {
                 activeButtonsCache.removeChannel(event.getInteraction().getChannelId());
-                log.info("Stop {} in {}", getName(), event.getInteraction().getChannelId());
+                log.info("Clear {} in {}", getName(), event.getInteraction().getChannelId().asString());
 
-                return event.reply()
-                        .withContent("Stop " + getName() + " in channel")
+                return event.reply("...")
                         .then(event.getInteraction()
                                 .getChannel()
                                 .ofType(TextChannel.class)
                                 .flatMap(tc -> tc.createMessage(MessageCreateSpec.builder() //needed to have a messageId to remove all bot messages before
-                                        .content("Removing all buttons in channel")
+                                        .content("Clear " + getName() + " button messages from channel")
                                         //todo add messageReference
                                         .build()))
-                                .flatMap(m -> deleteAllButtonMessagesOfTheBot(m.getChannel().ofType(TextChannel.class), m.getId(), botUserId, getButtonMessage()).then()));
+                                .flatMap(m -> deleteAllButtonMessagesOfTheBot(m.getChannel().ofType(TextChannel.class), m.getId(), botUserId, this::matchingButtonCustomId).then()));
 
             } else if (event.getOption(ACTION_START).isPresent()) {
                 ApplicationCommandInteractionOption options = event.getOption(ACTION_START).get();
                 List<String> config = getConfigValuesFromStartOptions(options);
                 String startReplay = String.format("Start %s in channel.%s", getName(), getConfigDescription(config));
-                log.info(startReplay + " in " + event.getInteraction().getChannelId());//todo channel name
+                log.info(startReplay + " in " + event.getInteraction().getChannelId().asLong());//todo channel name
                 return event.reply(startReplay)
                         .then(event.getInteraction().getChannel().ofType(TextChannel.class)
-                                .flatMap(createButtonMessage(activeButtonsCache, getButtonMessage(), getButtonLayout(config))))
+                                .flatMap(createButtonMessage(activeButtonsCache, getButtonMessage(config), getButtonLayout(config))))
                         .then();
 
             }
@@ -134,7 +133,7 @@ public abstract class AbstractCommand implements ISlashCommand, IComponentIntera
         return Mono.empty();
     }
 
-    protected abstract String getButtonMessage();
+    protected abstract String getButtonMessage(List<String> config);
 
     protected abstract List<String> getConfigValuesFromStartOptions(ApplicationCommandInteractionOption options);
 
@@ -162,6 +161,6 @@ public abstract class AbstractCommand implements ISlashCommand, IComponentIntera
     protected abstract boolean matchingButtonCustomId(String buttonCustomId);
 
     public String getStatistics() {
-        return String.format("%s is currently used in approximately %d channels", getName(), activeButtonsCache.getChannelInCache());
+        return String.format("%s is used in ~%d channels", getName(), activeButtonsCache.getChannelInCache());
     }
 }

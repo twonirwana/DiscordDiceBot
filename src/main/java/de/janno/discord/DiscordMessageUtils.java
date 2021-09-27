@@ -1,8 +1,10 @@
 package de.janno.discord;
 
+import com.google.common.collect.ImmutableSet;
 import de.janno.discord.command.ActiveButtonsCache;
 import discord4j.common.util.Snowflake;
 import discord4j.core.object.component.LayoutComponent;
+import discord4j.core.object.component.MessageComponent;
 import discord4j.core.object.entity.Member;
 import discord4j.core.object.entity.Message;
 import discord4j.core.object.entity.User;
@@ -19,7 +21,9 @@ import reactor.core.publisher.Mono;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Slf4j
 public class DiscordMessageUtils {
@@ -47,12 +51,14 @@ public class DiscordMessageUtils {
     public static Flux<Void> deleteAllButtonMessagesOfTheBot(@NonNull Mono<TextChannel> channel,
                                                              @NonNull Snowflake deleteBeforeMessageId,
                                                              @NonNull Snowflake botUserId,
-                                                             @NonNull String buttonMessage) {
+                                                             @NonNull Function<String, Boolean> isFromSystem) {
         return channel.flux()
                 .flatMap(c -> c.getMessagesBefore(deleteBeforeMessageId))
                 .take(500) //only look at the last 500 messages
                 .filter(m -> botUserId.equals(m.getAuthor().map(User::getId).orElse(null)))
-                .filter(m -> buttonMessage.equals(m.getContent()))
+                .filter(m -> m.getComponents().stream()
+                        .flatMap(l -> buttonIds(l).stream())
+                        .anyMatch(isFromSystem::apply))
                 .flatMap(Message::delete);
     }
 
@@ -84,6 +90,16 @@ public class DiscordMessageUtils {
             activeButtonsCache.addChannelWithButton(m.getChannelId(), m.getId());
             return m;
         });
+    }
+
+    private static Set<String> buttonIds(MessageComponent messageComponent) {
+        if (messageComponent instanceof LayoutComponent) {
+            LayoutComponent layoutComponent = (LayoutComponent) messageComponent;
+            if (!layoutComponent.getChildren().isEmpty()) {
+                return layoutComponent.getChildren().stream().flatMap(mc -> buttonIds(mc).stream()).collect(Collectors.toSet());
+            }
+        }
+        return messageComponent.getData().customId().toOptional().map(ImmutableSet::of).orElse(ImmutableSet.of());
     }
 
 

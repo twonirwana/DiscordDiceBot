@@ -19,10 +19,9 @@ import java.util.List;
 public class CountSuccessesCommand extends AbstractCommand {
 
     private static final String COMMAND_NAME = "count_successes";
-    private static final String BUTTON_MESSAGE = "Click a button to roll the number of dice";
     private static final String ACTION_SIDE_OPTION = "dice_sides";
     private static final String ACTION_TARGET_OPTION = "target_number";
-    private static final int MAX_NUMBER_OF_DICE = 100;
+    private static final int MAX_NUMBER_SIDES_OR_TARGET_NUMBER = 1000;
 
     public CountSuccessesCommand(Snowflake botUserId) {
         super(new ActiveButtonsCache(), botUserId);
@@ -57,21 +56,21 @@ public class CountSuccessesCommand extends AbstractCommand {
 
     @Override
     protected DiceResult rollDice(Snowflake channelId, String buttonValue, List<String> config) {
-        int numberOfDice = Math.min(Integer.parseInt(buttonValue), MAX_NUMBER_OF_DICE);
+        int numberOfDice = Integer.parseInt(buttonValue);
         int sidesOfDie = Integer.parseInt(config.get(0));
         int targetNumber = Integer.parseInt(config.get(1));
         List<Integer> rollResult = DiceUtils.rollDiceOfType(numberOfDice, sidesOfDie);
         int numberOf6s = DiceUtils.numberOfDiceResultsGreaterEqual(rollResult, targetNumber);
         String details = "Target: " + targetNumber + " = " + DiceUtils.makeGreaterEqualTargetValuesBold(rollResult, targetNumber);
         String title = String.format("%dd%d = %d", numberOfDice, sidesOfDie, numberOf6s);
-        log.info(String.format("%s %s", title, details));
+        log.info(String.format("%s - %s: %s", channelId.asString(), title, details));
         return new DiceResult(title, details);
     }
 
 
     @Override
-    protected String getButtonMessage() {
-        return BUTTON_MESSAGE;
+    protected String getButtonMessage(List<String> config) {
+        return String.format("Click a button to roll the number of d%s against %s", config.get(0), config.get(1));
     }
 
     @Override
@@ -79,11 +78,13 @@ public class CountSuccessesCommand extends AbstractCommand {
         String sideValue = options.getOption(ACTION_SIDE_OPTION)
                 .flatMap(ApplicationCommandInteractionOption::getValue)
                 .map(ApplicationCommandInteractionOptionValue::asLong)
+                .map(l -> Math.min(l, MAX_NUMBER_SIDES_OR_TARGET_NUMBER))
                 .map(Object::toString)
                 .orElse("6");
         String targetValue = options.getOption(ACTION_TARGET_OPTION)
                 .flatMap(ApplicationCommandInteractionOption::getValue)
                 .map(ApplicationCommandInteractionOptionValue::asLong)
+                .map(l -> Math.min(l, MAX_NUMBER_SIDES_OR_TARGET_NUMBER))
                 .map(Object::toString)
                 .orElse("6");
         return ImmutableList.of(sideValue, targetValue);

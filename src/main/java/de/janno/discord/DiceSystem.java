@@ -22,11 +22,12 @@ public class DiceSystem {
      * -- help
      * -- version? git hash?
      * - metrics
+     * -- count user
+     * -- count rolls
      * - optionally moving the button after all messages to the end
      * - optional delay button remove
      * - optional config the max number of dice selection
      * - system that compares slashCommand in code with the current and updates if there are changes
-     * - make the button message description depending of the config
      **/
 
     /**
