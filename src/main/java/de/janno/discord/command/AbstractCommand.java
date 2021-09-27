@@ -1,5 +1,6 @@
 package de.janno.discord.command;
 
+import com.codahale.metrics.SharedMetricRegistries;
 import com.google.common.collect.ImmutableList;
 import de.janno.discord.dice.DiceResult;
 import discord4j.common.util.Snowflake;
@@ -106,6 +107,8 @@ public abstract class AbstractCommand implements ISlashCommand, IComponentIntera
             if (event.getOption(ACTION_CLEAR).isPresent()) {
                 activeButtonsCache.removeChannel(event.getInteraction().getChannelId());
                 log.info("Clear {} in {}", getName(), event.getInteraction().getChannelId().asString());
+                SharedMetricRegistries.getDefault().counter(getName() + ".clear").inc();
+                SharedMetricRegistries.getDefault().counter("clear").inc();
 
                 return event.reply("...")
                         .then(event.getInteraction()
@@ -120,6 +123,9 @@ public abstract class AbstractCommand implements ISlashCommand, IComponentIntera
             } else if (event.getOption(ACTION_START).isPresent()) {
                 ApplicationCommandInteractionOption options = event.getOption(ACTION_START).get();
                 List<String> config = getConfigValuesFromStartOptions(options);
+                SharedMetricRegistries.getDefault().counter(getName() + ".start." + config).inc();
+                SharedMetricRegistries.getDefault().counter(getName() + ".start").inc();
+                SharedMetricRegistries.getDefault().counter("start").inc();
                 String startReplay = String.format("Start %s in channel.%s", getName(), getConfigDescription(config));
                 log.info(startReplay + " in " + event.getInteraction().getChannelId().asLong());//todo channel name
                 return event.reply(startReplay)
@@ -159,8 +165,4 @@ public abstract class AbstractCommand implements ISlashCommand, IComponentIntera
     }
 
     protected abstract boolean matchingButtonCustomId(String buttonCustomId);
-
-    public String getStatistics() {
-        return String.format("%s is used in ~%d channels", getName(), activeButtonsCache.getChannelInCache());
-    }
 }

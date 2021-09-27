@@ -1,7 +1,9 @@
 package de.janno.discord;
 
-import com.google.common.collect.ImmutableList;
-import de.janno.discord.command.*;
+import de.janno.discord.command.CountSuccessesCommand;
+import de.janno.discord.command.FateCommand;
+import de.janno.discord.command.IComponentInteractEventHandler;
+import de.janno.discord.command.SlashCommandRegistry;
 import discord4j.common.util.Snowflake;
 import discord4j.core.DiscordClient;
 import discord4j.core.event.ReactiveEventAdapter;
@@ -21,9 +23,8 @@ public class DiceSystem {
      * - slash Commands
      * -- help
      * -- version? git hash?
-     * - metrics
-     * -- count user
-     * -- count rolls
+     * -- statistics command
+     * - Micrometer instant Dropwizard
      * - optionally moving the button after all messages to the end
      * - optional delay button remove
      * - optional config the max number of dice selection
@@ -48,17 +49,12 @@ public class DiceSystem {
     public DiceSystem(String token) {
         DiscordClient discordClient = DiscordClient.create(token);
         Snowflake botUserId = discordClient.getCoreResources().getSelfId();
-        FateCommand fateCommand = new FateCommand(botUserId);
-        CountSuccessesCommand countSuccessesCommand = new CountSuccessesCommand(botUserId);
-        StatisticCommand statisticCommand = new StatisticCommand(ImmutableList.of(fateCommand, countSuccessesCommand));
         SlashCommandRegistry slashCommandRegistry = SlashCommandRegistry.builder()
-                .addSlashCommand(fateCommand)
-                .addSlashCommand(countSuccessesCommand)
-                .addSlashCommand(statisticCommand)
+                .addSlashCommand(new CountSuccessesCommand(botUserId))
+                .addSlashCommand(new FateCommand(botUserId))
                 .registerSlashCommands(discordClient);
 
         discordClient.withGateway(gw -> gw.on(new ReactiveEventAdapter() {
-
 
                     @Override
                     @NonNull

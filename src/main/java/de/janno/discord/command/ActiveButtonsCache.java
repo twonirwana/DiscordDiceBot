@@ -1,5 +1,7 @@
 package de.janno.discord.command;
 
+import com.codahale.metrics.Gauge;
+import com.codahale.metrics.SharedMetricRegistries;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.ImmutableList;
@@ -11,7 +13,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
 
 @Slf4j
 public class ActiveButtonsCache {
@@ -19,6 +20,10 @@ public class ActiveButtonsCache {
     Cache<Snowflake, Set<Snowflake>> channel2ButtonMessageIds = CacheBuilder.newBuilder()
             .maximumSize(10_000)
             .build();
+
+    public ActiveButtonsCache(String systemName) {
+        SharedMetricRegistries.getDefault().register("channelInCache." + systemName, (Gauge<Long>) () -> channel2ButtonMessageIds.size());
+    }
 
     public void addChannelWithButton(Snowflake channelId, Snowflake buttonId) {
         try {
@@ -44,9 +49,5 @@ public class ActiveButtonsCache {
 
     public void removeChannel(Snowflake channelId) {
         channel2ButtonMessageIds.invalidate(channelId);
-    }
-
-    public long getChannelInCache() {
-        return channel2ButtonMessageIds.size();
     }
 }

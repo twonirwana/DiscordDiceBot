@@ -1,31 +1,23 @@
 package de.janno.discord.dice;
 
 
+import com.codahale.metrics.SharedMetricRegistries;
+
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class DiceUtils {
     public static final String MINUS = "\u2212";
     private static final Random randomNumberGenerator = new Random();
-    private static final Map<String, Map<Integer, AtomicLong>> resultStaticMap = new ConcurrentHashMap<>();
 
     public static int rollDice(int diceSides) {
         return (int) (randomNumberGenerator.nextDouble() * diceSides + 1);
     }
 
-    private static void addStatistic(String typ, int result) {
-        resultStaticMap.putIfAbsent(typ, new ConcurrentHashMap<>());
-        resultStaticMap.get(typ).putIfAbsent(result, new AtomicLong(0L));
-        resultStaticMap.get(typ).get(result).incrementAndGet();
-    }
-
-    public static String getResultStaticMap() {
-        return resultStaticMap.toString();
+    private static void addStatistic(String type, int result) {
+        SharedMetricRegistries.getDefault().counter(type + "." + result).inc();
     }
 
     public static List<Integer> rollFate() {

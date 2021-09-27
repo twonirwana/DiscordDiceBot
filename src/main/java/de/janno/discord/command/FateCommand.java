@@ -1,5 +1,6 @@
 package de.janno.discord.command;
 
+import com.codahale.metrics.SharedMetricRegistries;
 import com.google.common.collect.ImmutableList;
 import de.janno.discord.dice.DiceResult;
 import de.janno.discord.dice.DiceUtils;
@@ -27,7 +28,7 @@ public class FateCommand extends AbstractCommand {
     private static final String ACTION_MODIFIER_OPTION_MODIFIER = "with_modifier";
 
     public FateCommand(Snowflake botUserId) {
-        super(new ActiveButtonsCache(), botUserId);
+        super(new ActiveButtonsCache(COMMAND_NAME), botUserId);
     }
 
     @Override
@@ -86,6 +87,8 @@ public class FateCommand extends AbstractCommand {
                 modifierString = "" + modifier;
             }
             int resultWithModifier = DiceUtils.fateResult(rollResult) + modifier;
+            SharedMetricRegistries.getDefault().counter(getName() + "." + config).inc();
+
             String title = String.format("4dF %s = %d", modifierString, resultWithModifier);
             String details = DiceUtils.convertFateNumberToString(rollResult);
             log.info(String.format("%s - %s: %s", channelId.asString(), title, details)
@@ -95,6 +98,7 @@ public class FateCommand extends AbstractCommand {
             );
             return new DiceResult(title, details);
         } else {
+            SharedMetricRegistries.getDefault().counter(getName() + "." + config).inc();
             String title = String.format("4dF = %d", DiceUtils.fateResult(rollResult));
             String details = DiceUtils.convertFateNumberToString(rollResult);
             log.info(String.format("%s - %s: %s", channelId.asString(), title, details)
