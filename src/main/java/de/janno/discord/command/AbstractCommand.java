@@ -27,7 +27,7 @@ import static de.janno.discord.DiscordMessageUtils.*;
 @Slf4j
 public abstract class AbstractCommand implements ISlashCommand, IComponentInteractEventHandler {
 
-    protected static final String ACTION_STOP = "stop";
+    protected static final String ACTION_CLEAR = "clear";
     protected static final String ACTION_START = "start";
     protected static final String CONFIG_DELIMITER = ",";
     protected final ActiveButtonsCache activeButtonsCache;
@@ -61,8 +61,8 @@ public abstract class AbstractCommand implements ISlashCommand, IComponentIntera
                         .addAllOptions(getStartOptions())
                         .build())
                 .addOption(ApplicationCommandOptionData.builder()
-                        .name(ACTION_STOP)
-                        .description("Stop")
+                        .name(ACTION_CLEAR)
+                        .description("Clear")
                         .type(ApplicationCommandOptionType.SUB_COMMAND.getValue())
                         .build()
                 )
@@ -102,7 +102,7 @@ public abstract class AbstractCommand implements ISlashCommand, IComponentIntera
 
     public Mono<Void> handleSlashCommandEvent(@NonNull SlashCommandEvent event) {
         if (getName().equals(event.getCommandName())) {
-            if (event.getOption(ACTION_STOP).isPresent()) {
+            if (event.getOption(ACTION_CLEAR).isPresent()) {
                 activeButtonsCache.removeChannel(event.getInteraction().getChannelId());
                 log.info("Stop {} in {}", getName(), event.getInteraction().getChannelId());
 
@@ -120,11 +120,8 @@ public abstract class AbstractCommand implements ISlashCommand, IComponentIntera
             } else if (event.getOption(ACTION_START).isPresent()) {
                 ApplicationCommandInteractionOption options = event.getOption(ACTION_START).get();
                 List<String> config = getConfigValuesFromStartOptions(options);
-                String startReplay = String.format("Start %s in channel", getName()); //todo channel name
-                if (config != null) {
-                    startReplay = startReplay + ". " + config;
-                }
-                log.info(startReplay + " " + event.getCommandId());
+                String startReplay = String.format("Start %s in channel.%s", getName(), getConfigDescription(config));
+                log.info(startReplay + " in " + event.getInteraction().getChannelId());//todo channel name
                 return event.reply(startReplay)
                         .then(event.getInteraction().getChannel().ofType(TextChannel.class)
                                 .flatMap(createButtonMessage(activeButtonsCache, getButtonMessage(), getButtonLayout(config))))
@@ -143,6 +140,10 @@ public abstract class AbstractCommand implements ISlashCommand, IComponentIntera
     protected abstract DiceResult rollDice(Snowflake channelId, String buttonValue, List<String> config);
 
     protected abstract List<LayoutComponent> getButtonLayout(List<String> config);
+
+    protected String getConfigDescription(List<String> config){
+        return "";
+    }
 
     protected List<String> getConfigFromEvent(ComponentInteractEvent event) {
         ImmutableList.Builder<String> builder = ImmutableList.builder();

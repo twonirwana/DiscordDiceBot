@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class DiceUtils {
+    public static final String MINUS = "\u2212";
     private static final Random randomNumberGenerator = new Random();
     private static final Map<String, Map<Integer, AtomicLong>> resultStaticMap = new ConcurrentHashMap<>();
 
@@ -50,7 +51,7 @@ public class DiceUtils {
     public static String convertFateNumberToString(List<Integer> results) {
         return "[" + results.stream().map(i -> {
             if (i < 0) {
-                return "−";
+                return MINUS;
             } else if (i > 0) {
                 return "＋";
             } else {

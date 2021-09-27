@@ -26,10 +26,8 @@ public class DiceSystem {
      * - optional config the max number of dice selection
      * - system that compares slashCommand in code with the current and updates if there are changes
      * - Fate with Modifiers
-     * - Fate - to Minus character
-     * - stop command to clear
-     * - timed cache for the ConfigRegestry
      * - add number of channels in the statistics
+     * - Discor4j upgrade
      **/
 
     /**

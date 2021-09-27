@@ -96,6 +96,11 @@ public class CountSuccessesCommand extends AbstractCommand {
     }
 
     @Override
+    protected String getConfigDescription(List<String> config) {
+        return String.format(" Side of die: %s and target number: %s", config.get(0), config.get(1));
+    }
+
+    @Override
     protected List<LayoutComponent> getButtonLayout(List<String> config) {
         return ImmutableList.of(
                 ActionRow.of(

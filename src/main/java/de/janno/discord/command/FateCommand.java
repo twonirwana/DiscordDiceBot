@@ -9,10 +9,11 @@ import discord4j.core.object.command.ApplicationCommandInteractionOption;
 import discord4j.core.object.component.ActionRow;
 import discord4j.core.object.component.Button;
 import discord4j.core.object.component.LayoutComponent;
-import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
+
+import static de.janno.discord.dice.DiceUtils.MINUS;
 
 @Slf4j
 public class FateCommand extends AbstractCommand {
@@ -68,7 +69,7 @@ public class FateCommand extends AbstractCommand {
         log.info(String.format("%s %s", title, details)
                 .replace("▢", "0")
                 .replace("＋", "+")
-                .replace("−", "-")
+                .replace(MINUS, "-")
         );
         return new DiceResult(title, details);
     }
@@ -79,10 +80,5 @@ public class FateCommand extends AbstractCommand {
                 ActionRow.of(
                         Button.primary(createButtonCustomId(COMMAND_NAME, "roll", config), "Roll 4dF")
                 ));
-    }
-
-    @Value
-    public class Config {
-        boolean showModifier;
     }
 }

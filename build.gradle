@@ -27,7 +27,9 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok:1.18.20'
 
     testCompileOnly 'org.projectlombok:lombok:1.18.20'
-    testAnnotationProcessor 'org.projectlombok:lombok:1.18.20'}
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.20'
+    implementation 'com.google.guava:guava:31.0-jre'
+}
 
 java {
     toolchain {
@@ -47,6 +49,6 @@ tasks.withType(JavaCompile) {
 // This task will generate your fat JAR and put it in the ./build/libs/ directory
 shadowJar {
     manifest {
-        attributes 'Main-Class':  'de.janno.discord.BaseBot'
+        attributes 'Main-Class': 'de.janno.discord.BaseBot'
     }
 }
