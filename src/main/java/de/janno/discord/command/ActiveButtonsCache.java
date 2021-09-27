@@ -18,7 +18,6 @@ public class ActiveButtonsCache {
 
     Cache<Snowflake, Set<Snowflake>> channel2ButtonMessageIds = CacheBuilder.newBuilder()
             .maximumSize(10_000)
-            .expireAfterAccess(30, TimeUnit.DAYS)
             .build();
 
     public void addChannelWithButton(Snowflake channelId, Snowflake buttonId) {
