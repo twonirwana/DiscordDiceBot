@@ -81,6 +81,7 @@ public abstract class AbstractCommand implements ISlashCommand, IComponentIntera
                 .filter(m -> botUserId.equals(m.getAuthor().map(User::getId).orElse(null)))
                 .flatMap(buttonMessage -> event
                         .edit("rolling..")
+                        .retry(3)
                         .onErrorResume(t -> {
                             log.error("Error on acknowledge button event", t);
                             return Mono.empty();
@@ -90,7 +91,7 @@ public abstract class AbstractCommand implements ISlashCommand, IComponentIntera
                                 .flatMap(channel -> {
                                             DiceResult result = rollDice(channel.getId(), getValueFromEvent(event), getConfigFromEvent(event));
                                             return createEmbedMessageWithReference(channel, result.getResultTitle(), result.getResultDetails(), event.getInteraction().getMember().orElseThrow())
-                                                    .retry();//not sure way this is needed but sometimes we get Connection reset in the event acknowledge and then here an error
+                                                    .retry(3);//not sure way this is needed but sometimes we get Connection reset in the event acknowledge and then here an error
                                         }
                                 )
                         ).then(buttonMessage.getChannel()
@@ -111,6 +112,11 @@ public abstract class AbstractCommand implements ISlashCommand, IComponentIntera
                 SharedMetricRegistries.getDefault().counter("clear").inc();
 
                 return event.reply("...")
+                        .retry(3)
+                        .onErrorResume(t -> {
+                            log.error("Error on replay to slash start command", t);
+                            return Mono.empty();
+                        })
                         .then(event.getInteraction()
                                 .getChannel()
                                 .ofType(TextChannel.class)
@@ -118,7 +124,8 @@ public abstract class AbstractCommand implements ISlashCommand, IComponentIntera
                                         .content("Clear " + getName() + " button messages from channel")
                                         //todo add messageReference
                                         .build()))
-                                .flatMap(m -> deleteAllButtonMessagesOfTheBot(m.getChannel().ofType(TextChannel.class), m.getId(), botUserId, this::matchingButtonCustomId).then()));
+                                .flatMap(m -> deleteAllButtonMessagesOfTheBot(m.getChannel().ofType(TextChannel.class), m.getId(), botUserId, this::matchingButtonCustomId).then())
+                                .retry(3));
 
             } else if (event.getOption(ACTION_START).isPresent()) {
                 ApplicationCommandInteractionOption options = event.getOption(ACTION_START).get();
@@ -129,8 +136,14 @@ public abstract class AbstractCommand implements ISlashCommand, IComponentIntera
                 String startReplay = String.format("Start %s in channel.%s", getName(), getConfigDescription(config));
                 log.info(startReplay + " in " + event.getInteraction().getChannelId().asLong());//todo channel name
                 return event.reply(startReplay)
+                        .retry(3)
+                        .onErrorResume(t -> {
+                            log.error("Error on replay to slash start command", t);
+                            return Mono.empty();
+                        })
                         .then(event.getInteraction().getChannel().ofType(TextChannel.class)
-                                .flatMap(createButtonMessage(activeButtonsCache, getButtonMessage(config), getButtonLayout(config))))
+                                .flatMap(createButtonMessage(activeButtonsCache, getButtonMessage(config), getButtonLayout(config)))
+                                .retry(3))
                         .then();
 
             }

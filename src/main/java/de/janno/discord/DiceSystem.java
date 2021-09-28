@@ -24,7 +24,8 @@ public class DiceSystem {
      * -- help
      * -- version? git hash?
      * -- statistics command
-     * - Micrometer instant Dropwizard
+     * -- d100
+     * -- sum of dices
      * - optionally moving the button after all messages to the end
      * - optional delay button remove
      * - optional config the max number of dice selection
