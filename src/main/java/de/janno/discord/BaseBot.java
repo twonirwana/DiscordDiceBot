@@ -14,6 +14,7 @@ import java.util.concurrent.TimeUnit;
 public class BaseBot {
     public static void main(final String[] args) {
         final String token = args[0];
+        final boolean updateCommands = Boolean.parseBoolean(args[1]);
         MetricRegistry metricRegistry = new MetricRegistry();
         SharedMetricRegistries.setDefault("default", metricRegistry);
         metricRegistry.register("gc", new GarbageCollectorMetricSet());
@@ -26,7 +27,7 @@ public class BaseBot {
                 .convertDurationsTo(TimeUnit.MILLISECONDS)
                 .build();
         reporter.start(6, TimeUnit.HOURS);
-        new DiceSystem(token);
+        new DiceSystem(token, updateCommands);
     }
 
 }

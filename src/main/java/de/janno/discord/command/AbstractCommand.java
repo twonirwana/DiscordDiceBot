@@ -6,11 +6,9 @@ import de.janno.discord.dice.DiceResult;
 import discord4j.common.util.Snowflake;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.event.domain.interaction.ComponentInteractionEvent;
-import discord4j.core.event.domain.interaction.InteractionCreateEvent;
 import discord4j.core.object.command.ApplicationCommandInteractionOption;
 import discord4j.core.object.command.ApplicationCommandOption;
 import discord4j.core.object.component.LayoutComponent;
-import discord4j.core.object.entity.User;
 import discord4j.core.object.entity.channel.TextChannel;
 import discord4j.core.spec.MessageCreateSpec;
 import discord4j.discordjson.json.ApplicationCommandOptionData;
@@ -72,33 +70,29 @@ public abstract class AbstractCommand implements ISlashCommand, IComponentIntera
 
     @Override
     public Mono<Void> handleComponentInteractEvent(@NonNull ComponentInteractionEvent event) {
-        if (!matchingButtonCustomId(event.getCustomId())) {
+        if (!matchingButtonCustomId(event.getCustomId())
+                || !botUserId.equals(event.getInteraction().getApplicationId())) {
             return Mono.empty();
         }
-        return Mono.just(event)
-                .map(InteractionCreateEvent::getInteraction)
-                .flatMap(i -> Mono.justOrEmpty(i.getMessage()))
-                .filter(m -> botUserId.equals(m.getAuthor().map(User::getId).orElse(null)))
-                .flatMap(buttonMessage -> event
-                        .edit("rolling..")
-                        .retry(3)
-                        .onErrorResume(t -> {
-                            log.error("Error on acknowledge button event", t);
-                            return Mono.empty();
-                        })
-                        .then(buttonMessage.getChannel()
-                                .ofType(TextChannel.class)
-                                .flatMap(channel -> {
-                                            DiceResult result = rollDice(channel.getId(), getValueFromEvent(event), getConfigFromEvent(event));
-                                            return createEmbedMessageWithReference(channel, result.getResultTitle(), result.getResultDetails(), event.getInteraction().getMember().orElseThrow())
-                                                    .retry(3);//not sure way this is needed but sometimes we get Connection reset in the event acknowledge and then here an error
-                                        }
-                                )
-                        ).then(buttonMessage.getChannel()
-                                .ofType(TextChannel.class)
-                                .flatMap(createButtonMessage(activeButtonsCache, getButtonMessage(getConfigFromEvent(event)), getButtonLayout(getConfigFromEvent(event))))
-                                .flatMap(m -> deleteMessage(m.getChannel(), m.getChannelId(), activeButtonsCache, m.getId()))
+
+        return event
+                .edit("rolling...")
+                .onErrorResume(t -> {
+                    log.error("Error on acknowledge button event", t);
+                    return Mono.empty();
+                })
+                .then(event.getInteraction().getChannel()
+                        .ofType(TextChannel.class)
+                        .flatMap(channel -> {
+                                    DiceResult result = rollDice(channel.getId(), getValueFromEvent(event), getConfigFromEvent(event));
+                                    return createEmbedMessageWithReference(channel, result.getResultTitle(), result.getResultDetails(), event.getInteraction().getMember().orElseThrow())
+                                            .retry(3);//not sure way this is needed but sometimes we get Connection reset in the event acknowledge and then here an error
+                                }
                         )
+                ).then(event.getInteraction().getChannel()
+                        .ofType(TextChannel.class)
+                        .flatMap(createButtonMessage(activeButtonsCache, getButtonMessage(getConfigFromEvent(event)), getButtonLayout(getConfigFromEvent(event))))
+                        .flatMap(m -> deleteMessage(m.getChannel(), m.getChannelId(), activeButtonsCache, m.getId()))
                 );
     }
 
@@ -112,7 +106,6 @@ public abstract class AbstractCommand implements ISlashCommand, IComponentIntera
                 SharedMetricRegistries.getDefault().counter("clear").inc();
 
                 return event.reply("...")
-                        .retry(3)
                         .onErrorResume(t -> {
                             log.error("Error on replay to slash start command", t);
                             return Mono.empty();
@@ -133,10 +126,8 @@ public abstract class AbstractCommand implements ISlashCommand, IComponentIntera
                 SharedMetricRegistries.getDefault().counter(getName() + ".start." + config).inc();
                 SharedMetricRegistries.getDefault().counter(getName() + ".start").inc();
                 SharedMetricRegistries.getDefault().counter("start").inc();
-                String startReplay = String.format("Start %s in channel.%s", getName(), getConfigDescription(config));
-                log.info(startReplay + " in " + event.getInteraction().getChannelId().asLong());//todo channel name
-                return event.reply(startReplay)
-                        .retry(3)
+                log.info("Start {} with {} in channel {}", getName(), getConfigDescription(config), event.getInteraction().getChannelId().asLong());
+                return event.reply("...")
                         .onErrorResume(t -> {
                             log.error("Error on replay to slash start command", t);
                             return Mono.empty();

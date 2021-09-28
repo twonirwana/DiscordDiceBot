@@ -47,13 +47,14 @@ public class DiceSystem {
      * https://github.com/DV8FromTheWorld/JDA/
      **/
 
-    public DiceSystem(String token) {
+    public DiceSystem(String token, boolean updateSlashCommands) {
         DiscordClient discordClient = DiscordClient.create(token);
+
         Snowflake botUserId = discordClient.getCoreResources().getSelfId();
         SlashCommandRegistry slashCommandRegistry = SlashCommandRegistry.builder()
                 .addSlashCommand(new CountSuccessesCommand(botUserId))
                 .addSlashCommand(new FateCommand(botUserId))
-                .registerSlashCommands(discordClient);
+                .registerSlashCommands(discordClient, updateSlashCommands);
 
         discordClient.withGateway(gw -> gw.on(new ReactiveEventAdapter() {
 
