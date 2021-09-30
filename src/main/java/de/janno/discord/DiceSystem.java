@@ -1,9 +1,6 @@
 package de.janno.discord;
 
-import de.janno.discord.command.CountSuccessesCommand;
-import de.janno.discord.command.FateCommand;
-import de.janno.discord.command.IComponentInteractEventHandler;
-import de.janno.discord.command.SlashCommandRegistry;
+import de.janno.discord.command.*;
 import discord4j.common.util.Snowflake;
 import discord4j.core.DiscordClient;
 import discord4j.core.event.ReactiveEventAdapter;
@@ -24,7 +21,6 @@ public class DiceSystem {
      * -- help
      * -- version? git hash?
      * -- statistics command
-     * -- d100
      * -- sum of dices
      * - optionally moving the button after all messages to the end
      * - optional delay button remove
@@ -53,6 +49,7 @@ public class DiceSystem {
         Snowflake botUserId = discordClient.getCoreResources().getSelfId();
         SlashCommandRegistry slashCommandRegistry = SlashCommandRegistry.builder()
                 .addSlashCommand(new CountSuccessesCommand(botUserId))
+                .addSlashCommand(new CustomDiceCommand(botUserId))
                 .addSlashCommand(new FateCommand(botUserId))
                 .registerSlashCommands(discordClient, updateSlashCommands);
 

@@ -66,11 +66,12 @@ public class DiscordMessageUtils {
             @NonNull Mono<MessageChannel> channel,
             @NonNull Snowflake channelId,
             @NonNull ActiveButtonsCache activeButtonsCache,
-            @NonNull Snowflake toKeep) {
+            @NonNull Snowflake toKeep,
+            @NonNull List<String> config) {
         return channel
                 .flux()
                 .flatMap(c -> {
-                    List<Snowflake> allButtonsWithoutTheLast = activeButtonsCache.getAllWithoutOneAndRemoveThem(channelId, toKeep);
+                    List<Snowflake> allButtonsWithoutTheLast = activeButtonsCache.getAllWithoutOneAndRemoveThem(channelId, toKeep, config);
                     return Flux.fromIterable(allButtonsWithoutTheLast).flatMap(c::getMessageById);
                 })
                 .onErrorResume(e -> {
@@ -82,12 +83,13 @@ public class DiscordMessageUtils {
 
     public static Function<TextChannel, Mono<Message>> createButtonMessage(@NonNull ActiveButtonsCache activeButtonsCache,
                                                                            @NonNull String buttonMessage,
-                                                                           @NonNull List<LayoutComponent> buttons) {
+                                                                           @NonNull List<LayoutComponent> buttons,
+                                                                           @NonNull List<String> config) {
         return channel -> channel.createMessage(msg -> {
             msg.setContent(buttonMessage);
             msg.setComponents(buttons);
         }).map(m -> {
-            activeButtonsCache.addChannelWithButton(m.getChannelId(), m.getId());
+            activeButtonsCache.addChannelWithButton(m.getChannelId(), m.getId(), config);
             return m;
         });
     }

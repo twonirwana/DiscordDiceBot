@@ -16,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 
+
 @Slf4j
 public class CountSuccessesCommand extends AbstractCommand {
 
@@ -28,6 +29,9 @@ public class CountSuccessesCommand extends AbstractCommand {
         super(new ActiveButtonsCache(COMMAND_NAME), botUserId);
     }
 
+    private static String createButtonLabel(String value, List<String> config) {
+        return String.format("%sd%s", value, config.get(0));
+    }
 
     @Override
     protected String getCommandDescription() {
@@ -66,14 +70,13 @@ public class CountSuccessesCommand extends AbstractCommand {
         int numberOf6s = DiceUtils.numberOfDiceResultsGreaterEqual(rollResult, targetNumber);
         String details = "Target: " + targetNumber + " = " + DiceUtils.makeGreaterEqualTargetValuesBold(rollResult, targetNumber);
         String title = String.format("%dd%d = %d", numberOfDice, sidesOfDie, numberOf6s);
-        log.info(String.format("%s - %s: %s", channelId.asString(), title, details));
+        log.info(String.format("%s - %s: %s", channelId.asString(), title, details.replace("**", "")));
         return new DiceResult(title, details);
     }
 
-
     @Override
     protected String getButtonMessage(List<String> config) {
-        return String.format("Click a button to roll the number of d%s against %s", config.get(0), config.get(1));
+        return String.format("Click a button to roll the dice against %s", config.get(1));
     }
 
     @Override
@@ -93,7 +96,6 @@ public class CountSuccessesCommand extends AbstractCommand {
         return ImmutableList.of(sideValue, targetValue);
     }
 
-
     @Override
     protected boolean matchingButtonCustomId(String buttonCustomId) {
         return buttonCustomId.startsWith(COMMAND_NAME + CONFIG_DELIMITER);
@@ -109,25 +111,25 @@ public class CountSuccessesCommand extends AbstractCommand {
         return ImmutableList.of(
                 ActionRow.of(
                         //              ID,  label
-                        Button.primary(createButtonCustomId(COMMAND_NAME, "1", config), "1"),
-                        Button.primary(createButtonCustomId(COMMAND_NAME, "2", config), "2"),
-                        Button.primary(createButtonCustomId(COMMAND_NAME, "3", config), "3"),
-                        Button.primary(createButtonCustomId(COMMAND_NAME, "4", config), "4"),
-                        Button.primary(createButtonCustomId(COMMAND_NAME, "5", config), "5")
+                        Button.primary(createButtonCustomId(COMMAND_NAME, "1", config), createButtonLabel("1", config)),
+                        Button.primary(createButtonCustomId(COMMAND_NAME, "2", config), createButtonLabel("2", config)),
+                        Button.primary(createButtonCustomId(COMMAND_NAME, "3", config), createButtonLabel("3", config)),
+                        Button.primary(createButtonCustomId(COMMAND_NAME, "4", config), createButtonLabel("4", config)),
+                        Button.primary(createButtonCustomId(COMMAND_NAME, "5", config), createButtonLabel("5", config))
                 ),
                 ActionRow.of(
-                        Button.primary(createButtonCustomId(COMMAND_NAME, "6", config), "6"),
-                        Button.primary(createButtonCustomId(COMMAND_NAME, "7", config), "7"),
-                        Button.primary(createButtonCustomId(COMMAND_NAME, "8", config), "8"),
-                        Button.primary(createButtonCustomId(COMMAND_NAME, "9", config), "9"),
-                        Button.primary(createButtonCustomId(COMMAND_NAME, "10", config), "10")
+                        Button.primary(createButtonCustomId(COMMAND_NAME, "6", config), createButtonLabel("6", config)),
+                        Button.primary(createButtonCustomId(COMMAND_NAME, "7", config), createButtonLabel("7", config)),
+                        Button.primary(createButtonCustomId(COMMAND_NAME, "8", config), createButtonLabel("8", config)),
+                        Button.primary(createButtonCustomId(COMMAND_NAME, "9", config), createButtonLabel("9", config)),
+                        Button.primary(createButtonCustomId(COMMAND_NAME, "10", config), createButtonLabel("10", config))
                 ),
                 ActionRow.of(
-                        Button.primary(createButtonCustomId(COMMAND_NAME, "11", config), "11"),
-                        Button.primary(createButtonCustomId(COMMAND_NAME, "12", config), "12"),
-                        Button.primary(createButtonCustomId(COMMAND_NAME, "13", config), "13"),
-                        Button.primary(createButtonCustomId(COMMAND_NAME, "14", config), "14"),
-                        Button.primary(createButtonCustomId(COMMAND_NAME, "15", config), "15")
+                        Button.primary(createButtonCustomId(COMMAND_NAME, "11", config), createButtonLabel("11", config)),
+                        Button.primary(createButtonCustomId(COMMAND_NAME, "12", config), createButtonLabel("12", config)),
+                        Button.primary(createButtonCustomId(COMMAND_NAME, "13", config), createButtonLabel("13", config)),
+                        Button.primary(createButtonCustomId(COMMAND_NAME, "14", config), createButtonLabel("14", config)),
+                        Button.primary(createButtonCustomId(COMMAND_NAME, "15", config), createButtonLabel("15", config))
                 ));
     }
 }

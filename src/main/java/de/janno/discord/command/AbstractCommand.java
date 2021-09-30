@@ -74,6 +74,7 @@ public abstract class AbstractCommand implements ISlashCommand, IComponentIntera
                 || !botUserId.equals(event.getInteraction().getApplicationId())) {
             return Mono.empty();
         }
+        List<String> config = getConfigFromEvent(event);
 
         return event
                 .edit("rolling...")
@@ -84,15 +85,15 @@ public abstract class AbstractCommand implements ISlashCommand, IComponentIntera
                 .then(event.getInteraction().getChannel()
                         .ofType(TextChannel.class)
                         .flatMap(channel -> {
-                                    DiceResult result = rollDice(channel.getId(), getValueFromEvent(event), getConfigFromEvent(event));
+                                    DiceResult result = rollDice(channel.getId(), getValueFromEvent(event), config);
                                     return createEmbedMessageWithReference(channel, result.getResultTitle(), result.getResultDetails(), event.getInteraction().getMember().orElseThrow())
                                             .retry(3);//not sure way this is needed but sometimes we get Connection reset in the event acknowledge and then here an error
                                 }
                         )
                 ).then(event.getInteraction().getChannel()
                         .ofType(TextChannel.class)
-                        .flatMap(createButtonMessage(activeButtonsCache, getButtonMessage(getConfigFromEvent(event)), getButtonLayout(getConfigFromEvent(event))))
-                        .flatMap(m -> deleteMessage(m.getChannel(), m.getChannelId(), activeButtonsCache, m.getId()))
+                        .flatMap(createButtonMessage(activeButtonsCache, getButtonMessage(config), getButtonLayout(config), config))
+                        .flatMap(m -> deleteMessage(m.getChannel(), m.getChannelId(), activeButtonsCache, m.getId(), config))
                 );
     }
 
@@ -133,7 +134,7 @@ public abstract class AbstractCommand implements ISlashCommand, IComponentIntera
                             return Mono.empty();
                         })
                         .then(event.getInteraction().getChannel().ofType(TextChannel.class)
-                                .flatMap(createButtonMessage(activeButtonsCache, getButtonMessage(config), getButtonLayout(config)))
+                                .flatMap(createButtonMessage(activeButtonsCache, getButtonMessage(config), getButtonLayout(config), config))
                                 .retry(3))
                         .then();
 

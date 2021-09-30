@@ -8,16 +8,16 @@ import com.google.common.collect.ImmutableList;
 import discord4j.common.util.Snowflake;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 @Slf4j
 public class ActiveButtonsCache {
 
-    Cache<Snowflake, Set<Snowflake>> channel2ButtonMessageIds = CacheBuilder.newBuilder()
+    Cache<Snowflake, Set<ButtonWithConfigHash>> channel2ButtonMessageIds = CacheBuilder.newBuilder()
             .maximumSize(10_000)
             .build();
 
@@ -25,22 +25,24 @@ public class ActiveButtonsCache {
         SharedMetricRegistries.getDefault().register("channelInCache." + systemName, (Gauge<Long>) () -> channel2ButtonMessageIds.size());
     }
 
-    public void addChannelWithButton(Snowflake channelId, Snowflake buttonId) {
+    public void addChannelWithButton(Snowflake channelId, Snowflake buttonId, List<String> config) {
         try {
-            Set<Snowflake> buttonIds = channel2ButtonMessageIds.get(channelId, ConcurrentSkipListSet::new);
-            buttonIds.add(buttonId);
+            Set<ButtonWithConfigHash> buttonIds = channel2ButtonMessageIds.get(channelId, ConcurrentSkipListSet::new);
+            buttonIds.add(new ButtonWithConfigHash(buttonId, config.hashCode()));
         } catch (ExecutionException e) {
             log.error("Error in putting buttonId into cache: ", e);
         }
     }
 
-    public List<Snowflake> getAllWithoutOneAndRemoveThem(Snowflake channelId, Snowflake buttonToKeepId) {
+    public List<Snowflake> getAllWithoutOneAndRemoveThem(Snowflake channelId, Snowflake buttonToKeepId, List<String> config) {
         try {
-            Set<Snowflake> buttonIdCache = channel2ButtonMessageIds.get(channelId, ConcurrentSkipListSet::new);
-            List<Snowflake> allButtonsWithoutTheOneToKeep = new ArrayList<>(buttonIdCache);
-            allButtonsWithoutTheOneToKeep.remove(buttonToKeepId);
-            allButtonsWithoutTheOneToKeep.forEach(buttonIdCache::remove);
-            return allButtonsWithoutTheOneToKeep;
+            Set<ButtonWithConfigHash> buttonIdCache = channel2ButtonMessageIds.get(channelId, ConcurrentSkipListSet::new);
+            return buttonIdCache.stream()
+                    .filter(bc -> !buttonToKeepId.equals( bc.getButtonId()))
+                    .filter(bc -> config.hashCode() == bc.getConfigHash())
+                    .peek(buttonIdCache::remove)
+                    .map(ButtonWithConfigHash::getButtonId)
+                    .collect(Collectors.toList());
         } catch (ExecutionException e) {
             log.error("Error in getting button ids from cache: ", e);
         }
