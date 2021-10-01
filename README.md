@@ -6,7 +6,7 @@ Upon clicking on a button the bot will post the result and move the buttons to t
 Add to Discord channel by following this link:
 https://discord.com/api/oauth2/authorize?client_id=812381127943782502&permissions=67584&scope=bot%20applications.commands
 
-:warning: **If you are using mobile browser**: The link preview in the discord setting must be activated to see the roll
+:warning: **If can't see the bots messages**: The link preview in the discord setting must be activated to see the roll
 results
 
 The bot has currently three systems:
