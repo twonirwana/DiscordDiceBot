@@ -1,5 +1,6 @@
 package de.janno.discord.command;
 
+import com.codahale.metrics.SharedMetricRegistries;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import de.janno.discord.dice.DiceResult;
@@ -70,6 +71,8 @@ public class CustomDiceCommand extends AbstractCommand {
 
     @Override
     protected DiceResult rollDice(Snowflake channelId, String buttonValue, List<String> config) {
+        SharedMetricRegistries.getDefault().counter(getName() + "." + config).inc();
+        SharedMetricRegistries.getDefault().counter(getName() + ".total").inc();
         String[] split = buttonValue.toLowerCase().split("d");
         String rollResult = rollDiceOfType(Integer.parseInt(split[0]), Integer.parseInt(split[1])).stream()
                 .sorted()
