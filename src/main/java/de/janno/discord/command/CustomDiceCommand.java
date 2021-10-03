@@ -3,6 +3,7 @@ package de.janno.discord.command;
 import com.codahale.metrics.SharedMetricRegistries;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import de.janno.discord.dice.DiceParserHelper;
 import de.janno.discord.dice.DiceResult;
 import discord4j.common.util.Snowflake;
 import discord4j.core.event.domain.interaction.ComponentInteractionEvent;
@@ -20,13 +21,10 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static de.janno.discord.dice.DiceUtils.rollDiceOfType;
-
 @Slf4j
 public class CustomDiceCommand extends AbstractCommand {
 
     private static final String COMMAND_NAME = "custom_dice";
-    private static final String DICE_FORMAT = "^\\d{1,2}[dD]\\d{1,2}$";
     private static final List<String> DICE_COMMAND_OPTIONS_IDS = IntStream.range(1, 16).mapToObj(i -> i + "_button").collect(Collectors.toList());
 
     public CustomDiceCommand(Snowflake botUserId) {
@@ -63,7 +61,8 @@ public class CustomDiceCommand extends AbstractCommand {
                 .flatMap(a -> a.getValue().stream())
                 .map(ApplicationCommandInteractionOptionValue::asString)
                 .map(Object::toString)
-                .filter(s -> s.matches(DICE_FORMAT))
+                .filter(DiceParserHelper::validExpression)
+                .filter(s -> s.length() < 80) //limit for the ids are 100 characters and we need also some characters for the type...
                 .distinct()
                 .limit(15)
                 .collect(Collectors.toList());
@@ -73,13 +72,7 @@ public class CustomDiceCommand extends AbstractCommand {
     protected DiceResult rollDice(Snowflake channelId, String buttonValue, List<String> config) {
         SharedMetricRegistries.getDefault().counter(getName() + "." + config).inc();
         SharedMetricRegistries.getDefault().counter(getName() + ".total").inc();
-        String[] split = buttonValue.toLowerCase().split("d");
-        String rollResult = rollDiceOfType(Integer.parseInt(split[0]), Integer.parseInt(split[1])).stream()
-                .sorted()
-                .map(Objects::toString)
-                .collect(Collectors.joining(","));
-        log.info(String.format("%s - %s: %s", channelId.asString(), buttonValue, rollResult));
-        return new DiceResult(buttonValue, rollResult);
+        return DiceParserHelper.rollWithDiceParser(buttonValue);
     }
 
     @Override

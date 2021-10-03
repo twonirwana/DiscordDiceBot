@@ -15,6 +15,7 @@ import discord4j.core.spec.MessageCreateSpec;
 import discord4j.rest.util.Color;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -39,10 +40,10 @@ public class DiscordMessageUtils {
             @NonNull Member rollRequester) {
         return channel.createMessage(MessageCreateSpec.builder()
                 .addEmbed(EmbedCreateSpec.builder()
-                        .title(encodeUTF8(title))
+                        .title(StringUtils.abbreviate(encodeUTF8(title), 256)) //https://discord.com/developers/docs/resources/channel#embed-limits
                         .author(rollRequester.getDisplayName(), null, rollRequester.getAvatarUrl())
                         .color(Color.of(rollRequester.getId().hashCode()))
-                        .description(encodeUTF8(description))
+                        .description(StringUtils.abbreviate(encodeUTF8(description), 4096)) //https://discord.com/developers/docs/resources/channel#embed-limits
                         .timestamp(Instant.now())
                         .build())
                 .build());
