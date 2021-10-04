@@ -33,20 +33,17 @@ public class DiscordMessageUtils {
         return new String(in.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8);
     }
 
-    public static Mono<Message> createEmbedMessageWithReference(
-            @NonNull TextChannel channel,
+    public static EmbedCreateSpec createEmbedMessageWithReference(
             @NonNull String title,
             @NonNull String description,
             @NonNull Member rollRequester) {
-        return channel.createMessage(MessageCreateSpec.builder()
-                .addEmbed(EmbedCreateSpec.builder()
-                        .title(StringUtils.abbreviate(encodeUTF8(title), 256)) //https://discord.com/developers/docs/resources/channel#embed-limits
-                        .author(rollRequester.getDisplayName(), null, rollRequester.getAvatarUrl())
-                        .color(Color.of(rollRequester.getId().hashCode()))
-                        .description(StringUtils.abbreviate(encodeUTF8(description), 4096)) //https://discord.com/developers/docs/resources/channel#embed-limits
-                        .timestamp(Instant.now())
-                        .build())
-                .build());
+        return EmbedCreateSpec.builder()
+                .title(StringUtils.abbreviate(encodeUTF8(title), 256)) //https://discord.com/developers/docs/resources/channel#embed-limits
+                .author(rollRequester.getDisplayName(), null, rollRequester.getAvatarUrl())
+                .color(Color.of(rollRequester.getId().hashCode()))
+                .description(StringUtils.abbreviate(encodeUTF8(description), 4096)) //https://discord.com/developers/docs/resources/channel#embed-limits
+                .timestamp(Instant.now())
+                .build();
     }
 
     public static Flux<Void> deleteAllButtonMessagesOfTheBot(@NonNull Mono<TextChannel> channel,
@@ -58,7 +55,7 @@ public class DiscordMessageUtils {
                 .take(500) //only look at the last 500 messages
                 .filter(m -> botUserId.equals(m.getAuthor().map(User::getId).orElse(null)))
                 .filter(m -> m.getComponents().stream()
-                        .flatMap(l -> buttonIds(l).stream())
+                        .flatMap(l -> getLayoutComponentIdsFromMessage(l).stream())
                         .anyMatch(isFromSystem::apply))
                 .flatMap(Message::delete);
     }
@@ -86,20 +83,22 @@ public class DiscordMessageUtils {
                                                                            @NonNull String buttonMessage,
                                                                            @NonNull List<LayoutComponent> buttons,
                                                                            @NonNull List<String> config) {
-        return channel -> channel.createMessage(msg -> {
-            msg.setContent(buttonMessage);
-            msg.setComponents(buttons);
-        }).map(m -> {
-            activeButtonsCache.addChannelWithButton(m.getChannelId(), m.getId(), config);
-            return m;
-        });
+        return channel -> channel
+                .createMessage(MessageCreateSpec.builder()
+                        .content(buttonMessage)
+                        .components(buttons)
+                        .build())
+                .map(m -> {
+                    activeButtonsCache.addChannelWithButton(m.getChannelId(), m.getId(), config);
+                    return m;
+                });
     }
 
-    private static Set<String> buttonIds(MessageComponent messageComponent) {
+    private static Set<String> getLayoutComponentIdsFromMessage(MessageComponent messageComponent) {
         if (messageComponent instanceof LayoutComponent) {
             LayoutComponent layoutComponent = (LayoutComponent) messageComponent;
             if (!layoutComponent.getChildren().isEmpty()) {
-                return layoutComponent.getChildren().stream().flatMap(mc -> buttonIds(mc).stream()).collect(Collectors.toSet());
+                return layoutComponent.getChildren().stream().flatMap(mc -> getLayoutComponentIdsFromMessage(mc).stream()).collect(Collectors.toSet());
             }
         }
         return messageComponent.getData().customId().toOptional().map(ImmutableSet::of).orElse(ImmutableSet.of());

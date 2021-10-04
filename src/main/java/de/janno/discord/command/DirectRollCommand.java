@@ -42,33 +42,28 @@ public class DirectRollCommand implements ISlashCommand {
 
     @Override
     public Mono<Void> handleSlashCommandEvent(@NonNull ChatInputInteractionEvent event) {
-        if (getName().equals(event.getCommandName())) {
-            if (event.getOption(ACTION_EXPRESSION).isPresent()) {
-                ApplicationCommandInteractionOption options = event.getOption(ACTION_EXPRESSION).get();
-                String diceExpression = options.getValue()
-                        .map(ApplicationCommandInteractionOptionValue::asString)
-                        .orElseThrow();
-                SharedMetricRegistries.getDefault().counter(getName() + ".roll." + diceExpression).inc();
-                SharedMetricRegistries.getDefault().counter(getName() + ".roll").inc();
-                DiceResult result = DiceParserHelper.rollWithDiceParser(diceExpression);
+        if (event.getOption(ACTION_EXPRESSION).isPresent()) {
+            ApplicationCommandInteractionOption options = event.getOption(ACTION_EXPRESSION).get();
+            String diceExpression = options.getValue()
+                    .map(ApplicationCommandInteractionOptionValue::asString)
+                    .orElseThrow();
+            SharedMetricRegistries.getDefault().counter(getName() + ".roll." + diceExpression).inc();
+            SharedMetricRegistries.getDefault().counter(getName() + ".roll").inc();
+            DiceResult result = DiceParserHelper.rollWithDiceParser(diceExpression);
 
-                log.info("Roll {}: {} in channel {}", getName(), result.getResultTitle(), event.getInteraction().getChannelId().asLong());
-                return event.reply("...")
-                        .onErrorResume(t -> {
-                            log.error("Error on replay to slash command", t);
-                            return Mono.empty();
-                        })
-                        .then(event.getInteraction().getChannel().ofType(TextChannel.class)
-                                .flatMap(channel -> {
-                                            return createEmbedMessageWithReference(channel, result.getResultTitle(), result.getResultDetails(), event.getInteraction().getMember().orElseThrow())
-                                                    .retry(3);//not sure way this is needed but sometimes we get Connection reset in the event acknowledge and then here an error
-                                        }
-                                ))
-                        .then();
-
-            }
+            log.info("Roll {}: {} in channel {}", getName(), result.getResultTitle(), event.getInteraction().getChannelId().asLong());
+            return event.reply("...")
+                    .onErrorResume(t -> {
+                        log.error("Error on replay to slash command", t);
+                        return Mono.empty();
+                    })
+                    .then(event.getInteraction().getChannel().ofType(TextChannel.class)
+                            .flatMap(channel -> channel.createMessage(createEmbedMessageWithReference(result.getResultTitle(), result.getResultDetails(), event.getInteraction().getMember().orElseThrow()))
+                            ))
+                    .then();
 
         }
+
         return Mono.empty();
     }
 }

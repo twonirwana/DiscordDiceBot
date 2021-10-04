@@ -25,13 +25,10 @@ public class HelpCommand implements ISlashCommand {
 
     @Override
     public Mono<Void> handleSlashCommandEvent(@NonNull ChatInputInteractionEvent event) {
-        if (getName().equals(event.getCommandName())) {
-            SharedMetricRegistries.getDefault().counter(getName()).inc();
-            return event.reply(InteractionApplicationCommandCallbackSpec.builder()
-                    .ephemeral(true)
-                    .content("Full documentation can be found under: https://github.com/twonirwana/DiscordDiceBot/blob/main/README.md")
-                    .build());
-        }
-        return Mono.empty();
+        SharedMetricRegistries.getDefault().counter(getName()).inc();
+        return event.reply(InteractionApplicationCommandCallbackSpec.builder()
+                .ephemeral(true)
+                .content("Full documentation can be found under: https://github.com/twonirwana/DiscordDiceBot/blob/main/README.md")
+                .build());
     }
 }

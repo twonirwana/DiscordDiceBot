@@ -97,7 +97,7 @@ public class CountSuccessesCommand extends AbstractCommand {
     }
 
     @Override
-    protected boolean matchingButtonCustomId(String buttonCustomId) {
+    public boolean matchingComponentCustomId(String buttonCustomId) {
         return buttonCustomId.startsWith(COMMAND_NAME + CONFIG_DELIMITER);
     }
 

@@ -1,8 +1,10 @@
 package de.janno.discord;
 
 import de.janno.discord.command.*;
+import discord4j.common.ReactorResources;
 import discord4j.common.util.Snowflake;
 import discord4j.core.DiscordClient;
+import discord4j.core.DiscordClientBuilder;
 import discord4j.core.event.ReactiveEventAdapter;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.event.domain.interaction.ComponentInteractionEvent;
@@ -11,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.netty.http.client.HttpClient;
 
 @Slf4j
 public class DiceSystem {
@@ -26,7 +29,14 @@ public class DiceSystem {
      **/
 
     public DiceSystem(String token, boolean updateSlashCommands) {
-        DiscordClient discordClient = DiscordClient.create(token);
+
+        DiscordClient discordClient = DiscordClientBuilder.create(token)
+                .setReactorResources(ReactorResources.builder()
+                        .httpClient(HttpClient.create()
+                                .compress(true)
+                                .keepAlive(false) //solves some problems with connection resets on some internet connections
+                                .followRedirect(true).secure())
+                        .build()).build();
 
         Snowflake botUserId = discordClient.getCoreResources().getSelfId();
         SlashCommandRegistry slashCommandRegistry = SlashCommandRegistry.builder()
@@ -38,7 +48,6 @@ public class DiceSystem {
                 .registerSlashCommands(discordClient, updateSlashCommands);
 
         discordClient.withGateway(gw -> gw.on(new ReactiveEventAdapter() {
-
                             @Override
                             @NonNull
                             public Publisher<?> onChatInputInteraction(@NonNull ChatInputInteractionEvent event) {
@@ -57,6 +66,8 @@ public class DiceSystem {
                             public Publisher<?> onComponentInteraction(@NonNull ComponentInteractionEvent event) {
                                 return Flux.fromIterable(slashCommandRegistry.getSlashCommands())
                                         .ofType(IComponentInteractEventHandler.class)
+                                        .filter(command -> command.matchingComponentCustomId(event.getCustomId()))
+                                        .next()
                                         .flatMap(command -> command.handleComponentInteractEvent(event))
                                         .onErrorResume(e -> {
                                             log.error("ButtonInteractEvent Exception: ", e);

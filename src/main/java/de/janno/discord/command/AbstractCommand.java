@@ -70,12 +70,8 @@ public abstract class AbstractCommand implements ISlashCommand, IComponentIntera
 
     @Override
     public Mono<Void> handleComponentInteractEvent(@NonNull ComponentInteractionEvent event) {
-        if (!matchingButtonCustomId(event.getCustomId())
-                || !botUserId.equals(event.getInteraction().getApplicationId())) {
-            return Mono.empty();
-        }
         List<String> config = getConfigFromEvent(event);
-
+        DiceResult result = rollDice(event.getInteraction().getChannelId(), getValueFromEvent(event), config);
         return event
                 .edit("rolling...")
                 .onErrorResume(t -> {
@@ -84,13 +80,8 @@ public abstract class AbstractCommand implements ISlashCommand, IComponentIntera
                 })
                 .then(event.getInteraction().getChannel()
                         .ofType(TextChannel.class)
-                        .flatMap(channel -> {
-                                    DiceResult result = rollDice(channel.getId(), getValueFromEvent(event), config);
-                                    return createEmbedMessageWithReference(channel, result.getResultTitle(), result.getResultDetails(), event.getInteraction().getMember().orElseThrow())
-                                            .retry(3);//not sure way this is needed but sometimes we get Connection reset in the event acknowledge and then here an error
-                                }
-                        )
-                ).then(event.getInteraction().getChannel()
+                        .flatMap(channel -> channel.createMessage(createEmbedMessageWithReference(result.getResultTitle(), result.getResultDetails(), event.getInteraction().getMember().orElseThrow()))))
+                .then(event.getInteraction().getChannel()
                         .ofType(TextChannel.class)
                         .flatMap(createButtonMessage(activeButtonsCache, getButtonMessage(config), getButtonLayout(config), config))
                         .flatMap(m -> deleteMessage(m.getChannel(), m.getChannelId(), activeButtonsCache, m.getId(), config))
@@ -99,46 +90,40 @@ public abstract class AbstractCommand implements ISlashCommand, IComponentIntera
 
     @Override
     public Mono<Void> handleSlashCommandEvent(@NonNull ChatInputInteractionEvent event) {
-        if (getName().equals(event.getCommandName())) {
-            if (event.getOption(ACTION_CLEAR).isPresent()) {
-                activeButtonsCache.removeChannel(event.getInteraction().getChannelId());
-                log.info("Clear {} in {}", getName(), event.getInteraction().getChannelId().asString());
-                SharedMetricRegistries.getDefault().counter(getName() + ".clear").inc();
-                SharedMetricRegistries.getDefault().counter("clear").inc();
+        if (event.getOption(ACTION_CLEAR).isPresent()) {
+            activeButtonsCache.removeChannel(event.getInteraction().getChannelId());
+            log.info("Clear {} in {}", getName(), event.getInteraction().getChannelId().asString());
+            SharedMetricRegistries.getDefault().counter(getName() + ".clear").inc();
+            SharedMetricRegistries.getDefault().counter("clear").inc();
 
-                return event.reply("...")
-                        .onErrorResume(t -> {
-                            log.error("Error on replay to slash start command", t);
-                            return Mono.empty();
-                        })
-                        .then(event.getInteraction()
-                                .getChannel()
-                                .ofType(TextChannel.class)
-                                .flatMap(tc -> tc.createMessage(MessageCreateSpec.builder() //needed to have a messageId to remove all bot messages before
-                                        .content("Clear " + getName() + " button messages from channel")
-                                        //todo add messageReference
-                                        .build()))
-                                .flatMap(m -> deleteAllButtonMessagesOfTheBot(m.getChannel().ofType(TextChannel.class), m.getId(), botUserId, this::matchingButtonCustomId).then())
-                                .retry(3));
+            return event.reply("...")
+                    .onErrorResume(t -> {
+                        log.error("Error on replay to slash start command", t);
+                        return Mono.empty();
+                    })
+                    .then(event.getInteraction()
+                            .getChannel()
+                            .ofType(TextChannel.class)
+                            .flatMap(tc -> tc.createMessage(MessageCreateSpec.builder() //needed to have a messageId to remove all bot messages before
+                                    .content("Clear " + getName() + " button messages from channel")
+                                    .build()))
+                            .flatMap(m -> deleteAllButtonMessagesOfTheBot(m.getChannel().ofType(TextChannel.class), m.getId(), botUserId, this::matchingComponentCustomId).then()));
 
-            } else if (event.getOption(ACTION_START).isPresent()) {
-                ApplicationCommandInteractionOption options = event.getOption(ACTION_START).get();
-                List<String> config = getConfigValuesFromStartOptions(options);
-                SharedMetricRegistries.getDefault().counter(getName() + ".start." + config).inc();
-                SharedMetricRegistries.getDefault().counter(getName() + ".start").inc();
-                SharedMetricRegistries.getDefault().counter("start").inc();
-                log.info("Start {} with {} in channel {}", getName(), getConfigDescription(config), event.getInteraction().getChannelId().asLong());
-                return event.reply("...")
-                        .onErrorResume(t -> {
-                            log.error("Error on replay to slash start command", t);
-                            return Mono.empty();
-                        })
-                        .then(event.getInteraction().getChannel().ofType(TextChannel.class)
-                                .flatMap(createButtonMessage(activeButtonsCache, getButtonMessage(config), getButtonLayout(config), config))
-                                .retry(3))
-                        .then();
-
-            }
+        } else if (event.getOption(ACTION_START).isPresent()) {
+            ApplicationCommandInteractionOption options = event.getOption(ACTION_START).get();
+            List<String> config = getConfigValuesFromStartOptions(options);
+            SharedMetricRegistries.getDefault().counter(getName() + ".start." + config).inc();
+            SharedMetricRegistries.getDefault().counter(getName() + ".start").inc();
+            SharedMetricRegistries.getDefault().counter("start").inc();
+            log.info("Start {} with {} in channel {}", getName(), getConfigDescription(config), event.getInteraction().getChannelId().asLong());
+            return event.reply("...")
+                    .onErrorResume(t -> {
+                        log.error("Error on replay to slash start command", t);
+                        return Mono.empty();
+                    })
+                    .then(event.getInteraction().getChannel().ofType(TextChannel.class)
+                            .flatMap(createButtonMessage(activeButtonsCache, getButtonMessage(config), getButtonLayout(config), config)))
+                    .then();
 
         }
         return Mono.empty();
@@ -169,5 +154,4 @@ public abstract class AbstractCommand implements ISlashCommand, IComponentIntera
         return event.getCustomId().split(CONFIG_DELIMITER)[1];
     }
 
-    protected abstract boolean matchingButtonCustomId(String buttonCustomId);
 }

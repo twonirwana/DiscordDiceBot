@@ -7,4 +7,6 @@ import reactor.core.publisher.Mono;
 public interface IComponentInteractEventHandler {
 
     Mono<Void> handleComponentInteractEvent(@NonNull ComponentInteractionEvent event);
+
+    boolean matchingComponentCustomId(String buttonCustomId);
 }

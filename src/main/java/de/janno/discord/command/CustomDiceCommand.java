@@ -72,7 +72,9 @@ public class CustomDiceCommand extends AbstractCommand {
     protected DiceResult rollDice(Snowflake channelId, String buttonValue, List<String> config) {
         SharedMetricRegistries.getDefault().counter(getName() + "." + config).inc();
         SharedMetricRegistries.getDefault().counter(getName() + ".total").inc();
-        return DiceParserHelper.rollWithDiceParser(buttonValue);
+        DiceResult diceResult = DiceParserHelper.rollWithDiceParser(buttonValue);
+        log.info(String.format("%s - %s: %s", channelId.asString(), diceResult.getResultTitle(), diceResult.getResultDetails()));
+        return diceResult;
     }
 
     @Override
@@ -100,7 +102,7 @@ public class CustomDiceCommand extends AbstractCommand {
     }
 
     @Override
-    protected boolean matchingButtonCustomId(String buttonCustomId) {
+    public boolean matchingComponentCustomId(String buttonCustomId) {
         return buttonCustomId.startsWith(COMMAND_NAME + CONFIG_DELIMITER);
     }
 
