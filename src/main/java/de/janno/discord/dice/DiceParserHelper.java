@@ -18,8 +18,8 @@ public class DiceParserHelper {
             String details = getBaseResults(resultTree).toString();
             return new DiceResult(title, details);
         } catch (Throwable t) {
-            log.error("DiceParser error: ", t);
-            return new DiceResult("Error", "Could not execute the dice expression. Please check create a new button");
+            log.error(String.format("DiceParser error in %s:", input), t);
+            return new DiceResult("Error", "Could not execute the dice expression: " + input);
         }
     }
 

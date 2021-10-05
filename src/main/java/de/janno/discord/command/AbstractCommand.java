@@ -1,6 +1,7 @@
 package de.janno.discord.command;
 
 import com.google.common.collect.ImmutableList;
+import de.janno.discord.Metrics;
 import de.janno.discord.dice.DiceResult;
 import discord4j.common.util.Snowflake;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
@@ -21,7 +22,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static de.janno.discord.DiscordMessageUtils.*;
-import static io.micrometer.core.instrument.Metrics.globalRegistry;
 
 @Slf4j
 public abstract class AbstractCommand implements ISlashCommand, IComponentInteractEventHandler {
@@ -71,9 +71,7 @@ public abstract class AbstractCommand implements ISlashCommand, IComponentIntera
     @Override
     public Mono<Void> handleComponentInteractEvent(@NonNull ComponentInteractionEvent event) {
         List<String> config = getConfigFromEvent(event);
-        globalRegistry.counter(getName() + ".buttonEvent." + config).increment();
-        globalRegistry.counter(getName() + ".buttonEvent").increment();
-        globalRegistry.counter("buttonEvent").increment();
+        Metrics.incrementMetricCounter(getName(), "buttonEvent", config);
         DiceResult result = rollDice(event.getInteraction().getChannelId(), getValueFromEvent(event), config);
         return event
                 .edit("rolling...")
@@ -93,10 +91,9 @@ public abstract class AbstractCommand implements ISlashCommand, IComponentIntera
 
     @Override
     public Mono<Void> handleSlashCommandEvent(@NonNull ChatInputInteractionEvent event) {
-        String allOptions = event.getOptions().stream().map(ApplicationCommandInteractionOption::getName).collect(Collectors.toList()).toString();
-        globalRegistry.counter(getName() + ".slashEvent." + allOptions).increment();
-        globalRegistry.counter(getName() + ".slashEvent").increment();
-        globalRegistry.counter("slashEvent").increment();
+
+        Metrics.incrementMetricCounter(getName(), "slashEvent", event.getOption(ACTION_START).map(this::getConfigValuesFromStartOptions).orElse(null));
+
         if (event.getOption(ACTION_CLEAR).isPresent()) {
             activeButtonsCache.removeChannel(event.getInteraction().getChannelId());
             log.info("Clear {} in {}", getName(), event.getInteraction().getChannelId().asString());

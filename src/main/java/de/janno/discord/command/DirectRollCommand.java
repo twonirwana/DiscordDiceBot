@@ -1,5 +1,7 @@
 package de.janno.discord.command;
 
+import com.google.common.collect.ImmutableList;
+import de.janno.discord.Metrics;
 import de.janno.discord.dice.DiceParserHelper;
 import de.janno.discord.dice.DiceResult;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
@@ -14,7 +16,6 @@ import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
 import static de.janno.discord.DiscordMessageUtils.createEmbedMessageWithReference;
-import static io.micrometer.core.instrument.Metrics.globalRegistry;
 
 @Slf4j
 public class DirectRollCommand implements ISlashCommand {
@@ -47,8 +48,8 @@ public class DirectRollCommand implements ISlashCommand {
             String diceExpression = options.getValue()
                     .map(ApplicationCommandInteractionOptionValue::asString)
                     .orElseThrow();
-            globalRegistry.counter(getName() + ".roll." + diceExpression).increment();
-            globalRegistry.counter(getName() + ".roll").increment();
+            Metrics.incrementMetricCounter(getName(), "slashEvent", ImmutableList.of(diceExpression));
+
             DiceResult result = DiceParserHelper.rollWithDiceParser(diceExpression);
 
             log.info("Roll {}: {} in channel {}", getName(), result.getResultTitle(), event.getInteraction().getChannelId().asLong());

@@ -3,6 +3,7 @@ package de.janno.discord.command;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.ImmutableList;
+import de.janno.discord.Metrics;
 import discord4j.common.util.Snowflake;
 import io.micrometer.core.instrument.Tags;
 import lombok.extern.slf4j.Slf4j;
@@ -23,7 +24,7 @@ public class ActiveButtonsCache {
             .build();
 
     public ActiveButtonsCache(String systemName) {
-        globalRegistry.gaugeMapSize("channelInCache." + systemName, Tags.empty(), channel2ButtonMessageIds.asMap());
+        globalRegistry.gaugeMapSize(Metrics.METRIC_PREFIX + "channelInCache", Tags.of("system", systemName), channel2ButtonMessageIds.asMap());
     }
 
     public void addChannelWithButton(Snowflake channelId, Snowflake buttonId, List<String> config) {
