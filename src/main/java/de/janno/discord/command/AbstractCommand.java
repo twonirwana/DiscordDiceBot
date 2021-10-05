@@ -73,6 +73,10 @@ public abstract class AbstractCommand implements ISlashCommand, IComponentIntera
         List<String> config = getConfigFromEvent(event);
         Metrics.incrementMetricCounter(getName(), "buttonEvent", config);
         DiceResult result = rollDice(event.getInteraction().getChannelId(), getValueFromEvent(event), config);
+        if (event.getInteraction().getMessageId().isPresent()) {
+            //adding the message of the event to the cache, in the case that the bot was restarted and has forgotten the button
+            activeButtonsCache.addChannelWithButton(event.getInteraction().getChannelId(), event.getInteraction().getMessageId().get(), config);
+        }
         return event
                 .edit("rolling...")
                 .onErrorResume(t -> {

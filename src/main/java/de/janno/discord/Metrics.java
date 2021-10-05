@@ -1,7 +1,6 @@
 package de.janno.discord;
 
 import com.sun.net.httpserver.HttpServer;
-import io.micrometer.core.instrument.Meter;
 import io.micrometer.core.instrument.Tags;
 import io.micrometer.core.instrument.binder.jvm.JvmGcMetrics;
 import io.micrometer.core.instrument.binder.jvm.JvmMemoryMetrics;
