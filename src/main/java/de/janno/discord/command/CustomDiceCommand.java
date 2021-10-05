@@ -70,8 +70,6 @@ public class CustomDiceCommand extends AbstractCommand {
 
     @Override
     protected DiceResult rollDice(Snowflake channelId, String buttonValue, List<String> config) {
-        SharedMetricRegistries.getDefault().counter(getName() + "." + config).inc();
-        SharedMetricRegistries.getDefault().counter(getName() + ".total").inc();
         DiceResult diceResult = DiceParserHelper.rollWithDiceParser(buttonValue);
         log.info(String.format("%s - %s: %s", channelId.asString(), diceResult.getResultTitle(), diceResult.getResultDetails()));
         return diceResult;

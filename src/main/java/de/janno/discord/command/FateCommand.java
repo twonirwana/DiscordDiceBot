@@ -78,8 +78,6 @@ public class FateCommand extends AbstractCommand {
     @Override
     protected DiceResult rollDice(Snowflake channelId, String buttonValue, List<String> config) {
         List<Integer> rollResult = DiceUtils.rollFate();
-        SharedMetricRegistries.getDefault().counter(getName() + "." + config).inc();
-        SharedMetricRegistries.getDefault().counter(getName() + ".total").inc();
 
         if (ACTION_MODIFIER_OPTION_MODIFIER.equals(config.get(0))) {
             int modifier = Integer.parseInt(buttonValue);

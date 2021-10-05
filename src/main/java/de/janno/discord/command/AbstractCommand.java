@@ -71,6 +71,9 @@ public abstract class AbstractCommand implements ISlashCommand, IComponentIntera
     @Override
     public Mono<Void> handleComponentInteractEvent(@NonNull ComponentInteractionEvent event) {
         List<String> config = getConfigFromEvent(event);
+        SharedMetricRegistries.getDefault().counter(getName() + ".buttonEvent." + config).inc();
+        SharedMetricRegistries.getDefault().counter(getName() + ".buttonEvent").inc();
+        SharedMetricRegistries.getDefault().counter("buttonEvent").inc();
         DiceResult result = rollDice(event.getInteraction().getChannelId(), getValueFromEvent(event), config);
         return event
                 .edit("rolling...")
@@ -90,11 +93,13 @@ public abstract class AbstractCommand implements ISlashCommand, IComponentIntera
 
     @Override
     public Mono<Void> handleSlashCommandEvent(@NonNull ChatInputInteractionEvent event) {
+        String allOptions = event.getOptions().stream().map(ApplicationCommandInteractionOption::getName).collect(Collectors.toList()).toString();
+        SharedMetricRegistries.getDefault().counter(getName() + ".slashEvent." + allOptions).inc();
+        SharedMetricRegistries.getDefault().counter(getName() + ".slashEvent").inc();
+        SharedMetricRegistries.getDefault().counter("slashEvent").inc();
         if (event.getOption(ACTION_CLEAR).isPresent()) {
             activeButtonsCache.removeChannel(event.getInteraction().getChannelId());
             log.info("Clear {} in {}", getName(), event.getInteraction().getChannelId().asString());
-            SharedMetricRegistries.getDefault().counter(getName() + ".clear").inc();
-            SharedMetricRegistries.getDefault().counter("clear").inc();
 
             return event.reply("...")
                     .onErrorResume(t -> {
@@ -112,9 +117,6 @@ public abstract class AbstractCommand implements ISlashCommand, IComponentIntera
         } else if (event.getOption(ACTION_START).isPresent()) {
             ApplicationCommandInteractionOption options = event.getOption(ACTION_START).get();
             List<String> config = getConfigValuesFromStartOptions(options);
-            SharedMetricRegistries.getDefault().counter(getName() + ".start." + config).inc();
-            SharedMetricRegistries.getDefault().counter(getName() + ".start").inc();
-            SharedMetricRegistries.getDefault().counter("start").inc();
             log.info("Start {} with {} in channel {}", getName(), getConfigDescription(config), event.getInteraction().getChannelId().asLong());
             return event.reply("...")
                     .onErrorResume(t -> {

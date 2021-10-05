@@ -61,8 +61,6 @@ public class CountSuccessesCommand extends AbstractCommand {
 
     @Override
     protected DiceResult rollDice(Snowflake channelId, String buttonValue, List<String> config) {
-        SharedMetricRegistries.getDefault().counter(getName() + "." + config).inc();
-        SharedMetricRegistries.getDefault().counter(getName() + ".total").inc();
         int numberOfDice = Integer.parseInt(buttonValue);
         int sidesOfDie = Integer.parseInt(config.get(0));
         int targetNumber = Integer.parseInt(config.get(1));

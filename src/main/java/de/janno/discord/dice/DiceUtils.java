@@ -1,8 +1,6 @@
 package de.janno.discord.dice;
 
 
-import com.codahale.metrics.SharedMetricRegistries;
-
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
@@ -16,21 +14,15 @@ public class DiceUtils {
         return (int) (randomNumberGenerator.nextDouble() * diceSides + 1);
     }
 
-    private static void addStatistic(String type, int result) {
-        SharedMetricRegistries.getDefault().counter(type + "." + result).inc();
-    }
-
     public static List<Integer> rollFate() {
         return IntStream.range(0, 4)
                 .mapToObj(i -> rollDice(3) - 2)
-                .peek(i -> addStatistic("fate", i))
                 .collect(Collectors.toList());
     }
 
     public static List<Integer> rollDiceOfType(int numberOfDice, int diceSides) {
         return IntStream.range(0, numberOfDice)
                 .mapToObj(i -> rollDice(diceSides))
-                .peek(i -> addStatistic("d" + diceSides, i))
                 .collect(Collectors.toList());
     }
 
