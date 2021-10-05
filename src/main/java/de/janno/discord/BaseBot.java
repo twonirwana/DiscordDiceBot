@@ -1,32 +1,46 @@
 package de.janno.discord;
 
-import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.SharedMetricRegistries;
-import com.codahale.metrics.Slf4jReporter;
-import com.codahale.metrics.jvm.CachedThreadStatesGaugeSet;
-import com.codahale.metrics.jvm.GarbageCollectorMetricSet;
-import com.codahale.metrics.jvm.JvmAttributeGaugeSet;
-import com.codahale.metrics.jvm.MemoryUsageGaugeSet;
-import org.slf4j.LoggerFactory;
+import com.sun.net.httpserver.HttpServer;
+import io.micrometer.core.instrument.Metrics;
+import io.micrometer.core.instrument.binder.jvm.JvmGcMetrics;
+import io.micrometer.core.instrument.binder.jvm.JvmMemoryMetrics;
+import io.micrometer.core.instrument.binder.jvm.JvmThreadMetrics;
+import io.micrometer.core.instrument.binder.system.ProcessorMetrics;
+import io.micrometer.prometheus.PrometheusConfig;
+import io.micrometer.prometheus.PrometheusMeterRegistry;
 
-import java.util.concurrent.TimeUnit;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.InetSocketAddress;
+
+import static io.micrometer.core.instrument.Metrics.globalRegistry;
 
 public class BaseBot {
     public static void main(final String[] args) {
         final String token = args[0];
         final boolean updateCommands = Boolean.parseBoolean(args[1]);
-        MetricRegistry metricRegistry = new MetricRegistry();
-        SharedMetricRegistries.setDefault("default", metricRegistry);
-        metricRegistry.register("gc", new GarbageCollectorMetricSet());
-        metricRegistry.register("threads", new CachedThreadStatesGaugeSet(10, TimeUnit.SECONDS));
-        metricRegistry.register("memory", new MemoryUsageGaugeSet());
-        metricRegistry.register("jvm", new JvmAttributeGaugeSet());
-        final Slf4jReporter reporter = Slf4jReporter.forRegistry(metricRegistry)
-                .outputTo(LoggerFactory.getLogger("de.janno.discord"))
-                .convertRatesTo(TimeUnit.SECONDS)
-                .convertDurationsTo(TimeUnit.MILLISECONDS)
-                .build();
-        reporter.start(6, TimeUnit.HOURS);
+
+        PrometheusMeterRegistry prometheusRegistry = new PrometheusMeterRegistry(PrometheusConfig.DEFAULT);
+        Metrics.addRegistry(prometheusRegistry);
+        try {
+            HttpServer server = HttpServer.create(new InetSocketAddress(8080), 0);
+            server.createContext("/prometheus", httpExchange -> {
+                String response = prometheusRegistry.scrape();
+                httpExchange.sendResponseHeaders(200, response.getBytes().length);
+                try (OutputStream os = httpExchange.getResponseBody()) {
+                    os.write(response.getBytes());
+                }
+            });
+
+            new Thread(server::start).start();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        new JvmMemoryMetrics().bindTo(globalRegistry);
+        new JvmGcMetrics().bindTo(globalRegistry);
+        new ProcessorMetrics().bindTo(globalRegistry);
+        new JvmThreadMetrics().bindTo(globalRegistry);
+
         new DiceSystem(token, updateCommands);
     }
 

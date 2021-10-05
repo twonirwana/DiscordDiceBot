@@ -1,6 +1,5 @@
 package de.janno.discord.command;
 
-import com.codahale.metrics.SharedMetricRegistries;
 import com.google.common.collect.ImmutableList;
 import de.janno.discord.dice.DiceResult;
 import discord4j.common.util.Snowflake;
@@ -22,6 +21,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static de.janno.discord.DiscordMessageUtils.*;
+import static io.micrometer.core.instrument.Metrics.globalRegistry;
 
 @Slf4j
 public abstract class AbstractCommand implements ISlashCommand, IComponentInteractEventHandler {
@@ -71,9 +71,9 @@ public abstract class AbstractCommand implements ISlashCommand, IComponentIntera
     @Override
     public Mono<Void> handleComponentInteractEvent(@NonNull ComponentInteractionEvent event) {
         List<String> config = getConfigFromEvent(event);
-        SharedMetricRegistries.getDefault().counter(getName() + ".buttonEvent." + config).inc();
-        SharedMetricRegistries.getDefault().counter(getName() + ".buttonEvent").inc();
-        SharedMetricRegistries.getDefault().counter("buttonEvent").inc();
+        globalRegistry.counter(getName() + ".buttonEvent." + config).increment();
+        globalRegistry.counter(getName() + ".buttonEvent").increment();
+        globalRegistry.counter("buttonEvent").increment();
         DiceResult result = rollDice(event.getInteraction().getChannelId(), getValueFromEvent(event), config);
         return event
                 .edit("rolling...")
@@ -94,9 +94,9 @@ public abstract class AbstractCommand implements ISlashCommand, IComponentIntera
     @Override
     public Mono<Void> handleSlashCommandEvent(@NonNull ChatInputInteractionEvent event) {
         String allOptions = event.getOptions().stream().map(ApplicationCommandInteractionOption::getName).collect(Collectors.toList()).toString();
-        SharedMetricRegistries.getDefault().counter(getName() + ".slashEvent." + allOptions).inc();
-        SharedMetricRegistries.getDefault().counter(getName() + ".slashEvent").inc();
-        SharedMetricRegistries.getDefault().counter("slashEvent").inc();
+        globalRegistry.counter(getName() + ".slashEvent." + allOptions).increment();
+        globalRegistry.counter(getName() + ".slashEvent").increment();
+        globalRegistry.counter("slashEvent").increment();
         if (event.getOption(ACTION_CLEAR).isPresent()) {
             activeButtonsCache.removeChannel(event.getInteraction().getChannelId());
             log.info("Clear {} in {}", getName(), event.getInteraction().getChannelId().asString());

@@ -1,6 +1,5 @@
 package de.janno.discord.command;
 
-import com.codahale.metrics.SharedMetricRegistries;
 import com.google.common.collect.ImmutableList;
 import de.janno.discord.dice.DiceResult;
 import de.janno.discord.dice.DiceUtils;

@@ -34,6 +34,7 @@ public class DiceSystem {
                 .setReactorResources(ReactorResources.builder()
                         .httpClient(HttpClient.create()
                                 .compress(true)
+                                .metrics(true, s -> s)
                                 .keepAlive(false) //solves some problems with connection resets on some internet connections
                                 .followRedirect(true).secure())
                         .build()).build();

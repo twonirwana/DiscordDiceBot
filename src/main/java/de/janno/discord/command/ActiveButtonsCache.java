@@ -1,11 +1,10 @@
 package de.janno.discord.command;
 
-import com.codahale.metrics.Gauge;
-import com.codahale.metrics.SharedMetricRegistries;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.ImmutableList;
 import discord4j.common.util.Snowflake;
+import io.micrometer.core.instrument.Tags;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
@@ -13,6 +12,8 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
+
+import static io.micrometer.core.instrument.Metrics.globalRegistry;
 
 @Slf4j
 public class ActiveButtonsCache {
@@ -22,7 +23,7 @@ public class ActiveButtonsCache {
             .build();
 
     public ActiveButtonsCache(String systemName) {
-        SharedMetricRegistries.getDefault().register("channelInCache." + systemName, (Gauge<Long>) () -> channel2ButtonMessageIds.size());
+        globalRegistry.gaugeMapSize("channelInCache." + systemName, Tags.empty(), channel2ButtonMessageIds.asMap());
     }
 
     public void addChannelWithButton(Snowflake channelId, Snowflake buttonId, List<String> config) {
@@ -38,7 +39,7 @@ public class ActiveButtonsCache {
         try {
             Set<ButtonWithConfigHash> buttonIdCache = channel2ButtonMessageIds.get(channelId, ConcurrentSkipListSet::new);
             return buttonIdCache.stream()
-                    .filter(bc -> !buttonToKeepId.equals( bc.getButtonId()))
+                    .filter(bc -> !buttonToKeepId.equals(bc.getButtonId()))
                     .filter(bc -> config.hashCode() == bc.getConfigHash())
                     .peek(buttonIdCache::remove)
                     .map(ButtonWithConfigHash::getButtonId)
