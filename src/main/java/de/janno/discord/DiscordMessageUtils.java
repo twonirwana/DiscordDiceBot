@@ -42,7 +42,7 @@ public class DiscordMessageUtils {
                 .author(rollRequester.getDisplayName(), null, rollRequester.getAvatarUrl())
                 .color(Color.of(rollRequester.getId().hashCode()))
                 .description(StringUtils.abbreviate(encodeUTF8(description), 4096)) //https://discord.com/developers/docs/resources/channel#embed-limits
-                .timestamp(Instant.now())
+             //   .timestamp(Instant.now())
                 .build();
     }
 

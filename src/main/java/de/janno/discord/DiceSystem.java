@@ -28,15 +28,11 @@ public class DiceSystem {
      * - system that compares slashCommand in code with the current and updates if there are changes
      **/
 
-    public DiceSystem(String token, boolean updateSlashCommands) {
+    public DiceSystem(HttpClient httpClient, String token, boolean updateSlashCommands) {
 
         DiscordClient discordClient = DiscordClientBuilder.create(token)
                 .setReactorResources(ReactorResources.builder()
-                        .httpClient(HttpClient.create()
-                                .compress(true)
-                                .metrics(true, s -> s)
-                                .keepAlive(false) //solves some problems with connection resets on some internet connections
-                                .followRedirect(true).secure())
+                        .httpClient(httpClient)
                         .build()).build();
 
         Snowflake botUserId = discordClient.getCoreResources().getSelfId();
