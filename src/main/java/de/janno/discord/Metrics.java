@@ -33,6 +33,7 @@ public class Metrics {
             server.createContext("/prometheus", httpExchange -> {
                 String response = Arrays.stream(prometheusRegistry.scrape().split("\n"))
                         .filter(s -> !s.startsWith("#"))
+                        .sorted()
                         .collect(Collectors.joining("\n"));
                 httpExchange.sendResponseHeaders(200, response.getBytes().length);
                 try (OutputStream os = httpExchange.getResponseBody()) {
