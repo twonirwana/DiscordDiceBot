@@ -76,7 +76,7 @@ public class DiscordMessageUtils {
                     log.info("Button was not found");
                     return Mono.empty();
                 })
-                .flatMap(Message::delete).then();
+                .flatMap(Message::delete).next().ofType(Void.class);
     }
 
     public static Function<TextChannel, Mono<Message>> createButtonMessage(@NonNull ActiveButtonsCache activeButtonsCache,

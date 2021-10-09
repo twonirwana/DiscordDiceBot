@@ -1,5 +1,6 @@
 package de.janno.discord.command;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import de.janno.discord.Metrics;
 import de.janno.discord.dice.DiceResult;
@@ -38,6 +39,9 @@ public abstract class AbstractCommand implements ISlashCommand, IComponentIntera
     }
 
     protected static String createButtonCustomId(String system, String value, List<String> config) {
+        Preconditions.checkArgument(!system.contains(CONFIG_DELIMITER));
+        Preconditions.checkArgument(!value.contains(CONFIG_DELIMITER));
+        Preconditions.checkArgument(config.stream().noneMatch(s -> s.contains(CONFIG_DELIMITER)));
         return Stream.concat(Stream.of(system, value), config.stream())
                 .collect(Collectors.joining(CONFIG_DELIMITER));
     }
@@ -72,7 +76,7 @@ public abstract class AbstractCommand implements ISlashCommand, IComponentIntera
     public Mono<Void> handleComponentInteractEvent(@NonNull ComponentInteractionEvent event) {
         List<String> config = getConfigFromEvent(event);
         Metrics.incrementMetricCounter(getName(), "buttonEvent", config);
-        DiceResult result = rollDice(event.getInteraction().getChannelId(), getValueFromEvent(event), config);
+        DiceResult result = rollDice(getValueFromEvent(event), config);
         if (event.getInteraction().getMessageId().isPresent()) {
             //adding the message of the event to the cache, in the case that the bot was restarted and has forgotten the button
             activeButtonsCache.addChannelWithButton(event.getInteraction().getChannelId(), event.getInteraction().getMessageId().get(), config);
@@ -100,8 +104,6 @@ public abstract class AbstractCommand implements ISlashCommand, IComponentIntera
 
         if (event.getOption(ACTION_CLEAR).isPresent()) {
             activeButtonsCache.removeChannel(event.getInteraction().getChannelId());
-            log.info("Clear {} in {}", getName(), event.getInteraction().getChannelId().asString());
-
             return event.reply("...")
                     .onErrorResume(t -> {
                         log.error("Error on replay to slash start command", t);
@@ -113,12 +115,11 @@ public abstract class AbstractCommand implements ISlashCommand, IComponentIntera
                             .flatMap(tc -> tc.createMessage(MessageCreateSpec.builder() //needed to have a messageId to remove all bot messages before
                                     .content("Clear " + getName() + " button messages from channel")
                                     .build()))
-                            .flatMap(m -> deleteAllButtonMessagesOfTheBot(m.getChannel().ofType(TextChannel.class), m.getId(), botUserId, this::matchingComponentCustomId).then()));
+                            .flatMap(m -> deleteAllButtonMessagesOfTheBot(m.getChannel().ofType(TextChannel.class), m.getId(), botUserId, this::matchingComponentCustomId).next()));
 
         } else if (event.getOption(ACTION_START).isPresent()) {
             ApplicationCommandInteractionOption options = event.getOption(ACTION_START).get();
             List<String> config = getConfigValuesFromStartOptions(options);
-            log.info("Start {} with {} in channel {}", getName(), getConfigDescription(config), event.getInteraction().getChannelId().asLong());
             return event.reply("...")
                     .onErrorResume(t -> {
                         log.error("Error on replay to slash start command", t);
@@ -126,7 +127,7 @@ public abstract class AbstractCommand implements ISlashCommand, IComponentIntera
                     })
                     .then(event.getInteraction().getChannel().ofType(TextChannel.class)
                             .flatMap(createButtonMessage(activeButtonsCache, getButtonMessage(config), getButtonLayout(config), config)))
-                    .then();
+                    .ofType(Void.class);
 
         }
         return Mono.empty();
@@ -136,7 +137,7 @@ public abstract class AbstractCommand implements ISlashCommand, IComponentIntera
 
     protected abstract List<String> getConfigValuesFromStartOptions(ApplicationCommandInteractionOption options);
 
-    protected abstract DiceResult rollDice(Snowflake channelId, String buttonValue, List<String> config);
+    protected abstract DiceResult rollDice(String buttonValue, List<String> config);
 
     protected abstract List<LayoutComponent> getButtonLayout(List<String> config);
 

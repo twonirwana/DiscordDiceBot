@@ -59,7 +59,7 @@ public class CountSuccessesCommand extends AbstractCommand {
     }
 
     @Override
-    protected DiceResult rollDice(Snowflake channelId, String buttonValue, List<String> config) {
+    protected DiceResult rollDice(String buttonValue, List<String> config) {
         int numberOfDice = Integer.parseInt(buttonValue);
         int sidesOfDie = Integer.parseInt(config.get(0));
         int targetNumber = Integer.parseInt(config.get(1));
@@ -67,7 +67,7 @@ public class CountSuccessesCommand extends AbstractCommand {
         int numberOf6s = DiceUtils.numberOfDiceResultsGreaterEqual(rollResult, targetNumber);
         String details = "Target: " + targetNumber + " = " + DiceUtils.makeGreaterEqualTargetValuesBold(rollResult, targetNumber);
         String title = String.format("%dd%d = %d", numberOfDice, sidesOfDie, numberOf6s);
-        log.info(String.format("%s - %s: %s", channelId.asString(), title, details.replace("**", "")));
+        log.info(String.format("%s:%s -> %s: %s", getName(), config, title, details.replace("**", "")));
         return new DiceResult(title, details);
     }
 

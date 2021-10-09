@@ -8,12 +8,17 @@ import discord4j.core.DiscordClientBuilder;
 import discord4j.core.event.ReactiveEventAdapter;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.event.domain.interaction.ComponentInteractionEvent;
+import discord4j.core.object.command.ApplicationCommandInteractionOption;
+import discord4j.core.object.command.ApplicationCommandInteractionOptionValue;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.netty.http.client.HttpClient;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 public class DiceSystem {
@@ -55,7 +60,14 @@ public class DiceSystem {
                                         .onErrorResume(e -> {
                                             log.error("SlashCommandEvent Exception: ", e);
                                             return Mono.empty();
-                                        });
+                                        })
+                                        .then(event.getInteraction().getGuild()
+                                                .doOnNext(guild -> log.info(String.format("Slash '%s%s' in %s from %s",
+                                                        event.getCommandName(),
+                                                        getSlashOptionsToString(event),
+                                                        guild.getName(),
+                                                        event.getInteraction().getUser().getUsername())))
+                                        );
                             }
 
                             @Override
@@ -69,11 +81,32 @@ public class DiceSystem {
                                         .onErrorResume(e -> {
                                             log.error("ButtonInteractEvent Exception: ", e);
                                             return Mono.empty();
-                                        });
+                                        })
+                                        .then(event.getInteraction().getGuild()
+                                                .doOnNext(guild -> log.info(String.format("Button '%s' in %s from %s",
+                                                        event.getCustomId(),
+                                                        guild.getName(),
+                                                        event.getInteraction().getUser().getUsername())))
+                                        );
                             }
                         }).then(gw.onDisconnect())
                 )
                 .block();
 
+    }
+
+    private static String getSlashOptionsToString(ChatInputInteractionEvent event) {
+        List<String> options = event.getOptions().stream()
+                .map(DiceSystem::optionToString)
+                .collect(Collectors.toList());
+        return options.isEmpty() ? "" : options.toString();
+    }
+
+    private static String optionToString(ApplicationCommandInteractionOption option) {
+        List<String> subOptions = option.getOptions().stream().map(DiceSystem::optionToString).collect(Collectors.toList());
+        return String.format("%s=%s%s",
+                option.getName(),
+                option.getValue().map(ApplicationCommandInteractionOptionValue::getRaw).orElse(""),
+                subOptions.isEmpty() ? "" : subOptions.toString());
     }
 }

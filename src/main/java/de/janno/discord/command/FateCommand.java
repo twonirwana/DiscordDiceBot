@@ -75,7 +75,7 @@ public class FateCommand extends AbstractCommand {
     }
 
     @Override
-    protected DiceResult rollDice(Snowflake channelId, String buttonValue, List<String> config) {
+    protected DiceResult rollDice(String buttonValue, List<String> config) {
         List<Integer> rollResult = DiceUtils.rollFate();
 
         if (ACTION_MODIFIER_OPTION_MODIFIER.equals(config.get(0))) {
@@ -90,7 +90,7 @@ public class FateCommand extends AbstractCommand {
 
             String title = String.format("4dF %s = %d", modifierString, resultWithModifier);
             String details = DiceUtils.convertFateNumberToString(rollResult);
-            log.info(String.format("%s - %s: %s", channelId.asString(), title, details)
+            log.info(String.format("%s:%s -> %s: %s", getName(), config, title, details)
                     .replace("▢", "0")
                     .replace("＋", "+")
                     .replace(MINUS, "-")
@@ -99,7 +99,7 @@ public class FateCommand extends AbstractCommand {
         } else {
             String title = String.format("4dF = %d", DiceUtils.fateResult(rollResult));
             String details = DiceUtils.convertFateNumberToString(rollResult);
-            log.info(String.format("%s - %s: %s", channelId.asString(), title, details)
+            log.info(String.format("%s:%s -> %s: %s", getName(), config, title, details)
                     .replace("▢", "0")
                     .replace("＋", "+")
                     .replace(MINUS, "-")

@@ -51,8 +51,8 @@ public class DirectRollCommand implements ISlashCommand {
             Metrics.incrementMetricCounter(getName(), "slashEvent", ImmutableList.of(diceExpression));
 
             DiceResult result = DiceParserHelper.rollWithDiceParser(diceExpression);
+            log.info(String.format("%s:%s -> %s: %s", event.getCommandName(), diceExpression, result.getResultTitle(), result.getResultDetails()));
 
-            log.info("Roll {}: {} in channel {}", getName(), result.getResultTitle(), event.getInteraction().getChannelId().asLong());
             return event.reply("...")
                     .onErrorResume(t -> {
                         log.error("Error on replay to slash command", t);
@@ -61,7 +61,7 @@ public class DirectRollCommand implements ISlashCommand {
                     .then(event.getInteraction().getChannel().ofType(TextChannel.class)
                             .flatMap(channel -> channel.createMessage(createEmbedMessageWithReference(result.getResultTitle(), result.getResultDetails(), event.getInteraction().getMember().orElseThrow()))
                             ))
-                    .then();
+                    .ofType(Void.class);
 
         }
 

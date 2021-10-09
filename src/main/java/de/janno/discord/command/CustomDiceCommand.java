@@ -68,9 +68,9 @@ public class CustomDiceCommand extends AbstractCommand {
     }
 
     @Override
-    protected DiceResult rollDice(Snowflake channelId, String buttonValue, List<String> config) {
+    protected DiceResult rollDice(String buttonValue, List<String> config) {
         DiceResult diceResult = DiceParserHelper.rollWithDiceParser(buttonValue);
-        log.info(String.format("%s - %s: %s", channelId.asString(), diceResult.getResultTitle(), diceResult.getResultDetails()));
+        log.info(String.format("%s:%s -> %s: %s", getName(), config, diceResult.getResultTitle(), diceResult.getResultDetails()));
         return diceResult;
     }
 

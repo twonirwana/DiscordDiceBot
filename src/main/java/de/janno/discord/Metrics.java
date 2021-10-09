@@ -28,6 +28,7 @@ public class Metrics {
     public static void init(boolean collectSystemMetrics) {
         PrometheusMeterRegistry prometheusRegistry = new PrometheusMeterRegistry(PrometheusConfig.DEFAULT);
         io.micrometer.core.instrument.Metrics.addRegistry(prometheusRegistry);
+        new UptimeMetrics().bindTo(globalRegistry);
         try {
             HttpServer server = HttpServer.create(new InetSocketAddress(8080), 0);
             server.createContext("/prometheus", httpExchange -> {
@@ -50,7 +51,6 @@ public class Metrics {
             new JvmMemoryMetrics().bindTo(globalRegistry);
             new JvmGcMetrics().bindTo(globalRegistry);
             new ProcessorMetrics().bindTo(globalRegistry);
-            new UptimeMetrics().bindTo(globalRegistry);
             new JvmThreadMetrics().bindTo(globalRegistry);
         }
     }
@@ -61,6 +61,5 @@ public class Metrics {
         }
         globalRegistry.counter(METRIC_PREFIX + commandName, Tags.of(ACTION_TAG, action)).increment();
         globalRegistry.counter(METRIC_PREFIX + action).increment();
-
     }
 }
