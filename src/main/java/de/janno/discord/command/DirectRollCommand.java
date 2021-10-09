@@ -15,7 +15,7 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
-import static de.janno.discord.DiscordMessageUtils.createEmbedMessageWithReference;
+import static de.janno.discord.DiscordUtils.createEmbedMessageWithReference;
 
 @Slf4j
 public class DirectRollCommand implements ISlashCommand {

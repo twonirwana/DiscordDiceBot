@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static de.janno.discord.DiscordMessageUtils.*;
+import static de.janno.discord.DiscordUtils.*;
 
 @Slf4j
 public abstract class AbstractCommand implements ISlashCommand, IComponentInteractEventHandler {

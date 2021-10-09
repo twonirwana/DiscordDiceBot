@@ -3,6 +3,9 @@ package de.janno.discord;
 import com.google.common.collect.ImmutableSet;
 import de.janno.discord.command.ActiveButtonsCache;
 import discord4j.common.util.Snowflake;
+import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
+import discord4j.core.object.command.ApplicationCommandInteractionOption;
+import discord4j.core.object.command.ApplicationCommandInteractionOptionValue;
 import discord4j.core.object.component.LayoutComponent;
 import discord4j.core.object.component.MessageComponent;
 import discord4j.core.object.entity.Member;
@@ -20,14 +23,14 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.nio.charset.StandardCharsets;
-import java.time.Instant;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Slf4j
-public class DiscordMessageUtils {
+public class DiscordUtils {
+
     //needed to correctly show utf8 characters in discord
     public static String encodeUTF8(@NonNull String in) {
         return new String(in.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8);
@@ -42,7 +45,7 @@ public class DiscordMessageUtils {
                 .author(rollRequester.getDisplayName(), null, rollRequester.getAvatarUrl())
                 .color(Color.of(rollRequester.getId().hashCode()))
                 .description(StringUtils.abbreviate(encodeUTF8(description), 4096)) //https://discord.com/developers/docs/resources/channel#embed-limits
-             //   .timestamp(Instant.now())
+                //   .timestamp(Instant.now())
                 .build();
     }
 
@@ -104,5 +107,19 @@ public class DiscordMessageUtils {
         return messageComponent.getData().customId().toOptional().map(ImmutableSet::of).orElse(ImmutableSet.of());
     }
 
+    public static String getSlashOptionsToString(ChatInputInteractionEvent event) {
+        List<String> options = event.getOptions().stream()
+                .map(DiscordUtils::optionToString)
+                .collect(Collectors.toList());
+        return options.isEmpty() ? "" : options.toString();
+    }
+
+    private static String optionToString(ApplicationCommandInteractionOption option) {
+        List<String> subOptions = option.getOptions().stream().map(DiscordUtils::optionToString).collect(Collectors.toList());
+        return String.format("%s=%s%s",
+                option.getName(),
+                option.getValue().map(ApplicationCommandInteractionOptionValue::getRaw).orElse(""),
+                subOptions.isEmpty() ? "" : subOptions.toString());
+    }
 
 }
