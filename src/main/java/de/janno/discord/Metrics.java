@@ -5,6 +5,7 @@ import io.micrometer.core.instrument.Tags;
 import io.micrometer.core.instrument.binder.jvm.JvmGcMetrics;
 import io.micrometer.core.instrument.binder.jvm.JvmMemoryMetrics;
 import io.micrometer.core.instrument.binder.jvm.JvmThreadMetrics;
+import io.micrometer.core.instrument.binder.logging.Log4j2Metrics;
 import io.micrometer.core.instrument.binder.system.ProcessorMetrics;
 import io.micrometer.core.instrument.binder.system.UptimeMetrics;
 import io.micrometer.prometheus.PrometheusConfig;
@@ -13,17 +14,16 @@ import io.micrometer.prometheus.PrometheusMeterRegistry;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static io.micrometer.core.instrument.Metrics.globalRegistry;
 
 public class Metrics {
 
     public final static String METRIC_PREFIX = "dice.";
-    public final static String ACTION_TAG = "action";
+    public final static String EVENT_TAG = "event";
     public final static String CONFIG_TAG = "config";
+    public final static String COMMAND_TAG = "command";
 
     public static void init(boolean collectSystemMetrics) {
         PrometheusMeterRegistry prometheusRegistry = new PrometheusMeterRegistry(PrometheusConfig.DEFAULT);
@@ -32,10 +32,7 @@ public class Metrics {
         try {
             HttpServer server = HttpServer.create(new InetSocketAddress(8080), 0);
             server.createContext("/prometheus", httpExchange -> {
-                String response = Arrays.stream(prometheusRegistry.scrape().split("\n"))
-                        .filter(s -> !s.startsWith("#"))
-                        .sorted()
-                        .collect(Collectors.joining("\n"));
+                String response = prometheusRegistry.scrape();
                 httpExchange.sendResponseHeaders(200, response.getBytes().length);
                 try (OutputStream os = httpExchange.getResponseBody()) {
                     os.write(response.getBytes());
@@ -52,14 +49,15 @@ public class Metrics {
             new JvmGcMetrics().bindTo(globalRegistry);
             new ProcessorMetrics().bindTo(globalRegistry);
             new JvmThreadMetrics().bindTo(globalRegistry);
+            new Log4j2Metrics().bindTo(globalRegistry);
         }
     }
 
-    public static void incrementMetricCounter(String commandName, String action, List<String> config) {
+    public static void incrementMetricCounter(String commandName, String eventType, List<String> config) {
         if (config != null && !config.isEmpty()) {
-            globalRegistry.counter(METRIC_PREFIX + commandName, Tags.of(ACTION_TAG, action).and(CONFIG_TAG, config.toString())).increment();
+            globalRegistry.counter(METRIC_PREFIX + commandName, Tags.of(EVENT_TAG, eventType).and(CONFIG_TAG, config.toString())).increment();
         }
-        globalRegistry.counter(METRIC_PREFIX + commandName, Tags.of(ACTION_TAG, action)).increment();
-        globalRegistry.counter(METRIC_PREFIX + action).increment();
+        globalRegistry.counter(METRIC_PREFIX + commandName, Tags.of(EVENT_TAG, eventType)).increment();
+        globalRegistry.counter(METRIC_PREFIX + eventType, Tags.of(COMMAND_TAG, commandName)).increment();
     }
 }
