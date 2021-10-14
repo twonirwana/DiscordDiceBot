@@ -52,6 +52,36 @@ public class CustomDiceCommand extends AbstractCommand {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    protected String getStartOptionsValidationMessage(ApplicationCommandInteractionOption options) {
+
+        List<String> allDiceExpressions = DICE_COMMAND_OPTIONS_IDS.stream()
+                .flatMap(id -> options.getOption(id).stream())
+                .flatMap(a -> a.getValue().stream())
+                .map(ApplicationCommandInteractionOptionValue::asString)
+                .map(Object::toString)
+                .distinct()
+                .collect(Collectors.toList());
+
+        if (allDiceExpressions.isEmpty()) {
+            return "You must configure at least one button with a dice expression. Use /help to get more information on how to use the command.";
+        }
+
+        List<String> invalidDiceExpressions = allDiceExpressions.stream()
+                .filter(s -> !DiceParserHelper.validExpression(s))
+                .collect(Collectors.toList());
+        if (!invalidDiceExpressions.isEmpty()) {
+            return String.format("The following dice expression are invalid: %s. Use /help to get more information on how to use the command.", String.join(",", invalidDiceExpressions));
+        }
+
+        List<String> toLongExpression = allDiceExpressions.stream()
+                .filter(s -> s.length() > 80)
+                .collect(Collectors.toList());
+        if (!toLongExpression.isEmpty()) {
+            return String.format("The following dice expression are to long: %s. A expression must be 80 or less characters long", String.join(",", invalidDiceExpressions));
+        }
+        return null;
+    }
 
     @Override
     protected List<String> getConfigValuesFromStartOptions(ApplicationCommandInteractionOption options) {
@@ -61,7 +91,7 @@ public class CustomDiceCommand extends AbstractCommand {
                 .map(ApplicationCommandInteractionOptionValue::asString)
                 .map(Object::toString)
                 .filter(DiceParserHelper::validExpression)
-                .filter(s -> s.length() < 80) //limit for the ids are 100 characters and we need also some characters for the type...
+                .filter(s -> s.length() <= 80) //limit for the ids are 100 characters and we need also some characters for the type...
                 .distinct()
                 .limit(15)
                 .collect(Collectors.toList());

@@ -2,9 +2,7 @@ package de.janno.discord;
 
 import com.sun.net.httpserver.HttpServer;
 import io.micrometer.core.instrument.Tags;
-import io.micrometer.core.instrument.binder.jvm.JvmGcMetrics;
-import io.micrometer.core.instrument.binder.jvm.JvmMemoryMetrics;
-import io.micrometer.core.instrument.binder.jvm.JvmThreadMetrics;
+import io.micrometer.core.instrument.binder.jvm.*;
 import io.micrometer.core.instrument.binder.logging.Log4j2Metrics;
 import io.micrometer.core.instrument.binder.system.ProcessorMetrics;
 import io.micrometer.core.instrument.binder.system.UptimeMetrics;
@@ -50,6 +48,9 @@ public class Metrics {
             new ProcessorMetrics().bindTo(globalRegistry);
             new JvmThreadMetrics().bindTo(globalRegistry);
             new Log4j2Metrics().bindTo(globalRegistry);
+            new ClassLoaderMetrics().bindTo(globalRegistry);
+            new JvmHeapPressureMetrics().bindTo(globalRegistry);
+            new JvmInfoMetrics().bindTo(globalRegistry);
         }
     }
 

@@ -119,6 +119,11 @@ public abstract class AbstractCommand implements ISlashCommand, IComponentIntera
 
         } else if (event.getOption(ACTION_START).isPresent()) {
             ApplicationCommandInteractionOption options = event.getOption(ACTION_START).get();
+            String validationMessage = getStartOptionsValidationMessage(options);
+            if (validationMessage != null) {
+                log.info("Validation message: {}", validationMessage);
+                return event.reply(validationMessage);
+            }
             List<String> config = getConfigValuesFromStartOptions(options);
             return event.reply("...")
                     .onErrorResume(t -> {
@@ -141,8 +146,8 @@ public abstract class AbstractCommand implements ISlashCommand, IComponentIntera
 
     protected abstract List<LayoutComponent> getButtonLayout(List<String> config);
 
-    protected String getConfigDescription(List<String> config) {
-        return "";
+    protected String getStartOptionsValidationMessage(ApplicationCommandInteractionOption options) {
+        return null;
     }
 
     protected List<String> getConfigFromEvent(ComponentInteractionEvent event) {
