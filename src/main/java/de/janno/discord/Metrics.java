@@ -4,6 +4,7 @@ import com.sun.net.httpserver.HttpServer;
 import io.micrometer.core.instrument.Tags;
 import io.micrometer.core.instrument.binder.jvm.*;
 import io.micrometer.core.instrument.binder.logging.Log4j2Metrics;
+import io.micrometer.core.instrument.binder.logging.LogbackMetrics;
 import io.micrometer.core.instrument.binder.system.ProcessorMetrics;
 import io.micrometer.core.instrument.binder.system.UptimeMetrics;
 import io.micrometer.prometheus.PrometheusConfig;
@@ -47,7 +48,7 @@ public class Metrics {
             new JvmGcMetrics().bindTo(globalRegistry);
             new ProcessorMetrics().bindTo(globalRegistry);
             new JvmThreadMetrics().bindTo(globalRegistry);
-            new Log4j2Metrics().bindTo(globalRegistry);
+            new LogbackMetrics().bindTo(globalRegistry);
             new ClassLoaderMetrics().bindTo(globalRegistry);
             new JvmHeapPressureMetrics().bindTo(globalRegistry);
             new JvmInfoMetrics().bindTo(globalRegistry);
