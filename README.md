@@ -14,17 +14,16 @@ The bot has currently three systems:
 
 ## Custom dice buttons
 
-Use the slash command: 'custom_dice start' and add up to 15 buttons in the format XdY where X is the number of dice and
-Y the number of sides of each die (max value of each is 99). For example '/custom_dice start 1_button:3d6 2_button:10d10 3_button:3d20' produces the following buttons:
+Use the slash command: 'custom_dice start' and add up to 15 custom buttons, each with its own dice expression. For example '/custom_dice start 1_button:3d6 2_button:10d10 3_button:3d20' produces the following buttons:
 
 ![custom_dice_buttons.png](custom_dice_buttons.png)
 
-and on clicking the ordered results of the button dice:
+and on clicking it provides the ordered results of the button dice and the sum:
+
 ![custom_dice_result.png](custom_dice_result.png)
 
 ### Supported Notation
-
-see https://github.com/diceroll-dev/dice-parser for details
+Each button can be set with dice expression with the following notation.
 
 | Name | Notation | Example | Description |
 |------|----------|---------|-------------|
@@ -49,6 +48,8 @@ see https://github.com/diceroll-dev/dice-parser for details
 | Subtract | `<left> - <right>` | `2 - 1` | |
 | Multiply | `<left> * <right>` | `1d4 * 2d6` | |
 | Divide | `<left> / <right>` | `4 / 2` | |
+
+see https://github.com/diceroll-dev/dice-parser for more details.
 
 ## Count success in a pool
 
