@@ -48,7 +48,7 @@ public class DirectRollCommand implements ISlashCommand {
             String diceExpression = options.getValue()
                     .map(ApplicationCommandInteractionOptionValue::asString)
                     .orElseThrow();
-            Metrics.incrementMetricCounter(getName(), "slashEvent", ImmutableList.of(diceExpression));
+            Metrics.incrementSlashMetricCounter(getName(), ImmutableList.of(diceExpression));
 
             DiceResult result = DiceParserHelper.rollWithDiceParser(diceExpression);
             log.info(String.format("%s:%s -> %s: %s", event.getCommandName(), diceExpression, result.getResultTitle(), result.getResultDetails()));

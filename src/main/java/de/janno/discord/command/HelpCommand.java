@@ -1,5 +1,6 @@
 package de.janno.discord.command;
 
+import com.google.common.collect.ImmutableList;
 import de.janno.discord.Metrics;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.spec.InteractionApplicationCommandCallbackSpec;
@@ -25,7 +26,7 @@ public class HelpCommand implements ISlashCommand {
 
     @Override
     public Mono<Void> handleSlashCommandEvent(@NonNull ChatInputInteractionEvent event) {
-        Metrics.incrementMetricCounter(getName(), "slashEvent", null);
+        Metrics.incrementSlashMetricCounter(getName(), ImmutableList.of());
         return event.reply(InteractionApplicationCommandCallbackSpec.builder()
                 .ephemeral(true)
                 .content("Full documentation can be found under: https://github.com/twonirwana/DiscordDiceBot/blob/main/README.md")

@@ -75,7 +75,7 @@ public abstract class AbstractCommand implements ISlashCommand, IComponentIntera
     @Override
     public Mono<Void> handleComponentInteractEvent(@NonNull ComponentInteractionEvent event) {
         List<String> config = getConfigFromEvent(event);
-        Metrics.incrementMetricCounter(getName(), "buttonEvent", config);
+        Metrics.incrementButtonMetricCounter(getName(), config);
         DiceResult result = rollDice(getValueFromEvent(event), config);
         if (event.getInteraction().getMessageId().isPresent()) {
             //adding the message of the event to the cache, in the case that the bot was restarted and has forgotten the button
@@ -100,7 +100,7 @@ public abstract class AbstractCommand implements ISlashCommand, IComponentIntera
     @Override
     public Mono<Void> handleSlashCommandEvent(@NonNull ChatInputInteractionEvent event) {
 
-        Metrics.incrementMetricCounter(getName(), "slashEvent", event.getOption(ACTION_START).map(this::getConfigValuesFromStartOptions).orElse(null));
+        Metrics.incrementSlashMetricCounter(getName(), event.getOption(ACTION_START).map(this::getConfigValuesFromStartOptions).orElse(ImmutableList.of()));
 
         if (event.getOption(ACTION_CLEAR).isPresent()) {
             activeButtonsCache.removeChannel(event.getInteraction().getChannelId());

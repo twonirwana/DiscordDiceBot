@@ -2,6 +2,7 @@
 
 A dice rolling bot for Discord. The bot needs to be configured in each channel and then provides a button selection.
 Upon clicking on a button the bot will post the result and move the buttons to the bottom of the channel.
+This improves usability, especially for touchscreen users.
 
 Add to Discord channel by following this link:
 https://discord.com/api/oauth2/authorize?client_id=812381127943782502&permissions=67584&scope=bot%20applications.commands
