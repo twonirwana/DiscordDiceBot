@@ -1,30 +1,29 @@
 # DiscordDiceBot
 
-A dice rolling bot for Discord. The bot needs to be configured in each channel and then provides a button selection.
-Upon clicking on a button the bot will post the result and move the buttons to the bottom of the channel.
-This improves usability, especially for touchscreen users.
+This is dice rolling bot for Discord. The bot needs to be configured in each channel and then provides a message with a
+button selection. Upon clicking on a button the bot will post the result and move the message with the buttons to the
+bottom of the channel. This improves usability, especially for touchscreen users.
 
 Add to Discord channel by following this link:
 https://discord.com/api/oauth2/authorize?client_id=812381127943782502&permissions=67584&scope=bot%20applications.commands
 
-:warning: **If can't see the bots messages**: The link preview in the discord setting must be activated to see the roll
-results
+:warning: **If you can't see the bots messages**: The link preview in the discord setting must be activated to see the
+roll results
 
 The bot has currently three systems:
 
 ## Custom dice buttons
 
 Use the slash command: 'custom_dice start' and add up to 15 buttons in the format XdY where X is the number of dice and
-Y the number of sides of each die (max value of each is 99). For example '/custom_dice start 1_button: 3d6 2_button:
-10d10 3_button:3d20' produces the following buttons:
+Y the number of sides of each die (max value of each is 99). For example '/custom_dice start 1_button:3d6 2_button:10d10 3_button:3d20' produces the following buttons:
 
 ![custom_dice_buttons.png](custom_dice_buttons.png)
 
 and on clicking the ordered results of the button dice:
-
 ![custom_dice_result.png](custom_dice_result.png)
 
 ### Supported Notation
+
 see https://github.com/diceroll-dev/dice-parser for details
 
 | Name | Notation | Example | Description |
