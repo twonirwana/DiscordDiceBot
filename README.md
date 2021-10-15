@@ -14,15 +14,15 @@ The bot has currently three systems:
 
 ## Custom dice buttons
 
-Use the slash command: 'custom_dice start' and add up to 15 custom buttons, each with its own dice expression. For example '/custom_dice start 1_button:3d6 2_button:10d10 3_button:3d20' produces the following buttons:
+Use the slash command: 'custom_dice start' and add up to 15 custom buttons, each with its one dice expression. For example '/custom_dice start 1_button:3d6 2_button:10d10 3_button:3d20' produces the three buttons as follows:
 
 ![custom_dice_buttons.png](custom_dice_buttons.png)
 
-and on clicking it provides the ordered results of the button dice and the sum:
+and on clicking on a button provides the results of the button dice and result of the expression (default it is the sum of all dice):
 
 ![custom_dice_result.png](custom_dice_result.png)
 
-### Supported Notation
+### Dice Expression Notation
 Each button can be set with dice expression with the following notation.
 
 | Name | Notation | Example | Description |
@@ -57,8 +57,7 @@ Use the slash command: '/count_successes start'. You need to provide the sides o
 parameter. For example '/count_successes start dice_sides:10 target_number:7' creates 15 buttons for 10 sided dice that
 roll against the target of 7. By clicking on a button a number of dice will be rolled and the count of the dice with
 results equal or approve the target number returned. This is a system that can be used for example for the new Word of
-Darkness (sides:
-10, target 7) or Shadowrun (sides: 6, target 4).
+Darkness (sides:10, target 7) or Shadowrun (sides: 6, target 4).
 
 ![count_success_buttons.png](count_success_buttons.png)
 
@@ -66,7 +65,7 @@ Darkness (sides:
 
 ## Fate
 
-Use the slash command: '/fate start' to active the fate system. There are two types simple and with modifier:
+Use the slash command: '/fate start' to get buttons for Fate. There are two types simple and with modifier:
 
 ### Simple
 

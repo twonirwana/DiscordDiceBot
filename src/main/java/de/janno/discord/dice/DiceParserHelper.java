@@ -42,4 +42,25 @@ public class DiceParserHelper {
         return ImmutableList.of(String.valueOf(resultTree.getValue()));
     }
 
+    public static String validateDiceExpressions(List<String> expressions) {
+        if (expressions.isEmpty()) {
+            return "You must configure at least one button with a dice expression. Use /help to get more information on how to use the command.";
+        }
+
+        List<String> invalidDiceExpressions = expressions.stream()
+                .filter(s -> !DiceParserHelper.validExpression(s))
+                .collect(Collectors.toList());
+        if (!invalidDiceExpressions.isEmpty()) {
+            return String.format("The following dice expression are invalid: %s. Use /help to get more information on how to use the command.", String.join(",", invalidDiceExpressions));
+        }
+
+        List<String> toLongExpression = expressions.stream()
+                .filter(s -> s.length() > 80)
+                .collect(Collectors.toList());
+        if (!toLongExpression.isEmpty()) {
+            return String.format("The following dice expression are to long: %s. A expression must be 80 or less characters long", String.join(",", invalidDiceExpressions));
+        }
+        return null;
+    }
+
 }

@@ -20,7 +20,7 @@ public class HelpCommand implements ISlashCommand {
     public ApplicationCommandRequest getApplicationCommand() {
         return ApplicationCommandRequest.builder()
                 .name(getName())
-                .description("Link to the documentation")
+                .description("Link to the documentation and public bot server")
                 .build();
     }
 
@@ -29,7 +29,7 @@ public class HelpCommand implements ISlashCommand {
         Metrics.incrementSlashMetricCounter(getName(), ImmutableList.of());
         return event.reply(InteractionApplicationCommandCallbackSpec.builder()
                 .ephemeral(true)
-                .content("Full documentation can be found under: https://github.com/twonirwana/DiscordDiceBot/blob/main/README.md")
+                .content("Full documentation can be found under: https://github.com/twonirwana/DiscordDiceBot/blob/main/README.md or ask me here: https://discord.gg/e43BsqKpFr")
                 .build());
     }
 }
