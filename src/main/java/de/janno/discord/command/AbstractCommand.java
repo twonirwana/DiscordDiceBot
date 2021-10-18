@@ -11,6 +11,7 @@ import discord4j.core.object.command.ApplicationCommandInteractionOption;
 import discord4j.core.object.command.ApplicationCommandOption;
 import discord4j.core.object.component.LayoutComponent;
 import discord4j.core.object.entity.channel.TextChannel;
+import discord4j.core.spec.EmbedCreateSpec;
 import discord4j.core.spec.MessageCreateSpec;
 import discord4j.discordjson.json.ApplicationCommandOptionData;
 import discord4j.discordjson.json.ApplicationCommandRequest;
@@ -29,6 +30,7 @@ public abstract class AbstractCommand implements ISlashCommand, IComponentIntera
 
     protected static final String ACTION_CLEAR = "clear";
     protected static final String ACTION_START = "start";
+    protected static final String ACTION_HELP = "help";
     protected static final String CONFIG_DELIMITER = ",";
     protected final ActiveButtonsCache activeButtonsCache;
     protected final Snowflake botUserId;
@@ -66,6 +68,12 @@ public abstract class AbstractCommand implements ISlashCommand, IComponentIntera
                 .addOption(ApplicationCommandOptionData.builder()
                         .name(ACTION_CLEAR)
                         .description("Clear")
+                        .type(ApplicationCommandOption.Type.SUB_COMMAND.getValue())
+                        .build()
+                )
+                .addOption(ApplicationCommandOptionData.builder()
+                        .name(ACTION_HELP)
+                        .description("Help")
                         .type(ApplicationCommandOption.Type.SUB_COMMAND.getValue())
                         .build()
                 )
@@ -134,9 +142,17 @@ public abstract class AbstractCommand implements ISlashCommand, IComponentIntera
                             .flatMap(createButtonMessage(activeButtonsCache, getButtonMessage(config), getButtonLayout(config), config)))
                     .ofType(Void.class);
 
+        } else if (event.getOption(ACTION_HELP).isPresent()) {
+            return event.reply().withEphemeral(true).withEmbeds(getHelpMessage())
+                    .onErrorResume(t -> {
+                        log.error("Error on replay to slash help command", t);
+                        return Mono.empty();
+                    });
         }
         return Mono.empty();
     }
+
+    protected abstract EmbedCreateSpec getHelpMessage();
 
     protected abstract String getButtonMessage(List<String> config);
 

@@ -12,6 +12,7 @@ import discord4j.core.object.command.ApplicationCommandOption;
 import discord4j.core.object.component.ActionRow;
 import discord4j.core.object.component.Button;
 import discord4j.core.object.component.LayoutComponent;
+import discord4j.core.spec.EmbedCreateSpec;
 import discord4j.discordjson.json.ApplicationCommandOptionData;
 import lombok.extern.slf4j.Slf4j;
 
@@ -50,6 +51,65 @@ public class CustomDiceCommand extends AbstractCommand {
                         .type(ApplicationCommandOption.Type.STRING.getValue())
                         .build())
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    protected EmbedCreateSpec getHelpMessage() {
+        return EmbedCreateSpec.builder()
+                .description("Creates up to 15 buttons with custom dice expression e.g. '/custom_dice start 1_button:3d6 2_button:10d10 3_button:3d20'. \n" +
+                        "```\n" +
+                        "      Name     |   Syntax  |  Example  \n" +
+                        "---------------------------------------\n" +
+                        "Single Die     |'d'        |'d6'       \n" +
+                        "---------------------------------------\n" +
+                        "Multiple Dice  |'d'        |'3d20'     \n" +
+                        "---------------------------------------\n" +
+                        "Keep Dice      |'dk'       |'3d6k2'    \n" +
+                        "---------------------------------------\n" +
+                        "Multiply Dice  |'dX'       |'d10X'     \n" +
+                        "---------------------------------------\n" +
+                        "Fudge Dice     |'dF'       |'dF'       \n" +
+                        "---------------------------------------\n" +
+                        "Multiple Fudge |'dF'       |'3dF'      \n" +
+                        " Dice          |           |           \n" +
+                        " --------------------------------------\n" +
+                        "Weighted Fudge |'dF.'      |'dF.1'     \n" +
+                        " Die           |           |           \n" +
+                        " --------------------------------------\n" +
+                        "Weighted       |'dF.'      |'2dF.1'    \n" +
+                        " Fudge Dice    |           |           \n" +
+                        "---------------------------------------\n" +
+                        "Exploding Dice |'d!'       |'4d6!'     \n" +
+                        "---------------------------------------\n" +
+                        "Exploding Dice |'d!>'      |'3d6!>5'   \n" +
+                        " (Target)      |           |           \n" +
+                        "---------------------------------------\n" +
+                        "Compounding    |'d!!'      |'3d6!!'    \n" +
+                        " Dice          |           |           \n" +
+                        "---------------------------------------\n" +
+                        "Compounding    |'d!!>'     |'3d6!!>5'  \n" +
+                        " Dice (Target) |           |           \n" +
+                        "---------------------------------------\n" +
+                        "Target Pool    |'d[>,<,=]' |'3d6=6'    \n" +
+                        " Dice          |           |           \n" +
+                        "---------------------------------------\n" +
+                        "Target Pool    |'()[>,<,=]'|'(4d8-2)>6'\n" +
+                        "Dice Expression|           |           \n" +
+                        "---------------------------------------\n" +
+                        "Integer        |''         |'42'       \n" +
+                        "---------------------------------------\n" +
+                        "Add            |' + '      |'2d6 + 2'  \n" +
+                        "---------------------------------------\n" +
+                        "Subtract       |' - '      |'2 - 1'    \n" +
+                        "---------------------------------------\n" +
+                        "Multiply       |' * '      |'1d4*2d6'  \n" +
+                        "---------------------------------------\n" +
+                        "Divide         |' / '      |'4 / 2'    \n" +
+                        "```\n" +
+                        "see https://github.com/twonirwana/DiscordDiceBot/blob/main/README.md for more details"
+                )
+
+                .build();
     }
 
     @Override

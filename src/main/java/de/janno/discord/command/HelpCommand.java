@@ -3,6 +3,7 @@ package de.janno.discord.command;
 import com.google.common.collect.ImmutableList;
 import de.janno.discord.Metrics;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
+import discord4j.core.spec.EmbedCreateSpec;
 import discord4j.core.spec.InteractionApplicationCommandCallbackSpec;
 import discord4j.discordjson.json.ApplicationCommandRequest;
 import lombok.NonNull;
@@ -20,7 +21,7 @@ public class HelpCommand implements ISlashCommand {
     public ApplicationCommandRequest getApplicationCommand() {
         return ApplicationCommandRequest.builder()
                 .name(getName())
-                .description("Link to the documentation and public bot server")
+                .description("Help to the commands and links for further information")
                 .build();
     }
 
@@ -29,7 +30,11 @@ public class HelpCommand implements ISlashCommand {
         Metrics.incrementSlashMetricCounter(getName(), ImmutableList.of());
         return event.reply(InteractionApplicationCommandCallbackSpec.builder()
                 .ephemeral(true)
-                .content("Full documentation can be found under: https://github.com/twonirwana/DiscordDiceBot/blob/main/README.md or ask me here: https://discord.gg/e43BsqKpFr")
+                .addEmbed(EmbedCreateSpec.builder()
+                        .addField("Command help", "type '/count_successes help', '/custom_dice help' or '/fate help' to get help for the commands", false)
+                        .addField("Full documentation", "https://github.com/twonirwana/DiscordDiceBot/blob/main/README.md", false)
+                        .addField("Discord Server", "https://discord.gg/e43BsqKpFr", false)
+                        .build())
                 .build());
     }
 }

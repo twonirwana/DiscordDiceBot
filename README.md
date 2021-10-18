@@ -65,7 +65,7 @@ Darkness (sides:10, target 7) or Shadowrun (sides: 6, target 4).
 
 ## Fate
 
-Use the slash command: '/fate start' to get buttons for Fate. There are two types simple and with modifier:
+Use the slash command: '/fate start type:with_modifier' or '/fate start type:simple' to get buttons for Fate. There are two types simple and with modifier:
 
 ### Simple
 

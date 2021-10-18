@@ -10,6 +10,7 @@ import discord4j.core.object.command.ApplicationCommandOption;
 import discord4j.core.object.component.ActionRow;
 import discord4j.core.object.component.Button;
 import discord4j.core.object.component.LayoutComponent;
+import discord4j.core.spec.EmbedCreateSpec;
 import discord4j.discordjson.json.ApplicationCommandOptionData;
 import lombok.extern.slf4j.Slf4j;
 
@@ -35,6 +36,16 @@ public class CountSuccessesCommand extends AbstractCommand {
     @Override
     protected String getCommandDescription() {
         return "Register the x sided Dice with the target number y system in the channel.";
+    }
+
+    @Override
+    protected EmbedCreateSpec getHelpMessage() {
+        return EmbedCreateSpec.builder()
+                .description("Use '/count_successes start dice_sides:X target_number:Y' " +
+                        "to get Buttons that roll with X sided dice against the target of Y and count the successes." +
+                        " A successes are all dice that have a result greater or equal then the target number")
+                .addField("Example", "/count_successes start dice_sides:10 target_number:7", false)
+                .build();
     }
 
     @Override

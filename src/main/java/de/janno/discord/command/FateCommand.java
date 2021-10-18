@@ -10,6 +10,7 @@ import discord4j.core.object.command.ApplicationCommandOption;
 import discord4j.core.object.component.ActionRow;
 import discord4j.core.object.component.Button;
 import discord4j.core.object.component.LayoutComponent;
+import discord4j.core.spec.EmbedCreateSpec;
 import discord4j.discordjson.json.ApplicationCommandOptionChoiceData;
 import discord4j.discordjson.json.ApplicationCommandOptionData;
 import lombok.extern.slf4j.Slf4j;
@@ -46,6 +47,16 @@ public class FateCommand extends AbstractCommand {
             return "Click a button to roll four fate dice and add the value of the button";
         }
         return "Click a button to roll four fate dice";
+    }
+
+    @Override
+    protected EmbedCreateSpec getHelpMessage() {
+        return EmbedCreateSpec.builder()
+                .description("Buttons for Fate/Fudge dice. There are two types, the simple produces one button that rolls four dice and " +
+                        "provides the result together with the sum. The type with_modifier produces multiple buttons for modifier -4 to +10" +
+                        " that roll four dice and add the modifier of the button.")
+                .addField("Example", "'/fate start type:with_modifier' or '/fate start type:simple'", false)
+                .build();
     }
 
     @Override
