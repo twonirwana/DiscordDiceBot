@@ -20,11 +20,11 @@ import static io.micrometer.core.instrument.Metrics.globalRegistry;
 @Slf4j
 /*
  The button cache allows us to resolve if two user click simultaneously on a button. This produces two answers and removes the same button message.
- The button cache allows us to access the messages that other user created and remove them to.
+ The button cache allows us to access the messages that other user created and remove them too.
  */
 public class ActiveButtonsCache {
 
-    Cache<Snowflake, Set<ButtonWithConfigHash>> channel2ButtonMessageIds = CacheBuilder.newBuilder()
+    private final Cache<Snowflake, Set<ButtonWithConfigHash>> channel2ButtonMessageIds = CacheBuilder.newBuilder()
             .maximumSize(10_000)
             .build();
 
