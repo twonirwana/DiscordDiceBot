@@ -3,6 +3,7 @@ package de.janno.discord.dice;
 import com.google.common.collect.ImmutableList;
 import dev.diceroll.parser.Dice;
 import dev.diceroll.parser.ResultTree;
+import dev.diceroll.parser.impl.RegexDice;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
@@ -25,11 +26,10 @@ public class DiceParserHelper {
 
     public static boolean validExpression(String input) {
         try {
-            Dice.detailedRoll(input);
+            return new RegexDice().validExpression(input);
         } catch (Throwable t) {
             return false;
         }
-        return true;
     }
 
     private static List<String> getBaseResults(ResultTree resultTree) {

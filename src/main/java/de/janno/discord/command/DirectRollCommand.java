@@ -32,6 +32,7 @@ public class DirectRollCommand implements ISlashCommand {
                 .name(getName())
                 .description("direct roll of dice expression")
                 .defaultPermission(true)
+                .type(ApplicationCommandOption.Type.SUB_COMMAND.getValue())
                 .addOption(ApplicationCommandOptionData.builder()
                         .name(ACTION_EXPRESSION)
                         .required(true)

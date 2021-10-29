@@ -15,6 +15,7 @@ version '1.0-SNAPSHOT'
 
 repositories {
     mavenCentral()
+    maven { url 'https://jitpack.io' }
 }
 
 dependencies {
@@ -22,13 +23,14 @@ dependencies {
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
     implementation("com.discord4j:discord4j-core:3.2.0")
     implementation 'ch.qos.logback:logback-classic:1.2.6'
-    compileOnly 'org.projectlombok:lombok:1.18.20'
+    compileOnly 'org.projectlombok:lombok:latest.release'
     annotationProcessor 'org.projectlombok:lombok:1.18.20'
     implementation 'com.google.guava:guava:31.0.1-jre'
     implementation 'io.micrometer:micrometer-core:latest.release'
     implementation 'io.micrometer:micrometer-registry-prometheus:latest.release'
     implementation 'org.apache.commons:commons-lang3:3.12.0'
-    implementation 'dev.diceroll:dice-parser:0.1.0'
+   // implementation 'com.github.diceroll-dev:dice-parser:dice-parser-0.1.0'
+  implementation 'com.github.diceroll-dev:dice-parser:main-SNAPSHOT'
 
     testCompileOnly 'org.projectlombok:lombok:1.18.20'
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.20'

@@ -66,7 +66,9 @@ public class CustomDiceCommand extends AbstractCommand {
                         "---------------------------------------\n" +
                         "Keep Dice      |'dk'       |'3d6k2'    \n" +
                         "---------------------------------------\n" +
-                        "Multiply Dice  |'dX'       |'d10X'     \n" +
+                        "Multiply Die   |'dX'       |'d10X'     \n" +
+                        " --------------------------------------\n" +
+                        "Multiply Dice  |'dX'       |'2d10X'    \n" +
                         "---------------------------------------\n" +
                         "Fudge Dice     |'dF'       |'dF'       \n" +
                         "---------------------------------------\n" +
