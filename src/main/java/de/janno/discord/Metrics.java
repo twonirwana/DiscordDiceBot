@@ -25,25 +25,26 @@ public class Metrics {
     public final static String CONFIG_TAG = "config";
     public final static String COMMAND_TAG = "command";
 
-    public static void init(boolean collectSystemMetrics) {
-        PrometheusMeterRegistry prometheusRegistry = new PrometheusMeterRegistry(PrometheusConfig.DEFAULT);
-        io.micrometer.core.instrument.Metrics.addRegistry(prometheusRegistry);
-        new UptimeMetrics().bindTo(globalRegistry);
-        try {
-            HttpServer server = HttpServer.create(new InetSocketAddress(8080), 0);
-            server.createContext("/prometheus", httpExchange -> {
-                String response = prometheusRegistry.scrape();
-                httpExchange.sendResponseHeaders(200, response.getBytes().length);
-                try (OutputStream os = httpExchange.getResponseBody()) {
-                    os.write(response.getBytes());
-                }
-            });
+    public static void init(boolean collectSystemMetricsAndPublish) {
+        if (collectSystemMetricsAndPublish) {
+            PrometheusMeterRegistry prometheusRegistry = new PrometheusMeterRegistry(PrometheusConfig.DEFAULT);
+            io.micrometer.core.instrument.Metrics.addRegistry(prometheusRegistry);
+            new UptimeMetrics().bindTo(globalRegistry);
+            try {
+                HttpServer server = HttpServer.create(new InetSocketAddress(8080), 0);
+                server.createContext("/prometheus", httpExchange -> {
+                    String response = prometheusRegistry.scrape();
+                    httpExchange.sendResponseHeaders(200, response.getBytes().length);
+                    try (OutputStream os = httpExchange.getResponseBody()) {
+                        os.write(response.getBytes());
+                    }
+                });
 
-            new Thread(server::start).start();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        if (collectSystemMetrics) {
+                new Thread(server::start).start();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+
             prometheusRegistry.config().commonTags("application", "DiscordDiceBot");
             new JvmMemoryMetrics().bindTo(globalRegistry);
             new JvmGcMetrics().bindTo(globalRegistry);
@@ -58,7 +59,6 @@ public class Metrics {
 
     public static void incrementButtonMetricCounter(@NonNull String commandName, @NonNull List<String> config) {
         globalRegistry.counter(METRIC_PREFIX + METRIC_BUTTON_PREFIX, Tags.of(COMMAND_TAG, commandName).and(CONFIG_TAG, config.toString())).increment();
-
     }
 
     public static void incrementSlashMetricCounter(@NonNull String commandName, @NonNull List<String> config) {
