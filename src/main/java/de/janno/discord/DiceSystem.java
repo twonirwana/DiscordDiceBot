@@ -8,6 +8,7 @@ import discord4j.core.DiscordClientBuilder;
 import discord4j.core.event.ReactiveEventAdapter;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.event.domain.interaction.ComponentInteractionEvent;
+import io.micrometer.core.instrument.Gauge;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.reactivestreams.Publisher;
@@ -16,6 +17,7 @@ import reactor.core.publisher.Mono;
 import reactor.netty.http.client.HttpClient;
 
 import static de.janno.discord.DiscordUtils.getSlashOptionsToString;
+import static io.micrometer.core.instrument.Metrics.globalRegistry;
 
 @Slf4j
 public class DiceSystem {
@@ -36,6 +38,9 @@ public class DiceSystem {
                 .setReactorResources(ReactorResources.builder()
                         .httpClient(httpClient)
                         .build()).build();
+
+        Gauge.builder(Metrics.METRIC_PREFIX + "guildsCount", () -> discordClient.getGuilds().count().blockOptional().orElse(0L))
+                .register(globalRegistry);
 
         Snowflake botUserId = discordClient.getCoreResources().getSelfId();
         SlashCommandRegistry slashCommandRegistry = SlashCommandRegistry.builder()
