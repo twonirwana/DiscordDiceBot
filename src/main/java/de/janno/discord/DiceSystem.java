@@ -6,6 +6,7 @@ import discord4j.common.util.Snowflake;
 import discord4j.core.DiscordClient;
 import discord4j.core.DiscordClientBuilder;
 import discord4j.core.event.ReactiveEventAdapter;
+import discord4j.core.event.domain.guild.GuildCreateEvent;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.event.domain.interaction.ComponentInteractionEvent;
 import io.micrometer.core.instrument.Gauge;
@@ -92,6 +93,14 @@ public class DiceSystem {
                                             log.error("ButtonInteractEvent Exception: ", e);
                                             return Mono.empty();
                                         });
+                            }
+
+                            @Override
+                            @NonNull
+                            public Publisher<?> onGuildCreate(@NonNull GuildCreateEvent event) {
+                                log.info("Bot started in guild: name='{}', description='{}', memberCount={}", event.getGuild().getName(),
+                                        event.getGuild().getDescription().orElse(""), event.getGuild().getMemberCount());
+                                return super.onGuildCreate(event);
                             }
                         }).then(gw.onDisconnect())
                 )
