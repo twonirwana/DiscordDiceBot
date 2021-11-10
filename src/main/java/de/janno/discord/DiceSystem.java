@@ -7,8 +7,10 @@ import discord4j.core.DiscordClient;
 import discord4j.core.DiscordClientBuilder;
 import discord4j.core.event.ReactiveEventAdapter;
 import discord4j.core.event.domain.guild.GuildCreateEvent;
+import discord4j.core.event.domain.guild.GuildDeleteEvent;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.event.domain.interaction.ComponentInteractionEvent;
+import discord4j.core.object.entity.Guild;
 import io.micrometer.core.instrument.Gauge;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -101,6 +103,14 @@ public class DiceSystem {
                                 log.info("Bot started in guild: name='{}', description='{}', memberCount={}", event.getGuild().getName(),
                                         event.getGuild().getDescription().orElse(""), event.getGuild().getMemberCount());
                                 return super.onGuildCreate(event);
+                            }
+
+                            @Override
+                            @NonNull
+                            public Publisher<?> onGuildDelete(@NonNull GuildDeleteEvent event) {
+                                log.info("Bot removed in guild: name='{}', description='{}', memberCount={}", event.getGuild().map(Guild::getName).orElse(""),
+                                        event.getGuild().flatMap(Guild::getDescription).orElse(""), event.getGuild().map(Guild::getMemberCount).orElse(0));
+                                return super.onGuildDelete(event);
                             }
                         }).then(gw.onDisconnect())
                 )
