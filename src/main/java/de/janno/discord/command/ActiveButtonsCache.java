@@ -55,8 +55,4 @@ public class ActiveButtonsCache {
         }
         return ImmutableList.of();
     }
-
-    public void removeChannel(Snowflake channelId) {
-        channel2ButtonMessageIds.invalidate(channelId);
-    }
 }

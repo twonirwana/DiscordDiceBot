@@ -1,16 +1,13 @@
 package de.janno.discord;
 
-import com.google.common.collect.ImmutableSet;
 import de.janno.discord.command.ActiveButtonsCache;
 import discord4j.common.util.Snowflake;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.object.command.ApplicationCommandInteractionOption;
 import discord4j.core.object.command.ApplicationCommandInteractionOptionValue;
 import discord4j.core.object.component.LayoutComponent;
-import discord4j.core.object.component.MessageComponent;
 import discord4j.core.object.entity.Member;
 import discord4j.core.object.entity.Message;
-import discord4j.core.object.entity.User;
 import discord4j.core.object.entity.channel.MessageChannel;
 import discord4j.core.object.entity.channel.TextChannel;
 import discord4j.core.spec.EmbedCreateSpec;
@@ -24,7 +21,6 @@ import reactor.core.publisher.Mono;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -47,20 +43,6 @@ public class DiscordUtils {
                 .description(StringUtils.abbreviate(encodeUTF8(description), 4096)) //https://discord.com/developers/docs/resources/channel#embed-limits
                 //   .timestamp(Instant.now())
                 .build();
-    }
-
-    public static Flux<Void> deleteAllButtonMessagesOfTheBot(@NonNull Mono<TextChannel> channel,
-                                                             @NonNull Snowflake deleteBeforeMessageId,
-                                                             @NonNull Snowflake botUserId,
-                                                             @NonNull Function<String, Boolean> isFromSystem) {
-        return channel.flux()
-                .flatMap(c -> c.getMessagesBefore(deleteBeforeMessageId))
-                .take(500) //only look at the last 500 messages
-                .filter(m -> botUserId.equals(m.getAuthor().map(User::getId).orElse(null)))
-                .filter(m -> m.getComponents().stream()
-                        .flatMap(l -> getLayoutComponentIdsFromMessage(l).stream())
-                        .anyMatch(isFromSystem::apply))
-                .flatMap(Message::delete);
     }
 
     public static Mono<Void> deleteMessage(
@@ -95,16 +77,6 @@ public class DiscordUtils {
                     activeButtonsCache.addChannelWithButton(m.getChannelId(), m.getId(), config);
                     return m;
                 });
-    }
-
-    private static Set<String> getLayoutComponentIdsFromMessage(MessageComponent messageComponent) {
-        if (messageComponent instanceof LayoutComponent) {
-            LayoutComponent layoutComponent = (LayoutComponent) messageComponent;
-            if (!layoutComponent.getChildren().isEmpty()) {
-                return layoutComponent.getChildren().stream().flatMap(mc -> getLayoutComponentIdsFromMessage(mc).stream()).collect(Collectors.toSet());
-            }
-        }
-        return messageComponent.getData().customId().toOptional().map(ImmutableSet::of).orElse(ImmutableSet.of());
     }
 
     public static String getSlashOptionsToString(ChatInputInteractionEvent event) {

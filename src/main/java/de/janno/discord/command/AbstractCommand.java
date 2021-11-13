@@ -4,7 +4,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import de.janno.discord.Metrics;
 import de.janno.discord.dice.DiceResult;
-import discord4j.common.util.Snowflake;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.event.domain.interaction.ComponentInteractionEvent;
 import discord4j.core.object.command.ApplicationCommandInteractionOption;
@@ -12,7 +11,6 @@ import discord4j.core.object.command.ApplicationCommandOption;
 import discord4j.core.object.component.LayoutComponent;
 import discord4j.core.object.entity.channel.TextChannel;
 import discord4j.core.spec.EmbedCreateSpec;
-import discord4j.core.spec.MessageCreateSpec;
 import discord4j.discordjson.json.ApplicationCommandOptionData;
 import discord4j.discordjson.json.ApplicationCommandRequest;
 import lombok.NonNull;
@@ -28,16 +26,13 @@ import static de.janno.discord.DiscordUtils.*;
 @Slf4j
 public abstract class AbstractCommand implements ISlashCommand, IComponentInteractEventHandler {
 
-    protected static final String ACTION_CLEAR = "clear";
     protected static final String ACTION_START = "start";
     protected static final String ACTION_HELP = "help";
     protected static final String CONFIG_DELIMITER = ",";
     protected final ActiveButtonsCache activeButtonsCache;
-    protected final Snowflake botUserId;
 
-    protected AbstractCommand(ActiveButtonsCache activeButtonsCache, Snowflake botUserId) {
+    protected AbstractCommand(ActiveButtonsCache activeButtonsCache) {
         this.activeButtonsCache = activeButtonsCache;
-        this.botUserId = botUserId;
     }
 
     protected static String createButtonCustomId(String system, String value, List<String> config) {
@@ -65,12 +60,6 @@ public abstract class AbstractCommand implements ISlashCommand, IComponentIntera
                         .type(ApplicationCommandOption.Type.SUB_COMMAND.getValue())
                         .addAllOptions(getStartOptions())
                         .build())
-                .addOption(ApplicationCommandOptionData.builder()
-                        .name(ACTION_CLEAR)
-                        .description("Clear")
-                        .type(ApplicationCommandOption.Type.SUB_COMMAND.getValue())
-                        .build()
-                )
                 .addOption(ApplicationCommandOptionData.builder()
                         .name(ACTION_HELP)
                         .description("Help")
@@ -110,22 +99,7 @@ public abstract class AbstractCommand implements ISlashCommand, IComponentIntera
 
         Metrics.incrementSlashMetricCounter(getName(), event.getOption(ACTION_START).map(this::getConfigValuesFromStartOptions).orElse(ImmutableList.of()));
 
-        if (event.getOption(ACTION_CLEAR).isPresent()) {
-            activeButtonsCache.removeChannel(event.getInteraction().getChannelId());
-            return event.reply("...")
-                    .onErrorResume(t -> {
-                        log.error("Error on replay to slash start command", t);
-                        return Mono.empty();
-                    })
-                    .then(event.getInteraction()
-                            .getChannel()
-                            .ofType(TextChannel.class)
-                            .flatMap(tc -> tc.createMessage(MessageCreateSpec.builder() //needed to have a messageId to remove all bot messages before
-                                    .content("Clear " + getName() + " button messages from channel")
-                                    .build()))
-                            .flatMap(m -> deleteAllButtonMessagesOfTheBot(m.getChannel().ofType(TextChannel.class), m.getId(), botUserId, this::matchingComponentCustomId).next()));
-
-        } else if (event.getOption(ACTION_START).isPresent()) {
+        if (event.getOption(ACTION_START).isPresent()) {
             ApplicationCommandInteractionOption options = event.getOption(ACTION_START).get();
             String validationMessage = getStartOptionsValidationMessage(options);
             if (validationMessage != null) {

@@ -3,7 +3,6 @@ package de.janno.discord.command;
 import com.google.common.collect.ImmutableList;
 import de.janno.discord.dice.DiceResult;
 import de.janno.discord.dice.DiceUtils;
-import discord4j.common.util.Snowflake;
 import discord4j.core.object.command.ApplicationCommandInteractionOption;
 import discord4j.core.object.command.ApplicationCommandInteractionOptionValue;
 import discord4j.core.object.command.ApplicationCommandOption;
@@ -27,8 +26,8 @@ public class FateCommand extends AbstractCommand {
     private static final String ACTION_MODIFIER_OPTION_SIMPLE = "simple";
     private static final String ACTION_MODIFIER_OPTION_MODIFIER = "with_modifier";
 
-    public FateCommand(Snowflake botUserId) {
-        super(new ActiveButtonsCache(COMMAND_NAME), botUserId);
+    public FateCommand() {
+        super(new ActiveButtonsCache(COMMAND_NAME));
     }
 
     @Override

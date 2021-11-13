@@ -2,7 +2,6 @@ package de.janno.discord;
 
 import de.janno.discord.command.*;
 import discord4j.common.ReactorResources;
-import discord4j.common.util.Snowflake;
 import discord4j.core.DiscordClient;
 import discord4j.core.DiscordClientBuilder;
 import discord4j.core.event.ReactiveEventAdapter;
@@ -48,11 +47,10 @@ public class DiceSystem {
         AtomicLong guildCounter = new AtomicLong(0);
         Gauge.builder(Metrics.METRIC_PREFIX + "guildsCount", guildCounter::get).register(globalRegistry);
 
-        Snowflake botUserId = discordClient.getCoreResources().getSelfId();
         SlashCommandRegistry slashCommandRegistry = SlashCommandRegistry.builder()
-                .addSlashCommand(new CountSuccessesCommand(botUserId))
-                .addSlashCommand(new CustomDiceCommand(botUserId))
-                .addSlashCommand(new FateCommand(botUserId))
+                .addSlashCommand(new CountSuccessesCommand())
+                .addSlashCommand(new CustomDiceCommand())
+                .addSlashCommand(new FateCommand())
                 .addSlashCommand(new DirectRollCommand())
                 .addSlashCommand(new HelpCommand())
                 .registerSlashCommands(discordClient, updateSlashCommands);

@@ -3,7 +3,6 @@ package de.janno.discord.command;
 import com.google.common.collect.ImmutableList;
 import de.janno.discord.dice.DiceResult;
 import de.janno.discord.dice.DiceUtils;
-import discord4j.common.util.Snowflake;
 import discord4j.core.object.command.ApplicationCommandInteractionOption;
 import discord4j.core.object.command.ApplicationCommandInteractionOptionValue;
 import discord4j.core.object.command.ApplicationCommandOption;
@@ -25,8 +24,8 @@ public class CountSuccessesCommand extends AbstractCommand {
     private static final String ACTION_TARGET_OPTION = "target_number";
     private static final int MAX_NUMBER_SIDES_OR_TARGET_NUMBER = 1000;
 
-    public CountSuccessesCommand(Snowflake botUserId) {
-        super(new ActiveButtonsCache(COMMAND_NAME), botUserId);
+    public CountSuccessesCommand() {
+        super(new ActiveButtonsCache(COMMAND_NAME));
     }
 
     private static String createButtonLabel(String value, List<String> config) {

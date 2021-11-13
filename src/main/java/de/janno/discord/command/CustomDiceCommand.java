@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import de.janno.discord.dice.DiceParserHelper;
 import de.janno.discord.dice.DiceResult;
-import discord4j.common.util.Snowflake;
 import discord4j.core.event.domain.interaction.ComponentInteractionEvent;
 import discord4j.core.object.command.ApplicationCommandInteractionOption;
 import discord4j.core.object.command.ApplicationCommandInteractionOptionValue;
@@ -27,8 +26,8 @@ public class CustomDiceCommand extends AbstractCommand {
     private static final String COMMAND_NAME = "custom_dice";
     private static final List<String> DICE_COMMAND_OPTIONS_IDS = IntStream.range(1, 16).mapToObj(i -> i + "_button").collect(Collectors.toList());
 
-    public CustomDiceCommand(Snowflake botUserId) {
-        super(new ActiveButtonsCache(COMMAND_NAME), botUserId);
+    public CustomDiceCommand() {
+        super(new ActiveButtonsCache(COMMAND_NAME));
     }
 
     @Override

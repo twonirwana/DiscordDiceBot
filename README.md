@@ -14,15 +14,18 @@ The bot has currently three systems:
 
 ## Custom dice buttons
 
-Use the slash command: 'custom_dice start' and add up to 15 custom buttons, each with its one dice expression. For example '/custom_dice start 1_button:3d6 2_button:10d10 3_button:3d20' produces the three buttons as follows:
+Use the slash command: 'custom_dice start' and add up to 15 custom buttons, each with its own dice expression. For
+example '/custom_dice start 1_button:3d6 2_button:10d10 3_button:3d20' produces the three buttons as follows:
 
 ![custom_dice_buttons.png](custom_dice_buttons.png)
 
-and on clicking on a button provides the results of the button dice and result of the expression (default it is the sum of all dice):
+and on clicking on a button provides the results of the button dice and result of the expression (default it is the sum
+of all dice):
 
 ![custom_dice_result.png](custom_dice_result.png)
 
 ### Dice Expression Notation
+
 Each button can be set with dice expression with the following notation.
 
 | Name | Notation | Example | Description |
@@ -66,7 +69,8 @@ Darkness (sides:10, target 7) or Shadowrun (sides: 6, target 4).
 
 ## Fate
 
-Use the slash command: '/fate start type:with_modifier' or '/fate start type:simple' to get buttons for Fate. There are two types simple and with modifier:
+Use the slash command: '/fate start type:with_modifier' or '/fate start type:simple' to get buttons for Fate. There are
+two types simple and with modifier:
 
 ### Simple
 
