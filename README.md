@@ -5,7 +5,10 @@ button selection. Upon clicking on a button the bot will post the result and mov
 bottom of the channel. This improves usability, especially for touchscreen users.
 
 Add to Discord channel by following this link:
-https://discord.com/api/oauth2/authorize?client_id=812381127943782502&permissions=67584&scope=bot%20applications.commands
+https://discord.com/api/oauth2/authorize?client_id=812381127943782502&permissions=2048&scope=bot%20applications.commands
+
+The bot need permission to create application commands (which are needed to control the bot) and send message (for the
+dice buttons and results).
 
 :warning: **If you can't see the bots messages**: The link preview in the discord setting must be activated to see the
 roll results
