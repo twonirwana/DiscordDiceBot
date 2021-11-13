@@ -112,9 +112,11 @@ public class DiceSystem {
                             @Override
                             @NonNull
                             public Publisher<?> onGuildDelete(@NonNull GuildDeleteEvent event) {
-                                log.info("Bot removed in guild: name='{}', description='{}', memberCount={}", event.getGuild().map(Guild::getName).orElse(""),
-                                        event.getGuild().flatMap(Guild::getDescription).orElse(""), event.getGuild().map(Guild::getMemberCount).orElse(0));
-                                guildCounter.getAndDecrement();
+                                if (!event.isUnavailable() && event.getGuild().isPresent()) {
+                                    log.info("Bot removed in guild: name='{}', description='{}', memberCount={}", event.getGuild().map(Guild::getName).orElse(""),
+                                            event.getGuild().flatMap(Guild::getDescription).orElse(""), event.getGuild().map(Guild::getMemberCount).orElse(0));
+                                    guildCounter.getAndDecrement();
+                                }
                                 return super.onGuildDelete(event);
                             }
                         }).then(gw.onDisconnect())
