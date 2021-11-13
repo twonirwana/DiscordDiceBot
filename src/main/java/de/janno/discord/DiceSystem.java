@@ -19,6 +19,8 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.netty.http.client.HttpClient;
 
+import java.util.concurrent.atomic.AtomicLong;
+
 import static de.janno.discord.DiscordUtils.getSlashOptionsToString;
 import static io.micrometer.core.instrument.Metrics.globalRegistry;
 
@@ -42,8 +44,9 @@ public class DiceSystem {
                         .httpClient(httpClient)
                         .build()).build();
 
-        Gauge.builder(Metrics.METRIC_PREFIX + "guildsCount", () -> discordClient.getGuilds().count().blockOptional().orElse(0L))
-                .register(globalRegistry);
+
+        AtomicLong guildCounter = new AtomicLong(0);
+        Gauge.builder(Metrics.METRIC_PREFIX + "guildsCount", guildCounter::get).register(globalRegistry);
 
         Snowflake botUserId = discordClient.getCoreResources().getSelfId();
         SlashCommandRegistry slashCommandRegistry = SlashCommandRegistry.builder()
@@ -102,6 +105,7 @@ public class DiceSystem {
                             public Publisher<?> onGuildCreate(@NonNull GuildCreateEvent event) {
                                 log.info("Bot started in guild: name='{}', description='{}', memberCount={}", event.getGuild().getName(),
                                         event.getGuild().getDescription().orElse(""), event.getGuild().getMemberCount());
+                                guildCounter.getAndIncrement();
                                 return super.onGuildCreate(event);
                             }
 
@@ -110,6 +114,7 @@ public class DiceSystem {
                             public Publisher<?> onGuildDelete(@NonNull GuildDeleteEvent event) {
                                 log.info("Bot removed in guild: name='{}', description='{}', memberCount={}", event.getGuild().map(Guild::getName).orElse(""),
                                         event.getGuild().flatMap(Guild::getDescription).orElse(""), event.getGuild().map(Guild::getMemberCount).orElse(0));
+                                guildCounter.getAndDecrement();
                                 return super.onGuildDelete(event);
                             }
                         }).then(gw.onDisconnect())
