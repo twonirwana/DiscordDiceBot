@@ -65,8 +65,14 @@ public class FateCommand extends AbstractCommand {
                 .required(true)
                 .description("Show modifier buttons")
                 .type(ApplicationCommandOption.Type.STRING.getValue())
-                .addChoice(ApplicationCommandOptionChoiceData.builder().name(ACTION_MODIFIER_OPTION_SIMPLE).value(ACTION_MODIFIER_OPTION_SIMPLE).build())
-                .addChoice(ApplicationCommandOptionChoiceData.builder().name(ACTION_MODIFIER_OPTION_MODIFIER).value(ACTION_MODIFIER_OPTION_MODIFIER).build())
+                .addChoice(ApplicationCommandOptionChoiceData.builder()
+                        .name(ACTION_MODIFIER_OPTION_SIMPLE)
+                        .value(ACTION_MODIFIER_OPTION_SIMPLE)
+                        .build())
+                .addChoice(ApplicationCommandOptionChoiceData.builder()
+                        .name(ACTION_MODIFIER_OPTION_MODIFIER)
+                        .value(ACTION_MODIFIER_OPTION_MODIFIER)
+                        .build())
                 .build());
     }
 

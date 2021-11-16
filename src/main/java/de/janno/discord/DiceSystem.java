@@ -2,6 +2,7 @@ package de.janno.discord;
 
 import de.janno.discord.command.*;
 import discord4j.common.ReactorResources;
+import discord4j.common.util.Snowflake;
 import discord4j.core.DiscordClient;
 import discord4j.core.DiscordClientBuilder;
 import discord4j.core.event.ReactiveEventAdapter;
@@ -18,7 +19,8 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.netty.http.client.HttpClient;
 
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.HashSet;
+import java.util.Set;
 
 import static de.janno.discord.DiscordUtils.getSlashOptionsToString;
 import static io.micrometer.core.instrument.Metrics.globalRegistry;
@@ -44,8 +46,8 @@ public class DiceSystem {
                         .build()).build();
 
 
-        AtomicLong guildCounter = new AtomicLong(0);
-        Gauge.builder(Metrics.METRIC_PREFIX + "guildsCount", guildCounter::get).register(globalRegistry);
+        Set<Snowflake> botInGuildIdSet = new HashSet<>();
+        Gauge.builder(Metrics.METRIC_PREFIX + "guildsCount", botInGuildIdSet::size).register(globalRegistry);
 
         SlashCommandRegistry slashCommandRegistry = SlashCommandRegistry.builder()
                 .addSlashCommand(new CountSuccessesCommand())
@@ -54,6 +56,7 @@ public class DiceSystem {
                 .addSlashCommand(new DirectRollCommand())
                 .addSlashCommand(new HelpCommand())
                 .registerSlashCommands(discordClient, updateSlashCommands);
+
 
         discordClient.withGateway(gw -> gw.on(new ReactiveEventAdapter() {
                             @Override
@@ -101,9 +104,11 @@ public class DiceSystem {
                             @Override
                             @NonNull
                             public Publisher<?> onGuildCreate(@NonNull GuildCreateEvent event) {
-                                log.info("Bot started in guild: name='{}', description='{}', memberCount={}", event.getGuild().getName(),
-                                        event.getGuild().getDescription().orElse(""), event.getGuild().getMemberCount());
-                                guildCounter.getAndIncrement();
+                                if (!botInGuildIdSet.contains(event.getGuild().getId())) {
+                                    log.info("Bot started in guild: name='{}', description='{}', memberCount={}", event.getGuild().getName(),
+                                            event.getGuild().getDescription().orElse(""), event.getGuild().getMemberCount());
+                                    botInGuildIdSet.add(event.getGuild().getId());
+                                }
                                 return super.onGuildCreate(event);
                             }
 
@@ -111,9 +116,11 @@ public class DiceSystem {
                             @NonNull
                             public Publisher<?> onGuildDelete(@NonNull GuildDeleteEvent event) {
                                 if (!event.isUnavailable() && event.getGuild().isPresent()) {
-                                    log.info("Bot removed in guild: name='{}', description='{}', memberCount={}", event.getGuild().map(Guild::getName).orElse(""),
-                                            event.getGuild().flatMap(Guild::getDescription).orElse(""), event.getGuild().map(Guild::getMemberCount).orElse(0));
-                                    guildCounter.getAndDecrement();
+                                    if (botInGuildIdSet.contains(event.getGuild().get().getId())) {
+                                        log.info("Bot removed in guild: name='{}', description='{}', memberCount={}", event.getGuild().map(Guild::getName).orElse(""),
+                                                event.getGuild().flatMap(Guild::getDescription).orElse(""), event.getGuild().map(Guild::getMemberCount).orElse(0));
+                                        botInGuildIdSet.remove(event.getGuild().get().getId());
+                                    }
                                 }
                                 return super.onGuildDelete(event);
                             }

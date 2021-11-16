@@ -74,12 +74,13 @@ public class SlashCommandRegistry {
                 buttonSlashCommandMap.values().stream()
                         .filter(sc -> applicationCommandData.containsKey(sc.getName()))
                         .forEach(sc -> {
-                                    log.info("Creating command: " + sc.getApplicationCommand());
                                     applicationService.modifyGlobalApplicationCommand(applicationId,
-                                            Long.parseLong(applicationCommandData.get(sc.getName()).id()),
-                                            sc.getApplicationCommand())
+                                                    Long.parseLong(applicationCommandData.get(sc.getName()).id()),
+                                                    sc.getApplicationCommand())
                                             .doOnEach(acd -> log.info("Update command: " + acd))
+                                            .doOnError(t -> log.error("Error creating command: {}", sc.getApplicationCommand(), t))
                                             .block();
+                                    log.info("Created command: " + sc.getApplicationCommand());
                                 }
                         );
             }

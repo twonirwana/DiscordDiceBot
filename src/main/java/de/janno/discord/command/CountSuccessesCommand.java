@@ -59,12 +59,16 @@ public class CountSuccessesCommand extends AbstractCommand {
                         .required(true)
                         .description("Dice side")
                         .type(ApplicationCommandOption.Type.INTEGER.getValue())
+                        .minValue(0d)
+                        .maxValue((double) MAX_NUMBER_SIDES_OR_TARGET_NUMBER)
                         .build(),
                 ApplicationCommandOptionData.builder()
                         .name(ACTION_TARGET_OPTION)
                         .required(true)
                         .description("Target number")
                         .type(ApplicationCommandOption.Type.INTEGER.getValue())
+                        .minValue(0d)
+                        .maxValue((double) MAX_NUMBER_SIDES_OR_TARGET_NUMBER)
                         .build());
     }
 
