@@ -22,15 +22,15 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
     implementation("com.discord4j:discord4j-core:3.2.1")
-    implementation 'ch.qos.logback:logback-classic:1.2.6'
+    implementation 'ch.qos.logback:logback-classic:1.2.7'
     compileOnly 'org.projectlombok:lombok:1.18.22'
     annotationProcessor 'org.projectlombok:lombok:1.18.22'
     implementation 'com.google.guava:guava:31.0.1-jre'
-    implementation 'io.micrometer:micrometer-core:1.7.5'
-    implementation 'io.micrometer:micrometer-registry-prometheus:1.7.5'
+    implementation 'io.micrometer:micrometer-core:1.8.0'
+    implementation 'io.micrometer:micrometer-registry-prometheus:1.8.0'
     implementation 'org.apache.commons:commons-lang3:3.12.0'
     implementation 'com.github.twonirwana:dice-parser:0.2.0'
-
+    implementation 'io.undertow:undertow-core:2.2.12.Final'
 
     testCompileOnly 'org.projectlombok:lombok:1.18.22'
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.22'

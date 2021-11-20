@@ -1,6 +1,5 @@
 package de.janno.discord;
 
-import com.sun.net.httpserver.HttpServer;
 import io.micrometer.core.instrument.Tags;
 import io.micrometer.core.instrument.binder.jvm.*;
 import io.micrometer.core.instrument.binder.logging.LogbackMetrics;
@@ -8,11 +7,12 @@ import io.micrometer.core.instrument.binder.system.ProcessorMetrics;
 import io.micrometer.core.instrument.binder.system.UptimeMetrics;
 import io.micrometer.prometheus.PrometheusConfig;
 import io.micrometer.prometheus.PrometheusMeterRegistry;
+import io.undertow.Handlers;
+import io.undertow.Undertow;
+import io.undertow.server.handlers.PathHandler;
+import io.undertow.util.Headers;
 import lombok.NonNull;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.net.InetSocketAddress;
 import java.util.List;
 
 import static io.micrometer.core.instrument.Metrics.globalRegistry;
@@ -30,20 +30,15 @@ public class Metrics {
             PrometheusMeterRegistry prometheusRegistry = new PrometheusMeterRegistry(PrometheusConfig.DEFAULT);
             io.micrometer.core.instrument.Metrics.addRegistry(prometheusRegistry);
             new UptimeMetrics().bindTo(globalRegistry);
-            try {
-                HttpServer server = HttpServer.create(new InetSocketAddress(8080), 0);
-                server.createContext("/prometheus", httpExchange -> {
-                    String response = prometheusRegistry.scrape();
-                    httpExchange.sendResponseHeaders(200, response.getBytes().length);
-                    try (OutputStream os = httpExchange.getResponseBody()) {
-                        os.write(response.getBytes());
-                    }
-                });
-
-                new Thread(server::start).start();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
+            PathHandler handler = Handlers.path().addExactPath("/prometheus", exchange ->
+            {
+                exchange.getResponseHeaders().put(Headers.CONTENT_TYPE, "text/plain");
+                exchange.getResponseSender().send(prometheusRegistry.scrape());
+            });
+            Undertow server = Undertow.builder()
+                    .addHttpListener(8080, "localhost")
+                    .setHandler(handler).build();
+            server.start();
 
             prometheusRegistry.config().commonTags("application", "DiscordDiceBot");
             new JvmMemoryMetrics().bindTo(globalRegistry);
