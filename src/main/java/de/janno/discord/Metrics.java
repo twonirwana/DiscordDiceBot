@@ -1,5 +1,6 @@
 package de.janno.discord;
 
+import com.google.common.base.Strings;
 import io.micrometer.core.instrument.Tags;
 import io.micrometer.core.instrument.binder.jvm.*;
 import io.micrometer.core.instrument.binder.logging.LogbackMetrics;
@@ -25,18 +26,18 @@ public class Metrics {
     public final static String CONFIG_TAG = "config";
     public final static String COMMAND_TAG = "command";
 
-    public static void init(boolean collectSystemMetricsAndPublish) {
-        if (collectSystemMetricsAndPublish) {
+    public static void init(String publishMetricsToUrl) {
+        if (!Strings.isNullOrEmpty(publishMetricsToUrl)) {
             PrometheusMeterRegistry prometheusRegistry = new PrometheusMeterRegistry(PrometheusConfig.DEFAULT);
             io.micrometer.core.instrument.Metrics.addRegistry(prometheusRegistry);
             new UptimeMetrics().bindTo(globalRegistry);
-            PathHandler handler = Handlers.path().addExactPath("/prometheus", exchange ->
+            PathHandler handler = Handlers.path().addExactPath("prometheus", exchange ->
             {
                 exchange.getResponseHeaders().put(Headers.CONTENT_TYPE, "text/plain");
                 exchange.getResponseSender().send(prometheusRegistry.scrape());
             });
             Undertow server = Undertow.builder()
-                    .addHttpListener(8080, "localhost")
+                    .addHttpListener(8080, publishMetricsToUrl)
                     .setHandler(handler).build();
             server.start();
 
