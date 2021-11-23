@@ -32,7 +32,6 @@ public class DiceSystem {
      * TODO:
      * - optionally moving the button after all messages to the end
      * - optional delay button remove
-     * - optional config the max number of dice selection
      * - details optional
      * - timestamp optional
      * - system that compares slashCommand in code with the current and updates if there are changes

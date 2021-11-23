@@ -3,6 +3,10 @@ package de.janno.discord;
 import com.google.common.base.Strings;
 import reactor.netty.http.client.HttpClient;
 
+/**
+ * - Config file
+ * -- Metrics with port
+ */
 public class BaseBot {
     public static void main(final String[] args) {
         final String token = args[0];

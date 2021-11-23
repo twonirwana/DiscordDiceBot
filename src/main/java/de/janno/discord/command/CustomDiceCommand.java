@@ -45,7 +45,6 @@ public class CustomDiceCommand extends AbstractCommand {
         return DICE_COMMAND_OPTIONS_IDS.stream()
                 .map(id -> ApplicationCommandOptionData.builder()
                         .name(id)
-                        .required(true)
                         .description("xdy for a set of x dice with y sides, e.g. '3d6'")
                         .type(ApplicationCommandOption.Type.STRING.getValue())
                         .build())
