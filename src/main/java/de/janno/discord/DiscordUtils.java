@@ -3,6 +3,7 @@ package de.janno.discord;
 import de.janno.discord.command.ActiveButtonsCache;
 import discord4j.common.util.Snowflake;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
+import discord4j.core.event.domain.interaction.DeferrableInteractionEvent;
 import discord4j.core.object.command.ApplicationCommandInteractionOption;
 import discord4j.core.object.command.ApplicationCommandInteractionOptionValue;
 import discord4j.core.object.component.LayoutComponent;
@@ -11,6 +12,7 @@ import discord4j.core.object.entity.Message;
 import discord4j.core.object.entity.channel.MessageChannel;
 import discord4j.core.object.entity.channel.TextChannel;
 import discord4j.core.spec.EmbedCreateSpec;
+import discord4j.core.spec.InteractionFollowupCreateSpec;
 import discord4j.core.spec.MessageCreateSpec;
 import discord4j.rest.util.Color;
 import lombok.NonNull;
@@ -77,6 +79,20 @@ public class DiscordUtils {
                     activeButtonsCache.addChannelWithButton(m.getChannelId(), m.getId(), config);
                     return m;
                 });
+    }
+
+    public static Mono<Message> createEphemeralButtonReplay(
+            @NonNull DeferrableInteractionEvent event,
+            @NonNull ActiveButtonsCache activeButtonsCache,
+            @NonNull String buttonMessage,
+            @NonNull List<LayoutComponent> buttons,
+            @NonNull List<String> config) {
+        return event
+                .createFollowup(InteractionFollowupCreateSpec.builder()
+                        .content(buttonMessage)
+                        .components(buttons)
+                        .ephemeral(true)
+                        .build());
     }
 
     public static String getSlashOptionsToString(ChatInputInteractionEvent event) {

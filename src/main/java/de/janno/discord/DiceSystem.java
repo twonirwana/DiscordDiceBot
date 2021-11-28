@@ -53,6 +53,7 @@ public class DiceSystem {
                 .addSlashCommand(new CustomDiceCommand())
                 .addSlashCommand(new FateCommand())
                 .addSlashCommand(new DirectRollCommand())
+                .addSlashCommand(new SumDiceSetCommand())
                 .addSlashCommand(new HelpCommand())
                 .registerSlashCommands(discordClient, updateSlashCommands);
 
