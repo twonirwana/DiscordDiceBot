@@ -39,8 +39,8 @@ Each button can be set with dice expression with the following notation.
 | Keep Dice | `<numberOfDice>d<numberOfFaces>k<numberOfDiceKept>` | `3d6k2` | keeps the the highest values out of three, six-sided dice |
 | Multiply Die | `d<numberOfFaces>X` | `d10X` | multiplies the result of `d10 * d10` |
 | Multiply Dice | `<numberOfDice>d<numberOfFaces>X` | `2d10X` | multiplies the result of `2d10 * 2d10` |
-| Fudge Dice | `dF` | `dF` | roles a single "fudge" die (a six sided die, 1/3 chance of `-1`, 1/3 chance of `0`, and 1/3 chance of `1`) |
-| Multiple Fudge Dice | `<numberOfDice>dF` | `3dF` | roles multiple fudge dice |
+| Fudge Dice | `dF` | `dF` | rolls a single "fudge" die (a six sided die, 1/3 chance of `-1`, 1/3 chance of `0`, and 1/3 chance of `1`) |
+| Multiple Fudge Dice | `<numberOfDice>dF` | `3dF` | rolls multiple fudge dice |
 | Weighted Fudge Die | `dF.<weight>` | `dF.1` | A weighted fudge die with 1/6 chance of a `1`, `2/3` chance of a `0` and 1/6 chance of a `-1` |
 | Multiple Weighted Fudge Dice | `<numberOfDice>dF.<weight>` | `2dF.1` | multiple weighted fudge dice. |
 | Exploding Dice | `<numberOfDice>d<numberOfFaces>!` | `4d6!` | any time the max value of a die is rolled, that die is re-rolled and added to the total |
