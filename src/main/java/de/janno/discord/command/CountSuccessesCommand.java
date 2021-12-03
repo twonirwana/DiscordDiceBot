@@ -1,6 +1,7 @@
 package de.janno.discord.command;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import de.janno.discord.dice.DiceResult;
 import de.janno.discord.dice.DiceUtils;
 import discord4j.core.event.domain.interaction.ComponentInteractionEvent;
@@ -17,8 +18,9 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
-import static de.janno.discord.dice.DiceUtils.*;
+import static de.janno.discord.dice.DiceUtils.makeBold;
 
 
 @Slf4j
@@ -27,6 +29,8 @@ public class CountSuccessesCommand extends AbstractCommand {
     private static final String COMMAND_NAME = "count_successes";
     private static final String ACTION_SIDE_OPTION = "dice_sides";
     private static final String ACTION_TARGET_OPTION = "target_number";
+    private static final String ACTION_MAX_DICE_OPTION = "max_dice";
+    private static final int MAX_NUMBER_OF_DICE = 25;
     private static final String ACTION_GLITCH_OPTION = "glitch";
     private static final int MAX_NUMBER_SIDES_OR_TARGET_NUMBER = 1000;
     private static final String GLITCH_OPTION_HALF_ONES = "half_dice_one";
@@ -56,9 +60,14 @@ public class CountSuccessesCommand extends AbstractCommand {
     protected List<String> getConfigFromEvent(ComponentInteractionEvent event) {
         List<String> config = super.getConfigFromEvent(event);
 
-        //handling legacy buttons
+        //handling legacy buttons without glitch option
         if (config.size() < 3) {
-            return ImmutableList.<String>builder().addAll(config).add(GLITCH_NO_OPTION).build();
+            return ImmutableList.<String>builder().addAll(config).add(GLITCH_NO_OPTION).add("15").build();
+        }
+
+        //handling legacy buttons without max number of dice option
+        if (config.size() < 4) {
+            return ImmutableList.<String>builder().addAll(config).add("15").build();
         }
         return config;
     }
@@ -110,6 +119,14 @@ public class CountSuccessesCommand extends AbstractCommand {
                                 .name(GLITCH_OPTION_HALF_ONES)
                                 .value(GLITCH_OPTION_HALF_ONES)
                                 .build())
+                        .build(),
+                ApplicationCommandOptionData.builder()
+                        .name(ACTION_MAX_DICE_OPTION)
+                        .required(false)
+                        .description("Max number of dice")
+                        .type(ApplicationCommandOption.Type.INTEGER.getValue())
+                        .minValue(1d)
+                        .maxValue(Double.valueOf(MAX_NUMBER_OF_DICE))
                         .build());
     }
 
@@ -155,8 +172,13 @@ public class CountSuccessesCommand extends AbstractCommand {
                 .flatMap(ApplicationCommandInteractionOption::getValue)
                 .map(ApplicationCommandInteractionOptionValue::asString)
                 .orElse(GLITCH_NO_OPTION);
-
-        return ImmutableList.of(sideValue, targetValue, glitchOption);
+        String maxDice = options.getOption(ACTION_MAX_DICE_OPTION)
+                .flatMap(ApplicationCommandInteractionOption::getValue)
+                .map(ApplicationCommandInteractionOptionValue::asLong)
+                .map(l -> Math.min(l, MAX_NUMBER_OF_DICE))
+                .map(Object::toString)
+                .orElse("15");
+        return ImmutableList.of(sideValue, targetValue, glitchOption, maxDice);
     }
 
     @Override
@@ -166,28 +188,11 @@ public class CountSuccessesCommand extends AbstractCommand {
 
     @Override
     protected List<LayoutComponent> getButtonLayout(List<String> config) {
-        return ImmutableList.of(
-                ActionRow.of(
-                        //              ID,  label
-                        Button.primary(createButtonCustomId(COMMAND_NAME, "1", config), createButtonLabel("1", config)),
-                        Button.primary(createButtonCustomId(COMMAND_NAME, "2", config), createButtonLabel("2", config)),
-                        Button.primary(createButtonCustomId(COMMAND_NAME, "3", config), createButtonLabel("3", config)),
-                        Button.primary(createButtonCustomId(COMMAND_NAME, "4", config), createButtonLabel("4", config)),
-                        Button.primary(createButtonCustomId(COMMAND_NAME, "5", config), createButtonLabel("5", config))
-                ),
-                ActionRow.of(
-                        Button.primary(createButtonCustomId(COMMAND_NAME, "6", config), createButtonLabel("6", config)),
-                        Button.primary(createButtonCustomId(COMMAND_NAME, "7", config), createButtonLabel("7", config)),
-                        Button.primary(createButtonCustomId(COMMAND_NAME, "8", config), createButtonLabel("8", config)),
-                        Button.primary(createButtonCustomId(COMMAND_NAME, "9", config), createButtonLabel("9", config)),
-                        Button.primary(createButtonCustomId(COMMAND_NAME, "10", config), createButtonLabel("10", config))
-                ),
-                ActionRow.of(
-                        Button.primary(createButtonCustomId(COMMAND_NAME, "11", config), createButtonLabel("11", config)),
-                        Button.primary(createButtonCustomId(COMMAND_NAME, "12", config), createButtonLabel("12", config)),
-                        Button.primary(createButtonCustomId(COMMAND_NAME, "13", config), createButtonLabel("13", config)),
-                        Button.primary(createButtonCustomId(COMMAND_NAME, "14", config), createButtonLabel("14", config)),
-                        Button.primary(createButtonCustomId(COMMAND_NAME, "15", config), createButtonLabel("15", config))
-                ));
+        List<Button> buttons = IntStream.range(1, Integer.parseInt(config.get(3)) + 1)
+                .mapToObj(i -> Button.primary(createButtonCustomId(COMMAND_NAME, String.valueOf(i), config), createButtonLabel(String.valueOf(i), config)))
+                .collect(Collectors.toList());
+        return Lists.partition(buttons, 5).stream()
+                .map(ActionRow::of)
+                .collect(Collectors.toList());
     }
 }

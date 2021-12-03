@@ -5,7 +5,7 @@ button selection. Upon clicking on a button the bot will post the result and mov
 bottom of the channel. This improves usability, especially for touchscreen users.
 
 Add to Discord channel by following this link:
-https://discord.com/api/oauth2/authorize?client_id=812381127943782502&permissions=2048&scope=bot%20applications.commands
+[Bot invite link](https://discord.com/api/oauth2/authorize?client_id=812381127943782502&permissions=2048&scope=bot%20applications.commands)
 
 The bot need permission to create application commands (which are needed to control the bot) and send message (for the
 dice buttons and results).
@@ -17,8 +17,8 @@ The bot has currently three systems:
 
 ## Custom dice buttons
 
-Use the slash command: 'custom_dice start' and add up to 15 custom buttons, each with its own dice expression. For
-example '/custom_dice start 1_button:3d6 2_button:10d10 3_button:3d20' produces the three buttons as follows:
+Use the slash command: `custom_dice start` and add up to 15 custom buttons, each with its own dice expression. For
+example `/custom_dice start 1_button:3d6 2_button:10d10 3_button:3d20` produces the three buttons as follows:
 
 ![custom_dice_buttons.png](custom_dice_buttons.png)
 
@@ -60,14 +60,25 @@ see https://github.com/diceroll-dev/dice-parser for more details.
 
 ## Count success in a pool
 
-Use the slash command: '/count_successes start'. You need to provide the sides of the dice, the target number and
-optional a glitch system as parameter. For example '/count_successes start dice_sides:10 target_number:7' creates 15
-buttons for 10 sided dice that roll against the target of 7. By clicking on a button a number of dice will be rolled and
-the count of the dice with results equal or approve the target number returned. The optional configuration half_dice_one
-will mark the result as glitch if more than half of the dice show 1. The default is that no glitch system will be used.
+Use the slash command: `/count_successes start`. You need to provide the sides of the dice, the target number, optional
+a glitch system as parameter and the number of buttons. For example `/count_successes start dice_sides:10 target_number:
+7` creates 15 buttons for 10 sided dice that roll against the target of 7. By clicking on a button a number of dice will
+be rolled and the count of the dice with results equal or approve the target number returned.
 
-This is a system that can be used for example for the new Word of Darkness (/count_successes start dice_sides:10
-target_number:7) or Shadowrun (/count_successes start dice_sides:6 target_number:5 glitch:half_dice_one).
+### Glitch Option
+
+The optional parameter `half_dice_one` will mark the result as glitch if more than half of the dice show 1. The default
+is that no glitch system will be used.
+
+### Number of Dice Option
+
+The optional parameter `max_dice` will change the max number of dice (and thereby the number of buttons). The default
+value is 15, which will be used if the parameter is not set, and the max number of dice is 25.
+
+### Example
+
+This is a system that can be used for example for the new Word of Darkness (`/count_successes start dice_sides:10
+target_number:7`) or Shadowrun (`/count_successes start dice_sides:6 target_number:5 glitch:half_dice_one max_dice:20` ).
 
 ![img.png](count_success_buttons.png)
 
@@ -75,7 +86,7 @@ target_number:7) or Shadowrun (/count_successes start dice_sides:6 target_number
 
 ## Fate
 
-Use the slash command: '/fate start type:with_modifier' or '/fate start type:simple' to get buttons for Fate. There are
+Use the slash command: `/fate start type:with_modifier` or `/fate start type:simple` to get buttons for Fate. There are
 two types simple and with modifier:
 
 ### Simple
