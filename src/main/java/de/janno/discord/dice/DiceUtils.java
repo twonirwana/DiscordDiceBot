@@ -32,6 +32,12 @@ public class DiceUtils {
                 .count();
     }
 
+    public static int numberOfDiceResultsEqual(List<Integer> results, int target) {
+        return (int) results.stream()
+                .filter(i -> i == target)
+                .count();
+    }
+
     public static String convertFateNumberToString(List<Integer> results) {
         return "[" + results.stream().map(i -> {
             if (i < 0) {
@@ -48,16 +54,6 @@ public class DiceUtils {
         return results.stream().mapToInt(i -> i).sum();
     }
 
-    public static String makeGreaterEqualTargetValuesBold(List<Integer> diceResults, int target) {
-        return "[" + diceResults.stream()
-                .map(i -> {
-                    if (i >= target) {
-                        return makeBold(i);
-                    }
-                    return i + "";
-                }).collect(Collectors.joining(",")) + "]";
-    }
-
 
     public static String makeBold(int i) {
         return "**" + i + "**";
@@ -67,4 +63,15 @@ public class DiceUtils {
         return "__**" + i + "**__";
     }
 
+    public static String makeUnderline(int i) {
+        return "__" + i + "__";
+    }
+
+    public static String makeItalics(int i) {
+        return "*" + i + "*";
+    }
+
+    public static String makeBoldItalics(int i) {
+        return "***" + i + "***";
+    }
 }

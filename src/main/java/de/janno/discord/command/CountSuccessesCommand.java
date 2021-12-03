@@ -3,6 +3,7 @@ package de.janno.discord.command;
 import com.google.common.collect.ImmutableList;
 import de.janno.discord.dice.DiceResult;
 import de.janno.discord.dice.DiceUtils;
+import discord4j.core.event.domain.interaction.ComponentInteractionEvent;
 import discord4j.core.object.command.ApplicationCommandInteractionOption;
 import discord4j.core.object.command.ApplicationCommandInteractionOptionValue;
 import discord4j.core.object.command.ApplicationCommandOption;
@@ -10,10 +11,14 @@ import discord4j.core.object.component.ActionRow;
 import discord4j.core.object.component.Button;
 import discord4j.core.object.component.LayoutComponent;
 import discord4j.core.spec.EmbedCreateSpec;
+import discord4j.discordjson.json.ApplicationCommandOptionChoiceData;
 import discord4j.discordjson.json.ApplicationCommandOptionData;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
+import java.util.stream.Collectors;
+
+import static de.janno.discord.dice.DiceUtils.*;
 
 
 @Slf4j
@@ -22,7 +27,10 @@ public class CountSuccessesCommand extends AbstractCommand {
     private static final String COMMAND_NAME = "count_successes";
     private static final String ACTION_SIDE_OPTION = "dice_sides";
     private static final String ACTION_TARGET_OPTION = "target_number";
+    private static final String ACTION_GLITCH_OPTION = "glitch";
     private static final int MAX_NUMBER_SIDES_OR_TARGET_NUMBER = 1000;
+    private static final String GLITCH_OPTION_HALF_ONES = "half_dice_one";
+    private static final String GLITCH_NO_OPTION = "no_glitch";
 
     public CountSuccessesCommand() {
         super(new ActiveButtonsCache(COMMAND_NAME));
@@ -30,6 +38,29 @@ public class CountSuccessesCommand extends AbstractCommand {
 
     private static String createButtonLabel(String value, List<String> config) {
         return String.format("%sd%s", value, config.get(0));
+    }
+
+    public static String markSuccessesAndGlitches(List<Integer> diceResults, int target, boolean markOnes) {
+        return "[" + diceResults.stream()
+                .map(i -> {
+                    if (i >= target) {
+                        return makeBold(i);
+                    } else if (i == 1 && markOnes) {
+                        return makeBold(i);
+                    }
+                    return i + "";
+                }).collect(Collectors.joining(",")) + "]";
+    }
+
+    @Override
+    protected List<String> getConfigFromEvent(ComponentInteractionEvent event) {
+        List<String> config = super.getConfigFromEvent(event);
+
+        //handling legacy buttons
+        if (config.size() < 3) {
+            return ImmutableList.<String>builder().addAll(config).add(GLITCH_NO_OPTION).build();
+        }
+        return config;
     }
 
     @Override
@@ -69,6 +100,16 @@ public class CountSuccessesCommand extends AbstractCommand {
                         .type(ApplicationCommandOption.Type.INTEGER.getValue())
                         .minValue(0d)
                         .maxValue((double) MAX_NUMBER_SIDES_OR_TARGET_NUMBER)
+                        .build(),
+                ApplicationCommandOptionData.builder()
+                        .name(ACTION_GLITCH_OPTION)
+                        .required(false)
+                        .description("Glitch option")
+                        .type(ApplicationCommandOption.Type.STRING.getValue())
+                        .addChoice(ApplicationCommandOptionChoiceData.builder()
+                                .name(GLITCH_OPTION_HALF_ONES)
+                                .value(GLITCH_OPTION_HALF_ONES)
+                                .build())
                         .build());
     }
 
@@ -77,11 +118,17 @@ public class CountSuccessesCommand extends AbstractCommand {
         int numberOfDice = Integer.parseInt(buttonValue);
         int sidesOfDie = Integer.parseInt(config.get(0));
         int targetNumber = Integer.parseInt(config.get(1));
-        List<Integer> rollResult = DiceUtils.rollDiceOfType(numberOfDice, sidesOfDie);
+        String glitchOption = config.get(2);
+
+        List<Integer> rollResult = DiceUtils.rollDiceOfType(numberOfDice, sidesOfDie)
+                .stream().sorted().collect(Collectors.toList());
         int numberOf6s = DiceUtils.numberOfDiceResultsGreaterEqual(rollResult, targetNumber);
-        String details = "Target: " + targetNumber + " = " + DiceUtils.makeGreaterEqualTargetValuesBold(rollResult, targetNumber);
-        String title = String.format("%dd%d = %d", numberOfDice, sidesOfDie, numberOf6s);
-        log.info(String.format("%s:%s -> %s: %s", getName(), config, title, details.replace("**", "")));
+
+        boolean isGlitch = GLITCH_OPTION_HALF_ONES.equals(glitchOption) && DiceUtils.numberOfDiceResultsEqual(rollResult, 1) > (numberOfDice / 2);
+        String details = "Target: " + targetNumber + " = " + markSuccessesAndGlitches(rollResult, targetNumber, isGlitch);
+        String glitch = isGlitch ? " - Glitch!" : "";
+        String title = String.format("%dd%d = %d%s", numberOfDice, sidesOfDie, numberOf6s, glitch);
+        log.info(String.format("%s:%s -> %s: %s", getName(), config, title, details.replace("*", "")));
         return new DiceResult(title, details);
     }
 
@@ -104,7 +151,12 @@ public class CountSuccessesCommand extends AbstractCommand {
                 .map(l -> Math.min(l, MAX_NUMBER_SIDES_OR_TARGET_NUMBER))
                 .map(Object::toString)
                 .orElse("6");
-        return ImmutableList.of(sideValue, targetValue);
+        String glitchOption = options.getOption(ACTION_GLITCH_OPTION)
+                .flatMap(ApplicationCommandInteractionOption::getValue)
+                .map(ApplicationCommandInteractionOptionValue::asString)
+                .orElse(GLITCH_NO_OPTION);
+
+        return ImmutableList.of(sideValue, targetValue, glitchOption);
     }
 
     @Override

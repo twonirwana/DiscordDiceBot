@@ -60,15 +60,18 @@ see https://github.com/diceroll-dev/dice-parser for more details.
 
 ## Count success in a pool
 
-Use the slash command: '/count_successes start'. You need to provide the sides of the dice and the target number as
-parameter. For example '/count_successes start dice_sides:10 target_number:7' creates 15 buttons for 10 sided dice that
-roll against the target of 7. By clicking on a button a number of dice will be rolled and the count of the dice with
-results equal or approve the target number returned. This is a system that can be used for example for the new Word of
-Darkness (sides:10, target 7) or Shadowrun (sides: 6, target 4).
+Use the slash command: '/count_successes start'. You need to provide the sides of the dice, the target number and
+optional a glitch system as parameter. For example '/count_successes start dice_sides:10 target_number:7' creates 15
+buttons for 10 sided dice that roll against the target of 7. By clicking on a button a number of dice will be rolled and
+the count of the dice with results equal or approve the target number returned. The optional configuration half_dice_one
+will mark the result as glitch if more than half of the dice show 1. The default is that no glitch system will be used.
 
-![count_success_buttons.png](count_success_buttons.png)
+This is a system that can be used for example for the new Word of Darkness (/count_successes start dice_sides:10
+target_number:7) or Shadowrun (/count_successes start dice_sides:6 target_number:5 glitch:half_dice_one).
 
-![count_success_result.png](count_success_result.png)
+![img.png](count_success_buttons.png)
+
+![img.png](count_success_result.png)
 
 ## Fate
 
