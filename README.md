@@ -17,7 +17,7 @@ The bot has currently three systems:
 
 ## Custom dice buttons
 
-Use the slash command: `custom_dice start` and add up to 15 custom buttons, each with its own dice expression. For
+Use the slash command: `custom_dice start` and add up to 25 custom buttons, each with its own dice expression. For
 example `/custom_dice start 1_button:3d6 2_button:10d10 3_button:3d20` produces the three buttons as follows:
 
 ![custom_dice_buttons.png](custom_dice_buttons.png)

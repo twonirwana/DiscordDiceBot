@@ -19,8 +19,8 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.netty.http.client.HttpClient;
 
-import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 import static de.janno.discord.DiscordUtils.getSlashOptionsToString;
 import static io.micrometer.core.instrument.Metrics.globalRegistry;
@@ -35,6 +35,7 @@ public class DiceSystem {
      * - details optional
      * - timestamp optional
      * - system that compares slashCommand in code with the current and updates if there are changes
+     * - Changelog Command
      **/
 
     public DiceSystem(HttpClient httpClient, String token, boolean updateSlashCommands) {
@@ -45,7 +46,7 @@ public class DiceSystem {
                         .build()).build();
 
 
-        Set<Snowflake> botInGuildIdSet = new HashSet<>();
+        Set<Snowflake> botInGuildIdSet = new ConcurrentSkipListSet<>();
         Gauge.builder(Metrics.METRIC_PREFIX + "guildsCount", botInGuildIdSet::size).register(globalRegistry);
 
         SlashCommandRegistry slashCommandRegistry = SlashCommandRegistry.builder()

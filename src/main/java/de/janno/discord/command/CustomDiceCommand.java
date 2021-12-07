@@ -24,7 +24,7 @@ import java.util.stream.IntStream;
 public class CustomDiceCommand extends AbstractCommand {
 
     private static final String COMMAND_NAME = "custom_dice";
-    private static final List<String> DICE_COMMAND_OPTIONS_IDS = IntStream.range(1, 16).mapToObj(i -> i + "_button").collect(Collectors.toList());
+    private static final List<String> DICE_COMMAND_OPTIONS_IDS = IntStream.range(1, 26).mapToObj(i -> i + "_button").collect(Collectors.toList());
 
     public CustomDiceCommand() {
         super(new ActiveButtonsCache(COMMAND_NAME));
@@ -54,7 +54,7 @@ public class CustomDiceCommand extends AbstractCommand {
     @Override
     protected EmbedCreateSpec getHelpMessage() {
         return EmbedCreateSpec.builder()
-                .description("Creates up to 15 buttons with custom dice expression e.g. '/custom_dice start 1_button:3d6 2_button:10d10 3_button:3d20'. \n" +
+                .description("Creates up to 25 buttons with custom dice expression e.g. '/custom_dice start 1_button:3d6 2_button:10d10 3_button:3d20'. \n" +
                         "```\n" +
                         "      Name     |   Syntax  |  Example  \n" +
                         "---------------------------------------\n" +
@@ -136,7 +136,7 @@ public class CustomDiceCommand extends AbstractCommand {
                 .filter(DiceParserHelper::validExpression)
                 .filter(s -> s.length() <= 80) //limit for the ids are 100 characters and we need also some characters for the type...
                 .distinct()
-                .limit(15)
+                .limit(25)
                 .collect(Collectors.toList());
     }
 
