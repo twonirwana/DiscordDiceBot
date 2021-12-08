@@ -22,6 +22,7 @@ import java.util.stream.IntStream;
 
 @Slf4j
 public class CustomDiceCommand extends AbstractCommand {
+    //test with /custom_dice start 1_button:1d1 2_button:2d2 3_button:3d3 4_button:4d4 5_button:5d5 6_button:6d6 7_button:7d7 8_button:8d8 9_button:9d9 10_button:10d10 11_button:11d11 12_button:12d12 13_button:13d13 14_button:14d14 15_button:15d15 16_button:16d16 17_button:17d17 18_button:18d18 19_button:19d19 20_button:20d20 21_button:21d21 22_button:22d22 23_button:23d23 24_button:24d24 25_button:25d25
 
     private static final String COMMAND_NAME = "custom_dice";
     private static final List<String> DICE_COMMAND_OPTIONS_IDS = IntStream.range(1, 26).mapToObj(i -> i + "_button").collect(Collectors.toList());
@@ -123,7 +124,7 @@ public class CustomDiceCommand extends AbstractCommand {
                 .distinct()
                 .collect(Collectors.toList());
 
-        return DiceParserHelper.validateDiceExpressions(allDiceExpressions);
+        return DiceParserHelper.validateDiceExpressions(allDiceExpressions, "/custom_dice help");
     }
 
     @Override
