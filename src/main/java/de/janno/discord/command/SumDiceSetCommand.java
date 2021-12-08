@@ -42,7 +42,7 @@ public class SumDiceSetCommand extends AbstractCommand {
 
     @Override
     protected String getCommandDescription() {
-        return "Creates a personal message to create a dice set an rolling it";
+        return "Creates a message to create a dice set an rolling it";
     }
 
     @Override
