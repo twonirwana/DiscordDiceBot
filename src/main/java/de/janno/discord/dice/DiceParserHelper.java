@@ -16,7 +16,7 @@ public class DiceParserHelper {
         try {
             ResultTree resultTree = Dice.detailedRoll(input);
             String title = input + " = " + resultTree.getValue();
-            String details = getBaseResults(resultTree).toString();
+            String details = "[" + getBaseResults(resultTree).stream().sorted().map(String::valueOf).collect(Collectors.joining(", ")) + "]";
             return new DiceResult(title, details);
         } catch (Throwable t) {
             log.error(String.format("DiceParser error in %s:", input), t);
@@ -32,26 +32,26 @@ public class DiceParserHelper {
         }
     }
 
-    private static List<String> getBaseResults(ResultTree resultTree) {
+    private static List<Integer> getBaseResults(ResultTree resultTree) {
         if (!resultTree.getResults().isEmpty()) {
             return resultTree.getResults().stream()
                     .flatMap(rt -> getBaseResults(rt).stream())
                     .collect(Collectors.toList());
         }
         //   return ImmutableList.of(resultTree.getExpression().description() + "=" + resultTree.getValue());
-        return ImmutableList.of(String.valueOf(resultTree.getValue()));
+        return ImmutableList.of(resultTree.getValue());
     }
 
-    public static String validateDiceExpressions(List<String> expressions) {
+    public static String validateDiceExpressions(List<String> expressions, String helpCommand) {
         if (expressions.isEmpty()) {
-            return "You must configure at least one button with a dice expression. Use /help to get more information on how to use the command.";
+            return String.format("You must configure at least one button with a dice expression. Use %s to get more information on how to use the command.", helpCommand);
         }
 
         List<String> invalidDiceExpressions = expressions.stream()
                 .filter(s -> !DiceParserHelper.validExpression(s))
                 .collect(Collectors.toList());
         if (!invalidDiceExpressions.isEmpty()) {
-            return String.format("The following dice expression are invalid: %s. Use /help to get more information on how to use the command.", String.join(",", invalidDiceExpressions));
+            return String.format("The following dice expression are invalid: %s. Use %s to get more information on how to use the command.", String.join(",", invalidDiceExpressions), helpCommand);
         }
 
         List<String> toLongExpression = expressions.stream()

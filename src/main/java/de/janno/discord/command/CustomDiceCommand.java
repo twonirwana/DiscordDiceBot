@@ -22,9 +22,10 @@ import java.util.stream.IntStream;
 
 @Slf4j
 public class CustomDiceCommand extends AbstractCommand {
+    //test with /custom_dice start 1_button:1d1 2_button:2d2 3_button:3d3 4_button:4d4 5_button:5d5 6_button:6d6 7_button:7d7 8_button:8d8 9_button:9d9 10_button:10d10 11_button:11d11 12_button:12d12 13_button:13d13 14_button:14d14 15_button:15d15 16_button:16d16 17_button:17d17 18_button:18d18 19_button:19d19 20_button:20d20 21_button:21d21 22_button:22d22 23_button:23d23 24_button:24d24 25_button:25d25
 
     private static final String COMMAND_NAME = "custom_dice";
-    private static final List<String> DICE_COMMAND_OPTIONS_IDS = IntStream.range(1, 16).mapToObj(i -> i + "_button").collect(Collectors.toList());
+    private static final List<String> DICE_COMMAND_OPTIONS_IDS = IntStream.range(1, 26).mapToObj(i -> i + "_button").collect(Collectors.toList());
 
     public CustomDiceCommand() {
         super(new ActiveButtonsCache(COMMAND_NAME));
@@ -54,7 +55,7 @@ public class CustomDiceCommand extends AbstractCommand {
     @Override
     protected EmbedCreateSpec getHelpMessage() {
         return EmbedCreateSpec.builder()
-                .description("Creates up to 15 buttons with custom dice expression e.g. '/custom_dice start 1_button:3d6 2_button:10d10 3_button:3d20'. \n" +
+                .description("Creates up to 25 buttons with custom dice expression e.g. '/custom_dice start 1_button:3d6 2_button:10d10 3_button:3d20'. \n" +
                         "```\n" +
                         "      Name     |   Syntax  |  Example  \n" +
                         "---------------------------------------\n" +
@@ -123,7 +124,7 @@ public class CustomDiceCommand extends AbstractCommand {
                 .distinct()
                 .collect(Collectors.toList());
 
-        return DiceParserHelper.validateDiceExpressions(allDiceExpressions);
+        return DiceParserHelper.validateDiceExpressions(allDiceExpressions, "/custom_dice help");
     }
 
     @Override
@@ -136,7 +137,7 @@ public class CustomDiceCommand extends AbstractCommand {
                 .filter(DiceParserHelper::validExpression)
                 .filter(s -> s.length() <= 80) //limit for the ids are 100 characters and we need also some characters for the type...
                 .distinct()
-                .limit(15)
+                .limit(25)
                 .collect(Collectors.toList());
     }
 

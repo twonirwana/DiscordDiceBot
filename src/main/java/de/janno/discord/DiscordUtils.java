@@ -60,7 +60,7 @@ public class DiscordUtils {
                     return Flux.fromIterable(allButtonsWithoutTheLast).flatMap(c::getMessageById);
                 })
                 .onErrorResume(e -> {
-                    log.info("Button was not found");
+                    log.warn("Tried to delete button but it was not found");
                     return Mono.empty();
                 })
                 .flatMap(Message::delete).next().ofType(Void.class);

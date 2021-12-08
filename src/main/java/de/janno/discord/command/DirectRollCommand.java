@@ -49,7 +49,7 @@ public class DirectRollCommand implements ISlashCommand {
             String diceExpression = options.getValue()
                     .map(ApplicationCommandInteractionOptionValue::asString)
                     .orElseThrow();
-            String validationMessage = DiceParserHelper.validateDiceExpressions(ImmutableList.of(diceExpression));
+            String validationMessage = DiceParserHelper.validateDiceExpressions(ImmutableList.of(diceExpression), "/custom_dice help");
             if (validationMessage != null) {
                 log.info("Validation message: {}", validationMessage);
                 return event.reply(validationMessage);
