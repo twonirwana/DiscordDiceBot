@@ -9,7 +9,6 @@ import discord4j.core.event.domain.interaction.ComponentInteractionEvent;
 import discord4j.core.object.command.ApplicationCommandInteractionOption;
 import discord4j.core.object.command.ApplicationCommandOption;
 import discord4j.core.object.component.LayoutComponent;
-import discord4j.core.object.entity.Message;
 import discord4j.core.object.entity.channel.TextChannel;
 import discord4j.core.spec.EmbedCreateSpec;
 import discord4j.discordjson.json.ApplicationCommandOptionData;
@@ -74,7 +73,7 @@ public abstract class AbstractCommand implements ISlashCommand, IComponentIntera
     public Mono<Void> handleComponentInteractEvent(@NonNull ComponentInteractionEvent event) {
         List<String> config = getConfigFromEvent(event);
         //adding the message of the event to the cache, in the case that the bot was restarted and has forgotten the button
-        if (event.getInteraction().getMessageId().isPresent() && !buttonMessageIsEphemeral()) {
+        if (event.getInteraction().getMessageId().isPresent()) {
             activeButtonsCache.addChannelWithButton(event.getInteraction().getChannelId(), event.getInteraction().getMessageId().get(), config);
         }
         Metrics.incrementButtonMetricCounter(getName(), config);
@@ -92,17 +91,10 @@ public abstract class AbstractCommand implements ISlashCommand, IComponentIntera
                     .ofType(Void.class));
         }
         if (copyButtonMessageToTheEnd(buttonValue, config)) {
-            if (!buttonMessageIsEphemeral()) {
-                eventHandle = event.getInteraction().getChannel()
-                        .ofType(TextChannel.class)
-                        .flatMap(createButtonMessage(activeButtonsCache, getButtonMessage(config), getButtonLayout(config), config))
-                        .flatMap(m -> deleteMessage(m.getChannel(), m.getChannelId(), activeButtonsCache, m.getId(), config));
-            } else {
-                eventHandle = eventHandle
-                        .then(createEphemeralButtonReplay(event, activeButtonsCache, getButtonMessage(config), getButtonLayout(config), config)
-                                .then(Mono.justOrEmpty(event.getMessage())
-                                        .flatMap(Message::delete)));
-            }
+            eventHandle = eventHandle.then(event.getInteraction().getChannel()
+                    .ofType(TextChannel.class)
+                    .flatMap(createButtonMessage(activeButtonsCache, getButtonMessage(config), getButtonLayout(config), config))
+                    .flatMap(m -> deleteMessage(m.getChannel(), m.getChannelId(), activeButtonsCache, m.getId(), config)));
         }
 
         return eventHandle;
@@ -144,16 +136,10 @@ public abstract class AbstractCommand implements ISlashCommand, IComponentIntera
                         log.error("Error on replay to slash start command", t);
                         return Mono.empty();
                     })
-                    .then(Mono.just(buttonMessageIsEphemeral())
-                            .flatMap(isEphemeral -> {
-                                if (isEphemeral) {
-                                    return createEphemeralButtonReplay(event, activeButtonsCache, getButtonMessage(config), getButtonLayout(config), config);
-                                } else {
-                                    return event.getInteraction().getChannel().ofType(TextChannel.class)
-                                            .flatMap(createButtonMessage(activeButtonsCache, getButtonMessage(config), getButtonLayout(config), config));
-                                }
-                            }))
-                    .ofType(Void.class);
+                    .then(event.getInteraction().getChannel().ofType(TextChannel.class)
+                            .flatMap(createButtonMessage(activeButtonsCache, getButtonMessage(config), getButtonLayout(config), config))
+                            .ofType(Void.class)
+                    );
 
         } else if (event.getOption(ACTION_HELP).isPresent()) {
             return event.reply().withEphemeral(true).withEmbeds(getHelpMessage())
@@ -163,10 +149,6 @@ public abstract class AbstractCommand implements ISlashCommand, IComponentIntera
                     });
         }
         return Mono.empty();
-    }
-
-    protected boolean buttonMessageIsEphemeral() {
-        return false;
     }
 
     protected abstract EmbedCreateSpec getHelpMessage();

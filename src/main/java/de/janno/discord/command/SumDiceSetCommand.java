@@ -22,9 +22,9 @@ import java.util.stream.Collectors;
 
 /**
  * TODO:
- * - Clear after Roll
  * - doc
- * - Config nur für einen User sichbar
+ * - x2 Button that multiplies the number of all dice
+ * - only the result is in the channel and the adding of dice is ephemeral. This is currently not possible because ephemeral can't be deleted
  */
 @Slf4j
 public class SumDiceSetCommand extends AbstractCommand {
@@ -49,8 +49,7 @@ public class SumDiceSetCommand extends AbstractCommand {
     protected EmbedCreateSpec getHelpMessage() {
         return EmbedCreateSpec.builder()
                 .description("Use '/sum_dice_set start' " +
-                        "to get a personal message buttons, where the user can create a dice set and roll it. This message" +
-                        " will only see the user that used the command, the result will be seen by all in the channel")
+                        "to get message, where the user can create a dice set and roll it.")
                 .build();
     }
 
@@ -132,10 +131,7 @@ public class SumDiceSetCommand extends AbstractCommand {
 
     @Override
     protected String getButtonMessage(List<String> config) {
-        if (config.isEmpty()) {
-            return EMPTY_MESSAGE;
-        }
-        return String.join(DICE_SET_DELIMITER, config);
+        return EMPTY_MESSAGE;
     }
 
     @Override
@@ -146,11 +142,6 @@ public class SumDiceSetCommand extends AbstractCommand {
     @Override
     public boolean matchingComponentCustomId(String buttonCustomId) {
         return buttonCustomId.startsWith(COMMAND_NAME + CONFIG_DELIMITER);
-    }
-
-    @Override
-    protected boolean buttonMessageIsEphemeral() {
-        return true;
     }
 
     @Override

@@ -81,20 +81,6 @@ public class DiscordUtils {
                 });
     }
 
-    public static Mono<Message> createEphemeralButtonReplay(
-            @NonNull DeferrableInteractionEvent event,
-            @NonNull ActiveButtonsCache activeButtonsCache,
-            @NonNull String buttonMessage,
-            @NonNull List<LayoutComponent> buttons,
-            @NonNull List<String> config) {
-        return event
-                .createFollowup(InteractionFollowupCreateSpec.builder()
-                        .content(buttonMessage)
-                        .components(buttons)
-                        .ephemeral(true)
-                        .build());
-    }
-
     public static String getSlashOptionsToString(ChatInputInteractionEvent event) {
         List<String> options = event.getOptions().stream()
                 .map(DiscordUtils::optionToString)
