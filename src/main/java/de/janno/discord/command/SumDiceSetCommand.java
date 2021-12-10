@@ -22,7 +22,6 @@ import java.util.stream.Collectors;
 
 /**
  * TODO:
- * - doc
  * - x2 Button that multiplies the number of all dice
  * - only the result is in the channel and the adding of dice is ephemeral. This is currently not possible because ephemeral can't be deleted
  */

@@ -1,8 +1,9 @@
 # DiscordDiceBot
 
-This is dice rolling bot for Discord. The bot needs to be configured in each channel and then provides a message with a
-button selection. Upon clicking on a button the bot will post the result and move the message with the buttons to the
-bottom of the channel. This improves usability, especially for touchscreen users.
+This is dice rolling bot for Discord. The bot needs to be configured with a slash command in a channel and then provides
+a message with a button selection. Upon clicking on a button the bot will post the result and move the message with the
+buttons to the bottom of the channel. This allows it to roll dice without typing commands and thereby improves
+usability, especially for touchscreen users.
 
 Add to Discord channel by following this link:
 [Bot invite link](https://discord.com/api/oauth2/authorize?client_id=812381127943782502&permissions=2048&scope=bot%20applications.commands)
@@ -77,8 +78,9 @@ value is 15, which will be used if the parameter is not set, and the max number 
 
 ### Example
 
-This is a system that can be used for example for the new Word of Darkness (`/count_successes start dice_sides:10
-target_number:7`) or Shadowrun (`/count_successes start dice_sides:6 target_number:5 glitch:half_dice_one max_dice:20` ).
+This is a system that can be used for example for the new Word of
+Darkness (`/count_successes start dice_sides:10 target_number:7`) or
+Shadowrun (`/count_successes start dice_sides:6 target_number:5 glitch:half_dice_one max_dice:20` ).
 
 ![img.png](count_success_buttons.png)
 
@@ -96,5 +98,15 @@ two types simple and with modifier:
 ### With modifier buttons
 
 ![fate_with_modifier.png](fate_with_modifier.png)
+
+## Sum Dice Set
+
+Use the slash command `/sum_dice_set start` to create a message to create a die set. The user can click on the + and -
+buttons to add dice to the set. Clicking on the `Roll` button will roll the dice the message and copy a clear button
+message to the end.
+
+![](../../Downloads/sumDiceSetRequest.png)
+
+![](../../Downloads/sumDiceSetResult.png)
 
 Please let me know if another system is needed.
