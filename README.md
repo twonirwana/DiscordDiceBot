@@ -105,8 +105,8 @@ Use the slash command `/sum_dice_set start` to create a message to create a die 
 buttons to add dice to the set. Clicking on the `Roll` button will roll the dice the message and copy a clear button
 message to the end.
 
-![](../../Downloads/sumDiceSetRequest.png)
+![](sumDiceSetRequest.png)
 
-![](../../Downloads/sumDiceSetResult.png)
+![](sumDiceSetResult.png)
 
 Please let me know if another system is needed.
