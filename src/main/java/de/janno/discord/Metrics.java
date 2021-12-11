@@ -23,6 +23,7 @@ public class Metrics {
     public final static String METRIC_PREFIX = "dice.";
     public final static String METRIC_BUTTON_PREFIX = "buttonEvent";
     public final static String METRIC_SLASH_PREFIX = "slashEvent";
+    public final static String METRIC_SLASH_HELP_PREFIX = "slashHelpEvent";
     public final static String CONFIG_TAG = "config";
     public final static String COMMAND_TAG = "command";
 
@@ -57,7 +58,10 @@ public class Metrics {
         globalRegistry.counter(METRIC_PREFIX + METRIC_BUTTON_PREFIX, Tags.of(COMMAND_TAG, commandName).and(CONFIG_TAG, config.toString())).increment();
     }
 
-    public static void incrementSlashMetricCounter(@NonNull String commandName, @NonNull List<String> config) {
+    public static void incrementSlashStartMetricCounter(@NonNull String commandName, @NonNull List<String> config) {
         globalRegistry.counter(METRIC_PREFIX + METRIC_SLASH_PREFIX, Tags.of(COMMAND_TAG, commandName).and(CONFIG_TAG, config.toString())).increment();
+    }
+    public static void incrementSlashHelpMetricCounter(@NonNull String commandName) {
+        globalRegistry.counter(METRIC_PREFIX + METRIC_SLASH_HELP_PREFIX, Tags.of(COMMAND_TAG, commandName)).increment();
     }
 }

@@ -76,7 +76,6 @@ public abstract class AbstractCommand implements ISlashCommand, IComponentIntera
         if (event.getInteraction().getMessageId().isPresent()) {
             activeButtonsCache.addChannelWithButton(event.getInteraction().getChannelId(), event.getInteraction().getMessageId().get(), config);
         }
-        Metrics.incrementButtonMetricCounter(getName(), config);
         String buttonValue = getValueFromEvent(event);
         Mono<Void> eventHandle = event
                 .edit(editMessage(buttonValue, config))
@@ -85,6 +84,7 @@ public abstract class AbstractCommand implements ISlashCommand, IComponentIntera
                     return Mono.empty();
                 });
         if (createNewMessage(buttonValue, config)) {
+            Metrics.incrementButtonMetricCounter(getName(), config);
             eventHandle = eventHandle.then(event.getInteraction().getChannel()
                     .ofType(TextChannel.class)
                     .flatMap(channel -> channel.createMessage(createButtonEventAnswer(event, config)))
@@ -120,9 +120,8 @@ public abstract class AbstractCommand implements ISlashCommand, IComponentIntera
     @Override
     public Mono<Void> handleSlashCommandEvent(@NonNull ChatInputInteractionEvent event) {
 
-        Metrics.incrementSlashMetricCounter(getName(), event.getOption(ACTION_START).map(this::getConfigValuesFromStartOptions).orElse(ImmutableList.of()));
-
         if (event.getOption(ACTION_START).isPresent()) {
+            Metrics.incrementSlashStartMetricCounter(getName(), event.getOption(ACTION_START).map(this::getConfigValuesFromStartOptions).orElse(ImmutableList.of()));
             ApplicationCommandInteractionOption options = event.getOption(ACTION_START).get();
             String validationMessage = getStartOptionsValidationMessage(options);
             if (validationMessage != null) {
@@ -142,6 +141,7 @@ public abstract class AbstractCommand implements ISlashCommand, IComponentIntera
                     );
 
         } else if (event.getOption(ACTION_HELP).isPresent()) {
+            Metrics.incrementSlashHelpMetricCounter(getName());
             return event.reply().withEphemeral(true).withEmbeds(getHelpMessage())
                     .onErrorResume(t -> {
                         log.error("Error on replay to slash help command", t);

@@ -54,7 +54,7 @@ public class DirectRollCommand implements ISlashCommand {
                 log.info("Validation message: {}", validationMessage);
                 return event.reply(validationMessage);
             }
-            Metrics.incrementSlashMetricCounter(getName(), ImmutableList.of(diceExpression));
+            Metrics.incrementSlashStartMetricCounter(getName(), ImmutableList.of(diceExpression));
 
             DiceResult result = DiceParserHelper.rollWithDiceParser(diceExpression);
             log.info(String.format("%s:%s -> %s: %s", event.getCommandName(), diceExpression, result.getResultTitle(), result.getResultDetails()));

@@ -11,6 +11,7 @@ import discord4j.core.event.domain.guild.GuildDeleteEvent;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.event.domain.interaction.ComponentInteractionEvent;
 import discord4j.core.object.entity.Guild;
+import discord4j.core.object.entity.channel.TextChannel;
 import io.micrometer.core.instrument.Gauge;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -64,11 +65,13 @@ public class DiceSystem {
                             @NonNull
                             public Publisher<?> onChatInputInteraction(@NonNull ChatInputInteractionEvent event) {
                                 return Flux.concat(
-                                                event.getInteraction().getGuild()
-                                                        .doOnNext(guild -> log.info(String.format("Slash '%s%s' in '%s' from '%s'",
+                                                Mono.zip(event.getInteraction().getChannel()
+                                                                .ofType(TextChannel.class), event.getInteraction().getGuild())
+                                                        .doOnNext(channelAndGuild -> log.info(String.format("Slash '%s%s' in '%s'.'%s' from '%s'",
                                                                 event.getCommandName(),
                                                                 getSlashOptionsToString(event),
-                                                                guild.getName(),
+                                                                channelAndGuild.getT2().getName(),
+                                                                channelAndGuild.getT1().getName(),
                                                                 event.getInteraction().getUser().getUsername()))),
                                                 Flux.fromIterable(slashCommandRegistry.getSlashCommands())
                                                         .filter(command -> command.getName().equals(event.getCommandName()))
@@ -85,10 +88,12 @@ public class DiceSystem {
                             @NonNull
                             public Publisher<?> onComponentInteraction(@NonNull ComponentInteractionEvent event) {
                                 return Flux.concat(
-                                                event.getInteraction().getGuild()
-                                                        .doOnNext(guild -> log.info(String.format("Button '%s' in '%s' from '%s'",
+                                                Mono.zip(event.getInteraction().getChannel()
+                                                                .ofType(TextChannel.class), event.getInteraction().getGuild())
+                                                        .doOnNext(channelAndGuild -> log.info(String.format("Button '%s' in '%s'.'%s' from '%s'",
                                                                 event.getCustomId(),
-                                                                guild.getName(),
+                                                                channelAndGuild.getT2().getName(),
+                                                                channelAndGuild.getT1().getName(),
                                                                 event.getInteraction().getUser().getUsername()))),
                                                 Flux.fromIterable(slashCommandRegistry.getSlashCommands())
                                                         .ofType(IComponentInteractEventHandler.class)

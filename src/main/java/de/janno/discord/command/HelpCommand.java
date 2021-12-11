@@ -27,7 +27,7 @@ public class HelpCommand implements ISlashCommand {
 
     @Override
     public Mono<Void> handleSlashCommandEvent(@NonNull ChatInputInteractionEvent event) {
-        Metrics.incrementSlashMetricCounter(getName(), ImmutableList.of());
+        Metrics.incrementSlashStartMetricCounter(getName(), ImmutableList.of());
         return event.reply(InteractionApplicationCommandCallbackSpec.builder()
                 .ephemeral(true)
                 .addEmbed(EmbedCreateSpec.builder()
