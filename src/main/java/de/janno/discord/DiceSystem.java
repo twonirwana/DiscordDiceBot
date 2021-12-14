@@ -46,7 +46,6 @@ public class DiceSystem {
                         .httpClient(httpClient)
                         .build()).build();
 
-
         Set<Snowflake> botInGuildIdSet = new ConcurrentSkipListSet<>();
         Gauge.builder(Metrics.METRIC_PREFIX + "guildsCount", botInGuildIdSet::size).register(globalRegistry);
 

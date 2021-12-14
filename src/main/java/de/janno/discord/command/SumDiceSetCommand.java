@@ -22,7 +22,6 @@ import java.util.stream.Collectors;
 
 /**
  * TODO:
- * - x2 Button that multiplies the number of all dice
  * - only the result is in the channel and the adding of dice is ephemeral. This is currently not possible because ephemeral can't be deleted
  */
 @Slf4j
@@ -33,6 +32,7 @@ public class SumDiceSetCommand extends AbstractCommand {
     private static final String ROLL_BUTTON_ID = "roll";
     private static final String EMPTY_MESSAGE = "Click on the buttons to add dice to the set";
     private static final String CLEAR_BUTTON_ID = "clear";
+    private static final String X2_BUTTON_ID = "x2";
     private static final int MAX_NUMBER_OF_DICE = 100;
 
     public SumDiceSetCommand() {
@@ -69,15 +69,29 @@ public class SumDiceSetCommand extends AbstractCommand {
         return diceResult;
     }
 
+    private Map<String, Integer> currentDiceSet(List<String> config) {
+        return config.stream()
+                .collect(Collectors.toMap(s -> s.substring(s.indexOf("d")), s -> Integer.valueOf(s.substring(0, s.indexOf("d")))));
+    }
+
+    private String createMessageFromDiceSet(Map<String, Integer> diceSet) {
+        return diceSet.entrySet().stream()
+                .sorted(Comparator.comparing(e -> Integer.parseInt(e.getKey().substring(1))))
+                .map(e -> e.getValue() + e.getKey())
+                .collect(Collectors.joining(DICE_SET_DELIMITER));
+    }
+
     @Override
     protected String editMessage(String buttonId, List<String> config) {
         if (ROLL_BUTTON_ID.equals(buttonId)) {
             return EMPTY_MESSAGE;
         } else if (CLEAR_BUTTON_ID.equals(buttonId)) {
             return EMPTY_MESSAGE;
+        } else if (X2_BUTTON_ID.equals(buttonId)) {
+            return createMessageFromDiceSet(currentDiceSet(config).entrySet().stream()
+                    .collect(Collectors.toMap(Map.Entry::getKey, e -> Math.min(e.getValue() * 2, MAX_NUMBER_OF_DICE))));
         } else {
-            Map<String, Integer> currentDiceSet = config.stream()
-                    .collect(Collectors.toMap(s -> s.substring(s.indexOf("d")), s -> Integer.valueOf(s.substring(0, s.indexOf("d")))));
+            Map<String, Integer> currentDiceSet = currentDiceSet(config);
             String diceModifier = buttonId.substring(0, 1);
             String die = buttonId.substring(2);
             int currentCount = currentDiceSet.getOrDefault(die, 0);
@@ -100,10 +114,7 @@ public class SumDiceSetCommand extends AbstractCommand {
             if (currentDiceSet.isEmpty()) {
                 return EMPTY_MESSAGE;
             }
-            return currentDiceSet.entrySet().stream()
-                    .sorted(Comparator.comparing(e -> Integer.parseInt(e.getKey().substring(1))))
-                    .map(e -> e.getValue() + e.getKey())
-                    .collect(Collectors.joining(DICE_SET_DELIMITER));
+            return createMessageFromDiceSet(currentDiceSet);
         }
     }
 
@@ -151,7 +162,8 @@ public class SumDiceSetCommand extends AbstractCommand {
                         Button.primary(createButtonCustomId(COMMAND_NAME, "+1d4", ImmutableList.of()), "+1d4"),
                         Button.primary(createButtonCustomId(COMMAND_NAME, "-1d4", ImmutableList.of()), "-1d4"),
                         Button.primary(createButtonCustomId(COMMAND_NAME, "+1d6", ImmutableList.of()), "+1d6"),
-                        Button.primary(createButtonCustomId(COMMAND_NAME, "-1d6", ImmutableList.of()), "-1d6")
+                        Button.primary(createButtonCustomId(COMMAND_NAME, "-1d6", ImmutableList.of()), "-1d6"),
+                        Button.primary(createButtonCustomId(COMMAND_NAME, X2_BUTTON_ID, ImmutableList.of()), "x2")
                 ),
                 ActionRow.of(
                         Button.primary(createButtonCustomId(COMMAND_NAME, "+1d8", ImmutableList.of()), "+1d8"),
