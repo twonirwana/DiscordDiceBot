@@ -15,8 +15,10 @@ import discord4j.discordjson.json.ApplicationCommandOptionData;
 import discord4j.discordjson.json.ApplicationCommandRequest;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -77,27 +79,30 @@ public abstract class AbstractCommand implements ISlashCommand, IComponentIntera
             activeButtonsCache.addChannelWithButton(event.getInteraction().getChannelId(), event.getInteraction().getMessageId().get(), config);
         }
         String buttonValue = getValueFromEvent(event);
-        Mono<Void> eventHandle = event
+        List<Mono<Void>> actions = new ArrayList<>();
+        actions.add(event
                 .edit(editMessage(buttonValue, config))
                 .onErrorResume(t -> {
-                    log.error("Error on acknowledge button event", t);
+                    log.warn("Error on acknowledge button event");
                     return Mono.empty();
-                });
+                }));
         if (createNewMessage(buttonValue, config)) {
             Metrics.incrementButtonMetricCounter(getName(), config);
-            eventHandle = eventHandle.then(event.getInteraction().getChannel()
+            actions.add(event.getInteraction().getChannel()
                     .ofType(TextChannel.class)
                     .flatMap(channel -> channel.createMessage(createButtonEventAnswer(event, config)))
                     .ofType(Void.class));
         }
         if (copyButtonMessageToTheEnd(buttonValue, config)) {
-            eventHandle = eventHandle.then(event.getInteraction().getChannel()
+            actions.add(event.getInteraction().getChannel()
                     .ofType(TextChannel.class)
                     .flatMap(createButtonMessage(activeButtonsCache, getButtonMessage(config), getButtonLayout(config), config))
                     .flatMap(m -> deleteMessage(m.getChannel(), m.getChannelId(), activeButtonsCache, m.getId(), config)));
         }
 
-        return eventHandle;
+        return Flux.mergeDelayError(1, actions.toArray(new Mono[0]))
+                .parallel()
+                .then();
     }
 
     protected EmbedCreateSpec createButtonEventAnswer(@NonNull ComponentInteractionEvent event, @NonNull List<String> config) {
