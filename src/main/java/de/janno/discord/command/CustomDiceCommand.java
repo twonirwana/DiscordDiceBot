@@ -33,7 +33,7 @@ public class CustomDiceCommand extends AbstractCommand {
 
     @Override
     protected String getCommandDescription() {
-        return "Configure a custom set of dice";
+        return "Configure a custom set of dice buttons";
     }
 
     @Override

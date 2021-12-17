@@ -41,7 +41,7 @@ public class SumDiceSetCommand extends AbstractCommand {
 
     @Override
     protected String getCommandDescription() {
-        return "Creates a message to create a dice set an rolling it";
+        return "Configure a variable set of d4 to d20 dice";
     }
 
     @Override

@@ -25,6 +25,7 @@ public class FateCommand extends AbstractCommand {
     private static final String ACTION_MODIFIER_OPTION = "type";
     private static final String ACTION_MODIFIER_OPTION_SIMPLE = "simple";
     private static final String ACTION_MODIFIER_OPTION_MODIFIER = "with_modifier";
+    private final DiceUtils diceUtils = new DiceUtils();
 
     public FateCommand() {
         super(new ActiveButtonsCache(COMMAND_NAME));
@@ -37,7 +38,7 @@ public class FateCommand extends AbstractCommand {
 
     @Override
     protected String getCommandDescription() {
-        return "Register the Fate dice system with the channel";
+        return "Configure Fate dice";
     }
 
     @Override
@@ -92,7 +93,7 @@ public class FateCommand extends AbstractCommand {
 
     @Override
     protected DiceResult rollDice(String buttonValue, List<String> config) {
-        List<Integer> rollResult = DiceUtils.rollFate();
+        List<Integer> rollResult = diceUtils.rollFate();
 
         if (ACTION_MODIFIER_OPTION_MODIFIER.equals(config.get(0))) {
             int modifier = Integer.parseInt(buttonValue);

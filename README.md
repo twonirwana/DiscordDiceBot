@@ -21,12 +21,12 @@ The bot has currently three systems:
 Use the slash command: `custom_dice start` and add up to 25 custom buttons, each with its own dice expression. For
 example `/custom_dice start 1_button:3d6 2_button:10d10 3_button:3d20` produces the three buttons as follows:
 
-![custom_dice_buttons.png](custom_dice_buttons.png)
+![custom_dice_buttons.png](src/main/image/custom_dice_buttons.png)
 
 and on clicking on a button provides the results of the button dice and result of the expression (default it is the sum
 of all dice):
 
-![custom_dice_result.png](custom_dice_result.png)
+![custom_dice_result.png](src/main/image/custom_dice_result.png)
 
 ### Dice Expression Notation
 
@@ -68,8 +68,22 @@ be rolled and the count of the dice with results equal or approve the target num
 
 ### Glitch Option
 
-The optional parameter `half_dice_one` will mark the result as glitch if more than half of the dice show 1. The default
-is that no glitch system will be used.
+As default there is no glitch option (special handling of ones) but it is possible to configure one of the follwing
+options:
+
+#### half_dice_one
+
+The option `half_dice_one` will mark the result as glitch if more than half of the dice show 1. This is for example used
+in the Shadowrun dice system.
+
+#### count_ones
+
+The option 'count_ones' will only mark and count the ones in the result but will not change the number of successes.
+
+#### subtract_ones
+
+The option 'subtract_ones' will subtract the number of ones in the roll from the number of successes. If there are more
+ons than successes the result will be negative. This is for example used in the old World of Darkness dice system.
 
 ### Number of Dice Option
 
@@ -82,9 +96,9 @@ This is a system that can be used for example for the new Word of
 Darkness (`/count_successes start dice_sides:10 target_number:7`) or
 Shadowrun (`/count_successes start dice_sides:6 target_number:5 glitch:half_dice_one max_dice:20` ).
 
-![img.png](count_success_buttons.png)
+![img.png](src/main/image/count_success_buttons.png)
 
-![img.png](count_success_result.png)
+![img.png](src/main/image/count_success_result.png)
 
 ## Fate
 
@@ -93,11 +107,11 @@ two types simple and with modifier:
 
 ### Simple
 
-![fate_example.png](fate_example.png)
+![fate_example.png](src/main/image/fate_example.png)
 
 ### With modifier buttons
 
-![fate_with_modifier.png](fate_with_modifier.png)
+![fate_with_modifier.png](src/main/image/fate_with_modifier.png)
 
 ## Sum Dice Set
 

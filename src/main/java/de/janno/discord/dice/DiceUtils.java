@@ -1,8 +1,10 @@
 package de.janno.discord.dice;
 
 
+import java.util.Deque;
 import java.util.List;
 import java.util.Random;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -10,17 +12,27 @@ public class DiceUtils {
     public static final String MINUS = "\u2212";
     private static final Random randomNumberGenerator = new Random();
 
-    public static int rollDice(int diceSides) {
-        return (int) (randomNumberGenerator.nextDouble() * diceSides + 1);
+    private final Function<Integer, Integer> numberSupplier;
+
+    public DiceUtils() {
+        numberSupplier = diceSides -> (int) (randomNumberGenerator.nextDouble() * diceSides + 1);
     }
 
-    public static List<Integer> rollFate() {
+    public DiceUtils(Deque<Integer> results) {
+        numberSupplier = diceSides -> results.pop();
+    }
+
+    public int rollDice(int diceSides) {
+        return numberSupplier.apply(diceSides);
+    }
+
+    public List<Integer> rollFate() {
         return IntStream.range(0, 4)
                 .mapToObj(i -> rollDice(3) - 2)
                 .collect(Collectors.toList());
     }
 
-    public static List<Integer> rollDiceOfType(int numberOfDice, int diceSides) {
+    public List<Integer> rollDiceOfType(int numberOfDice, int diceSides) {
         return IntStream.range(0, numberOfDice)
                 .mapToObj(i -> rollDice(diceSides))
                 .collect(Collectors.toList());

@@ -19,10 +19,8 @@ repositories {
 }
 
 dependencies {
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.2'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.2'
     implementation("com.discord4j:discord4j-core:3.2.1")
-    implementation 'ch.qos.logback:logback-classic:1.2.7'
+    implementation 'ch.qos.logback:logback-classic:1.2.8'
     compileOnly 'org.projectlombok:lombok:1.18.22'
     annotationProcessor 'org.projectlombok:lombok:1.18.22'
     implementation 'com.google.guava:guava:31.0.1-jre'
@@ -32,8 +30,13 @@ dependencies {
     implementation 'com.github.twonirwana:dice-parser:0.2.0'
     implementation 'io.undertow:undertow-core:2.2.13.Final'
 
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.2'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.2'
+    testImplementation 'org.assertj:assertj-core:3.21.0'
+    testImplementation 'org.mockito:mockito-core:4.2.0'
     testCompileOnly 'org.projectlombok:lombok:1.18.22'
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.22'
+    implementation 'io.projectreactor:reactor-test:3.4.5'
 }
 
 java {
