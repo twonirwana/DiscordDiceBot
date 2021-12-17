@@ -100,7 +100,7 @@ public abstract class AbstractCommand implements ISlashCommand, IComponentIntera
                     .flatMap(m -> deleteMessage(m.getChannel(), m.getChannelId(), activeButtonsCache, m.getId(), config)));
         }
 
-        return Flux.mergeDelayError(1, actions.toArray(new Mono[0]))
+        return Flux.mergeDelayError(1, actions.toArray(new Mono<?>[0]))
                 .parallel()
                 .then();
     }

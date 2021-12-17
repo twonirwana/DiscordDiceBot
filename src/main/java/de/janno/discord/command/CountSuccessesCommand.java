@@ -124,7 +124,7 @@ public class CountSuccessesCommand extends AbstractCommand {
 
     private DiceResult noneGlitch(int numberOfDice, int sidesOfDie, int targetNumber, List<Integer> rollResult) {
         int numberOfSuccesses = DiceUtils.numberOfDiceResultsGreaterEqual(rollResult, targetNumber);
-        String details = String.format("%dd%d: %s ≥%d = %s", numberOfDice, sidesOfDie, markSuccessesAndOptionalOnes(rollResult, targetNumber, false), targetNumber, numberOfSuccesses);
+        String details = String.format("%s ≥%d = %s", markSuccessesAndOptionalOnes(rollResult, targetNumber, false), targetNumber, numberOfSuccesses);
         String title = String.format("%dd%d = %d", numberOfDice, sidesOfDie, numberOfSuccesses);
         return new DiceResult(title, details);
     }
@@ -132,7 +132,7 @@ public class CountSuccessesCommand extends AbstractCommand {
     private DiceResult countOnesGlitch(int numberOfDice, int sidesOfDie, int targetNumber, List<Integer> rollResult) {
         int numberOfSuccesses = DiceUtils.numberOfDiceResultsGreaterEqual(rollResult, targetNumber);
         int numberOfOnes = DiceUtils.numberOfDiceResultsEqual(rollResult, 1);
-        String details = String.format("%dd%d: %s ≥%d = %s", numberOfDice, sidesOfDie, markSuccessesAndOptionalOnes(rollResult, targetNumber, true), targetNumber, numberOfSuccesses);
+        String details = String.format("%s ≥%d = %s", markSuccessesAndOptionalOnes(rollResult, targetNumber, true), targetNumber, numberOfSuccesses);
         String title = String.format("%dd%d = %d successes and %d ones", numberOfDice, sidesOfDie, numberOfSuccesses, numberOfOnes);
         return new DiceResult(title, details);
     }
@@ -140,7 +140,7 @@ public class CountSuccessesCommand extends AbstractCommand {
     private DiceResult subtractOnesGlitch(int numberOfDice, int sidesOfDie, int targetNumber, List<Integer> rollResult) {
         int numberOfSuccesses = DiceUtils.numberOfDiceResultsGreaterEqual(rollResult, targetNumber);
         int numberOfOnes = DiceUtils.numberOfDiceResultsEqual(rollResult, 1);
-        String details = String.format("%dd%d: %s ≥%d -1s = %s", numberOfDice, sidesOfDie, markSuccessesAndOptionalOnes(rollResult, targetNumber, true), targetNumber, numberOfSuccesses - numberOfOnes);
+        String details = String.format("%s ≥%d -1s = %s", markSuccessesAndOptionalOnes(rollResult, targetNumber, true), targetNumber, numberOfSuccesses - numberOfOnes);
         String title = String.format("%dd%d = %d", numberOfDice, sidesOfDie, numberOfSuccesses - numberOfOnes);
         return new DiceResult(title, details);
     }
@@ -149,7 +149,7 @@ public class CountSuccessesCommand extends AbstractCommand {
         boolean isGlitch = DiceUtils.numberOfDiceResultsEqual(rollResult, 1) > (numberOfDice / 2);
         int numberOfSuccesses = DiceUtils.numberOfDiceResultsGreaterEqual(rollResult, targetNumber);
         String glitchDescription = isGlitch ? " and more then half of all dice show 1s" : "";
-        String details = String.format("%dd%d: %s ≥%d = %s%s", numberOfDice, sidesOfDie, markSuccessesAndOptionalOnes(rollResult, targetNumber, isGlitch), targetNumber, numberOfSuccesses, glitchDescription);
+        String details = String.format("%s ≥%d = %s%s", markSuccessesAndOptionalOnes(rollResult, targetNumber, isGlitch), targetNumber, numberOfSuccesses, glitchDescription);
         String glitch = isGlitch ? " - Glitch!" : "";
         String title = String.format("%dd%d = %d%s", numberOfDice, sidesOfDie, numberOfSuccesses, glitch);
         return new DiceResult(title, details);
@@ -165,7 +165,7 @@ public class CountSuccessesCommand extends AbstractCommand {
         if (GLITCH_OPTION_HALF_ONES.equals(glitchOption)) {
             return " and check for more then half of dice 1s";
         } else if (GLITCH_COUNT_ONES.equals(glitchOption)) {
-            return " and count of 1s";
+            return " and count the 1s";
         } else if (GLITCH_SUBTRACT_ONES.equals(glitchOption)) {
             return " minus 1s";
         }
