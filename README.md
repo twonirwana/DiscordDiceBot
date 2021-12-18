@@ -1,4 +1,4 @@
-# DiscordDiceBot
+# Button Dice Roller
 
 This is dice rolling bot for Discord. The bot needs to be configured with a slash command in a channel and then provides
 a message with a button selection. Upon clicking on a button the bot will post the result and move the message with the
@@ -7,6 +7,8 @@ usability, especially for touchscreen users.
 
 Add to Discord channel by following this link:
 [Bot invite link](https://discord.com/api/oauth2/authorize?client_id=812381127943782502&permissions=2048&scope=bot%20applications.commands)
+
+For questions and suggestions join me at the [Button Dice Roller Discord Server](https://discord.gg/e43BsqKpFr)
 
 The bot need permission to create application commands (which are needed to control the bot) and send message (for the
 dice buttons and results).
@@ -119,8 +121,8 @@ Use the slash command `/sum_dice_set start` to create a message to create a die 
 buttons to add dice to the set. Clicking on the `Roll` button will roll the dice the message and copy a clear button
 message to the end.
 
-![](sumDiceSetRequest.png)
+![](src/main/image/sumDiceSetRequest.png)
 
-![](sumDiceSetResult.png)
+![](src/main/image/sumDiceSetResult.png)
 
 Please let me know if another system is needed.
