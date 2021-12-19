@@ -1,8 +1,8 @@
 package de.janno.discord.command;
 
 import com.google.common.collect.ImmutableList;
-import de.janno.discord.dice.DiceParserHelper;
 import de.janno.discord.dice.DiceResult;
+import de.janno.discord.dice.DiceUtils;
 import discord4j.core.event.domain.interaction.ComponentInteractionEvent;
 import discord4j.core.object.command.ApplicationCommandInteractionOption;
 import discord4j.core.object.component.ActionRow;
@@ -19,25 +19,36 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * TODO:
  * - only the result is in the channel and the adding of dice is ephemeral. This is currently not possible because ephemeral can't be deleted
+ * - d100
  */
 @Slf4j
 public class SumDiceSetCommand extends AbstractCommand {
 
     private static final String COMMAND_NAME = "sum_dice_set";
-    private static final String DICE_SET_DELIMITER = " + ";
+    private static final String DICE_SET_DELIMITER = " ";
     private static final String ROLL_BUTTON_ID = "roll";
     private static final String EMPTY_MESSAGE = "Click on the buttons to add dice to the set";
     private static final String CLEAR_BUTTON_ID = "clear";
     private static final String X2_BUTTON_ID = "x2";
     private static final int MAX_NUMBER_OF_DICE = 100;
+    private final DiceUtils diceUtils;
 
     public SumDiceSetCommand() {
-        super(new ActiveButtonsCache(COMMAND_NAME));
+        this(new DiceUtils());
     }
+
+
+    //for testing
+    public SumDiceSetCommand(DiceUtils diceUtils) {
+        super(new ActiveButtonsCache(COMMAND_NAME));
+        this.diceUtils = diceUtils;
+    }
+
 
     @Override
     protected String getCommandDescription() {
@@ -64,21 +75,63 @@ public class SumDiceSetCommand extends AbstractCommand {
 
     @Override
     protected DiceResult rollDice(String buttonValue, List<String> config) {
-        DiceResult diceResult = DiceParserHelper.rollWithDiceParser(String.join(DICE_SET_DELIMITER, config));
+        Map<String, Integer> diceSetMap = currentDiceSet(config);
+        List<Integer> diceResultValues = diceSetMap.entrySet().stream()
+                .flatMap(e -> {
+                    if ("".equals(e.getKey())) {
+                        return Stream.of(e.getValue());
+                    }
+                    int diceSides = Integer.parseInt(e.getKey().substring(1));
+                    return diceUtils.rollDiceOfType(Math.abs(e.getValue()), diceSides).stream()
+                            .map(dv -> {
+                                //modify the result if the dice count is negative
+                                if (e.getValue() < 0) {
+                                    return dv * -1;
+                                }
+                                return dv;
+                            });
+                })
+                .collect(Collectors.toList());
+        long sumResult = diceResultValues.stream().mapToLong(Integer::longValue).sum();
+        String title = parseDiceMapToMessageString(diceSetMap);
+        DiceResult diceResult = new DiceResult(String.format("%s = %d", title, sumResult), diceResultValues.toString());
         log.info(String.format("%s:%s -> %s: %s", getName(), config, diceResult.getResultTitle(), diceResult.getResultDetails()));
         return diceResult;
     }
 
     private Map<String, Integer> currentDiceSet(List<String> config) {
         return config.stream()
-                .collect(Collectors.toMap(s -> s.substring(s.indexOf("d")), s -> Integer.valueOf(s.substring(0, s.indexOf("d")))));
+                .collect(Collectors.toMap(s -> {
+                    if (s.contains("d")) {
+                        return s.substring(s.indexOf("d"));
+                    } else {
+                        return "";
+                    }
+                }, s -> {
+                    if (s.contains("d")) {
+                        return Integer.valueOf(s.substring(0, s.indexOf("d")));
+                    } else {
+                        return Integer.valueOf(s);
+                    }
+                }));
     }
 
-    private String createMessageFromDiceSet(Map<String, Integer> diceSet) {
-        return diceSet.entrySet().stream()
-                .sorted(Comparator.comparing(e -> Integer.parseInt(e.getKey().substring(1))))
-                .map(e -> e.getValue() + e.getKey())
+    private String parseDiceMapToMessageString(Map<String, Integer> diceSet) {
+        String message = diceSet.entrySet().stream()
+                .sorted(Comparator.comparing(e -> {
+                    if (e.getKey().contains("d")) {
+                        return Integer.parseInt(e.getKey().substring(1));
+                    }
+                    //modifiers should always be at the end
+                    return Integer.MAX_VALUE;
+                }))
+                .map(e -> String.format("%s%d%s", e.getValue() > 0 ? "+" : "", e.getValue(), e.getKey()))
                 .collect(Collectors.joining(DICE_SET_DELIMITER));
+        //remove leading +
+        if (message.startsWith("+")) {
+            message = message.substring(1);
+        }
+        return message;
     }
 
     @Override
@@ -88,33 +141,38 @@ public class SumDiceSetCommand extends AbstractCommand {
         } else if (CLEAR_BUTTON_ID.equals(buttonId)) {
             return EMPTY_MESSAGE;
         } else if (X2_BUTTON_ID.equals(buttonId)) {
-            return createMessageFromDiceSet(currentDiceSet(config).entrySet().stream()
+            return parseDiceMapToMessageString(currentDiceSet(config).entrySet().stream()
                     .collect(Collectors.toMap(Map.Entry::getKey, e -> Math.min(e.getValue() * 2, MAX_NUMBER_OF_DICE))));
         } else {
             Map<String, Integer> currentDiceSet = currentDiceSet(config);
-            String diceModifier = buttonId.substring(0, 1);
-            String die = buttonId.substring(2);
-            int currentCount = currentDiceSet.getOrDefault(die, 0);
-            if ("-".equals(diceModifier)) {
-                if (currentCount > 1) {
-                    currentDiceSet.put(die, currentCount - 1);
-                } else if (currentCount == 1) {
-                    currentDiceSet.remove(die);
-                }
-            } else if ("+".equals(diceModifier)) {
-                int currentNumberOfDice = currentDiceSet.values().stream().mapToInt(i -> i).sum();
-                if (currentNumberOfDice < MAX_NUMBER_OF_DICE) {
-                    if (currentCount >= 1) {
-                        currentDiceSet.put(die, currentCount + 1);
-                    } else if (currentCount == 0) {
-                        currentDiceSet.put(die, 1);
-                    }
-                }
+            int diceModifier;
+            String die;
+
+            if (buttonId.contains("d")) {
+                diceModifier = "-".equals(buttonId.substring(0, 1)) ? -1 : +1;
+                die = buttonId.substring(2);
+            } else {
+                diceModifier = Integer.parseInt(buttonId);
+                die = "";
             }
+            int currentCount = currentDiceSet.getOrDefault(die, 0);
+            int newCount = currentCount + diceModifier;
+            if (newCount > 100) {
+                newCount = 100;
+            } else if (newCount < -100) {
+                newCount = -100;
+            }
+
+            if (newCount == 0) {
+                currentDiceSet.remove(die);
+            } else {
+                currentDiceSet.put(die, newCount);
+            }
+
             if (currentDiceSet.isEmpty()) {
                 return EMPTY_MESSAGE;
             }
-            return createMessageFromDiceSet(currentDiceSet);
+            return parseDiceMapToMessageString(currentDiceSet);
         }
     }
 
@@ -136,7 +194,16 @@ public class SumDiceSetCommand extends AbstractCommand {
                 .map(Message::getContent)
                 .map(s -> s.split(Pattern.quote(DICE_SET_DELIMITER)))
                 .map(Arrays::asList)
-                .orElse(ImmutableList.of());
+                .orElse(ImmutableList.of())
+                .stream()
+                //adding the + for the first die type in the message
+                .map(s -> {
+                    if (!s.startsWith("-") && !s.startsWith("+")) {
+                        return "+" + s;
+                    }
+                    return s;
+                })
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -178,6 +245,13 @@ public class SumDiceSetCommand extends AbstractCommand {
                         Button.primary(createButtonCustomId(COMMAND_NAME, "+1d20", ImmutableList.of()), "+1d20"),
                         Button.primary(createButtonCustomId(COMMAND_NAME, "-1d20", ImmutableList.of()), "-1d20"),
                         Button.primary(createButtonCustomId(COMMAND_NAME, ROLL_BUTTON_ID, ImmutableList.of()), "Roll")
+                ),
+                ActionRow.of(
+                        Button.primary(createButtonCustomId(COMMAND_NAME, "+1", ImmutableList.of()), "+1"),
+                        Button.primary(createButtonCustomId(COMMAND_NAME, "-1", ImmutableList.of()), "-1"),
+                        Button.primary(createButtonCustomId(COMMAND_NAME, "+5", ImmutableList.of()), "+5"),
+                        Button.primary(createButtonCustomId(COMMAND_NAME, "-5", ImmutableList.of()), "-5"),
+                        Button.primary(createButtonCustomId(COMMAND_NAME, "+10", ImmutableList.of()), "+10")
                 ));
     }
 }

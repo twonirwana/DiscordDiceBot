@@ -55,19 +55,19 @@ class CountSuccessesCommandTest {
     @Test
     void getConfigFromEvent_legacyOnlyTwo() {
         assertThat(underTest.getConfigFromEvent(TestUtils.createEventWithCustomId(mock(GatewayDiscordClient.class), "count_successes",
-                "1", "6", "6"))).containsExactly("6", "6", "no_glitch", "15");
+                "message", "1", "6", "6"))).containsExactly("6", "6", "no_glitch", "15");
     }
 
     @Test
     void getConfigFromEvent_legacyOnlyThree() {
         assertThat(underTest.getConfigFromEvent(TestUtils.createEventWithCustomId(mock(GatewayDiscordClient.class), "count_successes",
-                "1", "6", "6", "no_glitch"))).containsExactly("6", "6", "no_glitch", "15");
+                "message", "1", "6", "6", "no_glitch"))).containsExactly("6", "6", "no_glitch", "15");
     }
 
     @Test
     void getConfigFromEvent() {
         assertThat(underTest.getConfigFromEvent(TestUtils.createEventWithCustomId(mock(GatewayDiscordClient.class), "count_successes",
-                "1", "6", "6", "no_glitch", "15"))).containsExactly("6", "6", "no_glitch", "15");
+                "message", "1", "6", "6", "no_glitch", "15"))).containsExactly("6", "6", "no_glitch", "15");
     }
 
     @Test

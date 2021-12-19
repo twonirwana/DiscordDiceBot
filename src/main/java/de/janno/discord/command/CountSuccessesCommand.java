@@ -43,6 +43,7 @@ public class CountSuccessesCommand extends AbstractCommand {
         this(new DiceUtils());
     }
 
+    //for testing
     public CountSuccessesCommand(DiceUtils diceUtils) {
         super(new ActiveButtonsCache(COMMAND_NAME));
         this.diceUtils = diceUtils;
