@@ -76,7 +76,14 @@ public class SumDiceSetCommand extends AbstractCommand {
     @Override
     protected DiceResult rollDice(String buttonValue, List<String> config) {
         Map<String, Integer> diceSetMap = currentDiceSet(config);
-        List<Integer> diceResultValues = diceSetMap.entrySet().stream()
+        List<Integer> diceResultValues =  diceSetMap.entrySet().stream()
+                .sorted(Comparator.comparing(e -> {
+                    if (e.getKey().contains("d")) {
+                        return Integer.parseInt(e.getKey().substring(1));
+                    }
+                    //modifiers should always be at the end
+                    return Integer.MAX_VALUE;
+                }))
                 .flatMap(e -> {
                     if ("".equals(e.getKey())) {
                         return Stream.of(e.getValue());
@@ -196,6 +203,8 @@ public class SumDiceSetCommand extends AbstractCommand {
                 .map(Arrays::asList)
                 .orElse(ImmutableList.of())
                 .stream()
+                //for handling legacy buttons with '1d4 + 1d6)
+                .filter(s -> !"+".equals(s))
                 //adding the + for the first die type in the message
                 .map(s -> {
                     if (!s.startsWith("-") && !s.startsWith("+")) {

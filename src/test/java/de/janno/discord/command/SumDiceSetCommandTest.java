@@ -1,13 +1,15 @@
 package de.janno.discord.command;
 
 import com.google.common.collect.ImmutableList;
+import de.janno.discord.dice.DiceResult;
+import de.janno.discord.dice.DiceUtils;
 import discord4j.core.GatewayDiscordClient;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import java.util.ArrayDeque;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -16,7 +18,7 @@ import static org.mockito.Mockito.mock;
 
 class SumDiceSetCommandTest {
 
-    SumDiceSetCommand underTest = new SumDiceSetCommand();
+    SumDiceSetCommand underTest = new SumDiceSetCommand(new DiceUtils(new ArrayDeque<>(ImmutableList.of(1, 1, 1, 1, 5, 6, 6, 6))));
 
     static Stream<Arguments> generateEditMessageData() {
         return Stream.of(
@@ -53,7 +55,7 @@ class SumDiceSetCommandTest {
                 Arguments.of(ImmutableList.of(), "-1d20", "-1d20"),
                 Arguments.of(ImmutableList.of(), "-1", "-1"),
                 Arguments.of(ImmutableList.of(), "-5", "-5"),
-                
+
                 Arguments.of(ImmutableList.of("+10"), "-5", "5"),
                 Arguments.of(ImmutableList.of("+2"), "-5", "-3"),
                 Arguments.of(ImmutableList.of("-2"), "+5", "3"),
@@ -74,7 +76,7 @@ class SumDiceSetCommandTest {
                 Arguments.of(ImmutableList.of("1d4", "1d6", "1d8", "1d10", "1d12", "1d20"), "-1d12", "1d4 +1d6 +1d8 +1d10 +1d20"),
                 Arguments.of(ImmutableList.of("1d4", "1d6", "1d8", "1d10", "1d12", "1d20"), "-1d20", "1d4 +1d6 +1d8 +1d10 +1d12"),
                 Arguments.of(ImmutableList.of("1d4", "1d6", "1d8", "1d10", "1d12", "1d20"), "-1", "1d4 +1d6 +1d8 +1d10 +1d12 +1d20 -1"),
-                
+
                 Arguments.of(ImmutableList.of("100d4", "100d6", "100d8", "100d10", "100d12", "100d20"), "+1d4", "100d4 +100d6 +100d8 +100d10 +100d12 +100d20"),
                 Arguments.of(ImmutableList.of("100d4", "100d6", "100d8", "100d10", "100d12", "100d20"), "+1d6", "100d4 +100d6 +100d8 +100d10 +100d12 +100d20"),
                 Arguments.of(ImmutableList.of("100d4", "100d6", "100d8", "100d10", "100d12", "100d20"), "+1d8", "100d4 +100d6 +100d8 +100d10 +100d12 +100d20"),
@@ -137,6 +139,12 @@ class SumDiceSetCommandTest {
     void getConfigFromEvent_1d4_2d6_3d8_4d12_5d20() {
         assertThat(underTest.getConfigFromEvent(TestUtils.createEventWithCustomId(mock(GatewayDiscordClient.class), "sum_dice_set",
                 "1d4 +2d6 +3d8 +4d12 +5d20", "+1d21"))).containsExactly("+1d4", "+2d6", "+3d8", "+4d12", "+5d20");
+    }
+
+    @Test
+    void getConfigFromEvent_legacy() {
+        assertThat(underTest.getConfigFromEvent(TestUtils.createEventWithCustomId(mock(GatewayDiscordClient.class), "sum_dice_set",
+                "1d4 + 2d6", "+1d21"))).containsExactly("+1d4", "+2d6");
     }
 
     @Test
@@ -211,7 +219,18 @@ class SumDiceSetCommandTest {
 
 
     @Test
-    void rollDice() {
-        Assertions.fail();
+    void rollDice_1d4plus1d6plus10() {
+        DiceResult res = underTest.rollDice("roll", ImmutableList.of("+1d4", "+1d6", "+10"));
+
+        assertThat(res.getResultTitle()).isEqualTo("1d4 +1d6 +10 = 12");
+        assertThat(res.getResultDetails()).isEqualTo("[1, 1, 10]");
+    }
+
+    @Test
+    void rollDice_minus1d4plus1d6minux10() {
+        DiceResult res = underTest.rollDice("roll", ImmutableList.of("-1d4", "+1d6", "-10"));
+
+        assertThat(res.getResultTitle()).isEqualTo("-1d4 +1d6 -10 = -10");
+        assertThat(res.getResultDetails()).isEqualTo("[-1, 1, -10]");
     }
 }
