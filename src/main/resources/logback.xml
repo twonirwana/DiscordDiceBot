@@ -20,16 +20,14 @@
 
     <!-- Log to a file as well, including size and time based rolling -->
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-            <fileNamePattern>logs/diceBot.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
-            <maxFileSize>100MB</maxFileSize>
-            <maxHistory>90</maxHistory>
+        <file>logs/diceBot.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>logs/diceBot.%d{yyyy-MM-dd}.log</fileNamePattern>
         </rollingPolicy>
         <encoder>
             <charset>UTF-8</charset>
             <Pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %-40.40logger{39} : %msg%n</Pattern>
         </encoder>
-        <prudent>true</prudent>
     </appender>
 
     <!-- Avoid blocking while logging to file by wrapping our file appender with async capabilities -->
