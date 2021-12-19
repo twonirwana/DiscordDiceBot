@@ -76,7 +76,7 @@ public class SumDiceSetCommand extends AbstractCommand {
     @Override
     protected DiceResult rollDice(String buttonValue, List<String> config) {
         Map<String, Integer> diceSetMap = currentDiceSet(config);
-        List<Integer> diceResultValues =  diceSetMap.entrySet().stream()
+        List<Integer> diceResultValues = diceSetMap.entrySet().stream()
                 .sorted(Comparator.comparing(e -> {
                     if (e.getKey().contains("d")) {
                         return Integer.parseInt(e.getKey().substring(1));
@@ -141,6 +141,16 @@ public class SumDiceSetCommand extends AbstractCommand {
         return message;
     }
 
+    private int limit(int input) {
+        if (input > 100) {
+            return 100;
+        }
+        if (input < -100) {
+            return -100;
+        }
+        return input;
+    }
+
     @Override
     protected String editMessage(String buttonId, List<String> config) {
         if (ROLL_BUTTON_ID.equals(buttonId)) {
@@ -149,7 +159,7 @@ public class SumDiceSetCommand extends AbstractCommand {
             return EMPTY_MESSAGE;
         } else if (X2_BUTTON_ID.equals(buttonId)) {
             return parseDiceMapToMessageString(currentDiceSet(config).entrySet().stream()
-                    .collect(Collectors.toMap(Map.Entry::getKey, e -> Math.min(e.getValue() * 2, MAX_NUMBER_OF_DICE))));
+                    .collect(Collectors.toMap(Map.Entry::getKey, e -> limit(e.getValue() * 2))));
         } else {
             Map<String, Integer> currentDiceSet = currentDiceSet(config);
             int diceModifier;
@@ -164,11 +174,7 @@ public class SumDiceSetCommand extends AbstractCommand {
             }
             int currentCount = currentDiceSet.getOrDefault(die, 0);
             int newCount = currentCount + diceModifier;
-            if (newCount > 100) {
-                newCount = 100;
-            } else if (newCount < -100) {
-                newCount = -100;
-            }
+            newCount = limit(newCount);
 
             if (newCount == 0) {
                 currentDiceSet.remove(die);
