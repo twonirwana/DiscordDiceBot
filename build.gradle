@@ -37,7 +37,7 @@ dependencies {
     testImplementation 'org.mockito:mockito-core:4.2.0'
     testCompileOnly 'org.projectlombok:lombok:1.18.22'
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.22'
-    implementation 'io.projectreactor:reactor-test:3.4.5'
+    testImplementation 'io.projectreactor:reactor-test'
 }
 
 java {
