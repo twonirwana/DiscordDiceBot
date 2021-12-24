@@ -20,7 +20,7 @@ repositories {
 
 dependencies {
     implementation 'com.discord4j:discord4j-core:3.2.1'
-    implementation 'ch.qos.logback:logback-classic:1.2.9'
+    implementation 'ch.qos.logback:logback-classic:1.2.10'
     compileOnly 'org.projectlombok:lombok:1.18.22'
     annotationProcessor 'org.projectlombok:lombok:1.18.22'
     implementation 'com.google.guava:guava:31.0.1-jre'
