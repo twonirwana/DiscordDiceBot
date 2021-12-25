@@ -25,7 +25,7 @@ public class DiceParserHelper {
 
     public static boolean validExpression(String input) {
         try {
-            int res = Dice.roll(input);
+            Dice.roll(input);
             return true;
         } catch (Throwable t) {
             return false;

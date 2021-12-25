@@ -52,17 +52,17 @@ public abstract class AbstractCommand implements ISlashCommand, IComponentIntera
     protected abstract String getCommandDescription();
 
     @Override
-    public ApplicationCommandRequest getApplicationCommand() {
-        return ApplicationCommandRequest.builder()
+    public ApplicationCommand getApplicationCommand() {
+        return ApplicationCommand.builder()
                 .name(getName())
                 .description(getCommandDescription())
-                .addOption(ApplicationCommandOptionData.builder()
+                .option(ApplicationCommandOptionData.builder()
                         .name(ACTION_START)
                         .description("Start")
                         .type(ApplicationCommandOption.Type.SUB_COMMAND.getValue())
                         .addAllOptions(getStartOptions())
                         .build())
-                .addOption(ApplicationCommandOptionData.builder()
+                .option(ApplicationCommandOptionData.builder()
                         .name(ACTION_HELP)
                         .description("Help")
                         .type(ApplicationCommandOption.Type.SUB_COMMAND.getValue())

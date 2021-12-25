@@ -23,20 +23,18 @@ public class DirectRollCommand implements ISlashCommand {
 
     @Override
     public String getName() {
-        return "direct_roll";
+        return "r";
     }
 
     @Override
-    public ApplicationCommandRequest getApplicationCommand() {
-        return ApplicationCommandRequest.builder()
+    public ApplicationCommand getApplicationCommand() {
+        return ApplicationCommand.builder()
                 .name(getName())
                 .description("direct roll of dice expression")
-                .defaultPermission(true)
-                .type(ApplicationCommandOption.Type.SUB_COMMAND.getValue())
-                .addOption(ApplicationCommandOptionData.builder()
+                .option(ApplicationCommandOptionData.builder()
                         .name(ACTION_EXPRESSION)
                         .required(true)
-                        .description("dice expression, e.g. '3d6'")
+                        .description("dice expression, e.g. '2d6'")
                         .type(ApplicationCommandOption.Type.STRING.getValue())
                         .build())
                 .build();

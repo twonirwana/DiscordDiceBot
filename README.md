@@ -6,11 +6,11 @@ buttons to the bottom of the channel. This allows it to roll dice without typing
 usability, especially for touchscreen users.
 
 Add to Discord channel by following this link:
-[Bot invite link](https://discord.com/api/oauth2/authorize?client_id=812381127943782502&permissions=2048&scope=bot%20applications.commands)
+[Bot invite link](https://discord.com/api/oauth2/authorize?client_id=812381127943782502&permissions=18432&scope=bot%20applications.commands)
 
 For questions and suggestions join me at the [Button Dice Roller Discord Server](https://discord.gg/e43BsqKpFr)
 
-The bot need permission to create application commands (which are needed to control the bot) and send message (for the
+The bot need permission to create application commands (which are needed to control the bot), send message and embed links (for the
 dice buttons and results).
 
 :warning: **If you can't see the bots messages**: The link preview in the discord setting must be activated to see the
@@ -60,6 +60,11 @@ Each button can be set with dice expression with the following notation.
 | Divide | `<left> / <right>` | `4 / 2` | |
 
 see https://github.com/diceroll-dev/dice-parser for more details.
+
+## Direct Roll
+
+With the command `/r` it is possible to directly call the dice expression (see 'Dice Expression Notation') without the
+usage of buttons. For example '/r 3d6' will simply roll 3d6 and post the result without showing any buttons.
 
 ## Count success in a pool
 

@@ -35,11 +35,10 @@ public class DiceSystem {
      * - optional delay button remove
      * - details optional
      * - timestamp optional
-     * - system that compares slashCommand in code with the current and updates if there are changes
      * - Changelog Command
      **/
 
-    public DiceSystem(HttpClient httpClient, String token, boolean updateSlashCommands) {
+    public DiceSystem(HttpClient httpClient, String token, boolean disableCommandUpdate) {
 
         DiscordClient discordClient = DiscordClientBuilder.create(token)
                 .setReactorResources(ReactorResources.builder()
@@ -56,7 +55,7 @@ public class DiceSystem {
                 .addSlashCommand(new DirectRollCommand())
                 .addSlashCommand(new SumDiceSetCommand())
                 .addSlashCommand(new HelpCommand())
-                .registerSlashCommands(discordClient, updateSlashCommands);
+                .registerSlashCommands(discordClient, disableCommandUpdate);
 
 
         discordClient.withGateway(gw -> gw.on(new ReactiveEventAdapter() {

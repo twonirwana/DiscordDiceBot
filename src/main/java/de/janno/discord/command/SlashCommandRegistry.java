@@ -5,6 +5,7 @@ import discord4j.core.DiscordClient;
 import discord4j.discordjson.json.ApplicationCommandData;
 import discord4j.rest.service.ApplicationService;
 import lombok.extern.slf4j.Slf4j;
+import reactor.core.publisher.Flux;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,52 +38,55 @@ public class SlashCommandRegistry {
             return this;
         }
 
-        public SlashCommandRegistry registerSlashCommands(DiscordClient discordClient, boolean update) {
-            if (update) {
-                ApplicationService applicationService = discordClient.getApplicationService();
-                long applicationId = discordClient.getApplicationId().blockOptional().orElseThrow();
-                Map<String, ISlashCommand> buttonSlashCommandMap = slashCommands.stream()
+        public SlashCommandRegistry registerSlashCommands(DiscordClient discordClient, boolean disableCommandUpdate) {
+            ApplicationService applicationService = discordClient.getApplicationService();
+            long applicationId = discordClient.getApplicationId().blockOptional().orElseThrow();
+            log.info("ApplicationId: " + applicationId);
+            if (!disableCommandUpdate) {
+                //get the implemented bot commands
+                Map<String, ISlashCommand> botCommands = slashCommands.stream()
                         .collect(Collectors.toMap(ISlashCommand::getName, Function.identity()));
-                log.info("ApplicationId: " + applicationId);
-
-                //delete old commands
-                applicationService.getGlobalApplicationCommands(applicationId)
-                        .doOnEach(acd -> log.info("Existing command: " + acd))
-                        .filter(acd -> !buttonSlashCommandMap.containsKey(acd.name()))
-                        .doOnEach(acd -> log.info("Deleting command: " + acd))
-                        .flatMap(acd -> applicationService.deleteGlobalApplicationCommand(applicationId, Long.parseLong(acd.id())))
-                        .subscribe();
 
                 //get already existing commands
-                Map<String, ApplicationCommandData> applicationCommandData = applicationService.getGlobalApplicationCommands(applicationId)
+                Map<String, ApplicationCommandData> currentlyRegisteredCommands = applicationService.getGlobalApplicationCommands(applicationId)
                         .collectMap(ApplicationCommandData::name, Function.identity()).blockOptional().orElse(ImmutableMap.of());
+                log.info(String.format("Existing Commands: %s", String.join(", ", currentlyRegisteredCommands.keySet())));
+                //delete old commands
+                Flux.fromIterable(currentlyRegisteredCommands.values())
+                        .filter(acd -> !botCommands.containsKey(acd.name()))
+                        .flatMap(acd -> {
+                            log.debug("Deleting old command: {}", acd);
+                            return applicationService.deleteGlobalApplicationCommand(applicationId, Long.parseLong(acd.id()))
+                                    .doOnError(t -> log.error("Error deleting old command: {}", acd, t));
+                        })
+                        .subscribe();
+
 
                 //add missing commands
-                buttonSlashCommandMap.values().stream()
-                        .filter(sc -> !applicationCommandData.containsKey(sc.getName()))
-                        .forEach(sc -> {
-                                    log.info("Creating command: " + sc.getApplicationCommand());
-                                    applicationService.createGlobalApplicationCommand(applicationId, sc.getApplicationCommand())
-                                            .doOnEach(acd -> log.info("Created command: " + acd))
-                                            .block();
+                Flux.fromIterable(botCommands.values())
+                        .filter(sc -> !currentlyRegisteredCommands.containsKey(sc.getName()))
+                        .flatMap(sc -> {
+                                    log.info("Add missing command: {}", sc.getApplicationCommand());
+                                    return applicationService.createGlobalApplicationCommand(applicationId, sc.getApplicationCommand().buildRequest())
+                                            .doOnError(t -> log.error("Error adding missing command: {}", sc.getApplicationCommand(), t));
                                 }
-                        );
+                        )
+                        .subscribe();
 
                 //update existing
-                //todo check for changes in existing commands
+                Flux.fromIterable(botCommands.values())
+                        .filter(sc -> currentlyRegisteredCommands.containsKey(sc.getName()) &&
+                                !sc.getApplicationCommand().equalToApplicationCommandData(currentlyRegisteredCommands.get(sc.getName())))
+                        .flatMap(sc -> {
+                                    log.info("Update command: {}", sc.getApplicationCommand());
+                                    return applicationService.modifyGlobalApplicationCommand(applicationId,
+                                                    Long.parseLong(currentlyRegisteredCommands.get(sc.getName()).id()),
+                                                    sc.getApplicationCommand().buildRequest())
+                                            .doOnError(t -> log.error("Error updating command: {}", sc.getApplicationCommand(), t));
 
-                buttonSlashCommandMap.values().stream()
-                        .filter(sc -> applicationCommandData.containsKey(sc.getName()))
-                        .forEach(sc -> {
-                                    applicationService.modifyGlobalApplicationCommand(applicationId,
-                                                    Long.parseLong(applicationCommandData.get(sc.getName()).id()),
-                                                    sc.getApplicationCommand())
-                                            .doOnEach(acd -> log.info("Update command: " + acd))
-                                            .doOnError(t -> log.error("Error creating command: {}", sc.getApplicationCommand(), t))
-                                            .block();
-                                    log.info("Created command: " + sc.getApplicationCommand());
                                 }
-                        );
+                        )
+                        .subscribe();
             }
             return new SlashCommandRegistry(slashCommands);
         }
