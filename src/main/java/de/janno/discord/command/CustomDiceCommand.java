@@ -100,6 +100,8 @@ public class CustomDiceCommand extends AbstractCommand {
                         "Target Pool    |'()[>,<,=]'|'(4d8-2)>6'\n" +
                         "Dice Expression|           |           \n" +
                         "---------------------------------------\n" +
+                        "Multiple Rolls |'x[]'      |`3x[3d6]`  \n" +
+                        "---------------------------------------\n" +
                         "Integer        |''         |'42'       \n" +
                         "---------------------------------------\n" +
                         "Add            |' + '      |'2d6 + 2'  \n" +
@@ -145,10 +147,8 @@ public class CustomDiceCommand extends AbstractCommand {
     }
 
     @Override
-    protected DiceResult rollDice(String buttonValue, List<String> config) {
-        DiceResult diceResult = DiceParserHelper.rollWithDiceParser(buttonValue);
-        log.info(String.format("%s:%s -> %s: %s", getName(), config, diceResult.getResultTitle(), diceResult.getResultDetails()));
-        return diceResult;
+    protected List<DiceResult> rollDice(String buttonValue, List<String> config) {
+        return DiceParserHelper.roll(buttonValue);
     }
 
     @Override

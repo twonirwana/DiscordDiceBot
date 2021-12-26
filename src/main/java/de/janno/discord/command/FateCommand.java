@@ -92,7 +92,7 @@ public class FateCommand extends AbstractCommand {
     }
 
     @Override
-    protected DiceResult rollDice(String buttonValue, List<String> config) {
+    protected List<DiceResult> rollDice(String buttonValue, List<String> config) {
         List<Integer> rollResult = diceUtils.rollFate();
 
         if (ACTION_MODIFIER_OPTION_MODIFIER.equals(config.get(0))) {
@@ -107,21 +107,11 @@ public class FateCommand extends AbstractCommand {
 
             String title = String.format("4dF %s = %d", modifierString, resultWithModifier);
             String details = DiceUtils.convertFateNumberToString(rollResult);
-            log.info(String.format("%s:%s -> %s: %s", getName(), config, title, details)
-                    .replace("▢", "0")
-                    .replace("＋", "+")
-                    .replace(MINUS, "-")
-            );
-            return new DiceResult(title, details);
+            return ImmutableList.of(new DiceResult(title, details));
         } else {
             String title = String.format("4dF = %d", DiceUtils.fateResult(rollResult));
             String details = DiceUtils.convertFateNumberToString(rollResult);
-            log.info(String.format("%s:%s -> %s: %s", getName(), config, title, details)
-                    .replace("▢", "0")
-                    .replace("＋", "+")
-                    .replace(MINUS, "-")
-            );
-            return new DiceResult(title, details);
+            return ImmutableList.of(new DiceResult(title, details));
         }
     }
 

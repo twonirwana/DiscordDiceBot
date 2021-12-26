@@ -82,41 +82,46 @@ class CountSuccessesCommandTest {
 
     @Test
     void rollDice() {
-        DiceResult result = underTest.rollDice("6", ImmutableList.of("6", "6", "no_glitch", "15"));
+        List<DiceResult> results = underTest.rollDice("6", ImmutableList.of("6", "6", "no_glitch", "15"));
 
-        assertThat(result.getResultTitle()).isEqualTo("6d6 = 1");
-        assertThat(result.getResultDetails()).isEqualTo("[1,1,1,1,5,**6**] ≥6 = 1");
+        assertThat(results).hasSize(1);
+        assertThat(results.get(0).getResultTitle()).isEqualTo("6d6 = 1");
+        assertThat(results.get(0).getResultDetails()).isEqualTo("[1,1,1,1,5,**6**] ≥6 = 1");
     }
 
     @Test
     void rollDice_halfDiceOne_glitch() {
-        DiceResult result = underTest.rollDice("6", ImmutableList.of("6", "6", "half_dice_one", "15"));
+        List<DiceResult> results = underTest.rollDice("6", ImmutableList.of("6", "6", "half_dice_one", "15"));
 
-        assertThat(result.getResultTitle()).isEqualTo("6d6 = 1 - Glitch!");
-        assertThat(result.getResultDetails()).isEqualTo("[**1**,**1**,**1**,**1**,5,**6**] ≥6 = 1 and more then half of all dice show 1s");
+        assertThat(results).hasSize(1);
+        assertThat(results.get(0).getResultTitle()).isEqualTo("6d6 = 1 - Glitch!");
+        assertThat(results.get(0).getResultDetails()).isEqualTo("[**1**,**1**,**1**,**1**,5,**6**] ≥6 = 1 and more then half of all dice show 1s");
     }
 
     @Test
     void rollDice_halfDiceOne_noGlitch() {
-        DiceResult result = underTest.rollDice("8", ImmutableList.of("6", "6", "half_dice_one", "15"));
+        List<DiceResult> results = underTest.rollDice("8", ImmutableList.of("6", "6", "half_dice_one", "15"));
 
-        assertThat(result.getResultTitle()).isEqualTo("8d6 = 3");
-        assertThat(result.getResultDetails()).isEqualTo("[1,1,1,1,5,**6**,**6**,**6**] ≥6 = 3");
+        assertThat(results).hasSize(1);
+        assertThat(results.get(0).getResultTitle()).isEqualTo("8d6 = 3");
+        assertThat(results.get(0).getResultDetails()).isEqualTo("[1,1,1,1,5,**6**,**6**,**6**] ≥6 = 3");
     }
 
     @Test
     void rollDice_countOnes() {
-        DiceResult result = underTest.rollDice("6", ImmutableList.of("6", "6", "count_ones", "15"));
+        List<DiceResult> results = underTest.rollDice("6", ImmutableList.of("6", "6", "count_ones", "15"));
 
-        assertThat(result.getResultTitle()).isEqualTo("6d6 = 1 successes and 4 ones");
-        assertThat(result.getResultDetails()).isEqualTo("[**1**,**1**,**1**,**1**,5,**6**] ≥6 = 1");
+        assertThat(results).hasSize(1);
+        assertThat(results.get(0).getResultTitle()).isEqualTo("6d6 = 1 successes and 4 ones");
+        assertThat(results.get(0).getResultDetails()).isEqualTo("[**1**,**1**,**1**,**1**,5,**6**] ≥6 = 1");
     }
 
     @Test
     void rollDice_subtractOnes() {
-        DiceResult result = underTest.rollDice("6", ImmutableList.of("6", "6", "subtract_ones", "15"));
+        List<DiceResult> results = underTest.rollDice("6", ImmutableList.of("6", "6", "subtract_ones", "15"));
 
-        assertThat(result.getResultTitle()).isEqualTo("6d6 = -3");
-        assertThat(result.getResultDetails()).isEqualTo("[**1**,**1**,**1**,**1**,5,**6**] ≥6 -1s = -3");
+        assertThat(results).hasSize(1);
+        assertThat(results.get(0).getResultTitle()).isEqualTo("6d6 = -3");
+        assertThat(results.get(0).getResultDetails()).isEqualTo("[**1**,**1**,**1**,**1**,5,**6**] ≥6 -1s = -3");
     }
 }

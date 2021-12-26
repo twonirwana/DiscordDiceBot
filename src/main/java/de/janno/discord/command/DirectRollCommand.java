@@ -10,10 +10,11 @@ import discord4j.core.object.command.ApplicationCommandInteractionOptionValue;
 import discord4j.core.object.command.ApplicationCommandOption;
 import discord4j.core.object.entity.channel.TextChannel;
 import discord4j.discordjson.json.ApplicationCommandOptionData;
-import discord4j.discordjson.json.ApplicationCommandRequest;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
+
+import java.util.List;
 
 import static de.janno.discord.DiscordUtils.createEmbedMessageWithReference;
 
@@ -54,8 +55,8 @@ public class DirectRollCommand implements ISlashCommand {
             }
             Metrics.incrementSlashStartMetricCounter(getName(), ImmutableList.of(diceExpression));
 
-            DiceResult result = DiceParserHelper.rollWithDiceParser(diceExpression);
-            log.info(String.format("%s:%s -> %s: %s", event.getCommandName(), diceExpression, result.getResultTitle(), result.getResultDetails()));
+            List<DiceResult> results = DiceParserHelper.roll(diceExpression);
+            results.forEach(d -> log.info(String.format("%s:%s -> %s: %s", getName(), diceExpression, d.getResultTitle(), d.getResultDetails())));
 
             return event.reply("...")
                     .onErrorResume(t -> {
@@ -63,7 +64,7 @@ public class DirectRollCommand implements ISlashCommand {
                         return Mono.empty();
                     })
                     .then(event.getInteraction().getChannel().ofType(TextChannel.class)
-                            .flatMap(channel -> channel.createMessage(createEmbedMessageWithReference(result.getResultTitle(), result.getResultDetails(), event.getInteraction().getMember().orElseThrow()))
+                            .flatMap(channel -> channel.createMessage(createEmbedMessageWithReference(results, event.getInteraction().getMember().orElseThrow()))
                             ))
                     .ofType(Void.class);
 

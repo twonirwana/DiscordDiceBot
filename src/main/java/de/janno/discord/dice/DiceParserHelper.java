@@ -7,15 +7,16 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Slf4j
 public class DiceParserHelper {
 
-    public static DiceResult rollWithDiceParser(String input) {
+    private static DiceResult rollWithDiceParser(String input) {
         try {
             ResultTree resultTree = Dice.detailedRoll(input);
-            String title = input + " = " + resultTree.getValue();
-            String details = "[" + getBaseResults(resultTree).stream().sorted().map(String::valueOf).collect(Collectors.joining(", ")) + "]";
+            String title = String.format("%s = %d", input, resultTree.getValue());
+            String details = String.format("[%s]", getBaseResults(resultTree).stream().sorted().map(String::valueOf).collect(Collectors.joining(", ")));
             return new DiceResult(title, details);
         } catch (Throwable t) {
             log.error(String.format("DiceParser error in %s:", input), t);
@@ -23,9 +24,51 @@ public class DiceParserHelper {
         }
     }
 
+    public static List<DiceResult> roll(String input) {
+        try {
+            if (isMultipleRoll(input)) {
+                return rollMultipleWithDiceParser(input);
+            } else {
+                return ImmutableList.of(rollWithDiceParser(input));
+            }
+        } catch (Throwable t) {
+            log.error(String.format("Error in %s:", input), t);
+            return ImmutableList.of(new DiceResult("Error", "Could not execute the dice expression: " + input));
+        }
+    }
+
+    private static List<DiceResult> rollMultipleWithDiceParser(String input) {
+        int numberOfRolls = getNumberOfMultipleRolls(input);
+        String innerExpression = getInnerDiceExpression(input);
+        return IntStream.range(0, numberOfRolls)
+                .mapToObj(i -> rollWithDiceParser(innerExpression))
+                .collect(ImmutableList.toImmutableList());
+    }
+
+    static boolean isMultipleRoll(String input) {
+        return input.matches("^\\d+x\\[.*]$");
+    }
+
+    static int getNumberOfMultipleRolls(String input) {
+        int firstBracket = input.indexOf("x[");
+        int numberOfRolls = Integer.parseInt(
+                input.substring(0, firstBracket));
+        return Math.min(numberOfRolls, 25); //limited to 25 because that is the max number of embed discord fields
+    }
+
+    static String getInnerDiceExpression(String input) {
+        int firstBracket = input.indexOf("x[");
+        return input.substring(firstBracket + 2, input.length() - 1);
+    }
+
+
     public static boolean validExpression(String input) {
         try {
-            Dice.roll(input);
+            if (isMultipleRoll(input)) {
+                Dice.roll(getInnerDiceExpression(input));
+            } else {
+                Dice.roll(input);
+            }
             return true;
         } catch (Throwable t) {
             return false;

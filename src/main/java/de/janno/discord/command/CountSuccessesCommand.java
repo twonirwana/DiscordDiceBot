@@ -101,7 +101,7 @@ public class CountSuccessesCommand extends AbstractCommand {
     }
 
     @Override
-    protected DiceResult rollDice(String buttonValue, List<String> config) {
+    protected List<DiceResult> rollDice(String buttonValue, List<String> config) {
         int numberOfDice = Integer.parseInt(buttonValue);
         int sidesOfDie = Integer.parseInt(config.get(0));
         int targetNumber = Integer.parseInt(config.get(1));
@@ -119,8 +119,7 @@ public class CountSuccessesCommand extends AbstractCommand {
         } else {
             result = noneGlitch(numberOfDice, sidesOfDie, targetNumber, rollResult);
         }
-        log.info(String.format("%s:%s -> %s: %s", getName(), config, result.getResultTitle(), result.getResultDetails().replace("*", "")));
-        return result;
+        return ImmutableList.of(result);
     }
 
     private DiceResult noneGlitch(int numberOfDice, int sidesOfDie, int targetNumber, List<Integer> rollResult) {

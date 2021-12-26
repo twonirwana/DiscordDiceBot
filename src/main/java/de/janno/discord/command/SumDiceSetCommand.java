@@ -35,7 +35,7 @@ public class SumDiceSetCommand extends AbstractCommand {
     private static final String EMPTY_MESSAGE = "Click on the buttons to add dice to the set";
     private static final String CLEAR_BUTTON_ID = "clear";
     private static final String X2_BUTTON_ID = "x2";
-    private static final int MAX_NUMBER_OF_DICE = 100;
+    private static final String DICE_SYMBOL = "d";
     private final DiceUtils diceUtils;
 
     public SumDiceSetCommand() {
@@ -74,11 +74,11 @@ public class SumDiceSetCommand extends AbstractCommand {
     }
 
     @Override
-    protected DiceResult rollDice(String buttonValue, List<String> config) {
+    protected List<DiceResult> rollDice(String buttonValue, List<String> config) {
         Map<String, Integer> diceSetMap = currentDiceSet(config);
         List<Integer> diceResultValues = diceSetMap.entrySet().stream()
                 .sorted(Comparator.comparing(e -> {
-                    if (e.getKey().contains("d")) {
+                    if (e.getKey().contains(DICE_SYMBOL)) {
                         return Integer.parseInt(e.getKey().substring(1));
                     }
                     //modifiers should always be at the end
@@ -102,21 +102,20 @@ public class SumDiceSetCommand extends AbstractCommand {
         long sumResult = diceResultValues.stream().mapToLong(Integer::longValue).sum();
         String title = parseDiceMapToMessageString(diceSetMap);
         DiceResult diceResult = new DiceResult(String.format("%s = %d", title, sumResult), diceResultValues.toString());
-        log.info(String.format("%s:%s -> %s: %s", getName(), config, diceResult.getResultTitle(), diceResult.getResultDetails()));
-        return diceResult;
+        return ImmutableList.of(diceResult);
     }
 
     private Map<String, Integer> currentDiceSet(List<String> config) {
         return config.stream()
                 .collect(Collectors.toMap(s -> {
-                    if (s.contains("d")) {
-                        return s.substring(s.indexOf("d"));
+                    if (s.contains(DICE_SYMBOL)) {
+                        return s.substring(s.indexOf(DICE_SYMBOL));
                     } else {
                         return "";
                     }
                 }, s -> {
-                    if (s.contains("d")) {
-                        return Integer.valueOf(s.substring(0, s.indexOf("d")));
+                    if (s.contains(DICE_SYMBOL)) {
+                        return Integer.valueOf(s.substring(0, s.indexOf(DICE_SYMBOL)));
                     } else {
                         return Integer.valueOf(s);
                     }
@@ -126,7 +125,7 @@ public class SumDiceSetCommand extends AbstractCommand {
     private String parseDiceMapToMessageString(Map<String, Integer> diceSet) {
         String message = diceSet.entrySet().stream()
                 .sorted(Comparator.comparing(e -> {
-                    if (e.getKey().contains("d")) {
+                    if (e.getKey().contains(DICE_SYMBOL)) {
                         return Integer.parseInt(e.getKey().substring(1));
                     }
                     //modifiers should always be at the end
@@ -165,7 +164,7 @@ public class SumDiceSetCommand extends AbstractCommand {
             int diceModifier;
             String die;
 
-            if (buttonId.contains("d")) {
+            if (buttonId.contains(DICE_SYMBOL)) {
                 diceModifier = "-".equals(buttonId.substring(0, 1)) ? -1 : +1;
                 die = buttonId.substring(2);
             } else {

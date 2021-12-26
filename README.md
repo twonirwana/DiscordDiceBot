@@ -10,8 +10,8 @@ Add to Discord channel by following this link:
 
 For questions and suggestions join me at the [Button Dice Roller Discord Server](https://discord.gg/e43BsqKpFr)
 
-The bot need permission to create application commands (which are needed to control the bot), send message and embed links (for the
-dice buttons and results).
+The bot need permission to create application commands (which are needed to control the bot), send message and embed
+links (for the dice buttons and results).
 
 :warning: **If you can't see the bots messages**: The link preview in the discord setting must be activated to see the
 roll results
@@ -34,30 +34,31 @@ of all dice):
 
 Each button can be set with dice expression with the following notation.
 
-| Name | Notation | Example | Description |
-|------|----------|---------|-------------|
-|  |  |  |  |
-| Single Die | `d<numberOfFaces>` | `d6` | roll one, six-sided die |
-| Multiple Dice | `<numberOfDice>d<numberOfFaces>` | `3d20` | roll three, twenty-sided dice |
-| Keep Dice | `<numberOfDice>d<numberOfFaces>k<numberOfDiceKept>` | `3d6k2` | keeps the the highest values out of three, six-sided dice |
-| Multiply Die | `d<numberOfFaces>X` | `d10X` | multiplies the result of `d10 * d10` |
-| Multiply Dice | `<numberOfDice>d<numberOfFaces>X` | `2d10X` | multiplies the result of `2d10 * 2d10` |
-| Fudge Dice | `dF` | `dF` | rolls a single "fudge" die (a six sided die, 1/3 chance of `-1`, 1/3 chance of `0`, and 1/3 chance of `1`) |
-| Multiple Fudge Dice | `<numberOfDice>dF` | `3dF` | rolls multiple fudge dice |
-| Weighted Fudge Die | `dF.<weight>` | `dF.1` | A weighted fudge die with 1/6 chance of a `1`, `2/3` chance of a `0` and 1/6 chance of a `-1` |
-| Multiple Weighted Fudge Dice | `<numberOfDice>dF.<weight>` | `2dF.1` | multiple weighted fudge dice. |
-| Exploding Dice | `<numberOfDice>d<numberOfFaces>!` | `4d6!` | any time the max value of a die is rolled, that die is re-rolled and added to the total |
-| Exploding Dice (Target) | `<numberOfDice>d<numberOfFaces>!><target>` | `3d6!>5` | Same as exploding dice, but re-roll on values greater than or equal to the target (note, less than works too) |
-| Compounding Dice | `<numberOfDice>d<numberOfFaces>!!` | `3d6!!` | similar to exploding dice, but ALL dice are re-rolled | 
-| Compounding Dice (Target) | `<numberOfDice>d<numberOfFaces>!!><target>` | `3d6!!>5` | similar as exploding dice (target), but all dice are re-rolled and added. |
-| Target Pool Dice | `<numberOfDice>d<numberOfFaces>[>,<,=]<target>` | `3d6=6` | counts the number of dice that match the target (NOTE: greater & less than also match equals, i.e `>=` and `<=`) | 
-| Target Pool Dice (Expression) | `(<expression>)[>,<,=]<target>` | `(4d8-2)>6` | A target pool roll, but where the expression is evaluated to the target. |
-| Integer | `<int>` | `42` | typically used in math operations, i.e. `2d4+2` |
-| Math | `<left> <operation> <right>` |
-| Add | `<left> + <right>`  | `2d6 + 2` | |
-| Subtract | `<left> - <right>` | `2 - 1` | |
-| Multiply | `<left> * <right>` | `1d4 * 2d6` | |
-| Divide | `<left> / <right>` | `4 / 2` | |
+| Name                          | Notation                                            | Example     | Description                                                                                                      |
+|-------------------------------|-----------------------------------------------------|-------------|------------------------------------------------------------------------------------------------------------------|
+|                               |                                                     |             |                                                                                                                  |
+| Single Die                    | `d<numberOfFaces>`                                  | `d6`        | roll one, six-sided die                                                                                          |
+| Multiple Dice                 | `<numberOfDice>d<numberOfFaces>`                    | `3d20`      | roll three, twenty-sided dice                                                                                    |
+| Keep Dice                     | `<numberOfDice>d<numberOfFaces>k<numberOfDiceKept>` | `3d6k2`     | keeps the the highest values out of three, six-sided dice                                                        |
+| Multiply Die                  | `d<numberOfFaces>X`                                 | `d10X`      | multiplies the result of `d10 * d10`                                                                             |
+| Multiply Dice                 | `<numberOfDice>d<numberOfFaces>X`                   | `2d10X`     | multiplies the result of `2d10 * 2d10`                                                                           |
+| Fudge Dice                    | `dF`                                                | `dF`        | rolls a single "fudge" die (a six sided die, 1/3 chance of `-1`, 1/3 chance of `0`, and 1/3 chance of `1`)       |
+| Multiple Fudge Dice           | `<numberOfDice>dF`                                  | `3dF`       | rolls multiple fudge dice                                                                                        |
+| Weighted Fudge Die            | `dF.<weight>`                                       | `dF.1`      | A weighted fudge die with 1/6 chance of a `1`, `2/3` chance of a `0` and 1/6 chance of a `-1`                    |
+| Multiple Weighted Fudge Dice  | `<numberOfDice>dF.<weight>`                         | `2dF.1`     | multiple weighted fudge dice.                                                                                    |
+| Exploding Dice                | `<numberOfDice>d<numberOfFaces>!`                   | `4d6!`      | any time the max value of a die is rolled, that die is re-rolled and added to the total                          |
+| Exploding Dice (Target)       | `<numberOfDice>d<numberOfFaces>!><target>`          | `3d6!>5`    | Same as exploding dice, but re-roll on values greater than or equal to the target (note, less than works too)    |
+| Compounding Dice              | `<numberOfDice>d<numberOfFaces>!!`                  | `3d6!!`     | similar to exploding dice, but ALL dice are re-rolled                                                            | 
+| Compounding Dice (Target)     | `<numberOfDice>d<numberOfFaces>!!><target>`         | `3d6!!>5`   | similar as exploding dice (target), but all dice are re-rolled and added.                                        |
+| Target Pool Dice              | `<numberOfDice>d<numberOfFaces>[>,<,=]<target>`     | `3d6=6`     | counts the number of dice that match the target (NOTE: greater & less than also match equals, i.e `>=` and `<=`) | 
+| Target Pool Dice (Expression) | `(<expression>)[>,<,=]<target>`                     | `(4d8-2)>6` | A target pool roll, but where the expression is evaluated to the target.                                         |
+| Multiple Rolls                | `<numberOfRolls>x[<expression>]`                    | `3x[3d6]`   | Rolls the inner expressions multiple time and returning each result, without combining them.                     |
+| Integer                       | `<int>`                                             | `42`        | typically used in math operations, i.e. `2d4+2`                                                                  |
+| Math                          | `<left> <operation> <right>`                        |
+| Add                           | `<left> + <right>`                                  | `2d6 + 2`   |                                                                                                                  |
+| Subtract                      | `<left> - <right>`                                  | `2 - 1`     |                                                                                                                  |
+| Multiply                      | `<left> * <right>`                                  | `1d4 * 2d6` |                                                                                                                  |
+| Divide                        | `<left> / <right>`                                  | `4 / 2`     |                                                                                                                  |
 
 see https://github.com/diceroll-dev/dice-parser for more details.
 

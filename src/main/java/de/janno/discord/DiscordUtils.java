@@ -1,6 +1,9 @@
 package de.janno.discord;
 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
 import de.janno.discord.command.ActiveButtonsCache;
+import de.janno.discord.dice.DiceResult;
 import discord4j.common.util.Snowflake;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.object.command.ApplicationCommandInteractionOption;
@@ -32,17 +35,39 @@ public class DiscordUtils {
         return new String(in.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8);
     }
 
-    public static EmbedCreateSpec createEmbedMessageWithReference(
-            @NonNull String title,
-            @NonNull String description,
+    private static EmbedCreateSpec createEmbedMessageWithReference(
+            @NonNull DiceResult diceResult,
             @NonNull Member rollRequester) {
         return EmbedCreateSpec.builder()
-                .title(StringUtils.abbreviate(encodeUTF8(title), 256)) //https://discord.com/developers/docs/resources/channel#embed-limits
+                .title(StringUtils.abbreviate(encodeUTF8(diceResult.getResultTitle()), 256)) //https://discord.com/developers/docs/resources/channel#embed-limits
                 .author(rollRequester.getDisplayName(), null, rollRequester.getAvatarUrl())
                 .color(Color.of(rollRequester.getId().hashCode()))
-                .description(StringUtils.abbreviate(encodeUTF8(description), 4096)) //https://discord.com/developers/docs/resources/channel#embed-limits
+                .description(StringUtils.abbreviate(encodeUTF8(diceResult.getResultDetails()), 4096)) //https://discord.com/developers/docs/resources/channel#embed-limits
                 //   .timestamp(Instant.now())
                 .build();
+    }
+
+    public static EmbedCreateSpec createEmbedMessageWithReference(
+            @NonNull List<DiceResult> diceResults,
+            @NonNull Member rollRequester) {
+        Preconditions.checkArgument(!diceResults.isEmpty(), "Results list empty");
+        if (diceResults.size() == 1) {
+            return createEmbedMessageWithReference(diceResults.get(0), rollRequester);
+        }
+        EmbedCreateSpec.Builder builder = EmbedCreateSpec.builder()
+                .title(StringUtils.abbreviate(encodeUTF8("Multiple Results"), 256)) //https://discord.com/developers/docs/resources/channel#embed-limits
+                .author(rollRequester.getDisplayName(), null, rollRequester.getAvatarUrl())
+                .color(Color.of(rollRequester.getId().hashCode()));
+        if (diceResults.size() > 25) {
+            log.error("Number of dice results was {} and was reduced", diceResults.size());
+        }
+        List<DiceResult> limitedList = diceResults.stream().limit(25).collect(ImmutableList.toImmutableList()); //https://discord.com/developers/docs/resources/channel#embed-limits
+        for (DiceResult diceResult : limitedList) {
+            builder.addField(StringUtils.abbreviate(encodeUTF8(diceResult.getResultTitle()), 256), //https://discord.com/developers/docs/resources/channel#embed-limits
+                    StringUtils.abbreviate(encodeUTF8(diceResult.getResultDetails()), 1024), //https://discord.com/developers/docs/resources/channel#embed-limits
+                    false);
+        }
+        return builder.build();
     }
 
     public static Mono<Void> deleteMessage(

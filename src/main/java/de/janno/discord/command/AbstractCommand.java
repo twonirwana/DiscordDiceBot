@@ -12,7 +12,6 @@ import discord4j.core.object.component.LayoutComponent;
 import discord4j.core.object.entity.channel.TextChannel;
 import discord4j.core.spec.EmbedCreateSpec;
 import discord4j.discordjson.json.ApplicationCommandOptionData;
-import discord4j.discordjson.json.ApplicationCommandRequest;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
@@ -24,6 +23,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static de.janno.discord.DiscordUtils.*;
+import static de.janno.discord.dice.DiceUtils.MINUS;
 
 @Slf4j
 public abstract class AbstractCommand implements ISlashCommand, IComponentInteractEventHandler {
@@ -106,8 +106,13 @@ public abstract class AbstractCommand implements ISlashCommand, IComponentIntera
     }
 
     protected EmbedCreateSpec createButtonEventAnswer(@NonNull ComponentInteractionEvent event, @NonNull List<String> config) {
-        DiceResult result = rollDice(getValueFromEvent(event), config);
-        return createEmbedMessageWithReference(result.getResultTitle(), result.getResultDetails(), event.getInteraction().getMember().orElseThrow());
+        List<DiceResult> result = rollDice(getValueFromEvent(event), config);
+        result.forEach(d -> log.info(String.format("%s:%s -> %s: %s", getName(), config, d.getResultTitle(), d.getResultDetails()
+                .replace("▢", "0")
+                .replace("＋", "+")
+                .replace(MINUS, "-")
+                .replace("*", ""))));
+        return createEmbedMessageWithReference(result, event.getInteraction().getMember().orElseThrow());
     }
 
     protected String editMessage(String buttonId, List<String> config) {
@@ -162,7 +167,7 @@ public abstract class AbstractCommand implements ISlashCommand, IComponentIntera
 
     protected abstract List<String> getConfigValuesFromStartOptions(ApplicationCommandInteractionOption options);
 
-    protected abstract DiceResult rollDice(String buttonValue, List<String> config);
+    protected abstract List<DiceResult> rollDice(String buttonValue, List<String> config);
 
     protected abstract List<LayoutComponent> getButtonLayout(List<String> config);
 

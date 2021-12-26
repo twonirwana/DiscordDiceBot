@@ -220,17 +220,19 @@ class SumDiceSetCommandTest {
 
     @Test
     void rollDice_1d4plus1d6plus10() {
-        DiceResult res = underTest.rollDice("roll", ImmutableList.of("+1d4", "+1d6", "+10"));
+        List<DiceResult> res = underTest.rollDice("roll", ImmutableList.of("+1d4", "+1d6", "+10"));
 
-        assertThat(res.getResultTitle()).isEqualTo("1d4 +1d6 +10 = 12");
-        assertThat(res.getResultDetails()).isEqualTo("[1, 1, 10]");
+        assertThat(res).hasSize(1);
+        assertThat(res.get(0).getResultTitle()).isEqualTo("1d4 +1d6 +10 = 12");
+        assertThat(res.get(0).getResultDetails()).isEqualTo("[1, 1, 10]");
     }
 
     @Test
     void rollDice_minus1d4plus1d6minux10() {
-        DiceResult res = underTest.rollDice("roll", ImmutableList.of("-1d4", "+1d6", "-10"));
+        List<DiceResult> res = underTest.rollDice("roll", ImmutableList.of("-1d4", "+1d6", "-10"));
 
-        assertThat(res.getResultTitle()).isEqualTo("-1d4 +1d6 -10 = -10");
-        assertThat(res.getResultDetails()).isEqualTo("[-1, 1, -10]");
+        assertThat(res).hasSize(1);
+        assertThat(res.get(0).getResultTitle()).isEqualTo("-1d4 +1d6 -10 = -10");
+        assertThat(res.get(0).getResultDetails()).isEqualTo("[-1, 1, -10]");
     }
 }
