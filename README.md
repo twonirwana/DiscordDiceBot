@@ -16,7 +16,7 @@ links (for the dice buttons and results).
 :warning: **If you can't see the bots messages**: The link preview in the discord setting must be activated to see the
 roll results
 
-The bot has currently three systems:
+The bot has currently the following systems:
 
 ## Custom dice buttons
 
