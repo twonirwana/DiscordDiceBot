@@ -16,6 +16,21 @@ links (for the dice buttons and results).
 :warning: **If you can't see the bots messages**: The link preview in the discord setting must be activated to see the
 roll results
 
+## Example RPG System Commands
+Some example for commands, please see in the detail's description below for further options
+
+#### DnD 5e
+`/custom_dice start 1_button:1d4 2_button:1d6 3_button:1d8 4_button:1d10 5_button:1d12 6_button:1d20 7_button:1d100 8_button:2d20k1 9_button:2d20L1 10_button:2d4 11_button:2d6 12_button:2d8 13_button:2d10 14_button:2d12 15_button:2d20 16_button:3d4 17_button:3d6 18_button:3d8 19_button:3d10 20_button:3d12 21_button:3d20 22_button:4d4 23_button:4d6 24_button:4d8 25_button:4d10`
+
+### Fate
+`/fate start type:with_modifier`
+
+### World of Darkness
+`/count_successes start dice_sides:10 target_number:8`
+
+### Shadowrun
+`/count_successes start dice_sides:6 target_number:5 glitch:half_dice_one max_dice:20`
+
 The bot has currently the following systems:
 
 ## Custom dice buttons
@@ -77,7 +92,7 @@ be rolled and the count of the dice with results equal or approve the target num
 
 ### Glitch Option
 
-As default there is no glitch option (special handling of ones) but it is possible to configure one of the follwing
+As default there is no glitch option (special handling of ones) but it is possible to configure one of the following
 options:
 
 #### half_dice_one
@@ -98,12 +113,6 @@ ons than successes the result will be negative. This is for example used in the 
 
 The optional parameter `max_dice` will change the max number of dice (and thereby the number of buttons). The default
 value is 15, which will be used if the parameter is not set, and the max number of dice is 25.
-
-### Example
-
-This is a system that can be used for example for the new Word of
-Darkness (`/count_successes start dice_sides:10 target_number:7`) or
-Shadowrun (`/count_successes start dice_sides:6 target_number:5 glitch:half_dice_one max_dice:20` ).
 
 ![img.png](src/main/image/count_success_buttons.png)
 
