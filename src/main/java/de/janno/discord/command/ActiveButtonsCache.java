@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.ExecutionException;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static io.micrometer.core.instrument.Metrics.globalRegistry;
@@ -27,15 +28,21 @@ public class ActiveButtonsCache {
     private final Cache<Snowflake, Set<ButtonWithConfigHash>> channel2ButtonMessageIds = CacheBuilder.newBuilder()
             .maximumSize(10_000)
             .build();
+    private final Function<List<String>, Integer> config2HashFunction;
 
     public ActiveButtonsCache(String systemName) {
+        this(systemName, List::hashCode);
+    }
+
+    public ActiveButtonsCache(String systemName, Function<List<String>, Integer> config2HashFunction) {
         globalRegistry.gaugeMapSize(Metrics.METRIC_PREFIX + "channelInCache", Tags.of("system", systemName), channel2ButtonMessageIds.asMap());
+        this.config2HashFunction = config2HashFunction;
     }
 
     public void addChannelWithButton(Snowflake channelId, Snowflake buttonId, List<String> config) {
         try {
             Set<ButtonWithConfigHash> buttonIds = channel2ButtonMessageIds.get(channelId, ConcurrentSkipListSet::new);
-            buttonIds.add(new ButtonWithConfigHash(buttonId, config.hashCode()));
+            buttonIds.add(new ButtonWithConfigHash(buttonId, config2HashFunction.apply(config)));
         } catch (ExecutionException e) {
             log.error("Error in putting buttonId into cache: ", e);
         }
@@ -46,7 +53,7 @@ public class ActiveButtonsCache {
             Set<ButtonWithConfigHash> buttonIdCache = channel2ButtonMessageIds.get(channelId, ConcurrentSkipListSet::new);
             return buttonIdCache.stream()
                     .filter(bc -> !buttonToKeepId.equals(bc.getButtonId()))
-                    .filter(bc -> config.hashCode() == bc.getConfigHash())
+                    .filter(bc -> config2HashFunction.apply(config) == bc.getConfigHash())
                     .peek(buttonIdCache::remove)
                     .map(ButtonWithConfigHash::getButtonId)
                     .collect(Collectors.toList());
@@ -55,4 +62,6 @@ public class ActiveButtonsCache {
         }
         return ImmutableList.of();
     }
+
+
 }

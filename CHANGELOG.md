@@ -2,9 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## 2021-12-29
+
+### Added
+
+Hold-reroll dice system
+
 ## 2021-12-27
 
 ### Added
+
 Keep low dice notation, e.g. for DnD 5e disadvantage
 
 ## 2021-12-26

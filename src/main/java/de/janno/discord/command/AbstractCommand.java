@@ -14,6 +14,7 @@ import discord4j.core.spec.EmbedCreateSpec;
 import discord4j.discordjson.json.ApplicationCommandOptionData;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.Nullable;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -78,7 +79,7 @@ public abstract class AbstractCommand implements ISlashCommand, IComponentIntera
         if (event.getInteraction().getMessageId().isPresent()) {
             activeButtonsCache.addChannelWithButton(event.getInteraction().getChannelId(), event.getInteraction().getMessageId().get(), config);
         }
-        String buttonValue = getValueFromEvent(event);
+        String buttonValue = getButtonValueFromEvent(event);
         List<Mono<Void>> actions = new ArrayList<>();
         actions.add(event
                 .edit(editMessage(buttonValue, config))
@@ -86,7 +87,7 @@ public abstract class AbstractCommand implements ISlashCommand, IComponentIntera
                     log.warn("Error on acknowledge button event");
                     return Mono.empty();
                 }));
-        if (createNewMessage(buttonValue, config)) {
+        if (createAnswerMessage(buttonValue, config)) {
             Metrics.incrementButtonMetricCounter(getName(), config);
             actions.add(event.getInteraction().getChannel()
                     .ofType(TextChannel.class)
@@ -96,7 +97,7 @@ public abstract class AbstractCommand implements ISlashCommand, IComponentIntera
         if (copyButtonMessageToTheEnd(buttonValue, config)) {
             actions.add(event.getInteraction().getChannel()
                     .ofType(TextChannel.class)
-                    .flatMap(createButtonMessage(activeButtonsCache, getButtonMessage(config), getButtonLayout(config), config))
+                    .flatMap(createButtonMessage(activeButtonsCache, getButtonMessage(buttonValue, config), getButtonLayout(buttonValue, config), config))
                     .flatMap(m -> deleteMessage(m.getChannel(), m.getChannelId(), activeButtonsCache, m.getId(), config)));
         }
 
@@ -106,7 +107,7 @@ public abstract class AbstractCommand implements ISlashCommand, IComponentIntera
     }
 
     protected EmbedCreateSpec createButtonEventAnswer(@NonNull ComponentInteractionEvent event, @NonNull List<String> config) {
-        List<DiceResult> result = rollDice(getValueFromEvent(event), config);
+        List<DiceResult> result = getDiceResult(getButtonValueFromEvent(event), config);
         result.forEach(d -> log.info(String.format("%s:%s -> %s: %s", getName(), config, d.getResultTitle(), d.getResultDetails()
                 .replace("▢", "0")
                 .replace("＋", "+")
@@ -119,7 +120,7 @@ public abstract class AbstractCommand implements ISlashCommand, IComponentIntera
         return "rolling...";
     }
 
-    protected boolean createNewMessage(String buttonId, List<String> config) {
+    protected boolean createAnswerMessage(String buttonId, List<String> config) {
         return true;
     }
 
@@ -146,7 +147,7 @@ public abstract class AbstractCommand implements ISlashCommand, IComponentIntera
                         return Mono.empty();
                     })
                     .then(event.getInteraction().getChannel().ofType(TextChannel.class)
-                            .flatMap(createButtonMessage(activeButtonsCache, getButtonMessage(config), getButtonLayout(config), config))
+                            .flatMap(createButtonMessage(activeButtonsCache, getButtonMessage(null, config), getButtonLayout(null, config), config))
                             .ofType(Void.class)
                     );
 
@@ -163,13 +164,13 @@ public abstract class AbstractCommand implements ISlashCommand, IComponentIntera
 
     protected abstract EmbedCreateSpec getHelpMessage();
 
-    protected abstract String getButtonMessage(List<String> config);
+    protected abstract String getButtonMessage(@Nullable String buttonValue, List<String> config);
 
     protected abstract List<String> getConfigValuesFromStartOptions(ApplicationCommandInteractionOption options);
 
-    protected abstract List<DiceResult> rollDice(String buttonValue, List<String> config);
+    protected abstract List<DiceResult> getDiceResult(String buttonValue, List<String> config);
 
-    protected abstract List<LayoutComponent> getButtonLayout(List<String> config);
+    protected abstract List<LayoutComponent> getButtonLayout(@Nullable String buttonValue, List<String> config);
 
     protected String getStartOptionsValidationMessage(ApplicationCommandInteractionOption options) {
         return null;
@@ -184,7 +185,7 @@ public abstract class AbstractCommand implements ISlashCommand, IComponentIntera
         return builder.build();
     }
 
-    protected String getValueFromEvent(ComponentInteractionEvent event) {
+    protected String getButtonValueFromEvent(ComponentInteractionEvent event) {
         return event.getCustomId().split(CONFIG_DELIMITER)[1];
     }
 

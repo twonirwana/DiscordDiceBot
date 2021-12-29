@@ -37,7 +37,7 @@ public class CustomDiceCommand extends AbstractCommand {
     }
 
     @Override
-    protected String getButtonMessage(List<String> config) {
+    protected String getButtonMessage(String buttonValue, List<String> config) {
         return "Click on a button to roll the dice";
     }
 
@@ -146,12 +146,12 @@ public class CustomDiceCommand extends AbstractCommand {
     }
 
     @Override
-    protected List<DiceResult> rollDice(String buttonValue, List<String> config) {
+    protected List<DiceResult> getDiceResult(String buttonValue, List<String> config) {
         return DiceParserHelper.roll(buttonValue);
     }
 
     @Override
-    protected List<LayoutComponent> getButtonLayout(List<String> config) {
+    protected List<LayoutComponent> getButtonLayout(String buttonValue, List<String> config) {
         List<Button> buttons = config.stream()
                 .map(d -> Button.primary(createButtonCustomId(COMMAND_NAME, d, ImmutableList.of()), d))
                 .collect(Collectors.toList());

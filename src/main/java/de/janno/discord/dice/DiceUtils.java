@@ -4,6 +4,7 @@ package de.janno.discord.dice;
 import java.util.Deque;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -44,9 +45,9 @@ public class DiceUtils {
                 .count();
     }
 
-    public static int numberOfDiceResultsEqual(List<Integer> results, int target) {
+    public static int numberOfDiceResultsEqual(List<Integer> results, Set<Integer> targets) {
         return (int) results.stream()
-                .filter(i -> i == target)
+                .filter(targets::contains)
                 .count();
     }
 

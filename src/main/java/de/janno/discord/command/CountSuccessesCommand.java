@@ -1,6 +1,7 @@
 package de.janno.discord.command;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import de.janno.discord.dice.DiceResult;
 import de.janno.discord.dice.DiceUtils;
@@ -53,7 +54,7 @@ public class CountSuccessesCommand extends AbstractCommand {
         return String.format("%sd%s", value, config.get(0));
     }
 
-    private static String markSuccessesAndOptionalOnes(List<Integer> diceResults, int target, boolean markOnes) {
+    private static String markBiggerEqualAndOptionalOnes(List<Integer> diceResults, int target, boolean markOnes) {
         return "[" + diceResults.stream().map(i -> {
             if (i >= target) {
                 return makeBold(i);
@@ -97,11 +98,42 @@ public class CountSuccessesCommand extends AbstractCommand {
 
     @Override
     protected List<ApplicationCommandOptionData> getStartOptions() {
-        return ImmutableList.of(ApplicationCommandOptionData.builder().name(ACTION_SIDE_OPTION).required(true).description("Dice side").type(ApplicationCommandOption.Type.INTEGER.getValue()).minValue(0d).maxValue((double) MAX_NUMBER_SIDES_OR_TARGET_NUMBER).build(), ApplicationCommandOptionData.builder().name(ACTION_TARGET_OPTION).required(true).description("Target number").type(ApplicationCommandOption.Type.INTEGER.getValue()).minValue(0d).maxValue((double) MAX_NUMBER_SIDES_OR_TARGET_NUMBER).build(), ApplicationCommandOptionData.builder().name(ACTION_GLITCH_OPTION).required(false).description("Glitch option").type(ApplicationCommandOption.Type.STRING.getValue()).addChoice(ApplicationCommandOptionChoiceData.builder().name(GLITCH_OPTION_HALF_ONES).value(GLITCH_OPTION_HALF_ONES).build()).addChoice(ApplicationCommandOptionChoiceData.builder().name(GLITCH_COUNT_ONES).value(GLITCH_COUNT_ONES).build()).addChoice(ApplicationCommandOptionChoiceData.builder().name(GLITCH_SUBTRACT_ONES).value(GLITCH_SUBTRACT_ONES).build()).build(), ApplicationCommandOptionData.builder().name(ACTION_MAX_DICE_OPTION).required(false).description("Max number of dice").type(ApplicationCommandOption.Type.INTEGER.getValue()).minValue(1d).maxValue(Double.valueOf(MAX_NUMBER_OF_DICE)).build());
+        return ImmutableList.of(ApplicationCommandOptionData.builder()
+                        .name(ACTION_SIDE_OPTION)
+                        .required(true)
+                        .description("Dice side")
+                        .type(ApplicationCommandOption.Type.INTEGER.getValue())
+                        .minValue(0d)
+                        .maxValue((double) MAX_NUMBER_SIDES_OR_TARGET_NUMBER).build(),
+                ApplicationCommandOptionData.builder()
+                        .name(ACTION_TARGET_OPTION)
+                        .required(true)
+                        .description("Target number")
+                        .type(ApplicationCommandOption.Type.INTEGER.getValue())
+                        .minValue(0d)
+                        .maxValue((double) MAX_NUMBER_SIDES_OR_TARGET_NUMBER)
+                        .build(),
+                ApplicationCommandOptionData.builder()
+                        .name(ACTION_GLITCH_OPTION)
+                        .required(false)
+                        .description("Glitch option")
+                        .type(ApplicationCommandOption.Type.STRING.getValue())
+                        .addChoice(ApplicationCommandOptionChoiceData.builder().name(GLITCH_OPTION_HALF_ONES).value(GLITCH_OPTION_HALF_ONES).build())
+                        .addChoice(ApplicationCommandOptionChoiceData.builder().name(GLITCH_COUNT_ONES).value(GLITCH_COUNT_ONES).build())
+                        .addChoice(ApplicationCommandOptionChoiceData.builder().name(GLITCH_SUBTRACT_ONES).value(GLITCH_SUBTRACT_ONES).build())
+                        .build(),
+                ApplicationCommandOptionData.builder()
+                        .name(ACTION_MAX_DICE_OPTION)
+                        .required(false)
+                        .description("Max number of dice")
+                        .type(ApplicationCommandOption.Type.INTEGER.getValue())
+                        .minValue(1d)
+                        .maxValue(Double.valueOf(MAX_NUMBER_OF_DICE))
+                        .build());
     }
 
     @Override
-    protected List<DiceResult> rollDice(String buttonValue, List<String> config) {
+    protected List<DiceResult> getDiceResult(String buttonValue, List<String> config) {
         int numberOfDice = Integer.parseInt(buttonValue);
         int sidesOfDie = Integer.parseInt(config.get(0));
         int targetNumber = Integer.parseInt(config.get(1));
@@ -124,39 +156,39 @@ public class CountSuccessesCommand extends AbstractCommand {
 
     private DiceResult noneGlitch(int numberOfDice, int sidesOfDie, int targetNumber, List<Integer> rollResult) {
         int numberOfSuccesses = DiceUtils.numberOfDiceResultsGreaterEqual(rollResult, targetNumber);
-        String details = String.format("%s ≥%d = %s", markSuccessesAndOptionalOnes(rollResult, targetNumber, false), targetNumber, numberOfSuccesses);
+        String details = String.format("%s ≥%d = %s", markBiggerEqualAndOptionalOnes(rollResult, targetNumber, false), targetNumber, numberOfSuccesses);
         String title = String.format("%dd%d = %d", numberOfDice, sidesOfDie, numberOfSuccesses);
         return new DiceResult(title, details);
     }
 
     private DiceResult countOnesGlitch(int numberOfDice, int sidesOfDie, int targetNumber, List<Integer> rollResult) {
         int numberOfSuccesses = DiceUtils.numberOfDiceResultsGreaterEqual(rollResult, targetNumber);
-        int numberOfOnes = DiceUtils.numberOfDiceResultsEqual(rollResult, 1);
-        String details = String.format("%s ≥%d = %s", markSuccessesAndOptionalOnes(rollResult, targetNumber, true), targetNumber, numberOfSuccesses);
+        int numberOfOnes = DiceUtils.numberOfDiceResultsEqual(rollResult, ImmutableSet.of(1));
+        String details = String.format("%s ≥%d = %s", markBiggerEqualAndOptionalOnes(rollResult, targetNumber, true), targetNumber, numberOfSuccesses);
         String title = String.format("%dd%d = %d successes and %d ones", numberOfDice, sidesOfDie, numberOfSuccesses, numberOfOnes);
         return new DiceResult(title, details);
     }
 
     private DiceResult subtractOnesGlitch(int numberOfDice, int sidesOfDie, int targetNumber, List<Integer> rollResult) {
         int numberOfSuccesses = DiceUtils.numberOfDiceResultsGreaterEqual(rollResult, targetNumber);
-        int numberOfOnes = DiceUtils.numberOfDiceResultsEqual(rollResult, 1);
-        String details = String.format("%s ≥%d -1s = %s", markSuccessesAndOptionalOnes(rollResult, targetNumber, true), targetNumber, numberOfSuccesses - numberOfOnes);
+        int numberOfOnes = DiceUtils.numberOfDiceResultsEqual(rollResult, ImmutableSet.of(1));
+        String details = String.format("%s ≥%d -1s = %s", markBiggerEqualAndOptionalOnes(rollResult, targetNumber, true), targetNumber, numberOfSuccesses - numberOfOnes);
         String title = String.format("%dd%d = %d", numberOfDice, sidesOfDie, numberOfSuccesses - numberOfOnes);
         return new DiceResult(title, details);
     }
 
     private DiceResult halfOnesGlitch(int numberOfDice, int sidesOfDie, int targetNumber, List<Integer> rollResult) {
-        boolean isGlitch = DiceUtils.numberOfDiceResultsEqual(rollResult, 1) > (numberOfDice / 2);
+        boolean isGlitch = DiceUtils.numberOfDiceResultsEqual(rollResult, ImmutableSet.of(1)) > (numberOfDice / 2);
         int numberOfSuccesses = DiceUtils.numberOfDiceResultsGreaterEqual(rollResult, targetNumber);
         String glitchDescription = isGlitch ? " and more then half of all dice show 1s" : "";
-        String details = String.format("%s ≥%d = %s%s", markSuccessesAndOptionalOnes(rollResult, targetNumber, isGlitch), targetNumber, numberOfSuccesses, glitchDescription);
+        String details = String.format("%s ≥%d = %s%s", markBiggerEqualAndOptionalOnes(rollResult, targetNumber, isGlitch), targetNumber, numberOfSuccesses, glitchDescription);
         String glitch = isGlitch ? " - Glitch!" : "";
         String title = String.format("%dd%d = %d%s", numberOfDice, sidesOfDie, numberOfSuccesses, glitch);
         return new DiceResult(title, details);
     }
 
     @Override
-    protected String getButtonMessage(List<String> config) {
+    protected String getButtonMessage(String buttonValue, List<String> config) {
         return String.format("Click to roll the dice against %s%s", config.get(1), getGlitchDescription(config));
     }
 
@@ -187,7 +219,7 @@ public class CountSuccessesCommand extends AbstractCommand {
     }
 
     @Override
-    protected List<LayoutComponent> getButtonLayout(List<String> config) {
+    protected List<LayoutComponent> getButtonLayout(String buttonValue, List<String> config) {
         List<Button> buttons = IntStream.range(1, Integer.parseInt(config.get(3)) + 1).mapToObj(i -> Button.primary(createButtonCustomId(COMMAND_NAME, String.valueOf(i), config), createButtonLabel(String.valueOf(i), config))).collect(Collectors.toList());
         return Lists.partition(buttons, 5).stream().map(ActionRow::of).collect(Collectors.toList());
     }
