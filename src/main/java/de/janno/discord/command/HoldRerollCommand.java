@@ -210,18 +210,21 @@ public class HoldRerollCommand extends AbstractCommand {
 
     private Set<Integer> getRerollSet(List<String> config) {
         return Arrays.stream(config.get(REROLL_SET_CONFIG_INDEX).split(SUBSET_DELIMITER))
+                .filter(StringUtils::isNumeric)
                 .map(Integer::parseInt)
                 .collect(ImmutableSet.toImmutableSet());
     }
 
     private Set<Integer> getSuccessSet(List<String> config) {
         return Arrays.stream(config.get(SUCCESS_SET_CONFIG_INDEX).split(SUBSET_DELIMITER))
+                .filter(StringUtils::isNumeric)
                 .map(Integer::parseInt)
                 .collect(ImmutableSet.toImmutableSet());
     }
 
     private Set<Integer> getFailureSet(List<String> config) {
         return Arrays.stream(config.get(FAILURE_SET_CONFIG_INDEX).split(SUBSET_DELIMITER))
+                .filter(StringUtils::isNumeric)
                 .map(Integer::parseInt)
                 .collect(ImmutableSet.toImmutableSet());
     }
