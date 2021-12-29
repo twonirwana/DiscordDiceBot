@@ -165,19 +165,19 @@ class SumDiceSetCommandTest {
 
     @Test
     void createNewMessage_roll_true() {
-        boolean res = underTest.createNewMessage("roll", ImmutableList.of("1d6"));
+        boolean res = underTest.createAnswerMessage("roll", ImmutableList.of("1d6"));
         assertThat(res).isTrue();
     }
 
     @Test
     void createNewMessage_rollNoConfig_false() {
-        boolean res = underTest.createNewMessage("roll", ImmutableList.of());
+        boolean res = underTest.createAnswerMessage("roll", ImmutableList.of());
         assertThat(res).isFalse();
     }
 
     @Test
     void createNewMessage_modifyMessage_false() {
-        boolean res = underTest.createNewMessage("+1d6", ImmutableList.of("1d6"));
+        boolean res = underTest.createAnswerMessage("+1d6", ImmutableList.of("1d6"));
         assertThat(res).isFalse();
     }
 
@@ -201,13 +201,13 @@ class SumDiceSetCommandTest {
 
     @Test
     void getButtonMessage_empty() {
-        String res = underTest.getButtonMessage(ImmutableList.of());
+        String res = underTest.getButtonMessage(null, ImmutableList.of());
         assertThat(res).isEqualTo("Click on the buttons to add dice to the set");
     }
 
     @Test
     void getButtonMessage_1d6() {
-        String res = underTest.getButtonMessage(ImmutableList.of("1d6"));
+        String res = underTest.getButtonMessage(null, ImmutableList.of("1d6"));
         assertThat(res).isEqualTo("Click on the buttons to add dice to the set");
     }
 
@@ -220,7 +220,7 @@ class SumDiceSetCommandTest {
 
     @Test
     void rollDice_1d4plus1d6plus10() {
-        List<DiceResult> res = underTest.rollDice("roll", ImmutableList.of("+1d4", "+1d6", "+10"));
+        List<DiceResult> res = underTest.getDiceResult("roll", ImmutableList.of("+1d4", "+1d6", "+10"));
 
         assertThat(res).hasSize(1);
         assertThat(res.get(0).getResultTitle()).isEqualTo("1d4 +1d6 +10 = 12");
@@ -229,7 +229,7 @@ class SumDiceSetCommandTest {
 
     @Test
     void rollDice_minus1d4plus1d6minux10() {
-        List<DiceResult> res = underTest.rollDice("roll", ImmutableList.of("-1d4", "+1d6", "-10"));
+        List<DiceResult> res = underTest.getDiceResult("roll", ImmutableList.of("-1d4", "+1d6", "-10"));
 
         assertThat(res).hasSize(1);
         assertThat(res.get(0).getResultTitle()).isEqualTo("-1d4 +1d6 -10 = -10");

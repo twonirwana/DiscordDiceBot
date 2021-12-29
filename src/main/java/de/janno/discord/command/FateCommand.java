@@ -16,8 +16,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 
-import static de.janno.discord.dice.DiceUtils.MINUS;
-
 @Slf4j
 public class FateCommand extends AbstractCommand {
 
@@ -42,7 +40,7 @@ public class FateCommand extends AbstractCommand {
     }
 
     @Override
-    protected String getButtonMessage(List<String> config) {
+    protected String getButtonMessage(String buttonValue, List<String> config) {
         if (ACTION_MODIFIER_OPTION_MODIFIER.equals(config.get(0))) {
             return "Click a button to roll four fate dice and add the value of the button";
         }
@@ -92,7 +90,7 @@ public class FateCommand extends AbstractCommand {
     }
 
     @Override
-    protected List<DiceResult> rollDice(String buttonValue, List<String> config) {
+    protected List<DiceResult> getDiceResult(String buttonValue, List<String> config) {
         List<Integer> rollResult = diceUtils.rollFate();
 
         if (ACTION_MODIFIER_OPTION_MODIFIER.equals(config.get(0))) {
@@ -116,7 +114,7 @@ public class FateCommand extends AbstractCommand {
     }
 
     @Override
-    protected List<LayoutComponent> getButtonLayout(List<String> config) {
+    protected List<LayoutComponent> getButtonLayout(String buttonValue, List<String> config) {
         if (ACTION_MODIFIER_OPTION_MODIFIER.equals(config.get(0))) {
             return ImmutableList.of(
                     ActionRow.of(

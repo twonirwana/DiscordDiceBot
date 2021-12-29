@@ -45,7 +45,8 @@ public class SumDiceSetCommand extends AbstractCommand {
 
     //for testing
     public SumDiceSetCommand(DiceUtils diceUtils) {
-        super(new ActiveButtonsCache(COMMAND_NAME));
+        //config hash is always 0 because there is no config
+        super(new ActiveButtonsCache(COMMAND_NAME, c -> 0));
         this.diceUtils = diceUtils;
     }
 
@@ -74,7 +75,7 @@ public class SumDiceSetCommand extends AbstractCommand {
     }
 
     @Override
-    protected List<DiceResult> rollDice(String buttonValue, List<String> config) {
+    protected List<DiceResult> getDiceResult(String buttonValue, List<String> config) {
         Map<String, Integer> diceSetMap = currentDiceSet(config);
         List<Integer> diceResultValues = diceSetMap.entrySet().stream()
                 .sorted(Comparator.comparing(e -> {
@@ -188,7 +189,7 @@ public class SumDiceSetCommand extends AbstractCommand {
         }
     }
 
-    protected boolean createNewMessage(String buttonId, List<String> config) {
+    protected boolean createAnswerMessage(String buttonId, List<String> config) {
         return ROLL_BUTTON_ID.equals(buttonId) && !config.isEmpty();
     }
 
@@ -221,7 +222,7 @@ public class SumDiceSetCommand extends AbstractCommand {
     }
 
     @Override
-    protected String getButtonMessage(List<String> config) {
+    protected String getButtonMessage(String buttonValue, List<String> config) {
         return EMPTY_MESSAGE;
     }
 
@@ -236,7 +237,7 @@ public class SumDiceSetCommand extends AbstractCommand {
     }
 
     @Override
-    protected List<LayoutComponent> getButtonLayout(List<String> config) {
+    protected List<LayoutComponent> getButtonLayout(String buttonValue, List<String> config) {
         return ImmutableList.of(
                 ActionRow.of(
                         //              ID,  label

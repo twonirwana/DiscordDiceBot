@@ -17,18 +17,23 @@ links (for the dice buttons and results).
 roll results
 
 ## Example RPG System Commands
+
 Some example for commands, please see in the detail's description below for further options
 
 #### DnD 5e
+
 `/custom_dice start 1_button:1d4 2_button:1d6 3_button:1d8 4_button:1d10 5_button:1d12 6_button:1d20 7_button:1d100 8_button:2d20k1 9_button:2d20L1 10_button:2d4 11_button:2d6 12_button:2d8 13_button:2d10 14_button:2d12 15_button:2d20 16_button:3d4 17_button:3d6 18_button:3d8 19_button:3d10 20_button:3d12 21_button:3d20 22_button:4d4 23_button:4d6 24_button:4d8 25_button:4d10`
 
 ### Fate
+
 `/fate start type:with_modifier`
 
 ### World of Darkness
+
 `/count_successes start dice_sides:10 target_number:8`
 
 ### Shadowrun
+
 `/count_successes start dice_sides:6 target_number:5 glitch:half_dice_one max_dice:20`
 
 The bot has currently the following systems:
@@ -140,5 +145,29 @@ message to the end.
 ![](src/main/image/sumDiceSetRequest.png)
 
 ![](src/main/image/sumDiceSetResult.png)
+
+## Hold Reroll
+
+Use the slash command `/hold_reroll start sides:6 reroll_set:2,3,4 success_set:5,6 failure_set:1` to create a message
+for the hold reroll system. The system has the following parameter:
+
+- `sides`: The sides of the dice
+- `reroll_set`: The number on the dice that can be rerolled
+- `success_set`: The number on the dice that are counted as success
+- `failure_set`: The number on the dice that are counted as failure
+
+![](src/main/image/holdReroll_request.png)
+
+If the roll has numbers that are in the reroll set than the user has the option to reroll, finish or clear the result.
+
+- Reroll will reroll all results in the reroll set and keep the remaining unchanged.
+- Finish will fix the current result and allow a new roll.
+- Clear will remove the current result and allow a new roll.
+
+![](src/main/image/holdReroll_reroll1.png)
+
+![](src/main/image/holdReroll_reroll2.png)
+
+![](src/main/image/holdReroll_result.png)
 
 Please let me know if another system is needed.
