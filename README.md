@@ -152,9 +152,9 @@ Use the slash command `/hold_reroll start sides:6 reroll_set:2,3,4 success_set:5
 for the hold reroll system. The system has the following parameter:
 
 - `sides`: The sides of the dice
-- `reroll_set`: The number on the dice that can be rerolled
-- `success_set`: The number on the dice that are counted as success
-- `failure_set`: The number on the dice that are counted as failure
+- `reroll_set`: The number on the dice that can be rerolled. Multiple numbers can be given comma seperated.
+- `success_set`: The number on the dice that are counted as success. Multiple numbers can be given comma seperated.
+- `failure_set`: The number on the dice that are counted as failure. Multiple numbers can be given comma seperated.
 
 ![](src/main/image/holdReroll_request.png)
 

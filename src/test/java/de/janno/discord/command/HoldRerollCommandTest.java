@@ -123,21 +123,21 @@ class HoldRerollCommandTest {
     void getButtonMessage_clear(){
         String res = underTest.getButtonMessage("clear", ImmutableList.of("1;2;3;4;5;6", "6", "2;3;4", "5;6", "1", "2"));
 
-        assertThat(res).isEqualTo("Click on the buttons to roll dice");
+        assertThat(res).isEqualTo("Click on the buttons to roll dice. Reroll set: [2, 3, 4], Success Set: [5, 6] and Failure Set: [1]");
     }
 
     @Test
     void getButtonMessage_finish(){
         String res = underTest.getButtonMessage("finish", ImmutableList.of("1;2;3;4;5;6", "6", "2;3;4", "5;6", "1", "2"));
 
-        assertThat(res).isEqualTo("Click on the buttons to roll dice");
+        assertThat(res).isEqualTo("Click on the buttons to roll dice. Reroll set: [2, 3, 4], Success Set: [5, 6] and Failure Set: [1]");
     }
 
     @Test
     void getButtonMessage_noRerollPossible(){
         String res = underTest.getButtonMessage("reroll", ImmutableList.of("1;1;1;5;5;6", "6", "2;3;4", "5;6", "1", "2"));
 
-        assertThat(res).isEqualTo("Click on the buttons to roll dice");
+        assertThat(res).isEqualTo("Click on the buttons to roll dice. Reroll set: [2, 3, 4], Success Set: [5, 6] and Failure Set: [1]");
     }
 
     @Test

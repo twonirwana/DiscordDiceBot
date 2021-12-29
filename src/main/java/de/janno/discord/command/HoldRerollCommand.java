@@ -36,7 +36,6 @@ public class HoldRerollCommand extends AbstractCommand {
     private static final String REROLL_SET_ID = "reroll_set";
     private static final String SUCCESS_SET_ID = "success_set";
     private static final String FAILURE_SET_ID = "failure_set";
-    private static final String EMPTY_MESSAGE = "Click on the buttons to roll dice";
     private static final String CLEAR_BUTTON_ID = "clear";
     private static final String SUBSET_DELIMITER = ";";
     private static final String DICE_SYMBOL = "d";
@@ -272,13 +271,16 @@ public class HoldRerollCommand extends AbstractCommand {
     @Override
     protected String getButtonMessage(String buttonValue, List<String> config) {
         List<Integer> currentRollResult = getCurrentRollResult(config);
+        Set<Integer> successSet = getSuccessSet(config);
+        Set<Integer> failureSet = getFailureSet(config);
+        Set<Integer> rerollSet = getRerollSet(config);
         if (currentRollResult.isEmpty() || CLEAR_BUTTON_ID.equals(buttonValue)
                 || FINISH_BUTTON_ID.equals(buttonValue)
                 || rollFinished(config)) {
-            return EMPTY_MESSAGE;
+            return String.format("Click on the buttons to roll dice. Reroll set: %s, Success Set: %s and Failure Set: %s",
+                    rerollSet, successSet, failureSet);
         }
-        Set<Integer> successSet = getSuccessSet(config);
-        Set<Integer> failureSet = getFailureSet(config);
+
         int successes = DiceUtils.numberOfDiceResultsEqual(currentRollResult, successSet);
         int failures = DiceUtils.numberOfDiceResultsEqual(currentRollResult, failureSet);
         return String.format("%s = %d successes and %d failures", markIn(currentRollResult, getToMark(config)), successes, failures);
