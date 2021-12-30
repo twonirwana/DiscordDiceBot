@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import de.janno.discord.dice.DiceResult;
 import de.janno.discord.dice.DiceUtils;
 import discord4j.core.GatewayDiscordClient;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayDeque;
@@ -14,7 +15,12 @@ import static org.mockito.Mockito.mock;
 
 class CountSuccessesCommandTest {
 
-    CountSuccessesCommand underTest = new CountSuccessesCommand(new DiceUtils(new ArrayDeque<>(ImmutableList.of(1, 1, 1, 1, 5, 6, 6, 6))));
+    CountSuccessesCommand underTest;
+
+    @BeforeEach
+    void setup(){
+        underTest = new CountSuccessesCommand(new DiceUtils(new ArrayDeque<>(ImmutableList.of(1, 1, 1, 1, 5, 6, 6, 6))));
+    }
 
     @Test
     void getCommandDescription() {

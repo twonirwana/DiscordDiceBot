@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import de.janno.discord.dice.DiceResult;
 import de.janno.discord.dice.DiceUtils;
 import discord4j.core.GatewayDiscordClient;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -17,8 +18,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 class SumDiceSetCommandTest {
-
-    SumDiceSetCommand underTest = new SumDiceSetCommand(new DiceUtils(new ArrayDeque<>(ImmutableList.of(1, 1, 1, 1, 5, 6, 6, 6))));
+    SumDiceSetCommand underTest;
 
     static Stream<Arguments> generateEditMessageData() {
         return Stream.of(
@@ -84,6 +84,11 @@ class SumDiceSetCommandTest {
                 Arguments.of(ImmutableList.of("100d4", "100d6", "100d8", "100d10", "100d12", "100d20"), "+1d12", "100d4 +100d6 +100d8 +100d10 +100d12 +100d20"),
                 Arguments.of(ImmutableList.of("100d4", "100d6", "100d8", "100d10", "100d12", "100d20"), "+1d20", "100d4 +100d6 +100d8 +100d10 +100d12 +100d20")
         );
+    }
+
+    @BeforeEach
+    void setup() {
+        underTest = new SumDiceSetCommand(new DiceUtils(new ArrayDeque<>(ImmutableList.of(1, 1, 1, 1, 5, 6, 6, 6))));
     }
 
     @Test

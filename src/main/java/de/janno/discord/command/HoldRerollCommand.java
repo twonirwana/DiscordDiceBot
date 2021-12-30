@@ -1,5 +1,6 @@
 package de.janno.discord.command;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
@@ -54,7 +55,7 @@ public class HoldRerollCommand extends AbstractCommand {
     }
 
 
-    //for testing
+    @VisibleForTesting
     public HoldRerollCommand(DiceUtils diceUtils) {
         //current roll and rerollCount should not be part of the hash
         super(new ActiveButtonsCache(COMMAND_NAME, c -> c.subList(1, 5).hashCode()));

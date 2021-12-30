@@ -1,5 +1,6 @@
 package de.janno.discord.command;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import de.janno.discord.dice.DiceResult;
 import de.janno.discord.dice.DiceUtils;
@@ -23,10 +24,16 @@ public class FateCommand extends AbstractCommand {
     private static final String ACTION_MODIFIER_OPTION = "type";
     private static final String ACTION_MODIFIER_OPTION_SIMPLE = "simple";
     private static final String ACTION_MODIFIER_OPTION_MODIFIER = "with_modifier";
-    private final DiceUtils diceUtils = new DiceUtils();
+    private final DiceUtils diceUtils;
+
+    @VisibleForTesting
+    public FateCommand(DiceUtils diceUtils) {
+        super(new ActiveButtonsCache(COMMAND_NAME));
+        this.diceUtils = diceUtils;
+    }
 
     public FateCommand() {
-        super(new ActiveButtonsCache(COMMAND_NAME));
+        this(new DiceUtils());
     }
 
     @Override
@@ -97,13 +104,13 @@ public class FateCommand extends AbstractCommand {
             int modifier = Integer.parseInt(buttonValue);
             String modifierString = "";
             if (modifier > 0) {
-                modifierString = "+" + modifier;
+                modifierString = " +" + modifier;
             } else if (modifier < 0) {
-                modifierString = "" + modifier;
+                modifierString = " " + modifier;
             }
             int resultWithModifier = DiceUtils.fateResult(rollResult) + modifier;
 
-            String title = String.format("4dF %s = %d", modifierString, resultWithModifier);
+            String title = String.format("4dF%s = %d", modifierString, resultWithModifier);
             String details = DiceUtils.convertFateNumberToString(rollResult);
             return ImmutableList.of(new DiceResult(title, details));
         } else {

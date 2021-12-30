@@ -1,5 +1,6 @@
 package de.janno.discord.command;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
@@ -44,7 +45,7 @@ public class CountSuccessesCommand extends AbstractCommand {
         this(new DiceUtils());
     }
 
-    //for testing
+    @VisibleForTesting
     public CountSuccessesCommand(DiceUtils diceUtils) {
         super(new ActiveButtonsCache(COMMAND_NAME));
         this.diceUtils = diceUtils;

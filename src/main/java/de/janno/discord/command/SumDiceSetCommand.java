@@ -1,5 +1,6 @@
 package de.janno.discord.command;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import de.janno.discord.dice.DiceResult;
 import de.janno.discord.dice.DiceUtils;
@@ -43,7 +44,7 @@ public class SumDiceSetCommand extends AbstractCommand {
     }
 
 
-    //for testing
+    @VisibleForTesting
     public SumDiceSetCommand(DiceUtils diceUtils) {
         //config hash is always 0 because there is no config
         super(new ActiveButtonsCache(COMMAND_NAME, c -> 0));
