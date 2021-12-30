@@ -9,6 +9,7 @@ buildscript {
 
 apply plugin: 'java'
 apply plugin: 'com.github.johnrengelman.shadow'
+apply plugin: 'jacoco'
 
 group 'de.janno'
 version '1.0-SNAPSHOT'
@@ -59,5 +60,12 @@ tasks.withType(JavaCompile) {
 shadowJar {
     manifest {
         attributes 'Main-Class': 'de.janno.discord.BaseBot'
+    }
+}
+
+jacocoTestReport {
+    reports {
+        xml.enabled true
+        html.enabled false
     }
 }
