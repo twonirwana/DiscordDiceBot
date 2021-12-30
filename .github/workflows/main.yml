@@ -24,7 +24,9 @@ jobs:
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
-
+      - name: Generate coverage report
+        run: ./gradlew clean test jacocoTestReport
       - uses: codecov/codecov-action@v2
         with:
+          fail_ci_if_error: true
           verbose: true # optional (default = false)
