@@ -29,8 +29,9 @@ jobs:
         with:
           java-version: 11
           distribution: 'adopt'
-      - name: Generate coverage report
-        run: ./gradlew clean test jacocoTestReport
+      - uses: gradle/gradle-build-action@v2
+        with:
+          arguments: test jacocoTestReport
       - uses: codecov/codecov-action@v2
         with:
           fail_ci_if_error: true
