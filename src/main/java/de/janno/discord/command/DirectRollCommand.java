@@ -1,5 +1,6 @@
 package de.janno.discord.command;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import de.janno.discord.Metrics;
 import de.janno.discord.dice.DiceParserHelper;
@@ -21,6 +22,16 @@ import static de.janno.discord.DiscordUtils.createEmbedMessageWithReference;
 @Slf4j
 public class DirectRollCommand implements ISlashCommand {
     private static final String ACTION_EXPRESSION = "expression";
+    private final DiceParserHelper diceParserHelper;
+
+    public DirectRollCommand(){
+        this(new DiceParserHelper());
+    }
+
+    @VisibleForTesting
+    public DirectRollCommand(DiceParserHelper diceParserHelper) {
+        this.diceParserHelper = diceParserHelper;
+    }
 
     @Override
     public String getName() {
@@ -48,14 +59,14 @@ public class DirectRollCommand implements ISlashCommand {
             String diceExpression = options.getValue()
                     .map(ApplicationCommandInteractionOptionValue::asString)
                     .orElseThrow();
-            String validationMessage = DiceParserHelper.validateDiceExpressions(ImmutableList.of(diceExpression), "/custom_dice help");
+            String validationMessage = diceParserHelper.validateDiceExpressions(ImmutableList.of(diceExpression), "/custom_dice help");
             if (validationMessage != null) {
                 log.info("Validation message: {}", validationMessage);
                 return event.reply(validationMessage);
             }
             Metrics.incrementSlashStartMetricCounter(getName(), ImmutableList.of(diceExpression));
 
-            List<DiceResult> results = DiceParserHelper.roll(diceExpression);
+            List<DiceResult> results = diceParserHelper.roll(diceExpression);
             results.forEach(d -> log.info(String.format("%s:%s -> %s: %s", getName(), diceExpression, d.getResultTitle(), d.getResultDetails())));
 
             return event.reply("...")

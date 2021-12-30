@@ -1,7 +1,7 @@
 package de.janno.discord.dice;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
-import dev.diceroll.parser.Dice;
 import dev.diceroll.parser.ResultTree;
 import lombok.extern.slf4j.Slf4j;
 
@@ -12,37 +12,15 @@ import java.util.stream.IntStream;
 @Slf4j
 public class DiceParserHelper {
 
-    private static DiceResult rollWithDiceParser(String input) {
-        try {
-            ResultTree resultTree = Dice.detailedRoll(input);
-            String title = String.format("%s = %d", input, resultTree.getValue());
-            String details = String.format("[%s]", getBaseResults(resultTree).stream().sorted().map(String::valueOf).collect(Collectors.joining(", ")));
-            return new DiceResult(title, details);
-        } catch (Throwable t) {
-            log.error(String.format("DiceParser error in %s:", input), t);
-            return new DiceResult("Error", "Could not execute the dice expression: " + input);
-        }
+    private final IDice dice;
+
+    public DiceParserHelper() {
+        this(new DiceParser());
     }
 
-    public static List<DiceResult> roll(String input) {
-        try {
-            if (isMultipleRoll(input)) {
-                return rollMultipleWithDiceParser(input);
-            } else {
-                return ImmutableList.of(rollWithDiceParser(input));
-            }
-        } catch (Throwable t) {
-            log.error(String.format("Error in %s:", input), t);
-            return ImmutableList.of(new DiceResult("Error", "Could not execute the dice expression: " + input));
-        }
-    }
-
-    private static List<DiceResult> rollMultipleWithDiceParser(String input) {
-        int numberOfRolls = getNumberOfMultipleRolls(input);
-        String innerExpression = getInnerDiceExpression(input);
-        return IntStream.range(0, numberOfRolls)
-                .mapToObj(i -> rollWithDiceParser(innerExpression))
-                .collect(ImmutableList.toImmutableList());
+    @VisibleForTesting
+    public DiceParserHelper(IDice dice) {
+        this.dice = dice;
     }
 
     static boolean isMultipleRoll(String input) {
@@ -61,20 +39,6 @@ public class DiceParserHelper {
         return input.substring(firstBracket + 2, input.length() - 1);
     }
 
-
-    public static boolean validExpression(String input) {
-        try {
-            if (isMultipleRoll(input)) {
-                Dice.roll(getInnerDiceExpression(input));
-            } else {
-                Dice.roll(input);
-            }
-            return true;
-        } catch (Throwable t) {
-            return false;
-        }
-    }
-
     private static List<Integer> getBaseResults(ResultTree resultTree) {
         if (!resultTree.getResults().isEmpty()) {
             return resultTree.getResults().stream()
@@ -85,13 +49,13 @@ public class DiceParserHelper {
         return ImmutableList.of(resultTree.getValue());
     }
 
-    public static String validateDiceExpressions(List<String> expressions, String helpCommand) {
+    public String validateDiceExpressions(List<String> expressions, String helpCommand) {
         if (expressions.isEmpty()) {
             return String.format("You must configure at least one button with a dice expression. Use %s to get more information on how to use the command.", helpCommand);
         }
 
         List<String> invalidDiceExpressions = expressions.stream()
-                .filter(s -> !DiceParserHelper.validExpression(s))
+                .filter(s -> !validExpression(s))
                 .collect(Collectors.toList());
         if (!invalidDiceExpressions.isEmpty()) {
             return String.format("The following dice expression are invalid: %s. Use %s to get more information on how to use the command.", String.join(",", invalidDiceExpressions), helpCommand);
@@ -104,6 +68,52 @@ public class DiceParserHelper {
             return String.format("The following dice expression are to long: %s. A expression must be 80 or less characters long", String.join(",", invalidDiceExpressions));
         }
         return null;
+    }
+
+    public List<DiceResult> roll(String input) {
+        try {
+            if (isMultipleRoll(input)) {
+                return rollMultipleWithDiceParser(input);
+            } else {
+                return ImmutableList.of(rollWithDiceParser(input));
+            }
+        } catch (Throwable t) {
+            log.error(String.format("Error in %s:", input), t);
+            return ImmutableList.of(new DiceResult("Error", "Could not execute the dice expression: " + input));
+        }
+    }
+
+    private List<DiceResult> rollMultipleWithDiceParser(String input) {
+        int numberOfRolls = getNumberOfMultipleRolls(input);
+        String innerExpression = getInnerDiceExpression(input);
+        return IntStream.range(0, numberOfRolls)
+                .mapToObj(i -> rollWithDiceParser(innerExpression))
+                .collect(ImmutableList.toImmutableList());
+    }
+
+    private DiceResult rollWithDiceParser(String input) {
+        try {
+            ResultTree resultTree = dice.detailedRoll(input);
+            String title = String.format("%s = %d", input, resultTree.getValue());
+            String details = String.format("[%s]", getBaseResults(resultTree).stream().sorted().map(String::valueOf).collect(Collectors.joining(", ")));
+            return new DiceResult(title, details);
+        } catch (Throwable t) {
+            log.error(String.format("DiceParser error in %s:", input), t);
+            return new DiceResult("Error", "Could not execute the dice expression: " + input);
+        }
+    }
+
+    public boolean validExpression(String input) {
+        try {
+            if (isMultipleRoll(input)) {
+                dice.roll(getInnerDiceExpression(input));
+            } else {
+                dice.roll(input);
+            }
+            return true;
+        } catch (Throwable t) {
+            return false;
+        }
     }
 
 }

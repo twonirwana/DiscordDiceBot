@@ -137,14 +137,14 @@ public class HoldRerollCommand extends AbstractCommand {
         int successes = DiceUtils.numberOfDiceResultsEqual(rollResult, successSet);
         int failures = DiceUtils.numberOfDiceResultsEqual(rollResult, failureSet);
         String rerollCount = config.get(REROLL_COUNT_CONFIG_INDEX);
-        String titel;
+        String title;
         if ("0".equals(rerollCount)) {
-            titel = String.format("Success: %d and Failure: %d", successes, failures);
+            title = String.format("Success: %d and Failure: %d", successes, failures);
         } else {
-            titel = String.format("Success: %d, Failure: %d and Rerolls: %s", successes, failures, rerollCount);
+            title = String.format("Success: %d, Failure: %d and Rerolls: %s", successes, failures, rerollCount);
         }
 
-        DiceResult diceResult = new DiceResult(titel, markIn(rollResult, getToMark(config)));
+        DiceResult diceResult = new DiceResult(title, markIn(rollResult, getToMark(config)));
         return ImmutableList.of(diceResult);
     }
 

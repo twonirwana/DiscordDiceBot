@@ -1,5 +1,6 @@
 package de.janno.discord.command;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import de.janno.discord.dice.DiceParserHelper;
@@ -27,9 +28,16 @@ public class CustomDiceCommand extends AbstractCommand {
 
     private static final String COMMAND_NAME = "custom_dice";
     private static final List<String> DICE_COMMAND_OPTIONS_IDS = IntStream.range(1, 26).mapToObj(i -> i + "_button").collect(Collectors.toList());
+    private final DiceParserHelper diceParserHelper;
 
     public CustomDiceCommand() {
+        this(new DiceParserHelper());
+    }
+
+    @VisibleForTesting
+    public CustomDiceCommand(DiceParserHelper diceParserHelper) {
         super(new ActiveButtonsCache(COMMAND_NAME));
+        this.diceParserHelper = diceParserHelper;
     }
 
     @Override
@@ -129,7 +137,7 @@ public class CustomDiceCommand extends AbstractCommand {
                 .distinct()
                 .collect(Collectors.toList());
 
-        return DiceParserHelper.validateDiceExpressions(allDiceExpressions, "/custom_dice help");
+        return diceParserHelper.validateDiceExpressions(allDiceExpressions, "/custom_dice help");
     }
 
     @Override
@@ -139,7 +147,7 @@ public class CustomDiceCommand extends AbstractCommand {
                 .flatMap(a -> a.getValue().stream())
                 .map(ApplicationCommandInteractionOptionValue::asString)
                 .map(Object::toString)
-                .filter(DiceParserHelper::validExpression)
+                .filter(diceParserHelper::validExpression)
                 .filter(s -> s.length() <= 80) //limit for the ids are 100 characters and we need also some characters for the type...
                 .distinct()
                 .limit(25)
@@ -148,7 +156,7 @@ public class CustomDiceCommand extends AbstractCommand {
 
     @Override
     protected List<DiceResult> getDiceResult(String buttonValue, List<String> config) {
-        return DiceParserHelper.roll(buttonValue);
+        return diceParserHelper.roll(buttonValue);
     }
 
     @Override

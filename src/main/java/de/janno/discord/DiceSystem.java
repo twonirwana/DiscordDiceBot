@@ -36,6 +36,7 @@ public class DiceSystem {
      * - details optional
      * - timestamp optional
      * - Changelog Command
+     * - Old WoD Command, first dice pool, then in second message the target
      **/
 
     public DiceSystem(HttpClient httpClient, String token, boolean disableCommandUpdate) {

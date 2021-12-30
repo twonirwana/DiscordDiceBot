@@ -1,6 +1,7 @@
 package de.janno.discord.dice;
 
 import com.google.common.collect.ImmutableList;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -12,6 +13,8 @@ import java.util.stream.Stream;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class DiceParserHelperTest {
+
+    DiceParserHelper diceParserHelper;
 
     static Stream<Arguments> generateMultipleExecutionData() {
         return Stream.of(
@@ -25,6 +28,11 @@ class DiceParserHelperTest {
                 Arguments.of("1x[1d6", false),
                 Arguments.of("12x[1d6]", true)
         );
+    }
+
+    @BeforeEach
+    void setup() {
+        diceParserHelper = new DiceParserHelper();
     }
 
     @ParameterizedTest(name = "{index} input:{0} -> {2}")
@@ -55,20 +63,20 @@ class DiceParserHelperTest {
 
     @Test
     void validateDiceExpressions() {
-        assertThat(DiceParserHelper.validateDiceExpressions(ImmutableList.of("1d4/"), "test"))
+        assertThat(diceParserHelper.validateDiceExpressions(ImmutableList.of("1d4/"), "test"))
                 .isEqualTo("The following dice expression are invalid: 1d4/. Use test to get more information on how to use the command.");
     }
 
     @Test
     void roll_3x3d6() {
-        List<DiceResult> res = DiceParserHelper.roll("3x[3d6]");
+        List<DiceResult> res = diceParserHelper.roll("3x[3d6]");
 
         assertThat(res).hasSize(3);
     }
 
     @Test
     void roll_3d6() {
-        List<DiceResult> res = DiceParserHelper.roll("3d6");
+        List<DiceResult> res = diceParserHelper.roll("3d6");
 
         assertThat(res).hasSize(1);
     }
