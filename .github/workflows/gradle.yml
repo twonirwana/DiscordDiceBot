@@ -26,6 +26,8 @@ jobs:
         java-version: '11'
         distribution: 'adopt'
     - uses: gradle/gradle-build-action@v2
+      with:
+        gradle-version: 6.8
     - run: ./gradlew test
     - run: ./gradlew jacocoTestReport
     - uses: codecov/codecov-action@v2
