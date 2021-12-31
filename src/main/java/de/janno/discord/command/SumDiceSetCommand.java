@@ -24,8 +24,11 @@ import java.util.stream.Stream;
 
 /**
  * TODO:
- * - only the result is in the channel and the adding of dice is ephemeral. This is currently not possible because ephemeral can't be deleted
+ * - only the result is in the channel and the adding of dice is ephemeral.
+ * This is currently not possible because ephemeral can't be deleted,
+ * the alternative would be private threads (currently not supported by discord4j)
  * - d100
+ * - configurable buttons
  */
 @Slf4j
 public class SumDiceSetCommand extends AbstractCommand {

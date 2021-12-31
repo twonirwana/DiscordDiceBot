@@ -7,6 +7,7 @@ import de.janno.discord.dice.IDice;
 import dev.diceroll.parser.NDice;
 import dev.diceroll.parser.ResultTree;
 import discord4j.core.GatewayDiscordClient;
+import discord4j.discordjson.json.ApplicationCommandOptionData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -67,5 +68,36 @@ class CustomDiceCommandTest {
         String res = underTest.getName();
 
         assertThat(res).isEqualTo("custom_dice");
+    }
+
+    @Test
+    void getStartOptions() {
+        List<ApplicationCommandOptionData> res = underTest.getStartOptions();
+
+        assertThat(res.stream().map(ApplicationCommandOptionData::name)).containsExactly("1_button",
+                "2_button",
+                "3_button",
+                "4_button",
+                "5_button",
+                "6_button",
+                "7_button",
+                "8_button",
+                "9_button",
+                "10_button",
+                "11_button",
+                "12_button",
+                "13_button",
+                "14_button",
+                "15_button",
+                "16_button",
+                "17_button",
+                "18_button",
+                "19_button",
+                "20_button",
+                "21_button",
+                "22_button",
+                "23_button",
+                "24_button",
+                "25_button");
     }
 }

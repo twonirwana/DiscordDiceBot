@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import de.janno.discord.dice.DiceResult;
 import de.janno.discord.dice.DiceUtils;
 import discord4j.core.GatewayDiscordClient;
+import discord4j.discordjson.json.ApplicationCommandOptionData;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -87,5 +88,12 @@ class FateCommandTest {
         assertThat(res).hasSize(1);
         assertThat(res.get(0).getResultTitle()).isEqualTo("4dF = -1");
         assertThat(res.get(0).getResultDetails()).isEqualTo("[−,▢,＋,−]");
+    }
+
+    @Test
+    void getStartOptions() {
+        List<ApplicationCommandOptionData> res = underTest.getStartOptions();
+
+        assertThat(res.stream().map(ApplicationCommandOptionData::name)).containsExactly("type");
     }
 }

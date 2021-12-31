@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import de.janno.discord.dice.DiceResult;
 import de.janno.discord.dice.DiceUtils;
 import discord4j.core.GatewayDiscordClient;
+import discord4j.discordjson.json.ApplicationCommandOptionData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -129,5 +130,12 @@ class CountSuccessesCommandTest {
         assertThat(results).hasSize(1);
         assertThat(results.get(0).getResultTitle()).isEqualTo("6d6 = -3");
         assertThat(results.get(0).getResultDetails()).isEqualTo("[**1**,**1**,**1**,**1**,5,**6**] ≥6 -1s = -3");
+    }
+
+    @Test
+    void getStartOptions() {
+        List<ApplicationCommandOptionData> res = underTest.getStartOptions();
+
+        assertThat(res.stream().map(ApplicationCommandOptionData::name)).containsExactly("dice_sides", "target_number", "glitch", "max_dice");
     }
 }
