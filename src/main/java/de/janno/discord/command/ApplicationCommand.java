@@ -33,7 +33,7 @@ public class ApplicationCommand {
             return true;
         } else if (applicationCommandOptionDataList1 != null && applicationCommandOptionDataList2 == null) {
             return false;
-        } else if (applicationCommandOptionDataList1 == null && applicationCommandOptionDataList2 != null) {
+        } else if (applicationCommandOptionDataList1 == null) {
             return false;
         }
         if (applicationCommandOptionDataList1.size() != applicationCommandOptionDataList2.size()) {
@@ -52,6 +52,7 @@ public class ApplicationCommand {
 
         return Objects.equals(applicationCommandOptionData1.name(), applicationCommandOptionData2.name()) &&
                 Objects.equals(applicationCommandOptionData1.description(), applicationCommandOptionData2.description()) &&
+                Objects.equals(applicationCommandOptionData1.type(), applicationCommandOptionData2.type()) &&
                 applicationCommandOptionData1.required().toOptional().orElse(false).equals(applicationCommandOptionData2.required().toOptional().orElse(false)) &&
                 applicationCommandOptionData1.autocomplete().equals(applicationCommandOptionData2.autocomplete()) &&
                 applicationCommandOptionData1.minValue().equals(applicationCommandOptionData2.minValue()) &&
@@ -70,7 +71,7 @@ public class ApplicationCommand {
             return true;
         } else if (applicationCommandOptionChoiceData1 != null && applicationCommandOptionChoiceData2 == null) {
             return false;
-        } else if (applicationCommandOptionChoiceData1 == null && applicationCommandOptionChoiceData2 != null) {
+        } else if (applicationCommandOptionChoiceData1 == null) {
             return false;
         }
         if (applicationCommandOptionChoiceData1.size() != applicationCommandOptionChoiceData2.size()) {
