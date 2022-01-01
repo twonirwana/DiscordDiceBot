@@ -58,7 +58,12 @@ public class HoldRerollCommand extends AbstractCommand {
     @VisibleForTesting
     public HoldRerollCommand(DiceUtils diceUtils) {
         //current roll and rerollCount should not be part of the hash
-        super(new ActiveButtonsCache(COMMAND_NAME, c -> c.subList(1, 5).hashCode()));
+        super(new ActiveButtonsCache(COMMAND_NAME, c -> ImmutableList.of(
+                c.get(SIDES_OF_DIE_CONFIG_INDEX),
+                c.get(REROLL_SET_CONFIG_INDEX),
+                c.get(SUCCESS_SET_CONFIG_INDEX),
+                c.get(FAILURE_SET_CONFIG_INDEX)
+        ).hashCode()));
         this.diceUtils = diceUtils;
     }
 
@@ -303,5 +308,46 @@ public class HoldRerollCommand extends AbstractCommand {
                         Button.primary(createButtonCustomId(COMMAND_NAME, FINISH_BUTTON_ID, config), "Finish"),
                         Button.primary(createButtonCustomId(COMMAND_NAME, CLEAR_BUTTON_ID, config), "Clear")
                 ));
+    }
+
+    @Override
+    protected String getStartOptionsValidationMessage(ApplicationCommandInteractionOption options) {
+        List<String> conf = getConfigValuesFromStartOptions(options);
+        return validate(conf);
+    }
+
+    @VisibleForTesting
+    String validate(List<String> conf) {
+        int sides = getSidesOfDie(conf);
+        Set<Integer> rerollSet = getRerollSet(conf);
+        Set<Integer> successSet = getSuccessSet(conf);
+        Set<Integer> failureSet = getFailureSet(conf);
+
+        if (rerollSet.stream().anyMatch(i -> i > sides)) {
+            return String.format("reroll set %s contains a number bigger then the sides of the die %s", rerollSet, sides);
+        }
+        if (successSet.stream().anyMatch(i -> i > sides)) {
+            return String.format("success set %s contains a number bigger then the sides of the die %s", successSet, sides);
+        }
+        if (failureSet.stream().anyMatch(i -> i > sides)) {
+            return String.format("failure set set %s contains a number bigger then the sides of the die %s", failureSet, sides);
+        }
+        Set<Integer> rerollSuccessOverlapping = getOverlapping(rerollSet, successSet);
+        if (rerollSuccessOverlapping.size() > 0) {
+            return String.format("The numbers %s are member of the reroll set and the success set, that is not allowed", rerollSuccessOverlapping);
+        }
+        Set<Integer> rerollFailureOverlapping = getOverlapping(rerollSet, failureSet);
+        if (rerollFailureOverlapping.size() > 0) {
+            return String.format("The numbers %s are member of the reroll set and the failure set, that is not allowed", rerollFailureOverlapping);
+        }
+        Set<Integer> successFailureOverlapping = getOverlapping(successSet, failureSet);
+        if (successFailureOverlapping.size() > 0) {
+            return String.format("The numbers %s are member of the success set and the failure set, that is not allowed", successFailureOverlapping);
+        }
+        return null;
+    }
+
+    private Set<Integer> getOverlapping(Set<Integer> a, Set<Integer> b) {
+        return a.stream().filter(b::contains).collect(ImmutableSet.toImmutableSet());
     }
 }

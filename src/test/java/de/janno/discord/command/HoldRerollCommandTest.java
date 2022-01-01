@@ -7,9 +7,13 @@ import discord4j.core.GatewayDiscordClient;
 import discord4j.discordjson.json.ApplicationCommandOptionData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.ArrayDeque;
 import java.util.List;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -18,8 +22,20 @@ class HoldRerollCommandTest {
 
     HoldRerollCommand underTest;
 
+    private static Stream<Arguments> generateValidateData() {
+        return Stream.of(
+                Arguments.of(ImmutableList.of("EMPTY", "6", "7", "", "", "0"), "reroll set [7] contains a number bigger then the sides of the die 6"),
+                Arguments.of(ImmutableList.of("EMPTY", "6", "", "7", "", "0"), "success set [7] contains a number bigger then the sides of the die 6"),
+                Arguments.of(ImmutableList.of("EMPTY", "6", "", "", "7", "0"), "failure set set [7] contains a number bigger then the sides of the die 6"),
+                Arguments.of(ImmutableList.of("EMPTY", "6", "1;4", "2;4", "3", "0"), "The numbers [4] are member of the reroll set and the success set, that is not allowed"),
+                Arguments.of(ImmutableList.of("EMPTY", "6", "1;4", "2", "3;4", "0"), "The numbers [4] are member of the reroll set and the failure set, that is not allowed"),
+                Arguments.of(ImmutableList.of("EMPTY", "6", "1,", "2;4", "3;4", "0"), "The numbers [4] are member of the success set and the failure set, that is not allowed"),
+                Arguments.of(ImmutableList.of("EMPTY", "6", "2;3;4,", "5;6", "1", "0"), null)
+        );
+    }
+
     @BeforeEach
-    void setup(){
+    void setup() {
         underTest = new HoldRerollCommand(new DiceUtils(new ArrayDeque<>(ImmutableList.of(1, 1, 1, 1, 5, 6, 6, 6))));
     }
 
@@ -127,30 +143,36 @@ class HoldRerollCommandTest {
     }
 
     @Test
-    void getButtonMessage_clear(){
+    void getButtonMessage_clear() {
         String res = underTest.getButtonMessage("clear", ImmutableList.of("1;2;3;4;5;6", "6", "2;3;4", "5;6", "1", "2"));
 
         assertThat(res).isEqualTo("Click on the buttons to roll dice. Reroll set: [2, 3, 4], Success Set: [5, 6] and Failure Set: [1]");
     }
 
     @Test
-    void getButtonMessage_finish(){
+    void getButtonMessage_finish() {
         String res = underTest.getButtonMessage("finish", ImmutableList.of("1;2;3;4;5;6", "6", "2;3;4", "5;6", "1", "2"));
 
         assertThat(res).isEqualTo("Click on the buttons to roll dice. Reroll set: [2, 3, 4], Success Set: [5, 6] and Failure Set: [1]");
     }
 
     @Test
-    void getButtonMessage_noRerollPossible(){
+    void getButtonMessage_noRerollPossible() {
         String res = underTest.getButtonMessage("reroll", ImmutableList.of("1;1;1;5;5;6", "6", "2;3;4", "5;6", "1", "2"));
 
         assertThat(res).isEqualTo("Click on the buttons to roll dice. Reroll set: [2, 3, 4], Success Set: [5, 6] and Failure Set: [1]");
     }
 
     @Test
-    void getButtonMessage_rerollPossible(){
+    void getButtonMessage_rerollPossible() {
         String res = underTest.getButtonMessage("reroll", ImmutableList.of("1;2;3;4;5;6", "6", "2;3;4", "5;6", "1", "2"));
 
         assertThat(res).isEqualTo("[**1**,2,3,4,**5**,**6**] = 2 successes and 1 failures");
+    }
+
+    @ParameterizedTest(name = "{index} config={0} -> {1}")
+    @MethodSource("generateValidateData")
+    void validate(List<String> config, String expected) {
+        assertThat(underTest.validate(config)).isEqualTo(expected);
     }
 }
