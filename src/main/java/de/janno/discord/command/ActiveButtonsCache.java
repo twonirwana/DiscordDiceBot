@@ -1,5 +1,6 @@
 package de.janno.discord.command;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.ImmutableList;
@@ -30,6 +31,7 @@ public class ActiveButtonsCache {
             .build();
     private final Function<List<String>, Integer> config2HashFunction;
 
+
     public ActiveButtonsCache(String systemName) {
         this(systemName, List::hashCode);
     }
@@ -39,12 +41,27 @@ public class ActiveButtonsCache {
         this.config2HashFunction = config2HashFunction;
     }
 
+    @VisibleForTesting
+    Cache<Snowflake, Set<ButtonWithConfigHash>> getCache() {
+        return channel2ButtonMessageIds;
+    }
+
     public void addChannelWithButton(Snowflake channelId, Snowflake buttonId, List<String> config) {
         try {
             Set<ButtonWithConfigHash> buttonIds = channel2ButtonMessageIds.get(channelId, ConcurrentSkipListSet::new);
-            buttonIds.add(new ButtonWithConfigHash(buttonId, config2HashFunction.apply(config)));
+            ButtonWithConfigHash newEntry = new ButtonWithConfigHash(buttonId, config2HashFunction.apply(config));
+            buttonIds.add(newEntry);
         } catch (ExecutionException e) {
             log.error("Error in putting buttonId into cache: ", e);
+        }
+    }
+
+    public void removeButtonFromChannel(Snowflake channelId, Snowflake buttonId, List<String> config) {
+        try {
+            Set<ButtonWithConfigHash> buttonIds = channel2ButtonMessageIds.get(channelId, ConcurrentSkipListSet::new);
+            buttonIds.remove(new ButtonWithConfigHash(buttonId, config2HashFunction.apply(config)));
+        } catch (ExecutionException e) {
+            log.error("Error in removing buttonId into cache: ", e);
         }
     }
 

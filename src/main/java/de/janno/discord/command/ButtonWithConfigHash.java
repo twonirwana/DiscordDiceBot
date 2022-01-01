@@ -10,7 +10,7 @@ public class ButtonWithConfigHash implements Comparable<ButtonWithConfigHash> {
 
     @Override
     public int compareTo(ButtonWithConfigHash o) {
-        int retVal = buttonId.compareTo(o.getButtonId());
+        int retVal = Long.compare(buttonId.asLong(), o.getButtonId().asLong());
         if (retVal != 0) {
             return retVal;
         }

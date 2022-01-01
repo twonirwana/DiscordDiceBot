@@ -119,10 +119,10 @@ public class CustomDiceCommand extends AbstractCommand {
                         "Multiply       |' * '      |'1d4*2d6'  \n" +
                         "---------------------------------------\n" +
                         "Divide         |' / '      |'4 / 2'    \n" +
-                        "```\n" +
-                        "see https://github.com/twonirwana/DiscordDiceBot/blob/main/README.md for more details"
+                        "```" +
+                        "\n it is also possible to use **/r** to directly use a dice expression without buttons" +
+                        "\nsee https://github.com/twonirwana/DiscordDiceBot/blob/main/README.md for more details"
                 )
-
                 .build();
     }
 

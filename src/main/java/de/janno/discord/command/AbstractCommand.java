@@ -9,6 +9,7 @@ import discord4j.core.event.domain.interaction.ComponentInteractionEvent;
 import discord4j.core.object.command.ApplicationCommandInteractionOption;
 import discord4j.core.object.command.ApplicationCommandOption;
 import discord4j.core.object.component.LayoutComponent;
+import discord4j.core.object.entity.Message;
 import discord4j.core.object.entity.channel.TextChannel;
 import discord4j.core.spec.EmbedCreateSpec;
 import discord4j.discordjson.json.ApplicationCommandOptionData;
@@ -81,7 +82,10 @@ public abstract class AbstractCommand implements ISlashCommand, IComponentIntera
         }
         String buttonValue = getButtonValueFromEvent(event);
         List<Mono<Void>> actions = new ArrayList<>();
+        boolean triggeringMessageIsPinned = event.getMessage().map(Message::isPinned).orElse(false);
+
         actions.add(event
+                //if the button is pined it keeps its message
                 .edit(editMessage(buttonValue, config))
                 .onErrorResume(t -> {
                     log.warn("Error on acknowledge button event");
@@ -97,8 +101,21 @@ public abstract class AbstractCommand implements ISlashCommand, IComponentIntera
         if (copyButtonMessageToTheEnd(buttonValue, config)) {
             actions.add(event.getInteraction().getChannel()
                     .ofType(TextChannel.class)
-                    .flatMap(createButtonMessage(activeButtonsCache, getButtonMessage(buttonValue, config), getButtonLayout(buttonValue, config), config))
-                    .flatMap(m -> deleteMessage(m.getChannel(), m.getChannelId(), activeButtonsCache, m.getId(), config)));
+                    .flatMap(channel ->
+                    {
+                        //if the triggering message is pinned and its connent not changed, then the new message should have a modified message content
+                        String messageContent = triggeringMessageIsPinned ? editMessage(buttonValue, config) : getButtonMessage(buttonValue, config);
+                        return createButtonMessage(activeButtonsCache, channel, messageContent, getButtonLayout(buttonValue, config), config);
+                    })
+                    .flatMap(m -> {
+                        if (triggeringMessageIsPinned) {
+                            //removing from cache on pin event would be better but currently not possible with discord4j
+                            //if the message was not removed, we don't want that it is removed later
+                            activeButtonsCache.removeButtonFromChannel(event.getInteraction().getChannelId(), event.getMessageId(), config);
+                        }
+                        return deleteMessage(m.getChannel(), m.getChannelId(), activeButtonsCache, m.getId(), config);
+
+                    }));
         }
 
         return Flux.mergeDelayError(1, actions.toArray(new Mono<?>[0]))
@@ -116,8 +133,9 @@ public abstract class AbstractCommand implements ISlashCommand, IComponentIntera
         return createEmbedMessageWithReference(result, event.getInteraction().getMember().orElseThrow());
     }
 
+    //default is to leave the message unaltered
     protected String editMessage(String buttonId, List<String> config) {
-        return "rolling...";
+        return getButtonMessage(buttonId, config);
     }
 
     protected boolean createAnswerMessage(String buttonId, List<String> config) {
@@ -132,7 +150,6 @@ public abstract class AbstractCommand implements ISlashCommand, IComponentIntera
     public Mono<Void> handleSlashCommandEvent(@NonNull ChatInputInteractionEvent event) {
 
         if (event.getOption(ACTION_START).isPresent()) {
-            Metrics.incrementSlashStartMetricCounter(getName(), event.getOption(ACTION_START).map(this::getConfigValuesFromStartOptions).orElse(ImmutableList.of()));
             ApplicationCommandInteractionOption options = event.getOption(ACTION_START).get();
             String validationMessage = getStartOptionsValidationMessage(options);
             if (validationMessage != null) {
@@ -140,6 +157,7 @@ public abstract class AbstractCommand implements ISlashCommand, IComponentIntera
                 return event.reply(validationMessage);
             }
             List<String> config = getConfigValuesFromStartOptions(options);
+            Metrics.incrementSlashStartMetricCounter(getName(), config);
 
             return event.reply("...")
                     .onErrorResume(t -> {
@@ -147,7 +165,7 @@ public abstract class AbstractCommand implements ISlashCommand, IComponentIntera
                         return Mono.empty();
                     })
                     .then(event.getInteraction().getChannel().ofType(TextChannel.class)
-                            .flatMap(createButtonMessage(activeButtonsCache, getButtonMessage(null, config), getButtonLayout(null, config), config))
+                            .flatMap(channel -> createButtonMessage(activeButtonsCache, channel, getButtonMessage(null, config), getButtonLayout(null, config), config))
                             .ofType(Void.class)
                     );
 

@@ -24,7 +24,6 @@ import reactor.core.publisher.Mono;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -89,17 +88,20 @@ public class DiscordUtils {
                 .flatMap(Message::delete).next().ofType(Void.class);
     }
 
-    public static Function<TextChannel, Mono<Message>> createButtonMessage(@NonNull ActiveButtonsCache activeButtonsCache,
-                                                                           @NonNull String buttonMessage,
-                                                                           @NonNull List<LayoutComponent> buttons,
-                                                                           @NonNull List<String> config) {
-        return channel -> channel
+    public static Mono<Message> createButtonMessage(ActiveButtonsCache activeButtonsCache,
+                                                    @NonNull TextChannel channel,
+                                                    @NonNull String buttonMessage,
+                                                    @NonNull List<LayoutComponent> buttons,
+                                                    @NonNull List<String> config) {
+        return channel
                 .createMessage(MessageCreateSpec.builder()
                         .content(buttonMessage)
                         .components(buttons)
                         .build())
                 .map(m -> {
-                    activeButtonsCache.addChannelWithButton(m.getChannelId(), m.getId(), config);
+                    if (activeButtonsCache != null) {
+                        activeButtonsCache.addChannelWithButton(m.getChannelId(), m.getId(), config);
+                    }
                     return m;
                 });
     }
