@@ -21,7 +21,7 @@ roll results
 
 ## Example RPG System Commands
 
-Some example for commands, please see in the detail's description below for further options
+Some example for commands, many more systems can be mapped with commands, please see in the detail's description below for further options
 
 #### DnD 5e
 
@@ -41,7 +41,9 @@ Some example for commands, please see in the detail's description below for furt
 
 The bot has currently the following systems:
 
-## Custom dice buttons
+## Commands
+
+### Custom dice buttons
 
 Use the slash command: `custom_dice start` and add up to 25 custom buttons, each with its own dice expression. For
 example `/custom_dice start 1_button:3d6 2_button:10d10 3_button:3d20` produces the three buttons as follows:
@@ -53,7 +55,7 @@ of all dice):
 
 ![custom_dice_result.png](src/main/image/custom_dice_result.png)
 
-### Dice Expression Notation
+#### Dice Expression Notation
 
 Each button can be set with dice expression with the following notation.
 
@@ -86,38 +88,38 @@ Each button can be set with dice expression with the following notation.
 
 see https://github.com/diceroll-dev/dice-parser for more details.
 
-## Direct Roll
+### Direct Roll
 
 With the command `/r` it is possible to directly call the dice expression (see 'Dice Expression Notation') without the
 usage of buttons. For example '/r 3d6' will simply roll 3d6 and post the result without showing any buttons.
 
-## Count success in a pool
+### Count success in a pool
 
 Use the slash command: `/count_successes start`. You need to provide the sides of the dice, the target number, optional
 a glitch system as parameter and the number of buttons. For example `/count_successes start dice_sides:10 target_number:
 7` creates 15 buttons for 10 sided dice that roll against the target of 7. By clicking on a button a number of dice will
 be rolled and the count of the dice with results equal or approve the target number returned.
 
-### Glitch Option
+#### Glitch Option
 
 As default there is no glitch option (special handling of ones) but it is possible to configure one of the following
 options:
 
-#### half_dice_one
+##### half_dice_one
 
 The option `half_dice_one` will mark the result as glitch if more than half of the dice show 1. This is for example used
 in the Shadowrun dice system.
 
-#### count_ones
+##### count_ones
 
 The option 'count_ones' will only mark and count the ones in the result but will not change the number of successes.
 
-#### subtract_ones
+##### subtract_ones
 
 The option 'subtract_ones' will subtract the number of ones in the roll from the number of successes. If there are more
 ons than successes the result will be negative. This is for example used in the old World of Darkness dice system.
 
-### Number of Dice Option
+#### Number of Dice Option
 
 The optional parameter `max_dice` will change the max number of dice (and thereby the number of buttons). The default
 value is 15, which will be used if the parameter is not set, and the max number of dice is 25.
@@ -126,20 +128,20 @@ value is 15, which will be used if the parameter is not set, and the max number 
 
 ![img.png](src/main/image/count_success_result.png)
 
-## Fate
+### Fate
 
 Use the slash command: `/fate start type:with_modifier` or `/fate start type:simple` to get buttons for Fate. There are
 two types simple and with modifier:
 
-### Simple
+#### Simple
 
 ![fate_example.png](src/main/image/fate_example.png)
 
-### With modifier buttons
+#### With modifier buttons
 
 ![fate_with_modifier.png](src/main/image/fate_with_modifier.png)
 
-## Sum Dice Set
+### Sum Dice Set
 
 Use the slash command `/sum_dice_set start` to create a message to create a die set. The user can click on the + and -
 buttons to add dice to the set. Clicking on the `Roll` button will roll the dice the message and copy a clear button
@@ -149,7 +151,7 @@ message to the end.
 
 ![](src/main/image/sumDiceSetResult.png)
 
-## Hold Reroll
+### Hold Reroll
 
 Use the slash command `/hold_reroll start sides:6 reroll_set:2,3,4 success_set:5,6 failure_set:1` to create a message
 for the hold reroll system. The system has the following parameter:
