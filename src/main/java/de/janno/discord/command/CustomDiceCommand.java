@@ -3,9 +3,9 @@ package de.janno.discord.command;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import de.janno.discord.cache.ActiveButtonsCache;
 import de.janno.discord.dice.DiceParserHelper;
 import de.janno.discord.dice.DiceResult;
-import discord4j.core.event.domain.interaction.ComponentInteractionEvent;
 import discord4j.core.object.command.ApplicationCommandInteractionOption;
 import discord4j.core.object.command.ApplicationCommandInteractionOptionValue;
 import discord4j.core.object.command.ApplicationCommandOption;
@@ -17,7 +17,6 @@ import discord4j.discordjson.json.ApplicationCommandOptionData;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -170,17 +169,10 @@ public class CustomDiceCommand extends AbstractCommand {
     }
 
     @Override
-    protected List<String> getConfigFromEvent(ComponentInteractionEvent event) {
-        return event.getInteraction().getMessage()
-                .map(s -> s.getComponents().stream()
-                        .flatMap(lc -> lc.getChildren().stream())
-                        .map(l -> l.getData().customId())
-                        .map(c -> c.toOptional().orElse(null))
-                        .filter(Objects::nonNull)
-                        .map(id -> id.substring(COMMAND_NAME.length() + 1))
-                        .collect(Collectors.toList())
-                )
-                .orElse(ImmutableList.of());
+    protected List<String> getConfigFromEvent(IButtonEventAdaptor event) {
+        return event.getAllButtonIds().stream()
+                .map(id -> id.substring(COMMAND_NAME.length() + 1))
+                .collect(Collectors.toList());
     }
 
     @Override

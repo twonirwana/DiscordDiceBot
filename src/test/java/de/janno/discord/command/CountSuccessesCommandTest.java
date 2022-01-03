@@ -3,24 +3,24 @@ package de.janno.discord.command;
 import com.google.common.collect.ImmutableList;
 import de.janno.discord.dice.DiceResult;
 import de.janno.discord.dice.DiceUtils;
-import discord4j.core.GatewayDiscordClient;
 import discord4j.discordjson.json.ApplicationCommandOptionData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayDeque;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 class CountSuccessesCommandTest {
 
     CountSuccessesCommand underTest;
 
     @BeforeEach
-    void setup(){
-        underTest = new CountSuccessesCommand(new DiceUtils(new ArrayDeque<>(ImmutableList.of(1, 1, 1, 1, 5, 6, 6, 6))));
+    void setup() {
+        underTest = new CountSuccessesCommand(new DiceUtils(1, 1, 1, 1, 5, 6, 6, 6));
     }
 
     @Test
@@ -61,20 +61,23 @@ class CountSuccessesCommandTest {
 
     @Test
     void getConfigFromEvent_legacyOnlyTwo() {
-        assertThat(underTest.getConfigFromEvent(TestUtils.createEventWithCustomId(mock(GatewayDiscordClient.class), "count_successes",
-                "message", "1", "6", "6"))).containsExactly("6", "6", "no_glitch", "15");
+        IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
+        when(event.getCustomId()).thenReturn("count_successes,1,6,6");
+        assertThat(underTest.getConfigFromEvent(event)).containsExactly("6", "6", "no_glitch", "15");
     }
 
     @Test
     void getConfigFromEvent_legacyOnlyThree() {
-        assertThat(underTest.getConfigFromEvent(TestUtils.createEventWithCustomId(mock(GatewayDiscordClient.class), "count_successes",
-                "message", "1", "6", "6", "no_glitch"))).containsExactly("6", "6", "no_glitch", "15");
+        IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
+        when(event.getCustomId()).thenReturn("count_successes,1,6,6,no_glitch");
+        assertThat(underTest.getConfigFromEvent(event)).containsExactly("6", "6", "no_glitch", "15");
     }
 
     @Test
     void getConfigFromEvent() {
-        assertThat(underTest.getConfigFromEvent(TestUtils.createEventWithCustomId(mock(GatewayDiscordClient.class), "count_successes",
-                "message", "1", "6", "6", "no_glitch", "15"))).containsExactly("6", "6", "no_glitch", "15");
+        IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
+        when(event.getCustomId()).thenReturn("count_successes,1,6,6,no_glitch,15");
+        assertThat(underTest.getConfigFromEvent(event)).containsExactly("6", "6", "no_glitch", "15");
     }
 
     @Test
@@ -138,4 +141,21 @@ class CountSuccessesCommandTest {
 
         assertThat(res.stream().map(ApplicationCommandOptionData::name)).containsExactly("dice_sides", "target_number", "glitch", "max_dice");
     }
+
+  /*  @Test
+    void handleComponentInteractEvent() {
+        GatewayDiscordClient gatewayDiscordClientMock = mock(GatewayDiscordClient.class);
+        TextChannel textChannel = new TextChannel(gatewayDiscordClientMock, ChannelData.builder()
+                .id(1)
+                .type(1)
+                .build());
+        Mockito.when(gatewayDiscordClientMock.getChannelById(any()))
+                .thenReturn(Mono.just(textChannel));
+        //Mono.when(discord4JAdapterMock.)
+        Mono<Void> res = underTest.handleComponentInteractEvent(TestUtils.createEventWithCustomId(gatewayDiscordClientMock, "count_successes",
+                "1", "6", "6", "6", "no_glitch", "15"));
+        StepVerifier.create(res)
+
+                .verifyComplete();
+    }*/
 }

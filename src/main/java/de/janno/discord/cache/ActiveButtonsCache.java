@@ -1,4 +1,4 @@
-package de.janno.discord.command;
+package de.janno.discord.cache;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.cache.Cache;
@@ -7,6 +7,7 @@ import com.google.common.collect.ImmutableList;
 import de.janno.discord.Metrics;
 import discord4j.common.util.Snowflake;
 import io.micrometer.core.instrument.Tags;
+import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
@@ -81,4 +82,18 @@ public class ActiveButtonsCache {
     }
 
 
+    @Value
+    public static class ButtonWithConfigHash implements Comparable<ButtonWithConfigHash> {
+        Snowflake buttonId;
+        int configHash;
+
+        @Override
+        public int compareTo(ButtonWithConfigHash o) {
+            int retVal = Long.compare(buttonId.asLong(), o.getButtonId().asLong());
+            if (retVal != 0) {
+                return retVal;
+            }
+            return Integer.compare(configHash, o.configHash);
+        }
+    }
 }

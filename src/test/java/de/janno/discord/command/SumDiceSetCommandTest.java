@@ -3,7 +3,7 @@ package de.janno.discord.command;
 import com.google.common.collect.ImmutableList;
 import de.janno.discord.dice.DiceResult;
 import de.janno.discord.dice.DiceUtils;
-import discord4j.core.GatewayDiscordClient;
+import de.janno.discord.discord4j.DiscordAdapter;
 import discord4j.discordjson.json.ApplicationCommandOptionData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,15 +11,16 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import java.util.ArrayDeque;
 import java.util.List;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 class SumDiceSetCommandTest {
     SumDiceSetCommand underTest;
+    DiscordAdapter discord4JAdapterMock;
 
     static Stream<Arguments> generateEditMessageData() {
         return Stream.of(
@@ -89,7 +90,7 @@ class SumDiceSetCommandTest {
 
     @BeforeEach
     void setup() {
-        underTest = new SumDiceSetCommand(new DiceUtils(new ArrayDeque<>(ImmutableList.of(1, 1, 1, 1, 5, 6, 6, 6))));
+        underTest = new SumDiceSetCommand(new DiceUtils(1, 1, 1, 1, 5, 6, 6, 6));
     }
 
     @Test
@@ -137,26 +138,34 @@ class SumDiceSetCommandTest {
 
     @Test
     void getConfigFromEvent_1d6() {
-        assertThat(underTest.getConfigFromEvent(TestUtils.createEventWithCustomId(mock(GatewayDiscordClient.class), "sum_dice_set",
-                "1d6", "+1d21"))).containsExactly("+1d6");
+        IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
+        when(event.getCustomId()).thenReturn("sum_dice_set,+1d21");
+        when(event.getMessageContent()).thenReturn("1d6");
+        assertThat(underTest.getConfigFromEvent(event)).containsExactly("+1d6");
     }
 
     @Test
     void getConfigFromEvent_1d4_2d6_3d8_4d12_5d20() {
-        assertThat(underTest.getConfigFromEvent(TestUtils.createEventWithCustomId(mock(GatewayDiscordClient.class), "sum_dice_set",
-                "1d4 +2d6 +3d8 +4d12 +5d20", "+1d21"))).containsExactly("+1d4", "+2d6", "+3d8", "+4d12", "+5d20");
+        IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
+        when(event.getCustomId()).thenReturn("sum_dice_set,+1d21");
+        when(event.getMessageContent()).thenReturn("1d4 +2d6 +3d8 +4d12 +5d20");
+        assertThat(underTest.getConfigFromEvent(event)).containsExactly("+1d4", "+2d6", "+3d8", "+4d12", "+5d20");
     }
 
     @Test
     void getConfigFromEvent_legacy() {
-        assertThat(underTest.getConfigFromEvent(TestUtils.createEventWithCustomId(mock(GatewayDiscordClient.class), "sum_dice_set",
-                "1d4 + 2d6", "+1d21"))).containsExactly("+1d4", "+2d6");
+        IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
+        when(event.getCustomId()).thenReturn("sum_dice_set,+1d21");
+        when(event.getMessageContent()).thenReturn("1d4 + 2d6");
+        assertThat(underTest.getConfigFromEvent(event)).containsExactly("+1d4", "+2d6");
     }
 
     @Test
     void getConfigFromEvent_empty() {
-        assertThat(underTest.getConfigFromEvent(TestUtils.createEventWithCustomId(mock(GatewayDiscordClient.class), "sum_dice_set",
-                "Click on the buttons to add dice to the set", "+1d21"))).isEmpty();
+        IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
+        when(event.getCustomId()).thenReturn("sum_dice_set,+1d21");
+        when(event.getMessageContent()).thenReturn("Click on the buttons to add dice to the set");
+        assertThat(underTest.getConfigFromEvent(event)).isEmpty();
     }
 
     @Test
@@ -241,6 +250,7 @@ class SumDiceSetCommandTest {
         assertThat(res.get(0).getResultTitle()).isEqualTo("-1d4 +1d6 -10 = -10");
         assertThat(res.get(0).getResultDetails()).isEqualTo("[-1, 1, -10]");
     }
+
     @Test
     void getStartOptions() {
         List<ApplicationCommandOptionData> res = underTest.getStartOptions();

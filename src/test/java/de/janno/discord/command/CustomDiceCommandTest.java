@@ -6,7 +6,6 @@ import de.janno.discord.dice.DiceResult;
 import de.janno.discord.dice.IDice;
 import dev.diceroll.parser.NDice;
 import dev.diceroll.parser.ResultTree;
-import discord4j.core.GatewayDiscordClient;
 import discord4j.discordjson.json.ApplicationCommandOptionData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -38,9 +37,9 @@ class CustomDiceCommandTest {
 
     @Test
     void getConfigFromEvent() {
-        List<String> res = underTest.getConfigFromEvent(TestUtils.createEventWithCustomId(mock(GatewayDiscordClient.class), "custom_dice",
-                "Click on a button to roll the dice", "1d6"));
-        assertThat(res).containsExactly("1d6");
+        IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
+        when(event.getAllButtonIds()).thenReturn(ImmutableList.of("custom_dice,1d6"));
+        assertThat(underTest.getConfigFromEvent(event)).containsExactly("1d6");
     }
 
     @Test

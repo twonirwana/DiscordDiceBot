@@ -4,9 +4,9 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
+import de.janno.discord.cache.ActiveButtonsCache;
 import de.janno.discord.dice.DiceResult;
 import de.janno.discord.dice.DiceUtils;
-import discord4j.core.event.domain.interaction.ComponentInteractionEvent;
 import discord4j.core.object.command.ApplicationCommandInteractionOption;
 import discord4j.core.object.command.ApplicationCommandInteractionOptionValue;
 import discord4j.core.object.command.ApplicationCommandOption;
@@ -154,7 +154,7 @@ public class HoldRerollCommand extends AbstractCommand {
     }
 
     @Override
-    protected List<String> getConfigFromEvent(ComponentInteractionEvent event) {
+    protected List<String> getConfigFromEvent(IButtonEventAdaptor event) {
         List<String> config = new ArrayList<>(super.getConfigFromEvent(event));
         String buttonValue = getButtonValueFromEvent(event);
         Set<Integer> rerollSet = getRerollSet(config);

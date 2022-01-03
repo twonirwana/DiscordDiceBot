@@ -1,10 +1,9 @@
 package de.janno.discord.dice;
 
 
-import java.util.Deque;
-import java.util.List;
-import java.util.Random;
-import java.util.Set;
+import com.google.common.collect.ImmutableList;
+
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -19,24 +18,9 @@ public class DiceUtils {
         numberSupplier = diceSides -> (int) (randomNumberGenerator.nextDouble() * diceSides + 1);
     }
 
-    public DiceUtils(Deque<Integer> results) {
+    public DiceUtils(Integer... resultNumbers) {
+        Deque<Integer> results = new ArrayDeque<>(ImmutableList.copyOf(resultNumbers));
         numberSupplier = diceSides -> results.pop();
-    }
-
-    public int rollDice(int diceSides) {
-        return numberSupplier.apply(diceSides);
-    }
-
-    public List<Integer> rollFate() {
-        return IntStream.range(0, 4)
-                .mapToObj(i -> rollDice(3) - 2)
-                .collect(Collectors.toList());
-    }
-
-    public List<Integer> rollDiceOfType(int numberOfDice, int diceSides) {
-        return IntStream.range(0, numberOfDice)
-                .mapToObj(i -> rollDice(diceSides))
-                .collect(Collectors.toList());
     }
 
     public static int numberOfDiceResultsGreaterEqual(List<Integer> results, int target) {
@@ -67,7 +51,6 @@ public class DiceUtils {
         return results.stream().mapToInt(i -> i).sum();
     }
 
-
     public static String makeBold(int i) {
         return "**" + i + "**";
     }
@@ -86,5 +69,21 @@ public class DiceUtils {
 
     public static String makeBoldItalics(int i) {
         return "***" + i + "***";
+    }
+
+    public int rollDice(int diceSides) {
+        return numberSupplier.apply(diceSides);
+    }
+
+    public List<Integer> rollFate() {
+        return IntStream.range(0, 4)
+                .mapToObj(i -> rollDice(3) - 2)
+                .collect(Collectors.toList());
+    }
+
+    public List<Integer> rollDiceOfType(int numberOfDice, int diceSides) {
+        return IntStream.range(0, numberOfDice)
+                .mapToObj(i -> rollDice(diceSides))
+                .collect(Collectors.toList());
     }
 }

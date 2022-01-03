@@ -1,5 +1,6 @@
-package de.janno.discord;
+package de.janno.discord.discord4j;
 
+import de.janno.discord.Metrics;
 import de.janno.discord.command.*;
 import discord4j.common.ReactorResources;
 import discord4j.common.util.Snowflake;
@@ -23,11 +24,11 @@ import reactor.netty.http.client.HttpClient;
 import java.util.Set;
 import java.util.concurrent.ConcurrentSkipListSet;
 
-import static de.janno.discord.DiscordUtils.getSlashOptionsToString;
+import static de.janno.discord.discord4j.DiscordAdapter.getSlashOptionsToString;
 import static io.micrometer.core.instrument.Metrics.globalRegistry;
 
 @Slf4j
-public class DiceSystem {
+public class Discord4JClient {
 
     /**
      * TODO:
@@ -39,7 +40,7 @@ public class DiceSystem {
      * - Old WoD Command, first dice pool, then in second message the target
      **/
 
-    public DiceSystem(HttpClient httpClient, String token, boolean disableCommandUpdate) {
+    public Discord4JClient(HttpClient httpClient, String token, boolean disableCommandUpdate) {
 
         DiscordClient discordClient = DiscordClientBuilder.create(token)
                 .setReactorResources(ReactorResources.builder()
@@ -76,7 +77,7 @@ public class DiceSystem {
                                                 Flux.fromIterable(slashCommandRegistry.getSlashCommands())
                                                         .filter(command -> command.getName().equals(event.getCommandName()))
                                                         .next()
-                                                        .flatMap(command -> command.handleSlashCommandEvent(event))
+                                                        .flatMap(command -> command.handleSlashCommandEvent(new SlashEventAdapter(event)))
                                         )
                                         .onErrorResume(e -> {
                                             log.error("SlashCommandEvent Exception: ", e);
@@ -99,7 +100,7 @@ public class DiceSystem {
                                                         .ofType(IComponentInteractEventHandler.class)
                                                         .filter(command -> command.matchingComponentCustomId(event.getCustomId()))
                                                         .next()
-                                                        .flatMap(command -> command.handleComponentInteractEvent(event))
+                                                        .flatMap(command -> command.handleComponentInteractEvent(new ButtonEventAdapter(event)))
                                         )
                                         .onErrorResume(e -> {
                                             log.error("ButtonInteractEvent Exception: ", e);

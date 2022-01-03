@@ -2,14 +2,13 @@ package de.janno.discord.command;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
+import de.janno.discord.cache.ActiveButtonsCache;
 import de.janno.discord.dice.DiceResult;
 import de.janno.discord.dice.DiceUtils;
-import discord4j.core.event.domain.interaction.ComponentInteractionEvent;
 import discord4j.core.object.command.ApplicationCommandInteractionOption;
 import discord4j.core.object.component.ActionRow;
 import discord4j.core.object.component.Button;
 import discord4j.core.object.component.LayoutComponent;
-import discord4j.core.object.entity.Message;
 import discord4j.core.spec.EmbedCreateSpec;
 import discord4j.discordjson.json.ApplicationCommandOptionData;
 import lombok.extern.slf4j.Slf4j;
@@ -202,17 +201,12 @@ public class SumDiceSetCommand extends AbstractCommand {
     }
 
     @Override
-    protected List<String> getConfigFromEvent(ComponentInteractionEvent event) {
-        String buttonMessage = event.getMessage().map(Message::getContent).orElse("");
+    protected List<String> getConfigFromEvent(IButtonEventAdaptor event) {
+        String buttonMessage = event.getMessageContent();
         if (EMPTY_MESSAGE.equals(buttonMessage)) {
             return ImmutableList.of();
         }
-        return event.getMessage()
-                .map(Message::getContent)
-                .map(s -> s.split(Pattern.quote(DICE_SET_DELIMITER)))
-                .map(Arrays::asList)
-                .orElse(ImmutableList.of())
-                .stream()
+        return Arrays.stream(buttonMessage.split(Pattern.quote(DICE_SET_DELIMITER)))
                 //for handling legacy buttons with '1d4 + 1d6)
                 .filter(s -> !"+".equals(s))
                 //adding the + for the first die type in the message

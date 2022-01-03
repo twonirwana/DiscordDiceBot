@@ -5,11 +5,10 @@ import com.google.common.collect.ImmutableList;
 import de.janno.discord.Metrics;
 import de.janno.discord.dice.DiceParserHelper;
 import de.janno.discord.dice.DiceResult;
-import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
+import de.janno.discord.discord4j.ApplicationCommand;
 import discord4j.core.object.command.ApplicationCommandInteractionOption;
 import discord4j.core.object.command.ApplicationCommandInteractionOptionValue;
 import discord4j.core.object.command.ApplicationCommandOption;
-import discord4j.core.object.entity.channel.TextChannel;
 import discord4j.discordjson.json.ApplicationCommandOptionData;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -17,14 +16,12 @@ import reactor.core.publisher.Mono;
 
 import java.util.List;
 
-import static de.janno.discord.DiscordUtils.createEmbedMessageWithReference;
-
 @Slf4j
 public class DirectRollCommand implements ISlashCommand {
     private static final String ACTION_EXPRESSION = "expression";
     private final DiceParserHelper diceParserHelper;
 
-    public DirectRollCommand(){
+    public DirectRollCommand() {
         this(new DiceParserHelper());
     }
 
@@ -53,7 +50,7 @@ public class DirectRollCommand implements ISlashCommand {
     }
 
     @Override
-    public Mono<Void> handleSlashCommandEvent(@NonNull ChatInputInteractionEvent event) {
+    public Mono<Void> handleSlashCommandEvent(@NonNull ISlashEventAdaptor event) {
         if (event.getOption(ACTION_EXPRESSION).isPresent()) {
             ApplicationCommandInteractionOption options = event.getOption(ACTION_EXPRESSION).get();
             String diceExpression = options.getValue()
@@ -70,14 +67,7 @@ public class DirectRollCommand implements ISlashCommand {
             results.forEach(d -> log.info(String.format("%s:%s -> %s: %s", getName(), diceExpression, d.getResultTitle(), d.getResultDetails())));
 
             return event.reply("...")
-                    .onErrorResume(t -> {
-                        log.error("Error on replay to slash command", t);
-                        return Mono.empty();
-                    })
-                    .then(event.getInteraction().getChannel().ofType(TextChannel.class)
-                            .flatMap(channel -> channel.createMessage(createEmbedMessageWithReference(results, event.getInteraction().getMember().orElseThrow()))
-                            ))
-                    .ofType(Void.class);
+                    .then(event.createResultMessageWithEventReference(results));
 
         }
 

@@ -2,6 +2,7 @@ package de.janno.discord.command;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
+import de.janno.discord.cache.ActiveButtonsCache;
 import de.janno.discord.dice.DiceResult;
 import de.janno.discord.dice.DiceUtils;
 import discord4j.core.object.command.ApplicationCommandInteractionOption;

@@ -1,6 +1,7 @@
 package de.janno.discord;
 
 import com.google.common.base.Strings;
+import de.janno.discord.discord4j.Discord4JClient;
 import reactor.netty.http.client.HttpClient;
 
 /**
@@ -18,7 +19,7 @@ public class BaseBot {
                 .metrics(!Strings.isNullOrEmpty(publishMetricsToUrl), s -> "")
                 .followRedirect(true)
                 .secure();
-        new DiceSystem(httpClient, token, disableCommandUpdate);
+        new Discord4JClient(httpClient, token, disableCommandUpdate);
     }
 
 }

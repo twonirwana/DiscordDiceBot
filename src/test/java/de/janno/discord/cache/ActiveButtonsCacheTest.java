@@ -1,7 +1,8 @@
-package de.janno.discord.command;
+package de.janno.discord.cache;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import de.janno.discord.cache.ActiveButtonsCache;
 import discord4j.common.util.Snowflake;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,8 +27,8 @@ class ActiveButtonsCacheTest {
                 .hasSize(1)
                 .containsEntry(Snowflake.of(1),
                         ImmutableSet.of(
-                                new ButtonWithConfigHash(Snowflake.of(2), ImmutableList.of("test", "test2").hashCode()),
-                                new ButtonWithConfigHash(Snowflake.of(3), ImmutableList.of("test", "test2").hashCode()))
+                                new ActiveButtonsCache.ButtonWithConfigHash(Snowflake.of(2), ImmutableList.of("test", "test2").hashCode()),
+                                new ActiveButtonsCache.ButtonWithConfigHash(Snowflake.of(3), ImmutableList.of("test", "test2").hashCode()))
                 );
 
     }
@@ -44,8 +45,8 @@ class ActiveButtonsCacheTest {
         assertThat(underTest.getCache().asMap())
                 .hasSize(1)
                 .containsEntry(Snowflake.of(1), ImmutableSet.of(
-                        new ButtonWithConfigHash(Snowflake.of(3), ImmutableList.of("test", "test2").hashCode()),
-                        new ButtonWithConfigHash(Snowflake.of(4), ImmutableList.of("test2", "test").hashCode())
+                        new ActiveButtonsCache.ButtonWithConfigHash(Snowflake.of(3), ImmutableList.of("test", "test2").hashCode()),
+                        new ActiveButtonsCache.ButtonWithConfigHash(Snowflake.of(4), ImmutableList.of("test2", "test").hashCode())
                 ));
     }
 
@@ -62,8 +63,8 @@ class ActiveButtonsCacheTest {
         assertThat(underTest.getCache().asMap())
                 .hasSize(1)
                 .containsEntry(Snowflake.of(1), ImmutableSet.of(
-                        new ButtonWithConfigHash(Snowflake.of(3), ImmutableList.of("test", "test2").hashCode()),
-                        new ButtonWithConfigHash(Snowflake.of(4), ImmutableList.of("test2", "test").hashCode())
+                        new ActiveButtonsCache.ButtonWithConfigHash(Snowflake.of(3), ImmutableList.of("test", "test2").hashCode()),
+                        new ActiveButtonsCache.ButtonWithConfigHash(Snowflake.of(4), ImmutableList.of("test2", "test").hashCode())
                 ));
     }
 }

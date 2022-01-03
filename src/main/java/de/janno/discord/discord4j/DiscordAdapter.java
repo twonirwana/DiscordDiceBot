@@ -1,8 +1,9 @@
-package de.janno.discord;
+package de.janno.discord.discord4j;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
-import de.janno.discord.command.ActiveButtonsCache;
+import de.janno.discord.cache.ActiveButtonsCache;
+import de.janno.discord.command.IDiscordAdapter;
 import de.janno.discord.dice.DiceResult;
 import discord4j.common.util.Snowflake;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
@@ -27,10 +28,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Slf4j
-public class DiscordUtils {
+public abstract class DiscordAdapter implements IDiscordAdapter {
 
     //needed to correctly show utf8 characters in discord
-    public static String encodeUTF8(@NonNull String in) {
+    private static String encodeUTF8(@NonNull String in) {
         return new String(in.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8);
     }
 
@@ -46,7 +47,7 @@ public class DiscordUtils {
                 .build();
     }
 
-    public static EmbedCreateSpec createEmbedMessageWithReference(
+    public EmbedCreateSpec createEmbedMessageWithReference(
             @NonNull List<DiceResult> diceResults,
             @NonNull Member rollRequester) {
         Preconditions.checkArgument(!diceResults.isEmpty(), "Results list empty");
@@ -69,7 +70,7 @@ public class DiscordUtils {
         return builder.build();
     }
 
-    public static Mono<Void> deleteMessage(
+    public Mono<Void> deleteMessage(
             @NonNull Mono<MessageChannel> channel,
             @NonNull Snowflake channelId,
             @NonNull ActiveButtonsCache activeButtonsCache,
@@ -88,7 +89,7 @@ public class DiscordUtils {
                 .flatMap(Message::delete).next().ofType(Void.class);
     }
 
-    public static Mono<Message> createButtonMessage(ActiveButtonsCache activeButtonsCache,
+    public Mono<Message> createButtonMessage(ActiveButtonsCache activeButtonsCache,
                                                     @NonNull TextChannel channel,
                                                     @NonNull String buttonMessage,
                                                     @NonNull List<LayoutComponent> buttons,
@@ -108,13 +109,13 @@ public class DiscordUtils {
 
     public static String getSlashOptionsToString(ChatInputInteractionEvent event) {
         List<String> options = event.getOptions().stream()
-                .map(DiscordUtils::optionToString)
+                .map(DiscordAdapter::optionToString)
                 .collect(Collectors.toList());
         return options.isEmpty() ? "" : options.toString();
     }
 
     private static String optionToString(ApplicationCommandInteractionOption option) {
-        List<String> subOptions = option.getOptions().stream().map(DiscordUtils::optionToString).collect(Collectors.toList());
+        List<String> subOptions = option.getOptions().stream().map(DiscordAdapter::optionToString).collect(Collectors.toList());
         return String.format("%s=%s%s",
                 option.getName(),
                 option.getValue().map(ApplicationCommandInteractionOptionValue::getRaw).orElse(""),
