@@ -7,5 +7,4 @@ import java.util.List;
 
 public interface IDiscordAdapter {
     Mono<Void> createResultMessageWithEventReference(List<DiceResult> diceResults);
-
 }

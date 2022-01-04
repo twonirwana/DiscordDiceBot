@@ -18,6 +18,6 @@ class DiceUtilsTest {
                 .noneMatch(i -> i < 1)
                 .hasSize(100_000);
 
-        assertThat(res.stream().mapToInt(i -> i).average().orElseThrow()).isCloseTo(3.5, Offset.offset(0.01));
+        assertThat(res.stream().mapToInt(i -> i).average().orElseThrow()).isCloseTo(3.5, Offset.offset(0.05));
     }
 }

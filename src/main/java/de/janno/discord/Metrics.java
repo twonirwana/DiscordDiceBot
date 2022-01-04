@@ -52,6 +52,7 @@ public class Metrics {
         }
     }
 
+    //configString accept null
     public static void incrementButtonMetricCounter(@NonNull String commandName, @NonNull String configString) {
         globalRegistry.counter(METRIC_PREFIX + METRIC_BUTTON_PREFIX, Tags.of(COMMAND_TAG, commandName).and(CONFIG_TAG, configString)).increment();
     }

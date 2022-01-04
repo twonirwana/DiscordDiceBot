@@ -22,7 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.List;
 
 @Slf4j
-public class FateCommand extends AbstractCommand<FateCommand.Config> {
+public class FateCommand extends AbstractCommand<FateCommand.Config, FateCommand.State> {
 
     private static final String COMMAND_NAME = "fate";
     private static final String ACTION_MODIFIER_OPTION = "type";
@@ -51,7 +51,7 @@ public class FateCommand extends AbstractCommand<FateCommand.Config> {
     }
 
     @Override
-    protected String getButtonMessage(String buttonValue, Config config) {
+    protected String getButtonMessage(State state, Config config) {
         if (ACTION_MODIFIER_OPTION_MODIFIER.equals(config.getType())) {
             return "Click a button to roll four fate dice and add the value of the button";
         }
@@ -101,11 +101,11 @@ public class FateCommand extends AbstractCommand<FateCommand.Config> {
     }
 
     @Override
-    protected List<DiceResult> getDiceResult(String buttonValue, Config config) {
+    protected List<DiceResult> getDiceResult(State state, Config config) {
         List<Integer> rollResult = diceUtils.rollFate();
 
         if (ACTION_MODIFIER_OPTION_MODIFIER.equals(config.getType())) {
-            int modifier = Integer.parseInt(buttonValue);
+            int modifier = state.getModifier();
             String modifierString = "";
             if (modifier > 0) {
                 modifierString = " +" + modifier;
@@ -125,36 +125,36 @@ public class FateCommand extends AbstractCommand<FateCommand.Config> {
     }
 
     @Override
-    protected List<LayoutComponent> getButtonLayout(String buttonValue, Config config) {
+    protected List<LayoutComponent> getButtonLayout(State state, Config config) {
         if (ACTION_MODIFIER_OPTION_MODIFIER.equals(config.getType())) {
             return ImmutableList.of(
                     ActionRow.of(
                             //              ID,  label
-                            Button.primary(createButtonCustomId(COMMAND_NAME, "-4", config), "-4"),
-                            Button.primary(createButtonCustomId(COMMAND_NAME, "-3", config), "-3"),
-                            Button.primary(createButtonCustomId(COMMAND_NAME, "-2", config), "-2"),
-                            Button.primary(createButtonCustomId(COMMAND_NAME, "-1", config), "-1"),
-                            Button.primary(createButtonCustomId(COMMAND_NAME, "0", config), "0")
+                            Button.primary(createButtonCustomId(COMMAND_NAME, "-4", config, state), "-4"),
+                            Button.primary(createButtonCustomId(COMMAND_NAME, "-3", config, state), "-3"),
+                            Button.primary(createButtonCustomId(COMMAND_NAME, "-2", config, state), "-2"),
+                            Button.primary(createButtonCustomId(COMMAND_NAME, "-1", config, state), "-1"),
+                            Button.primary(createButtonCustomId(COMMAND_NAME, "0", config, state), "0")
                     ),
                     ActionRow.of(
 
-                            Button.primary(createButtonCustomId(COMMAND_NAME, "1", config), "+1"),
-                            Button.primary(createButtonCustomId(COMMAND_NAME, "2", config), "+2"),
-                            Button.primary(createButtonCustomId(COMMAND_NAME, "3", config), "+3"),
-                            Button.primary(createButtonCustomId(COMMAND_NAME, "4", config), "+4"),
-                            Button.primary(createButtonCustomId(COMMAND_NAME, "5", config), "+5")
+                            Button.primary(createButtonCustomId(COMMAND_NAME, "1", config, state), "+1"),
+                            Button.primary(createButtonCustomId(COMMAND_NAME, "2", config, state), "+2"),
+                            Button.primary(createButtonCustomId(COMMAND_NAME, "3", config, state), "+3"),
+                            Button.primary(createButtonCustomId(COMMAND_NAME, "4", config, state), "+4"),
+                            Button.primary(createButtonCustomId(COMMAND_NAME, "5", config, state), "+5")
                     ),
                     ActionRow.of(
-                            Button.primary(createButtonCustomId(COMMAND_NAME, "6", config), "+6"),
-                            Button.primary(createButtonCustomId(COMMAND_NAME, "7", config), "+7"),
-                            Button.primary(createButtonCustomId(COMMAND_NAME, "8", config), "+8"),
-                            Button.primary(createButtonCustomId(COMMAND_NAME, "9", config), "+9"),
-                            Button.primary(createButtonCustomId(COMMAND_NAME, "10", config), "+10")
+                            Button.primary(createButtonCustomId(COMMAND_NAME, "6", config, state), "+6"),
+                            Button.primary(createButtonCustomId(COMMAND_NAME, "7", config, state), "+7"),
+                            Button.primary(createButtonCustomId(COMMAND_NAME, "8", config, state), "+8"),
+                            Button.primary(createButtonCustomId(COMMAND_NAME, "9", config, state), "+9"),
+                            Button.primary(createButtonCustomId(COMMAND_NAME, "10", config, state), "+10")
                     ));
         } else {
             return ImmutableList.of(
                     ActionRow.of(
-                            Button.primary(createButtonCustomId(COMMAND_NAME, "roll", config), "Roll 4dF")
+                            Button.primary(createButtonCustomId(COMMAND_NAME, "roll", config, state), "Roll 4dF")
                     ));
         }
     }
@@ -166,7 +166,16 @@ public class FateCommand extends AbstractCommand<FateCommand.Config> {
     }
 
     @Override
-    protected String createButtonCustomId(String system, String value, Config config) {
+    protected State getStateFromEvent(IButtonEventAdaptor event) {
+        String modifier = event.getCustomId().split(CONFIG_DELIMITER)[1];
+        if (modifier.isBlank()) {
+            return new State(null);
+        }
+        return new State(Integer.valueOf(modifier));
+    }
+
+    @Override
+    protected String createButtonCustomId(String system, String value, Config config, State state) {
 
         Preconditions.checkArgument(!system.contains(CONFIG_DELIMITER));
         Preconditions.checkArgument(!value.contains(CONFIG_DELIMITER));
@@ -189,5 +198,10 @@ public class FateCommand extends AbstractCommand<FateCommand.Config> {
         public String toMetricString() {
             return type;
         }
+    }
+
+    @Value
+    static class State implements IState {
+        Integer modifier;
     }
 }

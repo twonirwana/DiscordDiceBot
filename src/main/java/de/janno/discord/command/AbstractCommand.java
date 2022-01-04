@@ -22,7 +22,7 @@ import java.util.List;
 import static de.janno.discord.dice.DiceUtils.MINUS;
 
 @Slf4j
-public abstract class AbstractCommand<T extends IConfig> implements ISlashCommand, IComponentInteractEventHandler {
+public abstract class AbstractCommand<C extends IConfig, S extends IState> implements ISlashCommand, IComponentInteractEventHandler {
 
     protected static final String ACTION_START = "start";
     protected static final String ACTION_HELP = "help";
@@ -33,7 +33,7 @@ public abstract class AbstractCommand<T extends IConfig> implements ISlashComman
         this.activeButtonsCache = activeButtonsCache;
     }
 
-    protected abstract String createButtonCustomId(String system, String value, T config);
+    protected abstract String createButtonCustomId(String system, String value, C config, @Nullable S state);
 
     protected List<ApplicationCommandOptionData> getStartOptions() {
         return ImmutableList.of();
@@ -63,28 +63,28 @@ public abstract class AbstractCommand<T extends IConfig> implements ISlashComman
 
     @Override
     public Mono<Void> handleComponentInteractEvent(@NonNull IButtonEventAdaptor event) {
-        T config = getConfigFromEvent(event);
+        C config = getConfigFromEvent(event);
         //adding the message of the event to the cache, in the case that the bot was restarted and has forgotten the button
-        activeButtonsCache.addChannelWithButton(event.getChannelId(), event.getMessageId(), config.getHashForCache());
+        activeButtonsCache.addChannelWithButton(event.getChannelId(), event.getMessageId(), config.hashCode());
 
-        String buttonValue = getButtonValueFromEvent(event);
+        S state = getStateFromEvent(event);
         List<Mono<Void>> actions = new ArrayList<>();
         boolean triggeringMessageIsPinned = event.isPinned();
 
         actions.add(event
                 //if the button is pined it keeps its message
-                .editMessage(editMessage(buttonValue, config)));
-        if (createAnswerMessage(buttonValue, config)) {
+                .editMessage(editMessage(state, config)));
+        if (createAnswerMessage(state, config)) {
             Metrics.incrementButtonMetricCounter(getName(), config.toMetricString());
             actions.add(createButtonEventAnswer(event, config));
         }
-        if (copyButtonMessageToTheEnd(buttonValue, config)) {
+        if (copyButtonMessageToTheEnd(state, config)) {
             actions.add(event.moveButtonMessage(triggeringMessageIsPinned,
-                    editMessage(buttonValue, config),
-                    getButtonMessage(buttonValue, config),
+                    editMessage(state, config),
+                    getButtonMessage(state, config),
                     activeButtonsCache,
-                    getButtonLayout(buttonValue, config),
-                    config.getHashForCache()));
+                    getButtonLayout(state, config),
+                    config.hashCode()));
         }
 
         return Flux.mergeDelayError(1, actions.toArray(new Mono<?>[0]))
@@ -92,8 +92,8 @@ public abstract class AbstractCommand<T extends IConfig> implements ISlashComman
                 .then();
     }
 
-    protected Mono<Void> createButtonEventAnswer(@NonNull IButtonEventAdaptor event, @NonNull T config) {
-        List<DiceResult> result = getDiceResult(getButtonValueFromEvent(event), config);
+    protected Mono<Void> createButtonEventAnswer(@NonNull IButtonEventAdaptor event, @NonNull C config) {
+        List<DiceResult> result = getDiceResult(getStateFromEvent(event), config);
         result.forEach(d -> log.info(String.format("%s:%s -> %s: %s", getName(), config, d.getResultTitle(), d.getResultDetails()
                 .replace("▢", "0")
                 .replace("＋", "+")
@@ -103,15 +103,16 @@ public abstract class AbstractCommand<T extends IConfig> implements ISlashComman
     }
 
     //default is to leave the message unaltered
-    protected String editMessage(String buttonId, T config) {
-        return getButtonMessage(buttonId, config);
+    //TODO can be combinded mit buttonMessage?
+    protected String editMessage(S state, C config) {
+        return getButtonMessage(state, config);
     }
 
-    protected boolean createAnswerMessage(String buttonId, T config) {
+    protected boolean createAnswerMessage(S state, C config) {
         return true;
     }
 
-    protected boolean copyButtonMessageToTheEnd(String buttonId, T config) {
+    protected boolean copyButtonMessageToTheEnd(S state, C config) {
         return true;
     }
 
@@ -125,14 +126,14 @@ public abstract class AbstractCommand<T extends IConfig> implements ISlashComman
                 log.info("Validation message: {}", validationMessage);
                 return event.reply(validationMessage);
             }
-            T config = getConfigValuesFromStartOptions(options);
+            C config = getConfigValuesFromStartOptions(options);
             Metrics.incrementSlashStartMetricCounter(getName(), config.toMetricString());
 
             return event.reply("...")
                     .then(event.createButtonMessage(activeButtonsCache,
                             getButtonMessage(null, config),
                             getButtonLayout(null, config),
-                            config.getHashForCache()));
+                            config.hashCode()));
 
         } else if (event.getOption(ACTION_HELP).isPresent()) {
             Metrics.incrementSlashHelpMetricCounter(getName());
@@ -143,22 +144,21 @@ public abstract class AbstractCommand<T extends IConfig> implements ISlashComman
 
     protected abstract EmbedCreateSpec getHelpMessage();
 
-    protected abstract String getButtonMessage(@Nullable String buttonValue, T config);
+    protected abstract String getButtonMessage(@Nullable S state, C config);
 
-    protected abstract T getConfigValuesFromStartOptions(ApplicationCommandInteractionOption options);
+    protected abstract C getConfigValuesFromStartOptions(ApplicationCommandInteractionOption options);
 
-    protected abstract List<DiceResult> getDiceResult(String buttonValue, T config);
+    protected abstract List<DiceResult> getDiceResult(S state, C config);
 
-    protected abstract List<LayoutComponent> getButtonLayout(@Nullable String buttonValue, T config);
+    protected abstract List<LayoutComponent> getButtonLayout(@Nullable S state, C config);
 
     protected String getStartOptionsValidationMessage(ApplicationCommandInteractionOption options) {
         return null;
     }
 
-    protected abstract T getConfigFromEvent(IButtonEventAdaptor event);
+    protected abstract C getConfigFromEvent(IButtonEventAdaptor event);
 
-    protected String getButtonValueFromEvent(IButtonEventAdaptor event) {
-        return event.getCustomId().split(CONFIG_DELIMITER)[1];
-    }
+    protected abstract S getStateFromEvent(IButtonEventAdaptor event);
+
 
 }

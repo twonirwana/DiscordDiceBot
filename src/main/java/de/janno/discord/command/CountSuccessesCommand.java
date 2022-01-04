@@ -29,7 +29,7 @@ import static de.janno.discord.dice.DiceUtils.makeBold;
 
 
 @Slf4j
-public class CountSuccessesCommand extends AbstractCommand<CountSuccessesCommand.Config> {
+public class CountSuccessesCommand extends AbstractCommand<CountSuccessesCommand.Config, CountSuccessesCommand.State> {
 
     private static final String COMMAND_NAME = "count_successes";
     private static final String ACTION_SIDE_OPTION = "dice_sides";
@@ -78,6 +78,11 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesCommand
         String glitchOption = split.length < 5 ? GLITCH_NO_OPTION : split[4];
         int maxNumberOfButtons = split.length < 6 ? 15 : Integer.parseInt(split[5]);
         return new Config(sideOfDie, target, glitchOption, maxNumberOfButtons);
+    }
+
+    @Override
+    protected State getStateFromEvent(IButtonEventAdaptor event) {
+        return new State(Integer.parseInt(event.getCustomId().split(CONFIG_DELIMITER)[1]));
     }
 
     @Override
@@ -132,21 +137,20 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesCommand
     }
 
     @Override
-    protected List<DiceResult> getDiceResult(String buttonValue, Config config) {
-        int numberOfDice = Integer.parseInt(buttonValue);
-        List<Integer> rollResult = diceUtils.rollDiceOfType(numberOfDice, config.getDiceSides()).stream()
+    protected List<DiceResult> getDiceResult(State state, Config config) {
+        List<Integer> rollResult = diceUtils.rollDiceOfType(state.getNumberOfDice(), config.getDiceSides()).stream()
                 .sorted()
                 .collect(Collectors.toList());
 
         DiceResult result;
         if (GLITCH_OPTION_HALF_ONES.equals(config.getGlitchOption())) {
-            result = halfOnesGlitch(numberOfDice, config.getDiceSides(), config.getTarget(), rollResult);
+            result = halfOnesGlitch(state.getNumberOfDice(), config.getDiceSides(), config.getTarget(), rollResult);
         } else if (GLITCH_COUNT_ONES.equals(config.getGlitchOption())) {
-            result = countOnesGlitch(numberOfDice, config.getDiceSides(), config.getTarget(), rollResult);
+            result = countOnesGlitch(state.getNumberOfDice(), config.getDiceSides(), config.getTarget(), rollResult);
         } else if (GLITCH_SUBTRACT_ONES.equals(config.getGlitchOption())) {
-            result = subtractOnesGlitch(numberOfDice, config.getDiceSides(), config.getTarget(), rollResult);
+            result = subtractOnesGlitch(state.getNumberOfDice(), config.getDiceSides(), config.getTarget(), rollResult);
         } else {
-            result = noneGlitch(numberOfDice, config.getDiceSides(), config.getTarget(), rollResult);
+            result = noneGlitch(state.getNumberOfDice(), config.getDiceSides(), config.getTarget(), rollResult);
         }
         return ImmutableList.of(result);
     }
@@ -185,7 +189,7 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesCommand
     }
 
     @Override
-    protected String getButtonMessage(String buttonValue, Config config) {
+    protected String getButtonMessage(State state, Config config) {
         return String.format("Click to roll the dice against %s%s", config.getTarget(), getGlitchDescription(config));
     }
 
@@ -231,14 +235,14 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesCommand
     }
 
     @Override
-    protected List<LayoutComponent> getButtonLayout(String buttonValue, Config config) {
+    protected List<LayoutComponent> getButtonLayout(State state, Config config) {
         List<Button> buttons = IntStream.range(1, config.getMaxNumberOfButtons() + 1)
-                .mapToObj(i -> Button.primary(createButtonCustomId(COMMAND_NAME, String.valueOf(i), config), createButtonLabel(String.valueOf(i), config))).collect(Collectors.toList());
+                .mapToObj(i -> Button.primary(createButtonCustomId(COMMAND_NAME, String.valueOf(i), config, state), createButtonLabel(String.valueOf(i), config))).collect(Collectors.toList());
         return Lists.partition(buttons, 5).stream().map(ActionRow::of).collect(Collectors.toList());
     }
 
     @Override
-    protected String createButtonCustomId(String system, String value, Config config) {
+    protected String createButtonCustomId(String system, String value, Config config, State state) {
 
         Preconditions.checkArgument(!system.contains(CONFIG_DELIMITER));
         Preconditions.checkArgument(!value.contains(CONFIG_DELIMITER));
@@ -269,5 +273,10 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesCommand
                     getGlitchOption(),
                     String.valueOf(getMaxNumberOfButtons()));
         }
+    }
+
+    @Value
+    static class State implements IState {
+        int numberOfDice;
     }
 }

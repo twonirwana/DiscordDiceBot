@@ -24,7 +24,7 @@ import java.util.stream.IntStream;
 
 @Slf4j
 //TODO give buttons names
-public class CustomDiceCommand extends AbstractCommand<CustomDiceCommand.Config> {
+public class CustomDiceCommand extends AbstractCommand<CustomDiceCommand.Config, CustomDiceCommand.State> {
     //test with /custom_dice start 1_button:1d1 2_button:2d2 3_button:3d3 4_button:4d4 5_button:5d5 6_button:6d6 7_button:7d7 8_button:8d8 9_button:9d9 10_button:10d10 11_button:11d11 12_button:12d12 13_button:13d13 14_button:14d14 15_button:15d15 16_button:16d16 17_button:17d17 18_button:18d18 19_button:19d19 20_button:20d20 21_button:21d21 22_button:22d22 23_button:23d23 24_button:24d24 25_button:25d25
 
     private static final String COMMAND_NAME = "custom_dice";
@@ -47,7 +47,7 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceCommand.Config>
     }
 
     @Override
-    protected String getButtonMessage(String buttonValue, Config config) {
+    protected String getButtonMessage(State buttonValue, Config config) {
         return "Click on a button to roll the dice";
     }
 
@@ -156,14 +156,14 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceCommand.Config>
     }
 
     @Override
-    protected List<DiceResult> getDiceResult(String buttonValue, Config config) {
-        return diceParserHelper.roll(buttonValue);
+    protected List<DiceResult> getDiceResult(State state, Config config) {
+        return diceParserHelper.roll(state.getDiceExpression());
     }
 
     @Override
-    protected List<LayoutComponent> getButtonLayout(String buttonValue, Config config) {
-        List<Button> buttons = config.buttonDiceExpressions.stream()
-                .map(d -> Button.primary(createButtonCustomId(COMMAND_NAME, d, config), d))
+    protected List<LayoutComponent> getButtonLayout(State state, Config config) {
+        List<Button> buttons = config.getButtonDiceExpressions().stream()
+                .map(d -> Button.primary(createButtonCustomId(COMMAND_NAME, d, config, state), d))
                 .collect(Collectors.toList());
         return Lists.partition(buttons, 5).stream()
                 .map(ActionRow::of)
@@ -171,7 +171,7 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceCommand.Config>
     }
 
     @Override
-    protected String createButtonCustomId(String system, String value, Config config) {
+    protected String createButtonCustomId(String system, String value, Config config, State state) {
 
         Preconditions.checkArgument(!system.contains(CONFIG_DELIMITER));
         Preconditions.checkArgument(!value.contains(CONFIG_DELIMITER));
@@ -189,6 +189,11 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceCommand.Config>
     }
 
     @Override
+    protected State getStateFromEvent(IButtonEventAdaptor event) {
+        return new State(event.getCustomId().split(CONFIG_DELIMITER)[1]);
+    }
+
+    @Override
     public boolean matchingComponentCustomId(String buttonCustomId) {
         return buttonCustomId.startsWith(COMMAND_NAME + CONFIG_DELIMITER);
     }
@@ -200,7 +205,6 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceCommand.Config>
 
     @Value
     protected static class Config implements IConfig {
-
         @NonNull
         List<String> buttonDiceExpressions;
 
@@ -208,5 +212,11 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceCommand.Config>
         public String toMetricString() {
             return buttonDiceExpressions.toString();
         }
+    }
+
+    @Value
+    static class State implements IState {
+        @NonNull
+        String diceExpression;
     }
 }

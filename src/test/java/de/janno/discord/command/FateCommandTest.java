@@ -50,7 +50,7 @@ class FateCommandTest {
 
     @Test
     void getDiceResult_simple() {
-        List<DiceResult> res = underTest.getDiceResult("roll", new FateCommand.Config("simple"));
+        List<DiceResult> res = underTest.getDiceResult(new FateCommand.State(null), new FateCommand.Config("simple"));
 
         assertThat(res).hasSize(1);
         assertThat(res.get(0).getResultTitle()).isEqualTo("4dF = -1");
@@ -59,7 +59,7 @@ class FateCommandTest {
 
     @Test
     void getDiceResult_modifier_minus1() {
-        List<DiceResult> res = underTest.getDiceResult("-1", new FateCommand.Config("with_modifier"));
+        List<DiceResult> res = underTest.getDiceResult(new FateCommand.State(-1), new FateCommand.Config("with_modifier"));
 
         assertThat(res).hasSize(1);
         assertThat(res.get(0).getResultTitle()).isEqualTo("4dF -1 = -2");
@@ -68,7 +68,7 @@ class FateCommandTest {
 
     @Test
     void getDiceResult_modifier_plus1() {
-        List<DiceResult> res = underTest.getDiceResult("+1", new FateCommand.Config("with_modifier"));
+        List<DiceResult> res = underTest.getDiceResult(new FateCommand.State(1), new FateCommand.Config("with_modifier"));
 
         assertThat(res).hasSize(1);
         assertThat(res.get(0).getResultTitle()).isEqualTo("4dF +1 = 0");
@@ -77,7 +77,7 @@ class FateCommandTest {
 
     @Test
     void getDiceResult_modifier_0() {
-        List<DiceResult> res = underTest.getDiceResult("0", new FateCommand.Config("with_modifier"));
+        List<DiceResult> res = underTest.getDiceResult(new FateCommand.State(0), new FateCommand.Config("with_modifier"));
 
         assertThat(res).hasSize(1);
         assertThat(res.get(0).getResultTitle()).isEqualTo("4dF = -1");

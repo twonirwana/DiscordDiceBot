@@ -93,7 +93,7 @@ class CountSuccessesCommandTest {
 
     @Test
     void rollDice() {
-        List<DiceResult> results = underTest.getDiceResult("6", new CountSuccessesCommand.Config(6, 6, "no_glitch", 15));
+        List<DiceResult> results = underTest.getDiceResult(new CountSuccessesCommand.State(6), new CountSuccessesCommand.Config(6, 6, "no_glitch", 15));
 
         assertThat(results).hasSize(1);
         assertThat(results.get(0).getResultTitle()).isEqualTo("6d6 = 1");
@@ -102,7 +102,7 @@ class CountSuccessesCommandTest {
 
     @Test
     void rollDice_halfDiceOne_glitch() {
-        List<DiceResult> results = underTest.getDiceResult("6", new CountSuccessesCommand.Config(6, 6, "half_dice_one", 15));
+        List<DiceResult> results = underTest.getDiceResult(new CountSuccessesCommand.State(6), new CountSuccessesCommand.Config(6, 6, "half_dice_one", 15));
 
         assertThat(results).hasSize(1);
         assertThat(results.get(0).getResultTitle()).isEqualTo("6d6 = 1 - Glitch!");
@@ -111,7 +111,7 @@ class CountSuccessesCommandTest {
 
     @Test
     void rollDice_halfDiceOne_noGlitch() {
-        List<DiceResult> results = underTest.getDiceResult("8", new CountSuccessesCommand.Config(6, 6, "half_dice_one", 15));
+        List<DiceResult> results = underTest.getDiceResult(new CountSuccessesCommand.State(8), new CountSuccessesCommand.Config(6, 6, "half_dice_one", 15));
 
         assertThat(results).hasSize(1);
         assertThat(results.get(0).getResultTitle()).isEqualTo("8d6 = 3");
@@ -120,7 +120,7 @@ class CountSuccessesCommandTest {
 
     @Test
     void rollDice_countOnes() {
-        List<DiceResult> results = underTest.getDiceResult("6", new CountSuccessesCommand.Config(6, 6, "count_ones", 15));
+        List<DiceResult> results = underTest.getDiceResult(new CountSuccessesCommand.State(6), new CountSuccessesCommand.Config(6, 6, "count_ones", 15));
 
         assertThat(results).hasSize(1);
         assertThat(results.get(0).getResultTitle()).isEqualTo("6d6 = 1 successes and 4 ones");
@@ -129,7 +129,7 @@ class CountSuccessesCommandTest {
 
     @Test
     void rollDice_subtractOnes() {
-        List<DiceResult> results = underTest.getDiceResult("6", new CountSuccessesCommand.Config(6, 6, "subtract_ones", 15));
+        List<DiceResult> results = underTest.getDiceResult(new CountSuccessesCommand.State(6), new CountSuccessesCommand.Config(6, 6, "subtract_ones", 15));
 
         assertThat(results).hasSize(1);
         assertThat(results.get(0).getResultTitle()).isEqualTo("6d6 = -3");

@@ -22,67 +22,67 @@ class SumDiceSetCommandTest {
 
     static Stream<Arguments> generateEditMessageData() {
         return Stream.of(
-                Arguments.of(new SumDiceSetCommand.Config(ImmutableMap.of()), "+1d4", "1d4"),
-                Arguments.of(new SumDiceSetCommand.Config(ImmutableMap.of()), "+1d6", "1d6"),
-                Arguments.of(new SumDiceSetCommand.Config(ImmutableMap.of()), "+1d8", "1d8"),
-                Arguments.of(new SumDiceSetCommand.Config(ImmutableMap.of()), "+1d10", "1d10"),
-                Arguments.of(new SumDiceSetCommand.Config(ImmutableMap.of()), "+1d12", "1d12"),
-                Arguments.of(new SumDiceSetCommand.Config(ImmutableMap.of()), "+1d20", "1d20"),
-                Arguments.of(new SumDiceSetCommand.Config(ImmutableMap.of()), "+1", "1"),
-                Arguments.of(new SumDiceSetCommand.Config(ImmutableMap.of()), "+5", "5"),
-                Arguments.of(new SumDiceSetCommand.Config(ImmutableMap.of()), "+10", "10"),
+                Arguments.of(new SumDiceSetCommand.State("+1d4", ImmutableMap.of()), "1d4"),
+                Arguments.of(new SumDiceSetCommand.State("+1d6", ImmutableMap.of()), "1d6"),
+                Arguments.of(new SumDiceSetCommand.State("+1d8", ImmutableMap.of()), "1d8"),
+                Arguments.of(new SumDiceSetCommand.State("+1d10", ImmutableMap.of()), "1d10"),
+                Arguments.of(new SumDiceSetCommand.State("+1d12", ImmutableMap.of()), "1d12"),
+                Arguments.of(new SumDiceSetCommand.State("+1d20", ImmutableMap.of()), "1d20"),
+                Arguments.of(new SumDiceSetCommand.State("+1", ImmutableMap.of()), "1"),
+                Arguments.of(new SumDiceSetCommand.State("+5", ImmutableMap.of()), "5"),
+                Arguments.of(new SumDiceSetCommand.State("+10", ImmutableMap.of()), "10"),
 
-                Arguments.of(new SumDiceSetCommand.Config(ImmutableMap.of("d4", 1)), "-1d4", "Click on the buttons to add dice to the set"),
-                Arguments.of(new SumDiceSetCommand.Config(ImmutableMap.of("d6", 1)), "-1d6", "Click on the buttons to add dice to the set"),
-                Arguments.of(new SumDiceSetCommand.Config(ImmutableMap.of("d8", 1)), "-1d8", "Click on the buttons to add dice to the set"),
-                Arguments.of(new SumDiceSetCommand.Config(ImmutableMap.of("d10", 1)), "-1d10", "Click on the buttons to add dice to the set"),
-                Arguments.of(new SumDiceSetCommand.Config(ImmutableMap.of("d12", 1)), "-1d12", "Click on the buttons to add dice to the set"),
-                Arguments.of(new SumDiceSetCommand.Config(ImmutableMap.of("d20", 1)), "-1d20", "Click on the buttons to add dice to the set"),
-                Arguments.of(new SumDiceSetCommand.Config(ImmutableMap.of("m", 1)), "-1", "Click on the buttons to add dice to the set"),
-                Arguments.of(new SumDiceSetCommand.Config(ImmutableMap.of("d4", -1)), "+1d4", "Click on the buttons to add dice to the set"),
-                Arguments.of(new SumDiceSetCommand.Config(ImmutableMap.of("d6", -1)), "+1d6", "Click on the buttons to add dice to the set"),
-                Arguments.of(new SumDiceSetCommand.Config(ImmutableMap.of("d8", -1)), "+1d8", "Click on the buttons to add dice to the set"),
-                Arguments.of(new SumDiceSetCommand.Config(ImmutableMap.of("d10", -1)), "+1d10", "Click on the buttons to add dice to the set"),
-                Arguments.of(new SumDiceSetCommand.Config(ImmutableMap.of("d12", -1)), "+1d12", "Click on the buttons to add dice to the set"),
-                Arguments.of(new SumDiceSetCommand.Config(ImmutableMap.of("d20", -1)), "+1d20", "Click on the buttons to add dice to the set"),
-                Arguments.of(new SumDiceSetCommand.Config(ImmutableMap.of("m", -1)), "+1", "Click on the buttons to add dice to the set"),
+                Arguments.of(new SumDiceSetCommand.State("-1d4", ImmutableMap.of("d4", 1)), "Click on the buttons to add dice to the set"),
+                Arguments.of(new SumDiceSetCommand.State("-1d6", ImmutableMap.of("d6", 1)), "Click on the buttons to add dice to the set"),
+                Arguments.of(new SumDiceSetCommand.State("-1d8", ImmutableMap.of("d8", 1)), "Click on the buttons to add dice to the set"),
+                Arguments.of(new SumDiceSetCommand.State("-1d10", ImmutableMap.of("d10", 1)), "Click on the buttons to add dice to the set"),
+                Arguments.of(new SumDiceSetCommand.State("-1d12", ImmutableMap.of("d12", 1)), "Click on the buttons to add dice to the set"),
+                Arguments.of(new SumDiceSetCommand.State("-1d20", ImmutableMap.of("d20", 1)), "Click on the buttons to add dice to the set"),
+                Arguments.of(new SumDiceSetCommand.State("-1", ImmutableMap.of("m", 1)), "Click on the buttons to add dice to the set"),
+                Arguments.of(new SumDiceSetCommand.State("+1d4", ImmutableMap.of("d4", -1)), "Click on the buttons to add dice to the set"),
+                Arguments.of(new SumDiceSetCommand.State("+1d6", ImmutableMap.of("d6", -1)), "Click on the buttons to add dice to the set"),
+                Arguments.of(new SumDiceSetCommand.State("+1d8", ImmutableMap.of("d8", -1)), "Click on the buttons to add dice to the set"),
+                Arguments.of(new SumDiceSetCommand.State("+1d10", ImmutableMap.of("d10", -1)), "Click on the buttons to add dice to the set"),
+                Arguments.of(new SumDiceSetCommand.State("+1d12", ImmutableMap.of("d12", -1)), "Click on the buttons to add dice to the set"),
+                Arguments.of(new SumDiceSetCommand.State("+1d20", ImmutableMap.of("d20", -1)), "Click on the buttons to add dice to the set"),
+                Arguments.of(new SumDiceSetCommand.State("+1", ImmutableMap.of("m", -1)), "Click on the buttons to add dice to the set"),
 
-                Arguments.of(new SumDiceSetCommand.Config(ImmutableMap.of()), "-1d4", "-1d4"),
-                Arguments.of(new SumDiceSetCommand.Config(ImmutableMap.of()), "-1d6", "-1d6"),
-                Arguments.of(new SumDiceSetCommand.Config(ImmutableMap.of()), "-1d8", "-1d8"),
-                Arguments.of(new SumDiceSetCommand.Config(ImmutableMap.of()), "-1d10", "-1d10"),
-                Arguments.of(new SumDiceSetCommand.Config(ImmutableMap.of()), "-1d12", "-1d12"),
-                Arguments.of(new SumDiceSetCommand.Config(ImmutableMap.of()), "-1d20", "-1d20"),
-                Arguments.of(new SumDiceSetCommand.Config(ImmutableMap.of()), "-1", "-1"),
-                Arguments.of(new SumDiceSetCommand.Config(ImmutableMap.of()), "-5", "-5"),
+                Arguments.of(new SumDiceSetCommand.State("-1d4", ImmutableMap.of()), "-1d4"),
+                Arguments.of(new SumDiceSetCommand.State("-1d6", ImmutableMap.of()), "-1d6"),
+                Arguments.of(new SumDiceSetCommand.State("-1d8", ImmutableMap.of()), "-1d8"),
+                Arguments.of(new SumDiceSetCommand.State("-1d10", ImmutableMap.of()), "-1d10"),
+                Arguments.of(new SumDiceSetCommand.State("-1d12", ImmutableMap.of()), "-1d12"),
+                Arguments.of(new SumDiceSetCommand.State("-1d20", ImmutableMap.of()), "-1d20"),
+                Arguments.of(new SumDiceSetCommand.State("-1", ImmutableMap.of()), "-1"),
+                Arguments.of(new SumDiceSetCommand.State("-5", ImmutableMap.of()), "-5"),
 
-                Arguments.of(new SumDiceSetCommand.Config(ImmutableMap.of("m", 10)), "-5", "5"),
-                Arguments.of(new SumDiceSetCommand.Config(ImmutableMap.of("m", 2)), "-5", "-3"),
-                Arguments.of(new SumDiceSetCommand.Config(ImmutableMap.of("m", -2)), "+5", "3"),
-                Arguments.of(new SumDiceSetCommand.Config(ImmutableMap.of("m", -10)), "+5", "-5"),
+                Arguments.of(new SumDiceSetCommand.State("-5", ImmutableMap.of("m", 10)), "5"),
+                Arguments.of(new SumDiceSetCommand.State("-5", ImmutableMap.of("m", 2)), "-3"),
+                Arguments.of(new SumDiceSetCommand.State("+5", ImmutableMap.of("m", -2)), "3"),
+                Arguments.of(new SumDiceSetCommand.State("+5", ImmutableMap.of("m", -10)), "-5"),
 
-                Arguments.of(new SumDiceSetCommand.Config(ImmutableMap.of("d4", 1, "d6", 1, "d8", 1, "d10", 1, "d12", 1, "d20", 1)), "+1d4", "2d4 +1d6 +1d8 +1d10 +1d12 +1d20"),
-                Arguments.of(new SumDiceSetCommand.Config(ImmutableMap.of("d4", 1, "d6", 1, "d8", 1, "d10", 1, "d12", 1, "d20", 1)), "+1d6", "1d4 +2d6 +1d8 +1d10 +1d12 +1d20"),
-                Arguments.of(new SumDiceSetCommand.Config(ImmutableMap.of("d4", 1, "d6", 1, "d8", 1, "d10", 1, "d12", 1, "d20", 1)), "+1d8", "1d4 +1d6 +2d8 +1d10 +1d12 +1d20"),
-                Arguments.of(new SumDiceSetCommand.Config(ImmutableMap.of("d4", 1, "d6", 1, "d8", 1, "d10", 1, "d12", 1, "d20", 1)), "+1d10", "1d4 +1d6 +1d8 +2d10 +1d12 +1d20"),
-                Arguments.of(new SumDiceSetCommand.Config(ImmutableMap.of("d4", 1, "d6", 1, "d8", 1, "d10", 1, "d12", 1, "d20", 1)), "+1d12", "1d4 +1d6 +1d8 +1d10 +2d12 +1d20"),
-                Arguments.of(new SumDiceSetCommand.Config(ImmutableMap.of("d4", 1, "d6", 1, "d8", 1, "d10", 1, "d12", 1, "d20", 1)), "+1d20", "1d4 +1d6 +1d8 +1d10 +1d12 +2d20"),
-                Arguments.of(new SumDiceSetCommand.Config(ImmutableMap.of("d4", 1, "d6", 1, "d8", 1, "d10", 1, "d12", 1, "d20", 1)), "+1", "1d4 +1d6 +1d8 +1d10 +1d12 +1d20 +1"),
+                Arguments.of(new SumDiceSetCommand.State("+1d4", ImmutableMap.of("d4", 1, "d6", 1, "d8", 1, "d10", 1, "d12", 1, "d20", 1)), "2d4 +1d6 +1d8 +1d10 +1d12 +1d20"),
+                Arguments.of(new SumDiceSetCommand.State("+1d6", ImmutableMap.of("d4", 1, "d6", 1, "d8", 1, "d10", 1, "d12", 1, "d20", 1)), "1d4 +2d6 +1d8 +1d10 +1d12 +1d20"),
+                Arguments.of(new SumDiceSetCommand.State("+1d8", ImmutableMap.of("d4", 1, "d6", 1, "d8", 1, "d10", 1, "d12", 1, "d20", 1)), "1d4 +1d6 +2d8 +1d10 +1d12 +1d20"),
+                Arguments.of(new SumDiceSetCommand.State("+1d10", ImmutableMap.of("d4", 1, "d6", 1, "d8", 1, "d10", 1, "d12", 1, "d20", 1)), "1d4 +1d6 +1d8 +2d10 +1d12 +1d20"),
+                Arguments.of(new SumDiceSetCommand.State("+1d12", ImmutableMap.of("d4", 1, "d6", 1, "d8", 1, "d10", 1, "d12", 1, "d20", 1)), "1d4 +1d6 +1d8 +1d10 +2d12 +1d20"),
+                Arguments.of(new SumDiceSetCommand.State("+1d20", ImmutableMap.of("d4", 1, "d6", 1, "d8", 1, "d10", 1, "d12", 1, "d20", 1)), "1d4 +1d6 +1d8 +1d10 +1d12 +2d20"),
+                Arguments.of(new SumDiceSetCommand.State("+1", ImmutableMap.of("d4", 1, "d6", 1, "d8", 1, "d10", 1, "d12", 1, "d20", 1)), "1d4 +1d6 +1d8 +1d10 +1d12 +1d20 +1"),
 
-                Arguments.of(new SumDiceSetCommand.Config(ImmutableMap.of("d4", 1, "d6", 1, "d8", 1, "d10", 1, "d12", 1, "d20", 1)), "-1d4", "1d6 +1d8 +1d10 +1d12 +1d20"),
-                Arguments.of(new SumDiceSetCommand.Config(ImmutableMap.of("d4", 1, "d6", 1, "d8", 1, "d10", 1, "d12", 1, "d20", 1)), "-1d6", "1d4 +1d8 +1d10 +1d12 +1d20"),
-                Arguments.of(new SumDiceSetCommand.Config(ImmutableMap.of("d4", 1, "d6", 1, "d8", 1, "d10", 1, "d12", 1, "d20", 1)), "-1d8", "1d4 +1d6 +1d10 +1d12 +1d20"),
-                Arguments.of(new SumDiceSetCommand.Config(ImmutableMap.of("d4", 1, "d6", 1, "d8", 1, "d10", 1, "d12", 1, "d20", 1)), "-1d10", "1d4 +1d6 +1d8 +1d12 +1d20"),
-                Arguments.of(new SumDiceSetCommand.Config(ImmutableMap.of("d4", 1, "d6", 1, "d8", 1, "d10", 1, "d12", 1, "d20", 1)), "-1d12", "1d4 +1d6 +1d8 +1d10 +1d20"),
-                Arguments.of(new SumDiceSetCommand.Config(ImmutableMap.of("d4", 1, "d6", 1, "d8", 1, "d10", 1, "d12", 1, "d20", 1)), "-1d20", "1d4 +1d6 +1d8 +1d10 +1d12"),
-                Arguments.of(new SumDiceSetCommand.Config(ImmutableMap.of("d4", 1, "d6", 1, "d8", 1, "d10", 1, "d12", 1, "d20", 1)), "-1", "1d4 +1d6 +1d8 +1d10 +1d12 +1d20 -1"),
+                Arguments.of(new SumDiceSetCommand.State("-1d4", ImmutableMap.of("d4", 1, "d6", 1, "d8", 1, "d10", 1, "d12", 1, "d20", 1)), "1d6 +1d8 +1d10 +1d12 +1d20"),
+                Arguments.of(new SumDiceSetCommand.State("-1d6", ImmutableMap.of("d4", 1, "d6", 1, "d8", 1, "d10", 1, "d12", 1, "d20", 1)), "1d4 +1d8 +1d10 +1d12 +1d20"),
+                Arguments.of(new SumDiceSetCommand.State("-1d8", ImmutableMap.of("d4", 1, "d6", 1, "d8", 1, "d10", 1, "d12", 1, "d20", 1)), "1d4 +1d6 +1d10 +1d12 +1d20"),
+                Arguments.of(new SumDiceSetCommand.State("-1d10", ImmutableMap.of("d4", 1, "d6", 1, "d8", 1, "d10", 1, "d12", 1, "d20", 1)), "1d4 +1d6 +1d8 +1d12 +1d20"),
+                Arguments.of(new SumDiceSetCommand.State("-1d12", ImmutableMap.of("d4", 1, "d6", 1, "d8", 1, "d10", 1, "d12", 1, "d20", 1)), "1d4 +1d6 +1d8 +1d10 +1d20"),
+                Arguments.of(new SumDiceSetCommand.State("-1d20", ImmutableMap.of("d4", 1, "d6", 1, "d8", 1, "d10", 1, "d12", 1, "d20", 1)), "1d4 +1d6 +1d8 +1d10 +1d12"),
+                Arguments.of(new SumDiceSetCommand.State("-1", ImmutableMap.of("d4", 1, "d6", 1, "d8", 1, "d10", 1, "d12", 1, "d20", 1)), "1d4 +1d6 +1d8 +1d10 +1d12 +1d20 -1"),
 
-                Arguments.of(new SumDiceSetCommand.Config(ImmutableMap.of("d4", 100, "d6", 100, "d8", 100, "d10", 100, "d12", 100, "d20", 100)), "+1d4", "100d4 +100d6 +100d8 +100d10 +100d12 +100d20"),
-                Arguments.of(new SumDiceSetCommand.Config(ImmutableMap.of("d4", 100, "d6", 100, "d8", 100, "d10", 100, "d12", 100, "d20", 100)), "+1d6", "100d4 +100d6 +100d8 +100d10 +100d12 +100d20"),
-                Arguments.of(new SumDiceSetCommand.Config(ImmutableMap.of("d4", 100, "d6", 100, "d8", 100, "d10", 100, "d12", 100, "d20", 100)), "+1d8", "100d4 +100d6 +100d8 +100d10 +100d12 +100d20"),
-                Arguments.of(new SumDiceSetCommand.Config(ImmutableMap.of("d4", 100, "d6", 100, "d8", 100, "d10", 100, "d12", 100, "d20", 100)), "+1d10", "100d4 +100d6 +100d8 +100d10 +100d12 +100d20"),
-                Arguments.of(new SumDiceSetCommand.Config(ImmutableMap.of("d4", 100, "d6", 100, "d8", 100, "d10", 100, "d12", 100, "d20", 100)), "+1d12", "100d4 +100d6 +100d8 +100d10 +100d12 +100d20"),
-                Arguments.of(new SumDiceSetCommand.Config(ImmutableMap.of("d4", 100, "d6", 100, "d8", 100, "d10", 100, "d12", 100, "d20", 100)), "+1d20", "100d4 +100d6 +100d8 +100d10 +100d12 +100d20")
+                Arguments.of(new SumDiceSetCommand.State("+1d4", ImmutableMap.of("d4", 100, "d6", 100, "d8", 100, "d10", 100, "d12", 100, "d20", 100)), "100d4 +100d6 +100d8 +100d10 +100d12 +100d20"),
+                Arguments.of(new SumDiceSetCommand.State("+1d6", ImmutableMap.of("d4", 100, "d6", 100, "d8", 100, "d10", 100, "d12", 100, "d20", 100)), "100d4 +100d6 +100d8 +100d10 +100d12 +100d20"),
+                Arguments.of(new SumDiceSetCommand.State("+1d8", ImmutableMap.of("d4", 100, "d6", 100, "d8", 100, "d10", 100, "d12", 100, "d20", 100)), "100d4 +100d6 +100d8 +100d10 +100d12 +100d20"),
+                Arguments.of(new SumDiceSetCommand.State("+1d10", ImmutableMap.of("d4", 100, "d6", 100, "d8", 100, "d10", 100, "d12", 100, "d20", 100)), "100d4 +100d6 +100d8 +100d10 +100d12 +100d20"),
+                Arguments.of(new SumDiceSetCommand.State("+1d12", ImmutableMap.of("d4", 100, "d6", 100, "d8", 100, "d10", 100, "d12", 100, "d20", 100)), "100d4 +100d6 +100d8 +100d10 +100d12 +100d20"),
+                Arguments.of(new SumDiceSetCommand.State("+1d20", ImmutableMap.of("d4", 100, "d6", 100, "d8", 100, "d10", 100, "d12", 100, "d20", 100)), "100d4 +100d6 +100d8 +100d10 +100d12 +100d20")
         );
     }
 
@@ -93,63 +93,63 @@ class SumDiceSetCommandTest {
 
     @Test
     void editMessage_clear() {
-        String res = underTest.editMessage("clear", new SumDiceSetCommand.Config(ImmutableMap.of(
+        String res = underTest.editMessage(new SumDiceSetCommand.State("clear", ImmutableMap.of(
                 "d4", 1,
                 "d6", 1,
                 "d8", 1,
                 "d10", 1,
                 "d12", 1,
-                "d20", 1)));
+                "d20", 1)), new SumDiceSetCommand.Config());
         assertThat(res).isEqualTo("Click on the buttons to add dice to the set");
     }
 
     @Test
     void editMessage_roll() {
-        String res = underTest.editMessage("roll", new SumDiceSetCommand.Config(ImmutableMap.of(
+        String res = underTest.editMessage(new SumDiceSetCommand.State("roll", ImmutableMap.of(
                 "d4", 1,
                 "d6", 1,
                 "d8", 1,
                 "d10", 1,
                 "d12", 1,
-                "d20", 1)));
+                "d20", 1)), new SumDiceSetCommand.Config());
         assertThat(res).isEqualTo("Click on the buttons to add dice to the set");
     }
 
     @Test
     void editMessage_x2() {
-        String res = underTest.editMessage("x2", new SumDiceSetCommand.Config(ImmutableMap.of(
+        String res = underTest.editMessage(new SumDiceSetCommand.State("x2", ImmutableMap.of(
                 "d4", 1,
                 "d6", 2,
                 "d8", 3,
                 "d10", 4,
                 "d12", 5,
-                "m", 10)));
+                "m", 10)), new SumDiceSetCommand.Config());
         assertThat(res).isEqualTo("2d4 +4d6 +6d8 +8d10 +10d12 +20");
     }
 
     @Test
     void editMessageNegativeModifier_x2() {
-        String res = underTest.editMessage("x2", new SumDiceSetCommand.Config(ImmutableMap.of(
+        String res = underTest.editMessage(new SumDiceSetCommand.State("x2", ImmutableMap.of(
                 "d4", -1,
                 "d6", -2,
                 "d8", -3,
                 "d10", -4,
                 "d12", 5,
-                "m", -10)));
+                "m", -10)), new SumDiceSetCommand.Config());
         assertThat(res).isEqualTo("-2d4 -4d6 -6d8 -8d10 +10d12 -20");
     }
 
     @Test
     void editMessage_limit() {
-        String res = underTest.editMessage("x2", new SumDiceSetCommand.Config(ImmutableMap.of("d4", 51)));
+        String res = underTest.editMessage(new SumDiceSetCommand.State("x2", ImmutableMap.of("d4", 51)), new SumDiceSetCommand.Config());
         assertThat(res).isEqualTo("100d4");
     }
 
 
     @ParameterizedTest(name = "{index} config={0}, buttonId={1} -> {2}")
     @MethodSource("generateEditMessageData")
-    void editMessage(SumDiceSetCommand.Config config, String buttonId, String expected) {
-        String res = underTest.editMessage(buttonId, config);
+    void editMessage(SumDiceSetCommand.State state, String expected) {
+        String res = underTest.editMessage(state, new SumDiceSetCommand.Config());
         assertThat(res).isEqualTo(expected);
     }
 
@@ -159,19 +159,19 @@ class SumDiceSetCommandTest {
     }
 
     @Test
-    void getConfigFromEvent_1d6() {
+    void getStateFromEvent_1d6() {
         IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
         when(event.getCustomId()).thenReturn("sum_dice_set,+1d21");
         when(event.getMessageContent()).thenReturn("1d6");
-        assertThat(underTest.getConfigFromEvent(event)).isEqualTo(new SumDiceSetCommand.Config(ImmutableMap.of("d6", 1)));
+        assertThat(underTest.getStateFromEvent(event)).isEqualTo(new SumDiceSetCommand.State("+1d21", ImmutableMap.of("d6", 1)));
     }
 
     @Test
-    void getConfigFromEvent_1d4_2d6_3d8_4d12_5d20() {
+    void getStateFromEvent_1d4_2d6_3d8_4d12_5d20() {
         IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
         when(event.getCustomId()).thenReturn("sum_dice_set,+1d21");
         when(event.getMessageContent()).thenReturn("1d4 +2d6 +3d8 +4d12 +5d20");
-        assertThat(underTest.getConfigFromEvent(event)).isEqualTo(new SumDiceSetCommand.Config(ImmutableMap.of(
+        assertThat(underTest.getStateFromEvent(event)).isEqualTo(new SumDiceSetCommand.State("+1d21", ImmutableMap.of(
                 "d4", 1,
                 "d6", 2,
                 "d8", 3,
@@ -181,22 +181,22 @@ class SumDiceSetCommandTest {
     }
 
     @Test
-    void getConfigFromEvent_legacy() {
+    void getStateFromEvent_legacy() {
         IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
         when(event.getCustomId()).thenReturn("sum_dice_set,+1d21");
         when(event.getMessageContent()).thenReturn("1d4 + 2d6");
-        assertThat(underTest.getConfigFromEvent(event)).isEqualTo(new SumDiceSetCommand.Config(ImmutableMap.of(
+        assertThat(underTest.getStateFromEvent(event)).isEqualTo(new SumDiceSetCommand.State("+1d21", ImmutableMap.of(
                 "d4", 1,
                 "d6", 2
         )));
     }
 
     @Test
-    void getConfigFromEvent_empty() {
+    void getStateFromEvent_empty() {
         IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
         when(event.getCustomId()).thenReturn("sum_dice_set,+1d21");
         when(event.getMessageContent()).thenReturn("Click on the buttons to add dice to the set");
-        assertThat(underTest.getConfigFromEvent(event)).isEqualTo(new SumDiceSetCommand.Config(ImmutableMap.of()));
+        assertThat(underTest.getStateFromEvent(event)).isEqualTo(new SumDiceSetCommand.State("+1d21", ImmutableMap.of()));
     }
 
     @Test
@@ -211,76 +211,76 @@ class SumDiceSetCommandTest {
 
     @Test
     void createNewMessage_roll_true() {
-        boolean res = underTest.createAnswerMessage("roll", new SumDiceSetCommand.Config(ImmutableMap.of(
+        boolean res = underTest.createAnswerMessage(new SumDiceSetCommand.State("roll", ImmutableMap.of(
                 "d6", 1
-        )));
+        )), new SumDiceSetCommand.Config());
         assertThat(res).isTrue();
     }
 
     @Test
     void createNewMessage_rollNoConfig_false() {
-        boolean res = underTest.createAnswerMessage("roll", new SumDiceSetCommand.Config(ImmutableMap.of()));
+        boolean res = underTest.createAnswerMessage(new SumDiceSetCommand.State("roll", ImmutableMap.of()), new SumDiceSetCommand.Config());
         assertThat(res).isFalse();
     }
 
     @Test
     void createNewMessage_modifyMessage_false() {
-        boolean res = underTest.createAnswerMessage("+1d6", new SumDiceSetCommand.Config(ImmutableMap.of(
+        boolean res = underTest.createAnswerMessage(new SumDiceSetCommand.State("+1d6", ImmutableMap.of(
                 "d6", 1
-        )));
+        )), new SumDiceSetCommand.Config());
         assertThat(res).isFalse();
     }
 
     @Test
     void copyButtonMessageToTheEnd_roll_true() {
-        boolean res = underTest.copyButtonMessageToTheEnd("roll", new SumDiceSetCommand.Config(ImmutableMap.of(
+        boolean res = underTest.copyButtonMessageToTheEnd(new SumDiceSetCommand.State("roll", ImmutableMap.of(
                 "d6", 1
-        )));
+        )), new SumDiceSetCommand.Config());
         assertThat(res).isTrue();
     }
 
     @Test
     void copyButtonMessageToTheEnd_rollNoConfig_false() {
-        boolean res = underTest.copyButtonMessageToTheEnd("roll", new SumDiceSetCommand.Config(ImmutableMap.of()));
+        boolean res = underTest.copyButtonMessageToTheEnd(new SumDiceSetCommand.State("roll", ImmutableMap.of()), new SumDiceSetCommand.Config());
         assertThat(res).isFalse();
     }
 
     @Test
     void copyButtonMessageToTheEnd_modifyMessage_false() {
-        boolean res = underTest.copyButtonMessageToTheEnd("+1d6", new SumDiceSetCommand.Config(ImmutableMap.of(
+        boolean res = underTest.copyButtonMessageToTheEnd(new SumDiceSetCommand.State("+1d6", ImmutableMap.of(
                 "d6", 1
-        )));
+        )), new SumDiceSetCommand.Config());
         assertThat(res).isFalse();
     }
 
     @Test
     void getButtonMessage_empty() {
-        String res = underTest.getButtonMessage(null, new SumDiceSetCommand.Config(ImmutableMap.of()));
+        String res = underTest.getButtonMessage(null, new SumDiceSetCommand.Config());
         assertThat(res).isEqualTo("Click on the buttons to add dice to the set");
     }
 
     @Test
     void getButtonMessage_1d6() {
-        String res = underTest.getButtonMessage(null, new SumDiceSetCommand.Config(ImmutableMap.of(
+        String res = underTest.getButtonMessage(new SumDiceSetCommand.State("+1d6", ImmutableMap.of(
                 "d6", 1
-        )));
+        )), new SumDiceSetCommand.Config());
         assertThat(res).isEqualTo("Click on the buttons to add dice to the set");
     }
 
     @Test
     void getConfigValuesFromStartOptions() {
         SumDiceSetCommand.Config res = underTest.getConfigValuesFromStartOptions(null);
-        assertThat(res).isEqualTo(new SumDiceSetCommand.Config(ImmutableMap.of()));
+        assertThat(res).isEqualTo(new SumDiceSetCommand.Config());
     }
 
 
     @Test
     void rollDice_1d4plus1d6plus10() {
-        List<DiceResult> res = underTest.getDiceResult("roll", new SumDiceSetCommand.Config(ImmutableMap.of(
+        List<DiceResult> res = underTest.getDiceResult(new SumDiceSetCommand.State("roll", ImmutableMap.of(
                 "d4", 1,
                 "d6", 1,
                 "m", 10
-        )));
+        )), new SumDiceSetCommand.Config());
 
         assertThat(res).hasSize(1);
         assertThat(res.get(0).getResultTitle()).isEqualTo("1d4 +1d6 +10 = 12");
@@ -289,11 +289,11 @@ class SumDiceSetCommandTest {
 
     @Test
     void rollDice_minus1d4plus1d6minux10() {
-        List<DiceResult> res = underTest.getDiceResult("roll", new SumDiceSetCommand.Config(ImmutableMap.of(
+        List<DiceResult> res = underTest.getDiceResult(new SumDiceSetCommand.State("roll", ImmutableMap.of(
                 "d4", -1,
                 "d6", 1,
                 "m", -10
-        )));
+        )), new SumDiceSetCommand.Config());
 
         assertThat(res).hasSize(1);
         assertThat(res.get(0).getResultTitle()).isEqualTo("-1d4 +1d6 -10 = -10");

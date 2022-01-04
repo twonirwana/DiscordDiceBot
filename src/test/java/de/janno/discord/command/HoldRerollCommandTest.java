@@ -24,10 +24,10 @@ class HoldRerollCommandTest {
 
     private static Stream<Arguments> generateValidateData() {
         return Stream.of(
-                Arguments.of(new HoldRerollCommand.Config(ImmutableList.of(), 6, ImmutableSet.of(7), ImmutableSet.of(), ImmutableSet.of(), 0), "reroll set [7] contains a number bigger then the sides of the die 6"),
-                Arguments.of(new HoldRerollCommand.Config(ImmutableList.of(), 6, ImmutableSet.of(), ImmutableSet.of(7), ImmutableSet.of(), 0), "success set [7] contains a number bigger then the sides of the die 6"),
-                Arguments.of(new HoldRerollCommand.Config(ImmutableList.of(), 6, ImmutableSet.of(), ImmutableSet.of(), ImmutableSet.of(7), 0), "failure set [7] contains a number bigger then the sides of the die 6"),
-                Arguments.of(new HoldRerollCommand.Config(ImmutableList.of(), 6, ImmutableSet.of(2, 3, 4), ImmutableSet.of(5, 6), ImmutableSet.of(1), 0), null)
+                Arguments.of(new HoldRerollCommand.Config(6, ImmutableSet.of(7), ImmutableSet.of(), ImmutableSet.of()), "reroll set [7] contains a number bigger then the sides of the die 6"),
+                Arguments.of(new HoldRerollCommand.Config(6, ImmutableSet.of(), ImmutableSet.of(7), ImmutableSet.of()), "success set [7] contains a number bigger then the sides of the die 6"),
+                Arguments.of(new HoldRerollCommand.Config(6, ImmutableSet.of(), ImmutableSet.of(), ImmutableSet.of(7)), "failure set [7] contains a number bigger then the sides of the die 6"),
+                Arguments.of(new HoldRerollCommand.Config(6, ImmutableSet.of(2, 3, 4), ImmutableSet.of(5, 6), ImmutableSet.of(1)), null)
         );
     }
 
@@ -51,13 +51,12 @@ class HoldRerollCommandTest {
 
     @Test
     void getDiceResult_withoutReroll() {
-        List<DiceResult> res = underTest.getDiceResult("finish", new HoldRerollCommand.Config(
-                ImmutableList.of(1, 2, 3, 4, 5, 6),
-                6,
-                ImmutableSet.of(2, 3, 4),
-                ImmutableSet.of(5, 6),
-                ImmutableSet.of(1),
-                0));
+        List<DiceResult> res = underTest.getDiceResult(new HoldRerollCommand.State("finish", ImmutableList.of(1, 2, 3, 4, 5, 6), 0),
+                new HoldRerollCommand.Config(
+                        6,
+                        ImmutableSet.of(2, 3, 4),
+                        ImmutableSet.of(5, 6),
+                        ImmutableSet.of(1)));
         assertThat(res).hasSize(1);
         assertThat(res.get(0).getResultTitle()).isEqualTo("Success: 2 and Failure: 1");
         assertThat(res.get(0).getResultDetails()).isEqualTo("[**1**,2,3,4,**5**,**6**]");
@@ -65,14 +64,12 @@ class HoldRerollCommandTest {
 
     @Test
     void getDiceResult_withReroll() {
-        List<DiceResult> res = underTest.getDiceResult("finish",
+        List<DiceResult> res = underTest.getDiceResult(new HoldRerollCommand.State("finish", ImmutableList.of(1, 2, 3, 4, 5, 6), 2),
                 new HoldRerollCommand.Config(
-                        ImmutableList.of(1, 2, 3, 4, 5, 6),
                         6,
                         ImmutableSet.of(2, 3, 4),
                         ImmutableSet.of(5, 6),
-                        ImmutableSet.of(1),
-                        2));
+                        ImmutableSet.of(1)));
         assertThat(res).hasSize(1);
         assertThat(res.get(0).getResultTitle()).isEqualTo("Success: 2, Failure: 1 and Rerolls: 2");
         assertThat(res.get(0).getResultDetails()).isEqualTo("[**1**,2,3,4,**5**,**6**]");
@@ -84,12 +81,18 @@ class HoldRerollCommandTest {
         when(event.getCustomId()).thenReturn("hold_reroll,3,EMPTY,6,2;3;4,5;6,1,0");
 
         assertThat(underTest.getConfigFromEvent(event)).isEqualTo(new HoldRerollCommand.Config(
-                ImmutableList.of(1, 1, 1),
                 6,
                 ImmutableSet.of(2, 3, 4),
                 ImmutableSet.of(5, 6),
-                ImmutableSet.of(1),
-                0));
+                ImmutableSet.of(1)));
+    }
+
+    @Test
+    void getStateFromEvent_roll3d6() {
+        IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
+        when(event.getCustomId()).thenReturn("hold_reroll,3,EMPTY,6,2;3;4,5;6,1,0");
+
+        assertThat(underTest.getStateFromEvent(event)).isEqualTo(new HoldRerollCommand.State("3", ImmutableList.of(1, 1, 1), 0));
     }
 
     @Test
@@ -97,12 +100,17 @@ class HoldRerollCommandTest {
         IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
         when(event.getCustomId()).thenReturn("hold_reroll,finish,1;2;3;4;5;6,6,2;3;4,5;6,1,0");
         assertThat(underTest.getConfigFromEvent(event)).isEqualTo(new HoldRerollCommand.Config(
-                ImmutableList.of(1, 2, 3, 4, 5, 6),
                 6,
                 ImmutableSet.of(2, 3, 4),
                 ImmutableSet.of(5, 6),
-                ImmutableSet.of(1),
-                0));
+                ImmutableSet.of(1)));
+    }
+
+    @Test
+    void getStateFromEvent_finish() {
+        IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
+        when(event.getCustomId()).thenReturn("hold_reroll,finish,1;2;3;4;5;6,6,2;3;4,5;6,1,0");
+        assertThat(underTest.getStateFromEvent(event)).isEqualTo(new HoldRerollCommand.State("finish", ImmutableList.of(1, 2, 3, 4, 5, 6), 0));
     }
 
     @Test
@@ -111,12 +119,18 @@ class HoldRerollCommandTest {
         when(event.getCustomId()).thenReturn("hold_reroll,clear,1;2;3;4;5;6,6,2;3;4,5;6,1,0");
         assertThat(underTest.getConfigFromEvent(event))
                 .isEqualTo(new HoldRerollCommand.Config(
-                        ImmutableList.of(),
                         6,
                         ImmutableSet.of(2, 3, 4),
                         ImmutableSet.of(5, 6),
-                        ImmutableSet.of(1),
-                        0));
+                        ImmutableSet.of(1)));
+    }
+
+    @Test
+    void getStateFromEvent_clear() {
+        IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
+        when(event.getCustomId()).thenReturn("hold_reroll,clear,1;2;3;4;5;6,6,2;3;4,5;6,1,0");
+        assertThat(underTest.getStateFromEvent(event))
+                .isEqualTo(new HoldRerollCommand.State("clear", ImmutableList.of(), 0));
     }
 
     @Test
@@ -124,12 +138,17 @@ class HoldRerollCommandTest {
         IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
         when(event.getCustomId()).thenReturn("hold_reroll,reroll,1;2;3;4;5;6,6,2;3;4,5;6,1,1");
         assertThat(underTest.getConfigFromEvent(event)).isEqualTo(new HoldRerollCommand.Config(
-                ImmutableList.of(1, 1, 1, 1, 5, 6),
                 6,
                 ImmutableSet.of(2, 3, 4),
                 ImmutableSet.of(5, 6),
-                ImmutableSet.of(1),
-                2));
+                ImmutableSet.of(1)));
+    }
+
+    @Test
+    void getStateFromEvent_reroll() {
+        IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
+        when(event.getCustomId()).thenReturn("hold_reroll,reroll,1;2;3;4;5;6,6,2;3;4,5;6,1,1");
+        assertThat(underTest.getStateFromEvent(event)).isEqualTo(new HoldRerollCommand.State("reroll", ImmutableList.of(1, 1, 1, 1, 5, 6), 2));
     }
 
     @Test
@@ -144,52 +163,44 @@ class HoldRerollCommandTest {
 
     @Test
     void getButtonMessage_clear() {
-        String res = underTest.getButtonMessage("clear", new HoldRerollCommand.Config(
-                ImmutableList.of(1, 2, 3, 4, 5, 6),
+        String res = underTest.getButtonMessage(new HoldRerollCommand.State("clear", ImmutableList.of(1, 2, 3, 4, 5, 6), 2), new HoldRerollCommand.Config(
                 6,
                 ImmutableSet.of(2, 3, 4),
                 ImmutableSet.of(5, 6),
-                ImmutableSet.of(1),
-                2));
+                ImmutableSet.of(1)));
 
         assertThat(res).isEqualTo("Click on the buttons to roll dice. Reroll set: [2, 3, 4], Success Set: [5, 6] and Failure Set: [1]");
     }
 
     @Test
     void getButtonMessage_finish() {
-        String res = underTest.getButtonMessage("finish", new HoldRerollCommand.Config(
-                ImmutableList.of(1, 2, 3, 4, 5, 6),
+        String res = underTest.getButtonMessage(new HoldRerollCommand.State("finish", ImmutableList.of(1, 2, 3, 4, 5, 6), 2), new HoldRerollCommand.Config(
                 6,
                 ImmutableSet.of(2, 3, 4),
                 ImmutableSet.of(5, 6),
-                ImmutableSet.of(1),
-                2));
+                ImmutableSet.of(1)));
 
         assertThat(res).isEqualTo("Click on the buttons to roll dice. Reroll set: [2, 3, 4], Success Set: [5, 6] and Failure Set: [1]");
     }
 
     @Test
     void getButtonMessage_noRerollPossible() {
-        String res = underTest.getButtonMessage("reroll", new HoldRerollCommand.Config(
-                ImmutableList.of(1, 1, 1, 5, 5, 6),
+        String res = underTest.getButtonMessage(new HoldRerollCommand.State("reroll", ImmutableList.of(1, 1, 1, 5, 5, 6), 2), new HoldRerollCommand.Config(
                 6,
                 ImmutableSet.of(2, 3, 4),
                 ImmutableSet.of(5, 6),
-                ImmutableSet.of(1),
-                2));
+                ImmutableSet.of(1)));
 
         assertThat(res).isEqualTo("Click on the buttons to roll dice. Reroll set: [2, 3, 4], Success Set: [5, 6] and Failure Set: [1]");
     }
 
     @Test
     void getButtonMessage_rerollPossible() {
-        String res = underTest.getButtonMessage("reroll", new HoldRerollCommand.Config(
-                ImmutableList.of(1, 2, 3, 4, 5, 6),
+        String res = underTest.getButtonMessage(new HoldRerollCommand.State("reroll", ImmutableList.of(1, 2, 3, 4, 5, 6), 2), new HoldRerollCommand.Config(
                 6,
                 ImmutableSet.of(2, 3, 4),
                 ImmutableSet.of(5, 6),
-                ImmutableSet.of(1),
-                2));
+                ImmutableSet.of(1)));
 
         assertThat(res).isEqualTo("[**1**,2,3,4,**5**,**6**] = 2 successes and 1 failures");
     }
