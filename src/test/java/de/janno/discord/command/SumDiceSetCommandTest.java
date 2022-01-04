@@ -93,7 +93,7 @@ class SumDiceSetCommandTest {
 
     @Test
     void editMessage_clear() {
-        String res = underTest.editMessage(new SumDiceSetCommand.State("clear", ImmutableMap.of(
+        String res = underTest.getButtonMessage(new SumDiceSetCommand.State("clear", ImmutableMap.of(
                 "d4", 1,
                 "d6", 1,
                 "d8", 1,
@@ -105,7 +105,7 @@ class SumDiceSetCommandTest {
 
     @Test
     void editMessage_roll() {
-        String res = underTest.editMessage(new SumDiceSetCommand.State("roll", ImmutableMap.of(
+        String res = underTest.getButtonMessage(new SumDiceSetCommand.State("roll", ImmutableMap.of(
                 "d4", 1,
                 "d6", 1,
                 "d8", 1,
@@ -117,7 +117,7 @@ class SumDiceSetCommandTest {
 
     @Test
     void editMessage_x2() {
-        String res = underTest.editMessage(new SumDiceSetCommand.State("x2", ImmutableMap.of(
+        String res = underTest.getButtonMessage(new SumDiceSetCommand.State("x2", ImmutableMap.of(
                 "d4", 1,
                 "d6", 2,
                 "d8", 3,
@@ -129,7 +129,7 @@ class SumDiceSetCommandTest {
 
     @Test
     void editMessageNegativeModifier_x2() {
-        String res = underTest.editMessage(new SumDiceSetCommand.State("x2", ImmutableMap.of(
+        String res = underTest.getButtonMessage(new SumDiceSetCommand.State("x2", ImmutableMap.of(
                 "d4", -1,
                 "d6", -2,
                 "d8", -3,
@@ -141,7 +141,7 @@ class SumDiceSetCommandTest {
 
     @Test
     void editMessage_limit() {
-        String res = underTest.editMessage(new SumDiceSetCommand.State("x2", ImmutableMap.of("d4", 51)), new SumDiceSetCommand.Config());
+        String res = underTest.getButtonMessage(new SumDiceSetCommand.State("x2", ImmutableMap.of("d4", 51)), new SumDiceSetCommand.Config());
         assertThat(res).isEqualTo("100d4");
     }
 
@@ -149,7 +149,7 @@ class SumDiceSetCommandTest {
     @ParameterizedTest(name = "{index} config={0}, buttonId={1} -> {2}")
     @MethodSource("generateEditMessageData")
     void editMessage(SumDiceSetCommand.State state, String expected) {
-        String res = underTest.editMessage(state, new SumDiceSetCommand.Config());
+        String res = underTest.getButtonMessage(state, new SumDiceSetCommand.Config());
         assertThat(res).isEqualTo(expected);
     }
 
@@ -264,7 +264,7 @@ class SumDiceSetCommandTest {
         String res = underTest.getButtonMessage(new SumDiceSetCommand.State("+1d6", ImmutableMap.of(
                 "d6", 1
         )), new SumDiceSetCommand.Config());
-        assertThat(res).isEqualTo("Click on the buttons to add dice to the set");
+        assertThat(res).isEqualTo("2d6");
     }
 
     @Test

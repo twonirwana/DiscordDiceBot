@@ -73,14 +73,14 @@ public abstract class AbstractCommand<C extends IConfig, S extends IState> imple
 
         actions.add(event
                 //if the button is pined it keeps its message
-                .editMessage(editMessage(state, config)));
+                .editMessage(getButtonMessage(state, config)));
         if (createAnswerMessage(state, config)) {
             Metrics.incrementButtonMetricCounter(getName(), config.toMetricString());
             actions.add(createButtonEventAnswer(event, config));
         }
         if (copyButtonMessageToTheEnd(state, config)) {
             actions.add(event.moveButtonMessage(triggeringMessageIsPinned,
-                    editMessage(state, config),
+                    getButtonMessage(state, config),
                     getButtonMessage(state, config),
                     activeButtonsCache,
                     getButtonLayout(state, config),
@@ -100,12 +100,6 @@ public abstract class AbstractCommand<C extends IConfig, S extends IState> imple
                 .replace(MINUS, "-")
                 .replace("*", ""))));
         return event.createResultMessageWithEventReference(result);
-    }
-
-    //default is to leave the message unaltered
-    //TODO can be combinded mit buttonMessage?
-    protected String editMessage(S state, C config) {
-        return getButtonMessage(state, config);
     }
 
     protected boolean createAnswerMessage(S state, C config) {
@@ -159,6 +153,5 @@ public abstract class AbstractCommand<C extends IConfig, S extends IState> imple
     protected abstract C getConfigFromEvent(IButtonEventAdaptor event);
 
     protected abstract S getStateFromEvent(IButtonEventAdaptor event);
-
 
 }
