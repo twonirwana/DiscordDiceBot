@@ -237,20 +237,18 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesCommand
     @Override
     protected List<LayoutComponent> getButtonLayout(State state, Config config) {
         List<Button> buttons = IntStream.range(1, config.getMaxNumberOfButtons() + 1)
-                .mapToObj(i -> Button.primary(createButtonCustomId(COMMAND_NAME, String.valueOf(i), config, state), createButtonLabel(String.valueOf(i), config))).collect(Collectors.toList());
+                .mapToObj(i -> Button.primary(createButtonCustomId(String.valueOf(i), config), createButtonLabel(String.valueOf(i), config))).collect(Collectors.toList());
         return Lists.partition(buttons, 5).stream().map(ActionRow::of).collect(Collectors.toList());
     }
 
-    @Override
-    protected String createButtonCustomId(String system, String value, Config config, State state) {
+    @VisibleForTesting
+    String createButtonCustomId(String number, Config config) {
 
-        Preconditions.checkArgument(!system.contains(CONFIG_DELIMITER));
-        Preconditions.checkArgument(!value.contains(CONFIG_DELIMITER));
         Preconditions.checkArgument(!config.getGlitchOption().contains(CONFIG_DELIMITER));
 
         return String.join(CONFIG_DELIMITER,
-                system,
-                value,
+                COMMAND_NAME,
+                number,
                 String.valueOf(config.getDiceSides()),
                 String.valueOf(config.getTarget()),
                 config.getGlitchOption(),

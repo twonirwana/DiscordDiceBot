@@ -306,4 +306,22 @@ class SumDiceSetCommandTest {
 
         assertThat(res).isEmpty();
     }
+
+    @Test
+    void getStateFromEvent() {
+        IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
+        when(event.getCustomId()).thenReturn("sum_dice_set,+1d6");
+        when(event.getMessageContent()).thenReturn("1d6");
+
+        SumDiceSetCommand.State res = underTest.getStateFromEvent(event);
+
+        assertThat(res).isEqualTo(new SumDiceSetCommand.State("+1d6", ImmutableMap.of("d6", 1)));
+    }
+
+    @Test
+    void createButtonCustomId() {
+        String res = underTest.createButtonCustomId("+1d6");
+
+        assertThat(res).isEqualTo("sum_dice_set,+1d6");
+    }
 }

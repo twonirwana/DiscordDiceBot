@@ -143,6 +143,23 @@ class CountSuccessesCommandTest {
         assertThat(res.stream().map(ApplicationCommandOptionData::name)).containsExactly("dice_sides", "target_number", "glitch", "max_dice");
     }
 
+
+    @Test
+    void getStateFromEvent() {
+        IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
+        when(event.getCustomId()).thenReturn("count_successes,4");
+
+        CountSuccessesCommand.State res = underTest.getStateFromEvent(event);
+
+        assertThat(res).isEqualTo(new CountSuccessesCommand.State(4));
+    }
+
+    @Test
+    void createButtonCustomId() {
+        String res = underTest.createButtonCustomId("10", new CountSuccessesCommand.Config(6, 4, "half_dice_one", 12));
+
+        assertThat(res).isEqualTo("count_successes,10,6,4,half_dice_one,12");
+    }
   /*  @Test
     void handleComponentInteractEvent() {
         GatewayDiscordClient gatewayDiscordClientMock = mock(GatewayDiscordClient.class);

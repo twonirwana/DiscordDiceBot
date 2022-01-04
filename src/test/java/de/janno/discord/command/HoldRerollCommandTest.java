@@ -210,4 +210,22 @@ class HoldRerollCommandTest {
     void validate(HoldRerollCommand.Config config, String expected) {
         assertThat(underTest.validate(config)).isEqualTo(expected);
     }
+
+    @Test
+    void getStateFromEvent() {
+        IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
+        when(event.getCustomId()).thenReturn("hold_reroll,finish,1;2;3;4;5;6,6,2;3;4,5;6,1,0");
+
+        HoldRerollCommand.State res = underTest.getStateFromEvent(event);
+
+        assertThat(res).isEqualTo(new HoldRerollCommand.State("finish", ImmutableList.of(1, 2, 3, 4, 5, 6), 0));
+    }
+
+    @Test
+    void createButtonCustomId() {
+        String res = underTest.createButtonCustomId("finish", new HoldRerollCommand.Config(6, ImmutableSet.of(2, 3, 4), ImmutableSet.of(5, 6), ImmutableSet.of(1)),
+                new HoldRerollCommand.State("finish", ImmutableList.of(1, 1, 1, 1, 5, 6), 3));
+
+        assertThat(res).isEqualTo("hold_reroll,finish,1;1;1;1;5;6,6,2;3;4,5;6,1,3");
+    }
 }

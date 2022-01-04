@@ -130,31 +130,31 @@ public class FateCommand extends AbstractCommand<FateCommand.Config, FateCommand
             return ImmutableList.of(
                     ActionRow.of(
                             //              ID,  label
-                            Button.primary(createButtonCustomId(COMMAND_NAME, "-4", config, state), "-4"),
-                            Button.primary(createButtonCustomId(COMMAND_NAME, "-3", config, state), "-3"),
-                            Button.primary(createButtonCustomId(COMMAND_NAME, "-2", config, state), "-2"),
-                            Button.primary(createButtonCustomId(COMMAND_NAME, "-1", config, state), "-1"),
-                            Button.primary(createButtonCustomId(COMMAND_NAME, "0", config, state), "0")
+                            Button.primary(createButtonCustomId("-4", config), "-4"),
+                            Button.primary(createButtonCustomId("-3", config), "-3"),
+                            Button.primary(createButtonCustomId("-2", config), "-2"),
+                            Button.primary(createButtonCustomId("-1", config), "-1"),
+                            Button.primary(createButtonCustomId("0", config), "0")
                     ),
                     ActionRow.of(
 
-                            Button.primary(createButtonCustomId(COMMAND_NAME, "1", config, state), "+1"),
-                            Button.primary(createButtonCustomId(COMMAND_NAME, "2", config, state), "+2"),
-                            Button.primary(createButtonCustomId(COMMAND_NAME, "3", config, state), "+3"),
-                            Button.primary(createButtonCustomId(COMMAND_NAME, "4", config, state), "+4"),
-                            Button.primary(createButtonCustomId(COMMAND_NAME, "5", config, state), "+5")
+                            Button.primary(createButtonCustomId("1", config), "+1"),
+                            Button.primary(createButtonCustomId("2", config), "+2"),
+                            Button.primary(createButtonCustomId("3", config), "+3"),
+                            Button.primary(createButtonCustomId("4", config), "+4"),
+                            Button.primary(createButtonCustomId("5", config), "+5")
                     ),
                     ActionRow.of(
-                            Button.primary(createButtonCustomId(COMMAND_NAME, "6", config, state), "+6"),
-                            Button.primary(createButtonCustomId(COMMAND_NAME, "7", config, state), "+7"),
-                            Button.primary(createButtonCustomId(COMMAND_NAME, "8", config, state), "+8"),
-                            Button.primary(createButtonCustomId(COMMAND_NAME, "9", config, state), "+9"),
-                            Button.primary(createButtonCustomId(COMMAND_NAME, "10", config, state), "+10")
+                            Button.primary(createButtonCustomId("6", config), "+6"),
+                            Button.primary(createButtonCustomId("7", config), "+7"),
+                            Button.primary(createButtonCustomId("8", config), "+8"),
+                            Button.primary(createButtonCustomId("9", config), "+9"),
+                            Button.primary(createButtonCustomId("10", config), "+10")
                     ));
         } else {
             return ImmutableList.of(
                     ActionRow.of(
-                            Button.primary(createButtonCustomId(COMMAND_NAME, "roll", config, state), "Roll 4dF")
+                            Button.primary(createButtonCustomId("roll", config), "Roll 4dF")
                     ));
         }
     }
@@ -174,16 +174,14 @@ public class FateCommand extends AbstractCommand<FateCommand.Config, FateCommand
         return new State(Integer.valueOf(modifier));
     }
 
-    @Override
-    protected String createButtonCustomId(String system, String value, Config config, State state) {
-
-        Preconditions.checkArgument(!system.contains(CONFIG_DELIMITER));
-        Preconditions.checkArgument(!value.contains(CONFIG_DELIMITER));
+    @VisibleForTesting
+    String createButtonCustomId(String modifier, Config config) {
+        Preconditions.checkArgument(!modifier.contains(CONFIG_DELIMITER));
         Preconditions.checkArgument(!config.getType().contains(CONFIG_DELIMITER));
 
         return String.join(CONFIG_DELIMITER,
-                system,
-                value,
+                COMMAND_NAME,
+                modifier,
                 config.getType());
     }
 

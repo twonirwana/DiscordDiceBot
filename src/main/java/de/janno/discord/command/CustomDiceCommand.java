@@ -163,22 +163,20 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceCommand.Config,
     @Override
     protected List<LayoutComponent> getButtonLayout(State state, Config config) {
         List<Button> buttons = config.getButtonDiceExpressions().stream()
-                .map(d -> Button.primary(createButtonCustomId(COMMAND_NAME, d, config, state), d))
+                .map(d -> Button.primary(createButtonCustomId(d), d))
                 .collect(Collectors.toList());
         return Lists.partition(buttons, 5).stream()
                 .map(ActionRow::of)
                 .collect(Collectors.toList());
     }
 
-    @Override
-    protected String createButtonCustomId(String system, String value, Config config, State state) {
-
-        Preconditions.checkArgument(!system.contains(CONFIG_DELIMITER));
-        Preconditions.checkArgument(!value.contains(CONFIG_DELIMITER));
+    @VisibleForTesting
+    String createButtonCustomId(String diceExpression) {
+        Preconditions.checkArgument(!diceExpression.contains(CONFIG_DELIMITER));
 
         return String.join(CONFIG_DELIMITER,
-                system,
-                value);
+                COMMAND_NAME,
+                diceExpression);
     }
 
     @Override

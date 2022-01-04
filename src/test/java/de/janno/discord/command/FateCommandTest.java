@@ -9,6 +9,8 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 class FateCommandTest {
 
@@ -89,5 +91,32 @@ class FateCommandTest {
         List<ApplicationCommandOptionData> res = underTest.getStartOptions();
 
         assertThat(res.stream().map(ApplicationCommandOptionData::name)).containsExactly("type");
+    }
+
+    @Test
+    void getStateFromEvent_simple() {
+        IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
+        when(event.getCustomId()).thenReturn("fate,,simple");
+
+        FateCommand.State res = underTest.getStateFromEvent(event);
+
+        assertThat(res).isEqualTo(new FateCommand.State(null));
+    }
+
+    @Test
+    void getStateFromEvent_modifier() {
+        IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
+        when(event.getCustomId()).thenReturn("fate,5,with_modifier");
+
+        FateCommand.State res = underTest.getStateFromEvent(event);
+
+        assertThat(res).isEqualTo(new FateCommand.State(5));
+    }
+
+    @Test
+    void createButtonCustomId() {
+        String res = underTest.createButtonCustomId("3", new FateCommand.Config("with_modifier"));
+
+        assertThat(res).isEqualTo("fate,3,with_modifier");
     }
 }

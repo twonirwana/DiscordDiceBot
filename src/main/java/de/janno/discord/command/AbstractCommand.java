@@ -33,8 +33,6 @@ public abstract class AbstractCommand<C extends IConfig, S extends IState> imple
         this.activeButtonsCache = activeButtonsCache;
     }
 
-    protected abstract String createButtonCustomId(String system, String value, C config, @Nullable S state);
-
     protected List<ApplicationCommandOptionData> getStartOptions() {
         return ImmutableList.of();
     }

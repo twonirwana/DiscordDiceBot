@@ -99,4 +99,21 @@ class CustomDiceCommandTest {
                 "24_button",
                 "25_button");
     }
+
+    @Test
+    void getStateFromEvent() {
+        IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
+        when(event.getCustomId()).thenReturn("custom_dice,2d6");
+
+        CustomDiceCommand.State res = underTest.getStateFromEvent(event);
+
+        assertThat(res).isEqualTo(new CustomDiceCommand.State("2d6"));
+    }
+
+    @Test
+    void createButtonCustomId() {
+        String res = underTest.createButtonCustomId("2d6");
+
+        assertThat(res).isEqualTo("custom_dice,2d6");
+    }
 }

@@ -94,14 +94,14 @@ public class SumDiceSetCommand extends AbstractCommand<SumDiceSetCommand.Config,
         return COMMAND_NAME;
     }
 
-    @Override
-    protected String createButtonCustomId(String system, String value, Config config, State state) {
-        Preconditions.checkArgument(!system.contains(CONFIG_DELIMITER));
-        Preconditions.checkArgument(!value.contains(CONFIG_DELIMITER));
+
+    @VisibleForTesting
+    String createButtonCustomId(String action) {
+        Preconditions.checkArgument(!action.contains(CONFIG_DELIMITER));
 
         return String.join(CONFIG_DELIMITER,
-                system,
-                value);
+                COMMAND_NAME,
+                action);
     }
 
     @Override
@@ -152,7 +152,7 @@ public class SumDiceSetCommand extends AbstractCommand<SumDiceSetCommand.Config,
 
     @Override
     protected String getButtonMessage(State state, Config config) {
-        if(state == null){
+        if (state == null) {
             return EMPTY_MESSAGE;
         }
         if (ROLL_BUTTON_ID.equals(state.getButtonValue())) {
@@ -209,12 +209,12 @@ public class SumDiceSetCommand extends AbstractCommand<SumDiceSetCommand.Config,
     @Override
     protected State getStateFromEvent(IButtonEventAdaptor event) {
         String buttonMessage = event.getMessageContent();
-        String buttenValue = event.getCustomId().split(CONFIG_DELIMITER)[1];
+        String buttonValue = event.getCustomId().split(CONFIG_DELIMITER)[1];
         if (EMPTY_MESSAGE.equals(buttonMessage)) {
-            return new State(buttenValue, ImmutableMap.of());
+            return new State(buttonValue, ImmutableMap.of());
         }
 
-        return new State(buttenValue, Arrays.stream(buttonMessage.split(Pattern.quote(DICE_SET_DELIMITER)))
+        return new State(buttonValue, Arrays.stream(buttonMessage.split(Pattern.quote(DICE_SET_DELIMITER)))
                 //for handling legacy buttons with '1d4 + 1d6)
                 .filter(s -> !"+".equals(s))
                 //adding the + for the first die type in the message
@@ -254,32 +254,32 @@ public class SumDiceSetCommand extends AbstractCommand<SumDiceSetCommand.Config,
         return ImmutableList.of(
                 ActionRow.of(
                         //              ID,  label
-                        Button.primary(createButtonCustomId(COMMAND_NAME, "+1d4", config, state), "+1d4"),
-                        Button.primary(createButtonCustomId(COMMAND_NAME, "-1d4", config, state), "-1d4"),
-                        Button.primary(createButtonCustomId(COMMAND_NAME, "+1d6", config, state), "+1d6"),
-                        Button.primary(createButtonCustomId(COMMAND_NAME, "-1d6", config, state), "-1d6"),
-                        Button.primary(createButtonCustomId(COMMAND_NAME, X2_BUTTON_ID, config, state), "x2")
+                        Button.primary(createButtonCustomId("+1d4"), "+1d4"),
+                        Button.primary(createButtonCustomId("-1d4"), "-1d4"),
+                        Button.primary(createButtonCustomId("+1d6"), "+1d6"),
+                        Button.primary(createButtonCustomId("-1d6"), "-1d6"),
+                        Button.primary(createButtonCustomId(X2_BUTTON_ID), "x2")
                 ),
                 ActionRow.of(
-                        Button.primary(createButtonCustomId(COMMAND_NAME, "+1d8", config, state), "+1d8"),
-                        Button.primary(createButtonCustomId(COMMAND_NAME, "-1d8", config, state), "-1d8"),
-                        Button.primary(createButtonCustomId(COMMAND_NAME, "+1d10", config, state), "+1d10"),
-                        Button.primary(createButtonCustomId(COMMAND_NAME, "-1d10", config, state), "-1d10"),
-                        Button.primary(createButtonCustomId(COMMAND_NAME, CLEAR_BUTTON_ID, config, state), "Clear")
+                        Button.primary(createButtonCustomId("+1d8"), "+1d8"),
+                        Button.primary(createButtonCustomId("-1d8"), "-1d8"),
+                        Button.primary(createButtonCustomId("+1d10"), "+1d10"),
+                        Button.primary(createButtonCustomId("-1d10"), "-1d10"),
+                        Button.primary(createButtonCustomId(CLEAR_BUTTON_ID), "Clear")
                 ),
                 ActionRow.of(
-                        Button.primary(createButtonCustomId(COMMAND_NAME, "+1d12", config, state), "+1d12"),
-                        Button.primary(createButtonCustomId(COMMAND_NAME, "-1d12", config, state), "-1d12"),
-                        Button.primary(createButtonCustomId(COMMAND_NAME, "+1d20", config, state), "+1d20"),
-                        Button.primary(createButtonCustomId(COMMAND_NAME, "-1d20", config, state), "-1d20"),
-                        Button.primary(createButtonCustomId(COMMAND_NAME, ROLL_BUTTON_ID, config, state), "Roll")
+                        Button.primary(createButtonCustomId("+1d12"), "+1d12"),
+                        Button.primary(createButtonCustomId("-1d12"), "-1d12"),
+                        Button.primary(createButtonCustomId("+1d20"), "+1d20"),
+                        Button.primary(createButtonCustomId("-1d20"), "-1d20"),
+                        Button.primary(createButtonCustomId(ROLL_BUTTON_ID), "Roll")
                 ),
                 ActionRow.of(
-                        Button.primary(createButtonCustomId(COMMAND_NAME, "+1", config, state), "+1"),
-                        Button.primary(createButtonCustomId(COMMAND_NAME, "-1", config, state), "-1"),
-                        Button.primary(createButtonCustomId(COMMAND_NAME, "+5", config, state), "+5"),
-                        Button.primary(createButtonCustomId(COMMAND_NAME, "-5", config, state), "-5"),
-                        Button.primary(createButtonCustomId(COMMAND_NAME, "+10", config, state), "+10")
+                        Button.primary(createButtonCustomId("+1"), "+1"),
+                        Button.primary(createButtonCustomId("-1"), "-1"),
+                        Button.primary(createButtonCustomId("+5"), "+5"),
+                        Button.primary(createButtonCustomId("-5"), "-5"),
+                        Button.primary(createButtonCustomId("+10"), "+10")
                 ));
     }
 

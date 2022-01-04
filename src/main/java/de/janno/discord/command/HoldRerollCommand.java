@@ -90,15 +90,13 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollCommand.Config,
         return COMMAND_NAME;
     }
 
-    @Override
-    protected String createButtonCustomId(String system, String value, Config config, State state) {
+    String createButtonCustomId(String action, Config config, State state) {
 
-        Preconditions.checkArgument(!system.contains(CONFIG_DELIMITER));
-        Preconditions.checkArgument(!value.contains(CONFIG_DELIMITER));
+        Preconditions.checkArgument(!action.contains(CONFIG_DELIMITER));
 
         return String.join(CONFIG_DELIMITER,
-                system,
-                value,
+                COMMAND_NAME,
+                action,
                 state == null ? EMPTY : state.getCurrentResults().stream().map(String::valueOf).collect(Collectors.joining(SUBSET_DELIMITER)),
                 String.valueOf(config.getSidesOfDie()),
                 config.getRerollSet().stream().map(String::valueOf).collect(Collectors.joining(SUBSET_DELIMITER)),
@@ -279,16 +277,16 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollCommand.Config,
     protected List<LayoutComponent> getButtonLayout(State state, Config config) {
         if (state != null && (state.getState() == null || CLEAR_BUTTON_ID.equals(state.getState()) || FINISH_BUTTON_ID.equals(state.getState()) || rollFinished(state, config))) {
             List<Button> buttons = IntStream.range(1, 16)
-                    .mapToObj(i -> Button.primary(createButtonCustomId(COMMAND_NAME, String.valueOf(i), config, state),
+                    .mapToObj(i -> Button.primary(createButtonCustomId(String.valueOf(i), config, state),
                             String.format("%d%s%s", i, DICE_SYMBOL, config.getSidesOfDie())))
                     .collect(Collectors.toList());
             return Lists.partition(buttons, 5).stream().map(ActionRow::of).collect(Collectors.toList());
         }
         return ImmutableList.of(
                 ActionRow.of(
-                        Button.primary(createButtonCustomId(COMMAND_NAME, REROLL_BUTTON_ID, config, state), "Reroll"),
-                        Button.primary(createButtonCustomId(COMMAND_NAME, FINISH_BUTTON_ID, config, state), "Finish"),
-                        Button.primary(createButtonCustomId(COMMAND_NAME, CLEAR_BUTTON_ID, config, state), "Clear")
+                        Button.primary(createButtonCustomId(REROLL_BUTTON_ID, config, state), "Reroll"),
+                        Button.primary(createButtonCustomId(FINISH_BUTTON_ID, config, state), "Finish"),
+                        Button.primary(createButtonCustomId(CLEAR_BUTTON_ID, config, state), "Clear")
                 ));
     }
 
