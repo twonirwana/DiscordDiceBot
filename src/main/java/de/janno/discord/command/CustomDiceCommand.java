@@ -1,7 +1,7 @@
 package de.janno.discord.command;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.ImmutableList;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import de.janno.discord.cache.ActiveButtonsCache;
 import de.janno.discord.dice.DiceParserHelper;
@@ -14,6 +14,8 @@ import discord4j.core.object.component.Button;
 import discord4j.core.object.component.LayoutComponent;
 import discord4j.core.spec.EmbedCreateSpec;
 import discord4j.discordjson.json.ApplicationCommandOptionData;
+import lombok.NonNull;
+import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
@@ -22,7 +24,7 @@ import java.util.stream.IntStream;
 
 @Slf4j
 //TODO give buttons names
-public class CustomDiceCommand extends AbstractCommand {
+public class CustomDiceCommand extends AbstractCommand<CustomDiceCommand.Config> {
     //test with /custom_dice start 1_button:1d1 2_button:2d2 3_button:3d3 4_button:4d4 5_button:5d5 6_button:6d6 7_button:7d7 8_button:8d8 9_button:9d9 10_button:10d10 11_button:11d11 12_button:12d12 13_button:13d13 14_button:14d14 15_button:15d15 16_button:16d16 17_button:17d17 18_button:18d18 19_button:19d19 20_button:20d20 21_button:21d21 22_button:22d22 23_button:23d23 24_button:24d24 25_button:25d25
 
     private static final String COMMAND_NAME = "custom_dice";
@@ -45,7 +47,7 @@ public class CustomDiceCommand extends AbstractCommand {
     }
 
     @Override
-    protected String getButtonMessage(String buttonValue, List<String> config) {
+    protected String getButtonMessage(String buttonValue, Config config) {
         return "Click on a button to roll the dice";
     }
 
@@ -140,8 +142,8 @@ public class CustomDiceCommand extends AbstractCommand {
     }
 
     @Override
-    protected List<String> getConfigValuesFromStartOptions(ApplicationCommandInteractionOption options) {
-        return DICE_COMMAND_OPTIONS_IDS.stream()
+    protected Config getConfigValuesFromStartOptions(ApplicationCommandInteractionOption options) {
+        return new Config(DICE_COMMAND_OPTIONS_IDS.stream()
                 .flatMap(id -> options.getOption(id).stream())
                 .flatMap(a -> a.getValue().stream())
                 .map(ApplicationCommandInteractionOptionValue::asString)
@@ -150,18 +152,18 @@ public class CustomDiceCommand extends AbstractCommand {
                 .filter(s -> s.length() <= 80) //limit for the ids are 100 characters and we need also some characters for the type...
                 .distinct()
                 .limit(25)
-                .collect(Collectors.toList());
+                .collect(Collectors.toList()));
     }
 
     @Override
-    protected List<DiceResult> getDiceResult(String buttonValue, List<String> config) {
+    protected List<DiceResult> getDiceResult(String buttonValue, Config config) {
         return diceParserHelper.roll(buttonValue);
     }
 
     @Override
-    protected List<LayoutComponent> getButtonLayout(String buttonValue, List<String> config) {
-        List<Button> buttons = config.stream()
-                .map(d -> Button.primary(createButtonCustomId(COMMAND_NAME, d, ImmutableList.of()), d))
+    protected List<LayoutComponent> getButtonLayout(String buttonValue, Config config) {
+        List<Button> buttons = config.buttonDiceExpressions.stream()
+                .map(d -> Button.primary(createButtonCustomId(COMMAND_NAME, d, config), d))
                 .collect(Collectors.toList());
         return Lists.partition(buttons, 5).stream()
                 .map(ActionRow::of)
@@ -169,10 +171,21 @@ public class CustomDiceCommand extends AbstractCommand {
     }
 
     @Override
-    protected List<String> getConfigFromEvent(IButtonEventAdaptor event) {
-        return event.getAllButtonIds().stream()
+    protected String createButtonCustomId(String system, String value, Config config) {
+
+        Preconditions.checkArgument(!system.contains(CONFIG_DELIMITER));
+        Preconditions.checkArgument(!value.contains(CONFIG_DELIMITER));
+
+        return String.join(CONFIG_DELIMITER,
+                system,
+                value);
+    }
+
+    @Override
+    protected Config getConfigFromEvent(IButtonEventAdaptor event) {
+        return new Config(event.getAllButtonIds().stream()
                 .map(id -> id.substring(COMMAND_NAME.length() + 1))
-                .collect(Collectors.toList());
+                .collect(Collectors.toList()));
     }
 
     @Override
@@ -183,5 +196,17 @@ public class CustomDiceCommand extends AbstractCommand {
     @Override
     public String getName() {
         return COMMAND_NAME;
+    }
+
+    @Value
+    protected static class Config implements IConfig {
+
+        @NonNull
+        List<String> buttonDiceExpressions;
+
+        @Override
+        public String toMetricString() {
+            return buttonDiceExpressions.toString();
+        }
     }
 }

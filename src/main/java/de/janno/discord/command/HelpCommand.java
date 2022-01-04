@@ -1,6 +1,5 @@
 package de.janno.discord.command;
 
-import com.google.common.collect.ImmutableList;
 import de.janno.discord.Metrics;
 import de.janno.discord.discord4j.ApplicationCommand;
 import discord4j.core.spec.EmbedCreateSpec;
@@ -25,7 +24,7 @@ public class HelpCommand implements ISlashCommand {
 
     @Override
     public Mono<Void> handleSlashCommandEvent(@NonNull ISlashEventAdaptor event) {
-        Metrics.incrementSlashStartMetricCounter(getName(), ImmutableList.of());
+        Metrics.incrementSlashStartMetricCounter(getName(), "");
         return event.replyEphemeral(EmbedCreateSpec.builder()
                 .addField("Command help", "type '/count_successes help', '/custom_dice help' or '/fate help' to get help for the commands", false)
                 .addField("Full documentation", "https://github.com/twonirwana/DiscordDiceBot/blob/main/README.md", false)

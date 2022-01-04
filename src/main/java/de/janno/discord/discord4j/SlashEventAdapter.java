@@ -49,9 +49,12 @@ public class SlashEventAdapter extends DiscordAdapter implements ISlashEventAdap
     }
 
     @Override
-    public Mono<Void> createButtonMessage(ActiveButtonsCache activeButtonsCache, @NonNull String buttonMessage, @NonNull List<LayoutComponent> buttons, @NonNull List<String> config) {
+    public Mono<Void> createButtonMessage(ActiveButtonsCache activeButtonsCache,
+                                          @NonNull String buttonMessage,
+                                          @NonNull List<LayoutComponent> buttons,
+                                          int configHash) {
         return event.getInteraction().getChannel().ofType(TextChannel.class)
-                .flatMap(channel -> createButtonMessage(activeButtonsCache, channel, buttonMessage, buttons, config))
+                .flatMap(channel -> createButtonMessage(activeButtonsCache, channel, buttonMessage, buttons, configHash))
                 .onErrorResume(t -> {
                     log.error("Error on creating button message", t);
                     return Mono.empty();

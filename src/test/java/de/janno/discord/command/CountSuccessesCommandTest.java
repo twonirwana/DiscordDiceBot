@@ -1,6 +1,5 @@
 package de.janno.discord.command;
 
-import com.google.common.collect.ImmutableList;
 import de.janno.discord.dice.DiceResult;
 import de.janno.discord.dice.DiceUtils;
 import discord4j.discordjson.json.ApplicationCommandOptionData;
@@ -10,7 +9,6 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -36,26 +34,29 @@ class CountSuccessesCommandTest {
 
     @Test
     void getButtonMessage_noGlitch() {
-        List<String> config = ImmutableList.of("6", "6", "no_glitch");
+        CountSuccessesCommand.Config config = new CountSuccessesCommand.Config(6, 6, "no_glitch", 15);
         assertThat(underTest.getButtonMessage(null, config)).isEqualTo("Click to roll the dice against 6");
     }
 
 
     @Test
     void getButtonMessage_halfDiceOne() {
-        List<String> config = ImmutableList.of("6", "6", "half_dice_one");
+        CountSuccessesCommand.Config config = new CountSuccessesCommand.Config(6, 6, "half_dice_one", 15);
+
         assertThat(underTest.getButtonMessage(null, config)).isEqualTo("Click to roll the dice against 6 and check for more then half of dice 1s");
     }
 
     @Test
     void getButtonMessage_countOnes() {
-        List<String> config = ImmutableList.of("6", "6", "count_ones");
+        CountSuccessesCommand.Config config = new CountSuccessesCommand.Config(6, 6, "count_ones", 15);
+
         assertThat(underTest.getButtonMessage(null, config)).isEqualTo("Click to roll the dice against 6 and count the 1s");
     }
 
     @Test
     void getButtonMessage_subtractOnes() {
-        List<String> config = ImmutableList.of("6", "6", "subtract_ones");
+        CountSuccessesCommand.Config config = new CountSuccessesCommand.Config(6, 6, "subtract_ones", 15);
+
         assertThat(underTest.getButtonMessage(null, config)).isEqualTo("Click to roll the dice against 6 minus 1s");
     }
 
@@ -63,21 +64,21 @@ class CountSuccessesCommandTest {
     void getConfigFromEvent_legacyOnlyTwo() {
         IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
         when(event.getCustomId()).thenReturn("count_successes,1,6,6");
-        assertThat(underTest.getConfigFromEvent(event)).containsExactly("6", "6", "no_glitch", "15");
+        assertThat(underTest.getConfigFromEvent(event)).isEqualTo(new CountSuccessesCommand.Config(6, 6, "no_glitch", 15));
     }
 
     @Test
     void getConfigFromEvent_legacyOnlyThree() {
         IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
         when(event.getCustomId()).thenReturn("count_successes,1,6,6,no_glitch");
-        assertThat(underTest.getConfigFromEvent(event)).containsExactly("6", "6", "no_glitch", "15");
+        assertThat(underTest.getConfigFromEvent(event)).isEqualTo(new CountSuccessesCommand.Config(6, 6, "no_glitch", 15));
     }
 
     @Test
     void getConfigFromEvent() {
         IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
         when(event.getCustomId()).thenReturn("count_successes,1,6,6,no_glitch,15");
-        assertThat(underTest.getConfigFromEvent(event)).containsExactly("6", "6", "no_glitch", "15");
+        assertThat(underTest.getConfigFromEvent(event)).isEqualTo(new CountSuccessesCommand.Config(6, 6, "no_glitch", 15));
     }
 
     @Test
@@ -92,7 +93,7 @@ class CountSuccessesCommandTest {
 
     @Test
     void rollDice() {
-        List<DiceResult> results = underTest.getDiceResult("6", ImmutableList.of("6", "6", "no_glitch", "15"));
+        List<DiceResult> results = underTest.getDiceResult("6", new CountSuccessesCommand.Config(6, 6, "no_glitch", 15));
 
         assertThat(results).hasSize(1);
         assertThat(results.get(0).getResultTitle()).isEqualTo("6d6 = 1");
@@ -101,7 +102,7 @@ class CountSuccessesCommandTest {
 
     @Test
     void rollDice_halfDiceOne_glitch() {
-        List<DiceResult> results = underTest.getDiceResult("6", ImmutableList.of("6", "6", "half_dice_one", "15"));
+        List<DiceResult> results = underTest.getDiceResult("6", new CountSuccessesCommand.Config(6, 6, "half_dice_one", 15));
 
         assertThat(results).hasSize(1);
         assertThat(results.get(0).getResultTitle()).isEqualTo("6d6 = 1 - Glitch!");
@@ -110,7 +111,7 @@ class CountSuccessesCommandTest {
 
     @Test
     void rollDice_halfDiceOne_noGlitch() {
-        List<DiceResult> results = underTest.getDiceResult("8", ImmutableList.of("6", "6", "half_dice_one", "15"));
+        List<DiceResult> results = underTest.getDiceResult("8", new CountSuccessesCommand.Config(6, 6, "half_dice_one", 15));
 
         assertThat(results).hasSize(1);
         assertThat(results.get(0).getResultTitle()).isEqualTo("8d6 = 3");
@@ -119,7 +120,7 @@ class CountSuccessesCommandTest {
 
     @Test
     void rollDice_countOnes() {
-        List<DiceResult> results = underTest.getDiceResult("6", ImmutableList.of("6", "6", "count_ones", "15"));
+        List<DiceResult> results = underTest.getDiceResult("6", new CountSuccessesCommand.Config(6, 6, "count_ones", 15));
 
         assertThat(results).hasSize(1);
         assertThat(results.get(0).getResultTitle()).isEqualTo("6d6 = 1 successes and 4 ones");
@@ -128,7 +129,7 @@ class CountSuccessesCommandTest {
 
     @Test
     void rollDice_subtractOnes() {
-        List<DiceResult> results = underTest.getDiceResult("6", ImmutableList.of("6", "6", "subtract_ones", "15"));
+        List<DiceResult> results = underTest.getDiceResult("6", new CountSuccessesCommand.Config(6, 6, "subtract_ones", 15));
 
         assertThat(results).hasSize(1);
         assertThat(results.get(0).getResultTitle()).isEqualTo("6d6 = -3");

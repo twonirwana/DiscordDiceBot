@@ -1,6 +1,7 @@
 package de.janno.discord.command;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
@@ -16,6 +17,8 @@ import discord4j.core.object.component.LayoutComponent;
 import discord4j.core.spec.EmbedCreateSpec;
 import discord4j.discordjson.json.ApplicationCommandOptionChoiceData;
 import discord4j.discordjson.json.ApplicationCommandOptionData;
+import lombok.NonNull;
+import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
@@ -26,7 +29,7 @@ import static de.janno.discord.dice.DiceUtils.makeBold;
 
 
 @Slf4j
-public class CountSuccessesCommand extends AbstractCommand {
+public class CountSuccessesCommand extends AbstractCommand<CountSuccessesCommand.Config> {
 
     private static final String COMMAND_NAME = "count_successes";
     private static final String ACTION_SIDE_OPTION = "dice_sides";
@@ -51,8 +54,8 @@ public class CountSuccessesCommand extends AbstractCommand {
         this.diceUtils = diceUtils;
     }
 
-    private static String createButtonLabel(String value, List<String> config) {
-        return String.format("%sd%s", value, config.get(0));
+    private static String createButtonLabel(String value, Config config) {
+        return String.format("%sd%s", value, config.getDiceSides());
     }
 
     private static String markBiggerEqualAndOptionalOnes(List<Integer> diceResults, int target, boolean markOnes) {
@@ -67,19 +70,14 @@ public class CountSuccessesCommand extends AbstractCommand {
     }
 
     @Override
-    protected List<String> getConfigFromEvent(IButtonEventAdaptor event) {
-        List<String> config = super.getConfigFromEvent(event);
-
-        //handling legacy buttons without glitch option
-        if (config.size() < 3) {
-            return ImmutableList.<String>builder().addAll(config).add(GLITCH_NO_OPTION).add("15").build();
-        }
-
-        //handling legacy buttons without max number of dice option
-        if (config.size() < 4) {
-            return ImmutableList.<String>builder().addAll(config).add("15").build();
-        }
-        return config;
+    protected Config getConfigFromEvent(IButtonEventAdaptor event) {
+        String[] split = event.getCustomId().split(CONFIG_DELIMITER);
+        int sideOfDie = Integer.parseInt(split[2]);
+        int target = Integer.parseInt(split[3]);
+        //legacy message could be missing the glitch and max dice option
+        String glitchOption = split.length < 5 ? GLITCH_NO_OPTION : split[4];
+        int maxNumberOfButtons = split.length < 6 ? 15 : Integer.parseInt(split[5]);
+        return new Config(sideOfDie, target, glitchOption, maxNumberOfButtons);
     }
 
     @Override
@@ -134,23 +132,21 @@ public class CountSuccessesCommand extends AbstractCommand {
     }
 
     @Override
-    protected List<DiceResult> getDiceResult(String buttonValue, List<String> config) {
+    protected List<DiceResult> getDiceResult(String buttonValue, Config config) {
         int numberOfDice = Integer.parseInt(buttonValue);
-        int sidesOfDie = Integer.parseInt(config.get(0));
-        int targetNumber = Integer.parseInt(config.get(1));
-        String glitchOption = config.get(2);
-
-        List<Integer> rollResult = diceUtils.rollDiceOfType(numberOfDice, sidesOfDie).stream().sorted().collect(Collectors.toList());
+        List<Integer> rollResult = diceUtils.rollDiceOfType(numberOfDice, config.getDiceSides()).stream()
+                .sorted()
+                .collect(Collectors.toList());
 
         DiceResult result;
-        if (GLITCH_OPTION_HALF_ONES.equals(glitchOption)) {
-            result = halfOnesGlitch(numberOfDice, sidesOfDie, targetNumber, rollResult);
-        } else if (GLITCH_COUNT_ONES.equals(glitchOption)) {
-            result = countOnesGlitch(numberOfDice, sidesOfDie, targetNumber, rollResult);
-        } else if (GLITCH_SUBTRACT_ONES.equals(glitchOption)) {
-            result = subtractOnesGlitch(numberOfDice, sidesOfDie, targetNumber, rollResult);
+        if (GLITCH_OPTION_HALF_ONES.equals(config.getGlitchOption())) {
+            result = halfOnesGlitch(numberOfDice, config.getDiceSides(), config.getTarget(), rollResult);
+        } else if (GLITCH_COUNT_ONES.equals(config.getGlitchOption())) {
+            result = countOnesGlitch(numberOfDice, config.getDiceSides(), config.getTarget(), rollResult);
+        } else if (GLITCH_SUBTRACT_ONES.equals(config.getGlitchOption())) {
+            result = subtractOnesGlitch(numberOfDice, config.getDiceSides(), config.getTarget(), rollResult);
         } else {
-            result = noneGlitch(numberOfDice, sidesOfDie, targetNumber, rollResult);
+            result = noneGlitch(numberOfDice, config.getDiceSides(), config.getTarget(), rollResult);
         }
         return ImmutableList.of(result);
     }
@@ -189,12 +185,12 @@ public class CountSuccessesCommand extends AbstractCommand {
     }
 
     @Override
-    protected String getButtonMessage(String buttonValue, List<String> config) {
-        return String.format("Click to roll the dice against %s%s", config.get(1), getGlitchDescription(config));
+    protected String getButtonMessage(String buttonValue, Config config) {
+        return String.format("Click to roll the dice against %s%s", config.getTarget(), getGlitchDescription(config));
     }
 
-    private String getGlitchDescription(List<String> config) {
-        String glitchOption = config.get(2);
+    private String getGlitchDescription(Config config) {
+        String glitchOption = config.getGlitchOption();
         if (GLITCH_OPTION_HALF_ONES.equals(glitchOption)) {
             return " and check for more then half of dice 1s";
         } else if (GLITCH_COUNT_ONES.equals(glitchOption)) {
@@ -206,12 +202,27 @@ public class CountSuccessesCommand extends AbstractCommand {
     }
 
     @Override
-    protected List<String> getConfigValuesFromStartOptions(ApplicationCommandInteractionOption options) {
-        String sideValue = options.getOption(ACTION_SIDE_OPTION).flatMap(ApplicationCommandInteractionOption::getValue).map(ApplicationCommandInteractionOptionValue::asLong).map(l -> Math.min(l, MAX_NUMBER_SIDES_OR_TARGET_NUMBER)).map(Object::toString).orElse("6");
-        String targetValue = options.getOption(ACTION_TARGET_OPTION).flatMap(ApplicationCommandInteractionOption::getValue).map(ApplicationCommandInteractionOptionValue::asLong).map(l -> Math.min(l, MAX_NUMBER_SIDES_OR_TARGET_NUMBER)).map(Object::toString).orElse("6");
-        String glitchOption = options.getOption(ACTION_GLITCH_OPTION).flatMap(ApplicationCommandInteractionOption::getValue).map(ApplicationCommandInteractionOptionValue::asString).orElse(GLITCH_NO_OPTION);
-        String maxDice = options.getOption(ACTION_MAX_DICE_OPTION).flatMap(ApplicationCommandInteractionOption::getValue).map(ApplicationCommandInteractionOptionValue::asLong).map(l -> Math.min(l, MAX_NUMBER_OF_DICE)).map(Object::toString).orElse("15");
-        return ImmutableList.of(sideValue, targetValue, glitchOption, maxDice);
+    protected Config getConfigValuesFromStartOptions(ApplicationCommandInteractionOption options) {
+        int sideValue = Math.toIntExact(options.getOption(ACTION_SIDE_OPTION)
+                .flatMap(ApplicationCommandInteractionOption::getValue)
+                .map(ApplicationCommandInteractionOptionValue::asLong)
+                .map(l -> Math.min(l, MAX_NUMBER_SIDES_OR_TARGET_NUMBER))
+                .orElse(6L));
+        int targetValue = Math.toIntExact(options.getOption(ACTION_TARGET_OPTION)
+                .flatMap(ApplicationCommandInteractionOption::getValue)
+                .map(ApplicationCommandInteractionOptionValue::asLong)
+                .map(l -> Math.min(l, MAX_NUMBER_SIDES_OR_TARGET_NUMBER))
+                .orElse(6L));
+        String glitchOption = options.getOption(ACTION_GLITCH_OPTION)
+                .flatMap(ApplicationCommandInteractionOption::getValue)
+                .map(ApplicationCommandInteractionOptionValue::asString)
+                .orElse(GLITCH_NO_OPTION);
+        int maxDice = Math.toIntExact(options.getOption(ACTION_MAX_DICE_OPTION)
+                .flatMap(ApplicationCommandInteractionOption::getValue)
+                .map(ApplicationCommandInteractionOptionValue::asLong)
+                .map(l -> Math.min(l, MAX_NUMBER_OF_DICE))
+                .orElse(15L));
+        return new Config(sideValue, targetValue, glitchOption, maxDice);
     }
 
     @Override
@@ -220,8 +231,43 @@ public class CountSuccessesCommand extends AbstractCommand {
     }
 
     @Override
-    protected List<LayoutComponent> getButtonLayout(String buttonValue, List<String> config) {
-        List<Button> buttons = IntStream.range(1, Integer.parseInt(config.get(3)) + 1).mapToObj(i -> Button.primary(createButtonCustomId(COMMAND_NAME, String.valueOf(i), config), createButtonLabel(String.valueOf(i), config))).collect(Collectors.toList());
+    protected List<LayoutComponent> getButtonLayout(String buttonValue, Config config) {
+        List<Button> buttons = IntStream.range(1, config.getMaxNumberOfButtons() + 1)
+                .mapToObj(i -> Button.primary(createButtonCustomId(COMMAND_NAME, String.valueOf(i), config), createButtonLabel(String.valueOf(i), config))).collect(Collectors.toList());
         return Lists.partition(buttons, 5).stream().map(ActionRow::of).collect(Collectors.toList());
+    }
+
+    @Override
+    protected String createButtonCustomId(String system, String value, Config config) {
+
+        Preconditions.checkArgument(!system.contains(CONFIG_DELIMITER));
+        Preconditions.checkArgument(!value.contains(CONFIG_DELIMITER));
+        Preconditions.checkArgument(!config.getGlitchOption().contains(CONFIG_DELIMITER));
+
+        return String.join(CONFIG_DELIMITER,
+                system,
+                value,
+                String.valueOf(config.getDiceSides()),
+                String.valueOf(config.getTarget()),
+                config.getGlitchOption(),
+                String.valueOf(config.getMaxNumberOfButtons()));
+    }
+
+    @Value
+    protected static class Config implements IConfig {
+        int diceSides;
+        int target;
+        @NonNull
+        String glitchOption;
+        int maxNumberOfButtons;
+
+        @Override
+        public String toMetricString() {
+            return String.join(CONFIG_DELIMITER,
+                    String.valueOf(getDiceSides()),
+                    String.valueOf(getTarget()),
+                    getGlitchOption(),
+                    String.valueOf(getMaxNumberOfButtons()));
+        }
     }
 }

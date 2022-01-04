@@ -1,6 +1,7 @@
 package de.janno.discord.command;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import de.janno.discord.cache.ActiveButtonsCache;
 import de.janno.discord.dice.DiceResult;
@@ -14,12 +15,14 @@ import discord4j.core.object.component.LayoutComponent;
 import discord4j.core.spec.EmbedCreateSpec;
 import discord4j.discordjson.json.ApplicationCommandOptionChoiceData;
 import discord4j.discordjson.json.ApplicationCommandOptionData;
+import lombok.NonNull;
+import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 
 @Slf4j
-public class FateCommand extends AbstractCommand {
+public class FateCommand extends AbstractCommand<FateCommand.Config> {
 
     private static final String COMMAND_NAME = "fate";
     private static final String ACTION_MODIFIER_OPTION = "type";
@@ -48,8 +51,8 @@ public class FateCommand extends AbstractCommand {
     }
 
     @Override
-    protected String getButtonMessage(String buttonValue, List<String> config) {
-        if (ACTION_MODIFIER_OPTION_MODIFIER.equals(config.get(0))) {
+    protected String getButtonMessage(String buttonValue, Config config) {
+        if (ACTION_MODIFIER_OPTION_MODIFIER.equals(config.getType())) {
             return "Click a button to roll four fate dice and add the value of the button";
         }
         return "Click a button to roll four fate dice";
@@ -84,8 +87,8 @@ public class FateCommand extends AbstractCommand {
     }
 
     @Override
-    protected List<String> getConfigValuesFromStartOptions(ApplicationCommandInteractionOption options) {
-        return ImmutableList.of(options.getOption(ACTION_MODIFIER_OPTION)
+    protected Config getConfigValuesFromStartOptions(ApplicationCommandInteractionOption options) {
+        return new Config(options.getOption(ACTION_MODIFIER_OPTION)
                 .flatMap(ApplicationCommandInteractionOption::getValue)
                 .map(ApplicationCommandInteractionOptionValue::asString)
                 .map(Object::toString)
@@ -98,10 +101,10 @@ public class FateCommand extends AbstractCommand {
     }
 
     @Override
-    protected List<DiceResult> getDiceResult(String buttonValue, List<String> config) {
+    protected List<DiceResult> getDiceResult(String buttonValue, Config config) {
         List<Integer> rollResult = diceUtils.rollFate();
 
-        if (ACTION_MODIFIER_OPTION_MODIFIER.equals(config.get(0))) {
+        if (ACTION_MODIFIER_OPTION_MODIFIER.equals(config.getType())) {
             int modifier = Integer.parseInt(buttonValue);
             String modifierString = "";
             if (modifier > 0) {
@@ -122,8 +125,8 @@ public class FateCommand extends AbstractCommand {
     }
 
     @Override
-    protected List<LayoutComponent> getButtonLayout(String buttonValue, List<String> config) {
-        if (ACTION_MODIFIER_OPTION_MODIFIER.equals(config.get(0))) {
+    protected List<LayoutComponent> getButtonLayout(String buttonValue, Config config) {
+        if (ACTION_MODIFIER_OPTION_MODIFIER.equals(config.getType())) {
             return ImmutableList.of(
                     ActionRow.of(
                             //              ID,  label
@@ -153,6 +156,38 @@ public class FateCommand extends AbstractCommand {
                     ActionRow.of(
                             Button.primary(createButtonCustomId(COMMAND_NAME, "roll", config), "Roll 4dF")
                     ));
+        }
+    }
+
+    @Override
+    protected Config getConfigFromEvent(IButtonEventAdaptor event) {
+        String[] split = event.getCustomId().split(CONFIG_DELIMITER);
+        return new Config(split[2]);
+    }
+
+    @Override
+    protected String createButtonCustomId(String system, String value, Config config) {
+
+        Preconditions.checkArgument(!system.contains(CONFIG_DELIMITER));
+        Preconditions.checkArgument(!value.contains(CONFIG_DELIMITER));
+        Preconditions.checkArgument(!config.getType().contains(CONFIG_DELIMITER));
+
+        return String.join(CONFIG_DELIMITER,
+                system,
+                value,
+                config.getType());
+    }
+
+
+    @Value
+    protected static class Config implements IConfig {
+
+        @NonNull
+        String type;
+
+        @Override
+        public String toMetricString() {
+            return type;
         }
     }
 }

@@ -5,6 +5,7 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.ImmutableList;
 import de.janno.discord.Metrics;
+import de.janno.discord.command.IConfig;
 import discord4j.common.util.Snowflake;
 import io.micrometer.core.instrument.Tags;
 import lombok.Value;
@@ -14,7 +15,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.ExecutionException;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static io.micrometer.core.instrument.Metrics.globalRegistry;
@@ -30,16 +30,9 @@ public class ActiveButtonsCache {
     private final Cache<Snowflake, Set<ButtonWithConfigHash>> channel2ButtonMessageIds = CacheBuilder.newBuilder()
             .maximumSize(10_000)
             .build();
-    private final Function<List<String>, Integer> config2HashFunction;
-
 
     public ActiveButtonsCache(String systemName) {
-        this(systemName, List::hashCode);
-    }
-
-    public ActiveButtonsCache(String systemName, Function<List<String>, Integer> config2HashFunction) {
         globalRegistry.gaugeMapSize(Metrics.METRIC_PREFIX + "channelInCache", Tags.of("system", systemName), channel2ButtonMessageIds.asMap());
-        this.config2HashFunction = config2HashFunction;
     }
 
     @VisibleForTesting
@@ -47,31 +40,31 @@ public class ActiveButtonsCache {
         return channel2ButtonMessageIds;
     }
 
-    public void addChannelWithButton(Snowflake channelId, Snowflake buttonId, List<String> config) {
+    public void addChannelWithButton(Snowflake channelId, Snowflake buttonId, int configHash) {
         try {
             Set<ButtonWithConfigHash> buttonIds = channel2ButtonMessageIds.get(channelId, ConcurrentSkipListSet::new);
-            ButtonWithConfigHash newEntry = new ButtonWithConfigHash(buttonId, config2HashFunction.apply(config));
+            ButtonWithConfigHash newEntry = new ButtonWithConfigHash(buttonId, configHash);
             buttonIds.add(newEntry);
         } catch (ExecutionException e) {
             log.error("Error in putting buttonId into cache: ", e);
         }
     }
 
-    public void removeButtonFromChannel(Snowflake channelId, Snowflake buttonId, List<String> config) {
+    public void removeButtonFromChannel(Snowflake channelId, Snowflake buttonId, int configHash) {
         try {
             Set<ButtonWithConfigHash> buttonIds = channel2ButtonMessageIds.get(channelId, ConcurrentSkipListSet::new);
-            buttonIds.remove(new ButtonWithConfigHash(buttonId, config2HashFunction.apply(config)));
+            buttonIds.remove(new ButtonWithConfigHash(buttonId, configHash));
         } catch (ExecutionException e) {
             log.error("Error in removing buttonId into cache: ", e);
         }
     }
 
-    public List<Snowflake> getAllWithoutOneAndRemoveThem(Snowflake channelId, Snowflake buttonToKeepId, List<String> config) {
+    public List<Snowflake> getAllWithoutOneAndRemoveThem(Snowflake channelId, Snowflake buttonToKeepId, int configHash) {
         try {
             Set<ButtonWithConfigHash> buttonIdCache = channel2ButtonMessageIds.get(channelId, ConcurrentSkipListSet::new);
             return buttonIdCache.stream()
                     .filter(bc -> !buttonToKeepId.equals(bc.getButtonId()))
-                    .filter(bc -> config2HashFunction.apply(config) == bc.getConfigHash())
+                    .filter(bc -> configHash == bc.getConfigHash())
                     .peek(buttonIdCache::remove)
                     .map(ButtonWithConfigHash::getButtonId)
                     .collect(Collectors.toList());

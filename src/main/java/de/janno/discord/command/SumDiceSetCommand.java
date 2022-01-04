@@ -1,7 +1,9 @@
 package de.janno.discord.command;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import de.janno.discord.cache.ActiveButtonsCache;
 import de.janno.discord.dice.DiceResult;
 import de.janno.discord.dice.DiceUtils;
@@ -11,15 +13,15 @@ import discord4j.core.object.component.Button;
 import discord4j.core.object.component.LayoutComponent;
 import discord4j.core.spec.EmbedCreateSpec;
 import discord4j.discordjson.json.ApplicationCommandOptionData;
+import lombok.NonNull;
+import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
 
 /**
  * TODO:
@@ -30,8 +32,7 @@ import java.util.stream.Stream;
  * - configurable buttons
  */
 @Slf4j
-public class SumDiceSetCommand extends AbstractCommand {
-
+public class SumDiceSetCommand extends AbstractCommand<SumDiceSetCommand.Config> {
     private static final String COMMAND_NAME = "sum_dice_set";
     private static final String DICE_SET_DELIMITER = " ";
     private static final String ROLL_BUTTON_ID = "roll";
@@ -39,20 +40,41 @@ public class SumDiceSetCommand extends AbstractCommand {
     private static final String CLEAR_BUTTON_ID = "clear";
     private static final String X2_BUTTON_ID = "x2";
     private static final String DICE_SYMBOL = "d";
+    private static final String MODIFIER_KEY = "m";
     private final DiceUtils diceUtils;
 
     public SumDiceSetCommand() {
         this(new DiceUtils());
     }
 
-
     @VisibleForTesting
     public SumDiceSetCommand(DiceUtils diceUtils) {
-        //config hash is always 0 because there is no config
-        super(new ActiveButtonsCache(COMMAND_NAME, c -> 0));
+        super(new ActiveButtonsCache(COMMAND_NAME));
         this.diceUtils = diceUtils;
     }
 
+    private static String parseDiceMapToMessageString(Map<String, Integer> diceSet) {
+        String message = diceSet.entrySet().stream()
+                .sorted(Comparator.comparing(e -> {
+                    if (e.getKey().contains(DICE_SYMBOL)) {
+                        return Integer.parseInt(e.getKey().substring(1));
+                    }
+                    //modifiers should always be at the end
+                    return Integer.MAX_VALUE;
+                }))
+                .map(e -> {
+                    if (MODIFIER_KEY.equals(e.getKey())) {
+                        return String.format("%s%d", e.getValue() > 0 ? "+" : "", e.getValue());
+                    }
+                    return String.format("%s%d%s", e.getValue() > 0 ? "+" : "", e.getValue(), e.getKey());
+                })
+                .collect(Collectors.joining(DICE_SET_DELIMITER));
+        //remove leading +
+        if (message.startsWith("+")) {
+            message = message.substring(1);
+        }
+        return message;
+    }
 
     @Override
     protected String getCommandDescription() {
@@ -73,14 +95,23 @@ public class SumDiceSetCommand extends AbstractCommand {
     }
 
     @Override
+    protected String createButtonCustomId(String system, String value, Config config) {
+        Preconditions.checkArgument(!system.contains(CONFIG_DELIMITER));
+        Preconditions.checkArgument(!value.contains(CONFIG_DELIMITER));
+
+        return String.join(CONFIG_DELIMITER,
+                system,
+                value);
+    }
+
+    @Override
     protected List<ApplicationCommandOptionData> getStartOptions() {
         return ImmutableList.of();
     }
 
     @Override
-    protected List<DiceResult> getDiceResult(String buttonValue, List<String> config) {
-        Map<String, Integer> diceSetMap = currentDiceSet(config);
-        List<Integer> diceResultValues = diceSetMap.entrySet().stream()
+    protected List<DiceResult> getDiceResult(String buttonValue, Config config) {
+        List<Integer> diceResultValues = config.getDiceSetMap().entrySet().stream()
                 .sorted(Comparator.comparing(e -> {
                     if (e.getKey().contains(DICE_SYMBOL)) {
                         return Integer.parseInt(e.getKey().substring(1));
@@ -89,7 +120,7 @@ public class SumDiceSetCommand extends AbstractCommand {
                     return Integer.MAX_VALUE;
                 }))
                 .flatMap(e -> {
-                    if ("".equals(e.getKey())) {
+                    if (MODIFIER_KEY.equals(e.getKey())) {
                         return Stream.of(e.getValue());
                     }
                     int diceSides = Integer.parseInt(e.getKey().substring(1));
@@ -104,44 +135,9 @@ public class SumDiceSetCommand extends AbstractCommand {
                 })
                 .collect(Collectors.toList());
         long sumResult = diceResultValues.stream().mapToLong(Integer::longValue).sum();
-        String title = parseDiceMapToMessageString(diceSetMap);
+        String title = parseDiceMapToMessageString(config.getDiceSetMap());
         DiceResult diceResult = new DiceResult(String.format("%s = %d", title, sumResult), diceResultValues.toString());
         return ImmutableList.of(diceResult);
-    }
-
-    private Map<String, Integer> currentDiceSet(List<String> config) {
-        return config.stream()
-                .collect(Collectors.toMap(s -> {
-                    if (s.contains(DICE_SYMBOL)) {
-                        return s.substring(s.indexOf(DICE_SYMBOL));
-                    } else {
-                        return "";
-                    }
-                }, s -> {
-                    if (s.contains(DICE_SYMBOL)) {
-                        return Integer.valueOf(s.substring(0, s.indexOf(DICE_SYMBOL)));
-                    } else {
-                        return Integer.valueOf(s);
-                    }
-                }));
-    }
-
-    private String parseDiceMapToMessageString(Map<String, Integer> diceSet) {
-        String message = diceSet.entrySet().stream()
-                .sorted(Comparator.comparing(e -> {
-                    if (e.getKey().contains(DICE_SYMBOL)) {
-                        return Integer.parseInt(e.getKey().substring(1));
-                    }
-                    //modifiers should always be at the end
-                    return Integer.MAX_VALUE;
-                }))
-                .map(e -> String.format("%s%d%s", e.getValue() > 0 ? "+" : "", e.getValue(), e.getKey()))
-                .collect(Collectors.joining(DICE_SET_DELIMITER));
-        //remove leading +
-        if (message.startsWith("+")) {
-            message = message.substring(1);
-        }
-        return message;
     }
 
     private int limit(int input) {
@@ -155,16 +151,16 @@ public class SumDiceSetCommand extends AbstractCommand {
     }
 
     @Override
-    protected String editMessage(String buttonId, List<String> config) {
+    protected String editMessage(String buttonId, Config config) {
         if (ROLL_BUTTON_ID.equals(buttonId)) {
             return EMPTY_MESSAGE;
         } else if (CLEAR_BUTTON_ID.equals(buttonId)) {
             return EMPTY_MESSAGE;
         } else if (X2_BUTTON_ID.equals(buttonId)) {
-            return parseDiceMapToMessageString(currentDiceSet(config).entrySet().stream()
+            return parseDiceMapToMessageString(config.getDiceSetMap().entrySet().stream()
                     .collect(Collectors.toMap(Map.Entry::getKey, e -> limit(e.getValue() * 2))));
         } else {
-            Map<String, Integer> currentDiceSet = currentDiceSet(config);
+            Map<String, Integer> currentDiceSet = new HashMap<>(config.getDiceSetMap());
             int diceModifier;
             String die;
 
@@ -173,7 +169,7 @@ public class SumDiceSetCommand extends AbstractCommand {
                 die = buttonId.substring(2);
             } else {
                 diceModifier = Integer.parseInt(buttonId);
-                die = "";
+                die = MODIFIER_KEY;
             }
             int currentCount = currentDiceSet.getOrDefault(die, 0);
             int newCount = currentCount + diceModifier;
@@ -192,21 +188,24 @@ public class SumDiceSetCommand extends AbstractCommand {
         }
     }
 
-    protected boolean createAnswerMessage(String buttonId, List<String> config) {
-        return ROLL_BUTTON_ID.equals(buttonId) && !config.isEmpty();
-    }
-
-    protected boolean copyButtonMessageToTheEnd(String buttonId, List<String> config) {
-        return ROLL_BUTTON_ID.equals(buttonId) && !config.isEmpty();
+    @Override
+    protected boolean createAnswerMessage(String buttonId, Config config) {
+        return ROLL_BUTTON_ID.equals(buttonId) && !config.getDiceSetMap().isEmpty();
     }
 
     @Override
-    protected List<String> getConfigFromEvent(IButtonEventAdaptor event) {
+    protected boolean copyButtonMessageToTheEnd(String buttonId, Config config) {
+        return ROLL_BUTTON_ID.equals(buttonId) && !config.getDiceSetMap().isEmpty();
+    }
+
+    @Override
+    protected Config getConfigFromEvent(IButtonEventAdaptor event) {
         String buttonMessage = event.getMessageContent();
         if (EMPTY_MESSAGE.equals(buttonMessage)) {
-            return ImmutableList.of();
+            return new Config(ImmutableMap.of());
         }
-        return Arrays.stream(buttonMessage.split(Pattern.quote(DICE_SET_DELIMITER)))
+
+        return new Config(Arrays.stream(buttonMessage.split(Pattern.quote(DICE_SET_DELIMITER)))
                 //for handling legacy buttons with '1d4 + 1d6)
                 .filter(s -> !"+".equals(s))
                 //adding the + for the first die type in the message
@@ -216,17 +215,29 @@ public class SumDiceSetCommand extends AbstractCommand {
                     }
                     return s;
                 })
-                .collect(Collectors.toList());
+                .collect(Collectors.toMap(s -> {
+                    if (s.contains(DICE_SYMBOL)) {
+                        return s.substring(s.indexOf(DICE_SYMBOL));
+                    } else {
+                        return MODIFIER_KEY;
+                    }
+                }, s -> {
+                    if (s.contains(DICE_SYMBOL)) {
+                        return Integer.valueOf(s.substring(0, s.indexOf(DICE_SYMBOL)));
+                    } else {
+                        return Integer.valueOf(s);
+                    }
+                })));
     }
 
     @Override
-    protected String getButtonMessage(String buttonValue, List<String> config) {
+    protected String getButtonMessage(String buttonValue, Config config) {
         return EMPTY_MESSAGE;
     }
 
     @Override
-    protected List<String> getConfigValuesFromStartOptions(ApplicationCommandInteractionOption options) {
-        return ImmutableList.of();
+    protected Config getConfigValuesFromStartOptions(ApplicationCommandInteractionOption options) {
+        return new Config(ImmutableMap.of());
     }
 
     @Override
@@ -235,36 +246,54 @@ public class SumDiceSetCommand extends AbstractCommand {
     }
 
     @Override
-    protected List<LayoutComponent> getButtonLayout(String buttonValue, List<String> config) {
+    protected List<LayoutComponent> getButtonLayout(String buttonValue, Config config) {
         return ImmutableList.of(
                 ActionRow.of(
                         //              ID,  label
-                        Button.primary(createButtonCustomId(COMMAND_NAME, "+1d4", ImmutableList.of()), "+1d4"),
-                        Button.primary(createButtonCustomId(COMMAND_NAME, "-1d4", ImmutableList.of()), "-1d4"),
-                        Button.primary(createButtonCustomId(COMMAND_NAME, "+1d6", ImmutableList.of()), "+1d6"),
-                        Button.primary(createButtonCustomId(COMMAND_NAME, "-1d6", ImmutableList.of()), "-1d6"),
-                        Button.primary(createButtonCustomId(COMMAND_NAME, X2_BUTTON_ID, ImmutableList.of()), "x2")
+                        Button.primary(createButtonCustomId(COMMAND_NAME, "+1d4", config), "+1d4"),
+                        Button.primary(createButtonCustomId(COMMAND_NAME, "-1d4", config), "-1d4"),
+                        Button.primary(createButtonCustomId(COMMAND_NAME, "+1d6", config), "+1d6"),
+                        Button.primary(createButtonCustomId(COMMAND_NAME, "-1d6", config), "-1d6"),
+                        Button.primary(createButtonCustomId(COMMAND_NAME, X2_BUTTON_ID, config), "x2")
                 ),
                 ActionRow.of(
-                        Button.primary(createButtonCustomId(COMMAND_NAME, "+1d8", ImmutableList.of()), "+1d8"),
-                        Button.primary(createButtonCustomId(COMMAND_NAME, "-1d8", ImmutableList.of()), "-1d8"),
-                        Button.primary(createButtonCustomId(COMMAND_NAME, "+1d10", ImmutableList.of()), "+1d10"),
-                        Button.primary(createButtonCustomId(COMMAND_NAME, "-1d10", ImmutableList.of()), "-1d10"),
-                        Button.primary(createButtonCustomId(COMMAND_NAME, CLEAR_BUTTON_ID, ImmutableList.of()), "Clear")
+                        Button.primary(createButtonCustomId(COMMAND_NAME, "+1d8", config), "+1d8"),
+                        Button.primary(createButtonCustomId(COMMAND_NAME, "-1d8", config), "-1d8"),
+                        Button.primary(createButtonCustomId(COMMAND_NAME, "+1d10", config), "+1d10"),
+                        Button.primary(createButtonCustomId(COMMAND_NAME, "-1d10", config), "-1d10"),
+                        Button.primary(createButtonCustomId(COMMAND_NAME, CLEAR_BUTTON_ID, config), "Clear")
                 ),
                 ActionRow.of(
-                        Button.primary(createButtonCustomId(COMMAND_NAME, "+1d12", ImmutableList.of()), "+1d12"),
-                        Button.primary(createButtonCustomId(COMMAND_NAME, "-1d12", ImmutableList.of()), "-1d12"),
-                        Button.primary(createButtonCustomId(COMMAND_NAME, "+1d20", ImmutableList.of()), "+1d20"),
-                        Button.primary(createButtonCustomId(COMMAND_NAME, "-1d20", ImmutableList.of()), "-1d20"),
-                        Button.primary(createButtonCustomId(COMMAND_NAME, ROLL_BUTTON_ID, ImmutableList.of()), "Roll")
+                        Button.primary(createButtonCustomId(COMMAND_NAME, "+1d12", config), "+1d12"),
+                        Button.primary(createButtonCustomId(COMMAND_NAME, "-1d12", config), "-1d12"),
+                        Button.primary(createButtonCustomId(COMMAND_NAME, "+1d20", config), "+1d20"),
+                        Button.primary(createButtonCustomId(COMMAND_NAME, "-1d20", config), "-1d20"),
+                        Button.primary(createButtonCustomId(COMMAND_NAME, ROLL_BUTTON_ID, config), "Roll")
                 ),
                 ActionRow.of(
-                        Button.primary(createButtonCustomId(COMMAND_NAME, "+1", ImmutableList.of()), "+1"),
-                        Button.primary(createButtonCustomId(COMMAND_NAME, "-1", ImmutableList.of()), "-1"),
-                        Button.primary(createButtonCustomId(COMMAND_NAME, "+5", ImmutableList.of()), "+5"),
-                        Button.primary(createButtonCustomId(COMMAND_NAME, "-5", ImmutableList.of()), "-5"),
-                        Button.primary(createButtonCustomId(COMMAND_NAME, "+10", ImmutableList.of()), "+10")
+                        Button.primary(createButtonCustomId(COMMAND_NAME, "+1", config), "+1"),
+                        Button.primary(createButtonCustomId(COMMAND_NAME, "-1", config), "-1"),
+                        Button.primary(createButtonCustomId(COMMAND_NAME, "+5", config), "+5"),
+                        Button.primary(createButtonCustomId(COMMAND_NAME, "-5", config), "-5"),
+                        Button.primary(createButtonCustomId(COMMAND_NAME, "+10", config), "+10")
                 ));
+    }
+
+    @Value
+    protected static class Config implements IConfig {
+
+        @NonNull
+        Map<String, Integer> diceSetMap;
+
+        @Override
+        public String toMetricString() {
+            return SumDiceSetCommand.parseDiceMapToMessageString(diceSetMap);
+        }
+
+        @Override
+        public int getHashForCache() {
+            //config hash is always 0 because there is no permanent config
+            return 0;
+        }
     }
 }

@@ -8,6 +8,7 @@ import reactor.core.publisher.Mono;
 import java.util.List;
 
 public interface IButtonEventAdaptor extends IDiscordAdapter {
+
     String getCustomId();
 
     Snowflake getMessageId();
@@ -23,7 +24,7 @@ public interface IButtonEventAdaptor extends IDiscordAdapter {
                                  String buttonMessageText,
                                  ActiveButtonsCache activeButtonsCache,
                                  List<LayoutComponent> buttonLayout,
-                                 List<String> config);
+                                 int configHash);
 
     List<String> getAllButtonIds();
 

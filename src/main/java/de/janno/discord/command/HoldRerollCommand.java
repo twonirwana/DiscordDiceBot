@@ -1,6 +1,7 @@
 package de.janno.discord.command;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
@@ -15,12 +16,13 @@ import discord4j.core.object.component.Button;
 import discord4j.core.object.component.LayoutComponent;
 import discord4j.core.spec.EmbedCreateSpec;
 import discord4j.discordjson.json.ApplicationCommandOptionData;
+import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -28,7 +30,7 @@ import java.util.stream.IntStream;
 import static de.janno.discord.dice.DiceUtils.makeBold;
 
 @Slf4j
-public class HoldRerollCommand extends AbstractCommand {
+public class HoldRerollCommand extends AbstractCommand<HoldRerollCommand.Config> {
 
     private static final String COMMAND_NAME = "hold_reroll";
     private static final String REROLL_BUTTON_ID = "reroll";
@@ -40,12 +42,6 @@ public class HoldRerollCommand extends AbstractCommand {
     private static final String CLEAR_BUTTON_ID = "clear";
     private static final String SUBSET_DELIMITER = ";";
     private static final String DICE_SYMBOL = "d";
-    private static final int CURRENT_ROLL_CONFIG_INDEX = 0;
-    private static final int SIDES_OF_DIE_CONFIG_INDEX = 1;
-    private static final int REROLL_SET_CONFIG_INDEX = 2;
-    private static final int SUCCESS_SET_CONFIG_INDEX = 3;
-    private static final int FAILURE_SET_CONFIG_INDEX = 4;
-    private static final int REROLL_COUNT_CONFIG_INDEX = 5;
     private static final String EMPTY = "EMPTY";
 
     private final DiceUtils diceUtils;
@@ -54,16 +50,10 @@ public class HoldRerollCommand extends AbstractCommand {
         this(new DiceUtils());
     }
 
-
     @VisibleForTesting
     public HoldRerollCommand(DiceUtils diceUtils) {
         //current roll and rerollCount should not be part of the hash
-        super(new ActiveButtonsCache(COMMAND_NAME, c -> ImmutableList.of(
-                c.get(SIDES_OF_DIE_CONFIG_INDEX),
-                c.get(REROLL_SET_CONFIG_INDEX),
-                c.get(SUCCESS_SET_CONFIG_INDEX),
-                c.get(FAILURE_SET_CONFIG_INDEX)
-        ).hashCode()));
+        super(new ActiveButtonsCache(COMMAND_NAME));
         this.diceUtils = diceUtils;
     }
 
@@ -76,11 +66,9 @@ public class HoldRerollCommand extends AbstractCommand {
         }).collect(Collectors.joining(",")) + "]";
     }
 
-    private Set<Integer> getToMark(List<String> config) {
-        int sidesOfDie = getSidesOfDie(config);
-        Set<Integer> rerollSet = getRerollSet(config);
-        return IntStream.range(1, sidesOfDie + 1)
-                .filter(i -> !rerollSet.contains(i))
+    private Set<Integer> getToMark(Config config) {
+        return IntStream.range(1, config.getSidesOfDie() + 1)
+                .filter(i -> !config.getRerollSet().contains(i))
                 .boxed()
                 .collect(Collectors.toSet());
     }
@@ -101,6 +89,24 @@ public class HoldRerollCommand extends AbstractCommand {
     @Override
     public String getName() {
         return COMMAND_NAME;
+    }
+
+    @Override
+    protected String createButtonCustomId(String system, String value, Config config) {
+
+        Preconditions.checkArgument(!system.contains(CONFIG_DELIMITER));
+        Preconditions.checkArgument(!value.contains(CONFIG_DELIMITER));
+
+        return String.join(CONFIG_DELIMITER,
+                system,
+                value,
+                config.getCurrentResults().isEmpty() ? EMPTY : config.getCurrentResults().stream().map(String::valueOf).collect(Collectors.joining(SUBSET_DELIMITER)),
+                String.valueOf(config.getSidesOfDie()),
+                config.getRerollSet().stream().map(String::valueOf).collect(Collectors.joining(SUBSET_DELIMITER)),
+                config.getSuccessSet().stream().map(String::valueOf).collect(Collectors.joining(SUBSET_DELIMITER)),
+                config.getFailureSet().stream().map(String::valueOf).collect(Collectors.joining(SUBSET_DELIMITER)),
+                String.valueOf(config.getRerollCounter())
+        );
     }
 
     @Override
@@ -135,66 +141,54 @@ public class HoldRerollCommand extends AbstractCommand {
     }
 
     @Override
-    protected List<DiceResult> getDiceResult(String buttonValue, List<String> config) {
-        List<Integer> rollResult = getCurrentRollResult(config);
-        Set<Integer> successSet = getSuccessSet(config);
-        Set<Integer> failureSet = getFailureSet(config);
-        int successes = DiceUtils.numberOfDiceResultsEqual(rollResult, successSet);
-        int failures = DiceUtils.numberOfDiceResultsEqual(rollResult, failureSet);
-        String rerollCount = config.get(REROLL_COUNT_CONFIG_INDEX);
+    protected List<DiceResult> getDiceResult(String buttonValue, Config config) {
+
+        int successes = DiceUtils.numberOfDiceResultsEqual(config.getCurrentResults(), config.getSuccessSet());
+        int failures = DiceUtils.numberOfDiceResultsEqual(config.getCurrentResults(), config.getFailureSet());
+        int rerollCount = config.getRerollCounter();
         String title;
-        if ("0".equals(rerollCount)) {
+        if (rerollCount == 0) {
             title = String.format("Success: %d and Failure: %d", successes, failures);
         } else {
-            title = String.format("Success: %d, Failure: %d and Rerolls: %s", successes, failures, rerollCount);
+            title = String.format("Success: %d, Failure: %d and Rerolls: %d", successes, failures, rerollCount);
         }
 
-        DiceResult diceResult = new DiceResult(title, markIn(rollResult, getToMark(config)));
+        DiceResult diceResult = new DiceResult(title, markIn(config.getCurrentResults(), getToMark(config)));
         return ImmutableList.of(diceResult);
     }
 
     @Override
-    protected List<String> getConfigFromEvent(IButtonEventAdaptor event) {
-        List<String> config = new ArrayList<>(super.getConfigFromEvent(event));
+    protected Config getConfigFromEvent(IButtonEventAdaptor event) {
+        String[] customIdSplit = event.getCustomId().split(CONFIG_DELIMITER);
         String buttonValue = getButtonValueFromEvent(event);
-        Set<Integer> rerollSet = getRerollSet(config);
-        int sideOfDie = getSidesOfDie(config);
+        List<Integer> currentResult = getCurrentRollResult(customIdSplit[2]);
+        int sideOfDie = Integer.parseInt(customIdSplit[3]);
+        Set<Integer> rerollSet = toSet(customIdSplit[4]);
+        Set<Integer> successSet = toSet(customIdSplit[5]);
+        Set<Integer> failureSet = toSet(customIdSplit[6]);
+        int rerollCount = Integer.parseInt(customIdSplit[7]);
+
         if (REROLL_BUTTON_ID.equals(buttonValue)) {
-            List<Integer> currentResult = getCurrentRollResult(config);
-            List<Integer> rerollResult = currentResult.stream()
+            currentResult = currentResult.stream()
                     .map(i -> {
                         if (rerollSet.contains(i)) {
                             return diceUtils.rollDice(sideOfDie);
                         }
                         return i;
                     }).collect(Collectors.toList());
-            config.set(CURRENT_ROLL_CONFIG_INDEX, getConfigStringFromResultList(rerollResult));
-            int rerollCount = Integer.parseInt(config.get(REROLL_COUNT_CONFIG_INDEX));
             rerollCount++;
-            config.set(REROLL_COUNT_CONFIG_INDEX, String.valueOf(rerollCount));
         } else if (CLEAR_BUTTON_ID.equals(buttonValue)) {
-            config.set(CURRENT_ROLL_CONFIG_INDEX, EMPTY);
-            config.set(REROLL_COUNT_CONFIG_INDEX, "0");
+            currentResult = ImmutableList.of();
+            rerollCount = 0;
         } else if (StringUtils.isNumeric(buttonValue)) {
             int numberOfDice = Integer.parseInt(buttonValue);
-            List<Integer> rollResult = diceUtils.rollDiceOfType(numberOfDice, sideOfDie);
-            config.set(CURRENT_ROLL_CONFIG_INDEX, getConfigStringFromResultList(rollResult));
-            config.set(REROLL_COUNT_CONFIG_INDEX, "0");
+            currentResult = diceUtils.rollDiceOfType(numberOfDice, sideOfDie);
+            rerollCount = 0;
         }
-        return ImmutableList.copyOf(config);
+        return new Config(currentResult, sideOfDie, rerollSet, successSet, failureSet, rerollCount);
     }
 
-    private String getConfigStringFromResultList(List<Integer> result) {
-        return result.stream()
-                .map(String::valueOf)
-                .collect(Collectors.joining(SUBSET_DELIMITER));
-    }
-
-    private List<Integer> getCurrentRollResult(List<String> config) {
-        if (config.size() < 1) {
-            return ImmutableList.of();
-        }
-        String currentRollResultString = config.get(CURRENT_ROLL_CONFIG_INDEX);
+    private List<Integer> getCurrentRollResult(String currentRollResultString) {
         if (EMPTY.equals(currentRollResultString)) {
             return ImmutableList.of();
         }
@@ -204,44 +198,25 @@ public class HoldRerollCommand extends AbstractCommand {
                 .collect(Collectors.toList());
     }
 
-    private boolean rollFinished(List<String> config) {
-        Set<Integer> rerollSet = getRerollSet(config);
-        return getCurrentRollResult(config).stream().noneMatch(rerollSet::contains);
+    private boolean rollFinished(Config config) {
+        return config.currentResults.stream().noneMatch(i -> config.getRerollSet().contains(i));
     }
 
-    private int getSidesOfDie(List<String> config) {
-        return Integer.parseInt(config.get(SIDES_OF_DIE_CONFIG_INDEX));
-    }
-
-    private Set<Integer> getRerollSet(List<String> config) {
-        return Arrays.stream(config.get(REROLL_SET_CONFIG_INDEX).split(SUBSET_DELIMITER))
+    private Set<Integer> toSet(String value) {
+        return Arrays.stream(value.split(SUBSET_DELIMITER))
                 .filter(StringUtils::isNumeric)
                 .map(Integer::parseInt)
                 .collect(ImmutableSet.toImmutableSet());
     }
 
-    private Set<Integer> getSuccessSet(List<String> config) {
-        return Arrays.stream(config.get(SUCCESS_SET_CONFIG_INDEX).split(SUBSET_DELIMITER))
-                .filter(StringUtils::isNumeric)
-                .map(Integer::parseInt)
-                .collect(ImmutableSet.toImmutableSet());
-    }
-
-    private Set<Integer> getFailureSet(List<String> config) {
-        return Arrays.stream(config.get(FAILURE_SET_CONFIG_INDEX).split(SUBSET_DELIMITER))
-                .filter(StringUtils::isNumeric)
-                .map(Integer::parseInt)
-                .collect(ImmutableSet.toImmutableSet());
-    }
-
-    protected boolean createAnswerMessage(String buttonId, List<String> config) {
+    protected boolean createAnswerMessage(String buttonId, Config config) {
         if (CLEAR_BUTTON_ID.equals(buttonId)) {
             return false;
         }
         return FINISH_BUTTON_ID.equals(buttonId) || rollFinished(config);
     }
 
-    private String getConfigStringFromCommandOptions(ApplicationCommandInteractionOption options, String optionId) {
+    private Set<Integer> getConfigSetFromCommandOptions(ApplicationCommandInteractionOption options, String optionId) {
         return options.getOption(optionId)
                 .flatMap(ApplicationCommandInteractionOption::getValue)
                 .map(ApplicationCommandInteractionOptionValue::asString)
@@ -251,22 +226,22 @@ public class HoldRerollCommand extends AbstractCommand {
                 .stream()
                 .map(String::trim)
                 .filter(StringUtils::isNumeric)
-                .filter(s -> Integer.parseInt(s) > 0)
-                .collect(Collectors.joining(SUBSET_DELIMITER));
+                .map(Integer::parseInt)
+                .filter(i -> i > 0)
+                .collect(ImmutableSet.toImmutableSet());
     }
 
     @Override
-    protected List<String> getConfigValuesFromStartOptions(ApplicationCommandInteractionOption options) {
-        String sideValue = options.getOption(SIDES_OF_DIE_ID)
+    protected Config getConfigValuesFromStartOptions(ApplicationCommandInteractionOption options) {
+        int sideValue = Math.toIntExact(options.getOption(SIDES_OF_DIE_ID)
                 .flatMap(ApplicationCommandInteractionOption::getValue)
                 .map(ApplicationCommandInteractionOptionValue::asLong)
                 .map(l -> Math.min(l, 1000))
-                .map(Object::toString)
-                .orElse("6");
-        String rerollSet = getConfigStringFromCommandOptions(options, REROLL_SET_ID);
-        String successSet = getConfigStringFromCommandOptions(options, SUCCESS_SET_ID);
-        String failureSet = getConfigStringFromCommandOptions(options, FAILURE_SET_ID);
-        return ImmutableList.of(EMPTY, sideValue, rerollSet, successSet, failureSet, "0");
+                .orElse(6L));
+        Set<Integer> rerollSet = getConfigSetFromCommandOptions(options, REROLL_SET_ID);
+        Set<Integer> successSet = getConfigSetFromCommandOptions(options, SUCCESS_SET_ID);
+        Set<Integer> failureSet = getConfigSetFromCommandOptions(options, FAILURE_SET_ID);
+        return new Config(ImmutableList.of(), sideValue, rerollSet, successSet, failureSet, 0);
     }
 
     @Override
@@ -275,30 +250,25 @@ public class HoldRerollCommand extends AbstractCommand {
     }
 
     @Override
-    protected String getButtonMessage(String buttonValue, List<String> config) {
-        List<Integer> currentRollResult = getCurrentRollResult(config);
-        Set<Integer> successSet = getSuccessSet(config);
-        Set<Integer> failureSet = getFailureSet(config);
-        Set<Integer> rerollSet = getRerollSet(config);
-        if (currentRollResult.isEmpty() || CLEAR_BUTTON_ID.equals(buttonValue)
+    protected String getButtonMessage(String buttonValue, Config config) {
+        if (config.getRerollSet().isEmpty() || CLEAR_BUTTON_ID.equals(buttonValue)
                 || FINISH_BUTTON_ID.equals(buttonValue)
                 || rollFinished(config)) {
             return String.format("Click on the buttons to roll dice. Reroll set: %s, Success Set: %s and Failure Set: %s",
-                    rerollSet, successSet, failureSet);
+                    config.getRerollSet(), config.getSuccessSet(), config.getFailureSet());
         }
 
-        int successes = DiceUtils.numberOfDiceResultsEqual(currentRollResult, successSet);
-        int failures = DiceUtils.numberOfDiceResultsEqual(currentRollResult, failureSet);
-        return String.format("%s = %d successes and %d failures", markIn(currentRollResult, getToMark(config)), successes, failures);
+        int successes = DiceUtils.numberOfDiceResultsEqual(config.getCurrentResults(), config.getSuccessSet());
+        int failures = DiceUtils.numberOfDiceResultsEqual(config.getCurrentResults(), config.getFailureSet());
+        return String.format("%s = %d successes and %d failures", markIn(config.getCurrentResults(), getToMark(config)), successes, failures);
     }
 
     @Override
-    protected List<LayoutComponent> getButtonLayout(String buttonValue, List<String> config) {
-        int sidesOfDie = getSidesOfDie(config);
+    protected List<LayoutComponent> getButtonLayout(String buttonValue, Config config) {
         if (buttonValue == null || CLEAR_BUTTON_ID.equals(buttonValue) || FINISH_BUTTON_ID.equals(buttonValue) || rollFinished(config)) {
             List<Button> buttons = IntStream.range(1, 16)
                     .mapToObj(i -> Button.primary(createButtonCustomId(COMMAND_NAME, String.valueOf(i), config),
-                            String.format("%d%s%s", i, DICE_SYMBOL, sidesOfDie)))
+                            String.format("%d%s%s", i, DICE_SYMBOL, config.getSidesOfDie())))
                     .collect(Collectors.toList());
             return Lists.partition(buttons, 5).stream().map(ActionRow::of).collect(Collectors.toList());
         }
@@ -312,42 +282,47 @@ public class HoldRerollCommand extends AbstractCommand {
 
     @Override
     protected String getStartOptionsValidationMessage(ApplicationCommandInteractionOption options) {
-        List<String> conf = getConfigValuesFromStartOptions(options);
+        Config conf = getConfigValuesFromStartOptions(options);
         return validate(conf);
     }
 
     @VisibleForTesting
-    String validate(List<String> conf) {
-        int sides = getSidesOfDie(conf);
-        Set<Integer> rerollSet = getRerollSet(conf);
-        Set<Integer> successSet = getSuccessSet(conf);
-        Set<Integer> failureSet = getFailureSet(conf);
+    String validate(Config config) {
 
-        if (rerollSet.stream().anyMatch(i -> i > sides)) {
-            return String.format("reroll set %s contains a number bigger then the sides of the die %s", rerollSet, sides);
+        if (config.getRerollSet().stream().anyMatch(i -> i > config.getSidesOfDie())) {
+            return String.format("reroll set %s contains a number bigger then the sides of the die %s", config.getRerollSet(), config.getSidesOfDie());
         }
-        if (successSet.stream().anyMatch(i -> i > sides)) {
-            return String.format("success set %s contains a number bigger then the sides of the die %s", successSet, sides);
+        if (config.getSuccessSet().stream().anyMatch(i -> i > config.getSidesOfDie())) {
+            return String.format("success set %s contains a number bigger then the sides of the die %s", config.getSuccessSet(), config.getSidesOfDie());
         }
-        if (failureSet.stream().anyMatch(i -> i > sides)) {
-            return String.format("failure set set %s contains a number bigger then the sides of the die %s", failureSet, sides);
-        }
-        Set<Integer> rerollSuccessOverlapping = getOverlapping(rerollSet, successSet);
-        if (rerollSuccessOverlapping.size() > 0) {
-            return String.format("The numbers %s are member of the reroll set and the success set, that is not allowed", rerollSuccessOverlapping);
-        }
-        Set<Integer> rerollFailureOverlapping = getOverlapping(rerollSet, failureSet);
-        if (rerollFailureOverlapping.size() > 0) {
-            return String.format("The numbers %s are member of the reroll set and the failure set, that is not allowed", rerollFailureOverlapping);
-        }
-        Set<Integer> successFailureOverlapping = getOverlapping(successSet, failureSet);
-        if (successFailureOverlapping.size() > 0) {
-            return String.format("The numbers %s are member of the success set and the failure set, that is not allowed", successFailureOverlapping);
+        if (config.getFailureSet().stream().anyMatch(i -> i > config.getSidesOfDie())) {
+            return String.format("failure set %s contains a number bigger then the sides of the die %s", config.getFailureSet(), config.getSidesOfDie());
         }
         return null;
     }
 
-    private Set<Integer> getOverlapping(Set<Integer> a, Set<Integer> b) {
-        return a.stream().filter(b::contains).collect(ImmutableSet.toImmutableSet());
+    @Value
+    protected static class Config implements IConfig {
+        List<Integer> currentResults;
+        int sidesOfDie;
+        Set<Integer> rerollSet;
+        Set<Integer> successSet;
+        Set<Integer> failureSet;
+        int rerollCounter;
+
+        @Override
+        public String toMetricString() {
+            return ImmutableList.of(
+                    String.valueOf(sidesOfDie),
+                    rerollSet.stream().map(String::valueOf).collect(Collectors.joining(SUBSET_DELIMITER)),
+                    successSet.stream().map(String::valueOf).collect(Collectors.joining(SUBSET_DELIMITER)),
+                    failureSet.stream().map(String::valueOf).collect(Collectors.joining(SUBSET_DELIMITER))
+            ).toString();
+        }
+
+        @Override
+        public int getHashForCache() {
+            return Objects.hash(sidesOfDie, rerollCounter, successSet, failureSet);
+        }
     }
 }

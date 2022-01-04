@@ -60,15 +60,14 @@ public class ButtonEventAdapter extends DiscordAdapter implements IButtonEventAd
                                         String buttonMessageText,
                                         ActiveButtonsCache activeButtonsCache,
                                         List<LayoutComponent> buttonLayout,
-                                        List<String> config) {
+                                        int configHash) {
         return event.getInteraction().getChannel()
                 .ofType(TextChannel.class)
                 .flatMap(channel ->
                 {
-                    //if the triggering message is pinned and its connent not changed, then the new message should have a modified message content
-                    // String messageContent = triggeringMessageIsPinned ? editMessage(buttonValue, config) : getButtonMessage(buttonValue, config);
+                    //if the triggering message is pinned and its content is not changed, then the new message should have a modified message content
                     String messageContent = triggeringMessageIsPinned ? editMessageText : buttonMessageText;
-                    return createButtonMessage(activeButtonsCache, channel, messageContent, buttonLayout, config)
+                    return createButtonMessage(activeButtonsCache, channel, messageContent, buttonLayout, configHash)
                             .onErrorResume(t -> {
                                 log.warn("Error on creating button message");
                                 return Mono.empty();
@@ -78,9 +77,9 @@ public class ButtonEventAdapter extends DiscordAdapter implements IButtonEventAd
                     if (triggeringMessageIsPinned) {
                         //removing from cache on pin event would be better but currently not possible with discord4j
                         //if the message was not removed, we don't want that it is removed later
-                        activeButtonsCache.removeButtonFromChannel(event.getInteraction().getChannelId(), event.getMessageId(), config);
+                        activeButtonsCache.removeButtonFromChannel(event.getInteraction().getChannelId(), event.getMessageId(), configHash);
                     }
-                    return deleteMessage(m.getChannel(), m.getChannelId(), activeButtonsCache, m.getId(), config);
+                    return deleteMessage(m.getChannel(), m.getChannelId(), activeButtonsCache, m.getId(), configHash);
                 });
     }
 

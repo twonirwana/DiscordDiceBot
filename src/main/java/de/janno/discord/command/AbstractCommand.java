@@ -1,6 +1,5 @@
 package de.janno.discord.command;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import de.janno.discord.Metrics;
 import de.janno.discord.cache.ActiveButtonsCache;
@@ -19,13 +18,11 @@ import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static de.janno.discord.dice.DiceUtils.MINUS;
 
 @Slf4j
-public abstract class AbstractCommand implements ISlashCommand, IComponentInteractEventHandler {
+public abstract class AbstractCommand<T extends IConfig> implements ISlashCommand, IComponentInteractEventHandler {
 
     protected static final String ACTION_START = "start";
     protected static final String ACTION_HELP = "help";
@@ -36,13 +33,7 @@ public abstract class AbstractCommand implements ISlashCommand, IComponentIntera
         this.activeButtonsCache = activeButtonsCache;
     }
 
-    protected static String createButtonCustomId(String system, String value, List<String> config) {
-        Preconditions.checkArgument(!system.contains(CONFIG_DELIMITER));
-        Preconditions.checkArgument(!value.contains(CONFIG_DELIMITER));
-        Preconditions.checkArgument(config.stream().noneMatch(s -> s.contains(CONFIG_DELIMITER)));
-        return Stream.concat(Stream.of(system, value), config.stream())
-                .collect(Collectors.joining(CONFIG_DELIMITER));
-    }
+    protected abstract String createButtonCustomId(String system, String value, T config);
 
     protected List<ApplicationCommandOptionData> getStartOptions() {
         return ImmutableList.of();
@@ -72,9 +63,9 @@ public abstract class AbstractCommand implements ISlashCommand, IComponentIntera
 
     @Override
     public Mono<Void> handleComponentInteractEvent(@NonNull IButtonEventAdaptor event) {
-        List<String> config = getConfigFromEvent(event);
+        T config = getConfigFromEvent(event);
         //adding the message of the event to the cache, in the case that the bot was restarted and has forgotten the button
-        activeButtonsCache.addChannelWithButton(event.getChannelId(), event.getMessageId(), config);
+        activeButtonsCache.addChannelWithButton(event.getChannelId(), event.getMessageId(), config.getHashForCache());
 
         String buttonValue = getButtonValueFromEvent(event);
         List<Mono<Void>> actions = new ArrayList<>();
@@ -84,7 +75,7 @@ public abstract class AbstractCommand implements ISlashCommand, IComponentIntera
                 //if the button is pined it keeps its message
                 .editMessage(editMessage(buttonValue, config)));
         if (createAnswerMessage(buttonValue, config)) {
-            Metrics.incrementButtonMetricCounter(getName(), config);
+            Metrics.incrementButtonMetricCounter(getName(), config.toMetricString());
             actions.add(createButtonEventAnswer(event, config));
         }
         if (copyButtonMessageToTheEnd(buttonValue, config)) {
@@ -93,7 +84,7 @@ public abstract class AbstractCommand implements ISlashCommand, IComponentIntera
                     getButtonMessage(buttonValue, config),
                     activeButtonsCache,
                     getButtonLayout(buttonValue, config),
-                    config));
+                    config.getHashForCache()));
         }
 
         return Flux.mergeDelayError(1, actions.toArray(new Mono<?>[0]))
@@ -101,7 +92,7 @@ public abstract class AbstractCommand implements ISlashCommand, IComponentIntera
                 .then();
     }
 
-    protected Mono<Void> createButtonEventAnswer(@NonNull IButtonEventAdaptor event, @NonNull List<String> config) {
+    protected Mono<Void> createButtonEventAnswer(@NonNull IButtonEventAdaptor event, @NonNull T config) {
         List<DiceResult> result = getDiceResult(getButtonValueFromEvent(event), config);
         result.forEach(d -> log.info(String.format("%s:%s -> %s: %s", getName(), config, d.getResultTitle(), d.getResultDetails()
                 .replace("▢", "0")
@@ -112,15 +103,15 @@ public abstract class AbstractCommand implements ISlashCommand, IComponentIntera
     }
 
     //default is to leave the message unaltered
-    protected String editMessage(String buttonId, List<String> config) {
+    protected String editMessage(String buttonId, T config) {
         return getButtonMessage(buttonId, config);
     }
 
-    protected boolean createAnswerMessage(String buttonId, List<String> config) {
+    protected boolean createAnswerMessage(String buttonId, T config) {
         return true;
     }
 
-    protected boolean copyButtonMessageToTheEnd(String buttonId, List<String> config) {
+    protected boolean copyButtonMessageToTheEnd(String buttonId, T config) {
         return true;
     }
 
@@ -134,11 +125,14 @@ public abstract class AbstractCommand implements ISlashCommand, IComponentIntera
                 log.info("Validation message: {}", validationMessage);
                 return event.reply(validationMessage);
             }
-            List<String> config = getConfigValuesFromStartOptions(options);
-            Metrics.incrementSlashStartMetricCounter(getName(), config);
+            T config = getConfigValuesFromStartOptions(options);
+            Metrics.incrementSlashStartMetricCounter(getName(), config.toMetricString());
 
             return event.reply("...")
-                    .then(event.createButtonMessage(activeButtonsCache, getButtonMessage(null, config), getButtonLayout(null, config), config));
+                    .then(event.createButtonMessage(activeButtonsCache,
+                            getButtonMessage(null, config),
+                            getButtonLayout(null, config),
+                            config.getHashForCache()));
 
         } else if (event.getOption(ACTION_HELP).isPresent()) {
             Metrics.incrementSlashHelpMetricCounter(getName());
@@ -149,26 +143,19 @@ public abstract class AbstractCommand implements ISlashCommand, IComponentIntera
 
     protected abstract EmbedCreateSpec getHelpMessage();
 
-    protected abstract String getButtonMessage(@Nullable String buttonValue, List<String> config);
+    protected abstract String getButtonMessage(@Nullable String buttonValue, T config);
 
-    protected abstract List<String> getConfigValuesFromStartOptions(ApplicationCommandInteractionOption options);
+    protected abstract T getConfigValuesFromStartOptions(ApplicationCommandInteractionOption options);
 
-    protected abstract List<DiceResult> getDiceResult(String buttonValue, List<String> config);
+    protected abstract List<DiceResult> getDiceResult(String buttonValue, T config);
 
-    protected abstract List<LayoutComponent> getButtonLayout(@Nullable String buttonValue, List<String> config);
+    protected abstract List<LayoutComponent> getButtonLayout(@Nullable String buttonValue, T config);
 
     protected String getStartOptionsValidationMessage(ApplicationCommandInteractionOption options) {
         return null;
     }
 
-    protected List<String> getConfigFromEvent(IButtonEventAdaptor event) {
-        ImmutableList.Builder<String> builder = ImmutableList.builder();
-        String[] split = event.getCustomId().split(CONFIG_DELIMITER);
-        for (int i = 2; i < split.length; i++) {
-            builder.add(split[i]);
-        }
-        return builder.build();
-    }
+    protected abstract T getConfigFromEvent(IButtonEventAdaptor event);
 
     protected String getButtonValueFromEvent(IButtonEventAdaptor event) {
         return event.getCustomId().split(CONFIG_DELIMITER)[1];

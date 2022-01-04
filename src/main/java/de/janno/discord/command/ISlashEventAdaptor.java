@@ -20,6 +20,6 @@ public interface ISlashEventAdaptor extends IDiscordAdapter {
     Mono<Void> createButtonMessage(ActiveButtonsCache activeButtonsCache,
                                    @NonNull String buttonMessage,
                                    @NonNull List<LayoutComponent> buttons,
-                                   @NonNull List<String> config);
+                                   int configHash);
 
 }

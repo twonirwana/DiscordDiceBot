@@ -43,8 +43,22 @@ public abstract class DiscordAdapter implements IDiscordAdapter {
                 .author(rollRequester.getDisplayName(), null, rollRequester.getAvatarUrl())
                 .color(Color.of(rollRequester.getId().hashCode()))
                 .description(StringUtils.abbreviate(encodeUTF8(diceResult.getResultDetails()), 4096)) //https://discord.com/developers/docs/resources/channel#embed-limits
-                //   .timestamp(Instant.now())
                 .build();
+    }
+
+    public static String getSlashOptionsToString(ChatInputInteractionEvent event) {
+        List<String> options = event.getOptions().stream()
+                .map(DiscordAdapter::optionToString)
+                .collect(Collectors.toList());
+        return options.isEmpty() ? "" : options.toString();
+    }
+
+    private static String optionToString(ApplicationCommandInteractionOption option) {
+        List<String> subOptions = option.getOptions().stream().map(DiscordAdapter::optionToString).collect(Collectors.toList());
+        return String.format("%s=%s%s",
+                option.getName(),
+                option.getValue().map(ApplicationCommandInteractionOptionValue::getRaw).orElse(""),
+                subOptions.isEmpty() ? "" : subOptions.toString());
     }
 
     public EmbedCreateSpec createEmbedMessageWithReference(
@@ -75,11 +89,11 @@ public abstract class DiscordAdapter implements IDiscordAdapter {
             @NonNull Snowflake channelId,
             @NonNull ActiveButtonsCache activeButtonsCache,
             @NonNull Snowflake toKeep,
-            @NonNull List<String> config) {
+            int configHash) {
         return channel
                 .flux()
                 .flatMap(c -> {
-                    List<Snowflake> allButtonsWithoutTheLast = activeButtonsCache.getAllWithoutOneAndRemoveThem(channelId, toKeep, config);
+                    List<Snowflake> allButtonsWithoutTheLast = activeButtonsCache.getAllWithoutOneAndRemoveThem(channelId, toKeep, configHash);
                     return Flux.fromIterable(allButtonsWithoutTheLast).flatMap(c::getMessageById);
                 })
                 .onErrorResume(e -> {
@@ -90,10 +104,10 @@ public abstract class DiscordAdapter implements IDiscordAdapter {
     }
 
     public Mono<Message> createButtonMessage(ActiveButtonsCache activeButtonsCache,
-                                                    @NonNull TextChannel channel,
-                                                    @NonNull String buttonMessage,
-                                                    @NonNull List<LayoutComponent> buttons,
-                                                    @NonNull List<String> config) {
+                                             @NonNull TextChannel channel,
+                                             @NonNull String buttonMessage,
+                                             @NonNull List<LayoutComponent> buttons,
+                                             int configHash) {
         return channel
                 .createMessage(MessageCreateSpec.builder()
                         .content(buttonMessage)
@@ -101,25 +115,10 @@ public abstract class DiscordAdapter implements IDiscordAdapter {
                         .build())
                 .map(m -> {
                     if (activeButtonsCache != null) {
-                        activeButtonsCache.addChannelWithButton(m.getChannelId(), m.getId(), config);
+                        activeButtonsCache.addChannelWithButton(m.getChannelId(), m.getId(), configHash);
                     }
                     return m;
                 });
-    }
-
-    public static String getSlashOptionsToString(ChatInputInteractionEvent event) {
-        List<String> options = event.getOptions().stream()
-                .map(DiscordAdapter::optionToString)
-                .collect(Collectors.toList());
-        return options.isEmpty() ? "" : options.toString();
-    }
-
-    private static String optionToString(ApplicationCommandInteractionOption option) {
-        List<String> subOptions = option.getOptions().stream().map(DiscordAdapter::optionToString).collect(Collectors.toList());
-        return String.format("%s=%s%s",
-                option.getName(),
-                option.getValue().map(ApplicationCommandInteractionOptionValue::getRaw).orElse(""),
-                subOptions.isEmpty() ? "" : subOptions.toString());
     }
 
 }
