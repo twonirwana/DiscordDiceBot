@@ -206,7 +206,7 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesCommand
     }
 
     @Override
-    protected Config getConfigValuesFromStartOptions(ApplicationCommandInteractionOption options) {
+    protected Config getConfigFromStartOptions(ApplicationCommandInteractionOption options) {
         int sideValue = Math.toIntExact(options.getOption(ACTION_SIDE_OPTION)
                 .flatMap(ApplicationCommandInteractionOption::getValue)
                 .map(ApplicationCommandInteractionOptionValue::asLong)
@@ -264,7 +264,7 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesCommand
         int maxNumberOfButtons;
 
         @Override
-        public String toMetricString() {
+        public String toShortString() {
             return String.join(CONFIG_DELIMITER,
                     String.valueOf(getDiceSides()),
                     String.valueOf(getTarget()),

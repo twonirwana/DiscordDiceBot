@@ -3,6 +3,7 @@ package de.janno.discord.command;
 import com.google.common.collect.ImmutableMap;
 import de.janno.discord.dice.DiceResult;
 import de.janno.discord.dice.DiceUtils;
+import discord4j.core.object.component.LayoutComponent;
 import discord4j.discordjson.json.ApplicationCommandOptionData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -269,7 +270,7 @@ class SumDiceSetCommandTest {
 
     @Test
     void getConfigValuesFromStartOptions() {
-        SumDiceSetCommand.Config res = underTest.getConfigValuesFromStartOptions(null);
+        SumDiceSetCommand.Config res = underTest.getConfigFromStartOptions(null);
         assertThat(res).isEqualTo(new SumDiceSetCommand.Config());
     }
 
@@ -323,5 +324,18 @@ class SumDiceSetCommandTest {
         String res = underTest.createButtonCustomId("+1d6");
 
         assertThat(res).isEqualTo("sum_dice_set,+1d6");
+    }
+
+    @Test
+    void getButtonLayout() {
+        List<LayoutComponent> res = underTest.getButtonLayout(new SumDiceSetCommand.State("roll", ImmutableMap.of()), new SumDiceSetCommand.Config());
+
+        assertThat(res.stream().flatMap(l -> l.getChildren().stream()).map(l -> l.getData().label().get()))
+                .containsExactly("+1d4", "-1d4", "+1d6", "-1d6", "x2", "+1d8", "-1d8", "+1d10", "-1d10", "Clear", "+1d12", "-1d12", "+1d20", "-1d20", "Roll", "+1", "-1", "+5", "-5", "+10");
+        assertThat(res.stream().flatMap(l -> l.getChildren().stream()).map(l -> l.getData().customId().get()))
+                .containsExactly("sum_dice_set,+1d4", "sum_dice_set,-1d4", "sum_dice_set,+1d6", "sum_dice_set,-1d6",
+                        "sum_dice_set,x2", "sum_dice_set,+1d8", "sum_dice_set,-1d8", "sum_dice_set,+1d10", "sum_dice_set,-1d10",
+                        "sum_dice_set,clear", "sum_dice_set,+1d12", "sum_dice_set,-1d12", "sum_dice_set,+1d20", "sum_dice_set,-1d20",
+                        "sum_dice_set,roll", "sum_dice_set,+1", "sum_dice_set,-1", "sum_dice_set,+5", "sum_dice_set,-5", "sum_dice_set,+10");
     }
 }

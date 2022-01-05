@@ -1,6 +1,8 @@
 package de.janno.discord.command;
 
 import discord4j.core.object.component.LayoutComponent;
+import lombok.NonNull;
+import lombok.Value;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -21,7 +23,15 @@ public interface IButtonEventAdaptor extends IDiscordAdapter {
 
     Mono<Void> deleteMessage(long messageId);
 
-    List<String> getAllButtonIds();
+    List<LabelAndCustomId> getAllButtonIds();
 
     String getMessageContent();
+
+    @Value
+    class LabelAndCustomId {
+        @NonNull
+        String label;
+        @NonNull
+        String customId;
+    }
 }

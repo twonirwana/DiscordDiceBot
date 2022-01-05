@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## 2022-01-05
+
+### Added
+
+the custom dice command can now configure labels for the dice expressions
+
 ## 2022-01-01
 
 ### Added

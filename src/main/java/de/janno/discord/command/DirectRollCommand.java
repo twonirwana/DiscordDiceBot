@@ -1,7 +1,6 @@
 package de.janno.discord.command;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.ImmutableList;
 import de.janno.discord.Metrics;
 import de.janno.discord.dice.DiceParserHelper;
 import de.janno.discord.dice.DiceResult;
@@ -56,7 +55,7 @@ public class DirectRollCommand implements ISlashCommand {
             String diceExpression = options.getValue()
                     .map(ApplicationCommandInteractionOptionValue::asString)
                     .orElseThrow();
-            String validationMessage = diceParserHelper.validateDiceExpressions(ImmutableList.of(diceExpression), "/custom_dice help");
+            String validationMessage = diceParserHelper.validateDiceExpression(diceExpression, "/custom_dice help");
             if (validationMessage != null) {
                 log.info("Validation message: {}", validationMessage);
                 return event.reply(validationMessage);

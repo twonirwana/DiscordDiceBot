@@ -63,8 +63,8 @@ class DiceParserHelperTest {
 
     @Test
     void validateDiceExpressions() {
-        assertThat(diceParserHelper.validateDiceExpressions(ImmutableList.of("1d4/"), "test"))
-                .isEqualTo("The following dice expression are invalid: 1d4/. Use test to get more information on how to use the command.");
+        assertThat(diceParserHelper.validateDiceExpression("1d4/", "test"))
+                .isEqualTo("The following dice expression are invalid: '1d4/'. Use test to get more information on how to use the command.");
     }
 
     @Test

@@ -29,6 +29,7 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceCommand.Config,
 
     private static final String COMMAND_NAME = "custom_dice";
     private static final List<String> DICE_COMMAND_OPTIONS_IDS = IntStream.range(1, 26).mapToObj(i -> i + "_button").collect(Collectors.toList());
+    private static final String LABEL_DELIMITER = "@";
     private final DiceParserHelper diceParserHelper;
 
     public CustomDiceCommand() {
@@ -111,6 +112,8 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceCommand.Config,
                         "---------------------------------------\n" +
                         "Multiple Rolls |'x[]'      |`3x[3d6]`  \n" +
                         "---------------------------------------\n" +
+                        "Label          |'x@l'      |`1d20@Att' \n" +
+                        "---------------------------------------\n" +
                         "Integer        |''         |'42'       \n" +
                         "---------------------------------------\n" +
                         "Add            |' + '      |'2d6 + 2'  \n" +
@@ -129,27 +132,83 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceCommand.Config,
 
     @Override
     protected String getStartOptionsValidationMessage(ApplicationCommandInteractionOption options) {
-
-        List<String> allDiceExpressions = DICE_COMMAND_OPTIONS_IDS.stream()
+        List<String> diceExpressionWithOptionalLabel = DICE_COMMAND_OPTIONS_IDS.stream()
                 .flatMap(id -> options.getOption(id).stream())
                 .flatMap(a -> a.getValue().stream())
                 .map(ApplicationCommandInteractionOptionValue::asString)
                 .map(Object::toString)
                 .distinct()
                 .collect(Collectors.toList());
+        return validate(diceExpressionWithOptionalLabel);
+    }
 
-        return diceParserHelper.validateDiceExpressions(allDiceExpressions, "/custom_dice help");
+    @VisibleForTesting
+    String validate(List<String> optionValues) {
+        if (optionValues.isEmpty()) {
+            return "You must configure at least one button with a dice expression. Use '/custom_dice help' to get more information on how to use the command.";
+        }
+        for (String startOptionString : optionValues) {
+            String label;
+            String diceExpression;
+            if (startOptionString.contains(CONFIG_DELIMITER)) {
+                return String.format("The button definition '%s' is not allowed to contain ','", startOptionString);
+            }
+            if (startOptionString.contains(LABEL_DELIMITER)) {
+                String[] split = startOptionString.split(LABEL_DELIMITER);
+                if (split.length != 2) {
+                    return String.format("The button definition '%s' should have the diceExpression@Label", startOptionString);
+                }
+                label = split[1].trim();
+                diceExpression = split[0].trim();
+            } else {
+                label = startOptionString;
+                diceExpression = startOptionString;
+            }
+            if (label.length() > 80) {
+                return String.format("Label for '%s' is to long, max number of characters is 80", startOptionString);
+            }
+            if (label.isBlank()) {
+                return String.format("Label for '%s' requires a visible name", startOptionString);
+            }
+            if (diceExpression.isBlank()) {
+                return String.format("Dice expression for '%s' is empty", startOptionString);
+            }
+            String diceParserValidation = diceParserHelper.validateDiceExpression(diceExpression, "custom_dice help");
+            if (diceParserValidation != null) {
+                return diceParserValidation;
+            }
+        }
+
+        return null;
     }
 
     @Override
-    protected Config getConfigValuesFromStartOptions(ApplicationCommandInteractionOption options) {
-        return new Config(DICE_COMMAND_OPTIONS_IDS.stream()
+    protected Config getConfigFromStartOptions(ApplicationCommandInteractionOption options) {
+        return getConfigOptionStringList(DICE_COMMAND_OPTIONS_IDS.stream()
                 .flatMap(id -> options.getOption(id).stream())
                 .flatMap(a -> a.getValue().stream())
                 .map(ApplicationCommandInteractionOptionValue::asString)
-                .map(Object::toString)
-                .filter(diceParserHelper::validExpression)
-                .filter(s -> s.length() <= 80) //limit for the ids are 100 characters and we need also some characters for the type...
+                .collect(Collectors.toList()));
+
+    }
+
+    @VisibleForTesting
+    Config getConfigOptionStringList(List<String> startOptions) {
+        return new Config(startOptions.stream()
+                .filter(s -> !s.contains(CONFIG_DELIMITER))
+                .filter(s -> !s.contains(LABEL_DELIMITER) || s.split(LABEL_DELIMITER).length == 2)
+                .map(s -> {
+                    if (s.contains(LABEL_DELIMITER)) {
+                        String[] split = s.split(LABEL_DELIMITER);
+                        return new LabelAndDiceExpression(split[1].trim(), split[0].trim());
+                    }
+                    return new LabelAndDiceExpression(s.trim(), s.trim());
+                })
+                .filter(s -> !s.getDiceExpression().isEmpty())
+                .filter(s -> !s.getLabel().isEmpty())
+                .filter(lv -> diceParserHelper.validExpression(lv.getDiceExpression()))
+                .filter(s -> s.getDiceExpression().length() <= 80) //limit for the ids are 100 characters and we need also some characters for the type...
+                .filter(s -> s.getLabel().length() <= 80) //https://discord.com/developers/docs/interactions/message-components#buttons
                 .distinct()
                 .limit(25)
                 .collect(Collectors.toList()));
@@ -162,8 +221,8 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceCommand.Config,
 
     @Override
     protected List<LayoutComponent> getButtonLayout(State state, Config config) {
-        List<Button> buttons = config.getButtonDiceExpressions().stream()
-                .map(d -> Button.primary(createButtonCustomId(d), d))
+        List<Button> buttons = config.getLabelAndExpression().stream()
+                .map(d -> Button.primary(createButtonCustomId(d.getDiceExpression()), d.getLabel()))
                 .collect(Collectors.toList());
         return Lists.partition(buttons, 5).stream()
                 .map(ActionRow::of)
@@ -182,7 +241,7 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceCommand.Config,
     @Override
     protected Config getConfigFromEvent(IButtonEventAdaptor event) {
         return new Config(event.getAllButtonIds().stream()
-                .map(id -> id.substring(COMMAND_NAME.length() + 1))
+                .map(lv -> new LabelAndDiceExpression(lv.getLabel(), lv.getCustomId().substring(COMMAND_NAME.length() + 1)))
                 .collect(Collectors.toList()));
     }
 
@@ -204,11 +263,14 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceCommand.Config,
     @Value
     protected static class Config implements IConfig {
         @NonNull
-        List<String> buttonDiceExpressions;
+        List<LabelAndDiceExpression> labelAndExpression;
 
         @Override
-        public String toMetricString() {
-            return buttonDiceExpressions.toString();
+        public String toShortString() {
+            return labelAndExpression.stream()
+                    .map(LabelAndDiceExpression::toShortString)
+                    .collect(Collectors.toList())
+                    .toString();
         }
     }
 
@@ -216,5 +278,21 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceCommand.Config,
     static class State implements IState {
         @NonNull
         String diceExpression;
+    }
+
+    @Value
+    static class LabelAndDiceExpression {
+        @NonNull
+        String label;
+        @NonNull
+        String diceExpression;
+
+
+        public String toShortString() {
+            if (diceExpression.equals(label)) {
+                return diceExpression;
+            }
+            return String.format("%s%s%s", diceExpression, LABEL_DELIMITER, label);
+        }
     }
 }

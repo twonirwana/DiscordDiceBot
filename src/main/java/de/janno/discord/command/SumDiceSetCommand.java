@@ -240,7 +240,7 @@ public class SumDiceSetCommand extends AbstractCommand<SumDiceSetCommand.Config,
     }
 
     @Override
-    protected Config getConfigValuesFromStartOptions(ApplicationCommandInteractionOption options) {
+    protected Config getConfigFromStartOptions(ApplicationCommandInteractionOption options) {
         return new Config();
     }
 
@@ -286,8 +286,8 @@ public class SumDiceSetCommand extends AbstractCommand<SumDiceSetCommand.Config,
     @Value
     protected static class Config implements IConfig {
         @Override
-        public String toMetricString() {
-            return null;
+        public String toShortString() {
+            return "";
         }
 
     }

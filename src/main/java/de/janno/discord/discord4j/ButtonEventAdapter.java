@@ -12,7 +12,6 @@ import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -87,14 +86,16 @@ public class ButtonEventAdapter extends DiscordAdapter implements IButtonEventAd
     }
 
     @Override
-    public List<String> getAllButtonIds() {
+    public List<LabelAndCustomId> getAllButtonIds() {
         return event.getInteraction().getMessage()
                 .map(s -> s.getComponents().stream()
                         .flatMap(lc -> lc.getChildren().stream())
-                        .map(l -> l.getData().customId())
-                        .map(c -> c.toOptional().orElse(null))
-                        .filter(Objects::nonNull)
-                        .collect(Collectors.toList())
+                        .map(l -> {
+                            if (l.getData().label().isAbsent() || l.getData().customId().isAbsent()) {
+                                return null;
+                            }
+                            return new LabelAndCustomId(l.getData().label().get(), l.getData().customId().get());
+                        }).collect(Collectors.toList())
                 )
                 .orElse(ImmutableList.of());
     }

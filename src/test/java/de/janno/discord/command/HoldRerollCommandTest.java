@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import de.janno.discord.dice.DiceResult;
 import de.janno.discord.dice.DiceUtils;
+import discord4j.core.object.component.LayoutComponent;
 import discord4j.discordjson.json.ApplicationCommandOptionData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -227,5 +228,119 @@ class HoldRerollCommandTest {
                 new HoldRerollCommand.State("finish", ImmutableList.of(1, 1, 1, 1, 5, 6), 3));
 
         assertThat(res).isEqualTo("hold_reroll,finish,1;1;1;1;5;6,6,2;3;4,5;6,1,3");
+    }
+
+    @Test
+    void getButtonLayout_reroll() {
+        List<LayoutComponent> res = underTest.getButtonLayout(new HoldRerollCommand.State("reroll", ImmutableList.of(1, 2, 3, 4, 5, 6), 2), new HoldRerollCommand.Config(
+                6,
+                ImmutableSet.of(2, 3, 4),
+                ImmutableSet.of(5, 6),
+                ImmutableSet.of(1)));
+
+        assertThat(res.stream().flatMap(l -> l.getChildren().stream()).map(l -> l.getData().label().get())).containsExactly("Reroll", "Finish", "Clear");
+        assertThat(res.stream().flatMap(l -> l.getChildren().stream()).map(l -> l.getData().customId().get()))
+                .containsExactly("hold_reroll,reroll,1;2;3;4;5;6,6,2;3;4,5;6,1,2",
+                        "hold_reroll,finish,1;2;3;4;5;6,6,2;3;4,5;6,1,2",
+                        "hold_reroll,clear,1;2;3;4;5;6,6,2;3;4,5;6,1,2");
+    }
+
+    @Test
+    void getButtonLayout_finish() {
+        List<LayoutComponent> res = underTest.getButtonLayout(new HoldRerollCommand.State("finish", ImmutableList.of(1, 2, 3, 4, 5, 6), 2), new HoldRerollCommand.Config(
+                6,
+                ImmutableSet.of(2, 3, 4),
+                ImmutableSet.of(5, 6),
+                ImmutableSet.of(1)));
+
+        assertThat(res.stream().flatMap(l -> l.getChildren().stream()).map(l -> l.getData().label().get()))
+                .containsExactly("1d6", "2d6", "3d6", "4d6", "5d6", "6d6", "7d6", "8d6", "9d6", "10d6", "11d6", "12d6", "13d6", "14d6", "15d6");
+        assertThat(res.stream().flatMap(l -> l.getChildren().stream()).map(l -> l.getData().customId().get()))
+                .containsExactly("hold_reroll,1,EMPTY,6,2;3;4,5;6,1,0",
+                        "hold_reroll,2,EMPTY,6,2;3;4,5;6,1,0",
+                        "hold_reroll,3,EMPTY,6,2;3;4,5;6,1,0",
+                        "hold_reroll,4,EMPTY,6,2;3;4,5;6,1,0",
+                        "hold_reroll,5,EMPTY,6,2;3;4,5;6,1,0",
+                        "hold_reroll,6,EMPTY,6,2;3;4,5;6,1,0",
+                        "hold_reroll,7,EMPTY,6,2;3;4,5;6,1,0",
+                        "hold_reroll,8,EMPTY,6,2;3;4,5;6,1,0",
+                        "hold_reroll,9,EMPTY,6,2;3;4,5;6,1,0",
+                        "hold_reroll,10,EMPTY,6,2;3;4,5;6,1,0",
+                        "hold_reroll,11,EMPTY,6,2;3;4,5;6,1,0",
+                        "hold_reroll,12,EMPTY,6,2;3;4,5;6,1,0",
+                        "hold_reroll,13,EMPTY,6,2;3;4,5;6,1,0",
+                        "hold_reroll,14,EMPTY,6,2;3;4,5;6,1,0",
+                        "hold_reroll,15,EMPTY,6,2;3;4,5;6,1,0");
+    }
+
+    @Test
+    void getButtonLayout_clear() {
+        List<LayoutComponent> res = underTest.getButtonLayout(new HoldRerollCommand.State("clear", ImmutableList.of(1, 2, 3, 4, 5, 6), 2), new HoldRerollCommand.Config(
+                6,
+                ImmutableSet.of(2, 3, 4),
+                ImmutableSet.of(5, 6),
+                ImmutableSet.of(1)));
+
+        assertThat(res.stream().flatMap(l -> l.getChildren().stream()).map(l -> l.getData().label().get()))
+                .containsExactly("1d6", "2d6", "3d6", "4d6", "5d6", "6d6", "7d6", "8d6", "9d6", "10d6", "11d6", "12d6", "13d6", "14d6", "15d6");
+        assertThat(res.stream().flatMap(l -> l.getChildren().stream()).map(l -> l.getData().customId().get()))
+                .containsExactly("hold_reroll,1,EMPTY,6,2;3;4,5;6,1,0",
+                        "hold_reroll,2,EMPTY,6,2;3;4,5;6,1,0",
+                        "hold_reroll,3,EMPTY,6,2;3;4,5;6,1,0",
+                        "hold_reroll,4,EMPTY,6,2;3;4,5;6,1,0",
+                        "hold_reroll,5,EMPTY,6,2;3;4,5;6,1,0",
+                        "hold_reroll,6,EMPTY,6,2;3;4,5;6,1,0",
+                        "hold_reroll,7,EMPTY,6,2;3;4,5;6,1,0",
+                        "hold_reroll,8,EMPTY,6,2;3;4,5;6,1,0",
+                        "hold_reroll,9,EMPTY,6,2;3;4,5;6,1,0",
+                        "hold_reroll,10,EMPTY,6,2;3;4,5;6,1,0",
+                        "hold_reroll,11,EMPTY,6,2;3;4,5;6,1,0",
+                        "hold_reroll,12,EMPTY,6,2;3;4,5;6,1,0",
+                        "hold_reroll,13,EMPTY,6,2;3;4,5;6,1,0",
+                        "hold_reroll,14,EMPTY,6,2;3;4,5;6,1,0",
+                        "hold_reroll,15,EMPTY,6,2;3;4,5;6,1,0");
+    }
+
+    @Test
+    void getButtonLayout_3() {
+        List<LayoutComponent> res = underTest.getButtonLayout(new HoldRerollCommand.State("3", ImmutableList.of(1, 2, 3, 4, 5, 6), 2), new HoldRerollCommand.Config(
+                6,
+                ImmutableSet.of(2, 3, 4),
+                ImmutableSet.of(5, 6),
+                ImmutableSet.of(1)));
+
+        assertThat(res.stream().flatMap(l -> l.getChildren().stream()).map(l -> l.getData().label().get())).containsExactly("Reroll", "Finish", "Clear");
+        assertThat(res.stream().flatMap(l -> l.getChildren().stream()).map(l -> l.getData().customId().get()))
+                .containsExactly("hold_reroll,reroll,1;2;3;4;5;6,6,2;3;4,5;6,1,2",
+                        "hold_reroll,finish,1;2;3;4;5;6,6,2;3;4,5;6,1,2",
+                        "hold_reroll,clear,1;2;3;4;5;6,6,2;3;4,5;6,1,2");
+    }
+
+    @Test
+    void getButtonLayout_3_finished() {
+        List<LayoutComponent> res = underTest.getButtonLayout(new HoldRerollCommand.State("3", ImmutableList.of(1, 1, 1, 5, 5, 6), 2), new HoldRerollCommand.Config(
+                6,
+                ImmutableSet.of(2, 3, 4),
+                ImmutableSet.of(5, 6),
+                ImmutableSet.of(1)));
+
+        assertThat(res.stream().flatMap(l -> l.getChildren().stream()).map(l -> l.getData().label().get()))
+                .containsExactly("1d6", "2d6", "3d6", "4d6", "5d6", "6d6", "7d6", "8d6", "9d6", "10d6", "11d6", "12d6", "13d6", "14d6", "15d6");
+        assertThat(res.stream().flatMap(l -> l.getChildren().stream()).map(l -> l.getData().customId().get()))
+                .containsExactly("hold_reroll,1,EMPTY,6,2;3;4,5;6,1,0",
+                        "hold_reroll,2,EMPTY,6,2;3;4,5;6,1,0",
+                        "hold_reroll,3,EMPTY,6,2;3;4,5;6,1,0",
+                        "hold_reroll,4,EMPTY,6,2;3;4,5;6,1,0",
+                        "hold_reroll,5,EMPTY,6,2;3;4,5;6,1,0",
+                        "hold_reroll,6,EMPTY,6,2;3;4,5;6,1,0",
+                        "hold_reroll,7,EMPTY,6,2;3;4,5;6,1,0",
+                        "hold_reroll,8,EMPTY,6,2;3;4,5;6,1,0",
+                        "hold_reroll,9,EMPTY,6,2;3;4,5;6,1,0",
+                        "hold_reroll,10,EMPTY,6,2;3;4,5;6,1,0",
+                        "hold_reroll,11,EMPTY,6,2;3;4,5;6,1,0",
+                        "hold_reroll,12,EMPTY,6,2;3;4,5;6,1,0",
+                        "hold_reroll,13,EMPTY,6,2;3;4,5;6,1,0",
+                        "hold_reroll,14,EMPTY,6,2;3;4,5;6,1,0",
+                        "hold_reroll,15,EMPTY,6,2;3;4,5;6,1,0");
     }
 }
