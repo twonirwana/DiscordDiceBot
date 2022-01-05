@@ -1,7 +1,9 @@
 package de.janno.discord.command;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+import de.janno.discord.cache.ButtonMessageCache;
 import de.janno.discord.dice.DiceResult;
 import de.janno.discord.dice.DiceUtils;
 import discord4j.core.object.command.ApplicationCommandInteractionOption;
@@ -13,12 +15,14 @@ import discord4j.core.object.component.LayoutComponent;
 import discord4j.core.spec.EmbedCreateSpec;
 import discord4j.discordjson.json.ApplicationCommandOptionChoiceData;
 import discord4j.discordjson.json.ApplicationCommandOptionData;
+import lombok.NonNull;
+import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 
 @Slf4j
-public class FateCommand extends AbstractCommand {
+public class FateCommand extends AbstractCommand<FateCommand.Config, FateCommand.State> {
 
     private static final String COMMAND_NAME = "fate";
     private static final String ACTION_MODIFIER_OPTION = "type";
@@ -28,7 +32,7 @@ public class FateCommand extends AbstractCommand {
 
     @VisibleForTesting
     public FateCommand(DiceUtils diceUtils) {
-        super(new ActiveButtonsCache(COMMAND_NAME));
+        super(new ButtonMessageCache(COMMAND_NAME));
         this.diceUtils = diceUtils;
     }
 
@@ -47,8 +51,8 @@ public class FateCommand extends AbstractCommand {
     }
 
     @Override
-    protected String getButtonMessage(String buttonValue, List<String> config) {
-        if (ACTION_MODIFIER_OPTION_MODIFIER.equals(config.get(0))) {
+    protected String getButtonMessage(State state, Config config) {
+        if (ACTION_MODIFIER_OPTION_MODIFIER.equals(config.getType())) {
             return "Click a button to roll four fate dice and add the value of the button";
         }
         return "Click a button to roll four fate dice";
@@ -83,8 +87,8 @@ public class FateCommand extends AbstractCommand {
     }
 
     @Override
-    protected List<String> getConfigValuesFromStartOptions(ApplicationCommandInteractionOption options) {
-        return ImmutableList.of(options.getOption(ACTION_MODIFIER_OPTION)
+    protected Config getConfigValuesFromStartOptions(ApplicationCommandInteractionOption options) {
+        return new Config(options.getOption(ACTION_MODIFIER_OPTION)
                 .flatMap(ApplicationCommandInteractionOption::getValue)
                 .map(ApplicationCommandInteractionOptionValue::asString)
                 .map(Object::toString)
@@ -97,11 +101,11 @@ public class FateCommand extends AbstractCommand {
     }
 
     @Override
-    protected List<DiceResult> getDiceResult(String buttonValue, List<String> config) {
+    protected List<DiceResult> getDiceResult(State state, Config config) {
         List<Integer> rollResult = diceUtils.rollFate();
 
-        if (ACTION_MODIFIER_OPTION_MODIFIER.equals(config.get(0))) {
-            int modifier = Integer.parseInt(buttonValue);
+        if (ACTION_MODIFIER_OPTION_MODIFIER.equals(config.getType())) {
+            int modifier = state.getModifier();
             String modifierString = "";
             if (modifier > 0) {
                 modifierString = " +" + modifier;
@@ -121,37 +125,81 @@ public class FateCommand extends AbstractCommand {
     }
 
     @Override
-    protected List<LayoutComponent> getButtonLayout(String buttonValue, List<String> config) {
-        if (ACTION_MODIFIER_OPTION_MODIFIER.equals(config.get(0))) {
+    protected List<LayoutComponent> getButtonLayout(State state, Config config) {
+        if (ACTION_MODIFIER_OPTION_MODIFIER.equals(config.getType())) {
             return ImmutableList.of(
                     ActionRow.of(
                             //              ID,  label
-                            Button.primary(createButtonCustomId(COMMAND_NAME, "-4", config), "-4"),
-                            Button.primary(createButtonCustomId(COMMAND_NAME, "-3", config), "-3"),
-                            Button.primary(createButtonCustomId(COMMAND_NAME, "-2", config), "-2"),
-                            Button.primary(createButtonCustomId(COMMAND_NAME, "-1", config), "-1"),
-                            Button.primary(createButtonCustomId(COMMAND_NAME, "0", config), "0")
+                            Button.primary(createButtonCustomId("-4", config), "-4"),
+                            Button.primary(createButtonCustomId("-3", config), "-3"),
+                            Button.primary(createButtonCustomId("-2", config), "-2"),
+                            Button.primary(createButtonCustomId("-1", config), "-1"),
+                            Button.primary(createButtonCustomId("0", config), "0")
                     ),
                     ActionRow.of(
 
-                            Button.primary(createButtonCustomId(COMMAND_NAME, "1", config), "+1"),
-                            Button.primary(createButtonCustomId(COMMAND_NAME, "2", config), "+2"),
-                            Button.primary(createButtonCustomId(COMMAND_NAME, "3", config), "+3"),
-                            Button.primary(createButtonCustomId(COMMAND_NAME, "4", config), "+4"),
-                            Button.primary(createButtonCustomId(COMMAND_NAME, "5", config), "+5")
+                            Button.primary(createButtonCustomId("1", config), "+1"),
+                            Button.primary(createButtonCustomId("2", config), "+2"),
+                            Button.primary(createButtonCustomId("3", config), "+3"),
+                            Button.primary(createButtonCustomId("4", config), "+4"),
+                            Button.primary(createButtonCustomId("5", config), "+5")
                     ),
                     ActionRow.of(
-                            Button.primary(createButtonCustomId(COMMAND_NAME, "6", config), "+6"),
-                            Button.primary(createButtonCustomId(COMMAND_NAME, "7", config), "+7"),
-                            Button.primary(createButtonCustomId(COMMAND_NAME, "8", config), "+8"),
-                            Button.primary(createButtonCustomId(COMMAND_NAME, "9", config), "+9"),
-                            Button.primary(createButtonCustomId(COMMAND_NAME, "10", config), "+10")
+                            Button.primary(createButtonCustomId("6", config), "+6"),
+                            Button.primary(createButtonCustomId("7", config), "+7"),
+                            Button.primary(createButtonCustomId("8", config), "+8"),
+                            Button.primary(createButtonCustomId("9", config), "+9"),
+                            Button.primary(createButtonCustomId("10", config), "+10")
                     ));
         } else {
             return ImmutableList.of(
                     ActionRow.of(
-                            Button.primary(createButtonCustomId(COMMAND_NAME, "roll", config), "Roll 4dF")
+                            Button.primary(createButtonCustomId("roll", config), "Roll 4dF")
                     ));
         }
+    }
+
+    @Override
+    protected Config getConfigFromEvent(IButtonEventAdaptor event) {
+        String[] split = event.getCustomId().split(CONFIG_DELIMITER);
+        return new Config(split[2]);
+    }
+
+    @Override
+    protected State getStateFromEvent(IButtonEventAdaptor event) {
+        String modifier = event.getCustomId().split(CONFIG_DELIMITER)[1];
+        if (modifier.isBlank()) {
+            return new State(null);
+        }
+        return new State(Integer.valueOf(modifier));
+    }
+
+    @VisibleForTesting
+    String createButtonCustomId(String modifier, Config config) {
+        Preconditions.checkArgument(!modifier.contains(CONFIG_DELIMITER));
+        Preconditions.checkArgument(!config.getType().contains(CONFIG_DELIMITER));
+
+        return String.join(CONFIG_DELIMITER,
+                COMMAND_NAME,
+                modifier,
+                config.getType());
+    }
+
+
+    @Value
+    protected static class Config implements IConfig {
+
+        @NonNull
+        String type;
+
+        @Override
+        public String toMetricString() {
+            return type;
+        }
+    }
+
+    @Value
+    static class State implements IState {
+        Integer modifier;
     }
 }

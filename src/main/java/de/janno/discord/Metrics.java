@@ -13,8 +13,7 @@ import io.undertow.Undertow;
 import io.undertow.server.handlers.PathHandler;
 import io.undertow.util.Headers;
 import lombok.NonNull;
-
-import java.util.List;
+import org.jetbrains.annotations.Nullable;
 
 import static io.micrometer.core.instrument.Metrics.globalRegistry;
 
@@ -54,13 +53,23 @@ public class Metrics {
         }
     }
 
-    public static void incrementButtonMetricCounter(@NonNull String commandName, @NonNull List<String> config) {
-        globalRegistry.counter(METRIC_PREFIX + METRIC_BUTTON_PREFIX, Tags.of(COMMAND_TAG, commandName).and(CONFIG_TAG, config.toString())).increment();
+
+    public static void incrementButtonMetricCounter(@NonNull String commandName, @Nullable String configString) {
+        Tags tags = Tags.of(COMMAND_TAG, commandName);
+        if (configString != null){
+            tags = tags.and(CONFIG_TAG, configString);
+        }
+        globalRegistry.counter(METRIC_PREFIX + METRIC_BUTTON_PREFIX, tags).increment();
     }
 
-    public static void incrementSlashStartMetricCounter(@NonNull String commandName, @NonNull List<String> config) {
-        globalRegistry.counter(METRIC_PREFIX + METRIC_SLASH_PREFIX, Tags.of(COMMAND_TAG, commandName).and(CONFIG_TAG, config.toString())).increment();
+    public static void incrementSlashStartMetricCounter(@NonNull String commandName, @Nullable String configString) {
+        Tags tags = Tags.of(COMMAND_TAG, commandName);
+        if (configString != null){
+            tags = tags.and(CONFIG_TAG, configString);
+        }
+        globalRegistry.counter(METRIC_PREFIX + METRIC_SLASH_PREFIX, tags).increment();
     }
+
     public static void incrementSlashHelpMetricCounter(@NonNull String commandName) {
         globalRegistry.counter(METRIC_PREFIX + METRIC_SLASH_HELP_PREFIX, Tags.of(COMMAND_TAG, commandName)).increment();
     }

@@ -1,6 +1,6 @@
 package de.janno.discord.command;
 
-import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
+import de.janno.discord.discord4j.ApplicationCommand;
 import lombok.NonNull;
 import reactor.core.publisher.Mono;
 
@@ -10,7 +10,6 @@ public interface ISlashCommand {
 
     ApplicationCommand getApplicationCommand();
 
-    Mono<Void> handleSlashCommandEvent(@NonNull ChatInputInteractionEvent event);
-
+    Mono<Void> handleSlashCommandEvent(@NonNull ISlashEventAdaptor event);
 
 }

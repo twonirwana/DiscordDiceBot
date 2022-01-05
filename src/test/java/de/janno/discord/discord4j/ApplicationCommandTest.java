@@ -1,4 +1,4 @@
-package de.janno.discord.command;
+package de.janno.discord.discord4j;
 
 import com.google.common.collect.ImmutableList;
 import discord4j.discordjson.json.ApplicationCommandData;

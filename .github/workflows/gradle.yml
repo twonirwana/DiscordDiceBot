@@ -27,11 +27,11 @@ jobs:
         distribution: 'adopt'
     - uses: gradle/gradle-build-action@v2
       with:
-        gradle-version: 6.8
+        gradle-version: 7.1
         arguments: test
     - uses: gradle/gradle-build-action@v2
       with:
-        gradle-version: 6.8
+        gradle-version: 7.1
         arguments: jacocoTestReport
     - uses: codecov/codecov-action@v2
       with:

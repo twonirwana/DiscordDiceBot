@@ -6,7 +6,6 @@ import de.janno.discord.dice.DiceResult;
 import de.janno.discord.dice.IDice;
 import dev.diceroll.parser.NDice;
 import dev.diceroll.parser.ResultTree;
-import discord4j.core.GatewayDiscordClient;
 import discord4j.discordjson.json.ApplicationCommandOptionData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -31,16 +30,16 @@ class CustomDiceCommandTest {
 
     @Test
     void getButtonMessage() {
-        String res = underTest.getButtonMessage("1d6", ImmutableList.of());
+        String res = underTest.getButtonMessage(new CustomDiceCommand.State("1d6"), new CustomDiceCommand.Config(ImmutableList.of()));
 
         assertThat(res).isEqualTo("Click on a button to roll the dice");
     }
 
     @Test
     void getConfigFromEvent() {
-        List<String> res = underTest.getConfigFromEvent(TestUtils.createEventWithCustomId(mock(GatewayDiscordClient.class), "custom_dice",
-                "Click on a button to roll the dice", "1d6"));
-        assertThat(res).containsExactly("1d6");
+        IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
+        when(event.getAllButtonIds()).thenReturn(ImmutableList.of("custom_dice,1d6"));
+        assertThat(underTest.getConfigFromEvent(event)).isEqualTo(new CustomDiceCommand.Config(ImmutableList.of("1d6")));
     }
 
     @Test
@@ -56,7 +55,7 @@ class CustomDiceCommandTest {
     @Test
     void getDiceResult_1d6() {
         when(diceMock.detailedRoll("1d6")).thenReturn(new ResultTree(new NDice(6, 1), 3, ImmutableList.of()));
-        List<DiceResult> res = underTest.getDiceResult("1d6", ImmutableList.of("1d6"));
+        List<DiceResult> res = underTest.getDiceResult(new CustomDiceCommand.State("1d6"), new CustomDiceCommand.Config(ImmutableList.of("1d6")));
 
         assertThat(res).hasSize(1);
         assertThat(res.get(0).getResultTitle()).isEqualTo("1d6 = 3");
@@ -99,5 +98,22 @@ class CustomDiceCommandTest {
                 "23_button",
                 "24_button",
                 "25_button");
+    }
+
+    @Test
+    void getStateFromEvent() {
+        IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
+        when(event.getCustomId()).thenReturn("custom_dice,2d6");
+
+        CustomDiceCommand.State res = underTest.getStateFromEvent(event);
+
+        assertThat(res).isEqualTo(new CustomDiceCommand.State("2d6"));
+    }
+
+    @Test
+    void createButtonCustomId() {
+        String res = underTest.createButtonCustomId("2d6");
+
+        assertThat(res).isEqualTo("custom_dice,2d6");
     }
 }

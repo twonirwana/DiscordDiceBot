@@ -1,6 +1,7 @@
-package de.janno.discord.command;
+package de.janno.discord.discord4j;
 
 import com.google.common.collect.ImmutableMap;
+import de.janno.discord.command.ISlashCommand;
 import discord4j.core.DiscordClient;
 import discord4j.discordjson.json.ApplicationCommandData;
 import discord4j.rest.service.ApplicationService;
