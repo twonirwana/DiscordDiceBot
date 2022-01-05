@@ -16,9 +16,11 @@ import discord4j.core.object.component.Button;
 import discord4j.core.object.component.LayoutComponent;
 import discord4j.core.spec.EmbedCreateSpec;
 import discord4j.discordjson.json.ApplicationCommandOptionData;
+import lombok.NonNull;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.List;
@@ -90,7 +92,7 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollCommand.Config,
         return COMMAND_NAME;
     }
 
-    String createButtonCustomId(String action, Config config, State state) {
+    String createButtonCustomId(@NonNull String action, @NonNull Config config, @Nullable State state) {
 
         Preconditions.checkArgument(!action.contains(CONFIG_DELIMITER));
 
@@ -242,7 +244,7 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollCommand.Config,
     }
 
     @Override
-    protected Config getConfigValuesFromStartOptions(ApplicationCommandInteractionOption options) {
+    protected Config getConfigFromStartOptions(ApplicationCommandInteractionOption options) {
         int sideValue = Math.toIntExact(options.getOption(SIDES_OF_DIE_ID)
                 .flatMap(ApplicationCommandInteractionOption::getValue)
                 .map(ApplicationCommandInteractionOptionValue::asLong)
@@ -277,7 +279,7 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollCommand.Config,
     protected List<LayoutComponent> getButtonLayout(State state, Config config) {
         if (state != null && (state.getState() == null || CLEAR_BUTTON_ID.equals(state.getState()) || FINISH_BUTTON_ID.equals(state.getState()) || rollFinished(state, config))) {
             List<Button> buttons = IntStream.range(1, 16)
-                    .mapToObj(i -> Button.primary(createButtonCustomId(String.valueOf(i), config, state),
+                    .mapToObj(i -> Button.primary(createButtonCustomId(String.valueOf(i), config, null),
                             String.format("%d%s%s", i, DICE_SYMBOL, config.getSidesOfDie())))
                     .collect(Collectors.toList());
             return Lists.partition(buttons, 5).stream().map(ActionRow::of).collect(Collectors.toList());
@@ -292,7 +294,7 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollCommand.Config,
 
     @Override
     protected String getStartOptionsValidationMessage(ApplicationCommandInteractionOption options) {
-        Config conf = getConfigValuesFromStartOptions(options);
+        Config conf = getConfigFromStartOptions(options);
         return validate(conf);
     }
 
@@ -319,7 +321,7 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollCommand.Config,
         Set<Integer> failureSet;
 
         @Override
-        public String toMetricString() {
+        public String toShortString() {
             return ImmutableList.of(
                     String.valueOf(sidesOfDie),
                     rerollSet.stream().map(String::valueOf).collect(Collectors.joining(SUBSET_DELIMITER)),

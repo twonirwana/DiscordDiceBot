@@ -87,7 +87,7 @@ public class FateCommand extends AbstractCommand<FateCommand.Config, FateCommand
     }
 
     @Override
-    protected Config getConfigValuesFromStartOptions(ApplicationCommandInteractionOption options) {
+    protected Config getConfigFromStartOptions(ApplicationCommandInteractionOption options) {
         return new Config(options.getOption(ACTION_MODIFIER_OPTION)
                 .flatMap(ApplicationCommandInteractionOption::getValue)
                 .map(ApplicationCommandInteractionOptionValue::asString)
@@ -193,7 +193,7 @@ public class FateCommand extends AbstractCommand<FateCommand.Config, FateCommand
         String type;
 
         @Override
-        public String toMetricString() {
+        public String toShortString() {
             return type;
         }
     }

@@ -56,7 +56,7 @@ public class Metrics {
 
     public static void incrementButtonMetricCounter(@NonNull String commandName, @Nullable String configString) {
         Tags tags = Tags.of(COMMAND_TAG, commandName);
-        if (configString != null){
+        if (!Strings.isNullOrEmpty(configString)){
             tags = tags.and(CONFIG_TAG, configString);
         }
         globalRegistry.counter(METRIC_PREFIX + METRIC_BUTTON_PREFIX, tags).increment();
@@ -64,7 +64,7 @@ public class Metrics {
 
     public static void incrementSlashStartMetricCounter(@NonNull String commandName, @Nullable String configString) {
         Tags tags = Tags.of(COMMAND_TAG, commandName);
-        if (configString != null){
+        if (!Strings.isNullOrEmpty(configString)){
             tags = tags.and(CONFIG_TAG, configString);
         }
         globalRegistry.counter(METRIC_PREFIX + METRIC_SLASH_PREFIX, tags).increment();

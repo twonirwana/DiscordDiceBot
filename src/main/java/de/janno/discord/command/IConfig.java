@@ -5,6 +5,6 @@ package de.janno.discord.command;
  */
 public interface IConfig {
 
-    String toMetricString();
+    String toShortString();
 
 }

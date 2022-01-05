@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableSet;
 import de.janno.discord.cache.ButtonMessageCache;
 import de.janno.discord.dice.DiceResult;
 import de.janno.discord.dice.DiceUtils;
+import discord4j.core.object.component.LayoutComponent;
 import discord4j.discordjson.json.ApplicationCommandOptionData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -196,6 +197,12 @@ class CountSuccessesCommandTest {
         assertThat(underTest.getButtonMessageCache())
                 .hasSize(1)
                 .containsEntry(1L, ImmutableSet.of(new ButtonMessageCache.ButtonWithConfigHash(2L, -259414907)));
+        verify(buttonEventAdaptor, times(2)).getCustomId();
+        verify(buttonEventAdaptor).getMessageId();
+        verify(buttonEventAdaptor).getChannelId();
+        verify(buttonEventAdaptor).isPinned();
+        verify(buttonEventAdaptor, never()).getAllButtonIds();
+        verify(buttonEventAdaptor, never()).getMessageContent();
     }
 
     @Test
@@ -227,5 +234,21 @@ class CountSuccessesCommandTest {
         assertThat(underTest.getButtonMessageCache())
                 .hasSize(1)
                 .containsEntry(1L, ImmutableSet.of(new ButtonMessageCache.ButtonWithConfigHash(2L, -259414907)));
+        verify(buttonEventAdaptor, times(2)).getCustomId();
+        verify(buttonEventAdaptor).getMessageId();
+        verify(buttonEventAdaptor).getChannelId();
+        verify(buttonEventAdaptor).isPinned();
+        verify(buttonEventAdaptor, never()).getAllButtonIds();
+        verify(buttonEventAdaptor, never()).getMessageContent();
+    }
+
+    @Test
+    void getButtonLayout() {
+        List<LayoutComponent> res = underTest.getButtonLayout(new CountSuccessesCommand.State(6), new CountSuccessesCommand.Config(6, 6, "count_ones", 15));
+
+        assertThat(res.stream().flatMap(l -> l.getChildren().stream()).map(l -> l.getData().label().get()))
+                .containsExactly("1d6", "2d6", "3d6", "4d6", "5d6", "6d6", "7d6", "8d6", "9d6", "10d6", "11d6", "12d6", "13d6", "14d6", "15d6");
+        assertThat(res.stream().flatMap(l -> l.getChildren().stream()).map(l -> l.getData().customId().get()))
+                .containsExactly("count_successes,1,6,6,count_ones,15", "count_successes,2,6,6,count_ones,15", "count_successes,3,6,6,count_ones,15", "count_successes,4,6,6,count_ones,15", "count_successes,5,6,6,count_ones,15", "count_successes,6,6,6,count_ones,15", "count_successes,7,6,6,count_ones,15", "count_successes,8,6,6,count_ones,15", "count_successes,9,6,6,count_ones,15", "count_successes,10,6,6,count_ones,15", "count_successes,11,6,6,count_ones,15", "count_successes,12,6,6,count_ones,15", "count_successes,13,6,6,count_ones,15", "count_successes,14,6,6,count_ones,15", "count_successes,15,6,6,count_ones,15");
     }
 }

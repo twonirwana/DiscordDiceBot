@@ -71,7 +71,9 @@ public abstract class AbstractCommand<C extends IConfig, S extends IState> imple
     public Mono<Void> handleComponentInteractEvent(@NonNull IButtonEventAdaptor event) {
         C config = getConfigFromEvent(event);
         //adding the message of the event to the cache, in the case that the bot was restarted and has forgotten the button
-        buttonMessageCache.addChannelWithButton(event.getChannelId(), event.getMessageId(), config.hashCode());
+        Long messageId = event.getMessageId();
+        Long channelId = event.getChannelId();
+        buttonMessageCache.addChannelWithButton(channelId, messageId, config.hashCode());
 
         S state = getStateFromEvent(event);
         List<Mono<Void>> actions = new ArrayList<>();
@@ -81,9 +83,9 @@ public abstract class AbstractCommand<C extends IConfig, S extends IState> imple
                 //if the button is pined it keeps its message
                 .editMessage(getButtonMessage(state, config)));
         if (createAnswerMessage(state, config)) {
-            Metrics.incrementButtonMetricCounter(getName(), config.toMetricString());
-            List<DiceResult> result = getDiceResult(getStateFromEvent(event), config);
-            result.forEach(d -> log.info(String.format("%s:%s -> %s: %s", getName(), config, d.getResultTitle(), d.getResultDetails()
+            Metrics.incrementButtonMetricCounter(getName(), config.toShortString());
+            List<DiceResult> result = getDiceResult(state, config);
+            result.forEach(d -> log.info(String.format("%s:%s -> %s: %s", getName(), config.toShortString(), d.getResultTitle(), d.getResultDetails()
                     .replace("▢", "0")
                     .replace("＋", "+")
                     .replace(MINUS, "-")
@@ -93,7 +95,7 @@ public abstract class AbstractCommand<C extends IConfig, S extends IState> imple
         if (copyButtonMessageToTheEnd(state, config)) {
             Mono<Long> newMessageIdMono = event.createButtonMessage(getButtonMessage(state, config), getButtonLayout(state, config))
                     .map(m -> {
-                        buttonMessageCache.addChannelWithButton(event.getChannelId(), m, config.hashCode());
+                        buttonMessageCache.addChannelWithButton(channelId, m, config.hashCode());
                         return m;
                     });
 
@@ -101,12 +103,12 @@ public abstract class AbstractCommand<C extends IConfig, S extends IState> imple
             if (triggeringMessageIsPinned) {
                 //removing from cache on pin event would be better but currently not possible with discord4j
                 //if the message was not removed, we don't want that it is removed later
-                buttonMessageCache.removeButtonFromChannel(event.getChannelId(), event.getMessageId(), config.hashCode());
+                buttonMessageCache.removeButtonFromChannel(channelId, messageId, config.hashCode());
             }
 
             actions.add(newMessageIdMono
                     .flux()
-                    .flatMap(id -> Flux.fromIterable(buttonMessageCache.getAllWithoutOneAndRemoveThem(event.getChannelId(), id, config.hashCode())))
+                    .flatMap(id -> Flux.fromIterable(buttonMessageCache.getAllWithoutOneAndRemoveThem(channelId, id, config.hashCode())))
                     .flatMap(event::deleteMessage)
                     .then());
         }
@@ -135,8 +137,8 @@ public abstract class AbstractCommand<C extends IConfig, S extends IState> imple
                 log.info("Validation message: {}", validationMessage);
                 return event.reply(validationMessage);
             }
-            C config = getConfigValuesFromStartOptions(options);
-            Metrics.incrementSlashStartMetricCounter(getName(), config.toMetricString());
+            C config = getConfigFromStartOptions(options);
+            Metrics.incrementSlashStartMetricCounter(getName(), config.toShortString());
 
             return event.reply("...")
                     .then(event.createButtonMessage(getButtonMessage(null, config), getButtonLayout(null, config))
@@ -156,7 +158,7 @@ public abstract class AbstractCommand<C extends IConfig, S extends IState> imple
 
     protected abstract String getButtonMessage(@Nullable S state, C config);
 
-    protected abstract C getConfigValuesFromStartOptions(ApplicationCommandInteractionOption options);
+    protected abstract C getConfigFromStartOptions(ApplicationCommandInteractionOption options);
 
     protected abstract List<DiceResult> getDiceResult(S state, C config);
 
