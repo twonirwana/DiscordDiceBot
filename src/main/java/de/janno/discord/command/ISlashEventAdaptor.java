@@ -1,6 +1,6 @@
 package de.janno.discord.command;
 
-import de.janno.discord.cache.ActiveButtonsCache;
+import de.janno.discord.cache.ButtonMessageCache;
 import discord4j.core.object.command.ApplicationCommandInteractionOption;
 import discord4j.core.object.component.LayoutComponent;
 import discord4j.core.spec.EmbedCreateSpec;
@@ -17,7 +17,7 @@ public interface ISlashEventAdaptor extends IDiscordAdapter {
 
     Mono<Void> replyEphemeral(EmbedCreateSpec embedCreateSpec);
 
-    Mono<Void> createButtonMessage(ActiveButtonsCache activeButtonsCache,
+    Mono<Void> createButtonMessage(ButtonMessageCache buttonMessageCache,
                                    @NonNull String buttonMessage,
                                    @NonNull List<LayoutComponent> buttons,
                                    int configHash);

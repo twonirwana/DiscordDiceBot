@@ -2,7 +2,7 @@ package de.janno.discord.command;
 
 import com.google.common.collect.ImmutableList;
 import de.janno.discord.Metrics;
-import de.janno.discord.cache.ActiveButtonsCache;
+import de.janno.discord.cache.ButtonMessageCache;
 import de.janno.discord.dice.DiceResult;
 import de.janno.discord.discord4j.ApplicationCommand;
 import discord4j.core.object.command.ApplicationCommandInteractionOption;
@@ -27,10 +27,10 @@ public abstract class AbstractCommand<C extends IConfig, S extends IState> imple
     protected static final String ACTION_START = "start";
     protected static final String ACTION_HELP = "help";
     protected static final String CONFIG_DELIMITER = ",";
-    protected final ActiveButtonsCache activeButtonsCache;
+    protected final ButtonMessageCache buttonMessageCache;
 
-    protected AbstractCommand(ActiveButtonsCache activeButtonsCache) {
-        this.activeButtonsCache = activeButtonsCache;
+    protected AbstractCommand(ButtonMessageCache buttonMessageCache) {
+        this.buttonMessageCache = buttonMessageCache;
     }
 
     protected List<ApplicationCommandOptionData> getStartOptions() {
@@ -63,7 +63,7 @@ public abstract class AbstractCommand<C extends IConfig, S extends IState> imple
     public Mono<Void> handleComponentInteractEvent(@NonNull IButtonEventAdaptor event) {
         C config = getConfigFromEvent(event);
         //adding the message of the event to the cache, in the case that the bot was restarted and has forgotten the button
-        activeButtonsCache.addChannelWithButton(event.getChannelId(), event.getMessageId(), config.hashCode());
+        buttonMessageCache.addChannelWithButton(event.getChannelId(), event.getMessageId(), config.hashCode());
 
         S state = getStateFromEvent(event);
         List<Mono<Void>> actions = new ArrayList<>();
@@ -74,15 +74,22 @@ public abstract class AbstractCommand<C extends IConfig, S extends IState> imple
                 .editMessage(getButtonMessage(state, config)));
         if (createAnswerMessage(state, config)) {
             Metrics.incrementButtonMetricCounter(getName(), config.toMetricString());
-            actions.add(createButtonEventAnswer(event, config));
+            List<DiceResult> result = getDiceResult(getStateFromEvent(event), config);
+            result.forEach(d -> log.info(String.format("%s:%s -> %s: %s", getName(), config, d.getResultTitle(), d.getResultDetails()
+                    .replace("▢", "0")
+                    .replace("＋", "+")
+                    .replace(MINUS, "-")
+                    .replace("*", ""))));
+            actions.add(event.createResultMessageWithEventReference(result));
         }
         if (copyButtonMessageToTheEnd(state, config)) {
-            actions.add(event.moveButtonMessage(triggeringMessageIsPinned,
-                    getButtonMessage(state, config),
-                    getButtonMessage(state, config),
-                    activeButtonsCache,
-                    getButtonLayout(state, config),
-                    config.hashCode()));
+            Mono<Long> newMessageIdMono = event.createButtonMessage(getButtonMessage(state, config), buttonMessageCache, getButtonLayout(state, config), config.hashCode());
+            if (triggeringMessageIsPinned) {
+                //removing from cache on pin event would be better but currently not possible with discord4j
+                //if the message was not removed, we don't want that it is removed later
+                buttonMessageCache.removeButtonFromChannel(event.getChannelId(), event.getMessageId(), config.hashCode());
+            }
+            actions.add(event.deleteMessage(newMessageIdMono, buttonMessageCache, config.hashCode()));
         }
 
         return Flux.mergeDelayError(1, actions.toArray(new Mono<?>[0]))
@@ -90,15 +97,6 @@ public abstract class AbstractCommand<C extends IConfig, S extends IState> imple
                 .then();
     }
 
-    protected Mono<Void> createButtonEventAnswer(@NonNull IButtonEventAdaptor event, @NonNull C config) {
-        List<DiceResult> result = getDiceResult(getStateFromEvent(event), config);
-        result.forEach(d -> log.info(String.format("%s:%s -> %s: %s", getName(), config, d.getResultTitle(), d.getResultDetails()
-                .replace("▢", "0")
-                .replace("＋", "+")
-                .replace(MINUS, "-")
-                .replace("*", ""))));
-        return event.createResultMessageWithEventReference(result);
-    }
 
     protected boolean createAnswerMessage(S state, C config) {
         return true;
@@ -122,7 +120,7 @@ public abstract class AbstractCommand<C extends IConfig, S extends IState> imple
             Metrics.incrementSlashStartMetricCounter(getName(), config.toMetricString());
 
             return event.reply("...")
-                    .then(event.createButtonMessage(activeButtonsCache,
+                    .then(event.createButtonMessage(buttonMessageCache,
                             getButtonMessage(null, config),
                             getButtonLayout(null, config),
                             config.hashCode()));

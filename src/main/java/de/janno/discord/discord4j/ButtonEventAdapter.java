@@ -1,13 +1,14 @@
 package de.janno.discord.discord4j;
 
 import com.google.common.collect.ImmutableList;
-import de.janno.discord.cache.ActiveButtonsCache;
+import de.janno.discord.cache.ButtonMessageCache;
 import de.janno.discord.command.IButtonEventAdaptor;
 import de.janno.discord.dice.DiceResult;
 import discord4j.common.util.Snowflake;
 import discord4j.core.event.domain.interaction.ComponentInteractionEvent;
 import discord4j.core.object.component.LayoutComponent;
 import discord4j.core.object.entity.Message;
+import discord4j.core.object.entity.channel.MessageChannel;
 import discord4j.core.object.entity.channel.TextChannel;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
@@ -30,13 +31,13 @@ public class ButtonEventAdapter extends DiscordAdapter implements IButtonEventAd
     }
 
     @Override
-    public Snowflake getMessageId() {
-        return event.getMessageId();
+    public Long getMessageId() {
+        return event.getMessageId().asLong();
     }
 
     @Override
-    public Snowflake getChannelId() {
-        return event.getInteraction().getChannelId();
+    public Long getChannelId() {
+        return event.getInteraction().getChannelId().asLong();
     }
 
     @Override
@@ -53,34 +54,33 @@ public class ButtonEventAdapter extends DiscordAdapter implements IButtonEventAd
                 });
     }
 
-    //TODO split
     @Override
-    public Mono<Void> moveButtonMessage(boolean triggeringMessageIsPinned,
-                                        String editMessageText,
-                                        String buttonMessageText,
-                                        ActiveButtonsCache activeButtonsCache,
-                                        List<LayoutComponent> buttonLayout,
-                                        int configHash) {
+    public Mono<Long> createButtonMessage(String messageContent,
+                                          ButtonMessageCache buttonMessageCache,
+                                          List<LayoutComponent> buttonLayout,
+                                          int configHash) {
         return event.getInteraction().getChannel()
                 .ofType(TextChannel.class)
                 .flatMap(channel ->
                 {
                     //if the triggering message is pinned and its content is not changed, then the new message should have a modified message content
-                    String messageContent = triggeringMessageIsPinned ? editMessageText : buttonMessageText;
-                    return createButtonMessage(activeButtonsCache, channel, messageContent, buttonLayout, configHash)
+                    return createButtonMessage(buttonMessageCache, channel, messageContent, buttonLayout, configHash)
                             .onErrorResume(t -> {
                                 log.warn("Error on creating button message");
                                 return Mono.empty();
                             });
                 })
-                .flatMap(m -> {
-                    if (triggeringMessageIsPinned) {
-                        //removing from cache on pin event would be better but currently not possible with discord4j
-                        //if the message was not removed, we don't want that it is removed later
-                        activeButtonsCache.removeButtonFromChannel(event.getInteraction().getChannelId(), event.getMessageId(), configHash);
-                    }
-                    return deleteMessage(m.getChannel(), m.getChannelId(), activeButtonsCache, m.getId(), configHash);
-                });
+                .map(m -> m.getId().asLong());
+    }
+
+    @Override
+    public Mono<Void> deleteMessage(
+            Mono<Long> messageId,
+            ButtonMessageCache buttonMessageCache,
+            int configHash) {
+        return messageId
+                .flatMap(m -> deleteMessage(event.getInteraction().getChannel()
+                        .ofType(MessageChannel.class), buttonMessageCache, Snowflake.of(m), configHash));
     }
 
     @Override

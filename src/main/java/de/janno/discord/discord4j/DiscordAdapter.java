@@ -2,7 +2,7 @@ package de.janno.discord.discord4j;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
-import de.janno.discord.cache.ActiveButtonsCache;
+import de.janno.discord.cache.ButtonMessageCache;
 import de.janno.discord.command.IDiscordAdapter;
 import de.janno.discord.dice.DiceResult;
 import discord4j.common.util.Snowflake;
@@ -86,15 +86,14 @@ public abstract class DiscordAdapter implements IDiscordAdapter {
 
     public Mono<Void> deleteMessage(
             @NonNull Mono<MessageChannel> channel,
-            @NonNull Snowflake channelId,
-            @NonNull ActiveButtonsCache activeButtonsCache,
+            @NonNull ButtonMessageCache buttonMessageCache,
             @NonNull Snowflake toKeep,
             int configHash) {
         return channel
                 .flux()
                 .flatMap(c -> {
-                    List<Snowflake> allButtonsWithoutTheLast = activeButtonsCache.getAllWithoutOneAndRemoveThem(channelId, toKeep, configHash);
-                    return Flux.fromIterable(allButtonsWithoutTheLast).flatMap(c::getMessageById);
+                    List<Long> allButtonsWithoutTheLast = buttonMessageCache.getAllWithoutOneAndRemoveThem(c.getId().asLong(), toKeep.asLong(), configHash);
+                    return Flux.fromIterable(allButtonsWithoutTheLast).flatMap(id -> c.getMessageById(Snowflake.of(id)));
                 })
                 .onErrorResume(e -> {
                     log.warn("Tried to delete button but it was not found");
@@ -103,7 +102,7 @@ public abstract class DiscordAdapter implements IDiscordAdapter {
                 .flatMap(Message::delete).next().ofType(Void.class);
     }
 
-    public Mono<Message> createButtonMessage(ActiveButtonsCache activeButtonsCache,
+    public Mono<Message> createButtonMessage(ButtonMessageCache buttonMessageCache,
                                              @NonNull TextChannel channel,
                                              @NonNull String buttonMessage,
                                              @NonNull List<LayoutComponent> buttons,
@@ -114,8 +113,8 @@ public abstract class DiscordAdapter implements IDiscordAdapter {
                         .components(buttons)
                         .build())
                 .map(m -> {
-                    if (activeButtonsCache != null) {
-                        activeButtonsCache.addChannelWithButton(m.getChannelId(), m.getId(), configHash);
+                    if (buttonMessageCache != null) {
+                        buttonMessageCache.addChannelWithButton(m.getChannelId().asLong(), m.getId().asLong(), configHash);
                     }
                     return m;
                 });

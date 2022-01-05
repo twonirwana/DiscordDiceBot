@@ -1,16 +1,19 @@
 package de.janno.discord.command;
 
+import com.google.common.collect.ImmutableList;
 import de.janno.discord.dice.DiceResult;
 import de.janno.discord.dice.DiceUtils;
 import discord4j.discordjson.json.ApplicationCommandOptionData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
 
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 
 class CountSuccessesCommandTest {
 
@@ -160,20 +163,63 @@ class CountSuccessesCommandTest {
 
         assertThat(res).isEqualTo("count_successes,10,6,4,half_dice_one,12");
     }
-  /*  @Test
-    void handleComponentInteractEvent() {
-        GatewayDiscordClient gatewayDiscordClientMock = mock(GatewayDiscordClient.class);
-        TextChannel textChannel = new TextChannel(gatewayDiscordClientMock, ChannelData.builder()
-                .id(1)
-                .type(1)
-                .build());
-        Mockito.when(gatewayDiscordClientMock.getChannelById(any()))
-                .thenReturn(Mono.just(textChannel));
-        //Mono.when(discord4JAdapterMock.)
-        Mono<Void> res = underTest.handleComponentInteractEvent(TestUtils.createEventWithCustomId(gatewayDiscordClientMock, "count_successes",
-                "1", "6", "6", "6", "no_glitch", "15"));
-        StepVerifier.create(res)
 
+    @Test
+    void handleComponentInteractEvent() {
+        IButtonEventAdaptor buttonEventAdaptor = mock(IButtonEventAdaptor.class);
+        when(buttonEventAdaptor.getCustomId()).thenReturn("count_successes,6,6,4,half_dice_one,12");
+        when(buttonEventAdaptor.getChannelId()).thenReturn(1L);
+        when(buttonEventAdaptor.getMessageId()).thenReturn(1L);
+        when(buttonEventAdaptor.isPinned()).thenReturn(false);
+        when(buttonEventAdaptor.editMessage(any())).thenReturn(Mono.just(mock(Void.class)));
+        when(buttonEventAdaptor.createResultMessageWithEventReference(any())).thenReturn(Mono.just(mock(Void.class)));
+        when(buttonEventAdaptor.createButtonMessage(any(), any(), any(), anyInt())).thenReturn(Mono.just(2L));
+        when(buttonEventAdaptor.deleteMessage(any(), any(), anyInt()))
+                .thenReturn(Mono.just(mock(Void.class)));
+        Mono<Void> res = underTest.handleComponentInteractEvent(buttonEventAdaptor);
+        StepVerifier.create(res)
                 .verifyComplete();
-    }*/
+
+        verify(buttonEventAdaptor).editMessage("Click to roll the dice against 4 and check for more then half of dice 1s");
+        verify(buttonEventAdaptor).createButtonMessage(
+                eq("Click to roll the dice against 4 and check for more then half of dice 1s"),
+                any(),
+                any(),
+                anyInt()
+        );
+        verify(buttonEventAdaptor).deleteMessage(any(), any(), anyInt());
+        verify(buttonEventAdaptor).createResultMessageWithEventReference(eq(ImmutableList.of(new DiceResult("6d6 = 2 - Glitch!",
+                "[**1**,**1**,**1**,**1**,**5**,**6**] ≥4 = 2 and more then half of all dice show 1s"))));
+    }
+
+    @Test
+    void handleComponentInteractEvent_pinned() {
+        IButtonEventAdaptor buttonEventAdaptor = mock(IButtonEventAdaptor.class);
+        when(buttonEventAdaptor.getCustomId()).thenReturn("count_successes,6,6,4,half_dice_one,12");
+        when(buttonEventAdaptor.getChannelId()).thenReturn(1L);
+        when(buttonEventAdaptor.getMessageId()).thenReturn(1L);
+        when(buttonEventAdaptor.isPinned()).thenReturn(true);
+        when(buttonEventAdaptor.editMessage(any())).thenReturn(Mono.just(mock(Void.class)));
+        when(buttonEventAdaptor.createButtonMessage(any(), any(), any(), anyInt())).thenReturn(Mono.just(2L));
+        when(buttonEventAdaptor.createResultMessageWithEventReference(any())).thenReturn(Mono.just(mock(Void.class)));
+        when(buttonEventAdaptor.deleteMessage(any(), any(), anyInt()))
+                .thenReturn(Mono.just(mock(Void.class)));
+
+
+        Mono<Void> res = underTest.handleComponentInteractEvent(buttonEventAdaptor);
+        StepVerifier.create(res)
+                .verifyComplete();
+
+
+        verify(buttonEventAdaptor).editMessage("Click to roll the dice against 4 and check for more then half of dice 1s");
+        verify(buttonEventAdaptor).createButtonMessage(
+                eq("Click to roll the dice against 4 and check for more then half of dice 1s"),
+                any(),
+                any(),
+                anyInt()
+        );
+        verify(buttonEventAdaptor).deleteMessage(any(), any(), anyInt());
+        verify(buttonEventAdaptor).createResultMessageWithEventReference(eq(ImmutableList.of(new DiceResult("6d6 = 2 - Glitch!",
+                "[**1**,**1**,**1**,**1**,**5**,**6**] ≥4 = 2 and more then half of all dice show 1s"))));
+    }
 }

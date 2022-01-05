@@ -1,6 +1,6 @@
 package de.janno.discord.discord4j;
 
-import de.janno.discord.cache.ActiveButtonsCache;
+import de.janno.discord.cache.ButtonMessageCache;
 import de.janno.discord.command.ISlashEventAdaptor;
 import de.janno.discord.dice.DiceResult;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
@@ -49,12 +49,12 @@ public class SlashEventAdapter extends DiscordAdapter implements ISlashEventAdap
     }
 
     @Override
-    public Mono<Void> createButtonMessage(ActiveButtonsCache activeButtonsCache,
+    public Mono<Void> createButtonMessage(ButtonMessageCache buttonMessageCache,
                                           @NonNull String buttonMessage,
                                           @NonNull List<LayoutComponent> buttons,
                                           int configHash) {
         return event.getInteraction().getChannel().ofType(TextChannel.class)
-                .flatMap(channel -> createButtonMessage(activeButtonsCache, channel, buttonMessage, buttons, configHash))
+                .flatMap(channel -> createButtonMessage(buttonMessageCache, channel, buttonMessage, buttons, configHash))
                 .onErrorResume(t -> {
                     log.error("Error on creating button message", t);
                     return Mono.empty();

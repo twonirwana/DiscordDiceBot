@@ -5,7 +5,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
-import de.janno.discord.cache.ActiveButtonsCache;
+import de.janno.discord.cache.ButtonMessageCache;
 import de.janno.discord.dice.DiceResult;
 import de.janno.discord.dice.DiceUtils;
 import discord4j.core.object.command.ApplicationCommandInteractionOption;
@@ -52,7 +52,7 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollCommand.Config,
     @VisibleForTesting
     public HoldRerollCommand(DiceUtils diceUtils) {
         //current roll and rerollCount should not be part of the hash
-        super(new ActiveButtonsCache(COMMAND_NAME));
+        super(new ButtonMessageCache(COMMAND_NAME));
         this.diceUtils = diceUtils;
     }
 
