@@ -49,23 +49,12 @@ public class DiceParserHelper {
         return ImmutableList.of(resultTree.getValue());
     }
 
-    public String validateDiceExpressions(List<String> expressions, String helpCommand) {
-        if (expressions.isEmpty()) {
-            return String.format("You must configure at least one button with a dice expression. Use %s to get more information on how to use the command.", helpCommand);
+    public String validateDiceExpression(String expression, String helpCommand) {
+        if (expression.length() > 80) {
+            return String.format("The following dice expression are to long: '%s'. A expression must be 80 or less characters long", expression);
         }
-
-        List<String> invalidDiceExpressions = expressions.stream()
-                .filter(s -> !validExpression(s))
-                .collect(Collectors.toList());
-        if (!invalidDiceExpressions.isEmpty()) {
-            return String.format("The following dice expression are invalid: %s. Use %s to get more information on how to use the command.", String.join(",", invalidDiceExpressions), helpCommand);
-        }
-
-        List<String> toLongExpression = expressions.stream()
-                .filter(s -> s.length() > 80)
-                .collect(Collectors.toList());
-        if (!toLongExpression.isEmpty()) {
-            return String.format("The following dice expression are to long: %s. A expression must be 80 or less characters long", String.join(",", invalidDiceExpressions));
+        if (!validExpression(expression)) {
+            return String.format("The following dice expression are invalid: '%s'. Use %s to get more information on how to use the command.", expression, helpCommand);
         }
         return null;
     }
