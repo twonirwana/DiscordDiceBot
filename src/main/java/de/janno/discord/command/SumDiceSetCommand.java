@@ -285,11 +285,9 @@ public class SumDiceSetCommand extends AbstractCommand<SumDiceSetCommand.Config,
 
     @Value
     protected static class Config implements IConfig {
-
-
         @Override
         public String toMetricString() {
-            return "";
+            return null;
         }
 
     }

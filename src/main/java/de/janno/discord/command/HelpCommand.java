@@ -24,7 +24,7 @@ public class HelpCommand implements ISlashCommand {
 
     @Override
     public Mono<Void> handleSlashCommandEvent(@NonNull ISlashEventAdaptor event) {
-        Metrics.incrementSlashStartMetricCounter(getName(), "");
+        Metrics.incrementSlashStartMetricCounter(getName(), null);
         return event.replyEphemeral(EmbedCreateSpec.builder()
                 .addField("Command help", "type '/count_successes help', '/custom_dice help' or '/fate help' to get help for the commands", false)
                 .addField("Full documentation", "https://github.com/twonirwana/DiscordDiceBot/blob/main/README.md", false)
