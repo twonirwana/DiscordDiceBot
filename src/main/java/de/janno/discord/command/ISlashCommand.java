@@ -12,5 +12,4 @@ public interface ISlashCommand {
 
     Mono<Void> handleSlashCommandEvent(@NonNull ISlashEventAdaptor event);
 
-
 }

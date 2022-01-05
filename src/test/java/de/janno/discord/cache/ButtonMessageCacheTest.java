@@ -20,7 +20,7 @@ class ButtonMessageCacheTest {
         underTest.addChannelWithButton(1, 2, 1);
         underTest.addChannelWithButton(1, 3, 1);
 
-        assertThat(underTest.getCache().asMap())
+        assertThat(underTest.getCacheContent())
                 .hasSize(1)
                 .containsEntry(1L,
                         ImmutableSet.of(
@@ -39,7 +39,7 @@ class ButtonMessageCacheTest {
 
         underTest.removeButtonFromChannel(1, 2, 1);
 
-        assertThat(underTest.getCache().asMap())
+        assertThat(underTest.getCacheContent())
                 .hasSize(1)
                 .containsEntry(1L, ImmutableSet.of(
                         new ButtonMessageCache.ButtonWithConfigHash(3, 1),
@@ -57,7 +57,7 @@ class ButtonMessageCacheTest {
         underTest.getAllWithoutOneAndRemoveThem(1, 3, 1);
 
 
-        assertThat(underTest.getCache().asMap())
+        assertThat(underTest.getCacheContent())
                 .hasSize(1)
                 .containsEntry(1L, ImmutableSet.of(
                         new ButtonMessageCache.ButtonWithConfigHash(3, 1),

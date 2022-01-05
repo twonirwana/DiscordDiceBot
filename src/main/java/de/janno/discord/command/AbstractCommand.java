@@ -1,5 +1,6 @@
 package de.janno.discord.command;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import de.janno.discord.Metrics;
 import de.janno.discord.cache.ButtonMessageCache;
@@ -18,6 +19,8 @@ import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static de.janno.discord.dice.DiceUtils.MINUS;
 
@@ -31,6 +34,11 @@ public abstract class AbstractCommand<C extends IConfig, S extends IState> imple
 
     protected AbstractCommand(ButtonMessageCache buttonMessageCache) {
         this.buttonMessageCache = buttonMessageCache;
+    }
+
+    @VisibleForTesting
+    Map<Long, Set<ButtonMessageCache.ButtonWithConfigHash>> getButtonMessageCache() {
+        return buttonMessageCache.getCacheContent();
     }
 
     protected List<ApplicationCommandOptionData> getStartOptions() {
@@ -83,13 +91,24 @@ public abstract class AbstractCommand<C extends IConfig, S extends IState> imple
             actions.add(event.createResultMessageWithEventReference(result));
         }
         if (copyButtonMessageToTheEnd(state, config)) {
-            Mono<Long> newMessageIdMono = event.createButtonMessage(getButtonMessage(state, config), buttonMessageCache, getButtonLayout(state, config), config.hashCode());
+            Mono<Long> newMessageIdMono = event.createButtonMessage(getButtonMessage(state, config), getButtonLayout(state, config))
+                    .map(m -> {
+                        buttonMessageCache.addChannelWithButton(event.getChannelId(), m, config.hashCode());
+                        return m;
+                    });
+
+
             if (triggeringMessageIsPinned) {
                 //removing from cache on pin event would be better but currently not possible with discord4j
                 //if the message was not removed, we don't want that it is removed later
                 buttonMessageCache.removeButtonFromChannel(event.getChannelId(), event.getMessageId(), config.hashCode());
             }
-            actions.add(event.deleteMessage(newMessageIdMono, buttonMessageCache, config.hashCode()));
+
+            actions.add(newMessageIdMono
+                    .flux()
+                    .flatMap(id -> Flux.fromIterable(buttonMessageCache.getAllWithoutOneAndRemoveThem(event.getChannelId(), id, config.hashCode())))
+                    .flatMap(event::deleteMessage)
+                    .then());
         }
 
         return Flux.mergeDelayError(1, actions.toArray(new Mono<?>[0]))
@@ -120,10 +139,11 @@ public abstract class AbstractCommand<C extends IConfig, S extends IState> imple
             Metrics.incrementSlashStartMetricCounter(getName(), config.toMetricString());
 
             return event.reply("...")
-                    .then(event.createButtonMessage(buttonMessageCache,
-                            getButtonMessage(null, config),
-                            getButtonLayout(null, config),
-                            config.hashCode()));
+                    .then(event.createButtonMessage(getButtonMessage(null, config), getButtonLayout(null, config))
+                            .map(m -> {
+                                buttonMessageCache.addChannelWithButton(event.getChannelId(), m, config.hashCode());
+                                return m;
+                            }).ofType(Void.class));
 
         } else if (event.getOption(ACTION_HELP).isPresent()) {
             Metrics.incrementSlashHelpMetricCounter(getName());
@@ -143,6 +163,7 @@ public abstract class AbstractCommand<C extends IConfig, S extends IState> imple
     protected abstract List<LayoutComponent> getButtonLayout(@Nullable S state, C config);
 
     protected String getStartOptionsValidationMessage(ApplicationCommandInteractionOption options) {
+        //standard is no validation
         return null;
     }
 

@@ -1,6 +1,5 @@
 package de.janno.discord.command;
 
-import de.janno.discord.cache.ButtonMessageCache;
 import discord4j.core.object.component.LayoutComponent;
 import reactor.core.publisher.Mono;
 
@@ -18,14 +17,9 @@ public interface IButtonEventAdaptor extends IDiscordAdapter {
 
     Mono<Void> editMessage(String message);
 
-    Mono<Long> createButtonMessage(String messageContent,
-                                   ButtonMessageCache buttonMessageCache,
-                                   List<LayoutComponent> buttonLayout,
-                                   int configHash);
+    Mono<Long> createButtonMessage(String messageContent, List<LayoutComponent> buttonLayout);
 
-    Mono<Void> deleteMessage(Mono<Long> messageId,
-                             ButtonMessageCache buttonMessageCache,
-                             int configHash);
+    Mono<Void> deleteMessage(long messageId);
 
     List<String> getAllButtonIds();
 

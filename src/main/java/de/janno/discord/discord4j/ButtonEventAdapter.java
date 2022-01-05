@@ -1,14 +1,12 @@
 package de.janno.discord.discord4j;
 
 import com.google.common.collect.ImmutableList;
-import de.janno.discord.cache.ButtonMessageCache;
 import de.janno.discord.command.IButtonEventAdaptor;
 import de.janno.discord.dice.DiceResult;
 import discord4j.common.util.Snowflake;
 import discord4j.core.event.domain.interaction.ComponentInteractionEvent;
 import discord4j.core.object.component.LayoutComponent;
 import discord4j.core.object.entity.Message;
-import discord4j.core.object.entity.channel.MessageChannel;
 import discord4j.core.object.entity.channel.TextChannel;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
@@ -55,16 +53,13 @@ public class ButtonEventAdapter extends DiscordAdapter implements IButtonEventAd
     }
 
     @Override
-    public Mono<Long> createButtonMessage(String messageContent,
-                                          ButtonMessageCache buttonMessageCache,
-                                          List<LayoutComponent> buttonLayout,
-                                          int configHash) {
+    public Mono<Long> createButtonMessage(String messageContent, List<LayoutComponent> buttonLayout) {
         return event.getInteraction().getChannel()
                 .ofType(TextChannel.class)
                 .flatMap(channel ->
                 {
                     //if the triggering message is pinned and its content is not changed, then the new message should have a modified message content
-                    return createButtonMessage(buttonMessageCache, channel, messageContent, buttonLayout, configHash)
+                    return createButtonMessage(channel, messageContent, buttonLayout)
                             .onErrorResume(t -> {
                                 log.warn("Error on creating button message");
                                 return Mono.empty();
@@ -74,13 +69,10 @@ public class ButtonEventAdapter extends DiscordAdapter implements IButtonEventAd
     }
 
     @Override
-    public Mono<Void> deleteMessage(
-            Mono<Long> messageId,
-            ButtonMessageCache buttonMessageCache,
-            int configHash) {
-        return messageId
-                .flatMap(m -> deleteMessage(event.getInteraction().getChannel()
-                        .ofType(MessageChannel.class), buttonMessageCache, Snowflake.of(m), configHash));
+    public Mono<Void> deleteMessage(long messageId) {
+        return event.getInteraction().getChannel()
+                .flatMap(c -> c.getMessageById(Snowflake.of(messageId)))
+                .flatMap(Message::delete);
     }
 
     @Override

@@ -1,6 +1,8 @@
 package de.janno.discord.command;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
+import de.janno.discord.cache.ButtonMessageCache;
 import de.janno.discord.dice.DiceResult;
 import de.janno.discord.dice.DiceUtils;
 import discord4j.discordjson.json.ApplicationCommandOptionData;
@@ -173,23 +175,27 @@ class CountSuccessesCommandTest {
         when(buttonEventAdaptor.isPinned()).thenReturn(false);
         when(buttonEventAdaptor.editMessage(any())).thenReturn(Mono.just(mock(Void.class)));
         when(buttonEventAdaptor.createResultMessageWithEventReference(any())).thenReturn(Mono.just(mock(Void.class)));
-        when(buttonEventAdaptor.createButtonMessage(any(), any(), any(), anyInt())).thenReturn(Mono.just(2L));
-        when(buttonEventAdaptor.deleteMessage(any(), any(), anyInt()))
-                .thenReturn(Mono.just(mock(Void.class)));
+        when(buttonEventAdaptor.createButtonMessage(any(), any())).thenReturn(Mono.just(2L));
+        when(buttonEventAdaptor.deleteMessage(anyLong())).thenReturn(Mono.just(mock(Void.class)));
+
+
         Mono<Void> res = underTest.handleComponentInteractEvent(buttonEventAdaptor);
+
+
         StepVerifier.create(res)
                 .verifyComplete();
 
         verify(buttonEventAdaptor).editMessage("Click to roll the dice against 4 and check for more then half of dice 1s");
         verify(buttonEventAdaptor).createButtonMessage(
                 eq("Click to roll the dice against 4 and check for more then half of dice 1s"),
-                any(),
-                any(),
-                anyInt()
+                any()
         );
-        verify(buttonEventAdaptor).deleteMessage(any(), any(), anyInt());
+        verify(buttonEventAdaptor).deleteMessage(anyLong());
         verify(buttonEventAdaptor).createResultMessageWithEventReference(eq(ImmutableList.of(new DiceResult("6d6 = 2 - Glitch!",
                 "[**1**,**1**,**1**,**1**,**5**,**6**] ≥4 = 2 and more then half of all dice show 1s"))));
+        assertThat(underTest.getButtonMessageCache())
+                .hasSize(1)
+                .containsEntry(1L, ImmutableSet.of(new ButtonMessageCache.ButtonWithConfigHash(2L, -259414907)));
     }
 
     @Test
@@ -200,10 +206,9 @@ class CountSuccessesCommandTest {
         when(buttonEventAdaptor.getMessageId()).thenReturn(1L);
         when(buttonEventAdaptor.isPinned()).thenReturn(true);
         when(buttonEventAdaptor.editMessage(any())).thenReturn(Mono.just(mock(Void.class)));
-        when(buttonEventAdaptor.createButtonMessage(any(), any(), any(), anyInt())).thenReturn(Mono.just(2L));
+        when(buttonEventAdaptor.createButtonMessage(any(), any())).thenReturn(Mono.just(2L));
         when(buttonEventAdaptor.createResultMessageWithEventReference(any())).thenReturn(Mono.just(mock(Void.class)));
-        when(buttonEventAdaptor.deleteMessage(any(), any(), anyInt()))
-                .thenReturn(Mono.just(mock(Void.class)));
+        when(buttonEventAdaptor.deleteMessage(anyLong())).thenReturn(Mono.just(mock(Void.class)));
 
 
         Mono<Void> res = underTest.handleComponentInteractEvent(buttonEventAdaptor);
@@ -214,12 +219,13 @@ class CountSuccessesCommandTest {
         verify(buttonEventAdaptor).editMessage("Click to roll the dice against 4 and check for more then half of dice 1s");
         verify(buttonEventAdaptor).createButtonMessage(
                 eq("Click to roll the dice against 4 and check for more then half of dice 1s"),
-                any(),
-                any(),
-                anyInt()
+                any()
         );
-        verify(buttonEventAdaptor).deleteMessage(any(), any(), anyInt());
+        verify(buttonEventAdaptor, never()).deleteMessage(anyLong());
         verify(buttonEventAdaptor).createResultMessageWithEventReference(eq(ImmutableList.of(new DiceResult("6d6 = 2 - Glitch!",
                 "[**1**,**1**,**1**,**1**,**5**,**6**] ≥4 = 2 and more then half of all dice show 1s"))));
+        assertThat(underTest.getButtonMessageCache())
+                .hasSize(1)
+                .containsEntry(1L, ImmutableSet.of(new ButtonMessageCache.ButtonWithConfigHash(2L, -259414907)));
     }
 }

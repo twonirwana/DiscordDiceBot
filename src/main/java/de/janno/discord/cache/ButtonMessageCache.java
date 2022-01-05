@@ -4,12 +4,15 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import de.janno.discord.Metrics;
 import io.micrometer.core.instrument.Tags;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.ExecutionException;
@@ -34,8 +37,11 @@ public class ButtonMessageCache {
     }
 
     @VisibleForTesting
-    Cache<Long, Set<ButtonWithConfigHash>> getCache() {
-        return channel2ButtonMessageIds;
+    public Map<Long, Set<ButtonWithConfigHash>> getCacheContent() {
+        return channel2ButtonMessageIds.asMap().entrySet().stream()
+                .collect(ImmutableMap.toImmutableMap(Map.Entry::getKey, e -> e.getValue().stream()
+                        .map(b -> new ButtonWithConfigHash(b.buttonId, b.getConfigHash()))
+                        .collect(ImmutableSet.toImmutableSet())));
     }
 
     public void addChannelWithButton(long channelId, long buttonId, int configHash) {
