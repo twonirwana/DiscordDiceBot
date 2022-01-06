@@ -21,7 +21,7 @@ import static org.mockito.Mockito.when;
 class SumDiceSetCommandTest {
     SumDiceSetCommand underTest;
 
-    static Stream<Arguments> generateGetButtonMessageWithStateData() {
+    static Stream<Arguments> generateGetEditButtonMessageData() {
         return Stream.of(
                 Arguments.of(new SumDiceSetCommand.State("+1d4", ImmutableMap.of()), "1d4"),
                 Arguments.of(new SumDiceSetCommand.State("+1d6", ImmutableMap.of()), "1d6"),
@@ -117,8 +117,8 @@ class SumDiceSetCommandTest {
     }
 
     @Test
-    void getButtonMessageWithState_x2() {
-        String res = underTest.getButtonMessageWithState(new SumDiceSetCommand.State("x2", ImmutableMap.of(
+    void getEditButtonMessage_x2() {
+        String res = underTest.getEditButtonMessage(new SumDiceSetCommand.State("x2", ImmutableMap.of(
                 "d4", 1,
                 "d6", 2,
                 "d8", 3,
@@ -129,8 +129,8 @@ class SumDiceSetCommandTest {
     }
 
     @Test
-    void getButtonMessageWithStateNegativeModifier_x2() {
-        String res = underTest.getButtonMessageWithState(new SumDiceSetCommand.State("x2", ImmutableMap.of(
+    void getEditButtonMessageNegativeModifier_x2() {
+        String res = underTest.getEditButtonMessage(new SumDiceSetCommand.State("x2", ImmutableMap.of(
                 "d4", -1,
                 "d6", -2,
                 "d8", -3,
@@ -141,8 +141,8 @@ class SumDiceSetCommandTest {
     }
 
     @Test
-    void getButtonMessageWithState_limit() {
-        String res = underTest.getButtonMessageWithState(new SumDiceSetCommand.State("x2", ImmutableMap.of("d4", 51)), new SumDiceSetCommand.Config());
+    void getEditButtonMessage_limit() {
+        String res = underTest.getEditButtonMessage(new SumDiceSetCommand.State("x2", ImmutableMap.of("d4", 51)), new SumDiceSetCommand.Config());
         assertThat(res).isEqualTo("100d4");
     }
 
@@ -152,10 +152,16 @@ class SumDiceSetCommandTest {
         assertThat(res).isEqualTo("Click on the buttons to add dice to the set");
     }
 
+    @Test
+    void getButtonMessageWithState() {
+        String res = underTest.getButtonMessageWithState(new SumDiceSetCommand.State("roll", ImmutableMap.of("d4", 51)), new SumDiceSetCommand.Config());
+        assertThat(res).isEqualTo("Click on the buttons to add dice to the set");
+    }
+
     @ParameterizedTest(name = "{index} config={0}, buttonId={1} -> {2}")
-    @MethodSource("generateGetButtonMessageWithStateData")
-    void getButtonMessageWithState(SumDiceSetCommand.State state, String expected) {
-        String res = underTest.getButtonMessageWithState(state, new SumDiceSetCommand.Config());
+    @MethodSource("generateGetEditButtonMessageData")
+    void getEditButtonMessage(SumDiceSetCommand.State state, String expected) {
+        String res = underTest.getEditButtonMessage(state, new SumDiceSetCommand.Config());
         assertThat(res).isEqualTo(expected);
     }
 
@@ -260,8 +266,8 @@ class SumDiceSetCommandTest {
     }
 
     @Test
-    void getButtonMessageWithState_1d6() {
-        String res = underTest.getButtonMessageWithState(new SumDiceSetCommand.State("+1d6", ImmutableMap.of(
+    void getEditButtonMessage_1d6() {
+        String res = underTest.getEditButtonMessage(new SumDiceSetCommand.State("+1d6", ImmutableMap.of(
                 "d6", 1
         )), new SumDiceSetCommand.Config());
         assertThat(res).isEqualTo("2d6");

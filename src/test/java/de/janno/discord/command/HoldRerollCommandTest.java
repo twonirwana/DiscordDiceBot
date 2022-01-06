@@ -382,4 +382,13 @@ class HoldRerollCommandTest {
                         "hold_reroll,14,EMPTY,6,2;3;4,5;6,1,0",
                         "hold_reroll,15,EMPTY,6,2;3;4,5;6,1,0");
     }
+
+    @Test
+    void editButtonMessage() {
+        assertThat(underTest.getEditButtonMessage(new HoldRerollCommand.State("3", ImmutableList.of(1, 1, 1, 5, 5, 6), 2), new HoldRerollCommand.Config(
+                6,
+                ImmutableSet.of(2, 3, 4),
+                ImmutableSet.of(5, 6),
+                ImmutableSet.of(1)))).isNull();
+    }
 }

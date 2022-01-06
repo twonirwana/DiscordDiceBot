@@ -198,4 +198,9 @@ class FateCommandTest {
                         "fate,9,with_modifier",
                         "fate,10,with_modifier");
     }
+
+    @Test
+    void editButtonMessage(){
+        assertThat(underTest.getEditButtonMessage(new FateCommand.State(2), new FateCommand.Config("with_modifier"))).isNull();
+    }
 }

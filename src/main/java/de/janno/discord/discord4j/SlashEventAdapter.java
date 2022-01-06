@@ -4,15 +4,18 @@ import de.janno.discord.command.ISlashEventAdaptor;
 import de.janno.discord.dice.DiceResult;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.object.command.ApplicationCommandInteractionOption;
+import discord4j.core.object.command.ApplicationCommandInteractionOptionValue;
 import discord4j.core.object.component.LayoutComponent;
 import discord4j.core.object.entity.channel.TextChannel;
 import discord4j.core.spec.EmbedCreateSpec;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.Nullable;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
 public class SlashEventAdapter extends DiscordAdapter implements ISlashEventAdaptor {
@@ -73,4 +76,34 @@ public class SlashEventAdapter extends DiscordAdapter implements ISlashEventAdap
     public Long getChannelId() {
         return event.getInteraction().getChannelId().asLong();
     }
+
+    @Override
+    public String getCommandString() {
+        String options = event.getOptions().stream()
+                .map(a -> optionToString(a.getName(), a.getOptions(), a.getValue().orElse(null)))
+                .collect(Collectors.joining(" "));
+        return String.format("`/%s %s`", event.getCommandName(), options);
+
+
+    }
+
+    private String optionToString(@NonNull String name, @NonNull List<ApplicationCommandInteractionOption> options, @Nullable ApplicationCommandInteractionOptionValue value) {
+        if (options.isEmpty() && value == null) {
+            return name;
+        }
+        String out = name;
+        if (value != null) {
+            out = String.format("%s:%s", name, value.getRaw());
+        }
+        String optionsString = options.stream()
+                .map(a -> optionToString(a.getName(), a.getOptions(), a.getValue().orElse(null)))
+                .collect(Collectors.joining(" "));
+        if (!optionsString.isEmpty()) {
+            out = String.format("%s %s", out, optionsString);
+        }
+
+        return out;
+    }
+
+
 }

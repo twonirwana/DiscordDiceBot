@@ -2,11 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## 2022-01-06
+
+### Added
+
+Print the used command when creation a new dice button message with a slash command
+
 ## 2022-01-05
 
 ### Added
 
-the custom dice command can now configure labels for the dice expressions
+The custom dice command can now configure labels for the dice expressions
 
 ## 2022-01-01
 
