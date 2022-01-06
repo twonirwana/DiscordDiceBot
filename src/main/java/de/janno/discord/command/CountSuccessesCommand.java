@@ -189,7 +189,12 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesCommand
     }
 
     @Override
-    protected String getButtonMessage(State state, Config config) {
+    protected String getButtonMessageWithState(State state, Config config) {
+        return String.format("Click to roll the dice against %s%s", config.getTarget(), getGlitchDescription(config));
+    }
+
+    @Override
+    protected String getButtonMessage(Config config) {
         return String.format("Click to roll the dice against %s%s", config.getTarget(), getGlitchDescription(config));
     }
 
@@ -235,7 +240,16 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesCommand
     }
 
     @Override
-    protected List<LayoutComponent> getButtonLayout(State state, Config config) {
+    protected List<LayoutComponent> getButtonLayoutWithState(State state, Config config) {
+        return createButtonLayout(config);
+    }
+
+    @Override
+    protected List<LayoutComponent> getButtonLayout(Config config) {
+        return createButtonLayout(config);
+    }
+
+    private List<LayoutComponent> createButtonLayout(Config config) {
         List<Button> buttons = IntStream.range(1, config.getMaxNumberOfButtons() + 1)
                 .mapToObj(i -> Button.primary(createButtonCustomId(String.valueOf(i), config), createButtonLabel(String.valueOf(i), config))).collect(Collectors.toList());
         return Lists.partition(buttons, 5).stream().map(ActionRow::of).collect(Collectors.toList());

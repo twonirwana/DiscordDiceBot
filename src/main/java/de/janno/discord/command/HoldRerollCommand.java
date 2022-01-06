@@ -262,8 +262,15 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollCommand.Config,
     }
 
     @Override
-    protected String getButtonMessage(State state, Config config) {
-        if (config.getRerollSet().isEmpty() || CLEAR_BUTTON_ID.equals(state.getState())
+    protected String getButtonMessage(Config config) {
+        return String.format("Click on the buttons to roll dice. Reroll set: %s, Success Set: %s and Failure Set: %s",
+                config.getRerollSet(), config.getSuccessSet(), config.getFailureSet());
+    }
+
+    @Override
+    protected String getButtonMessageWithState(State state, Config config) {
+        if (config.getRerollSet().isEmpty()
+                || CLEAR_BUTTON_ID.equals(state.getState())
                 || FINISH_BUTTON_ID.equals(state.getState())
                 || rollFinished(state, config)) {
             return String.format("Click on the buttons to roll dice. Reroll set: %s, Success Set: %s and Failure Set: %s",
@@ -276,20 +283,33 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollCommand.Config,
     }
 
     @Override
-    protected List<LayoutComponent> getButtonLayout(State state, Config config) {
-        if (state != null && (state.getState() == null || CLEAR_BUTTON_ID.equals(state.getState()) || FINISH_BUTTON_ID.equals(state.getState()) || rollFinished(state, config))) {
-            List<Button> buttons = IntStream.range(1, 16)
-                    .mapToObj(i -> Button.primary(createButtonCustomId(String.valueOf(i), config, null),
-                            String.format("%d%s%s", i, DICE_SYMBOL, config.getSidesOfDie())))
-                    .collect(Collectors.toList());
-            return Lists.partition(buttons, 5).stream().map(ActionRow::of).collect(Collectors.toList());
+    protected List<LayoutComponent> getButtonLayoutWithState(State state, Config config) {
+        if (state.getState() == null ||
+                CLEAR_BUTTON_ID.equals(state.getState()) ||
+                FINISH_BUTTON_ID.equals(state.getState()) ||
+                rollFinished(state, config)) {
+            return createButtonLayout(config);
         }
+        //further rerolls are possible
         return ImmutableList.of(
                 ActionRow.of(
                         Button.primary(createButtonCustomId(REROLL_BUTTON_ID, config, state), "Reroll"),
                         Button.primary(createButtonCustomId(FINISH_BUTTON_ID, config, state), "Finish"),
                         Button.primary(createButtonCustomId(CLEAR_BUTTON_ID, config, state), "Clear")
                 ));
+    }
+
+    @Override
+    protected List<LayoutComponent> getButtonLayout(Config config) {
+        return createButtonLayout(config);
+    }
+
+    private List<LayoutComponent> createButtonLayout(Config config) {
+        List<Button> buttons = IntStream.range(1, 16)
+                .mapToObj(i -> Button.primary(createButtonCustomId(String.valueOf(i), config, null),
+                        String.format("%d%s%s", i, DICE_SYMBOL, config.getSidesOfDie())))
+                .collect(Collectors.toList());
+        return Lists.partition(buttons, 5).stream().map(ActionRow::of).collect(Collectors.toList());
     }
 
     @Override

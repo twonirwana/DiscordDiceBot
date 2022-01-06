@@ -30,6 +30,7 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceCommand.Config,
     private static final String COMMAND_NAME = "custom_dice";
     private static final List<String> DICE_COMMAND_OPTIONS_IDS = IntStream.range(1, 26).mapToObj(i -> i + "_button").collect(Collectors.toList());
     private static final String LABEL_DELIMITER = "@";
+    private static final String BUTTON_MESSAGE = "Click on a button to roll the dice";
     private final DiceParserHelper diceParserHelper;
 
     public CustomDiceCommand() {
@@ -48,8 +49,13 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceCommand.Config,
     }
 
     @Override
-    protected String getButtonMessage(State buttonValue, Config config) {
-        return "Click on a button to roll the dice";
+    protected String getButtonMessage(Config config) {
+        return BUTTON_MESSAGE;
+    }
+
+    @Override
+    protected String getButtonMessageWithState(State state, Config config) {
+        return BUTTON_MESSAGE;
     }
 
     @Override
@@ -220,7 +226,16 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceCommand.Config,
     }
 
     @Override
-    protected List<LayoutComponent> getButtonLayout(State state, Config config) {
+    protected List<LayoutComponent> getButtonLayoutWithState(State state, Config config) {
+        return createButtonLayout(config);
+    }
+
+    @Override
+    protected List<LayoutComponent> getButtonLayout(Config config) {
+        return createButtonLayout(config);
+    }
+
+    private List<LayoutComponent> createButtonLayout(Config config) {
         List<Button> buttons = config.getLabelAndExpression().stream()
                 .map(d -> Button.primary(createButtonCustomId(d.getDiceExpression()), d.getLabel()))
                 .collect(Collectors.toList());

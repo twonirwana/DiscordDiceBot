@@ -2,6 +2,7 @@ package de.janno.discord.command;
 
 import de.janno.discord.dice.DiceResult;
 import de.janno.discord.dice.DiceUtils;
+import discord4j.core.object.component.LayoutComponent;
 import discord4j.discordjson.json.ApplicationCommandOptionData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,14 +29,28 @@ class FateCommandTest {
 
     @Test
     void getButtonMessage_modifier() {
-        String res = underTest.getButtonMessage(null, new FateCommand.Config("with_modifier"));
+        String res = underTest.getButtonMessage(new FateCommand.Config("with_modifier"));
 
         assertThat(res).isEqualTo("Click a button to roll four fate dice and add the value of the button");
     }
 
     @Test
     void getButtonMessage_simple() {
-        String res = underTest.getButtonMessage(null, new FateCommand.Config("simple"));
+        String res = underTest.getButtonMessage(new FateCommand.Config("simple"));
+
+        assertThat(res).isEqualTo("Click a button to roll four fate dice");
+    }
+
+    @Test
+    void getButtonMessageWithState_modifier() {
+        String res = underTest.getButtonMessageWithState(new FateCommand.State(0), new FateCommand.Config("with_modifier"));
+
+        assertThat(res).isEqualTo("Click a button to roll four fate dice and add the value of the button");
+    }
+
+    @Test
+    void getButtonMessageWithState_simple() {
+        String res = underTest.getButtonMessageWithState(new FateCommand.State(0), new FateCommand.Config("simple"));
 
         assertThat(res).isEqualTo("Click a button to roll four fate dice");
     }
@@ -118,5 +133,69 @@ class FateCommandTest {
         String res = underTest.createButtonCustomId("3", new FateCommand.Config("with_modifier"));
 
         assertThat(res).isEqualTo("fate,3,with_modifier");
+    }
+
+    @Test
+    void getButtonLayoutWithState_simple() {
+        List<LayoutComponent> res = underTest.getButtonLayoutWithState(new FateCommand.State(null), new FateCommand.Config("simple"));
+
+        assertThat(res.stream().flatMap(l -> l.getChildren().stream()).map(l -> l.getData().label().get())).containsExactly("Roll 4dF");
+        assertThat(res.stream().flatMap(l -> l.getChildren().stream()).map(l -> l.getData().customId().get()))
+                .containsExactly("fate,roll,simple");
+    }
+
+    @Test
+    void getButtonLayout_simple() {
+        List<LayoutComponent> res = underTest.getButtonLayout(new FateCommand.Config("simple"));
+
+        assertThat(res.stream().flatMap(l -> l.getChildren().stream()).map(l -> l.getData().label().get())).containsExactly("Roll 4dF");
+        assertThat(res.stream().flatMap(l -> l.getChildren().stream()).map(l -> l.getData().customId().get()))
+                .containsExactly("fate,roll,simple");
+    }
+
+    @Test
+    void getButtonLayoutWithState_modifier() {
+        List<LayoutComponent> res = underTest.getButtonLayoutWithState(new FateCommand.State(2), new FateCommand.Config("with_modifier"));
+
+        assertThat(res.stream().flatMap(l -> l.getChildren().stream()).map(l -> l.getData().label().get())).containsExactly("-4", "-3", "-2", "-1", "0", "+1", "+2", "+3", "+4", "+5", "+6", "+7", "+8", "+9", "+10");
+        assertThat(res.stream().flatMap(l -> l.getChildren().stream()).map(l -> l.getData().customId().get()))
+                .containsExactly("fate,-4,with_modifier",
+                        "fate,-3,with_modifier",
+                        "fate,-2,with_modifier",
+                        "fate,-1,with_modifier",
+                        "fate,0,with_modifier",
+                        "fate,1,with_modifier",
+                        "fate,2,with_modifier",
+                        "fate,3,with_modifier",
+                        "fate,4,with_modifier",
+                        "fate,5,with_modifier",
+                        "fate,6,with_modifier",
+                        "fate,7,with_modifier",
+                        "fate,8,with_modifier",
+                        "fate,9,with_modifier",
+                        "fate,10,with_modifier");
+    }
+
+    @Test
+    void getButtonLayout_modifier() {
+        List<LayoutComponent> res = underTest.getButtonLayout(new FateCommand.Config("with_modifier"));
+
+        assertThat(res.stream().flatMap(l -> l.getChildren().stream()).map(l -> l.getData().label().get())).containsExactly("-4", "-3", "-2", "-1", "0", "+1", "+2", "+3", "+4", "+5", "+6", "+7", "+8", "+9", "+10");
+        assertThat(res.stream().flatMap(l -> l.getChildren().stream()).map(l -> l.getData().customId().get()))
+                .containsExactly("fate,-4,with_modifier",
+                        "fate,-3,with_modifier",
+                        "fate,-2,with_modifier",
+                        "fate,-1,with_modifier",
+                        "fate,0,with_modifier",
+                        "fate,1,with_modifier",
+                        "fate,2,with_modifier",
+                        "fate,3,with_modifier",
+                        "fate,4,with_modifier",
+                        "fate,5,with_modifier",
+                        "fate,6,with_modifier",
+                        "fate,7,with_modifier",
+                        "fate,8,with_modifier",
+                        "fate,9,with_modifier",
+                        "fate,10,with_modifier");
     }
 }

@@ -13,7 +13,6 @@ import discord4j.core.spec.EmbedCreateSpec;
 import discord4j.discordjson.json.ApplicationCommandOptionData;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.Nullable;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -80,8 +79,8 @@ public abstract class AbstractCommand<C extends IConfig, S extends IState> imple
         boolean triggeringMessageIsPinned = event.isPinned();
 
         actions.add(event
-                //if the button is pined it keeps its message
-                .editMessage(getButtonMessage(state, config)));
+                //TODO not good, should only modified if necessary and not with the same methode as for the new message
+                .editMessage(getButtonMessageWithState(state, config)));
         if (createAnswerMessage(state, config)) {
             Metrics.incrementButtonMetricCounter(getName(), config.toShortString());
             List<DiceResult> result = getDiceResult(state, config);
@@ -93,7 +92,7 @@ public abstract class AbstractCommand<C extends IConfig, S extends IState> imple
             actions.add(event.createResultMessageWithEventReference(result));
         }
         if (copyButtonMessageToTheEnd(state, config)) {
-            Mono<Long> newMessageIdMono = event.createButtonMessage(getButtonMessage(state, config), getButtonLayout(state, config))
+            Mono<Long> newMessageIdMono = event.createButtonMessage(getButtonMessageWithState(state, config), getButtonLayoutWithState(state, config))
                     .map(m -> {
                         buttonMessageCache.addChannelWithButton(channelId, m, config.hashCode());
                         return m;
@@ -141,7 +140,7 @@ public abstract class AbstractCommand<C extends IConfig, S extends IState> imple
             Metrics.incrementSlashStartMetricCounter(getName(), config.toShortString());
 
             return event.reply("...")
-                    .then(event.createButtonMessage(getButtonMessage(null, config), getButtonLayout(null, config))
+                    .then(event.createButtonMessage(getButtonMessage(config), getButtonLayout(config))
                             .map(m -> {
                                 buttonMessageCache.addChannelWithButton(event.getChannelId(), m, config.hashCode());
                                 return m;
@@ -156,13 +155,17 @@ public abstract class AbstractCommand<C extends IConfig, S extends IState> imple
 
     protected abstract EmbedCreateSpec getHelpMessage();
 
-    protected abstract String getButtonMessage(@Nullable S state, C config);
+    protected abstract String getButtonMessageWithState(S state, C config);
+
+    protected abstract String getButtonMessage(C config);
 
     protected abstract C getConfigFromStartOptions(ApplicationCommandInteractionOption options);
 
     protected abstract List<DiceResult> getDiceResult(S state, C config);
 
-    protected abstract List<LayoutComponent> getButtonLayout(@Nullable S state, C config);
+    protected abstract List<LayoutComponent> getButtonLayoutWithState(S state, C config);
+
+    protected abstract List<LayoutComponent> getButtonLayout(C config);
 
     protected String getStartOptionsValidationMessage(ApplicationCommandInteractionOption options) {
         //standard is no validation

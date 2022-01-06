@@ -151,10 +151,12 @@ public class SumDiceSetCommand extends AbstractCommand<SumDiceSetCommand.Config,
     }
 
     @Override
-    protected String getButtonMessage(State state, Config config) {
-        if (state == null) {
-            return EMPTY_MESSAGE;
-        }
+    protected String getButtonMessage(Config config) {
+        return EMPTY_MESSAGE;
+    }
+
+    @Override
+    protected String getButtonMessageWithState(State state, Config config) {
         if (ROLL_BUTTON_ID.equals(state.getButtonValue())) {
             return EMPTY_MESSAGE;
         } else if (CLEAR_BUTTON_ID.equals(state.getButtonValue())) {
@@ -250,7 +252,16 @@ public class SumDiceSetCommand extends AbstractCommand<SumDiceSetCommand.Config,
     }
 
     @Override
-    protected List<LayoutComponent> getButtonLayout(State state, Config config) {
+    protected List<LayoutComponent> getButtonLayoutWithState(State state, Config config) {
+        return createButtonLayout();
+    }
+
+    @Override
+    protected List<LayoutComponent> getButtonLayout(Config config) {
+        return createButtonLayout();
+    }
+
+    private List<LayoutComponent> createButtonLayout() {
         return ImmutableList.of(
                 ActionRow.of(
                         //              ID,  label

@@ -112,8 +112,15 @@ class CustomDiceCommandTest {
     }
 
     @Test
+    void getButtonMessageWithState() {
+        String res = underTest.getButtonMessageWithState(new CustomDiceCommand.State("1d6"), new CustomDiceCommand.Config(ImmutableList.of()));
+
+        assertThat(res).isEqualTo("Click on a button to roll the dice");
+    }
+
+    @Test
     void getButtonMessage() {
-        String res = underTest.getButtonMessage(new CustomDiceCommand.State("1d6"), new CustomDiceCommand.Config(ImmutableList.of()));
+        String res = underTest.getButtonMessage(new CustomDiceCommand.Config(ImmutableList.of()));
 
         assertThat(res).isEqualTo("Click on a button to roll the dice");
     }
@@ -283,9 +290,22 @@ class CustomDiceCommandTest {
     }
 
     @Test
+    void getButtonLayoutWithState() {
+        List<LayoutComponent> res = underTest.getButtonLayoutWithState(
+                new CustomDiceCommand.State("2d6"),
+                new CustomDiceCommand.Config(ImmutableList.of(
+                        new CustomDiceCommand.LabelAndDiceExpression("2d6", "2d6"),
+                        new CustomDiceCommand.LabelAndDiceExpression("Attack", "1d20")
+                ))
+        );
+
+        assertThat(res.stream().flatMap(l -> l.getChildren().stream()).map(l -> l.getData().label().get())).containsExactly("2d6", "Attack");
+        assertThat(res.stream().flatMap(l -> l.getChildren().stream()).map(l -> l.getData().customId().get())).containsExactly("custom_dice,2d6", "custom_dice,1d20");
+    }
+
+    @Test
     void getButtonLayout() {
         List<LayoutComponent> res = underTest.getButtonLayout(
-                new CustomDiceCommand.State("2d6"),
                 new CustomDiceCommand.Config(ImmutableList.of(
                         new CustomDiceCommand.LabelAndDiceExpression("2d6", "2d6"),
                         new CustomDiceCommand.LabelAndDiceExpression("Attack", "1d20")
