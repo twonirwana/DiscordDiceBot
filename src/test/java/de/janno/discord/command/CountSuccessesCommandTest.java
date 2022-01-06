@@ -41,7 +41,7 @@ class CountSuccessesCommandTest {
     @Test
     void getButtonMessage_noGlitch() {
         CountSuccessesCommand.Config config = new CountSuccessesCommand.Config(6, 6, "no_glitch", 15);
-        assertThat(underTest.getButtonMessage(null, config)).isEqualTo("Click to roll the dice against 6");
+        assertThat(underTest.getButtonMessage(config)).isEqualTo("Click to roll the dice against 6");
     }
 
 
@@ -49,21 +49,54 @@ class CountSuccessesCommandTest {
     void getButtonMessage_halfDiceOne() {
         CountSuccessesCommand.Config config = new CountSuccessesCommand.Config(6, 6, "half_dice_one", 15);
 
-        assertThat(underTest.getButtonMessage(null, config)).isEqualTo("Click to roll the dice against 6 and check for more then half of dice 1s");
+        assertThat(underTest.getButtonMessage(config)).isEqualTo("Click to roll the dice against 6 and check for more then half of dice 1s");
     }
 
     @Test
     void getButtonMessage_countOnes() {
         CountSuccessesCommand.Config config = new CountSuccessesCommand.Config(6, 6, "count_ones", 15);
 
-        assertThat(underTest.getButtonMessage(null, config)).isEqualTo("Click to roll the dice against 6 and count the 1s");
+        assertThat(underTest.getButtonMessage(config)).isEqualTo("Click to roll the dice against 6 and count the 1s");
     }
 
     @Test
     void getButtonMessage_subtractOnes() {
         CountSuccessesCommand.Config config = new CountSuccessesCommand.Config(6, 6, "subtract_ones", 15);
 
-        assertThat(underTest.getButtonMessage(null, config)).isEqualTo("Click to roll the dice against 6 minus 1s");
+        assertThat(underTest.getButtonMessage(config)).isEqualTo("Click to roll the dice against 6 minus 1s");
+    }
+
+    @Test
+    void getButtonMessageWithState_noGlitch() {
+        CountSuccessesCommand.Config config = new CountSuccessesCommand.Config(6, 6, "no_glitch", 15);
+        CountSuccessesCommand.State state = new CountSuccessesCommand.State(6);
+
+        assertThat(underTest.getButtonMessageWithState(state, config)).isEqualTo("Click to roll the dice against 6");
+    }
+
+
+    @Test
+    void getButtonMessageWithState_halfDiceOne() {
+        CountSuccessesCommand.Config config = new CountSuccessesCommand.Config(6, 6, "half_dice_one", 15);
+        CountSuccessesCommand.State state = new CountSuccessesCommand.State(6);
+
+        assertThat(underTest.getButtonMessageWithState(state, config)).isEqualTo("Click to roll the dice against 6 and check for more then half of dice 1s");
+    }
+
+    @Test
+    void getButtonMessageWithState_countOnes() {
+        CountSuccessesCommand.Config config = new CountSuccessesCommand.Config(6, 6, "count_ones", 15);
+        CountSuccessesCommand.State state = new CountSuccessesCommand.State(6);
+
+        assertThat(underTest.getButtonMessageWithState(state, config)).isEqualTo("Click to roll the dice against 6 and count the 1s");
+    }
+
+    @Test
+    void getButtonMessageWithState_subtractOnes() {
+        CountSuccessesCommand.Config config = new CountSuccessesCommand.Config(6, 6, "subtract_ones", 15);
+        CountSuccessesCommand.State state = new CountSuccessesCommand.State(6);
+
+        assertThat(underTest.getButtonMessageWithState(state, config)).isEqualTo("Click to roll the dice against 6 minus 1s");
     }
 
     @Test
@@ -243,12 +276,23 @@ class CountSuccessesCommandTest {
     }
 
     @Test
-    void getButtonLayout() {
-        List<LayoutComponent> res = underTest.getButtonLayout(new CountSuccessesCommand.State(6), new CountSuccessesCommand.Config(6, 6, "count_ones", 15));
+    void getButtonLayoutWithState() {
+        List<LayoutComponent> res = underTest.getButtonLayoutWithState(new CountSuccessesCommand.State(6), new CountSuccessesCommand.Config(6, 6, "count_ones", 15));
 
         assertThat(res.stream().flatMap(l -> l.getChildren().stream()).map(l -> l.getData().label().get()))
                 .containsExactly("1d6", "2d6", "3d6", "4d6", "5d6", "6d6", "7d6", "8d6", "9d6", "10d6", "11d6", "12d6", "13d6", "14d6", "15d6");
         assertThat(res.stream().flatMap(l -> l.getChildren().stream()).map(l -> l.getData().customId().get()))
                 .containsExactly("count_successes,1,6,6,count_ones,15", "count_successes,2,6,6,count_ones,15", "count_successes,3,6,6,count_ones,15", "count_successes,4,6,6,count_ones,15", "count_successes,5,6,6,count_ones,15", "count_successes,6,6,6,count_ones,15", "count_successes,7,6,6,count_ones,15", "count_successes,8,6,6,count_ones,15", "count_successes,9,6,6,count_ones,15", "count_successes,10,6,6,count_ones,15", "count_successes,11,6,6,count_ones,15", "count_successes,12,6,6,count_ones,15", "count_successes,13,6,6,count_ones,15", "count_successes,14,6,6,count_ones,15", "count_successes,15,6,6,count_ones,15");
     }
+
+    @Test
+    void getButtonLayout() {
+        List<LayoutComponent> res = underTest.getButtonLayout(new CountSuccessesCommand.Config(6, 6, "count_ones", 15));
+
+        assertThat(res.stream().flatMap(l -> l.getChildren().stream()).map(l -> l.getData().label().get()))
+                .containsExactly("1d6", "2d6", "3d6", "4d6", "5d6", "6d6", "7d6", "8d6", "9d6", "10d6", "11d6", "12d6", "13d6", "14d6", "15d6");
+        assertThat(res.stream().flatMap(l -> l.getChildren().stream()).map(l -> l.getData().customId().get()))
+                .containsExactly("count_successes,1,6,6,count_ones,15", "count_successes,2,6,6,count_ones,15", "count_successes,3,6,6,count_ones,15", "count_successes,4,6,6,count_ones,15", "count_successes,5,6,6,count_ones,15", "count_successes,6,6,6,count_ones,15", "count_successes,7,6,6,count_ones,15", "count_successes,8,6,6,count_ones,15", "count_successes,9,6,6,count_ones,15", "count_successes,10,6,6,count_ones,15", "count_successes,11,6,6,count_ones,15", "count_successes,12,6,6,count_ones,15", "count_successes,13,6,6,count_ones,15", "count_successes,14,6,6,count_ones,15", "count_successes,15,6,6,count_ones,15");
+    }
+
 }

@@ -51,7 +51,16 @@ public class FateCommand extends AbstractCommand<FateCommand.Config, FateCommand
     }
 
     @Override
-    protected String getButtonMessage(State state, Config config) {
+    protected String getButtonMessage(Config config) {
+        return createButtonMessage(config);
+    }
+
+    @Override
+    protected String getButtonMessageWithState(State state, Config config) {
+        return createButtonMessage(config);
+    }
+
+    private String createButtonMessage(Config config) {
         if (ACTION_MODIFIER_OPTION_MODIFIER.equals(config.getType())) {
             return "Click a button to roll four fate dice and add the value of the button";
         }
@@ -125,7 +134,16 @@ public class FateCommand extends AbstractCommand<FateCommand.Config, FateCommand
     }
 
     @Override
-    protected List<LayoutComponent> getButtonLayout(State state, Config config) {
+    protected List<LayoutComponent> getButtonLayoutWithState(State state, Config config) {
+        return createButtonLayout(config);
+    }
+
+    @Override
+    protected List<LayoutComponent> getButtonLayout(Config config) {
+        return createButtonLayout(config);
+    }
+
+    private List<LayoutComponent> createButtonLayout(Config config) {
         if (ACTION_MODIFIER_OPTION_MODIFIER.equals(config.getType())) {
             return ImmutableList.of(
                     ActionRow.of(

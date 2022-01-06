@@ -26,7 +26,12 @@ for further options
 
 #### DnD 5e
 
-`/custom_dice start 1_button:1d4 2_button:1d6 3_button:1d8 4_button:1d10 5_button:1d12 6_button:1d20 7_button:1d100 8_button:2d20k1 9_button:2d20L1 10_button:2d4 11_button:2d6 12_button:2d8 13_button:2d10 14_button:2d12 15_button:2d20 16_button:3d4 17_button:3d6 18_button:3d8 19_button:3d10 20_button:3d12 21_button:3d20 22_button:4d4 23_button:4d6 24_button:4d8 25_button:4d10`
+`/custom_dice start 1_button:1d4 2_button:1d6 3_button:1d8 4_button:1d10 5_button:1d12 6_button:1d20 7_button:1d100 8_button:2d20k1@D20 Advantage 9_button:2d20L1@D20 Disdvantage 10_button:2d4 11_button:2d6 12_button:2d8 13_button:2d10 14_button:2d12 15_button:2d20 16_button:3d4 17_button:3d6 18_button:3d8 19_button:3d10 20_button:3d12 21_button:3d20 22_button:4d4 23_button:4d6 24_button:4d8 25_button:4d10`
+
+### OSR
+
+`/custom_dice start 1_button:1d20@D20 2_button:1d6@D6 3_button:2d6@2D6 4_button:1d4@D4 5_button:1d8@D8 6_button:6x[3d6]
+@Stats 7_button:3d6*10@Gold 8_button:1d100@D100 9_button:1d10@D10 10_button:1d12@D12`
 
 ### Fate
 
