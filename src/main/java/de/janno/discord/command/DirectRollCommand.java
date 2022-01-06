@@ -50,6 +50,9 @@ public class DirectRollCommand implements ISlashCommand {
 
     @Override
     public Mono<Void> handleSlashCommandEvent(@NonNull ISlashEventAdaptor event) {
+        String commandString = event.getCommandString();
+        log.info("Application command: {}", commandString);
+
         if (event.getOption(ACTION_EXPRESSION).isPresent()) {
             ApplicationCommandInteractionOption options = event.getOption(ACTION_EXPRESSION).get();
             String diceExpression = options.getValue()
@@ -58,14 +61,14 @@ public class DirectRollCommand implements ISlashCommand {
             String validationMessage = diceParserHelper.validateDiceExpression(diceExpression, "/custom_dice help");
             if (validationMessage != null) {
                 log.info("Validation message: {}", validationMessage);
-                return event.reply(validationMessage);
+                return event.reply(String.format("%s\n%s", commandString, validationMessage));
             }
             Metrics.incrementSlashStartMetricCounter(getName(), diceExpression);
 
             List<DiceResult> results = diceParserHelper.roll(diceExpression);
             results.forEach(d -> log.info(String.format("%s:%s -> %s: %s", getName(), diceExpression, d.getResultTitle(), d.getResultDetails())));
 
-            return event.reply("...")
+            return event.reply(commandString)
                     .then(event.createResultMessageWithEventReference(results));
 
         }

@@ -119,19 +119,20 @@ public abstract class AbstractCommand<C extends IConfig, S extends IState> imple
 
     @Override
     public Mono<Void> handleSlashCommandEvent(@NonNull ISlashEventAdaptor event) {
-
+        String commandString = event.getCommandString();
+        log.info("Application command: {}", commandString);
         if (event.getOption(ACTION_START).isPresent()) {
             ApplicationCommandInteractionOption options = event.getOption(ACTION_START).get();
             String validationMessage = getStartOptionsValidationMessage(options);
             if (validationMessage != null) {
                 log.info("Validation message: {}", validationMessage);
-                return event.reply(validationMessage);
+                return event.reply(String.format("%s\n%s", commandString, validationMessage));
             }
             C config = getConfigFromStartOptions(options);
             Metrics.incrementSlashStartMetricCounter(getName(), config.toShortString());
 
-            //todo print hear the command
-            return event.reply("...")
+
+            return event.reply(commandString)
                     .then(event.createButtonMessage(getButtonMessage(config), getButtonLayout(config))
                             .map(m -> {
                                 buttonMessageCache.addChannelWithButton(event.getChannelId(), m, config.hashCode());

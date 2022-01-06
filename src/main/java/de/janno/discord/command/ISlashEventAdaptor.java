@@ -19,4 +19,6 @@ public interface ISlashEventAdaptor extends IDiscordAdapter {
     Mono<Long> createButtonMessage(@NonNull String buttonMessage, @NonNull List<LayoutComponent> buttons);
 
     Long getChannelId();
+
+    String getCommandString();
 }
