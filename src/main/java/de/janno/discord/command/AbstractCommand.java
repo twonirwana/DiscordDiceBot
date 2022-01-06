@@ -40,12 +40,6 @@ public abstract class AbstractCommand<C extends IConfig, S extends IState> imple
         return buttonMessageCache.getCacheContent();
     }
 
-    protected List<ApplicationCommandOptionData> getStartOptions() {
-        return ImmutableList.of();
-    }
-
-    protected abstract String getCommandDescription();
-
     @Override
     public ApplicationCommand getApplicationCommand() {
         return ApplicationCommand.builder()
@@ -77,10 +71,16 @@ public abstract class AbstractCommand<C extends IConfig, S extends IState> imple
         S state = getStateFromEvent(event);
         List<Mono<Void>> actions = new ArrayList<>();
         boolean triggeringMessageIsPinned = event.isPinned();
+        String editMessage;
 
-        actions.add(event
-                //TODO not good, should only modified if necessary and not with the same methode as for the new message
-                .editMessage(getButtonMessageWithState(state, config)));
+        if (triggeringMessageIsPinned) {
+            //if the old button is pined, the old message will be edited or reset to the slash default
+            editMessage = getEditButtonMessage(state, config) != null ? getEditButtonMessage(state, config) : getButtonMessage(config);
+        } else {
+            //edit the current message if the command changes it or mark it as processing
+            editMessage = getEditButtonMessage(state, config) != null ? getEditButtonMessage(state, config) : "processing ...";
+        }
+        actions.add(event.editMessage(editMessage));
         if (createAnswerMessage(state, config)) {
             Metrics.incrementButtonMetricCounter(getName(), config.toShortString());
             List<DiceResult> result = getDiceResult(state, config);
@@ -117,15 +117,6 @@ public abstract class AbstractCommand<C extends IConfig, S extends IState> imple
                 .then();
     }
 
-
-    protected boolean createAnswerMessage(S state, C config) {
-        return true;
-    }
-
-    protected boolean copyButtonMessageToTheEnd(S state, C config) {
-        return true;
-    }
-
     @Override
     public Mono<Void> handleSlashCommandEvent(@NonNull ISlashEventAdaptor event) {
 
@@ -139,6 +130,7 @@ public abstract class AbstractCommand<C extends IConfig, S extends IState> imple
             C config = getConfigFromStartOptions(options);
             Metrics.incrementSlashStartMetricCounter(getName(), config.toShortString());
 
+            //todo print hear the command
             return event.reply("...")
                     .then(event.createButtonMessage(getButtonMessage(config), getButtonLayout(config))
                             .map(m -> {
@@ -153,24 +145,63 @@ public abstract class AbstractCommand<C extends IConfig, S extends IState> imple
         return Mono.empty();
     }
 
+    protected List<ApplicationCommandOptionData> getStartOptions() {
+        return ImmutableList.of();
+    }
+
+    protected abstract String getCommandDescription();
+
     protected abstract EmbedCreateSpec getHelpMessage();
 
+    /**
+     * if an answer message (without buttons) should be created
+     */
+    protected boolean createAnswerMessage(S state, C config) {
+        return true;
+    }
+
+    /**
+     * if the old button message should be moved
+     */
+    protected boolean copyButtonMessageToTheEnd(S state, C config) {
+        return true;
+    }
+
+    /**
+     * The text content for the old button message, after a button event. Returns null means no editing should be done.
+     */
+    protected String getEditButtonMessage(S state, C config) {
+        return null;
+    }
+
+    /**
+     * The text content for the new button message, after a button event
+     */
     protected abstract String getButtonMessageWithState(S state, C config);
 
+    /**
+     * The text content for the new button message, after a slash event
+     */
     protected abstract String getButtonMessage(C config);
-
-    protected abstract C getConfigFromStartOptions(ApplicationCommandInteractionOption options);
 
     protected abstract List<DiceResult> getDiceResult(S state, C config);
 
+    /**
+     * The button layout for the new button message, after a button event
+     */
     protected abstract List<LayoutComponent> getButtonLayoutWithState(S state, C config);
 
+    /**
+     * The button layout for the new button message, after a slash event
+     */
     protected abstract List<LayoutComponent> getButtonLayout(C config);
 
     protected String getStartOptionsValidationMessage(ApplicationCommandInteractionOption options) {
         //standard is no validation
         return null;
     }
+
+    protected abstract C getConfigFromStartOptions(ApplicationCommandInteractionOption options);
 
     protected abstract C getConfigFromEvent(IButtonEventAdaptor event);
 

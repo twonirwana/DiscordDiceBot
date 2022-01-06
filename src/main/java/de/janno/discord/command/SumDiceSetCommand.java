@@ -157,6 +157,11 @@ public class SumDiceSetCommand extends AbstractCommand<SumDiceSetCommand.Config,
 
     @Override
     protected String getButtonMessageWithState(State state, Config config) {
+        return EMPTY_MESSAGE;
+    }
+
+    @Override
+    protected String getEditButtonMessage(State state, Config config) {
         if (ROLL_BUTTON_ID.equals(state.getButtonValue())) {
             return EMPTY_MESSAGE;
         } else if (CLEAR_BUTTON_ID.equals(state.getButtonValue())) {

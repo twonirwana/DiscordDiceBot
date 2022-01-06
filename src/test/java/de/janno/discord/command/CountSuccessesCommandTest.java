@@ -219,12 +219,12 @@ class CountSuccessesCommandTest {
         StepVerifier.create(res)
                 .verifyComplete();
 
-        verify(buttonEventAdaptor).editMessage("Click to roll the dice against 4 and check for more then half of dice 1s");
+        verify(buttonEventAdaptor).editMessage("processing ...");
         verify(buttonEventAdaptor).createButtonMessage(
                 eq("Click to roll the dice against 4 and check for more then half of dice 1s"),
                 any()
         );
-        verify(buttonEventAdaptor).deleteMessage(anyLong());
+        verify(buttonEventAdaptor).deleteMessage(1L);
         verify(buttonEventAdaptor).createResultMessageWithEventReference(eq(ImmutableList.of(new DiceResult("6d6 = 2 - Glitch!",
                 "[**1**,**1**,**1**,**1**,**5**,**6**] ≥4 = 2 and more then half of all dice show 1s"))));
         assertThat(underTest.getButtonMessageCache())
@@ -295,4 +295,8 @@ class CountSuccessesCommandTest {
                 .containsExactly("count_successes,1,6,6,count_ones,15", "count_successes,2,6,6,count_ones,15", "count_successes,3,6,6,count_ones,15", "count_successes,4,6,6,count_ones,15", "count_successes,5,6,6,count_ones,15", "count_successes,6,6,6,count_ones,15", "count_successes,7,6,6,count_ones,15", "count_successes,8,6,6,count_ones,15", "count_successes,9,6,6,count_ones,15", "count_successes,10,6,6,count_ones,15", "count_successes,11,6,6,count_ones,15", "count_successes,12,6,6,count_ones,15", "count_successes,13,6,6,count_ones,15", "count_successes,14,6,6,count_ones,15", "count_successes,15,6,6,count_ones,15");
     }
 
+    @Test
+    void editButtonMessage() {
+        assertThat(underTest.getEditButtonMessage(new CountSuccessesCommand.State(6), new CountSuccessesCommand.Config(6, 6, "count_ones", 15))).isNull();
+    }
 }

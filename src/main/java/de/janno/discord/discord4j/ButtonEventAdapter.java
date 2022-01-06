@@ -9,6 +9,7 @@ import discord4j.core.object.component.LayoutComponent;
 import discord4j.core.object.entity.Message;
 import discord4j.core.object.entity.channel.TextChannel;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.Nullable;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -46,7 +47,7 @@ public class ButtonEventAdapter extends DiscordAdapter implements IButtonEventAd
     public Mono<Void> editMessage(String message) {
         return event.edit(message)
                 .onErrorResume(t -> {
-                    log.warn("Error on acknowledge button event");
+                    log.warn("Error on edit button event");
                     return Mono.empty();
                 });
     }
@@ -55,15 +56,11 @@ public class ButtonEventAdapter extends DiscordAdapter implements IButtonEventAd
     public Mono<Long> createButtonMessage(String messageContent, List<LayoutComponent> buttonLayout) {
         return event.getInteraction().getChannel()
                 .ofType(TextChannel.class)
-                .flatMap(channel ->
-                {
-                    //if the triggering message is pinned and its content is not changed, then the new message should have a modified message content
-                    return createButtonMessage(channel, messageContent, buttonLayout)
-                            .onErrorResume(t -> {
-                                log.warn("Error on creating button message");
-                                return Mono.empty();
-                            });
-                })
+                .flatMap(channel -> createButtonMessage(channel, messageContent, buttonLayout)
+                        .onErrorResume(t -> {
+                            log.warn("Error on creating button message");
+                            return Mono.empty();
+                        }))
                 .map(m -> m.getId().asLong());
     }
 

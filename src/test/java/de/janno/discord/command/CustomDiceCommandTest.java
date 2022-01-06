@@ -229,7 +229,7 @@ class CustomDiceCommandTest {
         StepVerifier.create(res)
                 .verifyComplete();
 
-        verify(buttonEventAdaptor).editMessage("Click on a button to roll the dice");
+        verify(buttonEventAdaptor).editMessage("processing ...");
         verify(buttonEventAdaptor).createButtonMessage(
                 eq("Click on a button to roll the dice"),
                 any()
@@ -314,5 +314,14 @@ class CustomDiceCommandTest {
 
         assertThat(res.stream().flatMap(l -> l.getChildren().stream()).map(l -> l.getData().label().get())).containsExactly("2d6", "Attack");
         assertThat(res.stream().flatMap(l -> l.getChildren().stream()).map(l -> l.getData().customId().get())).containsExactly("custom_dice,2d6", "custom_dice,1d20");
+    }
+
+    @Test
+    void editButtonMessage() {
+        assertThat(underTest.getEditButtonMessage(new CustomDiceCommand.State("2d6"),
+                new CustomDiceCommand.Config(ImmutableList.of(
+                        new CustomDiceCommand.LabelAndDiceExpression("2d6", "2d6"),
+                        new CustomDiceCommand.LabelAndDiceExpression("Attack", "1d20")
+                )))).isNull();
     }
 }
