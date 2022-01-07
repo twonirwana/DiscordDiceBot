@@ -57,6 +57,7 @@ public class Discord4JClient {
                 .addSlashCommand(new DirectRollCommand())
                 .addSlashCommand(new SumDiceSetCommand())
                 .addSlashCommand(new HoldRerollCommand())
+                .addSlashCommand(new PoolTargetCommand())
                 .addSlashCommand(new HelpCommand())
                 .registerSlashCommands(discordClient, disableCommandUpdate);
 

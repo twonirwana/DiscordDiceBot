@@ -11,7 +11,6 @@ import java.util.stream.IntStream;
 public class DiceUtils {
     public static final String MINUS = "\u2212";
     private static final Random randomNumberGenerator = new Random();
-
     private final Function<Integer, Integer> numberSupplier;
 
     public DiceUtils() {
@@ -51,26 +50,6 @@ public class DiceUtils {
         return results.stream().mapToInt(i -> i).sum();
     }
 
-    public static String makeBold(int i) {
-        return "**" + i + "**";
-    }
-
-    public static String makeUnderlineBold(int i) {
-        return "__**" + i + "**__";
-    }
-
-    public static String makeUnderline(int i) {
-        return "__" + i + "__";
-    }
-
-    public static String makeItalics(int i) {
-        return "*" + i + "*";
-    }
-
-    public static String makeBoldItalics(int i) {
-        return "***" + i + "***";
-    }
-
     public int rollDice(int diceSides) {
         return numberSupplier.apply(diceSides);
     }
@@ -85,5 +64,19 @@ public class DiceUtils {
         return IntStream.range(0, numberOfDice)
                 .mapToObj(i -> rollDice(diceSides))
                 .collect(Collectors.toList());
+    }
+
+    public List<Integer> explodingReroll(int sidesOfDie, List<Integer> results, Set<Integer> resultNumbersToReroll) {
+        ImmutableList.Builder<Integer> resultBuilder = ImmutableList.builder();
+        resultBuilder.addAll(results);
+        int numberOfDiceToReroll = numberOfDiceResultsEqual(results, resultNumbersToReroll);
+        int counter = 0;
+        while (numberOfDiceToReroll > 0 && counter < 10) {
+            List<Integer> rerolls = rollDiceOfType(numberOfDiceToReroll, sidesOfDie);
+            resultBuilder.addAll(rerolls);
+            numberOfDiceToReroll = numberOfDiceResultsEqual(rerolls, resultNumbersToReroll);
+            counter++;
+        }
+        return resultBuilder.build();
     }
 }
