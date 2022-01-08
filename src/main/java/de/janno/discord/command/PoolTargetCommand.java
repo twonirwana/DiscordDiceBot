@@ -2,7 +2,6 @@ package de.janno.discord.command;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import de.janno.discord.cache.ButtonMessageCache;
@@ -15,14 +14,17 @@ import discord4j.core.object.component.ActionRow;
 import discord4j.core.object.component.Button;
 import discord4j.core.object.component.LayoutComponent;
 import discord4j.core.spec.EmbedCreateSpec;
+import discord4j.discordjson.json.ApplicationCommandOptionChoiceData;
 import discord4j.discordjson.json.ApplicationCommandOptionData;
 import lombok.NonNull;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -38,7 +40,14 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetCommand.Config,
     private static final String MAX_DICE_OPTION = "max_dice";
     private static final String REROLL_SET_OPTION = "reroll_set";
     private static final String BOTCH_SET_OPTION = "botch_set";
+
+    private static final String REROLL_VARIANT_OPTION = "reroll_variant";
+    private static final String ALWAYS_REROLL = "always";
+    private static final String ASK_FOR_REROLL = "ask";
+
     private static final String CLEAR_BUTTON_ID = "clear";
+    private static final String DO_REROLL_ID = "do_reroll";
+    private static final String DO_NOT_REROLL_ID = "no_reroll";
     private static final int MAX_NUMBER_OF_DICE = 25;
 
     private static final String DICE_SYMBOL = "d";
@@ -50,6 +59,8 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetCommand.Config,
     private static final int MAX_DICE_INDEX = 4;
     private static final int REROLL_SET_INDEX = 5;
     private static final int BOTCH_SET_INDEX = 6;
+    private static final int REROLL_VARIANT_INDEX = 7;
+    private static final int TARGET_INDEX = 8;
     private static final String EMPTY = "EMPTY";
 
     private final DiceUtils diceUtils;
@@ -111,17 +122,26 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetCommand.Config,
                         .required(false)
                         .description("Failure dice numbers, seperated by ','")
                         .type(ApplicationCommandOption.Type.STRING.getValue())
+                        .build(),
+                ApplicationCommandOptionData.builder()
+                        .name(REROLL_VARIANT_OPTION)
+                        .required(false)
+                        .description("Options for special reroll handling")
+                        .type(ApplicationCommandOption.Type.STRING.getValue())
+                        .addChoice(ApplicationCommandOptionChoiceData.builder().name(ALWAYS_REROLL).value(ALWAYS_REROLL).build())
+                        .addChoice(ApplicationCommandOptionChoiceData.builder().name(ASK_FOR_REROLL).value(ASK_FOR_REROLL).build())
+
                         .build()
         );
     }
 
     @Override
     protected List<DiceResult> getDiceResult(State state, Config config) {
-        List<Integer> rollResult = diceUtils.explodingReroll(config.getDiceSides(),
-                        diceUtils.rollDiceOfType(state.getDicePool(), config.getDiceSides()),
-                        config.getRerollSet()).stream()
-                .sorted()
-                .collect(Collectors.toList());
+        List<Integer> rollResult = diceUtils.rollDiceOfType(state.getDicePool(), config.getDiceSides());
+        if (state.getDoReroll()) {
+            rollResult = diceUtils.explodingReroll(config.getDiceSides(), rollResult, config.getRerollSet());
+        }
+        rollResult = rollResult.stream().sorted().collect(Collectors.toList());
         int numberOfSuccesses = DiceUtils.numberOfDiceResultsGreaterEqual(rollResult, state.getTargetNumber());
         int numberOfBotches = DiceUtils.numberOfDiceResultsEqual(rollResult, config.getBotchSet());
 
@@ -129,7 +149,9 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetCommand.Config,
 
         Set<Integer> toMark = IntStream.range(state.getTargetNumber(), config.getDiceSides() + 1).boxed().collect(Collectors.toSet());
         toMark.addAll(config.getBotchSet());
-        toMark.addAll(config.getRerollSet());
+        if (state.getDoReroll()) {
+            toMark.addAll(config.getRerollSet());
+        }
         String details = String.format("%s ≥%d = %s", markIn(rollResult, toMark), state.getTargetNumber(), totalResults);
         String title = String.format("%dd%d = %d", state.getDicePool(), config.getDiceSides(), totalResults);
         return ImmutableList.of(new DiceResult(title, details));
@@ -143,29 +165,47 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetCommand.Config,
         int maxNumberOfButtons = Integer.parseInt(customIdSplit[MAX_DICE_INDEX]);
         Set<Integer> rerollSet = toSet(customIdSplit[REROLL_SET_INDEX], SUBSET_DELIMITER, EMPTY);
         Set<Integer> botchSet = toSet(customIdSplit[BOTCH_SET_INDEX], SUBSET_DELIMITER, EMPTY);
+        String rerollVariant = customIdSplit[REROLL_VARIANT_INDEX];
 
-        return new Config(sideOfDie, maxNumberOfButtons, rerollSet, botchSet);
+        return new Config(sideOfDie, maxNumberOfButtons, rerollSet, botchSet, rerollVariant);
     }
 
     @Override
     protected State getStateFromEvent(IButtonEventAdaptor event) {
         String[] customIdSplit = event.getCustomId().split(CONFIG_DELIMITER);
-        Integer dicePoolInButtonId = Strings.isNullOrEmpty(customIdSplit[POOL_SIZE_VALUE_INDEX]) ? null : Integer.valueOf(customIdSplit[2]);
         String buttonValue = customIdSplit[BUTTON_VALUE_INDEX];
+        //clear button was pressed
         if (CLEAR_BUTTON_ID.equals(buttonValue)) {
-            return new State(null, null);
+            return new State(null, null, null);
         }
-        Integer buttonNumber = Integer.valueOf(buttonValue);
-        if (dicePoolInButtonId == null) {
-            return new State(buttonNumber, null);
+        //pool size in config is empty and button value is number -> pool size was set
+        if (EMPTY.equals(customIdSplit[POOL_SIZE_VALUE_INDEX]) && StringUtils.isNumeric(buttonValue)) {
+            Integer buttonNumber = Integer.valueOf(buttonValue);
+            return new State(buttonNumber, null, null);
         }
-        return new State(dicePoolInButtonId, buttonNumber);
+
+        Config config = getConfigFromEvent(event);
+        //pool size is already given and button value is number -> target was set
+        if (StringUtils.isNumeric(customIdSplit[POOL_SIZE_VALUE_INDEX]) && StringUtils.isNumeric(buttonValue)) {
+            //if the config is always reroll we can set it, else we need to ask
+            Boolean doReroll = ALWAYS_REROLL.equals(config.getRerollVariant()) ? true : null;
+            return new State(Integer.valueOf(customIdSplit[POOL_SIZE_VALUE_INDEX]), Integer.valueOf(buttonValue), doReroll);
+        }
+
+        //pool size is already given and target is given -> do reroll was asked
+        if (StringUtils.isNumeric(customIdSplit[POOL_SIZE_VALUE_INDEX]) && StringUtils.isNumeric(customIdSplit[TARGET_INDEX])) {
+            boolean doReroll = DO_REROLL_ID.equals(buttonValue);
+            return new State(Integer.valueOf(customIdSplit[POOL_SIZE_VALUE_INDEX]), Integer.valueOf(customIdSplit[TARGET_INDEX]), doReroll);
+
+        }
+
+        throw new IllegalStateException(String.format("CustomId:'%s' could not be put into a state", event.getCustomId()));
     }
 
 
     @Override
     protected boolean createAnswerMessage(State state, Config config) {
-        return state.getDicePool() != null && state.getTargetNumber() != null;
+        return state.getDicePool() != null && state.getTargetNumber() != null && state.getDoReroll() != null;
     }
 
     @Override
@@ -182,7 +222,11 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetCommand.Config,
                 .orElse(15L));
         Set<Integer> rerollSet = getSetFromCommandOptions(options, REROLL_SET_OPTION, ",");
         Set<Integer> botchSet = getSetFromCommandOptions(options, BOTCH_SET_OPTION, ",");
-        return new Config(sideValue, maxButton, rerollSet, botchSet);
+        String rerollVariant = options.getOption(REROLL_VARIANT_OPTION)
+                .flatMap(ApplicationCommandInteractionOption::getValue)
+                .map(ApplicationCommandInteractionOptionValue::asString)
+                .orElse(ALWAYS_REROLL);
+        return new Config(sideValue, maxButton, rerollSet, botchSet, rerollVariant);
     }
 
     @Override
@@ -200,7 +244,8 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetCommand.Config,
         String rerollDescription = null;
         String botchDescription = null;
         if (!config.getRerollSet().isEmpty()) {
-            rerollDescription = "reroll:" + config.getRerollSet().stream().sorted().map(String::valueOf).collect(Collectors.joining(","));
+            rerollDescription = String.format("%s reroll:%s", config.getRerollVariant(),
+                    config.getRerollSet().stream().sorted().map(String::valueOf).collect(Collectors.joining(",")));
         }
         if (!config.getBotchSet().isEmpty()) {
             botchDescription = "botch:" + config.getBotchSet().stream().sorted().map(String::valueOf).collect(Collectors.joining(","));
@@ -217,6 +262,9 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetCommand.Config,
 
     @Override
     protected String getButtonMessageWithState(State state, Config config) {
+        if (state.getDicePool() != null && state.getTargetNumber() != null && state.getDoReroll() == null) {
+            return "Should the results be rerolled?";
+        }
         if (state.getDicePool() != null && state.getTargetNumber() == null) {
             String configDescription = getConfigDescription(config);
             return String.format("Click on the target to roll %dd%d against it%s", state.getDicePool(), config.getDiceSides(), configDescription);
@@ -227,6 +275,17 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetCommand.Config,
 
     @Override
     protected List<LayoutComponent> getButtonLayoutWithState(State state, Config config) {
+        if (state.getDicePool() != null && state.getTargetNumber() != null && state.getDoReroll() == null) {
+            String rerollNumbers = config.getRerollSet().stream()
+                    .map(String::valueOf)
+                    .map(s -> String.format("%ss", s))
+                    .collect(Collectors.joining(","));
+            return ImmutableList.of(
+                    ActionRow.of(
+                            Button.primary(createButtonCustomId(DO_REROLL_ID, config, state), String.format("Reroll %s", rerollNumbers)),
+                            Button.primary(createButtonCustomId(DO_NOT_REROLL_ID, config, state), "No reroll")
+                    ));
+        }
         if (state.getDicePool() != null && state.getTargetNumber() == null) {
             List<Button> buttons = IntStream.range(2, config.getDiceSides() + 1)
                     .mapToObj(i -> Button.primary(createButtonCustomId(String.valueOf(i), config, state), String.format("%d", i)))
@@ -243,11 +302,13 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetCommand.Config,
         return String.join(CONFIG_DELIMITER,
                 COMMAND_NAME,
                 buttonValue,
-                state == null ? "" : String.valueOf(state.getDicePool()),
+                Optional.ofNullable(state).map(State::getDicePool).map(String::valueOf).orElse(EMPTY),
                 String.valueOf(config.getDiceSides()),
                 String.valueOf(config.getMaxNumberOfButtons()),
                 config.getRerollSet().isEmpty() ? EMPTY : config.getRerollSet().stream().map(String::valueOf).collect(Collectors.joining(SUBSET_DELIMITER)),
-                config.getBotchSet().isEmpty() ? EMPTY : config.getBotchSet().stream().map(String::valueOf).collect(Collectors.joining(SUBSET_DELIMITER))
+                config.getBotchSet().isEmpty() ? EMPTY : config.getBotchSet().stream().map(String::valueOf).collect(Collectors.joining(SUBSET_DELIMITER)),
+                config.getRerollVariant(),
+                Optional.ofNullable(state).map(State::getTargetNumber).map(String::valueOf).orElse(EMPTY)
         );
     }
 
@@ -294,6 +355,7 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetCommand.Config,
         Set<Integer> rerollSet;
         @NonNull
         Set<Integer> botchSet;
+        String rerollVariant;
 
         @Override
         public String toShortString() {
@@ -301,7 +363,8 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetCommand.Config,
                     String.valueOf(diceSides),
                     String.valueOf(maxNumberOfButtons),
                     rerollSet.stream().map(String::valueOf).collect(Collectors.joining(SUBSET_DELIMITER)),
-                    botchSet.stream().map(String::valueOf).collect(Collectors.joining(SUBSET_DELIMITER))
+                    botchSet.stream().map(String::valueOf).collect(Collectors.joining(SUBSET_DELIMITER)),
+                    rerollVariant
             ).toString();
         }
     }
@@ -310,5 +373,6 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetCommand.Config,
     static class State implements IState {
         Integer dicePool;
         Integer targetNumber;
+        Boolean doReroll;
     }
 }
