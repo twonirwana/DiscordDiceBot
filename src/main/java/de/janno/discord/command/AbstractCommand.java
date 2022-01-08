@@ -119,6 +119,11 @@ public abstract class AbstractCommand<C extends IConfig, S extends IState> imple
 
     @Override
     public Mono<Void> handleSlashCommandEvent(@NonNull ISlashEventAdaptor event) {
+        String checkPermissions = event.checkPermissions();
+        if (checkPermissions != null) {
+            return event.reply(checkPermissions);
+        }
+
         String commandString = event.getCommandString();
         log.info("Application command: {}", commandString);
         if (event.getOption(ACTION_START).isPresent()) {

@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ISlashEventAdaptor extends IDiscordAdapter {
+    String checkPermissions();
+
     Optional<ApplicationCommandInteractionOption> getOption(String actionStart);
 
     Mono<Void> reply(String message);
