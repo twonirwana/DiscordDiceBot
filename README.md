@@ -39,7 +39,13 @@ for further options
 
 ### World of Darkness
 
+#### Chronicles of Darkness / nWoD
+
 `/count_successes start dice_sides:10 target_number:8`
+
+#### Storyteller System / oWoD
+
+`/pool_target start sides:10 max_dice:15 reroll_set:10 botch_set:1 reroll_variant:ask`
 
 ### Shadowrun
 
@@ -181,5 +187,32 @@ If the roll has numbers that are in the reroll set than the user has the option 
 ![](src/main/image/holdReroll_reroll2.png)
 
 ![](src/main/image/holdReroll_result.png)
+
+### Pool Target
+
+Use the
+command `/pool_target start sides:<sidesOfDie> max_dice:<maxDiceInPool> reroll_set:<numbersThatCanBeRerolled> botch_set:<numbersThatAreSubractedFromTheSuccesses> reroll_variant:<rerollVariant>`
+to create a message for the pool target system. The system will first ask the user to select the pool size, then the
+target number and then, depending on the configuration, if dice should be rerolled. Each dice result bigger or equal of
+the target number is a success. If a botch set is configured then the number of dice results that are in the botch set
+will be subtracted from the successes. If a reroll is configured then all dice results that are in the reroll set will
+rerolled and the new results added to total results.
+
+The system has the following parameter:
+
+- `sides`: The sides of the dice, e.g. 10 for a pool that uses d10.
+- `max_dice`: The max number of dice in the pool, limited to 25 and default is 15
+- `reroll_set`: The number on the dice that can be rerolled. Multiple numbers can be given comma seperated.
+- `botch_set`: The number on the dice that remove successes. Multiple numbers can be given comma seperated.
+- `reroll_variant`: The default option `always` will always reroll all dice results in the reroll set. The option `ask`
+  will ask the user each time if the reroll should be done.
+
+![](src/main/image/pool_target-setPool.png)
+
+![](src/main/image/pool_target-setTarget.png)
+
+![](src/main/image/pool_target-askForReroll.png)
+
+![](src/main/image/pool_target-result.png)
 
 Please let me know if another system is needed.

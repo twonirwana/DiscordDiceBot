@@ -22,10 +22,11 @@ import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static de.janno.discord.dice.DiceUtils.makeBold;
+import static de.janno.discord.command.CommandUtils.markIn;
 
 
 @Slf4j
@@ -58,16 +59,6 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesCommand
         return String.format("%sd%s", value, config.getDiceSides());
     }
 
-    private static String markBiggerEqualAndOptionalOnes(List<Integer> diceResults, int target, boolean markOnes) {
-        return "[" + diceResults.stream().map(i -> {
-            if (i >= target) {
-                return makeBold(i);
-            } else if (i == 1 && markOnes) {
-                return makeBold(i);
-            }
-            return i + "";
-        }).collect(Collectors.joining(",")) + "]";
-    }
 
     @Override
     protected Config getConfigFromEvent(IButtonEventAdaptor event) {
@@ -107,14 +98,14 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesCommand
                         .required(true)
                         .description("Dice side")
                         .type(ApplicationCommandOption.Type.INTEGER.getValue())
-                        .minValue(0d)
+                        .minValue(2d)
                         .maxValue((double) MAX_NUMBER_SIDES_OR_TARGET_NUMBER).build(),
                 ApplicationCommandOptionData.builder()
                         .name(ACTION_TARGET_OPTION)
                         .required(true)
                         .description("Target number")
                         .type(ApplicationCommandOption.Type.INTEGER.getValue())
-                        .minValue(0d)
+                        .minValue(1d)
                         .maxValue((double) MAX_NUMBER_SIDES_OR_TARGET_NUMBER)
                         .build(),
                 ApplicationCommandOptionData.builder()
@@ -157,7 +148,8 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesCommand
 
     private DiceResult noneGlitch(int numberOfDice, int sidesOfDie, int targetNumber, List<Integer> rollResult) {
         int numberOfSuccesses = DiceUtils.numberOfDiceResultsGreaterEqual(rollResult, targetNumber);
-        String details = String.format("%s ≥%d = %s", markBiggerEqualAndOptionalOnes(rollResult, targetNumber, false), targetNumber, numberOfSuccesses);
+        Set<Integer> toMark = IntStream.range(targetNumber, sidesOfDie + 1).boxed().collect(Collectors.toSet());
+        String details = String.format("%s ≥%d = %s", markIn(rollResult, toMark), targetNumber, numberOfSuccesses);
         String title = String.format("%dd%d = %d", numberOfDice, sidesOfDie, numberOfSuccesses);
         return new DiceResult(title, details);
     }
@@ -165,7 +157,9 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesCommand
     private DiceResult countOnesGlitch(int numberOfDice, int sidesOfDie, int targetNumber, List<Integer> rollResult) {
         int numberOfSuccesses = DiceUtils.numberOfDiceResultsGreaterEqual(rollResult, targetNumber);
         int numberOfOnes = DiceUtils.numberOfDiceResultsEqual(rollResult, ImmutableSet.of(1));
-        String details = String.format("%s ≥%d = %s", markBiggerEqualAndOptionalOnes(rollResult, targetNumber, true), targetNumber, numberOfSuccesses);
+        Set<Integer> toMark = IntStream.range(targetNumber, sidesOfDie + 1).boxed().collect(Collectors.toSet());
+        toMark.add(1);
+        String details = String.format("%s ≥%d = %s", markIn(rollResult, toMark), targetNumber, numberOfSuccesses);
         String title = String.format("%dd%d = %d successes and %d ones", numberOfDice, sidesOfDie, numberOfSuccesses, numberOfOnes);
         return new DiceResult(title, details);
     }
@@ -173,7 +167,9 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesCommand
     private DiceResult subtractOnesGlitch(int numberOfDice, int sidesOfDie, int targetNumber, List<Integer> rollResult) {
         int numberOfSuccesses = DiceUtils.numberOfDiceResultsGreaterEqual(rollResult, targetNumber);
         int numberOfOnes = DiceUtils.numberOfDiceResultsEqual(rollResult, ImmutableSet.of(1));
-        String details = String.format("%s ≥%d -1s = %s", markBiggerEqualAndOptionalOnes(rollResult, targetNumber, true), targetNumber, numberOfSuccesses - numberOfOnes);
+        Set<Integer> toMark = IntStream.range(targetNumber, sidesOfDie + 1).boxed().collect(Collectors.toSet());
+        toMark.add(1);
+        String details = String.format("%s ≥%d -1s = %s", markIn(rollResult, toMark), targetNumber, numberOfSuccesses - numberOfOnes);
         String title = String.format("%dd%d = %d", numberOfDice, sidesOfDie, numberOfSuccesses - numberOfOnes);
         return new DiceResult(title, details);
     }
@@ -182,7 +178,11 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesCommand
         boolean isGlitch = DiceUtils.numberOfDiceResultsEqual(rollResult, ImmutableSet.of(1)) > (numberOfDice / 2);
         int numberOfSuccesses = DiceUtils.numberOfDiceResultsGreaterEqual(rollResult, targetNumber);
         String glitchDescription = isGlitch ? " and more then half of all dice show 1s" : "";
-        String details = String.format("%s ≥%d = %s%s", markBiggerEqualAndOptionalOnes(rollResult, targetNumber, isGlitch), targetNumber, numberOfSuccesses, glitchDescription);
+        Set<Integer> toMark = IntStream.range(targetNumber, sidesOfDie + 1).boxed().collect(Collectors.toSet());
+        if (isGlitch) {
+            toMark.add(1);
+        }
+        String details = String.format("%s ≥%d = %s%s", markIn(rollResult, toMark), targetNumber, numberOfSuccesses, glitchDescription);
         String glitch = isGlitch ? " - Glitch!" : "";
         String title = String.format("%dd%d = %d%s", numberOfDice, sidesOfDie, numberOfSuccesses, glitch);
         return new DiceResult(title, details);

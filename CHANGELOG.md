@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## 2022-01-08
+
+### Added
+
+Add the pool_target command
+
 ## 2022-01-06
 
 ### Added

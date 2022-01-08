@@ -3,7 +3,6 @@ package de.janno.discord.command;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import de.janno.discord.cache.ButtonMessageCache;
 import de.janno.discord.dice.DiceResult;
@@ -28,7 +27,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static de.janno.discord.dice.DiceUtils.makeBold;
+import static de.janno.discord.command.CommandUtils.*;
 
 @Slf4j
 public class HoldRerollCommand extends AbstractCommand<HoldRerollCommand.Config, HoldRerollCommand.State> {
@@ -53,19 +52,10 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollCommand.Config,
 
     @VisibleForTesting
     public HoldRerollCommand(DiceUtils diceUtils) {
-        //current roll and rerollCount should not be part of the hash
         super(new ButtonMessageCache(COMMAND_NAME));
         this.diceUtils = diceUtils;
     }
 
-    private static String markIn(List<Integer> diceResults, Set<Integer> toMark) {
-        return "[" + diceResults.stream().map(i -> {
-            if (toMark.contains(i)) {
-                return makeBold(i);
-            }
-            return i + "";
-        }).collect(Collectors.joining(",")) + "]";
-    }
 
     private Set<Integer> getToMark(Config config) {
         return IntStream.range(1, config.getSidesOfDie() + 1)
@@ -76,7 +66,7 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollCommand.Config,
 
     @Override
     protected String getCommandDescription() {
-        return "Roll the dice and with option to reroll";
+        return "Roll dice and with a option to reroll";
     }
 
     @Override
@@ -101,9 +91,9 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollCommand.Config,
                 action,
                 state == null ? EMPTY : state.getCurrentResults().stream().map(String::valueOf).collect(Collectors.joining(SUBSET_DELIMITER)),
                 String.valueOf(config.getSidesOfDie()),
-                config.getRerollSet().stream().map(String::valueOf).collect(Collectors.joining(SUBSET_DELIMITER)),
-                config.getSuccessSet().stream().map(String::valueOf).collect(Collectors.joining(SUBSET_DELIMITER)),
-                config.getFailureSet().stream().map(String::valueOf).collect(Collectors.joining(SUBSET_DELIMITER)),
+                config.getRerollSet().isEmpty() ? EMPTY : config.getRerollSet().stream().map(String::valueOf).collect(Collectors.joining(SUBSET_DELIMITER)),
+                config.getSuccessSet().isEmpty() ? EMPTY : config.getSuccessSet().stream().map(String::valueOf).collect(Collectors.joining(SUBSET_DELIMITER)),
+                config.getFailureSet().isEmpty() ? EMPTY : config.getFailureSet().stream().map(String::valueOf).collect(Collectors.joining(SUBSET_DELIMITER)),
                 state == null ? "0" : String.valueOf(state.getRerollCounter())
         );
     }
@@ -116,23 +106,23 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollCommand.Config,
                         .required(true)
                         .description("Dice side")
                         .type(ApplicationCommandOption.Type.INTEGER.getValue())
-                        .minValue(0d)
+                        .minValue(2d)
                         .maxValue(1000d).build(),
                 ApplicationCommandOptionData.builder()
                         .name(REROLL_SET_ID)
-                        .required(true)
+                        .required(false)
                         .description("Dice numbers to reroll, seperated by ','")
                         .type(ApplicationCommandOption.Type.STRING.getValue())
                         .build(),
                 ApplicationCommandOptionData.builder()
                         .name(SUCCESS_SET_ID)
-                        .required(true)
+                        .required(false)
                         .description("Success dice numbers, seperated by ','")
                         .type(ApplicationCommandOption.Type.STRING.getValue())
                         .build(),
                 ApplicationCommandOptionData.builder()
                         .name(FAILURE_SET_ID)
-                        .required(true)
+                        .required(false)
                         .description("Failure dice numbers, seperated by ','")
                         .type(ApplicationCommandOption.Type.STRING.getValue())
                         .build()
@@ -159,14 +149,10 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollCommand.Config,
     @Override
     protected Config getConfigFromEvent(IButtonEventAdaptor event) {
         String[] customIdSplit = event.getCustomId().split(CONFIG_DELIMITER);
-
-
         int sideOfDie = Integer.parseInt(customIdSplit[3]);
-        Set<Integer> rerollSet = toSet(customIdSplit[4]);
-        Set<Integer> successSet = toSet(customIdSplit[5]);
-        Set<Integer> failureSet = toSet(customIdSplit[6]);
-
-
+        Set<Integer> rerollSet = toSet(customIdSplit[4], SUBSET_DELIMITER, EMPTY);
+        Set<Integer> successSet = toSet(customIdSplit[5], SUBSET_DELIMITER, EMPTY);
+        Set<Integer> failureSet = toSet(customIdSplit[6], SUBSET_DELIMITER, EMPTY);
         return new Config(sideOfDie, rerollSet, successSet, failureSet);
     }
 
@@ -214,13 +200,7 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollCommand.Config,
         return state.getCurrentResults().stream().noneMatch(i -> config.getRerollSet().contains(i));
     }
 
-    private Set<Integer> toSet(String value) {
-        return Arrays.stream(value.split(SUBSET_DELIMITER))
-                .filter(StringUtils::isNumeric)
-                .map(Integer::parseInt)
-                .collect(ImmutableSet.toImmutableSet());
-    }
-
+    @Override
     protected boolean createAnswerMessage(State state, Config config) {
         if (CLEAR_BUTTON_ID.equals(state.getState())) {
             return false;
@@ -228,20 +208,6 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollCommand.Config,
         return FINISH_BUTTON_ID.equals(state.getState()) || rollFinished(state, config);
     }
 
-    private Set<Integer> getConfigSetFromCommandOptions(ApplicationCommandInteractionOption options, String optionId) {
-        return options.getOption(optionId)
-                .flatMap(ApplicationCommandInteractionOption::getValue)
-                .map(ApplicationCommandInteractionOptionValue::asString)
-                .map(s -> s.split(","))
-                .map(Arrays::asList)
-                .orElse(ImmutableList.of())
-                .stream()
-                .map(String::trim)
-                .filter(StringUtils::isNumeric)
-                .map(Integer::parseInt)
-                .filter(i -> i > 0)
-                .collect(ImmutableSet.toImmutableSet());
-    }
 
     @Override
     protected Config getConfigFromStartOptions(ApplicationCommandInteractionOption options) {
@@ -250,9 +216,9 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollCommand.Config,
                 .map(ApplicationCommandInteractionOptionValue::asLong)
                 .map(l -> Math.min(l, 1000))
                 .orElse(6L));
-        Set<Integer> rerollSet = getConfigSetFromCommandOptions(options, REROLL_SET_ID);
-        Set<Integer> successSet = getConfigSetFromCommandOptions(options, SUCCESS_SET_ID);
-        Set<Integer> failureSet = getConfigSetFromCommandOptions(options, FAILURE_SET_ID);
+        Set<Integer> rerollSet = getSetFromCommandOptions(options, REROLL_SET_ID, ",");
+        Set<Integer> successSet = getSetFromCommandOptions(options, SUCCESS_SET_ID, ",");
+        Set<Integer> failureSet = getSetFromCommandOptions(options, FAILURE_SET_ID, ",");
         return new Config(sideValue, rerollSet, successSet, failureSet);
     }
 
@@ -329,6 +295,9 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollCommand.Config,
         }
         if (config.getFailureSet().stream().anyMatch(i -> i > config.getSidesOfDie())) {
             return String.format("failure set %s contains a number bigger then the sides of the die %s", config.getFailureSet(), config.getSidesOfDie());
+        }
+        if (config.getRerollSet().size() >= config.getSidesOfDie()) {
+            return "The reroll must not contain all numbers";
         }
         return null;
     }
