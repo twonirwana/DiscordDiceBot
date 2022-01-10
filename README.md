@@ -11,10 +11,12 @@ to roll dice without typing commands and thereby improves usability, especially 
 Add to Discord channel by following this link:
 [Bot invite link](https://discord.com/api/oauth2/authorize?client_id=812381127943782502&permissions=18432&scope=bot%20applications.commands)
 
-For questions and suggestions join me at the [Button Dice Roller Discord Server](https://discord.gg/e43BsqKpFr)
+**Discord Server for trying the bot, questions and feature suggestions**:  [Button Dice Roller Discord Server](https://discord.gg/e43BsqKpFr)
 
-The bot need permission to create application commands (which are needed to control the bot), send message and embed
-links (for the dice buttons and results).
+**The bot need the following permission**:
+* create application commands (which are needed to control the bot)
+* send message (for the dice buttons and results)
+* embed links (display of structured answers)
 
 :warning: **If you can't see the bots messages**: The link preview in the discord setting must be activated to see the
 roll results
