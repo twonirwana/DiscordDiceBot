@@ -111,7 +111,7 @@ class FateCommandTest {
     @Test
     void getStateFromEvent_simple() {
         IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
-        when(event.getCustomId()).thenReturn("fate,,simple");
+        when(event.getCustomId()).thenReturn("fate,roll,simple");
 
         FateCommand.State res = underTest.getStateFromEvent(event);
 

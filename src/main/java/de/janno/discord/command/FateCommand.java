@@ -2,6 +2,7 @@ package de.janno.discord.command;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import de.janno.discord.cache.ButtonMessageCache;
 import de.janno.discord.dice.DiceResult;
@@ -28,6 +29,7 @@ public class FateCommand extends AbstractCommand<FateCommand.Config, FateCommand
     private static final String ACTION_MODIFIER_OPTION = "type";
     private static final String ACTION_MODIFIER_OPTION_SIMPLE = "simple";
     private static final String ACTION_MODIFIER_OPTION_MODIFIER = "with_modifier";
+    private static final String ROLL_BUTTON_ID = "roll";
     private final DiceUtils diceUtils;
 
     @VisibleForTesting
@@ -172,7 +174,7 @@ public class FateCommand extends AbstractCommand<FateCommand.Config, FateCommand
         } else {
             return ImmutableList.of(
                     ActionRow.of(
-                            Button.primary(createButtonCustomId("roll", config), "Roll 4dF")
+                            Button.primary(createButtonCustomId(ROLL_BUTTON_ID, config), "Roll 4dF")
                     ));
         }
     }
@@ -186,7 +188,7 @@ public class FateCommand extends AbstractCommand<FateCommand.Config, FateCommand
     @Override
     protected State getStateFromEvent(IButtonEventAdaptor event) {
         String modifier = event.getCustomId().split(CONFIG_DELIMITER)[1];
-        if (modifier.isBlank()) {
+        if (Strings.isNullOrEmpty(modifier) || ROLL_BUTTON_ID.equals(modifier)) {
             return new State(null);
         }
         return new State(Integer.valueOf(modifier));
