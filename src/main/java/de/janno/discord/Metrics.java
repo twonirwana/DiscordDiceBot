@@ -54,20 +54,12 @@ public class Metrics {
     }
 
 
-    public static void incrementButtonMetricCounter(@NonNull String commandName, @Nullable String configString) {
-        Tags tags = Tags.of(COMMAND_TAG, commandName);
-        if (!Strings.isNullOrEmpty(configString)){
-            tags = tags.and(CONFIG_TAG, configString);
-        }
-        globalRegistry.counter(METRIC_PREFIX + METRIC_BUTTON_PREFIX, tags).increment();
+    public static void incrementButtonMetricCounter(@NonNull String commandName, @NonNull String configString) {
+        globalRegistry.counter(METRIC_PREFIX + METRIC_BUTTON_PREFIX, Tags.of(COMMAND_TAG, commandName, CONFIG_TAG, configString)).increment();
     }
 
-    public static void incrementSlashStartMetricCounter(@NonNull String commandName, @Nullable String configString) {
-        Tags tags = Tags.of(COMMAND_TAG, commandName);
-        if (!Strings.isNullOrEmpty(configString)){
-            tags = tags.and(CONFIG_TAG, configString);
-        }
-        globalRegistry.counter(METRIC_PREFIX + METRIC_SLASH_PREFIX, tags).increment();
+    public static void incrementSlashStartMetricCounter(@NonNull String commandName, @NonNull String configString) {
+        globalRegistry.counter(METRIC_PREFIX + METRIC_SLASH_PREFIX, Tags.of(COMMAND_TAG, commandName, CONFIG_TAG, configString)).increment();
     }
 
     public static void incrementSlashHelpMetricCounter(@NonNull String commandName) {

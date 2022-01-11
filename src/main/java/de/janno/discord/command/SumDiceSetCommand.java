@@ -303,7 +303,7 @@ public class SumDiceSetCommand extends AbstractCommand<SumDiceSetCommand.Config,
     protected static class Config implements IConfig {
         @Override
         public String toShortString() {
-            return "";
+            return "[]";
         }
 
     }
