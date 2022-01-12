@@ -19,6 +19,7 @@ import discord4j.discordjson.json.ApplicationCommandOptionData;
 import lombok.NonNull;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 
@@ -188,10 +189,10 @@ public class FateCommand extends AbstractCommand<FateCommand.Config, FateCommand
     @Override
     protected State getStateFromEvent(IButtonEventAdaptor event) {
         String modifier = event.getCustomId().split(CONFIG_DELIMITER)[1];
-        if (Strings.isNullOrEmpty(modifier) || ROLL_BUTTON_ID.equals(modifier)) {
-            return new State(null);
+        if (!Strings.isNullOrEmpty(modifier) && StringUtils.isNumeric(modifier)) {
+            return new State(Integer.valueOf(modifier));
         }
-        return new State(Integer.valueOf(modifier));
+        return new State(null);
     }
 
     @VisibleForTesting
