@@ -8,7 +8,7 @@ a message with a button selection. Upon clicking on a button the bot will post t
 buttons to the bottom of the channel. If the message is pined, then it will only be copied and not moved. This allows it
 to roll dice without typing commands and thereby improves usability, especially for touchscreen users.
 
-![](src/main/image/custom_dice.gif)
+![](src/main/image/example.webp)
 
 Add to Discord channel by following this link:
 [Bot invite link](https://discord.com/api/oauth2/authorize?client_id=812381127943782502&permissions=18432&scope=bot%20applications.commands)
@@ -61,15 +61,13 @@ The bot has currently the following systems:
 
 ### Custom dice buttons
 
+![](src/main/image/custom_dice.webp)
+
 Use the slash command: `custom_dice start` and add up to 25 custom buttons, each with its own dice expression. For
 example `/custom_dice start 1_button:3d6 2_button:10d10 3_button:3d20` produces the three buttons as follows:
 
-![custom_dice_buttons.png](src/main/image/custom_dice_buttons.png)
-
 and on clicking on a button provides the results of the button dice and result of the expression (default it is the sum
 of all dice):
-
-![custom_dice_result.png](src/main/image/custom_dice_result.png)
 
 #### Dice Expression Notation
 
@@ -112,6 +110,8 @@ usage of buttons. For example '/r 3d6' will simply roll 3d6 and post the result 
 
 ### Count success in a pool
 
+![](src/main/image/count_successes.webp)
+
 Use the slash command: `/count_successes start`. You need to provide the sides of the dice, the target number, optional
 a glitch system as parameter and the number of buttons. For example `/count_successes start dice_sides:10 target_number:
 7` creates 15 buttons for 10 sided dice that roll against the target of 7. By clicking on a button a number of dice will
@@ -141,34 +141,25 @@ ons than successes the result will be negative. This is for example used in the 
 The optional parameter `max_dice` will change the max number of dice (and thereby the number of buttons). The default
 value is 15, which will be used if the parameter is not set, and the max number of dice is 25.
 
-![img.png](src/main/image/count_success_buttons.png)
-
-![img.png](src/main/image/count_success_result.png)
-
 ### Fate
 
+![](src/main/image/fate.webp)
+
 Use the slash command: `/fate start type:with_modifier` or `/fate start type:simple` to get buttons for Fate. There are
-two types simple and with modifier:
-
-#### Simple
-
-![fate_example.png](src/main/image/fate_example.png)
-
-#### With modifier buttons
-
-![fate_with_modifier.png](src/main/image/fate_with_modifier.png)
+two types simple and with modifier.
 
 ### Sum Dice Set
+
+![](src/main/image/sum_dice_set.webp)
 
 Use the slash command `/sum_dice_set start` to create a message to create a die set. The user can click on the + and -
 buttons to add dice to the set. Clicking on the `Roll` button will roll the dice the message and copy a clear button
 message to the end.
 
-![](src/main/image/sumDiceSetRequest.png)
-
-![](src/main/image/sumDiceSetResult.png)
 
 ### Hold Reroll
+
+![](src/main/image/hold_reroll.webp)
 
 Use the slash command `/hold_reroll start sides:6 reroll_set:2,3,4 success_set:5,6 failure_set:1` to create a message
 for the hold reroll system. The system has the following parameter:
@@ -178,21 +169,16 @@ for the hold reroll system. The system has the following parameter:
 - `success_set`: The number on the dice that are counted as success. Multiple numbers can be given comma seperated.
 - `failure_set`: The number on the dice that are counted as failure. Multiple numbers can be given comma seperated.
 
-![](src/main/image/holdReroll_request.png)
-
 If the roll has numbers that are in the reroll set than the user has the option to reroll, finish or clear the result.
 
 - Reroll will reroll all results in the reroll set and keep the remaining unchanged.
 - Finish will fix the current result and allow a new roll.
 - Clear will remove the current result and allow a new roll.
 
-![](src/main/image/holdReroll_reroll1.png)
-
-![](src/main/image/holdReroll_reroll2.png)
-
-![](src/main/image/holdReroll_result.png)
 
 ### Pool Target
+
+![](src/main/image/pool_target.webp)
 
 Use the
 command `/pool_target start sides:<sidesOfDie> max_dice:<maxDiceInPool> reroll_set:<numbersThatCanBeRerolled> botch_set:<numbersThatAreSubractedFromTheSuccesses> reroll_variant:<rerollVariant>`
@@ -211,12 +197,5 @@ The system has the following parameter:
 - `reroll_variant`: The default option `always` will always reroll all dice results in the reroll set. The option `ask`
   will ask the user each time if the reroll should be done.
 
-![](src/main/image/pool_target-setPool.png)
-
-![](src/main/image/pool_target-setTarget.png)
-
-![](src/main/image/pool_target-askForReroll.png)
-
-![](src/main/image/pool_target-result.png)
 
 Please let me know if another system is needed.
