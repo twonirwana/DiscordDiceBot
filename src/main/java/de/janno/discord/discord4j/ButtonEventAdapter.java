@@ -9,7 +9,6 @@ import discord4j.core.object.component.LayoutComponent;
 import discord4j.core.object.entity.Message;
 import discord4j.core.object.entity.channel.TextChannel;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.Nullable;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -18,29 +17,61 @@ import java.util.stream.Collectors;
 @Slf4j
 public class ButtonEventAdapter extends DiscordAdapter implements IButtonEventAdaptor {
     private final ComponentInteractionEvent event;
+    private final String customId;
+    private final Long messageId;
+    private final Long channelId;
+    private final boolean isPinned;
+    private final String messageContent;
+    private final List<LabelAndCustomId> allButtonIds;
 
     public ButtonEventAdapter(ComponentInteractionEvent event) {
         this.event = event;
+        messageId = event.getMessageId().asLong();
+        customId = event.getCustomId();
+        isPinned = event.getMessage().map(Message::isPinned).orElse(false);
+        channelId = event.getInteraction().getChannelId().asLong();
+        messageContent = event.getMessage().map(Message::getContent).orElse("");
+        allButtonIds = event.getInteraction().getMessage()
+                .map(s -> s.getComponents().stream()
+                        .flatMap(lc -> lc.getChildren().stream())
+                        .map(l -> {
+                            if (l.getData().label().isAbsent() || l.getData().customId().isAbsent()) {
+                                return null;
+                            }
+                            return new LabelAndCustomId(l.getData().label().get(), l.getData().customId().get());
+                        }).collect(Collectors.toList())
+                )
+                .orElse(ImmutableList.of());
     }
 
     @Override
     public String getCustomId() {
-        return event.getCustomId();
+        return customId;
     }
 
     @Override
     public Long getMessageId() {
-        return event.getMessageId().asLong();
+        return messageId;
     }
 
     @Override
     public Long getChannelId() {
-        return event.getInteraction().getChannelId().asLong();
+        return channelId;
     }
 
     @Override
     public boolean isPinned() {
-        return event.getMessage().map(Message::isPinned).orElse(false);
+        return isPinned;
+    }
+
+    @Override
+    public List<LabelAndCustomId> getAllButtonIds() {
+        return allButtonIds;
+    }
+
+    @Override
+    public String getMessageContent() {
+        return messageContent;
     }
 
     @Override
@@ -68,7 +99,12 @@ public class ButtonEventAdapter extends DiscordAdapter implements IButtonEventAd
     public Mono<Void> deleteMessage(long messageId) {
         return event.getInteraction().getChannel()
                 .flatMap(c -> c.getMessageById(Snowflake.of(messageId)))
-                .flatMap(Message::delete);
+                .filter(m -> !m.isPinned())
+                .flatMap(Message::delete)
+                .onErrorResume(t -> {
+                    log.warn("Error on deleting message");
+                    return Mono.empty();
+                });
     }
 
     @Override
@@ -82,23 +118,5 @@ public class ButtonEventAdapter extends DiscordAdapter implements IButtonEventAd
                 .ofType(Void.class);
     }
 
-    @Override
-    public List<LabelAndCustomId> getAllButtonIds() {
-        return event.getInteraction().getMessage()
-                .map(s -> s.getComponents().stream()
-                        .flatMap(lc -> lc.getChildren().stream())
-                        .map(l -> {
-                            if (l.getData().label().isAbsent() || l.getData().customId().isAbsent()) {
-                                return null;
-                            }
-                            return new LabelAndCustomId(l.getData().label().get(), l.getData().customId().get());
-                        }).collect(Collectors.toList())
-                )
-                .orElse(ImmutableList.of());
-    }
 
-    @Override
-    public String getMessageContent() {
-        return event.getMessage().map(Message::getContent).orElse("");
-    }
 }

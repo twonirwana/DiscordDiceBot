@@ -2,11 +2,13 @@ package de.janno.discord.discord4j;
 
 import de.janno.discord.command.ISlashEventAdaptor;
 import de.janno.discord.dice.DiceResult;
+import discord4j.common.util.Snowflake;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.object.command.ApplicationCommandInteractionOption;
 import discord4j.core.object.command.ApplicationCommandInteractionOptionValue;
 import discord4j.core.object.component.LayoutComponent;
 import discord4j.core.object.entity.Guild;
+import discord4j.core.object.entity.Message;
 import discord4j.core.object.entity.channel.TextChannel;
 import discord4j.core.spec.EmbedCreateSpec;
 import discord4j.rest.util.Permission;
@@ -32,7 +34,20 @@ public class SlashEventAdapter extends DiscordAdapter implements ISlashEventAdap
 
     @Override
     public String checkPermissions() {
-        PermissionSet permissions = Mono.zip(event.getInteraction().getChannel().ofType(TextChannel.class), event.getInteraction().getGuild().flatMap(Guild::getSelfMember))
+        PermissionSet permissions = Mono.zip(event.getInteraction().getChannel().ofType(TextChannel.class)
+                                .onErrorResume(t -> {
+                                    log.error("Error getting channel", t);
+                                    return Mono.empty();
+                                })
+                        , event.getInteraction().getGuild().flatMap(Guild::getSelfMember)
+                                .onErrorResume(t -> {
+                                    log.error("Error in getting self member", t);
+                                    return Mono.empty();
+                                }))
+                .onErrorResume(t -> {
+                    log.warn("Error in getting data for permission check", t);
+                    return Mono.empty();
+                })
                 .flatMap(channelAndMember -> channelAndMember.getT1().getEffectivePermissions(channelAndMember.getT2()))
                 .blockOptional()
                 .orElse(PermissionSet.of());
@@ -132,4 +147,15 @@ public class SlashEventAdapter extends DiscordAdapter implements ISlashEventAdap
     }
 
 
+    @Override
+    public Mono<Void> deleteMessage(long messageId) {
+        return event.getInteraction().getChannel()
+                .flatMap(c -> c.getMessageById(Snowflake.of(messageId)))
+                .filter(m -> !m.isPinned())
+                .flatMap(Message::delete)
+                .onErrorResume(t -> {
+                    log.warn("Error on deleting message");
+                    return Mono.empty();
+                });
+    }
 }

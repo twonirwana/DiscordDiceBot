@@ -23,4 +23,6 @@ public interface ISlashEventAdaptor extends IDiscordAdapter {
     Long getChannelId();
 
     String getCommandString();
+
+    Mono<Void> deleteMessage(long messageId);
 }

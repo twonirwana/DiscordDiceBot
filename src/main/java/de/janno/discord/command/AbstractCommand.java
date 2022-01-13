@@ -69,7 +69,11 @@ public abstract class AbstractCommand<C extends IConfig, S extends IState> imple
         buttonMessageCache.addChannelWithButton(channelId, messageId, config.hashCode());
 
         S state = getStateFromEvent(event);
+
+        //all the answer actions
         List<Mono<Void>> actions = new ArrayList<>();
+        //the delete action must be the last action
+        Mono<Void> deleteAction = Mono.empty();
         boolean triggeringMessageIsPinned = event.isPinned();
         String editMessage;
 
@@ -81,6 +85,7 @@ public abstract class AbstractCommand<C extends IConfig, S extends IState> imple
             editMessage = getEditButtonMessage(state, config) != null ? getEditButtonMessage(state, config) : "processing ...";
         }
         actions.add(event.editMessage(editMessage));
+
         if (createAnswerMessage(state, config)) {
             Metrics.incrementButtonMetricCounter(getName(), config.toShortString());
             List<DiceResult> result = getDiceResult(state, config);
@@ -105,16 +110,17 @@ public abstract class AbstractCommand<C extends IConfig, S extends IState> imple
                 buttonMessageCache.removeButtonFromChannel(channelId, messageId, config.hashCode());
             }
 
-            actions.add(newMessageIdMono
+            deleteAction = newMessageIdMono
                     .flux()
                     .flatMap(id -> Flux.fromIterable(buttonMessageCache.getAllWithoutOneAndRemoveThem(channelId, id, config.hashCode())))
                     .flatMap(event::deleteMessage)
-                    .then());
+                    .then();
         }
 
         return Flux.mergeDelayError(1, actions.toArray(new Mono<?>[0]))
                 .parallel()
-                .then();
+                .then()
+                .then(deleteAction);
     }
 
     @Override
@@ -136,13 +142,16 @@ public abstract class AbstractCommand<C extends IConfig, S extends IState> imple
             C config = getConfigFromStartOptions(options);
             Metrics.incrementSlashStartMetricCounter(getName(), config.toShortString());
 
-
+            long channelId = event.getChannelId();
             return event.reply(commandString)
                     .then(event.createButtonMessage(getButtonMessage(config), getButtonLayout(config))
                             .map(m -> {
-                                buttonMessageCache.addChannelWithButton(event.getChannelId(), m, config.hashCode());
+                                buttonMessageCache.addChannelWithButton(channelId, m, config.hashCode());
                                 return m;
-                            }).ofType(Void.class));
+                            })
+                            .flux()
+                            .flatMap(id -> Flux.fromIterable(buttonMessageCache.getAllWithoutOneAndRemoveThem(channelId, id, config.hashCode())))
+                            .flatMap(event::deleteMessage).then());
 
         } else if (event.getOption(ACTION_HELP).isPresent()) {
             Metrics.incrementSlashHelpMetricCounter(getName());
