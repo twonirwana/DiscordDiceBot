@@ -19,6 +19,7 @@ import lombok.NonNull;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
@@ -177,7 +178,7 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollCommand.Config,
         } else if (CLEAR_BUTTON_ID.equals(buttonValue)) {
             currentResult = ImmutableList.of();
             rerollCount = 0;
-        } else if (StringUtils.isNumeric(buttonValue)) {
+        } else if (NumberUtils.isParsable(buttonValue)) {
             int numberOfDice = Integer.parseInt(buttonValue);
             currentResult = diceUtils.rollDiceOfType(numberOfDice, config.getSidesOfDie());
             rerollCount = 0;
@@ -191,7 +192,7 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollCommand.Config,
             return ImmutableList.of();
         }
         return Arrays.stream(currentRollResultString.split(SUBSET_DELIMITER))
-                .filter(StringUtils::isNumeric)
+                .filter(NumberUtils::isParsable)
                 .map(Integer::parseInt)
                 .collect(Collectors.toList());
     }

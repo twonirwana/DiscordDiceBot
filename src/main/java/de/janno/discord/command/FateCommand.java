@@ -20,6 +20,7 @@ import lombok.NonNull;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 
 import java.util.List;
 
@@ -189,7 +190,7 @@ public class FateCommand extends AbstractCommand<FateCommand.Config, FateCommand
     @Override
     protected State getStateFromEvent(IButtonEventAdaptor event) {
         String modifier = event.getCustomId().split(CONFIG_DELIMITER)[1];
-        if (!Strings.isNullOrEmpty(modifier) && StringUtils.isNumeric(modifier)) {
+        if (!Strings.isNullOrEmpty(modifier) && NumberUtils.isParsable(modifier)) {
             return new State(Integer.valueOf(modifier));
         }
         return new State(null);

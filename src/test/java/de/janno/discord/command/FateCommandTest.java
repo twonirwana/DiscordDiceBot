@@ -129,6 +129,16 @@ class FateCommandTest {
     }
 
     @Test
+    void getStateFromEvent_modifierNegativ() {
+        IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
+        when(event.getCustomId()).thenReturn("fate,-3,with_modifier");
+
+        FateCommand.State res = underTest.getStateFromEvent(event);
+
+        assertThat(res).isEqualTo(new FateCommand.State(-3));
+    }
+
+    @Test
     void createButtonCustomId() {
         String res = underTest.createButtonCustomId("3", new FateCommand.Config("with_modifier"));
 

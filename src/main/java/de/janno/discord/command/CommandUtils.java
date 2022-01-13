@@ -6,6 +6,7 @@ import discord4j.core.object.command.ApplicationCommandInteractionOption;
 import discord4j.core.object.command.ApplicationCommandInteractionOptionValue;
 import lombok.NonNull;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 
 import java.util.Arrays;
 import java.util.List;
@@ -48,7 +49,7 @@ public final class CommandUtils {
             return ImmutableSet.of();
         }
         return Arrays.stream(value.split(delimiter))
-                .filter(StringUtils::isNumeric)
+                .filter(NumberUtils::isParsable)
                 .map(Integer::parseInt)
                 .collect(ImmutableSet.toImmutableSet());
     }
@@ -62,7 +63,7 @@ public final class CommandUtils {
                 .orElse(ImmutableList.of())
                 .stream()
                 .map(String::trim)
-                .filter(StringUtils::isNumeric)
+                .filter(NumberUtils::isParsable)
                 .map(Integer::parseInt)
                 .filter(i -> i > 0)
                 .collect(ImmutableSet.toImmutableSet());
