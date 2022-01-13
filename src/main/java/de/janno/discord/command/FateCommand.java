@@ -117,7 +117,7 @@ public class FateCommand extends AbstractCommand<FateCommand.Config, FateCommand
     protected List<DiceResult> getDiceResult(State state, Config config) {
         List<Integer> rollResult = diceUtils.rollFate();
 
-        if (ACTION_MODIFIER_OPTION_MODIFIER.equals(config.getType())) {
+        if (ACTION_MODIFIER_OPTION_MODIFIER.equals(config.getType()) && state.getModifier() != null) {
             int modifier = state.getModifier();
             String modifierString = "";
             if (modifier > 0) {
