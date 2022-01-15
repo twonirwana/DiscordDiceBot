@@ -40,6 +40,7 @@ class CustomDiceCommandTest {
                 Arguments.of(ImmutableList.of(" 1d6 "), null),
                 Arguments.of(ImmutableList.of("2x[1d6]"), null),
                 Arguments.of(ImmutableList.of("1d6@Attack"), null),
+                Arguments.of(ImmutableList.of("1d6@Attack", "1d6@Parry"), "The dice expression '1d6' is not unique. Each dice expression must only once."),
                 Arguments.of(ImmutableList.of("1d6@a,b"), "The button definition '1d6@a,b' is not allowed to contain ','"),
                 Arguments.of(ImmutableList.of(" 1d6 @ Attack "), null),
                 Arguments.of(ImmutableList.of("a"), "The following dice expression are invalid: 'a'. Use custom_dice help to get more information on how to use the command."),

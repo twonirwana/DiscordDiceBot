@@ -19,6 +19,8 @@ import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -182,6 +184,15 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceCommand.Config,
             String diceParserValidation = diceParserHelper.validateDiceExpression(diceExpression, "custom_dice help");
             if (diceParserValidation != null) {
                 return diceParserValidation;
+            }
+        }
+
+        Map<String, Long> expressionOccurrence = optionValues.stream()
+                .map(s -> s.split(LABEL_DELIMITER)[0].toLowerCase().trim())
+                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+        for (Map.Entry<String, Long> e : expressionOccurrence.entrySet()) {
+            if (e.getValue() > 1) {
+                return String.format("The dice expression '%s' is not unique. Each dice expression must only once.", e.getKey());
             }
         }
 
