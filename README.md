@@ -10,8 +10,8 @@ to roll dice without typing commands and thereby improves usability, especially 
 
 ![](src/main/image/example.webp)
 
-Add to Discord channel by following this link:
-[Bot invite link](https://discord.com/api/oauth2/authorize?client_id=812381127943782502&permissions=18432&scope=bot%20applications.commands)
+**Add to Discord channel by following this link**:
+[**Bot invite link**](https://discord.com/api/oauth2/authorize?client_id=812381127943782502&permissions=18432&scope=bot%20applications.commands)
 
 **Discord Server for trying the bot, questions and feature suggestions**:  [Button Dice Roller Discord Server](https://discord.gg/e43BsqKpFr)
 
