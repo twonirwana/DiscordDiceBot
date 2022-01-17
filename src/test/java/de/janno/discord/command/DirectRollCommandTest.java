@@ -1,6 +1,8 @@
 package de.janno.discord.command;
 
 import com.google.common.collect.ImmutableList;
+import de.janno.discord.api.Answer;
+import de.janno.discord.api.ISlashEventAdaptor;
 import de.janno.discord.dice.DiceParserHelper;
 import de.janno.discord.dice.IDice;
 import dev.diceroll.parser.Dice;
@@ -8,12 +10,8 @@ import dev.diceroll.parser.NDice;
 import dev.diceroll.parser.ResultTree;
 import discord4j.core.GatewayDiscordClient;
 import discord4j.core.object.command.ApplicationCommandInteractionOption;
-import discord4j.core.object.command.ApplicationCommandInteractionOptionValue;
 import discord4j.core.object.command.ApplicationCommandOption;
-import discord4j.core.object.component.LayoutComponent;
-import discord4j.core.spec.EmbedCreateSpec;
 import discord4j.discordjson.json.ApplicationCommandInteractionOptionData;
-import lombok.NonNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;

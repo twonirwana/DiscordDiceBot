@@ -2,8 +2,8 @@ package de.janno.discord.discord4j;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
-import de.janno.discord.command.Answer;
-import de.janno.discord.command.IDiscordAdapter;
+import de.janno.discord.api.Answer;
+import de.janno.discord.api.IDiscordAdapter;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.object.command.ApplicationCommandInteractionOption;
 import discord4j.core.object.command.ApplicationCommandInteractionOptionValue;

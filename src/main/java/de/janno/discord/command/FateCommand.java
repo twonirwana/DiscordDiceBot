@@ -4,6 +4,8 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
+import de.janno.discord.api.Answer;
+import de.janno.discord.api.IButtonEventAdaptor;
 import de.janno.discord.cache.ButtonMessageCache;
 import de.janno.discord.dice.DiceUtils;
 import discord4j.core.object.command.ApplicationCommandInteractionOption;
@@ -21,6 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.math.NumberUtils;
 
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 public class FateCommand extends AbstractCommand<FateCommand.Config, FateCommand.State> {
@@ -221,5 +224,10 @@ public class FateCommand extends AbstractCommand<FateCommand.Config, FateCommand
     @Value
     static class State implements IState {
         Integer modifier;
+
+        @Override
+        public String toShortString() {
+            return String.format("[%s]", Optional.ofNullable(modifier).map(String::valueOf).orElse(""));
+        }
     }
 }

@@ -1,6 +1,6 @@
 package de.janno.discord.dice;
 
-import de.janno.discord.command.Answer;
+import de.janno.discord.api.Answer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;

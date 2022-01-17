@@ -3,7 +3,7 @@ package de.janno.discord.dice;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
-import de.janno.discord.command.Answer;
+import de.janno.discord.api.Answer;
 import dev.diceroll.parser.ResultTree;
 import lombok.NonNull;
 import lombok.Value;

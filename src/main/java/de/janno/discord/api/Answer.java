@@ -1,4 +1,4 @@
-package de.janno.discord.command;
+package de.janno.discord.api;
 
 import com.google.common.base.Strings;
 import lombok.NonNull;
@@ -25,8 +25,12 @@ public class Answer {
                 .collect(Collectors.toList());
 
         return String.format("%s %s %s", title,
-                Strings.isNullOrEmpty(content) ? "" : content,
-                fieldStringList.isEmpty() ? "" : fieldStringList.toString());
+                        Strings.isNullOrEmpty(content) ? "" : content,
+                        fieldStringList.isEmpty() ? "" : fieldStringList.toString())
+                .replace("▢", "0")
+                .replace("＋", "+")
+                .replace(MINUS, "-")
+                .replace("*", "");
     }
 
     @Value
@@ -38,11 +42,7 @@ public class Answer {
         boolean inline;
 
         public String toShortString() {
-            return String.format("%s %s", name, value)
-                    .replace("▢", "0")
-                    .replace("＋", "+")
-                    .replace(MINUS, "-")
-                    .replace("*", "");
+            return String.format("%s %s", name, value);
         }
     }
 }

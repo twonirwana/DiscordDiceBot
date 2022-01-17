@@ -5,6 +5,8 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
+import de.janno.discord.api.Answer;
+import de.janno.discord.api.IButtonEventAdaptor;
 import de.janno.discord.cache.ButtonMessageCache;
 import de.janno.discord.dice.DiceUtils;
 import discord4j.core.object.command.ApplicationCommandInteractionOption;
@@ -289,5 +291,10 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesCommand
     @Value
     static class State implements IState {
         int numberOfDice;
+
+        @Override
+        public String toShortString() {
+            return String.format("[%d]", numberOfDice);
+        }
     }
 }

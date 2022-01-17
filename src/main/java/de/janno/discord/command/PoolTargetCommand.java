@@ -4,6 +4,8 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import de.janno.discord.api.Answer;
+import de.janno.discord.api.IButtonEventAdaptor;
 import de.janno.discord.cache.ButtonMessageCache;
 import de.janno.discord.dice.DiceUtils;
 import discord4j.core.object.command.ApplicationCommandInteractionOption;
@@ -380,5 +382,12 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetCommand.Config,
         Integer dicePool;
         Integer targetNumber;
         Boolean doReroll;
+
+        @Override
+        public String toShortString() {
+            return Stream.of(dicePool, targetNumber, doReroll)
+                    .map(s -> s == null ? "" : String.valueOf(s))
+                    .collect(Collectors.toList()).toString();
+        }
     }
 }

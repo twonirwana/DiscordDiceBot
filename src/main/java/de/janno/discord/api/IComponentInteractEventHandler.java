@@ -1,4 +1,4 @@
-package de.janno.discord.command;
+package de.janno.discord.api;
 
 import lombok.NonNull;
 import reactor.core.publisher.Mono;

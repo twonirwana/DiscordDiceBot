@@ -2,6 +2,8 @@ package de.janno.discord.command;
 
 import com.google.common.annotations.VisibleForTesting;
 import de.janno.discord.Metrics;
+import de.janno.discord.api.Answer;
+import de.janno.discord.api.ISlashEventAdaptor;
 import de.janno.discord.dice.DiceParserHelper;
 import de.janno.discord.discord4j.ApplicationCommand;
 import discord4j.core.object.command.ApplicationCommandInteractionOption;
@@ -56,7 +58,6 @@ public class DirectRollCommand implements ISlashCommand {
         }
 
         String commandString = event.getCommandString();
-        log.info("Application command: {}", commandString);
 
         Optional<ApplicationCommandInteractionOption> expressionOptional = event.getOption(ACTION_EXPRESSION);
         if (expressionOptional.isPresent()) {
@@ -84,10 +85,19 @@ public class DirectRollCommand implements ISlashCommand {
             Metrics.incrementSlashStartMetricCounter(getName(), diceExpression);
 
             Answer answer = diceParserHelper.roll(diceExpression, label);
-            log.info(String.format("%s:%s -> %s", getName(), diceExpression, answer.toShortString()));
 
             return event.reply(commandString)
-                    .then(event.createResultMessageWithEventReference(answer));
+                    .then(event.createResultMessageWithEventReference(answer))
+                    .then(event.getRequester()
+                            .doOnNext(requester -> log.info("'{}'.'{}' from '{}' slash '{}': {} -> {}",
+                                    requester.getGuildName(),
+                                    requester.getChannelName(),
+                                    requester.getUserName(),
+                                    event.getCommandString(),
+                                    diceExpression,
+                                    answer.toShortString()
+                            ))
+                            .ofType(Void.class));
 
         }
 

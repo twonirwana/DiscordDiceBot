@@ -1,7 +1,8 @@
 package de.janno.discord.discord4j;
 
-import de.janno.discord.command.Answer;
-import de.janno.discord.command.ISlashEventAdaptor;
+import de.janno.discord.api.Answer;
+import de.janno.discord.api.ISlashEventAdaptor;
+import de.janno.discord.api.Requester;
 import discord4j.common.util.Snowflake;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.object.command.ApplicationCommandInteractionOption;
@@ -27,9 +28,13 @@ import java.util.stream.Collectors;
 public class SlashEventAdapter extends DiscordAdapter implements ISlashEventAdaptor {
 
     private final ChatInputInteractionEvent event;
+    private final Mono<Requester> requesterMono;
+    private final long channelId;
 
-    public SlashEventAdapter(ChatInputInteractionEvent event) {
+    public SlashEventAdapter(ChatInputInteractionEvent event, Mono<Requester> requesterMono) {
         this.event = event;
+        this.requesterMono = requesterMono;
+        this.channelId = event.getInteraction().getChannelId().asLong();
     }
 
     @Override
@@ -115,7 +120,7 @@ public class SlashEventAdapter extends DiscordAdapter implements ISlashEventAdap
 
     @Override
     public Long getChannelId() {
-        return event.getInteraction().getChannelId().asLong();
+        return channelId;
     }
 
     @Override
@@ -148,6 +153,11 @@ public class SlashEventAdapter extends DiscordAdapter implements ISlashEventAdap
 
 
     @Override
+    public Mono<Requester> getRequester() {
+        return requesterMono;
+    }
+
+    @Override
     public Mono<Void> deleteMessage(long messageId) {
         return event.getInteraction().getChannel()
                 .flatMap(c -> c.getMessageById(Snowflake.of(messageId)))
@@ -158,4 +168,6 @@ public class SlashEventAdapter extends DiscordAdapter implements ISlashEventAdap
                     return Mono.empty();
                 });
     }
+
+
 }

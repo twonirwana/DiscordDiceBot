@@ -4,6 +4,8 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import de.janno.discord.api.Answer;
+import de.janno.discord.api.IButtonEventAdaptor;
 import de.janno.discord.cache.ButtonMessageCache;
 import de.janno.discord.dice.DiceUtils;
 import discord4j.core.object.command.ApplicationCommandInteractionOption;
@@ -313,5 +315,9 @@ public class SumDiceSetCommand extends AbstractCommand<SumDiceSetCommand.Config,
         @NonNull
         Map<String, Integer> diceSetMap;
 
+        @Override
+        public String toShortString() {
+            return String.format("[%s, %s]", buttonValue, diceSetMap);
+        }
     }
 }
