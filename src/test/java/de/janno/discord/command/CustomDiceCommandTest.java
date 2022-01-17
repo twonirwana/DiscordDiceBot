@@ -155,6 +155,44 @@ class CustomDiceCommandTest {
     }
 
     @Test
+    void getDiceResult_3x1d6() {
+        when(diceMock.detailedRoll("1d6")).thenReturn(new ResultTree(new NDice(6, 1), 6, ImmutableList.of()));
+        Answer res = underTest.getAnswer(new CustomDiceCommand.State("3x[1d6]"),
+                new CustomDiceCommand.Config(ImmutableList.of(new CustomDiceCommand.LabelAndDiceExpression("3x[1d6]", "3x[1d6]"))));
+
+        assertThat(res).isEqualTo(new Answer("Multiple Results", null, ImmutableList.of(
+                new Answer.Field("1d6 = 6", "[6]", false),
+                new Answer.Field("1d6 = 6", "[6]", false),
+                new Answer.Field("1d6 = 6", "[6]", false)
+        )));
+    }
+
+
+    @Test
+    void getDiceResult_1d6Label() {
+        when(diceMock.detailedRoll("1d6")).thenReturn(new ResultTree(new NDice(6, 1), 3, ImmutableList.of()));
+        Answer res = underTest.getAnswer(new CustomDiceCommand.State("1d6"),
+                new CustomDiceCommand.Config(ImmutableList.of(new CustomDiceCommand.LabelAndDiceExpression("Label", "1d6"))));
+
+        assertThat(res.getFields()).hasSize(0);
+        assertThat(res.getTitle()).isEqualTo("Label: 1d6 = 3");
+        assertThat(res.getContent()).isEqualTo("[3]");
+    }
+
+    @Test
+    void getDiceResult_3x1d6Label() {
+        when(diceMock.detailedRoll("1d6")).thenReturn(new ResultTree(new NDice(6, 1), 6, ImmutableList.of()));
+        Answer res = underTest.getAnswer(new CustomDiceCommand.State("3x[1d6]"),
+                new CustomDiceCommand.Config(ImmutableList.of(new CustomDiceCommand.LabelAndDiceExpression("Label", "3x[1d6]"))));
+
+        assertThat(res).isEqualTo(new Answer("Label", null, ImmutableList.of(
+                new Answer.Field("1d6 = 6", "[6]", false),
+                new Answer.Field("1d6 = 6", "[6]", false),
+                new Answer.Field("1d6 = 6", "[6]", false)
+        )));
+    }
+
+    @Test
     void getName() {
         String res = underTest.getName();
 

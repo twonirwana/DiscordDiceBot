@@ -12,6 +12,8 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
+import java.util.Optional;
+
 @Slf4j
 public class DirectRollCommand implements ISlashCommand {
     private static final String ACTION_EXPRESSION = "expression";
@@ -56,13 +58,14 @@ public class DirectRollCommand implements ISlashCommand {
         String commandString = event.getCommandString();
         log.info("Application command: {}", commandString);
 
-        if (event.getOption(ACTION_EXPRESSION).isPresent()) {
-            ApplicationCommandInteractionOption options = event.getOption(ACTION_EXPRESSION).get();
-            String startOptionString = options.getValue()
+        Optional<ApplicationCommandInteractionOption> expressionOptional = event.getOption(ACTION_EXPRESSION);
+        if (expressionOptional.isPresent()) {
+            String commandParameter = expressionOptional
+                    .flatMap(ApplicationCommandInteractionOption::getValue)
                     .map(ApplicationCommandInteractionOptionValue::asString)
                     .orElseThrow();
 
-            String validationMessage = validate(startOptionString);
+            String validationMessage = validate(commandParameter);
             if (validationMessage != null) {
                 log.info("Validation message: {}", validationMessage);
                 return event.reply(String.format("%s\n%s", commandString, validationMessage));
@@ -70,13 +73,13 @@ public class DirectRollCommand implements ISlashCommand {
             String label;
             String diceExpression;
 
-            if (startOptionString.contains(LABEL_DELIMITER)) {
-                String[] split = startOptionString.split(LABEL_DELIMITER);
+            if (commandParameter.contains(LABEL_DELIMITER)) {
+                String[] split = commandParameter.split(LABEL_DELIMITER);
                 label = split[1].trim();
                 diceExpression = split[0].trim();
             } else {
                 label = null;
-                diceExpression = startOptionString;
+                diceExpression = commandParameter;
             }
             Metrics.incrementSlashStartMetricCounter(getName(), diceExpression);
 
@@ -91,7 +94,8 @@ public class DirectRollCommand implements ISlashCommand {
         return Mono.empty();
     }
 
-    private String validate(String startOptionString) {
+    @VisibleForTesting
+    String validate(@NonNull String startOptionString) {
         String label;
         String diceExpression;
 

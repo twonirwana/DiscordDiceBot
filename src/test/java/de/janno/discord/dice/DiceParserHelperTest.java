@@ -68,17 +68,37 @@ class DiceParserHelperTest {
 
     @Test
     void roll_3x3d6() {
-        Answer res = diceParserHelper.roll("3x[3d6]");
+        Answer res = diceParserHelper.roll("3x[3d6]", null);
 
         assertThat(res.getFields()).hasSize(3);
         assertThat(res.getContent()).isNull();
+        assertThat(res.getTitle()).isEqualTo("Multiple Results");
     }
 
     @Test
     void roll_3d6() {
-        Answer res = diceParserHelper.roll("3d6");
+        Answer res = diceParserHelper.roll("3d6", null);
 
         assertThat(res.getFields()).hasSize(0);
         assertThat(res.getContent()).isNotEmpty();
+        assertThat(res.getTitle()).startsWith("3d6 = ");
+    }
+
+    @Test
+    void roll_3x3d6Label() {
+        Answer res = diceParserHelper.roll("3x[3d6]", "Label");
+
+        assertThat(res.getFields()).hasSize(3);
+        assertThat(res.getContent()).isNull();
+        assertThat(res.getTitle()).isEqualTo("Label");
+    }
+
+    @Test
+    void roll_3d6Label() {
+        Answer res = diceParserHelper.roll("3d6", "Label");
+
+        assertThat(res.getFields()).hasSize(0);
+        assertThat(res.getContent()).isNotEmpty();
+        assertThat(res.getTitle()).startsWith("Label: 3d6 = ");
     }
 }
