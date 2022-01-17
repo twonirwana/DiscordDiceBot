@@ -3,7 +3,6 @@ package de.janno.discord.command;
 import com.google.common.annotations.VisibleForTesting;
 import de.janno.discord.Metrics;
 import de.janno.discord.dice.DiceParserHelper;
-import de.janno.discord.dice.DiceResult;
 import de.janno.discord.discord4j.ApplicationCommand;
 import discord4j.core.object.command.ApplicationCommandInteractionOption;
 import discord4j.core.object.command.ApplicationCommandInteractionOptionValue;
@@ -13,11 +12,12 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
-import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 public class DirectRollCommand implements ISlashCommand {
     private static final String ACTION_EXPRESSION = "expression";
+    private static final String LABEL_DELIMITER = "@";
     private final DiceParserHelper diceParserHelper;
 
     public DirectRollCommand() {
@@ -58,26 +58,68 @@ public class DirectRollCommand implements ISlashCommand {
         String commandString = event.getCommandString();
         log.info("Application command: {}", commandString);
 
-        if (event.getOption(ACTION_EXPRESSION).isPresent()) {
-            ApplicationCommandInteractionOption options = event.getOption(ACTION_EXPRESSION).get();
-            String diceExpression = options.getValue()
+        Optional<ApplicationCommandInteractionOption> expressionOptional = event.getOption(ACTION_EXPRESSION);
+        if (expressionOptional.isPresent()) {
+            String commandParameter = expressionOptional
+                    .flatMap(ApplicationCommandInteractionOption::getValue)
                     .map(ApplicationCommandInteractionOptionValue::asString)
                     .orElseThrow();
-            String validationMessage = diceParserHelper.validateDiceExpression(diceExpression, "/custom_dice help");
+
+            String validationMessage = validate(commandParameter);
             if (validationMessage != null) {
                 log.info("Validation message: {}", validationMessage);
                 return event.reply(String.format("%s\n%s", commandString, validationMessage));
             }
+            String label;
+            String diceExpression;
+
+            if (commandParameter.contains(LABEL_DELIMITER)) {
+                String[] split = commandParameter.split(LABEL_DELIMITER);
+                label = split[1].trim();
+                diceExpression = split[0].trim();
+            } else {
+                label = null;
+                diceExpression = commandParameter;
+            }
             Metrics.incrementSlashStartMetricCounter(getName(), diceExpression);
 
-            List<DiceResult> results = diceParserHelper.roll(diceExpression);
-            results.forEach(d -> log.info(String.format("%s:%s -> %s: %s", getName(), diceExpression, d.getResultTitle(), d.getResultDetails())));
+            Answer answer = diceParserHelper.roll(diceExpression, label);
+            log.info(String.format("%s:%s -> %s", getName(), diceExpression, answer.toShortString()));
 
             return event.reply(commandString)
-                    .then(event.createResultMessageWithEventReference(results));
+                    .then(event.createResultMessageWithEventReference(answer));
 
         }
 
         return Mono.empty();
+    }
+
+    @VisibleForTesting
+    String validate(@NonNull String startOptionString) {
+        String label;
+        String diceExpression;
+
+        if (startOptionString.contains(LABEL_DELIMITER)) {
+            String[] split = startOptionString.split(LABEL_DELIMITER);
+            if (split.length != 2) {
+                return String.format("The button definition '%s' should have the diceExpression@Label", startOptionString);
+            }
+            label = split[1].trim();
+            diceExpression = split[0].trim();
+        } else {
+            label = startOptionString;
+            diceExpression = startOptionString;
+        }
+        if (label.length() > 80) {
+            return String.format("Label for '%s' is to long, max number of characters is 80", startOptionString);
+        }
+        if (label.isBlank()) {
+            return String.format("Label for '%s' requires a visible name", startOptionString);
+        }
+        if (diceExpression.isBlank()) {
+            return String.format("Dice expression for '%s' is empty", startOptionString);
+        }
+        return diceParserHelper.validateDiceExpression(diceExpression, "custom_dice help");
+
     }
 }

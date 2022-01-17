@@ -5,7 +5,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import de.janno.discord.cache.ButtonMessageCache;
 import de.janno.discord.dice.DiceParserHelper;
-import de.janno.discord.dice.DiceResult;
 import discord4j.core.object.command.ApplicationCommandInteractionOption;
 import discord4j.core.object.command.ApplicationCommandInteractionOptionValue;
 import discord4j.core.object.command.ApplicationCommandOption;
@@ -232,8 +231,13 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceCommand.Config,
     }
 
     @Override
-    protected List<DiceResult> getDiceResult(State state, Config config) {
-        return diceParserHelper.roll(state.getDiceExpression());
+    protected Answer getAnswer(State state, Config config) {
+        String label = config.getLabelAndExpression().stream()
+                .filter(ld -> !ld.getDiceExpression().equals(ld.getLabel()))
+                .filter(ld -> ld.getDiceExpression().equals(state.getDiceExpression()))
+                .map(LabelAndDiceExpression::getLabel)
+                .findFirst().orElse(null);
+        return diceParserHelper.roll(state.getDiceExpression(), label);
     }
 
     @Override

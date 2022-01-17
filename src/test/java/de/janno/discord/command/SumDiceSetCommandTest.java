@@ -1,7 +1,6 @@
 package de.janno.discord.command;
 
 import com.google.common.collect.ImmutableMap;
-import de.janno.discord.dice.DiceResult;
 import de.janno.discord.dice.DiceUtils;
 import discord4j.core.object.component.LayoutComponent;
 import discord4j.discordjson.json.ApplicationCommandOptionData;
@@ -282,28 +281,28 @@ class SumDiceSetCommandTest {
 
     @Test
     void rollDice_1d4plus1d6plus10() {
-        List<DiceResult> res = underTest.getDiceResult(new SumDiceSetCommand.State("roll", ImmutableMap.of(
+        Answer res = underTest.getAnswer(new SumDiceSetCommand.State("roll", ImmutableMap.of(
                 "d4", 1,
                 "d6", 1,
                 "m", 10
         )), new SumDiceSetCommand.Config());
 
-        assertThat(res).hasSize(1);
-        assertThat(res.get(0).getResultTitle()).isEqualTo("1d4 +1d6 +10 = 12");
-        assertThat(res.get(0).getResultDetails()).isEqualTo("[1, 1, 10]");
+        assertThat(res.getFields()).hasSize(0);
+        assertThat(res.getTitle()).isEqualTo("1d4 +1d6 +10 = 12");
+        assertThat(res.getContent()).isEqualTo("[1, 1, 10]");
     }
 
     @Test
     void rollDice_minus1d4plus1d6minux10() {
-        List<DiceResult> res = underTest.getDiceResult(new SumDiceSetCommand.State("roll", ImmutableMap.of(
+        Answer res = underTest.getAnswer(new SumDiceSetCommand.State("roll", ImmutableMap.of(
                 "d4", -1,
                 "d6", 1,
                 "m", -10
         )), new SumDiceSetCommand.Config());
 
-        assertThat(res).hasSize(1);
-        assertThat(res.get(0).getResultTitle()).isEqualTo("-1d4 +1d6 -10 = -10");
-        assertThat(res.get(0).getResultDetails()).isEqualTo("[-1, 1, -10]");
+        assertThat(res.getFields()).hasSize(0);
+        assertThat(res.getTitle()).isEqualTo("-1d4 +1d6 -10 = -10");
+        assertThat(res.getContent()).isEqualTo("[-1, 1, -10]");
     }
 
     @Test

@@ -3,7 +3,6 @@ package de.janno.discord.command;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import de.janno.discord.cache.ButtonMessageCache;
-import de.janno.discord.dice.DiceResult;
 import de.janno.discord.dice.DiceUtils;
 import discord4j.core.object.component.LayoutComponent;
 import discord4j.discordjson.json.ApplicationCommandOptionData;
@@ -74,20 +73,20 @@ class PoolTargetCommandTest {
 
     @Test
     void getDiceResult_withoutReroll() {
-        List<DiceResult> res = underTest.getDiceResult(new PoolTargetCommand.State(6, 3, false),
+        Answer res = underTest.getAnswer(new PoolTargetCommand.State(6, 3, false),
                 new PoolTargetCommand.Config(6, 15, ImmutableSet.of(6), ImmutableSet.of(1), "ask"));
-        assertThat(res).hasSize(1);
-        assertThat(res.get(0).getResultTitle()).isEqualTo("6d6 = -1");
-        assertThat(res.get(0).getResultDetails()).isEqualTo("[**1**,**1**,**1**,2,**5**,**6**] ≥3 = -1");
+        assertThat(res.getFields()).hasSize(0);
+        assertThat(res.getTitle()).isEqualTo("6d6 = -1");
+        assertThat(res.getContent()).isEqualTo("[**1**,**1**,**1**,2,**5**,**6**] ≥3 = -1");
     }
 
     @Test
     void getDiceResult_withReroll() {
-        List<DiceResult> res = underTest.getDiceResult(new PoolTargetCommand.State(6, 3, true),
+        Answer res = underTest.getAnswer(new PoolTargetCommand.State(6, 3, true),
                 new PoolTargetCommand.Config(6, 15, ImmutableSet.of(6), ImmutableSet.of(1), "ask"));
-        assertThat(res).hasSize(1);
-        assertThat(res.get(0).getResultTitle()).isEqualTo("6d6 = 1");
-        assertThat(res.get(0).getResultDetails()).isEqualTo("[**1**,**1**,**1**,2,2,**5**,**6**,**6**,**6**] ≥3 = 1");
+        assertThat(res.getFields()).hasSize(0);
+        assertThat(res.getTitle()).isEqualTo("6d6 = 1");
+        assertThat(res.getContent()).isEqualTo("[**1**,**1**,**1**,2,2,**5**,**6**,**6**,**6**] ≥3 = 1");
     }
 
     @Test
@@ -465,8 +464,8 @@ class PoolTargetCommandTest {
                 any()
         );
         verify(buttonEventAdaptor).deleteMessage(1L);
-        verify(buttonEventAdaptor).createResultMessageWithEventReference(eq(ImmutableList.of(new DiceResult("15d10 = -4",
-                "[**1**,**1**,**1**,**2**,**2**,**2**,3,4,5,5,6,6,6,6,7,**10**,**10**] ≥8 = -4"))));
+        verify(buttonEventAdaptor).createResultMessageWithEventReference(eq(new Answer("15d10 = -4",
+                "[**1**,**1**,**1**,**2**,**2**,**2**,3,4,5,5,6,6,6,6,7,**10**,**10**] ≥8 = -4", ImmutableList.of())));
         assertThat(underTest.getButtonMessageCache())
                 .hasSize(1)
                 .containsEntry(1L, ImmutableSet.of(new ButtonMessageCache.ButtonWithConfigHash(2L, -574285364)));
@@ -503,8 +502,8 @@ class PoolTargetCommandTest {
                 any()
         );
         verify(buttonEventAdaptor).deleteMessage(1L);
-        verify(buttonEventAdaptor).createResultMessageWithEventReference(eq(ImmutableList.of(new DiceResult("15d10 = -4",
-                "[**1**,**1**,**1**,**2**,**2**,**2**,3,4,5,5,6,6,6,6,7,**10**,**10**] ≥8 = -4"))));
+        verify(buttonEventAdaptor).createResultMessageWithEventReference(eq(new Answer("15d10 = -4",
+                "[**1**,**1**,**1**,**2**,**2**,**2**,3,4,5,5,6,6,6,6,7,**10**,**10**] ≥8 = -4", ImmutableList.of())));
         assertThat(underTest.getButtonMessageCache())
                 .hasSize(1)
                 .containsEntry(1L, ImmutableSet.of(new ButtonMessageCache.ButtonWithConfigHash(2L, 840368694)));

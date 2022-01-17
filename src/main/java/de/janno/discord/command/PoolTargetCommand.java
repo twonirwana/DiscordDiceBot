@@ -5,7 +5,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import de.janno.discord.cache.ButtonMessageCache;
-import de.janno.discord.dice.DiceResult;
 import de.janno.discord.dice.DiceUtils;
 import discord4j.core.object.command.ApplicationCommandInteractionOption;
 import discord4j.core.object.command.ApplicationCommandInteractionOptionValue;
@@ -139,7 +138,7 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetCommand.Config,
     }
 
     @Override
-    protected List<DiceResult> getDiceResult(State state, Config config) {
+    protected Answer getAnswer(State state, Config config) {
         List<Integer> rollResult = diceUtils.rollDiceOfType(state.getDicePool(), config.getDiceSides());
         if (state.getDoReroll()) {
             rollResult = diceUtils.explodingReroll(config.getDiceSides(), rollResult, config.getRerollSet());
@@ -157,7 +156,7 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetCommand.Config,
         }
         String details = String.format("%s ≥%d = %s", markIn(rollResult, toMark), state.getTargetNumber(), totalResults);
         String title = String.format("%dd%d = %d", state.getDicePool(), config.getDiceSides(), totalResults);
-        return ImmutableList.of(new DiceResult(title, details));
+        return new Answer(title, details, ImmutableList.of());
     }
 
     @Override

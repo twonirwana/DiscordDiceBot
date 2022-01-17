@@ -6,7 +6,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import de.janno.discord.cache.ButtonMessageCache;
-import de.janno.discord.dice.DiceResult;
 import de.janno.discord.dice.DiceUtils;
 import discord4j.core.object.command.ApplicationCommandInteractionOption;
 import discord4j.core.object.command.ApplicationCommandInteractionOptionValue;
@@ -128,53 +127,52 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesCommand
     }
 
     @Override
-    protected List<DiceResult> getDiceResult(State state, Config config) {
+    protected Answer getAnswer(State state, Config config) {
         List<Integer> rollResult = diceUtils.rollDiceOfType(state.getNumberOfDice(), config.getDiceSides()).stream()
                 .sorted()
                 .collect(Collectors.toList());
 
-        DiceResult result;
-        if (GLITCH_OPTION_HALF_ONES.equals(config.getGlitchOption())) {
-            result = halfOnesGlitch(state.getNumberOfDice(), config.getDiceSides(), config.getTarget(), rollResult);
-        } else if (GLITCH_COUNT_ONES.equals(config.getGlitchOption())) {
-            result = countOnesGlitch(state.getNumberOfDice(), config.getDiceSides(), config.getTarget(), rollResult);
-        } else if (GLITCH_SUBTRACT_ONES.equals(config.getGlitchOption())) {
-            result = subtractOnesGlitch(state.getNumberOfDice(), config.getDiceSides(), config.getTarget(), rollResult);
-        } else {
-            result = noneGlitch(state.getNumberOfDice(), config.getDiceSides(), config.getTarget(), rollResult);
+        switch (config.getGlitchOption()) {
+            case GLITCH_OPTION_HALF_ONES:
+                return halfOnesGlitch(state.getNumberOfDice(), config.getDiceSides(), config.getTarget(), rollResult);
+            case GLITCH_COUNT_ONES:
+                return countOnesGlitch(state.getNumberOfDice(), config.getDiceSides(), config.getTarget(), rollResult);
+            case GLITCH_SUBTRACT_ONES:
+                return subtractOnesGlitch(state.getNumberOfDice(), config.getDiceSides(), config.getTarget(), rollResult);
+            default:
+                return noneGlitch(state.getNumberOfDice(), config.getDiceSides(), config.getTarget(), rollResult);
         }
-        return ImmutableList.of(result);
     }
 
-    private DiceResult noneGlitch(int numberOfDice, int sidesOfDie, int targetNumber, List<Integer> rollResult) {
+    private Answer noneGlitch(int numberOfDice, int sidesOfDie, int targetNumber, List<Integer> rollResult) {
         int numberOfSuccesses = DiceUtils.numberOfDiceResultsGreaterEqual(rollResult, targetNumber);
         Set<Integer> toMark = IntStream.range(targetNumber, sidesOfDie + 1).boxed().collect(Collectors.toSet());
         String details = String.format("%s ≥%d = %s", markIn(rollResult, toMark), targetNumber, numberOfSuccesses);
         String title = String.format("%dd%d = %d", numberOfDice, sidesOfDie, numberOfSuccesses);
-        return new DiceResult(title, details);
+        return new Answer(title, details, ImmutableList.of());
     }
 
-    private DiceResult countOnesGlitch(int numberOfDice, int sidesOfDie, int targetNumber, List<Integer> rollResult) {
+    private Answer countOnesGlitch(int numberOfDice, int sidesOfDie, int targetNumber, List<Integer> rollResult) {
         int numberOfSuccesses = DiceUtils.numberOfDiceResultsGreaterEqual(rollResult, targetNumber);
         int numberOfOnes = DiceUtils.numberOfDiceResultsEqual(rollResult, ImmutableSet.of(1));
         Set<Integer> toMark = IntStream.range(targetNumber, sidesOfDie + 1).boxed().collect(Collectors.toSet());
         toMark.add(1);
         String details = String.format("%s ≥%d = %s", markIn(rollResult, toMark), targetNumber, numberOfSuccesses);
         String title = String.format("%dd%d = %d successes and %d ones", numberOfDice, sidesOfDie, numberOfSuccesses, numberOfOnes);
-        return new DiceResult(title, details);
+        return new Answer(title, details, ImmutableList.of());
     }
 
-    private DiceResult subtractOnesGlitch(int numberOfDice, int sidesOfDie, int targetNumber, List<Integer> rollResult) {
+    private Answer subtractOnesGlitch(int numberOfDice, int sidesOfDie, int targetNumber, List<Integer> rollResult) {
         int numberOfSuccesses = DiceUtils.numberOfDiceResultsGreaterEqual(rollResult, targetNumber);
         int numberOfOnes = DiceUtils.numberOfDiceResultsEqual(rollResult, ImmutableSet.of(1));
         Set<Integer> toMark = IntStream.range(targetNumber, sidesOfDie + 1).boxed().collect(Collectors.toSet());
         toMark.add(1);
         String details = String.format("%s ≥%d -1s = %s", markIn(rollResult, toMark), targetNumber, numberOfSuccesses - numberOfOnes);
         String title = String.format("%dd%d = %d", numberOfDice, sidesOfDie, numberOfSuccesses - numberOfOnes);
-        return new DiceResult(title, details);
+        return new Answer(title, details, ImmutableList.of());
     }
 
-    private DiceResult halfOnesGlitch(int numberOfDice, int sidesOfDie, int targetNumber, List<Integer> rollResult) {
+    private Answer halfOnesGlitch(int numberOfDice, int sidesOfDie, int targetNumber, List<Integer> rollResult) {
         boolean isGlitch = DiceUtils.numberOfDiceResultsEqual(rollResult, ImmutableSet.of(1)) > (numberOfDice / 2);
         int numberOfSuccesses = DiceUtils.numberOfDiceResultsGreaterEqual(rollResult, targetNumber);
         String glitchDescription = isGlitch ? " and more then half of all dice show 1s" : "";
@@ -185,7 +183,7 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesCommand
         String details = String.format("%s ≥%d = %s%s", markIn(rollResult, toMark), targetNumber, numberOfSuccesses, glitchDescription);
         String glitch = isGlitch ? " - Glitch!" : "";
         String title = String.format("%dd%d = %d%s", numberOfDice, sidesOfDie, numberOfSuccesses, glitch);
-        return new DiceResult(title, details);
+        return new Answer(title, details, ImmutableList.of());
     }
 
     @Override
@@ -200,12 +198,13 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesCommand
 
     private String getGlitchDescription(Config config) {
         String glitchOption = config.getGlitchOption();
-        if (GLITCH_OPTION_HALF_ONES.equals(glitchOption)) {
-            return " and check for more then half of dice 1s";
-        } else if (GLITCH_COUNT_ONES.equals(glitchOption)) {
-            return " and count the 1s";
-        } else if (GLITCH_SUBTRACT_ONES.equals(glitchOption)) {
-            return " minus 1s";
+        switch (glitchOption) {
+            case GLITCH_OPTION_HALF_ONES:
+                return " and check for more then half of dice 1s";
+            case GLITCH_COUNT_ONES:
+                return " and count the 1s";
+            case GLITCH_SUBTRACT_ONES:
+                return " minus 1s";
         }
         return "";
     }
