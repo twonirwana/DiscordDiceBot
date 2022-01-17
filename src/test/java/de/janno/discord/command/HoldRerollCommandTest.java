@@ -2,7 +2,6 @@ package de.janno.discord.command;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import de.janno.discord.dice.DiceResult;
 import de.janno.discord.dice.DiceUtils;
 import discord4j.core.object.component.LayoutComponent;
 import discord4j.discordjson.json.ApplicationCommandOptionData;
@@ -54,28 +53,28 @@ class HoldRerollCommandTest {
 
     @Test
     void getDiceResult_withoutReroll() {
-        List<DiceResult> res = underTest.getDiceResult(new HoldRerollCommand.State("finish", ImmutableList.of(1, 2, 3, 4, 5, 6), 0),
+        Answer res = underTest.getAnswer(new HoldRerollCommand.State("finish", ImmutableList.of(1, 2, 3, 4, 5, 6), 0),
                 new HoldRerollCommand.Config(
                         6,
                         ImmutableSet.of(2, 3, 4),
                         ImmutableSet.of(5, 6),
                         ImmutableSet.of(1)));
-        assertThat(res).hasSize(1);
-        assertThat(res.get(0).getResultTitle()).isEqualTo("Success: 2 and Failure: 1");
-        assertThat(res.get(0).getResultDetails()).isEqualTo("[**1**,2,3,4,**5**,**6**]");
+        assertThat(res.getFields()).hasSize(0);
+        assertThat(res.getTitle()).isEqualTo("Success: 2 and Failure: 1");
+        assertThat(res.getContent()).isEqualTo("[**1**,2,3,4,**5**,**6**]");
     }
 
     @Test
     void getDiceResult_withReroll() {
-        List<DiceResult> res = underTest.getDiceResult(new HoldRerollCommand.State("finish", ImmutableList.of(1, 2, 3, 4, 5, 6), 2),
+        Answer res = underTest.getAnswer(new HoldRerollCommand.State("finish", ImmutableList.of(1, 2, 3, 4, 5, 6), 2),
                 new HoldRerollCommand.Config(
                         6,
                         ImmutableSet.of(2, 3, 4),
                         ImmutableSet.of(5, 6),
                         ImmutableSet.of(1)));
-        assertThat(res).hasSize(1);
-        assertThat(res.get(0).getResultTitle()).isEqualTo("Success: 2, Failure: 1 and Rerolls: 2");
-        assertThat(res.get(0).getResultDetails()).isEqualTo("[**1**,2,3,4,**5**,**6**]");
+        assertThat(res.getFields()).hasSize(0);
+        assertThat(res.getTitle()).isEqualTo("Success: 2, Failure: 1 and Rerolls: 2");
+        assertThat(res.getContent()).isEqualTo("[**1**,2,3,4,**5**,**6**]");
     }
 
     @Test

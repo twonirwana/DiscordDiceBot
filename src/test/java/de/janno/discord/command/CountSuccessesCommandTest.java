@@ -3,7 +3,6 @@ package de.janno.discord.command;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import de.janno.discord.cache.ButtonMessageCache;
-import de.janno.discord.dice.DiceResult;
 import de.janno.discord.dice.DiceUtils;
 import discord4j.core.object.component.LayoutComponent;
 import discord4j.discordjson.json.ApplicationCommandOptionData;
@@ -132,47 +131,47 @@ class CountSuccessesCommandTest {
 
     @Test
     void rollDice() {
-        List<DiceResult> results = underTest.getDiceResult(new CountSuccessesCommand.State(6), new CountSuccessesCommand.Config(6, 6, "no_glitch", 15));
+        Answer results = underTest.getAnswer(new CountSuccessesCommand.State(6), new CountSuccessesCommand.Config(6, 6, "no_glitch", 15));
 
-        assertThat(results).hasSize(1);
-        assertThat(results.get(0).getResultTitle()).isEqualTo("6d6 = 1");
-        assertThat(results.get(0).getResultDetails()).isEqualTo("[1,1,1,1,5,**6**] ≥6 = 1");
+        assertThat(results.getFields()).hasSize(0);
+        assertThat(results.getTitle()).isEqualTo("6d6 = 1");
+        assertThat(results.getContent()).isEqualTo("[1,1,1,1,5,**6**] ≥6 = 1");
     }
 
     @Test
     void rollDice_halfDiceOne_glitch() {
-        List<DiceResult> results = underTest.getDiceResult(new CountSuccessesCommand.State(6), new CountSuccessesCommand.Config(6, 6, "half_dice_one", 15));
+        Answer results = underTest.getAnswer(new CountSuccessesCommand.State(6), new CountSuccessesCommand.Config(6, 6, "half_dice_one", 15));
 
-        assertThat(results).hasSize(1);
-        assertThat(results.get(0).getResultTitle()).isEqualTo("6d6 = 1 - Glitch!");
-        assertThat(results.get(0).getResultDetails()).isEqualTo("[**1**,**1**,**1**,**1**,5,**6**] ≥6 = 1 and more then half of all dice show 1s");
+        assertThat(results.getFields()).hasSize(0);
+        assertThat(results.getTitle()).isEqualTo("6d6 = 1 - Glitch!");
+        assertThat(results.getContent()).isEqualTo("[**1**,**1**,**1**,**1**,5,**6**] ≥6 = 1 and more then half of all dice show 1s");
     }
 
     @Test
     void rollDice_halfDiceOne_noGlitch() {
-        List<DiceResult> results = underTest.getDiceResult(new CountSuccessesCommand.State(8), new CountSuccessesCommand.Config(6, 6, "half_dice_one", 15));
+        Answer results = underTest.getAnswer(new CountSuccessesCommand.State(8), new CountSuccessesCommand.Config(6, 6, "half_dice_one", 15));
 
-        assertThat(results).hasSize(1);
-        assertThat(results.get(0).getResultTitle()).isEqualTo("8d6 = 3");
-        assertThat(results.get(0).getResultDetails()).isEqualTo("[1,1,1,1,5,**6**,**6**,**6**] ≥6 = 3");
+        assertThat(results.getFields()).hasSize(0);
+        assertThat(results.getTitle()).isEqualTo("8d6 = 3");
+        assertThat(results.getContent()).isEqualTo("[1,1,1,1,5,**6**,**6**,**6**] ≥6 = 3");
     }
 
     @Test
     void rollDice_countOnes() {
-        List<DiceResult> results = underTest.getDiceResult(new CountSuccessesCommand.State(6), new CountSuccessesCommand.Config(6, 6, "count_ones", 15));
+        Answer results = underTest.getAnswer(new CountSuccessesCommand.State(6), new CountSuccessesCommand.Config(6, 6, "count_ones", 15));
 
-        assertThat(results).hasSize(1);
-        assertThat(results.get(0).getResultTitle()).isEqualTo("6d6 = 1 successes and 4 ones");
-        assertThat(results.get(0).getResultDetails()).isEqualTo("[**1**,**1**,**1**,**1**,5,**6**] ≥6 = 1");
+        assertThat(results.getFields()).hasSize(0);
+        assertThat(results.getTitle()).isEqualTo("6d6 = 1 successes and 4 ones");
+        assertThat(results.getContent()).isEqualTo("[**1**,**1**,**1**,**1**,5,**6**] ≥6 = 1");
     }
 
     @Test
     void rollDice_subtractOnes() {
-        List<DiceResult> results = underTest.getDiceResult(new CountSuccessesCommand.State(6), new CountSuccessesCommand.Config(6, 6, "subtract_ones", 15));
+        Answer results = underTest.getAnswer(new CountSuccessesCommand.State(6), new CountSuccessesCommand.Config(6, 6, "subtract_ones", 15));
 
-        assertThat(results).hasSize(1);
-        assertThat(results.get(0).getResultTitle()).isEqualTo("6d6 = -3");
-        assertThat(results.get(0).getResultDetails()).isEqualTo("[**1**,**1**,**1**,**1**,5,**6**] ≥6 -1s = -3");
+        assertThat(results.getFields()).hasSize(0);
+        assertThat(results.getTitle()).isEqualTo("6d6 = -3");
+        assertThat(results.getContent()).isEqualTo("[**1**,**1**,**1**,**1**,5,**6**] ≥6 -1s = -3");
     }
 
     @Test
@@ -225,8 +224,8 @@ class CountSuccessesCommandTest {
                 any()
         );
         verify(buttonEventAdaptor).deleteMessage(1L);
-        verify(buttonEventAdaptor).createResultMessageWithEventReference(eq(ImmutableList.of(new DiceResult("6d6 = 2 - Glitch!",
-                "[**1**,**1**,**1**,**1**,**5**,**6**] ≥4 = 2 and more then half of all dice show 1s"))));
+        verify(buttonEventAdaptor).createResultMessageWithEventReference(eq(new Answer("6d6 = 2 - Glitch!",
+                "[**1**,**1**,**1**,**1**,**5**,**6**] ≥4 = 2 and more then half of all dice show 1s", ImmutableList.of())));
         assertThat(underTest.getButtonMessageCache())
                 .hasSize(1)
                 .containsEntry(1L, ImmutableSet.of(new ButtonMessageCache.ButtonWithConfigHash(2L, -259414907)));
@@ -262,8 +261,8 @@ class CountSuccessesCommandTest {
                 any()
         );
         verify(buttonEventAdaptor, never()).deleteMessage(anyLong());
-        verify(buttonEventAdaptor).createResultMessageWithEventReference(eq(ImmutableList.of(new DiceResult("6d6 = 2 - Glitch!",
-                "[**1**,**1**,**1**,**1**,**5**,**6**] ≥4 = 2 and more then half of all dice show 1s"))));
+        verify(buttonEventAdaptor).createResultMessageWithEventReference(eq(new Answer("6d6 = 2 - Glitch!",
+                "[**1**,**1**,**1**,**1**,**5**,**6**] ≥4 = 2 and more then half of all dice show 1s", ImmutableList.of())));
         assertThat(underTest.getButtonMessageCache())
                 .hasSize(1)
                 .containsEntry(1L, ImmutableSet.of(new ButtonMessageCache.ButtonWithConfigHash(2L, -259414907)));

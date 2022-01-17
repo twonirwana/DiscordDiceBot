@@ -1,13 +1,12 @@
 package de.janno.discord.dice;
 
-import com.google.common.collect.ImmutableList;
+import de.janno.discord.command.Answer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import java.util.List;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -69,15 +68,17 @@ class DiceParserHelperTest {
 
     @Test
     void roll_3x3d6() {
-        List<DiceResult> res = diceParserHelper.roll("3x[3d6]");
+        Answer res = diceParserHelper.roll("3x[3d6]");
 
-        assertThat(res).hasSize(3);
+        assertThat(res.getFields()).hasSize(3);
+        assertThat(res.getContent()).isNull();
     }
 
     @Test
     void roll_3d6() {
-        List<DiceResult> res = diceParserHelper.roll("3d6");
+        Answer res = diceParserHelper.roll("3d6");
 
-        assertThat(res).hasSize(1);
+        assertThat(res.getFields()).hasSize(0);
+        assertThat(res.getContent()).isNotEmpty();
     }
 }

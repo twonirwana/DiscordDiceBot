@@ -1,6 +1,5 @@
 package de.janno.discord.command;
 
-import de.janno.discord.dice.DiceResult;
 import de.janno.discord.dice.DiceUtils;
 import discord4j.core.object.component.LayoutComponent;
 import discord4j.discordjson.json.ApplicationCommandOptionData;
@@ -67,38 +66,38 @@ class FateCommandTest {
 
     @Test
     void getDiceResult_simple() {
-        List<DiceResult> res = underTest.getDiceResult(new FateCommand.State(null), new FateCommand.Config("simple"));
+        Answer res = underTest.getAnswer(new FateCommand.State(null), new FateCommand.Config("simple"));
 
-        assertThat(res).hasSize(1);
-        assertThat(res.get(0).getResultTitle()).isEqualTo("4dF = -1");
-        assertThat(res.get(0).getResultDetails()).isEqualTo("[−,▢,＋,−]");
+        assertThat(res.getFields()).hasSize(0);
+        assertThat(res.getTitle()).isEqualTo("4dF = -1");
+        assertThat(res.getContent()).isEqualTo("[−,▢,＋,−]");
     }
 
     @Test
     void getDiceResult_modifier_minus1() {
-        List<DiceResult> res = underTest.getDiceResult(new FateCommand.State(-1), new FateCommand.Config("with_modifier"));
+        Answer res = underTest.getAnswer(new FateCommand.State(-1), new FateCommand.Config("with_modifier"));
 
-        assertThat(res).hasSize(1);
-        assertThat(res.get(0).getResultTitle()).isEqualTo("4dF -1 = -2");
-        assertThat(res.get(0).getResultDetails()).isEqualTo("[−,▢,＋,−]");
+        assertThat(res.getFields()).hasSize(0);
+        assertThat(res.getTitle()).isEqualTo("4dF -1 = -2");
+        assertThat(res.getContent()).isEqualTo("[−,▢,＋,−]");
     }
 
     @Test
     void getDiceResult_modifier_plus1() {
-        List<DiceResult> res = underTest.getDiceResult(new FateCommand.State(1), new FateCommand.Config("with_modifier"));
+        Answer res = underTest.getAnswer(new FateCommand.State(1), new FateCommand.Config("with_modifier"));
 
-        assertThat(res).hasSize(1);
-        assertThat(res.get(0).getResultTitle()).isEqualTo("4dF +1 = 0");
-        assertThat(res.get(0).getResultDetails()).isEqualTo("[−,▢,＋,−]");
+        assertThat(res.getFields()).hasSize(0);
+        assertThat(res.getTitle()).isEqualTo("4dF +1 = 0");
+        assertThat(res.getContent()).isEqualTo("[−,▢,＋,−]");
     }
 
     @Test
     void getDiceResult_modifier_0() {
-        List<DiceResult> res = underTest.getDiceResult(new FateCommand.State(0), new FateCommand.Config("with_modifier"));
+        Answer res = underTest.getAnswer(new FateCommand.State(0), new FateCommand.Config("with_modifier"));
 
-        assertThat(res).hasSize(1);
-        assertThat(res.get(0).getResultTitle()).isEqualTo("4dF = -1");
-        assertThat(res.get(0).getResultDetails()).isEqualTo("[−,▢,＋,−]");
+        assertThat(res.getFields()).hasSize(0);
+        assertThat(res.getTitle()).isEqualTo("4dF = -1");
+        assertThat(res.getContent()).isEqualTo("[−,▢,＋,−]");
     }
 
     @Test
@@ -210,7 +209,7 @@ class FateCommandTest {
     }
 
     @Test
-    void editButtonMessage(){
+    void editButtonMessage() {
         assertThat(underTest.getEditButtonMessage(new FateCommand.State(2), new FateCommand.Config("with_modifier"))).isNull();
     }
 }

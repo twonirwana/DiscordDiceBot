@@ -5,7 +5,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import de.janno.discord.cache.ButtonMessageCache;
-import de.janno.discord.dice.DiceResult;
 import de.janno.discord.dice.DiceUtils;
 import discord4j.core.object.command.ApplicationCommandInteractionOption;
 import discord4j.core.object.component.ActionRow;
@@ -110,7 +109,7 @@ public class SumDiceSetCommand extends AbstractCommand<SumDiceSetCommand.Config,
     }
 
     @Override
-    protected List<DiceResult> getDiceResult(State state, Config config) {
+    protected Answer getAnswer(State state, Config config) {
         List<Integer> diceResultValues = state.getDiceSetMap().entrySet().stream()
                 .sorted(Comparator.comparing(e -> {
                     if (e.getKey().contains(DICE_SYMBOL)) {
@@ -136,8 +135,7 @@ public class SumDiceSetCommand extends AbstractCommand<SumDiceSetCommand.Config,
                 .collect(Collectors.toList());
         long sumResult = diceResultValues.stream().mapToLong(Integer::longValue).sum();
         String title = parseDiceMapToMessageString(state.getDiceSetMap());
-        DiceResult diceResult = new DiceResult(String.format("%s = %d", title, sumResult), diceResultValues.toString());
-        return ImmutableList.of(diceResult);
+        return new Answer(String.format("%s = %d", title, sumResult), diceResultValues.toString(), ImmutableList.of());
     }
 
     private int limit(int input) {

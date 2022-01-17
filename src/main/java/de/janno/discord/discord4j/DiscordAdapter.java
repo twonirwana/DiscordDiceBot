@@ -1,9 +1,9 @@
 package de.janno.discord.discord4j;
 
-import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
+import de.janno.discord.command.Answer;
 import de.janno.discord.command.IDiscordAdapter;
-import de.janno.discord.dice.DiceResult;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.object.command.ApplicationCommandInteractionOption;
 import discord4j.core.object.command.ApplicationCommandInteractionOptionValue;
@@ -31,16 +31,6 @@ public abstract class DiscordAdapter implements IDiscordAdapter {
         return new String(in.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8);
     }
 
-    private static EmbedCreateSpec createEmbedMessageWithReference(
-            @NonNull DiceResult diceResult,
-            @NonNull Member rollRequester) {
-        return EmbedCreateSpec.builder()
-                .title(StringUtils.abbreviate(encodeUTF8(diceResult.getResultTitle()), 256)) //https://discord.com/developers/docs/resources/channel#embed-limits
-                .author(rollRequester.getDisplayName(), null, rollRequester.getAvatarUrl())
-                .color(Color.of(rollRequester.getId().hashCode()))
-                .description(StringUtils.abbreviate(encodeUTF8(diceResult.getResultDetails()), 4096)) //https://discord.com/developers/docs/resources/channel#embed-limits
-                .build();
-    }
 
     public static String getSlashOptionsToString(ChatInputInteractionEvent event) {
         List<String> options = event.getOptions().stream()
@@ -58,24 +48,26 @@ public abstract class DiscordAdapter implements IDiscordAdapter {
     }
 
     protected EmbedCreateSpec createEmbedMessageWithReference(
-            @NonNull List<DiceResult> diceResults,
+            @NonNull Answer answer,
             @NonNull Member rollRequester) {
-        Preconditions.checkArgument(!diceResults.isEmpty(), "Results list empty");
-        if (diceResults.size() == 1) {
-            return createEmbedMessageWithReference(diceResults.get(0), rollRequester);
-        }
         EmbedCreateSpec.Builder builder = EmbedCreateSpec.builder()
-                .title(StringUtils.abbreviate(encodeUTF8("Multiple Results"), 256)) //https://discord.com/developers/docs/resources/channel#embed-limits
+                .title(StringUtils.abbreviate(encodeUTF8(answer.getTitle()), 256)) //https://discord.com/developers/docs/resources/channel#embed-limits
                 .author(rollRequester.getDisplayName(), null, rollRequester.getAvatarUrl())
                 .color(Color.of(rollRequester.getId().hashCode()));
-        if (diceResults.size() > 25) {
-            log.error("Number of dice results was {} and was reduced", diceResults.size());
+
+        if (!Strings.isNullOrEmpty(answer.getContent())) {
+            builder.description(StringUtils.abbreviate(encodeUTF8(answer.getContent()), 4096)); //https://discord.com/developers/docs/resources/channel#embed-limits
+
         }
-        List<DiceResult> limitedList = diceResults.stream().limit(25).collect(ImmutableList.toImmutableList()); //https://discord.com/developers/docs/resources/channel#embed-limits
-        for (DiceResult diceResult : limitedList) {
-            builder.addField(StringUtils.abbreviate(encodeUTF8(diceResult.getResultTitle()), 256), //https://discord.com/developers/docs/resources/channel#embed-limits
-                    StringUtils.abbreviate(encodeUTF8(diceResult.getResultDetails()), 1024), //https://discord.com/developers/docs/resources/channel#embed-limits
-                    false);
+
+        if (answer.getFields().size() > 25) {
+            log.error("Number of dice results was {} and was reduced", answer.getFields().size());
+        }
+        List<Answer.Field> limitedList = answer.getFields().stream().limit(25).collect(ImmutableList.toImmutableList()); //https://discord.com/developers/docs/resources/channel#embed-limits
+        for (Answer.Field field : limitedList) {
+            builder.addField(StringUtils.abbreviate(encodeUTF8(field.getName()), 256), //https://discord.com/developers/docs/resources/channel#embed-limits
+                    StringUtils.abbreviate(encodeUTF8(field.getValue()), 1024), //https://discord.com/developers/docs/resources/channel#embed-limits
+                    field.isInline());
         }
         return builder.build();
     }

@@ -4,7 +4,6 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import de.janno.discord.Metrics;
 import de.janno.discord.cache.ButtonMessageCache;
-import de.janno.discord.dice.DiceResult;
 import de.janno.discord.discord4j.ApplicationCommand;
 import discord4j.core.object.command.ApplicationCommandInteractionOption;
 import discord4j.core.object.command.ApplicationCommandOption;
@@ -20,8 +19,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import static de.janno.discord.dice.DiceUtils.MINUS;
 
 @Slf4j
 public abstract class AbstractCommand<C extends IConfig, S extends IState> implements ISlashCommand, IComponentInteractEventHandler {
@@ -88,13 +85,9 @@ public abstract class AbstractCommand<C extends IConfig, S extends IState> imple
 
         if (createAnswerMessage(state, config)) {
             Metrics.incrementButtonMetricCounter(getName(), config.toShortString());
-            List<DiceResult> result = getDiceResult(state, config);
-            result.forEach(d -> log.info(String.format("%s:%s -> %s: %s", getName(), config.toShortString(), d.getResultTitle(), d.getResultDetails()
-                    .replace("▢", "0")
-                    .replace("＋", "+")
-                    .replace(MINUS, "-")
-                    .replace("*", ""))));
-            actions.add(event.createResultMessageWithEventReference(result));
+            Answer answer = getAnswer(state, config);
+            log.info(String.format("%s:%s -> %s", getName(), config.toShortString(), answer.toShortString()));
+            actions.add(event.createResultMessageWithEventReference(answer));
         }
         if (copyButtonMessageToTheEnd(state, config)) {
             Mono<Long> newMessageIdMono = event.createButtonMessage(getButtonMessageWithState(state, config), getButtonLayoutWithState(state, config))
@@ -199,7 +192,7 @@ public abstract class AbstractCommand<C extends IConfig, S extends IState> imple
      */
     protected abstract String getButtonMessage(C config);
 
-    protected abstract List<DiceResult> getDiceResult(S state, C config);
+    protected abstract Answer getAnswer(S state, C config);
 
     /**
      * The button layout for the new button message, after a button event

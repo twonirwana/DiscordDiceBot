@@ -1,8 +1,8 @@
 package de.janno.discord.discord4j;
 
 import com.google.common.collect.ImmutableList;
+import de.janno.discord.command.Answer;
 import de.janno.discord.command.IButtonEventAdaptor;
-import de.janno.discord.dice.DiceResult;
 import discord4j.common.util.Snowflake;
 import discord4j.core.event.domain.interaction.ComponentInteractionEvent;
 import discord4j.core.object.component.LayoutComponent;
@@ -108,9 +108,9 @@ public class ButtonEventAdapter extends DiscordAdapter implements IButtonEventAd
     }
 
     @Override
-    public Mono<Void> createResultMessageWithEventReference(List<DiceResult> diceResults) {
+    public Mono<Void> createResultMessageWithEventReference(Answer answer) {
         return event.getInteraction().getChannel().ofType(TextChannel.class)
-                .flatMap(channel -> channel.createMessage(createEmbedMessageWithReference(diceResults, event.getInteraction().getMember().orElseThrow())))
+                .flatMap(channel -> channel.createMessage(createEmbedMessageWithReference(answer, event.getInteraction().getMember().orElseThrow())))
                 .onErrorResume(t -> {
                     log.error("Error on creating dice result message", t);
                     return Mono.empty();

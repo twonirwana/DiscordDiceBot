@@ -5,7 +5,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import de.janno.discord.cache.ButtonMessageCache;
-import de.janno.discord.dice.DiceResult;
 import de.janno.discord.dice.DiceUtils;
 import discord4j.core.object.command.ApplicationCommandInteractionOption;
 import discord4j.core.object.command.ApplicationCommandInteractionOptionValue;
@@ -19,7 +18,6 @@ import discord4j.discordjson.json.ApplicationCommandOptionData;
 import lombok.NonNull;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 
 import java.util.List;
@@ -114,7 +112,7 @@ public class FateCommand extends AbstractCommand<FateCommand.Config, FateCommand
     }
 
     @Override
-    protected List<DiceResult> getDiceResult(State state, Config config) {
+    protected Answer getAnswer(State state, Config config) {
         List<Integer> rollResult = diceUtils.rollFate();
 
         if (ACTION_MODIFIER_OPTION_MODIFIER.equals(config.getType()) && state.getModifier() != null) {
@@ -129,11 +127,11 @@ public class FateCommand extends AbstractCommand<FateCommand.Config, FateCommand
 
             String title = String.format("4dF%s = %d", modifierString, resultWithModifier);
             String details = DiceUtils.convertFateNumberToString(rollResult);
-            return ImmutableList.of(new DiceResult(title, details));
+            return new Answer(title, details, ImmutableList.of());
         } else {
             String title = String.format("4dF = %d", DiceUtils.fateResult(rollResult));
             String details = DiceUtils.convertFateNumberToString(rollResult);
-            return ImmutableList.of(new DiceResult(title, details));
+            return new Answer(title, details, ImmutableList.of());
         }
     }
 

@@ -2,7 +2,10 @@ package de.janno.discord.dice;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
+import de.janno.discord.command.Answer;
 import dev.diceroll.parser.ResultTree;
+import lombok.NonNull;
+import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
@@ -59,36 +62,39 @@ public class DiceParserHelper {
         return null;
     }
 
-    public List<DiceResult> roll(String input) {
+    public Answer roll(String input) {
         try {
             if (isMultipleRoll(input)) {
                 return rollMultipleWithDiceParser(input);
             } else {
-                return ImmutableList.of(rollWithDiceParser(input));
+                RollWithDetails rollWithDetails = rollWithDiceParser(input);
+                return new Answer(rollWithDetails.getRoll(), rollWithDetails.getDetails(), ImmutableList.of());
             }
         } catch (Throwable t) {
             log.error(String.format("Error in %s:", input), t);
-            return ImmutableList.of(new DiceResult("Error", "Could not execute the dice expression: " + input));
+            return new Answer("Error", String.format("Could not execute the dice expression: %s", input), ImmutableList.of());
         }
     }
 
-    private List<DiceResult> rollMultipleWithDiceParser(String input) {
+    private Answer rollMultipleWithDiceParser(String input) {
         int numberOfRolls = getNumberOfMultipleRolls(input);
         String innerExpression = getInnerDiceExpression(input);
-        return IntStream.range(0, numberOfRolls)
+        List<Answer.Field> fields = IntStream.range(0, numberOfRolls)
                 .mapToObj(i -> rollWithDiceParser(innerExpression))
+                .map(r -> new Answer.Field(r.roll, r.getDetails(), false))
                 .collect(ImmutableList.toImmutableList());
+        return new Answer("Multiple Results", null, fields);
     }
 
-    private DiceResult rollWithDiceParser(String input) {
+    private RollWithDetails rollWithDiceParser(String input) {
         try {
             ResultTree resultTree = dice.detailedRoll(input);
             String title = String.format("%s = %d", input, resultTree.getValue());
             String details = String.format("[%s]", getBaseResults(resultTree).stream().sorted().map(String::valueOf).collect(Collectors.joining(", ")));
-            return new DiceResult(title, details);
+            return new RollWithDetails(title, details);
         } catch (Throwable t) {
             log.error(String.format("DiceParser error in %s:", input), t);
-            return new DiceResult("Error", "Could not execute the dice expression: " + input);
+            return new RollWithDetails("Error", String.format("Could not execute the dice expression: %s", input));
         }
     }
 
@@ -103,6 +109,14 @@ public class DiceParserHelper {
         } catch (Throwable t) {
             return false;
         }
+    }
+
+    @Value
+    private static class RollWithDetails {
+        @NonNull
+        String roll;
+        @NonNull
+        String details;
     }
 
 }

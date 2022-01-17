@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import de.janno.discord.cache.ButtonMessageCache;
 import de.janno.discord.dice.DiceParserHelper;
-import de.janno.discord.dice.DiceResult;
 import de.janno.discord.dice.IDice;
 import dev.diceroll.parser.Dice;
 import dev.diceroll.parser.NDice;
@@ -147,12 +146,12 @@ class CustomDiceCommandTest {
     @Test
     void getDiceResult_1d6() {
         when(diceMock.detailedRoll("1d6")).thenReturn(new ResultTree(new NDice(6, 1), 3, ImmutableList.of()));
-        List<DiceResult> res = underTest.getDiceResult(new CustomDiceCommand.State("1d6"),
+        Answer res = underTest.getAnswer(new CustomDiceCommand.State("1d6"),
                 new CustomDiceCommand.Config(ImmutableList.of(new CustomDiceCommand.LabelAndDiceExpression("1d6", "1d6"))));
 
-        assertThat(res).hasSize(1);
-        assertThat(res.get(0).getResultTitle()).isEqualTo("1d6 = 3");
-        assertThat(res.get(0).getResultDetails()).isEqualTo("[3]");
+        assertThat(res.getFields()).hasSize(0);
+        assertThat(res.getTitle()).isEqualTo("1d6 = 3");
+        assertThat(res.getContent()).isEqualTo("[3]");
     }
 
     @Test
@@ -236,8 +235,8 @@ class CustomDiceCommandTest {
                 any()
         );
         verify(buttonEventAdaptor).deleteMessage(anyLong());
-        verify(buttonEventAdaptor).createResultMessageWithEventReference(eq(ImmutableList.of(new DiceResult("1d6 = 3",
-                "[3]"))));
+        verify(buttonEventAdaptor).createResultMessageWithEventReference(eq(new Answer("1d6 = 3",
+                "[3]", ImmutableList.of())));
         assertThat(underTest.getButtonMessageCache())
                 .hasSize(1)
                 .containsEntry(1L, ImmutableSet.of(new ButtonMessageCache.ButtonWithConfigHash(2L, 60)));
@@ -275,8 +274,8 @@ class CustomDiceCommandTest {
                 any()
         );
         verify(buttonEventAdaptor, never()).deleteMessage(anyLong());
-        verify(buttonEventAdaptor).createResultMessageWithEventReference(eq(ImmutableList.of(new DiceResult("1d6 = 3",
-                "[3]"))));
+        verify(buttonEventAdaptor).createResultMessageWithEventReference(eq(new Answer("1d6 = 3",
+                "[3]", ImmutableList.of())));
         assertThat(underTest.getButtonMessageCache())
                 .hasSize(1)
                 .containsEntry(1L, ImmutableSet.of(new ButtonMessageCache.ButtonWithConfigHash(2L, 60)));
