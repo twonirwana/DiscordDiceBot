@@ -15,6 +15,7 @@ import reactor.core.publisher.Mono;
 @Slf4j
 public class DirectRollCommand implements ISlashCommand {
     private static final String ACTION_EXPRESSION = "expression";
+    private static final String LABEL_DELIMITER = "@";
     private final DiceParserHelper diceParserHelper;
 
     public DirectRollCommand() {
@@ -57,17 +58,29 @@ public class DirectRollCommand implements ISlashCommand {
 
         if (event.getOption(ACTION_EXPRESSION).isPresent()) {
             ApplicationCommandInteractionOption options = event.getOption(ACTION_EXPRESSION).get();
-            String diceExpression = options.getValue()
+            String startOptionString = options.getValue()
                     .map(ApplicationCommandInteractionOptionValue::asString)
                     .orElseThrow();
-            String validationMessage = diceParserHelper.validateDiceExpression(diceExpression, "/custom_dice help");
+
+            String validationMessage = validate(startOptionString);
             if (validationMessage != null) {
                 log.info("Validation message: {}", validationMessage);
                 return event.reply(String.format("%s\n%s", commandString, validationMessage));
             }
+            String label;
+            String diceExpression;
+
+            if (startOptionString.contains(LABEL_DELIMITER)) {
+                String[] split = startOptionString.split(LABEL_DELIMITER);
+                label = split[1].trim();
+                diceExpression = split[0].trim();
+            } else {
+                label = null;
+                diceExpression = startOptionString;
+            }
             Metrics.incrementSlashStartMetricCounter(getName(), diceExpression);
 
-            Answer answer = diceParserHelper.roll(diceExpression);
+            Answer answer = diceParserHelper.roll(diceExpression, label);
             log.info(String.format("%s:%s -> %s", getName(), diceExpression, answer.toShortString()));
 
             return event.reply(commandString)
@@ -76,5 +89,33 @@ public class DirectRollCommand implements ISlashCommand {
         }
 
         return Mono.empty();
+    }
+
+    private String validate(String startOptionString) {
+        String label;
+        String diceExpression;
+
+        if (startOptionString.contains(LABEL_DELIMITER)) {
+            String[] split = startOptionString.split(LABEL_DELIMITER);
+            if (split.length != 2) {
+                return String.format("The button definition '%s' should have the diceExpression@Label", startOptionString);
+            }
+            label = split[1].trim();
+            diceExpression = split[0].trim();
+        } else {
+            label = startOptionString;
+            diceExpression = startOptionString;
+        }
+        if (label.length() > 80) {
+            return String.format("Label for '%s' is to long, max number of characters is 80", startOptionString);
+        }
+        if (label.isBlank()) {
+            return String.format("Label for '%s' requires a visible name", startOptionString);
+        }
+        if (diceExpression.isBlank()) {
+            return String.format("Dice expression for '%s' is empty", startOptionString);
+        }
+        return diceParserHelper.validateDiceExpression(diceExpression, "custom_dice help");
+
     }
 }

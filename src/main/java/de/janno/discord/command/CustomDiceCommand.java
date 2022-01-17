@@ -232,7 +232,12 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceCommand.Config,
 
     @Override
     protected Answer getAnswer(State state, Config config) {
-        return diceParserHelper.roll(state.getDiceExpression());
+        String label = config.getLabelAndExpression().stream()
+                .filter(ld -> !ld.getDiceExpression().equals(ld.getLabel()))
+                .filter(ld -> ld.getDiceExpression().equals(state.getDiceExpression()))
+                .map(LabelAndDiceExpression::getLabel)
+                .findFirst().orElse(null);
+        return diceParserHelper.roll(state.getDiceExpression(), label);
     }
 
     @Override

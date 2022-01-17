@@ -1,12 +1,14 @@
 package de.janno.discord.dice;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import de.janno.discord.command.Answer;
 import dev.diceroll.parser.ResultTree;
 import lombok.NonNull;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -62,28 +64,26 @@ public class DiceParserHelper {
         return null;
     }
 
-    public Answer roll(String input) {
+    public Answer roll(String input, @Nullable String label) {
         try {
             if (isMultipleRoll(input)) {
-                return rollMultipleWithDiceParser(input);
+                int numberOfRolls = getNumberOfMultipleRolls(input);
+                String innerExpression = getInnerDiceExpression(input);
+                List<Answer.Field> fields = IntStream.range(0, numberOfRolls)
+                        .mapToObj(i -> rollWithDiceParser(innerExpression))
+                        .map(r -> new Answer.Field(r.roll, r.getDetails(), false))
+                        .collect(ImmutableList.toImmutableList());
+                String title = Strings.isNullOrEmpty(label) ? "Multiple Results" : label;
+                return new Answer(title, null, fields);
             } else {
                 RollWithDetails rollWithDetails = rollWithDiceParser(input);
-                return new Answer(rollWithDetails.getRoll(), rollWithDetails.getDetails(), ImmutableList.of());
+                String title = Strings.isNullOrEmpty(label) ? rollWithDetails.getRoll() : String.format("%s: %s", label, rollWithDetails.getRoll());
+                return new Answer(title, rollWithDetails.getDetails(), ImmutableList.of());
             }
         } catch (Throwable t) {
             log.error(String.format("Error in %s:", input), t);
             return new Answer("Error", String.format("Could not execute the dice expression: %s", input), ImmutableList.of());
         }
-    }
-
-    private Answer rollMultipleWithDiceParser(String input) {
-        int numberOfRolls = getNumberOfMultipleRolls(input);
-        String innerExpression = getInnerDiceExpression(input);
-        List<Answer.Field> fields = IntStream.range(0, numberOfRolls)
-                .mapToObj(i -> rollWithDiceParser(innerExpression))
-                .map(r -> new Answer.Field(r.roll, r.getDetails(), false))
-                .collect(ImmutableList.toImmutableList());
-        return new Answer("Multiple Results", null, fields);
     }
 
     private RollWithDetails rollWithDiceParser(String input) {

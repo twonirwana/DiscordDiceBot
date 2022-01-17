@@ -24,7 +24,7 @@ public class Answer {
                 .map(Field::toShortString)
                 .collect(Collectors.toList());
 
-        return String.format("%s-%s %s", title,
+        return String.format("%s %s %s", title,
                 Strings.isNullOrEmpty(content) ? "" : content,
                 fieldStringList.isEmpty() ? "" : fieldStringList.toString());
     }
