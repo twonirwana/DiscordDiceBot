@@ -67,6 +67,7 @@ public class Discord4JClient {
                             @Override
                             @NonNull
                             public Publisher<?> onChatInputInteraction(@NonNull ChatInputInteractionEvent event) {
+                                log.trace("ChatInputEvent: {} from {}", event.getCommandName(), event.getInteraction().getUser().getUsername());
                                 return Flux.fromIterable(slashCommandRegistry.getSlashCommands())
                                         .filter(command -> command.getName().equals(event.getCommandName()))
                                         .next()
@@ -88,6 +89,7 @@ public class Discord4JClient {
                             @Override
                             @NonNull
                             public Publisher<?> onComponentInteraction(@NonNull ComponentInteractionEvent event) {
+                                log.trace("ComponentEvent: {} from {}", event.getCustomId(), event.getInteraction().getUser().getUsername());
                                 return Flux.fromIterable(slashCommandRegistry.getSlashCommands())
                                         .ofType(IComponentInteractEventHandler.class)
                                         .filter(command -> command.matchingComponentCustomId(event.getCustomId()))

@@ -30,11 +30,15 @@ public class SlashEventAdapter extends DiscordAdapter implements ISlashEventAdap
     private final ChatInputInteractionEvent event;
     private final Mono<Requester> requesterMono;
     private final long channelId;
+    private final String commandString;
 
     public SlashEventAdapter(ChatInputInteractionEvent event, Mono<Requester> requesterMono) {
         this.event = event;
         this.requesterMono = requesterMono;
         this.channelId = event.getInteraction().getChannelId().asLong();
+        this.commandString = String.format("`/%s %s`", event.getCommandName(), event.getOptions().stream()
+                .map(a -> optionToString(a.getName(), a.getOptions(), a.getValue().orElse(null)))
+                .collect(Collectors.joining(" ")));
     }
 
     @Override
@@ -125,12 +129,7 @@ public class SlashEventAdapter extends DiscordAdapter implements ISlashEventAdap
 
     @Override
     public String getCommandString() {
-        String options = event.getOptions().stream()
-                .map(a -> optionToString(a.getName(), a.getOptions(), a.getValue().orElse(null)))
-                .collect(Collectors.joining(" "));
-        return String.format("`/%s %s`", event.getCommandName(), options);
-
-
+        return commandString;
     }
 
     private String optionToString(@NonNull String name, @NonNull List<ApplicationCommandInteractionOption> options, @Nullable ApplicationCommandInteractionOptionValue value) {

@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import static de.janno.discord.command.CommandUtils.markIn;
 
@@ -280,11 +281,11 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesCommand
 
         @Override
         public String toShortString() {
-            return String.join(CONFIG_DELIMITER,
-                    String.valueOf(getDiceSides()),
-                    String.valueOf(getTarget()),
-                    getGlitchOption(),
-                    String.valueOf(getMaxNumberOfButtons()));
+            return Stream.of(String.valueOf(getDiceSides()),
+                            String.valueOf(getTarget()),
+                            getGlitchOption(),
+                            String.valueOf(getMaxNumberOfButtons()))
+                    .collect(Collectors.toList()).toString();
         }
     }
 

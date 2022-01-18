@@ -217,7 +217,7 @@ public class FateCommand extends AbstractCommand<FateCommand.Config, FateCommand
 
         @Override
         public String toShortString() {
-            return type;
+            return String.format("[%s]", type);
         }
     }
 

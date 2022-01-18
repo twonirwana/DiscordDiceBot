@@ -3,6 +3,7 @@ package de.janno.discord.command;
 import com.google.common.collect.ImmutableList;
 import de.janno.discord.api.Answer;
 import de.janno.discord.api.ISlashEventAdaptor;
+import de.janno.discord.api.Requester;
 import de.janno.discord.dice.DiceParserHelper;
 import de.janno.discord.dice.IDice;
 import dev.diceroll.parser.Dice;
@@ -90,18 +91,19 @@ class DirectRollCommandTest {
         when(slashEventAdaptor.deleteMessage(anyLong())).thenReturn(Mono.just(mock(Void.class)));
         when(slashEventAdaptor.reply(any())).thenReturn(Mono.just(mock(Void.class)));
         when(slashEventAdaptor.getCommandString()).thenReturn("/r expression:1d6");
+        when(slashEventAdaptor.getRequester()).thenReturn(Mono.just(new Requester("user", "channel", "guild")));
 
 
         Mono<Void> res = underTest.handleSlashCommandEvent(slashEventAdaptor);
 
 
-        StepVerifier.create(res).expectNextCount(1)
+        StepVerifier.create(res)
                 .verifyComplete();
 
         verify(slashEventAdaptor).checkPermissions();
         verify(slashEventAdaptor).reply("/r expression:1d6");
         verify(slashEventAdaptor).getOption("expression");
-        verify(slashEventAdaptor).getCommandString();
+        verify(slashEventAdaptor,times(2)).getCommandString();
         verify(slashEventAdaptor, never()).createButtonMessage(any(), any());
         verify(slashEventAdaptor, never()).deleteMessage(anyLong());
         verify(slashEventAdaptor, never()).replyEphemeral(any());

@@ -92,7 +92,7 @@ public abstract class AbstractCommand<C extends IConfig, S extends IState> imple
             Answer answer = getAnswer(state, config);
             actions.add(event.createResultMessageWithEventReference(answer));
             actions.add(event.getRequester()
-                    .doOnNext(requester -> log.info("'{}'.'{}' from '{}' button: '{}'={}-{} -> {}",
+                    .doOnNext(requester -> log.info("'{}'.'{}' from '{}' button: '{}'={}{} -> {}",
                             requester.getGuildName(),
                             requester.getChannelName(),
                             requester.getUserName(),
@@ -161,8 +161,8 @@ public abstract class AbstractCommand<C extends IConfig, S extends IState> imple
                             .flatMap(event::deleteMessage).then())
                     .then(event.getRequester()
                             .doOnNext(requester -> log.info("'{}'.'{}' from '{}' slash: '{}'",
-                                    requester.getChannelName(),
                                     requester.getGuildName(),
+                                    requester.getChannelName(),
                                     requester.getUserName(),
                                     commandString
                                     ))
