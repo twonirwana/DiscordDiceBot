@@ -1,6 +1,8 @@
 package de.janno.discord.discord4j;
 
 import de.janno.discord.Metrics;
+import de.janno.discord.api.IComponentInteractEventHandler;
+import de.janno.discord.api.Requester;
 import de.janno.discord.command.*;
 import discord4j.common.ReactorResources;
 import discord4j.common.util.Snowflake;
@@ -24,7 +26,6 @@ import reactor.netty.http.client.HttpClient;
 import java.util.Set;
 import java.util.concurrent.ConcurrentSkipListSet;
 
-import static de.janno.discord.discord4j.DiscordAdapter.getSlashOptionsToString;
 import static io.micrometer.core.instrument.Metrics.globalRegistry;
 
 @Slf4j
@@ -66,20 +67,19 @@ public class Discord4JClient {
                             @Override
                             @NonNull
                             public Publisher<?> onChatInputInteraction(@NonNull ChatInputInteractionEvent event) {
-                                return Flux.concat(
+                                log.trace("ChatInputEvent: {} from {}", event.getCommandName(), event.getInteraction().getUser().getUsername());
+                                return Flux.fromIterable(slashCommandRegistry.getSlashCommands())
+                                        .filter(command -> command.getName().equals(event.getCommandName()))
+                                        .next()
+                                        .flatMap(command -> command.handleSlashCommandEvent(new SlashEventAdapter(event,
                                                 Mono.zip(event.getInteraction().getChannel()
-                                                                .ofType(TextChannel.class), event.getInteraction().getGuild())
-                                                        .doOnNext(channelAndGuild -> log.info(String.format("Slash '%s%s' in '%s'.'%s' from '%s'",
-                                                                event.getCommandName(),
-                                                                getSlashOptionsToString(event),
-                                                                channelAndGuild.getT2().getName(),
-                                                                channelAndGuild.getT1().getName(),
-                                                                event.getInteraction().getUser().getUsername()))),
-                                                Flux.fromIterable(slashCommandRegistry.getSlashCommands())
-                                                        .filter(command -> command.getName().equals(event.getCommandName()))
-                                                        .next()
-                                                        .flatMap(command -> command.handleSlashCommandEvent(new SlashEventAdapter(event)))
-                                        )
+                                                                .ofType(TextChannel.class)
+                                                                .map(TextChannel::getName),
+                                                        event.getInteraction().getGuild().map(Guild::getName)
+                                                ).map(channelAndGuild -> new Requester(event.getInteraction().getUser().getUsername(),
+                                                        channelAndGuild.getT1(), channelAndGuild.getT2()))
+                                        )))
+
                                         .onErrorResume(e -> {
                                             log.error("SlashCommandEvent Exception: ", e);
                                             return Mono.empty();
@@ -89,20 +89,18 @@ public class Discord4JClient {
                             @Override
                             @NonNull
                             public Publisher<?> onComponentInteraction(@NonNull ComponentInteractionEvent event) {
-                                return Flux.concat(
+                                log.trace("ComponentEvent: {} from {}", event.getCustomId(), event.getInteraction().getUser().getUsername());
+                                return Flux.fromIterable(slashCommandRegistry.getSlashCommands())
+                                        .ofType(IComponentInteractEventHandler.class)
+                                        .filter(command -> command.matchingComponentCustomId(event.getCustomId()))
+                                        .next()
+                                        .flatMap(command -> command.handleComponentInteractEvent(new ButtonEventAdapter(event,
                                                 Mono.zip(event.getInteraction().getChannel()
-                                                                .ofType(TextChannel.class), event.getInteraction().getGuild())
-                                                        .doOnNext(channelAndGuild -> log.info(String.format("Button '%s' in '%s'.'%s' from '%s'",
-                                                                event.getCustomId(),
-                                                                channelAndGuild.getT2().getName(),
-                                                                channelAndGuild.getT1().getName(),
-                                                                event.getInteraction().getUser().getUsername()))),
-                                                Flux.fromIterable(slashCommandRegistry.getSlashCommands())
-                                                        .ofType(IComponentInteractEventHandler.class)
-                                                        .filter(command -> command.matchingComponentCustomId(event.getCustomId()))
-                                                        .next()
-                                                        .flatMap(command -> command.handleComponentInteractEvent(new ButtonEventAdapter(event)))
-                                        )
+                                                                .ofType(TextChannel.class)
+                                                                .map(TextChannel::getName),
+                                                        event.getInteraction().getGuild().map(Guild::getName)
+                                                ).map(channelAndGuild -> new Requester(event.getInteraction().getUser().getUsername(),
+                                                        channelAndGuild.getT1(), channelAndGuild.getT2())))))
                                         .onErrorResume(e -> {
                                             log.error("ButtonInteractEvent Exception: ", e);
                                             return Mono.empty();

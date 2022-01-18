@@ -4,6 +4,8 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import de.janno.discord.api.Answer;
+import de.janno.discord.api.IButtonEventAdaptor;
 import de.janno.discord.cache.ButtonMessageCache;
 import de.janno.discord.dice.DiceUtils;
 import discord4j.core.object.command.ApplicationCommandInteractionOption;
@@ -248,8 +250,7 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollCommand.Config,
 
     @Override
     protected List<LayoutComponent> getButtonLayoutWithState(State state, Config config) {
-        if (state.getState() == null ||
-                CLEAR_BUTTON_ID.equals(state.getState()) ||
+        if (CLEAR_BUTTON_ID.equals(state.getState()) ||
                 FINISH_BUTTON_ID.equals(state.getState()) ||
                 rollFinished(state, config)) {
             return createButtonLayout(config);
@@ -303,8 +304,11 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollCommand.Config,
     @Value
     protected static class Config implements IConfig {
         int sidesOfDie;
+        @NonNull
         Set<Integer> rerollSet;
+        @NonNull
         Set<Integer> successSet;
+        @NonNull
         Set<Integer> failureSet;
 
         @Override
@@ -320,8 +324,15 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollCommand.Config,
 
     @Value
     static class State implements IState {
+        @NonNull
         String state; //last action number of the dice, reroll, finish and clear
+        @NonNull
         List<Integer> currentResults;
         int rerollCounter;
+
+        @Override
+        public String toShortString() {
+            return String.format("[%s, %s, %d]", state, currentResults, rerollCounter);
+        }
     }
 }

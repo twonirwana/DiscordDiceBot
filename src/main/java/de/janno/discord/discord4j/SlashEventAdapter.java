@@ -1,7 +1,8 @@
 package de.janno.discord.discord4j;
 
-import de.janno.discord.command.Answer;
-import de.janno.discord.command.ISlashEventAdaptor;
+import de.janno.discord.api.Answer;
+import de.janno.discord.api.ISlashEventAdaptor;
+import de.janno.discord.api.Requester;
 import discord4j.common.util.Snowflake;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.object.command.ApplicationCommandInteractionOption;
@@ -27,9 +28,17 @@ import java.util.stream.Collectors;
 public class SlashEventAdapter extends DiscordAdapter implements ISlashEventAdaptor {
 
     private final ChatInputInteractionEvent event;
+    private final Mono<Requester> requesterMono;
+    private final long channelId;
+    private final String commandString;
 
-    public SlashEventAdapter(ChatInputInteractionEvent event) {
+    public SlashEventAdapter(ChatInputInteractionEvent event, Mono<Requester> requesterMono) {
         this.event = event;
+        this.requesterMono = requesterMono;
+        this.channelId = event.getInteraction().getChannelId().asLong();
+        this.commandString = String.format("`/%s %s`", event.getCommandName(), event.getOptions().stream()
+                .map(a -> optionToString(a.getName(), a.getOptions(), a.getValue().orElse(null)))
+                .collect(Collectors.joining(" ")));
     }
 
     @Override
@@ -115,17 +124,12 @@ public class SlashEventAdapter extends DiscordAdapter implements ISlashEventAdap
 
     @Override
     public Long getChannelId() {
-        return event.getInteraction().getChannelId().asLong();
+        return channelId;
     }
 
     @Override
     public String getCommandString() {
-        String options = event.getOptions().stream()
-                .map(a -> optionToString(a.getName(), a.getOptions(), a.getValue().orElse(null)))
-                .collect(Collectors.joining(" "));
-        return String.format("`/%s %s`", event.getCommandName(), options);
-
-
+        return commandString;
     }
 
     private String optionToString(@NonNull String name, @NonNull List<ApplicationCommandInteractionOption> options, @Nullable ApplicationCommandInteractionOptionValue value) {
@@ -148,6 +152,11 @@ public class SlashEventAdapter extends DiscordAdapter implements ISlashEventAdap
 
 
     @Override
+    public Mono<Requester> getRequester() {
+        return requesterMono;
+    }
+
+    @Override
     public Mono<Void> deleteMessage(long messageId) {
         return event.getInteraction().getChannel()
                 .flatMap(c -> c.getMessageById(Snowflake.of(messageId)))
@@ -158,4 +167,6 @@ public class SlashEventAdapter extends DiscordAdapter implements ISlashEventAdap
                     return Mono.empty();
                 });
     }
+
+
 }

@@ -51,7 +51,7 @@ public class SlashCommandRegistry {
                 //get already existing commands
                 Map<String, ApplicationCommandData> currentlyRegisteredCommands = applicationService.getGlobalApplicationCommands(applicationId)
                         .collectMap(ApplicationCommandData::name, Function.identity()).blockOptional().orElse(ImmutableMap.of());
-                log.info(String.format("Existing Commands: %s", String.join(", ", currentlyRegisteredCommands.keySet())));
+                log.info("Existing Commands: {}", String.join(", ", currentlyRegisteredCommands.keySet()));
                 //delete old commands
                 Flux.fromIterable(currentlyRegisteredCommands.values())
                         .filter(acd -> !botCommands.containsKey(acd.name()))

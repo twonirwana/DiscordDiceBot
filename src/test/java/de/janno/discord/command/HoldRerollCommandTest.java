@@ -2,6 +2,8 @@ package de.janno.discord.command;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import de.janno.discord.api.Answer;
+import de.janno.discord.api.IButtonEventAdaptor;
 import de.janno.discord.dice.DiceUtils;
 import discord4j.core.object.component.LayoutComponent;
 import discord4j.discordjson.json.ApplicationCommandOptionData;

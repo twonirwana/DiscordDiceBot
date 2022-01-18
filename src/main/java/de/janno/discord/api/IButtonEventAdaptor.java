@@ -1,4 +1,4 @@
-package de.janno.discord.command;
+package de.janno.discord.api;
 
 import discord4j.core.object.component.LayoutComponent;
 import lombok.NonNull;
@@ -26,6 +26,8 @@ public interface IButtonEventAdaptor extends IDiscordAdapter {
     List<LabelAndCustomId> getAllButtonIds();
 
     String getMessageContent();
+
+    Mono<Requester> getRequester();
 
     @Value
     class LabelAndCustomId {

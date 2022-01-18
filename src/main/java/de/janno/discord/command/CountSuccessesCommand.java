@@ -5,6 +5,8 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
+import de.janno.discord.api.Answer;
+import de.janno.discord.api.IButtonEventAdaptor;
 import de.janno.discord.cache.ButtonMessageCache;
 import de.janno.discord.dice.DiceUtils;
 import discord4j.core.object.command.ApplicationCommandInteractionOption;
@@ -24,6 +26,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import static de.janno.discord.command.CommandUtils.markIn;
 
@@ -278,16 +281,21 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesCommand
 
         @Override
         public String toShortString() {
-            return String.join(CONFIG_DELIMITER,
-                    String.valueOf(getDiceSides()),
-                    String.valueOf(getTarget()),
-                    getGlitchOption(),
-                    String.valueOf(getMaxNumberOfButtons()));
+            return Stream.of(String.valueOf(getDiceSides()),
+                            String.valueOf(getTarget()),
+                            getGlitchOption(),
+                            String.valueOf(getMaxNumberOfButtons()))
+                    .collect(Collectors.toList()).toString();
         }
     }
 
     @Value
     static class State implements IState {
         int numberOfDice;
+
+        @Override
+        public String toShortString() {
+            return String.format("[%d]", numberOfDice);
+        }
     }
 }

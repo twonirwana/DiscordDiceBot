@@ -1,6 +1,7 @@
 package de.janno.discord.command;
 
 import de.janno.discord.Metrics;
+import de.janno.discord.api.ISlashEventAdaptor;
 import de.janno.discord.discord4j.ApplicationCommand;
 import discord4j.core.spec.EmbedCreateSpec;
 import lombok.NonNull;

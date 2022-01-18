@@ -1,4 +1,4 @@
-package de.janno.discord.command;
+package de.janno.discord.api;
 
 import discord4j.core.object.command.ApplicationCommandInteractionOption;
 import discord4j.core.object.component.LayoutComponent;
@@ -25,4 +25,6 @@ public interface ISlashEventAdaptor extends IDiscordAdapter {
     String getCommandString();
 
     Mono<Void> deleteMessage(long messageId);
+
+    Mono<Requester> getRequester();
 }

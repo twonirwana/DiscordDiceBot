@@ -1,8 +1,9 @@
 package de.janno.discord.discord4j;
 
 import com.google.common.collect.ImmutableList;
-import de.janno.discord.command.Answer;
-import de.janno.discord.command.IButtonEventAdaptor;
+import de.janno.discord.api.Answer;
+import de.janno.discord.api.IButtonEventAdaptor;
+import de.janno.discord.api.Requester;
 import discord4j.common.util.Snowflake;
 import discord4j.core.event.domain.interaction.ComponentInteractionEvent;
 import discord4j.core.object.component.LayoutComponent;
@@ -23,15 +24,18 @@ public class ButtonEventAdapter extends DiscordAdapter implements IButtonEventAd
     private final boolean isPinned;
     private final String messageContent;
     private final List<LabelAndCustomId> allButtonIds;
+    private final Mono<Requester> requesterMono;
 
-    public ButtonEventAdapter(ComponentInteractionEvent event) {
+    public ButtonEventAdapter(ComponentInteractionEvent event,
+                              Mono<Requester> requesterMono) {
         this.event = event;
-        messageId = event.getMessageId().asLong();
-        customId = event.getCustomId();
-        isPinned = event.getMessage().map(Message::isPinned).orElse(false);
-        channelId = event.getInteraction().getChannelId().asLong();
-        messageContent = event.getMessage().map(Message::getContent).orElse("");
-        allButtonIds = event.getInteraction().getMessage()
+        this.requesterMono = requesterMono;
+        this.messageId = event.getMessageId().asLong();
+        this.customId = event.getCustomId();
+        this.isPinned = event.getMessage().map(Message::isPinned).orElse(false);
+        this.channelId = event.getInteraction().getChannelId().asLong();
+        this.messageContent = event.getMessage().map(Message::getContent).orElse("");
+        this.allButtonIds = event.getInteraction().getMessage()
                 .map(s -> s.getComponents().stream()
                         .flatMap(lc -> lc.getChildren().stream())
                         .map(l -> {
@@ -118,5 +122,8 @@ public class ButtonEventAdapter extends DiscordAdapter implements IButtonEventAd
                 .ofType(Void.class);
     }
 
-
+    @Override
+    public Mono<Requester> getRequester() {
+        return requesterMono;
+    }
 }
