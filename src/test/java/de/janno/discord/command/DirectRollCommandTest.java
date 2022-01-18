@@ -33,45 +33,12 @@ class DirectRollCommandTest {
     DirectRollCommand underTest;
     IDice diceMock;
 
-    private static Stream<Arguments> generateValidateData() {
-        return Stream.of(
-                Arguments.of("1d6", null),
-                Arguments.of("1d6 ", null),
-                Arguments.of(" 1d6 ", null),
-                Arguments.of("2x[1d6]", null),
-                Arguments.of("1d6@Attack", null),
-                Arguments.of("1d6@a,b", null),
-                Arguments.of(" 1d6 @ Attack ", null),
-                Arguments.of("a", "The following dice expression are invalid: 'a'. Use custom_dice help to get more information on how to use the command."),
-                Arguments.of("@", "The button definition '@' should have the diceExpression@Label"),
-                Arguments.of("a@Attack", "The following dice expression are invalid: 'a'. Use custom_dice help to get more information on how to use the command."),
-                Arguments.of("a@", "The button definition 'a@' should have the diceExpression@Label"),
-                Arguments.of("@Attack", "Dice expression for '@Attack' is empty"),
-                Arguments.of("1d6@1d6", null),
-                Arguments.of("1d6@1d6@1d6", "The button definition '1d6@1d6@1d6' should have the diceExpression@Label"),
-                Arguments.of("1d6@@1d6", "The button definition '1d6@@1d6' should have the diceExpression@Label"),
-                Arguments.of("1d6@@", "The button definition '1d6@@' should have the diceExpression@Label"),
-                Arguments.of("@1d6", "Dice expression for '@1d6' is empty")
-
-        );
-    }
-
     @BeforeEach
     void setup() {
         diceMock = Mockito.mock(IDice.class);
         underTest = new DirectRollCommand(new DiceParserHelper(diceMock));
     }
 
-
-    @ParameterizedTest(name = "{index} config={0} -> {1}")
-    @MethodSource("generateValidateData")
-    void validate(String optionValue, String expected) {
-        when(diceMock.roll(any())).thenAnswer(a -> {
-            String expression = a.getArgument(0);
-            return Dice.roll(expression);
-        });
-        assertThat(underTest.validate(optionValue)).isEqualTo(expected);
-    }
 
     @Test
     void handleComponentInteractEvent() {
@@ -82,7 +49,6 @@ class DirectRollCommandTest {
                 .value("1d6")
                 .type(ApplicationCommandOption.Type.STRING.getValue())
                 .build(), null);
-
 
         when(slashEventAdaptor.getOption(any())).thenReturn(Optional.of(option));
         when(diceMock.detailedRoll("1d6")).thenReturn(new ResultTree(new NDice(6, 1), 3, ImmutableList.of()));

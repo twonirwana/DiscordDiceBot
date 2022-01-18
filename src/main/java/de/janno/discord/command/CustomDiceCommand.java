@@ -20,8 +20,6 @@ import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -75,67 +73,7 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceCommand.Config,
     @Override
     protected EmbedCreateSpec getHelpMessage() {
         return EmbedCreateSpec.builder()
-                .description("Creates up to 25 buttons with custom dice expression e.g. '/custom_dice start 1_button:3d6 2_button:10d10 3_button:3d20'. \n" +
-                        "```\n" +
-                        "      Name     |   Syntax  |  Example  \n" +
-                        "---------------------------------------\n" +
-                        "Single Die     |'d'        |'d6'       \n" +
-                        "---------------------------------------\n" +
-                        "Multiple Dice  |'d'        |'3d20'     \n" +
-                        "---------------------------------------\n" +
-                        "Keep Dice      |'dk'       |'3d6k2'    \n" +
-                        "---------------------------------------\n" +
-                        "Keep Low Dice  |'dl'       |'3d6l2'    \n" +
-                        "---------------------------------------\n" +
-                        "Multiply Die   |'dX'       |'d10X'     \n" +
-                        " --------------------------------------\n" +
-                        "Multiply Dice  |'dX'       |'2d10X'    \n" +
-                        "---------------------------------------\n" +
-                        "Fudge Dice     |'dF'       |'dF'       \n" +
-                        "---------------------------------------\n" +
-                        "Multiple Fudge |'dF'       |'3dF'      \n" +
-                        " Dice          |           |           \n" +
-                        " --------------------------------------\n" +
-                        "Weighted Fudge |'dF.'      |'dF.1'     \n" +
-                        " Die           |           |           \n" +
-                        " --------------------------------------\n" +
-                        "Weighted       |'dF.'      |'2dF.1'    \n" +
-                        " Fudge Dice    |           |           \n" +
-                        "---------------------------------------\n" +
-                        "Exploding Dice |'d!'       |'4d6!'     \n" +
-                        "---------------------------------------\n" +
-                        "Exploding Dice |'d!>'      |'3d6!>5'   \n" +
-                        " (Target)      |           |           \n" +
-                        "---------------------------------------\n" +
-                        "Compounding    |'d!!'      |'3d6!!'    \n" +
-                        " Dice          |           |           \n" +
-                        "---------------------------------------\n" +
-                        "Compounding    |'d!!>'     |'3d6!!>5'  \n" +
-                        " Dice (Target) |           |           \n" +
-                        "---------------------------------------\n" +
-                        "Target Pool    |'d[>,<,=]' |'3d6=6'    \n" +
-                        " Dice          |           |           \n" +
-                        "---------------------------------------\n" +
-                        "Target Pool    |'()[>,<,=]'|'(4d8-2)>6'\n" +
-                        "Dice Expression|           |           \n" +
-                        "---------------------------------------\n" +
-                        "Multiple Rolls |'x[]'      |`3x[3d6]`  \n" +
-                        "---------------------------------------\n" +
-                        "Label          |'x@l'      |`1d20@Att' \n" +
-                        "---------------------------------------\n" +
-                        "Integer        |''         |'42'       \n" +
-                        "---------------------------------------\n" +
-                        "Add            |' + '      |'2d6 + 2'  \n" +
-                        "---------------------------------------\n" +
-                        "Subtract       |' - '      |'2 - 1'    \n" +
-                        "---------------------------------------\n" +
-                        "Multiply       |' * '      |'1d4*2d6'  \n" +
-                        "---------------------------------------\n" +
-                        "Divide         |' / '      |'4 / 2'    \n" +
-                        "```" +
-                        "\n it is also possible to use **/r** to directly use a dice expression without buttons" +
-                        "\nsee https://github.com/twonirwana/DiscordDiceBot/blob/main/README.md for more details"
-                )
+                .description("Creates up to 25 buttons with custom dice expression e.g. '/custom_dice start 1_button:3d6 2_button:10d10 3_button:3d20'. \n" + DiceParserHelper.HELP)
                 .build();
     }
 
@@ -148,56 +86,7 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceCommand.Config,
                 .map(Object::toString)
                 .distinct()
                 .collect(Collectors.toList());
-        return validate(diceExpressionWithOptionalLabel);
-    }
-
-    @VisibleForTesting
-    String validate(List<String> optionValues) {
-        if (optionValues.isEmpty()) {
-            return "You must configure at least one button with a dice expression. Use '/custom_dice help' to get more information on how to use the command.";
-        }
-        for (String startOptionString : optionValues) {
-            String label;
-            String diceExpression;
-            if (startOptionString.contains(CONFIG_DELIMITER)) {
-                return String.format("The button definition '%s' is not allowed to contain ','", startOptionString);
-            }
-            if (startOptionString.contains(LABEL_DELIMITER)) {
-                String[] split = startOptionString.split(LABEL_DELIMITER);
-                if (split.length != 2) {
-                    return String.format("The button definition '%s' should have the diceExpression@Label", startOptionString);
-                }
-                label = split[1].trim();
-                diceExpression = split[0].trim();
-            } else {
-                label = startOptionString;
-                diceExpression = startOptionString;
-            }
-            if (label.length() > 80) {
-                return String.format("Label for '%s' is to long, max number of characters is 80", startOptionString);
-            }
-            if (label.isBlank()) {
-                return String.format("Label for '%s' requires a visible name", startOptionString);
-            }
-            if (diceExpression.isBlank()) {
-                return String.format("Dice expression for '%s' is empty", startOptionString);
-            }
-            String diceParserValidation = diceParserHelper.validateDiceExpression(diceExpression, "custom_dice help");
-            if (diceParserValidation != null) {
-                return diceParserValidation;
-            }
-        }
-
-        Map<String, Long> expressionOccurrence = optionValues.stream()
-                .map(s -> s.split(LABEL_DELIMITER)[0].toLowerCase().trim())
-                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
-        for (Map.Entry<String, Long> e : expressionOccurrence.entrySet()) {
-            if (e.getValue() > 1) {
-                return String.format("The dice expression '%s' is not unique. Each dice expression must only once.", e.getKey());
-            }
-        }
-
-        return null;
+        return diceParserHelper.validateListOfExpressions(diceExpressionWithOptionalLabel, LABEL_DELIMITER, CONFIG_DELIMITER, "/custom_dice help");
     }
 
     @Override

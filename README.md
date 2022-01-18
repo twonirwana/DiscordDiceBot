@@ -11,11 +11,14 @@ to roll dice without typing commands and thereby improves usability, especially 
 ![](src/main/image/example.webp)
 
 **Add to Discord channel by following this link**:
-[**Bot invite link**](https://discord.com/api/oauth2/authorize?client_id=812381127943782502&permissions=18432&scope=bot%20applications.commands)
+[**Bot invite
+link**](https://discord.com/api/oauth2/authorize?client_id=812381127943782502&permissions=18432&scope=bot%20applications.commands)
 
-**Discord Server for trying the bot, questions and feature suggestions**:  [Button Dice Roller Discord Server](https://discord.gg/e43BsqKpFr)
+**Discord Server for trying the bot, questions and feature
+suggestions**:  [Button Dice Roller Discord Server](https://discord.gg/e43BsqKpFr)
 
 **The bot need the following permission**:
+
 * create application commands (which are needed to control the bot)
 * send message (for the dice buttons and results)
 * embed links (display of structured answers)
@@ -63,45 +66,11 @@ The bot has currently the following systems:
 
 ![](src/main/image/custom_dice.webp)
 
-Use the slash command: `custom_dice start` and add up to 25 custom buttons, each with its own dice expression. For
-example `/custom_dice start 1_button:3d6 2_button:10d10 3_button:3d20` produces the three buttons as follows:
+Use the slash command: `custom_dice start` and add up to 25 custom buttons, each with its own dice expression (see the
+section **Dice Expression Notation**). For example `/custom_dice start 1_button:3d6 2_button:10d10 3_button:3d20`.
 
-and on clicking on a button provides the results of the button dice and result of the expression (default it is the sum
-of all dice):
-
-#### Dice Expression Notation
-
-Each button can be set with dice expression with the following notation.
-
-| Name                          | Notation                                            | Example           | Description                                                                                                      |
-|-------------------------------|-----------------------------------------------------|-------------------|------------------------------------------------------------------------------------------------------------------|
-|                               |                                                     |                   |                                                                                                                  |
-| Single Die                    | `d<numberOfFaces>`                                  | `d6`              | roll one, six-sided die                                                                                          |
-| Multiple Dice                 | `<numberOfDice>d<numberOfFaces>`                    | `3d20`            | roll three, twenty-sided dice                                                                                    |
-| Keep Dice                     | `<numberOfDice>d<numberOfFaces>k<numberOfDiceKept>` | `3d6k2`           | keeps the the highest values out of three, six-sided dice                                                        |
-| Keep Low Dice                 | `<numberOfDice>d<numberOfFaces>l<numberOfDiceKept>` | `3d6l2`           | keeps the the lowest values out of three, six-sided dice                                                         |
-| Multiply Die                  | `d<numberOfFaces>X`                                 | `d10X`            | multiplies the result of `d10 * d10`                                                                             |
-| Multiply Dice                 | `<numberOfDice>d<numberOfFaces>X`                   | `2d10X`           | multiplies the result of `2d10 * 2d10`                                                                           |
-| Fudge Dice                    | `dF`                                                | `dF`              | rolls a single "fudge" die (a six sided die, 1/3 chance of `-1`, 1/3 chance of `0`, and 1/3 chance of `1`)       |
-| Multiple Fudge Dice           | `<numberOfDice>dF`                                  | `3dF`             | rolls multiple fudge dice                                                                                        |
-| Weighted Fudge Die            | `dF.<weight>`                                       | `dF.1`            | A weighted fudge die with 1/6 chance of a `1`, `2/3` chance of a `0` and 1/6 chance of a `-1`                    |
-| Multiple Weighted Fudge Dice  | `<numberOfDice>dF.<weight>`                         | `2dF.1`           | multiple weighted fudge dice.                                                                                    |
-| Exploding Dice                | `<numberOfDice>d<numberOfFaces>!`                   | `4d6!`            | any time the max value of a die is rolled, that die is re-rolled and added to the total                          |
-| Exploding Dice (Target)       | `<numberOfDice>d<numberOfFaces>!><target>`          | `3d6!>5`          | Same as exploding dice, but re-roll on values greater than or equal to the target (note, less than works too)    |
-| Compounding Dice              | `<numberOfDice>d<numberOfFaces>!!`                  | `3d6!!`           | similar to exploding dice, but ALL dice are re-rolled                                                            | 
-| Compounding Dice (Target)     | `<numberOfDice>d<numberOfFaces>!!><target>`         | `3d6!!>5`         | similar as exploding dice (target), but all dice are re-rolled and added.                                        |
-| Target Pool Dice              | `<numberOfDice>d<numberOfFaces>[>,<,=]<target>`     | `3d6=6`           | counts the number of dice that match the target (NOTE: greater & less than also match equals, i.e `>=` and `<=`) | 
-| Target Pool Dice (Expression) | `(<expression>)[>,<,=]<target>`                     | `(4d8-2)>6`       | A target pool roll, but where the expression is evaluated to the target.                                         |
-| Multiple Rolls                | `<numberOfRolls>x[<expression>]`                    | `3x[3d6]`         | Rolls the inner expressions multiple time and returning each result, without combining them.                     |
-| Label                         | `<expression>@label`                                | `2x[1d20]@Attack` | If the expression is used with a button, the button gets the given label                                         |
-| Integer                       | `<int>`                                             | `42`              | typically used in math operations, i.e. `2d4+2`                                                                  |
-| Math                          | `<left> <operation> <right>`                        |
-| Add                           | `<left> + <right>`                                  | `2d6 + 2`         |                                                                                                                  |
-| Subtract                      | `<left> - <right>`                                  | `2 - 1`           |                                                                                                                  |
-| Multiply                      | `<left> * <right>`                                  | `1d4 * 2d6`       |                                                                                                                  |
-| Divide                        | `<left> / <right>`                                  | `4 / 2`           |                                                                                                                  |
-
-see https://github.com/diceroll-dev/dice-parser for more details.
+Clicking on a button provides the results of the button dice and result of the expression (default it is the sum of all
+dice)
 
 ### Direct Roll
 
@@ -156,7 +125,6 @@ Use the slash command `/sum_dice_set start` to create a message to create a die 
 buttons to add dice to the set. Clicking on the `Roll` button will roll the dice the message and copy a clear button
 message to the end.
 
-
 ### Hold Reroll
 
 ![](src/main/image/hold_reroll.webp)
@@ -174,7 +142,6 @@ If the roll has numbers that are in the reroll set than the user has the option 
 - Reroll will reroll all results in the reroll set and keep the remaining unchanged.
 - Finish will fix the current result and allow a new roll.
 - Clear will remove the current result and allow a new roll.
-
 
 ### Pool Target
 
@@ -197,5 +164,50 @@ The system has the following parameter:
 - `reroll_variant`: The default option `always` will always reroll all dice results in the reroll set. The option `ask`
   will ask the user each time if the reroll should be done.
 
-
 Please let me know if another system is needed.
+
+### Sum Custom Set
+
+![](src/main/image/sum_custom_set.webp)
+
+Use the slash command `/sum_custom_set start 1_button:1d6 2_button:1d20 3_button:1 4_button:-1` to create a message with custom to create a die set. The buttons can be
+created with the dice notation, see the section **Dice Expression Notation** . The user can click on a dice notation to
+add it to the set, even multiple times. Clicking on the `Roll` button will roll the dice the message and copy a clear
+button message to the end. `Back` will undo the last addition and `Clear` reset all.
+
+## Dice Expression Notation
+
+Each button can be set with dice expression with the following notation.
+
+| Name                          | Notation                                           | Example           | Description                                                                                                      |
+|-------------------------------|----------------------------------------------------|-------------------|------------------------------------------------------------------------------------------------------------------|
+|                               |                                                    |                   |                                                                                                                  |
+| Single Die                    | `d<numberOfFaces>`                                 | `d6`              | roll one, six-sided die                                                                                          |
+| Multiple Dice                 | `<numberOfDice>d<numberOfFaces>`                   | `3d20`            | roll three, twenty-sided dice                                                                                    |
+| Keep Dice                     | `<numberOfDice>d<numberOfFaces>k<numberOfDiceKept>` | `3d6k2`          | keeps the the highest values out of three, six-sided dice                                                        |
+| Keep Low Dice                 | `<numberOfDice>d<numberOfFaces>l<numberOfDiceKept>` | `3d6l2`          | keeps the the lowest values out of three, six-sided dice                                                         |
+| Multiply Die                  | `d<numberOfFaces>X`                                | `d10X`            | multiplies the result of `d10 * d10`                                                                             |
+| Multiply Dice                 | `<numberOfDice>d<numberOfFaces>X`                  | `2d10X`           | multiplies the result of `2d10 * 2d10`                                                                           |
+| Fudge Dice                    | `dF`                                               | `dF`              | rolls a single "fudge" die (a six sided die, 1/3 chance of `-1`, 1/3 chance of `0`, and 1/3 chance of `1`)       |
+| Multiple Fudge Dice           | `<numberOfDice>dF`                                 | `3dF`             | rolls multiple fudge dice                                                                                        |
+| Weighted Fudge Die            | `dF.<weight>`                                      | `dF.1`            | A weighted fudge die with 1/6 chance of a `1`, `2/3` chance of a `0` and 1/6 chance of a `-1`                    |
+| Multiple Weighted Fudge Dice  | `<numberOfDice>dF.<weight>`                        | `2dF.1`           | multiple weighted fudge dice.                                                                                    |
+| Exploding Dice                | `<numberOfDice>d<numberOfFaces>!`                  | `4d6!`            | any time the max value of a die is rolled, that die is re-rolled and added to the total                          |
+| Exploding Dice (Target)       | `<numberOfDice>d<numberOfFaces>!><target>`         | `3d6!>5`          | Same as exploding dice, but re-roll on values greater than or equal to the target (note, less than works too)    |
+| Compounding Dice              | `<numberOfDice>d<numberOfFaces>!!`                 | `3d6!!`           | similar to exploding dice, but ALL dice are re-rolled                                                            | 
+| Compounding Dice (Target)     | `<numberOfDice>d<numberOfFaces>!!><target>`        | `3d6!!>5`         | similar as exploding dice (target), but all dice are re-rolled and added.                                        |
+| Target Pool Dice              | `<numberOfDice>d<numberOfFaces>[>,<,=]<target>`    | `3d6=6`           | counts the number of dice that match the target (NOTE: greater & less than also match equals, i.e `>=` and `<=`) | 
+| Target Pool Dice (Expression) | `(<expression>)[>,<,=]<target>`                    | `(4d8-2)>6`       | A target pool roll, but where the expression is evaluated to the target.                                         |
+| Multiple Rolls                | `<numberOfRolls>x[<expression>]`                   | `3x[3d6]`         | Rolls the inner expressions multiple time and returning each result, without combining them.                     |
+| Label                         | `<expression>@label`                               | `2x[1d20]@Attack` | If the expression is used with a button, the button gets the given label                                         |
+| Integer                       | `<int>`                                            | `42`              | typically used in math operations, i.e. `2d4+2`                                                                  |
+| Math                          | `<left> <operation> <right>`                       |
+| Add                           | `<left> + <right>`                                 | `2d6 + 2`         |                                                                                                                  |
+| Subtract                      | `<left> - <right>`                                 | `2 - 1`           |                                                                                                                  |
+| Multiply                      | `<left> * <right>`                                 | `1d4 * 2d6`       |                                                                                                                  |
+| Divide                        | `<left> / <right>`                                 | `4 / 2`           |                                                                                                                  |
+| Negative                      | `-<diceExpression>`                                | `-1d6`            | multiplies the result of the dice expression with -1                                                                        |
+| Order                         | `<diceExpression>[asc, desc]`                      | `10d10asc`        | ordering the results of the dice ascending (`asc`) or descending (`desc`)                                                   |
+| Min/Max                       | `<diceExpression>[min, max]<diceExpression>`       | `2d6min(1d6+3)`   | returns the minimum or maximum of two dice expressions, e.g. `2d6min(1d6+3)` returns the smaller value of `2d6` and `1d6+3` |
+
+see https://github.com/diceroll-dev/dice-parser for more details.
