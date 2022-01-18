@@ -34,31 +34,6 @@ class CustomDiceCommandTest {
     CustomDiceCommand underTest;
     IDice diceMock;
 
-    private static Stream<Arguments> generateValidateData() {
-        return Stream.of(
-                Arguments.of(ImmutableList.of(), "You must configure at least one button with a dice expression. Use '/custom_dice help' to get more information on how to use the command."),
-                Arguments.of(ImmutableList.of("1d6"), null),
-                Arguments.of(ImmutableList.of("1d6 "), null),
-                Arguments.of(ImmutableList.of(" 1d6 "), null),
-                Arguments.of(ImmutableList.of("2x[1d6]"), null),
-                Arguments.of(ImmutableList.of("1d6@Attack"), null),
-                Arguments.of(ImmutableList.of("1d6@Attack", "1d6@Parry"), "The dice expression '1d6' is not unique. Each dice expression must only once."),
-                Arguments.of(ImmutableList.of("1d6@a,b"), "The button definition '1d6@a,b' is not allowed to contain ','"),
-                Arguments.of(ImmutableList.of(" 1d6 @ Attack "), null),
-                Arguments.of(ImmutableList.of("a"), "The following dice expression are invalid: 'a'. Use custom_dice help to get more information on how to use the command."),
-                Arguments.of(ImmutableList.of("@"), "The button definition '@' should have the diceExpression@Label"),
-                Arguments.of(ImmutableList.of("a@Attack"), "The following dice expression are invalid: 'a'. Use custom_dice help to get more information on how to use the command."),
-                Arguments.of(ImmutableList.of("a@"), "The button definition 'a@' should have the diceExpression@Label"),
-                Arguments.of(ImmutableList.of("@Attack"), "Dice expression for '@Attack' is empty"),
-                Arguments.of(ImmutableList.of("1d6@1d6"), null),
-                Arguments.of(ImmutableList.of("1d6@1d6@1d6"), "The button definition '1d6@1d6@1d6' should have the diceExpression@Label"),
-                Arguments.of(ImmutableList.of("1d6@@1d6"), "The button definition '1d6@@1d6' should have the diceExpression@Label"),
-                Arguments.of(ImmutableList.of("1d6@@"), "The button definition '1d6@@' should have the diceExpression@Label"),
-                Arguments.of(ImmutableList.of("@1d6"), "Dice expression for '@1d6' is empty")
-
-        );
-    }
-
     private static Stream<Arguments> generateConfigOptionStringList() {
         return Stream.of(
                 Arguments.of(ImmutableList.of(), new CustomDiceCommand.Config(ImmutableList.of())),
@@ -96,17 +71,6 @@ class CustomDiceCommandTest {
         });
         assertThat(underTest.getConfigOptionStringList(optionValue)).isEqualTo(expected);
     }
-
-    @ParameterizedTest(name = "{index} config={0} -> {1}")
-    @MethodSource("generateValidateData")
-    void validate(List<String> optionValue, String expected) {
-        when(diceMock.roll(any())).thenAnswer(a -> {
-            String expression = a.getArgument(0);
-            return Dice.roll(expression);
-        });
-        assertThat(underTest.validate(optionValue)).isEqualTo(expected);
-    }
-
 
     @BeforeEach
     void setup() {

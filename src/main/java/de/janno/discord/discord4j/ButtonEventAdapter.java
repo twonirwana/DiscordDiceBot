@@ -82,7 +82,7 @@ public class ButtonEventAdapter extends DiscordAdapter implements IButtonEventAd
     public Mono<Void> editMessage(String message) {
         return event.edit(message)
                 .onErrorResume(t -> {
-                    log.warn("Error on edit button event");
+                    log.warn("Error on edit button event", t);
                     return Mono.empty();
                 });
     }
@@ -93,7 +93,7 @@ public class ButtonEventAdapter extends DiscordAdapter implements IButtonEventAd
                 .ofType(TextChannel.class)
                 .flatMap(channel -> createButtonMessage(channel, messageContent, buttonLayout)
                         .onErrorResume(t -> {
-                            log.warn("Error on creating button message");
+                            log.warn("Error on creating button message", t);
                             return Mono.empty();
                         }))
                 .map(m -> m.getId().asLong());
