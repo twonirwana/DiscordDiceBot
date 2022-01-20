@@ -242,7 +242,7 @@ class SumCustomSetCommandTest {
                         .build())
                 .build(), null);
         SumCustomSetCommand.Config res = underTest.getConfigFromStartOptions(option);
-        assertThat(res).isEqualTo(new SumCustomSetCommand.Config(ImmutableList.of(new SumCustomSetCommand.LabelAndDiceExpression("Label", "1d6"))));
+        assertThat(res).isEqualTo(new SumCustomSetCommand.Config(ImmutableList.of(new SumCustomSetCommand.LabelAndDiceExpression("Label", "+1d6"))));
     }
 
     @Test

@@ -187,6 +187,13 @@ public class DiceParserHelper {
         return null;
     }
 
+    private String removeLeadingPlus(String diceExpression) {
+        if (diceExpression.startsWith("+")) {
+            return diceExpression.substring(1);
+        }
+        return diceExpression;
+    }
+
     public Answer roll(String input, @Nullable String label) {
         try {
             if (isMultipleRoll(input)) {
@@ -211,6 +218,7 @@ public class DiceParserHelper {
 
     private RollWithDetails rollWithDiceParser(String input) {
         try {
+            input = removeLeadingPlus(input);
             ResultTree resultTree = dice.detailedRoll(input);
             String title = String.format("%s = %d", input, resultTree.getValue());
             String details = String.format("[%s]", getBaseResults(resultTree).stream().map(String::valueOf).collect(Collectors.joining(", ")));
@@ -223,6 +231,7 @@ public class DiceParserHelper {
 
     public boolean validExpression(String input) {
         try {
+            input = removeLeadingPlus(input);
             if (isMultipleRoll(input)) {
                 dice.roll(getInnerDiceExpression(input));
             } else {

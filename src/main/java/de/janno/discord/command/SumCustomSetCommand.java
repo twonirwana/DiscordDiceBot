@@ -180,6 +180,8 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetCommand.Con
         if (buttonValue.startsWith("-")) {
             operator = "-";
             buttonValue = buttonValue.substring(1);
+        } else if (buttonValue.startsWith("+")) {
+            buttonValue = buttonValue.substring(1);
         }
 
         String newContent;
@@ -206,11 +208,22 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetCommand.Con
                 .filter(s -> !s.contains(CONFIG_DELIMITER))
                 .filter(s -> !s.contains(LABEL_DELIMITER) || s.split(LABEL_DELIMITER).length == 2)
                 .map(s -> {
+                    String label = null;
+                    String diceExpression;
                     if (s.contains(LABEL_DELIMITER)) {
                         String[] split = s.split(LABEL_DELIMITER);
-                        return new LabelAndDiceExpression(split[1].trim(), split[0].trim());
+                        label = split[1].trim();
+                        diceExpression = split[0].trim();
+                    } else {
+                        diceExpression = s.trim();
                     }
-                    return new LabelAndDiceExpression(s.trim(), s.trim());
+                    if (!diceExpression.startsWith("+") && !diceExpression.startsWith("-")) {
+                        diceExpression = "+" + diceExpression;
+                    }
+                    if (label == null) {
+                        label = diceExpression;
+                    }
+                    return new LabelAndDiceExpression(label, diceExpression);
                 })
                 .filter(s -> !s.getDiceExpression().isEmpty())
                 .filter(s -> !s.getLabel().isEmpty())
