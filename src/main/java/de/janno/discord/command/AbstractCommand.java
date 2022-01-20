@@ -29,7 +29,7 @@ public abstract class AbstractCommand<C extends IConfig, S extends IState> imple
 
     protected static final String ACTION_START = "start";
     protected static final String ACTION_HELP = "help";
-    protected static final String CONFIG_DELIMITER = ",";
+    public static final String CONFIG_DELIMITER = ",";
     protected final ButtonMessageCache buttonMessageCache;
 
     protected AbstractCommand(ButtonMessageCache buttonMessageCache) {

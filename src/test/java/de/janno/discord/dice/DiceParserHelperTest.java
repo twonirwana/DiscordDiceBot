@@ -21,6 +21,7 @@ class DiceParserHelperTest {
         return Stream.of(
                 Arguments.of(ImmutableList.of(), "You must configure at least one dice expression. Use '/custom_dice help' to get more information on how to use the command."),
                 Arguments.of(ImmutableList.of("1d6"), null),
+                Arguments.of(ImmutableList.of("+1d6"), null),
                 Arguments.of(ImmutableList.of("1d6 "), null),
                 Arguments.of(ImmutableList.of(" 1d6 "), null),
                 Arguments.of(ImmutableList.of("2x[1d6]"), null),
@@ -113,6 +114,15 @@ class DiceParserHelperTest {
     @Test
     void roll_3d6() {
         Answer res = underTest.roll("3d6", null);
+
+        assertThat(res.getFields()).hasSize(0);
+        assertThat(res.getContent()).isNotEmpty();
+        assertThat(res.getTitle()).startsWith("3d6 = ");
+    }
+
+    @Test
+    void roll_plus3d6() {
+        Answer res = underTest.roll("+3d6", null);
 
         assertThat(res.getFields()).hasSize(0);
         assertThat(res.getContent()).isNotEmpty();

@@ -2,6 +2,7 @@ package de.janno.discord;
 
 import com.google.common.base.Strings;
 import io.micrometer.core.instrument.Tags;
+import io.micrometer.core.instrument.Timer;
 import io.micrometer.core.instrument.binder.jvm.*;
 import io.micrometer.core.instrument.binder.logging.LogbackMetrics;
 import io.micrometer.core.instrument.binder.system.ProcessorMetrics;
@@ -13,7 +14,8 @@ import io.undertow.Undertow;
 import io.undertow.server.handlers.PathHandler;
 import io.undertow.util.Headers;
 import lombok.NonNull;
-import org.jetbrains.annotations.Nullable;
+
+import java.time.Duration;
 
 import static io.micrometer.core.instrument.Metrics.globalRegistry;
 
@@ -22,6 +24,8 @@ public class Metrics {
     public final static String METRIC_PREFIX = "dice.";
     public final static String METRIC_BUTTON_PREFIX = "buttonEvent";
     public final static String METRIC_SLASH_PREFIX = "slashEvent";
+    public final static String METRIC_BUTTON_TIMER_PREFIX = "buttonTimer";
+    public final static String METRIC_SLASH_TIMER_PREFIX = "slashTimer";
     public final static String METRIC_SLASH_HELP_PREFIX = "slashHelpEvent";
     public final static String CONFIG_TAG = "config";
     public final static String COMMAND_TAG = "command";
@@ -64,5 +68,23 @@ public class Metrics {
 
     public static void incrementSlashHelpMetricCounter(@NonNull String commandName) {
         globalRegistry.counter(METRIC_PREFIX + METRIC_SLASH_HELP_PREFIX, Tags.of(COMMAND_TAG, commandName)).increment();
+    }
+
+    public static void timerButtonMetricCounter(@NonNull String commandName, @NonNull Duration duration) {
+        Timer.builder(METRIC_PREFIX + METRIC_BUTTON_TIMER_PREFIX)
+                .tags(Tags.of(COMMAND_TAG, commandName))
+                .publishPercentiles(0.5, 0.95, 0.99)
+                .publishPercentileHistogram(true)
+                .register(globalRegistry)
+                .record(duration);
+    }
+
+    public static void timerSlashStartMetricCounter(@NonNull String commandName, @NonNull Duration duration) {
+        Timer.builder(METRIC_PREFIX + METRIC_SLASH_TIMER_PREFIX)
+                .tags(Tags.of(COMMAND_TAG, commandName))
+                .publishPercentiles(0.5, 0.95, 0.99)
+                .publishPercentileHistogram()
+                .register(globalRegistry)
+                .record(duration);
     }
 }
