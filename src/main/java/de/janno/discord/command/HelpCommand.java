@@ -28,7 +28,7 @@ public class HelpCommand implements ISlashCommand {
         Metrics.incrementSlashStartMetricCounter(getName(), "[]");
         return event.replyEphemeral(EmbedCreateSpec.builder()
                 .addField("Command help", "type '/count_successes help', '/custom_dice help' or '/fate help' to get help for the commands", false)
-                .addField("Full documentation", "https://github.com/twonirwana/DiscordDiceBot/blob/main/README.md", false)
+                .addField("Full documentation", "https://github.com/twonirwana/DiscordDiceBot", false)
                 .addField("Discord Server", "https://discord.gg/e43BsqKpFr", false)
                 .build());
     }

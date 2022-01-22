@@ -43,7 +43,7 @@ public class SlashEventAdapter extends DiscordAdapter implements ISlashEventAdap
 
     @Override
     public String checkPermissions() {
-        PermissionSet permissions = Mono.zip(event.getInteraction().getChannel().ofType(TextChannel.class)
+        Optional<PermissionSet> permissions = Mono.zip(event.getInteraction().getChannel().ofType(TextChannel.class)
                                 .onErrorResume(t -> {
                                     log.error("Error getting channel", t);
                                     return Mono.empty();
@@ -58,14 +58,18 @@ public class SlashEventAdapter extends DiscordAdapter implements ISlashEventAdap
                     return Mono.empty();
                 })
                 .flatMap(channelAndMember -> channelAndMember.getT1().getEffectivePermissions(channelAndMember.getT2()))
-                .blockOptional()
-                .orElse(PermissionSet.of());
+                .blockOptional();
+
+        //on error, for example unknown channel type of higher api
+        if (permissions.isEmpty()) {
+            return null;
+        }
 
         List<String> checks = new ArrayList<>();
-        if (!permissions.contains(Permission.SEND_MESSAGES)) {
+        if (!permissions.get().contains(Permission.SEND_MESSAGES)) {
             checks.add("'SEND_MESSAGES'");
         }
-        if (!permissions.contains(Permission.EMBED_LINKS)) {
+        if (!permissions.get().contains(Permission.EMBED_LINKS)) {
             checks.add("'EMBED_LINKS'");
         }
         if (checks.isEmpty()) {
@@ -104,10 +108,7 @@ public class SlashEventAdapter extends DiscordAdapter implements ISlashEventAdap
     public Mono<Long> createButtonMessage(@NonNull String buttonMessage, @NonNull List<LayoutComponent> buttons) {
         return event.getInteraction().getChannel().ofType(TextChannel.class)
                 .flatMap(channel -> createButtonMessage(channel, buttonMessage, buttons))
-                .onErrorResume(t -> {
-                    log.error("Error on creating button message", t);
-                    return Mono.empty();
-                })
+                .onErrorResume(t -> handleException("Error on creating button message", t, false, null).ofType(Message.class))
                 .map(m -> m.getId().asLong());
     }
 
@@ -115,10 +116,7 @@ public class SlashEventAdapter extends DiscordAdapter implements ISlashEventAdap
     public Mono<Void> createResultMessageWithEventReference(Answer answer) {
         return event.getInteraction().getChannel().ofType(TextChannel.class)
                 .flatMap(channel -> channel.createMessage(createEmbedMessageWithReference(answer, event.getInteraction().getMember().orElseThrow())))
-                .onErrorResume(t -> {
-                    log.error("Error on creating dice result message", t);
-                    return Mono.empty();
-                })
+                .onErrorResume(t -> handleException("Error on creating answer message", t, false, null).ofType(Message.class))
                 .ofType(Void.class);
     }
 
@@ -162,10 +160,7 @@ public class SlashEventAdapter extends DiscordAdapter implements ISlashEventAdap
                 .flatMap(c -> c.getMessageById(Snowflake.of(messageId)))
                 .filter(m -> !m.isPinned())
                 .flatMap(Message::delete)
-                .onErrorResume(t -> {
-                    log.warn("Error on deleting message");
-                    return Mono.empty();
-                });
+                .onErrorResume(t -> handleException("Error on deleting message", t, true, null));
     }
 
 

@@ -4,47 +4,32 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import de.janno.discord.api.Answer;
 import de.janno.discord.api.IDiscordAdapter;
-import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
-import discord4j.core.object.command.ApplicationCommandInteractionOption;
-import discord4j.core.object.command.ApplicationCommandInteractionOptionValue;
+import de.janno.discord.api.MissingPermissionException;
 import discord4j.core.object.component.LayoutComponent;
 import discord4j.core.object.entity.Member;
 import discord4j.core.object.entity.Message;
 import discord4j.core.object.entity.channel.TextChannel;
 import discord4j.core.spec.EmbedCreateSpec;
 import discord4j.core.spec.MessageCreateSpec;
+import discord4j.rest.http.client.ClientException;
 import discord4j.rest.util.Color;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.Nullable;
 import reactor.core.publisher.Mono;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 public abstract class DiscordAdapter implements IDiscordAdapter {
 
+    protected static final String PERMISSION_ERROR_MESSAGE = "Missing permission, see https://github.com/twonirwana/DiscordDiceBot for help";
+
     //needed to correctly show utf8 characters in discord
     private static String encodeUTF8(@NonNull String in) {
         return new String(in.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8);
-    }
-
-
-    public static String getSlashOptionsToString(ChatInputInteractionEvent event) {
-        List<String> options = event.getOptions().stream()
-                .map(DiscordAdapter::optionToString)
-                .collect(Collectors.toList());
-        return options.isEmpty() ? "" : options.toString();
-    }
-
-    private static String optionToString(ApplicationCommandInteractionOption option) {
-        List<String> subOptions = option.getOptions().stream().map(DiscordAdapter::optionToString).collect(Collectors.toList());
-        return String.format("%s=%s%s",
-                option.getName(),
-                option.getValue().map(ApplicationCommandInteractionOptionValue::getRaw).orElse(""),
-                subOptions.isEmpty() ? "" : subOptions.toString());
     }
 
     protected EmbedCreateSpec createEmbedMessageWithReference(
@@ -80,6 +65,32 @@ public abstract class DiscordAdapter implements IDiscordAdapter {
                         .content(buttonMessage)
                         .components(buttons)
                         .build());
+    }
+
+    //todo retry on server error class
+    protected Mono<Void> handleException(@NonNull String errorMessage, @NonNull Throwable throwable, boolean ignoreMissing, @Nullable Message triggeringMessage) {
+        if (throwable instanceof ClientException) {
+            ClientException clientException = (ClientException) throwable;
+            if (clientException.getStatus().code() == 404 && ignoreMissing) {
+                log.trace(errorMessage, clientException);
+            } else if (clientException.getStatus().code() == 403 && triggeringMessage != null) {
+                log.trace(errorMessage, clientException);
+                //todo find better solution than sending the Mono.error to immediately terminate the mono
+                return triggeringMessage.edit().withContentOrNull(PERMISSION_ERROR_MESSAGE).then(Mono.error(new MissingPermissionException()));
+            } else {
+                log.error("{}: {}{}", errorMessage,
+                        clientException.getResponse().status(),
+                        getClientExceptionShortString(clientException));
+            }
+        } else {
+            log.error(errorMessage, throwable);
+        }
+        return Mono.empty();
+    }
+
+    private String getClientExceptionShortString(ClientException clientException) {
+        return String.format("%s%s", clientException.getResponse().status(),
+                clientException.getErrorResponse().map(er -> " with response " + er.getFields()).orElse(""));
     }
 
 }
