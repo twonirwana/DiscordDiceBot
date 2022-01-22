@@ -142,7 +142,7 @@ public abstract class AbstractCommand<C extends IConfig, S extends IState> imple
             ApplicationCommandInteractionOption options = event.getOption(ACTION_START).get();
             String validationMessage = getStartOptionsValidationMessage(options);
             if (validationMessage != null) {
-                log.info("Validation message: {}", validationMessage);
+                log.info("Validation message: {} for {}", validationMessage, commandString);
                 return event.reply(String.format("%s\n%s", commandString, validationMessage));
             }
             C config = getConfigFromStartOptions(options);

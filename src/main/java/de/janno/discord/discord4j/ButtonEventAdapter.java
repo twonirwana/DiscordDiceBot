@@ -81,10 +81,7 @@ public class ButtonEventAdapter extends DiscordAdapter implements IButtonEventAd
     @Override
     public Mono<Void> editMessage(String message) {
         return event.edit(message)
-                .onErrorResume(t -> {
-                    log.warn("Error on edit button event", t);
-                    return Mono.empty();
-                });
+                .onErrorResume(t -> handleException("Error on edit button event", t, true, event.getMessage().orElse(null)));
     }
 
     @Override
@@ -92,10 +89,9 @@ public class ButtonEventAdapter extends DiscordAdapter implements IButtonEventAd
         return event.getInteraction().getChannel()
                 .ofType(TextChannel.class)
                 .flatMap(channel -> createButtonMessage(channel, messageContent, buttonLayout)
-                        .onErrorResume(t -> {
-                            log.warn("Error on creating button message", t);
-                            return Mono.empty();
-                        }))
+                        .onErrorResume(t -> handleException("Error on creating button message", t, false, event.getMessage().orElse(null))
+                                .ofType(Message.class))
+                )
                 .map(m -> m.getId().asLong());
     }
 
@@ -105,20 +101,14 @@ public class ButtonEventAdapter extends DiscordAdapter implements IButtonEventAd
                 .flatMap(c -> c.getMessageById(Snowflake.of(messageId)))
                 .filter(m -> !m.isPinned())
                 .flatMap(Message::delete)
-                .onErrorResume(t -> {
-                    log.warn("Error on deleting message");
-                    return Mono.empty();
-                });
+                .onErrorResume(t -> handleException("Error on deleting message", t, true, event.getMessage().orElse(null)));
     }
 
     @Override
     public Mono<Void> createResultMessageWithEventReference(Answer answer) {
         return event.getInteraction().getChannel().ofType(TextChannel.class)
                 .flatMap(channel -> channel.createMessage(createEmbedMessageWithReference(answer, event.getInteraction().getMember().orElseThrow())))
-                .onErrorResume(t -> {
-                    log.error("Error on creating dice result message", t);
-                    return Mono.empty();
-                })
+                .onErrorResume(t -> handleException("Error on creating answer message", t, false, event.getMessage().orElse(null)).ofType(Message.class))
                 .ofType(Void.class);
     }
 
