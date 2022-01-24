@@ -76,7 +76,7 @@ public abstract class DiscordAdapter implements IDiscordAdapter {
             } else if (clientException.getStatus().code() == 403 && triggeringMessage != null) {
                 log.trace(errorMessage, clientException);
                 //todo find better solution than sending the Mono.error to immediately terminate the mono
-                return triggeringMessage.edit().withContentOrNull(PERMISSION_ERROR_MESSAGE).then(Mono.error(new MissingPermissionException()));
+                return triggeringMessage.edit().withContentOrNull(PERMISSION_ERROR_MESSAGE).then(Mono.error(new MissingPermissionException(errorMessage)));
             } else {
                 log.error("{}: {}{}", errorMessage,
                         clientException.getResponse().status(),

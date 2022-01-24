@@ -109,8 +109,16 @@ public class Discord4JClient {
                                             .flatMap(command -> command.handleComponentInteractEvent(new ButtonEventAdapter(event,
                                                     Mono.zip(event.getInteraction().getChannel()
                                                                     .ofType(TextChannel.class)
-                                                                    .map(TextChannel::getName),
+                                                                    .map(TextChannel::getName)
+                                                                    .onErrorResume(e -> {
+                                                                        log.error("Exception on getting channel name: ", e);
+                                                                        return Mono.just("unknown channel");
+                                                                    }),
                                                             event.getInteraction().getGuild().map(Guild::getName)
+                                                                    .onErrorResume(e -> {
+                                                                        log.error("Exception on getting guild name: ", e);
+                                                                        return Mono.just("unknown guild");
+                                                                    })
                                                     ).map(channelAndGuild -> new Requester(event.getInteraction().getUser().getUsername(),
                                                             channelAndGuild.getT1(), channelAndGuild.getT2())))))
                                             .onErrorResume(e -> {
