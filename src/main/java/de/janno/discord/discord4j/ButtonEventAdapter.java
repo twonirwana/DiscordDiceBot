@@ -8,6 +8,7 @@ import discord4j.common.util.Snowflake;
 import discord4j.core.event.domain.interaction.ComponentInteractionEvent;
 import discord4j.core.object.component.LayoutComponent;
 import discord4j.core.object.entity.Message;
+import discord4j.core.object.entity.PartialMember;
 import discord4j.core.object.entity.channel.TextChannel;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
@@ -25,6 +26,7 @@ public class ButtonEventAdapter extends DiscordAdapter implements IButtonEventAd
     private final String messageContent;
     private final List<LabelAndCustomId> allButtonIds;
     private final Mono<Requester> requesterMono;
+    private final String invokingGuildMemberName;
 
     public ButtonEventAdapter(ComponentInteractionEvent event,
                               Mono<Requester> requesterMono) {
@@ -46,6 +48,7 @@ public class ButtonEventAdapter extends DiscordAdapter implements IButtonEventAd
                         }).collect(Collectors.toList())
                 )
                 .orElse(ImmutableList.of());
+        this.invokingGuildMemberName = event.getInteraction().getMember().map(PartialMember::getDisplayName).orElse(null);
     }
 
     @Override
@@ -115,5 +118,10 @@ public class ButtonEventAdapter extends DiscordAdapter implements IButtonEventAd
     @Override
     public Mono<Requester> getRequester() {
         return requesterMono;
+    }
+
+    @Override
+    public String getInvokingGuildMemberName() {
+        return invokingGuildMemberName;
     }
 }
