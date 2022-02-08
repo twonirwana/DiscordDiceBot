@@ -30,11 +30,12 @@ import java.util.stream.IntStream;
 public class SumCustomSetCommand extends AbstractCommand<SumCustomSetCommand.Config, SumCustomSetCommand.State> {
     private static final String COMMAND_NAME = "sum_custom_set";
     private static final String ROLL_BUTTON_ID = "roll";
+    private static final String NO_ACTION = "no action";
     private static final String EMPTY_MESSAGE = "Click on the buttons to add dice to the set";
     private static final String CLEAR_BUTTON_ID = "clear";
     private static final String BACK_BUTTON_ID = "back";
     private static final List<String> DICE_COMMAND_OPTIONS_IDS = IntStream.range(1, 23).mapToObj(i -> i + "_button").collect(Collectors.toList());
-
+    private static final String INVOKING_USER_NAME_DELIMITER = "\u2236 ";
     private static final String LABEL_DELIMITER = "@";
     private final DiceParserHelper diceParserHelper;
 
@@ -90,7 +91,13 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetCommand.Con
                 .filter(s -> s.contains("x["))
                 .collect(Collectors.joining(","));
         if (!Strings.isNullOrEmpty(expressionsWithMultiRoll)) {
-            return "This command doesn't support multiple rolls, the following expression are not allowed: " + expressionsWithMultiRoll;
+            return String.format("This command doesn't support multiple rolls, the following expression are not allowed: %s", expressionsWithMultiRoll);
+        }
+        String expressionWithUserNameDelimiter = diceExpressionWithOptionalLabel.stream()
+                .filter(s -> s.contains(INVOKING_USER_NAME_DELIMITER))
+                .collect(Collectors.joining(","));
+        if (!Strings.isNullOrEmpty(expressionWithUserNameDelimiter)) {
+            return String.format("This command doesn't allow '%s' in the dice expression and label, the following expression are not allowed: %s", INVOKING_USER_NAME_DELIMITER, expressionWithUserNameDelimiter);
         }
         return diceParserHelper.validateListOfExpressions(diceExpressionWithOptionalLabel, LABEL_DELIMITER, CONFIG_DELIMITER, "/sum_custom_set help");
     }
@@ -133,7 +140,15 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetCommand.Con
         } else if (CLEAR_BUTTON_ID.equals(state.getButtonValue())) {
             return EMPTY_MESSAGE;
         } else {
-            return Strings.isNullOrEmpty(state.getDiceExpression()) ? EMPTY_MESSAGE : state.getDiceExpression();
+            if (Strings.isNullOrEmpty(state.getDiceExpression())) {
+                return EMPTY_MESSAGE;
+            }
+            if (Strings.isNullOrEmpty(state.getLockedForUserName())) {
+                return state.getDiceExpression();
+            } else {
+                String cleanName = state.getLockedForUserName().replace(INVOKING_USER_NAME_DELIMITER, "");
+                return String.format("%s%s%s", cleanName, INVOKING_USER_NAME_DELIMITER, state.getDiceExpression());
+            }
         }
     }
 
@@ -159,9 +174,24 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetCommand.Con
     protected State getStateFromEvent(IButtonEventAdaptor event) {
         String buttonValue = event.getCustomId().split(CONFIG_DELIMITER)[1];
         if (CLEAR_BUTTON_ID.equals(buttonValue)) {
-            return new State(buttonValue, "");
+            return new State(buttonValue, "", null);
         }
-        String buttonMessage = EMPTY_MESSAGE.equals(event.getMessageContent()) ? "" : event.getMessageContent();
+
+        String buttonMessageWithOptionalUser = event.getMessageContent();
+
+        String lastInvokingUser = null;
+        String buttonMessage;
+        if (buttonMessageWithOptionalUser.contains(INVOKING_USER_NAME_DELIMITER)) {
+            int firstDelimiter = buttonMessageWithOptionalUser.indexOf(INVOKING_USER_NAME_DELIMITER);
+            lastInvokingUser = buttonMessageWithOptionalUser.substring(0, firstDelimiter);
+            buttonMessage = buttonMessageWithOptionalUser.substring(firstDelimiter + INVOKING_USER_NAME_DELIMITER.length());
+        } else {
+            buttonMessage = buttonMessageWithOptionalUser;
+        }
+        buttonMessage = EMPTY_MESSAGE.equals(buttonMessage) ? "" : buttonMessage;
+        if (lastInvokingUser != null && !lastInvokingUser.equals(event.getInvokingGuildMemberName())) {
+            return new State(NO_ACTION, buttonMessage, lastInvokingUser);
+        }
         if (BACK_BUTTON_ID.equals(buttonValue)) {
             int indexOfLastMinusOrPlus = Math.max(buttonMessage.lastIndexOf("+"), buttonMessage.lastIndexOf("-"));
             String newButtonMessage;
@@ -170,10 +200,10 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetCommand.Con
             } else {
                 newButtonMessage = "";
             }
-            return new State(buttonValue, newButtonMessage);
+            return new State(buttonValue, newButtonMessage, event.getInvokingGuildMemberName());
         }
         if (ROLL_BUTTON_ID.equals(buttonValue)) {
-            return new State(buttonValue, buttonMessage);
+            return new State(buttonValue, buttonMessage, event.getInvokingGuildMemberName());
         }
 
         String operator = "+";
@@ -190,7 +220,7 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetCommand.Con
         } else {
             newContent = String.format("%s%s%s", buttonMessage, operator, buttonValue);
         }
-        return new State(buttonValue, newContent);
+        return new State(buttonValue, newContent, event.getInvokingGuildMemberName());
     }
 
     @Override
@@ -286,10 +316,11 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetCommand.Con
         String buttonValue;
         @NonNull
         String diceExpression;
+        String lockedForUserName;
 
         @Override
         public String toShortString() {
-            return String.format("[%s, %s]", buttonValue, diceExpression);
+            return String.format("[%s, %s, %s]", buttonValue, diceExpression, lockedForUserName);
         }
     }
 
