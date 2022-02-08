@@ -98,11 +98,11 @@ in the Shadowrun dice system.
 
 ##### count_ones
 
-The option 'count_ones' will only mark and count the ones in the result but will not change the number of successes.
+The option `count_ones` will only mark and count the ones in the result but will not change the number of successes.
 
 ##### subtract_ones
 
-The option 'subtract_ones' will subtract the number of ones in the roll from the number of successes. If there are more
+The option `subtract_ones` will subtract the number of ones in the roll from the number of successes. If there are more
 ons than successes the result will be negative. This is for example used in the old World of Darkness dice system.
 
 #### Number of Dice Option
@@ -170,10 +170,12 @@ Please let me know if another system is needed.
 
 ![](src/main/image/sum_custom_set.webp)
 
-Use the slash command `/sum_custom_set start 1_button:1d6 2_button:1d20 3_button:1 4_button:-1` to create a message with custom to create a die set. The buttons can be
-created with the dice notation, see the section **Dice Expression Notation** . The user can click on a dice notation to
-add it to the set, even multiple times. Clicking on the `Roll` button will roll the dice the message and copy a clear
-button message to the end. `Back` will undo the last addition and `Clear` reset all.
+Use the slash command `/sum_custom_set start 1_button:1d6 2_button:1d20 3_button:1 4_button:-1` to create a message with
+custom to create a die set. The buttons can be created with the dice notation, see the section **Dice Expression
+Notation** . The user can click on a dice notation to add it to the set, even multiple times. The first user that clicks
+on a button add his name to the message and only this user can add, remove or roll dice. Every user can still use the
+`Clear` button. Clicking on the `Roll` button will roll the dice the message and copy a clear button message to the
+end. `Back` will undo the last addition and `Clear` reset all.
 
 ## Dice Expression Notation
 

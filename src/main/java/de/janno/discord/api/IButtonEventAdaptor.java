@@ -17,6 +17,8 @@ public interface IButtonEventAdaptor extends IDiscordAdapter {
 
     boolean isPinned();
 
+    String getInvokingGuildMemberName();
+
     Mono<Void> editMessage(String message);
 
     Mono<Long> createButtonMessage(String messageContent, List<LayoutComponent> buttonLayout);
