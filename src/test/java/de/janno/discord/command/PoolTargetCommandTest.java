@@ -7,7 +7,11 @@ import de.janno.discord.api.IButtonEventAdaptor;
 import de.janno.discord.api.Requester;
 import de.janno.discord.cache.ButtonMessageCache;
 import de.janno.discord.dice.DiceUtils;
+import discord4j.core.GatewayDiscordClient;
+import discord4j.core.object.command.ApplicationCommandInteractionOption;
+import discord4j.core.object.command.ApplicationCommandOption;
 import discord4j.core.object.component.LayoutComponent;
+import discord4j.discordjson.json.ApplicationCommandInteractionOptionData;
 import discord4j.discordjson.json.ApplicationCommandOptionData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -555,5 +559,114 @@ class PoolTargetCommandTest {
         verify(buttonEventAdaptor).isPinned();
         verify(buttonEventAdaptor, never()).getAllButtonIds();
         verify(buttonEventAdaptor, never()).getMessageContent();
+    }
+
+
+    private ApplicationCommandInteractionOption createCommandInteractionOption(String sides,
+                                                                               String maxDice,
+                                                                               String rerollSet,
+                                                                               String botchSet,
+                                                                               String rerollVariant) {
+        return new ApplicationCommandInteractionOption(mock(GatewayDiscordClient.class), ApplicationCommandInteractionOptionData.builder()
+                .name("start")
+                .type(ApplicationCommandOption.Type.SUB_COMMAND.getValue())
+                .addOption(ApplicationCommandInteractionOptionData.builder()
+                        .name("sides")
+                        .type(ApplicationCommandOption.Type.INTEGER.getValue())
+                        .value(sides)
+                        .build())
+                .addOption(ApplicationCommandInteractionOptionData.builder()
+                        .name("max_dice")
+                        .type(ApplicationCommandOption.Type.INTEGER.getValue())
+                        .value(maxDice)
+                        .build())
+                .addOption(ApplicationCommandInteractionOptionData.builder()
+                        .name("reroll_set")
+                        .type(ApplicationCommandOption.Type.STRING.getValue())
+                        .value(rerollSet)
+                        .build())
+                .addOption(ApplicationCommandInteractionOptionData.builder()
+                        .name("botch_set")
+                        .type(ApplicationCommandOption.Type.STRING.getValue())
+                        .value(botchSet)
+                        .build())
+                .addOption(ApplicationCommandInteractionOptionData.builder()
+                        .name("reroll_variant")
+                        .type(ApplicationCommandOption.Type.STRING.getValue())
+                        .value(rerollVariant)
+                        .build())
+                .build(), null);
+    }
+
+    @Test
+    void getStartOptionsValidationMessage() {
+        ApplicationCommandInteractionOption option = createCommandInteractionOption("10", "12", "9,10", "1,2,3", "ask");
+        String res = underTest.getStartOptionsValidationMessage(option);
+
+        assertThat(res).isEqualTo(null);
+    }
+
+    @Test
+    void getStartOptionsValidationMessage_botchSetZero() {
+        ApplicationCommandInteractionOption option = createCommandInteractionOption("10", "12", "9,10", "0,2,3", "ask");
+        String res = underTest.getStartOptionsValidationMessage(option);
+
+        assertThat(res).isEqualTo("The parameter need to have numbers greater zero, seperated by ','. The following parameter where not greater zero: '0'");
+    }
+
+    @Test
+    void getStartOptionsValidationMessage_botchSetNegative() {
+        ApplicationCommandInteractionOption option = createCommandInteractionOption("10", "12", "9,10", "-1,2,3", "ask");
+        String res = underTest.getStartOptionsValidationMessage(option);
+
+        assertThat(res).isEqualTo("The parameter need to have numbers greater zero, seperated by ','. The following parameter where not greater zero: '-1'");
+    }
+
+    @Test
+    void getStartOptionsValidationMessage_botchSetNotANumber() {
+        ApplicationCommandInteractionOption option = createCommandInteractionOption("10", "12", "9,10", "1,a,3", "ask");
+        String res = underTest.getStartOptionsValidationMessage(option);
+
+        assertThat(res).isEqualTo("The parameter need to have numbers, seperated by ','. The following parameter where not numbers: 'a'");
+    }
+
+    @Test
+    void getStartOptionsValidationMessage_botchSetEmpty() {
+        ApplicationCommandInteractionOption option = createCommandInteractionOption("10", "12", "9,10", "1,,3", "ask");
+        String res = underTest.getStartOptionsValidationMessage(option);
+
+        assertThat(res).isEqualTo("The parameter need to have numbers, seperated by ','. The following parameter where not numbers: ''");
+    }
+
+    @Test
+    void getStartOptionsValidationMessage_rerollSetZero() {
+        ApplicationCommandInteractionOption option = createCommandInteractionOption("10", "12", "0,0,9,10", "1,2,3", "ask");
+        String res = underTest.getStartOptionsValidationMessage(option);
+
+        assertThat(res).isEqualTo("The parameter need to have numbers greater zero, seperated by ','. The following parameter where not greater zero: '0'");
+    }
+
+    @Test
+    void getStartOptionsValidationMessage_rerollSetNegative() {
+        ApplicationCommandInteractionOption option = createCommandInteractionOption("10", "12", "-9,-10", "1,2,3", "ask");
+        String res = underTest.getStartOptionsValidationMessage(option);
+
+        assertThat(res).isEqualTo("The parameter need to have numbers greater zero, seperated by ','. The following parameter where not greater zero: '-9', '-10'");
+    }
+
+    @Test
+    void getStartOptionsValidationMessage_rerollSetNotANumber() {
+        ApplicationCommandInteractionOption option = createCommandInteractionOption("10", "12", "9a,asfd,..,10", "1,2,3", "ask");
+        String res = underTest.getStartOptionsValidationMessage(option);
+
+        assertThat(res).isEqualTo("The parameter need to have numbers, seperated by ','. The following parameter where not numbers: '..', '9a', 'asfd'");
+    }
+
+    @Test
+    void getStartOptionsValidationMessage_rerollSetEmpty() {
+        ApplicationCommandInteractionOption option = createCommandInteractionOption("10", "12", "9,,,,10", "1", "ask");
+        String res = underTest.getStartOptionsValidationMessage(option);
+
+        assertThat(res).isEqualTo("The parameter need to have numbers, seperated by ','. The following parameter where not numbers: ''");
     }
 }

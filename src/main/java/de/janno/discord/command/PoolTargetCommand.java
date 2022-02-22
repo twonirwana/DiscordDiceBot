@@ -335,6 +335,14 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetCommand.Config,
 
     @Override
     protected String getStartOptionsValidationMessage(ApplicationCommandInteractionOption options) {
+        String botchSetValidation = validateIntegerSetFromCommandOptions(options, BOTCH_SET_OPTION, ",");
+        if (botchSetValidation != null) {
+            return botchSetValidation;
+        }
+        String rerollSetValidation = validateIntegerSetFromCommandOptions(options, REROLL_SET_OPTION, ",");
+        if (rerollSetValidation != null) {
+            return rerollSetValidation;
+        }
         Config conf = getConfigFromStartOptions(options);
         return validate(conf);
     }
