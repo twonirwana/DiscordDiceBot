@@ -46,7 +46,7 @@ class SumCustomSetCommandTest {
 
     static Stream<Arguments> generateGetEditButtonMessageData() {
         return Stream.of(
-                Arguments.of(new SumCustomSetCommand.State("1d4", "", "user1"), "Click on the buttons to add dice to the set"),
+                Arguments.of(new SumCustomSetCommand.State("1d4", "", "user1"), "Click the buttons to add dice to the set and then on Roll"),
                 Arguments.of(new SumCustomSetCommand.State("1d4", "1d4", "user1"), "user1∶ 1d4"),
                 Arguments.of(new SumCustomSetCommand.State("1d4", "1d4", null), "1d4"),
                 Arguments.of(new SumCustomSetCommand.State("-1d4", "-1d4", "user1"), "user1∶ -1d4")
@@ -70,46 +70,46 @@ class SumCustomSetCommandTest {
     @Test
     void getButtonMessageWithState_clear() {
         String res = underTest.getButtonMessageWithState(new SumCustomSetCommand.State("clear", "1d6", "user1"), defaultConfig);
-        assertThat(res).isEqualTo("Click on the buttons to add dice to the set");
+        assertThat(res).isEqualTo("Click the buttons to add dice to the set and then on Roll");
     }
 
     @Test
     void getButtonMessageWithState_roll() {
         String res = underTest.getButtonMessageWithState(new SumCustomSetCommand.State("roll", "1d6", "user1"), defaultConfig);
-        assertThat(res).isEqualTo("Click on the buttons to add dice to the set");
+        assertThat(res).isEqualTo("Click the buttons to add dice to the set and then on Roll");
     }
 
     @Test
     void getEditButtonMessage_backLast() {
         String res = underTest.getButtonMessageWithState(new SumCustomSetCommand.State("back", "1d6", "user1"), defaultConfig);
 
-        assertThat(res).isEqualTo("Click on the buttons to add dice to the set");
+        assertThat(res).isEqualTo("Click the buttons to add dice to the set and then on Roll");
     }
 
     @Test
     void getEditButtonMessage_back() {
         String res = underTest.getButtonMessageWithState(new SumCustomSetCommand.State("back", "1d6+1d6", "user1"), defaultConfig);
 
-        assertThat(res).isEqualTo("Click on the buttons to add dice to the set");
+        assertThat(res).isEqualTo("Click the buttons to add dice to the set and then on Roll");
     }
 
     @Test
     void getEditButtonMessage_clear() {
         String res = underTest.getButtonMessageWithState(new SumCustomSetCommand.State("clear", "1d6+1d6", "user1"), defaultConfig);
 
-        assertThat(res).isEqualTo("Click on the buttons to add dice to the set");
+        assertThat(res).isEqualTo("Click the buttons to add dice to the set and then on Roll");
     }
 
     @Test
     void getButtonMessage() {
         String res = underTest.getButtonMessage(defaultConfig);
-        assertThat(res).isEqualTo("Click on the buttons to add dice to the set");
+        assertThat(res).isEqualTo("Click the buttons to add dice to the set and then on Roll");
     }
 
     @Test
     void getButtonMessageWithState() {
         String res = underTest.getButtonMessageWithState(new SumCustomSetCommand.State("roll", "1d6", "user1"), defaultConfig);
-        assertThat(res).isEqualTo("Click on the buttons to add dice to the set");
+        assertThat(res).isEqualTo("Click the buttons to add dice to the set and then on Roll");
     }
 
 
@@ -169,7 +169,7 @@ class SumCustomSetCommandTest {
         IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
         when(event.getCustomId()).thenReturn("sum_custom_set,1d21");
         when(event.getInvokingGuildMemberName()).thenReturn("user1");
-        when(event.getMessageContent()).thenReturn("Click on the buttons to add dice to the set");
+        when(event.getMessageContent()).thenReturn("Click the buttons to add dice to the set and then on Roll");
         assertThat(underTest.getStateFromEvent(event)).isEqualTo(new SumCustomSetCommand.State("1d21", "1d21", "user1"));
     }
 
@@ -474,9 +474,9 @@ class SumCustomSetCommandTest {
         StepVerifier.create(res)
                 .verifyComplete();
 
-        verify(buttonEventAdaptor).editMessage("Click on the buttons to add dice to the set");
+        verify(buttonEventAdaptor).editMessage("Click the buttons to add dice to the set and then on Roll");
         verify(buttonEventAdaptor).createButtonMessage(
-                eq("Click on the buttons to add dice to the set"),
+                eq("Click the buttons to add dice to the set and then on Roll"),
                 any()
         );
         verify(buttonEventAdaptor).deleteMessage(anyLong());
@@ -515,9 +515,9 @@ class SumCustomSetCommandTest {
                 .verifyComplete();
 
 
-        verify(buttonEventAdaptor).editMessage("Click on the buttons to add dice to the set");
+        verify(buttonEventAdaptor).editMessage("Click the buttons to add dice to the set and then on Roll");
         verify(buttonEventAdaptor).createButtonMessage(
-                eq("Click on the buttons to add dice to the set"),
+                eq("Click the buttons to add dice to the set and then on Roll"),
                 any()
         );
         verify(buttonEventAdaptor, never()).deleteMessage(anyLong());

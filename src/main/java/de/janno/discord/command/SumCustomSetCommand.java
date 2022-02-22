@@ -31,7 +31,7 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetCommand.Con
     private static final String COMMAND_NAME = "sum_custom_set";
     private static final String ROLL_BUTTON_ID = "roll";
     private static final String NO_ACTION = "no action";
-    private static final String EMPTY_MESSAGE = "Click on the buttons to add dice to the set";
+    private static final String EMPTY_MESSAGE = "Click the buttons to add dice to the set and then on Roll";
     private static final String CLEAR_BUTTON_ID = "clear";
     private static final String BACK_BUTTON_ID = "back";
     private static final List<String> DICE_COMMAND_OPTIONS_IDS = IntStream.range(1, 23).mapToObj(i -> i + "_button").collect(Collectors.toList());
