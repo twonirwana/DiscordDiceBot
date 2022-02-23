@@ -174,6 +174,16 @@ class SumCustomSetCommandTest {
     }
 
     @Test
+    void getStateFromEvent_legacy() {
+        IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
+        when(event.getCustomId()).thenReturn("sum_custom_set,1d21");
+        when(event.getInvokingGuildMemberName()).thenReturn("user1");
+        when(event.getMessageContent()).thenReturn("Click on the buttons to add dice to the set");
+        assertThat(underTest.getStateFromEvent(event)).isEqualTo(new SumCustomSetCommand.State("1d21", "1d21", "user1"));
+    }
+
+
+    @Test
     void getStateFromEvent_clear() {
         IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
         when(event.getCustomId()).thenReturn("sum_custom_set,clear");
