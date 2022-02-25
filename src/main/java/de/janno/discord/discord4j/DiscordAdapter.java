@@ -16,7 +16,6 @@ import discord4j.rest.util.Color;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.jetbrains.annotations.Nullable;
 import reactor.core.publisher.Mono;
 
 import java.nio.charset.StandardCharsets;
@@ -68,15 +67,17 @@ public abstract class DiscordAdapter implements IDiscordAdapter {
     }
 
     //todo retry on server error class
-    protected Mono<Void> handleException(@NonNull String errorMessage, @NonNull Throwable throwable, boolean ignoreMissing, @Nullable Message triggeringMessage) {
+    protected Mono<Void> handleException(@NonNull String errorMessage,
+                                         @NonNull Throwable throwable,
+                                         boolean ignoreMissing) {
         if (throwable instanceof ClientException) {
             ClientException clientException = (ClientException) throwable;
             if (clientException.getStatus().code() == 404 && ignoreMissing) {
                 log.trace(errorMessage, clientException);
-            } else if (clientException.getStatus().code() == 403 && triggeringMessage != null) {
+            } else if (clientException.getStatus().code() == 403) {
                 log.trace(errorMessage, clientException);
                 //todo find better solution than sending the Mono.error to immediately terminate the mono
-                return triggeringMessage.edit().withContentOrNull(PERMISSION_ERROR_MESSAGE).then(Mono.error(new MissingPermissionException(errorMessage)));
+                return answerOnError(PERMISSION_ERROR_MESSAGE).then(Mono.error(new MissingPermissionException(errorMessage)));
             } else {
                 log.error("{}: {}{}", errorMessage,
                         clientException.getResponse().status(),
@@ -92,5 +93,7 @@ public abstract class DiscordAdapter implements IDiscordAdapter {
         return String.format("%s%s", clientException.getResponse().status(),
                 clientException.getErrorResponse().map(er -> " with response " + er.getFields()).orElse(""));
     }
+
+    protected abstract Mono<Void> answerOnError(String message);
 
 }

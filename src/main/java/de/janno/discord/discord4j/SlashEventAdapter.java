@@ -108,7 +108,7 @@ public class SlashEventAdapter extends DiscordAdapter implements ISlashEventAdap
     public Mono<Long> createButtonMessage(@NonNull String buttonMessage, @NonNull List<LayoutComponent> buttons) {
         return event.getInteraction().getChannel().ofType(TextChannel.class)
                 .flatMap(channel -> createButtonMessage(channel, buttonMessage, buttons))
-                .onErrorResume(t -> handleException("Error on creating button message", t, false, null).ofType(Message.class))
+                .onErrorResume(t -> handleException("Error on creating button message", t, false).ofType(Message.class))
                 .map(m -> m.getId().asLong());
     }
 
@@ -116,7 +116,7 @@ public class SlashEventAdapter extends DiscordAdapter implements ISlashEventAdap
     public Mono<Void> createResultMessageWithEventReference(Answer answer) {
         return event.getInteraction().getChannel().ofType(TextChannel.class)
                 .flatMap(channel -> channel.createMessage(createEmbedMessageWithReference(answer, event.getInteraction().getMember().orElseThrow())))
-                .onErrorResume(t -> handleException("Error on creating answer message", t, false, null).ofType(Message.class))
+                .onErrorResume(t -> handleException("Error on creating answer message", t, false).ofType(Message.class))
                 .ofType(Void.class);
     }
 
@@ -160,8 +160,11 @@ public class SlashEventAdapter extends DiscordAdapter implements ISlashEventAdap
                 .flatMap(c -> c.getMessageById(Snowflake.of(messageId)))
                 .filter(m -> !m.isPinned())
                 .flatMap(Message::delete)
-                .onErrorResume(t -> handleException("Error on deleting message", t, true, null));
+                .onErrorResume(t -> handleException("Error on deleting message", t, true));
     }
 
-
+    @Override
+    protected Mono<Void> answerOnError(String message) {
+        return reply(message);
+    }
 }

@@ -26,6 +26,8 @@ suggestions**:  [Button Dice Roller Discord Server](https://discord.gg/e43BsqKpF
 :warning: **If you can't see the bots messages**: The link preview in the discord setting must be activated to see the
 roll results
 
+:warning: The bot currently doesn't support threads and stages
+
 ## Example RPG System Commands
 
 Some example for commands, many more systems can be mapped with commands, please see in the detail's description below

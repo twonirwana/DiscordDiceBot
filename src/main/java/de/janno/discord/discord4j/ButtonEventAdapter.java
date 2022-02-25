@@ -84,18 +84,20 @@ public class ButtonEventAdapter extends DiscordAdapter implements IButtonEventAd
     @Override
     public Mono<Void> editMessage(String message) {
         return event.edit(message)
-                .onErrorResume(t -> handleException("Error on edit button event", t, true, event.getMessage().orElse(null)));
+                .onErrorResume(t -> handleException("Error on edit button event", t, true));
+    }
+
+    @Override
+    protected Mono<Void> answerOnError(String message) {
+        return event.getMessage().map(m -> m.edit().withContentOrNull(message).then()).orElse(Mono.empty());
     }
 
     @Override
     public Mono<Long> createButtonMessage(String messageContent, List<LayoutComponent> buttonLayout) {
-        return event.getInteraction().getChannel()
-                .ofType(TextChannel.class)
+        return event.getInteraction().getChannel().ofType(TextChannel.class)
                 .flatMap(channel -> createButtonMessage(channel, messageContent, buttonLayout)
-                        .onErrorResume(t -> handleException("Error on creating button message", t, false, event.getMessage().orElse(null))
-                                .ofType(Message.class))
-                )
-                .map(m -> m.getId().asLong());
+                        .onErrorResume(t -> handleException("Error on creating button message", t, false)
+                                .ofType(Message.class))).map(m -> m.getId().asLong());
     }
 
     @Override
@@ -104,14 +106,14 @@ public class ButtonEventAdapter extends DiscordAdapter implements IButtonEventAd
                 .flatMap(c -> c.getMessageById(Snowflake.of(messageId)))
                 .filter(m -> !m.isPinned())
                 .flatMap(Message::delete)
-                .onErrorResume(t -> handleException("Error on deleting message", t, true, event.getMessage().orElse(null)));
+                .onErrorResume(t -> handleException("Error on deleting message", t, true));
     }
 
     @Override
     public Mono<Void> createResultMessageWithEventReference(Answer answer) {
         return event.getInteraction().getChannel().ofType(TextChannel.class)
                 .flatMap(channel -> channel.createMessage(createEmbedMessageWithReference(answer, event.getInteraction().getMember().orElseThrow())))
-                .onErrorResume(t -> handleException("Error on creating answer message", t, false, event.getMessage().orElse(null)).ofType(Message.class))
+                .onErrorResume(t -> handleException("Error on creating answer message", t, false).ofType(Message.class))
                 .ofType(Void.class);
     }
 

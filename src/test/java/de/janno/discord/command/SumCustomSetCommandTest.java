@@ -155,6 +155,16 @@ class SumCustomSetCommandTest {
     }
 
     @Test
+    void getStateFromEvent_invalidContent() {
+        IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
+        when(event.getCustomId()).thenReturn("sum_custom_set,1d21");
+        when(event.getMessageContent()).thenReturn("user1∶ asdfasfdasf");
+        when(event.getInvokingGuildMemberName()).thenReturn("user1");
+        when(diceMock.roll(any())).thenThrow(new RuntimeException("test"));
+        assertThat(underTest.getStateFromEvent(event)).isEqualTo(new SumCustomSetCommand.State("no action", "", null));
+    }
+
+    @Test
     void getStateFromEvent_1d4_2d6_3d8_4d12_5d20() {
         IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
         when(event.getCustomId()).thenReturn("sum_custom_set,1d21");

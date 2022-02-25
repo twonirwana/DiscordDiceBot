@@ -193,6 +193,10 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetCommand.Con
         if (lastInvokingUser != null && !lastInvokingUser.equals(event.getInvokingGuildMemberName())) {
             return new State(NO_ACTION, buttonMessage, lastInvokingUser);
         }
+        if (!Strings.isNullOrEmpty(buttonMessage) && !diceParserHelper.validExpression(buttonMessage)) {
+            //invalid expression -> clear
+            return new State(NO_ACTION, "", null);
+        }
         if (BACK_BUTTON_ID.equals(buttonValue)) {
             int indexOfLastMinusOrPlus = Math.max(buttonMessage.lastIndexOf("+"), buttonMessage.lastIndexOf("-"));
             String newButtonMessage;
