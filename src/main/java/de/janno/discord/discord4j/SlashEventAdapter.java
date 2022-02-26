@@ -45,12 +45,12 @@ public class SlashEventAdapter extends DiscordAdapter implements ISlashEventAdap
     public String checkPermissions() {
         Optional<PermissionSet> permissions = Mono.zip(event.getInteraction().getChannel().ofType(TextChannel.class)
                                 .onErrorResume(t -> {
-                                    log.error("Error getting channel", t);
+                                    log.warn("Error getting channel", t);
                                     return Mono.empty();
                                 })
                         , event.getInteraction().getGuild().flatMap(Guild::getSelfMember)
                                 .onErrorResume(t -> {
-                                    log.error("Error in getting self member", t);
+                                    log.warn("Error in getting self member", t);
                                     return Mono.empty();
                                 }))
                 .onErrorResume(t -> {

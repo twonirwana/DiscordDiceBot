@@ -83,6 +83,8 @@ public abstract class DiscordAdapter implements IDiscordAdapter {
                         clientException.getResponse().status(),
                         getClientExceptionShortString(clientException));
             }
+        } else if (throwable instanceof UnsupportedOperationException) {
+            log.warn(errorMessage, throwable);
         } else {
             log.error(errorMessage, throwable);
         }
