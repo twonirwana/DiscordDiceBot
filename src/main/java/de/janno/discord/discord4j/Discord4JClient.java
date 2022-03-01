@@ -17,13 +17,17 @@ import discord4j.core.event.domain.interaction.ComponentInteractionEvent;
 import discord4j.core.object.entity.Guild;
 import discord4j.core.object.entity.channel.TextChannel;
 import discord4j.gateway.GatewayClient;
+import discord4j.rest.request.RouteMatcher;
+import discord4j.rest.response.ResponseFunction;
 import io.micrometer.core.instrument.Gauge;
+import io.netty.channel.unix.Errors;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.netty.http.client.HttpClient;
+import reactor.retry.Retry;
 
 import java.time.Duration;
 import java.util.Set;
@@ -48,6 +52,10 @@ public class Discord4JClient {
     public Discord4JClient(HttpClient httpClient, String token, boolean disableCommandUpdate) {
 
         DiscordClient discordClient = DiscordClientBuilder.create(token)
+                .onClientResponse(
+                        ResponseFunction.retryWhen(
+                                RouteMatcher.any(),
+                                Retry.anyOf(Errors.NativeIoException.class)))
                 .setReactorResources(ReactorResources.builder()
                         .httpClient(httpClient)
                         .build()).build();
