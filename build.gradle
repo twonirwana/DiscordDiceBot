@@ -19,7 +19,7 @@ dependencies {
     implementation 'ch.qos.logback:logback-classic:1.2.10'
     compileOnly 'org.projectlombok:lombok:1.18.22'
     annotationProcessor 'org.projectlombok:lombok:1.18.22'
-    implementation 'com.google.guava:guava:31.0.1-jre'
+    implementation 'com.google.guava:guava:31.1-jre'
     implementation 'io.micrometer:micrometer-core:1.8.3'
     implementation 'io.micrometer:micrometer-registry-prometheus:1.8.3'
     implementation 'org.apache.commons:commons-lang3:3.12.0'
