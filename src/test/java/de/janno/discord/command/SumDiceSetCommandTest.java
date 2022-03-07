@@ -3,6 +3,7 @@ package de.janno.discord.command;
 import com.google.common.collect.ImmutableMap;
 import de.janno.discord.api.Answer;
 import de.janno.discord.api.IButtonEventAdaptor;
+import de.janno.discord.command.slash.CommandDefinitionOption;
 import de.janno.discord.dice.DiceUtils;
 import discord4j.core.object.component.LayoutComponent;
 import discord4j.discordjson.json.ApplicationCommandOptionData;
@@ -309,7 +310,7 @@ class SumDiceSetCommandTest {
 
     @Test
     void getStartOptions() {
-        List<ApplicationCommandOptionData> res = underTest.getStartOptions();
+        List<CommandDefinitionOption> res = underTest.getStartOptions();
 
         assertThat(res).isEmpty();
     }

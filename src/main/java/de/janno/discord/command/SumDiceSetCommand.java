@@ -7,6 +7,8 @@ import com.google.common.collect.ImmutableMap;
 import de.janno.discord.api.Answer;
 import de.janno.discord.api.IButtonEventAdaptor;
 import de.janno.discord.cache.ButtonMessageCache;
+import de.janno.discord.command.slash.CommandDefinitionOption;
+import de.janno.discord.command.slash.CommandDefinitionOptionChoice;
 import de.janno.discord.dice.DiceUtils;
 import discord4j.core.object.command.ApplicationCommandInteractionOption;
 import discord4j.core.object.component.ActionRow;
@@ -106,7 +108,7 @@ public class SumDiceSetCommand extends AbstractCommand<SumDiceSetCommand.Config,
     }
 
     @Override
-    protected List<ApplicationCommandOptionData> getStartOptions() {
+    protected List<CommandDefinitionOption> getStartOptions() {
         return ImmutableList.of();
     }
 

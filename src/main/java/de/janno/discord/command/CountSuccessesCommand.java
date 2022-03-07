@@ -8,6 +8,8 @@ import com.google.common.collect.Lists;
 import de.janno.discord.api.Answer;
 import de.janno.discord.api.IButtonEventAdaptor;
 import de.janno.discord.cache.ButtonMessageCache;
+import de.janno.discord.command.slash.CommandDefinitionOption;
+import de.janno.discord.command.slash.CommandDefinitionOptionChoice;
 import de.janno.discord.dice.DiceUtils;
 import discord4j.core.object.command.ApplicationCommandInteractionOption;
 import discord4j.core.object.command.ApplicationCommandInteractionOptionValue;
@@ -16,8 +18,6 @@ import discord4j.core.object.component.ActionRow;
 import discord4j.core.object.component.Button;
 import discord4j.core.object.component.LayoutComponent;
 import discord4j.core.spec.EmbedCreateSpec;
-import discord4j.discordjson.json.ApplicationCommandOptionChoiceData;
-import discord4j.discordjson.json.ApplicationCommandOptionData;
 import lombok.NonNull;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
@@ -94,38 +94,38 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesCommand
     }
 
     @Override
-    protected List<ApplicationCommandOptionData> getStartOptions() {
-        return ImmutableList.of(ApplicationCommandOptionData.builder()
+    protected List<CommandDefinitionOption> getStartOptions() {
+        return ImmutableList.of(CommandDefinitionOption.builder()
                         .name(ACTION_SIDE_OPTION)
                         .required(true)
                         .description("Dice side")
-                        .type(ApplicationCommandOption.Type.INTEGER.getValue())
+                        .type(CommandDefinitionOption.Type.INTEGER)
                         .minValue(2d)
                         .maxValue((double) MAX_NUMBER_SIDES_OR_TARGET_NUMBER).build(),
-                ApplicationCommandOptionData.builder()
+                CommandDefinitionOption.builder()
                         .name(ACTION_TARGET_OPTION)
                         .required(true)
                         .description("Target number")
-                        .type(ApplicationCommandOption.Type.INTEGER.getValue())
+                        .type(CommandDefinitionOption.Type.INTEGER)
                         .minValue(1d)
                         .maxValue((double) MAX_NUMBER_SIDES_OR_TARGET_NUMBER)
                         .build(),
-                ApplicationCommandOptionData.builder()
+                CommandDefinitionOption.builder()
                         .name(ACTION_GLITCH_OPTION)
                         .required(false)
                         .description("Glitch option")
-                        .type(ApplicationCommandOption.Type.STRING.getValue())
-                        .addChoice(ApplicationCommandOptionChoiceData.builder().name(GLITCH_OPTION_HALF_ONES).value(GLITCH_OPTION_HALF_ONES).build())
-                        .addChoice(ApplicationCommandOptionChoiceData.builder().name(GLITCH_COUNT_ONES).value(GLITCH_COUNT_ONES).build())
-                        .addChoice(ApplicationCommandOptionChoiceData.builder().name(GLITCH_SUBTRACT_ONES).value(GLITCH_SUBTRACT_ONES).build())
+                        .type(CommandDefinitionOption.Type.STRING)
+                        .choice(CommandDefinitionOptionChoice.builder().name(GLITCH_OPTION_HALF_ONES).value(GLITCH_OPTION_HALF_ONES).build())
+                        .choice(CommandDefinitionOptionChoice.builder().name(GLITCH_COUNT_ONES).value(GLITCH_COUNT_ONES).build())
+                        .choice(CommandDefinitionOptionChoice.builder().name(GLITCH_SUBTRACT_ONES).value(GLITCH_SUBTRACT_ONES).build())
                         .build(),
-                ApplicationCommandOptionData.builder()
+                CommandDefinitionOption.builder()
                         .name(ACTION_MAX_DICE_OPTION)
                         .required(false)
                         .description("Max number of dice")
-                        .type(ApplicationCommandOption.Type.INTEGER.getValue())
+                        .type(CommandDefinitionOption.Type.INTEGER)
                         .minValue(1d)
-                        .maxValue(Double.valueOf(MAX_NUMBER_OF_DICE))
+                        .maxValue((double) MAX_NUMBER_OF_DICE)
                         .build());
     }
 

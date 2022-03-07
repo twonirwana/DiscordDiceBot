@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import de.janno.discord.api.Answer;
 import de.janno.discord.api.IButtonEventAdaptor;
+import de.janno.discord.command.slash.CommandDefinitionOption;
 import de.janno.discord.dice.DiceUtils;
 import discord4j.core.object.component.LayoutComponent;
 import discord4j.discordjson.json.ApplicationCommandOptionData;
@@ -48,9 +49,9 @@ class HoldRerollCommandTest {
 
     @Test
     void getStartOptions() {
-        List<ApplicationCommandOptionData> res = underTest.getStartOptions();
+        List<CommandDefinitionOption> res = underTest.getStartOptions();
 
-        assertThat(res.stream().map(ApplicationCommandOptionData::name)).containsExactly("sides", "reroll_set", "success_set", "failure_set");
+        assertThat(res.stream().map(CommandDefinitionOption::getName)).containsExactly("sides", "reroll_set", "success_set", "failure_set");
     }
 
     @Test

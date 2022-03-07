@@ -4,13 +4,13 @@ import com.google.common.annotations.VisibleForTesting;
 import de.janno.discord.Metrics;
 import de.janno.discord.api.Answer;
 import de.janno.discord.api.ISlashEventAdaptor;
+import de.janno.discord.command.slash.CommandDefinition;
+import de.janno.discord.command.slash.CommandDefinitionOption;
 import de.janno.discord.dice.DiceParserHelper;
-import de.janno.discord.discord4j.ApplicationCommand;
 import discord4j.core.object.command.ApplicationCommandInteractionOption;
 import discord4j.core.object.command.ApplicationCommandInteractionOptionValue;
 import discord4j.core.object.command.ApplicationCommandOption;
 import discord4j.core.spec.EmbedCreateSpec;
-import discord4j.discordjson.json.ApplicationCommandOptionData;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
@@ -39,15 +39,15 @@ public class DirectRollCommand implements ISlashCommand {
     }
 
     @Override
-    public ApplicationCommand getApplicationCommand() {
-        return ApplicationCommand.builder()
+    public CommandDefinition getCommandDefinition() {
+        return CommandDefinition.builder()
                 .name(getName())
                 .description("direct roll of dice expression")
-                .option(ApplicationCommandOptionData.builder()
+                .option(CommandDefinitionOption.builder()
                         .name(ACTION_EXPRESSION)
                         .required(true)
                         .description("dice expression, e.g. '2d6'")
-                        .type(ApplicationCommandOption.Type.STRING.getValue())
+                        .type(CommandDefinitionOption.Type.STRING)
                         .build())
                 .build();
     }

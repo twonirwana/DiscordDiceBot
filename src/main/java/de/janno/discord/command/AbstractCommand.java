@@ -8,12 +8,11 @@ import de.janno.discord.api.IButtonEventAdaptor;
 import de.janno.discord.api.IComponentInteractEventHandler;
 import de.janno.discord.api.ISlashEventAdaptor;
 import de.janno.discord.cache.ButtonMessageCache;
-import de.janno.discord.discord4j.ApplicationCommand;
+import de.janno.discord.command.slash.CommandDefinition;
+import de.janno.discord.command.slash.CommandDefinitionOption;
 import discord4j.core.object.command.ApplicationCommandInteractionOption;
-import discord4j.core.object.command.ApplicationCommandOption;
 import discord4j.core.object.component.LayoutComponent;
 import discord4j.core.spec.EmbedCreateSpec;
-import discord4j.discordjson.json.ApplicationCommandOptionData;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
@@ -27,9 +26,9 @@ import java.util.Set;
 @Slf4j
 public abstract class AbstractCommand<C extends IConfig, S extends IState> implements ISlashCommand, IComponentInteractEventHandler {
 
+    public static final String CONFIG_DELIMITER = ",";
     protected static final String ACTION_START = "start";
     protected static final String ACTION_HELP = "help";
-    public static final String CONFIG_DELIMITER = ",";
     protected final ButtonMessageCache buttonMessageCache;
 
     protected AbstractCommand(ButtonMessageCache buttonMessageCache) {
@@ -42,20 +41,20 @@ public abstract class AbstractCommand<C extends IConfig, S extends IState> imple
     }
 
     @Override
-    public ApplicationCommand getApplicationCommand() {
-        return ApplicationCommand.builder()
+    public CommandDefinition getCommandDefinition() {
+        return CommandDefinition.builder()
                 .name(getName())
                 .description(getCommandDescription())
-                .option(ApplicationCommandOptionData.builder()
+                .option(CommandDefinitionOption.builder()
                         .name(ACTION_START)
                         .description("Start")
-                        .type(ApplicationCommandOption.Type.SUB_COMMAND.getValue())
-                        .addAllOptions(getStartOptions())
+                        .type(CommandDefinitionOption.Type.SUB_COMMAND)
+                        .options(getStartOptions())
                         .build())
-                .option(ApplicationCommandOptionData.builder()
+                .option(CommandDefinitionOption.builder()
                         .name(ACTION_HELP)
                         .description("Help")
-                        .type(ApplicationCommandOption.Type.SUB_COMMAND.getValue())
+                        .type(CommandDefinitionOption.Type.SUB_COMMAND)
                         .build()
                 )
                 .build();
@@ -165,7 +164,7 @@ public abstract class AbstractCommand<C extends IConfig, S extends IState> imple
                                     requester.getChannelName(),
                                     requester.getUserName(),
                                     commandString
-                                    ))
+                            ))
                             .ofType(Void.class));
 
         } else if (event.getOption(ACTION_HELP).isPresent()) {
@@ -175,7 +174,7 @@ public abstract class AbstractCommand<C extends IConfig, S extends IState> imple
         return Mono.empty();
     }
 
-    protected List<ApplicationCommandOptionData> getStartOptions() {
+    protected List<CommandDefinitionOption> getStartOptions() {
         return ImmutableList.of();
     }
 
