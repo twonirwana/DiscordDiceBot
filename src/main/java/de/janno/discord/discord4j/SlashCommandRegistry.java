@@ -67,9 +67,9 @@ public class SlashCommandRegistry {
                 Flux.fromIterable(botCommands.values())
                         .filter(sc -> !currentlyRegisteredCommands.containsKey(sc.getName()))
                         .flatMap(sc -> {
-                                    log.info("Add missing command: {}", sc.getApplicationCommand());
-                                    return applicationService.createGlobalApplicationCommand(applicationId, sc.getApplicationCommand().buildRequest())
-                                            .doOnError(t -> log.error("Error adding missing command: {}", sc.getApplicationCommand(), t));
+                                    log.info("Add missing command: {}", sc.getCommandDefinition());
+                                    return applicationService.createGlobalApplicationCommand(applicationId, ApplicationCommandHelper.commandDefinition2ApplicationCommandRequest(sc.getCommandDefinition()))
+                                            .doOnError(t -> log.error("Error adding missing command: {}", sc.getCommandDefinition(), t));
                                 }
                         )
                         .subscribe();
@@ -77,13 +77,13 @@ public class SlashCommandRegistry {
                 //update existing
                 Flux.fromIterable(botCommands.values())
                         .filter(sc -> currentlyRegisteredCommands.containsKey(sc.getName()) &&
-                                !sc.getApplicationCommand().equalToApplicationCommandData(currentlyRegisteredCommands.get(sc.getName())))
+                                !sc.getCommandDefinition().equals(ApplicationCommandHelper.applicationCommandData2CommandDefinition(currentlyRegisteredCommands.get(sc.getName()))))
                         .flatMap(sc -> {
-                                    log.info("Update command: {}", sc.getApplicationCommand());
+                                    log.info("Update command: {} != {}", sc.getCommandDefinition(), ApplicationCommandHelper.applicationCommandData2CommandDefinition(currentlyRegisteredCommands.get(sc.getName())));
                                     return applicationService.modifyGlobalApplicationCommand(applicationId,
                                                     Long.parseLong(currentlyRegisteredCommands.get(sc.getName()).id()),
-                                                    sc.getApplicationCommand().buildRequest())
-                                            .doOnError(t -> log.error("Error updating command: {}", sc.getApplicationCommand(), t));
+                                                    ApplicationCommandHelper.commandDefinition2ApplicationCommandRequest(sc.getCommandDefinition()))
+                                            .doOnError(t -> log.error("Error updating command: {}", sc.getCommandDefinition(), t));
 
                                 }
                         )

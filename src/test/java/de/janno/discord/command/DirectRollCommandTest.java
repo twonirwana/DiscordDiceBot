@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import de.janno.discord.api.Answer;
 import de.janno.discord.api.ISlashEventAdaptor;
 import de.janno.discord.api.Requester;
+import de.janno.discord.command.slash.CommandDefinitionOption;
 import de.janno.discord.dice.DiceParserHelper;
 import de.janno.discord.dice.IDice;
 import dev.diceroll.parser.NDice;

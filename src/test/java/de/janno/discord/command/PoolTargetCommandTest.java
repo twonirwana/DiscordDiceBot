@@ -6,6 +6,7 @@ import de.janno.discord.api.Answer;
 import de.janno.discord.api.IButtonEventAdaptor;
 import de.janno.discord.api.Requester;
 import de.janno.discord.cache.ButtonMessageCache;
+import de.janno.discord.command.slash.CommandDefinitionOption;
 import de.janno.discord.dice.DiceUtils;
 import discord4j.core.GatewayDiscordClient;
 import discord4j.core.object.command.ApplicationCommandInteractionOption;
@@ -73,9 +74,9 @@ class PoolTargetCommandTest {
 
     @Test
     void getStartOptions() {
-        List<ApplicationCommandOptionData> res = underTest.getStartOptions();
+        List<CommandDefinitionOption> res = underTest.getStartOptions();
 
-        assertThat(res.stream().map(ApplicationCommandOptionData::name)).containsExactly("sides", "max_dice", "reroll_set", "botch_set", "reroll_variant");
+        assertThat(res.stream().map(CommandDefinitionOption::getName)).containsExactly("sides", "max_dice", "reroll_set", "botch_set", "reroll_variant");
     }
 
     @Test

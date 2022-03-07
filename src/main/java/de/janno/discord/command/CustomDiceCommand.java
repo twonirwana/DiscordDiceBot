@@ -6,6 +6,7 @@ import com.google.common.collect.Lists;
 import de.janno.discord.api.Answer;
 import de.janno.discord.api.IButtonEventAdaptor;
 import de.janno.discord.cache.ButtonMessageCache;
+import de.janno.discord.command.slash.CommandDefinitionOption;
 import de.janno.discord.dice.DiceParserHelper;
 import discord4j.core.object.command.ApplicationCommandInteractionOption;
 import discord4j.core.object.command.ApplicationCommandInteractionOptionValue;
@@ -60,12 +61,12 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceCommand.Config,
     }
 
     @Override
-    protected List<ApplicationCommandOptionData> getStartOptions() {
+    protected List<CommandDefinitionOption> getStartOptions() {
         return DICE_COMMAND_OPTIONS_IDS.stream()
-                .map(id -> ApplicationCommandOptionData.builder()
+                .map(id -> CommandDefinitionOption.builder()
                         .name(id)
                         .description("xdy for a set of x dice with y sides, e.g. '3d6'")
-                        .type(ApplicationCommandOption.Type.STRING.getValue())
+                        .type(CommandDefinitionOption.Type.STRING)
                         .build())
                 .collect(Collectors.toList());
     }

@@ -7,6 +7,8 @@ import com.google.common.collect.ImmutableList;
 import de.janno.discord.api.Answer;
 import de.janno.discord.api.IButtonEventAdaptor;
 import de.janno.discord.cache.ButtonMessageCache;
+import de.janno.discord.command.slash.CommandDefinitionOption;
+import de.janno.discord.command.slash.CommandDefinitionOptionChoice;
 import de.janno.discord.dice.DiceUtils;
 import discord4j.core.object.command.ApplicationCommandInteractionOption;
 import discord4j.core.object.command.ApplicationCommandInteractionOptionValue;
@@ -83,17 +85,17 @@ public class FateCommand extends AbstractCommand<FateCommand.Config, FateCommand
     }
 
     @Override
-    protected List<ApplicationCommandOptionData> getStartOptions() {
-        return ImmutableList.of(ApplicationCommandOptionData.builder()
+    protected List<CommandDefinitionOption> getStartOptions() {
+        return ImmutableList.of(CommandDefinitionOption.builder()
                 .name(ACTION_MODIFIER_OPTION)
                 .required(true)
                 .description("Show modifier buttons")
-                .type(ApplicationCommandOption.Type.STRING.getValue())
-                .addChoice(ApplicationCommandOptionChoiceData.builder()
+                .type(CommandDefinitionOption.Type.STRING)
+                .choice(CommandDefinitionOptionChoice.builder()
                         .name(ACTION_MODIFIER_OPTION_SIMPLE)
                         .value(ACTION_MODIFIER_OPTION_SIMPLE)
                         .build())
-                .addChoice(ApplicationCommandOptionChoiceData.builder()
+                .choice(CommandDefinitionOptionChoice.builder()
                         .name(ACTION_MODIFIER_OPTION_MODIFIER)
                         .value(ACTION_MODIFIER_OPTION_MODIFIER)
                         .build())

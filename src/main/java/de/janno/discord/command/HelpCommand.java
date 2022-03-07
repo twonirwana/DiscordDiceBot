@@ -2,7 +2,7 @@ package de.janno.discord.command;
 
 import de.janno.discord.Metrics;
 import de.janno.discord.api.ISlashEventAdaptor;
-import de.janno.discord.discord4j.ApplicationCommand;
+import de.janno.discord.command.slash.CommandDefinition;
 import discord4j.core.spec.EmbedCreateSpec;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -16,8 +16,8 @@ public class HelpCommand implements ISlashCommand {
     }
 
     @Override
-    public ApplicationCommand getApplicationCommand() {
-        return ApplicationCommand.builder()
+    public CommandDefinition getCommandDefinition() {
+        return CommandDefinition.builder()
                 .name(getName())
                 .description("Help to the commands and links for further information")
                 .build();
