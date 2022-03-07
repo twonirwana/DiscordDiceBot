@@ -149,7 +149,7 @@ class ApplicationCommandHelperTest {
     @Test
     void notEqual_DifferentOptionChoice() {
         CommandDefinition commandDefinition = CommandDefinition.builder()
-                .name("a1_o1")
+                .name("a")
                 .description("description")
                 .option(CommandDefinitionOption.builder()
                         .type(CommandDefinitionOption.Type.SUB_COMMAND)
@@ -186,6 +186,49 @@ class ApplicationCommandHelperTest {
                         .build())
                 .build();
         assertThat(commandDefinition).isNotEqualTo(ApplicationCommandHelper.applicationCommandData2CommandDefinition(applicationCommandData));
+
+    }
+
+    @Test
+    void equal() {
+        CommandDefinition commandDefinition = CommandDefinition.builder()
+                .name("a")
+                .description("description")
+                .option(CommandDefinitionOption.builder()
+                        .type(CommandDefinitionOption.Type.SUB_COMMAND)
+                        .name("a1_o1")
+                        .description("a1_o1")
+                        .choice(CommandDefinitionOptionChoice.builder()
+                                .name("c1")
+                                .value("v1")
+                                .build())
+                        .choice(CommandDefinitionOptionChoice.builder()
+                                .name("c2")
+                                .value("v2")
+                                .build())
+                        .build())
+                .build();
+
+        ApplicationCommandData applicationCommandData = ApplicationCommandData.builder()
+                .id("id")
+                .applicationId("appId")
+                .name("a")
+                .description("description")
+                .addOption(ApplicationCommandOptionData.builder()
+                        .type(1)
+                        .name("a1_o1")
+                        .description("a1_o1")
+                        .addChoice(ApplicationCommandOptionChoiceData.builder()
+                                .name("c1")
+                                .value("v1")
+                                .build())
+                        .addChoice(ApplicationCommandOptionChoiceData.builder()
+                                .name("c2")
+                                .value("v2")
+                                .build())
+                        .build())
+                .build();
+        assertThat(commandDefinition).isEqualTo(ApplicationCommandHelper.applicationCommandData2CommandDefinition(applicationCommandData));
 
     }
 
