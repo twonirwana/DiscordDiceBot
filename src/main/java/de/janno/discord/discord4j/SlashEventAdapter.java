@@ -1,21 +1,15 @@
 package de.janno.discord.discord4j;
 
-import de.janno.discord.api.Answer;
-import de.janno.discord.api.ISlashEventAdaptor;
-import de.janno.discord.api.Requester;
-import discord4j.common.util.Snowflake;
-import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
-import discord4j.core.object.command.ApplicationCommandInteractionOption;
-import discord4j.core.object.command.ApplicationCommandInteractionOptionValue;
-import discord4j.core.object.component.LayoutComponent;
-import discord4j.core.object.entity.Guild;
-import discord4j.core.object.entity.Message;
-import discord4j.core.object.entity.channel.TextChannel;
-import discord4j.core.spec.EmbedCreateSpec;
-import discord4j.rest.util.Permission;
-import discord4j.rest.util.PermissionSet;
+import de.janno.discord.api.*;
+import de.janno.discord.command.slash.CommandInteractionOption;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import org.javacord.api.entity.DiscordEntity;
+import org.javacord.api.entity.message.Message;
+import org.javacord.api.entity.message.embed.EmbedBuilder;
+import org.javacord.api.event.interaction.SlashCommandCreateEvent;
+import org.javacord.api.interaction.SlashCommandInteractionOption;
+import org.javacord.api.interaction.callback.InteractionCallbackDataFlag;
 import org.jetbrains.annotations.Nullable;
 import reactor.core.publisher.Mono;
 
@@ -27,49 +21,29 @@ import java.util.stream.Collectors;
 @Slf4j
 public class SlashEventAdapter extends DiscordAdapter implements ISlashEventAdaptor {
 
-    private final ChatInputInteractionEvent event;
+    private final SlashCommandCreateEvent event;
     private final Mono<Requester> requesterMono;
     private final long channelId;
     private final String commandString;
 
-    public SlashEventAdapter(ChatInputInteractionEvent event, Mono<Requester> requesterMono) {
+    public SlashEventAdapter(SlashCommandCreateEvent event, Mono<Requester> requesterMono) {
         this.event = event;
         this.requesterMono = requesterMono;
-        this.channelId = event.getInteraction().getChannelId().asLong();
-        this.commandString = String.format("`/%s %s`", event.getCommandName(), event.getOptions().stream()
-                .map(a -> optionToString(a.getName(), a.getOptions(), a.getValue().orElse(null)))
+        this.channelId = event.getSlashCommandInteraction().getChannel().map(DiscordEntity::getId).orElseThrow();
+        this.commandString = String.format("`/%s %s`", event.getSlashCommandInteraction().getCommandName(), event.getSlashCommandInteraction().getOptions().stream()
+                .map(a -> optionToString(a.getName(), a.getOptions(), a.getStringRepresentationValue().orElse(null)))
                 .collect(Collectors.joining(" ")));
     }
 
     @Override
     public String checkPermissions() {
-        Optional<PermissionSet> permissions = Mono.zip(event.getInteraction().getChannel().ofType(TextChannel.class)
-                                .onErrorResume(t -> {
-                                    log.warn("Error getting channel", t);
-                                    return Mono.empty();
-                                })
-                        , event.getInteraction().getGuild().flatMap(Guild::getSelfMember)
-                                .onErrorResume(t -> {
-                                    log.warn("Error in getting self member", t);
-                                    return Mono.empty();
-                                }))
-                .onErrorResume(t -> {
-                    log.warn("Error in getting data for permission check", t);
-                    return Mono.empty();
-                })
-                .flatMap(channelAndMember -> channelAndMember.getT1().getEffectivePermissions(channelAndMember.getT2()))
-                .blockOptional();
 
-        //on error, for example unknown channel type of higher api
-        if (permissions.isEmpty()) {
-            return null;
-        }
 
         List<String> checks = new ArrayList<>();
-        if (!permissions.get().contains(Permission.SEND_MESSAGES)) {
+        if (!event.getSlashCommandInteraction().getChannel().orElseThrow().canYouWrite()) {
             checks.add("'SEND_MESSAGES'");
         }
-        if (!permissions.get().contains(Permission.EMBED_LINKS)) {
+        if (!event.getSlashCommandInteraction().getChannel().orElseThrow().canYouEmbedLinks()) {
             checks.add("'EMBED_LINKS'");
         }
         if (checks.isEmpty()) {
@@ -81,41 +55,55 @@ public class SlashEventAdapter extends DiscordAdapter implements ISlashEventAdap
     }
 
     @Override
-    public Optional<ApplicationCommandInteractionOption> getOption(String optionName) {
-        return event.getOption(optionName);
+    public Optional<CommandInteractionOption> getOption(@NonNull String optionName) {
+        return event.getSlashCommandInteraction().getOptions().stream()
+                .filter(o -> optionName.equals(o.getName()))
+                .findFirst()
+                .map(ApplicationCommandHelper::slashCommandInteractionOption2CommandInteractionOption);
     }
 
     @Override
     public Mono<Void> reply(String message) {
-        return event.reply(message)
+        return Mono.fromFuture(event.getSlashCommandInteraction().createImmediateResponder()
+                        .setContent(message)
+                        .respond())
                 .onErrorResume(t -> {
                     log.error("Error on replay", t);
                     return Mono.empty();
-                });
+                }).then();
     }
 
     @Override
-    public Mono<Void> replyEphemeral(EmbedCreateSpec embedCreateSpec) {
-        return event.reply().withEphemeral(true).withEmbeds(embedCreateSpec)
+    public Mono<Void> replyEphemeral(EmbedDefinition embedDefinition) {
+        //todo combine with DiscordAdapter.createEmbedMessageWithReference
+        EmbedBuilder embedBuilder = new EmbedBuilder()
+                .setDescription(embedDefinition.getDescription());
+        embedDefinition.getFields().forEach(f -> embedBuilder.addField(f.getName(), f.getValue(), f.isInline()));
+        return Mono.fromFuture(event.getSlashCommandInteraction().createImmediateResponder()
+                        .addEmbed(embedBuilder)
+                        .setFlags(InteractionCallbackDataFlag.EPHEMERAL)
+                        .respond())
                 .onErrorResume(t -> {
                     log.error("Error on replay to slash help command", t);
                     return Mono.empty();
-                });
+                })
+                .then();
 
     }
 
     @Override
-    public Mono<Long> createButtonMessage(@NonNull String buttonMessage, @NonNull List<LayoutComponent> buttons) {
-        return event.getInteraction().getChannel().ofType(TextChannel.class)
-                .flatMap(channel -> createButtonMessage(channel, buttonMessage, buttons))
+    public Mono<Long> createButtonMessage(@NonNull String buttonMessage, @NonNull List<ComponentRow> buttons) {
+        return createButtonMessage(event.getInteraction().getChannel().orElseThrow(), buttonMessage, buttons)
                 .onErrorResume(t -> handleException("Error on creating button message", t, false).ofType(Message.class))
-                .map(m -> m.getId().asLong());
+                .map(DiscordEntity::getId);
     }
 
     @Override
     public Mono<Void> createResultMessageWithEventReference(Answer answer) {
-        return event.getInteraction().getChannel().ofType(TextChannel.class)
-                .flatMap(channel -> channel.createMessage(createEmbedMessageWithReference(answer, event.getInteraction().getMember().orElseThrow())))
+        return createEmbedMessageWithReference(event.getInteraction().getChannel().orElseThrow(),
+                answer,
+                event.getInteraction().getUser(),
+                event.getSlashCommandInteraction().getServer().orElseThrow())
                 .onErrorResume(t -> handleException("Error on creating answer message", t, false).ofType(Message.class))
                 .ofType(Void.class);
     }
@@ -130,16 +118,16 @@ public class SlashEventAdapter extends DiscordAdapter implements ISlashEventAdap
         return commandString;
     }
 
-    private String optionToString(@NonNull String name, @NonNull List<ApplicationCommandInteractionOption> options, @Nullable ApplicationCommandInteractionOptionValue value) {
+    private String optionToString(@NonNull String name, @NonNull List<SlashCommandInteractionOption> options, @Nullable String value) {
         if (options.isEmpty() && value == null) {
             return name;
         }
         String out = name;
         if (value != null) {
-            out = String.format("%s:%s", name, value.getRaw());
+            out = String.format("%s:%s", name, value);
         }
         String optionsString = options.stream()
-                .map(a -> optionToString(a.getName(), a.getOptions(), a.getValue().orElse(null)))
+                .map(a -> optionToString(a.getName(), a.getOptions(), a.getStringRepresentationValue().orElse(null)))
                 .collect(Collectors.joining(" "));
         if (!optionsString.isEmpty()) {
             out = String.format("%s %s", out, optionsString);
@@ -156,11 +144,7 @@ public class SlashEventAdapter extends DiscordAdapter implements ISlashEventAdap
 
     @Override
     public Mono<Void> deleteMessage(long messageId) {
-        return event.getInteraction().getChannel()
-                .flatMap(c -> c.getMessageById(Snowflake.of(messageId)))
-                .filter(m -> !m.isPinned())
-                .flatMap(Message::delete)
-                .onErrorResume(t -> handleException("Error on deleting message", t, true));
+        return deleteMessage(event.getInteraction().getChannel().orElseThrow(), messageId);
     }
 
     @Override

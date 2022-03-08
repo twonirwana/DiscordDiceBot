@@ -1,9 +1,9 @@
 package de.janno.discord.command;
 
 import de.janno.discord.Metrics;
+import de.janno.discord.api.EmbedDefinition;
 import de.janno.discord.api.ISlashEventAdaptor;
 import de.janno.discord.command.slash.CommandDefinition;
-import discord4j.core.spec.EmbedCreateSpec;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
@@ -26,10 +26,10 @@ public class HelpCommand implements ISlashCommand {
     @Override
     public Mono<Void> handleSlashCommandEvent(@NonNull ISlashEventAdaptor event) {
         Metrics.incrementSlashStartMetricCounter(getName(), "[]");
-        return event.replyEphemeral(EmbedCreateSpec.builder()
-                .addField("Command help", "type '/count_successes help', '/custom_dice help' or '/fate help' to get help for the commands", false)
-                .addField("Full documentation", "https://github.com/twonirwana/DiscordDiceBot", false)
-                .addField("Discord Server", "https://discord.gg/e43BsqKpFr", false)
+        return event.replyEphemeral(EmbedDefinition.builder()
+                .field(new EmbedDefinition.Field("Command help", "type '/count_successes help', '/custom_dice help' or '/fate help' to get help for the commands", false))
+                .field(new EmbedDefinition.Field("Full documentation", "https://github.com/twonirwana/DiscordDiceBot", false))
+                .field(new EmbedDefinition.Field("Discord Server", "https://discord.gg/e43BsqKpFr", false))
                 .build());
     }
 }

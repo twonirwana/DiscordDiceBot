@@ -7,5 +7,5 @@ import lombok.Value;
 @Builder
 public class CommandDefinitionOptionChoice {
     String name;
-    Object value;
+    String value;
 }

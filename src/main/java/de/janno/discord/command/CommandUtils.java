@@ -2,8 +2,7 @@ package de.janno.discord.command;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import discord4j.core.object.command.ApplicationCommandInteractionOption;
-import discord4j.core.object.command.ApplicationCommandInteractionOptionValue;
+import de.janno.discord.command.slash.CommandInteractionOption;
 import lombok.NonNull;
 import org.apache.commons.lang3.math.NumberUtils;
 
@@ -53,10 +52,10 @@ public final class CommandUtils {
                 .collect(ImmutableSet.toImmutableSet());
     }
 
-    public static Set<Integer> getSetFromCommandOptions(ApplicationCommandInteractionOption options, String optionId, String delimiter) {
-        return options.getOption(optionId)
-                .flatMap(ApplicationCommandInteractionOption::getValue)
-                .map(ApplicationCommandInteractionOptionValue::asString)
+    public static Set<Integer> getSetFromCommandOptions(@NonNull CommandInteractionOption options,
+                                                        @NonNull String optionId,
+                                                        @NonNull String delimiter) {
+        return options.getStingSubOptionWithName(optionId)
                 .map(s -> s.split(delimiter))
                 .map(Arrays::asList)
                 .orElse(ImmutableList.of())
@@ -68,10 +67,10 @@ public final class CommandUtils {
                 .collect(ImmutableSet.toImmutableSet());
     }
 
-    public static String validateIntegerSetFromCommandOptions(ApplicationCommandInteractionOption options, String optionId, String delimiter) {
-        Set<String> stringValues = options.getOption(optionId)
-                .flatMap(ApplicationCommandInteractionOption::getValue)
-                .map(ApplicationCommandInteractionOptionValue::asString)
+    public static String validateIntegerSetFromCommandOptions(@NonNull CommandInteractionOption options,
+                                                              @NonNull String optionId,
+                                                              @NonNull String delimiter) {
+        Set<String> stringValues = options.getStingSubOptionWithName(optionId)
                 .map(s -> s.split(delimiter))
                 .map(Arrays::asList)
                 .orElse(ImmutableList.of())

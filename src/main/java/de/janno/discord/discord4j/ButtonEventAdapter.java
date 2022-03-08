@@ -3,22 +3,22 @@ package de.janno.discord.discord4j;
 import com.google.common.collect.ImmutableList;
 import de.janno.discord.api.Answer;
 import de.janno.discord.api.IButtonEventAdaptor;
+import de.janno.discord.api.ComponentRow;
 import de.janno.discord.api.Requester;
-import discord4j.common.util.Snowflake;
-import discord4j.core.event.domain.interaction.ComponentInteractionEvent;
-import discord4j.core.object.component.LayoutComponent;
-import discord4j.core.object.entity.Message;
-import discord4j.core.object.entity.PartialMember;
-import discord4j.core.object.entity.channel.TextChannel;
 import lombok.extern.slf4j.Slf4j;
+import org.javacord.api.entity.DiscordEntity;
+import org.javacord.api.entity.message.Message;
+import org.javacord.api.entity.message.component.ActionRow;
+import org.javacord.api.event.interaction.ButtonClickEvent;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Slf4j
 public class ButtonEventAdapter extends DiscordAdapter implements IButtonEventAdaptor {
-    private final ComponentInteractionEvent event;
+    private final ButtonClickEvent event;
     private final String customId;
     private final Long messageId;
     private final Long channelId;
@@ -28,27 +28,27 @@ public class ButtonEventAdapter extends DiscordAdapter implements IButtonEventAd
     private final Mono<Requester> requesterMono;
     private final String invokingGuildMemberName;
 
-    public ButtonEventAdapter(ComponentInteractionEvent event,
+    public ButtonEventAdapter(ButtonClickEvent event,
                               Mono<Requester> requesterMono) {
         this.event = event;
         this.requesterMono = requesterMono;
-        this.messageId = event.getMessageId().asLong();
-        this.customId = event.getCustomId();
-        this.isPinned = event.getMessage().map(Message::isPinned).orElse(false);
-        this.channelId = event.getInteraction().getChannelId().asLong();
-        this.messageContent = event.getMessage().map(Message::getContent).orElse("");
-        this.allButtonIds = event.getInteraction().getMessage()
-                .map(s -> s.getComponents().stream()
-                        .flatMap(lc -> lc.getChildren().stream())
-                        .map(l -> {
-                            if (l.getData().label().isAbsent() || l.getData().customId().isAbsent()) {
-                                return null;
+        this.messageId = event.getButtonInteraction().getMessage().getId();
+        this.customId = event.getButtonInteraction().getCustomId();
+        this.isPinned = event.getButtonInteraction().getMessage().isPinned();
+        this.channelId = event.getButtonInteraction().getChannel().map(DiscordEntity::getId).orElseThrow();
+        this.messageContent = event.getButtonInteraction().getMessage().getContent();
+        this.allButtonIds = event.getButtonInteraction().getMessage()
+                .getComponents().stream()
+                .flatMap(s -> s.asActionRow().map(ActionRow::getComponents).orElse(ImmutableList.of()).stream()
+                        .flatMap(lc -> lc.asButton().stream())
+                        .flatMap(l -> {
+                            if (l.getLabel().isEmpty() || l.getCustomId().isEmpty()) {
+                                return Stream.empty();
                             }
-                            return new LabelAndCustomId(l.getData().label().get(), l.getData().customId().get());
-                        }).collect(Collectors.toList())
-                )
-                .orElse(ImmutableList.of());
-        this.invokingGuildMemberName = event.getInteraction().getMember().map(PartialMember::getDisplayName).orElse(null);
+                            return Stream.of(new LabelAndCustomId(l.getLabel().get(), l.getCustomId().get()));
+                        })
+                ).collect(Collectors.toList());
+        this.invokingGuildMemberName = event.getButtonInteraction().getUser().getDisplayName(event.getButtonInteraction().getServer().orElseThrow());
     }
 
     @Override
@@ -83,36 +83,32 @@ public class ButtonEventAdapter extends DiscordAdapter implements IButtonEventAd
 
     @Override
     public Mono<Void> editMessage(String message) {
-        return event.edit(message)
+        return Mono.fromFuture(event.getButtonInteraction().getMessage().edit(message))
+                .then()
                 .onErrorResume(t -> handleException("Error on edit button event", t, true));
     }
 
     @Override
     protected Mono<Void> answerOnError(String message) {
-        return event.getMessage().map(m -> m.edit().withContentOrNull(message).then()).orElse(Mono.empty());
+        return Mono.fromFuture(event.getButtonInteraction().getMessage().edit(message)).then();
     }
 
     @Override
-    public Mono<Long> createButtonMessage(String messageContent, List<LayoutComponent> buttonLayout) {
-        return event.getInteraction().getChannel().ofType(TextChannel.class)
-                .flatMap(channel -> createButtonMessage(channel, messageContent, buttonLayout)
-                        .onErrorResume(t -> handleException("Error on creating button message", t, false)
-                                .ofType(Message.class))).map(m -> m.getId().asLong());
+    public Mono<Long> createButtonMessage(String messageContent, List<ComponentRow> buttonLayout) {
+        return createButtonMessage(event.getButtonInteraction().getChannel().orElseThrow(), messageContent, buttonLayout)
+                .onErrorResume(t -> handleException("Error on creating button message", t, false).ofType(Message.class))
+                .map(DiscordEntity::getId);
     }
 
     @Override
     public Mono<Void> deleteMessage(long messageId) {
-        return event.getInteraction().getChannel()
-                .flatMap(c -> c.getMessageById(Snowflake.of(messageId)))
-                .filter(m -> !m.isPinned())
-                .flatMap(Message::delete)
-                .onErrorResume(t -> handleException("Error on deleting message", t, true));
+        return deleteMessage(event.getInteraction().getChannel().orElseThrow(), messageId);
     }
 
     @Override
     public Mono<Void> createResultMessageWithEventReference(Answer answer) {
-        return event.getInteraction().getChannel().ofType(TextChannel.class)
-                .flatMap(channel -> channel.createMessage(createEmbedMessageWithReference(answer, event.getInteraction().getMember().orElseThrow())))
+        return Mono.just(event.getInteraction().getChannel().orElseThrow())
+                .flatMap(channel -> createEmbedMessageWithReference(channel, answer, event.getInteraction().getUser(), event.getInteraction().getServer().orElseThrow()))
                 .onErrorResume(t -> handleException("Error on creating answer message", t, false).ofType(Message.class))
                 .ofType(Void.class);
     }

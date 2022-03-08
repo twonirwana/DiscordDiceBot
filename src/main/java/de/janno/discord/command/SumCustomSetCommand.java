@@ -5,19 +5,11 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
-import de.janno.discord.api.Answer;
-import de.janno.discord.api.IButtonEventAdaptor;
+import de.janno.discord.api.*;
 import de.janno.discord.cache.ButtonMessageCache;
 import de.janno.discord.command.slash.CommandDefinitionOption;
+import de.janno.discord.command.slash.CommandInteractionOption;
 import de.janno.discord.dice.DiceParserHelper;
-import discord4j.core.object.command.ApplicationCommandInteractionOption;
-import discord4j.core.object.command.ApplicationCommandInteractionOptionValue;
-import discord4j.core.object.command.ApplicationCommandOption;
-import discord4j.core.object.component.ActionRow;
-import discord4j.core.object.component.Button;
-import discord4j.core.object.component.LayoutComponent;
-import discord4j.core.spec.EmbedCreateSpec;
-import discord4j.discordjson.json.ApplicationCommandOptionData;
 import lombok.NonNull;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
@@ -59,8 +51,8 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetCommand.Con
 
 
     @Override
-    protected EmbedCreateSpec getHelpMessage() {
-        return EmbedCreateSpec.builder()
+    protected EmbedDefinition getHelpMessage() {
+        return EmbedDefinition.builder()
                 .description("Creates up to 22 buttons with custom dice expression, that can be combined afterwards. e.g. '/sum_custom_set start 1_button:3d6 2_button:10d10 3_button:3d20'. \n" + DiceParserHelper.HELP)
                 .build();
     }
@@ -81,12 +73,9 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetCommand.Con
     }
 
     @Override
-    protected String getStartOptionsValidationMessage(ApplicationCommandInteractionOption options) {
+    protected String getStartOptionsValidationMessage(CommandInteractionOption options) {
         List<String> diceExpressionWithOptionalLabel = DICE_COMMAND_OPTIONS_IDS.stream()
-                .flatMap(id -> options.getOption(id).stream())
-                .flatMap(a -> a.getValue().stream())
-                .map(ApplicationCommandInteractionOptionValue::asString)
-                .map(Object::toString)
+                .flatMap(id -> options.getStingSubOptionWithName(id).stream())
                 .distinct()
                 .collect(Collectors.toList());
         String expressionsWithMultiRoll = diceExpressionWithOptionalLabel.stream()
@@ -230,11 +219,9 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetCommand.Con
     }
 
     @Override
-    protected Config getConfigFromStartOptions(ApplicationCommandInteractionOption options) {
+    protected Config getConfigFromStartOptions(CommandInteractionOption options) {
         return getConfigOptionStringList(DICE_COMMAND_OPTIONS_IDS.stream()
-                .flatMap(id -> options.getOption(id).stream())
-                .flatMap(a -> a.getValue().stream())
-                .map(ApplicationCommandInteractionOptionValue::asString)
+                .flatMap(id -> options.getStingSubOptionWithName(id).stream())
                 .collect(Collectors.toList()));
     }
 
@@ -277,27 +264,42 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetCommand.Con
     }
 
     @Override
-    protected List<LayoutComponent> getButtonLayoutWithState(
+    protected List<ComponentRow> getButtonLayoutWithState(
             State state,
             Config config) {
         return createButtonLayout(config);
     }
 
     @Override
-    protected List<LayoutComponent> getButtonLayout(
+    protected List<ComponentRow> getButtonLayout(
             Config config) {
         return createButtonLayout(config);
     }
 
-    private List<LayoutComponent> createButtonLayout(Config config) {
-        List<Button> buttons = config.getLabelAndExpression().stream()
-                .map(d -> Button.primary(createButtonCustomId(d.getDiceExpression()), d.getLabel()))
+    private List<ComponentRow> createButtonLayout(Config config) {
+        List<ButtonDefinition> buttons = config.getLabelAndExpression().stream()
+                .map(d -> ButtonDefinition.builder()
+                        .id(createButtonCustomId(d.getDiceExpression()))
+                        .label(d.getLabel())
+                        .build())
                 .collect(Collectors.toList());
-        buttons.add(Button.success(createButtonCustomId(ROLL_BUTTON_ID), "Roll"));
-        buttons.add(Button.danger(createButtonCustomId(CLEAR_BUTTON_ID), "Clear"));
-        buttons.add(Button.secondary(createButtonCustomId(BACK_BUTTON_ID), "Back"));
+        buttons.add(ButtonDefinition.builder()
+                .id(createButtonCustomId(ROLL_BUTTON_ID))
+                .label("Roll")
+                .style(ButtonDefinition.Style.SUCCESS)
+                .build());
+        buttons.add(ButtonDefinition.builder()
+                .id(createButtonCustomId(CLEAR_BUTTON_ID))
+                .label("Clear")
+                .style(ButtonDefinition.Style.DANGER)
+                .build());
+        buttons.add(ButtonDefinition.builder()
+                .id(createButtonCustomId(BACK_BUTTON_ID))
+                .label("Back")
+                .style(ButtonDefinition.Style.SECONDARY)
+                .build());
         return Lists.partition(buttons, 5).stream()
-                .map(ActionRow::of)
+                .map(bl -> ComponentRow.builder().buttonDefinitions(bl).build())
                 .collect(Collectors.toList());
     }
 

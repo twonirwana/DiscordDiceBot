@@ -3,21 +3,20 @@ package de.janno.discord.discord4j;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import de.janno.discord.api.Answer;
+import de.janno.discord.api.ComponentRow;
 import de.janno.discord.api.IDiscordAdapter;
 import de.janno.discord.api.MissingPermissionException;
-import discord4j.core.object.component.LayoutComponent;
-import discord4j.core.object.entity.Member;
-import discord4j.core.object.entity.Message;
-import discord4j.core.object.entity.channel.TextChannel;
-import discord4j.core.spec.EmbedCreateSpec;
-import discord4j.core.spec.MessageCreateSpec;
-import discord4j.rest.http.client.ClientException;
-import discord4j.rest.util.Color;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.javacord.api.entity.channel.TextChannel;
+import org.javacord.api.entity.message.Message;
+import org.javacord.api.entity.message.embed.EmbedBuilder;
+import org.javacord.api.entity.server.Server;
+import org.javacord.api.entity.user.User;
 import reactor.core.publisher.Mono;
 
+import java.awt.*;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
@@ -31,17 +30,19 @@ public abstract class DiscordAdapter implements IDiscordAdapter {
         return new String(in.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8);
     }
 
-    protected EmbedCreateSpec createEmbedMessageWithReference(
+    protected Mono<Message> createEmbedMessageWithReference(
+            @NonNull TextChannel textChannel,
             @NonNull Answer answer,
-            @NonNull Member rollRequester) {
-        EmbedCreateSpec.Builder builder = EmbedCreateSpec.builder()
-                .title(StringUtils.abbreviate(encodeUTF8(answer.getTitle()), 256)) //https://discord.com/developers/docs/resources/channel#embed-limits
-                .author(rollRequester.getDisplayName(), null, rollRequester.getAvatarUrl())
-                .color(Color.of(rollRequester.getId().hashCode()));
+            @NonNull User rollRequester,
+            @NonNull Server server
+    ) {
 
+        EmbedBuilder builder = new EmbedBuilder();
+        builder.setTitle(StringUtils.abbreviate(encodeUTF8(answer.getTitle()), 256))//https://discord.com/developers/docs/resources/channel#embed-limits
+                .setAuthor(rollRequester.getDisplayName(server), null, rollRequester.getAvatar())
+                .setColor(Color.decode(String.valueOf((int) rollRequester.getId())));
         if (!Strings.isNullOrEmpty(answer.getContent())) {
-            builder.description(StringUtils.abbreviate(encodeUTF8(answer.getContent()), 4096)); //https://discord.com/developers/docs/resources/channel#embed-limits
-
+            builder.setDescription(StringUtils.abbreviate(encodeUTF8(answer.getContent()), 4096)); //https://discord.com/developers/docs/resources/channel#embed-limits
         }
 
         if (answer.getFields().size() > 25) {
@@ -53,49 +54,37 @@ public abstract class DiscordAdapter implements IDiscordAdapter {
                     StringUtils.abbreviate(encodeUTF8(field.getValue()), 1024), //https://discord.com/developers/docs/resources/channel#embed-limits
                     field.isInline());
         }
-        return builder.build();
+        return Mono.fromFuture(textChannel.sendMessage(builder));
     }
 
     protected Mono<Message> createButtonMessage(@NonNull TextChannel channel,
                                                 @NonNull String buttonMessage,
-                                                @NonNull List<LayoutComponent> buttons) {
-        return channel
-                .createMessage(MessageCreateSpec.builder()
-                        .content(buttonMessage)
-                        .components(buttons)
-                        .build());
+                                                @NonNull List<ComponentRow> buttons) {
+        return Mono.fromFuture(channel.sendMessage(buttonMessage, MessageComponentUtil.messageComponent2MessageLayout(buttons)));
     }
 
     //todo retry on server error class
     protected Mono<Void> handleException(@NonNull String errorMessage,
                                          @NonNull Throwable throwable,
                                          boolean ignoreMissing) {
-        if (throwable instanceof ClientException) {
-            ClientException clientException = (ClientException) throwable;
-            if (clientException.getStatus().code() == 404 && ignoreMissing) {
-                log.trace(errorMessage, clientException);
-            } else if (clientException.getStatus().code() == 403) {
-                log.trace(errorMessage, clientException);
-                //todo find better solution than sending the Mono.error to immediately terminate the mono
-                return answerOnError(PERMISSION_ERROR_MESSAGE).then(Mono.error(new MissingPermissionException(errorMessage)));
-            } else {
-                log.error("{}: {}{}", errorMessage,
-                        clientException.getResponse().status(),
-                        getClientExceptionShortString(clientException));
-            }
-        } else if (throwable instanceof UnsupportedOperationException) {
-            log.warn(errorMessage, throwable);
+        //todo handle other discordExceptions
+        if (throwable instanceof MissingPermissionException) {
+            //Mono Error necessery?
+            return answerOnError(PERMISSION_ERROR_MESSAGE).then(Mono.error(new MissingPermissionException(errorMessage)));
         } else {
             log.error(errorMessage, throwable);
         }
         return Mono.empty();
     }
 
-    private String getClientExceptionShortString(ClientException clientException) {
-        return String.format("%s%s", clientException.getResponse().status(),
-                clientException.getErrorResponse().map(er -> " with response " + er.getFields()).orElse(""));
-    }
-
     protected abstract Mono<Void> answerOnError(String message);
+
+
+    protected Mono<Void> deleteMessage(TextChannel textChannel, long messageId) {
+        return Mono.fromFuture(textChannel.getMessageById(messageId))
+                .filter(m -> !m.isPinned())
+                .flatMap(m -> Mono.fromFuture(m.delete()))
+                .onErrorResume(t -> handleException("Error on deleting message", t, true));
+    }
 
 }

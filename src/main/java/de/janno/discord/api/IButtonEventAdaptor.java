@@ -1,6 +1,5 @@
 package de.janno.discord.api;
 
-import discord4j.core.object.component.LayoutComponent;
 import lombok.NonNull;
 import lombok.Value;
 import reactor.core.publisher.Mono;
@@ -21,7 +20,7 @@ public interface IButtonEventAdaptor extends IDiscordAdapter {
 
     Mono<Void> editMessage(String message);
 
-    Mono<Long> createButtonMessage(String messageContent, List<LayoutComponent> buttonLayout);
+    Mono<Long> createButtonMessage(String messageContent, List<ComponentRow> buttonLayout);
 
     Mono<Void> deleteMessage(long messageId);
 

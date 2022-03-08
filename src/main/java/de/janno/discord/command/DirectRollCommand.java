@@ -3,14 +3,12 @@ package de.janno.discord.command;
 import com.google.common.annotations.VisibleForTesting;
 import de.janno.discord.Metrics;
 import de.janno.discord.api.Answer;
+import de.janno.discord.api.EmbedDefinition;
 import de.janno.discord.api.ISlashEventAdaptor;
 import de.janno.discord.command.slash.CommandDefinition;
 import de.janno.discord.command.slash.CommandDefinitionOption;
+import de.janno.discord.command.slash.CommandInteractionOption;
 import de.janno.discord.dice.DiceParserHelper;
-import discord4j.core.object.command.ApplicationCommandInteractionOption;
-import discord4j.core.object.command.ApplicationCommandInteractionOptionValue;
-import discord4j.core.object.command.ApplicationCommandOption;
-import discord4j.core.spec.EmbedCreateSpec;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
@@ -61,15 +59,14 @@ public class DirectRollCommand implements ISlashCommand {
 
         String commandString = event.getCommandString();
 
-        Optional<ApplicationCommandInteractionOption> expressionOptional = event.getOption(ACTION_EXPRESSION);
+        Optional<CommandInteractionOption> expressionOptional = event.getOption(ACTION_EXPRESSION);
         if (expressionOptional.isPresent()) {
             String commandParameter = expressionOptional
-                    .flatMap(ApplicationCommandInteractionOption::getValue)
-                    .map(ApplicationCommandInteractionOptionValue::asString)
+                    .map(CommandInteractionOption::getStringRepresentationValue)
                     .orElseThrow();
             if (commandParameter.equals(HELP)) {
                 Metrics.incrementSlashHelpMetricCounter(getName());
-                return event.replyEphemeral(EmbedCreateSpec.builder()
+                return event.replyEphemeral(EmbedDefinition.builder()
                         .description("Type /r and a dice expression e.g. `/r 1d6` \n" + DiceParserHelper.HELP)
                         .build());
             }

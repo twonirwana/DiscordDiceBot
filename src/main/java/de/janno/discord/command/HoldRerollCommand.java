@@ -4,19 +4,11 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import de.janno.discord.api.Answer;
-import de.janno.discord.api.IButtonEventAdaptor;
+import de.janno.discord.api.*;
 import de.janno.discord.cache.ButtonMessageCache;
 import de.janno.discord.command.slash.CommandDefinitionOption;
+import de.janno.discord.command.slash.CommandInteractionOption;
 import de.janno.discord.dice.DiceUtils;
-import discord4j.core.object.command.ApplicationCommandInteractionOption;
-import discord4j.core.object.command.ApplicationCommandInteractionOptionValue;
-import discord4j.core.object.command.ApplicationCommandOption;
-import discord4j.core.object.component.ActionRow;
-import discord4j.core.object.component.Button;
-import discord4j.core.object.component.LayoutComponent;
-import discord4j.core.spec.EmbedCreateSpec;
-import discord4j.discordjson.json.ApplicationCommandOptionData;
 import lombok.NonNull;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
@@ -72,8 +64,8 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollCommand.Config,
     }
 
     @Override
-    protected EmbedCreateSpec getHelpMessage() {
-        return EmbedCreateSpec.builder()
+    protected EmbedDefinition getHelpMessage() {
+        return EmbedDefinition.builder()
                 .description("Use '/hold_reroll start' " +
                         "to get message, where the user can roll dice")
                 .build();
@@ -108,8 +100,8 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollCommand.Config,
                         .required(true)
                         .description("Dice side")
                         .type(CommandDefinitionOption.Type.INTEGER)
-                        .minValue(2d)
-                        .maxValue(1000d).build(),
+                        .minValue(2L)
+                        .maxValue(1000L).build(),
                 CommandDefinitionOption.builder()
                         .name(REROLL_SET_ID)
                         .required(false)
@@ -211,10 +203,8 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollCommand.Config,
 
 
     @Override
-    protected Config getConfigFromStartOptions(ApplicationCommandInteractionOption options) {
-        int sideValue = Math.toIntExact(options.getOption(SIDES_OF_DIE_ID)
-                .flatMap(ApplicationCommandInteractionOption::getValue)
-                .map(ApplicationCommandInteractionOptionValue::asLong)
+    protected Config getConfigFromStartOptions(CommandInteractionOption options) {
+        int sideValue = Math.toIntExact(options.getLongSubOptionWithName(SIDES_OF_DIE_ID)
                 .map(l -> Math.min(l, 1000))
                 .orElse(6L));
         Set<Integer> rerollSet = getSetFromCommandOptions(options, REROLL_SET_ID, ",");
@@ -250,36 +240,54 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollCommand.Config,
     }
 
     @Override
-    protected List<LayoutComponent> getButtonLayoutWithState(State state, Config config) {
+    protected List<ComponentRow> getButtonLayoutWithState(State state, Config config) {
         if (CLEAR_BUTTON_ID.equals(state.getState()) ||
                 FINISH_BUTTON_ID.equals(state.getState()) ||
                 rollFinished(state, config)) {
             return createButtonLayout(config);
         }
         //further rerolls are possible
+
         return ImmutableList.of(
-                ActionRow.of(
-                        Button.primary(createButtonCustomId(REROLL_BUTTON_ID, config, state), "Reroll"),
-                        Button.primary(createButtonCustomId(FINISH_BUTTON_ID, config, state), "Finish"),
-                        Button.primary(createButtonCustomId(CLEAR_BUTTON_ID, config, state), "Clear")
-                ));
+                ComponentRow.builder()
+                        .buttonDefinition(ButtonDefinition.builder()
+                                .id(createButtonCustomId(REROLL_BUTTON_ID, config, state))
+                                .label("Reroll")
+                                
+                                .build())
+                        .buttonDefinition(ButtonDefinition.builder()
+                                .id(createButtonCustomId(FINISH_BUTTON_ID, config, state))
+                                .label("Finish")
+                                
+                                .build())
+                        .buttonDefinition(ButtonDefinition.builder()
+                                .id(createButtonCustomId(CLEAR_BUTTON_ID, config, state))
+                                .label("Clear")
+                                .build())
+                        .build()
+        );
     }
 
     @Override
-    protected List<LayoutComponent> getButtonLayout(Config config) {
+    protected List<ComponentRow> getButtonLayout(Config config) {
         return createButtonLayout(config);
     }
 
-    private List<LayoutComponent> createButtonLayout(Config config) {
-        List<Button> buttons = IntStream.range(1, 16)
-                .mapToObj(i -> Button.primary(createButtonCustomId(String.valueOf(i), config, null),
-                        String.format("%d%s%s", i, DICE_SYMBOL, config.getSidesOfDie())))
+    private List<ComponentRow> createButtonLayout(Config config) {
+        List<ButtonDefinition> buttons = IntStream.range(1, 16)
+                .mapToObj(i -> ButtonDefinition.builder()
+                        .id(createButtonCustomId(String.valueOf(i), config, null))
+                        .label(String.format("%d%s%s", i, DICE_SYMBOL, config.getSidesOfDie()))
+                        
+                        .build())
                 .collect(Collectors.toList());
-        return Lists.partition(buttons, 5).stream().map(ActionRow::of).collect(Collectors.toList());
+        return Lists.partition(buttons, 5).stream()
+                .map(bl -> ComponentRow.builder().buttonDefinitions(bl).build())
+                .collect(Collectors.toList());
     }
 
     @Override
-    protected String getStartOptionsValidationMessage(ApplicationCommandInteractionOption options) {
+    protected String getStartOptionsValidationMessage(CommandInteractionOption options) {
         Config conf = getConfigFromStartOptions(options);
         return validate(conf);
     }

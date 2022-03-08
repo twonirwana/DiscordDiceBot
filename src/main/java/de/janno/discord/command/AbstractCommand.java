@@ -3,16 +3,11 @@ package de.janno.discord.command;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import de.janno.discord.Metrics;
-import de.janno.discord.api.Answer;
-import de.janno.discord.api.IButtonEventAdaptor;
-import de.janno.discord.api.IComponentInteractEventHandler;
-import de.janno.discord.api.ISlashEventAdaptor;
+import de.janno.discord.api.*;
 import de.janno.discord.cache.ButtonMessageCache;
 import de.janno.discord.command.slash.CommandDefinition;
 import de.janno.discord.command.slash.CommandDefinitionOption;
-import discord4j.core.object.command.ApplicationCommandInteractionOption;
-import discord4j.core.object.component.LayoutComponent;
-import discord4j.core.spec.EmbedCreateSpec;
+import de.janno.discord.command.slash.CommandInteractionOption;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
@@ -138,7 +133,8 @@ public abstract class AbstractCommand<C extends IConfig, S extends IState> imple
 
         String commandString = event.getCommandString();
         if (event.getOption(ACTION_START).isPresent()) {
-            ApplicationCommandInteractionOption options = event.getOption(ACTION_START).get();
+
+            CommandInteractionOption options = event.getOption(ACTION_START).get();
             String validationMessage = getStartOptionsValidationMessage(options);
             if (validationMessage != null) {
                 log.info("Validation message: {} for {}", validationMessage, commandString);
@@ -180,7 +176,7 @@ public abstract class AbstractCommand<C extends IConfig, S extends IState> imple
 
     protected abstract String getCommandDescription();
 
-    protected abstract EmbedCreateSpec getHelpMessage();
+    protected abstract EmbedDefinition getHelpMessage();
 
     /**
      * if an answer message (without buttons) should be created
@@ -218,19 +214,19 @@ public abstract class AbstractCommand<C extends IConfig, S extends IState> imple
     /**
      * The button layout for the new button message, after a button event
      */
-    protected abstract List<LayoutComponent> getButtonLayoutWithState(S state, C config);
+    protected abstract List<ComponentRow> getButtonLayoutWithState(S state, C config);
 
     /**
      * The button layout for the new button message, after a slash event
      */
-    protected abstract List<LayoutComponent> getButtonLayout(C config);
+    protected abstract List<ComponentRow> getButtonLayout(C config);
 
-    protected String getStartOptionsValidationMessage(ApplicationCommandInteractionOption options) {
+    protected String getStartOptionsValidationMessage(CommandInteractionOption options) {
         //standard is no validation
         return null;
     }
 
-    protected abstract C getConfigFromStartOptions(ApplicationCommandInteractionOption options);
+    protected abstract C getConfigFromStartOptions(CommandInteractionOption options);
 
     protected abstract C getConfigFromEvent(IButtonEventAdaptor event);
 

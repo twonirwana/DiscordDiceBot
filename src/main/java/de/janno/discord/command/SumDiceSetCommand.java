@@ -4,18 +4,11 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import de.janno.discord.api.Answer;
-import de.janno.discord.api.IButtonEventAdaptor;
+import de.janno.discord.api.*;
 import de.janno.discord.cache.ButtonMessageCache;
 import de.janno.discord.command.slash.CommandDefinitionOption;
-import de.janno.discord.command.slash.CommandDefinitionOptionChoice;
+import de.janno.discord.command.slash.CommandInteractionOption;
 import de.janno.discord.dice.DiceUtils;
-import discord4j.core.object.command.ApplicationCommandInteractionOption;
-import discord4j.core.object.component.ActionRow;
-import discord4j.core.object.component.Button;
-import discord4j.core.object.component.LayoutComponent;
-import discord4j.core.spec.EmbedCreateSpec;
-import discord4j.discordjson.json.ApplicationCommandOptionData;
 import lombok.NonNull;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
@@ -85,8 +78,8 @@ public class SumDiceSetCommand extends AbstractCommand<SumDiceSetCommand.Config,
     }
 
     @Override
-    protected EmbedCreateSpec getHelpMessage() {
-        return EmbedCreateSpec.builder()
+    protected EmbedDefinition getHelpMessage() {
+        return EmbedDefinition.builder()
                 .description("Use '/sum_dice_set start' " +
                         "to get message, where the user can create a dice set and roll it.")
                 .build();
@@ -249,7 +242,7 @@ public class SumDiceSetCommand extends AbstractCommand<SumDiceSetCommand.Config,
     }
 
     @Override
-    protected Config getConfigFromStartOptions(ApplicationCommandInteractionOption options) {
+    protected Config getConfigFromStartOptions(CommandInteractionOption options) {
         return new Config();
     }
 
@@ -259,46 +252,46 @@ public class SumDiceSetCommand extends AbstractCommand<SumDiceSetCommand.Config,
     }
 
     @Override
-    protected List<LayoutComponent> getButtonLayoutWithState(State state, Config config) {
+    protected List<ComponentRow> getButtonLayoutWithState(State state, Config config) {
         return createButtonLayout();
     }
 
     @Override
-    protected List<LayoutComponent> getButtonLayout(Config config) {
+    protected List<ComponentRow> getButtonLayout(Config config) {
         return createButtonLayout();
     }
 
-    private List<LayoutComponent> createButtonLayout() {
+    private List<ComponentRow> createButtonLayout() {
         return ImmutableList.of(
-                ActionRow.of(
+                ComponentRow.builder().buttonDefinitions(ImmutableList.of(
                         //              ID,  label
-                        Button.primary(createButtonCustomId("+1d4"), "+1d4"),
-                        Button.primary(createButtonCustomId("-1d4"), "-1d4"),
-                        Button.primary(createButtonCustomId("+1d6"), "+1d6"),
-                        Button.primary(createButtonCustomId("-1d6"), "-1d6"),
-                        Button.primary(createButtonCustomId(X2_BUTTON_ID), "x2")
-                ),
-                ActionRow.of(
-                        Button.primary(createButtonCustomId("+1d8"), "+1d8"),
-                        Button.primary(createButtonCustomId("-1d8"), "-1d8"),
-                        Button.primary(createButtonCustomId("+1d10"), "+1d10"),
-                        Button.primary(createButtonCustomId("-1d10"), "-1d10"),
-                        Button.primary(createButtonCustomId(CLEAR_BUTTON_ID), "Clear")
-                ),
-                ActionRow.of(
-                        Button.primary(createButtonCustomId("+1d12"), "+1d12"),
-                        Button.primary(createButtonCustomId("-1d12"), "-1d12"),
-                        Button.primary(createButtonCustomId("+1d20"), "+1d20"),
-                        Button.primary(createButtonCustomId("-1d20"), "-1d20"),
-                        Button.primary(createButtonCustomId(ROLL_BUTTON_ID), "Roll")
-                ),
-                ActionRow.of(
-                        Button.primary(createButtonCustomId("+1"), "+1"),
-                        Button.primary(createButtonCustomId("-1"), "-1"),
-                        Button.primary(createButtonCustomId("+5"), "+5"),
-                        Button.primary(createButtonCustomId("-5"), "-5"),
-                        Button.primary(createButtonCustomId("+10"), "+10")
-                ));
+                        ButtonDefinition.builder().id("+1d4").label("+1d4").build(),
+                        ButtonDefinition.builder().id("-1d4").label("-1d4").build(),
+                        ButtonDefinition.builder().id("+1d6").label("+1d6").build(),
+                        ButtonDefinition.builder().id("-1d6").label("-1d6").build(),
+                        ButtonDefinition.builder().id(X2_BUTTON_ID).label("x2").build()
+                )).build(),
+                ComponentRow.builder().buttonDefinitions(ImmutableList.of(
+                        ButtonDefinition.builder().id("+1d8").label("+1d8").build(),
+                        ButtonDefinition.builder().id("-1d8").label("-1d8").build(),
+                        ButtonDefinition.builder().id("+1d10").label("+1d10").build(),
+                        ButtonDefinition.builder().id("-1d10").label("-1d10").build(),
+                        ButtonDefinition.builder().id(CLEAR_BUTTON_ID).label("Clear").build()
+                )).build(),
+                ComponentRow.builder().buttonDefinitions(ImmutableList.of(
+                        ButtonDefinition.builder().id("+1d12").label("+1d12").build(),
+                        ButtonDefinition.builder().id("-1d12").label("-1d12").build(),
+                        ButtonDefinition.builder().id("+1d20").label("+1d20").build(),
+                        ButtonDefinition.builder().id("-1d20").label("-1d20").build(),
+                        ButtonDefinition.builder().id(ROLL_BUTTON_ID).label("Roll").build()
+                )).build(),
+                ComponentRow.builder().buttonDefinitions(ImmutableList.of(
+                        ButtonDefinition.builder().id("+1").label("+1").build(),
+                        ButtonDefinition.builder().id("-1").label("-1").build(),
+                        ButtonDefinition.builder().id("+5").label("+5").build(),
+                        ButtonDefinition.builder().id("-5").label("-5").build(),
+                        ButtonDefinition.builder().id("+10").label("+10").build()
+                )).build());
     }
 
     @Value

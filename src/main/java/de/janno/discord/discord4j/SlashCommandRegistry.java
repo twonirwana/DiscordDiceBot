@@ -1,18 +1,20 @@
 package de.janno.discord.discord4j;
 
-import com.google.common.collect.ImmutableMap;
 import de.janno.discord.command.ISlashCommand;
-import discord4j.core.DiscordClient;
-import discord4j.discordjson.json.ApplicationCommandData;
-import discord4j.rest.service.ApplicationService;
 import lombok.extern.slf4j.Slf4j;
+import org.javacord.api.DiscordApi;
+import org.javacord.api.interaction.ApplicationCommand;
+import org.javacord.api.interaction.SlashCommand;
+import org.javacord.api.interaction.SlashCommandBuilder;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Slf4j
 public class SlashCommandRegistry {
@@ -39,9 +41,8 @@ public class SlashCommandRegistry {
             return this;
         }
 
-        public SlashCommandRegistry registerSlashCommands(DiscordClient discordClient, boolean disableCommandUpdate) {
-            ApplicationService applicationService = discordClient.getApplicationService();
-            long applicationId = discordClient.getApplicationId().blockOptional().orElseThrow();
+        public SlashCommandRegistry registerSlashCommands(DiscordApi discordApi, boolean disableCommandUpdate) {
+            long applicationId = discordApi.getClientId();
             log.info("ApplicationId: " + applicationId);
             if (!disableCommandUpdate) {
                 //get the implemented bot commands
@@ -49,18 +50,24 @@ public class SlashCommandRegistry {
                         .collect(Collectors.toMap(ISlashCommand::getName, Function.identity()));
 
                 //get already existing commands
-                Map<String, ApplicationCommandData> currentlyRegisteredCommands = applicationService.getGlobalApplicationCommands(applicationId)
-                        .collectMap(ApplicationCommandData::name, Function.identity()).blockOptional().orElse(ImmutableMap.of());
+                Map<String, SlashCommand> currentlyRegisteredCommands = discordApi.getGlobalApplicationCommands().join().stream()
+                        .flatMap(ac -> {
+                            if (ac instanceof SlashCommand) {
+                                return Stream.of((SlashCommand) ac);
+                            }
+                            return Stream.empty();
+                        })
+                        .collect(Collectors.toMap(ApplicationCommand::getName, Function.identity()));
                 log.info("Existing Commands: {}", String.join(", ", currentlyRegisteredCommands.keySet()));
                 //delete old commands
                 Flux.fromIterable(currentlyRegisteredCommands.values())
-                        .filter(acd -> !botCommands.containsKey(acd.name()))
+                        .filter(acd -> !botCommands.containsKey(acd.getName()))
                         .flatMap(acd -> {
                             log.debug("Deleting old command: {}", acd);
-                            return applicationService.deleteGlobalApplicationCommand(applicationId, Long.parseLong(acd.id()))
+                            return Mono.fromFuture(acd.deleteGlobal())
                                     .doOnError(t -> log.error("Error deleting old command: {}", acd, t));
                         })
-                        .subscribe();
+                        .subscribe(); //todo central threadpool
 
 
                 //add missing commands
@@ -68,7 +75,8 @@ public class SlashCommandRegistry {
                         .filter(sc -> !currentlyRegisteredCommands.containsKey(sc.getName()))
                         .flatMap(sc -> {
                                     log.info("Add missing command: {}", sc.getCommandDefinition());
-                                    return applicationService.createGlobalApplicationCommand(applicationId, ApplicationCommandHelper.commandDefinition2ApplicationCommandRequest(sc.getCommandDefinition()))
+                                    SlashCommandBuilder builder = ApplicationCommandHelper.commandDefinition2SlashCommandBuilder(sc.getCommandDefinition());
+                                    return Mono.fromFuture(builder.createGlobal(discordApi))
                                             .doOnError(t -> log.error("Error adding missing command: {}", sc.getCommandDefinition(), t));
                                 }
                         )
@@ -77,12 +85,12 @@ public class SlashCommandRegistry {
                 //update existing
                 Flux.fromIterable(botCommands.values())
                         .filter(sc -> currentlyRegisteredCommands.containsKey(sc.getName()) &&
-                                !sc.getCommandDefinition().equals(ApplicationCommandHelper.applicationCommandData2CommandDefinition(currentlyRegisteredCommands.get(sc.getName()))))
+                                !sc.getCommandDefinition().equals(ApplicationCommandHelper.applicationCommand2CommandDefinition(currentlyRegisteredCommands.get(sc.getName()))))
                         .flatMap(sc -> {
-                                    log.info("Update command: {} != {}", sc.getCommandDefinition(), ApplicationCommandHelper.applicationCommandData2CommandDefinition(currentlyRegisteredCommands.get(sc.getName())));
-                                    return applicationService.modifyGlobalApplicationCommand(applicationId,
-                                                    Long.parseLong(currentlyRegisteredCommands.get(sc.getName()).id()),
-                                                    ApplicationCommandHelper.commandDefinition2ApplicationCommandRequest(sc.getCommandDefinition()))
+                                    log.info("Update command: {} != {}", sc.getCommandDefinition(), ApplicationCommandHelper.applicationCommand2CommandDefinition(currentlyRegisteredCommands.get(sc.getName())));
+                                    SlashCommandBuilder builder = ApplicationCommandHelper.commandDefinition2SlashCommandBuilder(sc.getCommandDefinition());
+                                    //todo modify is something other then create?
+                                    return Mono.fromFuture(builder.createGlobal(discordApi))
                                             .doOnError(t -> log.error("Error updating command: {}", sc.getCommandDefinition(), t));
 
                                 }

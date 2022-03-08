@@ -5,19 +5,12 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
-import de.janno.discord.api.Answer;
-import de.janno.discord.api.IButtonEventAdaptor;
+import de.janno.discord.api.*;
 import de.janno.discord.cache.ButtonMessageCache;
 import de.janno.discord.command.slash.CommandDefinitionOption;
 import de.janno.discord.command.slash.CommandDefinitionOptionChoice;
+import de.janno.discord.command.slash.CommandInteractionOption;
 import de.janno.discord.dice.DiceUtils;
-import discord4j.core.object.command.ApplicationCommandInteractionOption;
-import discord4j.core.object.command.ApplicationCommandInteractionOptionValue;
-import discord4j.core.object.command.ApplicationCommandOption;
-import discord4j.core.object.component.ActionRow;
-import discord4j.core.object.component.Button;
-import discord4j.core.object.component.LayoutComponent;
-import discord4j.core.spec.EmbedCreateSpec;
 import lombok.NonNull;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
@@ -38,9 +31,9 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesCommand
     private static final String ACTION_SIDE_OPTION = "dice_sides";
     private static final String ACTION_TARGET_OPTION = "target_number";
     private static final String ACTION_MAX_DICE_OPTION = "max_dice";
-    private static final int MAX_NUMBER_OF_DICE = 25;
+    private static final long MAX_NUMBER_OF_DICE = 25;
     private static final String ACTION_GLITCH_OPTION = "glitch";
-    private static final int MAX_NUMBER_SIDES_OR_TARGET_NUMBER = 1000;
+    private static final long MAX_NUMBER_SIDES_OR_TARGET_NUMBER = 1000;
     private static final String GLITCH_OPTION_HALF_ONES = "half_dice_one";
     private static final String GLITCH_NO_OPTION = "no_glitch";
     private static final String GLITCH_COUNT_ONES = "count_ones";
@@ -84,8 +77,9 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesCommand
     }
 
     @Override
-    protected EmbedCreateSpec getHelpMessage() {
-        return EmbedCreateSpec.builder().description("Use '/count_successes start dice_sides:X target_number:Y' " + "to get Buttons that roll with X sided dice against the target of Y and count the successes." + " A successes are all dice that have a result greater or equal then the target number").addField("Example", "/count_successes start dice_sides:10 target_number:7", false).build();
+    protected EmbedDefinition getHelpMessage() {
+        return EmbedDefinition.builder().description("Use '/count_successes start dice_sides:X target_number:Y' " + "to get Buttons that roll with X sided dice against the target of Y and count the successes." + " A successes are all dice that have a result greater or equal then the target number")
+                .field(new EmbedDefinition.Field("Example", "/count_successes start dice_sides:10 target_number:7", false)).build();
     }
 
     @Override
@@ -100,15 +94,15 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesCommand
                         .required(true)
                         .description("Dice side")
                         .type(CommandDefinitionOption.Type.INTEGER)
-                        .minValue(2d)
-                        .maxValue((double) MAX_NUMBER_SIDES_OR_TARGET_NUMBER).build(),
+                        .minValue(2L)
+                        .maxValue(MAX_NUMBER_SIDES_OR_TARGET_NUMBER).build(),
                 CommandDefinitionOption.builder()
                         .name(ACTION_TARGET_OPTION)
                         .required(true)
                         .description("Target number")
                         .type(CommandDefinitionOption.Type.INTEGER)
-                        .minValue(1d)
-                        .maxValue((double) MAX_NUMBER_SIDES_OR_TARGET_NUMBER)
+                        .minValue(1L)
+                        .maxValue(MAX_NUMBER_SIDES_OR_TARGET_NUMBER)
                         .build(),
                 CommandDefinitionOption.builder()
                         .name(ACTION_GLITCH_OPTION)
@@ -124,8 +118,8 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesCommand
                         .required(false)
                         .description("Max number of dice")
                         .type(CommandDefinitionOption.Type.INTEGER)
-                        .minValue(1d)
-                        .maxValue((double) MAX_NUMBER_OF_DICE)
+                        .minValue(1L)
+                        .maxValue(MAX_NUMBER_OF_DICE)
                         .build());
     }
 
@@ -213,24 +207,16 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesCommand
     }
 
     @Override
-    protected Config getConfigFromStartOptions(ApplicationCommandInteractionOption options) {
-        int sideValue = Math.toIntExact(options.getOption(ACTION_SIDE_OPTION)
-                .flatMap(ApplicationCommandInteractionOption::getValue)
-                .map(ApplicationCommandInteractionOptionValue::asLong)
+    protected Config getConfigFromStartOptions(CommandInteractionOption options) {
+        int sideValue = Math.toIntExact(options.getLongSubOptionWithName(ACTION_SIDE_OPTION)
                 .map(l -> Math.min(l, MAX_NUMBER_SIDES_OR_TARGET_NUMBER))
                 .orElse(6L));
-        int targetValue = Math.toIntExact(options.getOption(ACTION_TARGET_OPTION)
-                .flatMap(ApplicationCommandInteractionOption::getValue)
-                .map(ApplicationCommandInteractionOptionValue::asLong)
+        int targetValue = Math.toIntExact(options.getLongSubOptionWithName(ACTION_TARGET_OPTION)
                 .map(l -> Math.min(l, MAX_NUMBER_SIDES_OR_TARGET_NUMBER))
                 .orElse(6L));
-        String glitchOption = options.getOption(ACTION_GLITCH_OPTION)
-                .flatMap(ApplicationCommandInteractionOption::getValue)
-                .map(ApplicationCommandInteractionOptionValue::asString)
+        String glitchOption = options.getStingSubOptionWithName(ACTION_GLITCH_OPTION)
                 .orElse(GLITCH_NO_OPTION);
-        int maxDice = Math.toIntExact(options.getOption(ACTION_MAX_DICE_OPTION)
-                .flatMap(ApplicationCommandInteractionOption::getValue)
-                .map(ApplicationCommandInteractionOptionValue::asLong)
+        int maxDice = Math.toIntExact(options.getLongSubOptionWithName(ACTION_MAX_DICE_OPTION)
                 .map(l -> Math.min(l, MAX_NUMBER_OF_DICE))
                 .orElse(15L));
         return new Config(sideValue, targetValue, glitchOption, maxDice);
@@ -242,19 +228,27 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesCommand
     }
 
     @Override
-    protected List<LayoutComponent> getButtonLayoutWithState(State state, Config config) {
+    protected List<ComponentRow> getButtonLayoutWithState(State state, Config config) {
         return createButtonLayout(config);
     }
 
     @Override
-    protected List<LayoutComponent> getButtonLayout(Config config) {
+    protected List<ComponentRow> getButtonLayout(Config config) {
         return createButtonLayout(config);
     }
 
-    private List<LayoutComponent> createButtonLayout(Config config) {
-        List<Button> buttons = IntStream.range(1, config.getMaxNumberOfButtons() + 1)
-                .mapToObj(i -> Button.primary(createButtonCustomId(String.valueOf(i), config), createButtonLabel(String.valueOf(i), config))).collect(Collectors.toList());
-        return Lists.partition(buttons, 5).stream().map(ActionRow::of).collect(Collectors.toList());
+    private List<ComponentRow> createButtonLayout(Config config) {
+        List<ButtonDefinition> buttons = IntStream.range(1, config.getMaxNumberOfButtons() + 1)
+                .mapToObj(i -> ButtonDefinition.builder()
+                        .id(createButtonCustomId(String.valueOf(i), config))
+                        .label(createButtonLabel(String.valueOf(i), config))
+
+                        .build())
+                .collect(Collectors.toList());
+        return Lists.partition(buttons, 5).stream().map(bl -> ComponentRow.builder()
+                        .buttonDefinitions(bl)
+                        .build())
+                .collect(Collectors.toList());
     }
 
     @VisibleForTesting

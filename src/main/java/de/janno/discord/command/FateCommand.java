@@ -4,21 +4,12 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
-import de.janno.discord.api.Answer;
-import de.janno.discord.api.IButtonEventAdaptor;
+import de.janno.discord.api.*;
 import de.janno.discord.cache.ButtonMessageCache;
 import de.janno.discord.command.slash.CommandDefinitionOption;
 import de.janno.discord.command.slash.CommandDefinitionOptionChoice;
+import de.janno.discord.command.slash.CommandInteractionOption;
 import de.janno.discord.dice.DiceUtils;
-import discord4j.core.object.command.ApplicationCommandInteractionOption;
-import discord4j.core.object.command.ApplicationCommandInteractionOptionValue;
-import discord4j.core.object.command.ApplicationCommandOption;
-import discord4j.core.object.component.ActionRow;
-import discord4j.core.object.component.Button;
-import discord4j.core.object.component.LayoutComponent;
-import discord4j.core.spec.EmbedCreateSpec;
-import discord4j.discordjson.json.ApplicationCommandOptionChoiceData;
-import discord4j.discordjson.json.ApplicationCommandOptionData;
 import lombok.NonNull;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
@@ -75,12 +66,12 @@ public class FateCommand extends AbstractCommand<FateCommand.Config, FateCommand
     }
 
     @Override
-    protected EmbedCreateSpec getHelpMessage() {
-        return EmbedCreateSpec.builder()
+    protected EmbedDefinition getHelpMessage() {
+        return EmbedDefinition.builder()
                 .description("Buttons for Fate/Fudge dice. There are two types, the simple produces one button that rolls four dice and " +
                         "provides the result together with the sum. The type with_modifier produces multiple buttons for modifier -4 to +10" +
                         " that roll four dice and add the modifier of the button.")
-                .addField("Example", "'/fate start type:with_modifier' or '/fate start type:simple'", false)
+                .field(new EmbedDefinition.Field("Example", "'/fate start type:with_modifier' or '/fate start type:simple'", false))
                 .build();
     }
 
@@ -103,11 +94,8 @@ public class FateCommand extends AbstractCommand<FateCommand.Config, FateCommand
     }
 
     @Override
-    protected Config getConfigFromStartOptions(ApplicationCommandInteractionOption options) {
-        return new Config(options.getOption(ACTION_MODIFIER_OPTION)
-                .flatMap(ApplicationCommandInteractionOption::getValue)
-                .map(ApplicationCommandInteractionOptionValue::asString)
-                .map(Object::toString)
+    protected Config getConfigFromStartOptions(CommandInteractionOption options) {
+        return new Config(options.getStingSubOptionWithName(ACTION_MODIFIER_OPTION)
                 .orElse(ACTION_MODIFIER_OPTION_SIMPLE));
     }
 
@@ -141,46 +129,51 @@ public class FateCommand extends AbstractCommand<FateCommand.Config, FateCommand
     }
 
     @Override
-    protected List<LayoutComponent> getButtonLayoutWithState(State state, Config config) {
+    protected List<ComponentRow> getButtonLayoutWithState(State state, Config config) {
         return createButtonLayout(config);
     }
 
     @Override
-    protected List<LayoutComponent> getButtonLayout(Config config) {
+    protected List<ComponentRow> getButtonLayout(Config config) {
         return createButtonLayout(config);
     }
 
-    private List<LayoutComponent> createButtonLayout(Config config) {
+    private List<ComponentRow> createButtonLayout(Config config) {
         if (ACTION_MODIFIER_OPTION_MODIFIER.equals(config.getType())) {
             return ImmutableList.of(
-                    ActionRow.of(
-                            //              ID,  label
-                            Button.primary(createButtonCustomId("-4", config), "-4"),
-                            Button.primary(createButtonCustomId("-3", config), "-3"),
-                            Button.primary(createButtonCustomId("-2", config), "-2"),
-                            Button.primary(createButtonCustomId("-1", config), "-1"),
-                            Button.primary(createButtonCustomId("0", config), "0")
-                    ),
-                    ActionRow.of(
-
-                            Button.primary(createButtonCustomId("1", config), "+1"),
-                            Button.primary(createButtonCustomId("2", config), "+2"),
-                            Button.primary(createButtonCustomId("3", config), "+3"),
-                            Button.primary(createButtonCustomId("4", config), "+4"),
-                            Button.primary(createButtonCustomId("5", config), "+5")
-                    ),
-                    ActionRow.of(
-                            Button.primary(createButtonCustomId("6", config), "+6"),
-                            Button.primary(createButtonCustomId("7", config), "+7"),
-                            Button.primary(createButtonCustomId("8", config), "+8"),
-                            Button.primary(createButtonCustomId("9", config), "+9"),
-                            Button.primary(createButtonCustomId("10", config), "+10")
-                    ));
+                    ComponentRow.builder().buttonDefinitions(
+                            ImmutableList.of(
+                                    //              ID,  label
+                                    ButtonDefinition.builder().id(createButtonCustomId("-4", config)).label("-4").build(),
+                                    ButtonDefinition.builder().id(createButtonCustomId("-3", config)).label("-3").build(),
+                                    ButtonDefinition.builder().id(createButtonCustomId("-2", config)).label("-2").build(),
+                                    ButtonDefinition.builder().id(createButtonCustomId("-1", config)).label("-1").build(),
+                                    ButtonDefinition.builder().id(createButtonCustomId("0", config)).label("0").build()
+                            )
+                    ).build(),
+                    ComponentRow.builder().buttonDefinitions(
+                            ImmutableList.of(
+                                    ButtonDefinition.builder().id(createButtonCustomId("1", config)).label("+1").build(),
+                                    ButtonDefinition.builder().id(createButtonCustomId("2", config)).label("+2").build(),
+                                    ButtonDefinition.builder().id(createButtonCustomId("3", config)).label("+3").build(),
+                                    ButtonDefinition.builder().id(createButtonCustomId("4", config)).label("+4").build(),
+                                    ButtonDefinition.builder().id(createButtonCustomId("5", config)).label("+5").build()
+                            )
+                    ).build(),
+                    ComponentRow.builder().buttonDefinitions(
+                            ImmutableList.of(
+                                    ButtonDefinition.builder().id(createButtonCustomId("6", config)).label("+6").build(),
+                                    ButtonDefinition.builder().id(createButtonCustomId("7", config)).label("+7").build(),
+                                    ButtonDefinition.builder().id(createButtonCustomId("8", config)).label("+8").build(),
+                                    ButtonDefinition.builder().id(createButtonCustomId("9", config)).label("+9").build(),
+                                    ButtonDefinition.builder().id(createButtonCustomId("10", config)).label("+10").build()
+                            )
+                    ).build());
         } else {
             return ImmutableList.of(
-                    ActionRow.of(
-                            Button.primary(createButtonCustomId(ROLL_BUTTON_ID, config), "Roll 4dF")
-                    ));
+                    ComponentRow.builder().buttonDefinition(
+                            ButtonDefinition.builder().id(createButtonCustomId(ROLL_BUTTON_ID, config)).label("Roll 4dF").build()
+                    ).build());
         }
     }
 

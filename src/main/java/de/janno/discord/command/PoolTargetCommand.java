@@ -4,21 +4,12 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import de.janno.discord.api.Answer;
-import de.janno.discord.api.IButtonEventAdaptor;
+import de.janno.discord.api.*;
 import de.janno.discord.cache.ButtonMessageCache;
 import de.janno.discord.command.slash.CommandDefinitionOption;
 import de.janno.discord.command.slash.CommandDefinitionOptionChoice;
+import de.janno.discord.command.slash.CommandInteractionOption;
 import de.janno.discord.dice.DiceUtils;
-import discord4j.core.object.command.ApplicationCommandInteractionOption;
-import discord4j.core.object.command.ApplicationCommandInteractionOptionValue;
-import discord4j.core.object.command.ApplicationCommandOption;
-import discord4j.core.object.component.ActionRow;
-import discord4j.core.object.component.Button;
-import discord4j.core.object.component.LayoutComponent;
-import discord4j.core.spec.EmbedCreateSpec;
-import discord4j.discordjson.json.ApplicationCommandOptionChoiceData;
-import discord4j.discordjson.json.ApplicationCommandOptionData;
 import lombok.NonNull;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
@@ -51,7 +42,7 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetCommand.Config,
     private static final String CLEAR_BUTTON_ID = "clear";
     private static final String DO_REROLL_ID = "do_reroll";
     private static final String DO_NOT_REROLL_ID = "no_reroll";
-    private static final int MAX_NUMBER_OF_DICE = 25;
+    private static final long MAX_NUMBER_OF_DICE = 25;
 
     private static final String DICE_SYMBOL = "d";
 
@@ -87,8 +78,8 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetCommand.Config,
     }
 
     @Override
-    protected EmbedCreateSpec getHelpMessage() {
-        return EmbedCreateSpec.builder()
+    protected EmbedDefinition getHelpMessage() {
+        return EmbedDefinition.builder()
                 .description("Use '/pool_target start' to get message, where the user can roll dice")
                 .build();
     }
@@ -107,15 +98,15 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetCommand.Config,
                         .required(true)
                         .description("Dice sides")
                         .type(CommandDefinitionOption.Type.INTEGER)
-                        .minValue(2d)
-                        .maxValue(25d).build(),
+                        .minValue(2L)
+                        .maxValue(25L).build(),
                 CommandDefinitionOption.builder()
                         .name(MAX_DICE_OPTION)
                         .required(false)
                         .description("Max number of dice")
                         .type(CommandDefinitionOption.Type.INTEGER)
-                        .minValue(1d)
-                        .maxValue((double) MAX_NUMBER_OF_DICE)
+                        .minValue(1L)
+                        .maxValue(MAX_NUMBER_OF_DICE)
                         .build(),
                 CommandDefinitionOption.builder()
                         .name(REROLL_SET_OPTION)
@@ -216,22 +207,20 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetCommand.Config,
     }
 
     @Override
-    protected Config getConfigFromStartOptions(ApplicationCommandInteractionOption options) {
-        int sideValue = Math.toIntExact(options.getOption(SIDES_OF_DIE_OPTION)
-                .flatMap(ApplicationCommandInteractionOption::getValue)
-                .map(ApplicationCommandInteractionOptionValue::asLong)
+    protected Config getConfigFromStartOptions(CommandInteractionOption options) {
+        int sideValue = Math.toIntExact(options.getLongSubOptionWithName(SIDES_OF_DIE_OPTION)
                 .map(l -> Math.min(l, 1000))
                 .orElse(10L));
-        int maxButton = Math.toIntExact(options.getOption(MAX_DICE_OPTION)
-                .flatMap(ApplicationCommandInteractionOption::getValue)
-                .map(ApplicationCommandInteractionOptionValue::asLong)
-                .map(l -> Math.min(l, 25))
-                .orElse(15L));
+        int maxButton = Math.toIntExact(options.getLongSubOptionWithName(MAX_DICE_OPTION)
+                .map(l -> Math.min(l, 1000))
+                .orElse(10L));
+
         Set<Integer> rerollSet = getSetFromCommandOptions(options, REROLL_SET_OPTION, ",");
         Set<Integer> botchSet = getSetFromCommandOptions(options, BOTCH_SET_OPTION, ",");
-        String rerollVariant = options.getOption(REROLL_VARIANT_OPTION)
-                .flatMap(ApplicationCommandInteractionOption::getValue)
-                .map(ApplicationCommandInteractionOptionValue::asString)
+        String rerollVariant = options.getOptions().stream()
+                .filter(o -> REROLL_VARIANT_OPTION.equals(o.getName()))
+                .map(CommandInteractionOption::getStringRepresentationValue)
+                .findFirst()
                 .orElse(ALWAYS_REROLL);
         return new Config(sideValue, maxButton, rerollSet, botchSet, rerollVariant);
     }
@@ -285,20 +274,37 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetCommand.Config,
     }
 
     @Override
-    protected List<LayoutComponent> getButtonLayoutWithState(State state, Config config) {
+    protected List<ComponentRow> getButtonLayoutWithState(State state, Config config) {
         if (state.getDicePool() != null && state.getTargetNumber() != null && state.getDoReroll() == null) {
             return ImmutableList.of(
-                    ActionRow.of(
-                            Button.primary(createButtonCustomId(DO_REROLL_ID, config, state), "Reroll"),
-                            Button.primary(createButtonCustomId(DO_NOT_REROLL_ID, config, state), "No reroll")
-                    ));
+                    ComponentRow.builder()
+                            .buttonDefinition(
+                                    ButtonDefinition.builder()
+                                            .id(createButtonCustomId(DO_REROLL_ID, config, state))
+                                            .label("Reroll")
+                                            .build())
+                            .buttonDefinition(
+                                    ButtonDefinition.builder()
+                                            .id(createButtonCustomId(DO_NOT_REROLL_ID, config, state))
+                                            .label("No reroll")
+                                            .build())
+                            .build()
+            );
         }
         if (state.getDicePool() != null && state.getTargetNumber() == null) {
-            List<Button> buttons = IntStream.range(2, config.getDiceSides() + 1)
-                    .mapToObj(i -> Button.primary(createButtonCustomId(String.valueOf(i), config, state), String.format("%d", i)))
+            List<ButtonDefinition> buttons = IntStream.range(2, config.getDiceSides() + 1)
+                    .mapToObj(i -> ButtonDefinition.builder()
+                            .id(createButtonCustomId(String.valueOf(i), config, state))
+                            .label(String.format("%d", i))
+                            .build()
+                    )
                     .collect(Collectors.toList());
-            buttons.add(Button.primary(createButtonCustomId("clear", config, null), "Clear"));
-            return Lists.partition(buttons, 5).stream().map(ActionRow::of).collect(Collectors.toList());
+            buttons.add(ButtonDefinition.builder()
+                    .id(createButtonCustomId("clear", config, null))
+                    .label("Clear")
+                    .build());
+            return Lists.partition(buttons, 5).stream()
+                    .map(bl -> ComponentRow.builder().buttonDefinitions(bl).build()).collect(Collectors.toList());
         }
         return createPoolButtonLayout(config);
     }
@@ -323,20 +329,24 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetCommand.Config,
     }
 
     @Override
-    protected List<LayoutComponent> getButtonLayout(Config config) {
+    protected List<ComponentRow> getButtonLayout(Config config) {
         return createPoolButtonLayout(config);
     }
 
-    private List<LayoutComponent> createPoolButtonLayout(Config config) {
-        List<Button> buttons = IntStream.range(1, config.getMaxNumberOfButtons() + 1)
-                .mapToObj(i -> Button.primary(createButtonCustomId(String.valueOf(i), config, null),
-                        String.format("%d%s%s", i, DICE_SYMBOL, config.getDiceSides())))
+    private List<ComponentRow> createPoolButtonLayout(Config config) {
+        List<ButtonDefinition> buttons = IntStream.range(1, config.getMaxNumberOfButtons() + 1)
+                .mapToObj(i -> ButtonDefinition.builder()
+                        .id(createButtonCustomId(String.valueOf(i), config, null))
+                        .label(String.format("%d%s%s", i, DICE_SYMBOL, config.getDiceSides()))
+                        .build())
                 .collect(Collectors.toList());
-        return Lists.partition(buttons, 5).stream().map(ActionRow::of).collect(Collectors.toList());
+        return Lists.partition(buttons, 5).stream()
+                .map(bl -> ComponentRow.builder().buttonDefinitions(bl).build())
+                .collect(Collectors.toList());
     }
 
     @Override
-    protected String getStartOptionsValidationMessage(ApplicationCommandInteractionOption options) {
+    protected String getStartOptionsValidationMessage(CommandInteractionOption options) {
         String botchSetValidation = validateIntegerSetFromCommandOptions(options, BOTCH_SET_OPTION, ",");
         if (botchSetValidation != null) {
             return botchSetValidation;

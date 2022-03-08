@@ -21,8 +21,8 @@ public class CommandDefinitionOption {
     List<CommandDefinitionOptionChoice> choices;
     @Singular
     List<CommandDefinitionOption> options;
-    Double minValue;
-    Double maxValue;
+    Long minValue;
+    Long maxValue;
 
     public enum Type {
         UNKNOWN(-1),

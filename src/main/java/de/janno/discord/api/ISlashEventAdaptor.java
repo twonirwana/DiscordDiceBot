@@ -1,8 +1,6 @@
 package de.janno.discord.api;
 
-import discord4j.core.object.command.ApplicationCommandInteractionOption;
-import discord4j.core.object.component.LayoutComponent;
-import discord4j.core.spec.EmbedCreateSpec;
+import de.janno.discord.command.slash.CommandInteractionOption;
 import lombok.NonNull;
 import reactor.core.publisher.Mono;
 
@@ -12,13 +10,13 @@ import java.util.Optional;
 public interface ISlashEventAdaptor extends IDiscordAdapter {
     String checkPermissions();
 
-    Optional<ApplicationCommandInteractionOption> getOption(String actionStart);
+    Optional<CommandInteractionOption> getOption(String actionStart);
 
     Mono<Void> reply(String message);
 
-    Mono<Void> replyEphemeral(EmbedCreateSpec embedCreateSpec);
+    Mono<Void> replyEphemeral(EmbedDefinition embedDefinition);
 
-    Mono<Long> createButtonMessage(@NonNull String buttonMessage, @NonNull List<LayoutComponent> buttons);
+    Mono<Long> createButtonMessage(@NonNull String buttonMessage, @NonNull List<ComponentRow> buttons);
 
     Long getChannelId();
 
