@@ -1,7 +1,7 @@
 package de.janno.discord.command;
 
 import de.janno.discord.api.ISlashEventAdaptor;
-import de.janno.discord.discord4j.ApplicationCommand;
+import de.janno.discord.command.slash.CommandDefinition;
 import lombok.NonNull;
 import reactor.core.publisher.Mono;
 
@@ -9,7 +9,7 @@ public interface ISlashCommand {
 
     String getName();
 
-    ApplicationCommand getApplicationCommand();
+    CommandDefinition getCommandDefinition();
 
     Mono<Void> handleSlashCommandEvent(@NonNull ISlashEventAdaptor event);
 

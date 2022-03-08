@@ -6,6 +6,7 @@ import de.janno.discord.api.Answer;
 import de.janno.discord.api.IButtonEventAdaptor;
 import de.janno.discord.api.Requester;
 import de.janno.discord.cache.ButtonMessageCache;
+import de.janno.discord.command.slash.CommandDefinitionOption;
 import de.janno.discord.dice.DiceParserHelper;
 import de.janno.discord.dice.IDice;
 import dev.diceroll.parser.NDice;
@@ -394,9 +395,9 @@ class SumCustomSetCommandTest {
 
     @Test
     void getStartOptions() {
-        List<ApplicationCommandOptionData> res = underTest.getStartOptions();
+        List<CommandDefinitionOption> res = underTest.getStartOptions();
 
-        assertThat(res.stream().map(ApplicationCommandOptionData::name)).containsExactly("1_button",
+        assertThat(res.stream().map(CommandDefinitionOption::getName)).containsExactly("1_button",
                 "2_button",
                 "3_button",
                 "4_button",

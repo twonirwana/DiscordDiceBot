@@ -7,6 +7,8 @@ import com.google.common.collect.Lists;
 import de.janno.discord.api.Answer;
 import de.janno.discord.api.IButtonEventAdaptor;
 import de.janno.discord.cache.ButtonMessageCache;
+import de.janno.discord.command.slash.CommandDefinitionOption;
+import de.janno.discord.command.slash.CommandDefinitionOptionChoice;
 import de.janno.discord.dice.DiceUtils;
 import discord4j.core.object.command.ApplicationCommandInteractionOption;
 import discord4j.core.object.command.ApplicationCommandInteractionOptionValue;
@@ -98,42 +100,42 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetCommand.Config,
 
 
     @Override
-    protected List<ApplicationCommandOptionData> getStartOptions() {
+    protected List<CommandDefinitionOption> getStartOptions() {
         return ImmutableList.of(
-                ApplicationCommandOptionData.builder()
+                CommandDefinitionOption.builder()
                         .name(SIDES_OF_DIE_OPTION)
                         .required(true)
                         .description("Dice sides")
-                        .type(ApplicationCommandOption.Type.INTEGER.getValue())
+                        .type(CommandDefinitionOption.Type.INTEGER)
                         .minValue(2d)
                         .maxValue(25d).build(),
-                ApplicationCommandOptionData.builder()
+                CommandDefinitionOption.builder()
                         .name(MAX_DICE_OPTION)
                         .required(false)
                         .description("Max number of dice")
-                        .type(ApplicationCommandOption.Type.INTEGER.getValue())
+                        .type(CommandDefinitionOption.Type.INTEGER)
                         .minValue(1d)
-                        .maxValue(Double.valueOf(MAX_NUMBER_OF_DICE))
+                        .maxValue((double) MAX_NUMBER_OF_DICE)
                         .build(),
-                ApplicationCommandOptionData.builder()
+                CommandDefinitionOption.builder()
                         .name(REROLL_SET_OPTION)
                         .required(false)
                         .description("Result numbers that are reroll, seperated by ','")
-                        .type(ApplicationCommandOption.Type.STRING.getValue())
+                        .type(CommandDefinitionOption.Type.STRING)
                         .build(),
-                ApplicationCommandOptionData.builder()
+                CommandDefinitionOption.builder()
                         .name(BOTCH_SET_OPTION)
                         .required(false)
                         .description("Failure dice numbers, seperated by ','")
-                        .type(ApplicationCommandOption.Type.STRING.getValue())
+                        .type(CommandDefinitionOption.Type.STRING)
                         .build(),
-                ApplicationCommandOptionData.builder()
+                CommandDefinitionOption.builder()
                         .name(REROLL_VARIANT_OPTION)
                         .required(false)
                         .description("Options for special reroll handling")
-                        .type(ApplicationCommandOption.Type.STRING.getValue())
-                        .addChoice(ApplicationCommandOptionChoiceData.builder().name(ALWAYS_REROLL).value(ALWAYS_REROLL).build())
-                        .addChoice(ApplicationCommandOptionChoiceData.builder().name(ASK_FOR_REROLL).value(ASK_FOR_REROLL).build())
+                        .type(CommandDefinitionOption.Type.STRING)
+                        .choice(CommandDefinitionOptionChoice.builder().name(ALWAYS_REROLL).value(ALWAYS_REROLL).build())
+                        .choice(CommandDefinitionOptionChoice.builder().name(ASK_FOR_REROLL).value(ASK_FOR_REROLL).build())
 
                         .build()
         );
