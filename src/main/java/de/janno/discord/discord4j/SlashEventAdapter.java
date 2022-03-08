@@ -31,7 +31,7 @@ public class SlashEventAdapter extends DiscordAdapter implements ISlashEventAdap
         this.requesterMono = requesterMono;
         this.channelId = event.getSlashCommandInteraction().getChannel().map(DiscordEntity::getId).orElseThrow();
         this.commandString = String.format("`/%s %s`", event.getSlashCommandInteraction().getCommandName(), event.getSlashCommandInteraction().getOptions().stream()
-                .map(a -> optionToString(a.getName(), a.getOptions(), a.getStringRepresentationValue().orElse(null)))
+                .map(a -> optionToString(a.getName(), a.getOptions(), a.getStringValue().orElse(null)))
                 .collect(Collectors.joining(" ")));
     }
 
@@ -92,7 +92,7 @@ public class SlashEventAdapter extends DiscordAdapter implements ISlashEventAdap
     }
 
     @Override
-    public Mono<Long> createButtonMessage(@NonNull String buttonMessage, @NonNull List<ComponentRow> buttons) {
+    public Mono<Long> createButtonMessage(@NonNull String buttonMessage, @NonNull List<ComponentRowDefinition> buttons) {
         return createButtonMessage(event.getInteraction().getChannel().orElseThrow(), buttonMessage, buttons)
                 .onErrorResume(t -> handleException("Error on creating button message", t, false).ofType(Message.class))
                 .map(DiscordEntity::getId);
@@ -127,7 +127,7 @@ public class SlashEventAdapter extends DiscordAdapter implements ISlashEventAdap
             out = String.format("%s:%s", name, value);
         }
         String optionsString = options.stream()
-                .map(a -> optionToString(a.getName(), a.getOptions(), a.getStringRepresentationValue().orElse(null)))
+                .map(a -> optionToString(a.getName(), a.getOptions(), a.getStringValue().orElse(null)))
                 .collect(Collectors.joining(" "));
         if (!optionsString.isEmpty()) {
             out = String.format("%s %s", out, optionsString);

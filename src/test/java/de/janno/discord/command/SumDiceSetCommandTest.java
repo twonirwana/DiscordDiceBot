@@ -2,11 +2,11 @@ package de.janno.discord.command;
 
 import com.google.common.collect.ImmutableMap;
 import de.janno.discord.api.Answer;
+import de.janno.discord.api.ButtonDefinition;
+import de.janno.discord.api.ComponentRowDefinition;
 import de.janno.discord.api.IButtonEventAdaptor;
 import de.janno.discord.command.slash.CommandDefinitionOption;
 import de.janno.discord.dice.DiceUtils;
-import discord4j.core.object.component.LayoutComponent;
-import discord4j.discordjson.json.ApplicationCommandOptionData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -335,11 +335,11 @@ class SumDiceSetCommandTest {
 
     @Test
     void getButtonLayoutWithState() {
-        List<LayoutComponent> res = underTest.getButtonLayoutWithState(new SumDiceSetCommand.State("roll", ImmutableMap.of()), new SumDiceSetCommand.Config());
+        List<ComponentRowDefinition> res = underTest.getButtonLayoutWithState(new SumDiceSetCommand.State("roll", ImmutableMap.of()), new SumDiceSetCommand.Config());
 
-        assertThat(res.stream().flatMap(l -> l.getChildren().stream()).map(l -> l.getData().label().get()))
+        assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel))
                 .containsExactly("+1d4", "-1d4", "+1d6", "-1d6", "x2", "+1d8", "-1d8", "+1d10", "-1d10", "Clear", "+1d12", "-1d12", "+1d20", "-1d20", "Roll", "+1", "-1", "+5", "-5", "+10");
-        assertThat(res.stream().flatMap(l -> l.getChildren().stream()).map(l -> l.getData().customId().get()))
+        assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getId))
                 .containsExactly("sum_dice_set,+1d4", "sum_dice_set,-1d4", "sum_dice_set,+1d6", "sum_dice_set,-1d6",
                         "sum_dice_set,x2", "sum_dice_set,+1d8", "sum_dice_set,-1d8", "sum_dice_set,+1d10", "sum_dice_set,-1d10",
                         "sum_dice_set,clear", "sum_dice_set,+1d12", "sum_dice_set,-1d12", "sum_dice_set,+1d20", "sum_dice_set,-1d20",
@@ -348,11 +348,11 @@ class SumDiceSetCommandTest {
 
     @Test
     void getButtonLayout() {
-        List<LayoutComponent> res = underTest.getButtonLayout(new SumDiceSetCommand.Config());
+        List<ComponentRowDefinition> res = underTest.getButtonLayout(new SumDiceSetCommand.Config());
 
-        assertThat(res.stream().flatMap(l -> l.getChildren().stream()).map(l -> l.getData().label().get()))
+        assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel))
                 .containsExactly("+1d4", "-1d4", "+1d6", "-1d6", "x2", "+1d8", "-1d8", "+1d10", "-1d10", "Clear", "+1d12", "-1d12", "+1d20", "-1d20", "Roll", "+1", "-1", "+5", "-5", "+10");
-        assertThat(res.stream().flatMap(l -> l.getChildren().stream()).map(l -> l.getData().customId().get()))
+        assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getId))
                 .containsExactly("sum_dice_set,+1d4", "sum_dice_set,-1d4", "sum_dice_set,+1d6", "sum_dice_set,-1d6",
                         "sum_dice_set,x2", "sum_dice_set,+1d8", "sum_dice_set,-1d8", "sum_dice_set,+1d10", "sum_dice_set,-1d10",
                         "sum_dice_set,clear", "sum_dice_set,+1d12", "sum_dice_set,-1d12", "sum_dice_set,+1d20", "sum_dice_set,-1d20",

@@ -17,7 +17,6 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 @Slf4j
-//TODO give buttons names
 public class CustomDiceCommand extends AbstractCommand<CustomDiceCommand.Config, CustomDiceCommand.State> {
     //test with /custom_dice start 1_button:1d1 2_button:2d2 3_button:3d3 4_button:4d4 5_button:5d5 6_button:6d6 7_button:7d7 8_button:8d8 9_button:9d9 10_button:10d10 11_button:11d11 12_button:12d12 13_button:13d13 14_button:14d14 15_button:15d15 16_button:16d16 17_button:17d17 18_button:18d18 19_button:19d19 20_button:20d20 21_button:21d21 22_button:22d22 23_button:23d23 24_button:24d24 25_button:25d25
 
@@ -120,16 +119,16 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceCommand.Config,
     }
 
     @Override
-    protected List<ComponentRow> getButtonLayoutWithState(State state, Config config) {
+    protected List<ComponentRowDefinition> getButtonLayoutWithState(State state, Config config) {
         return createButtonLayout(config);
     }
 
     @Override
-    protected List<ComponentRow> getButtonLayout(Config config) {
+    protected List<ComponentRowDefinition> getButtonLayout(Config config) {
         return createButtonLayout(config);
     }
 
-    private List<ComponentRow> createButtonLayout(Config config) {
+    private List<ComponentRowDefinition> createButtonLayout(Config config) {
         List<ButtonDefinition> buttons = config.getLabelAndExpression().stream()
                 .map(d -> ButtonDefinition.builder()
                         .id(createButtonCustomId(d.getDiceExpression()))
@@ -138,7 +137,7 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceCommand.Config,
                         .build())
                 .collect(Collectors.toList());
         return Lists.partition(buttons, 5).stream()
-                .map(bl -> ComponentRow.builder().buttonDefinitions(bl).build())
+                .map(bl -> ComponentRowDefinition.builder().buttonDefinitions(bl).build())
                 .collect(Collectors.toList());
     }
 

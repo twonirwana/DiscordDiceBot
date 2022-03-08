@@ -264,19 +264,19 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetCommand.Con
     }
 
     @Override
-    protected List<ComponentRow> getButtonLayoutWithState(
+    protected List<ComponentRowDefinition> getButtonLayoutWithState(
             State state,
             Config config) {
         return createButtonLayout(config);
     }
 
     @Override
-    protected List<ComponentRow> getButtonLayout(
+    protected List<ComponentRowDefinition> getButtonLayout(
             Config config) {
         return createButtonLayout(config);
     }
 
-    private List<ComponentRow> createButtonLayout(Config config) {
+    private List<ComponentRowDefinition> createButtonLayout(Config config) {
         List<ButtonDefinition> buttons = config.getLabelAndExpression().stream()
                 .map(d -> ButtonDefinition.builder()
                         .id(createButtonCustomId(d.getDiceExpression()))
@@ -299,7 +299,7 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetCommand.Con
                 .style(ButtonDefinition.Style.SECONDARY)
                 .build());
         return Lists.partition(buttons, 5).stream()
-                .map(bl -> ComponentRow.builder().buttonDefinitions(bl).build())
+                .map(bl -> ComponentRowDefinition.builder().buttonDefinitions(bl).build())
                 .collect(Collectors.toList());
     }
 

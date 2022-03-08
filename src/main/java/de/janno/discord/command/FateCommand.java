@@ -129,19 +129,19 @@ public class FateCommand extends AbstractCommand<FateCommand.Config, FateCommand
     }
 
     @Override
-    protected List<ComponentRow> getButtonLayoutWithState(State state, Config config) {
+    protected List<ComponentRowDefinition> getButtonLayoutWithState(State state, Config config) {
         return createButtonLayout(config);
     }
 
     @Override
-    protected List<ComponentRow> getButtonLayout(Config config) {
+    protected List<ComponentRowDefinition> getButtonLayout(Config config) {
         return createButtonLayout(config);
     }
 
-    private List<ComponentRow> createButtonLayout(Config config) {
+    private List<ComponentRowDefinition> createButtonLayout(Config config) {
         if (ACTION_MODIFIER_OPTION_MODIFIER.equals(config.getType())) {
             return ImmutableList.of(
-                    ComponentRow.builder().buttonDefinitions(
+                    ComponentRowDefinition.builder().buttonDefinitions(
                             ImmutableList.of(
                                     //              ID,  label
                                     ButtonDefinition.builder().id(createButtonCustomId("-4", config)).label("-4").build(),
@@ -151,7 +151,7 @@ public class FateCommand extends AbstractCommand<FateCommand.Config, FateCommand
                                     ButtonDefinition.builder().id(createButtonCustomId("0", config)).label("0").build()
                             )
                     ).build(),
-                    ComponentRow.builder().buttonDefinitions(
+                    ComponentRowDefinition.builder().buttonDefinitions(
                             ImmutableList.of(
                                     ButtonDefinition.builder().id(createButtonCustomId("1", config)).label("+1").build(),
                                     ButtonDefinition.builder().id(createButtonCustomId("2", config)).label("+2").build(),
@@ -160,7 +160,7 @@ public class FateCommand extends AbstractCommand<FateCommand.Config, FateCommand
                                     ButtonDefinition.builder().id(createButtonCustomId("5", config)).label("+5").build()
                             )
                     ).build(),
-                    ComponentRow.builder().buttonDefinitions(
+                    ComponentRowDefinition.builder().buttonDefinitions(
                             ImmutableList.of(
                                     ButtonDefinition.builder().id(createButtonCustomId("6", config)).label("+6").build(),
                                     ButtonDefinition.builder().id(createButtonCustomId("7", config)).label("+7").build(),
@@ -171,7 +171,7 @@ public class FateCommand extends AbstractCommand<FateCommand.Config, FateCommand
                     ).build());
         } else {
             return ImmutableList.of(
-                    ComponentRow.builder().buttonDefinition(
+                    ComponentRowDefinition.builder().buttonDefinition(
                             ButtonDefinition.builder().id(createButtonCustomId(ROLL_BUTTON_ID, config)).label("Roll 4dF").build()
                     ).build());
         }

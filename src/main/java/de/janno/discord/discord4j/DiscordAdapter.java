@@ -3,7 +3,7 @@ package de.janno.discord.discord4j;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import de.janno.discord.api.Answer;
-import de.janno.discord.api.ComponentRow;
+import de.janno.discord.api.ComponentRowDefinition;
 import de.janno.discord.api.IDiscordAdapter;
 import de.janno.discord.api.MissingPermissionException;
 import lombok.NonNull;
@@ -34,8 +34,7 @@ public abstract class DiscordAdapter implements IDiscordAdapter {
             @NonNull TextChannel textChannel,
             @NonNull Answer answer,
             @NonNull User rollRequester,
-            @NonNull Server server
-    ) {
+            @NonNull Server server) {
 
         EmbedBuilder builder = new EmbedBuilder();
         builder.setTitle(StringUtils.abbreviate(encodeUTF8(answer.getTitle()), 256))//https://discord.com/developers/docs/resources/channel#embed-limits
@@ -59,7 +58,7 @@ public abstract class DiscordAdapter implements IDiscordAdapter {
 
     protected Mono<Message> createButtonMessage(@NonNull TextChannel channel,
                                                 @NonNull String buttonMessage,
-                                                @NonNull List<ComponentRow> buttons) {
+                                                @NonNull List<ComponentRowDefinition> buttons) {
         return Mono.fromFuture(channel.sendMessage(buttonMessage, MessageComponentUtil.messageComponent2MessageLayout(buttons)));
     }
 
@@ -70,6 +69,7 @@ public abstract class DiscordAdapter implements IDiscordAdapter {
         //todo handle other discordExceptions
         if (throwable instanceof MissingPermissionException) {
             //Mono Error necessery?
+            //todo not working correclty
             return answerOnError(PERMISSION_ERROR_MESSAGE).then(Mono.error(new MissingPermissionException(errorMessage)));
         } else {
             log.error(errorMessage, throwable);

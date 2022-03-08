@@ -228,16 +228,16 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesCommand
     }
 
     @Override
-    protected List<ComponentRow> getButtonLayoutWithState(State state, Config config) {
+    protected List<ComponentRowDefinition> getButtonLayoutWithState(State state, Config config) {
         return createButtonLayout(config);
     }
 
     @Override
-    protected List<ComponentRow> getButtonLayout(Config config) {
+    protected List<ComponentRowDefinition> getButtonLayout(Config config) {
         return createButtonLayout(config);
     }
 
-    private List<ComponentRow> createButtonLayout(Config config) {
+    private List<ComponentRowDefinition> createButtonLayout(Config config) {
         List<ButtonDefinition> buttons = IntStream.range(1, config.getMaxNumberOfButtons() + 1)
                 .mapToObj(i -> ButtonDefinition.builder()
                         .id(createButtonCustomId(String.valueOf(i), config))
@@ -245,7 +245,7 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesCommand
 
                         .build())
                 .collect(Collectors.toList());
-        return Lists.partition(buttons, 5).stream().map(bl -> ComponentRow.builder()
+        return Lists.partition(buttons, 5).stream().map(bl -> ComponentRowDefinition.builder()
                         .buttonDefinitions(bl)
                         .build())
                 .collect(Collectors.toList());

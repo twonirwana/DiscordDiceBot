@@ -2,18 +2,11 @@ package de.janno.discord.command;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import de.janno.discord.api.Answer;
-import de.janno.discord.api.IButtonEventAdaptor;
-import de.janno.discord.api.Requester;
+import de.janno.discord.api.*;
 import de.janno.discord.cache.ButtonMessageCache;
 import de.janno.discord.command.slash.CommandDefinitionOption;
+import de.janno.discord.command.slash.CommandInteractionOption;
 import de.janno.discord.dice.DiceUtils;
-import discord4j.core.GatewayDiscordClient;
-import discord4j.core.object.command.ApplicationCommandInteractionOption;
-import discord4j.core.object.command.ApplicationCommandOption;
-import discord4j.core.object.component.LayoutComponent;
-import discord4j.discordjson.json.ApplicationCommandInteractionOptionData;
-import discord4j.discordjson.json.ApplicationCommandOptionData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -216,26 +209,26 @@ class PoolTargetCommandTest {
 
     @Test
     void getButtonLayoutWithState_missingDoReroll_askForReroll() {
-        List<LayoutComponent> res = underTest.getButtonLayoutWithState(
+        List<ComponentRowDefinition> res = underTest.getButtonLayoutWithState(
                 new PoolTargetCommand.State(10, 10, null),
                 new PoolTargetCommand.Config(10, 20, ImmutableSet.of(10, 9), ImmutableSet.of(1, 2), "ask"));
 
-        assertThat(res.stream().flatMap(l -> l.getChildren().stream()).map(l -> l.getData().label().get()))
+        assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel))
                 .containsExactly("Reroll", "No reroll");
-        assertThat(res.stream().flatMap(l -> l.getChildren().stream()).map(l -> l.getData().customId().get()))
+        assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getId))
                 .containsExactly("pool_target,do_reroll,10,20,10;9,1;2,ask,10,10",
                         "pool_target,no_reroll,10,20,10;9,1;2,ask,10,10");
     }
 
     @Test
     void getButtonLayoutWithState_statesAreGiven_newButtons() {
-        List<LayoutComponent> res = underTest.getButtonLayoutWithState(
+        List<ComponentRowDefinition> res = underTest.getButtonLayoutWithState(
                 new PoolTargetCommand.State(10, 10, true),
                 new PoolTargetCommand.Config(10, 20, ImmutableSet.of(10, 9), ImmutableSet.of(1, 2), "ask"));
 
-        assertThat(res.stream().flatMap(l -> l.getChildren().stream()).map(l -> l.getData().label().get()))
+        assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel))
                 .containsExactly("1d10", "2d10", "3d10", "4d10", "5d10", "6d10", "7d10", "8d10", "9d10", "10d10", "11d10", "12d10", "13d10", "14d10", "15d10", "16d10", "17d10", "18d10", "19d10", "20d10");
-        assertThat(res.stream().flatMap(l -> l.getChildren().stream()).map(l -> l.getData().customId().get()))
+        assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getId))
                 .containsExactly("pool_target,1,10,20,10;9,1;2,ask,EMPTY,EMPTY",
                         "pool_target,2,10,20,10;9,1;2,ask,EMPTY,EMPTY",
                         "pool_target,3,10,20,10;9,1;2,ask,EMPTY,EMPTY",
@@ -260,13 +253,13 @@ class PoolTargetCommandTest {
 
     @Test
     void getButtonLayoutWithState_missingTarget_askTarget() {
-        List<LayoutComponent> res = underTest.getButtonLayoutWithState(
+        List<ComponentRowDefinition> res = underTest.getButtonLayoutWithState(
                 new PoolTargetCommand.State(10, null, null),
                 new PoolTargetCommand.Config(10, 20, ImmutableSet.of(10, 9), ImmutableSet.of(1, 2), "ask"));
 
-        assertThat(res.stream().flatMap(l -> l.getChildren().stream()).map(l -> l.getData().label().get()))
+        assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel))
                 .containsExactly("2", "3", "4", "5", "6", "7", "8", "9", "10", "Clear");
-        assertThat(res.stream().flatMap(l -> l.getChildren().stream()).map(l -> l.getData().customId().get()))
+        assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getId))
                 .containsExactly("pool_target,2,10,20,10;9,1;2,ask,10,EMPTY",
                         "pool_target,3,10,20,10;9,1;2,ask,10,EMPTY",
                         "pool_target,4,10,20,10;9,1;2,ask,10,EMPTY",
@@ -281,13 +274,13 @@ class PoolTargetCommandTest {
 
     @Test
     void getButtonLayoutWithState_missingAll_askPool() {
-        List<LayoutComponent> res = underTest.getButtonLayoutWithState(
+        List<ComponentRowDefinition> res = underTest.getButtonLayoutWithState(
                 new PoolTargetCommand.State(null, null, null),
                 new PoolTargetCommand.Config(10, 20, ImmutableSet.of(10, 9), ImmutableSet.of(1, 2), "ask"));
 
-        assertThat(res.stream().flatMap(l -> l.getChildren().stream()).map(l -> l.getData().label().get()))
+        assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel))
                 .containsExactly("1d10", "2d10", "3d10", "4d10", "5d10", "6d10", "7d10", "8d10", "9d10", "10d10", "11d10", "12d10", "13d10", "14d10", "15d10", "16d10", "17d10", "18d10", "19d10", "20d10");
-        assertThat(res.stream().flatMap(l -> l.getChildren().stream()).map(l -> l.getData().customId().get()))
+        assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getId))
                 .containsExactly("pool_target,1,10,20,10;9,1;2,ask,EMPTY,EMPTY",
                         "pool_target,2,10,20,10;9,1;2,ask,EMPTY,EMPTY",
                         "pool_target,3,10,20,10;9,1;2,ask,EMPTY,EMPTY",
@@ -313,12 +306,12 @@ class PoolTargetCommandTest {
 
     @Test
     void getButtonLayout() {
-        List<LayoutComponent> res = underTest.getButtonLayout(
+        List<ComponentRowDefinition> res = underTest.getButtonLayout(
                 new PoolTargetCommand.Config(10, 20, ImmutableSet.of(10, 9), ImmutableSet.of(1, 2), "ask"));
 
-        assertThat(res.stream().flatMap(l -> l.getChildren().stream()).map(l -> l.getData().label().get()))
+        assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel))
                 .containsExactly("1d10", "2d10", "3d10", "4d10", "5d10", "6d10", "7d10", "8d10", "9d10", "10d10", "11d10", "12d10", "13d10", "14d10", "15d10", "16d10", "17d10", "18d10", "19d10", "20d10");
-        assertThat(res.stream().flatMap(l -> l.getChildren().stream()).map(l -> l.getData().customId().get()))
+        assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getId))
                 .containsExactly("pool_target,1,10,20,10;9,1;2,ask,EMPTY,EMPTY",
                         "pool_target,2,10,20,10;9,1;2,ask,EMPTY,EMPTY",
                         "pool_target,3,10,20,10;9,1;2,ask,EMPTY,EMPTY",
@@ -563,45 +556,39 @@ class PoolTargetCommandTest {
     }
 
 
-    private ApplicationCommandInteractionOption createCommandInteractionOption(String sides,
-                                                                               String maxDice,
-                                                                               String rerollSet,
-                                                                               String botchSet,
-                                                                               String rerollVariant) {
-        return new ApplicationCommandInteractionOption(mock(GatewayDiscordClient.class), ApplicationCommandInteractionOptionData.builder()
+    private CommandInteractionOption createCommandInteractionOption(Long sides,
+                                                                    Long maxDice,
+                                                                    String rerollSet,
+                                                                    String botchSet,
+                                                                    String rerollVariant) {
+        return CommandInteractionOption.builder()
                 .name("start")
-                .type(ApplicationCommandOption.Type.SUB_COMMAND.getValue())
-                .addOption(ApplicationCommandInteractionOptionData.builder()
+                .option(CommandInteractionOption.builder()
                         .name("sides")
-                        .type(ApplicationCommandOption.Type.INTEGER.getValue())
-                        .value(sides)
+                        .longValue(sides)
                         .build())
-                .addOption(ApplicationCommandInteractionOptionData.builder()
+                .option(CommandInteractionOption.builder()
                         .name("max_dice")
-                        .type(ApplicationCommandOption.Type.INTEGER.getValue())
-                        .value(maxDice)
+                        .longValue(maxDice)
                         .build())
-                .addOption(ApplicationCommandInteractionOptionData.builder()
+                .option(CommandInteractionOption.builder()
                         .name("reroll_set")
-                        .type(ApplicationCommandOption.Type.STRING.getValue())
-                        .value(rerollSet)
+                        .stringValue(rerollSet)
                         .build())
-                .addOption(ApplicationCommandInteractionOptionData.builder()
+                .option(CommandInteractionOption.builder()
                         .name("botch_set")
-                        .type(ApplicationCommandOption.Type.STRING.getValue())
-                        .value(botchSet)
+                        .stringValue(botchSet)
                         .build())
-                .addOption(ApplicationCommandInteractionOptionData.builder()
+                .option(CommandInteractionOption.builder()
                         .name("reroll_variant")
-                        .type(ApplicationCommandOption.Type.STRING.getValue())
-                        .value(rerollVariant)
+                        .stringValue(rerollVariant)
                         .build())
-                .build(), null);
+                .build();
     }
 
     @Test
     void getStartOptionsValidationMessage() {
-        ApplicationCommandInteractionOption option = createCommandInteractionOption("10", "12", "9,10", "1,2,3", "ask");
+        CommandInteractionOption option = createCommandInteractionOption(10L, 12L, "9,10", "1,2,3", "ask");
         String res = underTest.getStartOptionsValidationMessage(option);
 
         assertThat(res).isEqualTo(null);
@@ -609,7 +596,7 @@ class PoolTargetCommandTest {
 
     @Test
     void getStartOptionsValidationMessage_botchSetZero() {
-        ApplicationCommandInteractionOption option = createCommandInteractionOption("10", "12", "9,10", "0,2,3", "ask");
+        CommandInteractionOption option = createCommandInteractionOption(10L, 12L, "9,10", "0,2,3", "ask");
         String res = underTest.getStartOptionsValidationMessage(option);
 
         assertThat(res).isEqualTo("The parameter need to have numbers greater zero, seperated by ','. The following parameter where not greater zero: '0'");
@@ -617,7 +604,7 @@ class PoolTargetCommandTest {
 
     @Test
     void getStartOptionsValidationMessage_botchSetNegative() {
-        ApplicationCommandInteractionOption option = createCommandInteractionOption("10", "12", "9,10", "-1,2,3", "ask");
+        CommandInteractionOption option = createCommandInteractionOption(10L, 12L, "9,10", "-1,2,3", "ask");
         String res = underTest.getStartOptionsValidationMessage(option);
 
         assertThat(res).isEqualTo("The parameter need to have numbers greater zero, seperated by ','. The following parameter where not greater zero: '-1'");
@@ -625,7 +612,7 @@ class PoolTargetCommandTest {
 
     @Test
     void getStartOptionsValidationMessage_botchSetNotANumber() {
-        ApplicationCommandInteractionOption option = createCommandInteractionOption("10", "12", "9,10", "1,a,3", "ask");
+        CommandInteractionOption option = createCommandInteractionOption(10L, 12L, "9,10", "1,a,3", "ask");
         String res = underTest.getStartOptionsValidationMessage(option);
 
         assertThat(res).isEqualTo("The parameter need to have numbers, seperated by ','. The following parameter where not numbers: 'a'");
@@ -633,7 +620,7 @@ class PoolTargetCommandTest {
 
     @Test
     void getStartOptionsValidationMessage_botchSetEmpty() {
-        ApplicationCommandInteractionOption option = createCommandInteractionOption("10", "12", "9,10", "1,,3", "ask");
+        CommandInteractionOption option = createCommandInteractionOption(10L, 12L, "9,10", "1,,3", "ask");
         String res = underTest.getStartOptionsValidationMessage(option);
 
         assertThat(res).isEqualTo("The parameter need to have numbers, seperated by ','. The following parameter where not numbers: ''");
@@ -641,7 +628,7 @@ class PoolTargetCommandTest {
 
     @Test
     void getStartOptionsValidationMessage_rerollSetZero() {
-        ApplicationCommandInteractionOption option = createCommandInteractionOption("10", "12", "0,0,9,10", "1,2,3", "ask");
+        CommandInteractionOption option = createCommandInteractionOption(10L, 12L, "0,0,9,10", "1,2,3", "ask");
         String res = underTest.getStartOptionsValidationMessage(option);
 
         assertThat(res).isEqualTo("The parameter need to have numbers greater zero, seperated by ','. The following parameter where not greater zero: '0'");
@@ -649,7 +636,7 @@ class PoolTargetCommandTest {
 
     @Test
     void getStartOptionsValidationMessage_rerollSetNegative() {
-        ApplicationCommandInteractionOption option = createCommandInteractionOption("10", "12", "-9,-10", "1,2,3", "ask");
+        CommandInteractionOption option = createCommandInteractionOption(10L, 12L, "-9,-10", "1,2,3", "ask");
         String res = underTest.getStartOptionsValidationMessage(option);
 
         assertThat(res).isEqualTo("The parameter need to have numbers greater zero, seperated by ','. The following parameter where not greater zero: '-9', '-10'");
@@ -657,7 +644,7 @@ class PoolTargetCommandTest {
 
     @Test
     void getStartOptionsValidationMessage_rerollSetNotANumber() {
-        ApplicationCommandInteractionOption option = createCommandInteractionOption("10", "12", "9a,asfd,..,10", "1,2,3", "ask");
+        CommandInteractionOption option = createCommandInteractionOption(10L, 12L, "9a,asfd,..,10", "1,2,3", "ask");
         String res = underTest.getStartOptionsValidationMessage(option);
 
         assertThat(res).isEqualTo("The parameter need to have numbers, seperated by ','. The following parameter where not numbers: '..', '9a', 'asfd'");
@@ -665,7 +652,7 @@ class PoolTargetCommandTest {
 
     @Test
     void getStartOptionsValidationMessage_rerollSetEmpty() {
-        ApplicationCommandInteractionOption option = createCommandInteractionOption("10", "12", "9,,,,10", "1", "ask");
+        CommandInteractionOption option = createCommandInteractionOption(10L, 12L, "9,,,,10", "1", "ask");
         String res = underTest.getStartOptionsValidationMessage(option);
 
         assertThat(res).isEqualTo("The parameter need to have numbers, seperated by ','. The following parameter where not numbers: ''");

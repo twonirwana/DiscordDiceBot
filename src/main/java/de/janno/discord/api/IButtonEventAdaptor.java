@@ -20,7 +20,7 @@ public interface IButtonEventAdaptor extends IDiscordAdapter {
 
     Mono<Void> editMessage(String message);
 
-    Mono<Long> createButtonMessage(String messageContent, List<ComponentRow> buttonLayout);
+    Mono<Long> createButtonMessage(String messageContent, List<ComponentRowDefinition> buttonLayout);
 
     Mono<Void> deleteMessage(long messageId);
 

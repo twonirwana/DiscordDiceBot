@@ -2,14 +2,10 @@ package de.janno.discord.command;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import de.janno.discord.api.Answer;
-import de.janno.discord.api.IButtonEventAdaptor;
-import de.janno.discord.api.Requester;
+import de.janno.discord.api.*;
 import de.janno.discord.cache.ButtonMessageCache;
 import de.janno.discord.command.slash.CommandDefinitionOption;
 import de.janno.discord.dice.DiceUtils;
-import discord4j.core.object.component.LayoutComponent;
-import discord4j.discordjson.json.ApplicationCommandOptionData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Mono;
@@ -282,21 +278,21 @@ class CountSuccessesCommandTest {
 
     @Test
     void getButtonLayoutWithState() {
-        List<LayoutComponent> res = underTest.getButtonLayoutWithState(new CountSuccessesCommand.State(6), new CountSuccessesCommand.Config(6, 6, "count_ones", 15));
+        List<ComponentRowDefinition> res = underTest.getButtonLayoutWithState(new CountSuccessesCommand.State(6), new CountSuccessesCommand.Config(6, 6, "count_ones", 15));
 
-        assertThat(res.stream().flatMap(l -> l.getChildren().stream()).map(l -> l.getData().label().get()))
+        assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel))
                 .containsExactly("1d6", "2d6", "3d6", "4d6", "5d6", "6d6", "7d6", "8d6", "9d6", "10d6", "11d6", "12d6", "13d6", "14d6", "15d6");
-        assertThat(res.stream().flatMap(l -> l.getChildren().stream()).map(l -> l.getData().customId().get()))
+        assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getId))
                 .containsExactly("count_successes,1,6,6,count_ones,15", "count_successes,2,6,6,count_ones,15", "count_successes,3,6,6,count_ones,15", "count_successes,4,6,6,count_ones,15", "count_successes,5,6,6,count_ones,15", "count_successes,6,6,6,count_ones,15", "count_successes,7,6,6,count_ones,15", "count_successes,8,6,6,count_ones,15", "count_successes,9,6,6,count_ones,15", "count_successes,10,6,6,count_ones,15", "count_successes,11,6,6,count_ones,15", "count_successes,12,6,6,count_ones,15", "count_successes,13,6,6,count_ones,15", "count_successes,14,6,6,count_ones,15", "count_successes,15,6,6,count_ones,15");
     }
 
     @Test
     void getButtonLayout() {
-        List<LayoutComponent> res = underTest.getButtonLayout(new CountSuccessesCommand.Config(6, 6, "count_ones", 15));
+        List<ComponentRowDefinition> res = underTest.getButtonLayout(new CountSuccessesCommand.Config(6, 6, "count_ones", 15));
 
-        assertThat(res.stream().flatMap(l -> l.getChildren().stream()).map(l -> l.getData().label().get()))
+        assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel))
                 .containsExactly("1d6", "2d6", "3d6", "4d6", "5d6", "6d6", "7d6", "8d6", "9d6", "10d6", "11d6", "12d6", "13d6", "14d6", "15d6");
-        assertThat(res.stream().flatMap(l -> l.getChildren().stream()).map(l -> l.getData().customId().get()))
+        assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getId))
                 .containsExactly("count_successes,1,6,6,count_ones,15", "count_successes,2,6,6,count_ones,15", "count_successes,3,6,6,count_ones,15", "count_successes,4,6,6,count_ones,15", "count_successes,5,6,6,count_ones,15", "count_successes,6,6,6,count_ones,15", "count_successes,7,6,6,count_ones,15", "count_successes,8,6,6,count_ones,15", "count_successes,9,6,6,count_ones,15", "count_successes,10,6,6,count_ones,15", "count_successes,11,6,6,count_ones,15", "count_successes,12,6,6,count_ones,15", "count_successes,13,6,6,count_ones,15", "count_successes,14,6,6,count_ones,15", "count_successes,15,6,6,count_ones,15");
     }
 

@@ -71,6 +71,7 @@ public class SlashCommandRegistry {
 
 
                 //add missing commands
+                //todo use bulk
                 Flux.fromIterable(botCommands.values())
                         .filter(sc -> !currentlyRegisteredCommands.containsKey(sc.getName()))
                         .flatMap(sc -> {
@@ -80,22 +81,22 @@ public class SlashCommandRegistry {
                                             .doOnError(t -> log.error("Error adding missing command: {}", sc.getCommandDefinition(), t));
                                 }
                         )
-                        .subscribe();
+                        .subscribe(); //todo central threadpool
 
                 //update existing
+                //todo use bulk
                 Flux.fromIterable(botCommands.values())
                         .filter(sc -> currentlyRegisteredCommands.containsKey(sc.getName()) &&
-                                !sc.getCommandDefinition().equals(ApplicationCommandHelper.applicationCommand2CommandDefinition(currentlyRegisteredCommands.get(sc.getName()))))
+                                !sc.getCommandDefinition().equals(ApplicationCommandHelper.slashCommand2CommandDefinition(currentlyRegisteredCommands.get(sc.getName()))))
                         .flatMap(sc -> {
-                                    log.info("Update command: {} != {}", sc.getCommandDefinition(), ApplicationCommandHelper.applicationCommand2CommandDefinition(currentlyRegisteredCommands.get(sc.getName())));
+                                    log.info("Update command: {} != {}", sc.getCommandDefinition(), ApplicationCommandHelper.slashCommand2CommandDefinition(currentlyRegisteredCommands.get(sc.getName())));
                                     SlashCommandBuilder builder = ApplicationCommandHelper.commandDefinition2SlashCommandBuilder(sc.getCommandDefinition());
-                                    //todo modify is something other then create?
                                     return Mono.fromFuture(builder.createGlobal(discordApi))
                                             .doOnError(t -> log.error("Error updating command: {}", sc.getCommandDefinition(), t));
 
                                 }
                         )
-                        .subscribe();
+                        .subscribe(); //todo use central thread pool
             }
             return new SlashCommandRegistry(slashCommands);
         }

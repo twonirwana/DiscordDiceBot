@@ -214,12 +214,12 @@ public abstract class AbstractCommand<C extends IConfig, S extends IState> imple
     /**
      * The button layout for the new button message, after a button event
      */
-    protected abstract List<ComponentRow> getButtonLayoutWithState(S state, C config);
+    protected abstract List<ComponentRowDefinition> getButtonLayoutWithState(S state, C config);
 
     /**
      * The button layout for the new button message, after a slash event
      */
-    protected abstract List<ComponentRow> getButtonLayout(C config);
+    protected abstract List<ComponentRowDefinition> getButtonLayout(C config);
 
     protected String getStartOptionsValidationMessage(CommandInteractionOption options) {
         //standard is no validation

@@ -2,9 +2,7 @@ package de.janno.discord.command;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import de.janno.discord.api.Answer;
-import de.janno.discord.api.IButtonEventAdaptor;
-import de.janno.discord.api.Requester;
+import de.janno.discord.api.*;
 import de.janno.discord.cache.ButtonMessageCache;
 import de.janno.discord.command.slash.CommandDefinitionOption;
 import de.janno.discord.dice.DiceParserHelper;
@@ -12,8 +10,6 @@ import de.janno.discord.dice.IDice;
 import dev.diceroll.parser.Dice;
 import dev.diceroll.parser.NDice;
 import dev.diceroll.parser.ResultTree;
-import discord4j.core.object.component.LayoutComponent;
-import discord4j.discordjson.json.ApplicationCommandOptionData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -248,7 +244,7 @@ class CustomDiceCommandTest {
                 .hasSize(1)
                 .containsEntry(1L, ImmutableSet.of(new ButtonMessageCache.ButtonWithConfigHash(2L, 60)));
 
-        verify(buttonEventAdaptor,times(2)).getCustomId();
+        verify(buttonEventAdaptor, times(2)).getCustomId();
         verify(buttonEventAdaptor).getMessageId();
         verify(buttonEventAdaptor).getChannelId();
         verify(buttonEventAdaptor).isPinned();
@@ -299,29 +295,28 @@ class CustomDiceCommandTest {
 
     @Test
     void getButtonLayoutWithState() {
-        List<LayoutComponent> res = underTest.getButtonLayoutWithState(
+        List<ComponentRowDefinition> res = underTest.getButtonLayoutWithState(
                 new CustomDiceCommand.State("2d6"),
                 new CustomDiceCommand.Config(ImmutableList.of(
                         new CustomDiceCommand.LabelAndDiceExpression("2d6", "2d6"),
                         new CustomDiceCommand.LabelAndDiceExpression("Attack", "1d20")
                 ))
         );
-
-        assertThat(res.stream().flatMap(l -> l.getChildren().stream()).map(l -> l.getData().label().get())).containsExactly("2d6", "Attack");
-        assertThat(res.stream().flatMap(l -> l.getChildren().stream()).map(l -> l.getData().customId().get())).containsExactly("custom_dice,2d6", "custom_dice,1d20");
+        assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel)).containsExactly("2d6", "Attack");
+        assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getId)).containsExactly("custom_dice,2d6", "custom_dice,1d20");
     }
 
     @Test
     void getButtonLayout() {
-        List<LayoutComponent> res = underTest.getButtonLayout(
+        List<ComponentRowDefinition> res = underTest.getButtonLayout(
                 new CustomDiceCommand.Config(ImmutableList.of(
                         new CustomDiceCommand.LabelAndDiceExpression("2d6", "2d6"),
                         new CustomDiceCommand.LabelAndDiceExpression("Attack", "1d20")
                 ))
         );
 
-        assertThat(res.stream().flatMap(l -> l.getChildren().stream()).map(l -> l.getData().label().get())).containsExactly("2d6", "Attack");
-        assertThat(res.stream().flatMap(l -> l.getChildren().stream()).map(l -> l.getData().customId().get())).containsExactly("custom_dice,2d6", "custom_dice,1d20");
+        assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel)).containsExactly("2d6", "Attack");
+        assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getId)).containsExactly("custom_dice,2d6", "custom_dice,1d20");
     }
 
     @Test

@@ -18,15 +18,6 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-
-/**
- * TODO:
- * - only the result is in the channel and the adding of dice is ephemeral.
- * This is currently not possible because ephemeral can't be deleted,
- * the alternative would be private threads (currently not supported by discord4j)
- * - d100
- * - configurable buttons
- */
 @Slf4j
 public class SumDiceSetCommand extends AbstractCommand<SumDiceSetCommand.Config, SumDiceSetCommand.State> {
     private static final String COMMAND_NAME = "sum_dice_set";
@@ -170,7 +161,7 @@ public class SumDiceSetCommand extends AbstractCommand<SumDiceSetCommand.Config,
             String die;
 
             if (state.getButtonValue().contains(DICE_SYMBOL)) {
-                diceModifier = "-".equals(state.getButtonValue().substring(0, 1)) ? -1 : +1;
+                diceModifier = "-" .equals(state.getButtonValue().substring(0, 1)) ? -1 : +1;
                 die = state.getButtonValue().substring(2);
             } else {
                 diceModifier = Integer.parseInt(state.getButtonValue());
@@ -218,7 +209,7 @@ public class SumDiceSetCommand extends AbstractCommand<SumDiceSetCommand.Config,
 
         return new State(buttonValue, Arrays.stream(buttonMessage.split(Pattern.quote(DICE_SET_DELIMITER)))
                 //for handling legacy buttons with '1d4 + 1d6)
-                .filter(s -> !"+".equals(s))
+                .filter(s -> !"+" .equals(s))
                 //adding the + for the first die type in the message
                 .map(s -> {
                     if (!s.startsWith("-") && !s.startsWith("+")) {
@@ -252,45 +243,45 @@ public class SumDiceSetCommand extends AbstractCommand<SumDiceSetCommand.Config,
     }
 
     @Override
-    protected List<ComponentRow> getButtonLayoutWithState(State state, Config config) {
+    protected List<ComponentRowDefinition> getButtonLayoutWithState(State state, Config config) {
         return createButtonLayout();
     }
 
     @Override
-    protected List<ComponentRow> getButtonLayout(Config config) {
+    protected List<ComponentRowDefinition> getButtonLayout(Config config) {
         return createButtonLayout();
     }
 
-    private List<ComponentRow> createButtonLayout() {
+    private List<ComponentRowDefinition> createButtonLayout() {
         return ImmutableList.of(
-                ComponentRow.builder().buttonDefinitions(ImmutableList.of(
+                ComponentRowDefinition.builder().buttonDefinitions(ImmutableList.of(
                         //              ID,  label
-                        ButtonDefinition.builder().id("+1d4").label("+1d4").build(),
-                        ButtonDefinition.builder().id("-1d4").label("-1d4").build(),
-                        ButtonDefinition.builder().id("+1d6").label("+1d6").build(),
-                        ButtonDefinition.builder().id("-1d6").label("-1d6").build(),
-                        ButtonDefinition.builder().id(X2_BUTTON_ID).label("x2").build()
+                        ButtonDefinition.builder().id(createButtonCustomId("+1d4")).label("+1d4").build(),
+                        ButtonDefinition.builder().id(createButtonCustomId("-1d4")).label("-1d4").build(),
+                        ButtonDefinition.builder().id(createButtonCustomId("+1d6")).label("+1d6").build(),
+                        ButtonDefinition.builder().id(createButtonCustomId("-1d6")).label("-1d6").build(),
+                        ButtonDefinition.builder().id(createButtonCustomId(X2_BUTTON_ID)).label("x2").build()
                 )).build(),
-                ComponentRow.builder().buttonDefinitions(ImmutableList.of(
-                        ButtonDefinition.builder().id("+1d8").label("+1d8").build(),
-                        ButtonDefinition.builder().id("-1d8").label("-1d8").build(),
-                        ButtonDefinition.builder().id("+1d10").label("+1d10").build(),
-                        ButtonDefinition.builder().id("-1d10").label("-1d10").build(),
-                        ButtonDefinition.builder().id(CLEAR_BUTTON_ID).label("Clear").build()
+                ComponentRowDefinition.builder().buttonDefinitions(ImmutableList.of(
+                        ButtonDefinition.builder().id(createButtonCustomId("+1d8")).label("+1d8").build(),
+                        ButtonDefinition.builder().id(createButtonCustomId("-1d8")).label("-1d8").build(),
+                        ButtonDefinition.builder().id(createButtonCustomId("+1d10")).label("+1d10").build(),
+                        ButtonDefinition.builder().id(createButtonCustomId("-1d10")).label("-1d10").build(),
+                        ButtonDefinition.builder().id(createButtonCustomId(CLEAR_BUTTON_ID)).label("Clear").build()
                 )).build(),
-                ComponentRow.builder().buttonDefinitions(ImmutableList.of(
-                        ButtonDefinition.builder().id("+1d12").label("+1d12").build(),
-                        ButtonDefinition.builder().id("-1d12").label("-1d12").build(),
-                        ButtonDefinition.builder().id("+1d20").label("+1d20").build(),
-                        ButtonDefinition.builder().id("-1d20").label("-1d20").build(),
-                        ButtonDefinition.builder().id(ROLL_BUTTON_ID).label("Roll").build()
+                ComponentRowDefinition.builder().buttonDefinitions(ImmutableList.of(
+                        ButtonDefinition.builder().id(createButtonCustomId("+1d12")).label("+1d12").build(),
+                        ButtonDefinition.builder().id(createButtonCustomId("-1d12")).label("-1d12").build(),
+                        ButtonDefinition.builder().id(createButtonCustomId("+1d20")).label("+1d20").build(),
+                        ButtonDefinition.builder().id(createButtonCustomId("-1d20")).label("-1d20").build(),
+                        ButtonDefinition.builder().id(createButtonCustomId(ROLL_BUTTON_ID)).label("Roll").build()
                 )).build(),
-                ComponentRow.builder().buttonDefinitions(ImmutableList.of(
-                        ButtonDefinition.builder().id("+1").label("+1").build(),
-                        ButtonDefinition.builder().id("-1").label("-1").build(),
-                        ButtonDefinition.builder().id("+5").label("+5").build(),
-                        ButtonDefinition.builder().id("-5").label("-5").build(),
-                        ButtonDefinition.builder().id("+10").label("+10").build()
+                ComponentRowDefinition.builder().buttonDefinitions(ImmutableList.of(
+                        ButtonDefinition.builder().id(createButtonCustomId("+1")).label("+1").build(),
+                        ButtonDefinition.builder().id(createButtonCustomId("-1")).label("-1").build(),
+                        ButtonDefinition.builder().id(createButtonCustomId("+5")).label("+5").build(),
+                        ButtonDefinition.builder().id(createButtonCustomId("-5")).label("-5").build(),
+                        ButtonDefinition.builder().id(createButtonCustomId("+10")).label("+10").build()
                 )).build());
     }
 

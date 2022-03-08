@@ -240,7 +240,7 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollCommand.Config,
     }
 
     @Override
-    protected List<ComponentRow> getButtonLayoutWithState(State state, Config config) {
+    protected List<ComponentRowDefinition> getButtonLayoutWithState(State state, Config config) {
         if (CLEAR_BUTTON_ID.equals(state.getState()) ||
                 FINISH_BUTTON_ID.equals(state.getState()) ||
                 rollFinished(state, config)) {
@@ -249,7 +249,7 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollCommand.Config,
         //further rerolls are possible
 
         return ImmutableList.of(
-                ComponentRow.builder()
+                ComponentRowDefinition.builder()
                         .buttonDefinition(ButtonDefinition.builder()
                                 .id(createButtonCustomId(REROLL_BUTTON_ID, config, state))
                                 .label("Reroll")
@@ -269,11 +269,11 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollCommand.Config,
     }
 
     @Override
-    protected List<ComponentRow> getButtonLayout(Config config) {
+    protected List<ComponentRowDefinition> getButtonLayout(Config config) {
         return createButtonLayout(config);
     }
 
-    private List<ComponentRow> createButtonLayout(Config config) {
+    private List<ComponentRowDefinition> createButtonLayout(Config config) {
         List<ButtonDefinition> buttons = IntStream.range(1, 16)
                 .mapToObj(i -> ButtonDefinition.builder()
                         .id(createButtonCustomId(String.valueOf(i), config, null))
@@ -282,7 +282,7 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollCommand.Config,
                         .build())
                 .collect(Collectors.toList());
         return Lists.partition(buttons, 5).stream()
-                .map(bl -> ComponentRow.builder().buttonDefinitions(bl).build())
+                .map(bl -> ComponentRowDefinition.builder().buttonDefinitions(bl).build())
                 .collect(Collectors.toList());
     }
 

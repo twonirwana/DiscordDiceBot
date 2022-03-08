@@ -16,7 +16,7 @@ public interface ISlashEventAdaptor extends IDiscordAdapter {
 
     Mono<Void> replyEphemeral(EmbedDefinition embedDefinition);
 
-    Mono<Long> createButtonMessage(@NonNull String buttonMessage, @NonNull List<ComponentRow> buttons);
+    Mono<Long> createButtonMessage(@NonNull String buttonMessage, @NonNull List<ComponentRowDefinition> buttons);
 
     Long getChannelId();
 

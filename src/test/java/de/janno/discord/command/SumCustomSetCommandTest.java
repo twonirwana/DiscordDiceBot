@@ -2,22 +2,15 @@ package de.janno.discord.command;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import de.janno.discord.api.Answer;
-import de.janno.discord.api.IButtonEventAdaptor;
-import de.janno.discord.api.Requester;
+import de.janno.discord.api.*;
 import de.janno.discord.cache.ButtonMessageCache;
 import de.janno.discord.command.slash.CommandDefinitionOption;
+import de.janno.discord.command.slash.CommandInteractionOption;
 import de.janno.discord.dice.DiceParserHelper;
 import de.janno.discord.dice.IDice;
 import dev.diceroll.parser.NDice;
 import dev.diceroll.parser.NumberExpression;
 import dev.diceroll.parser.ResultTree;
-import discord4j.core.GatewayDiscordClient;
-import discord4j.core.object.command.ApplicationCommandInteractionOption;
-import discord4j.core.object.command.ApplicationCommandOption;
-import discord4j.core.object.component.LayoutComponent;
-import discord4j.discordjson.json.ApplicationCommandInteractionOptionData;
-import discord4j.discordjson.json.ApplicationCommandOptionData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -294,20 +287,17 @@ class SumCustomSetCommandTest {
 
     @Test
     void getConfigValuesFromStartOptions() {
-        ApplicationCommandInteractionOption option = new ApplicationCommandInteractionOption(mock(GatewayDiscordClient.class), ApplicationCommandInteractionOptionData.builder()
+        CommandInteractionOption option = CommandInteractionOption.builder()
                 .name("start")
-                .type(ApplicationCommandOption.Type.SUB_COMMAND.getValue())
-                .addOption(ApplicationCommandInteractionOptionData.builder()
+                .option(CommandInteractionOption.builder()
                         .name("1_button")
-                        .type(ApplicationCommandOption.Type.STRING.getValue())
-                        .value("1d6@Label")
+                        .stringValue("1d6@Label")
                         .build())
-                .addOption(ApplicationCommandInteractionOptionData.builder()
+                .option(CommandInteractionOption.builder()
                         .name("2_button")
-                        .type(ApplicationCommandOption.Type.STRING.getValue())
-                        .value("2d4")
+                        .stringValue("2d4")
                         .build())
-                .build(), null);
+                .build();
         SumCustomSetCommand.Config res = underTest.getConfigFromStartOptions(option);
         assertThat(res).isEqualTo(new SumCustomSetCommand.Config(ImmutableList.of(
                 new SumCustomSetCommand.LabelAndDiceExpression("Label", "+1d6"),
@@ -317,15 +307,13 @@ class SumCustomSetCommandTest {
 
     @Test
     void getStartOptionsValidationMessage() {
-        ApplicationCommandInteractionOption option = new ApplicationCommandInteractionOption(mock(GatewayDiscordClient.class), ApplicationCommandInteractionOptionData.builder()
+        CommandInteractionOption option = CommandInteractionOption.builder()
                 .name("start")
-                .type(ApplicationCommandOption.Type.SUB_COMMAND.getValue())
-                .addOption(ApplicationCommandInteractionOptionData.builder()
+                .option(CommandInteractionOption.builder()
                         .name("1_button")
-                        .type(ApplicationCommandOption.Type.STRING.getValue())
-                        .value("1d6@Label")
+                        .stringValue("1d6@Label")
                         .build())
-                .build(), null);
+                .build();
         String res = underTest.getStartOptionsValidationMessage(option);
 
         assertThat(res).isEqualTo(null);
@@ -333,15 +321,13 @@ class SumCustomSetCommandTest {
 
     @Test
     void getStartOptionsValidationMessage_multiRoll() {
-        ApplicationCommandInteractionOption option = new ApplicationCommandInteractionOption(mock(GatewayDiscordClient.class), ApplicationCommandInteractionOptionData.builder()
+        CommandInteractionOption option = CommandInteractionOption.builder()
                 .name("start")
-                .type(ApplicationCommandOption.Type.SUB_COMMAND.getValue())
-                .addOption(ApplicationCommandInteractionOptionData.builder()
+                .option(CommandInteractionOption.builder()
                         .name("1_button")
-                        .type(ApplicationCommandOption.Type.STRING.getValue())
-                        .value("3x[2d6]")
+                        .stringValue("3x[2d6]")
                         .build())
-                .build(), null);
+                .build();
         String res = underTest.getStartOptionsValidationMessage(option);
 
         assertThat(res).isEqualTo("This command doesn't support multiple rolls, the following expression are not allowed: 3x[2d6]");
@@ -349,15 +335,13 @@ class SumCustomSetCommandTest {
 
     @Test
     void getStartOptionsValidationMessage_equal() {
-        ApplicationCommandInteractionOption option = new ApplicationCommandInteractionOption(mock(GatewayDiscordClient.class), ApplicationCommandInteractionOptionData.builder()
+        CommandInteractionOption option = CommandInteractionOption.builder()
                 .name("start")
-                .type(ApplicationCommandOption.Type.SUB_COMMAND.getValue())
-                .addOption(ApplicationCommandInteractionOptionData.builder()
+                .option(CommandInteractionOption.builder()
                         .name("1_button")
-                        .type(ApplicationCommandOption.Type.STRING.getValue())
-                        .value("1d6@∶ test")
+                        .stringValue("1d6@∶ test")
                         .build())
-                .build(), null);
+                .build();
         String res = underTest.getStartOptionsValidationMessage(option);
 
         assertThat(res).isEqualTo("This command doesn't allow '∶ ' in the dice expression and label, the following expression are not allowed: 1d6@∶ test");
@@ -442,11 +426,11 @@ class SumCustomSetCommandTest {
 
     @Test
     void getButtonLayoutWithState() {
-        List<LayoutComponent> res = underTest.getButtonLayoutWithState(new SumCustomSetCommand.State("roll", "", "user1"), defaultConfig);
+        List<ComponentRowDefinition> res = underTest.getButtonLayoutWithState(new SumCustomSetCommand.State("roll", "", "user1"), defaultConfig);
 
-        assertThat(res.stream().flatMap(l -> l.getChildren().stream()).map(l -> l.getData().label().get()))
+        assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel))
                 .containsExactly("1d6", "3d6", "4", "2d10min10", "Roll", "Clear", "Back");
-        assertThat(res.stream().flatMap(l -> l.getChildren().stream()).map(l -> l.getData().customId().get()))
+        assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getId))
                 .containsExactly("sum_custom_set,1d6",
                         "sum_custom_set,add 3d6",
                         "sum_custom_set,4",
@@ -458,11 +442,11 @@ class SumCustomSetCommandTest {
 
     @Test
     void getButtonLayout() {
-        List<LayoutComponent> res = underTest.getButtonLayout(defaultConfig);
+        List<ComponentRowDefinition> res = underTest.getButtonLayout(defaultConfig);
 
-        assertThat(res.stream().flatMap(l -> l.getChildren().stream()).map(l -> l.getData().label().get()))
+        assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel))
                 .containsExactly("1d6", "3d6", "4", "2d10min10", "Roll", "Clear", "Back");
-        assertThat(res.stream().flatMap(l -> l.getChildren().stream()).map(l -> l.getData().customId().get()))
+        assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getId))
                 .containsExactly("sum_custom_set,1d6",
                         "sum_custom_set,add 3d6",
                         "sum_custom_set,4",

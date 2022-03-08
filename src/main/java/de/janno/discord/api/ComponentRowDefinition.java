@@ -8,7 +8,7 @@ import java.util.List;
 
 @Value
 @Builder
-public class ComponentRow {
+public class ComponentRowDefinition {
 
     @Singular
     List<ButtonDefinition> buttonDefinitions;

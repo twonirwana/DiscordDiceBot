@@ -1,11 +1,11 @@
 package de.janno.discord.command;
 
 import de.janno.discord.api.Answer;
+import de.janno.discord.api.ButtonDefinition;
+import de.janno.discord.api.ComponentRowDefinition;
 import de.janno.discord.api.IButtonEventAdaptor;
 import de.janno.discord.command.slash.CommandDefinitionOption;
 import de.janno.discord.dice.DiceUtils;
-import discord4j.core.object.component.LayoutComponent;
-import discord4j.discordjson.json.ApplicationCommandOptionData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -149,28 +149,28 @@ class FateCommandTest {
 
     @Test
     void getButtonLayoutWithState_simple() {
-        List<LayoutComponent> res = underTest.getButtonLayoutWithState(new FateCommand.State(null), new FateCommand.Config("simple"));
+        List<ComponentRowDefinition> res = underTest.getButtonLayoutWithState(new FateCommand.State(null), new FateCommand.Config("simple"));
 
-        assertThat(res.stream().flatMap(l -> l.getChildren().stream()).map(l -> l.getData().label().get())).containsExactly("Roll 4dF");
-        assertThat(res.stream().flatMap(l -> l.getChildren().stream()).map(l -> l.getData().customId().get()))
+        assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel)).containsExactly("Roll 4dF");
+        assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getId))
                 .containsExactly("fate,roll,simple");
     }
 
     @Test
     void getButtonLayout_simple() {
-        List<LayoutComponent> res = underTest.getButtonLayout(new FateCommand.Config("simple"));
+        List<ComponentRowDefinition> res = underTest.getButtonLayout(new FateCommand.Config("simple"));
 
-        assertThat(res.stream().flatMap(l -> l.getChildren().stream()).map(l -> l.getData().label().get())).containsExactly("Roll 4dF");
-        assertThat(res.stream().flatMap(l -> l.getChildren().stream()).map(l -> l.getData().customId().get()))
+        assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel)).containsExactly("Roll 4dF");
+        assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getId))
                 .containsExactly("fate,roll,simple");
     }
 
     @Test
     void getButtonLayoutWithState_modifier() {
-        List<LayoutComponent> res = underTest.getButtonLayoutWithState(new FateCommand.State(2), new FateCommand.Config("with_modifier"));
+        List<ComponentRowDefinition> res = underTest.getButtonLayoutWithState(new FateCommand.State(2), new FateCommand.Config("with_modifier"));
 
-        assertThat(res.stream().flatMap(l -> l.getChildren().stream()).map(l -> l.getData().label().get())).containsExactly("-4", "-3", "-2", "-1", "0", "+1", "+2", "+3", "+4", "+5", "+6", "+7", "+8", "+9", "+10");
-        assertThat(res.stream().flatMap(l -> l.getChildren().stream()).map(l -> l.getData().customId().get()))
+        assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel)).containsExactly("-4", "-3", "-2", "-1", "0", "+1", "+2", "+3", "+4", "+5", "+6", "+7", "+8", "+9", "+10");
+        assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getId))
                 .containsExactly("fate,-4,with_modifier",
                         "fate,-3,with_modifier",
                         "fate,-2,with_modifier",
@@ -190,10 +190,10 @@ class FateCommandTest {
 
     @Test
     void getButtonLayout_modifier() {
-        List<LayoutComponent> res = underTest.getButtonLayout(new FateCommand.Config("with_modifier"));
+        List<ComponentRowDefinition> res = underTest.getButtonLayout(new FateCommand.Config("with_modifier"));
 
-        assertThat(res.stream().flatMap(l -> l.getChildren().stream()).map(l -> l.getData().label().get())).containsExactly("-4", "-3", "-2", "-1", "0", "+1", "+2", "+3", "+4", "+5", "+6", "+7", "+8", "+9", "+10");
-        assertThat(res.stream().flatMap(l -> l.getChildren().stream()).map(l -> l.getData().customId().get()))
+        assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel)).containsExactly("-4", "-3", "-2", "-1", "0", "+1", "+2", "+3", "+4", "+5", "+6", "+7", "+8", "+9", "+10");
+        assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getId))
                 .containsExactly("fate,-4,with_modifier",
                         "fate,-3,with_modifier",
                         "fate,-2,with_modifier",

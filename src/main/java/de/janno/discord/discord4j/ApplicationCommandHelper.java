@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 
 public class ApplicationCommandHelper {
 
-    public static CommandDefinition applicationCommand2CommandDefinition(SlashCommand slashCommand) {
+    public static CommandDefinition slashCommand2CommandDefinition(SlashCommand slashCommand) {
         return CommandDefinition.builder()
                 .name(slashCommand.getName())
                 .description(slashCommand.getDescription())
@@ -78,7 +78,6 @@ public class ApplicationCommandHelper {
                 .booleanValue(slashCommandInteractionOption.getBooleanValue().orElse(null))
                 .longValue(slashCommandInteractionOption.getLongValue().orElse(null))
                 .stringValue(slashCommandInteractionOption.getStringValue().orElse(null))
-                .stringRepresentationValue(slashCommandInteractionOption.getStringRepresentationValue().orElse(null))
                 .options(slashCommandInteractionOption.getOptions().stream()
                         .map(ApplicationCommandHelper::slashCommandInteractionOption2CommandInteractionOption)
                         .collect(Collectors.toList()))

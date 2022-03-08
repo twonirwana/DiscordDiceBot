@@ -62,7 +62,7 @@ public class DirectRollCommand implements ISlashCommand {
         Optional<CommandInteractionOption> expressionOptional = event.getOption(ACTION_EXPRESSION);
         if (expressionOptional.isPresent()) {
             String commandParameter = expressionOptional
-                    .map(CommandInteractionOption::getStringRepresentationValue)
+                    .map(CommandInteractionOption::getStringValue)
                     .orElseThrow();
             if (commandParameter.equals(HELP)) {
                 Metrics.incrementSlashHelpMetricCounter(getName());

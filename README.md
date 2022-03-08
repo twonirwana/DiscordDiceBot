@@ -6,7 +6,8 @@
 This is dice rolling bot for Discord. The bot needs to be configured with a slash command in a channel and then provides
 a message with a button selection. Upon clicking on a button the bot will post the result and move the message with the
 buttons to the bottom of the channel. If the message is pined, then it will only be copied and not moved. This allows it
-to roll dice without typing commands and thereby improves usability, especially for touchscreen users.
+to roll dice without typing commands and thereby improves usability, especially for touchscreen users. The bot supports
+threads and can be used there.
 
 ![](src/main/image/example.webp)
 
@@ -25,8 +26,6 @@ suggestions**:  [Button Dice Roller Discord Server](https://discord.gg/e43BsqKpF
 
 :warning: **If you can't see the bots messages**: The link preview in the discord setting must be activated to see the
 roll results
-
-:warning: The bot currently doesn't support threads and stages
 
 ## Example RPG System Commands
 

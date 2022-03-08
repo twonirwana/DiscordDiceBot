@@ -2,6 +2,7 @@ package de.janno.discord.command.slash;
 
 import lombok.Builder;
 import lombok.NonNull;
+import lombok.Singular;
 import lombok.Value;
 
 import java.util.List;
@@ -11,7 +12,6 @@ import java.util.Optional;
 @Builder
 public class CommandInteractionOption {
     String name;
-    String stringRepresentationValue;
 
     String stringValue;
 
@@ -19,6 +19,7 @@ public class CommandInteractionOption {
 
     Boolean booleanValue;
 
+    @Singular
     List<CommandInteractionOption> options;
 
     public Optional<Long> getLongSubOptionWithName(@NonNull String name) {

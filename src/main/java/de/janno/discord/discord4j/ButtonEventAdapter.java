@@ -2,8 +2,8 @@ package de.janno.discord.discord4j;
 
 import com.google.common.collect.ImmutableList;
 import de.janno.discord.api.Answer;
+import de.janno.discord.api.ComponentRowDefinition;
 import de.janno.discord.api.IButtonEventAdaptor;
-import de.janno.discord.api.ComponentRow;
 import de.janno.discord.api.Requester;
 import lombok.extern.slf4j.Slf4j;
 import org.javacord.api.entity.DiscordEntity;
@@ -94,7 +94,7 @@ public class ButtonEventAdapter extends DiscordAdapter implements IButtonEventAd
     }
 
     @Override
-    public Mono<Long> createButtonMessage(String messageContent, List<ComponentRow> buttonLayout) {
+    public Mono<Long> createButtonMessage(String messageContent, List<ComponentRowDefinition> buttonLayout) {
         return createButtonMessage(event.getButtonInteraction().getChannel().orElseThrow(), messageContent, buttonLayout)
                 .onErrorResume(t -> handleException("Error on creating button message", t, false).ofType(Message.class))
                 .map(DiscordEntity::getId);
@@ -107,8 +107,9 @@ public class ButtonEventAdapter extends DiscordAdapter implements IButtonEventAd
 
     @Override
     public Mono<Void> createResultMessageWithEventReference(Answer answer) {
-        return Mono.just(event.getInteraction().getChannel().orElseThrow())
-                .flatMap(channel -> createEmbedMessageWithReference(channel, answer, event.getInteraction().getUser(), event.getInteraction().getServer().orElseThrow()))
+        return createEmbedMessageWithReference(event.getInteraction().getChannel().orElseThrow(),
+                answer, event.getInteraction().getUser(),
+                event.getInteraction().getServer().orElseThrow())
                 .onErrorResume(t -> handleException("Error on creating answer message", t, false).ofType(Message.class))
                 .ofType(Void.class);
     }

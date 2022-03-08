@@ -3,11 +3,11 @@ package de.janno.discord.command;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import de.janno.discord.api.Answer;
+import de.janno.discord.api.ButtonDefinition;
+import de.janno.discord.api.ComponentRowDefinition;
 import de.janno.discord.api.IButtonEventAdaptor;
 import de.janno.discord.command.slash.CommandDefinitionOption;
 import de.janno.discord.dice.DiceUtils;
-import discord4j.core.object.component.LayoutComponent;
-import discord4j.discordjson.json.ApplicationCommandOptionData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -247,14 +247,14 @@ class HoldRerollCommandTest {
 
     @Test
     void getButtonLayoutWithState_reroll() {
-        List<LayoutComponent> res = underTest.getButtonLayoutWithState(new HoldRerollCommand.State("reroll", ImmutableList.of(1, 2, 3, 4, 5, 6), 2), new HoldRerollCommand.Config(
+        List<ComponentRowDefinition> res = underTest.getButtonLayoutWithState(new HoldRerollCommand.State("reroll", ImmutableList.of(1, 2, 3, 4, 5, 6), 2), new HoldRerollCommand.Config(
                 6,
                 ImmutableSet.of(2, 3, 4),
                 ImmutableSet.of(5, 6),
                 ImmutableSet.of(1)));
 
-        assertThat(res.stream().flatMap(l -> l.getChildren().stream()).map(l -> l.getData().label().get())).containsExactly("Reroll", "Finish", "Clear");
-        assertThat(res.stream().flatMap(l -> l.getChildren().stream()).map(l -> l.getData().customId().get()))
+        assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel)).containsExactly("Reroll", "Finish", "Clear");
+        assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getId))
                 .containsExactly("hold_reroll,reroll,1;2;3;4;5;6,6,2;3;4,5;6,1,2",
                         "hold_reroll,finish,1;2;3;4;5;6,6,2;3;4,5;6,1,2",
                         "hold_reroll,clear,1;2;3;4;5;6,6,2;3;4,5;6,1,2");
@@ -262,15 +262,15 @@ class HoldRerollCommandTest {
 
     @Test
     void getButtonLayoutWithState_finish() {
-        List<LayoutComponent> res = underTest.getButtonLayoutWithState(new HoldRerollCommand.State("finish", ImmutableList.of(1, 2, 3, 4, 5, 6), 2), new HoldRerollCommand.Config(
+        List<ComponentRowDefinition> res = underTest.getButtonLayoutWithState(new HoldRerollCommand.State("finish", ImmutableList.of(1, 2, 3, 4, 5, 6), 2), new HoldRerollCommand.Config(
                 6,
                 ImmutableSet.of(2, 3, 4),
                 ImmutableSet.of(5, 6),
                 ImmutableSet.of(1)));
 
-        assertThat(res.stream().flatMap(l -> l.getChildren().stream()).map(l -> l.getData().label().get()))
+        assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel))
                 .containsExactly("1d6", "2d6", "3d6", "4d6", "5d6", "6d6", "7d6", "8d6", "9d6", "10d6", "11d6", "12d6", "13d6", "14d6", "15d6");
-        assertThat(res.stream().flatMap(l -> l.getChildren().stream()).map(l -> l.getData().customId().get()))
+        assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getId))
                 .containsExactly("hold_reroll,1,EMPTY,6,2;3;4,5;6,1,0",
                         "hold_reroll,2,EMPTY,6,2;3;4,5;6,1,0",
                         "hold_reroll,3,EMPTY,6,2;3;4,5;6,1,0",
@@ -290,15 +290,15 @@ class HoldRerollCommandTest {
 
     @Test
     void getButtonLayoutWithState_clear() {
-        List<LayoutComponent> res = underTest.getButtonLayoutWithState(new HoldRerollCommand.State("clear", ImmutableList.of(1, 2, 3, 4, 5, 6), 2), new HoldRerollCommand.Config(
+        List<ComponentRowDefinition> res = underTest.getButtonLayoutWithState(new HoldRerollCommand.State("clear", ImmutableList.of(1, 2, 3, 4, 5, 6), 2), new HoldRerollCommand.Config(
                 6,
                 ImmutableSet.of(2, 3, 4),
                 ImmutableSet.of(5, 6),
                 ImmutableSet.of(1)));
 
-        assertThat(res.stream().flatMap(l -> l.getChildren().stream()).map(l -> l.getData().label().get()))
+        assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel))
                 .containsExactly("1d6", "2d6", "3d6", "4d6", "5d6", "6d6", "7d6", "8d6", "9d6", "10d6", "11d6", "12d6", "13d6", "14d6", "15d6");
-        assertThat(res.stream().flatMap(l -> l.getChildren().stream()).map(l -> l.getData().customId().get()))
+        assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getId))
                 .containsExactly("hold_reroll,1,EMPTY,6,2;3;4,5;6,1,0",
                         "hold_reroll,2,EMPTY,6,2;3;4,5;6,1,0",
                         "hold_reroll,3,EMPTY,6,2;3;4,5;6,1,0",
@@ -318,14 +318,14 @@ class HoldRerollCommandTest {
 
     @Test
     void getButtonLayoutWithState_3() {
-        List<LayoutComponent> res = underTest.getButtonLayoutWithState(new HoldRerollCommand.State("3", ImmutableList.of(1, 2, 3, 4, 5, 6), 2), new HoldRerollCommand.Config(
+        List<ComponentRowDefinition> res = underTest.getButtonLayoutWithState(new HoldRerollCommand.State("3", ImmutableList.of(1, 2, 3, 4, 5, 6), 2), new HoldRerollCommand.Config(
                 6,
                 ImmutableSet.of(2, 3, 4),
                 ImmutableSet.of(5, 6),
                 ImmutableSet.of(1)));
 
-        assertThat(res.stream().flatMap(l -> l.getChildren().stream()).map(l -> l.getData().label().get())).containsExactly("Reroll", "Finish", "Clear");
-        assertThat(res.stream().flatMap(l -> l.getChildren().stream()).map(l -> l.getData().customId().get()))
+        assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel)).containsExactly("Reroll", "Finish", "Clear");
+        assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getId))
                 .containsExactly("hold_reroll,reroll,1;2;3;4;5;6,6,2;3;4,5;6,1,2",
                         "hold_reroll,finish,1;2;3;4;5;6,6,2;3;4,5;6,1,2",
                         "hold_reroll,clear,1;2;3;4;5;6,6,2;3;4,5;6,1,2");
@@ -333,15 +333,15 @@ class HoldRerollCommandTest {
 
     @Test
     void getButtonLayoutWithState_3_finished() {
-        List<LayoutComponent> res = underTest.getButtonLayoutWithState(new HoldRerollCommand.State("3", ImmutableList.of(1, 1, 1, 5, 5, 6), 2), new HoldRerollCommand.Config(
+        List<ComponentRowDefinition> res = underTest.getButtonLayoutWithState(new HoldRerollCommand.State("3", ImmutableList.of(1, 1, 1, 5, 5, 6), 2), new HoldRerollCommand.Config(
                 6,
                 ImmutableSet.of(2, 3, 4),
                 ImmutableSet.of(5, 6),
                 ImmutableSet.of(1)));
 
-        assertThat(res.stream().flatMap(l -> l.getChildren().stream()).map(l -> l.getData().label().get()))
+        assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel))
                 .containsExactly("1d6", "2d6", "3d6", "4d6", "5d6", "6d6", "7d6", "8d6", "9d6", "10d6", "11d6", "12d6", "13d6", "14d6", "15d6");
-        assertThat(res.stream().flatMap(l -> l.getChildren().stream()).map(l -> l.getData().customId().get()))
+        assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getId))
                 .containsExactly("hold_reroll,1,EMPTY,6,2;3;4,5;6,1,0",
                         "hold_reroll,2,EMPTY,6,2;3;4,5;6,1,0",
                         "hold_reroll,3,EMPTY,6,2;3;4,5;6,1,0",
@@ -361,15 +361,15 @@ class HoldRerollCommandTest {
 
     @Test
     void getButtonLayout() {
-        List<LayoutComponent> res = underTest.getButtonLayout(new HoldRerollCommand.Config(
+        List<ComponentRowDefinition> res = underTest.getButtonLayout(new HoldRerollCommand.Config(
                 6,
                 ImmutableSet.of(2, 3, 4),
                 ImmutableSet.of(5, 6),
                 ImmutableSet.of(1)));
 
-        assertThat(res.stream().flatMap(l -> l.getChildren().stream()).map(l -> l.getData().label().get()))
+        assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel))
                 .containsExactly("1d6", "2d6", "3d6", "4d6", "5d6", "6d6", "7d6", "8d6", "9d6", "10d6", "11d6", "12d6", "13d6", "14d6", "15d6");
-        assertThat(res.stream().flatMap(l -> l.getChildren().stream()).map(l -> l.getData().customId().get()))
+        assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getId))
                 .containsExactly("hold_reroll,1,EMPTY,6,2;3;4,5;6,1,0",
                         "hold_reroll,2,EMPTY,6,2;3;4,5;6,1,0",
                         "hold_reroll,3,EMPTY,6,2;3;4,5;6,1,0",

@@ -219,7 +219,7 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetCommand.Config,
         Set<Integer> botchSet = getSetFromCommandOptions(options, BOTCH_SET_OPTION, ",");
         String rerollVariant = options.getOptions().stream()
                 .filter(o -> REROLL_VARIANT_OPTION.equals(o.getName()))
-                .map(CommandInteractionOption::getStringRepresentationValue)
+                .map(CommandInteractionOption::getStringValue)
                 .findFirst()
                 .orElse(ALWAYS_REROLL);
         return new Config(sideValue, maxButton, rerollSet, botchSet, rerollVariant);
@@ -274,10 +274,10 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetCommand.Config,
     }
 
     @Override
-    protected List<ComponentRow> getButtonLayoutWithState(State state, Config config) {
+    protected List<ComponentRowDefinition> getButtonLayoutWithState(State state, Config config) {
         if (state.getDicePool() != null && state.getTargetNumber() != null && state.getDoReroll() == null) {
             return ImmutableList.of(
-                    ComponentRow.builder()
+                    ComponentRowDefinition.builder()
                             .buttonDefinition(
                                     ButtonDefinition.builder()
                                             .id(createButtonCustomId(DO_REROLL_ID, config, state))
@@ -304,7 +304,7 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetCommand.Config,
                     .label("Clear")
                     .build());
             return Lists.partition(buttons, 5).stream()
-                    .map(bl -> ComponentRow.builder().buttonDefinitions(bl).build()).collect(Collectors.toList());
+                    .map(bl -> ComponentRowDefinition.builder().buttonDefinitions(bl).build()).collect(Collectors.toList());
         }
         return createPoolButtonLayout(config);
     }
@@ -329,11 +329,11 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetCommand.Config,
     }
 
     @Override
-    protected List<ComponentRow> getButtonLayout(Config config) {
+    protected List<ComponentRowDefinition> getButtonLayout(Config config) {
         return createPoolButtonLayout(config);
     }
 
-    private List<ComponentRow> createPoolButtonLayout(Config config) {
+    private List<ComponentRowDefinition> createPoolButtonLayout(Config config) {
         List<ButtonDefinition> buttons = IntStream.range(1, config.getMaxNumberOfButtons() + 1)
                 .mapToObj(i -> ButtonDefinition.builder()
                         .id(createButtonCustomId(String.valueOf(i), config, null))
@@ -341,7 +341,7 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetCommand.Config,
                         .build())
                 .collect(Collectors.toList());
         return Lists.partition(buttons, 5).stream()
-                .map(bl -> ComponentRow.builder().buttonDefinitions(bl).build())
+                .map(bl -> ComponentRowDefinition.builder().buttonDefinitions(bl).build())
                 .collect(Collectors.toList());
     }
 

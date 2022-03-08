@@ -4,15 +4,11 @@ import com.google.common.collect.ImmutableList;
 import de.janno.discord.api.Answer;
 import de.janno.discord.api.ISlashEventAdaptor;
 import de.janno.discord.api.Requester;
-import de.janno.discord.command.slash.CommandDefinitionOption;
+import de.janno.discord.command.slash.CommandInteractionOption;
 import de.janno.discord.dice.DiceParserHelper;
 import de.janno.discord.dice.IDice;
 import dev.diceroll.parser.NDice;
 import dev.diceroll.parser.ResultTree;
-import discord4j.core.GatewayDiscordClient;
-import discord4j.core.object.command.ApplicationCommandInteractionOption;
-import discord4j.core.object.command.ApplicationCommandOption;
-import discord4j.discordjson.json.ApplicationCommandInteractionOptionData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -39,13 +35,11 @@ class DirectRollCommandTest {
     void handleComponentInteractEvent() {
         ISlashEventAdaptor slashEventAdaptor = mock(ISlashEventAdaptor.class);
 
-        ApplicationCommandInteractionOption option = new ApplicationCommandInteractionOption(mock(GatewayDiscordClient.class), ApplicationCommandInteractionOptionData.builder()
+        CommandInteractionOption interactionOption = CommandInteractionOption.builder()
                 .name("expression")
-                .value("1d6")
-                .type(ApplicationCommandOption.Type.STRING.getValue())
-                .build(), null);
-
-        when(slashEventAdaptor.getOption(any())).thenReturn(Optional.of(option));
+                .stringValue("1d6")
+                .build();
+        when(slashEventAdaptor.getOption(any())).thenReturn(Optional.of(interactionOption));
         when(diceMock.detailedRoll("1d6")).thenReturn(new ResultTree(new NDice(6, 1), 3, ImmutableList.of()));
         when(slashEventAdaptor.getChannelId()).thenReturn(1L);
         when(slashEventAdaptor.createResultMessageWithEventReference(any())).thenReturn(Mono.just(mock(Void.class)));

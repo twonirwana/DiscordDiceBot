@@ -12,6 +12,8 @@ import org.javacord.api.DiscordApiBuilder;
 import org.javacord.api.entity.Nameable;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Scheduler;
+import reactor.core.scheduler.Schedulers;
 
 import java.util.Set;
 import java.util.concurrent.ConcurrentSkipListSet;
@@ -61,6 +63,8 @@ public class JavaCordClient {
                 .addSlashCommand(new HelpCommand())
                 .registerSlashCommands(api, disableCommandUpdate);
 
+        Scheduler scheduler = Schedulers.boundedElastic();
+
         api.addSlashCommandCreateListener(event -> {
             Stopwatch stopwatch = Stopwatch.createStarted();
 
@@ -71,7 +75,8 @@ public class JavaCordClient {
                     .next()
                     .flatMap(command -> command.handleSlashCommandEvent(new SlashEventAdapter(event,
                             Mono.just(new Requester(event.getInteraction().getUser().getName(),
-                                    "",//TODO
+                                    event.getSlashCommandInteraction().getChannel().flatMap(tc ->
+                                            api.getServerChannelById(tc.getId())).map(Nameable::getName).orElse(""),
                                     event.getSlashCommandInteraction().getServer().map(Nameable::getName).orElse("")))
                     )))
                     .onErrorResume(e -> {
@@ -79,8 +84,8 @@ public class JavaCordClient {
                         return Mono.empty();
                     })
                     .doAfterTerminate(() -> Metrics.timerSlashStartMetricCounter(event.getSlashCommandInteraction().getCommandName(), stopwatch.elapsed()))
-                    .subscribe(); //TODO subscribe on a single threadpool
-
+                    .subscribeOn(scheduler)
+                    .subscribe();
         });
 
         api.addButtonClickListener(event -> {
@@ -92,19 +97,20 @@ public class JavaCordClient {
                     .next()
                     .flatMap(command -> command.handleComponentInteractEvent(new ButtonEventAdapter(event,
                             Mono.just(new Requester(event.getInteraction().getUser().getName(),
-                                    "",//TODO
-                                    event.getButtonInteraction().getServer().map(Nameable::getName).orElse(""))))))
+                                    event.getButtonInteraction().getChannel().flatMap(tc ->
+                                            api.getServerChannelById(tc.getId())).map(Nameable::getName).orElse(""),
+                                    event.getButtonInteraction().getServer().map(Nameable::getName).orElse("")
+                            )))))
                     .onErrorResume(e -> {
                         log.error("ButtonInteractEvent Exception: ", e);
                         return Mono.empty();
                     })
                     .doAfterTerminate(() -> Metrics.timerButtonMetricCounter(getCommandNameFromCustomId(event.getButtonInteraction().getCustomId()), stopwatch.elapsed()))
-                    .subscribe(); //TODO subscribe on central threadpool
-
+                    .subscribeOn(scheduler)
+                    .subscribe();
         });
 
-        api.addServerBecomesAvailableListener(event -> {
-            //TODO dont work on startup
+        api.addServerJoinListener(event -> {
             if (!botInGuildIdSet.contains(event.getServer().getId())) {
                 log.info("Bot started in guild: name='{}', description='{}', memberCount={}", event.getServer().getName(),
                         event.getServer().getDescription().orElse(""), event.getServer().getMemberCount());
@@ -112,22 +118,16 @@ public class JavaCordClient {
             }
         });
 
-        api.addServerBecomesUnavailableListener(event -> {
+        api.addServerLeaveListener(event -> {
             if (botInGuildIdSet.contains(event.getServer().getId())) {
                 log.info("Bot removed in guild: name='{}', description='{}', memberCount={}", event.getServer().getName(),
                         event.getServer().getDescription().orElse(""), event.getServer().getMemberCount());
                 botInGuildIdSet.remove(event.getServer().getId());
             }
-
         });
 
-        /*
-                                    Gauge.builder(Metrics.METRIC_PREFIX + "gatewayResponseTime", () ->
-                                    gw.getGatewayClient(0)
-                                            .map(GatewayClient::getResponseTime)
-                                            .map(Duration::toMillis).orElse(-1L)).register(globalRegistry);
-         */
-
+        Gauge.builder(Metrics.METRIC_PREFIX + "gatewayResponseTime", () -> api.getLatestGatewayLatency().toMillis())
+                .register(globalRegistry);
     }
 
     private static String getCommandNameFromCustomId(String customId) {
