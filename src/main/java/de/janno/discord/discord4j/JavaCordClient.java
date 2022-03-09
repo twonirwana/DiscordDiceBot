@@ -35,21 +35,39 @@ public class JavaCordClient {
      **/
 
     public JavaCordClient(String token, boolean disableCommandUpdate) {
-        DiscordApi api = new DiscordApiBuilder()
-                //todo rate?
-                .setToken(token).login().join();
-
-       /* DiscordClient discordClient = DiscordClientBuilder.create(token)
-                .onClientResponse(
-                        ResponseFunction.retryWhen(
-                                RouteMatcher.any(),
-                                Retry.anyOf(Errors.NativeIoException.class)))
-                .setReactorResources(ReactorResources.builder()
-                        .httpClient(httpClient)
-                        .build()).build();*/
-
         Set<Long> botInGuildIdSet = new ConcurrentSkipListSet<>();
+
+        DiscordApi api = new DiscordApiBuilder()
+                .setWaitForServersOnStartup(false)
+                //todo rate?
+                .setUserCacheEnabled(true)
+                .addServerBecomesAvailableListener(event -> {
+                    if (!botInGuildIdSet.contains(event.getServer().getId())) {
+                        log.info("Bot started with guild: name='{}', description='{}', memberCount={}", event.getServer().getName(),
+                                event.getServer().getDescription().orElse(""), event.getServer().getMemberCount());
+                        botInGuildIdSet.add(event.getServer().getId());
+                    }
+                })
+                .addServerJoinListener(event -> {
+                    if (!botInGuildIdSet.contains(event.getServer().getId())) {
+                        log.info("Bot started in guild: name='{}', description='{}', memberCount={}", event.getServer().getName(),
+                                event.getServer().getDescription().orElse(""), event.getServer().getMemberCount());
+                        botInGuildIdSet.add(event.getServer().getId());
+                    }
+                })
+                .addServerLeaveListener(event -> {
+                    if (botInGuildIdSet.contains(event.getServer().getId())) {
+                        log.info("Bot removed in guild: name='{}', description='{}', memberCount={}", event.getServer().getName(),
+                                event.getServer().getDescription().orElse(""), event.getServer().getMemberCount());
+                        botInGuildIdSet.remove(event.getServer().getId());
+                    }
+                })
+                .setToken(token).login()
+                .join();
+
         Gauge.builder(Metrics.METRIC_PREFIX + "guildsCount", botInGuildIdSet::size).register(globalRegistry);
+        Gauge.builder(Metrics.METRIC_PREFIX + "gatewayResponseTime", () -> api.getLatestGatewayLatency().toMillis())
+                .register(globalRegistry);
 
         SlashCommandRegistry slashCommandRegistry = SlashCommandRegistry.builder()
                 .addSlashCommand(new CountSuccessesCommand())
@@ -110,24 +128,6 @@ public class JavaCordClient {
                     .subscribe();
         });
 
-        api.addServerJoinListener(event -> {
-            if (!botInGuildIdSet.contains(event.getServer().getId())) {
-                log.info("Bot started in guild: name='{}', description='{}', memberCount={}", event.getServer().getName(),
-                        event.getServer().getDescription().orElse(""), event.getServer().getMemberCount());
-                botInGuildIdSet.add(event.getServer().getId());
-            }
-        });
-
-        api.addServerLeaveListener(event -> {
-            if (botInGuildIdSet.contains(event.getServer().getId())) {
-                log.info("Bot removed in guild: name='{}', description='{}', memberCount={}", event.getServer().getName(),
-                        event.getServer().getDescription().orElse(""), event.getServer().getMemberCount());
-                botInGuildIdSet.remove(event.getServer().getId());
-            }
-        });
-
-        Gauge.builder(Metrics.METRIC_PREFIX + "gatewayResponseTime", () -> api.getLatestGatewayLatency().toMillis())
-                .register(globalRegistry);
     }
 
     private static String getCommandNameFromCustomId(String customId) {

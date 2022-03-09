@@ -10,8 +10,10 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -63,11 +65,11 @@ public class SlashCommandRegistry {
                 Flux.fromIterable(currentlyRegisteredCommands.values())
                         .filter(acd -> !botCommands.containsKey(acd.getName()))
                         .flatMap(acd -> {
-                            log.debug("Deleting old command: {}", acd);
+                            log.debug("Deleting old command: {}", acd.getName());
                             return Mono.fromFuture(acd.deleteGlobal())
                                     .doOnError(t -> log.error("Error deleting old command: {}", acd, t));
                         })
-                        .subscribe(); //todo central threadpool
+                        .subscribe();
 
 
                 //add missing commands
@@ -81,7 +83,7 @@ public class SlashCommandRegistry {
                                             .doOnError(t -> log.error("Error adding missing command: {}", sc.getCommandDefinition(), t));
                                 }
                         )
-                        .subscribe(); //todo central threadpool
+                        .subscribe();
 
                 //update existing
                 //todo use bulk
@@ -96,7 +98,7 @@ public class SlashCommandRegistry {
 
                                 }
                         )
-                        .subscribe(); //todo use central thread pool
+                        .subscribe();
             }
             return new SlashCommandRegistry(slashCommands);
         }
