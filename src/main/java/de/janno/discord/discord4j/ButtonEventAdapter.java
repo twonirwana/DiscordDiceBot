@@ -85,7 +85,7 @@ public class ButtonEventAdapter extends DiscordAdapter implements IButtonEventAd
     public Mono<Void> editMessage(String message) {
         return Mono.fromFuture(event.getButtonInteraction().getMessage().edit(message))
                 .then()
-                .onErrorResume(t -> handleException("Error on edit button event", t, true));
+                .onErrorResume(t -> handleException("Error on edit button event", t));
     }
 
     @Override
@@ -96,7 +96,7 @@ public class ButtonEventAdapter extends DiscordAdapter implements IButtonEventAd
     @Override
     public Mono<Long> createButtonMessage(String messageContent, List<ComponentRowDefinition> buttonLayout) {
         return createButtonMessage(event.getButtonInteraction().getChannel().orElseThrow(), messageContent, buttonLayout)
-                .onErrorResume(t -> handleException("Error on creating button message", t, false).ofType(Message.class))
+                .onErrorResume(t -> handleException("Error on creating button message", t).ofType(Message.class))
                 .map(DiscordEntity::getId);
     }
 
@@ -110,7 +110,7 @@ public class ButtonEventAdapter extends DiscordAdapter implements IButtonEventAd
         return createEmbedMessageWithReference(event.getInteraction().getChannel().orElseThrow(),
                 answer, event.getInteraction().getUser(),
                 event.getInteraction().getServer().orElseThrow())
-                .onErrorResume(t -> handleException("Error on creating answer message", t, false).ofType(Message.class))
+                .onErrorResume(t -> handleException("Error on creating answer message", t).ofType(Message.class))
                 .ofType(Void.class);
     }
 

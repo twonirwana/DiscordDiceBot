@@ -5,7 +5,6 @@ import com.google.common.collect.ImmutableList;
 import de.janno.discord.api.Answer;
 import de.janno.discord.api.ComponentRowDefinition;
 import de.janno.discord.api.IDiscordAdapter;
-import de.janno.discord.api.MissingPermissionException;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -14,6 +13,7 @@ import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
+import org.javacord.api.exception.MissingPermissionsException;
 import reactor.core.publisher.Mono;
 
 import java.awt.*;
@@ -62,15 +62,12 @@ public abstract class DiscordAdapter implements IDiscordAdapter {
         return Mono.fromFuture(channel.sendMessage(buttonMessage, MessageComponentUtil.messageComponent2MessageLayout(buttons)));
     }
 
-    //todo retry on server error class
     protected Mono<Void> handleException(@NonNull String errorMessage,
-                                         @NonNull Throwable throwable,
-                                         boolean ignoreMissing) {
-        //todo handle other discordExceptions
-        if (throwable instanceof MissingPermissionException) {
-            //Mono Error necessery?
-            //todo not working correclty
-            return answerOnError(PERMISSION_ERROR_MESSAGE).then(Mono.error(new MissingPermissionException(errorMessage)));
+                                         @NonNull Throwable throwable) {
+        if (throwable instanceof MissingPermissionsException) {
+            //todo need to stop the execution of the other actions
+            log.info(String.format("Missing permissions: %s", errorMessage));
+            return answerOnError(PERMISSION_ERROR_MESSAGE);
         } else {
             log.error(errorMessage, throwable);
         }
@@ -84,7 +81,7 @@ public abstract class DiscordAdapter implements IDiscordAdapter {
         return Mono.fromFuture(textChannel.getMessageById(messageId))
                 .filter(m -> !m.isPinned())
                 .flatMap(m -> Mono.fromFuture(m.delete()))
-                .onErrorResume(t -> handleException("Error on deleting message", t, true));
+                .onErrorResume(t -> handleException("Error on deleting message", t));
     }
 
 }

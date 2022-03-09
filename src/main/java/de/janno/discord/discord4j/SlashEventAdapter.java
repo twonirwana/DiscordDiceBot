@@ -94,7 +94,7 @@ public class SlashEventAdapter extends DiscordAdapter implements ISlashEventAdap
     @Override
     public Mono<Long> createButtonMessage(@NonNull String buttonMessage, @NonNull List<ComponentRowDefinition> buttons) {
         return createButtonMessage(event.getInteraction().getChannel().orElseThrow(), buttonMessage, buttons)
-                .onErrorResume(t -> handleException("Error on creating button message", t, false).ofType(Message.class))
+                .onErrorResume(t -> handleException("Error on creating button message", t).ofType(Message.class))
                 .map(DiscordEntity::getId);
     }
 
@@ -104,7 +104,7 @@ public class SlashEventAdapter extends DiscordAdapter implements ISlashEventAdap
                 answer,
                 event.getInteraction().getUser(),
                 event.getSlashCommandInteraction().getServer().orElseThrow())
-                .onErrorResume(t -> handleException("Error on creating answer message", t, false).ofType(Message.class))
+                .onErrorResume(t -> handleException("Error on creating answer message", t).ofType(Message.class))
                 .ofType(Void.class);
     }
 

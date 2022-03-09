@@ -118,7 +118,7 @@ public abstract class AbstractCommand<C extends IConfig, S extends IState> imple
                     .then();
         }
 
-        return Flux.mergeDelayError(1, actions.toArray(new Mono<?>[0]))
+        return Flux.merge(1, actions.toArray(new Mono<?>[0]))
                 .parallel()
                 .then()
                 .then(deleteAction);
