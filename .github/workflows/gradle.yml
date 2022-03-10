@@ -32,7 +32,7 @@ jobs:
     - uses: gradle/gradle-build-action@v2
       with:
         gradle-version: 7.1
-        arguments: jacocoTestReport
+        arguments: codeCoverageReport
     - uses: codecov/codecov-action@v2
       with:
         fail_ci_if_error: true
