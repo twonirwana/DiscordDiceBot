@@ -1,0 +1,47 @@
+plugins {
+    id 'java'
+}
+
+group 'de.janno'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+    maven { url 'https://jitpack.io' }
+}
+
+dependencies {
+    implementation project(':discord-connector')
+    implementation 'com.github.twonirwana:dice-parser:0.4.1'
+
+    implementation 'org.apache.logging.log4j:log4j-to-slf4j:2.17.2'
+    implementation "io.projectreactor:reactor-core:3.4.15"
+    implementation 'ch.qos.logback:logback-classic:1.2.11'
+    compileOnly 'org.projectlombok:lombok:1.18.22'
+    annotationProcessor 'org.projectlombok:lombok:1.18.22'
+    implementation 'com.google.guava:guava:31.1-jre'
+    implementation 'io.micrometer:micrometer-core:1.8.3'
+    implementation 'io.micrometer:micrometer-registry-prometheus:1.8.3'
+    implementation 'org.apache.commons:commons-lang3:3.12.0'
+    implementation 'io.undertow:undertow-core:2.2.16.Final'
+
+    testImplementation "io.projectreactor:reactor-test:3.4.15"
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.2'
+    testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.8.2'
+    testImplementation 'org.junit.jupiter:junit-jupiter-params:5.8.2'
+    testImplementation 'org.assertj:assertj-core:3.22.0'
+    testImplementation 'org.mockito:mockito-core:4.4.0'
+    testImplementation 'org.mockito:mockito-inline:4.4.0'
+    testCompileOnly 'org.projectlombok:lombok:1.18.22'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.22'
+    testImplementation 'io.projectreactor:reactor-test'
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+    options.incremental = true
+}
+
+test {
+    useJUnitPlatform()
+}

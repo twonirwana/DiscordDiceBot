@@ -1,0 +1,31 @@
+plugins {
+    id 'java'
+}
+
+group 'de.janno'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation project(':discord-connector:api')
+
+    implementation 'org.javacord:javacord:3.4.0'
+    implementation "io.projectreactor:reactor-core:3.4.15"
+    implementation 'ch.qos.logback:logback-classic:1.2.11'
+    implementation 'org.apache.logging.log4j:log4j-to-slf4j:2.17.2'
+    implementation 'com.google.guava:guava:31.1-jre'
+    implementation 'org.apache.commons:commons-lang3:3.12.0'
+
+    compileOnly 'org.projectlombok:lombok:1.18.22'
+    annotationProcessor 'org.projectlombok:lombok:1.18.22'
+
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
+}
+
+test {
+    useJUnitPlatform()
+}
