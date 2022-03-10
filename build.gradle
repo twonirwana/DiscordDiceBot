@@ -1,5 +1,6 @@
 plugins {
     id "com.github.johnrengelman.shadow" version "7.1.2"
+    id 'jacoco-report-aggregation'
 }
 
 apply plugin: 'java'
@@ -35,24 +36,3 @@ shadowJar {
     }
 }
 
-task codeCoverageReport(type: JacocoReport) {
-
-    // Gather execution data from all subprojects
-    executionData fileTree(project.rootDir.absolutePath).include("**/build/jacoco/*.exec")
-
-    // Add all relevant sourcesets from the subprojects
-    subprojects.each {
-        sourceSets it.sourceSets.main
-    }
-
-    reports {
-        xml.enabled true
-        html.enabled false
-        csv.enabled false
-    }
-}
-
-// always run the tests before generating the report
-codeCoverageReport.dependsOn {
-    subprojects*.test
-}

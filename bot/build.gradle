@@ -52,3 +52,10 @@ tasks.withType(JavaCompile) {
 test {
     useJUnitPlatform()
 }
+
+jacocoTestReport {
+    reports {
+        xml.enabled true
+        html.enabled false
+    }
+}
