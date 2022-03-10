@@ -37,6 +37,12 @@ dependencies {
     testImplementation 'io.projectreactor:reactor-test'
 }
 
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(14))
+    }
+}
+
 tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
     options.incremental = true

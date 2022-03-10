@@ -18,6 +18,11 @@ dependencies {
     implementation project(':bot')
 }
 
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(14))
+    }
+}
 
 test {
     useJUnitPlatform()
