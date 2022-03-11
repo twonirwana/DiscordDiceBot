@@ -9,7 +9,7 @@ public class Bot {
         final String token = args[0];
         final boolean disableCommandUpdate = Boolean.parseBoolean(args[1]);
         final String publishMetricsToUrl = args[2];
-        Metrics.init(publishMetricsToUrl);
+        BotMetrics.init(publishMetricsToUrl);
 
         DiscordConnector.createAndStart(token, disableCommandUpdate, ImmutableList.of(
                 new CountSuccessesCommand(),

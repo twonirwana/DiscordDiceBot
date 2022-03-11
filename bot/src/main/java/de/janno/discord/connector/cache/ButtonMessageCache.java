@@ -6,7 +6,7 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import de.janno.discord.connector.Metrics;
+import de.janno.discord.connector.BotMetrics;
 import io.micrometer.core.instrument.Tags;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
@@ -33,7 +33,7 @@ public class ButtonMessageCache {
             .build();
 
     public ButtonMessageCache(String systemName) {
-        globalRegistry.gaugeMapSize(Metrics.METRIC_PREFIX + "channelInCache", Tags.of("system", systemName), channel2ButtonMessageIds.asMap());
+        globalRegistry.gaugeMapSize(BotMetrics.METRIC_PREFIX + "channelInCache", Tags.of("system", systemName), channel2ButtonMessageIds.asMap());
     }
 
     @VisibleForTesting

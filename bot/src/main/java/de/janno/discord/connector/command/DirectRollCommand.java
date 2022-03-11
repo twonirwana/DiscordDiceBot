@@ -1,6 +1,6 @@
 package de.janno.discord.connector.command;
 
-import de.janno.discord.connector.Metrics;
+import de.janno.discord.connector.BotMetrics;
 import de.janno.discord.connector.api.Answer;
 import de.janno.discord.connector.api.EmbedDefinition;
 import de.janno.discord.connector.api.ISlashCommand;
@@ -66,7 +66,7 @@ public class DirectRollCommand implements ISlashCommand {
                     .map(CommandInteractionOption::getStringValue)
                     .orElseThrow();
             if (commandParameter.equals(HELP)) {
-                Metrics.incrementSlashHelpMetricCounter(getName());
+                BotMetrics.incrementSlashHelpMetricCounter(getName());
                 return event.replyEphemeral(EmbedDefinition.builder()
                         .description("Type /r and a dice expression e.g. `/r 1d6` \n" + DiceParserHelper.HELP)
                         .build());
@@ -88,7 +88,7 @@ public class DirectRollCommand implements ISlashCommand {
                 label = null;
                 diceExpression = commandParameter;
             }
-            Metrics.incrementSlashStartMetricCounter(getName(), diceExpression);
+            BotMetrics.incrementSlashStartMetricCounter(getName(), diceExpression);
 
             Answer answer = diceParserHelper.roll(diceExpression, label);
 

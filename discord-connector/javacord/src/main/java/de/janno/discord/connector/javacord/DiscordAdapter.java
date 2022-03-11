@@ -59,7 +59,7 @@ public abstract class DiscordAdapter implements IDiscordAdapter {
     protected Mono<Message> createButtonMessage(@NonNull TextChannel channel,
                                                 @NonNull String buttonMessage,
                                                 @NonNull List<ComponentRowDefinition> buttons) {
-        return Mono.fromFuture(channel.sendMessage(buttonMessage, MessageComponentUtil.messageComponent2MessageLayout(buttons)));
+        return Mono.fromFuture(channel.sendMessage(buttonMessage, MessageComponentConverter.messageComponent2MessageLayout(buttons)));
     }
 
     protected Mono<Void> handleException(@NonNull String errorMessage,

@@ -20,15 +20,11 @@ import java.util.concurrent.ConcurrentSkipListSet;
 @Slf4j
 public class JavaCordClient {
 
-    /**
-     * TODO:
-     * - optionally moving the button after all messages to the end
-     * - optional delay button remove
-     * - details optional
-     * - timestamp optional
-     * - Changelog Command
-     * - Old WoD Command, first dice pool, then in second message the target
-     **/
+    public static final String CONFIG_DELIMITER = ",";
+
+    private static String getCommandNameFromCustomId(String customId) {
+        return customId.split(CONFIG_DELIMITER)[0];
+    }
 
     public void start(String token, boolean disableCommandUpdate, List<ISlashCommand> commands) {
         Set<Long> botInGuildIdSet = new ConcurrentSkipListSet<>();
@@ -61,10 +57,8 @@ public class JavaCordClient {
                 .setToken(token).login()
                 .join();
 
-        //todo
-      /*  Gauge.builder(Metrics.METRIC_PREFIX + "guildsCount", botInGuildIdSet::size).register(Metrics.globalRegistry);
-        Gauge.builder(Metrics.METRIC_PREFIX + "gatewayResponseTime", () -> api.getLatestGatewayLatency().toMillis())
-                .register(Metrics.globalRegistry);*/
+        DiscordMetrics.startGatewayResponseTime(api);
+        DiscordMetrics.startGuildCountGauge(botInGuildIdSet);
 
         SlashCommandRegistry slashCommandRegistry = SlashCommandRegistry.builder()
                 .addSlashCommands(commands)
@@ -90,10 +84,9 @@ public class JavaCordClient {
                         log.error("SlashCommandEvent Exception: ", e);
                         return Mono.empty();
                     })
-                    //todo
-                    /*.doAfterTerminate(() ->
-                            Metrics.timerSlashStartMetricCounter(event.getSlashCommandInteraction().getCommandName(), stopwatch.elapsed())
-                    )*/
+                    .doAfterTerminate(() ->
+                            DiscordMetrics.timerSlashStartMetricCounter(event.getSlashCommandInteraction().getCommandName(), stopwatch.elapsed())
+                    )
                     .subscribeOn(scheduler)
                     .subscribe();
         });
@@ -115,17 +108,12 @@ public class JavaCordClient {
                         log.error("ButtonInteractEvent Exception: ", e);
                         return Mono.empty();
                     })
-                    //todo
-                    /*   .doAfterTerminate(() ->
-                               Metrics.timerButtonMetricCounter(getCommandNameFromCustomId(event.getButtonInteraction().getCustomId()), stopwatch.elapsed())
-                       )*/
+                    .doAfterTerminate(() ->
+                            DiscordMetrics.timerButtonMetricCounter(getCommandNameFromCustomId(event.getButtonInteraction().getCustomId()), stopwatch.elapsed())
+                    )
                     .subscribeOn(scheduler)
                     .subscribe();
         });
 
     }
-
-    /*private static String getCommandNameFromCustomId(String customId) {
-        return customId.split(CONFIG_DELIMITER)[0];
-    }*/
 }

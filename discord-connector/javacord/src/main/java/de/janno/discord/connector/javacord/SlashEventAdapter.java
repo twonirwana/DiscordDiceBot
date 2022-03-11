@@ -59,7 +59,7 @@ public class SlashEventAdapter extends DiscordAdapter implements ISlashEventAdap
         return event.getSlashCommandInteraction().getOptions().stream()
                 .filter(o -> optionName.equals(o.getName()))
                 .findFirst()
-                .map(ApplicationCommandHelper::slashCommandInteractionOption2CommandInteractionOption);
+                .map(ApplicationCommandConverter::slashCommandInteractionOption2CommandInteractionOption);
     }
 
     @Override

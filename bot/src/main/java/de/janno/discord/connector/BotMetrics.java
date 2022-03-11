@@ -19,7 +19,7 @@ import java.time.Duration;
 
 import static io.micrometer.core.instrument.Metrics.globalRegistry;
 
-public class Metrics {
+public class BotMetrics {
 
     public final static String METRIC_PREFIX = "dice.";
     public final static String METRIC_BUTTON_PREFIX = "buttonEvent";

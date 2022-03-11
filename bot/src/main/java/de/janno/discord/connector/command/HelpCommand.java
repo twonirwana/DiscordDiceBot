@@ -1,6 +1,6 @@
 package de.janno.discord.connector.command;
 
-import de.janno.discord.connector.Metrics;
+import de.janno.discord.connector.BotMetrics;
 import de.janno.discord.connector.api.EmbedDefinition;
 import de.janno.discord.connector.api.ISlashCommand;
 import de.janno.discord.connector.api.ISlashEventAdaptor;
@@ -26,7 +26,7 @@ public class HelpCommand implements ISlashCommand {
 
     @Override
     public Mono<Void> handleSlashCommandEvent(@NonNull ISlashEventAdaptor event) {
-        Metrics.incrementSlashStartMetricCounter(getName(), "[]");
+        BotMetrics.incrementSlashStartMetricCounter(getName(), "[]");
         return event.replyEphemeral(EmbedDefinition.builder()
                 .field(new EmbedDefinition.Field("Command help", "type '/count_successes help', '/custom_dice help' or '/fate help' to get help for the commands", false))
                 .field(new EmbedDefinition.Field("Full documentation", "https://github.com/twonirwana/DiscordDiceBot", false))

@@ -8,7 +8,7 @@ import org.javacord.api.entity.message.component.HighLevelComponent;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class MessageComponentUtil {
+public class MessageComponentConverter {
     public static HighLevelComponent[] messageComponent2MessageLayout(List<ComponentRowDefinition> rows) {
         return rows.stream().map(c -> new ActionRowBuilder()
                         .addComponents(c.getButtonDefinitions().stream()

@@ -2,7 +2,7 @@ package de.janno.discord.connector.command;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
-import de.janno.discord.connector.Metrics;
+import de.janno.discord.connector.BotMetrics;
 import de.janno.discord.connector.api.*;
 import de.janno.discord.connector.api.slash.CommandDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinitionOption;
@@ -82,7 +82,7 @@ public abstract class AbstractCommand<C extends IConfig, S extends IState> imple
         actions.add(event.editMessage(editMessage));
 
         if (createAnswerMessage(state, config)) {
-            Metrics.incrementButtonMetricCounter(getName(), config.toShortString());
+            BotMetrics.incrementButtonMetricCounter(getName(), config.toShortString());
             Answer answer = getAnswer(state, config);
             actions.add(event.createResultMessageWithEventReference(answer));
             actions.add(event.getRequester()
@@ -106,7 +106,7 @@ public abstract class AbstractCommand<C extends IConfig, S extends IState> imple
 
 
             if (triggeringMessageIsPinned) {
-                //removing from cache on pin event would be better but currently not possible with discord4j
+                //removing from cache on pin event would be better?
                 //if the message was not removed, we don't want that it is removed later
                 buttonMessageCache.removeButtonFromChannel(channelId, messageId, config.hashCode());
             }
@@ -141,7 +141,7 @@ public abstract class AbstractCommand<C extends IConfig, S extends IState> imple
                 return event.reply(String.format("%s\n%s", commandString, validationMessage));
             }
             C config = getConfigFromStartOptions(options);
-            Metrics.incrementSlashStartMetricCounter(getName(), config.toShortString());
+            BotMetrics.incrementSlashStartMetricCounter(getName(), config.toShortString());
 
             long channelId = event.getChannelId();
 
@@ -164,7 +164,7 @@ public abstract class AbstractCommand<C extends IConfig, S extends IState> imple
                             .ofType(Void.class));
 
         } else if (event.getOption(ACTION_HELP).isPresent()) {
-            Metrics.incrementSlashHelpMetricCounter(getName());
+            BotMetrics.incrementSlashHelpMetricCounter(getName());
             return event.replyEphemeral(getHelpMessage());
         }
         return Mono.empty();

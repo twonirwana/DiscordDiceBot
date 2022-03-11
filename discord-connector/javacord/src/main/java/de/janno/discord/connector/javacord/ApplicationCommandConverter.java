@@ -8,14 +8,14 @@ import org.javacord.api.interaction.*;
 
 import java.util.stream.Collectors;
 
-public class ApplicationCommandHelper {
+public class ApplicationCommandConverter {
 
     public static CommandDefinition slashCommand2CommandDefinition(SlashCommand slashCommand) {
         return CommandDefinition.builder()
                 .name(slashCommand.getName())
                 .description(slashCommand.getDescription())
                 .options(slashCommand.getOptions().stream()
-                        .map(ApplicationCommandHelper::slashCommandOption2CommandDefinitionOption).collect(Collectors.toList()))
+                        .map(ApplicationCommandConverter::slashCommandOption2CommandDefinitionOption).collect(Collectors.toList()))
                 .build();
     }
 
@@ -28,7 +28,7 @@ public class ApplicationCommandHelper {
                 .minValue(slashCommandOption.getLongMinValue().orElse(null))
                 .maxValue(slashCommandOption.getLongMaxValue().orElse(null))
                 .options(slashCommandOption.getOptions().stream()
-                        .map(ApplicationCommandHelper::slashCommandOption2CommandDefinitionOption)
+                        .map(ApplicationCommandConverter::slashCommandOption2CommandDefinitionOption)
                         .collect(Collectors.toList()))
                 .choices(slashCommandOption.getChoices().stream()
                         .map(choiceData -> CommandDefinitionOptionChoice.builder()
@@ -44,7 +44,7 @@ public class ApplicationCommandHelper {
                 .setName(commandDefinition.getName())
                 .setDescription(commandDefinition.getDescription())
                 .setOptions(commandDefinition.getOptions().stream()
-                        .map(ApplicationCommandHelper::commandDefinitionOption2SlashCommandOption).collect(Collectors.toList()));
+                        .map(ApplicationCommandConverter::commandDefinitionOption2SlashCommandOption).collect(Collectors.toList()));
     }
 
     private static SlashCommandOption commandDefinitionOption2SlashCommandOption(CommandDefinitionOption commandDefinitionOption) {
@@ -55,7 +55,7 @@ public class ApplicationCommandHelper {
                 .setRequired(commandDefinitionOption.getRequired())
 
                 .setOptions(commandDefinitionOption.getOptions().stream()
-                        .map(ApplicationCommandHelper::commandDefinitionOption2SlashCommandOption)
+                        .map(ApplicationCommandConverter::commandDefinitionOption2SlashCommandOption)
                         .collect(Collectors.toList()))
                 .setChoices(commandDefinitionOption.getChoices().stream()
                         .map(choice -> new SlashCommandOptionChoiceBuilder()
@@ -79,7 +79,7 @@ public class ApplicationCommandHelper {
                 .longValue(slashCommandInteractionOption.getLongValue().orElse(null))
                 .stringValue(slashCommandInteractionOption.getStringValue().orElse(null))
                 .options(slashCommandInteractionOption.getOptions().stream()
-                        .map(ApplicationCommandHelper::slashCommandInteractionOption2CommandInteractionOption)
+                        .map(ApplicationCommandConverter::slashCommandInteractionOption2CommandInteractionOption)
                         .collect(Collectors.toList()))
                 .build();
     }
