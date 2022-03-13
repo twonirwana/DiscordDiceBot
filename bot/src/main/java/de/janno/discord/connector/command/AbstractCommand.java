@@ -4,6 +4,8 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import de.janno.discord.connector.BotMetrics;
 import de.janno.discord.connector.api.*;
+import de.janno.discord.connector.api.message.ComponentRowDefinition;
+import de.janno.discord.connector.api.message.EmbedDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinitionOption;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
@@ -13,10 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @Slf4j
 public abstract class AbstractCommand<C extends IConfig, S extends IState> implements ISlashCommand, IComponentInteractEventHandler {
@@ -132,9 +131,9 @@ public abstract class AbstractCommand<C extends IConfig, S extends IState> imple
         }
 
         String commandString = event.getCommandString();
-        if (event.getOption(ACTION_START).isPresent()) {
-
-            CommandInteractionOption options = event.getOption(ACTION_START).get();
+        Optional<CommandInteractionOption> startOption = event.getOption(ACTION_START);
+        if (startOption.isPresent()) {
+            CommandInteractionOption options = startOption.get();
             String validationMessage = getStartOptionsValidationMessage(options);
             if (validationMessage != null) {
                 log.info("Validation message: {} for {}", validationMessage, commandString);

@@ -5,6 +5,9 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import de.janno.discord.connector.api.*;
+import de.janno.discord.connector.api.message.ButtonDefinition;
+import de.janno.discord.connector.api.message.ComponentRowDefinition;
+import de.janno.discord.connector.api.message.EmbedDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinitionOption;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import de.janno.discord.connector.cache.ButtonMessageCache;
@@ -148,39 +151,39 @@ public class SumDiceSetCommand extends AbstractCommand<SumDiceSetCommand.Config,
 
     @Override
     protected String getEditButtonMessage(State state, Config config) {
-        if (ROLL_BUTTON_ID.equals(state.getButtonValue())) {
-            return EMPTY_MESSAGE;
-        } else if (CLEAR_BUTTON_ID.equals(state.getButtonValue())) {
-            return EMPTY_MESSAGE;
-        } else if (X2_BUTTON_ID.equals(state.getButtonValue())) {
-            return parseDiceMapToMessageString(state.getDiceSetMap().entrySet().stream()
-                    .collect(Collectors.toMap(Map.Entry::getKey, e -> limit(e.getValue() * 2))));
-        } else {
-            Map<String, Integer> currentDiceSet = new HashMap<>(state.getDiceSetMap());
-            int diceModifier;
-            String die;
-
-            if (state.getButtonValue().contains(DICE_SYMBOL)) {
-                diceModifier = "-".equals(state.getButtonValue().substring(0, 1)) ? -1 : +1;
-                die = state.getButtonValue().substring(2);
-            } else {
-                diceModifier = Integer.parseInt(state.getButtonValue());
-                die = MODIFIER_KEY;
-            }
-            int currentCount = currentDiceSet.getOrDefault(die, 0);
-            int newCount = currentCount + diceModifier;
-            newCount = limit(newCount);
-
-            if (newCount == 0) {
-                currentDiceSet.remove(die);
-            } else {
-                currentDiceSet.put(die, newCount);
-            }
-
-            if (currentDiceSet.isEmpty()) {
+        switch (state.getButtonValue()) {
+            case ROLL_BUTTON_ID:
+            case CLEAR_BUTTON_ID:
                 return EMPTY_MESSAGE;
-            }
-            return parseDiceMapToMessageString(currentDiceSet);
+            case X2_BUTTON_ID:
+                return parseDiceMapToMessageString(state.getDiceSetMap().entrySet().stream()
+                        .collect(Collectors.toMap(Map.Entry::getKey, e -> limit(e.getValue() * 2))));
+            default:
+                Map<String, Integer> currentDiceSet = new HashMap<>(state.getDiceSetMap());
+                int diceModifier;
+                String die;
+
+                if (state.getButtonValue().contains(DICE_SYMBOL)) {
+                    diceModifier = "-".equals(state.getButtonValue().substring(0, 1)) ? -1 : +1;
+                    die = state.getButtonValue().substring(2);
+                } else {
+                    diceModifier = Integer.parseInt(state.getButtonValue());
+                    die = MODIFIER_KEY;
+                }
+                int currentCount = currentDiceSet.getOrDefault(die, 0);
+                int newCount = currentCount + diceModifier;
+                newCount = limit(newCount);
+
+                if (newCount == 0) {
+                    currentDiceSet.remove(die);
+                } else {
+                    currentDiceSet.put(die, newCount);
+                }
+
+                if (currentDiceSet.isEmpty()) {
+                    return EMPTY_MESSAGE;
+                }
+                return parseDiceMapToMessageString(currentDiceSet);
         }
     }
 

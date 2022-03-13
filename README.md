@@ -7,7 +7,7 @@ This is dice rolling bot for Discord. The bot needs to be configured with a slas
 a message with a button selection. Upon clicking on a button the bot will post the result and move the message with the
 buttons to the bottom of the channel. If the message is pined, then it will only be copied and not moved. This allows it
 to roll dice without typing commands and thereby improves usability, especially for touchscreen users. The bot supports
-threads and can be used there.
+Discord threads.
 
 ![](image/example.webp)
 

@@ -1,17 +1,18 @@
 package de.janno.discord.connector.command;
 
+import com.google.common.annotations.VisibleForTesting;
 import de.janno.discord.connector.BotMetrics;
 import de.janno.discord.connector.api.Answer;
-import de.janno.discord.connector.api.EmbedDefinition;
 import de.janno.discord.connector.api.ISlashCommand;
 import de.janno.discord.connector.api.ISlashEventAdaptor;
+import de.janno.discord.connector.api.message.EmbedDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinitionOption;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
-import com.google.common.annotations.VisibleForTesting;
 import de.janno.discord.connector.dice.DiceParserHelper;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.Optional;
@@ -92,18 +93,19 @@ public class DirectRollCommand implements ISlashCommand {
 
             Answer answer = diceParserHelper.roll(diceExpression, label);
 
-            return event.reply(commandString)
-                    .then(event.createResultMessageWithEventReference(answer))
-                    .then(event.getRequester()
-                            .doOnNext(requester -> log.info("'{}'.'{}' from '{}' slash '{}': {} -> {}",
-                                    requester.getGuildName(),
-                                    requester.getChannelName(),
-                                    requester.getUserName(),
-                                    event.getCommandString(),
-                                    diceExpression,
-                                    answer.toShortString()
-                            ))
-                            .ofType(Void.class));
+            return Flux.merge(event.reply(commandString),
+                            event.createResultMessageWithEventReference(answer),
+                            event.getRequester()
+                                    .doOnNext(requester -> log.info("'{}'.'{}' from '{}' slash '{}': {} -> {}",
+                                            requester.getGuildName(),
+                                            requester.getChannelName(),
+                                            requester.getUserName(),
+                                            event.getCommandString(),
+                                            diceExpression,
+                                            answer.toShortString()
+                                    ))
+                                    .ofType(Void.class))
+                    .then();
 
         }
 

@@ -1,4 +1,4 @@
-package de.janno.discord.connector.api;
+package de.janno.discord.connector.api.message;
 
 import lombok.Builder;
 import lombok.NonNull;

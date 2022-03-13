@@ -1,5 +1,6 @@
 package de.janno.discord.connector.api;
 
+import de.janno.discord.connector.api.message.ComponentRowDefinition;
 import lombok.NonNull;
 import lombok.Value;
 import reactor.core.publisher.Mono;

@@ -1,7 +1,7 @@
 package de.janno.discord.connector.command;
 
 import de.janno.discord.connector.BotMetrics;
-import de.janno.discord.connector.api.EmbedDefinition;
+import de.janno.discord.connector.api.message.EmbedDefinition;
 import de.janno.discord.connector.api.ISlashCommand;
 import de.janno.discord.connector.api.ISlashEventAdaptor;
 import de.janno.discord.connector.api.slash.CommandDefinition;

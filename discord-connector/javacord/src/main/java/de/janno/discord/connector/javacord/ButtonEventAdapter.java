@@ -2,7 +2,7 @@ package de.janno.discord.connector.javacord;
 
 import com.google.common.collect.ImmutableList;
 import de.janno.discord.connector.api.Answer;
-import de.janno.discord.connector.api.ComponentRowDefinition;
+import de.janno.discord.connector.api.message.ComponentRowDefinition;
 import de.janno.discord.connector.api.IButtonEventAdaptor;
 import de.janno.discord.connector.api.Requester;
 import lombok.extern.slf4j.Slf4j;

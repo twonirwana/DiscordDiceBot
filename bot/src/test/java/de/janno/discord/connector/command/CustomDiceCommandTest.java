@@ -2,8 +2,14 @@ package de.janno.discord.connector.command;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import de.janno.discord.connector.api.*;
+import de.janno.discord.connector.api.Answer;
+import de.janno.discord.connector.api.IButtonEventAdaptor;
+import de.janno.discord.connector.api.ISlashEventAdaptor;
+import de.janno.discord.connector.api.Requester;
+import de.janno.discord.connector.api.message.ButtonDefinition;
+import de.janno.discord.connector.api.message.ComponentRowDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinitionOption;
+import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import de.janno.discord.connector.cache.ButtonMessageCache;
 import de.janno.discord.connector.dice.DiceParserHelper;
 import de.janno.discord.connector.dice.IDice;
@@ -20,6 +26,7 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -236,5 +243,56 @@ class CustomDiceCommandTest {
     @Test
     void editButtonMessage() {
         assertThat(underTest.getEditButtonMessage(new CustomDiceCommand.State("2d6"), new CustomDiceCommand.Config(ImmutableList.of(new CustomDiceCommand.LabelAndDiceExpression("2d6", "2d6"), new CustomDiceCommand.LabelAndDiceExpression("Attack", "1d20"))))).isNull();
+    }
+
+    @Test
+    void handleSlashCommandEvent() {
+        ISlashEventAdaptor event = mock(ISlashEventAdaptor.class);
+        when(event.getCommandString()).thenReturn("/custom_dice start 1_button:1d6 2_button:1d20@Attack 3_button:3x[3d10]");
+        when(event.getOption("start")).thenReturn(Optional.of(CommandInteractionOption.builder()
+                .option(CommandInteractionOption.builder()
+                        .name("1_button")
+                        .stringValue("1d6")
+                        .build())
+                .option(CommandInteractionOption.builder()
+                        .name("2_button")
+                        .stringValue("1d20@Attack")
+                        .build())
+                .option(CommandInteractionOption.builder()
+                        .name("3_button")
+                        .stringValue("3x[3d10]")
+                        .build())
+                .build()));
+
+        when(event.createButtonMessage(any(), any())).thenReturn(Mono.just(2L));
+        when(event.deleteMessage(ArgumentMatchers.anyLong())).thenReturn(Mono.just(mock(Void.class)));
+        when(event.getRequester()).thenReturn(Mono.just(new Requester("user", "channel", "guild")));
+        when(event.reply(any())).thenReturn(Mono.just(mock(Void.class)));
+
+
+        Mono<Void> res = underTest.handleSlashCommandEvent(event);
+        StepVerifier.create(res).verifyComplete();
+
+
+        verify(event).checkPermissions();
+        verify(event).getCommandString();
+        verify(event).getOption(any());
+        verify(event).reply(any());
+        verify(event).createButtonMessage(eq("Click on a button to roll the dice"),
+                eq(ImmutableList.of(ComponentRowDefinition.builder()
+                        .buttonDefinition(ButtonDefinition.builder()
+                                .id("custom_dice,1d6")
+                                .label("1d6")
+                                .build())
+                        .buttonDefinition(ButtonDefinition.builder()
+                                .id("custom_dice,1d20")
+                                .label("Attack")
+                                .build())
+                        .buttonDefinition(ButtonDefinition.builder()
+                                .id("custom_dice,3x[3d10]")
+                                .label("3x[3d10]")
+                                .build())
+                        .build())));
+
     }
 }

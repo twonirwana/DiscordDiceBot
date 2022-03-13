@@ -1,6 +1,6 @@
 package de.janno.discord.connector.javacord;
 
-import de.janno.discord.connector.api.ComponentRowDefinition;
+import de.janno.discord.connector.api.message.ComponentRowDefinition;
 import org.javacord.api.entity.message.component.ActionRowBuilder;
 import org.javacord.api.entity.message.component.ButtonBuilder;
 import org.javacord.api.entity.message.component.HighLevelComponent;

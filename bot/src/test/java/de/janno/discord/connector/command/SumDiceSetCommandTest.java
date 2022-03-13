@@ -1,8 +1,8 @@
 package de.janno.discord.connector.command;
 
 import de.janno.discord.connector.api.Answer;
-import de.janno.discord.connector.api.ButtonDefinition;
-import de.janno.discord.connector.api.ComponentRowDefinition;
+import de.janno.discord.connector.api.message.ButtonDefinition;
+import de.janno.discord.connector.api.message.ComponentRowDefinition;
 import de.janno.discord.connector.api.IButtonEventAdaptor;
 import de.janno.discord.connector.api.slash.CommandDefinitionOption;
 import com.google.common.collect.ImmutableMap;

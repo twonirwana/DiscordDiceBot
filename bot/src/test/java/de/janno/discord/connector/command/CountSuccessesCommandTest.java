@@ -3,6 +3,8 @@ package de.janno.discord.connector.command;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import de.janno.discord.connector.api.*;
+import de.janno.discord.connector.api.message.ButtonDefinition;
+import de.janno.discord.connector.api.message.ComponentRowDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinitionOption;
 import de.janno.discord.connector.cache.ButtonMessageCache;
 import de.janno.discord.connector.dice.DiceUtils;
