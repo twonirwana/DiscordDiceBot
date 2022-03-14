@@ -66,6 +66,7 @@ public abstract class AbstractCommand<C extends IConfig, S extends IState> imple
 
         //all the answer actions
         List<Mono<Void>> actions = new ArrayList<>();
+        actions.add(event.acknowledge());
         //the delete action must be the last action
         Mono<Void> deleteAction = Mono.empty();
         boolean triggeringMessageIsPinned = event.isPinned();

@@ -214,7 +214,7 @@ class CountSuccessesCommandTest {
         when(buttonEventAdaptor.createButtonMessage(any(), any())).thenReturn(Mono.just(2L));
         when(buttonEventAdaptor.deleteMessage(anyLong())).thenReturn(Mono.just(mock(Void.class)));
         when(buttonEventAdaptor.getRequester()).thenReturn(Mono.just(new Requester("user", "channel", "guild")));
-
+        when(buttonEventAdaptor.acknowledge()).thenReturn(Mono.just(mock(Void.class)));
 
         Mono<Void> res = underTest.handleComponentInteractEvent(buttonEventAdaptor);
 
@@ -239,6 +239,7 @@ class CountSuccessesCommandTest {
         verify(buttonEventAdaptor).isPinned();
         verify(buttonEventAdaptor, never()).getAllButtonIds();
         verify(buttonEventAdaptor, never()).getMessageContent();
+        verify(buttonEventAdaptor).acknowledge();
     }
 
     @Test
@@ -253,6 +254,7 @@ class CountSuccessesCommandTest {
         when(buttonEventAdaptor.createResultMessageWithEventReference(any())).thenReturn(Mono.just(mock(Void.class)));
         when(buttonEventAdaptor.deleteMessage(anyLong())).thenReturn(Mono.just(mock(Void.class)));
         when(buttonEventAdaptor.getRequester()).thenReturn(Mono.just(new Requester("user", "channel", "guild")));
+        when(buttonEventAdaptor.acknowledge()).thenReturn(Mono.just(mock(Void.class)));
 
 
         Mono<Void> res = underTest.handleComponentInteractEvent(buttonEventAdaptor);
@@ -277,6 +279,7 @@ class CountSuccessesCommandTest {
         verify(buttonEventAdaptor).isPinned();
         verify(buttonEventAdaptor, never()).getAllButtonIds();
         verify(buttonEventAdaptor, never()).getMessageContent();
+        verify(buttonEventAdaptor).acknowledge();
     }
 
     @Test

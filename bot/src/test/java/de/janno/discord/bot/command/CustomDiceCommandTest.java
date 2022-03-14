@@ -171,7 +171,7 @@ class CustomDiceCommandTest {
         when(buttonEventAdaptor.createButtonMessage(any(), any())).thenReturn(Mono.just(2L));
         when(buttonEventAdaptor.deleteMessage(ArgumentMatchers.anyLong())).thenReturn(Mono.just(mock(Void.class)));
         when(buttonEventAdaptor.getRequester()).thenReturn(Mono.just(new Requester("user", "channel", "guild")));
-
+        when(buttonEventAdaptor.acknowledge()).thenReturn(Mono.just(mock(Void.class)));
 
         Mono<Void> res = underTest.handleComponentInteractEvent(buttonEventAdaptor);
 
@@ -190,6 +190,7 @@ class CustomDiceCommandTest {
         verify(buttonEventAdaptor).isPinned();
         verify(buttonEventAdaptor).getAllButtonIds();
         verify(buttonEventAdaptor, never()).getMessageContent();
+        verify(buttonEventAdaptor).acknowledge();
     }
 
     @Test
@@ -205,7 +206,7 @@ class CustomDiceCommandTest {
         when(buttonEventAdaptor.createResultMessageWithEventReference(any())).thenReturn(Mono.just(mock(Void.class)));
         when(buttonEventAdaptor.deleteMessage(ArgumentMatchers.anyLong())).thenReturn(Mono.just(mock(Void.class)));
         when(buttonEventAdaptor.getRequester()).thenReturn(Mono.just(new Requester("user", "channel", "guild")));
-
+        when(buttonEventAdaptor.acknowledge()).thenReturn(Mono.just(mock(Void.class)));
 
         Mono<Void> res = underTest.handleComponentInteractEvent(buttonEventAdaptor);
         StepVerifier.create(res).verifyComplete();
@@ -223,7 +224,7 @@ class CustomDiceCommandTest {
         verify(buttonEventAdaptor).isPinned();
         verify(buttonEventAdaptor).getAllButtonIds();
         verify(buttonEventAdaptor, never()).getMessageContent();
-
+        verify(buttonEventAdaptor).acknowledge();
     }
 
     @Test

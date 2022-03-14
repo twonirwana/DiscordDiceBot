@@ -19,6 +19,8 @@ public interface IButtonEventAdaptor extends IDiscordAdapter {
 
     String getInvokingGuildMemberName();
 
+    Mono<Void> acknowledge();
+
     Mono<Void> editMessage(String message);
 
     Mono<Long> createButtonMessage(String messageContent, List<ComponentRowDefinition> buttonLayout);

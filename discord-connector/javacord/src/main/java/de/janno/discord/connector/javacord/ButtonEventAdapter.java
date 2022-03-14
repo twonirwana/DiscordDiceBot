@@ -82,6 +82,11 @@ public class ButtonEventAdapter extends DiscordAdapter implements IButtonEventAd
     }
 
     @Override
+    public Mono<Void> acknowledge(){
+        return Mono.fromFuture(event.getButtonInteraction().acknowledge());
+    }
+
+    @Override
     public Mono<Void> editMessage(String message) {
         return Mono.fromFuture(event.getButtonInteraction().getMessage().edit(message))
                 .then()

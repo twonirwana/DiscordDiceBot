@@ -474,7 +474,7 @@ class SumCustomSetCommandTest {
         when(buttonEventAdaptor.createButtonMessage(any(), any())).thenReturn(Mono.just(2L));
         when(buttonEventAdaptor.deleteMessage(ArgumentMatchers.anyLong())).thenReturn(Mono.just(mock(Void.class)));
         when(buttonEventAdaptor.getRequester()).thenReturn(Mono.just(new Requester("user", "channel", "guild")));
-
+        when(buttonEventAdaptor.acknowledge()).thenReturn(Mono.just(mock(Void.class)));
 
         Mono<Void> res = underTest.handleComponentInteractEvent(buttonEventAdaptor);
 
@@ -500,6 +500,7 @@ class SumCustomSetCommandTest {
         verify(buttonEventAdaptor).isPinned();
         verify(buttonEventAdaptor).getAllButtonIds();
         verify(buttonEventAdaptor, times(1)).getMessageContent();
+        verify(buttonEventAdaptor).acknowledge();
     }
 
     @Test
@@ -516,7 +517,7 @@ class SumCustomSetCommandTest {
         when(buttonEventAdaptor.createResultMessageWithEventReference(any())).thenReturn(Mono.just(mock(Void.class)));
         when(buttonEventAdaptor.deleteMessage(ArgumentMatchers.anyLong())).thenReturn(Mono.just(mock(Void.class)));
         when(buttonEventAdaptor.getRequester()).thenReturn(Mono.just(new Requester("user", "channel", "guild")));
-
+        when(buttonEventAdaptor.acknowledge()).thenReturn(Mono.just(mock(Void.class)));
 
         Mono<Void> res = underTest.handleComponentInteractEvent(buttonEventAdaptor);
         StepVerifier.create(res)
@@ -541,6 +542,7 @@ class SumCustomSetCommandTest {
         verify(buttonEventAdaptor).isPinned();
         verify(buttonEventAdaptor).getAllButtonIds();
         verify(buttonEventAdaptor, times(1)).getMessageContent();
+        verify(buttonEventAdaptor).acknowledge();
 
     }
 
