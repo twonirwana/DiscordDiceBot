@@ -32,7 +32,7 @@ test {
 // This task will generate your fat JAR and put it in the ./build/libs/ directory
 shadowJar {
     manifest {
-        attributes 'Main-Class': 'de.janno.discord.Bot'
+        attributes 'Main-Class': 'de.janno.discord.bot.Bot'
     }
 }
 
