@@ -2,9 +2,9 @@ package de.janno.discord.connector.javacord;
 
 import com.google.common.collect.ImmutableList;
 import de.janno.discord.connector.api.Answer;
-import de.janno.discord.connector.api.message.ComponentRowDefinition;
 import de.janno.discord.connector.api.IButtonEventAdaptor;
 import de.janno.discord.connector.api.Requester;
+import de.janno.discord.connector.api.message.ComponentRowDefinition;
 import lombok.extern.slf4j.Slf4j;
 import org.javacord.api.entity.DiscordEntity;
 import org.javacord.api.entity.message.Message;
@@ -48,7 +48,7 @@ public class ButtonEventAdapter extends DiscordAdapter implements IButtonEventAd
                             return Stream.of(new LabelAndCustomId(l.getLabel().get(), l.getCustomId().get()));
                         })
                 ).collect(Collectors.toList());
-        this.invokingGuildMemberName = event.getButtonInteraction().getUser().getDisplayName(event.getButtonInteraction().getServer().orElseThrow());
+        this.invokingGuildMemberName = event.getButtonInteraction().getServer().map(s -> event.getButtonInteraction().getUser().getDisplayName(s)).orElse("");
     }
 
     @Override
@@ -82,7 +82,7 @@ public class ButtonEventAdapter extends DiscordAdapter implements IButtonEventAd
     }
 
     @Override
-    public Mono<Void> acknowledge(){
+    public Mono<Void> acknowledge() {
         return Mono.fromFuture(event.getButtonInteraction().acknowledge());
     }
 
