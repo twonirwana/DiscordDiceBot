@@ -6,9 +6,10 @@
 This is dice rolling bot for Discord. The bot needs to be configured with a slash command in a channel and then provides
 a message with a button selection. Upon clicking on a button the bot will post the result and move the message with the
 buttons to the bottom of the channel. If the message is pined, then it will only be copied and not moved. This allows it
-to roll dice without typing commands and thereby improves usability, especially for touchscreen users.
+to roll dice without typing commands and thereby improves usability, especially for touchscreen users. The bot supports
+Discord threads.
 
-![](src/main/image/example.webp)
+![](image/example.webp)
 
 **Add to Discord channel by following this link**:
 [**Bot invite
@@ -25,8 +26,6 @@ suggestions**:  [Button Dice Roller Discord Server](https://discord.gg/e43BsqKpF
 
 :warning: **If you can't see the bots messages**: The link preview in the discord setting must be activated to see the
 roll results
-
-:warning: The bot currently doesn't support threads and stages
 
 ## Example RPG System Commands
 
@@ -66,7 +65,7 @@ The bot has currently the following systems:
 
 ### Custom dice buttons
 
-![](src/main/image/custom_dice.webp)
+![](image/custom_dice.webp)
 
 Use the slash command: `custom_dice start` and add up to 25 custom buttons, each with its own dice expression (see the
 section **Dice Expression Notation**). For example `/custom_dice start 1_button:3d6 2_button:10d10 3_button:3d20`.
@@ -81,7 +80,7 @@ usage of buttons. For example '/r 3d6' will simply roll 3d6 and post the result 
 
 ### Count success in a pool
 
-![](src/main/image/count_successes.webp)
+![](image/count_successes.webp)
 
 Use the slash command: `/count_successes start`. You need to provide the sides of the dice, the target number, optional
 a glitch system as parameter and the number of buttons. For example `/count_successes start dice_sides:10 target_number:
@@ -114,14 +113,14 @@ value is 15, which will be used if the parameter is not set, and the max number 
 
 ### Fate
 
-![](src/main/image/fate.webp)
+![](image/fate.webp)
 
 Use the slash command: `/fate start type:with_modifier` or `/fate start type:simple` to get buttons for Fate. There are
 two types simple and with modifier.
 
 ### Sum Dice Set
 
-![](src/main/image/sum_dice_set.webp)
+![](image/sum_dice_set.webp)
 
 Use the slash command `/sum_dice_set start` to create a message to create a die set. The user can click on the + and -
 buttons to add dice to the set. Clicking on the `Roll` button will roll the dice the message and copy a clear button
@@ -129,7 +128,7 @@ message to the end.
 
 ### Hold Reroll
 
-![](src/main/image/hold_reroll.webp)
+![](image/hold_reroll.webp)
 
 Use the slash command `/hold_reroll start sides:6 reroll_set:2,3,4 success_set:5,6 failure_set:1` to create a message
 for the hold reroll system. The system has the following parameter:
@@ -147,7 +146,7 @@ If the roll has numbers that are in the reroll set than the user has the option 
 
 ### Pool Target
 
-![](src/main/image/pool_target.webp)
+![](image/pool_target.webp)
 
 Use the
 command `/pool_target start sides:<sidesOfDie> max_dice:<maxDiceInPool> reroll_set:<numbersThatCanBeRerolled> botch_set:<numbersThatAreSubractedFromTheSuccesses> reroll_variant:<rerollVariant>`
@@ -170,7 +169,7 @@ Please let me know if another system is needed.
 
 ### Sum Custom Set
 
-![](src/main/image/sum_custom_set.webp)
+![](image/sum_custom_set.webp)
 
 Use the slash command `/sum_custom_set start 1_button:1d6 2_button:1d20 3_button:1 4_button:-1` to create a message with
 custom to create a die set. The buttons can be created with the dice notation, see the section **Dice Expression

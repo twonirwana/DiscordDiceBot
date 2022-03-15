@@ -1,5 +1,6 @@
 plugins {
     id "com.github.johnrengelman.shadow" version "7.1.2"
+    id 'jacoco-report-aggregation'
 }
 
 apply plugin: 'java'
@@ -15,31 +16,12 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.discord4j:discord4j-core:3.2.2'
-    implementation 'ch.qos.logback:logback-classic:1.2.11'
-    compileOnly 'org.projectlombok:lombok:1.18.22'
-    annotationProcessor 'org.projectlombok:lombok:1.18.22'
-    implementation 'com.google.guava:guava:31.1-jre'
-    implementation 'io.micrometer:micrometer-core:1.8.3'
-    implementation 'io.micrometer:micrometer-registry-prometheus:1.8.3'
-    implementation 'org.apache.commons:commons-lang3:3.12.0'
-    implementation 'com.github.twonirwana:dice-parser:0.4.1'
-    implementation 'io.undertow:undertow-core:2.2.16.Final'
-
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.2'
-    testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.8.2'
-    testImplementation 'org.junit.jupiter:junit-jupiter-params:5.8.2'
-    testImplementation 'org.assertj:assertj-core:3.22.0'
-    testImplementation 'org.mockito:mockito-core:4.4.0'
-    testImplementation 'org.mockito:mockito-inline:4.4.0'
-    testCompileOnly 'org.projectlombok:lombok:1.18.22'
-    testAnnotationProcessor 'org.projectlombok:lombok:1.18.22'
-    testImplementation 'io.projectreactor:reactor-test'
+    implementation project(':bot')
 }
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(11)
+        languageVersion.set(JavaLanguageVersion.of(14))
     }
 }
 
@@ -47,15 +29,10 @@ test {
     useJUnitPlatform()
 }
 
-tasks.withType(JavaCompile) {
-    options.encoding = 'UTF-8'
-    options.incremental = true
-}
-
 // This task will generate your fat JAR and put it in the ./build/libs/ directory
 shadowJar {
     manifest {
-        attributes 'Main-Class': 'de.janno.discord.BaseBot'
+        attributes 'Main-Class': 'de.janno.discord.bot.Bot'
     }
 }
 
@@ -65,3 +42,4 @@ jacocoTestReport {
         html.enabled false
     }
 }
+
