@@ -11,9 +11,9 @@ public interface IButtonEventAdaptor extends IDiscordAdapter {
 
     String getCustomId();
 
-    Long getMessageId();
+    long getMessageId();
 
-    Long getChannelId();
+    long getChannelId();
 
     boolean isPinned();
 

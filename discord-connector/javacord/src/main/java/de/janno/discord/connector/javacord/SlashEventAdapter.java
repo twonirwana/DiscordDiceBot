@@ -1,12 +1,15 @@
 package de.janno.discord.connector.javacord;
 
-import de.janno.discord.connector.api.*;
+import de.janno.discord.connector.api.Answer;
+import de.janno.discord.connector.api.ISlashEventAdaptor;
+import de.janno.discord.connector.api.Requester;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
 import de.janno.discord.connector.api.message.EmbedDefinition;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.javacord.api.entity.DiscordEntity;
+import org.javacord.api.entity.channel.TextChannel;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.interaction.SlashCommandCreateEvent;
@@ -23,12 +26,15 @@ import java.util.stream.Collectors;
 @Slf4j
 public class SlashEventAdapter extends DiscordAdapter implements ISlashEventAdaptor {
 
+    @NonNull
     private final SlashCommandCreateEvent event;
+    @NonNull
     private final Mono<Requester> requesterMono;
     private final long channelId;
+    @NonNull
     private final String commandString;
 
-    public SlashEventAdapter(SlashCommandCreateEvent event, Mono<Requester> requesterMono) {
+    public SlashEventAdapter(SlashCommandCreateEvent event, @NonNull Mono<Requester> requesterMono) {
         this.event = event;
         this.requesterMono = requesterMono;
         this.channelId = event.getSlashCommandInteraction().getChannel().map(DiscordEntity::getId).orElseThrow();
@@ -39,13 +45,11 @@ public class SlashEventAdapter extends DiscordAdapter implements ISlashEventAdap
 
     @Override
     public String checkPermissions() {
-
-
         List<String> checks = new ArrayList<>();
-        if (!event.getSlashCommandInteraction().getChannel().orElseThrow().canYouWrite()) {
+        if (!event.getSlashCommandInteraction().getChannel().map(TextChannel::canYouWrite).orElse(false)) {
             checks.add("'SEND_MESSAGES'");
         }
-        if (!event.getSlashCommandInteraction().getChannel().orElseThrow().canYouEmbedLinks()) {
+        if (!event.getSlashCommandInteraction().getChannel().map(TextChannel::canYouEmbedLinks).orElse(false)) {
             checks.add("'EMBED_LINKS'");
         }
         if (checks.isEmpty()) {
@@ -96,7 +100,7 @@ public class SlashEventAdapter extends DiscordAdapter implements ISlashEventAdap
     @Override
     public Mono<Long> createButtonMessage(@NonNull String buttonMessage, @NonNull List<ComponentRowDefinition> buttons) {
         return createButtonMessage(event.getInteraction().getChannel().orElseThrow(), buttonMessage, buttons)
-                .onErrorResume(t -> handleException("Error on creating button message", t).ofType(Message.class))
+                .onErrorResume(t -> handleException("Error on creating button message", t, false).ofType(Message.class))
                 .map(DiscordEntity::getId);
     }
 
@@ -106,17 +110,17 @@ public class SlashEventAdapter extends DiscordAdapter implements ISlashEventAdap
                 answer,
                 event.getInteraction().getUser(),
                 event.getSlashCommandInteraction().getServer().orElseThrow())
-                .onErrorResume(t -> handleException("Error on creating answer message", t).ofType(Message.class))
+                .onErrorResume(t -> handleException("Error on creating answer message", t, false).ofType(Message.class))
                 .ofType(Void.class);
     }
 
     @Override
-    public Long getChannelId() {
+    public long getChannelId() {
         return channelId;
     }
 
     @Override
-    public String getCommandString() {
+    public @NonNull String getCommandString() {
         return commandString;
     }
 

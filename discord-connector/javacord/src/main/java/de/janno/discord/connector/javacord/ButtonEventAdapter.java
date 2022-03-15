@@ -5,6 +5,7 @@ import de.janno.discord.connector.api.Answer;
 import de.janno.discord.connector.api.IButtonEventAdaptor;
 import de.janno.discord.connector.api.Requester;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.javacord.api.entity.DiscordEntity;
 import org.javacord.api.entity.message.Message;
@@ -18,18 +19,24 @@ import java.util.stream.Stream;
 
 @Slf4j
 public class ButtonEventAdapter extends DiscordAdapter implements IButtonEventAdaptor {
+    @NonNull
     private final ButtonClickEvent event;
+    @NonNull
     private final String customId;
-    private final Long messageId;
-    private final Long channelId;
+    private final long messageId;
+    private final long channelId;
     private final boolean isPinned;
+    @NonNull
     private final String messageContent;
+    @NonNull
     private final List<LabelAndCustomId> allButtonIds;
+    @NonNull
     private final Mono<Requester> requesterMono;
+    @NonNull
     private final String invokingGuildMemberName;
 
-    public ButtonEventAdapter(ButtonClickEvent event,
-                              Mono<Requester> requesterMono) {
+    public ButtonEventAdapter(@NonNull ButtonClickEvent event,
+                              @NonNull Mono<Requester> requesterMono) {
         this.event = event;
         this.requesterMono = requesterMono;
         this.messageId = event.getButtonInteraction().getMessage().getId();
@@ -52,17 +59,17 @@ public class ButtonEventAdapter extends DiscordAdapter implements IButtonEventAd
     }
 
     @Override
-    public String getCustomId() {
+    public @NonNull String getCustomId() {
         return customId;
     }
 
     @Override
-    public Long getMessageId() {
+    public long getMessageId() {
         return messageId;
     }
 
     @Override
-    public Long getChannelId() {
+    public long getChannelId() {
         return channelId;
     }
 
@@ -72,12 +79,12 @@ public class ButtonEventAdapter extends DiscordAdapter implements IButtonEventAd
     }
 
     @Override
-    public List<LabelAndCustomId> getAllButtonIds() {
+    public @NonNull List<LabelAndCustomId> getAllButtonIds() {
         return allButtonIds;
     }
 
     @Override
-    public String getMessageContent() {
+    public @NonNull String getMessageContent() {
         return messageContent;
     }
 
@@ -90,7 +97,7 @@ public class ButtonEventAdapter extends DiscordAdapter implements IButtonEventAd
     public Mono<Void> editMessage(String message) {
         return Mono.fromFuture(event.getButtonInteraction().getMessage().edit(message))
                 .then()
-                .onErrorResume(t -> handleException("Error on edit button event", t));
+                .onErrorResume(t -> handleException("Error on edit button event", t, false));
     }
 
     @Override
@@ -101,7 +108,7 @@ public class ButtonEventAdapter extends DiscordAdapter implements IButtonEventAd
     @Override
     public Mono<Long> createButtonMessage(String messageContent, List<ComponentRowDefinition> buttonLayout) {
         return createButtonMessage(event.getButtonInteraction().getChannel().orElseThrow(), messageContent, buttonLayout)
-                .onErrorResume(t -> handleException("Error on creating button message", t).ofType(Message.class))
+                .onErrorResume(t -> handleException("Error on creating button message", t, false).ofType(Message.class))
                 .map(DiscordEntity::getId);
     }
 
@@ -115,7 +122,7 @@ public class ButtonEventAdapter extends DiscordAdapter implements IButtonEventAd
         return createEmbedMessageWithReference(event.getInteraction().getChannel().orElseThrow(),
                 answer, event.getInteraction().getUser(),
                 event.getInteraction().getServer().orElseThrow())
-                .onErrorResume(t -> handleException("Error on creating answer message", t).ofType(Message.class))
+                .onErrorResume(t -> handleException("Error on creating answer message", t, false).ofType(Message.class))
                 .ofType(Void.class);
     }
 
@@ -125,7 +132,7 @@ public class ButtonEventAdapter extends DiscordAdapter implements IButtonEventAd
     }
 
     @Override
-    public String getInvokingGuildMemberName() {
+    public @NonNull String getInvokingGuildMemberName() {
         return invokingGuildMemberName;
     }
 }

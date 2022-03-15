@@ -3,8 +3,8 @@ package de.janno.discord.connector.javacord;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import de.janno.discord.connector.api.Answer;
-import de.janno.discord.connector.api.message.ComponentRowDefinition;
 import de.janno.discord.connector.api.IDiscordAdapter;
+import de.janno.discord.connector.api.message.ComponentRowDefinition;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -14,6 +14,7 @@ import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.exception.MissingPermissionsException;
+import org.javacord.api.exception.UnknownMessageException;
 import reactor.core.publisher.Mono;
 
 import java.awt.*;
@@ -63,12 +64,15 @@ public abstract class DiscordAdapter implements IDiscordAdapter {
     }
 
     protected Mono<Void> handleException(@NonNull String errorMessage,
-                                         @NonNull Throwable throwable) {
+                                         @NonNull Throwable throwable,
+                                         boolean ignoreMissingMessage) {
         if (throwable instanceof MissingPermissionsException) {
             //todo need to stop the execution of the other actions
             log.info(String.format("Missing permissions: %s", errorMessage));
             return answerOnError(PERMISSION_ERROR_MESSAGE);
-        } else {
+        } else if (throwable instanceof UnknownMessageException && ignoreMissingMessage){
+            log.info(String.format("Missing message: %s", errorMessage));
+        }else{
             log.error(errorMessage, throwable);
         }
         return Mono.empty();
@@ -81,7 +85,7 @@ public abstract class DiscordAdapter implements IDiscordAdapter {
         return Mono.fromFuture(textChannel.getMessageById(messageId))
                 .filter(m -> !m.isPinned())
                 .flatMap(m -> Mono.fromFuture(m.delete()))
-                .onErrorResume(t -> handleException("Error on deleting message", t));
+                .onErrorResume(t -> handleException("Error on deleting message", t, true));
     }
 
 }
