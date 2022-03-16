@@ -10,7 +10,7 @@ repositories {
 }
 
 dependencies {
-    implementation "io.projectreactor:reactor-core:3.4.15"
+    implementation "io.projectreactor:reactor-core:3.4.16"
     implementation 'com.google.guava:guava:31.1-jre'
 
     compileOnly 'org.projectlombok:lombok:1.18.22'
