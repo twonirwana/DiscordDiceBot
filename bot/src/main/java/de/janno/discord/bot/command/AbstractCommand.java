@@ -1,21 +1,23 @@
 package de.janno.discord.bot.command;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Stopwatch;
 import com.google.common.collect.ImmutableList;
 import de.janno.discord.bot.BotMetrics;
+import de.janno.discord.bot.cache.ButtonMessageCache;
 import de.janno.discord.connector.api.*;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
 import de.janno.discord.connector.api.message.EmbedDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinitionOption;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
-import de.janno.discord.bot.cache.ButtonMessageCache;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 public abstract class AbstractCommand<C extends IConfig, S extends IState> implements ISlashCommand, IComponentInteractEventHandler {
@@ -56,6 +58,8 @@ public abstract class AbstractCommand<C extends IConfig, S extends IState> imple
 
     @Override
     public Mono<Void> handleComponentInteractEvent(@NonNull IButtonEventAdaptor event) {
+        Stopwatch stopwatch = Stopwatch.createStarted();
+
         C config = getConfigFromEvent(event);
         //adding the message of the event to the cache, in the case that the bot was restarted and has forgotten the button
         long messageId = event.getMessageId();
@@ -84,18 +88,19 @@ public abstract class AbstractCommand<C extends IConfig, S extends IState> imple
         if (createAnswerMessage(state, config)) {
             BotMetrics.incrementButtonMetricCounter(getName(), config.toShortString());
             Answer answer = getAnswer(state, config);
-            actions.add(event.createResultMessageWithEventReference(answer));
-            actions.add(event.getRequester()
-                    .doOnNext(requester -> log.info("'{}'.'{}' from '{}' button: '{}'={}{} -> {}",
-                            requester.getGuildName(),
-                            requester.getChannelName(),
-                            requester.getUserName(),
-                            event.getCustomId(),
-                            config.toShortString(),
-                            state.toShortString(),
-                            answer.toShortString()
-                    ))
-                    .ofType(Void.class));
+            actions.add(event.createResultMessageWithEventReference(answer).then(
+                    event.getRequester()
+                            .doOnNext(requester -> log.info("'{}'.'{}' from '{}' button: '{}'={}{} -> {} in {}ms",
+                                            requester.getGuildName(),
+                                            requester.getChannelName(),
+                                            requester.getUserName(),
+                                            event.getCustomId(),
+                                            config.toShortString(),
+                                            state.toShortString(),
+                                            answer.toShortString(),
+                                            stopwatch.elapsed(TimeUnit.MILLISECONDS)
+                                    )
+                            ).ofType(Void.class)));
         }
         if (copyButtonMessageToTheEnd(state, config)) {
             Mono<Long> newMessageIdMono = event.createButtonMessage(getButtonMessageWithState(state, config), getButtonLayoutWithState(state, config))

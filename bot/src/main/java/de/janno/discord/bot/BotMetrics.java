@@ -69,22 +69,4 @@ public class BotMetrics {
     public static void incrementSlashHelpMetricCounter(@NonNull String commandName) {
         globalRegistry.counter(METRIC_PREFIX + METRIC_SLASH_HELP_PREFIX, Tags.of(COMMAND_TAG, commandName)).increment();
     }
-
-    public static void timerButtonMetricCounter(@NonNull String commandName, @NonNull Duration duration) {
-        Timer.builder(METRIC_PREFIX + METRIC_BUTTON_TIMER_PREFIX)
-                .tags(Tags.of(COMMAND_TAG, commandName))
-                .publishPercentiles(0.5, 0.95, 0.99)
-                .publishPercentileHistogram(true)
-                .register(globalRegistry)
-                .record(duration);
-    }
-
-    public static void timerSlashStartMetricCounter(@NonNull String commandName, @NonNull Duration duration) {
-        Timer.builder(METRIC_PREFIX + METRIC_SLASH_TIMER_PREFIX)
-                .tags(Tags.of(COMMAND_TAG, commandName))
-                .publishPercentiles(0.5, 0.95, 0.99)
-                .publishPercentileHistogram()
-                .register(globalRegistry)
-                .record(duration);
-    }
 }
