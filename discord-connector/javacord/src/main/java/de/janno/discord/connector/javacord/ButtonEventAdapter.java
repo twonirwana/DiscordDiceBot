@@ -97,7 +97,7 @@ public class ButtonEventAdapter extends DiscordAdapter implements IButtonEventAd
     public Mono<Void> editMessage(String message) {
         return Mono.fromFuture(event.getButtonInteraction().getMessage().edit(message))
                 .then()
-                .onErrorResume(t -> handleException("Error on edit button event", t, false));
+                .onErrorResume(t -> handleException("Error on edit button event", t, true));
     }
 
     @Override

@@ -70,9 +70,9 @@ public abstract class DiscordAdapter implements IDiscordAdapter {
             //todo need to stop the execution of the other actions
             log.info(String.format("Missing permissions: %s", errorMessage));
             return answerOnError(PERMISSION_ERROR_MESSAGE);
-        } else if (throwable instanceof UnknownMessageException && ignoreMissingMessage){
-            log.info(String.format("Missing message: %s", errorMessage));
-        }else{
+        } else if (throwable instanceof UnknownMessageException && ignoreMissingMessage) {
+            log.trace(String.format("Missing message: %s", errorMessage));
+        } else {
             log.error(errorMessage, throwable);
         }
         return Mono.empty();

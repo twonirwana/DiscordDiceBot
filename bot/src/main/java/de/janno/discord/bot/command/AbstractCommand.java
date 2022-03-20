@@ -58,8 +58,8 @@ public abstract class AbstractCommand<C extends IConfig, S extends IState> imple
     public Mono<Void> handleComponentInteractEvent(@NonNull IButtonEventAdaptor event) {
         C config = getConfigFromEvent(event);
         //adding the message of the event to the cache, in the case that the bot was restarted and has forgotten the button
-        Long messageId = event.getMessageId();
-        Long channelId = event.getChannelId();
+        long messageId = event.getMessageId();
+        long channelId = event.getChannelId();
         buttonMessageCache.addChannelWithButton(channelId, messageId, config.hashCode());
 
         S state = getStateFromEvent(event);
