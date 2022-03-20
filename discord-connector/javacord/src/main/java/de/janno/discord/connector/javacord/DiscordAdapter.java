@@ -17,9 +17,11 @@ import org.javacord.api.exception.MissingPermissionsException;
 import org.javacord.api.exception.UnknownMessageException;
 import reactor.core.publisher.Mono;
 
+import javax.annotation.Nullable;
 import java.awt.*;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 public abstract class DiscordAdapter implements IDiscordAdapter {
@@ -35,11 +37,13 @@ public abstract class DiscordAdapter implements IDiscordAdapter {
             @NonNull TextChannel textChannel,
             @NonNull Answer answer,
             @NonNull User rollRequester,
-            @NonNull Server server) {
+            @Nullable Server server) {
 
         EmbedBuilder builder = new EmbedBuilder();
         builder.setTitle(StringUtils.abbreviate(encodeUTF8(answer.getTitle()), 256))//https://discord.com/developers/docs/resources/channel#embed-limits
-                .setAuthor(rollRequester.getDisplayName(server), null, rollRequester.getAvatar())
+                .setAuthor(Optional.ofNullable(server).map(rollRequester::getDisplayName).orElse(rollRequester.getName()),
+                        null,
+                        rollRequester.getAvatar())
                 .setColor(Color.decode(String.valueOf((int) rollRequester.getId())));
         if (!Strings.isNullOrEmpty(answer.getContent())) {
             builder.setDescription(StringUtils.abbreviate(encodeUTF8(answer.getContent()), 4096)); //https://discord.com/developers/docs/resources/channel#embed-limits

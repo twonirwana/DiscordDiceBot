@@ -109,7 +109,7 @@ public class SlashEventAdapter extends DiscordAdapter implements ISlashEventAdap
         return createEmbedMessageWithReference(event.getInteraction().getChannel().orElseThrow(),
                 answer,
                 event.getInteraction().getUser(),
-                event.getSlashCommandInteraction().getServer().orElseThrow())
+                event.getSlashCommandInteraction().getServer().orElse(null))
                 .onErrorResume(t -> handleException("Error on creating answer message", t, false).ofType(Message.class))
                 .ofType(Void.class);
     }

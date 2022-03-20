@@ -121,7 +121,7 @@ public class ButtonEventAdapter extends DiscordAdapter implements IButtonEventAd
     public Mono<Void> createResultMessageWithEventReference(Answer answer) {
         return createEmbedMessageWithReference(event.getInteraction().getChannel().orElseThrow(),
                 answer, event.getInteraction().getUser(),
-                event.getInteraction().getServer().orElseThrow())
+                event.getInteraction().getServer().orElse(null))
                 .onErrorResume(t -> handleException("Error on creating answer message", t, false).ofType(Message.class))
                 .ofType(Void.class);
     }
