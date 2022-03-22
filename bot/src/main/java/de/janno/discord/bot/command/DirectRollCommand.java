@@ -1,6 +1,7 @@
 package de.janno.discord.bot.command;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Stopwatch;
 import de.janno.discord.bot.BotMetrics;
 import de.janno.discord.bot.dice.DiceParserHelper;
 import de.janno.discord.connector.api.Answer;
@@ -16,6 +17,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 public class DirectRollCommand implements ISlashCommand {
@@ -54,6 +56,8 @@ public class DirectRollCommand implements ISlashCommand {
 
     @Override
     public Mono<Void> handleSlashCommandEvent(@NonNull ISlashEventAdaptor event) {
+        Stopwatch stopwatch = Stopwatch.createStarted();
+
         String checkPermissions = event.checkPermissions();
         if (checkPermissions != null) {
             return event.reply(checkPermissions);
@@ -94,18 +98,19 @@ public class DirectRollCommand implements ISlashCommand {
             Answer answer = diceParserHelper.roll(diceExpression, label);
 
             return Flux.merge(event.reply(commandString),
-                            event.createResultMessageWithEventReference(answer),
-                            event.getRequester()
-                                    .doOnNext(requester -> log.info("'{}'.'{}' from '{}' slash '{}': {} -> {}",
-                                            requester.getGuildName(),
-                                            requester.getChannelName(),
-                                            requester.getUserName(),
-                                            event.getCommandString(),
-                                            diceExpression,
-                                            answer.toShortString()
-                                    ))
-                                    .ofType(Void.class))
-                    .then();
+                            event.createResultMessageWithEventReference(answer))
+
+                    .then(event.getRequester()
+                            .doOnNext(requester -> log.info("'{}'.'{}' from '{}' slash '{}': {} -> {} in {}ms",
+                                    requester.getGuildName(),
+                                    requester.getChannelName(),
+                                    requester.getUserName(),
+                                    event.getCommandString(),
+                                    diceExpression,
+                                    answer.toShortString(),
+                                    stopwatch.elapsed(TimeUnit.MILLISECONDS)
+                            ))
+                            .ofType(Void.class));
 
         }
 

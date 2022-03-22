@@ -1,9 +1,9 @@
 package de.janno.discord.bot.dice;
 
-import de.janno.discord.connector.api.Answer;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
+import de.janno.discord.connector.api.Answer;
 import dev.diceroll.parser.ResultTree;
 import lombok.NonNull;
 import lombok.Value;
@@ -223,6 +223,9 @@ public class DiceParserHelper {
             String title = String.format("%s = %d", input, resultTree.getValue());
             String details = String.format("[%s]", getBaseResults(resultTree).stream().map(String::valueOf).collect(Collectors.joining(", ")));
             return new RollWithDetails(title, details);
+        } catch (ArithmeticException t) {
+            log.error(String.format("Executing '%s' resulting in: %s", input, t.getMessage()));
+            return new RollWithDetails("Arithmetic Error", String.format("Executing '%s' resulting in: %s", input, t.getMessage()));
         } catch (Throwable t) {
             log.error(String.format("DiceParser error in %s:", input), t);
             return new RollWithDetails("Error", String.format("Could not execute the dice expression: %s", input));
