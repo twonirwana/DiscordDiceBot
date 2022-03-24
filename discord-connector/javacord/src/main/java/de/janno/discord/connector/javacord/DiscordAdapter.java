@@ -15,7 +15,6 @@ import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.exception.MissingPermissionsException;
 import org.javacord.api.exception.NotFoundException;
-import org.javacord.api.exception.UnknownMessageException;
 import reactor.core.publisher.Mono;
 
 import javax.annotation.Nullable;
@@ -45,7 +44,7 @@ public abstract class DiscordAdapter implements IDiscordAdapter {
                 .setAuthor(Optional.ofNullable(server).map(rollRequester::getDisplayName).orElse(rollRequester.getName()),
                         null,
                         rollRequester.getAvatar())
-                .setColor(Color.decode(String.valueOf((int) rollRequester.getId())));
+                .setColor(Color.decode(String.valueOf(String.valueOf(rollRequester.getId()).hashCode())));
         if (!Strings.isNullOrEmpty(answer.getContent())) {
             builder.setDescription(StringUtils.abbreviate(encodeUTF8(answer.getContent()), 4096)); //https://discord.com/developers/docs/resources/channel#embed-limits
         }
