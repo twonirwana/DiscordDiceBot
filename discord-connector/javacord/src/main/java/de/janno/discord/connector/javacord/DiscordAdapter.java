@@ -14,6 +14,7 @@ import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.exception.MissingPermissionsException;
+import org.javacord.api.exception.NotFoundException;
 import org.javacord.api.exception.UnknownMessageException;
 import reactor.core.publisher.Mono;
 
@@ -69,13 +70,13 @@ public abstract class DiscordAdapter implements IDiscordAdapter {
 
     protected Mono<Void> handleException(@NonNull String errorMessage,
                                          @NonNull Throwable throwable,
-                                         boolean ignoreMissingMessage) {
+                                         boolean ignoreNotFound) {
         if (throwable instanceof MissingPermissionsException) {
             //todo need to stop the execution of the other actions
             log.info(String.format("Missing permissions: %s", errorMessage));
             return answerOnError(PERMISSION_ERROR_MESSAGE);
-        } else if (throwable instanceof UnknownMessageException && ignoreMissingMessage) {
-            log.trace(String.format("Missing message: %s", errorMessage));
+        } else if (throwable instanceof NotFoundException && ignoreNotFound) {
+            log.trace(String.format("Not found: %s", errorMessage));
         } else {
             log.error(errorMessage, throwable);
         }
