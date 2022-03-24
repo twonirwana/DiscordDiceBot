@@ -1,8 +1,7 @@
 package de.janno.discord.bot.dice;
 
-import de.janno.discord.connector.api.Answer;
 import com.google.common.collect.ImmutableList;
-import de.janno.discord.bot.dice.DiceParserHelper;
+import de.janno.discord.connector.api.Answer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -148,5 +147,25 @@ class DiceParserHelperTest {
         assertThat(res.getTitle()).startsWith("Label: 3d6 = ");
     }
 
+    @Test
+    void roll_overflow() {
+        Answer res = underTest.roll("2147483647+1", "Label");
+
+        assertThat(res.getFields()).hasSize(0);
+        assertThat(res.getContent()).isNotEmpty();
+        assertThat(res.getTitle()).isEqualTo("Label: Arithmetic Error");
+        assertThat(res.getContent()).isEqualTo("Executing '2147483647+1' resulting in: integer overflow");
+    }
+
+    @Test
+    void roll_overflow_multiple() {
+        Answer res = underTest.roll("3x[2147483647+1]", "Label");
+
+        assertThat(res.getFields()).hasSize(3);
+        assertThat(res.getContent()).isNull();
+        assertThat(res.getTitle()).isEqualTo("Label");
+        assertThat(res.getFields().get(0).getName()).isEqualTo("Arithmetic Error");
+        assertThat(res.getFields().get(0).getValue()).isEqualTo("Executing '2147483647+1' resulting in: integer overflow");
+    }
 
 }
