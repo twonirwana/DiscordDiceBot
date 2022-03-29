@@ -15,6 +15,7 @@ import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.interaction.SlashCommandCreateEvent;
 import org.javacord.api.interaction.SlashCommandInteractionOption;
 import org.javacord.api.interaction.callback.InteractionCallbackDataFlag;
+import org.javacord.api.interaction.callback.InteractionOriginalResponseUpdater;
 import reactor.core.publisher.Mono;
 import reactor.util.annotation.Nullable;
 
@@ -73,10 +74,8 @@ public class SlashEventAdapter extends DiscordAdapter implements ISlashEventAdap
         return Mono.fromFuture(event.getSlashCommandInteraction().createImmediateResponder()
                         .setContent(message)
                         .respond())
-                .onErrorResume(t -> {
-                    log.error("Error on replay", t);
-                    return Mono.empty();
-                }).then();
+                .onErrorResume(t -> handleException("Error on replay", t, true).ofType(InteractionOriginalResponseUpdater.class))
+                .then();
     }
 
     @Override
@@ -89,10 +88,7 @@ public class SlashEventAdapter extends DiscordAdapter implements ISlashEventAdap
                         .addEmbed(embedBuilder)
                         .setFlags(InteractionCallbackDataFlag.EPHEMERAL)
                         .respond())
-                .onErrorResume(t -> {
-                    log.error("Error on replay to slash help command", t);
-                    return Mono.empty();
-                })
+                .onErrorResume(t -> handleException("Error on replay ephemeral", t, true).ofType(InteractionOriginalResponseUpdater.class))
                 .then();
 
     }
