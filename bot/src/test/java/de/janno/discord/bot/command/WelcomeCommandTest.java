@@ -1,5 +1,6 @@
 package de.janno.discord.bot.command;
 
+import de.janno.discord.connector.api.IButtonEventAdaptor;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.MessageDefinition;
 import org.junit.jupiter.api.Test;
@@ -8,6 +9,8 @@ import java.util.Collection;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 class WelcomeCommandTest {
 
@@ -234,5 +237,44 @@ class WelcomeCommandTest {
                 .map(ButtonDefinition::getLabel))
                 .containsExactly("Fate", "D&D5e", "nWoD", "oWoD", "Shadowrun");
 
+    }
+
+    @Test
+    public void shouldKeepExistingButtonMessage() {
+        assertThat(underTest.shouldKeepExistingButtonMessage(null)).isTrue();
+    }
+
+    @Test
+    public void getAnswer() {
+        assertThat(underTest.getAnswer(null, null)).isEmpty();
+    }
+
+    @Test
+    public void getStateFromEvent() {
+        IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
+        when(event.getCustomId()).thenReturn("welcome,fate");
+
+        WelcomeCommand.State res = underTest.getStateFromEvent(event);
+
+        assertThat(res).isEqualTo(new WelcomeCommand.State("fate"));
+    }
+
+    @Test
+    public void matchingComponentCustomId() {
+        boolean res = underTest.matchingComponentCustomId("welcome,fate");
+
+        assertThat(res).isTrue();
+    }
+
+    @Test
+    public void matchingComponentCustomId_notMatch() {
+        boolean res = underTest.matchingComponentCustomId("welcome2,fate");
+
+        assertThat(res).isFalse();
+    }
+
+    @Test
+    void getName() {
+        assertThat(underTest.getName()).isEqualTo("welcome");
     }
 }
