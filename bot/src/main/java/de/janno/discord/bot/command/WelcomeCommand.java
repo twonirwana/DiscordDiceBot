@@ -46,12 +46,11 @@ public class WelcomeCommand extends AbstractCommand<WelcomeCommand.Config, Welco
 
     @Override
     protected Optional<MessageDefinition> getButtonMessageWithState(State state, Config config) {
-        if (FATE_BUTTON_ID.equals(state.getButtonId())) {
-            return Optional.of(
+        return switch (state.getButtonId()) {
+            case FATE_BUTTON_ID -> Optional.of(
                     new FateCommand().getButtonMessage(new FateCommand.Config("with_modifier"))
             );
-        } else if (DND5_BUTTON_ID.equals(state.getButtonId())) {
-            return Optional.of(
+            case DND5_BUTTON_ID -> Optional.of(
                     new CustomDiceCommand().getButtonMessage(new CustomDiceCommand.Config(ImmutableList.of(
                             new CustomDiceCommand.LabelAndDiceExpression("D4", "1d4"),
                             new CustomDiceCommand.LabelAndDiceExpression("D6", "1d6"),
@@ -70,20 +69,17 @@ public class WelcomeCommand extends AbstractCommand<WelcomeCommand.Config, Welco
                             new CustomDiceCommand.LabelAndDiceExpression("2D20", "2d20")
                     )))
             );
-        } else if (NWOD_BUTTON_ID.equals(state.getButtonId())) {
-            return Optional.of(
+            case NWOD_BUTTON_ID -> Optional.of(
                     new CountSuccessesCommand().getButtonMessage(new CountSuccessesCommand.Config(10, 8, "no_glitch", 15))
             );
-        } else if (OWOD_BUTTON_ID.equals(state.getButtonId())) {
-            return Optional.of(
-                    new PoolTargetCommand().getButtonMessage(new PoolTargetCommand.Config(10, 15, ImmutableSet.of(10), ImmutableSet.of(10), "ask"))
+            case OWOD_BUTTON_ID -> Optional.of(
+                    new PoolTargetCommand().getButtonMessage(new PoolTargetCommand.Config(10, 15, ImmutableSet.of(10), ImmutableSet.of(1), "ask"))
             );
-        } else if (SHADOWRUN_BUTTON_ID.equals(state.getButtonId())) {
-            return Optional.of(
+            case SHADOWRUN_BUTTON_ID -> Optional.of(
                     new CountSuccessesCommand().getButtonMessage(new CountSuccessesCommand.Config(6, 5, "glitch:half_dice_one", 20))
             );
-        }
-        return Optional.empty();
+            default -> Optional.empty();
+        };
     }
 
     @Override
@@ -104,10 +100,12 @@ public class WelcomeCommand extends AbstractCommand<WelcomeCommand.Config, Welco
     @Override
     protected MessageDefinition getButtonMessage(Config config) {
         return MessageDefinition.builder()
-                .content("Welcome to the Button Dice Bot, use one of the example buttons below to start one of the RPG " +
-                        "dice systems or use the slash command to configure your own custom dice system " +
-                        "(see https://github.com/twonirwana/DiscordDiceBot for details or the slash command /help). " +
-                        "\nFor help or feature request come to the support discord server of the bot: https://discord.gg/e43BsqKpFr")
+                .content("Welcome to the Button Dice Bot," +
+                        "\nuse one of the example buttons below to start one of the RPG dice systems " +
+                        "or use the slash command to configure your own custom dice system " +
+                        "(see https://github.com/twonirwana/DiscordDiceBot for details or the slash command `/help`). " +
+                        "\nYou can also use the slash command `/r` to directly roll dice with." +
+                        "\nFor help or feature request come to the support discord server: https://discord.gg/e43BsqKpFr")
                 .componentRowDefinition(ComponentRowDefinition.builder()
                         .buttonDefinitions(
                                 ImmutableList.of(
@@ -163,11 +161,12 @@ public class WelcomeCommand extends AbstractCommand<WelcomeCommand.Config, Welco
 
     @Value
     public static class State implements IState {
+        @NonNull
         String buttonId;
 
         @Override
         public String toShortString() {
-            return "";
+            return String.format("[%s]", buttonId);
         }
     }
 }
