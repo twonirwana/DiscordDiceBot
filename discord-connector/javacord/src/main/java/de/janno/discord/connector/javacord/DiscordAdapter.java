@@ -2,9 +2,9 @@ package de.janno.discord.connector.javacord;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
-import de.janno.discord.connector.api.Answer;
 import de.janno.discord.connector.api.IDiscordAdapter;
-import de.janno.discord.connector.api.message.ComponentRowDefinition;
+import de.janno.discord.connector.api.message.EmbedDefinition;
+import de.janno.discord.connector.api.message.MessageDefinition;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -35,7 +35,7 @@ public abstract class DiscordAdapter implements IDiscordAdapter {
 
     protected Mono<Message> createEmbedMessageWithReference(
             @NonNull TextChannel textChannel,
-            @NonNull Answer answer,
+            @NonNull EmbedDefinition answer,
             @NonNull User rollRequester,
             @Nullable Server server) {
 
@@ -45,15 +45,15 @@ public abstract class DiscordAdapter implements IDiscordAdapter {
                         null,
                         rollRequester.getAvatar())
                 .setColor(Color.decode(String.valueOf(String.valueOf(rollRequester.getId()).hashCode())));
-        if (!Strings.isNullOrEmpty(answer.getContent())) {
-            builder.setDescription(StringUtils.abbreviate(encodeUTF8(answer.getContent()), 4096)); //https://discord.com/developers/docs/resources/channel#embed-limits
+        if (!Strings.isNullOrEmpty(answer.getDescription())) {
+            builder.setDescription(StringUtils.abbreviate(encodeUTF8(answer.getDescription()), 4096)); //https://discord.com/developers/docs/resources/channel#embed-limits
         }
 
         if (answer.getFields().size() > 25) {
             log.error("Number of dice results was {} and was reduced", answer.getFields().size());
         }
-        List<Answer.Field> limitedList = answer.getFields().stream().limit(25).collect(ImmutableList.toImmutableList()); //https://discord.com/developers/docs/resources/channel#embed-limits
-        for (Answer.Field field : limitedList) {
+        List<EmbedDefinition.Field> limitedList = answer.getFields().stream().limit(25).collect(ImmutableList.toImmutableList()); //https://discord.com/developers/docs/resources/channel#embed-limits
+        for (EmbedDefinition.Field field : limitedList) {
             builder.addField(StringUtils.abbreviate(encodeUTF8(field.getName()), 256), //https://discord.com/developers/docs/resources/channel#embed-limits
                     StringUtils.abbreviate(encodeUTF8(field.getValue()), 1024), //https://discord.com/developers/docs/resources/channel#embed-limits
                     field.isInline());
@@ -62,9 +62,9 @@ public abstract class DiscordAdapter implements IDiscordAdapter {
     }
 
     protected Mono<Message> createButtonMessage(@NonNull TextChannel channel,
-                                                @NonNull String buttonMessage,
-                                                @NonNull List<ComponentRowDefinition> buttons) {
-        return Mono.fromFuture(channel.sendMessage(buttonMessage, MessageComponentConverter.messageComponent2MessageLayout(buttons)));
+                                                @NonNull MessageDefinition messageDefinition) {
+        return Mono.fromFuture(channel.sendMessage(messageDefinition.getContent(),
+                MessageComponentConverter.messageComponent2MessageLayout(messageDefinition.getComponentRowDefinitions())));
     }
 
     protected Mono<Void> handleException(@NonNull String errorMessage,

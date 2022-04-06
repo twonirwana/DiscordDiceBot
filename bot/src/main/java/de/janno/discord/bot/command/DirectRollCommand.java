@@ -4,7 +4,6 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Stopwatch;
 import de.janno.discord.bot.BotMetrics;
 import de.janno.discord.bot.dice.DiceParserHelper;
-import de.janno.discord.connector.api.Answer;
 import de.janno.discord.connector.api.ISlashCommand;
 import de.janno.discord.connector.api.ISlashEventAdaptor;
 import de.janno.discord.connector.api.message.EmbedDefinition;
@@ -72,15 +71,15 @@ public class DirectRollCommand implements ISlashCommand {
                     .orElseThrow();
             if (commandParameter.equals(HELP)) {
                 BotMetrics.incrementSlashHelpMetricCounter(getName());
-                return event.replyEphemeral(EmbedDefinition.builder()
+                return event.replyEmbed(EmbedDefinition.builder()
                         .description("Type /r and a dice expression e.g. `/r 1d6` \n" + DiceParserHelper.HELP)
-                        .build());
+                        .build(), true);
             }
 
-            String validationMessage = diceParserHelper.validateDiceExpressionWitOptionalLabel(commandParameter, LABEL_DELIMITER, "`/r help`");
-            if (validationMessage != null) {
-                log.info("Validation message: {} for {}", validationMessage, commandString);
-                return event.reply(String.format("%s\n%s", commandString, validationMessage));
+            Optional<String> validationMessage = diceParserHelper.validateDiceExpressionWitOptionalLabel(commandParameter, LABEL_DELIMITER, "`/r help`");
+            if (validationMessage.isPresent()) {
+                log.info("Validation message: {} for {}", validationMessage.get(), commandString);
+                return event.reply(String.format("%s\n%s", commandString, validationMessage.get()));
             }
             String label;
             String diceExpression;
@@ -95,7 +94,7 @@ public class DirectRollCommand implements ISlashCommand {
             }
             BotMetrics.incrementSlashStartMetricCounter(getName(), diceExpression);
 
-            Answer answer = diceParserHelper.roll(diceExpression, label);
+            EmbedDefinition answer = diceParserHelper.roll(diceExpression, label);
 
             return Flux.merge(event.reply(commandString),
                             event.createResultMessageWithEventReference(answer))

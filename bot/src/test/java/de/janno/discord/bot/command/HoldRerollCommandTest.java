@@ -1,14 +1,13 @@
 package de.janno.discord.bot.command;
 
-import de.janno.discord.bot.command.HoldRerollCommand;
-import de.janno.discord.connector.api.Answer;
-import de.janno.discord.connector.api.message.ButtonDefinition;
-import de.janno.discord.connector.api.message.ComponentRowDefinition;
-import de.janno.discord.connector.api.IButtonEventAdaptor;
-import de.janno.discord.connector.api.slash.CommandDefinitionOption;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import de.janno.discord.bot.dice.DiceUtils;
+import de.janno.discord.connector.api.IButtonEventAdaptor;
+import de.janno.discord.connector.api.message.ButtonDefinition;
+import de.janno.discord.connector.api.message.ComponentRowDefinition;
+import de.janno.discord.connector.api.message.EmbedDefinition;
+import de.janno.discord.connector.api.slash.CommandDefinitionOption;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -57,28 +56,28 @@ class HoldRerollCommandTest {
 
     @Test
     void getDiceResult_withoutReroll() {
-        Answer res = underTest.getAnswer(new HoldRerollCommand.State("finish", ImmutableList.of(1, 2, 3, 4, 5, 6), 0),
+        EmbedDefinition res = underTest.getAnswer(new HoldRerollCommand.State("finish", ImmutableList.of(1, 2, 3, 4, 5, 6), 0),
                 new HoldRerollCommand.Config(
                         6,
                         ImmutableSet.of(2, 3, 4),
                         ImmutableSet.of(5, 6),
-                        ImmutableSet.of(1)));
+                        ImmutableSet.of(1))).get();
         assertThat(res.getFields()).hasSize(0);
         assertThat(res.getTitle()).isEqualTo("Success: 2 and Failure: 1");
-        assertThat(res.getContent()).isEqualTo("[**1**,2,3,4,**5**,**6**]");
+        assertThat(res.getDescription()).isEqualTo("[**1**,2,3,4,**5**,**6**]");
     }
 
     @Test
     void getDiceResult_withReroll() {
-        Answer res = underTest.getAnswer(new HoldRerollCommand.State("finish", ImmutableList.of(1, 2, 3, 4, 5, 6), 2),
+        EmbedDefinition res = underTest.getAnswer(new HoldRerollCommand.State("finish", ImmutableList.of(1, 2, 3, 4, 5, 6), 2),
                 new HoldRerollCommand.Config(
                         6,
                         ImmutableSet.of(2, 3, 4),
                         ImmutableSet.of(5, 6),
-                        ImmutableSet.of(1)));
+                        ImmutableSet.of(1))).get();
         assertThat(res.getFields()).hasSize(0);
         assertThat(res.getTitle()).isEqualTo("Success: 2, Failure: 1 and Rerolls: 2");
-        assertThat(res.getContent()).isEqualTo("[**1**,2,3,4,**5**,**6**]");
+        assertThat(res.getDescription()).isEqualTo("[**1**,2,3,4,**5**,**6**]");
     }
 
     @Test
@@ -170,10 +169,11 @@ class HoldRerollCommandTest {
     @Test
     void getButtonMessageWithState_clear() {
         String res = underTest.getButtonMessageWithState(new HoldRerollCommand.State("clear", ImmutableList.of(1, 2, 3, 4, 5, 6), 2), new HoldRerollCommand.Config(
-                6,
-                ImmutableSet.of(2, 3, 4),
-                ImmutableSet.of(5, 6),
-                ImmutableSet.of(1)));
+                        6,
+                        ImmutableSet.of(2, 3, 4),
+                        ImmutableSet.of(5, 6),
+                        ImmutableSet.of(1)))
+                .get().getContent();
 
         assertThat(res).isEqualTo("Click on the buttons to roll dice. Reroll set: [2, 3, 4], Success Set: [5, 6] and Failure Set: [1]");
     }
@@ -181,10 +181,11 @@ class HoldRerollCommandTest {
     @Test
     void getButtonMessageWithState_finish() {
         String res = underTest.getButtonMessageWithState(new HoldRerollCommand.State("finish", ImmutableList.of(1, 2, 3, 4, 5, 6), 2), new HoldRerollCommand.Config(
-                6,
-                ImmutableSet.of(2, 3, 4),
-                ImmutableSet.of(5, 6),
-                ImmutableSet.of(1)));
+                        6,
+                        ImmutableSet.of(2, 3, 4),
+                        ImmutableSet.of(5, 6),
+                        ImmutableSet.of(1)))
+                .get().getContent();
 
         assertThat(res).isEqualTo("Click on the buttons to roll dice. Reroll set: [2, 3, 4], Success Set: [5, 6] and Failure Set: [1]");
     }
@@ -192,10 +193,11 @@ class HoldRerollCommandTest {
     @Test
     void getButtonMessageWithState_noRerollPossible() {
         String res = underTest.getButtonMessageWithState(new HoldRerollCommand.State("reroll", ImmutableList.of(1, 1, 1, 5, 5, 6), 2), new HoldRerollCommand.Config(
-                6,
-                ImmutableSet.of(2, 3, 4),
-                ImmutableSet.of(5, 6),
-                ImmutableSet.of(1)));
+                        6,
+                        ImmutableSet.of(2, 3, 4),
+                        ImmutableSet.of(5, 6),
+                        ImmutableSet.of(1)))
+                .get().getContent();
 
         assertThat(res).isEqualTo("Click on the buttons to roll dice. Reroll set: [2, 3, 4], Success Set: [5, 6] and Failure Set: [1]");
     }
@@ -203,10 +205,11 @@ class HoldRerollCommandTest {
     @Test
     void getButtonMessageWithState_rerollPossible() {
         String res = underTest.getButtonMessageWithState(new HoldRerollCommand.State("reroll", ImmutableList.of(1, 2, 3, 4, 5, 6), 2), new HoldRerollCommand.Config(
-                6,
-                ImmutableSet.of(2, 3, 4),
-                ImmutableSet.of(5, 6),
-                ImmutableSet.of(1)));
+                        6,
+                        ImmutableSet.of(2, 3, 4),
+                        ImmutableSet.of(5, 6),
+                        ImmutableSet.of(1)))
+                .get().getContent();
 
         assertThat(res).isEqualTo("[**1**,2,3,4,**5**,**6**] = 2 successes and 1 failures");
     }
@@ -214,10 +217,11 @@ class HoldRerollCommandTest {
     @Test
     void getButtonMessage() {
         String res = underTest.getButtonMessage(new HoldRerollCommand.Config(
-                6,
-                ImmutableSet.of(2, 3, 4),
-                ImmutableSet.of(5, 6),
-                ImmutableSet.of(1)));
+                        6,
+                        ImmutableSet.of(2, 3, 4),
+                        ImmutableSet.of(5, 6),
+                        ImmutableSet.of(1)))
+                .getContent();
 
         assertThat(res).isEqualTo("Click on the buttons to roll dice. Reroll set: [2, 3, 4], Success Set: [5, 6] and Failure Set: [1]");
     }
@@ -225,7 +229,11 @@ class HoldRerollCommandTest {
     @ParameterizedTest(name = "{index} config={0} -> {1}")
     @MethodSource("generateValidateData")
     void validate(HoldRerollCommand.Config config, String expected) {
-        assertThat(underTest.validate(config)).isEqualTo(expected);
+        if (expected == null) {
+            assertThat(underTest.validate(config)).isEmpty();
+        } else {
+            assertThat(underTest.validate(config)).contains(expected);
+        }
     }
 
     @Test
@@ -248,11 +256,12 @@ class HoldRerollCommandTest {
 
     @Test
     void getButtonLayoutWithState_reroll() {
-        List<ComponentRowDefinition> res = underTest.getButtonLayoutWithState(new HoldRerollCommand.State("reroll", ImmutableList.of(1, 2, 3, 4, 5, 6), 2), new HoldRerollCommand.Config(
-                6,
-                ImmutableSet.of(2, 3, 4),
-                ImmutableSet.of(5, 6),
-                ImmutableSet.of(1)));
+        List<ComponentRowDefinition> res = underTest.getButtonMessageWithState(new HoldRerollCommand.State("reroll", ImmutableList.of(1, 2, 3, 4, 5, 6), 2), new HoldRerollCommand.Config(
+                        6,
+                        ImmutableSet.of(2, 3, 4),
+                        ImmutableSet.of(5, 6),
+                        ImmutableSet.of(1)))
+                .get().getComponentRowDefinitions();
 
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel)).containsExactly("Reroll", "Finish", "Clear");
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getId))
@@ -263,11 +272,12 @@ class HoldRerollCommandTest {
 
     @Test
     void getButtonLayoutWithState_finish() {
-        List<ComponentRowDefinition> res = underTest.getButtonLayoutWithState(new HoldRerollCommand.State("finish", ImmutableList.of(1, 2, 3, 4, 5, 6), 2), new HoldRerollCommand.Config(
-                6,
-                ImmutableSet.of(2, 3, 4),
-                ImmutableSet.of(5, 6),
-                ImmutableSet.of(1)));
+        List<ComponentRowDefinition> res = underTest.getButtonMessageWithState(new HoldRerollCommand.State("finish", ImmutableList.of(1, 2, 3, 4, 5, 6), 2), new HoldRerollCommand.Config(
+                        6,
+                        ImmutableSet.of(2, 3, 4),
+                        ImmutableSet.of(5, 6),
+                        ImmutableSet.of(1)))
+                .get().getComponentRowDefinitions();
 
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel))
                 .containsExactly("1d6", "2d6", "3d6", "4d6", "5d6", "6d6", "7d6", "8d6", "9d6", "10d6", "11d6", "12d6", "13d6", "14d6", "15d6");
@@ -291,11 +301,12 @@ class HoldRerollCommandTest {
 
     @Test
     void getButtonLayoutWithState_clear() {
-        List<ComponentRowDefinition> res = underTest.getButtonLayoutWithState(new HoldRerollCommand.State("clear", ImmutableList.of(1, 2, 3, 4, 5, 6), 2), new HoldRerollCommand.Config(
-                6,
-                ImmutableSet.of(2, 3, 4),
-                ImmutableSet.of(5, 6),
-                ImmutableSet.of(1)));
+        List<ComponentRowDefinition> res = underTest.getButtonMessageWithState(new HoldRerollCommand.State("clear", ImmutableList.of(1, 2, 3, 4, 5, 6), 2), new HoldRerollCommand.Config(
+                        6,
+                        ImmutableSet.of(2, 3, 4),
+                        ImmutableSet.of(5, 6),
+                        ImmutableSet.of(1)))
+                .get().getComponentRowDefinitions();
 
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel))
                 .containsExactly("1d6", "2d6", "3d6", "4d6", "5d6", "6d6", "7d6", "8d6", "9d6", "10d6", "11d6", "12d6", "13d6", "14d6", "15d6");
@@ -319,11 +330,12 @@ class HoldRerollCommandTest {
 
     @Test
     void getButtonLayoutWithState_3() {
-        List<ComponentRowDefinition> res = underTest.getButtonLayoutWithState(new HoldRerollCommand.State("3", ImmutableList.of(1, 2, 3, 4, 5, 6), 2), new HoldRerollCommand.Config(
-                6,
-                ImmutableSet.of(2, 3, 4),
-                ImmutableSet.of(5, 6),
-                ImmutableSet.of(1)));
+        List<ComponentRowDefinition> res = underTest.getButtonMessageWithState(new HoldRerollCommand.State("3", ImmutableList.of(1, 2, 3, 4, 5, 6), 2), new HoldRerollCommand.Config(
+                        6,
+                        ImmutableSet.of(2, 3, 4),
+                        ImmutableSet.of(5, 6),
+                        ImmutableSet.of(1)))
+                .get().getComponentRowDefinitions();
 
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel)).containsExactly("Reroll", "Finish", "Clear");
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getId))
@@ -334,11 +346,12 @@ class HoldRerollCommandTest {
 
     @Test
     void getButtonLayoutWithState_3_finished() {
-        List<ComponentRowDefinition> res = underTest.getButtonLayoutWithState(new HoldRerollCommand.State("3", ImmutableList.of(1, 1, 1, 5, 5, 6), 2), new HoldRerollCommand.Config(
-                6,
-                ImmutableSet.of(2, 3, 4),
-                ImmutableSet.of(5, 6),
-                ImmutableSet.of(1)));
+        List<ComponentRowDefinition> res = underTest.getButtonMessageWithState(new HoldRerollCommand.State("3", ImmutableList.of(1, 1, 1, 5, 5, 6), 2), new HoldRerollCommand.Config(
+                        6,
+                        ImmutableSet.of(2, 3, 4),
+                        ImmutableSet.of(5, 6),
+                        ImmutableSet.of(1)))
+                .get().getComponentRowDefinitions();
 
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel))
                 .containsExactly("1d6", "2d6", "3d6", "4d6", "5d6", "6d6", "7d6", "8d6", "9d6", "10d6", "11d6", "12d6", "13d6", "14d6", "15d6");
@@ -362,11 +375,12 @@ class HoldRerollCommandTest {
 
     @Test
     void getButtonLayout() {
-        List<ComponentRowDefinition> res = underTest.getButtonLayout(new HoldRerollCommand.Config(
-                6,
-                ImmutableSet.of(2, 3, 4),
-                ImmutableSet.of(5, 6),
-                ImmutableSet.of(1)));
+        List<ComponentRowDefinition> res = underTest.getButtonMessage(new HoldRerollCommand.Config(
+                        6,
+                        ImmutableSet.of(2, 3, 4),
+                        ImmutableSet.of(5, 6),
+                        ImmutableSet.of(1)))
+                .getComponentRowDefinitions();
 
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel))
                 .containsExactly("1d6", "2d6", "3d6", "4d6", "5d6", "6d6", "7d6", "8d6", "9d6", "10d6", "11d6", "12d6", "13d6", "14d6", "15d6");
@@ -394,6 +408,6 @@ class HoldRerollCommandTest {
                 6,
                 ImmutableSet.of(2, 3, 4),
                 ImmutableSet.of(5, 6),
-                ImmutableSet.of(1)))).isNull();
+                ImmutableSet.of(1)))).isEmpty();
     }
 }

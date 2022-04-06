@@ -13,16 +13,18 @@ public class Bot {
         BotMetrics.init(publishMetricsToUrl);
 
         DiscordConnector.createAndStart(token, disableCommandUpdate, ImmutableList.of(
-                new CountSuccessesCommand(),
-                new CustomDiceCommand(),
-                new FateCommand(),
-                new DirectRollCommand(),
-                new SumDiceSetCommand(),
-                new SumCustomSetCommand(),
-                new HoldRerollCommand(),
-                new PoolTargetCommand(),
-                new HelpCommand()
-        ));
+                        new CountSuccessesCommand(),
+                        new CustomDiceCommand(),
+                        new FateCommand(),
+                        new DirectRollCommand(),
+                        new SumDiceSetCommand(),
+                        new SumCustomSetCommand(),
+                        new HoldRerollCommand(),
+                        new PoolTargetCommand(),
+                        new WelcomeCommand(),
+                        new HelpCommand()
+                ),
+                new WelcomeCommand().getWelcomeMessage());
     }
 
 }

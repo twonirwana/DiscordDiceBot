@@ -1,10 +1,10 @@
 package de.janno.discord.connector.javacord;
 
 import com.google.common.collect.ImmutableList;
-import de.janno.discord.connector.api.Answer;
 import de.janno.discord.connector.api.IButtonEventAdaptor;
 import de.janno.discord.connector.api.Requester;
-import de.janno.discord.connector.api.message.ComponentRowDefinition;
+import de.janno.discord.connector.api.message.EmbedDefinition;
+import de.janno.discord.connector.api.message.MessageDefinition;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.javacord.api.entity.DiscordEntity;
@@ -107,8 +107,8 @@ public class ButtonEventAdapter extends DiscordAdapter implements IButtonEventAd
     }
 
     @Override
-    public Mono<Long> createButtonMessage(String messageContent, List<ComponentRowDefinition> buttonLayout) {
-        return createButtonMessage(event.getButtonInteraction().getChannel().orElseThrow(), messageContent, buttonLayout)
+    public Mono<Long> createButtonMessage(MessageDefinition messageDefinition) {
+        return createButtonMessage(event.getButtonInteraction().getChannel().orElseThrow(), messageDefinition)
                 .onErrorResume(t -> handleException("Error on creating button message", t, false).ofType(Message.class))
                 .map(DiscordEntity::getId);
     }
@@ -119,7 +119,7 @@ public class ButtonEventAdapter extends DiscordAdapter implements IButtonEventAd
     }
 
     @Override
-    public Mono<Void> createResultMessageWithEventReference(Answer answer) {
+    public Mono<Void> createResultMessageWithEventReference(EmbedDefinition answer) {
         return createEmbedMessageWithReference(event.getInteraction().getChannel().orElseThrow(),
                 answer, event.getInteraction().getUser(),
                 event.getInteraction().getServer().orElse(null))

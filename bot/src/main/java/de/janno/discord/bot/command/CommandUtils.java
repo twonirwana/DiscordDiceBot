@@ -8,6 +8,7 @@ import org.apache.commons.lang3.math.NumberUtils;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -67,9 +68,9 @@ public final class CommandUtils {
                 .collect(ImmutableSet.toImmutableSet());
     }
 
-    public static String validateIntegerSetFromCommandOptions(@NonNull CommandInteractionOption options,
-                                                              @NonNull String optionId,
-                                                              @NonNull String delimiter) {
+    public static Optional<String> validateIntegerSetFromCommandOptions(@NonNull CommandInteractionOption options,
+                                                                       @NonNull String optionId,
+                                                                       @NonNull String delimiter) {
         Set<String> stringValues = options.getStingSubOptionWithName(optionId)
                 .map(s -> s.split(delimiter))
                 .map(Arrays::asList)
@@ -81,9 +82,9 @@ public final class CommandUtils {
                 .filter(s -> !NumberUtils.isParsable(s))
                 .collect(Collectors.toSet());
         if (!notNumericValues.isEmpty()) {
-            return String.format("The parameter need to have numbers, seperated by '%s'. The following parameter where not numbers: '%s'",
+            return Optional.of(String.format("The parameter need to have numbers, seperated by '%s'. The following parameter where not numbers: '%s'",
                     delimiter,
-                    String.join("', '", notNumericValues));
+                    String.join("', '", notNumericValues)));
         }
         Set<Integer> notPositiveNumber = stringValues.stream()
                 .filter(NumberUtils::isParsable)
@@ -91,10 +92,10 @@ public final class CommandUtils {
                 .filter(i -> i <= 0)
                 .collect(ImmutableSet.toImmutableSet());
         if (!notPositiveNumber.isEmpty()) {
-            return String.format("The parameter need to have numbers greater zero, seperated by '%s'. The following parameter where not greater zero: '%s'",
-                    delimiter, notPositiveNumber.stream().map(String::valueOf).collect(Collectors.joining("', '"))
+            return Optional.of(String.format("The parameter need to have numbers greater zero, seperated by '%s'. The following parameter where not greater zero: '%s'",
+                    delimiter, notPositiveNumber.stream().map(String::valueOf).collect(Collectors.joining("', '")))
             );
         }
-        return null;
+        return Optional.empty();
     }
 }

@@ -1,6 +1,6 @@
 package de.janno.discord.connector.api;
 
-import de.janno.discord.connector.api.message.ComponentRowDefinition;
+import de.janno.discord.connector.api.message.MessageDefinition;
 import lombok.NonNull;
 import lombok.Value;
 import reactor.core.publisher.Mono;
@@ -23,7 +23,7 @@ public interface IButtonEventAdaptor extends IDiscordAdapter {
 
     Mono<Void> editMessage(String message);
 
-    Mono<Long> createButtonMessage(String messageContent, List<ComponentRowDefinition> buttonLayout);
+    Mono<Long> createButtonMessage(MessageDefinition messageDefinition);
 
     Mono<Void> deleteMessage(long messageId);
 

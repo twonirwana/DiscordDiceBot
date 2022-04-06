@@ -1,10 +1,9 @@
 package de.janno.discord.connector.javacord;
 
-import de.janno.discord.connector.api.Answer;
 import de.janno.discord.connector.api.ISlashEventAdaptor;
 import de.janno.discord.connector.api.Requester;
-import de.janno.discord.connector.api.message.ComponentRowDefinition;
 import de.janno.discord.connector.api.message.EmbedDefinition;
+import de.janno.discord.connector.api.message.MessageDefinition;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -15,6 +14,7 @@ import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.interaction.SlashCommandCreateEvent;
 import org.javacord.api.interaction.SlashCommandInteractionOption;
 import org.javacord.api.interaction.callback.InteractionCallbackDataFlag;
+import org.javacord.api.interaction.callback.InteractionImmediateResponseBuilder;
 import org.javacord.api.interaction.callback.InteractionOriginalResponseUpdater;
 import reactor.core.publisher.Mono;
 import reactor.util.annotation.Nullable;
@@ -70,7 +70,7 @@ public class SlashEventAdapter extends DiscordAdapter implements ISlashEventAdap
     }
 
     @Override
-    public Mono<Void> reply(String message) {
+    public Mono<Void> reply(@NonNull String message) {
         return Mono.fromFuture(event.getSlashCommandInteraction().createImmediateResponder()
                         .setContent(message)
                         .respond())
@@ -79,29 +79,31 @@ public class SlashEventAdapter extends DiscordAdapter implements ISlashEventAdap
     }
 
     @Override
-    public Mono<Void> replyEphemeral(EmbedDefinition embedDefinition) {
+    public Mono<Void> replyEmbed(@NonNull EmbedDefinition embedDefinition, boolean replyEmbed) {
         //todo combine with DiscordAdapter.createEmbedMessageWithReference
         EmbedBuilder embedBuilder = new EmbedBuilder()
                 .setDescription(embedDefinition.getDescription());
         embedDefinition.getFields().forEach(f -> embedBuilder.addField(f.getName(), f.getValue(), f.isInline()));
-        return Mono.fromFuture(event.getSlashCommandInteraction().createImmediateResponder()
-                        .addEmbed(embedBuilder)
-                        .setFlags(InteractionCallbackDataFlag.EPHEMERAL)
-                        .respond())
+        InteractionImmediateResponseBuilder builder = event.getSlashCommandInteraction().createImmediateResponder()
+                .addEmbed(embedBuilder);
+        if (replyEmbed) {
+            builder = builder.setFlags(InteractionCallbackDataFlag.EPHEMERAL);
+        }
+        return Mono.fromFuture(builder.respond())
                 .onErrorResume(t -> handleException("Error on replay ephemeral", t, true).ofType(InteractionOriginalResponseUpdater.class))
                 .then();
 
     }
 
     @Override
-    public Mono<Long> createButtonMessage(@NonNull String buttonMessage, @NonNull List<ComponentRowDefinition> buttons) {
-        return createButtonMessage(event.getInteraction().getChannel().orElseThrow(), buttonMessage, buttons)
+    public Mono<Long> createButtonMessage(@NonNull MessageDefinition messageDefinition) {
+        return createButtonMessage(event.getInteraction().getChannel().orElseThrow(), messageDefinition)
                 .onErrorResume(t -> handleException("Error on creating button message", t, false).ofType(Message.class))
                 .map(DiscordEntity::getId);
     }
 
     @Override
-    public Mono<Void> createResultMessageWithEventReference(Answer answer) {
+    public Mono<Void> createResultMessageWithEventReference(EmbedDefinition answer) {
         return createEmbedMessageWithReference(event.getInteraction().getChannel().orElseThrow(),
                 answer,
                 event.getInteraction().getUser(),

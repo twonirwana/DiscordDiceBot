@@ -1,7 +1,7 @@
 package de.janno.discord.bot.dice;
 
 import com.google.common.collect.ImmutableList;
-import de.janno.discord.connector.api.Answer;
+import de.janno.discord.connector.api.message.EmbedDefinition;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -66,7 +66,11 @@ class DiceParserHelperTest {
     @ParameterizedTest(name = "{index} config={0} -> {1}")
     @MethodSource("generateValidateData")
     void validate(List<String> optionValue, String expected) {
-        assertThat(underTest.validateListOfExpressions(optionValue, "@", ",", "/custom_dice help")).isEqualTo(expected);
+        if (expected == null) {
+            assertThat(underTest.validateListOfExpressions(optionValue, "@", ",", "/custom_dice help")).isEmpty();
+        } else {
+            assertThat(underTest.validateListOfExpressions(optionValue, "@", ",", "/custom_dice help")).contains(expected);
+        }
     }
 
 
@@ -99,70 +103,70 @@ class DiceParserHelperTest {
     @Test
     void validateDiceExpressions() {
         assertThat(underTest.validateDiceExpression("1d4/", "test"))
-                .isEqualTo("The following dice expression are invalid: '1d4/'. Use test to get more information on how to use the command.");
+                .contains("The following dice expression are invalid: '1d4/'. Use test to get more information on how to use the command.");
     }
 
     @Test
     void roll_3x3d6() {
-        Answer res = underTest.roll("3x[3d6]", null);
+        EmbedDefinition res = underTest.roll("3x[3d6]", null);
 
         assertThat(res.getFields()).hasSize(3);
-        assertThat(res.getContent()).isNull();
+        assertThat(res.getDescription()).isNull();
         assertThat(res.getTitle()).isEqualTo("Multiple Results");
     }
 
     @Test
     void roll_3d6() {
-        Answer res = underTest.roll("3d6", null);
+        EmbedDefinition res = underTest.roll("3d6", null);
 
         assertThat(res.getFields()).hasSize(0);
-        assertThat(res.getContent()).isNotEmpty();
+        assertThat(res.getDescription()).isNotEmpty();
         assertThat(res.getTitle()).startsWith("3d6 = ");
     }
 
     @Test
     void roll_plus3d6() {
-        Answer res = underTest.roll("+3d6", null);
+        EmbedDefinition res = underTest.roll("+3d6", null);
 
         assertThat(res.getFields()).hasSize(0);
-        assertThat(res.getContent()).isNotEmpty();
+        assertThat(res.getDescription()).isNotEmpty();
         assertThat(res.getTitle()).startsWith("3d6 = ");
     }
 
     @Test
     void roll_3x3d6Label() {
-        Answer res = underTest.roll("3x[3d6]", "Label");
+        EmbedDefinition res = underTest.roll("3x[3d6]", "Label");
 
         assertThat(res.getFields()).hasSize(3);
-        assertThat(res.getContent()).isNull();
+        assertThat(res.getDescription()).isNull();
         assertThat(res.getTitle()).isEqualTo("Label");
     }
 
     @Test
     void roll_3d6Label() {
-        Answer res = underTest.roll("3d6", "Label");
+        EmbedDefinition res = underTest.roll("3d6", "Label");
 
         assertThat(res.getFields()).hasSize(0);
-        assertThat(res.getContent()).isNotEmpty();
+        assertThat(res.getDescription()).isNotEmpty();
         assertThat(res.getTitle()).startsWith("Label: 3d6 = ");
     }
 
     @Test
     void roll_overflow() {
-        Answer res = underTest.roll("2147483647+1", "Label");
+        EmbedDefinition res = underTest.roll("2147483647+1", "Label");
 
         assertThat(res.getFields()).hasSize(0);
-        assertThat(res.getContent()).isNotEmpty();
+        assertThat(res.getDescription()).isNotEmpty();
         assertThat(res.getTitle()).isEqualTo("Label: Arithmetic Error");
-        assertThat(res.getContent()).isEqualTo("Executing '2147483647+1' resulting in: integer overflow");
+        assertThat(res.getDescription()).isEqualTo("Executing '2147483647+1' resulting in: integer overflow");
     }
 
     @Test
     void roll_overflow_multiple() {
-        Answer res = underTest.roll("3x[2147483647+1]", "Label");
+        EmbedDefinition res = underTest.roll("3x[2147483647+1]", "Label");
 
         assertThat(res.getFields()).hasSize(3);
-        assertThat(res.getContent()).isNull();
+        assertThat(res.getDescription()).isNull();
         assertThat(res.getTitle()).isEqualTo("Label");
         assertThat(res.getFields().get(0).getName()).isEqualTo("Arithmetic Error");
         assertThat(res.getFields().get(0).getValue()).isEqualTo("Executing '2147483647+1' resulting in: integer overflow");
