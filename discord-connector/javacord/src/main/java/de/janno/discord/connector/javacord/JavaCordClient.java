@@ -27,14 +27,15 @@ import java.util.concurrent.ConcurrentSkipListSet;
 public class JavaCordClient {
 
     public static final String CONFIG_DELIMITER = ",";
-    public static final Duration startUpBuffer = Duration.of(5, ChronoUnit.MINUTES);
+    public static final Duration START_UP_BUFFER = Duration.of(5, ChronoUnit.MINUTES);
 
     private static String getCommandNameFromCustomId(String customId) {
         return customId.split(CONFIG_DELIMITER)[0];
     }
 
     public void start(String token, boolean disableCommandUpdate, List<ISlashCommand> commands, MessageDefinition welcomeMessageDefinition) {
-        LocalDateTime startTimePlusBuffer = LocalDateTime.now().plus(startUpBuffer);
+        LocalDateTime startTimePlusBuffer = LocalDateTime.now().plus(START_UP_BUFFER);
+        Scheduler scheduler = Schedulers.boundedElastic();
         Set<Long> botInGuildIdSet = new ConcurrentSkipListSet<>();
 
         DiscordApi api = new DiscordApiBuilder()
@@ -57,8 +58,9 @@ public class JavaCordClient {
                             event.getServer().getSystemChannel()
                                     .flatMap(Channel::asTextChannel)
                                     .filter(TextChannel::canYouWrite)
-                                    .ifPresent(s -> Mono.fromFuture(s.sendMessage(welcomeMessageDefinition.getContent(),
+                                    .ifPresent(textChannel -> Mono.fromFuture(textChannel.sendMessage(welcomeMessageDefinition.getContent(),
                                                     MessageComponentConverter.messageComponent2MessageLayout(welcomeMessageDefinition.getComponentRowDefinitions())))
+                                            .subscribeOn(scheduler)
                                             .subscribe());
                         }
                     }
@@ -80,7 +82,6 @@ public class JavaCordClient {
                 .addSlashCommands(commands)
                 .registerSlashCommands(api, disableCommandUpdate);
 
-        Scheduler scheduler = Schedulers.boundedElastic();
 
         api.addSlashCommandCreateListener(event -> {
             Stopwatch stopwatch = Stopwatch.createStarted();
