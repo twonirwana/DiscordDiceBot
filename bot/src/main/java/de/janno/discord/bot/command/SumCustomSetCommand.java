@@ -7,10 +7,11 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import de.janno.discord.bot.cache.ButtonMessageCache;
 import de.janno.discord.bot.dice.DiceParserHelper;
-import de.janno.discord.connector.api.*;
+import de.janno.discord.connector.api.IButtonEventAdaptor;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
 import de.janno.discord.connector.api.message.EmbedDefinition;
+import de.janno.discord.connector.api.message.MessageDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinitionOption;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import lombok.NonNull;
@@ -18,6 +19,7 @@ import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -35,7 +37,7 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetCommand.Con
     private static final String INVOKING_USER_NAME_DELIMITER = "\u2236 ";
     private static final String LABEL_DELIMITER = "@";
     private final DiceParserHelper diceParserHelper;
-
+    private static final ButtonMessageCache BUTTON_MESSAGE_CACHE = new ButtonMessageCache(COMMAND_NAME);
 
     public SumCustomSetCommand() {
         this(new DiceParserHelper());
@@ -43,12 +45,12 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetCommand.Con
 
     @VisibleForTesting
     public SumCustomSetCommand(DiceParserHelper diceParserHelper) {
-        super(new ButtonMessageCache(COMMAND_NAME));
+        super(BUTTON_MESSAGE_CACHE);
         this.diceParserHelper = diceParserHelper;
     }
 
     @Override
-    protected String getCommandDescription() {
+    protected @NonNull String getCommandDescription() {
         return "Configure a variable set of dice";
     }
 
@@ -76,7 +78,7 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetCommand.Con
     }
 
     @Override
-    protected String getStartOptionsValidationMessage(CommandInteractionOption options) {
+    protected Optional<String> getStartOptionsValidationMessage(CommandInteractionOption options) {
         List<String> diceExpressionWithOptionalLabel = DICE_COMMAND_OPTIONS_IDS.stream()
                 .flatMap(id -> options.getStingSubOptionWithName(id).stream())
                 .distinct()
@@ -85,13 +87,13 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetCommand.Con
                 .filter(s -> s.contains("x["))
                 .collect(Collectors.joining(","));
         if (!Strings.isNullOrEmpty(expressionsWithMultiRoll)) {
-            return String.format("This command doesn't support multiple rolls, the following expression are not allowed: %s", expressionsWithMultiRoll);
+            return Optional.of(String.format("This command doesn't support multiple rolls, the following expression are not allowed: %s", expressionsWithMultiRoll));
         }
         String expressionWithUserNameDelimiter = diceExpressionWithOptionalLabel.stream()
                 .filter(s -> s.contains(INVOKING_USER_NAME_DELIMITER))
                 .collect(Collectors.joining(","));
         if (!Strings.isNullOrEmpty(expressionWithUserNameDelimiter)) {
-            return String.format("This command doesn't allow '%s' in the dice expression and label, the following expression are not allowed: %s", INVOKING_USER_NAME_DELIMITER, expressionWithUserNameDelimiter);
+            return Optional.of(String.format("This command doesn't allow '%s' in the dice expression and label, the following expression are not allowed: %s", INVOKING_USER_NAME_DELIMITER, expressionWithUserNameDelimiter));
         }
         return diceParserHelper.validateListOfExpressions(diceExpressionWithOptionalLabel, LABEL_DELIMITER, CONFIG_DELIMITER, "/sum_custom_set help");
     }
@@ -108,53 +110,57 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetCommand.Con
     }
 
     @Override
-    protected Answer getAnswer(State state, Config config) {
+    protected Optional<EmbedDefinition> getAnswer(State state, Config config) {
+        if (!(ROLL_BUTTON_ID.equals(state.getButtonValue()) && !state.getDiceExpression().isEmpty())) {
+            return Optional.empty();
+        }
         String label = config.getLabelAndExpression().stream()
                 .filter(ld -> !ld.getDiceExpression().equals(ld.getLabel()))
                 .filter(ld -> ld.getDiceExpression().equals(state.getDiceExpression()))
                 .map(LabelAndDiceExpression::getLabel)
                 .findFirst().orElse(null);
-        return diceParserHelper.roll(state.getDiceExpression(), label);
+        return Optional.of(diceParserHelper.roll(state.getDiceExpression(), label));
     }
 
     @Override
-    protected String getButtonMessage(Config config) {
-        return EMPTY_MESSAGE;
+    protected MessageDefinition getButtonMessage(Config config) {
+        return MessageDefinition.builder()
+                .content(EMPTY_MESSAGE)
+                .componentRowDefinitions(createButtonLayout(config))
+                .build();
     }
 
     @Override
-    protected String getButtonMessageWithState(State state, Config config) {
-        return EMPTY_MESSAGE;
+    protected Optional<MessageDefinition> getButtonMessageWithState(State state, Config config) {
+        if (ROLL_BUTTON_ID.equals(state.getButtonValue()) && !Strings.isNullOrEmpty(state.getDiceExpression())) {
+            return Optional.of(MessageDefinition.builder()
+                    .content(EMPTY_MESSAGE)
+                    .componentRowDefinitions(createButtonLayout(config))
+                    .build());
+
+        }
+        return Optional.empty();
     }
 
     @Override
-    protected String getEditButtonMessage(State state, Config config) {
+    protected Optional<String> getEditButtonMessage(State state, Config config) {
         if (ROLL_BUTTON_ID.equals(state.getButtonValue())) {
-            return EMPTY_MESSAGE;
+            return Optional.of(EMPTY_MESSAGE);
         } else if (CLEAR_BUTTON_ID.equals(state.getButtonValue())) {
-            return EMPTY_MESSAGE;
+            return Optional.of(EMPTY_MESSAGE);
         } else {
             if (Strings.isNullOrEmpty(state.getDiceExpression())) {
-                return EMPTY_MESSAGE;
+                return Optional.of(EMPTY_MESSAGE);
             }
             if (Strings.isNullOrEmpty(state.getLockedForUserName())) {
-                return state.getDiceExpression();
+                return Optional.of(state.getDiceExpression());
             } else {
                 String cleanName = state.getLockedForUserName().replace(INVOKING_USER_NAME_DELIMITER, "");
-                return String.format("%s%s%s", cleanName, INVOKING_USER_NAME_DELIMITER, state.getDiceExpression());
+                return Optional.of(String.format("%s%s%s", cleanName, INVOKING_USER_NAME_DELIMITER, state.getDiceExpression()));
             }
         }
     }
 
-    @Override
-    protected boolean createAnswerMessage(State state, Config config) {
-        return ROLL_BUTTON_ID.equals(state.getButtonValue()) && !state.getDiceExpression().isEmpty();
-    }
-
-    @Override
-    protected boolean copyButtonMessageToTheEnd(State state, Config config) {
-        return ROLL_BUTTON_ID.equals(state.getButtonValue()) && !Strings.isNullOrEmpty(state.getDiceExpression());
-    }
 
     @Override
     protected Config getConfigFromEvent(IButtonEventAdaptor event) {
@@ -261,23 +267,6 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetCommand.Con
                 .collect(Collectors.toList()));
     }
 
-    @Override
-    public boolean matchingComponentCustomId(String buttonCustomId) {
-        return buttonCustomId.startsWith(COMMAND_NAME + CONFIG_DELIMITER);
-    }
-
-    @Override
-    protected List<ComponentRowDefinition> getButtonLayoutWithState(
-            State state,
-            Config config) {
-        return createButtonLayout(config);
-    }
-
-    @Override
-    protected List<ComponentRowDefinition> getButtonLayout(
-            Config config) {
-        return createButtonLayout(config);
-    }
 
     private List<ComponentRowDefinition> createButtonLayout(Config config) {
         List<ButtonDefinition> buttons = config.getLabelAndExpression().stream()

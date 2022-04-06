@@ -6,19 +6,21 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import de.janno.discord.bot.cache.ButtonMessageCache;
-import de.janno.discord.connector.api.*;
+import de.janno.discord.bot.dice.DiceUtils;
+import de.janno.discord.connector.api.IButtonEventAdaptor;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
 import de.janno.discord.connector.api.message.EmbedDefinition;
+import de.janno.discord.connector.api.message.MessageDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinitionOption;
 import de.janno.discord.connector.api.slash.CommandDefinitionOptionChoice;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
-import de.janno.discord.bot.dice.DiceUtils;
 import lombok.NonNull;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -40,6 +42,7 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesCommand
     private static final String GLITCH_COUNT_ONES = "count_ones";
     private static final String GLITCH_SUBTRACT_ONES = "subtract_ones";
     private final DiceUtils diceUtils;
+    private static final ButtonMessageCache BUTTON_MESSAGE_CACHE = new ButtonMessageCache(COMMAND_NAME);
 
     public CountSuccessesCommand() {
         this(new DiceUtils());
@@ -47,7 +50,7 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesCommand
 
     @VisibleForTesting
     public CountSuccessesCommand(DiceUtils diceUtils) {
-        super(new ButtonMessageCache(COMMAND_NAME));
+        super(BUTTON_MESSAGE_CACHE);
         this.diceUtils = diceUtils;
     }
 
@@ -73,7 +76,7 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesCommand
     }
 
     @Override
-    protected String getCommandDescription() {
+    protected @NonNull String getCommandDescription() {
         return "Configure buttons for dice, with the same side, that counts successes against a target number";
     }
 
@@ -125,7 +128,7 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesCommand
     }
 
     @Override
-    protected Answer getAnswer(State state, Config config) {
+    protected Optional<EmbedDefinition> getAnswer(State state, Config config) {
         List<Integer> rollResult = diceUtils.rollDiceOfType(state.getNumberOfDice(), config.getDiceSides()).stream()
                 .sorted()
                 .collect(Collectors.toList());
@@ -138,35 +141,35 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesCommand
         };
     }
 
-    private Answer noneGlitch(int numberOfDice, int sidesOfDie, int targetNumber, List<Integer> rollResult) {
+    private Optional<EmbedDefinition> noneGlitch(int numberOfDice, int sidesOfDie, int targetNumber, List<Integer> rollResult) {
         int numberOfSuccesses = DiceUtils.numberOfDiceResultsGreaterEqual(rollResult, targetNumber);
         Set<Integer> toMark = IntStream.range(targetNumber, sidesOfDie + 1).boxed().collect(Collectors.toSet());
         String details = String.format("%s ≥%d = %s", CommandUtils.markIn(rollResult, toMark), targetNumber, numberOfSuccesses);
         String title = String.format("%dd%d = %d", numberOfDice, sidesOfDie, numberOfSuccesses);
-        return new Answer(title, details, ImmutableList.of());
+        return Optional.of(new EmbedDefinition(title, details, ImmutableList.of()));
     }
 
-    private Answer countOnesGlitch(int numberOfDice, int sidesOfDie, int targetNumber, List<Integer> rollResult) {
+    private Optional<EmbedDefinition> countOnesGlitch(int numberOfDice, int sidesOfDie, int targetNumber, List<Integer> rollResult) {
         int numberOfSuccesses = DiceUtils.numberOfDiceResultsGreaterEqual(rollResult, targetNumber);
         int numberOfOnes = DiceUtils.numberOfDiceResultsEqual(rollResult, ImmutableSet.of(1));
         Set<Integer> toMark = IntStream.range(targetNumber, sidesOfDie + 1).boxed().collect(Collectors.toSet());
         toMark.add(1);
         String details = String.format("%s ≥%d = %s", CommandUtils.markIn(rollResult, toMark), targetNumber, numberOfSuccesses);
         String title = String.format("%dd%d = %d successes and %d ones", numberOfDice, sidesOfDie, numberOfSuccesses, numberOfOnes);
-        return new Answer(title, details, ImmutableList.of());
+        return Optional.of(new EmbedDefinition(title, details, ImmutableList.of()));
     }
 
-    private Answer subtractOnesGlitch(int numberOfDice, int sidesOfDie, int targetNumber, List<Integer> rollResult) {
+    private Optional<EmbedDefinition> subtractOnesGlitch(int numberOfDice, int sidesOfDie, int targetNumber, List<Integer> rollResult) {
         int numberOfSuccesses = DiceUtils.numberOfDiceResultsGreaterEqual(rollResult, targetNumber);
         int numberOfOnes = DiceUtils.numberOfDiceResultsEqual(rollResult, ImmutableSet.of(1));
         Set<Integer> toMark = IntStream.range(targetNumber, sidesOfDie + 1).boxed().collect(Collectors.toSet());
         toMark.add(1);
         String details = String.format("%s ≥%d -1s = %s", CommandUtils.markIn(rollResult, toMark), targetNumber, numberOfSuccesses - numberOfOnes);
         String title = String.format("%dd%d = %d", numberOfDice, sidesOfDie, numberOfSuccesses - numberOfOnes);
-        return new Answer(title, details, ImmutableList.of());
+        return Optional.of(new EmbedDefinition(title, details, ImmutableList.of()));
     }
 
-    private Answer halfOnesGlitch(int numberOfDice, int sidesOfDie, int targetNumber, List<Integer> rollResult) {
+    private Optional<EmbedDefinition> halfOnesGlitch(int numberOfDice, int sidesOfDie, int targetNumber, List<Integer> rollResult) {
         boolean isGlitch = DiceUtils.numberOfDiceResultsEqual(rollResult, ImmutableSet.of(1)) > (numberOfDice / 2);
         int numberOfSuccesses = DiceUtils.numberOfDiceResultsGreaterEqual(rollResult, targetNumber);
         String glitchDescription = isGlitch ? " and more then half of all dice show 1s" : "";
@@ -177,17 +180,20 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesCommand
         String details = String.format("%s ≥%d = %s%s", CommandUtils.markIn(rollResult, toMark), targetNumber, numberOfSuccesses, glitchDescription);
         String glitch = isGlitch ? " - Glitch!" : "";
         String title = String.format("%dd%d = %d%s", numberOfDice, sidesOfDie, numberOfSuccesses, glitch);
-        return new Answer(title, details, ImmutableList.of());
+        return Optional.of(new EmbedDefinition(title, details, ImmutableList.of()));
     }
 
     @Override
-    protected String getButtonMessageWithState(State state, Config config) {
-        return String.format("Click to roll the dice against %s%s", config.getTarget(), getGlitchDescription(config));
+    protected Optional<MessageDefinition> getButtonMessageWithState(State state, Config config) {
+        return Optional.of(getButtonMessage(config));
     }
 
     @Override
-    protected String getButtonMessage(Config config) {
-        return String.format("Click to roll the dice against %s%s", config.getTarget(), getGlitchDescription(config));
+    protected MessageDefinition getButtonMessage(Config config) {
+        return MessageDefinition.builder()
+                .content(String.format("Click to roll the dice against %s%s", config.getTarget(), getGlitchDescription(config)))
+                .componentRowDefinitions(createButtonLayout(config))
+                .build();
     }
 
     private String getGlitchDescription(Config config) {
@@ -214,21 +220,6 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesCommand
                 .map(l -> Math.min(l, MAX_NUMBER_OF_DICE))
                 .orElse(15L));
         return new Config(sideValue, targetValue, glitchOption, maxDice);
-    }
-
-    @Override
-    public boolean matchingComponentCustomId(String buttonCustomId) {
-        return buttonCustomId.startsWith(COMMAND_NAME + CONFIG_DELIMITER);
-    }
-
-    @Override
-    protected List<ComponentRowDefinition> getButtonLayoutWithState(State state, Config config) {
-        return createButtonLayout(config);
-    }
-
-    @Override
-    protected List<ComponentRowDefinition> getButtonLayout(Config config) {
-        return createButtonLayout(config);
     }
 
     private List<ComponentRowDefinition> createButtonLayout(Config config) {

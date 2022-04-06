@@ -1,14 +1,12 @@
 package de.janno.discord.bot.command;
 
 import com.google.common.collect.ImmutableList;
-import de.janno.discord.bot.command.DirectRollCommand;
-import de.janno.discord.connector.api.Answer;
+import de.janno.discord.bot.dice.DiceParserHelper;
+import de.janno.discord.bot.dice.IDice;
 import de.janno.discord.connector.api.ISlashEventAdaptor;
 import de.janno.discord.connector.api.Requester;
 import de.janno.discord.connector.api.message.EmbedDefinition;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
-import de.janno.discord.bot.dice.DiceParserHelper;
-import de.janno.discord.bot.dice.IDice;
 import dev.diceroll.parser.NDice;
 import dev.diceroll.parser.ResultTree;
 import org.junit.jupiter.api.BeforeEach;
@@ -63,10 +61,10 @@ class DirectRollCommandTest {
         verify(slashEventAdaptor).reply("/r expression:1d6");
         verify(slashEventAdaptor).getOption("expression");
         verify(slashEventAdaptor, times(2)).getCommandString();
-        verify(slashEventAdaptor, never()).createButtonMessage(any(), any());
+        verify(slashEventAdaptor, never()).createButtonMessage(any());
         verify(slashEventAdaptor, never()).deleteMessage(anyLong());
-        verify(slashEventAdaptor, never()).replyEphemeral(any());
-        verify(slashEventAdaptor).createResultMessageWithEventReference(ArgumentMatchers.eq(new Answer("Test Label: 1d6 = 3", "[3]", ImmutableList.of())));
+        verify(slashEventAdaptor, never()).replyEmbed(any(), anyBoolean());
+        verify(slashEventAdaptor).createResultMessageWithEventReference(ArgumentMatchers.eq(new EmbedDefinition("Test Label: 1d6 = 3", "[3]", ImmutableList.of())));
 
         verify(slashEventAdaptor, never()).getChannelId();
     }
@@ -91,9 +89,9 @@ class DirectRollCommandTest {
         verify(slashEventAdaptor).checkPermissions();
         verify(slashEventAdaptor).getOption("expression");
         verify(slashEventAdaptor, times(1)).getCommandString();
-        verify(slashEventAdaptor, never()).createButtonMessage(any(), any());
+        verify(slashEventAdaptor, never()).createButtonMessage(any());
         verify(slashEventAdaptor, never()).deleteMessage(anyLong());
-        verify(slashEventAdaptor, never()).replyEphemeral(any());
+        verify(slashEventAdaptor, never()).replyEmbed(any(), anyBoolean());
         verify(slashEventAdaptor, never()).createResultMessageWithEventReference(any());
         verify(slashEventAdaptor, never()).deleteMessage(anyLong());
         verify(slashEventAdaptor).reply("/r expression:asdfasdf\n" +
@@ -112,7 +110,7 @@ class DirectRollCommandTest {
                 .build();
         when(slashEventAdaptor.getOption(any())).thenReturn(Optional.of(interactionOption));
         when(slashEventAdaptor.getChannelId()).thenReturn(1L);
-        when(slashEventAdaptor.replyEphemeral(any())).thenReturn(Mono.just(mock(Void.class)));
+        when(slashEventAdaptor.replyEmbed(any(), anyBoolean())).thenReturn(Mono.just(mock(Void.class)));
         when(slashEventAdaptor.getCommandString()).thenReturn("/r expression:help");
         when(slashEventAdaptor.getRequester()).thenReturn(Mono.just(new Requester("user", "channel", "guild")));
 
@@ -125,13 +123,13 @@ class DirectRollCommandTest {
         verify(slashEventAdaptor).checkPermissions();
         verify(slashEventAdaptor).getOption("expression");
         verify(slashEventAdaptor, times(1)).getCommandString();
-        verify(slashEventAdaptor, never()).createButtonMessage(any(), any());
+        verify(slashEventAdaptor, never()).createButtonMessage(any());
         verify(slashEventAdaptor, never()).deleteMessage(anyLong());
         verify(slashEventAdaptor, never()).createResultMessageWithEventReference(any());
         verify(slashEventAdaptor, never()).deleteMessage(anyLong());
-        verify(slashEventAdaptor).replyEphemeral(EmbedDefinition.builder()
+        verify(slashEventAdaptor).replyEmbed(EmbedDefinition.builder()
                 .description("Type /r and a dice expression e.g. `/r 1d6` \n" + DiceParserHelper.HELP)
-                .build());
+                .build(), true);
 
         verify(slashEventAdaptor, never()).getChannelId();
     }

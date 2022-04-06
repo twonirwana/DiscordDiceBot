@@ -1,18 +1,36 @@
 package de.janno.discord.connector.api.message;
 
-import lombok.Builder;
-import lombok.NonNull;
-import lombok.Singular;
-import lombok.Value;
+import com.google.common.base.Strings;
+import lombok.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Value
 @Builder
+@AllArgsConstructor
 public class EmbedDefinition {
+    private static final String MINUS = "\u2212";
+
+    String title;
     String description;
     @Singular
     List<Field> fields;
+
+    public String toShortString() {
+        List<String> fieldStringList = fields.stream()
+                .map(EmbedDefinition.Field::toShortString)
+                .collect(Collectors.toList());
+
+        return String.format("%s %s %s", title,
+                        Strings.isNullOrEmpty(description) ? "" : description,
+                        fieldStringList.isEmpty() ? "" : fieldStringList.toString())
+                .replace("▢", "0")
+                .replace("＋", "+")
+                .replace(MINUS, "-")
+                .replace("*", "");
+    }
+
 
     @Value
     public static class Field {
@@ -21,5 +39,10 @@ public class EmbedDefinition {
         @NonNull
         String value;
         boolean inline;
+
+        public String toShortString() {
+            return String.format("%s %s", name, value);
+        }
+
     }
 }

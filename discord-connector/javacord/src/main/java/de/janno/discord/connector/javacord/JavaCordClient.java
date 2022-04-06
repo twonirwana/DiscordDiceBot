@@ -4,15 +4,21 @@ import com.google.common.base.Stopwatch;
 import de.janno.discord.connector.api.IComponentInteractEventHandler;
 import de.janno.discord.connector.api.ISlashCommand;
 import de.janno.discord.connector.api.Requester;
+import de.janno.discord.connector.api.message.MessageDefinition;
 import lombok.extern.slf4j.Slf4j;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.DiscordApiBuilder;
 import org.javacord.api.entity.Nameable;
+import org.javacord.api.entity.channel.Channel;
+import org.javacord.api.entity.channel.TextChannel;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentSkipListSet;
@@ -21,12 +27,14 @@ import java.util.concurrent.ConcurrentSkipListSet;
 public class JavaCordClient {
 
     public static final String CONFIG_DELIMITER = ",";
+    public static final Duration startUpBuffer = Duration.of(5, ChronoUnit.MINUTES);
 
     private static String getCommandNameFromCustomId(String customId) {
         return customId.split(CONFIG_DELIMITER)[0];
     }
 
-    public void start(String token, boolean disableCommandUpdate, List<ISlashCommand> commands) {
+    public void start(String token, boolean disableCommandUpdate, List<ISlashCommand> commands, MessageDefinition welcomeMessageDefinition) {
+        LocalDateTime startTimePlusBuffer = LocalDateTime.now().plus(startUpBuffer);
         Set<Long> botInGuildIdSet = new ConcurrentSkipListSet<>();
 
         DiscordApi api = new DiscordApiBuilder()
@@ -45,6 +53,14 @@ public class JavaCordClient {
                         log.info("Bot started in guild: name='{}', description='{}', memberCount={}", event.getServer().getName(),
                                 event.getServer().getDescription().orElse(""), event.getServer().getMemberCount());
                         botInGuildIdSet.add(event.getServer().getId());
+                        if (LocalDateTime.now().isAfter(startTimePlusBuffer)) {
+                            event.getServer().getSystemChannel()
+                                    .flatMap(Channel::asTextChannel)
+                                    .filter(TextChannel::canYouWrite)
+                                    .ifPresent(s -> Mono.fromFuture(s.sendMessage(welcomeMessageDefinition.getContent(),
+                                                    MessageComponentConverter.messageComponent2MessageLayout(welcomeMessageDefinition.getComponentRowDefinitions())))
+                                            .subscribe());
+                        }
                     }
                 })
                 .addServerLeaveListener(event -> {

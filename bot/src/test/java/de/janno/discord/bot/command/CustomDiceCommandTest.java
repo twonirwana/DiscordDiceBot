@@ -2,18 +2,18 @@ package de.janno.discord.bot.command;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import de.janno.discord.bot.command.CustomDiceCommand;
-import de.janno.discord.connector.api.Answer;
+import de.janno.discord.bot.cache.ButtonMessageCache;
+import de.janno.discord.bot.dice.DiceParserHelper;
+import de.janno.discord.bot.dice.IDice;
 import de.janno.discord.connector.api.IButtonEventAdaptor;
 import de.janno.discord.connector.api.ISlashEventAdaptor;
 import de.janno.discord.connector.api.Requester;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
+import de.janno.discord.connector.api.message.EmbedDefinition;
+import de.janno.discord.connector.api.message.MessageDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinitionOption;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
-import de.janno.discord.bot.cache.ButtonMessageCache;
-import de.janno.discord.bot.dice.DiceParserHelper;
-import de.janno.discord.bot.dice.IDice;
 import dev.diceroll.parser.Dice;
 import dev.diceroll.parser.NDice;
 import dev.diceroll.parser.ResultTree;
@@ -22,7 +22,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.mockito.ArgumentMatchers;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -31,7 +30,6 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 class CustomDiceCommandTest {
@@ -61,14 +59,14 @@ class CustomDiceCommandTest {
 
     @Test
     void getButtonMessageWithState() {
-        String res = underTest.getButtonMessageWithState(new CustomDiceCommand.State("1d6"), new CustomDiceCommand.Config(ImmutableList.of()));
+        String res = underTest.getButtonMessageWithState(new CustomDiceCommand.State("1d6"), new CustomDiceCommand.Config(ImmutableList.of())).get().getContent();
 
         assertThat(res).isEqualTo("Click on a button to roll the dice");
     }
 
     @Test
     void getButtonMessage() {
-        String res = underTest.getButtonMessage(new CustomDiceCommand.Config(ImmutableList.of()));
+        String res = underTest.getButtonMessage(new CustomDiceCommand.Config(ImmutableList.of())).getContent();
 
         assertThat(res).isEqualTo("Click on a button to roll the dice");
     }
@@ -93,38 +91,38 @@ class CustomDiceCommandTest {
     @Test
     void getDiceResult_1d6() {
         when(diceMock.detailedRoll("1d6")).thenReturn(new ResultTree(new NDice(6, 1), 3, ImmutableList.of()));
-        Answer res = underTest.getAnswer(new CustomDiceCommand.State("1d6"), new CustomDiceCommand.Config(ImmutableList.of(new CustomDiceCommand.LabelAndDiceExpression("1d6", "1d6"))));
+        EmbedDefinition res = underTest.getAnswer(new CustomDiceCommand.State("1d6"), new CustomDiceCommand.Config(ImmutableList.of(new CustomDiceCommand.LabelAndDiceExpression("1d6", "1d6")))).get();
 
         assertThat(res.getFields()).hasSize(0);
         assertThat(res.getTitle()).isEqualTo("1d6 = 3");
-        assertThat(res.getContent()).isEqualTo("[3]");
+        assertThat(res.getDescription()).isEqualTo("[3]");
     }
 
     @Test
     void getDiceResult_3x1d6() {
         when(diceMock.detailedRoll("1d6")).thenReturn(new ResultTree(new NDice(6, 1), 6, ImmutableList.of()));
-        Answer res = underTest.getAnswer(new CustomDiceCommand.State("3x[1d6]"), new CustomDiceCommand.Config(ImmutableList.of(new CustomDiceCommand.LabelAndDiceExpression("3x[1d6]", "3x[1d6]"))));
+        EmbedDefinition res = underTest.getAnswer(new CustomDiceCommand.State("3x[1d6]"), new CustomDiceCommand.Config(ImmutableList.of(new CustomDiceCommand.LabelAndDiceExpression("3x[1d6]", "3x[1d6]")))).get();
 
-        assertThat(res).isEqualTo(new Answer("Multiple Results", null, ImmutableList.of(new Answer.Field("1d6 = 6", "[6]", false), new Answer.Field("1d6 = 6", "[6]", false), new Answer.Field("1d6 = 6", "[6]", false))));
+        assertThat(res).isEqualTo(new EmbedDefinition("Multiple Results", null, ImmutableList.of(new EmbedDefinition.Field("1d6 = 6", "[6]", false), new EmbedDefinition.Field("1d6 = 6", "[6]", false), new EmbedDefinition.Field("1d6 = 6", "[6]", false))));
     }
 
 
     @Test
     void getDiceResult_1d6Label() {
         when(diceMock.detailedRoll("1d6")).thenReturn(new ResultTree(new NDice(6, 1), 3, ImmutableList.of()));
-        Answer res = underTest.getAnswer(new CustomDiceCommand.State("1d6"), new CustomDiceCommand.Config(ImmutableList.of(new CustomDiceCommand.LabelAndDiceExpression("Label", "1d6"))));
+        EmbedDefinition res = underTest.getAnswer(new CustomDiceCommand.State("1d6"), new CustomDiceCommand.Config(ImmutableList.of(new CustomDiceCommand.LabelAndDiceExpression("Label", "1d6")))).get();
 
         assertThat(res.getFields()).hasSize(0);
         assertThat(res.getTitle()).isEqualTo("Label: 1d6 = 3");
-        assertThat(res.getContent()).isEqualTo("[3]");
+        assertThat(res.getDescription()).isEqualTo("[3]");
     }
 
     @Test
     void getDiceResult_3x1d6Label() {
         when(diceMock.detailedRoll("1d6")).thenReturn(new ResultTree(new NDice(6, 1), 6, ImmutableList.of()));
-        Answer res = underTest.getAnswer(new CustomDiceCommand.State("3x[1d6]"), new CustomDiceCommand.Config(ImmutableList.of(new CustomDiceCommand.LabelAndDiceExpression("Label", "3x[1d6]"))));
+        EmbedDefinition res = underTest.getAnswer(new CustomDiceCommand.State("3x[1d6]"), new CustomDiceCommand.Config(ImmutableList.of(new CustomDiceCommand.LabelAndDiceExpression("Label", "3x[1d6]")))).get();
 
-        assertThat(res).isEqualTo(new Answer("Label", null, ImmutableList.of(new Answer.Field("1d6 = 6", "[6]", false), new Answer.Field("1d6 = 6", "[6]", false), new Answer.Field("1d6 = 6", "[6]", false))));
+        assertThat(res).isEqualTo(new EmbedDefinition("Label", null, ImmutableList.of(new EmbedDefinition.Field("1d6 = 6", "[6]", false), new EmbedDefinition.Field("1d6 = 6", "[6]", false), new EmbedDefinition.Field("1d6 = 6", "[6]", false))));
     }
 
     @Test
@@ -168,8 +166,8 @@ class CustomDiceCommandTest {
         when(buttonEventAdaptor.isPinned()).thenReturn(false);
         when(buttonEventAdaptor.editMessage(any())).thenReturn(Mono.just(mock(Void.class)));
         when(buttonEventAdaptor.createResultMessageWithEventReference(any())).thenReturn(Mono.just(mock(Void.class)));
-        when(buttonEventAdaptor.createButtonMessage(any(), any())).thenReturn(Mono.just(2L));
-        when(buttonEventAdaptor.deleteMessage(ArgumentMatchers.anyLong())).thenReturn(Mono.just(mock(Void.class)));
+        when(buttonEventAdaptor.createButtonMessage(any())).thenReturn(Mono.just(2L));
+        when(buttonEventAdaptor.deleteMessage(anyLong())).thenReturn(Mono.just(mock(Void.class)));
         when(buttonEventAdaptor.getRequester()).thenReturn(Mono.just(new Requester("user", "channel", "guild")));
         when(buttonEventAdaptor.acknowledge()).thenReturn(Mono.just(mock(Void.class)));
 
@@ -179,10 +177,12 @@ class CustomDiceCommandTest {
         StepVerifier.create(res).verifyComplete();
 
         verify(buttonEventAdaptor).editMessage("processing ...");
-        verify(buttonEventAdaptor).createButtonMessage(ArgumentMatchers.eq("Click on a button to roll the dice"), any());
-        verify(buttonEventAdaptor).deleteMessage(ArgumentMatchers.anyLong());
-        verify(buttonEventAdaptor).createResultMessageWithEventReference(ArgumentMatchers.eq(new Answer("1d6 = 3", "[3]", ImmutableList.of())));
-        assertThat(underTest.getButtonMessageCache()).hasSize(1).containsEntry(1L, ImmutableSet.of(new ButtonMessageCache.ButtonWithConfigHash(2L, 60)));
+        verify(buttonEventAdaptor).createButtonMessage(MessageDefinition.builder()
+                .content("Click on a button to roll the dice")
+                .build());
+        verify(buttonEventAdaptor).deleteMessage(anyLong());
+        verify(buttonEventAdaptor).createResultMessageWithEventReference(eq(new EmbedDefinition("1d6 = 3", "[3]", ImmutableList.of())));
+        assertThat(underTest.getButtonMessageCache()).containsEntry(1L, ImmutableSet.of(new ButtonMessageCache.ButtonWithConfigHash(2L, 60)));
 
         verify(buttonEventAdaptor, times(2)).getCustomId();
         verify(buttonEventAdaptor).getMessageId();
@@ -202,9 +202,9 @@ class CustomDiceCommandTest {
         when(buttonEventAdaptor.getMessageId()).thenReturn(1L);
         when(buttonEventAdaptor.isPinned()).thenReturn(true);
         when(buttonEventAdaptor.editMessage(any())).thenReturn(Mono.just(mock(Void.class)));
-        when(buttonEventAdaptor.createButtonMessage(any(), any())).thenReturn(Mono.just(2L));
+        when(buttonEventAdaptor.createButtonMessage(any())).thenReturn(Mono.just(2L));
         when(buttonEventAdaptor.createResultMessageWithEventReference(any())).thenReturn(Mono.just(mock(Void.class)));
-        when(buttonEventAdaptor.deleteMessage(ArgumentMatchers.anyLong())).thenReturn(Mono.just(mock(Void.class)));
+        when(buttonEventAdaptor.deleteMessage(anyLong())).thenReturn(Mono.just(mock(Void.class)));
         when(buttonEventAdaptor.getRequester()).thenReturn(Mono.just(new Requester("user", "channel", "guild")));
         when(buttonEventAdaptor.acknowledge()).thenReturn(Mono.just(mock(Void.class)));
 
@@ -213,10 +213,12 @@ class CustomDiceCommandTest {
 
 
         verify(buttonEventAdaptor).editMessage("Click on a button to roll the dice");
-        verify(buttonEventAdaptor).createButtonMessage(ArgumentMatchers.eq("Click on a button to roll the dice"), any());
-        verify(buttonEventAdaptor, never()).deleteMessage(ArgumentMatchers.anyLong());
-        verify(buttonEventAdaptor).createResultMessageWithEventReference(ArgumentMatchers.eq(new Answer("1d6 = 3", "[3]", ImmutableList.of())));
-        assertThat(underTest.getButtonMessageCache()).hasSize(1).containsEntry(1L, ImmutableSet.of(new ButtonMessageCache.ButtonWithConfigHash(2L, 60)));
+        verify(buttonEventAdaptor).createButtonMessage(MessageDefinition.builder()
+                .content("Click on a button to roll the dice")
+                .build());
+        verify(buttonEventAdaptor, never()).deleteMessage(anyLong());
+        verify(buttonEventAdaptor).createResultMessageWithEventReference(eq(new EmbedDefinition("1d6 = 3", "[3]", ImmutableList.of())));
+        assertThat(underTest.getButtonMessageCache()).containsEntry(1L, ImmutableSet.of(new ButtonMessageCache.ButtonWithConfigHash(2L, 60)));
 
         verify(buttonEventAdaptor, times(2)).getCustomId();
         verify(buttonEventAdaptor).getMessageId();
@@ -229,14 +231,16 @@ class CustomDiceCommandTest {
 
     @Test
     void getButtonLayoutWithState() {
-        List<ComponentRowDefinition> res = underTest.getButtonLayoutWithState(new CustomDiceCommand.State("2d6"), new CustomDiceCommand.Config(ImmutableList.of(new CustomDiceCommand.LabelAndDiceExpression("2d6", "2d6"), new CustomDiceCommand.LabelAndDiceExpression("Attack", "1d20"))));
+        List<ComponentRowDefinition> res = underTest.getButtonMessageWithState(new CustomDiceCommand.State("2d6"), new CustomDiceCommand.Config(ImmutableList.of(new CustomDiceCommand.LabelAndDiceExpression("2d6", "2d6"), new CustomDiceCommand.LabelAndDiceExpression("Attack", "1d20"))))
+                .get().getComponentRowDefinitions();
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel)).containsExactly("2d6", "Attack");
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getId)).containsExactly("custom_dice,2d6", "custom_dice,1d20");
     }
 
     @Test
     void getButtonLayout() {
-        List<ComponentRowDefinition> res = underTest.getButtonLayout(new CustomDiceCommand.Config(ImmutableList.of(new CustomDiceCommand.LabelAndDiceExpression("2d6", "2d6"), new CustomDiceCommand.LabelAndDiceExpression("Attack", "1d20"))));
+        List<ComponentRowDefinition> res = underTest.getButtonMessage(new CustomDiceCommand.Config(ImmutableList.of(new CustomDiceCommand.LabelAndDiceExpression("2d6", "2d6"), new CustomDiceCommand.LabelAndDiceExpression("Attack", "1d20"))))
+                .getComponentRowDefinitions();
 
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel)).containsExactly("2d6", "Attack");
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getId)).containsExactly("custom_dice,2d6", "custom_dice,1d20");
@@ -244,7 +248,7 @@ class CustomDiceCommandTest {
 
     @Test
     void editButtonMessage() {
-        assertThat(underTest.getEditButtonMessage(new CustomDiceCommand.State("2d6"), new CustomDiceCommand.Config(ImmutableList.of(new CustomDiceCommand.LabelAndDiceExpression("2d6", "2d6"), new CustomDiceCommand.LabelAndDiceExpression("Attack", "1d20"))))).isNull();
+        assertThat(underTest.getEditButtonMessage(new CustomDiceCommand.State("2d6"), new CustomDiceCommand.Config(ImmutableList.of(new CustomDiceCommand.LabelAndDiceExpression("2d6", "2d6"), new CustomDiceCommand.LabelAndDiceExpression("Attack", "1d20"))))).isEmpty();
     }
 
     @Test
@@ -266,8 +270,8 @@ class CustomDiceCommandTest {
                         .build())
                 .build()));
 
-        when(event.createButtonMessage(any(), any())).thenReturn(Mono.just(2L));
-        when(event.deleteMessage(ArgumentMatchers.anyLong())).thenReturn(Mono.just(mock(Void.class)));
+        when(event.createButtonMessage(any())).thenReturn(Mono.just(2L));
+        when(event.deleteMessage(anyLong())).thenReturn(Mono.just(mock(Void.class)));
         when(event.getRequester()).thenReturn(Mono.just(new Requester("user", "channel", "guild")));
         when(event.reply(any())).thenReturn(Mono.just(mock(Void.class)));
 
@@ -280,8 +284,9 @@ class CustomDiceCommandTest {
         verify(event).getCommandString();
         verify(event).getOption(any());
         verify(event).reply(any());
-        verify(event).createButtonMessage(eq("Click on a button to roll the dice"),
-                eq(ImmutableList.of(ComponentRowDefinition.builder()
+        verify(event).createButtonMessage(MessageDefinition.builder()
+                .content("Click on a button to roll the dice")
+                .componentRowDefinitions(ImmutableList.of(ComponentRowDefinition.builder()
                         .buttonDefinition(ButtonDefinition.builder()
                                 .id("custom_dice,1d6")
                                 .label("1d6")
@@ -294,7 +299,8 @@ class CustomDiceCommandTest {
                                 .id("custom_dice,3x[3d10]")
                                 .label("3x[3d10]")
                                 .build())
-                        .build())));
+                        .build()))
+                .build());
 
     }
 }

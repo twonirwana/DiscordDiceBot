@@ -6,10 +6,11 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import de.janno.discord.bot.cache.ButtonMessageCache;
 import de.janno.discord.bot.dice.DiceUtils;
-import de.janno.discord.connector.api.*;
+import de.janno.discord.connector.api.IButtonEventAdaptor;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
 import de.janno.discord.connector.api.message.EmbedDefinition;
+import de.janno.discord.connector.api.message.MessageDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinitionOption;
 import de.janno.discord.connector.api.slash.CommandDefinitionOptionChoice;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
@@ -62,6 +63,7 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetCommand.Config,
     private static final String EMPTY = "EMPTY";
 
     private final DiceUtils diceUtils;
+    private static final ButtonMessageCache BUTTON_MESSAGE_CACHE = new ButtonMessageCache(COMMAND_NAME);
 
     public PoolTargetCommand() {
         this(new DiceUtils());
@@ -69,12 +71,12 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetCommand.Config,
 
     @VisibleForTesting
     public PoolTargetCommand(DiceUtils diceUtils) {
-        super(new ButtonMessageCache(COMMAND_NAME));
+        super(BUTTON_MESSAGE_CACHE);
         this.diceUtils = diceUtils;
     }
 
     @Override
-    protected String getCommandDescription() {
+    protected @NonNull String getCommandDescription() {
         return "Roll dice and against a variable target";
     }
 
@@ -134,7 +136,10 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetCommand.Config,
     }
 
     @Override
-    protected Answer getAnswer(State state, Config config) {
+    protected Optional<EmbedDefinition> getAnswer(State state, Config config) {
+        if (state.getDicePool() == null || state.getTargetNumber() == null || state.getDoReroll() == null) {
+            return Optional.empty();
+        }
         List<Integer> rollResult = diceUtils.rollDiceOfType(state.getDicePool(), config.getDiceSides());
         if (state.getDoReroll()) {
             rollResult = diceUtils.explodingReroll(config.getDiceSides(), rollResult, config.getRerollSet());
@@ -152,7 +157,7 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetCommand.Config,
         }
         String details = String.format("%s ≥%d = %s", CommandUtils.markIn(rollResult, toMark), state.getTargetNumber(), totalResults);
         String title = String.format("%dd%d = %d", state.getDicePool(), config.getDiceSides(), totalResults);
-        return new Answer(title, details, ImmutableList.of());
+        return Optional.of(new EmbedDefinition(title, details, ImmutableList.of()));
     }
 
     @Override
@@ -201,12 +206,6 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetCommand.Config,
         return new State(null, null, null);
     }
 
-
-    @Override
-    protected boolean createAnswerMessage(State state, Config config) {
-        return state.getDicePool() != null && state.getTargetNumber() != null && state.getDoReroll() != null;
-    }
-
     @Override
     protected Config getConfigFromStartOptions(CommandInteractionOption options) {
         int sideValue = Math.toIntExact(options.getLongSubOptionWithName(SIDES_OF_DIE_OPTION)
@@ -226,16 +225,6 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetCommand.Config,
         return new Config(sideValue, maxButton, rerollSet, botchSet, rerollVariant);
     }
 
-    @Override
-    public boolean matchingComponentCustomId(String buttonCustomId) {
-        return buttonCustomId.startsWith(COMMAND_NAME + CONFIG_DELIMITER);
-    }
-
-    @Override
-    protected String getButtonMessage(Config config) {
-        String configDescription = getConfigDescription(config);
-        return String.format("Click on the buttons to roll dice%s", configDescription);
-    }
 
     private String getConfigDescription(Config config) {
         String rerollDescription = null;
@@ -256,26 +245,42 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetCommand.Config,
         return configDescription;
     }
 
+    @Override
+    protected MessageDefinition getButtonMessage(Config config) {
+        String configDescription = getConfigDescription(config);
+        return MessageDefinition.builder()
+                .content(String.format("Click on the buttons to roll dice%s", configDescription))
+                .componentRowDefinitions(createPoolButtonLayout(config))
+                .build();
+    }
 
     @Override
-    protected String getButtonMessageWithState(State state, Config config) {
+    protected Optional<MessageDefinition> getButtonMessageWithState(State state, Config config) {
         if (state.getDicePool() != null && state.getTargetNumber() != null && state.getDoReroll() == null) {
             String rerollNumbers = config.getRerollSet().stream()
                     .map(String::valueOf)
                     .map(s -> String.format("%ss", s))
                     .collect(Collectors.joining(","));
-            return String.format("Should %s in %dd%d against %d be be rerolled?", rerollNumbers, state.getDicePool(), config.getDiceSides(), state.getTargetNumber());
+            return Optional.of(MessageDefinition.builder()
+                    .content(String.format("Should %s in %dd%d against %d be be rerolled?", rerollNumbers, state.getDicePool(), config.getDiceSides(), state.getTargetNumber()))
+                    .componentRowDefinitions(getButtonLayoutWithState(state, config))
+                    .build());
         }
         if (state.getDicePool() != null && state.getTargetNumber() == null) {
             String configDescription = getConfigDescription(config);
-            return String.format("Click on the target to roll %dd%d against it%s", state.getDicePool(), config.getDiceSides(), configDescription);
+            return Optional.of(MessageDefinition.builder()
+                    .content(String.format("Click on the target to roll %dd%d against it%s", state.getDicePool(), config.getDiceSides(), configDescription))
+                    .componentRowDefinitions(getButtonLayoutWithState(state, config))
+                    .build());
         }
 
-        return getButtonMessage(config);
+        return Optional.of(MessageDefinition.builder()
+                .content(String.format("Click on the buttons to roll dice%s", getConfigDescription(config)))
+                .componentRowDefinitions(getButtonLayoutWithState(state, config))
+                .build());
     }
 
-    @Override
-    protected List<ComponentRowDefinition> getButtonLayoutWithState(State state, Config config) {
+    private List<ComponentRowDefinition> getButtonLayoutWithState(State state, Config config) {
         if (state.getDicePool() != null && state.getTargetNumber() != null && state.getDoReroll() == null) {
             return ImmutableList.of(
                     ComponentRowDefinition.builder()
@@ -329,11 +334,6 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetCommand.Config,
 
     }
 
-    @Override
-    protected List<ComponentRowDefinition> getButtonLayout(Config config) {
-        return createPoolButtonLayout(config);
-    }
-
     private List<ComponentRowDefinition> createPoolButtonLayout(Config config) {
         List<ButtonDefinition> buttons = IntStream.range(1, config.getMaxNumberOfButtons() + 1)
                 .mapToObj(i -> ButtonDefinition.builder()
@@ -347,13 +347,13 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetCommand.Config,
     }
 
     @Override
-    protected String getStartOptionsValidationMessage(CommandInteractionOption options) {
-        String botchSetValidation = CommandUtils.validateIntegerSetFromCommandOptions(options, BOTCH_SET_OPTION, ",");
-        if (botchSetValidation != null) {
+    protected Optional<String> getStartOptionsValidationMessage(CommandInteractionOption options) {
+        Optional<String> botchSetValidation = CommandUtils.validateIntegerSetFromCommandOptions(options, BOTCH_SET_OPTION, ",");
+        if (botchSetValidation.isPresent()) {
             return botchSetValidation;
         }
-        String rerollSetValidation = CommandUtils.validateIntegerSetFromCommandOptions(options, REROLL_SET_OPTION, ",");
-        if (rerollSetValidation != null) {
+        Optional<String> rerollSetValidation = CommandUtils.validateIntegerSetFromCommandOptions(options, REROLL_SET_OPTION, ",");
+        if (rerollSetValidation.isPresent()) {
             return rerollSetValidation;
         }
         Config conf = getConfigFromStartOptions(options);
@@ -361,19 +361,19 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetCommand.Config,
     }
 
     @VisibleForTesting
-    String validate(Config config) {
+    Optional<String> validate(Config config) {
 
         if (config.getRerollSet().stream().anyMatch(i -> i > config.getDiceSides())) {
-            return String.format("Reroll set %s contains a number bigger then the sides of the die %s", config.getRerollSet(), config.getDiceSides());
+            return Optional.of(String.format("Reroll set %s contains a number bigger then the sides of the die %s", config.getRerollSet(), config.getDiceSides()));
         }
         if (config.getBotchSet().stream().anyMatch(i -> i > config.getDiceSides())) {
-            return String.format("Botch set %s contains a number bigger then the sides of the die %s", config.getBotchSet(), config.getDiceSides());
+            return Optional.of(String.format("Botch set %s contains a number bigger then the sides of the die %s", config.getBotchSet(), config.getDiceSides()));
         }
         if (config.getRerollSet().size() >= config.getDiceSides()) {
-            return "The reroll must not contain all numbers";
+            return Optional.of("The reroll must not contain all numbers");
         }
 
-        return null;
+        return Optional.empty();
     }
 
     @Value

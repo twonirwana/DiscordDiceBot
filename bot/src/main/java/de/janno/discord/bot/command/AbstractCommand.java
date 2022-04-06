@@ -5,9 +5,12 @@ import com.google.common.base.Stopwatch;
 import com.google.common.collect.ImmutableList;
 import de.janno.discord.bot.BotMetrics;
 import de.janno.discord.bot.cache.ButtonMessageCache;
-import de.janno.discord.connector.api.*;
-import de.janno.discord.connector.api.message.ComponentRowDefinition;
+import de.janno.discord.connector.api.IButtonEventAdaptor;
+import de.janno.discord.connector.api.IComponentInteractEventHandler;
+import de.janno.discord.connector.api.ISlashCommand;
+import de.janno.discord.connector.api.ISlashEventAdaptor;
 import de.janno.discord.connector.api.message.EmbedDefinition;
+import de.janno.discord.connector.api.message.MessageDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinitionOption;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
@@ -29,6 +32,11 @@ public abstract class AbstractCommand<C extends IConfig, S extends IState> imple
 
     protected AbstractCommand(ButtonMessageCache buttonMessageCache) {
         this.buttonMessageCache = buttonMessageCache;
+    }
+
+    @Override
+    public boolean matchingComponentCustomId(String buttonCustomId) {
+        return buttonCustomId.startsWith(getName() + CONFIG_DELIMITER);
     }
 
     @VisibleForTesting
@@ -73,22 +81,22 @@ public abstract class AbstractCommand<C extends IConfig, S extends IState> imple
         actions.add(event.acknowledge());
         //the delete action must be the last action
         Mono<Void> deleteAction = Mono.empty();
-        boolean triggeringMessageIsPinned = event.isPinned();
+        boolean keepExistingButtonMessage = shouldKeepExistingButtonMessage(event);
         String editMessage;
 
-        if (triggeringMessageIsPinned) {
+        if (keepExistingButtonMessage) {
             //if the old button is pined, the old message will be edited or reset to the slash default
-            editMessage = getEditButtonMessage(state, config) != null ? getEditButtonMessage(state, config) : getButtonMessage(config);
+            editMessage = getEditButtonMessage(state, config).orElse(getButtonMessage(config).getContent());
         } else {
             //edit the current message if the command changes it or mark it as processing
-            editMessage = getEditButtonMessage(state, config) != null ? getEditButtonMessage(state, config) : "processing ...";
+            editMessage = getEditButtonMessage(state, config).orElse("processing ...");
         }
         actions.add(event.editMessage(editMessage));
 
-        if (createAnswerMessage(state, config)) {
+        Optional<EmbedDefinition> answer = getAnswer(state, config);
+        if (answer.isPresent()) {
             BotMetrics.incrementButtonMetricCounter(getName(), config.toShortString());
-            Answer answer = getAnswer(state, config);
-            actions.add(event.createResultMessageWithEventReference(answer).then(
+            actions.add(event.createResultMessageWithEventReference(answer.get()).then(
                     event.getRequester()
                             .doOnNext(requester -> log.info("'{}'.'{}' from '{}' button: '{}'={}{} -> {} in {}ms",
                                             requester.getGuildName(),
@@ -97,20 +105,21 @@ public abstract class AbstractCommand<C extends IConfig, S extends IState> imple
                                             event.getCustomId(),
                                             config.toShortString(),
                                             state.toShortString(),
-                                            answer.toShortString(),
+                                            answer.get().toShortString(),
                                             stopwatch.elapsed(TimeUnit.MILLISECONDS)
                                     )
                             ).ofType(Void.class)));
         }
-        if (copyButtonMessageToTheEnd(state, config)) {
-            Mono<Long> newMessageIdMono = event.createButtonMessage(getButtonMessageWithState(state, config), getButtonLayoutWithState(state, config))
+        Optional<MessageDefinition> newButtonMessage = getButtonMessageWithState(state, config);
+        if (newButtonMessage.isPresent()) {
+            Mono<Long> newMessageIdMono = event.createButtonMessage(newButtonMessage.get())
                     .map(m -> {
                         buttonMessageCache.addChannelWithButton(channelId, m, config.hashCode());
                         return m;
                     });
 
 
-            if (triggeringMessageIsPinned) {
+            if (keepExistingButtonMessage) {
                 //removing from cache on pin event would be better?
                 //if the message was not removed, we don't want that it is removed later
                 buttonMessageCache.removeButtonFromChannel(channelId, messageId, config.hashCode());
@@ -140,10 +149,10 @@ public abstract class AbstractCommand<C extends IConfig, S extends IState> imple
         Optional<CommandInteractionOption> startOption = event.getOption(ACTION_START);
         if (startOption.isPresent()) {
             CommandInteractionOption options = startOption.get();
-            String validationMessage = getStartOptionsValidationMessage(options);
-            if (validationMessage != null) {
-                log.info("Validation message: {} for {}", validationMessage, commandString);
-                return event.reply(String.format("%s\n%s", commandString, validationMessage));
+            Optional<String> validationMessage = getStartOptionsValidationMessage(options);
+            if (validationMessage.isPresent()) {
+                log.info("Validation message: {} for {}", validationMessage.get(), commandString);
+                return event.reply(String.format("%s\n%s", commandString, validationMessage.get()));
             }
             C config = getConfigFromStartOptions(options);
             BotMetrics.incrementSlashStartMetricCounter(getName(), config.toShortString());
@@ -151,7 +160,7 @@ public abstract class AbstractCommand<C extends IConfig, S extends IState> imple
             long channelId = event.getChannelId();
 
             return event.reply(commandString)
-                    .then(event.createButtonMessage(getButtonMessage(config), getButtonLayout(config))
+                    .then(event.createButtonMessage(getButtonMessage(config))
                             .map(m -> {
                                 buttonMessageCache.addChannelWithButton(channelId, m, config.hashCode());
                                 return m;
@@ -170,7 +179,7 @@ public abstract class AbstractCommand<C extends IConfig, S extends IState> imple
 
         } else if (event.getOption(ACTION_HELP).isPresent()) {
             BotMetrics.incrementSlashHelpMetricCounter(getName());
-            return event.replyEphemeral(getHelpMessage());
+            return event.replyEmbed(getHelpMessage(), true);
         }
         return Mono.empty();
     }
@@ -179,56 +188,36 @@ public abstract class AbstractCommand<C extends IConfig, S extends IState> imple
         return ImmutableList.of();
     }
 
-    protected abstract String getCommandDescription();
+    protected abstract @NonNull String getCommandDescription();
 
     protected abstract EmbedDefinition getHelpMessage();
 
     /**
-     * if an answer message (without buttons) should be created
-     */
-    protected boolean createAnswerMessage(S state, C config) {
-        return true;
-    }
-
-    /**
-     * if the old button message should be moved
-     */
-    protected boolean copyButtonMessageToTheEnd(S state, C config) {
-        return true;
-    }
-
-    /**
      * The text content for the old button message, after a button event. Returns null means no editing should be done.
      */
-    protected String getEditButtonMessage(S state, C config) {
-        return null;
+    protected Optional<String> getEditButtonMessage(S state, C config) {
+        return Optional.empty();
     }
 
     /**
-     * The text content for the new button message, after a button event
+     * The new button message, after a button event
      */
-    protected abstract String getButtonMessageWithState(S state, C config);
+    protected abstract Optional<MessageDefinition> getButtonMessageWithState(S state, C config);
+
+    protected abstract Optional<EmbedDefinition> getAnswer(S state, C config);
 
     /**
-     * The text content for the new button message, after a slash event
+     * The new button message, after a slash event
      */
-    protected abstract String getButtonMessage(C config);
+    protected abstract MessageDefinition getButtonMessage(C config);
 
-    protected abstract Answer getAnswer(S state, C config);
-
-    /**
-     * The button layout for the new button message, after a button event
-     */
-    protected abstract List<ComponentRowDefinition> getButtonLayoutWithState(S state, C config);
-
-    /**
-     * The button layout for the new button message, after a slash event
-     */
-    protected abstract List<ComponentRowDefinition> getButtonLayout(C config);
-
-    protected String getStartOptionsValidationMessage(CommandInteractionOption options) {
+    protected Optional<String> getStartOptionsValidationMessage(CommandInteractionOption options) {
         //standard is no validation
-        return null;
+        return Optional.empty();
+    }
+
+    protected boolean shouldKeepExistingButtonMessage(IButtonEventAdaptor event) {
+        return event.isPinned();
     }
 
     protected abstract C getConfigFromStartOptions(CommandInteractionOption options);

@@ -6,10 +6,11 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import de.janno.discord.bot.cache.ButtonMessageCache;
 import de.janno.discord.bot.dice.DiceUtils;
-import de.janno.discord.connector.api.*;
+import de.janno.discord.connector.api.IButtonEventAdaptor;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
 import de.janno.discord.connector.api.message.EmbedDefinition;
+import de.janno.discord.connector.api.message.MessageDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinitionOption;
 import de.janno.discord.connector.api.slash.CommandDefinitionOptionChoice;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
@@ -30,10 +31,11 @@ public class FateCommand extends AbstractCommand<FateCommand.Config, FateCommand
     private static final String ACTION_MODIFIER_OPTION_MODIFIER = "with_modifier";
     private static final String ROLL_BUTTON_ID = "roll";
     private final DiceUtils diceUtils;
+    private static final ButtonMessageCache BUTTON_MESSAGE_CACHE = new ButtonMessageCache(COMMAND_NAME);
 
     @VisibleForTesting
     public FateCommand(DiceUtils diceUtils) {
-        super(new ButtonMessageCache(COMMAND_NAME));
+        super(BUTTON_MESSAGE_CACHE);
         this.diceUtils = diceUtils;
     }
 
@@ -47,19 +49,10 @@ public class FateCommand extends AbstractCommand<FateCommand.Config, FateCommand
     }
 
     @Override
-    protected String getCommandDescription() {
+    protected @NonNull String getCommandDescription() {
         return "Configure Fate dice";
     }
 
-    @Override
-    protected String getButtonMessage(Config config) {
-        return createButtonMessage(config);
-    }
-
-    @Override
-    protected String getButtonMessageWithState(State state, Config config) {
-        return createButtonMessage(config);
-    }
 
     private String createButtonMessage(Config config) {
         if (ACTION_MODIFIER_OPTION_MODIFIER.equals(config.getType())) {
@@ -103,12 +96,7 @@ public class FateCommand extends AbstractCommand<FateCommand.Config, FateCommand
     }
 
     @Override
-    public boolean matchingComponentCustomId(String buttonCustomId) {
-        return buttonCustomId.startsWith(COMMAND_NAME + CONFIG_DELIMITER);
-    }
-
-    @Override
-    protected Answer getAnswer(State state, Config config) {
+    protected Optional<EmbedDefinition> getAnswer(State state, Config config) {
         List<Integer> rollResult = diceUtils.rollFate();
 
         if (ACTION_MODIFIER_OPTION_MODIFIER.equals(config.getType()) && state.getModifier() != null) {
@@ -123,22 +111,25 @@ public class FateCommand extends AbstractCommand<FateCommand.Config, FateCommand
 
             String title = String.format("4dF%s = %d", modifierString, resultWithModifier);
             String details = DiceUtils.convertFateNumberToString(rollResult);
-            return new Answer(title, details, ImmutableList.of());
+            return Optional.of(new EmbedDefinition(title, details, ImmutableList.of()));
         } else {
             String title = String.format("4dF = %d", DiceUtils.fateResult(rollResult));
             String details = DiceUtils.convertFateNumberToString(rollResult);
-            return new Answer(title, details, ImmutableList.of());
+            return Optional.of(new EmbedDefinition(title, details, ImmutableList.of()));
         }
     }
 
     @Override
-    protected List<ComponentRowDefinition> getButtonLayoutWithState(State state, Config config) {
-        return createButtonLayout(config);
+    protected Optional<MessageDefinition> getButtonMessageWithState(State state, Config config) {
+        return Optional.of(getButtonMessage(config));
     }
 
     @Override
-    protected List<ComponentRowDefinition> getButtonLayout(Config config) {
-        return createButtonLayout(config);
+    protected MessageDefinition getButtonMessage(Config config) {
+        return MessageDefinition.builder()
+                .content(createButtonMessage(config))
+                .componentRowDefinitions(createButtonLayout(config))
+                .build();
     }
 
     private List<ComponentRowDefinition> createButtonLayout(Config config) {

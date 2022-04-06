@@ -3,7 +3,7 @@ package de.janno.discord.bot.dice;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
-import de.janno.discord.connector.api.Answer;
+import de.janno.discord.connector.api.message.EmbedDefinition;
 import dev.diceroll.parser.ResultTree;
 import lombok.NonNull;
 import lombok.Value;
@@ -12,6 +12,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -123,24 +124,24 @@ public class DiceParserHelper {
         return ImmutableList.of(resultTree.getValue());
     }
 
-    public String validateDiceExpression(String expression, String helpCommand) {
+    public Optional<String> validateDiceExpression(String expression, String helpCommand) {
         if (expression.length() > 80) {
-            return String.format("The following dice expression are to long: '%s'. A expression must be 80 or less characters long", expression);
+            return Optional.of(String.format("The following dice expression are to long: '%s'. A expression must be 80 or less characters long", expression));
         }
         if (!validExpression(expression)) {
-            return String.format("The following dice expression are invalid: '%s'. Use %s to get more information on how to use the command.", expression, helpCommand);
+            return Optional.of(String.format("The following dice expression are invalid: '%s'. Use %s to get more information on how to use the command.", expression, helpCommand));
         }
-        return null;
+        return Optional.empty();
     }
 
-    public String validateDiceExpressionWitOptionalLabel(@NonNull String expressionWithOptionalLabel, String labelDelimiter, String helpCommand) {
+    public Optional<String> validateDiceExpressionWitOptionalLabel(@NonNull String expressionWithOptionalLabel, String labelDelimiter, String helpCommand) {
         String label;
         String diceExpression;
 
         if (expressionWithOptionalLabel.contains(labelDelimiter)) {
             String[] split = expressionWithOptionalLabel.split(labelDelimiter);
             if (split.length != 2) {
-                return String.format("The button definition '%s' should have the diceExpression@Label", expressionWithOptionalLabel);
+                return Optional.of(String.format("The button definition '%s' should have the diceExpression@Label", expressionWithOptionalLabel));
             }
             label = split[1].trim();
             diceExpression = split[0].trim();
@@ -149,28 +150,28 @@ public class DiceParserHelper {
             diceExpression = expressionWithOptionalLabel;
         }
         if (label.length() > 80) {
-            return String.format("Label for '%s' is to long, max number of characters is 80", expressionWithOptionalLabel);
+            return Optional.of(String.format("Label for '%s' is to long, max number of characters is 80", expressionWithOptionalLabel));
         }
         if (label.isBlank()) {
-            return String.format("Label for '%s' requires a visible name", expressionWithOptionalLabel);
+            return Optional.of(String.format("Label for '%s' requires a visible name", expressionWithOptionalLabel));
         }
         if (diceExpression.isBlank()) {
-            return String.format("Dice expression for '%s' is empty", expressionWithOptionalLabel);
+            return Optional.of(String.format("Dice expression for '%s' is empty", expressionWithOptionalLabel));
         }
         return validateDiceExpression(diceExpression, helpCommand);
     }
 
 
-    public String validateListOfExpressions(List<String> optionValues, String labelDelimiter, String configDelimiter, String helpCommand) {
+    public Optional<String> validateListOfExpressions(List<String> optionValues, String labelDelimiter, String configDelimiter, String helpCommand) {
         if (optionValues.isEmpty()) {
-            return String.format("You must configure at least one dice expression. Use '%s' to get more information on how to use the command.", helpCommand);
+            return Optional.of(String.format("You must configure at least one dice expression. Use '%s' to get more information on how to use the command.", helpCommand));
         }
         for (String startOptionString : optionValues) {
             if (startOptionString.contains(configDelimiter)) {
-                return String.format("The button definition '%s' is not allowed to contain ','", startOptionString);
+                return Optional.of(String.format("The button definition '%s' is not allowed to contain ','", startOptionString));
             }
-            String diceParserValidation = validateDiceExpressionWitOptionalLabel(startOptionString, labelDelimiter, helpCommand);
-            if (diceParserValidation != null) {
+            Optional<String> diceParserValidation = validateDiceExpressionWitOptionalLabel(startOptionString, labelDelimiter, helpCommand);
+            if (diceParserValidation.isPresent()) {
                 return diceParserValidation;
             }
         }
@@ -180,11 +181,11 @@ public class DiceParserHelper {
                 .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
         for (Map.Entry<String, Long> e : expressionOccurrence.entrySet()) {
             if (e.getValue() > 1) {
-                return String.format("The dice expression '%s' is not unique. Each dice expression must only once.", e.getKey());
+                return Optional.of(String.format("The dice expression '%s' is not unique. Each dice expression must only once.", e.getKey()));
             }
         }
 
-        return null;
+        return Optional.empty();
     }
 
     private String removeLeadingPlus(String diceExpression) {
@@ -194,25 +195,33 @@ public class DiceParserHelper {
         return diceExpression;
     }
 
-    public Answer roll(String input, @Nullable String label) {
+    public EmbedDefinition roll(String input, @Nullable String label) {
         try {
             if (isMultipleRoll(input)) {
                 int numberOfRolls = getNumberOfMultipleRolls(input);
                 String innerExpression = getInnerDiceExpression(input);
-                List<Answer.Field> fields = IntStream.range(0, numberOfRolls)
+                List<EmbedDefinition.Field> fields = IntStream.range(0, numberOfRolls)
                         .mapToObj(i -> rollWithDiceParser(innerExpression))
-                        .map(r -> new Answer.Field(r.roll, r.getDetails(), false))
+                        .map(r -> new EmbedDefinition.Field(r.roll, r.getDetails(), false))
                         .collect(ImmutableList.toImmutableList());
                 String title = Strings.isNullOrEmpty(label) ? "Multiple Results" : label;
-                return new Answer(title, null, fields);
+                return EmbedDefinition.builder()
+                        .title(title)
+                        .fields(fields).build();
             } else {
                 RollWithDetails rollWithDetails = rollWithDiceParser(input);
                 String title = Strings.isNullOrEmpty(label) ? rollWithDetails.getRoll() : String.format("%s: %s", label, rollWithDetails.getRoll());
-                return new Answer(title, rollWithDetails.getDetails(), ImmutableList.of());
+                return EmbedDefinition.builder()
+                        .title(title)
+                        .description(rollWithDetails.getDetails())
+                        .build();
             }
         } catch (Throwable t) {
             log.error(String.format("Error in %s:", input), t);
-            return new Answer("Error", String.format("Could not execute the dice expression: %s", input), ImmutableList.of());
+            return EmbedDefinition.builder()
+                    .title("Error")
+                    .description(String.format("Could not execute the dice expression: %s", input))
+                    .build();
         }
     }
 

@@ -6,10 +6,11 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import de.janno.discord.bot.cache.ButtonMessageCache;
 import de.janno.discord.bot.dice.DiceUtils;
-import de.janno.discord.connector.api.*;
+import de.janno.discord.connector.api.IButtonEventAdaptor;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
 import de.janno.discord.connector.api.message.EmbedDefinition;
+import de.janno.discord.connector.api.message.MessageDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinitionOption;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import lombok.NonNull;
@@ -31,6 +32,7 @@ public class SumDiceSetCommand extends AbstractCommand<SumDiceSetCommand.Config,
     private static final String X2_BUTTON_ID = "x2";
     private static final String DICE_SYMBOL = "d";
     private static final String MODIFIER_KEY = "m";
+    private static final ButtonMessageCache BUTTON_MESSAGE_CACHE = new ButtonMessageCache(COMMAND_NAME);
     private final DiceUtils diceUtils;
 
     public SumDiceSetCommand() {
@@ -39,7 +41,7 @@ public class SumDiceSetCommand extends AbstractCommand<SumDiceSetCommand.Config,
 
     @VisibleForTesting
     public SumDiceSetCommand(DiceUtils diceUtils) {
-        super(new ButtonMessageCache(COMMAND_NAME));
+        super(BUTTON_MESSAGE_CACHE);
         this.diceUtils = diceUtils;
     }
 
@@ -67,7 +69,7 @@ public class SumDiceSetCommand extends AbstractCommand<SumDiceSetCommand.Config,
     }
 
     @Override
-    protected String getCommandDescription() {
+    protected @NonNull String getCommandDescription() {
         return "Configure a variable set of d4 to d20 dice";
     }
 
@@ -100,7 +102,10 @@ public class SumDiceSetCommand extends AbstractCommand<SumDiceSetCommand.Config,
     }
 
     @Override
-    protected Answer getAnswer(State state, Config config) {
+    protected Optional<EmbedDefinition> getAnswer(State state, Config config) {
+        if (!(ROLL_BUTTON_ID.equals(state.getButtonValue()) && !state.getDiceSetMap().isEmpty())) {
+            return Optional.empty();
+        }
         List<Integer> diceResultValues = state.getDiceSetMap().entrySet().stream()
                 .sorted(Comparator.comparing(e -> {
                     if (e.getKey().contains(DICE_SYMBOL)) {
@@ -126,7 +131,7 @@ public class SumDiceSetCommand extends AbstractCommand<SumDiceSetCommand.Config,
                 .collect(Collectors.toList());
         long sumResult = diceResultValues.stream().mapToLong(Integer::longValue).sum();
         String title = parseDiceMapToMessageString(state.getDiceSetMap());
-        return new Answer(String.format("%s = %d", title, sumResult), diceResultValues.toString(), ImmutableList.of());
+        return Optional.of(new EmbedDefinition(String.format("%s = %d", title, sumResult), diceResultValues.toString(), ImmutableList.of()));
     }
 
     private int limit(int input) {
@@ -140,24 +145,33 @@ public class SumDiceSetCommand extends AbstractCommand<SumDiceSetCommand.Config,
     }
 
     @Override
-    protected String getButtonMessage(Config config) {
-        return EMPTY_MESSAGE;
+    protected MessageDefinition getButtonMessage(Config config) {
+        return MessageDefinition.builder()
+                .content(EMPTY_MESSAGE)
+                .componentRowDefinitions(createButtonLayout())
+                .build();
     }
 
     @Override
-    protected String getButtonMessageWithState(State state, Config config) {
-        return EMPTY_MESSAGE;
+    protected Optional<MessageDefinition> getButtonMessageWithState(State state, Config config) {
+        if (!(ROLL_BUTTON_ID.equals(state.getButtonValue()) && !state.getDiceSetMap().isEmpty())) {
+            return Optional.empty();
+        }
+        return Optional.of(MessageDefinition.builder()
+                .content(EMPTY_MESSAGE)
+                .componentRowDefinitions(createButtonLayout())
+                .build());
     }
 
     @Override
-    protected String getEditButtonMessage(State state, Config config) {
+    protected Optional<String> getEditButtonMessage(State state, Config config) {
         switch (state.getButtonValue()) {
             case ROLL_BUTTON_ID:
             case CLEAR_BUTTON_ID:
-                return EMPTY_MESSAGE;
+                return Optional.of(EMPTY_MESSAGE);
             case X2_BUTTON_ID:
-                return parseDiceMapToMessageString(state.getDiceSetMap().entrySet().stream()
-                        .collect(Collectors.toMap(Map.Entry::getKey, e -> limit(e.getValue() * 2))));
+                return Optional.of(parseDiceMapToMessageString(state.getDiceSetMap().entrySet().stream()
+                        .collect(Collectors.toMap(Map.Entry::getKey, e -> limit(e.getValue() * 2)))));
             default:
                 Map<String, Integer> currentDiceSet = new HashMap<>(state.getDiceSetMap());
                 int diceModifier;
@@ -181,20 +195,10 @@ public class SumDiceSetCommand extends AbstractCommand<SumDiceSetCommand.Config,
                 }
 
                 if (currentDiceSet.isEmpty()) {
-                    return EMPTY_MESSAGE;
+                    return Optional.of(EMPTY_MESSAGE);
                 }
-                return parseDiceMapToMessageString(currentDiceSet);
+                return Optional.of(parseDiceMapToMessageString(currentDiceSet));
         }
-    }
-
-    @Override
-    protected boolean createAnswerMessage(State state, Config config) {
-        return ROLL_BUTTON_ID.equals(state.getButtonValue()) && !state.getDiceSetMap().isEmpty();
-    }
-
-    @Override
-    protected boolean copyButtonMessageToTheEnd(State state, Config config) {
-        return ROLL_BUTTON_ID.equals(state.getButtonValue()) && !state.getDiceSetMap().isEmpty();
     }
 
     @Override
@@ -238,21 +242,6 @@ public class SumDiceSetCommand extends AbstractCommand<SumDiceSetCommand.Config,
     @Override
     protected Config getConfigFromStartOptions(CommandInteractionOption options) {
         return new Config();
-    }
-
-    @Override
-    public boolean matchingComponentCustomId(String buttonCustomId) {
-        return buttonCustomId.startsWith(COMMAND_NAME + CONFIG_DELIMITER);
-    }
-
-    @Override
-    protected List<ComponentRowDefinition> getButtonLayoutWithState(State state, Config config) {
-        return createButtonLayout();
-    }
-
-    @Override
-    protected List<ComponentRowDefinition> getButtonLayout(Config config) {
-        return createButtonLayout();
     }
 
     private List<ComponentRowDefinition> createButtonLayout() {

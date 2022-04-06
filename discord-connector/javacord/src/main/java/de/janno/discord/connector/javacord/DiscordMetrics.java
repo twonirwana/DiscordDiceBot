@@ -14,10 +14,10 @@ import static io.micrometer.core.instrument.Metrics.globalRegistry;
 
 public class DiscordMetrics {
 
-    private final static String METRIC_PREFIX = "dice.";
-    private final static String METRIC_BUTTON_TIMER_PREFIX = "buttonTimer";
-    private final static String METRIC_SLASH_TIMER_PREFIX = "slashTimer";
-    private final static String COMMAND_TAG = "command";
+    private static final String METRIC_PREFIX = "dice.";
+    private static final String METRIC_BUTTON_TIMER_PREFIX = "buttonTimer";
+    private static final String METRIC_SLASH_TIMER_PREFIX = "slashTimer";
+    private static final String COMMAND_TAG = "command";
 
 
     public static void startGuildCountGauge(Set<Long> botInGuildIdSet) {
