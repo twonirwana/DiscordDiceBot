@@ -44,15 +44,15 @@ public class JavaCordClient {
                 .setUserCacheEnabled(true)
                 .addServerBecomesAvailableListener(event -> {
                     if (!botInGuildIdSet.contains(event.getServer().getId())) {
-                        log.info("Bot started with guild: name='{}', description='{}', memberCount={}", event.getServer().getName(),
-                                event.getServer().getDescription().orElse(""), event.getServer().getMemberCount());
+                        log.info("Bot started with guild: name='{}', memberCount={}", event.getServer().getName(),
+                                event.getServer().getMemberCount());
                         botInGuildIdSet.add(event.getServer().getId());
                     }
                 })
                 .addServerJoinListener(event -> {
                     if (!botInGuildIdSet.contains(event.getServer().getId())) {
-                        log.info("Bot started in guild: name='{}', description='{}', memberCount={}", event.getServer().getName(),
-                                event.getServer().getDescription().orElse(""), event.getServer().getMemberCount());
+                        log.info("Bot started in guild: name='{}', memberCount={}", event.getServer().getName(),
+                                event.getServer().getMemberCount());
                         botInGuildIdSet.add(event.getServer().getId());
                         if (LocalDateTime.now().isAfter(startTimePlusBuffer)) {
                             event.getServer().getSystemChannel()
@@ -60,6 +60,12 @@ public class JavaCordClient {
                                     .filter(TextChannel::canYouWrite)
                                     .ifPresent(textChannel -> Mono.fromFuture(textChannel.sendMessage(welcomeMessageDefinition.getContent(),
                                                     MessageComponentConverter.messageComponent2MessageLayout(welcomeMessageDefinition.getComponentRowDefinitions())))
+                                            .doOnSuccess(m -> {
+                                                DiscordMetrics.sendWelcomeMessage();
+                                                log.info("Welcome message send in '{}'.'{}'",
+                                                        event.getServer().getName(),
+                                                        textChannel.asServerChannel().map(Nameable::getName).orElse(""));
+                                            })
                                             .subscribeOn(scheduler)
                                             .subscribe());
                         }
@@ -67,8 +73,8 @@ public class JavaCordClient {
                 })
                 .addServerLeaveListener(event -> {
                     if (botInGuildIdSet.contains(event.getServer().getId())) {
-                        log.info("Bot removed in guild: name='{}', description='{}', memberCount={}", event.getServer().getName(),
-                                event.getServer().getDescription().orElse(""), event.getServer().getMemberCount());
+                        log.info("Bot removed in guild: name='{}', memberCount={}", event.getServer().getName(),
+                                event.getServer().getMemberCount());
                         botInGuildIdSet.remove(event.getServer().getId());
                     }
                 })
@@ -93,8 +99,7 @@ public class JavaCordClient {
                     .next()
                     .flatMap(command -> command.handleSlashCommandEvent(new SlashEventAdapter(event,
                             Mono.just(new Requester(event.getInteraction().getUser().getName(),
-                                    event.getSlashCommandInteraction().getChannel().flatMap(tc ->
-                                            api.getServerChannelById(tc.getId())).map(Nameable::getName).orElse(""),
+                                    event.getSlashCommandInteraction().getChannel().flatMap(Channel::asServerChannel).map(Nameable::getName).orElse(""),
                                     event.getSlashCommandInteraction().getServer().map(Nameable::getName).orElse("")))
                     )))
                     .onErrorResume(e -> {
@@ -117,8 +122,7 @@ public class JavaCordClient {
                     .next()
                     .flatMap(command -> command.handleComponentInteractEvent(new ButtonEventAdapter(event,
                             Mono.just(new Requester(event.getInteraction().getUser().getName(),
-                                    event.getButtonInteraction().getChannel().flatMap(tc ->
-                                            api.getServerChannelById(tc.getId())).map(Nameable::getName).orElse(""),
+                                    event.getButtonInteraction().getChannel().flatMap(Channel::asServerChannel).map(Nameable::getName).orElse(""),
                                     event.getButtonInteraction().getServer().map(Nameable::getName).orElse("")
                             )))))
                     .onErrorResume(e -> {

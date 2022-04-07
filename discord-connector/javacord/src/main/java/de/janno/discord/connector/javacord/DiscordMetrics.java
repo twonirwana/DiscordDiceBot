@@ -17,6 +17,7 @@ public class DiscordMetrics {
     private static final String METRIC_PREFIX = "dice.";
     private static final String METRIC_BUTTON_TIMER_PREFIX = "buttonTimer";
     private static final String METRIC_SLASH_TIMER_PREFIX = "slashTimer";
+    private static final String METRIC_WELCOME_COUNTER_PREFIX = "welcomeCounter";
     private static final String COMMAND_TAG = "command";
 
 
@@ -45,5 +46,9 @@ public class DiscordMetrics {
                 .publishPercentileHistogram()
                 .register(globalRegistry)
                 .record(duration);
+    }
+
+    public static void sendWelcomeMessage() {
+        globalRegistry.counter(METRIC_PREFIX + METRIC_WELCOME_COUNTER_PREFIX).increment();
     }
 }
