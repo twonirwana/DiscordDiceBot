@@ -40,7 +40,7 @@ public class SlashEventAdapter extends DiscordAdapter implements ISlashEventAdap
         this.requesterMono = requesterMono;
         this.channelId = event.getSlashCommandInteraction().getChannel().map(DiscordEntity::getId).orElseThrow();
         this.commandString = String.format("`/%s %s`", event.getSlashCommandInteraction().getCommandName(), event.getSlashCommandInteraction().getOptions().stream()
-                .map(a -> optionToString(a.getName(), a.getOptions(), a.getStringValue().orElse(null)))
+                .map(a -> optionToString(a.getName(), a.getOptions(), a.getStringRepresentationValue().orElse(null)))
                 .collect(Collectors.joining(" ")));
     }
 
@@ -131,7 +131,7 @@ public class SlashEventAdapter extends DiscordAdapter implements ISlashEventAdap
             out = String.format("%s:%s", name, value);
         }
         String optionsString = options.stream()
-                .map(a -> optionToString(a.getName(), a.getOptions(), a.getStringValue().orElse(null)))
+                .map(a -> optionToString(a.getName(), a.getOptions(), a.getStringRepresentationValue().orElse(null)))
                 .collect(Collectors.joining(" "));
         if (!optionsString.isEmpty()) {
             out = String.format("%s %s", out, optionsString);
