@@ -64,7 +64,8 @@ public abstract class DiscordAdapter implements IDiscordAdapter {
     protected Mono<Message> createButtonMessage(@NonNull TextChannel channel,
                                                 @NonNull MessageDefinition messageDefinition) {
         return Mono.fromFuture(channel.sendMessage(messageDefinition.getContent(),
-                MessageComponentConverter.messageComponent2MessageLayout(messageDefinition.getComponentRowDefinitions())));
+                        MessageComponentConverter.messageComponent2MessageLayout(messageDefinition.getComponentRowDefinitions())))
+                .doOnSuccess(m -> m.setCachedForever(true));
     }
 
     protected Mono<Void> handleException(@NonNull String errorMessage,
@@ -88,7 +89,10 @@ public abstract class DiscordAdapter implements IDiscordAdapter {
     protected Mono<Void> deleteMessage(TextChannel textChannel, long messageId) {
         return Mono.fromFuture(textChannel.getMessageById(messageId))
                 .filter(m -> !m.isPinned())
-                .flatMap(m -> Mono.fromFuture(m.delete()))
+                .flatMap(m -> {
+                    m.setCachedForever(false);
+                    return Mono.fromFuture(m.delete());
+                })
                 .onErrorResume(t -> handleException("Error on deleting message", t, true));
     }
 

@@ -81,8 +81,14 @@ public class JavaCordClient {
                 .setToken(token).login()
                 .join();
 
-        DiscordMetrics.startGatewayResponseTime(api);
+        //message cache size is set to 0, button messages will be manually set to cached on creation and removed upon deletion
+        api.setMessageCacheSize(0, 0);
+
+        DiscordMetrics.startGatewayResponseTimeGauge(api);
         DiscordMetrics.startGuildCountGauge(botInGuildIdSet);
+        DiscordMetrics.startMassageCacheGauge(api);
+        DiscordMetrics.startUserCacheGauge(api);
+        DiscordMetrics.startRestLatencyGauge(api);
 
         SlashCommandRegistry slashCommandRegistry = SlashCommandRegistry.builder()
                 .addSlashCommands(commands)

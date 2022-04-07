@@ -25,10 +25,26 @@ public class DiscordMetrics {
         Gauge.builder(DiscordMetrics.METRIC_PREFIX + "guildsCount", botInGuildIdSet::size).register(Metrics.globalRegistry);
     }
 
-    public static void startGatewayResponseTime(DiscordApi discordApi) {
+    public static void startGatewayResponseTimeGauge(DiscordApi discordApi) {
         Gauge.builder(DiscordMetrics.METRIC_PREFIX + "gatewayResponseTime", () -> discordApi.getLatestGatewayLatency().toMillis())
                 .register(Metrics.globalRegistry);
     }
+
+    public static void startRestLatencyGauge(DiscordApi discordApi) {
+        Gauge.builder(DiscordMetrics.METRIC_PREFIX + "restLatency", () -> discordApi.measureRestLatency().join().toMillis())
+                .register(Metrics.globalRegistry);
+    }
+
+    public static void startMassageCacheGauge(DiscordApi discordApi) {
+        Gauge.builder(DiscordMetrics.METRIC_PREFIX + "messageCacheSize", () -> discordApi.getCachedMessages().size())
+                .register(Metrics.globalRegistry);
+    }
+
+    public static void startUserCacheGauge(DiscordApi discordApi) {
+        Gauge.builder(DiscordMetrics.METRIC_PREFIX + "userCacheSize", () -> discordApi.getCachedUsers().size())
+                .register(Metrics.globalRegistry);
+    }
+
 
     public static void timerButtonMetricCounter(@NonNull String commandName, @NonNull Duration duration) {
         Timer.builder(METRIC_PREFIX + METRIC_BUTTON_TIMER_PREFIX)
