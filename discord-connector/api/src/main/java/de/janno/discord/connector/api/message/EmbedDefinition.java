@@ -19,8 +19,7 @@ public class EmbedDefinition {
 
     public String toShortString() {
         List<String> fieldStringList = fields.stream()
-                .map(EmbedDefinition.Field::toShortString)
-                .collect(Collectors.toList());
+                .map(Field::toShortString).toList();
 
         return String.format("%s %s %s", title,
                         Strings.isNullOrEmpty(description) ? "" : description,

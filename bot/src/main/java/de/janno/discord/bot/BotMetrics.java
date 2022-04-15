@@ -24,8 +24,6 @@ public class BotMetrics {
     public final static String METRIC_PREFIX = "dice.";
     public final static String METRIC_BUTTON_PREFIX = "buttonEvent";
     public final static String METRIC_SLASH_PREFIX = "slashEvent";
-    public final static String METRIC_BUTTON_TIMER_PREFIX = "buttonTimer";
-    public final static String METRIC_SLASH_TIMER_PREFIX = "slashTimer";
     public final static String METRIC_SLASH_HELP_PREFIX = "slashHelpEvent";
     public final static String CONFIG_TAG = "config";
     public final static String COMMAND_TAG = "command";
@@ -47,12 +45,18 @@ public class BotMetrics {
 
             prometheusRegistry.config().commonTags("application", "DiscordDiceBot");
             new JvmMemoryMetrics().bindTo(globalRegistry);
-            new JvmGcMetrics().bindTo(globalRegistry);
+            try(JvmGcMetrics jvmGcMetrics = new JvmGcMetrics()){
+                jvmGcMetrics.bindTo(globalRegistry);
+            }
             new ProcessorMetrics().bindTo(globalRegistry);
             new JvmThreadMetrics().bindTo(globalRegistry);
-            new LogbackMetrics().bindTo(globalRegistry);
+            try(LogbackMetrics logbackMetrics = new LogbackMetrics()){
+                logbackMetrics.bindTo(globalRegistry);
+            }
             new ClassLoaderMetrics().bindTo(globalRegistry);
-            new JvmHeapPressureMetrics().bindTo(globalRegistry);
+            try(JvmHeapPressureMetrics jvmHeapPressureMetrics = new JvmHeapPressureMetrics()){
+                jvmHeapPressureMetrics.bindTo(globalRegistry);
+            }
             new JvmInfoMetrics().bindTo(globalRegistry);
         }
     }

@@ -127,8 +127,7 @@ public class SumDiceSetCommand extends AbstractCommand<SumDiceSetCommand.Config,
                                 }
                                 return dv;
                             });
-                })
-                .collect(Collectors.toList());
+                }).toList();
         long sumResult = diceResultValues.stream().mapToLong(Integer::longValue).sum();
         String title = parseDiceMapToMessageString(state.getDiceSetMap());
         return Optional.of(new EmbedDefinition(String.format("%s = %d", title, sumResult), diceResultValues.toString(), ImmutableList.of()));
