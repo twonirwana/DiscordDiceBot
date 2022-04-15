@@ -407,8 +407,7 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetCommand.Config,
         @Override
         public String toShortString() {
             return Stream.of(dicePool, targetNumber, doReroll)
-                    .map(s -> s == null ? "" : String.valueOf(s))
-                    .collect(Collectors.toList()).toString();
+                    .map(s -> s == null ? "" : String.valueOf(s)).toList().toString();
         }
     }
 }

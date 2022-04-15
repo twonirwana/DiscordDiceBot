@@ -218,10 +218,11 @@ class WelcomeCommandTest {
     public void getWelcomeMessage() {
         MessageDefinition res = underTest.getWelcomeMessage();
         assertThat(res.getContent())
-                .isEqualTo("Welcome to the Button Dice Bot,\n" +
-                        "use one of the example buttons below to start one of the RPG dice systems or use the slash command to configure your own custom dice system (see https://github.com/twonirwana/DiscordDiceBot for details or the slash command `/help`). \n" +
-                        "You can also use the slash command `/r` to directly roll dice with.\n" +
-                        "For help or feature request come to the support discord server: https://discord.gg/e43BsqKpFr");
+                .isEqualTo("""
+                        Welcome to the Button Dice Bot,
+                        use one of the example buttons below to start one of the RPG dice systems or use the slash command to configure your own custom dice system (see https://github.com/twonirwana/DiscordDiceBot for details or the slash command `/help`).\s
+                        You can also use the slash command `/r` to directly roll dice with.
+                        For help or feature request come to the support discord server: https://discord.gg/e43BsqKpFr""");
         assertThat(res.getComponentRowDefinitions()
                 .stream()
                 .flatMap(s -> s.getButtonDefinitions().stream())

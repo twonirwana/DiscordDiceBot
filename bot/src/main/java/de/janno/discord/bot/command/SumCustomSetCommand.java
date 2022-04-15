@@ -33,7 +33,7 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetCommand.Con
     private static final String EMPTY_MESSAGE_LEGACY = "Click on the buttons to add dice to the set";
     private static final String CLEAR_BUTTON_ID = "clear";
     private static final String BACK_BUTTON_ID = "back";
-    private static final List<String> DICE_COMMAND_OPTIONS_IDS = IntStream.range(1, 23).mapToObj(i -> i + "_button").collect(Collectors.toList());
+    private static final List<String> DICE_COMMAND_OPTIONS_IDS = IntStream.range(1, 23).mapToObj(i -> i + "_button").toList();
     private static final String INVOKING_USER_NAME_DELIMITER = "\u2236 ";
     private static final String LABEL_DELIMITER = "@";
     private final DiceParserHelper diceParserHelper;
@@ -303,8 +303,7 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetCommand.Con
         @Override
         public String toShortString() {
             return labelAndExpression.stream()
-                    .map(LabelAndDiceExpression::toShortString)
-                    .collect(Collectors.toList())
+                    .map(LabelAndDiceExpression::toShortString).toList()
                     .toString();
         }
 

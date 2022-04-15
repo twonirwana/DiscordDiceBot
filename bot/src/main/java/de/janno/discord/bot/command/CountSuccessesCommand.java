@@ -261,10 +261,9 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesCommand
         @Override
         public String toShortString() {
             return Stream.of(String.valueOf(getDiceSides()),
-                            String.valueOf(getTarget()),
-                            getGlitchOption(),
-                            String.valueOf(getMaxNumberOfButtons()))
-                    .collect(Collectors.toList()).toString();
+                    String.valueOf(getTarget()),
+                    getGlitchOption(),
+                    String.valueOf(getMaxNumberOfButtons())).toList().toString();
         }
     }
 
