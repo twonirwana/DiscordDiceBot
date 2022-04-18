@@ -14,6 +14,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -66,6 +68,8 @@ public class DiceParserHelper {
                     "---------------------------------------\n" +
                     "Multiple Rolls |'x[]'      |`3x[3d6]`  \n" +
                     "---------------------------------------\n" +
+                    "Label Result   |'x>y?a:b'  |`1d2=2?A:B`\n" +
+                    "---------------------------------------\n" +
                     "Label          |'x@l'      |`1d20@Att' \n" +
                     "---------------------------------------\n" +
                     "Integer        |''         |'42'       \n" +
@@ -87,6 +91,8 @@ public class DiceParserHelper {
                     "\n it is also possible to use **/r** to directly use a dice expression without buttons" +
                     "\nsee https://github.com/twonirwana/DiscordDiceBot/blob/main/README.md for more details";
 
+    private static final Pattern BOOLEAN_EXPRESSION_PATTERN = Pattern.compile("(^.+?)(=|<|>|<=|>=|<>?)(\\d+?)\\?(.+?):(.+$?)");
+    private static final Pattern MULTI_ROLL_EXPRESSION_PATTERN = Pattern.compile("^(\\d+?)x\\[(.*)?]$");
 
     private final IDice dice;
 
@@ -99,20 +105,34 @@ public class DiceParserHelper {
         this.dice = dice;
     }
 
+    @VisibleForTesting
     static boolean isMultipleRoll(String input) {
-        return input.matches("^\\d+x\\[.*]$");
+        return MULTI_ROLL_EXPRESSION_PATTERN.matcher(input).matches();
     }
 
+    @VisibleForTesting
+    static boolean isBooleanExpression(String input) {
+        return BOOLEAN_EXPRESSION_PATTERN.matcher(input).matches();
+    }
+
+    @VisibleForTesting
     static int getNumberOfMultipleRolls(String input) {
-        int firstBracket = input.indexOf("x[");
-        int numberOfRolls = Integer.parseInt(
-                input.substring(0, firstBracket));
-        return Math.min(numberOfRolls, 25); //limited to 25 because that is the max number of embed discord fields
+        Matcher matcher = MULTI_ROLL_EXPRESSION_PATTERN.matcher(input);
+        if (matcher.find()) {
+            int numberOfRolls = Integer.parseInt(matcher.group(1));
+            return Math.min(numberOfRolls, 25); //limited to 25 because that is the max number of embed discord fields
+        }
+        throw new IllegalArgumentException(String.format("Number of multiplier in '%s' not found", input));
+
     }
 
-    static String getInnerDiceExpression(String input) {
-        int firstBracket = input.indexOf("x[");
-        return input.substring(firstBracket + 2, input.length() - 1);
+    @VisibleForTesting
+    static String getInnerDiceExpressionFromMultiRoll(String input) {
+        Matcher matcher = MULTI_ROLL_EXPRESSION_PATTERN.matcher(input);
+        if (matcher.find()) {
+            return matcher.group(2);
+        }
+        throw new IllegalArgumentException(String.format("Inner expression in '%s' not found", input));
     }
 
     private static List<Integer> getBaseResults(ResultTree resultTree) {
@@ -199,15 +219,35 @@ public class DiceParserHelper {
         try {
             if (isMultipleRoll(input)) {
                 int numberOfRolls = getNumberOfMultipleRolls(input);
-                String innerExpression = getInnerDiceExpression(input);
+                String innerExpression = getInnerDiceExpressionFromMultiRoll(input);
                 List<EmbedDefinition.Field> fields = IntStream.range(0, numberOfRolls)
                         .mapToObj(i -> rollWithDiceParser(innerExpression))
-                        .map(r -> new EmbedDefinition.Field(r.roll, r.getDetails(), false))
+                        .map(r -> new EmbedDefinition.Field(r.getRoll(), r.getDetails(), false))
                         .collect(ImmutableList.toImmutableList());
                 String title = Strings.isNullOrEmpty(label) ? "Multiple Results" : label;
                 return EmbedDefinition.builder()
                         .title(title)
                         .fields(fields).build();
+            } else if (isBooleanExpression(input)) {
+                BooleanExpression booleanExpression = getBooleanExpression(input);
+                RollWithDetails rollWithDetails = rollWithDiceParser(booleanExpression.getExpression());
+                if (rollWithDetails.getResult() == null) {
+                    return EmbedDefinition.builder()
+                            .title(rollWithDetails.getRoll())
+                            .description(rollWithDetails.getDetails())
+                            .build();
+                }
+
+                String result = booleanExpression.getResult(rollWithDetails.getResult());
+                String labelOrExpression = Strings.isNullOrEmpty(label) ? booleanExpression.getExpression() : label;
+                String title = String.format("%s: %s", labelOrExpression, result);
+                String details = String.format("%s%s=>%s%s%s", !Strings.isNullOrEmpty(label) ? booleanExpression.getExpression() + "=>" : "",
+                        rollWithDetails.getDetails(), rollWithDetails.getResult(),
+                        booleanExpression.getOperator(), booleanExpression.getCompareValue());
+                return EmbedDefinition.builder()
+                        .title(title)
+                        .description(details)
+                        .build();
             } else {
                 RollWithDetails rollWithDetails = rollWithDiceParser(input);
                 String title = Strings.isNullOrEmpty(label) ? rollWithDetails.getRoll() : String.format("%s: %s", label, rollWithDetails.getRoll());
@@ -225,19 +265,28 @@ public class DiceParserHelper {
         }
     }
 
+    @VisibleForTesting
+    BooleanExpression getBooleanExpression(String input) {
+        Matcher matcher = BOOLEAN_EXPRESSION_PATTERN.matcher(input);
+        if (!matcher.find()) {
+            throw new IllegalArgumentException(String.format("'%s' doesn't match the required patter '%s'", input, BOOLEAN_EXPRESSION_PATTERN));
+        }
+        return new BooleanExpression(matcher.group(1), matcher.group(2), Integer.parseInt(matcher.group(3)), matcher.group(4), matcher.group(5));
+    }
+
     private RollWithDetails rollWithDiceParser(String input) {
         try {
             input = removeLeadingPlus(input);
             ResultTree resultTree = dice.detailedRoll(input);
             String title = String.format("%s = %d", input, resultTree.getValue());
             String details = String.format("[%s]", getBaseResults(resultTree).stream().map(String::valueOf).collect(Collectors.joining(", ")));
-            return new RollWithDetails(title, details);
+            return new RollWithDetails(title, details, resultTree.getValue());
         } catch (ArithmeticException t) {
             log.error(String.format("Executing '%s' resulting in: %s", input, t.getMessage()));
-            return new RollWithDetails("Arithmetic Error", String.format("Executing '%s' resulting in: %s", input, t.getMessage()));
+            return new RollWithDetails("Arithmetic Error", String.format("Executing '%s' resulting in: %s", input, t.getMessage()), null);
         } catch (Throwable t) {
             log.error(String.format("DiceParser error in %s:", input), t);
-            return new RollWithDetails("Error", String.format("Could not execute the dice expression: %s", input));
+            return new RollWithDetails("Error", String.format("Could not execute the dice expression: %s", input), null);
         }
     }
 
@@ -245,7 +294,9 @@ public class DiceParserHelper {
         try {
             input = removeLeadingPlus(input);
             if (isMultipleRoll(input)) {
-                dice.roll(getInnerDiceExpression(input));
+                dice.roll(getInnerDiceExpressionFromMultiRoll(input));
+            } else if (isBooleanExpression(input)) {
+                dice.roll(getBooleanExpression(input).getExpression());
             } else {
                 dice.roll(input);
             }
@@ -261,6 +312,38 @@ public class DiceParserHelper {
         String roll;
         @NonNull
         String details;
+        Integer result;
+    }
+
+    @Value
+    @VisibleForTesting
+    static class BooleanExpression {
+        String expression;
+        String operator;
+        int compareValue;
+        String trueResult;
+        String falseResult;
+
+        private boolean matches(int value) {
+            if ("=".equals(operator)) {
+                return value == compareValue;
+            } else if ("<".equals(operator)) {
+                return value < compareValue;
+            } else if (">".equals(operator)) {
+                return value > compareValue;
+            } else if ("<=".equals(operator)) {
+                return value <= compareValue;
+            } else if (">=".equals(operator)) {
+                return value >= compareValue;
+            } else if ("<>".equals(operator)) {
+                return value != compareValue;
+            }
+            throw new IllegalArgumentException(String.format("Compare operator '%s' is not valid", operator));
+        }
+
+        public String getResult(int value) {
+            return matches(value) ? trueResult : falseResult;
+        }
     }
 
 }
