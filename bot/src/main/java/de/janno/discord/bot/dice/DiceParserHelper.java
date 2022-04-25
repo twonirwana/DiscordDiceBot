@@ -10,9 +10,7 @@ import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -68,9 +66,9 @@ public class DiceParserHelper {
                     "---------------------------------------\n" +
                     "Multiple Rolls |'x[]'      |`3x[3d6]`  \n" +
                     "---------------------------------------\n" +
-                    "Label Result   |'x>y?a:b'  |`1d2=2?A:B`\n" +
+                    "Result Label   |'x>y?a:b'  |`1d2=2?A:B`\n" +
                     "---------------------------------------\n" +
-                    "Label          |'x@l'      |`1d20@Att' \n" +
+                    "Request Label  |'x@l'      |`1d20@Att' \n" +
                     "---------------------------------------\n" +
                     "Integer        |''         |'42'       \n" +
                     "---------------------------------------\n" +
@@ -91,9 +89,9 @@ public class DiceParserHelper {
                     "\n it is also possible to use **/r** to directly use a dice expression without buttons" +
                     "\nsee https://github.com/twonirwana/DiscordDiceBot/blob/main/README.md for more details";
 
-    private static final Pattern BOOLEAN_EXPRESSION_PATTERN = Pattern.compile("(^.+?)(=|<|>|<=|>=|<>?)(\\d+?)\\?(.+?):(.+$?)");
+    private static final Pattern BOOLEAN_EXPRESSION_PATTERN = Pattern.compile("(^.+?)((?:<=|>=|<>|<|>|=)\\d+\\?.+)+:(.+)$");
     private static final Pattern MULTI_ROLL_EXPRESSION_PATTERN = Pattern.compile("^(\\d+?)x\\[(.*)?]$");
-
+    private static final Pattern VALUE_COMPERE_PATTER = Pattern.compile("(<=|>=|<>|<|>|=)(\\d+)\\?(.+)");
     private final IDice dice;
 
     public DiceParserHelper() {
@@ -181,7 +179,6 @@ public class DiceParserHelper {
         return validateDiceExpression(diceExpression, helpCommand);
     }
 
-
     public Optional<String> validateListOfExpressions(List<String> optionValues, String labelDelimiter, String configDelimiter, String helpCommand) {
         if (optionValues.isEmpty()) {
             return Optional.of(String.format("You must configure at least one dice expression. Use '%s' to get more information on how to use the command.", helpCommand));
@@ -241,9 +238,7 @@ public class DiceParserHelper {
                 String result = booleanExpression.getResult(rollWithDetails.getResult());
                 String labelOrExpression = Strings.isNullOrEmpty(label) ? booleanExpression.getExpression() : label;
                 String title = String.format("%s: %s", labelOrExpression, result);
-                String details = String.format("%s%s=>%s%s%s", !Strings.isNullOrEmpty(label) ? booleanExpression.getExpression() + "=>" : "",
-                        rollWithDetails.getDetails(), rollWithDetails.getResult(),
-                        booleanExpression.getOperator(), booleanExpression.getCompareValue());
+                String details = String.format("%s = %s", rollWithDetails.getDetails(), booleanExpression.getDetail(rollWithDetails.getResult()));
                 return EmbedDefinition.builder()
                         .title(title)
                         .description(details)
@@ -271,7 +266,29 @@ public class DiceParserHelper {
         if (!matcher.find()) {
             throw new IllegalArgumentException(String.format("'%s' doesn't match the required patter '%s'", input, BOOLEAN_EXPRESSION_PATTERN));
         }
-        return new BooleanExpression(matcher.group(1), matcher.group(2), Integer.parseInt(matcher.group(3)), matcher.group(4), matcher.group(5));
+        String expression = matcher.group(1);
+        String compares = matcher.group(2);
+        String defaultAnswer = matcher.group(3);
+        List<ValueCompereResult> valueCompereResults = Arrays.stream(compares.split("(?<=[^<>=])(?=<=|>=|<>|<|>|=)"))
+                .map(this::parseValueCompereResult)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+        return new BooleanExpression(expression, valueCompereResults, defaultAnswer);
+    }
+
+    private ValueCompereResult parseValueCompereResult(String in) {
+        Matcher matcher = VALUE_COMPERE_PATTER.matcher(in);
+        if (!matcher.find()) {
+            return null;
+        }
+        String booleanOperatorExpression = matcher.group(1);
+        BooleanOperator operator = Arrays.stream(BooleanOperator.values())
+                .filter(o -> o.expression.equals(booleanOperatorExpression))
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException(String.format("'%s' is not a valid boolean operator ", booleanOperatorExpression)));
+        int compereValue = Integer.parseInt(matcher.group(2));
+        String result = matcher.group(3);
+        return new ValueCompereResult(operator, compereValue, result);
     }
 
     private RollWithDetails rollWithDiceParser(String input) {
@@ -319,30 +336,41 @@ public class DiceParserHelper {
     @VisibleForTesting
     static class BooleanExpression {
         String expression;
-        String operator;
-        int compareValue;
-        String trueResult;
-        String falseResult;
-
-        private boolean matches(int value) {
-            if ("=".equals(operator)) {
-                return value == compareValue;
-            } else if ("<".equals(operator)) {
-                return value < compareValue;
-            } else if (">".equals(operator)) {
-                return value > compareValue;
-            } else if ("<=".equals(operator)) {
-                return value <= compareValue;
-            } else if (">=".equals(operator)) {
-                return value >= compareValue;
-            } else if ("<>".equals(operator)) {
-                return value != compareValue;
-            }
-            throw new IllegalArgumentException(String.format("Compare operator '%s' is not valid", operator));
-        }
+        List<ValueCompereResult> valueCompereResults;
+        String defaultResult;
 
         public String getResult(int value) {
-            return matches(value) ? trueResult : falseResult;
+            return valueCompereResults.stream()
+                    .filter(vcr -> vcr.matches(value))
+                    .findFirst()
+                    .map(ValueCompereResult::getResultValue)
+                    .orElse(defaultResult);
+        }
+
+        public String getDetail(int value) {
+            String resultDetail = valueCompereResults.stream()
+                    .filter(vcr -> vcr.matches(value))
+                    .findFirst()
+                    .map(ValueCompereResult::toString)
+                    .orElse(String.format(" ⟹ %s", defaultResult));
+            return String.format("%d%s", value, resultDetail);
+        }
+    }
+
+    @Value
+    @VisibleForTesting
+    static class ValueCompereResult {
+
+        BooleanOperator operator;
+        int compareValue;
+        String resultValue;
+
+        private boolean matches(int value) {
+            return operator.function.apply(value, compareValue);
+        }
+
+        public String toString() {
+            return String.format("%s%d ⟹ %s", operator.pretty, compareValue, resultValue);
         }
     }
 
