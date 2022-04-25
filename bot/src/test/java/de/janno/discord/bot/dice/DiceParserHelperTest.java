@@ -66,33 +66,44 @@ class DiceParserHelperTest {
 
     static Stream<Arguments> generateBooleanExpressionData() {
         return Stream.of(
-                Arguments.of("1d6>3?t:f", new DiceParserHelper.BooleanExpression("1d6", ">", 3, "t", "f")),
-                Arguments.of("1d6<3?t:f", new DiceParserHelper.BooleanExpression("1d6", "<", 3, "t", "f")),
-                Arguments.of("1d6=3?t:f", new DiceParserHelper.BooleanExpression("1d6", "=", 3, "t", "f")),
-                Arguments.of("1d6<=3?t:f", new DiceParserHelper.BooleanExpression("1d6", "<=", 3, "t", "f")),
-                Arguments.of("1d6>=3?t:f", new DiceParserHelper.BooleanExpression("1d6", ">=", 3, "t", "f")),
-                Arguments.of("1d6<>3?t:f", new DiceParserHelper.BooleanExpression("1d6", "<>", 3, "t", "f")),
-                Arguments.of("11d66<>33?t:f", new DiceParserHelper.BooleanExpression("11d66", "<>", 33, "t", "f")),
-                Arguments.of("11d66<10<>33?t:f", new DiceParserHelper.BooleanExpression("11d66<10", "<>", 33, "t", "f"))
+                Arguments.of("1d6>3?t:f", new DiceParserHelper.BooleanExpression("1d6", ImmutableList.of(new DiceParserHelper.ValueCompereResult(BooleanOperator.GREATER, 3, "t")), "f")),
+                Arguments.of("1d6<3?t:f", new DiceParserHelper.BooleanExpression("1d6", ImmutableList.of(new DiceParserHelper.ValueCompereResult(BooleanOperator.LESSER, 3, "t")), "f")),
+                Arguments.of("1d6=3?t:f", new DiceParserHelper.BooleanExpression("1d6", ImmutableList.of(new DiceParserHelper.ValueCompereResult(BooleanOperator.EQUAL, 3, "t")), "f")),
+                Arguments.of("1d6<=3?t:f", new DiceParserHelper.BooleanExpression("1d6", ImmutableList.of(new DiceParserHelper.ValueCompereResult(BooleanOperator.LESSER_EQUAL, 3, "t")), "f")),
+                Arguments.of("1d6>=3?t:f", new DiceParserHelper.BooleanExpression("1d6", ImmutableList.of(new DiceParserHelper.ValueCompereResult(BooleanOperator.GREATER_EQUAL, 3, "t")), "f")),
+                Arguments.of("1d6<>3?t:f", new DiceParserHelper.BooleanExpression("1d6", ImmutableList.of(new DiceParserHelper.ValueCompereResult(BooleanOperator.NOT_EQUAL, 3, "t")), "f")),
+                Arguments.of("11d66<>33?t:f", new DiceParserHelper.BooleanExpression("11d66", ImmutableList.of(new DiceParserHelper.ValueCompereResult(BooleanOperator.NOT_EQUAL, 33, "t")), "f")),
+                Arguments.of("11d66<10<>33?t:f", new DiceParserHelper.BooleanExpression("11d66<10", ImmutableList.of(new DiceParserHelper.ValueCompereResult(BooleanOperator.NOT_EQUAL, 33, "t")), "f")),
+                Arguments.of("1d6<=1?a<2?b>3?c>=4?d==5?e<>6?f:g", new DiceParserHelper.BooleanExpression("1d6", ImmutableList.of(
+                        new DiceParserHelper.ValueCompereResult(BooleanOperator.LESSER_EQUAL, 1, "a"),
+                        new DiceParserHelper.ValueCompereResult(BooleanOperator.LESSER, 2, "b"),
+                        new DiceParserHelper.ValueCompereResult(BooleanOperator.GREATER, 3, "c"),
+                        new DiceParserHelper.ValueCompereResult(BooleanOperator.GREATER_EQUAL, 4, "d"),
+                        new DiceParserHelper.ValueCompereResult(BooleanOperator.EQUAL, 5, "e"),
+                        new DiceParserHelper.ValueCompereResult(BooleanOperator.NOT_EQUAL, 6, "f")
+                ), "g")),
+                Arguments.of("11d66<10<>33?<>=:<=>", new DiceParserHelper.BooleanExpression("11d66<10", ImmutableList.of(), "<=>"))
+
         );
     }
 
-
     static Stream<Arguments> generateBooleanExpressionRolls() {
         return Stream.of(
-                Arguments.of("1d6>3?t:f", null, new EmbedDefinition("1d6: f", "[3]=>3>3", ImmutableList.of())),
-                Arguments.of("1d6<3?t:f", null, new EmbedDefinition("1d6: f", "[3]=>3<3", ImmutableList.of())),
-                Arguments.of("1d6=3?t:f", null, new EmbedDefinition("1d6: t", "[3]=>3=3", ImmutableList.of())),
-                Arguments.of("1d6<=3?t:f", null, new EmbedDefinition("1d6: t", "[3]=>3<=3", ImmutableList.of())),
-                Arguments.of("1d6>=3?t:f", null, new EmbedDefinition("1d6: t", "[3]=>3>=3", ImmutableList.of())),
-                Arguments.of("1d6<>3?t:f", null, new EmbedDefinition("1d6: f", "[3]=>3<>3", ImmutableList.of())),
+                Arguments.of("1d6>3?t:f", null, new EmbedDefinition("1d6: f", "[3] = 3 ⟹ f", ImmutableList.of())),
+                Arguments.of("1d6<3?t:f", null, new EmbedDefinition("1d6: f", "[3] = 3 ⟹ f", ImmutableList.of())),
+                Arguments.of("1d6=3?t:f", null, new EmbedDefinition("1d6: t", "[3] = 3=3 ⟹ t", ImmutableList.of())),
+                Arguments.of("1d6<=3?t:f", null, new EmbedDefinition("1d6: t", "[3] = 3≤3 ⟹ t", ImmutableList.of())),
+                Arguments.of("1d6>=3?t:f", null, new EmbedDefinition("1d6: t", "[3] = 3≥3 ⟹ t", ImmutableList.of())),
+                Arguments.of("1d6<>3?t:f", null, new EmbedDefinition("1d6: f", "[3] = 3 ⟹ f", ImmutableList.of())),
 
-                Arguments.of("1d6>3?t:f", "label", new EmbedDefinition("label: f", "1d6=>[3]=>3>3", ImmutableList.of())),
-                Arguments.of("1d6<3?t:f", "label", new EmbedDefinition("label: f", "1d6=>[3]=>3<3", ImmutableList.of())),
-                Arguments.of("1d6=3?t:f", "label", new EmbedDefinition("label: t", "1d6=>[3]=>3=3", ImmutableList.of())),
-                Arguments.of("1d6<=3?t:f", "label", new EmbedDefinition("label: t", "1d6=>[3]=>3<=3", ImmutableList.of())),
-                Arguments.of("1d6>=3?t:f", "label", new EmbedDefinition("label: t", "1d6=>[3]=>3>=3", ImmutableList.of())),
-                Arguments.of("1d6<>3?t:f", "label", new EmbedDefinition("label: f", "1d6=>[3]=>3<>3", ImmutableList.of()))
+                Arguments.of("1d6>3?t:f", "label", new EmbedDefinition("label: f", "[3] = 3 ⟹ f", ImmutableList.of())),
+                Arguments.of("1d6<3?t:f", "label", new EmbedDefinition("label: f", "[3] = 3 ⟹ f", ImmutableList.of())),
+                Arguments.of("1d6=3?t:f", "label", new EmbedDefinition("label: t", "[3] = 3=3 ⟹ t", ImmutableList.of())),
+                Arguments.of("1d6<=3?t:f", "label", new EmbedDefinition("label: t", "[3] = 3≤3 ⟹ t", ImmutableList.of())),
+                Arguments.of("1d6>=3?t:f", "label", new EmbedDefinition("label: t", "[3] = 3≥3 ⟹ t", ImmutableList.of())),
+                Arguments.of("1d6<>3?t:f", "label", new EmbedDefinition("label: f", "[3] = 3 ⟹ f", ImmutableList.of())),
+
+                Arguments.of("1d6<=1?a<2?b>3?c>=4?d==5?e<>6?f:g", "label", new EmbedDefinition("label: f", "[3] = 3≠6 ⟹ f", ImmutableList.of()))
         );
     }
 
@@ -101,7 +112,7 @@ class DiceParserHelperTest {
         underTest = new DiceParserHelper();
     }
 
-    @ParameterizedTest(name = "{index} input:{0}{1} -> {2}")
+    @ParameterizedTest(name = "{index} input:{0}, label:{1} -> {2}")
     @MethodSource("generateBooleanExpressionRolls")
     void rollBooleanExpression(String diceExpression, String label, EmbedDefinition expected) {
         IDice diceMock = mock(IDice.class);
