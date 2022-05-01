@@ -6,7 +6,7 @@ import de.janno.discord.bot.command.*;
 import de.janno.discord.connector.DiscordConnector;
 
 public class Bot {
-    public static void main(final String[] args) {
+    public static void main(final String[] args) throws Exception {
         final String token = args[0];
         final boolean disableCommandUpdate = Boolean.parseBoolean(args[1]);
         final String publishMetricsToUrl = args[2];

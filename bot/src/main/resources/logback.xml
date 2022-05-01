@@ -12,6 +12,8 @@
     <logger name="org.javacord.core.util.gateway" level="WARN"/>
     <logger name="org.javacord.core.util.rest.RestRequest" level="WARN"/>
     <logger name="org.javacord.core.util.handler.guild.GuildUpdateHandler" level="WARN"/>
+    <logger name="net.dv8tion.jda.internal.requests.Requester" level="INFO"/>
+    <logger name="net.dv8tion.jda.internal.requests.RateLimiter" level="INFO"/>
 
     <!-- Display the logs in your console with the following format -->
     <!-- You can learn more about this here: https://logback.qos.ch/manual/layouts.html#ClassicPatternLayout -->

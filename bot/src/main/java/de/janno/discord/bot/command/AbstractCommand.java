@@ -68,6 +68,11 @@ public abstract class AbstractCommand<C extends IConfig, S extends IState> imple
     public Mono<Void> handleComponentInteractEvent(@NonNull IButtonEventAdaptor event) {
         Stopwatch stopwatch = Stopwatch.createStarted();
 
+        Optional<String> checkPermissions = event.checkPermissions();
+        if (checkPermissions.isPresent()) {
+            return event.editMessage(checkPermissions.get());
+        }
+
         C config = getConfigFromEvent(event);
         //adding the message of the event to the cache, in the case that the bot was restarted and has forgotten the button
         long messageId = event.getMessageId();
@@ -140,9 +145,9 @@ public abstract class AbstractCommand<C extends IConfig, S extends IState> imple
 
     @Override
     public Mono<Void> handleSlashCommandEvent(@NonNull ISlashEventAdaptor event) {
-        String checkPermissions = event.checkPermissions();
-        if (checkPermissions != null) {
-            return event.reply(checkPermissions);
+        Optional<String> checkPermissions = event.checkPermissions();
+        if (checkPermissions.isPresent()) {
+            return event.reply(checkPermissions.get());
         }
 
         String commandString = event.getCommandString();

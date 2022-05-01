@@ -45,7 +45,7 @@ public class SlashEventAdapter extends DiscordAdapter implements ISlashEventAdap
     }
 
     @Override
-    public String checkPermissions() {
+    public Optional<String> checkPermissions() {
         List<String> checks = new ArrayList<>();
         if (!event.getSlashCommandInteraction().getChannel().map(TextChannel::canYouWrite).orElse(false)) {
             checks.add("'SEND_MESSAGES'");
@@ -54,11 +54,11 @@ public class SlashEventAdapter extends DiscordAdapter implements ISlashEventAdap
             checks.add("'EMBED_LINKS'");
         }
         if (checks.isEmpty()) {
-            return null;
+            return Optional.empty();
         }
         String result = String.format("The bot is missing the permission: %s. It will not work correctly without it. Please check the guild and channel permissions for the bot", String.join(" and ", checks));
         log.info(result);
-        return result;
+        return Optional.of(result);
     }
 
     @Override
