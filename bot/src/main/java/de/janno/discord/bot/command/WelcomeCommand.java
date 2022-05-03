@@ -2,6 +2,7 @@ package de.janno.discord.bot.command;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import de.janno.discord.bot.BotMetrics;
 import de.janno.discord.bot.cache.ButtonMessageCache;
 import de.janno.discord.connector.api.IButtonEventAdaptor;
 import de.janno.discord.connector.api.message.ButtonDefinition;
@@ -24,6 +25,7 @@ public class WelcomeCommand extends AbstractCommand<WelcomeCommand.Config, Welco
     private static final String NWOD_BUTTON_ID = "nWoD";
     private static final String OWOD_BUTTON_ID = "oWoD";
     private static final String SHADOWRUN_BUTTON_ID = "shadowrun";
+    private static final String COIN_BUTTON_ID = "coin";
 
     public WelcomeCommand() {
         super(new ButtonMessageCache(COMMAND_NAME));
@@ -46,6 +48,7 @@ public class WelcomeCommand extends AbstractCommand<WelcomeCommand.Config, Welco
 
     @Override
     protected Optional<MessageDefinition> getButtonMessageWithState(State state, Config config) {
+        BotMetrics.incrementButtonMetricCounter(COMMAND_NAME, state.toShortString());
         return switch (state.getButtonId()) {
             case FATE_BUTTON_ID -> Optional.of(
                     new FateCommand().getButtonMessage(new FateCommand.Config("with_modifier"))
@@ -77,6 +80,10 @@ public class WelcomeCommand extends AbstractCommand<WelcomeCommand.Config, Welco
             );
             case SHADOWRUN_BUTTON_ID -> Optional.of(
                     new CountSuccessesCommand().getButtonMessage(new CountSuccessesCommand.Config(6, 5, "glitch:half_dice_one", 20))
+            );
+            case COIN_BUTTON_ID -> Optional.of(
+                    new CustomDiceCommand().getButtonMessage(new CustomDiceCommand.Config(ImmutableList.of(
+                            new CustomDiceCommand.LabelAndDiceExpression("Coin Toss", "1d2=2?Head:Tail"))))
             );
             default -> Optional.empty();
         };
@@ -119,7 +126,13 @@ public class WelcomeCommand extends AbstractCommand<WelcomeCommand.Config, Welco
                                         ButtonDefinition.builder()
                                                 .id(String.join(CONFIG_DELIMITER, COMMAND_NAME, NWOD_BUTTON_ID))
                                                 .label("nWoD")
-                                                .build(),
+                                                .build()
+                                )
+                        )
+                        .build())
+                .componentRowDefinition(ComponentRowDefinition.builder()
+                        .buttonDefinitions(
+                                ImmutableList.of(
                                         ButtonDefinition.builder()
                                                 .id(String.join(CONFIG_DELIMITER, COMMAND_NAME, OWOD_BUTTON_ID))
                                                 .label("oWoD")
@@ -127,6 +140,10 @@ public class WelcomeCommand extends AbstractCommand<WelcomeCommand.Config, Welco
                                         ButtonDefinition.builder()
                                                 .id(String.join(CONFIG_DELIMITER, COMMAND_NAME, SHADOWRUN_BUTTON_ID))
                                                 .label("Shadowrun")
+                                                .build(),
+                                        ButtonDefinition.builder()
+                                                .id(String.join(CONFIG_DELIMITER, COMMAND_NAME, COIN_BUTTON_ID))
+                                                .label("Coin Toss")
                                                 .build()
                                 )
                         )

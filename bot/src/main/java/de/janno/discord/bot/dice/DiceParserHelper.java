@@ -9,10 +9,10 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -20,74 +20,77 @@ import java.util.stream.IntStream;
 public class DiceParserHelper {
 
     public static final String HELP =
-            """
-                    ```
-                          Name     |   Syntax  |  Example \s
-                    ---------------------------------------
-                    Single Die     |'d'        |'d6'      \s
-                    ---------------------------------------
-                    Multiple Dice  |'d'        |'3d20'    \s
-                    ---------------------------------------
-                    Keep Dice      |'dk'       |'3d6k2'   \s
-                    ---------------------------------------
-                    Keep Low Dice  |'dl'       |'3d6l2'   \s
-                    ---------------------------------------
-                    Multiply Die   |'dX'       |'d10X'    \s
-                     --------------------------------------
-                    Multiply Dice  |'dX'       |'2d10X'   \s
-                    ---------------------------------------
-                    Fudge Dice     |'dF'       |'dF'      \s
-                    ---------------------------------------
-                    Multiple Fudge |'dF'       |'3dF'     \s
-                     Dice          |           |          \s
-                     --------------------------------------
-                    Weighted Fudge |'dF.'      |'dF.1'    \s
-                     Die           |           |          \s
-                     --------------------------------------
-                    Weighted       |'dF.'      |'2dF.1'   \s
-                     Fudge Dice    |           |          \s
-                    ---------------------------------------
-                    Exploding Dice |'d!'       |'4d6!'    \s
-                    ---------------------------------------
-                    Exploding Dice |'d!>'      |'3d6!>5'  \s
-                     (Target)      |           |          \s
-                    ---------------------------------------
-                    Compounding    |'d!!'      |'3d6!!'   \s
-                     Dice          |           |          \s
-                    ---------------------------------------
-                    Compounding    |'d!!>'     |'3d6!!>5' \s
-                     Dice (Target) |           |          \s
-                    ---------------------------------------
-                    Target Pool    |'d[>,<,=]' |'3d6=6'   \s
-                     Dice          |           |          \s
-                    ---------------------------------------
-                    Target Pool    |'()[>,<,=]'|'(4d8-2)>6'
-                    Dice Expression|           |          \s
-                    ---------------------------------------
-                    Multiple Rolls |'x[]'      |`3x[3d6]` \s
-                    ---------------------------------------
-                    Label          |'x@l'      |`1d20@Att'\s
-                    ---------------------------------------
-                    Integer        |''         |'42'      \s
-                    ---------------------------------------
-                    Add            |' + '      |'2d6 + 2' \s
-                    ---------------------------------------
-                    Subtract       |' - '      |'2 - 1'   \s
-                    ---------------------------------------
-                    Multiply       |' * '      |'1d4*2d6' \s
-                    ---------------------------------------
-                    Divide         |' / '      |'4 / 2'   \s
-                    ---------------------------------------
-                    Negative       |'-'        |'-1d6'    \s
-                    ---------------------------------------
-                    Order          |'asc, desc'|'10d10asc'\s
-                    ---------------------------------------
-                    Min/Max        |'min, max' |'2d6min3d4'
-                    ```
-                     it is also possible to use **/r** to directly use a dice expression without buttons
-                    see https://github.com/twonirwana/DiscordDiceBot/blob/main/README.md for more details""";
+            "```\n" +
+                    "      Name     |   Syntax  |  Example  \n" +
+                    "---------------------------------------\n" +
+                    "Single Die     |'d'        |'d6'       \n" +
+                    "---------------------------------------\n" +
+                    "Multiple Dice  |'d'        |'3d20'     \n" +
+                    "---------------------------------------\n" +
+                    "Keep Dice      |'dk'       |'3d6k2'    \n" +
+                    "---------------------------------------\n" +
+                    "Keep Low Dice  |'dl'       |'3d6l2'    \n" +
+                    "---------------------------------------\n" +
+                    "Multiply Die   |'dX'       |'d10X'     \n" +
+                    " --------------------------------------\n" +
+                    "Multiply Dice  |'dX'       |'2d10X'    \n" +
+                    "---------------------------------------\n" +
+                    "Fudge Dice     |'dF'       |'dF'       \n" +
+                    "---------------------------------------\n" +
+                    "Multiple Fudge |'dF'       |'3dF'      \n" +
+                    " Dice          |           |           \n" +
+                    " --------------------------------------\n" +
+                    "Weighted Fudge |'dF.'      |'dF.1'     \n" +
+                    " Die           |           |           \n" +
+                    " --------------------------------------\n" +
+                    "Weighted       |'dF.'      |'2dF.1'    \n" +
+                    " Fudge Dice    |           |           \n" +
+                    "---------------------------------------\n" +
+                    "Exploding Dice |'d!'       |'4d6!'     \n" +
+                    "---------------------------------------\n" +
+                    "Exploding Dice |'d!>'      |'3d6!>5'   \n" +
+                    " (Target)      |           |           \n" +
+                    "---------------------------------------\n" +
+                    "Compounding    |'d!!'      |'3d6!!'    \n" +
+                    " Dice          |           |           \n" +
+                    "---------------------------------------\n" +
+                    "Compounding    |'d!!>'     |'3d6!!>5'  \n" +
+                    " Dice (Target) |           |           \n" +
+                    "---------------------------------------\n" +
+                    "Target Pool    |'d[>,<,=]' |'3d6=6'    \n" +
+                    " Dice          |           |           \n" +
+                    "---------------------------------------\n" +
+                    "Target Pool    |'()[>,<,=]'|'(4d8-2)>6'\n" +
+                    "Dice Expression|           |           \n" +
+                    "---------------------------------------\n" +
+                    "Multiple Rolls |'x[]'      |`3x[3d6]`  \n" +
+                    "---------------------------------------\n" +
+                    "Result Label   |'x>y?a:b'  |`1d2=2?A:B`\n" +
+                    "---------------------------------------\n" +
+                    "Request Label  |'x@l'      |`1d20@Att' \n" +
+                    "---------------------------------------\n" +
+                    "Integer        |''         |'42'       \n" +
+                    "---------------------------------------\n" +
+                    "Add            |' + '      |'2d6 + 2'  \n" +
+                    "---------------------------------------\n" +
+                    "Subtract       |' - '      |'2 - 1'    \n" +
+                    "---------------------------------------\n" +
+                    "Multiply       |' * '      |'1d4*2d6'  \n" +
+                    "---------------------------------------\n" +
+                    "Divide         |' / '      |'4 / 2'    \n" +
+                    "---------------------------------------\n" +
+                    "Negative       |'-'        |'-1d6'     \n" +
+                    "---------------------------------------\n" +
+                    "Order          |'asc, desc'|'10d10asc' \n" +
+                    "---------------------------------------\n" +
+                    "Min/Max        |'min, max' |'2d6min3d4'\n" +
+                    "```" +
+                    "\n it is also possible to use **/r** to directly use a dice expression without buttons" +
+                    "\nsee https://github.com/twonirwana/DiscordDiceBot/blob/main/README.md for more details";
 
-
+    private static final Pattern BOOLEAN_EXPRESSION_PATTERN = Pattern.compile("(^.+?)((?:<=|>=|<>|<|>|=)\\d+\\?.+)+:(.+)$");
+    private static final Pattern MULTI_ROLL_EXPRESSION_PATTERN = Pattern.compile("^(\\d+?)x\\[(.*)?]$");
+    private static final Pattern VALUE_COMPERE_PATTER = Pattern.compile("(<=|>=|<>|<|>|=)(\\d+)\\?(.+)");
     private final IDice dice;
 
     public DiceParserHelper() {
@@ -99,20 +102,34 @@ public class DiceParserHelper {
         this.dice = dice;
     }
 
+    @VisibleForTesting
     static boolean isMultipleRoll(String input) {
-        return input.matches("^\\d+x\\[.*]$");
+        return MULTI_ROLL_EXPRESSION_PATTERN.matcher(input).matches();
     }
 
+    @VisibleForTesting
+    static boolean isBooleanExpression(String input) {
+        return BOOLEAN_EXPRESSION_PATTERN.matcher(input).matches();
+    }
+
+    @VisibleForTesting
     static int getNumberOfMultipleRolls(String input) {
-        int firstBracket = input.indexOf("x[");
-        int numberOfRolls = Integer.parseInt(
-                input.substring(0, firstBracket));
-        return Math.min(numberOfRolls, 25); //limited to 25 because that is the max number of embed discord fields
+        Matcher matcher = MULTI_ROLL_EXPRESSION_PATTERN.matcher(input);
+        if (matcher.find()) {
+            int numberOfRolls = Integer.parseInt(matcher.group(1));
+            return Math.min(numberOfRolls, 25); //limited to 25 because that is the max number of embed discord fields
+        }
+        throw new IllegalArgumentException(String.format("Number of multiplier in '%s' not found", input));
+
     }
 
-    static String getInnerDiceExpression(String input) {
-        int firstBracket = input.indexOf("x[");
-        return input.substring(firstBracket + 2, input.length() - 1);
+    @VisibleForTesting
+    static String getInnerDiceExpressionFromMultiRoll(String input) {
+        Matcher matcher = MULTI_ROLL_EXPRESSION_PATTERN.matcher(input);
+        if (matcher.find()) {
+            return matcher.group(2);
+        }
+        throw new IllegalArgumentException(String.format("Inner expression in '%s' not found", input));
     }
 
     private static List<Integer> getBaseResults(ResultTree resultTree) {
@@ -161,7 +178,6 @@ public class DiceParserHelper {
         return validateDiceExpression(diceExpression, helpCommand);
     }
 
-
     public Optional<String> validateListOfExpressions(List<String> optionValues, String labelDelimiter, String configDelimiter, String helpCommand) {
         if (optionValues.isEmpty()) {
             return Optional.of(String.format("You must configure at least one dice expression. Use '%s' to get more information on how to use the command.", helpCommand));
@@ -199,15 +215,33 @@ public class DiceParserHelper {
         try {
             if (isMultipleRoll(input)) {
                 int numberOfRolls = getNumberOfMultipleRolls(input);
-                String innerExpression = getInnerDiceExpression(input);
+                String innerExpression = getInnerDiceExpressionFromMultiRoll(input);
                 List<EmbedDefinition.Field> fields = IntStream.range(0, numberOfRolls)
                         .mapToObj(i -> rollWithDiceParser(innerExpression))
-                        .map(r -> new EmbedDefinition.Field(r.roll, r.details(), false))
+                        .map(r -> new EmbedDefinition.Field(r.getRoll(), r.details(), false))
                         .collect(ImmutableList.toImmutableList());
                 String title = Strings.isNullOrEmpty(label) ? "Multiple Results" : label;
                 return EmbedDefinition.builder()
                         .title(title)
                         .fields(fields).build();
+            } else if (isBooleanExpression(input)) {
+                BooleanExpression booleanExpression = getBooleanExpression(input);
+                RollWithDetails rollWithDetails = rollWithDiceParser(booleanExpression.getExpression());
+                if (rollWithDetails.getResult() == null) {
+                    return EmbedDefinition.builder()
+                            .title(rollWithDetails.getRoll())
+                            .description(rollWithDetails.getDetails())
+                            .build();
+                }
+
+                String result = booleanExpression.getResult(rollWithDetails.getResult());
+                String labelOrExpression = Strings.isNullOrEmpty(label) ? booleanExpression.getExpression() : label;
+                String title = String.format("%s: %s", labelOrExpression, result);
+                String details = String.format("%s = %s", rollWithDetails.getDetails(), booleanExpression.getDetail(rollWithDetails.getResult()));
+                return EmbedDefinition.builder()
+                        .title(title)
+                        .description(details)
+                        .build();
             } else {
                 RollWithDetails rollWithDetails = rollWithDiceParser(input);
                 String title = Strings.isNullOrEmpty(label) ? rollWithDetails.roll() : String.format("%s: %s", label, rollWithDetails.roll());
@@ -225,19 +259,50 @@ public class DiceParserHelper {
         }
     }
 
+    @VisibleForTesting
+    BooleanExpression getBooleanExpression(String input) {
+        Matcher matcher = BOOLEAN_EXPRESSION_PATTERN.matcher(input);
+        if (!matcher.find()) {
+            throw new IllegalArgumentException(String.format("'%s' doesn't match the required patter '%s'", input, BOOLEAN_EXPRESSION_PATTERN));
+        }
+        String expression = matcher.group(1);
+        String compares = matcher.group(2);
+        String defaultAnswer = matcher.group(3);
+        List<ValueCompereResult> valueCompereResults = Arrays.stream(compares.split("(?<=[^<>=])(?=<=|>=|<>|<|>|=)"))
+                .map(this::parseValueCompereResult)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+        return new BooleanExpression(expression, valueCompereResults, defaultAnswer);
+    }
+
+    private ValueCompereResult parseValueCompereResult(String in) {
+        Matcher matcher = VALUE_COMPERE_PATTER.matcher(in);
+        if (!matcher.find()) {
+            return null;
+        }
+        String booleanOperatorExpression = matcher.group(1);
+        BooleanOperator operator = Arrays.stream(BooleanOperator.values())
+                .filter(o -> o.expression.equals(booleanOperatorExpression))
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException(String.format("'%s' is not a valid boolean operator ", booleanOperatorExpression)));
+        int compereValue = Integer.parseInt(matcher.group(2));
+        String result = matcher.group(3);
+        return new ValueCompereResult(operator, compereValue, result);
+    }
+
     private RollWithDetails rollWithDiceParser(String input) {
         try {
             input = removeLeadingPlus(input);
             ResultTree resultTree = dice.detailedRoll(input);
             String title = String.format("%s = %d", input, resultTree.getValue());
             String details = String.format("[%s]", getBaseResults(resultTree).stream().map(String::valueOf).collect(Collectors.joining(", ")));
-            return new RollWithDetails(title, details);
+            return new RollWithDetails(title, details, resultTree.getValue());
         } catch (ArithmeticException t) {
             log.error(String.format("Executing '%s' resulting in: %s", input, t.getMessage()));
-            return new RollWithDetails("Arithmetic Error", String.format("Executing '%s' resulting in: %s", input, t.getMessage()));
+            return new RollWithDetails("Arithmetic Error", String.format("Executing '%s' resulting in: %s", input, t.getMessage()), null);
         } catch (Throwable t) {
             log.error(String.format("DiceParser error in %s:", input), t);
-            return new RollWithDetails("Error", String.format("Could not execute the dice expression: %s", input));
+            return new RollWithDetails("Error", String.format("Could not execute the dice expression: %s", input), null);
         }
     }
 
@@ -245,7 +310,9 @@ public class DiceParserHelper {
         try {
             input = removeLeadingPlus(input);
             if (isMultipleRoll(input)) {
-                dice.roll(getInnerDiceExpression(input));
+                dice.roll(getInnerDiceExpressionFromMultiRoll(input));
+            } else if (isBooleanExpression(input)) {
+                dice.roll(getBooleanExpression(input).getExpression());
             } else {
                 dice.roll(input);
             }
@@ -255,7 +322,55 @@ public class DiceParserHelper {
         }
     }
 
-    private record RollWithDetails(@NonNull String roll, @NonNull String details) {
+    @Value
+    private static class RollWithDetails {
+        @NonNull
+        String roll;
+        @NonNull
+        String details;
+        Integer result;
+    }
+
+    @Value
+    @VisibleForTesting
+    static class BooleanExpression {
+        String expression;
+        List<ValueCompereResult> valueCompereResults;
+        String defaultResult;
+
+        public String getResult(int value) {
+            return valueCompereResults.stream()
+                    .filter(vcr -> vcr.matches(value))
+                    .findFirst()
+                    .map(ValueCompereResult::getResultValue)
+                    .orElse(defaultResult);
+        }
+
+        public String getDetail(int value) {
+            String resultDetail = valueCompereResults.stream()
+                    .filter(vcr -> vcr.matches(value))
+                    .findFirst()
+                    .map(ValueCompereResult::toString)
+                    .orElse(String.format(" ⟹ %s", defaultResult));
+            return String.format("%d%s", value, resultDetail);
+        }
+    }
+
+    @Value
+    @VisibleForTesting
+    static class ValueCompereResult {
+
+        BooleanOperator operator;
+        int compareValue;
+        String resultValue;
+
+        private boolean matches(int value) {
+            return operator.function.apply(value, compareValue);
+        }
+
+        public String toString() {
+            return String.format("%s%d ⟹ %s", operator.pretty, compareValue, resultValue);
+        }
     }
 
 }

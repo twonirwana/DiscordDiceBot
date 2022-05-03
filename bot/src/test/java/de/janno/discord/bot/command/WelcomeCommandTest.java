@@ -231,12 +231,13 @@ class WelcomeCommandTest {
                         "welcome,dnd5",
                         "welcome,nWoD",
                         "welcome,oWoD",
-                        "welcome,shadowrun");
+                        "welcome,shadowrun",
+                        "welcome,coin");
         assertThat(res.getComponentRowDefinitions()
                 .stream()
                 .flatMap(s -> s.getButtonDefinitions().stream())
                 .map(ButtonDefinition::getLabel))
-                .containsExactly("Fate", "D&D5e", "nWoD", "oWoD", "Shadowrun");
+                .containsExactly("Fate", "D&D5e", "nWoD", "oWoD", "Shadowrun","Coin Toss");
 
     }
 
