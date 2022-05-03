@@ -1,7 +1,6 @@
 rootProject.name = 'buttonDiceRoller'
 include 'discord-connector'
 include 'discord-connector:api'
-include 'discord-connector:javacord'
 include 'discord-connector:jda'
 include 'bot'
 

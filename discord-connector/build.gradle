@@ -10,7 +10,6 @@ group 'de.janno'
 
 dependencies {
     api project(':discord-connector:api')
-    implementation project(':discord-connector:javacord')
     implementation project(':discord-connector:jda')
 
     compileOnly 'org.projectlombok:lombok:1.18.24'

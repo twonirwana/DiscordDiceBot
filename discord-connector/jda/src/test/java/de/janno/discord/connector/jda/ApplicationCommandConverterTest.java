@@ -2,7 +2,6 @@ package de.janno.discord.connector.jda;
 
 import de.janno.discord.connector.api.slash.CommandDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinitionOption;
-import de.janno.discord.connector.api.slash.CommandDefinitionOptionChoice;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
