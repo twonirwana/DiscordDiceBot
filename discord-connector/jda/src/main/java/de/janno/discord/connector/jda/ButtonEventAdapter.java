@@ -7,7 +7,6 @@ import de.janno.discord.connector.api.message.EmbedDefinition;
 import de.janno.discord.connector.api.message.MessageDefinition;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import net.dv8tion.jda.api.entities.GuildMessageChannel;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
@@ -110,7 +109,7 @@ public class ButtonEventAdapter extends DiscordAdapter implements IButtonEventAd
 
     @Override
     public Mono<Void> deleteMessage(long messageId) {
-        return deleteMessage(event.getInteraction().getTextChannel(), messageId);
+        return deleteMessage(event.getInteraction().getMessageChannel(), messageId);
     }
 
     @Override
@@ -124,7 +123,7 @@ public class ButtonEventAdapter extends DiscordAdapter implements IButtonEventAd
 
     @Override
     public Optional<String> checkPermissions() {
-        return checkPermission((GuildMessageChannel) event.getGuildChannel(), event.getGuild());
+        return checkPermission(event.getMessageChannel(), event.getGuild());
     }
 
     @Override

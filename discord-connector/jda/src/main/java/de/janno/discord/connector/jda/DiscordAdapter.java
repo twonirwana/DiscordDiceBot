@@ -92,20 +92,24 @@ public abstract class DiscordAdapter implements IDiscordAdapter {
         return Mono.empty();
     }
 
-    protected Mono<Void> deleteMessage(TextChannel textChannel, long messageId) {
+    protected Mono<Void> deleteMessage(MessageChannel textChannel, long messageId) {
         return createMonoFrom(() -> textChannel.retrieveMessageById(messageId))
                 .filter(m -> !m.isPinned())
                 .flatMap(m -> createMonoFrom(m::delete))
                 .onErrorResume(t -> handleException("Error on deleting message", t, true));
     }
 
-    protected Optional<String> checkPermission(@NonNull GuildMessageChannel messageChannel, @Nullable Guild guild) {
+    protected Optional<String> checkPermission(@NonNull MessageChannel messageChannel, @Nullable Guild guild) {
         List<String> checks = new ArrayList<>();
         if (!messageChannel.canTalk()) {
             checks.add("'SEND_MESSAGES'");
         }
-
-        if (Optional.ofNullable(guild).map(Guild::getSelfMember).map(m -> !m.hasPermission(messageChannel, Permission.MESSAGE_EMBED_LINKS)).orElse(true)) {
+       boolean missingEmbedPermission = Optional.of(messageChannel)
+                .filter(m -> m instanceof  GuildMessageChannel)
+                .map(m -> (GuildMessageChannel) m)
+                .flatMap(g -> Optional.ofNullable(guild).map(Guild::getSelfMember).map(m -> !m.hasPermission(g, Permission.MESSAGE_EMBED_LINKS)))
+                .orElse(true);
+        if (missingEmbedPermission) {
             checks.add("'EMBED_LINKS'");
         }
         if (checks.isEmpty()) {

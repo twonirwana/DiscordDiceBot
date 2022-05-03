@@ -11,6 +11,7 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.GuildMessageChannel;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.api.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.api.events.guild.GuildReadyEvent;
@@ -60,6 +61,7 @@ public class JdaClient {
                                     botInGuildIdSet.add(event.getGuild().getIdLong());
                                     if (LocalDateTime.now().isAfter(startTimePlusBuffer)) {
                                         Optional.ofNullable(event.getGuild().getSystemChannel())
+                                                .filter(GuildMessageChannel::canTalk)
                                                 .ifPresent(textChannel -> Mono.fromFuture(textChannel.sendMessage(
                                                                         MessageComponentConverter.messageComponent2MessageLayout(welcomeMessageDefinition.getContent(),
                                                                                 welcomeMessageDefinition.getComponentRowDefinitions()))
