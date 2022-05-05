@@ -57,9 +57,9 @@ public class DirectRollCommand implements ISlashCommand {
     public Mono<Void> handleSlashCommandEvent(@NonNull ISlashEventAdaptor event) {
         Stopwatch stopwatch = Stopwatch.createStarted();
 
-        String checkPermissions = event.checkPermissions();
-        if (checkPermissions != null) {
-            return event.reply(checkPermissions);
+        Optional<String> checkPermissions = event.checkPermissions();
+        if (checkPermissions.isPresent()) {
+            return event.reply(checkPermissions.get());
         }
 
         String commandString = event.getCommandString();

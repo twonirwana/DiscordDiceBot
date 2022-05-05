@@ -6,6 +6,7 @@ import lombok.Value;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface IButtonEventAdaptor extends IDiscordAdapter {
 
@@ -32,6 +33,8 @@ public interface IButtonEventAdaptor extends IDiscordAdapter {
     String getMessageContent();
 
     Mono<Requester> getRequester();
+
+    Optional<String> checkPermissions();
 
     @Value
     class LabelAndCustomId {
