@@ -40,7 +40,7 @@ public class ButtonMessageCache {
     public Map<Long, Set<ButtonWithConfigHash>> getCacheContent() {
         return channel2ButtonMessageIds.asMap().entrySet().stream()
                 .collect(ImmutableMap.toImmutableMap(Map.Entry::getKey, e -> e.getValue().stream()
-                        .map(b -> new ButtonWithConfigHash(b.buttonId, b.getConfigHash()))
+                        .map(b -> new ButtonWithConfigHash(b.getButtonId(), b.getConfigHash()))
                         .collect(ImmutableSet.toImmutableSet())));
     }
 

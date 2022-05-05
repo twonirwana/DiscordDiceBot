@@ -24,8 +24,6 @@ public class BotMetrics {
     public final static String METRIC_PREFIX = "dice.";
     public final static String METRIC_BUTTON_PREFIX = "buttonEvent";
     public final static String METRIC_SLASH_PREFIX = "slashEvent";
-    public final static String METRIC_BUTTON_TIMER_PREFIX = "buttonTimer";
-    public final static String METRIC_SLASH_TIMER_PREFIX = "slashTimer";
     public final static String METRIC_SLASH_HELP_PREFIX = "slashHelpEvent";
     public final static String CONFIG_TAG = "config";
     public final static String COMMAND_TAG = "command";

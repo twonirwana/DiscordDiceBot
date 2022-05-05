@@ -107,12 +107,11 @@ public class WelcomeCommand extends AbstractCommand<WelcomeCommand.Config, Welco
     @Override
     protected MessageDefinition getButtonMessage(Config config) {
         return MessageDefinition.builder()
-                .content("Welcome to the Button Dice Bot," +
-                        "\nuse one of the example buttons below to start one of the RPG dice systems " +
-                        "or use the slash command to configure your own custom dice system " +
-                        "(see https://github.com/twonirwana/DiscordDiceBot for details or the slash command `/help`). " +
-                        "\nYou can also use the slash command `/r` to directly roll dice with." +
-                        "\nFor help or feature request come to the support discord server: https://discord.gg/e43BsqKpFr")
+                .content("""
+                        Welcome to the Button Dice Bot,
+                        use one of the example buttons below to start one of the RPG dice systems or use the slash command to configure your own custom dice system (see https://github.com/twonirwana/DiscordDiceBot for details or the slash command `/help`).\s
+                        You can also use the slash command `/r` to directly roll dice with.
+                        For help or feature request come to the support discord server: https://discord.gg/e43BsqKpFr""")
                 .componentRowDefinition(ComponentRowDefinition.builder()
                         .buttonDefinitions(
                                 ImmutableList.of(
