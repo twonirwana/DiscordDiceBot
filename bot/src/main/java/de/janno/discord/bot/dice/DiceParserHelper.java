@@ -6,6 +6,7 @@ import com.google.common.collect.ImmutableList;
 import de.janno.discord.connector.api.message.EmbedDefinition;
 import dev.diceroll.parser.ResultTree;
 import lombok.NonNull;
+import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
 
@@ -20,73 +21,74 @@ import java.util.stream.IntStream;
 public class DiceParserHelper {
 
     public static final String HELP =
-            "```\n" +
-                    "      Name     |   Syntax  |  Example  \n" +
-                    "---------------------------------------\n" +
-                    "Single Die     |'d'        |'d6'       \n" +
-                    "---------------------------------------\n" +
-                    "Multiple Dice  |'d'        |'3d20'     \n" +
-                    "---------------------------------------\n" +
-                    "Keep Dice      |'dk'       |'3d6k2'    \n" +
-                    "---------------------------------------\n" +
-                    "Keep Low Dice  |'dl'       |'3d6l2'    \n" +
-                    "---------------------------------------\n" +
-                    "Multiply Die   |'dX'       |'d10X'     \n" +
-                    " --------------------------------------\n" +
-                    "Multiply Dice  |'dX'       |'2d10X'    \n" +
-                    "---------------------------------------\n" +
-                    "Fudge Dice     |'dF'       |'dF'       \n" +
-                    "---------------------------------------\n" +
-                    "Multiple Fudge |'dF'       |'3dF'      \n" +
-                    " Dice          |           |           \n" +
-                    " --------------------------------------\n" +
-                    "Weighted Fudge |'dF.'      |'dF.1'     \n" +
-                    " Die           |           |           \n" +
-                    " --------------------------------------\n" +
-                    "Weighted       |'dF.'      |'2dF.1'    \n" +
-                    " Fudge Dice    |           |           \n" +
-                    "---------------------------------------\n" +
-                    "Exploding Dice |'d!'       |'4d6!'     \n" +
-                    "---------------------------------------\n" +
-                    "Exploding Dice |'d!>'      |'3d6!>5'   \n" +
-                    " (Target)      |           |           \n" +
-                    "---------------------------------------\n" +
-                    "Compounding    |'d!!'      |'3d6!!'    \n" +
-                    " Dice          |           |           \n" +
-                    "---------------------------------------\n" +
-                    "Compounding    |'d!!>'     |'3d6!!>5'  \n" +
-                    " Dice (Target) |           |           \n" +
-                    "---------------------------------------\n" +
-                    "Target Pool    |'d[>,<,=]' |'3d6=6'    \n" +
-                    " Dice          |           |           \n" +
-                    "---------------------------------------\n" +
-                    "Target Pool    |'()[>,<,=]'|'(4d8-2)>6'\n" +
-                    "Dice Expression|           |           \n" +
-                    "---------------------------------------\n" +
-                    "Multiple Rolls |'x[]'      |`3x[3d6]`  \n" +
-                    "---------------------------------------\n" +
-                    "Result Label   |'x>y?a:b'  |`1d2=2?A:B`\n" +
-                    "---------------------------------------\n" +
-                    "Request Label  |'x@l'      |`1d20@Att' \n" +
-                    "---------------------------------------\n" +
-                    "Integer        |''         |'42'       \n" +
-                    "---------------------------------------\n" +
-                    "Add            |' + '      |'2d6 + 2'  \n" +
-                    "---------------------------------------\n" +
-                    "Subtract       |' - '      |'2 - 1'    \n" +
-                    "---------------------------------------\n" +
-                    "Multiply       |' * '      |'1d4*2d6'  \n" +
-                    "---------------------------------------\n" +
-                    "Divide         |' / '      |'4 / 2'    \n" +
-                    "---------------------------------------\n" +
-                    "Negative       |'-'        |'-1d6'     \n" +
-                    "---------------------------------------\n" +
-                    "Order          |'asc, desc'|'10d10asc' \n" +
-                    "---------------------------------------\n" +
-                    "Min/Max        |'min, max' |'2d6min3d4'\n" +
-                    "```" +
-                    "\n it is also possible to use **/r** to directly use a dice expression without buttons" +
-                    "\nsee https://github.com/twonirwana/DiscordDiceBot/blob/main/README.md for more details";
+            """
+                    ```
+                          Name     |   Syntax  |  Example \s
+                    ---------------------------------------
+                    Single Die     |'d'        |'d6'      \s
+                    ---------------------------------------
+                    Multiple Dice  |'d'        |'3d20'    \s
+                    ---------------------------------------
+                    Keep Dice      |'dk'       |'3d6k2'   \s
+                    ---------------------------------------
+                    Keep Low Dice  |'dl'       |'3d6l2'   \s
+                    ---------------------------------------
+                    Multiply Die   |'dX'       |'d10X'    \s
+                     --------------------------------------
+                    Multiply Dice  |'dX'       |'2d10X'   \s
+                    ---------------------------------------
+                    Fudge Dice     |'dF'       |'dF'      \s
+                    ---------------------------------------
+                    Multiple Fudge |'dF'       |'3dF'     \s
+                     Dice          |           |          \s
+                     --------------------------------------
+                    Weighted Fudge |'dF.'      |'dF.1'    \s
+                     Die           |           |          \s
+                     --------------------------------------
+                    Weighted       |'dF.'      |'2dF.1'   \s
+                     Fudge Dice    |           |          \s
+                    ---------------------------------------
+                    Exploding Dice |'d!'       |'4d6!'    \s
+                    ---------------------------------------
+                    Exploding Dice |'d!>'      |'3d6!>5'  \s
+                     (Target)      |           |          \s
+                    ---------------------------------------
+                    Compounding    |'d!!'      |'3d6!!'   \s
+                     Dice          |           |          \s
+                    ---------------------------------------
+                    Compounding    |'d!!>'     |'3d6!!>5' \s
+                     Dice (Target) |           |          \s
+                    ---------------------------------------
+                    Target Pool    |'d[>,<,=]' |'3d6=6'   \s
+                     Dice          |           |          \s
+                    ---------------------------------------
+                    Target Pool    |'()[>,<,=]'|'(4d8-2)>6'
+                    Dice Expression|           |          \s
+                    ---------------------------------------
+                    Multiple Rolls |'x[]'      |`3x[3d6]` \s
+                    ---------------------------------------
+                    Result Label   |'x>y?a:b'  |`1d2=2?A:B`
+                    ---------------------------------------
+                    Request Label  |'x@l'      |`1d20@Att'\s
+                    ---------------------------------------
+                    Integer        |''         |'42'      \s
+                    ---------------------------------------
+                    Add            |' + '      |'2d6 + 2' \s
+                    ---------------------------------------
+                    Subtract       |' - '      |'2 - 1'   \s
+                    ---------------------------------------
+                    Multiply       |' * '      |'1d4*2d6' \s
+                    ---------------------------------------
+                    Divide         |' / '      |'4 / 2'   \s
+                    ---------------------------------------
+                    Negative       |'-'        |'-1d6'    \s
+                    ---------------------------------------
+                    Order          |'asc, desc'|'10d10asc'\s
+                    ---------------------------------------
+                    Min/Max        |'min, max' |'2d6min3d4'
+                    ```
+                     it is also possible to use **/r** to directly use a dice expression without buttons
+                    see https://github.com/twonirwana/DiscordDiceBot/blob/main/README.md for more details""";
 
     private static final Pattern BOOLEAN_EXPRESSION_PATTERN = Pattern.compile("(^.+?)((?:<=|>=|<>|<|>|=)\\d+\\?.+)+:(.+)$");
     private static final Pattern MULTI_ROLL_EXPRESSION_PATTERN = Pattern.compile("^(\\d+?)x\\[(.*)?]$");
@@ -218,7 +220,7 @@ public class DiceParserHelper {
                 String innerExpression = getInnerDiceExpressionFromMultiRoll(input);
                 List<EmbedDefinition.Field> fields = IntStream.range(0, numberOfRolls)
                         .mapToObj(i -> rollWithDiceParser(innerExpression))
-                        .map(r -> new EmbedDefinition.Field(r.getRoll(), r.details(), false))
+                        .map(r -> new EmbedDefinition.Field(r.getRoll(), r.getDetails(), false))
                         .collect(ImmutableList.toImmutableList());
                 String title = Strings.isNullOrEmpty(label) ? "Multiple Results" : label;
                 return EmbedDefinition.builder()
@@ -244,10 +246,10 @@ public class DiceParserHelper {
                         .build();
             } else {
                 RollWithDetails rollWithDetails = rollWithDiceParser(input);
-                String title = Strings.isNullOrEmpty(label) ? rollWithDetails.roll() : String.format("%s: %s", label, rollWithDetails.roll());
+                String title = Strings.isNullOrEmpty(label) ? rollWithDetails.getRoll() : String.format("%s: %s", label, rollWithDetails.getRoll());
                 return EmbedDefinition.builder()
                         .title(title)
-                        .description(rollWithDetails.details())
+                        .description(rollWithDetails.getDetails())
                         .build();
             }
         } catch (Throwable t) {

@@ -40,7 +40,7 @@ public class ButtonMessageCache {
     public Map<Long, Set<ButtonWithConfigHash>> getCacheContent() {
         return channel2ButtonMessageIds.asMap().entrySet().stream()
                 .collect(ImmutableMap.toImmutableMap(Map.Entry::getKey, e -> e.getValue().stream()
-                        .map(b -> new ButtonWithConfigHash(b.buttonId, b.configHash()))
+                        .map(b -> new ButtonWithConfigHash(b.getButtonId(), b.getConfigHash()))
                         .collect(ImmutableSet.toImmutableSet())));
     }
 
@@ -67,10 +67,10 @@ public class ButtonMessageCache {
         try {
             Set<ButtonWithConfigHash> buttonIdCache = channel2ButtonMessageIds.get(channelId, ConcurrentSkipListSet::new);
             return buttonIdCache.stream()
-                    .filter(bc -> buttonToKeepId != bc.buttonId())
-                    .filter(bc -> configHash == bc.configHash())
+                    .filter(bc -> buttonToKeepId != bc.getButtonId())
+                    .filter(bc -> configHash == bc.getConfigHash())
                     .peek(buttonIdCache::remove)
-                    .map(ButtonWithConfigHash::buttonId)
+                    .map(ButtonWithConfigHash::getButtonId)
                     .collect(Collectors.toList());
         } catch (ExecutionException e) {
             log.error("Error in getting button ids from cache: ", e);
@@ -79,11 +79,15 @@ public class ButtonMessageCache {
     }
 
 
-    public record ButtonWithConfigHash(long buttonId, int configHash) implements Comparable<ButtonWithConfigHash> {
+    @Value
+    public static class ButtonWithConfigHash implements Comparable<ButtonWithConfigHash> {
+
+        long buttonId;
+        int configHash;
 
         @Override
         public int compareTo(ButtonWithConfigHash o) {
-            int retVal = Long.compare(buttonId, o.buttonId());
+            int retVal = Long.compare(buttonId, o.getButtonId());
             if (retVal != 0) {
                 return retVal;
             }
