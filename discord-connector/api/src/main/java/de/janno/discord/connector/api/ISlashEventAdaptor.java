@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ISlashEventAdaptor extends IDiscordAdapter {
-    String checkPermissions();
+    Optional<String> checkPermissions();
 
     Optional<CommandInteractionOption> getOption(@NonNull String actionStart);
 
