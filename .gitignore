@@ -7,3 +7,7 @@
 /bot/build/
 /discord-connector/api/build/
 /discord-connector/jda/build/
+/bot/logs/
+/discord-connector/build/
+/gradlew
+/gradlew.bat
