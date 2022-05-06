@@ -18,6 +18,8 @@ import net.dv8tion.jda.api.events.guild.GuildReadyEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.internal.utils.IOUtil;
+import okhttp3.OkHttpClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
@@ -48,8 +50,14 @@ public class JdaClient {
         Scheduler scheduler = Schedulers.boundedElastic();
         Set<Long> botInGuildIdSet = new ConcurrentSkipListSet<>();
 
+        OkHttpClient okHttpClient = IOUtil.newHttpClientBuilder()
+                .eventListener(JdaMetrics.getOkHttpEventListener())
+                .build();
+
+        JdaMetrics.registerHttpClient(okHttpClient);
 
         JDA jda = JDABuilder.createDefault(token, Collections.emptyList())
+                .setHttpClient(okHttpClient)
                 .addEventListeners(
                         new ListenerAdapter() {
 
@@ -154,8 +162,9 @@ public class JdaClient {
         });
         JdaMetrics.startGatewayResponseTimeGauge(jda);
         JdaMetrics.startGuildCountGauge(botInGuildIdSet);
-        //todo other cache
         JdaMetrics.startUserCacheGauge(jda);
+        JdaMetrics.startTextChannelCacheGauge(jda);
+        JdaMetrics.startGuildCacheGauge(jda);
         JdaMetrics.startRestLatencyGauge(jda);
 
 

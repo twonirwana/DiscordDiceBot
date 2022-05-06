@@ -2,7 +2,6 @@ package de.janno.discord.bot;
 
 import com.google.common.base.Strings;
 import io.micrometer.core.instrument.Tags;
-import io.micrometer.core.instrument.Timer;
 import io.micrometer.core.instrument.binder.jvm.*;
 import io.micrometer.core.instrument.binder.logging.LogbackMetrics;
 import io.micrometer.core.instrument.binder.system.ProcessorMetrics;
@@ -14,8 +13,6 @@ import io.undertow.Undertow;
 import io.undertow.server.handlers.PathHandler;
 import io.undertow.util.Headers;
 import lombok.NonNull;
-
-import java.time.Duration;
 
 import static io.micrometer.core.instrument.Metrics.globalRegistry;
 
@@ -45,16 +42,16 @@ public class BotMetrics {
 
             prometheusRegistry.config().commonTags("application", "DiscordDiceBot");
             new JvmMemoryMetrics().bindTo(globalRegistry);
-            try(JvmGcMetrics jvmGcMetrics = new JvmGcMetrics()){
+            try (JvmGcMetrics jvmGcMetrics = new JvmGcMetrics()) {
                 jvmGcMetrics.bindTo(globalRegistry);
             }
             new ProcessorMetrics().bindTo(globalRegistry);
             new JvmThreadMetrics().bindTo(globalRegistry);
-            try(LogbackMetrics logbackMetrics = new LogbackMetrics()){
+            try (LogbackMetrics logbackMetrics = new LogbackMetrics()) {
                 logbackMetrics.bindTo(globalRegistry);
             }
             new ClassLoaderMetrics().bindTo(globalRegistry);
-            try(JvmHeapPressureMetrics jvmHeapPressureMetrics = new JvmHeapPressureMetrics()){
+            try (JvmHeapPressureMetrics jvmHeapPressureMetrics = new JvmHeapPressureMetrics()) {
                 jvmHeapPressureMetrics.bindTo(globalRegistry);
             }
             new JvmInfoMetrics().bindTo(globalRegistry);

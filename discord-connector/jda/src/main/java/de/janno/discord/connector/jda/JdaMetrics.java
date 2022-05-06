@@ -4,8 +4,12 @@ import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.Metrics;
 import io.micrometer.core.instrument.Tags;
 import io.micrometer.core.instrument.Timer;
+import io.micrometer.core.instrument.binder.okhttp3.OkHttpConnectionPoolMetrics;
+import io.micrometer.core.instrument.binder.okhttp3.OkHttpMetricsEventListener;
 import lombok.NonNull;
 import net.dv8tion.jda.api.JDA;
+import okhttp3.EventListener;
+import okhttp3.OkHttpClient;
 
 import java.time.Duration;
 import java.util.Set;
@@ -20,6 +24,9 @@ public class JdaMetrics {
     private static final String METRIC_WELCOME_COUNTER_PREFIX = "welcomeCounter";
     private static final String COMMAND_TAG = "command";
 
+    public static void registerHttpClient(OkHttpClient client) {
+        new OkHttpConnectionPoolMetrics(client.connectionPool()).bindTo(globalRegistry);
+    }
 
     public static void startGuildCountGauge(Set<Long> botInGuildIdSet) {
         Gauge.builder(METRIC_PREFIX + "guildsCount", botInGuildIdSet::size).register(Metrics.globalRegistry);
@@ -37,6 +44,17 @@ public class JdaMetrics {
 
     public static void startUserCacheGauge(JDA discordApi) {
         Gauge.builder(METRIC_PREFIX + "userCacheSize", () -> discordApi.getUserCache().size())
+                .register(Metrics.globalRegistry);
+    }
+
+
+    public static void startTextChannelCacheGauge(JDA discordApi) {
+        Gauge.builder(METRIC_PREFIX + "userTextChannelSize", () -> discordApi.getTextChannelCache().size())
+                .register(Metrics.globalRegistry);
+    }
+
+    public static void startGuildCacheGauge(JDA discordApi) {
+        Gauge.builder(METRIC_PREFIX + "guildCacheSize", () -> discordApi.getGuildCache().size())
                 .register(Metrics.globalRegistry);
     }
 
@@ -61,5 +79,9 @@ public class JdaMetrics {
 
     public static void sendWelcomeMessage() {
         globalRegistry.counter(METRIC_PREFIX + METRIC_WELCOME_COUNTER_PREFIX).increment();
+    }
+
+    public static EventListener getOkHttpEventListener() {
+        return OkHttpMetricsEventListener.builder(globalRegistry, "okHttpEvents").build();
     }
 }

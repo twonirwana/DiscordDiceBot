@@ -4,3 +4,6 @@
 /gradle/
 /logs/
 /deplyomentScript/
+/bot/build/
+/discord-connector/api/build/
+/discord-connector/jda/build/
