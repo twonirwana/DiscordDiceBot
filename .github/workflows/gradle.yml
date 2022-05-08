@@ -27,11 +27,11 @@ jobs:
         distribution: 'adopt'
     - uses: gradle/gradle-build-action@v2
       with:
-        gradle-version: 7.4
+        gradle-version: 7.4.2
         arguments: test
     - uses: gradle/gradle-build-action@v2
       with:
-        gradle-version: 7.4
+        gradle-version: 7.4.2
         arguments: testCodeCoverageReport
     - uses: codecov/codecov-action@v2
       with:

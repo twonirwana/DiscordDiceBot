@@ -1,7 +1,6 @@
 /.gradle/
 /.idea/
 /build/
-/gradle/
 /logs/
 /deplyomentScript/
 /bot/build/
@@ -9,5 +8,3 @@
 /discord-connector/jda/build/
 /bot/logs/
 /discord-connector/build/
-/gradlew
-/gradlew.bat
