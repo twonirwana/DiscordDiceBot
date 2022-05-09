@@ -42,18 +42,12 @@ public class BotMetrics {
 
             prometheusRegistry.config().commonTags("application", "DiscordDiceBot");
             new JvmMemoryMetrics().bindTo(globalRegistry);
-            try (JvmGcMetrics jvmGcMetrics = new JvmGcMetrics()) {
-                jvmGcMetrics.bindTo(globalRegistry);
-            }
+            new JvmGcMetrics().bindTo(globalRegistry);
             new ProcessorMetrics().bindTo(globalRegistry);
             new JvmThreadMetrics().bindTo(globalRegistry);
-            try (LogbackMetrics logbackMetrics = new LogbackMetrics()) {
-                logbackMetrics.bindTo(globalRegistry);
-            }
+            new LogbackMetrics().bindTo(globalRegistry);
             new ClassLoaderMetrics().bindTo(globalRegistry);
-            try (JvmHeapPressureMetrics jvmHeapPressureMetrics = new JvmHeapPressureMetrics()) {
-                jvmHeapPressureMetrics.bindTo(globalRegistry);
-            }
+            new JvmHeapPressureMetrics().bindTo(globalRegistry);
             new JvmInfoMetrics().bindTo(globalRegistry);
         }
     }

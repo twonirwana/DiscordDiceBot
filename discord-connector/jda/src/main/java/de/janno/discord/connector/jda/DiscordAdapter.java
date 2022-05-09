@@ -92,8 +92,8 @@ public abstract class DiscordAdapter implements IDiscordAdapter {
         return Mono.empty();
     }
 
-    protected Mono<Void> deleteMessage(MessageChannel textChannel, long messageId) {
-        return createMonoFrom(() -> textChannel.retrieveMessageById(messageId))
+    protected Mono<Void> deleteMessage(MessageChannel messageChannel, long messageId) {
+        return createMonoFrom(() -> messageChannel.retrieveMessageById(messageId))
                 .filter(m -> !m.isPinned())
                 .flatMap(m -> createMonoFrom(m::delete))
                 .onErrorResume(t -> handleException("Error on deleting message", t, true));

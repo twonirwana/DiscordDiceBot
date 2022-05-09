@@ -102,7 +102,7 @@ public class ButtonEventAdapter extends DiscordAdapter implements IButtonEventAd
 
     @Override
     public Mono<Long> createButtonMessage(MessageDefinition messageDefinition) {
-        return createButtonMessage(event.getTextChannel(), messageDefinition)
+        return createButtonMessage(event.getMessageChannel(), messageDefinition)
                 .onErrorResume(t -> handleException("Error on creating button message", t, false).ofType(Message.class))
                 .map(Message::getIdLong);
     }
