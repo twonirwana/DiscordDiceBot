@@ -216,6 +216,7 @@ public class SumDiceSetCommand extends AbstractCommand<SumDiceSetCommand.Config,
         return new State(buttonValue, Arrays.stream(buttonMessage.split(Pattern.quote(DICE_SET_DELIMITER)))
                 //for handling legacy buttons with '1d4 + 1d6)
                 .filter(s -> !"+".equals(s))
+                .filter(Objects::nonNull)
                 //adding the + for the first die type in the message
                 .map(s -> {
                     if (!s.startsWith("-") && !s.startsWith("+")) {
