@@ -12,11 +12,11 @@ dependencies {
     api project(':discord-connector:api')
     implementation project(':discord-connector:jda')
 
-    compileOnly 'org.projectlombok:lombok:1.18.24'
-    annotationProcessor 'org.projectlombok:lombok:1.18.22'
+    compileOnly(libs.lombok)
+    annotationProcessor(libs.lombok)
 
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.2'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.2'
+    testImplementation(libs.junit.jupiter.api)
+    testRuntimeOnly(libs.junit.jupiter.engine)
 }
 
 java {
