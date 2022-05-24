@@ -105,7 +105,7 @@ public class JdaClient {
                             }
                         }
                 )
-                .setActivity(Activity.playing("Type /help"))
+                .setActivity(Activity.listening("Type /help"))
                 .build();
         SlashCommandRegistry slashCommandRegistry = SlashCommandRegistry.builder()
                 .addSlashCommands(commands)
