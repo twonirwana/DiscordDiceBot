@@ -4,17 +4,12 @@
     <!-- This set of preconfigured loggers is good if you want to have a DEBUG level as baseline -->
     <logger name="io.netty" level="INFO"/>
     <logger name="reactor" level="INFO"/>
-    <logger name="javacord" level="INFO"/>
     <logger name="io.undertow" level="INFO"/>
     <logger name="org.xnio.nio" level="INFO"/>
-    <logger name="javacord.gateway.payload" level="ERROR"/>
-    <logger name="javacord.gateway.DefaultGatewayClient" level="WARN"/>
-    <logger name="org.javacord.core.util.gateway" level="WARN"/>
-    <logger name="org.javacord.core.util.rest.RestRequest" level="WARN"/>
-    <logger name="org.javacord.core.util.handler.guild.GuildUpdateHandler" level="WARN"/>
     <logger name="net.dv8tion.jda.internal.requests.Requester" level="INFO"/>
     <logger name="net.dv8tion.jda.internal.requests.RateLimiter" level="INFO"/>
     <logger name="net.dv8tion.jda.internal.requests.WebSocketClient" level="INFO"/>
+    <logger name="net.dv8tion.jda.api.JDA" level="INFO"/>
 
     <!-- Display the logs in your console with the following format -->
     <!-- You can learn more about this here: https://logback.qos.ch/manual/layouts.html#ClassicPatternLayout -->
