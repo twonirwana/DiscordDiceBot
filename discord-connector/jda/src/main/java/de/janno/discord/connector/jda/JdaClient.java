@@ -1,6 +1,7 @@
 package de.janno.discord.connector.jda;
 
 import com.google.common.base.Stopwatch;
+import de.janno.discord.connector.api.BotConstants;
 import de.janno.discord.connector.api.IComponentInteractEventHandler;
 import de.janno.discord.connector.api.ISlashCommand;
 import de.janno.discord.connector.api.Requester;
@@ -39,11 +40,10 @@ import java.util.concurrent.ConcurrentSkipListSet;
 @Slf4j
 public class JdaClient {
 
-    public static final String CONFIG_DELIMITER = ",";
     public static final Duration START_UP_BUFFER = Duration.of(5, ChronoUnit.MINUTES);
 
     private static String getCommandNameFromCustomId(String customId) {
-        return customId.split(CONFIG_DELIMITER)[0];
+        return customId.split(BotConstants.CONFIG_DELIMITER)[0];
     }
 
     public void start(String token, boolean disableCommandUpdate, List<ISlashCommand> commands, MessageDefinition welcomeMessageDefinition) throws LoginException {

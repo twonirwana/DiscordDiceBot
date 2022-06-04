@@ -6,6 +6,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import de.janno.discord.bot.cache.ButtonMessageCache;
 import de.janno.discord.bot.dice.DiceUtils;
+import de.janno.discord.connector.api.BotConstants;
 import de.janno.discord.connector.api.IButtonEventAdaptor;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
@@ -89,9 +90,9 @@ public class SumDiceSetCommand extends AbstractCommand<SumDiceSetCommand.Config,
 
     @VisibleForTesting
     String createButtonCustomId(String action) {
-        Preconditions.checkArgument(!action.contains(CONFIG_DELIMITER));
+        Preconditions.checkArgument(!action.contains(BotConstants.CONFIG_DELIMITER));
 
-        return String.join(CONFIG_DELIMITER,
+        return String.join(BotConstants.CONFIG_DELIMITER,
                 COMMAND_NAME,
                 action);
     }
@@ -208,7 +209,7 @@ public class SumDiceSetCommand extends AbstractCommand<SumDiceSetCommand.Config,
     @Override
     protected State getStateFromEvent(IButtonEventAdaptor event) {
         String buttonMessage = event.getMessageContent();
-        String buttonValue = event.getCustomId().split(CONFIG_DELIMITER)[1];
+        String buttonValue = event.getCustomId().split(BotConstants.CONFIG_DELIMITER)[1];
         if (EMPTY_MESSAGE.equals(buttonMessage)) {
             return new State(buttonValue, ImmutableMap.of());
         }

@@ -7,6 +7,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import de.janno.discord.bot.cache.ButtonMessageCache;
 import de.janno.discord.bot.dice.DiceParserHelper;
+import de.janno.discord.connector.api.BotConstants;
 import de.janno.discord.connector.api.IButtonEventAdaptor;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
@@ -36,8 +37,8 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetCommand.Con
     private static final List<String> DICE_COMMAND_OPTIONS_IDS = IntStream.range(1, 23).mapToObj(i -> i + "_button").toList();
     private static final String INVOKING_USER_NAME_DELIMITER = "\u2236 ";
     private static final String LABEL_DELIMITER = "@";
-    private final DiceParserHelper diceParserHelper;
     private static final ButtonMessageCache BUTTON_MESSAGE_CACHE = new ButtonMessageCache(COMMAND_NAME);
+    private final DiceParserHelper diceParserHelper;
 
     public SumCustomSetCommand() {
         this(new DiceParserHelper());
@@ -70,9 +71,9 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetCommand.Con
 
     @VisibleForTesting
     String createButtonCustomId(String action) {
-        Preconditions.checkArgument(!action.contains(CONFIG_DELIMITER));
+        Preconditions.checkArgument(!action.contains(BotConstants.CONFIG_DELIMITER));
 
-        return String.join(CONFIG_DELIMITER,
+        return String.join(BotConstants.CONFIG_DELIMITER,
                 COMMAND_NAME,
                 action);
     }
@@ -95,7 +96,7 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetCommand.Con
         if (!Strings.isNullOrEmpty(expressionWithUserNameDelimiter)) {
             return Optional.of(String.format("This command doesn't allow '%s' in the dice expression and label, the following expression are not allowed: %s", INVOKING_USER_NAME_DELIMITER, expressionWithUserNameDelimiter));
         }
-        return diceParserHelper.validateListOfExpressions(diceExpressionWithOptionalLabel, LABEL_DELIMITER, CONFIG_DELIMITER, "/sum_custom_set help");
+        return diceParserHelper.validateListOfExpressions(diceExpressionWithOptionalLabel, LABEL_DELIMITER, BotConstants.CONFIG_DELIMITER, "/sum_custom_set help");
     }
 
     @Override
@@ -172,7 +173,7 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetCommand.Con
 
     @Override
     protected State getStateFromEvent(IButtonEventAdaptor event) {
-        String buttonValue = event.getCustomId().split(CONFIG_DELIMITER)[1];
+        String buttonValue = event.getCustomId().split(BotConstants.CONFIG_DELIMITER)[1];
         if (CLEAR_BUTTON_ID.equals(buttonValue)) {
             return new State(buttonValue, "", null);
         }
@@ -237,7 +238,7 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetCommand.Con
     @VisibleForTesting
     Config getConfigOptionStringList(List<String> startOptions) {
         return new Config(startOptions.stream()
-                .filter(s -> !s.contains(CONFIG_DELIMITER))
+                .filter(s -> !s.contains(BotConstants.CONFIG_DELIMITER))
                 .filter(s -> !s.contains(LABEL_DELIMITER) || s.split(LABEL_DELIMITER).length == 2)
                 .map(s -> {
                     String label = null;

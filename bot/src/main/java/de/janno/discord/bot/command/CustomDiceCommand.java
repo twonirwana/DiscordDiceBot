@@ -5,6 +5,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import de.janno.discord.bot.cache.ButtonMessageCache;
 import de.janno.discord.bot.dice.DiceParserHelper;
+import de.janno.discord.connector.api.BotConstants;
 import de.janno.discord.connector.api.IButtonEventAdaptor;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
@@ -71,7 +72,7 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceCommand.Config,
                 .flatMap(id -> options.getStingSubOptionWithName(id).stream())
                 .distinct()
                 .collect(Collectors.toList());
-        return diceParserHelper.validateListOfExpressions(diceExpressionWithOptionalLabel, LABEL_DELIMITER, CONFIG_DELIMITER, "/custom_dice help");
+        return diceParserHelper.validateListOfExpressions(diceExpressionWithOptionalLabel, LABEL_DELIMITER, BotConstants.CONFIG_DELIMITER, "/custom_dice help");
     }
 
     @Override
@@ -85,7 +86,7 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceCommand.Config,
     @VisibleForTesting
     Config getConfigOptionStringList(List<String> startOptions) {
         return new Config(startOptions.stream()
-                .filter(s -> !s.contains(CONFIG_DELIMITER))
+                .filter(s -> !s.contains(BotConstants.CONFIG_DELIMITER))
                 .filter(s -> !s.contains(LABEL_DELIMITER) || s.split(LABEL_DELIMITER).length == 2)
                 .map(s -> {
                     if (s.contains(LABEL_DELIMITER)) {
@@ -142,9 +143,9 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceCommand.Config,
 
     @VisibleForTesting
     String createButtonCustomId(String diceExpression) {
-        Preconditions.checkArgument(!diceExpression.contains(CONFIG_DELIMITER));
+        Preconditions.checkArgument(!diceExpression.contains(BotConstants.CONFIG_DELIMITER));
 
-        return String.join(CONFIG_DELIMITER,
+        return String.join(BotConstants.CONFIG_DELIMITER,
                 COMMAND_NAME,
                 diceExpression);
     }
@@ -158,7 +159,7 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceCommand.Config,
 
     @Override
     protected State getStateFromEvent(IButtonEventAdaptor event) {
-        return new State(event.getCustomId().split(CONFIG_DELIMITER)[1]);
+        return new State(event.getCustomId().split(BotConstants.CONFIG_DELIMITER)[1]);
     }
 
     @Override

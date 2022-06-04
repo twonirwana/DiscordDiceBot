@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import de.janno.discord.bot.BotMetrics;
 import de.janno.discord.bot.cache.ButtonMessageCache;
+import de.janno.discord.connector.api.BotConstants;
 import de.janno.discord.connector.api.IButtonEventAdaptor;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
@@ -116,15 +117,15 @@ public class WelcomeCommand extends AbstractCommand<WelcomeCommand.Config, Welco
                         .buttonDefinitions(
                                 ImmutableList.of(
                                         ButtonDefinition.builder()
-                                                .id(String.join(CONFIG_DELIMITER, COMMAND_NAME, FATE_BUTTON_ID))
+                                                .id(String.join(BotConstants.CONFIG_DELIMITER, COMMAND_NAME, FATE_BUTTON_ID))
                                                 .label("Fate")
                                                 .build(),
                                         ButtonDefinition.builder()
-                                                .id(String.join(CONFIG_DELIMITER, COMMAND_NAME, DND5_BUTTON_ID))
+                                                .id(String.join(BotConstants.CONFIG_DELIMITER, COMMAND_NAME, DND5_BUTTON_ID))
                                                 .label("D&D5e")
                                                 .build(),
                                         ButtonDefinition.builder()
-                                                .id(String.join(CONFIG_DELIMITER, COMMAND_NAME, NWOD_BUTTON_ID))
+                                                .id(String.join(BotConstants.CONFIG_DELIMITER, COMMAND_NAME, NWOD_BUTTON_ID))
                                                 .label("nWoD")
                                                 .build()
                                 )
@@ -134,15 +135,15 @@ public class WelcomeCommand extends AbstractCommand<WelcomeCommand.Config, Welco
                         .buttonDefinitions(
                                 ImmutableList.of(
                                         ButtonDefinition.builder()
-                                                .id(String.join(CONFIG_DELIMITER, COMMAND_NAME, OWOD_BUTTON_ID))
+                                                .id(String.join(BotConstants.CONFIG_DELIMITER, COMMAND_NAME, OWOD_BUTTON_ID))
                                                 .label("oWoD")
                                                 .build(),
                                         ButtonDefinition.builder()
-                                                .id(String.join(CONFIG_DELIMITER, COMMAND_NAME, SHADOWRUN_BUTTON_ID))
+                                                .id(String.join(BotConstants.CONFIG_DELIMITER, COMMAND_NAME, SHADOWRUN_BUTTON_ID))
                                                 .label("Shadowrun")
                                                 .build(),
                                         ButtonDefinition.builder()
-                                                .id(String.join(CONFIG_DELIMITER, COMMAND_NAME, COIN_BUTTON_ID))
+                                                .id(String.join(BotConstants.CONFIG_DELIMITER, COMMAND_NAME, COIN_BUTTON_ID))
                                                 .label("Coin Toss")
                                                 .build()
                                 )
@@ -163,7 +164,7 @@ public class WelcomeCommand extends AbstractCommand<WelcomeCommand.Config, Welco
 
     @Override
     protected WelcomeCommand.State getStateFromEvent(IButtonEventAdaptor event) {
-        String buttonId = event.getCustomId().split(CONFIG_DELIMITER)[1];
+        String buttonId = event.getCustomId().split(BotConstants.CONFIG_DELIMITER)[1];
         return new State(buttonId);
     }
 

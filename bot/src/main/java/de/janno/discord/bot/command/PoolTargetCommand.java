@@ -6,6 +6,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import de.janno.discord.bot.cache.ButtonMessageCache;
 import de.janno.discord.bot.dice.DiceUtils;
+import de.janno.discord.connector.api.BotConstants;
 import de.janno.discord.connector.api.IButtonEventAdaptor;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
@@ -61,9 +62,8 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetCommand.Config,
     private static final int POOL_SIZE_VALUE_INDEX = 7;
     private static final int TARGET_INDEX = 8;
     private static final String EMPTY = "EMPTY";
-
-    private final DiceUtils diceUtils;
     private static final ButtonMessageCache BUTTON_MESSAGE_CACHE = new ButtonMessageCache(COMMAND_NAME);
+    private final DiceUtils diceUtils;
 
     public PoolTargetCommand() {
         this(new DiceUtils());
@@ -162,7 +162,7 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetCommand.Config,
 
     @Override
     protected Config getConfigFromEvent(IButtonEventAdaptor event) {
-        String[] customIdSplit = event.getCustomId().split(CONFIG_DELIMITER);
+        String[] customIdSplit = event.getCustomId().split(BotConstants.CONFIG_DELIMITER);
 
         int sideOfDie = Integer.parseInt(customIdSplit[SIDE_OF_DIE_INDEX]);
         int maxNumberOfButtons = Integer.parseInt(customIdSplit[MAX_DICE_INDEX]);
@@ -175,7 +175,7 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetCommand.Config,
 
     @Override
     protected State getStateFromEvent(IButtonEventAdaptor event) {
-        String[] customIdSplit = event.getCustomId().split(CONFIG_DELIMITER);
+        String[] customIdSplit = event.getCustomId().split(BotConstants.CONFIG_DELIMITER);
         String buttonValue = customIdSplit[BUTTON_VALUE_INDEX];
         //clear button was pressed
         if (CLEAR_BUTTON_ID.equals(buttonValue)) {
@@ -317,7 +317,7 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetCommand.Config,
 
 
     String createButtonCustomId(@NonNull String buttonValue, @NonNull Config config, @Nullable State state) {
-        Preconditions.checkArgument(!buttonValue.contains(CONFIG_DELIMITER));
+        Preconditions.checkArgument(!buttonValue.contains(BotConstants.CONFIG_DELIMITER));
 
         String[] values = new String[9];
         values[0] = COMMAND_NAME;
@@ -330,7 +330,7 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetCommand.Config,
         values[POOL_SIZE_VALUE_INDEX] = Optional.ofNullable(state).map(State::getDicePool).map(String::valueOf).orElse(EMPTY);
         values[TARGET_INDEX] = Optional.ofNullable(state).map(State::getTargetNumber).map(String::valueOf).orElse(EMPTY);
 
-        return String.join(CONFIG_DELIMITER, values);
+        return String.join(BotConstants.CONFIG_DELIMITER, values);
 
     }
 
