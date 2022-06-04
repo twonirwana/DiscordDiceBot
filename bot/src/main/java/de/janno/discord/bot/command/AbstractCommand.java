@@ -32,7 +32,7 @@ public abstract class AbstractCommand<C extends IConfig, S extends IState> imple
 
     @Override
     public boolean matchingComponentCustomId(String buttonCustomId) {
-        return buttonCustomId.startsWith(getName() + BotConstants.CONFIG_DELIMITER);
+        return buttonCustomId.matches("^" + getName() + BotConstants.CONFIG_SPLIT_DELIMITER_REGEX +".*");
     }
 
     @VisibleForTesting

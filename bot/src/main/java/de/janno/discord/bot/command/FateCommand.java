@@ -174,13 +174,13 @@ public class FateCommand extends AbstractCommand<FateCommand.Config, FateCommand
 
     @Override
     protected Config getConfigFromEvent(IButtonEventAdaptor event) {
-        String[] split = event.getCustomId().split(BotConstants.CONFIG_DELIMITER);
+        String[] split = event.getCustomId().split(BotConstants.CONFIG_SPLIT_DELIMITER_REGEX);
         return new Config(split[2]);
     }
 
     @Override
     protected State getStateFromEvent(IButtonEventAdaptor event) {
-        String modifier = event.getCustomId().split(BotConstants.CONFIG_DELIMITER)[1];
+        String modifier = event.getCustomId().split(BotConstants.CONFIG_SPLIT_DELIMITER_REGEX)[1];
         if (!Strings.isNullOrEmpty(modifier) && NumberUtils.isParsable(modifier)) {
             return new State(Integer.valueOf(modifier));
         }

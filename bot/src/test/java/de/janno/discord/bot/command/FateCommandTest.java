@@ -63,7 +63,7 @@ class FateCommandTest {
 
     @Test
     void matchingComponentCustomId_match() {
-        assertThat(underTest.matchingComponentCustomId("fate,1;2")).isTrue();
+        assertThat(underTest.matchingComponentCustomId("fate\u00001;2")).isTrue();
     }
 
     @Test
@@ -117,7 +117,7 @@ class FateCommandTest {
     @Test
     void getStateFromEvent_simple() {
         IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
-        when(event.getCustomId()).thenReturn("fate,roll,simple");
+        when(event.getCustomId()).thenReturn("fate\u0000roll,simple");
 
         FateCommand.State res = underTest.getStateFromEvent(event);
 
@@ -127,7 +127,7 @@ class FateCommandTest {
     @Test
     void getStateFromEvent_modifier() {
         IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
-        when(event.getCustomId()).thenReturn("fate,5,with_modifier");
+        when(event.getCustomId()).thenReturn("fate\u00005\u0000with_modifier");
 
         FateCommand.State res = underTest.getStateFromEvent(event);
 
@@ -137,7 +137,7 @@ class FateCommandTest {
     @Test
     void getStateFromEvent_modifierNegativ() {
         IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
-        when(event.getCustomId()).thenReturn("fate,-3,with_modifier");
+        when(event.getCustomId()).thenReturn("fate\u0000-3\u0000with_modifier");
 
         FateCommand.State res = underTest.getStateFromEvent(event);
 
@@ -148,7 +148,7 @@ class FateCommandTest {
     void createButtonCustomId() {
         String res = underTest.createButtonCustomId("3", new FateCommand.Config("with_modifier"));
 
-        assertThat(res).isEqualTo("fate,3,with_modifier");
+        assertThat(res).isEqualTo("fate\u00003\u0000with_modifier");
     }
 
     @Test
@@ -158,7 +158,7 @@ class FateCommandTest {
 
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel)).containsExactly("Roll 4dF");
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getId))
-                .containsExactly("fate,roll,simple");
+                .containsExactly("fate\u0000roll\u0000simple");
     }
 
     @Test
@@ -168,7 +168,7 @@ class FateCommandTest {
 
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel)).containsExactly("Roll 4dF");
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getId))
-                .containsExactly("fate,roll,simple");
+                .containsExactly("fate\u0000roll\u0000simple");
     }
 
     @Test
@@ -178,21 +178,21 @@ class FateCommandTest {
 
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel)).containsExactly("-4", "-3", "-2", "-1", "0", "+1", "+2", "+3", "+4", "+5", "+6", "+7", "+8", "+9", "+10");
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getId))
-                .containsExactly("fate,-4,with_modifier",
-                        "fate,-3,with_modifier",
-                        "fate,-2,with_modifier",
-                        "fate,-1,with_modifier",
-                        "fate,0,with_modifier",
-                        "fate,1,with_modifier",
-                        "fate,2,with_modifier",
-                        "fate,3,with_modifier",
-                        "fate,4,with_modifier",
-                        "fate,5,with_modifier",
-                        "fate,6,with_modifier",
-                        "fate,7,with_modifier",
-                        "fate,8,with_modifier",
-                        "fate,9,with_modifier",
-                        "fate,10,with_modifier");
+                .containsExactly("fate\u0000-4\u0000with_modifier",
+                        "fate\u0000-3\u0000with_modifier",
+                        "fate\u0000-2\u0000with_modifier",
+                        "fate\u0000-1\u0000with_modifier",
+                        "fate\u00000\u0000with_modifier",
+                        "fate\u00001\u0000with_modifier",
+                        "fate\u00002\u0000with_modifier",
+                        "fate\u00003\u0000with_modifier",
+                        "fate\u00004\u0000with_modifier",
+                        "fate\u00005\u0000with_modifier",
+                        "fate\u00006\u0000with_modifier",
+                        "fate\u00007\u0000with_modifier",
+                        "fate\u00008\u0000with_modifier",
+                        "fate\u00009\u0000with_modifier",
+                        "fate\u000010\u0000with_modifier");
     }
 
     @Test
@@ -201,21 +201,21 @@ class FateCommandTest {
 
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel)).containsExactly("-4", "-3", "-2", "-1", "0", "+1", "+2", "+3", "+4", "+5", "+6", "+7", "+8", "+9", "+10");
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getId))
-                .containsExactly("fate,-4,with_modifier",
-                        "fate,-3,with_modifier",
-                        "fate,-2,with_modifier",
-                        "fate,-1,with_modifier",
-                        "fate,0,with_modifier",
-                        "fate,1,with_modifier",
-                        "fate,2,with_modifier",
-                        "fate,3,with_modifier",
-                        "fate,4,with_modifier",
-                        "fate,5,with_modifier",
-                        "fate,6,with_modifier",
-                        "fate,7,with_modifier",
-                        "fate,8,with_modifier",
-                        "fate,9,with_modifier",
-                        "fate,10,with_modifier");
+                .containsExactly("fate\u0000-4\u0000with_modifier",
+                        "fate\u0000-3\u0000with_modifier",
+                        "fate\u0000-2\u0000with_modifier",
+                        "fate\u0000-1\u0000with_modifier",
+                        "fate\u00000\u0000with_modifier",
+                        "fate\u00001\u0000with_modifier",
+                        "fate\u00002\u0000with_modifier",
+                        "fate\u00003\u0000with_modifier",
+                        "fate\u00004\u0000with_modifier",
+                        "fate\u00005\u0000with_modifier",
+                        "fate\u00006\u0000with_modifier",
+                        "fate\u00007\u0000with_modifier",
+                        "fate\u00008\u0000with_modifier",
+                        "fate\u00009\u0000with_modifier",
+                        "fate\u000010\u0000with_modifier");
     }
 
     @Test

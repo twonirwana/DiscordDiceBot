@@ -162,7 +162,7 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetCommand.Config,
 
     @Override
     protected Config getConfigFromEvent(IButtonEventAdaptor event) {
-        String[] customIdSplit = event.getCustomId().split(BotConstants.CONFIG_DELIMITER);
+        String[] customIdSplit = event.getCustomId().split(BotConstants.CONFIG_SPLIT_DELIMITER_REGEX);
 
         int sideOfDie = Integer.parseInt(customIdSplit[SIDE_OF_DIE_INDEX]);
         int maxNumberOfButtons = Integer.parseInt(customIdSplit[MAX_DICE_INDEX]);
@@ -175,7 +175,7 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetCommand.Config,
 
     @Override
     protected State getStateFromEvent(IButtonEventAdaptor event) {
-        String[] customIdSplit = event.getCustomId().split(BotConstants.CONFIG_DELIMITER);
+        String[] customIdSplit = event.getCustomId().split(BotConstants.CONFIG_SPLIT_DELIMITER_REGEX);
         String buttonValue = customIdSplit[BUTTON_VALUE_INDEX];
         //clear button was pressed
         if (CLEAR_BUTTON_ID.equals(buttonValue)) {

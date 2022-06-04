@@ -209,7 +209,7 @@ public class SumDiceSetCommand extends AbstractCommand<SumDiceSetCommand.Config,
     @Override
     protected State getStateFromEvent(IButtonEventAdaptor event) {
         String buttonMessage = event.getMessageContent();
-        String buttonValue = event.getCustomId().split(BotConstants.CONFIG_DELIMITER)[1];
+        String buttonValue = event.getCustomId().split(BotConstants.CONFIG_SPLIT_DELIMITER_REGEX)[1];
         if (EMPTY_MESSAGE.equals(buttonMessage)) {
             return new State(buttonValue, ImmutableMap.of());
         }

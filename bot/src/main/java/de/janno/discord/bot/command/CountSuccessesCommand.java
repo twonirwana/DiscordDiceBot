@@ -62,7 +62,7 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesCommand
 
     @Override
     protected Config getConfigFromEvent(IButtonEventAdaptor event) {
-        String[] split = event.getCustomId().split(BotConstants.CONFIG_DELIMITER);
+        String[] split = event.getCustomId().split(BotConstants.CONFIG_SPLIT_DELIMITER_REGEX);
         int sideOfDie = Integer.parseInt(split[2]);
         int target = Integer.parseInt(split[3]);
         //legacy message could be missing the glitch and max dice option
@@ -73,7 +73,7 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesCommand
 
     @Override
     protected State getStateFromEvent(IButtonEventAdaptor event) {
-        return new State(Integer.parseInt(event.getCustomId().split(BotConstants.CONFIG_DELIMITER)[1]));
+        return new State(Integer.parseInt(event.getCustomId().split(BotConstants.CONFIG_SPLIT_DELIMITER_REGEX)[1]));
     }
 
     @Override

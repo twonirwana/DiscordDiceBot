@@ -30,8 +30,8 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceCommand.Config,
     private static final List<String> DICE_COMMAND_OPTIONS_IDS = IntStream.range(1, 26).mapToObj(i -> i + "_button").toList();
     private static final String LABEL_DELIMITER = "@";
     private static final String BUTTON_MESSAGE = "Click on a button to roll the dice";
-    private final DiceParserHelper diceParserHelper;
     private static final ButtonMessageCache BUTTON_MESSAGE_CACHE = new ButtonMessageCache(COMMAND_NAME);
+    private final DiceParserHelper diceParserHelper;
 
     public CustomDiceCommand() {
         this(new DiceParserHelper());
@@ -159,7 +159,7 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceCommand.Config,
 
     @Override
     protected State getStateFromEvent(IButtonEventAdaptor event) {
-        return new State(event.getCustomId().split(BotConstants.CONFIG_DELIMITER)[1]);
+        return new State(event.getCustomId().split(BotConstants.CONFIG_SPLIT_DELIMITER_REGEX)[1]);
     }
 
     @Override

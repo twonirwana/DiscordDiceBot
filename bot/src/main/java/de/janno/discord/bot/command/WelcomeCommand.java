@@ -164,7 +164,7 @@ public class WelcomeCommand extends AbstractCommand<WelcomeCommand.Config, Welco
 
     @Override
     protected WelcomeCommand.State getStateFromEvent(IButtonEventAdaptor event) {
-        String buttonId = event.getCustomId().split(BotConstants.CONFIG_DELIMITER)[1];
+        String buttonId = event.getCustomId().split(BotConstants.CONFIG_SPLIT_DELIMITER_REGEX)[1];
         return new State(buttonId);
     }
 
