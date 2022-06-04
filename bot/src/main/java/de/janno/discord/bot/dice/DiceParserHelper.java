@@ -66,6 +66,10 @@ public class DiceParserHelper {
                     Dice Expression|           |          \s
                     ---------------------------------------
                     Multiple Rolls |'x[]'      |`3x[3d6]` \s
+                     (identical)   |           |          \s
+                    ---------------------------------------
+                    Multiple Rolls |'x1&x2'    |`1d6&2d10`\s
+                     (different)   |           |          \s
                     ---------------------------------------
                     Result Label   |'x>y?a:b'  |`1d2=2?A:B`
                     ---------------------------------------
@@ -93,6 +97,7 @@ public class DiceParserHelper {
     private static final Pattern BOOLEAN_EXPRESSION_PATTERN = Pattern.compile("(^.+?)((?:<=|>=|<>|<|>|=)\\d+\\?.+)+:(.+)$");
     private static final Pattern MULTI_ROLL_EXPRESSION_PATTERN = Pattern.compile("^(\\d+?)x\\[(.*)?]$");
     private static final Pattern VALUE_COMPERE_PATTER = Pattern.compile("(<=|>=|<>|<|>|=)(\\d+)\\?(.+)");
+    private static final String MULTI_DIFF_EXPRESSION_DELIMITER = "&";
     private final IDice dice;
 
     public DiceParserHelper() {
@@ -106,7 +111,21 @@ public class DiceParserHelper {
 
     @VisibleForTesting
     static boolean isMultipleRoll(String input) {
+        if (input.contains("x[") && input.contains(MULTI_DIFF_EXPRESSION_DELIMITER)) {
+            return false;
+        }
+        return isMultipleIdenticalRolls(input)
+                || isMultipleDifferentRolls(input);
+    }
+
+    @VisibleForTesting
+    static boolean isMultipleIdenticalRolls(String input) {
         return MULTI_ROLL_EXPRESSION_PATTERN.matcher(input).matches();
+    }
+
+    @VisibleForTesting
+    static boolean isMultipleDifferentRolls(String input) {
+        return input.contains(MULTI_DIFF_EXPRESSION_DELIMITER);
     }
 
     @VisibleForTesting
@@ -213,44 +232,44 @@ public class DiceParserHelper {
         return diceExpression;
     }
 
+    private List<String> splitMultipleDifferentExpressions(String input) {
+        return Arrays.stream(input.split(MULTI_DIFF_EXPRESSION_DELIMITER))
+                .map(String::trim)
+                .filter(s -> !Strings.isNullOrEmpty(s))
+                .collect(Collectors.toList());
+    }
+
     public EmbedDefinition roll(String input, @Nullable String label) {
         try {
             if (isMultipleRoll(input)) {
-                int numberOfRolls = getNumberOfMultipleRolls(input);
-                String innerExpression = getInnerDiceExpressionFromMultiRoll(input);
-                List<EmbedDefinition.Field> fields = IntStream.range(0, numberOfRolls)
-                        .mapToObj(i -> rollWithDiceParser(innerExpression))
-                        .map(r -> new EmbedDefinition.Field(r.getRoll(), r.getDetails(), false))
+                List<LabelResult> labelResults;
+                if (isMultipleIdenticalRolls(input)) {
+                    int numberOfRolls = getNumberOfMultipleRolls(input);
+                    String innerExpression = getInnerDiceExpressionFromMultiRoll(input);
+                    labelResults = IntStream.range(0, numberOfRolls)
+                            .mapToObj(i -> singleRoll(innerExpression, null))
+                            .collect(Collectors.toList());
+                } else if (isMultipleDifferentRolls(input)) {
+                    labelResults = splitMultipleDifferentExpressions(input).stream()
+                            .map(s -> singleRoll(s, null))
+                            .collect(Collectors.toList());
+                } else {
+                    throw new IllegalStateException(String.format("Can't find correct multi roll version for: %s", input));
+                }
+
+                List<EmbedDefinition.Field> fields = labelResults.stream()
+                        .limit(25) //max number of embedFields
+                        .map(r -> new EmbedDefinition.Field(r.getLabel(), r.getResult(), false))
                         .collect(ImmutableList.toImmutableList());
                 String title = Strings.isNullOrEmpty(label) ? "Multiple Results" : label;
                 return EmbedDefinition.builder()
                         .title(title)
                         .fields(fields).build();
-            } else if (isBooleanExpression(input)) {
-                BooleanExpression booleanExpression = getBooleanExpression(input);
-                RollWithDetails rollWithDetails = rollWithDiceParser(booleanExpression.getExpression());
-                if (rollWithDetails.getResult() == null) {
-                    return EmbedDefinition.builder()
-                            .title(rollWithDetails.getRoll())
-                            .description(rollWithDetails.getDetails())
-                            .build();
-                }
-
-                String result = booleanExpression.getResult(rollWithDetails.getResult());
-                String labelOrExpression = Strings.isNullOrEmpty(label) ? booleanExpression.getExpression() : label;
-                String title = String.format("%s: %s", labelOrExpression, result);
-                String details = String.format("%s = %s", rollWithDetails.getDetails(), booleanExpression.getDetail(rollWithDetails.getResult()));
-                return EmbedDefinition.builder()
-                        .title(title)
-                        .description(details)
-                        .build();
             } else {
-                RollWithDetails rollWithDetails = rollWithDiceParser(input);
-                String title = Strings.isNullOrEmpty(label) ? rollWithDetails.getRoll() : String.format("%s: %s", label, rollWithDetails.getRoll());
+                LabelResult labelResult = singleRoll(input, label);
                 return EmbedDefinition.builder()
-                        .title(title)
-                        .description(rollWithDetails.getDetails())
-                        .build();
+                        .title(labelResult.getLabel())
+                        .description(labelResult.getResult()).build();
             }
         } catch (Throwable t) {
             log.error(String.format("Error in %s:", input), t);
@@ -258,6 +277,31 @@ public class DiceParserHelper {
                     .title("Error")
                     .description(String.format("Could not execute the dice expression: %s", input))
                     .build();
+        }
+    }
+
+    private LabelResult singleRoll(String input, String label) {
+        try {
+            if (isBooleanExpression(input)) {
+                BooleanExpression booleanExpression = getBooleanExpression(input);
+                RollWithDetails rollWithDetails = rollWithDiceParser(booleanExpression.getExpression());
+                if (rollWithDetails.getResult() == null) { //there was an error
+                    return new LabelResult(rollWithDetails.getRoll(), rollWithDetails.getDetails());
+                }
+
+                String result = booleanExpression.getResult(rollWithDetails.getResult());
+                String labelOrExpression = Strings.isNullOrEmpty(label) ? booleanExpression.getExpression() : label;
+                String title = String.format("%s: %s", labelOrExpression, result);
+                String details = String.format("%s = %s", rollWithDetails.getDetails(), booleanExpression.getDetail(rollWithDetails.getResult()));
+                return new LabelResult(title, details);
+            } else {
+                RollWithDetails rollWithDetails = rollWithDiceParser(input);
+                String title = Strings.isNullOrEmpty(label) ? rollWithDetails.getRoll() : String.format("%s: %s", label, rollWithDetails.getRoll());
+                return new LabelResult(title, rollWithDetails.getDetails());
+            }
+        } catch (Throwable t) {
+            log.error(String.format("Error in %s:", input), t);
+            return new LabelResult("Error", String.format("Could not execute the dice expression: %s", input));
         }
     }
 
@@ -312,7 +356,11 @@ public class DiceParserHelper {
         try {
             input = removeLeadingPlus(input);
             if (isMultipleRoll(input)) {
-                dice.roll(getInnerDiceExpressionFromMultiRoll(input));
+                if (isMultipleIdenticalRolls(input)) {
+                   singleRoll(getInnerDiceExpressionFromMultiRoll(input), null);
+                } else if (isMultipleDifferentRolls(input)) {
+                    splitMultipleDifferentExpressions(input).forEach( e-> singleRoll(e,null));
+                }
             } else if (isBooleanExpression(input)) {
                 dice.roll(getBooleanExpression(input).getExpression());
             } else {
@@ -322,6 +370,14 @@ public class DiceParserHelper {
         } catch (Throwable t) {
             return false;
         }
+    }
+
+    @Value
+    private static class LabelResult {
+        @NonNull
+        String label;
+        @NonNull
+        String result;
     }
 
     @Value
