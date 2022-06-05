@@ -17,6 +17,7 @@ import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import lombok.NonNull;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.math.NumberUtils;
 
 import java.util.*;
 import java.util.regex.Pattern;
@@ -235,7 +236,12 @@ public class SumDiceSetCommand extends AbstractCommand<SumDiceSetCommand.Config,
                     if (s.contains(DICE_SYMBOL)) {
                         return Integer.valueOf(s.substring(0, s.indexOf(DICE_SYMBOL)));
                     } else {
-                        return Integer.valueOf(s);
+                        if (NumberUtils.isParsable(s)) {
+                            return Integer.valueOf(s);
+                        } else {
+                            log.error(String.format("Can't parse number %s for buttonId: %s and buttonMessage: %s", s, event.getCustomId(), buttonMessage));
+                            return 0;
+                        }
                     }
                 })));
     }
