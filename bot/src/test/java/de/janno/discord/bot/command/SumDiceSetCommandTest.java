@@ -179,7 +179,7 @@ class SumDiceSetCommandTest {
     @Test
     void getStateFromEvent_1d6() {
         IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
-        when(event.getCustomId()).thenReturn("sum_dice_set,+1d21");
+        when(event.getCustomId()).thenReturn("sum_dice_set\u0000+1d21");
         when(event.getMessageContent()).thenReturn("1d6");
         assertThat(underTest.getStateFromEvent(event)).isEqualTo(new SumDiceSetCommand.State("+1d21", ImmutableMap.of("d6", 1)));
     }
@@ -187,7 +187,7 @@ class SumDiceSetCommandTest {
     @Test
     void getStateFromEvent_1d4_2d6_3d8_4d12_5d20() {
         IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
-        when(event.getCustomId()).thenReturn("sum_dice_set,+1d21");
+        when(event.getCustomId()).thenReturn("sum_dice_set\u0000+1d21");
         when(event.getMessageContent()).thenReturn("1d4 +2d6 +3d8 +4d12 +5d20");
         assertThat(underTest.getStateFromEvent(event)).isEqualTo(new SumDiceSetCommand.State("+1d21", ImmutableMap.of(
                 "d4", 1,
@@ -201,7 +201,7 @@ class SumDiceSetCommandTest {
     @Test
     void getStateFromEvent_legacy() {
         IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
-        when(event.getCustomId()).thenReturn("sum_dice_set,+1d21");
+        when(event.getCustomId()).thenReturn("sum_dice_set\u0000+1d21");
         when(event.getMessageContent()).thenReturn("1d4 + 2d6");
         assertThat(underTest.getStateFromEvent(event)).isEqualTo(new SumDiceSetCommand.State("+1d21", ImmutableMap.of(
                 "d4", 1,
@@ -212,14 +212,14 @@ class SumDiceSetCommandTest {
     @Test
     void getStateFromEvent_empty() {
         IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
-        when(event.getCustomId()).thenReturn("sum_dice_set,+1d21");
+        when(event.getCustomId()).thenReturn("sum_dice_set\u0000+1d21");
         when(event.getMessageContent()).thenReturn("Click on the buttons to add dice to the set");
         assertThat(underTest.getStateFromEvent(event)).isEqualTo(new SumDiceSetCommand.State("+1d21", ImmutableMap.of()));
     }
 
     @Test
     void matchingComponentCustomId_match() {
-        assertThat(underTest.matchingComponentCustomId("sum_dice_set,x")).isTrue();
+        assertThat(underTest.matchingComponentCustomId("sum_dice_set\u0000x")).isTrue();
     }
 
     @Test
@@ -322,7 +322,7 @@ class SumDiceSetCommandTest {
     @Test
     void getStateFromEvent() {
         IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
-        when(event.getCustomId()).thenReturn("sum_dice_set,+1d6");
+        when(event.getCustomId()).thenReturn("sum_dice_set\u0000+1d6");
         when(event.getMessageContent()).thenReturn("1d6");
 
         SumDiceSetCommand.State res = underTest.getStateFromEvent(event);
@@ -334,7 +334,7 @@ class SumDiceSetCommandTest {
     void createButtonCustomId() {
         String res = underTest.createButtonCustomId("+1d6");
 
-        assertThat(res).isEqualTo("sum_dice_set,+1d6");
+        assertThat(res).isEqualTo("sum_dice_set\u0000+1d6");
     }
 
     @Test
@@ -349,10 +349,10 @@ class SumDiceSetCommandTest {
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel))
                 .containsExactly("+1d4", "-1d4", "+1d6", "-1d6", "x2", "+1d8", "-1d8", "+1d10", "-1d10", "Clear", "+1d12", "-1d12", "+1d20", "-1d20", "Roll", "+1", "-1", "+5", "-5", "+10");
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getId))
-                .containsExactly("sum_dice_set,+1d4", "sum_dice_set,-1d4", "sum_dice_set,+1d6", "sum_dice_set,-1d6",
-                        "sum_dice_set,x2", "sum_dice_set,+1d8", "sum_dice_set,-1d8", "sum_dice_set,+1d10", "sum_dice_set,-1d10",
-                        "sum_dice_set,clear", "sum_dice_set,+1d12", "sum_dice_set,-1d12", "sum_dice_set,+1d20", "sum_dice_set,-1d20",
-                        "sum_dice_set,roll", "sum_dice_set,+1", "sum_dice_set,-1", "sum_dice_set,+5", "sum_dice_set,-5", "sum_dice_set,+10");
+                .containsExactly("sum_dice_set\u0000+1d4", "sum_dice_set\u0000-1d4", "sum_dice_set\u0000+1d6", "sum_dice_set\u0000-1d6",
+                        "sum_dice_set\u0000x2", "sum_dice_set\u0000+1d8", "sum_dice_set\u0000-1d8", "sum_dice_set\u0000+1d10", "sum_dice_set\u0000-1d10",
+                        "sum_dice_set\u0000clear", "sum_dice_set\u0000+1d12", "sum_dice_set\u0000-1d12", "sum_dice_set\u0000+1d20", "sum_dice_set\u0000-1d20",
+                        "sum_dice_set\u0000roll", "sum_dice_set\u0000+1", "sum_dice_set\u0000-1", "sum_dice_set\u0000+5", "sum_dice_set\u0000-5", "sum_dice_set\u0000+10");
     }
 
     @Test
@@ -362,9 +362,9 @@ class SumDiceSetCommandTest {
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel))
                 .containsExactly("+1d4", "-1d4", "+1d6", "-1d6", "x2", "+1d8", "-1d8", "+1d10", "-1d10", "Clear", "+1d12", "-1d12", "+1d20", "-1d20", "Roll", "+1", "-1", "+5", "-5", "+10");
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getId))
-                .containsExactly("sum_dice_set,+1d4", "sum_dice_set,-1d4", "sum_dice_set,+1d6", "sum_dice_set,-1d6",
-                        "sum_dice_set,x2", "sum_dice_set,+1d8", "sum_dice_set,-1d8", "sum_dice_set,+1d10", "sum_dice_set,-1d10",
-                        "sum_dice_set,clear", "sum_dice_set,+1d12", "sum_dice_set,-1d12", "sum_dice_set,+1d20", "sum_dice_set,-1d20",
-                        "sum_dice_set,roll", "sum_dice_set,+1", "sum_dice_set,-1", "sum_dice_set,+5", "sum_dice_set,-5", "sum_dice_set,+10");
+                .containsExactly("sum_dice_set\u0000+1d4", "sum_dice_set\u0000-1d4", "sum_dice_set\u0000+1d6", "sum_dice_set\u0000-1d6",
+                        "sum_dice_set\u0000x2", "sum_dice_set\u0000+1d8", "sum_dice_set\u0000-1d8", "sum_dice_set\u0000+1d10", "sum_dice_set\u0000-1d10",
+                        "sum_dice_set\u0000clear", "sum_dice_set\u0000+1d12", "sum_dice_set\u0000-1d12", "sum_dice_set\u0000+1d20", "sum_dice_set\u0000-1d20",
+                        "sum_dice_set\u0000roll", "sum_dice_set\u0000+1", "sum_dice_set\u0000-1", "sum_dice_set\u0000+5", "sum_dice_set\u0000-5", "sum_dice_set\u0000+10");
     }
 }

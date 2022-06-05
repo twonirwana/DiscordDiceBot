@@ -6,6 +6,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import de.janno.discord.bot.cache.ButtonMessageCache;
 import de.janno.discord.bot.dice.DiceUtils;
+import de.janno.discord.connector.api.BotConstants;
 import de.janno.discord.connector.api.IButtonEventAdaptor;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
@@ -82,9 +83,9 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollCommand.Config,
 
     String createButtonCustomId(@NonNull String action, @NonNull Config config, @Nullable State state) {
 
-        Preconditions.checkArgument(!action.contains(CONFIG_DELIMITER));
+        Preconditions.checkArgument(!action.contains(BotConstants.CONFIG_DELIMITER));
 
-        return String.join(CONFIG_DELIMITER,
+        return String.join(BotConstants.CONFIG_DELIMITER,
                 COMMAND_NAME,
                 action,
                 state == null ? EMPTY : state.getCurrentResults().stream().map(String::valueOf).collect(Collectors.joining(SUBSET_DELIMITER)),
@@ -150,7 +151,7 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollCommand.Config,
 
     @Override
     protected Config getConfigFromEvent(IButtonEventAdaptor event) {
-        String[] customIdSplit = event.getCustomId().split(CONFIG_DELIMITER);
+        String[] customIdSplit = event.getCustomId().split(BotConstants.CONFIG_SPLIT_DELIMITER_REGEX);
         int sideOfDie = Integer.parseInt(customIdSplit[3]);
         Set<Integer> rerollSet = CommandUtils.toSet(customIdSplit[4], SUBSET_DELIMITER, EMPTY);
         Set<Integer> successSet = CommandUtils.toSet(customIdSplit[5], SUBSET_DELIMITER, EMPTY);
@@ -161,7 +162,7 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollCommand.Config,
 
     @Override
     protected State getStateFromEvent(IButtonEventAdaptor event) {
-        String[] customIdSplit = event.getCustomId().split(CONFIG_DELIMITER);
+        String[] customIdSplit = event.getCustomId().split(BotConstants.CONFIG_SPLIT_DELIMITER_REGEX);
         List<Integer> currentResult = getCurrentRollResult(customIdSplit[2]);
         int rerollCount = Integer.parseInt(customIdSplit[7]);
         String buttonValue = customIdSplit[1];

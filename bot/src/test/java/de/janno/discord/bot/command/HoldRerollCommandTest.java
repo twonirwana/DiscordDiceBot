@@ -83,7 +83,7 @@ class HoldRerollCommandTest {
     @Test
     void getConfigFromEvent_roll3d6() {
         IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
-        when(event.getCustomId()).thenReturn("hold_reroll,3,EMPTY,6,2;3;4,5;6,1,0");
+        when(event.getCustomId()).thenReturn("hold_reroll\u00003\u0000EMPTY\u00006\u00002;3;4\u00005;6\u00001\u00000");
 
         assertThat(underTest.getConfigFromEvent(event)).isEqualTo(new HoldRerollCommand.Config(
                 6,
@@ -95,7 +95,7 @@ class HoldRerollCommandTest {
     @Test
     void getStateFromEvent_roll3d6() {
         IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
-        when(event.getCustomId()).thenReturn("hold_reroll,3,EMPTY,6,2;3;4,5;6,1,0");
+        when(event.getCustomId()).thenReturn("hold_reroll\u00003\u0000EMPTY\u00006\u00002;3;4\u00005;6\u00001\u00000");
 
         assertThat(underTest.getStateFromEvent(event)).isEqualTo(new HoldRerollCommand.State("3", ImmutableList.of(1, 1, 1), 0));
     }
@@ -103,7 +103,7 @@ class HoldRerollCommandTest {
     @Test
     void getConfigFromEvent_finish() {
         IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
-        when(event.getCustomId()).thenReturn("hold_reroll,finish,1;2;3;4;5;6,6,2;3;4,5;6,1,0");
+        when(event.getCustomId()).thenReturn("hold_reroll\u0000finish,1;2;3;4;5;6,6,2;3;4,5;6,1,0");
         assertThat(underTest.getConfigFromEvent(event)).isEqualTo(new HoldRerollCommand.Config(
                 6,
                 ImmutableSet.of(2, 3, 4),
@@ -114,14 +114,14 @@ class HoldRerollCommandTest {
     @Test
     void getStateFromEvent_finish() {
         IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
-        when(event.getCustomId()).thenReturn("hold_reroll,finish,1;2;3;4;5;6,6,2;3;4,5;6,1,0");
+        when(event.getCustomId()).thenReturn("hold_reroll\u0000finish,1;2;3;4;5;6,6,2;3;4,5;6,1,0");
         assertThat(underTest.getStateFromEvent(event)).isEqualTo(new HoldRerollCommand.State("finish", ImmutableList.of(1, 2, 3, 4, 5, 6), 0));
     }
 
     @Test
     void getConfigFromEvent_clear() {
         IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
-        when(event.getCustomId()).thenReturn("hold_reroll,clear,1;2;3;4;5;6,6,2;3;4,5;6,1,0");
+        when(event.getCustomId()).thenReturn("hold_reroll\u0000clear,1;2;3;4;5;6,6,2;3;4,5;6,1,0");
         assertThat(underTest.getConfigFromEvent(event))
                 .isEqualTo(new HoldRerollCommand.Config(
                         6,
@@ -133,7 +133,7 @@ class HoldRerollCommandTest {
     @Test
     void getStateFromEvent_clear() {
         IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
-        when(event.getCustomId()).thenReturn("hold_reroll,clear,1;2;3;4;5;6,6,2;3;4,5;6,1,0");
+        when(event.getCustomId()).thenReturn("hold_reroll\u0000clear,1;2;3;4;5;6,6,2;3;4,5;6,1,0");
         assertThat(underTest.getStateFromEvent(event))
                 .isEqualTo(new HoldRerollCommand.State("clear", ImmutableList.of(), 0));
     }
@@ -141,7 +141,7 @@ class HoldRerollCommandTest {
     @Test
     void getConfigFromEvent_reroll() {
         IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
-        when(event.getCustomId()).thenReturn("hold_reroll,reroll,1;2;3;4;5;6,6,2;3;4,5;6,1,1");
+        when(event.getCustomId()).thenReturn("hold_reroll\u0000reroll,1;2;3;4;5;6,6,2;3;4,5;6,1,1");
         assertThat(underTest.getConfigFromEvent(event)).isEqualTo(new HoldRerollCommand.Config(
                 6,
                 ImmutableSet.of(2, 3, 4),
@@ -152,13 +152,13 @@ class HoldRerollCommandTest {
     @Test
     void getStateFromEvent_reroll() {
         IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
-        when(event.getCustomId()).thenReturn("hold_reroll,reroll,1;2;3;4;5;6,6,2;3;4,5;6,1,1");
+        when(event.getCustomId()).thenReturn("hold_reroll\u0000reroll,1;2;3;4;5;6,6,2;3;4,5;6,1,1");
         assertThat(underTest.getStateFromEvent(event)).isEqualTo(new HoldRerollCommand.State("reroll", ImmutableList.of(1, 1, 1, 1, 5, 6), 2));
     }
 
     @Test
     void matchingComponentCustomId_match() {
-        assertThat(underTest.matchingComponentCustomId("hold_reroll,1;2")).isTrue();
+        assertThat(underTest.matchingComponentCustomId("hold_reroll\u00001;2")).isTrue();
     }
 
     @Test
@@ -239,7 +239,7 @@ class HoldRerollCommandTest {
     @Test
     void getStateFromEvent() {
         IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
-        when(event.getCustomId()).thenReturn("hold_reroll,finish,1;2;3;4;5;6,6,2;3;4,5;6,1,0");
+        when(event.getCustomId()).thenReturn("hold_reroll\u0000finish,1;2;3;4;5;6,6,2;3;4,5;6,1,0");
 
         HoldRerollCommand.State res = underTest.getStateFromEvent(event);
 
@@ -251,7 +251,7 @@ class HoldRerollCommandTest {
         String res = underTest.createButtonCustomId("finish", new HoldRerollCommand.Config(6, ImmutableSet.of(2, 3, 4), ImmutableSet.of(5, 6), ImmutableSet.of(1)),
                 new HoldRerollCommand.State("finish", ImmutableList.of(1, 1, 1, 1, 5, 6), 3));
 
-        assertThat(res).isEqualTo("hold_reroll,finish,1;1;1;1;5;6,6,2;3;4,5;6,1,3");
+        assertThat(res).isEqualTo("hold_reroll\u0000finish\u00001;1;1;1;5;6\u00006\u00002;3;4\u00005;6\u00001\u00003");
     }
 
     @Test
@@ -265,9 +265,9 @@ class HoldRerollCommandTest {
 
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel)).containsExactly("Reroll", "Finish", "Clear");
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getId))
-                .containsExactly("hold_reroll,reroll,1;2;3;4;5;6,6,2;3;4,5;6,1,2",
-                        "hold_reroll,finish,1;2;3;4;5;6,6,2;3;4,5;6,1,2",
-                        "hold_reroll,clear,1;2;3;4;5;6,6,2;3;4,5;6,1,2");
+                .containsExactly("hold_reroll\u0000reroll\u00001;2;3;4;5;6\u00006\u00002;3;4\u00005;6\u00001\u00002",
+                        "hold_reroll\u0000finish\u00001;2;3;4;5;6\u00006\u00002;3;4\u00005;6\u00001\u00002",
+                        "hold_reroll\u0000clear\u00001;2;3;4;5;6\u00006\u00002;3;4\u00005;6\u00001\u00002");
     }
 
     @Test
@@ -282,21 +282,21 @@ class HoldRerollCommandTest {
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel))
                 .containsExactly("1d6", "2d6", "3d6", "4d6", "5d6", "6d6", "7d6", "8d6", "9d6", "10d6", "11d6", "12d6", "13d6", "14d6", "15d6");
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getId))
-                .containsExactly("hold_reroll,1,EMPTY,6,2;3;4,5;6,1,0",
-                        "hold_reroll,2,EMPTY,6,2;3;4,5;6,1,0",
-                        "hold_reroll,3,EMPTY,6,2;3;4,5;6,1,0",
-                        "hold_reroll,4,EMPTY,6,2;3;4,5;6,1,0",
-                        "hold_reroll,5,EMPTY,6,2;3;4,5;6,1,0",
-                        "hold_reroll,6,EMPTY,6,2;3;4,5;6,1,0",
-                        "hold_reroll,7,EMPTY,6,2;3;4,5;6,1,0",
-                        "hold_reroll,8,EMPTY,6,2;3;4,5;6,1,0",
-                        "hold_reroll,9,EMPTY,6,2;3;4,5;6,1,0",
-                        "hold_reroll,10,EMPTY,6,2;3;4,5;6,1,0",
-                        "hold_reroll,11,EMPTY,6,2;3;4,5;6,1,0",
-                        "hold_reroll,12,EMPTY,6,2;3;4,5;6,1,0",
-                        "hold_reroll,13,EMPTY,6,2;3;4,5;6,1,0",
-                        "hold_reroll,14,EMPTY,6,2;3;4,5;6,1,0",
-                        "hold_reroll,15,EMPTY,6,2;3;4,5;6,1,0");
+                .containsExactly("hold_reroll\u00001\u0000EMPTY\u00006\u00002;3;4\u00005;6\u00001\u00000",
+                        "hold_reroll\u00002\u0000EMPTY\u00006\u00002;3;4\u00005;6\u00001\u00000",
+                        "hold_reroll\u00003\u0000EMPTY\u00006\u00002;3;4\u00005;6\u00001\u00000",
+                        "hold_reroll\u00004\u0000EMPTY\u00006\u00002;3;4\u00005;6\u00001\u00000",
+                        "hold_reroll\u00005\u0000EMPTY\u00006\u00002;3;4\u00005;6\u00001\u00000",
+                        "hold_reroll\u00006\u0000EMPTY\u00006\u00002;3;4\u00005;6\u00001\u00000",
+                        "hold_reroll\u00007\u0000EMPTY\u00006\u00002;3;4\u00005;6\u00001\u00000",
+                        "hold_reroll\u00008\u0000EMPTY\u00006\u00002;3;4\u00005;6\u00001\u00000",
+                        "hold_reroll\u00009\u0000EMPTY\u00006\u00002;3;4\u00005;6\u00001\u00000",
+                        "hold_reroll\u000010\u0000EMPTY\u00006\u00002;3;4\u00005;6\u00001\u00000",
+                        "hold_reroll\u000011\u0000EMPTY\u00006\u00002;3;4\u00005;6\u00001\u00000",
+                        "hold_reroll\u000012\u0000EMPTY\u00006\u00002;3;4\u00005;6\u00001\u00000",
+                        "hold_reroll\u000013\u0000EMPTY\u00006\u00002;3;4\u00005;6\u00001\u00000",
+                        "hold_reroll\u000014\u0000EMPTY\u00006\u00002;3;4\u00005;6\u00001\u00000",
+                        "hold_reroll\u000015\u0000EMPTY\u00006\u00002;3;4\u00005;6\u00001\u00000");
     }
 
     @Test
@@ -311,21 +311,21 @@ class HoldRerollCommandTest {
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel))
                 .containsExactly("1d6", "2d6", "3d6", "4d6", "5d6", "6d6", "7d6", "8d6", "9d6", "10d6", "11d6", "12d6", "13d6", "14d6", "15d6");
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getId))
-                .containsExactly("hold_reroll,1,EMPTY,6,2;3;4,5;6,1,0",
-                        "hold_reroll,2,EMPTY,6,2;3;4,5;6,1,0",
-                        "hold_reroll,3,EMPTY,6,2;3;4,5;6,1,0",
-                        "hold_reroll,4,EMPTY,6,2;3;4,5;6,1,0",
-                        "hold_reroll,5,EMPTY,6,2;3;4,5;6,1,0",
-                        "hold_reroll,6,EMPTY,6,2;3;4,5;6,1,0",
-                        "hold_reroll,7,EMPTY,6,2;3;4,5;6,1,0",
-                        "hold_reroll,8,EMPTY,6,2;3;4,5;6,1,0",
-                        "hold_reroll,9,EMPTY,6,2;3;4,5;6,1,0",
-                        "hold_reroll,10,EMPTY,6,2;3;4,5;6,1,0",
-                        "hold_reroll,11,EMPTY,6,2;3;4,5;6,1,0",
-                        "hold_reroll,12,EMPTY,6,2;3;4,5;6,1,0",
-                        "hold_reroll,13,EMPTY,6,2;3;4,5;6,1,0",
-                        "hold_reroll,14,EMPTY,6,2;3;4,5;6,1,0",
-                        "hold_reroll,15,EMPTY,6,2;3;4,5;6,1,0");
+                .containsExactly("hold_reroll\u00001\u0000EMPTY\u00006\u00002;3;4\u00005;6\u00001\u00000",
+                        "hold_reroll\u00002\u0000EMPTY\u00006\u00002;3;4\u00005;6\u00001\u00000",
+                        "hold_reroll\u00003\u0000EMPTY\u00006\u00002;3;4\u00005;6\u00001\u00000",
+                        "hold_reroll\u00004\u0000EMPTY\u00006\u00002;3;4\u00005;6\u00001\u00000",
+                        "hold_reroll\u00005\u0000EMPTY\u00006\u00002;3;4\u00005;6\u00001\u00000",
+                        "hold_reroll\u00006\u0000EMPTY\u00006\u00002;3;4\u00005;6\u00001\u00000",
+                        "hold_reroll\u00007\u0000EMPTY\u00006\u00002;3;4\u00005;6\u00001\u00000",
+                        "hold_reroll\u00008\u0000EMPTY\u00006\u00002;3;4\u00005;6\u00001\u00000",
+                        "hold_reroll\u00009\u0000EMPTY\u00006\u00002;3;4\u00005;6\u00001\u00000",
+                        "hold_reroll\u000010\u0000EMPTY\u00006\u00002;3;4\u00005;6\u00001\u00000",
+                        "hold_reroll\u000011\u0000EMPTY\u00006\u00002;3;4\u00005;6\u00001\u00000",
+                        "hold_reroll\u000012\u0000EMPTY\u00006\u00002;3;4\u00005;6\u00001\u00000",
+                        "hold_reroll\u000013\u0000EMPTY\u00006\u00002;3;4\u00005;6\u00001\u00000",
+                        "hold_reroll\u000014\u0000EMPTY\u00006\u00002;3;4\u00005;6\u00001\u00000",
+                        "hold_reroll\u000015\u0000EMPTY\u00006\u00002;3;4\u00005;6\u00001\u00000");
     }
 
     @Test
@@ -339,9 +339,9 @@ class HoldRerollCommandTest {
 
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel)).containsExactly("Reroll", "Finish", "Clear");
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getId))
-                .containsExactly("hold_reroll,reroll,1;2;3;4;5;6,6,2;3;4,5;6,1,2",
-                        "hold_reroll,finish,1;2;3;4;5;6,6,2;3;4,5;6,1,2",
-                        "hold_reroll,clear,1;2;3;4;5;6,6,2;3;4,5;6,1,2");
+                .containsExactly("hold_reroll\u0000reroll\u00001;2;3;4;5;6\u00006\u00002;3;4\u00005;6\u00001\u00002",
+                        "hold_reroll\u0000finish\u00001;2;3;4;5;6\u00006\u00002;3;4\u00005;6\u00001\u00002",
+                        "hold_reroll\u0000clear\u00001;2;3;4;5;6\u00006\u00002;3;4\u00005;6\u00001\u00002");
     }
 
     @Test
@@ -356,21 +356,21 @@ class HoldRerollCommandTest {
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel))
                 .containsExactly("1d6", "2d6", "3d6", "4d6", "5d6", "6d6", "7d6", "8d6", "9d6", "10d6", "11d6", "12d6", "13d6", "14d6", "15d6");
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getId))
-                .containsExactly("hold_reroll,1,EMPTY,6,2;3;4,5;6,1,0",
-                        "hold_reroll,2,EMPTY,6,2;3;4,5;6,1,0",
-                        "hold_reroll,3,EMPTY,6,2;3;4,5;6,1,0",
-                        "hold_reroll,4,EMPTY,6,2;3;4,5;6,1,0",
-                        "hold_reroll,5,EMPTY,6,2;3;4,5;6,1,0",
-                        "hold_reroll,6,EMPTY,6,2;3;4,5;6,1,0",
-                        "hold_reroll,7,EMPTY,6,2;3;4,5;6,1,0",
-                        "hold_reroll,8,EMPTY,6,2;3;4,5;6,1,0",
-                        "hold_reroll,9,EMPTY,6,2;3;4,5;6,1,0",
-                        "hold_reroll,10,EMPTY,6,2;3;4,5;6,1,0",
-                        "hold_reroll,11,EMPTY,6,2;3;4,5;6,1,0",
-                        "hold_reroll,12,EMPTY,6,2;3;4,5;6,1,0",
-                        "hold_reroll,13,EMPTY,6,2;3;4,5;6,1,0",
-                        "hold_reroll,14,EMPTY,6,2;3;4,5;6,1,0",
-                        "hold_reroll,15,EMPTY,6,2;3;4,5;6,1,0");
+                .containsExactly("hold_reroll\u00001\u0000EMPTY\u00006\u00002;3;4\u00005;6\u00001\u00000",
+                        "hold_reroll\u00002\u0000EMPTY\u00006\u00002;3;4\u00005;6\u00001\u00000",
+                        "hold_reroll\u00003\u0000EMPTY\u00006\u00002;3;4\u00005;6\u00001\u00000",
+                        "hold_reroll\u00004\u0000EMPTY\u00006\u00002;3;4\u00005;6\u00001\u00000",
+                        "hold_reroll\u00005\u0000EMPTY\u00006\u00002;3;4\u00005;6\u00001\u00000",
+                        "hold_reroll\u00006\u0000EMPTY\u00006\u00002;3;4\u00005;6\u00001\u00000",
+                        "hold_reroll\u00007\u0000EMPTY\u00006\u00002;3;4\u00005;6\u00001\u00000",
+                        "hold_reroll\u00008\u0000EMPTY\u00006\u00002;3;4\u00005;6\u00001\u00000",
+                        "hold_reroll\u00009\u0000EMPTY\u00006\u00002;3;4\u00005;6\u00001\u00000",
+                        "hold_reroll\u000010\u0000EMPTY\u00006\u00002;3;4\u00005;6\u00001\u00000",
+                        "hold_reroll\u000011\u0000EMPTY\u00006\u00002;3;4\u00005;6\u00001\u00000",
+                        "hold_reroll\u000012\u0000EMPTY\u00006\u00002;3;4\u00005;6\u00001\u00000",
+                        "hold_reroll\u000013\u0000EMPTY\u00006\u00002;3;4\u00005;6\u00001\u00000",
+                        "hold_reroll\u000014\u0000EMPTY\u00006\u00002;3;4\u00005;6\u00001\u00000",
+                        "hold_reroll\u000015\u0000EMPTY\u00006\u00002;3;4\u00005;6\u00001\u00000");
     }
 
     @Test
@@ -385,21 +385,21 @@ class HoldRerollCommandTest {
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel))
                 .containsExactly("1d6", "2d6", "3d6", "4d6", "5d6", "6d6", "7d6", "8d6", "9d6", "10d6", "11d6", "12d6", "13d6", "14d6", "15d6");
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getId))
-                .containsExactly("hold_reroll,1,EMPTY,6,2;3;4,5;6,1,0",
-                        "hold_reroll,2,EMPTY,6,2;3;4,5;6,1,0",
-                        "hold_reroll,3,EMPTY,6,2;3;4,5;6,1,0",
-                        "hold_reroll,4,EMPTY,6,2;3;4,5;6,1,0",
-                        "hold_reroll,5,EMPTY,6,2;3;4,5;6,1,0",
-                        "hold_reroll,6,EMPTY,6,2;3;4,5;6,1,0",
-                        "hold_reroll,7,EMPTY,6,2;3;4,5;6,1,0",
-                        "hold_reroll,8,EMPTY,6,2;3;4,5;6,1,0",
-                        "hold_reroll,9,EMPTY,6,2;3;4,5;6,1,0",
-                        "hold_reroll,10,EMPTY,6,2;3;4,5;6,1,0",
-                        "hold_reroll,11,EMPTY,6,2;3;4,5;6,1,0",
-                        "hold_reroll,12,EMPTY,6,2;3;4,5;6,1,0",
-                        "hold_reroll,13,EMPTY,6,2;3;4,5;6,1,0",
-                        "hold_reroll,14,EMPTY,6,2;3;4,5;6,1,0",
-                        "hold_reroll,15,EMPTY,6,2;3;4,5;6,1,0");
+                .containsExactly("hold_reroll\u00001\u0000EMPTY\u00006\u00002;3;4\u00005;6\u00001\u00000",
+                        "hold_reroll\u00002\u0000EMPTY\u00006\u00002;3;4\u00005;6\u00001\u00000",
+                        "hold_reroll\u00003\u0000EMPTY\u00006\u00002;3;4\u00005;6\u00001\u00000",
+                        "hold_reroll\u00004\u0000EMPTY\u00006\u00002;3;4\u00005;6\u00001\u00000",
+                        "hold_reroll\u00005\u0000EMPTY\u00006\u00002;3;4\u00005;6\u00001\u00000",
+                        "hold_reroll\u00006\u0000EMPTY\u00006\u00002;3;4\u00005;6\u00001\u00000",
+                        "hold_reroll\u00007\u0000EMPTY\u00006\u00002;3;4\u00005;6\u00001\u00000",
+                        "hold_reroll\u00008\u0000EMPTY\u00006\u00002;3;4\u00005;6\u00001\u00000",
+                        "hold_reroll\u00009\u0000EMPTY\u00006\u00002;3;4\u00005;6\u00001\u00000",
+                        "hold_reroll\u000010\u0000EMPTY\u00006\u00002;3;4\u00005;6\u00001\u00000",
+                        "hold_reroll\u000011\u0000EMPTY\u00006\u00002;3;4\u00005;6\u00001\u00000",
+                        "hold_reroll\u000012\u0000EMPTY\u00006\u00002;3;4\u00005;6\u00001\u00000",
+                        "hold_reroll\u000013\u0000EMPTY\u00006\u00002;3;4\u00005;6\u00001\u00000",
+                        "hold_reroll\u000014\u0000EMPTY\u00006\u00002;3;4\u00005;6\u00001\u00000",
+                        "hold_reroll\u000015\u0000EMPTY\u00006\u00002;3;4\u00005;6\u00001\u00000");
     }
 
     @Test

@@ -1,6 +1,7 @@
 package de.janno.discord.connector.jda;
 
 import com.google.common.base.Stopwatch;
+import de.janno.discord.connector.api.BotConstants;
 import de.janno.discord.connector.api.IComponentInteractEventHandler;
 import de.janno.discord.connector.api.ISlashCommand;
 import de.janno.discord.connector.api.Requester;
@@ -18,6 +19,7 @@ import net.dv8tion.jda.api.events.guild.GuildReadyEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import net.dv8tion.jda.internal.utils.IOUtil;
 import okhttp3.OkHttpClient;
 import reactor.core.publisher.Flux;
@@ -38,11 +40,10 @@ import java.util.concurrent.ConcurrentSkipListSet;
 @Slf4j
 public class JdaClient {
 
-    public static final String CONFIG_DELIMITER = ",";
     public static final Duration START_UP_BUFFER = Duration.of(5, ChronoUnit.MINUTES);
 
     private static String getCommandNameFromCustomId(String customId) {
-        return customId.split(CONFIG_DELIMITER)[0];
+        return customId.split(BotConstants.CONFIG_SPLIT_DELIMITER_REGEX)[0];
     }
 
     public void start(String token, boolean disableCommandUpdate, List<ISlashCommand> commands, MessageDefinition welcomeMessageDefinition) throws LoginException {
@@ -57,6 +58,7 @@ public class JdaClient {
         JdaMetrics.registerHttpClient(okHttpClient);
 
         JDA jda = JDABuilder.createDefault(token, Collections.emptyList())
+                .disableCache(CacheFlag.VOICE_STATE, CacheFlag.EMOTE)
                 .setHttpClient(okHttpClient)
                 .addEventListeners(
                         new ListenerAdapter() {
@@ -105,7 +107,7 @@ public class JdaClient {
                             }
                         }
                 )
-                .setActivity(Activity.playing("Type /help"))
+                .setActivity(Activity.listening("Type /help"))
                 .build();
         SlashCommandRegistry slashCommandRegistry = SlashCommandRegistry.builder()
                 .addSlashCommands(commands)

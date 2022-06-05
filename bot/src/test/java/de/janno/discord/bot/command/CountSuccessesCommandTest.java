@@ -201,13 +201,13 @@ class CountSuccessesCommandTest {
     void createButtonCustomId() {
         String res = underTest.createButtonCustomId("10", new CountSuccessesCommand.Config(6, 4, "half_dice_one", 12));
 
-        assertThat(res).isEqualTo("count_successes,10,6,4,half_dice_one,12");
+        assertThat(res).isEqualTo("count_successes\u000010\u00006\u00004\u0000half_dice_one\u000012");
     }
 
     @Test
     void handleComponentInteractEvent() {
         IButtonEventAdaptor buttonEventAdaptor = mock(IButtonEventAdaptor.class);
-        when(buttonEventAdaptor.getCustomId()).thenReturn("count_successes,6,6,4,half_dice_one,12");
+        when(buttonEventAdaptor.getCustomId()).thenReturn("count_successes\u00006\u00006\u00004\u0000half_dice_one\u000012");
         when(buttonEventAdaptor.getChannelId()).thenReturn(1L);
         when(buttonEventAdaptor.getMessageId()).thenReturn(1L);
         when(buttonEventAdaptor.isPinned()).thenReturn(false);
@@ -286,7 +286,21 @@ class CountSuccessesCommandTest {
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel))
                 .containsExactly("1d6", "2d6", "3d6", "4d6", "5d6", "6d6", "7d6", "8d6", "9d6", "10d6", "11d6", "12d6", "13d6", "14d6", "15d6");
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getId))
-                .containsExactly("count_successes,1,6,6,count_ones,15", "count_successes,2,6,6,count_ones,15", "count_successes,3,6,6,count_ones,15", "count_successes,4,6,6,count_ones,15", "count_successes,5,6,6,count_ones,15", "count_successes,6,6,6,count_ones,15", "count_successes,7,6,6,count_ones,15", "count_successes,8,6,6,count_ones,15", "count_successes,9,6,6,count_ones,15", "count_successes,10,6,6,count_ones,15", "count_successes,11,6,6,count_ones,15", "count_successes,12,6,6,count_ones,15", "count_successes,13,6,6,count_ones,15", "count_successes,14,6,6,count_ones,15", "count_successes,15,6,6,count_ones,15");
+                .containsExactly("count_successes\u00001\u00006\u00006\u0000count_ones\u000015",
+                        "count_successes\u00002\u00006\u00006\u0000count_ones\u000015",
+                        "count_successes\u00003\u00006\u00006\u0000count_ones\u000015",
+                        "count_successes\u00004\u00006\u00006\u0000count_ones\u000015",
+                        "count_successes\u00005\u00006\u00006\u0000count_ones\u000015",
+                        "count_successes\u00006\u00006\u00006\u0000count_ones\u000015",
+                        "count_successes\u00007\u00006\u00006\u0000count_ones\u000015",
+                        "count_successes\u00008\u00006\u00006\u0000count_ones\u000015",
+                        "count_successes\u00009\u00006\u00006\u0000count_ones\u000015",
+                        "count_successes\u000010\u00006\u00006\u0000count_ones\u000015",
+                        "count_successes\u000011\u00006\u00006\u0000count_ones\u000015",
+                        "count_successes\u000012\u00006\u00006\u0000count_ones\u000015",
+                        "count_successes\u000013\u00006\u00006\u0000count_ones\u000015",
+                        "count_successes\u000014\u00006\u00006\u0000count_ones\u000015",
+                        "count_successes\u000015\u00006\u00006\u0000count_ones\u000015");
     }
 
     @Test
@@ -297,7 +311,21 @@ class CountSuccessesCommandTest {
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel))
                 .containsExactly("1d6", "2d6", "3d6", "4d6", "5d6", "6d6", "7d6", "8d6", "9d6", "10d6", "11d6", "12d6", "13d6", "14d6", "15d6");
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getId))
-                .containsExactly("count_successes,1,6,6,count_ones,15", "count_successes,2,6,6,count_ones,15", "count_successes,3,6,6,count_ones,15", "count_successes,4,6,6,count_ones,15", "count_successes,5,6,6,count_ones,15", "count_successes,6,6,6,count_ones,15", "count_successes,7,6,6,count_ones,15", "count_successes,8,6,6,count_ones,15", "count_successes,9,6,6,count_ones,15", "count_successes,10,6,6,count_ones,15", "count_successes,11,6,6,count_ones,15", "count_successes,12,6,6,count_ones,15", "count_successes,13,6,6,count_ones,15", "count_successes,14,6,6,count_ones,15", "count_successes,15,6,6,count_ones,15");
+                .containsExactly("count_successes\u00001\u00006\u00006\u0000count_ones\u000015",
+                        "count_successes\u00002\u00006\u00006\u0000count_ones\u000015",
+                        "count_successes\u00003\u00006\u00006\u0000count_ones\u000015",
+                        "count_successes\u00004\u00006\u00006\u0000count_ones\u000015",
+                        "count_successes\u00005\u00006\u00006\u0000count_ones\u000015",
+                        "count_successes\u00006\u00006\u00006\u0000count_ones\u000015",
+                        "count_successes\u00007\u00006\u00006\u0000count_ones\u000015",
+                        "count_successes\u00008\u00006\u00006\u0000count_ones\u000015",
+                        "count_successes\u00009\u00006\u00006\u0000count_ones\u000015",
+                        "count_successes\u000010\u00006\u00006\u0000count_ones\u000015",
+                        "count_successes\u000011\u00006\u00006\u0000count_ones\u000015",
+                        "count_successes\u000012\u00006\u00006\u0000count_ones\u000015",
+                        "count_successes\u000013\u00006\u00006\u0000count_ones\u000015",
+                        "count_successes\u000014\u00006\u00006\u0000count_ones\u000015",
+                        "count_successes\u000015\u00006\u00006\u0000count_ones\u000015");
     }
 
     @Test

@@ -7,6 +7,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import de.janno.discord.bot.cache.ButtonMessageCache;
 import de.janno.discord.bot.dice.DiceUtils;
+import de.janno.discord.connector.api.BotConstants;
 import de.janno.discord.connector.api.IButtonEventAdaptor;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
@@ -41,8 +42,8 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesCommand
     private static final String GLITCH_NO_OPTION = "no_glitch";
     private static final String GLITCH_COUNT_ONES = "count_ones";
     private static final String GLITCH_SUBTRACT_ONES = "subtract_ones";
-    private final DiceUtils diceUtils;
     private static final ButtonMessageCache BUTTON_MESSAGE_CACHE = new ButtonMessageCache(COMMAND_NAME);
+    private final DiceUtils diceUtils;
 
     public CountSuccessesCommand() {
         this(new DiceUtils());
@@ -61,7 +62,7 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesCommand
 
     @Override
     protected Config getConfigFromEvent(IButtonEventAdaptor event) {
-        String[] split = event.getCustomId().split(CONFIG_DELIMITER);
+        String[] split = event.getCustomId().split(BotConstants.CONFIG_SPLIT_DELIMITER_REGEX);
         int sideOfDie = Integer.parseInt(split[2]);
         int target = Integer.parseInt(split[3]);
         //legacy message could be missing the glitch and max dice option
@@ -72,7 +73,7 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesCommand
 
     @Override
     protected State getStateFromEvent(IButtonEventAdaptor event) {
-        return new State(Integer.parseInt(event.getCustomId().split(CONFIG_DELIMITER)[1]));
+        return new State(Integer.parseInt(event.getCustomId().split(BotConstants.CONFIG_SPLIT_DELIMITER_REGEX)[1]));
     }
 
     @Override
@@ -134,9 +135,12 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesCommand
                 .collect(Collectors.toList());
 
         return switch (config.getGlitchOption()) {
-            case GLITCH_OPTION_HALF_ONES -> halfOnesGlitch(state.getNumberOfDice(), config.getDiceSides(), config.getTarget(), rollResult);
-            case GLITCH_COUNT_ONES -> countOnesGlitch(state.getNumberOfDice(), config.getDiceSides(), config.getTarget(), rollResult);
-            case GLITCH_SUBTRACT_ONES -> subtractOnesGlitch(state.getNumberOfDice(), config.getDiceSides(), config.getTarget(), rollResult);
+            case GLITCH_OPTION_HALF_ONES ->
+                    halfOnesGlitch(state.getNumberOfDice(), config.getDiceSides(), config.getTarget(), rollResult);
+            case GLITCH_COUNT_ONES ->
+                    countOnesGlitch(state.getNumberOfDice(), config.getDiceSides(), config.getTarget(), rollResult);
+            case GLITCH_SUBTRACT_ONES ->
+                    subtractOnesGlitch(state.getNumberOfDice(), config.getDiceSides(), config.getTarget(), rollResult);
             default -> noneGlitch(state.getNumberOfDice(), config.getDiceSides(), config.getTarget(), rollResult);
         };
     }
@@ -239,9 +243,9 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesCommand
     @VisibleForTesting
     String createButtonCustomId(String number, Config config) {
 
-        Preconditions.checkArgument(!config.getGlitchOption().contains(CONFIG_DELIMITER));
+        Preconditions.checkArgument(!config.getGlitchOption().contains(BotConstants.CONFIG_DELIMITER));
 
-        return String.join(CONFIG_DELIMITER,
+        return String.join(BotConstants.CONFIG_DELIMITER,
                 COMMAND_NAME,
                 number,
                 String.valueOf(config.getDiceSides()),

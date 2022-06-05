@@ -34,20 +34,20 @@ class PoolTargetCommandTest {
     private static Stream<Arguments> getStateFromEvent() {
         return Stream.of(
                 //set pool
-                Arguments.of("pool_target,15,10,20,10;9,1;2,ask,EMPTY,EMPTY", new PoolTargetCommand.State(15, null, null)),
-                Arguments.of("pool_target,15,10,20,10;9,1;2,always,EMPTY,EMPTY", new PoolTargetCommand.State(15, null, null)),
+                Arguments.of("pool_target\u000015\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY", new PoolTargetCommand.State(15, null, null)),
+                Arguments.of("pool_target\u000015,10,20,10;9,1;2,always,EMPTY,EMPTY", new PoolTargetCommand.State(15, null, null)),
 
                 //set target
-                Arguments.of("pool_target,8,10,20,10;9,1;2,ask,15,EMPTY", new PoolTargetCommand.State(15, 8, null)),
-                Arguments.of("pool_target,8,10,20,10;9,1;2,always,15,EMPTY", new PoolTargetCommand.State(15, 8, true)),
+                Arguments.of("pool_target\u00008,10,20,10;9,1;2,ask,15,EMPTY", new PoolTargetCommand.State(15, 8, null)),
+                Arguments.of("pool_target\u00008,10,20,10;9,1;2,always,15,EMPTY", new PoolTargetCommand.State(15, 8, true)),
 
                 //clear
-                Arguments.of("pool_target,clear,10,20,10;9,1;2,ask,15,EMPTY", new PoolTargetCommand.State(null, null, null)),
-                Arguments.of("pool_target,clear,10,20,10;9,1;2,always,15,EMPTY", new PoolTargetCommand.State(null, null, null)),
+                Arguments.of("pool_target\u0000clear,10,20,10;9,1;2,ask,15,EMPTY", new PoolTargetCommand.State(null, null, null)),
+                Arguments.of("pool_target\u0000clear,10,20,10;9,1;2,always,15,EMPTY", new PoolTargetCommand.State(null, null, null)),
 
                 //ask reroll
-                Arguments.of("pool_target,do_reroll,10,20,10;9,1;2,ask,15,9", new PoolTargetCommand.State(15, 9, true)),
-                Arguments.of("pool_target,no_reroll,10,20,10;9,1;2,ask,15,9", new PoolTargetCommand.State(15, 9, false))
+                Arguments.of("pool_target\u0000do_reroll,10,20,10;9,1;2,ask,15,9", new PoolTargetCommand.State(15, 9, true)),
+                Arguments.of("pool_target\u0000no_reroll,10,20,10;9,1;2,ask,15,9", new PoolTargetCommand.State(15, 9, false))
         );
     }
 
@@ -98,7 +98,7 @@ class PoolTargetCommandTest {
     @Test
     void getConfigFromEvent() {
         IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
-        when(event.getCustomId()).thenReturn("pool_target,do_reroll,10,20,10;9,1;2,ask,15,9");
+        when(event.getCustomId()).thenReturn("pool_target\u0000do_reroll,10,20,10;9,1;2,ask,15,9");
 
         assertThat(underTest.getConfigFromEvent(event)).isEqualTo(new PoolTargetCommand.Config(
                 10,
@@ -110,7 +110,7 @@ class PoolTargetCommandTest {
 
     @Test
     void matchingComponentCustomId_match() {
-        assertThat(underTest.matchingComponentCustomId("pool_target,15,10,15,10,1,ask,EMPTY,EMPTY")).isTrue();
+        assertThat(underTest.matchingComponentCustomId("pool_target\u000015,10,15,10,1,ask,EMPTY,EMPTY")).isTrue();
     }
 
     @Test
@@ -230,8 +230,8 @@ class PoolTargetCommandTest {
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel))
                 .containsExactly("Reroll", "No reroll");
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getId))
-                .containsExactly("pool_target,do_reroll,10,20,10;9,1;2,ask,10,10",
-                        "pool_target,no_reroll,10,20,10;9,1;2,ask,10,10");
+                .containsExactly("pool_target\u0000do_reroll\u000010\u000020\u000010;9\u00001;2\u0000ask\u000010\u000010",
+                        "pool_target\u0000no_reroll\u000010\u000020\u000010;9\u00001;2\u0000ask\u000010\u000010");
     }
 
     @Test
@@ -244,26 +244,26 @@ class PoolTargetCommandTest {
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel))
                 .containsExactly("1d10", "2d10", "3d10", "4d10", "5d10", "6d10", "7d10", "8d10", "9d10", "10d10", "11d10", "12d10", "13d10", "14d10", "15d10", "16d10", "17d10", "18d10", "19d10", "20d10");
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getId))
-                .containsExactly("pool_target,1,10,20,10;9,1;2,ask,EMPTY,EMPTY",
-                        "pool_target,2,10,20,10;9,1;2,ask,EMPTY,EMPTY",
-                        "pool_target,3,10,20,10;9,1;2,ask,EMPTY,EMPTY",
-                        "pool_target,4,10,20,10;9,1;2,ask,EMPTY,EMPTY",
-                        "pool_target,5,10,20,10;9,1;2,ask,EMPTY,EMPTY",
-                        "pool_target,6,10,20,10;9,1;2,ask,EMPTY,EMPTY",
-                        "pool_target,7,10,20,10;9,1;2,ask,EMPTY,EMPTY",
-                        "pool_target,8,10,20,10;9,1;2,ask,EMPTY,EMPTY",
-                        "pool_target,9,10,20,10;9,1;2,ask,EMPTY,EMPTY",
-                        "pool_target,10,10,20,10;9,1;2,ask,EMPTY,EMPTY",
-                        "pool_target,11,10,20,10;9,1;2,ask,EMPTY,EMPTY",
-                        "pool_target,12,10,20,10;9,1;2,ask,EMPTY,EMPTY",
-                        "pool_target,13,10,20,10;9,1;2,ask,EMPTY,EMPTY",
-                        "pool_target,14,10,20,10;9,1;2,ask,EMPTY,EMPTY",
-                        "pool_target,15,10,20,10;9,1;2,ask,EMPTY,EMPTY",
-                        "pool_target,16,10,20,10;9,1;2,ask,EMPTY,EMPTY",
-                        "pool_target,17,10,20,10;9,1;2,ask,EMPTY,EMPTY",
-                        "pool_target,18,10,20,10;9,1;2,ask,EMPTY,EMPTY",
-                        "pool_target,19,10,20,10;9,1;2,ask,EMPTY,EMPTY",
-                        "pool_target,20,10,20,10;9,1;2,ask,EMPTY,EMPTY");
+                .containsExactly("pool_target\u00001\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY",
+                        "pool_target\u00002\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY",
+                        "pool_target\u00003\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY",
+                        "pool_target\u00004\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY",
+                        "pool_target\u00005\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY",
+                        "pool_target\u00006\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY",
+                        "pool_target\u00007\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY",
+                        "pool_target\u00008\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY",
+                        "pool_target\u00009\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY",
+                        "pool_target\u000010\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY",
+                        "pool_target\u000011\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY",
+                        "pool_target\u000012\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY",
+                        "pool_target\u000013\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY",
+                        "pool_target\u000014\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY",
+                        "pool_target\u000015\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY",
+                        "pool_target\u000016\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY",
+                        "pool_target\u000017\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY",
+                        "pool_target\u000018\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY",
+                        "pool_target\u000019\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY",
+                        "pool_target\u000020\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY");
     }
 
     @Test
@@ -276,16 +276,16 @@ class PoolTargetCommandTest {
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel))
                 .containsExactly("2", "3", "4", "5", "6", "7", "8", "9", "10", "Clear");
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getId))
-                .containsExactly("pool_target,2,10,20,10;9,1;2,ask,10,EMPTY",
-                        "pool_target,3,10,20,10;9,1;2,ask,10,EMPTY",
-                        "pool_target,4,10,20,10;9,1;2,ask,10,EMPTY",
-                        "pool_target,5,10,20,10;9,1;2,ask,10,EMPTY",
-                        "pool_target,6,10,20,10;9,1;2,ask,10,EMPTY",
-                        "pool_target,7,10,20,10;9,1;2,ask,10,EMPTY",
-                        "pool_target,8,10,20,10;9,1;2,ask,10,EMPTY",
-                        "pool_target,9,10,20,10;9,1;2,ask,10,EMPTY",
-                        "pool_target,10,10,20,10;9,1;2,ask,10,EMPTY",
-                        "pool_target,clear,10,20,10;9,1;2,ask,EMPTY,EMPTY");
+                .containsExactly("pool_target\u00002\u000010\u000020\u000010;9\u00001;2\u0000ask\u000010\u0000EMPTY",
+                        "pool_target\u00003\u000010\u000020\u000010;9\u00001;2\u0000ask\u000010\u0000EMPTY",
+                        "pool_target\u00004\u000010\u000020\u000010;9\u00001;2\u0000ask\u000010\u0000EMPTY",
+                        "pool_target\u00005\u000010\u000020\u000010;9\u00001;2\u0000ask\u000010\u0000EMPTY",
+                        "pool_target\u00006\u000010\u000020\u000010;9\u00001;2\u0000ask\u000010\u0000EMPTY",
+                        "pool_target\u00007\u000010\u000020\u000010;9\u00001;2\u0000ask\u000010\u0000EMPTY",
+                        "pool_target\u00008\u000010\u000020\u000010;9\u00001;2\u0000ask\u000010\u0000EMPTY",
+                        "pool_target\u00009\u000010\u000020\u000010;9\u00001;2\u0000ask\u000010\u0000EMPTY",
+                        "pool_target\u000010\u000010\u000020\u000010;9\u00001;2\u0000ask\u000010\u0000EMPTY",
+                        "pool_target\u0000clear\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY");
     }
 
     @Test
@@ -298,26 +298,26 @@ class PoolTargetCommandTest {
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel))
                 .containsExactly("1d10", "2d10", "3d10", "4d10", "5d10", "6d10", "7d10", "8d10", "9d10", "10d10", "11d10", "12d10", "13d10", "14d10", "15d10", "16d10", "17d10", "18d10", "19d10", "20d10");
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getId))
-                .containsExactly("pool_target,1,10,20,10;9,1;2,ask,EMPTY,EMPTY",
-                        "pool_target,2,10,20,10;9,1;2,ask,EMPTY,EMPTY",
-                        "pool_target,3,10,20,10;9,1;2,ask,EMPTY,EMPTY",
-                        "pool_target,4,10,20,10;9,1;2,ask,EMPTY,EMPTY",
-                        "pool_target,5,10,20,10;9,1;2,ask,EMPTY,EMPTY",
-                        "pool_target,6,10,20,10;9,1;2,ask,EMPTY,EMPTY",
-                        "pool_target,7,10,20,10;9,1;2,ask,EMPTY,EMPTY",
-                        "pool_target,8,10,20,10;9,1;2,ask,EMPTY,EMPTY",
-                        "pool_target,9,10,20,10;9,1;2,ask,EMPTY,EMPTY",
-                        "pool_target,10,10,20,10;9,1;2,ask,EMPTY,EMPTY",
-                        "pool_target,11,10,20,10;9,1;2,ask,EMPTY,EMPTY",
-                        "pool_target,12,10,20,10;9,1;2,ask,EMPTY,EMPTY",
-                        "pool_target,13,10,20,10;9,1;2,ask,EMPTY,EMPTY",
-                        "pool_target,14,10,20,10;9,1;2,ask,EMPTY,EMPTY",
-                        "pool_target,15,10,20,10;9,1;2,ask,EMPTY,EMPTY",
-                        "pool_target,16,10,20,10;9,1;2,ask,EMPTY,EMPTY",
-                        "pool_target,17,10,20,10;9,1;2,ask,EMPTY,EMPTY",
-                        "pool_target,18,10,20,10;9,1;2,ask,EMPTY,EMPTY",
-                        "pool_target,19,10,20,10;9,1;2,ask,EMPTY,EMPTY",
-                        "pool_target,20,10,20,10;9,1;2,ask,EMPTY,EMPTY");
+                .containsExactly("pool_target\u00001\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY",
+                        "pool_target\u00002\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY",
+                        "pool_target\u00003\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY",
+                        "pool_target\u00004\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY",
+                        "pool_target\u00005\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY",
+                        "pool_target\u00006\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY",
+                        "pool_target\u00007\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY",
+                        "pool_target\u00008\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY",
+                        "pool_target\u00009\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY",
+                        "pool_target\u000010\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY",
+                        "pool_target\u000011\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY",
+                        "pool_target\u000012\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY",
+                        "pool_target\u000013\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY",
+                        "pool_target\u000014\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY",
+                        "pool_target\u000015\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY",
+                        "pool_target\u000016\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY",
+                        "pool_target\u000017\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY",
+                        "pool_target\u000018\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY",
+                        "pool_target\u000019\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY",
+                        "pool_target\u000020\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY");
     }
 
 
@@ -330,26 +330,26 @@ class PoolTargetCommandTest {
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel))
                 .containsExactly("1d10", "2d10", "3d10", "4d10", "5d10", "6d10", "7d10", "8d10", "9d10", "10d10", "11d10", "12d10", "13d10", "14d10", "15d10", "16d10", "17d10", "18d10", "19d10", "20d10");
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getId))
-                .containsExactly("pool_target,1,10,20,10;9,1;2,ask,EMPTY,EMPTY",
-                        "pool_target,2,10,20,10;9,1;2,ask,EMPTY,EMPTY",
-                        "pool_target,3,10,20,10;9,1;2,ask,EMPTY,EMPTY",
-                        "pool_target,4,10,20,10;9,1;2,ask,EMPTY,EMPTY",
-                        "pool_target,5,10,20,10;9,1;2,ask,EMPTY,EMPTY",
-                        "pool_target,6,10,20,10;9,1;2,ask,EMPTY,EMPTY",
-                        "pool_target,7,10,20,10;9,1;2,ask,EMPTY,EMPTY",
-                        "pool_target,8,10,20,10;9,1;2,ask,EMPTY,EMPTY",
-                        "pool_target,9,10,20,10;9,1;2,ask,EMPTY,EMPTY",
-                        "pool_target,10,10,20,10;9,1;2,ask,EMPTY,EMPTY",
-                        "pool_target,11,10,20,10;9,1;2,ask,EMPTY,EMPTY",
-                        "pool_target,12,10,20,10;9,1;2,ask,EMPTY,EMPTY",
-                        "pool_target,13,10,20,10;9,1;2,ask,EMPTY,EMPTY",
-                        "pool_target,14,10,20,10;9,1;2,ask,EMPTY,EMPTY",
-                        "pool_target,15,10,20,10;9,1;2,ask,EMPTY,EMPTY",
-                        "pool_target,16,10,20,10;9,1;2,ask,EMPTY,EMPTY",
-                        "pool_target,17,10,20,10;9,1;2,ask,EMPTY,EMPTY",
-                        "pool_target,18,10,20,10;9,1;2,ask,EMPTY,EMPTY",
-                        "pool_target,19,10,20,10;9,1;2,ask,EMPTY,EMPTY",
-                        "pool_target,20,10,20,10;9,1;2,ask,EMPTY,EMPTY");
+                .containsExactly("pool_target\u00001\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY",
+                        "pool_target\u00002\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY",
+                        "pool_target\u00003\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY",
+                        "pool_target\u00004\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY",
+                        "pool_target\u00005\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY",
+                        "pool_target\u00006\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY",
+                        "pool_target\u00007\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY",
+                        "pool_target\u00008\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY",
+                        "pool_target\u00009\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY",
+                        "pool_target\u000010\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY",
+                        "pool_target\u000011\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY",
+                        "pool_target\u000012\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY",
+                        "pool_target\u000013\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY",
+                        "pool_target\u000014\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY",
+                        "pool_target\u000015\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY",
+                        "pool_target\u000016\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY",
+                        "pool_target\u000017\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY",
+                        "pool_target\u000018\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY",
+                        "pool_target\u000019\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY",
+                        "pool_target\u000020\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY");
     }
 
     @Test
@@ -387,7 +387,7 @@ class PoolTargetCommandTest {
     @Test
     void handleComponentInteractEvent_clear() {
         IButtonEventAdaptor buttonEventAdaptor = mock(IButtonEventAdaptor.class);
-        when(buttonEventAdaptor.getCustomId()).thenReturn("pool_target,15,10,20,10;9,1;2,ask,EMPTY,EMPTY");
+        when(buttonEventAdaptor.getCustomId()).thenReturn("pool_target\u000015\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY");
         when(buttonEventAdaptor.getChannelId()).thenReturn(1L);
         when(buttonEventAdaptor.getMessageId()).thenReturn(1L);
         when(buttonEventAdaptor.isPinned()).thenReturn(false);
@@ -421,7 +421,7 @@ class PoolTargetCommandTest {
     @Test
     void handleComponentInteractEvent_setTargetAsk() {
         IButtonEventAdaptor buttonEventAdaptor = mock(IButtonEventAdaptor.class);
-        when(buttonEventAdaptor.getCustomId()).thenReturn("pool_target,8,10,20,10;9,1;2,ask,15,EMPTY");
+        when(buttonEventAdaptor.getCustomId()).thenReturn("pool_target\u00008\u000010\u000020\u000010;9\u00001;2\u0000ask\u000015\u0000EMPTY");
         when(buttonEventAdaptor.getChannelId()).thenReturn(1L);
         when(buttonEventAdaptor.getMessageId()).thenReturn(1L);
         when(buttonEventAdaptor.isPinned()).thenReturn(false);
@@ -455,7 +455,7 @@ class PoolTargetCommandTest {
     @Test
     void handleComponentInteractEvent_setTargetAlways() {
         IButtonEventAdaptor buttonEventAdaptor = mock(IButtonEventAdaptor.class);
-        when(buttonEventAdaptor.getCustomId()).thenReturn("pool_target,8,10,20,10;9,1;2,always,15,EMPTY");
+        when(buttonEventAdaptor.getCustomId()).thenReturn("pool_target\u00008\u000010\u000020\u000010;9\u00001;2\u0000always\u000015\u0000EMPTY");
         when(buttonEventAdaptor.getChannelId()).thenReturn(1L);
         when(buttonEventAdaptor.getMessageId()).thenReturn(1L);
         when(buttonEventAdaptor.isPinned()).thenReturn(false);
@@ -492,7 +492,7 @@ class PoolTargetCommandTest {
     @Test
     void handleComponentInteractEvent_setReroll() {
         IButtonEventAdaptor buttonEventAdaptor = mock(IButtonEventAdaptor.class);
-        when(buttonEventAdaptor.getCustomId()).thenReturn("pool_target,do_reroll,10,20,10;9,1;2,ask,15,8");
+        when(buttonEventAdaptor.getCustomId()).thenReturn("pool_target\u0000do_reroll,10,20,10;9,1;2,ask,15,8");
         when(buttonEventAdaptor.getChannelId()).thenReturn(1L);
         when(buttonEventAdaptor.getMessageId()).thenReturn(1L);
         when(buttonEventAdaptor.isPinned()).thenReturn(false);
@@ -528,7 +528,7 @@ class PoolTargetCommandTest {
     @Test
     void handleComponentInteractEvent_clearPinned() {
         IButtonEventAdaptor buttonEventAdaptor = mock(IButtonEventAdaptor.class);
-        when(buttonEventAdaptor.getCustomId()).thenReturn("pool_target,15,10,20,10;9,1;2,ask,EMPTY,EMPTY");
+        when(buttonEventAdaptor.getCustomId()).thenReturn("pool_target\u000015\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY");
         when(buttonEventAdaptor.getChannelId()).thenReturn(1L);
         when(buttonEventAdaptor.getMessageId()).thenReturn(1L);
         when(buttonEventAdaptor.isPinned()).thenReturn(true);

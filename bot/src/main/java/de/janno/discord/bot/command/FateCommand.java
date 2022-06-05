@@ -6,6 +6,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import de.janno.discord.bot.cache.ButtonMessageCache;
 import de.janno.discord.bot.dice.DiceUtils;
+import de.janno.discord.connector.api.BotConstants;
 import de.janno.discord.connector.api.IButtonEventAdaptor;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
@@ -173,13 +174,13 @@ public class FateCommand extends AbstractCommand<FateCommand.Config, FateCommand
 
     @Override
     protected Config getConfigFromEvent(IButtonEventAdaptor event) {
-        String[] split = event.getCustomId().split(CONFIG_DELIMITER);
+        String[] split = event.getCustomId().split(BotConstants.CONFIG_SPLIT_DELIMITER_REGEX);
         return new Config(split[2]);
     }
 
     @Override
     protected State getStateFromEvent(IButtonEventAdaptor event) {
-        String modifier = event.getCustomId().split(CONFIG_DELIMITER)[1];
+        String modifier = event.getCustomId().split(BotConstants.CONFIG_SPLIT_DELIMITER_REGEX)[1];
         if (!Strings.isNullOrEmpty(modifier) && NumberUtils.isParsable(modifier)) {
             return new State(Integer.valueOf(modifier));
         }
@@ -188,10 +189,10 @@ public class FateCommand extends AbstractCommand<FateCommand.Config, FateCommand
 
     @VisibleForTesting
     String createButtonCustomId(String modifier, Config config) {
-        Preconditions.checkArgument(!modifier.contains(CONFIG_DELIMITER));
-        Preconditions.checkArgument(!config.getType().contains(CONFIG_DELIMITER));
+        Preconditions.checkArgument(!modifier.contains(BotConstants.CONFIG_DELIMITER));
+        Preconditions.checkArgument(!config.getType().contains(BotConstants.CONFIG_DELIMITER));
 
-        return String.join(CONFIG_DELIMITER,
+        return String.join(BotConstants.CONFIG_DELIMITER,
                 COMMAND_NAME,
                 modifier,
                 config.getType());

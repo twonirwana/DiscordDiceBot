@@ -5,10 +5,7 @@ import com.google.common.base.Stopwatch;
 import com.google.common.collect.ImmutableList;
 import de.janno.discord.bot.BotMetrics;
 import de.janno.discord.bot.cache.ButtonMessageCache;
-import de.janno.discord.connector.api.IButtonEventAdaptor;
-import de.janno.discord.connector.api.IComponentInteractEventHandler;
-import de.janno.discord.connector.api.ISlashCommand;
-import de.janno.discord.connector.api.ISlashEventAdaptor;
+import de.janno.discord.connector.api.*;
 import de.janno.discord.connector.api.message.EmbedDefinition;
 import de.janno.discord.connector.api.message.MessageDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinition;
@@ -25,7 +22,6 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public abstract class AbstractCommand<C extends IConfig, S extends IState> implements ISlashCommand, IComponentInteractEventHandler {
 
-    public static final String CONFIG_DELIMITER = ",";
     protected static final String ACTION_START = "start";
     protected static final String ACTION_HELP = "help";
     protected final ButtonMessageCache buttonMessageCache;
@@ -36,7 +32,7 @@ public abstract class AbstractCommand<C extends IConfig, S extends IState> imple
 
     @Override
     public boolean matchingComponentCustomId(String buttonCustomId) {
-        return buttonCustomId.startsWith(getName() + CONFIG_DELIMITER);
+        return buttonCustomId.matches("^" + getName() + BotConstants.CONFIG_SPLIT_DELIMITER_REGEX +".*");
     }
 
     @VisibleForTesting
