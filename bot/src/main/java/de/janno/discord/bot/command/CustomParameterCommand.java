@@ -29,7 +29,7 @@ import java.util.stream.IntStream;
 @Slf4j
 public class CustomParameterCommand extends AbstractCommand<CustomParameterCommand.Config, CustomParameterCommand.State> {
 
-    //todo clear button, user lock, button range, message format, input field?, tests, update other commands to edit, config validation, doc
+    //todo clear button, user lock, button range, message format, input field?, tests, config validation, doc
 
     private static final String COMMAND_NAME = "custom_parameter";
 
@@ -124,7 +124,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterComma
     }
 
     @Override
-    protected MessageDefinition getButtonMessage(Config config) {
+    protected MessageDefinition createNewButtonMessage(Config config) {
         String currentParameter = removeBrackets(getCurrentParameter(config.getBaseExpression()));
         return MessageDefinition.builder()
                 .content(String.format("%s: Please select value for %s", config.getBaseExpression(), currentParameter))
@@ -134,7 +134,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterComma
 
 
     @Override
-    protected Optional<List<ComponentRowDefinition>> getMessageComponentChange(State state, Config config) {
+    protected Optional<List<ComponentRowDefinition>> getCurrentMessageComponentChange(State state, Config config) {
         if (hasMissingParameter(state.getCurrentExpression())) {
             return Optional.of(getButtonLayoutWithState(state, config));
         }
@@ -142,7 +142,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterComma
     }
 
     @Override
-    protected Optional<String> getEditButtonMessage(State state, Config config) {
+    protected Optional<String> getCurrentMessageContentChange(State state, Config config) {
         if (hasMissingParameter(state.getCurrentExpression())) {
             String currentParameter = removeBrackets(getCurrentParameter(state.getCurrentExpression()));
             return Optional.of(String.format("%s: Please select value for %s", state.getCurrentExpression(), currentParameter));
@@ -151,7 +151,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterComma
     }
 
     @Override
-    protected Optional<MessageDefinition> getButtonMessageWithState(State state, Config config) {
+    protected Optional<MessageDefinition> createNewButtonMessageWithState(State state, Config config) {
         if (hasMissingParameter(state.getCurrentExpression())) {
             return Optional.empty();
         }

@@ -48,14 +48,14 @@ public class WelcomeCommand extends AbstractCommand<WelcomeCommand.Config, Welco
     }
 
     @Override
-    protected Optional<MessageDefinition> getButtonMessageWithState(State state, Config config) {
+    protected Optional<MessageDefinition> createNewButtonMessageWithState(State state, Config config) {
         BotMetrics.incrementButtonMetricCounter(COMMAND_NAME, state.toShortString());
         return switch (state.getButtonId()) {
             case FATE_BUTTON_ID -> Optional.of(
-                    new FateCommand().getButtonMessage(new FateCommand.Config("with_modifier"))
+                    new FateCommand().createNewButtonMessage(new FateCommand.Config("with_modifier"))
             );
             case DND5_BUTTON_ID -> Optional.of(
-                    new CustomDiceCommand().getButtonMessage(new CustomDiceCommand.Config(ImmutableList.of(
+                    new CustomDiceCommand().createNewButtonMessage(new CustomDiceCommand.Config(ImmutableList.of(
                             new CustomDiceCommand.LabelAndDiceExpression("D4", "1d4"),
                             new CustomDiceCommand.LabelAndDiceExpression("D6", "1d6"),
                             new CustomDiceCommand.LabelAndDiceExpression("D8", "1d8"),
@@ -74,16 +74,16 @@ public class WelcomeCommand extends AbstractCommand<WelcomeCommand.Config, Welco
                     )))
             );
             case NWOD_BUTTON_ID -> Optional.of(
-                    new CountSuccessesCommand().getButtonMessage(new CountSuccessesCommand.Config(10, 8, "no_glitch", 15))
+                    new CountSuccessesCommand().createNewButtonMessage(new CountSuccessesCommand.Config(10, 8, "no_glitch", 15))
             );
             case OWOD_BUTTON_ID -> Optional.of(
-                    new PoolTargetCommand().getButtonMessage(new PoolTargetCommand.Config(10, 15, ImmutableSet.of(10), ImmutableSet.of(1), "ask"))
+                    new PoolTargetCommand().createNewButtonMessage(new PoolTargetCommand.Config(10, 15, ImmutableSet.of(10), ImmutableSet.of(1), "ask"))
             );
             case SHADOWRUN_BUTTON_ID -> Optional.of(
-                    new CountSuccessesCommand().getButtonMessage(new CountSuccessesCommand.Config(6, 5, "glitch:half_dice_one", 20))
+                    new CountSuccessesCommand().createNewButtonMessage(new CountSuccessesCommand.Config(6, 5, "glitch:half_dice_one", 20))
             );
             case COIN_BUTTON_ID -> Optional.of(
-                    new CustomDiceCommand().getButtonMessage(new CustomDiceCommand.Config(ImmutableList.of(
+                    new CustomDiceCommand().createNewButtonMessage(new CustomDiceCommand.Config(ImmutableList.of(
                             new CustomDiceCommand.LabelAndDiceExpression("Coin Toss", "1d2=2?Head:Tail"))))
             );
             default -> Optional.empty();
@@ -102,11 +102,11 @@ public class WelcomeCommand extends AbstractCommand<WelcomeCommand.Config, Welco
 
 
     public MessageDefinition getWelcomeMessage() {
-        return getButtonMessage(null);
+        return createNewButtonMessage(null);
     }
 
     @Override
-    protected MessageDefinition getButtonMessage(Config config) {
+    protected MessageDefinition createNewButtonMessage(Config config) {
         return MessageDefinition.builder()
                 .content("""
                         Welcome to the Button Dice Bot,

@@ -61,7 +61,7 @@ public abstract class AbstractCommand<C extends IConfig, S extends IState> imple
                 .build();
     }
 
-    protected Optional<List<ComponentRowDefinition>> getMessageComponentChange(S state, C config) {
+    protected Optional<List<ComponentRowDefinition>> getCurrentMessageComponentChange(S state, C config) {
         return Optional.empty();
     }
 
@@ -92,12 +92,12 @@ public abstract class AbstractCommand<C extends IConfig, S extends IState> imple
 
         if (keepExistingButtonMessage) {
             //if the old button is pined, the old message will be edited or reset to the slash default
-            editMessage = getEditButtonMessage(state, config).orElse(getButtonMessage(config).getContent());
+            editMessage = getCurrentMessageContentChange(state, config).orElse(createNewButtonMessage(config).getContent());
         } else {
             //edit the current message if the command changes it or mark it as processing
-            editMessage = getEditButtonMessage(state, config).orElse("processing ...");
+            editMessage = getCurrentMessageContentChange(state, config).orElse("processing ...");
         }
-        Optional<List<ComponentRowDefinition>> editMessageComponents = getMessageComponentChange(state, config);
+        Optional<List<ComponentRowDefinition>> editMessageComponents = getCurrentMessageComponentChange(state, config);
         actions.add(event.editMessage(editMessage, editMessageComponents.orElse(null)));
 
         Optional<EmbedDefinition> answer = getAnswer(state, config);
@@ -117,7 +117,7 @@ public abstract class AbstractCommand<C extends IConfig, S extends IState> imple
                                     )
                             ).ofType(Void.class)));
         }
-        Optional<MessageDefinition> newButtonMessage = getButtonMessageWithState(state, config);
+        Optional<MessageDefinition> newButtonMessage = createNewButtonMessageWithState(state, config);
         if (newButtonMessage.isPresent()) {
             Mono<Long> newMessageIdMono = event.createButtonMessage(newButtonMessage.get())
                     .map(m -> {
@@ -167,7 +167,7 @@ public abstract class AbstractCommand<C extends IConfig, S extends IState> imple
             long channelId = event.getChannelId();
 
             return event.reply(commandString)
-                    .then(event.createButtonMessage(getButtonMessage(config))
+                    .then(event.createButtonMessage(createNewButtonMessage(config))
                             .map(m -> {
                                 buttonMessageCache.addChannelWithButton(channelId, m, config.hashCode());
                                 return m;
@@ -202,21 +202,21 @@ public abstract class AbstractCommand<C extends IConfig, S extends IState> imple
     /**
      * The text content for the old button message, after a button event. Returns null means no editing should be done.
      */
-    protected Optional<String> getEditButtonMessage(S state, C config) {
+    protected Optional<String> getCurrentMessageContentChange(S state, C config) {
         return Optional.empty();
     }
 
     /**
      * The new button message, after a button event
      */
-    protected abstract Optional<MessageDefinition> getButtonMessageWithState(S state, C config);
+    protected abstract Optional<MessageDefinition> createNewButtonMessageWithState(S state, C config);
 
     protected abstract Optional<EmbedDefinition> getAnswer(S state, C config);
 
     /**
      * The new button message, after a slash event
      */
-    protected abstract MessageDefinition getButtonMessage(C config);
+    protected abstract MessageDefinition createNewButtonMessage(C config);
 
     protected Optional<String> getStartOptionsValidationMessage(CommandInteractionOption options) {
         //standard is no validation

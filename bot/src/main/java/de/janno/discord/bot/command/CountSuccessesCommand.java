@@ -188,12 +188,12 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesCommand
     }
 
     @Override
-    protected Optional<MessageDefinition> getButtonMessageWithState(State state, Config config) {
-        return Optional.of(getButtonMessage(config));
+    protected Optional<MessageDefinition> createNewButtonMessageWithState(State state, Config config) {
+        return Optional.of(createNewButtonMessage(config));
     }
 
     @Override
-    protected MessageDefinition getButtonMessage(Config config) {
+    protected MessageDefinition createNewButtonMessage(Config config) {
         return MessageDefinition.builder()
                 .content(String.format("Click to roll the dice against %s%s", config.getTarget(), getGlitchDescription(config)))
                 .componentRowDefinitions(createButtonLayout(config))

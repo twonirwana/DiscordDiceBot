@@ -215,7 +215,7 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollCommand.Config,
     }
 
     @Override
-    protected MessageDefinition getButtonMessage(Config config) {
+    protected MessageDefinition createNewButtonMessage(Config config) {
         return MessageDefinition.builder()
                 .content(String.format("Click on the buttons to roll dice. Reroll set: %s, Success Set: %s and Failure Set: %s",
                         config.getRerollSet(), config.getSuccessSet(), config.getFailureSet()))
@@ -224,7 +224,7 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollCommand.Config,
     }
 
     @Override
-    protected Optional<MessageDefinition> getButtonMessageWithState(State state, Config config) {
+    protected Optional<MessageDefinition> createNewButtonMessageWithState(State state, Config config) {
         if (config.getRerollSet().isEmpty()
                 || CLEAR_BUTTON_ID.equals(state.getState())
                 || FINISH_BUTTON_ID.equals(state.getState())

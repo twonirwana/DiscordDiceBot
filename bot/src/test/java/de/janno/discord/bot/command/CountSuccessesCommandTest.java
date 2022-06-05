@@ -45,7 +45,7 @@ class CountSuccessesCommandTest {
     @Test
     void getButtonMessage_noGlitch() {
         CountSuccessesCommand.Config config = new CountSuccessesCommand.Config(6, 6, "no_glitch", 15);
-        assertThat(underTest.getButtonMessage(config).getContent()).isEqualTo("Click to roll the dice against 6");
+        assertThat(underTest.createNewButtonMessage(config).getContent()).isEqualTo("Click to roll the dice against 6");
     }
 
 
@@ -53,21 +53,21 @@ class CountSuccessesCommandTest {
     void getButtonMessage_halfDiceOne() {
         CountSuccessesCommand.Config config = new CountSuccessesCommand.Config(6, 6, "half_dice_one", 15);
 
-        assertThat(underTest.getButtonMessage(config).getContent()).isEqualTo("Click to roll the dice against 6 and check for more then half of dice 1s");
+        assertThat(underTest.createNewButtonMessage(config).getContent()).isEqualTo("Click to roll the dice against 6 and check for more then half of dice 1s");
     }
 
     @Test
     void getButtonMessage_countOnes() {
         CountSuccessesCommand.Config config = new CountSuccessesCommand.Config(6, 6, "count_ones", 15);
 
-        assertThat(underTest.getButtonMessage(config).getContent()).isEqualTo("Click to roll the dice against 6 and count the 1s");
+        assertThat(underTest.createNewButtonMessage(config).getContent()).isEqualTo("Click to roll the dice against 6 and count the 1s");
     }
 
     @Test
     void getButtonMessage_subtractOnes() {
         CountSuccessesCommand.Config config = new CountSuccessesCommand.Config(6, 6, "subtract_ones", 15);
 
-        assertThat(underTest.getButtonMessage(config).getContent()).isEqualTo("Click to roll the dice against 6 minus 1s");
+        assertThat(underTest.createNewButtonMessage(config).getContent()).isEqualTo("Click to roll the dice against 6 minus 1s");
     }
 
     @Test
@@ -75,7 +75,7 @@ class CountSuccessesCommandTest {
         CountSuccessesCommand.Config config = new CountSuccessesCommand.Config(6, 6, "no_glitch", 15);
         CountSuccessesCommand.State state = new CountSuccessesCommand.State(6);
 
-        assertThat(underTest.getButtonMessageWithState(state, config).map(MessageDefinition::getContent)).contains("Click to roll the dice against 6");
+        assertThat(underTest.createNewButtonMessageWithState(state, config).map(MessageDefinition::getContent)).contains("Click to roll the dice against 6");
     }
 
 
@@ -84,7 +84,7 @@ class CountSuccessesCommandTest {
         CountSuccessesCommand.Config config = new CountSuccessesCommand.Config(6, 6, "half_dice_one", 15);
         CountSuccessesCommand.State state = new CountSuccessesCommand.State(6);
 
-        assertThat(underTest.getButtonMessageWithState(state, config).map(MessageDefinition::getContent)).contains("Click to roll the dice against 6 and check for more then half of dice 1s");
+        assertThat(underTest.createNewButtonMessageWithState(state, config).map(MessageDefinition::getContent)).contains("Click to roll the dice against 6 and check for more then half of dice 1s");
     }
 
     @Test
@@ -92,7 +92,7 @@ class CountSuccessesCommandTest {
         CountSuccessesCommand.Config config = new CountSuccessesCommand.Config(6, 6, "count_ones", 15);
         CountSuccessesCommand.State state = new CountSuccessesCommand.State(6);
 
-        assertThat(underTest.getButtonMessageWithState(state, config).map(MessageDefinition::getContent)).contains("Click to roll the dice against 6 and count the 1s");
+        assertThat(underTest.createNewButtonMessageWithState(state, config).map(MessageDefinition::getContent)).contains("Click to roll the dice against 6 and count the 1s");
     }
 
     @Test
@@ -100,7 +100,7 @@ class CountSuccessesCommandTest {
         CountSuccessesCommand.Config config = new CountSuccessesCommand.Config(6, 6, "subtract_ones", 15);
         CountSuccessesCommand.State state = new CountSuccessesCommand.State(6);
 
-        assertThat(underTest.getButtonMessageWithState(state, config).map(MessageDefinition::getContent)).contains("Click to roll the dice against 6 minus 1s");
+        assertThat(underTest.createNewButtonMessageWithState(state, config).map(MessageDefinition::getContent)).contains("Click to roll the dice against 6 minus 1s");
     }
 
     @Test
@@ -136,7 +136,7 @@ class CountSuccessesCommandTest {
 
     @Test
     void rollDice() {
-        EmbedDefinition results = underTest.getAnswer(new CountSuccessesCommand.State(6), new CountSuccessesCommand.Config(6, 6, "no_glitch", 15)).get();
+        EmbedDefinition results = underTest.getAnswer(new CountSuccessesCommand.State(6), new CountSuccessesCommand.Config(6, 6, "no_glitch", 15)).orElseThrow();
 
         assertThat(results.getFields()).hasSize(0);
         assertThat(results.getTitle()).isEqualTo("6d6 = 1");
@@ -145,7 +145,7 @@ class CountSuccessesCommandTest {
 
     @Test
     void rollDice_halfDiceOne_glitch() {
-        EmbedDefinition results = underTest.getAnswer(new CountSuccessesCommand.State(6), new CountSuccessesCommand.Config(6, 6, "half_dice_one", 15)).get();
+        EmbedDefinition results = underTest.getAnswer(new CountSuccessesCommand.State(6), new CountSuccessesCommand.Config(6, 6, "half_dice_one", 15)).orElseThrow();
 
         assertThat(results.getFields()).hasSize(0);
         assertThat(results.getTitle()).isEqualTo("6d6 = 1 - Glitch!");
@@ -154,7 +154,7 @@ class CountSuccessesCommandTest {
 
     @Test
     void rollDice_halfDiceOne_noGlitch() {
-        EmbedDefinition results = underTest.getAnswer(new CountSuccessesCommand.State(8), new CountSuccessesCommand.Config(6, 6, "half_dice_one", 15)).get();
+        EmbedDefinition results = underTest.getAnswer(new CountSuccessesCommand.State(8), new CountSuccessesCommand.Config(6, 6, "half_dice_one", 15)).orElseThrow();
 
         assertThat(results.getFields()).hasSize(0);
         assertThat(results.getTitle()).isEqualTo("8d6 = 3");
@@ -163,7 +163,7 @@ class CountSuccessesCommandTest {
 
     @Test
     void rollDice_countOnes() {
-        EmbedDefinition results = underTest.getAnswer(new CountSuccessesCommand.State(6), new CountSuccessesCommand.Config(6, 6, "count_ones", 15)).get();
+        EmbedDefinition results = underTest.getAnswer(new CountSuccessesCommand.State(6), new CountSuccessesCommand.Config(6, 6, "count_ones", 15)).orElseThrow();
 
         assertThat(results.getFields()).hasSize(0);
         assertThat(results.getTitle()).isEqualTo("6d6 = 1 successes and 4 ones");
@@ -172,7 +172,7 @@ class CountSuccessesCommandTest {
 
     @Test
     void rollDice_subtractOnes() {
-        EmbedDefinition results = underTest.getAnswer(new CountSuccessesCommand.State(6), new CountSuccessesCommand.Config(6, 6, "subtract_ones", 15)).get();
+        EmbedDefinition results = underTest.getAnswer(new CountSuccessesCommand.State(6), new CountSuccessesCommand.Config(6, 6, "subtract_ones", 15)).orElseThrow();
 
         assertThat(results.getFields()).hasSize(0);
         assertThat(results.getTitle()).isEqualTo("6d6 = -3");
@@ -211,7 +211,7 @@ class CountSuccessesCommandTest {
         when(buttonEventAdaptor.getChannelId()).thenReturn(1L);
         when(buttonEventAdaptor.getMessageId()).thenReturn(1L);
         when(buttonEventAdaptor.isPinned()).thenReturn(false);
-        when(buttonEventAdaptor.editMessage(any())).thenReturn(Mono.just(mock(Void.class)));
+        when(buttonEventAdaptor.editMessage(any(), any())).thenReturn(Mono.just(mock(Void.class)));
         when(buttonEventAdaptor.createResultMessageWithEventReference(any())).thenReturn(Mono.just(mock(Void.class)));
         when(buttonEventAdaptor.createButtonMessage(any())).thenReturn(Mono.just(2L));
         when(buttonEventAdaptor.deleteMessage(anyLong())).thenReturn(Mono.just(mock(Void.class)));
@@ -224,7 +224,7 @@ class CountSuccessesCommandTest {
         StepVerifier.create(res)
                 .verifyComplete();
 
-        verify(buttonEventAdaptor).editMessage("processing ...");
+        verify(buttonEventAdaptor).editMessage("processing ...", null);
         verify(buttonEventAdaptor).createButtonMessage(any());
         verify(buttonEventAdaptor).deleteMessage(1L);
         verify(buttonEventAdaptor).createResultMessageWithEventReference(eq(new EmbedDefinition("6d6 = 2 - Glitch!",
@@ -248,7 +248,7 @@ class CountSuccessesCommandTest {
         when(buttonEventAdaptor.getChannelId()).thenReturn(1L);
         when(buttonEventAdaptor.getMessageId()).thenReturn(1L);
         when(buttonEventAdaptor.isPinned()).thenReturn(true);
-        when(buttonEventAdaptor.editMessage(any())).thenReturn(Mono.just(mock(Void.class)));
+        when(buttonEventAdaptor.editMessage(any(),any())).thenReturn(Mono.just(mock(Void.class)));
         when(buttonEventAdaptor.createButtonMessage(any())).thenReturn(Mono.just(2L));
         when(buttonEventAdaptor.createResultMessageWithEventReference(any())).thenReturn(Mono.just(mock(Void.class)));
         when(buttonEventAdaptor.deleteMessage(anyLong())).thenReturn(Mono.just(mock(Void.class)));
@@ -261,7 +261,7 @@ class CountSuccessesCommandTest {
                 .verifyComplete();
 
 
-        verify(buttonEventAdaptor).editMessage("Click to roll the dice against 4 and check for more then half of dice 1s");
+        verify(buttonEventAdaptor).editMessage("Click to roll the dice against 4 and check for more then half of dice 1s", null);
         verify(buttonEventAdaptor).createButtonMessage(any());
         verify(buttonEventAdaptor, never()).deleteMessage(anyLong());
         verify(buttonEventAdaptor).createResultMessageWithEventReference(eq(new EmbedDefinition("6d6 = 2 - Glitch!",
@@ -280,8 +280,8 @@ class CountSuccessesCommandTest {
 
     @Test
     void getButtonLayoutWithState() {
-        List<ComponentRowDefinition> res = underTest.getButtonMessageWithState(new CountSuccessesCommand.State(6), new CountSuccessesCommand.Config(6, 6, "count_ones", 15))
-                .get().getComponentRowDefinitions();
+        List<ComponentRowDefinition> res = underTest.createNewButtonMessageWithState(new CountSuccessesCommand.State(6), new CountSuccessesCommand.Config(6, 6, "count_ones", 15))
+                .orElseThrow().getComponentRowDefinitions();
 
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel))
                 .containsExactly("1d6", "2d6", "3d6", "4d6", "5d6", "6d6", "7d6", "8d6", "9d6", "10d6", "11d6", "12d6", "13d6", "14d6", "15d6");
@@ -305,7 +305,7 @@ class CountSuccessesCommandTest {
 
     @Test
     void getButtonLayout() {
-        List<ComponentRowDefinition> res = underTest.getButtonMessage(new CountSuccessesCommand.Config(6, 6, "count_ones", 15)).
+        List<ComponentRowDefinition> res = underTest.createNewButtonMessage(new CountSuccessesCommand.Config(6, 6, "count_ones", 15)).
                 getComponentRowDefinitions();
 
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel))
@@ -330,6 +330,6 @@ class CountSuccessesCommandTest {
 
     @Test
     void editButtonMessage() {
-        assertThat(underTest.getEditButtonMessage(new CountSuccessesCommand.State(6), new CountSuccessesCommand.Config(6, 6, "count_ones", 15))).isEmpty();
+        assertThat(underTest.getCurrentMessageContentChange(new CountSuccessesCommand.State(6), new CountSuccessesCommand.Config(6, 6, "count_ones", 15))).isEmpty();
     }
 }

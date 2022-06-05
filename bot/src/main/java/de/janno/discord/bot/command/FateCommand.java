@@ -121,12 +121,12 @@ public class FateCommand extends AbstractCommand<FateCommand.Config, FateCommand
     }
 
     @Override
-    protected Optional<MessageDefinition> getButtonMessageWithState(State state, Config config) {
-        return Optional.of(getButtonMessage(config));
+    protected Optional<MessageDefinition> createNewButtonMessageWithState(State state, Config config) {
+        return Optional.of(createNewButtonMessage(config));
     }
 
     @Override
-    protected MessageDefinition getButtonMessage(Config config) {
+    protected MessageDefinition createNewButtonMessage(Config config) {
         return MessageDefinition.builder()
                 .content(createButtonMessage(config))
                 .componentRowDefinitions(createButtonLayout(config))
