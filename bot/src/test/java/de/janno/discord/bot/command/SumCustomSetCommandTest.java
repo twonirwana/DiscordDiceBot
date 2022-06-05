@@ -123,7 +123,7 @@ class SumCustomSetCommandTest {
     @Test
     void getStateFromEvent_1d6() {
         IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
-        when(event.getCustomId()).thenReturn("sum_custom_set,1d21");
+        when(event.getCustomId()).thenReturn("sum_custom_set\u00001d21");
         when(event.getMessageContent()).thenReturn("user1∶ 1d6");
         when(event.getInvokingGuildMemberName()).thenReturn("user1");
         assertThat(underTest.getStateFromEvent(event)).isEqualTo(new SumCustomSetCommand.State("1d21", "1d6+1d21", "user1"));
@@ -132,7 +132,7 @@ class SumCustomSetCommandTest {
     @Test
     void getStateFromEvent_1d6plus() {
         IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
-        when(event.getCustomId()).thenReturn("sum_custom_set,+1d21");
+        when(event.getCustomId()).thenReturn("sum_custom_set\u0000+1d21");
         when(event.getMessageContent()).thenReturn("user1∶ 1d6");
         when(event.getInvokingGuildMemberName()).thenReturn("user1");
         assertThat(underTest.getStateFromEvent(event)).isEqualTo(new SumCustomSetCommand.State("1d21", "1d6+1d21", "user1"));
@@ -141,7 +141,7 @@ class SumCustomSetCommandTest {
     @Test
     void getStateFromEvent_1d6minus() {
         IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
-        when(event.getCustomId()).thenReturn("sum_custom_set,-1d21");
+        when(event.getCustomId()).thenReturn("sum_custom_set\u0000-1d21");
         when(event.getMessageContent()).thenReturn("user1∶ 1d6");
         when(event.getInvokingGuildMemberName()).thenReturn("user1");
         assertThat(underTest.getStateFromEvent(event)).isEqualTo(new SumCustomSetCommand.State("1d21", "1d6-1d21", "user1"));
@@ -150,7 +150,7 @@ class SumCustomSetCommandTest {
     @Test
     void getStateFromEvent_1d6_differentUser() {
         IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
-        when(event.getCustomId()).thenReturn("sum_custom_set,1d21");
+        when(event.getCustomId()).thenReturn("sum_custom_set\u00001d21");
         when(event.getMessageContent()).thenReturn("user1∶ 1d6");
         when(event.getInvokingGuildMemberName()).thenReturn("user2");
         assertThat(underTest.getStateFromEvent(event)).isEqualTo(new SumCustomSetCommand.State("no action", "1d6", "user1"));
@@ -159,7 +159,7 @@ class SumCustomSetCommandTest {
     @Test
     void getStateFromEvent_invalidContent() {
         IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
-        when(event.getCustomId()).thenReturn("sum_custom_set,1d21");
+        when(event.getCustomId()).thenReturn("sum_custom_set\u00001d21");
         when(event.getMessageContent()).thenReturn("user1∶ asdfasfdasf");
         when(event.getInvokingGuildMemberName()).thenReturn("user1");
         when(diceMock.roll(any())).thenThrow(new RuntimeException("test"));
@@ -169,7 +169,7 @@ class SumCustomSetCommandTest {
     @Test
     void getStateFromEvent_1d4_2d6_3d8_4d12_5d20() {
         IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
-        when(event.getCustomId()).thenReturn("sum_custom_set,1d21");
+        when(event.getCustomId()).thenReturn("sum_custom_set\u00001d21");
         when(event.getMessageContent()).thenReturn("user1∶ 1d4+2d6+3d8+4d12+5d20");
         when(event.getInvokingGuildMemberName()).thenReturn("user1");
         assertThat(underTest.getStateFromEvent(event)).isEqualTo(new SumCustomSetCommand.State("1d21", "1d4+2d6+3d8+4d12+5d20+1d21", "user1"));
@@ -179,7 +179,7 @@ class SumCustomSetCommandTest {
     @Test
     void getStateFromEvent_empty() {
         IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
-        when(event.getCustomId()).thenReturn("sum_custom_set,1d21");
+        when(event.getCustomId()).thenReturn("sum_custom_set\u00001d21");
         when(event.getInvokingGuildMemberName()).thenReturn("user1");
         when(event.getMessageContent()).thenReturn("Click the buttons to add dice to the set and then on Roll");
         assertThat(underTest.getStateFromEvent(event)).isEqualTo(new SumCustomSetCommand.State("1d21", "1d21", "user1"));
@@ -188,7 +188,7 @@ class SumCustomSetCommandTest {
     @Test
     void getStateFromEvent_legacy() {
         IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
-        when(event.getCustomId()).thenReturn("sum_custom_set,1d21");
+        when(event.getCustomId()).thenReturn("sum_custom_set\u00001d21");
         when(event.getInvokingGuildMemberName()).thenReturn("user1");
         when(event.getMessageContent()).thenReturn("Click on the buttons to add dice to the set");
         assertThat(underTest.getStateFromEvent(event)).isEqualTo(new SumCustomSetCommand.State("1d21", "1d21", "user1"));
@@ -198,7 +198,7 @@ class SumCustomSetCommandTest {
     @Test
     void getStateFromEvent_clear() {
         IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
-        when(event.getCustomId()).thenReturn("sum_custom_set,clear");
+        when(event.getCustomId()).thenReturn("sum_custom_set\u0000clear");
         when(event.getMessageContent()).thenReturn("user1∶ 1d6");
         when(event.getInvokingGuildMemberName()).thenReturn("user1");
         assertThat(underTest.getStateFromEvent(event)).isEqualTo(new SumCustomSetCommand.State("clear", "", null));
@@ -208,7 +208,7 @@ class SumCustomSetCommandTest {
     @Test
     void getStateFromEvent_backEmpty() {
         IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
-        when(event.getCustomId()).thenReturn("sum_custom_set,back");
+        when(event.getCustomId()).thenReturn("sum_custom_set\u0000back");
         when(event.getMessageContent()).thenReturn("user1∶ 1d6");
         when(event.getInvokingGuildMemberName()).thenReturn("user1");
         assertThat(underTest.getStateFromEvent(event)).isEqualTo(new SumCustomSetCommand.State("back", "", "user1"));
@@ -217,7 +217,7 @@ class SumCustomSetCommandTest {
     @Test
     void getStateFromEvent_back() {
         IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
-        when(event.getCustomId()).thenReturn("sum_custom_set,back");
+        when(event.getCustomId()).thenReturn("sum_custom_set\u0000back");
         when(event.getMessageContent()).thenReturn("user1∶ 1d6+1d6");
         when(event.getInvokingGuildMemberName()).thenReturn("user1");
         assertThat(underTest.getStateFromEvent(event)).isEqualTo(new SumCustomSetCommand.State("back", "1d6", "user1"));
@@ -226,7 +226,7 @@ class SumCustomSetCommandTest {
     @Test
     void getStateFromEvent_backMinus() {
         IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
-        when(event.getCustomId()).thenReturn("sum_custom_set,back");
+        when(event.getCustomId()).thenReturn("sum_custom_set\u0000back");
         when(event.getMessageContent()).thenReturn("user1∶ 1d6-1d6");
         when(event.getInvokingGuildMemberName()).thenReturn("user1");
         assertThat(underTest.getStateFromEvent(event)).isEqualTo(new SumCustomSetCommand.State("back", "1d6", "user1"));
@@ -235,7 +235,7 @@ class SumCustomSetCommandTest {
     @Test
     void getStateFromEvent_roll() {
         IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
-        when(event.getCustomId()).thenReturn("sum_custom_set,roll");
+        when(event.getCustomId()).thenReturn("sum_custom_set\u0000roll");
         when(event.getMessageContent()).thenReturn("user1∶ 1d6");
         when(event.getInvokingGuildMemberName()).thenReturn("user1");
         assertThat(underTest.getStateFromEvent(event)).isEqualTo(new SumCustomSetCommand.State("roll", "1d6", "user1"));
@@ -243,7 +243,7 @@ class SumCustomSetCommandTest {
 
     @Test
     void matchingComponentCustomId_match() {
-        assertThat(underTest.matchingComponentCustomId("sum_custom_set,x")).isTrue();
+        assertThat(underTest.matchingComponentCustomId("sum_custom_set\u0000x")).isTrue();
     }
 
     @Test
@@ -359,11 +359,11 @@ class SumCustomSetCommandTest {
     void getConfigFromEvent() {
         IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
         when(event.getAllButtonIds()).thenReturn(ImmutableList.of(
-                new IButtonEventAdaptor.LabelAndCustomId("1d6", "sum_custom_set,1d6"),
-                new IButtonEventAdaptor.LabelAndCustomId("Label", "sum_custom_set,-1d6"),
-                new IButtonEventAdaptor.LabelAndCustomId("Roll", "sum_custom_set,roll"),
-                new IButtonEventAdaptor.LabelAndCustomId("Clear", "sum_custom_set,clear"),
-                new IButtonEventAdaptor.LabelAndCustomId("Back", "sum_custom_set,back")
+                new IButtonEventAdaptor.LabelAndCustomId("1d6", "sum_custom_set\u00001d6"),
+                new IButtonEventAdaptor.LabelAndCustomId("Label", "sum_custom_set\u0000-1d6"),
+                new IButtonEventAdaptor.LabelAndCustomId("Roll", "sum_custom_set\u0000roll"),
+                new IButtonEventAdaptor.LabelAndCustomId("Clear", "sum_custom_set\u0000clear"),
+                new IButtonEventAdaptor.LabelAndCustomId("Back", "sum_custom_set\u0000back")
         ));
         assertThat(underTest.getConfigFromEvent(event))
                 .isEqualTo(new SumCustomSetCommand.Config(ImmutableList.of(
@@ -416,7 +416,7 @@ class SumCustomSetCommandTest {
     @Test
     void getStateFromEvent() {
         IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
-        when(event.getCustomId()).thenReturn("sum_custom_set,1d6");
+        when(event.getCustomId()).thenReturn("sum_custom_set\u00001d6");
         when(event.getMessageContent()).thenReturn("user1∶ 1d6");
         when(event.getInvokingGuildMemberName()).thenReturn("user1");
 
@@ -429,7 +429,7 @@ class SumCustomSetCommandTest {
     void createButtonCustomId() {
         String res = underTest.createButtonCustomId("1d6");
 
-        assertThat(res).isEqualTo("sum_custom_set,1d6");
+        assertThat(res).isEqualTo("sum_custom_set\u00001d6");
     }
 
     @Test
@@ -440,13 +440,13 @@ class SumCustomSetCommandTest {
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel))
                 .containsExactly("1d6", "3d6", "4", "2d10min10", "Roll", "Clear", "Back");
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getId))
-                .containsExactly("sum_custom_set,1d6",
-                        "sum_custom_set,add 3d6",
-                        "sum_custom_set,4",
-                        "sum_custom_set,min10",
-                        "sum_custom_set,roll",
-                        "sum_custom_set,clear",
-                        "sum_custom_set,back");
+                .containsExactly("sum_custom_set\u00001d6",
+                        "sum_custom_set\u0000add 3d6",
+                        "sum_custom_set\u00004",
+                        "sum_custom_set\u0000min10",
+                        "sum_custom_set\u0000roll",
+                        "sum_custom_set\u0000clear",
+                        "sum_custom_set\u0000back");
     }
 
     @Test
@@ -456,20 +456,20 @@ class SumCustomSetCommandTest {
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel))
                 .containsExactly("1d6", "3d6", "4", "2d10min10", "Roll", "Clear", "Back");
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getId))
-                .containsExactly("sum_custom_set,1d6",
-                        "sum_custom_set,add 3d6",
-                        "sum_custom_set,4",
-                        "sum_custom_set,min10",
-                        "sum_custom_set,roll",
-                        "sum_custom_set,clear",
-                        "sum_custom_set,back");
+                .containsExactly("sum_custom_set\u00001d6",
+                        "sum_custom_set\u0000add 3d6",
+                        "sum_custom_set\u00004",
+                        "sum_custom_set\u0000min10",
+                        "sum_custom_set\u0000roll",
+                        "sum_custom_set\u0000clear",
+                        "sum_custom_set\u0000back");
     }
 
 
     @Test
     void handleComponentInteractEvent() {
         IButtonEventAdaptor buttonEventAdaptor = mock(IButtonEventAdaptor.class);
-        when(buttonEventAdaptor.getCustomId()).thenReturn("sum_custom_set,roll");
+        when(buttonEventAdaptor.getCustomId()).thenReturn("sum_custom_set\u0000roll");
         when(diceMock.detailedRoll("1d6")).thenReturn(new ResultTree(new NDice(6, 1), 3, ImmutableList.of()));
         when(buttonEventAdaptor.getChannelId()).thenReturn(1L);
         when(buttonEventAdaptor.getMessageId()).thenReturn(1L);
@@ -509,7 +509,7 @@ class SumCustomSetCommandTest {
     @Test
     void handleComponentInteractEvent_pinned() {
         IButtonEventAdaptor buttonEventAdaptor = mock(IButtonEventAdaptor.class);
-        when(buttonEventAdaptor.getCustomId()).thenReturn("sum_custom_set,roll");
+        when(buttonEventAdaptor.getCustomId()).thenReturn("sum_custom_set\u0000roll");
         when(diceMock.detailedRoll("1d6")).thenReturn(new ResultTree(new NDice(6, 1), 3, ImmutableList.of()));
         when(buttonEventAdaptor.getChannelId()).thenReturn(1L);
         when(buttonEventAdaptor.getMessageId()).thenReturn(1L);

@@ -173,7 +173,7 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetCommand.Con
 
     @Override
     protected State getStateFromEvent(IButtonEventAdaptor event) {
-        String buttonValue = event.getCustomId().split(BotConstants.CONFIG_DELIMITER)[1];
+        String buttonValue = event.getCustomId().split(BotConstants.CONFIG_SPLIT_DELIMITER_REGEX)[1];
         if (CLEAR_BUTTON_ID.equals(buttonValue)) {
             return new State(buttonValue, "", null);
         }

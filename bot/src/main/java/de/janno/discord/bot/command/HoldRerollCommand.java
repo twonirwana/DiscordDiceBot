@@ -151,7 +151,7 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollCommand.Config,
 
     @Override
     protected Config getConfigFromEvent(IButtonEventAdaptor event) {
-        String[] customIdSplit = event.getCustomId().split(BotConstants.CONFIG_DELIMITER);
+        String[] customIdSplit = event.getCustomId().split(BotConstants.CONFIG_SPLIT_DELIMITER_REGEX);
         int sideOfDie = Integer.parseInt(customIdSplit[3]);
         Set<Integer> rerollSet = CommandUtils.toSet(customIdSplit[4], SUBSET_DELIMITER, EMPTY);
         Set<Integer> successSet = CommandUtils.toSet(customIdSplit[5], SUBSET_DELIMITER, EMPTY);
@@ -162,7 +162,7 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollCommand.Config,
 
     @Override
     protected State getStateFromEvent(IButtonEventAdaptor event) {
-        String[] customIdSplit = event.getCustomId().split(BotConstants.CONFIG_DELIMITER);
+        String[] customIdSplit = event.getCustomId().split(BotConstants.CONFIG_SPLIT_DELIMITER_REGEX);
         List<Integer> currentResult = getCurrentRollResult(customIdSplit[2]);
         int rerollCount = Integer.parseInt(customIdSplit[7]);
         String buttonValue = customIdSplit[1];

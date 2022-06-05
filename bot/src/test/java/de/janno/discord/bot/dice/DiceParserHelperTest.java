@@ -33,6 +33,12 @@ class DiceParserHelperTest {
                 Arguments.of(ImmutableList.of("1d6@Attack"), null),
                 Arguments.of(ImmutableList.of("1d2=2?Head:Tails@Toss a coin"), null),
                 Arguments.of(ImmutableList.of("3d6>3<2?Success:Failure@3d6 Test"), null),
+                Arguments.of(ImmutableList.of("2x[3d6>3<2?Success:Failure]@3d6 2*Test"), null),
+                Arguments.of(ImmutableList.of("2d6&3d10"), null),
+                Arguments.of(ImmutableList.of("2d6>4?a:b&3d10<6?c:d"), null),
+                Arguments.of(ImmutableList.of("2d6&3d10@Test"), null),
+                Arguments.of(ImmutableList.of("2d6>4?a:b&3d10<6?c:d@Test"), null),
+                Arguments.of(ImmutableList.of("2x[2d6]&1d8"), "The following dice expression are invalid: '2x[2d6]&1d8'. Use /custom_dice help to get more information on how to use the command."),
                 Arguments.of(ImmutableList.of("1d6@Attack", "1d6@Parry"), "The dice expression '1d6' is not unique. Each dice expression must only once."),
                 Arguments.of(ImmutableList.of("1d6@a,b"), "The button definition '1d6@a,b' is not allowed to contain ','"),
                 Arguments.of(ImmutableList.of(" 1d6 @ Attack "), null),
@@ -60,7 +66,12 @@ class DiceParserHelperTest {
                 Arguments.of("-x[1d6]", false),
                 Arguments.of("ax[1d6]", false),
                 Arguments.of("1x[1d6", false),
-                Arguments.of("12x[1d6]", true)
+                Arguments.of("12x[1d6]", true),
+                Arguments.of("2x[3d6>3<2?Success:Failure]", true),
+                Arguments.of("2d6&3d10", true),
+                Arguments.of("2d6&3d10@Test", true),
+                Arguments.of("2d6>4?a:b&3d10<6?c:d", true),
+                Arguments.of("2x[2d6]&1d8", false)
         );
     }
 
@@ -110,6 +121,11 @@ class DiceParserHelperTest {
     @BeforeEach
     void setup() {
         underTest = new DiceParserHelper();
+    }
+
+    @Test
+    void debug(){
+        assertThat(underTest.validateListOfExpressions(ImmutableList.of("2x[3d6>3<2?Success:Failure]"), "@", ",", "/custom_dice help")).isEmpty();
     }
 
     @ParameterizedTest(name = "{index} input:{0}, label:{1} -> {2}")
@@ -249,4 +265,44 @@ class DiceParserHelperTest {
         assertThat(res.getFields().get(0).getValue()).isEqualTo("Executing '2147483647+1' resulting in: integer overflow");
     }
 
+    @Test
+    void roll_3x3d6Bool() {
+        EmbedDefinition res = underTest.roll("2x[3d6>3<2?Success:Failure]", "3d6 2*Test");
+
+        assertThat(res.getFields()).hasSize(2);
+        assertThat(res.getDescription()).isNull();
+        assertThat(res.getTitle()).isEqualTo("3d6 2*Test");
+    }
+
+    @Test
+    void roll_multiDiff() {
+        EmbedDefinition res = underTest.roll("2d6&3d10", null);
+
+        assertThat(res.getFields()).hasSize(2);
+        assertThat(res.getDescription()).isNull();
+        assertThat(res.getTitle()).isEqualTo("Multiple Results");
+    }
+
+    @Test
+    void roll_multiDiffLabel() {
+        EmbedDefinition res = underTest.roll("2d6&3d10", "Test");
+
+        assertThat(res.getFields()).hasSize(2);
+        assertThat(res.getFields().get(0).getName()).startsWith("2d6");
+        assertThat(res.getFields().get(1).getName()).startsWith("3d10");
+
+        assertThat(res.getDescription()).isNull();
+        assertThat(res.getTitle()).isEqualTo("Test");
+    }
+
+    @Test
+    void roll_multiDiffBoolLabel() {
+        EmbedDefinition res = underTest.roll("2d6>4?a:b&3d10<6?c:d", "Test");
+
+        assertThat(res.getFields()).hasSize(2);
+        assertThat(res.getFields().get(0).getName()).startsWith("2d6");
+        assertThat(res.getFields().get(1).getName()).startsWith("3d10");
+        assertThat(res.getDescription()).isNull();
+        assertThat(res.getTitle()).isEqualTo("Test");
+    }
 }
