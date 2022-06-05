@@ -21,6 +21,7 @@ public class Bot {
                         new SumCustomSetCommand(),
                         new HoldRerollCommand(),
                         new PoolTargetCommand(),
+                        new CustomParameterCommand(),
                         new WelcomeCommand(),
                         new HelpCommand()
                 ),
