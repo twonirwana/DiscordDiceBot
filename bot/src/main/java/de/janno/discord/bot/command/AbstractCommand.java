@@ -103,7 +103,7 @@ public abstract class AbstractCommand<C extends IConfig, S extends IState> imple
                                             requester.getGuildName(),
                                             requester.getChannelName(),
                                             requester.getUserName(),
-                                            event.getCustomId(),
+                                            event.getCustomId().replace(BotConstants.CONFIG_DELIMITER, ","),
                                             config.toShortString(),
                                             state.toShortString(),
                                             answer.get().toShortString(),
