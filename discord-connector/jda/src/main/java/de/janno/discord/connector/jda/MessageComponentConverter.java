@@ -14,14 +14,17 @@ import java.util.stream.Collectors;
 public class MessageComponentConverter {
 
     public static Message messageComponent2MessageLayout(String content, List<ComponentRowDefinition> rows) {
-        LayoutComponent[] layoutComponents = rows.stream()
+        LayoutComponent[] layoutComponents = componentRowDefinition2LayoutComponent(rows);
+        return new DataMessage(false, content, null, null, null, new String[0], new String[0],
+                layoutComponents
+        );
+    }
+
+    public static LayoutComponent[] componentRowDefinition2LayoutComponent(List<ComponentRowDefinition> rows) {
+        return rows.stream()
                 .map(c -> ActionRow.of(c.getButtonDefinitions().stream()
                         .map(b -> new ButtonImpl(b.getId(), b.getLabel(), ButtonStyle.fromKey(b.getStyle().getValue()), false, null))
                         .collect(Collectors.toList()))
                 ).toArray(LayoutComponent[]::new);
-        return new DataMessage(false, content, null, null, null, new String[0], new String[0],
-                layoutComponents
-        );
-
     }
 }

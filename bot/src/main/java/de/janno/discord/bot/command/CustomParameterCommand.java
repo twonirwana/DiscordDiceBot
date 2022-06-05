@@ -29,12 +29,14 @@ import java.util.stream.IntStream;
 @Slf4j
 public class CustomParameterCommand extends AbstractCommand<CustomParameterCommand.Config, CustomParameterCommand.State> {
 
+    //todo clear button, user lock, button range, message format, input field?, tests, update other commands to edit, config validation, doc
+
     private static final String COMMAND_NAME = "custom_parameter";
 
     private static final String EXPRESSION_OPTION = "expression";
 
     private static final ButtonMessageCache BUTTON_MESSAGE_CACHE = new ButtonMessageCache(COMMAND_NAME);
-    private final static Pattern variablePattern = Pattern.compile("\\Q{\\E.*?\\Q}\\E");
+    private final static Pattern PARAMETER_VARIABLE_PATTERN = Pattern.compile("\\Q{\\E.*?\\Q}\\E");
 
     private final DiceParserHelper diceParserHelper;
 
@@ -49,8 +51,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterComma
     }
 
     private static String getCurrentParameter(String expression) {
-
-        Matcher matcher = variablePattern.matcher(expression);
+        Matcher matcher = PARAMETER_VARIABLE_PATTERN.matcher(expression);
         if (matcher.find()) {
             return matcher.group(0);
         }
@@ -58,18 +59,22 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterComma
     }
 
     private static boolean hasMissingParameter(String expression) {
-        return variablePattern.matcher(expression).find();
+        return PARAMETER_VARIABLE_PATTERN.matcher(expression).find();
+    }
+
+    private static String removeBrackets(String input) {
+        return input.replace("{", "").replace("}", "");
     }
 
     @Override
     protected @NonNull String getCommandDescription() {
-        return "Roll dice and against a variable target";
+        return "Fill the parameter of a given dice expression and roll it when all parameter are provided";
     }
 
     @Override
     protected EmbedDefinition getHelpMessage() {
         return EmbedDefinition.builder()
-                .description("Use '/pool_target start' to get message, where the user can roll dice")
+                .description("Use '/custom_parameter start' and provide a dice expression with parameter variables with the format {parameter_name}")
                 .build();
     }
 
@@ -84,7 +89,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterComma
                 CommandDefinitionOption.builder()
                         .name(EXPRESSION_OPTION)
                         .required(true)
-                        .description("Exprssion")
+                        .description("Expression")
                         .type(CommandDefinitionOption.Type.STRING)
                         .build()
         );
@@ -120,25 +125,39 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterComma
 
     @Override
     protected MessageDefinition getButtonMessage(Config config) {
-        String currentParameter = getCurrentParameter(config.getBaseExpression());
+        String currentParameter = removeBrackets(getCurrentParameter(config.getBaseExpression()));
         return MessageDefinition.builder()
-                .content(currentParameter)
+                .content(String.format("%s: Please select value for %s", config.getBaseExpression(), currentParameter))
                 .componentRowDefinitions(createPoolButtonLayout(config))
                 .build();
+    }
+
+
+    @Override
+    protected Optional<List<ComponentRowDefinition>> getMessageComponentChange(State state, Config config) {
+        if (hasMissingParameter(state.getCurrentExpression())) {
+            return Optional.of(getButtonLayoutWithState(state, config));
+        }
+        return Optional.empty();
+    }
+
+    @Override
+    protected Optional<String> getEditButtonMessage(State state, Config config) {
+        if (hasMissingParameter(state.getCurrentExpression())) {
+            String currentParameter = removeBrackets(getCurrentParameter(state.getCurrentExpression()));
+            return Optional.of(String.format("%s: Please select value for %s", state.getCurrentExpression(), currentParameter));
+        }
+        return Optional.empty();
     }
 
     @Override
     protected Optional<MessageDefinition> getButtonMessageWithState(State state, Config config) {
         if (hasMissingParameter(state.getCurrentExpression())) {
-            String parameterForNextMessage = getCurrentParameter(state.getCurrentExpression());
-            return Optional.of(MessageDefinition.builder()
-                    .content(parameterForNextMessage)
-                    .componentRowDefinitions(getButtonLayoutWithState(state, config))
-                    .build());
+            return Optional.empty();
         }
-        String parameterForNextMessage = getCurrentParameter(config.getBaseExpression());
+        String parameterForNextMessage = removeBrackets(getCurrentParameter(config.getBaseExpression()));
         return Optional.of(MessageDefinition.builder()
-                .content(parameterForNextMessage)
+                .content(String.format("%s: Please select value for %s", config.getBaseExpression(), parameterForNextMessage))
                 .componentRowDefinitions(createPoolButtonLayout(config))
                 .build());
     }

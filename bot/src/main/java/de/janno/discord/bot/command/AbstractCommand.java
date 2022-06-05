@@ -6,6 +6,7 @@ import com.google.common.collect.ImmutableList;
 import de.janno.discord.bot.BotMetrics;
 import de.janno.discord.bot.cache.ButtonMessageCache;
 import de.janno.discord.connector.api.*;
+import de.janno.discord.connector.api.message.ComponentRowDefinition;
 import de.janno.discord.connector.api.message.EmbedDefinition;
 import de.janno.discord.connector.api.message.MessageDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinition;
@@ -32,7 +33,7 @@ public abstract class AbstractCommand<C extends IConfig, S extends IState> imple
 
     @Override
     public boolean matchingComponentCustomId(String buttonCustomId) {
-        return buttonCustomId.matches("^" + getName() + BotConstants.CONFIG_SPLIT_DELIMITER_REGEX +".*");
+        return buttonCustomId.matches("^" + getName() + BotConstants.CONFIG_SPLIT_DELIMITER_REGEX + ".*");
     }
 
     @VisibleForTesting
@@ -60,13 +61,17 @@ public abstract class AbstractCommand<C extends IConfig, S extends IState> imple
                 .build();
     }
 
+    protected Optional<List<ComponentRowDefinition>> getMessageComponentChange(S state, C config) {
+        return Optional.empty();
+    }
+
     @Override
     public Mono<Void> handleComponentInteractEvent(@NonNull IButtonEventAdaptor event) {
         Stopwatch stopwatch = Stopwatch.createStarted();
 
         Optional<String> checkPermissions = event.checkPermissions();
         if (checkPermissions.isPresent()) {
-            return event.editMessage(checkPermissions.get());
+            return event.editMessage(checkPermissions.get(), null);
         }
 
         C config = getConfigFromEvent(event);
@@ -92,7 +97,8 @@ public abstract class AbstractCommand<C extends IConfig, S extends IState> imple
             //edit the current message if the command changes it or mark it as processing
             editMessage = getEditButtonMessage(state, config).orElse("processing ...");
         }
-        actions.add(event.editMessage(editMessage));
+        Optional<List<ComponentRowDefinition>> editMessageComponents = getMessageComponentChange(state, config);
+        actions.add(event.editMessage(editMessage, editMessageComponents.orElse(null)));
 
         Optional<EmbedDefinition> answer = getAnswer(state, config);
         if (answer.isPresent()) {
