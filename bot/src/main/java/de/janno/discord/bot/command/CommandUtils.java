@@ -56,7 +56,7 @@ public final class CommandUtils {
     public static Set<Integer> getSetFromCommandOptions(@NonNull CommandInteractionOption options,
                                                         @NonNull String optionId,
                                                         @NonNull String delimiter) {
-        return options.getStingSubOptionWithName(optionId)
+        return options.getStringSubOptionWithName(optionId)
                 .map(s -> s.split(delimiter))
                 .map(Arrays::asList)
                 .orElse(ImmutableList.of())
@@ -71,7 +71,7 @@ public final class CommandUtils {
     public static Optional<String> validateIntegerSetFromCommandOptions(@NonNull CommandInteractionOption options,
                                                                        @NonNull String optionId,
                                                                        @NonNull String delimiter) {
-        Set<String> stringValues = options.getStingSubOptionWithName(optionId)
+        Set<String> stringValues = options.getStringSubOptionWithName(optionId)
                 .map(s -> s.split(delimiter))
                 .map(Arrays::asList)
                 .orElse(ImmutableList.of())

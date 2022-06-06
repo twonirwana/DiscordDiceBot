@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 
 @Slf4j
@@ -34,7 +35,7 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetCommand.Con
     private static final String EMPTY_MESSAGE_LEGACY = "Click on the buttons to add dice to the set";
     private static final String CLEAR_BUTTON_ID = "clear";
     private static final String BACK_BUTTON_ID = "back";
-    private static final List<String> DICE_COMMAND_OPTIONS_IDS = IntStream.range(1, 23).mapToObj(i -> i + "_button").toList();
+    private static final List<String> DICE_COMMAND_OPTIONS_IDS = IntStream.range(1, 22).mapToObj(i -> i + "_button").toList();
     private static final String INVOKING_USER_NAME_DELIMITER = "\u2236 ";
     private static final String LABEL_DELIMITER = "@";
     private static final ButtonMessageCache BUTTON_MESSAGE_CACHE = new ButtonMessageCache(COMMAND_NAME);
@@ -70,18 +71,24 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetCommand.Con
 
 
     @VisibleForTesting
-    String createButtonCustomId(String action) {
+    String createButtonCustomId(String action, Config config) {
         Preconditions.checkArgument(!action.contains(BotConstants.CONFIG_DELIMITER));
 
         return String.join(BotConstants.CONFIG_DELIMITER,
                 COMMAND_NAME,
-                action);
+                action,
+                Optional.ofNullable(config.getAnswerTargetChannelId()).map(Object::toString).orElse(""));
+    }
+
+    @Override
+    protected Optional<Long> getAnswerTargetChannelId(Config config) {
+        return Optional.ofNullable(config.getAnswerTargetChannelId());
     }
 
     @Override
     protected Optional<String> getStartOptionsValidationMessage(CommandInteractionOption options) {
         List<String> diceExpressionWithOptionalLabel = DICE_COMMAND_OPTIONS_IDS.stream()
-                .flatMap(id -> options.getStingSubOptionWithName(id).stream())
+                .flatMap(id -> options.getStringSubOptionWithName(id).stream())
                 .distinct()
                 .collect(Collectors.toList());
         String expressionsWithMultiRoll = diceExpressionWithOptionalLabel.stream()
@@ -101,12 +108,13 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetCommand.Con
 
     @Override
     protected List<CommandDefinitionOption> getStartOptions() {
-        return DICE_COMMAND_OPTIONS_IDS.stream()
-                .map(id -> CommandDefinitionOption.builder()
-                        .name(id)
-                        .description("xdy for a set of x dice with y sides, e.g. '3d6'")
-                        .type(CommandDefinitionOption.Type.STRING)
-                        .build())
+        return Stream.concat(DICE_COMMAND_OPTIONS_IDS.stream()
+                                .map(id -> CommandDefinitionOption.builder()
+                                        .name(id)
+                                        .description("xdy for a set of x dice with y sides, e.g. '3d6'")
+                                        .type(CommandDefinitionOption.Type.STRING)
+                                        .build()),
+                        Stream.of(ANSWER_TARGET_CHANNEL_COMMAND_OPTION))
                 .collect(Collectors.toList());
     }
 
@@ -165,10 +173,17 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetCommand.Con
 
     @Override
     protected Config getConfigFromEvent(IButtonEventAdaptor event) {
+        String[] split = event.getCustomId().split(BotConstants.CONFIG_SPLIT_DELIMITER_REGEX);
+        Long answerTargetChannelId = getOptionalLongFromArray(split, 2);
         return new Config(event.getAllButtonIds().stream()
-                .filter(lv -> !ImmutableSet.of(ROLL_BUTTON_ID, CLEAR_BUTTON_ID, BACK_BUTTON_ID).contains(lv.getCustomId().substring(COMMAND_NAME.length() + 1)))
-                .map(lv -> new LabelAndDiceExpression(lv.getLabel(), lv.getCustomId().substring(COMMAND_NAME.length() + 1)))
-                .collect(Collectors.toList()));
+                .filter(lv -> !ImmutableSet.of(ROLL_BUTTON_ID, CLEAR_BUTTON_ID, BACK_BUTTON_ID).contains(diceExpressionFromCustomId(lv.getCustomId())))
+                .map(lv -> new LabelAndDiceExpression(lv.getLabel(), diceExpressionFromCustomId(lv.getCustomId())))
+                .collect(Collectors.toList()), answerTargetChannelId);
+    }
+
+    private String diceExpressionFromCustomId(String customId) {
+        String[] split = customId.split(BotConstants.CONFIG_SPLIT_DELIMITER_REGEX);
+        return split[1];
     }
 
     @Override
@@ -231,12 +246,12 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetCommand.Con
     @Override
     protected Config getConfigFromStartOptions(CommandInteractionOption options) {
         return getConfigOptionStringList(DICE_COMMAND_OPTIONS_IDS.stream()
-                .flatMap(id -> options.getStingSubOptionWithName(id).stream())
-                .collect(Collectors.toList()));
+                .flatMap(id -> options.getStringSubOptionWithName(id).stream())
+                .collect(Collectors.toList()), getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null));
     }
 
     @VisibleForTesting
-    Config getConfigOptionStringList(List<String> startOptions) {
+    Config getConfigOptionStringList(List<String> startOptions, Long answerTargetChannelId) {
         return new Config(startOptions.stream()
                 .filter(s -> !s.contains(BotConstants.CONFIG_DELIMITER))
                 .filter(s -> !s.contains(LABEL_DELIMITER) || s.split(LABEL_DELIMITER).length == 2)
@@ -265,29 +280,29 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetCommand.Con
                 .filter(s -> s.getLabel().length() <= 80) //https://discord.com/developers/docs/interactions/message-components#buttons
                 .distinct()
                 .limit(22)
-                .collect(Collectors.toList()));
+                .collect(Collectors.toList()), answerTargetChannelId);
     }
 
 
     private List<ComponentRowDefinition> createButtonLayout(Config config) {
         List<ButtonDefinition> buttons = config.getLabelAndExpression().stream()
                 .map(d -> ButtonDefinition.builder()
-                        .id(createButtonCustomId(d.getDiceExpression()))
+                        .id(createButtonCustomId(d.getDiceExpression(), config))
                         .label(d.getLabel())
                         .build())
                 .collect(Collectors.toList());
         buttons.add(ButtonDefinition.builder()
-                .id(createButtonCustomId(ROLL_BUTTON_ID))
+                .id(createButtonCustomId(ROLL_BUTTON_ID, config))
                 .label("Roll")
                 .style(ButtonDefinition.Style.SUCCESS)
                 .build());
         buttons.add(ButtonDefinition.builder()
-                .id(createButtonCustomId(CLEAR_BUTTON_ID))
+                .id(createButtonCustomId(CLEAR_BUTTON_ID, config))
                 .label("Clear")
                 .style(ButtonDefinition.Style.DANGER)
                 .build());
         buttons.add(ButtonDefinition.builder()
-                .id(createButtonCustomId(BACK_BUTTON_ID))
+                .id(createButtonCustomId(BACK_BUTTON_ID, config))
                 .label("Back")
                 .style(ButtonDefinition.Style.SECONDARY)
                 .build());
@@ -300,11 +315,14 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetCommand.Con
     protected static class Config implements IConfig {
         @NonNull
         List<LabelAndDiceExpression> labelAndExpression;
+        Long answerTargetChannelId;
 
         @Override
         public String toShortString() {
-            return labelAndExpression.stream()
-                    .map(LabelAndDiceExpression::toShortString).toList()
+            return Stream.concat(labelAndExpression.stream()
+                                    .map(LabelAndDiceExpression::toShortString),
+                            Stream.of(answerTargetChannelId != null))
+                    .toList()
                     .toString();
         }
 

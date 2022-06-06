@@ -9,8 +9,8 @@ import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.GuildMessageChannel;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 import reactor.core.publisher.Mono;
@@ -111,4 +111,10 @@ public class SlashEventAdapter extends DiscordAdapter implements ISlashEventAdap
         return deleteMessage(event.getMessageChannel(), messageId);
     }
 
+    @Override
+    public boolean isValidAnswerChannel(long channelId) {
+        return Optional.ofNullable(event.getGuild())
+                .map(g -> g.getChannelById(MessageChannel.class, channelId))
+                .isPresent();
+    }
 }

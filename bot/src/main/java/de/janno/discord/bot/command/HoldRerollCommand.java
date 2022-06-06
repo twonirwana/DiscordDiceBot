@@ -93,7 +93,8 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollCommand.Config,
                 config.getRerollSet().isEmpty() ? EMPTY : config.getRerollSet().stream().map(String::valueOf).collect(Collectors.joining(SUBSET_DELIMITER)),
                 config.getSuccessSet().isEmpty() ? EMPTY : config.getSuccessSet().stream().map(String::valueOf).collect(Collectors.joining(SUBSET_DELIMITER)),
                 config.getFailureSet().isEmpty() ? EMPTY : config.getFailureSet().stream().map(String::valueOf).collect(Collectors.joining(SUBSET_DELIMITER)),
-                state == null ? "0" : String.valueOf(state.getRerollCounter())
+                state == null ? "0" : String.valueOf(state.getRerollCounter()),
+                Optional.ofNullable(config.getAnswerTargetChannelId()).map(Object::toString).orElse("")
         );
     }
 
@@ -124,7 +125,8 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollCommand.Config,
                         .required(false)
                         .description("Failure dice numbers, seperated by ','")
                         .type(CommandDefinitionOption.Type.STRING)
-                        .build()
+                        .build(),
+                ANSWER_TARGET_CHANNEL_COMMAND_OPTION
         );
     }
 
@@ -156,7 +158,8 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollCommand.Config,
         Set<Integer> rerollSet = CommandUtils.toSet(customIdSplit[4], SUBSET_DELIMITER, EMPTY);
         Set<Integer> successSet = CommandUtils.toSet(customIdSplit[5], SUBSET_DELIMITER, EMPTY);
         Set<Integer> failureSet = CommandUtils.toSet(customIdSplit[6], SUBSET_DELIMITER, EMPTY);
-        return new Config(sideOfDie, rerollSet, successSet, failureSet);
+        Long answerTargetChannelId = getOptionalLongFromArray(customIdSplit, 8);
+        return new Config(sideOfDie, rerollSet, successSet, failureSet, answerTargetChannelId);
     }
 
 
@@ -211,7 +214,7 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollCommand.Config,
         Set<Integer> rerollSet = CommandUtils.getSetFromCommandOptions(options, REROLL_SET_ID, ",");
         Set<Integer> successSet = CommandUtils.getSetFromCommandOptions(options, SUCCESS_SET_ID, ",");
         Set<Integer> failureSet = CommandUtils.getSetFromCommandOptions(options, FAILURE_SET_ID, ",");
-        return new Config(sideValue, rerollSet, successSet, failureSet);
+        return new Config(sideValue, rerollSet, successSet, failureSet, getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null));
     }
 
     @Override
@@ -279,7 +282,6 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollCommand.Config,
                 .mapToObj(i -> ButtonDefinition.builder()
                         .id(createButtonCustomId(String.valueOf(i), config, null))
                         .label(String.format("%d%s%s", i, DICE_SYMBOL, config.getSidesOfDie()))
-
                         .build())
                 .collect(Collectors.toList());
         return Lists.partition(buttons, 5).stream()
@@ -291,6 +293,11 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollCommand.Config,
     protected Optional<String> getStartOptionsValidationMessage(CommandInteractionOption options) {
         Config conf = getConfigFromStartOptions(options);
         return validate(conf);
+    }
+
+    @Override
+    protected Optional<Long> getAnswerTargetChannelId(Config config) {
+        return Optional.ofNullable(config.getAnswerTargetChannelId());
     }
 
     @VisibleForTesting
@@ -320,6 +327,7 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollCommand.Config,
         Set<Integer> successSet;
         @NonNull
         Set<Integer> failureSet;
+        Long answerTargetChannelId;
 
         @Override
         public String toShortString() {
@@ -327,7 +335,8 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollCommand.Config,
                     String.valueOf(sidesOfDie),
                     rerollSet.stream().map(String::valueOf).collect(Collectors.joining(SUBSET_DELIMITER)),
                     successSet.stream().map(String::valueOf).collect(Collectors.joining(SUBSET_DELIMITER)),
-                    failureSet.stream().map(String::valueOf).collect(Collectors.joining(SUBSET_DELIMITER))
+                    failureSet.stream().map(String::valueOf).collect(Collectors.joining(SUBSET_DELIMITER)),
+                    answerTargetChannelId != null
             ).toString();
         }
     }

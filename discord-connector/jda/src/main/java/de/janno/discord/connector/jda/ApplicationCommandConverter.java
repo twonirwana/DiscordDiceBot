@@ -4,6 +4,7 @@ import de.janno.discord.connector.api.slash.CommandDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinitionOption;
 import de.janno.discord.connector.api.slash.CommandDefinitionOptionChoice;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
+import net.dv8tion.jda.api.entities.GuildMessageChannel;
 import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
@@ -23,14 +24,11 @@ public class ApplicationCommandConverter {
     public static CommandDefinition slashCommand2CommandDefinition(Command slashCommand) {
         List<CommandDefinitionOption> optionList = new ArrayList<>();
         optionList.addAll(slashCommand.getOptions().stream()
-                .map(ApplicationCommandConverter::commandOption2CommandDefinitionOption)
-                .collect(Collectors.toList()));
+                .map(ApplicationCommandConverter::commandOption2CommandDefinitionOption).toList());
         optionList.addAll(slashCommand.getSubcommands().stream()
-                .map(ApplicationCommandConverter::subcommand2CommandDefinitionOption)
-                .collect(Collectors.toList()));
+                .map(ApplicationCommandConverter::subcommand2CommandDefinitionOption).toList());
         optionList.addAll(slashCommand.getSubcommandGroups().stream()
-                .map(ApplicationCommandConverter::subcommandGroup2CommandDefinitionOption)
-                .collect(Collectors.toList()));
+                .map(ApplicationCommandConverter::subcommandGroup2CommandDefinitionOption).toList());
         return CommandDefinition.builder()
                 .name(slashCommand.getName())
                 .description(slashCommand.getDescription())
@@ -131,6 +129,7 @@ public class ApplicationCommandConverter {
                 .booleanValue(optionMapping.getType() == OptionType.BOOLEAN ? optionMapping.getAsBoolean() : null)
                 .longValue(optionMapping.getType() == OptionType.INTEGER ? (long) optionMapping.getAsInt() : null)
                 .stringValue(optionMapping.getType() == OptionType.STRING ? optionMapping.getAsString() : null)
+                .channelIdValue(optionMapping.getType() == OptionType.CHANNEL ? optionMapping.getAsLong() : null)
                 .build();
     }
 }

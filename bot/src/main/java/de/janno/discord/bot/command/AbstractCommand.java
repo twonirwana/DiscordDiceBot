@@ -2,6 +2,7 @@ package de.janno.discord.bot.command;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Stopwatch;
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import de.janno.discord.bot.BotMetrics;
 import de.janno.discord.bot.cache.ButtonMessageCache;
@@ -24,21 +25,40 @@ public abstract class AbstractCommand<C extends IConfig, S extends IState> imple
 
     protected static final String ACTION_START = "start";
     protected static final String ACTION_HELP = "help";
+    protected static final String ANSWER_TARGET_CHANNEL_NAME = "target_channel";
+    protected static final CommandDefinitionOption ANSWER_TARGET_CHANNEL_COMMAND_OPTION = CommandDefinitionOption.builder()
+            .name(ANSWER_TARGET_CHANNEL_NAME)
+            .description("The channel where the answer will be given")
+            .type(CommandDefinitionOption.Type.CHANNEL)
+            .build();
     protected final ButtonMessageCache buttonMessageCache;
 
     protected AbstractCommand(ButtonMessageCache buttonMessageCache) {
         this.buttonMessageCache = buttonMessageCache;
     }
 
+    protected Optional<Long> getAnswerTargetChannelIdFromStartCommandOption(CommandInteractionOption options) {
+        return options.getChannelIdSubOptionWithName(ANSWER_TARGET_CHANNEL_NAME);
+    }
+
+    protected Long getOptionalLongFromArray(String[] optionArray, int index) {
+        if (optionArray.length >= index + 1 && !Strings.isNullOrEmpty(optionArray[index])) {
+            return Long.parseLong(optionArray[index]);
+        }
+        return null;
+    }
+
     @Override
     public boolean matchingComponentCustomId(String buttonCustomId) {
-        return buttonCustomId.matches("^" + getName() + BotConstants.CONFIG_SPLIT_DELIMITER_REGEX +".*");
+        return buttonCustomId.matches("^" + getName() + BotConstants.CONFIG_SPLIT_DELIMITER_REGEX + ".*");
     }
 
     @VisibleForTesting
     Map<Long, Set<ButtonMessageCache.ButtonWithConfigHash>> getButtonMessageCache() {
         return buttonMessageCache.getCacheContent();
     }
+
+    protected abstract Optional<Long> getAnswerTargetChannelId(C config);
 
     @Override
     public CommandDefinition getCommandDefinition() {
@@ -64,12 +84,13 @@ public abstract class AbstractCommand<C extends IConfig, S extends IState> imple
     public Mono<Void> handleComponentInteractEvent(@NonNull IButtonEventAdaptor event) {
         Stopwatch stopwatch = Stopwatch.createStarted();
 
-        Optional<String> checkPermissions = event.checkPermissions();
+        C config = getConfigFromEvent(event);
+        Long answerTargetChannelId = getAnswerTargetChannelId(config).orElse(null);
+        Optional<String> checkPermissions = event.checkPermissions(answerTargetChannelId);
         if (checkPermissions.isPresent()) {
             return event.editMessage(checkPermissions.get());
         }
 
-        C config = getConfigFromEvent(event);
         //adding the message of the event to the cache, in the case that the bot was restarted and has forgotten the button
         long messageId = event.getMessageId();
         long channelId = event.getChannelId();
@@ -97,7 +118,8 @@ public abstract class AbstractCommand<C extends IConfig, S extends IState> imple
         Optional<EmbedDefinition> answer = getAnswer(state, config);
         if (answer.isPresent()) {
             BotMetrics.incrementButtonMetricCounter(getName(), config.toShortString());
-            actions.add(event.createResultMessageWithEventReference(answer.get()).then(
+
+            actions.add(event.createResultMessageWithEventReference(answer.get(), answerTargetChannelId).then(
                     event.getRequester()
                             .doOnNext(requester -> log.info("'{}'.'{}' from '{}' button: '{}'={}{} -> {} in {}ms",
                                             requester.getGuildName(),
@@ -112,6 +134,8 @@ public abstract class AbstractCommand<C extends IConfig, S extends IState> imple
                             ).ofType(Void.class)));
         }
         Optional<MessageDefinition> newButtonMessage = getButtonMessageWithState(state, config);
+
+        //todo don't create new message if the answer is in another channel
         if (newButtonMessage.isPresent()) {
             Mono<Long> newMessageIdMono = event.createButtonMessage(newButtonMessage.get())
                     .map(m -> {
@@ -150,6 +174,13 @@ public abstract class AbstractCommand<C extends IConfig, S extends IState> imple
         Optional<CommandInteractionOption> startOption = event.getOption(ACTION_START);
         if (startOption.isPresent()) {
             CommandInteractionOption options = startOption.get();
+
+            Optional<Long> answerTargetChannelId = getAnswerTargetChannelIdFromStartCommandOption(options);
+            if (answerTargetChannelId.isPresent() && !event.isValidAnswerChannel(answerTargetChannelId.get())) {
+                log.info("Invalid answer target channel for {}", commandString);
+                return event.reply("The target channel is not a valid message channel");
+            }
+
             Optional<String> validationMessage = getStartOptionsValidationMessage(options);
             if (validationMessage.isPresent()) {
                 log.info("Validation message: {} for {}", validationMessage.get(), commandString);

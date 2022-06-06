@@ -68,7 +68,13 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesCommand
         //legacy message could be missing the glitch and max dice option
         String glitchOption = split.length < 5 ? GLITCH_NO_OPTION : split[4];
         int maxNumberOfButtons = split.length < 6 ? 15 : Integer.parseInt(split[5]);
-        return new Config(sideOfDie, target, glitchOption, maxNumberOfButtons);
+        Long answerTargetChannelId = getOptionalLongFromArray(split, 6);
+        return new Config(sideOfDie, target, glitchOption, maxNumberOfButtons, answerTargetChannelId);
+    }
+
+    @Override
+    protected Optional<Long> getAnswerTargetChannelId(Config config) {
+        return Optional.ofNullable(config.getAnswerTargetChannelId());
     }
 
     @Override
@@ -125,7 +131,8 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesCommand
                         .type(CommandDefinitionOption.Type.INTEGER)
                         .minValue(1L)
                         .maxValue(MAX_NUMBER_OF_DICE)
-                        .build());
+                        .build(),
+                ANSWER_TARGET_CHANNEL_COMMAND_OPTION);
     }
 
     @Override
@@ -218,12 +225,13 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesCommand
         int targetValue = Math.toIntExact(options.getLongSubOptionWithName(ACTION_TARGET_OPTION)
                 .map(l -> Math.min(l, MAX_NUMBER_SIDES_OR_TARGET_NUMBER))
                 .orElse(6L));
-        String glitchOption = options.getStingSubOptionWithName(ACTION_GLITCH_OPTION)
+        String glitchOption = options.getStringSubOptionWithName(ACTION_GLITCH_OPTION)
                 .orElse(GLITCH_NO_OPTION);
         int maxDice = Math.toIntExact(options.getLongSubOptionWithName(ACTION_MAX_DICE_OPTION)
                 .map(l -> Math.min(l, MAX_NUMBER_OF_DICE))
                 .orElse(15L));
-        return new Config(sideValue, targetValue, glitchOption, maxDice);
+        Long answerTargetChannelId = getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null);
+        return new Config(sideValue, targetValue, glitchOption, maxDice, answerTargetChannelId);
     }
 
     private List<ComponentRowDefinition> createButtonLayout(Config config) {
@@ -231,7 +239,6 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesCommand
                 .mapToObj(i -> ButtonDefinition.builder()
                         .id(createButtonCustomId(String.valueOf(i), config))
                         .label(createButtonLabel(String.valueOf(i), config))
-
                         .build())
                 .collect(Collectors.toList());
         return Lists.partition(buttons, 5).stream().map(bl -> ComponentRowDefinition.builder()
@@ -242,7 +249,6 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesCommand
 
     @VisibleForTesting
     String createButtonCustomId(String number, Config config) {
-
         Preconditions.checkArgument(!config.getGlitchOption().contains(BotConstants.CONFIG_DELIMITER));
 
         return String.join(BotConstants.CONFIG_DELIMITER,
@@ -251,7 +257,9 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesCommand
                 String.valueOf(config.getDiceSides()),
                 String.valueOf(config.getTarget()),
                 config.getGlitchOption(),
-                String.valueOf(config.getMaxNumberOfButtons()));
+                String.valueOf(config.getMaxNumberOfButtons()),
+                Optional.ofNullable(config.getAnswerTargetChannelId()).map(Object::toString).orElse("")
+        );
     }
 
     @Value
@@ -261,13 +269,16 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesCommand
         @NonNull
         String glitchOption;
         int maxNumberOfButtons;
+        Long answerTargetChannelId;
 
         @Override
         public String toShortString() {
             return Stream.of(String.valueOf(getDiceSides()),
                     String.valueOf(getTarget()),
                     getGlitchOption(),
-                    String.valueOf(getMaxNumberOfButtons())).toList().toString();
+                    String.valueOf(getMaxNumberOfButtons()),
+                    answerTargetChannelId != null
+            ).toList().toString();
         }
     }
 

@@ -33,6 +33,11 @@ public class WelcomeCommand extends AbstractCommand<WelcomeCommand.Config, Welco
     }
 
     @Override
+    protected Optional<Long> getAnswerTargetChannelId(Config config) {
+        return Optional.empty();
+    }
+
+    @Override
     public String getName() {
         return COMMAND_NAME;
     }
@@ -52,7 +57,7 @@ public class WelcomeCommand extends AbstractCommand<WelcomeCommand.Config, Welco
         BotMetrics.incrementButtonMetricCounter(COMMAND_NAME, state.toShortString());
         return switch (state.getButtonId()) {
             case FATE_BUTTON_ID -> Optional.of(
-                    new FateCommand().getButtonMessage(new FateCommand.Config("with_modifier"))
+                    new FateCommand().getButtonMessage(new FateCommand.Config("with_modifier", null))
             );
             case DND5_BUTTON_ID -> Optional.of(
                     new CustomDiceCommand().getButtonMessage(new CustomDiceCommand.Config(ImmutableList.of(
@@ -71,20 +76,20 @@ public class WelcomeCommand extends AbstractCommand<WelcomeCommand.Config, Welco
                             new CustomDiceCommand.LabelAndDiceExpression("2D10", "2d10"),
                             new CustomDiceCommand.LabelAndDiceExpression("2D12", "2d12"),
                             new CustomDiceCommand.LabelAndDiceExpression("2D20", "2d20")
-                    )))
+                    ), null))
             );
             case NWOD_BUTTON_ID -> Optional.of(
-                    new CountSuccessesCommand().getButtonMessage(new CountSuccessesCommand.Config(10, 8, "no_glitch", 15))
+                    new CountSuccessesCommand().getButtonMessage(new CountSuccessesCommand.Config(10, 8, "no_glitch", 15, null))
             );
             case OWOD_BUTTON_ID -> Optional.of(
-                    new PoolTargetCommand().getButtonMessage(new PoolTargetCommand.Config(10, 15, ImmutableSet.of(10), ImmutableSet.of(1), "ask"))
+                    new PoolTargetCommand().getButtonMessage(new PoolTargetCommand.Config(10, 15, ImmutableSet.of(10), ImmutableSet.of(1), "ask", null))
             );
             case SHADOWRUN_BUTTON_ID -> Optional.of(
-                    new CountSuccessesCommand().getButtonMessage(new CountSuccessesCommand.Config(6, 5, "glitch:half_dice_one", 20))
+                    new CountSuccessesCommand().getButtonMessage(new CountSuccessesCommand.Config(6, 5, "glitch:half_dice_one", 20, null))
             );
             case COIN_BUTTON_ID -> Optional.of(
                     new CustomDiceCommand().getButtonMessage(new CustomDiceCommand.Config(ImmutableList.of(
-                            new CustomDiceCommand.LabelAndDiceExpression("Coin Toss", "1d2=2?Head:Tail"))))
+                            new CustomDiceCommand.LabelAndDiceExpression("Coin Toss", "1d2=2?Head:Tail")), null))
             );
             default -> Optional.empty();
         };

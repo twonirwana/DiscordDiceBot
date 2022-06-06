@@ -8,6 +8,7 @@ import de.janno.discord.bot.cache.ButtonMessageCache;
 import de.janno.discord.bot.dice.DiceUtils;
 import de.janno.discord.connector.api.BotConstants;
 import de.janno.discord.connector.api.IButtonEventAdaptor;
+import de.janno.discord.connector.api.ISlashEventAdaptor;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
 import de.janno.discord.connector.api.message.EmbedDefinition;
@@ -61,6 +62,7 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetCommand.Config,
     //state in id
     private static final int POOL_SIZE_VALUE_INDEX = 7;
     private static final int TARGET_INDEX = 8;
+    private static final int ANSWER_TARGET_CHANNEL_INDEX = 9;
     private static final String EMPTY = "EMPTY";
     private static final ButtonMessageCache BUTTON_MESSAGE_CACHE = new ButtonMessageCache(COMMAND_NAME);
     private final DiceUtils diceUtils;
@@ -130,8 +132,8 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetCommand.Config,
                         .type(CommandDefinitionOption.Type.STRING)
                         .choice(CommandDefinitionOptionChoice.builder().name(ALWAYS_REROLL).value(ALWAYS_REROLL).build())
                         .choice(CommandDefinitionOptionChoice.builder().name(ASK_FOR_REROLL).value(ASK_FOR_REROLL).build())
-
-                        .build()
+                        .build(),
+                ANSWER_TARGET_CHANNEL_COMMAND_OPTION
         );
     }
 
@@ -169,8 +171,8 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetCommand.Config,
         Set<Integer> rerollSet = CommandUtils.toSet(customIdSplit[REROLL_SET_INDEX], SUBSET_DELIMITER, EMPTY);
         Set<Integer> botchSet = CommandUtils.toSet(customIdSplit[BOTCH_SET_INDEX], SUBSET_DELIMITER, EMPTY);
         String rerollVariant = customIdSplit[REROLL_VARIANT_INDEX];
-
-        return new Config(sideOfDie, maxNumberOfButtons, rerollSet, botchSet, rerollVariant);
+        Long answerTargetChannelId = getOptionalLongFromArray(customIdSplit, ANSWER_TARGET_CHANNEL_INDEX);
+        return new Config(sideOfDie, maxNumberOfButtons, rerollSet, botchSet, rerollVariant, answerTargetChannelId);
     }
 
     @Override
@@ -222,7 +224,8 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetCommand.Config,
                 .map(CommandInteractionOption::getStringValue)
                 .findFirst()
                 .orElse(ALWAYS_REROLL);
-        return new Config(sideValue, maxButton, rerollSet, botchSet, rerollVariant);
+        Long answerTargetChannelId = getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null);
+        return new Config(sideValue, maxButton, rerollSet, botchSet, rerollVariant, answerTargetChannelId);
     }
 
 
@@ -319,7 +322,7 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetCommand.Config,
     String createButtonCustomId(@NonNull String buttonValue, @NonNull Config config, @Nullable State state) {
         Preconditions.checkArgument(!buttonValue.contains(BotConstants.CONFIG_DELIMITER));
 
-        String[] values = new String[9];
+        String[] values = new String[10];
         values[0] = COMMAND_NAME;
         values[BUTTON_VALUE_INDEX] = buttonValue;
         values[SIDE_OF_DIE_INDEX] = String.valueOf(config.getDiceSides());
@@ -329,7 +332,7 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetCommand.Config,
         values[REROLL_VARIANT_INDEX] = config.getRerollVariant();
         values[POOL_SIZE_VALUE_INDEX] = Optional.ofNullable(state).map(State::getDicePool).map(String::valueOf).orElse(EMPTY);
         values[TARGET_INDEX] = Optional.ofNullable(state).map(State::getTargetNumber).map(String::valueOf).orElse(EMPTY);
-
+        values[ANSWER_TARGET_CHANNEL_INDEX] =  Optional.ofNullable(config.getAnswerTargetChannelId()).map(Object::toString).orElse("");
         return String.join(BotConstants.CONFIG_DELIMITER, values);
 
     }
@@ -360,6 +363,10 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetCommand.Config,
         return validate(conf);
     }
 
+    @Override
+    protected Optional<Long> getAnswerTargetChannelId(Config config) {
+        return Optional.ofNullable(config.getAnswerTargetChannelId());
+    }
     @VisibleForTesting
     Optional<String> validate(Config config) {
 
@@ -385,7 +392,7 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetCommand.Config,
         @NonNull
         Set<Integer> botchSet;
         String rerollVariant;
-
+        Long answerTargetChannelId;
         @Override
         public String toShortString() {
             return ImmutableList.of(
@@ -393,7 +400,8 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetCommand.Config,
                     String.valueOf(maxNumberOfButtons),
                     rerollSet.stream().map(String::valueOf).collect(Collectors.joining(SUBSET_DELIMITER)),
                     botchSet.stream().map(String::valueOf).collect(Collectors.joining(SUBSET_DELIMITER)),
-                    rerollVariant
+                    rerollVariant,
+                    answerTargetChannelId != null
             ).toString();
         }
     }

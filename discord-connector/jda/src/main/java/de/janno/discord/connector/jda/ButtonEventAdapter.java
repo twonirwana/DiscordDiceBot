@@ -9,6 +9,7 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import reactor.core.publisher.Mono;
 
@@ -113,8 +114,13 @@ public class ButtonEventAdapter extends DiscordAdapter implements IButtonEventAd
     }
 
     @Override
-    public Mono<Void> createResultMessageWithEventReference(EmbedDefinition answer) {
-        return createEmbedMessageWithReference(event.getInteraction().getMessageChannel(),
+    public Mono<Void> createResultMessageWithEventReference(EmbedDefinition answer, Long targetChannelId) {
+
+        MessageChannel targetChannel = Optional.ofNullable(targetChannelId)
+                .flatMap(id -> Optional.ofNullable(event.getGuild())
+                        .map(g -> g.getChannelById(MessageChannel.class, targetChannelId)))
+                .orElse(event.getInteraction().getMessageChannel());
+        return createEmbedMessageWithReference(targetChannel,
                 answer, event.getInteraction().getUser(),
                 event.getInteraction().getGuild())
                 .onErrorResume(t -> handleException("Error on creating answer message", t, false).ofType(Message.class))
@@ -122,8 +128,19 @@ public class ButtonEventAdapter extends DiscordAdapter implements IButtonEventAd
     }
 
     @Override
-    public Optional<String> checkPermissions() {
-        return checkPermission(event.getMessageChannel(), event.getGuild());
+    public Optional<String> checkPermissions(Long answerTargetChannelId) {
+        Optional<String> primaryChannelPermissionCheck = checkPermission(event.getMessageChannel(), event.getGuild());
+        if (primaryChannelPermissionCheck.isPresent()) {
+            return primaryChannelPermissionCheck;
+        }
+        if (answerTargetChannelId != null) {
+            Optional<MessageChannel> answerChannel = Optional.ofNullable(event.getGuild()).map(g -> g.getChannelById(MessageChannel.class, answerTargetChannelId));
+            if (answerChannel.isEmpty()) {
+                return Optional.of("Configured answer target channel is not a valid message channel");
+            }
+            return checkPermission(answerChannel.get(), event.getGuild());
+        }
+        return Optional.empty();
     }
 
     @Override
