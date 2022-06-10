@@ -31,7 +31,7 @@ class FateCommandTest {
 
     @Test
     void getButtonMessage_modifier() {
-        String res = underTest.getButtonMessage(new FateCommand.Config("with_modifier", null))
+        String res = underTest.createNewButtonMessage(new FateCommand.Config("with_modifier", null))
                 .getContent();
 
         assertThat(res).isEqualTo("Click a button to roll four fate dice and add the value of the button");
@@ -39,7 +39,7 @@ class FateCommandTest {
 
     @Test
     void getButtonMessage_simple() {
-        String res = underTest.getButtonMessage(new FateCommand.Config("simple", null))
+        String res = underTest.createNewButtonMessage(new FateCommand.Config("simple", null))
                 .getContent();
 
         assertThat(res).isEqualTo("Click a button to roll four fate dice");
@@ -47,7 +47,7 @@ class FateCommandTest {
 
     @Test
     void getButtonMessageWithState_modifier() {
-        String res = underTest.getButtonMessageWithState(new FateCommand.State(0), new FateCommand.Config("with_modifier", null))
+        String res = underTest.createNewButtonMessageWithState(new FateCommand.State(0), new FateCommand.Config("with_modifier", null))
                 .orElseThrow().getContent();
 
         assertThat(res).isEqualTo("Click a button to roll four fate dice and add the value of the button");
@@ -55,7 +55,7 @@ class FateCommandTest {
 
     @Test
     void getButtonMessageWithState_simple() {
-        String res = underTest.getButtonMessageWithState(new FateCommand.State(0), new FateCommand.Config("simple", null))
+        String res = underTest.createNewButtonMessageWithState(new FateCommand.State(0), new FateCommand.Config("simple", null))
                 .orElseThrow().getContent();
 
         assertThat(res).isEqualTo("Click a button to roll four fate dice");
@@ -153,7 +153,7 @@ class FateCommandTest {
 
     @Test
     void getButtonLayoutWithState_simple() {
-        List<ComponentRowDefinition> res = underTest.getButtonMessageWithState(new FateCommand.State(null), new FateCommand.Config("simple", null))
+        List<ComponentRowDefinition> res = underTest.createNewButtonMessageWithState(new FateCommand.State(null), new FateCommand.Config("simple", null))
                 .orElseThrow().getComponentRowDefinitions();
 
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel)).containsExactly("Roll 4dF");
@@ -163,7 +163,7 @@ class FateCommandTest {
 
     @Test
     void getButtonLayout_simple() {
-        List<ComponentRowDefinition> res = underTest.getButtonMessage(new FateCommand.Config("simple", null))
+        List<ComponentRowDefinition> res = underTest.createNewButtonMessage(new FateCommand.Config("simple", null))
                 .getComponentRowDefinitions();
 
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel)).containsExactly("Roll 4dF");
@@ -173,7 +173,7 @@ class FateCommandTest {
 
     @Test
     void getButtonLayoutWithState_modifier() {
-        List<ComponentRowDefinition> res = underTest.getButtonMessageWithState(new FateCommand.State(2), new FateCommand.Config("with_modifier", null))
+        List<ComponentRowDefinition> res = underTest.createNewButtonMessageWithState(new FateCommand.State(2), new FateCommand.Config("with_modifier", null))
                 .orElseThrow().getComponentRowDefinitions();
 
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel)).containsExactly("-4", "-3", "-2", "-1", "0", "+1", "+2", "+3", "+4", "+5", "+6", "+7", "+8", "+9", "+10");
@@ -197,7 +197,7 @@ class FateCommandTest {
 
     @Test
     void getButtonLayout_modifier() {
-        List<ComponentRowDefinition> res = underTest.getButtonMessage(new FateCommand.Config("with_modifier", null)).getComponentRowDefinitions();
+        List<ComponentRowDefinition> res = underTest.createNewButtonMessage(new FateCommand.Config("with_modifier", null)).getComponentRowDefinitions();
 
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel)).containsExactly("-4", "-3", "-2", "-1", "0", "+1", "+2", "+3", "+4", "+5", "+6", "+7", "+8", "+9", "+10");
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getId))
@@ -219,8 +219,8 @@ class FateCommandTest {
     }
 
     @Test
-    void editButtonMessage() {
-        assertThat(underTest.getEditButtonMessage(new FateCommand.State(2), new FateCommand.Config("with_modifier", null))).isEmpty();
+    void getCurrentMessageContentChange() {
+        assertThat(underTest.getCurrentMessageContentChange(new FateCommand.State(2), new FateCommand.Config("with_modifier", null))).isEmpty();
     }
 
     @Test

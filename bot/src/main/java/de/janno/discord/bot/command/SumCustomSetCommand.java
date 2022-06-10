@@ -132,7 +132,7 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetCommand.Con
     }
 
     @Override
-    protected MessageDefinition getButtonMessage(Config config) {
+    protected MessageDefinition createNewButtonMessage(Config config) {
         return MessageDefinition.builder()
                 .content(EMPTY_MESSAGE)
                 .componentRowDefinitions(createButtonLayout(config))
@@ -140,7 +140,7 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetCommand.Con
     }
 
     @Override
-    protected Optional<MessageDefinition> getButtonMessageWithState(State state, Config config) {
+    protected Optional<MessageDefinition> createNewButtonMessageWithState(State state, Config config) {
         if (ROLL_BUTTON_ID.equals(state.getButtonValue()) && !Strings.isNullOrEmpty(state.getDiceExpression())) {
             return Optional.of(MessageDefinition.builder()
                     .content(EMPTY_MESSAGE)
@@ -152,7 +152,7 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetCommand.Con
     }
 
     @Override
-    protected Optional<String> getEditButtonMessage(State state, Config config) {
+    protected Optional<String> getCurrentMessageContentChange(State state, Config config) {
         if (ROLL_BUTTON_ID.equals(state.getButtonValue())) {
             return Optional.of(EMPTY_MESSAGE);
         } else if (CLEAR_BUTTON_ID.equals(state.getButtonValue())) {

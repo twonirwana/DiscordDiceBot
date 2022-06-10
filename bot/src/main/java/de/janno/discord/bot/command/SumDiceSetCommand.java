@@ -147,7 +147,7 @@ public class SumDiceSetCommand extends AbstractCommand<SumDiceSetCommand.Config,
     }
 
     @Override
-    protected MessageDefinition getButtonMessage(Config config) {
+    protected MessageDefinition createNewButtonMessage(Config config) {
         return MessageDefinition.builder()
                 .content(EMPTY_MESSAGE)
                 .componentRowDefinitions(createButtonLayout(config))
@@ -155,7 +155,7 @@ public class SumDiceSetCommand extends AbstractCommand<SumDiceSetCommand.Config,
     }
 
     @Override
-    protected Optional<MessageDefinition> getButtonMessageWithState(State state, Config config) {
+    protected Optional<MessageDefinition> createNewButtonMessageWithState(State state, Config config) {
         if (!(ROLL_BUTTON_ID.equals(state.getButtonValue()) && !state.getDiceSetMap().isEmpty())) {
             return Optional.empty();
         }
@@ -166,7 +166,7 @@ public class SumDiceSetCommand extends AbstractCommand<SumDiceSetCommand.Config,
     }
 
     @Override
-    protected Optional<String> getEditButtonMessage(State state, Config config) {
+    protected Optional<String> getCurrentMessageContentChange(State state, Config config) {
         switch (state.getButtonValue()) {
             case ROLL_BUTTON_ID:
             case CLEAR_BUTTON_ID:

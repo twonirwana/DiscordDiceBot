@@ -53,13 +53,10 @@ public class FateCommand extends AbstractCommand<FateCommand.Config, FateCommand
     protected Optional<Long> getAnswerTargetChannelId(Config config) {
         return Optional.ofNullable(config.getAnswerTargetChannelId());
     }
-
     @Override
     protected @NonNull String getCommandDescription() {
         return "Configure Fate dice";
     }
-
-
     private String createButtonMessage(Config config) {
         if (ACTION_MODIFIER_OPTION_MODIFIER.equals(config.getType())) {
             return "Click a button to roll four fate dice and add the value of the button";
@@ -127,12 +124,12 @@ public class FateCommand extends AbstractCommand<FateCommand.Config, FateCommand
     }
 
     @Override
-    protected Optional<MessageDefinition> getButtonMessageWithState(State state, Config config) {
-        return Optional.of(getButtonMessage(config));
+    protected Optional<MessageDefinition> createNewButtonMessageWithState(State state, Config config) {
+        return Optional.of(createNewButtonMessage(config));
     }
 
     @Override
-    protected MessageDefinition getButtonMessage(Config config) {
+    protected MessageDefinition createNewButtonMessage(Config config) {
         return MessageDefinition.builder()
                 .content(createButtonMessage(config))
                 .componentRowDefinitions(createButtonLayout(config))

@@ -218,7 +218,7 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollCommand.Config,
     }
 
     @Override
-    protected MessageDefinition getButtonMessage(Config config) {
+    protected MessageDefinition createNewButtonMessage(Config config) {
         return MessageDefinition.builder()
                 .content(String.format("Click on the buttons to roll dice. Reroll set: %s, Success Set: %s and Failure Set: %s",
                         config.getRerollSet(), config.getSuccessSet(), config.getFailureSet()))
@@ -227,7 +227,7 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollCommand.Config,
     }
 
     @Override
-    protected Optional<MessageDefinition> getButtonMessageWithState(State state, Config config) {
+    protected Optional<MessageDefinition> createNewButtonMessageWithState(State state, Config config) {
         if (config.getRerollSet().isEmpty()
                 || CLEAR_BUTTON_ID.equals(state.getState())
                 || FINISH_BUTTON_ID.equals(state.getState())
@@ -239,13 +239,33 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollCommand.Config,
                     .build());
         }
 
+        return Optional.empty();
+    }
+
+    @Override
+    protected Optional<List<ComponentRowDefinition>> getCurrentMessageComponentChange(State state, Config config) {
+        if (config.getRerollSet().isEmpty()
+                || CLEAR_BUTTON_ID.equals(state.getState())
+                || FINISH_BUTTON_ID.equals(state.getState())
+                || rollFinished(state, config)) {
+            return Optional.empty();
+        }
+
+        return Optional.of(getButtonLayoutWithState(state, config));
+    }
+
+    @Override
+    protected Optional<String> getCurrentMessageContentChange(State state, Config config) {
+        if (config.getRerollSet().isEmpty()
+                || CLEAR_BUTTON_ID.equals(state.getState())
+                || FINISH_BUTTON_ID.equals(state.getState())
+                || rollFinished(state, config)) {
+            return Optional.empty();
+        }
         int successes = DiceUtils.numberOfDiceResultsEqual(state.getCurrentResults(), config.getSuccessSet());
         int failures = DiceUtils.numberOfDiceResultsEqual(state.getCurrentResults(), config.getFailureSet());
-        return Optional.of(MessageDefinition.builder()
-                .content(String.format("%s = %d successes and %d failures",
-                        CommandUtils.markIn(state.getCurrentResults(), getToMark(config)), successes, failures))
-                .componentRowDefinitions(getButtonLayoutWithState(state, config))
-                .build());
+        return Optional.of(String.format("%s = %d successes and %d failures",
+                CommandUtils.markIn(state.getCurrentResults(), getToMark(config)), successes, failures));
     }
 
 

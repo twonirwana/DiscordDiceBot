@@ -123,12 +123,12 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceCommand.Config,
     }
 
     @Override
-    protected Optional<MessageDefinition> getButtonMessageWithState(State state, Config config) {
-        return Optional.of(getButtonMessage(config));
+    protected Optional<MessageDefinition> createNewButtonMessageWithState(State state, Config config) {
+        return Optional.of(createNewButtonMessage(config));
     }
 
     @Override
-    protected MessageDefinition getButtonMessage(Config config) {
+    protected MessageDefinition createNewButtonMessage(Config config) {
         return MessageDefinition.builder()
                 .content(BUTTON_MESSAGE)
                 .componentRowDefinitions(createButtonLayout(config))

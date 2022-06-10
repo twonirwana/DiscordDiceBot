@@ -3,6 +3,7 @@ package de.janno.discord.connector.jda;
 import com.google.common.base.Strings;
 import de.janno.discord.connector.api.IButtonEventAdaptor;
 import de.janno.discord.connector.api.Requester;
+import de.janno.discord.connector.api.message.ComponentRowDefinition;
 import de.janno.discord.connector.api.message.EmbedDefinition;
 import de.janno.discord.connector.api.message.MessageDefinition;
 import lombok.NonNull;
@@ -95,8 +96,25 @@ public class ButtonEventAdapter extends DiscordAdapter implements IButtonEventAd
 
 
     @Override
-    public Mono<Void> editMessage(String message) {
-        return createMonoFrom(() -> event.editMessage(message)).then()
+    public Mono<Void> editMessage(String message, List<ComponentRowDefinition> componentRowDefinitions) {
+        if (message == null && componentRowDefinitions == null) {
+            return Mono.empty();
+        }
+        if (message != null && componentRowDefinitions == null) {
+            return createMonoFrom(() -> event.editMessage(message)).then()
+                    .onErrorResume(t -> handleException("Error on edit button event", t, true));
+        }
+
+        if (message == null && componentRowDefinitions != null) {
+            return createMonoFrom(() -> event.editComponents(MessageComponentConverter.componentRowDefinition2LayoutComponent(componentRowDefinitions))).then()
+                    .onErrorResume(t -> handleException("Error on edit button event", t, true));
+        }
+
+        return createMonoFrom(() -> event.getHook()
+                .editOriginalComponents(MessageComponentConverter.componentRowDefinition2LayoutComponent(componentRowDefinitions))
+                .setContent(message))
+                .then(createMonoFrom(event::deferEdit))
+                .then()
                 .onErrorResume(t -> handleException("Error on edit button event", t, true));
 
     }
