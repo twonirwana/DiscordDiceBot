@@ -8,6 +8,7 @@ import de.janno.discord.connector.api.message.ComponentRowDefinition;
 import de.janno.discord.connector.api.message.EmbedDefinition;
 import de.janno.discord.connector.api.message.MessageDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinitionOption;
+import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -18,6 +19,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+import static de.janno.discord.bot.command.AbstractCommand.ANSWER_TARGET_CHANNEL_NAME;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -98,76 +100,76 @@ class SumDiceSetCommandTest {
 
     @Test
     void getButtonMessageWithState_clear() {
-        Optional<MessageDefinition> res = underTest.getButtonMessageWithState(new SumDiceSetCommand.State("clear", ImmutableMap.of(
+        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(new SumDiceSetCommand.State("clear", ImmutableMap.of(
                 "d4", 1,
                 "d6", 1,
                 "d8", 1,
                 "d10", 1,
                 "d12", 1,
-                "d20", 1)), new SumDiceSetCommand.Config());
+                "d20", 1)), new SumDiceSetCommand.Config(null));
         assertThat(res).isEmpty();
     }
 
     @Test
     void getButtonMessageWithState_roll() {
-        String res = underTest.getButtonMessageWithState(new SumDiceSetCommand.State("roll", ImmutableMap.of(
+        String res = underTest.createNewButtonMessageWithState(new SumDiceSetCommand.State("roll", ImmutableMap.of(
                         "d4", 1,
                         "d6", 1,
                         "d8", 1,
                         "d10", 1,
                         "d12", 1,
-                        "d20", 1)), new SumDiceSetCommand.Config())
-                .get().getContent();
+                        "d20", 1)), new SumDiceSetCommand.Config(null))
+                .orElseThrow().getContent();
         assertThat(res).isEqualTo("Click on the buttons to add dice to the set");
     }
 
     @Test
-    void getEditButtonMessage_x2() {
-        Optional<String> res = underTest.getEditButtonMessage(new SumDiceSetCommand.State("x2", ImmutableMap.of(
+    void getCurrentMessageContentChange_x2() {
+        Optional<String> res = underTest.getCurrentMessageContentChange(new SumDiceSetCommand.State("x2", ImmutableMap.of(
                 "d4", 1,
                 "d6", 2,
                 "d8", 3,
                 "d10", 4,
                 "d12", 5,
-                "m", 10)), new SumDiceSetCommand.Config());
+                "m", 10)), new SumDiceSetCommand.Config(null));
         assertThat(res).contains("2d4 +4d6 +6d8 +8d10 +10d12 +20");
     }
 
     @Test
-    void getEditButtonMessageNegativeModifier_x2() {
-        Optional<String> res = underTest.getEditButtonMessage(new SumDiceSetCommand.State("x2", ImmutableMap.of(
+    void getCurrentMessageContentChange_NegativeModifier_x2() {
+        Optional<String> res = underTest.getCurrentMessageContentChange(new SumDiceSetCommand.State("x2", ImmutableMap.of(
                 "d4", -1,
                 "d6", -2,
                 "d8", -3,
                 "d10", -4,
                 "d12", 5,
-                "m", -10)), new SumDiceSetCommand.Config());
+                "m", -10)), new SumDiceSetCommand.Config(null));
         assertThat(res).contains("-2d4 -4d6 -6d8 -8d10 +10d12 -20");
     }
 
     @Test
-    void getEditButtonMessage_limit() {
-        Optional<String> res = underTest.getEditButtonMessage(new SumDiceSetCommand.State("x2", ImmutableMap.of("d4", 51)), new SumDiceSetCommand.Config());
+    void getCurrentMessageContentChange_limit() {
+        Optional<String> res = underTest.getCurrentMessageContentChange(new SumDiceSetCommand.State("x2", ImmutableMap.of("d4", 51)), new SumDiceSetCommand.Config(null));
         assertThat(res).contains("100d4");
     }
 
     @Test
     void getButtonMessage() {
-        String res = underTest.getButtonMessage(new SumDiceSetCommand.Config()).getContent();
+        String res = underTest.createNewButtonMessage(new SumDiceSetCommand.Config(null)).getContent();
         assertThat(res).isEqualTo("Click on the buttons to add dice to the set");
     }
 
     @Test
-    void getButtonMessageWithState() {
-        String res = underTest.getButtonMessageWithState(new SumDiceSetCommand.State("roll", ImmutableMap.of("d4", 51)), new SumDiceSetCommand.Config())
-                .get().getContent();
+    void createNewButtonMessageWithState() {
+        String res = underTest.createNewButtonMessageWithState(new SumDiceSetCommand.State("roll", ImmutableMap.of("d4", 51)), new SumDiceSetCommand.Config(null))
+                .orElseThrow().getContent();
         assertThat(res).isEqualTo("Click on the buttons to add dice to the set");
     }
 
     @ParameterizedTest(name = "{index} config={0}, buttonId={1} -> {2}")
     @MethodSource("generateGetEditButtonMessageData")
-    void getEditButtonMessage(SumDiceSetCommand.State state, String expected) {
-        Optional<String> res = underTest.getEditButtonMessage(state, new SumDiceSetCommand.Config());
+    void getCurrentMessageContentChange(SumDiceSetCommand.State state, String expected) {
+        Optional<String> res = underTest.getCurrentMessageContentChange(state, new SumDiceSetCommand.Config(null));
         assertThat(res).contains(expected);
     }
 
@@ -231,13 +233,13 @@ class SumDiceSetCommandTest {
     void getAnswer_roll_true() {
         Optional<EmbedDefinition> res = underTest.getAnswer(new SumDiceSetCommand.State("roll", ImmutableMap.of(
                 "d6", 1
-        )), new SumDiceSetCommand.Config());
+        )), new SumDiceSetCommand.Config(null));
         assertThat(res).isNotEmpty();
     }
 
     @Test
     void getAnswer_rollNoConfig_false() {
-        Optional<EmbedDefinition> res = underTest.getAnswer(new SumDiceSetCommand.State("roll", ImmutableMap.of()), new SumDiceSetCommand.Config());
+        Optional<EmbedDefinition> res = underTest.getAnswer(new SumDiceSetCommand.State("roll", ImmutableMap.of()), new SumDiceSetCommand.Config(null));
         assertThat(res).isEmpty();
     }
 
@@ -245,44 +247,51 @@ class SumDiceSetCommandTest {
     void getAnswer_modifyMessage_false() {
         Optional<EmbedDefinition> res = underTest.getAnswer(new SumDiceSetCommand.State("+1d6", ImmutableMap.of(
                 "d6", 1
-        )), new SumDiceSetCommand.Config());
+        )), new SumDiceSetCommand.Config(null));
         assertThat(res).isEmpty();
     }
 
     @Test
     void copyButtonMessageToTheEnd_roll_true() {
-        Optional<MessageDefinition> res = underTest.getButtonMessageWithState(new SumDiceSetCommand.State("roll", ImmutableMap.of(
+        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(new SumDiceSetCommand.State("roll", ImmutableMap.of(
                 "d6", 1
-        )), new SumDiceSetCommand.Config());
+        )), new SumDiceSetCommand.Config(null));
         assertThat(res).isNotEmpty();
     }
 
     @Test
     void copyButtonMessageToTheEnd_rollNoConfig_false() {
-        Optional<MessageDefinition> res = underTest.getButtonMessageWithState(new SumDiceSetCommand.State("roll", ImmutableMap.of()), new SumDiceSetCommand.Config());
+        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(new SumDiceSetCommand.State("roll", ImmutableMap.of()), new SumDiceSetCommand.Config(null));
         assertThat(res).isEmpty();
     }
 
     @Test
     void copyButtonMessageToTheEnd_modifyMessage_false() {
-        Optional<MessageDefinition> res = underTest.getButtonMessageWithState(new SumDiceSetCommand.State("+1d6", ImmutableMap.of(
+        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(new SumDiceSetCommand.State("+1d6", ImmutableMap.of(
                 "d6", 1
-        )), new SumDiceSetCommand.Config());
+        )), new SumDiceSetCommand.Config(null));
         assertThat(res).isEmpty();
     }
 
     @Test
-    void getEditButtonMessage_1d6() {
-        Optional<String> res = underTest.getEditButtonMessage(new SumDiceSetCommand.State("+1d6", ImmutableMap.of(
+    void getCurrentMessageContentChange_1d6() {
+        Optional<String> res = underTest.getCurrentMessageContentChange(new SumDiceSetCommand.State("+1d6", ImmutableMap.of(
                 "d6", 1
-        )), new SumDiceSetCommand.Config());
+        )), new SumDiceSetCommand.Config(null));
         assertThat(res).contains("2d6");
     }
 
     @Test
     void getConfigValuesFromStartOptions() {
-        SumDiceSetCommand.Config res = underTest.getConfigFromStartOptions(null);
-        assertThat(res).isEqualTo(new SumDiceSetCommand.Config());
+        SumDiceSetCommand.Config res = underTest.getConfigFromStartOptions(CommandInteractionOption.builder()
+                .name("start")
+                .option(CommandInteractionOption.builder()
+                        .name(ANSWER_TARGET_CHANNEL_NAME)
+                        .channelIdValue(null)
+                        .build())
+                .build());
+
+        assertThat(res).isEqualTo(new SumDiceSetCommand.Config(null));
     }
 
 
@@ -292,7 +301,7 @@ class SumDiceSetCommandTest {
                 "d4", 1,
                 "d6", 1,
                 "m", 10
-        )), new SumDiceSetCommand.Config()).get();
+        )), new SumDiceSetCommand.Config(null)).orElseThrow();
 
         assertThat(res.getFields()).hasSize(0);
         assertThat(res.getTitle()).isEqualTo("1d4 +1d6 +10 = 12");
@@ -305,7 +314,7 @@ class SumDiceSetCommandTest {
                 "d4", -1,
                 "d6", 1,
                 "m", -10
-        )), new SumDiceSetCommand.Config()).get();
+        )), new SumDiceSetCommand.Config(null)).orElseThrow();
 
         assertThat(res.getFields()).hasSize(0);
         assertThat(res.getTitle()).isEqualTo("-1d4 +1d6 -10 = -10");
@@ -316,7 +325,7 @@ class SumDiceSetCommandTest {
     void getStartOptions() {
         List<CommandDefinitionOption> res = underTest.getStartOptions();
 
-        assertThat(res).isEmpty();
+        assertThat(res.stream().map(CommandDefinitionOption::getName)).containsExactly("target_channel");
     }
 
     @Test
@@ -332,39 +341,39 @@ class SumDiceSetCommandTest {
 
     @Test
     void createButtonCustomId() {
-        String res = underTest.createButtonCustomId("+1d6");
+        String res = underTest.createButtonCustomId("+1d6", new SumDiceSetCommand.Config(null));
 
-        assertThat(res).isEqualTo("sum_dice_set\u0000+1d6");
+        assertThat(res).isEqualTo("sum_dice_set\u0000+1d6\u0000");
     }
 
     @Test
     void getButtonLayoutWithState() {
-        List<ComponentRowDefinition> res = underTest.getButtonMessageWithState(new SumDiceSetCommand.State("roll", ImmutableMap.of(
+        List<ComponentRowDefinition> res = underTest.createNewButtonMessageWithState(new SumDiceSetCommand.State("roll", ImmutableMap.of(
                         "d4", -1,
                         "d6", 1,
                         "m", -10
-                )), new SumDiceSetCommand.Config())
-                .get().getComponentRowDefinitions();
+                )), new SumDiceSetCommand.Config(null))
+                .orElseThrow().getComponentRowDefinitions();
 
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel))
                 .containsExactly("+1d4", "-1d4", "+1d6", "-1d6", "x2", "+1d8", "-1d8", "+1d10", "-1d10", "Clear", "+1d12", "-1d12", "+1d20", "-1d20", "Roll", "+1", "-1", "+5", "-5", "+10");
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getId))
-                .containsExactly("sum_dice_set\u0000+1d4", "sum_dice_set\u0000-1d4", "sum_dice_set\u0000+1d6", "sum_dice_set\u0000-1d6",
-                        "sum_dice_set\u0000x2", "sum_dice_set\u0000+1d8", "sum_dice_set\u0000-1d8", "sum_dice_set\u0000+1d10", "sum_dice_set\u0000-1d10",
-                        "sum_dice_set\u0000clear", "sum_dice_set\u0000+1d12", "sum_dice_set\u0000-1d12", "sum_dice_set\u0000+1d20", "sum_dice_set\u0000-1d20",
-                        "sum_dice_set\u0000roll", "sum_dice_set\u0000+1", "sum_dice_set\u0000-1", "sum_dice_set\u0000+5", "sum_dice_set\u0000-5", "sum_dice_set\u0000+10");
+                .containsExactly("sum_dice_set\u0000+1d4\u0000", "sum_dice_set\u0000-1d4\u0000", "sum_dice_set\u0000+1d6\u0000", "sum_dice_set\u0000-1d6\u0000",
+                        "sum_dice_set\u0000x2\u0000", "sum_dice_set\u0000+1d8\u0000", "sum_dice_set\u0000-1d8\u0000", "sum_dice_set\u0000+1d10\u0000", "sum_dice_set\u0000-1d10\u0000",
+                        "sum_dice_set\u0000clear\u0000", "sum_dice_set\u0000+1d12\u0000", "sum_dice_set\u0000-1d12\u0000", "sum_dice_set\u0000+1d20\u0000", "sum_dice_set\u0000-1d20\u0000",
+                        "sum_dice_set\u0000roll\u0000", "sum_dice_set\u0000+1\u0000", "sum_dice_set\u0000-1\u0000", "sum_dice_set\u0000+5\u0000", "sum_dice_set\u0000-5\u0000", "sum_dice_set\u0000+10\u0000");
     }
 
     @Test
     void getButtonLayout() {
-        List<ComponentRowDefinition> res = underTest.getButtonMessage(new SumDiceSetCommand.Config()).getComponentRowDefinitions();
+        List<ComponentRowDefinition> res = underTest.createNewButtonMessage(new SumDiceSetCommand.Config(null)).getComponentRowDefinitions();
 
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel))
                 .containsExactly("+1d4", "-1d4", "+1d6", "-1d6", "x2", "+1d8", "-1d8", "+1d10", "-1d10", "Clear", "+1d12", "-1d12", "+1d20", "-1d20", "Roll", "+1", "-1", "+5", "-5", "+10");
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getId))
-                .containsExactly("sum_dice_set\u0000+1d4", "sum_dice_set\u0000-1d4", "sum_dice_set\u0000+1d6", "sum_dice_set\u0000-1d6",
-                        "sum_dice_set\u0000x2", "sum_dice_set\u0000+1d8", "sum_dice_set\u0000-1d8", "sum_dice_set\u0000+1d10", "sum_dice_set\u0000-1d10",
-                        "sum_dice_set\u0000clear", "sum_dice_set\u0000+1d12", "sum_dice_set\u0000-1d12", "sum_dice_set\u0000+1d20", "sum_dice_set\u0000-1d20",
-                        "sum_dice_set\u0000roll", "sum_dice_set\u0000+1", "sum_dice_set\u0000-1", "sum_dice_set\u0000+5", "sum_dice_set\u0000-5", "sum_dice_set\u0000+10");
+                .containsExactly("sum_dice_set\u0000+1d4\u0000", "sum_dice_set\u0000-1d4\u0000", "sum_dice_set\u0000+1d6\u0000", "sum_dice_set\u0000-1d6\u0000",
+                        "sum_dice_set\u0000x2\u0000", "sum_dice_set\u0000+1d8\u0000", "sum_dice_set\u0000-1d8\u0000", "sum_dice_set\u0000+1d10\u0000", "sum_dice_set\u0000-1d10\u0000",
+                        "sum_dice_set\u0000clear\u0000", "sum_dice_set\u0000+1d12\u0000", "sum_dice_set\u0000-1d12\u0000", "sum_dice_set\u0000+1d20\u0000", "sum_dice_set\u0000-1d20\u0000",
+                        "sum_dice_set\u0000roll\u0000", "sum_dice_set\u0000+1\u0000", "sum_dice_set\u0000-1\u0000", "sum_dice_set\u0000+5\u0000", "sum_dice_set\u0000-5\u0000", "sum_dice_set\u0000+10\u0000");
     }
 }

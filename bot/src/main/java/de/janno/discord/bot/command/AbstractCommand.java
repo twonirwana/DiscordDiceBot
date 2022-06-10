@@ -2,10 +2,12 @@ package de.janno.discord.bot.command;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Stopwatch;
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import de.janno.discord.bot.BotMetrics;
 import de.janno.discord.bot.cache.ButtonMessageCache;
 import de.janno.discord.connector.api.*;
+import de.janno.discord.connector.api.message.ComponentRowDefinition;
 import de.janno.discord.connector.api.message.EmbedDefinition;
 import de.janno.discord.connector.api.message.MessageDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinition;
@@ -24,21 +26,40 @@ public abstract class AbstractCommand<C extends IConfig, S extends IState> imple
 
     protected static final String ACTION_START = "start";
     protected static final String ACTION_HELP = "help";
+    protected static final String ANSWER_TARGET_CHANNEL_NAME = "target_channel";
+    protected static final CommandDefinitionOption ANSWER_TARGET_CHANNEL_COMMAND_OPTION = CommandDefinitionOption.builder()
+            .name(ANSWER_TARGET_CHANNEL_NAME)
+            .description("The channel where the answer will be given")
+            .type(CommandDefinitionOption.Type.CHANNEL)
+            .build();
     protected final ButtonMessageCache buttonMessageCache;
 
     protected AbstractCommand(ButtonMessageCache buttonMessageCache) {
         this.buttonMessageCache = buttonMessageCache;
     }
 
+    protected Optional<Long> getAnswerTargetChannelIdFromStartCommandOption(CommandInteractionOption options) {
+        return options.getChannelIdSubOptionWithName(ANSWER_TARGET_CHANNEL_NAME);
+    }
+
+    protected Long getOptionalLongFromArray(String[] optionArray, int index) {
+        if (optionArray.length >= index + 1 && !Strings.isNullOrEmpty(optionArray[index])) {
+            return Long.parseLong(optionArray[index]);
+        }
+        return null;
+    }
+
     @Override
     public boolean matchingComponentCustomId(String buttonCustomId) {
-        return buttonCustomId.matches("^" + getName() + BotConstants.CONFIG_SPLIT_DELIMITER_REGEX +".*");
+        return buttonCustomId.matches("^" + getName() + BotConstants.CONFIG_SPLIT_DELIMITER_REGEX + ".*");
     }
 
     @VisibleForTesting
     Map<Long, Set<ButtonMessageCache.ButtonWithConfigHash>> getButtonMessageCache() {
         return buttonMessageCache.getCacheContent();
     }
+
+    protected abstract Optional<Long> getAnswerTargetChannelId(C config);
 
     @Override
     public CommandDefinition getCommandDefinition() {
@@ -60,16 +81,21 @@ public abstract class AbstractCommand<C extends IConfig, S extends IState> imple
                 .build();
     }
 
+    protected Optional<List<ComponentRowDefinition>> getCurrentMessageComponentChange(S state, C config) {
+        return Optional.empty();
+    }
+
     @Override
     public Mono<Void> handleComponentInteractEvent(@NonNull IButtonEventAdaptor event) {
         Stopwatch stopwatch = Stopwatch.createStarted();
 
-        Optional<String> checkPermissions = event.checkPermissions();
+        C config = getConfigFromEvent(event);
+        Long answerTargetChannelId = getAnswerTargetChannelId(config).orElse(null);
+        Optional<String> checkPermissions = event.checkPermissions(answerTargetChannelId);
         if (checkPermissions.isPresent()) {
-            return event.editMessage(checkPermissions.get());
+            return event.editMessage(checkPermissions.get(), null);
         }
 
-        C config = getConfigFromEvent(event);
         //adding the message of the event to the cache, in the case that the bot was restarted and has forgotten the button
         long messageId = event.getMessageId();
         long channelId = event.getChannelId();
@@ -84,20 +110,24 @@ public abstract class AbstractCommand<C extends IConfig, S extends IState> imple
         Mono<Void> deleteAction = Mono.empty();
         boolean keepExistingButtonMessage = shouldKeepExistingButtonMessage(event);
         String editMessage;
-
-        if (keepExistingButtonMessage) {
-            //if the old button is pined, the old message will be edited or reset to the slash default
-            editMessage = getEditButtonMessage(state, config).orElse(getButtonMessage(config).getContent());
+        Optional<List<ComponentRowDefinition>> editMessageComponents;
+        if (keepExistingButtonMessage || answerTargetChannelId != null) {
+            //if the old button is pined or the result is copied to another channel, the old message will be edited or reset to the slash default
+            editMessage = getCurrentMessageContentChange(state, config).orElse(createNewButtonMessage(config).getContent());
+            editMessageComponents = Optional.ofNullable(getCurrentMessageComponentChange(state, config).orElse(createNewButtonMessage(config).getComponentRowDefinitions()));
         } else {
             //edit the current message if the command changes it or mark it as processing
-            editMessage = getEditButtonMessage(state, config).orElse("processing ...");
+            editMessage = getCurrentMessageContentChange(state, config).orElse("processing ...");
+            editMessageComponents = getCurrentMessageComponentChange(state, config);
         }
-        actions.add(event.editMessage(editMessage));
+
+        actions.add(event.editMessage(editMessage, editMessageComponents.orElse(null)));
 
         Optional<EmbedDefinition> answer = getAnswer(state, config);
         if (answer.isPresent()) {
             BotMetrics.incrementButtonMetricCounter(getName(), config.toShortString());
-            actions.add(event.createResultMessageWithEventReference(answer.get()).then(
+
+            actions.add(event.createResultMessageWithEventReference(answer.get(), answerTargetChannelId).then(
                     event.getRequester()
                             .doOnNext(requester -> log.info("'{}'.'{}' from '{}' button: '{}'={}{} -> {} in {}ms",
                                             requester.getGuildName(),
@@ -111,8 +141,9 @@ public abstract class AbstractCommand<C extends IConfig, S extends IState> imple
                                     )
                             ).ofType(Void.class)));
         }
-        Optional<MessageDefinition> newButtonMessage = getButtonMessageWithState(state, config);
-        if (newButtonMessage.isPresent()) {
+        Optional<MessageDefinition> newButtonMessage = createNewButtonMessageWithState(state, config);
+
+        if (newButtonMessage.isPresent() && answerTargetChannelId == null) {
             Mono<Long> newMessageIdMono = event.createButtonMessage(newButtonMessage.get())
                     .map(m -> {
                         buttonMessageCache.addChannelWithButton(channelId, m, config.hashCode());
@@ -150,6 +181,13 @@ public abstract class AbstractCommand<C extends IConfig, S extends IState> imple
         Optional<CommandInteractionOption> startOption = event.getOption(ACTION_START);
         if (startOption.isPresent()) {
             CommandInteractionOption options = startOption.get();
+
+            Optional<Long> answerTargetChannelId = getAnswerTargetChannelIdFromStartCommandOption(options);
+            if (answerTargetChannelId.isPresent() && !event.isValidAnswerChannel(answerTargetChannelId.get())) {
+                log.info("Invalid answer target channel for {}", commandString);
+                return event.reply("The target channel is not a valid message channel");
+            }
+
             Optional<String> validationMessage = getStartOptionsValidationMessage(options);
             if (validationMessage.isPresent()) {
                 log.info("Validation message: {} for {}", validationMessage.get(), commandString);
@@ -161,7 +199,7 @@ public abstract class AbstractCommand<C extends IConfig, S extends IState> imple
             long channelId = event.getChannelId();
 
             return event.reply(commandString)
-                    .then(event.createButtonMessage(getButtonMessage(config))
+                    .then(event.createButtonMessage(createNewButtonMessage(config))
                             .map(m -> {
                                 buttonMessageCache.addChannelWithButton(channelId, m, config.hashCode());
                                 return m;
@@ -196,21 +234,21 @@ public abstract class AbstractCommand<C extends IConfig, S extends IState> imple
     /**
      * The text content for the old button message, after a button event. Returns null means no editing should be done.
      */
-    protected Optional<String> getEditButtonMessage(S state, C config) {
+    protected Optional<String> getCurrentMessageContentChange(S state, C config) {
         return Optional.empty();
     }
 
     /**
      * The new button message, after a button event
      */
-    protected abstract Optional<MessageDefinition> getButtonMessageWithState(S state, C config);
+    protected abstract Optional<MessageDefinition> createNewButtonMessageWithState(S state, C config);
 
     protected abstract Optional<EmbedDefinition> getAnswer(S state, C config);
 
     /**
      * The new button message, after a slash event
      */
-    protected abstract MessageDefinition getButtonMessage(C config);
+    protected abstract MessageDefinition createNewButtonMessage(C config);
 
     protected Optional<String> getStartOptionsValidationMessage(CommandInteractionOption options) {
         //standard is no validation

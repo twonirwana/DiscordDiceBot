@@ -28,4 +28,8 @@ public interface ISlashEventAdaptor extends IDiscordAdapter {
     Mono<Void> deleteMessage(long messageId);
 
     Mono<Requester> getRequester();
+
+    Mono<Void> createResultMessageWithEventReference(EmbedDefinition answer);
+
+    boolean isValidAnswerChannel(long channelId);
 }

@@ -3,12 +3,14 @@ package de.janno.discord.connector.jda;
 import com.google.common.base.Strings;
 import de.janno.discord.connector.api.IButtonEventAdaptor;
 import de.janno.discord.connector.api.Requester;
+import de.janno.discord.connector.api.message.ComponentRowDefinition;
 import de.janno.discord.connector.api.message.EmbedDefinition;
 import de.janno.discord.connector.api.message.MessageDefinition;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import reactor.core.publisher.Mono;
 
@@ -94,8 +96,25 @@ public class ButtonEventAdapter extends DiscordAdapter implements IButtonEventAd
 
 
     @Override
-    public Mono<Void> editMessage(String message) {
-        return createMonoFrom(() -> event.editMessage(message)).then()
+    public Mono<Void> editMessage(String message, List<ComponentRowDefinition> componentRowDefinitions) {
+        if (message == null && componentRowDefinitions == null) {
+            return Mono.empty();
+        }
+        if (message != null && componentRowDefinitions == null) {
+            return createMonoFrom(() -> event.editMessage(message)).then()
+                    .onErrorResume(t -> handleException("Error on edit button event", t, true));
+        }
+
+        if (message == null && componentRowDefinitions != null) {
+            return createMonoFrom(() -> event.editComponents(MessageComponentConverter.componentRowDefinition2LayoutComponent(componentRowDefinitions))).then()
+                    .onErrorResume(t -> handleException("Error on edit button event", t, true));
+        }
+
+        return createMonoFrom(() -> event.getHook()
+                .editOriginalComponents(MessageComponentConverter.componentRowDefinition2LayoutComponent(componentRowDefinitions))
+                .setContent(message))
+                .then(createMonoFrom(event::deferEdit))
+                .then()
                 .onErrorResume(t -> handleException("Error on edit button event", t, true));
 
     }
@@ -113,8 +132,13 @@ public class ButtonEventAdapter extends DiscordAdapter implements IButtonEventAd
     }
 
     @Override
-    public Mono<Void> createResultMessageWithEventReference(EmbedDefinition answer) {
-        return createEmbedMessageWithReference(event.getInteraction().getMessageChannel(),
+    public Mono<Void> createResultMessageWithEventReference(EmbedDefinition answer, Long targetChannelId) {
+
+        MessageChannel targetChannel = Optional.ofNullable(targetChannelId)
+                .flatMap(id -> Optional.ofNullable(event.getGuild())
+                        .map(g -> g.getChannelById(MessageChannel.class, targetChannelId)))
+                .orElse(event.getInteraction().getMessageChannel());
+        return createEmbedMessageWithReference(targetChannel,
                 answer, event.getInteraction().getUser(),
                 event.getInteraction().getGuild())
                 .onErrorResume(t -> handleException("Error on creating answer message", t, false).ofType(Message.class))
@@ -122,8 +146,19 @@ public class ButtonEventAdapter extends DiscordAdapter implements IButtonEventAd
     }
 
     @Override
-    public Optional<String> checkPermissions() {
-        return checkPermission(event.getMessageChannel(), event.getGuild());
+    public Optional<String> checkPermissions(Long answerTargetChannelId) {
+        Optional<String> primaryChannelPermissionCheck = checkPermission(event.getMessageChannel(), event.getGuild());
+        if (primaryChannelPermissionCheck.isPresent()) {
+            return primaryChannelPermissionCheck;
+        }
+        if (answerTargetChannelId != null) {
+            Optional<MessageChannel> answerChannel = Optional.ofNullable(event.getGuild()).map(g -> g.getChannelById(MessageChannel.class, answerTargetChannelId));
+            if (answerChannel.isEmpty()) {
+                return Optional.of("Configured answer target channel is not a valid message channel");
+            }
+            return checkPermission(answerChannel.get(), event.getGuild());
+        }
+        return Optional.empty();
     }
 
     @Override

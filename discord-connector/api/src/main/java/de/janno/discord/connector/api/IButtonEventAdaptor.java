@@ -1,10 +1,13 @@
 package de.janno.discord.connector.api;
 
+import de.janno.discord.connector.api.message.ComponentRowDefinition;
+import de.janno.discord.connector.api.message.EmbedDefinition;
 import de.janno.discord.connector.api.message.MessageDefinition;
 import lombok.NonNull;
 import lombok.Value;
 import reactor.core.publisher.Mono;
 
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,7 +25,7 @@ public interface IButtonEventAdaptor extends IDiscordAdapter {
 
     Mono<Void> acknowledge();
 
-    Mono<Void> editMessage(String message);
+    Mono<Void> editMessage(@Nullable String message, @Nullable List<ComponentRowDefinition> componentRowDefinitions);
 
     Mono<Long> createButtonMessage(MessageDefinition messageDefinition);
 
@@ -34,7 +37,9 @@ public interface IButtonEventAdaptor extends IDiscordAdapter {
 
     Mono<Requester> getRequester();
 
-    Optional<String> checkPermissions();
+    Optional<String> checkPermissions(Long answerTargetChannelId);
+
+    Mono<Void> createResultMessageWithEventReference(EmbedDefinition answer, Long targetChannelId);
 
     @Value
     class LabelAndCustomId {
