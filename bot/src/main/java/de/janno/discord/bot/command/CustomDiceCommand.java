@@ -186,7 +186,7 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceCommand.Config,
         public String toShortString() {
             return Stream.concat(labelAndExpression.stream()
                                     .map(LabelAndDiceExpression::toShortString),
-                            Stream.of(answerTargetChannelId != null))
+                            Stream.of(targetChannelToString(answerTargetChannelId)))
                     .toList()
                     .toString();
         }

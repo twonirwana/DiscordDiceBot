@@ -277,7 +277,7 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesCommand
                     String.valueOf(getTarget()),
                     getGlitchOption(),
                     String.valueOf(getMaxNumberOfButtons()),
-                    answerTargetChannelId != null
+                    targetChannelToString(answerTargetChannelId)
             ).toList().toString();
         }
     }

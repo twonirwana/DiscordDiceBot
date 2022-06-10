@@ -300,7 +300,7 @@ public class SumDiceSetCommand extends AbstractCommand<SumDiceSetCommand.Config,
 
         @Override
         public String toShortString() {
-            return String.format("[%d]", answerTargetChannelId);
+            return String.format("[%s]", targetChannelToString(answerTargetChannelId));
         }
 
     }

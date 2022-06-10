@@ -416,7 +416,7 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetCommand.Config,
                     rerollSet.stream().map(String::valueOf).collect(Collectors.joining(SUBSET_DELIMITER)),
                     botchSet.stream().map(String::valueOf).collect(Collectors.joining(SUBSET_DELIMITER)),
                     rerollVariant,
-                    answerTargetChannelId != null
+                    targetChannelToString(answerTargetChannelId)
             ).toString();
         }
     }

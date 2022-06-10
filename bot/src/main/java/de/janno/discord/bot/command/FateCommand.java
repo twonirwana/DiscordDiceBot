@@ -212,7 +212,7 @@ public class FateCommand extends AbstractCommand<FateCommand.Config, FateCommand
 
         @Override
         public String toShortString() {
-            return String.format("[%s, %s]", type, answerTargetChannelId != null);
+            return String.format("[%s, %s]", type, targetChannelToString(answerTargetChannelId));
         }
     }
 

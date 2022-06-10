@@ -356,7 +356,7 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollCommand.Config,
                     rerollSet.stream().map(String::valueOf).collect(Collectors.joining(SUBSET_DELIMITER)),
                     successSet.stream().map(String::valueOf).collect(Collectors.joining(SUBSET_DELIMITER)),
                     failureSet.stream().map(String::valueOf).collect(Collectors.joining(SUBSET_DELIMITER)),
-                    answerTargetChannelId != null
+                    targetChannelToString(answerTargetChannelId)
             ).toString();
         }
     }

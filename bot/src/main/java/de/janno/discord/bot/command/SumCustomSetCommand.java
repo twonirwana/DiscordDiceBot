@@ -321,7 +321,7 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetCommand.Con
         public String toShortString() {
             return Stream.concat(labelAndExpression.stream()
                                     .map(LabelAndDiceExpression::toShortString),
-                            Stream.of(answerTargetChannelId != null))
+                            Stream.of(targetChannelToString(answerTargetChannelId)))
                     .toList()
                     .toString();
         }
