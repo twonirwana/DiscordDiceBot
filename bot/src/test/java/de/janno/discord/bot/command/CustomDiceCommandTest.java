@@ -255,7 +255,7 @@ class CustomDiceCommandTest {
         StepVerifier.create(res).verifyComplete();
 
 
-        verify(buttonEventAdaptor).editMessage("Click on a button to roll the dice", null);
+        verify(buttonEventAdaptor).editMessage(eq("Click on a button to roll the dice"), anyList());
         verify(buttonEventAdaptor).createButtonMessage(MessageDefinition.builder()
                 .content("Click on a button to roll the dice")
                 .build());

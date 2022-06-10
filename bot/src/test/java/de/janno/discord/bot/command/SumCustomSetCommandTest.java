@@ -564,7 +564,7 @@ class SumCustomSetCommandTest {
                 .verifyComplete();
 
 
-        verify(buttonEventAdaptor).editMessage("Click the buttons to add dice to the set and then on Roll", null);
+        verify(buttonEventAdaptor).editMessage(eq("Click the buttons to add dice to the set and then on Roll"), anyList());
         verify(buttonEventAdaptor).createButtonMessage(any());
         verify(buttonEventAdaptor, never()).deleteMessage(ArgumentMatchers.anyLong());
         verify(buttonEventAdaptor).createResultMessageWithEventReference(ArgumentMatchers.eq(new EmbedDefinition("1d6 = 3",

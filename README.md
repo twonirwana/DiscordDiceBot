@@ -65,7 +65,7 @@ The bot has currently the following systems:
 
 All button configurations can be used with the `target_channel` option. If this option is used then the answer of a roll
 will be posted in the provided channel. The target channel must be a text channel and need the bot need the usual
-permissions.
+permissions. If a message sends the answer to another channel, it will not be moved to the end of its own channel.
 
 ### Custom dice buttons
 

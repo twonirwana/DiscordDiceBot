@@ -110,15 +110,17 @@ public abstract class AbstractCommand<C extends IConfig, S extends IState> imple
         Mono<Void> deleteAction = Mono.empty();
         boolean keepExistingButtonMessage = shouldKeepExistingButtonMessage(event);
         String editMessage;
-
-        if (keepExistingButtonMessage) {
-            //if the old button is pined, the old message will be edited or reset to the slash default
+        Optional<List<ComponentRowDefinition>> editMessageComponents;
+        if (keepExistingButtonMessage || answerTargetChannelId != null) {
+            //if the old button is pined or the result is copied to another channel, the old message will be edited or reset to the slash default
             editMessage = getCurrentMessageContentChange(state, config).orElse(createNewButtonMessage(config).getContent());
+            editMessageComponents = Optional.ofNullable(getCurrentMessageComponentChange(state, config).orElse(createNewButtonMessage(config).getComponentRowDefinitions()));
         } else {
             //edit the current message if the command changes it or mark it as processing
             editMessage = getCurrentMessageContentChange(state, config).orElse("processing ...");
+            editMessageComponents = getCurrentMessageComponentChange(state, config);
         }
-        Optional<List<ComponentRowDefinition>> editMessageComponents = getCurrentMessageComponentChange(state, config);
+
         actions.add(event.editMessage(editMessage, editMessageComponents.orElse(null)));
 
         Optional<EmbedDefinition> answer = getAnswer(state, config);
@@ -141,8 +143,7 @@ public abstract class AbstractCommand<C extends IConfig, S extends IState> imple
         }
         Optional<MessageDefinition> newButtonMessage = createNewButtonMessageWithState(state, config);
 
-        //todo don't create new message if the answer is in another channel
-        if (newButtonMessage.isPresent()) {
+        if (newButtonMessage.isPresent() && answerTargetChannelId == null) {
             Mono<Long> newMessageIdMono = event.createButtonMessage(newButtonMessage.get())
                     .map(m -> {
                         buttonMessageCache.addChannelWithButton(channelId, m, config.hashCode());
