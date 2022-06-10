@@ -162,7 +162,7 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceCommand.Config,
         String[] split = event.getCustomId().split(BotConstants.CONFIG_SPLIT_DELIMITER_REGEX);
         Long answerTargetChannelId = getOptionalLongFromArray(split, 2);
         return new Config(event.getAllButtonIds().stream()
-                .map(lv -> new LabelAndDiceExpression(lv.getLabel(), split[1]))
+                .map(lv -> new LabelAndDiceExpression(lv.getLabel(), lv.getCustomId().split(BotConstants.CONFIG_SPLIT_DELIMITER_REGEX)[1]))
                 .collect(Collectors.toList()), answerTargetChannelId);
     }
 
