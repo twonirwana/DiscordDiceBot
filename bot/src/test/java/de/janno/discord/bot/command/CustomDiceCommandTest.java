@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+import static de.janno.discord.bot.command.AbstractCommand.ANSWER_TARGET_CHANNEL_NAME;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
@@ -91,11 +92,81 @@ class CustomDiceCommandTest {
     }
 
     @Test
+    void getStartOptionsValidationMessage_length_withTarget_failed() {
+        Optional<String> res = underTest.getStartOptionsValidationMessage(CommandInteractionOption.builder().options(ImmutableList.of(
+                CommandInteractionOption.builder()
+                        .name(ANSWER_TARGET_CHANNEL_NAME)
+                        .channelIdValue(931533666990059521L)
+                        .build(),
+                CommandInteractionOption.builder()
+                        .name("1_button")
+                        .stringValue("1d6>3?a:abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghij@test")
+                        .build())
+        ).build());
+
+        assertThat(res).contains("The following dice expression are to long: '1d6>3?a:abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghij'. A expression must be 69 or less characters long");
+    }
+
+    @Test
+    void getStartOptionsValidationMessage_length_withTarget_success() {
+        Optional<String> res = underTest.getStartOptionsValidationMessage(CommandInteractionOption.builder().options(ImmutableList.of(
+                CommandInteractionOption.builder()
+                        .name(ANSWER_TARGET_CHANNEL_NAME)
+                        .channelIdValue(931533666990059521L)
+                        .build(),
+                CommandInteractionOption.builder()
+                        .name("1_button")
+                        .stringValue("1d6>3?a:abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghi@test")
+                        .build())
+        ).build());
+
+        assertThat(res).isEmpty();
+    }
+
+    @Test
+    void getStartOptionsValidationMessage_length_withoutTarget_failed() {
+        Optional<String> res = underTest.getStartOptionsValidationMessage(CommandInteractionOption.builder().options(ImmutableList.of(
+                CommandInteractionOption.builder()
+                        .name(ANSWER_TARGET_CHANNEL_NAME)
+                        .channelIdValue(null)
+                        .build(),
+                CommandInteractionOption.builder()
+                        .name("1_button")
+                        .stringValue("1d6>3?a:abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzab@test")
+                        .build())
+        ).build());
+
+        assertThat(res).contains("The following dice expression are to long: '1d6>3?a:abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzab'. A expression must be 87 or less characters long");
+    }
+
+    @Test
+    void getStartOptionsValidationMessage_length_withoutTarget_success() {
+        Optional<String> res = underTest.getStartOptionsValidationMessage(CommandInteractionOption.builder().options(ImmutableList.of(
+                CommandInteractionOption.builder()
+                        .name(ANSWER_TARGET_CHANNEL_NAME)
+                        .channelIdValue(null)
+                        .build(),
+                CommandInteractionOption.builder()
+                        .name("1_button")
+                        .stringValue("1d6>3?a:abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyza@test")
+                        .build())
+        ).build());
+
+        assertThat(res).isEmpty();
+    }
+
+    @Test
     void getConfigFromEvent() {
         IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
-        when(event.getAllButtonIds()).thenReturn(ImmutableList.of(new IButtonEventAdaptor.LabelAndCustomId("1d6", "custom_dice\u00001d6\u0000")));
+        when(event.getAllButtonIds()).thenReturn(ImmutableList.of(
+                new IButtonEventAdaptor.LabelAndCustomId("1d6", "custom_dice\u00001d6\u0000"),
+                new IButtonEventAdaptor.LabelAndCustomId("w8", "custom_dice\u00001d8\u0000")
+        ));
         when(event.getCustomId()).thenReturn("custom_dice\u00001d6\u0000");
-        assertThat(underTest.getConfigFromEvent(event)).isEqualTo(new CustomDiceCommand.Config(ImmutableList.of(new CustomDiceCommand.LabelAndDiceExpression("1d6", "1d6")), null));
+        assertThat(underTest.getConfigFromEvent(event)).isEqualTo(new CustomDiceCommand.Config(ImmutableList.of(
+                new CustomDiceCommand.LabelAndDiceExpression("1d6", "1d6"),
+                new CustomDiceCommand.LabelAndDiceExpression("w8", "1d8")
+        ), null));
     }
 
     @Test

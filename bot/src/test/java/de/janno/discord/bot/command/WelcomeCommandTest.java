@@ -237,7 +237,7 @@ class WelcomeCommandTest {
                 .stream()
                 .flatMap(s -> s.getButtonDefinitions().stream())
                 .map(ButtonDefinition::getLabel))
-                .containsExactly("Fate", "D&D5e", "nWoD", "oWoD", "Shadowrun","Coin Toss");
+                .containsExactly("Fate", "D&D5e", "nWoD", "oWoD", "Shadowrun","Coin Toss 🪙");
 
     }
 

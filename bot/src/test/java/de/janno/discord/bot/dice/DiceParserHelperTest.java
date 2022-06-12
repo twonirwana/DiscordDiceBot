@@ -123,11 +123,6 @@ class DiceParserHelperTest {
         underTest = new DiceParserHelper();
     }
 
-    @Test
-    void debug(){
-        assertThat(underTest.validateListOfExpressions(ImmutableList.of("2x[3d6>3<2?Success:Failure]"), "@", ",", "/custom_dice help")).isEmpty();
-    }
-
     @ParameterizedTest(name = "{index} input:{0}, label:{1} -> {2}")
     @MethodSource("generateBooleanExpressionRolls")
     void rollBooleanExpression(String diceExpression, String label, EmbedDefinition expected) {
@@ -151,9 +146,9 @@ class DiceParserHelperTest {
     @MethodSource("generateValidateData")
     void validate(List<String> optionValue, String expected) {
         if (expected == null) {
-            assertThat(underTest.validateListOfExpressions(optionValue, "@", ",", "/custom_dice help")).isEmpty();
+            assertThat(underTest.validateListOfExpressions(optionValue, "@", ",", "/custom_dice help", 87)).isEmpty();
         } else {
-            assertThat(underTest.validateListOfExpressions(optionValue, "@", ",", "/custom_dice help")).contains(expected);
+            assertThat(underTest.validateListOfExpressions(optionValue, "@", ",", "/custom_dice help", 87)).contains(expected);
         }
     }
 
@@ -186,7 +181,7 @@ class DiceParserHelperTest {
 
     @Test
     void validateDiceExpressions() {
-        assertThat(underTest.validateDiceExpression("1d4/", "test"))
+        assertThat(underTest.validateDiceExpression("1d4/", "test", 87))
                 .contains("The following dice expression are invalid: '1d4/'. Use test to get more information on how to use the command.");
     }
 
