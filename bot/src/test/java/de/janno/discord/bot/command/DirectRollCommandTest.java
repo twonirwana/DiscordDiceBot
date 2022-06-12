@@ -95,7 +95,7 @@ class DirectRollCommandTest {
         verify(slashEventAdaptor, never()).createResultMessageWithEventReference(any());
         verify(slashEventAdaptor, never()).deleteMessage(anyLong());
         verify(slashEventAdaptor).reply("/r expression:asdfasdf\n" +
-                "The following dice expression are invalid: 'asdfasdf'. Use `/r help` to get more information on how to use the command.");
+                "The following dice expression is invalid: 'asdfasdf'. Use `/r help` to get more information on how to use the command.");
 
         verify(slashEventAdaptor, never()).getChannelId();
     }

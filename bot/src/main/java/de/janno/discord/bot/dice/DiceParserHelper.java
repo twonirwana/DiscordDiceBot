@@ -164,10 +164,10 @@ public class DiceParserHelper {
 
     public Optional<String> validateDiceExpression(String expression, String helpCommand, int maxCharacters) {
         if (expression.length() > maxCharacters) {
-            return Optional.of(String.format("The following dice expression are to long: '%s'. A expression must be %d or less characters long", expression, maxCharacters));
+            return Optional.of(String.format("The following dice expression is to long: '%s'. The expression must be %d or less characters long", expression, maxCharacters));
         }
         if (!validExpression(expression)) {
-            return Optional.of(String.format("The following dice expression are invalid: '%s'. Use %s to get more information on how to use the command.", expression, helpCommand));
+            return Optional.of(String.format("The following dice expression is invalid: '%s'. Use %s to get more information on how to use the command.", expression, helpCommand));
         }
         return Optional.empty();
     }

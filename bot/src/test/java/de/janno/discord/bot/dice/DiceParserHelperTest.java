@@ -38,13 +38,13 @@ class DiceParserHelperTest {
                 Arguments.of(ImmutableList.of("2d6>4?a:b&3d10<6?c:d"), null),
                 Arguments.of(ImmutableList.of("2d6&3d10@Test"), null),
                 Arguments.of(ImmutableList.of("2d6>4?a:b&3d10<6?c:d@Test"), null),
-                Arguments.of(ImmutableList.of("2x[2d6]&1d8"), "The following dice expression are invalid: '2x[2d6]&1d8'. Use /custom_dice help to get more information on how to use the command."),
+                Arguments.of(ImmutableList.of("2x[2d6]&1d8"), "The following dice expression is invalid: '2x[2d6]&1d8'. Use /custom_dice help to get more information on how to use the command."),
                 Arguments.of(ImmutableList.of("1d6@Attack", "1d6@Parry"), "The dice expression '1d6' is not unique. Each dice expression must only once."),
                 Arguments.of(ImmutableList.of("1d6@a,b"), "The button definition '1d6@a,b' is not allowed to contain ','"),
                 Arguments.of(ImmutableList.of(" 1d6 @ Attack "), null),
-                Arguments.of(ImmutableList.of("a"), "The following dice expression are invalid: 'a'. Use /custom_dice help to get more information on how to use the command."),
+                Arguments.of(ImmutableList.of("a"), "The following dice expression is invalid: 'a'. Use /custom_dice help to get more information on how to use the command."),
                 Arguments.of(ImmutableList.of("@"), "The button definition '@' should have the diceExpression@Label"),
-                Arguments.of(ImmutableList.of("a@Attack"), "The following dice expression are invalid: 'a'. Use /custom_dice help to get more information on how to use the command."),
+                Arguments.of(ImmutableList.of("a@Attack"), "The following dice expression is invalid: 'a'. Use /custom_dice help to get more information on how to use the command."),
                 Arguments.of(ImmutableList.of("a@"), "The button definition 'a@' should have the diceExpression@Label"),
                 Arguments.of(ImmutableList.of("@Attack"), "Dice expression for '@Attack' is empty"),
                 Arguments.of(ImmutableList.of("1d6@1d6"), null),
@@ -182,7 +182,7 @@ class DiceParserHelperTest {
     @Test
     void validateDiceExpressions() {
         assertThat(underTest.validateDiceExpression("1d4/", "test", 87))
-                .contains("The following dice expression are invalid: '1d4/'. Use test to get more information on how to use the command.");
+                .contains("The following dice expression is invalid: '1d4/'. Use test to get more information on how to use the command.");
     }
 
     @Test

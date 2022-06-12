@@ -104,7 +104,7 @@ class CustomDiceCommandTest {
                         .build())
         ).build());
 
-        assertThat(res).contains("The following dice expression are to long: '1d6>3?a:abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghij'. A expression must be 69 or less characters long");
+        assertThat(res).contains("The following dice expression is to long: '1d6>3?a:abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghij'. The expression must be 69 or less characters long");
     }
 
     @Test
@@ -136,7 +136,7 @@ class CustomDiceCommandTest {
                         .build())
         ).build());
 
-        assertThat(res).contains("The following dice expression are to long: '1d6>3?a:abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzab'. A expression must be 87 or less characters long");
+        assertThat(res).contains("The following dice expression is to long: '1d6>3?a:abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzab'. The expression must be 87 or less characters long");
     }
 
     @Test
