@@ -79,10 +79,13 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceCommand.Config,
                 .flatMap(id -> options.getStringSubOptionWithName(id).stream())
                 .distinct()
                 .collect(Collectors.toList());
-        return diceParserHelper.validateListOfExpressions(diceExpressionWithOptionalLabel, LABEL_DELIMITER, BotConstants.CONFIG_DELIMITER, "/custom_dice help");
+        String answerTargetChannel = getAnswerTargetChannelIdFromStartCommandOption(options).map(Object::toString).orElse("");
+        int maxCharacter = 100 - COMMAND_NAME.length()
+                - 2 // delimiter;
+                - answerTargetChannel.length();
+        return diceParserHelper.validateListOfExpressions(diceExpressionWithOptionalLabel, LABEL_DELIMITER, BotConstants.CONFIG_DELIMITER, "/custom_dice help", maxCharacter);
     }
 
-    @Override
     protected Config getConfigFromStartOptions(CommandInteractionOption options) {
         return getConfigOptionStringList(DICE_COMMAND_OPTIONS_IDS.stream()
                 .flatMap(id -> options.getStringSubOptionWithName(id).stream())
@@ -105,7 +108,7 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceCommand.Config,
                 .filter(s -> !s.getDiceExpression().isEmpty())
                 .filter(s -> !s.getLabel().isEmpty())
                 .filter(lv -> diceParserHelper.validExpression(lv.getDiceExpression()))
-                .filter(s -> s.getDiceExpression().length() <= 80) //limit for the ids are 100 characters and we need also some characters for the type...
+                .filter(s -> createButtonCustomId(s.getDiceExpression(), channelId).length() <= 100) //limit for the ids are 100 characters and we need also some characters for the type...
                 .filter(s -> s.getLabel().length() <= 80) //https://discord.com/developers/docs/interactions/message-components#buttons
                 .distinct()
                 .limit(25)

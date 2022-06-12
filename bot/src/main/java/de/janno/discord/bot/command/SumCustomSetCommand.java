@@ -103,7 +103,11 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetCommand.Con
         if (!Strings.isNullOrEmpty(expressionWithUserNameDelimiter)) {
             return Optional.of(String.format("This command doesn't allow '%s' in the dice expression and label, the following expression are not allowed: %s", INVOKING_USER_NAME_DELIMITER, expressionWithUserNameDelimiter));
         }
-        return diceParserHelper.validateListOfExpressions(diceExpressionWithOptionalLabel, LABEL_DELIMITER, BotConstants.CONFIG_DELIMITER, "/sum_custom_set help");
+        String answerTargetChannel = getAnswerTargetChannelIdFromStartCommandOption(options).map(Object::toString).orElse("");
+        int maxCharacter = 100 - COMMAND_NAME.length()
+                - 2 // delimiter;
+                - answerTargetChannel.length();
+        return diceParserHelper.validateListOfExpressions(diceExpressionWithOptionalLabel, LABEL_DELIMITER, BotConstants.CONFIG_DELIMITER, "/sum_custom_set help", maxCharacter);
     }
 
     @Override

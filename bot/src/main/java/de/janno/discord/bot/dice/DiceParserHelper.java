@@ -162,9 +162,9 @@ public class DiceParserHelper {
         return ImmutableList.of(resultTree.getValue());
     }
 
-    public Optional<String> validateDiceExpression(String expression, String helpCommand) {
-        if (expression.length() > 80) {
-            return Optional.of(String.format("The following dice expression are to long: '%s'. A expression must be 80 or less characters long", expression));
+    public Optional<String> validateDiceExpression(String expression, String helpCommand, int maxCharacters) {
+        if (expression.length() > maxCharacters) {
+            return Optional.of(String.format("The following dice expression are to long: '%s'. A expression must be %d or less characters long", expression, maxCharacters));
         }
         if (!validExpression(expression)) {
             return Optional.of(String.format("The following dice expression are invalid: '%s'. Use %s to get more information on how to use the command.", expression, helpCommand));
@@ -172,7 +172,7 @@ public class DiceParserHelper {
         return Optional.empty();
     }
 
-    public Optional<String> validateDiceExpressionWitOptionalLabel(@NonNull String expressionWithOptionalLabel, String labelDelimiter, String helpCommand) {
+    public Optional<String> validateDiceExpressionWitOptionalLabel(@NonNull String expressionWithOptionalLabel, String labelDelimiter, String helpCommand, int maxCharacters) {
         String label;
         String diceExpression;
 
@@ -196,10 +196,10 @@ public class DiceParserHelper {
         if (diceExpression.isBlank()) {
             return Optional.of(String.format("Dice expression for '%s' is empty", expressionWithOptionalLabel));
         }
-        return validateDiceExpression(diceExpression, helpCommand);
+        return validateDiceExpression(diceExpression, helpCommand, maxCharacters);
     }
 
-    public Optional<String> validateListOfExpressions(List<String> optionValues, String labelDelimiter, String configDelimiter, String helpCommand) {
+    public Optional<String> validateListOfExpressions(List<String> optionValues, String labelDelimiter, String configDelimiter, String helpCommand, int maxCharacters) {
         if (optionValues.isEmpty()) {
             return Optional.of(String.format("You must configure at least one dice expression. Use '%s' to get more information on how to use the command.", helpCommand));
         }
@@ -207,7 +207,7 @@ public class DiceParserHelper {
             if (startOptionString.contains(configDelimiter)) {
                 return Optional.of(String.format("The button definition '%s' is not allowed to contain ','", startOptionString));
             }
-            Optional<String> diceParserValidation = validateDiceExpressionWitOptionalLabel(startOptionString, labelDelimiter, helpCommand);
+            Optional<String> diceParserValidation = validateDiceExpressionWitOptionalLabel(startOptionString, labelDelimiter, helpCommand, maxCharacters);
             if (diceParserValidation.isPresent()) {
                 return diceParserValidation;
             }
@@ -357,9 +357,9 @@ public class DiceParserHelper {
             input = removeLeadingPlus(input);
             if (isMultipleRoll(input)) {
                 if (isMultipleIdenticalRolls(input)) {
-                   singleRoll(getInnerDiceExpressionFromMultiRoll(input), null);
+                    singleRoll(getInnerDiceExpressionFromMultiRoll(input), null);
                 } else if (isMultipleDifferentRolls(input)) {
-                    splitMultipleDifferentExpressions(input).forEach( e-> singleRoll(e,null));
+                    splitMultipleDifferentExpressions(input).forEach(e -> singleRoll(e, null));
                 }
             } else if (isBooleanExpression(input)) {
                 dice.roll(getBooleanExpression(input).getExpression());

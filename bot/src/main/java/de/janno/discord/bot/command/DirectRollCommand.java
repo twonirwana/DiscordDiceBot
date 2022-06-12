@@ -76,7 +76,7 @@ public class DirectRollCommand implements ISlashCommand {
                         .build(), true);
             }
 
-            Optional<String> validationMessage = diceParserHelper.validateDiceExpressionWitOptionalLabel(commandParameter, LABEL_DELIMITER, "`/r help`");
+            Optional<String> validationMessage = diceParserHelper.validateDiceExpressionWitOptionalLabel(commandParameter, LABEL_DELIMITER, "`/r help`", Integer.MAX_VALUE);
             if (validationMessage.isPresent()) {
                 log.info("Validation message: {} for {}", validationMessage.get(), commandString);
                 return event.reply(String.format("%s\n%s", commandString, validationMessage.get()));

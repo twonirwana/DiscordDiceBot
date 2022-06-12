@@ -89,7 +89,7 @@ public class WelcomeCommand extends AbstractCommand<WelcomeCommand.Config, Welco
             );
             case COIN_BUTTON_ID -> Optional.of(
                     new CustomDiceCommand().createNewButtonMessage(new CustomDiceCommand.Config(ImmutableList.of(
-                            new CustomDiceCommand.LabelAndDiceExpression("Coin Toss", "1d2=2?Head:Tail")), null))
+                            new CustomDiceCommand.LabelAndDiceExpression("Coin Toss \uD83E\uDE99", "1d2=2?Head \uD83D\uDE00:Tail \uD83E\uDD85")), null))
             );
             default -> Optional.empty();
         };
@@ -149,7 +149,7 @@ public class WelcomeCommand extends AbstractCommand<WelcomeCommand.Config, Welco
                                                 .build(),
                                         ButtonDefinition.builder()
                                                 .id(String.join(BotConstants.CONFIG_DELIMITER, COMMAND_NAME, COIN_BUTTON_ID))
-                                                .label("Coin Toss")
+                                                .label("Coin Toss \uD83E\uDE99")
                                                 .build()
                                 )
                         )
