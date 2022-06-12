@@ -40,7 +40,7 @@ class SumCustomSetCommandTest {
             new SumCustomSetCommand.LabelAndDiceExpression("3d6", "add 3d6"),
             new SumCustomSetCommand.LabelAndDiceExpression("4", "4"),
             new SumCustomSetCommand.LabelAndDiceExpression("2d10min10", "min10")
-    ));
+    ), null);
 
     IDice diceMock;
 
@@ -95,7 +95,7 @@ class SumCustomSetCommandTest {
     }
 
     @Test
-    void getEditButtonMessage_clear() {
+    void getCurrentMessageContentChange_clear() {
         Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(new SumCustomSetCommand.State("clear", "1d6+1d6", "user1"), defaultConfig);
 
         assertThat(res).isEmpty();
@@ -108,7 +108,7 @@ class SumCustomSetCommandTest {
     }
 
     @Test
-    void getButtonMessageWithState() {
+    void createNewButtonMessageWithState() {
         String res = underTest.createNewButtonMessageWithState(new SumCustomSetCommand.State("roll", "1d6", "user1"), defaultConfig)
                 .orElseThrow().getContent();
         assertThat(res).isEqualTo("Click the buttons to add dice to the set and then on Roll");
@@ -288,7 +288,7 @@ class SumCustomSetCommandTest {
     }
 
     @Test
-    void getEditButtonMessage_1d6() {
+    void getCurrentMessageContentChange_1d6() {
         Optional<String> res = underTest.getCurrentMessageContentChange(new SumCustomSetCommand.State("+1d6", "1d6", "user1"), defaultConfig);
         assertThat(res).contains("user1∶ 1d6");
     }
@@ -310,7 +310,7 @@ class SumCustomSetCommandTest {
         assertThat(res).isEqualTo(new SumCustomSetCommand.Config(ImmutableList.of(
                 new SumCustomSetCommand.LabelAndDiceExpression("Label", "+1d6"),
                 new SumCustomSetCommand.LabelAndDiceExpression("+2d4", "+2d4")
-        )));
+        ), null));
     }
 
     @Test
@@ -359,17 +359,54 @@ class SumCustomSetCommandTest {
     void getConfigFromEvent() {
         IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
         when(event.getAllButtonIds()).thenReturn(ImmutableList.of(
+                new IButtonEventAdaptor.LabelAndCustomId("1d6", "sum_custom_set\u00001d6\u0000"),
+                new IButtonEventAdaptor.LabelAndCustomId("Label", "sum_custom_set\u0000-1d6\u0000"),
+                new IButtonEventAdaptor.LabelAndCustomId("Roll", "sum_custom_set\u0000roll\u0000"),
+                new IButtonEventAdaptor.LabelAndCustomId("Clear", "sum_custom_set\u0000clear\u0000"),
+                new IButtonEventAdaptor.LabelAndCustomId("Back", "sum_custom_set\u0000back\u0000")
+        ));
+        when(event.getCustomId()).thenReturn("sum_custom_set\u00001d6\u0000");
+        assertThat(underTest.getConfigFromEvent(event))
+                .isEqualTo(new SumCustomSetCommand.Config(ImmutableList.of(
+                        new SumCustomSetCommand.LabelAndDiceExpression("1d6", "1d6"),
+                        new SumCustomSetCommand.LabelAndDiceExpression("Label", "-1d6")
+                ), null));
+    }
+
+    @Test
+    void getConfigFromEvent_target() {
+        IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
+        when(event.getAllButtonIds()).thenReturn(ImmutableList.of(
+                new IButtonEventAdaptor.LabelAndCustomId("1d6", "sum_custom_set\u00001d6\u0000123"),
+                new IButtonEventAdaptor.LabelAndCustomId("Label", "sum_custom_set\u0000-1d6\u0000123"),
+                new IButtonEventAdaptor.LabelAndCustomId("Roll", "sum_custom_set\u0000roll\u0000123"),
+                new IButtonEventAdaptor.LabelAndCustomId("Clear", "sum_custom_set\u0000clear\u0000123"),
+                new IButtonEventAdaptor.LabelAndCustomId("Back", "sum_custom_set\u0000back\u0000123")
+        ));
+        when(event.getCustomId()).thenReturn("sum_custom_set\u00001d6\u0000123");
+        assertThat(underTest.getConfigFromEvent(event))
+                .isEqualTo(new SumCustomSetCommand.Config(ImmutableList.of(
+                        new SumCustomSetCommand.LabelAndDiceExpression("1d6", "1d6"),
+                        new SumCustomSetCommand.LabelAndDiceExpression("Label", "-1d6")
+                ), 123L));
+    }
+
+    @Test
+    void getConfigFromEvent_legacy() {
+        IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
+        when(event.getAllButtonIds()).thenReturn(ImmutableList.of(
                 new IButtonEventAdaptor.LabelAndCustomId("1d6", "sum_custom_set\u00001d6"),
                 new IButtonEventAdaptor.LabelAndCustomId("Label", "sum_custom_set\u0000-1d6"),
                 new IButtonEventAdaptor.LabelAndCustomId("Roll", "sum_custom_set\u0000roll"),
                 new IButtonEventAdaptor.LabelAndCustomId("Clear", "sum_custom_set\u0000clear"),
                 new IButtonEventAdaptor.LabelAndCustomId("Back", "sum_custom_set\u0000back")
         ));
+        when(event.getCustomId()).thenReturn("sum_custom_set\u00001d6\u0000");
         assertThat(underTest.getConfigFromEvent(event))
                 .isEqualTo(new SumCustomSetCommand.Config(ImmutableList.of(
                         new SumCustomSetCommand.LabelAndDiceExpression("1d6", "1d6"),
                         new SumCustomSetCommand.LabelAndDiceExpression("Label", "-1d6")
-                )));
+                ), null));
     }
 
 
@@ -410,7 +447,7 @@ class SumCustomSetCommandTest {
                 "19_button",
                 "20_button",
                 "21_button",
-                "22_button");
+                "target_channel");
     }
 
     @Test
@@ -427,9 +464,9 @@ class SumCustomSetCommandTest {
 
     @Test
     void createButtonCustomId() {
-        String res = underTest.createButtonCustomId("1d6");
+        String res = underTest.createButtonCustomId("1d6", new SumCustomSetCommand.Config(ImmutableList.of(), null));
 
-        assertThat(res).isEqualTo("sum_custom_set\u00001d6");
+        assertThat(res).isEqualTo("sum_custom_set\u00001d6\u0000");
     }
 
     @Test
@@ -440,13 +477,13 @@ class SumCustomSetCommandTest {
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel))
                 .containsExactly("1d6", "3d6", "4", "2d10min10", "Roll", "Clear", "Back");
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getId))
-                .containsExactly("sum_custom_set\u00001d6",
-                        "sum_custom_set\u0000add 3d6",
-                        "sum_custom_set\u00004",
-                        "sum_custom_set\u0000min10",
-                        "sum_custom_set\u0000roll",
-                        "sum_custom_set\u0000clear",
-                        "sum_custom_set\u0000back");
+                .containsExactly("sum_custom_set\u00001d6\u0000",
+                        "sum_custom_set\u0000add 3d6\u0000",
+                        "sum_custom_set\u00004\u0000",
+                        "sum_custom_set\u0000min10\u0000",
+                        "sum_custom_set\u0000roll\u0000",
+                        "sum_custom_set\u0000clear\u0000",
+                        "sum_custom_set\u0000back\u0000");
     }
 
     @Test
@@ -456,13 +493,13 @@ class SumCustomSetCommandTest {
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel))
                 .containsExactly("1d6", "3d6", "4", "2d10min10", "Roll", "Clear", "Back");
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getId))
-                .containsExactly("sum_custom_set\u00001d6",
-                        "sum_custom_set\u0000add 3d6",
-                        "sum_custom_set\u00004",
-                        "sum_custom_set\u0000min10",
-                        "sum_custom_set\u0000roll",
-                        "sum_custom_set\u0000clear",
-                        "sum_custom_set\u0000back");
+                .containsExactly("sum_custom_set\u00001d6\u0000",
+                        "sum_custom_set\u0000add 3d6\u0000",
+                        "sum_custom_set\u00004\u0000",
+                        "sum_custom_set\u0000min10\u0000",
+                        "sum_custom_set\u0000roll\u0000",
+                        "sum_custom_set\u0000clear\u0000",
+                        "sum_custom_set\u0000back\u0000");
     }
 
 
@@ -475,8 +512,8 @@ class SumCustomSetCommandTest {
         when(buttonEventAdaptor.getMessageId()).thenReturn(1L);
         when(buttonEventAdaptor.isPinned()).thenReturn(false);
         when(buttonEventAdaptor.getMessageContent()).thenReturn("1d6");
-        when(buttonEventAdaptor.editMessage(any(),any())).thenReturn(Mono.just(mock(Void.class)));
-        when(buttonEventAdaptor.createResultMessageWithEventReference(any())).thenReturn(Mono.just(mock(Void.class)));
+        when(buttonEventAdaptor.editMessage(any(), any())).thenReturn(Mono.just(mock(Void.class)));
+        when(buttonEventAdaptor.createResultMessageWithEventReference(any(), eq(null))).thenReturn(Mono.just(mock(Void.class)));
         when(buttonEventAdaptor.createButtonMessage(any())).thenReturn(Mono.just(2L));
         when(buttonEventAdaptor.deleteMessage(ArgumentMatchers.anyLong())).thenReturn(Mono.just(mock(Void.class)));
         when(buttonEventAdaptor.getRequester()).thenReturn(Mono.just(new Requester("user", "channel", "guild")));
@@ -492,12 +529,12 @@ class SumCustomSetCommandTest {
         verify(buttonEventAdaptor).createButtonMessage(any());
         verify(buttonEventAdaptor).deleteMessage(ArgumentMatchers.anyLong());
         verify(buttonEventAdaptor).createResultMessageWithEventReference(ArgumentMatchers.eq(new EmbedDefinition("1d6 = 3",
-                "[3]", ImmutableList.of())));
+                "[3]", ImmutableList.of())), eq(null));
         assertThat(underTest.getButtonMessageCache())
                 .hasSize(1)
-                .containsEntry(1L, ImmutableSet.of(new ButtonMessageCache.ButtonWithConfigHash(2L, 60)));
+                .containsEntry(1L, ImmutableSet.of(new ButtonMessageCache.ButtonWithConfigHash(2L, 6019)));
 
-        verify(buttonEventAdaptor, times(2)).getCustomId();
+        verify(buttonEventAdaptor, times(3)).getCustomId();
         verify(buttonEventAdaptor).getMessageId();
         verify(buttonEventAdaptor).getChannelId();
         verify(buttonEventAdaptor).isPinned();
@@ -515,9 +552,9 @@ class SumCustomSetCommandTest {
         when(buttonEventAdaptor.getMessageId()).thenReturn(1L);
         when(buttonEventAdaptor.isPinned()).thenReturn(true);
         when(buttonEventAdaptor.getMessageContent()).thenReturn("1d6");
-        when(buttonEventAdaptor.editMessage(any(),any())).thenReturn(Mono.just(mock(Void.class)));
+        when(buttonEventAdaptor.editMessage(any(), any())).thenReturn(Mono.just(mock(Void.class)));
         when(buttonEventAdaptor.createButtonMessage(any())).thenReturn(Mono.just(2L));
-        when(buttonEventAdaptor.createResultMessageWithEventReference(any())).thenReturn(Mono.just(mock(Void.class)));
+        when(buttonEventAdaptor.createResultMessageWithEventReference(any(), eq(null))).thenReturn(Mono.just(mock(Void.class)));
         when(buttonEventAdaptor.deleteMessage(ArgumentMatchers.anyLong())).thenReturn(Mono.just(mock(Void.class)));
         when(buttonEventAdaptor.getRequester()).thenReturn(Mono.just(new Requester("user", "channel", "guild")));
         when(buttonEventAdaptor.acknowledge()).thenReturn(Mono.just(mock(Void.class)));
@@ -527,16 +564,16 @@ class SumCustomSetCommandTest {
                 .verifyComplete();
 
 
-        verify(buttonEventAdaptor).editMessage("Click the buttons to add dice to the set and then on Roll", null);
+        verify(buttonEventAdaptor).editMessage(eq("Click the buttons to add dice to the set and then on Roll"), anyList());
         verify(buttonEventAdaptor).createButtonMessage(any());
         verify(buttonEventAdaptor, never()).deleteMessage(ArgumentMatchers.anyLong());
         verify(buttonEventAdaptor).createResultMessageWithEventReference(ArgumentMatchers.eq(new EmbedDefinition("1d6 = 3",
-                "[3]", ImmutableList.of())));
+                "[3]", ImmutableList.of())), eq(null));
         assertThat(underTest.getButtonMessageCache())
                 .hasSize(1)
-                .containsEntry(1L, ImmutableSet.of(new ButtonMessageCache.ButtonWithConfigHash(2L, 60)));
+                .containsEntry(1L, ImmutableSet.of(new ButtonMessageCache.ButtonWithConfigHash(2L, 6019)));
 
-        verify(buttonEventAdaptor, times(2)).getCustomId();
+        verify(buttonEventAdaptor, times(3)).getCustomId();
         verify(buttonEventAdaptor).getMessageId();
         verify(buttonEventAdaptor).getChannelId();
         verify(buttonEventAdaptor).isPinned();

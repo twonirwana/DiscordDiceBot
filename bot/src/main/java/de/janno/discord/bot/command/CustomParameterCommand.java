@@ -119,7 +119,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterComma
 
     @Override
     protected Config getConfigFromStartOptions(CommandInteractionOption options) {
-        String baseExpression = options.getStingSubOptionWithName(EXPRESSION_OPTION).orElse("");
+        String baseExpression = options.getStringSubOptionWithName(EXPRESSION_OPTION).orElse("");
         return new Config(baseExpression);
     }
 
@@ -132,6 +132,12 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterComma
                 .build();
     }
 
+
+    @Override
+    protected Optional<Long> getAnswerTargetChannelId(Config config) {
+        //todo
+        return Optional.empty();
+    }
 
     @Override
     protected Optional<List<ComponentRowDefinition>> getCurrentMessageComponentChange(State state, Config config) {

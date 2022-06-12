@@ -23,14 +23,11 @@ public class ApplicationCommandConverter {
     public static CommandDefinition slashCommand2CommandDefinition(Command slashCommand) {
         List<CommandDefinitionOption> optionList = new ArrayList<>();
         optionList.addAll(slashCommand.getOptions().stream()
-                .map(ApplicationCommandConverter::commandOption2CommandDefinitionOption)
-                .collect(Collectors.toList()));
+                .map(ApplicationCommandConverter::commandOption2CommandDefinitionOption).toList());
         optionList.addAll(slashCommand.getSubcommands().stream()
-                .map(ApplicationCommandConverter::subcommand2CommandDefinitionOption)
-                .collect(Collectors.toList()));
+                .map(ApplicationCommandConverter::subcommand2CommandDefinitionOption).toList());
         optionList.addAll(slashCommand.getSubcommandGroups().stream()
-                .map(ApplicationCommandConverter::subcommandGroup2CommandDefinitionOption)
-                .collect(Collectors.toList()));
+                .map(ApplicationCommandConverter::subcommandGroup2CommandDefinitionOption).toList());
         return CommandDefinition.builder()
                 .name(slashCommand.getName())
                 .description(slashCommand.getDescription())
@@ -131,6 +128,7 @@ public class ApplicationCommandConverter {
                 .booleanValue(optionMapping.getType() == OptionType.BOOLEAN ? optionMapping.getAsBoolean() : null)
                 .longValue(optionMapping.getType() == OptionType.INTEGER ? (long) optionMapping.getAsInt() : null)
                 .stringValue(optionMapping.getType() == OptionType.STRING ? optionMapping.getAsString() : null)
+                .channelIdValue(optionMapping.getType() == OptionType.CHANNEL ? optionMapping.getAsLong() : null)
                 .build();
     }
 }

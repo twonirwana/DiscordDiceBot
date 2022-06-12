@@ -7,4 +7,11 @@ public interface IConfig {
 
     String toShortString();
 
+    default String targetChannelToString(Long answerTargetChannel){
+        if(answerTargetChannel == null){
+            return "local";
+        }
+        return "target";
+    }
+
 }

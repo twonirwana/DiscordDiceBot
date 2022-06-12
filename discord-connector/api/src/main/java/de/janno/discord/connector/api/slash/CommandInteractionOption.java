@@ -19,6 +19,8 @@ public class CommandInteractionOption {
 
     Boolean booleanValue;
 
+    Long channelIdValue;
+
     @Singular
     List<CommandInteractionOption> options;
 
@@ -29,10 +31,17 @@ public class CommandInteractionOption {
                 .map(CommandInteractionOption::getLongValue);
     }
 
-    public Optional<String> getStingSubOptionWithName(@NonNull String name) {
+    public Optional<String> getStringSubOptionWithName(@NonNull String name) {
         return options.stream()
                 .filter(o -> name.equals(o.getName()))
                 .findFirst()
                 .map(CommandInteractionOption::getStringValue);
+    }
+
+    public Optional<Long> getChannelIdSubOptionWithName(@NonNull String name) {
+        return options.stream()
+                .filter(o -> name.equals(o.getName()))
+                .findFirst()
+                .map(CommandInteractionOption::getChannelIdValue);
     }
 }

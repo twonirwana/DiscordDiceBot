@@ -1,6 +1,7 @@
 package de.janno.discord.connector.api;
 
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
+import de.janno.discord.connector.api.message.EmbedDefinition;
 import de.janno.discord.connector.api.message.MessageDefinition;
 import lombok.NonNull;
 import lombok.Value;
@@ -36,7 +37,9 @@ public interface IButtonEventAdaptor extends IDiscordAdapter {
 
     Mono<Requester> getRequester();
 
-    Optional<String> checkPermissions();
+    Optional<String> checkPermissions(Long answerTargetChannelId);
+
+    Mono<Void> createResultMessageWithEventReference(EmbedDefinition answer, Long targetChannelId);
 
     @Value
     class LabelAndCustomId {

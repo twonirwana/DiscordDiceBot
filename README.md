@@ -7,7 +7,7 @@ This is dice rolling bot for Discord. The bot needs to be configured with a slas
 a message with a button selection. Upon clicking on a button the bot will post the result and move the message with the
 buttons to the bottom of the channel. If the message is pined, then it will only be copied and not moved. This allows it
 to roll dice without typing commands and thereby improves usability, especially for touchscreen users. The bot supports
-Discord threads.
+Discord thread and it is possible to send the answer in a different channel.
 
 ![](image/example.webp)
 
@@ -62,6 +62,10 @@ for further options
 The bot has currently the following systems:
 
 ## Commands
+
+All button configurations can be used with the `target_channel` option. If this option is used then the answer of a roll
+will be posted in the provided channel. The target channel must be a text channel and need the bot need the usual
+permissions. If a message sends the answer to another channel, it will not be moved to the end of its own channel.
 
 ### Custom dice buttons
 

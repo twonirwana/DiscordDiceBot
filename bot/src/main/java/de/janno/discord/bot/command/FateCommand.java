@@ -31,8 +31,8 @@ public class FateCommand extends AbstractCommand<FateCommand.Config, FateCommand
     private static final String ACTION_MODIFIER_OPTION_SIMPLE = "simple";
     private static final String ACTION_MODIFIER_OPTION_MODIFIER = "with_modifier";
     private static final String ROLL_BUTTON_ID = "roll";
-    private final DiceUtils diceUtils;
     private static final ButtonMessageCache BUTTON_MESSAGE_CACHE = new ButtonMessageCache(COMMAND_NAME);
+    private final DiceUtils diceUtils;
 
     @VisibleForTesting
     public FateCommand(DiceUtils diceUtils) {
@@ -50,11 +50,13 @@ public class FateCommand extends AbstractCommand<FateCommand.Config, FateCommand
     }
 
     @Override
+    protected Optional<Long> getAnswerTargetChannelId(Config config) {
+        return Optional.ofNullable(config.getAnswerTargetChannelId());
+    }
+    @Override
     protected @NonNull String getCommandDescription() {
         return "Configure Fate dice";
     }
-
-
     private String createButtonMessage(Config config) {
         if (ACTION_MODIFIER_OPTION_MODIFIER.equals(config.getType())) {
             return "Click a button to roll four fate dice and add the value of the button";
@@ -75,25 +77,26 @@ public class FateCommand extends AbstractCommand<FateCommand.Config, FateCommand
     @Override
     protected List<CommandDefinitionOption> getStartOptions() {
         return ImmutableList.of(CommandDefinitionOption.builder()
-                .name(ACTION_MODIFIER_OPTION)
-                .required(true)
-                .description("Show modifier buttons")
-                .type(CommandDefinitionOption.Type.STRING)
-                .choice(CommandDefinitionOptionChoice.builder()
-                        .name(ACTION_MODIFIER_OPTION_SIMPLE)
-                        .value(ACTION_MODIFIER_OPTION_SIMPLE)
-                        .build())
-                .choice(CommandDefinitionOptionChoice.builder()
-                        .name(ACTION_MODIFIER_OPTION_MODIFIER)
-                        .value(ACTION_MODIFIER_OPTION_MODIFIER)
-                        .build())
-                .build());
+                        .name(ACTION_MODIFIER_OPTION)
+                        .required(true)
+                        .description("Show modifier buttons")
+                        .type(CommandDefinitionOption.Type.STRING)
+                        .choice(CommandDefinitionOptionChoice.builder()
+                                .name(ACTION_MODIFIER_OPTION_SIMPLE)
+                                .value(ACTION_MODIFIER_OPTION_SIMPLE)
+                                .build())
+                        .choice(CommandDefinitionOptionChoice.builder()
+                                .name(ACTION_MODIFIER_OPTION_MODIFIER)
+                                .value(ACTION_MODIFIER_OPTION_MODIFIER)
+                                .build())
+                        .build(),
+                ANSWER_TARGET_CHANNEL_COMMAND_OPTION);
     }
 
     @Override
     protected Config getConfigFromStartOptions(CommandInteractionOption options) {
-        return new Config(options.getStingSubOptionWithName(ACTION_MODIFIER_OPTION)
-                .orElse(ACTION_MODIFIER_OPTION_SIMPLE));
+        return new Config(options.getStringSubOptionWithName(ACTION_MODIFIER_OPTION).orElse(ACTION_MODIFIER_OPTION_SIMPLE),
+                getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null));
     }
 
     @Override
@@ -175,7 +178,7 @@ public class FateCommand extends AbstractCommand<FateCommand.Config, FateCommand
     @Override
     protected Config getConfigFromEvent(IButtonEventAdaptor event) {
         String[] split = event.getCustomId().split(BotConstants.CONFIG_SPLIT_DELIMITER_REGEX);
-        return new Config(split[2]);
+        return new Config(split[2], getOptionalLongFromArray(split, 3));
     }
 
     @Override
@@ -195,7 +198,8 @@ public class FateCommand extends AbstractCommand<FateCommand.Config, FateCommand
         return String.join(BotConstants.CONFIG_DELIMITER,
                 COMMAND_NAME,
                 modifier,
-                config.getType());
+                config.getType(),
+                Optional.ofNullable(config.getAnswerTargetChannelId()).map(Object::toString).orElse(""));
     }
 
 
@@ -204,10 +208,11 @@ public class FateCommand extends AbstractCommand<FateCommand.Config, FateCommand
 
         @NonNull
         String type;
+        Long answerTargetChannelId;
 
         @Override
         public String toShortString() {
-            return String.format("[%s]", type);
+            return String.format("[%s, %s]", type, targetChannelToString(answerTargetChannelId));
         }
     }
 
