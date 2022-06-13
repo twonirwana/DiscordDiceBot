@@ -42,7 +42,7 @@ public abstract class AbstractCommand<C extends IConfig, S extends IState> imple
         return options.getChannelIdSubOptionWithName(ANSWER_TARGET_CHANNEL_NAME);
     }
 
-    protected Long getOptionalLongFromArray(String[] optionArray, int index) {
+    protected static Long getOptionalLongFromArray(String[] optionArray, int index) {
         if (optionArray.length >= index + 1 && !Strings.isNullOrEmpty(optionArray[index])) {
             return Long.parseLong(optionArray[index]);
         }
