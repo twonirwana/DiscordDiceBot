@@ -24,7 +24,7 @@ dependencies {
     implementation(libs.micrometer.core)
     implementation(libs.commons.lang3)
     implementation 'io.micrometer:micrometer-registry-prometheus:1.9.1'
-    implementation 'io.undertow:undertow-core:2.2.17.Final'
+    implementation 'io.undertow:undertow-core:2.2.18.Final'
 
     testImplementation(libs.junit.jupiter.api)
     testRuntimeOnly(libs.junit.jupiter.engine)
