@@ -33,7 +33,7 @@ class CustomParameterCommandTest {
         return Stream.of(
                 Arguments.of(new Config("{number}d{sides}", null), Optional.empty()),
                 Arguments.of(new Config("{number}d{sides:3<=>6}", null), Optional.empty()),
-                Arguments.of(new Config("{number}d{sides:3/4/ab}", null), Optional.of("The following dice expression is invalid: '1dab'. Use /custom_dice help to get more information on how to use the command."))
+                Arguments.of(new Config("{number}d{sides:3/4/ab}", null), Optional.of("The following dice expression is invalid: '3dab'. Use /custom_parameter help to get more information on how to use the command."))
         );
     }
 
@@ -81,7 +81,7 @@ class CustomParameterCommandTest {
     @ParameterizedTest(name = "{index} config={0} -> {1}")
     @MethodSource("generateValidationData")
     void validate(Config config, Optional<String> expectedResult) {
-        Optional<String> res = underTest.validate(config);
+        Optional<String> res = underTest.validateAllPossibleStates(config);
         assertThat(res).isEqualTo(expectedResult);
     }
 }

@@ -1,7 +1,6 @@
 package de.janno.discord.bot.command;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -55,6 +54,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterComma
         this.diceParserHelper = diceParserHelper;
     }
 
+    //todo move in state?
     protected static @Nullable String getNextParameterExpression(@NonNull String expression) {
         Matcher matcher = PARAMETER_VARIABLE_PATTERN.matcher(expression);
         if (matcher.find()) {
@@ -63,6 +63,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterComma
         return null;
     }
 
+    //todo move in state?
     protected static boolean hasMissingParameter(@NonNull String expression) {
         return PARAMETER_VARIABLE_PATTERN.matcher(expression).find();
     }
@@ -107,16 +108,16 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterComma
 
     @Override
     protected Config getConfigFromEvent(IButtonEventAdaptor event) {
-        String[] customIdSplit = event.getCustomId().split(BotConstants.CONFIG_SPLIT_DELIMITER_REGEX);
-
-        return new Config(customIdSplit);
+        return new Config(splitCustomId(event.getCustomId()));
     }
 
     @Override
     protected State getStateFromEvent(IButtonEventAdaptor event) {
-        String[] customIdSplit = event.getCustomId().split(BotConstants.CONFIG_SPLIT_DELIMITER_REGEX);
+        return new State(splitCustomId(event.getCustomId()), event.getMessageContent(), event.getInvokingGuildMemberName());
+    }
 
-        return new State(customIdSplit, event.getMessageContent(), event.getInvokingGuildMemberName());
+    private String[] splitCustomId(String customId) {
+        return customId.split(BotConstants.CONFIG_SPLIT_DELIMITER_REGEX);
     }
 
     @Override
@@ -190,52 +191,66 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterComma
     }
 
     String createButtonCustomId(@NonNull String buttonValue, @NonNull Config config, @Nullable State state) {
-        Preconditions.checkArgument(!buttonValue.contains(BotConstants.CONFIG_DELIMITER));
-
         String selectedParameterString = Optional.ofNullable(state).map(State::toIdString).orElse(BotConstants.CONFIG_DELIMITER);
-        String id = String.join(BotConstants.CONFIG_DELIMITER, COMMAND_NAME, config.toIdString(), selectedParameterString, buttonValue);
-        Preconditions.checkState(id.length() < 100 && !Strings.isNullOrEmpty(id), String.format("Invalid Id: %s", id));
-        return id;
+        return String.join(BotConstants.CONFIG_DELIMITER, COMMAND_NAME, config.toIdString(), selectedParameterString, buttonValue);
     }
 
     @Override
     protected Optional<String> getStartOptionsValidationMessage(CommandInteractionOption options) {
-        Config conf = getConfigFromStartOptions(options);
-        return validate(conf);
+        String baseExpression = options.getStringSubOptionWithName(EXPRESSION_OPTION).orElse("");
+        if (!PARAMETER_VARIABLE_PATTERN.matcher(baseExpression).find()) {
+            return Optional.of("The expression needs at least one parameter expression like '{Number of Dice}");
+        }
+        Config config = getConfigFromStartOptions(options);
+        return validateAllPossibleStates(config);
     }
 
     @VisibleForTesting
-    Optional<String> validate(Config config) {
-        String expression = config.getBaseExpression();
-        Optional<String> valdiationMessage = validateAllPossibleDiceExpression(expression);
-        return valdiationMessage;
-    }
+    Optional<String> validateAllPossibleStates(Config config) {
 
-    @VisibleForTesting
-    Optional<String> validateAllPossibleDiceExpression(String baseExpression) {
-        //todo use states
-        List<String> allPossibleExpressions = allExpressionPermutations(baseExpression);
-        for(String fullyFieldExpression : allPossibleExpressions){
-            //todo help and length
-            Optional<String> valdationMessage = diceParserHelper.validateDiceExpression(fullyFieldExpression, "/custom_dice help", 100 );
-            if(valdationMessage.isPresent()){
-                return valdationMessage;
+        List<StateWithCustomId> allPossibleStatePermutations = allPossibleStatePermutations(config);
+        for (StateWithCustomId stateWithCustomId : allPossibleStatePermutations) {
+            String customId = stateWithCustomId.getCustomId();
+            if (customId.length() > 100) {
+                return Optional.of(String.format("The following expression with parameters is to long: %s", stateWithCustomId.getState().getFilledExpression()));
+            }
+            if (stateWithCustomId.getState().getSelectedParameterValues().stream().anyMatch(s -> s.contains(BotConstants.CONFIG_DELIMITER))) {
+                return Optional.of("Parameter option contains invalid character");
+            }
+            if (stateWithCustomId.getState().getStatus() == State.Status.COMPLETE) {
+                Optional<String> valdationMessage = diceParserHelper.validateDiceExpression(stateWithCustomId.getState().getFilledExpression(), "/custom_parameter help", 100);
+                if (valdationMessage.isPresent()) {
+                    return valdationMessage;
+                }
             }
         }
         return Optional.empty();
     }
 
-    private List<String> allExpressionPermutations(String expression) {
-        List<String> out = new ArrayList<>();
-        if (hasMissingParameter(expression)) {
-            String parameterExpression = getNextParameterExpression(expression);
+    private List<StateWithCustomId> allPossibleStatePermutations(Config config) {
+        List<StateWithCustomId> out = new ArrayList<>();
+        String parameterExpression = config.getFirstParameterExpression();
+        List<String> parameterValues = getButtonValues(parameterExpression);
+        for (String parameterValue : parameterValues) {
+            String customId = createButtonCustomId(parameterValue, config, null);
+            State nextState = new State(splitCustomId(customId), "", "");
+            out.add(new StateWithCustomId(customId, nextState));
+            out.addAll(allPossibleStatePermutations(config, nextState));
+        }
+        return out;
+    }
+
+    private List<StateWithCustomId> allPossibleStatePermutations(Config config, State state) {
+        List<StateWithCustomId> out = new ArrayList<>();
+        if (hasMissingParameter(state.getFilledExpression())) {
+            String parameterExpression = getNextParameterExpression(state.getFilledExpression());
             List<String> parameterValues = getButtonValues(parameterExpression);
             for (String parameterValue : parameterValues) {
-                String filledExpression = expression.replace(parameterExpression, parameterValue);
-                out.addAll(allExpressionPermutations(filledExpression));
+                String customId = createButtonCustomId(parameterValue, config, state);
+                State nextState = new State(splitCustomId(customId), "", "");
+                out.add(new StateWithCustomId(customId, nextState));
+                out.addAll(allPossibleStatePermutations(config, nextState));
             }
-        } else {
-            out.add(expression);
         }
         return out;
     }
@@ -412,6 +427,13 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterComma
             }
             return null;
         }
+    }
 
+    @Value
+    private static class StateWithCustomId {
+        @NonNull
+        String customId;
+        @NonNull
+        State state;
     }
 }
