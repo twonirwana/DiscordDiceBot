@@ -1,7 +1,7 @@
 package de.janno.discord.bot.command;
 
 import com.google.common.collect.ImmutableList;
-import de.janno.discord.bot.command.CustomParameterCommand.Config;
+import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -31,9 +31,12 @@ class CustomParameterCommandTest {
 
     public static Stream<Arguments> generateValidationData() {
         return Stream.of(
-                Arguments.of(new Config("{number}d{sides}", null), Optional.empty()),
-                Arguments.of(new Config("{number}d{sides:3<=>6}", null), Optional.empty()),
-                Arguments.of(new Config("{number}d{sides:3/4/ab}", null), Optional.of("The following dice expression is invalid: '3dab'. Use /custom_parameter help to get more information on how to use the command."))
+                Arguments.of("{number}d{sides}", null),
+                Arguments.of("1d6", "The expression needs at least one parameter expression like '{name}"),
+                Arguments.of("{number:3<=>6}d{sides:6/10/12}", null),
+                Arguments.of("{number}{a:a/c/b/d/d}{sides:3<=>6}", "Parameter '[a, c, b, d, d]' contains duplicate parameter option but they must be unique."),
+                Arguments.of("{number}d{sides:1<=>20} + {modification:1/5/10/1000/2d6/100d1000} + 1d{last modification: 10001<=>10020}", "The following expression with parameters is 25 to long: 1d{sides:1<=>20} + {modification:1/5/10/1000/2d6/100d1000} + 1d{last modification: 10001<=>10020}"),
+                Arguments.of("{number}d{sides:3/4/ab}", "The following dice expression is invalid: '1dab'. Use /custom_parameter help to get more information on how to use the command.")
         );
     }
 
@@ -80,8 +83,16 @@ class CustomParameterCommandTest {
 
     @ParameterizedTest(name = "{index} config={0} -> {1}")
     @MethodSource("generateValidationData")
-    void validate(Config config, Optional<String> expectedResult) {
-        Optional<String> res = underTest.validateAllPossibleStates(config);
-        assertThat(res).isEqualTo(expectedResult);
+    void validate(String slashExpression, String expectedResult) {
+        Optional<String> res = underTest.getStartOptionsValidationMessage(CommandInteractionOption.builder()
+                .option(CommandInteractionOption.builder()
+                        .name("expression")
+                        .stringValue(slashExpression).build())
+                .build());
+        if (expectedResult == null) {
+            assertThat(res).isEmpty();
+        } else {
+            assertThat(res).contains(expectedResult);
+        }
     }
 }

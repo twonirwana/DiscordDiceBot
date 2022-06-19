@@ -3,6 +3,7 @@ package de.janno.discord.bot.command;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import de.janno.discord.bot.cache.ButtonMessageCache;
 import de.janno.discord.bot.dice.DiceParserHelper;
@@ -18,6 +19,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -29,7 +31,7 @@ import java.util.stream.IntStream;
 @Slf4j
 public class CustomParameterCommand extends AbstractCommand<CustomParameterCommand.Config, CustomParameterCommand.State> {
 
-    //todo config validation, imessage format, tests,  button text, button label, doc, final index variable/enum
+    //todo config validation, message format, tests, button label, doc, multi result expression
 
     private static final String COMMAND_NAME = "custom_parameter";
     private static final String EXPRESSION_OPTION = "expression";
@@ -55,12 +57,12 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterComma
     }
 
     //todo move in state?
-    protected static @Nullable String getNextParameterExpression(@NonNull String expression) {
+    protected static @NonNull String getNextParameterExpression(@NonNull String expression) {
         Matcher matcher = PARAMETER_VARIABLE_PATTERN.matcher(expression);
         if (matcher.find()) {
             return matcher.group(0);
         }
-        return null;
+        throw new IllegalStateException(String.format("Expression '%s' missing a parameter definition like {name}", expression));
     }
 
     //todo move in state?
@@ -191,15 +193,20 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterComma
     }
 
     String createButtonCustomId(@NonNull String buttonValue, @NonNull Config config, @Nullable State state) {
-        String selectedParameterString = Optional.ofNullable(state).map(State::toIdString).orElse(BotConstants.CONFIG_DELIMITER);
-        return String.join(BotConstants.CONFIG_DELIMITER, COMMAND_NAME, config.toIdString(), selectedParameterString, buttonValue);
+        Collection<CustomIdIndexWithValue> stateIdComponents = Optional.ofNullable(state).map(State::getIdComponents).orElse(ImmutableList.of(new CustomIdIndexWithValue(CustomIdIndex.SELECTED_PARAMETER, "")));
+        String[] values = new String[5];
+        values[0] = COMMAND_NAME;
+        stateIdComponents.forEach(c -> c.addToArray(values));
+        config.getIdComponents().forEach(c -> c.addToArray(values));
+        values[CustomIdIndex.BUTTON_VALUE.index] = buttonValue;
+        return String.join(BotConstants.CONFIG_DELIMITER, values);
     }
 
     @Override
     protected Optional<String> getStartOptionsValidationMessage(CommandInteractionOption options) {
         String baseExpression = options.getStringSubOptionWithName(EXPRESSION_OPTION).orElse("");
         if (!PARAMETER_VARIABLE_PATTERN.matcher(baseExpression).find()) {
-            return Optional.of("The expression needs at least one parameter expression like '{Number of Dice}");
+            return Optional.of("The expression needs at least one parameter expression like '{name}");
         }
         Config config = getConfigFromStartOptions(options);
         return validateAllPossibleStates(config);
@@ -208,47 +215,62 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterComma
     @VisibleForTesting
     Optional<String> validateAllPossibleStates(Config config) {
 
-        List<StateWithCustomId> allPossibleStatePermutations = allPossibleStatePermutations(config);
-        for (StateWithCustomId stateWithCustomId : allPossibleStatePermutations) {
-            String customId = stateWithCustomId.getCustomId();
+        List<StateWithCustomIdAndParameter> allPossibleStatePermutations = allPossibleStatePermutations(config);
+        for (StateWithCustomIdAndParameter aState : allPossibleStatePermutations) {
+            String customId = aState.getCustomId();
             if (customId.length() > 100) {
-                return Optional.of(String.format("The following expression with parameters is to long: %s", stateWithCustomId.getState().getFilledExpression()));
+                return Optional.of(String.format("The following expression with parameters is %d to long: %s", (customId.length() - 100), aState.getState().getFilledExpression()));
             }
-            if (stateWithCustomId.getState().getSelectedParameterValues().stream().anyMatch(s -> s.contains(BotConstants.CONFIG_DELIMITER))) {
-                return Optional.of("Parameter option contains invalid character");
+            if (aState.getState().getSelectedParameterValues().stream().anyMatch(s -> s.contains(BotConstants.CONFIG_DELIMITER))) {
+                return Optional.of(String.format("Parameter option contains invalid character: '%s'", BotConstants.CONFIG_DELIMITER));
             }
-            if (stateWithCustomId.getState().getStatus() == State.Status.COMPLETE) {
-                Optional<String> valdationMessage = diceParserHelper.validateDiceExpression(stateWithCustomId.getState().getFilledExpression(), "/custom_parameter help", 100);
-                if (valdationMessage.isPresent()) {
-                    return valdationMessage;
+            if (aState.getState().getSelectedParameterValues().stream().anyMatch(s -> s.contains(BotConstants.LEGACY_DELIMITER))) {
+                return Optional.of(String.format("Parameter option contains invalid character: '%s'", BotConstants.LEGACY_DELIMITER));
+            }
+            if (aState.getState().getSelectedParameterValues().stream().anyMatch(s -> s.contains(State.SELECTED_PARAMETER_DELIMITER))) {
+                return Optional.of(String.format("Parameter option contains invalid character: '%s'", State.SELECTED_PARAMETER_DELIMITER));
+            }
+            if (aState.getState().getSelectedParameterValues().stream().anyMatch(s -> s.contains("{"))) {
+                return Optional.of(String.format("Parameter option contains invalid character: '%s'", "{"));
+            }
+            if (aState.getState().getSelectedParameterValues().stream().anyMatch(s -> s.contains("}"))) {
+                return Optional.of(String.format("Parameter option contains invalid character: '%s'", "}"));
+            }
+            if (aState.getParameter().size() != ImmutableSet.copyOf(aState.getParameter()).size()) {
+                return Optional.of(String.format("Parameter '%s' contains duplicate parameter option but they must be unique.", aState.getParameter()));
+            }
+            if (aState.getState().getStatus() == State.Status.COMPLETE) {
+                Optional<String> validationMessage = diceParserHelper.validateDiceExpression(aState.getState().getFilledExpression(), "/custom_parameter help", 100);
+                if (validationMessage.isPresent()) {
+                    return validationMessage;
                 }
             }
         }
         return Optional.empty();
     }
 
-    private List<StateWithCustomId> allPossibleStatePermutations(Config config) {
-        List<StateWithCustomId> out = new ArrayList<>();
+    private List<StateWithCustomIdAndParameter> allPossibleStatePermutations(Config config) {
+        List<StateWithCustomIdAndParameter> out = new ArrayList<>();
         String parameterExpression = config.getFirstParameterExpression();
         List<String> parameterValues = getButtonValues(parameterExpression);
         for (String parameterValue : parameterValues) {
             String customId = createButtonCustomId(parameterValue, config, null);
             State nextState = new State(splitCustomId(customId), "", "");
-            out.add(new StateWithCustomId(customId, nextState));
+            out.add(new StateWithCustomIdAndParameter(customId, nextState, parameterValues));
             out.addAll(allPossibleStatePermutations(config, nextState));
         }
         return out;
     }
 
-    private List<StateWithCustomId> allPossibleStatePermutations(Config config, State state) {
-        List<StateWithCustomId> out = new ArrayList<>();
+    private List<StateWithCustomIdAndParameter> allPossibleStatePermutations(Config config, State state) {
+        List<StateWithCustomIdAndParameter> out = new ArrayList<>();
         if (hasMissingParameter(state.getFilledExpression())) {
             String parameterExpression = getNextParameterExpression(state.getFilledExpression());
             List<String> parameterValues = getButtonValues(parameterExpression);
             for (String parameterValue : parameterValues) {
                 String customId = createButtonCustomId(parameterValue, config, state);
                 State nextState = new State(splitCustomId(customId), "", "");
-                out.add(new StateWithCustomId(customId, nextState));
+                out.add(new StateWithCustomIdAndParameter(customId, nextState, parameterValues));
                 out.addAll(allPossibleStatePermutations(config, nextState));
             }
         }
@@ -256,7 +278,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterComma
     }
 
     @VisibleForTesting
-    List<String> getButtonValues(String currentParameterExpression) {
+    @NonNull List<String> getButtonValues(@NonNull String currentParameterExpression) {
         Matcher matcher = BUTTON_VALUE_PATTERN.matcher(currentParameterExpression);
         if (BUTTON_RANGE_PATTERN.matcher(currentParameterExpression).find()) {
             int min = getMinButtonFrom(currentParameterExpression);
@@ -264,7 +286,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterComma
             return IntStream.range(min, max + 1).mapToObj(String::valueOf).collect(Collectors.toList());
         } else if (matcher.find()) {
             String buttonValueExpression = matcher.group(1);
-            return Arrays.stream(buttonValueExpression.split(BUTTON_VALUE_DELIMITER)).toList();
+            return Arrays.stream(buttonValueExpression.split(BUTTON_VALUE_DELIMITER)).limit(23).toList();
         }
         return IntStream.range(1, 16).mapToObj(String::valueOf).collect(Collectors.toList());
     }
@@ -289,6 +311,20 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterComma
         return 15;
     }
 
+    private enum CustomIdIndex {
+        BASE_EXPRESSION(1),
+        ANSWER_TARGET_CHANNEL(2),
+        SELECTED_PARAMETER(3),
+        BUTTON_VALUE(4);
+
+
+        private final int index;
+
+        CustomIdIndex(int index) {
+            this.index = index;
+        }
+    }
+
     @Value
     @EqualsAndHashCode(callSuper = true)
     static class State extends CustomParameter implements IState {
@@ -309,9 +345,9 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterComma
         String lockedForUserName;
 
         public State(@NonNull String[] customIdComponents, String messageContent, String invokingUser) {
-            String baseString = customIdComponents[1];
-            String alreadySelectedParameter = customIdComponents[3];
-            String buttonValue = customIdComponents[4];
+            String baseString = customIdComponents[CustomIdIndex.BASE_EXPRESSION.index];
+            String alreadySelectedParameter = customIdComponents[CustomIdIndex.SELECTED_PARAMETER.index];
+            String buttonValue = customIdComponents[CustomIdIndex.BUTTON_VALUE.index];
 
             if (CLEAR_BUTTON_ID.equals(buttonValue)) {
                 this.selectedParameterValues = ImmutableList.of();
@@ -336,9 +372,9 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterComma
             } else {
                 this.status = Status.COMPLETE;
             }
-            this.currentParameterExpression = getNextParameterExpression(filledExpression);
+            this.currentParameterExpression = hasMissingParameter(filledExpression) ? getNextParameterExpression(filledExpression) : null;
 
-            this.currentParameterName = getParameterName(currentParameterExpression);
+            this.currentParameterName = currentParameterExpression != null ? getParameterName(currentParameterExpression) : null;
         }
 
 
@@ -349,17 +385,17 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterComma
             return null;
         }
 
-        public String toIdString() {
-            return String.join(BotConstants.CONFIG_DELIMITER, String.join(SELECTED_PARAMETER_DELIMITER, selectedParameterValues));
+        public Collection<CustomIdIndexWithValue> getIdComponents() {
+            return ImmutableList.of(
+                    new CustomIdIndexWithValue(CustomIdIndex.SELECTED_PARAMETER, String.join(SELECTED_PARAMETER_DELIMITER, selectedParameterValues))
+            );
         }
 
         private String getFilledExpression(String baseExpression, List<String> selectedParameterValues) {
             String filledExpression = baseExpression;
             for (String parameterValue : selectedParameterValues) {
                 String nextParameterName = getNextParameterExpression(filledExpression);
-                if (nextParameterName != null) {
-                    filledExpression = filledExpression.replace(nextParameterName, parameterValue);
-                }
+                filledExpression = filledExpression.replace(nextParameterName, parameterValue);
             }
             return filledExpression;
         }
@@ -394,7 +430,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterComma
         String firstParameterExpression;
 
         public Config(@NonNull String[] customIdComponents) {
-            this(customIdComponents[1], getOptionalLongFromArray(customIdComponents, 2));
+            this(customIdComponents[CustomIdIndex.BASE_EXPRESSION.index], getOptionalLongFromArray(customIdComponents, 2));
         }
 
         public Config(@NonNull String baseExpression, Long answerTargetChannelId) {
@@ -404,8 +440,11 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterComma
             this.firstParameterName = getParameterName(firstParameterExpression);
         }
 
-        public String toIdString() {
-            return String.join(BotConstants.CONFIG_DELIMITER, baseExpression, Optional.ofNullable(answerTargetChannelId).map(Objects::toString).orElse(""));
+        public Collection<CustomIdIndexWithValue> getIdComponents() {
+            return ImmutableList.of(
+                    new CustomIdIndexWithValue(CustomIdIndex.BASE_EXPRESSION, baseExpression),
+                    new CustomIdIndexWithValue(CustomIdIndex.ANSWER_TARGET_CHANNEL, Optional.ofNullable(answerTargetChannelId).map(Objects::toString).orElse(""))
+            );
         }
 
         @Override
@@ -430,10 +469,24 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterComma
     }
 
     @Value
-    private static class StateWithCustomId {
+    private static class StateWithCustomIdAndParameter {
         @NonNull
         String customId;
         @NonNull
         State state;
+        @NotNull
+        List<String> parameter;
+    }
+
+    @Value
+    private static class CustomIdIndexWithValue {
+        @NonNull
+        CustomIdIndex customIdIndex;
+        @NonNull
+        String value;
+
+        public void addToArray(String[] array) {
+            array[customIdIndex.index] = value;
+        }
     }
 }
