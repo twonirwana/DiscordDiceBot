@@ -132,8 +132,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterComma
 
     @Override
     protected Optional<List<ComponentRowDefinition>> getCurrentMessageComponentChange(State state, Config config) {
-        if (state.getStatus() == State.Status.COMPLETE ||
-                state.getStatus() == State.Status.NO_ACTION) {
+        if (state.getStatus() == State.Status.COMPLETE) {
             return Optional.empty();
         }
         return Optional.of(getButtonLayoutWithOptionalState(config, state));
@@ -198,6 +197,9 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterComma
         if (!PARAMETER_VARIABLE_PATTERN.matcher(baseExpression).find()) {
             return Optional.of("The expression needs at least one parameter expression like '{name}");
         }
+        if (baseExpression.contains(BotConstants.LEGACY_DELIMITER)) {
+            return Optional.of(String.format("Expression contains invalid character: '%s'", BotConstants.LEGACY_DELIMITER));
+        }
         Config config = getConfigFromStartOptions(options);
         return validateAllPossibleStates(config);
     }
@@ -213,9 +215,6 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterComma
             }
             if (aState.getState().getSelectedParameterValues().stream().anyMatch(s -> s.contains(BotConstants.CONFIG_DELIMITER))) {
                 return Optional.of(String.format("Parameter option contains invalid character: '%s'", BotConstants.CONFIG_DELIMITER));
-            }
-            if (aState.getState().getSelectedParameterValues().stream().anyMatch(s -> s.contains(BotConstants.LEGACY_DELIMITER))) {
-                return Optional.of(String.format("Parameter option contains invalid character: '%s'", BotConstants.LEGACY_DELIMITER));
             }
             if (aState.getState().getSelectedParameterValues().stream().anyMatch(s -> s.contains(State.SELECTED_PARAMETER_DELIMITER))) {
                 return Optional.of(String.format("Parameter option contains invalid character: '%s'", State.SELECTED_PARAMETER_DELIMITER));
@@ -343,19 +342,20 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterComma
                 this.selectedParameterValues = ImmutableList.of();
                 this.lockedForUserName = null;
             } else {
-                this.selectedParameterValues = ImmutableList.<String>builder()
-                        .addAll(Arrays.stream(alreadySelectedParameter.split(SELECTED_PARAMETER_DELIMITER))
-                                .filter(s -> !Strings.isNullOrEmpty(s))
-                                .collect(Collectors.toList()))
-                        .add(buttonValue)
-                        .build();
+                ImmutableList.Builder<String> selectedParameterBuilder =
+                        ImmutableList.<String>builder()
+                                .addAll(Arrays.stream(alreadySelectedParameter.split(SELECTED_PARAMETER_DELIMITER))
+                                        .filter(s -> !Strings.isNullOrEmpty(s))
+                                        .collect(Collectors.toList()));
                 this.lockedForUserName = Optional.ofNullable(getUserNameFromMessage(messageContent)).orElse(invokingUser);
+                if (lockedForUserName == null || lockedForUserName.equals(invokingUser)) {
+                    selectedParameterBuilder.add(buttonValue);
+                }
+                this.selectedParameterValues = selectedParameterBuilder.build();
             }
             this.filledExpression = getFilledExpression(baseString, selectedParameterValues);
 
-            if (lockedForUserName != null && !lockedForUserName.equals(invokingUser)) {
-                this.status = Status.NO_ACTION;
-            } else if (selectedParameterValues.isEmpty()) {
+            if (selectedParameterValues.isEmpty()) {
                 this.status = Status.CLEAR;
             } else if (hasMissingParameter(filledExpression)) {
                 this.status = Status.IN_SELECTION;
@@ -413,8 +413,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterComma
         enum Status {
             IN_SELECTION,
             COMPLETE,
-            CLEAR,
-            NO_ACTION
+            CLEAR
         }
     }
 

@@ -54,7 +54,7 @@ class CustomParameterCommandTest {
                 //clear
                 Arguments.of("custom_parameter\u0000{n}d{s}\u0000\u00001\u0000clear\u0000", "user1\u22361d{s}: Please select value for {s}", "user2", ImmutableList.of(), "{n}d{s}", State.Status.CLEAR, "{n}", "*{n}*", true),
                 //not action because click from other user
-                Arguments.of("custom_parameter\u0000{n}d{s}\u0000\u00001\u00002\u0000", "user1\u22361d{s}: Please select value for {s}", "user2", ImmutableList.of("1", "2"), "1d2", State.Status.NO_ACTION, null, null, false)
+                Arguments.of("custom_parameter\u0000{n}d{s}\u0000\u00001\u00002\u0000", "user1\u22361d{s}: Please select value for {s}", "user2", ImmutableList.of("1"), "1d{s}", State.Status.IN_SELECTION, "{s}", "*{s}*", true)
         );
     }
 
