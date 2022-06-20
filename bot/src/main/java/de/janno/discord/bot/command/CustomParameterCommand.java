@@ -31,14 +31,15 @@ import java.util.stream.IntStream;
 @Slf4j
 public class CustomParameterCommand extends AbstractCommand<CustomParameterCommand.Config, CustomParameterCommand.State> {
 
-    //todo tests, button label, doc, multi result expression
+    //todo tests, button label, doc
+
 
     private static final String COMMAND_NAME = "custom_parameter";
     private static final String EXPRESSION_OPTION = "expression";
     private static final ButtonMessageCache BUTTON_MESSAGE_CACHE = new ButtonMessageCache(COMMAND_NAME);
     private final static Pattern PARAMETER_VARIABLE_PATTERN = Pattern.compile("\\Q{\\E.*?\\Q}\\E");
     private static final String CLEAR_BUTTON_ID = "clear";
-    private static final String LOCKED_USER_NAME_DELIMITER = "\u2236 "; //"∶" Ratio
+    private static final String LOCKED_USER_NAME_DELIMITER = "\u2236"; //"∶" Ratio
     private static final String RANGE_DELIMITER = ":";
     private final static Pattern BUTTON_RANGE_PATTERN = Pattern.compile(RANGE_DELIMITER + "(-?\\d+)<=>(-?\\d+)");
     private final static String BUTTON_VALUE_DELIMITER = "/";
@@ -375,7 +376,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterComma
         }
 
 
-        private String getUserNameFromMessage(String messageContent) {
+        private String getUserNameFromMessage(@NonNull String messageContent) {
             if (messageContent.contains(LOCKED_USER_NAME_DELIMITER)) {
                 return messageContent.split(LOCKED_USER_NAME_DELIMITER)[0];
             }
@@ -409,7 +410,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterComma
                     .build().toString();
         }
 
-        private enum Status {
+        enum Status {
             IN_SELECTION,
             COMPLETE,
             CLEAR,

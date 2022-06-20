@@ -1,7 +1,6 @@
 package de.janno.discord.connector.api.message;
 
 import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
 import de.janno.discord.connector.api.BotConstants;
 import lombok.Builder;
 import lombok.NonNull;
@@ -20,8 +19,6 @@ public class ButtonDefinition {
     ButtonDefinition.Style style;
 
     ButtonDefinition(@NonNull String label, @NonNull String id, Style style) {
-        Preconditions.checkArgument(!Strings.isNullOrEmpty(id), "ID must no be empty or null", id);
-        Preconditions.checkArgument(!Strings.isNullOrEmpty(label), "Label must no be empty or null", id);
         Preconditions.checkArgument(label.length() <= 80, String.format("Label '%s' is to long", label));
         Preconditions.checkArgument(id.length() <= 100, String.format("ID '%s' is to long", id));
         Preconditions.checkArgument(!id.contains(BotConstants.LEGACY_DELIMITER), String.format("ID '%s' contains illegal character '%s'", id, BotConstants.LEGACY_DELIMITER));
