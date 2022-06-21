@@ -176,11 +176,30 @@ Please let me know if another system is needed.
 ![](image/sum_custom_set.webp)
 
 Use the slash command `/sum_custom_set start 1_button:1d6 2_button:1d20 3_button:1 4_button:-1` to create a message with
-custom to create a die set. The buttons can be created with the dice notation, see the section **Dice Expression
+a custom dice set. The buttons can be created with the dice notation, see the section **Dice Expression
 Notation** . The user can click on a dice notation to add it to the set, even multiple times. The first user that clicks
 on a button add his name to the message and only this user can add, remove or roll dice. Every user can still use the
 `Clear` button. Clicking on the `Roll` button will roll the dice the message and copy a clear button message to the
 end. `Back` will undo the last addition and `Clear` reset all.
+
+### Custom Parameter
+
+![](image/custom_parameter.webp)
+
+Use for example the slash command `/custom_parameter expression:{numberOfDice:1<=>10}d{sides:4/6/8/10/12/20/100}` to
+create a message with
+a dice expression, where the user can fill the parameter with buttons. For the dice expression see the section **Dice
+Expression
+Notation**. The parameter have the format `{name}`. If there is no range given, then button for the values 1-15 are
+presented. There are two parameter range notations:
+
+* `{numberOfDice:1<=>10}`: Provides the buttons for the given range (including). The maximum are 23 buttons.
+* `{sides:4/6/8/10/12/20/100}`: Provides each value, seperated be a slash up to 23 buttons.
+
+The user can click on the buttons to fill all open parameter of the expression. If all parameter are selected then the
+expression will be rolled. The first user that clicks
+on a button add his name to the message and only this user can select further parameter. Every user can still use the
+`Clear` button.
 
 ## Dice Expression Notation
 

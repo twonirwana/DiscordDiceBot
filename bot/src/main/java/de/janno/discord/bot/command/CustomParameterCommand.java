@@ -32,7 +32,7 @@ import java.util.stream.IntStream;
 @Slf4j
 public class CustomParameterCommand extends AbstractCommand<CustomParameterCommand.Config, CustomParameterCommand.State> {
 
-    //todo tests, doc, button label, pagination for buttons
+    //todo button label, pagination for buttons
 
 
     private static final String COMMAND_NAME = "custom_parameter";
