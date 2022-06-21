@@ -31,7 +31,7 @@ import java.util.stream.IntStream;
 @Slf4j
 public class CustomParameterCommand extends AbstractCommand<CustomParameterCommand.Config, CustomParameterCommand.State> {
 
-    //todo tests, button label, doc
+    //todo tests, doc, button label, pagination for buttons
 
 
     private static final String COMMAND_NAME = "custom_parameter";
@@ -60,13 +60,13 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterComma
 
     @Override
     protected @NonNull String getCommandDescription() {
-        return "Fill the parameter of a given dice expression and roll it when all parameter are provided";
+        return "Fill custom parameter of a given dice expression and roll it when all parameter are provided";
     }
 
     @Override
     protected EmbedDefinition getHelpMessage() {
         return EmbedDefinition.builder()
-                .description("Use '/custom_parameter start' and provide a dice expression with parameter variables with the format {parameter_name}")
+                .description("Use '/custom_parameter start' and provide a dice expression with parameter variables with the format {parameter_name}. \n" + DiceParserHelper.HELP)
                 .build();
     }
 
@@ -90,7 +90,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterComma
 
     @Override
     protected Optional<EmbedDefinition> getAnswer(State state, Config config) {
-        if (state.getStatus() == State.Status.COMPLETE) {
+        if (!state.hasMissingParameter()) {
             return Optional.of(diceParserHelper.roll(state.getFilledExpression(), null));
         }
         return Optional.empty();
@@ -132,7 +132,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterComma
 
     @Override
     protected Optional<List<ComponentRowDefinition>> getCurrentMessageComponentChange(State state, Config config) {
-        if (state.getStatus() == State.Status.COMPLETE) {
+        if (!state.hasMissingParameter()) {
             return Optional.empty();
         }
         return Optional.of(getButtonLayoutWithOptionalState(config, state));
@@ -140,7 +140,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterComma
 
     @Override
     protected Optional<String> getCurrentMessageContentChange(State state, Config config) {
-        if (state.getStatus() == State.Status.COMPLETE) {
+        if (!state.hasMissingParameter()) {
             return Optional.empty();
         }
         String cleanName = Optional.ofNullable(state.getLockedForUserName()).map(n -> String.format("%s%s", n, LOCKED_USER_NAME_DELIMITER)).orElse("");
@@ -149,7 +149,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterComma
 
     @Override
     protected Optional<MessageDefinition> createNewButtonMessageWithState(State state, Config config) {
-        if (state.getStatus() == State.Status.COMPLETE) {
+        if (!state.hasMissingParameter()) {
             return Optional.of(MessageDefinition.builder()
                     .content(String.format("%s: Please select value for %s", config.baseExpressionWithoutRange(), config.getFirstParameterName()))
                     .componentRowDefinitions(getButtonLayoutWithOptionalState(config, null))
@@ -228,7 +228,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterComma
             if (aState.getParameter().size() != ImmutableSet.copyOf(aState.getParameter()).size()) {
                 return Optional.of(String.format("Parameter '%s' contains duplicate parameter option but they must be unique.", aState.getParameter()));
             }
-            if (aState.getState().getStatus() == State.Status.COMPLETE) {
+            if (!aState.getState().hasMissingParameter()) {
                 Optional<String> validationMessage = diceParserHelper.validateDiceExpression(aState.getState().getFilledExpression(), "/custom_parameter help", 100);
                 if (validationMessage.isPresent()) {
                     return validationMessage;
@@ -323,9 +323,6 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterComma
         @NonNull
         @EqualsAndHashCode.Exclude
         String filledExpression;
-        @NonNull
-        @EqualsAndHashCode.Exclude
-        Status status;
         @EqualsAndHashCode.Exclude
         String currentParameterExpression; //null if expression is complete
         @EqualsAndHashCode.Exclude
@@ -355,13 +352,6 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterComma
             }
             this.filledExpression = getFilledExpression(baseString, selectedParameterValues);
 
-            if (selectedParameterValues.isEmpty()) {
-                this.status = Status.CLEAR;
-            } else if (hasMissingParameter(filledExpression)) {
-                this.status = Status.IN_SELECTION;
-            } else {
-                this.status = Status.COMPLETE;
-            }
             this.currentParameterExpression = hasMissingParameter(filledExpression) ? getNextParameterExpression(filledExpression) : null;
 
             this.currentParameterName = currentParameterExpression != null ? cleanupExpressionForDisplay(currentParameterExpression) : null;
@@ -411,8 +401,6 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterComma
         }
 
         enum Status {
-            IN_SELECTION,
-            COMPLETE,
             CLEAR
         }
     }

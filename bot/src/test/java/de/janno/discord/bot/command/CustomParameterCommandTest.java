@@ -2,7 +2,10 @@ package de.janno.discord.bot.command;
 
 import com.google.common.collect.ImmutableList;
 import de.janno.discord.bot.command.CustomParameterCommand.State;
+import de.janno.discord.connector.api.BotConstants;
 import de.janno.discord.connector.api.IButtonEventAdaptor;
+import de.janno.discord.connector.api.message.EmbedDefinition;
+import de.janno.discord.connector.api.slash.CommandDefinitionOption;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -15,12 +18,16 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+import static de.janno.discord.bot.command.CustomParameterCommand.Config;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 class CustomParameterCommandTest {
 
+    private static final String FIRST_SELECT_CUSTOM_ID = "custom_parameter\u0000{n}d{s}\u0000\u0000\u00001\u0000";
+    private static final String LAST_SELECT_CUSTOM_ID = "custom_parameter\u0000{n}d{s}\u0000\u00001\u00002\u0000";
+    private static final String CLEAR_CUSTOM_ID = "custom_parameter\u0000{n}d{s}\u0000\u00001\u0000clear\u0000";
     CustomParameterCommand underTest;
 
     private static Stream<Arguments> generateParameterExpression2ButtonValuesData() {
@@ -48,13 +55,13 @@ class CustomParameterCommandTest {
     private static Stream<Arguments> getStateFromEvent() {
         return Stream.of(
                 //first select
-                Arguments.of("custom_parameter\u0000{n}d{s}\u0000\u0000\u00001\u0000", "{n}d{s}: Please select value for {n}", "user1", ImmutableList.of("1"), "1d{s}", State.Status.IN_SELECTION, "{s}", "*{s}*", true),
+                Arguments.of(FIRST_SELECT_CUSTOM_ID, "{n}d{s}: Please select value for {n}", "user1", ImmutableList.of("1"), "1d{s}", "{s}", "*{s}*", true),
                 //last select
-                Arguments.of("custom_parameter\u0000{n}d{s}\u0000\u00001\u00002\u0000", "user1\u22361d{s}: Please select value for {s}", "user1", ImmutableList.of("1", "2"), "1d2", State.Status.COMPLETE, null, null, false),
+                Arguments.of(LAST_SELECT_CUSTOM_ID, "user1\u22361d{s}: Please select value for {s}", "user1", ImmutableList.of("1", "2"), "1d2", null, null, false),
                 //clear
-                Arguments.of("custom_parameter\u0000{n}d{s}\u0000\u00001\u0000clear\u0000", "user1\u22361d{s}: Please select value for {s}", "user2", ImmutableList.of(), "{n}d{s}", State.Status.CLEAR, "{n}", "*{n}*", true),
+                Arguments.of(CLEAR_CUSTOM_ID, "user1\u22361d{s}: Please select value for {s}", "user2", ImmutableList.of(), "{n}d{s}", "{n}", "*{n}*", true),
                 //not action because click from other user
-                Arguments.of("custom_parameter\u0000{n}d{s}\u0000\u00001\u00002\u0000", "user1\u22361d{s}: Please select value for {s}", "user2", ImmutableList.of("1"), "1d{s}", State.Status.IN_SELECTION, "{s}", "*{s}*", true)
+                Arguments.of(LAST_SELECT_CUSTOM_ID, "user1\u22361d{s}: Please select value for {s}", "user2", ImmutableList.of("1"), "1d{s}", "{s}", "*{s}*", true)
         );
     }
 
@@ -128,7 +135,7 @@ class CustomParameterCommandTest {
     @MethodSource("getStateFromEvent")
     void getStateFromEvent(String customButtonId, String messageContent, String invokingUser,
                            //expected
-                           List<String> selectedParameterValues, String filledExpression, State.Status status, String currentParameterExpression, String currentParameterName, boolean hasMissingParameter) {
+                           List<String> selectedParameterValues, String filledExpression, String currentParameterExpression, String currentParameterName, boolean hasMissingParameter) {
         IButtonEventAdaptor buttonEventAdaptor = mock(IButtonEventAdaptor.class);
         when(buttonEventAdaptor.getCustomId()).thenReturn(customButtonId);
         when(buttonEventAdaptor.getMessageContent()).thenReturn(messageContent);
@@ -136,9 +143,34 @@ class CustomParameterCommandTest {
         State res = underTest.getStateFromEvent(buttonEventAdaptor);
         assertThat(res.getSelectedParameterValues()).isEqualTo(selectedParameterValues);
         assertThat(res.getFilledExpression()).isEqualTo(filledExpression);
-        assertThat(res.getStatus()).isEqualTo(status);
         assertThat(res.getCurrentParameterExpression()).isEqualTo(currentParameterExpression);
         assertThat(res.getCurrentParameterName()).isEqualTo(currentParameterName);
         assertThat(res.hasMissingParameter()).isEqualTo(hasMissingParameter);
     }
+
+    @Test
+    void getStartOptions() {
+        List<CommandDefinitionOption> res = underTest.getStartOptions();
+
+        assertThat(res.stream().map(CommandDefinitionOption::getName)).containsExactly("expression", "target_channel");
+    }
+
+    @Test
+    void getAnswer_complete() {
+        Optional<EmbedDefinition> res = underTest.getAnswer(new State(LAST_SELECT_CUSTOM_ID.split(BotConstants.CONFIG_SPLIT_DELIMITER_REGEX),
+                "", ""), new Config(LAST_SELECT_CUSTOM_ID.split(BotConstants.CONFIG_SPLIT_DELIMITER_REGEX)));
+
+        assertThat(res).isPresent();
+        assertThat(res.map(EmbedDefinition::getTitle).orElseThrow()).startsWith("1d2 = ");
+    }
+
+    @Test
+    void getAnswer_notComplete() {
+        Optional<EmbedDefinition> res = underTest.getAnswer(new State(FIRST_SELECT_CUSTOM_ID.split(BotConstants.CONFIG_SPLIT_DELIMITER_REGEX),
+                "", ""), new Config(FIRST_SELECT_CUSTOM_ID.split(BotConstants.CONFIG_SPLIT_DELIMITER_REGEX)));
+
+        assertThat(res).isEmpty();
+    }
+
+
 }
