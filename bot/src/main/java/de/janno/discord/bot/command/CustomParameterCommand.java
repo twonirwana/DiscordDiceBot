@@ -19,6 +19,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -197,33 +198,38 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterComma
         if (!PARAMETER_VARIABLE_PATTERN.matcher(baseExpression).find()) {
             return Optional.of("The expression needs at least one parameter expression like '{name}");
         }
+        if (Pattern.compile("(\\Q{\\E(?)\\Q{\\E(?)(.*)(?)\\Q}\\E(?)\\Q}\\E)").matcher(baseExpression).find()) {
+            return Optional.of("Nested brackets are not allowed");
+        }
+        if (StringUtils.countMatches(baseExpression, "{") != StringUtils.countMatches(baseExpression, "}")) {
+            return Optional.of("All brackets must be closed");
+        }
+        if (baseExpression.contains("{}")) {
+            return Optional.of("A parameter expression must not be empty");
+        }
         if (baseExpression.contains(BotConstants.LEGACY_DELIMITER)) {
             return Optional.of(String.format("Expression contains invalid character: '%s'", BotConstants.LEGACY_DELIMITER));
         }
+        if (baseExpression.contains(BotConstants.CONFIG_DELIMITER)) {
+            return Optional.of(String.format("Expression contains invalid character: '%s'", BotConstants.CONFIG_DELIMITER));
+        }
+        if (baseExpression.contains(State.SELECTED_PARAMETER_DELIMITER)) {
+            return Optional.of(String.format("Expression contains invalid character: '%s'", State.SELECTED_PARAMETER_DELIMITER));
+        }
         Config config = getConfigFromStartOptions(options);
+        if (getButtonValues(config.getFirstParameterExpression()).isEmpty()) {
+            return Optional.of(String.format("The expression '%s' contains no valid parameter options", config.getFirstParameterExpression()));
+        }
         return validateAllPossibleStates(config);
     }
 
-    @VisibleForTesting
-    Optional<String> validateAllPossibleStates(Config config) {
+    private Optional<String> validateAllPossibleStates(Config config) {
 
         List<StateWithCustomIdAndParameter> allPossibleStatePermutations = allPossibleStatePermutations(config);
         for (StateWithCustomIdAndParameter aState : allPossibleStatePermutations) {
             String customId = aState.getCustomId();
             if (customId.length() > 100) {
                 return Optional.of(String.format("The following expression with parameters is %d to long: %s", (customId.length() - 100), aState.getState().getFilledExpression()));
-            }
-            if (aState.getState().getSelectedParameterValues().stream().anyMatch(s -> s.contains(BotConstants.CONFIG_DELIMITER))) {
-                return Optional.of(String.format("Parameter option contains invalid character: '%s'", BotConstants.CONFIG_DELIMITER));
-            }
-            if (aState.getState().getSelectedParameterValues().stream().anyMatch(s -> s.contains(State.SELECTED_PARAMETER_DELIMITER))) {
-                return Optional.of(String.format("Parameter option contains invalid character: '%s'", State.SELECTED_PARAMETER_DELIMITER));
-            }
-            if (aState.getState().getSelectedParameterValues().stream().anyMatch(s -> s.contains("{"))) {
-                return Optional.of(String.format("Parameter option contains invalid character: '%s'", "{"));
-            }
-            if (aState.getState().getSelectedParameterValues().stream().anyMatch(s -> s.contains("}"))) {
-                return Optional.of(String.format("Parameter option contains invalid character: '%s'", "}"));
             }
             if (aState.getParameter().size() != ImmutableSet.copyOf(aState.getParameter()).size()) {
                 return Optional.of(String.format("Parameter '%s' contains duplicate parameter option but they must be unique.", aState.getParameter()));
@@ -233,6 +239,9 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterComma
                 if (validationMessage.isPresent()) {
                     return validationMessage;
                 }
+            }
+            if (aState.getState().hasMissingParameter() && getButtonValues(aState.getState().getCurrentParameterExpression()).isEmpty()) {
+                return Optional.of(String.format("The expression '%s' contains no valid parameter options", aState.getState().getCurrentParameterExpression()));
             }
         }
         return Optional.empty();
@@ -398,10 +407,6 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterComma
                     .addAll(selectedParameterValues)
                     .add(Optional.ofNullable(lockedForUserName).orElse(""))
                     .build().toString();
-        }
-
-        enum Status {
-            CLEAR
         }
     }
 
