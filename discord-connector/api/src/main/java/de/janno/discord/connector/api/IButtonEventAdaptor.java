@@ -25,7 +25,7 @@ public interface IButtonEventAdaptor extends IDiscordAdapter {
 
     Mono<Void> acknowledge();
 
-    Mono<Void> editMessage(@Nullable String message, @Nullable List<ComponentRowDefinition> componentRowDefinitions);
+    Mono<Void> editMessage(@Nullable String message,@Nullable List<ComponentRowDefinition> componentRowDefinitions);
 
     Mono<Long> createButtonMessage(MessageDefinition messageDefinition);
 
