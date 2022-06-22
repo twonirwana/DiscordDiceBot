@@ -23,71 +23,74 @@ public class DiceParserHelper {
     public static final String HELP =
             """
                     ```
-                          Name     |   Syntax  |  Example \s
+                          Name     |   Syntax  |  Example
                     ---------------------------------------
-                    Single Die     |'d'        |'d6'      \s
+                    Single Die     |'d'        |'d6'
                     ---------------------------------------
-                    Multiple Dice  |'d'        |'3d20'    \s
+                    Multiple Dice  |'d'        |'3d20'
                     ---------------------------------------
-                    Keep Dice      |'dk'       |'3d6k2'   \s
+                    Keep Dice      |'dk'       |'3d6k2'
                     ---------------------------------------
-                    Keep Low Dice  |'dl'       |'3d6l2'   \s
+                    Keep Low Dice  |'dl'       |'3d6l2'
                     ---------------------------------------
-                    Multiply Die   |'dX'       |'d10X'    \s
+                    Multiply Die   |'dX'       |'d10X'
                      --------------------------------------
-                    Multiply Dice  |'dX'       |'2d10X'   \s
+                    Multiply Dice  |'dX'       |'2d10X'
                     ---------------------------------------
-                    Fudge Dice     |'dF'       |'dF'      \s
+                    Fudge Dice     |'dF'       |'dF'
                     ---------------------------------------
-                    Multiple Fudge |'dF'       |'3dF'     \s
-                     Dice          |           |          \s
+                    Multiple Fudge |'dF'       |'3dF'
+                     Dice          |           |
                      --------------------------------------
-                    Weighted Fudge |'dF.'      |'dF.1'    \s
-                     Die           |           |          \s
+                    Weighted Fudge |'dF.'      |'dF.1'
+                     Die           |           |
                      --------------------------------------
-                    Weighted       |'dF.'      |'2dF.1'   \s
-                     Fudge Dice    |           |          \s
+                    Weighted       |'dF.'      |'2dF.1'
+                     Fudge Dice    |           |
                     ---------------------------------------
-                    Exploding Dice |'d!'       |'4d6!'    \s
+                    Exploding Dice |'d!'       |'4d6!'
                     ---------------------------------------
-                    Exploding Dice |'d!>'      |'3d6!>5'  \s
-                     (Target)      |           |          \s
+                    Exploding Dice |'d!>'      |'3d6!>5'
+                     (Target)      |           |
                     ---------------------------------------
-                    Compounding    |'d!!'      |'3d6!!'   \s
-                     Dice          |           |          \s
+                    Exploding Add  |'d^'       |'3d6^'
+                     Dice          |           |
                     ---------------------------------------
-                    Compounding    |'d!!>'     |'3d6!!>5' \s
-                     Dice (Target) |           |          \s
+                    Compounding    |'d!!'      |'3d6!!'
+                     Dice          |           |
                     ---------------------------------------
-                    Target Pool    |'d[>,<,=]' |'3d6=6'   \s
-                     Dice          |           |          \s
+                    Compounding    |'d!!>'     |'3d6!!>5'
+                     Dice (Target) |           |
+                    ---------------------------------------
+                    Target Pool    |'d[>,<,=]' |'3d6=6'
+                     Dice          |           |
                     ---------------------------------------
                     Target Pool    |'()[>,<,=]'|'(4d8-2)>6'
-                    Dice Expression|           |          \s
+                    Dice Expression|           |
                     ---------------------------------------
-                    Multiple Rolls |'x[]'      |`3x[3d6]` \s
-                     (identical)   |           |          \s
+                    Multiple Rolls |'x[]'      |`3x[3d6]`
+                     (identical)   |           |
                     ---------------------------------------
-                    Multiple Rolls |'x1&x2'    |`1d6&2d10`\s
-                     (different)   |           |          \s
+                    Multiple Rolls |'x1&x2'    |`1d6&2d10`
+                     (different)   |           |
                     ---------------------------------------
                     Result Label   |'x>y?a:b'  |`1d2=2?A:B`
                     ---------------------------------------
-                    Request Label  |'x@l'      |`1d20@Att'\s
+                    Request Label  |'x@l'      |`1d20@Att'
                     ---------------------------------------
-                    Integer        |''         |'42'      \s
+                    Integer        |''         |'42'
                     ---------------------------------------
-                    Add            |' + '      |'2d6 + 2' \s
+                    Add            |' + '      |'2d6 + 2'
                     ---------------------------------------
-                    Subtract       |' - '      |'2 - 1'   \s
+                    Subtract       |' - '      |'2 - 1'
                     ---------------------------------------
-                    Multiply       |' * '      |'1d4*2d6' \s
+                    Multiply       |' * '      |'1d4*2d6'
                     ---------------------------------------
-                    Divide         |' / '      |'4 / 2'   \s
+                    Divide         |' / '      |'4 / 2'
                     ---------------------------------------
-                    Negative       |'-'        |'-1d6'    \s
+                    Negative       |'-'        |'-1d6'
                     ---------------------------------------
-                    Order          |'asc, desc'|'10d10asc'\s
+                    Order          |'asc, desc'|'10d10asc'
                     ---------------------------------------
                     Min/Max        |'min, max' |'2d6min3d4'
                     ```
