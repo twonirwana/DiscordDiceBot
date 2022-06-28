@@ -20,7 +20,7 @@ public class MessageComponentConverter {
     public static Message messageComponent2MessageLayout(String content, List<ComponentRowDefinition> rows) {
         LayoutComponent[] layoutComponents = componentRowDefinition2LayoutComponent(rows);
         return new DataMessage(false, content, null, null, null, new String[0], new String[0],
-                layoutComponents
+                layoutComponents, null
         );
     }
 

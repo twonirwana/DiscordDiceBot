@@ -35,11 +35,6 @@ public class SlashCommandRegistry {
     public static class Builder {
         private final List<ISlashCommand> slashCommands = new ArrayList<>();
 
-        public Builder addSlashCommand(ISlashCommand slashCommand) {
-            this.slashCommands.add(slashCommand);
-            return this;
-        }
-
         public Builder addSlashCommands(Collection<ISlashCommand> slashCommands) {
             this.slashCommands.addAll(slashCommands);
             return this;
@@ -54,7 +49,7 @@ public class SlashCommandRegistry {
                         .collect(Collectors.toMap(ISlashCommand::getName, Function.identity()));
 
                 //get already existing commands
-                Map<String, Command> currentlyRegisteredCommands = jda.retrieveCommands().submit().join().stream()
+                Map<String, Command> currentlyRegisteredCommands = jda.retrieveCommands().complete().stream()
                         .collect(Collectors.toMap(Command::getName, Function.identity()));
                 log.info("Existing Commands: {}", String.join(", ", currentlyRegisteredCommands.keySet()));
                 //delete old commands

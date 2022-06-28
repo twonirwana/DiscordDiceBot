@@ -7,6 +7,7 @@ import io.micrometer.core.instrument.Timer;
 import io.micrometer.core.instrument.binder.okhttp3.OkHttpConnectionPoolMetrics;
 import io.micrometer.core.instrument.binder.okhttp3.OkHttpMetricsEventListener;
 import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.JDA;
 import okhttp3.EventListener;
 import okhttp3.OkHttpClient;
@@ -16,6 +17,7 @@ import java.util.Set;
 
 import static io.micrometer.core.instrument.Metrics.globalRegistry;
 
+@Slf4j
 public class JdaMetrics {
 
     private static final String METRIC_PREFIX = "dice.";
@@ -38,7 +40,10 @@ public class JdaMetrics {
     }
 
     public static void startRestLatencyGauge(JDA discordApi) {
-        Gauge.builder(METRIC_PREFIX + "restLatency", () -> discordApi.getRestPing().complete())
+        Gauge.builder(METRIC_PREFIX + "restLatency", () -> discordApi.getRestPing().onErrorMap(t -> {
+                    log.warn("Error while getting rest ping: " + t.getMessage());
+                    return -1L;
+                }).complete())
                 .register(Metrics.globalRegistry);
     }
 

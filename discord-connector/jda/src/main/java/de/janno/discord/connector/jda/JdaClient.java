@@ -19,7 +19,6 @@ import net.dv8tion.jda.api.events.guild.GuildReadyEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import net.dv8tion.jda.internal.utils.IOUtil;
 import okhttp3.OkHttpClient;
 import reactor.core.publisher.Flux;
@@ -57,8 +56,7 @@ public class JdaClient {
 
         JdaMetrics.registerHttpClient(okHttpClient);
 
-        JDA jda = JDABuilder.createDefault(token, Collections.emptyList())
-                .disableCache(CacheFlag.VOICE_STATE, CacheFlag.EMOTE)
+        JDA jda = JDABuilder.createLight(token, Collections.emptyList())
                 .setHttpClient(okHttpClient)
                 .addEventListeners(
                         new ListenerAdapter() {
@@ -109,6 +107,7 @@ public class JdaClient {
                 )
                 .setActivity(Activity.listening("Type /help"))
                 .build();
+
         SlashCommandRegistry slashCommandRegistry = SlashCommandRegistry.builder()
                 .addSlashCommands(commands)
                 .registerSlashCommands(jda, disableCommandUpdate);
@@ -168,7 +167,5 @@ public class JdaClient {
         JdaMetrics.startTextChannelCacheGauge(jda);
         JdaMetrics.startGuildCacheGauge(jda);
         JdaMetrics.startRestLatencyGauge(jda);
-
-
     }
 }
