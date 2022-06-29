@@ -42,6 +42,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterComma
     private static final String CLEAR_BUTTON_ID = "clear";
     private static final String LOCKED_USER_NAME_DELIMITER = "\u2236"; //"∶" Ratio
     private static final String RANGE_DELIMITER = ":";
+    private static final String LABEL_DELIMITER = "@";
     private final static Pattern BUTTON_RANGE_PATTERN = Pattern.compile(RANGE_DELIMITER + "(-?\\d+)<=>(-?\\d+)");
     private final static String BUTTON_VALUE_DELIMITER = "/";
     private final static Pattern BUTTON_VALUE_PATTERN = Pattern.compile(RANGE_DELIMITER + "(.+" + BUTTON_VALUE_DELIMITER + ".+)}");
@@ -92,7 +93,9 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterComma
     @Override
     protected Optional<EmbedDefinition> getAnswer(State state, Config config) {
         if (!state.hasMissingParameter()) {
-            return Optional.of(diceParserHelper.roll(state.getFilledExpression(), null));
+            String expression = DiceParserHelper.getExpressionFromExpressionWithOptionalLabel(state.getFilledExpression(), LABEL_DELIMITER);
+            String label = DiceParserHelper.getLabelFromExpressionWithOptionalLabel(state.getFilledExpression(), LABEL_DELIMITER).orElse(null);
+            return Optional.of(diceParserHelper.roll(expression, label));
         }
         return Optional.empty();
     }
@@ -235,7 +238,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterComma
                 return Optional.of(String.format("Parameter '%s' contains duplicate parameter option but they must be unique.", aState.getParameter()));
             }
             if (!aState.getState().hasMissingParameter()) {
-                Optional<String> validationMessage = diceParserHelper.validateDiceExpression(aState.getState().getFilledExpression(), "/custom_parameter help", 100);
+                Optional<String> validationMessage = diceParserHelper.validateDiceExpressionWitOptionalLabel(aState.getState().getFilledExpression(), "@", "/custom_parameter help", 100);
                 if (validationMessage.isPresent()) {
                     return validationMessage;
                 }

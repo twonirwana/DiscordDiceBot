@@ -81,17 +81,9 @@ public class DirectRollCommand implements ISlashCommand {
                 log.info("Validation message: {} for {}", validationMessage.get(), commandString);
                 return event.reply(String.format("%s\n%s", commandString, validationMessage.get()));
             }
-            String label;
-            String diceExpression;
 
-            if (commandParameter.contains(LABEL_DELIMITER)) {
-                String[] split = commandParameter.split(LABEL_DELIMITER);
-                label = split[1].trim();
-                diceExpression = split[0].trim();
-            } else {
-                label = null;
-                diceExpression = commandParameter;
-            }
+            String diceExpression = DiceParserHelper.getExpressionFromExpressionWithOptionalLabel(commandParameter, LABEL_DELIMITER);
+            String label = DiceParserHelper.getLabelFromExpressionWithOptionalLabel(commandParameter, LABEL_DELIMITER).orElse(null);
             BotMetrics.incrementSlashStartMetricCounter(getName(), diceExpression);
 
             EmbedDefinition answer = diceParserHelper.roll(diceExpression, label);

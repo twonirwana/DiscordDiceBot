@@ -165,6 +165,22 @@ public class DiceParserHelper {
         return ImmutableList.of(resultTree.getValue());
     }
 
+    public static @NonNull String getExpressionFromExpressionWithOptionalLabel(String expressionWithOptionalLabel, String labelDelimiter) {
+        if (expressionWithOptionalLabel.contains(labelDelimiter)) {
+            int firstDelimiter = expressionWithOptionalLabel.indexOf(labelDelimiter);
+            return expressionWithOptionalLabel.substring(0, firstDelimiter);
+        }
+        return expressionWithOptionalLabel;
+    }
+
+    public static Optional<String> getLabelFromExpressionWithOptionalLabel(String expressionWithOptionalLabel, String labelDelimiter) {
+        if (expressionWithOptionalLabel.contains(labelDelimiter)) {
+            int firstDelimiter = expressionWithOptionalLabel.indexOf(labelDelimiter);
+            return Optional.of(expressionWithOptionalLabel.substring(firstDelimiter + labelDelimiter.length()));
+        }
+        return Optional.empty();
+    }
+
     public Optional<String> validateDiceExpression(String expression, String helpCommand, int maxCharacters) {
         if (expression.length() > maxCharacters) {
             return Optional.of(String.format("The following dice expression is to long: '%s'. The expression must be %d or less characters long", expression, maxCharacters));

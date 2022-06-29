@@ -31,6 +31,7 @@ class CustomParameterCommandTest {
     private static final String FIRST_SELECT_CUSTOM_ID = "custom_parameter\u0000{n}d{s}\u0000\u0000\u00001\u0000";
     private static final String LAST_SELECT_CUSTOM_ID = "custom_parameter\u0000{n}d{s}\u0000\u00001\u00002\u0000";
     private static final String LAST_SELECT_WITH_TARGET_CUSTOM_ID = "custom_parameter\u0000{n}d{s}\u00001234\u00001\u00002\u0000";
+    private static final String LAST_SELECT_WITH_LABEL_CUSTOM_ID = "custom_parameter\u0000{n}d{s}@{label:Att/Par/Dam}\u0000\u00001\t2\u0000Att\u0000";
     private static final String CLEAR_CUSTOM_ID = "custom_parameter\u0000{n}d{s}\u0000\u00001\u0000clear\u0000";
     CustomParameterCommand underTest;
 
@@ -48,6 +49,7 @@ class CustomParameterCommandTest {
     public static Stream<Arguments> generateValidationData() {
         return Stream.of(
                 Arguments.of("{number}d{sides}", null),
+                Arguments.of("{number}d{sides}@{label:attack/damage}", null),
                 Arguments.of("{number}d{{sides}}", "Nested brackets are not allowed"),
                 Arguments.of("{number}d{{{sides}}}", "Nested brackets are not allowed"),
                 Arguments.of("{number}d{sid{es}", "All brackets must be closed"),
@@ -183,6 +185,16 @@ class CustomParameterCommandTest {
 
         assertThat(res).isPresent();
         assertThat(res.map(EmbedDefinition::getTitle).orElseThrow()).startsWith("1d2 = ");
+    }
+
+    @Test
+    void getAnswer_completeAndLabel() {
+        String[] split = splitCustomId(LAST_SELECT_WITH_LABEL_CUSTOM_ID);
+        Optional<EmbedDefinition> res = underTest.getAnswer(new State(split,
+                "", ""), new Config(split));
+
+        assertThat(res).isPresent();
+        assertThat(res.map(EmbedDefinition::getTitle).orElseThrow()).startsWith("Att: 1d2 = ");
     }
 
     @Test
