@@ -71,7 +71,7 @@ permissions. If a message sends the answer to another channel, it will not be mo
 
 ![](image/custom_dice.webp)
 
-Use the slash command: `custom_dice start` and add up to 25 custom buttons, each with its own dice expression (see the
+Use the slash command: `custom_dice start` and add up to 24 custom buttons, each with its own dice expression (see the
 section **Dice Expression Notation**). For example `/custom_dice start 1_button:3d6 2_button:10d10 3_button:3d20`.
 
 Clicking on a button provides the results of the button dice and result of the expression (default it is the sum of all
@@ -163,7 +163,8 @@ rerolled and the new results added to total results.
 The system has the following parameter:
 
 - `sides`: The sides of the dice, e.g. 10 for a pool that uses d10.
-- `max_dice`: The max number of dice in the pool, limited to 25 and default is 15
+- `max_dice`: The max number of dice in the pool, limited to 
+and default is 15
 - `reroll_set`: The number on the dice that can be rerolled. Multiple numbers can be given comma seperated.
 - `botch_set`: The number on the dice that remove successes. Multiple numbers can be given comma seperated.
 - `reroll_variant`: The default option `always` will always reroll all dice results in the reroll set. The option `ask`
