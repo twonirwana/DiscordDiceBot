@@ -12,7 +12,7 @@ dependencyResolutionManagement {
             library('reactor-core', 'io.projectreactor:reactor-core:3.4.21')
             library('guava', 'com.google.guava:guava:31.1-jre')
             library('junit-jupiter-api', 'org.junit.jupiter:junit-jupiter-api:5.8.2')
-            library('junit-jupiter-engine', 'org.junit.jupiter:junit-jupiter-engine:5.8.2')
+            library('junit-jupiter-engine', 'org.junit.jupiter:junit-jupiter-engine:5.9.0')
             library('assertj-core', 'org.assertj:assertj-core:3.23.1')
             library('logback-classic', 'ch.qos.logback:logback-classic:1.2.11')
             library('log4j-to-slf4j', 'org.apache.logging.log4j:log4j-to-slf4j:2.18.0')
