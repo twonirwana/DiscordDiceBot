@@ -236,16 +236,16 @@ class CustomParameterCommandTest {
 
     @Test
     void getAnswerTargetChannelId_local() {
-        Optional<Long> res = underTest.getAnswerTargetChannelId(new CustomParameterConfig(splitCustomId(LAST_SELECT_CUSTOM_ID)));
+        Long res = new CustomParameterConfig(splitCustomId(LAST_SELECT_CUSTOM_ID)).getAnswerTargetChannelId();
 
-        assertThat(res).isEmpty();
+        assertThat(res).isNull();
     }
 
     @Test
     void getAnswerTargetChannelId_target() {
-        Optional<Long> res = underTest.getAnswerTargetChannelId(new CustomParameterConfig(splitCustomId(LAST_SELECT_WITH_TARGET_CUSTOM_ID)));
+        Long res = new CustomParameterConfig(splitCustomId(LAST_SELECT_WITH_TARGET_CUSTOM_ID)).getAnswerTargetChannelId();
 
-        assertThat(res).contains(1234L);
+        assertThat(res).isEqualTo(1234L);
     }
 
     @Test

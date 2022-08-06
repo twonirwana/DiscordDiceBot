@@ -168,7 +168,7 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTar
         Set<Integer> botchSet = CommandUtils.toSet(customIdSplit[BOTCH_SET_INDEX], SUBSET_DELIMITER, EMPTY);
         String rerollVariant = customIdSplit[REROLL_VARIANT_INDEX];
         Long answerTargetChannelId = getOptionalLongFromArray(customIdSplit, ANSWER_TARGET_CHANNEL_INDEX);
-        return new PoolTargetConfig(sideOfDie, maxNumberOfButtons, rerollSet, botchSet, rerollVariant, answerTargetChannelId);
+        return new PoolTargetConfig(answerTargetChannelId, sideOfDie, maxNumberOfButtons, rerollSet, botchSet, rerollVariant);
     }
 
     @Override
@@ -221,7 +221,7 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTar
                 .findFirst()
                 .orElse(ALWAYS_REROLL);
         Long answerTargetChannelId = getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null);
-        return new PoolTargetConfig(sideValue, maxButton, rerollSet, botchSet, rerollVariant, answerTargetChannelId);
+        return new PoolTargetConfig(answerTargetChannelId, sideValue, maxButton, rerollSet, botchSet, rerollVariant);
     }
 
 
@@ -371,11 +371,6 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTar
         }
         PoolTargetConfig conf = getConfigFromStartOptions(options);
         return validate(conf);
-    }
-
-    @Override
-    protected Optional<Long> getAnswerTargetChannelId(PoolTargetConfig config) {
-        return Optional.ofNullable(config.getAnswerTargetChannelId());
     }
 
     @VisibleForTesting

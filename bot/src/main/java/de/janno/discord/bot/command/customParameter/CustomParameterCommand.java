@@ -128,11 +128,6 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     }
 
     @Override
-    protected Optional<Long> getAnswerTargetChannelId(CustomParameterConfig config) {
-        return Optional.ofNullable(config.getAnswerTargetChannelId());
-    }
-
-    @Override
     protected Optional<List<ComponentRowDefinition>> getCurrentMessageComponentChange(CustomParameterState state, CustomParameterConfig config) {
         if (!state.hasMissingParameter()) {
             return Optional.empty();
@@ -185,8 +180,8 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
 
     String createButtonCustomId(@NonNull String buttonValue, @NonNull CustomParameterConfig config, @Nullable CustomParameterState state) {
         Collection<CustomIdIndexWithValue> stateIdComponents = Optional.ofNullable(state)
-                        .map(CustomParameterState::getIdComponents)
-                        .orElse(ImmutableList.of(new CustomIdIndexWithValue(CustomIdIndex.SELECTED_PARAMETER, "")));
+                .map(CustomParameterState::getIdComponents)
+                .orElse(ImmutableList.of(new CustomIdIndexWithValue(CustomIdIndex.SELECTED_PARAMETER, "")));
         String[] values = new String[5];
         values[0] = COMMAND_NAME;
         stateIdComponents.forEach(c -> c.addToArray(values));

@@ -160,7 +160,7 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollConfig, HoldRer
         Set<Integer> successSet = CommandUtils.toSet(customIdSplit[5], SUBSET_DELIMITER, EMPTY);
         Set<Integer> failureSet = CommandUtils.toSet(customIdSplit[6], SUBSET_DELIMITER, EMPTY);
         Long answerTargetChannelId = getOptionalLongFromArray(customIdSplit, 8);
-        return new HoldRerollConfig(sideOfDie, rerollSet, successSet, failureSet, answerTargetChannelId);
+        return new HoldRerollConfig(answerTargetChannelId, sideOfDie, rerollSet, successSet, failureSet);
     }
 
 
@@ -215,7 +215,7 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollConfig, HoldRer
         Set<Integer> rerollSet = CommandUtils.getSetFromCommandOptions(options, REROLL_SET_ID, ",");
         Set<Integer> successSet = CommandUtils.getSetFromCommandOptions(options, SUCCESS_SET_ID, ",");
         Set<Integer> failureSet = CommandUtils.getSetFromCommandOptions(options, FAILURE_SET_ID, ",");
-        return new HoldRerollConfig(sideValue, rerollSet, successSet, failureSet, getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null));
+        return new HoldRerollConfig(getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null), sideValue, rerollSet, successSet, failureSet);
     }
 
     @Override
@@ -314,11 +314,6 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollConfig, HoldRer
     protected Optional<String> getStartOptionsValidationMessage(CommandInteractionOption options) {
         HoldRerollConfig conf = getConfigFromStartOptions(options);
         return validate(conf);
-    }
-
-    @Override
-    protected Optional<Long> getAnswerTargetChannelId(HoldRerollConfig config) {
-        return Optional.ofNullable(config.getAnswerTargetChannelId());
     }
 
     @VisibleForTesting

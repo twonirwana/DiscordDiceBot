@@ -20,13 +20,12 @@ import de.janno.discord.connector.api.message.EmbedDefinition;
 import de.janno.discord.connector.api.message.MessageDefinition;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import lombok.NonNull;
-import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Optional;
 
 @Slf4j
-public class WelcomeCommand extends AbstractCommand<WelcomeCommand.Config, State> {
+public class WelcomeCommand extends AbstractCommand<Config, State> {
 
     private static final String COMMAND_NAME = "welcome";
     private static final String FATE_BUTTON_ID = "fate";
@@ -38,11 +37,6 @@ public class WelcomeCommand extends AbstractCommand<WelcomeCommand.Config, State
 
     public WelcomeCommand() {
         super(new ButtonMessageCache(COMMAND_NAME));
-    }
-
-    @Override
-    protected Optional<Long> getAnswerTargetChannelId(Config config) {
-        return Optional.empty();
     }
 
     @Override
@@ -65,10 +59,10 @@ public class WelcomeCommand extends AbstractCommand<WelcomeCommand.Config, State
         BotMetrics.incrementButtonMetricCounter(COMMAND_NAME, state.toShortString());
         return switch (state.getButtonValue()) {
             case FATE_BUTTON_ID -> Optional.of(
-                    new FateCommand().createNewButtonMessage(new FateConfig("with_modifier", null))
+                    new FateCommand().createNewButtonMessage(new FateConfig(null, "with_modifier"))
             );
             case DND5_BUTTON_ID -> Optional.of(
-                    new CustomDiceCommand().createNewButtonMessage(new CustomDiceConfig(ImmutableList.of(
+                    new CustomDiceCommand().createNewButtonMessage(new CustomDiceConfig(null, ImmutableList.of(
                             new CustomDiceConfig.LabelAndDiceExpression("D4", "1d4"),
                             new CustomDiceConfig.LabelAndDiceExpression("D6", "1d6"),
                             new CustomDiceConfig.LabelAndDiceExpression("D8", "1d8"),
@@ -84,20 +78,20 @@ public class WelcomeCommand extends AbstractCommand<WelcomeCommand.Config, State
                             new CustomDiceConfig.LabelAndDiceExpression("2D10", "2d10"),
                             new CustomDiceConfig.LabelAndDiceExpression("2D12", "2d12"),
                             new CustomDiceConfig.LabelAndDiceExpression("2D20", "2d20")
-                    ), null))
+                    )))
             );
             case NWOD_BUTTON_ID -> Optional.of(
-                    new CountSuccessesCommand().createNewButtonMessage(new CountSuccessesConfig(10, 8, "no_glitch", 15, null))
+                    new CountSuccessesCommand().createNewButtonMessage(new CountSuccessesConfig(null, 10, 8, "no_glitch", 15))
             );
             case OWOD_BUTTON_ID -> Optional.of(
-                    new PoolTargetCommand().createNewButtonMessage(new PoolTargetConfig(10, 15, ImmutableSet.of(10), ImmutableSet.of(1), "ask", null))
+                    new PoolTargetCommand().createNewButtonMessage(new PoolTargetConfig(null, 10, 15, ImmutableSet.of(10), ImmutableSet.of(1), "ask"))
             );
             case SHADOWRUN_BUTTON_ID -> Optional.of(
-                    new CountSuccessesCommand().createNewButtonMessage(new CountSuccessesConfig(6, 5, "glitch:half_dice_one", 20, null))
+                    new CountSuccessesCommand().createNewButtonMessage(new CountSuccessesConfig(null, 6, 5, "glitch:half_dice_one", 20))
             );
             case COIN_BUTTON_ID -> Optional.of(
-                    new CustomDiceCommand().createNewButtonMessage(new CustomDiceConfig(ImmutableList.of(
-                            new CustomDiceConfig.LabelAndDiceExpression("Coin Toss \uD83E\uDE99", "1d2=2?Head \uD83D\uDE00:Tail \uD83E\uDD85")), null))
+                    new CustomDiceCommand().createNewButtonMessage(new CustomDiceConfig(null, ImmutableList.of(
+                            new CustomDiceConfig.LabelAndDiceExpression("Coin Toss \uD83E\uDE99", "1d2=2?Head \uD83D\uDE00:Tail \uD83E\uDD85"))))
             );
             default -> Optional.empty();
         };
@@ -109,7 +103,7 @@ public class WelcomeCommand extends AbstractCommand<WelcomeCommand.Config, State
     }
 
     @Override
-    protected Optional<EmbedDefinition> getAnswer(State state, WelcomeCommand.Config config) {
+    protected Optional<EmbedDefinition> getAnswer(State state, Config config) {
         return Optional.empty();
     }
 
@@ -166,13 +160,13 @@ public class WelcomeCommand extends AbstractCommand<WelcomeCommand.Config, State
     }
 
     @Override
-    protected WelcomeCommand.Config getConfigFromStartOptions(CommandInteractionOption options) {
-        return new Config();
+    protected Config getConfigFromStartOptions(CommandInteractionOption options) {
+        return new Config(null);
     }
 
     @Override
-    protected WelcomeCommand.Config getConfigFromEvent(IButtonEventAdaptor event) {
-        return new Config();
+    protected Config getConfigFromEvent(IButtonEventAdaptor event) {
+        return new Config(null);
     }
 
     @Override
@@ -180,13 +174,4 @@ public class WelcomeCommand extends AbstractCommand<WelcomeCommand.Config, State
         String buttonId = event.getCustomId().split(BotConstants.CONFIG_SPLIT_DELIMITER_REGEX)[1];
         return new State(buttonId);
     }
-
-    @Value
-    public static class Config implements IConfig {
-        @Override
-        public String toShortString() {
-            return "";
-        }
-    }
-
 }

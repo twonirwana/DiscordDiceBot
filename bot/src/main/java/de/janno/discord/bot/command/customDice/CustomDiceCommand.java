@@ -46,11 +46,6 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, State> 
     }
 
     @Override
-    protected Optional<Long> getAnswerTargetChannelId(CustomDiceConfig config) {
-        return Optional.ofNullable(config.getAnswerTargetChannelId());
-    }
-
-    @Override
     protected @NonNull String getCommandDescription() {
         return "Configure a custom set of dice buttons";
     }
@@ -96,7 +91,7 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, State> 
 
     @VisibleForTesting
     CustomDiceConfig getConfigOptionStringList(List<String> startOptions, Long channelId) {
-        return new CustomDiceConfig(startOptions.stream()
+        return new CustomDiceConfig(channelId, startOptions.stream()
                 .filter(s -> !s.contains(BotConstants.CONFIG_DELIMITER))
                 .filter(s -> !s.contains(LABEL_DELIMITER) || s.split(LABEL_DELIMITER).length == 2)
                 .map(s -> {
@@ -113,7 +108,7 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, State> 
                 .filter(s -> s.getLabel().length() <= 80) //https://discord.com/developers/docs/interactions/message-components#buttons
                 .distinct()
                 .limit(25)
-                .collect(Collectors.toList()), channelId);
+                .collect(Collectors.toList()));
     }
 
     @Override
@@ -165,9 +160,9 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, State> 
     protected CustomDiceConfig getConfigFromEvent(IButtonEventAdaptor event) {
         String[] split = event.getCustomId().split(BotConstants.CONFIG_SPLIT_DELIMITER_REGEX);
         Long answerTargetChannelId = getOptionalLongFromArray(split, 2);
-        return new CustomDiceConfig(event.getAllButtonIds().stream()
+        return new CustomDiceConfig(answerTargetChannelId, event.getAllButtonIds().stream()
                 .map(lv -> new CustomDiceConfig.LabelAndDiceExpression(lv.getLabel(), lv.getCustomId().split(BotConstants.CONFIG_SPLIT_DELIMITER_REGEX)[1]))
-                .collect(Collectors.toList()), answerTargetChannelId);
+                .collect(Collectors.toList()));
     }
 
     @Override

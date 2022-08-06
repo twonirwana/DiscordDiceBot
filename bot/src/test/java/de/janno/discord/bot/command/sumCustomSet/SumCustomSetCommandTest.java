@@ -35,12 +35,12 @@ import static org.mockito.Mockito.*;
 
 class SumCustomSetCommandTest {
     SumCustomSetCommand underTest;
-    SumCustomSetConfig defaultConfig = new SumCustomSetConfig(ImmutableList.of(
+    SumCustomSetConfig defaultConfig = new SumCustomSetConfig(null, ImmutableList.of(
             new LabelAndDiceExpression("1d6", "1d6"),
             new LabelAndDiceExpression("3d6", "add 3d6"),
             new LabelAndDiceExpression("4", "4"),
             new LabelAndDiceExpression("2d10min10", "min10")
-    ), null);
+    ));
 
     IDice diceMock;
 
@@ -307,10 +307,10 @@ class SumCustomSetCommandTest {
                         .build())
                 .build();
         SumCustomSetConfig res = underTest.getConfigFromStartOptions(option);
-        assertThat(res).isEqualTo(new SumCustomSetConfig(ImmutableList.of(
+        assertThat(res).isEqualTo(new SumCustomSetConfig(null, ImmutableList.of(
                 new LabelAndDiceExpression("Label", "+1d6"),
                 new LabelAndDiceExpression("+2d4", "+2d4")
-        ), null));
+        )));
     }
 
     @Test
@@ -367,10 +367,10 @@ class SumCustomSetCommandTest {
         ));
         when(event.getCustomId()).thenReturn("sum_custom_set\u00001d6\u0000");
         assertThat(underTest.getConfigFromEvent(event))
-                .isEqualTo(new SumCustomSetConfig(ImmutableList.of(
+                .isEqualTo(new SumCustomSetConfig(null, ImmutableList.of(
                         new LabelAndDiceExpression("1d6", "1d6"),
                         new LabelAndDiceExpression("Label", "-1d6")
-                ), null));
+                )));
     }
 
     @Test
@@ -385,10 +385,10 @@ class SumCustomSetCommandTest {
         ));
         when(event.getCustomId()).thenReturn("sum_custom_set\u00001d6\u0000123");
         assertThat(underTest.getConfigFromEvent(event))
-                .isEqualTo(new SumCustomSetConfig(ImmutableList.of(
+                .isEqualTo(new SumCustomSetConfig(123L, ImmutableList.of(
                         new LabelAndDiceExpression("1d6", "1d6"),
                         new LabelAndDiceExpression("Label", "-1d6")
-                ), 123L));
+                )));
     }
 
     @Test
@@ -403,10 +403,10 @@ class SumCustomSetCommandTest {
         ));
         when(event.getCustomId()).thenReturn("sum_custom_set\u00001d6\u0000");
         assertThat(underTest.getConfigFromEvent(event))
-                .isEqualTo(new SumCustomSetConfig(ImmutableList.of(
+                .isEqualTo(new SumCustomSetConfig(null, ImmutableList.of(
                         new LabelAndDiceExpression("1d6", "1d6"),
                         new LabelAndDiceExpression("Label", "-1d6")
-                ), null));
+                )));
     }
 
 
@@ -464,7 +464,7 @@ class SumCustomSetCommandTest {
 
     @Test
     void createButtonCustomId() {
-        String res = underTest.createButtonCustomId("1d6", new SumCustomSetConfig(ImmutableList.of(), null));
+        String res = underTest.createButtonCustomId("1d6", new SumCustomSetConfig(null, ImmutableList.of()));
 
         assertThat(res).isEqualTo("sum_custom_set\u00001d6\u0000");
     }

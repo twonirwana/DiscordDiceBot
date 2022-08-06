@@ -12,9 +12,4 @@ public class FateState extends State {
     public Integer getModifier() {
         return Integer.parseInt(getButtonValue());
     }
-
-    @Override
-    public String toShortString() {
-        return String.format("[%s]", getButtonValue());
-    }
 }

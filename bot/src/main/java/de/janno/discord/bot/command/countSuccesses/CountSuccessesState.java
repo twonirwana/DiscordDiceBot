@@ -14,9 +14,4 @@ public class CountSuccessesState extends State {
     public int getNumberOfDice() {
         return Integer.parseInt(getButtonValue());
     }
-
-    @Override
-    public String toShortString() {
-        return String.format("[%s]", getButtonValue());
-    }
 }

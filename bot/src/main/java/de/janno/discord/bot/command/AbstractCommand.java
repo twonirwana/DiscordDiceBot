@@ -22,7 +22,7 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
-public abstract class AbstractCommand<C extends IConfig, S extends State> implements ISlashCommand, IComponentInteractEventHandler {
+public abstract class AbstractCommand<C extends Config, S extends State> implements ISlashCommand, IComponentInteractEventHandler {
 
     protected static final String ACTION_START = "start";
     protected static final String ACTION_HELP = "help";
@@ -59,8 +59,6 @@ public abstract class AbstractCommand<C extends IConfig, S extends State> implem
         return buttonMessageCache.getCacheContent();
     }
 
-    protected abstract Optional<Long> getAnswerTargetChannelId(C config);
-
     @Override
     public CommandDefinition getCommandDefinition() {
         return CommandDefinition.builder()
@@ -90,7 +88,7 @@ public abstract class AbstractCommand<C extends IConfig, S extends State> implem
         Stopwatch stopwatch = Stopwatch.createStarted();
 
         C config = getConfigFromEvent(event);
-        Long answerTargetChannelId = getAnswerTargetChannelId(config).orElse(null);
+        Long answerTargetChannelId = config.getAnswerTargetChannelId();
         Optional<String> checkPermissions = event.checkPermissions(answerTargetChannelId);
         if (checkPermissions.isPresent()) {
             return event.editMessage(checkPermissions.get(), null);

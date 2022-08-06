@@ -69,12 +69,7 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesConfig,
         String glitchOption = split.length < 5 ? GLITCH_NO_OPTION : split[4];
         int maxNumberOfButtons = split.length < 6 ? 15 : Integer.parseInt(split[5]);
         Long answerTargetChannelId = getOptionalLongFromArray(split, 6);
-        return new CountSuccessesConfig(sideOfDie, target, glitchOption, maxNumberOfButtons, answerTargetChannelId);
-    }
-
-    @Override
-    protected Optional<Long> getAnswerTargetChannelId(CountSuccessesConfig config) {
-        return Optional.ofNullable(config.getAnswerTargetChannelId());
+        return new CountSuccessesConfig(answerTargetChannelId, sideOfDie, target, glitchOption, maxNumberOfButtons);
     }
 
     @Override
@@ -231,7 +226,7 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesConfig,
                 .map(l -> Math.min(l, MAX_NUMBER_OF_DICE))
                 .orElse(15L));
         Long answerTargetChannelId = getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null);
-        return new CountSuccessesConfig(sideValue, targetValue, glitchOption, maxDice, answerTargetChannelId);
+        return new CountSuccessesConfig(answerTargetChannelId, sideValue, targetValue, glitchOption, maxDice);
     }
 
     private List<ComponentRowDefinition> createButtonLayout(CountSuccessesConfig config) {

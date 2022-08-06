@@ -6,6 +6,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import de.janno.discord.bot.cache.ButtonMessageCache;
 import de.janno.discord.bot.command.AbstractCommand;
+import de.janno.discord.bot.command.Config;
 import de.janno.discord.bot.dice.DiceUtils;
 import de.janno.discord.connector.api.BotConstants;
 import de.janno.discord.connector.api.IButtonEventAdaptor;
@@ -25,7 +26,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Slf4j
-public class SumDiceSetCommand extends AbstractCommand<SumDiceSetConfig, SumDiceSetState> {
+public class SumDiceSetCommand extends AbstractCommand<Config, SumDiceSetState> {
     private static final String COMMAND_NAME = "sum_dice_set";
     private static final String DICE_SET_DELIMITER = " ";
     private static final String ROLL_BUTTON_ID = "roll";
@@ -90,7 +91,7 @@ public class SumDiceSetCommand extends AbstractCommand<SumDiceSetConfig, SumDice
 
 
     @VisibleForTesting
-    String createButtonCustomId(String action, SumDiceSetConfig config) {
+    String createButtonCustomId(String action, Config config) {
         Preconditions.checkArgument(!action.contains(BotConstants.CONFIG_DELIMITER));
 
         return String.join(BotConstants.CONFIG_DELIMITER,
@@ -105,7 +106,7 @@ public class SumDiceSetCommand extends AbstractCommand<SumDiceSetConfig, SumDice
     }
 
     @Override
-    protected Optional<EmbedDefinition> getAnswer(SumDiceSetState state, SumDiceSetConfig config) {
+    protected Optional<EmbedDefinition> getAnswer(SumDiceSetState state, Config config) {
         if (!(ROLL_BUTTON_ID.equals(state.getButtonValue()) && !state.getDiceSetMap().isEmpty())) {
             return Optional.empty();
         }
@@ -147,7 +148,7 @@ public class SumDiceSetCommand extends AbstractCommand<SumDiceSetConfig, SumDice
     }
 
     @Override
-    public MessageDefinition createNewButtonMessage(SumDiceSetConfig config) {
+    public MessageDefinition createNewButtonMessage(Config config) {
         return MessageDefinition.builder()
                 .content(EMPTY_MESSAGE)
                 .componentRowDefinitions(createButtonLayout(config))
@@ -155,7 +156,7 @@ public class SumDiceSetCommand extends AbstractCommand<SumDiceSetConfig, SumDice
     }
 
     @Override
-    protected Optional<MessageDefinition> createNewButtonMessageWithState(SumDiceSetState state, SumDiceSetConfig config) {
+    protected Optional<MessageDefinition> createNewButtonMessageWithState(SumDiceSetState state, Config config) {
         if (!(ROLL_BUTTON_ID.equals(state.getButtonValue()) && !state.getDiceSetMap().isEmpty())) {
             return Optional.empty();
         }
@@ -166,7 +167,7 @@ public class SumDiceSetCommand extends AbstractCommand<SumDiceSetConfig, SumDice
     }
 
     @Override
-    public Optional<String> getCurrentMessageContentChange(SumDiceSetState state, SumDiceSetConfig config) {
+    public Optional<String> getCurrentMessageContentChange(SumDiceSetState state, Config config) {
         switch (state.getButtonValue()) {
             case ROLL_BUTTON_ID:
             case CLEAR_BUTTON_ID:
@@ -204,10 +205,10 @@ public class SumDiceSetCommand extends AbstractCommand<SumDiceSetConfig, SumDice
     }
 
     @Override
-    protected SumDiceSetConfig getConfigFromEvent(IButtonEventAdaptor event) {
+    protected Config getConfigFromEvent(IButtonEventAdaptor event) {
         String[] split = event.getCustomId().split(BotConstants.CONFIG_SPLIT_DELIMITER_REGEX);
 
-        return new SumDiceSetConfig(getOptionalLongFromArray(split, 2));
+        return new Config(getOptionalLongFromArray(split, 2));
     }
 
     @Override
@@ -249,19 +250,12 @@ public class SumDiceSetCommand extends AbstractCommand<SumDiceSetConfig, SumDice
                     }
                 })));
     }
-
-
     @Override
-    protected Optional<Long> getAnswerTargetChannelId(SumDiceSetConfig config) {
-        return Optional.ofNullable(config.getAnswerTargetChannelId());
+    protected Config getConfigFromStartOptions(CommandInteractionOption options) {
+        return new Config(getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null));
     }
 
-    @Override
-    protected SumDiceSetConfig getConfigFromStartOptions(CommandInteractionOption options) {
-        return new SumDiceSetConfig(getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null));
-    }
-
-    private List<ComponentRowDefinition> createButtonLayout(SumDiceSetConfig config) {
+    private List<ComponentRowDefinition> createButtonLayout(Config config) {
         return ImmutableList.of(
                 ComponentRowDefinition.builder().buttonDefinitions(ImmutableList.of(
                         //              ID,  label

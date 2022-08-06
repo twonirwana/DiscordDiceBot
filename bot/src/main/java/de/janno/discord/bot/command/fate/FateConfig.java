@@ -1,17 +1,23 @@
 package de.janno.discord.bot.command.fate;
 
-import de.janno.discord.bot.command.IConfig;
+import de.janno.discord.bot.command.Config;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NonNull;
-import lombok.Value;
 
-@Value
-public class FateConfig implements IConfig {
+@EqualsAndHashCode(callSuper = true)
+@Getter
+public class FateConfig extends Config {
     @NonNull
-    String type;
-    Long answerTargetChannelId;
+    final String type;
+
+    public FateConfig(Long answerTargetChannelId, @NonNull String type) {
+        super(answerTargetChannelId);
+        this.type = type;
+    }
 
     @Override
     public String toShortString() {
-        return String.format("[%s, %s]", type, targetChannelToString(answerTargetChannelId));
+        return String.format("[%s, %s]", type, getTargetChannelShortString());
     }
 }

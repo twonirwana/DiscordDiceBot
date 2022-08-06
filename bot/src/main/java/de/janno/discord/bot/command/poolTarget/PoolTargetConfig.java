@@ -1,23 +1,33 @@
 package de.janno.discord.bot.command.poolTarget;
 
 import com.google.common.collect.ImmutableList;
-import de.janno.discord.bot.command.IConfig;
+import de.janno.discord.bot.command.Config;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NonNull;
-import lombok.Value;
 
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@Value
-public class PoolTargetConfig implements IConfig {
-    int diceSides;
-    int maxNumberOfButtons;
+@EqualsAndHashCode(callSuper = true)
+@Getter
+public class PoolTargetConfig extends Config {
+    final int diceSides;
+    final int maxNumberOfButtons;
     @NonNull
-    Set<Integer> rerollSet;
+    final Set<Integer> rerollSet;
     @NonNull
-    Set<Integer> botchSet;
-    String rerollVariant;
-    Long answerTargetChannelId;
+    final Set<Integer> botchSet;
+    final String rerollVariant;
+
+    public PoolTargetConfig(Long answerTargetChannelId, int diceSides, int maxNumberOfButtons, @NonNull Set<Integer> rerollSet, @NonNull Set<Integer> botchSet, String rerollVariant) {
+        super(answerTargetChannelId);
+        this.diceSides = diceSides;
+        this.maxNumberOfButtons = maxNumberOfButtons;
+        this.rerollSet = rerollSet;
+        this.botchSet = botchSet;
+        this.rerollVariant = rerollVariant;
+    }
 
     @Override
     public String toShortString() {
@@ -27,7 +37,7 @@ public class PoolTargetConfig implements IConfig {
                 rerollSet.stream().map(String::valueOf).collect(Collectors.joining(PoolTargetCommand.SUBSET_DELIMITER)),
                 botchSet.stream().map(String::valueOf).collect(Collectors.joining(PoolTargetCommand.SUBSET_DELIMITER)),
                 rerollVariant,
-                targetChannelToString(answerTargetChannelId)
+                getTargetChannelShortString()
         ).toString();
     }
 }

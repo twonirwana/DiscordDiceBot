@@ -50,11 +50,6 @@ public class FateCommand extends AbstractCommand<FateConfig, FateState> {
     }
 
     @Override
-    protected Optional<Long> getAnswerTargetChannelId(FateConfig config) {
-        return Optional.ofNullable(config.getAnswerTargetChannelId());
-    }
-
-    @Override
     protected @NonNull String getCommandDescription() {
         return "Configure Fate dice";
     }
@@ -97,8 +92,8 @@ public class FateCommand extends AbstractCommand<FateConfig, FateState> {
 
     @Override
     protected FateConfig getConfigFromStartOptions(CommandInteractionOption options) {
-        return new FateConfig(options.getStringSubOptionWithName(ACTION_MODIFIER_OPTION).orElse(ACTION_MODIFIER_OPTION_SIMPLE),
-                getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null));
+        return new FateConfig(getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null),
+                options.getStringSubOptionWithName(ACTION_MODIFIER_OPTION).orElse(ACTION_MODIFIER_OPTION_SIMPLE));
     }
 
     @Override
@@ -180,7 +175,7 @@ public class FateCommand extends AbstractCommand<FateConfig, FateState> {
     @Override
     protected FateConfig getConfigFromEvent(IButtonEventAdaptor event) {
         String[] split = event.getCustomId().split(BotConstants.CONFIG_SPLIT_DELIMITER_REGEX);
-        return new FateConfig(split[2], getOptionalLongFromArray(split, 3));
+        return new FateConfig(getOptionalLongFromArray(split, 3), split[2]);
     }
 
     @Override

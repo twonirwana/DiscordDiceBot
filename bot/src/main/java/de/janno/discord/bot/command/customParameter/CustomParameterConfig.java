@@ -1,10 +1,10 @@
 package de.janno.discord.bot.command.customParameter;
 
 import com.google.common.collect.ImmutableList;
-import de.janno.discord.bot.command.IConfig;
+import de.janno.discord.bot.command.Config;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NonNull;
-import lombok.Value;
 
 import java.util.Collection;
 import java.util.Objects;
@@ -14,11 +14,11 @@ import java.util.regex.Matcher;
 import static de.janno.discord.bot.command.customParameter.CustomParameterCommand.PARAMETER_VARIABLE_PATTERN;
 import static de.janno.discord.bot.command.customParameter.CustomParameterCommand.RANGE_REPLACE_REGEX;
 
-@Value
-public class CustomParameterConfig implements IConfig {
+@EqualsAndHashCode(callSuper = true)
+@Getter
+public class CustomParameterConfig extends Config {
     @NonNull
     String baseExpression;
-    Long answerTargetChannelId;
     @NonNull
     @EqualsAndHashCode.Exclude
     String firstParameterName;
@@ -31,8 +31,8 @@ public class CustomParameterConfig implements IConfig {
     }
 
     public CustomParameterConfig(@NonNull String baseExpression, Long answerTargetChannelId) {
+        super(answerTargetChannelId);
         this.baseExpression = baseExpression;
-        this.answerTargetChannelId = answerTargetChannelId;
         this.firstParameterExpression = getNextParameterExpression(baseExpression);
         this.firstParameterName = cleanupExpressionForDisplay(firstParameterExpression);
     }
@@ -55,13 +55,13 @@ public class CustomParameterConfig implements IConfig {
     public Collection<CustomIdIndexWithValue> getIdComponents() {
         return ImmutableList.of(
                 new CustomIdIndexWithValue(CustomIdIndex.BASE_EXPRESSION, baseExpression),
-                new CustomIdIndexWithValue(CustomIdIndex.ANSWER_TARGET_CHANNEL, Optional.ofNullable(answerTargetChannelId).map(Objects::toString).orElse(""))
+                new CustomIdIndexWithValue(CustomIdIndex.ANSWER_TARGET_CHANNEL, Optional.ofNullable(getAnswerTargetChannelId()).map(Objects::toString).orElse(""))
         );
     }
 
     @Override
     public String toShortString() {
-        return ImmutableList.of(baseExpression, targetChannelToString(answerTargetChannelId)).toString();
+        return ImmutableList.of(baseExpression, getTargetChannelShortString()).toString();
     }
 
     public String baseExpressionWithoutRange() {

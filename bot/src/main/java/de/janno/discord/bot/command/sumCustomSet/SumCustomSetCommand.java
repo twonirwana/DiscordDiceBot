@@ -81,11 +81,6 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
     }
 
     @Override
-    protected Optional<Long> getAnswerTargetChannelId(SumCustomSetConfig config) {
-        return Optional.ofNullable(config.getAnswerTargetChannelId());
-    }
-
-    @Override
     protected Optional<String> getStartOptionsValidationMessage(CommandInteractionOption options) {
         List<String> diceExpressionWithOptionalLabel = DICE_COMMAND_OPTIONS_IDS.stream()
                 .flatMap(id -> options.getStringSubOptionWithName(id).stream())
@@ -179,10 +174,10 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
     protected SumCustomSetConfig getConfigFromEvent(IButtonEventAdaptor event) {
         String[] split = event.getCustomId().split(BotConstants.CONFIG_SPLIT_DELIMITER_REGEX);
         Long answerTargetChannelId = getOptionalLongFromArray(split, 2);
-        return new SumCustomSetConfig(event.getAllButtonIds().stream()
+        return new SumCustomSetConfig(answerTargetChannelId, event.getAllButtonIds().stream()
                 .filter(lv -> !ImmutableSet.of(ROLL_BUTTON_ID, CLEAR_BUTTON_ID, BACK_BUTTON_ID).contains(diceExpressionFromCustomId(lv.getCustomId())))
                 .map(lv -> new LabelAndDiceExpression(lv.getLabel(), diceExpressionFromCustomId(lv.getCustomId())))
-                .collect(Collectors.toList()), answerTargetChannelId);
+                .collect(Collectors.toList()));
     }
 
     private String diceExpressionFromCustomId(String customId) {
@@ -256,7 +251,7 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
 
     @VisibleForTesting
     SumCustomSetConfig getConfigOptionStringList(List<String> startOptions, Long answerTargetChannelId) {
-        return new SumCustomSetConfig(startOptions.stream()
+        return new SumCustomSetConfig(answerTargetChannelId, startOptions.stream()
                 .filter(s -> !s.contains(BotConstants.CONFIG_DELIMITER))
                 .filter(s -> !s.contains(LABEL_DELIMITER) || s.split(LABEL_DELIMITER).length == 2)
                 .map(s -> {
@@ -284,7 +279,7 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
                 .filter(s -> s.getLabel().length() <= 80) //https://discord.com/developers/docs/interactions/message-components#buttons
                 .distinct()
                 .limit(22)
-                .collect(Collectors.toList()), answerTargetChannelId);
+                .collect(Collectors.toList()));
     }
 
 
