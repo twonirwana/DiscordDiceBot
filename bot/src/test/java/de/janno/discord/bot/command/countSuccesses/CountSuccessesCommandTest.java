@@ -73,7 +73,7 @@ class CountSuccessesCommandTest {
     @Test
     void getButtonMessageWithState_noGlitch() {
         CountSuccessesConfig config = new CountSuccessesConfig(6, 6, "no_glitch", 15, null);
-        CountSuccessesState state = new CountSuccessesState(6);
+        CountSuccessesState state = new CountSuccessesState("6");
 
         assertThat(underTest.createNewButtonMessageWithState(state, config).map(MessageDefinition::getContent)).contains("Click to roll the dice against 6");
     }
@@ -82,7 +82,7 @@ class CountSuccessesCommandTest {
     @Test
     void getButtonMessageWithState_halfDiceOne() {
         CountSuccessesConfig config = new CountSuccessesConfig(6, 6, "half_dice_one", 15, null);
-        CountSuccessesState state = new CountSuccessesState(6);
+        CountSuccessesState state = new CountSuccessesState("6");
 
         assertThat(underTest.createNewButtonMessageWithState(state, config).map(MessageDefinition::getContent)).contains("Click to roll the dice against 6 and check for more then half of dice 1s");
     }
@@ -90,7 +90,7 @@ class CountSuccessesCommandTest {
     @Test
     void getButtonMessageWithState_countOnes() {
         CountSuccessesConfig config = new CountSuccessesConfig(6, 6, "count_ones", 15, null);
-        CountSuccessesState state = new CountSuccessesState(6);
+        CountSuccessesState state = new CountSuccessesState("6");
 
         assertThat(underTest.createNewButtonMessageWithState(state, config).map(MessageDefinition::getContent)).contains("Click to roll the dice against 6 and count the 1s");
     }
@@ -98,7 +98,7 @@ class CountSuccessesCommandTest {
     @Test
     void getButtonMessageWithState_subtractOnes() {
         CountSuccessesConfig config = new CountSuccessesConfig(6, 6, "subtract_ones", 15, null);
-        CountSuccessesState state = new CountSuccessesState(6);
+        CountSuccessesState state = new CountSuccessesState("6");
 
         assertThat(underTest.createNewButtonMessageWithState(state, config).map(MessageDefinition::getContent)).contains("Click to roll the dice against 6 minus 1s");
     }
@@ -150,7 +150,7 @@ class CountSuccessesCommandTest {
 
     @Test
     void rollDice() {
-        EmbedDefinition results = underTest.getAnswer(new CountSuccessesState(6), new CountSuccessesConfig(6, 6, "no_glitch", 15, null)).orElseThrow();
+        EmbedDefinition results = underTest.getAnswer(new CountSuccessesState("6"), new CountSuccessesConfig(6, 6, "no_glitch", 15, null)).orElseThrow();
 
         assertThat(results.getFields()).hasSize(0);
         assertThat(results.getTitle()).isEqualTo("6d6 = 1");
@@ -159,7 +159,7 @@ class CountSuccessesCommandTest {
 
     @Test
     void rollDice_halfDiceOne_glitch() {
-        EmbedDefinition results = underTest.getAnswer(new CountSuccessesState(6), new CountSuccessesConfig(6, 6, "half_dice_one", 15, null)).orElseThrow();
+        EmbedDefinition results = underTest.getAnswer(new CountSuccessesState("6"), new CountSuccessesConfig(6, 6, "half_dice_one", 15, null)).orElseThrow();
 
         assertThat(results.getFields()).hasSize(0);
         assertThat(results.getTitle()).isEqualTo("6d6 = 1 - Glitch!");
@@ -168,7 +168,7 @@ class CountSuccessesCommandTest {
 
     @Test
     void rollDice_halfDiceOne_noGlitch() {
-        EmbedDefinition results = underTest.getAnswer(new CountSuccessesState(8), new CountSuccessesConfig(6, 6, "half_dice_one", 15, null)).orElseThrow();
+        EmbedDefinition results = underTest.getAnswer(new CountSuccessesState("8"), new CountSuccessesConfig(6, 6, "half_dice_one", 15, null)).orElseThrow();
 
         assertThat(results.getFields()).hasSize(0);
         assertThat(results.getTitle()).isEqualTo("8d6 = 3");
@@ -177,7 +177,7 @@ class CountSuccessesCommandTest {
 
     @Test
     void rollDice_countOnes() {
-        EmbedDefinition results = underTest.getAnswer(new CountSuccessesState(6), new CountSuccessesConfig(6, 6, "count_ones", 15, null)).orElseThrow();
+        EmbedDefinition results = underTest.getAnswer(new CountSuccessesState("6"), new CountSuccessesConfig(6, 6, "count_ones", 15, null)).orElseThrow();
 
         assertThat(results.getFields()).hasSize(0);
         assertThat(results.getTitle()).isEqualTo("6d6 = 1 successes and 4 ones");
@@ -186,7 +186,7 @@ class CountSuccessesCommandTest {
 
     @Test
     void rollDice_subtractOnes() {
-        EmbedDefinition results = underTest.getAnswer(new CountSuccessesState(6), new CountSuccessesConfig(6, 6, "subtract_ones", 15, null)).orElseThrow();
+        EmbedDefinition results = underTest.getAnswer(new CountSuccessesState("6"), new CountSuccessesConfig(6, 6, "subtract_ones", 15, null)).orElseThrow();
 
         assertThat(results.getFields()).hasSize(0);
         assertThat(results.getTitle()).isEqualTo("6d6 = -3");
@@ -208,7 +208,7 @@ class CountSuccessesCommandTest {
 
         CountSuccessesState res = underTest.getStateFromEvent(event);
 
-        assertThat(res).isEqualTo(new CountSuccessesState(4));
+        assertThat(res).isEqualTo(new CountSuccessesState("4"));
     }
 
     @Test
@@ -294,7 +294,7 @@ class CountSuccessesCommandTest {
 
     @Test
     void getButtonLayoutWithState() {
-        List<ComponentRowDefinition> res = underTest.createNewButtonMessageWithState(new CountSuccessesState(6), new CountSuccessesConfig(6, 6, "count_ones", 15, null))
+        List<ComponentRowDefinition> res = underTest.createNewButtonMessageWithState(new CountSuccessesState("6"), new CountSuccessesConfig(6, 6, "count_ones", 15, null))
                 .orElseThrow().getComponentRowDefinitions();
 
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel))
@@ -344,6 +344,6 @@ class CountSuccessesCommandTest {
 
     @Test
     void getCurrentMessageContentChange() {
-        assertThat(underTest.getCurrentMessageContentChange(new CountSuccessesState(6), new CountSuccessesConfig(6, 6, "count_ones", 15, null))).isEmpty();
+        assertThat(underTest.getCurrentMessageContentChange(new CountSuccessesState("6"), new CountSuccessesConfig(6, 6, "count_ones", 15, null))).isEmpty();
     }
 }

@@ -33,24 +33,20 @@ import java.util.stream.Stream;
 @Slf4j
 public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTargetState> {
 
+    static final String SUBSET_DELIMITER = ";";
     private static final String COMMAND_NAME = "pool_target";
     private static final String SIDES_OF_DIE_OPTION = "sides";
     private static final String MAX_DICE_OPTION = "max_dice";
     private static final String REROLL_SET_OPTION = "reroll_set";
     private static final String BOTCH_SET_OPTION = "botch_set";
-
     private static final String REROLL_VARIANT_OPTION = "reroll_variant";
     private static final String ALWAYS_REROLL = "always";
     private static final String ASK_FOR_REROLL = "ask";
-
     private static final String CLEAR_BUTTON_ID = "clear";
     private static final String DO_REROLL_ID = "do_reroll";
     private static final String DO_NOT_REROLL_ID = "no_reroll";
     private static final long MAX_NUMBER_OF_DICE = 25;
-
     private static final String DICE_SYMBOL = "d";
-
-    static final String SUBSET_DELIMITER = ";";
     private static final int BUTTON_VALUE_INDEX = 1;
 
     private static final int SIDE_OF_DIE_INDEX = 2;
@@ -181,12 +177,12 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTar
         String buttonValue = customIdSplit[BUTTON_VALUE_INDEX];
         //clear button was pressed
         if (CLEAR_BUTTON_ID.equals(buttonValue)) {
-            return new PoolTargetState(null, null, null, true);
+            return new PoolTargetState(buttonValue, null, null, null, true);
         }
         //pool size in config is empty and button value is number -> pool size was set
         if (EMPTY.equals(customIdSplit[POOL_SIZE_VALUE_INDEX]) && StringUtils.isNumeric(buttonValue)) {
             Integer buttonNumber = Integer.valueOf(buttonValue);
-            return new PoolTargetState(buttonNumber, null, null, false);
+            return new PoolTargetState(buttonValue, buttonNumber, null, null, false);
         }
 
         PoolTargetConfig config = getConfigFromEvent(event);
@@ -194,18 +190,18 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTar
         if (StringUtils.isNumeric(customIdSplit[POOL_SIZE_VALUE_INDEX]) && StringUtils.isNumeric(buttonValue)) {
             //if the config is always reroll we can set it, else we need to ask
             Boolean doReroll = ALWAYS_REROLL.equals(config.getRerollVariant()) ? true : null;
-            return new PoolTargetState(Integer.valueOf(customIdSplit[POOL_SIZE_VALUE_INDEX]), Integer.valueOf(buttonValue), doReroll, false);
+            return new PoolTargetState(buttonValue, Integer.valueOf(customIdSplit[POOL_SIZE_VALUE_INDEX]), Integer.valueOf(buttonValue), doReroll, false);
         }
 
         //pool size is already given and target is given -> do reroll was asked
         if (StringUtils.isNumeric(customIdSplit[POOL_SIZE_VALUE_INDEX]) && StringUtils.isNumeric(customIdSplit[TARGET_INDEX])) {
             boolean doReroll = DO_REROLL_ID.equals(buttonValue);
-            return new PoolTargetState(Integer.valueOf(customIdSplit[POOL_SIZE_VALUE_INDEX]), Integer.valueOf(customIdSplit[TARGET_INDEX]), doReroll, false);
+            return new PoolTargetState(buttonValue, Integer.valueOf(customIdSplit[POOL_SIZE_VALUE_INDEX]), Integer.valueOf(customIdSplit[TARGET_INDEX]), doReroll, false);
 
         }
 
         log.error("CustomId:'{}}' correspond to no known state", event.getCustomId());
-        return new PoolTargetState(null, null, null, true);
+        return new PoolTargetState(buttonValue, null, null, null, true);
     }
 
     @Override

@@ -34,20 +34,20 @@ class PoolTargetCommandTest {
     private static Stream<Arguments> getStateFromEvent() {
         return Stream.of(
                 //set pool
-                Arguments.of("pool_target\u000015\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000", new PoolTargetState(15, null, null, false)),
-                Arguments.of("pool_target\u000015,10,20,10;9,1;2,always,EMPTY,EMPTY", new PoolTargetState(15, null, null, false)),
+                Arguments.of("pool_target\u000015\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000", new PoolTargetState("15", 15, null, null, false)),
+                Arguments.of("pool_target\u000015,10,20,10;9,1;2,always,EMPTY,EMPTY", new PoolTargetState("15", 15, null, null, false)),
 
                 //set target
-                Arguments.of("pool_target\u00008,10,20,10;9,1;2,ask,15,EMPTY", new PoolTargetState(15, 8, null, false)),
-                Arguments.of("pool_target\u00008,10,20,10;9,1;2,always,15,EMPTY", new PoolTargetState(15, 8, true, false)),
+                Arguments.of("pool_target\u00008,10,20,10;9,1;2,ask,15,EMPTY", new PoolTargetState("8", 15, 8, null, false)),
+                Arguments.of("pool_target\u00008,10,20,10;9,1;2,always,15,EMPTY", new PoolTargetState("8", 15, 8, true, false)),
 
                 //clear
-                Arguments.of("pool_target\u0000clear,10,20,10;9,1;2,ask,15,EMPTY", new PoolTargetState(null, null, null, true)),
-                Arguments.of("pool_target\u0000clear,10,20,10;9,1;2,always,15,EMPTY", new PoolTargetState(null, null, null, true)),
+                Arguments.of("pool_target\u0000clear,10,20,10;9,1;2,ask,15,EMPTY", new PoolTargetState("clear", null, null, null, true)),
+                Arguments.of("pool_target\u0000clear,10,20,10;9,1;2,always,15,EMPTY", new PoolTargetState("clear", null, null, null, true)),
 
                 //ask reroll
-                Arguments.of("pool_target\u0000do_reroll,10,20,10;9,1;2,ask,15,9", new PoolTargetState(15, 9, true, false)),
-                Arguments.of("pool_target\u0000no_reroll,10,20,10;9,1;2,ask,15,9", new PoolTargetState(15, 9, false, false))
+                Arguments.of("pool_target\u0000do_reroll,10,20,10;9,1;2,ask,15,9", new PoolTargetState("do_reroll", 15, 9, true, false)),
+                Arguments.of("pool_target\u0000no_reroll,10,20,10;9,1;2,ask,15,9", new PoolTargetState("no_reroll", 15, 9, false, false))
         );
     }
 
@@ -79,7 +79,7 @@ class PoolTargetCommandTest {
 
     @Test
     void getDiceResult_withoutReroll() {
-        EmbedDefinition res = underTest.getAnswer(new PoolTargetState(6, 3, false, false),
+        EmbedDefinition res = underTest.getAnswer(new PoolTargetState("6", 6, 3, false, false),
                 new PoolTargetConfig(6, 15, ImmutableSet.of(6), ImmutableSet.of(1), "ask", null)).orElseThrow();
         assertThat(res.getFields()).hasSize(0);
         assertThat(res.getTitle()).isEqualTo("6d6 = -1");
@@ -88,7 +88,7 @@ class PoolTargetCommandTest {
 
     @Test
     void getDiceResult_withReroll() {
-        EmbedDefinition res = underTest.getAnswer(new PoolTargetState(6, 3, true, false),
+        EmbedDefinition res = underTest.getAnswer(new PoolTargetState("6", 6, 3, true, false),
                 new PoolTargetConfig(6, 15, ImmutableSet.of(6), ImmutableSet.of(1), "ask", null)).orElseThrow();
         assertThat(res.getFields()).hasSize(0);
         assertThat(res.getTitle()).isEqualTo("6d6 = 1");
@@ -147,7 +147,7 @@ class PoolTargetCommandTest {
     @Test
     void getAnswer_allStateInfoAvailable() {
         assertThat(underTest.getAnswer(
-                new PoolTargetState(10, 8, true, false),
+                new PoolTargetState("10", 10, 8, true, false),
                 new PoolTargetConfig(10, 20, ImmutableSet.of(), ImmutableSet.of(), "always", null))
         ).isNotEmpty();
     }
@@ -155,7 +155,7 @@ class PoolTargetCommandTest {
     @Test
     void getAnswer_dicePoolMissing() {
         assertThat(underTest.getAnswer(
-                new PoolTargetState(null, 8, true, false),
+                new PoolTargetState("clear", null, 8, true, false),
                 new PoolTargetConfig(10, 20, ImmutableSet.of(), ImmutableSet.of(), "always", null))
         ).isEmpty();
     }
@@ -163,7 +163,7 @@ class PoolTargetCommandTest {
     @Test
     void getAnswer_targetNumberMissing() {
         assertThat(underTest.getAnswer(
-                new PoolTargetState(10, null, true, false),
+                new PoolTargetState("10", 10, null, true, false),
                 new PoolTargetConfig(10, 20, ImmutableSet.of(), ImmutableSet.of(), "always", null))
         ).isEmpty();
     }
@@ -171,7 +171,7 @@ class PoolTargetCommandTest {
     @Test
     void getAnswer_doRerollMissing() {
         assertThat(underTest.getAnswer(
-                new PoolTargetState(10, 8, null, false),
+                new PoolTargetState("10", 10, 8, null, false),
                 new PoolTargetConfig(10, 20, ImmutableSet.of(), ImmutableSet.of(), "always", null))
         ).isEmpty();
     }
@@ -219,7 +219,7 @@ class PoolTargetCommandTest {
     @Test
     void getCurrentMessageContentChange_poolWasSet() {
         String res = underTest.getCurrentMessageContentChange(
-                        new PoolTargetState(10, null, null, false),
+                        new PoolTargetState("10", 10, null, null, false),
                         new PoolTargetConfig(10, 20, ImmutableSet.of(10, 9), ImmutableSet.of(1, 2), "ask", null))
                 .orElseThrow();
 
@@ -229,7 +229,7 @@ class PoolTargetCommandTest {
     @Test
     void getCurrentMessageContentChange_targetWasSet() {
         String res = underTest.getCurrentMessageContentChange(
-                        new PoolTargetState(10, 10, null, false),
+                        new PoolTargetState("10", 10, 10, null, false),
                         new PoolTargetConfig(10, 20, ImmutableSet.of(10, 9), ImmutableSet.of(1, 2), "ask", null))
                 .orElseThrow();
 
@@ -239,7 +239,7 @@ class PoolTargetCommandTest {
     @Test
     void getCurrentMessageContentChange_clear() {
         String res = underTest.getCurrentMessageContentChange(
-                        new PoolTargetState(null, null, null, true),
+                        new PoolTargetState("clear", null, null, null, true),
                         new PoolTargetConfig(10, 20, ImmutableSet.of(10, 9), ImmutableSet.of(1, 2), "ask", null))
                 .orElseThrow();
 
@@ -249,7 +249,7 @@ class PoolTargetCommandTest {
     @Test
     void getCurrentMessageComponentChange_missingDoReroll_askForReroll() {
         List<ComponentRowDefinition> res = underTest.getCurrentMessageComponentChange(
-                        new PoolTargetState(10, 10, null, false),
+                        new PoolTargetState("10", 10, 10, null, false),
                         new PoolTargetConfig(10, 20, ImmutableSet.of(10, 9), ImmutableSet.of(1, 2), "ask", null))
                 .orElseThrow();
 
@@ -263,7 +263,7 @@ class PoolTargetCommandTest {
     @Test
     void getButtonLayoutWithState_statesAreGiven_newButtons() {
         List<ComponentRowDefinition> res = underTest.createNewButtonMessageWithState(
-                        new PoolTargetState(10, 10, true, false),
+                        new PoolTargetState("10", 10, 10, true, false),
                         new PoolTargetConfig(10, 20, ImmutableSet.of(10, 9), ImmutableSet.of(1, 2), "ask", null))
                 .orElseThrow().getComponentRowDefinitions();
 
@@ -295,7 +295,7 @@ class PoolTargetCommandTest {
     @Test
     void getCurrentMessageComponentChange_missingTarget_askTarget() {
         List<ComponentRowDefinition> res = underTest.getCurrentMessageComponentChange(
-                        new PoolTargetState(10, null, null, false),
+                        new PoolTargetState("10", 10, null, null, false),
                         new PoolTargetConfig(10, 20, ImmutableSet.of(10, 9), ImmutableSet.of(1, 2), "ask", null))
                 .orElseThrow();
 

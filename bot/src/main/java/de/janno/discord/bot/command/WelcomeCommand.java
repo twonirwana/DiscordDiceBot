@@ -26,7 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.Optional;
 
 @Slf4j
-public class WelcomeCommand extends AbstractCommand<WelcomeCommand.Config, WelcomeCommand.State> {
+public class WelcomeCommand extends AbstractCommand<WelcomeCommand.Config, State> {
 
     private static final String COMMAND_NAME = "welcome";
     private static final String FATE_BUTTON_ID = "fate";
@@ -63,7 +63,7 @@ public class WelcomeCommand extends AbstractCommand<WelcomeCommand.Config, Welco
     @Override
     protected Optional<MessageDefinition> createNewButtonMessageWithState(State state, Config config) {
         BotMetrics.incrementButtonMetricCounter(COMMAND_NAME, state.toShortString());
-        return switch (state.getButtonId()) {
+        return switch (state.getButtonValue()) {
             case FATE_BUTTON_ID -> Optional.of(
                     new FateCommand().createNewButtonMessage(new FateConfig("with_modifier", null))
             );
@@ -109,7 +109,7 @@ public class WelcomeCommand extends AbstractCommand<WelcomeCommand.Config, Welco
     }
 
     @Override
-    protected Optional<EmbedDefinition> getAnswer(WelcomeCommand.State state, WelcomeCommand.Config config) {
+    protected Optional<EmbedDefinition> getAnswer(State state, WelcomeCommand.Config config) {
         return Optional.empty();
     }
 
@@ -176,7 +176,7 @@ public class WelcomeCommand extends AbstractCommand<WelcomeCommand.Config, Welco
     }
 
     @Override
-    protected WelcomeCommand.State getStateFromEvent(IButtonEventAdaptor event) {
+    protected State getStateFromEvent(IButtonEventAdaptor event) {
         String buttonId = event.getCustomId().split(BotConstants.CONFIG_SPLIT_DELIMITER_REGEX)[1];
         return new State(buttonId);
     }
@@ -189,14 +189,4 @@ public class WelcomeCommand extends AbstractCommand<WelcomeCommand.Config, Welco
         }
     }
 
-    @Value
-    public static class State implements IState {
-        @NonNull
-        String buttonId;
-
-        @Override
-        public String toShortString() {
-            return String.format("[%s]", buttonId);
-        }
-    }
 }

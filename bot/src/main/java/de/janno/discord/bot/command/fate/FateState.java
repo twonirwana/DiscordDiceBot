@@ -1,16 +1,20 @@
 package de.janno.discord.bot.command.fate;
 
-import de.janno.discord.bot.command.IState;
-import lombok.Value;
+import de.janno.discord.bot.command.State;
+import lombok.EqualsAndHashCode;
 
-import java.util.Optional;
+@EqualsAndHashCode(callSuper = true)
+public class FateState extends State {
+    public FateState(String buttonValue) {
+        super(buttonValue);
+    }
 
-@Value
-public class FateState implements IState {
-    Integer modifier;
+    public Integer getModifier() {
+        return Integer.parseInt(getButtonValue());
+    }
 
     @Override
     public String toShortString() {
-        return String.format("[%s]", Optional.ofNullable(modifier).map(String::valueOf).orElse(""));
+        return String.format("[%s]", getButtonValue());
     }
 }

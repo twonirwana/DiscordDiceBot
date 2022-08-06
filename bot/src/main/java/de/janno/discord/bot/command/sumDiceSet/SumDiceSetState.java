@@ -1,20 +1,26 @@
 package de.janno.discord.bot.command.sumDiceSet;
 
-import de.janno.discord.bot.command.IState;
+import de.janno.discord.bot.command.State;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NonNull;
-import lombok.Value;
 
 import java.util.Map;
 
-@Value
-public class SumDiceSetState implements IState {
+@EqualsAndHashCode(callSuper = true)
+@Getter
+public class SumDiceSetState extends State {
+
     @NonNull
-    String buttonValue;
-    @NonNull
-    Map<String, Integer> diceSetMap;
+    final Map<String, Integer> diceSetMap;
+
+    public SumDiceSetState(@NonNull String buttonValue, @NonNull Map<String, Integer> diceSetMap) {
+        super(buttonValue);
+        this.diceSetMap = diceSetMap;
+    }
 
     @Override
     public String toShortString() {
-        return String.format("[%s, %s]", buttonValue, diceSetMap);
+        return String.format("[%s, %s]", getButtonValue(), diceSetMap);
     }
 }

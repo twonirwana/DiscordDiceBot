@@ -1,21 +1,27 @@
 package de.janno.discord.bot.command.holdReroll;
 
-import de.janno.discord.bot.command.IState;
+import de.janno.discord.bot.command.State;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NonNull;
-import lombok.Value;
 
 import java.util.List;
 
-@Value
-public class HoldRerollState implements IState {
+@EqualsAndHashCode(callSuper = true)
+@Getter
+public class HoldRerollState extends State {
     @NonNull
-    String state; //last action number of the dice, reroll, finish and clear
-    @NonNull
-    List<Integer> currentResults;
-    int rerollCounter;
+    final List<Integer> currentResults;
+    final int rerollCounter;
+
+    public HoldRerollState(@NonNull String buttonValue, @NonNull List<Integer> currentResults, int rerollCounter) {
+        super(buttonValue);
+        this.currentResults = currentResults;
+        this.rerollCounter = rerollCounter;
+    }
 
     @Override
     public String toShortString() {
-        return String.format("[%s, %s, %d]", state, currentResults, rerollCounter);
+        return String.format("[%s, %s, %d]", getButtonValue(), currentResults, rerollCounter);
     }
 }

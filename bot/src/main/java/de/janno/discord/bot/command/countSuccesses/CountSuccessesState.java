@@ -1,14 +1,22 @@
 package de.janno.discord.bot.command.countSuccesses;
 
-import de.janno.discord.bot.command.IState;
-import lombok.Value;
+import de.janno.discord.bot.command.State;
+import lombok.EqualsAndHashCode;
 
-@Value
-public class CountSuccessesState implements IState {
-    int numberOfDice;
+
+@EqualsAndHashCode(callSuper = true)
+public class CountSuccessesState extends State {
+
+    public CountSuccessesState(String buttonValue) {
+        super(buttonValue);
+    }
+
+    public int getNumberOfDice() {
+        return Integer.parseInt(getButtonValue());
+    }
 
     @Override
     public String toShortString() {
-        return String.format("[%d]", numberOfDice);
+        return String.format("[%s]", getButtonValue());
     }
 }

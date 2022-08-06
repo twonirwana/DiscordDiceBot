@@ -185,11 +185,11 @@ public class FateCommand extends AbstractCommand<FateConfig, FateState> {
 
     @Override
     protected FateState getStateFromEvent(IButtonEventAdaptor event) {
-        String modifier = event.getCustomId().split(BotConstants.CONFIG_SPLIT_DELIMITER_REGEX)[1];
-        if (!Strings.isNullOrEmpty(modifier) && NumberUtils.isParsable(modifier)) {
-            return new FateState(Integer.valueOf(modifier));
+        String buttonValue = event.getCustomId().split(BotConstants.CONFIG_SPLIT_DELIMITER_REGEX)[1];
+        if (!Strings.isNullOrEmpty(buttonValue) && NumberUtils.isParsable(buttonValue)) {
+            return new FateState(buttonValue);
         }
-        return new FateState(null);
+        return new FateState(buttonValue);
     }
 
     @VisibleForTesting

@@ -22,7 +22,7 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
-public abstract class AbstractCommand<C extends IConfig, S extends IState> implements ISlashCommand, IComponentInteractEventHandler {
+public abstract class AbstractCommand<C extends IConfig, S extends State> implements ISlashCommand, IComponentInteractEventHandler {
 
     protected static final String ACTION_START = "start";
     protected static final String ACTION_HELP = "help";

@@ -2,10 +2,10 @@ package de.janno.discord.bot.command.customParameter;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
-import de.janno.discord.bot.command.IState;
+import de.janno.discord.bot.command.State;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NonNull;
-import lombok.Value;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
@@ -17,8 +17,9 @@ import java.util.stream.Collectors;
 
 import static de.janno.discord.bot.command.customParameter.CustomParameterCommand.*;
 
-@Value
-public class CustomParameterState implements IState {
+@EqualsAndHashCode(callSuper = true)
+@Getter
+public class CustomParameterState extends State {
     static final String SELECTED_PARAMETER_DELIMITER = "\t";
     @NonNull
     List<String> selectedParameterValues;
@@ -33,11 +34,11 @@ public class CustomParameterState implements IState {
     String lockedForUserName;
 
     public CustomParameterState(@NonNull String[] customIdComponents, String messageContent, String invokingUser) {
+        super(customIdComponents[CustomIdIndex.BUTTON_VALUE.index]);
         String baseString = customIdComponents[CustomIdIndex.BASE_EXPRESSION.index];
         String alreadySelectedParameter = customIdComponents[CustomIdIndex.SELECTED_PARAMETER.index];
-        String buttonValue = customIdComponents[CustomIdIndex.BUTTON_VALUE.index];
 
-        if (CLEAR_BUTTON_ID.equals(buttonValue)) {
+        if (CLEAR_BUTTON_ID.equals(getButtonValue())) {
             this.selectedParameterValues = ImmutableList.of();
             this.lockedForUserName = null;
         } else {
@@ -48,7 +49,7 @@ public class CustomParameterState implements IState {
                                     .collect(Collectors.toList()));
             this.lockedForUserName = Optional.ofNullable(getUserNameFromMessage(messageContent)).orElse(invokingUser);
             if (lockedForUserName == null || lockedForUserName.equals(invokingUser)) {
-                selectedParameterBuilder.add(buttonValue);
+                selectedParameterBuilder.add(getButtonValue());
             }
             this.selectedParameterValues = selectedParameterBuilder.build();
         }

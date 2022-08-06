@@ -31,6 +31,7 @@ import java.util.stream.IntStream;
 @Slf4j
 public class HoldRerollCommand extends AbstractCommand<HoldRerollConfig, HoldRerollState> {
 
+    static final String SUBSET_DELIMITER = ";";
     private static final String COMMAND_NAME = "hold_reroll";
     private static final String REROLL_BUTTON_ID = "reroll";
     private static final String FINISH_BUTTON_ID = "finish";
@@ -39,7 +40,6 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollConfig, HoldRer
     private static final String SUCCESS_SET_ID = "success_set";
     private static final String FAILURE_SET_ID = "failure_set";
     private static final String CLEAR_BUTTON_ID = "clear";
-    static final String SUBSET_DELIMITER = ";";
     private static final String DICE_SYMBOL = "d";
     private static final String EMPTY = "EMPTY";
     private static final ButtonMessageCache BUTTON_MESSAGE_CACHE = new ButtonMessageCache(COMMAND_NAME);
@@ -133,10 +133,10 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollConfig, HoldRer
 
     @Override
     protected Optional<EmbedDefinition> getAnswer(HoldRerollState state, HoldRerollConfig config) {
-        if (CLEAR_BUTTON_ID.equals(state.getState())) {
+        if (CLEAR_BUTTON_ID.equals(state.getButtonValue())) {
             return Optional.empty();
         }
-        if (!(FINISH_BUTTON_ID.equals(state.getState()) || rollFinished(state, config))) {
+        if (!(FINISH_BUTTON_ID.equals(state.getButtonValue()) || rollFinished(state, config))) {
             return Optional.empty();
         }
         int successes = DiceUtils.numberOfDiceResultsEqual(state.getCurrentResults(), config.getSuccessSet());
@@ -230,8 +230,8 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollConfig, HoldRer
     @Override
     protected Optional<MessageDefinition> createNewButtonMessageWithState(HoldRerollState state, HoldRerollConfig config) {
         if (config.getRerollSet().isEmpty()
-                || CLEAR_BUTTON_ID.equals(state.getState())
-                || FINISH_BUTTON_ID.equals(state.getState())
+                || CLEAR_BUTTON_ID.equals(state.getButtonValue())
+                || FINISH_BUTTON_ID.equals(state.getButtonValue())
                 || rollFinished(state, config)) {
             return Optional.of(MessageDefinition.builder()
                     .content(String.format("Click on the buttons to roll dice. Reroll set: %s, Success Set: %s and Failure Set: %s",
@@ -246,8 +246,8 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollConfig, HoldRer
     @Override
     protected Optional<List<ComponentRowDefinition>> getCurrentMessageComponentChange(HoldRerollState state, HoldRerollConfig config) {
         if (config.getRerollSet().isEmpty()
-                || CLEAR_BUTTON_ID.equals(state.getState())
-                || FINISH_BUTTON_ID.equals(state.getState())
+                || CLEAR_BUTTON_ID.equals(state.getButtonValue())
+                || FINISH_BUTTON_ID.equals(state.getButtonValue())
                 || rollFinished(state, config)) {
             return Optional.empty();
         }
@@ -258,8 +258,8 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollConfig, HoldRer
     @Override
     public Optional<String> getCurrentMessageContentChange(HoldRerollState state, HoldRerollConfig config) {
         if (config.getRerollSet().isEmpty()
-                || CLEAR_BUTTON_ID.equals(state.getState())
-                || FINISH_BUTTON_ID.equals(state.getState())
+                || CLEAR_BUTTON_ID.equals(state.getButtonValue())
+                || FINISH_BUTTON_ID.equals(state.getButtonValue())
                 || rollFinished(state, config)) {
             return Optional.empty();
         }
@@ -271,8 +271,8 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollConfig, HoldRer
 
 
     private List<ComponentRowDefinition> getButtonLayoutWithState(HoldRerollState state, HoldRerollConfig config) {
-        if (CLEAR_BUTTON_ID.equals(state.getState()) ||
-                FINISH_BUTTON_ID.equals(state.getState()) ||
+        if (CLEAR_BUTTON_ID.equals(state.getButtonValue()) ||
+                FINISH_BUTTON_ID.equals(state.getButtonValue()) ||
                 rollFinished(state, config)) {
             return createButtonLayout(config);
         }

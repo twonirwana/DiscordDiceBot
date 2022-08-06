@@ -5,6 +5,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import de.janno.discord.bot.cache.ButtonMessageCache;
 import de.janno.discord.bot.command.AbstractCommand;
+import de.janno.discord.bot.command.State;
 import de.janno.discord.bot.dice.DiceParserHelper;
 import de.janno.discord.connector.api.BotConstants;
 import de.janno.discord.connector.api.IButtonEventAdaptor;
@@ -24,7 +25,7 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 @Slf4j
-public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, CustomDiceState> {
+public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, State> {
     //test with /custom_dice start 1_button:1d1 2_button:2d2 3_button:3d3 4_button:4d4 5_button:5d5 6_button:6d6 7_button:7d7 8_button:8d8 9_button:9d9 10_button:10d10 11_button:11d11 12_button:12d12 13_button:13d13 14_button:14d14 15_button:15d15 16_button:16d16 17_button:17d17 18_button:18d18 19_button:19d19 20_button:20d20 21_button:21d21 22_button:22d22 23_button:23d23 24_button:24d24
 
     private static final String COMMAND_NAME = "custom_dice";
@@ -116,17 +117,17 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, CustomD
     }
 
     @Override
-    protected Optional<EmbedDefinition> getAnswer(CustomDiceState state, CustomDiceConfig config) {
+    protected Optional<EmbedDefinition> getAnswer(State state, CustomDiceConfig config) {
         String label = config.getLabelAndExpression().stream()
                 .filter(ld -> !ld.getDiceExpression().equals(ld.getLabel()))
-                .filter(ld -> ld.getDiceExpression().equals(state.getDiceExpression()))
+                .filter(ld -> ld.getDiceExpression().equals(state.getButtonValue()))
                 .map(CustomDiceConfig.LabelAndDiceExpression::getLabel)
                 .findFirst().orElse(null);
-        return Optional.of(diceParserHelper.roll(state.getDiceExpression(), label));
+        return Optional.of(diceParserHelper.roll(state.getButtonValue(), label));
     }
 
     @Override
-    protected Optional<MessageDefinition> createNewButtonMessageWithState(CustomDiceState state, CustomDiceConfig config) {
+    protected Optional<MessageDefinition> createNewButtonMessageWithState(State state, CustomDiceConfig config) {
         return Optional.of(createNewButtonMessage(config));
     }
 
@@ -170,8 +171,8 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, CustomD
     }
 
     @Override
-    protected CustomDiceState getStateFromEvent(IButtonEventAdaptor event) {
-        return new CustomDiceState(event.getCustomId().split(BotConstants.CONFIG_SPLIT_DELIMITER_REGEX)[1]);
+    protected State getStateFromEvent(IButtonEventAdaptor event) {
+        return new State(event.getCustomId().split(BotConstants.CONFIG_SPLIT_DELIMITER_REGEX)[1]);
     }
 
     @Override

@@ -79,7 +79,7 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesConfig,
 
     @Override
     protected CountSuccessesState getStateFromEvent(IButtonEventAdaptor event) {
-        return new CountSuccessesState(Integer.parseInt(event.getCustomId().split(BotConstants.CONFIG_SPLIT_DELIMITER_REGEX)[1]));
+        return new CountSuccessesState(event.getCustomId().split(BotConstants.CONFIG_SPLIT_DELIMITER_REGEX)[1]);
     }
 
     @Override

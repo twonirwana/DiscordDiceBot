@@ -18,7 +18,7 @@ class WelcomeCommandTest {
 
     @Test
     public void getButtonMessageWithState_fate() {
-        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(new WelcomeCommand.State("fate"), null);
+        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(new State("fate"), null);
         assertThat(res.map(MessageDefinition::getContent))
                 .contains("Click a button to roll four fate dice and add the value of the button");
         assertThat(res.map(MessageDefinition::getComponentRowDefinitions)
@@ -52,7 +52,7 @@ class WelcomeCommandTest {
 
     @Test
     public void getButtonMessageWithState_dnd5() {
-        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(new WelcomeCommand.State("dnd5"), null);
+        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(new State("dnd5"), null);
         assertThat(res.map(MessageDefinition::getContent))
                 .contains("Click on a button to roll the dice");
         assertThat(res.map(MessageDefinition::getComponentRowDefinitions)
@@ -99,7 +99,7 @@ class WelcomeCommandTest {
 
     @Test
     public void getButtonMessageWithState_nWoD() {
-        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(new WelcomeCommand.State("nWoD"), null);
+        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(new State("nWoD"), null);
 
         assertThat(res.map(MessageDefinition::getContent))
                 .contains("Click to roll the dice against 8");
@@ -134,7 +134,7 @@ class WelcomeCommandTest {
 
     @Test
     public void getButtonMessageWithState_oWoD() {
-        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(new WelcomeCommand.State("oWoD"), null);
+        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(new State("oWoD"), null);
         assertThat(res.map(MessageDefinition::getContent))
                 .contains("Click on the buttons to roll dice, with ask reroll:10 and botch:1");
         assertThat(res.map(MessageDefinition::getComponentRowDefinitions)
@@ -169,7 +169,7 @@ class WelcomeCommandTest {
 
     @Test
     public void getButtonMessageWithState_Shadowrun() {
-        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(new WelcomeCommand.State("shadowrun"), null);
+        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(new State("shadowrun"), null);
         assertThat(res.map(MessageDefinition::getContent))
                 .contains("Click to roll the dice against 5");
         assertThat(res.map(MessageDefinition::getComponentRowDefinitions)
@@ -208,7 +208,7 @@ class WelcomeCommandTest {
 
     @Test
     public void getButtonMessageWithState_other() {
-        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(new WelcomeCommand.State("-"), null);
+        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(new State("-"), null);
         assertThat(res)
                 .isEmpty();
 
@@ -237,7 +237,7 @@ class WelcomeCommandTest {
                 .stream()
                 .flatMap(s -> s.getButtonDefinitions().stream())
                 .map(ButtonDefinition::getLabel))
-                .containsExactly("Fate", "D&D5e", "nWoD", "oWoD", "Shadowrun","Coin Toss 🪙");
+                .containsExactly("Fate", "D&D5e", "nWoD", "oWoD", "Shadowrun", "Coin Toss 🪙");
 
     }
 
@@ -256,9 +256,9 @@ class WelcomeCommandTest {
         IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
         when(event.getCustomId()).thenReturn("welcome,fate");
 
-        WelcomeCommand.State res = underTest.getStateFromEvent(event);
+        State res = underTest.getStateFromEvent(event);
 
-        assertThat(res).isEqualTo(new WelcomeCommand.State("fate"));
+        assertThat(res).isEqualTo(new State("fate"));
     }
 
     @Test
