@@ -38,15 +38,15 @@ public abstract class AbstractCommand<C extends IConfig, S extends IState> imple
         this.buttonMessageCache = buttonMessageCache;
     }
 
-    protected Optional<Long> getAnswerTargetChannelIdFromStartCommandOption(CommandInteractionOption options) {
-        return options.getChannelIdSubOptionWithName(ANSWER_TARGET_CHANNEL_NAME);
-    }
-
-    protected static Long getOptionalLongFromArray(String[] optionArray, int index) {
+    public static Long getOptionalLongFromArray(String[] optionArray, int index) {
         if (optionArray.length >= index + 1 && !Strings.isNullOrEmpty(optionArray[index])) {
             return Long.parseLong(optionArray[index]);
         }
         return null;
+    }
+
+    protected Optional<Long> getAnswerTargetChannelIdFromStartCommandOption(CommandInteractionOption options) {
+        return options.getChannelIdSubOptionWithName(ANSWER_TARGET_CHANNEL_NAME);
     }
 
     @Override
@@ -55,7 +55,7 @@ public abstract class AbstractCommand<C extends IConfig, S extends IState> imple
     }
 
     @VisibleForTesting
-    Map<Long, Set<ButtonMessageCache.ButtonWithConfigHash>> getButtonMessageCache() {
+    public Map<Long, Set<ButtonMessageCache.ButtonWithConfigHash>> getButtonMessageCache() {
         return buttonMessageCache.getCacheContent();
     }
 
@@ -233,7 +233,8 @@ public abstract class AbstractCommand<C extends IConfig, S extends IState> imple
     /**
      * The text content for the old button message, after a button event. Returns null means no editing should be done.
      */
-    protected Optional<String> getCurrentMessageContentChange(S state, C config) {
+    @VisibleForTesting
+    public Optional<String> getCurrentMessageContentChange(S state, C config) {
         return Optional.empty();
     }
 
@@ -247,7 +248,7 @@ public abstract class AbstractCommand<C extends IConfig, S extends IState> imple
     /**
      * The new button message, after a slash event
      */
-    protected abstract MessageDefinition createNewButtonMessage(C config);
+    public abstract MessageDefinition createNewButtonMessage(C config);
 
     protected Optional<String> getStartOptionsValidationMessage(CommandInteractionOption options) {
         //standard is no validation

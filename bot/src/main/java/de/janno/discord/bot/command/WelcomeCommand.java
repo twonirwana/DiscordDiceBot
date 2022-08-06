@@ -4,6 +4,14 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import de.janno.discord.bot.BotMetrics;
 import de.janno.discord.bot.cache.ButtonMessageCache;
+import de.janno.discord.bot.command.countSuccesses.CountSuccessesCommand;
+import de.janno.discord.bot.command.countSuccesses.CountSuccessesConfig;
+import de.janno.discord.bot.command.customDice.CustomDiceCommand;
+import de.janno.discord.bot.command.customDice.CustomDiceConfig;
+import de.janno.discord.bot.command.fate.FateCommand;
+import de.janno.discord.bot.command.fate.FateConfig;
+import de.janno.discord.bot.command.poolTarget.PoolTargetCommand;
+import de.janno.discord.bot.command.poolTarget.PoolTargetConfig;
 import de.janno.discord.connector.api.BotConstants;
 import de.janno.discord.connector.api.IButtonEventAdaptor;
 import de.janno.discord.connector.api.message.ButtonDefinition;
@@ -57,39 +65,39 @@ public class WelcomeCommand extends AbstractCommand<WelcomeCommand.Config, Welco
         BotMetrics.incrementButtonMetricCounter(COMMAND_NAME, state.toShortString());
         return switch (state.getButtonId()) {
             case FATE_BUTTON_ID -> Optional.of(
-                    new FateCommand().createNewButtonMessage(new FateCommand.Config("with_modifier", null))
+                    new FateCommand().createNewButtonMessage(new FateConfig("with_modifier", null))
             );
             case DND5_BUTTON_ID -> Optional.of(
-                    new CustomDiceCommand().createNewButtonMessage(new CustomDiceCommand.Config(ImmutableList.of(
-                            new CustomDiceCommand.LabelAndDiceExpression("D4", "1d4"),
-                            new CustomDiceCommand.LabelAndDiceExpression("D6", "1d6"),
-                            new CustomDiceCommand.LabelAndDiceExpression("D8", "1d8"),
-                            new CustomDiceCommand.LabelAndDiceExpression("D10", "1d10"),
-                            new CustomDiceCommand.LabelAndDiceExpression("D12", "1d12"),
-                            new CustomDiceCommand.LabelAndDiceExpression("D20", "1d20"),
-                            new CustomDiceCommand.LabelAndDiceExpression("D100", "1d100"),
-                            new CustomDiceCommand.LabelAndDiceExpression("D20 Advantage", "2d20k1"),
-                            new CustomDiceCommand.LabelAndDiceExpression("D20 Disadvantage", "2d20L1"),
-                            new CustomDiceCommand.LabelAndDiceExpression("2D4", "2d4"),
-                            new CustomDiceCommand.LabelAndDiceExpression("2D6", "2d6"),
-                            new CustomDiceCommand.LabelAndDiceExpression("2D8", "2d8"),
-                            new CustomDiceCommand.LabelAndDiceExpression("2D10", "2d10"),
-                            new CustomDiceCommand.LabelAndDiceExpression("2D12", "2d12"),
-                            new CustomDiceCommand.LabelAndDiceExpression("2D20", "2d20")
+                    new CustomDiceCommand().createNewButtonMessage(new CustomDiceConfig(ImmutableList.of(
+                            new CustomDiceConfig.LabelAndDiceExpression("D4", "1d4"),
+                            new CustomDiceConfig.LabelAndDiceExpression("D6", "1d6"),
+                            new CustomDiceConfig.LabelAndDiceExpression("D8", "1d8"),
+                            new CustomDiceConfig.LabelAndDiceExpression("D10", "1d10"),
+                            new CustomDiceConfig.LabelAndDiceExpression("D12", "1d12"),
+                            new CustomDiceConfig.LabelAndDiceExpression("D20", "1d20"),
+                            new CustomDiceConfig.LabelAndDiceExpression("D100", "1d100"),
+                            new CustomDiceConfig.LabelAndDiceExpression("D20 Advantage", "2d20k1"),
+                            new CustomDiceConfig.LabelAndDiceExpression("D20 Disadvantage", "2d20L1"),
+                            new CustomDiceConfig.LabelAndDiceExpression("2D4", "2d4"),
+                            new CustomDiceConfig.LabelAndDiceExpression("2D6", "2d6"),
+                            new CustomDiceConfig.LabelAndDiceExpression("2D8", "2d8"),
+                            new CustomDiceConfig.LabelAndDiceExpression("2D10", "2d10"),
+                            new CustomDiceConfig.LabelAndDiceExpression("2D12", "2d12"),
+                            new CustomDiceConfig.LabelAndDiceExpression("2D20", "2d20")
                     ), null))
             );
             case NWOD_BUTTON_ID -> Optional.of(
-                    new CountSuccessesCommand().createNewButtonMessage(new CountSuccessesCommand.Config(10, 8, "no_glitch", 15, null))
+                    new CountSuccessesCommand().createNewButtonMessage(new CountSuccessesConfig(10, 8, "no_glitch", 15, null))
             );
             case OWOD_BUTTON_ID -> Optional.of(
-                    new PoolTargetCommand().createNewButtonMessage(new PoolTargetCommand.Config(10, 15, ImmutableSet.of(10), ImmutableSet.of(1), "ask", null))
+                    new PoolTargetCommand().createNewButtonMessage(new PoolTargetConfig(10, 15, ImmutableSet.of(10), ImmutableSet.of(1), "ask", null))
             );
             case SHADOWRUN_BUTTON_ID -> Optional.of(
-                    new CountSuccessesCommand().createNewButtonMessage(new CountSuccessesCommand.Config(6, 5, "glitch:half_dice_one", 20, null))
+                    new CountSuccessesCommand().createNewButtonMessage(new CountSuccessesConfig(6, 5, "glitch:half_dice_one", 20, null))
             );
             case COIN_BUTTON_ID -> Optional.of(
-                    new CustomDiceCommand().createNewButtonMessage(new CustomDiceCommand.Config(ImmutableList.of(
-                            new CustomDiceCommand.LabelAndDiceExpression("Coin Toss \uD83E\uDE99", "1d2=2?Head \uD83D\uDE00:Tail \uD83E\uDD85")), null))
+                    new CustomDiceCommand().createNewButtonMessage(new CustomDiceConfig(ImmutableList.of(
+                            new CustomDiceConfig.LabelAndDiceExpression("Coin Toss \uD83E\uDE99", "1d2=2?Head \uD83D\uDE00:Tail \uD83E\uDD85")), null))
             );
             default -> Optional.empty();
         };
@@ -111,7 +119,7 @@ public class WelcomeCommand extends AbstractCommand<WelcomeCommand.Config, Welco
     }
 
     @Override
-    protected MessageDefinition createNewButtonMessage(Config config) {
+    public MessageDefinition createNewButtonMessage(Config config) {
         return MessageDefinition.builder()
                 .content("""
                         Welcome to the Button Dice Bot,

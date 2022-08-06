@@ -3,6 +3,14 @@ package de.janno.discord.bot;
 
 import com.google.common.collect.ImmutableList;
 import de.janno.discord.bot.command.*;
+import de.janno.discord.bot.command.countSuccesses.CountSuccessesCommand;
+import de.janno.discord.bot.command.customDice.CustomDiceCommand;
+import de.janno.discord.bot.command.customParameter.CustomParameterCommand;
+import de.janno.discord.bot.command.fate.FateCommand;
+import de.janno.discord.bot.command.holdReroll.HoldRerollCommand;
+import de.janno.discord.bot.command.poolTarget.PoolTargetCommand;
+import de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommand;
+import de.janno.discord.bot.command.sumDiceSet.SumDiceSetCommand;
 import de.janno.discord.connector.DiscordConnector;
 
 public class Bot {
