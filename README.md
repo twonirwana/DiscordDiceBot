@@ -59,7 +59,8 @@ for further options
 
 `/count_successes start dice_sides:6 target_number:5 glitch:half_dice_one max_dice:20`
 
-The bot has currently the following systems:
+### Traveller
+`/sum_custom_set start 1_button:2d6 2_button:3d6k2@Boon 3_button:3d6l2@Bane 4_button:1d6 5_button:1 6_button:2 7_button:3 8_button:4 9_button:-1 10_button:-2 11_button:-3 12_button:-4`
 
 ## Commands
 
