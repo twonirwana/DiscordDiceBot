@@ -9,8 +9,8 @@ import lombok.NonNull;
 @Getter
 public class SumCustomSetState extends State {
     @NonNull
-    final String diceExpression;
-    final String lockedForUserName;
+    private final String diceExpression;
+    private final String lockedForUserName;
 
     public SumCustomSetState(@NonNull String buttonValue, @NonNull String diceExpression, String lockedForUserName) {
         super(buttonValue);

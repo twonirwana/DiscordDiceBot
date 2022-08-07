@@ -10,10 +10,10 @@ import java.util.stream.Stream;
 @EqualsAndHashCode(callSuper = true)
 @Getter
 public class PoolTargetState extends State {
-    final Integer dicePool;
-    final Integer targetNumber;
-    final Boolean doReroll;
-    final boolean clear;
+    private final Integer dicePool;
+    private final Integer targetNumber;
+    private final Boolean doReroll;
+    private final boolean clear;
 
     public PoolTargetState(@NonNull String buttonValue, Integer dicePool, Integer targetNumber, Boolean doReroll, boolean clear) {
         super(buttonValue);

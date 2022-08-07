@@ -1,6 +1,7 @@
 package de.janno.discord.bot.command.customParameter;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
@@ -37,6 +38,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     static final String CLEAR_BUTTON_ID = "clear";
     final static Pattern PARAMETER_VARIABLE_PATTERN = Pattern.compile("\\Q{\\E.*?\\Q}\\E");
     static final String LOCKED_USER_NAME_DELIMITER = "\u2236"; //"∶" Ratio
+    static final String SELECTED_PARAMETER_DELIMITER = "\t";
     private static final String COMMAND_NAME = "custom_parameter";
     private static final String EXPRESSION_OPTION = "expression";
     private static final ButtonMessageCache BUTTON_MESSAGE_CACHE = new ButtonMessageCache(COMMAND_NAME);
@@ -56,6 +58,99 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     public CustomParameterCommand(DiceParserHelper diceParserHelper) {
         super(BUTTON_MESSAGE_CACHE);
         this.diceParserHelper = diceParserHelper;
+    }
+
+    private static @NonNull String getNextParameterExpression(@NonNull String expression) {
+        Matcher matcher = PARAMETER_VARIABLE_PATTERN.matcher(expression);
+        if (matcher.find()) {
+            return matcher.group(0);
+        }
+        throw new IllegalStateException(String.format("Expression '%s' missing a parameter definition like {name}", expression));
+    }
+
+    private static String getLockedForUserName(String buttonValue, String messageContent, String invokingUser) {
+        if (CLEAR_BUTTON_ID.equals(buttonValue)) {
+            return null;
+        }
+        return Optional.ofNullable(getUserNameFromMessage(messageContent)).orElse(invokingUser);
+    }
+
+    private static String cleanupExpressionForDisplay(String expression) {
+        return expression
+                .replaceAll(RANGE_REPLACE_REGEX, "")
+                .replace("{", "*{")
+                .replace("}", "}*");
+    }
+
+    private static List<String> getSelectedParameterValues(String buttonValue, String alreadySelectedParameter, String lockedForUserName, @NonNull String invokingUser) {
+        if (CLEAR_BUTTON_ID.equals(buttonValue)) {
+            return ImmutableList.of();
+        }
+        ImmutableList.Builder<String> selectedParameterBuilder =
+                ImmutableList.<String>builder()
+                        .addAll(Arrays.stream(alreadySelectedParameter.split(SELECTED_PARAMETER_DELIMITER))
+                                .filter(s -> !Strings.isNullOrEmpty(s))
+                                .collect(Collectors.toList()));
+        if (lockedForUserName.equals(invokingUser)) {
+            selectedParameterBuilder.add(buttonValue);
+        }
+        return selectedParameterBuilder.build();
+    }
+
+    private static String getUserNameFromMessage(@NonNull String messageContent) {
+        if (messageContent.contains(LOCKED_USER_NAME_DELIMITER)) {
+            return messageContent.split(LOCKED_USER_NAME_DELIMITER)[0];
+        }
+        return null;
+    }
+
+    @VisibleForTesting
+    static boolean hasMissingParameter(@NonNull String expression) {
+        return PARAMETER_VARIABLE_PATTERN.matcher(expression).find();
+    }
+
+    @VisibleForTesting
+    static CustomParameterState createParameterState(String customId, String messageContent, String invokingUser) {
+        String[] split = splitCustomId(customId);
+        String buttonValue = split[CustomIdIndex.BUTTON_VALUE.index];
+        String alreadySelectedParameter = split[CustomIdIndex.SELECTED_PARAMETER.index];
+        String lockedForUserName = getLockedForUserName(buttonValue, messageContent, invokingUser);
+        List<String> selectedParameterValues = getSelectedParameterValues(buttonValue, alreadySelectedParameter, lockedForUserName, invokingUser);
+
+        return new CustomParameterState(buttonValue, selectedParameterValues, lockedForUserName);
+    }
+
+    @VisibleForTesting
+    static String getFilledExpression(CustomParameterConfig config, CustomParameterState state) {
+        String filledExpression = config.getBaseExpression();
+        for (String parameterValue : state.getSelectedParameterValues()) {
+            String nextParameterName = getNextParameterExpression(filledExpression);
+            filledExpression = filledExpression.replace(nextParameterName, parameterValue);
+        }
+        return filledExpression;
+    }
+
+    @VisibleForTesting
+    static String getCurrentParameterExpression(CustomParameterConfig config, CustomParameterState state) {
+        String filledExpression = getFilledExpression(config, state);
+        return hasMissingParameter(filledExpression) ? getNextParameterExpression(filledExpression) : null;
+    }
+
+    @VisibleForTesting
+    static String getCurrentParameterName(CustomParameterConfig config, CustomParameterState state) {
+        String currentParameterExpression = getCurrentParameterExpression(config, state);
+        return currentParameterExpression != null ? cleanupExpressionForDisplay(currentParameterExpression) : null;
+    }
+
+    private static String[] splitCustomId(String customId) {
+        return customId.split(BotConstants.CONFIG_SPLIT_DELIMITER_REGEX);
+    }
+
+
+    @VisibleForTesting
+    static CustomParameterConfig createConfigFromCustomId(String customId) {
+        String[] split = splitCustomId(customId);
+        return new CustomParameterConfig(getOptionalLongFromArray(split, 2), split[CustomIdIndex.BASE_EXPRESSION.index]);
     }
 
     @Override
@@ -90,9 +185,9 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
 
     @Override
     protected Optional<EmbedDefinition> getAnswer(CustomParameterState state, CustomParameterConfig config) {
-        if (!state.hasMissingParameter()) {
-            String expression = DiceParserHelper.getExpressionFromExpressionWithOptionalLabel(state.getFilledExpression(), LABEL_DELIMITER);
-            String label = DiceParserHelper.getLabelFromExpressionWithOptionalLabel(state.getFilledExpression(), LABEL_DELIMITER).orElse(null);
+        if (!hasMissingParameter(getFilledExpression(config, state))) {
+            String expression = DiceParserHelper.getExpressionFromExpressionWithOptionalLabel(getFilledExpression(config, state), LABEL_DELIMITER);
+            String label = DiceParserHelper.getLabelFromExpressionWithOptionalLabel(getFilledExpression(config, state), LABEL_DELIMITER).orElse(null);
             return Optional.of(diceParserHelper.roll(expression, label));
         }
         return Optional.empty();
@@ -100,36 +195,33 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
 
     @Override
     protected CustomParameterConfig getConfigFromEvent(IButtonEventAdaptor event) {
-        return new CustomParameterConfig(splitCustomId(event.getCustomId()));
+        return createConfigFromCustomId(event.getCustomId());
     }
 
     @Override
     protected CustomParameterState getStateFromEvent(IButtonEventAdaptor event) {
-        return new CustomParameterState(splitCustomId(event.getCustomId()), event.getMessageContent(), event.getInvokingGuildMemberName());
-    }
-
-    private String[] splitCustomId(String customId) {
-        return customId.split(BotConstants.CONFIG_SPLIT_DELIMITER_REGEX);
+        return createParameterState(event.getCustomId(), event.getMessageContent(), event.getInvokingGuildMemberName());
     }
 
     @Override
     protected CustomParameterConfig getConfigFromStartOptions(CommandInteractionOption options) {
         String baseExpression = options.getStringSubOptionWithName(EXPRESSION_OPTION).orElse("");
         Optional<Long> answerTargetChannelId = getAnswerTargetChannelIdFromStartCommandOption(options);
-        return new CustomParameterConfig(baseExpression, answerTargetChannelId.orElse(null));
+
+        return new CustomParameterConfig(answerTargetChannelId.orElse(null), baseExpression);
     }
 
     @Override
     public MessageDefinition createNewButtonMessage(CustomParameterConfig config) {
         return MessageDefinition.builder()
-                .content(String.format("%s: Please select value for %s", config.baseExpressionWithoutRange(), config.getFirstParameterName()))
+                .content(String.format("%s: Please select value for %s", cleanupExpressionForDisplay(config.getBaseExpression()), cleanupExpressionForDisplay(getNextParameterExpression(config.getBaseExpression()))))
                 .componentRowDefinitions(getButtonLayoutWithOptionalState(config, null))
                 .build();
     }
 
     @Override
     protected Optional<List<ComponentRowDefinition>> getCurrentMessageComponentChange(CustomParameterState state, CustomParameterConfig config) {
-        if (!state.hasMissingParameter()) {
+        if (!hasMissingParameter(getFilledExpression(config, state))) {
             return Optional.empty();
         }
         return Optional.of(getButtonLayoutWithOptionalState(config, state));
@@ -137,18 +229,18 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
 
     @Override
     public Optional<String> getCurrentMessageContentChange(CustomParameterState state, CustomParameterConfig config) {
-        if (!state.hasMissingParameter()) {
+        if (!hasMissingParameter(getFilledExpression(config, state))) {
             return Optional.empty();
         }
         String cleanName = Optional.ofNullable(state.getLockedForUserName()).map(n -> String.format("%s%s", n, LOCKED_USER_NAME_DELIMITER)).orElse("");
-        return Optional.of(String.format("%s%s: Please select value for %s", cleanName, state.filledExpressionWithoutRange(), state.getCurrentParameterName()));
+        return Optional.of(String.format("%s%s: Please select value for %s", cleanName, cleanupExpressionForDisplay(getFilledExpression(config, state)), getCurrentParameterName(config, state)));
     }
 
     @Override
     protected Optional<MessageDefinition> createNewButtonMessageWithState(CustomParameterState state, CustomParameterConfig config) {
-        if (!state.hasMissingParameter()) {
+        if (!hasMissingParameter(getFilledExpression(config, state))) {
             return Optional.of(MessageDefinition.builder()
-                    .content(String.format("%s: Please select value for %s", config.baseExpressionWithoutRange(), config.getFirstParameterName()))
+                    .content(String.format("%s: Please select value for %s", cleanupExpressionForDisplay(config.getBaseExpression()), cleanupExpressionForDisplay(getNextParameterExpression(config.getBaseExpression()))))
                     .componentRowDefinitions(getButtonLayoutWithOptionalState(config, null))
                     .build());
         }
@@ -157,8 +249,8 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
 
     private List<ComponentRowDefinition> getButtonLayoutWithOptionalState(@NonNull CustomParameterConfig config, @Nullable CustomParameterState state) {
         String parameterExpression = Optional.ofNullable(state)
-                .map(CustomParameterState::getCurrentParameterExpression)
-                .orElse(config.getFirstParameterExpression());
+                .map(s -> getCurrentParameterExpression(config, s))
+                .orElse(getNextParameterExpression(config.getBaseExpression()));
         List<String> buttonValues = getButtonValues(parameterExpression);
         List<ButtonDefinition> buttons = buttonValues.stream()
                 .map(v -> ButtonDefinition.builder()
@@ -211,12 +303,12 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
         if (baseExpression.contains(BotConstants.CONFIG_DELIMITER)) {
             return Optional.of(String.format("Expression contains invalid character: '%s'", BotConstants.CONFIG_DELIMITER));
         }
-        if (baseExpression.contains(CustomParameterState.SELECTED_PARAMETER_DELIMITER)) {
-            return Optional.of(String.format("Expression contains invalid character: '%s'", CustomParameterState.SELECTED_PARAMETER_DELIMITER));
+        if (baseExpression.contains(SELECTED_PARAMETER_DELIMITER)) {
+            return Optional.of(String.format("Expression contains invalid character: '%s'", SELECTED_PARAMETER_DELIMITER));
         }
         CustomParameterConfig config = getConfigFromStartOptions(options);
-        if (getButtonValues(config.getFirstParameterExpression()).isEmpty()) {
-            return Optional.of(String.format("The expression '%s' contains no valid parameter options", config.getFirstParameterExpression()));
+        if (getButtonValues(getNextParameterExpression(config.getBaseExpression())).isEmpty()) {
+            return Optional.of(String.format("The expression '%s' contains no valid parameter options", getNextParameterExpression(config.getBaseExpression())));
         }
         return validateAllPossibleStates(config);
     }
@@ -227,19 +319,19 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
         for (StateWithCustomIdAndParameter aState : allPossibleStatePermutations) {
             String customId = aState.getCustomId();
             if (customId.length() > 100) {
-                return Optional.of(String.format("The following expression with parameters is %d to long: %s", (customId.length() - 100), aState.getState().getFilledExpression()));
+                return Optional.of(String.format("The following expression with parameters is %d to long: %s", (customId.length() - 100), getFilledExpression(config, aState.getState())));
             }
             if (aState.getParameter().size() != ImmutableSet.copyOf(aState.getParameter()).size()) {
                 return Optional.of(String.format("Parameter '%s' contains duplicate parameter option but they must be unique.", aState.getParameter()));
             }
-            if (!aState.getState().hasMissingParameter()) {
-                Optional<String> validationMessage = diceParserHelper.validateDiceExpressionWitOptionalLabel(aState.getState().getFilledExpression(), "@", "/custom_parameter help", 100);
+            if (!hasMissingParameter(getFilledExpression(config, aState.getState()))) {
+                Optional<String> validationMessage = diceParserHelper.validateDiceExpressionWitOptionalLabel(getFilledExpression(config, aState.getState()), "@", "/custom_parameter help", 100);
                 if (validationMessage.isPresent()) {
                     return validationMessage;
                 }
             }
-            if (aState.getState().hasMissingParameter() && getButtonValues(aState.getState().getCurrentParameterExpression()).isEmpty()) {
-                return Optional.of(String.format("The expression '%s' contains no valid parameter options", aState.getState().getCurrentParameterExpression()));
+            if (hasMissingParameter(getFilledExpression(config, aState.getState())) && getButtonValues(getCurrentParameterExpression(config, aState.getState())).isEmpty()) {
+                return Optional.of(String.format("The expression '%s' contains no valid parameter options", getCurrentParameterExpression(config, aState.getState())));
             }
         }
         return Optional.empty();
@@ -247,25 +339,26 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
 
     private List<StateWithCustomIdAndParameter> allPossibleStatePermutations(CustomParameterConfig config) {
         List<StateWithCustomIdAndParameter> out = new ArrayList<>();
-        String parameterExpression = config.getFirstParameterExpression();
+        String parameterExpression = getNextParameterExpression(config.getBaseExpression());
         List<String> parameterValues = getButtonValues(parameterExpression);
         for (String parameterValue : parameterValues) {
             String customId = createButtonCustomId(parameterValue, config, null);
-            CustomParameterState nextState = new CustomParameterState(splitCustomId(customId), "", "");
+            CustomParameterState nextState = createParameterState(customId, "", "");
             out.add(new StateWithCustomIdAndParameter(customId, nextState, parameterValues));
             out.addAll(allPossibleStatePermutations(config, nextState));
         }
         return out;
     }
 
+
     private List<StateWithCustomIdAndParameter> allPossibleStatePermutations(CustomParameterConfig config, CustomParameterState state) {
         List<StateWithCustomIdAndParameter> out = new ArrayList<>();
-        if (state.hasMissingParameter()) {
-            String parameterExpression = state.getCurrentParameterExpression();
+        if (hasMissingParameter(getFilledExpression(config, state))) {
+            String parameterExpression = getCurrentParameterExpression(config, state);
             List<String> parameterValues = getButtonValues(parameterExpression);
             for (String parameterValue : parameterValues) {
                 String customId = createButtonCustomId(parameterValue, config, state);
-                CustomParameterState nextState = new CustomParameterState(splitCustomId(customId), "", "");
+                CustomParameterState nextState = createParameterState(customId, "", "");
                 out.add(new StateWithCustomIdAndParameter(customId, nextState, parameterValues));
                 out.addAll(allPossibleStatePermutations(config, nextState));
             }
@@ -274,7 +367,10 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     }
 
     @VisibleForTesting
-    @NonNull List<String> getButtonValues(@NonNull String currentParameterExpression) {
+    @NonNull List<String> getButtonValues(String currentParameterExpression) {
+        if (currentParameterExpression == null) {
+            return ImmutableList.of();
+        }
         Matcher matcher = BUTTON_VALUE_PATTERN.matcher(currentParameterExpression);
         if (BUTTON_RANGE_PATTERN.matcher(currentParameterExpression).find()) {
             int min = getMinButtonFrom(currentParameterExpression);

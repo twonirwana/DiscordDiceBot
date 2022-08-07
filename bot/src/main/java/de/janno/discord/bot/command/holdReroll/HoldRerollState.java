@@ -11,8 +11,8 @@ import java.util.List;
 @Getter
 public class HoldRerollState extends State {
     @NonNull
-    final List<Integer> currentResults;
-    final int rerollCounter;
+    private final List<Integer> currentResults;
+    private final int rerollCounter;
 
     public HoldRerollState(@NonNull String buttonValue, @NonNull List<Integer> currentResults, int rerollCounter) {
         super(buttonValue);

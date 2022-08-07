@@ -9,7 +9,7 @@ import lombok.NonNull;
 @Getter
 public class FateConfig extends Config {
     @NonNull
-    final String type;
+    private final String type;
 
     public FateConfig(Long answerTargetChannelId, @NonNull String type) {
         super(answerTargetChannelId);

@@ -12,7 +12,7 @@ import java.util.stream.Stream;
 @Getter
 public class SumCustomSetConfig extends Config {
     @NonNull
-    final List<LabelAndDiceExpression> labelAndExpression;
+    private final List<LabelAndDiceExpression> labelAndExpression;
 
     public SumCustomSetConfig(Long answerTargetChannelId, @NonNull List<LabelAndDiceExpression> labelAndExpression) {
         super(answerTargetChannelId);

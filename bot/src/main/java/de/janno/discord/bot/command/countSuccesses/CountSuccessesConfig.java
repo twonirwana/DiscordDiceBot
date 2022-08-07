@@ -10,11 +10,11 @@ import java.util.stream.Stream;
 @EqualsAndHashCode(callSuper = true)
 @Getter
 public class CountSuccessesConfig extends Config {
-    final int diceSides;
-    final int target;
+    private final int diceSides;
+    private final int target;
     @NonNull
-    final String glitchOption;
-    final int maxNumberOfButtons;
+    private final String glitchOption;
+    private final int maxNumberOfButtons;
 
     public CountSuccessesConfig(Long answerTargetChannelId, int diceSides, int target, @NonNull String glitchOption, int maxNumberOfButtons) {
         super(answerTargetChannelId);

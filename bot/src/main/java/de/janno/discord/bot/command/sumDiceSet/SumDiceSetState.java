@@ -12,7 +12,7 @@ import java.util.Map;
 public class SumDiceSetState extends State {
 
     @NonNull
-    final Map<String, Integer> diceSetMap;
+    private final Map<String, Integer> diceSetMap;
 
     public SumDiceSetState(@NonNull String buttonValue, @NonNull Map<String, Integer> diceSetMap) {
         super(buttonValue);

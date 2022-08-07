@@ -12,13 +12,13 @@ import java.util.stream.Collectors;
 @EqualsAndHashCode(callSuper = true)
 @Getter
 public class PoolTargetConfig extends Config {
-    final int diceSides;
-    final int maxNumberOfButtons;
+    private  final int diceSides;
+    private   final int maxNumberOfButtons;
     @NonNull
-    final Set<Integer> rerollSet;
+    private   final Set<Integer> rerollSet;
     @NonNull
-    final Set<Integer> botchSet;
-    final String rerollVariant;
+    private   final Set<Integer> botchSet;
+    private   final String rerollVariant;
 
     public PoolTargetConfig(Long answerTargetChannelId, int diceSides, int maxNumberOfButtons, @NonNull Set<Integer> rerollSet, @NonNull Set<Integer> botchSet, String rerollVariant) {
         super(answerTargetChannelId);

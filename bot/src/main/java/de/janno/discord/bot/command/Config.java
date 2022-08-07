@@ -4,13 +4,15 @@ import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
+import java.io.Serializable;
+
 /**
  * A configuration for a dice system. It will be created with the slash command and not modified afterwards.
  */
 @EqualsAndHashCode
 @Getter
 @AllArgsConstructor
-public class Config {
+public class Config implements Serializable {
     private final Long answerTargetChannelId;
 
     public String toShortString() {

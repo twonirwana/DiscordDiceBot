@@ -14,13 +14,13 @@ import static de.janno.discord.bot.command.holdReroll.HoldRerollCommand.SUBSET_D
 @EqualsAndHashCode(callSuper = true)
 @Getter
 public class HoldRerollConfig extends Config {
-    final int sidesOfDie;
+    private final int sidesOfDie;
     @NonNull
-    final Set<Integer> rerollSet;
+    private final Set<Integer> rerollSet;
     @NonNull
-    final Set<Integer> successSet;
+    private final Set<Integer> successSet;
     @NonNull
-    final Set<Integer> failureSet;
+    private final Set<Integer> failureSet;
 
     public HoldRerollConfig(Long answerTargetChannelId, int sidesOfDie, @NonNull Set<Integer> rerollSet, @NonNull Set<Integer> successSet, @NonNull Set<Integer> failureSet) {
         super(answerTargetChannelId);

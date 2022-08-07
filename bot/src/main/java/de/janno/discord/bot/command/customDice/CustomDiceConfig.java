@@ -13,7 +13,7 @@ import java.util.stream.Stream;
 @Getter
 public class CustomDiceConfig extends Config {
     @NonNull
-    final List<LabelAndDiceExpression> labelAndExpression;
+    private final List<LabelAndDiceExpression> labelAndExpression;
 
     public CustomDiceConfig(Long answerTargetChannelId, @NonNull List<LabelAndDiceExpression> labelAndExpression) {
         super(answerTargetChannelId);
