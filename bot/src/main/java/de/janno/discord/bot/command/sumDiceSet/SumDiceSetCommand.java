@@ -1,10 +1,12 @@
-package de.janno.discord.bot.command;
+package de.janno.discord.bot.command.sumDiceSet;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import de.janno.discord.bot.cache.ButtonMessageCache;
+import de.janno.discord.bot.command.AbstractCommand;
+import de.janno.discord.bot.command.Config;
 import de.janno.discord.bot.dice.DiceUtils;
 import de.janno.discord.connector.api.BotConstants;
 import de.janno.discord.connector.api.IButtonEventAdaptor;
@@ -15,7 +17,6 @@ import de.janno.discord.connector.api.message.MessageDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinitionOption;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import lombok.NonNull;
-import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.math.NumberUtils;
 
@@ -25,7 +26,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Slf4j
-public class SumDiceSetCommand extends AbstractCommand<SumDiceSetCommand.Config, SumDiceSetCommand.State> {
+public class SumDiceSetCommand extends AbstractCommand<Config, SumDiceSetState> {
     private static final String COMMAND_NAME = "sum_dice_set";
     private static final String DICE_SET_DELIMITER = " ";
     private static final String ROLL_BUTTON_ID = "roll";
@@ -105,7 +106,7 @@ public class SumDiceSetCommand extends AbstractCommand<SumDiceSetCommand.Config,
     }
 
     @Override
-    protected Optional<EmbedDefinition> getAnswer(State state, Config config) {
+    protected Optional<EmbedDefinition> getAnswer(SumDiceSetState state, Config config) {
         if (!(ROLL_BUTTON_ID.equals(state.getButtonValue()) && !state.getDiceSetMap().isEmpty())) {
             return Optional.empty();
         }
@@ -147,7 +148,7 @@ public class SumDiceSetCommand extends AbstractCommand<SumDiceSetCommand.Config,
     }
 
     @Override
-    protected MessageDefinition createNewButtonMessage(Config config) {
+    public MessageDefinition createNewButtonMessage(Config config) {
         return MessageDefinition.builder()
                 .content(EMPTY_MESSAGE)
                 .componentRowDefinitions(createButtonLayout(config))
@@ -155,7 +156,7 @@ public class SumDiceSetCommand extends AbstractCommand<SumDiceSetCommand.Config,
     }
 
     @Override
-    protected Optional<MessageDefinition> createNewButtonMessageWithState(State state, Config config) {
+    protected Optional<MessageDefinition> createNewButtonMessageWithState(SumDiceSetState state, Config config) {
         if (!(ROLL_BUTTON_ID.equals(state.getButtonValue()) && !state.getDiceSetMap().isEmpty())) {
             return Optional.empty();
         }
@@ -166,7 +167,7 @@ public class SumDiceSetCommand extends AbstractCommand<SumDiceSetCommand.Config,
     }
 
     @Override
-    protected Optional<String> getCurrentMessageContentChange(State state, Config config) {
+    public Optional<String> getCurrentMessageContentChange(SumDiceSetState state, Config config) {
         switch (state.getButtonValue()) {
             case ROLL_BUTTON_ID:
             case CLEAR_BUTTON_ID:
@@ -211,14 +212,14 @@ public class SumDiceSetCommand extends AbstractCommand<SumDiceSetCommand.Config,
     }
 
     @Override
-    protected State getStateFromEvent(IButtonEventAdaptor event) {
+    protected SumDiceSetState getStateFromEvent(IButtonEventAdaptor event) {
         String buttonMessage = event.getMessageContent();
         String buttonValue = event.getCustomId().split(BotConstants.CONFIG_SPLIT_DELIMITER_REGEX)[1];
         if (EMPTY_MESSAGE.equals(buttonMessage)) {
-            return new State(buttonValue, ImmutableMap.of());
+            return new SumDiceSetState(buttonValue, ImmutableMap.of());
         }
 
-        return new State(buttonValue, Arrays.stream(buttonMessage.split(Pattern.quote(DICE_SET_DELIMITER)))
+        return new SumDiceSetState(buttonValue, Arrays.stream(buttonMessage.split(Pattern.quote(DICE_SET_DELIMITER)))
                 //for handling legacy buttons with '1d4 + 1d6)
                 .filter(s -> !"+".equals(s))
                 .filter(Objects::nonNull)
@@ -249,13 +250,6 @@ public class SumDiceSetCommand extends AbstractCommand<SumDiceSetCommand.Config,
                     }
                 })));
     }
-
-
-    @Override
-    protected Optional<Long> getAnswerTargetChannelId(Config config) {
-        return Optional.ofNullable(config.getAnswerTargetChannelId());
-    }
-
     @Override
     protected Config getConfigFromStartOptions(CommandInteractionOption options) {
         return new Config(getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null));
@@ -294,27 +288,5 @@ public class SumDiceSetCommand extends AbstractCommand<SumDiceSetCommand.Config,
                 )).build());
     }
 
-    @Value
-    protected static class Config implements IConfig {
-        Long answerTargetChannelId;
 
-        @Override
-        public String toShortString() {
-            return String.format("[%s]", targetChannelToString(answerTargetChannelId));
-        }
-
-    }
-
-    @Value
-    static class State implements IState {
-        @NonNull
-        String buttonValue;
-        @NonNull
-        Map<String, Integer> diceSetMap;
-
-        @Override
-        public String toShortString() {
-            return String.format("[%s, %s]", buttonValue, diceSetMap);
-        }
-    }
 }

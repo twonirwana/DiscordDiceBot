@@ -1,10 +1,11 @@
-package de.janno.discord.bot.command;
+package de.janno.discord.bot.command.fate;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import de.janno.discord.bot.cache.ButtonMessageCache;
+import de.janno.discord.bot.command.AbstractCommand;
 import de.janno.discord.bot.dice.DiceUtils;
 import de.janno.discord.connector.api.BotConstants;
 import de.janno.discord.connector.api.IButtonEventAdaptor;
@@ -16,7 +17,6 @@ import de.janno.discord.connector.api.slash.CommandDefinitionOption;
 import de.janno.discord.connector.api.slash.CommandDefinitionOptionChoice;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import lombok.NonNull;
-import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.math.NumberUtils;
 
@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Slf4j
-public class FateCommand extends AbstractCommand<FateCommand.Config, FateCommand.State> {
+public class FateCommand extends AbstractCommand<FateConfig, FateState> {
 
     private static final String COMMAND_NAME = "fate";
     private static final String ACTION_MODIFIER_OPTION = "type";
@@ -50,14 +50,11 @@ public class FateCommand extends AbstractCommand<FateCommand.Config, FateCommand
     }
 
     @Override
-    protected Optional<Long> getAnswerTargetChannelId(Config config) {
-        return Optional.ofNullable(config.getAnswerTargetChannelId());
-    }
-    @Override
     protected @NonNull String getCommandDescription() {
         return "Configure Fate dice";
     }
-    private String createButtonMessage(Config config) {
+
+    private String createButtonMessage(FateConfig config) {
         if (ACTION_MODIFIER_OPTION_MODIFIER.equals(config.getType())) {
             return "Click a button to roll four fate dice and add the value of the button";
         }
@@ -94,13 +91,13 @@ public class FateCommand extends AbstractCommand<FateCommand.Config, FateCommand
     }
 
     @Override
-    protected Config getConfigFromStartOptions(CommandInteractionOption options) {
-        return new Config(options.getStringSubOptionWithName(ACTION_MODIFIER_OPTION).orElse(ACTION_MODIFIER_OPTION_SIMPLE),
-                getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null));
+    protected FateConfig getConfigFromStartOptions(CommandInteractionOption options) {
+        return new FateConfig(getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null),
+                options.getStringSubOptionWithName(ACTION_MODIFIER_OPTION).orElse(ACTION_MODIFIER_OPTION_SIMPLE));
     }
 
     @Override
-    protected Optional<EmbedDefinition> getAnswer(State state, Config config) {
+    protected Optional<EmbedDefinition> getAnswer(FateState state, FateConfig config) {
         List<Integer> rollResult = diceUtils.rollFate();
 
         if (ACTION_MODIFIER_OPTION_MODIFIER.equals(config.getType()) && state.getModifier() != null) {
@@ -124,19 +121,19 @@ public class FateCommand extends AbstractCommand<FateCommand.Config, FateCommand
     }
 
     @Override
-    protected Optional<MessageDefinition> createNewButtonMessageWithState(State state, Config config) {
+    protected Optional<MessageDefinition> createNewButtonMessageWithState(FateState state, FateConfig config) {
         return Optional.of(createNewButtonMessage(config));
     }
 
     @Override
-    protected MessageDefinition createNewButtonMessage(Config config) {
+    public MessageDefinition createNewButtonMessage(FateConfig config) {
         return MessageDefinition.builder()
                 .content(createButtonMessage(config))
                 .componentRowDefinitions(createButtonLayout(config))
                 .build();
     }
 
-    private List<ComponentRowDefinition> createButtonLayout(Config config) {
+    private List<ComponentRowDefinition> createButtonLayout(FateConfig config) {
         if (ACTION_MODIFIER_OPTION_MODIFIER.equals(config.getType())) {
             return ImmutableList.of(
                     ComponentRowDefinition.builder().buttonDefinitions(
@@ -176,22 +173,22 @@ public class FateCommand extends AbstractCommand<FateCommand.Config, FateCommand
     }
 
     @Override
-    protected Config getConfigFromEvent(IButtonEventAdaptor event) {
+    protected FateConfig getConfigFromEvent(IButtonEventAdaptor event) {
         String[] split = event.getCustomId().split(BotConstants.CONFIG_SPLIT_DELIMITER_REGEX);
-        return new Config(split[2], getOptionalLongFromArray(split, 3));
+        return new FateConfig(getOptionalLongFromArray(split, 3), split[2]);
     }
 
     @Override
-    protected State getStateFromEvent(IButtonEventAdaptor event) {
-        String modifier = event.getCustomId().split(BotConstants.CONFIG_SPLIT_DELIMITER_REGEX)[1];
-        if (!Strings.isNullOrEmpty(modifier) && NumberUtils.isParsable(modifier)) {
-            return new State(Integer.valueOf(modifier));
+    protected FateState getStateFromEvent(IButtonEventAdaptor event) {
+        String buttonValue = event.getCustomId().split(BotConstants.CONFIG_SPLIT_DELIMITER_REGEX)[1];
+        if (!Strings.isNullOrEmpty(buttonValue) && NumberUtils.isParsable(buttonValue)) {
+            return new FateState(buttonValue);
         }
-        return new State(null);
+        return new FateState(buttonValue);
     }
 
     @VisibleForTesting
-    String createButtonCustomId(String modifier, Config config) {
+    String createButtonCustomId(String modifier, FateConfig config) {
         Preconditions.checkArgument(!modifier.contains(BotConstants.CONFIG_DELIMITER));
         Preconditions.checkArgument(!config.getType().contains(BotConstants.CONFIG_DELIMITER));
 
@@ -203,26 +200,4 @@ public class FateCommand extends AbstractCommand<FateCommand.Config, FateCommand
     }
 
 
-    @Value
-    protected static class Config implements IConfig {
-
-        @NonNull
-        String type;
-        Long answerTargetChannelId;
-
-        @Override
-        public String toShortString() {
-            return String.format("[%s, %s]", type, targetChannelToString(answerTargetChannelId));
-        }
-    }
-
-    @Value
-    static class State implements IState {
-        Integer modifier;
-
-        @Override
-        public String toShortString() {
-            return String.format("[%s]", Optional.ofNullable(modifier).map(String::valueOf).orElse(""));
-        }
-    }
 }

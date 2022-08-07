@@ -1,4 +1,4 @@
-package de.janno.discord.bot.command;
+package de.janno.discord.bot.command.sumCustomSet;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
@@ -6,6 +6,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import de.janno.discord.bot.cache.ButtonMessageCache;
+import de.janno.discord.bot.command.AbstractCommand;
 import de.janno.discord.bot.dice.DiceParserHelper;
 import de.janno.discord.connector.api.BotConstants;
 import de.janno.discord.connector.api.IButtonEventAdaptor;
@@ -16,7 +17,6 @@ import de.janno.discord.connector.api.message.MessageDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinitionOption;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import lombok.NonNull;
-import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
@@ -27,7 +27,7 @@ import java.util.stream.Stream;
 
 
 @Slf4j
-public class SumCustomSetCommand extends AbstractCommand<SumCustomSetCommand.Config, SumCustomSetCommand.State> {
+public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, SumCustomSetState> {
     private static final String COMMAND_NAME = "sum_custom_set";
     private static final String ROLL_BUTTON_ID = "roll";
     private static final String NO_ACTION = "no action";
@@ -71,18 +71,13 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetCommand.Con
 
 
     @VisibleForTesting
-    String createButtonCustomId(String action, Config config) {
+    String createButtonCustomId(String action, SumCustomSetConfig config) {
         Preconditions.checkArgument(!action.contains(BotConstants.CONFIG_DELIMITER));
 
         return String.join(BotConstants.CONFIG_DELIMITER,
                 COMMAND_NAME,
                 action,
                 Optional.ofNullable(config.getAnswerTargetChannelId()).map(Object::toString).orElse(""));
-    }
-
-    @Override
-    protected Optional<Long> getAnswerTargetChannelId(Config config) {
-        return Optional.ofNullable(config.getAnswerTargetChannelId());
     }
 
     @Override
@@ -123,7 +118,7 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetCommand.Con
     }
 
     @Override
-    protected Optional<EmbedDefinition> getAnswer(State state, Config config) {
+    protected Optional<EmbedDefinition> getAnswer(SumCustomSetState state, SumCustomSetConfig config) {
         if (!(ROLL_BUTTON_ID.equals(state.getButtonValue()) && !state.getDiceExpression().isEmpty())) {
             return Optional.empty();
         }
@@ -136,7 +131,7 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetCommand.Con
     }
 
     @Override
-    protected MessageDefinition createNewButtonMessage(Config config) {
+    public MessageDefinition createNewButtonMessage(SumCustomSetConfig config) {
         return MessageDefinition.builder()
                 .content(EMPTY_MESSAGE)
                 .componentRowDefinitions(createButtonLayout(config))
@@ -144,7 +139,7 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetCommand.Con
     }
 
     @Override
-    protected Optional<MessageDefinition> createNewButtonMessageWithState(State state, Config config) {
+    protected Optional<MessageDefinition> createNewButtonMessageWithState(SumCustomSetState state, SumCustomSetConfig config) {
         if (ROLL_BUTTON_ID.equals(state.getButtonValue()) && !Strings.isNullOrEmpty(state.getDiceExpression())) {
             return Optional.of(MessageDefinition.builder()
                     .content(EMPTY_MESSAGE)
@@ -156,7 +151,7 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetCommand.Con
     }
 
     @Override
-    protected Optional<String> getCurrentMessageContentChange(State state, Config config) {
+    public Optional<String> getCurrentMessageContentChange(SumCustomSetState state, SumCustomSetConfig config) {
         if (ROLL_BUTTON_ID.equals(state.getButtonValue())) {
             return Optional.of(EMPTY_MESSAGE);
         } else if (CLEAR_BUTTON_ID.equals(state.getButtonValue())) {
@@ -176,13 +171,13 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetCommand.Con
 
 
     @Override
-    protected Config getConfigFromEvent(IButtonEventAdaptor event) {
+    protected SumCustomSetConfig getConfigFromEvent(IButtonEventAdaptor event) {
         String[] split = event.getCustomId().split(BotConstants.CONFIG_SPLIT_DELIMITER_REGEX);
         Long answerTargetChannelId = getOptionalLongFromArray(split, 2);
-        return new Config(event.getAllButtonIds().stream()
+        return new SumCustomSetConfig(answerTargetChannelId, event.getAllButtonIds().stream()
                 .filter(lv -> !ImmutableSet.of(ROLL_BUTTON_ID, CLEAR_BUTTON_ID, BACK_BUTTON_ID).contains(diceExpressionFromCustomId(lv.getCustomId())))
                 .map(lv -> new LabelAndDiceExpression(lv.getLabel(), diceExpressionFromCustomId(lv.getCustomId())))
-                .collect(Collectors.toList()), answerTargetChannelId);
+                .collect(Collectors.toList()));
     }
 
     private String diceExpressionFromCustomId(String customId) {
@@ -191,10 +186,10 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetCommand.Con
     }
 
     @Override
-    protected State getStateFromEvent(IButtonEventAdaptor event) {
+    protected SumCustomSetState getStateFromEvent(IButtonEventAdaptor event) {
         String buttonValue = event.getCustomId().split(BotConstants.CONFIG_SPLIT_DELIMITER_REGEX)[1];
         if (CLEAR_BUTTON_ID.equals(buttonValue)) {
-            return new State(buttonValue, "", null);
+            return new SumCustomSetState(buttonValue, "", null);
         }
 
         String buttonMessageWithOptionalUser = event.getMessageContent();
@@ -210,11 +205,11 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetCommand.Con
         }
         buttonMessage = ImmutableSet.of(EMPTY_MESSAGE, EMPTY_MESSAGE_LEGACY).contains(buttonMessage) ? "" : buttonMessage;
         if (lastInvokingUser != null && !lastInvokingUser.equals(event.getInvokingGuildMemberName())) {
-            return new State(NO_ACTION, buttonMessage, lastInvokingUser);
+            return new SumCustomSetState(NO_ACTION, buttonMessage, lastInvokingUser);
         }
         if (!Strings.isNullOrEmpty(buttonMessage) && !diceParserHelper.validExpression(buttonMessage)) {
             //invalid expression -> clear
-            return new State(NO_ACTION, "", null);
+            return new SumCustomSetState(NO_ACTION, "", null);
         }
         if (BACK_BUTTON_ID.equals(buttonValue)) {
             int indexOfLastMinusOrPlus = Math.max(buttonMessage.lastIndexOf("+"), buttonMessage.lastIndexOf("-"));
@@ -224,10 +219,10 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetCommand.Con
             } else {
                 newButtonMessage = "";
             }
-            return new State(buttonValue, newButtonMessage, event.getInvokingGuildMemberName());
+            return new SumCustomSetState(buttonValue, newButtonMessage, event.getInvokingGuildMemberName());
         }
         if (ROLL_BUTTON_ID.equals(buttonValue)) {
-            return new State(buttonValue, buttonMessage, event.getInvokingGuildMemberName());
+            return new SumCustomSetState(buttonValue, buttonMessage, event.getInvokingGuildMemberName());
         }
 
         String operator = "+";
@@ -244,19 +239,19 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetCommand.Con
         } else {
             newContent = String.format("%s%s%s", buttonMessage, operator, buttonValue);
         }
-        return new State(buttonValue, newContent, event.getInvokingGuildMemberName());
+        return new SumCustomSetState(buttonValue, newContent, event.getInvokingGuildMemberName());
     }
 
     @Override
-    protected Config getConfigFromStartOptions(CommandInteractionOption options) {
+    protected SumCustomSetConfig getConfigFromStartOptions(CommandInteractionOption options) {
         return getConfigOptionStringList(DICE_COMMAND_OPTIONS_IDS.stream()
                 .flatMap(id -> options.getStringSubOptionWithName(id).stream())
                 .collect(Collectors.toList()), getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null));
     }
 
     @VisibleForTesting
-    Config getConfigOptionStringList(List<String> startOptions, Long answerTargetChannelId) {
-        return new Config(startOptions.stream()
+    SumCustomSetConfig getConfigOptionStringList(List<String> startOptions, Long answerTargetChannelId) {
+        return new SumCustomSetConfig(answerTargetChannelId, startOptions.stream()
                 .filter(s -> !s.contains(BotConstants.CONFIG_DELIMITER))
                 .filter(s -> !s.contains(LABEL_DELIMITER) || s.split(LABEL_DELIMITER).length == 2)
                 .map(s -> {
@@ -284,11 +279,11 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetCommand.Con
                 .filter(s -> s.getLabel().length() <= 80) //https://discord.com/developers/docs/interactions/message-components#buttons
                 .distinct()
                 .limit(22)
-                .collect(Collectors.toList()), answerTargetChannelId);
+                .collect(Collectors.toList()));
     }
 
 
-    private List<ComponentRowDefinition> createButtonLayout(Config config) {
+    private List<ComponentRowDefinition> createButtonLayout(SumCustomSetConfig config) {
         List<ButtonDefinition> buttons = config.getLabelAndExpression().stream()
                 .map(d -> ButtonDefinition.builder()
                         .id(createButtonCustomId(d.getDiceExpression(), config))
@@ -315,50 +310,5 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetCommand.Con
                 .collect(Collectors.toList());
     }
 
-    @Value
-    protected static class Config implements IConfig {
-        @NonNull
-        List<LabelAndDiceExpression> labelAndExpression;
-        Long answerTargetChannelId;
 
-        @Override
-        public String toShortString() {
-            return Stream.concat(labelAndExpression.stream()
-                                    .map(LabelAndDiceExpression::toShortString),
-                            Stream.of(targetChannelToString(answerTargetChannelId)))
-                    .toList()
-                    .toString();
-        }
-
-    }
-
-    @Value
-    static class State implements IState {
-        @NonNull
-        String buttonValue;
-        @NonNull
-        String diceExpression;
-        String lockedForUserName;
-
-        @Override
-        public String toShortString() {
-            return String.format("[%s, %s, %s]", buttonValue, diceExpression, lockedForUserName);
-        }
-    }
-
-    @Value
-    static class LabelAndDiceExpression {
-        @NonNull
-        String label;
-        @NonNull
-        String diceExpression;
-
-
-        public String toShortString() {
-            if (diceExpression.equals(label)) {
-                return diceExpression;
-            }
-            return String.format("%s%s%s", diceExpression, LABEL_DELIMITER, label);
-        }
-    }
 }

@@ -1,4 +1,4 @@
-package de.janno.discord.bot.command;
+package de.janno.discord.bot.command.countSuccesses;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
@@ -6,6 +6,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import de.janno.discord.bot.cache.ButtonMessageCache;
+import de.janno.discord.bot.command.AbstractCommand;
+import de.janno.discord.bot.command.CommandUtils;
 import de.janno.discord.bot.dice.DiceUtils;
 import de.janno.discord.connector.api.BotConstants;
 import de.janno.discord.connector.api.IButtonEventAdaptor;
@@ -17,7 +19,6 @@ import de.janno.discord.connector.api.slash.CommandDefinitionOption;
 import de.janno.discord.connector.api.slash.CommandDefinitionOptionChoice;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import lombok.NonNull;
-import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
@@ -25,11 +26,10 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 
 @Slf4j
-public class CountSuccessesCommand extends AbstractCommand<CountSuccessesCommand.Config, CountSuccessesCommand.State> {
+public class CountSuccessesCommand extends AbstractCommand<CountSuccessesConfig, CountSuccessesState> {
 
     private static final String COMMAND_NAME = "count_successes";
     private static final String ACTION_SIDE_OPTION = "dice_sides";
@@ -55,13 +55,13 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesCommand
         this.diceUtils = diceUtils;
     }
 
-    private static String createButtonLabel(String value, Config config) {
+    private static String createButtonLabel(String value, CountSuccessesConfig config) {
         return String.format("%sd%s", value, config.getDiceSides());
     }
 
 
     @Override
-    protected Config getConfigFromEvent(IButtonEventAdaptor event) {
+    protected CountSuccessesConfig getConfigFromEvent(IButtonEventAdaptor event) {
         String[] split = event.getCustomId().split(BotConstants.CONFIG_SPLIT_DELIMITER_REGEX);
         int sideOfDie = Integer.parseInt(split[2]);
         int target = Integer.parseInt(split[3]);
@@ -69,17 +69,12 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesCommand
         String glitchOption = split.length < 5 ? GLITCH_NO_OPTION : split[4];
         int maxNumberOfButtons = split.length < 6 ? 15 : Integer.parseInt(split[5]);
         Long answerTargetChannelId = getOptionalLongFromArray(split, 6);
-        return new Config(sideOfDie, target, glitchOption, maxNumberOfButtons, answerTargetChannelId);
+        return new CountSuccessesConfig(answerTargetChannelId, sideOfDie, target, glitchOption, maxNumberOfButtons);
     }
 
     @Override
-    protected Optional<Long> getAnswerTargetChannelId(Config config) {
-        return Optional.ofNullable(config.getAnswerTargetChannelId());
-    }
-
-    @Override
-    protected State getStateFromEvent(IButtonEventAdaptor event) {
-        return new State(Integer.parseInt(event.getCustomId().split(BotConstants.CONFIG_SPLIT_DELIMITER_REGEX)[1]));
+    protected CountSuccessesState getStateFromEvent(IButtonEventAdaptor event) {
+        return new CountSuccessesState(event.getCustomId().split(BotConstants.CONFIG_SPLIT_DELIMITER_REGEX)[1]);
     }
 
     @Override
@@ -136,7 +131,7 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesCommand
     }
 
     @Override
-    protected Optional<EmbedDefinition> getAnswer(State state, Config config) {
+    protected Optional<EmbedDefinition> getAnswer(CountSuccessesState state, CountSuccessesConfig config) {
         List<Integer> rollResult = diceUtils.rollDiceOfType(state.getNumberOfDice(), config.getDiceSides()).stream()
                 .sorted()
                 .collect(Collectors.toList());
@@ -195,19 +190,19 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesCommand
     }
 
     @Override
-    protected Optional<MessageDefinition> createNewButtonMessageWithState(State state, Config config) {
+    protected Optional<MessageDefinition> createNewButtonMessageWithState(CountSuccessesState state, CountSuccessesConfig config) {
         return Optional.of(createNewButtonMessage(config));
     }
 
     @Override
-    protected MessageDefinition createNewButtonMessage(Config config) {
+    public MessageDefinition createNewButtonMessage(CountSuccessesConfig config) {
         return MessageDefinition.builder()
                 .content(String.format("Click to roll the dice against %s%s", config.getTarget(), getGlitchDescription(config)))
                 .componentRowDefinitions(createButtonLayout(config))
                 .build();
     }
 
-    private String getGlitchDescription(Config config) {
+    private String getGlitchDescription(CountSuccessesConfig config) {
         String glitchOption = config.getGlitchOption();
         return switch (glitchOption) {
             case GLITCH_OPTION_HALF_ONES -> " and check for more then half of dice 1s";
@@ -218,7 +213,7 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesCommand
     }
 
     @Override
-    protected Config getConfigFromStartOptions(CommandInteractionOption options) {
+    protected CountSuccessesConfig getConfigFromStartOptions(CommandInteractionOption options) {
         int sideValue = Math.toIntExact(options.getLongSubOptionWithName(ACTION_SIDE_OPTION)
                 .map(l -> Math.min(l, MAX_NUMBER_SIDES_OR_TARGET_NUMBER))
                 .orElse(6L));
@@ -231,10 +226,10 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesCommand
                 .map(l -> Math.min(l, MAX_NUMBER_OF_DICE))
                 .orElse(15L));
         Long answerTargetChannelId = getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null);
-        return new Config(sideValue, targetValue, glitchOption, maxDice, answerTargetChannelId);
+        return new CountSuccessesConfig(answerTargetChannelId, sideValue, targetValue, glitchOption, maxDice);
     }
 
-    private List<ComponentRowDefinition> createButtonLayout(Config config) {
+    private List<ComponentRowDefinition> createButtonLayout(CountSuccessesConfig config) {
         List<ButtonDefinition> buttons = IntStream.range(1, config.getMaxNumberOfButtons() + 1)
                 .mapToObj(i -> ButtonDefinition.builder()
                         .id(createButtonCustomId(String.valueOf(i), config))
@@ -248,7 +243,7 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesCommand
     }
 
     @VisibleForTesting
-    String createButtonCustomId(String number, Config config) {
+    String createButtonCustomId(String number, CountSuccessesConfig config) {
         Preconditions.checkArgument(!config.getGlitchOption().contains(BotConstants.CONFIG_DELIMITER));
 
         return String.join(BotConstants.CONFIG_DELIMITER,
@@ -262,33 +257,4 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesCommand
         );
     }
 
-    @Value
-    protected static class Config implements IConfig {
-        int diceSides;
-        int target;
-        @NonNull
-        String glitchOption;
-        int maxNumberOfButtons;
-        Long answerTargetChannelId;
-
-        @Override
-        public String toShortString() {
-            return Stream.of(String.valueOf(getDiceSides()),
-                    String.valueOf(getTarget()),
-                    getGlitchOption(),
-                    String.valueOf(getMaxNumberOfButtons()),
-                    targetChannelToString(answerTargetChannelId)
-            ).toList().toString();
-        }
-    }
-
-    @Value
-    static class State implements IState {
-        int numberOfDice;
-
-        @Override
-        public String toShortString() {
-            return String.format("[%d]", numberOfDice);
-        }
-    }
 }

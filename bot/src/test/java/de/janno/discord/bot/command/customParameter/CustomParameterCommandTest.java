@@ -1,8 +1,6 @@
-package de.janno.discord.bot.command;
+package de.janno.discord.bot.command.customParameter;
 
 import com.google.common.collect.ImmutableList;
-import de.janno.discord.bot.command.CustomParameterCommand.State;
-import de.janno.discord.connector.api.BotConstants;
 import de.janno.discord.connector.api.IButtonEventAdaptor;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
@@ -21,7 +19,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import static de.janno.discord.bot.command.CustomParameterCommand.Config;
+import static de.janno.discord.bot.command.customParameter.CustomParameterCommand.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -158,12 +156,14 @@ class CustomParameterCommandTest {
         when(buttonEventAdaptor.getCustomId()).thenReturn(customButtonId);
         when(buttonEventAdaptor.getMessageContent()).thenReturn(messageContent);
         when(buttonEventAdaptor.getInvokingGuildMemberName()).thenReturn(invokingUser);
-        State res = underTest.getStateFromEvent(buttonEventAdaptor);
+        CustomParameterState res = underTest.getStateFromEvent(buttonEventAdaptor);
+
+        CustomParameterConfig config = createConfigFromCustomId(customButtonId);
         assertThat(res.getSelectedParameterValues()).isEqualTo(selectedParameterValues);
-        assertThat(res.getFilledExpression()).isEqualTo(filledExpression);
-        assertThat(res.getCurrentParameterExpression()).isEqualTo(currentParameterExpression);
-        assertThat(res.getCurrentParameterName()).isEqualTo(currentParameterName);
-        assertThat(res.hasMissingParameter()).isEqualTo(hasMissingParameter);
+        assertThat(getFilledExpression(config, res)).isEqualTo(filledExpression);
+        assertThat(getCurrentParameterExpression(config, res)).isEqualTo(currentParameterExpression);
+        assertThat(getCurrentParameterName(config, res)).isEqualTo(currentParameterName);
+        assertThat(hasMissingParameter(getFilledExpression(config, res))).isEqualTo(hasMissingParameter);
     }
 
     @Test
@@ -173,15 +173,10 @@ class CustomParameterCommandTest {
         assertThat(res.stream().map(CommandDefinitionOption::getName)).containsExactly("expression", "target_channel");
     }
 
-    private String[] splitCustomId(String customId) {
-        return customId.split(BotConstants.CONFIG_SPLIT_DELIMITER_REGEX);
-    }
-
     @Test
     void getAnswer_complete() {
-        String[] split = splitCustomId(LAST_SELECT_CUSTOM_ID);
-        Optional<EmbedDefinition> res = underTest.getAnswer(new State(split,
-                "", ""), new Config(split));
+        Optional<EmbedDefinition> res = underTest.getAnswer(createParameterState(LAST_SELECT_CUSTOM_ID,
+                "", ""), createConfigFromCustomId(LAST_SELECT_CUSTOM_ID));
 
         assertThat(res).isPresent();
         assertThat(res.map(EmbedDefinition::getTitle).orElseThrow()).startsWith("1d2 = ");
@@ -189,9 +184,8 @@ class CustomParameterCommandTest {
 
     @Test
     void getAnswer_completeAndLabel() {
-        String[] split = splitCustomId(LAST_SELECT_WITH_LABEL_CUSTOM_ID);
-        Optional<EmbedDefinition> res = underTest.getAnswer(new State(split,
-                "", ""), new Config(split));
+        Optional<EmbedDefinition> res = underTest.getAnswer(createParameterState(LAST_SELECT_WITH_LABEL_CUSTOM_ID,
+                "", ""), createConfigFromCustomId(LAST_SELECT_WITH_LABEL_CUSTOM_ID));
 
         assertThat(res).isPresent();
         assertThat(res.map(EmbedDefinition::getTitle).orElseThrow()).startsWith("Att: 1d2 = ");
@@ -199,16 +193,15 @@ class CustomParameterCommandTest {
 
     @Test
     void getAnswer_notComplete() {
-        String[] split = splitCustomId(FIRST_SELECT_CUSTOM_ID);
-        Optional<EmbedDefinition> res = underTest.getAnswer(new State(split,
-                "", ""), new Config(split));
+        Optional<EmbedDefinition> res = underTest.getAnswer(createParameterState(FIRST_SELECT_CUSTOM_ID,
+                "", ""), createConfigFromCustomId(FIRST_SELECT_CUSTOM_ID));
 
         assertThat(res).isEmpty();
     }
 
     @Test
     void createNewButtonMessage() {
-        MessageDefinition res = underTest.createNewButtonMessage(new Config("{n}d{s}", null));
+        MessageDefinition res = underTest.createNewButtonMessage(createConfigFromCustomId(LAST_SELECT_CUSTOM_ID));
 
         assertThat(res.getContent()).isEqualTo("*{n}*d*{s}*: Please select value for *{n}*");
         assertThat(res.getComponentRowDefinitions().stream()
@@ -238,24 +231,23 @@ class CustomParameterCommandTest {
 
     @Test
     void getAnswerTargetChannelId_local() {
-        Optional<Long> res = underTest.getAnswerTargetChannelId(new Config(splitCustomId(LAST_SELECT_CUSTOM_ID)));
+        Long res = createConfigFromCustomId(LAST_SELECT_CUSTOM_ID).getAnswerTargetChannelId();
 
-        assertThat(res).isEmpty();
+        assertThat(res).isNull();
     }
 
     @Test
     void getAnswerTargetChannelId_target() {
-        Optional<Long> res = underTest.getAnswerTargetChannelId(new Config(splitCustomId(LAST_SELECT_WITH_TARGET_CUSTOM_ID)));
+        Long res = createConfigFromCustomId(LAST_SELECT_WITH_TARGET_CUSTOM_ID).getAnswerTargetChannelId();
 
-        assertThat(res).contains(1234L);
+        assertThat(res).isEqualTo(1234L);
     }
 
     @Test
     void getCurrentMessageComponentChange_inSelection() {
-        String[] split = splitCustomId(FIRST_SELECT_CUSTOM_ID);
 
-        Optional<List<ComponentRowDefinition>> res = underTest.getCurrentMessageComponentChange(new State(split, "", ""),
-                new Config(split));
+        Optional<List<ComponentRowDefinition>> res = underTest.getCurrentMessageComponentChange(createParameterState(FIRST_SELECT_CUSTOM_ID, "", ""),
+                createConfigFromCustomId(FIRST_SELECT_CUSTOM_ID));
 
         assertThat(res).isPresent();
         assertThat(res.orElseThrow().stream()
@@ -281,50 +273,45 @@ class CustomParameterCommandTest {
 
     @Test
     void getCurrentMessageComponentChange_complete() {
-        String[] split = splitCustomId(LAST_SELECT_CUSTOM_ID);
 
-        Optional<List<ComponentRowDefinition>> res = underTest.getCurrentMessageComponentChange(new State(split, "", ""),
-                new Config(split));
+        Optional<List<ComponentRowDefinition>> res = underTest.getCurrentMessageComponentChange(createParameterState(LAST_SELECT_CUSTOM_ID, "", ""),
+                createConfigFromCustomId(LAST_SELECT_CUSTOM_ID));
 
         assertThat(res).isEmpty();
     }
 
     @Test
     void getCurrentMessageContentChange_complete() {
-        String[] split = splitCustomId(LAST_SELECT_CUSTOM_ID);
 
-        Optional<String> res = underTest.getCurrentMessageContentChange(new State(split, "", ""),
-                new Config(split));
+        Optional<String> res = underTest.getCurrentMessageContentChange(createParameterState(LAST_SELECT_CUSTOM_ID, "", ""),
+                createConfigFromCustomId(LAST_SELECT_CUSTOM_ID));
 
         assertThat(res).isEmpty();
     }
 
     @Test
     void getCurrentMessageContentChange_inSelection() {
-        String[] split = splitCustomId(FIRST_SELECT_CUSTOM_ID);
 
-        Optional<String> res = underTest.getCurrentMessageContentChange(new State(split, "", ""),
-                new Config(split));
+        Optional<String> res = underTest.getCurrentMessageContentChange(createParameterState(FIRST_SELECT_CUSTOM_ID, "", ""),
+                createConfigFromCustomId(FIRST_SELECT_CUSTOM_ID));
 
         assertThat(res).contains("∶1d*{s}*: Please select value for *{s}*");
     }
 
     @Test
     void getCurrentMessageContentChange_inSelectionLocked() {
-        String[] split = splitCustomId(FIRST_SELECT_CUSTOM_ID);
 
-        Optional<String> res = underTest.getCurrentMessageContentChange(new State(split, "user1\u22361d{s}: Please select value for {s}", "user1"),
-                new Config(split));
+        Optional<String> res = underTest.getCurrentMessageContentChange(createParameterState(FIRST_SELECT_CUSTOM_ID, "user1\u22361d{s}: Please select value for {s}", "user1"),
+                createConfigFromCustomId(FIRST_SELECT_CUSTOM_ID));
 
         assertThat(res).contains("user1∶1d*{s}*: Please select value for *{s}*");
     }
 
     @Test
     void createNewButtonMessageWithState_complete() {
-        String[] split = splitCustomId(LAST_SELECT_CUSTOM_ID);
 
-        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(new State(split, "user1\u22361d{s}: Please select value for {s}", "user1"),
-                new Config(split));
+        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(createParameterState(LAST_SELECT_CUSTOM_ID, "user1\u22361d{s}: Please select value for {s}", "user1"),
+                createConfigFromCustomId(LAST_SELECT_CUSTOM_ID));
 
         assertThat(res.orElseThrow().getContent()).isEqualTo("*{n}*d*{s}*: Please select value for *{n}*");
         assertThat(res.orElseThrow().getComponentRowDefinitions().stream()
@@ -349,10 +336,8 @@ class CustomParameterCommandTest {
 
     @Test
     void createNewButtonMessageWithState_inSelection() {
-        String[] split = splitCustomId(FIRST_SELECT_CUSTOM_ID);
-
-        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(new State(split, "{n}d{s}: Please select value for {n}", "user1"),
-                new Config(split));
+        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(createParameterState(FIRST_SELECT_CUSTOM_ID, "{n}d{s}: Please select value for {n}", "user1"),
+                createConfigFromCustomId(FIRST_SELECT_CUSTOM_ID));
 
         assertThat(res).isEmpty();
     }
