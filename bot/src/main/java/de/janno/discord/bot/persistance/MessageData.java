@@ -6,8 +6,12 @@ import lombok.NonNull;
 import lombok.Value;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.UUID;
+
 @Value
 public class MessageData {
+
+    UUID configId;
 
     long channelId;
     long messageId;

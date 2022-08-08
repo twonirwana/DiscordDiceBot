@@ -3,7 +3,6 @@ package de.janno.discord.bot.persistance;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.ImmutableSet;
 import de.janno.discord.bot.command.Config;
-import de.janno.discord.bot.command.State;
 import de.janno.discord.bot.command.StateData;
 import lombok.NonNull;
 import lombok.Value;
@@ -27,23 +26,24 @@ public class MessageDataDAOImpl implements MessageDataDAO {
     public MessageDataDAOImpl(String url, String user, String password) {
         connectionPool = JdbcConnectionPool.create(url, user, password);
 
-
         //todo metrics
         try (Connection connection = connectionPool.getConnection()) {
             Statement statement = connection.createStatement();
             statement.execute("""
                     CREATE TABLE IF NOT EXISTS MESSAGE_DATA(
+                        CONFIG_ID       UUID            NOT NULL,
                         CHANNEL_ID      BIGINT          NOT NULL,
                         MESSAGE_ID      BIGINT          NOT NULL,
                         COMMAND_ID      VARCHAR         NOT NULL,
-                        CONFIG_ID       VARCHAR         NOT NULL,
+                        CONFIG_CLASS_ID VARCHAR         NOT NULL,
                         CONFIG          VARCHAR         NOT NULL,
-                        STATE_ID        VARCHAR         NOT NULL,
+                        STATE_CLASS_ID  VARCHAR         NOT NULL,
                         STATE           VARCHAR         NULL,
                         CREATION_DATE   TIMESTAMP       NOT NULL,
-                        PRIMARY KEY (CHANNEL_ID, MESSAGE_ID)
+                        PRIMARY KEY (CONFIG_ID, CHANNEL_ID, MESSAGE_ID)
                     );
 
+                    CREATE INDEX IF NOT EXISTS MESSAGE_DATA_ID ON MESSAGE_DATA (CONFIG_ID);
                     CREATE INDEX IF NOT EXISTS MESSAGE_DATA_CHANNEL ON MESSAGE_DATA (CHANNEL_ID);
                     CREATE INDEX IF NOT EXISTS MESSAGE_DATA_CHANNEL_MESSAGE ON MESSAGE_DATA (CHANNEL_ID, MESSAGE_ID);
                     """);
@@ -56,12 +56,13 @@ public class MessageDataDAOImpl implements MessageDataDAO {
 
         if (resultSet.next()) {
             return new MessageDataRowDTO(
+                    resultSet.getObject("CONFIG_ID", UUID.class),
                     resultSet.getLong("CHANNEL_ID"),
                     resultSet.getLong("MESSAGE_ID"),
                     resultSet.getString("COMMAND_ID"),
-                    resultSet.getString("CONFIG_ID"),
+                    resultSet.getString("CONFIG_CLASS_ID"),
                     resultSet.getString("CONFIG"),
-                    resultSet.getString("STATE_ID"),
+                    resultSet.getString("STATE_CLASS_ID"),
                     resultSet.getString("STATE")
             );
         }
@@ -87,9 +88,14 @@ public class MessageDataDAOImpl implements MessageDataDAO {
     }
 
     private MessageData deserialize(MessageDataRowDTO rowDTOS) throws JsonProcessingException {
-        Config config = Mapper.deserializeConfig(rowDTOS.getConfig(), rowDTOS.getConfigId());
-        StateData state = Mapper.deserializeState(rowDTOS.getState(), rowDTOS.getStateId());
-        return new MessageData(rowDTOS.getChannelId(), rowDTOS.getMessageId(), rowDTOS.getCommandId(), config, state);
+        Config config = Mapper.deserializeConfig(rowDTOS.getConfig(), rowDTOS.getConfigClassId());
+        StateData state = Mapper.deserializeState(rowDTOS.getState(), rowDTOS.getStateClassId());
+        return new MessageData(rowDTOS.getConfigUUID(),
+                rowDTOS.getChannelId(),
+                rowDTOS.getMessageId(),
+                rowDTOS.getCommandId(),
+                config,
+                state);
     }
 
 
@@ -140,15 +146,16 @@ public class MessageDataDAOImpl implements MessageDataDAO {
     public void saveMessageData(MessageData messageData) {
         try (Connection con = connectionPool.getConnection()) {
             try (PreparedStatement preparedStatement =
-                         con.prepareStatement("INSERT INTO MESSAGE_DATA(CHANNEL_ID, MESSAGE_ID, COMMAND_ID, CONFIG_ID, CONFIG, STATE_ID, STATE, CREATION_DATE) VALUES( ?, ?, ?, ?, ?, ?, ?, ?)")) {
-                preparedStatement.setObject(1, messageData.getChannelId());
-                preparedStatement.setLong(2, messageData.getMessageId());
-                preparedStatement.setString(3, messageData.getCommandId());
-                preparedStatement.setString(4, Mapper.getConfigId(messageData.getConfig()));
-                preparedStatement.setString(5, Mapper.serializedConfig(messageData.getConfig()));
-                preparedStatement.setString(6, Mapper.getStateDataId(messageData.getState()));
-                preparedStatement.setString(7, Mapper.serializedStateData(messageData.getState()));
-                preparedStatement.setTimestamp(8, Timestamp.valueOf(LocalDateTime.now()));
+                         con.prepareStatement("INSERT INTO MESSAGE_DATA(CONFIG_ID, CHANNEL_ID, MESSAGE_ID, COMMAND_ID, CONFIG_CLASS_ID, CONFIG, STATE_CLASS_ID, STATE, CREATION_DATE) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
+                preparedStatement.setObject(1, messageData.getConfigId());
+                preparedStatement.setObject(2, messageData.getChannelId());
+                preparedStatement.setLong(3, messageData.getMessageId());
+                preparedStatement.setString(4, messageData.getCommandId());
+                preparedStatement.setString(5, Mapper.getConfigClassId(messageData.getConfig()));
+                preparedStatement.setString(6, Mapper.serializedConfig(messageData.getConfig()));
+                preparedStatement.setString(7, Mapper.getStateDataClassId(messageData.getState()));
+                preparedStatement.setString(8, Mapper.serializedStateData(messageData.getState()));
+                preparedStatement.setTimestamp(9, Timestamp.valueOf(LocalDateTime.now()));
                 preparedStatement.execute();
 
             }
@@ -158,12 +165,27 @@ public class MessageDataDAOImpl implements MessageDataDAO {
     }
 
     @Override
-    public void updateCommandConfigOfMessage(long channelId, long messageId, String stateId, State state) {
-        //todo
+    public void updateCommandConfigOfMessage(long channelId, long messageId, String stateId, StateData state) {
+        try (Connection con = connectionPool.getConnection()) {
+            try (PreparedStatement preparedStatement =
+                         con.prepareStatement("UPDATE MESSAGE_DATA SET STATE_CLASS_ID = ?, STATE = ? WHERE COMMAND_ID = ? AND MESSAGE_ID = ?")) {
+                preparedStatement.setString(1, Mapper.getStateDataClassId(state));
+                preparedStatement.setString(2, Mapper.serializedStateData(state));
+                preparedStatement.setObject(3, channelId);
+                preparedStatement.setLong(4, messageId);
+                preparedStatement.execute();
+
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Value
     private static class MessageDataRowDTO {
+        @NonNull
+        UUID configUUID;
+
         long channelId;
         long messageId;
 
@@ -171,13 +193,13 @@ public class MessageDataDAOImpl implements MessageDataDAO {
         String commandId;
 
         @NonNull
-        String configId;
+        String configClassId;
 
         @NonNull
         String config;
 
         @NonNull
-        String stateId;
+        String stateClassId;
 
         @Nullable
         String state;

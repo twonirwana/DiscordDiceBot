@@ -19,6 +19,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import java.util.UUID;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -50,7 +51,7 @@ class MessageDataDAOImplTest {
     @MethodSource("generateData")
     void serializeDeserialize(Config config, StateData stateDate) {
         long messageId = System.currentTimeMillis();
-        MessageData toSave = new MessageData(1L, messageId, "sum_custom_set", config, stateDate);
+        MessageData toSave = new MessageData(UUID.randomUUID(), 1L, messageId, "sum_custom_set", config, stateDate);
 
         underTest.saveMessageData(toSave);
         MessageData loaded = underTest.getDataForMessage(1L, messageId).orElseThrow();

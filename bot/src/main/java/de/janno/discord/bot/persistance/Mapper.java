@@ -73,7 +73,7 @@ public class Mapper {
         return mapper.writeValueAsString(config);
     }
 
-    public static String getConfigId(@NonNull Config config) {
+    public static String getConfigClassId(@NonNull Config config) {
         Preconditions.checkArgument(CONFIGS.inverse().containsKey(config.getClass()), "Missing config: %s", config);
         return CONFIGS.inverse().get(config.getClass());
     }
@@ -85,7 +85,7 @@ public class Mapper {
         return mapper.writeValueAsString(stateData);
     }
 
-    public static String getStateDataId(StateData stateData) {
+    public static String getStateDataClassId(StateData stateData) {
         if (stateData == null) {
             return NO_PERSISTED_STATE;
         }

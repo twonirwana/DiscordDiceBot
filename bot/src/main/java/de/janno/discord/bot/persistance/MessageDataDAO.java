@@ -1,6 +1,6 @@
 package de.janno.discord.bot.persistance;
 
-import de.janno.discord.bot.command.State;
+import de.janno.discord.bot.command.StateData;
 
 import java.util.Optional;
 import java.util.Set;
@@ -18,5 +18,5 @@ public interface MessageDataDAO {
 
     void saveMessageData(MessageData messageData);
 
-    void updateCommandConfigOfMessage(long channelId, long messageId, String stateId, State state);
+    void updateCommandConfigOfMessage(long channelId, long messageId, String stateId, StateData state);
 }
