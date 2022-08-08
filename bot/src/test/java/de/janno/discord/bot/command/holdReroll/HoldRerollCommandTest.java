@@ -2,6 +2,7 @@ package de.janno.discord.bot.command.holdReroll;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import de.janno.discord.bot.command.StateWithData;
 import de.janno.discord.bot.dice.DiceUtils;
 import de.janno.discord.connector.api.IButtonEventAdaptor;
 import de.janno.discord.connector.api.message.ButtonDefinition;
@@ -56,7 +57,7 @@ class HoldRerollCommandTest {
 
     @Test
     void getDiceResult_withoutReroll() {
-        EmbedDefinition res = underTest.getAnswer(new HoldRerollState("finish", ImmutableList.of(1, 2, 3, 4, 5, 6), 0),
+        EmbedDefinition res = underTest.getAnswer(new StateWithData<>("finish", new HoldRerollStateData(ImmutableList.of(1, 2, 3, 4, 5, 6), 0)),
                 new HoldRerollConfig(
                         null,
                         6,
@@ -70,7 +71,7 @@ class HoldRerollCommandTest {
 
     @Test
     void getDiceResult_withReroll() {
-        EmbedDefinition res = underTest.getAnswer(new HoldRerollState("finish", ImmutableList.of(1, 2, 3, 4, 5, 6), 2),
+        EmbedDefinition res = underTest.getAnswer(new StateWithData<>("finish", new HoldRerollStateData(ImmutableList.of(1, 2, 3, 4, 5, 6), 2)),
                 new HoldRerollConfig(
                         null,
                         6,
@@ -100,7 +101,7 @@ class HoldRerollCommandTest {
         IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
         when(event.getCustomId()).thenReturn("hold_reroll\u00003\u0000EMPTY\u00006\u00002;3;4\u00005;6\u00001\u00000\u0000");
 
-        assertThat(underTest.getStateFromEvent(event)).isEqualTo(new HoldRerollState("3", ImmutableList.of(1, 1, 1), 0));
+        assertThat(underTest.getStateFromEvent(event)).isEqualTo(new StateWithData<>("3", new HoldRerollStateData(ImmutableList.of(1, 1, 1), 0)));
     }
 
     @Test
@@ -119,7 +120,7 @@ class HoldRerollCommandTest {
     void getStateFromEvent_finish() {
         IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
         when(event.getCustomId()).thenReturn("hold_reroll\u0000finish,1;2;3;4;5;6,6,2;3;4,5;6,1,0");
-        assertThat(underTest.getStateFromEvent(event)).isEqualTo(new HoldRerollState("finish", ImmutableList.of(1, 2, 3, 4, 5, 6), 0));
+        assertThat(underTest.getStateFromEvent(event)).isEqualTo(new StateWithData<>("finish", new HoldRerollStateData(ImmutableList.of(1, 2, 3, 4, 5, 6), 0)));
     }
 
     @Test
@@ -140,7 +141,7 @@ class HoldRerollCommandTest {
         IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
         when(event.getCustomId()).thenReturn("hold_reroll\u0000clear,1;2;3;4;5;6,6,2;3;4,5;6,1,0");
         assertThat(underTest.getStateFromEvent(event))
-                .isEqualTo(new HoldRerollState("clear", ImmutableList.of(), 0));
+                .isEqualTo(new StateWithData<>("clear", new HoldRerollStateData(ImmutableList.of(), 0)));
     }
 
     @Test
@@ -159,7 +160,7 @@ class HoldRerollCommandTest {
     void getStateFromEvent_reroll() {
         IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
         when(event.getCustomId()).thenReturn("hold_reroll\u0000reroll,1;2;3;4;5;6,6,2;3;4,5;6,1,1");
-        assertThat(underTest.getStateFromEvent(event)).isEqualTo(new HoldRerollState("reroll", ImmutableList.of(1, 1, 1, 1, 5, 6), 2));
+        assertThat(underTest.getStateFromEvent(event)).isEqualTo(new StateWithData<>("reroll", new HoldRerollStateData(ImmutableList.of(1, 1, 1, 1, 5, 6), 2)));
     }
 
     @Test
@@ -174,7 +175,7 @@ class HoldRerollCommandTest {
 
     @Test
     void getButtonMessageWithState_clear() {
-        String res = underTest.createNewButtonMessageWithState(new HoldRerollState("clear", ImmutableList.of(1, 2, 3, 4, 5, 6), 2), new HoldRerollConfig(
+        String res = underTest.createNewButtonMessageWithState(new StateWithData<>("clear", new HoldRerollStateData(ImmutableList.of(1, 2, 3, 4, 5, 6), 2)), new HoldRerollConfig(
                         null,
                         6,
                         ImmutableSet.of(2, 3, 4),
@@ -187,7 +188,7 @@ class HoldRerollCommandTest {
 
     @Test
     void getButtonMessageWithState_finish() {
-        String res = underTest.createNewButtonMessageWithState(new HoldRerollState("finish", ImmutableList.of(1, 2, 3, 4, 5, 6), 2), new HoldRerollConfig(
+        String res = underTest.createNewButtonMessageWithState(new StateWithData<>("finish", new HoldRerollStateData(ImmutableList.of(1, 2, 3, 4, 5, 6), 2)), new HoldRerollConfig(
                         null,
                         6,
                         ImmutableSet.of(2, 3, 4),
@@ -200,7 +201,7 @@ class HoldRerollCommandTest {
 
     @Test
     void getButtonMessageWithState_noRerollPossible() {
-        String res = underTest.createNewButtonMessageWithState(new HoldRerollState("reroll", ImmutableList.of(1, 1, 1, 5, 5, 6), 2), new HoldRerollConfig(
+        String res = underTest.createNewButtonMessageWithState(new StateWithData<>("reroll", new HoldRerollStateData(ImmutableList.of(1, 1, 1, 5, 5, 6), 2)), new HoldRerollConfig(
                         null,
                         6,
                         ImmutableSet.of(2, 3, 4),
@@ -213,7 +214,7 @@ class HoldRerollCommandTest {
 
     @Test
     void getCurrentMessageContentChange_rerollPossible() {
-        String res = underTest.getCurrentMessageContentChange(new HoldRerollState("reroll", ImmutableList.of(1, 2, 3, 4, 5, 6), 2), new HoldRerollConfig(
+        String res = underTest.getCurrentMessageContentChange(new StateWithData<>("reroll", new HoldRerollStateData(ImmutableList.of(1, 2, 3, 4, 5, 6), 2)), new HoldRerollConfig(
                         null,
                         6,
                         ImmutableSet.of(2, 3, 4),
@@ -252,22 +253,22 @@ class HoldRerollCommandTest {
         IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
         when(event.getCustomId()).thenReturn("hold_reroll\u0000finish,1;2;3;4;5;6,6,2;3;4,5;6,1,0");
 
-        HoldRerollState res = underTest.getStateFromEvent(event);
+        StateWithData<HoldRerollStateData> res = underTest.getStateFromEvent(event);
 
-        assertThat(res).isEqualTo(new HoldRerollState("finish", ImmutableList.of(1, 2, 3, 4, 5, 6), 0));
+        assertThat(res).isEqualTo(new StateWithData<>("finish", new HoldRerollStateData(ImmutableList.of(1, 2, 3, 4, 5, 6), 0)));
     }
 
     @Test
     void createButtonCustomId() {
         String res = underTest.createButtonCustomId("finish", new HoldRerollConfig(null, 6, ImmutableSet.of(2, 3, 4), ImmutableSet.of(5, 6), ImmutableSet.of(1)),
-                new HoldRerollState("finish", ImmutableList.of(1, 1, 1, 1, 5, 6), 3));
+                new StateWithData<>("finish", new HoldRerollStateData(ImmutableList.of(1, 1, 1, 1, 5, 6), 3)));
 
         assertThat(res).isEqualTo("hold_reroll\u0000finish\u00001;1;1;1;5;6\u00006\u00002;3;4\u00005;6\u00001\u00003\u0000");
     }
 
     @Test
     void getCurrentMessageComponentChange_reroll() {
-        List<ComponentRowDefinition> res = underTest.getCurrentMessageComponentChange(new HoldRerollState("reroll", ImmutableList.of(1, 2, 3, 4, 5, 6), 2), new HoldRerollConfig(
+        List<ComponentRowDefinition> res = underTest.getCurrentMessageComponentChange(new StateWithData<>("reroll", new HoldRerollStateData(ImmutableList.of(1, 2, 3, 4, 5, 6), 2)), new HoldRerollConfig(
                         null,
                         6,
                         ImmutableSet.of(2, 3, 4),
@@ -284,7 +285,7 @@ class HoldRerollCommandTest {
 
     @Test
     void getButtonLayoutWithState_finish() {
-        List<ComponentRowDefinition> res = underTest.createNewButtonMessageWithState(new HoldRerollState("finish", ImmutableList.of(1, 2, 3, 4, 5, 6), 2), new HoldRerollConfig(
+        List<ComponentRowDefinition> res = underTest.createNewButtonMessageWithState(new StateWithData<>("finish", new HoldRerollStateData(ImmutableList.of(1, 2, 3, 4, 5, 6), 2)), new HoldRerollConfig(
                         null,
                         6,
                         ImmutableSet.of(2, 3, 4),
@@ -314,7 +315,7 @@ class HoldRerollCommandTest {
 
     @Test
     void getButtonLayoutWithState_clear() {
-        List<ComponentRowDefinition> res = underTest.createNewButtonMessageWithState(new HoldRerollState("clear", ImmutableList.of(1, 2, 3, 4, 5, 6), 2), new HoldRerollConfig(
+        List<ComponentRowDefinition> res = underTest.createNewButtonMessageWithState(new StateWithData<>("clear", new HoldRerollStateData(ImmutableList.of(1, 2, 3, 4, 5, 6), 2)), new HoldRerollConfig(
                         null,
                         6,
                         ImmutableSet.of(2, 3, 4),
@@ -344,7 +345,7 @@ class HoldRerollCommandTest {
 
     @Test
     void getCurrentMessageComponentChange_3() {
-        List<ComponentRowDefinition> res = underTest.getCurrentMessageComponentChange(new HoldRerollState("3", ImmutableList.of(1, 2, 3, 4, 5, 6), 2), new HoldRerollConfig(
+        List<ComponentRowDefinition> res = underTest.getCurrentMessageComponentChange(new StateWithData<>("3", new HoldRerollStateData(ImmutableList.of(1, 2, 3, 4, 5, 6), 2)), new HoldRerollConfig(
                         null,
                         6,
                         ImmutableSet.of(2, 3, 4),
@@ -361,7 +362,7 @@ class HoldRerollCommandTest {
 
     @Test
     void getButtonLayoutWithState_3_finished() {
-        List<ComponentRowDefinition> res = underTest.createNewButtonMessageWithState(new HoldRerollState("3", ImmutableList.of(1, 1, 1, 5, 5, 6), 2), new HoldRerollConfig(
+        List<ComponentRowDefinition> res = underTest.createNewButtonMessageWithState(new StateWithData<>("3", new HoldRerollStateData(ImmutableList.of(1, 1, 1, 5, 5, 6), 2)), new HoldRerollConfig(
                         null,
                         6,
                         ImmutableSet.of(2, 3, 4),
@@ -421,7 +422,7 @@ class HoldRerollCommandTest {
 
     @Test
     void getCurrentMessageContentChange() {
-        assertThat(underTest.getCurrentMessageContentChange(new HoldRerollState("3", ImmutableList.of(1, 1, 1, 5, 5, 6), 2), new HoldRerollConfig(
+        assertThat(underTest.getCurrentMessageContentChange(new StateWithData<>("3", new HoldRerollStateData(ImmutableList.of(1, 1, 1, 5, 5, 6), 2)), new HoldRerollConfig(
                 null,
                 6,
                 ImmutableSet.of(2, 3, 4),

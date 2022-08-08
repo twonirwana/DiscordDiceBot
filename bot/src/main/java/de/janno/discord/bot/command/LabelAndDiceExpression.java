@@ -1,4 +1,4 @@
-package de.janno.discord.bot.command.sumCustomSet;
+package de.janno.discord.bot.command;
 
 import lombok.NonNull;
 import lombok.Value;

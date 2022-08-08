@@ -3,6 +3,7 @@ package de.janno.discord.bot.command.poolTarget;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import de.janno.discord.bot.cache.ButtonMessageCache;
+import de.janno.discord.bot.command.StateWithData;
 import de.janno.discord.bot.dice.DiceUtils;
 import de.janno.discord.connector.api.IButtonEventAdaptor;
 import de.janno.discord.connector.api.Requester;
@@ -34,20 +35,20 @@ class PoolTargetCommandTest {
     private static Stream<Arguments> getStateFromEvent() {
         return Stream.of(
                 //set pool
-                Arguments.of("pool_target\u000015\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000", new PoolTargetState("15", 15, null, null, false)),
-                Arguments.of("pool_target\u000015,10,20,10;9,1;2,always,EMPTY,EMPTY", new PoolTargetState("15", 15, null, null, false)),
+                Arguments.of("pool_target\u000015\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000", new StateWithData<>("15", new PoolTargetStateData(15, null, null))),
+                Arguments.of("pool_target\u000015,10,20,10;9,1;2,always,EMPTY,EMPTY", new StateWithData<>("15", new PoolTargetStateData(15, null, null))),
 
                 //set target
-                Arguments.of("pool_target\u00008,10,20,10;9,1;2,ask,15,EMPTY", new PoolTargetState("8", 15, 8, null, false)),
-                Arguments.of("pool_target\u00008,10,20,10;9,1;2,always,15,EMPTY", new PoolTargetState("8", 15, 8, true, false)),
+                Arguments.of("pool_target\u00008,10,20,10;9,1;2,ask,15,EMPTY", new StateWithData<>("8", new PoolTargetStateData(15, 8, null))),
+                Arguments.of("pool_target\u00008,10,20,10;9,1;2,always,15,EMPTY", new StateWithData<>("8", new PoolTargetStateData(15, 8, true))),
 
                 //clear
-                Arguments.of("pool_target\u0000clear,10,20,10;9,1;2,ask,15,EMPTY", new PoolTargetState("clear", null, null, null, true)),
-                Arguments.of("pool_target\u0000clear,10,20,10;9,1;2,always,15,EMPTY", new PoolTargetState("clear", null, null, null, true)),
+                Arguments.of("pool_target\u0000clear,10,20,10;9,1;2,ask,15,EMPTY", new StateWithData<>("clear", new PoolTargetStateData(null, null, null))),
+                Arguments.of("pool_target\u0000clear,10,20,10;9,1;2,always,15,EMPTY", new StateWithData<>("clear", new PoolTargetStateData(null, null, null))),
 
                 //ask reroll
-                Arguments.of("pool_target\u0000do_reroll,10,20,10;9,1;2,ask,15,9", new PoolTargetState("do_reroll", 15, 9, true, false)),
-                Arguments.of("pool_target\u0000no_reroll,10,20,10;9,1;2,ask,15,9", new PoolTargetState("no_reroll", 15, 9, false, false))
+                Arguments.of("pool_target\u0000do_reroll,10,20,10;9,1;2,ask,15,9", new StateWithData<>("do_reroll", new PoolTargetStateData(15, 9, true))),
+                Arguments.of("pool_target\u0000no_reroll,10,20,10;9,1;2,ask,15,9", new StateWithData<>("no_reroll", new PoolTargetStateData(15, 9, false)))
         );
     }
 
@@ -58,7 +59,7 @@ class PoolTargetCommandTest {
 
     @ParameterizedTest(name = "{index} config={0} -> {1}")
     @MethodSource("getStateFromEvent")
-    void getStateFromEvent(String customButtonId, PoolTargetState expected) {
+    void getStateFromEvent(String customButtonId, StateWithData<PoolTargetStateData> expected) {
         IButtonEventAdaptor buttonEventAdaptor = mock(IButtonEventAdaptor.class);
         when(buttonEventAdaptor.getCustomId()).thenReturn(customButtonId);
         assertThat(underTest.getStateFromEvent(buttonEventAdaptor)).isEqualTo(expected);
@@ -79,7 +80,7 @@ class PoolTargetCommandTest {
 
     @Test
     void getDiceResult_withoutReroll() {
-        EmbedDefinition res = underTest.getAnswer(new PoolTargetState("6", 6, 3, false, false),
+        EmbedDefinition res = underTest.getAnswer(new StateWithData<>("6", new PoolTargetStateData(6, 3, false)),
                 new PoolTargetConfig(null, 6, 15, ImmutableSet.of(6), ImmutableSet.of(1), "ask")).orElseThrow();
         assertThat(res.getFields()).hasSize(0);
         assertThat(res.getTitle()).isEqualTo("6d6 = -1");
@@ -88,7 +89,7 @@ class PoolTargetCommandTest {
 
     @Test
     void getDiceResult_withReroll() {
-        EmbedDefinition res = underTest.getAnswer(new PoolTargetState("6", 6, 3, true, false),
+        EmbedDefinition res = underTest.getAnswer(new StateWithData<>("6", new PoolTargetStateData(6, 3, true)),
                 new PoolTargetConfig(null, 6, 15, ImmutableSet.of(6), ImmutableSet.of(1), "ask")).orElseThrow();
         assertThat(res.getFields()).hasSize(0);
         assertThat(res.getTitle()).isEqualTo("6d6 = 1");
@@ -150,7 +151,7 @@ class PoolTargetCommandTest {
     @Test
     void getAnswer_allStateInfoAvailable() {
         assertThat(underTest.getAnswer(
-                new PoolTargetState("10", 10, 8, true, false),
+                new StateWithData<>("10", new PoolTargetStateData(10, 8, true)),
                 new PoolTargetConfig(null, 10, 20, ImmutableSet.of(), ImmutableSet.of(), "always"))
         ).isNotEmpty();
     }
@@ -158,7 +159,7 @@ class PoolTargetCommandTest {
     @Test
     void getAnswer_dicePoolMissing() {
         assertThat(underTest.getAnswer(
-                new PoolTargetState("clear", null, 8, true, false),
+                new StateWithData<>("clear", new PoolTargetStateData(null, 8, true)),
                 new PoolTargetConfig(null, 10, 20, ImmutableSet.of(), ImmutableSet.of(), "always"))
         ).isEmpty();
     }
@@ -166,7 +167,7 @@ class PoolTargetCommandTest {
     @Test
     void getAnswer_targetNumberMissing() {
         assertThat(underTest.getAnswer(
-                new PoolTargetState("10", 10, null, true, false),
+                new StateWithData<>("10", new PoolTargetStateData(10, null, true)),
                 new PoolTargetConfig(null, 10, 20, ImmutableSet.of(), ImmutableSet.of(), "always"))
         ).isEmpty();
     }
@@ -174,7 +175,7 @@ class PoolTargetCommandTest {
     @Test
     void getAnswer_doRerollMissing() {
         assertThat(underTest.getAnswer(
-                new PoolTargetState("10", 10, 8, null, false),
+                new StateWithData<>("10", new PoolTargetStateData(10, 8, null)),
                 new PoolTargetConfig(null, 10, 20, ImmutableSet.of(), ImmutableSet.of(), "always"))
         ).isEmpty();
     }
@@ -222,7 +223,7 @@ class PoolTargetCommandTest {
     @Test
     void getCurrentMessageContentChange_poolWasSet() {
         String res = underTest.getCurrentMessageContentChange(
-                        new PoolTargetState("10", 10, null, null, false),
+                        new StateWithData<>("10", new PoolTargetStateData(10, null, null)),
                         new PoolTargetConfig(null, 10, 20, ImmutableSet.of(10, 9), ImmutableSet.of(1, 2), "ask"))
                 .orElseThrow();
 
@@ -232,7 +233,7 @@ class PoolTargetCommandTest {
     @Test
     void getCurrentMessageContentChange_targetWasSet() {
         String res = underTest.getCurrentMessageContentChange(
-                        new PoolTargetState("10", 10, 10, null, false),
+                        new StateWithData<>("10", new PoolTargetStateData(10, 10, null)),
                         new PoolTargetConfig(null, 10, 20, ImmutableSet.of(10, 9), ImmutableSet.of(1, 2), "ask"))
                 .orElseThrow();
 
@@ -242,7 +243,7 @@ class PoolTargetCommandTest {
     @Test
     void getCurrentMessageContentChange_clear() {
         String res = underTest.getCurrentMessageContentChange(
-                        new PoolTargetState("clear", null, null, null, true),
+                        new StateWithData<>("clear", new PoolTargetStateData(null, null, null)),
                         new PoolTargetConfig(null, 10, 20, ImmutableSet.of(10, 9), ImmutableSet.of(1, 2), "ask"))
                 .orElseThrow();
 
@@ -252,7 +253,7 @@ class PoolTargetCommandTest {
     @Test
     void getCurrentMessageComponentChange_missingDoReroll_askForReroll() {
         List<ComponentRowDefinition> res = underTest.getCurrentMessageComponentChange(
-                        new PoolTargetState("10", 10, 10, null, false),
+                        new StateWithData<>("10", new PoolTargetStateData(10, 10, null)),
                         new PoolTargetConfig(null, 10, 20, ImmutableSet.of(10, 9), ImmutableSet.of(1, 2), "ask"))
                 .orElseThrow();
 
@@ -266,7 +267,7 @@ class PoolTargetCommandTest {
     @Test
     void getButtonLayoutWithState_statesAreGiven_newButtons() {
         List<ComponentRowDefinition> res = underTest.createNewButtonMessageWithState(
-                        new PoolTargetState("10", 10, 10, true, false),
+                        new StateWithData<>("10", new PoolTargetStateData(10, 10, true)),
                         new PoolTargetConfig(null, 10, 20, ImmutableSet.of(10, 9), ImmutableSet.of(1, 2), "ask"))
                 .orElseThrow().getComponentRowDefinitions();
 
@@ -298,7 +299,7 @@ class PoolTargetCommandTest {
     @Test
     void getCurrentMessageComponentChange_missingTarget_askTarget() {
         List<ComponentRowDefinition> res = underTest.getCurrentMessageComponentChange(
-                        new PoolTargetState("10", 10, null, null, false),
+                        new StateWithData<>("10", new PoolTargetStateData(10, null, null)),
                         new PoolTargetConfig(null, 10, 20, ImmutableSet.of(10, 9), ImmutableSet.of(1, 2), "ask"))
                 .orElseThrow();
 

@@ -6,6 +6,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import de.janno.discord.bot.cache.ButtonMessageCache;
 import de.janno.discord.bot.command.AbstractCommand;
+import de.janno.discord.bot.command.State;
 import de.janno.discord.bot.dice.DiceUtils;
 import de.janno.discord.connector.api.BotConstants;
 import de.janno.discord.connector.api.IButtonEventAdaptor;
@@ -24,7 +25,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Slf4j
-public class FateCommand extends AbstractCommand<FateConfig, FateState> {
+public class FateCommand extends AbstractCommand<FateConfig, State> {
 
     private static final String COMMAND_NAME = "fate";
     private static final String ACTION_MODIFIER_OPTION = "type";
@@ -97,11 +98,11 @@ public class FateCommand extends AbstractCommand<FateConfig, FateState> {
     }
 
     @Override
-    protected Optional<EmbedDefinition> getAnswer(FateState state, FateConfig config) {
+    protected Optional<EmbedDefinition> getAnswer(State state, FateConfig config) {
         List<Integer> rollResult = diceUtils.rollFate();
 
-        if (ACTION_MODIFIER_OPTION_MODIFIER.equals(config.getType()) && state.getModifier() != null) {
-            int modifier = state.getModifier();
+        if (ACTION_MODIFIER_OPTION_MODIFIER.equals(config.getType())) {
+            int modifier = Integer.parseInt(state.getButtonValue());
             String modifierString = "";
             if (modifier > 0) {
                 modifierString = " +" + modifier;
@@ -121,7 +122,7 @@ public class FateCommand extends AbstractCommand<FateConfig, FateState> {
     }
 
     @Override
-    protected Optional<MessageDefinition> createNewButtonMessageWithState(FateState state, FateConfig config) {
+    protected Optional<MessageDefinition> createNewButtonMessageWithState(State state, FateConfig config) {
         return Optional.of(createNewButtonMessage(config));
     }
 
@@ -179,12 +180,12 @@ public class FateCommand extends AbstractCommand<FateConfig, FateState> {
     }
 
     @Override
-    protected FateState getStateFromEvent(IButtonEventAdaptor event) {
+    protected State getStateFromEvent(IButtonEventAdaptor event) {
         String buttonValue = event.getCustomId().split(BotConstants.CONFIG_SPLIT_DELIMITER_REGEX)[1];
         if (!Strings.isNullOrEmpty(buttonValue) && NumberUtils.isParsable(buttonValue)) {
-            return new FateState(buttonValue);
+            return new State(buttonValue);
         }
-        return new FateState(buttonValue);
+        return new State(buttonValue);
     }
 
     @VisibleForTesting

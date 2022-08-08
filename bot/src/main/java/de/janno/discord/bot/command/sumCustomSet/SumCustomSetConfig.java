@@ -1,15 +1,18 @@
 package de.janno.discord.bot.command.sumCustomSet;
 
 import de.janno.discord.bot.command.Config;
+import de.janno.discord.bot.command.LabelAndDiceExpression;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
+import lombok.ToString;
 
 import java.util.List;
 import java.util.stream.Stream;
 
 @EqualsAndHashCode(callSuper = true)
 @Getter
+@ToString
 public class SumCustomSetConfig extends Config {
     @NonNull
     private final List<LabelAndDiceExpression> labelAndExpression;

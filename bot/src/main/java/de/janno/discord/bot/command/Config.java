@@ -3,6 +3,7 @@ package de.janno.discord.bot.command;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.ToString;
 
 import java.io.Serializable;
 
@@ -12,6 +13,7 @@ import java.io.Serializable;
 @EqualsAndHashCode
 @Getter
 @AllArgsConstructor
+@ToString
 public class Config implements Serializable {
     private final Long answerTargetChannelId;
 

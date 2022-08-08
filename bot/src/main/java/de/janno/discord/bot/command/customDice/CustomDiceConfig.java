@@ -1,16 +1,15 @@
 package de.janno.discord.bot.command.customDice;
 
 import de.janno.discord.bot.command.Config;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NonNull;
-import lombok.Value;
+import de.janno.discord.bot.command.LabelAndDiceExpression;
+import lombok.*;
 
 import java.util.List;
 import java.util.stream.Stream;
 
 @EqualsAndHashCode(callSuper = true)
 @Getter
+@ToString
 public class CustomDiceConfig extends Config {
     @NonNull
     private final List<LabelAndDiceExpression> labelAndExpression;
@@ -29,19 +28,4 @@ public class CustomDiceConfig extends Config {
                 .toString();
     }
 
-    @Value
-    public static class LabelAndDiceExpression {
-        @NonNull
-        String label;
-        @NonNull
-        String diceExpression;
-
-
-        public String toShortString() {
-            if (diceExpression.equals(label)) {
-                return diceExpression;
-            }
-            return String.format("%s@%s", diceExpression, label);
-        }
-    }
 }

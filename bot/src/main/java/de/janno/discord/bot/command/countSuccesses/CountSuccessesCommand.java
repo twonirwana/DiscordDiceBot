@@ -8,6 +8,7 @@ import com.google.common.collect.Lists;
 import de.janno.discord.bot.cache.ButtonMessageCache;
 import de.janno.discord.bot.command.AbstractCommand;
 import de.janno.discord.bot.command.CommandUtils;
+import de.janno.discord.bot.command.State;
 import de.janno.discord.bot.dice.DiceUtils;
 import de.janno.discord.connector.api.BotConstants;
 import de.janno.discord.connector.api.IButtonEventAdaptor;
@@ -29,7 +30,7 @@ import java.util.stream.IntStream;
 
 
 @Slf4j
-public class CountSuccessesCommand extends AbstractCommand<CountSuccessesConfig, CountSuccessesState> {
+public class CountSuccessesCommand extends AbstractCommand<CountSuccessesConfig, State> {
 
     private static final String COMMAND_NAME = "count_successes";
     private static final String ACTION_SIDE_OPTION = "dice_sides";
@@ -73,8 +74,8 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesConfig,
     }
 
     @Override
-    protected CountSuccessesState getStateFromEvent(IButtonEventAdaptor event) {
-        return new CountSuccessesState(event.getCustomId().split(BotConstants.CONFIG_SPLIT_DELIMITER_REGEX)[1]);
+    protected State getStateFromEvent(IButtonEventAdaptor event) {
+        return new State(event.getCustomId().split(BotConstants.CONFIG_SPLIT_DELIMITER_REGEX)[1]);
     }
 
     @Override
@@ -131,19 +132,20 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesConfig,
     }
 
     @Override
-    protected Optional<EmbedDefinition> getAnswer(CountSuccessesState state, CountSuccessesConfig config) {
-        List<Integer> rollResult = diceUtils.rollDiceOfType(state.getNumberOfDice(), config.getDiceSides()).stream()
+    protected Optional<EmbedDefinition> getAnswer(State state, CountSuccessesConfig config) {
+        int numberOfDice = Integer.parseInt(state.getButtonValue());
+        List<Integer> rollResult = diceUtils.rollDiceOfType(numberOfDice, config.getDiceSides()).stream()
                 .sorted()
                 .collect(Collectors.toList());
 
         return switch (config.getGlitchOption()) {
             case GLITCH_OPTION_HALF_ONES ->
-                    halfOnesGlitch(state.getNumberOfDice(), config.getDiceSides(), config.getTarget(), rollResult);
+                    halfOnesGlitch(numberOfDice, config.getDiceSides(), config.getTarget(), rollResult);
             case GLITCH_COUNT_ONES ->
-                    countOnesGlitch(state.getNumberOfDice(), config.getDiceSides(), config.getTarget(), rollResult);
+                    countOnesGlitch(numberOfDice, config.getDiceSides(), config.getTarget(), rollResult);
             case GLITCH_SUBTRACT_ONES ->
-                    subtractOnesGlitch(state.getNumberOfDice(), config.getDiceSides(), config.getTarget(), rollResult);
-            default -> noneGlitch(state.getNumberOfDice(), config.getDiceSides(), config.getTarget(), rollResult);
+                    subtractOnesGlitch(numberOfDice, config.getDiceSides(), config.getTarget(), rollResult);
+            default -> noneGlitch(numberOfDice, config.getDiceSides(), config.getTarget(), rollResult);
         };
     }
 
@@ -190,7 +192,7 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesConfig,
     }
 
     @Override
-    protected Optional<MessageDefinition> createNewButtonMessageWithState(CountSuccessesState state, CountSuccessesConfig config) {
+    protected Optional<MessageDefinition> createNewButtonMessageWithState(State state, CountSuccessesConfig config) {
         return Optional.of(createNewButtonMessage(config));
     }
 

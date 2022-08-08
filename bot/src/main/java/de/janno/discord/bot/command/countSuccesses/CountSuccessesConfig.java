@@ -4,11 +4,13 @@ import de.janno.discord.bot.command.Config;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
+import lombok.ToString;
 
 import java.util.stream.Stream;
 
 @EqualsAndHashCode(callSuper = true)
 @Getter
+@ToString
 public class CountSuccessesConfig extends Config {
     private final int diceSides;
     private final int target;

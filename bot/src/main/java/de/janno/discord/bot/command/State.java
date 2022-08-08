@@ -1,11 +1,6 @@
 package de.janno.discord.bot.command;
 
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NonNull;
-
-import java.io.Serializable;
+import lombok.*;
 
 /**
  * The current state of the interaction. The state can be used over multiple interactions.
@@ -13,7 +8,8 @@ import java.io.Serializable;
 @EqualsAndHashCode
 @Getter
 @AllArgsConstructor
-public class State implements Serializable {
+@ToString
+public class State {
 
     /**
      * The value of the last button click

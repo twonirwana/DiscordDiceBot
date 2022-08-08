@@ -5,6 +5,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import de.janno.discord.bot.cache.ButtonMessageCache;
 import de.janno.discord.bot.command.AbstractCommand;
+import de.janno.discord.bot.command.LabelAndDiceExpression;
 import de.janno.discord.bot.command.State;
 import de.janno.discord.bot.dice.DiceParserHelper;
 import de.janno.discord.connector.api.BotConstants;
@@ -97,9 +98,9 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, State> 
                 .map(s -> {
                     if (s.contains(LABEL_DELIMITER)) {
                         String[] split = s.split(LABEL_DELIMITER);
-                        return new CustomDiceConfig.LabelAndDiceExpression(split[1].trim(), split[0].trim());
+                        return new LabelAndDiceExpression(split[1].trim(), split[0].trim());
                     }
-                    return new CustomDiceConfig.LabelAndDiceExpression(s.trim(), s.trim());
+                    return new LabelAndDiceExpression(s.trim(), s.trim());
                 })
                 .filter(s -> !s.getDiceExpression().isEmpty())
                 .filter(s -> !s.getLabel().isEmpty())
@@ -116,7 +117,7 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, State> 
         String label = config.getLabelAndExpression().stream()
                 .filter(ld -> !ld.getDiceExpression().equals(ld.getLabel()))
                 .filter(ld -> ld.getDiceExpression().equals(state.getButtonValue()))
-                .map(CustomDiceConfig.LabelAndDiceExpression::getLabel)
+                .map(LabelAndDiceExpression::getLabel)
                 .findFirst().orElse(null);
         return Optional.of(diceParserHelper.roll(state.getButtonValue(), label));
     }
@@ -161,7 +162,7 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, State> 
         String[] split = event.getCustomId().split(BotConstants.CONFIG_SPLIT_DELIMITER_REGEX);
         Long answerTargetChannelId = getOptionalLongFromArray(split, 2);
         return new CustomDiceConfig(answerTargetChannelId, event.getAllButtonIds().stream()
-                .map(lv -> new CustomDiceConfig.LabelAndDiceExpression(lv.getLabel(), lv.getCustomId().split(BotConstants.CONFIG_SPLIT_DELIMITER_REGEX)[1]))
+                .map(lv -> new LabelAndDiceExpression(lv.getLabel(), lv.getCustomId().split(BotConstants.CONFIG_SPLIT_DELIMITER_REGEX)[1]))
                 .collect(Collectors.toList()));
     }
 

@@ -3,6 +3,8 @@ package de.janno.discord.bot.command.sumCustomSet;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import de.janno.discord.bot.cache.ButtonMessageCache;
+import de.janno.discord.bot.command.LabelAndDiceExpression;
+import de.janno.discord.bot.command.StateWithData;
 import de.janno.discord.bot.dice.DiceParserHelper;
 import de.janno.discord.bot.dice.IDice;
 import de.janno.discord.connector.api.IButtonEventAdaptor;
@@ -46,10 +48,10 @@ class SumCustomSetCommandTest {
 
     static Stream<Arguments> generateGetEditButtonMessageData() {
         return Stream.of(
-                Arguments.of(new SumCustomSetState("1d4", "", "user1"), "Click the buttons to add dice to the set and then on Roll"),
-                Arguments.of(new SumCustomSetState("1d4", "1d4", "user1"), "user1∶ 1d4"),
-                Arguments.of(new SumCustomSetState("1d4", "1d4", null), "1d4"),
-                Arguments.of(new SumCustomSetState("-1d4", "-1d4", "user1"), "user1∶ -1d4")
+                Arguments.of(new StateWithData<>("1d4", new SumCustomSetStateData("", "user1")), "Click the buttons to add dice to the set and then on Roll"),
+                Arguments.of(new StateWithData<>("1d4", new SumCustomSetStateData("1d4", "user1")), "user1∶ 1d4"),
+                Arguments.of(new StateWithData<>("1d4", new SumCustomSetStateData("1d4", null)), "1d4"),
+                Arguments.of(new StateWithData<>("-1d4", new SumCustomSetStateData("-1d4", "user1")), "user1∶ -1d4")
         );
     }
 
@@ -62,41 +64,41 @@ class SumCustomSetCommandTest {
 
     @ParameterizedTest(name = "{index} config={0}, buttonId={1} -> {2}")
     @MethodSource("generateGetEditButtonMessageData")
-    void getEditButtonMessage(SumCustomSetState state, String expected) {
+    void getEditButtonMessage(StateWithData<SumCustomSetStateData> state, String expected) {
         Optional<String> res = underTest.getCurrentMessageContentChange(state, defaultConfig);
         assertThat(res).contains(expected);
     }
 
     @Test
     void getButtonMessageWithState_clear() {
-        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(new SumCustomSetState("clear", "1d6", "user1"), defaultConfig);
+        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(new StateWithData<>("clear", new SumCustomSetStateData("1d6", "user1")), defaultConfig);
         assertThat(res).isEmpty();
     }
 
     @Test
     void getButtonMessageWithState_roll() {
-        String res = underTest.createNewButtonMessageWithState(new SumCustomSetState("roll", "1d6", "user1"), defaultConfig)
+        String res = underTest.createNewButtonMessageWithState(new StateWithData<>("roll", new SumCustomSetStateData("1d6", "user1")), defaultConfig)
                 .orElseThrow().getContent();
         assertThat(res).isEqualTo("Click the buttons to add dice to the set and then on Roll");
     }
 
     @Test
     void getEditButtonMessage_backLast() {
-        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(new SumCustomSetState("back", "1d6", "user1"), defaultConfig);
+        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(new StateWithData<>("back", new SumCustomSetStateData("1d6", "user1")), defaultConfig);
 
         assertThat(res).isEmpty();
     }
 
     @Test
     void getEditButtonMessage_back() {
-        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(new SumCustomSetState("back", "1d6+1d6", "user1"), defaultConfig);
+        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(new StateWithData<>("back", new SumCustomSetStateData("1d6+1d6", "user1")), defaultConfig);
 
         assertThat(res).isEmpty();
     }
 
     @Test
     void getCurrentMessageContentChange_clear() {
-        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(new SumCustomSetState("clear", "1d6+1d6", "user1"), defaultConfig);
+        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(new StateWithData<>("clear", new SumCustomSetStateData("1d6+1d6", "user1")), defaultConfig);
 
         assertThat(res).isEmpty();
     }
@@ -109,7 +111,7 @@ class SumCustomSetCommandTest {
 
     @Test
     void createNewButtonMessageWithState() {
-        String res = underTest.createNewButtonMessageWithState(new SumCustomSetState("roll", "1d6", "user1"), defaultConfig)
+        String res = underTest.createNewButtonMessageWithState(new StateWithData<>("roll", new SumCustomSetStateData("1d6", "user1")), defaultConfig)
                 .orElseThrow().getContent();
         assertThat(res).isEqualTo("Click the buttons to add dice to the set and then on Roll");
     }
@@ -126,7 +128,7 @@ class SumCustomSetCommandTest {
         when(event.getCustomId()).thenReturn("sum_custom_set\u00001d21");
         when(event.getMessageContent()).thenReturn("user1∶ 1d6");
         when(event.getInvokingGuildMemberName()).thenReturn("user1");
-        assertThat(underTest.getStateFromEvent(event)).isEqualTo(new SumCustomSetState("1d21", "1d6+1d21", "user1"));
+        assertThat(underTest.getStateFromEvent(event)).isEqualTo(new StateWithData<>("1d21", new SumCustomSetStateData("1d6+1d21", "user1")));
     }
 
     @Test
@@ -135,7 +137,7 @@ class SumCustomSetCommandTest {
         when(event.getCustomId()).thenReturn("sum_custom_set\u0000+1d21");
         when(event.getMessageContent()).thenReturn("user1∶ 1d6");
         when(event.getInvokingGuildMemberName()).thenReturn("user1");
-        assertThat(underTest.getStateFromEvent(event)).isEqualTo(new SumCustomSetState("1d21", "1d6+1d21", "user1"));
+        assertThat(underTest.getStateFromEvent(event)).isEqualTo(new StateWithData<>("1d21", new SumCustomSetStateData("1d6+1d21", "user1")));
     }
 
     @Test
@@ -144,7 +146,7 @@ class SumCustomSetCommandTest {
         when(event.getCustomId()).thenReturn("sum_custom_set\u0000-1d21");
         when(event.getMessageContent()).thenReturn("user1∶ 1d6");
         when(event.getInvokingGuildMemberName()).thenReturn("user1");
-        assertThat(underTest.getStateFromEvent(event)).isEqualTo(new SumCustomSetState("1d21", "1d6-1d21", "user1"));
+        assertThat(underTest.getStateFromEvent(event)).isEqualTo(new StateWithData<>("1d21", new SumCustomSetStateData("1d6-1d21", "user1")));
     }
 
     @Test
@@ -153,7 +155,7 @@ class SumCustomSetCommandTest {
         when(event.getCustomId()).thenReturn("sum_custom_set\u00001d21");
         when(event.getMessageContent()).thenReturn("user1∶ 1d6");
         when(event.getInvokingGuildMemberName()).thenReturn("user2");
-        assertThat(underTest.getStateFromEvent(event)).isEqualTo(new SumCustomSetState("no action", "1d6", "user1"));
+        assertThat(underTest.getStateFromEvent(event)).isEqualTo(new StateWithData<>("no action", new SumCustomSetStateData("1d6", "user1")));
     }
 
     @Test
@@ -163,7 +165,7 @@ class SumCustomSetCommandTest {
         when(event.getMessageContent()).thenReturn("user1∶ asdfasfdasf");
         when(event.getInvokingGuildMemberName()).thenReturn("user1");
         when(diceMock.roll(any())).thenThrow(new RuntimeException("test"));
-        assertThat(underTest.getStateFromEvent(event)).isEqualTo(new SumCustomSetState("no action", "", null));
+        assertThat(underTest.getStateFromEvent(event)).isEqualTo(new StateWithData<>("no action", new SumCustomSetStateData("", null)));
     }
 
     @Test
@@ -172,7 +174,7 @@ class SumCustomSetCommandTest {
         when(event.getCustomId()).thenReturn("sum_custom_set\u00001d21");
         when(event.getMessageContent()).thenReturn("user1∶ 1d4+2d6+3d8+4d12+5d20");
         when(event.getInvokingGuildMemberName()).thenReturn("user1");
-        assertThat(underTest.getStateFromEvent(event)).isEqualTo(new SumCustomSetState("1d21", "1d4+2d6+3d8+4d12+5d20+1d21", "user1"));
+        assertThat(underTest.getStateFromEvent(event)).isEqualTo(new StateWithData<>("1d21", new SumCustomSetStateData("1d4+2d6+3d8+4d12+5d20+1d21", "user1")));
     }
 
 
@@ -182,7 +184,7 @@ class SumCustomSetCommandTest {
         when(event.getCustomId()).thenReturn("sum_custom_set\u00001d21");
         when(event.getInvokingGuildMemberName()).thenReturn("user1");
         when(event.getMessageContent()).thenReturn("Click the buttons to add dice to the set and then on Roll");
-        assertThat(underTest.getStateFromEvent(event)).isEqualTo(new SumCustomSetState("1d21", "1d21", "user1"));
+        assertThat(underTest.getStateFromEvent(event)).isEqualTo(new StateWithData<>("1d21", new SumCustomSetStateData("1d21", "user1")));
     }
 
     @Test
@@ -191,7 +193,7 @@ class SumCustomSetCommandTest {
         when(event.getCustomId()).thenReturn("sum_custom_set\u00001d21");
         when(event.getInvokingGuildMemberName()).thenReturn("user1");
         when(event.getMessageContent()).thenReturn("Click on the buttons to add dice to the set");
-        assertThat(underTest.getStateFromEvent(event)).isEqualTo(new SumCustomSetState("1d21", "1d21", "user1"));
+        assertThat(underTest.getStateFromEvent(event)).isEqualTo(new StateWithData<>("1d21", new SumCustomSetStateData("1d21", "user1")));
     }
 
 
@@ -201,7 +203,7 @@ class SumCustomSetCommandTest {
         when(event.getCustomId()).thenReturn("sum_custom_set\u0000clear");
         when(event.getMessageContent()).thenReturn("user1∶ 1d6");
         when(event.getInvokingGuildMemberName()).thenReturn("user1");
-        assertThat(underTest.getStateFromEvent(event)).isEqualTo(new SumCustomSetState("clear", "", null));
+        assertThat(underTest.getStateFromEvent(event)).isEqualTo(new StateWithData<>("clear", new SumCustomSetStateData("", null)));
     }
 
 
@@ -211,7 +213,7 @@ class SumCustomSetCommandTest {
         when(event.getCustomId()).thenReturn("sum_custom_set\u0000back");
         when(event.getMessageContent()).thenReturn("user1∶ 1d6");
         when(event.getInvokingGuildMemberName()).thenReturn("user1");
-        assertThat(underTest.getStateFromEvent(event)).isEqualTo(new SumCustomSetState("back", "", "user1"));
+        assertThat(underTest.getStateFromEvent(event)).isEqualTo(new StateWithData<>("back", new SumCustomSetStateData("", "user1")));
     }
 
     @Test
@@ -220,7 +222,7 @@ class SumCustomSetCommandTest {
         when(event.getCustomId()).thenReturn("sum_custom_set\u0000back");
         when(event.getMessageContent()).thenReturn("user1∶ 1d6+1d6");
         when(event.getInvokingGuildMemberName()).thenReturn("user1");
-        assertThat(underTest.getStateFromEvent(event)).isEqualTo(new SumCustomSetState("back", "1d6", "user1"));
+        assertThat(underTest.getStateFromEvent(event)).isEqualTo(new StateWithData<>("back", new SumCustomSetStateData("1d6", "user1")));
     }
 
     @Test
@@ -229,7 +231,7 @@ class SumCustomSetCommandTest {
         when(event.getCustomId()).thenReturn("sum_custom_set\u0000back");
         when(event.getMessageContent()).thenReturn("user1∶ 1d6-1d6");
         when(event.getInvokingGuildMemberName()).thenReturn("user1");
-        assertThat(underTest.getStateFromEvent(event)).isEqualTo(new SumCustomSetState("back", "1d6", "user1"));
+        assertThat(underTest.getStateFromEvent(event)).isEqualTo(new StateWithData<>("back", new SumCustomSetStateData("1d6", "user1")));
     }
 
     @Test
@@ -238,7 +240,7 @@ class SumCustomSetCommandTest {
         when(event.getCustomId()).thenReturn("sum_custom_set\u0000roll");
         when(event.getMessageContent()).thenReturn("user1∶ 1d6");
         when(event.getInvokingGuildMemberName()).thenReturn("user1");
-        assertThat(underTest.getStateFromEvent(event)).isEqualTo(new SumCustomSetState("roll", "1d6", "user1"));
+        assertThat(underTest.getStateFromEvent(event)).isEqualTo(new StateWithData<>("roll", new SumCustomSetStateData("1d6", "user1")));
     }
 
     @Test
@@ -253,43 +255,43 @@ class SumCustomSetCommandTest {
 
     @Test
     void getAnswer_roll_true() {
-        Optional<EmbedDefinition> res = underTest.getAnswer(new SumCustomSetState("roll", "1d6", "user1"), defaultConfig);
+        Optional<EmbedDefinition> res = underTest.getAnswer(new StateWithData<>("roll", new SumCustomSetStateData("1d6", "user1")), defaultConfig);
         assertThat(res).isNotEmpty();
     }
 
     @Test
     void getAnswer_rollNoConfig_false() {
-        Optional<EmbedDefinition> res = underTest.getAnswer(new SumCustomSetState("roll", "", "user1"), defaultConfig);
+        Optional<EmbedDefinition> res = underTest.getAnswer(new StateWithData<>("roll", new SumCustomSetStateData("", "user1")), defaultConfig);
         assertThat(res).isEmpty();
     }
 
     @Test
     void getAnswer_modifyMessage_false() {
-        Optional<EmbedDefinition> res = underTest.getAnswer(new SumCustomSetState("1d6", "1d6", "user1"), defaultConfig);
+        Optional<EmbedDefinition> res = underTest.getAnswer(new StateWithData<>("1d6", new SumCustomSetStateData("1d6", "user1")), defaultConfig);
         assertThat(res).isEmpty();
     }
 
     @Test
     void copyButtonMessageToTheEnd_roll_true() {
-        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(new SumCustomSetState("roll", "1d6", "user1"), defaultConfig);
+        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(new StateWithData<>("roll", new SumCustomSetStateData("1d6", "user1")), defaultConfig);
         assertThat(res).isNotEmpty();
     }
 
     @Test
     void copyButtonMessageToTheEnd_rollNoConfig_false() {
-        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(new SumCustomSetState("roll", "", "user1"), defaultConfig);
+        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(new StateWithData<>("roll", new SumCustomSetStateData("", "user1")), defaultConfig);
         assertThat(res).isEmpty();
     }
 
     @Test
     void copyButtonMessageToTheEnd_modifyMessage_false() {
-        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(new SumCustomSetState("+1d6", "1d6", "user1"), defaultConfig);
+        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(new StateWithData<>("+1d6", new SumCustomSetStateData("1d6", "user1")), defaultConfig);
         assertThat(res).isEmpty();
     }
 
     @Test
     void getCurrentMessageContentChange_1d6() {
-        Optional<String> res = underTest.getCurrentMessageContentChange(new SumCustomSetState("+1d6", "1d6", "user1"), defaultConfig);
+        Optional<String> res = underTest.getCurrentMessageContentChange(new StateWithData<>("+1d6", new SumCustomSetStateData("1d6", "user1")), defaultConfig);
         assertThat(res).contains("user1∶ 1d6");
     }
 
@@ -415,7 +417,7 @@ class SumCustomSetCommandTest {
         when(diceMock.detailedRoll("1d6+10")).thenReturn(new ResultTree(new NDice(6, 1), 13, ImmutableList.of(
                 new ResultTree(new NDice(6, 1), 3, ImmutableList.of()),
                 new ResultTree(new NumberExpression(10), 10, ImmutableList.of()))));
-        EmbedDefinition res = underTest.getAnswer(new SumCustomSetState("roll", "1d6+10", "user1"), defaultConfig).orElseThrow();
+        EmbedDefinition res = underTest.getAnswer(new StateWithData<>("roll", new SumCustomSetStateData("1d6+10", "user1")), defaultConfig).orElseThrow();
 
         assertThat(res.getFields()).hasSize(0);
         assertThat(res.getTitle()).isEqualTo("1d6+10 = 13");
@@ -457,9 +459,9 @@ class SumCustomSetCommandTest {
         when(event.getMessageContent()).thenReturn("user1∶ 1d6");
         when(event.getInvokingGuildMemberName()).thenReturn("user1");
 
-        SumCustomSetState res = underTest.getStateFromEvent(event);
+        StateWithData<SumCustomSetStateData> res = underTest.getStateFromEvent(event);
 
-        assertThat(res).isEqualTo(new SumCustomSetState("1d6", "1d6+1d6", "user1"));
+        assertThat(res).isEqualTo(new StateWithData<>("1d6", new SumCustomSetStateData("1d6+1d6", "user1")));
     }
 
     @Test
@@ -471,7 +473,7 @@ class SumCustomSetCommandTest {
 
     @Test
     void getButtonLayoutWithState() {
-        List<ComponentRowDefinition> res = underTest.createNewButtonMessageWithState(new SumCustomSetState("roll", "1d6", "user1"), defaultConfig)
+        List<ComponentRowDefinition> res = underTest.createNewButtonMessageWithState(new StateWithData<>("roll", new SumCustomSetStateData("1d6", "user1")), defaultConfig)
                 .orElseThrow().getComponentRowDefinitions();
 
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel))

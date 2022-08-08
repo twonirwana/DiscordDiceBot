@@ -5,12 +5,14 @@ import de.janno.discord.bot.command.Config;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
+import lombok.ToString;
 
 import java.util.Set;
 import java.util.stream.Collectors;
 
 @EqualsAndHashCode(callSuper = true)
 @Getter
+@ToString
 public class PoolTargetConfig extends Config {
     private  final int diceSides;
     private   final int maxNumberOfButtons;

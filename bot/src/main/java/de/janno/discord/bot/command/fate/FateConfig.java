@@ -4,9 +4,11 @@ import de.janno.discord.bot.command.Config;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
+import lombok.ToString;
 
 @EqualsAndHashCode(callSuper = true)
 @Getter
+@ToString
 public class FateConfig extends Config {
     @NonNull
     private final String type;

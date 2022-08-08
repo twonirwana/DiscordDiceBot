@@ -5,6 +5,7 @@ import de.janno.discord.bot.command.Config;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
+import lombok.ToString;
 
 import java.util.Collection;
 import java.util.Objects;
@@ -12,6 +13,7 @@ import java.util.Optional;
 
 @EqualsAndHashCode(callSuper = true)
 @Getter
+@ToString
 public class CustomParameterConfig extends Config {
     @NonNull
     private final String baseExpression;

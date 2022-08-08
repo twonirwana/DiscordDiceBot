@@ -63,21 +63,21 @@ public class WelcomeCommand extends AbstractCommand<Config, State> {
             );
             case DND5_BUTTON_ID -> Optional.of(
                     new CustomDiceCommand().createNewButtonMessage(new CustomDiceConfig(null, ImmutableList.of(
-                            new CustomDiceConfig.LabelAndDiceExpression("D4", "1d4"),
-                            new CustomDiceConfig.LabelAndDiceExpression("D6", "1d6"),
-                            new CustomDiceConfig.LabelAndDiceExpression("D8", "1d8"),
-                            new CustomDiceConfig.LabelAndDiceExpression("D10", "1d10"),
-                            new CustomDiceConfig.LabelAndDiceExpression("D12", "1d12"),
-                            new CustomDiceConfig.LabelAndDiceExpression("D20", "1d20"),
-                            new CustomDiceConfig.LabelAndDiceExpression("D100", "1d100"),
-                            new CustomDiceConfig.LabelAndDiceExpression("D20 Advantage", "2d20k1"),
-                            new CustomDiceConfig.LabelAndDiceExpression("D20 Disadvantage", "2d20L1"),
-                            new CustomDiceConfig.LabelAndDiceExpression("2D4", "2d4"),
-                            new CustomDiceConfig.LabelAndDiceExpression("2D6", "2d6"),
-                            new CustomDiceConfig.LabelAndDiceExpression("2D8", "2d8"),
-                            new CustomDiceConfig.LabelAndDiceExpression("2D10", "2d10"),
-                            new CustomDiceConfig.LabelAndDiceExpression("2D12", "2d12"),
-                            new CustomDiceConfig.LabelAndDiceExpression("2D20", "2d20")
+                            new LabelAndDiceExpression("D4", "1d4"),
+                            new LabelAndDiceExpression("D6", "1d6"),
+                            new LabelAndDiceExpression("D8", "1d8"),
+                            new LabelAndDiceExpression("D10", "1d10"),
+                            new LabelAndDiceExpression("D12", "1d12"),
+                            new LabelAndDiceExpression("D20", "1d20"),
+                            new LabelAndDiceExpression("D100", "1d100"),
+                            new LabelAndDiceExpression("D20 Advantage", "2d20k1"),
+                            new LabelAndDiceExpression("D20 Disadvantage", "2d20L1"),
+                            new LabelAndDiceExpression("2D4", "2d4"),
+                            new LabelAndDiceExpression("2D6", "2d6"),
+                            new LabelAndDiceExpression("2D8", "2d8"),
+                            new LabelAndDiceExpression("2D10", "2d10"),
+                            new LabelAndDiceExpression("2D12", "2d12"),
+                            new LabelAndDiceExpression("2D20", "2d20")
                     )))
             );
             case NWOD_BUTTON_ID -> Optional.of(
@@ -91,7 +91,7 @@ public class WelcomeCommand extends AbstractCommand<Config, State> {
             );
             case COIN_BUTTON_ID -> Optional.of(
                     new CustomDiceCommand().createNewButtonMessage(new CustomDiceConfig(null, ImmutableList.of(
-                            new CustomDiceConfig.LabelAndDiceExpression("Coin Toss \uD83E\uDE99", "1d2=2?Head \uD83D\uDE00:Tail \uD83E\uDD85"))))
+                            new LabelAndDiceExpression("Coin Toss \uD83E\uDE99", "1d2=2?Head \uD83D\uDE00:Tail \uD83E\uDD85"))))
             );
             default -> Optional.empty();
         };

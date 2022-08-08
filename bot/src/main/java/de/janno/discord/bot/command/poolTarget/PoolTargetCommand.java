@@ -7,6 +7,7 @@ import com.google.common.collect.Lists;
 import de.janno.discord.bot.cache.ButtonMessageCache;
 import de.janno.discord.bot.command.AbstractCommand;
 import de.janno.discord.bot.command.CommandUtils;
+import de.janno.discord.bot.command.StateWithData;
 import de.janno.discord.bot.dice.DiceUtils;
 import de.janno.discord.connector.api.BotConstants;
 import de.janno.discord.connector.api.IButtonEventAdaptor;
@@ -31,7 +32,7 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 @Slf4j
-public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTargetState> {
+public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, StateWithData<PoolTargetStateData>> {
 
     static final String SUBSET_DELIMITER = ";";
     private static final String COMMAND_NAME = "pool_target";
@@ -134,27 +135,27 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTar
     }
 
     @Override
-    protected Optional<EmbedDefinition> getAnswer(PoolTargetState state, PoolTargetConfig config) {
-        if (state.getDicePool() == null || state.getTargetNumber() == null || state.getDoReroll() == null) {
+    protected Optional<EmbedDefinition> getAnswer(StateWithData<PoolTargetStateData> state, PoolTargetConfig config) {
+        if (state.getData().getDicePool() == null || state.getData().getTargetNumber() == null || state.getData().getDoReroll() == null) {
             return Optional.empty();
         }
-        List<Integer> rollResult = diceUtils.rollDiceOfType(state.getDicePool(), config.getDiceSides());
-        if (state.getDoReroll()) {
+        List<Integer> rollResult = diceUtils.rollDiceOfType(state.getData().getDicePool(), config.getDiceSides());
+        if (state.getData().getDoReroll()) {
             rollResult = diceUtils.explodingReroll(config.getDiceSides(), rollResult, config.getRerollSet());
         }
         rollResult = rollResult.stream().sorted().collect(Collectors.toList());
-        int numberOfSuccesses = DiceUtils.numberOfDiceResultsGreaterEqual(rollResult, state.getTargetNumber());
+        int numberOfSuccesses = DiceUtils.numberOfDiceResultsGreaterEqual(rollResult, state.getData().getTargetNumber());
         int numberOfBotches = DiceUtils.numberOfDiceResultsEqual(rollResult, config.getBotchSet());
 
         int totalResults = numberOfSuccesses - numberOfBotches;
 
-        Set<Integer> toMark = IntStream.range(state.getTargetNumber(), config.getDiceSides() + 1).boxed().collect(Collectors.toSet());
+        Set<Integer> toMark = IntStream.range(state.getData().getTargetNumber(), config.getDiceSides() + 1).boxed().collect(Collectors.toSet());
         toMark.addAll(config.getBotchSet());
-        if (state.getDoReroll()) {
+        if (state.getData().getDoReroll()) {
             toMark.addAll(config.getRerollSet());
         }
-        String details = String.format("%s ≥%d = %s", CommandUtils.markIn(rollResult, toMark), state.getTargetNumber(), totalResults);
-        String title = String.format("%dd%d = %d", state.getDicePool(), config.getDiceSides(), totalResults);
+        String details = String.format("%s ≥%d = %s", CommandUtils.markIn(rollResult, toMark), state.getData().getTargetNumber(), totalResults);
+        String title = String.format("%dd%d = %d", state.getData().getDicePool(), config.getDiceSides(), totalResults);
         return Optional.of(new EmbedDefinition(title, details, ImmutableList.of()));
     }
 
@@ -172,17 +173,17 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTar
     }
 
     @Override
-    protected PoolTargetState getStateFromEvent(IButtonEventAdaptor event) {
+    protected StateWithData<PoolTargetStateData> getStateFromEvent(IButtonEventAdaptor event) {
         String[] customIdSplit = event.getCustomId().split(BotConstants.CONFIG_SPLIT_DELIMITER_REGEX);
         String buttonValue = customIdSplit[BUTTON_VALUE_INDEX];
         //clear button was pressed
         if (CLEAR_BUTTON_ID.equals(buttonValue)) {
-            return new PoolTargetState(buttonValue, null, null, null, true);
+            return new StateWithData<>(buttonValue, new PoolTargetStateData(null, null, null));
         }
         //pool size in config is empty and button value is number -> pool size was set
         if (EMPTY.equals(customIdSplit[POOL_SIZE_VALUE_INDEX]) && StringUtils.isNumeric(buttonValue)) {
             Integer buttonNumber = Integer.valueOf(buttonValue);
-            return new PoolTargetState(buttonValue, buttonNumber, null, null, false);
+            return new StateWithData<>(buttonValue, new PoolTargetStateData(buttonNumber, null, null));
         }
 
         PoolTargetConfig config = getConfigFromEvent(event);
@@ -190,18 +191,18 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTar
         if (StringUtils.isNumeric(customIdSplit[POOL_SIZE_VALUE_INDEX]) && StringUtils.isNumeric(buttonValue)) {
             //if the config is always reroll we can set it, else we need to ask
             Boolean doReroll = ALWAYS_REROLL.equals(config.getRerollVariant()) ? true : null;
-            return new PoolTargetState(buttonValue, Integer.valueOf(customIdSplit[POOL_SIZE_VALUE_INDEX]), Integer.valueOf(buttonValue), doReroll, false);
+            return new StateWithData<>(buttonValue, new PoolTargetStateData(Integer.valueOf(customIdSplit[POOL_SIZE_VALUE_INDEX]), Integer.valueOf(buttonValue), doReroll));
         }
 
         //pool size is already given and target is given -> do reroll was asked
         if (StringUtils.isNumeric(customIdSplit[POOL_SIZE_VALUE_INDEX]) && StringUtils.isNumeric(customIdSplit[TARGET_INDEX])) {
             boolean doReroll = DO_REROLL_ID.equals(buttonValue);
-            return new PoolTargetState(buttonValue, Integer.valueOf(customIdSplit[POOL_SIZE_VALUE_INDEX]), Integer.valueOf(customIdSplit[TARGET_INDEX]), doReroll, false);
+            return new StateWithData<>(buttonValue, new PoolTargetStateData(Integer.valueOf(customIdSplit[POOL_SIZE_VALUE_INDEX]), Integer.valueOf(customIdSplit[TARGET_INDEX]), doReroll));
 
         }
 
         log.error("CustomId:'{}}' correspond to no known state", event.getCustomId());
-        return new PoolTargetState(buttonValue, null, null, null, true);
+        return new StateWithData<>(CLEAR_BUTTON_ID, new PoolTargetStateData(null, null, null));
     }
 
     @Override
@@ -255,36 +256,36 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTar
 
 
     @Override
-    protected Optional<List<ComponentRowDefinition>> getCurrentMessageComponentChange(PoolTargetState state, PoolTargetConfig config) {
-        if (state.getDicePool() == null && !state.isClear()) {
+    protected Optional<List<ComponentRowDefinition>> getCurrentMessageComponentChange(StateWithData<PoolTargetStateData> state, PoolTargetConfig config) {
+        if (state.getData().getDicePool() == null && !CLEAR_BUTTON_ID.equals(state.getButtonValue())) {
             return Optional.empty();
         }
         return Optional.of(getButtonLayoutWithState(state, config));
     }
 
     @Override
-    public Optional<String> getCurrentMessageContentChange(PoolTargetState state, PoolTargetConfig config) {
-        if (state.isClear()) {
+    public Optional<String> getCurrentMessageContentChange(StateWithData<PoolTargetStateData> state, PoolTargetConfig config) {
+        if (CLEAR_BUTTON_ID.equals(state.getButtonValue())) {
             return Optional.of(String.format("Click on the buttons to roll dice%s", getConfigDescription(config)));
         }
-        if (state.getDicePool() != null && state.getTargetNumber() != null && state.getDoReroll() == null) {
+        if (state.getData().getDicePool() != null && state.getData().getTargetNumber() != null && state.getData().getDoReroll() == null) {
             String rerollNumbers = config.getRerollSet().stream()
                     .map(String::valueOf)
                     .map(s -> String.format("%ss", s))
                     .collect(Collectors.joining(","));
-            return Optional.of(String.format("Should %s in %dd%d against %d be be rerolled?", rerollNumbers, state.getDicePool(), config.getDiceSides(), state.getTargetNumber()));
+            return Optional.of(String.format("Should %s in %dd%d against %d be be rerolled?", rerollNumbers, state.getData().getDicePool(), config.getDiceSides(), state.getData().getTargetNumber()));
         }
-        if (state.getDicePool() != null && state.getTargetNumber() == null) {
+        if (state.getData().getDicePool() != null && state.getData().getTargetNumber() == null) {
             String configDescription = getConfigDescription(config);
-            return Optional.of(String.format("Click on the target to roll %dd%d against it%s", state.getDicePool(), config.getDiceSides(), configDescription));
+            return Optional.of(String.format("Click on the target to roll %dd%d against it%s", state.getData().getDicePool(), config.getDiceSides(), configDescription));
         }
 
         return Optional.empty();
     }
 
     @Override
-    protected Optional<MessageDefinition> createNewButtonMessageWithState(PoolTargetState state, PoolTargetConfig config) {
-        if (state.getDicePool() != null && state.getTargetNumber() != null && state.getDoReroll() != null) {
+    protected Optional<MessageDefinition> createNewButtonMessageWithState(StateWithData<PoolTargetStateData> state, PoolTargetConfig config) {
+        if (state.getData().getDicePool() != null && state.getData().getTargetNumber() != null && state.getData().getDoReroll() != null) {
             return Optional.of(MessageDefinition.builder()
                     .content(String.format("Click on the buttons to roll dice%s", getConfigDescription(config)))
                     .componentRowDefinitions(getButtonLayoutWithState(state, config))
@@ -293,8 +294,8 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTar
         return Optional.empty();
     }
 
-    private List<ComponentRowDefinition> getButtonLayoutWithState(PoolTargetState state, PoolTargetConfig config) {
-        if (state.getDicePool() != null && state.getTargetNumber() != null && state.getDoReroll() == null) {
+    private List<ComponentRowDefinition> getButtonLayoutWithState(StateWithData<PoolTargetStateData> state, PoolTargetConfig config) {
+        if (state.getData().getDicePool() != null && state.getData().getTargetNumber() != null && state.getData().getDoReroll() == null) {
             return ImmutableList.of(
                     ComponentRowDefinition.builder()
                             .buttonDefinition(
@@ -310,7 +311,7 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTar
                             .build()
             );
         }
-        if (state.getDicePool() != null && state.getTargetNumber() == null) {
+        if (state.getData().getDicePool() != null && state.getData().getTargetNumber() == null) {
             List<ButtonDefinition> buttons = IntStream.range(2, config.getDiceSides() + 1)
                     .mapToObj(i -> ButtonDefinition.builder()
                             .id(createButtonCustomId(String.valueOf(i), config, state))
@@ -329,7 +330,7 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTar
     }
 
 
-    String createButtonCustomId(@NonNull String buttonValue, @NonNull PoolTargetConfig config, @Nullable PoolTargetState state) {
+    String createButtonCustomId(@NonNull String buttonValue, @NonNull PoolTargetConfig config, @Nullable StateWithData<PoolTargetStateData> state) {
         Preconditions.checkArgument(!buttonValue.contains(BotConstants.CONFIG_DELIMITER));
 
         String[] values = new String[10];
@@ -340,8 +341,8 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTar
         values[REROLL_SET_INDEX] = config.getRerollSet().isEmpty() ? EMPTY : config.getRerollSet().stream().map(String::valueOf).collect(Collectors.joining(SUBSET_DELIMITER));
         values[BOTCH_SET_INDEX] = config.getBotchSet().isEmpty() ? EMPTY : config.getBotchSet().stream().map(String::valueOf).collect(Collectors.joining(SUBSET_DELIMITER));
         values[REROLL_VARIANT_INDEX] = config.getRerollVariant();
-        values[POOL_SIZE_VALUE_INDEX] = Optional.ofNullable(state).map(PoolTargetState::getDicePool).map(String::valueOf).orElse(EMPTY);
-        values[TARGET_INDEX] = Optional.ofNullable(state).map(PoolTargetState::getTargetNumber).map(String::valueOf).orElse(EMPTY);
+        values[POOL_SIZE_VALUE_INDEX] = Optional.ofNullable(state).map(StateWithData::getData).map(PoolTargetStateData::getDicePool).map(String::valueOf).orElse(EMPTY);
+        values[TARGET_INDEX] = Optional.ofNullable(state).map(StateWithData::getData).map(PoolTargetStateData::getTargetNumber).map(String::valueOf).orElse(EMPTY);
         values[ANSWER_TARGET_CHANNEL_INDEX] = Optional.ofNullable(config.getAnswerTargetChannelId()).map(Object::toString).orElse("");
         return String.join(BotConstants.CONFIG_DELIMITER, values);
 

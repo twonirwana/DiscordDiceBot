@@ -5,6 +5,7 @@ import de.janno.discord.bot.command.Config;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
+import lombok.ToString;
 
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -13,7 +14,9 @@ import static de.janno.discord.bot.command.holdReroll.HoldRerollCommand.SUBSET_D
 
 @EqualsAndHashCode(callSuper = true)
 @Getter
+@ToString
 public class HoldRerollConfig extends Config {
+
     private final int sidesOfDie;
     @NonNull
     private final Set<Integer> rerollSet;
