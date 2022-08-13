@@ -4,10 +4,14 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
-import de.janno.discord.bot.cache.ButtonMessageCache;
 import de.janno.discord.bot.command.AbstractCommand;
+import de.janno.discord.bot.command.EmptyData;
+import de.janno.discord.bot.command.MessageObject;
 import de.janno.discord.bot.command.State;
 import de.janno.discord.bot.dice.DiceUtils;
+import de.janno.discord.bot.persistance.Mapper;
+import de.janno.discord.bot.persistance.MessageDataDAO;
+import de.janno.discord.bot.persistance.MessageDataDTO;
 import de.janno.discord.connector.api.BotConstants;
 import de.janno.discord.connector.api.IButtonEventAdaptor;
 import de.janno.discord.connector.api.message.ButtonDefinition;
@@ -20,33 +24,56 @@ import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Slf4j
-public class FateCommand extends AbstractCommand<FateConfig, State> {
+public class FateCommand extends AbstractCommand<FateConfig, EmptyData> {
 
     private static final String COMMAND_NAME = "fate";
     private static final String ACTION_MODIFIER_OPTION = "type";
     private static final String ACTION_MODIFIER_OPTION_SIMPLE = "simple";
     private static final String ACTION_MODIFIER_OPTION_MODIFIER = "with_modifier";
     private static final String ROLL_BUTTON_ID = "roll";
-    private static final ButtonMessageCache BUTTON_MESSAGE_CACHE = new ButtonMessageCache(COMMAND_NAME);
     private final DiceUtils diceUtils;
 
     @VisibleForTesting
-    public FateCommand(DiceUtils diceUtils) {
-        super(BUTTON_MESSAGE_CACHE);
+    public FateCommand(MessageDataDAO messageDataDAO, DiceUtils diceUtils) {
+        super(messageDataDAO);
         this.diceUtils = diceUtils;
     }
 
-    public FateCommand() {
-        this(new DiceUtils());
+    public FateCommand(MessageDataDAO messageDataDAO) {
+        this(messageDataDAO, new DiceUtils());
     }
 
     @Override
-    public String getName() {
+    protected Optional<MessageObject<FateConfig, EmptyData>> getMessageDataAndUpdateWithButtonValue(long channelId, long messageId, String buttonValue) {
+        final Optional<MessageDataDTO> messageDataDTO = messageDataDAO.getDataForMessage(channelId, messageId);
+        if (messageDataDTO.isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.of(new MessageObject<>(messageDataDTO.get().getConfigUUID(),
+                Mapper.deserializeObject(messageDataDTO.get().getConfig(), FateConfig.class),
+                new State<>(buttonValue, new EmptyData())));
+    }
+
+    @Override
+    protected MessageDataDTO createMessageDataForNewMessage(@NonNull UUID configUUID,
+                                                            long channelId,
+                                                            long messageId,
+                                                            @NonNull FateConfig config,
+                                                            @Nullable State<EmptyData> state) {
+        return new MessageDataDTO(configUUID, channelId, messageId, getCommandId(),
+                "FateConfig", Mapper.serializedObject(config),
+                Mapper.NO_PERSISTED_STATE, null);
+    }
+
+    @Override
+    public String getCommandId() {
         return COMMAND_NAME;
     }
 
@@ -98,7 +125,7 @@ public class FateCommand extends AbstractCommand<FateConfig, State> {
     }
 
     @Override
-    protected Optional<EmbedDefinition> getAnswer(State state, FateConfig config) {
+    protected Optional<EmbedDefinition> getAnswer(State<EmptyData> state, FateConfig config) {
         List<Integer> rollResult = diceUtils.rollFate();
 
         if (ACTION_MODIFIER_OPTION_MODIFIER.equals(config.getType())) {
@@ -122,7 +149,7 @@ public class FateCommand extends AbstractCommand<FateConfig, State> {
     }
 
     @Override
-    protected Optional<MessageDefinition> createNewButtonMessageWithState(State state, FateConfig config) {
+    protected Optional<MessageDefinition> createNewButtonMessageWithState(State<EmptyData> state, FateConfig config) {
         return Optional.of(createNewButtonMessage(config));
     }
 
@@ -175,25 +202,25 @@ public class FateCommand extends AbstractCommand<FateConfig, State> {
 
     @Override
     protected FateConfig getConfigFromEvent(IButtonEventAdaptor event) {
-        String[] split = event.getCustomId().split(BotConstants.CONFIG_SPLIT_DELIMITER_REGEX);
+        String[] split = event.getCustomId().split(BotConstants.LEGACY_CONFIG_SPLIT_DELIMITER_REGEX);
         return new FateConfig(getOptionalLongFromArray(split, 3), split[2]);
     }
 
     @Override
-    protected State getStateFromEvent(IButtonEventAdaptor event) {
-        String buttonValue = event.getCustomId().split(BotConstants.CONFIG_SPLIT_DELIMITER_REGEX)[1];
+    protected State<EmptyData> getStateFromEvent(IButtonEventAdaptor event) {
+        String buttonValue = event.getCustomId().split(BotConstants.LEGACY_CONFIG_SPLIT_DELIMITER_REGEX)[1];
         if (!Strings.isNullOrEmpty(buttonValue) && NumberUtils.isParsable(buttonValue)) {
-            return new State(buttonValue);
+            return new State<>(buttonValue, new EmptyData());
         }
-        return new State(buttonValue);
+        return new State<>(buttonValue, new EmptyData());
     }
 
     @VisibleForTesting
     String createButtonCustomId(String modifier, FateConfig config) {
-        Preconditions.checkArgument(!modifier.contains(BotConstants.CONFIG_DELIMITER));
-        Preconditions.checkArgument(!config.getType().contains(BotConstants.CONFIG_DELIMITER));
+        Preconditions.checkArgument(!modifier.contains(BotConstants.LEGACY_DELIMITER_V2));
+        Preconditions.checkArgument(!config.getType().contains(BotConstants.LEGACY_DELIMITER_V2));
 
-        return String.join(BotConstants.CONFIG_DELIMITER,
+        return String.join(BotConstants.LEGACY_DELIMITER_V2,
                 COMMAND_NAME,
                 modifier,
                 config.getType(),

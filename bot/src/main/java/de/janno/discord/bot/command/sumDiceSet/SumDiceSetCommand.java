@@ -4,11 +4,14 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import de.janno.discord.bot.cache.ButtonMessageCache;
 import de.janno.discord.bot.command.AbstractCommand;
 import de.janno.discord.bot.command.Config;
-import de.janno.discord.bot.command.StateWithData;
+import de.janno.discord.bot.command.MessageObject;
+import de.janno.discord.bot.command.State;
 import de.janno.discord.bot.dice.DiceUtils;
+import de.janno.discord.bot.persistance.Mapper;
+import de.janno.discord.bot.persistance.MessageDataDAO;
+import de.janno.discord.bot.persistance.MessageDataDTO;
 import de.janno.discord.connector.api.BotConstants;
 import de.janno.discord.connector.api.IButtonEventAdaptor;
 import de.janno.discord.connector.api.message.ButtonDefinition;
@@ -20,6 +23,7 @@ import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.regex.Pattern;
@@ -27,7 +31,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Slf4j
-public class SumDiceSetCommand extends AbstractCommand<Config, StateWithData<SumDiceSetStateData>> {
+public class SumDiceSetCommand extends AbstractCommand<Config, SumDiceSetStateData> {
     private static final String COMMAND_NAME = "sum_dice_set";
     private static final String DICE_SET_DELIMITER = " ";
     private static final String ROLL_BUTTON_ID = "roll";
@@ -36,16 +40,15 @@ public class SumDiceSetCommand extends AbstractCommand<Config, StateWithData<Sum
     private static final String X2_BUTTON_ID = "x2";
     private static final String DICE_SYMBOL = "d";
     private static final String MODIFIER_KEY = "m";
-    private static final ButtonMessageCache BUTTON_MESSAGE_CACHE = new ButtonMessageCache(COMMAND_NAME);
     private final DiceUtils diceUtils;
 
-    public SumDiceSetCommand() {
-        this(new DiceUtils());
+    public SumDiceSetCommand(MessageDataDAO messageDataDAO) {
+        this(messageDataDAO, new DiceUtils());
     }
 
     @VisibleForTesting
-    public SumDiceSetCommand(DiceUtils diceUtils) {
-        super(BUTTON_MESSAGE_CACHE);
+    public SumDiceSetCommand(MessageDataDAO messageDataDAO, DiceUtils diceUtils) {
+        super(messageDataDAO);
         this.diceUtils = diceUtils;
     }
 
@@ -72,6 +75,53 @@ public class SumDiceSetCommand extends AbstractCommand<Config, StateWithData<Sum
         return message;
     }
 
+
+    @Override
+    protected Optional<MessageObject<Config, SumDiceSetStateData>> getMessageDataAndUpdateWithButtonValue(long channelId, long messageId, String buttonValue) {
+        final Optional<MessageDataDTO> messageDataDTO = messageDataDAO.getDataForMessage(channelId, messageId);
+        if (messageDataDTO.isEmpty()) {
+            return Optional.empty();
+        }
+        final SumDiceSetStateData stateData = messageDataDTO
+                .map(MessageDataDTO::getStateData)
+                .map(sd -> Mapper.deserializeObject(sd, SumDiceSetStateData.class))
+                .orElse(null);
+        return Optional.of(new MessageObject<>(messageDataDTO.get().getConfigUUID(),
+                Mapper.deserializeObject(messageDataDTO.get().getConfig(), Config.class),
+                createStateFromValueAndMessageData(buttonValue, stateData)));
+    }
+
+    @Override
+    protected MessageDataDTO createMessageDataForNewMessage(@NonNull UUID configUUID,
+                                                            long channelId,
+                                                            long messageId,
+                                                            @NonNull Config config,
+                                                            @Nullable State<SumDiceSetStateData> state) {
+        if (state == null || state.getData() == null) {
+            return new MessageDataDTO(configUUID, channelId, messageId, getCommandId(),
+                    "SumDiceSetStateData", Mapper.serializedObject(config));
+        }
+        return new MessageDataDTO(configUUID, channelId, messageId, getCommandId(),
+                "SumDiceSetStateData", Mapper.serializedObject(config),
+                "SumDiceSetStateData", Mapper.serializedObject(state.getData()));
+    }
+
+    @Override
+    protected void updateCurrentMessageStateData(long channelId, long messageId, @NonNull Config config, @NonNull State<SumDiceSetStateData> state) {
+        Map<String, Integer> currentDiceMap = Optional.ofNullable(state.getData())
+                .map(SumDiceSetStateData::getDiceSetMap)
+                .orElse(ImmutableMap.of());
+        SumDiceSetStateData update = new SumDiceSetStateData(updateDiceSet(currentDiceMap, state.getButtonValue()));
+        messageDataDAO.updateCommandConfigOfMessage(channelId, messageId, "SumDiceSetStateData", Mapper.serializedObject(update));
+    }
+
+    private State<SumDiceSetStateData> createStateFromValueAndMessageData(@NonNull String buttonValue, @Nullable SumDiceSetStateData stateData) {
+        if (stateData == null) {
+            return new State<>(buttonValue, new SumDiceSetStateData(ImmutableMap.of()));
+        }
+        return new State<>(buttonValue, new SumDiceSetStateData(updateDiceSet(stateData.getDiceSetMap(), buttonValue)));
+    }
+
     @Override
     protected @NonNull String getCommandDescription() {
         return "Configure a variable set of d4 to d20 dice";
@@ -86,16 +136,16 @@ public class SumDiceSetCommand extends AbstractCommand<Config, StateWithData<Sum
     }
 
     @Override
-    public String getName() {
+    public String getCommandId() {
         return COMMAND_NAME;
     }
 
 
     @VisibleForTesting
     String createButtonCustomId(String action, Config config) {
-        Preconditions.checkArgument(!action.contains(BotConstants.CONFIG_DELIMITER));
+        Preconditions.checkArgument(!action.contains(BotConstants.LEGACY_DELIMITER_V2));
 
-        return String.join(BotConstants.CONFIG_DELIMITER,
+        return String.join(BotConstants.LEGACY_DELIMITER_V2,
                 COMMAND_NAME,
                 action,
                 Optional.ofNullable(config.getAnswerTargetChannelId()).map(Object::toString).orElse(""));
@@ -107,8 +157,12 @@ public class SumDiceSetCommand extends AbstractCommand<Config, StateWithData<Sum
     }
 
     @Override
-    protected Optional<EmbedDefinition> getAnswer(StateWithData<SumDiceSetStateData> state, Config config) {
-        if (!(ROLL_BUTTON_ID.equals(state.getButtonValue()) && !state.getData().getDiceSetMap().isEmpty())) {
+    protected Optional<EmbedDefinition> getAnswer(State<SumDiceSetStateData> state, Config config) {
+        if (!(ROLL_BUTTON_ID.equals(state.getButtonValue()) &&
+                !Optional.ofNullable(state.getData())
+                        .map(SumDiceSetStateData::getDiceSetMap)
+                        .map(Map::isEmpty)
+                        .orElse(true))) {
             return Optional.empty();
         }
         List<Integer> diceResultValues = state.getData().getDiceSetMap().entrySet().stream()
@@ -157,8 +211,12 @@ public class SumDiceSetCommand extends AbstractCommand<Config, StateWithData<Sum
     }
 
     @Override
-    protected Optional<MessageDefinition> createNewButtonMessageWithState(StateWithData<SumDiceSetStateData> state, Config config) {
-        if (!(ROLL_BUTTON_ID.equals(state.getButtonValue()) && !state.getData().getDiceSetMap().isEmpty())) {
+    protected Optional<MessageDefinition> createNewButtonMessageWithState(State<SumDiceSetStateData> state, Config config) {
+        if (!(ROLL_BUTTON_ID.equals(state.getButtonValue()) &&
+                !Optional.ofNullable(state.getData())
+                        .map(SumDiceSetStateData::getDiceSetMap)
+                        .map(Map::isEmpty)
+                        .orElse(true))) {
             return Optional.empty();
         }
         return Optional.of(MessageDefinition.builder()
@@ -167,60 +225,66 @@ public class SumDiceSetCommand extends AbstractCommand<Config, StateWithData<Sum
                 .build());
     }
 
-    @Override
-    public Optional<String> getCurrentMessageContentChange(StateWithData<SumDiceSetStateData> state, Config config) {
-        switch (state.getButtonValue()) {
+    private Map<String, Integer> updateDiceSet(Map<String, Integer> currentDiceSet, String buttonValue) {
+        switch (buttonValue) {
             case ROLL_BUTTON_ID:
             case CLEAR_BUTTON_ID:
-                return Optional.of(EMPTY_MESSAGE);
+                return ImmutableMap.of();
             case X2_BUTTON_ID:
-                return Optional.of(parseDiceMapToMessageString(state.getData().getDiceSetMap().entrySet().stream()
-                        .collect(Collectors.toMap(Map.Entry::getKey, e -> limit(e.getValue() * 2)))));
+                return currentDiceSet.entrySet().stream()
+                        .collect(Collectors.toMap(Map.Entry::getKey, e -> limit(e.getValue() * 2)));
             default:
-                Map<String, Integer> currentDiceSet = new HashMap<>(state.getData().getDiceSetMap());
+                Map<String, Integer> updatedDiceSet = new HashMap<>(currentDiceSet);
                 int diceModifier;
                 String die;
 
-                if (state.getButtonValue().contains(DICE_SYMBOL)) {
-                    diceModifier = "-".equals(state.getButtonValue().substring(0, 1)) ? -1 : +1;
-                    die = state.getButtonValue().substring(2);
+                if (buttonValue.contains(DICE_SYMBOL)) {
+                    diceModifier = "-".equals(buttonValue.substring(0, 1)) ? -1 : +1;
+                    die = buttonValue.substring(2);
                 } else {
-                    diceModifier = Integer.parseInt(state.getButtonValue());
+                    diceModifier = Integer.parseInt(buttonValue);
                     die = MODIFIER_KEY;
                 }
-                int currentCount = currentDiceSet.getOrDefault(die, 0);
+                int currentCount = updatedDiceSet.getOrDefault(die, 0);
                 int newCount = currentCount + diceModifier;
                 newCount = limit(newCount);
 
                 if (newCount == 0) {
-                    currentDiceSet.remove(die);
+                    updatedDiceSet.remove(die);
                 } else {
-                    currentDiceSet.put(die, newCount);
+                    updatedDiceSet.put(die, newCount);
                 }
-
-                if (currentDiceSet.isEmpty()) {
-                    return Optional.of(EMPTY_MESSAGE);
-                }
-                return Optional.of(parseDiceMapToMessageString(currentDiceSet));
+                return updatedDiceSet;
         }
     }
 
     @Override
+    public Optional<String> getCurrentMessageContentChange(State<SumDiceSetStateData> state, Config config) {
+        Map<String, Integer> currentDiceSet = Optional.ofNullable(state.getData()).map(SumDiceSetStateData::getDiceSetMap).orElse(ImmutableMap.of());
+        Map<String, Integer> updatedDiceSet = updateDiceSet(currentDiceSet, state.getButtonValue());
+
+        if (updatedDiceSet.isEmpty()) {
+            return Optional.of(EMPTY_MESSAGE);
+        }
+        return Optional.of(parseDiceMapToMessageString(updatedDiceSet));
+    }
+
+    @Override
     protected Config getConfigFromEvent(IButtonEventAdaptor event) {
-        String[] split = event.getCustomId().split(BotConstants.CONFIG_SPLIT_DELIMITER_REGEX);
+        String[] split = event.getCustomId().split(BotConstants.LEGACY_CONFIG_SPLIT_DELIMITER_REGEX);
 
         return new Config(getOptionalLongFromArray(split, 2));
     }
 
     @Override
-    protected StateWithData<SumDiceSetStateData> getStateFromEvent(IButtonEventAdaptor event) {
+    protected State<SumDiceSetStateData> getStateFromEvent(IButtonEventAdaptor event) {
         String buttonMessage = event.getMessageContent();
-        String buttonValue = event.getCustomId().split(BotConstants.CONFIG_SPLIT_DELIMITER_REGEX)[1];
+        String buttonValue = event.getCustomId().split(BotConstants.LEGACY_CONFIG_SPLIT_DELIMITER_REGEX)[1];
         if (EMPTY_MESSAGE.equals(buttonMessage)) {
-            return new StateWithData<>(buttonValue, new SumDiceSetStateData(ImmutableMap.of()));
+            return new State<>(buttonValue, new SumDiceSetStateData(ImmutableMap.of()));
         }
 
-        return new StateWithData<>(buttonValue, new SumDiceSetStateData(Arrays.stream(buttonMessage.split(Pattern.quote(DICE_SET_DELIMITER)))
+        return new State<>(buttonValue, new SumDiceSetStateData(Arrays.stream(buttonMessage.split(Pattern.quote(DICE_SET_DELIMITER)))
                 //for handling legacy buttons with '1d4 + 1d6)
                 .filter(s -> !"+".equals(s))
                 .filter(Objects::nonNull)

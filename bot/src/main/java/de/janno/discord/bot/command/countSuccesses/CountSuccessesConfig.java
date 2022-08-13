@@ -1,5 +1,7 @@
 package de.janno.discord.bot.command.countSuccesses;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import de.janno.discord.bot.command.Config;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -18,7 +20,12 @@ public class CountSuccessesConfig extends Config {
     private final String glitchOption;
     private final int maxNumberOfButtons;
 
-    public CountSuccessesConfig(Long answerTargetChannelId, int diceSides, int target, @NonNull String glitchOption, int maxNumberOfButtons) {
+    @JsonCreator
+    public CountSuccessesConfig(@JsonProperty("answerTargetChannelId") Long answerTargetChannelId,
+                                @JsonProperty("diceSides") int diceSides,
+                                @JsonProperty("target") int target,
+                                @JsonProperty("glitchOption") @NonNull String glitchOption,
+                                @JsonProperty("maxNumberOfButtons") int maxNumberOfButtons) {
         super(answerTargetChannelId);
         this.diceSides = diceSides;
         this.target = target;

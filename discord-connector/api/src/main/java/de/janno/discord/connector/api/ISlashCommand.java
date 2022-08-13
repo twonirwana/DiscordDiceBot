@@ -6,7 +6,7 @@ import reactor.core.publisher.Mono;
 
 public interface ISlashCommand {
 
-    String getName();
+    String getCommandId();
 
     CommandDefinition getCommandDefinition();
 

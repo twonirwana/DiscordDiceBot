@@ -1,6 +1,8 @@
 package de.janno.discord.bot.persistance;
 
-import de.janno.discord.bot.command.StateData;
+import de.janno.discord.bot.command.Config;
+import de.janno.discord.bot.command.EmptyData;
+import lombok.NonNull;
 
 import java.util.Optional;
 import java.util.Set;
@@ -8,7 +10,7 @@ import java.util.UUID;
 
 public interface MessageDataDAO {
 
-    Optional<MessageData> getDataForMessage(long channelId, long messageId);
+    Optional<MessageDataDTO> getDataForMessage(long channelId, long messageId);
 
     Set<Long> getAllMessageIdsForConfig(UUID configUUID);
 
@@ -16,7 +18,7 @@ public interface MessageDataDAO {
 
     void deleteDataForChannel(long channelId);
 
-    void saveMessageData(MessageData messageData);
+     void saveMessageData(MessageDataDTO messageData);
 
-    void updateCommandConfigOfMessage(long channelId, long messageId, String stateId, StateData state);
+    void updateCommandConfigOfMessage(long channelId, long messageId, @NonNull String stateDataClassId, @NonNull String stateData);
 }

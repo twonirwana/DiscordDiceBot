@@ -35,14 +35,14 @@ public class DirectRollCommand implements ISlashCommand {
     }
 
     @Override
-    public String getName() {
+    public String getCommandId() {
         return "r";
     }
 
     @Override
     public CommandDefinition getCommandDefinition() {
         return CommandDefinition.builder()
-                .name(getName())
+                .name(getCommandId())
                 .description("direct roll of dice expression")
                 .option(CommandDefinitionOption.builder()
                         .name(ACTION_EXPRESSION)
@@ -70,7 +70,7 @@ public class DirectRollCommand implements ISlashCommand {
                     .map(CommandInteractionOption::getStringValue)
                     .orElseThrow();
             if (commandParameter.equals(HELP)) {
-                BotMetrics.incrementSlashHelpMetricCounter(getName());
+                BotMetrics.incrementSlashHelpMetricCounter(getCommandId());
                 return event.replyEmbed(EmbedDefinition.builder()
                         .description("Type /r and a dice expression e.g. `/r 1d6` \n" + DiceParserHelper.HELP)
                         .build(), true);
@@ -84,7 +84,7 @@ public class DirectRollCommand implements ISlashCommand {
 
             String diceExpression = DiceParserHelper.getExpressionFromExpressionWithOptionalLabel(commandParameter, LABEL_DELIMITER);
             String label = DiceParserHelper.getLabelFromExpressionWithOptionalLabel(commandParameter, LABEL_DELIMITER).orElse(null);
-            BotMetrics.incrementSlashStartMetricCounter(getName(), diceExpression);
+            BotMetrics.incrementSlashStartMetricCounter(getCommandId(), diceExpression);
 
             EmbedDefinition answer = diceParserHelper.roll(diceExpression, label);
 

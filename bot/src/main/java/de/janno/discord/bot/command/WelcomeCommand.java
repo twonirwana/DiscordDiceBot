@@ -12,6 +12,8 @@ import de.janno.discord.bot.command.fate.FateCommand;
 import de.janno.discord.bot.command.fate.FateConfig;
 import de.janno.discord.bot.command.poolTarget.PoolTargetCommand;
 import de.janno.discord.bot.command.poolTarget.PoolTargetConfig;
+import de.janno.discord.bot.persistance.MessageDataDAO;
+import de.janno.discord.bot.persistance.MessageDataDTO;
 import de.janno.discord.connector.api.BotConstants;
 import de.janno.discord.connector.api.IButtonEventAdaptor;
 import de.janno.discord.connector.api.message.ButtonDefinition;
@@ -21,11 +23,13 @@ import de.janno.discord.connector.api.message.MessageDefinition;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Slf4j
-public class WelcomeCommand extends AbstractCommand<Config, State> {
+public class WelcomeCommand extends AbstractCommand<Config, EmptyData> {
 
     private static final String COMMAND_NAME = "welcome";
     private static final String FATE_BUTTON_ID = "fate";
@@ -35,12 +39,24 @@ public class WelcomeCommand extends AbstractCommand<Config, State> {
     private static final String SHADOWRUN_BUTTON_ID = "shadowrun";
     private static final String COIN_BUTTON_ID = "coin";
 
-    public WelcomeCommand() {
-        super(new ButtonMessageCache(COMMAND_NAME));
+    public WelcomeCommand(MessageDataDAO messageDataDAO) {
+        super(messageDataDAO);
     }
 
     @Override
-    public String getName() {
+    protected Optional<MessageObject<Config, EmptyData>> getMessageDataAndUpdateWithButtonValue(long channelId, long messageId, String buttonValue) {
+        //todo
+        return Optional.empty();
+    }
+
+    @Override
+    protected MessageDataDTO createMessageDataForNewMessage(@NonNull UUID configUUID, long channelId, long messageId, @NonNull Config config, @Nullable State<EmptyData> state) {
+        //todo
+        return null;
+    }
+
+    @Override
+    public String getCommandId() {
         return COMMAND_NAME;
     }
 
@@ -55,14 +71,14 @@ public class WelcomeCommand extends AbstractCommand<Config, State> {
     }
 
     @Override
-    protected Optional<MessageDefinition> createNewButtonMessageWithState(State state, Config config) {
+    protected Optional<MessageDefinition> createNewButtonMessageWithState(State<EmptyData> state, Config config) {
         BotMetrics.incrementButtonMetricCounter(COMMAND_NAME, state.toShortString());
         return switch (state.getButtonValue()) {
             case FATE_BUTTON_ID -> Optional.of(
-                    new FateCommand().createNewButtonMessage(new FateConfig(null, "with_modifier"))
+                    new FateCommand(messageDataDAO).createNewButtonMessage(new FateConfig(null, "with_modifier"))
             );
             case DND5_BUTTON_ID -> Optional.of(
-                    new CustomDiceCommand().createNewButtonMessage(new CustomDiceConfig(null, ImmutableList.of(
+                    new CustomDiceCommand(messageDataDAO).createNewButtonMessage(new CustomDiceConfig(null, ImmutableList.of(
                             new LabelAndDiceExpression("D4", "1d4"),
                             new LabelAndDiceExpression("D6", "1d6"),
                             new LabelAndDiceExpression("D8", "1d8"),
@@ -81,16 +97,16 @@ public class WelcomeCommand extends AbstractCommand<Config, State> {
                     )))
             );
             case NWOD_BUTTON_ID -> Optional.of(
-                    new CountSuccessesCommand().createNewButtonMessage(new CountSuccessesConfig(null, 10, 8, "no_glitch", 15))
+                    new CountSuccessesCommand(messageDataDAO).createNewButtonMessage(new CountSuccessesConfig(null, 10, 8, "no_glitch", 15))
             );
             case OWOD_BUTTON_ID -> Optional.of(
-                    new PoolTargetCommand().createNewButtonMessage(new PoolTargetConfig(null, 10, 15, ImmutableSet.of(10), ImmutableSet.of(1), "ask"))
+                    new PoolTargetCommand(messageDataDAO).createNewButtonMessage(new PoolTargetConfig(null, 10, 15, ImmutableSet.of(10), ImmutableSet.of(1), "ask"))
             );
             case SHADOWRUN_BUTTON_ID -> Optional.of(
-                    new CountSuccessesCommand().createNewButtonMessage(new CountSuccessesConfig(null, 6, 5, "glitch:half_dice_one", 20))
+                    new CountSuccessesCommand(messageDataDAO).createNewButtonMessage(new CountSuccessesConfig(null, 6, 5, "glitch:half_dice_one", 20))
             );
             case COIN_BUTTON_ID -> Optional.of(
-                    new CustomDiceCommand().createNewButtonMessage(new CustomDiceConfig(null, ImmutableList.of(
+                    new CustomDiceCommand(messageDataDAO).createNewButtonMessage(new CustomDiceConfig(null, ImmutableList.of(
                             new LabelAndDiceExpression("Coin Toss \uD83E\uDE99", "1d2=2?Head \uD83D\uDE00:Tail \uD83E\uDD85"))))
             );
             default -> Optional.empty();
@@ -103,7 +119,7 @@ public class WelcomeCommand extends AbstractCommand<Config, State> {
     }
 
     @Override
-    protected Optional<EmbedDefinition> getAnswer(State state, Config config) {
+    protected Optional<EmbedDefinition> getAnswer(State<EmptyData> state, Config config) {
         return Optional.empty();
     }
 
@@ -124,15 +140,15 @@ public class WelcomeCommand extends AbstractCommand<Config, State> {
                         .buttonDefinitions(
                                 ImmutableList.of(
                                         ButtonDefinition.builder()
-                                                .id(String.join(BotConstants.CONFIG_DELIMITER, COMMAND_NAME, FATE_BUTTON_ID))
+                                                .id(String.join(BotConstants.LEGACY_DELIMITER_V2, COMMAND_NAME, FATE_BUTTON_ID))
                                                 .label("Fate")
                                                 .build(),
                                         ButtonDefinition.builder()
-                                                .id(String.join(BotConstants.CONFIG_DELIMITER, COMMAND_NAME, DND5_BUTTON_ID))
+                                                .id(String.join(BotConstants.LEGACY_DELIMITER_V2, COMMAND_NAME, DND5_BUTTON_ID))
                                                 .label("D&D5e")
                                                 .build(),
                                         ButtonDefinition.builder()
-                                                .id(String.join(BotConstants.CONFIG_DELIMITER, COMMAND_NAME, NWOD_BUTTON_ID))
+                                                .id(String.join(BotConstants.LEGACY_DELIMITER_V2, COMMAND_NAME, NWOD_BUTTON_ID))
                                                 .label("nWoD")
                                                 .build()
                                 )
@@ -142,15 +158,15 @@ public class WelcomeCommand extends AbstractCommand<Config, State> {
                         .buttonDefinitions(
                                 ImmutableList.of(
                                         ButtonDefinition.builder()
-                                                .id(String.join(BotConstants.CONFIG_DELIMITER, COMMAND_NAME, OWOD_BUTTON_ID))
+                                                .id(String.join(BotConstants.LEGACY_DELIMITER_V2, COMMAND_NAME, OWOD_BUTTON_ID))
                                                 .label("oWoD")
                                                 .build(),
                                         ButtonDefinition.builder()
-                                                .id(String.join(BotConstants.CONFIG_DELIMITER, COMMAND_NAME, SHADOWRUN_BUTTON_ID))
+                                                .id(String.join(BotConstants.LEGACY_DELIMITER_V2, COMMAND_NAME, SHADOWRUN_BUTTON_ID))
                                                 .label("Shadowrun")
                                                 .build(),
                                         ButtonDefinition.builder()
-                                                .id(String.join(BotConstants.CONFIG_DELIMITER, COMMAND_NAME, COIN_BUTTON_ID))
+                                                .id(String.join(BotConstants.LEGACY_DELIMITER_V2, COMMAND_NAME, COIN_BUTTON_ID))
                                                 .label("Coin Toss \uD83E\uDE99")
                                                 .build()
                                 )
@@ -170,8 +186,8 @@ public class WelcomeCommand extends AbstractCommand<Config, State> {
     }
 
     @Override
-    protected State getStateFromEvent(IButtonEventAdaptor event) {
-        String buttonId = event.getCustomId().split(BotConstants.CONFIG_SPLIT_DELIMITER_REGEX)[1];
-        return new State(buttonId);
+    protected State<EmptyData> getStateFromEvent(IButtonEventAdaptor event) {
+        String buttonId = event.getCustomId().split(BotConstants.LEGACY_CONFIG_SPLIT_DELIMITER_REGEX)[1];
+        return new State<>(buttonId, new EmptyData());
     }
 }

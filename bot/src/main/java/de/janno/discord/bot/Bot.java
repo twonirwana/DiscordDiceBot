@@ -11,6 +11,8 @@ import de.janno.discord.bot.command.holdReroll.HoldRerollCommand;
 import de.janno.discord.bot.command.poolTarget.PoolTargetCommand;
 import de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommand;
 import de.janno.discord.bot.command.sumDiceSet.SumDiceSetCommand;
+import de.janno.discord.bot.persistance.MessageDataDAO;
+import de.janno.discord.bot.persistance.MessageDataDAOImpl;
 import de.janno.discord.connector.DiscordConnector;
 
 public class Bot {
@@ -19,21 +21,25 @@ public class Bot {
         final boolean disableCommandUpdate = Boolean.parseBoolean(args[1]);
         final String publishMetricsToUrl = args[2];
         BotMetrics.init(publishMetricsToUrl);
+        //Todo url as args
+        String url = "jdbc:h2:file:./persistence/dice_config";
+
+        MessageDataDAO messageDataDAO = new MessageDataDAOImpl(url, null, null);
 
         DiscordConnector.createAndStart(token, disableCommandUpdate, ImmutableList.of(
-                        new CountSuccessesCommand(),
-                        new CustomDiceCommand(),
-                        new FateCommand(),
+                        new CountSuccessesCommand(messageDataDAO),
+                        new CustomDiceCommand(messageDataDAO),
+                        new FateCommand(messageDataDAO),
                         new DirectRollCommand(),
-                        new SumDiceSetCommand(),
-                        new SumCustomSetCommand(),
-                        new HoldRerollCommand(),
-                        new PoolTargetCommand(),
-                        new CustomParameterCommand(),
-                        new WelcomeCommand(),
+                        new SumDiceSetCommand(messageDataDAO),
+                        new SumCustomSetCommand(messageDataDAO),
+                        new HoldRerollCommand(messageDataDAO),
+                        new PoolTargetCommand(messageDataDAO),
+                        new CustomParameterCommand(messageDataDAO),
+                        new WelcomeCommand(messageDataDAO),
                         new HelpCommand()
                 ),
-                new WelcomeCommand().getWelcomeMessage());
+                new WelcomeCommand(messageDataDAO).getWelcomeMessage());
     }
 
 }

@@ -27,7 +27,7 @@ class FateCommandTest {
 
     @Test
     void getName() {
-        assertThat(underTest.getName()).isEqualTo("fate");
+        assertThat(underTest.getCommandId()).isEqualTo("fate");
     }
 
     @Test

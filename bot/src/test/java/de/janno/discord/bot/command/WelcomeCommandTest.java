@@ -277,6 +277,6 @@ class WelcomeCommandTest {
 
     @Test
     void getName() {
-        assertThat(underTest.getName()).isEqualTo("welcome");
+        assertThat(underTest.getCommandId()).isEqualTo("welcome");
     }
 }

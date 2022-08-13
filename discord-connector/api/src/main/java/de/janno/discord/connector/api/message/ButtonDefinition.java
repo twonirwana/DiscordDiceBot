@@ -21,7 +21,7 @@ public class ButtonDefinition {
     ButtonDefinition(@NonNull String label, @NonNull String id, Style style) {
         Preconditions.checkArgument(label.length() <= 80, String.format("Label '%s' is to long", label));
         Preconditions.checkArgument(id.length() <= 100, String.format("ID '%s' is to long", id));
-        Preconditions.checkArgument(!id.contains(BotConstants.LEGACY_DELIMITER), String.format("ID '%s' contains illegal character '%s'", id, BotConstants.LEGACY_DELIMITER));
+        Preconditions.checkArgument(!id.contains(BotConstants.CUSTOM_ID_DELIMITER), String.format("ID '%s' contains illegal character '%s'", id, BotConstants.CUSTOM_ID_DELIMITER));
         this.label = label;
         this.id = id;
         this.style = Objects.requireNonNullElse(style, Style.PRIMARY);

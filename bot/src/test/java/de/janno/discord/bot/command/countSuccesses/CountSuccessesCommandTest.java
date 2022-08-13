@@ -39,7 +39,7 @@ class CountSuccessesCommandTest {
 
     @Test
     void getName() {
-        assertThat(underTest.getName()).isEqualTo("count_successes");
+        assertThat(underTest.getCommandId()).isEqualTo("count_successes");
     }
 
 

@@ -1,5 +1,7 @@
 package de.janno.discord.bot.command.sumCustomSet;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import de.janno.discord.bot.command.Config;
 import de.janno.discord.bot.command.LabelAndDiceExpression;
 import lombok.EqualsAndHashCode;
@@ -17,7 +19,9 @@ public class SumCustomSetConfig extends Config {
     @NonNull
     private final List<LabelAndDiceExpression> labelAndExpression;
 
-    public SumCustomSetConfig(Long answerTargetChannelId, @NonNull List<LabelAndDiceExpression> labelAndExpression) {
+    @JsonCreator
+    public SumCustomSetConfig(@JsonProperty("answerTargetChannelId") Long answerTargetChannelId,
+                              @JsonProperty("labelAndExpression") @NonNull List<LabelAndDiceExpression> labelAndExpression) {
         super(answerTargetChannelId);
         this.labelAndExpression = labelAndExpression;
     }

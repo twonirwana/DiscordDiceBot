@@ -12,6 +12,7 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.interactions.InteractionHook;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -170,5 +171,12 @@ public class ButtonEventAdapter extends DiscordAdapter implements IButtonEventAd
     @Override
     public @NonNull String getInvokingGuildMemberName() {
         return invokingGuildMemberName;
+    }
+
+    @Override
+    public Mono<Void> reply(@NonNull String message) {
+        return createMonoFrom(() -> event.reply(message))
+                .onErrorResume(t -> handleException("Error on replay", t, true).ofType(InteractionHook.class))
+                .then();
     }
 }

@@ -12,21 +12,21 @@ import reactor.core.publisher.Mono;
 @Slf4j
 public class HelpCommand implements ISlashCommand {
     @Override
-    public String getName() {
+    public String getCommandId() {
         return "help";
     }
 
     @Override
     public CommandDefinition getCommandDefinition() {
         return CommandDefinition.builder()
-                .name(getName())
+                .name(getCommandId())
                 .description("Help to the commands and links for further information")
                 .build();
     }
 
     @Override
     public Mono<Void> handleSlashCommandEvent(@NonNull ISlashEventAdaptor event) {
-        BotMetrics.incrementSlashStartMetricCounter(getName(), "[]");
+        BotMetrics.incrementSlashStartMetricCounter(getCommandId(), "[]");
         return event.replyEmbed(EmbedDefinition.builder()
                 .field(new EmbedDefinition.Field("Command help", "type '/count_successes help', '/custom_dice help' or '/fate help' to get help for the commands", false))
                 .field(new EmbedDefinition.Field("Full documentation", "https://github.com/twonirwana/DiscordDiceBot", false))

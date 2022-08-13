@@ -1,7 +1,7 @@
 package de.janno.discord.bot.command.customParameter;
 
 import com.google.common.collect.ImmutableList;
-import de.janno.discord.bot.command.StateWithData;
+import de.janno.discord.bot.command.State;
 import de.janno.discord.connector.api.IButtonEventAdaptor;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
@@ -157,7 +157,7 @@ class CustomParameterCommandTest {
         when(buttonEventAdaptor.getCustomId()).thenReturn(customButtonId);
         when(buttonEventAdaptor.getMessageContent()).thenReturn(messageContent);
         when(buttonEventAdaptor.getInvokingGuildMemberName()).thenReturn(invokingUser);
-        StateWithData<CustomParameterStateData> res = underTest.getStateFromEvent(buttonEventAdaptor);
+        State<CustomParameterStateData> res = underTest.getStateFromEvent(buttonEventAdaptor);
 
         CustomParameterConfig config = createConfigFromCustomId(customButtonId);
         assertThat(res.getData().getSelectedParameterValues()).isEqualTo(selectedParameterValues);

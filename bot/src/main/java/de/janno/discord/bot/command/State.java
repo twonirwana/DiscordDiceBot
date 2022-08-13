@@ -1,23 +1,19 @@
 package de.janno.discord.bot.command;
 
-import lombok.*;
+import lombok.NonNull;
+import lombok.Value;
+import org.jetbrains.annotations.Nullable;
 
-/**
- * The current state of the interaction. The state can be used over multiple interactions.
- */
-@EqualsAndHashCode
-@Getter
-@AllArgsConstructor
-@ToString
-public class State {
+@Value
+public class State<T extends EmptyData> {
 
-    /**
-     * The value of the last button click
-     */
     @NonNull
-    private final String buttonValue;
+    String buttonValue;
+    @Nullable
+    T data;
 
     public String toShortString() {
-        return String.format("[%s]", getButtonValue());
+        String persistedStateValues = data == null ? "" : String.format(",%s", data.getShortStringValues());
+        return String.format("[%s%s]", getButtonValue(), persistedStateValues);
     }
 }

@@ -42,7 +42,7 @@ public class JdaClient {
     public static final Duration START_UP_BUFFER = Duration.of(5, ChronoUnit.MINUTES);
 
     private static String getCommandNameFromCustomId(String customId) {
-        return customId.split(BotConstants.CONFIG_SPLIT_DELIMITER_REGEX)[0];
+        return customId.split(BotConstants.LEGACY_CONFIG_SPLIT_DELIMITER_REGEX)[0];
     }
 
     public void start(String token, boolean disableCommandUpdate, List<ISlashCommand> commands, MessageDefinition welcomeMessageDefinition) throws LoginException {
@@ -119,7 +119,7 @@ public class JdaClient {
                 log.trace("ChatInputEvent: {} from {}", event.getInteraction().getCommandId(),
                         event.getInteraction().getUser().getName());
                 Flux.fromIterable(slashCommandRegistry.getSlashCommands())
-                        .filter(command -> command.getName().equals(event.getName()))
+                        .filter(command -> command.getCommandId().equals(event.getName()))
                         .next()
                         .flatMap(command -> command.handleSlashCommandEvent(new SlashEventAdapter(event,
                                 Mono.just(new Requester(event.getInteraction().getUser().getName(),

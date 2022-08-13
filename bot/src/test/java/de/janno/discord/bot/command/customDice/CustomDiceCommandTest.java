@@ -235,7 +235,7 @@ class CustomDiceCommandTest {
 
     @Test
     void getName() {
-        String res = underTest.getName();
+        String res = underTest.getCommandId();
 
         assertThat(res).isEqualTo("custom_dice");
     }

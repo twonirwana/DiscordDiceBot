@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import de.janno.discord.bot.command.Config;
 import de.janno.discord.bot.command.LabelAndDiceExpression;
-import de.janno.discord.bot.command.StateData;
+import de.janno.discord.bot.command.EmptyData;
 import de.janno.discord.bot.command.countSuccesses.CountSuccessesConfig;
 import de.janno.discord.bot.command.customParameter.CustomParameterConfig;
 import de.janno.discord.bot.command.customParameter.CustomParameterStateData;
@@ -49,12 +49,12 @@ class MessageDataDAOImplTest {
 
     @ParameterizedTest(name = "{index} - {0},{1}")
     @MethodSource("generateData")
-    void serializeDeserialize(Config config, StateData stateDate) {
+    void serializeDeserialize(Config config, EmptyData stateDate) {
         long messageId = System.currentTimeMillis();
-        MessageData toSave = new MessageData(UUID.randomUUID(), 1L, messageId, "sum_custom_set", config, stateDate);
+        MessageObject toSave = new MessageObject(UUID.randomUUID(), 1L, messageId, "sum_custom_set", config, stateDate);
 
         underTest.saveMessageData(toSave);
-        MessageData loaded = underTest.getDataForMessage(1L, messageId).orElseThrow();
+        MessageObject loaded = underTest.getDataForMessage(1L, messageId).orElseThrow();
 
 
         assertThat(toSave).isEqualTo(loaded);

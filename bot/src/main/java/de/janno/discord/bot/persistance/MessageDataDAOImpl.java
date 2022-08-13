@@ -1,14 +1,9 @@
 package de.janno.discord.bot.persistance;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.ImmutableSet;
-import de.janno.discord.bot.command.Config;
-import de.janno.discord.bot.command.StateData;
 import lombok.NonNull;
-import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.h2.jdbcx.JdbcConnectionPool;
-import org.jetbrains.annotations.Nullable;
 
 import java.sql.*;
 import java.time.LocalDateTime;
@@ -52,10 +47,9 @@ public class MessageDataDAOImpl implements MessageDataDAO {
         }
     }
 
-    private MessageDataRowDTO transformResultSet(ResultSet resultSet) throws SQLException {
-
+    private MessageDataDTO transformResultSet(ResultSet resultSet) throws SQLException {
         if (resultSet.next()) {
-            return new MessageDataRowDTO(
+            return new MessageDataDTO(
                     resultSet.getObject("CONFIG_ID", UUID.class),
                     resultSet.getLong("CHANNEL_ID"),
                     resultSet.getLong("MESSAGE_ID"),
@@ -70,32 +64,21 @@ public class MessageDataDAOImpl implements MessageDataDAO {
     }
 
     @Override
-    public Optional<MessageData> getDataForMessage(long channelId, long messageId) {
+    public Optional<MessageDataDTO> getDataForMessage(long channelId, long messageId) {
         try (Connection con = connectionPool.getConnection()) {
             try (PreparedStatement preparedStatement = con.prepareStatement("SELECT * FROM MESSAGE_DATA MC WHERE MC.CHANNEL_ID = ? AND MC.MESSAGE_ID = ?")) {
                 preparedStatement.setLong(1, channelId);
                 preparedStatement.setLong(2, messageId);
                 ResultSet resultSet = preparedStatement.executeQuery();
-                MessageDataRowDTO rowDTOS = transformResultSet(resultSet);
-                if (rowDTOS == null) {
+                MessageDataDTO messageDataDTO = transformResultSet(resultSet);
+                if (messageDataDTO == null) {
                     return Optional.empty();
                 }
-                return Optional.of(deserialize(rowDTOS));
+                return Optional.of(messageDataDTO);
             }
         } catch (Exception e) {
             throw new IllegalStateException(e);
         }
-    }
-
-    private MessageData deserialize(MessageDataRowDTO rowDTOS) throws JsonProcessingException {
-        Config config = Mapper.deserializeConfig(rowDTOS.getConfig(), rowDTOS.getConfigClassId());
-        StateData state = Mapper.deserializeState(rowDTOS.getState(), rowDTOS.getStateClassId());
-        return new MessageData(rowDTOS.getConfigUUID(),
-                rowDTOS.getChannelId(),
-                rowDTOS.getMessageId(),
-                rowDTOS.getCommandId(),
-                config,
-                state);
     }
 
 
@@ -143,18 +126,18 @@ public class MessageDataDAOImpl implements MessageDataDAO {
     }
 
     @Override
-    public void saveMessageData(MessageData messageData) {
+    public void saveMessageData(MessageDataDTO messageData) {
         try (Connection con = connectionPool.getConnection()) {
             try (PreparedStatement preparedStatement =
                          con.prepareStatement("INSERT INTO MESSAGE_DATA(CONFIG_ID, CHANNEL_ID, MESSAGE_ID, COMMAND_ID, CONFIG_CLASS_ID, CONFIG, STATE_CLASS_ID, STATE, CREATION_DATE) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
-                preparedStatement.setObject(1, messageData.getConfigId());
+                preparedStatement.setObject(1, messageData.getConfigUUID());
                 preparedStatement.setObject(2, messageData.getChannelId());
                 preparedStatement.setLong(3, messageData.getMessageId());
                 preparedStatement.setString(4, messageData.getCommandId());
-                preparedStatement.setString(5, Mapper.getConfigClassId(messageData.getConfig()));
-                preparedStatement.setString(6, Mapper.serializedConfig(messageData.getConfig()));
-                preparedStatement.setString(7, Mapper.getStateDataClassId(messageData.getState()));
-                preparedStatement.setString(8, Mapper.serializedStateData(messageData.getState()));
+                preparedStatement.setString(5, messageData.getConfigClassId());
+                preparedStatement.setString(6, messageData.getConfig());
+                preparedStatement.setString(7, messageData.getStateDataClassId());
+                preparedStatement.setString(8, messageData.getStateData());
                 preparedStatement.setTimestamp(9, Timestamp.valueOf(LocalDateTime.now()));
                 preparedStatement.execute();
 
@@ -165,13 +148,13 @@ public class MessageDataDAOImpl implements MessageDataDAO {
     }
 
     @Override
-    public void updateCommandConfigOfMessage(long channelId, long messageId, String stateId, StateData state) {
+    public void updateCommandConfigOfMessage(long channelId, long messageId, @NonNull String stateDataClassId, @NonNull String stateData) {
         try (Connection con = connectionPool.getConnection()) {
             try (PreparedStatement preparedStatement =
-                         con.prepareStatement("UPDATE MESSAGE_DATA SET STATE_CLASS_ID = ?, STATE = ? WHERE COMMAND_ID = ? AND MESSAGE_ID = ?")) {
-                preparedStatement.setString(1, Mapper.getStateDataClassId(state));
-                preparedStatement.setString(2, Mapper.serializedStateData(state));
-                preparedStatement.setObject(3, channelId);
+                         con.prepareStatement("UPDATE MESSAGE_DATA SET STATE_CLASS_ID = ?, STATE = ? WHERE CHANNEL_ID = ? AND MESSAGE_ID = ?")) {
+                preparedStatement.setString(1, stateDataClassId);
+                preparedStatement.setString(2, stateData);
+                preparedStatement.setLong(3, channelId);
                 preparedStatement.setLong(4, messageId);
                 preparedStatement.execute();
 
@@ -181,27 +164,4 @@ public class MessageDataDAOImpl implements MessageDataDAO {
         }
     }
 
-    @Value
-    private static class MessageDataRowDTO {
-        @NonNull
-        UUID configUUID;
-
-        long channelId;
-        long messageId;
-
-        @NonNull
-        String commandId;
-
-        @NonNull
-        String configClassId;
-
-        @NonNull
-        String config;
-
-        @NonNull
-        String stateClassId;
-
-        @Nullable
-        String state;
-    }
 }
