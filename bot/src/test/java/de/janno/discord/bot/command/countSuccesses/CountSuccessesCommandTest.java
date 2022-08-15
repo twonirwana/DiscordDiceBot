@@ -1,10 +1,12 @@
 package de.janno.discord.bot.command.countSuccesses;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
-import de.janno.discord.bot.cache.ButtonMessageCache;
+import de.janno.discord.bot.command.EmptyData;
 import de.janno.discord.bot.command.State;
 import de.janno.discord.bot.dice.DiceUtils;
+import de.janno.discord.bot.persistance.MessageDataDAO;
+import de.janno.discord.bot.persistance.MessageDataDAOImpl;
+import de.janno.discord.bot.persistance.MessageDataDTO;
 import de.janno.discord.connector.api.IButtonEventAdaptor;
 import de.janno.discord.connector.api.Requester;
 import de.janno.discord.connector.api.message.ButtonDefinition;
@@ -18,6 +20,7 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.util.List;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.*;
@@ -26,10 +29,11 @@ import static org.mockito.Mockito.*;
 class CountSuccessesCommandTest {
 
     CountSuccessesCommand underTest;
+    MessageDataDAO messageDataDAO = mock(MessageDataDAO.class);
 
     @BeforeEach
     void setup() {
-        underTest = new CountSuccessesCommand(new DiceUtils(1, 1, 1, 1, 5, 6, 6, 6));
+        underTest = new CountSuccessesCommand(messageDataDAO, new DiceUtils(1, 1, 1, 1, 5, 6, 6, 6));
     }
 
     @Test
@@ -74,7 +78,7 @@ class CountSuccessesCommandTest {
     @Test
     void getButtonMessageWithState_noGlitch() {
         CountSuccessesConfig config = new CountSuccessesConfig(null, 6, 6, "no_glitch", 15);
-        State state = new State("6");
+        State<EmptyData> state = new State<>("6", new EmptyData());
 
         assertThat(underTest.createNewButtonMessageWithState(state, config).map(MessageDefinition::getContent)).contains("Click to roll the dice against 6");
     }
@@ -83,7 +87,7 @@ class CountSuccessesCommandTest {
     @Test
     void getButtonMessageWithState_halfDiceOne() {
         CountSuccessesConfig config = new CountSuccessesConfig(null, 6, 6, "half_dice_one", 15);
-        State state = new State("6");
+        State<EmptyData> state = new State<>("6", new EmptyData());
 
         assertThat(underTest.createNewButtonMessageWithState(state, config).map(MessageDefinition::getContent)).contains("Click to roll the dice against 6 and check for more then half of dice 1s");
     }
@@ -91,7 +95,7 @@ class CountSuccessesCommandTest {
     @Test
     void getButtonMessageWithState_countOnes() {
         CountSuccessesConfig config = new CountSuccessesConfig(null, 6, 6, "count_ones", 15);
-        State state = new State("6");
+        State<EmptyData> state = new State<>("6", new EmptyData());
 
         assertThat(underTest.createNewButtonMessageWithState(state, config).map(MessageDefinition::getContent)).contains("Click to roll the dice against 6 and count the 1s");
     }
@@ -99,7 +103,7 @@ class CountSuccessesCommandTest {
     @Test
     void getButtonMessageWithState_subtractOnes() {
         CountSuccessesConfig config = new CountSuccessesConfig(null, 6, 6, "subtract_ones", 15);
-        State state = new State("6");
+        State<EmptyData> state = new State<>("6", new EmptyData());
 
         assertThat(underTest.createNewButtonMessageWithState(state, config).map(MessageDefinition::getContent)).contains("Click to roll the dice against 6 minus 1s");
     }
@@ -151,7 +155,7 @@ class CountSuccessesCommandTest {
 
     @Test
     void rollDice() {
-        EmbedDefinition results = underTest.getAnswer(new State("6"), new CountSuccessesConfig(null, 6, 6, "no_glitch", 15)).orElseThrow();
+        EmbedDefinition results = underTest.getAnswer(new State<>("6", new EmptyData()), new CountSuccessesConfig(null, 6, 6, "no_glitch", 15)).orElseThrow();
 
         assertThat(results.getFields()).hasSize(0);
         assertThat(results.getTitle()).isEqualTo("6d6 = 1");
@@ -160,7 +164,7 @@ class CountSuccessesCommandTest {
 
     @Test
     void rollDice_halfDiceOne_glitch() {
-        EmbedDefinition results = underTest.getAnswer(new State("6"), new CountSuccessesConfig(null, 6, 6, "half_dice_one", 15)).orElseThrow();
+        EmbedDefinition results = underTest.getAnswer(new State<>("6", new EmptyData()), new CountSuccessesConfig(null, 6, 6, "half_dice_one", 15)).orElseThrow();
 
         assertThat(results.getFields()).hasSize(0);
         assertThat(results.getTitle()).isEqualTo("6d6 = 1 - Glitch!");
@@ -169,7 +173,7 @@ class CountSuccessesCommandTest {
 
     @Test
     void rollDice_halfDiceOne_noGlitch() {
-        EmbedDefinition results = underTest.getAnswer(new State("8"), new CountSuccessesConfig(null, 6, 6, "half_dice_one", 15)).orElseThrow();
+        EmbedDefinition results = underTest.getAnswer(new State<>("8", new EmptyData()), new CountSuccessesConfig(null, 6, 6, "half_dice_one", 15)).orElseThrow();
 
         assertThat(results.getFields()).hasSize(0);
         assertThat(results.getTitle()).isEqualTo("8d6 = 3");
@@ -178,7 +182,7 @@ class CountSuccessesCommandTest {
 
     @Test
     void rollDice_countOnes() {
-        EmbedDefinition results = underTest.getAnswer(new State("6"), new CountSuccessesConfig(null, 6, 6, "count_ones", 15)).orElseThrow();
+        EmbedDefinition results = underTest.getAnswer(new State<>("6", new EmptyData()), new CountSuccessesConfig(null, 6, 6, "count_ones", 15)).orElseThrow();
 
         assertThat(results.getFields()).hasSize(0);
         assertThat(results.getTitle()).isEqualTo("6d6 = 1 successes and 4 ones");
@@ -187,7 +191,7 @@ class CountSuccessesCommandTest {
 
     @Test
     void rollDice_subtractOnes() {
-        EmbedDefinition results = underTest.getAnswer(new State("6"), new CountSuccessesConfig(null, 6, 6, "subtract_ones", 15)).orElseThrow();
+        EmbedDefinition results = underTest.getAnswer(new State<>("6", new EmptyData()), new CountSuccessesConfig(null, 6, 6, "subtract_ones", 15)).orElseThrow();
 
         assertThat(results.getFields()).hasSize(0);
         assertThat(results.getTitle()).isEqualTo("6d6 = -3");
@@ -203,20 +207,30 @@ class CountSuccessesCommandTest {
 
 
     @Test
-    void getStateFromEvent() {
+    void getStateFromEvent_legacyV1() {
         IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
         when(event.getCustomId()).thenReturn("count_successes,4");
 
-        State res = underTest.getStateFromEvent(event);
+        State<EmptyData> res = underTest.getStateFromEvent(event);
 
-        assertThat(res).isEqualTo(new State("4"));
+        assertThat(res).isEqualTo(new State<>("4", new EmptyData()));
+    }
+
+    @Test
+    void getStateFromEvent() {
+        IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
+        when(event.getCustomId()).thenReturn("count_successes\u00004");
+
+        State<EmptyData> res = underTest.getStateFromEvent(event);
+
+        assertThat(res).isEqualTo(new State<>("4", new EmptyData()));
     }
 
     @Test
     void createButtonCustomId() {
-        String res = underTest.createButtonCustomId("10", new CountSuccessesConfig(null, 6, 4, "half_dice_one", 12));
+        String res = underTest.createButtonCustomId("10");
 
-        assertThat(res).isEqualTo("count_successes\u000010\u00006\u00004\u0000half_dice_one\u000012\u0000");
+        assertThat(res).isEqualTo("count_successes\u001e10");
     }
 
     @Test
@@ -244,9 +258,7 @@ class CountSuccessesCommandTest {
         verify(buttonEventAdaptor).deleteMessage(1L);
         verify(buttonEventAdaptor).createResultMessageWithEventReference(eq(new EmbedDefinition("6d6 = 2 - Glitch!",
                 "[**1**,**1**,**1**,**1**,**5**,**6**] ≥4 = 2 and more then half of all dice show 1s", ImmutableList.of())), eq(null));
-        assertThat(underTest.getButtonMessageCache())
-                .hasSize(1)
-                .containsEntry(1L, ImmutableSet.of(new ButtonMessageCache.ButtonWithConfigHash(2L, 964438554)));
+        //todo check persistance
         verify(buttonEventAdaptor, times(3)).getCustomId();
         verify(buttonEventAdaptor).getMessageId();
         verify(buttonEventAdaptor).getChannelId();
@@ -281,10 +293,8 @@ class CountSuccessesCommandTest {
         verify(buttonEventAdaptor, never()).deleteMessage(anyLong());
         verify(buttonEventAdaptor).createResultMessageWithEventReference(eq(new EmbedDefinition("6d6 = 2 - Glitch!",
                 "[**1**,**1**,**1**,**1**,**5**,**6**] ≥4 = 2 and more then half of all dice show 1s", ImmutableList.of())), eq(null));
-        assertThat(underTest.getButtonMessageCache())
-                .hasSize(1)
-                .containsEntry(1L, ImmutableSet.of(new ButtonMessageCache.ButtonWithConfigHash(2L, 964438554)));
-        verify(buttonEventAdaptor, times(3)).getCustomId();
+        //todo check persistance
+        verify(buttonEventAdaptor, times(4)).getCustomId();
         verify(buttonEventAdaptor).getMessageId();
         verify(buttonEventAdaptor).getChannelId();
         verify(buttonEventAdaptor).isPinned();
@@ -295,27 +305,27 @@ class CountSuccessesCommandTest {
 
     @Test
     void getButtonLayoutWithState() {
-        List<ComponentRowDefinition> res = underTest.createNewButtonMessageWithState(new State("6"), new CountSuccessesConfig(null, 6, 6, "count_ones", 15))
+        List<ComponentRowDefinition> res = underTest.createNewButtonMessageWithState(new State<>("6", new EmptyData()), new CountSuccessesConfig(null, 6, 6, "count_ones", 15))
                 .orElseThrow().getComponentRowDefinitions();
 
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel))
                 .containsExactly("1d6", "2d6", "3d6", "4d6", "5d6", "6d6", "7d6", "8d6", "9d6", "10d6", "11d6", "12d6", "13d6", "14d6", "15d6");
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getId))
-                .containsExactly("count_successes\u00001\u00006\u00006\u0000count_ones\u000015\u0000",
-                        "count_successes\u00002\u00006\u00006\u0000count_ones\u000015\u0000",
-                        "count_successes\u00003\u00006\u00006\u0000count_ones\u000015\u0000",
-                        "count_successes\u00004\u00006\u00006\u0000count_ones\u000015\u0000",
-                        "count_successes\u00005\u00006\u00006\u0000count_ones\u000015\u0000",
-                        "count_successes\u00006\u00006\u00006\u0000count_ones\u000015\u0000",
-                        "count_successes\u00007\u00006\u00006\u0000count_ones\u000015\u0000",
-                        "count_successes\u00008\u00006\u00006\u0000count_ones\u000015\u0000",
-                        "count_successes\u00009\u00006\u00006\u0000count_ones\u000015\u0000",
-                        "count_successes\u000010\u00006\u00006\u0000count_ones\u000015\u0000",
-                        "count_successes\u000011\u00006\u00006\u0000count_ones\u000015\u0000",
-                        "count_successes\u000012\u00006\u00006\u0000count_ones\u000015\u0000",
-                        "count_successes\u000013\u00006\u00006\u0000count_ones\u000015\u0000",
-                        "count_successes\u000014\u00006\u00006\u0000count_ones\u000015\u0000",
-                        "count_successes\u000015\u00006\u00006\u0000count_ones\u000015\u0000");
+                .containsExactly("count_successes1",
+                        "count_successes2",
+                        "count_successes3",
+                        "count_successes4",
+                        "count_successes5",
+                        "count_successes6",
+                        "count_successes7",
+                        "count_successes8",
+                        "count_successes9",
+                        "count_successes10",
+                        "count_successes11",
+                        "count_successes12",
+                        "count_successes13",
+                        "count_successes14",
+                        "count_successes15");
     }
 
     @Test
@@ -326,25 +336,41 @@ class CountSuccessesCommandTest {
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel))
                 .containsExactly("1d6", "2d6", "3d6", "4d6", "5d6", "6d6", "7d6", "8d6", "9d6", "10d6", "11d6", "12d6", "13d6", "14d6", "15d6");
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getId))
-                .containsExactly("count_successes\u00001\u00006\u00006\u0000count_ones\u000015\u0000",
-                        "count_successes\u00002\u00006\u00006\u0000count_ones\u000015\u0000",
-                        "count_successes\u00003\u00006\u00006\u0000count_ones\u000015\u0000",
-                        "count_successes\u00004\u00006\u00006\u0000count_ones\u000015\u0000",
-                        "count_successes\u00005\u00006\u00006\u0000count_ones\u000015\u0000",
-                        "count_successes\u00006\u00006\u00006\u0000count_ones\u000015\u0000",
-                        "count_successes\u00007\u00006\u00006\u0000count_ones\u000015\u0000",
-                        "count_successes\u00008\u00006\u00006\u0000count_ones\u000015\u0000",
-                        "count_successes\u00009\u00006\u00006\u0000count_ones\u000015\u0000",
-                        "count_successes\u000010\u00006\u00006\u0000count_ones\u000015\u0000",
-                        "count_successes\u000011\u00006\u00006\u0000count_ones\u000015\u0000",
-                        "count_successes\u000012\u00006\u00006\u0000count_ones\u000015\u0000",
-                        "count_successes\u000013\u00006\u00006\u0000count_ones\u000015\u0000",
-                        "count_successes\u000014\u00006\u00006\u0000count_ones\u000015\u0000",
-                        "count_successes\u000015\u00006\u00006\u0000count_ones\u000015\u0000");
+                .containsExactly("count_successes1",
+                        "count_successes2",
+                        "count_successes3",
+                        "count_successes4",
+                        "count_successes5",
+                        "count_successes6",
+                        "count_successes7",
+                        "count_successes8",
+                        "count_successes9",
+                        "count_successes10",
+                        "count_successes11",
+                        "count_successes12",
+                        "count_successes13",
+                        "count_successes14",
+                        "count_successes15");
     }
 
     @Test
     void getCurrentMessageContentChange() {
-        assertThat(underTest.getCurrentMessageContentChange(new State("6"), new CountSuccessesConfig(null, 6, 6, "count_ones", 15))).isEmpty();
+        assertThat(underTest.getCurrentMessageContentChange(new State<>("6", new EmptyData()), new CountSuccessesConfig(null, 6, 6, "count_ones", 15))).isEmpty();
+    }
+
+    @Test
+    void checkPersistence() {
+        MessageDataDAO messageDataDAO = new MessageDataDAOImpl("jdbc:h2:file:./persistence/" + this.getClass().getSimpleName(), null, null);
+        long channelId = System.currentTimeMillis();
+        long messageId = System.currentTimeMillis();
+        MessageDataDTO toSave = underTest.createMessageDataForNewMessage(UUID.randomUUID(), channelId, messageId,
+                new CountSuccessesConfig(123L, 6, 5, "no_glitch", 12),
+                new State<>("5", new EmptyData()));
+
+        messageDataDAO.saveMessageData(toSave);
+
+        MessageDataDTO loaded = messageDataDAO.getDataForMessage(channelId, messageId).orElseThrow();
+
+        assertThat(toSave).isEqualTo(loaded);
     }
 }

@@ -1,12 +1,11 @@
 package de.janno.discord.bot.command.poolTarget;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import de.janno.discord.bot.command.AbstractCommand;
 import de.janno.discord.bot.command.CommandUtils;
-import de.janno.discord.bot.command.MessageObject;
+import de.janno.discord.bot.command.ConfigAndState;
 import de.janno.discord.bot.command.State;
 import de.janno.discord.bot.dice.DiceUtils;
 import de.janno.discord.bot.persistance.Mapper;
@@ -91,7 +90,7 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTar
     }
 
     @Override
-    protected Optional<MessageObject<PoolTargetConfig, PoolTargetStateData>> getMessageDataAndUpdateWithButtonValue(long channelId, long messageId, String buttonValue) {
+    protected Optional<ConfigAndState<PoolTargetConfig, PoolTargetStateData>> getMessageDataAndUpdateWithButtonValue(long channelId, long messageId, String buttonValue) {
         final Optional<MessageDataDTO> messageDataDTO = messageDataDAO.getDataForMessage(channelId, messageId);
         if (messageDataDTO.isEmpty()) {
             return Optional.empty();
@@ -104,9 +103,8 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTar
         final PoolTargetStateData updatedData = updatePoolTargetStateData(loadedConfig,
                 buttonValue,
                 Optional.ofNullable(loadedStateData).map(PoolTargetStateData::getDicePool).orElse(null),
-                Optional.ofNullable(loadedStateData).map(PoolTargetStateData::getTargetNumber).orElse(null),
-                Optional.ofNullable(loadedStateData).map(PoolTargetStateData::getDoReroll).orElse(null));
-        return Optional.of(new MessageObject<>(messageDataDTO.get().getConfigUUID(), loadedConfig, new State<>(buttonValue, updatedData)));
+                Optional.ofNullable(loadedStateData).map(PoolTargetStateData::getTargetNumber).orElse(null));
+        return Optional.of(new ConfigAndState<>(messageDataDTO.get().getConfigUUID(), loadedConfig, new State<>(buttonValue, updatedData)));
     }
 
     @Override
@@ -115,18 +113,17 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTar
                                                             long messageId,
                                                             @NonNull PoolTargetConfig config,
                                                             @Nullable State<PoolTargetStateData> stateData) {
-        if (stateData == null || stateData.getData() == null) {
-            return new MessageDataDTO(configUUID, channelId, messageId, getCommandId(),
-                    "PoolTargetConfig", Mapper.serializedObject(config));
-        }
-        return new MessageDataDTO(configUUID, channelId, messageId, getCommandId(),
-                "PoolTargetConfig", Mapper.serializedObject(config),
-                "PoolTargetStateData", Mapper.serializedObject(stateData.getData()));
+        return new MessageDataDTO(configUUID, channelId, messageId, getCommandId(), "PoolTargetConfig", Mapper.serializedObject(config));
     }
 
     @Override
     protected void updateCurrentMessageStateData(long channelId, long messageId, @NonNull PoolTargetConfig config, @NonNull State<PoolTargetStateData> state) {
-        messageDataDAO.updateCommandConfigOfMessage(channelId, messageId, "PoolTargetStateData", Mapper.serializedObject(state));
+        if (state.getData() == null) {
+            messageDataDAO.updateCommandConfigOfMessage(channelId, messageId, Mapper.NO_PERSISTED_STATE, null);
+        } else {
+            messageDataDAO.updateCommandConfigOfMessage(channelId, messageId, "PoolTargetStateData", Mapper.serializedObject(state.getData()));
+        }
+
     }
 
 
@@ -216,8 +213,7 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTar
     private PoolTargetStateData updatePoolTargetStateData(PoolTargetConfig config,
                                                           String buttonValue,
                                                           Integer dicePool,
-                                                          Integer targetNumber,
-                                                          Boolean givenDoReroll) {
+                                                          Integer targetNumber) {
         if (CLEAR_BUTTON_ID.equals(buttonValue)) {
             return new PoolTargetStateData(null, null, null);
         }
@@ -258,11 +254,10 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTar
 
         Integer dicePool = toNumber(customIdSplit[POOL_SIZE_VALUE_INDEX]);
         Integer targetNumber = toNumber(customIdSplit[TARGET_INDEX]);
-        Boolean doReroll = DO_REROLL_ID.equals(buttonValue);
 
         PoolTargetConfig config = getConfigFromEvent(event);
 
-        return new State<>(buttonValue, updatePoolTargetStateData(config, buttonValue, dicePool, targetNumber, doReroll));
+        return new State<>(buttonValue, updatePoolTargetStateData(config, buttonValue, dicePool, targetNumber));
     }
 
     @Override
@@ -361,12 +356,12 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTar
                     ComponentRowDefinition.builder()
                             .buttonDefinition(
                                     ButtonDefinition.builder()
-                                            .id(createButtonCustomId(DO_REROLL_ID, config, state))
+                                            .id(createButtonCustomId(DO_REROLL_ID))
                                             .label("Reroll")
                                             .build())
                             .buttonDefinition(
                                     ButtonDefinition.builder()
-                                            .id(createButtonCustomId(DO_NOT_REROLL_ID, config, state))
+                                            .id(createButtonCustomId(DO_NOT_REROLL_ID))
                                             .label("No reroll")
                                             .build())
                             .build()
@@ -376,13 +371,13 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTar
                 state.getData().getTargetNumber() == null) {
             List<ButtonDefinition> buttons = IntStream.range(2, config.getDiceSides() + 1)
                     .mapToObj(i -> ButtonDefinition.builder()
-                            .id(createButtonCustomId(String.valueOf(i), config, state))
+                            .id(createButtonCustomId(String.valueOf(i)))
                             .label(String.format("%d", i))
                             .build()
                     )
                     .collect(Collectors.toList());
             buttons.add(ButtonDefinition.builder()
-                    .id(createButtonCustomId("clear", config, null))
+                    .id(createButtonCustomId(CLEAR_BUTTON_ID))
                     .label("Clear")
                     .build());
             return Lists.partition(buttons, 5).stream()
@@ -392,28 +387,10 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTar
     }
 
 
-    String createButtonCustomId(@NonNull String buttonValue, @NonNull PoolTargetConfig config, @Nullable State<PoolTargetStateData> state) {
-        Preconditions.checkArgument(!buttonValue.contains(BotConstants.LEGACY_DELIMITER_V2));
-
-        String[] values = new String[10];
-        values[0] = COMMAND_NAME;
-        values[BUTTON_VALUE_INDEX] = buttonValue;
-        values[SIDE_OF_DIE_INDEX] = String.valueOf(config.getDiceSides());
-        values[MAX_DICE_INDEX] = String.valueOf(config.getMaxNumberOfButtons());
-        values[REROLL_SET_INDEX] = config.getRerollSet().isEmpty() ? EMPTY : config.getRerollSet().stream().map(String::valueOf).collect(Collectors.joining(SUBSET_DELIMITER));
-        values[BOTCH_SET_INDEX] = config.getBotchSet().isEmpty() ? EMPTY : config.getBotchSet().stream().map(String::valueOf).collect(Collectors.joining(SUBSET_DELIMITER));
-        values[REROLL_VARIANT_INDEX] = config.getRerollVariant();
-        values[POOL_SIZE_VALUE_INDEX] = Optional.ofNullable(state).map(State::getData).map(PoolTargetStateData::getDicePool).map(String::valueOf).orElse(EMPTY);
-        values[TARGET_INDEX] = Optional.ofNullable(state).map(State::getData).map(PoolTargetStateData::getTargetNumber).map(String::valueOf).orElse(EMPTY);
-        values[ANSWER_TARGET_CHANNEL_INDEX] = Optional.ofNullable(config.getAnswerTargetChannelId()).map(Object::toString).orElse("");
-        return String.join(BotConstants.LEGACY_DELIMITER_V2, values);
-
-    }
-
     private List<ComponentRowDefinition> createPoolButtonLayout(PoolTargetConfig config) {
         List<ButtonDefinition> buttons = IntStream.range(1, config.getMaxNumberOfButtons() + 1)
                 .mapToObj(i -> ButtonDefinition.builder()
-                        .id(createButtonCustomId(String.valueOf(i), config, null))
+                        .id(createButtonCustomId(String.valueOf(i)))
                         .label(String.format("%d%s%s", i, DICE_SYMBOL, config.getDiceSides()))
                         .build())
                 .collect(Collectors.toList());

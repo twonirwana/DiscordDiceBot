@@ -1,12 +1,13 @@
 package de.janno.discord.bot.command.sumCustomSet;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
-import de.janno.discord.bot.cache.ButtonMessageCache;
 import de.janno.discord.bot.command.LabelAndDiceExpression;
 import de.janno.discord.bot.command.State;
 import de.janno.discord.bot.dice.DiceParserHelper;
 import de.janno.discord.bot.dice.IDice;
+import de.janno.discord.bot.persistance.MessageDataDAO;
+import de.janno.discord.bot.persistance.MessageDataDAOImpl;
+import de.janno.discord.bot.persistance.MessageDataDTO;
 import de.janno.discord.connector.api.IButtonEventAdaptor;
 import de.janno.discord.connector.api.Requester;
 import de.janno.discord.connector.api.message.ButtonDefinition;
@@ -29,6 +30,7 @@ import reactor.test.StepVerifier;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -37,6 +39,8 @@ import static org.mockito.Mockito.*;
 
 class SumCustomSetCommandTest {
     SumCustomSetCommand underTest;
+    MessageDataDAO messageDataDAO = mock(MessageDataDAO.class);
+
     SumCustomSetConfig defaultConfig = new SumCustomSetConfig(null, ImmutableList.of(
             new LabelAndDiceExpression("1d6", "1d6"),
             new LabelAndDiceExpression("3d6", "add 3d6"),
@@ -58,7 +62,7 @@ class SumCustomSetCommandTest {
     @BeforeEach
     void setup() {
         diceMock = mock(IDice.class);
-        underTest = new SumCustomSetCommand(new DiceParserHelper(diceMock));
+        underTest = new SumCustomSetCommand(messageDataDAO, new DiceParserHelper(diceMock));
     }
 
 
@@ -532,10 +536,7 @@ class SumCustomSetCommandTest {
         verify(buttonEventAdaptor).deleteMessage(ArgumentMatchers.anyLong());
         verify(buttonEventAdaptor).createResultMessageWithEventReference(ArgumentMatchers.eq(new EmbedDefinition("1d6 = 3",
                 "[3]", ImmutableList.of())), eq(null));
-        assertThat(underTest.getButtonMessageCache())
-                .hasSize(1)
-                .containsEntry(1L, ImmutableSet.of(new ButtonMessageCache.ButtonWithConfigHash(2L, 6019)));
-
+        //todo check persistance
         verify(buttonEventAdaptor, times(3)).getCustomId();
         verify(buttonEventAdaptor).getMessageId();
         verify(buttonEventAdaptor).getChannelId();
@@ -571,9 +572,8 @@ class SumCustomSetCommandTest {
         verify(buttonEventAdaptor, never()).deleteMessage(ArgumentMatchers.anyLong());
         verify(buttonEventAdaptor).createResultMessageWithEventReference(ArgumentMatchers.eq(new EmbedDefinition("1d6 = 3",
                 "[3]", ImmutableList.of())), eq(null));
-        assertThat(underTest.getButtonMessageCache())
-                .hasSize(1)
-                .containsEntry(1L, ImmutableSet.of(new ButtonMessageCache.ButtonWithConfigHash(2L, 6019)));
+        //todo check persistance
+
 
         verify(buttonEventAdaptor, times(3)).getCustomId();
         verify(buttonEventAdaptor).getMessageId();
@@ -583,6 +583,24 @@ class SumCustomSetCommandTest {
         verify(buttonEventAdaptor, times(1)).getMessageContent();
         verify(buttonEventAdaptor).acknowledge();
 
+    }
+
+    @Test
+    void checkPersistence() {
+        MessageDataDAO messageDataDAO = new MessageDataDAOImpl("jdbc:h2:file:./persistence/" + this.getClass().getSimpleName(), null, null);
+        long channelId = System.currentTimeMillis();
+        long messageId = System.currentTimeMillis();
+        MessageDataDTO toSave = underTest.createMessageDataForNewMessage(UUID.randomUUID(), channelId, messageId,
+                new SumCustomSetConfig(123L, ImmutableList.of(
+                        new LabelAndDiceExpression("Label", "+1d6"),
+                        new LabelAndDiceExpression("+2d4", "+2d4")
+                )), new State<>("+2d4", new SumCustomSetStateData("+1d6", "2d4")));
+
+        messageDataDAO.saveMessageData(toSave);
+
+        MessageDataDTO loaded = messageDataDAO.getDataForMessage(channelId, messageId).orElseThrow();
+
+        assertThat(toSave).isEqualTo(loaded);
     }
 
 }

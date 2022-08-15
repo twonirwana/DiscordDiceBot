@@ -6,7 +6,7 @@ import lombok.Value;
 import java.util.UUID;
 
 @Value
-public class MessageObject<C extends Config, S extends EmptyData> {
+public class ConfigAndState<C extends Config, S extends EmptyData> {
 
     UUID configUUID;
 

@@ -4,6 +4,9 @@ import com.google.common.collect.ImmutableMap;
 import de.janno.discord.bot.command.Config;
 import de.janno.discord.bot.command.State;
 import de.janno.discord.bot.dice.DiceUtils;
+import de.janno.discord.bot.persistance.MessageDataDAO;
+import de.janno.discord.bot.persistance.MessageDataDAOImpl;
+import de.janno.discord.bot.persistance.MessageDataDTO;
 import de.janno.discord.connector.api.IButtonEventAdaptor;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
@@ -19,6 +22,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -96,7 +100,7 @@ class SumDiceSetCommandTest {
 
     @BeforeEach
     void setup() {
-        underTest = new SumDiceSetCommand(new DiceUtils(1, 1, 1, 1, 5, 6, 6, 6));
+        underTest = new SumDiceSetCommand(mock(MessageDataDAO.class), new DiceUtils(1, 1, 1, 1, 5, 6, 6, 6));
     }
 
     @Test
@@ -342,7 +346,7 @@ class SumDiceSetCommandTest {
 
     @Test
     void createButtonCustomId() {
-        String res = underTest.createButtonCustomId("+1d6", new Config(null));
+        String res = underTest.createButtonCustomId("+1d6");
 
         assertThat(res).isEqualTo("sum_dice_set\u0000+1d6\u0000");
     }
@@ -376,5 +380,20 @@ class SumDiceSetCommandTest {
                         "sum_dice_set\u0000x2\u0000", "sum_dice_set\u0000+1d8\u0000", "sum_dice_set\u0000-1d8\u0000", "sum_dice_set\u0000+1d10\u0000", "sum_dice_set\u0000-1d10\u0000",
                         "sum_dice_set\u0000clear\u0000", "sum_dice_set\u0000+1d12\u0000", "sum_dice_set\u0000-1d12\u0000", "sum_dice_set\u0000+1d20\u0000", "sum_dice_set\u0000-1d20\u0000",
                         "sum_dice_set\u0000roll\u0000", "sum_dice_set\u0000+1\u0000", "sum_dice_set\u0000-1\u0000", "sum_dice_set\u0000+5\u0000", "sum_dice_set\u0000-5\u0000", "sum_dice_set\u0000+10\u0000");
+    }
+
+    @Test
+    void checkPersistence() {
+        MessageDataDAO messageDataDAO = new MessageDataDAOImpl("jdbc:h2:file:./persistence/" + this.getClass().getSimpleName(), null, null);
+        long channelId = System.currentTimeMillis();
+        long messageId = System.currentTimeMillis();
+        MessageDataDTO toSave = underTest.createMessageDataForNewMessage(UUID.randomUUID(), channelId, messageId,
+                new Config(123L), new State<>("d6", new SumDiceSetStateData(ImmutableMap.of("d6", 3, "m", -4))));
+
+        messageDataDAO.saveMessageData(toSave);
+
+        MessageDataDTO loaded = messageDataDAO.getDataForMessage(channelId, messageId).orElseThrow();
+
+        assertThat(toSave).isEqualTo(loaded);
     }
 }

@@ -1,7 +1,6 @@
 package de.janno.discord.bot.command.countSuccesses;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
@@ -63,12 +62,12 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesConfig,
 
 
     @Override
-    protected Optional<MessageObject<CountSuccessesConfig, EmptyData>> getMessageDataAndUpdateWithButtonValue(long channelId, long messageId, String buttonValue) {
+    protected Optional<ConfigAndState<CountSuccessesConfig, EmptyData>> getMessageDataAndUpdateWithButtonValue(long channelId, long messageId, String buttonValue) {
         final Optional<MessageDataDTO> messageDataDTO = messageDataDAO.getDataForMessage(channelId, messageId);
         if (messageDataDTO.isEmpty()) {
             return Optional.empty();
         }
-        return Optional.of(new MessageObject<>(messageDataDTO.get().getConfigUUID(),
+        return Optional.of(new ConfigAndState<>(messageDataDTO.get().getConfigUUID(),
                 Mapper.deserializeObject(messageDataDTO.get().getConfig(), CountSuccessesConfig.class),
                 new State<>(buttonValue, new EmptyData())));
     }
@@ -99,7 +98,7 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesConfig,
 
     @Override
     protected State<EmptyData> getStateFromEvent(IButtonEventAdaptor event) {
-        return new State<>(event.getCustomId().split(BotConstants.LEGACY_CONFIG_SPLIT_DELIMITER_REGEX)[1], new EmptyData());
+        return new State<>(getButtonValueFromLegacyCustomId(event.getCustomId()), new EmptyData());
     }
 
     @Override
@@ -258,7 +257,7 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesConfig,
     private List<ComponentRowDefinition> createButtonLayout(CountSuccessesConfig config) {
         List<ButtonDefinition> buttons = IntStream.range(1, config.getMaxNumberOfButtons() + 1)
                 .mapToObj(i -> ButtonDefinition.builder()
-                        .id(createButtonCustomId(String.valueOf(i), config))
+                        .id(createButtonCustomId(String.valueOf(i)))
                         .label(createButtonLabel(String.valueOf(i), config))
                         .build())
                 .collect(Collectors.toList());
@@ -268,19 +267,5 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesConfig,
                 .collect(Collectors.toList());
     }
 
-    @VisibleForTesting
-    String createButtonCustomId(String number, CountSuccessesConfig config) {
-        Preconditions.checkArgument(!config.getGlitchOption().contains(BotConstants.LEGACY_DELIMITER_V2));
-
-        return String.join(BotConstants.LEGACY_DELIMITER_V2,
-                COMMAND_NAME,
-                number,
-                String.valueOf(config.getDiceSides()),
-                String.valueOf(config.getTarget()),
-                config.getGlitchOption(),
-                String.valueOf(config.getMaxNumberOfButtons()),
-                Optional.ofNullable(config.getAnswerTargetChannelId()).map(Object::toString).orElse("")
-        );
-    }
 
 }

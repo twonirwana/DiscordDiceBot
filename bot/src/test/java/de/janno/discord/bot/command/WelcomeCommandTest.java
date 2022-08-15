@@ -1,5 +1,6 @@
 package de.janno.discord.bot.command;
 
+import de.janno.discord.bot.persistance.MessageDataDAO;
 import de.janno.discord.connector.api.IButtonEventAdaptor;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.MessageDefinition;
@@ -14,11 +15,11 @@ import static org.mockito.Mockito.when;
 
 class WelcomeCommandTest {
 
-    WelcomeCommand underTest = new WelcomeCommand();
+    WelcomeCommand underTest = new WelcomeCommand(mock(MessageDataDAO.class));
 
     @Test
     public void getButtonMessageWithState_fate() {
-        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(new State("fate"), null);
+        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(new State<>("fate", new EmptyData()), null);
         assertThat(res.map(MessageDefinition::getContent))
                 .contains("Click a button to roll four fate dice and add the value of the button");
         assertThat(res.map(MessageDefinition::getComponentRowDefinitions)
@@ -52,7 +53,7 @@ class WelcomeCommandTest {
 
     @Test
     public void getButtonMessageWithState_dnd5() {
-        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(new State("dnd5"), null);
+        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(new State<>("dnd5", new EmptyData()), null);
         assertThat(res.map(MessageDefinition::getContent))
                 .contains("Click on a button to roll the dice");
         assertThat(res.map(MessageDefinition::getComponentRowDefinitions)
@@ -99,7 +100,7 @@ class WelcomeCommandTest {
 
     @Test
     public void getButtonMessageWithState_nWoD() {
-        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(new State("nWoD"), null);
+        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(new State<>("nWoD", new EmptyData()), null);
 
         assertThat(res.map(MessageDefinition::getContent))
                 .contains("Click to roll the dice against 8");
@@ -134,7 +135,7 @@ class WelcomeCommandTest {
 
     @Test
     public void getButtonMessageWithState_oWoD() {
-        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(new State("oWoD"), null);
+        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(new State<>("oWoD", new EmptyData()), null);
         assertThat(res.map(MessageDefinition::getContent))
                 .contains("Click on the buttons to roll dice, with ask reroll:10 and botch:1");
         assertThat(res.map(MessageDefinition::getComponentRowDefinitions)
@@ -169,7 +170,7 @@ class WelcomeCommandTest {
 
     @Test
     public void getButtonMessageWithState_Shadowrun() {
-        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(new State("shadowrun"), null);
+        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(new State<>("shadowrun", new EmptyData()), null);
         assertThat(res.map(MessageDefinition::getContent))
                 .contains("Click to roll the dice against 5");
         assertThat(res.map(MessageDefinition::getComponentRowDefinitions)
@@ -208,7 +209,7 @@ class WelcomeCommandTest {
 
     @Test
     public void getButtonMessageWithState_other() {
-        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(new State("-"), null);
+        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(new State<>("-", new EmptyData()), null);
         assertThat(res)
                 .isEmpty();
 
@@ -256,9 +257,9 @@ class WelcomeCommandTest {
         IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
         when(event.getCustomId()).thenReturn("welcome,fate");
 
-        State res = underTest.getStateFromEvent(event);
+        State<EmptyData> res = underTest.getStateFromEvent(event);
 
-        assertThat(res).isEqualTo(new State("fate"));
+        assertThat(res).isEqualTo(new State<>("fate", new EmptyData()));
     }
 
     @Test

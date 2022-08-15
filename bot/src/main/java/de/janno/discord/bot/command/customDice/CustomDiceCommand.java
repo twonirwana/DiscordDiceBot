@@ -1,7 +1,6 @@
 package de.janno.discord.bot.command.customDice;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import de.janno.discord.bot.command.*;
 import de.janno.discord.bot.dice.DiceParserHelper;
@@ -29,8 +28,8 @@ import java.util.stream.Stream;
 
 @Slf4j
 public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, EmptyData> {
-    //test with /custom_dice start 1_button:1d1 2_button:2d2 3_button:3d3 4_button:4d4 5_button:5d5 6_button:6d6 7_button:7d7 8_button:8d8 9_button:9d9 10_button:10d10 11_button:11d11 12_button:12d12 13_button:13d13 14_button:14d14 15_button:15d15 16_button:16d16 17_button:17d17 18_button:18d18 19_button:19d19 20_button:20d20 21_button:21d21 22_button:22d22 23_button:23d23 24_button:24d24
 
+    //todo expression not in button value. The button value is only the key
     private static final String COMMAND_NAME = "custom_dice";
     private static final List<String> DICE_COMMAND_OPTIONS_IDS = IntStream.range(1, 25).mapToObj(i -> i + "_button").toList();
     private static final String LABEL_DELIMITER = "@";
@@ -48,12 +47,12 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, EmptyDa
     }
 
     @Override
-    protected Optional<MessageObject<CustomDiceConfig, EmptyData>> getMessageDataAndUpdateWithButtonValue(long channelId, long messageId, String buttonValue) {
+    protected Optional<ConfigAndState<CustomDiceConfig, EmptyData>> getMessageDataAndUpdateWithButtonValue(long channelId, long messageId, String buttonValue) {
         final Optional<MessageDataDTO> messageDataDTO = messageDataDAO.getDataForMessage(channelId, messageId);
         if (messageDataDTO.isEmpty()) {
             return Optional.empty();
         }
-        return Optional.of(new MessageObject<>(messageDataDTO.get().getConfigUUID(),
+        return Optional.of(new ConfigAndState<>(messageDataDTO.get().getConfigUUID(),
                 Mapper.deserializeObject(messageDataDTO.get().getConfig(), CustomDiceConfig.class),
                 new State<>(buttonValue, new EmptyData())));
     }
@@ -128,7 +127,7 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, EmptyDa
                 .filter(s -> !s.getDiceExpression().isEmpty())
                 .filter(s -> !s.getLabel().isEmpty())
                 .filter(lv -> diceParserHelper.validExpression(lv.getDiceExpression()))
-                .filter(s -> createButtonCustomId(s.getDiceExpression(), channelId).length() <= 100) //limit for the ids are 100 characters and we need also some characters for the type...
+                .filter(s -> createButtonCustomId(s.getDiceExpression()).length() <= 100) //limit for the ids are 100 characters and we need also some characters for the type...
                 .filter(s -> s.getLabel().length() <= 80) //https://discord.com/developers/docs/interactions/message-components#buttons
                 .distinct()
                 .limit(25)
@@ -161,23 +160,13 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, EmptyDa
     private List<ComponentRowDefinition> createButtonLayout(CustomDiceConfig config) {
         List<ButtonDefinition> buttons = config.getLabelAndExpression().stream()
                 .map(d -> ButtonDefinition.builder()
-                        .id(createButtonCustomId(d.getDiceExpression(), config.getAnswerTargetChannelId()))
+                        .id(createButtonCustomId(d.getDiceExpression()))
                         .label(d.getLabel())
                         .build())
                 .collect(Collectors.toList());
         return Lists.partition(buttons, 5).stream()
                 .map(bl -> ComponentRowDefinition.builder().buttonDefinitions(bl).build())
                 .collect(Collectors.toList());
-    }
-
-    @VisibleForTesting
-    String createButtonCustomId(String diceExpression, Long answerTargetChannelId) {
-        Preconditions.checkArgument(!diceExpression.contains(BotConstants.LEGACY_DELIMITER_V2));
-
-        return String.join(BotConstants.LEGACY_DELIMITER_V2,
-                COMMAND_NAME,
-                diceExpression,
-                Optional.ofNullable(answerTargetChannelId).map(Object::toString).orElse(""));
     }
 
     @Override

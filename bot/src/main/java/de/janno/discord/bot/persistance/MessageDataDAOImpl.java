@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableSet;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.h2.jdbcx.JdbcConnectionPool;
+import org.jetbrains.annotations.Nullable;
 
 import java.sql.*;
 import java.time.LocalDateTime;
@@ -71,6 +72,8 @@ public class MessageDataDAOImpl implements MessageDataDAO {
                 preparedStatement.setLong(2, messageId);
                 ResultSet resultSet = preparedStatement.executeQuery();
                 MessageDataDTO messageDataDTO = transformResultSet(resultSet);
+                log.debug("getDataForMessage: {}", messageDataDTO);
+
                 if (messageDataDTO == null) {
                     return Optional.empty();
                 }
@@ -84,6 +87,8 @@ public class MessageDataDAOImpl implements MessageDataDAO {
 
     @Override
     public Set<Long> getAllMessageIdsForConfig(UUID configUUID) {
+        log.debug("getAllMessageIdsForConfig: {}", configUUID);
+
         try (Connection con = connectionPool.getConnection()) {
             try (PreparedStatement preparedStatement = con.prepareStatement("SELECT DISTINCT MC.MESSAGE_ID FROM MESSAGE_DATA MC WHERE MC.CONFIG_ID = ?")) {
                 preparedStatement.setObject(1, configUUID);
@@ -102,6 +107,8 @@ public class MessageDataDAOImpl implements MessageDataDAO {
 
     @Override
     public void deleteDataForMessage(long channelId, long messageId) {
+        log.debug("deleteDataForMessage: {}.{}", channelId, messageId);
+
         try (Connection con = connectionPool.getConnection()) {
             try (PreparedStatement preparedStatement = con.prepareStatement("DELETE FROM MESSAGE_DATA WHERE CHANNEL_ID = ? AND MESSAGE_ID = ?")) {
                 preparedStatement.setLong(1, channelId);
@@ -127,6 +134,8 @@ public class MessageDataDAOImpl implements MessageDataDAO {
 
     @Override
     public void saveMessageData(MessageDataDTO messageData) {
+        log.debug("saveMessageData: {}", messageData);
+
         try (Connection con = connectionPool.getConnection()) {
             try (PreparedStatement preparedStatement =
                          con.prepareStatement("INSERT INTO MESSAGE_DATA(CONFIG_ID, CHANNEL_ID, MESSAGE_ID, COMMAND_ID, CONFIG_CLASS_ID, CONFIG, STATE_CLASS_ID, STATE, CREATION_DATE) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
@@ -148,7 +157,8 @@ public class MessageDataDAOImpl implements MessageDataDAO {
     }
 
     @Override
-    public void updateCommandConfigOfMessage(long channelId, long messageId, @NonNull String stateDataClassId, @NonNull String stateData) {
+    public void updateCommandConfigOfMessage(long channelId, long messageId, @NonNull String stateDataClassId, @Nullable String stateData) {
+        log.debug("updateCommandConfigOfMessage: {}-{}", stateDataClassId, stateData);
         try (Connection con = connectionPool.getConnection()) {
             try (PreparedStatement preparedStatement =
                          con.prepareStatement("UPDATE MESSAGE_DATA SET STATE_CLASS_ID = ?, STATE = ? WHERE CHANNEL_ID = ? AND MESSAGE_ID = ?")) {

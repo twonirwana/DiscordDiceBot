@@ -2,8 +2,13 @@ package de.janno.discord.bot.command.holdReroll;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import de.janno.discord.bot.command.EmptyData;
 import de.janno.discord.bot.command.State;
+import de.janno.discord.bot.command.fate.FateConfig;
 import de.janno.discord.bot.dice.DiceUtils;
+import de.janno.discord.bot.persistance.MessageDataDAO;
+import de.janno.discord.bot.persistance.MessageDataDAOImpl;
+import de.janno.discord.bot.persistance.MessageDataDTO;
 import de.janno.discord.connector.api.IButtonEventAdaptor;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
@@ -16,6 +21,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -39,7 +45,7 @@ class HoldRerollCommandTest {
 
     @BeforeEach
     void setup() {
-        underTest = new HoldRerollCommand(new DiceUtils(1, 1, 1, 1, 5, 6, 6, 6));
+        underTest = new HoldRerollCommand(mock(MessageDataDAO.class), new DiceUtils(1, 1, 1, 1, 5, 6, 6, 6));
     }
 
     @Test
@@ -260,8 +266,7 @@ class HoldRerollCommandTest {
 
     @Test
     void createButtonCustomId() {
-        String res = underTest.createButtonCustomId("finish", new HoldRerollConfig(null, 6, ImmutableSet.of(2, 3, 4), ImmutableSet.of(5, 6), ImmutableSet.of(1)),
-                new State<>("finish", new HoldRerollStateData(ImmutableList.of(1, 1, 1, 1, 5, 6), 3)));
+        String res = underTest.createButtonCustomId("finish");
 
         assertThat(res).isEqualTo("hold_reroll\u0000finish\u00001;1;1;1;5;6\u00006\u00002;3;4\u00005;6\u00001\u00003\u0000");
     }
@@ -428,5 +433,21 @@ class HoldRerollCommandTest {
                 ImmutableSet.of(2, 3, 4),
                 ImmutableSet.of(5, 6),
                 ImmutableSet.of(1)))).isEmpty();
+    }
+
+    @Test
+    void checkPersistence() {
+        MessageDataDAO messageDataDAO = new MessageDataDAOImpl("jdbc:h2:file:./persistence/" + this.getClass().getSimpleName(), null, null);
+        long channelId = System.currentTimeMillis();
+        long messageId = System.currentTimeMillis();
+        MessageDataDTO toSave = underTest.createMessageDataForNewMessage(UUID.randomUUID(), channelId, messageId,
+                new HoldRerollConfig(123L, 10, ImmutableSet.of(9, 10), ImmutableSet.of(7, 8, 9, 10), ImmutableSet.of(1)),
+                new State<>("3", new HoldRerollStateData(ImmutableList.of(1, 2, 3), 2)));
+
+        messageDataDAO.saveMessageData(toSave);
+
+        MessageDataDTO loaded = messageDataDAO.getDataForMessage(channelId, messageId).orElseThrow();
+
+        assertThat(toSave).isEqualTo(loaded);
     }
 }

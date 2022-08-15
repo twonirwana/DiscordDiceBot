@@ -4,10 +4,9 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import de.janno.discord.bot.cache.ButtonMessageCache;
 import de.janno.discord.bot.command.AbstractCommand;
 import de.janno.discord.bot.command.CommandUtils;
-import de.janno.discord.bot.command.MessageObject;
+import de.janno.discord.bot.command.ConfigAndState;
 import de.janno.discord.bot.command.State;
 import de.janno.discord.bot.dice.DiceUtils;
 import de.janno.discord.bot.persistance.MessageDataDAO;
@@ -43,8 +42,6 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollConfig, HoldRer
     private static final String CLEAR_BUTTON_ID = "clear";
     private static final String DICE_SYMBOL = "d";
     private static final String EMPTY = "EMPTY";
-    private static final ButtonMessageCache BUTTON_MESSAGE_CACHE = new ButtonMessageCache(COMMAND_NAME);
-
     private final DiceUtils diceUtils;
 
     public HoldRerollCommand(MessageDataDAO messageDataDAO) {
@@ -257,7 +254,7 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollConfig, HoldRer
     }
 
     @Override
-    protected Optional<MessageObject<HoldRerollConfig, HoldRerollStateData>> getMessageDataAndUpdateWithButtonValue(long channelId, long messageId, String buttonValue) {
+    protected Optional<ConfigAndState<HoldRerollConfig, HoldRerollStateData>> getMessageDataAndUpdateWithButtonValue(long channelId, long messageId, String buttonValue) {
         //todo
         return Optional.empty();
     }

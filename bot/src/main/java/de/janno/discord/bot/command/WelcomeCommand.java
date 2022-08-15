@@ -3,7 +3,6 @@ package de.janno.discord.bot.command;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import de.janno.discord.bot.BotMetrics;
-import de.janno.discord.bot.cache.ButtonMessageCache;
 import de.janno.discord.bot.command.countSuccesses.CountSuccessesCommand;
 import de.janno.discord.bot.command.countSuccesses.CountSuccessesConfig;
 import de.janno.discord.bot.command.customDice.CustomDiceCommand;
@@ -44,7 +43,7 @@ public class WelcomeCommand extends AbstractCommand<Config, EmptyData> {
     }
 
     @Override
-    protected Optional<MessageObject<Config, EmptyData>> getMessageDataAndUpdateWithButtonValue(long channelId, long messageId, String buttonValue) {
+    protected Optional<ConfigAndState<Config, EmptyData>> getMessageDataAndUpdateWithButtonValue(long channelId, long messageId, String buttonValue) {
         //todo
         return Optional.empty();
     }

@@ -2,6 +2,9 @@ package de.janno.discord.bot.command.customParameter;
 
 import com.google.common.collect.ImmutableList;
 import de.janno.discord.bot.command.State;
+import de.janno.discord.bot.persistance.MessageDataDAO;
+import de.janno.discord.bot.persistance.MessageDataDAOImpl;
+import de.janno.discord.bot.persistance.MessageDataDTO;
 import de.janno.discord.connector.api.IButtonEventAdaptor;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
@@ -18,6 +21,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 import static de.janno.discord.bot.command.customParameter.CustomParameterCommand.*;
@@ -33,6 +37,7 @@ class CustomParameterCommandTest {
     private static final String LAST_SELECT_WITH_LABEL_CUSTOM_ID = "custom_parameter\u0000{n}d{s}@{label:Att/Par/Dam}\u0000\u00001\t2\u0000Att\u0000";
     private static final String CLEAR_CUSTOM_ID = "custom_parameter\u0000{n}d{s}\u0000\u00001\u0000clear\u0000";
     CustomParameterCommand underTest;
+    MessageDataDAO messageDataDAO = mock(MessageDataDAO.class);
 
     private static Stream<Arguments> generateParameterExpression2ButtonValuesData() {
         return Stream.of(
@@ -84,7 +89,7 @@ class CustomParameterCommandTest {
 
     @BeforeEach
     void setup() {
-        underTest = new CustomParameterCommand();
+        underTest = new CustomParameterCommand(messageDataDAO);
     }
 
     @ParameterizedTest
@@ -341,5 +346,21 @@ class CustomParameterCommandTest {
                 createConfigFromCustomId(FIRST_SELECT_CUSTOM_ID));
 
         assertThat(res).isEmpty();
+    }
+
+    @Test
+    void checkPersistence() {
+        MessageDataDAO messageDataDAO = new MessageDataDAOImpl("jdbc:h2:file:./persistence/" + this.getClass().getSimpleName(), null, null);
+        long channelId = System.currentTimeMillis();
+        long messageId = System.currentTimeMillis();
+        MessageDataDTO toSave = underTest.createMessageDataForNewMessage(UUID.randomUUID(), channelId, messageId,
+                new CustomParameterConfig(123L, "{n}d{s}"),
+                new State<>("5", new CustomParameterStateData(ImmutableList.of("5"), "userName")));
+
+        messageDataDAO.saveMessageData(toSave);
+
+        MessageDataDTO loaded = messageDataDAO.getDataForMessage(channelId, messageId).orElseThrow();
+
+        assertThat(toSave).isEqualTo(loaded);
     }
 }

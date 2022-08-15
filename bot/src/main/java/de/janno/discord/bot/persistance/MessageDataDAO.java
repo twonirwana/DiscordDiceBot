@@ -3,6 +3,7 @@ package de.janno.discord.bot.persistance;
 import de.janno.discord.bot.command.Config;
 import de.janno.discord.bot.command.EmptyData;
 import lombok.NonNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 import java.util.Set;
@@ -20,5 +21,5 @@ public interface MessageDataDAO {
 
      void saveMessageData(MessageDataDTO messageData);
 
-    void updateCommandConfigOfMessage(long channelId, long messageId, @NonNull String stateDataClassId, @NonNull String stateData);
+    void updateCommandConfigOfMessage(long channelId, long messageId, @NonNull String stateDataClassId, @Nullable String stateData);
 }

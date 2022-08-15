@@ -97,7 +97,7 @@ public abstract class AbstractCommand<C extends Config, S extends EmptyData> imp
         return Optional.empty();
     }
 
-    protected abstract Optional<MessageObject<C, S>> getMessageDataAndUpdateWithButtonValue(long channelId, long messageId, String buttonValue);
+    protected abstract Optional<ConfigAndState<C, S>> getMessageDataAndUpdateWithButtonValue(long channelId, long messageId, String buttonValue);
 
     protected abstract MessageDataDTO createMessageDataForNewMessage(@NonNull UUID configUUID,
                                                                      long channelId,
@@ -123,7 +123,7 @@ public abstract class AbstractCommand<C extends Config, S extends EmptyData> imp
             configUUID = UUID.randomUUID();
         } else {
             String buttonValue = getButtonValueFromCustomIdWithPersistence(event.getCustomId());
-            Optional<MessageObject<C, S>> messageData = getMessageDataAndUpdateWithButtonValue(channelId, messageId, buttonValue);
+            Optional<ConfigAndState<C, S>> messageData = getMessageDataAndUpdateWithButtonValue(channelId, messageId, buttonValue);
             if (messageData.isPresent()) {
                 config = messageData.get().getConfig();
                 state = messageData.get().getState();
@@ -189,7 +189,7 @@ public abstract class AbstractCommand<C extends Config, S extends EmptyData> imp
                     });
             if (!keepExistingButtonMessage) {
                 if (isLegacyMessage) {
-                    createNewButtonMessageAndOptionalDeleteOld = event.deleteMessage(event.getMessageId());
+                    createNewButtonMessageAndOptionalDeleteOld = event.deleteMessage(messageId);
                 } else {
                     createNewButtonMessageAndOptionalDeleteOld = newMessageIdMono
                             .flux()
@@ -197,6 +197,7 @@ public abstract class AbstractCommand<C extends Config, S extends EmptyData> imp
                                     .filter(id -> !Objects.equals(id, newMessageId)))
                             .flatMap(oldMessageId -> {
                                 //todo multi delete?
+                                //todo check if message is pined and only delete the data if the message is realy deleted
                                 messageDataDAO.deleteDataForMessage(channelId, oldMessageId);
                                 return event.deleteMessage(oldMessageId);
                             })
@@ -309,18 +310,32 @@ public abstract class AbstractCommand<C extends Config, S extends EmptyData> imp
 
     protected abstract C getConfigFromStartOptions(CommandInteractionOption options);
 
+    /**
+     * will be removed when almost all users have switched to the persisted button id
+     */
+    @Deprecated
     protected abstract C getConfigFromEvent(IButtonEventAdaptor event);
 
+    /**
+     * will be removed when almost all users have switched to the persisted button id
+     */
+    @Deprecated
     protected abstract State<S> getStateFromEvent(IButtonEventAdaptor event);
+
+
+    //todo use in all commands
+
+    /**
+     * will be removed when almost all users have switched to the persisted button id
+     */
+    @Deprecated
+    protected String getButtonValueFromLegacyCustomId(String customId) {
+        return customId.split(LEGACY_CONFIG_SPLIT_DELIMITER_REGEX)[LEGACY_BUTTON_VALUE_INDEX];
+    }
 
     protected String getButtonValueFromCustomIdWithPersistence(String customId) {
         Preconditions.checkArgument(StringUtils.countMatches(customId, CUSTOM_ID_DELIMITER) == 1, "'%s' contains not the correct number of delimiter", customId);
         return customId.split(CUSTOM_ID_DELIMITER)[BUTTON_VALUE_INDEX];
-    }
-
-    //todo use in classes
-    protected String getButtonValueFromLegacyCustomId(String customId) {
-        return customId.split(LEGACY_CONFIG_SPLIT_DELIMITER_REGEX)[LEGACY_BUTTON_VALUE_INDEX];
     }
 
     private @NonNull String getCommandNameFromCustomIdWithPersistence(String customId) {
@@ -328,7 +343,8 @@ public abstract class AbstractCommand<C extends Config, S extends EmptyData> imp
         return customId.split(CUSTOM_ID_DELIMITER)[COMMAND_NAME_INDEX];
     }
 
-    protected String createButtonCustomId(@NonNull String buttonValue) {
+    @VisibleForTesting
+    public String createButtonCustomId(@NonNull String buttonValue) {
         return getCommandId() + CUSTOM_ID_DELIMITER + buttonValue;
     }
 
