@@ -95,17 +95,23 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTar
         if (messageDataDTO.isEmpty()) {
             return Optional.empty();
         }
-        final PoolTargetStateData loadedStateData = messageDataDTO
-                .map(MessageDataDTO::getStateData)
+        return Optional.of(deserializeAndUpdateState(messageDataDTO.get(), buttonValue));
+    }
+
+    @VisibleForTesting
+    ConfigAndState<PoolTargetConfig, PoolTargetStateData> deserializeAndUpdateState(@NonNull MessageDataDTO messageDataDTO, @NonNull String buttonValue) {
+
+        final PoolTargetStateData loadedStateData = Optional.ofNullable(messageDataDTO.getStateData())
                 .map(sd -> Mapper.deserializeObject(sd, PoolTargetStateData.class))
                 .orElse(null);
-        final PoolTargetConfig loadedConfig = Mapper.deserializeObject(messageDataDTO.get().getConfig(), PoolTargetConfig.class);
+        final PoolTargetConfig loadedConfig = Mapper.deserializeObject(messageDataDTO.getConfig(), PoolTargetConfig.class);
         final PoolTargetStateData updatedData = updatePoolTargetStateData(loadedConfig,
                 buttonValue,
                 Optional.ofNullable(loadedStateData).map(PoolTargetStateData::getDicePool).orElse(null),
                 Optional.ofNullable(loadedStateData).map(PoolTargetStateData::getTargetNumber).orElse(null));
-        return Optional.of(new ConfigAndState<>(messageDataDTO.get().getConfigUUID(), loadedConfig, new State<>(buttonValue, updatedData)));
+        return new ConfigAndState<>(messageDataDTO.getConfigUUID(), loadedConfig, new State<>(buttonValue, updatedData));
     }
+
 
     @Override
     protected MessageDataDTO createMessageDataForNewMessage(@NonNull UUID configUUID,

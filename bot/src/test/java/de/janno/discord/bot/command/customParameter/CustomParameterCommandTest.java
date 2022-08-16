@@ -1,6 +1,7 @@
 package de.janno.discord.bot.command.customParameter;
 
 import com.google.common.collect.ImmutableList;
+import de.janno.discord.bot.command.ConfigAndState;
 import de.janno.discord.bot.command.State;
 import de.janno.discord.bot.persistance.MessageDataDAO;
 import de.janno.discord.bot.persistance.MessageDataDAOImpl;
@@ -181,7 +182,7 @@ class CustomParameterCommandTest {
 
     @Test
     void getAnswer_complete() {
-        Optional<EmbedDefinition> res = underTest.getAnswer(createConfigFromCustomId(LAST_SELECT_CUSTOM_ID),createParameterState(LAST_SELECT_CUSTOM_ID,
+        Optional<EmbedDefinition> res = underTest.getAnswer(createConfigFromCustomId(LAST_SELECT_CUSTOM_ID), createParameterState(LAST_SELECT_CUSTOM_ID,
                 "", ""));
 
         assertThat(res).isPresent();
@@ -190,7 +191,7 @@ class CustomParameterCommandTest {
 
     @Test
     void getAnswer_completeAndLabel() {
-        Optional<EmbedDefinition> res = underTest.getAnswer(createConfigFromCustomId(LAST_SELECT_WITH_LABEL_CUSTOM_ID),createParameterState(LAST_SELECT_WITH_LABEL_CUSTOM_ID,
+        Optional<EmbedDefinition> res = underTest.getAnswer(createConfigFromCustomId(LAST_SELECT_WITH_LABEL_CUSTOM_ID), createParameterState(LAST_SELECT_WITH_LABEL_CUSTOM_ID,
                 "", ""));
 
         assertThat(res).isPresent();
@@ -199,7 +200,7 @@ class CustomParameterCommandTest {
 
     @Test
     void getAnswer_notComplete() {
-        Optional<EmbedDefinition> res = underTest.getAnswer(createConfigFromCustomId(FIRST_SELECT_CUSTOM_ID),createParameterState(FIRST_SELECT_CUSTOM_ID,
+        Optional<EmbedDefinition> res = underTest.getAnswer(createConfigFromCustomId(FIRST_SELECT_CUSTOM_ID), createParameterState(FIRST_SELECT_CUSTOM_ID,
                 "", ""));
 
         assertThat(res).isEmpty();
@@ -287,7 +288,7 @@ class CustomParameterCommandTest {
     @Test
     void getCurrentMessageContentChange_complete() {
 
-        Optional<String> res = underTest.getCurrentMessageContentChange(createConfigFromCustomId(LAST_SELECT_CUSTOM_ID),createParameterState(LAST_SELECT_CUSTOM_ID, "", ""));
+        Optional<String> res = underTest.getCurrentMessageContentChange(createConfigFromCustomId(LAST_SELECT_CUSTOM_ID), createParameterState(LAST_SELECT_CUSTOM_ID, "", ""));
 
         assertThat(res).isEmpty();
     }
@@ -295,7 +296,7 @@ class CustomParameterCommandTest {
     @Test
     void getCurrentMessageContentChange_inSelection() {
 
-        Optional<String> res = underTest.getCurrentMessageContentChange(createConfigFromCustomId(FIRST_SELECT_CUSTOM_ID),createParameterState(FIRST_SELECT_CUSTOM_ID, "", ""));
+        Optional<String> res = underTest.getCurrentMessageContentChange(createConfigFromCustomId(FIRST_SELECT_CUSTOM_ID), createParameterState(FIRST_SELECT_CUSTOM_ID, "", ""));
 
         assertThat(res).contains("∶1d*{s}*: Please select value for *{s}*");
     }
@@ -303,7 +304,7 @@ class CustomParameterCommandTest {
     @Test
     void getCurrentMessageContentChange_inSelectionLocked() {
 
-        Optional<String> res = underTest.getCurrentMessageContentChange(createConfigFromCustomId(FIRST_SELECT_CUSTOM_ID),createParameterState(FIRST_SELECT_CUSTOM_ID, "user1\u22361d{s}: Please select value for {s}", "user1"));
+        Optional<String> res = underTest.getCurrentMessageContentChange(createConfigFromCustomId(FIRST_SELECT_CUSTOM_ID), createParameterState(FIRST_SELECT_CUSTOM_ID, "user1\u22361d{s}: Please select value for {s}", "user1"));
 
         assertThat(res).contains("user1∶1d*{s}*: Please select value for *{s}*");
     }
@@ -311,7 +312,7 @@ class CustomParameterCommandTest {
     @Test
     void createNewButtonMessageWithState_complete() {
 
-        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(createConfigFromCustomId(LAST_SELECT_CUSTOM_ID),createParameterState(LAST_SELECT_CUSTOM_ID, "user1\u22361d{s}: Please select value for {s}", "user1"));
+        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(createConfigFromCustomId(LAST_SELECT_CUSTOM_ID), createParameterState(LAST_SELECT_CUSTOM_ID, "user1\u22361d{s}: Please select value for {s}", "user1"));
 
         assertThat(res.orElseThrow().getContent()).isEqualTo("*{n}*d*{s}*: Please select value for *{n}*");
         assertThat(res.orElseThrow().getComponentRowDefinitions().stream()
@@ -336,7 +337,7 @@ class CustomParameterCommandTest {
 
     @Test
     void createNewButtonMessageWithState_inSelection() {
-        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(createConfigFromCustomId(FIRST_SELECT_CUSTOM_ID),createParameterState(FIRST_SELECT_CUSTOM_ID, "{n}d{s}: Please select value for {n}", "user1"));
+        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(createConfigFromCustomId(FIRST_SELECT_CUSTOM_ID), createParameterState(FIRST_SELECT_CUSTOM_ID, "{n}d{s}: Please select value for {n}", "user1"));
 
         assertThat(res).isEmpty();
     }
@@ -346,14 +347,35 @@ class CustomParameterCommandTest {
         MessageDataDAO messageDataDAO = new MessageDataDAOImpl("jdbc:h2:mem:" + this.getClass().getSimpleName(), null, null);
         long channelId = System.currentTimeMillis();
         long messageId = System.currentTimeMillis();
-        MessageDataDTO toSave = underTest.createMessageDataForNewMessage(UUID.randomUUID(), channelId, messageId,
-                new CustomParameterConfig(123L, "{n}d{s}"),
-                new State<>("5", new CustomParameterStateData(ImmutableList.of("5"), "userName")));
-
+        UUID configUUID = UUID.randomUUID();
+        CustomParameterConfig config = new CustomParameterConfig(123L, "{n}d{s}");
+        State<CustomParameterStateData> state = new State<>("5", new CustomParameterStateData(ImmutableList.of("5"), "userName"));
+        MessageDataDTO toSave = underTest.createMessageDataForNewMessage(configUUID, channelId, messageId, config, state);
+        System.out.println(toSave);
         messageDataDAO.saveMessageData(toSave);
 
         MessageDataDTO loaded = messageDataDAO.getDataForMessage(channelId, messageId).orElseThrow();
 
         assertThat(toSave).isEqualTo(loaded);
+        ConfigAndState<CustomParameterConfig, CustomParameterStateData> configAndState = underTest.deserializeAndUpdateState(loaded, "3");
+        assertThat(configAndState.getConfig()).isEqualTo(config);
+        assertThat(configAndState.getConfigUUID()).isEqualTo(configUUID);
+        assertThat(configAndState.getState().getData()).isEqualTo(state.getData());
     }
+
+    @Test
+    void deserialization() {
+        UUID configUUID = UUID.randomUUID();
+        MessageDataDTO savedData = new MessageDataDTO(configUUID, 1660644934298L, 1660644934298L, "custom_dice", "CustomDiceConfig", """
+                ---
+            
+                """, "None", null);
+
+
+        ConfigAndState<CustomParameterConfig, CustomParameterStateData> configAndState = underTest.deserializeAndUpdateState(savedData, "3");
+        assertThat(configAndState.getConfig()).isEqualTo(new CustomParameterConfig(123L, "{n}d{s}"));
+        assertThat(configAndState.getConfigUUID()).isEqualTo(configUUID);
+        assertThat(configAndState.getState().getData()).isEqualTo(new CustomParameterStateData(ImmutableList.of("5"), "userName"));
+    }
+
 }

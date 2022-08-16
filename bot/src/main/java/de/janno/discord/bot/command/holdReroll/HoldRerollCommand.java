@@ -9,6 +9,7 @@ import de.janno.discord.bot.command.CommandUtils;
 import de.janno.discord.bot.command.ConfigAndState;
 import de.janno.discord.bot.command.State;
 import de.janno.discord.bot.dice.DiceUtils;
+import de.janno.discord.bot.persistance.Mapper;
 import de.janno.discord.bot.persistance.MessageDataDAO;
 import de.janno.discord.bot.persistance.MessageDataDTO;
 import de.janno.discord.connector.api.BotConstants;
@@ -257,7 +258,17 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollConfig, HoldRer
         //todo
         return Optional.empty();
     }
-
+    @VisibleForTesting
+    ConfigAndState<HoldRerollConfig, HoldRerollStateData> deserializeAndUpdateState(@NonNull MessageDataDTO messageDataDTO, @NonNull String buttonValue) {
+        final HoldRerollStateData loadedStateData = Optional.ofNullable(messageDataDTO.getStateData())
+                .map(sd -> Mapper.deserializeObject(sd, HoldRerollStateData.class))
+                .orElse(null);
+        final HoldRerollConfig loadedConfig = Mapper.deserializeObject(messageDataDTO.getConfig(), HoldRerollConfig.class);
+        //Todo update state
+        return new ConfigAndState<>(messageDataDTO.getConfigUUID(),
+                loadedConfig,
+                new State<>(buttonValue, loadedStateData));
+    }
     @Override
     protected MessageDataDTO createMessageDataForNewMessage(@NonNull UUID configUUID, long channelId, long messageId, @NonNull HoldRerollConfig config, @Nullable State<HoldRerollStateData> state) {
         //todo

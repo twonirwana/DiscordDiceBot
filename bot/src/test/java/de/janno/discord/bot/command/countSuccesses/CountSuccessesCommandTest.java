@@ -1,6 +1,7 @@
 package de.janno.discord.bot.command.countSuccesses;
 
 import com.google.common.collect.ImmutableList;
+import de.janno.discord.bot.command.ConfigAndState;
 import de.janno.discord.bot.command.EmptyData;
 import de.janno.discord.bot.command.State;
 import de.janno.discord.bot.dice.DiceUtils;
@@ -259,7 +260,7 @@ class CountSuccessesCommandTest {
         verify(buttonEventAdaptor).createResultMessageWithEventReference(eq(new EmbedDefinition("6d6 = 2 - Glitch!",
                 "[**1**,**1**,**1**,**1**,**5**,**6**] ≥4 = 2 and more then half of all dice show 1s", ImmutableList.of())), eq(null));
         //todo check persistance
-        verify(buttonEventAdaptor, times(3)).getCustomId();
+        verify(buttonEventAdaptor, times(4)).getCustomId();
         verify(buttonEventAdaptor).getMessageId();
         verify(buttonEventAdaptor).getChannelId();
         verify(buttonEventAdaptor).isPinned();
@@ -363,14 +364,37 @@ class CountSuccessesCommandTest {
         MessageDataDAO messageDataDAO = new MessageDataDAOImpl("jdbc:h2:mem:" + this.getClass().getSimpleName(), null, null);
         long channelId = System.currentTimeMillis();
         long messageId = System.currentTimeMillis();
-        MessageDataDTO toSave = underTest.createMessageDataForNewMessage(UUID.randomUUID(), channelId, messageId,
-                new CountSuccessesConfig(123L, 6, 5, "no_glitch", 12),
-                new State<>("5", new EmptyData()));
-
+        UUID configUUID = UUID.randomUUID();
+        CountSuccessesConfig config = new CountSuccessesConfig(123L, 6, 5, "no_glitch", 12);
+        State<EmptyData> state = new State<>("5", new EmptyData());
+        MessageDataDTO toSave = underTest.createMessageDataForNewMessage(configUUID, channelId, messageId, config, state);
         messageDataDAO.saveMessageData(toSave);
 
         MessageDataDTO loaded = messageDataDAO.getDataForMessage(channelId, messageId).orElseThrow();
 
         assertThat(toSave).isEqualTo(loaded);
+        ConfigAndState<CountSuccessesConfig, EmptyData> configAndState = underTest.deserializeAndUpdateState(loaded, "3");
+        assertThat(configAndState.getConfig()).isEqualTo(config);
+        assertThat(configAndState.getConfigUUID()).isEqualTo(configUUID);
+        assertThat(configAndState.getState().getData()).isEqualTo(state.getData());
+    }
+
+    @Test
+    void deserialization() {
+        UUID configUUID = UUID.randomUUID();
+        MessageDataDTO savedData = new MessageDataDTO(configUUID, 1660644934298L, 1660644934298L, "count_successes", "CountSuccessesConfig", """
+                ---
+                answerTargetChannelId: 123
+                diceSides: 6
+                target: 5
+                glitchOption: "no_glitch"
+                maxNumberOfButtons: 12
+                """, "None", null);
+
+
+        ConfigAndState<CountSuccessesConfig, EmptyData> configAndState = underTest.deserializeAndUpdateState(savedData, "3");
+        assertThat(configAndState.getConfig()).isEqualTo(new CountSuccessesConfig(123L, 6, 5, "no_glitch", 12));
+        assertThat(configAndState.getConfigUUID()).isEqualTo(configUUID);
+        assertThat(configAndState.getState().getData()).isEqualTo(new EmptyData());
     }
 }

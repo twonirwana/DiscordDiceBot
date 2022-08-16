@@ -2,6 +2,7 @@ package de.janno.discord.bot.command.poolTarget;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import de.janno.discord.bot.command.ConfigAndState;
 import de.janno.discord.bot.command.State;
 import de.janno.discord.bot.dice.DiceUtils;
 import de.janno.discord.bot.persistance.MessageDataDAO;
@@ -78,12 +79,12 @@ class PoolTargetCommandTest {
     void getStartOptions() {
         List<CommandDefinitionOption> res = underTest.getStartOptions();
 
-        assertThat(res.stream().map(CommandDefinitionOption::getName)).containsExactly("sides", "max_dice", "reroll_set", "botch_set", "reroll_variant", "target_channel");
+        assertThat(res.stream().map(CommandDefinitionOption::getName)).containsExactly("sides", "max_dice", "reroll_set", "botch_set", "reroll_variant");
     }
 
     @Test
     void getDiceResult_withoutReroll() {
-        EmbedDefinition res = underTest.getAnswer(new PoolTargetConfig(null, 6, 15, ImmutableSet.of(6), ImmutableSet.of(1), "ask"),new State<>("6", new PoolTargetStateData(6, 3, false))).orElseThrow();
+        EmbedDefinition res = underTest.getAnswer(new PoolTargetConfig(null, 6, 15, ImmutableSet.of(6), ImmutableSet.of(1), "ask"), new State<>("6", new PoolTargetStateData(6, 3, false))).orElseThrow();
         assertThat(res.getFields()).hasSize(0);
         assertThat(res.getTitle()).isEqualTo("6d6 = -1");
         assertThat(res.getDescription()).isEqualTo("[**1**,**1**,**1**,2,**5**,**6**] ≥3 = -1");
@@ -91,7 +92,7 @@ class PoolTargetCommandTest {
 
     @Test
     void getDiceResult_withReroll() {
-        EmbedDefinition res = underTest.getAnswer(new PoolTargetConfig(null, 6, 15, ImmutableSet.of(6), ImmutableSet.of(1), "ask"),new State<>("6", new PoolTargetStateData(6, 3, true))).orElseThrow();
+        EmbedDefinition res = underTest.getAnswer(new PoolTargetConfig(null, 6, 15, ImmutableSet.of(6), ImmutableSet.of(1), "ask"), new State<>("6", new PoolTargetStateData(6, 3, true))).orElseThrow();
         assertThat(res.getFields()).hasSize(0);
         assertThat(res.getTitle()).isEqualTo("6d6 = 1");
         assertThat(res.getDescription()).isEqualTo("[**1**,**1**,**1**,2,2,**5**,**6**,**6**,**6**] ≥3 = 1");
@@ -151,25 +152,25 @@ class PoolTargetCommandTest {
 
     @Test
     void getAnswer_allStateInfoAvailable() {
-        assertThat(underTest.getAnswer(new PoolTargetConfig(null, 10, 20, ImmutableSet.of(), ImmutableSet.of(), "always"),new State<>("10", new PoolTargetStateData(10, 8, true)))
+        assertThat(underTest.getAnswer(new PoolTargetConfig(null, 10, 20, ImmutableSet.of(), ImmutableSet.of(), "always"), new State<>("10", new PoolTargetStateData(10, 8, true)))
         ).isNotEmpty();
     }
 
     @Test
     void getAnswer_dicePoolMissing() {
-        assertThat(underTest.getAnswer(new PoolTargetConfig(null, 10, 20, ImmutableSet.of(), ImmutableSet.of(), "always"),new State<>("clear", new PoolTargetStateData(null, 8, true)))
+        assertThat(underTest.getAnswer(new PoolTargetConfig(null, 10, 20, ImmutableSet.of(), ImmutableSet.of(), "always"), new State<>("clear", new PoolTargetStateData(null, 8, true)))
         ).isEmpty();
     }
 
     @Test
     void getAnswer_targetNumberMissing() {
-        assertThat(underTest.getAnswer(new PoolTargetConfig(null, 10, 20, ImmutableSet.of(), ImmutableSet.of(), "always"),new State<>("10", new PoolTargetStateData(10, null, true)))
+        assertThat(underTest.getAnswer(new PoolTargetConfig(null, 10, 20, ImmutableSet.of(), ImmutableSet.of(), "always"), new State<>("10", new PoolTargetStateData(10, null, true)))
         ).isEmpty();
     }
 
     @Test
     void getAnswer_doRerollMissing() {
-        assertThat(underTest.getAnswer(new PoolTargetConfig(null, 10, 20, ImmutableSet.of(), ImmutableSet.of(), "always"),new State<>("10", new PoolTargetStateData(10, 8, null)))
+        assertThat(underTest.getAnswer(new PoolTargetConfig(null, 10, 20, ImmutableSet.of(), ImmutableSet.of(), "always"), new State<>("10", new PoolTargetStateData(10, 8, null)))
         ).isEmpty();
     }
 
@@ -245,38 +246,37 @@ class PoolTargetCommandTest {
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel))
                 .containsExactly("Reroll", "No reroll");
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getId))
-                .containsExactly("pool_target\u0000do_reroll\u000010\u000020\u000010;9\u00001;2\u0000ask\u000010\u000010\u0000",
-                        "pool_target\u0000no_reroll\u000010\u000020\u000010;9\u00001;2\u0000ask\u000010\u000010\u0000");
+                .containsExactly("pool_targetdo_reroll", "pool_targetno_reroll");
     }
 
     @Test
     void getButtonLayoutWithState_statesAreGiven_newButtons() {
-        List<ComponentRowDefinition> res = underTest.createNewButtonMessageWithState(new PoolTargetConfig(null, 10, 20, ImmutableSet.of(10, 9), ImmutableSet.of(1, 2), "ask"),new State<>("10", new PoolTargetStateData(10, 10, true)))
+        List<ComponentRowDefinition> res = underTest.createNewButtonMessageWithState(new PoolTargetConfig(null, 10, 20, ImmutableSet.of(10, 9), ImmutableSet.of(1, 2), "ask"), new State<>("10", new PoolTargetStateData(10, 10, true)))
                 .orElseThrow().getComponentRowDefinitions();
 
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel))
                 .containsExactly("1d10", "2d10", "3d10", "4d10", "5d10", "6d10", "7d10", "8d10", "9d10", "10d10", "11d10", "12d10", "13d10", "14d10", "15d10", "16d10", "17d10", "18d10", "19d10", "20d10");
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getId))
-                .containsExactly("pool_target\u00001\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u00002\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u00003\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u00004\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u00005\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u00006\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u00007\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u00008\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u00009\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u000010\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u000011\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u000012\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u000013\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u000014\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u000015\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u000016\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u000017\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u000018\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u000019\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u000020\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000");
+                .containsExactly("pool_target1",
+                        "pool_target2",
+                        "pool_target3",
+                        "pool_target4",
+                        "pool_target5",
+                        "pool_target6",
+                        "pool_target7",
+                        "pool_target8",
+                        "pool_target9",
+                        "pool_target10",
+                        "pool_target11",
+                        "pool_target12",
+                        "pool_target13",
+                        "pool_target14",
+                        "pool_target15",
+                        "pool_target16",
+                        "pool_target17",
+                        "pool_target18",
+                        "pool_target19",
+                        "pool_target20");
     }
 
     @Test
@@ -287,16 +287,16 @@ class PoolTargetCommandTest {
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel))
                 .containsExactly("2", "3", "4", "5", "6", "7", "8", "9", "10", "Clear");
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getId))
-                .containsExactly("pool_target\u00002\u000010\u000020\u000010;9\u00001;2\u0000ask\u000010\u0000EMPTY\u0000",
-                        "pool_target\u00003\u000010\u000020\u000010;9\u00001;2\u0000ask\u000010\u0000EMPTY\u0000",
-                        "pool_target\u00004\u000010\u000020\u000010;9\u00001;2\u0000ask\u000010\u0000EMPTY\u0000",
-                        "pool_target\u00005\u000010\u000020\u000010;9\u00001;2\u0000ask\u000010\u0000EMPTY\u0000",
-                        "pool_target\u00006\u000010\u000020\u000010;9\u00001;2\u0000ask\u000010\u0000EMPTY\u0000",
-                        "pool_target\u00007\u000010\u000020\u000010;9\u00001;2\u0000ask\u000010\u0000EMPTY\u0000",
-                        "pool_target\u00008\u000010\u000020\u000010;9\u00001;2\u0000ask\u000010\u0000EMPTY\u0000",
-                        "pool_target\u00009\u000010\u000020\u000010;9\u00001;2\u0000ask\u000010\u0000EMPTY\u0000",
-                        "pool_target\u000010\u000010\u000020\u000010;9\u00001;2\u0000ask\u000010\u0000EMPTY\u0000",
-                        "pool_target\u0000clear\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000");
+                .containsExactly("pool_target2",
+                        "pool_target3",
+                        "pool_target4",
+                        "pool_target5",
+                        "pool_target6",
+                        "pool_target7",
+                        "pool_target8",
+                        "pool_target9",
+                        "pool_target10",
+                        "pool_targetclear");
     }
 
     @Test
@@ -308,26 +308,26 @@ class PoolTargetCommandTest {
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel))
                 .containsExactly("1d10", "2d10", "3d10", "4d10", "5d10", "6d10", "7d10", "8d10", "9d10", "10d10", "11d10", "12d10", "13d10", "14d10", "15d10", "16d10", "17d10", "18d10", "19d10", "20d10");
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getId))
-                .containsExactly("pool_target\u00001\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u00002\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u00003\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u00004\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u00005\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u00006\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u00007\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u00008\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u00009\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u000010\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u000011\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u000012\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u000013\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u000014\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u000015\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u000016\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u000017\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u000018\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u000019\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u000020\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000");
+                .containsExactly("pool_target1",
+                        "pool_target2",
+                        "pool_target3",
+                        "pool_target4",
+                        "pool_target5",
+                        "pool_target6",
+                        "pool_target7",
+                        "pool_target8",
+                        "pool_target9",
+                        "pool_target10",
+                        "pool_target11",
+                        "pool_target12",
+                        "pool_target13",
+                        "pool_target14",
+                        "pool_target15",
+                        "pool_target16",
+                        "pool_target17",
+                        "pool_target18",
+                        "pool_target19",
+                        "pool_target20");
     }
 
 
@@ -340,26 +340,26 @@ class PoolTargetCommandTest {
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel))
                 .containsExactly("1d10", "2d10", "3d10", "4d10", "5d10", "6d10", "7d10", "8d10", "9d10", "10d10", "11d10", "12d10", "13d10", "14d10", "15d10", "16d10", "17d10", "18d10", "19d10", "20d10");
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getId))
-                .containsExactly("pool_target\u00001\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u00002\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u00003\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u00004\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u00005\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u00006\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u00007\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u00008\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u00009\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u000010\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u000011\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u000012\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u000013\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u000014\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u000015\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u000016\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u000017\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u000018\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u000019\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u000020\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000");
+                .containsExactly("pool_target1",
+                        "pool_target2",
+                        "pool_target3",
+                        "pool_target4",
+                        "pool_target5",
+                        "pool_target6",
+                        "pool_target7",
+                        "pool_target8",
+                        "pool_target9",
+                        "pool_target10",
+                        "pool_target11",
+                        "pool_target12",
+                        "pool_target13",
+                        "pool_target14",
+                        "pool_target15",
+                        "pool_target16",
+                        "pool_target17",
+                        "pool_target18",
+                        "pool_target19",
+                        "pool_target20");
     }
 
     @Test
@@ -418,7 +418,7 @@ class PoolTargetCommandTest {
         verify(buttonEventAdaptor, never()).deleteMessage(anyLong());
         verify(buttonEventAdaptor, never()).createResultMessageWithEventReference(any(), eq(null));
         //todo check persistance
-        verify(buttonEventAdaptor, times(2)).getCustomId();
+        verify(buttonEventAdaptor, times(4)).getCustomId();
         verify(buttonEventAdaptor).getMessageId();
         verify(buttonEventAdaptor).getChannelId();
         verify(buttonEventAdaptor).isPinned();
@@ -451,7 +451,7 @@ class PoolTargetCommandTest {
         verify(buttonEventAdaptor, never()).deleteMessage(anyLong());
         verify(buttonEventAdaptor, never()).createResultMessageWithEventReference(any(), eq(null));
         //todo check persistance
-        verify(buttonEventAdaptor, times(3)).getCustomId();
+        verify(buttonEventAdaptor, times(4)).getCustomId();
         verify(buttonEventAdaptor).getMessageId();
         verify(buttonEventAdaptor).getChannelId();
         verify(buttonEventAdaptor).isPinned();
@@ -486,7 +486,7 @@ class PoolTargetCommandTest {
         verify(buttonEventAdaptor).createResultMessageWithEventReference(eq(new EmbedDefinition("15d10 = -4",
                 "[**1**,**1**,**1**,**2**,**2**,**2**,3,4,5,5,6,6,6,6,7,**10**,**10**] ≥8 = -4", ImmutableList.of())), eq(null));
         //todo check persistance
-        verify(buttonEventAdaptor, times(4)).getCustomId();
+        verify(buttonEventAdaptor, times(5)).getCustomId();
         verify(buttonEventAdaptor).getMessageId();
         verify(buttonEventAdaptor).getChannelId();
         verify(buttonEventAdaptor).isPinned();
@@ -521,7 +521,7 @@ class PoolTargetCommandTest {
         verify(buttonEventAdaptor).createResultMessageWithEventReference(eq(new EmbedDefinition("15d10 = -4",
                 "[**1**,**1**,**1**,**2**,**2**,**2**,3,4,5,5,6,6,6,6,7,**10**,**10**] ≥8 = -4", ImmutableList.of())), eq(null));
         //todo check persitance
-        verify(buttonEventAdaptor, times(4)).getCustomId();
+        verify(buttonEventAdaptor, times(5)).getCustomId();
         verify(buttonEventAdaptor).getMessageId();
         verify(buttonEventAdaptor).getChannelId();
         verify(buttonEventAdaptor).isPinned();
@@ -554,7 +554,7 @@ class PoolTargetCommandTest {
         verify(buttonEventAdaptor, never()).createResultMessageWithEventReference(any(), eq(null));
 
         //todo check persistance
-        verify(buttonEventAdaptor, times(2)).getCustomId();
+        verify(buttonEventAdaptor, times(4)).getCustomId();
         verify(buttonEventAdaptor).getMessageId();
         verify(buttonEventAdaptor).getChannelId();
         verify(buttonEventAdaptor).isPinned();
@@ -669,16 +669,54 @@ class PoolTargetCommandTest {
     @Test
     void checkPersistence() {
         MessageDataDAO messageDataDAO = new MessageDataDAOImpl("jdbc:h2:mem:" + this.getClass().getSimpleName(), null, null);
+        underTest = new PoolTargetCommand(messageDataDAO, mock(DiceUtils.class));
+
         long channelId = System.currentTimeMillis();
         long messageId = System.currentTimeMillis();
-        MessageDataDTO toSave = underTest.createMessageDataForNewMessage(UUID.randomUUID(), channelId, messageId,
-                new PoolTargetConfig(123L, 10, 12, ImmutableSet.of(7, 8, 9, 10), ImmutableSet.of(1), "ask"),
-                new State<>("3", new PoolTargetStateData(5, 7, true)));
-
+        UUID configUUID = UUID.randomUUID();
+        PoolTargetConfig config = new PoolTargetConfig(123L, 10, 12, ImmutableSet.of(7, 8, 9, 10), ImmutableSet.of(1), "ask");
+        State<PoolTargetStateData> state = new State<>("3", new PoolTargetStateData(5, null, null));
+        MessageDataDTO toSave = underTest.createMessageDataForNewMessage(configUUID, channelId, messageId, config, state);
         messageDataDAO.saveMessageData(toSave);
+        underTest.updateCurrentMessageStateData(channelId, messageId, config, state);
 
         MessageDataDTO loaded = messageDataDAO.getDataForMessage(channelId, messageId).orElseThrow();
 
-        assertThat(toSave).isEqualTo(loaded);
+
+        ConfigAndState<PoolTargetConfig, PoolTargetStateData> configAndState = underTest.deserializeAndUpdateState(loaded, "3");
+        assertThat(configAndState.getConfig()).isEqualTo(config);
+        assertThat(configAndState.getConfigUUID()).isEqualTo(configUUID);
+        assertThat(configAndState.getState().getData()).isEqualTo(new PoolTargetStateData(5, 3, null));
     }
+
+    @Test
+    void deserialization() {
+        UUID configUUID = UUID.randomUUID();
+        MessageDataDTO savedData = new MessageDataDTO(configUUID, 1660644934298L, 1660644934298L, "pool_target", "PoolTargetConfig", """
+                ---
+                answerTargetChannelId: 123
+                diceSides: 10
+                maxNumberOfButtons: 12
+                rerollSet:
+                - 7
+                - 8
+                - 9
+                - 10
+                botchSet:
+                - 1
+                rerollVariant: "ask"
+                """, "PoolTargetStateData", """
+                ---
+                dicePool: 5
+                targetNumber: null
+                doReroll: null
+                """);
+
+
+        ConfigAndState<PoolTargetConfig, PoolTargetStateData> configAndState = underTest.deserializeAndUpdateState(savedData, "3");
+        assertThat(configAndState.getConfig()).isEqualTo(new PoolTargetConfig(123L, 10, 12, ImmutableSet.of(7, 8, 9, 10), ImmutableSet.of(1), "ask"));
+        assertThat(configAndState.getConfigUUID()).isEqualTo(configUUID);
+        assertThat(configAndState.getState().getData()).isEqualTo(new PoolTargetStateData(5, 3, null));
+    }
+
 }

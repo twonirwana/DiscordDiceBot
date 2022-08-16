@@ -2,6 +2,7 @@ package de.janno.discord.bot.command.holdReroll;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import de.janno.discord.bot.command.ConfigAndState;
 import de.janno.discord.bot.command.State;
 import de.janno.discord.bot.dice.DiceUtils;
 import de.janno.discord.bot.persistance.MessageDataDAO;
@@ -62,11 +63,11 @@ class HoldRerollCommandTest {
     @Test
     void getDiceResult_withoutReroll() {
         EmbedDefinition res = underTest.getAnswer(new HoldRerollConfig(
-                        null,
-                        6,
-                        ImmutableSet.of(2, 3, 4),
-                        ImmutableSet.of(5, 6),
-                        ImmutableSet.of(1)),new State<>("finish", new HoldRerollStateData(ImmutableList.of(1, 2, 3, 4, 5, 6), 0))).orElseThrow();
+                null,
+                6,
+                ImmutableSet.of(2, 3, 4),
+                ImmutableSet.of(5, 6),
+                ImmutableSet.of(1)), new State<>("finish", new HoldRerollStateData(ImmutableList.of(1, 2, 3, 4, 5, 6), 0))).orElseThrow();
         assertThat(res.getFields()).hasSize(0);
         assertThat(res.getTitle()).isEqualTo("Success: 2 and Failure: 1");
         assertThat(res.getDescription()).isEqualTo("[**1**,2,3,4,**5**,**6**]");
@@ -75,11 +76,11 @@ class HoldRerollCommandTest {
     @Test
     void getDiceResult_withReroll() {
         EmbedDefinition res = underTest.getAnswer(new HoldRerollConfig(
-                        null,
-                        6,
-                        ImmutableSet.of(2, 3, 4),
-                        ImmutableSet.of(5, 6),
-                        ImmutableSet.of(1)),new State<>("finish", new HoldRerollStateData(ImmutableList.of(1, 2, 3, 4, 5, 6), 2))).orElseThrow();
+                null,
+                6,
+                ImmutableSet.of(2, 3, 4),
+                ImmutableSet.of(5, 6),
+                ImmutableSet.of(1)), new State<>("finish", new HoldRerollStateData(ImmutableList.of(1, 2, 3, 4, 5, 6), 2))).orElseThrow();
         assertThat(res.getFields()).hasSize(0);
         assertThat(res.getTitle()).isEqualTo("Success: 2, Failure: 1 and Rerolls: 2");
         assertThat(res.getDescription()).isEqualTo("[**1**,2,3,4,**5**,**6**]");
@@ -182,7 +183,7 @@ class HoldRerollCommandTest {
                         6,
                         ImmutableSet.of(2, 3, 4),
                         ImmutableSet.of(5, 6),
-                        ImmutableSet.of(1)),new State<>("clear", new HoldRerollStateData(ImmutableList.of(1, 2, 3, 4, 5, 6), 2)))
+                        ImmutableSet.of(1)), new State<>("clear", new HoldRerollStateData(ImmutableList.of(1, 2, 3, 4, 5, 6), 2)))
                 .orElseThrow().getContent();
 
         assertThat(res).isEqualTo("Click on the buttons to roll dice. Reroll set: [2, 3, 4], Success Set: [5, 6] and Failure Set: [1]");
@@ -195,7 +196,7 @@ class HoldRerollCommandTest {
                         6,
                         ImmutableSet.of(2, 3, 4),
                         ImmutableSet.of(5, 6),
-                        ImmutableSet.of(1)),new State<>("finish", new HoldRerollStateData(ImmutableList.of(1, 2, 3, 4, 5, 6), 2)))
+                        ImmutableSet.of(1)), new State<>("finish", new HoldRerollStateData(ImmutableList.of(1, 2, 3, 4, 5, 6), 2)))
                 .orElseThrow().getContent();
 
         assertThat(res).isEqualTo("Click on the buttons to roll dice. Reroll set: [2, 3, 4], Success Set: [5, 6] and Failure Set: [1]");
@@ -208,7 +209,7 @@ class HoldRerollCommandTest {
                         6,
                         ImmutableSet.of(2, 3, 4),
                         ImmutableSet.of(5, 6),
-                        ImmutableSet.of(1)),new State<>("reroll", new HoldRerollStateData(ImmutableList.of(1, 1, 1, 5, 5, 6), 2)))
+                        ImmutableSet.of(1)), new State<>("reroll", new HoldRerollStateData(ImmutableList.of(1, 1, 1, 5, 5, 6), 2)))
                 .orElseThrow().getContent();
 
         assertThat(res).isEqualTo("Click on the buttons to roll dice. Reroll set: [2, 3, 4], Success Set: [5, 6] and Failure Set: [1]");
@@ -291,7 +292,7 @@ class HoldRerollCommandTest {
                         6,
                         ImmutableSet.of(2, 3, 4),
                         ImmutableSet.of(5, 6),
-                        ImmutableSet.of(1)),new State<>("finish", new HoldRerollStateData(ImmutableList.of(1, 2, 3, 4, 5, 6), 2)))
+                        ImmutableSet.of(1)), new State<>("finish", new HoldRerollStateData(ImmutableList.of(1, 2, 3, 4, 5, 6), 2)))
                 .orElseThrow().getComponentRowDefinitions();
 
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel))
@@ -321,7 +322,7 @@ class HoldRerollCommandTest {
                         6,
                         ImmutableSet.of(2, 3, 4),
                         ImmutableSet.of(5, 6),
-                        ImmutableSet.of(1)),new State<>("clear", new HoldRerollStateData(ImmutableList.of(1, 2, 3, 4, 5, 6), 2)))
+                        ImmutableSet.of(1)), new State<>("clear", new HoldRerollStateData(ImmutableList.of(1, 2, 3, 4, 5, 6), 2)))
                 .orElseThrow().getComponentRowDefinitions();
 
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel))
@@ -368,7 +369,7 @@ class HoldRerollCommandTest {
                         6,
                         ImmutableSet.of(2, 3, 4),
                         ImmutableSet.of(5, 6),
-                        ImmutableSet.of(1)),new State<>("3", new HoldRerollStateData(ImmutableList.of(1, 1, 1, 5, 5, 6), 2)))
+                        ImmutableSet.of(1)), new State<>("3", new HoldRerollStateData(ImmutableList.of(1, 1, 1, 5, 5, 6), 2)))
                 .orElseThrow().getComponentRowDefinitions();
 
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel))
@@ -431,19 +432,41 @@ class HoldRerollCommandTest {
                 ImmutableSet.of(1)), new State<>("3", new HoldRerollStateData(ImmutableList.of(1, 1, 1, 5, 5, 6), 2)))).isEmpty();
     }
 
+
     @Test
     void checkPersistence() {
         MessageDataDAO messageDataDAO = new MessageDataDAOImpl("jdbc:h2:mem:" + this.getClass().getSimpleName(), null, null);
         long channelId = System.currentTimeMillis();
         long messageId = System.currentTimeMillis();
-        MessageDataDTO toSave = underTest.createMessageDataForNewMessage(UUID.randomUUID(), channelId, messageId,
-                new HoldRerollConfig(123L, 10, ImmutableSet.of(9, 10), ImmutableSet.of(7, 8, 9, 10), ImmutableSet.of(1)),
-                new State<>("3", new HoldRerollStateData(ImmutableList.of(1, 2, 3), 2)));
-
+        UUID configUUID = UUID.randomUUID();
+        HoldRerollConfig config = new HoldRerollConfig(123L, 10, ImmutableSet.of(9, 10), ImmutableSet.of(7, 8, 9, 10), ImmutableSet.of(1));
+        State<HoldRerollStateData> state = new State<>("5", new HoldRerollStateData(ImmutableList.of(1, 2, 3), 2));
+        MessageDataDTO toSave = underTest.createMessageDataForNewMessage(configUUID, channelId, messageId, config, state);
         messageDataDAO.saveMessageData(toSave);
 
         MessageDataDTO loaded = messageDataDAO.getDataForMessage(channelId, messageId).orElseThrow();
 
         assertThat(toSave).isEqualTo(loaded);
+        ConfigAndState<HoldRerollConfig, HoldRerollStateData> configAndState = underTest.deserializeAndUpdateState(loaded, "3");
+        assertThat(configAndState.getConfig()).isEqualTo(config);
+        assertThat(configAndState.getConfigUUID()).isEqualTo(configUUID);
+        assertThat(configAndState.getState().getData()).isEqualTo(state.getData());
     }
+
+    @Test
+    void deserialization() {
+        UUID configUUID = UUID.randomUUID();
+        MessageDataDTO savedData = new MessageDataDTO(configUUID, 1660644934298L, 1660644934298L, "fate", "HoldRerollConfig", """
+                ---
+                answerTargetChannelId: 123
+                type: "with_modifier"
+                """, "None", null);
+
+
+        ConfigAndState<HoldRerollConfig, HoldRerollStateData> configAndState = underTest.deserializeAndUpdateState(savedData, "3");
+        assertThat(configAndState.getConfig()).isEqualTo(new HoldRerollConfig(123L, 10, ImmutableSet.of(9, 10), ImmutableSet.of(7, 8, 9, 10), ImmutableSet.of(1)));
+        assertThat(configAndState.getConfigUUID()).isEqualTo(configUUID);
+        assertThat(configAndState.getState().getData()).isEqualTo(new HoldRerollStateData(ImmutableList.of(1, 2, 3), 2));
+    }
+
 }

@@ -87,7 +87,18 @@ public class SumDiceSetCommand extends AbstractCommand<Config, SumDiceSetStateDa
                 .orElse(new SumDiceSetStateData(ImmutableMap.of()));
         return Optional.of(new ConfigAndState<>(messageDataDTO.get().getConfigUUID(),
                 Mapper.deserializeObject(messageDataDTO.get().getConfig(), Config.class),
-                createStateFromValueAndMessageData(buttonValue, stateData)));
+                updateState(buttonValue, stateData)));
+    }
+
+    @VisibleForTesting
+    ConfigAndState<Config, SumDiceSetStateData> deserializeAndUpdateState(@NonNull MessageDataDTO messageDataDTO, @NonNull String buttonValue) {
+
+        final SumDiceSetStateData loadedStateData = Optional.ofNullable(messageDataDTO.getStateData())
+                .map(sd -> Mapper.deserializeObject(sd, SumDiceSetStateData.class))
+                .orElse(null);
+        final Config loadedConfig = Mapper.deserializeObject(messageDataDTO.getConfig(), Config.class);
+        final State<SumDiceSetStateData> updatedState = updateState(buttonValue, loadedStateData);
+        return new ConfigAndState<>(messageDataDTO.getConfigUUID(), loadedConfig, updatedState);
     }
 
     @Override
@@ -109,7 +120,8 @@ public class SumDiceSetCommand extends AbstractCommand<Config, SumDiceSetStateDa
         }
     }
 
-    private State<SumDiceSetStateData> createStateFromValueAndMessageData(@NonNull String buttonValue, @Nullable SumDiceSetStateData stateData) {
+    @VisibleForTesting
+    State<SumDiceSetStateData> updateState(@NonNull String buttonValue, @Nullable SumDiceSetStateData stateData) {
         if (stateData == null) {
             return new State<>(buttonValue, new SumDiceSetStateData(ImmutableMap.of()));
         }
@@ -208,7 +220,8 @@ public class SumDiceSetCommand extends AbstractCommand<Config, SumDiceSetStateDa
                 .build());
     }
 
-    private Map<String, Integer> updateDiceSet(Map<String, Integer> currentDiceSet, String buttonValue) {
+    @VisibleForTesting
+    Map<String, Integer> updateDiceSet(Map<String, Integer> currentDiceSet, String buttonValue) {
         switch (buttonValue) {
             case ROLL_BUTTON_ID:
                 return currentDiceSet;

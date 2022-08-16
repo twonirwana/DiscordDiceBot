@@ -9,7 +9,10 @@ import de.janno.discord.bot.command.AbstractCommand;
 import de.janno.discord.bot.command.ConfigAndState;
 import de.janno.discord.bot.command.LabelAndDiceExpression;
 import de.janno.discord.bot.command.State;
+import de.janno.discord.bot.command.poolTarget.PoolTargetConfig;
+import de.janno.discord.bot.command.poolTarget.PoolTargetStateData;
 import de.janno.discord.bot.dice.DiceParserHelper;
+import de.janno.discord.bot.persistance.Mapper;
 import de.janno.discord.bot.persistance.MessageDataDAO;
 import de.janno.discord.bot.persistance.MessageDataDTO;
 import de.janno.discord.connector.api.BotConstants;
@@ -59,6 +62,17 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
     protected Optional<ConfigAndState<SumCustomSetConfig, SumCustomSetStateData>> getMessageDataAndUpdateWithButtonValue(long channelId, long messageId, String buttonValue) {
         //todo
         return Optional.empty();
+    }
+
+    @VisibleForTesting
+    ConfigAndState<SumCustomSetConfig, SumCustomSetStateData> deserializeAndUpdateState(@NonNull MessageDataDTO messageDataDTO, @NonNull String buttonValue) {
+
+        final SumCustomSetStateData loadedStateData = Optional.ofNullable(messageDataDTO.getStateData())
+                .map(sd -> Mapper.deserializeObject(sd, SumCustomSetStateData.class))
+                .orElse(null);
+        final SumCustomSetConfig loadedConfig = Mapper.deserializeObject(messageDataDTO.getConfig(), SumCustomSetConfig.class);
+            //update
+           return new ConfigAndState<>(messageDataDTO.getConfigUUID(), loadedConfig, new State<>(buttonValue, loadedStateData));
     }
 
     @Override

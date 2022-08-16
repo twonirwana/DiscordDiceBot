@@ -1,6 +1,7 @@
 package de.janno.discord.bot.command.customDice;
 
 import com.google.common.collect.ImmutableList;
+import de.janno.discord.bot.command.ConfigAndState;
 import de.janno.discord.bot.command.EmptyData;
 import de.janno.discord.bot.command.LabelAndDiceExpression;
 import de.janno.discord.bot.command.State;
@@ -85,7 +86,7 @@ class CustomDiceCommandTest {
 
     @Test
     void createNewButtonMessageWithState() {
-        String res = underTest.createNewButtonMessageWithState(new CustomDiceConfig(null, ImmutableList.of()),new State<>("1d6", new EmptyData())).orElseThrow().getContent();
+        String res = underTest.createNewButtonMessageWithState(new CustomDiceConfig(null, ImmutableList.of()), new State<>("1d6", new EmptyData())).orElseThrow().getContent();
 
         assertThat(res).isEqualTo("Click on a button to roll the dice");
     }
@@ -204,7 +205,7 @@ class CustomDiceCommandTest {
     @Test
     void getDiceResult_1d6() {
         when(diceMock.detailedRoll("1d6")).thenReturn(new ResultTree(new NDice(6, 1), 3, ImmutableList.of()));
-        EmbedDefinition res = underTest.getAnswer(new CustomDiceConfig(null, ImmutableList.of(new LabelAndDiceExpression("1d6", "1d6"))),new State<>("1d6", new EmptyData())).orElseThrow();
+        EmbedDefinition res = underTest.getAnswer(new CustomDiceConfig(null, ImmutableList.of(new LabelAndDiceExpression("1d6", "1d6"))), new State<>("1d6", new EmptyData())).orElseThrow();
 
         assertThat(res.getFields()).hasSize(0);
         assertThat(res.getTitle()).isEqualTo("1d6 = 3");
@@ -214,7 +215,7 @@ class CustomDiceCommandTest {
     @Test
     void getDiceResult_3x1d6() {
         when(diceMock.detailedRoll("1d6")).thenReturn(new ResultTree(new NDice(6, 1), 6, ImmutableList.of()));
-        EmbedDefinition res = underTest.getAnswer(new CustomDiceConfig(null, ImmutableList.of(new LabelAndDiceExpression("3x[1d6]", "3x[1d6]"))),new State<>("3x[1d6]", new EmptyData())).orElseThrow();
+        EmbedDefinition res = underTest.getAnswer(new CustomDiceConfig(null, ImmutableList.of(new LabelAndDiceExpression("3x[1d6]", "3x[1d6]"))), new State<>("3x[1d6]", new EmptyData())).orElseThrow();
 
         assertThat(res).isEqualTo(new EmbedDefinition("Multiple Results", null, ImmutableList.of(new EmbedDefinition.Field("1d6 = 6", "[6]", false), new EmbedDefinition.Field("1d6 = 6", "[6]", false), new EmbedDefinition.Field("1d6 = 6", "[6]", false))));
     }
@@ -223,7 +224,7 @@ class CustomDiceCommandTest {
     @Test
     void getDiceResult_1d6Label() {
         when(diceMock.detailedRoll("1d6")).thenReturn(new ResultTree(new NDice(6, 1), 3, ImmutableList.of()));
-        EmbedDefinition res = underTest.getAnswer(new CustomDiceConfig(null, ImmutableList.of(new LabelAndDiceExpression("Label", "1d6"))),new State<>("1d6", new EmptyData())).orElseThrow();
+        EmbedDefinition res = underTest.getAnswer(new CustomDiceConfig(null, ImmutableList.of(new LabelAndDiceExpression("Label", "1d6"))), new State<>("1d6", new EmptyData())).orElseThrow();
 
         assertThat(res.getFields()).hasSize(0);
         assertThat(res.getTitle()).isEqualTo("Label: 1d6 = 3");
@@ -233,7 +234,7 @@ class CustomDiceCommandTest {
     @Test
     void getDiceResult_3x1d6Label() {
         when(diceMock.detailedRoll("1d6")).thenReturn(new ResultTree(new NDice(6, 1), 6, ImmutableList.of()));
-        EmbedDefinition res = underTest.getAnswer(new CustomDiceConfig(null, ImmutableList.of(new LabelAndDiceExpression("Label", "3x[1d6]"))),new State<>("3x[1d6]", new EmptyData())).orElseThrow();
+        EmbedDefinition res = underTest.getAnswer(new CustomDiceConfig(null, ImmutableList.of(new LabelAndDiceExpression("Label", "3x[1d6]"))), new State<>("3x[1d6]", new EmptyData())).orElseThrow();
 
         assertThat(res).isEqualTo(new EmbedDefinition("Label", null, ImmutableList.of(new EmbedDefinition.Field("1d6 = 6", "[6]", false), new EmbedDefinition.Field("1d6 = 6", "[6]", false), new EmbedDefinition.Field("1d6 = 6", "[6]", false))));
     }
@@ -297,7 +298,7 @@ class CustomDiceCommandTest {
         verify(buttonEventAdaptor).createResultMessageWithEventReference(eq(new EmbedDefinition("1d6 = 3", "[3]", ImmutableList.of())), eq(null));
 
         //todo check persistance
-        verify(buttonEventAdaptor, times(3)).getCustomId();
+        verify(buttonEventAdaptor, times(4)).getCustomId();
         verify(buttonEventAdaptor).getMessageId();
         verify(buttonEventAdaptor).getChannelId();
         verify(buttonEventAdaptor).isPinned();
@@ -344,7 +345,7 @@ class CustomDiceCommandTest {
 
     @Test
     void getButtonLayoutWithState() {
-        List<ComponentRowDefinition> res = underTest.createNewButtonMessageWithState(new CustomDiceConfig(null, ImmutableList.of(new LabelAndDiceExpression("2d6", "2d6"), new LabelAndDiceExpression("Attack", "1d20"))),new State<>("2d6", new EmptyData()))
+        List<ComponentRowDefinition> res = underTest.createNewButtonMessageWithState(new CustomDiceConfig(null, ImmutableList.of(new LabelAndDiceExpression("2d6", "2d6"), new LabelAndDiceExpression("Attack", "1d20"))), new State<>("2d6", new EmptyData()))
                 .orElseThrow().getComponentRowDefinitions();
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel)).containsExactly("2d6", "Attack");
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getId)).containsExactly("custom_dice2d6", "custom_dice1d20");
@@ -361,7 +362,7 @@ class CustomDiceCommandTest {
 
     @Test
     void editButtonMessage() {
-        assertThat(underTest.getCurrentMessageContentChange(new CustomDiceConfig(null, ImmutableList.of(new LabelAndDiceExpression("2d6", "2d6"), new LabelAndDiceExpression("Attack", "1d20"))),new State<>("2d6", new EmptyData()))).isEmpty();
+        assertThat(underTest.getCurrentMessageContentChange(new CustomDiceConfig(null, ImmutableList.of(new LabelAndDiceExpression("2d6", "2d6"), new LabelAndDiceExpression("Attack", "1d20"))), new State<>("2d6", new EmptyData()))).isEmpty();
     }
 
     @Test
@@ -417,21 +418,48 @@ class CustomDiceCommandTest {
 
     }
 
+
     @Test
     void checkPersistence() {
         MessageDataDAO messageDataDAO = new MessageDataDAOImpl("jdbc:h2:mem:" + this.getClass().getSimpleName(), null, null);
         long channelId = System.currentTimeMillis();
         long messageId = System.currentTimeMillis();
-        MessageDataDTO toSave = underTest.createMessageDataForNewMessage(UUID.randomUUID(), channelId, messageId,
-                new CustomDiceConfig(123L, ImmutableList.of(
-                        new LabelAndDiceExpression("Label", "+1d6"),
-                        new LabelAndDiceExpression("+2d4", "+2d4"))),
-                new State<>("5", new EmptyData()));
-
+        UUID configUUID = UUID.randomUUID();
+        CustomDiceConfig config = new CustomDiceConfig(123L, ImmutableList.of(
+                new LabelAndDiceExpression("Label", "+1d6"),
+                new LabelAndDiceExpression("+2d4", "+2d4")));
+        State<EmptyData> state = new State<>("5", new EmptyData());
+        MessageDataDTO toSave = underTest.createMessageDataForNewMessage(configUUID, channelId, messageId, config, state);
         messageDataDAO.saveMessageData(toSave);
 
         MessageDataDTO loaded = messageDataDAO.getDataForMessage(channelId, messageId).orElseThrow();
 
         assertThat(toSave).isEqualTo(loaded);
+        ConfigAndState<CustomDiceConfig, EmptyData> configAndState = underTest.deserializeAndUpdateState(loaded, "3");
+        assertThat(configAndState.getConfig()).isEqualTo(config);
+        assertThat(configAndState.getConfigUUID()).isEqualTo(configUUID);
+        assertThat(configAndState.getState().getData()).isEqualTo(state.getData());
+    }
+
+    @Test
+    void deserialization() {
+        UUID configUUID = UUID.randomUUID();
+        MessageDataDTO savedData = new MessageDataDTO(configUUID, 1660644934298L, 1660644934298L, "custom_dice", "CustomDiceConfig", """
+                ---
+                answerTargetChannelId: 123
+                labelAndExpression:
+                - label: "Label"
+                  diceExpression: "+1d6"
+                - label: "+2d4"
+                  diceExpression: "+2d4"
+                """, "None", null);
+
+
+        ConfigAndState<CustomDiceConfig, EmptyData> configAndState = underTest.deserializeAndUpdateState(savedData, "3");
+        assertThat(configAndState.getConfig()).isEqualTo(new CustomDiceConfig(123L, ImmutableList.of(
+                new LabelAndDiceExpression("Label", "+1d6"),
+                new LabelAndDiceExpression("+2d4", "+2d4"))));
+        assertThat(configAndState.getConfigUUID()).isEqualTo(configUUID);
+        assertThat(configAndState.getState().getData()).isEqualTo(new EmptyData());
     }
 }

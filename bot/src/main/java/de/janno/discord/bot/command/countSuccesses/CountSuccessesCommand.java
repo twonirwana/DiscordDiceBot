@@ -67,9 +67,14 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesConfig,
         if (messageDataDTO.isEmpty()) {
             return Optional.empty();
         }
-        return Optional.of(new ConfigAndState<>(messageDataDTO.get().getConfigUUID(),
-                Mapper.deserializeObject(messageDataDTO.get().getConfig(), CountSuccessesConfig.class),
-                new State<>(buttonValue, new EmptyData())));
+        return Optional.of(deserializeAndUpdateState(messageDataDTO.get(), buttonValue));
+    }
+
+    @VisibleForTesting
+    ConfigAndState<CountSuccessesConfig, EmptyData> deserializeAndUpdateState(@NonNull MessageDataDTO messageDataDTO, @NonNull String buttonValue) {
+        return new ConfigAndState<>(messageDataDTO.getConfigUUID(),
+                Mapper.deserializeObject(messageDataDTO.getConfig(), CountSuccessesConfig.class),
+                new State<>(buttonValue, new EmptyData()));
     }
 
     @Override

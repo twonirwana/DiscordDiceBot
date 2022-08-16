@@ -1,5 +1,6 @@
 package de.janno.discord.bot.command.fate;
 
+import de.janno.discord.bot.command.ConfigAndState;
 import de.janno.discord.bot.command.EmptyData;
 import de.janno.discord.bot.command.State;
 import de.janno.discord.bot.dice.DiceUtils;
@@ -118,7 +119,7 @@ class FateCommandTest {
     void getStartOptions() {
         List<CommandDefinitionOption> res = underTest.getStartOptions();
 
-        assertThat(res.stream().map(CommandDefinitionOption::getName)).containsExactly("type", "target_channel");
+        assertThat(res.stream().map(CommandDefinitionOption::getName)).containsExactly("type");
     }
 
     @Test
@@ -155,7 +156,7 @@ class FateCommandTest {
     void createButtonCustomId() {
         String res = underTest.createButtonCustomId("3");
 
-        assertThat(res).isEqualTo("fate\u00003\u0000with_modifier\u0000");
+        assertThat(res).isEqualTo("fate\u001E3");
     }
 
     @Test
@@ -165,7 +166,7 @@ class FateCommandTest {
 
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel)).containsExactly("Roll 4dF");
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getId))
-                .containsExactly("fate\u0000roll\u0000simple\u0000");
+                .containsExactly("fate\u001Eroll");
     }
 
     @Test
@@ -175,7 +176,7 @@ class FateCommandTest {
 
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel)).containsExactly("Roll 4dF");
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getId))
-                .containsExactly("fate\u0000roll\u0000simple\u0000");
+                .containsExactly("fate\u001Eroll");
     }
 
     @Test
@@ -185,21 +186,21 @@ class FateCommandTest {
 
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel)).containsExactly("-4", "-3", "-2", "-1", "0", "+1", "+2", "+3", "+4", "+5", "+6", "+7", "+8", "+9", "+10");
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getId))
-                .containsExactly("fate\u0000-4\u0000with_modifier\u0000",
-                        "fate\u0000-3\u0000with_modifier\u0000",
-                        "fate\u0000-2\u0000with_modifier\u0000",
-                        "fate\u0000-1\u0000with_modifier\u0000",
-                        "fate\u00000\u0000with_modifier\u0000",
-                        "fate\u00001\u0000with_modifier\u0000",
-                        "fate\u00002\u0000with_modifier\u0000",
-                        "fate\u00003\u0000with_modifier\u0000",
-                        "fate\u00004\u0000with_modifier\u0000",
-                        "fate\u00005\u0000with_modifier\u0000",
-                        "fate\u00006\u0000with_modifier\u0000",
-                        "fate\u00007\u0000with_modifier\u0000",
-                        "fate\u00008\u0000with_modifier\u0000",
-                        "fate\u00009\u0000with_modifier\u0000",
-                        "fate\u000010\u0000with_modifier\u0000");
+                .containsExactly("fate-4",
+                        "fate-3",
+                        "fate-2",
+                        "fate-1",
+                        "fate0",
+                        "fate1",
+                        "fate2",
+                        "fate3",
+                        "fate4",
+                        "fate5",
+                        "fate6",
+                        "fate7",
+                        "fate8",
+                        "fate9",
+                        "fate10");
     }
 
     @Test
@@ -208,21 +209,21 @@ class FateCommandTest {
 
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel)).containsExactly("-4", "-3", "-2", "-1", "0", "+1", "+2", "+3", "+4", "+5", "+6", "+7", "+8", "+9", "+10");
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getId))
-                .containsExactly("fate\u0000-4\u0000with_modifier\u0000",
-                        "fate\u0000-3\u0000with_modifier\u0000",
-                        "fate\u0000-2\u0000with_modifier\u0000",
-                        "fate\u0000-1\u0000with_modifier\u0000",
-                        "fate\u00000\u0000with_modifier\u0000",
-                        "fate\u00001\u0000with_modifier\u0000",
-                        "fate\u00002\u0000with_modifier\u0000",
-                        "fate\u00003\u0000with_modifier\u0000",
-                        "fate\u00004\u0000with_modifier\u0000",
-                        "fate\u00005\u0000with_modifier\u0000",
-                        "fate\u00006\u0000with_modifier\u0000",
-                        "fate\u00007\u0000with_modifier\u0000",
-                        "fate\u00008\u0000with_modifier\u0000",
-                        "fate\u00009\u0000with_modifier\u0000",
-                        "fate\u000010\u0000with_modifier\u0000");
+                .containsExactly("fate-4",
+                        "fate-3",
+                        "fate-2",
+                        "fate-1",
+                        "fate0",
+                        "fate1",
+                        "fate2",
+                        "fate3",
+                        "fate4",
+                        "fate5",
+                        "fate6",
+                        "fate7",
+                        "fate8",
+                        "fate9",
+                        "fate10");
     }
 
     @Test
@@ -256,14 +257,35 @@ class FateCommandTest {
         MessageDataDAO messageDataDAO = new MessageDataDAOImpl("jdbc:h2:mem:" + this.getClass().getSimpleName(), null, null);
         long channelId = System.currentTimeMillis();
         long messageId = System.currentTimeMillis();
-        MessageDataDTO toSave = underTest.createMessageDataForNewMessage(UUID.randomUUID(), channelId, messageId,
-                new FateConfig(123L, "with_modifier"),
-                new State<>("+5", new EmptyData()));
-
+        UUID configUUID = UUID.randomUUID();
+        FateConfig config =   new FateConfig(123L, "with_modifier");
+        State<EmptyData> state = new State<>("5", new EmptyData());
+        MessageDataDTO toSave = underTest.createMessageDataForNewMessage(configUUID, channelId, messageId, config, state);
         messageDataDAO.saveMessageData(toSave);
 
         MessageDataDTO loaded = messageDataDAO.getDataForMessage(channelId, messageId).orElseThrow();
 
         assertThat(toSave).isEqualTo(loaded);
+        ConfigAndState<FateConfig, EmptyData> configAndState = underTest.deserializeAndUpdateState(loaded, "3");
+        assertThat(configAndState.getConfig()).isEqualTo(config);
+        assertThat(configAndState.getConfigUUID()).isEqualTo(configUUID);
+        assertThat(configAndState.getState().getData()).isEqualTo(state.getData());
     }
+
+    @Test
+    void deserialization() {
+        UUID configUUID = UUID.randomUUID();
+        MessageDataDTO savedData = new MessageDataDTO(configUUID, 1660644934298L, 1660644934298L, "fate", "FateConfig", """
+                ---
+                answerTargetChannelId: 123
+                type: "with_modifier"
+                """, "None", null);
+
+
+        ConfigAndState<FateConfig, EmptyData> configAndState = underTest.deserializeAndUpdateState(savedData, "3");
+        assertThat(configAndState.getConfig()).isEqualTo(new FateConfig(123L, "with_modifier"));
+        assertThat(configAndState.getConfigUUID()).isEqualTo(configUUID);
+        assertThat(configAndState.getState().getData()).isEqualTo(new EmptyData());
+    }
+
 }

@@ -9,6 +9,7 @@ import de.janno.discord.bot.command.AbstractCommand;
 import de.janno.discord.bot.command.ConfigAndState;
 import de.janno.discord.bot.command.State;
 import de.janno.discord.bot.dice.DiceParserHelper;
+import de.janno.discord.bot.persistance.Mapper;
 import de.janno.discord.bot.persistance.MessageDataDAO;
 import de.janno.discord.bot.persistance.MessageDataDTO;
 import de.janno.discord.connector.api.BotConstants;
@@ -233,12 +234,24 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
         //todo
         return Optional.empty();
     }
-
+    @VisibleForTesting
+    ConfigAndState<CustomParameterConfig, CustomParameterStateData> deserializeAndUpdateState(@NonNull MessageDataDTO messageDataDTO, @NonNull String buttonValue) {
+        final CustomParameterStateData loadedStateData = Optional.ofNullable(messageDataDTO.getStateData())
+                .map(sd -> Mapper.deserializeObject(sd, CustomParameterStateData.class))
+                .orElse(null);
+        final CustomParameterConfig loadedConfig = Mapper.deserializeObject(messageDataDTO.getConfig(), CustomParameterConfig.class);
+        //Todo update state
+        return new ConfigAndState<>(messageDataDTO.getConfigUUID(),
+                loadedConfig,
+                new State<>(buttonValue, loadedStateData));
+    }
     @Override
     protected MessageDataDTO createMessageDataForNewMessage(@NonNull UUID configUUID, long channelId, long messageId, @NonNull CustomParameterConfig config, @Nullable State<CustomParameterStateData> state) {
         //todo
         return null;
     }
+
+
 
     @Override
     public Optional<String> getCurrentMessageContentChange(CustomParameterConfig config, State<CustomParameterStateData> state) {
