@@ -124,13 +124,12 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollConfig, HoldRer
                         .required(false)
                         .description("Failure dice numbers, seperated by ','")
                         .type(CommandDefinitionOption.Type.STRING)
-                        .build(),
-                ANSWER_TARGET_CHANNEL_COMMAND_OPTION
+                        .build()
         );
     }
 
     @Override
-    protected Optional<EmbedDefinition> getAnswer(State<HoldRerollStateData> state, HoldRerollConfig config) {
+    protected Optional<EmbedDefinition> getAnswer(HoldRerollConfig config, State<HoldRerollStateData> state) {
         if (CLEAR_BUTTON_ID.equals(state.getButtonValue())) {
             return Optional.empty();
         }
@@ -226,7 +225,7 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollConfig, HoldRer
     }
 
     @Override
-    protected Optional<MessageDefinition> createNewButtonMessageWithState(State<HoldRerollStateData> state, HoldRerollConfig config) {
+    protected Optional<MessageDefinition> createNewButtonMessageWithState(HoldRerollConfig config, State<HoldRerollStateData> state) {
         if (config.getRerollSet().isEmpty()
                 || CLEAR_BUTTON_ID.equals(state.getButtonValue())
                 || FINISH_BUTTON_ID.equals(state.getButtonValue())
@@ -242,7 +241,7 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollConfig, HoldRer
     }
 
     @Override
-    protected Optional<List<ComponentRowDefinition>> getCurrentMessageComponentChange(State<HoldRerollStateData> state, HoldRerollConfig config) {
+    protected Optional<List<ComponentRowDefinition>> getCurrentMessageComponentChange(HoldRerollConfig config, State<HoldRerollStateData> state) {
         if (config.getRerollSet().isEmpty()
                 || CLEAR_BUTTON_ID.equals(state.getButtonValue())
                 || FINISH_BUTTON_ID.equals(state.getButtonValue())
@@ -266,7 +265,7 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollConfig, HoldRer
     }
 
     @Override
-    public Optional<String> getCurrentMessageContentChange(State<HoldRerollStateData> state, HoldRerollConfig config) {
+    public Optional<String> getCurrentMessageContentChange(HoldRerollConfig config, State<HoldRerollStateData> state) {
         if (config.getRerollSet().isEmpty()
                 || CLEAR_BUTTON_ID.equals(state.getButtonValue())
                 || FINISH_BUTTON_ID.equals(state.getButtonValue())

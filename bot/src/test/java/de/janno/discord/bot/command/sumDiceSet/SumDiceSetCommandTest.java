@@ -105,56 +105,56 @@ class SumDiceSetCommandTest {
 
     @Test
     void getButtonMessageWithState_clear() {
-        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(new State<>("clear", new SumDiceSetStateData(ImmutableMap.of(
+        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(new Config(null),new State<>("clear", new SumDiceSetStateData(ImmutableMap.of(
                 "d4", 1,
                 "d6", 1,
                 "d8", 1,
                 "d10", 1,
                 "d12", 1,
-                "d20", 1))), new Config(null));
+                "d20", 1))));
         assertThat(res).isEmpty();
     }
 
     @Test
     void getButtonMessageWithState_roll() {
-        String res = underTest.createNewButtonMessageWithState(new State<>("roll", new SumDiceSetStateData(ImmutableMap.of(
+        String res = underTest.createNewButtonMessageWithState(new Config(null),new State<>("roll", new SumDiceSetStateData(ImmutableMap.of(
                         "d4", 1,
                         "d6", 1,
                         "d8", 1,
                         "d10", 1,
                         "d12", 1,
-                        "d20", 1))), new Config(null))
+                        "d20", 1))))
                 .orElseThrow().getContent();
         assertThat(res).isEqualTo("Click on the buttons to add dice to the set");
     }
 
     @Test
     void getCurrentMessageContentChange_x2() {
-        Optional<String> res = underTest.getCurrentMessageContentChange(new State<>("x2", new SumDiceSetStateData(ImmutableMap.of(
+        Optional<String> res = underTest.getCurrentMessageContentChange(new Config(null), new State<>("x2", new SumDiceSetStateData(ImmutableMap.of(
                 "d4", 1,
                 "d6", 2,
                 "d8", 3,
                 "d10", 4,
                 "d12", 5,
-                "m", 10))), new Config(null));
+                "m", 10))));
         assertThat(res).contains("2d4 +4d6 +6d8 +8d10 +10d12 +20");
     }
 
     @Test
     void getCurrentMessageContentChange_NegativeModifier_x2() {
-        Optional<String> res = underTest.getCurrentMessageContentChange(new State<>("x2", new SumDiceSetStateData(ImmutableMap.of(
+        Optional<String> res = underTest.getCurrentMessageContentChange(new Config(null), new State<>("x2", new SumDiceSetStateData(ImmutableMap.of(
                 "d4", -1,
                 "d6", -2,
                 "d8", -3,
                 "d10", -4,
                 "d12", 5,
-                "m", -10))), new Config(null));
+                "m", -10))));
         assertThat(res).contains("-2d4 -4d6 -6d8 -8d10 +10d12 -20");
     }
 
     @Test
     void getCurrentMessageContentChange_limit() {
-        Optional<String> res = underTest.getCurrentMessageContentChange(new State<>("x2", new SumDiceSetStateData(ImmutableMap.of("d4", 51))), new Config(null));
+        Optional<String> res = underTest.getCurrentMessageContentChange(new Config(null), new State<>("x2", new SumDiceSetStateData(ImmutableMap.of("d4", 51))));
         assertThat(res).contains("100d4");
     }
 
@@ -166,7 +166,7 @@ class SumDiceSetCommandTest {
 
     @Test
     void createNewButtonMessageWithState() {
-        String res = underTest.createNewButtonMessageWithState(new State<>("roll", new SumDiceSetStateData(ImmutableMap.of("d4", 51))), new Config(null))
+        String res = underTest.createNewButtonMessageWithState(new Config(null),new State<>("roll", new SumDiceSetStateData(ImmutableMap.of("d4", 51))))
                 .orElseThrow().getContent();
         assertThat(res).isEqualTo("Click on the buttons to add dice to the set");
     }
@@ -174,7 +174,7 @@ class SumDiceSetCommandTest {
     @ParameterizedTest(name = "{index} config={0}, buttonId={1} -> {2}")
     @MethodSource("generateGetEditButtonMessageData")
     void getCurrentMessageContentChange(State<SumDiceSetStateData> state, String expected) {
-        Optional<String> res = underTest.getCurrentMessageContentChange(state, new Config(null));
+        Optional<String> res = underTest.getCurrentMessageContentChange(new Config(null), state);
         assertThat(res).contains(expected);
     }
 
@@ -236,53 +236,53 @@ class SumDiceSetCommandTest {
 
     @Test
     void getAnswer_roll_true() {
-        Optional<EmbedDefinition> res = underTest.getAnswer(new State<>("roll", new SumDiceSetStateData(ImmutableMap.of(
+        Optional<EmbedDefinition> res = underTest.getAnswer(new Config(null),new State<>("roll", new SumDiceSetStateData(ImmutableMap.of(
                 "d6", 1
-        ))), new Config(null));
+        ))));
         assertThat(res).isNotEmpty();
     }
 
     @Test
     void getAnswer_rollNoConfig_false() {
-        Optional<EmbedDefinition> res = underTest.getAnswer(new State<>("roll", new SumDiceSetStateData(ImmutableMap.of())), new Config(null));
+        Optional<EmbedDefinition> res = underTest.getAnswer(new Config(null),new State<>("roll", new SumDiceSetStateData(ImmutableMap.of())));
         assertThat(res).isEmpty();
     }
 
     @Test
     void getAnswer_modifyMessage_false() {
-        Optional<EmbedDefinition> res = underTest.getAnswer(new State<>("+1d6", new SumDiceSetStateData(ImmutableMap.of(
+        Optional<EmbedDefinition> res = underTest.getAnswer(new Config(null),new State<>("+1d6", new SumDiceSetStateData(ImmutableMap.of(
                 "d6", 1
-        ))), new Config(null));
+        ))));
         assertThat(res).isEmpty();
     }
 
     @Test
     void copyButtonMessageToTheEnd_roll_true() {
-        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(new State<>("roll", new SumDiceSetStateData(ImmutableMap.of(
+        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(new Config(null),new State<>("roll", new SumDiceSetStateData(ImmutableMap.of(
                 "d6", 1
-        ))), new Config(null));
+        ))));
         assertThat(res).isNotEmpty();
     }
 
     @Test
     void copyButtonMessageToTheEnd_rollNoConfig_false() {
-        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(new State<>("roll", new SumDiceSetStateData(ImmutableMap.of())), new Config(null));
+        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(new Config(null),new State<>("roll", new SumDiceSetStateData(ImmutableMap.of())));
         assertThat(res).isEmpty();
     }
 
     @Test
     void copyButtonMessageToTheEnd_modifyMessage_false() {
-        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(new State<>("+1d6", new SumDiceSetStateData(ImmutableMap.of(
+        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(new Config(null),new State<>("+1d6", new SumDiceSetStateData(ImmutableMap.of(
                 "d6", 1
-        ))), new Config(null));
+        ))));
         assertThat(res).isEmpty();
     }
 
     @Test
     void getCurrentMessageContentChange_1d6() {
-        Optional<String> res = underTest.getCurrentMessageContentChange(new State<>("+1d6", new SumDiceSetStateData(ImmutableMap.of(
+        Optional<String> res = underTest.getCurrentMessageContentChange(new Config(null), new State<>("+1d6", new SumDiceSetStateData(ImmutableMap.of(
                 "d6", 1
-        ))), new Config(null));
+        ))));
         assertThat(res).contains("2d6");
     }
 
@@ -302,11 +302,11 @@ class SumDiceSetCommandTest {
 
     @Test
     void rollDice_1d4plus1d6plus10() {
-        EmbedDefinition res = underTest.getAnswer(new State<>("roll", new SumDiceSetStateData(ImmutableMap.of(
+        EmbedDefinition res = underTest.getAnswer(new Config(null),new State<>("roll", new SumDiceSetStateData(ImmutableMap.of(
                 "d4", 1,
                 "d6", 1,
                 "m", 10
-        ))), new Config(null)).orElseThrow();
+        )))).orElseThrow();
 
         assertThat(res.getFields()).hasSize(0);
         assertThat(res.getTitle()).isEqualTo("1d4 +1d6 +10 = 12");
@@ -315,11 +315,11 @@ class SumDiceSetCommandTest {
 
     @Test
     void rollDice_minus1d4plus1d6minux10() {
-        EmbedDefinition res = underTest.getAnswer(new State<>("roll", new SumDiceSetStateData(ImmutableMap.of(
+        EmbedDefinition res = underTest.getAnswer(new Config(null),new State<>("roll", new SumDiceSetStateData(ImmutableMap.of(
                 "d4", -1,
                 "d6", 1,
                 "m", -10
-        ))), new Config(null)).orElseThrow();
+        )))).orElseThrow();
 
         assertThat(res.getFields()).hasSize(0);
         assertThat(res.getTitle()).isEqualTo("-1d4 +1d6 -10 = -10");
@@ -353,11 +353,11 @@ class SumDiceSetCommandTest {
 
     @Test
     void getButtonLayoutWithState() {
-        List<ComponentRowDefinition> res = underTest.createNewButtonMessageWithState(new State<>("roll", new SumDiceSetStateData(ImmutableMap.of(
+        List<ComponentRowDefinition> res = underTest.createNewButtonMessageWithState(new Config(null),new State<>("roll", new SumDiceSetStateData(ImmutableMap.of(
                         "d4", -1,
                         "d6", 1,
                         "m", -10
-                ))), new Config(null))
+                ))))
                 .orElseThrow().getComponentRowDefinitions();
 
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel))
@@ -384,7 +384,7 @@ class SumDiceSetCommandTest {
 
     @Test
     void checkPersistence() {
-        MessageDataDAO messageDataDAO = new MessageDataDAOImpl("jdbc:h2:file:./persistence/" + this.getClass().getSimpleName(), null, null);
+        MessageDataDAO messageDataDAO = new MessageDataDAOImpl("jdbc:h2:mem:" + this.getClass().getSimpleName(), null, null);
         long channelId = System.currentTimeMillis();
         long messageId = System.currentTimeMillis();
         MessageDataDTO toSave = underTest.createMessageDataForNewMessage(UUID.randomUUID(), channelId, messageId,

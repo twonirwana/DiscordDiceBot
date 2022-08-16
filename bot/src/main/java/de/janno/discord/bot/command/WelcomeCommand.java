@@ -70,7 +70,7 @@ public class WelcomeCommand extends AbstractCommand<Config, EmptyData> {
     }
 
     @Override
-    protected Optional<MessageDefinition> createNewButtonMessageWithState(State<EmptyData> state, Config config) {
+    protected Optional<MessageDefinition> createNewButtonMessageWithState(Config config, State<EmptyData> state) {
         BotMetrics.incrementButtonMetricCounter(COMMAND_NAME, state.toShortString());
         return switch (state.getButtonValue()) {
             case FATE_BUTTON_ID -> Optional.of(
@@ -118,7 +118,7 @@ public class WelcomeCommand extends AbstractCommand<Config, EmptyData> {
     }
 
     @Override
-    protected Optional<EmbedDefinition> getAnswer(State<EmptyData> state, Config config) {
+    protected Optional<EmbedDefinition> getAnswer(Config config, State<EmptyData> state) {
         return Optional.empty();
     }
 
@@ -186,7 +186,7 @@ public class WelcomeCommand extends AbstractCommand<Config, EmptyData> {
 
     @Override
     protected State<EmptyData> getStateFromEvent(IButtonEventAdaptor event) {
-        String buttonId = event.getCustomId().split(BotConstants.LEGACY_CONFIG_SPLIT_DELIMITER_REGEX)[1];
+        String buttonId = getButtonValueFromLegacyCustomId(event.getCustomId());
         return new State<>(buttonId, new EmptyData());
     }
 }

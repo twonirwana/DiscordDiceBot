@@ -1,10 +1,7 @@
 package de.janno.discord.bot.command.fate;
 
-import com.google.common.collect.ImmutableList;
 import de.janno.discord.bot.command.EmptyData;
-import de.janno.discord.bot.command.LabelAndDiceExpression;
 import de.janno.discord.bot.command.State;
-import de.janno.discord.bot.command.customDice.CustomDiceConfig;
 import de.janno.discord.bot.dice.DiceUtils;
 import de.janno.discord.bot.persistance.MessageDataDAO;
 import de.janno.discord.bot.persistance.MessageDataDAOImpl;
@@ -57,7 +54,7 @@ class FateCommandTest {
 
     @Test
     void getButtonMessageWithState_modifier() {
-        String res = underTest.createNewButtonMessageWithState(new State<>("0", new EmptyData()), new FateConfig(null, "with_modifier"))
+        String res = underTest.createNewButtonMessageWithState(new FateConfig(null, "with_modifier"), new State<>("0", new EmptyData()))
                 .orElseThrow().getContent();
 
         assertThat(res).isEqualTo("Click a button to roll four fate dice and add the value of the button");
@@ -65,7 +62,7 @@ class FateCommandTest {
 
     @Test
     void getButtonMessageWithState_simple() {
-        String res = underTest.createNewButtonMessageWithState(new State<>("0", new EmptyData()), new FateConfig(null, "simple"))
+        String res = underTest.createNewButtonMessageWithState(new FateConfig(null, "simple"), new State<>("0", new EmptyData()))
                 .orElseThrow().getContent();
 
         assertThat(res).isEqualTo("Click a button to roll four fate dice");
@@ -83,7 +80,7 @@ class FateCommandTest {
 
     @Test
     void getDiceResult_simple() {
-        EmbedDefinition res = underTest.getAnswer(new State<>("roll", new EmptyData()), new FateConfig(null, "simple")).orElseThrow();
+        EmbedDefinition res = underTest.getAnswer(new FateConfig(null, "simple"), new State<>("roll", new EmptyData())).orElseThrow();
 
         assertThat(res.getFields()).hasSize(0);
         assertThat(res.getTitle()).isEqualTo("4dF = -1");
@@ -92,7 +89,7 @@ class FateCommandTest {
 
     @Test
     void getDiceResult_modifier_minus1() {
-        EmbedDefinition res = underTest.getAnswer(new State<>("-1", new EmptyData()), new FateConfig(null, "with_modifier")).orElseThrow();
+        EmbedDefinition res = underTest.getAnswer(new FateConfig(null, "with_modifier"), new State<>("-1", new EmptyData())).orElseThrow();
 
         assertThat(res.getFields()).hasSize(0);
         assertThat(res.getTitle()).isEqualTo("4dF -1 = -2");
@@ -101,7 +98,7 @@ class FateCommandTest {
 
     @Test
     void getDiceResult_modifier_plus1() {
-        EmbedDefinition res = underTest.getAnswer(new State<>("1", new EmptyData()), new FateConfig(null, "with_modifier")).orElseThrow();
+        EmbedDefinition res = underTest.getAnswer(new FateConfig(null, "with_modifier"), new State<>("1", new EmptyData())).orElseThrow();
 
         assertThat(res.getFields()).hasSize(0);
         assertThat(res.getTitle()).isEqualTo("4dF +1 = 0");
@@ -110,7 +107,7 @@ class FateCommandTest {
 
     @Test
     void getDiceResult_modifier_0() {
-        EmbedDefinition res = underTest.getAnswer(new State<>("0", new EmptyData()), new FateConfig(null, "with_modifier")).orElseThrow();
+        EmbedDefinition res = underTest.getAnswer(new FateConfig(null, "with_modifier"), new State<>("0", new EmptyData())).orElseThrow();
 
         assertThat(res.getFields()).hasSize(0);
         assertThat(res.getTitle()).isEqualTo("4dF = -1");
@@ -163,7 +160,7 @@ class FateCommandTest {
 
     @Test
     void getButtonLayoutWithState_simple() {
-        List<ComponentRowDefinition> res = underTest.createNewButtonMessageWithState(new State<>("roll", new EmptyData()), new FateConfig(null, "simple"))
+        List<ComponentRowDefinition> res = underTest.createNewButtonMessageWithState(new FateConfig(null, "simple"), new State<>("roll", new EmptyData()))
                 .orElseThrow().getComponentRowDefinitions();
 
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel)).containsExactly("Roll 4dF");
@@ -183,7 +180,7 @@ class FateCommandTest {
 
     @Test
     void getButtonLayoutWithState_modifier() {
-        List<ComponentRowDefinition> res = underTest.createNewButtonMessageWithState(new State<>("2", new EmptyData()), new FateConfig(null, "with_modifier"))
+        List<ComponentRowDefinition> res = underTest.createNewButtonMessageWithState(new FateConfig(null, "with_modifier"), new State<>("2", new EmptyData()))
                 .orElseThrow().getComponentRowDefinitions();
 
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel)).containsExactly("-4", "-3", "-2", "-1", "0", "+1", "+2", "+3", "+4", "+5", "+6", "+7", "+8", "+9", "+10");
@@ -230,7 +227,7 @@ class FateCommandTest {
 
     @Test
     void getCurrentMessageContentChange() {
-        assertThat(underTest.getCurrentMessageContentChange(new State<>("2", new EmptyData()), new FateConfig(null, "with_modifier"))).isEmpty();
+        assertThat(underTest.getCurrentMessageContentChange(new FateConfig(null, "with_modifier"), new State<>("2", new EmptyData()))).isEmpty();
     }
 
     @Test
@@ -256,7 +253,7 @@ class FateCommandTest {
 
     @Test
     void checkPersistence() {
-        MessageDataDAO messageDataDAO = new MessageDataDAOImpl("jdbc:h2:file:./persistence/" + this.getClass().getSimpleName(), null, null);
+        MessageDataDAO messageDataDAO = new MessageDataDAOImpl("jdbc:h2:mem:" + this.getClass().getSimpleName(), null, null);
         long channelId = System.currentTimeMillis();
         long messageId = System.currentTimeMillis();
         MessageDataDTO toSave = underTest.createMessageDataForNewMessage(UUID.randomUUID(), channelId, messageId,

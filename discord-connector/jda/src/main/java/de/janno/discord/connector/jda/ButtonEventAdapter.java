@@ -129,7 +129,7 @@ public class ButtonEventAdapter extends DiscordAdapter implements IButtonEventAd
     }
 
     @Override
-    public Mono<Void> deleteMessage(long messageId) {
+    public Mono<Long> deleteMessage(long messageId) {
         return deleteMessage(event.getInteraction().getMessageChannel(), messageId);
     }
 

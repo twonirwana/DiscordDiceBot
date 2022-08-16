@@ -92,12 +92,13 @@ public abstract class DiscordAdapter implements IDiscordAdapter {
         return Mono.empty();
     }
 
-    protected Mono<Void> deleteMessage(MessageChannel messageChannel, long messageId) {
+    protected Mono<Long> deleteMessage(MessageChannel messageChannel, long messageId) {
+        //retrieveMessageByIds would be nice
         return createMonoFrom(() -> messageChannel.retrieveMessageById(messageId))
                 .filter(m -> !m.isPinned())
                 .filter(m -> m.getType().canDelete())
-                .flatMap(m -> createMonoFrom(m::delete))
-                .onErrorResume(t -> handleException("Error on deleting message", t, true));
+                .flatMap(m -> createMonoFrom(m::delete).flatMap(v -> Mono.just(messageId)))
+                .onErrorResume(t -> handleException("Error on deleting message", t, true).ofType(Long.class));
     }
 
     protected Optional<String> checkPermission(@NonNull MessageChannel messageChannel, @Nullable Guild guild) {
@@ -105,8 +106,8 @@ public abstract class DiscordAdapter implements IDiscordAdapter {
         if (!messageChannel.canTalk()) {
             checks.add("'SEND_MESSAGES'");
         }
-       boolean missingEmbedPermission = Optional.of(messageChannel)
-                .filter(m -> m instanceof  GuildMessageChannel)
+        boolean missingEmbedPermission = Optional.of(messageChannel)
+                .filter(m -> m instanceof GuildMessageChannel)
                 .map(m -> (GuildMessageChannel) m)
                 .flatMap(g -> Optional.ofNullable(guild).map(Guild::getSelfMember).map(m -> !m.hasPermission(g, Permission.MESSAGE_EMBED_LINKS)))
                 .orElse(true);

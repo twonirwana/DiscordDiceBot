@@ -29,15 +29,14 @@ import static de.janno.discord.connector.api.BotConstants.CUSTOM_ID_DELIMITER;
 import static de.janno.discord.connector.api.BotConstants.LEGACY_CONFIG_SPLIT_DELIMITER_REGEX;
 
 @Slf4j
-//todo nullable und notNull an alle Methoden
+//todo nullable und notNull an alle Methoden, Clear command
 public abstract class AbstractCommand<C extends Config, S extends EmptyData> implements ISlashCommand, IComponentInteractEventHandler {
 
     protected static final String ACTION_START = "start";
     protected static final String ACTION_HELP = "help";
     protected static final String ANSWER_TARGET_CHANNEL_OPTION = "target_channel";
-    protected final static String ANSWER_TARGET_CHANNEL_IDENTIFIER = "ANSWER_TARGET_CHANNEL";
 
-    protected static final CommandDefinitionOption ANSWER_TARGET_CHANNEL_COMMAND_OPTION = CommandDefinitionOption.builder()
+    private static final CommandDefinitionOption ANSWER_TARGET_CHANNEL_COMMAND_OPTION = CommandDefinitionOption.builder()
             .name(ANSWER_TARGET_CHANNEL_OPTION)
             .description("The channel where the answer will be given")
             .type(CommandDefinitionOption.Type.CHANNEL)
@@ -80,20 +79,17 @@ public abstract class AbstractCommand<C extends Config, S extends EmptyData> imp
                         .description("Start")
                         .type(CommandDefinitionOption.Type.SUB_COMMAND)
                         .options(getStartOptions())
-                        //todo add answer target here
+                        .option(ANSWER_TARGET_CHANNEL_COMMAND_OPTION)
                         .build())
                 .option(CommandDefinitionOption.builder()
-                                .name(ACTION_HELP)
-                                .description("Help")
-                                .type(CommandDefinitionOption.Type.SUB_COMMAND)
-                                .build()
-                        //todo add clear
-                )
+                        .name(ACTION_HELP)
+                        .description("Help")
+                        .type(CommandDefinitionOption.Type.SUB_COMMAND)
+                        .build())
                 .build();
     }
 
-    //todo switch parameter
-    protected Optional<List<ComponentRowDefinition>> getCurrentMessageComponentChange(State<S> state, C config) {
+    protected Optional<List<ComponentRowDefinition>> getCurrentMessageComponentChange(C config, State<S> state) {
         return Optional.empty();
     }
 
@@ -149,17 +145,17 @@ public abstract class AbstractCommand<C extends Config, S extends EmptyData> imp
         Optional<List<ComponentRowDefinition>> editMessageComponents;
         if (keepExistingButtonMessage || answerTargetChannelId != null) {
             //if the old button is pined or the result is copied to another channel, the old message will be edited or reset to the slash default
-            editMessage = getCurrentMessageContentChange(state, config).orElse(createNewButtonMessage(config).getContent());
-            editMessageComponents = Optional.ofNullable(getCurrentMessageComponentChange(state, config)
+            editMessage = getCurrentMessageContentChange(config, state).orElse(createNewButtonMessage(config).getContent());
+            editMessageComponents = Optional.ofNullable(getCurrentMessageComponentChange(config, state)
                     .orElse(createNewButtonMessage(config).getComponentRowDefinitions()));
         } else {
             //edit the current message if the command changes it or mark it as processing
-            editMessage = getCurrentMessageContentChange(state, config).orElse("processing ...");
-            editMessageComponents = getCurrentMessageComponentChange(state, config);
+            editMessage = getCurrentMessageContentChange(config, state).orElse("processing ...");
+            editMessageComponents = getCurrentMessageComponentChange(config, state);
         }
         actions.add(event.editMessage(editMessage, editMessageComponents.orElse(null)));
 
-        Optional<EmbedDefinition> answer = getAnswer(state, config);
+        Optional<EmbedDefinition> answer = getAnswer(config, state);
         if (answer.isPresent()) {
             BotMetrics.incrementButtonMetricCounter(getCommandId(), config.toShortString());
 
@@ -178,7 +174,7 @@ public abstract class AbstractCommand<C extends Config, S extends EmptyData> imp
                                     )
                             ).ofType(Void.class)));
         }
-        Optional<MessageDefinition> newButtonMessage = createNewButtonMessageWithState(state, config);
+        Optional<MessageDefinition> newButtonMessage = createNewButtonMessageWithState(config, state);
 
         if (newButtonMessage.isPresent() && answerTargetChannelId == null) {
             Mono<Long> newMessageIdMono = event.createButtonMessage(newButtonMessage.get())
@@ -189,30 +185,44 @@ public abstract class AbstractCommand<C extends Config, S extends EmptyData> imp
                     });
             if (!keepExistingButtonMessage) {
                 if (isLegacyMessage) {
-                    createNewButtonMessageAndOptionalDeleteOld = event.deleteMessage(messageId);
+                    createNewButtonMessageAndOptionalDeleteOld = event.deleteMessage(messageId).then();
                 } else {
-                    createNewButtonMessageAndOptionalDeleteOld = newMessageIdMono
-                            .flux()
-                            .flatMap(newMessageId -> Flux.fromIterable(messageDataDAO.getAllMessageIdsForConfig(configUUID))
-                                    .filter(id -> !Objects.equals(id, newMessageId)))
-                            .flatMap(oldMessageId -> {
-                                //todo multi delete?
-                                //todo check if message is pined and only delete the data if the message is realy deleted
-                                messageDataDAO.deleteDataForMessage(channelId, oldMessageId);
-                                return event.deleteMessage(oldMessageId);
-                            })
-                            .then();
+                    //delete all other button messages with the same config, retain only the new message
+                    createNewButtonMessageAndOptionalDeleteOld = deleteMessageAndData(newMessageIdMono, null, configUUID, channelId, event);
                 }
             } else {
-                createNewButtonMessageAndOptionalDeleteOld = newMessageIdMono.then();
+                //delete all other button messages with the same config, retain only the new and the current message
+                createNewButtonMessageAndOptionalDeleteOld = deleteMessageAndData(newMessageIdMono, messageId, configUUID, channelId, event);
             }
         }
-        //todo async after other mono
+        //don't update the state data async or there will be racing conditions
         updateCurrentMessageStateData(channelId, messageId, config, state);
         return Flux.merge(1, actions.toArray(new Mono<?>[0]))
                 .parallel()
                 .then()
                 .then(createNewButtonMessageAndOptionalDeleteOld);
+    }
+
+    private Mono<Void> deleteMessageAndData(@NonNull Mono<Long> newMessageIdMono,
+                                            @Nullable Long retainMessageId,
+                                            @NonNull UUID configUUID,
+                                            long channelId,
+                                            @NonNull IButtonEventAdaptor event) {
+        return newMessageIdMono
+                .flux()
+                .flatMap(newMessageId -> Flux.fromIterable(messageDataDAO.getAllMessageIdsForConfig(configUUID))
+                        .filter(id -> filterWithOptionalSecondId(id, newMessageId, retainMessageId)))
+                .flatMap(oldMessageId -> event.deleteMessage(oldMessageId)
+                        .filter(Objects::nonNull)
+                        .doOnNext(l -> messageDataDAO.deleteDataForMessage(channelId, l)))
+                .then();
+    }
+
+    private boolean filterWithOptionalSecondId(long input, long filterId, @Nullable Long optionalFilterId) {
+        if (optionalFilterId != null) {
+            return !Objects.equals(input, filterId) && !Objects.equals(input, optionalFilterId);
+        }
+        return !Objects.equals(input, filterId);
     }
 
     @Override
@@ -280,19 +290,16 @@ public abstract class AbstractCommand<C extends Config, S extends EmptyData> imp
      * The text content for the old button message, after a button event. Returns null means no editing should be done.
      */
     @VisibleForTesting
-    //Todo reverese parameter
-    public Optional<String> getCurrentMessageContentChange(State<S> state, C config) {
+    public Optional<String> getCurrentMessageContentChange(C config, State<S> state) {
         return Optional.empty();
     }
 
     /**
      * The new button message, after a button event
      */
-    //Todo reverese parameter
-    protected abstract Optional<MessageDefinition> createNewButtonMessageWithState(State<S> state, C config);
+    protected abstract Optional<MessageDefinition> createNewButtonMessageWithState(C config, State<S> state);
 
-    //Todo reverese parameter
-    protected abstract Optional<EmbedDefinition> getAnswer(State<S> state, C config);
+    protected abstract Optional<EmbedDefinition> getAnswer(C config, State<S> state);
 
     /**
      * The new button message, after a slash event
@@ -322,8 +329,6 @@ public abstract class AbstractCommand<C extends Config, S extends EmptyData> imp
     @Deprecated
     protected abstract State<S> getStateFromEvent(IButtonEventAdaptor event);
 
-
-    //todo use in all commands
 
     /**
      * will be removed when almost all users have switched to the persisted button id

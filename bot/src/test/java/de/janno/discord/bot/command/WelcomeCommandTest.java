@@ -19,7 +19,7 @@ class WelcomeCommandTest {
 
     @Test
     public void getButtonMessageWithState_fate() {
-        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(new State<>("fate", new EmptyData()), null);
+        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(null, new State<>("fate", new EmptyData()));
         assertThat(res.map(MessageDefinition::getContent))
                 .contains("Click a button to roll four fate dice and add the value of the button");
         assertThat(res.map(MessageDefinition::getComponentRowDefinitions)
@@ -53,7 +53,7 @@ class WelcomeCommandTest {
 
     @Test
     public void getButtonMessageWithState_dnd5() {
-        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(new State<>("dnd5", new EmptyData()), null);
+        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(null, new State<>("dnd5", new EmptyData()));
         assertThat(res.map(MessageDefinition::getContent))
                 .contains("Click on a button to roll the dice");
         assertThat(res.map(MessageDefinition::getComponentRowDefinitions)
@@ -100,7 +100,7 @@ class WelcomeCommandTest {
 
     @Test
     public void getButtonMessageWithState_nWoD() {
-        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(new State<>("nWoD", new EmptyData()), null);
+        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(null, new State<>("nWoD", new EmptyData()));
 
         assertThat(res.map(MessageDefinition::getContent))
                 .contains("Click to roll the dice against 8");
@@ -135,7 +135,7 @@ class WelcomeCommandTest {
 
     @Test
     public void getButtonMessageWithState_oWoD() {
-        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(new State<>("oWoD", new EmptyData()), null);
+        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(null, new State<>("oWoD", new EmptyData()));
         assertThat(res.map(MessageDefinition::getContent))
                 .contains("Click on the buttons to roll dice, with ask reroll:10 and botch:1");
         assertThat(res.map(MessageDefinition::getComponentRowDefinitions)
@@ -170,7 +170,7 @@ class WelcomeCommandTest {
 
     @Test
     public void getButtonMessageWithState_Shadowrun() {
-        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(new State<>("shadowrun", new EmptyData()), null);
+        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(null, new State<>("shadowrun", new EmptyData()));
         assertThat(res.map(MessageDefinition::getContent))
                 .contains("Click to roll the dice against 5");
         assertThat(res.map(MessageDefinition::getComponentRowDefinitions)
@@ -209,7 +209,7 @@ class WelcomeCommandTest {
 
     @Test
     public void getButtonMessageWithState_other() {
-        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(new State<>("-", new EmptyData()), null);
+        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(null, new State<>("-", new EmptyData()));
         assertThat(res)
                 .isEmpty();
 

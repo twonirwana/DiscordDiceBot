@@ -164,13 +164,12 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTar
                         .type(CommandDefinitionOption.Type.STRING)
                         .choice(CommandDefinitionOptionChoice.builder().name(ALWAYS_REROLL).value(ALWAYS_REROLL).build())
                         .choice(CommandDefinitionOptionChoice.builder().name(ASK_FOR_REROLL).value(ASK_FOR_REROLL).build())
-                        .build(),
-                ANSWER_TARGET_CHANNEL_COMMAND_OPTION
+                        .build()
         );
     }
 
     @Override
-    protected Optional<EmbedDefinition> getAnswer(State<PoolTargetStateData> state, PoolTargetConfig config) {
+    protected Optional<EmbedDefinition> getAnswer(PoolTargetConfig config, State<PoolTargetStateData> state) {
         Optional<PoolTargetStateData> stateData = Optional.ofNullable(state.getData());
         if (stateData.map(PoolTargetStateData::getDicePool).isEmpty() ||
                 stateData.map(PoolTargetStateData::getTargetNumber).isEmpty() ||
@@ -311,7 +310,7 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTar
 
 
     @Override
-    protected Optional<List<ComponentRowDefinition>> getCurrentMessageComponentChange(State<PoolTargetStateData> state, PoolTargetConfig config) {
+    protected Optional<List<ComponentRowDefinition>> getCurrentMessageComponentChange(PoolTargetConfig config, State<PoolTargetStateData> state) {
         if (Optional.ofNullable(state.getData()).map(PoolTargetStateData::getDicePool).orElse(null) == null && !CLEAR_BUTTON_ID.equals(state.getButtonValue())) {
             return Optional.empty();
         }
@@ -319,7 +318,7 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTar
     }
 
     @Override
-    public Optional<String> getCurrentMessageContentChange(State<PoolTargetStateData> state, PoolTargetConfig config) {
+    public Optional<String> getCurrentMessageContentChange(PoolTargetConfig config, State<PoolTargetStateData> state) {
         if (CLEAR_BUTTON_ID.equals(state.getButtonValue())) {
             return Optional.of(String.format("Click on the buttons to roll dice%s", getConfigDescription(config)));
         }
@@ -339,7 +338,7 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTar
     }
 
     @Override
-    protected Optional<MessageDefinition> createNewButtonMessageWithState(State<PoolTargetStateData> state, PoolTargetConfig config) {
+    protected Optional<MessageDefinition> createNewButtonMessageWithState(PoolTargetConfig config, State<PoolTargetStateData> state) {
         if (Optional.ofNullable(state.getData()).map(PoolTargetStateData::getDicePool).orElse(null) != null && state.getData().getTargetNumber() != null && state.getData().getDoReroll() != null) {
             return Optional.of(MessageDefinition.builder()
                     .content(String.format("Click on the buttons to roll dice%s", getConfigDescription(config)))

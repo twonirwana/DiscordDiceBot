@@ -136,11 +136,11 @@ public class SumDiceSetCommand extends AbstractCommand<Config, SumDiceSetStateDa
 
     @Override
     protected List<CommandDefinitionOption> getStartOptions() {
-        return ImmutableList.of(ANSWER_TARGET_CHANNEL_COMMAND_OPTION);
+        return ImmutableList.of();
     }
 
     @Override
-    protected Optional<EmbedDefinition> getAnswer(State<SumDiceSetStateData> state, Config config) {
+    protected Optional<EmbedDefinition> getAnswer(Config config, State<SumDiceSetStateData> state) {
         if (!(ROLL_BUTTON_ID.equals(state.getButtonValue()) &&
                 !Optional.ofNullable(state.getData())
                         .map(SumDiceSetStateData::getDiceSetMap)
@@ -194,7 +194,7 @@ public class SumDiceSetCommand extends AbstractCommand<Config, SumDiceSetStateDa
     }
 
     @Override
-    protected Optional<MessageDefinition> createNewButtonMessageWithState(State<SumDiceSetStateData> state, Config config) {
+    protected Optional<MessageDefinition> createNewButtonMessageWithState(Config config, State<SumDiceSetStateData> state) {
         if (!(ROLL_BUTTON_ID.equals(state.getButtonValue()) &&
                 !Optional.ofNullable(state.getData())
                         .map(SumDiceSetStateData::getDiceSetMap)
@@ -243,7 +243,7 @@ public class SumDiceSetCommand extends AbstractCommand<Config, SumDiceSetStateDa
     }
 
     @Override
-    public Optional<String> getCurrentMessageContentChange(State<SumDiceSetStateData> state, Config config) {
+    public Optional<String> getCurrentMessageContentChange(Config config, State<SumDiceSetStateData> state) {
         Map<String, Integer> currentDiceSet = Optional.ofNullable(state.getData()).map(SumDiceSetStateData::getDiceSetMap).orElse(ImmutableMap.of());
 
         if (currentDiceSet.isEmpty()) {
@@ -262,7 +262,7 @@ public class SumDiceSetCommand extends AbstractCommand<Config, SumDiceSetStateDa
     @Override
     protected State<SumDiceSetStateData> getStateFromEvent(IButtonEventAdaptor event) {
         String buttonMessage = event.getMessageContent();
-        String buttonValue = event.getCustomId().split(BotConstants.LEGACY_CONFIG_SPLIT_DELIMITER_REGEX)[1];
+        String buttonValue = getButtonValueFromLegacyCustomId(event.getCustomId());
         if (EMPTY_MESSAGE.equals(buttonMessage)) {
             return new State<>(buttonValue, new SumDiceSetStateData(ImmutableMap.of()));
         }

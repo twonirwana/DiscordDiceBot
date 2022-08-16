@@ -150,12 +150,11 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesConfig,
                         .type(CommandDefinitionOption.Type.INTEGER)
                         .minValue(1L)
                         .maxValue(MAX_NUMBER_OF_DICE)
-                        .build(),
-                ANSWER_TARGET_CHANNEL_COMMAND_OPTION);
+                        .build());
     }
 
     @Override
-    protected Optional<EmbedDefinition> getAnswer(State<EmptyData> state, CountSuccessesConfig config) {
+    protected Optional<EmbedDefinition> getAnswer(CountSuccessesConfig config, State<EmptyData> state) {
         int numberOfDice = Integer.parseInt(state.getButtonValue());
         List<Integer> rollResult = diceUtils.rollDiceOfType(numberOfDice, config.getDiceSides()).stream()
                 .sorted()
@@ -215,7 +214,7 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesConfig,
     }
 
     @Override
-    protected Optional<MessageDefinition> createNewButtonMessageWithState(State<EmptyData> state, CountSuccessesConfig config) {
+    protected Optional<MessageDefinition> createNewButtonMessageWithState(CountSuccessesConfig config, State<EmptyData> state) {
         return Optional.of(createNewButtonMessage(config));
     }
 

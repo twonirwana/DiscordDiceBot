@@ -69,40 +69,40 @@ class SumCustomSetCommandTest {
     @ParameterizedTest(name = "{index} config={0}, buttonId={1} -> {2}")
     @MethodSource("generateGetEditButtonMessageData")
     void getEditButtonMessage(State<SumCustomSetStateData> state, String expected) {
-        Optional<String> res = underTest.getCurrentMessageContentChange(state, defaultConfig);
+        Optional<String> res = underTest.getCurrentMessageContentChange(defaultConfig,state);
         assertThat(res).contains(expected);
     }
 
     @Test
     void getButtonMessageWithState_clear() {
-        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(new State<>("clear", new SumCustomSetStateData("1d6", "user1")), defaultConfig);
+        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(defaultConfig,new State<>("clear", new SumCustomSetStateData("1d6", "user1")));
         assertThat(res).isEmpty();
     }
 
     @Test
     void getButtonMessageWithState_roll() {
-        String res = underTest.createNewButtonMessageWithState(new State<>("roll", new SumCustomSetStateData("1d6", "user1")), defaultConfig)
+        String res = underTest.createNewButtonMessageWithState(defaultConfig,new State<>("roll", new SumCustomSetStateData("1d6", "user1")))
                 .orElseThrow().getContent();
         assertThat(res).isEqualTo("Click the buttons to add dice to the set and then on Roll");
     }
 
     @Test
     void getEditButtonMessage_backLast() {
-        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(new State<>("back", new SumCustomSetStateData("1d6", "user1")), defaultConfig);
+        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(defaultConfig,new State<>("back", new SumCustomSetStateData("1d6", "user1")));
 
         assertThat(res).isEmpty();
     }
 
     @Test
     void getEditButtonMessage_back() {
-        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(new State<>("back", new SumCustomSetStateData("1d6+1d6", "user1")), defaultConfig);
+        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(defaultConfig,new State<>("back", new SumCustomSetStateData("1d6+1d6", "user1")));
 
         assertThat(res).isEmpty();
     }
 
     @Test
     void getCurrentMessageContentChange_clear() {
-        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(new State<>("clear", new SumCustomSetStateData("1d6+1d6", "user1")), defaultConfig);
+        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(defaultConfig,new State<>("clear", new SumCustomSetStateData("1d6+1d6", "user1")));
 
         assertThat(res).isEmpty();
     }
@@ -115,7 +115,7 @@ class SumCustomSetCommandTest {
 
     @Test
     void createNewButtonMessageWithState() {
-        String res = underTest.createNewButtonMessageWithState(new State<>("roll", new SumCustomSetStateData("1d6", "user1")), defaultConfig)
+        String res = underTest.createNewButtonMessageWithState(defaultConfig,new State<>("roll", new SumCustomSetStateData("1d6", "user1")))
                 .orElseThrow().getContent();
         assertThat(res).isEqualTo("Click the buttons to add dice to the set and then on Roll");
     }
@@ -259,43 +259,43 @@ class SumCustomSetCommandTest {
 
     @Test
     void getAnswer_roll_true() {
-        Optional<EmbedDefinition> res = underTest.getAnswer(new State<>("roll", new SumCustomSetStateData("1d6", "user1")), defaultConfig);
+        Optional<EmbedDefinition> res = underTest.getAnswer(defaultConfig,new State<>("roll", new SumCustomSetStateData("1d6", "user1")));
         assertThat(res).isNotEmpty();
     }
 
     @Test
     void getAnswer_rollNoConfig_false() {
-        Optional<EmbedDefinition> res = underTest.getAnswer(new State<>("roll", new SumCustomSetStateData("", "user1")), defaultConfig);
+        Optional<EmbedDefinition> res = underTest.getAnswer(defaultConfig,new State<>("roll", new SumCustomSetStateData("", "user1")));
         assertThat(res).isEmpty();
     }
 
     @Test
     void getAnswer_modifyMessage_false() {
-        Optional<EmbedDefinition> res = underTest.getAnswer(new State<>("1d6", new SumCustomSetStateData("1d6", "user1")), defaultConfig);
+        Optional<EmbedDefinition> res = underTest.getAnswer(defaultConfig,new State<>("1d6", new SumCustomSetStateData("1d6", "user1")));
         assertThat(res).isEmpty();
     }
 
     @Test
     void copyButtonMessageToTheEnd_roll_true() {
-        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(new State<>("roll", new SumCustomSetStateData("1d6", "user1")), defaultConfig);
+        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(defaultConfig,new State<>("roll", new SumCustomSetStateData("1d6", "user1")));
         assertThat(res).isNotEmpty();
     }
 
     @Test
     void copyButtonMessageToTheEnd_rollNoConfig_false() {
-        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(new State<>("roll", new SumCustomSetStateData("", "user1")), defaultConfig);
+        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(defaultConfig,new State<>("roll", new SumCustomSetStateData("", "user1")));
         assertThat(res).isEmpty();
     }
 
     @Test
     void copyButtonMessageToTheEnd_modifyMessage_false() {
-        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(new State<>("+1d6", new SumCustomSetStateData("1d6", "user1")), defaultConfig);
+        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(defaultConfig,new State<>("+1d6", new SumCustomSetStateData("1d6", "user1")));
         assertThat(res).isEmpty();
     }
 
     @Test
     void getCurrentMessageContentChange_1d6() {
-        Optional<String> res = underTest.getCurrentMessageContentChange(new State<>("+1d6", new SumCustomSetStateData("1d6", "user1")), defaultConfig);
+        Optional<String> res = underTest.getCurrentMessageContentChange(defaultConfig,new State<>("+1d6", new SumCustomSetStateData("1d6", "user1")));
         assertThat(res).contains("user1∶ 1d6");
     }
 
@@ -421,7 +421,7 @@ class SumCustomSetCommandTest {
         when(diceMock.detailedRoll("1d6+10")).thenReturn(new ResultTree(new NDice(6, 1), 13, ImmutableList.of(
                 new ResultTree(new NDice(6, 1), 3, ImmutableList.of()),
                 new ResultTree(new NumberExpression(10), 10, ImmutableList.of()))));
-        EmbedDefinition res = underTest.getAnswer(new State<>("roll", new SumCustomSetStateData("1d6+10", "user1")), defaultConfig).orElseThrow();
+        EmbedDefinition res = underTest.getAnswer(defaultConfig,new State<>("roll", new SumCustomSetStateData("1d6+10", "user1"))).orElseThrow();
 
         assertThat(res.getFields()).hasSize(0);
         assertThat(res.getTitle()).isEqualTo("1d6+10 = 13");
@@ -477,7 +477,7 @@ class SumCustomSetCommandTest {
 
     @Test
     void getButtonLayoutWithState() {
-        List<ComponentRowDefinition> res = underTest.createNewButtonMessageWithState(new State<>("roll", new SumCustomSetStateData("1d6", "user1")), defaultConfig)
+        List<ComponentRowDefinition> res = underTest.createNewButtonMessageWithState(defaultConfig,new State<>("roll", new SumCustomSetStateData("1d6", "user1")))
                 .orElseThrow().getComponentRowDefinitions();
 
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel))
@@ -521,7 +521,7 @@ class SumCustomSetCommandTest {
         when(buttonEventAdaptor.editMessage(any(), any())).thenReturn(Mono.just(mock(Void.class)));
         when(buttonEventAdaptor.createResultMessageWithEventReference(any(), eq(null))).thenReturn(Mono.just(mock(Void.class)));
         when(buttonEventAdaptor.createButtonMessage(any())).thenReturn(Mono.just(2L));
-        when(buttonEventAdaptor.deleteMessage(ArgumentMatchers.anyLong())).thenReturn(Mono.just(mock(Void.class)));
+        when(buttonEventAdaptor.deleteMessage(ArgumentMatchers.anyLong())).thenReturn(Mono.just(2L));
         when(buttonEventAdaptor.getRequester()).thenReturn(Mono.just(new Requester("user", "channel", "guild")));
         when(buttonEventAdaptor.acknowledge()).thenReturn(Mono.just(mock(Void.class)));
 
@@ -558,7 +558,7 @@ class SumCustomSetCommandTest {
         when(buttonEventAdaptor.editMessage(any(), any())).thenReturn(Mono.just(mock(Void.class)));
         when(buttonEventAdaptor.createButtonMessage(any())).thenReturn(Mono.just(2L));
         when(buttonEventAdaptor.createResultMessageWithEventReference(any(), eq(null))).thenReturn(Mono.just(mock(Void.class)));
-        when(buttonEventAdaptor.deleteMessage(ArgumentMatchers.anyLong())).thenReturn(Mono.just(mock(Void.class)));
+        when(buttonEventAdaptor.deleteMessage(ArgumentMatchers.anyLong())).thenReturn(Mono.just(2L));
         when(buttonEventAdaptor.getRequester()).thenReturn(Mono.just(new Requester("user", "channel", "guild")));
         when(buttonEventAdaptor.acknowledge()).thenReturn(Mono.just(mock(Void.class)));
 
@@ -587,7 +587,7 @@ class SumCustomSetCommandTest {
 
     @Test
     void checkPersistence() {
-        MessageDataDAO messageDataDAO = new MessageDataDAOImpl("jdbc:h2:file:./persistence/" + this.getClass().getSimpleName(), null, null);
+        MessageDataDAO messageDataDAO = new MessageDataDAOImpl("jdbc:h2:mem:" + this.getClass().getSimpleName(), null, null);
         long channelId = System.currentTimeMillis();
         long messageId = System.currentTimeMillis();
         MessageDataDTO toSave = underTest.createMessageDataForNewMessage(UUID.randomUUID(), channelId, messageId,

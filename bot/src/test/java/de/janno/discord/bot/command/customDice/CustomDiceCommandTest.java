@@ -85,7 +85,7 @@ class CustomDiceCommandTest {
 
     @Test
     void createNewButtonMessageWithState() {
-        String res = underTest.createNewButtonMessageWithState(new State<>("1d6", new EmptyData()), new CustomDiceConfig(null, ImmutableList.of())).orElseThrow().getContent();
+        String res = underTest.createNewButtonMessageWithState(new CustomDiceConfig(null, ImmutableList.of()),new State<>("1d6", new EmptyData())).orElseThrow().getContent();
 
         assertThat(res).isEqualTo("Click on a button to roll the dice");
     }
@@ -204,7 +204,7 @@ class CustomDiceCommandTest {
     @Test
     void getDiceResult_1d6() {
         when(diceMock.detailedRoll("1d6")).thenReturn(new ResultTree(new NDice(6, 1), 3, ImmutableList.of()));
-        EmbedDefinition res = underTest.getAnswer(new State<>("1d6", new EmptyData()), new CustomDiceConfig(null, ImmutableList.of(new LabelAndDiceExpression("1d6", "1d6")))).orElseThrow();
+        EmbedDefinition res = underTest.getAnswer(new CustomDiceConfig(null, ImmutableList.of(new LabelAndDiceExpression("1d6", "1d6"))),new State<>("1d6", new EmptyData())).orElseThrow();
 
         assertThat(res.getFields()).hasSize(0);
         assertThat(res.getTitle()).isEqualTo("1d6 = 3");
@@ -214,7 +214,7 @@ class CustomDiceCommandTest {
     @Test
     void getDiceResult_3x1d6() {
         when(diceMock.detailedRoll("1d6")).thenReturn(new ResultTree(new NDice(6, 1), 6, ImmutableList.of()));
-        EmbedDefinition res = underTest.getAnswer(new State<>("3x[1d6]", new EmptyData()), new CustomDiceConfig(null, ImmutableList.of(new LabelAndDiceExpression("3x[1d6]", "3x[1d6]")))).orElseThrow();
+        EmbedDefinition res = underTest.getAnswer(new CustomDiceConfig(null, ImmutableList.of(new LabelAndDiceExpression("3x[1d6]", "3x[1d6]"))),new State<>("3x[1d6]", new EmptyData())).orElseThrow();
 
         assertThat(res).isEqualTo(new EmbedDefinition("Multiple Results", null, ImmutableList.of(new EmbedDefinition.Field("1d6 = 6", "[6]", false), new EmbedDefinition.Field("1d6 = 6", "[6]", false), new EmbedDefinition.Field("1d6 = 6", "[6]", false))));
     }
@@ -223,7 +223,7 @@ class CustomDiceCommandTest {
     @Test
     void getDiceResult_1d6Label() {
         when(diceMock.detailedRoll("1d6")).thenReturn(new ResultTree(new NDice(6, 1), 3, ImmutableList.of()));
-        EmbedDefinition res = underTest.getAnswer(new State<>("1d6", new EmptyData()), new CustomDiceConfig(null, ImmutableList.of(new LabelAndDiceExpression("Label", "1d6")))).orElseThrow();
+        EmbedDefinition res = underTest.getAnswer(new CustomDiceConfig(null, ImmutableList.of(new LabelAndDiceExpression("Label", "1d6"))),new State<>("1d6", new EmptyData())).orElseThrow();
 
         assertThat(res.getFields()).hasSize(0);
         assertThat(res.getTitle()).isEqualTo("Label: 1d6 = 3");
@@ -233,7 +233,7 @@ class CustomDiceCommandTest {
     @Test
     void getDiceResult_3x1d6Label() {
         when(diceMock.detailedRoll("1d6")).thenReturn(new ResultTree(new NDice(6, 1), 6, ImmutableList.of()));
-        EmbedDefinition res = underTest.getAnswer(new State<>("3x[1d6]", new EmptyData()), new CustomDiceConfig(null, ImmutableList.of(new LabelAndDiceExpression("Label", "3x[1d6]")))).orElseThrow();
+        EmbedDefinition res = underTest.getAnswer(new CustomDiceConfig(null, ImmutableList.of(new LabelAndDiceExpression("Label", "3x[1d6]"))),new State<>("3x[1d6]", new EmptyData())).orElseThrow();
 
         assertThat(res).isEqualTo(new EmbedDefinition("Label", null, ImmutableList.of(new EmbedDefinition.Field("1d6 = 6", "[6]", false), new EmbedDefinition.Field("1d6 = 6", "[6]", false), new EmbedDefinition.Field("1d6 = 6", "[6]", false))));
     }
@@ -249,7 +249,7 @@ class CustomDiceCommandTest {
     void getStartOptions() {
         List<CommandDefinitionOption> res = underTest.getStartOptions();
 
-        assertThat(res.stream().map(CommandDefinitionOption::getName)).containsExactly("1_button", "2_button", "3_button", "4_button", "5_button", "6_button", "7_button", "8_button", "9_button", "10_button", "11_button", "12_button", "13_button", "14_button", "15_button", "16_button", "17_button", "18_button", "19_button", "20_button", "21_button", "22_button", "23_button", "24_button", "target_channel");
+        assertThat(res.stream().map(CommandDefinitionOption::getName)).containsExactly("1_button", "2_button", "3_button", "4_button", "5_button", "6_button", "7_button", "8_button", "9_button", "10_button", "11_button", "12_button", "13_button", "14_button", "15_button", "16_button", "17_button", "18_button", "19_button", "20_button", "21_button", "22_button", "23_button", "24_button");
     }
 
     @Test
@@ -280,7 +280,7 @@ class CustomDiceCommandTest {
         when(buttonEventAdaptor.editMessage(any(), any())).thenReturn(Mono.just(mock(Void.class)));
         when(buttonEventAdaptor.createResultMessageWithEventReference(any(), eq(null))).thenReturn(Mono.just(mock(Void.class)));
         when(buttonEventAdaptor.createButtonMessage(any())).thenReturn(Mono.just(2L));
-        when(buttonEventAdaptor.deleteMessage(anyLong())).thenReturn(Mono.just(mock(Void.class)));
+        when(buttonEventAdaptor.deleteMessage(anyLong())).thenReturn(Mono.just(2L));
         when(buttonEventAdaptor.getRequester()).thenReturn(Mono.just(new Requester("user", "channel", "guild")));
         when(buttonEventAdaptor.acknowledge()).thenReturn(Mono.just(mock(Void.class)));
 
@@ -317,7 +317,7 @@ class CustomDiceCommandTest {
         when(buttonEventAdaptor.editMessage(any(), any())).thenReturn(Mono.just(mock(Void.class)));
         when(buttonEventAdaptor.createButtonMessage(any())).thenReturn(Mono.just(2L));
         when(buttonEventAdaptor.createResultMessageWithEventReference(any(), eq(null))).thenReturn(Mono.just(mock(Void.class)));
-        when(buttonEventAdaptor.deleteMessage(anyLong())).thenReturn(Mono.just(mock(Void.class)));
+        when(buttonEventAdaptor.deleteMessage(anyLong())).thenReturn(Mono.just(2L));
         when(buttonEventAdaptor.getRequester()).thenReturn(Mono.just(new Requester("user", "channel", "guild")));
         when(buttonEventAdaptor.acknowledge()).thenReturn(Mono.just(mock(Void.class)));
 
@@ -344,7 +344,7 @@ class CustomDiceCommandTest {
 
     @Test
     void getButtonLayoutWithState() {
-        List<ComponentRowDefinition> res = underTest.createNewButtonMessageWithState(new State<>("2d6", new EmptyData()), new CustomDiceConfig(null, ImmutableList.of(new LabelAndDiceExpression("2d6", "2d6"), new LabelAndDiceExpression("Attack", "1d20"))))
+        List<ComponentRowDefinition> res = underTest.createNewButtonMessageWithState(new CustomDiceConfig(null, ImmutableList.of(new LabelAndDiceExpression("2d6", "2d6"), new LabelAndDiceExpression("Attack", "1d20"))),new State<>("2d6", new EmptyData()))
                 .orElseThrow().getComponentRowDefinitions();
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel)).containsExactly("2d6", "Attack");
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getId)).containsExactly("custom_dice2d6", "custom_dice1d20");
@@ -361,7 +361,7 @@ class CustomDiceCommandTest {
 
     @Test
     void editButtonMessage() {
-        assertThat(underTest.getCurrentMessageContentChange(new State<>("2d6", new EmptyData()), new CustomDiceConfig(null, ImmutableList.of(new LabelAndDiceExpression("2d6", "2d6"), new LabelAndDiceExpression("Attack", "1d20"))))).isEmpty();
+        assertThat(underTest.getCurrentMessageContentChange(new CustomDiceConfig(null, ImmutableList.of(new LabelAndDiceExpression("2d6", "2d6"), new LabelAndDiceExpression("Attack", "1d20"))),new State<>("2d6", new EmptyData()))).isEmpty();
     }
 
     @Test
@@ -384,7 +384,7 @@ class CustomDiceCommandTest {
                 .build()));
 
         when(event.createButtonMessage(any())).thenReturn(Mono.just(2L));
-        when(event.deleteMessage(anyLong())).thenReturn(Mono.just(mock(Void.class)));
+        when(event.deleteMessage(anyLong())).thenReturn(Mono.just(2L));
         when(event.getRequester()).thenReturn(Mono.just(new Requester("user", "channel", "guild")));
         when(event.reply(any())).thenReturn(Mono.just(mock(Void.class)));
         when(diceMock.detailedRoll(any())).thenAnswer(a -> new DiceParser().detailedRoll(a.getArgument(0)));
@@ -419,7 +419,7 @@ class CustomDiceCommandTest {
 
     @Test
     void checkPersistence() {
-        MessageDataDAO messageDataDAO = new MessageDataDAOImpl("jdbc:h2:file:./persistence/" + this.getClass().getSimpleName(), null, null);
+        MessageDataDAO messageDataDAO = new MessageDataDAOImpl("jdbc:h2:mem:" + this.getClass().getSimpleName(), null, null);
         long channelId = System.currentTimeMillis();
         long messageId = System.currentTimeMillis();
         MessageDataDTO toSave = underTest.createMessageDataForNewMessage(UUID.randomUUID(), channelId, messageId,

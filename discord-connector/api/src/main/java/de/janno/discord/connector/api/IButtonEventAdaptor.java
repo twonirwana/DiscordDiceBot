@@ -29,8 +29,6 @@ public interface IButtonEventAdaptor extends IDiscordAdapter {
 
     Mono<Long> createButtonMessage(MessageDefinition messageDefinition);
 
-    Mono<Void> deleteMessage(long messageId);
-
     List<LabelAndCustomId> getAllButtonIds();
 
     String getMessageContent();

@@ -45,7 +45,7 @@ class DirectRollCommandTest {
         when(diceMock.detailedRoll("1d6")).thenReturn(new ResultTree(new NDice(6, 1), 3, ImmutableList.of()));
         when(slashEventAdaptor.getChannelId()).thenReturn(1L);
         when(slashEventAdaptor.createResultMessageWithEventReference(any())).thenReturn(Mono.just(mock(Void.class)));
-        when(slashEventAdaptor.deleteMessage(anyLong())).thenReturn(Mono.just(mock(Void.class)));
+        when(slashEventAdaptor.deleteMessage(anyLong())).thenReturn(Mono.just(2L));
         when(slashEventAdaptor.reply(any())).thenReturn(Mono.just(mock(Void.class)));
         when(slashEventAdaptor.getCommandString()).thenReturn("/r expression:1d6");
         when(slashEventAdaptor.getRequester()).thenReturn(Mono.just(new Requester("user", "channel", "guild")));

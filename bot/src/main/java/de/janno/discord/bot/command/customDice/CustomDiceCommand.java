@@ -24,7 +24,6 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 @Slf4j
 public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, EmptyData> {
@@ -75,13 +74,12 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, EmptyDa
 
     @Override
     protected List<CommandDefinitionOption> getStartOptions() {
-        return Stream.concat(DICE_COMMAND_OPTIONS_IDS.stream()
-                                .map(id -> CommandDefinitionOption.builder()
-                                        .name(id)
-                                        .description("xdy for a set of x dice with y sides, e.g. '3d6'")
-                                        .type(CommandDefinitionOption.Type.STRING)
-                                        .build())
-                        , Stream.of(ANSWER_TARGET_CHANNEL_COMMAND_OPTION))
+        return DICE_COMMAND_OPTIONS_IDS.stream()
+                .map(id -> CommandDefinitionOption.builder()
+                        .name(id)
+                        .description("xdy for a set of x dice with y sides, e.g. '3d6'")
+                        .type(CommandDefinitionOption.Type.STRING)
+                        .build())
                 .collect(Collectors.toList());
     }
 
@@ -135,7 +133,7 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, EmptyDa
     }
 
     @Override
-    protected Optional<EmbedDefinition> getAnswer(State<EmptyData> state, CustomDiceConfig config) {
+    protected Optional<EmbedDefinition> getAnswer(CustomDiceConfig config, State<EmptyData> state) {
         String label = config.getLabelAndExpression().stream()
                 .filter(ld -> !ld.getDiceExpression().equals(ld.getLabel()))
                 .filter(ld -> ld.getDiceExpression().equals(state.getButtonValue()))
@@ -145,7 +143,7 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, EmptyDa
     }
 
     @Override
-    protected Optional<MessageDefinition> createNewButtonMessageWithState(State<EmptyData> state, CustomDiceConfig config) {
+    protected Optional<MessageDefinition> createNewButtonMessageWithState(CustomDiceConfig config, State<EmptyData> state) {
         return Optional.of(createNewButtonMessage(config));
     }
 
@@ -174,13 +172,13 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, EmptyDa
         String[] split = event.getCustomId().split(BotConstants.LEGACY_CONFIG_SPLIT_DELIMITER_REGEX);
         Long answerTargetChannelId = getOptionalLongFromArray(split, 2);
         return new CustomDiceConfig(answerTargetChannelId, event.getAllButtonIds().stream()
-                .map(lv -> new LabelAndDiceExpression(lv.getLabel(), lv.getCustomId().split(BotConstants.LEGACY_CONFIG_SPLIT_DELIMITER_REGEX)[1]))
+                .map(lv -> new LabelAndDiceExpression(lv.getLabel(), getButtonValueFromLegacyCustomId(lv.getCustomId())))
                 .collect(Collectors.toList()));
     }
 
     @Override
     protected State<EmptyData> getStateFromEvent(IButtonEventAdaptor event) {
-        return new State<>(event.getCustomId().split(BotConstants.LEGACY_CONFIG_SPLIT_DELIMITER_REGEX)[1], new EmptyData());
+        return new State<>(getButtonValueFromLegacyCustomId(event.getCustomId()), new EmptyData());
     }
 
     @Override

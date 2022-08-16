@@ -180,13 +180,12 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
                         .required(true)
                         .description("Expression")
                         .type(CommandDefinitionOption.Type.STRING)
-                        .build(),
-                ANSWER_TARGET_CHANNEL_COMMAND_OPTION
+                        .build()
         );
     }
 
     @Override
-    protected Optional<EmbedDefinition> getAnswer(State<CustomParameterStateData> state, CustomParameterConfig config) {
+    protected Optional<EmbedDefinition> getAnswer(CustomParameterConfig config, State<CustomParameterStateData> state) {
         if (!hasMissingParameter(getFilledExpression(config, state))) {
             String expression = DiceParserHelper.getExpressionFromExpressionWithOptionalLabel(getFilledExpression(config, state), LABEL_DELIMITER);
             String label = DiceParserHelper.getLabelFromExpressionWithOptionalLabel(getFilledExpression(config, state), LABEL_DELIMITER).orElse(null);
@@ -222,7 +221,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     }
 
     @Override
-    protected Optional<List<ComponentRowDefinition>> getCurrentMessageComponentChange(State<CustomParameterStateData> state, CustomParameterConfig config) {
+    protected Optional<List<ComponentRowDefinition>> getCurrentMessageComponentChange(CustomParameterConfig config, State<CustomParameterStateData> state) {
         if (!hasMissingParameter(getFilledExpression(config, state))) {
             return Optional.empty();
         }
@@ -242,7 +241,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     }
 
     @Override
-    public Optional<String> getCurrentMessageContentChange(State<CustomParameterStateData> state, CustomParameterConfig config) {
+    public Optional<String> getCurrentMessageContentChange(CustomParameterConfig config, State<CustomParameterStateData> state) {
         if (!hasMissingParameter(getFilledExpression(config, state))) {
             return Optional.empty();
         }
@@ -251,7 +250,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     }
 
     @Override
-    protected Optional<MessageDefinition> createNewButtonMessageWithState(State<CustomParameterStateData> state, CustomParameterConfig config) {
+    protected Optional<MessageDefinition> createNewButtonMessageWithState(CustomParameterConfig config, State<CustomParameterStateData> state) {
         if (!hasMissingParameter(getFilledExpression(config, state))) {
             return Optional.of(MessageDefinition.builder()
                     .content(String.format("%s: Please select value for %s", cleanupExpressionForDisplay(config.getBaseExpression()), cleanupExpressionForDisplay(getNextParameterExpression(config.getBaseExpression()))))

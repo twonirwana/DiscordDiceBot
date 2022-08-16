@@ -181,8 +181,8 @@ class CustomParameterCommandTest {
 
     @Test
     void getAnswer_complete() {
-        Optional<EmbedDefinition> res = underTest.getAnswer(createParameterState(LAST_SELECT_CUSTOM_ID,
-                "", ""), createConfigFromCustomId(LAST_SELECT_CUSTOM_ID));
+        Optional<EmbedDefinition> res = underTest.getAnswer(createConfigFromCustomId(LAST_SELECT_CUSTOM_ID),createParameterState(LAST_SELECT_CUSTOM_ID,
+                "", ""));
 
         assertThat(res).isPresent();
         assertThat(res.map(EmbedDefinition::getTitle).orElseThrow()).startsWith("1d2 = ");
@@ -190,8 +190,8 @@ class CustomParameterCommandTest {
 
     @Test
     void getAnswer_completeAndLabel() {
-        Optional<EmbedDefinition> res = underTest.getAnswer(createParameterState(LAST_SELECT_WITH_LABEL_CUSTOM_ID,
-                "", ""), createConfigFromCustomId(LAST_SELECT_WITH_LABEL_CUSTOM_ID));
+        Optional<EmbedDefinition> res = underTest.getAnswer(createConfigFromCustomId(LAST_SELECT_WITH_LABEL_CUSTOM_ID),createParameterState(LAST_SELECT_WITH_LABEL_CUSTOM_ID,
+                "", ""));
 
         assertThat(res).isPresent();
         assertThat(res.map(EmbedDefinition::getTitle).orElseThrow()).startsWith("Att: 1d2 = ");
@@ -199,8 +199,8 @@ class CustomParameterCommandTest {
 
     @Test
     void getAnswer_notComplete() {
-        Optional<EmbedDefinition> res = underTest.getAnswer(createParameterState(FIRST_SELECT_CUSTOM_ID,
-                "", ""), createConfigFromCustomId(FIRST_SELECT_CUSTOM_ID));
+        Optional<EmbedDefinition> res = underTest.getAnswer(createConfigFromCustomId(FIRST_SELECT_CUSTOM_ID),createParameterState(FIRST_SELECT_CUSTOM_ID,
+                "", ""));
 
         assertThat(res).isEmpty();
     }
@@ -252,8 +252,7 @@ class CustomParameterCommandTest {
     @Test
     void getCurrentMessageComponentChange_inSelection() {
 
-        Optional<List<ComponentRowDefinition>> res = underTest.getCurrentMessageComponentChange(createParameterState(FIRST_SELECT_CUSTOM_ID, "", ""),
-                createConfigFromCustomId(FIRST_SELECT_CUSTOM_ID));
+        Optional<List<ComponentRowDefinition>> res = underTest.getCurrentMessageComponentChange(createConfigFromCustomId(FIRST_SELECT_CUSTOM_ID), createParameterState(FIRST_SELECT_CUSTOM_ID, "", ""));
 
         assertThat(res).isPresent();
         assertThat(res.orElseThrow().stream()
@@ -280,8 +279,7 @@ class CustomParameterCommandTest {
     @Test
     void getCurrentMessageComponentChange_complete() {
 
-        Optional<List<ComponentRowDefinition>> res = underTest.getCurrentMessageComponentChange(createParameterState(LAST_SELECT_CUSTOM_ID, "", ""),
-                createConfigFromCustomId(LAST_SELECT_CUSTOM_ID));
+        Optional<List<ComponentRowDefinition>> res = underTest.getCurrentMessageComponentChange(createConfigFromCustomId(LAST_SELECT_CUSTOM_ID), createParameterState(LAST_SELECT_CUSTOM_ID, "", ""));
 
         assertThat(res).isEmpty();
     }
@@ -289,8 +287,7 @@ class CustomParameterCommandTest {
     @Test
     void getCurrentMessageContentChange_complete() {
 
-        Optional<String> res = underTest.getCurrentMessageContentChange(createParameterState(LAST_SELECT_CUSTOM_ID, "", ""),
-                createConfigFromCustomId(LAST_SELECT_CUSTOM_ID));
+        Optional<String> res = underTest.getCurrentMessageContentChange(createConfigFromCustomId(LAST_SELECT_CUSTOM_ID),createParameterState(LAST_SELECT_CUSTOM_ID, "", ""));
 
         assertThat(res).isEmpty();
     }
@@ -298,8 +295,7 @@ class CustomParameterCommandTest {
     @Test
     void getCurrentMessageContentChange_inSelection() {
 
-        Optional<String> res = underTest.getCurrentMessageContentChange(createParameterState(FIRST_SELECT_CUSTOM_ID, "", ""),
-                createConfigFromCustomId(FIRST_SELECT_CUSTOM_ID));
+        Optional<String> res = underTest.getCurrentMessageContentChange(createConfigFromCustomId(FIRST_SELECT_CUSTOM_ID),createParameterState(FIRST_SELECT_CUSTOM_ID, "", ""));
 
         assertThat(res).contains("∶1d*{s}*: Please select value for *{s}*");
     }
@@ -307,8 +303,7 @@ class CustomParameterCommandTest {
     @Test
     void getCurrentMessageContentChange_inSelectionLocked() {
 
-        Optional<String> res = underTest.getCurrentMessageContentChange(createParameterState(FIRST_SELECT_CUSTOM_ID, "user1\u22361d{s}: Please select value for {s}", "user1"),
-                createConfigFromCustomId(FIRST_SELECT_CUSTOM_ID));
+        Optional<String> res = underTest.getCurrentMessageContentChange(createConfigFromCustomId(FIRST_SELECT_CUSTOM_ID),createParameterState(FIRST_SELECT_CUSTOM_ID, "user1\u22361d{s}: Please select value for {s}", "user1"));
 
         assertThat(res).contains("user1∶1d*{s}*: Please select value for *{s}*");
     }
@@ -316,8 +311,7 @@ class CustomParameterCommandTest {
     @Test
     void createNewButtonMessageWithState_complete() {
 
-        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(createParameterState(LAST_SELECT_CUSTOM_ID, "user1\u22361d{s}: Please select value for {s}", "user1"),
-                createConfigFromCustomId(LAST_SELECT_CUSTOM_ID));
+        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(createConfigFromCustomId(LAST_SELECT_CUSTOM_ID),createParameterState(LAST_SELECT_CUSTOM_ID, "user1\u22361d{s}: Please select value for {s}", "user1"));
 
         assertThat(res.orElseThrow().getContent()).isEqualTo("*{n}*d*{s}*: Please select value for *{n}*");
         assertThat(res.orElseThrow().getComponentRowDefinitions().stream()
@@ -342,15 +336,14 @@ class CustomParameterCommandTest {
 
     @Test
     void createNewButtonMessageWithState_inSelection() {
-        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(createParameterState(FIRST_SELECT_CUSTOM_ID, "{n}d{s}: Please select value for {n}", "user1"),
-                createConfigFromCustomId(FIRST_SELECT_CUSTOM_ID));
+        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(createConfigFromCustomId(FIRST_SELECT_CUSTOM_ID),createParameterState(FIRST_SELECT_CUSTOM_ID, "{n}d{s}: Please select value for {n}", "user1"));
 
         assertThat(res).isEmpty();
     }
 
     @Test
     void checkPersistence() {
-        MessageDataDAO messageDataDAO = new MessageDataDAOImpl("jdbc:h2:file:./persistence/" + this.getClass().getSimpleName(), null, null);
+        MessageDataDAO messageDataDAO = new MessageDataDAOImpl("jdbc:h2:mem:" + this.getClass().getSimpleName(), null, null);
         long channelId = System.currentTimeMillis();
         long messageId = System.currentTimeMillis();
         MessageDataDTO toSave = underTest.createMessageDataForNewMessage(UUID.randomUUID(), channelId, messageId,

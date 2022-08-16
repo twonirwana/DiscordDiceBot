@@ -25,8 +25,6 @@ public interface ISlashEventAdaptor extends IDiscordAdapter {
 
     String getCommandString();
 
-    Mono<Void> deleteMessage(long messageId);
-
     Mono<Requester> getRequester();
 
     Mono<Void> createResultMessageWithEventReference(EmbedDefinition answer);

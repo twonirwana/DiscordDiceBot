@@ -3,8 +3,8 @@ package de.janno.discord.bot.command.fate;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import de.janno.discord.bot.command.AbstractCommand;
-import de.janno.discord.bot.command.EmptyData;
 import de.janno.discord.bot.command.ConfigAndState;
+import de.janno.discord.bot.command.EmptyData;
 import de.janno.discord.bot.command.State;
 import de.janno.discord.bot.dice.DiceUtils;
 import de.janno.discord.bot.persistance.Mapper;
@@ -99,20 +99,19 @@ public class FateCommand extends AbstractCommand<FateConfig, EmptyData> {
     @Override
     protected List<CommandDefinitionOption> getStartOptions() {
         return ImmutableList.of(CommandDefinitionOption.builder()
-                        .name(ACTION_MODIFIER_OPTION)
-                        .required(true)
-                        .description("Show modifier buttons")
-                        .type(CommandDefinitionOption.Type.STRING)
-                        .choice(CommandDefinitionOptionChoice.builder()
-                                .name(ACTION_MODIFIER_OPTION_SIMPLE)
-                                .value(ACTION_MODIFIER_OPTION_SIMPLE)
-                                .build())
-                        .choice(CommandDefinitionOptionChoice.builder()
-                                .name(ACTION_MODIFIER_OPTION_MODIFIER)
-                                .value(ACTION_MODIFIER_OPTION_MODIFIER)
-                                .build())
-                        .build(),
-                ANSWER_TARGET_CHANNEL_COMMAND_OPTION);
+                .name(ACTION_MODIFIER_OPTION)
+                .required(true)
+                .description("Show modifier buttons")
+                .type(CommandDefinitionOption.Type.STRING)
+                .choice(CommandDefinitionOptionChoice.builder()
+                        .name(ACTION_MODIFIER_OPTION_SIMPLE)
+                        .value(ACTION_MODIFIER_OPTION_SIMPLE)
+                        .build())
+                .choice(CommandDefinitionOptionChoice.builder()
+                        .name(ACTION_MODIFIER_OPTION_MODIFIER)
+                        .value(ACTION_MODIFIER_OPTION_MODIFIER)
+                        .build())
+                .build());
     }
 
     @Override
@@ -122,7 +121,7 @@ public class FateCommand extends AbstractCommand<FateConfig, EmptyData> {
     }
 
     @Override
-    protected Optional<EmbedDefinition> getAnswer(State<EmptyData> state, FateConfig config) {
+    protected Optional<EmbedDefinition> getAnswer(FateConfig config, State<EmptyData> state) {
         List<Integer> rollResult = diceUtils.rollFate();
 
         if (ACTION_MODIFIER_OPTION_MODIFIER.equals(config.getType())) {
@@ -146,7 +145,7 @@ public class FateCommand extends AbstractCommand<FateConfig, EmptyData> {
     }
 
     @Override
-    protected Optional<MessageDefinition> createNewButtonMessageWithState(State<EmptyData> state, FateConfig config) {
+    protected Optional<MessageDefinition> createNewButtonMessageWithState(FateConfig config, State<EmptyData> state) {
         return Optional.of(createNewButtonMessage(config));
     }
 
@@ -205,7 +204,7 @@ public class FateCommand extends AbstractCommand<FateConfig, EmptyData> {
 
     @Override
     protected State<EmptyData> getStateFromEvent(IButtonEventAdaptor event) {
-        String buttonValue = event.getCustomId().split(BotConstants.LEGACY_CONFIG_SPLIT_DELIMITER_REGEX)[1];
+        String buttonValue = getButtonValueFromLegacyCustomId(event.getCustomId());
         return new State<>(buttonValue, new EmptyData());
     }
 
