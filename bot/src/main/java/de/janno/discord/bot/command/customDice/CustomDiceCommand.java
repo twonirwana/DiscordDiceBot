@@ -46,13 +46,17 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, EmptyDa
     }
 
     @Override
-    protected Optional<ConfigAndState<CustomDiceConfig, EmptyData>> getMessageDataAndUpdateWithButtonValue(long channelId, long messageId, String buttonValue) {
+    protected Optional<ConfigAndState<CustomDiceConfig, EmptyData>> getMessageDataAndUpdateWithButtonValue(long channelId,
+                                                                                                           long messageId,
+                                                                                                           @NonNull String buttonValue,
+                                                                                                           @NonNull String invokingUserName) {
         final Optional<MessageDataDTO> messageDataDTO = messageDataDAO.getDataForMessage(channelId, messageId);
         if (messageDataDTO.isEmpty()) {
             return Optional.empty();
         }
         return Optional.of(deserializeAndUpdateState(messageDataDTO.get(), buttonValue));
     }
+
     @VisibleForTesting
     ConfigAndState<CustomDiceConfig, EmptyData> deserializeAndUpdateState(@NonNull MessageDataDTO messageDataDTO, @NonNull String buttonValue) {
         return new ConfigAndState<>(messageDataDTO.getConfigUUID(),

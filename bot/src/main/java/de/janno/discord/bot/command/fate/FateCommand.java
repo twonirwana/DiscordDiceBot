@@ -48,7 +48,10 @@ public class FateCommand extends AbstractCommand<FateConfig, EmptyData> {
     }
 
     @Override
-    protected Optional<ConfigAndState<FateConfig, EmptyData>> getMessageDataAndUpdateWithButtonValue(long channelId, long messageId, String buttonValue) {
+    protected Optional<ConfigAndState<FateConfig, EmptyData>> getMessageDataAndUpdateWithButtonValue(long channelId,
+                                                                                                     long messageId,
+                                                                                                     @NonNull String buttonValue,
+                                                                                                     @NonNull String invokingUserName) {
         final Optional<MessageDataDTO> messageDataDTO = messageDataDAO.getDataForMessage(channelId, messageId);
         if (messageDataDTO.isEmpty()) {
             return Optional.empty();

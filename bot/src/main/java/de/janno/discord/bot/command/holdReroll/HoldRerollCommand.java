@@ -254,7 +254,10 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollConfig, HoldRer
     }
 
     @Override
-    protected Optional<ConfigAndState<HoldRerollConfig, HoldRerollStateData>> getMessageDataAndUpdateWithButtonValue(long channelId, long messageId, String buttonValue) {
+    protected Optional<ConfigAndState<HoldRerollConfig, HoldRerollStateData>> getMessageDataAndUpdateWithButtonValue(long channelId,
+                                                                                                                     long messageId,
+                                                                                                                     @NonNull String buttonValue,
+                                                                                                                     @NonNull String invokingUserName) {
         //todo
         return Optional.empty();
     }

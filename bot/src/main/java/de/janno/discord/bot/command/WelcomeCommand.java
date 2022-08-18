@@ -43,7 +43,10 @@ public class WelcomeCommand extends AbstractCommand<Config, EmptyData> {
     }
 
     @Override
-    protected Optional<ConfigAndState<Config, EmptyData>> getMessageDataAndUpdateWithButtonValue(long channelId, long messageId, String buttonValue) {
+    protected Optional<ConfigAndState<Config, EmptyData>> getMessageDataAndUpdateWithButtonValue(long channelId,
+                                                                                                 long messageId,
+                                                                                                 @NonNull String buttonValue,
+                                                                                                 @NonNull String invokingUserName) {
         //todo
         return Optional.empty();
     }

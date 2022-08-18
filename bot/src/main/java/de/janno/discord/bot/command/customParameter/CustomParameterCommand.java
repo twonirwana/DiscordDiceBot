@@ -230,7 +230,10 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     }
 
     @Override
-    protected Optional<ConfigAndState<CustomParameterConfig, CustomParameterStateData>> getMessageDataAndUpdateWithButtonValue(long channelId, long messageId, String buttonValue) {
+    protected Optional<ConfigAndState<CustomParameterConfig, CustomParameterStateData>> getMessageDataAndUpdateWithButtonValue(long channelId,
+                                                                                                                               long messageId,
+                                                                                                                               @NonNull String buttonValue,
+                                                                                                                               @NonNull String invokingUserName) {
         //todo
         return Optional.empty();
     }

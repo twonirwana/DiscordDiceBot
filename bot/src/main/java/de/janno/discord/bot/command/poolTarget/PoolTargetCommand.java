@@ -90,7 +90,10 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTar
     }
 
     @Override
-    protected Optional<ConfigAndState<PoolTargetConfig, PoolTargetStateData>> getMessageDataAndUpdateWithButtonValue(long channelId, long messageId, String buttonValue) {
+    protected Optional<ConfigAndState<PoolTargetConfig, PoolTargetStateData>> getMessageDataAndUpdateWithButtonValue(long channelId,
+                                                                                                                     long messageId,
+                                                                                                                     @NonNull String buttonValue,
+                                                                                                                     @NonNull String invokingUserName) {
         final Optional<MessageDataDTO> messageDataDTO = messageDataDAO.getDataForMessage(channelId, messageId);
         if (messageDataDTO.isEmpty()) {
             return Optional.empty();

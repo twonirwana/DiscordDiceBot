@@ -31,6 +31,7 @@ public interface IButtonEventAdaptor extends IDiscordAdapter {
 
     List<LabelAndCustomId> getAllButtonIds();
 
+    @Deprecated
     String getMessageContent();
 
     Mono<Requester> getRequester();

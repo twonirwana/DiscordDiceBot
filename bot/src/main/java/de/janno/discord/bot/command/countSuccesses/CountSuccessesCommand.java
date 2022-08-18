@@ -62,7 +62,10 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesConfig,
 
 
     @Override
-    protected Optional<ConfigAndState<CountSuccessesConfig, EmptyData>> getMessageDataAndUpdateWithButtonValue(long channelId, long messageId, String buttonValue) {
+    protected Optional<ConfigAndState<CountSuccessesConfig, EmptyData>> getMessageDataAndUpdateWithButtonValue(long channelId,
+                                                                                                               long messageId,
+                                                                                                               @NonNull String buttonValue,
+                                                                                                               @NonNull String invokingUserName) {
         final Optional<MessageDataDTO> messageDataDTO = messageDataDAO.getDataForMessage(channelId, messageId);
         if (messageDataDTO.isEmpty()) {
             return Optional.empty();

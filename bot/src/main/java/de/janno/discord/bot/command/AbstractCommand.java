@@ -93,7 +93,10 @@ public abstract class AbstractCommand<C extends Config, S extends EmptyData> imp
         return Optional.empty();
     }
 
-    protected abstract Optional<ConfigAndState<C, S>> getMessageDataAndUpdateWithButtonValue(long channelId, long messageId, String buttonValue);
+    protected abstract Optional<ConfigAndState<C, S>> getMessageDataAndUpdateWithButtonValue(long channelId,
+                                                                                             long messageId,
+                                                                                             @NonNull String buttonValue,
+                                                                                             @NonNull String invokingUserName);
 
     protected abstract MessageDataDTO createMessageDataForNewMessage(@NonNull UUID configUUID,
                                                                      long channelId,
@@ -119,7 +122,10 @@ public abstract class AbstractCommand<C extends Config, S extends EmptyData> imp
             configUUID = UUID.randomUUID();
         } else {
             String buttonValue = getButtonValueFromCustomIdWithPersistence(event.getCustomId());
-            Optional<ConfigAndState<C, S>> messageData = getMessageDataAndUpdateWithButtonValue(channelId, messageId, buttonValue);
+            Optional<ConfigAndState<C, S>> messageData = getMessageDataAndUpdateWithButtonValue(channelId,
+                    messageId,
+                    buttonValue,
+                    event.getInvokingGuildMemberName());
             if (messageData.isPresent()) {
                 config = messageData.get().getConfig();
                 state = messageData.get().getState();
