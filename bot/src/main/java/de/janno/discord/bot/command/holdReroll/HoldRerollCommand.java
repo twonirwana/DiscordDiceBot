@@ -1,7 +1,6 @@
 package de.janno.discord.bot.command.holdReroll;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import de.janno.discord.bot.command.AbstractCommand;
@@ -81,22 +80,6 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollConfig, HoldRer
         return COMMAND_NAME;
     }
 
-    String createButtonCustomId(@NonNull String action, @NonNull HoldRerollConfig config, @Nullable HoldRerollStateData state) {
-
-        Preconditions.checkArgument(!action.contains(BotConstants.LEGACY_DELIMITER_V2));
-
-        return String.join(BotConstants.LEGACY_DELIMITER_V2,
-                COMMAND_NAME,
-                action,
-                state == null ? EMPTY : state.getCurrentResults().stream().map(String::valueOf).collect(Collectors.joining(SUBSET_DELIMITER)),
-                String.valueOf(config.getSidesOfDie()),
-                config.getRerollSet().isEmpty() ? EMPTY : config.getRerollSet().stream().map(String::valueOf).collect(Collectors.joining(SUBSET_DELIMITER)),
-                config.getSuccessSet().isEmpty() ? EMPTY : config.getSuccessSet().stream().map(String::valueOf).collect(Collectors.joining(SUBSET_DELIMITER)),
-                config.getFailureSet().isEmpty() ? EMPTY : config.getFailureSet().stream().map(String::valueOf).collect(Collectors.joining(SUBSET_DELIMITER)),
-                state == null ? "0" : String.valueOf(state.getRerollCounter()),
-                Optional.ofNullable(config.getAnswerTargetChannelId()).map(Object::toString).orElse("")
-        );
-    }
 
     @Override
     protected List<CommandDefinitionOption> getStartOptions() {
@@ -132,6 +115,9 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollConfig, HoldRer
     @Override
     protected Optional<EmbedDefinition> getAnswer(HoldRerollConfig config, State<HoldRerollStateData> state) {
         if (CLEAR_BUTTON_ID.equals(state.getButtonValue())) {
+            return Optional.empty();
+        }
+        if (state.getData() == null) {
             return Optional.empty();
         }
         if (!(FINISH_BUTTON_ID.equals(state.getButtonValue()) || rollFinished(state, config))) {
@@ -170,6 +156,13 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollConfig, HoldRer
         String buttonValue = customIdSplit[1];
         HoldRerollConfig config = getConfigFromEvent(event);
 
+        return new State<>(buttonValue, updateStateWithButtonValue(buttonValue, config, currentResult, rerollCount));
+    }
+
+    private HoldRerollStateData updateStateWithButtonValue(@NonNull String buttonValue,
+                                                           @NonNull HoldRerollConfig config,
+                                                           @NonNull List<Integer> currentResult,
+                                                           int rerollCount) {
         if (REROLL_BUTTON_ID.equals(buttonValue)) {
             currentResult = currentResult.stream()
                     .map(i -> {
@@ -187,7 +180,7 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollConfig, HoldRer
             currentResult = diceUtils.rollDiceOfType(numberOfDice, config.getSidesOfDie());
             rerollCount = 0;
         }
-        return new State<>(buttonValue, new HoldRerollStateData(currentResult, rerollCount));
+        return new HoldRerollStateData(currentResult, rerollCount);
     }
 
 
@@ -202,6 +195,9 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollConfig, HoldRer
     }
 
     private boolean rollFinished(State<HoldRerollStateData> state, HoldRerollConfig config) {
+        if (state.getData() == null) {
+            return false;
+        }
         return state.getData().getCurrentResults().stream().noneMatch(i -> config.getRerollSet().contains(i));
     }
 
@@ -258,29 +254,47 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollConfig, HoldRer
                                                                                                                      long messageId,
                                                                                                                      @NonNull String buttonValue,
                                                                                                                      @NonNull String invokingUserName) {
-        //todo
-        return Optional.empty();
+        final Optional<MessageDataDTO> messageDataDTO = messageDataDAO.getDataForMessage(channelId, messageId);
+        if (messageDataDTO.isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.of(deserializeAndUpdateState(messageDataDTO.get(), buttonValue));
     }
+
+    @Override
+    protected void updateCurrentMessageStateData(long channelId, long messageId, @NonNull HoldRerollConfig config, @NonNull State<HoldRerollStateData> state) {
+        if (state.getData() == null) {
+            messageDataDAO.updateCommandConfigOfMessage(channelId, messageId, Mapper.NO_PERSISTED_STATE, null);
+        } else {
+            messageDataDAO.updateCommandConfigOfMessage(channelId, messageId, "HoldRerollStateData", Mapper.serializedObject(state.getData()));
+        }
+    }
+
     @VisibleForTesting
     ConfigAndState<HoldRerollConfig, HoldRerollStateData> deserializeAndUpdateState(@NonNull MessageDataDTO messageDataDTO, @NonNull String buttonValue) {
         final HoldRerollStateData loadedStateData = Optional.ofNullable(messageDataDTO.getStateData())
                 .map(sd -> Mapper.deserializeObject(sd, HoldRerollStateData.class))
                 .orElse(null);
         final HoldRerollConfig loadedConfig = Mapper.deserializeObject(messageDataDTO.getConfig(), HoldRerollConfig.class);
-        //Todo update state
+        final HoldRerollStateData updatedState = updateStateWithButtonValue(buttonValue,
+                loadedConfig,
+                Optional.ofNullable(loadedStateData).map(HoldRerollStateData::getCurrentResults).orElse(ImmutableList.of()),
+                Optional.ofNullable(loadedStateData).map(HoldRerollStateData::getRerollCounter).orElse(0)
+        );
         return new ConfigAndState<>(messageDataDTO.getConfigUUID(),
                 loadedConfig,
-                new State<>(buttonValue, loadedStateData));
+                new State<>(buttonValue, updatedState));
     }
+
     @Override
     protected MessageDataDTO createMessageDataForNewMessage(@NonNull UUID configUUID, long channelId, long messageId, @NonNull HoldRerollConfig config, @Nullable State<HoldRerollStateData> state) {
-        //todo
-        return null;
+        return new MessageDataDTO(configUUID, channelId, messageId, getCommandId(), "HoldRerollConfig", Mapper.serializedObject(config));
     }
 
     @Override
     public Optional<String> getCurrentMessageContentChange(HoldRerollConfig config, State<HoldRerollStateData> state) {
-        if (config.getRerollSet().isEmpty()
+        if (state.getData() == null ||
+                config.getRerollSet().isEmpty()
                 || CLEAR_BUTTON_ID.equals(state.getButtonValue())
                 || FINISH_BUTTON_ID.equals(state.getButtonValue())
                 || rollFinished(state, config)) {
@@ -304,17 +318,17 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollConfig, HoldRer
         return ImmutableList.of(
                 ComponentRowDefinition.builder()
                         .buttonDefinition(ButtonDefinition.builder()
-                                .id(createButtonCustomId(REROLL_BUTTON_ID, config, state.getData()))
+                                .id(createButtonCustomId(REROLL_BUTTON_ID))
                                 .label("Reroll")
 
                                 .build())
                         .buttonDefinition(ButtonDefinition.builder()
-                                .id(createButtonCustomId(FINISH_BUTTON_ID, config, state.getData()))
+                                .id(createButtonCustomId(FINISH_BUTTON_ID))
                                 .label("Finish")
 
                                 .build())
                         .buttonDefinition(ButtonDefinition.builder()
-                                .id(createButtonCustomId(CLEAR_BUTTON_ID, config, state.getData()))
+                                .id(createButtonCustomId(CLEAR_BUTTON_ID))
                                 .label("Clear")
                                 .build())
                         .build()
@@ -324,7 +338,7 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollConfig, HoldRer
     private List<ComponentRowDefinition> createButtonLayout(HoldRerollConfig config) {
         List<ButtonDefinition> buttons = IntStream.range(1, 16)
                 .mapToObj(i -> ButtonDefinition.builder()
-                        .id(createButtonCustomId(String.valueOf(i), config, null))
+                        .id(createButtonCustomId(String.valueOf(i)))
                         .label(String.format("%d%s%s", i, DICE_SYMBOL, config.getSidesOfDie()))
                         .build())
                 .collect(Collectors.toList());
