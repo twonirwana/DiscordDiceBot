@@ -19,7 +19,6 @@ import java.util.Optional;
 @EqualsAndHashCode(callSuper = true)
 public class CustomParameterStateData extends EmptyData {
 
-    static final String SELECTED_PARAMETER_DELIMITER = "\t";
     @NonNull List<String> selectedParameterValues;
     @Nullable
     String lockedForUserName;
@@ -31,13 +30,6 @@ public class CustomParameterStateData extends EmptyData {
             @JsonProperty("lockedForUserName") @Nullable String lockedForUserName) {
         this.selectedParameterValues = selectedParameterValues;
         this.lockedForUserName = lockedForUserName;
-    }
-
-    @JsonIgnore
-    public Collection<CustomIdIndexWithValue> getIdComponents() {
-        return ImmutableList.of(
-                new CustomIdIndexWithValue(CustomIdIndex.SELECTED_PARAMETER, String.join(SELECTED_PARAMETER_DELIMITER, selectedParameterValues))
-        );
     }
 
     @JsonIgnore

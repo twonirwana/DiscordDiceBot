@@ -28,14 +28,6 @@ public class CustomParameterConfig extends Config {
         this.baseExpression = baseExpression;
     }
 
-    @JsonIgnore
-    public Collection<CustomIdIndexWithValue> getIdComponents() {
-        return ImmutableList.of(
-                new CustomIdIndexWithValue(CustomIdIndex.BASE_EXPRESSION, baseExpression),
-                new CustomIdIndexWithValue(CustomIdIndex.ANSWER_TARGET_CHANNEL, Optional.ofNullable(getAnswerTargetChannelId()).map(Objects::toString).orElse(""))
-        );
-    }
-
     @Override
     public String toShortString() {
         return ImmutableList.of(baseExpression, getTargetChannelShortString()).toString();
