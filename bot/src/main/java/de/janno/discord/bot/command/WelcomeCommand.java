@@ -139,6 +139,7 @@ public class WelcomeCommand extends AbstractCommand<Config, EmptyData> {
                 .componentRowDefinition(ComponentRowDefinition.builder()
                         .buttonDefinitions(
                                 ImmutableList.of(
+                                        //todo
                                         ButtonDefinition.builder()
                                                 .id(String.join(BotConstants.LEGACY_DELIMITER_V2, COMMAND_NAME, FATE_BUTTON_ID))
                                                 .label("Fate")

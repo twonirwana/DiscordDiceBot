@@ -10,8 +10,6 @@ import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.Set;
-
 @Slf4j
 public class ClearCommand implements ISlashCommand {
 
@@ -37,9 +35,11 @@ public class ClearCommand implements ISlashCommand {
     @Override
     public Mono<Void> handleSlashCommandEvent(@NonNull ISlashEventAdaptor event) {
         BotMetrics.incrementSlashStartMetricCounter(getCommandId(), "[]");
-        Set<Long> messageIdsToDelete = messageDataDAO.deleteDataForChannel(event.getChannelId());
-        return Flux.fromIterable(messageIdsToDelete)
-                .flatMap(id -> event.deleteMessage(id, true))
-                .then();
+        return event.reply("Deleting messages and data ...")
+                .then(Mono.just(messageDataDAO.deleteDataForChannel(event.getChannelId()))
+                        .flux()
+                        .flatMap(Flux::fromIterable)
+                        .flatMap(id -> event.deleteMessage(id, true))
+                        .then());
     }
 }

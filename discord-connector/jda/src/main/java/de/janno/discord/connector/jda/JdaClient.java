@@ -42,7 +42,7 @@ public class JdaClient {
     public static final Duration START_UP_BUFFER = Duration.of(5, ChronoUnit.MINUTES);
 
     private static String getCommandNameFromCustomId(String customId) {
-        return customId.split(BotConstants.LEGACY_CONFIG_SPLIT_DELIMITER_REGEX)[0];
+        return customId.split(BotConstants.CUSTOM_ID_DELIMITER)[0];
     }
 
     public void start(String token, boolean disableCommandUpdate, List<ISlashCommand> commands, MessageDefinition welcomeMessageDefinition) throws LoginException {
