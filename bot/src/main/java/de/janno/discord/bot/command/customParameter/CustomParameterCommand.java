@@ -272,8 +272,8 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     }
 
     @Override
-    protected MessageDataDTO createMessageDataForNewMessage(@NonNull UUID configUUID, long channelId, long messageId, @NonNull CustomParameterConfig config, @Nullable State<CustomParameterStateData> state) {
-        return new MessageDataDTO(configUUID, channelId, messageId, getCommandId(), "CustomParameterConfig", Mapper.serializedObject(config));
+    protected Optional<MessageDataDTO> createMessageDataForNewMessage(@NonNull UUID configUUID, long channelId, long messageId, @NonNull CustomParameterConfig config, @Nullable State<CustomParameterStateData> state) {
+        return Optional.of(new MessageDataDTO(configUUID, channelId, messageId, getCommandId(), "CustomParameterConfig", Mapper.serializedObject(config)));
     }
 
     @Override

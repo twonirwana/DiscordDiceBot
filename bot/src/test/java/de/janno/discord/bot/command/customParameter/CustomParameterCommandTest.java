@@ -350,8 +350,8 @@ class CustomParameterCommandTest {
         UUID configUUID = UUID.randomUUID();
         CustomParameterConfig config = new CustomParameterConfig(123L, "{n}d{s}");
         State<CustomParameterStateData> state = new State<>("5", new CustomParameterStateData(ImmutableList.of("5"), "userName"));
-        MessageDataDTO toSave = underTest.createMessageDataForNewMessage(configUUID, channelId, messageId, config, state);
-        messageDataDAO.saveMessageData(toSave);
+        Optional<MessageDataDTO> toSave = underTest.createMessageDataForNewMessage(configUUID, channelId, messageId, config, state);
+        messageDataDAO.saveMessageData(toSave.orElseThrow());
         underTest.updateCurrentMessageStateData(channelId, messageId, config, state);
 
         MessageDataDTO loaded = messageDataDAO.getDataForMessage(channelId, messageId).orElseThrow();

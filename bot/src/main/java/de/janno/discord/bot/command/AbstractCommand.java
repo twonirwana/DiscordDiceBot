@@ -98,7 +98,7 @@ public abstract class AbstractCommand<C extends Config, S extends EmptyData> imp
                                                                                              @NonNull String buttonValue,
                                                                                              @NonNull String invokingUserName);
 
-    protected abstract MessageDataDTO createMessageDataForNewMessage(@NonNull UUID configUUID,
+    protected abstract Optional<MessageDataDTO> createMessageDataForNewMessage(@NonNull UUID configUUID,
                                                                      long channelId,
                                                                      long messageId,
                                                                      @NonNull C config,
@@ -185,13 +185,13 @@ public abstract class AbstractCommand<C extends Config, S extends EmptyData> imp
         if (newButtonMessage.isPresent() && answerTargetChannelId == null) {
             Mono<Long> newMessageIdMono = event.createButtonMessage(newButtonMessage.get())
                     .map(newMessageId -> {
-                        final MessageDataDTO nextMessageData = createMessageDataForNewMessage(configUUID, channelId, newMessageId, config, state);
-                        messageDataDAO.saveMessageData(nextMessageData);
+                        final Optional<MessageDataDTO> nextMessageData = createMessageDataForNewMessage(configUUID, channelId, newMessageId, config, state);
+                        nextMessageData.ifPresent(messageDataDAO::saveMessageData);
                         return newMessageId;
                     });
             if (!keepExistingButtonMessage) {
                 if (isLegacyMessage) {
-                    createNewButtonMessageAndOptionalDeleteOld = event.deleteMessage(messageId).then();
+                    createNewButtonMessageAndOptionalDeleteOld = event.deleteMessage(messageId, false).then();
                 } else {
                     //delete all other button messages with the same config, retain only the new message
                     createNewButtonMessageAndOptionalDeleteOld = deleteMessageAndData(newMessageIdMono, null, configUUID, channelId, event);
@@ -218,7 +218,7 @@ public abstract class AbstractCommand<C extends Config, S extends EmptyData> imp
                 .flux()
                 .flatMap(newMessageId -> Flux.fromIterable(messageDataDAO.getAllMessageIdsForConfig(configUUID))
                         .filter(id -> filterWithOptionalSecondId(id, newMessageId, retainMessageId)))
-                .flatMap(oldMessageId -> event.deleteMessage(oldMessageId)
+                .flatMap(oldMessageId -> event.deleteMessage(oldMessageId, false)
                         .filter(Objects::nonNull)
                         .doOnNext(l -> messageDataDAO.deleteDataForMessage(channelId, l)))
                 .then();
@@ -262,8 +262,8 @@ public abstract class AbstractCommand<C extends Config, S extends EmptyData> imp
             return event.reply(commandString)
                     .then(event.createButtonMessage(createNewButtonMessage(config))
                             .map(newMessageId -> {
-                                final MessageDataDTO newMessageData = createMessageDataForNewMessage(UUID.randomUUID(), channelId, newMessageId, config, null);
-                                messageDataDAO.saveMessageData(newMessageData);
+                                final Optional<MessageDataDTO> newMessageData = createMessageDataForNewMessage(UUID.randomUUID(), channelId, newMessageId, config, null);
+                                newMessageData.ifPresent(messageDataDAO::saveMessageData);
                                 return newMessageId;
                             })
                             .then()

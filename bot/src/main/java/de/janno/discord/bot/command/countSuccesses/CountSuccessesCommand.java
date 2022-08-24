@@ -81,14 +81,14 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesConfig,
     }
 
     @Override
-    protected MessageDataDTO createMessageDataForNewMessage(@NonNull UUID configUUID,
-                                                            long channelId,
-                                                            long messageId,
-                                                            @NonNull CountSuccessesConfig config,
-                                                            @Nullable State<EmptyData> state) {
-        return new MessageDataDTO(configUUID, channelId, messageId, getCommandId(),
+    protected Optional<MessageDataDTO> createMessageDataForNewMessage(@NonNull UUID configUUID,
+                                                                      long channelId,
+                                                                      long messageId,
+                                                                      @NonNull CountSuccessesConfig config,
+                                                                      @Nullable State<EmptyData> state) {
+        return Optional.of(new MessageDataDTO(configUUID, channelId, messageId, getCommandId(),
                 "CountSuccessesConfig", Mapper.serializedObject(config),
-                Mapper.NO_PERSISTED_STATE, null);
+                Mapper.NO_PERSISTED_STATE, null));
     }
 
 

@@ -3,10 +3,7 @@ package de.janno.discord.bot.command.sumDiceSet;
 import com.google.common.collect.ImmutableMap;
 import de.janno.discord.bot.command.Config;
 import de.janno.discord.bot.command.ConfigAndState;
-import de.janno.discord.bot.command.EmptyData;
 import de.janno.discord.bot.command.State;
-import de.janno.discord.bot.command.countSuccesses.CountSuccessesConfig;
-import de.janno.discord.bot.command.poolTarget.PoolTargetCommand;
 import de.janno.discord.bot.dice.DiceUtils;
 import de.janno.discord.bot.persistance.MessageDataDAO;
 import de.janno.discord.bot.persistance.MessageDataDAOImpl;
@@ -424,8 +421,8 @@ class SumDiceSetCommandTest {
         UUID configUUID = UUID.randomUUID();
         Config config = new Config(123L);
         State<SumDiceSetStateData> state = new State<>("+1d6", new SumDiceSetStateData(ImmutableMap.of("d6", 3, "m", -4)));
-        MessageDataDTO toSave = underTest.createMessageDataForNewMessage(configUUID, channelId, messageId, config, state);
-        messageDataDAO.saveMessageData(toSave);
+        Optional<MessageDataDTO> toSave = underTest.createMessageDataForNewMessage(configUUID, channelId, messageId, config, state);
+        messageDataDAO.saveMessageData(toSave.orElseThrow());
         underTest.updateCurrentMessageStateData(channelId, messageId, config, state);
 
         MessageDataDTO loaded = messageDataDAO.getDataForMessage(channelId, messageId).orElseThrow();

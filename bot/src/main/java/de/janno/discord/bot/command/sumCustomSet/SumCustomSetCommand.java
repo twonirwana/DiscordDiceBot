@@ -93,8 +93,8 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
     }
 
     @Override
-    protected MessageDataDTO createMessageDataForNewMessage(@NonNull UUID configUUID, long channelId, long messageId, @NonNull SumCustomSetConfig config, @Nullable State<SumCustomSetStateData> state) {
-        return new MessageDataDTO(configUUID, channelId, messageId, getCommandId(), "SumCustomSetConfig", Mapper.serializedObject(config));
+    protected Optional<MessageDataDTO> createMessageDataForNewMessage(@NonNull UUID configUUID, long channelId, long messageId, @NonNull SumCustomSetConfig config, @Nullable State<SumCustomSetStateData> state) {
+        return Optional.of(new MessageDataDTO(configUUID, channelId, messageId, getCommandId(), "SumCustomSetConfig", Mapper.serializedObject(config)));
     }
 
     @Override

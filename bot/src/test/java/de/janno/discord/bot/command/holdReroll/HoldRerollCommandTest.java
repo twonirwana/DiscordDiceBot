@@ -20,6 +20,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Stream;
 
@@ -439,8 +440,8 @@ class HoldRerollCommandTest {
         UUID configUUID = UUID.randomUUID();
         HoldRerollConfig config = new HoldRerollConfig(123L, 10, ImmutableSet.of(9, 10), ImmutableSet.of(7, 8, 9, 10), ImmutableSet.of(1));
         State<HoldRerollStateData> state = new State<>("reroll", new HoldRerollStateData(ImmutableList.of(1, 2, 10), 2));
-        MessageDataDTO toSave = underTest.createMessageDataForNewMessage(configUUID, channelId, messageId, config, state);
-        messageDataDAO.saveMessageData(toSave);
+        Optional<MessageDataDTO> toSave = underTest.createMessageDataForNewMessage(configUUID, channelId, messageId, config, state);
+        messageDataDAO.saveMessageData(toSave.orElseThrow());
         underTest.updateCurrentMessageStateData(channelId, messageId, config, state);
 
         MessageDataDTO loaded = messageDataDAO.getDataForMessage(channelId, messageId).orElseThrow();

@@ -16,6 +16,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -258,14 +259,14 @@ class FateCommandTest {
         long channelId = System.currentTimeMillis();
         long messageId = System.currentTimeMillis();
         UUID configUUID = UUID.randomUUID();
-        FateConfig config =   new FateConfig(123L, "with_modifier");
+        FateConfig config = new FateConfig(123L, "with_modifier");
         State<EmptyData> state = new State<>("5", new EmptyData());
-        MessageDataDTO toSave = underTest.createMessageDataForNewMessage(configUUID, channelId, messageId, config, state);
-        messageDataDAO.saveMessageData(toSave);
+        Optional<MessageDataDTO> toSave = underTest.createMessageDataForNewMessage(configUUID, channelId, messageId, config, state);
+        messageDataDAO.saveMessageData(toSave.orElseThrow());
 
         MessageDataDTO loaded = messageDataDAO.getDataForMessage(channelId, messageId).orElseThrow();
 
-        assertThat(toSave).isEqualTo(loaded);
+        assertThat(toSave.orElseThrow()).isEqualTo(loaded);
         ConfigAndState<FateConfig, EmptyData> configAndState = underTest.deserializeAndUpdateState(loaded, "3");
         assertThat(configAndState.getConfig()).isEqualTo(config);
         assertThat(configAndState.getConfigUUID()).isEqualTo(configUUID);

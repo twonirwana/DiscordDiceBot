@@ -107,8 +107,8 @@ public class SlashEventAdapter extends DiscordAdapter implements ISlashEventAdap
     }
 
     @Override
-    public Mono<Long> deleteMessage(long messageId) {
-        return deleteMessage(event.getMessageChannel(), messageId);
+    public Mono<Long> deleteMessage(long messageId, boolean deletePinned) {
+        return deleteMessage(event.getMessageChannel(), messageId, deletePinned);
     }
 
     @Override

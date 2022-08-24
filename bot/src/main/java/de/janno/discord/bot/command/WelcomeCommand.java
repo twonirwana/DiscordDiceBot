@@ -47,14 +47,12 @@ public class WelcomeCommand extends AbstractCommand<Config, EmptyData> {
                                                                                                  long messageId,
                                                                                                  @NonNull String buttonValue,
                                                                                                  @NonNull String invokingUserName) {
-        //todo
-        return Optional.empty();
+        return Optional.of(new ConfigAndState<>(UUID.randomUUID(), new Config(null), new State<>(buttonValue, new EmptyData())));
     }
 
     @Override
-    protected MessageDataDTO createMessageDataForNewMessage(@NonNull UUID configUUID, long channelId, long messageId, @NonNull Config config, @Nullable State<EmptyData> state) {
-        //todo
-        return null;
+    protected Optional<MessageDataDTO> createMessageDataForNewMessage(@NonNull UUID configUUID, long channelId, long messageId, @NonNull Config config, @Nullable State<EmptyData> state) {
+        return Optional.empty();
     }
 
     @Override

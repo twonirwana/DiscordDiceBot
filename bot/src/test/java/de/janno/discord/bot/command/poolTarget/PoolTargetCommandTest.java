@@ -404,7 +404,7 @@ class PoolTargetCommandTest {
         when(buttonEventAdaptor.editMessage(any(), any())).thenReturn(Mono.just(mock(Void.class)));
         when(buttonEventAdaptor.createResultMessageWithEventReference(any(), eq(null))).thenReturn(Mono.just(mock(Void.class)));
         when(buttonEventAdaptor.createButtonMessage(any())).thenReturn(Mono.just(2L));
-        when(buttonEventAdaptor.deleteMessage(anyLong())).thenReturn(Mono.just(2L));
+        when(buttonEventAdaptor.deleteMessage(anyLong(), anyBoolean())).thenReturn(Mono.just(2L));
         when(buttonEventAdaptor.acknowledge()).thenReturn(Mono.just(mock(Void.class)));
 
         Mono<Void> res = underTest.handleComponentInteractEvent(buttonEventAdaptor);
@@ -415,7 +415,7 @@ class PoolTargetCommandTest {
 
         verify(buttonEventAdaptor).editMessage(eq("Click on the buttons to roll dice, with ask reroll:9,10 and botch:1,2"), anyList());
         verify(buttonEventAdaptor, never()).createButtonMessage(any());
-        verify(buttonEventAdaptor, never()).deleteMessage(anyLong());
+        verify(buttonEventAdaptor, never()).deleteMessage(anyLong(), anyBoolean());
         verify(buttonEventAdaptor, never()).createResultMessageWithEventReference(any(), eq(null));
         //todo check persistance
         verify(buttonEventAdaptor, times(4)).getCustomId();
@@ -437,7 +437,7 @@ class PoolTargetCommandTest {
         when(buttonEventAdaptor.editMessage(any(), any())).thenReturn(Mono.just(mock(Void.class)));
         when(buttonEventAdaptor.createResultMessageWithEventReference(any(), eq(null))).thenReturn(Mono.just(mock(Void.class)));
         when(buttonEventAdaptor.createButtonMessage(any())).thenReturn(Mono.just(2L));
-        when(buttonEventAdaptor.deleteMessage(anyLong())).thenReturn(Mono.just(2L));
+        when(buttonEventAdaptor.deleteMessage(anyLong(), anyBoolean())).thenReturn(Mono.just(2L));
         when(buttonEventAdaptor.acknowledge()).thenReturn(Mono.just(mock(Void.class)));
 
         Mono<Void> res = underTest.handleComponentInteractEvent(buttonEventAdaptor);
@@ -448,7 +448,7 @@ class PoolTargetCommandTest {
 
         verify(buttonEventAdaptor).editMessage(eq("Should 10s,9s in 15d10 against 8 be be rerolled?"), anyList());
         verify(buttonEventAdaptor, never()).createButtonMessage(any());
-        verify(buttonEventAdaptor, never()).deleteMessage(anyLong());
+        verify(buttonEventAdaptor, never()).deleteMessage(anyLong(), anyBoolean());
         verify(buttonEventAdaptor, never()).createResultMessageWithEventReference(any(), eq(null));
         //todo check persistance
         verify(buttonEventAdaptor, times(4)).getCustomId();
@@ -470,7 +470,7 @@ class PoolTargetCommandTest {
         when(buttonEventAdaptor.editMessage(any(), any())).thenReturn(Mono.just(mock(Void.class)));
         when(buttonEventAdaptor.createResultMessageWithEventReference(any(), eq(null))).thenReturn(Mono.just(mock(Void.class)));
         when(buttonEventAdaptor.createButtonMessage(any())).thenReturn(Mono.just(2L));
-        when(buttonEventAdaptor.deleteMessage(anyLong())).thenReturn(Mono.just(2L));
+        when(buttonEventAdaptor.deleteMessage(anyLong(), anyBoolean())).thenReturn(Mono.just(2L));
         when(buttonEventAdaptor.getRequester()).thenReturn(Mono.just(new Requester("user", "channel", "guild")));
         when(buttonEventAdaptor.acknowledge()).thenReturn(Mono.just(mock(Void.class)));
 
@@ -482,7 +482,7 @@ class PoolTargetCommandTest {
 
         verify(buttonEventAdaptor).editMessage(eq("processing ..."), anyList());
         verify(buttonEventAdaptor).createButtonMessage(any());
-        verify(buttonEventAdaptor).deleteMessage(1L);
+        verify(buttonEventAdaptor).deleteMessage(1L, false);
         verify(buttonEventAdaptor).createResultMessageWithEventReference(eq(new EmbedDefinition("15d10 = -4",
                 "[**1**,**1**,**1**,**2**,**2**,**2**,3,4,5,5,6,6,6,6,7,**10**,**10**] ≥8 = -4", ImmutableList.of())), eq(null));
         //todo check persistance
@@ -505,7 +505,7 @@ class PoolTargetCommandTest {
         when(buttonEventAdaptor.editMessage(any(), any())).thenReturn(Mono.just(mock(Void.class)));
         when(buttonEventAdaptor.createResultMessageWithEventReference(any(), eq(null))).thenReturn(Mono.just(mock(Void.class)));
         when(buttonEventAdaptor.createButtonMessage(any())).thenReturn(Mono.just(2L));
-        when(buttonEventAdaptor.deleteMessage(anyLong())).thenReturn(Mono.just(2L));
+        when(buttonEventAdaptor.deleteMessage(anyLong(), anyBoolean())).thenReturn(Mono.just(2L));
         when(buttonEventAdaptor.getRequester()).thenReturn(Mono.just(new Requester("user", "channel", "guild")));
         when(buttonEventAdaptor.acknowledge()).thenReturn(Mono.just(mock(Void.class)));
 
@@ -517,7 +517,7 @@ class PoolTargetCommandTest {
 
         verify(buttonEventAdaptor).editMessage(eq("processing ..."), anyList());
         verify(buttonEventAdaptor).createButtonMessage(any());
-        verify(buttonEventAdaptor).deleteMessage(1L);
+        verify(buttonEventAdaptor).deleteMessage(1L, false);
         verify(buttonEventAdaptor).createResultMessageWithEventReference(eq(new EmbedDefinition("15d10 = -4",
                 "[**1**,**1**,**1**,**2**,**2**,**2**,3,4,5,5,6,6,6,6,7,**10**,**10**] ≥8 = -4", ImmutableList.of())), eq(null));
         //todo check persitance
@@ -540,7 +540,7 @@ class PoolTargetCommandTest {
         when(buttonEventAdaptor.editMessage(any(), any())).thenReturn(Mono.just(mock(Void.class)));
         when(buttonEventAdaptor.createButtonMessage(any())).thenReturn(Mono.just(2L));
         when(buttonEventAdaptor.createResultMessageWithEventReference(any(), eq(null))).thenReturn(Mono.just(mock(Void.class)));
-        when(buttonEventAdaptor.deleteMessage(anyLong())).thenReturn(Mono.just(2L));
+        when(buttonEventAdaptor.deleteMessage(anyLong(), anyBoolean())).thenReturn(Mono.just(2L));
         when(buttonEventAdaptor.acknowledge()).thenReturn(Mono.just(mock(Void.class)));
 
         Mono<Void> res = underTest.handleComponentInteractEvent(buttonEventAdaptor);
@@ -550,7 +550,7 @@ class PoolTargetCommandTest {
 
         verify(buttonEventAdaptor).editMessage(eq("Click on the buttons to roll dice, with ask reroll:9,10 and botch:1,2"), anyList());
         verify(buttonEventAdaptor, never()).createButtonMessage(any());
-        verify(buttonEventAdaptor, never()).deleteMessage(anyLong());
+        verify(buttonEventAdaptor, never()).deleteMessage(anyLong(), anyBoolean());
         verify(buttonEventAdaptor, never()).createResultMessageWithEventReference(any(), eq(null));
 
         //todo check persistance
@@ -676,8 +676,8 @@ class PoolTargetCommandTest {
         UUID configUUID = UUID.randomUUID();
         PoolTargetConfig config = new PoolTargetConfig(123L, 10, 12, ImmutableSet.of(7, 8, 9, 10), ImmutableSet.of(1), "ask");
         State<PoolTargetStateData> state = new State<>("3", new PoolTargetStateData(5, null, null));
-        MessageDataDTO toSave = underTest.createMessageDataForNewMessage(configUUID, channelId, messageId, config, state);
-        messageDataDAO.saveMessageData(toSave);
+        Optional<MessageDataDTO> toSave = underTest.createMessageDataForNewMessage(configUUID, channelId, messageId, config, state);
+        messageDataDAO.saveMessageData(toSave.orElseThrow());
         underTest.updateCurrentMessageStateData(channelId, messageId, config, state);
 
         MessageDataDTO loaded = messageDataDAO.getDataForMessage(channelId, messageId).orElseThrow();

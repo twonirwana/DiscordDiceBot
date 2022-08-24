@@ -21,6 +21,7 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -244,7 +245,7 @@ class CountSuccessesCommandTest {
         when(buttonEventAdaptor.editMessage(any(), any())).thenReturn(Mono.just(mock(Void.class)));
         when(buttonEventAdaptor.createResultMessageWithEventReference(any(), eq(null))).thenReturn(Mono.just(mock(Void.class)));
         when(buttonEventAdaptor.createButtonMessage(any())).thenReturn(Mono.just(2L));
-        when(buttonEventAdaptor.deleteMessage(anyLong())).thenReturn(Mono.just(2L));
+        when(buttonEventAdaptor.deleteMessage(anyLong(),anyBoolean())).thenReturn(Mono.just(2L));
         when(buttonEventAdaptor.getRequester()).thenReturn(Mono.just(new Requester("user", "channel", "guild")));
         when(buttonEventAdaptor.acknowledge()).thenReturn(Mono.just(mock(Void.class)));
 
@@ -256,7 +257,7 @@ class CountSuccessesCommandTest {
 
         verify(buttonEventAdaptor).editMessage("processing ...", null);
         verify(buttonEventAdaptor).createButtonMessage(any());
-        verify(buttonEventAdaptor).deleteMessage(1L);
+        verify(buttonEventAdaptor).deleteMessage(1L, false);
         verify(buttonEventAdaptor).createResultMessageWithEventReference(eq(new EmbedDefinition("6d6 = 2 - Glitch!",
                 "[**1**,**1**,**1**,**1**,**5**,**6**] ≥4 = 2 and more then half of all dice show 1s", ImmutableList.of())), eq(null));
         //todo check persistance
@@ -279,7 +280,7 @@ class CountSuccessesCommandTest {
         when(buttonEventAdaptor.editMessage(any(), any())).thenReturn(Mono.just(mock(Void.class)));
         when(buttonEventAdaptor.createButtonMessage(any())).thenReturn(Mono.just(2L));
         when(buttonEventAdaptor.createResultMessageWithEventReference(any(), eq(null))).thenReturn(Mono.just(mock(Void.class)));
-        when(buttonEventAdaptor.deleteMessage(anyLong())).thenReturn(Mono.just(2L));
+        when(buttonEventAdaptor.deleteMessage(anyLong(),anyBoolean())).thenReturn(Mono.just(2L));
         when(buttonEventAdaptor.getRequester()).thenReturn(Mono.just(new Requester("user", "channel", "guild")));
         when(buttonEventAdaptor.acknowledge()).thenReturn(Mono.just(mock(Void.class)));
 
@@ -291,7 +292,7 @@ class CountSuccessesCommandTest {
 
         verify(buttonEventAdaptor).editMessage(eq("Click to roll the dice against 4 and check for more then half of dice 1s"), anyList());
         verify(buttonEventAdaptor).createButtonMessage(any());
-        verify(buttonEventAdaptor, never()).deleteMessage(anyLong());
+        verify(buttonEventAdaptor, never()).deleteMessage(anyLong(), anyBoolean());
         verify(buttonEventAdaptor).createResultMessageWithEventReference(eq(new EmbedDefinition("6d6 = 2 - Glitch!",
                 "[**1**,**1**,**1**,**1**,**5**,**6**] ≥4 = 2 and more then half of all dice show 1s", ImmutableList.of())), eq(null));
         //todo check persistance
@@ -367,12 +368,12 @@ class CountSuccessesCommandTest {
         UUID configUUID = UUID.randomUUID();
         CountSuccessesConfig config = new CountSuccessesConfig(123L, 6, 5, "no_glitch", 12);
         State<EmptyData> state = new State<>("5", new EmptyData());
-        MessageDataDTO toSave = underTest.createMessageDataForNewMessage(configUUID, channelId, messageId, config, state);
-        messageDataDAO.saveMessageData(toSave);
+        Optional<MessageDataDTO> toSave = underTest.createMessageDataForNewMessage(configUUID, channelId, messageId, config, state);
+        messageDataDAO.saveMessageData(toSave.orElseThrow());
 
         MessageDataDTO loaded = messageDataDAO.getDataForMessage(channelId, messageId).orElseThrow();
 
-        assertThat(toSave).isEqualTo(loaded);
+        assertThat(toSave.orElseThrow()).isEqualTo(loaded);
         ConfigAndState<CountSuccessesConfig, EmptyData> configAndState = underTest.deserializeAndUpdateState(loaded, "3");
         assertThat(configAndState.getConfig()).isEqualTo(config);
         assertThat(configAndState.getConfigUUID()).isEqualTo(configUUID);

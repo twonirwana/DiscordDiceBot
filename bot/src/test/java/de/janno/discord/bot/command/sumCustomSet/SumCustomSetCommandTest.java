@@ -25,7 +25,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.mockito.ArgumentMatchers;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -521,7 +520,7 @@ class SumCustomSetCommandTest {
         when(buttonEventAdaptor.editMessage(any(), any())).thenReturn(Mono.just(mock(Void.class)));
         when(buttonEventAdaptor.createResultMessageWithEventReference(any(), eq(null))).thenReturn(Mono.just(mock(Void.class)));
         when(buttonEventAdaptor.createButtonMessage(any())).thenReturn(Mono.just(2L));
-        when(buttonEventAdaptor.deleteMessage(ArgumentMatchers.anyLong())).thenReturn(Mono.just(2L));
+        when(buttonEventAdaptor.deleteMessage(anyLong(), anyBoolean())).thenReturn(Mono.just(2L));
         when(buttonEventAdaptor.getRequester()).thenReturn(Mono.just(new Requester("user", "channel", "guild")));
         when(buttonEventAdaptor.acknowledge()).thenReturn(Mono.just(mock(Void.class)));
         when(buttonEventAdaptor.getInvokingGuildMemberName()).thenReturn("testUser");
@@ -534,8 +533,8 @@ class SumCustomSetCommandTest {
 
         verify(buttonEventAdaptor).editMessage("Click the buttons to add dice to the set and then on Roll", null);
         verify(buttonEventAdaptor).createButtonMessage(any());
-        verify(buttonEventAdaptor).deleteMessage(ArgumentMatchers.anyLong());
-        verify(buttonEventAdaptor).createResultMessageWithEventReference(ArgumentMatchers.eq(new EmbedDefinition("1d6 = 3",
+        verify(buttonEventAdaptor).deleteMessage(anyLong(), anyBoolean());
+        verify(buttonEventAdaptor).createResultMessageWithEventReference(eq(new EmbedDefinition("1d6 = 3",
                 "[3]", ImmutableList.of())), eq(null));
         //todo check persistance
         verify(buttonEventAdaptor, times(4)).getCustomId();
@@ -560,7 +559,7 @@ class SumCustomSetCommandTest {
         when(buttonEventAdaptor.editMessage(any(), any())).thenReturn(Mono.just(mock(Void.class)));
         when(buttonEventAdaptor.createButtonMessage(any())).thenReturn(Mono.just(2L));
         when(buttonEventAdaptor.createResultMessageWithEventReference(any(), eq(null))).thenReturn(Mono.just(mock(Void.class)));
-        when(buttonEventAdaptor.deleteMessage(ArgumentMatchers.anyLong())).thenReturn(Mono.just(2L));
+        when(buttonEventAdaptor.deleteMessage(anyLong(), anyBoolean())).thenReturn(Mono.just(2L));
         when(buttonEventAdaptor.getRequester()).thenReturn(Mono.just(new Requester("user", "channel", "guild")));
         when(buttonEventAdaptor.acknowledge()).thenReturn(Mono.just(mock(Void.class)));
 
@@ -571,8 +570,8 @@ class SumCustomSetCommandTest {
 
         verify(buttonEventAdaptor).editMessage(eq("Click the buttons to add dice to the set and then on Roll"), anyList());
         verify(buttonEventAdaptor).createButtonMessage(any());
-        verify(buttonEventAdaptor, never()).deleteMessage(ArgumentMatchers.anyLong());
-        verify(buttonEventAdaptor).createResultMessageWithEventReference(ArgumentMatchers.eq(new EmbedDefinition("1d6 = 3",
+        verify(buttonEventAdaptor, never()).deleteMessage(anyLong(), anyBoolean());
+        verify(buttonEventAdaptor).createResultMessageWithEventReference(eq(new EmbedDefinition("1d6 = 3",
                 "[3]", ImmutableList.of())), eq(null));
         //todo check persistance
 
@@ -592,7 +591,7 @@ class SumCustomSetCommandTest {
         MessageDataDAO messageDataDAO = new MessageDataDAOImpl("jdbc:h2:mem:" + this.getClass().getSimpleName(), null, null);
         DiceParserHelper diceParserHelper = mock(DiceParserHelper.class);
         when(diceParserHelper.validExpression(any())).thenReturn(true);
-        underTest = new SumCustomSetCommand(messageDataDAO,diceParserHelper );
+        underTest = new SumCustomSetCommand(messageDataDAO, diceParserHelper);
 
         long channelId = System.currentTimeMillis();
         long messageId = System.currentTimeMillis();
@@ -602,8 +601,8 @@ class SumCustomSetCommandTest {
                 new LabelAndDiceExpression("+2d4", "+2d4")
         ));
         State<SumCustomSetStateData> state = new State<>("+2d4", new SumCustomSetStateData("2d4", "testUser"));
-        MessageDataDTO toSave = underTest.createMessageDataForNewMessage(configUUID, channelId, messageId, config, state);
-        messageDataDAO.saveMessageData(toSave);
+        Optional<MessageDataDTO> toSave = underTest.createMessageDataForNewMessage(configUUID, channelId, messageId, config, state);
+        messageDataDAO.saveMessageData(toSave.orElseThrow());
 
         underTest.updateCurrentMessageStateData(channelId, messageId, config, state);
 

@@ -281,7 +281,7 @@ class CustomDiceCommandTest {
         when(buttonEventAdaptor.editMessage(any(), any())).thenReturn(Mono.just(mock(Void.class)));
         when(buttonEventAdaptor.createResultMessageWithEventReference(any(), eq(null))).thenReturn(Mono.just(mock(Void.class)));
         when(buttonEventAdaptor.createButtonMessage(any())).thenReturn(Mono.just(2L));
-        when(buttonEventAdaptor.deleteMessage(anyLong())).thenReturn(Mono.just(2L));
+        when(buttonEventAdaptor.deleteMessage(anyLong(), anyBoolean())).thenReturn(Mono.just(2L));
         when(buttonEventAdaptor.getRequester()).thenReturn(Mono.just(new Requester("user", "channel", "guild")));
         when(buttonEventAdaptor.acknowledge()).thenReturn(Mono.just(mock(Void.class)));
 
@@ -294,7 +294,7 @@ class CustomDiceCommandTest {
         verify(buttonEventAdaptor).createButtonMessage(MessageDefinition.builder()
                 .content("Click on a button to roll the dice")
                 .build());
-        verify(buttonEventAdaptor).deleteMessage(anyLong());
+        verify(buttonEventAdaptor).deleteMessage(anyLong(), anyBoolean());
         verify(buttonEventAdaptor).createResultMessageWithEventReference(eq(new EmbedDefinition("1d6 = 3", "[3]", ImmutableList.of())), eq(null));
 
         //todo check persistance
@@ -318,7 +318,7 @@ class CustomDiceCommandTest {
         when(buttonEventAdaptor.editMessage(any(), any())).thenReturn(Mono.just(mock(Void.class)));
         when(buttonEventAdaptor.createButtonMessage(any())).thenReturn(Mono.just(2L));
         when(buttonEventAdaptor.createResultMessageWithEventReference(any(), eq(null))).thenReturn(Mono.just(mock(Void.class)));
-        when(buttonEventAdaptor.deleteMessage(anyLong())).thenReturn(Mono.just(2L));
+        when(buttonEventAdaptor.deleteMessage(anyLong(), anyBoolean())).thenReturn(Mono.just(2L));
         when(buttonEventAdaptor.getRequester()).thenReturn(Mono.just(new Requester("user", "channel", "guild")));
         when(buttonEventAdaptor.acknowledge()).thenReturn(Mono.just(mock(Void.class)));
 
@@ -330,7 +330,7 @@ class CustomDiceCommandTest {
         verify(buttonEventAdaptor).createButtonMessage(MessageDefinition.builder()
                 .content("Click on a button to roll the dice")
                 .build());
-        verify(buttonEventAdaptor, never()).deleteMessage(anyLong());
+        verify(buttonEventAdaptor, never()).deleteMessage(anyLong(), anyBoolean());
         verify(buttonEventAdaptor).createResultMessageWithEventReference(eq(new EmbedDefinition("1d6 = 3", "[3]", ImmutableList.of())), eq(null));
 
         //check persistance
@@ -385,7 +385,7 @@ class CustomDiceCommandTest {
                 .build()));
 
         when(event.createButtonMessage(any())).thenReturn(Mono.just(2L));
-        when(event.deleteMessage(anyLong())).thenReturn(Mono.just(2L));
+        when(event.deleteMessage(anyLong(), anyBoolean())).thenReturn(Mono.just(2L));
         when(event.getRequester()).thenReturn(Mono.just(new Requester("user", "channel", "guild")));
         when(event.reply(any())).thenReturn(Mono.just(mock(Void.class)));
         when(diceMock.detailedRoll(any())).thenAnswer(a -> new DiceParser().detailedRoll(a.getArgument(0)));
@@ -429,12 +429,12 @@ class CustomDiceCommandTest {
                 new LabelAndDiceExpression("Label", "+1d6"),
                 new LabelAndDiceExpression("+2d4", "+2d4")));
         State<EmptyData> state = new State<>("5", new EmptyData());
-        MessageDataDTO toSave = underTest.createMessageDataForNewMessage(configUUID, channelId, messageId, config, state);
-        messageDataDAO.saveMessageData(toSave);
+        Optional<MessageDataDTO> toSave = underTest.createMessageDataForNewMessage(configUUID, channelId, messageId, config, state);
+        messageDataDAO.saveMessageData(toSave.orElseThrow());
 
         MessageDataDTO loaded = messageDataDAO.getDataForMessage(channelId, messageId).orElseThrow();
 
-        assertThat(toSave).isEqualTo(loaded);
+        assertThat(toSave.orElseThrow()).isEqualTo(loaded);
         ConfigAndState<CustomDiceConfig, EmptyData> configAndState = underTest.deserializeAndUpdateState(loaded, "3");
         assertThat(configAndState.getConfig()).isEqualTo(config);
         assertThat(configAndState.getConfigUUID()).isEqualTo(configUUID);

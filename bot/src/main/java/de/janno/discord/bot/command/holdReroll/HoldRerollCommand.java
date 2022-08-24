@@ -287,8 +287,8 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollConfig, HoldRer
     }
 
     @Override
-    protected MessageDataDTO createMessageDataForNewMessage(@NonNull UUID configUUID, long channelId, long messageId, @NonNull HoldRerollConfig config, @Nullable State<HoldRerollStateData> state) {
-        return new MessageDataDTO(configUUID, channelId, messageId, getCommandId(), "HoldRerollConfig", Mapper.serializedObject(config));
+    protected Optional<MessageDataDTO> createMessageDataForNewMessage(@NonNull UUID configUUID, long channelId, long messageId, @NonNull HoldRerollConfig config, @Nullable State<HoldRerollStateData> state) {
+        return Optional.of(new MessageDataDTO(configUUID, channelId, messageId, getCommandId(), "HoldRerollConfig", Mapper.serializedObject(config)));
     }
 
     @Override
