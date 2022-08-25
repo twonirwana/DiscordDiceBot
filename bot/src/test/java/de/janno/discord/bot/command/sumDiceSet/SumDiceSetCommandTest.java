@@ -1,6 +1,6 @@
 package de.janno.discord.bot.command.sumDiceSet;
 
-import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableList;
 import de.janno.discord.bot.command.Config;
 import de.janno.discord.bot.command.ConfigAndState;
 import de.janno.discord.bot.command.State;
@@ -22,7 +22,6 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Stream;
@@ -36,67 +35,67 @@ class SumDiceSetCommandTest {
 
     static Stream<Arguments> generateGetEditButtonMessageData() {
         return Stream.of(
-                Arguments.of(new State<>("+1d4", new SumDiceSetStateData(ImmutableMap.of())), "1d4"),
-                Arguments.of(new State<>("+1d6", new SumDiceSetStateData(ImmutableMap.of())), "1d6"),
-                Arguments.of(new State<>("+1d8", new SumDiceSetStateData(ImmutableMap.of())), "1d8"),
-                Arguments.of(new State<>("+1d10", new SumDiceSetStateData(ImmutableMap.of())), "1d10"),
-                Arguments.of(new State<>("+1d12", new SumDiceSetStateData(ImmutableMap.of())), "1d12"),
-                Arguments.of(new State<>("+1d20", new SumDiceSetStateData(ImmutableMap.of())), "1d20"),
-                Arguments.of(new State<>("+1", new SumDiceSetStateData(ImmutableMap.of())), "1"),
-                Arguments.of(new State<>("+5", new SumDiceSetStateData(ImmutableMap.of())), "5"),
-                Arguments.of(new State<>("+10", new SumDiceSetStateData(ImmutableMap.of())), "10"),
+                Arguments.of(new State<>("+1d4", new SumDiceSetStateData(ImmutableList.of())), "1d4"),
+                Arguments.of(new State<>("+1d6", new SumDiceSetStateData(ImmutableList.of())), "1d6"),
+                Arguments.of(new State<>("+1d8", new SumDiceSetStateData(ImmutableList.of())), "1d8"),
+                Arguments.of(new State<>("+1d10", new SumDiceSetStateData(ImmutableList.of())), "1d10"),
+                Arguments.of(new State<>("+1d12", new SumDiceSetStateData(ImmutableList.of())), "1d12"),
+                Arguments.of(new State<>("+1d20", new SumDiceSetStateData(ImmutableList.of())), "1d20"),
+                Arguments.of(new State<>("+1", new SumDiceSetStateData(ImmutableList.of())), "1"),
+                Arguments.of(new State<>("+5", new SumDiceSetStateData(ImmutableList.of())), "5"),
+                Arguments.of(new State<>("+10", new SumDiceSetStateData(ImmutableList.of())), "10"),
 
-                Arguments.of(new State<>("-1d4", new SumDiceSetStateData(ImmutableMap.of("d4", 1))), "Click on the buttons to add dice to the set"),
-                Arguments.of(new State<>("-1d6", new SumDiceSetStateData(ImmutableMap.of("d6", 1))), "Click on the buttons to add dice to the set"),
-                Arguments.of(new State<>("-1d8", new SumDiceSetStateData(ImmutableMap.of("d8", 1))), "Click on the buttons to add dice to the set"),
-                Arguments.of(new State<>("-1d10", new SumDiceSetStateData(ImmutableMap.of("d10", 1))), "Click on the buttons to add dice to the set"),
-                Arguments.of(new State<>("-1d12", new SumDiceSetStateData(ImmutableMap.of("d12", 1))), "Click on the buttons to add dice to the set"),
-                Arguments.of(new State<>("-1d20", new SumDiceSetStateData(ImmutableMap.of("d20", 1))), "Click on the buttons to add dice to the set"),
-                Arguments.of(new State<>("-1", new SumDiceSetStateData(ImmutableMap.of("m", 1))), "Click on the buttons to add dice to the set"),
-                Arguments.of(new State<>("+1d4", new SumDiceSetStateData(ImmutableMap.of("d4", -1))), "Click on the buttons to add dice to the set"),
-                Arguments.of(new State<>("+1d6", new SumDiceSetStateData(ImmutableMap.of("d6", -1))), "Click on the buttons to add dice to the set"),
-                Arguments.of(new State<>("+1d8", new SumDiceSetStateData(ImmutableMap.of("d8", -1))), "Click on the buttons to add dice to the set"),
-                Arguments.of(new State<>("+1d10", new SumDiceSetStateData(ImmutableMap.of("d10", -1))), "Click on the buttons to add dice to the set"),
-                Arguments.of(new State<>("+1d12", new SumDiceSetStateData(ImmutableMap.of("d12", -1))), "Click on the buttons to add dice to the set"),
-                Arguments.of(new State<>("+1d20", new SumDiceSetStateData(ImmutableMap.of("d20", -1))), "Click on the buttons to add dice to the set"),
-                Arguments.of(new State<>("+1", new SumDiceSetStateData(ImmutableMap.of("m", -1))), "Click on the buttons to add dice to the set"),
+                Arguments.of(new State<>("-1d4", new SumDiceSetStateData(ImmutableList.of(new DiceKeyAndValue("d4", 1)))), "Click on the buttons to add dice to the set"),
+                Arguments.of(new State<>("-1d6", new SumDiceSetStateData(ImmutableList.of(new DiceKeyAndValue("d6", 1)))), "Click on the buttons to add dice to the set"),
+                Arguments.of(new State<>("-1d8", new SumDiceSetStateData(ImmutableList.of(new DiceKeyAndValue("d8", 1)))), "Click on the buttons to add dice to the set"),
+                Arguments.of(new State<>("-1d10", new SumDiceSetStateData(ImmutableList.of(new DiceKeyAndValue("d10", 1)))), "Click on the buttons to add dice to the set"),
+                Arguments.of(new State<>("-1d12", new SumDiceSetStateData(ImmutableList.of(new DiceKeyAndValue("d12", 1)))), "Click on the buttons to add dice to the set"),
+                Arguments.of(new State<>("-1d20", new SumDiceSetStateData(ImmutableList.of(new DiceKeyAndValue("d20", 1)))), "Click on the buttons to add dice to the set"),
+                Arguments.of(new State<>("-1", new SumDiceSetStateData(ImmutableList.of(new DiceKeyAndValue("m", 1)))), "Click on the buttons to add dice to the set"),
+                Arguments.of(new State<>("+1d4", new SumDiceSetStateData(ImmutableList.of(new DiceKeyAndValue("d4", -1)))), "Click on the buttons to add dice to the set"),
+                Arguments.of(new State<>("+1d6", new SumDiceSetStateData(ImmutableList.of(new DiceKeyAndValue("d6", -1)))), "Click on the buttons to add dice to the set"),
+                Arguments.of(new State<>("+1d8", new SumDiceSetStateData(ImmutableList.of(new DiceKeyAndValue("d8", -1)))), "Click on the buttons to add dice to the set"),
+                Arguments.of(new State<>("+1d10", new SumDiceSetStateData(ImmutableList.of(new DiceKeyAndValue("d10", -1)))), "Click on the buttons to add dice to the set"),
+                Arguments.of(new State<>("+1d12", new SumDiceSetStateData(ImmutableList.of(new DiceKeyAndValue("d12", -1)))), "Click on the buttons to add dice to the set"),
+                Arguments.of(new State<>("+1d20", new SumDiceSetStateData(ImmutableList.of(new DiceKeyAndValue("d20", -1)))), "Click on the buttons to add dice to the set"),
+                Arguments.of(new State<>("+1", new SumDiceSetStateData(ImmutableList.of(new DiceKeyAndValue("m", -1)))), "Click on the buttons to add dice to the set"),
 
-                Arguments.of(new State<>("-1d4", new SumDiceSetStateData(ImmutableMap.of())), "-1d4"),
-                Arguments.of(new State<>("-1d6", new SumDiceSetStateData(ImmutableMap.of())), "-1d6"),
-                Arguments.of(new State<>("-1d8", new SumDiceSetStateData(ImmutableMap.of())), "-1d8"),
-                Arguments.of(new State<>("-1d10", new SumDiceSetStateData(ImmutableMap.of())), "-1d10"),
-                Arguments.of(new State<>("-1d12", new SumDiceSetStateData(ImmutableMap.of())), "-1d12"),
-                Arguments.of(new State<>("-1d20", new SumDiceSetStateData(ImmutableMap.of())), "-1d20"),
-                Arguments.of(new State<>("-1", new SumDiceSetStateData(ImmutableMap.of())), "-1"),
-                Arguments.of(new State<>("-5", new SumDiceSetStateData(ImmutableMap.of())), "-5"),
+                Arguments.of(new State<>("-1d4", new SumDiceSetStateData(ImmutableList.of())), "-1d4"),
+                Arguments.of(new State<>("-1d6", new SumDiceSetStateData(ImmutableList.of())), "-1d6"),
+                Arguments.of(new State<>("-1d8", new SumDiceSetStateData(ImmutableList.of())), "-1d8"),
+                Arguments.of(new State<>("-1d10", new SumDiceSetStateData(ImmutableList.of())), "-1d10"),
+                Arguments.of(new State<>("-1d12", new SumDiceSetStateData(ImmutableList.of())), "-1d12"),
+                Arguments.of(new State<>("-1d20", new SumDiceSetStateData(ImmutableList.of())), "-1d20"),
+                Arguments.of(new State<>("-1", new SumDiceSetStateData(ImmutableList.of())), "-1"),
+                Arguments.of(new State<>("-5", new SumDiceSetStateData(ImmutableList.of())), "-5"),
 
-                Arguments.of(new State<>("-5", new SumDiceSetStateData(ImmutableMap.of("m", 10))), "5"),
-                Arguments.of(new State<>("-5", new SumDiceSetStateData(ImmutableMap.of("m", 2))), "-3"),
-                Arguments.of(new State<>("+5", new SumDiceSetStateData(ImmutableMap.of("m", -2))), "3"),
-                Arguments.of(new State<>("+5", new SumDiceSetStateData(ImmutableMap.of("m", -10))), "-5"),
+                Arguments.of(new State<>("-5", new SumDiceSetStateData(ImmutableList.of(new DiceKeyAndValue("m", 10)))), "5"),
+                Arguments.of(new State<>("-5", new SumDiceSetStateData(ImmutableList.of(new DiceKeyAndValue("m", 2)))), "-3"),
+                Arguments.of(new State<>("+5", new SumDiceSetStateData(ImmutableList.of(new DiceKeyAndValue("m", -2)))), "3"),
+                Arguments.of(new State<>("+5", new SumDiceSetStateData(ImmutableList.of(new DiceKeyAndValue("m", -10)))), "-5"),
 
-                Arguments.of(new State<>("+1d4", new SumDiceSetStateData(ImmutableMap.of("d4", 1, "d6", 1, "d8", 1, "d10", 1, "d12", 1, "d20", 1))), "2d4 +1d6 +1d8 +1d10 +1d12 +1d20"),
-                Arguments.of(new State<>("+1d6", new SumDiceSetStateData(ImmutableMap.of("d4", 1, "d6", 1, "d8", 1, "d10", 1, "d12", 1, "d20", 1))), "1d4 +2d6 +1d8 +1d10 +1d12 +1d20"),
-                Arguments.of(new State<>("+1d8", new SumDiceSetStateData(ImmutableMap.of("d4", 1, "d6", 1, "d8", 1, "d10", 1, "d12", 1, "d20", 1))), "1d4 +1d6 +2d8 +1d10 +1d12 +1d20"),
-                Arguments.of(new State<>("+1d10", new SumDiceSetStateData(ImmutableMap.of("d4", 1, "d6", 1, "d8", 1, "d10", 1, "d12", 1, "d20", 1))), "1d4 +1d6 +1d8 +2d10 +1d12 +1d20"),
-                Arguments.of(new State<>("+1d12", new SumDiceSetStateData(ImmutableMap.of("d4", 1, "d6", 1, "d8", 1, "d10", 1, "d12", 1, "d20", 1))), "1d4 +1d6 +1d8 +1d10 +2d12 +1d20"),
-                Arguments.of(new State<>("+1d20", new SumDiceSetStateData(ImmutableMap.of("d4", 1, "d6", 1, "d8", 1, "d10", 1, "d12", 1, "d20", 1))), "1d4 +1d6 +1d8 +1d10 +1d12 +2d20"),
-                Arguments.of(new State<>("+1", new SumDiceSetStateData(ImmutableMap.of("d4", 1, "d6", 1, "d8", 1, "d10", 1, "d12", 1, "d20", 1))), "1d4 +1d6 +1d8 +1d10 +1d12 +1d20 +1"),
+                Arguments.of(new State<>("+1d4", new SumDiceSetStateData(ImmutableList.of(new DiceKeyAndValue("d4", 1), new DiceKeyAndValue("d6", 1), new DiceKeyAndValue("d8", 1), new DiceKeyAndValue("d10", 1), new DiceKeyAndValue("d12", 1), new DiceKeyAndValue("d20", 1)))), "2d4 +1d6 +1d8 +1d10 +1d12 +1d20"),
+                Arguments.of(new State<>("+1d6", new SumDiceSetStateData(ImmutableList.of(new DiceKeyAndValue("d4", 1), new DiceKeyAndValue("d6", 1), new DiceKeyAndValue("d8", 1), new DiceKeyAndValue("d10", 1), new DiceKeyAndValue("d12", 1), new DiceKeyAndValue("d20", 1)))), "1d4 +2d6 +1d8 +1d10 +1d12 +1d20"),
+                Arguments.of(new State<>("+1d8", new SumDiceSetStateData(ImmutableList.of(new DiceKeyAndValue("d4", 1), new DiceKeyAndValue("d6", 1), new DiceKeyAndValue("d8", 1), new DiceKeyAndValue("d10", 1), new DiceKeyAndValue("d12", 1), new DiceKeyAndValue("d20", 1)))), "1d4 +1d6 +2d8 +1d10 +1d12 +1d20"),
+                Arguments.of(new State<>("+1d10", new SumDiceSetStateData(ImmutableList.of(new DiceKeyAndValue("d4", 1), new DiceKeyAndValue("d6", 1), new DiceKeyAndValue("d8", 1), new DiceKeyAndValue("d10", 1), new DiceKeyAndValue("d12", 1), new DiceKeyAndValue("d20", 1)))), "1d4 +1d6 +1d8 +2d10 +1d12 +1d20"),
+                Arguments.of(new State<>("+1d12", new SumDiceSetStateData(ImmutableList.of(new DiceKeyAndValue("d4", 1), new DiceKeyAndValue("d6", 1), new DiceKeyAndValue("d8", 1), new DiceKeyAndValue("d10", 1), new DiceKeyAndValue("d12", 1), new DiceKeyAndValue("d20", 1)))), "1d4 +1d6 +1d8 +1d10 +2d12 +1d20"),
+                Arguments.of(new State<>("+1d20", new SumDiceSetStateData(ImmutableList.of(new DiceKeyAndValue("d4", 1), new DiceKeyAndValue("d6", 1), new DiceKeyAndValue("d8", 1), new DiceKeyAndValue("d10", 1), new DiceKeyAndValue("d12", 1), new DiceKeyAndValue("d20", 1)))), "1d4 +1d6 +1d8 +1d10 +1d12 +2d20"),
+                Arguments.of(new State<>("+1", new SumDiceSetStateData(ImmutableList.of(new DiceKeyAndValue("d4", 1), new DiceKeyAndValue("d6", 1), new DiceKeyAndValue("d8", 1), new DiceKeyAndValue("d10", 1), new DiceKeyAndValue("d12", 1), new DiceKeyAndValue("d20", 1)))), "1d4 +1d6 +1d8 +1d10 +1d12 +1d20 +1"),
 
-                Arguments.of(new State<>("-1d4", new SumDiceSetStateData(ImmutableMap.of("d4", 1, "d6", 1, "d8", 1, "d10", 1, "d12", 1, "d20", 1))), "1d6 +1d8 +1d10 +1d12 +1d20"),
-                Arguments.of(new State<>("-1d6", new SumDiceSetStateData(ImmutableMap.of("d4", 1, "d6", 1, "d8", 1, "d10", 1, "d12", 1, "d20", 1))), "1d4 +1d8 +1d10 +1d12 +1d20"),
-                Arguments.of(new State<>("-1d8", new SumDiceSetStateData(ImmutableMap.of("d4", 1, "d6", 1, "d8", 1, "d10", 1, "d12", 1, "d20", 1))), "1d4 +1d6 +1d10 +1d12 +1d20"),
-                Arguments.of(new State<>("-1d10", new SumDiceSetStateData(ImmutableMap.of("d4", 1, "d6", 1, "d8", 1, "d10", 1, "d12", 1, "d20", 1))), "1d4 +1d6 +1d8 +1d12 +1d20"),
-                Arguments.of(new State<>("-1d12", new SumDiceSetStateData(ImmutableMap.of("d4", 1, "d6", 1, "d8", 1, "d10", 1, "d12", 1, "d20", 1))), "1d4 +1d6 +1d8 +1d10 +1d20"),
-                Arguments.of(new State<>("-1d20", new SumDiceSetStateData(ImmutableMap.of("d4", 1, "d6", 1, "d8", 1, "d10", 1, "d12", 1, "d20", 1))), "1d4 +1d6 +1d8 +1d10 +1d12"),
-                Arguments.of(new State<>("-1", new SumDiceSetStateData(ImmutableMap.of("d4", 1, "d6", 1, "d8", 1, "d10", 1, "d12", 1, "d20", 1))), "1d4 +1d6 +1d8 +1d10 +1d12 +1d20 -1"),
+                Arguments.of(new State<>("-1d4", new SumDiceSetStateData(ImmutableList.of(new DiceKeyAndValue("d4", 1), new DiceKeyAndValue("d6", 1), new DiceKeyAndValue("d8", 1), new DiceKeyAndValue("d10", 1), new DiceKeyAndValue("d12", 1), new DiceKeyAndValue("d20", 1)))), "1d6 +1d8 +1d10 +1d12 +1d20"),
+                Arguments.of(new State<>("-1d6", new SumDiceSetStateData(ImmutableList.of(new DiceKeyAndValue("d4", 1), new DiceKeyAndValue("d6", 1), new DiceKeyAndValue("d8", 1), new DiceKeyAndValue("d10", 1), new DiceKeyAndValue("d12", 1), new DiceKeyAndValue("d20", 1)))), "1d4 +1d8 +1d10 +1d12 +1d20"),
+                Arguments.of(new State<>("-1d8", new SumDiceSetStateData(ImmutableList.of(new DiceKeyAndValue("d4", 1), new DiceKeyAndValue("d6", 1), new DiceKeyAndValue("d8", 1), new DiceKeyAndValue("d10", 1), new DiceKeyAndValue("d12", 1), new DiceKeyAndValue("d20", 1)))), "1d4 +1d6 +1d10 +1d12 +1d20"),
+                Arguments.of(new State<>("-1d10", new SumDiceSetStateData(ImmutableList.of(new DiceKeyAndValue("d4", 1), new DiceKeyAndValue("d6", 1), new DiceKeyAndValue("d8", 1), new DiceKeyAndValue("d10", 1), new DiceKeyAndValue("d12", 1), new DiceKeyAndValue("d20", 1)))), "1d4 +1d6 +1d8 +1d12 +1d20"),
+                Arguments.of(new State<>("-1d12", new SumDiceSetStateData(ImmutableList.of(new DiceKeyAndValue("d4", 1), new DiceKeyAndValue("d6", 1), new DiceKeyAndValue("d8", 1), new DiceKeyAndValue("d10", 1), new DiceKeyAndValue("d12", 1), new DiceKeyAndValue("d20", 1)))), "1d4 +1d6 +1d8 +1d10 +1d20"),
+                Arguments.of(new State<>("-1d20", new SumDiceSetStateData(ImmutableList.of(new DiceKeyAndValue("d4", 1), new DiceKeyAndValue("d6", 1), new DiceKeyAndValue("d8", 1), new DiceKeyAndValue("d10", 1), new DiceKeyAndValue("d12", 1), new DiceKeyAndValue("d20", 1)))), "1d4 +1d6 +1d8 +1d10 +1d12"),
+                Arguments.of(new State<>("-1", new SumDiceSetStateData(ImmutableList.of(new DiceKeyAndValue("d4", 1), new DiceKeyAndValue("d6", 1), new DiceKeyAndValue("d8", 1), new DiceKeyAndValue("d10", 1), new DiceKeyAndValue("d12", 1), new DiceKeyAndValue("d20", 1)))), "1d4 +1d6 +1d8 +1d10 +1d12 +1d20 -1"),
 
-                Arguments.of(new State<>("+1d4", new SumDiceSetStateData(ImmutableMap.of("d4", 100, "d6", 100, "d8", 100, "d10", 100, "d12", 100, "d20", 100))), "100d4 +100d6 +100d8 +100d10 +100d12 +100d20"),
-                Arguments.of(new State<>("+1d6", new SumDiceSetStateData(ImmutableMap.of("d4", 100, "d6", 100, "d8", 100, "d10", 100, "d12", 100, "d20", 100))), "100d4 +100d6 +100d8 +100d10 +100d12 +100d20"),
-                Arguments.of(new State<>("+1d8", new SumDiceSetStateData(ImmutableMap.of("d4", 100, "d6", 100, "d8", 100, "d10", 100, "d12", 100, "d20", 100))), "100d4 +100d6 +100d8 +100d10 +100d12 +100d20"),
-                Arguments.of(new State<>("+1d10", new SumDiceSetStateData(ImmutableMap.of("d4", 100, "d6", 100, "d8", 100, "d10", 100, "d12", 100, "d20", 100))), "100d4 +100d6 +100d8 +100d10 +100d12 +100d20"),
-                Arguments.of(new State<>("+1d12", new SumDiceSetStateData(ImmutableMap.of("d4", 100, "d6", 100, "d8", 100, "d10", 100, "d12", 100, "d20", 100))), "100d4 +100d6 +100d8 +100d10 +100d12 +100d20"),
-                Arguments.of(new State<>("+1d20", new SumDiceSetStateData(ImmutableMap.of("d4", 100, "d6", 100, "d8", 100, "d10", 100, "d12", 100, "d20", 100))), "100d4 +100d6 +100d8 +100d10 +100d12 +100d20")
+                Arguments.of(new State<>("+1d4", new SumDiceSetStateData(ImmutableList.of(new DiceKeyAndValue("d4", 100), new DiceKeyAndValue("d6", 100), new DiceKeyAndValue("d8", 100), new DiceKeyAndValue("d10", 100), new DiceKeyAndValue("d12", 100), new DiceKeyAndValue("d20", 100)))), "100d4 +100d6 +100d8 +100d10 +100d12 +100d20"),
+                Arguments.of(new State<>("+1d6", new SumDiceSetStateData(ImmutableList.of(new DiceKeyAndValue("d4", 100), new DiceKeyAndValue("d6", 100), new DiceKeyAndValue("d8", 100), new DiceKeyAndValue("d10", 100), new DiceKeyAndValue("d12", 100), new DiceKeyAndValue("d20", 100)))), "100d4 +100d6 +100d8 +100d10 +100d12 +100d20"),
+                Arguments.of(new State<>("+1d8", new SumDiceSetStateData(ImmutableList.of(new DiceKeyAndValue("d4", 100), new DiceKeyAndValue("d6", 100), new DiceKeyAndValue("d8", 100), new DiceKeyAndValue("d10", 100), new DiceKeyAndValue("d12", 100), new DiceKeyAndValue("d20", 100)))), "100d4 +100d6 +100d8 +100d10 +100d12 +100d20"),
+                Arguments.of(new State<>("+1d10", new SumDiceSetStateData(ImmutableList.of(new DiceKeyAndValue("d4", 100), new DiceKeyAndValue("d6", 100), new DiceKeyAndValue("d8", 100), new DiceKeyAndValue("d10", 100), new DiceKeyAndValue("d12", 100), new DiceKeyAndValue("d20", 100)))), "100d4 +100d6 +100d8 +100d10 +100d12 +100d20"),
+                Arguments.of(new State<>("+1d12", new SumDiceSetStateData(ImmutableList.of(new DiceKeyAndValue("d4", 100), new DiceKeyAndValue("d6", 100), new DiceKeyAndValue("d8", 100), new DiceKeyAndValue("d10", 100), new DiceKeyAndValue("d12", 100), new DiceKeyAndValue("d20", 100)))), "100d4 +100d6 +100d8 +100d10 +100d12 +100d20"),
+                Arguments.of(new State<>("+1d20", new SumDiceSetStateData(ImmutableList.of(new DiceKeyAndValue("d4", 100), new DiceKeyAndValue("d6", 100), new DiceKeyAndValue("d8", 100), new DiceKeyAndValue("d10", 100), new DiceKeyAndValue("d12", 100), new DiceKeyAndValue("d20", 100)))), "100d4 +100d6 +100d8 +100d10 +100d12 +100d20")
         );
     }
 
@@ -107,51 +106,51 @@ class SumDiceSetCommandTest {
 
     @Test
     void getButtonMessageWithState_clear() {
-        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(new Config(null), new State<>("clear", new SumDiceSetStateData(ImmutableMap.of(
-                "d4", 1,
-                "d6", 1,
-                "d8", 1,
-                "d10", 1,
-                "d12", 1,
-                "d20", 1))));
+        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(new Config(null), new State<>("clear", new SumDiceSetStateData(ImmutableList.of(
+                new DiceKeyAndValue("d4", 1),
+                new DiceKeyAndValue("d6", 1),
+                new DiceKeyAndValue("d8", 1),
+                new DiceKeyAndValue("d10", 1),
+                new DiceKeyAndValue("d12", 1),
+                new DiceKeyAndValue("d20", 1)))));
         assertThat(res).isEmpty();
     }
 
     @Test
     void getButtonMessageWithState_roll() {
-        String res = underTest.createNewButtonMessageWithState(new Config(null), new State<>("roll", new SumDiceSetStateData(ImmutableMap.of(
-                        "d4", 1,
-                        "d6", 1,
-                        "d8", 1,
-                        "d10", 1,
-                        "d12", 1,
-                        "d20", 1))))
+        String res = underTest.createNewButtonMessageWithState(new Config(null), new State<>("roll", new SumDiceSetStateData(ImmutableList.of(
+                        new DiceKeyAndValue("d4", 1),
+                        new DiceKeyAndValue("d6", 1),
+                        new DiceKeyAndValue("d8", 1),
+                        new DiceKeyAndValue("d10", 1),
+                        new DiceKeyAndValue("d12", 1),
+                        new DiceKeyAndValue("d20", 1)))))
                 .orElseThrow().getContent();
         assertThat(res).isEqualTo("Click on the buttons to add dice to the set");
     }
 
     @Test
     void updateDiceSet_NegativeModifier_x2() {
-        Map<String, Integer> res = underTest.updateDiceSet(ImmutableMap.of(
-                "d4", -1,
-                "d6", -2,
-                "d8", -3,
-                "d10", -4,
-                "d12", 5,
-                "m", -10), "x2");
-        assertThat(res).isEqualTo(ImmutableMap.of(
-                "d4", -2,
-                "d6", -4,
-                "d8", -6,
-                "d10", -8,
-                "d12", 10,
-                "m", -20));
+        List<DiceKeyAndValue> res = underTest.updateDiceSet(ImmutableList.of(
+                new DiceKeyAndValue("d4", -1),
+                new DiceKeyAndValue("d6", -2),
+                new DiceKeyAndValue("d8", -3),
+                new DiceKeyAndValue("d10", -4),
+                new DiceKeyAndValue("d12", 5),
+                new DiceKeyAndValue("m", -10)), "x2");
+        assertThat(res).isEqualTo(ImmutableList.of(
+                new DiceKeyAndValue("d4", -2),
+                new DiceKeyAndValue("d6", -4),
+                new DiceKeyAndValue("d8", -6),
+                new DiceKeyAndValue("d10", -8),
+                new DiceKeyAndValue("d12", 10),
+                new DiceKeyAndValue("m", -20)));
     }
 
     @Test
     void updateDiceSet_limit() {
-        Map<String, Integer> res = underTest.updateDiceSet(ImmutableMap.of("d4", 51), "x2");
-        assertThat(res).isEqualTo(ImmutableMap.of("d4", 100));
+        List<DiceKeyAndValue> res = underTest.updateDiceSet(ImmutableList.of(new DiceKeyAndValue("d4", 51)), "x2");
+        assertThat(res).isEqualTo(ImmutableList.of(new DiceKeyAndValue("d4", 100)));
     }
 
     @Test
@@ -162,7 +161,7 @@ class SumDiceSetCommandTest {
 
     @Test
     void createNewButtonMessageWithState() {
-        String res = underTest.createNewButtonMessageWithState(new Config(null), new State<>("roll", new SumDiceSetStateData(ImmutableMap.of("d4", 51))))
+        String res = underTest.createNewButtonMessageWithState(new Config(null), new State<>("roll", new SumDiceSetStateData(ImmutableList.of(new DiceKeyAndValue("d4", 51)))))
                 .orElseThrow().getContent();
         assertThat(res).isEqualTo("Click on the buttons to add dice to the set");
     }
@@ -185,7 +184,7 @@ class SumDiceSetCommandTest {
         ButtonEventAdaptor event = mock(ButtonEventAdaptor.class);
         when(event.getCustomId()).thenReturn("sum_dice_set\u0000+1d21");
         when(event.getMessageContent()).thenReturn("1d6");
-        assertThat(underTest.getStateFromEvent(event)).isEqualTo(new State<>("+1d21", new SumDiceSetStateData(ImmutableMap.of("d6", 1))));
+        assertThat(underTest.getStateFromEvent(event)).isEqualTo(new State<>("+1d21", new SumDiceSetStateData(ImmutableList.of(new DiceKeyAndValue("d6", 1)))));
     }
 
     @Test
@@ -193,12 +192,12 @@ class SumDiceSetCommandTest {
         ButtonEventAdaptor event = mock(ButtonEventAdaptor.class);
         when(event.getCustomId()).thenReturn("sum_dice_set\u0000+1d21");
         when(event.getMessageContent()).thenReturn("1d4 +2d6 +3d8 +4d12 +5d20");
-        assertThat(underTest.getStateFromEvent(event)).isEqualTo(new State<>("+1d21", new SumDiceSetStateData(ImmutableMap.of(
-                "d4", 1,
-                "d6", 2,
-                "d8", 3,
-                "d12", 4,
-                "d20", 5
+        assertThat(underTest.getStateFromEvent(event)).isEqualTo(new State<>("+1d21", new SumDiceSetStateData(ImmutableList.of(
+                new DiceKeyAndValue("d4", 1),
+                new DiceKeyAndValue("d6", 2),
+                new DiceKeyAndValue("d8", 3),
+                new DiceKeyAndValue("d12", 4),
+                new DiceKeyAndValue("d20", 5)
         ))));
     }
 
@@ -207,9 +206,9 @@ class SumDiceSetCommandTest {
         ButtonEventAdaptor event = mock(ButtonEventAdaptor.class);
         when(event.getCustomId()).thenReturn("sum_dice_set\u0000+1d21");
         when(event.getMessageContent()).thenReturn("1d4 + 2d6");
-        assertThat(underTest.getStateFromEvent(event)).isEqualTo(new State<>("+1d21", new SumDiceSetStateData(ImmutableMap.of(
-                "d4", 1,
-                "d6", 2
+        assertThat(underTest.getStateFromEvent(event)).isEqualTo(new State<>("+1d21", new SumDiceSetStateData(ImmutableList.of(
+                new DiceKeyAndValue("d4", 1),
+                new DiceKeyAndValue("d6", 2)
         ))));
     }
 
@@ -218,7 +217,7 @@ class SumDiceSetCommandTest {
         ButtonEventAdaptor event = mock(ButtonEventAdaptor.class);
         when(event.getCustomId()).thenReturn("sum_dice_set\u0000+1d21");
         when(event.getMessageContent()).thenReturn("Click on the buttons to add dice to the set");
-        assertThat(underTest.getStateFromEvent(event)).isEqualTo(new State<>("+1d21", new SumDiceSetStateData(ImmutableMap.of())));
+        assertThat(underTest.getStateFromEvent(event)).isEqualTo(new State<>("+1d21", new SumDiceSetStateData(ImmutableList.of())));
     }
 
     @Test
@@ -233,53 +232,53 @@ class SumDiceSetCommandTest {
 
     @Test
     void getAnswer_roll_true() {
-        Optional<EmbedDefinition> res = underTest.getAnswer(new Config(null), new State<>("roll", new SumDiceSetStateData(ImmutableMap.of(
+        Optional<EmbedDefinition> res = underTest.getAnswer(new Config(null), new State<>("roll", new SumDiceSetStateData(ImmutableList.of(new DiceKeyAndValue(
                 "d6", 1
-        ))));
+        )))));
         assertThat(res).isNotEmpty();
     }
 
     @Test
     void getAnswer_rollNoConfig_false() {
-        Optional<EmbedDefinition> res = underTest.getAnswer(new Config(null), new State<>("roll", new SumDiceSetStateData(ImmutableMap.of())));
+        Optional<EmbedDefinition> res = underTest.getAnswer(new Config(null), new State<>("roll", new SumDiceSetStateData(ImmutableList.of())));
         assertThat(res).isEmpty();
     }
 
     @Test
     void getAnswer_modifyMessage_false() {
-        Optional<EmbedDefinition> res = underTest.getAnswer(new Config(null), new State<>("+1d6", new SumDiceSetStateData(ImmutableMap.of(
+        Optional<EmbedDefinition> res = underTest.getAnswer(new Config(null), new State<>("+1d6", new SumDiceSetStateData(ImmutableList.of(new DiceKeyAndValue(
                 "d6", 1
-        ))));
+        )))));
         assertThat(res).isEmpty();
     }
 
     @Test
     void copyButtonMessageToTheEnd_roll_true() {
-        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(new Config(null), new State<>("roll", new SumDiceSetStateData(ImmutableMap.of(
+        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(new Config(null), new State<>("roll", new SumDiceSetStateData(ImmutableList.of(new DiceKeyAndValue(
                 "d6", 1
-        ))));
+        )))));
         assertThat(res).isNotEmpty();
     }
 
     @Test
     void copyButtonMessageToTheEnd_rollNoConfig_false() {
-        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(new Config(null), new State<>("roll", new SumDiceSetStateData(ImmutableMap.of())));
+        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(new Config(null), new State<>("roll", new SumDiceSetStateData(ImmutableList.of())));
         assertThat(res).isEmpty();
     }
 
     @Test
     void copyButtonMessageToTheEnd_modifyMessage_false() {
-        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(new Config(null), new State<>("+1d6", new SumDiceSetStateData(ImmutableMap.of(
+        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(new Config(null), new State<>("+1d6", new SumDiceSetStateData(ImmutableList.of(new DiceKeyAndValue(
                 "d6", 1
-        ))));
+        )))));
         assertThat(res).isEmpty();
     }
 
     @Test
     void getCurrentMessageContentChange_1d6() {
-        Optional<String> res = underTest.getCurrentMessageContentChange(new Config(null), new State<>("+1d6", new SumDiceSetStateData(ImmutableMap.of(
+        Optional<String> res = underTest.getCurrentMessageContentChange(new Config(null), new State<>("+1d6", new SumDiceSetStateData(ImmutableList.of(new DiceKeyAndValue(
                 "d6", 1
-        ))));
+        )))));
         assertThat(res).contains("1d6");
     }
 
@@ -299,10 +298,10 @@ class SumDiceSetCommandTest {
 
     @Test
     void rollDice_1d4plus1d6plus10() {
-        EmbedDefinition res = underTest.getAnswer(new Config(null), new State<>("roll", new SumDiceSetStateData(ImmutableMap.of(
-                "d4", 1,
-                "d6", 1,
-                "m", 10
+        EmbedDefinition res = underTest.getAnswer(new Config(null), new State<>("roll", new SumDiceSetStateData(ImmutableList.of(new DiceKeyAndValue(
+                        "d4", 1),
+                new DiceKeyAndValue("d6", 1),
+                new DiceKeyAndValue("m", 10)
         )))).orElseThrow();
 
         assertThat(res.getFields()).hasSize(0);
@@ -312,10 +311,10 @@ class SumDiceSetCommandTest {
 
     @Test
     void rollDice_minus1d4plus1d6minux10() {
-        EmbedDefinition res = underTest.getAnswer(new Config(null), new State<>("roll", new SumDiceSetStateData(ImmutableMap.of(
-                "d4", -1,
-                "d6", 1,
-                "m", -10
+        EmbedDefinition res = underTest.getAnswer(new Config(null), new State<>("roll", new SumDiceSetStateData(ImmutableList.of(new DiceKeyAndValue(
+                        "d4", -1),
+                new DiceKeyAndValue("d6", 1),
+                new DiceKeyAndValue("m", -10)
         )))).orElseThrow();
 
         assertThat(res.getFields()).hasSize(0);
@@ -338,7 +337,7 @@ class SumDiceSetCommandTest {
 
         State<SumDiceSetStateData> res = underTest.getStateFromEvent(event);
 
-        assertThat(res).isEqualTo(new State<>("+1d6", new SumDiceSetStateData(ImmutableMap.of("d6", 1))));
+        assertThat(res).isEqualTo(new State<>("+1d6", new SumDiceSetStateData(ImmutableList.of(new DiceKeyAndValue("d6", 1)))));
     }
 
     @Test
@@ -350,10 +349,10 @@ class SumDiceSetCommandTest {
 
     @Test
     void getButtonLayoutWithState() {
-        List<ComponentRowDefinition> res = underTest.createNewButtonMessageWithState(new Config(null), new State<>("roll", new SumDiceSetStateData(ImmutableMap.of(
-                        "d4", -1,
-                        "d6", 1,
-                        "m", -10
+        List<ComponentRowDefinition> res = underTest.createNewButtonMessageWithState(new Config(null), new State<>("roll", new SumDiceSetStateData(ImmutableList.of(
+                        new DiceKeyAndValue("d4", -1),
+                        new DiceKeyAndValue("d6", 1),
+                        new DiceKeyAndValue("m", -10)
                 ))))
                 .orElseThrow().getComponentRowDefinitions();
 
@@ -420,7 +419,7 @@ class SumDiceSetCommandTest {
         long messageId = System.currentTimeMillis();
         UUID configUUID = UUID.randomUUID();
         Config config = new Config(123L);
-        State<SumDiceSetStateData> state = new State<>("+1d6", new SumDiceSetStateData(ImmutableMap.of("d6", 3, "m", -4)));
+        State<SumDiceSetStateData> state = new State<>("+1d6", new SumDiceSetStateData(ImmutableList.of(new DiceKeyAndValue("d6", 3), new DiceKeyAndValue("m", -4))));
         Optional<MessageDataDTO> toSave = underTest.createMessageDataForNewMessage(configUUID, channelId, messageId, config, state);
         messageDataDAO.saveMessageData(toSave.orElseThrow());
         underTest.updateCurrentMessageStateData(channelId, messageId, config, state);
@@ -430,7 +429,7 @@ class SumDiceSetCommandTest {
         ConfigAndState<Config, SumDiceSetStateData> configAndState = underTest.deserializeAndUpdateState(loaded, "+1d6");
         assertThat(configAndState.getConfig()).isEqualTo(config);
         assertThat(configAndState.getConfigUUID()).isEqualTo(configUUID);
-        assertThat(configAndState.getState().getData()).isEqualTo(new SumDiceSetStateData(ImmutableMap.of("d6", 4, "m", -4)));
+        assertThat(configAndState.getState().getData()).isEqualTo(new SumDiceSetStateData(ImmutableList.of(new DiceKeyAndValue("d6", 4), new DiceKeyAndValue("m", -4))));
     }
 
     @Test
@@ -441,16 +440,18 @@ class SumDiceSetCommandTest {
                 answerTargetChannelId: 123
                 """, "SumDiceSetStateData", """
                 ---
-                diceSetMap:
-                  d6: 3
-                  m: -4
+                diceSet:
+                - diceKey: "d6"
+                  value: 3
+                - diceKey: "m"
+                  value: -4
                 """);
 
 
         ConfigAndState<Config, SumDiceSetStateData> configAndState = underTest.deserializeAndUpdateState(savedData, "+1d6");
         assertThat(configAndState.getConfig()).isEqualTo(new Config(123L));
         assertThat(configAndState.getConfigUUID()).isEqualTo(configUUID);
-        assertThat(configAndState.getState().getData()).isEqualTo(new SumDiceSetStateData(ImmutableMap.of("d6", 4, "m", -4)));
+        assertThat(configAndState.getState().getData()).isEqualTo(new SumDiceSetStateData(ImmutableList.of(new DiceKeyAndValue("d6", 4), new DiceKeyAndValue("m", -4))));
     }
 
 }

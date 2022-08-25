@@ -3,7 +3,6 @@ package de.janno.discord.bot.command.sumDiceSet;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import de.janno.discord.bot.command.AbstractCommand;
 import de.janno.discord.bot.command.Config;
 import de.janno.discord.bot.command.ConfigAndState;
@@ -54,20 +53,20 @@ public class SumDiceSetCommand extends AbstractCommand<Config, SumDiceSetStateDa
         this.diceUtils = diceUtils;
     }
 
-    private static String parseDiceMapToMessageString(Map<String, Integer> diceSet) {
-        String message = diceSet.entrySet().stream()
+    private static String parseDiceMapToMessageString(List<DiceKeyAndValue> diceSet) {
+        String message = diceSet.stream()
                 .sorted(Comparator.comparing(e -> {
-                    if (e.getKey().contains(DICE_SYMBOL)) {
-                        return Integer.parseInt(e.getKey().substring(1));
+                    if (e.getDiceKey().contains(DICE_SYMBOL)) {
+                        return Integer.parseInt(e.getDiceKey().substring(1));
                     }
                     //modifiers should always be at the end
                     return Integer.MAX_VALUE;
                 }))
                 .map(e -> {
-                    if (MODIFIER_KEY.equals(e.getKey())) {
+                    if (MODIFIER_KEY.equals(e.getDiceKey())) {
                         return String.format("%s%d", e.getValue() > 0 ? "+" : "", e.getValue());
                     }
-                    return String.format("%s%d%s", e.getValue() > 0 ? "+" : "", e.getValue(), e.getKey());
+                    return String.format("%s%d%s", e.getValue() > 0 ? "+" : "", e.getValue(), e.getDiceKey());
                 })
                 .collect(Collectors.joining(DICE_SET_DELIMITER));
         //remove leading +
@@ -106,10 +105,10 @@ public class SumDiceSetCommand extends AbstractCommand<Config, SumDiceSetStateDa
 
     @Override
     public Optional<MessageDataDTO> createMessageDataForNewMessage(@NonNull UUID configUUID,
-                                                                      long channelId,
-                                                                      long messageId,
-                                                                      @NonNull Config config,
-                                                                      @Nullable State<SumDiceSetStateData> state) {
+                                                                   long channelId,
+                                                                   long messageId,
+                                                                   @NonNull Config config,
+                                                                   @Nullable State<SumDiceSetStateData> state) {
         return Optional.of(new MessageDataDTO(configUUID, channelId, messageId, getCommandId(),
                 CONFIG_TYPE_ID, Mapper.serializedObject(config)));
     }
@@ -125,10 +124,10 @@ public class SumDiceSetCommand extends AbstractCommand<Config, SumDiceSetStateDa
 
     @VisibleForTesting
     State<SumDiceSetStateData> updateState(@NonNull String buttonValue, @Nullable SumDiceSetStateData stateData) {
-        if (stateData == null) {
-            return new State<>(buttonValue, new SumDiceSetStateData(ImmutableMap.of()));
-        }
-        return new State<>(buttonValue, new SumDiceSetStateData(updateDiceSet(stateData.getDiceSetMap(), buttonValue)));
+        final List<DiceKeyAndValue> updatedList = updateDiceSet(Optional.ofNullable(stateData)
+                .map(SumDiceSetStateData::getDiceSet)
+                .orElse(ImmutableList.of()), buttonValue);
+        return new State<>(buttonValue, new SumDiceSetStateData(updatedList));
     }
 
     @Override
@@ -158,24 +157,24 @@ public class SumDiceSetCommand extends AbstractCommand<Config, SumDiceSetStateDa
     protected @NonNull Optional<EmbedDefinition> getAnswer(Config config, State<SumDiceSetStateData> state) {
         if (!(ROLL_BUTTON_ID.equals(state.getButtonValue()) &&
                 !Optional.ofNullable(state.getData())
-                        .map(SumDiceSetStateData::getDiceSetMap)
-                        .map(Map::isEmpty)
+                        .map(SumDiceSetStateData::getDiceSet)
+                        .map(List::isEmpty)
                         .orElse(true))) {
             return Optional.empty();
         }
-        List<Integer> diceResultValues = state.getData().getDiceSetMap().entrySet().stream()
+        List<Integer> diceResultValues = state.getData().getDiceSet().stream()
                 .sorted(Comparator.comparing(e -> {
-                    if (e.getKey().contains(DICE_SYMBOL)) {
-                        return Integer.parseInt(e.getKey().substring(1));
+                    if (e.getDiceKey().contains(DICE_SYMBOL)) {
+                        return Integer.parseInt(e.getDiceKey().substring(1));
                     }
                     //modifiers should always be at the end
                     return Integer.MAX_VALUE;
                 }))
                 .flatMap(e -> {
-                    if (MODIFIER_KEY.equals(e.getKey())) {
+                    if (MODIFIER_KEY.equals(e.getDiceKey())) {
                         return Stream.of(e.getValue());
                     }
-                    int diceSides = Integer.parseInt(e.getKey().substring(1));
+                    int diceSides = Integer.parseInt(e.getDiceKey().substring(1));
                     return diceUtils.rollDiceOfType(Math.abs(e.getValue()), diceSides).stream()
                             .map(dv -> {
                                 //modify the result if the dice count is negative
@@ -186,7 +185,7 @@ public class SumDiceSetCommand extends AbstractCommand<Config, SumDiceSetStateDa
                             });
                 }).toList();
         long sumResult = diceResultValues.stream().mapToLong(Integer::longValue).sum();
-        String title = parseDiceMapToMessageString(state.getData().getDiceSetMap());
+        String title = parseDiceMapToMessageString(state.getData().getDiceSet());
         return Optional.of(new EmbedDefinition(String.format("%s = %d", title, sumResult), diceResultValues.toString(), ImmutableList.of()));
     }
 
@@ -212,8 +211,8 @@ public class SumDiceSetCommand extends AbstractCommand<Config, SumDiceSetStateDa
     protected @NonNull Optional<MessageDefinition> createNewButtonMessageWithState(Config config, State<SumDiceSetStateData> state) {
         if (!(ROLL_BUTTON_ID.equals(state.getButtonValue()) &&
                 !Optional.ofNullable(state.getData())
-                        .map(SumDiceSetStateData::getDiceSetMap)
-                        .map(Map::isEmpty)
+                        .map(SumDiceSetStateData::getDiceSet)
+                        .map(List::isEmpty)
                         .orElse(true))) {
             return Optional.empty();
         }
@@ -224,17 +223,18 @@ public class SumDiceSetCommand extends AbstractCommand<Config, SumDiceSetStateDa
     }
 
     @VisibleForTesting
-    Map<String, Integer> updateDiceSet(Map<String, Integer> currentDiceSet, String buttonValue) {
+    List<DiceKeyAndValue> updateDiceSet(List<DiceKeyAndValue> currentDiceSet, String buttonValue) {
         switch (buttonValue) {
             case ROLL_BUTTON_ID:
                 return currentDiceSet;
             case CLEAR_BUTTON_ID:
-                return ImmutableMap.of();
+                return ImmutableList.of();
             case X2_BUTTON_ID:
-                return currentDiceSet.entrySet().stream()
-                        .collect(Collectors.toMap(Map.Entry::getKey, e -> limit(e.getValue() * 2)));
+                return currentDiceSet.stream()
+                        .map(kv -> new DiceKeyAndValue(kv.getDiceKey(), limit(kv.getValue() * 2)))
+                        .toList();
             default:
-                Map<String, Integer> updatedDiceSet = new HashMap<>(currentDiceSet);
+                Map<String, Integer> updatedDiceSet = currentDiceSet.stream().collect(Collectors.toMap(DiceKeyAndValue::getDiceKey, DiceKeyAndValue::getValue));
                 int diceModifier;
                 String die;
 
@@ -254,13 +254,13 @@ public class SumDiceSetCommand extends AbstractCommand<Config, SumDiceSetStateDa
                 } else {
                     updatedDiceSet.put(die, newCount);
                 }
-                return updatedDiceSet;
+                return updatedDiceSet.entrySet().stream().map(dv -> new DiceKeyAndValue(dv.getKey(), dv.getValue())).toList();
         }
     }
 
     @Override
     public @NonNull Optional<String> getCurrentMessageContentChange(Config config, State<SumDiceSetStateData> state) {
-        Map<String, Integer> currentDiceSet = Optional.ofNullable(state.getData()).map(SumDiceSetStateData::getDiceSetMap).orElse(ImmutableMap.of());
+        List<DiceKeyAndValue> currentDiceSet = Optional.ofNullable(state.getData()).map(SumDiceSetStateData::getDiceSet).orElse(ImmutableList.of());
 
         if (currentDiceSet.isEmpty()) {
             return Optional.of(EMPTY_MESSAGE);
@@ -280,7 +280,7 @@ public class SumDiceSetCommand extends AbstractCommand<Config, SumDiceSetStateDa
         String buttonMessage = event.getMessageContent();
         String buttonValue = getButtonValueFromLegacyCustomId(event.getCustomId());
         if (EMPTY_MESSAGE.equals(buttonMessage)) {
-            return new State<>(buttonValue, new SumDiceSetStateData(ImmutableMap.of()));
+            return new State<>(buttonValue, new SumDiceSetStateData(ImmutableList.of()));
         }
 
         return new State<>(buttonValue, new SumDiceSetStateData(Arrays.stream(buttonMessage.split(Pattern.quote(DICE_SET_DELIMITER)))
@@ -294,25 +294,29 @@ public class SumDiceSetCommand extends AbstractCommand<Config, SumDiceSetStateDa
                     }
                     return s;
                 })
-                .collect(Collectors.toMap(s -> {
+                .map(s -> {
+                    final String diceKey;
                     if (s.contains(DICE_SYMBOL)) {
-                        return s.substring(s.indexOf(DICE_SYMBOL));
+                        diceKey = s.substring(s.indexOf(DICE_SYMBOL));
                     } else {
-                        return MODIFIER_KEY;
+                        diceKey = MODIFIER_KEY;
                     }
-                }, s -> {
+                    final int value;
                     if (s.contains(DICE_SYMBOL)) {
-                        return Integer.valueOf(s.substring(0, s.indexOf(DICE_SYMBOL)));
+                        value = Integer.parseInt(s.substring(0, s.indexOf(DICE_SYMBOL)));
                     } else {
                         s = s.replace("+", "");
                         if (NumberUtils.isParsable(s)) {
-                            return Integer.valueOf(s);
+                            value = Integer.parseInt(s);
                         } else {
                             log.error(String.format("Can't parse number %s for buttonId: %s and buttonMessage: %s", s, event.getCustomId(), buttonMessage));
-                            return 0;
+                            value = 0;
                         }
                     }
-                }))));
+                    return new DiceKeyAndValue(diceKey, value);
+                })
+                .distinct()
+                .toList()));
     }
 
     @Override
