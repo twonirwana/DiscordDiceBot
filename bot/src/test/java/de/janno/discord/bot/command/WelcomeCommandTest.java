@@ -1,7 +1,7 @@
 package de.janno.discord.bot.command;
 
 import de.janno.discord.bot.persistance.MessageDataDAO;
-import de.janno.discord.connector.api.IButtonEventAdaptor;
+import de.janno.discord.connector.api.ButtonEventAdaptor;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.MessageDefinition;
 import org.junit.jupiter.api.Test;
@@ -244,7 +244,7 @@ class WelcomeCommandTest {
 
     @Test
     public void shouldKeepExistingButtonMessage() {
-        assertThat(underTest.shouldKeepExistingButtonMessage(mock(IButtonEventAdaptor.class))).isTrue();
+        assertThat(underTest.shouldKeepExistingButtonMessage(mock(ButtonEventAdaptor.class))).isTrue();
     }
 
     @Test
@@ -254,7 +254,7 @@ class WelcomeCommandTest {
 
     @Test
     public void getStateFromEvent() {
-        IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
+        ButtonEventAdaptor event = mock(ButtonEventAdaptor.class);
         when(event.getCustomId()).thenReturn("welcome,fate");
 
         State<EmptyData> res = underTest.getStateFromEvent(event);

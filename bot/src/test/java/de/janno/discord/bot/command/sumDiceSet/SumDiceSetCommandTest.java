@@ -8,7 +8,7 @@ import de.janno.discord.bot.dice.DiceUtils;
 import de.janno.discord.bot.persistance.MessageDataDAO;
 import de.janno.discord.bot.persistance.MessageDataDAOImpl;
 import de.janno.discord.bot.persistance.MessageDataDTO;
-import de.janno.discord.connector.api.IButtonEventAdaptor;
+import de.janno.discord.connector.api.ButtonEventAdaptor;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
 import de.janno.discord.connector.api.message.EmbedDefinition;
@@ -182,7 +182,7 @@ class SumDiceSetCommandTest {
 
     @Test
     void getStateFromEvent_1d6() {
-        IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
+        ButtonEventAdaptor event = mock(ButtonEventAdaptor.class);
         when(event.getCustomId()).thenReturn("sum_dice_set\u0000+1d21");
         when(event.getMessageContent()).thenReturn("1d6");
         assertThat(underTest.getStateFromEvent(event)).isEqualTo(new State<>("+1d21", new SumDiceSetStateData(ImmutableMap.of("d6", 1))));
@@ -190,7 +190,7 @@ class SumDiceSetCommandTest {
 
     @Test
     void getStateFromEvent_1d4_2d6_3d8_4d12_5d20() {
-        IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
+        ButtonEventAdaptor event = mock(ButtonEventAdaptor.class);
         when(event.getCustomId()).thenReturn("sum_dice_set\u0000+1d21");
         when(event.getMessageContent()).thenReturn("1d4 +2d6 +3d8 +4d12 +5d20");
         assertThat(underTest.getStateFromEvent(event)).isEqualTo(new State<>("+1d21", new SumDiceSetStateData(ImmutableMap.of(
@@ -204,7 +204,7 @@ class SumDiceSetCommandTest {
 
     @Test
     void getStateFromEvent_legacy() {
-        IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
+        ButtonEventAdaptor event = mock(ButtonEventAdaptor.class);
         when(event.getCustomId()).thenReturn("sum_dice_set\u0000+1d21");
         when(event.getMessageContent()).thenReturn("1d4 + 2d6");
         assertThat(underTest.getStateFromEvent(event)).isEqualTo(new State<>("+1d21", new SumDiceSetStateData(ImmutableMap.of(
@@ -215,7 +215,7 @@ class SumDiceSetCommandTest {
 
     @Test
     void getStateFromEvent_empty() {
-        IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
+        ButtonEventAdaptor event = mock(ButtonEventAdaptor.class);
         when(event.getCustomId()).thenReturn("sum_dice_set\u0000+1d21");
         when(event.getMessageContent()).thenReturn("Click on the buttons to add dice to the set");
         assertThat(underTest.getStateFromEvent(event)).isEqualTo(new State<>("+1d21", new SumDiceSetStateData(ImmutableMap.of())));
@@ -332,7 +332,7 @@ class SumDiceSetCommandTest {
 
     @Test
     void getStateFromEvent() {
-        IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
+        ButtonEventAdaptor event = mock(ButtonEventAdaptor.class);
         when(event.getCustomId()).thenReturn("sum_dice_set\u0000+1d6");
         when(event.getMessageContent()).thenReturn("1d6");
 

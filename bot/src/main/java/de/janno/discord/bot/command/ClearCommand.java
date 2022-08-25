@@ -2,8 +2,8 @@ package de.janno.discord.bot.command;
 
 import de.janno.discord.bot.BotMetrics;
 import de.janno.discord.bot.persistance.MessageDataDAO;
-import de.janno.discord.connector.api.ISlashCommand;
-import de.janno.discord.connector.api.ISlashEventAdaptor;
+import de.janno.discord.connector.api.SlashCommand;
+import de.janno.discord.connector.api.SlashEventAdaptor;
 import de.janno.discord.connector.api.slash.CommandDefinition;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -11,7 +11,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Slf4j
-public class ClearCommand implements ISlashCommand {
+public class ClearCommand implements SlashCommand {
 
     private final MessageDataDAO messageDataDAO;
 
@@ -33,7 +33,7 @@ public class ClearCommand implements ISlashCommand {
     }
 
     @Override
-    public Mono<Void> handleSlashCommandEvent(@NonNull ISlashEventAdaptor event) {
+    public Mono<Void> handleSlashCommandEvent(@NonNull SlashEventAdaptor event) {
         BotMetrics.incrementSlashStartMetricCounter(getCommandId(), "[]");
         return event.reply("Deleting messages and data ...")
                 .then(Mono.just(messageDataDAO.deleteDataForChannel(event.getChannelId()))

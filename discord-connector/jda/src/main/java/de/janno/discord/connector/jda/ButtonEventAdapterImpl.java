@@ -1,7 +1,7 @@
 package de.janno.discord.connector.jda;
 
 import com.google.common.base.Strings;
-import de.janno.discord.connector.api.IButtonEventAdaptor;
+import de.janno.discord.connector.api.ButtonEventAdaptor;
 import de.janno.discord.connector.api.Requester;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
 import de.janno.discord.connector.api.message.EmbedDefinition;
@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Slf4j
-public class ButtonEventAdapter extends DiscordAdapter implements IButtonEventAdaptor {
+public class ButtonEventAdapterImpl extends DiscordAdapterImpl implements ButtonEventAdaptor {
     @NonNull
     private final ButtonInteractionEvent event;
     @NonNull
@@ -38,8 +38,8 @@ public class ButtonEventAdapter extends DiscordAdapter implements IButtonEventAd
     @NonNull
     private final String invokingGuildMemberName;
 
-    public ButtonEventAdapter(@NonNull ButtonInteractionEvent event,
-                              @NonNull Mono<Requester> requesterMono) {
+    public ButtonEventAdapterImpl(@NonNull ButtonInteractionEvent event,
+                                  @NonNull Mono<Requester> requesterMono) {
         this.event = event;
         this.requesterMono = requesterMono;
         this.messageId = event.getMessageIdLong();

@@ -11,7 +11,7 @@ import de.janno.discord.bot.persistance.Mapper;
 import de.janno.discord.bot.persistance.MessageDataDAO;
 import de.janno.discord.bot.persistance.MessageDataDTO;
 import de.janno.discord.connector.api.BotConstants;
-import de.janno.discord.connector.api.IButtonEventAdaptor;
+import de.janno.discord.connector.api.ButtonEventAdaptor;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
 import de.janno.discord.connector.api.message.EmbedDefinition;
@@ -95,7 +95,7 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesConfig,
     }
 
     @Override
-    protected @NonNull CountSuccessesConfig getConfigFromEvent(@NonNull IButtonEventAdaptor event) {
+    protected @NonNull CountSuccessesConfig getConfigFromEvent(@NonNull ButtonEventAdaptor event) {
         String[] split = event.getCustomId().split(BotConstants.LEGACY_CONFIG_SPLIT_DELIMITER_REGEX);
         int sideOfDie = Integer.parseInt(split[2]);
         int target = Integer.parseInt(split[3]);
@@ -107,7 +107,7 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesConfig,
     }
 
     @Override
-    protected @NonNull State<EmptyData> getStateFromEvent(@NonNull IButtonEventAdaptor event) {
+    protected @NonNull State<EmptyData> getStateFromEvent(@NonNull ButtonEventAdaptor event) {
         return new State<>(getButtonValueFromLegacyCustomId(event.getCustomId()), new EmptyData());
     }
 

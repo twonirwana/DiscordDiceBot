@@ -7,7 +7,7 @@ import de.janno.discord.bot.dice.DiceUtils;
 import de.janno.discord.bot.persistance.MessageDataDAO;
 import de.janno.discord.bot.persistance.MessageDataDAOImpl;
 import de.janno.discord.bot.persistance.MessageDataDTO;
-import de.janno.discord.connector.api.IButtonEventAdaptor;
+import de.janno.discord.connector.api.ButtonEventAdaptor;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
 import de.janno.discord.connector.api.message.EmbedDefinition;
@@ -125,7 +125,7 @@ class FateCommandTest {
 
     @Test
     void getStateFromEvent_simple() {
-        IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
+        ButtonEventAdaptor event = mock(ButtonEventAdaptor.class);
         when(event.getCustomId()).thenReturn("fate\u0000roll,simple");
 
         State<EmptyData> res = underTest.getStateFromEvent(event);
@@ -135,7 +135,7 @@ class FateCommandTest {
 
     @Test
     void getStateFromEvent_modifier() {
-        IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
+        ButtonEventAdaptor event = mock(ButtonEventAdaptor.class);
         when(event.getCustomId()).thenReturn("fate\u00005\u0000with_modifier\u0000");
 
         State<EmptyData> res = underTest.getStateFromEvent(event);
@@ -145,7 +145,7 @@ class FateCommandTest {
 
     @Test
     void getStateFromEvent_modifierNegativ() {
-        IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
+        ButtonEventAdaptor event = mock(ButtonEventAdaptor.class);
         when(event.getCustomId()).thenReturn("fate\u0000-3\u0000with_modifier\u0000");
 
         State<EmptyData> res = underTest.getStateFromEvent(event);
@@ -234,21 +234,21 @@ class FateCommandTest {
 
     @Test
     void getConfigFromEvent() {
-        IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
+        ButtonEventAdaptor event = mock(ButtonEventAdaptor.class);
         when(event.getCustomId()).thenReturn("fate\u0000roll\u0000simple\u0000");
         assertThat(underTest.getConfigFromEvent(event)).isEqualTo(new FateConfig(null, "simple"));
     }
 
     @Test
     void getConfigFromEvent_target() {
-        IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
+        ButtonEventAdaptor event = mock(ButtonEventAdaptor.class);
         when(event.getCustomId()).thenReturn("fate\u0000roll\u0000simple\u0000123");
         assertThat(underTest.getConfigFromEvent(event)).isEqualTo(new FateConfig(123L, "simple"));
     }
 
     @Test
     void getConfigFromEvent_legacy() {
-        IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
+        ButtonEventAdaptor event = mock(ButtonEventAdaptor.class);
         when(event.getCustomId()).thenReturn("fate\u0000roll\u0000simple");
         assertThat(underTest.getConfigFromEvent(event)).isEqualTo(new FateConfig(null, "simple"));
     }

@@ -3,7 +3,7 @@ package de.janno.discord.bot.command;
 import com.google.common.collect.ImmutableList;
 import de.janno.discord.bot.dice.DiceParserHelper;
 import de.janno.discord.bot.dice.IDice;
-import de.janno.discord.connector.api.ISlashEventAdaptor;
+import de.janno.discord.connector.api.SlashEventAdaptor;
 import de.janno.discord.connector.api.Requester;
 import de.janno.discord.connector.api.message.EmbedDefinition;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
@@ -35,7 +35,7 @@ class DirectRollCommandTest {
 
     @Test
     void handleComponentInteractEvent() {
-        ISlashEventAdaptor slashEventAdaptor = mock(ISlashEventAdaptor.class);
+        SlashEventAdaptor slashEventAdaptor = mock(SlashEventAdaptor.class);
 
         CommandInteractionOption interactionOption = CommandInteractionOption.builder()
                 .name("expression")
@@ -71,7 +71,7 @@ class DirectRollCommandTest {
 
     @Test
     void handleComponentInteractEvent_validationFailed() {
-        ISlashEventAdaptor slashEventAdaptor = mock(ISlashEventAdaptor.class);
+        SlashEventAdaptor slashEventAdaptor = mock(SlashEventAdaptor.class);
 
         CommandInteractionOption interactionOption = CommandInteractionOption.builder()
                 .name("expression")
@@ -102,7 +102,7 @@ class DirectRollCommandTest {
 
     @Test
     void handleComponentInteractEvent_help() {
-        ISlashEventAdaptor slashEventAdaptor = mock(ISlashEventAdaptor.class);
+        SlashEventAdaptor slashEventAdaptor = mock(SlashEventAdaptor.class);
 
         CommandInteractionOption interactionOption = CommandInteractionOption.builder()
                 .name("expression")

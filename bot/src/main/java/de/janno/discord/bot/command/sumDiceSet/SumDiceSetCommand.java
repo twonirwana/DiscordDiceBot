@@ -13,7 +13,7 @@ import de.janno.discord.bot.persistance.Mapper;
 import de.janno.discord.bot.persistance.MessageDataDAO;
 import de.janno.discord.bot.persistance.MessageDataDTO;
 import de.janno.discord.connector.api.BotConstants;
-import de.janno.discord.connector.api.IButtonEventAdaptor;
+import de.janno.discord.connector.api.ButtonEventAdaptor;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
 import de.janno.discord.connector.api.message.EmbedDefinition;
@@ -269,14 +269,14 @@ public class SumDiceSetCommand extends AbstractCommand<Config, SumDiceSetStateDa
     }
 
     @Override
-    protected @NonNull Config getConfigFromEvent(@NonNull IButtonEventAdaptor event) {
+    protected @NonNull Config getConfigFromEvent(@NonNull ButtonEventAdaptor event) {
         String[] split = event.getCustomId().split(BotConstants.LEGACY_CONFIG_SPLIT_DELIMITER_REGEX);
 
         return new Config(getOptionalLongFromArray(split, 2));
     }
 
     @Override
-    protected @NonNull State<SumDiceSetStateData> getStateFromEvent(@NonNull IButtonEventAdaptor event) {
+    protected @NonNull State<SumDiceSetStateData> getStateFromEvent(@NonNull ButtonEventAdaptor event) {
         String buttonMessage = event.getMessageContent();
         String buttonValue = getButtonValueFromLegacyCustomId(event.getCustomId());
         if (EMPTY_MESSAGE.equals(buttonMessage)) {

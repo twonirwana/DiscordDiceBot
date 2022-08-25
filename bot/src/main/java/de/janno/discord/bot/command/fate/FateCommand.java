@@ -9,7 +9,7 @@ import de.janno.discord.bot.persistance.Mapper;
 import de.janno.discord.bot.persistance.MessageDataDAO;
 import de.janno.discord.bot.persistance.MessageDataDTO;
 import de.janno.discord.connector.api.BotConstants;
-import de.janno.discord.connector.api.IButtonEventAdaptor;
+import de.janno.discord.connector.api.ButtonEventAdaptor;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
 import de.janno.discord.connector.api.message.EmbedDefinition;
@@ -207,13 +207,13 @@ public class FateCommand extends AbstractCommand<FateConfig, EmptyData> {
     }
 
     @Override
-    protected @NonNull FateConfig getConfigFromEvent(@NonNull IButtonEventAdaptor event) {
+    protected @NonNull FateConfig getConfigFromEvent(@NonNull ButtonEventAdaptor event) {
         String[] split = event.getCustomId().split(BotConstants.LEGACY_CONFIG_SPLIT_DELIMITER_REGEX);
         return new FateConfig(getOptionalLongFromArray(split, 3), split[2]);
     }
 
     @Override
-    protected @NonNull State<EmptyData> getStateFromEvent(@NonNull IButtonEventAdaptor event) {
+    protected @NonNull State<EmptyData> getStateFromEvent(@NonNull ButtonEventAdaptor event) {
         String buttonValue = getButtonValueFromLegacyCustomId(event.getCustomId());
         return new State<>(buttonValue, new EmptyData());
     }

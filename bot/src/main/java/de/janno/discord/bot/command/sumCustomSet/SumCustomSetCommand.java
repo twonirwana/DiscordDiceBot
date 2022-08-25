@@ -11,7 +11,7 @@ import de.janno.discord.bot.persistance.Mapper;
 import de.janno.discord.bot.persistance.MessageDataDAO;
 import de.janno.discord.bot.persistance.MessageDataDTO;
 import de.janno.discord.connector.api.BotConstants;
-import de.janno.discord.connector.api.IButtonEventAdaptor;
+import de.janno.discord.connector.api.ButtonEventAdaptor;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
 import de.janno.discord.connector.api.message.EmbedDefinition;
@@ -216,7 +216,7 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
 
 
     @Override
-    protected @NonNull SumCustomSetConfig getConfigFromEvent(@NonNull IButtonEventAdaptor event) {
+    protected @NonNull SumCustomSetConfig getConfigFromEvent(@NonNull ButtonEventAdaptor event) {
         String[] split = event.getCustomId().split(BotConstants.LEGACY_CONFIG_SPLIT_DELIMITER_REGEX);
         Long answerTargetChannelId = getOptionalLongFromArray(split, 2);
         return new SumCustomSetConfig(answerTargetChannelId, event.getAllButtonIds().stream()
@@ -276,7 +276,7 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
     }
 
     @Override
-    protected @NonNull State<SumCustomSetStateData> getStateFromEvent(@NonNull IButtonEventAdaptor event) {
+    protected @NonNull State<SumCustomSetStateData> getStateFromEvent(@NonNull ButtonEventAdaptor event) {
         String buttonValue = getButtonValueFromLegacyCustomId(event.getCustomId());
         String buttonMessageWithOptionalUser = event.getMessageContent();
 

@@ -11,8 +11,8 @@ import de.janno.discord.bot.dice.IDice;
 import de.janno.discord.bot.persistance.MessageDataDAO;
 import de.janno.discord.bot.persistance.MessageDataDAOImpl;
 import de.janno.discord.bot.persistance.MessageDataDTO;
-import de.janno.discord.connector.api.IButtonEventAdaptor;
-import de.janno.discord.connector.api.ISlashEventAdaptor;
+import de.janno.discord.connector.api.ButtonEventAdaptor;
+import de.janno.discord.connector.api.SlashEventAdaptor;
 import de.janno.discord.connector.api.Requester;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
@@ -164,10 +164,10 @@ class CustomDiceCommandTest {
 
     @Test
     void getConfigFromEvent() {
-        IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
+        ButtonEventAdaptor event = mock(ButtonEventAdaptor.class);
         when(event.getAllButtonIds()).thenReturn(ImmutableList.of(
-                new IButtonEventAdaptor.LabelAndCustomId("1d6", "custom_dice\u00001d6\u0000"),
-                new IButtonEventAdaptor.LabelAndCustomId("w8", "custom_dice\u00001d8\u0000")
+                new ButtonEventAdaptor.LabelAndCustomId("1d6", "custom_dice\u00001d6\u0000"),
+                new ButtonEventAdaptor.LabelAndCustomId("w8", "custom_dice\u00001d8\u0000")
         ));
         when(event.getCustomId()).thenReturn("custom_dice\u00001d6\u0000");
         assertThat(underTest.getConfigFromEvent(event)).isEqualTo(new CustomDiceConfig(null, ImmutableList.of(
@@ -178,16 +178,16 @@ class CustomDiceCommandTest {
 
     @Test
     void getConfigFromEventWithTargetChannel() {
-        IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
-        when(event.getAllButtonIds()).thenReturn(ImmutableList.of(new IButtonEventAdaptor.LabelAndCustomId("1d6", "custom_dice\u00001d6\u0000123")));
+        ButtonEventAdaptor event = mock(ButtonEventAdaptor.class);
+        when(event.getAllButtonIds()).thenReturn(ImmutableList.of(new ButtonEventAdaptor.LabelAndCustomId("1d6", "custom_dice\u00001d6\u0000123")));
         when(event.getCustomId()).thenReturn("custom_dice\u00001d6\u0000123");
         assertThat(underTest.getConfigFromEvent(event)).isEqualTo(new CustomDiceConfig(123L, ImmutableList.of(new LabelAndDiceExpression("1d6", "1d6"))));
     }
 
     @Test
     void getConfigFromEventLegacy() {
-        IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
-        when(event.getAllButtonIds()).thenReturn(ImmutableList.of(new IButtonEventAdaptor.LabelAndCustomId("1d6", "custom_dice\u00001d6")));
+        ButtonEventAdaptor event = mock(ButtonEventAdaptor.class);
+        when(event.getAllButtonIds()).thenReturn(ImmutableList.of(new ButtonEventAdaptor.LabelAndCustomId("1d6", "custom_dice\u00001d6")));
         when(event.getCustomId()).thenReturn("custom_dice\u00001d6");
         assertThat(underTest.getConfigFromEvent(event)).isEqualTo(new CustomDiceConfig(null, ImmutableList.of(new LabelAndDiceExpression("1d6", "1d6"))));
     }
@@ -255,7 +255,7 @@ class CustomDiceCommandTest {
 
     @Test
     void getStateFromEvent() {
-        IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
+        ButtonEventAdaptor event = mock(ButtonEventAdaptor.class);
         when(event.getCustomId()).thenReturn("custom_dice\u00002d6");
 
         State<EmptyData> res = underTest.getStateFromEvent(event);
@@ -272,7 +272,7 @@ class CustomDiceCommandTest {
 
     @Test
     void handleComponentInteractEvent() {
-        IButtonEventAdaptor buttonEventAdaptor = mock(IButtonEventAdaptor.class);
+        ButtonEventAdaptor buttonEventAdaptor = mock(ButtonEventAdaptor.class);
         when(buttonEventAdaptor.getCustomId()).thenReturn("custom_dice\u00001d6\u0000");
         when(diceMock.detailedRoll("1d6")).thenReturn(new ResultTree(new NDice(6, 1), 3, ImmutableList.of()));
         when(buttonEventAdaptor.getChannelId()).thenReturn(1L);
@@ -307,7 +307,7 @@ class CustomDiceCommandTest {
 
     @Test
     void handleComponentInteractEvent_pinned() {
-        IButtonEventAdaptor buttonEventAdaptor = mock(IButtonEventAdaptor.class);
+        ButtonEventAdaptor buttonEventAdaptor = mock(ButtonEventAdaptor.class);
         when(buttonEventAdaptor.getCustomId()).thenReturn("custom_dice\u00001d6");
         when(diceMock.detailedRoll("1d6")).thenReturn(new ResultTree(new NDice(6, 1), 3, ImmutableList.of()));
         when(buttonEventAdaptor.getChannelId()).thenReturn(1L);
@@ -365,7 +365,7 @@ class CustomDiceCommandTest {
 
     @Test
     void handleSlashCommandEvent() {
-        ISlashEventAdaptor event = mock(ISlashEventAdaptor.class);
+        SlashEventAdaptor event = mock(SlashEventAdaptor.class);
         when(event.getCommandString()).thenReturn("/custom_dice start 1_button:1d6 2_button:1d20@Attack 3_button:3x[3d10]");
         when(event.getOption("start")).thenReturn(Optional.of(CommandInteractionOption.builder()
                 .option(CommandInteractionOption.builder()

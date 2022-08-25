@@ -16,7 +16,7 @@ import de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommand;
 import de.janno.discord.bot.command.sumDiceSet.SumDiceSetCommand;
 import de.janno.discord.bot.persistance.MessageDataDAO;
 import de.janno.discord.bot.persistance.MessageDataDAOImpl;
-import de.janno.discord.connector.DiscordConnector;
+import de.janno.discord.connector.DiscordConnectorImpl;
 
 public class Bot {
     public static void main(final String[] args) throws Exception {
@@ -46,7 +46,7 @@ public class Bot {
 
         MessageDataDAO messageDataDAO = new MessageDataDAOImpl(h2Url, h2User, h2Password);
 
-        DiscordConnector.createAndStart(token, disableCommandUpdate, ImmutableList.of(
+        DiscordConnectorImpl.createAndStart(token, disableCommandUpdate, ImmutableList.of(
                         new CountSuccessesCommand(messageDataDAO),
                         new CustomDiceCommand(messageDataDAO),
                         new FateCommand(messageDataDAO),

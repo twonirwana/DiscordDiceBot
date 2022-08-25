@@ -7,7 +7,7 @@ import de.janno.discord.bot.dice.DiceParserHelper;
 import de.janno.discord.bot.persistance.MessageDataDAO;
 import de.janno.discord.bot.persistance.MessageDataDAOImpl;
 import de.janno.discord.bot.persistance.MessageDataDTO;
-import de.janno.discord.connector.api.IButtonEventAdaptor;
+import de.janno.discord.connector.api.ButtonEventAdaptor;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
 import de.janno.discord.connector.api.message.EmbedDefinition;
@@ -155,7 +155,7 @@ class CustomParameterCommandTest {
     void getStateFromEvent(String customButtonId, String messageContent, String invokingUser,
                            //expected
                            List<String> selectedParameterValues, String filledExpression, String currentParameterExpression, String currentParameterName, boolean hasMissingParameter) {
-        IButtonEventAdaptor buttonEventAdaptor = mock(IButtonEventAdaptor.class);
+        ButtonEventAdaptor buttonEventAdaptor = mock(ButtonEventAdaptor.class);
         when(buttonEventAdaptor.getCustomId()).thenReturn(customButtonId);
         when(buttonEventAdaptor.getMessageContent()).thenReturn(messageContent);
         when(buttonEventAdaptor.getInvokingGuildMemberName()).thenReturn(invokingUser);

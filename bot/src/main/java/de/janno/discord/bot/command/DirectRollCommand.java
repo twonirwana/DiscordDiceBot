@@ -4,8 +4,8 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Stopwatch;
 import de.janno.discord.bot.BotMetrics;
 import de.janno.discord.bot.dice.DiceParserHelper;
-import de.janno.discord.connector.api.ISlashCommand;
-import de.janno.discord.connector.api.ISlashEventAdaptor;
+import de.janno.discord.connector.api.SlashCommand;
+import de.janno.discord.connector.api.SlashEventAdaptor;
 import de.janno.discord.connector.api.message.EmbedDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinitionOption;
@@ -19,7 +19,7 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
-public class DirectRollCommand implements ISlashCommand {
+public class DirectRollCommand implements SlashCommand {
     private static final String ACTION_EXPRESSION = "expression";
     private static final String HELP = "help";
     private static final String LABEL_DELIMITER = "@";
@@ -54,7 +54,7 @@ public class DirectRollCommand implements ISlashCommand {
     }
 
     @Override
-    public Mono<Void> handleSlashCommandEvent(@NonNull ISlashEventAdaptor event) {
+    public Mono<Void> handleSlashCommandEvent(@NonNull SlashEventAdaptor event) {
         Stopwatch stopwatch = Stopwatch.createStarted();
 
         Optional<String> checkPermissions = event.checkPermissions();

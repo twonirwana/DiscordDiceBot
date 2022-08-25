@@ -8,7 +8,7 @@ import de.janno.discord.bot.dice.DiceUtils;
 import de.janno.discord.bot.persistance.MessageDataDAO;
 import de.janno.discord.bot.persistance.MessageDataDAOImpl;
 import de.janno.discord.bot.persistance.MessageDataDTO;
-import de.janno.discord.connector.api.IButtonEventAdaptor;
+import de.janno.discord.connector.api.ButtonEventAdaptor;
 import de.janno.discord.connector.api.Requester;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
@@ -112,35 +112,35 @@ class CountSuccessesCommandTest {
 
     @Test
     void getConfigFromEvent_legacyOnlyTwo() {
-        IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
+        ButtonEventAdaptor event = mock(ButtonEventAdaptor.class);
         when(event.getCustomId()).thenReturn("count_successes,1,6,6");
         assertThat(underTest.getConfigFromEvent(event)).isEqualTo(new CountSuccessesConfig(null, 6, 6, "no_glitch", 15));
     }
 
     @Test
     void getConfigFromEvent_legacyOnlyThree() {
-        IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
+        ButtonEventAdaptor event = mock(ButtonEventAdaptor.class);
         when(event.getCustomId()).thenReturn("count_successes,1,6,6,no_glitch");
         assertThat(underTest.getConfigFromEvent(event)).isEqualTo(new CountSuccessesConfig(null, 6, 6, "no_glitch", 15));
     }
 
     @Test
     void getConfigFromEvent() {
-        IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
+        ButtonEventAdaptor event = mock(ButtonEventAdaptor.class);
         when(event.getCustomId()).thenReturn("count_successes\u00001\u00006\u00006\u0000no_glitch\u000015\u0000");
         assertThat(underTest.getConfigFromEvent(event)).isEqualTo(new CountSuccessesConfig(null, 6, 6, "no_glitch", 15));
     }
 
     @Test
     void getConfigFromEvent_withTarget() {
-        IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
+        ButtonEventAdaptor event = mock(ButtonEventAdaptor.class);
         when(event.getCustomId()).thenReturn("count_successes\u00001\u00006\u00006\u0000no_glitch\u000015\u0000123");
         assertThat(underTest.getConfigFromEvent(event)).isEqualTo(new CountSuccessesConfig(123L, 6, 6, "no_glitch", 15));
     }
 
     @Test
     void getConfigFromEvent_legacy() {
-        IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
+        ButtonEventAdaptor event = mock(ButtonEventAdaptor.class);
         when(event.getCustomId()).thenReturn("count_successes\u00001\u00006\u00006\u0000no_glitch\u000015");
         assertThat(underTest.getConfigFromEvent(event)).isEqualTo(new CountSuccessesConfig(null, 6, 6, "no_glitch", 15));
     }
@@ -210,7 +210,7 @@ class CountSuccessesCommandTest {
 
     @Test
     void getStateFromEvent_legacyV1() {
-        IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
+        ButtonEventAdaptor event = mock(ButtonEventAdaptor.class);
         when(event.getCustomId()).thenReturn("count_successes,4");
 
         State<EmptyData> res = underTest.getStateFromEvent(event);
@@ -220,7 +220,7 @@ class CountSuccessesCommandTest {
 
     @Test
     void getStateFromEvent() {
-        IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
+        ButtonEventAdaptor event = mock(ButtonEventAdaptor.class);
         when(event.getCustomId()).thenReturn("count_successes\u00004");
 
         State<EmptyData> res = underTest.getStateFromEvent(event);
@@ -237,7 +237,7 @@ class CountSuccessesCommandTest {
 
     @Test
     void handleComponentInteractEvent() {
-        IButtonEventAdaptor buttonEventAdaptor = mock(IButtonEventAdaptor.class);
+        ButtonEventAdaptor buttonEventAdaptor = mock(ButtonEventAdaptor.class);
         when(buttonEventAdaptor.getCustomId()).thenReturn("count_successes\u00006\u00006\u00004\u0000half_dice_one\u000012");
         when(buttonEventAdaptor.getChannelId()).thenReturn(1L);
         when(buttonEventAdaptor.getMessageId()).thenReturn(1L);
@@ -271,7 +271,7 @@ class CountSuccessesCommandTest {
 
     @Test
     void handleComponentInteractEvent_pinned() {
-        IButtonEventAdaptor buttonEventAdaptor = mock(IButtonEventAdaptor.class);
+        ButtonEventAdaptor buttonEventAdaptor = mock(ButtonEventAdaptor.class);
         when(buttonEventAdaptor.getCustomId()).thenReturn("count_successes,6,6,4,half_dice_one,12");
         when(buttonEventAdaptor.getChannelId()).thenReturn(1L);
         when(buttonEventAdaptor.getMessageId()).thenReturn(1L);

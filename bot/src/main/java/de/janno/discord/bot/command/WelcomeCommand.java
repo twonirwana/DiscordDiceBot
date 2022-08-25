@@ -13,7 +13,7 @@ import de.janno.discord.bot.command.poolTarget.PoolTargetCommand;
 import de.janno.discord.bot.command.poolTarget.PoolTargetConfig;
 import de.janno.discord.bot.persistance.MessageDataDAO;
 import de.janno.discord.bot.persistance.MessageDataDTO;
-import de.janno.discord.connector.api.IButtonEventAdaptor;
+import de.janno.discord.connector.api.ButtonEventAdaptor;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
 import de.janno.discord.connector.api.message.EmbedDefinition;
@@ -131,7 +131,7 @@ public class WelcomeCommand extends AbstractCommand<Config, EmptyData> {
     }
 
     @Override
-    protected boolean shouldKeepExistingButtonMessage(@NonNull IButtonEventAdaptor event) {
+    protected boolean shouldKeepExistingButtonMessage(@NonNull ButtonEventAdaptor event) {
         return true;
     }
 
@@ -198,12 +198,12 @@ public class WelcomeCommand extends AbstractCommand<Config, EmptyData> {
     }
 
     @Override
-    protected @NonNull Config getConfigFromEvent(@NonNull IButtonEventAdaptor event) {
+    protected @NonNull Config getConfigFromEvent(@NonNull ButtonEventAdaptor event) {
         return new Config(null);
     }
 
     @Override
-    protected @NonNull State<EmptyData> getStateFromEvent(@NonNull IButtonEventAdaptor event) {
+    protected @NonNull State<EmptyData> getStateFromEvent(@NonNull ButtonEventAdaptor event) {
         String buttonId = getButtonValueFromLegacyCustomId(event.getCustomId());
         return new State<>(buttonId, new EmptyData());
     }

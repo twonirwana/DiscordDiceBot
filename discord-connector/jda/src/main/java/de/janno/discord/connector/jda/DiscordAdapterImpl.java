@@ -2,7 +2,6 @@ package de.janno.discord.connector.jda;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
-import de.janno.discord.connector.api.IDiscordAdapter;
 import de.janno.discord.connector.api.message.EmbedDefinition;
 import de.janno.discord.connector.api.message.MessageDefinition;
 import lombok.NonNull;
@@ -25,7 +24,7 @@ import java.util.Optional;
 import java.util.function.Supplier;
 
 @Slf4j
-public abstract class DiscordAdapter implements IDiscordAdapter {
+public abstract class DiscordAdapterImpl implements de.janno.discord.connector.api.DiscordAdapter {
 
     //needed to correctly show utf8 characters in discord
     private static String encodeUTF8(@NonNull String in) {

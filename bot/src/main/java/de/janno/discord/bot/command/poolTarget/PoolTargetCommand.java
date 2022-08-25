@@ -10,7 +10,7 @@ import de.janno.discord.bot.persistance.Mapper;
 import de.janno.discord.bot.persistance.MessageDataDAO;
 import de.janno.discord.bot.persistance.MessageDataDTO;
 import de.janno.discord.connector.api.BotConstants;
-import de.janno.discord.connector.api.IButtonEventAdaptor;
+import de.janno.discord.connector.api.ButtonEventAdaptor;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
 import de.janno.discord.connector.api.message.EmbedDefinition;
@@ -210,7 +210,7 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTar
     }
 
     @Override
-    protected @NonNull PoolTargetConfig getConfigFromEvent(@NonNull IButtonEventAdaptor event) {
+    protected @NonNull PoolTargetConfig getConfigFromEvent(@NonNull ButtonEventAdaptor event) {
         String[] customIdSplit = event.getCustomId().split(BotConstants.LEGACY_CONFIG_SPLIT_DELIMITER_REGEX);
 
         int sideOfDie = Integer.parseInt(customIdSplit[SIDE_OF_DIE_INDEX]);
@@ -260,7 +260,7 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTar
     }
 
     @Override
-    protected @NonNull State<PoolTargetStateData> getStateFromEvent(@NonNull IButtonEventAdaptor event) {
+    protected @NonNull State<PoolTargetStateData> getStateFromEvent(@NonNull ButtonEventAdaptor event) {
         String[] customIdSplit = event.getCustomId().split(BotConstants.LEGACY_CONFIG_SPLIT_DELIMITER_REGEX);
         String buttonValue = customIdSplit[BUTTON_VALUE_INDEX];
 

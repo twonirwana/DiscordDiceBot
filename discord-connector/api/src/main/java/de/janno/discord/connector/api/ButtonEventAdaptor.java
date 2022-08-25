@@ -11,7 +11,7 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Optional;
 
-public interface IButtonEventAdaptor extends IDiscordAdapter {
+public interface ButtonEventAdaptor extends DiscordAdapter {
 
     String getCustomId();
 

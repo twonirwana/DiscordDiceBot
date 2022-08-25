@@ -29,7 +29,7 @@ import static de.janno.discord.connector.api.BotConstants.CUSTOM_ID_DELIMITER;
 import static de.janno.discord.connector.api.BotConstants.LEGACY_CONFIG_SPLIT_DELIMITER_REGEX;
 
 @Slf4j
-public abstract class AbstractCommand<C extends Config, S extends EmptyData> implements ISlashCommand, IComponentInteractEventHandler {
+public abstract class AbstractCommand<C extends Config, S extends EmptyData> implements SlashCommand, ComponentInteractEventHandler {
 
     protected static final String ACTION_START = "start";
     protected static final String ACTION_HELP = "help";
@@ -108,7 +108,7 @@ public abstract class AbstractCommand<C extends Config, S extends EmptyData> imp
     }
 
     @Override
-    public Mono<Void> handleComponentInteractEvent(@NonNull IButtonEventAdaptor event) {
+    public Mono<Void> handleComponentInteractEvent(@NonNull ButtonEventAdaptor event) {
         Stopwatch stopwatch = Stopwatch.createStarted();
         final long messageId = event.getMessageId();
         final long channelId = event.getChannelId();
@@ -214,7 +214,7 @@ public abstract class AbstractCommand<C extends Config, S extends EmptyData> imp
                                             @Nullable Long retainMessageId,
                                             @NonNull UUID configUUID,
                                             long channelId,
-                                            @NonNull IButtonEventAdaptor event) {
+                                            @NonNull ButtonEventAdaptor event) {
         return newMessageIdMono
                 .flux()
                 .flatMap(newMessageId -> Flux.fromIterable(messageDataDAO.getAllMessageIdsForConfig(configUUID))
@@ -233,7 +233,7 @@ public abstract class AbstractCommand<C extends Config, S extends EmptyData> imp
     }
 
     @Override
-    public Mono<Void> handleSlashCommandEvent(@NonNull ISlashEventAdaptor event) {
+    public Mono<Void> handleSlashCommandEvent(@NonNull SlashEventAdaptor event) {
         Optional<String> checkPermissions = event.checkPermissions();
         if (checkPermissions.isPresent()) {
             return event.reply(checkPermissions.get());
@@ -318,7 +318,7 @@ public abstract class AbstractCommand<C extends Config, S extends EmptyData> imp
         return Optional.empty();
     }
 
-    protected boolean shouldKeepExistingButtonMessage(@NonNull IButtonEventAdaptor event) {
+    protected boolean shouldKeepExistingButtonMessage(@NonNull ButtonEventAdaptor event) {
         return event.isPinned();
     }
 
@@ -328,13 +328,13 @@ public abstract class AbstractCommand<C extends Config, S extends EmptyData> imp
      * will be removed when almost all users have switched to the persisted button id
      */
     @Deprecated
-    protected abstract @NonNull C getConfigFromEvent(@NonNull IButtonEventAdaptor event);
+    protected abstract @NonNull C getConfigFromEvent(@NonNull ButtonEventAdaptor event);
 
     /**
      * will be removed when almost all users have switched to the persisted button id
      */
     @Deprecated
-    protected abstract @NonNull State<S> getStateFromEvent(@NonNull IButtonEventAdaptor event);
+    protected abstract @NonNull State<S> getStateFromEvent(@NonNull ButtonEventAdaptor event);
 
 
     /**

@@ -8,7 +8,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.Optional;
 
-public interface ISlashEventAdaptor extends IDiscordAdapter {
+public interface SlashEventAdaptor extends DiscordAdapter {
     Optional<String> checkPermissions();
 
     Optional<CommandInteractionOption> getOption(@NonNull String actionStart);

@@ -8,7 +8,7 @@ import de.janno.discord.bot.dice.DiceUtils;
 import de.janno.discord.bot.persistance.MessageDataDAO;
 import de.janno.discord.bot.persistance.MessageDataDAOImpl;
 import de.janno.discord.bot.persistance.MessageDataDTO;
-import de.janno.discord.connector.api.IButtonEventAdaptor;
+import de.janno.discord.connector.api.ButtonEventAdaptor;
 import de.janno.discord.connector.api.Requester;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
@@ -65,7 +65,7 @@ class PoolTargetCommandTest {
     @ParameterizedTest(name = "{index} config={0} -> {1}")
     @MethodSource("getStateFromEvent")
     void getStateFromEvent(String customButtonId, State<PoolTargetStateData> expected) {
-        IButtonEventAdaptor buttonEventAdaptor = mock(IButtonEventAdaptor.class);
+        ButtonEventAdaptor buttonEventAdaptor = mock(ButtonEventAdaptor.class);
         when(buttonEventAdaptor.getCustomId()).thenReturn(customButtonId);
         assertThat(underTest.getStateFromEvent(buttonEventAdaptor)).isEqualTo(expected);
     }
@@ -101,7 +101,7 @@ class PoolTargetCommandTest {
 
     @Test
     void getConfigFromEvent() {
-        IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
+        ButtonEventAdaptor event = mock(ButtonEventAdaptor.class);
         when(event.getCustomId()).thenReturn("pool_target\u0000do_reroll\u000010\u000020\u000010;9\u00001;2\u0000ask\u000015\u00009\u0000");
 
         assertThat(underTest.getConfigFromEvent(event)).isEqualTo(new PoolTargetConfig(
@@ -115,7 +115,7 @@ class PoolTargetCommandTest {
 
     @Test
     void getConfigFromEvent_target() {
-        IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
+        ButtonEventAdaptor event = mock(ButtonEventAdaptor.class);
         when(event.getCustomId()).thenReturn("pool_target\u0000do_reroll\u000010\u000020\u000010;9\u00001;2\u0000ask\u000015\u00009\u0000123");
 
         assertThat(underTest.getConfigFromEvent(event)).isEqualTo(new PoolTargetConfig(
@@ -129,7 +129,7 @@ class PoolTargetCommandTest {
 
     @Test
     void getConfigFromEvent_legacy() {
-        IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
+        ButtonEventAdaptor event = mock(ButtonEventAdaptor.class);
         when(event.getCustomId()).thenReturn("pool_target\u0000do_reroll\u000010\u000020\u000010;9\u00001;2\u0000ask\u000015\u00009");
 
         assertThat(underTest.getConfigFromEvent(event)).isEqualTo(new PoolTargetConfig(
@@ -397,7 +397,7 @@ class PoolTargetCommandTest {
 
     @Test
     void handleComponentInteractEvent_clear() {
-        IButtonEventAdaptor buttonEventAdaptor = mock(IButtonEventAdaptor.class);
+        ButtonEventAdaptor buttonEventAdaptor = mock(ButtonEventAdaptor.class);
         when(buttonEventAdaptor.getCustomId()).thenReturn("pool_target\u0000clear\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000");
         when(buttonEventAdaptor.getChannelId()).thenReturn(1L);
         when(buttonEventAdaptor.getMessageId()).thenReturn(1L);
@@ -429,7 +429,7 @@ class PoolTargetCommandTest {
 
     @Test
     void handleComponentInteractEvent_setTargetAsk() {
-        IButtonEventAdaptor buttonEventAdaptor = mock(IButtonEventAdaptor.class);
+        ButtonEventAdaptor buttonEventAdaptor = mock(ButtonEventAdaptor.class);
         when(buttonEventAdaptor.getCustomId()).thenReturn("pool_target\u00008\u000010\u000020\u000010;9\u00001;2\u0000ask\u000015\u0000EMPTY\u0000");
         when(buttonEventAdaptor.getChannelId()).thenReturn(1L);
         when(buttonEventAdaptor.getMessageId()).thenReturn(1L);
@@ -461,7 +461,7 @@ class PoolTargetCommandTest {
 
     @Test
     void handleComponentInteractEvent_setTargetAlways() {
-        IButtonEventAdaptor buttonEventAdaptor = mock(IButtonEventAdaptor.class);
+        ButtonEventAdaptor buttonEventAdaptor = mock(ButtonEventAdaptor.class);
         when(buttonEventAdaptor.getCustomId()).thenReturn("pool_target\u00008\u000010\u000020\u000010;9\u00001;2\u0000always\u000015\u0000EMPTY\u0000");
         when(buttonEventAdaptor.getChannelId()).thenReturn(1L);
         when(buttonEventAdaptor.getMessageId()).thenReturn(1L);
@@ -495,7 +495,7 @@ class PoolTargetCommandTest {
 
     @Test
     void handleComponentInteractEvent_setReroll() {
-        IButtonEventAdaptor buttonEventAdaptor = mock(IButtonEventAdaptor.class);
+        ButtonEventAdaptor buttonEventAdaptor = mock(ButtonEventAdaptor.class);
         when(buttonEventAdaptor.getCustomId()).thenReturn("pool_target\u0000do_reroll,10,20,10;9,1;2,ask,15,8");
         when(buttonEventAdaptor.getChannelId()).thenReturn(1L);
         when(buttonEventAdaptor.getMessageId()).thenReturn(1L);
@@ -529,7 +529,7 @@ class PoolTargetCommandTest {
 
     @Test
     void handleComponentInteractEvent_clearPinned() {
-        IButtonEventAdaptor buttonEventAdaptor = mock(IButtonEventAdaptor.class);
+        ButtonEventAdaptor buttonEventAdaptor = mock(ButtonEventAdaptor.class);
         when(buttonEventAdaptor.getCustomId()).thenReturn("pool_target\u0000clear\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000");
         when(buttonEventAdaptor.getChannelId()).thenReturn(1L);
         when(buttonEventAdaptor.getMessageId()).thenReturn(1L);

@@ -1,7 +1,7 @@
 package de.janno.discord.connector.jda;
 
 import com.google.common.collect.ImmutableSet;
-import de.janno.discord.connector.api.ISlashEventAdaptor;
+import de.janno.discord.connector.api.SlashEventAdaptor;
 import de.janno.discord.connector.api.Requester;
 import de.janno.discord.connector.api.message.EmbedDefinition;
 import de.janno.discord.connector.api.message.MessageDefinition;
@@ -19,7 +19,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
-public class SlashEventAdapter extends DiscordAdapter implements ISlashEventAdaptor {
+public class SlashEventAdapterImpl extends DiscordAdapterImpl implements SlashEventAdaptor {
 
     @NonNull
     private final SlashCommandInteractionEvent event;
@@ -29,7 +29,7 @@ public class SlashEventAdapter extends DiscordAdapter implements ISlashEventAdap
     @NonNull
     private final String commandString;
 
-    public SlashEventAdapter(@NonNull SlashCommandInteractionEvent event, @NonNull Mono<Requester> requesterMono) {
+    public SlashEventAdapterImpl(@NonNull SlashCommandInteractionEvent event, @NonNull Mono<Requester> requesterMono) {
         this.event = event;
         this.requesterMono = requesterMono;
         this.channelId = event.getChannel().getIdLong();

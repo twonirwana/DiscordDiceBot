@@ -2,8 +2,8 @@ package de.janno.discord.connector.jda;
 
 import com.google.common.base.Stopwatch;
 import de.janno.discord.connector.api.BotConstants;
-import de.janno.discord.connector.api.IComponentInteractEventHandler;
-import de.janno.discord.connector.api.ISlashCommand;
+import de.janno.discord.connector.api.ComponentInteractEventHandler;
+import de.janno.discord.connector.api.SlashCommand;
 import de.janno.discord.connector.api.Requester;
 import de.janno.discord.connector.api.message.MessageDefinition;
 import lombok.NonNull;
@@ -45,7 +45,7 @@ public class JdaClient {
         return customId.split(BotConstants.CUSTOM_ID_DELIMITER)[0];
     }
 
-    public void start(String token, boolean disableCommandUpdate, List<ISlashCommand> commands, MessageDefinition welcomeMessageDefinition) throws LoginException {
+    public void start(String token, boolean disableCommandUpdate, List<SlashCommand> commands, MessageDefinition welcomeMessageDefinition) throws LoginException {
         LocalDateTime startTimePlusBuffer = LocalDateTime.now().plus(START_UP_BUFFER);
         Scheduler scheduler = Schedulers.boundedElastic();
         Set<Long> botInGuildIdSet = new ConcurrentSkipListSet<>();
@@ -121,7 +121,7 @@ public class JdaClient {
                 Flux.fromIterable(slashCommandRegistry.getSlashCommands())
                         .filter(command -> command.getCommandId().equals(event.getName()))
                         .next()
-                        .flatMap(command -> command.handleSlashCommandEvent(new SlashEventAdapter(event,
+                        .flatMap(command -> command.handleSlashCommandEvent(new SlashEventAdapterImpl(event,
                                 Mono.just(new Requester(event.getInteraction().getUser().getName(),
                                         event.getChannel().getName(),
                                         Optional.ofNullable(event.getGuild()).map(Guild::getName).orElse("")))
@@ -142,10 +142,10 @@ public class JdaClient {
                 Stopwatch stopwatch = Stopwatch.createStarted();
                 log.trace("ComponentEvent: {} from {}", event.getInteraction().getComponentId(), event.getInteraction().getUser().getName());
                 Flux.fromIterable(slashCommandRegistry.getSlashCommands())
-                        .ofType(IComponentInteractEventHandler.class)
+                        .ofType(ComponentInteractEventHandler.class)
                         .filter(command -> command.matchingComponentCustomId(event.getInteraction().getComponentId()))
                         .next()
-                        .flatMap(command -> command.handleComponentInteractEvent(new ButtonEventAdapter(event,
+                        .flatMap(command -> command.handleComponentInteractEvent(new ButtonEventAdapterImpl(event,
                                 Mono.just(new Requester(event.getInteraction().getUser().getName(),
                                         event.getChannel().getName(),
                                         Optional.ofNullable(event.getInteraction().getGuild()).map(Guild::getName).orElse("")

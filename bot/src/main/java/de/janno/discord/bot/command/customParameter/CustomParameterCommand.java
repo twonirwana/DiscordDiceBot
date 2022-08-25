@@ -15,7 +15,7 @@ import de.janno.discord.bot.persistance.Mapper;
 import de.janno.discord.bot.persistance.MessageDataDAO;
 import de.janno.discord.bot.persistance.MessageDataDTO;
 import de.janno.discord.connector.api.BotConstants;
-import de.janno.discord.connector.api.IButtonEventAdaptor;
+import de.janno.discord.connector.api.ButtonEventAdaptor;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
 import de.janno.discord.connector.api.message.EmbedDefinition;
@@ -211,12 +211,12 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     }
 
     @Override
-    protected @NonNull CustomParameterConfig getConfigFromEvent(@NonNull IButtonEventAdaptor event) {
+    protected @NonNull CustomParameterConfig getConfigFromEvent(@NonNull ButtonEventAdaptor event) {
         return createConfigFromCustomId(event.getCustomId());
     }
 
     @Override
-    protected @NonNull State<CustomParameterStateData> getStateFromEvent(@NonNull IButtonEventAdaptor event) {
+    protected @NonNull State<CustomParameterStateData> getStateFromEvent(@NonNull ButtonEventAdaptor event) {
         return createParameterStateFromLegacyId(event.getCustomId(), event.getMessageContent(), event.getInvokingGuildMemberName());
     }
 

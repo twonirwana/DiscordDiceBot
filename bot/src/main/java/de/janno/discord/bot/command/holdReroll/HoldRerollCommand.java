@@ -10,7 +10,7 @@ import de.janno.discord.bot.persistance.Mapper;
 import de.janno.discord.bot.persistance.MessageDataDAO;
 import de.janno.discord.bot.persistance.MessageDataDTO;
 import de.janno.discord.connector.api.BotConstants;
-import de.janno.discord.connector.api.IButtonEventAdaptor;
+import de.janno.discord.connector.api.ButtonEventAdaptor;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
 import de.janno.discord.connector.api.message.EmbedDefinition;
@@ -137,7 +137,7 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollConfig, HoldRer
     }
 
     @Override
-    protected @NonNull HoldRerollConfig getConfigFromEvent(@NonNull IButtonEventAdaptor event) {
+    protected @NonNull HoldRerollConfig getConfigFromEvent(@NonNull ButtonEventAdaptor event) {
         String[] customIdSplit = event.getCustomId().split(BotConstants.LEGACY_CONFIG_SPLIT_DELIMITER_REGEX);
         int sideOfDie = Integer.parseInt(customIdSplit[3]);
         Set<Integer> rerollSet = CommandUtils.toSet(customIdSplit[4], SUBSET_DELIMITER, EMPTY);
@@ -149,7 +149,7 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollConfig, HoldRer
 
 
     @Override
-    protected @NonNull State<HoldRerollStateData> getStateFromEvent(@NonNull IButtonEventAdaptor event) {
+    protected @NonNull State<HoldRerollStateData> getStateFromEvent(@NonNull ButtonEventAdaptor event) {
         String[] customIdSplit = event.getCustomId().split(BotConstants.LEGACY_CONFIG_SPLIT_DELIMITER_REGEX);
         List<Integer> currentResult = getCurrentRollResult(customIdSplit[2]);
         int rerollCount = Integer.parseInt(customIdSplit[7]);
