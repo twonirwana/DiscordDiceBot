@@ -1,6 +1,7 @@
 package de.janno.discord.bot.command.customParameter;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -51,6 +52,8 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     private final static Pattern BUTTON_RANGE_PATTERN = Pattern.compile(RANGE_DELIMITER + "(-?\\d+)<=>(-?\\d+)");
     private final static String BUTTON_VALUE_DELIMITER = "/";
     private final static Pattern BUTTON_VALUE_PATTERN = Pattern.compile(RANGE_DELIMITER + "(.+" + BUTTON_VALUE_DELIMITER + ".+)}");
+    private static final String STATE_DATA_TYPE_ID = "CustomParameterStateData";
+    private static final String CONFIG_TYPE_ID = "CustomParameterConfig";
     private final DiceParserHelper diceParserHelper;
 
     public CustomParameterCommand(MessageDataDAO messageDataDAO) {
@@ -256,6 +259,10 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     ConfigAndState<CustomParameterConfig, CustomParameterStateData> deserializeAndUpdateState(@NonNull MessageDataDTO messageDataDTO,
                                                                                               @NonNull String buttonValue,
                                                                                               @NonNull String invokingUser) {
+        Preconditions.checkArgument(CONFIG_TYPE_ID.equals(messageDataDTO.getConfigClassId()), "Unknown configClassId: %s", messageDataDTO.getConfigClassId());
+        Preconditions.checkArgument(STATE_DATA_TYPE_ID.equals(messageDataDTO.getStateDataClassId())
+                || Mapper.NO_PERSISTED_STATE.equals(messageDataDTO.getStateDataClassId()), "Unknown stateDataClassId: %s", messageDataDTO.getStateDataClassId());
+
         final CustomParameterStateData loadedStateData = Optional.ofNullable(messageDataDTO.getStateData())
                 .map(sd -> Mapper.deserializeObject(sd, CustomParameterStateData.class))
                 .orElse(null);
@@ -273,7 +280,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
 
     @Override
     protected Optional<MessageDataDTO> createMessageDataForNewMessage(@NonNull UUID configUUID, long channelId, long messageId, @NonNull CustomParameterConfig config, @Nullable State<CustomParameterStateData> state) {
-        return Optional.of(new MessageDataDTO(configUUID, channelId, messageId, getCommandId(), "CustomParameterConfig", Mapper.serializedObject(config)));
+        return Optional.of(new MessageDataDTO(configUUID, channelId, messageId, getCommandId(), CONFIG_TYPE_ID, Mapper.serializedObject(config)));
     }
 
     @Override
@@ -281,7 +288,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
         if (state.getData() == null) {
             messageDataDAO.updateCommandConfigOfMessage(channelId, messageId, Mapper.NO_PERSISTED_STATE, null);
         } else {
-            messageDataDAO.updateCommandConfigOfMessage(channelId, messageId, "CustomParameterStateData", Mapper.serializedObject(state.getData()));
+            messageDataDAO.updateCommandConfigOfMessage(channelId, messageId, STATE_DATA_TYPE_ID, Mapper.serializedObject(state.getData()));
         }
     }
 

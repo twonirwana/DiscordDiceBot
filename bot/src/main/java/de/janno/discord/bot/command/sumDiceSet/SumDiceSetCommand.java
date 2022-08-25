@@ -1,6 +1,7 @@
 package de.janno.discord.bot.command.sumDiceSet;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import de.janno.discord.bot.command.AbstractCommand;
@@ -39,6 +40,8 @@ public class SumDiceSetCommand extends AbstractCommand<Config, SumDiceSetStateDa
     private static final String X2_BUTTON_ID = "x2";
     private static final String DICE_SYMBOL = "d";
     private static final String MODIFIER_KEY = "m";
+    private static final String CONFIG_TYPE_ID = "Config";
+    private static final String STATE_DATA_TYPE_ID = "SumDiceSetStateData";
     private final DiceUtils diceUtils;
 
     public SumDiceSetCommand(MessageDataDAO messageDataDAO) {
@@ -84,17 +87,14 @@ public class SumDiceSetCommand extends AbstractCommand<Config, SumDiceSetStateDa
         if (messageDataDTO.isEmpty()) {
             return Optional.empty();
         }
-        final SumDiceSetStateData stateData = messageDataDTO
-                .map(MessageDataDTO::getStateData)
-                .map(sd -> Mapper.deserializeObject(sd, SumDiceSetStateData.class))
-                .orElse(new SumDiceSetStateData(ImmutableMap.of()));
-        return Optional.of(new ConfigAndState<>(messageDataDTO.get().getConfigUUID(),
-                Mapper.deserializeObject(messageDataDTO.get().getConfig(), Config.class),
-                updateState(buttonValue, stateData)));
+        return Optional.of(deserializeAndUpdateState(messageDataDTO.get(), buttonValue));
     }
 
     @VisibleForTesting
     ConfigAndState<Config, SumDiceSetStateData> deserializeAndUpdateState(@NonNull MessageDataDTO messageDataDTO, @NonNull String buttonValue) {
+       Preconditions.checkArgument(CONFIG_TYPE_ID.equals(messageDataDTO.getConfigClassId()), "Unknown configClassId: %s", messageDataDTO.getConfigClassId());
+        Preconditions.checkArgument(STATE_DATA_TYPE_ID.equals(messageDataDTO.getStateDataClassId())
+                || Mapper.NO_PERSISTED_STATE.equals(messageDataDTO.getStateDataClassId()), "Unknown stateDataClassId: %s", messageDataDTO.getStateDataClassId());
 
         final SumDiceSetStateData loadedStateData = Optional.ofNullable(messageDataDTO.getStateData())
                 .map(sd -> Mapper.deserializeObject(sd, SumDiceSetStateData.class))
@@ -106,12 +106,12 @@ public class SumDiceSetCommand extends AbstractCommand<Config, SumDiceSetStateDa
 
     @Override
     protected Optional<MessageDataDTO> createMessageDataForNewMessage(@NonNull UUID configUUID,
-                                                            long channelId,
-                                                            long messageId,
-                                                            @NonNull Config config,
-                                                            @Nullable State<SumDiceSetStateData> state) {
+                                                                      long channelId,
+                                                                      long messageId,
+                                                                      @NonNull Config config,
+                                                                      @Nullable State<SumDiceSetStateData> state) {
         return Optional.of(new MessageDataDTO(configUUID, channelId, messageId, getCommandId(),
-                "SumDiceSetStateData", Mapper.serializedObject(config)));
+                CONFIG_TYPE_ID, Mapper.serializedObject(config)));
     }
 
     @Override
@@ -119,7 +119,7 @@ public class SumDiceSetCommand extends AbstractCommand<Config, SumDiceSetStateDa
         if (state.getData() == null) {
             messageDataDAO.updateCommandConfigOfMessage(channelId, messageId, Mapper.NO_PERSISTED_STATE, null);
         } else {
-            messageDataDAO.updateCommandConfigOfMessage(channelId, messageId, "SumDiceSetStateData", Mapper.serializedObject(state.getData()));
+            messageDataDAO.updateCommandConfigOfMessage(channelId, messageId, STATE_DATA_TYPE_ID, Mapper.serializedObject(state.getData()));
         }
     }
 

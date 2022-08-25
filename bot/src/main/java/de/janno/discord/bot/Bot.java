@@ -2,7 +2,10 @@ package de.janno.discord.bot;
 
 
 import com.google.common.collect.ImmutableList;
-import de.janno.discord.bot.command.*;
+import de.janno.discord.bot.command.ClearCommand;
+import de.janno.discord.bot.command.DirectRollCommand;
+import de.janno.discord.bot.command.HelpCommand;
+import de.janno.discord.bot.command.WelcomeCommand;
 import de.janno.discord.bot.command.countSuccesses.CountSuccessesCommand;
 import de.janno.discord.bot.command.customDice.CustomDiceCommand;
 import de.janno.discord.bot.command.customParameter.CustomParameterCommand;
@@ -21,10 +24,27 @@ public class Bot {
         final boolean disableCommandUpdate = Boolean.parseBoolean(args[1]);
         final String publishMetricsToUrl = args[2];
         BotMetrics.init(publishMetricsToUrl);
-        //Todo url as args
-        String url = "jdbc:h2:file:./persistence/dice_config";
 
-        MessageDataDAO messageDataDAO = new MessageDataDAOImpl(url, null, null);
+        final String h2Url;
+        if (args.length >= 4) {
+            h2Url = args[3];
+        } else {
+            h2Url = "jdbc:h2:file:./persistence/dice_config";
+        }
+        final String h2User;
+        if (args.length >= 5) {
+            h2User = args[4];
+        } else {
+            h2User = null;
+        }
+        final String h2Password;
+        if (args.length >= 6) {
+            h2Password = args[5];
+        } else {
+            h2Password = null;
+        }
+
+        MessageDataDAO messageDataDAO = new MessageDataDAOImpl(h2Url, h2User, h2Password);
 
         DiscordConnector.createAndStart(token, disableCommandUpdate, ImmutableList.of(
                         new CountSuccessesCommand(messageDataDAO),

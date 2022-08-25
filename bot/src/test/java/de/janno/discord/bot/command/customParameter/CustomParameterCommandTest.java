@@ -365,7 +365,7 @@ class CustomParameterCommandTest {
     @Test
     void deserialization() {
         UUID configUUID = UUID.randomUUID();
-        MessageDataDTO savedData = new MessageDataDTO(configUUID, 1660644934298L, 1660644934298L, "custom_dice", "CustomDiceConfig", """
+        MessageDataDTO savedData = new MessageDataDTO(configUUID, 1660644934298L, 1660644934298L, "custom_dice", "CustomParameterConfig", """
                 ---
                 answerTargetChannelId: 123
                 baseExpression: "{n}d{s}"

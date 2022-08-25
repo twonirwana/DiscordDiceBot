@@ -1,6 +1,7 @@
 package de.janno.discord.bot.command.holdReroll;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import de.janno.discord.bot.command.AbstractCommand;
@@ -42,6 +43,8 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollConfig, HoldRer
     private static final String CLEAR_BUTTON_ID = "clear";
     private static final String DICE_SYMBOL = "d";
     private static final String EMPTY = "EMPTY";
+    private static final String CONFIG_TYPE_ID = "HoldRerollConfig";
+    private static final String STATE_DATA_TYPE_ID = "HoldRerollStateData";
     private final DiceUtils diceUtils;
 
     public HoldRerollCommand(MessageDataDAO messageDataDAO) {
@@ -266,12 +269,16 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollConfig, HoldRer
         if (state.getData() == null) {
             messageDataDAO.updateCommandConfigOfMessage(channelId, messageId, Mapper.NO_PERSISTED_STATE, null);
         } else {
-            messageDataDAO.updateCommandConfigOfMessage(channelId, messageId, "HoldRerollStateData", Mapper.serializedObject(state.getData()));
+            messageDataDAO.updateCommandConfigOfMessage(channelId, messageId, STATE_DATA_TYPE_ID, Mapper.serializedObject(state.getData()));
         }
     }
 
     @VisibleForTesting
     ConfigAndState<HoldRerollConfig, HoldRerollStateData> deserializeAndUpdateState(@NonNull MessageDataDTO messageDataDTO, @NonNull String buttonValue) {
+       Preconditions.checkArgument(CONFIG_TYPE_ID.equals(messageDataDTO.getConfigClassId()), "Unknown configClassId: %s", messageDataDTO.getConfigClassId());
+        Preconditions.checkArgument(STATE_DATA_TYPE_ID.equals(messageDataDTO.getStateDataClassId())
+                || Mapper.NO_PERSISTED_STATE.equals(messageDataDTO.getStateDataClassId()), "Unknown stateDataClassId: %s", messageDataDTO.getStateDataClassId());
+
         final HoldRerollStateData loadedStateData = Optional.ofNullable(messageDataDTO.getStateData())
                 .map(sd -> Mapper.deserializeObject(sd, HoldRerollStateData.class))
                 .orElse(null);
@@ -288,7 +295,7 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollConfig, HoldRer
 
     @Override
     protected Optional<MessageDataDTO> createMessageDataForNewMessage(@NonNull UUID configUUID, long channelId, long messageId, @NonNull HoldRerollConfig config, @Nullable State<HoldRerollStateData> state) {
-        return Optional.of(new MessageDataDTO(configUUID, channelId, messageId, getCommandId(), "HoldRerollConfig", Mapper.serializedObject(config)));
+        return Optional.of(new MessageDataDTO(configUUID, channelId, messageId, getCommandId(), CONFIG_TYPE_ID, Mapper.serializedObject(config)));
     }
 
     @Override

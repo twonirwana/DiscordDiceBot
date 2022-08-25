@@ -1,6 +1,7 @@
 package de.janno.discord.bot.command.poolTarget;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import de.janno.discord.bot.command.AbstractCommand;
@@ -60,6 +61,8 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTar
     private static final int TARGET_INDEX = 8;
     private static final int ANSWER_TARGET_CHANNEL_INDEX = 9;
     private static final String EMPTY = "EMPTY";
+    private static final String CONFIG_TYPE_ID = "PoolTargetConfig";
+    private static final String STATE_DATA_TYPE_ID = "PoolTargetStateData";
     private final DiceUtils diceUtils;
 
     public PoolTargetCommand(MessageDataDAO messageDataDAO) {
@@ -103,6 +106,9 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTar
 
     @VisibleForTesting
     ConfigAndState<PoolTargetConfig, PoolTargetStateData> deserializeAndUpdateState(@NonNull MessageDataDTO messageDataDTO, @NonNull String buttonValue) {
+       Preconditions.checkArgument(CONFIG_TYPE_ID.equals(messageDataDTO.getConfigClassId()), "Unknown configClassId: %s", messageDataDTO.getConfigClassId());
+        Preconditions.checkArgument(STATE_DATA_TYPE_ID.equals(messageDataDTO.getStateDataClassId())
+                || Mapper.NO_PERSISTED_STATE.equals(messageDataDTO.getStateDataClassId()), "Unknown stateDataClassId: %s", messageDataDTO.getStateDataClassId());
 
         final PoolTargetStateData loadedStateData = Optional.ofNullable(messageDataDTO.getStateData())
                 .map(sd -> Mapper.deserializeObject(sd, PoolTargetStateData.class))
@@ -118,11 +124,11 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTar
 
     @Override
     protected Optional<MessageDataDTO> createMessageDataForNewMessage(@NonNull UUID configUUID,
-                                                            long channelId,
-                                                            long messageId,
-                                                            @NonNull PoolTargetConfig config,
-                                                            @Nullable State<PoolTargetStateData> stateData) {
-        return Optional.of(new MessageDataDTO(configUUID, channelId, messageId, getCommandId(), "PoolTargetConfig", Mapper.serializedObject(config)));
+                                                                      long channelId,
+                                                                      long messageId,
+                                                                      @NonNull PoolTargetConfig config,
+                                                                      @Nullable State<PoolTargetStateData> stateData) {
+        return Optional.of(new MessageDataDTO(configUUID, channelId, messageId, getCommandId(), CONFIG_TYPE_ID, Mapper.serializedObject(config)));
     }
 
     @Override
@@ -130,7 +136,7 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTar
         if (state.getData() == null) {
             messageDataDAO.updateCommandConfigOfMessage(channelId, messageId, Mapper.NO_PERSISTED_STATE, null);
         } else {
-            messageDataDAO.updateCommandConfigOfMessage(channelId, messageId, "PoolTargetStateData", Mapper.serializedObject(state.getData()));
+            messageDataDAO.updateCommandConfigOfMessage(channelId, messageId, STATE_DATA_TYPE_ID, Mapper.serializedObject(state.getData()));
         }
 
     }

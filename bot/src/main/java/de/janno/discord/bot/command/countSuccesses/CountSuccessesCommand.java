@@ -1,6 +1,7 @@
 package de.janno.discord.bot.command.countSuccesses;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
@@ -44,6 +45,7 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesConfig,
     private static final String GLITCH_NO_OPTION = "no_glitch";
     private static final String GLITCH_COUNT_ONES = "count_ones";
     private static final String GLITCH_SUBTRACT_ONES = "subtract_ones";
+    private final static String CONFIG_TYPE_ID = "CountSuccessesConfig";
     private final DiceUtils diceUtils;
 
     public CountSuccessesCommand(MessageDataDAO messageDataDAO) {
@@ -60,7 +62,6 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesConfig,
         return String.format("%sd%s", value, config.getDiceSides());
     }
 
-
     @Override
     protected Optional<ConfigAndState<CountSuccessesConfig, EmptyData>> getMessageDataAndUpdateWithButtonValue(long channelId,
                                                                                                                long messageId,
@@ -75,6 +76,7 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesConfig,
 
     @VisibleForTesting
     ConfigAndState<CountSuccessesConfig, EmptyData> deserializeAndUpdateState(@NonNull MessageDataDTO messageDataDTO, @NonNull String buttonValue) {
+        Preconditions.checkArgument(CONFIG_TYPE_ID.equals(messageDataDTO.getConfigClassId()), "Unknown configClassId: %s", messageDataDTO.getConfigClassId());
         return new ConfigAndState<>(messageDataDTO.getConfigUUID(),
                 Mapper.deserializeObject(messageDataDTO.getConfig(), CountSuccessesConfig.class),
                 new State<>(buttonValue, new EmptyData()));
@@ -87,10 +89,9 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesConfig,
                                                                       @NonNull CountSuccessesConfig config,
                                                                       @Nullable State<EmptyData> state) {
         return Optional.of(new MessageDataDTO(configUUID, channelId, messageId, getCommandId(),
-                "CountSuccessesConfig", Mapper.serializedObject(config),
+                CONFIG_TYPE_ID, Mapper.serializedObject(config),
                 Mapper.NO_PERSISTED_STATE, null));
     }
-
 
     @Override
     protected CountSuccessesConfig getConfigFromEvent(IButtonEventAdaptor event) {

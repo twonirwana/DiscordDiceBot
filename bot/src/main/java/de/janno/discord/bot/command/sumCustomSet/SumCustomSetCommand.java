@@ -1,6 +1,7 @@
 package de.janno.discord.bot.command.sumCustomSet;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
@@ -43,6 +44,8 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
     private static final List<String> DICE_COMMAND_OPTIONS_IDS = IntStream.range(1, 22).mapToObj(i -> i + "_button").toList();
     private static final String INVOKING_USER_NAME_DELIMITER = "\u2236 ";
     private static final String LABEL_DELIMITER = "@";
+    private static final String CONFIG_TYPE_ID = "SumCustomSetConfig";
+    private static final String STATE_DATA_TYPE_ID = "SumCustomSetStateData";
     private final DiceParserHelper diceParserHelper;
 
     public SumCustomSetCommand(MessageDataDAO messageDataDAO) {
@@ -72,7 +75,7 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
         if (state.getData() == null) {
             messageDataDAO.updateCommandConfigOfMessage(channelId, messageId, Mapper.NO_PERSISTED_STATE, null);
         } else {
-            messageDataDAO.updateCommandConfigOfMessage(channelId, messageId, "SumCustomSetStateData", Mapper.serializedObject(state.getData()));
+            messageDataDAO.updateCommandConfigOfMessage(channelId, messageId, STATE_DATA_TYPE_ID, Mapper.serializedObject(state.getData()));
         }
     }
 
@@ -80,6 +83,9 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
     ConfigAndState<SumCustomSetConfig, SumCustomSetStateData> deserializeAndUpdateState(@NonNull MessageDataDTO messageDataDTO,
                                                                                         @NonNull String buttonValue,
                                                                                         @NonNull String invokingUserName) {
+       Preconditions.checkArgument(CONFIG_TYPE_ID.equals(messageDataDTO.getConfigClassId()), "Unknown configClassId: %s", messageDataDTO.getConfigClassId());
+        Preconditions.checkArgument(STATE_DATA_TYPE_ID.equals(messageDataDTO.getStateDataClassId())
+                || Mapper.NO_PERSISTED_STATE.equals(messageDataDTO.getStateDataClassId()), "Unknown stateDataClassId: %s", messageDataDTO.getStateDataClassId());
 
         final SumCustomSetStateData loadedStateData = Optional.ofNullable(messageDataDTO.getStateData())
                 .map(sd -> Mapper.deserializeObject(sd, SumCustomSetStateData.class))
@@ -94,7 +100,7 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
 
     @Override
     protected Optional<MessageDataDTO> createMessageDataForNewMessage(@NonNull UUID configUUID, long channelId, long messageId, @NonNull SumCustomSetConfig config, @Nullable State<SumCustomSetStateData> state) {
-        return Optional.of(new MessageDataDTO(configUUID, channelId, messageId, getCommandId(), "SumCustomSetConfig", Mapper.serializedObject(config)));
+        return Optional.of(new MessageDataDTO(configUUID, channelId, messageId, getCommandId(), CONFIG_TYPE_ID, Mapper.serializedObject(config)));
     }
 
     @Override

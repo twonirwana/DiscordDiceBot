@@ -1,6 +1,7 @@
 package de.janno.discord.bot.command.fate;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import de.janno.discord.bot.command.AbstractCommand;
 import de.janno.discord.bot.command.ConfigAndState;
@@ -35,6 +36,7 @@ public class FateCommand extends AbstractCommand<FateConfig, EmptyData> {
     private static final String ACTION_MODIFIER_OPTION_SIMPLE = "simple";
     private static final String ACTION_MODIFIER_OPTION_MODIFIER = "with_modifier";
     private static final String ROLL_BUTTON_ID = "roll";
+    private static final String CONFIG_TYPE_ID = "FateConfig";
     private final DiceUtils diceUtils;
 
     @VisibleForTesting
@@ -61,6 +63,8 @@ public class FateCommand extends AbstractCommand<FateConfig, EmptyData> {
 
     @VisibleForTesting
     ConfigAndState<FateConfig, EmptyData> deserializeAndUpdateState(@NonNull MessageDataDTO messageDataDTO, @NonNull String buttonValue) {
+       Preconditions.checkArgument(CONFIG_TYPE_ID.equals(messageDataDTO.getConfigClassId()), "Unknown configClassId: %s", messageDataDTO.getConfigClassId());
+
         return new ConfigAndState<>(messageDataDTO.getConfigUUID(),
                 Mapper.deserializeObject(messageDataDTO.getConfig(), FateConfig.class),
                 new State<>(buttonValue, new EmptyData()));
@@ -69,12 +73,12 @@ public class FateCommand extends AbstractCommand<FateConfig, EmptyData> {
 
     @Override
     protected Optional<MessageDataDTO> createMessageDataForNewMessage(@NonNull UUID configUUID,
-                                                            long channelId,
-                                                            long messageId,
-                                                            @NonNull FateConfig config,
-                                                            @Nullable State<EmptyData> state) {
+                                                                      long channelId,
+                                                                      long messageId,
+                                                                      @NonNull FateConfig config,
+                                                                      @Nullable State<EmptyData> state) {
         return Optional.of(new MessageDataDTO(configUUID, channelId, messageId, getCommandId(),
-                "FateConfig", Mapper.serializedObject(config),
+                CONFIG_TYPE_ID, Mapper.serializedObject(config),
                 Mapper.NO_PERSISTED_STATE, null));
     }
 

@@ -1,6 +1,7 @@
 package de.janno.discord.bot.command.customDice;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import de.janno.discord.bot.command.*;
 import de.janno.discord.bot.dice.DiceParserHelper;
@@ -33,6 +34,7 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, EmptyDa
     private static final List<String> DICE_COMMAND_OPTIONS_IDS = IntStream.range(1, 25).mapToObj(i -> i + "_button").toList();
     private static final String LABEL_DELIMITER = "@";
     private static final String BUTTON_MESSAGE = "Click on a button to roll the dice";
+    private static final String CONFIG_TYPE_ID = "CustomDiceConfig";
     private final DiceParserHelper diceParserHelper;
 
     public CustomDiceCommand(MessageDataDAO messageDataDAO) {
@@ -59,6 +61,7 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, EmptyDa
 
     @VisibleForTesting
     ConfigAndState<CustomDiceConfig, EmptyData> deserializeAndUpdateState(@NonNull MessageDataDTO messageDataDTO, @NonNull String buttonValue) {
+        Preconditions.checkArgument(CONFIG_TYPE_ID.equals(messageDataDTO.getConfigClassId()), "Unknown configClassId: %s", messageDataDTO.getConfigClassId());
         return new ConfigAndState<>(messageDataDTO.getConfigUUID(),
                 Mapper.deserializeObject(messageDataDTO.getConfig(), CustomDiceConfig.class),
                 new State<>(buttonValue, new EmptyData()));
@@ -66,12 +69,12 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, EmptyDa
 
     @Override
     protected Optional<MessageDataDTO> createMessageDataForNewMessage(@NonNull UUID configUUID,
-                                                            long channelId,
-                                                            long messageId,
-                                                            @NonNull CustomDiceConfig config,
-                                                            @Nullable State<EmptyData> state) {
-        return Optional.of(new MessageDataDTO(configUUID, channelId, messageId, getCommandId(),
-                "CustomDiceConfig", Mapper.serializedObject(config),
+                                                                      long channelId,
+                                                                      long messageId,
+                                                                      @NonNull CustomDiceConfig config,
+                                                                      @Nullable State<EmptyData> state) {
+        return Optional.of(new MessageDataDTO(configUUID, channelId, messageId, getCommandId(), CONFIG_TYPE_ID,
+                Mapper.serializedObject(config),
                 Mapper.NO_PERSISTED_STATE, null));
     }
 
