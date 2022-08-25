@@ -72,7 +72,8 @@ public abstract class DiscordAdapter implements IDiscordAdapter {
     protected Mono<Message> createButtonMessage(@NonNull MessageChannel channel,
                                                 @NonNull MessageDefinition messageDefinition) {
         return createMonoFrom(() -> channel.sendMessage(
-                MessageComponentConverter.messageComponent2MessageLayout(messageDefinition.getContent(),
+                MessageComponentConverter.messageComponent2MessageLayout(
+                        StringUtils.abbreviate(encodeUTF8(messageDefinition.getContent()), 2000), //seems to be the limit
                         messageDefinition.getComponentRowDefinitions())));
     }
 

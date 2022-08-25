@@ -1,6 +1,5 @@
 package de.janno.discord.bot.command.customParameter;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableList;
 import de.janno.discord.bot.command.Config;
@@ -8,10 +7,6 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.ToString;
-
-import java.util.Collection;
-import java.util.Objects;
-import java.util.Optional;
 
 @EqualsAndHashCode(callSuper = true)
 @Getter

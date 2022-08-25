@@ -60,8 +60,6 @@ class CustomParameterCommandTest {
                 Arguments.of("{number}d{{{sides}}}", "Nested brackets are not allowed"),
                 Arguments.of("{number}d{sid{es}", "All brackets must be closed"),
                 Arguments.of("{number}d{sid}es}", "All brackets must be closed"),
-                Arguments.of("{number}d{sides\u0000}", "Expression contains invalid character: '\u0000'"),
-                Arguments.of("{number}d\u0000{sides}", "Expression contains invalid character: '\u0000'"),
                 Arguments.of("{number}d{sides\t}", "Expression contains invalid character: '\t'"),
                 Arguments.of("{number}d\t{sides}", "Expression contains invalid character: '\t'"),
                 Arguments.of("{number}d{sides:/}", null), //invalid range is mapped to 1-15

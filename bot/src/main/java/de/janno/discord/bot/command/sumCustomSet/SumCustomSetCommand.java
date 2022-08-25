@@ -5,10 +5,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
-import de.janno.discord.bot.command.AbstractCommand;
-import de.janno.discord.bot.command.ConfigAndState;
-import de.janno.discord.bot.command.LabelAndDiceExpression;
-import de.janno.discord.bot.command.State;
+import de.janno.discord.bot.command.*;
 import de.janno.discord.bot.dice.DiceParserHelper;
 import de.janno.discord.bot.persistance.Mapper;
 import de.janno.discord.bot.persistance.MessageDataDAO;
@@ -83,7 +80,7 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
     ConfigAndState<SumCustomSetConfig, SumCustomSetStateData> deserializeAndUpdateState(@NonNull MessageDataDTO messageDataDTO,
                                                                                         @NonNull String buttonValue,
                                                                                         @NonNull String invokingUserName) {
-       Preconditions.checkArgument(CONFIG_TYPE_ID.equals(messageDataDTO.getConfigClassId()), "Unknown configClassId: %s", messageDataDTO.getConfigClassId());
+        Preconditions.checkArgument(CONFIG_TYPE_ID.equals(messageDataDTO.getConfigClassId()), "Unknown configClassId: %s", messageDataDTO.getConfigClassId());
         Preconditions.checkArgument(STATE_DATA_TYPE_ID.equals(messageDataDTO.getStateDataClassId())
                 || Mapper.NO_PERSISTED_STATE.equals(messageDataDTO.getStateDataClassId()), "Unknown stateDataClassId: %s", messageDataDTO.getStateDataClassId());
 
@@ -99,7 +96,8 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
     }
 
     @Override
-    protected Optional<MessageDataDTO> createMessageDataForNewMessage(@NonNull UUID configUUID, long channelId, long messageId, @NonNull SumCustomSetConfig config, @Nullable State<SumCustomSetStateData> state) {
+    public Optional<MessageDataDTO> createMessageDataForNewMessage(@NonNull UUID configUUID, long channelId, long messageId, @NonNull Config config, @Nullable State<SumCustomSetStateData> state) {
+        Preconditions.checkArgument(config instanceof SumCustomSetConfig, "Wrong config: %s", config);
         return Optional.of(new MessageDataDTO(configUUID, channelId, messageId, getCommandId(), CONFIG_TYPE_ID, Mapper.serializedObject(config)));
     }
 
@@ -110,7 +108,7 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
 
 
     @Override
-    protected EmbedDefinition getHelpMessage() {
+    protected @NonNull EmbedDefinition getHelpMessage() {
         return EmbedDefinition.builder()
                 .description("Creates up to 22 buttons with custom dice expression, that can be combined afterwards. e.g. '/sum_custom_set start 1_button:3d6 2_button:10d10 3_button:3d20'. \n" + DiceParserHelper.HELP)
                 .build();
@@ -123,7 +121,7 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
 
 
     @Override
-    protected Optional<String> getStartOptionsValidationMessage(CommandInteractionOption options) {
+    protected @NonNull Optional<String> getStartOptionsValidationMessage(@NonNull CommandInteractionOption options) {
         List<String> diceExpressionWithOptionalLabel = DICE_COMMAND_OPTIONS_IDS.stream()
                 .flatMap(id -> options.getStringSubOptionWithName(id).stream())
                 .distinct()
@@ -140,16 +138,12 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
         if (!Strings.isNullOrEmpty(expressionWithUserNameDelimiter)) {
             return Optional.of(String.format("This command doesn't allow '%s' in the dice expression and label, the following expression are not allowed: %s", INVOKING_USER_NAME_DELIMITER, expressionWithUserNameDelimiter));
         }
-        String answerTargetChannel = getAnswerTargetChannelIdFromStartCommandOption(options).map(Object::toString).orElse("");
-        //todo update to new max
-        int maxCharacter = 100 - COMMAND_NAME.length()
-                - 2 // delimiter;
-                - answerTargetChannel.length();
-        return diceParserHelper.validateListOfExpressions(diceExpressionWithOptionalLabel, LABEL_DELIMITER, BotConstants.LEGACY_DELIMITER_V2, "/sum_custom_set help", maxCharacter);
+        int maxCharacter = 2000; //2000 is the max message length
+        return diceParserHelper.validateListOfExpressions(diceExpressionWithOptionalLabel, LABEL_DELIMITER, BotConstants.CUSTOM_ID_DELIMITER, "/sum_custom_set help", maxCharacter);
     }
 
     @Override
-    protected List<CommandDefinitionOption> getStartOptions() {
+    protected @NonNull List<CommandDefinitionOption> getStartOptions() {
         return DICE_COMMAND_OPTIONS_IDS.stream()
                 .map(id -> CommandDefinitionOption.builder()
                         .name(id)
@@ -160,7 +154,7 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
     }
 
     @Override
-    protected Optional<EmbedDefinition> getAnswer(SumCustomSetConfig config, State<SumCustomSetStateData> state) {
+    protected @NonNull Optional<EmbedDefinition> getAnswer(SumCustomSetConfig config, State<SumCustomSetStateData> state) {
         if (!(ROLL_BUTTON_ID.equals(state.getButtonValue()) &&
                 !Optional.ofNullable(state.getData())
                         .map(SumCustomSetStateData::getDiceExpression)
@@ -177,7 +171,7 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
     }
 
     @Override
-    public MessageDefinition createNewButtonMessage(SumCustomSetConfig config) {
+    public @NonNull MessageDefinition createNewButtonMessage(SumCustomSetConfig config) {
         return MessageDefinition.builder()
                 .content(EMPTY_MESSAGE)
                 .componentRowDefinitions(createButtonLayout(config))
@@ -185,7 +179,7 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
     }
 
     @Override
-    protected Optional<MessageDefinition> createNewButtonMessageWithState(SumCustomSetConfig config, State<SumCustomSetStateData> state) {
+    protected @NonNull Optional<MessageDefinition> createNewButtonMessageWithState(SumCustomSetConfig config, State<SumCustomSetStateData> state) {
         if (ROLL_BUTTON_ID.equals(state.getButtonValue()) && !Optional.ofNullable(state.getData())
                 .map(SumCustomSetStateData::getDiceExpression)
                 .map(Strings::isNullOrEmpty)
@@ -199,7 +193,7 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
     }
 
     @Override
-    public Optional<String> getCurrentMessageContentChange(SumCustomSetConfig config, State<SumCustomSetStateData> state) {
+    public @NonNull Optional<String> getCurrentMessageContentChange(SumCustomSetConfig config, State<SumCustomSetStateData> state) {
         if (ROLL_BUTTON_ID.equals(state.getButtonValue())) {
             return Optional.of(EMPTY_MESSAGE);
         } else if (CLEAR_BUTTON_ID.equals(state.getButtonValue())) {
@@ -222,7 +216,7 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
 
 
     @Override
-    protected SumCustomSetConfig getConfigFromEvent(IButtonEventAdaptor event) {
+    protected @NonNull SumCustomSetConfig getConfigFromEvent(@NonNull IButtonEventAdaptor event) {
         String[] split = event.getCustomId().split(BotConstants.LEGACY_CONFIG_SPLIT_DELIMITER_REGEX);
         Long answerTargetChannelId = getOptionalLongFromArray(split, 2);
         return new SumCustomSetConfig(answerTargetChannelId, event.getAllButtonIds().stream()
@@ -282,7 +276,7 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
     }
 
     @Override
-    protected State<SumCustomSetStateData> getStateFromEvent(IButtonEventAdaptor event) {
+    protected @NonNull State<SumCustomSetStateData> getStateFromEvent(@NonNull IButtonEventAdaptor event) {
         String buttonValue = getButtonValueFromLegacyCustomId(event.getCustomId());
         String buttonMessageWithOptionalUser = event.getMessageContent();
 
@@ -299,7 +293,7 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
     }
 
     @Override
-    protected SumCustomSetConfig getConfigFromStartOptions(CommandInteractionOption options) {
+    protected @NonNull SumCustomSetConfig getConfigFromStartOptions(@NonNull CommandInteractionOption options) {
         return getConfigOptionStringList(DICE_COMMAND_OPTIONS_IDS.stream()
                 .flatMap(id -> options.getStringSubOptionWithName(id).stream())
                 .collect(Collectors.toList()), getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null));
@@ -308,7 +302,7 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
     @VisibleForTesting
     SumCustomSetConfig getConfigOptionStringList(List<String> startOptions, Long answerTargetChannelId) {
         return new SumCustomSetConfig(answerTargetChannelId, startOptions.stream()
-                .filter(s -> !s.contains(BotConstants.LEGACY_DELIMITER_V2))
+                .filter(s -> !s.contains(BotConstants.CUSTOM_ID_DELIMITER))
                 .filter(s -> !s.contains(LABEL_DELIMITER) || s.split(LABEL_DELIMITER).length == 2)
                 .map(s -> {
                     String label = null;
@@ -331,7 +325,6 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
                 .filter(s -> !s.getDiceExpression().isEmpty())
                 .filter(s -> !s.getLabel().isEmpty())
                 .filter(lv -> diceParserHelper.validExpression(lv.getDiceExpression()))
-                .filter(s -> s.getDiceExpression().length() <= 80) //limit for the ids are 100 characters and we need also some characters for the type...
                 .filter(s -> s.getLabel().length() <= 80) //https://discord.com/developers/docs/interactions/message-components#buttons
                 .distinct()
                 .limit(22)

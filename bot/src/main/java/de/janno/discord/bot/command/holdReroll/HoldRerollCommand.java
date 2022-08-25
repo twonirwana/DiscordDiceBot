@@ -4,10 +4,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import de.janno.discord.bot.command.AbstractCommand;
-import de.janno.discord.bot.command.CommandUtils;
-import de.janno.discord.bot.command.ConfigAndState;
-import de.janno.discord.bot.command.State;
+import de.janno.discord.bot.command.*;
 import de.janno.discord.bot.dice.DiceUtils;
 import de.janno.discord.bot.persistance.Mapper;
 import de.janno.discord.bot.persistance.MessageDataDAO;
@@ -71,7 +68,7 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollConfig, HoldRer
     }
 
     @Override
-    protected EmbedDefinition getHelpMessage() {
+    protected @NonNull EmbedDefinition getHelpMessage() {
         return EmbedDefinition.builder()
                 .description("Use '/hold_reroll start' " +
                         "to get message, where the user can roll dice")
@@ -85,7 +82,7 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollConfig, HoldRer
 
 
     @Override
-    protected List<CommandDefinitionOption> getStartOptions() {
+    protected @NonNull List<CommandDefinitionOption> getStartOptions() {
         return ImmutableList.of(
                 CommandDefinitionOption.builder()
                         .name(SIDES_OF_DIE_ID)
@@ -116,7 +113,7 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollConfig, HoldRer
     }
 
     @Override
-    protected Optional<EmbedDefinition> getAnswer(HoldRerollConfig config, State<HoldRerollStateData> state) {
+    protected @NonNull Optional<EmbedDefinition> getAnswer(HoldRerollConfig config, State<HoldRerollStateData> state) {
         if (CLEAR_BUTTON_ID.equals(state.getButtonValue())) {
             return Optional.empty();
         }
@@ -140,7 +137,7 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollConfig, HoldRer
     }
 
     @Override
-    protected HoldRerollConfig getConfigFromEvent(IButtonEventAdaptor event) {
+    protected @NonNull HoldRerollConfig getConfigFromEvent(@NonNull IButtonEventAdaptor event) {
         String[] customIdSplit = event.getCustomId().split(BotConstants.LEGACY_CONFIG_SPLIT_DELIMITER_REGEX);
         int sideOfDie = Integer.parseInt(customIdSplit[3]);
         Set<Integer> rerollSet = CommandUtils.toSet(customIdSplit[4], SUBSET_DELIMITER, EMPTY);
@@ -152,7 +149,7 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollConfig, HoldRer
 
 
     @Override
-    protected State<HoldRerollStateData> getStateFromEvent(IButtonEventAdaptor event) {
+    protected @NonNull State<HoldRerollStateData> getStateFromEvent(@NonNull IButtonEventAdaptor event) {
         String[] customIdSplit = event.getCustomId().split(BotConstants.LEGACY_CONFIG_SPLIT_DELIMITER_REGEX);
         List<Integer> currentResult = getCurrentRollResult(customIdSplit[2]);
         int rerollCount = Integer.parseInt(customIdSplit[7]);
@@ -205,7 +202,7 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollConfig, HoldRer
     }
 
     @Override
-    protected HoldRerollConfig getConfigFromStartOptions(CommandInteractionOption options) {
+    protected @NonNull HoldRerollConfig getConfigFromStartOptions(@NonNull CommandInteractionOption options) {
         int sideValue = Math.toIntExact(options.getLongSubOptionWithName(SIDES_OF_DIE_ID)
                 .map(l -> Math.min(l, 1000))
                 .orElse(6L));
@@ -216,7 +213,7 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollConfig, HoldRer
     }
 
     @Override
-    public MessageDefinition createNewButtonMessage(HoldRerollConfig config) {
+    public @NonNull MessageDefinition createNewButtonMessage(HoldRerollConfig config) {
         return MessageDefinition.builder()
                 .content(String.format("Click on the buttons to roll dice. Reroll set: %s, Success Set: %s and Failure Set: %s",
                         config.getRerollSet(), config.getSuccessSet(), config.getFailureSet()))
@@ -225,7 +222,7 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollConfig, HoldRer
     }
 
     @Override
-    protected Optional<MessageDefinition> createNewButtonMessageWithState(HoldRerollConfig config, State<HoldRerollStateData> state) {
+    protected @NonNull Optional<MessageDefinition> createNewButtonMessageWithState(HoldRerollConfig config, State<HoldRerollStateData> state) {
         if (config.getRerollSet().isEmpty()
                 || CLEAR_BUTTON_ID.equals(state.getButtonValue())
                 || FINISH_BUTTON_ID.equals(state.getButtonValue())
@@ -275,7 +272,7 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollConfig, HoldRer
 
     @VisibleForTesting
     ConfigAndState<HoldRerollConfig, HoldRerollStateData> deserializeAndUpdateState(@NonNull MessageDataDTO messageDataDTO, @NonNull String buttonValue) {
-       Preconditions.checkArgument(CONFIG_TYPE_ID.equals(messageDataDTO.getConfigClassId()), "Unknown configClassId: %s", messageDataDTO.getConfigClassId());
+        Preconditions.checkArgument(CONFIG_TYPE_ID.equals(messageDataDTO.getConfigClassId()), "Unknown configClassId: %s", messageDataDTO.getConfigClassId());
         Preconditions.checkArgument(STATE_DATA_TYPE_ID.equals(messageDataDTO.getStateDataClassId())
                 || Mapper.NO_PERSISTED_STATE.equals(messageDataDTO.getStateDataClassId()), "Unknown stateDataClassId: %s", messageDataDTO.getStateDataClassId());
 
@@ -294,12 +291,13 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollConfig, HoldRer
     }
 
     @Override
-    protected Optional<MessageDataDTO> createMessageDataForNewMessage(@NonNull UUID configUUID, long channelId, long messageId, @NonNull HoldRerollConfig config, @Nullable State<HoldRerollStateData> state) {
+    public Optional<MessageDataDTO> createMessageDataForNewMessage(@NonNull UUID configUUID, long channelId, long messageId, @NonNull Config config, @Nullable State<HoldRerollStateData> state) {
+        Preconditions.checkArgument(config instanceof HoldRerollConfig, "Wrong config: %s", config);
         return Optional.of(new MessageDataDTO(configUUID, channelId, messageId, getCommandId(), CONFIG_TYPE_ID, Mapper.serializedObject(config)));
     }
 
     @Override
-    public Optional<String> getCurrentMessageContentChange(HoldRerollConfig config, State<HoldRerollStateData> state) {
+    public @NonNull Optional<String> getCurrentMessageContentChange(HoldRerollConfig config, State<HoldRerollStateData> state) {
         if (state.getData() == null ||
                 config.getRerollSet().isEmpty()
                 || CLEAR_BUTTON_ID.equals(state.getButtonValue())
@@ -355,7 +353,7 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollConfig, HoldRer
     }
 
     @Override
-    protected Optional<String> getStartOptionsValidationMessage(CommandInteractionOption options) {
+    protected @NonNull Optional<String> getStartOptionsValidationMessage(@NonNull CommandInteractionOption options) {
         HoldRerollConfig conf = getConfigFromStartOptions(options);
         return validate(conf);
     }

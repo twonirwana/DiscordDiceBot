@@ -4,10 +4,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import de.janno.discord.bot.command.AbstractCommand;
-import de.janno.discord.bot.command.CommandUtils;
-import de.janno.discord.bot.command.ConfigAndState;
-import de.janno.discord.bot.command.State;
+import de.janno.discord.bot.command.*;
 import de.janno.discord.bot.dice.DiceUtils;
 import de.janno.discord.bot.persistance.Mapper;
 import de.janno.discord.bot.persistance.MessageDataDAO;
@@ -81,7 +78,7 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTar
     }
 
     @Override
-    protected EmbedDefinition getHelpMessage() {
+    protected @NonNull EmbedDefinition getHelpMessage() {
         return EmbedDefinition.builder()
                 .description("Use '/pool_target start' to get message, where the user can roll dice")
                 .build();
@@ -106,7 +103,7 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTar
 
     @VisibleForTesting
     ConfigAndState<PoolTargetConfig, PoolTargetStateData> deserializeAndUpdateState(@NonNull MessageDataDTO messageDataDTO, @NonNull String buttonValue) {
-       Preconditions.checkArgument(CONFIG_TYPE_ID.equals(messageDataDTO.getConfigClassId()), "Unknown configClassId: %s", messageDataDTO.getConfigClassId());
+        Preconditions.checkArgument(CONFIG_TYPE_ID.equals(messageDataDTO.getConfigClassId()), "Unknown configClassId: %s", messageDataDTO.getConfigClassId());
         Preconditions.checkArgument(STATE_DATA_TYPE_ID.equals(messageDataDTO.getStateDataClassId())
                 || Mapper.NO_PERSISTED_STATE.equals(messageDataDTO.getStateDataClassId()), "Unknown stateDataClassId: %s", messageDataDTO.getStateDataClassId());
 
@@ -123,11 +120,12 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTar
 
 
     @Override
-    protected Optional<MessageDataDTO> createMessageDataForNewMessage(@NonNull UUID configUUID,
-                                                                      long channelId,
-                                                                      long messageId,
-                                                                      @NonNull PoolTargetConfig config,
-                                                                      @Nullable State<PoolTargetStateData> stateData) {
+    public Optional<MessageDataDTO> createMessageDataForNewMessage(@NonNull UUID configUUID,
+                                                                   long channelId,
+                                                                   long messageId,
+                                                                   @NonNull Config config,
+                                                                   @Nullable State<PoolTargetStateData> stateData) {
+        Preconditions.checkArgument(config instanceof PoolTargetConfig, "Wrong config: %s", config);
         return Optional.of(new MessageDataDTO(configUUID, channelId, messageId, getCommandId(), CONFIG_TYPE_ID, Mapper.serializedObject(config)));
     }
 
@@ -143,7 +141,7 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTar
 
 
     @Override
-    protected List<CommandDefinitionOption> getStartOptions() {
+    protected @NonNull List<CommandDefinitionOption> getStartOptions() {
         return ImmutableList.of(
                 CommandDefinitionOption.builder()
                         .name(SIDES_OF_DIE_OPTION)
@@ -184,7 +182,7 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTar
     }
 
     @Override
-    protected Optional<EmbedDefinition> getAnswer(PoolTargetConfig config, State<PoolTargetStateData> state) {
+    protected @NonNull Optional<EmbedDefinition> getAnswer(PoolTargetConfig config, State<PoolTargetStateData> state) {
         Optional<PoolTargetStateData> stateData = Optional.ofNullable(state.getData());
         if (stateData.map(PoolTargetStateData::getDicePool).isEmpty() ||
                 stateData.map(PoolTargetStateData::getTargetNumber).isEmpty() ||
@@ -212,7 +210,7 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTar
     }
 
     @Override
-    protected PoolTargetConfig getConfigFromEvent(IButtonEventAdaptor event) {
+    protected @NonNull PoolTargetConfig getConfigFromEvent(@NonNull IButtonEventAdaptor event) {
         String[] customIdSplit = event.getCustomId().split(BotConstants.LEGACY_CONFIG_SPLIT_DELIMITER_REGEX);
 
         int sideOfDie = Integer.parseInt(customIdSplit[SIDE_OF_DIE_INDEX]);
@@ -262,7 +260,7 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTar
     }
 
     @Override
-    protected State<PoolTargetStateData> getStateFromEvent(IButtonEventAdaptor event) {
+    protected @NonNull State<PoolTargetStateData> getStateFromEvent(@NonNull IButtonEventAdaptor event) {
         String[] customIdSplit = event.getCustomId().split(BotConstants.LEGACY_CONFIG_SPLIT_DELIMITER_REGEX);
         String buttonValue = customIdSplit[BUTTON_VALUE_INDEX];
 
@@ -275,7 +273,7 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTar
     }
 
     @Override
-    protected PoolTargetConfig getConfigFromStartOptions(CommandInteractionOption options) {
+    protected @NonNull PoolTargetConfig getConfigFromStartOptions(@NonNull CommandInteractionOption options) {
         int sideValue = Math.toIntExact(options.getLongSubOptionWithName(SIDES_OF_DIE_OPTION)
                 .map(l -> Math.min(l, 1000))
                 .orElse(10L));
@@ -315,7 +313,7 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTar
     }
 
     @Override
-    public MessageDefinition createNewButtonMessage(PoolTargetConfig config) {
+    public @NonNull MessageDefinition createNewButtonMessage(PoolTargetConfig config) {
         String configDescription = getConfigDescription(config);
         return MessageDefinition.builder()
                 .content(String.format("Click on the buttons to roll dice%s", configDescription))
@@ -333,7 +331,7 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTar
     }
 
     @Override
-    public Optional<String> getCurrentMessageContentChange(PoolTargetConfig config, State<PoolTargetStateData> state) {
+    public @NonNull Optional<String> getCurrentMessageContentChange(PoolTargetConfig config, State<PoolTargetStateData> state) {
         if (CLEAR_BUTTON_ID.equals(state.getButtonValue())) {
             return Optional.of(String.format("Click on the buttons to roll dice%s", getConfigDescription(config)));
         }
@@ -353,7 +351,7 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTar
     }
 
     @Override
-    protected Optional<MessageDefinition> createNewButtonMessageWithState(PoolTargetConfig config, State<PoolTargetStateData> state) {
+    protected @NonNull Optional<MessageDefinition> createNewButtonMessageWithState(PoolTargetConfig config, State<PoolTargetStateData> state) {
         if (Optional.ofNullable(state.getData()).map(PoolTargetStateData::getDicePool).orElse(null) != null && state.getData().getTargetNumber() != null && state.getData().getDoReroll() != null) {
             return Optional.of(MessageDefinition.builder()
                     .content(String.format("Click on the buttons to roll dice%s", getConfigDescription(config)))
@@ -414,7 +412,7 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTar
     }
 
     @Override
-    protected Optional<String> getStartOptionsValidationMessage(CommandInteractionOption options) {
+    protected @NonNull Optional<String> getStartOptionsValidationMessage(@NonNull CommandInteractionOption options) {
         Optional<String> botchSetValidation = CommandUtils.validateIntegerSetFromCommandOptions(options, BOTCH_SET_OPTION, ",");
         if (botchSetValidation.isPresent()) {
             return botchSetValidation;

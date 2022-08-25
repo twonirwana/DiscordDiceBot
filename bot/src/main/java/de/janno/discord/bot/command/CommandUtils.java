@@ -1,8 +1,8 @@
 package de.janno.discord.bot.command;
 
-import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import lombok.NonNull;
 import org.apache.commons.lang3.math.NumberUtils;
 
@@ -69,8 +69,8 @@ public final class CommandUtils {
     }
 
     public static Optional<String> validateIntegerSetFromCommandOptions(@NonNull CommandInteractionOption options,
-                                                                       @NonNull String optionId,
-                                                                       @NonNull String delimiter) {
+                                                                        @NonNull String optionId,
+                                                                        @NonNull String delimiter) {
         Set<String> stringValues = options.getStringSubOptionWithName(optionId)
                 .map(s -> s.split(delimiter))
                 .map(Arrays::asList)

@@ -536,7 +536,6 @@ class SumCustomSetCommandTest {
         verify(buttonEventAdaptor).deleteMessage(anyLong(), anyBoolean());
         verify(buttonEventAdaptor).createResultMessageWithEventReference(eq(new EmbedDefinition("1d6 = 3",
                 "[3]", ImmutableList.of())), eq(null));
-        //todo check persistance
         verify(buttonEventAdaptor, times(4)).getCustomId();
         verify(buttonEventAdaptor).getMessageId();
         verify(buttonEventAdaptor).getChannelId();
@@ -573,7 +572,8 @@ class SumCustomSetCommandTest {
         verify(buttonEventAdaptor, never()).deleteMessage(anyLong(), anyBoolean());
         verify(buttonEventAdaptor).createResultMessageWithEventReference(eq(new EmbedDefinition("1d6 = 3",
                 "[3]", ImmutableList.of())), eq(null));
-        //todo check persistance
+        verify(messageDataDAO).saveMessageData(any());
+        verify(messageDataDAO).getAllMessageIdsForConfig(any());
 
 
         verify(buttonEventAdaptor, times(4)).getCustomId();

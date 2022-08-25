@@ -228,12 +228,12 @@ class WelcomeCommandTest {
                 .stream()
                 .flatMap(s -> s.getButtonDefinitions().stream())
                 .map(ButtonDefinition::getId))
-                .containsExactly("welcome\u0000fate",
-                        "welcome\u0000dnd5",
-                        "welcome\u0000nWoD",
-                        "welcome\u0000oWoD",
-                        "welcome\u0000shadowrun",
-                        "welcome\u0000coin");
+                .containsExactly("welcomefate",
+                        "welcomednd5",
+                        "welcomenWoD",
+                        "welcomeoWoD",
+                        "welcomeshadowrun",
+                        "welcomecoin");
         assertThat(res.getComponentRowDefinitions()
                 .stream()
                 .flatMap(s -> s.getButtonDefinitions().stream())
@@ -244,7 +244,7 @@ class WelcomeCommandTest {
 
     @Test
     public void shouldKeepExistingButtonMessage() {
-        assertThat(underTest.shouldKeepExistingButtonMessage(null)).isTrue();
+        assertThat(underTest.shouldKeepExistingButtonMessage(mock(IButtonEventAdaptor.class))).isTrue();
     }
 
     @Test

@@ -92,7 +92,7 @@ public class SumDiceSetCommand extends AbstractCommand<Config, SumDiceSetStateDa
 
     @VisibleForTesting
     ConfigAndState<Config, SumDiceSetStateData> deserializeAndUpdateState(@NonNull MessageDataDTO messageDataDTO, @NonNull String buttonValue) {
-       Preconditions.checkArgument(CONFIG_TYPE_ID.equals(messageDataDTO.getConfigClassId()), "Unknown configClassId: %s", messageDataDTO.getConfigClassId());
+        Preconditions.checkArgument(CONFIG_TYPE_ID.equals(messageDataDTO.getConfigClassId()), "Unknown configClassId: %s", messageDataDTO.getConfigClassId());
         Preconditions.checkArgument(STATE_DATA_TYPE_ID.equals(messageDataDTO.getStateDataClassId())
                 || Mapper.NO_PERSISTED_STATE.equals(messageDataDTO.getStateDataClassId()), "Unknown stateDataClassId: %s", messageDataDTO.getStateDataClassId());
 
@@ -105,7 +105,7 @@ public class SumDiceSetCommand extends AbstractCommand<Config, SumDiceSetStateDa
     }
 
     @Override
-    protected Optional<MessageDataDTO> createMessageDataForNewMessage(@NonNull UUID configUUID,
+    public Optional<MessageDataDTO> createMessageDataForNewMessage(@NonNull UUID configUUID,
                                                                       long channelId,
                                                                       long messageId,
                                                                       @NonNull Config config,
@@ -137,7 +137,7 @@ public class SumDiceSetCommand extends AbstractCommand<Config, SumDiceSetStateDa
     }
 
     @Override
-    protected EmbedDefinition getHelpMessage() {
+    protected @NonNull EmbedDefinition getHelpMessage() {
         return EmbedDefinition.builder()
                 .description("Use '/sum_dice_set start' " +
                         "to get message, where the user can create a dice set and roll it.")
@@ -150,12 +150,12 @@ public class SumDiceSetCommand extends AbstractCommand<Config, SumDiceSetStateDa
     }
 
     @Override
-    protected List<CommandDefinitionOption> getStartOptions() {
+    protected @NonNull List<CommandDefinitionOption> getStartOptions() {
         return ImmutableList.of();
     }
 
     @Override
-    protected Optional<EmbedDefinition> getAnswer(Config config, State<SumDiceSetStateData> state) {
+    protected @NonNull Optional<EmbedDefinition> getAnswer(Config config, State<SumDiceSetStateData> state) {
         if (!(ROLL_BUTTON_ID.equals(state.getButtonValue()) &&
                 !Optional.ofNullable(state.getData())
                         .map(SumDiceSetStateData::getDiceSetMap)
@@ -201,7 +201,7 @@ public class SumDiceSetCommand extends AbstractCommand<Config, SumDiceSetStateDa
     }
 
     @Override
-    public MessageDefinition createNewButtonMessage(Config config) {
+    public @NonNull MessageDefinition createNewButtonMessage(Config config) {
         return MessageDefinition.builder()
                 .content(EMPTY_MESSAGE)
                 .componentRowDefinitions(createButtonLayout())
@@ -209,7 +209,7 @@ public class SumDiceSetCommand extends AbstractCommand<Config, SumDiceSetStateDa
     }
 
     @Override
-    protected Optional<MessageDefinition> createNewButtonMessageWithState(Config config, State<SumDiceSetStateData> state) {
+    protected @NonNull Optional<MessageDefinition> createNewButtonMessageWithState(Config config, State<SumDiceSetStateData> state) {
         if (!(ROLL_BUTTON_ID.equals(state.getButtonValue()) &&
                 !Optional.ofNullable(state.getData())
                         .map(SumDiceSetStateData::getDiceSetMap)
@@ -259,7 +259,7 @@ public class SumDiceSetCommand extends AbstractCommand<Config, SumDiceSetStateDa
     }
 
     @Override
-    public Optional<String> getCurrentMessageContentChange(Config config, State<SumDiceSetStateData> state) {
+    public @NonNull Optional<String> getCurrentMessageContentChange(Config config, State<SumDiceSetStateData> state) {
         Map<String, Integer> currentDiceSet = Optional.ofNullable(state.getData()).map(SumDiceSetStateData::getDiceSetMap).orElse(ImmutableMap.of());
 
         if (currentDiceSet.isEmpty()) {
@@ -269,14 +269,14 @@ public class SumDiceSetCommand extends AbstractCommand<Config, SumDiceSetStateDa
     }
 
     @Override
-    protected Config getConfigFromEvent(IButtonEventAdaptor event) {
+    protected @NonNull Config getConfigFromEvent(@NonNull IButtonEventAdaptor event) {
         String[] split = event.getCustomId().split(BotConstants.LEGACY_CONFIG_SPLIT_DELIMITER_REGEX);
 
         return new Config(getOptionalLongFromArray(split, 2));
     }
 
     @Override
-    protected State<SumDiceSetStateData> getStateFromEvent(IButtonEventAdaptor event) {
+    protected @NonNull State<SumDiceSetStateData> getStateFromEvent(@NonNull IButtonEventAdaptor event) {
         String buttonMessage = event.getMessageContent();
         String buttonValue = getButtonValueFromLegacyCustomId(event.getCustomId());
         if (EMPTY_MESSAGE.equals(buttonMessage)) {
@@ -316,7 +316,7 @@ public class SumDiceSetCommand extends AbstractCommand<Config, SumDiceSetStateDa
     }
 
     @Override
-    protected Config getConfigFromStartOptions(CommandInteractionOption options) {
+    protected @NonNull Config getConfigFromStartOptions(@NonNull CommandInteractionOption options) {
         return new Config(getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null));
     }
 

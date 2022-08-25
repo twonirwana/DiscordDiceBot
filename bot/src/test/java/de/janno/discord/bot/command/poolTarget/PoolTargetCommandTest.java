@@ -35,6 +35,7 @@ import static org.mockito.Mockito.*;
 class PoolTargetCommandTest {
 
     PoolTargetCommand underTest;
+    MessageDataDAO messageDataDAO = mock(MessageDataDAO.class);
 
     private static Stream<Arguments> getStateFromEvent() {
         return Stream.of(
@@ -58,7 +59,7 @@ class PoolTargetCommandTest {
 
     @BeforeEach
     void setup() {
-        underTest = new PoolTargetCommand(mock(MessageDataDAO.class), new DiceUtils(1, 1, 1, 2, 5, 6, 6, 6, 2, 10, 10, 2, 3, 4, 5, 6, 7, 8));
+        underTest = new PoolTargetCommand(messageDataDAO, new DiceUtils(1, 1, 1, 2, 5, 6, 6, 6, 2, 10, 10, 2, 3, 4, 5, 6, 7, 8));
     }
 
     @ParameterizedTest(name = "{index} config={0} -> {1}")
@@ -417,7 +418,6 @@ class PoolTargetCommandTest {
         verify(buttonEventAdaptor, never()).createButtonMessage(any());
         verify(buttonEventAdaptor, never()).deleteMessage(anyLong(), anyBoolean());
         verify(buttonEventAdaptor, never()).createResultMessageWithEventReference(any(), eq(null));
-        //todo check persistance
         verify(buttonEventAdaptor, times(4)).getCustomId();
         verify(buttonEventAdaptor).getMessageId();
         verify(buttonEventAdaptor).getChannelId();
@@ -450,7 +450,6 @@ class PoolTargetCommandTest {
         verify(buttonEventAdaptor, never()).createButtonMessage(any());
         verify(buttonEventAdaptor, never()).deleteMessage(anyLong(), anyBoolean());
         verify(buttonEventAdaptor, never()).createResultMessageWithEventReference(any(), eq(null));
-        //todo check persistance
         verify(buttonEventAdaptor, times(4)).getCustomId();
         verify(buttonEventAdaptor).getMessageId();
         verify(buttonEventAdaptor).getChannelId();
@@ -485,7 +484,6 @@ class PoolTargetCommandTest {
         verify(buttonEventAdaptor).deleteMessage(1L, false);
         verify(buttonEventAdaptor).createResultMessageWithEventReference(eq(new EmbedDefinition("15d10 = -4",
                 "[**1**,**1**,**1**,**2**,**2**,**2**,3,4,5,5,6,6,6,6,7,**10**,**10**] ≥8 = -4", ImmutableList.of())), eq(null));
-        //todo check persistance
         verify(buttonEventAdaptor, times(5)).getCustomId();
         verify(buttonEventAdaptor).getMessageId();
         verify(buttonEventAdaptor).getChannelId();
@@ -520,7 +518,6 @@ class PoolTargetCommandTest {
         verify(buttonEventAdaptor).deleteMessage(1L, false);
         verify(buttonEventAdaptor).createResultMessageWithEventReference(eq(new EmbedDefinition("15d10 = -4",
                 "[**1**,**1**,**1**,**2**,**2**,**2**,3,4,5,5,6,6,6,6,7,**10**,**10**] ≥8 = -4", ImmutableList.of())), eq(null));
-        //todo check persitance
         verify(buttonEventAdaptor, times(5)).getCustomId();
         verify(buttonEventAdaptor).getMessageId();
         verify(buttonEventAdaptor).getChannelId();
@@ -553,7 +550,6 @@ class PoolTargetCommandTest {
         verify(buttonEventAdaptor, never()).deleteMessage(anyLong(), anyBoolean());
         verify(buttonEventAdaptor, never()).createResultMessageWithEventReference(any(), eq(null));
 
-        //todo check persistance
         verify(buttonEventAdaptor, times(4)).getCustomId();
         verify(buttonEventAdaptor).getMessageId();
         verify(buttonEventAdaptor).getChannelId();

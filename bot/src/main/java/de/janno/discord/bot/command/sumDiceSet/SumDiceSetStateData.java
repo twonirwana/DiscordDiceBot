@@ -8,7 +8,6 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import de.janno.discord.bot.command.EmptyData;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
@@ -38,7 +37,7 @@ public class SumDiceSetStateData extends EmptyData {
         return String.format("%s", diceSetMap);
     }
 
-    //todo find better deserilizer
+    //todo find better deserializer/data format
     public static class MapDeserializer extends StdDeserializer<SumDiceSetStateData> {
         public MapDeserializer() {
             this(null);

@@ -7,6 +7,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import de.janno.discord.bot.command.AbstractCommand;
+import de.janno.discord.bot.command.Config;
 import de.janno.discord.bot.command.ConfigAndState;
 import de.janno.discord.bot.command.State;
 import de.janno.discord.bot.dice.DiceParserHelper;
@@ -176,7 +177,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     }
 
     @Override
-    protected EmbedDefinition getHelpMessage() {
+    protected @NonNull EmbedDefinition getHelpMessage() {
         return EmbedDefinition.builder()
                 .description("Use '/custom_parameter start' and provide a dice expression with parameter variables with the format {parameter_name}. \n" + DiceParserHelper.HELP)
                 .build();
@@ -188,7 +189,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     }
 
     @Override
-    protected List<CommandDefinitionOption> getStartOptions() {
+    protected @NonNull List<CommandDefinitionOption> getStartOptions() {
         return ImmutableList.of(
                 CommandDefinitionOption.builder()
                         .name(EXPRESSION_OPTION)
@@ -200,7 +201,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     }
 
     @Override
-    protected Optional<EmbedDefinition> getAnswer(CustomParameterConfig config, State<CustomParameterStateData> state) {
+    protected @NonNull Optional<EmbedDefinition> getAnswer(CustomParameterConfig config, State<CustomParameterStateData> state) {
         if (!hasMissingParameter(getFilledExpression(config, state))) {
             String expression = DiceParserHelper.getExpressionFromExpressionWithOptionalLabel(getFilledExpression(config, state), LABEL_DELIMITER);
             String label = DiceParserHelper.getLabelFromExpressionWithOptionalLabel(getFilledExpression(config, state), LABEL_DELIMITER).orElse(null);
@@ -210,17 +211,17 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     }
 
     @Override
-    protected CustomParameterConfig getConfigFromEvent(IButtonEventAdaptor event) {
+    protected @NonNull CustomParameterConfig getConfigFromEvent(@NonNull IButtonEventAdaptor event) {
         return createConfigFromCustomId(event.getCustomId());
     }
 
     @Override
-    protected State<CustomParameterStateData> getStateFromEvent(IButtonEventAdaptor event) {
+    protected @NonNull State<CustomParameterStateData> getStateFromEvent(@NonNull IButtonEventAdaptor event) {
         return createParameterStateFromLegacyId(event.getCustomId(), event.getMessageContent(), event.getInvokingGuildMemberName());
     }
 
     @Override
-    protected CustomParameterConfig getConfigFromStartOptions(CommandInteractionOption options) {
+    protected @NonNull CustomParameterConfig getConfigFromStartOptions(@NonNull CommandInteractionOption options) {
         String baseExpression = options.getStringSubOptionWithName(EXPRESSION_OPTION).orElse("");
         Optional<Long> answerTargetChannelId = getAnswerTargetChannelIdFromStartCommandOption(options);
 
@@ -228,7 +229,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     }
 
     @Override
-    public MessageDefinition createNewButtonMessage(CustomParameterConfig config) {
+    public @NonNull MessageDefinition createNewButtonMessage(CustomParameterConfig config) {
         return MessageDefinition.builder()
                 .content(String.format("%s: Please select value for %s", cleanupExpressionForDisplay(config.getBaseExpression()), cleanupExpressionForDisplay(getNextParameterExpression(config.getBaseExpression()))))
                 .componentRowDefinitions(getButtonLayoutWithOptionalState(config, null))
@@ -279,7 +280,8 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     }
 
     @Override
-    protected Optional<MessageDataDTO> createMessageDataForNewMessage(@NonNull UUID configUUID, long channelId, long messageId, @NonNull CustomParameterConfig config, @Nullable State<CustomParameterStateData> state) {
+    public Optional<MessageDataDTO> createMessageDataForNewMessage(@NonNull UUID configUUID, long channelId, long messageId, @NonNull Config config, @Nullable State<CustomParameterStateData> state) {
+        Preconditions.checkArgument(config instanceof CustomParameterConfig, "Wrong config: %s", config);
         return Optional.of(new MessageDataDTO(configUUID, channelId, messageId, getCommandId(), CONFIG_TYPE_ID, Mapper.serializedObject(config)));
     }
 
@@ -293,7 +295,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     }
 
     @Override
-    public Optional<String> getCurrentMessageContentChange(CustomParameterConfig config, State<CustomParameterStateData> state) {
+    public @NonNull Optional<String> getCurrentMessageContentChange(CustomParameterConfig config, State<CustomParameterStateData> state) {
         if (!hasMissingParameter(getFilledExpression(config, state))) {
             return Optional.empty();
         }
@@ -305,7 +307,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     }
 
     @Override
-    protected Optional<MessageDefinition> createNewButtonMessageWithState(CustomParameterConfig config, State<CustomParameterStateData> state) {
+    protected @NonNull Optional<MessageDefinition> createNewButtonMessageWithState(CustomParameterConfig config, State<CustomParameterStateData> state) {
         if (!hasMissingParameter(getFilledExpression(config, state))) {
             return Optional.of(MessageDefinition.builder()
                     .content(String.format("%s: Please select value for %s", cleanupExpressionForDisplay(config.getBaseExpression()), cleanupExpressionForDisplay(getNextParameterExpression(config.getBaseExpression()))))
@@ -344,7 +346,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
 
 
     @Override
-    protected Optional<String> getStartOptionsValidationMessage(CommandInteractionOption options) {
+    protected @NonNull Optional<String> getStartOptionsValidationMessage(@NonNull CommandInteractionOption options) {
         String baseExpression = options.getStringSubOptionWithName(EXPRESSION_OPTION).orElse("");
         if (!PARAMETER_VARIABLE_PATTERN.matcher(baseExpression).find()) {
             return Optional.of("The expression needs at least one parameter expression like '{name}");
@@ -358,11 +360,11 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
         if (baseExpression.contains("{}")) {
             return Optional.of("A parameter expression must not be empty");
         }
+        if (baseExpression.length() > 1000) { //max length of the message content, where the current state is given is 2000
+            return Optional.of(String.format("The expression has %s to many characters", (baseExpression.length() - 1000)));
+        }
         if (baseExpression.contains(BotConstants.CUSTOM_ID_DELIMITER)) {
             return Optional.of(String.format("Expression contains invalid character: '%s'", BotConstants.CUSTOM_ID_DELIMITER));
-        }
-        if (baseExpression.contains(BotConstants.LEGACY_DELIMITER_V2)) {
-            return Optional.of(String.format("Expression contains invalid character: '%s'", BotConstants.LEGACY_DELIMITER_V2));
         }
         if (baseExpression.contains(SELECTED_PARAMETER_DELIMITER)) {
             return Optional.of(String.format("Expression contains invalid character: '%s'", SELECTED_PARAMETER_DELIMITER));

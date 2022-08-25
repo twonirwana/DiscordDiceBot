@@ -83,18 +83,19 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesConfig,
     }
 
     @Override
-    protected Optional<MessageDataDTO> createMessageDataForNewMessage(@NonNull UUID configUUID,
-                                                                      long channelId,
-                                                                      long messageId,
-                                                                      @NonNull CountSuccessesConfig config,
-                                                                      @Nullable State<EmptyData> state) {
+    public Optional<MessageDataDTO> createMessageDataForNewMessage(@NonNull UUID configUUID,
+                                                                   long channelId,
+                                                                   long messageId,
+                                                                   @NonNull Config config,
+                                                                   @Nullable State<EmptyData> state) {
+        Preconditions.checkArgument(config instanceof CountSuccessesConfig, "Wrong config: %s", config);
         return Optional.of(new MessageDataDTO(configUUID, channelId, messageId, getCommandId(),
                 CONFIG_TYPE_ID, Mapper.serializedObject(config),
                 Mapper.NO_PERSISTED_STATE, null));
     }
 
     @Override
-    protected CountSuccessesConfig getConfigFromEvent(IButtonEventAdaptor event) {
+    protected @NonNull CountSuccessesConfig getConfigFromEvent(@NonNull IButtonEventAdaptor event) {
         String[] split = event.getCustomId().split(BotConstants.LEGACY_CONFIG_SPLIT_DELIMITER_REGEX);
         int sideOfDie = Integer.parseInt(split[2]);
         int target = Integer.parseInt(split[3]);
@@ -106,7 +107,7 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesConfig,
     }
 
     @Override
-    protected State<EmptyData> getStateFromEvent(IButtonEventAdaptor event) {
+    protected @NonNull State<EmptyData> getStateFromEvent(@NonNull IButtonEventAdaptor event) {
         return new State<>(getButtonValueFromLegacyCustomId(event.getCustomId()), new EmptyData());
     }
 
@@ -116,7 +117,7 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesConfig,
     }
 
     @Override
-    protected EmbedDefinition getHelpMessage() {
+    protected @NonNull EmbedDefinition getHelpMessage() {
         return EmbedDefinition.builder().description("Use '/count_successes start dice_sides:X target_number:Y' " + "to get Buttons that roll with X sided dice against the target of Y and count the successes." + " A successes are all dice that have a result greater or equal then the target number")
                 .field(new EmbedDefinition.Field("Example", "/count_successes start dice_sides:10 target_number:7", false)).build();
     }
@@ -127,7 +128,7 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesConfig,
     }
 
     @Override
-    protected List<CommandDefinitionOption> getStartOptions() {
+    protected @NonNull List<CommandDefinitionOption> getStartOptions() {
         return ImmutableList.of(CommandDefinitionOption.builder()
                         .name(ACTION_SIDE_OPTION)
                         .required(true)
@@ -163,7 +164,7 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesConfig,
     }
 
     @Override
-    protected Optional<EmbedDefinition> getAnswer(CountSuccessesConfig config, State<EmptyData> state) {
+    protected @NonNull Optional<EmbedDefinition> getAnswer(CountSuccessesConfig config, State<EmptyData> state) {
         int numberOfDice = Integer.parseInt(state.getButtonValue());
         List<Integer> rollResult = diceUtils.rollDiceOfType(numberOfDice, config.getDiceSides()).stream()
                 .sorted()
@@ -223,12 +224,12 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesConfig,
     }
 
     @Override
-    protected Optional<MessageDefinition> createNewButtonMessageWithState(CountSuccessesConfig config, State<EmptyData> state) {
+    protected @NonNull Optional<MessageDefinition> createNewButtonMessageWithState(CountSuccessesConfig config, State<EmptyData> state) {
         return Optional.of(createNewButtonMessage(config));
     }
 
     @Override
-    public MessageDefinition createNewButtonMessage(CountSuccessesConfig config) {
+    public @NonNull MessageDefinition createNewButtonMessage(CountSuccessesConfig config) {
         return MessageDefinition.builder()
                 .content(String.format("Click to roll the dice against %s%s", config.getTarget(), getGlitchDescription(config)))
                 .componentRowDefinitions(createButtonLayout(config))
@@ -246,7 +247,7 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesConfig,
     }
 
     @Override
-    protected CountSuccessesConfig getConfigFromStartOptions(CommandInteractionOption options) {
+    protected @NonNull CountSuccessesConfig getConfigFromStartOptions(@NonNull CommandInteractionOption options) {
         int sideValue = Math.toIntExact(options.getLongSubOptionWithName(ACTION_SIDE_OPTION)
                 .map(l -> Math.min(l, MAX_NUMBER_SIDES_OR_TARGET_NUMBER))
                 .orElse(6L));

@@ -3,10 +3,7 @@ package de.janno.discord.bot.command.fate;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
-import de.janno.discord.bot.command.AbstractCommand;
-import de.janno.discord.bot.command.ConfigAndState;
-import de.janno.discord.bot.command.EmptyData;
-import de.janno.discord.bot.command.State;
+import de.janno.discord.bot.command.*;
 import de.janno.discord.bot.dice.DiceUtils;
 import de.janno.discord.bot.persistance.Mapper;
 import de.janno.discord.bot.persistance.MessageDataDAO;
@@ -63,7 +60,7 @@ public class FateCommand extends AbstractCommand<FateConfig, EmptyData> {
 
     @VisibleForTesting
     ConfigAndState<FateConfig, EmptyData> deserializeAndUpdateState(@NonNull MessageDataDTO messageDataDTO, @NonNull String buttonValue) {
-       Preconditions.checkArgument(CONFIG_TYPE_ID.equals(messageDataDTO.getConfigClassId()), "Unknown configClassId: %s", messageDataDTO.getConfigClassId());
+        Preconditions.checkArgument(CONFIG_TYPE_ID.equals(messageDataDTO.getConfigClassId()), "Unknown configClassId: %s", messageDataDTO.getConfigClassId());
 
         return new ConfigAndState<>(messageDataDTO.getConfigUUID(),
                 Mapper.deserializeObject(messageDataDTO.getConfig(), FateConfig.class),
@@ -72,14 +69,14 @@ public class FateCommand extends AbstractCommand<FateConfig, EmptyData> {
 
 
     @Override
-    protected Optional<MessageDataDTO> createMessageDataForNewMessage(@NonNull UUID configUUID,
-                                                                      long channelId,
-                                                                      long messageId,
-                                                                      @NonNull FateConfig config,
-                                                                      @Nullable State<EmptyData> state) {
+    public Optional<MessageDataDTO> createMessageDataForNewMessage(@NonNull UUID configUUID,
+                                                                   long channelId,
+                                                                   long messageId,
+                                                                   @NonNull Config config,
+                                                                   @Nullable State<EmptyData> state) {
+        Preconditions.checkArgument(config instanceof FateConfig, "Wrong config: %s", config);
         return Optional.of(new MessageDataDTO(configUUID, channelId, messageId, getCommandId(),
-                CONFIG_TYPE_ID, Mapper.serializedObject(config),
-                Mapper.NO_PERSISTED_STATE, null));
+                CONFIG_TYPE_ID, Mapper.serializedObject(config)));
     }
 
     @Override
@@ -100,7 +97,7 @@ public class FateCommand extends AbstractCommand<FateConfig, EmptyData> {
     }
 
     @Override
-    protected EmbedDefinition getHelpMessage() {
+    protected @NonNull EmbedDefinition getHelpMessage() {
         return EmbedDefinition.builder()
                 .description("Buttons for Fate/Fudge dice. There are two types, the simple produces one button that rolls four dice and " +
                         "provides the result together with the sum. The type with_modifier produces multiple buttons for modifier -4 to +10" +
@@ -110,7 +107,7 @@ public class FateCommand extends AbstractCommand<FateConfig, EmptyData> {
     }
 
     @Override
-    protected List<CommandDefinitionOption> getStartOptions() {
+    protected @NonNull List<CommandDefinitionOption> getStartOptions() {
         return ImmutableList.of(CommandDefinitionOption.builder()
                 .name(ACTION_MODIFIER_OPTION)
                 .required(true)
@@ -128,13 +125,13 @@ public class FateCommand extends AbstractCommand<FateConfig, EmptyData> {
     }
 
     @Override
-    protected FateConfig getConfigFromStartOptions(CommandInteractionOption options) {
+    protected @NonNull FateConfig getConfigFromStartOptions(@NonNull CommandInteractionOption options) {
         return new FateConfig(getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null),
                 options.getStringSubOptionWithName(ACTION_MODIFIER_OPTION).orElse(ACTION_MODIFIER_OPTION_SIMPLE));
     }
 
     @Override
-    protected Optional<EmbedDefinition> getAnswer(FateConfig config, State<EmptyData> state) {
+    protected @NonNull Optional<EmbedDefinition> getAnswer(FateConfig config, State<EmptyData> state) {
         List<Integer> rollResult = diceUtils.rollFate();
 
         if (ACTION_MODIFIER_OPTION_MODIFIER.equals(config.getType())) {
@@ -158,12 +155,12 @@ public class FateCommand extends AbstractCommand<FateConfig, EmptyData> {
     }
 
     @Override
-    protected Optional<MessageDefinition> createNewButtonMessageWithState(FateConfig config, State<EmptyData> state) {
+    protected @NonNull Optional<MessageDefinition> createNewButtonMessageWithState(FateConfig config, State<EmptyData> state) {
         return Optional.of(createNewButtonMessage(config));
     }
 
     @Override
-    public MessageDefinition createNewButtonMessage(FateConfig config) {
+    public @NonNull MessageDefinition createNewButtonMessage(FateConfig config) {
         return MessageDefinition.builder()
                 .content(createButtonMessage(config))
                 .componentRowDefinitions(createButtonLayout(config))
@@ -210,13 +207,13 @@ public class FateCommand extends AbstractCommand<FateConfig, EmptyData> {
     }
 
     @Override
-    protected FateConfig getConfigFromEvent(IButtonEventAdaptor event) {
+    protected @NonNull FateConfig getConfigFromEvent(@NonNull IButtonEventAdaptor event) {
         String[] split = event.getCustomId().split(BotConstants.LEGACY_CONFIG_SPLIT_DELIMITER_REGEX);
         return new FateConfig(getOptionalLongFromArray(split, 3), split[2]);
     }
 
     @Override
-    protected State<EmptyData> getStateFromEvent(IButtonEventAdaptor event) {
+    protected @NonNull State<EmptyData> getStateFromEvent(@NonNull IButtonEventAdaptor event) {
         String buttonValue = getButtonValueFromLegacyCustomId(event.getCustomId());
         return new State<>(buttonValue, new EmptyData());
     }

@@ -68,11 +68,12 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, EmptyDa
     }
 
     @Override
-    protected Optional<MessageDataDTO> createMessageDataForNewMessage(@NonNull UUID configUUID,
-                                                                      long channelId,
-                                                                      long messageId,
-                                                                      @NonNull CustomDiceConfig config,
-                                                                      @Nullable State<EmptyData> state) {
+    public Optional<MessageDataDTO> createMessageDataForNewMessage(@NonNull UUID configUUID,
+                                                                   long channelId,
+                                                                   long messageId,
+                                                                   @NonNull Config config,
+                                                                   @Nullable State<EmptyData> state) {
+        Preconditions.checkArgument(config instanceof CustomDiceConfig, "Wrong config: %s", config);
         return Optional.of(new MessageDataDTO(configUUID, channelId, messageId, getCommandId(), CONFIG_TYPE_ID,
                 Mapper.serializedObject(config),
                 Mapper.NO_PERSISTED_STATE, null));
@@ -84,7 +85,7 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, EmptyDa
     }
 
     @Override
-    protected List<CommandDefinitionOption> getStartOptions() {
+    protected @NonNull List<CommandDefinitionOption> getStartOptions() {
         return DICE_COMMAND_OPTIONS_IDS.stream()
                 .map(id -> CommandDefinitionOption.builder()
                         .name(id)
@@ -95,14 +96,14 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, EmptyDa
     }
 
     @Override
-    protected EmbedDefinition getHelpMessage() {
+    protected @NonNull EmbedDefinition getHelpMessage() {
         return EmbedDefinition.builder()
                 .description("Creates up to 25 buttons with custom dice expression e.g. '/custom_dice start 1_button:3d6 2_button:10d10 3_button:3d20'. \n" + DiceParserHelper.HELP)
                 .build();
     }
 
     @Override
-    protected Optional<String> getStartOptionsValidationMessage(CommandInteractionOption options) {
+    protected @NonNull Optional<String> getStartOptionsValidationMessage(@NonNull CommandInteractionOption options) {
         List<String> diceExpressionWithOptionalLabel = DICE_COMMAND_OPTIONS_IDS.stream()
                 .flatMap(id -> options.getStringSubOptionWithName(id).stream())
                 .distinct()
@@ -111,10 +112,10 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, EmptyDa
         int maxCharacter = 100 - COMMAND_NAME.length()
                 - 2 // delimiter;
                 - answerTargetChannel.length();
-        return diceParserHelper.validateListOfExpressions(diceExpressionWithOptionalLabel, LABEL_DELIMITER, BotConstants.LEGACY_DELIMITER_V2, "/custom_dice help", maxCharacter);
+        return diceParserHelper.validateListOfExpressions(diceExpressionWithOptionalLabel, LABEL_DELIMITER, BotConstants.CUSTOM_ID_DELIMITER, "/custom_dice help", maxCharacter);
     }
 
-    protected CustomDiceConfig getConfigFromStartOptions(CommandInteractionOption options) {
+    protected @NonNull CustomDiceConfig getConfigFromStartOptions(@NonNull CommandInteractionOption options) {
         return getConfigOptionStringList(DICE_COMMAND_OPTIONS_IDS.stream()
                 .flatMap(id -> options.getStringSubOptionWithName(id).stream())
                 .collect(Collectors.toList()), getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null));
@@ -124,7 +125,7 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, EmptyDa
     @VisibleForTesting
     CustomDiceConfig getConfigOptionStringList(List<String> startOptions, Long channelId) {
         return new CustomDiceConfig(channelId, startOptions.stream()
-                .filter(s -> !s.contains(BotConstants.LEGACY_DELIMITER_V2))
+                .filter(s -> !s.contains(BotConstants.CUSTOM_ID_DELIMITER))
                 .filter(s -> !s.contains(LABEL_DELIMITER) || s.split(LABEL_DELIMITER).length == 2)
                 .map(s -> {
                     if (s.contains(LABEL_DELIMITER)) {
@@ -144,7 +145,7 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, EmptyDa
     }
 
     @Override
-    protected Optional<EmbedDefinition> getAnswer(CustomDiceConfig config, State<EmptyData> state) {
+    protected @NonNull Optional<EmbedDefinition> getAnswer(CustomDiceConfig config, State<EmptyData> state) {
         String label = config.getLabelAndExpression().stream()
                 .filter(ld -> !ld.getDiceExpression().equals(ld.getLabel()))
                 .filter(ld -> ld.getDiceExpression().equals(state.getButtonValue()))
@@ -154,12 +155,12 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, EmptyDa
     }
 
     @Override
-    protected Optional<MessageDefinition> createNewButtonMessageWithState(CustomDiceConfig config, State<EmptyData> state) {
+    protected @NonNull Optional<MessageDefinition> createNewButtonMessageWithState(CustomDiceConfig config, State<EmptyData> state) {
         return Optional.of(createNewButtonMessage(config));
     }
 
     @Override
-    public MessageDefinition createNewButtonMessage(CustomDiceConfig config) {
+    public @NonNull MessageDefinition createNewButtonMessage(CustomDiceConfig config) {
         return MessageDefinition.builder()
                 .content(BUTTON_MESSAGE)
                 .componentRowDefinitions(createButtonLayout(config))
@@ -179,7 +180,7 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, EmptyDa
     }
 
     @Override
-    protected CustomDiceConfig getConfigFromEvent(IButtonEventAdaptor event) {
+    protected @NonNull CustomDiceConfig getConfigFromEvent(@NonNull IButtonEventAdaptor event) {
         String[] split = event.getCustomId().split(BotConstants.LEGACY_CONFIG_SPLIT_DELIMITER_REGEX);
         Long answerTargetChannelId = getOptionalLongFromArray(split, 2);
         return new CustomDiceConfig(answerTargetChannelId, event.getAllButtonIds().stream()
@@ -188,7 +189,7 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, EmptyDa
     }
 
     @Override
-    protected State<EmptyData> getStateFromEvent(IButtonEventAdaptor event) {
+    protected @NonNull State<EmptyData> getStateFromEvent(@NonNull IButtonEventAdaptor event) {
         return new State<>(getButtonValueFromLegacyCustomId(event.getCustomId()), new EmptyData());
     }
 

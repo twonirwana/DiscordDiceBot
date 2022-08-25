@@ -29,7 +29,6 @@ import static de.janno.discord.connector.api.BotConstants.CUSTOM_ID_DELIMITER;
 import static de.janno.discord.connector.api.BotConstants.LEGACY_CONFIG_SPLIT_DELIMITER_REGEX;
 
 @Slf4j
-//todo nullable und notNull an alle Methoden, Clear command
 public abstract class AbstractCommand<C extends Config, S extends EmptyData> implements ISlashCommand, IComponentInteractEventHandler {
 
     protected static final String ACTION_START = "start";
@@ -50,19 +49,19 @@ public abstract class AbstractCommand<C extends Config, S extends EmptyData> imp
         this.messageDataDAO = messageDataDAO;
     }
 
-    public static Long getOptionalLongFromArray(String[] optionArray, int index) {
+    public static Long getOptionalLongFromArray(@NonNull String[] optionArray, int index) {
         if (optionArray.length >= index + 1 && !Strings.isNullOrEmpty(optionArray[index])) {
             return Long.parseLong(optionArray[index]);
         }
         return null;
     }
 
-    protected Optional<Long> getAnswerTargetChannelIdFromStartCommandOption(CommandInteractionOption options) {
+    protected Optional<Long> getAnswerTargetChannelIdFromStartCommandOption(@NonNull CommandInteractionOption options) {
         return options.getChannelIdSubOptionWithName(ANSWER_TARGET_CHANNEL_OPTION);
     }
 
     @Override
-    public boolean matchingComponentCustomId(String buttonCustomId) {
+    public boolean matchingComponentCustomId(@NonNull String buttonCustomId) {
         if (isLegacyCustomId(buttonCustomId)) {
             return buttonCustomId.matches("^" + getCommandId() + BotConstants.LEGACY_CONFIG_SPLIT_DELIMITER_REGEX + ".*");
         }
@@ -98,11 +97,12 @@ public abstract class AbstractCommand<C extends Config, S extends EmptyData> imp
                                                                                              @NonNull String buttonValue,
                                                                                              @NonNull String invokingUserName);
 
-    protected abstract Optional<MessageDataDTO> createMessageDataForNewMessage(@NonNull UUID configUUID,
-                                                                     long channelId,
-                                                                     long messageId,
-                                                                     @NonNull C config,
-                                                                     @Nullable State<S> state);
+    //visible for welcome message
+    public abstract Optional<MessageDataDTO> createMessageDataForNewMessage(@NonNull UUID configUUID,
+                                                                               long channelId,
+                                                                               long messageId,
+                                                                               @NonNull Config config,
+                                                                               @Nullable State<S> state);
 
     protected void updateCurrentMessageStateData(long channelId, long messageId, @NonNull C config, @NonNull State<S> state) {
     }
@@ -117,6 +117,7 @@ public abstract class AbstractCommand<C extends Config, S extends EmptyData> imp
         final State<S> state;
         final UUID configUUID;
         if (isLegacyMessage) {
+            BotMetrics.incrementLegacyButtonMetricCounter(getCommandId());
             config = getConfigFromEvent(event);
             state = getStateFromEvent(event);
             configUUID = UUID.randomUUID();
@@ -284,82 +285,82 @@ public abstract class AbstractCommand<C extends Config, S extends EmptyData> imp
         return Mono.empty();
     }
 
-    protected List<CommandDefinitionOption> getStartOptions() {
+    protected @NonNull List<CommandDefinitionOption> getStartOptions() {
         return ImmutableList.of();
     }
 
     protected abstract @NonNull String getCommandDescription();
 
-    protected abstract EmbedDefinition getHelpMessage();
+    protected abstract @NonNull EmbedDefinition getHelpMessage();
 
     /**
      * The text content for the old button message, after a button event. Returns null means no editing should be done.
      */
     @VisibleForTesting
-    public Optional<String> getCurrentMessageContentChange(C config, State<S> state) {
+    public @NonNull Optional<String> getCurrentMessageContentChange(C config, State<S> state) {
         return Optional.empty();
     }
 
     /**
      * The new button message, after a button event
      */
-    protected abstract Optional<MessageDefinition> createNewButtonMessageWithState(C config, State<S> state);
+    protected abstract @NonNull Optional<MessageDefinition> createNewButtonMessageWithState(C config, State<S> state);
 
-    protected abstract Optional<EmbedDefinition> getAnswer(C config, State<S> state);
+    protected abstract @NonNull Optional<EmbedDefinition> getAnswer(C config, State<S> state);
 
     /**
      * The new button message, after a slash event
      */
-    public abstract MessageDefinition createNewButtonMessage(C config);
+    public abstract @NonNull MessageDefinition createNewButtonMessage(C config);
 
-    protected Optional<String> getStartOptionsValidationMessage(CommandInteractionOption options) {
+    protected @NonNull Optional<String> getStartOptionsValidationMessage(@NonNull CommandInteractionOption options) {
         //standard is no validation
         return Optional.empty();
     }
 
-    protected boolean shouldKeepExistingButtonMessage(IButtonEventAdaptor event) {
+    protected boolean shouldKeepExistingButtonMessage(@NonNull IButtonEventAdaptor event) {
         return event.isPinned();
     }
 
-    protected abstract C getConfigFromStartOptions(CommandInteractionOption options);
+    protected abstract @NonNull C getConfigFromStartOptions(@NonNull CommandInteractionOption options);
 
     /**
      * will be removed when almost all users have switched to the persisted button id
      */
     @Deprecated
-    protected abstract C getConfigFromEvent(IButtonEventAdaptor event);
+    protected abstract @NonNull C getConfigFromEvent(@NonNull IButtonEventAdaptor event);
 
     /**
      * will be removed when almost all users have switched to the persisted button id
      */
     @Deprecated
-    protected abstract State<S> getStateFromEvent(IButtonEventAdaptor event);
+    protected abstract @NonNull State<S> getStateFromEvent(@NonNull IButtonEventAdaptor event);
 
 
     /**
      * will be removed when almost all users have switched to the persisted button id
      */
     @Deprecated
-    protected String getButtonValueFromLegacyCustomId(String customId) {
+    protected @NonNull String getButtonValueFromLegacyCustomId(@NonNull String customId) {
         return customId.split(LEGACY_CONFIG_SPLIT_DELIMITER_REGEX)[LEGACY_BUTTON_VALUE_INDEX];
     }
 
-    protected String getButtonValueFromCustomIdWithPersistence(String customId) {
+    protected @NonNull String getButtonValueFromCustomIdWithPersistence(@NonNull String customId) {
         Preconditions.checkArgument(StringUtils.countMatches(customId, CUSTOM_ID_DELIMITER) == 1, "'%s' contains not the correct number of delimiter", customId);
         return customId.split(CUSTOM_ID_DELIMITER)[BUTTON_VALUE_INDEX];
     }
 
-    private @NonNull String getCommandNameFromCustomIdWithPersistence(String customId) {
+    private @NonNull String getCommandNameFromCustomIdWithPersistence(@NonNull String customId) {
         Preconditions.checkArgument(StringUtils.countMatches(customId, CUSTOM_ID_DELIMITER) == 1, "'%s' contains not the correct number of delimiter", customId);
         return customId.split(CUSTOM_ID_DELIMITER)[COMMAND_NAME_INDEX];
     }
 
     @VisibleForTesting
-    public String createButtonCustomId(@NonNull String buttonValue) {
+    public @NonNull String createButtonCustomId(@NonNull String buttonValue) {
         return getCommandId() + CUSTOM_ID_DELIMITER + buttonValue;
     }
 
-    protected boolean isLegacyCustomId(String customId) {
+    protected boolean isLegacyCustomId(@NonNull String customId) {
         return !customId.contains(CUSTOM_ID_DELIMITER);
     }
 }

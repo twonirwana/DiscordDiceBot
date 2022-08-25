@@ -1,7 +1,6 @@
 package de.janno.discord.connector.api.message;
 
 import com.google.common.base.Preconditions;
-import de.janno.discord.connector.api.BotConstants;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.Value;
