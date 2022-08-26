@@ -61,21 +61,21 @@ class WelcomeCommandTest {
                 .flatMap(Collection::stream)
                 .flatMap(s -> s.getButtonDefinitions().stream())
                 .map(ButtonDefinition::getId))
-                .containsExactly("custom_dice1d4",
-                        "custom_dice1d6",
-                        "custom_dice1d8",
-                        "custom_dice1d10",
-                        "custom_dice1d12",
-                        "custom_dice1d20",
-                        "custom_dice1d100",
-                        "custom_dice2d20k1",
-                        "custom_dice2d20L1",
-                        "custom_dice2d4",
-                        "custom_dice2d6",
-                        "custom_dice2d8",
-                        "custom_dice2d10",
-                        "custom_dice2d12",
-                        "custom_dice2d20");
+                .containsExactly("custom_dice1_button",
+                        "custom_dice2_button",
+                        "custom_dice3_button",
+                        "custom_dice4_button",
+                        "custom_dice5_button",
+                        "custom_dice6_button",
+                        "custom_dice7_button",
+                        "custom_dice8_button",
+                        "custom_dice9_button",
+                        "custom_dice10_button",
+                        "custom_dice11_button",
+                        "custom_dice12_button",
+                        "custom_dice13_button",
+                        "custom_dice14_button",
+                        "custom_dice15_button");
         assertThat(res.map(MessageDefinition::getComponentRowDefinitions)
                 .stream()
                 .flatMap(Collection::stream)

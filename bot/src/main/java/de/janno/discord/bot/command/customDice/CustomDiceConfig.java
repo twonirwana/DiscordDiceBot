@@ -2,8 +2,8 @@ package de.janno.discord.bot.command.customDice;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import de.janno.discord.bot.command.ButtonIdLabelAndDiceExpression;
 import de.janno.discord.bot.command.Config;
-import de.janno.discord.bot.command.LabelAndDiceExpression;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
@@ -17,19 +17,19 @@ import java.util.stream.Stream;
 @ToString
 public class CustomDiceConfig extends Config {
     @NonNull
-    private final List<LabelAndDiceExpression> labelAndExpression;
+    private final List<ButtonIdLabelAndDiceExpression> buttonIdLabelAndDiceExpressions;
 
     @JsonCreator
     public CustomDiceConfig(@JsonProperty("answerTargetChannelId") Long answerTargetChannelId,
-                            @JsonProperty("labelAndExpression") @NonNull List<LabelAndDiceExpression> labelAndExpression) {
+                            @JsonProperty("buttonIdLabelAndDiceExpressions") @NonNull List<ButtonIdLabelAndDiceExpression> buttonIdLabelAndDiceExpressions) {
         super(answerTargetChannelId);
-        this.labelAndExpression = labelAndExpression;
+        this.buttonIdLabelAndDiceExpressions = buttonIdLabelAndDiceExpressions;
     }
 
     @Override
     public String toShortString() {
-        return Stream.concat(labelAndExpression.stream()
-                                .map(LabelAndDiceExpression::toShortString),
+        return Stream.concat(buttonIdLabelAndDiceExpressions.stream()
+                                .map(ButtonIdLabelAndDiceExpression::toShortString),
                         Stream.of(getTargetChannelShortString()))
                 .toList()
                 .toString();

@@ -3,7 +3,7 @@ package de.janno.discord.bot.command.sumCustomSet;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import de.janno.discord.bot.command.Config;
-import de.janno.discord.bot.command.LabelAndDiceExpression;
+import de.janno.discord.bot.command.ButtonIdLabelAndDiceExpression;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
@@ -17,11 +17,11 @@ import java.util.stream.Stream;
 @ToString
 public class SumCustomSetConfig extends Config {
     @NonNull
-    private final List<LabelAndDiceExpression> labelAndExpression;
+    private final List<ButtonIdLabelAndDiceExpression> labelAndExpression;
 
     @JsonCreator
     public SumCustomSetConfig(@JsonProperty("answerTargetChannelId") Long answerTargetChannelId,
-                              @JsonProperty("labelAndExpression") @NonNull List<LabelAndDiceExpression> labelAndExpression) {
+                              @JsonProperty("labelAndExpression") @NonNull List<ButtonIdLabelAndDiceExpression> labelAndExpression) {
         super(answerTargetChannelId);
         this.labelAndExpression = labelAndExpression;
     }
@@ -29,7 +29,7 @@ public class SumCustomSetConfig extends Config {
     @Override
     public String toShortString() {
         return Stream.concat(labelAndExpression.stream()
-                                .map(LabelAndDiceExpression::toShortString),
+                                .map(ButtonIdLabelAndDiceExpression::toShortString),
                         Stream.of(getTargetChannelShortString()))
                 .toList()
                 .toString();

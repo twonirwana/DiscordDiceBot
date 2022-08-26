@@ -8,24 +8,26 @@ import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.Value;
 
+import java.util.List;
+
 @Value
 @EqualsAndHashCode(callSuper = true)
 public class SumCustomSetStateData extends EmptyData {
 
     @NonNull
-    String diceExpression;
+    List<String> diceExpressions;
     String lockedForUserName;
 
     @JsonCreator
-    public SumCustomSetStateData(@JsonProperty("diceExpression") @NonNull String diceExpression,
+    public SumCustomSetStateData(@JsonProperty("diceExpressions") @NonNull List<String> diceExpressions,
                                  @JsonProperty("lockedForUserName") String lockedForUserName) {
-        this.diceExpression = diceExpression;
+        this.diceExpressions = diceExpressions;
         this.lockedForUserName = lockedForUserName;
     }
 
     @Override
     @JsonIgnore
     public String getShortStringValues() {
-        return String.format("%s, %s", diceExpression, lockedForUserName);
+        return String.format("%s, %s", diceExpressions, lockedForUserName);
     }
 }

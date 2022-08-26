@@ -20,16 +20,13 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 @Slf4j
 public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, EmptyData> {
 
-    //todo expression not in button value. The button value is only the key
     private static final String COMMAND_NAME = "custom_dice";
     private static final List<String> DICE_COMMAND_OPTIONS_IDS = IntStream.range(1, 25).mapToObj(i -> i + "_button").toList();
     private static final String LABEL_DELIMITER = "@";
@@ -124,20 +121,22 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, EmptyDa
 
     @VisibleForTesting
     CustomDiceConfig getConfigOptionStringList(List<String> startOptions, Long channelId) {
+        //todo use button_ids from the start option
+        Deque<String> buttonIds = new ArrayDeque<>(DICE_COMMAND_OPTIONS_IDS);
         return new CustomDiceConfig(channelId, startOptions.stream()
                 .filter(s -> !s.contains(BotConstants.CUSTOM_ID_DELIMITER))
                 .filter(s -> !s.contains(LABEL_DELIMITER) || s.split(LABEL_DELIMITER).length == 2)
                 .map(s -> {
                     if (s.contains(LABEL_DELIMITER)) {
                         String[] split = s.split(LABEL_DELIMITER);
-                        return new LabelAndDiceExpression(split[1].trim(), split[0].trim());
+                        return new ButtonIdLabelAndDiceExpression(buttonIds.pop(), split[1].trim(), split[0].trim());
                     }
-                    return new LabelAndDiceExpression(s.trim(), s.trim());
+                    return new ButtonIdLabelAndDiceExpression(buttonIds.pop(), s.trim(), s.trim());
                 })
                 .filter(s -> !s.getDiceExpression().isEmpty())
                 .filter(s -> !s.getLabel().isEmpty())
                 .filter(lv -> diceParserHelper.validExpression(lv.getDiceExpression()))
-                .filter(s -> createButtonCustomId(s.getDiceExpression()).length() <= 100) //limit for the ids are 100 characters and we need also some characters for the type...
+                .filter(s -> s.getDiceExpression().length() <= 2000) //limit of the discord message content
                 .filter(s -> s.getLabel().length() <= 80) //https://discord.com/developers/docs/interactions/message-components#buttons
                 .distinct()
                 .limit(25)
@@ -146,12 +145,17 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, EmptyDa
 
     @Override
     protected @NonNull Optional<EmbedDefinition> getAnswer(CustomDiceConfig config, State<EmptyData> state) {
-        String label = config.getLabelAndExpression().stream()
-                .filter(ld -> !ld.getDiceExpression().equals(ld.getLabel()))
-                .filter(ld -> ld.getDiceExpression().equals(state.getButtonValue()))
-                .map(LabelAndDiceExpression::getLabel)
-                .findFirst().orElse(null);
-        return Optional.of(diceParserHelper.roll(state.getButtonValue(), label));
+        Optional<ButtonIdLabelAndDiceExpression> selectedButton = Optional.ofNullable(state).map(State::getButtonValue)
+                .flatMap(bv -> config.getButtonIdLabelAndDiceExpressions().stream()
+                        .filter(bld -> bld.getButtonId().equals(bv))
+                        .findFirst()
+                );
+        if (selectedButton.isEmpty()) {
+            return Optional.empty();
+        }
+        //add the label only if it is different from the expression
+        final String label = selectedButton.get().getDiceExpression().equals(selectedButton.get().getLabel()) ? null : selectedButton.get().getLabel();
+        return Optional.of(diceParserHelper.roll(selectedButton.get().getDiceExpression(), label));
     }
 
     @Override
@@ -168,9 +172,9 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, EmptyDa
     }
 
     private List<ComponentRowDefinition> createButtonLayout(CustomDiceConfig config) {
-        List<ButtonDefinition> buttons = config.getLabelAndExpression().stream()
+        List<ButtonDefinition> buttons = config.getButtonIdLabelAndDiceExpressions().stream()
                 .map(d -> ButtonDefinition.builder()
-                        .id(createButtonCustomId(d.getDiceExpression()))
+                        .id(createButtonCustomId(d.getButtonId()))
                         .label(d.getLabel())
                         .build())
                 .collect(Collectors.toList());
@@ -183,14 +187,22 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, EmptyDa
     protected @NonNull CustomDiceConfig getConfigFromEvent(@NonNull ButtonEventAdaptor event) {
         String[] split = event.getCustomId().split(BotConstants.LEGACY_CONFIG_SPLIT_DELIMITER_REGEX);
         Long answerTargetChannelId = getOptionalLongFromArray(split, 2);
+        Deque<String> buttonIds = new ArrayDeque<>(DICE_COMMAND_OPTIONS_IDS);
         return new CustomDiceConfig(answerTargetChannelId, event.getAllButtonIds().stream()
-                .map(lv -> new LabelAndDiceExpression(lv.getLabel(), getButtonValueFromLegacyCustomId(lv.getCustomId())))
+                .map(lv -> new ButtonIdLabelAndDiceExpression(buttonIds.pop(), lv.getLabel(), getButtonValueFromLegacyCustomId(lv.getCustomId())))
                 .collect(Collectors.toList()));
     }
 
     @Override
     protected @NonNull State<EmptyData> getStateFromEvent(@NonNull ButtonEventAdaptor event) {
-        return new State<>(getButtonValueFromLegacyCustomId(event.getCustomId()), new EmptyData());
+        final CustomDiceConfig config = getConfigFromEvent(event);
+        final String buttonValue = getButtonValueFromLegacyCustomId(event.getCustomId());
+        final String mappedButtonValue = config.getButtonIdLabelAndDiceExpressions().stream()
+                .filter(bld -> bld.getDiceExpression().equals(buttonValue))
+                .map(ButtonIdLabelAndDiceExpression::getButtonId)
+                .findFirst()
+                .orElseThrow();
+        return new State<>(mappedButtonValue, new EmptyData());
     }
 
     @Override

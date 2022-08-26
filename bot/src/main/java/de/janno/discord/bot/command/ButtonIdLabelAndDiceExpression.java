@@ -6,15 +6,20 @@ import lombok.NonNull;
 import lombok.Value;
 
 @Value
-public class LabelAndDiceExpression {
+public class ButtonIdLabelAndDiceExpression {
+    @NonNull
+    String buttonId;
     @NonNull
     String label;
     @NonNull
     String diceExpression;
 
     @JsonCreator
-    public LabelAndDiceExpression(@JsonProperty("label") @NonNull String label,
-                                  @JsonProperty("diceExpression") @NonNull String diceExpression) {
+    public ButtonIdLabelAndDiceExpression(
+            @JsonProperty("buttonId") @NonNull String buttonId,
+            @JsonProperty("label") @NonNull String label,
+            @JsonProperty("diceExpression") @NonNull String diceExpression) {
+        this.buttonId = buttonId;
         this.label = label;
         this.diceExpression = diceExpression;
     }

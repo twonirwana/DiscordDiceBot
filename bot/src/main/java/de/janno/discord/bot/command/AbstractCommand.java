@@ -192,7 +192,9 @@ public abstract class AbstractCommand<C extends Config, S extends EmptyData> imp
                     });
             if (!keepExistingButtonMessage) {
                 if (isLegacyMessage) {
-                    createNewButtonMessageAndOptionalDeleteOld = event.deleteMessage(messageId, false).then();
+                    createNewButtonMessageAndOptionalDeleteOld = event.deleteMessage(messageId, false)
+                            .then(newMessageIdMono)
+                            .then();
                 } else {
                     //delete all other button messages with the same config, retain only the new message
                     createNewButtonMessageAndOptionalDeleteOld = deleteMessageAndData(newMessageIdMono, null, configUUID, channelId, event);

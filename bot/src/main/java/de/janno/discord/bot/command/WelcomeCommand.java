@@ -40,23 +40,23 @@ public class WelcomeCommand extends AbstractCommand<Config, EmptyData> {
     private final static CountSuccessesConfig NWOD_CONFIG = new CountSuccessesConfig(null, 10, 8, "no_glitch", 15);
     private final static CountSuccessesConfig SHADOWRUN_CONFIG = new CountSuccessesConfig(null, 6, 5, "glitch:half_dice_one", 20);
     private final static PoolTargetConfig OWOD_CONFIG = new PoolTargetConfig(null, 10, 15, ImmutableSet.of(10), ImmutableSet.of(1), "ask");
-    private final static CustomDiceConfig COIN_CONFIG = new CustomDiceConfig(null, ImmutableList.of(new LabelAndDiceExpression("Coin Toss \uD83E\uDE99", "1d2=2?Head \uD83D\uDE00:Tail \uD83E\uDD85")));
+    private final static CustomDiceConfig COIN_CONFIG = new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Coin Toss \uD83E\uDE99", "1d2=2?Head \uD83D\uDE00:Tail \uD83E\uDD85")));
     private final static CustomDiceConfig DND5_CONFIG = new CustomDiceConfig(null, ImmutableList.of(
-            new LabelAndDiceExpression("D4", "1d4"),
-            new LabelAndDiceExpression("D6", "1d6"),
-            new LabelAndDiceExpression("D8", "1d8"),
-            new LabelAndDiceExpression("D10", "1d10"),
-            new LabelAndDiceExpression("D12", "1d12"),
-            new LabelAndDiceExpression("D20", "1d20"),
-            new LabelAndDiceExpression("D100", "1d100"),
-            new LabelAndDiceExpression("D20 Advantage", "2d20k1"),
-            new LabelAndDiceExpression("D20 Disadvantage", "2d20L1"),
-            new LabelAndDiceExpression("2D4", "2d4"),
-            new LabelAndDiceExpression("2D6", "2d6"),
-            new LabelAndDiceExpression("2D8", "2d8"),
-            new LabelAndDiceExpression("2D10", "2d10"),
-            new LabelAndDiceExpression("2D12", "2d12"),
-            new LabelAndDiceExpression("2D20", "2d20")
+            new ButtonIdLabelAndDiceExpression("1_button", "D4", "1d4"),
+            new ButtonIdLabelAndDiceExpression("2_button", "D6", "1d6"),
+            new ButtonIdLabelAndDiceExpression("3_button", "D8", "1d8"),
+            new ButtonIdLabelAndDiceExpression("4_button", "D10", "1d10"),
+            new ButtonIdLabelAndDiceExpression("5_button", "D12", "1d12"),
+            new ButtonIdLabelAndDiceExpression("6_button", "D20", "1d20"),
+            new ButtonIdLabelAndDiceExpression("7_button", "D100", "1d100"),
+            new ButtonIdLabelAndDiceExpression("8_button", "D20 Advantage", "2d20k1"),
+            new ButtonIdLabelAndDiceExpression("9_button", "D20 Disadvantage", "2d20L1"),
+            new ButtonIdLabelAndDiceExpression("10_button", "2D4", "2d4"),
+            new ButtonIdLabelAndDiceExpression("11_button", "2D6", "2d6"),
+            new ButtonIdLabelAndDiceExpression("12_button", "2D8", "2d8"),
+            new ButtonIdLabelAndDiceExpression("13_button", "2D10", "2d10"),
+            new ButtonIdLabelAndDiceExpression("14_button", "2D12", "2d12"),
+            new ButtonIdLabelAndDiceExpression("15_button", "2D20", "2d20")
     ));
 
     public WelcomeCommand(MessageDataDAO messageDataDAO) {
