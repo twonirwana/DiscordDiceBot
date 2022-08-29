@@ -11,13 +11,12 @@ public enum BooleanOperator {
     EQUAL("=", "=", Objects::equals),
     NOT_EQUAL("<>", "≠", (a, b) -> !Objects.equals(a, b));
 
+    final String expression;
+    final String pretty;
+    final BiFunction<Integer, Integer, Boolean> function;
     BooleanOperator(String expression, String pretty, BiFunction<Integer, Integer, Boolean> function) {
         this.expression = expression;
         this.pretty = pretty;
         this.function = function;
     }
-
-    final String expression;
-    final String pretty;
-    final BiFunction<Integer, Integer, Boolean> function;
 }

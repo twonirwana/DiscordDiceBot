@@ -5,7 +5,7 @@ import de.janno.discord.bot.command.ButtonIdLabelAndDiceExpression;
 import de.janno.discord.bot.command.ConfigAndState;
 import de.janno.discord.bot.command.State;
 import de.janno.discord.bot.dice.DiceParserHelper;
-import de.janno.discord.bot.dice.IDice;
+import de.janno.discord.bot.dice.Dice;
 import de.janno.discord.bot.persistance.MessageDataDAO;
 import de.janno.discord.bot.persistance.MessageDataDAOImpl;
 import de.janno.discord.bot.persistance.MessageDataDTO;
@@ -48,7 +48,7 @@ class SumCustomSetCommandTest {
             new ButtonIdLabelAndDiceExpression("4_button", "2d10min10", "min10")
     ));
 
-    IDice diceMock;
+    Dice diceMock;
 
     static Stream<Arguments> generateGetEditButtonMessageData() {
         return Stream.of(
@@ -61,7 +61,7 @@ class SumCustomSetCommandTest {
 
     @BeforeEach
     void setup() {
-        diceMock = mock(IDice.class);
+        diceMock = mock(Dice.class);
         underTest = new SumCustomSetCommand(messageDataDAO, new DiceParserHelper(diceMock));
     }
 

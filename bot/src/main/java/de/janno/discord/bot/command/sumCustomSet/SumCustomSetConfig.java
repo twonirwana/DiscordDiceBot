@@ -2,8 +2,8 @@ package de.janno.discord.bot.command.sumCustomSet;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import de.janno.discord.bot.command.Config;
 import de.janno.discord.bot.command.ButtonIdLabelAndDiceExpression;
+import de.janno.discord.bot.command.Config;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;

@@ -99,10 +99,10 @@ public abstract class AbstractCommand<C extends Config, S extends EmptyData> imp
 
     //visible for welcome message
     public abstract Optional<MessageDataDTO> createMessageDataForNewMessage(@NonNull UUID configUUID,
-                                                                               long channelId,
-                                                                               long messageId,
-                                                                               @NonNull Config config,
-                                                                               @Nullable State<S> state);
+                                                                            long channelId,
+                                                                            long messageId,
+                                                                            @NonNull Config config,
+                                                                            @Nullable State<S> state);
 
     protected void updateCurrentMessageStateData(long channelId, long messageId, @NonNull C config, @NonNull State<S> state) {
     }
@@ -329,20 +329,17 @@ public abstract class AbstractCommand<C extends Config, S extends EmptyData> imp
     /**
      * will be removed when almost all users have switched to the persisted button id
      */
-    @Deprecated
     protected abstract @NonNull C getConfigFromEvent(@NonNull ButtonEventAdaptor event);
 
     /**
      * will be removed when almost all users have switched to the persisted button id
      */
-    @Deprecated
     protected abstract @NonNull State<S> getStateFromEvent(@NonNull ButtonEventAdaptor event);
 
 
     /**
      * will be removed when almost all users have switched to the persisted button id
      */
-    @Deprecated
     protected @NonNull String getButtonValueFromLegacyCustomId(@NonNull String customId) {
         return customId.split(LEGACY_CONFIG_SPLIT_DELIMITER_REGEX)[LEGACY_BUTTON_VALUE_INDEX];
     }

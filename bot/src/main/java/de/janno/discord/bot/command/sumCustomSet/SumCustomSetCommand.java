@@ -20,6 +20,7 @@ import de.janno.discord.connector.api.message.MessageDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinitionOption;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import lombok.NonNull;
+import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
 
@@ -323,26 +324,25 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
     @Override
     protected @NonNull SumCustomSetConfig getConfigFromStartOptions(@NonNull CommandInteractionOption options) {
         return getConfigOptionStringList(DICE_COMMAND_OPTIONS_IDS.stream()
-                .flatMap(id -> options.getStringSubOptionWithName(id).stream())
+                .flatMap(id -> options.getStringSubOptionWithName(id).stream()
+                        .map(e -> new ButtonIdAndExpression(id, e)))
                 .collect(Collectors.toList()), getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null));
     }
 
     @VisibleForTesting
-    SumCustomSetConfig getConfigOptionStringList(List<String> startOptions, Long answerTargetChannelId) {
-        Deque<String> buttonIds = new ArrayDeque<>(DICE_COMMAND_OPTIONS_IDS);
-        //todo use button_ids from the start option
+    SumCustomSetConfig getConfigOptionStringList(List<ButtonIdAndExpression> startOptions, Long answerTargetChannelId) {
         return new SumCustomSetConfig(answerTargetChannelId, startOptions.stream()
-                .filter(s -> !s.contains(BotConstants.CUSTOM_ID_DELIMITER))
-                .filter(s -> !s.contains(LABEL_DELIMITER) || s.split(LABEL_DELIMITER).length == 2)
-                .map(s -> {
+                .filter(be -> !be.getExpression().contains(BotConstants.CUSTOM_ID_DELIMITER))
+                .filter(be -> !be.getExpression().contains(LABEL_DELIMITER) || be.getExpression().split(LABEL_DELIMITER).length == 2)
+                .map(be -> {
                     String label = null;
                     String diceExpression;
-                    if (s.contains(LABEL_DELIMITER)) {
-                        String[] split = s.split(LABEL_DELIMITER);
+                    if (be.getExpression().contains(LABEL_DELIMITER)) {
+                        String[] split = be.getExpression().split(LABEL_DELIMITER);
                         label = split[1].trim();
                         diceExpression = split[0].trim();
                     } else {
-                        diceExpression = s.trim();
+                        diceExpression = be.getExpression().trim();
                     }
                     if (!diceExpression.startsWith("+") && !diceExpression.startsWith("-")) {
                         diceExpression = "+" + diceExpression;
@@ -350,7 +350,7 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
                     if (label == null) {
                         label = diceExpression;
                     }
-                    return new ButtonIdLabelAndDiceExpression(buttonIds.pop(), label, diceExpression);
+                    return new ButtonIdLabelAndDiceExpression(be.getButtonId(), label, diceExpression);
                 })
                 .filter(s -> !s.getDiceExpression().isEmpty())
                 .filter(s -> !s.getLabel().isEmpty())
@@ -360,7 +360,6 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
                 .limit(22)
                 .collect(Collectors.toList()));
     }
-
 
     private List<ComponentRowDefinition> createButtonLayout(SumCustomSetConfig config) {
         List<ButtonDefinition> buttons = config.getLabelAndExpression().stream()
@@ -389,5 +388,12 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
                 .collect(Collectors.toList());
     }
 
+    @Value
+    private static class ButtonIdAndExpression {
+        @NonNull
+        String buttonId;
+        @NonNull
+        String expression;
+    }
 
 }

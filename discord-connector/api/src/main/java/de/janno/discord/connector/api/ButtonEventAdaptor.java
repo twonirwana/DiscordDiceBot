@@ -29,9 +29,14 @@ public interface ButtonEventAdaptor extends DiscordAdapter {
 
     Mono<Long> createButtonMessage(MessageDefinition messageDefinition);
 
+    /**
+     * will be removed when almost all users have switched to the persisted button id
+     */
     List<LabelAndCustomId> getAllButtonIds();
 
-    @Deprecated
+    /**
+     * will be removed when almost all users have switched to the persisted button id
+     */
     String getMessageContent();
 
     Mono<Requester> getRequester();

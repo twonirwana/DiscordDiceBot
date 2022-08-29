@@ -109,7 +109,6 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     }
 
     @VisibleForTesting
-    @Deprecated
     static State<CustomParameterStateData> createParameterStateFromLegacyId(String customId, String messageContent, String invokingUser) {
         String[] split = splitCustomId(customId);
         String buttonValue = split[CustomIdIndex.BUTTON_VALUE.index];
@@ -168,7 +167,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     @VisibleForTesting
     static CustomParameterConfig createConfigFromCustomId(String customId) {
         String[] split = splitCustomId(customId);
-        return new CustomParameterConfig(getOptionalLongFromArray(split, 2), split[CustomIdIndex.BASE_EXPRESSION.index]);
+        return new CustomParameterConfig(getOptionalLongFromArray(split, CustomIdIndex.ANSWER_TARGET_CHANNEL.index), split[CustomIdIndex.BASE_EXPRESSION.index]);
     }
 
     @Override

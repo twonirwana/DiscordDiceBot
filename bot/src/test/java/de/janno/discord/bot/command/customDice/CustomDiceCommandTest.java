@@ -7,7 +7,7 @@ import de.janno.discord.bot.command.EmptyData;
 import de.janno.discord.bot.command.State;
 import de.janno.discord.bot.dice.DiceParser;
 import de.janno.discord.bot.dice.DiceParserHelper;
-import de.janno.discord.bot.dice.IDice;
+import de.janno.discord.bot.dice.Dice;
 import de.janno.discord.bot.persistance.MessageDataDAO;
 import de.janno.discord.bot.persistance.MessageDataDAOImpl;
 import de.janno.discord.bot.persistance.MessageDataDTO;
@@ -20,7 +20,6 @@ import de.janno.discord.connector.api.message.EmbedDefinition;
 import de.janno.discord.connector.api.message.MessageDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinitionOption;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
-import dev.diceroll.parser.Dice;
 import dev.diceroll.parser.NDice;
 import dev.diceroll.parser.ResultTree;
 import org.junit.jupiter.api.BeforeEach;
@@ -34,6 +33,7 @@ import reactor.test.StepVerifier;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -42,7 +42,7 @@ import static org.mockito.Mockito.*;
 class CustomDiceCommandTest {
 
     CustomDiceCommand underTest;
-    IDice diceMock;
+    Dice diceMock;
     MessageDataDAO messageDataDAO = mock(MessageDataDAO.class);
 
     private static Stream<Arguments> generateConfigOptionStringList() {
@@ -73,14 +73,18 @@ class CustomDiceCommandTest {
     void getConfigOptionStringList(List<String> optionValue, CustomDiceConfig expected) {
         when(diceMock.roll(any())).thenAnswer(a -> {
             String expression = a.getArgument(0);
-            return Dice.roll(expression);
+            return dev.diceroll.parser.Dice.roll(expression);
         });
-        assertThat(underTest.getConfigOptionStringList(optionValue, null)).isEqualTo(expected);
+        AtomicInteger counter = new AtomicInteger(1);
+        final List<CustomDiceCommand.ButtonIdAndExpression> idAndExpressions = optionValue.stream()
+                .map(e -> new CustomDiceCommand.ButtonIdAndExpression(counter.getAndIncrement() + "_button", e))
+                .toList();
+        assertThat(underTest.getConfigOptionStringList(idAndExpressions, null)).isEqualTo(expected);
     }
 
     @BeforeEach
     void setup() {
-        diceMock = mock(IDice.class);
+        diceMock = mock(Dice.class);
         underTest = new CustomDiceCommand(messageDataDAO, new DiceParserHelper(diceMock));
     }
 
@@ -307,7 +311,7 @@ class CustomDiceCommandTest {
         verify(buttonEventAdaptor).getMessageId();
         verify(buttonEventAdaptor).getChannelId();
         verify(buttonEventAdaptor).isPinned();
-        verify(buttonEventAdaptor,times(2)).getAllButtonIds();
+        verify(buttonEventAdaptor, times(2)).getAllButtonIds();
         verify(buttonEventAdaptor, never()).getMessageContent();
         verify(buttonEventAdaptor).acknowledge();
     }

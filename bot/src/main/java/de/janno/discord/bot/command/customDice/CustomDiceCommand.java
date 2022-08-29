@@ -17,6 +17,7 @@ import de.janno.discord.connector.api.message.MessageDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinitionOption;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import lombok.NonNull;
+import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
 
@@ -114,24 +115,23 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, EmptyDa
 
     protected @NonNull CustomDiceConfig getConfigFromStartOptions(@NonNull CommandInteractionOption options) {
         return getConfigOptionStringList(DICE_COMMAND_OPTIONS_IDS.stream()
-                .flatMap(id -> options.getStringSubOptionWithName(id).stream())
+                .flatMap(id -> options.getStringSubOptionWithName(id).stream()
+                        .map(e -> new ButtonIdAndExpression(id, e)))
                 .collect(Collectors.toList()), getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null));
 
     }
 
     @VisibleForTesting
-    CustomDiceConfig getConfigOptionStringList(List<String> startOptions, Long channelId) {
-        //todo use button_ids from the start option
-        Deque<String> buttonIds = new ArrayDeque<>(DICE_COMMAND_OPTIONS_IDS);
+    CustomDiceConfig getConfigOptionStringList(List<ButtonIdAndExpression> startOptions, Long channelId) {
         return new CustomDiceConfig(channelId, startOptions.stream()
-                .filter(s -> !s.contains(BotConstants.CUSTOM_ID_DELIMITER))
-                .filter(s -> !s.contains(LABEL_DELIMITER) || s.split(LABEL_DELIMITER).length == 2)
-                .map(s -> {
-                    if (s.contains(LABEL_DELIMITER)) {
-                        String[] split = s.split(LABEL_DELIMITER);
-                        return new ButtonIdLabelAndDiceExpression(buttonIds.pop(), split[1].trim(), split[0].trim());
+                .filter(be -> !be.getExpression().contains(BotConstants.CUSTOM_ID_DELIMITER))
+                .filter(be -> !be.getExpression().contains(LABEL_DELIMITER) || be.getExpression().split(LABEL_DELIMITER).length == 2)
+                .map(be -> {
+                    if (be.getExpression().contains(LABEL_DELIMITER)) {
+                        String[] split = be.getExpression().split(LABEL_DELIMITER);
+                        return new ButtonIdLabelAndDiceExpression(be.getButtonId(), split[1].trim(), split[0].trim());
                     }
-                    return new ButtonIdLabelAndDiceExpression(buttonIds.pop(), s.trim(), s.trim());
+                    return new ButtonIdLabelAndDiceExpression(be.getButtonId(), be.getExpression().trim(), be.getExpression().trim());
                 })
                 .filter(s -> !s.getDiceExpression().isEmpty())
                 .filter(s -> !s.getLabel().isEmpty())
@@ -208,6 +208,14 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, EmptyDa
     @Override
     public String getCommandId() {
         return COMMAND_NAME;
+    }
+
+    @Value
+    static class ButtonIdAndExpression {
+        @NonNull
+        String buttonId;
+        @NonNull
+        String expression;
     }
 
 }

@@ -2,9 +2,9 @@ package de.janno.discord.bot.command;
 
 import com.google.common.collect.ImmutableList;
 import de.janno.discord.bot.dice.DiceParserHelper;
-import de.janno.discord.bot.dice.IDice;
-import de.janno.discord.connector.api.SlashEventAdaptor;
+import de.janno.discord.bot.dice.Dice;
 import de.janno.discord.connector.api.Requester;
+import de.janno.discord.connector.api.SlashEventAdaptor;
 import de.janno.discord.connector.api.message.EmbedDefinition;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import dev.diceroll.parser.NDice;
@@ -24,11 +24,11 @@ import static org.mockito.Mockito.*;
 
 class DirectRollCommandTest {
     DirectRollCommand underTest;
-    IDice diceMock;
+    Dice diceMock;
 
     @BeforeEach
     void setup() {
-        diceMock = mock(IDice.class);
+        diceMock = mock(Dice.class);
         underTest = new DirectRollCommand(new DiceParserHelper(diceMock));
     }
 

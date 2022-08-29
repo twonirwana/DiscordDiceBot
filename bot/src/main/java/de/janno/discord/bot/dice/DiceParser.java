@@ -1,17 +1,16 @@
 package de.janno.discord.bot.dice;
 
-import dev.diceroll.parser.Dice;
 import dev.diceroll.parser.ResultTree;
 
-public class DiceParser implements IDice {
+public class DiceParser implements Dice {
 
     @Override
     public ResultTree detailedRoll(String input) {
-        return Dice.detailedRoll(input);
+        return dev.diceroll.parser.Dice.detailedRoll(input);
     }
 
     @Override
     public int roll(String input) {
-        return Dice.roll(input);
+        return dev.diceroll.parser.Dice.roll(input);
     }
 }

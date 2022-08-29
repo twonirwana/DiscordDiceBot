@@ -101,14 +101,14 @@ public class DiceParserHelper {
     private static final Pattern MULTI_ROLL_EXPRESSION_PATTERN = Pattern.compile("^(\\d+?)x\\[(.*)?]$");
     private static final Pattern VALUE_COMPERE_PATTER = Pattern.compile("(<=|>=|<>|<|>|=)(\\d+)\\?(.+)");
     private static final String MULTI_DIFF_EXPRESSION_DELIMITER = "&";
-    private final IDice dice;
+    private final Dice dice;
 
     public DiceParserHelper() {
         this(new DiceParser());
     }
 
     @VisibleForTesting
-    public DiceParserHelper(IDice dice) {
+    public DiceParserHelper(Dice dice) {
         this.dice = dice;
     }
 
