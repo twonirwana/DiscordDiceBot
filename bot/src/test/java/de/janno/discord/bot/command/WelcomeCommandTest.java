@@ -15,7 +15,7 @@ import static org.mockito.Mockito.when;
 
 class WelcomeCommandTest {
 
-    WelcomeCommand underTest = new WelcomeCommand(mock(MessageDataDAO.class));
+    final WelcomeCommand underTest = new WelcomeCommand(mock(MessageDataDAO.class));
 
     @Test
     public void getButtonMessageWithState_fate() {

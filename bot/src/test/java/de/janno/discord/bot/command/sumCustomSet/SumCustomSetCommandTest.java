@@ -521,7 +521,7 @@ class SumCustomSetCommandTest {
 
 
     @Test
-    void handleComponentInteractEvent() {
+    void handleComponentInteractEventLegacy() {
         ButtonEventAdaptor buttonEventAdaptor = mock(ButtonEventAdaptor.class);
         when(buttonEventAdaptor.getCustomId()).thenReturn("sum_custom_set\u0000roll");
         when(diceMock.detailedRoll("1d6")).thenReturn(new ResultTree(new NDice(6, 1), 3, ImmutableList.of()));
@@ -558,7 +558,7 @@ class SumCustomSetCommandTest {
     }
 
     @Test
-    void handleComponentInteractEvent_pinned() {
+    void handleComponentInteractEventLegacy_pinned() {
         ButtonEventAdaptor buttonEventAdaptor = mock(ButtonEventAdaptor.class);
         when(buttonEventAdaptor.getCustomId()).thenReturn("sum_custom_set\u0000roll");
         when(diceMock.detailedRoll("1d6")).thenReturn(new ResultTree(new NDice(6, 1), 3, ImmutableList.of()));

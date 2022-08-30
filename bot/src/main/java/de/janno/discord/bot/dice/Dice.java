@@ -4,6 +4,5 @@ import dev.diceroll.parser.ResultTree;
 
 public interface Dice {
     ResultTree detailedRoll(String input);
-
     int roll(String input);
 }

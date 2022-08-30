@@ -276,7 +276,7 @@ class CustomDiceCommandTest {
     }
 
     @Test
-    void handleComponentInteractEvent() {
+    void handleComponentInteractEventLegacy() {
         ButtonEventAdaptor buttonEventAdaptor = mock(ButtonEventAdaptor.class);
         when(buttonEventAdaptor.getCustomId()).thenReturn("custom_dice\u00001d6\u0000");
         when(diceMock.detailedRoll("1d6")).thenReturn(new ResultTree(new NDice(6, 1), 3, ImmutableList.of()));
@@ -317,7 +317,7 @@ class CustomDiceCommandTest {
     }
 
     @Test
-    void handleComponentInteractEvent_pinned() {
+    void handleComponentInteractEventLegacy_pinned() {
         ButtonEventAdaptor buttonEventAdaptor = mock(ButtonEventAdaptor.class);
         when(buttonEventAdaptor.getCustomId()).thenReturn("custom_dice\u00001d6");
         when(diceMock.detailedRoll("1d6")).thenReturn(new ResultTree(new NDice(6, 1), 3, ImmutableList.of()));

@@ -396,7 +396,7 @@ class PoolTargetCommandTest {
     }
 
     @Test
-    void handleComponentInteractEvent_clear() {
+    void handleComponentInteractEventLegacy_clear() {
         ButtonEventAdaptor buttonEventAdaptor = mock(ButtonEventAdaptor.class);
         when(buttonEventAdaptor.getCustomId()).thenReturn("pool_target\u0000clear\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000");
         when(buttonEventAdaptor.getChannelId()).thenReturn(1L);
@@ -428,7 +428,7 @@ class PoolTargetCommandTest {
     }
 
     @Test
-    void handleComponentInteractEvent_setTargetAsk() {
+    void handleComponentInteractEventLegacy_setTargetAsk() {
         ButtonEventAdaptor buttonEventAdaptor = mock(ButtonEventAdaptor.class);
         when(buttonEventAdaptor.getCustomId()).thenReturn("pool_target\u00008\u000010\u000020\u000010;9\u00001;2\u0000ask\u000015\u0000EMPTY\u0000");
         when(buttonEventAdaptor.getChannelId()).thenReturn(1L);
@@ -460,7 +460,7 @@ class PoolTargetCommandTest {
     }
 
     @Test
-    void handleComponentInteractEvent_setTargetAlways() {
+    void handleComponentInteractEventLegacy_setTargetAlways() {
         ButtonEventAdaptor buttonEventAdaptor = mock(ButtonEventAdaptor.class);
         when(buttonEventAdaptor.getCustomId()).thenReturn("pool_target\u00008\u000010\u000020\u000010;9\u00001;2\u0000always\u000015\u0000EMPTY\u0000");
         when(buttonEventAdaptor.getChannelId()).thenReturn(1L);
@@ -494,7 +494,63 @@ class PoolTargetCommandTest {
     }
 
     @Test
-    void handleComponentInteractEvent_setReroll() {
+    void handleComponentInteractEvent() {
+        ButtonEventAdaptor buttonEventAdaptor = mock(ButtonEventAdaptor.class);
+        when(buttonEventAdaptor.getCustomId()).thenReturn("pool_target8");
+        when(buttonEventAdaptor.getChannelId()).thenReturn(1L);
+        when(buttonEventAdaptor.getMessageId()).thenReturn(1L);
+        when(buttonEventAdaptor.isPinned()).thenReturn(false);
+        when(buttonEventAdaptor.editMessage(any(), any())).thenReturn(Mono.just(mock(Void.class)));
+        when(buttonEventAdaptor.createResultMessageWithEventReference(any(), eq(null))).thenReturn(Mono.just(mock(Void.class)));
+        when(buttonEventAdaptor.createButtonMessage(any())).thenReturn(Mono.just(2L));
+        when(buttonEventAdaptor.deleteMessage(anyLong(), anyBoolean())).thenReturn(Mono.just(2L));
+        when(buttonEventAdaptor.getRequester()).thenReturn(Mono.just(new Requester("user", "channel", "guild")));
+        when(buttonEventAdaptor.acknowledge()).thenReturn(Mono.just(mock(Void.class)));
+        when(buttonEventAdaptor.getInvokingGuildMemberName()).thenReturn("testUser");
+        when(messageDataDAO.getDataForMessage(1L, 1L)).thenReturn(Optional.of(new MessageDataDTO(UUID.randomUUID(), 1L, 1L, "pool_target", "PoolTargetConfig", """
+                ---
+                answerTargetChannelId:
+                diceSides: 10
+                maxNumberOfButtons: 20
+                rerollSet:
+                - 9
+                - 10
+                botchSet:
+                - 1
+                - 2
+                rerollVariant: "always"
+                """,
+                "PoolTargetStateData", """
+                ---
+                dicePool: 15
+                targetNumber: null
+                doReroll: null
+                """)));
+        when(messageDataDAO.getAllMessageIdsForConfig(any())).thenReturn(ImmutableSet.of(1L));
+
+
+        Mono<Void> res = underTest.handleComponentInteractEvent(buttonEventAdaptor);
+
+
+        StepVerifier.create(res)
+                .verifyComplete();
+
+        verify(buttonEventAdaptor).editMessage(eq("processing ..."), anyList());
+        verify(buttonEventAdaptor).createButtonMessage(any());
+        verify(buttonEventAdaptor).deleteMessage(1L, false);
+        verify(buttonEventAdaptor).createResultMessageWithEventReference(eq(new EmbedDefinition("15d10 = -4",
+                "[**1**,**1**,**1**,**2**,**2**,**2**,3,4,5,5,6,6,6,6,7,**10**,**10**] ≥8 = -4", ImmutableList.of())), eq(null));
+        verify(buttonEventAdaptor, times(3)).getCustomId();
+        verify(buttonEventAdaptor).getMessageId();
+        verify(buttonEventAdaptor).getChannelId();
+        verify(buttonEventAdaptor).isPinned();
+        verify(buttonEventAdaptor, never()).getAllButtonIds();
+        verify(buttonEventAdaptor, never()).getMessageContent();
+        verify(buttonEventAdaptor).acknowledge();
+    }
+
+    @Test
+    void handleComponentInteractEventLegacy_setReroll() {
         ButtonEventAdaptor buttonEventAdaptor = mock(ButtonEventAdaptor.class);
         when(buttonEventAdaptor.getCustomId()).thenReturn("pool_target\u0000do_reroll,10,20,10;9,1;2,ask,15,8");
         when(buttonEventAdaptor.getChannelId()).thenReturn(1L);
@@ -528,7 +584,7 @@ class PoolTargetCommandTest {
     }
 
     @Test
-    void handleComponentInteractEvent_clearPinned() {
+    void handleComponentInteractEventLegacy_clearPinned() {
         ButtonEventAdaptor buttonEventAdaptor = mock(ButtonEventAdaptor.class);
         when(buttonEventAdaptor.getCustomId()).thenReturn("pool_target\u0000clear\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000");
         when(buttonEventAdaptor.getChannelId()).thenReturn(1L);
@@ -701,7 +757,8 @@ class PoolTargetCommandTest {
                 botchSet:
                 - 1
                 rerollVariant: "ask"
-                """, "PoolTargetStateData", """
+                """,
+                "PoolTargetStateData", """
                 ---
                 dicePool: 5
                 targetNumber: null

@@ -122,8 +122,8 @@ public abstract class AbstractCommand<C extends Config, S extends EmptyData> imp
             state = getStateFromEvent(event);
             configUUID = UUID.randomUUID();
         } else {
-            String buttonValue = getButtonValueFromCustomIdWithPersistence(event.getCustomId());
-            Optional<ConfigAndState<C, S>> messageData = getMessageDataAndUpdateWithButtonValue(channelId,
+            final String buttonValue = getButtonValueFromCustomIdWithPersistence(event.getCustomId());
+            final Optional<ConfigAndState<C, S>> messageData = getMessageDataAndUpdateWithButtonValue(channelId,
                     messageId,
                     buttonValue,
                     event.getInvokingGuildMemberName());
@@ -165,7 +165,6 @@ public abstract class AbstractCommand<C extends Config, S extends EmptyData> imp
         Optional<EmbedDefinition> answer = getAnswer(config, state);
         if (answer.isPresent()) {
             BotMetrics.incrementButtonMetricCounter(getCommandId(), config.toShortString());
-
 
             actions.add(event.createResultMessageWithEventReference(answer.get(), answerTargetChannelId).then(
                     event.getRequester()

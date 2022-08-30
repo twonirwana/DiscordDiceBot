@@ -25,7 +25,6 @@ import static org.mockito.Mockito.*;
 class DirectRollCommandTest {
     DirectRollCommand underTest;
     Dice diceMock;
-
     @BeforeEach
     void setup() {
         diceMock = mock(Dice.class);
@@ -34,7 +33,7 @@ class DirectRollCommandTest {
 
 
     @Test
-    void handleComponentInteractEvent() {
+    void handleComponentInteractEventLegacy() {
         SlashEventAdaptor slashEventAdaptor = mock(SlashEventAdaptor.class);
 
         CommandInteractionOption interactionOption = CommandInteractionOption.builder()
@@ -70,7 +69,7 @@ class DirectRollCommandTest {
     }
 
     @Test
-    void handleComponentInteractEvent_validationFailed() {
+    void handleComponentInteractEventLegacy_validationFailed() {
         SlashEventAdaptor slashEventAdaptor = mock(SlashEventAdaptor.class);
 
         CommandInteractionOption interactionOption = CommandInteractionOption.builder()
@@ -101,7 +100,7 @@ class DirectRollCommandTest {
     }
 
     @Test
-    void handleComponentInteractEvent_help() {
+    void handleComponentInteractEventLegacy_help() {
         SlashEventAdaptor slashEventAdaptor = mock(SlashEventAdaptor.class);
 
         CommandInteractionOption interactionOption = CommandInteractionOption.builder()

@@ -236,7 +236,7 @@ class CountSuccessesCommandTest {
     }
 
     @Test
-    void handleComponentInteractEvent() {
+    void handleComponentInteractEventLegacy() {
         ButtonEventAdaptor buttonEventAdaptor = mock(ButtonEventAdaptor.class);
         when(buttonEventAdaptor.getCustomId()).thenReturn("count_successes\u00006\u00006\u00004\u0000half_dice_one\u000012");
         when(buttonEventAdaptor.getChannelId()).thenReturn(1L);
@@ -270,7 +270,7 @@ class CountSuccessesCommandTest {
     }
 
     @Test
-    void handleComponentInteractEvent_pinned() {
+    void handleComponentInteractEventLegacy_pinned() {
         ButtonEventAdaptor buttonEventAdaptor = mock(ButtonEventAdaptor.class);
         when(buttonEventAdaptor.getCustomId()).thenReturn("count_successes,6,6,4,half_dice_one,12");
         when(buttonEventAdaptor.getChannelId()).thenReturn(1L);
