@@ -168,13 +168,23 @@ class HoldRerollCommandTest {
     }
 
     @Test
-    void matchingComponentCustomId_match() {
+    void matchingComponentCustomId_match_legacy() {
         assertThat(underTest.matchingComponentCustomId("hold_reroll\u00001;2")).isTrue();
     }
 
     @Test
-    void matchingComponentCustomId_noMatch() {
+    void matchingComponentCustomId_noMatch_legacy() {
         assertThat(underTest.matchingComponentCustomId("hold_rerol")).isFalse();
+    }
+
+    @Test
+    void matchingComponentCustomId_match() {
+        assertThat(underTest.matchingComponentCustomId("hold_reroll2")).isTrue();
+    }
+
+    @Test
+    void matchingComponentCustomId_noMatch() {
+        assertThat(underTest.matchingComponentCustomId("hold_reroll22")).isFalse();
     }
 
     @Test

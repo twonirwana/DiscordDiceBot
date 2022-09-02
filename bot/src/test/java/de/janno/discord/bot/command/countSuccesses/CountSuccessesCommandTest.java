@@ -146,13 +146,23 @@ class CountSuccessesCommandTest {
     }
 
     @Test
-    void matchingComponentCustomId_match() {
+    void matchingComponentCustomId_match_legacy() {
         assertThat(underTest.matchingComponentCustomId("count_successes,x")).isTrue();
     }
 
     @Test
-    void matchingComponentCustomId_noMatch() {
+    void matchingComponentCustomId_noMatch_legacy() {
         assertThat(underTest.matchingComponentCustomId("count_successe")).isFalse();
+    }
+
+    @Test
+    void matchingComponentCustomId_match() {
+        assertThat(underTest.matchingComponentCustomId("count_successes5")).isTrue();
+    }
+
+    @Test
+    void matchingComponentCustomId_noMatch() {
+        assertThat(underTest.matchingComponentCustomId("count_successes25")).isFalse();
     }
 
     @Test

@@ -277,6 +277,16 @@ class WelcomeCommandTest {
     }
 
     @Test
+    void matchingComponentCustomId_match() {
+        assertThat(underTest.matchingComponentCustomId("welcomefate")).isTrue();
+    }
+
+    @Test
+    void matchingComponentCustomId_noMatch() {
+        assertThat(underTest.matchingComponentCustomId("welcome2fate")).isFalse();
+    }
+
+    @Test
     void getName() {
         assertThat(underTest.getCommandId()).isEqualTo("welcome");
     }

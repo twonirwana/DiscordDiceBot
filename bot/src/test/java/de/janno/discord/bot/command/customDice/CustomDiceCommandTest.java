@@ -5,9 +5,9 @@ import de.janno.discord.bot.command.ButtonIdLabelAndDiceExpression;
 import de.janno.discord.bot.command.ConfigAndState;
 import de.janno.discord.bot.command.EmptyData;
 import de.janno.discord.bot.command.State;
+import de.janno.discord.bot.dice.Dice;
 import de.janno.discord.bot.dice.DiceParser;
 import de.janno.discord.bot.dice.DiceParserHelper;
-import de.janno.discord.bot.dice.Dice;
 import de.janno.discord.bot.persistance.MessageDataDAO;
 import de.janno.discord.bot.persistance.MessageDataDAOImpl;
 import de.janno.discord.bot.persistance.MessageDataDTO;
@@ -104,64 +104,72 @@ class CustomDiceCommandTest {
 
     @Test
     void getStartOptionsValidationMessage_length_withTarget_failed() {
-        Optional<String> res = underTest.getStartOptionsValidationMessage(CommandInteractionOption.builder().options(ImmutableList.of(
-                CommandInteractionOption.builder()
-                        .name("target_channel")
-                        .channelIdValue(931533666990059521L)
-                        .build(),
-                CommandInteractionOption.builder()
-                        .name("1_button")
-                        .stringValue("1d6>3?a:abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghij@test")
-                        .build())
-        ).build());
+        Optional<String> res = underTest.getStartOptionsValidationMessage(CommandInteractionOption.builder()
+                .name("start")
+                .options(ImmutableList.of(
+                        CommandInteractionOption.builder()
+                                .name("target_channel")
+                                .channelIdValue(931533666990059521L)
+                                .build(),
+                        CommandInteractionOption.builder()
+                                .name("1_button")
+                                .stringValue("1d6>3?a:abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghij@test")
+                                .build())
+                ).build());
 
         assertThat(res).contains("The following dice expression is to long: '1d6>3?a:abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghij'. The expression must be 69 or less characters long");
     }
 
     @Test
     void getStartOptionsValidationMessage_length_withTarget_success() {
-        Optional<String> res = underTest.getStartOptionsValidationMessage(CommandInteractionOption.builder().options(ImmutableList.of(
-                CommandInteractionOption.builder()
-                        .name("target_channel")
-                        .channelIdValue(931533666990059521L)
-                        .build(),
-                CommandInteractionOption.builder()
-                        .name("1_button")
-                        .stringValue("1d6>3?a:abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghi@test")
-                        .build())
-        ).build());
+        Optional<String> res = underTest.getStartOptionsValidationMessage(CommandInteractionOption.builder()
+                .name("start")
+                .options(ImmutableList.of(
+                        CommandInteractionOption.builder()
+                                .name("target_channel")
+                                .channelIdValue(931533666990059521L)
+                                .build(),
+                        CommandInteractionOption.builder()
+                                .name("1_button")
+                                .stringValue("1d6>3?a:abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghi@test")
+                                .build())
+                ).build());
 
         assertThat(res).isEmpty();
     }
 
     @Test
     void getStartOptionsValidationMessage_length_withoutTarget_failed() {
-        Optional<String> res = underTest.getStartOptionsValidationMessage(CommandInteractionOption.builder().options(ImmutableList.of(
-                CommandInteractionOption.builder()
-                        .name("target_channel")
-                        .channelIdValue(null)
-                        .build(),
-                CommandInteractionOption.builder()
-                        .name("1_button")
-                        .stringValue("1d6>3?a:abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzab@test")
-                        .build())
-        ).build());
+        Optional<String> res = underTest.getStartOptionsValidationMessage(CommandInteractionOption.builder()
+                .name("start")
+                .options(ImmutableList.of(
+                        CommandInteractionOption.builder()
+                                .name("target_channel")
+                                .channelIdValue(null)
+                                .build(),
+                        CommandInteractionOption.builder()
+                                .name("1_button")
+                                .stringValue("1d6>3?a:abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzab@test")
+                                .build())
+                ).build());
 
         assertThat(res).contains("The following dice expression is to long: '1d6>3?a:abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzab'. The expression must be 87 or less characters long");
     }
 
     @Test
     void getStartOptionsValidationMessage_length_withoutTarget_success() {
-        Optional<String> res = underTest.getStartOptionsValidationMessage(CommandInteractionOption.builder().options(ImmutableList.of(
-                CommandInteractionOption.builder()
-                        .name("target_channel")
-                        .channelIdValue(null)
-                        .build(),
-                CommandInteractionOption.builder()
-                        .name("1_button")
-                        .stringValue("1d6>3?a:abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyza@test")
-                        .build())
-        ).build());
+        Optional<String> res = underTest.getStartOptionsValidationMessage(CommandInteractionOption.builder()
+                .name("start")
+                .options(ImmutableList.of(
+                        CommandInteractionOption.builder()
+                                .name("target_channel")
+                                .channelIdValue(null)
+                                .build(),
+                        CommandInteractionOption.builder()
+                                .name("1_button")
+                                .stringValue("1d6>3?a:abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyza@test")
+                                .build())
+                ).build());
 
         assertThat(res).isEmpty();
     }
@@ -197,13 +205,23 @@ class CustomDiceCommandTest {
     }
 
     @Test
-    void matchingComponentCustomId_match() {
+    void matchingComponentCustomId_match_legacy() {
         assertThat(underTest.matchingComponentCustomId("custom_dice\u00001;2")).isTrue();
     }
 
     @Test
-    void matchingComponentCustomId_noMatch() {
+    void matchingComponentCustomId_noMatch_legacy() {
         assertThat(underTest.matchingComponentCustomId("custom_dice")).isFalse();
+    }
+
+    @Test
+    void matchingComponentCustomId_match() {
+        assertThat(underTest.matchingComponentCustomId("custom_dice5")).isTrue();
+    }
+
+    @Test
+    void matchingComponentCustomId_noMatch() {
+        assertThat(underTest.matchingComponentCustomId("custom_dice25")).isFalse();
     }
 
     @Test
@@ -386,6 +404,7 @@ class CustomDiceCommandTest {
         SlashEventAdaptor event = mock(SlashEventAdaptor.class);
         when(event.getCommandString()).thenReturn("/custom_dice start 1_button:1d6 2_button:1d20@Attack 3_button:3x[3d10]");
         when(event.getOption("start")).thenReturn(Optional.of(CommandInteractionOption.builder()
+                .name("start")
                 .option(CommandInteractionOption.builder()
                         .name("1_button")
                         .stringValue("1d6")
@@ -431,6 +450,30 @@ class CustomDiceCommandTest {
                                 .build())
                         .build()))
                 .build());
+
+    }
+
+
+    @Test
+    void handleSlashCommandEvent_help() {
+        SlashEventAdaptor event = mock(SlashEventAdaptor.class);
+        when(event.getCommandString()).thenReturn("/custom_dice help");
+        when(event.getOption("help")).thenReturn(Optional.of(CommandInteractionOption.builder()
+                .name("help")
+                .build()));
+        when(event.replyEmbed(any(), anyBoolean())).thenReturn(Mono.just(mock(Void.class)));
+
+        Mono<Void> res = underTest.handleSlashCommandEvent(event);
+
+        assertThat(res).isNotNull();
+
+
+        verify(event).checkPermissions();
+        verify(event).getCommandString();
+        verify(event, times(2)).getOption(any());
+        verify(event).replyEmbed(EmbedDefinition.builder()
+                .description("Creates up to 25 buttons with custom dice expression e.g. '/custom_dice start 1_button:3d6 2_button:10d10 3_button:3d20'. \n" + DiceParserHelper.HELP)
+                .build(), true);
 
     }
 

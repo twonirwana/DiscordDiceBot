@@ -259,13 +259,23 @@ class SumCustomSetCommandTest {
     }
 
     @Test
-    void matchingComponentCustomId_match() {
+    void matchingComponentCustomId_match_legacy() {
         assertThat(underTest.matchingComponentCustomId("sum_custom_set\u0000x")).isTrue();
     }
 
     @Test
-    void matchingComponentCustomId_noMatch() {
+    void matchingComponentCustomId_noMatch_legacy() {
         assertThat(underTest.matchingComponentCustomId("sum_custom_se")).isFalse();
+    }
+
+    @Test
+    void matchingComponentCustomId_match() {
+        assertThat(underTest.matchingComponentCustomId("sum_custom_set2_button")).isTrue();
+    }
+
+    @Test
+    void matchingComponentCustomId_noMatch() {
+        assertThat(underTest.matchingComponentCustomId("sum_custom_set22_button")).isFalse();
     }
 
     @Test

@@ -129,6 +129,7 @@ class CustomParameterCommandTest {
     @MethodSource("generateValidationData")
     void validate(String slashExpression, String expectedResult) {
         Optional<String> res = underTest.getStartOptionsValidationMessage(CommandInteractionOption.builder()
+                .name("start")
                 .option(CommandInteractionOption.builder()
                         .name("expression")
                         .stringValue(slashExpression).build())
@@ -141,13 +142,23 @@ class CustomParameterCommandTest {
     }
 
     @Test
-    void matchingComponentCustomId_match() {
+    void matchingComponentCustomId_match_legacy() {
         assertThat(underTest.matchingComponentCustomId("custom_parameter\u0000{n}d6\u0000\u0000")).isTrue();
     }
 
     @Test
-    void matchingComponentCustomId_noMatch() {
+    void matchingComponentCustomId_noMatch_legacy() {
         assertThat(underTest.matchingComponentCustomId("custom_paramete")).isFalse();
+    }
+
+    @Test
+    void matchingComponentCustomId_match() {
+        assertThat(underTest.matchingComponentCustomId("custom_parameter5_button")).isTrue();
+    }
+
+    @Test
+    void matchingComponentCustomId_noMatch() {
+        assertThat(underTest.matchingComponentCustomId("custom_parameter25_button")).isFalse();
     }
 
     @ParameterizedTest(name = "{index} customButtonId={0}")

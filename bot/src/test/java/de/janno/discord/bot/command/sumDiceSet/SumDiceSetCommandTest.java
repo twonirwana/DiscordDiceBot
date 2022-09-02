@@ -13,6 +13,7 @@ import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
 import de.janno.discord.connector.api.message.EmbedDefinition;
 import de.janno.discord.connector.api.message.MessageDefinition;
+import de.janno.discord.connector.api.slash.CommandDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinitionOption;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import org.junit.jupiter.api.BeforeEach;
@@ -221,13 +222,48 @@ class SumDiceSetCommandTest {
     }
 
     @Test
-    void matchingComponentCustomId_match() {
+    void matchingComponentCustomId_match_legacy() {
         assertThat(underTest.matchingComponentCustomId("sum_dice_set\u0000x")).isTrue();
     }
 
     @Test
-    void matchingComponentCustomId_noMatch() {
+    void matchingComponentCustomId_noMatch_legacy() {
         assertThat(underTest.matchingComponentCustomId("sum_dice_se")).isFalse();
+    }
+
+    @Test
+    void matchingComponentCustomId_match() {
+        assertThat(underTest.matchingComponentCustomId("sum_dice_set+1")).isTrue();
+    }
+
+    @Test
+    void matchingComponentCustomId_noMatch() {
+        assertThat(underTest.matchingComponentCustomId("sum_dice_set2+1")).isFalse();
+    }
+
+    @Test
+    void getCommandDefinition() {
+        CommandDefinition res = underTest.getCommandDefinition();
+
+        assertThat(res).isEqualTo(CommandDefinition.builder()
+                .name("sum_dice_set")
+                .description("Configure a variable set of d4 to d20 dice")
+                .option(CommandDefinitionOption.builder()
+                        .name("start")
+                        .description("Start")
+                        .type(CommandDefinitionOption.Type.SUB_COMMAND)
+                        .option(CommandDefinitionOption.builder()
+                                .name("target_channel")
+                                .description("The channel where the answer will be given")
+                                .type(CommandDefinitionOption.Type.CHANNEL)
+                                .build())
+                        .build())
+                .option(CommandDefinitionOption.builder()
+                        .name("help")
+                        .description("Help")
+                        .type(CommandDefinitionOption.Type.SUB_COMMAND)
+                        .build())
+                .build());
     }
 
     @Test

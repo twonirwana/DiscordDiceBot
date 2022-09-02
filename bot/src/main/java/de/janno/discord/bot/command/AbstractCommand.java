@@ -133,7 +133,7 @@ public abstract class AbstractCommand<C extends Config, S extends EmptyData> imp
                 configUUID = messageData.get().getConfigUUID();
             } else {
                 log.info("Missing messageData for channelId: {}, messageId: {} and commandName: {} ", channelId, messageId, getCommandId());
-                return event.reply("Configuration for the message is missing, please create a new message with the slash command ");
+                return event.reply(String.format("Configuration for the message is missing, please create a new message with the slash command `/%s start`", getCommandId()));
             }
         }
         final Long answerTargetChannelId = config.getAnswerTargetChannelId();
