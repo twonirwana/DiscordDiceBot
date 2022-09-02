@@ -29,7 +29,7 @@ public class Bot {
         if (args.length >= 4) {
             h2Url = args[3];
         } else {
-            h2Url = "jdbc:h2:file:./persistence/dice_config";
+            h2Url = "jdbc:h2:file:./persistence/dice_config;AUTO_SERVER=TRUE";
         }
         final String h2User;
         if (args.length >= 5) {

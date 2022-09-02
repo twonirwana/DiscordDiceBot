@@ -3,6 +3,7 @@ package de.janno.discord.bot.persistance;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.ImmutableSet;
 import de.janno.discord.bot.BotMetrics;
+import io.micrometer.core.instrument.binder.db.DatabaseTableMetrics;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.h2.jdbcx.JdbcConnectionPool;
@@ -14,6 +15,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
+import static io.micrometer.core.instrument.Metrics.globalRegistry;
+
 @Slf4j
 public class MessageDataDAOImpl implements MessageDataDAO {
 
@@ -21,6 +24,7 @@ public class MessageDataDAOImpl implements MessageDataDAO {
 
     public MessageDataDAOImpl(@NonNull String url, @Nullable String user, @Nullable String password) {
         connectionPool = JdbcConnectionPool.create(url, user, password);
+        new DatabaseTableMetrics(connectionPool, "h2", "MESSAGE_DATA", ImmutableSet.of()).bindTo(globalRegistry);
 
         try (Connection connection = connectionPool.getConnection()) {
             Statement statement = connection.createStatement();
