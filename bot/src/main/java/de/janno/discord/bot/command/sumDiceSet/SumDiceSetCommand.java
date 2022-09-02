@@ -254,7 +254,10 @@ public class SumDiceSetCommand extends AbstractCommand<Config, SumDiceSetStateDa
                 } else {
                     updatedDiceSet.put(die, newCount);
                 }
-                return updatedDiceSet.entrySet().stream().map(dv -> new DiceKeyAndValue(dv.getKey(), dv.getValue())).toList();
+                return updatedDiceSet.entrySet().stream()
+                        .map(dv -> new DiceKeyAndValue(dv.getKey(), dv.getValue()))
+                        .sorted(Comparator.comparing(DiceKeyAndValue::getDiceKey)) //make the list order deterministic
+                        .toList();
         }
     }
 
@@ -277,46 +280,48 @@ public class SumDiceSetCommand extends AbstractCommand<Config, SumDiceSetStateDa
 
     @Override
     protected @NonNull State<SumDiceSetStateData> getStateFromEvent(@NonNull ButtonEventAdaptor event) {
-        String buttonMessage = event.getMessageContent();
-        String buttonValue = getButtonValueFromLegacyCustomId(event.getCustomId());
+        final String buttonMessage = event.getMessageContent();
+        final String buttonValue = getButtonValueFromLegacyCustomId(event.getCustomId());
+        final SumDiceSetStateData stateFromId;
         if (EMPTY_MESSAGE.equals(buttonMessage)) {
-            return new State<>(buttonValue, new SumDiceSetStateData(ImmutableList.of()));
-        }
-
-        return new State<>(buttonValue, new SumDiceSetStateData(Arrays.stream(buttonMessage.split(Pattern.quote(DICE_SET_DELIMITER)))
-                //for handling legacy buttons with '1d4 + 1d6)
-                .filter(s -> !"+".equals(s))
-                .filter(Objects::nonNull)
-                //adding the + for the first die type in the message
-                .map(s -> {
-                    if (!s.startsWith("-") && !s.startsWith("+")) {
-                        return "+" + s;
-                    }
-                    return s;
-                })
-                .map(s -> {
-                    final String diceKey;
-                    if (s.contains(DICE_SYMBOL)) {
-                        diceKey = s.substring(s.indexOf(DICE_SYMBOL));
-                    } else {
-                        diceKey = MODIFIER_KEY;
-                    }
-                    final int value;
-                    if (s.contains(DICE_SYMBOL)) {
-                        value = Integer.parseInt(s.substring(0, s.indexOf(DICE_SYMBOL)));
-                    } else {
-                        s = s.replace("+", "");
-                        if (NumberUtils.isParsable(s)) {
-                            value = Integer.parseInt(s);
-                        } else {
-                            log.error(String.format("Can't parse number %s for buttonId: %s and buttonMessage: %s", s, event.getCustomId(), buttonMessage));
-                            value = 0;
+            stateFromId = new SumDiceSetStateData(ImmutableList.of());
+        } else {
+            stateFromId = new SumDiceSetStateData(Arrays.stream(buttonMessage.split(Pattern.quote(DICE_SET_DELIMITER)))
+                    //for handling legacy buttons with '1d4 + 1d6')
+                    .filter(s -> !"+".equals(s))
+                    .filter(Objects::nonNull)
+                    //adding the + for the first die type in the message
+                    .map(s -> {
+                        if (!s.startsWith("-") && !s.startsWith("+")) {
+                            return "+" + s;
                         }
-                    }
-                    return new DiceKeyAndValue(diceKey, value);
-                })
-                .distinct()
-                .toList()));
+                        return s;
+                    })
+                    .map(s -> {
+                        final String diceKey;
+                        if (s.contains(DICE_SYMBOL)) {
+                            diceKey = s.substring(s.indexOf(DICE_SYMBOL));
+                        } else {
+                            diceKey = MODIFIER_KEY;
+                        }
+                        final int value;
+                        if (s.contains(DICE_SYMBOL)) {
+                            value = Integer.parseInt(s.substring(0, s.indexOf(DICE_SYMBOL)));
+                        } else {
+                            s = s.replace("+", "");
+                            if (NumberUtils.isParsable(s)) {
+                                value = Integer.parseInt(s);
+                            } else {
+                                log.error(String.format("Can't parse number %s for buttonId: %s and buttonMessage: %s", s, event.getCustomId(), buttonMessage));
+                                value = 0;
+                            }
+                        }
+                        return new DiceKeyAndValue(diceKey, value);
+                    })
+                    .distinct()
+                    .toList());
+        }
+        return updateState(buttonValue, stateFromId);
     }
 
     @Override

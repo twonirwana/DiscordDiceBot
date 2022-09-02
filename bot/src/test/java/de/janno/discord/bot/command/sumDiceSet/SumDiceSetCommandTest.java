@@ -183,32 +183,32 @@ class SumDiceSetCommandTest {
     @Test
     void getStateFromEvent_1d6() {
         ButtonEventAdaptor event = mock(ButtonEventAdaptor.class);
-        when(event.getCustomId()).thenReturn("sum_dice_set\u0000+1d21");
+        when(event.getCustomId()).thenReturn("sum_dice_set\u0000+1d6");
         when(event.getMessageContent()).thenReturn("1d6");
-        assertThat(underTest.getStateFromEvent(event)).isEqualTo(new State<>("+1d21", new SumDiceSetStateData(ImmutableList.of(new DiceKeyAndValue("d6", 1)))));
+        assertThat(underTest.getStateFromEvent(event)).isEqualTo(new State<>("+1d6", new SumDiceSetStateData(ImmutableList.of(new DiceKeyAndValue("d6", 2)))));
     }
 
     @Test
     void getStateFromEvent_1d4_2d6_3d8_4d12_5d20() {
         ButtonEventAdaptor event = mock(ButtonEventAdaptor.class);
-        when(event.getCustomId()).thenReturn("sum_dice_set\u0000+1d21");
+        when(event.getCustomId()).thenReturn("sum_dice_set\u0000-1d20");
         when(event.getMessageContent()).thenReturn("1d4 +2d6 +3d8 +4d12 +5d20");
-        assertThat(underTest.getStateFromEvent(event)).isEqualTo(new State<>("+1d21", new SumDiceSetStateData(ImmutableList.of(
+        assertThat(underTest.getStateFromEvent(event)).isEqualTo(new State<>("-1d20", new SumDiceSetStateData(ImmutableList.of(
+                new DiceKeyAndValue("d12", 4),
+                new DiceKeyAndValue("d20", 4),
                 new DiceKeyAndValue("d4", 1),
                 new DiceKeyAndValue("d6", 2),
-                new DiceKeyAndValue("d8", 3),
-                new DiceKeyAndValue("d12", 4),
-                new DiceKeyAndValue("d20", 5)
+                new DiceKeyAndValue("d8", 3)
         ))));
     }
 
     @Test
     void getStateFromEvent_legacy() {
         ButtonEventAdaptor event = mock(ButtonEventAdaptor.class);
-        when(event.getCustomId()).thenReturn("sum_dice_set\u0000+1d21");
+        when(event.getCustomId()).thenReturn("sum_dice_set\u0000+1d4");
         when(event.getMessageContent()).thenReturn("1d4 + 2d6");
-        assertThat(underTest.getStateFromEvent(event)).isEqualTo(new State<>("+1d21", new SumDiceSetStateData(ImmutableList.of(
-                new DiceKeyAndValue("d4", 1),
+        assertThat(underTest.getStateFromEvent(event)).isEqualTo(new State<>("+1d4", new SumDiceSetStateData(ImmutableList.of(
+                new DiceKeyAndValue("d4", 2),
                 new DiceKeyAndValue("d6", 2)
         ))));
     }
@@ -216,9 +216,9 @@ class SumDiceSetCommandTest {
     @Test
     void getStateFromEvent_empty() {
         ButtonEventAdaptor event = mock(ButtonEventAdaptor.class);
-        when(event.getCustomId()).thenReturn("sum_dice_set\u0000+1d21");
+        when(event.getCustomId()).thenReturn("sum_dice_set\u0000+1d6");
         when(event.getMessageContent()).thenReturn("Click on the buttons to add dice to the set");
-        assertThat(underTest.getStateFromEvent(event)).isEqualTo(new State<>("+1d21", new SumDiceSetStateData(ImmutableList.of())));
+        assertThat(underTest.getStateFromEvent(event)).isEqualTo(new State<>("+1d6", new SumDiceSetStateData(ImmutableList.of(new DiceKeyAndValue("d6", 1)))));
     }
 
     @Test
@@ -373,7 +373,7 @@ class SumDiceSetCommandTest {
 
         State<SumDiceSetStateData> res = underTest.getStateFromEvent(event);
 
-        assertThat(res).isEqualTo(new State<>("+1d6", new SumDiceSetStateData(ImmutableList.of(new DiceKeyAndValue("d6", 1)))));
+        assertThat(res).isEqualTo(new State<>("+1d6", new SumDiceSetStateData(ImmutableList.of(new DiceKeyAndValue("d6", 2)))));
     }
 
     @Test
