@@ -8,6 +8,7 @@ import java.util.UUID;
 @Value
 public class ConfigAndState<C extends Config, S extends StateData> {
 
+    @NonNull
     UUID configUUID;
 
     @NonNull

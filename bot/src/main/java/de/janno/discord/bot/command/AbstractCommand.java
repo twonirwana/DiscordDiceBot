@@ -168,12 +168,11 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
 
             actions.add(event.createResultMessageWithEventReference(answer.get(), answerTargetChannelId).then(
                     event.getRequester()
-                            .doOnNext(requester -> log.info("'{}'.'{}' from '{}' button: '{}'={}{} -> {} in {}ms",
+                            .doOnNext(requester -> log.info("'{}'.'{}' from '{}' button: '{}'={} -> {} in {}ms",
                                             requester.getGuildName(),
                                             requester.getChannelName(),
                                             requester.getUserName(),
                                             event.getCustomId().replace(CUSTOM_ID_DELIMITER, ","),
-                                            config.toShortString(),
                                             state.toShortString(),
                                             answer.get().toShortString(),
                                             stopwatch.elapsed(TimeUnit.MILLISECONDS)
@@ -218,8 +217,14 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
                                             @NonNull ButtonEventAdaptor event) {
         return newMessageIdMono
                 .flux()
-                .flatMap(newMessageId -> Flux.fromIterable(messageDataDAO.getAllMessageIdsForConfig(configUUID))
-                        .filter(id -> filterWithOptionalSecondId(id, newMessageId, retainMessageId)))
+                .flatMap(newMessageId -> {
+                    Set<Long> ids = messageDataDAO.getAllMessageIdsForConfig(configUUID);
+                    if (ids.size() > 2) { //expected one old and one new messageData
+                        log.warn(String.format("ConfigUUID %s had %d to many messageData persisted", configUUID, ids.size() - 2));
+                    }
+                    return Flux.fromIterable(ids)
+                            .filter(id -> filterWithOptionalSecondId(id, newMessageId, retainMessageId));
+                })
                 .flatMap(oldMessageId -> event.deleteMessage(oldMessageId, false)
                         .filter(Objects::nonNull)
                         .doOnNext(l -> messageDataDAO.deleteDataForMessage(channelId, l)))

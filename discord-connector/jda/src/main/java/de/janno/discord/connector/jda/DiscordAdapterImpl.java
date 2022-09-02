@@ -97,7 +97,8 @@ public abstract class DiscordAdapterImpl implements de.janno.discord.connector.a
         return createMonoFrom(() -> messageChannel.retrieveMessageById(messageId))
                 .filter(m -> !m.isPinned() || deletePinned)
                 .filter(m -> m.getType().canDelete())
-                .flatMap(m -> createMonoFrom(m::delete).flatMap(v -> Mono.just(messageId)))
+                .flatMap(m -> createMonoFrom(m::delete)
+                        .then(Mono.just(messageId)))
                 .onErrorResume(t -> handleException("Error on deleting message", t, true).ofType(Long.class));
     }
 
