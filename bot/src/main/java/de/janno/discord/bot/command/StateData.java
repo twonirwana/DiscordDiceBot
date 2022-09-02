@@ -6,7 +6,16 @@ import java.io.Serializable;
 
 
 @EqualsAndHashCode
-public class EmptyData implements Serializable {
+public class StateData implements Serializable {
+
+    private static final StateData EMPTY = StateData.empty();
+
+    protected StateData() {
+    }
+
+    public static StateData empty() {
+        return EMPTY;
+    }
 
     public String getShortStringValues() {
         return "";

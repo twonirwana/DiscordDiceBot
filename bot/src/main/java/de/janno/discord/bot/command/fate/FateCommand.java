@@ -26,7 +26,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Slf4j
-public class FateCommand extends AbstractCommand<FateConfig, EmptyData> {
+public class FateCommand extends AbstractCommand<FateConfig, StateData> {
 
     private static final String COMMAND_NAME = "fate";
     private static final String ACTION_MODIFIER_OPTION = "type";
@@ -47,7 +47,7 @@ public class FateCommand extends AbstractCommand<FateConfig, EmptyData> {
     }
 
     @Override
-    protected Optional<ConfigAndState<FateConfig, EmptyData>> getMessageDataAndUpdateWithButtonValue(long channelId,
+    protected Optional<ConfigAndState<FateConfig, StateData>> getMessageDataAndUpdateWithButtonValue(long channelId,
                                                                                                      long messageId,
                                                                                                      @NonNull String buttonValue,
                                                                                                      @NonNull String invokingUserName) {
@@ -59,12 +59,12 @@ public class FateCommand extends AbstractCommand<FateConfig, EmptyData> {
     }
 
     @VisibleForTesting
-    ConfigAndState<FateConfig, EmptyData> deserializeAndUpdateState(@NonNull MessageDataDTO messageDataDTO, @NonNull String buttonValue) {
+    ConfigAndState<FateConfig, StateData> deserializeAndUpdateState(@NonNull MessageDataDTO messageDataDTO, @NonNull String buttonValue) {
         Preconditions.checkArgument(CONFIG_TYPE_ID.equals(messageDataDTO.getConfigClassId()), "Unknown configClassId: %s", messageDataDTO.getConfigClassId());
 
         return new ConfigAndState<>(messageDataDTO.getConfigUUID(),
                 Mapper.deserializeObject(messageDataDTO.getConfig(), FateConfig.class),
-                new State<>(buttonValue, new EmptyData()));
+                new State<>(buttonValue, StateData.empty()));
     }
 
 
@@ -73,7 +73,7 @@ public class FateCommand extends AbstractCommand<FateConfig, EmptyData> {
                                                                    long channelId,
                                                                    long messageId,
                                                                    @NonNull Config config,
-                                                                   @Nullable State<EmptyData> state) {
+                                                                   @Nullable State<StateData> state) {
         Preconditions.checkArgument(config instanceof FateConfig, "Wrong config: %s", config);
         return Optional.of(new MessageDataDTO(configUUID, channelId, messageId, getCommandId(),
                 CONFIG_TYPE_ID, Mapper.serializedObject(config)));
@@ -131,7 +131,7 @@ public class FateCommand extends AbstractCommand<FateConfig, EmptyData> {
     }
 
     @Override
-    protected @NonNull Optional<EmbedDefinition> getAnswer(FateConfig config, State<EmptyData> state) {
+    protected @NonNull Optional<EmbedDefinition> getAnswer(FateConfig config, State<StateData> state) {
         List<Integer> rollResult = diceUtils.rollFate();
 
         if (ACTION_MODIFIER_OPTION_MODIFIER.equals(config.getType())) {
@@ -155,7 +155,7 @@ public class FateCommand extends AbstractCommand<FateConfig, EmptyData> {
     }
 
     @Override
-    protected @NonNull Optional<MessageDefinition> createNewButtonMessageWithState(FateConfig config, State<EmptyData> state) {
+    protected @NonNull Optional<MessageDefinition> createNewButtonMessageWithState(FateConfig config, State<StateData> state) {
         return Optional.of(createNewButtonMessage(config));
     }
 
@@ -213,9 +213,9 @@ public class FateCommand extends AbstractCommand<FateConfig, EmptyData> {
     }
 
     @Override
-    protected @NonNull State<EmptyData> getStateFromEvent(@NonNull ButtonEventAdaptor event) {
+    protected @NonNull State<StateData> getStateFromEvent(@NonNull ButtonEventAdaptor event) {
         String buttonValue = getButtonValueFromLegacyCustomId(event.getCustomId());
-        return new State<>(buttonValue, new EmptyData());
+        return new State<>(buttonValue, StateData.empty());
     }
 
 }

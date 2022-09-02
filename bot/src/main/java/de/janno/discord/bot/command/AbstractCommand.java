@@ -29,7 +29,7 @@ import static de.janno.discord.connector.api.BotConstants.CUSTOM_ID_DELIMITER;
 import static de.janno.discord.connector.api.BotConstants.LEGACY_CONFIG_SPLIT_DELIMITER_REGEX;
 
 @Slf4j
-public abstract class AbstractCommand<C extends Config, S extends EmptyData> implements SlashCommand, ComponentInteractEventHandler {
+public abstract class AbstractCommand<C extends Config, S extends StateData> implements SlashCommand, ComponentInteractEventHandler {
 
     protected static final String ACTION_START = "start";
     protected static final String ACTION_HELP = "help";

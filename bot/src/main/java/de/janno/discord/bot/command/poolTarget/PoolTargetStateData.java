@@ -3,13 +3,13 @@ package de.janno.discord.bot.command.poolTarget;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import de.janno.discord.bot.command.EmptyData;
+import de.janno.discord.bot.command.StateData;
 import lombok.EqualsAndHashCode;
 import lombok.Value;
 
 @Value
 @EqualsAndHashCode(callSuper = true)
-public class PoolTargetStateData extends EmptyData {
+public class PoolTargetStateData extends StateData {
 
     Integer dicePool;
     Integer targetNumber;

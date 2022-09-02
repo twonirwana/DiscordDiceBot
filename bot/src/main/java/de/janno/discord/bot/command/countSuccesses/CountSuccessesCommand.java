@@ -32,7 +32,7 @@ import java.util.stream.IntStream;
 
 
 @Slf4j
-public class CountSuccessesCommand extends AbstractCommand<CountSuccessesConfig, EmptyData> {
+public class CountSuccessesCommand extends AbstractCommand<CountSuccessesConfig, StateData> {
 
     private static final String COMMAND_NAME = "count_successes";
     private static final String ACTION_SIDE_OPTION = "dice_sides";
@@ -63,7 +63,7 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesConfig,
     }
 
     @Override
-    protected Optional<ConfigAndState<CountSuccessesConfig, EmptyData>> getMessageDataAndUpdateWithButtonValue(long channelId,
+    protected Optional<ConfigAndState<CountSuccessesConfig, StateData>> getMessageDataAndUpdateWithButtonValue(long channelId,
                                                                                                                long messageId,
                                                                                                                @NonNull String buttonValue,
                                                                                                                @NonNull String invokingUserName) {
@@ -75,11 +75,11 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesConfig,
     }
 
     @VisibleForTesting
-    ConfigAndState<CountSuccessesConfig, EmptyData> deserializeAndUpdateState(@NonNull MessageDataDTO messageDataDTO, @NonNull String buttonValue) {
+    ConfigAndState<CountSuccessesConfig, StateData> deserializeAndUpdateState(@NonNull MessageDataDTO messageDataDTO, @NonNull String buttonValue) {
         Preconditions.checkArgument(CONFIG_TYPE_ID.equals(messageDataDTO.getConfigClassId()), "Unknown configClassId: %s", messageDataDTO.getConfigClassId());
         return new ConfigAndState<>(messageDataDTO.getConfigUUID(),
                 Mapper.deserializeObject(messageDataDTO.getConfig(), CountSuccessesConfig.class),
-                new State<>(buttonValue, new EmptyData()));
+                new State<>(buttonValue, StateData.empty()));
     }
 
     @Override
@@ -87,7 +87,7 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesConfig,
                                                                    long channelId,
                                                                    long messageId,
                                                                    @NonNull Config config,
-                                                                   @Nullable State<EmptyData> state) {
+                                                                   @Nullable State<StateData> state) {
         Preconditions.checkArgument(config instanceof CountSuccessesConfig, "Wrong config: %s", config);
         return Optional.of(new MessageDataDTO(configUUID, channelId, messageId, getCommandId(),
                 CONFIG_TYPE_ID, Mapper.serializedObject(config),
@@ -107,8 +107,8 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesConfig,
     }
 
     @Override
-    protected @NonNull State<EmptyData> getStateFromEvent(@NonNull ButtonEventAdaptor event) {
-        return new State<>(getButtonValueFromLegacyCustomId(event.getCustomId()), new EmptyData());
+    protected @NonNull State<StateData> getStateFromEvent(@NonNull ButtonEventAdaptor event) {
+        return new State<>(getButtonValueFromLegacyCustomId(event.getCustomId()), StateData.empty());
     }
 
     @Override
@@ -164,7 +164,7 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesConfig,
     }
 
     @Override
-    protected @NonNull Optional<EmbedDefinition> getAnswer(CountSuccessesConfig config, State<EmptyData> state) {
+    protected @NonNull Optional<EmbedDefinition> getAnswer(CountSuccessesConfig config, State<StateData> state) {
         int numberOfDice = Integer.parseInt(state.getButtonValue());
         List<Integer> rollResult = diceUtils.rollDiceOfType(numberOfDice, config.getDiceSides()).stream()
                 .sorted()
@@ -224,7 +224,7 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesConfig,
     }
 
     @Override
-    protected @NonNull Optional<MessageDefinition> createNewButtonMessageWithState(CountSuccessesConfig config, State<EmptyData> state) {
+    protected @NonNull Optional<MessageDefinition> createNewButtonMessageWithState(CountSuccessesConfig config, State<StateData> state) {
         return Optional.of(createNewButtonMessage(config));
     }
 

@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 @Slf4j
-public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, EmptyData> {
+public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateData> {
 
     private static final String COMMAND_NAME = "custom_dice";
     private static final List<String> DICE_COMMAND_OPTIONS_IDS = IntStream.range(1, 25).mapToObj(i -> i + "_button").toList();
@@ -46,7 +46,7 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, EmptyDa
     }
 
     @Override
-    protected Optional<ConfigAndState<CustomDiceConfig, EmptyData>> getMessageDataAndUpdateWithButtonValue(long channelId,
+    protected Optional<ConfigAndState<CustomDiceConfig, StateData>> getMessageDataAndUpdateWithButtonValue(long channelId,
                                                                                                            long messageId,
                                                                                                            @NonNull String buttonValue,
                                                                                                            @NonNull String invokingUserName) {
@@ -58,11 +58,11 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, EmptyDa
     }
 
     @VisibleForTesting
-    ConfigAndState<CustomDiceConfig, EmptyData> deserializeAndUpdateState(@NonNull MessageDataDTO messageDataDTO, @NonNull String buttonValue) {
+    ConfigAndState<CustomDiceConfig, StateData> deserializeAndUpdateState(@NonNull MessageDataDTO messageDataDTO, @NonNull String buttonValue) {
         Preconditions.checkArgument(CONFIG_TYPE_ID.equals(messageDataDTO.getConfigClassId()), "Unknown configClassId: %s", messageDataDTO.getConfigClassId());
         return new ConfigAndState<>(messageDataDTO.getConfigUUID(),
                 Mapper.deserializeObject(messageDataDTO.getConfig(), CustomDiceConfig.class),
-                new State<>(buttonValue, new EmptyData()));
+                new State<>(buttonValue, StateData.empty()));
     }
 
     @Override
@@ -70,7 +70,7 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, EmptyDa
                                                                    long channelId,
                                                                    long messageId,
                                                                    @NonNull Config config,
-                                                                   @Nullable State<EmptyData> state) {
+                                                                   @Nullable State<StateData> state) {
         Preconditions.checkArgument(config instanceof CustomDiceConfig, "Wrong config: %s", config);
         return Optional.of(new MessageDataDTO(configUUID, channelId, messageId, getCommandId(), CONFIG_TYPE_ID,
                 Mapper.serializedObject(config),
@@ -144,7 +144,7 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, EmptyDa
     }
 
     @Override
-    protected @NonNull Optional<EmbedDefinition> getAnswer(CustomDiceConfig config, State<EmptyData> state) {
+    protected @NonNull Optional<EmbedDefinition> getAnswer(CustomDiceConfig config, State<StateData> state) {
         Optional<ButtonIdLabelAndDiceExpression> selectedButton = Optional.ofNullable(state).map(State::getButtonValue)
                 .flatMap(bv -> config.getButtonIdLabelAndDiceExpressions().stream()
                         .filter(bld -> bld.getButtonId().equals(bv))
@@ -159,7 +159,7 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, EmptyDa
     }
 
     @Override
-    protected @NonNull Optional<MessageDefinition> createNewButtonMessageWithState(CustomDiceConfig config, State<EmptyData> state) {
+    protected @NonNull Optional<MessageDefinition> createNewButtonMessageWithState(CustomDiceConfig config, State<StateData> state) {
         return Optional.of(createNewButtonMessage(config));
     }
 
@@ -194,7 +194,7 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, EmptyDa
     }
 
     @Override
-    protected @NonNull State<EmptyData> getStateFromEvent(@NonNull ButtonEventAdaptor event) {
+    protected @NonNull State<StateData> getStateFromEvent(@NonNull ButtonEventAdaptor event) {
         final CustomDiceConfig config = getConfigFromEvent(event);
         final String buttonValue = getButtonValueFromLegacyCustomId(event.getCustomId());
         final String mappedButtonValue = config.getButtonIdLabelAndDiceExpressions().stream()
@@ -202,7 +202,7 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, EmptyDa
                 .map(ButtonIdLabelAndDiceExpression::getButtonId)
                 .findFirst()
                 .orElseThrow();
-        return new State<>(mappedButtonValue, new EmptyData());
+        return new State<>(mappedButtonValue, StateData.empty());
     }
 
     @Override

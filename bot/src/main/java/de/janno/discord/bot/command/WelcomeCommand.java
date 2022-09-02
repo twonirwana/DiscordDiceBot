@@ -27,7 +27,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Slf4j
-public class WelcomeCommand extends AbstractCommand<Config, EmptyData> {
+public class WelcomeCommand extends AbstractCommand<Config, StateData> {
 
     private static final String COMMAND_NAME = "welcome";
     private static final String FATE_BUTTON_ID = "fate";
@@ -64,15 +64,15 @@ public class WelcomeCommand extends AbstractCommand<Config, EmptyData> {
     }
 
     @Override
-    protected Optional<ConfigAndState<Config, EmptyData>> getMessageDataAndUpdateWithButtonValue(long channelId,
+    protected Optional<ConfigAndState<Config, StateData>> getMessageDataAndUpdateWithButtonValue(long channelId,
                                                                                                  long messageId,
                                                                                                  @NonNull String buttonValue,
                                                                                                  @NonNull String invokingUserName) {
-        return Optional.of(new ConfigAndState<>(UUID.randomUUID(), new Config(null), new State<>(buttonValue, new EmptyData())));
+        return Optional.of(new ConfigAndState<>(UUID.randomUUID(), new Config(null), new State<>(buttonValue, StateData.empty())));
     }
 
     @Override
-    public Optional<MessageDataDTO> createMessageDataForNewMessage(@NonNull UUID configUUID, long channelId, long messageId, @NonNull Config config, @Nullable State<EmptyData> state) {
+    public Optional<MessageDataDTO> createMessageDataForNewMessage(@NonNull UUID configUUID, long channelId, long messageId, @NonNull Config config, @Nullable State<StateData> state) {
         if (state == null) {
             return Optional.empty();
         }
@@ -109,8 +109,7 @@ public class WelcomeCommand extends AbstractCommand<Config, EmptyData> {
     }
 
     @Override
-    protected @NonNull Optional<MessageDefinition> createNewButtonMessageWithState(Config
-                                                                                           config, State<EmptyData> state) {
+    protected @NonNull Optional<MessageDefinition> createNewButtonMessageWithState(Config config, State<StateData> state) {
         BotMetrics.incrementButtonMetricCounter(COMMAND_NAME, state.toShortString());
         return switch (state.getButtonValue()) {
             case FATE_BUTTON_ID -> Optional.of(new FateCommand(messageDataDAO).createNewButtonMessage(FATE_CONFIG));
@@ -136,7 +135,7 @@ public class WelcomeCommand extends AbstractCommand<Config, EmptyData> {
     }
 
     @Override
-    protected @NonNull Optional<EmbedDefinition> getAnswer(Config config, State<EmptyData> state) {
+    protected @NonNull Optional<EmbedDefinition> getAnswer(Config config, State<StateData> state) {
         return Optional.empty();
     }
 
@@ -203,8 +202,8 @@ public class WelcomeCommand extends AbstractCommand<Config, EmptyData> {
     }
 
     @Override
-    protected @NonNull State<EmptyData> getStateFromEvent(@NonNull ButtonEventAdaptor event) {
+    protected @NonNull State<StateData> getStateFromEvent(@NonNull ButtonEventAdaptor event) {
         String buttonId = getButtonValueFromLegacyCustomId(event.getCustomId());
-        return new State<>(buttonId, new EmptyData());
+        return new State<>(buttonId, StateData.empty());
     }
 }

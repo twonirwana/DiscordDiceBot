@@ -1,13 +1,17 @@
 package de.janno.discord.bot.command;
 
 import de.janno.discord.bot.persistance.MessageDataDAO;
+import de.janno.discord.bot.persistance.MessageDataDTO;
 import de.janno.discord.connector.api.ButtonEventAdaptor;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.MessageDefinition;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 import java.util.Collection;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -19,7 +23,7 @@ class WelcomeCommandTest {
 
     @Test
     public void getButtonMessageWithState_fate() {
-        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(null, new State<>("fate", new EmptyData()));
+        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(null, new State<>("fate", StateData.empty()));
         assertThat(res.map(MessageDefinition::getContent))
                 .contains("Click a button to roll four fate dice and add the value of the button");
         assertThat(res.map(MessageDefinition::getComponentRowDefinitions)
@@ -53,7 +57,7 @@ class WelcomeCommandTest {
 
     @Test
     public void getButtonMessageWithState_dnd5() {
-        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(null, new State<>("dnd5", new EmptyData()));
+        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(null, new State<>("dnd5", StateData.empty()));
         assertThat(res.map(MessageDefinition::getContent))
                 .contains("Click on a button to roll the dice");
         assertThat(res.map(MessageDefinition::getComponentRowDefinitions)
@@ -98,9 +102,29 @@ class WelcomeCommandTest {
                         "2D20");
     }
 
+
+    @Test
+    public void getButtonMessageWithState_coin() {
+        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(null, new State<>("coin", StateData.empty()));
+        assertThat(res.map(MessageDefinition::getContent))
+                .contains("Click on a button to roll the dice");
+        assertThat(res.map(MessageDefinition::getComponentRowDefinitions)
+                .stream()
+                .flatMap(Collection::stream)
+                .flatMap(s -> s.getButtonDefinitions().stream())
+                .map(ButtonDefinition::getId))
+                .containsExactly("custom_dice1_button");
+        assertThat(res.map(MessageDefinition::getComponentRowDefinitions)
+                .stream()
+                .flatMap(Collection::stream)
+                .flatMap(s -> s.getButtonDefinitions().stream())
+                .map(ButtonDefinition::getLabel))
+                .containsExactly("Coin Toss \uD83E\uDE99");
+    }
+
     @Test
     public void getButtonMessageWithState_nWoD() {
-        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(null, new State<>("nWoD", new EmptyData()));
+        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(null, new State<>("nWoD", StateData.empty()));
 
         assertThat(res.map(MessageDefinition::getContent))
                 .contains("Click to roll the dice against 8");
@@ -135,7 +159,7 @@ class WelcomeCommandTest {
 
     @Test
     public void getButtonMessageWithState_oWoD() {
-        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(null, new State<>("oWoD", new EmptyData()));
+        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(null, new State<>("oWoD", StateData.empty()));
         assertThat(res.map(MessageDefinition::getContent))
                 .contains("Click on the buttons to roll dice, with ask reroll:10 and botch:1");
         assertThat(res.map(MessageDefinition::getComponentRowDefinitions)
@@ -170,7 +194,7 @@ class WelcomeCommandTest {
 
     @Test
     public void getButtonMessageWithState_Shadowrun() {
-        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(null, new State<>("shadowrun", new EmptyData()));
+        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(null, new State<>("shadowrun", StateData.empty()));
         assertThat(res.map(MessageDefinition::getContent))
                 .contains("Click to roll the dice against 5");
         assertThat(res.map(MessageDefinition::getComponentRowDefinitions)
@@ -209,7 +233,7 @@ class WelcomeCommandTest {
 
     @Test
     public void getButtonMessageWithState_other() {
-        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(null, new State<>("-", new EmptyData()));
+        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(null, new State<>("-", StateData.empty()));
         assertThat(res)
                 .isEmpty();
 
@@ -242,6 +266,20 @@ class WelcomeCommandTest {
 
     }
 
+    @ParameterizedTest
+    @CsvSource({
+            "fate",
+            "dnd5",
+            "nWoD",
+            "oWoD",
+            "shadowrun",
+            "coin"
+    })
+    void createMessageDataForNewMessage(String buttonValue) {
+        Optional<MessageDataDTO> res = underTest.createMessageDataForNewMessage(UUID.randomUUID(), 1L, 2L, new Config(null), new State<>(buttonValue, StateData.empty()));
+        assertThat(res).isPresent();
+    }
+
     @Test
     public void shouldKeepExistingButtonMessage() {
         assertThat(underTest.shouldKeepExistingButtonMessage(mock(ButtonEventAdaptor.class))).isTrue();
@@ -257,9 +295,9 @@ class WelcomeCommandTest {
         ButtonEventAdaptor event = mock(ButtonEventAdaptor.class);
         when(event.getCustomId()).thenReturn("welcome,fate");
 
-        State<EmptyData> res = underTest.getStateFromEvent(event);
+        State<StateData> res = underTest.getStateFromEvent(event);
 
-        assertThat(res).isEqualTo(new State<>("fate", new EmptyData()));
+        assertThat(res).isEqualTo(new State<>("fate", StateData.empty()));
     }
 
     @Test

@@ -4,8 +4,10 @@ import lombok.NonNull;
 import lombok.Value;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Optional;
+
 @Value
-public class State<T extends EmptyData> {
+public class State<T extends StateData> {
 
     @NonNull
     String buttonValue;
@@ -13,7 +15,9 @@ public class State<T extends EmptyData> {
     T data;
 
     public String toShortString() {
-        String persistedStateValues = data == null ? "" : String.format(",%s", data.getShortStringValues());
+        String persistedStateValues = Optional.ofNullable(data)
+                .map(d -> String.format(",%s", data.getShortStringValues()))
+                .orElse("");
         return String.format("[%s%s]", getButtonValue(), persistedStateValues);
     }
 }

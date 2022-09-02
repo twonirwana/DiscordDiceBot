@@ -1,7 +1,7 @@
 package de.janno.discord.bot.command.fate;
 
 import de.janno.discord.bot.command.ConfigAndState;
-import de.janno.discord.bot.command.EmptyData;
+import de.janno.discord.bot.command.StateData;
 import de.janno.discord.bot.command.State;
 import de.janno.discord.bot.dice.DiceUtils;
 import de.janno.discord.bot.persistance.MessageDataDAO;
@@ -56,7 +56,7 @@ class FateCommandTest {
 
     @Test
     void getButtonMessageWithState_modifier() {
-        String res = underTest.createNewButtonMessageWithState(new FateConfig(null, "with_modifier"), new State<>("0", new EmptyData()))
+        String res = underTest.createNewButtonMessageWithState(new FateConfig(null, "with_modifier"), new State<>("0", StateData.empty()))
                 .orElseThrow().getContent();
 
         assertThat(res).isEqualTo("Click a button to roll four fate dice and add the value of the button");
@@ -64,7 +64,7 @@ class FateCommandTest {
 
     @Test
     void getButtonMessageWithState_simple() {
-        String res = underTest.createNewButtonMessageWithState(new FateConfig(null, "simple"), new State<>("0", new EmptyData()))
+        String res = underTest.createNewButtonMessageWithState(new FateConfig(null, "simple"), new State<>("0", StateData.empty()))
                 .orElseThrow().getContent();
 
         assertThat(res).isEqualTo("Click a button to roll four fate dice");
@@ -92,7 +92,7 @@ class FateCommandTest {
 
     @Test
     void getDiceResult_simple() {
-        EmbedDefinition res = underTest.getAnswer(new FateConfig(null, "simple"), new State<>("roll", new EmptyData())).orElseThrow();
+        EmbedDefinition res = underTest.getAnswer(new FateConfig(null, "simple"), new State<>("roll", StateData.empty())).orElseThrow();
 
         assertThat(res.getFields()).hasSize(0);
         assertThat(res.getTitle()).isEqualTo("4dF = -1");
@@ -101,7 +101,7 @@ class FateCommandTest {
 
     @Test
     void getDiceResult_modifier_minus1() {
-        EmbedDefinition res = underTest.getAnswer(new FateConfig(null, "with_modifier"), new State<>("-1", new EmptyData())).orElseThrow();
+        EmbedDefinition res = underTest.getAnswer(new FateConfig(null, "with_modifier"), new State<>("-1", StateData.empty())).orElseThrow();
 
         assertThat(res.getFields()).hasSize(0);
         assertThat(res.getTitle()).isEqualTo("4dF -1 = -2");
@@ -110,7 +110,7 @@ class FateCommandTest {
 
     @Test
     void getDiceResult_modifier_plus1() {
-        EmbedDefinition res = underTest.getAnswer(new FateConfig(null, "with_modifier"), new State<>("1", new EmptyData())).orElseThrow();
+        EmbedDefinition res = underTest.getAnswer(new FateConfig(null, "with_modifier"), new State<>("1", StateData.empty())).orElseThrow();
 
         assertThat(res.getFields()).hasSize(0);
         assertThat(res.getTitle()).isEqualTo("4dF +1 = 0");
@@ -119,7 +119,7 @@ class FateCommandTest {
 
     @Test
     void getDiceResult_modifier_0() {
-        EmbedDefinition res = underTest.getAnswer(new FateConfig(null, "with_modifier"), new State<>("0", new EmptyData())).orElseThrow();
+        EmbedDefinition res = underTest.getAnswer(new FateConfig(null, "with_modifier"), new State<>("0", StateData.empty())).orElseThrow();
 
         assertThat(res.getFields()).hasSize(0);
         assertThat(res.getTitle()).isEqualTo("4dF = -1");
@@ -138,9 +138,9 @@ class FateCommandTest {
         ButtonEventAdaptor event = mock(ButtonEventAdaptor.class);
         when(event.getCustomId()).thenReturn("fate\u0000roll,simple");
 
-        State<EmptyData> res = underTest.getStateFromEvent(event);
+        State<StateData> res = underTest.getStateFromEvent(event);
 
-        assertThat(res).isEqualTo(new State<>("roll", new EmptyData()));
+        assertThat(res).isEqualTo(new State<>("roll", StateData.empty()));
     }
 
     @Test
@@ -148,9 +148,9 @@ class FateCommandTest {
         ButtonEventAdaptor event = mock(ButtonEventAdaptor.class);
         when(event.getCustomId()).thenReturn("fate\u00005\u0000with_modifier\u0000");
 
-        State<EmptyData> res = underTest.getStateFromEvent(event);
+        State<StateData> res = underTest.getStateFromEvent(event);
 
-        assertThat(res).isEqualTo(new State<>("5", new EmptyData()));
+        assertThat(res).isEqualTo(new State<>("5", StateData.empty()));
     }
 
     @Test
@@ -158,9 +158,9 @@ class FateCommandTest {
         ButtonEventAdaptor event = mock(ButtonEventAdaptor.class);
         when(event.getCustomId()).thenReturn("fate\u0000-3\u0000with_modifier\u0000");
 
-        State<EmptyData> res = underTest.getStateFromEvent(event);
+        State<StateData> res = underTest.getStateFromEvent(event);
 
-        assertThat(res).isEqualTo(new State<>("-3", new EmptyData()));
+        assertThat(res).isEqualTo(new State<>("-3", StateData.empty()));
     }
 
     @Test
@@ -172,7 +172,7 @@ class FateCommandTest {
 
     @Test
     void getButtonLayoutWithState_simple() {
-        List<ComponentRowDefinition> res = underTest.createNewButtonMessageWithState(new FateConfig(null, "simple"), new State<>("roll", new EmptyData()))
+        List<ComponentRowDefinition> res = underTest.createNewButtonMessageWithState(new FateConfig(null, "simple"), new State<>("roll", StateData.empty()))
                 .orElseThrow().getComponentRowDefinitions();
 
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel)).containsExactly("Roll 4dF");
@@ -192,7 +192,7 @@ class FateCommandTest {
 
     @Test
     void getButtonLayoutWithState_modifier() {
-        List<ComponentRowDefinition> res = underTest.createNewButtonMessageWithState(new FateConfig(null, "with_modifier"), new State<>("2", new EmptyData()))
+        List<ComponentRowDefinition> res = underTest.createNewButtonMessageWithState(new FateConfig(null, "with_modifier"), new State<>("2", StateData.empty()))
                 .orElseThrow().getComponentRowDefinitions();
 
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel)).containsExactly("-4", "-3", "-2", "-1", "0", "+1", "+2", "+3", "+4", "+5", "+6", "+7", "+8", "+9", "+10");
@@ -239,7 +239,7 @@ class FateCommandTest {
 
     @Test
     void getCurrentMessageContentChange() {
-        assertThat(underTest.getCurrentMessageContentChange(new FateConfig(null, "with_modifier"), new State<>("2", new EmptyData()))).isEmpty();
+        assertThat(underTest.getCurrentMessageContentChange(new FateConfig(null, "with_modifier"), new State<>("2", StateData.empty()))).isEmpty();
     }
 
     @Test
@@ -270,14 +270,14 @@ class FateCommandTest {
         long messageId = System.currentTimeMillis();
         UUID configUUID = UUID.randomUUID();
         FateConfig config = new FateConfig(123L, "with_modifier");
-        State<EmptyData> state = new State<>("5", new EmptyData());
+        State<StateData> state = new State<>("5", StateData.empty());
         Optional<MessageDataDTO> toSave = underTest.createMessageDataForNewMessage(configUUID, channelId, messageId, config, state);
         messageDataDAO.saveMessageData(toSave.orElseThrow());
 
         MessageDataDTO loaded = messageDataDAO.getDataForMessage(channelId, messageId).orElseThrow();
 
         assertThat(toSave.orElseThrow()).isEqualTo(loaded);
-        ConfigAndState<FateConfig, EmptyData> configAndState = underTest.deserializeAndUpdateState(loaded, "3");
+        ConfigAndState<FateConfig, StateData> configAndState = underTest.deserializeAndUpdateState(loaded, "3");
         assertThat(configAndState.getConfig()).isEqualTo(config);
         assertThat(configAndState.getConfigUUID()).isEqualTo(configUUID);
         assertThat(configAndState.getState().getData()).isEqualTo(state.getData());
@@ -293,10 +293,10 @@ class FateCommandTest {
                 """, "None", null);
 
 
-        ConfigAndState<FateConfig, EmptyData> configAndState = underTest.deserializeAndUpdateState(savedData, "3");
+        ConfigAndState<FateConfig, StateData> configAndState = underTest.deserializeAndUpdateState(savedData, "3");
         assertThat(configAndState.getConfig()).isEqualTo(new FateConfig(123L, "with_modifier"));
         assertThat(configAndState.getConfigUUID()).isEqualTo(configUUID);
-        assertThat(configAndState.getState().getData()).isEqualTo(new EmptyData());
+        assertThat(configAndState.getState().getData()).isEqualTo(StateData.empty());
     }
 
 }

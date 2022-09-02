@@ -1,11 +1,13 @@
 package de.janno.discord.bot.command;
 
 import com.google.common.collect.ImmutableList;
-import de.janno.discord.bot.dice.DiceParserHelper;
 import de.janno.discord.bot.dice.Dice;
+import de.janno.discord.bot.dice.DiceParserHelper;
 import de.janno.discord.connector.api.Requester;
 import de.janno.discord.connector.api.SlashEventAdaptor;
 import de.janno.discord.connector.api.message.EmbedDefinition;
+import de.janno.discord.connector.api.slash.CommandDefinition;
+import de.janno.discord.connector.api.slash.CommandDefinitionOption;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import dev.diceroll.parser.NDice;
 import dev.diceroll.parser.ResultTree;
@@ -25,6 +27,7 @@ import static org.mockito.Mockito.*;
 class DirectRollCommandTest {
     DirectRollCommand underTest;
     Dice diceMock;
+
     @BeforeEach
     void setup() {
         diceMock = mock(Dice.class);
@@ -133,4 +136,26 @@ class DirectRollCommandTest {
         verify(slashEventAdaptor, never()).getChannelId();
     }
 
+    @Test
+    void getCommandId() {
+        String res = underTest.getCommandId();
+
+        assertThat(res).isEqualTo("r");
+    }
+
+    @Test
+    void getCommandDefinition() {
+        CommandDefinition res = underTest.getCommandDefinition();
+
+        assertThat(res).isEqualTo(CommandDefinition.builder()
+                .name("r")
+                .description("direct roll of dice expression")
+                .option(CommandDefinitionOption.builder()
+                        .name("expression")
+                        .required(true)
+                        .description("dice expression, e.g. '2d6'")
+                        .type(CommandDefinitionOption.Type.STRING)
+                        .build())
+                .build());
+    }
 }
