@@ -30,7 +30,7 @@ import java.util.stream.Stream;
 
 @Slf4j
 public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTargetStateData> {
-    //todo problem on migration
+
     static final String SUBSET_DELIMITER = ";";
     private static final String COMMAND_NAME = "pool_target";
     private static final String SIDES_OF_DIE_OPTION = "sides";

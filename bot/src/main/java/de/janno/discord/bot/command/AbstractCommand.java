@@ -121,6 +121,8 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
             config = getConfigFromEvent(event);
             state = getStateFromEvent(event);
             configUUID = UUID.randomUUID();
+            //we need to save the current config/state or the update will not work
+            createMessageDataForNewMessage(configUUID, channelId, messageId, config, state).ifPresent(messageDataDAO::saveMessageData);
         } else {
             final String buttonValue = getButtonValueFromCustomIdWithPersistence(event.getCustomId());
             final Optional<ConfigAndState<C, S>> messageData = getMessageDataAndUpdateWithButtonValue(channelId,
