@@ -594,7 +594,7 @@ class SumCustomSetCommandTest {
         verify(buttonEventAdaptor, never()).deleteMessage(anyLong(), anyBoolean());
         verify(buttonEventAdaptor).createResultMessageWithEventReference(eq(new EmbedDefinition("1d6 = 3",
                 "[3]", ImmutableList.of())), eq(null));
-        verify(messageDataDAO).saveMessageData(any());
+        verify(messageDataDAO, times(2)).saveMessageData(any());
         verify(messageDataDAO).getAllMessageIdsForConfig(any());
 
 

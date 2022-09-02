@@ -304,7 +304,7 @@ class CountSuccessesCommandTest {
         verify(buttonEventAdaptor, never()).deleteMessage(anyLong(), anyBoolean());
         verify(buttonEventAdaptor).createResultMessageWithEventReference(eq(new EmbedDefinition("6d6 = 2 - Glitch!",
                 "[**1**,**1**,**1**,**1**,**5**,**6**] ≥4 = 2 and more then half of all dice show 1s", ImmutableList.of())), eq(null));
-        verify(messageDataDAO).saveMessageData(any());
+        verify(messageDataDAO, times(2)).saveMessageData(any());
         verify(messageDataDAO).getAllMessageIdsForConfig(any());
         verify(buttonEventAdaptor, times(4)).getCustomId();
         verify(buttonEventAdaptor).getMessageId();
