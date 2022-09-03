@@ -50,7 +50,7 @@ for further options
 
 #### Chronicles of Darkness / nWoD
 
-`/custom_parameter start expression: ({Number of Dice}!)>8`
+`/custom_parameter start expression: ({Number of Dice}d10!)>8`
 
 #### Storyteller System / oWoD
 

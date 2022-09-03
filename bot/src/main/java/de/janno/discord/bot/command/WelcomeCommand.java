@@ -7,6 +7,8 @@ import de.janno.discord.bot.command.countSuccesses.CountSuccessesCommand;
 import de.janno.discord.bot.command.countSuccesses.CountSuccessesConfig;
 import de.janno.discord.bot.command.customDice.CustomDiceCommand;
 import de.janno.discord.bot.command.customDice.CustomDiceConfig;
+import de.janno.discord.bot.command.customParameter.CustomParameterCommand;
+import de.janno.discord.bot.command.customParameter.CustomParameterConfig;
 import de.janno.discord.bot.command.fate.FateCommand;
 import de.janno.discord.bot.command.fate.FateConfig;
 import de.janno.discord.bot.command.poolTarget.PoolTargetCommand;
@@ -37,7 +39,7 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
     private static final String SHADOWRUN_BUTTON_ID = "shadowrun";
     private static final String COIN_BUTTON_ID = "coin";
     private final static FateConfig FATE_CONFIG = new FateConfig(null, "with_modifier");
-    private final static CountSuccessesConfig NWOD_CONFIG = new CountSuccessesConfig(null, 10, 8, "no_glitch", 15);
+    private final static CustomParameterConfig NWOD_CONFIG = new CustomParameterConfig(null, "({Number of Dice}d10!)>8");
     private final static CountSuccessesConfig SHADOWRUN_CONFIG = new CountSuccessesConfig(null, 6, 5, "glitch:half_dice_one", 20);
     private final static PoolTargetConfig OWOD_CONFIG = new PoolTargetConfig(null, 10, 15, ImmutableSet.of(10), ImmutableSet.of(1), "ask");
     private final static CustomDiceConfig COIN_CONFIG = new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Coin Toss \uD83E\uDE99", "1d2=2?Head \uD83D\uDE00:Tail \uD83E\uDD85")));
@@ -82,7 +84,7 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
             case DND5_BUTTON_ID ->
                     new CustomDiceCommand(messageDataDAO).createMessageDataForNewMessage(configUUID, channelId, messageId, DND5_CONFIG, null);
             case NWOD_BUTTON_ID ->
-                    new CountSuccessesCommand(messageDataDAO).createMessageDataForNewMessage(configUUID, channelId, messageId, NWOD_CONFIG, null);
+                    new CustomParameterCommand(messageDataDAO).createMessageDataForNewMessage(configUUID, channelId, messageId, NWOD_CONFIG, null);
             case OWOD_BUTTON_ID ->
                     new PoolTargetCommand(messageDataDAO).createMessageDataForNewMessage(configUUID, channelId, messageId, OWOD_CONFIG, null);
             case SHADOWRUN_BUTTON_ID ->
@@ -116,7 +118,7 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
             case DND5_BUTTON_ID ->
                     Optional.of(new CustomDiceCommand(messageDataDAO).createNewButtonMessage(DND5_CONFIG));
             case NWOD_BUTTON_ID ->
-                    Optional.of(new CountSuccessesCommand(messageDataDAO).createNewButtonMessage(NWOD_CONFIG));
+                    Optional.of(new CustomParameterCommand(messageDataDAO).createNewButtonMessage(NWOD_CONFIG));
             case OWOD_BUTTON_ID ->
                     Optional.of(new PoolTargetCommand(messageDataDAO).createNewButtonMessage(OWOD_CONFIG));
             case SHADOWRUN_BUTTON_ID -> Optional.of(

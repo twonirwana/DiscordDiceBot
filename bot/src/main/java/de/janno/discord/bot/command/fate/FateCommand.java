@@ -72,9 +72,8 @@ public class FateCommand extends AbstractCommand<FateConfig, StateData> {
     public Optional<MessageDataDTO> createMessageDataForNewMessage(@NonNull UUID configUUID,
                                                                    long channelId,
                                                                    long messageId,
-                                                                   @NonNull Config config,
+                                                                   @NonNull FateConfig config,
                                                                    @Nullable State<StateData> state) {
-        Preconditions.checkArgument(config instanceof FateConfig, "Wrong config: %s", config);
         return Optional.of(new MessageDataDTO(configUUID, channelId, messageId, getCommandId(),
                 CONFIG_TYPE_ID, Mapper.serializedObject(config)));
     }

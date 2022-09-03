@@ -86,9 +86,8 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesConfig,
     public Optional<MessageDataDTO> createMessageDataForNewMessage(@NonNull UUID configUUID,
                                                                    long channelId,
                                                                    long messageId,
-                                                                   @NonNull Config config,
+                                                                   @NonNull CountSuccessesConfig config,
                                                                    @Nullable State<StateData> state) {
-        Preconditions.checkArgument(config instanceof CountSuccessesConfig, "Wrong config: %s", config);
         return Optional.of(new MessageDataDTO(configUUID, channelId, messageId, getCommandId(),
                 CONFIG_TYPE_ID, Mapper.serializedObject(config),
                 Mapper.NO_PERSISTED_STATE, null));

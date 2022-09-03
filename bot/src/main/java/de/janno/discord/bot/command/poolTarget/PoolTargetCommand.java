@@ -123,9 +123,8 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTar
     public Optional<MessageDataDTO> createMessageDataForNewMessage(@NonNull UUID configUUID,
                                                                    long channelId,
                                                                    long messageId,
-                                                                   @NonNull Config config,
+                                                                   @NonNull PoolTargetConfig config,
                                                                    @Nullable State<PoolTargetStateData> stateData) {
-        Preconditions.checkArgument(config instanceof PoolTargetConfig, "Wrong config: %s", config);
         return Optional.of(new MessageDataDTO(configUUID, channelId, messageId, getCommandId(), CONFIG_TYPE_ID, Mapper.serializedObject(config)));
     }
 

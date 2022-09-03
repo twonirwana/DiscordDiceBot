@@ -69,9 +69,8 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
     public Optional<MessageDataDTO> createMessageDataForNewMessage(@NonNull UUID configUUID,
                                                                    long channelId,
                                                                    long messageId,
-                                                                   @NonNull Config config,
+                                                                   @NonNull CustomDiceConfig config,
                                                                    @Nullable State<StateData> state) {
-        Preconditions.checkArgument(config instanceof CustomDiceConfig, "Wrong config: %s", config);
         return Optional.of(new MessageDataDTO(configUUID, channelId, messageId, getCommandId(), CONFIG_TYPE_ID,
                 Mapper.serializedObject(config),
                 Mapper.NO_PERSISTED_STATE, null));

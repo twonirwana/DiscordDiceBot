@@ -101,7 +101,7 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
     public abstract Optional<MessageDataDTO> createMessageDataForNewMessage(@NonNull UUID configUUID,
                                                                             long channelId,
                                                                             long messageId,
-                                                                            @NonNull Config config,
+                                                                            @NonNull C config,
                                                                             @Nullable State<S> state);
 
     protected void updateCurrentMessageStateData(long channelId, long messageId, @NonNull C config, @NonNull State<S> state) {
