@@ -4,7 +4,10 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import de.janno.discord.bot.command.*;
+import de.janno.discord.bot.command.AbstractCommand;
+import de.janno.discord.bot.command.CommandUtils;
+import de.janno.discord.bot.command.ConfigAndState;
+import de.janno.discord.bot.command.State;
 import de.janno.discord.bot.dice.DiceUtils;
 import de.janno.discord.bot.persistance.Mapper;
 import de.janno.discord.bot.persistance.MessageDataDAO;
@@ -130,7 +133,11 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTar
 
     @Override
     protected void updateCurrentMessageStateData(long channelId, long messageId, @NonNull PoolTargetConfig config, @NonNull State<PoolTargetStateData> state) {
-        if (state.getData() == null) {
+        Optional<PoolTargetStateData> stateData = Optional.ofNullable(state.getData());
+        if (stateData.isEmpty() || (stateData.map(PoolTargetStateData::getDicePool).isPresent() &&
+                stateData.map(PoolTargetStateData::getTargetNumber).isPresent() &&
+                stateData.map(PoolTargetStateData::getDoReroll).isPresent())
+        ) {
             messageDataDAO.updateCommandConfigOfMessage(channelId, messageId, Mapper.NO_PERSISTED_STATE, null);
         } else {
             messageDataDAO.updateCommandConfigOfMessage(channelId, messageId, STATE_DATA_TYPE_ID, Mapper.serializedObject(state.getData()));
