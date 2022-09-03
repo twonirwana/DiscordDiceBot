@@ -221,7 +221,7 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
                 .flux()
                 .flatMap(newMessageId -> {
                     Set<Long> ids = messageDataDAO.getAllMessageIdsForConfig(configUUID);
-                    if (ids.size() > 2) { //expected one old and one new messageData
+                    if (ids.size() > 3) { //expected one old, one new messageData and one sometimes one parallel or from the legacy migration
                         log.warn(String.format("ConfigUUID %s had %d to many messageData persisted", configUUID, ids.size() - 2));
                     }
                     return Flux.fromIterable(ids)

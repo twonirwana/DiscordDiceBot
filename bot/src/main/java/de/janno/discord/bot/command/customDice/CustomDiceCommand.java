@@ -105,10 +105,7 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
                 .flatMap(id -> options.getStringSubOptionWithName(id).stream())
                 .distinct()
                 .collect(Collectors.toList());
-        String answerTargetChannel = getAnswerTargetChannelIdFromStartCommandOption(options).map(Object::toString).orElse("");
-        int maxCharacter = 100 - COMMAND_NAME.length()
-                - 2 // delimiter;
-                - answerTargetChannel.length();
+        int maxCharacter = 2000; //2000 is the max message length
         return diceParserHelper.validateListOfExpressions(diceExpressionWithOptionalLabel, LABEL_DELIMITER, BotConstants.CUSTOM_ID_DELIMITER, "/custom_dice help", maxCharacter);
     }
 

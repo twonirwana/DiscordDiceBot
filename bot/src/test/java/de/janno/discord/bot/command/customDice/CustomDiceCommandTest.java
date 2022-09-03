@@ -103,24 +103,6 @@ class CustomDiceCommandTest {
     }
 
     @Test
-    void getStartOptionsValidationMessage_length_withTarget_failed() {
-        Optional<String> res = underTest.getStartOptionsValidationMessage(CommandInteractionOption.builder()
-                .name("start")
-                .options(ImmutableList.of(
-                        CommandInteractionOption.builder()
-                                .name("target_channel")
-                                .channelIdValue(931533666990059521L)
-                                .build(),
-                        CommandInteractionOption.builder()
-                                .name("1_button")
-                                .stringValue("1d6>3?a:abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghij@test")
-                                .build())
-                ).build());
-
-        assertThat(res).contains("The following dice expression is to long: '1d6>3?a:abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghij'. The expression must be 69 or less characters long");
-    }
-
-    @Test
     void getStartOptionsValidationMessage_length_withTarget_success() {
         Optional<String> res = underTest.getStartOptionsValidationMessage(CommandInteractionOption.builder()
                 .name("start")
@@ -136,24 +118,6 @@ class CustomDiceCommandTest {
                 ).build());
 
         assertThat(res).isEmpty();
-    }
-
-    @Test
-    void getStartOptionsValidationMessage_length_withoutTarget_failed() {
-        Optional<String> res = underTest.getStartOptionsValidationMessage(CommandInteractionOption.builder()
-                .name("start")
-                .options(ImmutableList.of(
-                        CommandInteractionOption.builder()
-                                .name("target_channel")
-                                .channelIdValue(null)
-                                .build(),
-                        CommandInteractionOption.builder()
-                                .name("1_button")
-                                .stringValue("1d6>3?a:abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzab@test")
-                                .build())
-                ).build());
-
-        assertThat(res).contains("The following dice expression is to long: '1d6>3?a:abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzab'. The expression must be 87 or less characters long");
     }
 
     @Test

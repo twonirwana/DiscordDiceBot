@@ -385,7 +385,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
                 return Optional.of(String.format("Parameter '%s' contains duplicate parameter option but they must be unique.", aState.getParameter()));
             }
             if (!hasMissingParameter(getFilledExpression(config, aState.getState()))) {
-                Optional<String> validationMessage = diceParserHelper.validateDiceExpressionWitOptionalLabel(getFilledExpression(config, aState.getState()), "@", "/custom_parameter help", 100);
+                Optional<String> validationMessage = diceParserHelper.validateDiceExpressionWitOptionalLabel(getFilledExpression(config, aState.getState()), "@", "/custom_parameter help", Integer.MAX_VALUE);
                 if (validationMessage.isPresent()) {
                     return validationMessage;
                 }
