@@ -1,6 +1,7 @@
 package de.janno.discord.bot;
 
 import com.google.common.base.Strings;
+import io.micrometer.core.instrument.Metrics;
 import io.micrometer.core.instrument.Tags;
 import io.micrometer.core.instrument.Timer;
 import io.micrometer.core.instrument.binder.jvm.*;
@@ -34,7 +35,7 @@ public class BotMetrics {
     public static void init(String publishMetricsToUrl) {
         if (!Strings.isNullOrEmpty(publishMetricsToUrl)) {
             PrometheusMeterRegistry prometheusRegistry = new PrometheusMeterRegistry(PrometheusConfig.DEFAULT);
-            io.micrometer.core.instrument.Metrics.addRegistry(prometheusRegistry);
+            Metrics.addRegistry(prometheusRegistry);
             new UptimeMetrics().bindTo(globalRegistry);
             PathHandler handler = Handlers.path().addExactPath("prometheus", exchange ->
             {
