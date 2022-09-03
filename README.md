@@ -7,7 +7,8 @@ This is dice rolling bot for Discord. The bot needs to be configured with a slas
 a message with a button selection. Upon clicking on a button the bot will post the result and move the message with the
 buttons to the bottom of the channel. If the message is pined, then it will only be copied and not moved. This allows it
 to roll dice without typing commands and thereby improves usability, especially for touchscreen users. The bot supports
-Discord thread (the button message must be added after the thread creation), Text in Voice and it is possible to send the answer in a different channel.
+Discord thread (the button message must be added after the thread creation), Text in Voice and it is possible to send
+the answer in a different channel.
 
 ![](image/example.webp)
 
@@ -60,6 +61,7 @@ for further options
 `/count_successes start dice_sides:6 target_number:5 glitch:half_dice_one max_dice:20`
 
 ### Traveller
+
 `/sum_custom_set start 1_button:2d6 2_button:3d6k2@Boon 3_button:3d6l2@Bane 4_button:1d6 5_button:1 6_button:2 7_button:3 8_button:4 9_button:-1 10_button:-2 11_button:-3 12_button:-4`
 
 ## Commands
@@ -164,8 +166,8 @@ rerolled and the new results added to total results.
 The system has the following parameter:
 
 - `sides`: The sides of the dice, e.g. 10 for a pool that uses d10.
-- `max_dice`: The max number of dice in the pool, limited to 
-and default is 15
+- `max_dice`: The max number of dice in the pool, limited to
+  and default is 15
 - `reroll_set`: The number on the dice that can be rerolled. Multiple numbers can be given comma seperated.
 - `botch_set`: The number on the dice that remove successes. Multiple numbers can be given comma seperated.
 - `reroll_variant`: The default option `always` will always reroll all dice results in the reroll set. The option `ask`
@@ -189,11 +191,9 @@ end. `Back` will undo the last addition and `Clear` reset all.
 ![](image/custom_parameter.webp)
 
 Use for example the slash command `/custom_parameter expression:{numberOfDice:1<=>10}d{sides:4/6/8/10/12/20/100}` to
-create a message with
-a dice expression, where the user can fill the parameter with buttons. For the dice expression see the section **Dice
-Expression
-Notation**. The parameter have the format `{name}`. If there is no range given, then button for the values 1-15 are
-presented. There are two parameter range notations:
+create a message with a dice expression, where the user can fill the parameter with buttons. For the dice expression see
+the section **Dice Expression Notation**. The parameter have the format `{name}`. If there is no range given, then
+button for the values 1-15 are presented. There are two parameter range notations:
 
 * `{numberOfDice:1<=>10}`: Provides the buttons for the given range (including). The maximum are 23 buttons.
 * `{sides:4/6/8/10/12/20/100}`: Provides each value, seperated be a slash up to 23 buttons.
@@ -202,6 +202,9 @@ The user can click on the buttons to fill all open parameter of the expression. 
 expression will be rolled. The first user that clicks
 on a button add his name to the message and only this user can select further parameter. Every user can still use the
 `Clear` button.
+
+### Clear Command
+The clear command removes all button configuration in a channel from the bot and deletes the button messages.
 
 ## Dice Expression Notation
 

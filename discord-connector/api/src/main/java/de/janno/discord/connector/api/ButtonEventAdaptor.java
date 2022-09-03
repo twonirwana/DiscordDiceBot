@@ -11,7 +11,7 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Optional;
 
-public interface IButtonEventAdaptor extends IDiscordAdapter {
+public interface ButtonEventAdaptor extends DiscordAdapter {
 
     String getCustomId();
 
@@ -25,14 +25,18 @@ public interface IButtonEventAdaptor extends IDiscordAdapter {
 
     Mono<Void> acknowledge();
 
-    Mono<Void> editMessage(@Nullable String message,@Nullable List<ComponentRowDefinition> componentRowDefinitions);
+    Mono<Void> editMessage(@Nullable String message, @Nullable List<ComponentRowDefinition> componentRowDefinitions);
 
     Mono<Long> createButtonMessage(MessageDefinition messageDefinition);
 
-    Mono<Void> deleteMessage(long messageId);
-
+    /**
+     * will be removed when almost all users have switched to the persisted button id
+     */
     List<LabelAndCustomId> getAllButtonIds();
 
+    /**
+     * will be removed when almost all users have switched to the persisted button id
+     */
     String getMessageContent();
 
     Mono<Requester> getRequester();

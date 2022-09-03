@@ -2,7 +2,10 @@ package de.janno.discord.bot;
 
 
 import com.google.common.collect.ImmutableList;
-import de.janno.discord.bot.command.*;
+import de.janno.discord.bot.command.ClearCommand;
+import de.janno.discord.bot.command.DirectRollCommand;
+import de.janno.discord.bot.command.HelpCommand;
+import de.janno.discord.bot.command.WelcomeCommand;
 import de.janno.discord.bot.command.countSuccesses.CountSuccessesCommand;
 import de.janno.discord.bot.command.customDice.CustomDiceCommand;
 import de.janno.discord.bot.command.customParameter.CustomParameterCommand;
@@ -11,7 +14,9 @@ import de.janno.discord.bot.command.holdReroll.HoldRerollCommand;
 import de.janno.discord.bot.command.poolTarget.PoolTargetCommand;
 import de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommand;
 import de.janno.discord.bot.command.sumDiceSet.SumDiceSetCommand;
-import de.janno.discord.connector.DiscordConnector;
+import de.janno.discord.bot.persistance.MessageDataDAO;
+import de.janno.discord.bot.persistance.MessageDataDAOImpl;
+import de.janno.discord.connector.DiscordConnectorImpl;
 
 public class Bot {
     public static void main(final String[] args) throws Exception {
@@ -20,20 +25,42 @@ public class Bot {
         final String publishMetricsToUrl = args[2];
         BotMetrics.init(publishMetricsToUrl);
 
-        DiscordConnector.createAndStart(token, disableCommandUpdate, ImmutableList.of(
-                        new CountSuccessesCommand(),
-                        new CustomDiceCommand(),
-                        new FateCommand(),
+        final String h2Url;
+        if (args.length >= 4) {
+            h2Url = args[3];
+        } else {
+            h2Url = "jdbc:h2:file:./persistence/dice_config;AUTO_SERVER=TRUE";
+        }
+        final String h2User;
+        if (args.length >= 5) {
+            h2User = args[4];
+        } else {
+            h2User = null;
+        }
+        final String h2Password;
+        if (args.length >= 6) {
+            h2Password = args[5];
+        } else {
+            h2Password = null;
+        }
+
+        MessageDataDAO messageDataDAO = new MessageDataDAOImpl(h2Url, h2User, h2Password);
+
+        DiscordConnectorImpl.createAndStart(token, disableCommandUpdate, ImmutableList.of(
+                        new CountSuccessesCommand(messageDataDAO),
+                        new CustomDiceCommand(messageDataDAO),
+                        new FateCommand(messageDataDAO),
                         new DirectRollCommand(),
-                        new SumDiceSetCommand(),
-                        new SumCustomSetCommand(),
-                        new HoldRerollCommand(),
-                        new PoolTargetCommand(),
-                        new CustomParameterCommand(),
-                        new WelcomeCommand(),
+                        new SumDiceSetCommand(messageDataDAO),
+                        new SumCustomSetCommand(messageDataDAO),
+                        new HoldRerollCommand(messageDataDAO),
+                        new PoolTargetCommand(messageDataDAO),
+                        new CustomParameterCommand(messageDataDAO),
+                        new WelcomeCommand(messageDataDAO),
+                        new ClearCommand(messageDataDAO),
                         new HelpCommand()
                 ),
-                new WelcomeCommand().getWelcomeMessage());
+                new WelcomeCommand(messageDataDAO).getWelcomeMessage());
     }
 
 }

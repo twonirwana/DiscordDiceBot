@@ -126,7 +126,7 @@ class DiceParserHelperTest {
     @ParameterizedTest(name = "{index} input:{0}, label:{1} -> {2}")
     @MethodSource("generateBooleanExpressionRolls")
     void rollBooleanExpression(String diceExpression, String label, EmbedDefinition expected) {
-        IDice diceMock = mock(IDice.class);
+        Dice diceMock = mock(Dice.class);
         DiceParserHelper underTest = new DiceParserHelper(diceMock);
         when(diceMock.roll(any())).thenReturn(3);
         when(diceMock.detailedRoll(any())).thenReturn(new ResultTree(mock(DiceExpression.class), 3, ImmutableList.of()));

@@ -1,47 +1,38 @@
 package de.janno.discord.bot.command.customDice;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import de.janno.discord.bot.command.ButtonIdLabelAndDiceExpression;
 import de.janno.discord.bot.command.Config;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
-import lombok.Value;
+import lombok.ToString;
 
 import java.util.List;
 import java.util.stream.Stream;
 
 @EqualsAndHashCode(callSuper = true)
 @Getter
+@ToString
 public class CustomDiceConfig extends Config {
     @NonNull
-    private final List<LabelAndDiceExpression> labelAndExpression;
+    private final List<ButtonIdLabelAndDiceExpression> buttonIdLabelAndDiceExpressions;
 
-    public CustomDiceConfig(Long answerTargetChannelId, @NonNull List<LabelAndDiceExpression> labelAndExpression) {
+    @JsonCreator
+    public CustomDiceConfig(@JsonProperty("answerTargetChannelId") Long answerTargetChannelId,
+                            @JsonProperty("buttonIdLabelAndDiceExpressions") @NonNull List<ButtonIdLabelAndDiceExpression> buttonIdLabelAndDiceExpressions) {
         super(answerTargetChannelId);
-        this.labelAndExpression = labelAndExpression;
+        this.buttonIdLabelAndDiceExpressions = buttonIdLabelAndDiceExpressions;
     }
 
     @Override
     public String toShortString() {
-        return Stream.concat(labelAndExpression.stream()
-                                .map(LabelAndDiceExpression::toShortString),
+        return Stream.concat(buttonIdLabelAndDiceExpressions.stream()
+                                .map(ButtonIdLabelAndDiceExpression::toShortString),
                         Stream.of(getTargetChannelShortString()))
                 .toList()
                 .toString();
     }
 
-    @Value
-    public static class LabelAndDiceExpression {
-        @NonNull
-        String label;
-        @NonNull
-        String diceExpression;
-
-
-        public String toShortString() {
-            if (diceExpression.equals(label)) {
-                return diceExpression;
-            }
-            return String.format("%s@%s", diceExpression, label);
-        }
-    }
 }

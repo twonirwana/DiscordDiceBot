@@ -2,9 +2,13 @@ package de.janno.discord.bot.command.poolTarget;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import de.janno.discord.bot.cache.ButtonMessageCache;
+import de.janno.discord.bot.command.ConfigAndState;
+import de.janno.discord.bot.command.State;
 import de.janno.discord.bot.dice.DiceUtils;
-import de.janno.discord.connector.api.IButtonEventAdaptor;
+import de.janno.discord.bot.persistance.MessageDataDAO;
+import de.janno.discord.bot.persistance.MessageDataDAOImpl;
+import de.janno.discord.bot.persistance.MessageDataDTO;
+import de.janno.discord.connector.api.ButtonEventAdaptor;
 import de.janno.discord.connector.api.Requester;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
@@ -21,6 +25,7 @@ import reactor.test.StepVerifier;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -30,43 +35,44 @@ import static org.mockito.Mockito.*;
 class PoolTargetCommandTest {
 
     PoolTargetCommand underTest;
+    MessageDataDAO messageDataDAO = mock(MessageDataDAO.class);
 
     private static Stream<Arguments> getStateFromEvent() {
         return Stream.of(
                 //set pool
-                Arguments.of("pool_target\u000015\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000", new PoolTargetState("15", 15, null, null, false)),
-                Arguments.of("pool_target\u000015,10,20,10;9,1;2,always,EMPTY,EMPTY", new PoolTargetState("15", 15, null, null, false)),
+                Arguments.of("pool_target\u000015\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000", new State<>("15", new PoolTargetStateData(15, null, null))),
+                Arguments.of("pool_target\u000015,10,20,10;9,1;2,always,EMPTY,EMPTY", new State<>("15", new PoolTargetStateData(15, null, null))),
 
                 //set target
-                Arguments.of("pool_target\u00008,10,20,10;9,1;2,ask,15,EMPTY", new PoolTargetState("8", 15, 8, null, false)),
-                Arguments.of("pool_target\u00008,10,20,10;9,1;2,always,15,EMPTY", new PoolTargetState("8", 15, 8, true, false)),
+                Arguments.of("pool_target\u00008,10,20,10;9,1;2,ask,15,EMPTY", new State<>("8", new PoolTargetStateData(15, 8, null))),
+                Arguments.of("pool_target\u00008,10,20,10;9,1;2,always,15,EMPTY", new State<>("8", new PoolTargetStateData(15, 8, true))),
 
                 //clear
-                Arguments.of("pool_target\u0000clear,10,20,10;9,1;2,ask,15,EMPTY", new PoolTargetState("clear", null, null, null, true)),
-                Arguments.of("pool_target\u0000clear,10,20,10;9,1;2,always,15,EMPTY", new PoolTargetState("clear", null, null, null, true)),
+                Arguments.of("pool_target\u0000clear,10,20,10;9,1;2,ask,15,EMPTY", new State<>("clear", new PoolTargetStateData(null, null, null))),
+                Arguments.of("pool_target\u0000clear,10,20,10;9,1;2,always,15,EMPTY", new State<>("clear", new PoolTargetStateData(null, null, null))),
 
                 //ask reroll
-                Arguments.of("pool_target\u0000do_reroll,10,20,10;9,1;2,ask,15,9", new PoolTargetState("do_reroll", 15, 9, true, false)),
-                Arguments.of("pool_target\u0000no_reroll,10,20,10;9,1;2,ask,15,9", new PoolTargetState("no_reroll", 15, 9, false, false))
+                Arguments.of("pool_target\u0000do_reroll,10,20,10;9,1;2,ask,15,9", new State<>("do_reroll", new PoolTargetStateData(15, 9, true))),
+                Arguments.of("pool_target\u0000no_reroll,10,20,10;9,1;2,ask,15,9", new State<>("no_reroll", new PoolTargetStateData(15, 9, false)))
         );
     }
 
     @BeforeEach
     void setup() {
-        underTest = new PoolTargetCommand(new DiceUtils(1, 1, 1, 2, 5, 6, 6, 6, 2, 10, 10, 2, 3, 4, 5, 6, 7, 8));
+        underTest = new PoolTargetCommand(messageDataDAO, new DiceUtils(1, 1, 1, 2, 5, 6, 6, 6, 2, 10, 10, 2, 3, 4, 5, 6, 7, 8));
     }
 
     @ParameterizedTest(name = "{index} config={0} -> {1}")
     @MethodSource("getStateFromEvent")
-    void getStateFromEvent(String customButtonId, PoolTargetState expected) {
-        IButtonEventAdaptor buttonEventAdaptor = mock(IButtonEventAdaptor.class);
+    void getStateFromEvent(String customButtonId, State<PoolTargetStateData> expected) {
+        ButtonEventAdaptor buttonEventAdaptor = mock(ButtonEventAdaptor.class);
         when(buttonEventAdaptor.getCustomId()).thenReturn(customButtonId);
         assertThat(underTest.getStateFromEvent(buttonEventAdaptor)).isEqualTo(expected);
     }
 
     @Test
     void getName() {
-        String res = underTest.getName();
+        String res = underTest.getCommandId();
         assertThat(res).isEqualTo("pool_target");
     }
 
@@ -74,13 +80,12 @@ class PoolTargetCommandTest {
     void getStartOptions() {
         List<CommandDefinitionOption> res = underTest.getStartOptions();
 
-        assertThat(res.stream().map(CommandDefinitionOption::getName)).containsExactly("sides", "max_dice", "reroll_set", "botch_set", "reroll_variant", "target_channel");
+        assertThat(res.stream().map(CommandDefinitionOption::getName)).containsExactly("sides", "max_dice", "reroll_set", "botch_set", "reroll_variant");
     }
 
     @Test
     void getDiceResult_withoutReroll() {
-        EmbedDefinition res = underTest.getAnswer(new PoolTargetState("6", 6, 3, false, false),
-                new PoolTargetConfig(null, 6, 15, ImmutableSet.of(6), ImmutableSet.of(1), "ask")).orElseThrow();
+        EmbedDefinition res = underTest.getAnswer(new PoolTargetConfig(null, 6, 15, ImmutableSet.of(6), ImmutableSet.of(1), "ask"), new State<>("6", new PoolTargetStateData(6, 3, false))).orElseThrow();
         assertThat(res.getFields()).hasSize(0);
         assertThat(res.getTitle()).isEqualTo("6d6 = -1");
         assertThat(res.getDescription()).isEqualTo("[**1**,**1**,**1**,2,**5**,**6**] ≥3 = -1");
@@ -88,8 +93,7 @@ class PoolTargetCommandTest {
 
     @Test
     void getDiceResult_withReroll() {
-        EmbedDefinition res = underTest.getAnswer(new PoolTargetState("6", 6, 3, true, false),
-                new PoolTargetConfig(null, 6, 15, ImmutableSet.of(6), ImmutableSet.of(1), "ask")).orElseThrow();
+        EmbedDefinition res = underTest.getAnswer(new PoolTargetConfig(null, 6, 15, ImmutableSet.of(6), ImmutableSet.of(1), "ask"), new State<>("6", new PoolTargetStateData(6, 3, true))).orElseThrow();
         assertThat(res.getFields()).hasSize(0);
         assertThat(res.getTitle()).isEqualTo("6d6 = 1");
         assertThat(res.getDescription()).isEqualTo("[**1**,**1**,**1**,2,2,**5**,**6**,**6**,**6**] ≥3 = 1");
@@ -97,7 +101,7 @@ class PoolTargetCommandTest {
 
     @Test
     void getConfigFromEvent() {
-        IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
+        ButtonEventAdaptor event = mock(ButtonEventAdaptor.class);
         when(event.getCustomId()).thenReturn("pool_target\u0000do_reroll\u000010\u000020\u000010;9\u00001;2\u0000ask\u000015\u00009\u0000");
 
         assertThat(underTest.getConfigFromEvent(event)).isEqualTo(new PoolTargetConfig(
@@ -111,7 +115,7 @@ class PoolTargetCommandTest {
 
     @Test
     void getConfigFromEvent_target() {
-        IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
+        ButtonEventAdaptor event = mock(ButtonEventAdaptor.class);
         when(event.getCustomId()).thenReturn("pool_target\u0000do_reroll\u000010\u000020\u000010;9\u00001;2\u0000ask\u000015\u00009\u0000123");
 
         assertThat(underTest.getConfigFromEvent(event)).isEqualTo(new PoolTargetConfig(
@@ -125,7 +129,7 @@ class PoolTargetCommandTest {
 
     @Test
     void getConfigFromEvent_legacy() {
-        IButtonEventAdaptor event = mock(IButtonEventAdaptor.class);
+        ButtonEventAdaptor event = mock(ButtonEventAdaptor.class);
         when(event.getCustomId()).thenReturn("pool_target\u0000do_reroll\u000010\u000020\u000010;9\u00001;2\u0000ask\u000015\u00009");
 
         assertThat(underTest.getConfigFromEvent(event)).isEqualTo(new PoolTargetConfig(
@@ -138,44 +142,46 @@ class PoolTargetCommandTest {
     }
 
     @Test
-    void matchingComponentCustomId_match() {
+    void matchingComponentCustomId_match_legacy() {
         assertThat(underTest.matchingComponentCustomId("pool_target\u000015,10,15,10,1,ask,EMPTY,EMPTY")).isTrue();
     }
 
     @Test
-    void matchingComponentCustomId_noMatch() {
+    void matchingComponentCustomId_noMatch_legacy() {
         assertThat(underTest.matchingComponentCustomId("pool_targe")).isFalse();
     }
 
     @Test
+    void matchingComponentCustomId_match() {
+        assertThat(underTest.matchingComponentCustomId("pool_target1")).isTrue();
+    }
+
+    @Test
+    void matchingComponentCustomId_noMatch() {
+        assertThat(underTest.matchingComponentCustomId("pool_targe1")).isFalse();
+    }
+
+    @Test
     void getAnswer_allStateInfoAvailable() {
-        assertThat(underTest.getAnswer(
-                new PoolTargetState("10", 10, 8, true, false),
-                new PoolTargetConfig(null, 10, 20, ImmutableSet.of(), ImmutableSet.of(), "always"))
+        assertThat(underTest.getAnswer(new PoolTargetConfig(null, 10, 20, ImmutableSet.of(), ImmutableSet.of(), "always"), new State<>("10", new PoolTargetStateData(10, 8, true)))
         ).isNotEmpty();
     }
 
     @Test
     void getAnswer_dicePoolMissing() {
-        assertThat(underTest.getAnswer(
-                new PoolTargetState("clear", null, 8, true, false),
-                new PoolTargetConfig(null, 10, 20, ImmutableSet.of(), ImmutableSet.of(), "always"))
+        assertThat(underTest.getAnswer(new PoolTargetConfig(null, 10, 20, ImmutableSet.of(), ImmutableSet.of(), "always"), new State<>("clear", new PoolTargetStateData(null, 8, true)))
         ).isEmpty();
     }
 
     @Test
     void getAnswer_targetNumberMissing() {
-        assertThat(underTest.getAnswer(
-                new PoolTargetState("10", 10, null, true, false),
-                new PoolTargetConfig(null, 10, 20, ImmutableSet.of(), ImmutableSet.of(), "always"))
+        assertThat(underTest.getAnswer(new PoolTargetConfig(null, 10, 20, ImmutableSet.of(), ImmutableSet.of(), "always"), new State<>("10", new PoolTargetStateData(10, null, true)))
         ).isEmpty();
     }
 
     @Test
     void getAnswer_doRerollMissing() {
-        assertThat(underTest.getAnswer(
-                new PoolTargetState("10", 10, 8, null, false),
-                new PoolTargetConfig(null, 10, 20, ImmutableSet.of(), ImmutableSet.of(), "always"))
+        assertThat(underTest.getAnswer(new PoolTargetConfig(null, 10, 20, ImmutableSet.of(), ImmutableSet.of(), "always"), new State<>("10", new PoolTargetStateData(10, 8, null)))
         ).isEmpty();
     }
 
@@ -221,9 +227,7 @@ class PoolTargetCommandTest {
 
     @Test
     void getCurrentMessageContentChange_poolWasSet() {
-        String res = underTest.getCurrentMessageContentChange(
-                        new PoolTargetState("10", 10, null, null, false),
-                        new PoolTargetConfig(null, 10, 20, ImmutableSet.of(10, 9), ImmutableSet.of(1, 2), "ask"))
+        String res = underTest.getCurrentMessageContentChange(new PoolTargetConfig(null, 10, 20, ImmutableSet.of(10, 9), ImmutableSet.of(1, 2), "ask"), new State<>("10", new PoolTargetStateData(10, null, null)))
                 .orElseThrow();
 
         assertThat(res).isEqualTo("Click on the target to roll 10d10 against it, with ask reroll:9,10 and botch:1,2");
@@ -231,9 +235,7 @@ class PoolTargetCommandTest {
 
     @Test
     void getCurrentMessageContentChange_targetWasSet() {
-        String res = underTest.getCurrentMessageContentChange(
-                        new PoolTargetState("10", 10, 10, null, false),
-                        new PoolTargetConfig(null, 10, 20, ImmutableSet.of(10, 9), ImmutableSet.of(1, 2), "ask"))
+        String res = underTest.getCurrentMessageContentChange(new PoolTargetConfig(null, 10, 20, ImmutableSet.of(10, 9), ImmutableSet.of(1, 2), "ask"), new State<>("10", new PoolTargetStateData(10, 10, null)))
                 .orElseThrow();
 
         assertThat(res).isEqualTo("Should 10s,9s in 10d10 against 10 be be rerolled?");
@@ -241,9 +243,7 @@ class PoolTargetCommandTest {
 
     @Test
     void getCurrentMessageContentChange_clear() {
-        String res = underTest.getCurrentMessageContentChange(
-                        new PoolTargetState("clear", null, null, null, true),
-                        new PoolTargetConfig(null, 10, 20, ImmutableSet.of(10, 9), ImmutableSet.of(1, 2), "ask"))
+        String res = underTest.getCurrentMessageContentChange(new PoolTargetConfig(null, 10, 20, ImmutableSet.of(10, 9), ImmutableSet.of(1, 2), "ask"), new State<>("clear", new PoolTargetStateData(null, null, null)))
                 .orElseThrow();
 
         assertThat(res).isEqualTo("Click on the buttons to roll dice, with ask reroll:9,10 and botch:1,2");
@@ -251,70 +251,63 @@ class PoolTargetCommandTest {
 
     @Test
     void getCurrentMessageComponentChange_missingDoReroll_askForReroll() {
-        List<ComponentRowDefinition> res = underTest.getCurrentMessageComponentChange(
-                        new PoolTargetState("10", 10, 10, null, false),
-                        new PoolTargetConfig(null, 10, 20, ImmutableSet.of(10, 9), ImmutableSet.of(1, 2), "ask"))
+        List<ComponentRowDefinition> res = underTest.getCurrentMessageComponentChange(new PoolTargetConfig(null, 10, 20, ImmutableSet.of(10, 9), ImmutableSet.of(1, 2), "ask"), new State<>("10", new PoolTargetStateData(10, 10, null)))
                 .orElseThrow();
 
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel))
                 .containsExactly("Reroll", "No reroll");
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getId))
-                .containsExactly("pool_target\u0000do_reroll\u000010\u000020\u000010;9\u00001;2\u0000ask\u000010\u000010\u0000",
-                        "pool_target\u0000no_reroll\u000010\u000020\u000010;9\u00001;2\u0000ask\u000010\u000010\u0000");
+                .containsExactly("pool_targetdo_reroll", "pool_targetno_reroll");
     }
 
     @Test
     void getButtonLayoutWithState_statesAreGiven_newButtons() {
-        List<ComponentRowDefinition> res = underTest.createNewButtonMessageWithState(
-                        new PoolTargetState("10", 10, 10, true, false),
-                        new PoolTargetConfig(null, 10, 20, ImmutableSet.of(10, 9), ImmutableSet.of(1, 2), "ask"))
+        List<ComponentRowDefinition> res = underTest.createNewButtonMessageWithState(new PoolTargetConfig(null, 10, 20, ImmutableSet.of(10, 9), ImmutableSet.of(1, 2), "ask"), new State<>("10", new PoolTargetStateData(10, 10, true)))
                 .orElseThrow().getComponentRowDefinitions();
 
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel))
                 .containsExactly("1d10", "2d10", "3d10", "4d10", "5d10", "6d10", "7d10", "8d10", "9d10", "10d10", "11d10", "12d10", "13d10", "14d10", "15d10", "16d10", "17d10", "18d10", "19d10", "20d10");
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getId))
-                .containsExactly("pool_target\u00001\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u00002\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u00003\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u00004\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u00005\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u00006\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u00007\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u00008\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u00009\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u000010\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u000011\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u000012\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u000013\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u000014\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u000015\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u000016\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u000017\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u000018\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u000019\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u000020\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000");
+                .containsExactly("pool_target1",
+                        "pool_target2",
+                        "pool_target3",
+                        "pool_target4",
+                        "pool_target5",
+                        "pool_target6",
+                        "pool_target7",
+                        "pool_target8",
+                        "pool_target9",
+                        "pool_target10",
+                        "pool_target11",
+                        "pool_target12",
+                        "pool_target13",
+                        "pool_target14",
+                        "pool_target15",
+                        "pool_target16",
+                        "pool_target17",
+                        "pool_target18",
+                        "pool_target19",
+                        "pool_target20");
     }
 
     @Test
     void getCurrentMessageComponentChange_missingTarget_askTarget() {
-        List<ComponentRowDefinition> res = underTest.getCurrentMessageComponentChange(
-                        new PoolTargetState("10", 10, null, null, false),
-                        new PoolTargetConfig(null, 10, 20, ImmutableSet.of(10, 9), ImmutableSet.of(1, 2), "ask"))
+        List<ComponentRowDefinition> res = underTest.getCurrentMessageComponentChange(new PoolTargetConfig(null, 10, 20, ImmutableSet.of(10, 9), ImmutableSet.of(1, 2), "ask"), new State<>("10", new PoolTargetStateData(10, null, null)))
                 .orElseThrow();
 
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel))
                 .containsExactly("2", "3", "4", "5", "6", "7", "8", "9", "10", "Clear");
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getId))
-                .containsExactly("pool_target\u00002\u000010\u000020\u000010;9\u00001;2\u0000ask\u000010\u0000EMPTY\u0000",
-                        "pool_target\u00003\u000010\u000020\u000010;9\u00001;2\u0000ask\u000010\u0000EMPTY\u0000",
-                        "pool_target\u00004\u000010\u000020\u000010;9\u00001;2\u0000ask\u000010\u0000EMPTY\u0000",
-                        "pool_target\u00005\u000010\u000020\u000010;9\u00001;2\u0000ask\u000010\u0000EMPTY\u0000",
-                        "pool_target\u00006\u000010\u000020\u000010;9\u00001;2\u0000ask\u000010\u0000EMPTY\u0000",
-                        "pool_target\u00007\u000010\u000020\u000010;9\u00001;2\u0000ask\u000010\u0000EMPTY\u0000",
-                        "pool_target\u00008\u000010\u000020\u000010;9\u00001;2\u0000ask\u000010\u0000EMPTY\u0000",
-                        "pool_target\u00009\u000010\u000020\u000010;9\u00001;2\u0000ask\u000010\u0000EMPTY\u0000",
-                        "pool_target\u000010\u000010\u000020\u000010;9\u00001;2\u0000ask\u000010\u0000EMPTY\u0000",
-                        "pool_target\u0000clear\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000");
+                .containsExactly("pool_target2",
+                        "pool_target3",
+                        "pool_target4",
+                        "pool_target5",
+                        "pool_target6",
+                        "pool_target7",
+                        "pool_target8",
+                        "pool_target9",
+                        "pool_target10",
+                        "pool_targetclear");
     }
 
     @Test
@@ -326,26 +319,26 @@ class PoolTargetCommandTest {
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel))
                 .containsExactly("1d10", "2d10", "3d10", "4d10", "5d10", "6d10", "7d10", "8d10", "9d10", "10d10", "11d10", "12d10", "13d10", "14d10", "15d10", "16d10", "17d10", "18d10", "19d10", "20d10");
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getId))
-                .containsExactly("pool_target\u00001\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u00002\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u00003\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u00004\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u00005\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u00006\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u00007\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u00008\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u00009\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u000010\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u000011\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u000012\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u000013\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u000014\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u000015\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u000016\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u000017\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u000018\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u000019\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u000020\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000");
+                .containsExactly("pool_target1",
+                        "pool_target2",
+                        "pool_target3",
+                        "pool_target4",
+                        "pool_target5",
+                        "pool_target6",
+                        "pool_target7",
+                        "pool_target8",
+                        "pool_target9",
+                        "pool_target10",
+                        "pool_target11",
+                        "pool_target12",
+                        "pool_target13",
+                        "pool_target14",
+                        "pool_target15",
+                        "pool_target16",
+                        "pool_target17",
+                        "pool_target18",
+                        "pool_target19",
+                        "pool_target20");
     }
 
 
@@ -358,26 +351,26 @@ class PoolTargetCommandTest {
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel))
                 .containsExactly("1d10", "2d10", "3d10", "4d10", "5d10", "6d10", "7d10", "8d10", "9d10", "10d10", "11d10", "12d10", "13d10", "14d10", "15d10", "16d10", "17d10", "18d10", "19d10", "20d10");
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getId))
-                .containsExactly("pool_target\u00001\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u00002\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u00003\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u00004\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u00005\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u00006\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u00007\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u00008\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u00009\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u000010\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u000011\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u000012\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u000013\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u000014\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u000015\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u000016\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u000017\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u000018\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u000019\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000",
-                        "pool_target\u000020\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000");
+                .containsExactly("pool_target1",
+                        "pool_target2",
+                        "pool_target3",
+                        "pool_target4",
+                        "pool_target5",
+                        "pool_target6",
+                        "pool_target7",
+                        "pool_target8",
+                        "pool_target9",
+                        "pool_target10",
+                        "pool_target11",
+                        "pool_target12",
+                        "pool_target13",
+                        "pool_target14",
+                        "pool_target15",
+                        "pool_target16",
+                        "pool_target17",
+                        "pool_target18",
+                        "pool_target19",
+                        "pool_target20");
     }
 
     @Test
@@ -413,8 +406,8 @@ class PoolTargetCommandTest {
     }
 
     @Test
-    void handleComponentInteractEvent_clear() {
-        IButtonEventAdaptor buttonEventAdaptor = mock(IButtonEventAdaptor.class);
+    void handleComponentInteractEventLegacy_clear() {
+        ButtonEventAdaptor buttonEventAdaptor = mock(ButtonEventAdaptor.class);
         when(buttonEventAdaptor.getCustomId()).thenReturn("pool_target\u0000clear\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000");
         when(buttonEventAdaptor.getChannelId()).thenReturn(1L);
         when(buttonEventAdaptor.getMessageId()).thenReturn(1L);
@@ -422,7 +415,7 @@ class PoolTargetCommandTest {
         when(buttonEventAdaptor.editMessage(any(), any())).thenReturn(Mono.just(mock(Void.class)));
         when(buttonEventAdaptor.createResultMessageWithEventReference(any(), eq(null))).thenReturn(Mono.just(mock(Void.class)));
         when(buttonEventAdaptor.createButtonMessage(any())).thenReturn(Mono.just(2L));
-        when(buttonEventAdaptor.deleteMessage(anyLong())).thenReturn(Mono.just(mock(Void.class)));
+        when(buttonEventAdaptor.deleteMessage(anyLong(), anyBoolean())).thenReturn(Mono.just(2L));
         when(buttonEventAdaptor.acknowledge()).thenReturn(Mono.just(mock(Void.class)));
 
         Mono<Void> res = underTest.handleComponentInteractEvent(buttonEventAdaptor);
@@ -433,11 +426,9 @@ class PoolTargetCommandTest {
 
         verify(buttonEventAdaptor).editMessage(eq("Click on the buttons to roll dice, with ask reroll:9,10 and botch:1,2"), anyList());
         verify(buttonEventAdaptor, never()).createButtonMessage(any());
-        verify(buttonEventAdaptor, never()).deleteMessage(anyLong());
+        verify(buttonEventAdaptor, never()).deleteMessage(anyLong(), anyBoolean());
         verify(buttonEventAdaptor, never()).createResultMessageWithEventReference(any(), eq(null));
-        assertThat(underTest.getButtonMessageCache().get(1L))
-                .contains(new ButtonMessageCache.ButtonWithConfigHash(1L, 33278861));
-        verify(buttonEventAdaptor, times(2)).getCustomId();
+        verify(buttonEventAdaptor, times(4)).getCustomId();
         verify(buttonEventAdaptor).getMessageId();
         verify(buttonEventAdaptor).getChannelId();
         verify(buttonEventAdaptor).isPinned();
@@ -447,8 +438,8 @@ class PoolTargetCommandTest {
     }
 
     @Test
-    void handleComponentInteractEvent_setTargetAsk() {
-        IButtonEventAdaptor buttonEventAdaptor = mock(IButtonEventAdaptor.class);
+    void handleComponentInteractEventLegacy_setTargetAsk() {
+        ButtonEventAdaptor buttonEventAdaptor = mock(ButtonEventAdaptor.class);
         when(buttonEventAdaptor.getCustomId()).thenReturn("pool_target\u00008\u000010\u000020\u000010;9\u00001;2\u0000ask\u000015\u0000EMPTY\u0000");
         when(buttonEventAdaptor.getChannelId()).thenReturn(1L);
         when(buttonEventAdaptor.getMessageId()).thenReturn(1L);
@@ -456,7 +447,7 @@ class PoolTargetCommandTest {
         when(buttonEventAdaptor.editMessage(any(), any())).thenReturn(Mono.just(mock(Void.class)));
         when(buttonEventAdaptor.createResultMessageWithEventReference(any(), eq(null))).thenReturn(Mono.just(mock(Void.class)));
         when(buttonEventAdaptor.createButtonMessage(any())).thenReturn(Mono.just(2L));
-        when(buttonEventAdaptor.deleteMessage(anyLong())).thenReturn(Mono.just(mock(Void.class)));
+        when(buttonEventAdaptor.deleteMessage(anyLong(), anyBoolean())).thenReturn(Mono.just(2L));
         when(buttonEventAdaptor.acknowledge()).thenReturn(Mono.just(mock(Void.class)));
 
         Mono<Void> res = underTest.handleComponentInteractEvent(buttonEventAdaptor);
@@ -467,10 +458,98 @@ class PoolTargetCommandTest {
 
         verify(buttonEventAdaptor).editMessage(eq("Should 10s,9s in 15d10 against 8 be be rerolled?"), anyList());
         verify(buttonEventAdaptor, never()).createButtonMessage(any());
-        verify(buttonEventAdaptor, never()).deleteMessage(anyLong());
+        verify(buttonEventAdaptor, never()).deleteMessage(anyLong(), anyBoolean());
         verify(buttonEventAdaptor, never()).createResultMessageWithEventReference(any(), eq(null));
-        assertThat(underTest.getButtonMessageCache().get(1L))
-                .contains(new ButtonMessageCache.ButtonWithConfigHash(1L, 33278861));
+        verify(buttonEventAdaptor, times(4)).getCustomId();
+        verify(buttonEventAdaptor).getMessageId();
+        verify(buttonEventAdaptor).getChannelId();
+        verify(buttonEventAdaptor).isPinned();
+        verify(buttonEventAdaptor, never()).getAllButtonIds();
+        verify(buttonEventAdaptor, never()).getMessageContent();
+        verify(buttonEventAdaptor).acknowledge();
+    }
+
+    @Test
+    void handleComponentInteractEventLegacy_setTargetAlways() {
+        ButtonEventAdaptor buttonEventAdaptor = mock(ButtonEventAdaptor.class);
+        when(buttonEventAdaptor.getCustomId()).thenReturn("pool_target\u00008\u000010\u000020\u000010;9\u00001;2\u0000always\u000015\u0000EMPTY\u0000");
+        when(buttonEventAdaptor.getChannelId()).thenReturn(1L);
+        when(buttonEventAdaptor.getMessageId()).thenReturn(1L);
+        when(buttonEventAdaptor.isPinned()).thenReturn(false);
+        when(buttonEventAdaptor.editMessage(any(), any())).thenReturn(Mono.just(mock(Void.class)));
+        when(buttonEventAdaptor.createResultMessageWithEventReference(any(), eq(null))).thenReturn(Mono.just(mock(Void.class)));
+        when(buttonEventAdaptor.createButtonMessage(any())).thenReturn(Mono.just(2L));
+        when(buttonEventAdaptor.deleteMessage(anyLong(), anyBoolean())).thenReturn(Mono.just(2L));
+        when(buttonEventAdaptor.getRequester()).thenReturn(Mono.just(new Requester("user", "channel", "guild")));
+        when(buttonEventAdaptor.acknowledge()).thenReturn(Mono.just(mock(Void.class)));
+
+        Mono<Void> res = underTest.handleComponentInteractEvent(buttonEventAdaptor);
+
+
+        StepVerifier.create(res)
+                .verifyComplete();
+
+        verify(buttonEventAdaptor).editMessage(eq("processing ..."), anyList());
+        verify(buttonEventAdaptor).createButtonMessage(any());
+        verify(buttonEventAdaptor).deleteMessage(1L, false);
+        verify(buttonEventAdaptor).createResultMessageWithEventReference(eq(new EmbedDefinition("15d10 = -4",
+                "[**1**,**1**,**1**,**2**,**2**,**2**,3,4,5,5,6,6,6,6,7,**10**,**10**] ≥8 = -4", ImmutableList.of())), eq(null));
+        verify(buttonEventAdaptor, times(5)).getCustomId();
+        verify(buttonEventAdaptor).getMessageId();
+        verify(buttonEventAdaptor).getChannelId();
+        verify(buttonEventAdaptor).isPinned();
+        verify(buttonEventAdaptor, never()).getAllButtonIds();
+        verify(buttonEventAdaptor, never()).getMessageContent();
+        verify(buttonEventAdaptor).acknowledge();
+    }
+
+    @Test
+    void handleComponentInteractEvent() {
+        ButtonEventAdaptor buttonEventAdaptor = mock(ButtonEventAdaptor.class);
+        when(buttonEventAdaptor.getCustomId()).thenReturn("pool_target8");
+        when(buttonEventAdaptor.getChannelId()).thenReturn(1L);
+        when(buttonEventAdaptor.getMessageId()).thenReturn(1L);
+        when(buttonEventAdaptor.isPinned()).thenReturn(false);
+        when(buttonEventAdaptor.editMessage(any(), any())).thenReturn(Mono.just(mock(Void.class)));
+        when(buttonEventAdaptor.createResultMessageWithEventReference(any(), eq(null))).thenReturn(Mono.just(mock(Void.class)));
+        when(buttonEventAdaptor.createButtonMessage(any())).thenReturn(Mono.just(2L));
+        when(buttonEventAdaptor.deleteMessage(anyLong(), anyBoolean())).thenReturn(Mono.just(2L));
+        when(buttonEventAdaptor.getRequester()).thenReturn(Mono.just(new Requester("user", "channel", "guild")));
+        when(buttonEventAdaptor.acknowledge()).thenReturn(Mono.just(mock(Void.class)));
+        when(buttonEventAdaptor.getInvokingGuildMemberName()).thenReturn("testUser");
+        when(messageDataDAO.getDataForMessage(1L, 1L)).thenReturn(Optional.of(new MessageDataDTO(UUID.randomUUID(), 1L, 1L, "pool_target", "PoolTargetConfig", """
+                ---
+                answerTargetChannelId:
+                diceSides: 10
+                maxNumberOfButtons: 20
+                rerollSet:
+                - 9
+                - 10
+                botchSet:
+                - 1
+                - 2
+                rerollVariant: "always"
+                """,
+                "PoolTargetStateData", """
+                ---
+                dicePool: 15
+                targetNumber: null
+                doReroll: null
+                """)));
+        when(messageDataDAO.getAllMessageIdsForConfig(any())).thenReturn(ImmutableSet.of(1L, 2L));
+
+
+        Mono<Void> res = underTest.handleComponentInteractEvent(buttonEventAdaptor);
+
+
+        StepVerifier.create(res)
+                .verifyComplete();
+
+        verify(buttonEventAdaptor).editMessage(eq("processing ..."), anyList());
+        verify(buttonEventAdaptor).createButtonMessage(any());
+        verify(buttonEventAdaptor).deleteMessage(1L, false);
+        verify(buttonEventAdaptor).createResultMessageWithEventReference(eq(new EmbedDefinition("15d10 = -4",
+                "[**1**,**1**,**1**,**2**,**2**,**2**,3,4,5,5,6,6,6,6,7,**10**,**10**] ≥8 = -4", ImmutableList.of())), eq(null));
         verify(buttonEventAdaptor, times(3)).getCustomId();
         verify(buttonEventAdaptor).getMessageId();
         verify(buttonEventAdaptor).getChannelId();
@@ -481,45 +560,40 @@ class PoolTargetCommandTest {
     }
 
     @Test
-    void handleComponentInteractEvent_setTargetAlways() {
-        IButtonEventAdaptor buttonEventAdaptor = mock(IButtonEventAdaptor.class);
-        when(buttonEventAdaptor.getCustomId()).thenReturn("pool_target\u00008\u000010\u000020\u000010;9\u00001;2\u0000always\u000015\u0000EMPTY\u0000");
+    void handleComponentInteractEvent_missingDBEntriy() {
+        ButtonEventAdaptor buttonEventAdaptor = mock(ButtonEventAdaptor.class);
+        when(buttonEventAdaptor.getCustomId()).thenReturn("pool_target8");
         when(buttonEventAdaptor.getChannelId()).thenReturn(1L);
         when(buttonEventAdaptor.getMessageId()).thenReturn(1L);
-        when(buttonEventAdaptor.isPinned()).thenReturn(false);
-        when(buttonEventAdaptor.editMessage(any(), any())).thenReturn(Mono.just(mock(Void.class)));
+        when(buttonEventAdaptor.reply(any())).thenReturn(Mono.just(mock(Void.class)));
         when(buttonEventAdaptor.createResultMessageWithEventReference(any(), eq(null))).thenReturn(Mono.just(mock(Void.class)));
-        when(buttonEventAdaptor.createButtonMessage(any())).thenReturn(Mono.just(2L));
-        when(buttonEventAdaptor.deleteMessage(anyLong())).thenReturn(Mono.just(mock(Void.class)));
         when(buttonEventAdaptor.getRequester()).thenReturn(Mono.just(new Requester("user", "channel", "guild")));
         when(buttonEventAdaptor.acknowledge()).thenReturn(Mono.just(mock(Void.class)));
+        when(buttonEventAdaptor.getInvokingGuildMemberName()).thenReturn("testUser");
+        when(messageDataDAO.getDataForMessage(1L, 1L)).thenReturn(Optional.empty());
+
 
         Mono<Void> res = underTest.handleComponentInteractEvent(buttonEventAdaptor);
 
 
-        StepVerifier.create(res)
-                .verifyComplete();
-
-        verify(buttonEventAdaptor).editMessage(eq("processing ..."), anyList());
-        verify(buttonEventAdaptor).createButtonMessage(any());
-        verify(buttonEventAdaptor).deleteMessage(1L);
-        verify(buttonEventAdaptor).createResultMessageWithEventReference(eq(new EmbedDefinition("15d10 = -4",
-                "[**1**,**1**,**1**,**2**,**2**,**2**,3,4,5,5,6,6,6,6,7,**10**,**10**] ≥8 = -4", ImmutableList.of())), eq(null));
-        assertThat(underTest.getButtonMessageCache())
-                .hasSize(1)
-                .containsEntry(1L, ImmutableSet.of(new ButtonMessageCache.ButtonWithConfigHash(2L, -1381375197)));
-        verify(buttonEventAdaptor, times(4)).getCustomId();
+        assertThat(res).isNotNull();
+        verify(buttonEventAdaptor).reply("Configuration for the message is missing, please create a new message with the slash command `/pool_target start`");
+        verify(buttonEventAdaptor, never()).editMessage(anyString(), anyList());
+        verify(buttonEventAdaptor, never()).createButtonMessage(any());
+        verify(buttonEventAdaptor, never()).deleteMessage(anyLong(), anyBoolean());
+        verify(buttonEventAdaptor, never()).createResultMessageWithEventReference(any(), any());
+        verify(buttonEventAdaptor, times(2)).getCustomId();
         verify(buttonEventAdaptor).getMessageId();
         verify(buttonEventAdaptor).getChannelId();
-        verify(buttonEventAdaptor).isPinned();
+        verify(buttonEventAdaptor, never()).isPinned();
         verify(buttonEventAdaptor, never()).getAllButtonIds();
         verify(buttonEventAdaptor, never()).getMessageContent();
-        verify(buttonEventAdaptor).acknowledge();
+        verify(buttonEventAdaptor, never()).acknowledge();
     }
 
     @Test
-    void handleComponentInteractEvent_setReroll() {
-        IButtonEventAdaptor buttonEventAdaptor = mock(IButtonEventAdaptor.class);
+    void handleComponentInteractEventLegacy_setReroll() {
+        ButtonEventAdaptor buttonEventAdaptor = mock(ButtonEventAdaptor.class);
         when(buttonEventAdaptor.getCustomId()).thenReturn("pool_target\u0000do_reroll,10,20,10;9,1;2,ask,15,8");
         when(buttonEventAdaptor.getChannelId()).thenReturn(1L);
         when(buttonEventAdaptor.getMessageId()).thenReturn(1L);
@@ -527,7 +601,7 @@ class PoolTargetCommandTest {
         when(buttonEventAdaptor.editMessage(any(), any())).thenReturn(Mono.just(mock(Void.class)));
         when(buttonEventAdaptor.createResultMessageWithEventReference(any(), eq(null))).thenReturn(Mono.just(mock(Void.class)));
         when(buttonEventAdaptor.createButtonMessage(any())).thenReturn(Mono.just(2L));
-        when(buttonEventAdaptor.deleteMessage(anyLong())).thenReturn(Mono.just(mock(Void.class)));
+        when(buttonEventAdaptor.deleteMessage(anyLong(), anyBoolean())).thenReturn(Mono.just(2L));
         when(buttonEventAdaptor.getRequester()).thenReturn(Mono.just(new Requester("user", "channel", "guild")));
         when(buttonEventAdaptor.acknowledge()).thenReturn(Mono.just(mock(Void.class)));
 
@@ -539,12 +613,10 @@ class PoolTargetCommandTest {
 
         verify(buttonEventAdaptor).editMessage(eq("processing ..."), anyList());
         verify(buttonEventAdaptor).createButtonMessage(any());
-        verify(buttonEventAdaptor).deleteMessage(1L);
+        verify(buttonEventAdaptor).deleteMessage(1L, false);
         verify(buttonEventAdaptor).createResultMessageWithEventReference(eq(new EmbedDefinition("15d10 = -4",
                 "[**1**,**1**,**1**,**2**,**2**,**2**,3,4,5,5,6,6,6,6,7,**10**,**10**] ≥8 = -4", ImmutableList.of())), eq(null));
-        assertThat(underTest.getButtonMessageCache().get(1L))
-                .contains(new ButtonMessageCache.ButtonWithConfigHash(2L, 33278861));
-        verify(buttonEventAdaptor, times(4)).getCustomId();
+        verify(buttonEventAdaptor, times(5)).getCustomId();
         verify(buttonEventAdaptor).getMessageId();
         verify(buttonEventAdaptor).getChannelId();
         verify(buttonEventAdaptor).isPinned();
@@ -554,8 +626,8 @@ class PoolTargetCommandTest {
     }
 
     @Test
-    void handleComponentInteractEvent_clearPinned() {
-        IButtonEventAdaptor buttonEventAdaptor = mock(IButtonEventAdaptor.class);
+    void handleComponentInteractEventLegacy_clearPinned() {
+        ButtonEventAdaptor buttonEventAdaptor = mock(ButtonEventAdaptor.class);
         when(buttonEventAdaptor.getCustomId()).thenReturn("pool_target\u0000clear\u000010\u000020\u000010;9\u00001;2\u0000ask\u0000EMPTY\u0000EMPTY\u0000");
         when(buttonEventAdaptor.getChannelId()).thenReturn(1L);
         when(buttonEventAdaptor.getMessageId()).thenReturn(1L);
@@ -563,7 +635,7 @@ class PoolTargetCommandTest {
         when(buttonEventAdaptor.editMessage(any(), any())).thenReturn(Mono.just(mock(Void.class)));
         when(buttonEventAdaptor.createButtonMessage(any())).thenReturn(Mono.just(2L));
         when(buttonEventAdaptor.createResultMessageWithEventReference(any(), eq(null))).thenReturn(Mono.just(mock(Void.class)));
-        when(buttonEventAdaptor.deleteMessage(anyLong())).thenReturn(Mono.just(mock(Void.class)));
+        when(buttonEventAdaptor.deleteMessage(anyLong(), anyBoolean())).thenReturn(Mono.just(2L));
         when(buttonEventAdaptor.acknowledge()).thenReturn(Mono.just(mock(Void.class)));
 
         Mono<Void> res = underTest.handleComponentInteractEvent(buttonEventAdaptor);
@@ -573,12 +645,10 @@ class PoolTargetCommandTest {
 
         verify(buttonEventAdaptor).editMessage(eq("Click on the buttons to roll dice, with ask reroll:9,10 and botch:1,2"), anyList());
         verify(buttonEventAdaptor, never()).createButtonMessage(any());
-        verify(buttonEventAdaptor, never()).deleteMessage(anyLong());
+        verify(buttonEventAdaptor, never()).deleteMessage(anyLong(), anyBoolean());
         verify(buttonEventAdaptor, never()).createResultMessageWithEventReference(any(), eq(null));
 
-        assertThat(underTest.getButtonMessageCache().get(1L))
-                .contains(new ButtonMessageCache.ButtonWithConfigHash(1L, 33278861));
-        verify(buttonEventAdaptor, times(2)).getCustomId();
+        verify(buttonEventAdaptor, times(4)).getCustomId();
         verify(buttonEventAdaptor).getMessageId();
         verify(buttonEventAdaptor).getChannelId();
         verify(buttonEventAdaptor).isPinned();
@@ -586,7 +656,6 @@ class PoolTargetCommandTest {
         verify(buttonEventAdaptor, never()).getMessageContent();
         verify(buttonEventAdaptor).acknowledge();
     }
-
 
     private CommandInteractionOption createCommandInteractionOption(Long sides,
                                                                     Long maxDice,
@@ -689,4 +758,59 @@ class PoolTargetCommandTest {
 
         assertThat(res).contains("The parameter need to have numbers, seperated by ','. The following parameter where not numbers: ''");
     }
+
+    @Test
+    void checkPersistence() {
+        MessageDataDAO messageDataDAO = new MessageDataDAOImpl("jdbc:h2:mem:" + this.getClass().getSimpleName(), null, null);
+        underTest = new PoolTargetCommand(messageDataDAO, mock(DiceUtils.class));
+
+        long channelId = System.currentTimeMillis();
+        long messageId = System.currentTimeMillis();
+        UUID configUUID = UUID.randomUUID();
+        PoolTargetConfig config = new PoolTargetConfig(123L, 10, 12, ImmutableSet.of(7, 8, 9, 10), ImmutableSet.of(1), "ask");
+        State<PoolTargetStateData> state = new State<>("3", new PoolTargetStateData(5, null, null));
+        Optional<MessageDataDTO> toSave = underTest.createMessageDataForNewMessage(configUUID, channelId, messageId, config, state);
+        messageDataDAO.saveMessageData(toSave.orElseThrow());
+        underTest.updateCurrentMessageStateData(channelId, messageId, config, state);
+
+        MessageDataDTO loaded = messageDataDAO.getDataForMessage(channelId, messageId).orElseThrow();
+
+
+        ConfigAndState<PoolTargetConfig, PoolTargetStateData> configAndState = underTest.deserializeAndUpdateState(loaded, "3");
+        assertThat(configAndState.getConfig()).isEqualTo(config);
+        assertThat(configAndState.getConfigUUID()).isEqualTo(configUUID);
+        assertThat(configAndState.getState().getData()).isEqualTo(new PoolTargetStateData(5, 3, null));
+    }
+
+    @Test
+    void deserialization() {
+        UUID configUUID = UUID.randomUUID();
+        MessageDataDTO savedData = new MessageDataDTO(configUUID, 1660644934298L, 1660644934298L, "pool_target", "PoolTargetConfig", """
+                ---
+                answerTargetChannelId: 123
+                diceSides: 10
+                maxNumberOfButtons: 12
+                rerollSet:
+                - 7
+                - 8
+                - 9
+                - 10
+                botchSet:
+                - 1
+                rerollVariant: "ask"
+                """,
+                "PoolTargetStateData", """
+                ---
+                dicePool: 5
+                targetNumber: null
+                doReroll: null
+                """);
+
+
+        ConfigAndState<PoolTargetConfig, PoolTargetStateData> configAndState = underTest.deserializeAndUpdateState(savedData, "3");
+        assertThat(configAndState.getConfig()).isEqualTo(new PoolTargetConfig(123L, 10, 12, ImmutableSet.of(7, 8, 9, 10), ImmutableSet.of(1), "ask"));
+        assertThat(configAndState.getConfigUUID()).isEqualTo(configUUID);
+        assertThat(configAndState.getState().getData()).isEqualTo(new PoolTargetStateData(5, 3, null));
+    }
+
 }

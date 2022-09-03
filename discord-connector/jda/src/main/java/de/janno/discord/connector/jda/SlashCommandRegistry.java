@@ -1,6 +1,6 @@
 package de.janno.discord.connector.jda;
 
-import de.janno.discord.connector.api.ISlashCommand;
+import de.janno.discord.connector.api.SlashCommand;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.interactions.commands.Command;
@@ -18,9 +18,9 @@ import java.util.stream.Collectors;
 @Slf4j
 public class SlashCommandRegistry {
 
-    private final List<ISlashCommand> slashCommands;
+    private final List<SlashCommand> slashCommands;
 
-    private SlashCommandRegistry(List<ISlashCommand> slashCommands) {
+    private SlashCommandRegistry(List<SlashCommand> slashCommands) {
         this.slashCommands = slashCommands;
     }
 
@@ -28,14 +28,14 @@ public class SlashCommandRegistry {
         return new Builder();
     }
 
-    public List<ISlashCommand> getSlashCommands() {
+    public List<SlashCommand> getSlashCommands() {
         return slashCommands;
     }
 
     public static class Builder {
-        private final List<ISlashCommand> slashCommands = new ArrayList<>();
+        private final List<SlashCommand> slashCommands = new ArrayList<>();
 
-        public Builder addSlashCommands(Collection<ISlashCommand> slashCommands) {
+        public Builder addSlashCommands(Collection<SlashCommand> slashCommands) {
             this.slashCommands.addAll(slashCommands);
             return this;
         }
@@ -45,8 +45,8 @@ public class SlashCommandRegistry {
             log.info("ApplicationId: " + applicationId);
             if (!disableCommandUpdate) {
                 //get the implemented bot commands
-                Map<String, ISlashCommand> botCommands = slashCommands.stream()
-                        .collect(Collectors.toMap(ISlashCommand::getName, Function.identity()));
+                Map<String, SlashCommand> botCommands = slashCommands.stream()
+                        .collect(Collectors.toMap(SlashCommand::getCommandId, Function.identity()));
 
                 //get already existing commands
                 Map<String, Command> currentlyRegisteredCommands = jda.retrieveCommands().complete().stream()
@@ -65,7 +65,7 @@ public class SlashCommandRegistry {
 
                 //add missing commands
                 Flux.fromIterable(botCommands.values())
-                        .filter(sc -> !currentlyRegisteredCommands.containsKey(sc.getName()))
+                        .filter(sc -> !currentlyRegisteredCommands.containsKey(sc.getCommandId()))
                         .flatMap(sc -> {
                                     log.info("Add missing command: {}", sc.getCommandDefinition());
                                     CommandData commandData = ApplicationCommandConverter.commandDefinition2CommandData(sc.getCommandDefinition());
@@ -77,10 +77,10 @@ public class SlashCommandRegistry {
 
                 //update existing
                 Flux.fromIterable(botCommands.values())
-                        .filter(sc -> currentlyRegisteredCommands.containsKey(sc.getName()) &&
-                                !sc.getCommandDefinition().equals(ApplicationCommandConverter.slashCommand2CommandDefinition(currentlyRegisteredCommands.get(sc.getName()))))
+                        .filter(sc -> currentlyRegisteredCommands.containsKey(sc.getCommandId()) &&
+                                !sc.getCommandDefinition().equals(ApplicationCommandConverter.slashCommand2CommandDefinition(currentlyRegisteredCommands.get(sc.getCommandId()))))
                         .flatMap(sc -> {
-                                    log.info("Update command: {} != {}", sc.getCommandDefinition(), ApplicationCommandConverter.slashCommand2CommandDefinition(currentlyRegisteredCommands.get(sc.getName())));
+                                    log.info("Update command: {} != {}", sc.getCommandDefinition(), ApplicationCommandConverter.slashCommand2CommandDefinition(currentlyRegisteredCommands.get(sc.getCommandId())));
                                     CommandData commandData = ApplicationCommandConverter.commandDefinition2CommandData(sc.getCommandDefinition());
                                     return Mono.fromFuture(jda.upsertCommand(commandData).submit())
                                             .doOnError(t -> log.error("Error updating command: {}", sc.getCommandDefinition(), t));

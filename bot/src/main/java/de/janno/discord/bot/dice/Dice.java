@@ -2,8 +2,7 @@ package de.janno.discord.bot.dice;
 
 import dev.diceroll.parser.ResultTree;
 
-public interface IDice {
+public interface Dice {
     ResultTree detailedRoll(String input);
-
     int roll(String input);
 }

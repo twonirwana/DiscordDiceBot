@@ -1,7 +1,7 @@
 package de.janno.discord.connector.jda;
 
 import com.google.common.base.Strings;
-import de.janno.discord.connector.api.IButtonEventAdaptor;
+import de.janno.discord.connector.api.ButtonEventAdaptor;
 import de.janno.discord.connector.api.Requester;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
 import de.janno.discord.connector.api.message.EmbedDefinition;
@@ -12,6 +12,7 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.interactions.InteractionHook;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -20,7 +21,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Slf4j
-public class ButtonEventAdapter extends DiscordAdapter implements IButtonEventAdaptor {
+public class ButtonEventAdapterImpl extends DiscordAdapterImpl implements ButtonEventAdaptor {
     @NonNull
     private final ButtonInteractionEvent event;
     @NonNull
@@ -37,8 +38,8 @@ public class ButtonEventAdapter extends DiscordAdapter implements IButtonEventAd
     @NonNull
     private final String invokingGuildMemberName;
 
-    public ButtonEventAdapter(@NonNull ButtonInteractionEvent event,
-                              @NonNull Mono<Requester> requesterMono) {
+    public ButtonEventAdapterImpl(@NonNull ButtonInteractionEvent event,
+                                  @NonNull Mono<Requester> requesterMono) {
         this.event = event;
         this.requesterMono = requesterMono;
         this.messageId = event.getMessageIdLong();
@@ -128,8 +129,8 @@ public class ButtonEventAdapter extends DiscordAdapter implements IButtonEventAd
     }
 
     @Override
-    public Mono<Void> deleteMessage(long messageId) {
-        return deleteMessage(event.getInteraction().getMessageChannel(), messageId);
+    public Mono<Long> deleteMessage(long messageId, boolean deletePinned) {
+        return deleteMessage(event.getInteraction().getMessageChannel(), messageId, deletePinned);
     }
 
     @Override
@@ -170,5 +171,12 @@ public class ButtonEventAdapter extends DiscordAdapter implements IButtonEventAd
     @Override
     public @NonNull String getInvokingGuildMemberName() {
         return invokingGuildMemberName;
+    }
+
+    @Override
+    public Mono<Void> reply(@NonNull String message) {
+        return createMonoFrom(() -> event.reply(message))
+                .onErrorResume(t -> handleException("Error on replay", t, true).ofType(InteractionHook.class))
+                .then();
     }
 }

@@ -27,13 +27,4 @@ class ButtonDefinitionTest {
 
     }
 
-    @Test
-    void testLegacyDelimiter_builder() {
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> ButtonDefinition.builder()
-                .label("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb")
-                .id("aaaaaaaaaaaaaaaaaaaaaaa,aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa").build());
-
-        assertThat(exception.getMessage()).isEqualTo("ID 'aaaaaaaaaaaaaaaaaaaaaaa,aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' contains illegal character ','");
-    }
-
 }

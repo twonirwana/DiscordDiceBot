@@ -1,27 +1,23 @@
 package de.janno.discord.bot.command;
 
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
 import lombok.NonNull;
+import lombok.Value;
+import org.jetbrains.annotations.Nullable;
 
-import java.io.Serializable;
+import java.util.Optional;
 
-/**
- * The current state of the interaction. The state can be used over multiple interactions.
- */
-@EqualsAndHashCode
-@Getter
-@AllArgsConstructor
-public class State implements Serializable {
+@Value
+public class State<T extends StateData> {
 
-    /**
-     * The value of the last button click
-     */
     @NonNull
-    private final String buttonValue;
+    String buttonValue;
+    @Nullable
+    T data;
 
     public String toShortString() {
-        return String.format("[%s]", getButtonValue());
+        String persistedStateValues = Optional.ofNullable(data)
+                .map(d -> String.format(",%s", data.getShortStringValues()))
+                .orElse("");
+        return String.format("[%s%s]", getButtonValue(), persistedStateValues);
     }
 }

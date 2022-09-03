@@ -3,9 +3,9 @@ package de.janno.discord.connector.api;
 import lombok.NonNull;
 import reactor.core.publisher.Mono;
 
-public interface IComponentInteractEventHandler {
+public interface ComponentInteractEventHandler {
 
-    Mono<Void> handleComponentInteractEvent(@NonNull IButtonEventAdaptor event);
+    Mono<Void> handleComponentInteractEvent(@NonNull ButtonEventAdaptor event);
 
     boolean matchingComponentCustomId(String buttonCustomId);
 }

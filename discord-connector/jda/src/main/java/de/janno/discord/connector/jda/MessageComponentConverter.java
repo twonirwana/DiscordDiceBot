@@ -4,11 +4,11 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
-import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.LayoutComponent;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
-import net.dv8tion.jda.internal.entities.DataMessage;
+import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
+import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import net.dv8tion.jda.internal.interactions.component.ButtonImpl;
 
 import java.util.List;
@@ -17,11 +17,9 @@ import java.util.stream.Collectors;
 
 public class MessageComponentConverter {
 
-    public static Message messageComponent2MessageLayout(String content, List<ComponentRowDefinition> rows) {
+    public static MessageCreateData messageComponent2MessageLayout(String content, List<ComponentRowDefinition> rows) {
         LayoutComponent[] layoutComponents = componentRowDefinition2LayoutComponent(rows);
-        return new DataMessage(false, content, null, null, null, new String[0], new String[0],
-                layoutComponents, null
-        );
+        return new MessageCreateBuilder().addContent(content).addComponents(layoutComponents).build();
     }
 
     public static LayoutComponent[] componentRowDefinition2LayoutComponent(List<ComponentRowDefinition> rows) {
@@ -29,7 +27,7 @@ public class MessageComponentConverter {
                 .flatMap(r -> r.getButtonDefinitions().stream())
                 .map(ButtonDefinition::getId)
                 .filter(id -> id.length() > 100 || Strings.isNullOrEmpty(id))
-                        .collect(Collectors.toSet());
+                .collect(Collectors.toSet());
         Preconditions.checkArgument(invalidIds.isEmpty(), String.format("The following ids are invalid: %s", invalidIds));
         return rows.stream()
                 .map(c -> ActionRow.of(c.getButtonDefinitions().stream()

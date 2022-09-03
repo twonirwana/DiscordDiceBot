@@ -2,7 +2,6 @@ package de.janno.discord.connector.jda;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
-import de.janno.discord.connector.api.IDiscordAdapter;
 import de.janno.discord.connector.api.message.EmbedDefinition;
 import de.janno.discord.connector.api.message.MessageDefinition;
 import lombok.NonNull;
@@ -25,7 +24,7 @@ import java.util.Optional;
 import java.util.function.Supplier;
 
 @Slf4j
-public abstract class DiscordAdapter implements IDiscordAdapter {
+public abstract class DiscordAdapterImpl implements de.janno.discord.connector.api.DiscordAdapter {
 
     //needed to correctly show utf8 characters in discord
     private static String encodeUTF8(@NonNull String in) {
@@ -72,7 +71,8 @@ public abstract class DiscordAdapter implements IDiscordAdapter {
     protected Mono<Message> createButtonMessage(@NonNull MessageChannel channel,
                                                 @NonNull MessageDefinition messageDefinition) {
         return createMonoFrom(() -> channel.sendMessage(
-                MessageComponentConverter.messageComponent2MessageLayout(messageDefinition.getContent(),
+                MessageComponentConverter.messageComponent2MessageLayout(
+                        StringUtils.abbreviate(encodeUTF8(messageDefinition.getContent()), 2000), //seems to be the limit
                         messageDefinition.getComponentRowDefinitions())));
     }
 
@@ -92,12 +92,14 @@ public abstract class DiscordAdapter implements IDiscordAdapter {
         return Mono.empty();
     }
 
-    protected Mono<Void> deleteMessage(MessageChannel messageChannel, long messageId) {
+    protected Mono<Long> deleteMessage(MessageChannel messageChannel, long messageId, boolean deletePinned) {
+        //retrieveMessageByIds would be nice
         return createMonoFrom(() -> messageChannel.retrieveMessageById(messageId))
-                .filter(m -> !m.isPinned())
+                .filter(m -> !m.isPinned() || deletePinned)
                 .filter(m -> m.getType().canDelete())
-                .flatMap(m -> createMonoFrom(m::delete))
-                .onErrorResume(t -> handleException("Error on deleting message", t, true));
+                .flatMap(m -> createMonoFrom(m::delete)
+                        .then(Mono.just(messageId)))
+                .onErrorResume(t -> handleException("Error on deleting message", t, true).ofType(Long.class));
     }
 
     protected Optional<String> checkPermission(@NonNull MessageChannel messageChannel, @Nullable Guild guild) {
@@ -105,8 +107,8 @@ public abstract class DiscordAdapter implements IDiscordAdapter {
         if (!messageChannel.canTalk()) {
             checks.add("'SEND_MESSAGES'");
         }
-       boolean missingEmbedPermission = Optional.of(messageChannel)
-                .filter(m -> m instanceof  GuildMessageChannel)
+        boolean missingEmbedPermission = Optional.of(messageChannel)
+                .filter(m -> m instanceof GuildMessageChannel)
                 .map(m -> (GuildMessageChannel) m)
                 .flatMap(g -> Optional.ofNullable(guild).map(Guild::getSelfMember).map(m -> !m.hasPermission(g, Permission.MESSAGE_EMBED_LINKS)))
                 .orElse(true);

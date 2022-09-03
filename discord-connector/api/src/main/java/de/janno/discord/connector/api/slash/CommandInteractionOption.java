@@ -11,6 +11,8 @@ import java.util.Optional;
 @Value
 @Builder
 public class CommandInteractionOption {
+
+    @NonNull
     String name;
 
     String stringValue;

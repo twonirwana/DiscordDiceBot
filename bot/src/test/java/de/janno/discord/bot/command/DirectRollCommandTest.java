@@ -1,11 +1,13 @@
 package de.janno.discord.bot.command;
 
 import com.google.common.collect.ImmutableList;
+import de.janno.discord.bot.dice.Dice;
 import de.janno.discord.bot.dice.DiceParserHelper;
-import de.janno.discord.bot.dice.IDice;
-import de.janno.discord.connector.api.ISlashEventAdaptor;
 import de.janno.discord.connector.api.Requester;
+import de.janno.discord.connector.api.SlashEventAdaptor;
 import de.janno.discord.connector.api.message.EmbedDefinition;
+import de.janno.discord.connector.api.slash.CommandDefinition;
+import de.janno.discord.connector.api.slash.CommandDefinitionOption;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import dev.diceroll.parser.NDice;
 import dev.diceroll.parser.ResultTree;
@@ -24,18 +26,18 @@ import static org.mockito.Mockito.*;
 
 class DirectRollCommandTest {
     DirectRollCommand underTest;
-    IDice diceMock;
+    Dice diceMock;
 
     @BeforeEach
     void setup() {
-        diceMock = mock(IDice.class);
+        diceMock = mock(Dice.class);
         underTest = new DirectRollCommand(new DiceParserHelper(diceMock));
     }
 
 
     @Test
-    void handleComponentInteractEvent() {
-        ISlashEventAdaptor slashEventAdaptor = mock(ISlashEventAdaptor.class);
+    void handleComponentInteractEventLegacy() {
+        SlashEventAdaptor slashEventAdaptor = mock(SlashEventAdaptor.class);
 
         CommandInteractionOption interactionOption = CommandInteractionOption.builder()
                 .name("expression")
@@ -45,7 +47,7 @@ class DirectRollCommandTest {
         when(diceMock.detailedRoll("1d6")).thenReturn(new ResultTree(new NDice(6, 1), 3, ImmutableList.of()));
         when(slashEventAdaptor.getChannelId()).thenReturn(1L);
         when(slashEventAdaptor.createResultMessageWithEventReference(any())).thenReturn(Mono.just(mock(Void.class)));
-        when(slashEventAdaptor.deleteMessage(anyLong())).thenReturn(Mono.just(mock(Void.class)));
+        when(slashEventAdaptor.deleteMessage(anyLong(), anyBoolean())).thenReturn(Mono.just(2L));
         when(slashEventAdaptor.reply(any())).thenReturn(Mono.just(mock(Void.class)));
         when(slashEventAdaptor.getCommandString()).thenReturn("/r expression:1d6");
         when(slashEventAdaptor.getRequester()).thenReturn(Mono.just(new Requester("user", "channel", "guild")));
@@ -62,7 +64,7 @@ class DirectRollCommandTest {
         verify(slashEventAdaptor).getOption("expression");
         verify(slashEventAdaptor, times(2)).getCommandString();
         verify(slashEventAdaptor, never()).createButtonMessage(any());
-        verify(slashEventAdaptor, never()).deleteMessage(anyLong());
+        verify(slashEventAdaptor, never()).deleteMessage(anyLong(), anyBoolean());
         verify(slashEventAdaptor, never()).replyEmbed(any(), anyBoolean());
         verify(slashEventAdaptor).createResultMessageWithEventReference(ArgumentMatchers.eq(new EmbedDefinition("Test Label: 1d6 = 3", "[3]", ImmutableList.of())));
 
@@ -70,8 +72,8 @@ class DirectRollCommandTest {
     }
 
     @Test
-    void handleComponentInteractEvent_validationFailed() {
-        ISlashEventAdaptor slashEventAdaptor = mock(ISlashEventAdaptor.class);
+    void handleComponentInteractEventLegacy_validationFailed() {
+        SlashEventAdaptor slashEventAdaptor = mock(SlashEventAdaptor.class);
 
         CommandInteractionOption interactionOption = CommandInteractionOption.builder()
                 .name("expression")
@@ -90,10 +92,10 @@ class DirectRollCommandTest {
         verify(slashEventAdaptor).getOption("expression");
         verify(slashEventAdaptor, times(1)).getCommandString();
         verify(slashEventAdaptor, never()).createButtonMessage(any());
-        verify(slashEventAdaptor, never()).deleteMessage(anyLong());
+        verify(slashEventAdaptor, never()).deleteMessage(anyLong(), anyBoolean());
         verify(slashEventAdaptor, never()).replyEmbed(any(), anyBoolean());
         verify(slashEventAdaptor, never()).createResultMessageWithEventReference(any());
-        verify(slashEventAdaptor, never()).deleteMessage(anyLong());
+        verify(slashEventAdaptor, never()).deleteMessage(anyLong(), anyBoolean());
         verify(slashEventAdaptor).reply("/r expression:asdfasdf\n" +
                 "The following dice expression is invalid: 'asdfasdf'. Use `/r help` to get more information on how to use the command.");
 
@@ -101,8 +103,8 @@ class DirectRollCommandTest {
     }
 
     @Test
-    void handleComponentInteractEvent_help() {
-        ISlashEventAdaptor slashEventAdaptor = mock(ISlashEventAdaptor.class);
+    void handleComponentInteractEventLegacy_help() {
+        SlashEventAdaptor slashEventAdaptor = mock(SlashEventAdaptor.class);
 
         CommandInteractionOption interactionOption = CommandInteractionOption.builder()
                 .name("expression")
@@ -124,9 +126,9 @@ class DirectRollCommandTest {
         verify(slashEventAdaptor).getOption("expression");
         verify(slashEventAdaptor, times(1)).getCommandString();
         verify(slashEventAdaptor, never()).createButtonMessage(any());
-        verify(slashEventAdaptor, never()).deleteMessage(anyLong());
+        verify(slashEventAdaptor, never()).deleteMessage(anyLong(), anyBoolean());
         verify(slashEventAdaptor, never()).createResultMessageWithEventReference(any());
-        verify(slashEventAdaptor, never()).deleteMessage(anyLong());
+        verify(slashEventAdaptor, never()).deleteMessage(anyLong(), anyBoolean());
         verify(slashEventAdaptor).replyEmbed(EmbedDefinition.builder()
                 .description("Type /r and a dice expression e.g. `/r 1d6` \n" + DiceParserHelper.HELP)
                 .build(), true);
@@ -134,4 +136,26 @@ class DirectRollCommandTest {
         verify(slashEventAdaptor, never()).getChannelId();
     }
 
+    @Test
+    void getCommandId() {
+        String res = underTest.getCommandId();
+
+        assertThat(res).isEqualTo("r");
+    }
+
+    @Test
+    void getCommandDefinition() {
+        CommandDefinition res = underTest.getCommandDefinition();
+
+        assertThat(res).isEqualTo(CommandDefinition.builder()
+                .name("r")
+                .description("direct roll of dice expression")
+                .option(CommandDefinitionOption.builder()
+                        .name("expression")
+                        .required(true)
+                        .description("dice expression, e.g. '2d6'")
+                        .type(CommandDefinitionOption.Type.STRING)
+                        .build())
+                .build());
+    }
 }

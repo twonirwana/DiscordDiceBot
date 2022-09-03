@@ -3,12 +3,13 @@ package de.janno.discord.bot.command.customDice;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
-import de.janno.discord.bot.cache.ButtonMessageCache;
-import de.janno.discord.bot.command.AbstractCommand;
-import de.janno.discord.bot.command.State;
+import de.janno.discord.bot.command.*;
 import de.janno.discord.bot.dice.DiceParserHelper;
+import de.janno.discord.bot.persistance.Mapper;
+import de.janno.discord.bot.persistance.MessageDataDAO;
+import de.janno.discord.bot.persistance.MessageDataDTO;
 import de.janno.discord.connector.api.BotConstants;
-import de.janno.discord.connector.api.IButtonEventAdaptor;
+import de.janno.discord.connector.api.ButtonEventAdaptor;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
 import de.janno.discord.connector.api.message.EmbedDefinition;
@@ -16,33 +17,63 @@ import de.janno.discord.connector.api.message.MessageDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinitionOption;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import lombok.NonNull;
+import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 @Slf4j
-public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, State> {
-    //test with /custom_dice start 1_button:1d1 2_button:2d2 3_button:3d3 4_button:4d4 5_button:5d5 6_button:6d6 7_button:7d7 8_button:8d8 9_button:9d9 10_button:10d10 11_button:11d11 12_button:12d12 13_button:13d13 14_button:14d14 15_button:15d15 16_button:16d16 17_button:17d17 18_button:18d18 19_button:19d19 20_button:20d20 21_button:21d21 22_button:22d22 23_button:23d23 24_button:24d24
+public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateData> {
 
     private static final String COMMAND_NAME = "custom_dice";
     private static final List<String> DICE_COMMAND_OPTIONS_IDS = IntStream.range(1, 25).mapToObj(i -> i + "_button").toList();
     private static final String LABEL_DELIMITER = "@";
     private static final String BUTTON_MESSAGE = "Click on a button to roll the dice";
-    private static final ButtonMessageCache BUTTON_MESSAGE_CACHE = new ButtonMessageCache(COMMAND_NAME);
+    private static final String CONFIG_TYPE_ID = "CustomDiceConfig";
     private final DiceParserHelper diceParserHelper;
 
-    public CustomDiceCommand() {
-        this(new DiceParserHelper());
+    public CustomDiceCommand(MessageDataDAO messageDataDAO) {
+        this(messageDataDAO, new DiceParserHelper());
     }
 
     @VisibleForTesting
-    public CustomDiceCommand(DiceParserHelper diceParserHelper) {
-        super(BUTTON_MESSAGE_CACHE);
+    public CustomDiceCommand(MessageDataDAO messageDataDAO, DiceParserHelper diceParserHelper) {
+        super(messageDataDAO);
         this.diceParserHelper = diceParserHelper;
+    }
+
+    @Override
+    protected Optional<ConfigAndState<CustomDiceConfig, StateData>> getMessageDataAndUpdateWithButtonValue(long channelId,
+                                                                                                           long messageId,
+                                                                                                           @NonNull String buttonValue,
+                                                                                                           @NonNull String invokingUserName) {
+        final Optional<MessageDataDTO> messageDataDTO = messageDataDAO.getDataForMessage(channelId, messageId);
+        if (messageDataDTO.isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.of(deserializeAndUpdateState(messageDataDTO.get(), buttonValue));
+    }
+
+    @VisibleForTesting
+    ConfigAndState<CustomDiceConfig, StateData> deserializeAndUpdateState(@NonNull MessageDataDTO messageDataDTO, @NonNull String buttonValue) {
+        Preconditions.checkArgument(CONFIG_TYPE_ID.equals(messageDataDTO.getConfigClassId()), "Unknown configClassId: %s", messageDataDTO.getConfigClassId());
+        return new ConfigAndState<>(messageDataDTO.getConfigUUID(),
+                Mapper.deserializeObject(messageDataDTO.getConfig(), CustomDiceConfig.class),
+                new State<>(buttonValue, StateData.empty()));
+    }
+
+    @Override
+    public Optional<MessageDataDTO> createMessageDataForNewMessage(@NonNull UUID configUUID,
+                                                                   long channelId,
+                                                                   long messageId,
+                                                                   @NonNull CustomDiceConfig config,
+                                                                   @Nullable State<StateData> state) {
+        return Optional.of(new MessageDataDTO(configUUID, channelId, messageId, getCommandId(), CONFIG_TYPE_ID,
+                Mapper.serializedObject(config),
+                Mapper.NO_PERSISTED_STATE, null));
     }
 
     @Override
@@ -51,26 +82,25 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, State> 
     }
 
     @Override
-    protected List<CommandDefinitionOption> getStartOptions() {
-        return Stream.concat(DICE_COMMAND_OPTIONS_IDS.stream()
-                                .map(id -> CommandDefinitionOption.builder()
-                                        .name(id)
-                                        .description("xdy for a set of x dice with y sides, e.g. '3d6'")
-                                        .type(CommandDefinitionOption.Type.STRING)
-                                        .build())
-                        , Stream.of(ANSWER_TARGET_CHANNEL_COMMAND_OPTION))
+    protected @NonNull List<CommandDefinitionOption> getStartOptions() {
+        return DICE_COMMAND_OPTIONS_IDS.stream()
+                .map(id -> CommandDefinitionOption.builder()
+                        .name(id)
+                        .description("xdy for a set of x dice with y sides, e.g. '3d6'")
+                        .type(CommandDefinitionOption.Type.STRING)
+                        .build())
                 .collect(Collectors.toList());
     }
 
     @Override
-    protected EmbedDefinition getHelpMessage() {
+    protected @NonNull EmbedDefinition getHelpMessage() {
         return EmbedDefinition.builder()
                 .description("Creates up to 25 buttons with custom dice expression e.g. '/custom_dice start 1_button:3d6 2_button:10d10 3_button:3d20'. \n" + DiceParserHelper.HELP)
                 .build();
     }
 
     @Override
-    protected Optional<String> getStartOptionsValidationMessage(CommandInteractionOption options) {
+    protected @NonNull Optional<String> getStartOptionsValidationMessage(@NonNull CommandInteractionOption options) {
         List<String> diceExpressionWithOptionalLabel = DICE_COMMAND_OPTIONS_IDS.stream()
                 .flatMap(id -> options.getStringSubOptionWithName(id).stream())
                 .distinct()
@@ -79,32 +109,33 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, State> 
         int maxCharacter = 100 - COMMAND_NAME.length()
                 - 2 // delimiter;
                 - answerTargetChannel.length();
-        return diceParserHelper.validateListOfExpressions(diceExpressionWithOptionalLabel, LABEL_DELIMITER, BotConstants.CONFIG_DELIMITER, "/custom_dice help", maxCharacter);
+        return diceParserHelper.validateListOfExpressions(diceExpressionWithOptionalLabel, LABEL_DELIMITER, BotConstants.CUSTOM_ID_DELIMITER, "/custom_dice help", maxCharacter);
     }
 
-    protected CustomDiceConfig getConfigFromStartOptions(CommandInteractionOption options) {
+    protected @NonNull CustomDiceConfig getConfigFromStartOptions(@NonNull CommandInteractionOption options) {
         return getConfigOptionStringList(DICE_COMMAND_OPTIONS_IDS.stream()
-                .flatMap(id -> options.getStringSubOptionWithName(id).stream())
+                .flatMap(id -> options.getStringSubOptionWithName(id).stream()
+                        .map(e -> new ButtonIdAndExpression(id, e)))
                 .collect(Collectors.toList()), getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null));
 
     }
 
     @VisibleForTesting
-    CustomDiceConfig getConfigOptionStringList(List<String> startOptions, Long channelId) {
+    CustomDiceConfig getConfigOptionStringList(List<ButtonIdAndExpression> startOptions, Long channelId) {
         return new CustomDiceConfig(channelId, startOptions.stream()
-                .filter(s -> !s.contains(BotConstants.CONFIG_DELIMITER))
-                .filter(s -> !s.contains(LABEL_DELIMITER) || s.split(LABEL_DELIMITER).length == 2)
-                .map(s -> {
-                    if (s.contains(LABEL_DELIMITER)) {
-                        String[] split = s.split(LABEL_DELIMITER);
-                        return new CustomDiceConfig.LabelAndDiceExpression(split[1].trim(), split[0].trim());
+                .filter(be -> !be.getExpression().contains(BotConstants.CUSTOM_ID_DELIMITER))
+                .filter(be -> !be.getExpression().contains(LABEL_DELIMITER) || be.getExpression().split(LABEL_DELIMITER).length == 2)
+                .map(be -> {
+                    if (be.getExpression().contains(LABEL_DELIMITER)) {
+                        String[] split = be.getExpression().split(LABEL_DELIMITER);
+                        return new ButtonIdLabelAndDiceExpression(be.getButtonId(), split[1].trim(), split[0].trim());
                     }
-                    return new CustomDiceConfig.LabelAndDiceExpression(s.trim(), s.trim());
+                    return new ButtonIdLabelAndDiceExpression(be.getButtonId(), be.getExpression().trim(), be.getExpression().trim());
                 })
                 .filter(s -> !s.getDiceExpression().isEmpty())
                 .filter(s -> !s.getLabel().isEmpty())
                 .filter(lv -> diceParserHelper.validExpression(lv.getDiceExpression()))
-                .filter(s -> createButtonCustomId(s.getDiceExpression(), channelId).length() <= 100) //limit for the ids are 100 characters and we need also some characters for the type...
+                .filter(s -> s.getDiceExpression().length() <= 2000) //limit of the discord message content
                 .filter(s -> s.getLabel().length() <= 80) //https://discord.com/developers/docs/interactions/message-components#buttons
                 .distinct()
                 .limit(25)
@@ -112,22 +143,27 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, State> 
     }
 
     @Override
-    protected Optional<EmbedDefinition> getAnswer(State state, CustomDiceConfig config) {
-        String label = config.getLabelAndExpression().stream()
-                .filter(ld -> !ld.getDiceExpression().equals(ld.getLabel()))
-                .filter(ld -> ld.getDiceExpression().equals(state.getButtonValue()))
-                .map(CustomDiceConfig.LabelAndDiceExpression::getLabel)
-                .findFirst().orElse(null);
-        return Optional.of(diceParserHelper.roll(state.getButtonValue(), label));
+    protected @NonNull Optional<EmbedDefinition> getAnswer(CustomDiceConfig config, State<StateData> state) {
+        Optional<ButtonIdLabelAndDiceExpression> selectedButton = Optional.ofNullable(state).map(State::getButtonValue)
+                .flatMap(bv -> config.getButtonIdLabelAndDiceExpressions().stream()
+                        .filter(bld -> bld.getButtonId().equals(bv))
+                        .findFirst()
+                );
+        if (selectedButton.isEmpty()) {
+            return Optional.empty();
+        }
+        //add the label only if it is different from the expression
+        final String label = selectedButton.get().getDiceExpression().equals(selectedButton.get().getLabel()) ? null : selectedButton.get().getLabel();
+        return Optional.of(diceParserHelper.roll(selectedButton.get().getDiceExpression(), label));
     }
 
     @Override
-    protected Optional<MessageDefinition> createNewButtonMessageWithState(State state, CustomDiceConfig config) {
+    protected @NonNull Optional<MessageDefinition> createNewButtonMessageWithState(CustomDiceConfig config, State<StateData> state) {
         return Optional.of(createNewButtonMessage(config));
     }
 
     @Override
-    public MessageDefinition createNewButtonMessage(CustomDiceConfig config) {
+    public @NonNull MessageDefinition createNewButtonMessage(CustomDiceConfig config) {
         return MessageDefinition.builder()
                 .content(BUTTON_MESSAGE)
                 .componentRowDefinitions(createButtonLayout(config))
@@ -135,9 +171,9 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, State> 
     }
 
     private List<ComponentRowDefinition> createButtonLayout(CustomDiceConfig config) {
-        List<ButtonDefinition> buttons = config.getLabelAndExpression().stream()
+        List<ButtonDefinition> buttons = config.getButtonIdLabelAndDiceExpressions().stream()
                 .map(d -> ButtonDefinition.builder()
-                        .id(createButtonCustomId(d.getDiceExpression(), config.getAnswerTargetChannelId()))
+                        .id(createButtonCustomId(d.getButtonId()))
                         .label(d.getLabel())
                         .build())
                 .collect(Collectors.toList());
@@ -146,33 +182,39 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, State> 
                 .collect(Collectors.toList());
     }
 
-    @VisibleForTesting
-    String createButtonCustomId(String diceExpression, Long answerTargetChannelId) {
-        Preconditions.checkArgument(!diceExpression.contains(BotConstants.CONFIG_DELIMITER));
-
-        return String.join(BotConstants.CONFIG_DELIMITER,
-                COMMAND_NAME,
-                diceExpression,
-                Optional.ofNullable(answerTargetChannelId).map(Object::toString).orElse(""));
-    }
-
     @Override
-    protected CustomDiceConfig getConfigFromEvent(IButtonEventAdaptor event) {
-        String[] split = event.getCustomId().split(BotConstants.CONFIG_SPLIT_DELIMITER_REGEX);
+    protected @NonNull CustomDiceConfig getConfigFromEvent(@NonNull ButtonEventAdaptor event) {
+        String[] split = event.getCustomId().split(BotConstants.LEGACY_CONFIG_SPLIT_DELIMITER_REGEX);
         Long answerTargetChannelId = getOptionalLongFromArray(split, 2);
+        Deque<String> buttonIds = new ArrayDeque<>(DICE_COMMAND_OPTIONS_IDS);
         return new CustomDiceConfig(answerTargetChannelId, event.getAllButtonIds().stream()
-                .map(lv -> new CustomDiceConfig.LabelAndDiceExpression(lv.getLabel(), lv.getCustomId().split(BotConstants.CONFIG_SPLIT_DELIMITER_REGEX)[1]))
+                .map(lv -> new ButtonIdLabelAndDiceExpression(buttonIds.pop(), lv.getLabel(), getButtonValueFromLegacyCustomId(lv.getCustomId())))
                 .collect(Collectors.toList()));
     }
 
     @Override
-    protected State getStateFromEvent(IButtonEventAdaptor event) {
-        return new State(event.getCustomId().split(BotConstants.CONFIG_SPLIT_DELIMITER_REGEX)[1]);
+    protected @NonNull State<StateData> getStateFromEvent(@NonNull ButtonEventAdaptor event) {
+        final CustomDiceConfig config = getConfigFromEvent(event);
+        final String buttonValue = getButtonValueFromLegacyCustomId(event.getCustomId());
+        final String mappedButtonValue = config.getButtonIdLabelAndDiceExpressions().stream()
+                .filter(bld -> bld.getDiceExpression().equals(buttonValue))
+                .map(ButtonIdLabelAndDiceExpression::getButtonId)
+                .findFirst()
+                .orElseThrow();
+        return new State<>(mappedButtonValue, StateData.empty());
     }
 
     @Override
-    public String getName() {
+    public String getCommandId() {
         return COMMAND_NAME;
+    }
+
+    @Value
+    static class ButtonIdAndExpression {
+        @NonNull
+        String buttonId;
+        @NonNull
+        String expression;
     }
 
 }

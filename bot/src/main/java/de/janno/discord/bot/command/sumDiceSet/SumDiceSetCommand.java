@@ -3,13 +3,16 @@ package de.janno.discord.bot.command.sumDiceSet;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import de.janno.discord.bot.cache.ButtonMessageCache;
 import de.janno.discord.bot.command.AbstractCommand;
 import de.janno.discord.bot.command.Config;
+import de.janno.discord.bot.command.ConfigAndState;
+import de.janno.discord.bot.command.State;
 import de.janno.discord.bot.dice.DiceUtils;
+import de.janno.discord.bot.persistance.Mapper;
+import de.janno.discord.bot.persistance.MessageDataDAO;
+import de.janno.discord.bot.persistance.MessageDataDTO;
 import de.janno.discord.connector.api.BotConstants;
-import de.janno.discord.connector.api.IButtonEventAdaptor;
+import de.janno.discord.connector.api.ButtonEventAdaptor;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
 import de.janno.discord.connector.api.message.EmbedDefinition;
@@ -19,6 +22,7 @@ import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.regex.Pattern;
@@ -26,7 +30,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Slf4j
-public class SumDiceSetCommand extends AbstractCommand<Config, SumDiceSetState> {
+public class SumDiceSetCommand extends AbstractCommand<Config, SumDiceSetStateData> {
     private static final String COMMAND_NAME = "sum_dice_set";
     private static final String DICE_SET_DELIMITER = " ";
     private static final String ROLL_BUTTON_ID = "roll";
@@ -35,33 +39,34 @@ public class SumDiceSetCommand extends AbstractCommand<Config, SumDiceSetState> 
     private static final String X2_BUTTON_ID = "x2";
     private static final String DICE_SYMBOL = "d";
     private static final String MODIFIER_KEY = "m";
-    private static final ButtonMessageCache BUTTON_MESSAGE_CACHE = new ButtonMessageCache(COMMAND_NAME);
+    private static final String CONFIG_TYPE_ID = "Config";
+    private static final String STATE_DATA_TYPE_ID = "SumDiceSetStateData";
     private final DiceUtils diceUtils;
 
-    public SumDiceSetCommand() {
-        this(new DiceUtils());
+    public SumDiceSetCommand(MessageDataDAO messageDataDAO) {
+        this(messageDataDAO, new DiceUtils());
     }
 
     @VisibleForTesting
-    public SumDiceSetCommand(DiceUtils diceUtils) {
-        super(BUTTON_MESSAGE_CACHE);
+    public SumDiceSetCommand(MessageDataDAO messageDataDAO, DiceUtils diceUtils) {
+        super(messageDataDAO);
         this.diceUtils = diceUtils;
     }
 
-    private static String parseDiceMapToMessageString(Map<String, Integer> diceSet) {
-        String message = diceSet.entrySet().stream()
+    private static String parseDiceMapToMessageString(List<DiceKeyAndValue> diceSet) {
+        String message = diceSet.stream()
                 .sorted(Comparator.comparing(e -> {
-                    if (e.getKey().contains(DICE_SYMBOL)) {
-                        return Integer.parseInt(e.getKey().substring(1));
+                    if (e.getDiceKey().contains(DICE_SYMBOL)) {
+                        return Integer.parseInt(e.getDiceKey().substring(1));
                     }
                     //modifiers should always be at the end
                     return Integer.MAX_VALUE;
                 }))
                 .map(e -> {
-                    if (MODIFIER_KEY.equals(e.getKey())) {
+                    if (MODIFIER_KEY.equals(e.getDiceKey())) {
                         return String.format("%s%d", e.getValue() > 0 ? "+" : "", e.getValue());
                     }
-                    return String.format("%s%d%s", e.getValue() > 0 ? "+" : "", e.getValue(), e.getKey());
+                    return String.format("%s%d%s", e.getValue() > 0 ? "+" : "", e.getValue(), e.getDiceKey());
                 })
                 .collect(Collectors.joining(DICE_SET_DELIMITER));
         //remove leading +
@@ -71,13 +76,67 @@ public class SumDiceSetCommand extends AbstractCommand<Config, SumDiceSetState> 
         return message;
     }
 
+
+    @Override
+    protected Optional<ConfigAndState<Config, SumDiceSetStateData>> getMessageDataAndUpdateWithButtonValue(long channelId,
+                                                                                                           long messageId,
+                                                                                                           @NonNull String buttonValue,
+                                                                                                           @NonNull String invokingUserName) {
+        final Optional<MessageDataDTO> messageDataDTO = messageDataDAO.getDataForMessage(channelId, messageId);
+        if (messageDataDTO.isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.of(deserializeAndUpdateState(messageDataDTO.get(), buttonValue));
+    }
+
+    @VisibleForTesting
+    ConfigAndState<Config, SumDiceSetStateData> deserializeAndUpdateState(@NonNull MessageDataDTO messageDataDTO, @NonNull String buttonValue) {
+        Preconditions.checkArgument(CONFIG_TYPE_ID.equals(messageDataDTO.getConfigClassId()), "Unknown configClassId: %s", messageDataDTO.getConfigClassId());
+        Preconditions.checkArgument(STATE_DATA_TYPE_ID.equals(messageDataDTO.getStateDataClassId())
+                || Mapper.NO_PERSISTED_STATE.equals(messageDataDTO.getStateDataClassId()), "Unknown stateDataClassId: %s", messageDataDTO.getStateDataClassId());
+
+        final SumDiceSetStateData loadedStateData = Optional.ofNullable(messageDataDTO.getStateData())
+                .map(sd -> Mapper.deserializeObject(sd, SumDiceSetStateData.class))
+                .orElse(null);
+        final Config loadedConfig = Mapper.deserializeObject(messageDataDTO.getConfig(), Config.class);
+        final State<SumDiceSetStateData> updatedState = updateState(buttonValue, loadedStateData);
+        return new ConfigAndState<>(messageDataDTO.getConfigUUID(), loadedConfig, updatedState);
+    }
+
+    @Override
+    public Optional<MessageDataDTO> createMessageDataForNewMessage(@NonNull UUID configUUID,
+                                                                   long channelId,
+                                                                   long messageId,
+                                                                   @NonNull Config config,
+                                                                   @Nullable State<SumDiceSetStateData> state) {
+        return Optional.of(new MessageDataDTO(configUUID, channelId, messageId, getCommandId(),
+                CONFIG_TYPE_ID, Mapper.serializedObject(config)));
+    }
+
+    @Override
+    protected void updateCurrentMessageStateData(long channelId, long messageId, @NonNull Config config, @NonNull State<SumDiceSetStateData> state) {
+        if (state.getData() == null) {
+            messageDataDAO.updateCommandConfigOfMessage(channelId, messageId, Mapper.NO_PERSISTED_STATE, null);
+        } else {
+            messageDataDAO.updateCommandConfigOfMessage(channelId, messageId, STATE_DATA_TYPE_ID, Mapper.serializedObject(state.getData()));
+        }
+    }
+
+    @VisibleForTesting
+    State<SumDiceSetStateData> updateState(@NonNull String buttonValue, @Nullable SumDiceSetStateData stateData) {
+        final List<DiceKeyAndValue> updatedList = updateDiceSet(Optional.ofNullable(stateData)
+                .map(SumDiceSetStateData::getDiceSet)
+                .orElse(ImmutableList.of()), buttonValue);
+        return new State<>(buttonValue, new SumDiceSetStateData(updatedList));
+    }
+
     @Override
     protected @NonNull String getCommandDescription() {
         return "Configure a variable set of d4 to d20 dice";
     }
 
     @Override
-    protected EmbedDefinition getHelpMessage() {
+    protected @NonNull EmbedDefinition getHelpMessage() {
         return EmbedDefinition.builder()
                 .description("Use '/sum_dice_set start' " +
                         "to get message, where the user can create a dice set and roll it.")
@@ -85,44 +144,37 @@ public class SumDiceSetCommand extends AbstractCommand<Config, SumDiceSetState> 
     }
 
     @Override
-    public String getName() {
+    public String getCommandId() {
         return COMMAND_NAME;
     }
 
-
-    @VisibleForTesting
-    String createButtonCustomId(String action, Config config) {
-        Preconditions.checkArgument(!action.contains(BotConstants.CONFIG_DELIMITER));
-
-        return String.join(BotConstants.CONFIG_DELIMITER,
-                COMMAND_NAME,
-                action,
-                Optional.ofNullable(config.getAnswerTargetChannelId()).map(Object::toString).orElse(""));
+    @Override
+    protected @NonNull List<CommandDefinitionOption> getStartOptions() {
+        return ImmutableList.of();
     }
 
     @Override
-    protected List<CommandDefinitionOption> getStartOptions() {
-        return ImmutableList.of(ANSWER_TARGET_CHANNEL_COMMAND_OPTION);
-    }
-
-    @Override
-    protected Optional<EmbedDefinition> getAnswer(SumDiceSetState state, Config config) {
-        if (!(ROLL_BUTTON_ID.equals(state.getButtonValue()) && !state.getDiceSetMap().isEmpty())) {
+    protected @NonNull Optional<EmbedDefinition> getAnswer(Config config, State<SumDiceSetStateData> state) {
+        if (!(ROLL_BUTTON_ID.equals(state.getButtonValue()) &&
+                !Optional.ofNullable(state.getData())
+                        .map(SumDiceSetStateData::getDiceSet)
+                        .map(List::isEmpty)
+                        .orElse(true))) {
             return Optional.empty();
         }
-        List<Integer> diceResultValues = state.getDiceSetMap().entrySet().stream()
+        List<Integer> diceResultValues = state.getData().getDiceSet().stream()
                 .sorted(Comparator.comparing(e -> {
-                    if (e.getKey().contains(DICE_SYMBOL)) {
-                        return Integer.parseInt(e.getKey().substring(1));
+                    if (e.getDiceKey().contains(DICE_SYMBOL)) {
+                        return Integer.parseInt(e.getDiceKey().substring(1));
                     }
                     //modifiers should always be at the end
                     return Integer.MAX_VALUE;
                 }))
                 .flatMap(e -> {
-                    if (MODIFIER_KEY.equals(e.getKey())) {
+                    if (MODIFIER_KEY.equals(e.getDiceKey())) {
                         return Stream.of(e.getValue());
                     }
-                    int diceSides = Integer.parseInt(e.getKey().substring(1));
+                    int diceSides = Integer.parseInt(e.getDiceKey().substring(1));
                     return diceUtils.rollDiceOfType(Math.abs(e.getValue()), diceSides).stream()
                             .map(dv -> {
                                 //modify the result if the dice count is negative
@@ -133,7 +185,7 @@ public class SumDiceSetCommand extends AbstractCommand<Config, SumDiceSetState> 
                             });
                 }).toList();
         long sumResult = diceResultValues.stream().mapToLong(Integer::longValue).sum();
-        String title = parseDiceMapToMessageString(state.getDiceSetMap());
+        String title = parseDiceMapToMessageString(state.getData().getDiceSet());
         return Optional.of(new EmbedDefinition(String.format("%s = %d", title, sumResult), diceResultValues.toString(), ImmutableList.of()));
     }
 
@@ -148,143 +200,165 @@ public class SumDiceSetCommand extends AbstractCommand<Config, SumDiceSetState> 
     }
 
     @Override
-    public MessageDefinition createNewButtonMessage(Config config) {
+    public @NonNull MessageDefinition createNewButtonMessage(Config config) {
         return MessageDefinition.builder()
                 .content(EMPTY_MESSAGE)
-                .componentRowDefinitions(createButtonLayout(config))
+                .componentRowDefinitions(createButtonLayout())
                 .build();
     }
 
     @Override
-    protected Optional<MessageDefinition> createNewButtonMessageWithState(SumDiceSetState state, Config config) {
-        if (!(ROLL_BUTTON_ID.equals(state.getButtonValue()) && !state.getDiceSetMap().isEmpty())) {
+    protected @NonNull Optional<MessageDefinition> createNewButtonMessageWithState(Config config, State<SumDiceSetStateData> state) {
+        if (!(ROLL_BUTTON_ID.equals(state.getButtonValue()) &&
+                !Optional.ofNullable(state.getData())
+                        .map(SumDiceSetStateData::getDiceSet)
+                        .map(List::isEmpty)
+                        .orElse(true))) {
             return Optional.empty();
         }
         return Optional.of(MessageDefinition.builder()
                 .content(EMPTY_MESSAGE)
-                .componentRowDefinitions(createButtonLayout(config))
+                .componentRowDefinitions(createButtonLayout())
                 .build());
     }
 
-    @Override
-    public Optional<String> getCurrentMessageContentChange(SumDiceSetState state, Config config) {
-        switch (state.getButtonValue()) {
+    @VisibleForTesting
+    List<DiceKeyAndValue> updateDiceSet(List<DiceKeyAndValue> currentDiceSet, String buttonValue) {
+        switch (buttonValue) {
             case ROLL_BUTTON_ID:
+                return currentDiceSet;
             case CLEAR_BUTTON_ID:
-                return Optional.of(EMPTY_MESSAGE);
+                return ImmutableList.of();
             case X2_BUTTON_ID:
-                return Optional.of(parseDiceMapToMessageString(state.getDiceSetMap().entrySet().stream()
-                        .collect(Collectors.toMap(Map.Entry::getKey, e -> limit(e.getValue() * 2)))));
+                return currentDiceSet.stream()
+                        .map(kv -> new DiceKeyAndValue(kv.getDiceKey(), limit(kv.getValue() * 2)))
+                        .toList();
             default:
-                Map<String, Integer> currentDiceSet = new HashMap<>(state.getDiceSetMap());
+                Map<String, Integer> updatedDiceSet = currentDiceSet.stream().collect(Collectors.toMap(DiceKeyAndValue::getDiceKey, DiceKeyAndValue::getValue));
                 int diceModifier;
                 String die;
 
-                if (state.getButtonValue().contains(DICE_SYMBOL)) {
-                    diceModifier = "-".equals(state.getButtonValue().substring(0, 1)) ? -1 : +1;
-                    die = state.getButtonValue().substring(2);
+                if (buttonValue.contains(DICE_SYMBOL)) {
+                    diceModifier = "-".equals(buttonValue.substring(0, 1)) ? -1 : +1;
+                    die = buttonValue.substring(2);
                 } else {
-                    diceModifier = Integer.parseInt(state.getButtonValue());
+                    diceModifier = Integer.parseInt(buttonValue);
                     die = MODIFIER_KEY;
                 }
-                int currentCount = currentDiceSet.getOrDefault(die, 0);
+                int currentCount = updatedDiceSet.getOrDefault(die, 0);
                 int newCount = currentCount + diceModifier;
                 newCount = limit(newCount);
 
                 if (newCount == 0) {
-                    currentDiceSet.remove(die);
+                    updatedDiceSet.remove(die);
                 } else {
-                    currentDiceSet.put(die, newCount);
+                    updatedDiceSet.put(die, newCount);
                 }
-
-                if (currentDiceSet.isEmpty()) {
-                    return Optional.of(EMPTY_MESSAGE);
-                }
-                return Optional.of(parseDiceMapToMessageString(currentDiceSet));
+                return updatedDiceSet.entrySet().stream()
+                        .map(dv -> new DiceKeyAndValue(dv.getKey(), dv.getValue()))
+                        .sorted(Comparator.comparing(DiceKeyAndValue::getDiceKey)) //make the list order deterministic
+                        .toList();
         }
     }
 
     @Override
-    protected Config getConfigFromEvent(IButtonEventAdaptor event) {
-        String[] split = event.getCustomId().split(BotConstants.CONFIG_SPLIT_DELIMITER_REGEX);
+    public @NonNull Optional<String> getCurrentMessageContentChange(Config config, State<SumDiceSetStateData> state) {
+        List<DiceKeyAndValue> currentDiceSet = Optional.ofNullable(state.getData()).map(SumDiceSetStateData::getDiceSet).orElse(ImmutableList.of());
+
+        if (currentDiceSet.isEmpty()) {
+            return Optional.of(EMPTY_MESSAGE);
+        }
+        return Optional.of(parseDiceMapToMessageString(currentDiceSet));
+    }
+
+    @Override
+    protected @NonNull Config getConfigFromEvent(@NonNull ButtonEventAdaptor event) {
+        String[] split = event.getCustomId().split(BotConstants.LEGACY_CONFIG_SPLIT_DELIMITER_REGEX);
 
         return new Config(getOptionalLongFromArray(split, 2));
     }
 
     @Override
-    protected SumDiceSetState getStateFromEvent(IButtonEventAdaptor event) {
-        String buttonMessage = event.getMessageContent();
-        String buttonValue = event.getCustomId().split(BotConstants.CONFIG_SPLIT_DELIMITER_REGEX)[1];
+    protected @NonNull State<SumDiceSetStateData> getStateFromEvent(@NonNull ButtonEventAdaptor event) {
+        final String buttonMessage = event.getMessageContent();
+        final String buttonValue = getButtonValueFromLegacyCustomId(event.getCustomId());
+        final SumDiceSetStateData stateFromId;
         if (EMPTY_MESSAGE.equals(buttonMessage)) {
-            return new SumDiceSetState(buttonValue, ImmutableMap.of());
-        }
-
-        return new SumDiceSetState(buttonValue, Arrays.stream(buttonMessage.split(Pattern.quote(DICE_SET_DELIMITER)))
-                //for handling legacy buttons with '1d4 + 1d6)
-                .filter(s -> !"+".equals(s))
-                .filter(Objects::nonNull)
-                //adding the + for the first die type in the message
-                .map(s -> {
-                    if (!s.startsWith("-") && !s.startsWith("+")) {
-                        return "+" + s;
-                    }
-                    return s;
-                })
-                .collect(Collectors.toMap(s -> {
-                    if (s.contains(DICE_SYMBOL)) {
-                        return s.substring(s.indexOf(DICE_SYMBOL));
-                    } else {
-                        return MODIFIER_KEY;
-                    }
-                }, s -> {
-                    if (s.contains(DICE_SYMBOL)) {
-                        return Integer.valueOf(s.substring(0, s.indexOf(DICE_SYMBOL)));
-                    } else {
-                        s = s.replace("+", "");
-                        if (NumberUtils.isParsable(s)) {
-                            return Integer.valueOf(s);
-                        } else {
-                            log.error(String.format("Can't parse number %s for buttonId: %s and buttonMessage: %s", s, event.getCustomId(), buttonMessage));
-                            return 0;
+            stateFromId = new SumDiceSetStateData(ImmutableList.of());
+        } else {
+            stateFromId = new SumDiceSetStateData(Arrays.stream(buttonMessage.split(Pattern.quote(DICE_SET_DELIMITER)))
+                    //for handling legacy buttons with '1d4 + 1d6')
+                    .filter(s -> !"+".equals(s))
+                    .filter(Objects::nonNull)
+                    //adding the + for the first die type in the message
+                    .map(s -> {
+                        if (!s.startsWith("-") && !s.startsWith("+")) {
+                            return "+" + s;
                         }
-                    }
-                })));
+                        return s;
+                    })
+                    .map(s -> {
+                        final String diceKey;
+                        if (s.contains(DICE_SYMBOL)) {
+                            diceKey = s.substring(s.indexOf(DICE_SYMBOL));
+                        } else {
+                            diceKey = MODIFIER_KEY;
+                        }
+                        final int value;
+                        if (s.contains(DICE_SYMBOL)) {
+                            value = Integer.parseInt(s.substring(0, s.indexOf(DICE_SYMBOL)));
+                        } else {
+                            s = s.replace("+", "");
+                            if (NumberUtils.isParsable(s)) {
+                                value = Integer.parseInt(s);
+                            } else {
+                                log.error(String.format("Can't parse number %s for buttonId: %s and buttonMessage: %s", s, event.getCustomId(), buttonMessage));
+                                value = 0;
+                            }
+                        }
+                        return new DiceKeyAndValue(diceKey, value);
+                    })
+                    .distinct()
+                    .toList());
+        }
+        return updateState(buttonValue, stateFromId);
     }
+
     @Override
-    protected Config getConfigFromStartOptions(CommandInteractionOption options) {
+    protected @NonNull Config getConfigFromStartOptions(@NonNull CommandInteractionOption options) {
         return new Config(getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null));
     }
 
-    private List<ComponentRowDefinition> createButtonLayout(Config config) {
+    private List<ComponentRowDefinition> createButtonLayout() {
         return ImmutableList.of(
                 ComponentRowDefinition.builder().buttonDefinitions(ImmutableList.of(
                         //              ID,  label
-                        ButtonDefinition.builder().id(createButtonCustomId("+1d4", config)).label("+1d4").build(),
-                        ButtonDefinition.builder().id(createButtonCustomId("-1d4", config)).label("-1d4").build(),
-                        ButtonDefinition.builder().id(createButtonCustomId("+1d6", config)).label("+1d6").build(),
-                        ButtonDefinition.builder().id(createButtonCustomId("-1d6", config)).label("-1d6").build(),
-                        ButtonDefinition.builder().id(createButtonCustomId(X2_BUTTON_ID, config)).style(ButtonDefinition.Style.SECONDARY).label("x2").build()
+                        ButtonDefinition.builder().id(createButtonCustomId("+1d4")).label("+1d4").build(),
+                        ButtonDefinition.builder().id(createButtonCustomId("-1d4")).label("-1d4").build(),
+                        ButtonDefinition.builder().id(createButtonCustomId("+1d6")).label("+1d6").build(),
+                        ButtonDefinition.builder().id(createButtonCustomId("-1d6")).label("-1d6").build(),
+                        ButtonDefinition.builder().id(createButtonCustomId(X2_BUTTON_ID)).style(ButtonDefinition.Style.SECONDARY).label("x2").build()
                 )).build(),
                 ComponentRowDefinition.builder().buttonDefinitions(ImmutableList.of(
-                        ButtonDefinition.builder().id(createButtonCustomId("+1d8", config)).label("+1d8").build(),
-                        ButtonDefinition.builder().id(createButtonCustomId("-1d8", config)).label("-1d8").build(),
-                        ButtonDefinition.builder().id(createButtonCustomId("+1d10", config)).label("+1d10").build(),
-                        ButtonDefinition.builder().id(createButtonCustomId("-1d10", config)).label("-1d10").build(),
-                        ButtonDefinition.builder().id(createButtonCustomId(CLEAR_BUTTON_ID, config)).style(ButtonDefinition.Style.DANGER).label("Clear").build()
+                        ButtonDefinition.builder().id(createButtonCustomId("+1d8")).label("+1d8").build(),
+                        ButtonDefinition.builder().id(createButtonCustomId("-1d8")).label("-1d8").build(),
+                        ButtonDefinition.builder().id(createButtonCustomId("+1d10")).label("+1d10").build(),
+                        ButtonDefinition.builder().id(createButtonCustomId("-1d10")).label("-1d10").build(),
+                        ButtonDefinition.builder().id(createButtonCustomId(CLEAR_BUTTON_ID)).style(ButtonDefinition.Style.DANGER).label("Clear").build()
                 )).build(),
                 ComponentRowDefinition.builder().buttonDefinitions(ImmutableList.of(
-                        ButtonDefinition.builder().id(createButtonCustomId("+1d12", config)).label("+1d12").build(),
-                        ButtonDefinition.builder().id(createButtonCustomId("-1d12", config)).label("-1d12").build(),
-                        ButtonDefinition.builder().id(createButtonCustomId("+1d20", config)).label("+1d20").build(),
-                        ButtonDefinition.builder().id(createButtonCustomId("-1d20", config)).label("-1d20").build(),
-                        ButtonDefinition.builder().id(createButtonCustomId(ROLL_BUTTON_ID, config)).style(ButtonDefinition.Style.SUCCESS).label("Roll").build()
+                        ButtonDefinition.builder().id(createButtonCustomId("+1d12")).label("+1d12").build(),
+                        ButtonDefinition.builder().id(createButtonCustomId("-1d12")).label("-1d12").build(),
+                        ButtonDefinition.builder().id(createButtonCustomId("+1d20")).label("+1d20").build(),
+                        ButtonDefinition.builder().id(createButtonCustomId("-1d20")).label("-1d20").build(),
+                        ButtonDefinition.builder().id(createButtonCustomId(ROLL_BUTTON_ID)).style(ButtonDefinition.Style.SUCCESS).label("Roll").build()
                 )).build(),
                 ComponentRowDefinition.builder().buttonDefinitions(ImmutableList.of(
-                        ButtonDefinition.builder().id(createButtonCustomId("+1", config)).label("+1").build(),
-                        ButtonDefinition.builder().id(createButtonCustomId("-1", config)).label("-1").build(),
-                        ButtonDefinition.builder().id(createButtonCustomId("+5", config)).label("+5").build(),
-                        ButtonDefinition.builder().id(createButtonCustomId("-5", config)).label("-5").build(),
-                        ButtonDefinition.builder().id(createButtonCustomId("+10", config)).label("+10").build()
+                        ButtonDefinition.builder().id(createButtonCustomId("+1")).label("+1").build(),
+                        ButtonDefinition.builder().id(createButtonCustomId("-1")).label("-1").build(),
+                        ButtonDefinition.builder().id(createButtonCustomId("+5")).label("+5").build(),
+                        ButtonDefinition.builder().id(createButtonCustomId("-5")).label("-5").build(),
+                        ButtonDefinition.builder().id(createButtonCustomId("+10")).label("+10").build()
                 )).build());
     }
 

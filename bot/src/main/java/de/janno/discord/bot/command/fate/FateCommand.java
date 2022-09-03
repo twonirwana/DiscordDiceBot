@@ -2,13 +2,14 @@ package de.janno.discord.bot.command.fate;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
-import de.janno.discord.bot.cache.ButtonMessageCache;
-import de.janno.discord.bot.command.AbstractCommand;
+import de.janno.discord.bot.command.*;
 import de.janno.discord.bot.dice.DiceUtils;
+import de.janno.discord.bot.persistance.Mapper;
+import de.janno.discord.bot.persistance.MessageDataDAO;
+import de.janno.discord.bot.persistance.MessageDataDTO;
 import de.janno.discord.connector.api.BotConstants;
-import de.janno.discord.connector.api.IButtonEventAdaptor;
+import de.janno.discord.connector.api.ButtonEventAdaptor;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
 import de.janno.discord.connector.api.message.EmbedDefinition;
@@ -18,34 +19,67 @@ import de.janno.discord.connector.api.slash.CommandDefinitionOptionChoice;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.math.NumberUtils;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Slf4j
-public class FateCommand extends AbstractCommand<FateConfig, FateState> {
+public class FateCommand extends AbstractCommand<FateConfig, StateData> {
 
     private static final String COMMAND_NAME = "fate";
     private static final String ACTION_MODIFIER_OPTION = "type";
     private static final String ACTION_MODIFIER_OPTION_SIMPLE = "simple";
     private static final String ACTION_MODIFIER_OPTION_MODIFIER = "with_modifier";
     private static final String ROLL_BUTTON_ID = "roll";
-    private static final ButtonMessageCache BUTTON_MESSAGE_CACHE = new ButtonMessageCache(COMMAND_NAME);
+    private static final String CONFIG_TYPE_ID = "FateConfig";
     private final DiceUtils diceUtils;
 
     @VisibleForTesting
-    public FateCommand(DiceUtils diceUtils) {
-        super(BUTTON_MESSAGE_CACHE);
+    public FateCommand(MessageDataDAO messageDataDAO, DiceUtils diceUtils) {
+        super(messageDataDAO);
         this.diceUtils = diceUtils;
     }
 
-    public FateCommand() {
-        this(new DiceUtils());
+    public FateCommand(MessageDataDAO messageDataDAO) {
+        this(messageDataDAO, new DiceUtils());
     }
 
     @Override
-    public String getName() {
+    protected Optional<ConfigAndState<FateConfig, StateData>> getMessageDataAndUpdateWithButtonValue(long channelId,
+                                                                                                     long messageId,
+                                                                                                     @NonNull String buttonValue,
+                                                                                                     @NonNull String invokingUserName) {
+        final Optional<MessageDataDTO> messageDataDTO = messageDataDAO.getDataForMessage(channelId, messageId);
+        if (messageDataDTO.isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.of(deserializeAndUpdateState(messageDataDTO.get(), buttonValue));
+    }
+
+    @VisibleForTesting
+    ConfigAndState<FateConfig, StateData> deserializeAndUpdateState(@NonNull MessageDataDTO messageDataDTO, @NonNull String buttonValue) {
+        Preconditions.checkArgument(CONFIG_TYPE_ID.equals(messageDataDTO.getConfigClassId()), "Unknown configClassId: %s", messageDataDTO.getConfigClassId());
+
+        return new ConfigAndState<>(messageDataDTO.getConfigUUID(),
+                Mapper.deserializeObject(messageDataDTO.getConfig(), FateConfig.class),
+                new State<>(buttonValue, StateData.empty()));
+    }
+
+
+    @Override
+    public Optional<MessageDataDTO> createMessageDataForNewMessage(@NonNull UUID configUUID,
+                                                                   long channelId,
+                                                                   long messageId,
+                                                                   @NonNull FateConfig config,
+                                                                   @Nullable State<StateData> state) {
+        return Optional.of(new MessageDataDTO(configUUID, channelId, messageId, getCommandId(),
+                CONFIG_TYPE_ID, Mapper.serializedObject(config)));
+    }
+
+    @Override
+    public String getCommandId() {
         return COMMAND_NAME;
     }
 
@@ -62,7 +96,7 @@ public class FateCommand extends AbstractCommand<FateConfig, FateState> {
     }
 
     @Override
-    protected EmbedDefinition getHelpMessage() {
+    protected @NonNull EmbedDefinition getHelpMessage() {
         return EmbedDefinition.builder()
                 .description("Buttons for Fate/Fudge dice. There are two types, the simple produces one button that rolls four dice and " +
                         "provides the result together with the sum. The type with_modifier produces multiple buttons for modifier -4 to +10" +
@@ -72,36 +106,35 @@ public class FateCommand extends AbstractCommand<FateConfig, FateState> {
     }
 
     @Override
-    protected List<CommandDefinitionOption> getStartOptions() {
+    protected @NonNull List<CommandDefinitionOption> getStartOptions() {
         return ImmutableList.of(CommandDefinitionOption.builder()
-                        .name(ACTION_MODIFIER_OPTION)
-                        .required(true)
-                        .description("Show modifier buttons")
-                        .type(CommandDefinitionOption.Type.STRING)
-                        .choice(CommandDefinitionOptionChoice.builder()
-                                .name(ACTION_MODIFIER_OPTION_SIMPLE)
-                                .value(ACTION_MODIFIER_OPTION_SIMPLE)
-                                .build())
-                        .choice(CommandDefinitionOptionChoice.builder()
-                                .name(ACTION_MODIFIER_OPTION_MODIFIER)
-                                .value(ACTION_MODIFIER_OPTION_MODIFIER)
-                                .build())
-                        .build(),
-                ANSWER_TARGET_CHANNEL_COMMAND_OPTION);
+                .name(ACTION_MODIFIER_OPTION)
+                .required(true)
+                .description("Show modifier buttons")
+                .type(CommandDefinitionOption.Type.STRING)
+                .choice(CommandDefinitionOptionChoice.builder()
+                        .name(ACTION_MODIFIER_OPTION_SIMPLE)
+                        .value(ACTION_MODIFIER_OPTION_SIMPLE)
+                        .build())
+                .choice(CommandDefinitionOptionChoice.builder()
+                        .name(ACTION_MODIFIER_OPTION_MODIFIER)
+                        .value(ACTION_MODIFIER_OPTION_MODIFIER)
+                        .build())
+                .build());
     }
 
     @Override
-    protected FateConfig getConfigFromStartOptions(CommandInteractionOption options) {
+    protected @NonNull FateConfig getConfigFromStartOptions(@NonNull CommandInteractionOption options) {
         return new FateConfig(getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null),
                 options.getStringSubOptionWithName(ACTION_MODIFIER_OPTION).orElse(ACTION_MODIFIER_OPTION_SIMPLE));
     }
 
     @Override
-    protected Optional<EmbedDefinition> getAnswer(FateState state, FateConfig config) {
+    protected @NonNull Optional<EmbedDefinition> getAnswer(FateConfig config, State<StateData> state) {
         List<Integer> rollResult = diceUtils.rollFate();
 
-        if (ACTION_MODIFIER_OPTION_MODIFIER.equals(config.getType()) && state.getModifier() != null) {
-            int modifier = state.getModifier();
+        if (ACTION_MODIFIER_OPTION_MODIFIER.equals(config.getType())) {
+            int modifier = Integer.parseInt(state.getButtonValue());
             String modifierString = "";
             if (modifier > 0) {
                 modifierString = " +" + modifier;
@@ -121,12 +154,12 @@ public class FateCommand extends AbstractCommand<FateConfig, FateState> {
     }
 
     @Override
-    protected Optional<MessageDefinition> createNewButtonMessageWithState(FateState state, FateConfig config) {
+    protected @NonNull Optional<MessageDefinition> createNewButtonMessageWithState(FateConfig config, State<StateData> state) {
         return Optional.of(createNewButtonMessage(config));
     }
 
     @Override
-    public MessageDefinition createNewButtonMessage(FateConfig config) {
+    public @NonNull MessageDefinition createNewButtonMessage(FateConfig config) {
         return MessageDefinition.builder()
                 .content(createButtonMessage(config))
                 .componentRowDefinitions(createButtonLayout(config))
@@ -139,65 +172,49 @@ public class FateCommand extends AbstractCommand<FateConfig, FateState> {
                     ComponentRowDefinition.builder().buttonDefinitions(
                             ImmutableList.of(
                                     //              ID,  label
-                                    ButtonDefinition.builder().id(createButtonCustomId("-4", config)).label("-4").build(),
-                                    ButtonDefinition.builder().id(createButtonCustomId("-3", config)).label("-3").build(),
-                                    ButtonDefinition.builder().id(createButtonCustomId("-2", config)).label("-2").build(),
-                                    ButtonDefinition.builder().id(createButtonCustomId("-1", config)).label("-1").build(),
-                                    ButtonDefinition.builder().id(createButtonCustomId("0", config)).label("0").build()
+                                    ButtonDefinition.builder().id(createButtonCustomId("-4")).label("-4").build(),
+                                    ButtonDefinition.builder().id(createButtonCustomId("-3")).label("-3").build(),
+                                    ButtonDefinition.builder().id(createButtonCustomId("-2")).label("-2").build(),
+                                    ButtonDefinition.builder().id(createButtonCustomId("-1")).label("-1").build(),
+                                    ButtonDefinition.builder().id(createButtonCustomId("0")).label("0").build()
                             )
                     ).build(),
                     ComponentRowDefinition.builder().buttonDefinitions(
                             ImmutableList.of(
-                                    ButtonDefinition.builder().id(createButtonCustomId("1", config)).label("+1").build(),
-                                    ButtonDefinition.builder().id(createButtonCustomId("2", config)).label("+2").build(),
-                                    ButtonDefinition.builder().id(createButtonCustomId("3", config)).label("+3").build(),
-                                    ButtonDefinition.builder().id(createButtonCustomId("4", config)).label("+4").build(),
-                                    ButtonDefinition.builder().id(createButtonCustomId("5", config)).label("+5").build()
+                                    ButtonDefinition.builder().id(createButtonCustomId("1")).label("+1").build(),
+                                    ButtonDefinition.builder().id(createButtonCustomId("2")).label("+2").build(),
+                                    ButtonDefinition.builder().id(createButtonCustomId("3")).label("+3").build(),
+                                    ButtonDefinition.builder().id(createButtonCustomId("4")).label("+4").build(),
+                                    ButtonDefinition.builder().id(createButtonCustomId("5")).label("+5").build()
                             )
                     ).build(),
                     ComponentRowDefinition.builder().buttonDefinitions(
                             ImmutableList.of(
-                                    ButtonDefinition.builder().id(createButtonCustomId("6", config)).label("+6").build(),
-                                    ButtonDefinition.builder().id(createButtonCustomId("7", config)).label("+7").build(),
-                                    ButtonDefinition.builder().id(createButtonCustomId("8", config)).label("+8").build(),
-                                    ButtonDefinition.builder().id(createButtonCustomId("9", config)).label("+9").build(),
-                                    ButtonDefinition.builder().id(createButtonCustomId("10", config)).label("+10").build()
+                                    ButtonDefinition.builder().id(createButtonCustomId("6")).label("+6").build(),
+                                    ButtonDefinition.builder().id(createButtonCustomId("7")).label("+7").build(),
+                                    ButtonDefinition.builder().id(createButtonCustomId("8")).label("+8").build(),
+                                    ButtonDefinition.builder().id(createButtonCustomId("9")).label("+9").build(),
+                                    ButtonDefinition.builder().id(createButtonCustomId("10")).label("+10").build()
                             )
                     ).build());
         } else {
             return ImmutableList.of(
                     ComponentRowDefinition.builder().buttonDefinition(
-                            ButtonDefinition.builder().id(createButtonCustomId(ROLL_BUTTON_ID, config)).label("Roll 4dF").build()
+                            ButtonDefinition.builder().id(createButtonCustomId(ROLL_BUTTON_ID)).label("Roll 4dF").build()
                     ).build());
         }
     }
 
     @Override
-    protected FateConfig getConfigFromEvent(IButtonEventAdaptor event) {
-        String[] split = event.getCustomId().split(BotConstants.CONFIG_SPLIT_DELIMITER_REGEX);
+    protected @NonNull FateConfig getConfigFromEvent(@NonNull ButtonEventAdaptor event) {
+        String[] split = event.getCustomId().split(BotConstants.LEGACY_CONFIG_SPLIT_DELIMITER_REGEX);
         return new FateConfig(getOptionalLongFromArray(split, 3), split[2]);
     }
 
     @Override
-    protected FateState getStateFromEvent(IButtonEventAdaptor event) {
-        String buttonValue = event.getCustomId().split(BotConstants.CONFIG_SPLIT_DELIMITER_REGEX)[1];
-        if (!Strings.isNullOrEmpty(buttonValue) && NumberUtils.isParsable(buttonValue)) {
-            return new FateState(buttonValue);
-        }
-        return new FateState(buttonValue);
+    protected @NonNull State<StateData> getStateFromEvent(@NonNull ButtonEventAdaptor event) {
+        String buttonValue = getButtonValueFromLegacyCustomId(event.getCustomId());
+        return new State<>(buttonValue, StateData.empty());
     }
-
-    @VisibleForTesting
-    String createButtonCustomId(String modifier, FateConfig config) {
-        Preconditions.checkArgument(!modifier.contains(BotConstants.CONFIG_DELIMITER));
-        Preconditions.checkArgument(!config.getType().contains(BotConstants.CONFIG_DELIMITER));
-
-        return String.join(BotConstants.CONFIG_DELIMITER,
-                COMMAND_NAME,
-                modifier,
-                config.getType(),
-                Optional.ofNullable(config.getAnswerTargetChannelId()).map(Object::toString).orElse(""));
-    }
-
 
 }

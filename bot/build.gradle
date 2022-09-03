@@ -25,6 +25,8 @@ dependencies {
     implementation(libs.commons.lang3)
     implementation 'io.micrometer:micrometer-registry-prometheus:1.9.3'
     implementation 'io.undertow:undertow-core:2.2.19.Final'
+    implementation 'com.h2database:h2:2.1.214'
+    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.13.3'
 
     testImplementation(libs.junit.jupiter.api)
     testRuntimeOnly(libs.junit.jupiter.engine)
@@ -32,7 +34,7 @@ dependencies {
     testCompileOnly(libs.lombok)
     testAnnotationProcessor(libs.lombok)
 
-    testImplementation "io.projectreactor:reactor-test:3.4.22"
+    testImplementation 'io.projectreactor:reactor-test:3.4.22'
     testImplementation 'org.junit.jupiter:junit-jupiter-params:5.9.0'
     testImplementation 'org.mockito:mockito-core:4.7.0'
     testImplementation 'org.mockito:mockito-inline:4.7.0'

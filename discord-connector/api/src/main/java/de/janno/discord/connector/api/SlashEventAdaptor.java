@@ -1,16 +1,14 @@
 package de.janno.discord.connector.api;
 
-import de.janno.discord.connector.api.message.ComponentRowDefinition;
 import de.janno.discord.connector.api.message.EmbedDefinition;
 import de.janno.discord.connector.api.message.MessageDefinition;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import lombok.NonNull;
 import reactor.core.publisher.Mono;
 
-import java.util.List;
 import java.util.Optional;
 
-public interface ISlashEventAdaptor extends IDiscordAdapter {
+public interface SlashEventAdaptor extends DiscordAdapter {
     Optional<String> checkPermissions();
 
     Optional<CommandInteractionOption> getOption(@NonNull String actionStart);
@@ -24,8 +22,6 @@ public interface ISlashEventAdaptor extends IDiscordAdapter {
     long getChannelId();
 
     String getCommandString();
-
-    Mono<Void> deleteMessage(long messageId);
 
     Mono<Requester> getRequester();
 
