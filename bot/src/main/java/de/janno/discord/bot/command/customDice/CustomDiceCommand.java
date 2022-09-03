@@ -183,7 +183,8 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
     protected @NonNull CustomDiceConfig getConfigFromEvent(@NonNull ButtonEventAdaptor event) {
         String[] split = event.getCustomId().split(BotConstants.LEGACY_CONFIG_SPLIT_DELIMITER_REGEX);
         Long answerTargetChannelId = getOptionalLongFromArray(split, 2);
-        Deque<String> buttonIds = new ArrayDeque<>(DICE_COMMAND_OPTIONS_IDS);
+        Deque<String> buttonIds = new ArrayDeque<>(IntStream.range(1, 26).mapToObj(i -> i + "_button").toList()); //legacy can have 25 buttons
+
         return new CustomDiceConfig(answerTargetChannelId, event.getAllButtonIds().stream()
                 .map(lv -> new ButtonIdLabelAndDiceExpression(buttonIds.pop(), lv.getLabel(), getButtonValueFromLegacyCustomId(lv.getCustomId())))
                 .collect(Collectors.toList()));

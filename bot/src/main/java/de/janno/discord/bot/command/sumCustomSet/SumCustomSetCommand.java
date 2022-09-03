@@ -6,7 +6,10 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
-import de.janno.discord.bot.command.*;
+import de.janno.discord.bot.command.AbstractCommand;
+import de.janno.discord.bot.command.ButtonIdLabelAndDiceExpression;
+import de.janno.discord.bot.command.ConfigAndState;
+import de.janno.discord.bot.command.State;
 import de.janno.discord.bot.dice.DiceParserHelper;
 import de.janno.discord.bot.persistance.Mapper;
 import de.janno.discord.bot.persistance.MessageDataDAO;
@@ -218,7 +221,7 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
     protected @NonNull SumCustomSetConfig getConfigFromEvent(@NonNull ButtonEventAdaptor event) {
         String[] split = event.getCustomId().split(BotConstants.LEGACY_CONFIG_SPLIT_DELIMITER_REGEX);
         Long answerTargetChannelId = getOptionalLongFromArray(split, 2);
-        Deque<String> buttonIds = new ArrayDeque<>(DICE_COMMAND_OPTIONS_IDS);
+        Deque<String> buttonIds = new ArrayDeque<>(IntStream.range(1, 23).mapToObj(i -> i + "_button").toList()); //legacy can have 22 buttons
         return new SumCustomSetConfig(answerTargetChannelId, event.getAllButtonIds().stream()
                 .filter(lv -> !ImmutableSet.of(ROLL_BUTTON_ID, CLEAR_BUTTON_ID, BACK_BUTTON_ID).contains(getButtonValueFromLegacyCustomId(lv.getCustomId())))
                 .map(lv -> new ButtonIdLabelAndDiceExpression(buttonIds.pop(), lv.getLabel(), getButtonValueFromLegacyCustomId(lv.getCustomId())))
