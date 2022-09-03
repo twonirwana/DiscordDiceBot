@@ -50,7 +50,7 @@ for further options
 
 #### Chronicles of Darkness / nWoD
 
-`/count_successes start dice_sides:10 target_number:8`
+`/custom_parameter start expression: ({Number of Dice}!)>8`
 
 #### Storyteller System / oWoD
 
