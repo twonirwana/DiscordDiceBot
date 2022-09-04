@@ -12,7 +12,7 @@ import de.janno.discord.bot.dice.DiceUtils;
 import de.janno.discord.bot.persistance.Mapper;
 import de.janno.discord.bot.persistance.MessageDataDAO;
 import de.janno.discord.bot.persistance.MessageDataDTO;
-import de.janno.discord.connector.api.BotConstants;
+import de.janno.discord.connector.api.BottomCustomIdUtils;
 import de.janno.discord.connector.api.ButtonEventAdaptor;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
@@ -141,7 +141,7 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollConfig, HoldRer
 
     @Override
     protected @NonNull HoldRerollConfig getConfigFromEvent(@NonNull ButtonEventAdaptor event) {
-        String[] customIdSplit = event.getCustomId().split(BotConstants.LEGACY_CONFIG_SPLIT_DELIMITER_REGEX);
+        String[] customIdSplit = event.getCustomId().split(BottomCustomIdUtils.LEGACY_CONFIG_SPLIT_DELIMITER_REGEX);
         int sideOfDie = Integer.parseInt(customIdSplit[3]);
         Set<Integer> rerollSet = CommandUtils.toSet(customIdSplit[4], SUBSET_DELIMITER, EMPTY);
         Set<Integer> successSet = CommandUtils.toSet(customIdSplit[5], SUBSET_DELIMITER, EMPTY);
@@ -153,7 +153,7 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollConfig, HoldRer
 
     @Override
     protected @NonNull State<HoldRerollStateData> getStateFromEvent(@NonNull ButtonEventAdaptor event) {
-        String[] customIdSplit = event.getCustomId().split(BotConstants.LEGACY_CONFIG_SPLIT_DELIMITER_REGEX);
+        String[] customIdSplit = event.getCustomId().split(BottomCustomIdUtils.LEGACY_CONFIG_SPLIT_DELIMITER_REGEX);
         List<Integer> currentResult = getCurrentRollResult(customIdSplit[2]);
         int rerollCount = Integer.parseInt(customIdSplit[7]);
         String buttonValue = customIdSplit[1];
@@ -325,17 +325,17 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollConfig, HoldRer
         return ImmutableList.of(
                 ComponentRowDefinition.builder()
                         .buttonDefinition(ButtonDefinition.builder()
-                                .id(createButtonCustomId(REROLL_BUTTON_ID))
+                                .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), REROLL_BUTTON_ID))
                                 .label("Reroll")
 
                                 .build())
                         .buttonDefinition(ButtonDefinition.builder()
-                                .id(createButtonCustomId(FINISH_BUTTON_ID))
+                                .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), FINISH_BUTTON_ID))
                                 .label("Finish")
 
                                 .build())
                         .buttonDefinition(ButtonDefinition.builder()
-                                .id(createButtonCustomId(CLEAR_BUTTON_ID))
+                                .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), CLEAR_BUTTON_ID))
                                 .label("Clear")
                                 .build())
                         .build()
@@ -345,7 +345,7 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollConfig, HoldRer
     private List<ComponentRowDefinition> createButtonLayout(HoldRerollConfig config) {
         List<ButtonDefinition> buttons = IntStream.range(1, 16)
                 .mapToObj(i -> ButtonDefinition.builder()
-                        .id(createButtonCustomId(String.valueOf(i)))
+                        .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), String.valueOf(i)))
                         .label(String.format("%d%s%s", i, DICE_SYMBOL, config.getSidesOfDie()))
                         .build())
                 .collect(Collectors.toList());

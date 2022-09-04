@@ -10,7 +10,7 @@ import de.janno.discord.bot.dice.DiceUtils;
 import de.janno.discord.bot.persistance.Mapper;
 import de.janno.discord.bot.persistance.MessageDataDAO;
 import de.janno.discord.bot.persistance.MessageDataDTO;
-import de.janno.discord.connector.api.BotConstants;
+import de.janno.discord.connector.api.BottomCustomIdUtils;
 import de.janno.discord.connector.api.ButtonEventAdaptor;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
@@ -95,7 +95,7 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesConfig,
 
     @Override
     protected @NonNull CountSuccessesConfig getConfigFromEvent(@NonNull ButtonEventAdaptor event) {
-        String[] split = event.getCustomId().split(BotConstants.LEGACY_CONFIG_SPLIT_DELIMITER_REGEX);
+        String[] split = event.getCustomId().split(BottomCustomIdUtils.LEGACY_CONFIG_SPLIT_DELIMITER_REGEX);
         int sideOfDie = Integer.parseInt(split[2]);
         int target = Integer.parseInt(split[3]);
         //legacy message could be missing the glitch and max dice option
@@ -107,7 +107,7 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesConfig,
 
     @Override
     protected @NonNull State<StateData> getStateFromEvent(@NonNull ButtonEventAdaptor event) {
-        return new State<>(getButtonValueFromLegacyCustomId(event.getCustomId()), StateData.empty());
+        return new State<>(BottomCustomIdUtils.getButtonValueFromLegacyCustomId(event.getCustomId()), StateData.empty());
     }
 
     @Override
@@ -265,7 +265,7 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesConfig,
     private List<ComponentRowDefinition> createButtonLayout(CountSuccessesConfig config) {
         List<ButtonDefinition> buttons = IntStream.range(1, config.getMaxNumberOfButtons() + 1)
                 .mapToObj(i -> ButtonDefinition.builder()
-                        .id(createButtonCustomId(String.valueOf(i)))
+                        .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), String.valueOf(i)))
                         .label(createButtonLabel(String.valueOf(i), config))
                         .build())
                 .collect(Collectors.toList());

@@ -377,13 +377,6 @@ class SumDiceSetCommandTest {
     }
 
     @Test
-    void createButtonCustomId() {
-        String res = underTest.createButtonCustomId("+1d6");
-
-        assertThat(res).isEqualTo("sum_dice_set\u001E+1d6");
-    }
-
-    @Test
     void getButtonLayoutWithState() {
         List<ComponentRowDefinition> res = underTest.createNewButtonMessageWithState(new Config(null), new State<>("roll", new SumDiceSetStateData(ImmutableList.of(
                         new DiceKeyAndValue("d4", -1),

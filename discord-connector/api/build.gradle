@@ -12,6 +12,7 @@ repositories {
 dependencies {
     implementation(libs.reactor.core)
     implementation(libs.guava)
+    implementation(libs.commons.lang3)
 
     compileOnly(libs.lombok)
     annotationProcessor(libs.lombok)

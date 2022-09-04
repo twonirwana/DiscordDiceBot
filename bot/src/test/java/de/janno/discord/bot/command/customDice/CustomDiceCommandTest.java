@@ -251,13 +251,6 @@ class CustomDiceCommandTest {
     }
 
     @Test
-    void createButtonCustomId() {
-        String res = underTest.createButtonCustomId("2d6");
-
-        assertThat(res).isEqualTo("custom_dice\u001E2d6");
-    }
-
-    @Test
     void handleComponentInteractEventLegacy() {
         ButtonEventAdaptor buttonEventAdaptor = mock(ButtonEventAdaptor.class);
         when(buttonEventAdaptor.getCustomId()).thenReturn("custom_dice\u00001d6\u0000");

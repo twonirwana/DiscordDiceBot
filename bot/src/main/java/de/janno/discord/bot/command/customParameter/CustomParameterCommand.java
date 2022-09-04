@@ -13,7 +13,7 @@ import de.janno.discord.bot.dice.DiceParserHelper;
 import de.janno.discord.bot.persistance.Mapper;
 import de.janno.discord.bot.persistance.MessageDataDAO;
 import de.janno.discord.bot.persistance.MessageDataDTO;
-import de.janno.discord.connector.api.BotConstants;
+import de.janno.discord.connector.api.BottomCustomIdUtils;
 import de.janno.discord.connector.api.ButtonEventAdaptor;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
@@ -38,7 +38,6 @@ import java.util.stream.IntStream;
 public class CustomParameterCommand extends AbstractCommand<CustomParameterConfig, CustomParameterStateData> {
 
     //todo button label, pagination for buttons
-
 
     static final String CLEAR_BUTTON_ID = "clear";
     final static Pattern PARAMETER_VARIABLE_PATTERN = Pattern.compile("\\Q{\\E.*?\\Q}\\E");
@@ -159,7 +158,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     }
 
     private static String[] splitCustomId(String customId) {
-        return customId.split(BotConstants.LEGACY_CONFIG_SPLIT_DELIMITER_REGEX);
+        return customId.split(BottomCustomIdUtils.LEGACY_CONFIG_SPLIT_DELIMITER_REGEX);
     }
 
 
@@ -321,7 +320,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
         List<String> buttonValues = getButtonValues(parameterExpression);
         List<ButtonDefinition> buttons = buttonValues.stream()
                 .map(v -> ButtonDefinition.builder()
-                        .id(createButtonCustomId(v))
+                        .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), v))
                         .label(v)
                         .build())
                 .collect(Collectors.toList());
@@ -331,7 +330,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
                 .orElse(ImmutableList.of());
         if (state != null && !selectedParameter.isEmpty()) {
             buttons.add(ButtonDefinition.builder()
-                    .id(createButtonCustomId(CLEAR_BUTTON_ID))
+                    .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), CLEAR_BUTTON_ID))
                     .label("Clear")
                     .style(ButtonDefinition.Style.DANGER)
                     .build());
@@ -360,8 +359,8 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
         if (baseExpression.length() > 1000) { //max length of the message content, where the current state is given is 2000
             return Optional.of(String.format("The expression has %s to many characters", (baseExpression.length() - 1000)));
         }
-        if (baseExpression.contains(BotConstants.CUSTOM_ID_DELIMITER)) {
-            return Optional.of(String.format("Expression contains invalid character: '%s'", BotConstants.CUSTOM_ID_DELIMITER));
+        if (baseExpression.contains(BottomCustomIdUtils.CUSTOM_ID_DELIMITER)) {
+            return Optional.of(String.format("Expression contains invalid character: '%s'", BottomCustomIdUtils.CUSTOM_ID_DELIMITER));
         }
         if (baseExpression.contains(SELECTED_PARAMETER_DELIMITER)) {
             return Optional.of(String.format("Expression contains invalid character: '%s'", SELECTED_PARAMETER_DELIMITER));
@@ -403,7 +402,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
         List<String> parameterValues = getButtonValues(parameterExpression);
 
         for (String parameterValue : parameterValues) {
-            String customId = createButtonCustomId(parameterValue);
+            String customId = BottomCustomIdUtils.createButtonCustomId(getCommandId(), parameterValue);
             State<CustomParameterStateData> nextState = new State<>(parameterValue, updateState(ImmutableList.of(), parameterValue, null, "test"));
             out.add(new StateWithCustomIdAndParameter(customId, nextState, parameterValues));
             out.addAll(allPossibleStatePermutations(config, nextState));
@@ -418,7 +417,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
             String parameterExpression = getCurrentParameterExpression(config, state);
             List<String> parameterValues = getButtonValues(parameterExpression);
             for (String parameterValue : parameterValues) {
-                String customId = createButtonCustomId(parameterValue);
+                String customId = BottomCustomIdUtils.createButtonCustomId(getCommandId(), parameterValue);
                 State<CustomParameterStateData> nextState = new State<>(parameterValue,
                         updateState(Optional.ofNullable(state.getData()).map(CustomParameterStateData::getSelectedParameterValues).orElse(ImmutableList.of()),
                                 parameterValue, null, "test"));
