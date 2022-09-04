@@ -273,13 +273,6 @@ class HoldRerollCommandTest {
     }
 
     @Test
-    void createButtonCustomId() {
-        String res = underTest.createButtonCustomId("finish");
-
-        assertThat(res).isEqualTo("hold_reroll\u001Efinish");
-    }
-
-    @Test
     void getCurrentMessageComponentChange_reroll() {
         List<ComponentRowDefinition> res = underTest.getCurrentMessageComponentChange(new HoldRerollConfig(
                         null,

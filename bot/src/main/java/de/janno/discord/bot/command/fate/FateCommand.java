@@ -3,12 +3,15 @@ package de.janno.discord.bot.command.fate;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
-import de.janno.discord.bot.command.*;
+import de.janno.discord.bot.command.AbstractCommand;
+import de.janno.discord.bot.command.ConfigAndState;
+import de.janno.discord.bot.command.State;
+import de.janno.discord.bot.command.StateData;
 import de.janno.discord.bot.dice.DiceUtils;
 import de.janno.discord.bot.persistance.Mapper;
 import de.janno.discord.bot.persistance.MessageDataDAO;
 import de.janno.discord.bot.persistance.MessageDataDTO;
-import de.janno.discord.connector.api.BotConstants;
+import de.janno.discord.connector.api.BottomCustomIdUtils;
 import de.janno.discord.connector.api.ButtonEventAdaptor;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
@@ -172,48 +175,48 @@ public class FateCommand extends AbstractCommand<FateConfig, StateData> {
                     ComponentRowDefinition.builder().buttonDefinitions(
                             ImmutableList.of(
                                     //              ID,  label
-                                    ButtonDefinition.builder().id(createButtonCustomId("-4")).label("-4").build(),
-                                    ButtonDefinition.builder().id(createButtonCustomId("-3")).label("-3").build(),
-                                    ButtonDefinition.builder().id(createButtonCustomId("-2")).label("-2").build(),
-                                    ButtonDefinition.builder().id(createButtonCustomId("-1")).label("-1").build(),
-                                    ButtonDefinition.builder().id(createButtonCustomId("0")).label("0").build()
+                                    ButtonDefinition.builder().id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), "-4")).label("-4").build(),
+                                    ButtonDefinition.builder().id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), "-3")).label("-3").build(),
+                                    ButtonDefinition.builder().id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), "-2")).label("-2").build(),
+                                    ButtonDefinition.builder().id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), "-1")).label("-1").build(),
+                                    ButtonDefinition.builder().id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), "0")).label("0").build()
                             )
                     ).build(),
                     ComponentRowDefinition.builder().buttonDefinitions(
                             ImmutableList.of(
-                                    ButtonDefinition.builder().id(createButtonCustomId("1")).label("+1").build(),
-                                    ButtonDefinition.builder().id(createButtonCustomId("2")).label("+2").build(),
-                                    ButtonDefinition.builder().id(createButtonCustomId("3")).label("+3").build(),
-                                    ButtonDefinition.builder().id(createButtonCustomId("4")).label("+4").build(),
-                                    ButtonDefinition.builder().id(createButtonCustomId("5")).label("+5").build()
+                                    ButtonDefinition.builder().id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), "1")).label("+1").build(),
+                                    ButtonDefinition.builder().id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), "2")).label("+2").build(),
+                                    ButtonDefinition.builder().id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), "3")).label("+3").build(),
+                                    ButtonDefinition.builder().id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), "4")).label("+4").build(),
+                                    ButtonDefinition.builder().id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), "5")).label("+5").build()
                             )
                     ).build(),
                     ComponentRowDefinition.builder().buttonDefinitions(
                             ImmutableList.of(
-                                    ButtonDefinition.builder().id(createButtonCustomId("6")).label("+6").build(),
-                                    ButtonDefinition.builder().id(createButtonCustomId("7")).label("+7").build(),
-                                    ButtonDefinition.builder().id(createButtonCustomId("8")).label("+8").build(),
-                                    ButtonDefinition.builder().id(createButtonCustomId("9")).label("+9").build(),
-                                    ButtonDefinition.builder().id(createButtonCustomId("10")).label("+10").build()
+                                    ButtonDefinition.builder().id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), "6")).label("+6").build(),
+                                    ButtonDefinition.builder().id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), "7")).label("+7").build(),
+                                    ButtonDefinition.builder().id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), "8")).label("+8").build(),
+                                    ButtonDefinition.builder().id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), "9")).label("+9").build(),
+                                    ButtonDefinition.builder().id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), "10")).label("+10").build()
                             )
                     ).build());
         } else {
             return ImmutableList.of(
                     ComponentRowDefinition.builder().buttonDefinition(
-                            ButtonDefinition.builder().id(createButtonCustomId(ROLL_BUTTON_ID)).label("Roll 4dF").build()
+                            ButtonDefinition.builder().id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), ROLL_BUTTON_ID)).label("Roll 4dF").build()
                     ).build());
         }
     }
 
     @Override
     protected @NonNull FateConfig getConfigFromEvent(@NonNull ButtonEventAdaptor event) {
-        String[] split = event.getCustomId().split(BotConstants.LEGACY_CONFIG_SPLIT_DELIMITER_REGEX);
+        String[] split = event.getCustomId().split(BottomCustomIdUtils.LEGACY_CONFIG_SPLIT_DELIMITER_REGEX);
         return new FateConfig(getOptionalLongFromArray(split, 3), split[2]);
     }
 
     @Override
     protected @NonNull State<StateData> getStateFromEvent(@NonNull ButtonEventAdaptor event) {
-        String buttonValue = getButtonValueFromLegacyCustomId(event.getCustomId());
+        String buttonValue = BottomCustomIdUtils.getButtonValueFromLegacyCustomId(event.getCustomId());
         return new State<>(buttonValue, StateData.empty());
     }
 

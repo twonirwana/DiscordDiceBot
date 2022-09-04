@@ -1,7 +1,7 @@
 package de.janno.discord.connector.jda;
 
 import com.google.common.base.Stopwatch;
-import de.janno.discord.connector.api.BotConstants;
+import de.janno.discord.connector.api.BottomCustomIdUtils;
 import de.janno.discord.connector.api.ComponentInteractEventHandler;
 import de.janno.discord.connector.api.SlashCommand;
 import de.janno.discord.connector.api.Requester;
@@ -42,7 +42,8 @@ public class JdaClient {
     public static final Duration START_UP_BUFFER = Duration.of(5, ChronoUnit.MINUTES);
 
     private static String getCommandNameFromCustomId(String customId) {
-        return customId.split(BotConstants.CUSTOM_ID_DELIMITER)[0];
+        //todo legacy version
+        return customId.split(BottomCustomIdUtils.CUSTOM_ID_DELIMITER)[0];
     }
 
     public void start(String token, boolean disableCommandUpdate, List<SlashCommand> commands, MessageDefinition welcomeMessageDefinition) throws LoginException {

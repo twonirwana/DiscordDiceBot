@@ -14,7 +14,7 @@ import de.janno.discord.bot.dice.DiceParserHelper;
 import de.janno.discord.bot.persistance.Mapper;
 import de.janno.discord.bot.persistance.MessageDataDAO;
 import de.janno.discord.bot.persistance.MessageDataDTO;
-import de.janno.discord.connector.api.BotConstants;
+import de.janno.discord.connector.api.BottomCustomIdUtils;
 import de.janno.discord.connector.api.ButtonEventAdaptor;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
@@ -142,7 +142,7 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
             return Optional.of(String.format("This command doesn't allow '%s' in the dice expression and label, the following expression are not allowed: %s", INVOKING_USER_NAME_DELIMITER, expressionWithUserNameDelimiter));
         }
         int maxCharacter = 2000; //2000 is the max message length
-        return diceParserHelper.validateListOfExpressions(diceExpressionWithOptionalLabel, LABEL_DELIMITER, BotConstants.CUSTOM_ID_DELIMITER, "/sum_custom_set help", maxCharacter);
+        return diceParserHelper.validateListOfExpressions(diceExpressionWithOptionalLabel, LABEL_DELIMITER, BottomCustomIdUtils.CUSTOM_ID_DELIMITER, "/sum_custom_set help", maxCharacter);
     }
 
     @Override
@@ -219,12 +219,12 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
 
     @Override
     protected @NonNull SumCustomSetConfig getConfigFromEvent(@NonNull ButtonEventAdaptor event) {
-        String[] split = event.getCustomId().split(BotConstants.LEGACY_CONFIG_SPLIT_DELIMITER_REGEX);
+        String[] split = event.getCustomId().split(BottomCustomIdUtils.LEGACY_CONFIG_SPLIT_DELIMITER_REGEX);
         Long answerTargetChannelId = getOptionalLongFromArray(split, 2);
         Deque<String> buttonIds = new ArrayDeque<>(IntStream.range(1, 23).mapToObj(i -> i + "_button").toList()); //legacy can have 22 buttons
         return new SumCustomSetConfig(answerTargetChannelId, event.getAllButtonIds().stream()
-                .filter(lv -> !ImmutableSet.of(ROLL_BUTTON_ID, CLEAR_BUTTON_ID, BACK_BUTTON_ID).contains(getButtonValueFromLegacyCustomId(lv.getCustomId())))
-                .map(lv -> new ButtonIdLabelAndDiceExpression(buttonIds.pop(), lv.getLabel(), getButtonValueFromLegacyCustomId(lv.getCustomId())))
+                .filter(lv -> !ImmutableSet.of(ROLL_BUTTON_ID, CLEAR_BUTTON_ID, BACK_BUTTON_ID).contains(BottomCustomIdUtils.getButtonValueFromLegacyCustomId(lv.getCustomId())))
+                .map(lv -> new ButtonIdLabelAndDiceExpression(buttonIds.pop(), lv.getLabel(), BottomCustomIdUtils.getButtonValueFromLegacyCustomId(lv.getCustomId())))
                 .collect(Collectors.toList()));
     }
 
@@ -295,7 +295,7 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
 
     @Override
     protected @NonNull State<SumCustomSetStateData> getStateFromEvent(@NonNull ButtonEventAdaptor event) {
-        String buttonValue = getButtonValueFromLegacyCustomId(event.getCustomId());
+        String buttonValue = BottomCustomIdUtils.getButtonValueFromLegacyCustomId(event.getCustomId());
         String buttonMessageWithOptionalUser = event.getMessageContent();
 
         String lockedToUser = null;
@@ -334,7 +334,7 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
     @VisibleForTesting
     SumCustomSetConfig getConfigOptionStringList(List<ButtonIdAndExpression> startOptions, Long answerTargetChannelId) {
         return new SumCustomSetConfig(answerTargetChannelId, startOptions.stream()
-                .filter(be -> !be.getExpression().contains(BotConstants.CUSTOM_ID_DELIMITER))
+                .filter(be -> !be.getExpression().contains(BottomCustomIdUtils.CUSTOM_ID_DELIMITER))
                 .filter(be -> !be.getExpression().contains(LABEL_DELIMITER) || be.getExpression().split(LABEL_DELIMITER).length == 2)
                 .map(be -> {
                     String label = null;
@@ -366,22 +366,22 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
     private List<ComponentRowDefinition> createButtonLayout(SumCustomSetConfig config) {
         List<ButtonDefinition> buttons = config.getLabelAndExpression().stream()
                 .map(d -> ButtonDefinition.builder()
-                        .id(createButtonCustomId(d.getButtonId()))
+                        .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), d.getButtonId()))
                         .label(d.getLabel())
                         .build())
                 .collect(Collectors.toList());
         buttons.add(ButtonDefinition.builder()
-                .id(createButtonCustomId(ROLL_BUTTON_ID))
+                .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), ROLL_BUTTON_ID))
                 .label("Roll")
                 .style(ButtonDefinition.Style.SUCCESS)
                 .build());
         buttons.add(ButtonDefinition.builder()
-                .id(createButtonCustomId(CLEAR_BUTTON_ID))
+                .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), CLEAR_BUTTON_ID))
                 .label("Clear")
                 .style(ButtonDefinition.Style.DANGER)
                 .build());
         buttons.add(ButtonDefinition.builder()
-                .id(createButtonCustomId(BACK_BUTTON_ID))
+                .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), BACK_BUTTON_ID))
                 .label("Back")
                 .style(ButtonDefinition.Style.SECONDARY)
                 .build());

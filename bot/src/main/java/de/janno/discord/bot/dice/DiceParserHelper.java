@@ -319,7 +319,6 @@ public class DiceParserHelper {
                 return new LabelResult(title, rollWithDetails.getDetails());
             }
         } catch (Throwable t) {
-            log.error(String.format("Error in %s:", input), t);
             return new LabelResult("Error", String.format("Could not execute the dice expression: %s", input));
         }
     }
@@ -363,10 +362,8 @@ public class DiceParserHelper {
             String details = String.format("[%s]", getBaseResults(resultTree).stream().map(String::valueOf).collect(Collectors.joining(", ")));
             return new RollWithDetails(title, details, resultTree.getValue());
         } catch (ArithmeticException t) {
-            log.error(String.format("Executing '%s' resulting in: %s", input, t.getMessage()));
             return new RollWithDetails("Arithmetic Error", String.format("Executing '%s' resulting in: %s", input, t.getMessage()), null);
         } catch (Throwable t) {
-            log.error(String.format("DiceParser error in %s:", input), t);
             return new RollWithDetails("Error", String.format("Could not execute the dice expression: %s", input), null);
         }
     }

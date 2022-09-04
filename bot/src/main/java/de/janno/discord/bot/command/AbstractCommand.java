@@ -1,7 +1,6 @@
 package de.janno.discord.bot.command;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Preconditions;
 import com.google.common.base.Stopwatch;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
@@ -17,7 +16,6 @@ import de.janno.discord.connector.api.slash.CommandDefinitionOption;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Nullable;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -25,8 +23,7 @@ import reactor.core.publisher.Mono;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
-import static de.janno.discord.connector.api.BotConstants.CUSTOM_ID_DELIMITER;
-import static de.janno.discord.connector.api.BotConstants.LEGACY_CONFIG_SPLIT_DELIMITER_REGEX;
+import static de.janno.discord.connector.api.BottomCustomIdUtils.CUSTOM_ID_DELIMITER;
 
 @Slf4j
 public abstract class AbstractCommand<C extends Config, S extends StateData> implements SlashCommand, ComponentInteractEventHandler {
@@ -40,9 +37,6 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
             .description("The channel where the answer will be given")
             .type(CommandDefinitionOption.Type.CHANNEL)
             .build();
-    private static final int COMMAND_NAME_INDEX = 0;
-    private static final int BUTTON_VALUE_INDEX = 1;
-    private static final int LEGACY_BUTTON_VALUE_INDEX = 1;
     protected final MessageDataDAO messageDataDAO;
 
     protected AbstractCommand(MessageDataDAO messageDataDAO) {
@@ -62,10 +56,10 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
 
     @Override
     public boolean matchingComponentCustomId(@NonNull String buttonCustomId) {
-        if (isLegacyCustomId(buttonCustomId)) {
-            return buttonCustomId.matches("^" + getCommandId() + BotConstants.LEGACY_CONFIG_SPLIT_DELIMITER_REGEX + ".*");
+        if (BottomCustomIdUtils.isLegacyCustomId(buttonCustomId)) {
+            return buttonCustomId.matches("^" + getCommandId() + BottomCustomIdUtils.LEGACY_CONFIG_SPLIT_DELIMITER_REGEX + ".*");
         }
-        return Objects.equals(getCommandId(), getCommandNameFromCustomIdWithPersistence(buttonCustomId));
+        return Objects.equals(getCommandId(), BottomCustomIdUtils.getCommandNameFromCustomIdWithPersistence(buttonCustomId));
     }
 
     @Override
@@ -104,6 +98,9 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
                                                                             @NonNull C config,
                                                                             @Nullable State<S> state);
 
+    /**
+     * update the saved state if the current button message is not deleted. StateData need to be set to null if the there is a answer message
+     */
     protected void updateCurrentMessageStateData(long channelId, long messageId, @NonNull C config, @NonNull State<S> state) {
     }
 
@@ -112,7 +109,7 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
         Stopwatch stopwatch = Stopwatch.createStarted();
         final long messageId = event.getMessageId();
         final long channelId = event.getChannelId();
-        final boolean isLegacyMessage = isLegacyCustomId(event.getCustomId());
+        final boolean isLegacyMessage = BottomCustomIdUtils.isLegacyCustomId(event.getCustomId());
         final C config;
         final State<S> state;
         final UUID configUUID;
@@ -124,7 +121,7 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
             //we need to save the current config/state or the update will not work
             createMessageDataForNewMessage(configUUID, channelId, messageId, config, state).ifPresent(messageDataDAO::saveMessageData);
         } else {
-            final String buttonValue = getButtonValueFromCustomIdWithPersistence(event.getCustomId());
+            final String buttonValue = BottomCustomIdUtils.getButtonValueFromCustomId(event.getCustomId());
             final Optional<ConfigAndState<C, S>> messageData = getMessageDataAndUpdateWithButtonValue(channelId,
                     messageId,
                     buttonValue,
@@ -162,6 +159,8 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
             editMessage = getCurrentMessageContentChange(config, state).orElse("processing ...");
             editMessageComponents = getCurrentMessageComponentChange(config, state);
         }
+        //Todo check if message/button are the same. If the message will deleted it should always be "processing...".
+        // Remove buttons on set to "processing ..."?
         actions.add(event.editMessage(editMessage, editMessageComponents.orElse(null)));
 
         Optional<EmbedDefinition> answer = getAnswer(config, state);
@@ -174,7 +173,7 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
                                             requester.getGuildName(),
                                             requester.getChannelName(),
                                             requester.getUserName(),
-                                            event.getCustomId().replace(CUSTOM_ID_DELIMITER, ","),
+                                            event.getCustomId().replace(CUSTOM_ID_DELIMITER, ":"),
                                             state.toShortString(),
                                             answer.get().toShortString(),
                                             stopwatch.elapsed(TimeUnit.MILLISECONDS)
@@ -205,6 +204,7 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
             }
         }
         //don't update the state data async or there will be racing conditions
+        //todo update only the message if the message is not going to be deleted
         updateCurrentMessageStateData(channelId, messageId, config, state);
         return Flux.merge(1, actions.toArray(new Mono<?>[0]))
                 .parallel()
@@ -342,30 +342,4 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
      */
     protected abstract @NonNull State<S> getStateFromEvent(@NonNull ButtonEventAdaptor event);
 
-
-    /**
-     * will be removed when almost all users have switched to the persisted button id
-     */
-    protected @NonNull String getButtonValueFromLegacyCustomId(@NonNull String customId) {
-        return customId.split(LEGACY_CONFIG_SPLIT_DELIMITER_REGEX)[LEGACY_BUTTON_VALUE_INDEX];
-    }
-
-    protected @NonNull String getButtonValueFromCustomIdWithPersistence(@NonNull String customId) {
-        Preconditions.checkArgument(StringUtils.countMatches(customId, CUSTOM_ID_DELIMITER) == 1, "'%s' contains not the correct number of delimiter", customId);
-        return customId.split(CUSTOM_ID_DELIMITER)[BUTTON_VALUE_INDEX];
-    }
-
-    private @NonNull String getCommandNameFromCustomIdWithPersistence(@NonNull String customId) {
-        Preconditions.checkArgument(StringUtils.countMatches(customId, CUSTOM_ID_DELIMITER) == 1, "'%s' contains not the correct number of delimiter", customId);
-        return customId.split(CUSTOM_ID_DELIMITER)[COMMAND_NAME_INDEX];
-    }
-
-    @VisibleForTesting
-    public @NonNull String createButtonCustomId(@NonNull String buttonValue) {
-        return getCommandId() + CUSTOM_ID_DELIMITER + buttonValue;
-    }
-
-    protected boolean isLegacyCustomId(@NonNull String customId) {
-        return !customId.contains(CUSTOM_ID_DELIMITER);
-    }
 }

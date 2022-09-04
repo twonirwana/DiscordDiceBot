@@ -20,8 +20,4 @@ public class StateData implements Serializable {
     public String getShortStringValues() {
         return "";
     }
-
-    public String toShortString() {
-        return "[]";
-    }
 }

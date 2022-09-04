@@ -164,13 +164,6 @@ class FateCommandTest {
     }
 
     @Test
-    void createButtonCustomId() {
-        String res = underTest.createButtonCustomId("3");
-
-        assertThat(res).isEqualTo("fate\u001E3");
-    }
-
-    @Test
     void getButtonLayoutWithState_simple() {
         List<ComponentRowDefinition> res = underTest.createNewButtonMessageWithState(new FateConfig(null, "simple"), new State<>("roll", StateData.empty()))
                 .orElseThrow().getComponentRowDefinitions();

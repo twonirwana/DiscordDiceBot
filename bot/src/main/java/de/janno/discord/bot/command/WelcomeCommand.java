@@ -15,6 +15,7 @@ import de.janno.discord.bot.command.poolTarget.PoolTargetCommand;
 import de.janno.discord.bot.command.poolTarget.PoolTargetConfig;
 import de.janno.discord.bot.persistance.MessageDataDAO;
 import de.janno.discord.bot.persistance.MessageDataDTO;
+import de.janno.discord.connector.api.BottomCustomIdUtils;
 import de.janno.discord.connector.api.ButtonEventAdaptor;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
@@ -158,15 +159,15 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
                         .buttonDefinitions(
                                 ImmutableList.of(
                                         ButtonDefinition.builder()
-                                                .id(createButtonCustomId(FATE_BUTTON_ID))
+                                                .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), FATE_BUTTON_ID))
                                                 .label("Fate")
                                                 .build(),
                                         ButtonDefinition.builder()
-                                                .id(createButtonCustomId(DND5_BUTTON_ID))
+                                                .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), DND5_BUTTON_ID))
                                                 .label("D&D5e")
                                                 .build(),
                                         ButtonDefinition.builder()
-                                                .id(createButtonCustomId(NWOD_BUTTON_ID))
+                                                .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), NWOD_BUTTON_ID))
                                                 .label("nWoD")
                                                 .build()
                                 )
@@ -176,15 +177,15 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
                         .buttonDefinitions(
                                 ImmutableList.of(
                                         ButtonDefinition.builder()
-                                                .id(createButtonCustomId(OWOD_BUTTON_ID))
+                                                .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), OWOD_BUTTON_ID))
                                                 .label("oWoD")
                                                 .build(),
                                         ButtonDefinition.builder()
-                                                .id(createButtonCustomId(SHADOWRUN_BUTTON_ID))
+                                                .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), SHADOWRUN_BUTTON_ID))
                                                 .label("Shadowrun")
                                                 .build(),
                                         ButtonDefinition.builder()
-                                                .id(createButtonCustomId(COIN_BUTTON_ID))
+                                                .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), COIN_BUTTON_ID))
                                                 .label("Coin Toss \uD83E\uDE99")
                                                 .build()
                                 )
@@ -205,7 +206,7 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
 
     @Override
     protected @NonNull State<StateData> getStateFromEvent(@NonNull ButtonEventAdaptor event) {
-        String buttonId = getButtonValueFromLegacyCustomId(event.getCustomId());
+        String buttonId = BottomCustomIdUtils.getButtonValueFromLegacyCustomId(event.getCustomId());
         return new State<>(buttonId, StateData.empty());
     }
 }

@@ -18,6 +18,6 @@ public class State<T extends StateData> {
         String persistedStateValues = Optional.ofNullable(data)
                 .map(d -> String.format(",%s", data.getShortStringValues()))
                 .orElse("");
-        return String.format("[%s%s]", getButtonValue(), persistedStateValues);
+        return String.format("[%s]", persistedStateValues);
     }
 }

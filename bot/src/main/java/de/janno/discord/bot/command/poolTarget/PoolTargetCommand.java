@@ -12,7 +12,7 @@ import de.janno.discord.bot.dice.DiceUtils;
 import de.janno.discord.bot.persistance.Mapper;
 import de.janno.discord.bot.persistance.MessageDataDAO;
 import de.janno.discord.bot.persistance.MessageDataDTO;
-import de.janno.discord.connector.api.BotConstants;
+import de.janno.discord.connector.api.BottomCustomIdUtils;
 import de.janno.discord.connector.api.ButtonEventAdaptor;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
@@ -217,7 +217,7 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTar
 
     @Override
     protected @NonNull PoolTargetConfig getConfigFromEvent(@NonNull ButtonEventAdaptor event) {
-        String[] customIdSplit = event.getCustomId().split(BotConstants.LEGACY_CONFIG_SPLIT_DELIMITER_REGEX);
+        String[] customIdSplit = event.getCustomId().split(BottomCustomIdUtils.LEGACY_CONFIG_SPLIT_DELIMITER_REGEX);
 
         int sideOfDie = Integer.parseInt(customIdSplit[SIDE_OF_DIE_INDEX]);
         int maxNumberOfButtons = Integer.parseInt(customIdSplit[MAX_DICE_INDEX]);
@@ -267,7 +267,7 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTar
 
     @Override
     protected @NonNull State<PoolTargetStateData> getStateFromEvent(@NonNull ButtonEventAdaptor event) {
-        String[] customIdSplit = event.getCustomId().split(BotConstants.LEGACY_CONFIG_SPLIT_DELIMITER_REGEX);
+        String[] customIdSplit = event.getCustomId().split(BottomCustomIdUtils.LEGACY_CONFIG_SPLIT_DELIMITER_REGEX);
         String buttonValue = customIdSplit[BUTTON_VALUE_INDEX];
 
         Integer dicePool = toNumber(customIdSplit[POOL_SIZE_VALUE_INDEX]);
@@ -374,12 +374,12 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTar
                     ComponentRowDefinition.builder()
                             .buttonDefinition(
                                     ButtonDefinition.builder()
-                                            .id(createButtonCustomId(DO_REROLL_ID))
+                                            .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), DO_REROLL_ID))
                                             .label("Reroll")
                                             .build())
                             .buttonDefinition(
                                     ButtonDefinition.builder()
-                                            .id(createButtonCustomId(DO_NOT_REROLL_ID))
+                                            .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), DO_NOT_REROLL_ID))
                                             .label("No reroll")
                                             .build())
                             .build()
@@ -389,13 +389,13 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTar
                 state.getData().getTargetNumber() == null) {
             List<ButtonDefinition> buttons = IntStream.range(2, config.getDiceSides() + 1)
                     .mapToObj(i -> ButtonDefinition.builder()
-                            .id(createButtonCustomId(String.valueOf(i)))
+                            .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), String.valueOf(i)))
                             .label(String.format("%d", i))
                             .build()
                     )
                     .collect(Collectors.toList());
             buttons.add(ButtonDefinition.builder()
-                    .id(createButtonCustomId(CLEAR_BUTTON_ID))
+                    .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), CLEAR_BUTTON_ID))
                     .label("Clear")
                     .build());
             return Lists.partition(buttons, 5).stream()
@@ -408,7 +408,7 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTar
     private List<ComponentRowDefinition> createPoolButtonLayout(PoolTargetConfig config) {
         List<ButtonDefinition> buttons = IntStream.range(1, config.getMaxNumberOfButtons() + 1)
                 .mapToObj(i -> ButtonDefinition.builder()
-                        .id(createButtonCustomId(String.valueOf(i)))
+                        .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), String.valueOf(i)))
                         .label(String.format("%d%s%s", i, DICE_SYMBOL, config.getDiceSides()))
                         .build())
                 .collect(Collectors.toList());

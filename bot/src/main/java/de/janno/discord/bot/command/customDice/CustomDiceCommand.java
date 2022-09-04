@@ -8,7 +8,7 @@ import de.janno.discord.bot.dice.DiceParserHelper;
 import de.janno.discord.bot.persistance.Mapper;
 import de.janno.discord.bot.persistance.MessageDataDAO;
 import de.janno.discord.bot.persistance.MessageDataDTO;
-import de.janno.discord.connector.api.BotConstants;
+import de.janno.discord.connector.api.BottomCustomIdUtils;
 import de.janno.discord.connector.api.ButtonEventAdaptor;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
@@ -106,7 +106,7 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
                 .distinct()
                 .collect(Collectors.toList());
         int maxCharacter = 2000; //2000 is the max message length
-        return diceParserHelper.validateListOfExpressions(diceExpressionWithOptionalLabel, LABEL_DELIMITER, BotConstants.CUSTOM_ID_DELIMITER, "/custom_dice help", maxCharacter);
+        return diceParserHelper.validateListOfExpressions(diceExpressionWithOptionalLabel, LABEL_DELIMITER, BottomCustomIdUtils.CUSTOM_ID_DELIMITER, "/custom_dice help", maxCharacter);
     }
 
     protected @NonNull CustomDiceConfig getConfigFromStartOptions(@NonNull CommandInteractionOption options) {
@@ -120,7 +120,7 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
     @VisibleForTesting
     CustomDiceConfig getConfigOptionStringList(List<ButtonIdAndExpression> startOptions, Long channelId) {
         return new CustomDiceConfig(channelId, startOptions.stream()
-                .filter(be -> !be.getExpression().contains(BotConstants.CUSTOM_ID_DELIMITER))
+                .filter(be -> !be.getExpression().contains(BottomCustomIdUtils.CUSTOM_ID_DELIMITER))
                 .filter(be -> !be.getExpression().contains(LABEL_DELIMITER) || be.getExpression().split(LABEL_DELIMITER).length == 2)
                 .map(be -> {
                     if (be.getExpression().contains(LABEL_DELIMITER)) {
@@ -170,7 +170,7 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
     private List<ComponentRowDefinition> createButtonLayout(CustomDiceConfig config) {
         List<ButtonDefinition> buttons = config.getButtonIdLabelAndDiceExpressions().stream()
                 .map(d -> ButtonDefinition.builder()
-                        .id(createButtonCustomId(d.getButtonId()))
+                        .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), d.getButtonId()))
                         .label(d.getLabel())
                         .build())
                 .collect(Collectors.toList());
@@ -181,19 +181,19 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
 
     @Override
     protected @NonNull CustomDiceConfig getConfigFromEvent(@NonNull ButtonEventAdaptor event) {
-        String[] split = event.getCustomId().split(BotConstants.LEGACY_CONFIG_SPLIT_DELIMITER_REGEX);
+        String[] split = event.getCustomId().split(BottomCustomIdUtils.LEGACY_CONFIG_SPLIT_DELIMITER_REGEX);
         Long answerTargetChannelId = getOptionalLongFromArray(split, 2);
         Deque<String> buttonIds = new ArrayDeque<>(IntStream.range(1, 26).mapToObj(i -> i + "_button").toList()); //legacy can have 25 buttons
 
         return new CustomDiceConfig(answerTargetChannelId, event.getAllButtonIds().stream()
-                .map(lv -> new ButtonIdLabelAndDiceExpression(buttonIds.pop(), lv.getLabel(), getButtonValueFromLegacyCustomId(lv.getCustomId())))
+                .map(lv -> new ButtonIdLabelAndDiceExpression(buttonIds.pop(), lv.getLabel(), BottomCustomIdUtils.getButtonValueFromLegacyCustomId(lv.getCustomId())))
                 .collect(Collectors.toList()));
     }
 
     @Override
     protected @NonNull State<StateData> getStateFromEvent(@NonNull ButtonEventAdaptor event) {
         final CustomDiceConfig config = getConfigFromEvent(event);
-        final String buttonValue = getButtonValueFromLegacyCustomId(event.getCustomId());
+        final String buttonValue = BottomCustomIdUtils.getButtonValueFromLegacyCustomId(event.getCustomId());
         final String mappedButtonValue = config.getButtonIdLabelAndDiceExpressions().stream()
                 .filter(bld -> bld.getDiceExpression().equals(buttonValue))
                 .map(ButtonIdLabelAndDiceExpression::getButtonId)

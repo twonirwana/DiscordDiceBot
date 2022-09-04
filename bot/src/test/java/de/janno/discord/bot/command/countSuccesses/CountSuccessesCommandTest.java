@@ -238,12 +238,6 @@ class CountSuccessesCommandTest {
         assertThat(res).isEqualTo(new State<>("4", StateData.empty()));
     }
 
-    @Test
-    void createButtonCustomId() {
-        String res = underTest.createButtonCustomId("10");
-
-        assertThat(res).isEqualTo("count_successes\u001e10");
-    }
 
     @Test
     void handleComponentInteractEventLegacy() {

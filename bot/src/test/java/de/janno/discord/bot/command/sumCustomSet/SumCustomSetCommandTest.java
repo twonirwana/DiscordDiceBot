@@ -488,14 +488,6 @@ class SumCustomSetCommandTest {
 
         assertThat(res).isEqualTo(new State<>("1_button", new SumCustomSetStateData(ImmutableList.of("1d6", "1d6"), "user1")));
     }
-
-    @Test
-    void createButtonCustomId() {
-        String res = underTest.createButtonCustomId("1d6");
-
-        assertThat(res).isEqualTo("sum_custom_set\u001E1d6");
-    }
-
     @Test
     void getButtonLayoutWithState() {
         List<ComponentRowDefinition> res = underTest.createNewButtonMessageWithState(defaultConfig, new State<>("roll", new SumCustomSetStateData(ImmutableList.of("1d6"), "user1")))
