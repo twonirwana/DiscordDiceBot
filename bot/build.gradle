@@ -26,7 +26,7 @@ dependencies {
     implementation 'io.micrometer:micrometer-registry-prometheus:1.9.3'
     implementation 'io.undertow:undertow-core:2.2.19.Final'
     implementation 'com.h2database:h2:2.1.214'
-    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.13.3'
+    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.13.4'
 
     testImplementation(libs.junit.jupiter.api)
     testRuntimeOnly(libs.junit.jupiter.engine)
