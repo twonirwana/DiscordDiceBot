@@ -80,7 +80,7 @@ class DirectRollCommandTest {
                 .stringValue("asdfasdf")
                 .build();
         when(slashEventAdaptor.getOption(any())).thenReturn(Optional.of(interactionOption));
-        when(diceMock.roll("asdfasdf")).thenThrow(new IllegalArgumentException("not a valid expression"));
+        when(diceMock.detailedRoll("asdfasdf")).thenThrow(new IllegalArgumentException("not a valid expression"));
         when(slashEventAdaptor.reply(any())).thenReturn(Mono.just(mock(Void.class)));
         when(slashEventAdaptor.getCommandString()).thenReturn("/r expression:asdfasdf");
 

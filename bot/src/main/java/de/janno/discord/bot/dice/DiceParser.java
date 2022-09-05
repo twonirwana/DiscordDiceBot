@@ -8,9 +8,4 @@ public class DiceParser implements Dice {
     public ResultTree detailedRoll(String input) {
         return dev.diceroll.parser.Dice.detailedRoll(input);
     }
-
-    @Override
-    public int roll(String input) {
-        return dev.diceroll.parser.Dice.roll(input);
-    }
 }
