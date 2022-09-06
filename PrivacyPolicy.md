@@ -12,7 +12,7 @@ The bot doesn't collect any user information, with the exception of log files.
 ## Log Files
 
 Button Dice Roller follows a standard procedure of using log files. These files log users when they interact with the
-bot. The information collected by log files include discord username, server name, date and time stamp, and the used
+bot. The information collected by log files include the discord server name, date and time stamp, and the used
 dice commands. The purpose of the information is to identify bugs and performance problems.
 
 ## Third Party Privacy Policies
