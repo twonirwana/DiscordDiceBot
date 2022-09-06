@@ -174,7 +174,7 @@ class SumCustomSetCommandTest {
         when(event.getMessageContent()).thenReturn("user1∶ asdfasfdasf");
         when(event.getAllButtonIds()).thenReturn(ImmutableList.of(new ButtonEventAdaptor.LabelAndCustomId("+1d6", "sum_custom_set\u0000+1d6")));
         when(event.getInvokingGuildMemberName()).thenReturn("user1");
-        when(diceMock.roll(any())).thenThrow(new RuntimeException("test"));
+        when(diceMock.detailedRoll(any())).thenThrow(new RuntimeException("test"));
         assertThat(underTest.getStateFromEvent(event)).isEqualTo(new State<>("no action", new SumCustomSetStateData(ImmutableList.of(), null)));
     }
 

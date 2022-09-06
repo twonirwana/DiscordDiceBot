@@ -10,8 +10,10 @@ import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
-import java.util.function.Function;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -232,15 +234,6 @@ public class DiceParserHelper {
             }
         }
 
-        Map<String, Long> expressionOccurrence = optionValues.stream()
-                .map(s -> s.split(labelDelimiter)[0].toLowerCase().trim())
-                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
-        for (Map.Entry<String, Long> e : expressionOccurrence.entrySet()) {
-            if (e.getValue() > 1) {
-                return Optional.of(String.format("The dice expression '%s' is not unique. Each dice expression must only once.", e.getKey()));
-            }
-        }
-
         return Optional.empty();
     }
 
@@ -290,8 +283,12 @@ public class DiceParserHelper {
                         .title(labelResult.getLabel())
                         .description(labelResult.getResult()).build();
             }
+        } catch (ArithmeticException t) {
+            return EmbedDefinition.builder()
+                    .title("Arithmetic Error")
+                    .description(String.format("Executing '%s' resulting in: %s", input, t.getMessage()))
+                    .build();
         } catch (Throwable t) {
-            log.error(String.format("Error in %s:", input), t);
             return EmbedDefinition.builder()
                     .title("Error")
                     .description(String.format("Could not execute the dice expression: %s", input))
@@ -300,26 +297,22 @@ public class DiceParserHelper {
     }
 
     private LabelResult singleRoll(String input, String label) {
-        try {
-            if (isBooleanExpression(input)) {
-                BooleanExpression booleanExpression = getBooleanExpression(input);
-                RollWithDetails rollWithDetails = rollWithDiceParser(booleanExpression.getExpression());
-                if (rollWithDetails.getResult() == null) { //there was an error
-                    return new LabelResult(rollWithDetails.getRoll(), rollWithDetails.getDetails());
-                }
-
-                String result = booleanExpression.getResult(rollWithDetails.getResult());
-                String labelOrExpression = Strings.isNullOrEmpty(label) ? booleanExpression.getExpression() : label;
-                String title = String.format("%s: %s", labelOrExpression, result);
-                String details = String.format("%s = %s", rollWithDetails.getDetails(), booleanExpression.getDetail(rollWithDetails.getResult()));
-                return new LabelResult(title, details);
-            } else {
-                RollWithDetails rollWithDetails = rollWithDiceParser(input);
-                String title = Strings.isNullOrEmpty(label) ? rollWithDetails.getRoll() : String.format("%s: %s", label, rollWithDetails.getRoll());
-                return new LabelResult(title, rollWithDetails.getDetails());
+        if (isBooleanExpression(input)) {
+            BooleanExpression booleanExpression = getBooleanExpression(input);
+            RollWithDetails rollWithDetails = rollWithDiceParser(booleanExpression.getExpression());
+            if (rollWithDetails.getResult() == null) { //there was an error
+                return new LabelResult(rollWithDetails.getRoll(), rollWithDetails.getDetails());
             }
-        } catch (Throwable t) {
-            return new LabelResult("Error", String.format("Could not execute the dice expression: %s", input));
+
+            String result = booleanExpression.getResult(rollWithDetails.getResult());
+            String labelOrExpression = Strings.isNullOrEmpty(label) ? booleanExpression.getExpression() : label;
+            String title = String.format("%s: %s", labelOrExpression, result);
+            String details = String.format("%s = %s", rollWithDetails.getDetails(), booleanExpression.getDetail(rollWithDetails.getResult()));
+            return new LabelResult(title, details);
+        } else {
+            RollWithDetails rollWithDetails = rollWithDiceParser(input);
+            String title = Strings.isNullOrEmpty(label) ? rollWithDetails.getRoll() : String.format("%s: %s", label, rollWithDetails.getRoll());
+            return new LabelResult(title, rollWithDetails.getDetails());
         }
     }
 
@@ -355,17 +348,11 @@ public class DiceParserHelper {
     }
 
     private RollWithDetails rollWithDiceParser(String input) {
-        try {
-            input = removeLeadingPlus(input);
-            ResultTree resultTree = dice.detailedRoll(input);
-            String title = String.format("%s = %d", input, resultTree.getValue());
-            String details = String.format("[%s]", getBaseResults(resultTree).stream().map(String::valueOf).collect(Collectors.joining(", ")));
-            return new RollWithDetails(title, details, resultTree.getValue());
-        } catch (ArithmeticException t) {
-            return new RollWithDetails("Arithmetic Error", String.format("Executing '%s' resulting in: %s", input, t.getMessage()), null);
-        } catch (Throwable t) {
-            return new RollWithDetails("Error", String.format("Could not execute the dice expression: %s", input), null);
-        }
+        input = removeLeadingPlus(input);
+        ResultTree resultTree = dice.detailedRoll(input);
+        String title = String.format("%s = %d", input, resultTree.getValue());
+        String details = String.format("[%s]", getBaseResults(resultTree).stream().map(String::valueOf).collect(Collectors.joining(", ")));
+        return new RollWithDetails(title, details, resultTree.getValue());
     }
 
     public boolean validExpression(String input) {
@@ -378,9 +365,9 @@ public class DiceParserHelper {
                     splitMultipleDifferentExpressions(input).forEach(e -> singleRoll(e, null));
                 }
             } else if (isBooleanExpression(input)) {
-                dice.roll(getBooleanExpression(input).getExpression());
+                dice.detailedRoll(getBooleanExpression(input).getExpression());
             } else {
-                dice.roll(input);
+                dice.detailedRoll(input);
             }
             return true;
         } catch (Throwable t) {

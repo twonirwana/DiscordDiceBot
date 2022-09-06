@@ -39,7 +39,7 @@ class DiceParserHelperTest {
                 Arguments.of(ImmutableList.of("2d6&3d10@Test"), null),
                 Arguments.of(ImmutableList.of("2d6>4?a:b&3d10<6?c:d@Test"), null),
                 Arguments.of(ImmutableList.of("2x[2d6]&1d8"), "The following dice expression is invalid: '2x[2d6]&1d8'. Use /custom_dice help to get more information on how to use the command."),
-                Arguments.of(ImmutableList.of("1d6@Attack", "1d6@Parry"), "The dice expression '1d6' is not unique. Each dice expression must only once."),
+                Arguments.of(ImmutableList.of("1d6@Attack", "1d6@Parry"), null),
                 Arguments.of(ImmutableList.of("1d6@a,b"), "The button definition '1d6@a,b' is not allowed to contain ','"),
                 Arguments.of(ImmutableList.of(" 1d6 @ Attack "), null),
                 Arguments.of(ImmutableList.of("a"), "The following dice expression is invalid: 'a'. Use /custom_dice help to get more information on how to use the command."),
@@ -128,7 +128,6 @@ class DiceParserHelperTest {
     void rollBooleanExpression(String diceExpression, String label, EmbedDefinition expected) {
         Dice diceMock = mock(Dice.class);
         DiceParserHelper underTest = new DiceParserHelper(diceMock);
-        when(diceMock.roll(any())).thenReturn(3);
         when(diceMock.detailedRoll(any())).thenReturn(new ResultTree(mock(DiceExpression.class), 3, ImmutableList.of()));
 
         EmbedDefinition res = underTest.roll(diceExpression, label);
@@ -245,7 +244,7 @@ class DiceParserHelperTest {
 
         assertThat(res.getFields()).hasSize(0);
         assertThat(res.getDescription()).isNotEmpty();
-        assertThat(res.getTitle()).isEqualTo("Label: Arithmetic Error");
+        assertThat(res.getTitle()).isEqualTo("Arithmetic Error");
         assertThat(res.getDescription()).isEqualTo("Executing '2147483647+1' resulting in: integer overflow");
     }
 
@@ -253,11 +252,9 @@ class DiceParserHelperTest {
     void roll_overflow_multiple() {
         EmbedDefinition res = underTest.roll("3x[2147483647+1]", "Label");
 
-        assertThat(res.getFields()).hasSize(3);
-        assertThat(res.getDescription()).isNull();
-        assertThat(res.getTitle()).isEqualTo("Label");
-        assertThat(res.getFields().get(0).getName()).isEqualTo("Arithmetic Error");
-        assertThat(res.getFields().get(0).getValue()).isEqualTo("Executing '2147483647+1' resulting in: integer overflow");
+        assertThat(res.getFields()).hasSize(0);
+        assertThat(res.getDescription()).isEqualTo("Executing '3x[2147483647+1]' resulting in: integer overflow");
+        assertThat(res.getTitle()).isEqualTo("Arithmetic Error");
     }
 
     @Test

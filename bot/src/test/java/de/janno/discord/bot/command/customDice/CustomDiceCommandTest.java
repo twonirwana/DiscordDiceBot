@@ -3,8 +3,8 @@ package de.janno.discord.bot.command.customDice;
 import com.google.common.collect.ImmutableList;
 import de.janno.discord.bot.command.ButtonIdLabelAndDiceExpression;
 import de.janno.discord.bot.command.ConfigAndState;
-import de.janno.discord.bot.command.StateData;
 import de.janno.discord.bot.command.State;
+import de.janno.discord.bot.command.StateData;
 import de.janno.discord.bot.dice.Dice;
 import de.janno.discord.bot.dice.DiceParser;
 import de.janno.discord.bot.dice.DiceParserHelper;
@@ -71,9 +71,9 @@ class CustomDiceCommandTest {
     @ParameterizedTest(name = "{index} config={0} -> {1}")
     @MethodSource("generateConfigOptionStringList")
     void getConfigOptionStringList(List<String> optionValue, CustomDiceConfig expected) {
-        when(diceMock.roll(any())).thenAnswer(a -> {
+        when(diceMock.detailedRoll(any())).thenAnswer(a -> {
             String expression = a.getArgument(0);
-            return dev.diceroll.parser.Dice.roll(expression);
+            return dev.diceroll.parser.Dice.detailedRoll(expression);
         });
         AtomicInteger counter = new AtomicInteger(1);
         final List<CustomDiceCommand.ButtonIdAndExpression> idAndExpressions = optionValue.stream()
