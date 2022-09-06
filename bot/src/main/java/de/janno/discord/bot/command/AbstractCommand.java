@@ -169,10 +169,9 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
 
             actions.add(event.createResultMessageWithEventReference(answer.get(), answerTargetChannelId).then(
                     event.getRequester()
-                            .doOnNext(requester -> log.info("'{}'.'{}' from '{}' button: '{}'={} -> {} in {}ms",
+                            .doOnNext(requester -> log.info("'{}'.'{}': '{}'={} -> {} in {}ms",
                                             requester.getGuildName(),
                                             requester.getChannelName(),
-                                            requester.getUserName(),
                                             event.getCustomId().replace(CUSTOM_ID_DELIMITER, ":"),
                                             state.toShortString(),
                                             answer.get().toShortString(),
@@ -278,10 +277,9 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
                             .then()
                     )
                     .then(event.getRequester()
-                            .doOnNext(requester -> log.info("'{}'.'{}' from '{}' slash: '{}'",
+                            .doOnNext(requester -> log.info("'{}'.'{}': '{}'",
                                     requester.getGuildName(),
                                     requester.getChannelName(),
-                                    requester.getUserName(),
                                     commandString
                             ))
                             .ofType(Void.class));

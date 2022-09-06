@@ -92,10 +92,9 @@ public class DirectRollCommand implements SlashCommand {
                             event.createResultMessageWithEventReference(answer))
 
                     .then(event.getRequester()
-                            .doOnNext(requester -> log.info("'{}'.'{}' from '{}' slash '{}': {} -> {} in {}ms",
+                            .doOnNext(requester -> log.info("'{}'.'{}': '{}'={} -> {} in {}ms",
                                     requester.getGuildName(),
                                     requester.getChannelName(),
-                                    requester.getUserName(),
                                     event.getCommandString(),
                                     diceExpression,
                                     answer.toShortString(),
