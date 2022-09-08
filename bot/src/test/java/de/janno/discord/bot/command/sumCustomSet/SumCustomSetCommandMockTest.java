@@ -71,6 +71,29 @@ public class SumCustomSetCommandMockTest {
     }
 
     @Test
+    void backBack() {
+        SumCustomSetConfig config = new SumCustomSetConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "+1", "1"),
+                new ButtonIdLabelAndDiceExpression("2_button", "+2", "2")));
+        ButtonEventAdaptorMockFactory<SumCustomSetConfig, SumCustomSetStateData> factory = new ButtonEventAdaptorMockFactory<>("sum_custom_st", underTest, config, messageDataDAO, false);
+
+        ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("1_button");
+        underTest.handleComponentInteractEvent(click1).block();
+        ButtonEventAdaptorMock click2 = factory.getButtonClickOnLastButtonMessage("back");
+        underTest.handleComponentInteractEvent(click2).block();
+        ButtonEventAdaptorMock click3 = factory.getButtonClickOnLastButtonMessage("back");
+        underTest.handleComponentInteractEvent(click3).block();
+
+        assertThat(click1.getActions()).containsExactly(
+                "acknowledge", "editMessage: message:invokingUser∶ 1, buttonValues=");
+        assertThat(click2.getActions()).containsExactly(
+                "acknowledge",
+                "editMessage: message:Click the buttons to add dice to the set and then on Roll, buttonValues=");
+        assertThat(click2.getActions()).containsExactly(
+                "acknowledge",
+                "editMessage: message:Click the buttons to add dice to the set and then on Roll, buttonValues=");
+    }
+
+    @Test
     void roll_pinned() {
         SumCustomSetConfig config = new SumCustomSetConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "+1", "1"),
                 new ButtonIdLabelAndDiceExpression("2_button", "+2", "2")));
