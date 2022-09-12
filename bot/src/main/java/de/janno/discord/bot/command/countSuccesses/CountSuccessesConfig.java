@@ -25,9 +25,9 @@ public class CountSuccessesConfig extends Config {
     private final int maxNumberOfButtons;
     private final int minDiceCount;
     @NonNull
-    private final Set<Integer> rerollSet;
+    private final ImmutableSet<Integer> rerollSet;
     @NonNull
-    private final Set<Integer> botchSet;
+    private final ImmutableSet<Integer> botchSet;
 
     @JsonCreator
     public CountSuccessesConfig(@JsonProperty("answerTargetChannelId") Long answerTargetChannelId,
@@ -44,8 +44,8 @@ public class CountSuccessesConfig extends Config {
         this.glitchOption = glitchOption;
         this.maxNumberOfButtons = maxNumberOfButtons;
         this.minDiceCount = Objects.requireNonNullElse(minDiceCount, 1);
-        this.rerollSet = Objects.requireNonNullElse(rerollSet, ImmutableSet.of());
-        this.botchSet = Objects.requireNonNullElse(botchSet, ImmutableSet.of());
+        this.rerollSet = ImmutableSet.copyOf(Objects.requireNonNullElse(rerollSet, Set.of()));
+        this.botchSet = ImmutableSet.copyOf(Objects.requireNonNullElse(botchSet, Set.of()));
     }
 
     @Override
