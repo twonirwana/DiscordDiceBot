@@ -3,8 +3,8 @@ package de.janno.discord.connector.jda;
 import com.google.common.base.Stopwatch;
 import de.janno.discord.connector.api.BottomCustomIdUtils;
 import de.janno.discord.connector.api.ComponentInteractEventHandler;
-import de.janno.discord.connector.api.SlashCommand;
 import de.janno.discord.connector.api.Requester;
+import de.janno.discord.connector.api.SlashCommand;
 import de.janno.discord.connector.api.message.MessageDefinition;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -40,11 +40,6 @@ import java.util.concurrent.ConcurrentSkipListSet;
 public class JdaClient {
 
     public static final Duration START_UP_BUFFER = Duration.of(5, ChronoUnit.MINUTES);
-
-    private static String getCommandNameFromCustomId(String customId) {
-        //todo legacy version
-        return customId.split(BottomCustomIdUtils.CUSTOM_ID_DELIMITER)[0];
-    }
 
     public void start(String token, boolean disableCommandUpdate, List<SlashCommand> commands, MessageDefinition welcomeMessageDefinition) throws LoginException {
         LocalDateTime startTimePlusBuffer = LocalDateTime.now().plus(START_UP_BUFFER);
@@ -156,7 +151,7 @@ public class JdaClient {
                             return Mono.empty();
                         })
                         .doAfterTerminate(() ->
-                                JdaMetrics.timerButtonMetricCounter(getCommandNameFromCustomId(event.getInteraction().getComponentId()), stopwatch.elapsed())
+                                JdaMetrics.timerButtonMetricCounter(BottomCustomIdUtils.getCommandNameFromCustomId(event.getInteraction().getComponentId()), stopwatch.elapsed())
                         )
                         .subscribeOn(scheduler)
                         .subscribe();
