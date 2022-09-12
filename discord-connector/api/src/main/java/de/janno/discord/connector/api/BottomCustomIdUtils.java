@@ -37,4 +37,19 @@ public final class BottomCustomIdUtils {
         Preconditions.checkArgument(StringUtils.countMatches(customId, CUSTOM_ID_DELIMITER) == 1, "'%s' contains not the correct number of delimiter", customId);
         return customId.split(CUSTOM_ID_DELIMITER)[COMMAND_NAME_INDEX];
     }
+
+    public static String getCommandNameFromCustomId(String customId) {
+        if (isLegacyCustomId(customId)) {
+            return getCommandNameFromCustomIdWithPersistence(customId);
+        }
+        return customId.split(LEGACY_CONFIG_SPLIT_DELIMITER_REGEX)[COMMAND_NAME_INDEX];
+    }
+
+    /**
+     * will be removed when almost all users have switched to the persisted button id
+     */
+    public static boolean matchesLegacyCustomId(@NonNull String customId, @NonNull String commandId) {
+        return customId.matches("^" + commandId + LEGACY_CONFIG_SPLIT_DELIMITER_REGEX + ".*");
+    }
+
 }

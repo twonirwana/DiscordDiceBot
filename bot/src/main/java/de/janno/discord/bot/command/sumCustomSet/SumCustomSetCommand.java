@@ -245,7 +245,12 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
             return new State<>(NO_ACTION, new SumCustomSetStateData(ImmutableList.of(), null));
         }
         if (BACK_BUTTON_ID.equals(buttonValue)) {
-            List<String> newExpressionList = ImmutableList.copyOf(currentExpressions.subList(0, currentExpressions.size() - 1));
+            final List<String> newExpressionList;
+            if (currentExpressions.isEmpty()) {
+                newExpressionList = ImmutableList.of();
+            } else {
+                newExpressionList = ImmutableList.copyOf(currentExpressions.subList(0, currentExpressions.size() - 1));
+            }
             return new State<>(buttonValue, new SumCustomSetStateData(newExpressionList, newExpressionList.isEmpty() ? null : lockedToUser));
         }
         if (ROLL_BUTTON_ID.equals(buttonValue)) {

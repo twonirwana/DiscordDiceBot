@@ -34,16 +34,22 @@ import java.util.stream.IntStream;
 @Slf4j
 public class CountSuccessesCommand extends AbstractCommand<CountSuccessesConfig, StateData> {
 
+    static final String SUBSET_DELIMITER = ";";
     private static final String COMMAND_NAME = "count_successes";
     private static final String ACTION_SIDE_OPTION = "dice_sides";
     private static final String ACTION_TARGET_OPTION = "target_number";
     private static final String ACTION_MAX_DICE_OPTION = "max_dice";
+    private static final String ACTION_MIN_DICE_COUNT_OPTION = "min_dice_count";
+    private static final String ACTION_REROLL_SET_OPTION = "reroll_set";
+    private static final String ACTION_BOTCH_SET_OPTION = "botch_set";
     private static final long MAX_NUMBER_OF_DICE = 25;
     private static final String ACTION_GLITCH_OPTION = "glitch";
     private static final long MAX_NUMBER_SIDES_OR_TARGET_NUMBER = 1000;
     private static final String GLITCH_OPTION_HALF_ONES = "half_dice_one";
     private static final String GLITCH_NO_OPTION = "no_glitch";
     private static final String GLITCH_COUNT_ONES = "count_ones";
+    @Deprecated
+    //replaced with the botch set
     private static final String GLITCH_SUBTRACT_ONES = "subtract_ones";
     private final static String CONFIG_TYPE_ID = "CountSuccessesConfig";
     private final DiceUtils diceUtils;
@@ -102,7 +108,7 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesConfig,
         String glitchOption = split.length < 5 ? GLITCH_NO_OPTION : split[4];
         int maxNumberOfButtons = split.length < 6 ? 15 : Integer.parseInt(split[5]);
         Long answerTargetChannelId = getOptionalLongFromArray(split, 6);
-        return new CountSuccessesConfig(answerTargetChannelId, sideOfDie, target, glitchOption, maxNumberOfButtons);
+        return new CountSuccessesConfig(answerTargetChannelId, sideOfDie, target, glitchOption, maxNumberOfButtons, 1, Set.of(), Set.of());
     }
 
     @Override
@@ -150,7 +156,6 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesConfig,
                         .type(CommandDefinitionOption.Type.STRING)
                         .choice(CommandDefinitionOptionChoice.builder().name(GLITCH_OPTION_HALF_ONES).value(GLITCH_OPTION_HALF_ONES).build())
                         .choice(CommandDefinitionOptionChoice.builder().name(GLITCH_COUNT_ONES).value(GLITCH_COUNT_ONES).build())
-                        .choice(CommandDefinitionOptionChoice.builder().name(GLITCH_SUBTRACT_ONES).value(GLITCH_SUBTRACT_ONES).build())
                         .build(),
                 CommandDefinitionOption.builder()
                         .name(ACTION_MAX_DICE_OPTION)
@@ -159,67 +164,83 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesConfig,
                         .type(CommandDefinitionOption.Type.INTEGER)
                         .minValue(1L)
                         .maxValue(MAX_NUMBER_OF_DICE)
-                        .build());
+                        .build(),
+                CommandDefinitionOption.builder()
+                        .name(ACTION_MIN_DICE_COUNT_OPTION)
+                        .required(false)
+                        .description("The minimal number of dice")
+                        .type(CommandDefinitionOption.Type.INTEGER)
+                        .minValue(1L)
+                        .maxValue(100L)
+                        .build(),
+                CommandDefinitionOption.builder()
+                        .name(ACTION_REROLL_SET_OPTION)
+                        .required(false)
+                        .description("Result numbers that are reroll, seperated by ','")
+                        .type(CommandDefinitionOption.Type.STRING)
+                        .build(),
+                CommandDefinitionOption.builder()
+                        .name(ACTION_BOTCH_SET_OPTION)
+                        .required(false)
+                        .description("Failure dice numbers, seperated by ','")
+                        .type(CommandDefinitionOption.Type.STRING)
+                        .build()
+        );
     }
 
     @Override
-    protected @NonNull Optional<EmbedDefinition> getAnswer(CountSuccessesConfig config, State<StateData> state) {
-        int numberOfDice = Integer.parseInt(state.getButtonValue());
-        List<Integer> rollResult = diceUtils.rollDiceOfType(numberOfDice, config.getDiceSides()).stream()
-                .sorted()
-                .collect(Collectors.toList());
-
-        return switch (config.getGlitchOption()) {
-            case GLITCH_OPTION_HALF_ONES ->
-                    halfOnesGlitch(numberOfDice, config.getDiceSides(), config.getTarget(), rollResult);
-            case GLITCH_COUNT_ONES ->
-                    countOnesGlitch(numberOfDice, config.getDiceSides(), config.getTarget(), rollResult);
-            case GLITCH_SUBTRACT_ONES ->
-                    subtractOnesGlitch(numberOfDice, config.getDiceSides(), config.getTarget(), rollResult);
-            default -> noneGlitch(numberOfDice, config.getDiceSides(), config.getTarget(), rollResult);
-        };
-    }
-
-    private Optional<EmbedDefinition> noneGlitch(int numberOfDice, int sidesOfDie, int targetNumber, List<Integer> rollResult) {
-        int numberOfSuccesses = DiceUtils.numberOfDiceResultsGreaterEqual(rollResult, targetNumber);
-        Set<Integer> toMark = IntStream.range(targetNumber, sidesOfDie + 1).boxed().collect(Collectors.toSet());
-        String details = String.format("%s ≥%d = %s", CommandUtils.markIn(rollResult, toMark), targetNumber, numberOfSuccesses);
-        String title = String.format("%dd%d = %d", numberOfDice, sidesOfDie, numberOfSuccesses);
-        return Optional.of(new EmbedDefinition(title, details, ImmutableList.of()));
-    }
-
-    private Optional<EmbedDefinition> countOnesGlitch(int numberOfDice, int sidesOfDie, int targetNumber, List<Integer> rollResult) {
-        int numberOfSuccesses = DiceUtils.numberOfDiceResultsGreaterEqual(rollResult, targetNumber);
-        int numberOfOnes = DiceUtils.numberOfDiceResultsEqual(rollResult, ImmutableSet.of(1));
-        Set<Integer> toMark = IntStream.range(targetNumber, sidesOfDie + 1).boxed().collect(Collectors.toSet());
-        toMark.add(1);
-        String details = String.format("%s ≥%d = %s", CommandUtils.markIn(rollResult, toMark), targetNumber, numberOfSuccesses);
-        String title = String.format("%dd%d = %d successes and %d ones", numberOfDice, sidesOfDie, numberOfSuccesses, numberOfOnes);
-        return Optional.of(new EmbedDefinition(title, details, ImmutableList.of()));
-    }
-
-    private Optional<EmbedDefinition> subtractOnesGlitch(int numberOfDice, int sidesOfDie, int targetNumber, List<Integer> rollResult) {
-        int numberOfSuccesses = DiceUtils.numberOfDiceResultsGreaterEqual(rollResult, targetNumber);
-        int numberOfOnes = DiceUtils.numberOfDiceResultsEqual(rollResult, ImmutableSet.of(1));
-        Set<Integer> toMark = IntStream.range(targetNumber, sidesOfDie + 1).boxed().collect(Collectors.toSet());
-        toMark.add(1);
-        String details = String.format("%s ≥%d -1s = %s", CommandUtils.markIn(rollResult, toMark), targetNumber, numberOfSuccesses - numberOfOnes);
-        String title = String.format("%dd%d = %d", numberOfDice, sidesOfDie, numberOfSuccesses - numberOfOnes);
-        return Optional.of(new EmbedDefinition(title, details, ImmutableList.of()));
-    }
-
-    private Optional<EmbedDefinition> halfOnesGlitch(int numberOfDice, int sidesOfDie, int targetNumber, List<Integer> rollResult) {
-        boolean isGlitch = DiceUtils.numberOfDiceResultsEqual(rollResult, ImmutableSet.of(1)) > (numberOfDice / 2);
-        int numberOfSuccesses = DiceUtils.numberOfDiceResultsGreaterEqual(rollResult, targetNumber);
-        String glitchDescription = isGlitch ? " and more then half of all dice show 1s" : "";
-        Set<Integer> toMark = IntStream.range(targetNumber, sidesOfDie + 1).boxed().collect(Collectors.toSet());
-        if (isGlitch) {
-            toMark.add(1);
+    protected @NonNull Optional<String> getStartOptionsValidationMessage(@NonNull CommandInteractionOption options) {
+        long sideValue = options.getLongSubOptionWithName(ACTION_SIDE_OPTION).orElseThrow();
+        int rerollSetSize = CommandUtils.getSetFromCommandOptions(options, ACTION_REROLL_SET_OPTION, ",").size();
+        if ((rerollSetSize * 2L) >= sideValue) {
+            return Optional.of("The reroll set must be smaller then half the number of dice sides");
         }
-        String details = String.format("%s ≥%d = %s%s", CommandUtils.markIn(rollResult, toMark), targetNumber, numberOfSuccesses, glitchDescription);
-        String glitch = isGlitch ? " - Glitch!" : "";
-        String title = String.format("%dd%d = %d%s", numberOfDice, sidesOfDie, numberOfSuccesses, glitch);
+        return Optional.empty();
+    }
+
+
+    @Override
+    protected @NonNull Optional<EmbedDefinition> getAnswer(CountSuccessesConfig config, State<StateData> state) {
+        final int numberOfDice = Integer.parseInt(state.getButtonValue());
+
+        final List<Integer> rollResult = diceUtils.explodingReroll(config.getDiceSides(), diceUtils.rollDiceOfType(numberOfDice, config.getDiceSides()), config.getRerollSet()).stream()
+                .sorted().collect(Collectors.toList());
+        final int numberOfSuccesses = DiceUtils.numberOfDiceResultsGreaterEqual(rollResult, config.getTarget());
+        final Set<Integer> botchSet = GLITCH_SUBTRACT_ONES.equals(config.getGlitchOption()) ? Set.of(1) : config.getBotchSet();
+        final int numberOfBotches = DiceUtils.numberOfDiceResultsEqual(rollResult, botchSet);
+        Set<Integer> toMark = IntStream.range(config.getTarget(), config.getDiceSides() + 1).boxed().collect(Collectors.toSet());
+        toMark.addAll(botchSet);
+        toMark.addAll(config.getRerollSet());
+
+        final int totalResults = numberOfSuccesses - numberOfBotches;
+
+        final String glitchTitle;
+        final String glitchDetails;
+        if (GLITCH_COUNT_ONES.equals(config.getGlitchOption())) {
+            int numberOfOnes = DiceUtils.numberOfDiceResultsEqual(rollResult, ImmutableSet.of(1));
+            glitchTitle = String.format(" successes and %d ones", numberOfOnes);
+            toMark.add(1);
+            glitchDetails = "";
+        } else if (GLITCH_OPTION_HALF_ONES.equals(config.getGlitchOption())) {
+            boolean isGlitch = DiceUtils.numberOfDiceResultsEqual(rollResult, ImmutableSet.of(1)) > (rollResult.size() / 2);
+            glitchDetails = isGlitch ? " and more then half of all dice show 1s" : "";
+            if (isGlitch) {
+                toMark.add(1);
+            }
+            glitchTitle = isGlitch ? " - Glitch!" : "";
+        } else {
+            glitchTitle = "";
+            glitchDetails = "";
+        }
+        String baseDetails = String.format("%s ≥%d = %s%s%s", CommandUtils.markIn(rollResult, toMark), config.getTarget(), totalResults, getRerollDescription(config), getBotchDescription(config));
+        final String baseTitle = String.format("%dd%d = %d", numberOfDice, config.getDiceSides(), totalResults);
+
+        final String title = baseTitle + glitchTitle;
+        final String details = baseDetails + glitchDetails;
+
         return Optional.of(new EmbedDefinition(title, details, ImmutableList.of()));
+
+
     }
 
     @Override
@@ -227,10 +248,19 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesConfig,
         return Optional.of(createNewButtonMessage(config));
     }
 
+    private String getRerollDescription(CountSuccessesConfig config) {
+        return config.getRerollSet().isEmpty() ? "" : String.format(", reroll for: %s", config.getRerollSet());
+    }
+
+    private String getBotchDescription(CountSuccessesConfig config) {
+        return config.getBotchSet().isEmpty() ? "" : String.format(", remove success for: %s", config.getBotchSet());
+    }
+
     @Override
     public @NonNull MessageDefinition createNewButtonMessage(CountSuccessesConfig config) {
+
         return MessageDefinition.builder()
-                .content(String.format("Click to roll the dice against %s%s", config.getTarget(), getGlitchDescription(config)))
+                .content(String.format("Click to roll the dice against %s%s%s%s", config.getTarget(), getRerollDescription(config), getBotchDescription(config), getGlitchDescription(config)))
                 .componentRowDefinitions(createButtonLayout(config))
                 .build();
     }
@@ -258,12 +288,20 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesConfig,
         int maxDice = Math.toIntExact(options.getLongSubOptionWithName(ACTION_MAX_DICE_OPTION)
                 .map(l -> Math.min(l, MAX_NUMBER_OF_DICE))
                 .orElse(15L));
+        int minDiceCount = Math.toIntExact(options.getLongSubOptionWithName(ACTION_MIN_DICE_COUNT_OPTION)
+                .map(l -> Math.min(l, 100))
+                .orElse(1L));
+        Set<Integer> rerollSet = CommandUtils.getSetFromCommandOptions(options, ACTION_REROLL_SET_OPTION, ",").stream()
+                .sorted()
+                .limit(sideValue / 2)
+                .collect(Collectors.toSet());
+        Set<Integer> botchSet = CommandUtils.getSetFromCommandOptions(options, ACTION_BOTCH_SET_OPTION, ",");
         Long answerTargetChannelId = getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null);
-        return new CountSuccessesConfig(answerTargetChannelId, sideValue, targetValue, glitchOption, maxDice);
+        return new CountSuccessesConfig(answerTargetChannelId, sideValue, targetValue, glitchOption, maxDice, minDiceCount, rerollSet, botchSet);
     }
 
     private List<ComponentRowDefinition> createButtonLayout(CountSuccessesConfig config) {
-        List<ButtonDefinition> buttons = IntStream.range(1, config.getMaxNumberOfButtons() + 1)
+        List<ButtonDefinition> buttons = IntStream.range(config.getMinDiceCount(), config.getMinDiceCount() + config.getMaxNumberOfButtons())
                 .mapToObj(i -> ButtonDefinition.builder()
                         .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), String.valueOf(i)))
                         .label(createButtonLabel(String.valueOf(i), config))

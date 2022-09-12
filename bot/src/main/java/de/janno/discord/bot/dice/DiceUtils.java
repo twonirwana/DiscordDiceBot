@@ -67,6 +67,9 @@ public class DiceUtils {
     }
 
     public List<Integer> explodingReroll(int sidesOfDie, List<Integer> results, Set<Integer> resultNumbersToReroll) {
+        if(resultNumbersToReroll.isEmpty()){
+            return results;
+        }
         ImmutableList.Builder<Integer> resultBuilder = ImmutableList.builder();
         resultBuilder.addAll(results);
         int numberOfDiceToReroll = numberOfDiceResultsEqual(results, resultNumbersToReroll);

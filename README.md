@@ -50,7 +50,7 @@ for further options
 
 #### Chronicles of Darkness / nWoD
 
-`/custom_parameter start expression: ({Number of Dice}d10!)>8`
+`/count_successes start dice_sides: 10 target_number: 8 reroll_set: 10`
 
 #### Storyteller System / oWoD
 
@@ -90,8 +90,10 @@ usage of buttons. For example '/r 3d6' will simply roll 3d6 and post the result 
 ![](image/count_successes.webp)
 
 Use the slash command: `/count_successes start`. You need to provide the sides of the dice, the target number, optional
-a glitch system as parameter and the number of buttons. For example `/count_successes start dice_sides:10 target_number:
-7` creates 15 buttons for 10 sided dice that roll against the target of 7. By clicking on a button a number of dice will
+a glitch system as parameter and the number of buttons. For
+example `/count_successes start dice_sides: 12 target_number: 7 glitch: half_dice_one max_dice: 10 min_dice_count: 2 reroll_set: 11,12 botch_set: 1,2,3`
+creates 10 (from 2d12 to 11d12) buttons for 12 sided dice that roll against the target of 7. The dice side 11 and 12
+will be rerolled and the result 1,2 or 3 will remove a success. By clicking on a button a number of dice will
 be rolled and the count of the dice with results equal or approve the target number returned.
 
 #### Glitch Option
@@ -108,15 +110,27 @@ in the Shadowrun dice system.
 
 The option `count_ones` will only mark and count the ones in the result but will not change the number of successes.
 
-##### subtract_ones
-
-The option `subtract_ones` will subtract the number of ones in the roll from the number of successes. If there are more
-ons than successes the result will be negative. This is for example used in the old World of Darkness dice system.
-
-#### Number of Dice Option
+#### Number of Dice
 
 The optional parameter `max_dice` will change the max number of dice (and thereby the number of buttons). The default
 value is 15, which will be used if the parameter is not set, and the max number of dice is 25.
+
+#### Minimal dice count
+
+The count successes command provides per default buttons for 1 to `max_dice` count dice buttons. If `min_dice_count` is used
+then the bot will start with a higher number of dice. For example `dice_sides: 6`, `dice_sides:max_dice: 5`
+and  `min_dice_count: 10` will result in the buttons:
+10d6, 11d6, 12d6, 13d6, 14d6
+
+#### Reroll Set
+
+The optional parameter `reroll_set` provide the sides of the die that should be rerolled. Multiple numbers can be given
+comma seperated.
+
+#### Botch Set
+
+The optional parameter `botch_set` provide the sides of the die that negate successes. Multiple numbers can be given
+comma seperated.
 
 ### Fate
 
@@ -204,6 +218,7 @@ on a button add his name to the message and only this user can select further pa
 `Clear` button.
 
 ### Clear Command
+
 The clear command removes all button configuration in a channel from the bot and deletes the button messages.
 
 ## Dice Expression Notation

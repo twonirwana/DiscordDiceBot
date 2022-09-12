@@ -57,7 +57,7 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
     @Override
     public boolean matchingComponentCustomId(@NonNull String buttonCustomId) {
         if (BottomCustomIdUtils.isLegacyCustomId(buttonCustomId)) {
-            return buttonCustomId.matches("^" + getCommandId() + BottomCustomIdUtils.LEGACY_CONFIG_SPLIT_DELIMITER_REGEX + ".*");
+            return BottomCustomIdUtils.matchesLegacyCustomId(buttonCustomId, getCommandId());
         }
         return Objects.equals(getCommandId(), BottomCustomIdUtils.getCommandNameFromCustomIdWithPersistence(buttonCustomId));
     }
