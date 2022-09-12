@@ -9,6 +9,7 @@ import de.janno.discord.bot.persistance.MessageDataDAOImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -28,7 +29,7 @@ public class CountSuccessCommandMockTest {
 
     @Test
     void roll_noGlitch() {
-        CountSuccessesConfig config = new CountSuccessesConfig(null, 6, 4, "no_glitch", 15);
+        CountSuccessesConfig config = new CountSuccessesConfig(null, 6, 4, "no_glitch", 15, 1, Set.of(), Set.of());
         ButtonEventAdaptorMockFactory<CountSuccessesConfig, StateData> factory = new ButtonEventAdaptorMockFactory<>("count_successes", underTest, config, messageDataDAO, false);
         ButtonEventAdaptorMock buttonEvent = factory.getButtonClickOnLastButtonMessage("4");
 
@@ -45,7 +46,7 @@ public class CountSuccessCommandMockTest {
 
     @Test
     void roll_subtractOnes() {
-        CountSuccessesConfig config = new CountSuccessesConfig(null, 6, 4, "subtract_ones", 15);
+        CountSuccessesConfig config = new CountSuccessesConfig(null, 6, 4, "subtract_ones", 15, 1, Set.of(), Set.of(1));
         ButtonEventAdaptorMockFactory<CountSuccessesConfig, StateData> factory = new ButtonEventAdaptorMockFactory<>("count_successes", underTest, config, messageDataDAO, false);
         ButtonEventAdaptorMock buttonEvent = factory.getButtonClickOnLastButtonMessage("4");
 
@@ -54,14 +55,14 @@ public class CountSuccessCommandMockTest {
         assertThat(buttonEvent.getActions()).containsExactly(
                 "acknowledge",
                 "editMessage: message:processing ..., buttonValues=",
-                "createAnswer: title=4d6 = 0, description=[**1**,**1**,**5**,**6**] ≥4 -1s = 0, fieldValues:, answerChannel:null",
-                "createButtonMessage: content=Click to roll the dice against 4 minus 1s, buttonValues=1,2,3,4,5,6,7,8,9,10,11,12,13,14,15",
+                "createAnswer: title=4d6 = 0, description=[**1**,**1**,**5**,**6**] ≥4 = 0, remove success for: [1], fieldValues:, answerChannel:null",
+                "createButtonMessage: content=Click to roll the dice against 4, remove success for: [1] minus 1s, buttonValues=1,2,3,4,5,6,7,8,9,10,11,12,13,14,15",
                 "deleteMessage: 0");
     }
 
     @Test
     void roll_halfOnes() {
-        CountSuccessesConfig config = new CountSuccessesConfig(null, 6, 4, "half_dice_one", 15);
+        CountSuccessesConfig config = new CountSuccessesConfig(null, 6, 4, "half_dice_one", 15, 1, Set.of(), Set.of());
         ButtonEventAdaptorMockFactory<CountSuccessesConfig, StateData> factory = new ButtonEventAdaptorMockFactory<>("count_successes", underTest, config, messageDataDAO, false);
         ButtonEventAdaptorMock buttonEvent = factory.getButtonClickOnLastButtonMessage("4");
 
@@ -77,7 +78,7 @@ public class CountSuccessCommandMockTest {
 
     @Test
     void roll_countOnes() {
-        CountSuccessesConfig config = new CountSuccessesConfig(null, 6, 4, "count_ones", 15);
+        CountSuccessesConfig config = new CountSuccessesConfig(null, 6, 4, "count_ones", 15, 1, Set.of(), Set.of());
         ButtonEventAdaptorMockFactory<CountSuccessesConfig, StateData> factory = new ButtonEventAdaptorMockFactory<>("count_successes", underTest, config, messageDataDAO, false);
         ButtonEventAdaptorMock buttonEvent = factory.getButtonClickOnLastButtonMessage("4");
 
@@ -93,7 +94,7 @@ public class CountSuccessCommandMockTest {
 
     @Test
     void roll_pinned() {
-        CountSuccessesConfig config = new CountSuccessesConfig(null, 6, 4, "no_glitch", 15);
+        CountSuccessesConfig config = new CountSuccessesConfig(null, 6, 4, "no_glitch", 15, 1, Set.of(), Set.of());
         ButtonEventAdaptorMockFactory<CountSuccessesConfig, StateData> factory = new ButtonEventAdaptorMockFactory<>("count_successes", underTest, config, messageDataDAO, true);
         ButtonEventAdaptorMock buttonEvent = factory.getButtonClickOnLastButtonMessage("4");
 
@@ -108,7 +109,7 @@ public class CountSuccessCommandMockTest {
 
     @Test
     void roll_answerChannel() {
-        CountSuccessesConfig config = new CountSuccessesConfig(2L, 6, 4, "no_glitch", 15);
+        CountSuccessesConfig config = new CountSuccessesConfig(2L, 6, 4, "no_glitch", 15, 1, Set.of(), Set.of());
         ButtonEventAdaptorMockFactory<CountSuccessesConfig, StateData> factory = new ButtonEventAdaptorMockFactory<>("count_successes", underTest, config, messageDataDAO, false);
         ButtonEventAdaptorMock buttonEvent = factory.getButtonClickOnLastButtonMessage("4");
 
