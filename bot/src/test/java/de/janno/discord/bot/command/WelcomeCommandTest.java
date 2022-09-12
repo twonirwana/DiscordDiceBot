@@ -127,33 +127,33 @@ class WelcomeCommandTest {
         Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(null, new State<>("nWoD", StateData.empty()));
 
         assertThat(res.map(MessageDefinition::getContent))
-                .contains("(*{Number of Dice}*d10!)>8: Please select value for *{Number of Dice}*");
+                .contains("Click to roll the dice against 8, reroll for: [10]");
         assertThat(res.map(MessageDefinition::getComponentRowDefinitions)
                 .stream()
                 .flatMap(Collection::stream)
                 .flatMap(s -> s.getButtonDefinitions().stream())
                 .map(ButtonDefinition::getId))
-                .containsExactly("custom_parameter1",
-                        "custom_parameter2",
-                        "custom_parameter3",
-                        "custom_parameter4",
-                        "custom_parameter5",
-                        "custom_parameter6",
-                        "custom_parameter7",
-                        "custom_parameter8",
-                        "custom_parameter9",
-                        "custom_parameter10",
-                        "custom_parameter11",
-                        "custom_parameter12",
-                        "custom_parameter13",
-                        "custom_parameter14",
-                        "custom_parameter15");
+                .containsExactly("count_successes1",
+                        "count_successes2",
+                        "count_successes3",
+                        "count_successes4",
+                        "count_successes5",
+                        "count_successes6",
+                        "count_successes7",
+                        "count_successes8",
+                        "count_successes9",
+                        "count_successes10",
+                        "count_successes11",
+                        "count_successes12",
+                        "count_successes13",
+                        "count_successes14",
+                        "count_successes15");
         assertThat(res.map(MessageDefinition::getComponentRowDefinitions)
                 .stream()
                 .flatMap(Collection::stream)
                 .flatMap(s -> s.getButtonDefinitions().stream())
                 .map(ButtonDefinition::getLabel))
-                .containsExactly("1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15");
+                .containsExactly("1d10", "2d10", "3d10", "4d10", "5d10", "6d10", "7d10", "8d10", "9d10", "10d10", "11d10", "12d10", "13d10", "14d10", "15d10");
     }
 
     @Test
@@ -195,7 +195,7 @@ class WelcomeCommandTest {
     public void getButtonMessageWithState_Shadowrun() {
         Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(null, new State<>("shadowrun", StateData.empty()));
         assertThat(res.map(MessageDefinition::getContent))
-                .contains("Click to roll the dice against 5");
+                .contains("Click to roll the dice against 5 and check for more then half of dice 1s");
         assertThat(res.map(MessageDefinition::getComponentRowDefinitions)
                 .stream()
                 .flatMap(Collection::stream)
