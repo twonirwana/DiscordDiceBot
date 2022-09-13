@@ -19,9 +19,13 @@ dependencies {
     implementation project(':bot')
 }
 
+ext {
+    javaVersion = 18
+}
+
 java {
     toolchain {
-        languageVersion.set(JavaLanguageVersion.of(17))
+        languageVersion.set(JavaLanguageVersion.of(javaVersion))
     }
 }
 
