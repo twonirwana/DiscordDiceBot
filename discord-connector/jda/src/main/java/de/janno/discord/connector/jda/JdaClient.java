@@ -163,5 +163,11 @@ public class JdaClient {
         JdaMetrics.startTextChannelCacheGauge(jda);
         JdaMetrics.startGuildCacheGauge(jda);
         JdaMetrics.startRestLatencyGauge(jda);
+
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            log.info("start jda shutdown");
+            jda.shutdown();
+            log.info("finished jda shutdown");
+        }));
     }
 }

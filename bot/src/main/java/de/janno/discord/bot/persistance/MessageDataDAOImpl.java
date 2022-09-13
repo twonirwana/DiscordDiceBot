@@ -49,6 +49,17 @@ public class MessageDataDAOImpl implements MessageDataDAO {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            log.info("start db shutdown");
+            connectionPool.dispose();
+            try (Connection connection = DriverManager.getConnection(url, user, password)) {
+                boolean res = connection.createStatement().execute("SHUTDOWN");
+                log.info("db shutdown: " + res);
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }));
     }
 
     private MessageDataDTO transformResultSet(ResultSet resultSet) throws SQLException {
