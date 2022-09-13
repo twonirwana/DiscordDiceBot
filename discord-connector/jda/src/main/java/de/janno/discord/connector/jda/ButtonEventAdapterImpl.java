@@ -10,7 +10,7 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 import reactor.core.publisher.Mono;
@@ -106,7 +106,7 @@ public class ButtonEventAdapterImpl extends DiscordAdapterImpl implements Button
                     .onErrorResume(t -> handleException("Error on edit button event", t, true));
         }
 
-        if (message == null && componentRowDefinitions != null) {
+        if (message == null) {
             return createMonoFrom(() -> event.editComponents(MessageComponentConverter.componentRowDefinition2LayoutComponent(componentRowDefinitions))).then()
                     .onErrorResume(t -> handleException("Error on edit button event", t, true));
         }
