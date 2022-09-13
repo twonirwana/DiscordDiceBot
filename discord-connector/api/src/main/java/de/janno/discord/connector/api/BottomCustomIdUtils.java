@@ -39,7 +39,7 @@ public final class BottomCustomIdUtils {
     }
 
     public static String getCommandNameFromCustomId(String customId) {
-        if (isLegacyCustomId(customId)) {
+        if (!isLegacyCustomId(customId)) {
             return getCommandNameFromCustomIdWithPersistence(customId);
         }
         return customId.split(LEGACY_CONFIG_SPLIT_DELIMITER_REGEX)[COMMAND_NAME_INDEX];
