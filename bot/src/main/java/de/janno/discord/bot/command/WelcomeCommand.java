@@ -112,7 +112,7 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
 
     @Override
     protected @NonNull Optional<MessageDefinition> createNewButtonMessageWithState(Config config, State<StateData> state) {
-        BotMetrics.incrementButtonMetricCounter(COMMAND_NAME, state.getButtonValue());
+        BotMetrics.incrementButtonMetricCounter(COMMAND_NAME, "[" + state.getButtonValue() + "]");
         return switch (state.getButtonValue()) {
             case FATE_BUTTON_ID -> Optional.of(new FateCommand(messageDataDAO).createNewButtonMessage(FATE_CONFIG));
             case DND5_BUTTON_ID ->
