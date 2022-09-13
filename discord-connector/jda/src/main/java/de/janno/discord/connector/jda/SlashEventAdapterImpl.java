@@ -1,8 +1,8 @@
 package de.janno.discord.connector.jda;
 
 import com.google.common.collect.ImmutableSet;
-import de.janno.discord.connector.api.SlashEventAdaptor;
 import de.janno.discord.connector.api.Requester;
+import de.janno.discord.connector.api.SlashEventAdaptor;
 import de.janno.discord.connector.api.message.EmbedDefinition;
 import de.janno.discord.connector.api.message.MessageDefinition;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
@@ -10,7 +10,7 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 import reactor.core.publisher.Mono;
