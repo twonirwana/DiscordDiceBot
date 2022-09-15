@@ -33,7 +33,7 @@ jobs:
       with:
         gradle-version: 7.5.1
         arguments: testCodeCoverageReport
-    - uses: codecov/codecov-action@v2
+    - uses: codecov/codecov-action@v3
       with:
         fail_ci_if_error: true
         verbose: true # optional (default = false)

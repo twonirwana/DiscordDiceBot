@@ -54,8 +54,8 @@ public class MessageDataDAOImpl implements MessageDataDAO {
             log.info("start db shutdown");
             connectionPool.dispose();
             try (Connection connection = DriverManager.getConnection(url, user, password)) {
-                boolean res = connection.createStatement().execute("SHUTDOWN");
-                log.info("db shutdown: " + res);
+                connection.createStatement().execute("SHUTDOWN");
+                log.info("db shutdown");
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
