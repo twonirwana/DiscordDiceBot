@@ -9,9 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.exceptions.ErrorResponseException;
@@ -47,16 +45,16 @@ public abstract class DiscordAdapterImpl implements de.janno.discord.connector.a
     protected Mono<Message> createEmbedMessageWithReference(
             @NonNull MessageChannel messageChannel,
             @NonNull EmbedDefinition answer,
-            @NonNull User rollRequester,
-            @Nullable Guild guild) {
+            @NonNull String rollRequesterName,
+            @Nullable String rollRequesterAvatar,
+            @NonNull String rollRequesterId) {
 
         EmbedBuilder builder = new EmbedBuilder();
         builder.setTitle(StringUtils.abbreviate(encodeUTF8(answer.getTitle()), 256))//https://discord.com/developers/docs/resources/channel#embed-limits
-                .setAuthor(Optional.ofNullable(guild).map(g -> g.getMemberById(rollRequester.getId()))
-                                .map(Member::getEffectiveName).orElse(rollRequester.getName()),
+                .setAuthor(rollRequesterName,
                         null,
-                        rollRequester.getEffectiveAvatarUrl())
-                .setColor(Color.decode(String.valueOf(rollRequester.getId().hashCode())));
+                        rollRequesterAvatar)
+                .setColor(Color.decode(String.valueOf(rollRequesterId.hashCode())));
         if (!Strings.isNullOrEmpty(answer.getDescription())) {
             builder.setDescription(StringUtils.abbreviate(encodeUTF8(answer.getDescription()), 4096)); //https://discord.com/developers/docs/resources/channel#embed-limits
         }
