@@ -10,6 +10,7 @@
     <logger name="net.dv8tion.jda.internal.requests.RateLimiter" level="INFO"/>
     <logger name="net.dv8tion.jda.internal.requests.WebSocketClient" level="INFO"/>
     <logger name="net.dv8tion.jda.internal.handle.GuildSetupController" level="INFO"/>
+    <logger name="net.dv8tion.jda.internal.handle.EventCache" level="INFO"/>
     <logger name="net.dv8tion.jda.internal.entities.EntityBuilder" level="INFO"/>
     <logger name="net.dv8tion.jda.api.JDA" level="INFO"/>
 

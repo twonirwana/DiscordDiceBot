@@ -54,9 +54,7 @@ public class ButtonEventAdapterImpl extends DiscordAdapterImpl implements Button
                     }
                     return Stream.of(new LabelAndCustomId(l.getLabel(), l.getId()));
                 }).collect(Collectors.toList());
-        this.invokingGuildMemberName = Optional.ofNullable(event.getInteraction().getGuild())
-                .map(g -> g.getMemberById(event.getInteraction().getUser().getId())).map(Member::getEffectiveName)
-                .orElse(event.getInteraction().getUser().getName());
+        this.invokingGuildMemberName = Optional.ofNullable(event.getMember()).map(Member::getEffectiveName).orElse(event.getUser().getName());
     }
 
     @Override
@@ -141,8 +139,9 @@ public class ButtonEventAdapterImpl extends DiscordAdapterImpl implements Button
                         .map(g -> g.getChannelById(MessageChannel.class, targetChannelId)))
                 .orElse(event.getInteraction().getMessageChannel());
         return createEmbedMessageWithReference(targetChannel,
-                answer, event.getInteraction().getUser(),
-                event.getInteraction().getGuild())
+                answer, invokingGuildMemberName,
+                Optional.ofNullable(event.getMember()).map(Member::getEffectiveAvatarUrl).orElse(event.getUser().getEffectiveAvatarUrl()),
+                event.getUser().getId())
                 .onErrorResume(t -> handleException("Error on creating answer message", t, false).ofType(Message.class))
                 .ofType(Void.class);
     }
