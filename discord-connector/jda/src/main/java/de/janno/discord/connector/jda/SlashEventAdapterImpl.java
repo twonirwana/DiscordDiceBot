@@ -10,6 +10,7 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -92,8 +93,9 @@ public class SlashEventAdapterImpl extends DiscordAdapterImpl implements SlashEv
     public Mono<Void> createResultMessageWithEventReference(EmbedDefinition answer) {
         return createEmbedMessageWithReference(event.getMessageChannel(),
                 answer,
-                event.getUser(),
-                event.getGuild())
+                Optional.ofNullable(event.getMember()).map(Member::getEffectiveName).orElse(event.getUser().getName()),
+                Optional.ofNullable(event.getMember()).map(Member::getEffectiveAvatarUrl).orElse(event.getUser().getEffectiveAvatarUrl()),
+                event.getUser().getId())
                 .onErrorResume(t -> handleException("Error on creating answer message", t, false).ofType(Message.class))
                 .ofType(Void.class);
     }
