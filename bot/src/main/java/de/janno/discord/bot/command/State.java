@@ -16,7 +16,7 @@ public class State<T extends StateData> {
 
     public String toShortString() {
         String persistedStateValues = Optional.ofNullable(data)
-                .map(d -> String.format(",%s", data.getShortStringValues()))
+                .map(d -> data.getShortStringValues())
                 .orElse("");
         return String.format("[%s]", persistedStateValues);
     }
