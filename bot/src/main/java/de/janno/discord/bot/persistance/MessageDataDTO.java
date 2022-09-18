@@ -13,6 +13,7 @@ public class MessageDataDTO {
 
     @NonNull
     UUID configUUID;
+    Long guildId;
     long channelId;
     long messageId;
     @NonNull
@@ -26,8 +27,9 @@ public class MessageDataDTO {
     @Nullable
     String stateData;
 
-    public MessageDataDTO(@NonNull UUID configUUID, long channelId, long messageId, @NonNull String commandId, @NonNull String configClassId, @NonNull String config) {
+    public MessageDataDTO(@NonNull UUID configUUID, Long guildId, long channelId, long messageId, @NonNull String commandId, @NonNull String configClassId, @NonNull String config) {
         this.configUUID = configUUID;
+        this.guildId = guildId;
         this.channelId = channelId;
         this.messageId = messageId;
         this.commandId = commandId;

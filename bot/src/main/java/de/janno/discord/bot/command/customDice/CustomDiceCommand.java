@@ -67,11 +67,12 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
 
     @Override
     public Optional<MessageDataDTO> createMessageDataForNewMessage(@NonNull UUID configUUID,
+                                                                   long guildId,
                                                                    long channelId,
                                                                    long messageId,
                                                                    @NonNull CustomDiceConfig config,
                                                                    @Nullable State<StateData> state) {
-        return Optional.of(new MessageDataDTO(configUUID, channelId, messageId, getCommandId(), CONFIG_TYPE_ID,
+        return Optional.of(new MessageDataDTO(configUUID, guildId, channelId, messageId, getCommandId(), CONFIG_TYPE_ID,
                 Mapper.serializedObject(config),
                 Mapper.NO_PERSISTED_STATE, null));
     }

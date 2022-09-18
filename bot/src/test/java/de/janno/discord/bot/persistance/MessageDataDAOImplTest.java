@@ -14,9 +14,9 @@ class MessageDataDAOImplTest {
     @Test
     void getAllMessageIdsForConfig() {
         UUID uuid = UUID.randomUUID();
-        underTest.saveMessageData(new MessageDataDTO(uuid, 1L, 2L, "testCommand", "testConfigClass", "configClass"));
-        underTest.saveMessageData(new MessageDataDTO(uuid, 1L, 3L, "testCommand", "testConfigClass", "configClass"));
-        underTest.saveMessageData(new MessageDataDTO(UUID.randomUUID(), 2L, 4L, "testCommand", "testConfigClass", "configClass"));
+        underTest.saveMessageData(new MessageDataDTO(uuid, 1L, 1L, 2L, "testCommand", "testConfigClass", "configClass"));
+        underTest.saveMessageData(new MessageDataDTO(uuid, 1L, 1L, 3L, "testCommand", "testConfigClass", "configClass"));
+        underTest.saveMessageData(new MessageDataDTO(UUID.randomUUID(), 1L, 2L, 4L, "testCommand", "testConfigClass", "configClass"));
 
         Set<Long> res = underTest.getAllMessageIdsForConfig(uuid);
 
@@ -25,8 +25,8 @@ class MessageDataDAOImplTest {
 
     @Test
     void deleteDataForMessage() {
-        underTest.saveMessageData(new MessageDataDTO(UUID.randomUUID(), 2L, 4L, "testCommand", "testConfigClass", "configClass"));
-        underTest.saveMessageData(new MessageDataDTO(UUID.randomUUID(), 2L, 5L, "testCommand", "testConfigClass", "configClass"));
+        underTest.saveMessageData(new MessageDataDTO(UUID.randomUUID(), 1L, 2L, 4L, "testCommand", "testConfigClass", "configClass"));
+        underTest.saveMessageData(new MessageDataDTO(UUID.randomUUID(), 1L, 2L, 5L, "testCommand", "testConfigClass", "configClass"));
 
         underTest.deleteDataForMessage(2L, 4L);
 
@@ -36,9 +36,9 @@ class MessageDataDAOImplTest {
 
     @Test
     void deleteDataForChannel() {
-        underTest.saveMessageData(new MessageDataDTO(UUID.randomUUID(), 2L, 4L, "testCommand", "testConfigClass", "configClass"));
-        underTest.saveMessageData(new MessageDataDTO(UUID.randomUUID(), 2L, 5L, "testCommand", "testConfigClass", "configClass"));
-        underTest.saveMessageData(new MessageDataDTO(UUID.randomUUID(), 3L, 6L, "testCommand", "testConfigClass", "configClass"));
+        underTest.saveMessageData(new MessageDataDTO(UUID.randomUUID(), 1L, 2L, 4L, "testCommand", "testConfigClass", "configClass"));
+        underTest.saveMessageData(new MessageDataDTO(UUID.randomUUID(), 1L, 2L, 5L, "testCommand", "testConfigClass", "configClass"));
+        underTest.saveMessageData(new MessageDataDTO(UUID.randomUUID(), 1L, 3L, 6L, "testCommand", "testConfigClass", "configClass"));
 
         Set<Long> res = underTest.deleteDataForChannel(2L);
 

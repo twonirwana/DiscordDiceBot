@@ -517,7 +517,7 @@ class PoolTargetCommandTest {
         when(buttonEventAdaptor.getRequester()).thenReturn(Mono.just(new Requester("user", "channel", "guild")));
         when(buttonEventAdaptor.acknowledge()).thenReturn(Mono.just(mock(Void.class)));
         when(buttonEventAdaptor.getInvokingGuildMemberName()).thenReturn("testUser");
-        when(messageDataDAO.getDataForMessage(1L, 1L)).thenReturn(Optional.of(new MessageDataDTO(UUID.randomUUID(), 1L, 1L, "pool_target", "PoolTargetConfig", """
+        when(messageDataDAO.getDataForMessage(1L, 1L)).thenReturn(Optional.of(new MessageDataDTO(UUID.randomUUID(), 1L, 1L, 1L, "pool_target", "PoolTargetConfig", """
                 ---
                 answerTargetChannelId:
                 diceSides: 10
@@ -769,7 +769,7 @@ class PoolTargetCommandTest {
         UUID configUUID = UUID.randomUUID();
         PoolTargetConfig config = new PoolTargetConfig(123L, 10, 12, ImmutableSet.of(7, 8, 9, 10), ImmutableSet.of(1), "ask");
         State<PoolTargetStateData> state = new State<>("3", new PoolTargetStateData(5, null, null));
-        Optional<MessageDataDTO> toSave = underTest.createMessageDataForNewMessage(configUUID, channelId, messageId, config, state);
+        Optional<MessageDataDTO> toSave = underTest.createMessageDataForNewMessage(configUUID, 1L, channelId, messageId, config, state);
         messageDataDAO.saveMessageData(toSave.orElseThrow());
         underTest.updateCurrentMessageStateData(channelId, messageId, config, state);
 
@@ -785,7 +785,7 @@ class PoolTargetCommandTest {
     @Test
     void deserialization() {
         UUID configUUID = UUID.randomUUID();
-        MessageDataDTO savedData = new MessageDataDTO(configUUID, 1660644934298L, 1660644934298L, "pool_target", "PoolTargetConfig", """
+        MessageDataDTO savedData = new MessageDataDTO(configUUID, 1L, 1660644934298L, 1660644934298L, "pool_target", "PoolTargetConfig", """
                 ---
                 answerTargetChannelId: 123
                 diceSides: 10

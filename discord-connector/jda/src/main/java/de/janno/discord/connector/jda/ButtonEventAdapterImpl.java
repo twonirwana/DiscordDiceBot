@@ -8,6 +8,7 @@ import de.janno.discord.connector.api.message.EmbedDefinition;
 import de.janno.discord.connector.api.message.MessageDefinition;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
@@ -28,6 +29,7 @@ public class ButtonEventAdapterImpl extends DiscordAdapterImpl implements Button
     private final String customId;
     private final long messageId;
     private final long channelId;
+    private final Long guildId;
     private final boolean isPinned;
     @NonNull
     private final String messageContent;
@@ -45,6 +47,7 @@ public class ButtonEventAdapterImpl extends DiscordAdapterImpl implements Button
         this.messageId = event.getMessageIdLong();
         this.customId = event.getInteraction().getComponentId();
         this.isPinned = event.getMessage().isPinned();
+        this.guildId = Optional.ofNullable(event.getGuild()).map(Guild::getIdLong).orElse(null);
         this.channelId = event.getChannel().getIdLong();
         this.messageContent = event.getMessage().getContentRaw();
         this.allButtonIds = event.getMessage().getButtons().stream()
@@ -57,6 +60,11 @@ public class ButtonEventAdapterImpl extends DiscordAdapterImpl implements Button
         this.invokingGuildMemberName = Optional.ofNullable(event.getInteraction().getGuild())
                 .map(g -> g.getMemberById(event.getInteraction().getUser().getId())).map(Member::getEffectiveName)
                 .orElse(event.getInteraction().getUser().getName());
+    }
+
+    @Override
+    public Long getGuildId() {
+        return guildId;
     }
 
     @Override

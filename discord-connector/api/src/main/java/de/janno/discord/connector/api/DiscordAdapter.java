@@ -4,6 +4,7 @@ import lombok.NonNull;
 import reactor.core.publisher.Mono;
 
 public interface DiscordAdapter {
+    Long getGuildId();
 
     Mono<Void> reply(@NonNull String message);
 

@@ -3,17 +3,21 @@ package de.janno.discord.bot.persistance;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.ImmutableSet;
 import de.janno.discord.bot.BotMetrics;
+import io.micrometer.core.instrument.Gauge;
+import io.micrometer.core.instrument.Tag;
 import io.micrometer.core.instrument.binder.db.DatabaseTableMetrics;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.h2.jdbcx.JdbcConnectionPool;
 import org.jetbrains.annotations.Nullable;
 
+import javax.sql.DataSource;
 import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.ToDoubleFunction;
 
 import static io.micrometer.core.instrument.Metrics.globalRegistry;
 
@@ -25,6 +29,10 @@ public class MessageDataDAOImpl implements MessageDataDAO {
     public MessageDataDAOImpl(@NonNull String url, @Nullable String user, @Nullable String password) {
         connectionPool = JdbcConnectionPool.create(url, user, password);
         new DatabaseTableMetrics(connectionPool, "h2", "MESSAGE_DATA", ImmutableSet.of()).bindTo(globalRegistry);
+
+        queryGauge("db.channel.count", "select count (distinct CHANNEL_ID) from MESSAGE_DATA;", connectionPool, Set.of());
+        queryGauge("db.guild.count", "select count (distinct GUILD_ID) from MESSAGE_DATA;", connectionPool, Set.of());
+        queryGauge("db.guild-null.count", "select count (distinct CHANNEL_ID) from MESSAGE_DATA where GUILD_ID is null;", connectionPool, Set.of());
 
         try (Connection connection = connectionPool.getConnection()) {
             Statement statement = connection.createStatement();
@@ -45,6 +53,10 @@ public class MessageDataDAOImpl implements MessageDataDAO {
                     CREATE INDEX IF NOT EXISTS MESSAGE_DATA_ID ON MESSAGE_DATA (CONFIG_ID);
                     CREATE INDEX IF NOT EXISTS MESSAGE_DATA_CHANNEL ON MESSAGE_DATA (CHANNEL_ID);
                     CREATE INDEX IF NOT EXISTS MESSAGE_DATA_CHANNEL_MESSAGE ON MESSAGE_DATA (CHANNEL_ID, MESSAGE_ID);
+                                        
+                    ALTER TABLE MESSAGE_DATA ADD COLUMN IF NOT EXISTS GUILD_ID BIGINT;
+                    CREATE INDEX IF NOT EXISTS MESSAGE_DATA_GUILD ON MESSAGE_DATA (GUILD_ID);
+                    CREATE INDEX IF NOT EXISTS MESSAGE_DATA_GUILD_CHANNEl ON MESSAGE_DATA (GUILD_ID, CHANNEL_ID);
                     """);
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -66,6 +78,7 @@ public class MessageDataDAOImpl implements MessageDataDAO {
         if (resultSet.next()) {
             return new MessageDataDTO(
                     resultSet.getObject("CONFIG_ID", UUID.class),
+                    resultSet.getLong("GUILD_ID"),
                     resultSet.getLong("CHANNEL_ID"),
                     resultSet.getLong("MESSAGE_ID"),
                     resultSet.getString("COMMAND_ID"),
@@ -122,6 +135,21 @@ public class MessageDataDAOImpl implements MessageDataDAO {
         }
     }
 
+    public void queryGauge(String name, String query, DataSource dataSource, Set<Tag> tags) {
+        ToDoubleFunction<DataSource> totalRows = ds -> {
+            try (Connection conn = ds.getConnection();
+                 PreparedStatement ps = conn.prepareStatement(query);
+                 ResultSet rs = ps.executeQuery()) {
+                rs.next();
+                return rs.getInt(1);
+            } catch (SQLException ignored) {
+                return 0;
+            }
+        };
+
+        Gauge.builder(name, dataSource, totalRows).tags(tags)
+                .register(globalRegistry);
+    }
 
     @Override
     public void deleteDataForMessage(long channelId, long messageId) {
@@ -171,16 +199,17 @@ public class MessageDataDAOImpl implements MessageDataDAO {
         Stopwatch stopwatch = Stopwatch.createStarted();
         try (Connection con = connectionPool.getConnection()) {
             try (PreparedStatement preparedStatement =
-                         con.prepareStatement("INSERT INTO MESSAGE_DATA(CONFIG_ID, CHANNEL_ID, MESSAGE_ID, COMMAND_ID, CONFIG_CLASS_ID, CONFIG, STATE_CLASS_ID, STATE, CREATION_DATE) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
+                         con.prepareStatement("INSERT INTO MESSAGE_DATA(CONFIG_ID, GUILD_ID, CHANNEL_ID, MESSAGE_ID, COMMAND_ID, CONFIG_CLASS_ID, CONFIG, STATE_CLASS_ID, STATE, CREATION_DATE) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
                 preparedStatement.setObject(1, messageData.getConfigUUID());
-                preparedStatement.setObject(2, messageData.getChannelId());
-                preparedStatement.setLong(3, messageData.getMessageId());
-                preparedStatement.setString(4, messageData.getCommandId());
-                preparedStatement.setString(5, messageData.getConfigClassId());
-                preparedStatement.setString(6, messageData.getConfig());
-                preparedStatement.setString(7, messageData.getStateDataClassId());
-                preparedStatement.setString(8, messageData.getStateData());
-                preparedStatement.setTimestamp(9, Timestamp.valueOf(LocalDateTime.now()));
+                preparedStatement.setObject(2, messageData.getGuildId());
+                preparedStatement.setObject(3, messageData.getChannelId());
+                preparedStatement.setLong(4, messageData.getMessageId());
+                preparedStatement.setString(5, messageData.getCommandId());
+                preparedStatement.setString(6, messageData.getConfigClassId());
+                preparedStatement.setString(7, messageData.getConfig());
+                preparedStatement.setString(8, messageData.getStateDataClassId());
+                preparedStatement.setString(9, messageData.getStateData());
+                preparedStatement.setTimestamp(10, Timestamp.valueOf(LocalDateTime.now()));
                 preparedStatement.execute();
             }
         } catch (Exception e) {

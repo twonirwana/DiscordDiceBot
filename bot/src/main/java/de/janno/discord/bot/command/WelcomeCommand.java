@@ -74,23 +74,28 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
     }
 
     @Override
-    public Optional<MessageDataDTO> createMessageDataForNewMessage(@NonNull UUID configUUID, long channelId, long messageId, @NonNull Config config, @Nullable State<StateData> state) {
+    public Optional<MessageDataDTO> createMessageDataForNewMessage(@NonNull UUID configUUID,
+                                                                   long guildId,
+                                                                   long channelId,
+                                                                   long messageId,
+                                                                   @NonNull Config config,
+                                                                   @Nullable State<StateData> state) {
         if (state == null) {
             return Optional.empty();
         }
         return switch (state.getButtonValue()) {
             case FATE_BUTTON_ID ->
-                    new FateCommand(messageDataDAO).createMessageDataForNewMessage(configUUID, channelId, messageId, FATE_CONFIG, null);
+                    new FateCommand(messageDataDAO).createMessageDataForNewMessage(configUUID, guildId, channelId, messageId, FATE_CONFIG, null);
             case DND5_BUTTON_ID ->
-                    new CustomDiceCommand(messageDataDAO).createMessageDataForNewMessage(configUUID, channelId, messageId, DND5_CONFIG, null);
+                    new CustomDiceCommand(messageDataDAO).createMessageDataForNewMessage(configUUID, guildId, channelId, messageId, DND5_CONFIG, null);
             case NWOD_BUTTON_ID ->
-                    new CountSuccessesCommand(messageDataDAO).createMessageDataForNewMessage(configUUID, channelId, messageId, NWOD_CONFIG, null);
+                    new CountSuccessesCommand(messageDataDAO).createMessageDataForNewMessage(configUUID, guildId, channelId, messageId, NWOD_CONFIG, null);
             case OWOD_BUTTON_ID ->
-                    new PoolTargetCommand(messageDataDAO).createMessageDataForNewMessage(configUUID, channelId, messageId, OWOD_CONFIG, null);
+                    new PoolTargetCommand(messageDataDAO).createMessageDataForNewMessage(configUUID, guildId, channelId, messageId, OWOD_CONFIG, null);
             case SHADOWRUN_BUTTON_ID ->
-                    new CountSuccessesCommand(messageDataDAO).createMessageDataForNewMessage(configUUID, channelId, messageId, SHADOWRUN_CONFIG, null);
+                    new CountSuccessesCommand(messageDataDAO).createMessageDataForNewMessage(configUUID, guildId, channelId, messageId, SHADOWRUN_CONFIG, null);
             case COIN_BUTTON_ID ->
-                    new CustomDiceCommand(messageDataDAO).createMessageDataForNewMessage(configUUID, channelId, messageId, COIN_CONFIG, null);
+                    new CustomDiceCommand(messageDataDAO).createMessageDataForNewMessage(configUUID, guildId, channelId, messageId, COIN_CONFIG, null);
             default -> Optional.empty();
         };
     }

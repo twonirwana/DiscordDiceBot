@@ -73,11 +73,12 @@ public class FateCommand extends AbstractCommand<FateConfig, StateData> {
 
     @Override
     public Optional<MessageDataDTO> createMessageDataForNewMessage(@NonNull UUID configUUID,
+                                                                   long guildId,
                                                                    long channelId,
                                                                    long messageId,
                                                                    @NonNull FateConfig config,
                                                                    @Nullable State<StateData> state) {
-        return Optional.of(new MessageDataDTO(configUUID, channelId, messageId, getCommandId(),
+        return Optional.of(new MessageDataDTO(configUUID, guildId, channelId, messageId, getCommandId(),
                 CONFIG_TYPE_ID, Mapper.serializedObject(config)));
     }
 

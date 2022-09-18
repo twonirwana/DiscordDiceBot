@@ -9,6 +9,7 @@ import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -28,12 +29,19 @@ public class SlashEventAdapterImpl extends DiscordAdapterImpl implements SlashEv
     private final long channelId;
     @NonNull
     private final String commandString;
+    private final Long guildId;
 
     public SlashEventAdapterImpl(@NonNull SlashCommandInteractionEvent event, @NonNull Mono<Requester> requesterMono) {
         this.event = event;
         this.requesterMono = requesterMono;
         this.channelId = event.getChannel().getIdLong();
         this.commandString = String.format("`%s`", event.getCommandString());
+        this.guildId = Optional.ofNullable(event.getGuild()).map(Guild::getIdLong).orElse(null);
+    }
+
+    @Override
+    public Long getGuildId() {
+        return guildId;
     }
 
     @Override
