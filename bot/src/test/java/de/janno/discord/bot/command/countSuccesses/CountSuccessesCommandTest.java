@@ -435,7 +435,7 @@ class CountSuccessesCommandTest {
         UUID configUUID = UUID.randomUUID();
         CountSuccessesConfig config = new CountSuccessesConfig(123L, 6, 5, "no_glitch", 12, 2, Set.of(1, 2), Set.of(9, 10));
         State<StateData> state = new State<>("5", StateData.empty());
-        Optional<MessageDataDTO> toSave = underTest.createMessageDataForNewMessage(configUUID, channelId, messageId, config, state);
+        Optional<MessageDataDTO> toSave = underTest.createMessageDataForNewMessage(configUUID, 1L, channelId, messageId, config, state);
         messageDataDAO.saveMessageData(toSave.orElseThrow());
 
         MessageDataDTO loaded = messageDataDAO.getDataForMessage(channelId, messageId).orElseThrow();
@@ -450,7 +450,7 @@ class CountSuccessesCommandTest {
     @Test
     void deserialization() {
         UUID configUUID = UUID.randomUUID();
-        MessageDataDTO savedData = new MessageDataDTO(configUUID, 1660644934298L, 1660644934298L, "count_successes", "CountSuccessesConfig", """
+        MessageDataDTO savedData = new MessageDataDTO(configUUID, 1L, 1660644934298L, 1660644934298L, "count_successes", "CountSuccessesConfig", """
                 ---
                 answerTargetChannelId: 123
                 diceSides: 6
@@ -476,7 +476,7 @@ class CountSuccessesCommandTest {
     @Test
     void deserialization_legacy() {
         UUID configUUID = UUID.randomUUID();
-        MessageDataDTO savedData = new MessageDataDTO(configUUID, 1660644934298L, 1660644934298L, "count_successes", "CountSuccessesConfig", """
+        MessageDataDTO savedData = new MessageDataDTO(configUUID, 1L, 1660644934298L, 1660644934298L, "count_successes", "CountSuccessesConfig", """
                 ---
                 answerTargetChannelId: 123
                 diceSides: 6

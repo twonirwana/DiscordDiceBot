@@ -1,3 +1,4 @@
+    
 # Privacy Policy for Button Dice Roller
 
 This Privacy Policy document contains types of information that is collected and recorded by Button Dice Roller and how
@@ -7,7 +8,7 @@ If you have additional questions or require more information about our Privacy P
 
 ## Information we collect
 
-The bot doesn't collect any user information, with the exception of log files.
+The bot doesn't collect any user information, except in log files.
 
 ## Log Files
 

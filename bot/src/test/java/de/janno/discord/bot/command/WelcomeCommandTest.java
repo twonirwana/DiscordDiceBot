@@ -275,7 +275,7 @@ class WelcomeCommandTest {
             "coin"
     })
     void createMessageDataForNewMessage(String buttonValue) {
-        Optional<MessageDataDTO> res = underTest.createMessageDataForNewMessage(UUID.randomUUID(), 1L, 2L, new Config(null), new State<>(buttonValue, StateData.empty()));
+        Optional<MessageDataDTO> res = underTest.createMessageDataForNewMessage(UUID.randomUUID(), 1L, 1L, 2L, new Config(null), new State<>(buttonValue, StateData.empty()));
         assertThat(res).isPresent();
     }
 

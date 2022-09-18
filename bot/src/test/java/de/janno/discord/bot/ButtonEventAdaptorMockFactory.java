@@ -12,6 +12,7 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static de.janno.discord.bot.ButtonEventAdaptorMock.CHANNEL_ID;
+import static de.janno.discord.bot.ButtonEventAdaptorMock.GUILD_ID;
 
 public class ButtonEventAdaptorMockFactory<C extends Config, S extends StateData> {
     private final String customId;
@@ -22,7 +23,7 @@ public class ButtonEventAdaptorMockFactory<C extends Config, S extends StateData
         this.customId = customId;
         this.messageIdCounter = new AtomicLong(0);
         this.pinnedMessageIds = firstMessagePinned ? Sets.newHashSet(messageIdCounter.get()) : Collections.emptySet();
-        command.createMessageDataForNewMessage(UUID.randomUUID(), CHANNEL_ID, messageIdCounter.get(), config, null).ifPresent(messageDataDAO::saveMessageData);
+        command.createMessageDataForNewMessage(UUID.randomUUID(), GUILD_ID, CHANNEL_ID, messageIdCounter.get(), config, null).ifPresent(messageDataDAO::saveMessageData);
     }
 
     public ButtonEventAdaptorMock getButtonClickOnLastButtonMessage(String buttonValue) {

@@ -449,7 +449,7 @@ class SumDiceSetCommandTest {
         UUID configUUID = UUID.randomUUID();
         Config config = new Config(123L);
         State<SumDiceSetStateData> state = new State<>("+1d6", new SumDiceSetStateData(ImmutableList.of(new DiceKeyAndValue("d6", 3), new DiceKeyAndValue("m", -4))));
-        Optional<MessageDataDTO> toSave = underTest.createMessageDataForNewMessage(configUUID, channelId, messageId, config, state);
+        Optional<MessageDataDTO> toSave = underTest.createMessageDataForNewMessage(configUUID, 1L, channelId, messageId, config, state);
         messageDataDAO.saveMessageData(toSave.orElseThrow());
         underTest.updateCurrentMessageStateData(channelId, messageId, config, state);
 
@@ -464,7 +464,7 @@ class SumDiceSetCommandTest {
     @Test
     void deserialization() {
         UUID configUUID = UUID.randomUUID();
-        MessageDataDTO savedData = new MessageDataDTO(configUUID, 1660644934298L, 1660644934298L, "sum_dice_set", "Config", """
+        MessageDataDTO savedData = new MessageDataDTO(configUUID, 1L, 1660644934298L, 1660644934298L, "sum_dice_set", "Config", """
                 ---
                 answerTargetChannelId: 123
                 """, "SumDiceSetStateData", """

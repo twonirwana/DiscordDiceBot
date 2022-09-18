@@ -105,11 +105,12 @@ public class SumDiceSetCommand extends AbstractCommand<Config, SumDiceSetStateDa
 
     @Override
     public Optional<MessageDataDTO> createMessageDataForNewMessage(@NonNull UUID configUUID,
+                                                                   long guildId,
                                                                    long channelId,
                                                                    long messageId,
                                                                    @NonNull Config config,
                                                                    @Nullable State<SumDiceSetStateData> state) {
-        return Optional.of(new MessageDataDTO(configUUID, channelId, messageId, getCommandId(),
+        return Optional.of(new MessageDataDTO(configUUID, guildId, channelId, messageId, getCommandId(),
                 CONFIG_TYPE_ID, Mapper.serializedObject(config)));
     }
 

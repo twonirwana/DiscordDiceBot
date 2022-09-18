@@ -124,11 +124,12 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTar
 
     @Override
     public Optional<MessageDataDTO> createMessageDataForNewMessage(@NonNull UUID configUUID,
+                                                                   long guildId,
                                                                    long channelId,
                                                                    long messageId,
                                                                    @NonNull PoolTargetConfig config,
                                                                    @Nullable State<PoolTargetStateData> stateData) {
-        return Optional.of(new MessageDataDTO(configUUID, channelId, messageId, getCommandId(), CONFIG_TYPE_ID, Mapper.serializedObject(config)));
+        return Optional.of(new MessageDataDTO(configUUID, guildId, channelId, messageId, getCommandId(), CONFIG_TYPE_ID, Mapper.serializedObject(config)));
     }
 
     @Override

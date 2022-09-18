@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
 public class ButtonEventAdaptorMock implements ButtonEventAdaptor {
 
     public static final long CHANNEL_ID = 1L;
+    public static final long GUILD_ID = 1L;
     private final String customId;
     private final long massageId;
     private final AtomicLong messageIdCounter;
@@ -115,6 +116,11 @@ public class ButtonEventAdaptorMock implements ButtonEventAdaptor {
                 .map(EmbedDefinition.Field::getValue)
                 .collect(Collectors.joining(",")), targetChannelId));
         return Mono.just("").then();
+    }
+
+    @Override
+    public Long getGuildId() {
+        return GUILD_ID;
     }
 
     @Override

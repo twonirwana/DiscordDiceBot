@@ -28,4 +28,5 @@ public interface SlashEventAdaptor extends DiscordAdapter {
     Mono<Void> createResultMessageWithEventReference(EmbedDefinition answer);
 
     boolean isValidAnswerChannel(long channelId);
+
 }

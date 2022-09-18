@@ -4,8 +4,8 @@ import com.google.common.collect.ImmutableList;
 import de.janno.discord.bot.command.ButtonIdLabelAndDiceExpression;
 import de.janno.discord.bot.command.ConfigAndState;
 import de.janno.discord.bot.command.State;
-import de.janno.discord.bot.dice.DiceParserHelper;
 import de.janno.discord.bot.dice.Dice;
+import de.janno.discord.bot.dice.DiceParserHelper;
 import de.janno.discord.bot.persistance.MessageDataDAO;
 import de.janno.discord.bot.persistance.MessageDataDAOImpl;
 import de.janno.discord.bot.persistance.MessageDataDTO;
@@ -488,6 +488,7 @@ class SumCustomSetCommandTest {
 
         assertThat(res).isEqualTo(new State<>("1_button", new SumCustomSetStateData(ImmutableList.of("1d6", "1d6"), "user1")));
     }
+
     @Test
     void getButtonLayoutWithState() {
         List<ComponentRowDefinition> res = underTest.createNewButtonMessageWithState(defaultConfig, new State<>("roll", new SumCustomSetStateData(ImmutableList.of("1d6"), "user1")))
@@ -615,7 +616,7 @@ class SumCustomSetCommandTest {
                 new ButtonIdLabelAndDiceExpression("2_button", "+2d4", "+2d4")
         ));
         State<SumCustomSetStateData> state = new State<>("2_button", new SumCustomSetStateData(ImmutableList.of("+2d4"), "testUser"));
-        Optional<MessageDataDTO> toSave = underTest.createMessageDataForNewMessage(configUUID, channelId, messageId, config, state);
+        Optional<MessageDataDTO> toSave = underTest.createMessageDataForNewMessage(configUUID, 1L, channelId, messageId, config, state);
         messageDataDAO.saveMessageData(toSave.orElseThrow());
 
         underTest.updateCurrentMessageStateData(channelId, messageId, config, state);
@@ -632,7 +633,7 @@ class SumCustomSetCommandTest {
     @Test
     void deserialization() {
         UUID configUUID = UUID.randomUUID();
-        MessageDataDTO savedData = new MessageDataDTO(configUUID, 1660644934298L, 1660644934298L, "sum_custom_set", "SumCustomSetConfig", """
+        MessageDataDTO savedData = new MessageDataDTO(configUUID, 1L, 1660644934298L, 1660644934298L, "sum_custom_set", "SumCustomSetConfig", """
                 ---
                 answerTargetChannelId: 123
                 labelAndExpression:

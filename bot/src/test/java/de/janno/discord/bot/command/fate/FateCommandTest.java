@@ -1,8 +1,8 @@
 package de.janno.discord.bot.command.fate;
 
 import de.janno.discord.bot.command.ConfigAndState;
-import de.janno.discord.bot.command.StateData;
 import de.janno.discord.bot.command.State;
+import de.janno.discord.bot.command.StateData;
 import de.janno.discord.bot.dice.DiceUtils;
 import de.janno.discord.bot.persistance.MessageDataDAO;
 import de.janno.discord.bot.persistance.MessageDataDAOImpl;
@@ -264,7 +264,7 @@ class FateCommandTest {
         UUID configUUID = UUID.randomUUID();
         FateConfig config = new FateConfig(123L, "with_modifier");
         State<StateData> state = new State<>("5", StateData.empty());
-        Optional<MessageDataDTO> toSave = underTest.createMessageDataForNewMessage(configUUID, channelId, messageId, config, state);
+        Optional<MessageDataDTO> toSave = underTest.createMessageDataForNewMessage(configUUID, 1L, channelId, messageId, config, state);
         messageDataDAO.saveMessageData(toSave.orElseThrow());
 
         MessageDataDTO loaded = messageDataDAO.getDataForMessage(channelId, messageId).orElseThrow();
@@ -279,7 +279,7 @@ class FateCommandTest {
     @Test
     void deserialization() {
         UUID configUUID = UUID.randomUUID();
-        MessageDataDTO savedData = new MessageDataDTO(configUUID, 1660644934298L, 1660644934298L, "fate", "FateConfig", """
+        MessageDataDTO savedData = new MessageDataDTO(configUUID, 1L, 1660644934298L, 1660644934298L, "fate", "FateConfig", """
                 ---
                 answerTargetChannelId: 123
                 type: "with_modifier"

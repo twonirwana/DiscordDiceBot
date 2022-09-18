@@ -93,6 +93,7 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
 
     //visible for welcome message
     public abstract Optional<MessageDataDTO> createMessageDataForNewMessage(@NonNull UUID configUUID,
+                                                                            long guildId,
                                                                             long channelId,
                                                                             long messageId,
                                                                             @NonNull C config,
@@ -119,7 +120,7 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
             state = getStateFromEvent(event);
             configUUID = UUID.randomUUID();
             //we need to save the current config/state or the update will not work
-            createMessageDataForNewMessage(configUUID, channelId, messageId, config, state).ifPresent(messageDataDAO::saveMessageData);
+            createMessageDataForNewMessage(configUUID, event.getGuildId(), channelId, messageId, config, state).ifPresent(messageDataDAO::saveMessageData);
         } else {
             final String buttonValue = BottomCustomIdUtils.getButtonValueFromCustomId(event.getCustomId());
             final Optional<ConfigAndState<C, S>> messageData = getMessageDataAndUpdateWithButtonValue(channelId,
@@ -184,7 +185,7 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
         if (newButtonMessage.isPresent() && answerTargetChannelId == null) {
             Mono<Long> newMessageIdMono = event.createButtonMessage(newButtonMessage.get())
                     .map(newMessageId -> {
-                        final Optional<MessageDataDTO> nextMessageData = createMessageDataForNewMessage(configUUID, channelId, newMessageId, config, state);
+                        final Optional<MessageDataDTO> nextMessageData = createMessageDataForNewMessage(configUUID, event.getGuildId(), channelId, newMessageId, config, state);
                         nextMessageData.ifPresent(messageDataDAO::saveMessageData);
                         return newMessageId;
                     });
@@ -270,7 +271,7 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
             return event.reply(commandString)
                     .then(event.createButtonMessage(createNewButtonMessage(config))
                             .map(newMessageId -> {
-                                final Optional<MessageDataDTO> newMessageData = createMessageDataForNewMessage(UUID.randomUUID(), channelId, newMessageId, config, null);
+                                final Optional<MessageDataDTO> newMessageData = createMessageDataForNewMessage(UUID.randomUUID(), event.getGuildId(), channelId, newMessageId, config, null);
                                 newMessageData.ifPresent(messageDataDAO::saveMessageData);
                                 return newMessageId;
                             })
