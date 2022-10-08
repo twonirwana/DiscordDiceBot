@@ -8,8 +8,6 @@ import de.janno.discord.connector.api.SlashCommand;
 import de.janno.discord.connector.api.message.MessageDefinition;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
@@ -19,6 +17,8 @@ import net.dv8tion.jda.api.events.guild.GuildReadyEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder;
+import net.dv8tion.jda.api.sharding.ShardManager;
 import net.dv8tion.jda.internal.utils.IOUtil;
 import okhttp3.OkHttpClient;
 import reactor.core.publisher.Flux;
@@ -51,8 +51,7 @@ public class JdaClient {
                 .build();
 
         JdaMetrics.registerHttpClient(okHttpClient);
-
-        JDA jda = JDABuilder.createLight(token, Collections.emptyList())
+        DefaultShardManagerBuilder shardManagerBuilder = DefaultShardManagerBuilder.createLight(token, Collections.emptyList())
                 .setHttpClient(okHttpClient)
                 .addEventListeners(
                         new ListenerAdapter() {
@@ -99,75 +98,82 @@ public class JdaClient {
                                     botInGuildIdSet.add(event.getGuild().getIdLong());
                                 }
                             }
+
+                            @Override
+                            public void onSlashCommandInteraction(@NonNull SlashCommandInteractionEvent event) {
+                                Stopwatch stopwatch = Stopwatch.createStarted();
+                                log.trace("ChatInputEvent: {} from {}", event.getInteraction().getCommandId(),
+                                        event.getInteraction().getUser().getName());
+                                Flux.fromIterable(commands)
+                                        .filter(command -> command.getCommandId().equals(event.getName()))
+                                        .next()
+                                        .flatMap(command -> command.handleSlashCommandEvent(new SlashEventAdapterImpl(event,
+                                                Mono.just(new Requester(event.getInteraction().getUser().getName(),
+                                                        event.getChannel().getName(),
+                                                        Optional.ofNullable(event.getGuild()).map(Guild::getName).orElse("")))
+                                        )))
+                                        .onErrorResume(e -> {
+                                            log.error("SlashCommandEvent Exception: ", e);
+                                            return Mono.empty();
+                                        })
+                                        .doAfterTerminate(() ->
+                                                JdaMetrics.timerSlashStartMetricCounter(event.getName(), stopwatch.elapsed())
+                                        )
+                                        .subscribeOn(scheduler)
+                                        .subscribe();
+                            }
+
+                            @Override
+                            public void onButtonInteraction(@NonNull ButtonInteractionEvent event) {
+                                Stopwatch stopwatch = Stopwatch.createStarted();
+                                log.trace("ComponentEvent: {} from {}", event.getInteraction().getComponentId(), event.getInteraction().getUser().getName());
+                                Flux.fromIterable(commands)
+                                        .ofType(ComponentInteractEventHandler.class)
+                                        .filter(command -> command.matchingComponentCustomId(event.getInteraction().getComponentId()))
+                                        .next()
+                                        .flatMap(command -> command.handleComponentInteractEvent(new ButtonEventAdapterImpl(event,
+                                                Mono.just(new Requester(event.getInteraction().getUser().getName(),
+                                                        event.getChannel().getName(),
+                                                        Optional.ofNullable(event.getInteraction().getGuild()).map(Guild::getName).orElse("")
+                                                )))))
+                                        .onErrorResume(e -> {
+                                            log.error("ButtonInteractEvent Exception: ", e);
+                                            return Mono.empty();
+                                        })
+                                        .doAfterTerminate(() ->
+                                                JdaMetrics.timerButtonMetricCounter(BottomCustomIdUtils.getCommandNameFromCustomId(event.getInteraction().getComponentId()), stopwatch.elapsed())
+                                        )
+                                        .subscribeOn(scheduler)
+                                        .subscribe();
+                            }
                         }
                 )
-                .setActivity(Activity.listening("Type /help"))
-                .build();
+                .setActivity(Activity.listening("Type /help"));
 
-        SlashCommandRegistry slashCommandRegistry = SlashCommandRegistry.builder()
-                .addSlashCommands(commands)
-                .registerSlashCommands(jda, disableCommandUpdate);
+        ShardManager shardManager = shardManagerBuilder.build();
+        JdaMetrics.startGuildCountGauge(botInGuildIdSet);
 
-        jda.addEventListener(new ListenerAdapter() {
-            @Override
-            public void onSlashCommandInteraction(@NonNull SlashCommandInteractionEvent event) {
-                Stopwatch stopwatch = Stopwatch.createStarted();
-                log.trace("ChatInputEvent: {} from {}", event.getInteraction().getCommandId(),
-                        event.getInteraction().getUser().getName());
-                Flux.fromIterable(slashCommandRegistry.getSlashCommands())
-                        .filter(command -> command.getCommandId().equals(event.getName()))
-                        .next()
-                        .flatMap(command -> command.handleSlashCommandEvent(new SlashEventAdapterImpl(event,
-                                Mono.just(new Requester(event.getInteraction().getUser().getName(),
-                                        event.getChannel().getName(),
-                                        Optional.ofNullable(event.getGuild()).map(Guild::getName).orElse("")))
-                        )))
-                        .onErrorResume(e -> {
-                            log.error("SlashCommandEvent Exception: ", e);
-                            return Mono.empty();
-                        })
-                        .doAfterTerminate(() ->
-                                JdaMetrics.timerSlashStartMetricCounter(event.getName(), stopwatch.elapsed())
-                        )
-                        .subscribeOn(scheduler)
-                        .subscribe();
-            }
+        shardManager.getShards().forEach(jda -> {
+            try {
+                jda.awaitReady();
+                JdaMetrics.startGatewayResponseTimeGauge(jda);
+                JdaMetrics.startUserCacheGauge(jda);
+                JdaMetrics.startTextChannelCacheGauge(jda);
+                JdaMetrics.startGuildCacheGauge(jda);
+                JdaMetrics.startRestLatencyGauge(jda);
 
-            @Override
-            public void onButtonInteraction(@NonNull ButtonInteractionEvent event) {
-                Stopwatch stopwatch = Stopwatch.createStarted();
-                log.trace("ComponentEvent: {} from {}", event.getInteraction().getComponentId(), event.getInteraction().getUser().getName());
-                Flux.fromIterable(slashCommandRegistry.getSlashCommands())
-                        .ofType(ComponentInteractEventHandler.class)
-                        .filter(command -> command.matchingComponentCustomId(event.getInteraction().getComponentId()))
-                        .next()
-                        .flatMap(command -> command.handleComponentInteractEvent(new ButtonEventAdapterImpl(event,
-                                Mono.just(new Requester(event.getInteraction().getUser().getName(),
-                                        event.getChannel().getName(),
-                                        Optional.ofNullable(event.getInteraction().getGuild()).map(Guild::getName).orElse("")
-                                )))))
-                        .onErrorResume(e -> {
-                            log.error("ButtonInteractEvent Exception: ", e);
-                            return Mono.empty();
-                        })
-                        .doAfterTerminate(() ->
-                                JdaMetrics.timerButtonMetricCounter(BottomCustomIdUtils.getCommandNameFromCustomId(event.getInteraction().getComponentId()), stopwatch.elapsed())
-                        )
-                        .subscribeOn(scheduler)
-                        .subscribe();
+                Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+                    log.info("start jda %s shutdown".formatted(jda.getShardInfo().getShardString()));
+                    jda.shutdown();
+                    log.info("finished jda %s shutdown".formatted(jda.getShardInfo().getShardString()));
+                }));
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
             }
         });
-        JdaMetrics.startGatewayResponseTimeGauge(jda);
-        JdaMetrics.startGuildCountGauge(botInGuildIdSet);
-        JdaMetrics.startUserCacheGauge(jda);
-        JdaMetrics.startTextChannelCacheGauge(jda);
-        JdaMetrics.startGuildCacheGauge(jda);
-        JdaMetrics.startRestLatencyGauge(jda);
 
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            log.info("start jda shutdown");
-            jda.shutdown();
-            log.info("finished jda shutdown");
-        }));
+       SlashCommandRegistry.builder()
+                .addSlashCommands(commands)
+                .registerSlashCommands(shardManager.getShards().get(0), disableCommandUpdate);
     }
 }

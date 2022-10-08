@@ -25,6 +25,7 @@ public class JdaMetrics {
     private static final String METRIC_SLASH_TIMER_PREFIX = "slashTimer";
     private static final String METRIC_WELCOME_COUNTER_PREFIX = "welcomeCounter";
     private static final String COMMAND_TAG = "command";
+    private static final String SHARD_ID = "shardId";
 
     public static void registerHttpClient(OkHttpClient client) {
         new OkHttpConnectionPoolMetrics(client.connectionPool()).bindTo(globalRegistry);
@@ -36,6 +37,7 @@ public class JdaMetrics {
 
     public static void startGatewayResponseTimeGauge(JDA discordApi) {
         Gauge.builder(METRIC_PREFIX + "gatewayResponseTime", discordApi::getGatewayPing)
+                .tag(SHARD_ID, discordApi.getShardInfo().getShardString())
                 .register(Metrics.globalRegistry);
     }
 
@@ -44,27 +46,32 @@ public class JdaMetrics {
                     log.warn("Error while getting rest ping: " + t.getMessage());
                     return -1L;
                 }).complete())
+                .tag(SHARD_ID, discordApi.getShardInfo().getShardString())
                 .register(Metrics.globalRegistry);
     }
 
     public static void startUserCacheGauge(JDA discordApi) {
         Gauge.builder(METRIC_PREFIX + "userCacheSize", () -> discordApi.getUserCache().size())
+                .tag(SHARD_ID, discordApi.getShardInfo().getShardString())
                 .register(Metrics.globalRegistry);
     }
 
 
     public static void startTextChannelCacheGauge(JDA discordApi) {
         Gauge.builder(METRIC_PREFIX + "userTextChannelSize", () -> discordApi.getTextChannelCache().size())
+                .tag(SHARD_ID, discordApi.getShardInfo().getShardString())
                 .register(Metrics.globalRegistry);
     }
 
     public static void startGuildCacheGauge(JDA discordApi) {
         Gauge.builder(METRIC_PREFIX + "guildCacheSize", () -> discordApi.getGuildCache().size())
+                .tag(SHARD_ID, discordApi.getShardInfo().getShardString())
                 .register(Metrics.globalRegistry);
     }
 
 
     public static void timerButtonMetricCounter(@NonNull String commandName, @NonNull Duration duration) {
+        //todo shard tag?
         Timer.builder(METRIC_PREFIX + METRIC_BUTTON_TIMER_PREFIX)
                 .tags(Tags.of(COMMAND_TAG, commandName))
                 .publishPercentiles(0.5, 0.95, 0.99)
@@ -74,6 +81,7 @@ public class JdaMetrics {
     }
 
     public static void timerSlashStartMetricCounter(@NonNull String commandName, @NonNull Duration duration) {
+        //todo shard tag?
         Timer.builder(METRIC_PREFIX + METRIC_SLASH_TIMER_PREFIX)
                 .tags(Tags.of(COMMAND_TAG, commandName))
                 .publishPercentiles(0.5, 0.95, 0.99)

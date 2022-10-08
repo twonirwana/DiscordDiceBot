@@ -132,7 +132,7 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
                 state = messageData.get().getState();
                 configUUID = messageData.get().getConfigUUID();
             } else {
-                log.info("Missing messageData for channelId: {}, messageId: {} and commandName: {} ", channelId, messageId, getCommandId());
+                log.warn("Missing messageData for channelId: {}, messageId: {} and commandName: {} ", channelId, messageId, getCommandId());
                 return event.reply(String.format("Configuration for the message is missing, please create a new message with the slash command `/%s start`", getCommandId()));
             }
         }
@@ -221,7 +221,7 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
                 .flux()
                 .flatMap(newMessageId -> {
                     Set<Long> ids = messageDataDAO.getAllMessageIdsForConfig(configUUID);
-                    if (ids.size() > 3) { //expected one old, one new messageData and one sometimes one parallel or from the legacy migration
+                    if (ids.size() > 5) { //expected one old, one new messageData and one sometimes one parallel or from the legacy migration
                         log.warn(String.format("ConfigUUID %s had %d to many messageData persisted", configUUID, ids.size() - 2));
                     }
                     return Flux.fromIterable(ids)
