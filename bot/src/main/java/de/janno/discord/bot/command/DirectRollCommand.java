@@ -88,9 +88,8 @@ public class DirectRollCommand implements SlashCommand {
 
             EmbedDefinition answer = diceParserHelper.roll(diceExpression, label);
 
-            return Flux.merge(event.reply(commandString),
+            return Flux.merge(event.acknowledgeAndRemoveSlash(),
                             event.createResultMessageWithEventReference(answer))
-
                     .then(event.getRequester()
                             .doOnNext(requester -> log.info("'{}'.'{}': '{}'={} -> {} in {}ms",
                                     requester.getGuildName(),
