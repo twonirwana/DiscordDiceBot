@@ -172,7 +172,7 @@ public class JdaClient {
             }
         });
 
-       SlashCommandRegistry.builder()
+        SlashCommandRegistry.builder()
                 .addSlashCommands(commands)
                 .registerSlashCommands(shardManager.getShards().get(0), disableCommandUpdate);
     }
