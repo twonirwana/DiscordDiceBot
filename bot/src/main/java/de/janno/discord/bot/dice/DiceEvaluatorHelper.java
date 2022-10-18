@@ -82,4 +82,8 @@ public class DiceEvaluatorHelper {
         }
         return answer;
     }
+
+    public static String getHelp() {
+        return "See here: https://github.com/twonirwana/DiceEvaluator";
+    }
 }

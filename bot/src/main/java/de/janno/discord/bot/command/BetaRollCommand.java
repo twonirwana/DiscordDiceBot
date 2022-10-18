@@ -4,7 +4,6 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Stopwatch;
 import de.janno.discord.bot.BotMetrics;
 import de.janno.discord.bot.dice.DiceEvaluatorHelper;
-import de.janno.discord.bot.dice.DiceParserHelper;
 import de.janno.discord.connector.api.SlashCommand;
 import de.janno.discord.connector.api.SlashEventAdaptor;
 import de.janno.discord.connector.api.message.EmbedDefinition;
@@ -22,18 +21,18 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
-public class BetaDirectRollCommand implements SlashCommand {
+public class BetaRollCommand implements SlashCommand {
     private static final String ACTION_EXPRESSION = "expression";
     private static final String HELP = "help";
     private static final String LABEL_DELIMITER = "@";
     private final DiceEvaluatorHelper diceEvaluatorHelper;
 
-    public BetaDirectRollCommand() {
+    public BetaRollCommand() {
         this(new RandomNumberSupplier());
     }
 
     @VisibleForTesting
-    public BetaDirectRollCommand(NumberSupplier numberSupplier) {
+    public BetaRollCommand(NumberSupplier numberSupplier) {
         this.diceEvaluatorHelper = new DiceEvaluatorHelper(numberSupplier, 1000);
     }
 
@@ -73,7 +72,7 @@ public class BetaDirectRollCommand implements SlashCommand {
             if (commandParameter.equals(HELP)) {
                 BotMetrics.incrementSlashHelpMetricCounter(getCommandId());
                 return event.replyEmbed(EmbedDefinition.builder()
-                        .description("Type /r and a dice expression e.g. `/r 1d6` \n" + DiceParserHelper.HELP)
+                        .description("Type /beta_roll and a dice expression e.g. `/beta_roll 1d6` \n" + DiceEvaluatorHelper.getHelp())
                         .build(), true);
             }
 

@@ -55,7 +55,7 @@ public class Bot {
                         new CustomParameterCommand(messageDataDAO),
                         new WelcomeCommand(messageDataDAO),
                         new ClearCommand(messageDataDAO),
-                        new BetaDirectRollCommand(),
+                        new BetaRollCommand(),
                         new HelpCommand()
                 ),
                 new WelcomeCommand(messageDataDAO).getWelcomeMessage());
