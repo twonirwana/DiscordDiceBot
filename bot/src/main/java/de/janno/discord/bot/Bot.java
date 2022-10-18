@@ -2,10 +2,7 @@ package de.janno.discord.bot;
 
 
 import com.google.common.collect.ImmutableList;
-import de.janno.discord.bot.command.ClearCommand;
-import de.janno.discord.bot.command.DirectRollCommand;
-import de.janno.discord.bot.command.HelpCommand;
-import de.janno.discord.bot.command.WelcomeCommand;
+import de.janno.discord.bot.command.*;
 import de.janno.discord.bot.command.countSuccesses.CountSuccessesCommand;
 import de.janno.discord.bot.command.customDice.CustomDiceCommand;
 import de.janno.discord.bot.command.customParameter.CustomParameterCommand;
@@ -58,6 +55,7 @@ public class Bot {
                         new CustomParameterCommand(messageDataDAO),
                         new WelcomeCommand(messageDataDAO),
                         new ClearCommand(messageDataDAO),
+                        new BetaDirectRollCommand(),
                         new HelpCommand()
                 ),
                 new WelcomeCommand(messageDataDAO).getWelcomeMessage());
