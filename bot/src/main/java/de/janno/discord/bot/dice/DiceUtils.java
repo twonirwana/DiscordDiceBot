@@ -5,16 +5,17 @@ import com.google.common.collect.ImmutableList;
 
 import java.util.*;
 import java.util.function.Function;
+import java.util.random.RandomGenerator;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class DiceUtils {
     public static final String MINUS = "\u2212";
-    private static final Random randomNumberGenerator = new Random();
+    private static final RandomGenerator randomNumberGenerator = new Sfc64Random();
     private final Function<Integer, Integer> numberSupplier;
 
     public DiceUtils() {
-        numberSupplier = diceSides -> (int) (randomNumberGenerator.nextDouble() * diceSides + 1);
+        numberSupplier = diceSides -> (int) (randomNumberGenerator.nextInt(diceSides) + 1);
     }
 
     public DiceUtils(Integer... resultNumbers) {
