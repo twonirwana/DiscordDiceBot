@@ -11,6 +11,8 @@ import java.util.List;
 public class EmbedDefinition {
     private static final String MINUS = "\u2212";
 
+    //todo ephemeral field
+
     String title;
     String description;
     @Singular

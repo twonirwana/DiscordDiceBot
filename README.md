@@ -82,6 +82,8 @@ dice)
 
 ### Direct Roll
 
+![](image/direct_roll.webp)
+
 With the command `/r` it is possible to directly call the dice expression (see 'Dice Expression Notation') without the
 usage of buttons. For example '/r 3d6' will simply roll 3d6 and post the result without showing any buttons.
 
@@ -117,7 +119,8 @@ value is 15, which will be used if the parameter is not set, and the max number 
 
 #### Minimal dice count
 
-The count successes command provides per default buttons for 1 to `max_dice` count dice buttons. If `min_dice_count` is used
+The count successes command provides per default buttons for 1 to `max_dice` count dice buttons. If `min_dice_count` is
+used
 then the bot will start with a higher number of dice. For example `dice_sides: 6`, `dice_sides:max_dice: 5`
 and  `min_dice_count: 10` will result in the buttons:
 10d6, 11d6, 12d6, 13d6, 14d6
