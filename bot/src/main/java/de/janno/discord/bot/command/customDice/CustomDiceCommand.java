@@ -4,7 +4,10 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import de.janno.discord.bot.command.*;
-import de.janno.discord.bot.dice.DiceParserHelper;
+import de.janno.discord.bot.dice.Dice;
+import de.janno.discord.bot.dice.DiceParser;
+import de.janno.discord.bot.dice.DiceParserSystem;
+import de.janno.discord.bot.dice.DiceSystemAdapter;
 import de.janno.discord.bot.persistance.Mapper;
 import de.janno.discord.bot.persistance.MessageDataDAO;
 import de.janno.discord.bot.persistance.MessageDataDTO;
@@ -16,6 +19,8 @@ import de.janno.discord.connector.api.message.EmbedDefinition;
 import de.janno.discord.connector.api.message.MessageDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinitionOption;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
+import de.janno.evaluator.dice.NumberSupplier;
+import de.janno.evaluator.dice.RandomNumberSupplier;
 import lombok.NonNull;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
@@ -33,16 +38,16 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
     private static final String LABEL_DELIMITER = "@";
     private static final String BUTTON_MESSAGE = "Click on a button to roll the dice";
     private static final String CONFIG_TYPE_ID = "CustomDiceConfig";
-    private final DiceParserHelper diceParserHelper;
+    private final DiceSystemAdapter diceSystemAdapter;
 
     public CustomDiceCommand(MessageDataDAO messageDataDAO) {
-        this(messageDataDAO, new DiceParserHelper());
+        this(messageDataDAO, new DiceParser(), new RandomNumberSupplier(), 1000);
     }
 
     @VisibleForTesting
-    public CustomDiceCommand(MessageDataDAO messageDataDAO, DiceParserHelper diceParserHelper) {
+    public CustomDiceCommand(MessageDataDAO messageDataDAO, Dice dice, NumberSupplier numberSupplier, int maxRolls) {
         super(messageDataDAO);
-        this.diceParserHelper = diceParserHelper;
+        this.diceSystemAdapter = new DiceSystemAdapter(numberSupplier, maxRolls, dice);
     }
 
     @Override
@@ -96,7 +101,7 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
     @Override
     protected @NonNull EmbedDefinition getHelpMessage() {
         return EmbedDefinition.builder()
-                .description("Creates up to 25 buttons with custom dice expression e.g. '/custom_dice start 1_button:3d6 2_button:10d10 3_button:3d20'. \n" + DiceParserHelper.HELP)
+                .description("Creates up to 25 buttons with custom dice expression e.g. '/custom_dice start 1_button:3d6 2_button:10d10 3_button:3d20'. \n" + diceSystemAdapter.getHelpText(DiceParserSystem.DICEROLL_PARSER))
                 .build();
     }
 
@@ -106,8 +111,7 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
                 .flatMap(id -> options.getStringSubOptionWithName(id).stream())
                 .distinct()
                 .collect(Collectors.toList());
-        int maxCharacter = 2000; //2000 is the max message length
-        return diceParserHelper.validateListOfExpressions(diceExpressionWithOptionalLabel, LABEL_DELIMITER, BottomCustomIdUtils.CUSTOM_ID_DELIMITER, "/custom_dice help", maxCharacter);
+        return diceSystemAdapter.validateListOfExpressions(diceExpressionWithOptionalLabel, "/custom_dice help", DiceParserSystem.DICEROLL_PARSER);
     }
 
     protected @NonNull CustomDiceConfig getConfigFromStartOptions(@NonNull CommandInteractionOption options) {
@@ -132,7 +136,7 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
                 })
                 .filter(s -> !s.getDiceExpression().isEmpty())
                 .filter(s -> !s.getLabel().isEmpty())
-                .filter(lv -> diceParserHelper.validExpression(lv.getDiceExpression()))
+                .filter(lv -> diceSystemAdapter.isValidExpression(lv.getDiceExpression(), DiceParserSystem.DICEROLL_PARSER))
                 .filter(s -> s.getDiceExpression().length() <= 2000) //limit of the discord message content
                 .filter(s -> s.getLabel().length() <= 80) //https://discord.com/developers/docs/interactions/message-components#buttons
                 .distinct()
@@ -152,7 +156,7 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
         }
         //add the label only if it is different from the expression
         final String label = selectedButton.get().getDiceExpression().equals(selectedButton.get().getLabel()) ? null : selectedButton.get().getLabel();
-        return Optional.of(diceParserHelper.roll(selectedButton.get().getDiceExpression(), label));
+        return Optional.of(diceSystemAdapter.answerRollWithOptionalLabel(selectedButton.get().getDiceExpression(), label, false, DiceParserSystem.DICEROLL_PARSER));
     }
 
     @Override

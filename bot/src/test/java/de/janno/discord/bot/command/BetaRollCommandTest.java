@@ -28,7 +28,7 @@ class BetaRollCommandTest {
     @BeforeEach
     void setup() {
         numberSupplier = mock(NumberSupplier.class);
-        underTest = new BetaRollCommand(numberSupplier);
+        underTest = new BetaRollCommand(numberSupplier, null);
     }
 
 
@@ -96,10 +96,7 @@ class BetaRollCommandTest {
         verify(slashEventAdaptor, never()).deleteMessage(anyLong(), anyBoolean());
         verify(slashEventAdaptor, never()).createResultMessageWithEventReference(any());
         verify(slashEventAdaptor, never()).deleteMessage(anyLong(), anyBoolean());
-        verify(slashEventAdaptor).replyEmbed(EmbedDefinition.builder()
-                .description("Type /beta_roll and a dice expression e.g. `/beta_roll 1d6` \n" +
-                        "See here: https://github.com/twonirwana/DiceEvaluator")
-                .build(), true);
+        verify(slashEventAdaptor).replyEmbed(any(), anyBoolean());
 
         verify(slashEventAdaptor, never()).getChannelId();
     }

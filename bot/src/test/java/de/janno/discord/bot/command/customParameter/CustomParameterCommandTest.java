@@ -3,7 +3,8 @@ package de.janno.discord.bot.command.customParameter;
 import com.google.common.collect.ImmutableList;
 import de.janno.discord.bot.command.ConfigAndState;
 import de.janno.discord.bot.command.State;
-import de.janno.discord.bot.dice.DiceParserHelper;
+import de.janno.discord.bot.dice.Dice;
+import de.janno.discord.bot.dice.DiceParserSystem;
 import de.janno.discord.bot.persistance.MessageDataDAO;
 import de.janno.discord.bot.persistance.MessageDataDAOImpl;
 import de.janno.discord.bot.persistance.MessageDataDTO;
@@ -352,12 +353,12 @@ class CustomParameterCommandTest {
     @Test
     void checkPersistence() {
         MessageDataDAO messageDataDAO = new MessageDataDAOImpl("jdbc:h2:mem:" + this.getClass().getSimpleName(), null, null);
-        underTest = new CustomParameterCommand(messageDataDAO, mock(DiceParserHelper.class));
+        underTest = new CustomParameterCommand(messageDataDAO, mock(Dice.class), (minExcl, maxIncl) -> 0, 10);
 
         long channelId = System.currentTimeMillis();
         long messageId = System.currentTimeMillis();
         UUID configUUID = UUID.randomUUID();
-        CustomParameterConfig config = new CustomParameterConfig(123L, "{n}d{s}");
+        CustomParameterConfig config = new CustomParameterConfig(123L, "{n}d{s}", DiceParserSystem.DICEROLL_PARSER);
         State<CustomParameterStateData> state = new State<>("5", new CustomParameterStateData(ImmutableList.of("5"), "userName"));
         Optional<MessageDataDTO> toSave = underTest.createMessageDataForNewMessage(configUUID, 1L, channelId, messageId, config, state);
         messageDataDAO.saveMessageData(toSave.orElseThrow());
@@ -388,7 +389,7 @@ class CustomParameterCommandTest {
 
 
         ConfigAndState<CustomParameterConfig, CustomParameterStateData> configAndState = underTest.deserializeAndUpdateState(savedData, "3", "userName");
-        assertThat(configAndState.getConfig()).isEqualTo(new CustomParameterConfig(123L, "{n}d{s}"));
+        assertThat(configAndState.getConfig()).isEqualTo(new CustomParameterConfig(123L, "{n}d{s}", DiceParserSystem.DICEROLL_PARSER));
         assertThat(configAndState.getConfigUUID()).isEqualTo(configUUID);
         assertThat(configAndState.getState().getData()).isEqualTo(new CustomParameterStateData(ImmutableList.of("5", "3"), "userName"));
     }

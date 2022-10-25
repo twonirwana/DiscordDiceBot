@@ -2,7 +2,7 @@ package de.janno.discord.bot.command;
 
 import com.google.common.collect.ImmutableList;
 import de.janno.discord.bot.dice.Dice;
-import de.janno.discord.bot.dice.DiceParserHelper;
+import de.janno.discord.bot.dice.DiceParserAdapter;
 import de.janno.discord.connector.api.Requester;
 import de.janno.discord.connector.api.SlashEventAdaptor;
 import de.janno.discord.connector.api.message.EmbedDefinition;
@@ -31,7 +31,7 @@ class DirectRollCommandTest {
     @BeforeEach
     void setup() {
         diceMock = mock(Dice.class);
-        underTest = new DirectRollCommand(new DiceParserHelper(diceMock));
+        underTest = new DirectRollCommand((minExcl, maxIncl) -> 0, diceMock);
     }
 
 
@@ -131,7 +131,7 @@ class DirectRollCommandTest {
         verify(slashEventAdaptor, never()).createResultMessageWithEventReference(any());
         verify(slashEventAdaptor, never()).deleteMessage(anyLong(), anyBoolean());
         verify(slashEventAdaptor).replyEmbed(EmbedDefinition.builder()
-                .description("Type /r and a dice expression e.g. `/r 1d6` \n" + DiceParserHelper.HELP)
+                .description("Type /r and a dice expression e.g. `/r 1d6` \n" + DiceParserAdapter.HELP)
                 .build(), true);
 
         verify(slashEventAdaptor, never()).getChannelId();

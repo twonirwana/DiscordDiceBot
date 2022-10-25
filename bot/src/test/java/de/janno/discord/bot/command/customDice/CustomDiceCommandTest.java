@@ -7,7 +7,7 @@ import de.janno.discord.bot.command.State;
 import de.janno.discord.bot.command.StateData;
 import de.janno.discord.bot.dice.Dice;
 import de.janno.discord.bot.dice.DiceParser;
-import de.janno.discord.bot.dice.DiceParserHelper;
+import de.janno.discord.bot.dice.DiceParserAdapter;
 import de.janno.discord.bot.persistance.MessageDataDAO;
 import de.janno.discord.bot.persistance.MessageDataDAOImpl;
 import de.janno.discord.bot.persistance.MessageDataDTO;
@@ -85,7 +85,7 @@ class CustomDiceCommandTest {
     @BeforeEach
     void setup() {
         diceMock = mock(Dice.class);
-        underTest = new CustomDiceCommand(messageDataDAO, new DiceParserHelper(diceMock));
+        underTest = new CustomDiceCommand(messageDataDAO, diceMock, (minExcl, maxIncl) -> 0, 10);
     }
 
     @Test
@@ -429,7 +429,7 @@ class CustomDiceCommandTest {
         verify(event).getCommandString();
         verify(event, times(2)).getOption(any());
         verify(event).replyEmbed(EmbedDefinition.builder()
-                .description("Creates up to 25 buttons with custom dice expression e.g. '/custom_dice start 1_button:3d6 2_button:10d10 3_button:3d20'. \n" + DiceParserHelper.HELP)
+                .description("Creates up to 25 buttons with custom dice expression e.g. '/custom_dice start 1_button:3d6 2_button:10d10 3_button:3d20'. \n" + DiceParserAdapter.HELP)
                 .build(), true);
 
     }

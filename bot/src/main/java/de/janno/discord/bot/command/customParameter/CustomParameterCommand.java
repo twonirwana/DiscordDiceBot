@@ -9,7 +9,10 @@ import com.google.common.collect.Lists;
 import de.janno.discord.bot.command.AbstractCommand;
 import de.janno.discord.bot.command.ConfigAndState;
 import de.janno.discord.bot.command.State;
-import de.janno.discord.bot.dice.DiceParserHelper;
+import de.janno.discord.bot.dice.Dice;
+import de.janno.discord.bot.dice.DiceParser;
+import de.janno.discord.bot.dice.DiceParserSystem;
+import de.janno.discord.bot.dice.DiceSystemAdapter;
 import de.janno.discord.bot.persistance.Mapper;
 import de.janno.discord.bot.persistance.MessageDataDAO;
 import de.janno.discord.bot.persistance.MessageDataDTO;
@@ -20,7 +23,10 @@ import de.janno.discord.connector.api.message.ComponentRowDefinition;
 import de.janno.discord.connector.api.message.EmbedDefinition;
 import de.janno.discord.connector.api.message.MessageDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinitionOption;
+import de.janno.discord.connector.api.slash.CommandDefinitionOptionChoice;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
+import de.janno.evaluator.dice.NumberSupplier;
+import de.janno.evaluator.dice.RandomNumberSupplier;
 import lombok.NonNull;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
@@ -45,24 +51,27 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     static final String SELECTED_PARAMETER_DELIMITER = "\t";
     private static final String COMMAND_NAME = "custom_parameter";
     private static final String EXPRESSION_OPTION = "expression";
+    private static final String DICE_PARSER_VERSION_OPTION = "version";
+    //todo move to Helper or Adapter?
+    private static final String DICE_PARSER_V1 = "legacy";
+    private static final String DICE_PARSER_V2 = "current";
     private static final String RANGE_DELIMITER = ":";
     final static String RANGE_REPLACE_REGEX = RANGE_DELIMITER + ".+?(?=\\Q}\\E)";
-    private static final String LABEL_DELIMITER = "@";
     private final static Pattern BUTTON_RANGE_PATTERN = Pattern.compile(RANGE_DELIMITER + "(-?\\d+)<=>(-?\\d+)");
     private final static String BUTTON_VALUE_DELIMITER = "/";
     private final static Pattern BUTTON_VALUE_PATTERN = Pattern.compile(RANGE_DELIMITER + "(.+" + BUTTON_VALUE_DELIMITER + ".+)}");
     private static final String STATE_DATA_TYPE_ID = "CustomParameterStateData";
     private static final String CONFIG_TYPE_ID = "CustomParameterConfig";
-    private final DiceParserHelper diceParserHelper;
+    private final DiceSystemAdapter diceSystemAdapter;
 
     public CustomParameterCommand(MessageDataDAO messageDataDAO) {
-        this(messageDataDAO, new DiceParserHelper());
+        this(messageDataDAO, new DiceParser(), new RandomNumberSupplier(), 1000);
     }
 
     @VisibleForTesting
-    public CustomParameterCommand(MessageDataDAO messageDataDAO, DiceParserHelper diceParserHelper) {
+    public CustomParameterCommand(MessageDataDAO messageDataDAO, Dice dice, NumberSupplier randomNumberSupplier, int maxDiceRolls) {
         super(messageDataDAO);
-        this.diceParserHelper = diceParserHelper;
+        this.diceSystemAdapter = new DiceSystemAdapter(randomNumberSupplier, maxDiceRolls, dice);
     }
 
     private static @NonNull String getNextParameterExpression(@NonNull String expression) {
@@ -165,7 +174,10 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     @VisibleForTesting
     static CustomParameterConfig createConfigFromCustomId(String customId) {
         String[] split = splitCustomId(customId);
-        return new CustomParameterConfig(getOptionalLongFromArray(split, CustomIdIndex.ANSWER_TARGET_CHANNEL.index), split[CustomIdIndex.BASE_EXPRESSION.index]);
+        return new CustomParameterConfig(
+                getOptionalLongFromArray(split, CustomIdIndex.ANSWER_TARGET_CHANNEL.index),
+                split[CustomIdIndex.BASE_EXPRESSION.index],
+                DiceParserSystem.DICEROLL_PARSER);
     }
 
     @Override
@@ -176,7 +188,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     @Override
     protected @NonNull EmbedDefinition getHelpMessage() {
         return EmbedDefinition.builder()
-                .description("Use '/custom_parameter start' and provide a dice expression with parameter variables with the format {parameter_name}. \n" + DiceParserHelper.HELP)
+                .description("Use '/custom_parameter start' and provide a dice expression with parameter variables with the format {parameter_name}. \n" + diceSystemAdapter.getHelpText(DiceParserSystem.DICE_EVALUATOR))
                 .build();
     }
 
@@ -193,6 +205,14 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
                         .required(true)
                         .description("Expression")
                         .type(CommandDefinitionOption.Type.STRING)
+                        .build(),
+                //todo extern?
+                CommandDefinitionOption.builder()
+                        .name(DICE_PARSER_VERSION_OPTION)
+                        .description("Dice expression version")
+                        .type(CommandDefinitionOption.Type.STRING)
+                        .choice(CommandDefinitionOptionChoice.builder().name(DICE_PARSER_V1).value(DICE_PARSER_V1).build())
+                        .choice(CommandDefinitionOptionChoice.builder().name(DICE_PARSER_V2).value(DICE_PARSER_V2).build())
                         .build()
         );
     }
@@ -200,9 +220,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     @Override
     protected @NonNull Optional<EmbedDefinition> getAnswer(CustomParameterConfig config, State<CustomParameterStateData> state) {
         if (!hasMissingParameter(getFilledExpression(config, state))) {
-            String expression = DiceParserHelper.getExpressionFromExpressionWithOptionalLabel(getFilledExpression(config, state), LABEL_DELIMITER);
-            String label = DiceParserHelper.getLabelFromExpressionWithOptionalLabel(getFilledExpression(config, state), LABEL_DELIMITER).orElse(null);
-            return Optional.of(diceParserHelper.roll(expression, label));
+            return Optional.of(diceSystemAdapter.answerRoll(getFilledExpression(config, state), false, config.getDiceParserSystem()));
         }
         return Optional.empty();
     }
@@ -221,8 +239,9 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     protected @NonNull CustomParameterConfig getConfigFromStartOptions(@NonNull CommandInteractionOption options) {
         String baseExpression = options.getStringSubOptionWithName(EXPRESSION_OPTION).orElse("");
         Optional<Long> answerTargetChannelId = getAnswerTargetChannelIdFromStartCommandOption(options);
-
-        return new CustomParameterConfig(answerTargetChannelId.orElse(null), baseExpression);
+        String diceParserVersion = options.getStringSubOptionWithName(DICE_PARSER_VERSION_OPTION).orElse(DICE_PARSER_V2);
+        DiceParserSystem diceParserSystem = DICE_PARSER_V1.equals(diceParserVersion) ? DiceParserSystem.DICEROLL_PARSER : DiceParserSystem.DICE_EVALUATOR;
+        return new CustomParameterConfig(answerTargetChannelId.orElse(null), baseExpression, diceParserSystem);
     }
 
     @Override
@@ -389,7 +408,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
                 return Optional.of(String.format("Parameter '%s' contains duplicate parameter option but they must be unique.", aState.getParameter()));
             }
             if (!hasMissingParameter(getFilledExpression(config, aState.getState()))) {
-                Optional<String> validationMessage = diceParserHelper.validateDiceExpressionWitOptionalLabel(getFilledExpression(config, aState.getState()), "@", "/custom_parameter help", Integer.MAX_VALUE);
+                Optional<String> validationMessage = diceSystemAdapter.validateDiceExpressionWitOptionalLabel(getFilledExpression(config, aState.getState()), "/custom_parameter help", config.getDiceParserSystem());
                 if (validationMessage.isPresent()) {
                     return validationMessage;
                 }

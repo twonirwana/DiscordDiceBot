@@ -5,7 +5,6 @@ import de.janno.discord.bot.command.ButtonIdLabelAndDiceExpression;
 import de.janno.discord.bot.command.ConfigAndState;
 import de.janno.discord.bot.command.State;
 import de.janno.discord.bot.dice.Dice;
-import de.janno.discord.bot.dice.DiceParserHelper;
 import de.janno.discord.bot.persistance.MessageDataDAO;
 import de.janno.discord.bot.persistance.MessageDataDAOImpl;
 import de.janno.discord.bot.persistance.MessageDataDTO;
@@ -62,7 +61,7 @@ class SumCustomSetCommandTest {
     @BeforeEach
     void setup() {
         diceMock = mock(Dice.class);
-        underTest = new SumCustomSetCommand(messageDataDAO, new DiceParserHelper(diceMock));
+        underTest = new SumCustomSetCommand(messageDataDAO, diceMock, (minExcl, maxIncl) -> 0);
     }
 
 
@@ -604,9 +603,7 @@ class SumCustomSetCommandTest {
     @Test
     void checkPersistence() {
         MessageDataDAO messageDataDAO = new MessageDataDAOImpl("jdbc:h2:mem:" + this.getClass().getSimpleName(), null, null);
-        DiceParserHelper diceParserHelper = mock(DiceParserHelper.class);
-        when(diceParserHelper.validExpression(any())).thenReturn(true);
-        underTest = new SumCustomSetCommand(messageDataDAO, diceParserHelper);
+        underTest = new SumCustomSetCommand(messageDataDAO, diceMock, (minExcl, maxIncl) -> 0);
 
         long channelId = System.currentTimeMillis();
         long messageId = System.currentTimeMillis();

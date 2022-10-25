@@ -10,7 +10,10 @@ import de.janno.discord.bot.command.AbstractCommand;
 import de.janno.discord.bot.command.ButtonIdLabelAndDiceExpression;
 import de.janno.discord.bot.command.ConfigAndState;
 import de.janno.discord.bot.command.State;
-import de.janno.discord.bot.dice.DiceParserHelper;
+import de.janno.discord.bot.dice.Dice;
+import de.janno.discord.bot.dice.DiceParser;
+import de.janno.discord.bot.dice.DiceParserSystem;
+import de.janno.discord.bot.dice.DiceSystemAdapter;
 import de.janno.discord.bot.persistance.Mapper;
 import de.janno.discord.bot.persistance.MessageDataDAO;
 import de.janno.discord.bot.persistance.MessageDataDTO;
@@ -22,6 +25,8 @@ import de.janno.discord.connector.api.message.EmbedDefinition;
 import de.janno.discord.connector.api.message.MessageDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinitionOption;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
+import de.janno.evaluator.dice.NumberSupplier;
+import de.janno.evaluator.dice.RandomNumberSupplier;
 import lombok.NonNull;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
@@ -46,16 +51,16 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
     private static final String LABEL_DELIMITER = "@";
     private static final String CONFIG_TYPE_ID = "SumCustomSetConfig";
     private static final String STATE_DATA_TYPE_ID = "SumCustomSetStateData";
-    private final DiceParserHelper diceParserHelper;
+    private final DiceSystemAdapter diceSystemAdapter;
 
     public SumCustomSetCommand(MessageDataDAO messageDataDAO) {
-        this(messageDataDAO, new DiceParserHelper());
+        this(messageDataDAO, new DiceParser(), new RandomNumberSupplier());
     }
 
     @VisibleForTesting
-    public SumCustomSetCommand(MessageDataDAO messageDataDAO, DiceParserHelper diceParserHelper) {
+    public SumCustomSetCommand(MessageDataDAO messageDataDAO, Dice dice, NumberSupplier numberSupplier) {
         super(messageDataDAO);
-        this.diceParserHelper = diceParserHelper;
+        this.diceSystemAdapter = new DiceSystemAdapter(numberSupplier, 1000, dice);
     }
 
     @Override
@@ -118,7 +123,7 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
     @Override
     protected @NonNull EmbedDefinition getHelpMessage() {
         return EmbedDefinition.builder()
-                .description("Creates up to 22 buttons with custom dice expression, that can be combined afterwards. e.g. '/sum_custom_set start 1_button:3d6 2_button:10d10 3_button:3d20'. \n" + DiceParserHelper.HELP)
+                .description("Creates up to 22 buttons with custom dice expression, that can be combined afterwards. e.g. '/sum_custom_set start 1_button:3d6 2_button:10d10 3_button:3d20'. \n" + diceSystemAdapter.getHelpText(DiceParserSystem.DICEROLL_PARSER))
                 .build();
     }
 
@@ -146,8 +151,7 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
         if (!Strings.isNullOrEmpty(expressionWithUserNameDelimiter)) {
             return Optional.of(String.format("This command doesn't allow '%s' in the dice expression and label, the following expression are not allowed: %s", INVOKING_USER_NAME_DELIMITER, expressionWithUserNameDelimiter));
         }
-        int maxCharacter = 2000; //2000 is the max message length
-        return diceParserHelper.validateListOfExpressions(diceExpressionWithOptionalLabel, LABEL_DELIMITER, BottomCustomIdUtils.CUSTOM_ID_DELIMITER, "/sum_custom_set help", maxCharacter);
+        return diceSystemAdapter.validateListOfExpressions(diceExpressionWithOptionalLabel, "/sum_custom_set help", DiceParserSystem.DICEROLL_PARSER);
     }
 
     @Override
@@ -174,7 +178,8 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
                 .filter(ld -> ld.getButtonId().equals(state.getButtonValue()))
                 .map(ButtonIdLabelAndDiceExpression::getLabel)
                 .findFirst().orElse(null);
-        return Optional.of(diceParserHelper.roll(combineExpressions(state.getData().getDiceExpressions()), label));
+
+        return Optional.of(diceSystemAdapter.answerRollWithOptionalLabel(combineExpressions(state.getData().getDiceExpressions()), label, false, DiceParserSystem.DICEROLL_PARSER));
     }
 
     @Override
@@ -245,7 +250,9 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
         if (!Strings.isNullOrEmpty(lockedToUser) && !lockedToUser.equals(invokingUserName)) {
             return new State<>(NO_ACTION, new SumCustomSetStateData(currentExpressions, lockedToUser));
         }
-        if (!currentExpressions.isEmpty() && !diceParserHelper.validExpression(currentExpression)) {
+        if (!currentExpressions.isEmpty()
+                //todo better call for validation without the help command
+                && diceSystemAdapter.validateDiceExpressionWitOptionalLabel(currentExpression, "", DiceParserSystem.DICEROLL_PARSER).isPresent()) {
             //invalid expression -> clear
             return new State<>(NO_ACTION, new SumCustomSetStateData(ImmutableList.of(), null));
         }
@@ -273,7 +280,7 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
                 .add(addExpression.get())
                 .build();
 
-        if (!Strings.isNullOrEmpty(combineExpressions(expressionWithNewValue)) && !diceParserHelper.validExpression(combineExpressions(expressionWithNewValue))) {
+        if (!Strings.isNullOrEmpty(combineExpressions(expressionWithNewValue)) && !diceSystemAdapter.isValidExpression(combineExpressions(expressionWithNewValue), DiceParserSystem.DICEROLL_PARSER)) {
             //invalid expression -> clear
             return new State<>(NO_ACTION, new SumCustomSetStateData(ImmutableList.of(), null));
         }
@@ -366,7 +373,7 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
                 })
                 .filter(s -> !s.getDiceExpression().isEmpty())
                 .filter(s -> !s.getLabel().isEmpty())
-                .filter(lv -> diceParserHelper.validExpression(lv.getDiceExpression()))
+                .filter(lv -> diceSystemAdapter.isValidExpression(lv.getDiceExpression(), DiceParserSystem.DICEROLL_PARSER))
                 .filter(s -> s.getLabel().length() <= 80) //https://discord.com/developers/docs/interactions/message-components#buttons
                 .distinct()
                 .limit(22)

@@ -3,7 +3,7 @@ package de.janno.discord.bot.command;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Stopwatch;
 import de.janno.discord.bot.BotMetrics;
-import de.janno.discord.bot.dice.DiceEvaluatorHelper;
+import de.janno.discord.bot.dice.*;
 import de.janno.discord.connector.api.SlashCommand;
 import de.janno.discord.connector.api.SlashEventAdaptor;
 import de.janno.discord.connector.api.message.EmbedDefinition;
@@ -24,16 +24,15 @@ import java.util.concurrent.TimeUnit;
 public class BetaRollCommand implements SlashCommand {
     private static final String ACTION_EXPRESSION = "expression";
     private static final String HELP = "help";
-    private static final String LABEL_DELIMITER = "@";
-    private final DiceEvaluatorHelper diceEvaluatorHelper;
+    private final DiceSystemAdapter diceSystemAdapter;
 
     public BetaRollCommand() {
-        this(new RandomNumberSupplier());
+        this(new RandomNumberSupplier(), new DiceParser());
     }
 
     @VisibleForTesting
-    public BetaRollCommand(NumberSupplier numberSupplier) {
-        this.diceEvaluatorHelper = new DiceEvaluatorHelper(numberSupplier, 1000);
+    public BetaRollCommand(NumberSupplier numberSupplier, Dice dice) {
+        this.diceSystemAdapter = new DiceSystemAdapter(numberSupplier, 1000, dice);
     }
 
     @Override
@@ -72,13 +71,13 @@ public class BetaRollCommand implements SlashCommand {
             if (commandParameter.equals(HELP)) {
                 BotMetrics.incrementSlashHelpMetricCounter(getCommandId());
                 return event.replyEmbed(EmbedDefinition.builder()
-                        .description("Type /beta_roll and a dice expression e.g. `/beta_roll 1d6` \n" + DiceEvaluatorHelper.getHelp())
+                        .description("Type /beta_roll and a dice expression e.g. `/beta_roll 1d6` \n" + DiceEvaluatorAdapter.getHelp())
                         .build(), true);
             }
 
             BotMetrics.incrementSlashStartMetricCounter(getCommandId(), commandParameter);
 
-            EmbedDefinition answer = diceEvaluatorHelper.answerRoll(commandParameter, LABEL_DELIMITER);
+            EmbedDefinition answer = diceSystemAdapter.answerRoll(commandParameter, false, DiceParserSystem.DICE_EVALUATOR);
             String answerShortString = answer.toShortString();
             return Flux.merge(event.acknowledgeAndRemoveSlash(),
                             event.createResultMessageWithEventReference(answer))

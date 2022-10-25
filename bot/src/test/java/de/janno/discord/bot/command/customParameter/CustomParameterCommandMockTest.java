@@ -2,6 +2,7 @@ package de.janno.discord.bot.command.customParameter;
 
 import de.janno.discord.bot.ButtonEventAdaptorMock;
 import de.janno.discord.bot.ButtonEventAdaptorMockFactory;
+import de.janno.discord.bot.dice.DiceParserSystem;
 import de.janno.discord.bot.persistance.MessageDataDAO;
 import de.janno.discord.bot.persistance.MessageDataDAOImpl;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,7 +28,7 @@ public class CustomParameterCommandMockTest {
 
     @Test
     void roll() {
-        CustomParameterConfig config = new CustomParameterConfig(null, "{numberOfDice:1<=>10}d{sides:1/4/6/8/10/12/20/100}");
+        CustomParameterConfig config = new CustomParameterConfig(null, "{numberOfDice:1<=>10}d{sides:1/4/6/8/10/12/20/100}", DiceParserSystem.DICEROLL_PARSER);
         ButtonEventAdaptorMockFactory<CustomParameterConfig, CustomParameterStateData> factory = new ButtonEventAdaptorMockFactory<>("custom_parameter", underTest, config, messageDataDAO, false);
 
         ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("4");
@@ -48,7 +49,7 @@ public class CustomParameterCommandMockTest {
 
     @Test
     void clear() {
-        CustomParameterConfig config = new CustomParameterConfig(null, "{numberOfDice:1<=>10}d{sides:1/4/6/8/10/12/20/100}");
+        CustomParameterConfig config = new CustomParameterConfig(null, "{numberOfDice:1<=>10}d{sides:1/4/6/8/10/12/20/100}", DiceParserSystem.DICEROLL_PARSER);
         ButtonEventAdaptorMockFactory<CustomParameterConfig, CustomParameterStateData> factory = new ButtonEventAdaptorMockFactory<>("custom_parameter", underTest, config, messageDataDAO, false);
 
         ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("4");
@@ -66,7 +67,7 @@ public class CustomParameterCommandMockTest {
 
     @Test
     void roll_pinned() {
-        CustomParameterConfig config = new CustomParameterConfig(null, "{numberOfDice:1<=>10}d{sides:1/4/6/8/10/12/20/100}");
+        CustomParameterConfig config = new CustomParameterConfig(null, "{numberOfDice:1<=>10}d{sides:1/4/6/8/10/12/20/100}", DiceParserSystem.DICEROLL_PARSER);
         ButtonEventAdaptorMockFactory<CustomParameterConfig, CustomParameterStateData> factory = new ButtonEventAdaptorMockFactory<>("custom_parameter", underTest, config, messageDataDAO, true);
 
         ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("4");
@@ -86,7 +87,7 @@ public class CustomParameterCommandMockTest {
 
     @Test
     void roll_answerChannel() {
-        CustomParameterConfig config = new CustomParameterConfig(2L, "{numberOfDice:1<=>10}d{sides:1/4/6/8/10/12/20/100}");
+        CustomParameterConfig config = new CustomParameterConfig(2L, "{numberOfDice:1<=>10}d{sides:1/4/6/8/10/12/20/100}", DiceParserSystem.DICEROLL_PARSER);
         ButtonEventAdaptorMockFactory<CustomParameterConfig, CustomParameterStateData> factory = new ButtonEventAdaptorMockFactory<>("custom_parameter", underTest, config, messageDataDAO, false);
 
         ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("4");
@@ -105,7 +106,7 @@ public class CustomParameterCommandMockTest {
 
     @Test
     void roll_pinnedTwice() {
-        CustomParameterConfig config = new CustomParameterConfig(null, "{numberOfDice:1<=>10}d{sides:1/4/6/8/10/12/20/100}");
+        CustomParameterConfig config = new CustomParameterConfig(null, "{numberOfDice:1<=>10}d{sides:1/4/6/8/10/12/20/100}", DiceParserSystem.DICEROLL_PARSER);
         ButtonEventAdaptorMockFactory<CustomParameterConfig, CustomParameterStateData> factory = new ButtonEventAdaptorMockFactory<>("custom_parameter", underTest, config, messageDataDAO, true);
 
         ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("4");
@@ -138,7 +139,7 @@ public class CustomParameterCommandMockTest {
 
     @Test
     void roll_answerChannelTwice() {
-        CustomParameterConfig config = new CustomParameterConfig(2L, "{numberOfDice:1<=>10}d{sides:1/4/6/8/10/12/20/100}");
+        CustomParameterConfig config = new CustomParameterConfig(2L, "{numberOfDice:1<=>10}d{sides:1/4/6/8/10/12/20/100}", DiceParserSystem.DICEROLL_PARSER);
         ButtonEventAdaptorMockFactory<CustomParameterConfig, CustomParameterStateData> factory = new ButtonEventAdaptorMockFactory<>("custom_parameter", underTest, config, messageDataDAO, false);
 
         ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("4");
