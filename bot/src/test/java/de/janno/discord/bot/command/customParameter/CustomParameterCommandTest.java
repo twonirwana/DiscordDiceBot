@@ -68,7 +68,7 @@ class CustomParameterCommandTest {
                 Arguments.of("1d6", "The expression needs at least one parameter expression like '{name}"),
                 Arguments.of("{number:3<=>6}d{sides:6/10/12}", null),
                 Arguments.of("{number}{a:a/c/b/d/d}{sides:3<=>6}", "Parameter '[a, c, b, d, d]' contains duplicate parameter option but they must be unique."),
-                Arguments.of("{number}d{sides:3/4/ab}", "The following dice expression is invalid: '1dab'. Use /custom_parameter help to get more information on how to use the command.")
+                Arguments.of("{number}d{sides:3/4/ab}", null)
         );
     }
 
@@ -174,7 +174,7 @@ class CustomParameterCommandTest {
         State<CustomParameterStateData> res = underTest.getStateFromEvent(buttonEventAdaptor);
 
         CustomParameterConfig config = createConfigFromCustomId(customButtonId);
-        assertThat(res.getData().getSelectedParameterValues()).isEqualTo(selectedParameterValues);
+        assertThat(Optional.ofNullable(res.getData()).map(CustomParameterStateData::getSelectedParameterValues)).contains(selectedParameterValues);
         assertThat(getFilledExpression(config, res)).isEqualTo(filledExpression);
         assertThat(getCurrentParameterExpression(config, res)).isEqualTo(currentParameterExpression);
         assertThat(getCurrentParameterName(config, res)).isEqualTo(currentParameterName);
@@ -185,7 +185,7 @@ class CustomParameterCommandTest {
     void getStartOptions() {
         List<CommandDefinitionOption> res = underTest.getStartOptions();
 
-        assertThat(res.stream().map(CommandDefinitionOption::getName)).containsExactly("expression");
+        assertThat(res.stream().map(CommandDefinitionOption::getName)).containsExactly("expression", "version");
     }
 
     @Test

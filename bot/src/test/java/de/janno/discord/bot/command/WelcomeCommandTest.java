@@ -254,6 +254,7 @@ class WelcomeCommandTest {
                 .containsExactly("welcomefate",
                         "welcomednd5",
                         "welcomenWoD",
+                        "welcomedice_calculator",
                         "welcomeoWoD",
                         "welcomeshadowrun",
                         "welcomecoin");
@@ -261,7 +262,7 @@ class WelcomeCommandTest {
                 .stream()
                 .flatMap(s -> s.getButtonDefinitions().stream())
                 .map(ButtonDefinition::getLabel))
-                .containsExactly("Fate", "D&D5e", "nWoD", "oWoD", "Shadowrun", "Coin Toss 🪙");
+                .containsExactly("Fate", "D&D5e", "nWoD", "Dice Calculator", "oWoD", "Shadowrun", "Coin Toss 🪙");
 
     }
 

@@ -20,8 +20,7 @@ public class CustomParameterConfig extends Config {
     public CustomParameterConfig(
             @JsonProperty("answerTargetChannelId") Long answerTargetChannelId,
             @JsonProperty("baseExpression") @NonNull String baseExpression,
-            @JsonProperty("diceParserSystem") DiceParserSystem diceParserSystem
-    ) {
+            @JsonProperty("diceParserSystem") DiceParserSystem diceParserSystem) {
         super(answerTargetChannelId);
         this.baseExpression = baseExpression;
         this.diceParserSystem = diceParserSystem == null ? DiceParserSystem.DICEROLL_PARSER : diceParserSystem;

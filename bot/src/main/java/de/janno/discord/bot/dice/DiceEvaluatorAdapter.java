@@ -86,13 +86,13 @@ public class DiceEvaluatorAdapter {
             if (rolls.size() == 1) {
                 String title = optionalLabel.map(l -> String.format("%s: %s", l, diceExpression)).orElse(diceExpression);
                 answer = EmbedDefinition.builder()
-                        .title("%s = %s".formatted(title, getTitleResult(rolls.get(0), sumUp)))
+                        .title("%s ⇒ %s".formatted(title, getTitleResult(rolls.get(0), sumUp)))
                         .description(getDetailResult(rolls.get(0)))
                         .build();
             } else {
                 List<EmbedDefinition.Field> fields = rolls.stream()
                         .limit(25) //max number of embedFields
-                        .map(r -> new EmbedDefinition.Field(r.getExpression() + " = " + getTitleResult(r, sumUp), getDetailResult(r), false))
+                        .map(r -> new EmbedDefinition.Field(r.getExpression() + " ⇒ " + getTitleResult(r, sumUp), getDetailResult(r), false))
                         .collect(ImmutableList.toImmutableList());
                 answer = EmbedDefinition.builder()
                         .title(optionalLabel.orElse(diceExpression))

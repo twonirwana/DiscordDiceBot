@@ -64,7 +64,7 @@ class BetaRollCommandTest {
         verify(slashEventAdaptor, never()).createButtonMessage(any());
         verify(slashEventAdaptor, never()).deleteMessage(anyLong(), anyBoolean());
         verify(slashEventAdaptor, never()).replyEmbed(any(), anyBoolean());
-        verify(slashEventAdaptor).createResultMessageWithEventReference(ArgumentMatchers.eq(new EmbedDefinition("Test Label: 1d6 = 3", "3", ImmutableList.of())));
+        verify(slashEventAdaptor).createResultMessageWithEventReference(ArgumentMatchers.eq(new EmbedDefinition("Test Label: 1d6 ⇒ 3", "3", ImmutableList.of())));
 
         verify(slashEventAdaptor, never()).getChannelId();
     }

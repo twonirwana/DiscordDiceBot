@@ -17,12 +17,15 @@ public class ButtonDefinition {
 
     ButtonDefinition.Style style;
 
-    ButtonDefinition(@NonNull String label, @NonNull String id, Style style) {
+    boolean disabled;
+
+    ButtonDefinition(@NonNull String label, @NonNull String id, Style style, boolean disabled) {
         Preconditions.checkArgument(label.length() <= 80, String.format("Label '%s' is to long", label));
         Preconditions.checkArgument(id.length() <= 100, String.format("ID '%s' is to long", id));
         this.label = label;
         this.id = id;
         this.style = Objects.requireNonNullElse(style, Style.PRIMARY);
+        this.disabled = disabled;
     }
 
     public enum Style {

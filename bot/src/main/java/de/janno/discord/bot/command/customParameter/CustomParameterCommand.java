@@ -23,7 +23,6 @@ import de.janno.discord.connector.api.message.ComponentRowDefinition;
 import de.janno.discord.connector.api.message.EmbedDefinition;
 import de.janno.discord.connector.api.message.MessageDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinitionOption;
-import de.janno.discord.connector.api.slash.CommandDefinitionOptionChoice;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import de.janno.evaluator.dice.NumberSupplier;
 import de.janno.evaluator.dice.RandomNumberSupplier;
@@ -51,10 +50,6 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     static final String SELECTED_PARAMETER_DELIMITER = "\t";
     private static final String COMMAND_NAME = "custom_parameter";
     private static final String EXPRESSION_OPTION = "expression";
-    private static final String DICE_PARSER_VERSION_OPTION = "version";
-    //todo move to Helper or Adapter?
-    private static final String DICE_PARSER_V1 = "legacy";
-    private static final String DICE_PARSER_V2 = "current";
     private static final String RANGE_DELIMITER = ":";
     final static String RANGE_REPLACE_REGEX = RANGE_DELIMITER + ".+?(?=\\Q}\\E)";
     private final static Pattern BUTTON_RANGE_PATTERN = Pattern.compile(RANGE_DELIMITER + "(-?\\d+)<=>(-?\\d+)");
@@ -206,14 +201,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
                         .description("Expression")
                         .type(CommandDefinitionOption.Type.STRING)
                         .build(),
-                //todo extern?
-                CommandDefinitionOption.builder()
-                        .name(DICE_PARSER_VERSION_OPTION)
-                        .description("Dice expression version")
-                        .type(CommandDefinitionOption.Type.STRING)
-                        .choice(CommandDefinitionOptionChoice.builder().name(DICE_PARSER_V1).value(DICE_PARSER_V1).build())
-                        .choice(CommandDefinitionOptionChoice.builder().name(DICE_PARSER_V2).value(DICE_PARSER_V2).build())
-                        .build()
+                DICE_SYSTEM_COMMAND_OPTION
         );
     }
 
@@ -239,8 +227,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     protected @NonNull CustomParameterConfig getConfigFromStartOptions(@NonNull CommandInteractionOption options) {
         String baseExpression = options.getStringSubOptionWithName(EXPRESSION_OPTION).orElse("");
         Optional<Long> answerTargetChannelId = getAnswerTargetChannelIdFromStartCommandOption(options);
-        String diceParserVersion = options.getStringSubOptionWithName(DICE_PARSER_VERSION_OPTION).orElse(DICE_PARSER_V2);
-        DiceParserSystem diceParserSystem = DICE_PARSER_V1.equals(diceParserVersion) ? DiceParserSystem.DICEROLL_PARSER : DiceParserSystem.DICE_EVALUATOR;
+        DiceParserSystem diceParserSystem = getDiceParserSystemFromStartOption(options);
         return new CustomParameterConfig(answerTargetChannelId.orElse(null), baseExpression, diceParserSystem);
     }
 
