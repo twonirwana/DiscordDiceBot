@@ -208,7 +208,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     @Override
     protected @NonNull Optional<EmbedDefinition> getAnswer(CustomParameterConfig config, State<CustomParameterStateData> state) {
         if (!hasMissingParameter(getFilledExpression(config, state))) {
-            return Optional.of(diceSystemAdapter.answerRoll(getFilledExpression(config, state), false, config.getDiceParserSystem()));
+            return Optional.of(diceSystemAdapter.answerRollWithOptionalLabelInExpression(getFilledExpression(config, state), false, config.getDiceParserSystem()));
         }
         return Optional.empty();
     }

@@ -158,6 +158,7 @@ public class JdaClient {
                 jda.awaitReady();
                 JdaMetrics.startGatewayResponseTimeGauge(jda);
                 JdaMetrics.startUserCacheGauge(jda);
+                JdaMetrics.startShardCountGauge(jda);
                 JdaMetrics.startTextChannelCacheGauge(jda);
                 JdaMetrics.startGuildCacheGauge(jda);
                 JdaMetrics.startRestLatencyGauge(jda);

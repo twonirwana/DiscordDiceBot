@@ -249,14 +249,13 @@ public class DiceParserAdapter {
                 .collect(Collectors.toList());
     }
 
-    public EmbedDefinition rollWithOptionalLablel(String expressionAndOptionalLabel, String labelDelimiter) {
+    public EmbedDefinition answerRollWithOptionalLabelInExpression(String expressionAndOptionalLabel, String labelDelimiter) {
         String label = DiceParserAdapter.getLabelFromExpressionWithOptionalLabel(expressionAndOptionalLabel, labelDelimiter).orElse(null);
         String diceExpression = DiceParserAdapter.getExpressionFromExpressionWithOptionalLabel(expressionAndOptionalLabel, labelDelimiter);
-        return roll(diceExpression, label);
+        return answerRollWithGivenLabel(diceExpression, label);
     }
 
-    //todo make private
-    public EmbedDefinition roll(String input, @Nullable String label) {
+    public EmbedDefinition answerRollWithGivenLabel(String input, @Nullable String label) {
         try {
             if (isMultipleRoll(input)) {
                 List<LabelResult> labelResults;

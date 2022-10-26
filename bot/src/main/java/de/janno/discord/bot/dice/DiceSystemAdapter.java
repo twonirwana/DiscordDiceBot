@@ -1,5 +1,6 @@
 package de.janno.discord.bot.dice;
 
+import de.janno.discord.bot.BotMetrics;
 import de.janno.discord.connector.api.BottomCustomIdUtils;
 import de.janno.discord.connector.api.message.EmbedDefinition;
 import de.janno.evaluator.dice.NumberSupplier;
@@ -35,24 +36,20 @@ public class DiceSystemAdapter {
         };
     }
 
-    public EmbedDefinition answerRoll(String expression, boolean sumUp, DiceParserSystem system) {
-        //todo metrics
+    public EmbedDefinition answerRollWithOptionalLabelInExpression(String expression, boolean sumUp, DiceParserSystem system) {
+        BotMetrics.incrementDiceParserSystemCounter(system);
         return switch (system) {
-            case DICE_EVALUATOR -> diceEvaluatorAdapter.answerRoll(expression, LABEL_DELIMITER, sumUp);
-            case DICEROLL_PARSER -> parserHelper.rollWithOptionalLablel(expression, LABEL_DELIMITER);
+            case DICE_EVALUATOR -> diceEvaluatorAdapter.answerRollWithOptionalLabelInExpression(expression, LABEL_DELIMITER, sumUp);
+            case DICEROLL_PARSER -> parserHelper.answerRollWithOptionalLabelInExpression(expression, LABEL_DELIMITER);
         };
     }
 
-    public EmbedDefinition answerRollWithOptionalLabel(String expression, @Nullable String label, boolean sumUp, DiceParserSystem system) {
-        //todo metrics
+    public EmbedDefinition answerRollWithGivenLabel(String expression, @Nullable String label, boolean sumUp, DiceParserSystem system) {
+        BotMetrics.incrementDiceParserSystemCounter(system);
         return switch (system) {
-            case DICE_EVALUATOR -> diceEvaluatorAdapter.answerRollWithOptionalLabel(expression, label, sumUp);
-            case DICEROLL_PARSER -> parserHelper.roll(expression, label);
+            case DICE_EVALUATOR -> diceEvaluatorAdapter.answerRollWithGivenLabel(expression, label, sumUp);
+            case DICEROLL_PARSER -> parserHelper.answerRollWithGivenLabel(expression, label);
         };
-    }
-
-    public Optional<String> validateExpression(String expression, String helpCommand, DiceParserSystem system) {
-        return validateListOfExpressions(List.of(expression), helpCommand, system);
     }
 
     public Optional<String> validateListOfExpressions(List<String> expressions, String helpCommand, DiceParserSystem system) {

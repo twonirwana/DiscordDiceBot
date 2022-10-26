@@ -190,7 +190,7 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
                 .map(ButtonIdLabelAndDiceExpression::getLabel)
                 .findFirst().orElse(null);
 
-        return Optional.of(diceSystemAdapter.answerRollWithOptionalLabel(combineExpressions(state.getData().getDiceExpressions()), label, config.isAlwaysSumResult(), config.getDiceParserSystem()));
+        return Optional.of(diceSystemAdapter.answerRollWithGivenLabel(combineExpressions(state.getData().getDiceExpressions()), label, config.isAlwaysSumResult(), config.getDiceParserSystem()));
     }
 
     @Override

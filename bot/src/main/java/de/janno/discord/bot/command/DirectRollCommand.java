@@ -86,7 +86,7 @@ public class DirectRollCommand implements SlashCommand {
             String diceExpression = DiceSystemAdapter.getExpressionFromExpressionWithOptionalLabel(commandParameter);
             BotMetrics.incrementSlashStartMetricCounter(getCommandId(), diceExpression);
 
-            EmbedDefinition answer = diceSystemAdapter.answerRoll(commandParameter, true, DiceParserSystem.DICEROLL_PARSER);
+            EmbedDefinition answer = diceSystemAdapter.answerRollWithOptionalLabelInExpression(commandParameter, true, DiceParserSystem.DICEROLL_PARSER);
 
             return Flux.merge(event.acknowledgeAndRemoveSlash(),
                             event.createResultMessageWithEventReference(answer))

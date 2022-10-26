@@ -72,13 +72,13 @@ public class DiceEvaluatorAdapter {
         }
     }
 
-    public EmbedDefinition answerRoll(String expression, String labelDelimiter, boolean sumUp) {
+    public EmbedDefinition answerRollWithOptionalLabelInExpression(String expression, String labelDelimiter, boolean sumUp) {
         String diceExpression = getExpressionFromExpressionWithOptionalLabel(expression, labelDelimiter);
         String label = getLabelFromExpressionWithOptionalLabel(expression, labelDelimiter).orElse(null);
-        return answerRollWithOptionalLabel(diceExpression, label, sumUp);
+        return answerRollWithGivenLabel(diceExpression, label, sumUp);
     }
 
-    public EmbedDefinition answerRollWithOptionalLabel(String diceExpression, @Nullable String label, boolean sumUp) {
+    public EmbedDefinition answerRollWithGivenLabel(String diceExpression, @Nullable String label, boolean sumUp) {
         EmbedDefinition answer;
         Optional<String> optionalLabel = Optional.ofNullable(label);
         try {

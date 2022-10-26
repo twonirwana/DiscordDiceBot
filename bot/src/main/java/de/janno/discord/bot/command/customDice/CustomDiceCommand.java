@@ -205,7 +205,7 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
         }
         //add the label only if it is different from the expression
         final String label = selectedButton.get().getDiceExpression().equals(selectedButton.get().getLabel()) ? null : selectedButton.get().getLabel();
-        return Optional.of(diceSystemAdapter.answerRollWithOptionalLabel(selectedButton.get().getDiceExpression(), label, false, config.getDiceParserSystem()));
+        return Optional.of(diceSystemAdapter.answerRollWithGivenLabel(selectedButton.get().getDiceExpression(), label, false, config.getDiceParserSystem()));
     }
 
     @Override

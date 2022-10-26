@@ -131,7 +131,7 @@ class DiceParserAdapterTest {
         DiceParserAdapter underTest = new DiceParserAdapter(diceMock);
         when(diceMock.detailedRoll(any())).thenReturn(new ResultTree(mock(DiceExpression.class), 3, ImmutableList.of()));
 
-        EmbedDefinition res = underTest.roll(diceExpression, label);
+        EmbedDefinition res = underTest.answerRollWithGivenLabel(diceExpression, label);
         assertThat(res).isEqualTo(expected);
     }
 
@@ -181,7 +181,7 @@ class DiceParserAdapterTest {
 
     @Test
     void roll_3x3d6() {
-        EmbedDefinition res = underTest.roll("3x[3d6]", null);
+        EmbedDefinition res = underTest.answerRollWithGivenLabel("3x[3d6]", null);
 
         assertThat(res.getFields()).hasSize(3);
         assertThat(res.getDescription()).isNull();
@@ -190,7 +190,7 @@ class DiceParserAdapterTest {
 
     @Test
     void roll_3d6() {
-        EmbedDefinition res = underTest.roll("3d6", null);
+        EmbedDefinition res = underTest.answerRollWithGivenLabel("3d6", null);
 
         assertThat(res.getFields()).hasSize(0);
         assertThat(res.getDescription()).isNotEmpty();
@@ -199,7 +199,7 @@ class DiceParserAdapterTest {
 
     @Test
     void roll_plus3d6() {
-        EmbedDefinition res = underTest.roll("+3d6", null);
+        EmbedDefinition res = underTest.answerRollWithGivenLabel("+3d6", null);
 
         assertThat(res.getFields()).hasSize(0);
         assertThat(res.getDescription()).isNotEmpty();
@@ -208,7 +208,7 @@ class DiceParserAdapterTest {
 
     @Test
     void roll_3x3d6Label() {
-        EmbedDefinition res = underTest.roll("3x[3d6]", "Label");
+        EmbedDefinition res = underTest.answerRollWithGivenLabel("3x[3d6]", "Label");
 
         assertThat(res.getFields()).hasSize(3);
         assertThat(res.getDescription()).isNull();
@@ -217,7 +217,7 @@ class DiceParserAdapterTest {
 
     @Test
     void roll_3d6Label() {
-        EmbedDefinition res = underTest.roll("3d6", "Label");
+        EmbedDefinition res = underTest.answerRollWithGivenLabel("3d6", "Label");
 
         assertThat(res.getFields()).hasSize(0);
         assertThat(res.getDescription()).isNotEmpty();
@@ -226,7 +226,7 @@ class DiceParserAdapterTest {
 
     @Test
     void roll_boolean3d6() {
-        EmbedDefinition res = underTest.roll("3d6>3<2?Success:Failure", "3d6 Test");
+        EmbedDefinition res = underTest.answerRollWithGivenLabel("3d6>3<2?Success:Failure", "3d6 Test");
 
         assertThat(res.getFields()).hasSize(0);
         assertThat(res.getDescription()).isNotEmpty();
@@ -235,7 +235,7 @@ class DiceParserAdapterTest {
 
     @Test
     void roll_overflow() {
-        EmbedDefinition res = underTest.roll("2147483647+1", "Label");
+        EmbedDefinition res = underTest.answerRollWithGivenLabel("2147483647+1", "Label");
 
         assertThat(res.getFields()).hasSize(0);
         assertThat(res.getDescription()).isNotEmpty();
@@ -245,7 +245,7 @@ class DiceParserAdapterTest {
 
     @Test
     void roll_overflow_multiple() {
-        EmbedDefinition res = underTest.roll("3x[2147483647+1]", "Label");
+        EmbedDefinition res = underTest.answerRollWithGivenLabel("3x[2147483647+1]", "Label");
 
         assertThat(res.getFields()).hasSize(0);
         assertThat(res.getDescription()).isEqualTo("Executing '3x[2147483647+1]' resulting in: integer overflow");
@@ -254,7 +254,7 @@ class DiceParserAdapterTest {
 
     @Test
     void roll_3x3d6Bool() {
-        EmbedDefinition res = underTest.roll("2x[3d6>3<2?Success:Failure]", "3d6 2*Test");
+        EmbedDefinition res = underTest.answerRollWithGivenLabel("2x[3d6>3<2?Success:Failure]", "3d6 2*Test");
 
         assertThat(res.getFields()).hasSize(2);
         assertThat(res.getDescription()).isNull();
@@ -263,7 +263,7 @@ class DiceParserAdapterTest {
 
     @Test
     void roll_multiDiff() {
-        EmbedDefinition res = underTest.roll("2d6&3d10", null);
+        EmbedDefinition res = underTest.answerRollWithGivenLabel("2d6&3d10", null);
 
         assertThat(res.getFields()).hasSize(2);
         assertThat(res.getDescription()).isNull();
@@ -272,7 +272,7 @@ class DiceParserAdapterTest {
 
     @Test
     void roll_multiDiffLabel() {
-        EmbedDefinition res = underTest.roll("2d6&3d10", "Test");
+        EmbedDefinition res = underTest.answerRollWithGivenLabel("2d6&3d10", "Test");
 
         assertThat(res.getFields()).hasSize(2);
         assertThat(res.getFields().get(0).getName()).startsWith("2d6");
@@ -284,7 +284,7 @@ class DiceParserAdapterTest {
 
     @Test
     void roll_multiDiffBoolLabel() {
-        EmbedDefinition res = underTest.roll("2d6>4?a:b&3d10<6?c:d", "Test");
+        EmbedDefinition res = underTest.answerRollWithGivenLabel("2d6>4?a:b&3d10<6?c:d", "Test");
 
         assertThat(res.getFields()).hasSize(2);
         assertThat(res.getFields().get(0).getName()).startsWith("2d6");
