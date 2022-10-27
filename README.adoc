@@ -21,7 +21,7 @@ image:image/example.webp[image]
 * send message (for the dice buttons and results)
 * embed links (display of structured answers)
 
-:warning: *If you can’t see the bots messages*: The link preview in the discord setting must be activated to see the roll results
+WARNING: *If you can’t see the bots messages*: The link preview in the discord setting must be activated to see the roll results
 
 === Example RPG System Commands
 
