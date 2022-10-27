@@ -39,7 +39,7 @@ public class CustomDiceCommandMockTest {
         assertThat(buttonEvent.getActions()).containsExactly(
                 "acknowledge",
                 "editMessage: message:processing ..., buttonValues=",
-                "createAnswer: title=5 ⇒ 5, description=[], fieldValues:, answerChannel:null",
+                "createAnswer: title=5 ⇒ 5, description=, fieldValues:, answerChannel:null",
                 "createButtonMessage: content=Click on a button to roll the dice, buttonValues=1_button",
                 "deleteMessage: 0");
     }
@@ -55,7 +55,7 @@ public class CustomDiceCommandMockTest {
         assertThat(buttonEvent.getActions()).containsExactly(
                 "acknowledge",
                 "editMessage: message:Click on a button to roll the dice, buttonValues=1_button",
-                "createAnswer: title=5 ⇒ 5, description=[], fieldValues:, answerChannel:null",
+                "createAnswer: title=5 ⇒ 5, description=, fieldValues:, answerChannel:null",
                 "createButtonMessage: content=Click on a button to roll the dice, buttonValues=1_button");
     }
 
@@ -72,13 +72,13 @@ public class CustomDiceCommandMockTest {
         assertThat(buttonEvent1.getActions()).containsExactly(
                 "acknowledge",
                 "editMessage: message:Click on a button to roll the dice, buttonValues=1_button",
-                "createAnswer: title=5 ⇒ 5, description=[], fieldValues:, answerChannel:null",
+                "createAnswer: title=5 ⇒ 5, description=, fieldValues:, answerChannel:null",
                 "createButtonMessage: content=Click on a button to roll the dice, buttonValues=1_button");
 
         assertThat(buttonEvent2.getActions()).containsExactly(
                 "acknowledge",
                 "editMessage: message:processing ..., buttonValues=",
-                "createAnswer: title=5 ⇒ 5, description=[], fieldValues:, answerChannel:null",
+                "createAnswer: title=5 ⇒ 5, description=, fieldValues:, answerChannel:null",
                 "createButtonMessage: content=Click on a button to roll the dice, buttonValues=1_button",
                 "deleteMessage: 1");
     }
@@ -94,7 +94,7 @@ public class CustomDiceCommandMockTest {
         assertThat(buttonEvent.getActions()).containsExactly(
                 "acknowledge",
                 "editMessage: message:Click on a button to roll the dice, buttonValues=1_button",
-                "createAnswer: title=5 ⇒ 5, description=[], fieldValues:, answerChannel:2");
+                "createAnswer: title=5 ⇒ 5, description=, fieldValues:, answerChannel:2");
     }
 
     @Test
@@ -110,10 +110,10 @@ public class CustomDiceCommandMockTest {
         assertThat(buttonEvent1.getActions()).containsExactly(
                 "acknowledge",
                 "editMessage: message:Click on a button to roll the dice, buttonValues=1_button",
-                "createAnswer: title=5 ⇒ 5, description=[], fieldValues:, answerChannel:2");
+                "createAnswer: title=5 ⇒ 5, description=, fieldValues:, answerChannel:2");
         assertThat(buttonEvent2.getActions()).containsExactly(
                 "acknowledge",
                 "editMessage: message:Click on a button to roll the dice, buttonValues=1_button",
-                "createAnswer: title=5 ⇒ 5, description=[], fieldValues:, answerChannel:2");
+                "createAnswer: title=5 ⇒ 5, description=, fieldValues:, answerChannel:2");
     }
 }
