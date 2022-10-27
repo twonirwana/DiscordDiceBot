@@ -93,13 +93,11 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
     @Override
     protected @NonNull List<CommandDefinitionOption> getStartOptions() {
         return List.of(CommandDefinitionOption.builder()
-                        .name(BUTTONS_COMMAND_OPTIONS_ID)
-                        .description("Define one or more buttons separated by ';'")
-                        .type(CommandDefinitionOption.Type.STRING)
-                        .required(true)
-                        .build(),
-                DICE_SYSTEM_COMMAND_OPTION);
-
+                .name(BUTTONS_COMMAND_OPTIONS_ID)
+                .description("Define one or more buttons separated by ';'")
+                .type(CommandDefinitionOption.Type.STRING)
+                .required(true)
+                .build());
     }
 
     @Override
@@ -138,8 +136,7 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
                 .map(ButtonIdAndExpression::getExpression)
                 .distinct()
                 .collect(Collectors.toList());
-        DiceParserSystem diceParserSystem = getDiceParserSystemFromStartOption(options);
-        return diceSystemAdapter.validateListOfExpressions(diceExpressionWithOptionalLabel, "/custom_dice help", diceParserSystem);
+        return diceSystemAdapter.validateListOfExpressions(diceExpressionWithOptionalLabel, "/custom_dice help", DiceParserSystem.DICE_EVALUATOR);
 
     }
 
@@ -164,10 +161,7 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
             return getConfigOptionStringList(getButtonsFromCommandOption(options), getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null),
                     DiceParserSystem.DICEROLL_PARSER);
         }
-
-        DiceParserSystem diceParserSystem = getDiceParserSystemFromStartOption(options);
-
-        return getConfigOptionStringList(getButtonsFromCommandOption(options), getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null), diceParserSystem);
+        return getConfigOptionStringList(getButtonsFromCommandOption(options), getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null), DiceParserSystem.DICE_EVALUATOR);
     }
 
     @VisibleForTesting

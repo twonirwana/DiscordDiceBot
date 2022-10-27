@@ -200,9 +200,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
                         .required(true)
                         .description("Expression")
                         .type(CommandDefinitionOption.Type.STRING)
-                        .build(),
-                DICE_SYSTEM_COMMAND_OPTION
-        );
+                        .build());
     }
 
     @Override
@@ -227,8 +225,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     protected @NonNull CustomParameterConfig getConfigFromStartOptions(@NonNull CommandInteractionOption options) {
         String baseExpression = options.getStringSubOptionWithName(EXPRESSION_OPTION).orElse("");
         Optional<Long> answerTargetChannelId = getAnswerTargetChannelIdFromStartCommandOption(options);
-        DiceParserSystem diceParserSystem = getDiceParserSystemFromStartOption(options);
-        return new CustomParameterConfig(answerTargetChannelId.orElse(null), baseExpression, diceParserSystem);
+        return new CustomParameterConfig(answerTargetChannelId.orElse(null), baseExpression, DiceParserSystem.DICE_EVALUATOR);
     }
 
     @Override

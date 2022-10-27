@@ -199,7 +199,7 @@ class CustomDiceCommandTest {
     void getStartOptions() {
         List<CommandDefinitionOption> res = underTest.getStartOptions();
 
-        assertThat(res.stream().map(CommandDefinitionOption::getName)).containsExactly("buttons", "version");
+        assertThat(res.stream().map(CommandDefinitionOption::getName)).containsExactly("buttons");
     }
 
     @Test
@@ -343,7 +343,7 @@ class CustomDiceCommandTest {
 
         verify(event).checkPermissions();
         verify(event).getCommandString();
-        verify(event, times(1)).getOption(any());
+        verify(event, times(2)).getOption(any());
         verify(event).reply(any());
         verify(event).createButtonMessage(MessageDefinition.builder()
                 .content("Click on a button to roll the dice")

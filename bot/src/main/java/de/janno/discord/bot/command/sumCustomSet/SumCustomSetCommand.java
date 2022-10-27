@@ -148,9 +148,7 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
                         .description("Always sum the results of the dice expressions")
                         .type(CommandDefinitionOption.Type.BOOLEAN)
                         .required(false)
-                        .build(),
-                DICE_SYSTEM_COMMAND_OPTION);
-
+                        .build());
     }
 
 
@@ -351,9 +349,8 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
         for (String button : buttons.split(";")) {
             builder.add(new ButtonIdAndExpression(idCounter++ + "_button", button));
         }
-        DiceParserSystem diceParserSystem = getDiceParserSystemFromStartOption(options);
         boolean alwaysSumResults = options.getBooleanSubOptionWithName(ALWAYS_SUM_RESULTS_COMMAND_OPTIONS_ID).orElse(true);
-        return getConfigOptionStringList(builder.build(), getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null), diceParserSystem, alwaysSumResults);
+        return getConfigOptionStringList(builder.build(), getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null), DiceParserSystem.DICE_EVALUATOR, alwaysSumResults);
 
     }
 

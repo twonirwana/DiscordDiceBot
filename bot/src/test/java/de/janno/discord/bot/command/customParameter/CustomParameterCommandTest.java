@@ -185,7 +185,7 @@ class CustomParameterCommandTest {
     void getStartOptions() {
         List<CommandDefinitionOption> res = underTest.getStartOptions();
 
-        assertThat(res.stream().map(CommandDefinitionOption::getName)).containsExactly("expression", "version");
+        assertThat(res.stream().map(CommandDefinitionOption::getName)).containsExactly("expression");
     }
 
     @Test

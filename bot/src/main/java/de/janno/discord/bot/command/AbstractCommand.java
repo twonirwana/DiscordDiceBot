@@ -5,7 +5,6 @@ import com.google.common.base.Stopwatch;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import de.janno.discord.bot.BotMetrics;
-import de.janno.discord.bot.dice.DiceParserSystem;
 import de.janno.discord.bot.persistance.MessageDataDAO;
 import de.janno.discord.bot.persistance.MessageDataDTO;
 import de.janno.discord.connector.api.*;
@@ -14,7 +13,6 @@ import de.janno.discord.connector.api.message.EmbedDefinition;
 import de.janno.discord.connector.api.message.MessageDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinitionOption;
-import de.janno.discord.connector.api.slash.CommandDefinitionOptionChoice;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -38,17 +36,6 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
             .name(ANSWER_TARGET_CHANNEL_OPTION)
             .description("The channel where the answer will be given")
             .type(CommandDefinitionOption.Type.CHANNEL)
-            .build();
-    protected static final String DICE_PARSER_VERSION_OPTION = "version";
-    protected static final String DICE_PARSER_V1 = "legacy";
-    protected static final String DICE_PARSER_V2 = "current";
-
-    protected static final CommandDefinitionOption DICE_SYSTEM_COMMAND_OPTION = CommandDefinitionOption.builder()
-            .name(DICE_PARSER_VERSION_OPTION)
-            .description("Dice expression version")
-            .type(CommandDefinitionOption.Type.STRING)
-            .choice(CommandDefinitionOptionChoice.builder().name(DICE_PARSER_V1).value(DICE_PARSER_V1).build())
-            .choice(CommandDefinitionOptionChoice.builder().name(DICE_PARSER_V2).value(DICE_PARSER_V2).build())
             .build();
 
     protected final MessageDataDAO messageDataDAO;
@@ -263,11 +250,6 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
         return !Objects.equals(input, filterId);
     }
 
-    protected DiceParserSystem getDiceParserSystemFromStartOption(@NonNull CommandInteractionOption options) {
-        String diceParserVersion = options.getStringSubOptionWithName(DICE_PARSER_VERSION_OPTION).orElse(DICE_PARSER_V2);
-        return DICE_PARSER_V1.equals(diceParserVersion) ? DiceParserSystem.DICEROLL_PARSER : DiceParserSystem.DICE_EVALUATOR;
-    }
-
     @Override
     public Mono<Void> handleSlashCommandEvent(@NonNull SlashEventAdaptor event) {
         Optional<String> checkPermissions = event.checkPermissions();
@@ -276,7 +258,12 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
         }
 
         String commandString = event.getCommandString();
-        Optional<CommandInteractionOption> startOption = getStartOptionIds().stream().map(event::getOption).filter(Optional::isPresent).map(Optional::get).findFirst();
+        Optional<CommandInteractionOption> startOption = getStartOptionIds().stream()
+                .sorted() //for deterministic tests
+                .map(event::getOption)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .findFirst();
         if (startOption.isPresent()) {
             CommandInteractionOption options = startOption.get();
 
