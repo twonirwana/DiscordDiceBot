@@ -557,7 +557,6 @@ class SumCustomSetCommandTest {
         underTest.updateCurrentMessageStateData(channelId, messageId, config, state);
 
         MessageDataDTO loaded = messageDataDAO.getDataForMessage(channelId, messageId).orElseThrow();
-        System.out.println(loaded);
 
         ConfigAndState<SumCustomSetConfig, SumCustomSetStateData> configAndState = underTest.deserializeAndUpdateState(loaded, "1_button", "testUser");
         assertThat(configAndState.getConfig()).isEqualTo(config);
@@ -592,6 +591,39 @@ class SumCustomSetCommandTest {
                 new ButtonIdLabelAndDiceExpression("1_button", "Label", "+1d6"),
                 new ButtonIdLabelAndDiceExpression("2_button", "+2d4", "+2d4")
         ), DiceParserSystem.DICEROLL_PARSER, true));
+        assertThat(configAndState.getConfigUUID()).isEqualTo(configUUID);
+        assertThat(configAndState.getState().getData()).isEqualTo(new SumCustomSetStateData(ImmutableList.of("2d4", "+1d6"), "testUser"));
+    }
+
+    @Test
+    void deserialization() {
+        UUID configUUID = UUID.randomUUID();
+        MessageDataDTO savedData = new MessageDataDTO(configUUID, 1L, 1660644934298L, 1660644934298L, "sum_custom_set", "SumCustomSetConfig", """
+                ---
+                answerTargetChannelId: 123
+                labelAndExpression:
+                - buttonId: "1_button"
+                  label: "Label"
+                  diceExpression: "+1d6"
+                - buttonId: "2_button"
+                  label: "+2d4"
+                  diceExpression: "+2d4"
+                diceParserSystem: "DICE_EVALUATOR"
+                alwaysSumResult: true
+                """,
+                "SumCustomSetStateData", """
+                ---
+                diceExpressions:
+                - "2d4"
+                lockedForUserName: "testUser"
+                """);
+
+
+        ConfigAndState<SumCustomSetConfig, SumCustomSetStateData> configAndState = underTest.deserializeAndUpdateState(savedData, "1_button", "testUser");
+        assertThat(configAndState.getConfig()).isEqualTo(new SumCustomSetConfig(123L, ImmutableList.of(
+                new ButtonIdLabelAndDiceExpression("1_button", "Label", "+1d6"),
+                new ButtonIdLabelAndDiceExpression("2_button", "+2d4", "+2d4")
+        ), DiceParserSystem.DICE_EVALUATOR, true));
         assertThat(configAndState.getConfigUUID()).isEqualTo(configUUID);
         assertThat(configAndState.getState().getData()).isEqualTo(new SumCustomSetStateData(ImmutableList.of("2d4", "+1d6"), "testUser"));
     }
