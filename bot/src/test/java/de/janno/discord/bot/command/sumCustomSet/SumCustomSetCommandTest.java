@@ -27,6 +27,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -178,7 +179,7 @@ class SumCustomSetCommandTest {
         State<SumCustomSetStateData> res = underTest.getStateFromEvent(event);
 
         //invalid expression but roll is not possible
-        assertThat(res).isEqualTo(new State<>("1_button", new SumCustomSetStateData(ImmutableList.of("asdfasfdasf","+1d6"), "user1")));
+        assertThat(res).isEqualTo(new State<>("1_button", new SumCustomSetStateData(ImmutableList.of("asdfasfdasf", "+1d6"), "user1")));
     }
 
     @Test
@@ -342,6 +343,97 @@ class SumCustomSetCommandTest {
     }
 
     @Test
+    void getStartOptionsValidationMessage_valid() {
+        CommandInteractionOption option = CommandInteractionOption.builder()
+                .name("start")
+                .option(CommandInteractionOption.builder()
+                        .name("buttons")
+                        .stringValue("1d6@Label;2d4")
+                        .build())
+                .build();
+
+        Optional<String> res = underTest.getStartOptionsValidationMessage(option);
+
+        assertThat(res).isEmpty();
+    }
+
+    @Test
+    void getStartOptionsValidationMessage_invalid() {
+        CommandInteractionOption option = CommandInteractionOption.builder()
+                .name("start")
+                .option(CommandInteractionOption.builder()
+                        .name("buttons")
+                        .stringValue("1d6@Label;2d4;2d6*10")
+                        .build())
+                .build();
+
+        Optional<String> res = underTest.getStartOptionsValidationMessage(option);
+
+        assertThat(res).contains("The following expression is invalid: '2d6*10'. The error is: Operator '*' requires as left operand a single integer but was '[0, 0]'. Use /sum_custom_set help to get more information on how to use the command.");
+    }
+
+    @Test
+    void getStartOptionsValidationMessageLegacy_valid() {
+        CommandInteractionOption option = CommandInteractionOption.builder()
+                .name("legacy_start")
+                .option(CommandInteractionOption.builder()
+                        .name("1_button")
+                        .stringValue("1d6@Label")
+                        .build())
+                .option(CommandInteractionOption.builder()
+                        .name("2_button")
+                        .stringValue("2d4")
+                        .build())
+                .build();
+
+        Optional<String> res = underTest.getStartOptionsValidationMessage(option);
+
+        assertThat(res).isEmpty();
+    }
+
+    @Test
+    void getStartOptionsValidationMessageLegacy_invalid() {
+        CommandInteractionOption option = CommandInteractionOption.builder()
+                .name("legacy_start")
+                .option(CommandInteractionOption.builder()
+                        .name("1_button")
+                        .stringValue("1d6@Label")
+                        .build())
+                .option(CommandInteractionOption.builder()
+                        .name("2_button")
+                        .stringValue("2x[2d4]")
+                        .build())
+                .build();
+
+        Optional<String> res = underTest.getStartOptionsValidationMessage(option);
+
+        assertThat(res).contains("The following dice expression is invalid: '2x[2d4]'. Use /sum_custom_set help to get more information on how to use the command.");
+    }
+
+
+    @Test
+    void getConfigValuesFromStartOptions_legacy() {
+        CommandInteractionOption option = CommandInteractionOption.builder()
+                .name("legacy_start")
+                .option(CommandInteractionOption.builder()
+                        .name("1_button")
+                        .stringValue("1d6@Label")
+                        .build())
+                .option(CommandInteractionOption.builder()
+                        .name("2_button")
+                        .stringValue("2d4")
+                        .build())
+                .build();
+        SumCustomSetConfig res = underTest.getConfigFromStartOptions(option);
+        assertThat(res).isEqualTo(new SumCustomSetConfig(null, ImmutableList.of(
+                new ButtonIdLabelAndDiceExpression("1_button", "Label", "+1d6"),
+                new ButtonIdLabelAndDiceExpression("2_button", "+2d4", "+2d4")
+        ), DiceParserSystem.DICEROLL_PARSER, true));
+    }
+
+
+
+    @Test
     void getConfigFromEvent() {
         ButtonEventAdaptor event = mock(ButtonEventAdaptor.class);
         when(event.getAllButtonIds()).thenReturn(ImmutableList.of(
@@ -412,6 +504,14 @@ class SumCustomSetCommandTest {
 
         assertThat(res.stream().map(CommandDefinitionOption::getName)).containsExactly("buttons", "always_sum_result");
     }
+
+    @Test
+    void getLegacyStartOptions() {
+        Collection<CommandDefinitionOption> res = underTest.additionalCommandOptions();
+        assertThat(res.stream().map(CommandDefinitionOption::getName)).containsExactly("legacy_start");
+        assertThat(res.stream().flatMap(o -> o.getOptions().stream()).map(CommandDefinitionOption::getName)).containsExactly("1_button", "2_button", "3_button", "4_button", "5_button", "6_button", "7_button", "8_button", "9_button", "10_button", "11_button", "12_button", "13_button", "14_button", "15_button", "16_button", "17_button", "18_button", "19_button", "20_button", "21_button", "target_channel");
+    }
+
 
     @Test
     void getStateFromEvent() {

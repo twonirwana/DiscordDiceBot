@@ -31,6 +31,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -203,6 +204,13 @@ class CustomDiceCommandTest {
     }
 
     @Test
+    void getLegacyStartOptions() {
+        Collection<CommandDefinitionOption> res = underTest.additionalCommandOptions();
+        assertThat(res.stream().map(CommandDefinitionOption::getName)).containsExactly("legacy_start");
+        assertThat(res.stream().flatMap(o -> o.getOptions().stream()).map(CommandDefinitionOption::getName)).containsExactly("1_button", "2_button", "3_button", "4_button", "5_button", "6_button", "7_button", "8_button", "9_button", "10_button", "11_button", "12_button", "13_button", "14_button", "15_button", "16_button", "17_button", "18_button", "19_button", "20_button", "21_button", "22_button", "23_button", "24_button", "target_channel");
+    }
+
+    @Test
     void getStateFromEvent() {
         ButtonEventAdaptor event = mock(ButtonEventAdaptor.class);
         when(event.getCustomId()).thenReturn("custom_dice\u00002d6");
@@ -322,7 +330,7 @@ class CustomDiceCommandTest {
     @Test
     void handleSlashCommandEvent() {
         SlashEventAdaptor event = mock(SlashEventAdaptor.class);
-        when(event.getCommandString()).thenReturn("/custom_dice start 1_button:1d6 2_button:1d20@Attack 3_button:3x[3d10]");
+        when(event.getCommandString()).thenReturn("/custom_dice start buttons:1d6;1d20@Attack;3d10,3d10,3d10");
         when(event.getOption("start")).thenReturn(Optional.of(CommandInteractionOption.builder()
                 .name("start")
                 .option(CommandInteractionOption.builder()
@@ -365,6 +373,129 @@ class CustomDiceCommandTest {
 
     }
 
+
+    @Test
+    void handleSlashCommandEvent_legacy() {
+        SlashEventAdaptor event = mock(SlashEventAdaptor.class);
+        when(event.getCommandString()).thenReturn("/custom_dice legacy_start 1_button:1d6 2_button:1d20@Attack 3_button:3x[3d10]");
+        when(event.getOption("legacy_start")).thenReturn(Optional.of(CommandInteractionOption.builder()
+                .name("legacy_start")
+                .option(CommandInteractionOption.builder()
+                        .name("1_button")
+                        .stringValue("1d6")
+                        .build())
+                .option(CommandInteractionOption.builder()
+                        .name("2_button")
+                        .stringValue("1d20@Attack")
+                        .build())
+                .option(CommandInteractionOption.builder()
+                        .name("3_button")
+                        .stringValue("3x[3d10]")
+                        .build())
+                .build()));
+
+        when(event.createButtonMessage(any())).thenReturn(Mono.just(2L));
+        when(event.deleteMessage(anyLong(), anyBoolean())).thenReturn(Mono.just(2L));
+        when(event.getRequester()).thenReturn(Mono.just(new Requester("user", "channel", "guild")));
+        when(event.reply(any())).thenReturn(Mono.just(mock(Void.class)));
+        when(diceMock.detailedRoll(any())).thenAnswer(a -> new DiceParser().detailedRoll(a.getArgument(0)));
+
+        Mono<Void> res = underTest.handleSlashCommandEvent(event);
+        StepVerifier.create(res).verifyComplete();
+
+
+        verify(event).checkPermissions();
+        verify(event).getCommandString();
+        verify(event).getOption(any());
+        verify(event).reply(any());
+        verify(event).createButtonMessage(MessageDefinition.builder()
+                .content("Click on a button to roll the dice")
+                .componentRowDefinitions(ImmutableList.of(ComponentRowDefinition.builder()
+                        .buttonDefinition(ButtonDefinition.builder()
+                                .id("custom_dice1_button")
+                                .label("1d6")
+                                .build())
+                        .buttonDefinition(ButtonDefinition.builder()
+                                .id("custom_dice2_button")
+                                .label("Attack")
+                                .build())
+                        .buttonDefinition(ButtonDefinition.builder()
+                                .id("custom_dice3_button")
+                                .label("3x[3d10]")
+                                .build())
+                        .build()))
+                .build());
+
+    }
+
+
+    @Test
+    void getStartOptionsValidationMessage_valid() {
+        CommandInteractionOption option = CommandInteractionOption.builder()
+                .name("start")
+                .option(CommandInteractionOption.builder()
+                        .name("buttons")
+                        .stringValue("1d6@Label;2d4")
+                        .build())
+                .build();
+
+        Optional<String> res = underTest.getStartOptionsValidationMessage(option);
+
+        assertThat(res).isEmpty();
+    }
+
+    @Test
+    void getStartOptionsValidationMessage_invalid() {
+        CommandInteractionOption option = CommandInteractionOption.builder()
+                .name("start")
+                .option(CommandInteractionOption.builder()
+                        .name("buttons")
+                        .stringValue("1d6@Label;2d4;2d6*10")
+                        .build())
+                .build();
+
+        Optional<String> res = underTest.getStartOptionsValidationMessage(option);
+
+        assertThat(res).contains("The following expression is invalid: '2d6*10'. The error is: Operator '*' requires as left operand a single integer but was '[3, 3]'. Use /custom_dice help to get more information on how to use the command.");
+    }
+
+    @Test
+    void getStartOptionsValidationMessageLegacy_valid() {
+        CommandInteractionOption option = CommandInteractionOption.builder()
+                .name("legacy_start")
+                .option(CommandInteractionOption.builder()
+                        .name("1_button")
+                        .stringValue("1d6@Label")
+                        .build())
+                .option(CommandInteractionOption.builder()
+                        .name("2_button")
+                        .stringValue("2d4")
+                        .build())
+                .build();
+
+        Optional<String> res = underTest.getStartOptionsValidationMessage(option);
+
+        assertThat(res).isEmpty();
+    }
+
+    @Test
+    void getStartOptionsValidationMessageLegacy_invalid() {
+        CommandInteractionOption option = CommandInteractionOption.builder()
+                .name("legacy_start")
+                .option(CommandInteractionOption.builder()
+                        .name("1_button")
+                        .stringValue("1d6@Label")
+                        .build())
+                .option(CommandInteractionOption.builder()
+                        .name("2_button")
+                        .stringValue("2x[2d4]")
+                        .build())
+                .build();
+
+        Optional<String> res = underTest.getStartOptionsValidationMessage(option);
+
+        assertThat(res).contains("The following dice expression is invalid: '2x[2d4]'. Use /custom_dice help to get more information on how to use the command.");
+    }
 
     @Test
     void handleSlashCommandEvent_help() {

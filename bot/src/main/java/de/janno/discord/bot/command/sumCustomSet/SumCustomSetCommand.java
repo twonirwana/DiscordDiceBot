@@ -136,6 +136,16 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
     }
 
     @Override
+    protected @NonNull Optional<String> getStartOptionsValidationMessage(@NonNull CommandInteractionOption options) {
+        List<String> diceExpressionWithOptionalLabel = getButtonsFromCommandInteractionOption(options).stream()
+                .map(ButtonIdAndExpression::getExpression)
+                .distinct()
+                .collect(Collectors.toList());
+        DiceParserSystem diceParserSystem = options.getName().equals(LEGACY_START_ACTION) ? DiceParserSystem.DICEROLL_PARSER : DiceParserSystem.DICE_EVALUATOR;
+        return diceSystemAdapter.validateListOfExpressions(diceExpressionWithOptionalLabel, "/sum_custom_set help", diceParserSystem);
+    }
+
+    @Override
     protected @NonNull List<CommandDefinitionOption> getStartOptions() {
         return List.of(CommandDefinitionOption.builder()
                         .name(BUTTONS_COMMAND_OPTIONS_ID)
@@ -337,11 +347,19 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
 
     @Override
     protected @NonNull SumCustomSetConfig getConfigFromStartOptions(@NonNull CommandInteractionOption options) {
+        List<ButtonIdAndExpression> buttons = getButtonsFromCommandInteractionOption(options);
+        boolean alwaysSumResults = options.getBooleanSubOptionWithName(ALWAYS_SUM_RESULTS_COMMAND_OPTIONS_ID).orElse(true);
+        DiceParserSystem diceParserSystem = LEGACY_START_ACTION.equals(options.getName()) ? DiceParserSystem.DICEROLL_PARSER : DiceParserSystem.DICE_EVALUATOR;
+        Long answerTargetChannelId = getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null);
+        return getConfigOptionStringList(buttons, answerTargetChannelId, diceParserSystem, alwaysSumResults);
+    }
+
+    private List<ButtonIdAndExpression> getButtonsFromCommandInteractionOption(@NonNull CommandInteractionOption options) {
         if (LEGACY_START_ACTION.equals(options.getName())) {
-            return getConfigOptionStringList(LEGACY_DICE_COMMAND_OPTIONS_IDS.stream()
+            return LEGACY_DICE_COMMAND_OPTIONS_IDS.stream()
                     .flatMap(id -> options.getStringSubOptionWithName(id).stream()
                             .map(e -> new ButtonIdAndExpression(id, e)))
-                    .collect(Collectors.toList()), getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null), DiceParserSystem.DICEROLL_PARSER, true);
+                    .toList();
         }
         ImmutableList.Builder<ButtonIdAndExpression> builder = ImmutableList.builder();
         String buttons = options.getStringSubOptionWithName(BUTTONS_COMMAND_OPTIONS_ID).orElseThrow();
@@ -349,9 +367,7 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
         for (String button : buttons.split(";")) {
             builder.add(new ButtonIdAndExpression(idCounter++ + "_button", button));
         }
-        boolean alwaysSumResults = options.getBooleanSubOptionWithName(ALWAYS_SUM_RESULTS_COMMAND_OPTIONS_ID).orElse(true);
-        return getConfigOptionStringList(builder.build(), getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null), DiceParserSystem.DICE_EVALUATOR, alwaysSumResults);
-
+        return builder.build();
     }
 
     @VisibleForTesting

@@ -136,7 +136,8 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
                 .map(ButtonIdAndExpression::getExpression)
                 .distinct()
                 .collect(Collectors.toList());
-        return diceSystemAdapter.validateListOfExpressions(diceExpressionWithOptionalLabel, "/custom_dice help", DiceParserSystem.DICE_EVALUATOR);
+        DiceParserSystem diceParserSystem = options.getName().equals(LEGACY_START_ACTION) ? DiceParserSystem.DICEROLL_PARSER : DiceParserSystem.DICE_EVALUATOR;
+        return diceSystemAdapter.validateListOfExpressions(diceExpressionWithOptionalLabel, "/custom_dice help", diceParserSystem);
 
     }
 
