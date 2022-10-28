@@ -55,7 +55,7 @@ Some example for commands, many more systems can be mapped with commands, please
 
 ==== Traveller
 
-`/sum_custom_set start buttons:2d6;3d6k2@Boon;3d6l2@Bane;1d6;+1;+2;+3;+4;-1;-2;-3;-4`
+`/sum_custom_set start buttons:+2d6;+(3d6k2)@Boon;+(3d6l2)@Bane;+1d6;+1;+2;+3;+4;-1;-2;-3;-4`
 
 === Commands
 
@@ -189,7 +189,7 @@ Please let me know if another system is needed.
 
 image:image/sum_custom_set.webp[image]
 
-Use the slash command `/sum_custom_set start buttons:1d6;1d20;+1;-1` to create a message with a custom dice set.
+Use the slash command `/sum_custom_set start buttons:+1d6;+1d20;+1@Boon;-1@Bane` to create a message with a custom dice set.
 In this case it will create four buttons: `1d6`,`1d20`,`+1@Boon` and `-1@Bane`.
 The buttons can be created with the dice notation, see the section <<Dice Expression Notation>> and are seperated by `;`.
 The text after an optional `@` will be used as label for the botton.
@@ -264,5 +264,7 @@ see https://github.com/twonirwana/DiceEvaluator for more details.
 |sort desc |`desc(<expression1>, <expression2> ...)` |`desc(4d6)` |sorts all elements descending of one or more inner expressions. Text is compared alphabetically
 |chancel |`chancel(<expression>, listA, listB)` |`chancel(8d10, 10, 1)` |the elements of listA and listB (can also be single elements) chancel each other.
 |double |`double(<expression>, list)` |`double(8d10,10)` |every element in the expression that is equal a element in the list will be duplicated
-|ifEqual |`ifEqual(<expression>,<expression>,<true>,<false>)` |`ifEqual(1d6,6,'six','no six')` |compares the elements of two `<expression>` and if they are equal return the `<true>` expression or else the `<false>` expression
+|if equal |`ifE(<expression>,<expression>,<true>,<false>)` |`ifE(1d6,6,'six','no six')` |compares the elements of two `<expression>` and if they are equal return the `<true>` expression or else the `<false>` expression
+|if greater |`ifG(<expression>,<expression>,<true>,<false>)` |`ifG(1d6,4,'5 or 6','less')` |compares the elements of two `<expression>` and if the left is greater than the right then return the `<true>` expression or else the `<false>` expression. Both expression need to produce a single number
+|if lesser |`ifL(<expression>,<expression>,<true>,<false>)` |`ifL(1d6,3,'1 or 2','more')` |compares the elements of two `<expression>` and if the left is lesser than the right then return the `<true>` expression or else the `<false>` expression. Both expression need to produce a single number
 |===

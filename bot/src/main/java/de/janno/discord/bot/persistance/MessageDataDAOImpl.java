@@ -58,6 +58,7 @@ public class MessageDataDAOImpl implements MessageDataDAO {
                     ALTER TABLE MESSAGE_DATA ADD COLUMN IF NOT EXISTS GUILD_ID BIGINT;
                     CREATE INDEX IF NOT EXISTS MESSAGE_DATA_GUILD ON MESSAGE_DATA (GUILD_ID);
                     CREATE INDEX IF NOT EXISTS MESSAGE_DATA_GUILD_CHANNEl ON MESSAGE_DATA (GUILD_ID, CHANNEL_ID);
+                    CREATE INDEX IF NOT EXISTS MESSAGE_DATA_CREATION_DATE_GUILD_CHANNEl ON MESSAGE_DATA (CREATION_DATE, GUILD_ID);
                     """);
         } catch (SQLException e) {
             throw new RuntimeException(e);

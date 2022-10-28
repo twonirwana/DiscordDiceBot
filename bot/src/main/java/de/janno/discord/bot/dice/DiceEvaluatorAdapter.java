@@ -55,8 +55,8 @@ public class DiceEvaluatorAdapter {
         return roll.getElements().stream().allMatch(r -> RollElement.NO_COLOR.equals(r.getColor()));
     }
 
-    private static String getDetailResult(Roll result) {
-        return result.getRandomElementsString();
+    private static String getDetailResult(@NonNull Roll result, @Nullable String expression) {
+        return Optional.ofNullable(expression).map(e -> "%s throws %s".formatted(e, result.getRandomElementsString())).orElse(result.getRandomElementsString());
     }
 
     public static String getHelp() {
@@ -84,15 +84,15 @@ public class DiceEvaluatorAdapter {
         try {
             List<Roll> rolls = diceEvaluator.evaluate(diceExpression);
             if (rolls.size() == 1) {
-                String title = optionalLabel.map(l -> String.format("%s: %s", l, diceExpression)).orElse(diceExpression);
+                String title = optionalLabel.orElse(diceExpression);
                 answer = EmbedDefinition.builder()
                         .title("%s ⇒ %s".formatted(title, getTitleResult(rolls.get(0), sumUp)))
-                        .description(getDetailResult(rolls.get(0)))
+                        .description(getDetailResult(rolls.get(0), optionalLabel.map(l -> diceExpression).orElse(null)))
                         .build();
             } else {
                 List<EmbedDefinition.Field> fields = rolls.stream()
                         .limit(25) //max number of embedFields
-                        .map(r -> new EmbedDefinition.Field(r.getExpression() + " ⇒ " + getTitleResult(r, sumUp), getDetailResult(r), false))
+                        .map(r -> new EmbedDefinition.Field("%s ⇒ %s".formatted(r.getExpression(), getTitleResult(r, sumUp)), getDetailResult(r, null), false))
                         .collect(ImmutableList.toImmutableList());
                 answer = EmbedDefinition.builder()
                         .title(optionalLabel.orElse(diceExpression))

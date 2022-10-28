@@ -178,8 +178,8 @@ class CustomDiceCommandTest {
         EmbedDefinition res = underTest.getAnswer(new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Label", "1d6")), DiceParserSystem.DICE_EVALUATOR), new State<>("1_button", StateData.empty())).orElseThrow();
 
         assertThat(res.getFields()).hasSize(0);
-        assertThat(res.getTitle()).isEqualTo("Label: 1d6 ⇒ 3");
-        assertThat(res.getDescription()).isEqualTo("3");
+        assertThat(res.getTitle()).isEqualTo("Label ⇒ 3");
+        assertThat(res.getDescription()).isEqualTo("1d6 throws 3");
     }
 
     @Test
