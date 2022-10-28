@@ -456,7 +456,7 @@ class CustomDiceCommandTest {
 
         Optional<String> res = underTest.getStartOptionsValidationMessage(option);
 
-        assertThat(res).contains("The following expression is invalid: '2d6*10'. The error is: Operator '*' requires as left operand a single integer but was '[3, 3]'. Use /custom_dice help to get more information on how to use the command.");
+        assertThat(res).contains("The following expression is invalid: '2d6*10'. The error is: '*' requires as left input a single integer but was '[3, 3]'. Use /custom_dice help to get more information on how to use the command.");
     }
 
     @Test
