@@ -32,11 +32,12 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
     protected static final String ACTION_HELP = "help";
     protected static final String ANSWER_TARGET_CHANNEL_OPTION = "target_channel";
 
-    private static final CommandDefinitionOption ANSWER_TARGET_CHANNEL_COMMAND_OPTION = CommandDefinitionOption.builder()
+    protected static final CommandDefinitionOption ANSWER_TARGET_CHANNEL_COMMAND_OPTION = CommandDefinitionOption.builder()
             .name(ANSWER_TARGET_CHANNEL_OPTION)
             .description("The channel where the answer will be given")
             .type(CommandDefinitionOption.Type.CHANNEL)
             .build();
+
     protected final MessageDataDAO messageDataDAO;
 
     protected AbstractCommand(MessageDataDAO messageDataDAO) {
@@ -48,6 +49,10 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
             return Long.parseLong(optionArray[index]);
         }
         return null;
+    }
+
+    protected Set<String> getStartOptionIds() {
+        return Set.of(ACTION_START);
     }
 
     protected Optional<Long> getAnswerTargetChannelIdFromStartCommandOption(@NonNull CommandInteractionOption options) {
@@ -79,7 +84,12 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
                         .description("Help")
                         .type(CommandDefinitionOption.Type.SUB_COMMAND)
                         .build())
+                .options(additionalCommandOptions())
                 .build();
+    }
+
+    protected Collection<CommandDefinitionOption> additionalCommandOptions() {
+        return Collections.emptyList();
     }
 
     protected Optional<List<ComponentRowDefinition>> getCurrentMessageComponentChange(C config, State<S> state) {
@@ -248,7 +258,12 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
         }
 
         String commandString = event.getCommandString();
-        Optional<CommandInteractionOption> startOption = event.getOption(ACTION_START);
+        Optional<CommandInteractionOption> startOption = getStartOptionIds().stream()
+                .sorted() //for deterministic tests
+                .map(event::getOption)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .findFirst();
         if (startOption.isPresent()) {
             CommandInteractionOption options = startOption.get();
 

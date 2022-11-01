@@ -31,7 +31,7 @@ public class MessageComponentConverter {
         Preconditions.checkArgument(invalidIds.isEmpty(), String.format("The following ids are invalid: %s", invalidIds));
         return rows.stream()
                 .map(c -> ActionRow.of(c.getButtonDefinitions().stream()
-                        .map(b -> new ButtonImpl(b.getId(), b.getLabel(), ButtonStyle.fromKey(b.getStyle().getValue()), false, null))
+                        .map(b -> new ButtonImpl(b.getId(), b.getLabel(), ButtonStyle.fromKey(b.getStyle().getValue()), b.isDisabled(), null))
                         .collect(Collectors.toList()))
                 ).toArray(LayoutComponent[]::new);
     }

@@ -40,6 +40,13 @@ public class CommandInteractionOption {
                 .map(CommandInteractionOption::getStringValue);
     }
 
+    public Optional<Boolean> getBooleanSubOptionWithName(@NonNull String name) {
+        return options.stream()
+                .filter(o -> name.equals(o.getName()))
+                .findFirst()
+                .map(CommandInteractionOption::getBooleanValue);
+    }
+
     public Optional<Long> getChannelIdSubOptionWithName(@NonNull String name) {
         return options.stream()
                 .filter(o -> name.equals(o.getName()))

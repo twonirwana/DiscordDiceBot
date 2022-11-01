@@ -5,7 +5,7 @@ import de.janno.discord.bot.command.ButtonIdLabelAndDiceExpression;
 import de.janno.discord.bot.command.ConfigAndState;
 import de.janno.discord.bot.command.State;
 import de.janno.discord.bot.dice.Dice;
-import de.janno.discord.bot.dice.DiceParserHelper;
+import de.janno.discord.bot.dice.DiceParserSystem;
 import de.janno.discord.bot.persistance.MessageDataDAO;
 import de.janno.discord.bot.persistance.MessageDataDAOImpl;
 import de.janno.discord.bot.persistance.MessageDataDTO;
@@ -18,7 +18,6 @@ import de.janno.discord.connector.api.message.MessageDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinitionOption;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import dev.diceroll.parser.NDice;
-import dev.diceroll.parser.NumberExpression;
 import dev.diceroll.parser.ResultTree;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,6 +27,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -46,7 +46,7 @@ class SumCustomSetCommandTest {
             new ButtonIdLabelAndDiceExpression("2_button", "3d6", "add 3d6"),
             new ButtonIdLabelAndDiceExpression("3_button", "4", "4"),
             new ButtonIdLabelAndDiceExpression("4_button", "2d10min10", "min10")
-    ));
+    ), DiceParserSystem.DICE_EVALUATOR, true);
 
     Dice diceMock;
 
@@ -62,7 +62,7 @@ class SumCustomSetCommandTest {
     @BeforeEach
     void setup() {
         diceMock = mock(Dice.class);
-        underTest = new SumCustomSetCommand(messageDataDAO, new DiceParserHelper(diceMock));
+        underTest = new SumCustomSetCommand(messageDataDAO, diceMock, (minExcl, maxIncl) -> 0);
     }
 
 
@@ -175,7 +175,11 @@ class SumCustomSetCommandTest {
         when(event.getAllButtonIds()).thenReturn(ImmutableList.of(new ButtonEventAdaptor.LabelAndCustomId("+1d6", "sum_custom_set\u0000+1d6")));
         when(event.getInvokingGuildMemberName()).thenReturn("user1");
         when(diceMock.detailedRoll(any())).thenThrow(new RuntimeException("test"));
-        assertThat(underTest.getStateFromEvent(event)).isEqualTo(new State<>("no action", new SumCustomSetStateData(ImmutableList.of(), null)));
+
+        State<SumCustomSetStateData> res = underTest.getStateFromEvent(event);
+
+        //invalid expression but roll is not possible
+        assertThat(res).isEqualTo(new State<>("1_button", new SumCustomSetStateData(ImmutableList.of("asdfasfdasf", "+1d6"), "user1")));
     }
 
     @Test
@@ -325,6 +329,93 @@ class SumCustomSetCommandTest {
         CommandInteractionOption option = CommandInteractionOption.builder()
                 .name("start")
                 .option(CommandInteractionOption.builder()
+                        .name("buttons")
+                        .stringValue("1d6@Label;2d4")
+                        .build())
+                .build();
+
+        SumCustomSetConfig res = underTest.getConfigFromStartOptions(option);
+
+        assertThat(res).isEqualTo(new SumCustomSetConfig(null, ImmutableList.of(
+                new ButtonIdLabelAndDiceExpression("1_button", "Label", "1d6"),
+                new ButtonIdLabelAndDiceExpression("2_button", "2d4", "2d4")
+        ), DiceParserSystem.DICE_EVALUATOR, true));
+    }
+
+    @Test
+    void getStartOptionsValidationMessage_valid() {
+        CommandInteractionOption option = CommandInteractionOption.builder()
+                .name("start")
+                .option(CommandInteractionOption.builder()
+                        .name("buttons")
+                        .stringValue("1d6@Label;2d4")
+                        .build())
+                .build();
+
+        Optional<String> res = underTest.getStartOptionsValidationMessage(option);
+
+        assertThat(res).isEmpty();
+    }
+
+    @Test
+    void getStartOptionsValidationMessage_invalid() {
+        CommandInteractionOption option = CommandInteractionOption.builder()
+                .name("start")
+                .option(CommandInteractionOption.builder()
+                        .name("buttons")
+                        .stringValue("1d6@Label;2d4;2d6*10")
+                        .build())
+                .build();
+
+        Optional<String> res = underTest.getStartOptionsValidationMessage(option);
+
+        assertThat(res).contains("The following expression is invalid: '2d6*10'. The error is: '*' requires as left input a single integer but was '[0, 0]'. Use /sum_custom_set help to get more information on how to use the command.");
+    }
+
+    @Test
+    void getStartOptionsValidationMessageLegacy_valid() {
+        CommandInteractionOption option = CommandInteractionOption.builder()
+                .name("legacy_start")
+                .option(CommandInteractionOption.builder()
+                        .name("1_button")
+                        .stringValue("1d6@Label")
+                        .build())
+                .option(CommandInteractionOption.builder()
+                        .name("2_button")
+                        .stringValue("2d4")
+                        .build())
+                .build();
+
+        Optional<String> res = underTest.getStartOptionsValidationMessage(option);
+
+        assertThat(res).isEmpty();
+    }
+
+    @Test
+    void getStartOptionsValidationMessageLegacy_invalid() {
+        CommandInteractionOption option = CommandInteractionOption.builder()
+                .name("legacy_start")
+                .option(CommandInteractionOption.builder()
+                        .name("1_button")
+                        .stringValue("1d6@Label")
+                        .build())
+                .option(CommandInteractionOption.builder()
+                        .name("2_button")
+                        .stringValue("2x[2d4]")
+                        .build())
+                .build();
+
+        Optional<String> res = underTest.getStartOptionsValidationMessage(option);
+
+        assertThat(res).contains("The following dice expression is invalid: '2x[2d4]'. Use /sum_custom_set help to get more information on how to use the command.");
+    }
+
+
+    @Test
+    void getConfigValuesFromStartOptions_legacy() {
+        CommandInteractionOption option = CommandInteractionOption.builder()
+                .name("legacy_start")
+                .option(CommandInteractionOption.builder()
                         .name("1_button")
                         .stringValue("1d6@Label")
                         .build())
@@ -337,50 +428,10 @@ class SumCustomSetCommandTest {
         assertThat(res).isEqualTo(new SumCustomSetConfig(null, ImmutableList.of(
                 new ButtonIdLabelAndDiceExpression("1_button", "Label", "+1d6"),
                 new ButtonIdLabelAndDiceExpression("2_button", "+2d4", "+2d4")
-        )));
+        ), DiceParserSystem.DICEROLL_PARSER, true));
     }
 
-    @Test
-    void getStartOptionsValidationMessage() {
-        CommandInteractionOption option = CommandInteractionOption.builder()
-                .name("start")
-                .option(CommandInteractionOption.builder()
-                        .name("1_button")
-                        .stringValue("1d6@Label")
-                        .build())
-                .build();
-        Optional<String> res = underTest.getStartOptionsValidationMessage(option);
 
-        assertThat(res).isEmpty();
-    }
-
-    @Test
-    void getStartOptionsValidationMessage_multiRoll() {
-        CommandInteractionOption option = CommandInteractionOption.builder()
-                .name("start")
-                .option(CommandInteractionOption.builder()
-                        .name("1_button")
-                        .stringValue("3x[2d6]")
-                        .build())
-                .build();
-        Optional<String> res = underTest.getStartOptionsValidationMessage(option);
-
-        assertThat(res).contains("This command doesn't support multiple rolls, the following expression are not allowed: 3x[2d6]");
-    }
-
-    @Test
-    void getStartOptionsValidationMessage_equal() {
-        CommandInteractionOption option = CommandInteractionOption.builder()
-                .name("start")
-                .option(CommandInteractionOption.builder()
-                        .name("1_button")
-                        .stringValue("1d6@∶ test")
-                        .build())
-                .build();
-        Optional<String> res = underTest.getStartOptionsValidationMessage(option);
-
-        assertThat(res).contains("This command doesn't allow '∶ ' in the dice expression and label, the following expression are not allowed: 1d6@∶ test");
-    }
 
     @Test
     void getConfigFromEvent() {
@@ -397,7 +448,7 @@ class SumCustomSetCommandTest {
                 .isEqualTo(new SumCustomSetConfig(null, ImmutableList.of(
                         new ButtonIdLabelAndDiceExpression("1_button", "1d6", "1d6"),
                         new ButtonIdLabelAndDiceExpression("2_button", "Label", "-1d6")
-                )));
+                ), DiceParserSystem.DICEROLL_PARSER, true));
     }
 
     @Test
@@ -415,7 +466,7 @@ class SumCustomSetCommandTest {
                 .isEqualTo(new SumCustomSetConfig(123L, ImmutableList.of(
                         new ButtonIdLabelAndDiceExpression("1_button", "1d6", "1d6"),
                         new ButtonIdLabelAndDiceExpression("2_button", "Label", "-1d6")
-                )));
+                ), DiceParserSystem.DICEROLL_PARSER, true));
     }
 
     @Test
@@ -433,48 +484,34 @@ class SumCustomSetCommandTest {
                 .isEqualTo(new SumCustomSetConfig(null, ImmutableList.of(
                         new ButtonIdLabelAndDiceExpression("1_button", "1d6", "1d6"),
                         new ButtonIdLabelAndDiceExpression("2_button", "Label", "-1d6")
-                )));
+                ), DiceParserSystem.DICEROLL_PARSER, true));
     }
 
 
     @Test
     void rollDice_1d6plus10() {
-        when(diceMock.detailedRoll("1d6+10")).thenReturn(new ResultTree(new NDice(6, 1), 13, ImmutableList.of(
-                new ResultTree(new NDice(6, 1), 3, ImmutableList.of()),
-                new ResultTree(new NumberExpression(10), 10, ImmutableList.of()))));
-        EmbedDefinition res = underTest.getAnswer(defaultConfig, new State<>("roll", new SumCustomSetStateData(ImmutableList.of("+1d6", "+10"), "user1"))).orElseThrow();
+
+        EmbedDefinition res = underTest.getAnswer(defaultConfig, new State<>("roll", new SumCustomSetStateData(ImmutableList.of("1d6", "+", "10"), "user1"))).orElseThrow();
 
         assertThat(res.getFields()).hasSize(0);
-        assertThat(res.getTitle()).isEqualTo("1d6+10 = 13");
-        assertThat(res.getDescription()).isEqualTo("[3, 10]");
+        assertThat(res.getTitle()).isEqualTo("1d6+10 ⇒ 10");
+        assertThat(res.getDescription()).isEqualTo("0");
     }
 
     @Test
     void getStartOptions() {
         List<CommandDefinitionOption> res = underTest.getStartOptions();
 
-        assertThat(res.stream().map(CommandDefinitionOption::getName)).containsExactly("1_button",
-                "2_button",
-                "3_button",
-                "4_button",
-                "5_button",
-                "6_button",
-                "7_button",
-                "8_button",
-                "9_button",
-                "10_button",
-                "11_button",
-                "12_button",
-                "13_button",
-                "14_button",
-                "15_button",
-                "16_button",
-                "17_button",
-                "18_button",
-                "19_button",
-                "20_button",
-                "21_button");
+        assertThat(res.stream().map(CommandDefinitionOption::getName)).containsExactly("buttons", "always_sum_result");
     }
+
+    @Test
+    void getLegacyStartOptions() {
+        Collection<CommandDefinitionOption> res = underTest.additionalCommandOptions();
+        assertThat(res.stream().map(CommandDefinitionOption::getName)).containsExactly("legacy_start");
+        assertThat(res.stream().flatMap(o -> o.getOptions().stream()).map(CommandDefinitionOption::getName)).containsExactly("1_button", "2_button", "3_button", "4_button", "5_button", "6_button", "7_button", "8_button", "9_button", "10_button", "11_button", "12_button", "13_button", "14_button", "15_button", "16_button", "17_button", "18_button", "19_button", "20_button", "21_button", "target_channel");
+    }
+
 
     @Test
     void getStateFromEvent() {
@@ -546,7 +583,7 @@ class SumCustomSetCommandTest {
         StepVerifier.create(res)
                 .verifyComplete();
 
-        verify(buttonEventAdaptor).editMessage("Click the buttons to add dice to the set and then on Roll", null);
+        verify(buttonEventAdaptor).editMessage(eq("Click the buttons to add dice to the set and then on Roll"), notNull());
         verify(buttonEventAdaptor).createButtonMessage(any());
         verify(buttonEventAdaptor).deleteMessage(anyLong(), anyBoolean());
         verify(buttonEventAdaptor).createResultMessageWithEventReference(eq(new EmbedDefinition("1d6 = 3",
@@ -604,9 +641,7 @@ class SumCustomSetCommandTest {
     @Test
     void checkPersistence() {
         MessageDataDAO messageDataDAO = new MessageDataDAOImpl("jdbc:h2:mem:" + this.getClass().getSimpleName(), null, null);
-        DiceParserHelper diceParserHelper = mock(DiceParserHelper.class);
-        when(diceParserHelper.validExpression(any())).thenReturn(true);
-        underTest = new SumCustomSetCommand(messageDataDAO, diceParserHelper);
+        underTest = new SumCustomSetCommand(messageDataDAO, diceMock, (minExcl, maxIncl) -> 0);
 
         long channelId = System.currentTimeMillis();
         long messageId = System.currentTimeMillis();
@@ -614,7 +649,7 @@ class SumCustomSetCommandTest {
         SumCustomSetConfig config = new SumCustomSetConfig(123L, ImmutableList.of(
                 new ButtonIdLabelAndDiceExpression("1_button", "Label", "+1d6"),
                 new ButtonIdLabelAndDiceExpression("2_button", "+2d4", "+2d4")
-        ));
+        ), DiceParserSystem.DICE_EVALUATOR, true);
         State<SumCustomSetStateData> state = new State<>("2_button", new SumCustomSetStateData(ImmutableList.of("+2d4"), "testUser"));
         Optional<MessageDataDTO> toSave = underTest.createMessageDataForNewMessage(configUUID, 1L, channelId, messageId, config, state);
         messageDataDAO.saveMessageData(toSave.orElseThrow());
@@ -623,7 +658,6 @@ class SumCustomSetCommandTest {
 
         MessageDataDTO loaded = messageDataDAO.getDataForMessage(channelId, messageId).orElseThrow();
 
-
         ConfigAndState<SumCustomSetConfig, SumCustomSetStateData> configAndState = underTest.deserializeAndUpdateState(loaded, "1_button", "testUser");
         assertThat(configAndState.getConfig()).isEqualTo(config);
         assertThat(configAndState.getConfigUUID()).isEqualTo(configUUID);
@@ -631,7 +665,7 @@ class SumCustomSetCommandTest {
     }
 
     @Test
-    void deserialization() {
+    void deserialization_legacy() {
         UUID configUUID = UUID.randomUUID();
         MessageDataDTO savedData = new MessageDataDTO(configUUID, 1L, 1660644934298L, 1660644934298L, "sum_custom_set", "SumCustomSetConfig", """
                 ---
@@ -656,7 +690,40 @@ class SumCustomSetCommandTest {
         assertThat(configAndState.getConfig()).isEqualTo(new SumCustomSetConfig(123L, ImmutableList.of(
                 new ButtonIdLabelAndDiceExpression("1_button", "Label", "+1d6"),
                 new ButtonIdLabelAndDiceExpression("2_button", "+2d4", "+2d4")
-        )));
+        ), DiceParserSystem.DICEROLL_PARSER, true));
+        assertThat(configAndState.getConfigUUID()).isEqualTo(configUUID);
+        assertThat(configAndState.getState().getData()).isEqualTo(new SumCustomSetStateData(ImmutableList.of("2d4", "+1d6"), "testUser"));
+    }
+
+    @Test
+    void deserialization() {
+        UUID configUUID = UUID.randomUUID();
+        MessageDataDTO savedData = new MessageDataDTO(configUUID, 1L, 1660644934298L, 1660644934298L, "sum_custom_set", "SumCustomSetConfig", """
+                ---
+                answerTargetChannelId: 123
+                labelAndExpression:
+                - buttonId: "1_button"
+                  label: "Label"
+                  diceExpression: "+1d6"
+                - buttonId: "2_button"
+                  label: "+2d4"
+                  diceExpression: "+2d4"
+                diceParserSystem: "DICE_EVALUATOR"
+                alwaysSumResult: true
+                """,
+                "SumCustomSetStateData", """
+                ---
+                diceExpressions:
+                - "2d4"
+                lockedForUserName: "testUser"
+                """);
+
+
+        ConfigAndState<SumCustomSetConfig, SumCustomSetStateData> configAndState = underTest.deserializeAndUpdateState(savedData, "1_button", "testUser");
+        assertThat(configAndState.getConfig()).isEqualTo(new SumCustomSetConfig(123L, ImmutableList.of(
+                new ButtonIdLabelAndDiceExpression("1_button", "Label", "+1d6"),
+                new ButtonIdLabelAndDiceExpression("2_button", "+2d4", "+2d4")
+        ), DiceParserSystem.DICE_EVALUATOR, true));
         assertThat(configAndState.getConfigUUID()).isEqualTo(configUUID);
         assertThat(configAndState.getState().getData()).isEqualTo(new SumCustomSetStateData(ImmutableList.of("2d4", "+1d6"), "testUser"));
     }

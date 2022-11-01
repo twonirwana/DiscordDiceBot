@@ -50,6 +50,11 @@ public class JdaMetrics {
                 .register(Metrics.globalRegistry);
     }
 
+    public static void startShardCountGauge(JDA discordApi) {
+        Gauge.builder(METRIC_PREFIX + "totalShardCount", () -> discordApi.getShardInfo().getShardTotal())
+                .register(Metrics.globalRegistry);
+    }
+
     public static void startUserCacheGauge(JDA discordApi) {
         Gauge.builder(METRIC_PREFIX + "userCacheSize", () -> discordApi.getUserCache().size())
                 .tag(SHARD_ID, discordApi.getShardInfo().getShardString())

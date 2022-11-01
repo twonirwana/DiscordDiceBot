@@ -33,6 +33,7 @@ public class MessageDataDAOImpl implements MessageDataDAO {
         queryGauge("db.channel.count", "select count (distinct CHANNEL_ID) from MESSAGE_DATA;", connectionPool, Set.of());
         queryGauge("db.guild.count", "select count (distinct GUILD_ID) from MESSAGE_DATA;", connectionPool, Set.of());
         queryGauge("db.guild-null.count", "select count (distinct CHANNEL_ID) from MESSAGE_DATA where GUILD_ID is null;", connectionPool, Set.of());
+        queryGauge("db.guild-30d.active", "select count (distinct GUILD_ID) from MESSAGE_DATA where DATEDIFF(DAY,CURRENT_DATE, CREATION_DATE) <= 30;", connectionPool, Set.of());
 
         try (Connection connection = connectionPool.getConnection()) {
             Statement statement = connection.createStatement();
@@ -57,6 +58,7 @@ public class MessageDataDAOImpl implements MessageDataDAO {
                     ALTER TABLE MESSAGE_DATA ADD COLUMN IF NOT EXISTS GUILD_ID BIGINT;
                     CREATE INDEX IF NOT EXISTS MESSAGE_DATA_GUILD ON MESSAGE_DATA (GUILD_ID);
                     CREATE INDEX IF NOT EXISTS MESSAGE_DATA_GUILD_CHANNEl ON MESSAGE_DATA (GUILD_ID, CHANNEL_ID);
+                    CREATE INDEX IF NOT EXISTS MESSAGE_DATA_CREATION_DATE_GUILD_CHANNEl ON MESSAGE_DATA (CREATION_DATE, GUILD_ID);
                     """);
         } catch (SQLException e) {
             throw new RuntimeException(e);

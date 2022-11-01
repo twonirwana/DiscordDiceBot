@@ -231,6 +231,60 @@ class WelcomeCommandTest {
     }
 
     @Test
+    public void getButtonMessageWithState_diceCalculator() {
+        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(null, new State<>("dice_calculator", StateData.empty()));
+        assertThat(res.map(MessageDefinition::getContent))
+                .contains("Click the buttons to add dice to the set and then on Roll");
+        assertThat(res.map(MessageDefinition::getComponentRowDefinitions)
+                .stream()
+                .flatMap(Collection::stream)
+                .flatMap(s -> s.getButtonDefinitions().stream())
+                .map(ButtonDefinition::getId))
+                .containsExactly("sum_custom_set1_button",
+                        "sum_custom_set2_button",
+                        "sum_custom_set3_button",
+                        "sum_custom_set5_button",
+                        "sum_custom_set6_button",
+                        "sum_custom_set7_button",
+                        "sum_custom_set8_button",
+                        "sum_custom_set9_button",
+                        "sum_custom_set10_button",
+                        "sum_custom_set11_button",
+                        "sum_custom_set12_button",
+                        "sum_custom_set13_button",
+                        "sum_custom_set14_button",
+                        "sum_custom_set15_button",
+                        "sum_custom_set16_button",
+                        "sum_custom_setroll",
+                        "sum_custom_setclear",
+                        "sum_custom_setback");
+        assertThat(res.map(MessageDefinition::getComponentRowDefinitions)
+                .stream()
+                .flatMap(Collection::stream)
+                .flatMap(s -> s.getButtonDefinitions().stream())
+                .map(ButtonDefinition::getLabel))
+                .containsExactly("7",
+                        "8",
+                        "9",
+                        "+",
+                        "-",
+                        "4",
+                        "5",
+                        "6",
+                        "d",
+                        "k",
+                        "1",
+                        "2",
+                        "3",
+                        "0",
+                        "l",
+                        "Roll",
+                        "Clear",
+                        "Back");
+
+    }
+
+    @Test
     public void getButtonMessageWithState_other() {
         Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(null, new State<>("-", StateData.empty()));
         assertThat(res)
@@ -254,6 +308,7 @@ class WelcomeCommandTest {
                 .containsExactly("welcomefate",
                         "welcomednd5",
                         "welcomenWoD",
+                        "welcomedice_calculator",
                         "welcomeoWoD",
                         "welcomeshadowrun",
                         "welcomecoin");
@@ -261,7 +316,7 @@ class WelcomeCommandTest {
                 .stream()
                 .flatMap(s -> s.getButtonDefinitions().stream())
                 .map(ButtonDefinition::getLabel))
-                .containsExactly("Fate", "D&D5e", "nWoD", "oWoD", "Shadowrun", "Coin Toss 🪙");
+                .containsExactly("Fate", "D&D5e", "nWoD", "Dice Calculator", "oWoD", "Shadowrun", "Coin Toss 🪙");
 
     }
 
@@ -272,7 +327,8 @@ class WelcomeCommandTest {
             "nWoD",
             "oWoD",
             "shadowrun",
-            "coin"
+            "coin",
+            "dice_calculator"
     })
     void createMessageDataForNewMessage(String buttonValue) {
         Optional<MessageDataDTO> res = underTest.createMessageDataForNewMessage(UUID.randomUUID(), 1L, 1L, 2L, new Config(null), new State<>(buttonValue, StateData.empty()));

@@ -1,6 +1,7 @@
 package de.janno.discord.bot;
 
 import com.google.common.base.Strings;
+import de.janno.discord.bot.dice.DiceParserSystem;
 import io.micrometer.core.instrument.Metrics;
 import io.micrometer.core.instrument.Tags;
 import io.micrometer.core.instrument.Timer;
@@ -28,8 +29,10 @@ public class BotMetrics {
     public final static String METRIC_LEGACY_BUTTON_PREFIX = "legacyButtonEvent";
     public final static String METRIC_SLASH_PREFIX = "slashEvent";
     public final static String METRIC_SLASH_HELP_PREFIX = "slashHelpEvent";
+    public final static String METRIC_DICE_PARSER_SYSTEM_PREFIX = "diceParserSystem";
     public final static String CONFIG_TAG = "config";
     public final static String COMMAND_TAG = "command";
+    public final static String DICE_SYSTEM_TAG = "diceSystem";
     public final static String ACTION_TAG = "action";
 
     public static void init(String publishMetricsToUrl) {
@@ -74,6 +77,10 @@ public class BotMetrics {
 
     public static void incrementSlashHelpMetricCounter(@NonNull String commandName) {
         globalRegistry.counter(METRIC_PREFIX + METRIC_SLASH_HELP_PREFIX, Tags.of(COMMAND_TAG, commandName)).increment();
+    }
+
+    public static void incrementDiceParserSystemCounter(@NonNull DiceParserSystem diceParserSystem) {
+        globalRegistry.counter(METRIC_PREFIX + METRIC_DICE_PARSER_SYSTEM_PREFIX, Tags.of(DICE_SYSTEM_TAG, diceParserSystem.name())).increment();
     }
 
     public static void databaseTimer(@NonNull String action, @NonNull Duration duration) {
