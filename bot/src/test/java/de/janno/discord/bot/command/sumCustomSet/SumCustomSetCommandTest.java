@@ -640,7 +640,7 @@ class SumCustomSetCommandTest {
 
     @Test
     void checkPersistence() {
-        MessageDataDAO messageDataDAO = new MessageDataDAOImpl("jdbc:h2:mem:" + this.getClass().getSimpleName(), null, null);
+        MessageDataDAO messageDataDAO = new MessageDataDAOImpl("jdbc:h2:mem:" + UUID.randomUUID(), null, null);
         underTest = new SumCustomSetCommand(messageDataDAO, diceMock, (minExcl, maxIncl) -> 0);
 
         long channelId = System.currentTimeMillis();

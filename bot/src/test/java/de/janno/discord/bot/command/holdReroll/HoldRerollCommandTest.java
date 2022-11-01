@@ -435,7 +435,7 @@ class HoldRerollCommandTest {
 
     @Test
     void checkPersistence() {
-        MessageDataDAO messageDataDAO = new MessageDataDAOImpl("jdbc:h2:mem:" + this.getClass().getSimpleName(), null, null);
+        MessageDataDAO messageDataDAO = new MessageDataDAOImpl("jdbc:h2:mem:" + UUID.randomUUID(), null, null);
         underTest = new HoldRerollCommand(messageDataDAO, mock(DiceUtils.class));
 
         long channelId = System.currentTimeMillis();

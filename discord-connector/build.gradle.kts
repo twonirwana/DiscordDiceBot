@@ -1,16 +1,14 @@
 plugins {
-    id 'java-library'
+    id("java-library")
 }
 
 repositories {
     mavenCentral()
 }
 
-group 'de.janno'
-
 dependencies {
-    api project(':discord-connector:api')
-    implementation project(':discord-connector:jda')
+    api(project(":discord-connector:api"))
+    implementation(project(":discord-connector:jda"))
 
     compileOnly(libs.lombok)
     annotationProcessor(libs.lombok)
@@ -19,12 +17,6 @@ dependencies {
     testRuntimeOnly(libs.junit.jupiter.engine)
 }
 
-java {
-    toolchain {
-        languageVersion.set(JavaLanguageVersion.of(javaVersion))
-    }
-}
-
-test {
+tasks.getByName<Test>("test") {
     useJUnitPlatform()
 }

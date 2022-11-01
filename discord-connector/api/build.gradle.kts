@@ -1,9 +1,6 @@
 plugins {
-    id 'java'
+    id("java")
 }
-
-group 'de.janno'
-version '1.0-SNAPSHOT'
 
 repositories {
     mavenCentral()
@@ -22,12 +19,6 @@ dependencies {
     testImplementation(libs.assertj.core)
 }
 
-java {
-    toolchain {
-        languageVersion.set(JavaLanguageVersion.of(javaVersion))
-    }
-}
-
-test {
+tasks.getByName<Test>("test") {
     useJUnitPlatform()
 }

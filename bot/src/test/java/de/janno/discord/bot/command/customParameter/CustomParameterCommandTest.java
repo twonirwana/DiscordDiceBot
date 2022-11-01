@@ -352,7 +352,7 @@ class CustomParameterCommandTest {
 
     @Test
     void checkPersistence() {
-        MessageDataDAO messageDataDAO = new MessageDataDAOImpl("jdbc:h2:mem:" + this.getClass().getSimpleName(), null, null);
+        MessageDataDAO messageDataDAO = new MessageDataDAOImpl("jdbc:h2:mem:" + UUID.randomUUID(), null, null);
         underTest = new CustomParameterCommand(messageDataDAO, mock(Dice.class), (minExcl, maxIncl) -> 0, 10);
 
         long channelId = System.currentTimeMillis();
