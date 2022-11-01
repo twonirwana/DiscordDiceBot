@@ -80,7 +80,7 @@ public class DirectRollCommand implements SlashCommand {
                         .build(), true);
             }
 
-            Optional<String> validationMessage = diceSystemAdapter.validateDiceExpressionWitOptionalLabel(commandParameter, "`/r help`", DiceParserSystem.DICE_EVALUATOR);
+            Optional<String> validationMessage = diceSystemAdapter.validateDiceExpressionWitOptionalLabel(commandParameter, "`/r expression:help`", DiceParserSystem.DICE_EVALUATOR);
             if (validationMessage.isPresent()) {
                 log.info("Validation message: {} for {}", validationMessage.get(), commandString);
                 return event.reply(String.format("%s\n%s", commandString, validationMessage.get()));

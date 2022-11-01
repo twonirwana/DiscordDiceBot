@@ -2,13 +2,13 @@ package de.janno.discord.bot.command;
 
 import com.google.common.collect.ImmutableList;
 import de.janno.discord.bot.dice.Dice;
-import de.janno.discord.bot.dice.DiceParserAdapter;
 import de.janno.discord.connector.api.Requester;
 import de.janno.discord.connector.api.SlashEventAdaptor;
 import de.janno.discord.connector.api.message.EmbedDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinitionOption;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
+import de.janno.evaluator.dice.DiceEvaluator;
 import dev.diceroll.parser.NDice;
 import dev.diceroll.parser.ResultTree;
 import org.junit.jupiter.api.BeforeEach;
@@ -67,7 +67,7 @@ class DirectRollCommandTest {
         verify(slashEventAdaptor, never()).createButtonMessage(any());
         verify(slashEventAdaptor, never()).deleteMessage(anyLong(), anyBoolean());
         verify(slashEventAdaptor, never()).replyEmbed(any(), anyBoolean());
-        verify(slashEventAdaptor).createResultMessageWithEventReference(ArgumentMatchers.eq(new EmbedDefinition("Test Label: 1d6 = 3", "[3]", ImmutableList.of())));
+        verify(slashEventAdaptor).createResultMessageWithEventReference(ArgumentMatchers.eq(new EmbedDefinition("Test Label ⇒ 0", "1d6 throws 0", ImmutableList.of())));
 
         verify(slashEventAdaptor, never()).getChannelId();
     }
@@ -98,7 +98,7 @@ class DirectRollCommandTest {
         verify(slashEventAdaptor, never()).createResultMessageWithEventReference(any());
         verify(slashEventAdaptor, never()).deleteMessage(anyLong(), anyBoolean());
         verify(slashEventAdaptor).reply("/r expression:asdfasdf\n" +
-                "The following dice expression is invalid: 'asdfasdf'. Use `/r help` to get more information on how to use the command.");
+                "The following expression is invalid: 'asdfasdf'. The error is: '[d, D]' requires as left input a single integer but was '[as]'. Use `/r expression:help` to get more information on how to use the command.");
 
         verify(slashEventAdaptor, never()).getChannelId();
     }
@@ -131,7 +131,7 @@ class DirectRollCommandTest {
         verify(slashEventAdaptor, never()).createResultMessageWithEventReference(any());
         verify(slashEventAdaptor, never()).deleteMessage(anyLong(), anyBoolean());
         verify(slashEventAdaptor).replyEmbed(EmbedDefinition.builder()
-                .description("Type /r and a dice expression e.g. `/r 1d6` \n" + DiceParserAdapter.HELP)
+                .description("Type /r and a dice expression e.g. `/r 1d6` \n" + "```\n" + DiceEvaluator.getHelpText() + "\n```\nSee here: https://github.com/twonirwana/DiceEvaluator")
                 .build(), true);
 
         verify(slashEventAdaptor, never()).getChannelId();
