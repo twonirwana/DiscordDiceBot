@@ -25,6 +25,12 @@ dependencies {
     testRuntimeOnly(libs.junit.jupiter.engine)
 }
 
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(18))
+    }
+}
+
 tasks.test {
     useJUnitPlatform()
 }
