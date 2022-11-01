@@ -9,6 +9,9 @@ public class Sfc64RandomNumberSupplier implements NumberSupplier {
     static final ThreadLocalSfc64Random randomSource = new ThreadLocalSfc64Random();
 
     public int get(int minExcl, int maxIncl) {
+        if (minExcl + 1 == maxIncl) {
+            return maxIncl;
+        }
         return randomSource.nextInt(minExcl + 1, maxIncl);
     }
 
