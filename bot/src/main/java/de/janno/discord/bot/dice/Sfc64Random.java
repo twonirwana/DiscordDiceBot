@@ -24,65 +24,6 @@ public class Sfc64Random implements RandomGenerator {
         return result;
     }
 
-    /* Generate a long within a particular unsigned bound.
-     * Used internally to implement nextLong(long) and nextLong(long, long).
-     * This particular method for generating a random long is also from
-     * M. E. O'Neill (https://www.pcg-random.org/posts/bounded-rands.html) and
-     * apparently came from Apple. It does not require multiplication or
-     * division.
-     */
-    private long nextLongUnsigned(long bound) {
-        if (bound == 0)
-            throw new IllegalArgumentException("bound cannot be 0");
-
-        final long adjustedBound = bound - 1;
-
-        // The all 1's bit pattern, shifted appropriately.
-        // The |1 is to ensure that the operand to number of leading zeroes
-        // is never 0. If a bound of 1 were passed, the mask would be left
-        // alone, most likely hanging the application.
-        final long mask = ~0 >>> (Long.numberOfLeadingZeros(adjustedBound|1));
-
-        long candidate;
-        do {
-            candidate = nextLong() & mask;
-        } while (Long.compareUnsigned(candidate, adjustedBound) > 0);
-
-        return candidate;
-    }
-
-    public long nextLong(long bound) {
-        if (bound <= 0)
-            throw new IllegalArgumentException("bound must be positive");
-
-        return nextLongUnsigned(bound);
-    }
-
-    public long nextLong(long origin, long bound) {
-        if (origin >= bound) {
-            throw new IllegalArgumentException("bound must be greater than origin");
-        }
-
-        // NB: Target is unsigned.
-        final long target = bound - origin;
-
-        if (target == -1L) {
-            return nextLong();
-        } else {
-            return origin + nextLongUnsigned(target + 1L);
-        }
-    }
-
-    // int functions. There is no need to implement nextInt() in terms of
-    // nextLong() as the default implementation is the exact same.
-    public int nextInt(int bound) {
-        return (int)nextLong(bound);
-    }
-
-    public int nextInt(int origin, int bound) {
-        return (int)nextLong(origin, bound);
-    }
-
     private void doSeed(long seed_c, long seed_b, long seed_a) {
         state_a = seed_a;
         state_b = seed_b;
