@@ -124,7 +124,7 @@ public class ButtonEventAdaptorMock implements ButtonEventAdaptor {
     }
 
     @Override
-    public Mono<Void> reply(@NonNull String message) {
+    public Mono<Void> reply(@NonNull String message, boolean ephemeral) {
         actions.add(String.format("reply: %s", message));
 
         return Mono.just("").then();

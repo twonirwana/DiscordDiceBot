@@ -35,7 +35,7 @@ public class ClearCommand implements SlashCommand {
     @Override
     public Mono<Void> handleSlashCommandEvent(@NonNull SlashEventAdaptor event) {
         BotMetrics.incrementSlashStartMetricCounter(getCommandId(), "[]");
-        return event.reply("Deleting messages and data ...")
+        return event.reply("Deleting messages and data ...", false)
                 .then(Mono.just(messageDataDAO.deleteDataForChannel(event.getChannelId()))
                         .flux()
                         .flatMap(Flux::fromIterable)

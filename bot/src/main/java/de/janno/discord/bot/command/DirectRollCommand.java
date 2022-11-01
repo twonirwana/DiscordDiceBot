@@ -63,7 +63,7 @@ public class DirectRollCommand implements SlashCommand {
 
         Optional<String> checkPermissions = event.checkPermissions();
         if (checkPermissions.isPresent()) {
-            return event.reply(checkPermissions.get());
+            return event.reply(checkPermissions.get(), false);
         }
 
         String commandString = event.getCommandString();
@@ -83,7 +83,7 @@ public class DirectRollCommand implements SlashCommand {
             Optional<String> validationMessage = diceSystemAdapter.validateDiceExpressionWitOptionalLabel(commandParameter, "`/r expression:help`", DiceParserSystem.DICE_EVALUATOR);
             if (validationMessage.isPresent()) {
                 log.info("Validation message: {} for {}", validationMessage.get(), commandString);
-                return event.reply(String.format("%s\n%s", commandString, validationMessage.get()));
+                return event.reply(String.format("%s\n%s", commandString, validationMessage.get()), true);
             }
 
             String diceExpression = DiceSystemAdapter.getExpressionFromExpressionWithOptionalLabel(commandParameter);

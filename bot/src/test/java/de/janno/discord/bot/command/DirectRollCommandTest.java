@@ -60,7 +60,7 @@ class DirectRollCommandTest {
                 .verifyComplete();
 
         verify(slashEventAdaptor).checkPermissions();
-        verify(slashEventAdaptor, never()).reply(any());
+        verify(slashEventAdaptor, never()).reply(any(), anyBoolean());
         verify(slashEventAdaptor).acknowledgeAndRemoveSlash();
         verify(slashEventAdaptor).getOption("expression");
         verify(slashEventAdaptor, times(2)).getCommandString();
@@ -82,7 +82,7 @@ class DirectRollCommandTest {
                 .build();
         when(slashEventAdaptor.getOption(any())).thenReturn(Optional.of(interactionOption));
         when(diceMock.detailedRoll("asdfasdf")).thenThrow(new IllegalArgumentException("not a valid expression"));
-        when(slashEventAdaptor.reply(any())).thenReturn(Mono.just(mock(Void.class)));
+        when(slashEventAdaptor.reply(any(), anyBoolean())).thenReturn(Mono.just(mock(Void.class)));
         when(slashEventAdaptor.getCommandString()).thenReturn("/r expression:asdfasdf");
 
         Mono<Void> res = underTest.handleSlashCommandEvent(slashEventAdaptor);
@@ -98,7 +98,7 @@ class DirectRollCommandTest {
         verify(slashEventAdaptor, never()).createResultMessageWithEventReference(any());
         verify(slashEventAdaptor, never()).deleteMessage(anyLong(), anyBoolean());
         verify(slashEventAdaptor).reply("/r expression:asdfasdf\n" +
-                "The following expression is invalid: 'asdfasdf'. The error is: '[d, D]' requires as left input a single integer but was '[as]'. Use `/r expression:help` to get more information on how to use the command.");
+                "The following expression is invalid: 'asdfasdf'. The error is: '[d, D]' requires as left input a single integer but was '[as]'. Use `/r expression:help` to get more information on how to use the command.", true);
 
         verify(slashEventAdaptor, never()).getChannelId();
     }

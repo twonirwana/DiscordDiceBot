@@ -13,8 +13,6 @@ public interface SlashEventAdaptor extends DiscordAdapter {
 
     Optional<CommandInteractionOption> getOption(@NonNull String actionStart);
 
-    Mono<Void> reply(@NonNull String message);
-
     Mono<Void> replyEmbed(@NonNull EmbedDefinition embedDefinition, boolean ephemeral);
 
     Mono<Long> createButtonMessage(@NonNull MessageDefinition messageDefinition);

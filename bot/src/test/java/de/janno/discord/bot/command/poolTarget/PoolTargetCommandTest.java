@@ -565,7 +565,7 @@ class PoolTargetCommandTest {
         when(buttonEventAdaptor.getCustomId()).thenReturn("pool_target8");
         when(buttonEventAdaptor.getChannelId()).thenReturn(1L);
         when(buttonEventAdaptor.getMessageId()).thenReturn(1L);
-        when(buttonEventAdaptor.reply(any())).thenReturn(Mono.just(mock(Void.class)));
+        when(buttonEventAdaptor.reply(any(), anyBoolean())).thenReturn(Mono.just(mock(Void.class)));
         when(buttonEventAdaptor.createResultMessageWithEventReference(any(), eq(null))).thenReturn(Mono.just(mock(Void.class)));
         when(buttonEventAdaptor.getRequester()).thenReturn(Mono.just(new Requester("user", "channel", "guild")));
         when(buttonEventAdaptor.acknowledge()).thenReturn(Mono.just(mock(Void.class)));
@@ -577,7 +577,7 @@ class PoolTargetCommandTest {
 
 
         assertThat(res).isNotNull();
-        verify(buttonEventAdaptor).reply("Configuration for the message is missing, please create a new message with the slash command `/pool_target start`");
+        verify(buttonEventAdaptor).reply("Configuration for the message is missing, please create a new message with the slash command `/pool_target start`", false);
         verify(buttonEventAdaptor, never()).editMessage(anyString(), anyList());
         verify(buttonEventAdaptor, never()).createButtonMessage(any());
         verify(buttonEventAdaptor, never()).deleteMessage(anyLong(), anyBoolean());
