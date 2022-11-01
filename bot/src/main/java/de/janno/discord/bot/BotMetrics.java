@@ -23,17 +23,18 @@ import static io.micrometer.core.instrument.Metrics.globalRegistry;
 
 public class BotMetrics {
 
-    public final static String METRIC_PREFIX = "dice.";
-    public final static String METRIC_BUTTON_PREFIX = "buttonEvent";
-    public final static String METRIC_DATABASE_PREFIX = "database";
-    public final static String METRIC_LEGACY_BUTTON_PREFIX = "legacyButtonEvent";
-    public final static String METRIC_SLASH_PREFIX = "slashEvent";
-    public final static String METRIC_SLASH_HELP_PREFIX = "slashHelpEvent";
-    public final static String METRIC_DICE_PARSER_SYSTEM_PREFIX = "diceParserSystem";
-    public final static String CONFIG_TAG = "config";
-    public final static String COMMAND_TAG = "command";
-    public final static String DICE_SYSTEM_TAG = "diceSystem";
-    public final static String ACTION_TAG = "action";
+    private final static String METRIC_PREFIX = "dice.";
+    private final static String METRIC_BUTTON_PREFIX = "buttonEvent";
+    private final static String METRIC_DATABASE_PREFIX = "database";
+    private final static String METRIC_LEGACY_BUTTON_PREFIX = "legacyButtonEvent";
+    private final static String METRIC_SLASH_PREFIX = "slashEvent";
+    private final static String METRIC_SLASH_HELP_PREFIX = "slashHelpEvent";
+    private final static String METRIC_SLASH_LEGACY_START_PREFIX = "slashLegacyStart";
+    private final static String METRIC_DICE_PARSER_SYSTEM_PREFIX = "diceParserSystem";
+    private final static String CONFIG_TAG = "config";
+    private final static String COMMAND_TAG = "command";
+    private final static String DICE_SYSTEM_TAG = "diceSystem";
+    private final static String ACTION_TAG = "action";
 
     public static void init(String publishMetricsToUrl) {
         if (!Strings.isNullOrEmpty(publishMetricsToUrl)) {
@@ -82,6 +83,11 @@ public class BotMetrics {
     public static void incrementDiceParserSystemCounter(@NonNull DiceParserSystem diceParserSystem) {
         globalRegistry.counter(METRIC_PREFIX + METRIC_DICE_PARSER_SYSTEM_PREFIX, Tags.of(DICE_SYSTEM_TAG, diceParserSystem.name())).increment();
     }
+
+    public static void incrementLegacyStartCounter(@NonNull String commandName) {
+        globalRegistry.counter(METRIC_PREFIX + METRIC_SLASH_LEGACY_START_PREFIX, Tags.of(COMMAND_TAG, commandName)).increment();
+    }
+
 
     public static void databaseTimer(@NonNull String action, @NonNull Duration duration) {
         Timer.builder(METRIC_PREFIX + METRIC_DATABASE_PREFIX)

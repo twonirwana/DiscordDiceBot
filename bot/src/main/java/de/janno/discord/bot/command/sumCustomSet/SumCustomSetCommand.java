@@ -6,6 +6,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
+import de.janno.discord.bot.BotMetrics;
 import de.janno.discord.bot.command.AbstractCommand;
 import de.janno.discord.bot.command.ButtonIdLabelAndDiceExpression;
 import de.janno.discord.bot.command.ConfigAndState;
@@ -349,7 +350,14 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
     protected @NonNull SumCustomSetConfig getConfigFromStartOptions(@NonNull CommandInteractionOption options) {
         List<ButtonIdAndExpression> buttons = getButtonsFromCommandInteractionOption(options);
         boolean alwaysSumResults = options.getBooleanSubOptionWithName(ALWAYS_SUM_RESULTS_COMMAND_OPTIONS_ID).orElse(true);
-        DiceParserSystem diceParserSystem = LEGACY_START_ACTION.equals(options.getName()) ? DiceParserSystem.DICEROLL_PARSER : DiceParserSystem.DICE_EVALUATOR;
+        boolean isLegacy = LEGACY_START_ACTION.equals(options.getName());
+        final DiceParserSystem diceParserSystem;
+        if (isLegacy) {
+            BotMetrics.incrementLegacyStartCounter(getCommandId());
+            diceParserSystem = DiceParserSystem.DICEROLL_PARSER;
+        } else {
+            diceParserSystem = DiceParserSystem.DICE_EVALUATOR;
+        }
         Long answerTargetChannelId = getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null);
         return getConfigOptionStringList(buttons, answerTargetChannelId, diceParserSystem, alwaysSumResults);
     }

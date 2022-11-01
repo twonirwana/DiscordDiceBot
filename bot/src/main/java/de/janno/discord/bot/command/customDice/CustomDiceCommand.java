@@ -4,6 +4,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import de.janno.discord.bot.BotMetrics;
 import de.janno.discord.bot.command.*;
 import de.janno.discord.bot.dice.Dice;
 import de.janno.discord.bot.dice.DiceParser;
@@ -159,6 +160,7 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
 
     protected @NonNull CustomDiceConfig getConfigFromStartOptions(@NonNull CommandInteractionOption options) {
         if (LEGACY_START_ACTION.equals(options.getName())) {
+            BotMetrics.incrementLegacyStartCounter(getCommandId());
             return getConfigOptionStringList(getButtonsFromCommandOption(options), getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null),
                     DiceParserSystem.DICEROLL_PARSER);
         }
