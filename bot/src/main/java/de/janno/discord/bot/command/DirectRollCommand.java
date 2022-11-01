@@ -73,11 +73,11 @@ public class DirectRollCommand implements SlashCommand {
             if (commandParameter.equals(HELP)) {
                 BotMetrics.incrementSlashHelpMetricCounter(getCommandId());
                 return event.replyEmbed(EmbedDefinition.builder()
-                        .description("Type /r and a dice expression e.g. `/r 1d6` \n" + diceSystemAdapter.getHelpText(DiceParserSystem.DICEROLL_PARSER))
+                        .description("Type /r and a dice expression e.g. `/r 1d6` \n" + diceSystemAdapter.getHelpText(DiceParserSystem.DICE_EVALUATOR))
                         .build(), true);
             }
 
-            Optional<String> validationMessage = diceSystemAdapter.validateDiceExpressionWitOptionalLabel(commandParameter, "`/r help`", DiceParserSystem.DICEROLL_PARSER);
+            Optional<String> validationMessage = diceSystemAdapter.validateDiceExpressionWitOptionalLabel(commandParameter, "`/r help`", DiceParserSystem.DICE_EVALUATOR);
             if (validationMessage.isPresent()) {
                 log.info("Validation message: {} for {}", validationMessage.get(), commandString);
                 return event.reply(String.format("%s\n%s", commandString, validationMessage.get()));
@@ -86,7 +86,7 @@ public class DirectRollCommand implements SlashCommand {
             String diceExpression = DiceSystemAdapter.getExpressionFromExpressionWithOptionalLabel(commandParameter);
             BotMetrics.incrementSlashStartMetricCounter(getCommandId(), diceExpression);
 
-            EmbedDefinition answer = diceSystemAdapter.answerRollWithOptionalLabelInExpression(commandParameter, true, DiceParserSystem.DICEROLL_PARSER);
+            EmbedDefinition answer = diceSystemAdapter.answerRollWithOptionalLabelInExpression(commandParameter, true, DiceParserSystem.DICE_EVALUATOR);
 
             return Flux.merge(event.acknowledgeAndRemoveSlash(),
                             event.createResultMessageWithEventReference(answer))
