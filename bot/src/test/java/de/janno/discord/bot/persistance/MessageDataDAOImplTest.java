@@ -8,7 +8,7 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class MessageDataDAOImplTest {
-    MessageDataDAOImpl underTest = new MessageDataDAOImpl("jdbc:h2:mem:" + this.getClass().getSimpleName(), null, null);
+    MessageDataDAOImpl underTest = new MessageDataDAOImpl("jdbc:h2:mem:" + UUID.randomUUID(), null, null);
 
 
     @Test

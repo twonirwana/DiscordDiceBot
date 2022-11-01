@@ -1,16 +1,13 @@
 plugins {
-    id 'java'
+    id("java")
 }
-
-group 'de.janno'
-version '1.0-SNAPSHOT'
 
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    implementation project(':discord-connector:api')
+    implementation( project(":discord-connector:api"))
 
     implementation("net.dv8tion:JDA:5.0.0-alpha.22")
     implementation(libs.reactor.core)
@@ -30,10 +27,10 @@ dependencies {
 
 java {
     toolchain {
-        languageVersion.set(JavaLanguageVersion.of(javaVersion))
+        languageVersion.set(JavaLanguageVersion.of(18))
     }
 }
 
-test {
+tasks.test {
     useJUnitPlatform()
 }
