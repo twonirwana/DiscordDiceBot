@@ -3,10 +3,7 @@ package de.janno.discord.bot.command;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Stopwatch;
 import de.janno.discord.bot.BotMetrics;
-import de.janno.discord.bot.dice.Dice;
-import de.janno.discord.bot.dice.DiceParser;
-import de.janno.discord.bot.dice.DiceParserSystem;
-import de.janno.discord.bot.dice.DiceSystemAdapter;
+import de.janno.discord.bot.dice.*;
 import de.janno.discord.connector.api.SlashCommand;
 import de.janno.discord.connector.api.SlashEventAdaptor;
 import de.janno.discord.connector.api.message.EmbedDefinition;
@@ -14,7 +11,6 @@ import de.janno.discord.connector.api.slash.CommandDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinitionOption;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import de.janno.evaluator.dice.NumberSupplier;
-import de.janno.evaluator.dice.RandomNumberSupplier;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
@@ -30,7 +26,7 @@ public class DirectRollCommand implements SlashCommand {
     private final DiceSystemAdapter diceSystemAdapter;
 
     public DirectRollCommand() {
-        this(new RandomNumberSupplier(), new DiceParser());
+        this(new Sfc64RandomNumberSupplier(), new DiceParser());
     }
 
     @VisibleForTesting

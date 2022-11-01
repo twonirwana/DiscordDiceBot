@@ -9,10 +9,7 @@ import com.google.common.collect.Lists;
 import de.janno.discord.bot.command.AbstractCommand;
 import de.janno.discord.bot.command.ConfigAndState;
 import de.janno.discord.bot.command.State;
-import de.janno.discord.bot.dice.Dice;
-import de.janno.discord.bot.dice.DiceParser;
-import de.janno.discord.bot.dice.DiceParserSystem;
-import de.janno.discord.bot.dice.DiceSystemAdapter;
+import de.janno.discord.bot.dice.*;
 import de.janno.discord.bot.persistance.Mapper;
 import de.janno.discord.bot.persistance.MessageDataDAO;
 import de.janno.discord.bot.persistance.MessageDataDTO;
@@ -25,7 +22,6 @@ import de.janno.discord.connector.api.message.MessageDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinitionOption;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import de.janno.evaluator.dice.NumberSupplier;
-import de.janno.evaluator.dice.RandomNumberSupplier;
 import lombok.NonNull;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
@@ -60,7 +56,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     private final DiceSystemAdapter diceSystemAdapter;
 
     public CustomParameterCommand(MessageDataDAO messageDataDAO) {
-        this(messageDataDAO, new DiceParser(), new RandomNumberSupplier(), 1000);
+        this(messageDataDAO, new DiceParser(), new Sfc64RandomNumberSupplier(), 1000);
     }
 
     @VisibleForTesting
