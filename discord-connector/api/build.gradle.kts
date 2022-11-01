@@ -1,9 +1,6 @@
 plugins {
-    id 'java'
+    id("java")
 }
-
-group 'de.janno'
-version '1.0-SNAPSHOT'
 
 repositories {
     mavenCentral()
@@ -24,10 +21,10 @@ dependencies {
 
 java {
     toolchain {
-        languageVersion.set(JavaLanguageVersion.of(javaVersion))
+        languageVersion.set(JavaLanguageVersion.of(18))
     }
 }
 
-test {
+tasks.getByName<Test>("test") {
     useJUnitPlatform()
 }
