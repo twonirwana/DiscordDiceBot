@@ -37,7 +37,7 @@ tasks.test {
 tasks {
     named<ShadowJar>("shadowJar") {
         manifest {
-            attributes(mapOf("Main-Class" to "de.janno.discord.BaseBot"))
+            attributes(mapOf("Main-Class" to "de.janno.discord.bot.Bot"))
         }
     }
 }
