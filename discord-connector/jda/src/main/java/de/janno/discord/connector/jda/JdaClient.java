@@ -110,7 +110,8 @@ public class JdaClient {
                                         .flatMap(command -> command.handleSlashCommandEvent(new SlashEventAdapterImpl(event,
                                                 Mono.just(new Requester(event.getInteraction().getUser().getName(),
                                                         event.getChannel().getName(),
-                                                        Optional.ofNullable(event.getGuild()).map(Guild::getName).orElse("")))
+                                                        Optional.ofNullable(event.getGuild()).map(Guild::getName).orElse(""),
+                                                        event.getJDA().getShardInfo().getShardString()))
                                         )))
                                         .onErrorResume(e -> {
                                             log.error("SlashCommandEvent Exception: ", e);
@@ -134,7 +135,8 @@ public class JdaClient {
                                         .flatMap(command -> command.handleComponentInteractEvent(new ButtonEventAdapterImpl(event,
                                                 Mono.just(new Requester(event.getInteraction().getUser().getName(),
                                                         event.getChannel().getName(),
-                                                        Optional.ofNullable(event.getInteraction().getGuild()).map(Guild::getName).orElse("")
+                                                        Optional.ofNullable(event.getInteraction().getGuild()).map(Guild::getName).orElse(""),
+                                                        event.getJDA().getShardInfo().getShardString()
                                                 )))))
                                         .onErrorResume(e -> {
                                             log.error("ButtonInteractEvent Exception: ", e);

@@ -233,7 +233,7 @@ class CustomDiceCommandTest {
         when(buttonEventAdaptor.createResultMessageWithEventReference(any(), eq(null))).thenReturn(Mono.just(mock(Void.class)));
         when(buttonEventAdaptor.createButtonMessage(any())).thenReturn(Mono.just(2L));
         when(buttonEventAdaptor.deleteMessage(anyLong(), anyBoolean())).thenReturn(Mono.just(2L));
-        when(buttonEventAdaptor.getRequester()).thenReturn(Mono.just(new Requester("user", "channel", "guild")));
+        when(buttonEventAdaptor.getRequester()).thenReturn(Mono.just(new Requester("user", "channel", "guild","[0 / 1]")));
         when(buttonEventAdaptor.acknowledge()).thenReturn(Mono.just(mock(Void.class)));
         when(buttonEventAdaptor.getAllButtonIds()).thenReturn(ImmutableList.of(new ButtonEventAdaptor.LabelAndCustomId("1d6", "custom_dice\u00001d6")));
         Mono<Void> res = underTest.handleComponentInteractEvent(buttonEventAdaptor);
@@ -274,7 +274,7 @@ class CustomDiceCommandTest {
         when(buttonEventAdaptor.createButtonMessage(any())).thenReturn(Mono.just(2L));
         when(buttonEventAdaptor.createResultMessageWithEventReference(any(), eq(null))).thenReturn(Mono.just(mock(Void.class)));
         when(buttonEventAdaptor.deleteMessage(anyLong(), anyBoolean())).thenReturn(Mono.just(2L));
-        when(buttonEventAdaptor.getRequester()).thenReturn(Mono.just(new Requester("user", "channel", "guild")));
+        when(buttonEventAdaptor.getRequester()).thenReturn(Mono.just(new Requester("user", "channel", "guild","[0 / 1]")));
         when(buttonEventAdaptor.acknowledge()).thenReturn(Mono.just(mock(Void.class)));
         when(buttonEventAdaptor.getAllButtonIds()).thenReturn(ImmutableList.of(new ButtonEventAdaptor.LabelAndCustomId("1d6", "custom_dice\u00001d6")));
 
@@ -341,8 +341,8 @@ class CustomDiceCommandTest {
 
         when(event.createButtonMessage(any())).thenReturn(Mono.just(2L));
         when(event.deleteMessage(anyLong(), anyBoolean())).thenReturn(Mono.just(2L));
-        when(event.getRequester()).thenReturn(Mono.just(new Requester("user", "channel", "guild")));
-        when(event.reply(any())).thenReturn(Mono.just(mock(Void.class)));
+        when(event.getRequester()).thenReturn(Mono.just(new Requester("user", "channel", "guild","[0 / 1]")));
+        when(event.reply(any(), anyBoolean())).thenReturn(Mono.just(mock(Void.class)));
         when(diceMock.detailedRoll(any())).thenAnswer(a -> new DiceParser().detailedRoll(a.getArgument(0)));
 
         Mono<Void> res = underTest.handleSlashCommandEvent(event);
@@ -352,7 +352,7 @@ class CustomDiceCommandTest {
         verify(event).checkPermissions();
         verify(event).getCommandString();
         verify(event, times(2)).getOption(any());
-        verify(event).reply(any());
+        verify(event).reply(any(), anyBoolean());
         verify(event).createButtonMessage(MessageDefinition.builder()
                 .content("Click on a button to roll the dice")
                 .componentRowDefinitions(ImmutableList.of(ComponentRowDefinition.builder()
@@ -396,8 +396,8 @@ class CustomDiceCommandTest {
 
         when(event.createButtonMessage(any())).thenReturn(Mono.just(2L));
         when(event.deleteMessage(anyLong(), anyBoolean())).thenReturn(Mono.just(2L));
-        when(event.getRequester()).thenReturn(Mono.just(new Requester("user", "channel", "guild")));
-        when(event.reply(any())).thenReturn(Mono.just(mock(Void.class)));
+        when(event.getRequester()).thenReturn(Mono.just(new Requester("user", "channel", "guild","[0 / 1]")));
+        when(event.reply(any(), anyBoolean())).thenReturn(Mono.just(mock(Void.class)));
         when(diceMock.detailedRoll(any())).thenAnswer(a -> new DiceParser().detailedRoll(a.getArgument(0)));
 
         Mono<Void> res = underTest.handleSlashCommandEvent(event);
@@ -407,7 +407,7 @@ class CustomDiceCommandTest {
         verify(event).checkPermissions();
         verify(event).getCommandString();
         verify(event).getOption(any());
-        verify(event).reply(any());
+        verify(event).reply(any(), anyBoolean());
         verify(event).createButtonMessage(MessageDefinition.builder()
                 .content("Click on a button to roll the dice")
                 .componentRowDefinitions(ImmutableList.of(ComponentRowDefinition.builder()

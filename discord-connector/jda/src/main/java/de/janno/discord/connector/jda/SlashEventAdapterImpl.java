@@ -65,8 +65,8 @@ public class SlashEventAdapterImpl extends DiscordAdapterImpl implements SlashEv
     }
 
     @Override
-    public Mono<Void> reply(@NonNull String message) {
-        return createMonoFrom(() -> event.reply(message))
+    public Mono<Void> reply(@NonNull String message, boolean ephemeral) {
+        return createMonoFrom(() -> event.reply(message).setEphemeral(ephemeral))
                 .onErrorResume(t -> handleException("Error on replay", t, true).ofType(InteractionHook.class))
                 .then();
     }

@@ -143,7 +143,7 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
                 configUUID = messageData.get().getConfigUUID();
             } else {
                 log.warn("Missing messageData for channelId: {}, messageId: {} and commandName: {} ", channelId, messageId, getCommandId());
-                return event.reply(String.format("Configuration for the message is missing, please create a new message with the slash command `/%s start`", getCommandId()));
+                return event.reply(String.format("Configuration for the message is missing, please create a new message with the slash command `/%s start`", getCommandId()), false);
             }
         }
         final Long answerTargetChannelId = config.getAnswerTargetChannelId();
@@ -180,7 +180,8 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
 
             actions.add(event.createResultMessageWithEventReference(answer.get(), answerTargetChannelId).then(
                     event.getRequester()
-                            .doOnNext(requester -> log.info("'{}'.'{}': '{}'={} -> {} in {}ms",
+                            .doOnNext(requester -> log.info("{} '{}'.'{}': '{}'={} -> {} in {}ms",
+                                            requester.getShard(),
                                             requester.getGuildName(),
                                             requester.getChannelName(),
                                             event.getCustomId().replace(CUSTOM_ID_DELIMITER, ":"),
@@ -254,7 +255,7 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
     public Mono<Void> handleSlashCommandEvent(@NonNull SlashEventAdaptor event) {
         Optional<String> checkPermissions = event.checkPermissions();
         if (checkPermissions.isPresent()) {
-            return event.reply(checkPermissions.get());
+            return event.reply(checkPermissions.get(), false);
         }
 
         String commandString = event.getCommandString();
@@ -270,20 +271,20 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
             Optional<Long> answerTargetChannelId = getAnswerTargetChannelIdFromStartCommandOption(options);
             if (answerTargetChannelId.isPresent() && !event.isValidAnswerChannel(answerTargetChannelId.get())) {
                 log.info("Invalid answer target channel for {}", commandString);
-                return event.reply("The target channel is not a valid message channel");
+                return event.reply("The target channel is not a valid message channel", true);
             }
 
             Optional<String> validationMessage = getStartOptionsValidationMessage(options);
             if (validationMessage.isPresent()) {
                 log.info("Validation message: {} for {}", validationMessage.get(), commandString);
-                return event.reply(String.format("%s\n%s", commandString, validationMessage.get()));
+                return event.reply(String.format("%s\n%s", commandString, validationMessage.get()), true);
             }
             C config = getConfigFromStartOptions(options);
             BotMetrics.incrementSlashStartMetricCounter(getCommandId(), config.toShortString());
 
             long channelId = event.getChannelId();
 
-            return event.reply(commandString)
+            return event.reply(commandString, false)
                     .then(event.createButtonMessage(createNewButtonMessage(config))
                             .map(newMessageId -> {
                                 final Optional<MessageDataDTO> newMessageData = createMessageDataForNewMessage(UUID.randomUUID(), event.getGuildId(), channelId, newMessageId, config, null);
@@ -293,10 +294,11 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
                             .then()
                     )
                     .then(event.getRequester()
-                            .doOnNext(requester -> log.info("'{}'.'{}': '{}'",
+                            .doOnNext(requester -> log.info("{}' {}'.'{}': '{}'",
+                                    requester.getShard(),
                                     requester.getGuildName(),
                                     requester.getChannelName(),
-                                    commandString
+                                    commandString.replace("`", "")
                             ))
                             .ofType(Void.class));
 

@@ -24,7 +24,7 @@ class ClearCommandTest {
     @Test
     void handleSlashCommandEvent() {
         SlashEventAdaptor slashEventAdaptor = mock(SlashEventAdaptor.class);
-        when(slashEventAdaptor.reply(any())).thenReturn(Mono.empty());
+        when(slashEventAdaptor.reply(any(), anyBoolean())).thenReturn(Mono.empty());
         when(slashEventAdaptor.getChannelId()).thenReturn(0L);
         when(messageDataDAO.deleteDataForChannel(anyLong())).thenReturn(ImmutableSet.of(1L, 2L));
         when(slashEventAdaptor.deleteMessage(anyLong(), anyBoolean())).thenReturn(Mono.empty());

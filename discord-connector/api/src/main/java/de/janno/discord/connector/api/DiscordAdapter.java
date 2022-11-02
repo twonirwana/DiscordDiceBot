@@ -6,7 +6,7 @@ import reactor.core.publisher.Mono;
 public interface DiscordAdapter {
     Long getGuildId();
 
-    Mono<Void> reply(@NonNull String message);
+    Mono<Void> reply(@NonNull String message, boolean ephemeral);
 
     /**
      * returns the id of the delete message and will not delete pinned messages
