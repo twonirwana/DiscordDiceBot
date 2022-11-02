@@ -102,7 +102,7 @@ public class ButtonEventAdaptorMock implements ButtonEventAdaptor {
 
     @Override
     public Mono<Requester> getRequester() {
-        return Mono.just(new Requester("invokingUser", "channelName", "guildName"));
+        return Mono.just(new Requester("invokingUser", "channelName", "guildName", "[0 / 1]"));
     }
 
     @Override

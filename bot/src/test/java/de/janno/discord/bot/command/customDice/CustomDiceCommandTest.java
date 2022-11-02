@@ -233,7 +233,7 @@ class CustomDiceCommandTest {
         when(buttonEventAdaptor.createResultMessageWithEventReference(any(), eq(null))).thenReturn(Mono.just(mock(Void.class)));
         when(buttonEventAdaptor.createButtonMessage(any())).thenReturn(Mono.just(2L));
         when(buttonEventAdaptor.deleteMessage(anyLong(), anyBoolean())).thenReturn(Mono.just(2L));
-        when(buttonEventAdaptor.getRequester()).thenReturn(Mono.just(new Requester("user", "channel", "guild")));
+        when(buttonEventAdaptor.getRequester()).thenReturn(Mono.just(new Requester("user", "channel", "guild","[0 / 1]")));
         when(buttonEventAdaptor.acknowledge()).thenReturn(Mono.just(mock(Void.class)));
         when(buttonEventAdaptor.getAllButtonIds()).thenReturn(ImmutableList.of(new ButtonEventAdaptor.LabelAndCustomId("1d6", "custom_dice\u00001d6")));
         Mono<Void> res = underTest.handleComponentInteractEvent(buttonEventAdaptor);
@@ -274,7 +274,7 @@ class CustomDiceCommandTest {
         when(buttonEventAdaptor.createButtonMessage(any())).thenReturn(Mono.just(2L));
         when(buttonEventAdaptor.createResultMessageWithEventReference(any(), eq(null))).thenReturn(Mono.just(mock(Void.class)));
         when(buttonEventAdaptor.deleteMessage(anyLong(), anyBoolean())).thenReturn(Mono.just(2L));
-        when(buttonEventAdaptor.getRequester()).thenReturn(Mono.just(new Requester("user", "channel", "guild")));
+        when(buttonEventAdaptor.getRequester()).thenReturn(Mono.just(new Requester("user", "channel", "guild","[0 / 1]")));
         when(buttonEventAdaptor.acknowledge()).thenReturn(Mono.just(mock(Void.class)));
         when(buttonEventAdaptor.getAllButtonIds()).thenReturn(ImmutableList.of(new ButtonEventAdaptor.LabelAndCustomId("1d6", "custom_dice\u00001d6")));
 
@@ -341,7 +341,7 @@ class CustomDiceCommandTest {
 
         when(event.createButtonMessage(any())).thenReturn(Mono.just(2L));
         when(event.deleteMessage(anyLong(), anyBoolean())).thenReturn(Mono.just(2L));
-        when(event.getRequester()).thenReturn(Mono.just(new Requester("user", "channel", "guild")));
+        when(event.getRequester()).thenReturn(Mono.just(new Requester("user", "channel", "guild","[0 / 1]")));
         when(event.reply(any(), anyBoolean())).thenReturn(Mono.just(mock(Void.class)));
         when(diceMock.detailedRoll(any())).thenAnswer(a -> new DiceParser().detailedRoll(a.getArgument(0)));
 
@@ -396,7 +396,7 @@ class CustomDiceCommandTest {
 
         when(event.createButtonMessage(any())).thenReturn(Mono.just(2L));
         when(event.deleteMessage(anyLong(), anyBoolean())).thenReturn(Mono.just(2L));
-        when(event.getRequester()).thenReturn(Mono.just(new Requester("user", "channel", "guild")));
+        when(event.getRequester()).thenReturn(Mono.just(new Requester("user", "channel", "guild","[0 / 1]")));
         when(event.reply(any(), anyBoolean())).thenReturn(Mono.just(mock(Void.class)));
         when(diceMock.detailedRoll(any())).thenAnswer(a -> new DiceParser().detailedRoll(a.getArgument(0)));
 

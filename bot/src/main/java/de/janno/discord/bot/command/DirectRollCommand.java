@@ -94,10 +94,11 @@ public class DirectRollCommand implements SlashCommand {
             return Flux.merge(event.acknowledgeAndRemoveSlash(),
                             event.createResultMessageWithEventReference(answer))
                     .then(event.getRequester()
-                            .doOnNext(requester -> log.info("'{}'.'{}': '{}'={} -> {} in {}ms",
+                            .doOnNext(requester -> log.info("{} '{}'.'{}': '{}'={} -> {} in {}ms",
+                                    requester.getShard(),
                                     requester.getGuildName(),
                                     requester.getChannelName(),
-                                    event.getCommandString(),
+                                    commandString.replace("`", ""),
                                     diceExpression,
                                     answer.toShortString(),
                                     stopwatch.elapsed(TimeUnit.MILLISECONDS)

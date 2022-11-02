@@ -50,7 +50,7 @@ class DirectRollCommandTest {
         when(slashEventAdaptor.deleteMessage(anyLong(), anyBoolean())).thenReturn(Mono.just(2L));
         when(slashEventAdaptor.acknowledgeAndRemoveSlash()).thenReturn(Mono.just(mock(Void.class)));
         when(slashEventAdaptor.getCommandString()).thenReturn("/r expression:1d6");
-        when(slashEventAdaptor.getRequester()).thenReturn(Mono.just(new Requester("user", "channel", "guild")));
+        when(slashEventAdaptor.getRequester()).thenReturn(Mono.just(new Requester("user", "channel", "guild", "[0 / 1]")));
 
 
         Mono<Void> res = underTest.handleSlashCommandEvent(slashEventAdaptor);
@@ -63,7 +63,7 @@ class DirectRollCommandTest {
         verify(slashEventAdaptor, never()).reply(any(), anyBoolean());
         verify(slashEventAdaptor).acknowledgeAndRemoveSlash();
         verify(slashEventAdaptor).getOption("expression");
-        verify(slashEventAdaptor, times(2)).getCommandString();
+        verify(slashEventAdaptor).getCommandString();
         verify(slashEventAdaptor, never()).createButtonMessage(any());
         verify(slashEventAdaptor, never()).deleteMessage(anyLong(), anyBoolean());
         verify(slashEventAdaptor, never()).replyEmbed(any(), anyBoolean());
@@ -115,7 +115,7 @@ class DirectRollCommandTest {
         when(slashEventAdaptor.getChannelId()).thenReturn(1L);
         when(slashEventAdaptor.replyEmbed(any(), anyBoolean())).thenReturn(Mono.just(mock(Void.class)));
         when(slashEventAdaptor.getCommandString()).thenReturn("/r expression:help");
-        when(slashEventAdaptor.getRequester()).thenReturn(Mono.just(new Requester("user", "channel", "guild")));
+        when(slashEventAdaptor.getRequester()).thenReturn(Mono.just(new Requester("user", "channel", "guild", "[0 / 1]")));
 
 
         Mono<Void> res = underTest.handleSlashCommandEvent(slashEventAdaptor);
