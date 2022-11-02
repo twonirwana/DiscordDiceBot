@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableList;
 import de.janno.discord.connector.api.message.EmbedDefinition;
 import de.janno.evaluator.ExpressionException;
 import de.janno.evaluator.dice.DiceEvaluator;
-import de.janno.evaluator.dice.NumberSupplier;
+import de.janno.evaluator.dice.random.NumberSupplier;
 import de.janno.evaluator.dice.Roll;
 import de.janno.evaluator.dice.RollElement;
 import lombok.NonNull;

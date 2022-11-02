@@ -2,6 +2,7 @@ package de.janno.discord.bot.dice;
 
 
 import com.google.common.collect.ImmutableList;
+import de.janno.evaluator.dice.random.ThreadLocalSfc64Random;
 
 import java.util.*;
 import java.util.function.Function;

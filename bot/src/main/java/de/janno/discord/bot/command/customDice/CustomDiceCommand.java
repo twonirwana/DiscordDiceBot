@@ -6,7 +6,10 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import de.janno.discord.bot.BotMetrics;
 import de.janno.discord.bot.command.*;
-import de.janno.discord.bot.dice.*;
+import de.janno.discord.bot.dice.Dice;
+import de.janno.discord.bot.dice.DiceParser;
+import de.janno.discord.bot.dice.DiceParserSystem;
+import de.janno.discord.bot.dice.DiceSystemAdapter;
 import de.janno.discord.bot.persistance.Mapper;
 import de.janno.discord.bot.persistance.MessageDataDAO;
 import de.janno.discord.bot.persistance.MessageDataDTO;
@@ -18,8 +21,8 @@ import de.janno.discord.connector.api.message.EmbedDefinition;
 import de.janno.discord.connector.api.message.MessageDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinitionOption;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
-import de.janno.evaluator.dice.NumberSupplier;
-import de.janno.discord.bot.dice.Sfc64RandomNumberSupplier;
+import de.janno.evaluator.dice.random.NumberSupplier;
+import de.janno.evaluator.dice.random.RandomNumberSupplier;
 import lombok.NonNull;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
@@ -42,7 +45,7 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
     private final DiceSystemAdapter diceSystemAdapter;
 
     public CustomDiceCommand(MessageDataDAO messageDataDAO) {
-        this(messageDataDAO, new DiceParser(), new Sfc64RandomNumberSupplier(), 1000);
+        this(messageDataDAO, new DiceParser(), new RandomNumberSupplier(), 1000);
     }
 
     @VisibleForTesting
