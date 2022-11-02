@@ -1,5 +1,6 @@
 package de.janno.discord.bot.dice;
 
+import de.janno.evaluator.dice.random.Sfc64Random;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
