@@ -3,7 +3,7 @@ package de.janno.discord.bot.dice;
 import de.janno.discord.bot.BotMetrics;
 import de.janno.discord.connector.api.BottomCustomIdUtils;
 import de.janno.discord.connector.api.message.EmbedDefinition;
-import de.janno.evaluator.dice.NumberSupplier;
+import de.janno.evaluator.dice.random.NumberSupplier;
 import lombok.NonNull;
 
 import javax.annotation.Nullable;
