@@ -2,6 +2,7 @@ package de.janno.discord.bot.dice;
 
 
 import com.google.common.collect.ImmutableList;
+import de.janno.evaluator.dice.random.ThreadLocalSfc64Random;
 
 import java.util.*;
 import java.util.function.Function;
@@ -11,7 +12,7 @@ import java.util.stream.IntStream;
 
 public class DiceUtils {
     public static final String MINUS = "\u2212";
-    private static final RandomGenerator randomNumberGenerator = new Sfc64Random();
+    private static final RandomGenerator randomNumberGenerator = new ThreadLocalSfc64Random();
     private final Function<Integer, Integer> numberSupplier;
 
     public DiceUtils() {

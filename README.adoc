@@ -267,4 +267,5 @@ see https://github.com/twonirwana/DiceEvaluator for more details.
 |if equal |`ifE(<expression>,<expression>,<true>,<false>)` |`ifE(1d6,6,'six','no six')` |compares the elements of two `<expression>` and if they are equal return the `<true>` expression or else the `<false>` expression
 |if greater |`ifG(<expression>,<expression>,<true>,<false>)` |`ifG(1d6,4,'5 or 6','less')` |compares the elements of two `<expression>` and if the left is greater than the right then return the `<true>` expression or else the `<false>` expression. Both expression need to produce a single number
 |if lesser |`ifL(<expression>,<expression>,<true>,<false>)` |`ifL(1d6,3,'1 or 2','more')` |compares the elements of two `<expression>` and if the left is lesser than the right then return the `<true>` expression or else the `<false>` expression. Both expression need to produce a single number
+|group count |`groupC(<expression1>, <expression2> ...)` |`groupC(20d6)` | counts all elements of with the same value and provides the results as list in the format of `<count>x<value>`
 |===
