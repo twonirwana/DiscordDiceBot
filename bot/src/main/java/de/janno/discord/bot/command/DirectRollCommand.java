@@ -82,7 +82,10 @@ public class DirectRollCommand implements SlashCommand {
 
             Optional<String> validationMessage = diceSystemAdapter.validateDiceExpressionWitOptionalLabel(commandParameter, "`/r expression:help`", DiceParserSystem.DICE_EVALUATOR);
             if (validationMessage.isPresent()) {
-                log.info("Validation message: {} for {}", validationMessage.get(), commandString);
+                log.info("'{}'.'{}' Validation message: {} for {}", event.getRequester().getGuildName(),
+                        event.getRequester().getChannelName(),
+                        validationMessage.get(),
+                        commandString);
                 return event.reply(String.format("%s\n%s", commandString, validationMessage.get()), true);
             }
 
@@ -93,17 +96,15 @@ public class DirectRollCommand implements SlashCommand {
 
             return Flux.merge(event.acknowledgeAndRemoveSlash(),
                             event.createResultMessageWithEventReference(answer))
-                    .then(event.getRequester()
-                            .doOnNext(requester -> log.info("{} '{}'.'{}': '{}'={} -> {} in {}ms",
-                                    requester.getShard(),
-                                    requester.getGuildName(),
-                                    requester.getChannelName(),
-                                    commandString.replace("`", ""),
-                                    diceExpression,
-                                    answer.toShortString(),
-                                    stopwatch.elapsed(TimeUnit.MILLISECONDS)
-                            ))
-                            .ofType(Void.class));
+                    .doOnComplete(() -> log.info("{} '{}'.'{}': '{}'={} -> {} in {}ms",
+                            event.getRequester().getShard(),
+                            event.getRequester().getGuildName(),
+                            event.getRequester().getChannelName(),
+                            commandString.replace("`", ""),
+                            diceExpression,
+                            answer.toShortString(),
+                            stopwatch.elapsed(TimeUnit.MILLISECONDS)
+                    )).then();
 
         }
 

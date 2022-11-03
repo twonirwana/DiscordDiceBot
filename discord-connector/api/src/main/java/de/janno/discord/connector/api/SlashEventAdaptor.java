@@ -21,7 +21,7 @@ public interface SlashEventAdaptor extends DiscordAdapter {
 
     String getCommandString();
 
-    Mono<Requester> getRequester();
+    Requester getRequester();
 
     Mono<Void> createResultMessageWithEventReference(EmbedDefinition answer);
 

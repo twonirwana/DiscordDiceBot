@@ -416,7 +416,6 @@ class PoolTargetCommandTest {
         when(buttonEventAdaptor.createResultMessageWithEventReference(any(), eq(null))).thenReturn(Mono.just(mock(Void.class)));
         when(buttonEventAdaptor.createButtonMessage(any())).thenReturn(Mono.just(2L));
         when(buttonEventAdaptor.deleteMessage(anyLong(), anyBoolean())).thenReturn(Mono.just(2L));
-        when(buttonEventAdaptor.acknowledge()).thenReturn(Mono.just(mock(Void.class)));
 
         Mono<Void> res = underTest.handleComponentInteractEvent(buttonEventAdaptor);
 
@@ -434,7 +433,6 @@ class PoolTargetCommandTest {
         verify(buttonEventAdaptor).isPinned();
         verify(buttonEventAdaptor, never()).getAllButtonIds();
         verify(buttonEventAdaptor, never()).getMessageContent();
-        verify(buttonEventAdaptor).acknowledge();
     }
 
     @Test
@@ -448,7 +446,6 @@ class PoolTargetCommandTest {
         when(buttonEventAdaptor.createResultMessageWithEventReference(any(), eq(null))).thenReturn(Mono.just(mock(Void.class)));
         when(buttonEventAdaptor.createButtonMessage(any())).thenReturn(Mono.just(2L));
         when(buttonEventAdaptor.deleteMessage(anyLong(), anyBoolean())).thenReturn(Mono.just(2L));
-        when(buttonEventAdaptor.acknowledge()).thenReturn(Mono.just(mock(Void.class)));
 
         Mono<Void> res = underTest.handleComponentInteractEvent(buttonEventAdaptor);
 
@@ -466,7 +463,6 @@ class PoolTargetCommandTest {
         verify(buttonEventAdaptor).isPinned();
         verify(buttonEventAdaptor, never()).getAllButtonIds();
         verify(buttonEventAdaptor, never()).getMessageContent();
-        verify(buttonEventAdaptor).acknowledge();
     }
 
     @Test
@@ -480,8 +476,7 @@ class PoolTargetCommandTest {
         when(buttonEventAdaptor.createResultMessageWithEventReference(any(), eq(null))).thenReturn(Mono.just(mock(Void.class)));
         when(buttonEventAdaptor.createButtonMessage(any())).thenReturn(Mono.just(2L));
         when(buttonEventAdaptor.deleteMessage(anyLong(), anyBoolean())).thenReturn(Mono.just(2L));
-        when(buttonEventAdaptor.getRequester()).thenReturn(Mono.just(new Requester("user", "channel", "guild", "[0 / 1]")));
-        when(buttonEventAdaptor.acknowledge()).thenReturn(Mono.just(mock(Void.class)));
+        when(buttonEventAdaptor.getRequester()).thenReturn(new Requester("user", "channel", "guild", "[0 / 1]"));
 
         Mono<Void> res = underTest.handleComponentInteractEvent(buttonEventAdaptor);
 
@@ -500,7 +495,6 @@ class PoolTargetCommandTest {
         verify(buttonEventAdaptor).isPinned();
         verify(buttonEventAdaptor, never()).getAllButtonIds();
         verify(buttonEventAdaptor, never()).getMessageContent();
-        verify(buttonEventAdaptor).acknowledge();
     }
 
     @Test
@@ -514,8 +508,7 @@ class PoolTargetCommandTest {
         when(buttonEventAdaptor.createResultMessageWithEventReference(any(), eq(null))).thenReturn(Mono.just(mock(Void.class)));
         when(buttonEventAdaptor.createButtonMessage(any())).thenReturn(Mono.just(2L));
         when(buttonEventAdaptor.deleteMessage(anyLong(), anyBoolean())).thenReturn(Mono.just(2L));
-        when(buttonEventAdaptor.getRequester()).thenReturn(Mono.just(new Requester("user", "channel", "guild", "[0 / 1]")));
-        when(buttonEventAdaptor.acknowledge()).thenReturn(Mono.just(mock(Void.class)));
+        when(buttonEventAdaptor.getRequester()).thenReturn(new Requester("user", "channel", "guild", "[0 / 1]"));
         when(buttonEventAdaptor.getInvokingGuildMemberName()).thenReturn("testUser");
         when(messageDataDAO.getDataForMessage(1L, 1L)).thenReturn(Optional.of(new MessageDataDTO(UUID.randomUUID(), 1L, 1L, 1L, "pool_target", "PoolTargetConfig", """
                 ---
@@ -556,7 +549,6 @@ class PoolTargetCommandTest {
         verify(buttonEventAdaptor).isPinned();
         verify(buttonEventAdaptor, never()).getAllButtonIds();
         verify(buttonEventAdaptor, never()).getMessageContent();
-        verify(buttonEventAdaptor).acknowledge();
     }
 
     @Test
@@ -567,8 +559,7 @@ class PoolTargetCommandTest {
         when(buttonEventAdaptor.getMessageId()).thenReturn(1L);
         when(buttonEventAdaptor.reply(any(), anyBoolean())).thenReturn(Mono.just(mock(Void.class)));
         when(buttonEventAdaptor.createResultMessageWithEventReference(any(), eq(null))).thenReturn(Mono.just(mock(Void.class)));
-        when(buttonEventAdaptor.getRequester()).thenReturn(Mono.just(new Requester("user", "channel", "guild", "[0 / 1]")));
-        when(buttonEventAdaptor.acknowledge()).thenReturn(Mono.just(mock(Void.class)));
+        when(buttonEventAdaptor.getRequester()).thenReturn(new Requester("user", "channel", "guild", "[0 / 1]"));
         when(buttonEventAdaptor.getInvokingGuildMemberName()).thenReturn("testUser");
         when(messageDataDAO.getDataForMessage(1L, 1L)).thenReturn(Optional.empty());
 
@@ -588,7 +579,6 @@ class PoolTargetCommandTest {
         verify(buttonEventAdaptor, never()).isPinned();
         verify(buttonEventAdaptor, never()).getAllButtonIds();
         verify(buttonEventAdaptor, never()).getMessageContent();
-        verify(buttonEventAdaptor, never()).acknowledge();
     }
 
     @Test
@@ -602,8 +592,7 @@ class PoolTargetCommandTest {
         when(buttonEventAdaptor.createResultMessageWithEventReference(any(), eq(null))).thenReturn(Mono.just(mock(Void.class)));
         when(buttonEventAdaptor.createButtonMessage(any())).thenReturn(Mono.just(2L));
         when(buttonEventAdaptor.deleteMessage(anyLong(), anyBoolean())).thenReturn(Mono.just(2L));
-        when(buttonEventAdaptor.getRequester()).thenReturn(Mono.just(new Requester("user", "channel", "guild", "[0 / 1]")));
-        when(buttonEventAdaptor.acknowledge()).thenReturn(Mono.just(mock(Void.class)));
+        when(buttonEventAdaptor.getRequester()).thenReturn(new Requester("user", "channel", "guild", "[0 / 1]"));
 
         Mono<Void> res = underTest.handleComponentInteractEvent(buttonEventAdaptor);
 
@@ -622,7 +611,6 @@ class PoolTargetCommandTest {
         verify(buttonEventAdaptor).isPinned();
         verify(buttonEventAdaptor, never()).getAllButtonIds();
         verify(buttonEventAdaptor, never()).getMessageContent();
-        verify(buttonEventAdaptor).acknowledge();
     }
 
     @Test
@@ -636,7 +624,6 @@ class PoolTargetCommandTest {
         when(buttonEventAdaptor.createButtonMessage(any())).thenReturn(Mono.just(2L));
         when(buttonEventAdaptor.createResultMessageWithEventReference(any(), eq(null))).thenReturn(Mono.just(mock(Void.class)));
         when(buttonEventAdaptor.deleteMessage(anyLong(), anyBoolean())).thenReturn(Mono.just(2L));
-        when(buttonEventAdaptor.acknowledge()).thenReturn(Mono.just(mock(Void.class)));
 
         Mono<Void> res = underTest.handleComponentInteractEvent(buttonEventAdaptor);
         StepVerifier.create(res)
@@ -654,7 +641,6 @@ class PoolTargetCommandTest {
         verify(buttonEventAdaptor).isPinned();
         verify(buttonEventAdaptor, never()).getAllButtonIds();
         verify(buttonEventAdaptor, never()).getMessageContent();
-        verify(buttonEventAdaptor).acknowledge();
     }
 
     private CommandInteractionOption createCommandInteractionOption(Long sides,

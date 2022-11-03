@@ -23,8 +23,6 @@ public interface ButtonEventAdaptor extends DiscordAdapter {
 
     String getInvokingGuildMemberName();
 
-    Mono<Void> acknowledge();
-
     Mono<Void> editMessage(@Nullable String message, @Nullable List<ComponentRowDefinition> componentRowDefinitions);
 
     Mono<Long> createButtonMessage(MessageDefinition messageDefinition);
@@ -39,7 +37,7 @@ public interface ButtonEventAdaptor extends DiscordAdapter {
      */
     String getMessageContent();
 
-    Mono<Requester> getRequester();
+    Requester getRequester();
 
     Optional<String> checkPermissions(Long answerTargetChannelId);
 
