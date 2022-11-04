@@ -512,7 +512,7 @@ class CustomDiceCommandTest {
         verify(event, times(3)).getOption(any());
         verify(event).replyEmbed(EmbedDefinition.builder()
                 .description("Creates up to 25 buttons with custom dice expression e.g. '/custom_dice start buttons:3d6;10d10;3d20'. \n" +
-                        "```\n" + DiceEvaluator.getHelpText() + "\n```\nSee here: https://github.com/twonirwana/DiceEvaluator")
+                        "```\n" + DiceEvaluator.getHelpText() + "\n```\nSee here: https://github.com/twonirwana/DiscordDiceBot")
                 .build(), true);
 
     }

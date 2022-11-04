@@ -60,7 +60,7 @@ public class DiceEvaluatorAdapter {
     }
 
     public static String getHelp() {
-        return "```\n" + DiceEvaluator.getHelpText() + "\n```\nSee here: https://github.com/twonirwana/DiceEvaluator";
+        return "```\n" + DiceEvaluator.getHelpText() + "\n```\nSee here: https://github.com/twonirwana/DiscordDiceBot";
     }
 
     public Optional<String> validateDiceExpression(String expression, String helpCommand) {

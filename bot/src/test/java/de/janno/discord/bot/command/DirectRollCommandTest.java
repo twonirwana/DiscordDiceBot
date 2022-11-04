@@ -132,7 +132,7 @@ class DirectRollCommandTest {
         verify(slashEventAdaptor, never()).createResultMessageWithEventReference(any());
         verify(slashEventAdaptor, never()).deleteMessage(anyLong(), anyBoolean());
         verify(slashEventAdaptor).replyEmbed(EmbedDefinition.builder()
-                .description("Type /r and a dice expression e.g. `/r 1d6` \n" + "```\n" + DiceEvaluator.getHelpText() + "\n```\nSee here: https://github.com/twonirwana/DiceEvaluator")
+                .description("Type /r and a dice expression e.g. `/r 1d6` \n" + "```\n" + DiceEvaluator.getHelpText() + "\n```\nSee here: https://github.com/twonirwana/DiscordDiceBot")
                 .build(), true);
 
         verify(slashEventAdaptor, never()).getChannelId();
