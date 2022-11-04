@@ -573,8 +573,7 @@ class SumCustomSetCommandTest {
         when(buttonEventAdaptor.createResultMessageWithEventReference(any(), eq(null))).thenReturn(Mono.just(mock(Void.class)));
         when(buttonEventAdaptor.createButtonMessage(any())).thenReturn(Mono.just(2L));
         when(buttonEventAdaptor.deleteMessage(anyLong(), anyBoolean())).thenReturn(Mono.just(2L));
-        when(buttonEventAdaptor.getRequester()).thenReturn(Mono.just(new Requester("user", "channel", "guild","[0 / 1]")));
-        when(buttonEventAdaptor.acknowledge()).thenReturn(Mono.just(mock(Void.class)));
+        when(buttonEventAdaptor.getRequester()).thenReturn(new Requester("user", "channel", "guild","[0 / 1]"));
         when(buttonEventAdaptor.getInvokingGuildMemberName()).thenReturn("testUser");
 
         Mono<Void> res = underTest.handleComponentInteractEvent(buttonEventAdaptor);
@@ -594,7 +593,6 @@ class SumCustomSetCommandTest {
         verify(buttonEventAdaptor).isPinned();
         verify(buttonEventAdaptor, times(2)).getAllButtonIds();
         verify(buttonEventAdaptor, times(1)).getMessageContent();
-        verify(buttonEventAdaptor).acknowledge();
     }
 
     @Test
@@ -611,8 +609,7 @@ class SumCustomSetCommandTest {
         when(buttonEventAdaptor.createButtonMessage(any())).thenReturn(Mono.just(2L));
         when(buttonEventAdaptor.createResultMessageWithEventReference(any(), eq(null))).thenReturn(Mono.just(mock(Void.class)));
         when(buttonEventAdaptor.deleteMessage(anyLong(), anyBoolean())).thenReturn(Mono.just(2L));
-        when(buttonEventAdaptor.getRequester()).thenReturn(Mono.just(new Requester("user", "channel", "guild","[0 / 1]")));
-        when(buttonEventAdaptor.acknowledge()).thenReturn(Mono.just(mock(Void.class)));
+        when(buttonEventAdaptor.getRequester()).thenReturn(new Requester("user", "channel", "guild","[0 / 1]"));
 
         Mono<Void> res = underTest.handleComponentInteractEvent(buttonEventAdaptor);
         StepVerifier.create(res)
@@ -634,7 +631,6 @@ class SumCustomSetCommandTest {
         verify(buttonEventAdaptor).isPinned();
         verify(buttonEventAdaptor, times(2)).getAllButtonIds();
         verify(buttonEventAdaptor, times(1)).getMessageContent();
-        verify(buttonEventAdaptor).acknowledge();
 
     }
 

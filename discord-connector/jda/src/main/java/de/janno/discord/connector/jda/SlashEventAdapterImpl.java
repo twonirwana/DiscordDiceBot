@@ -26,13 +26,13 @@ public class SlashEventAdapterImpl extends DiscordAdapterImpl implements SlashEv
     @NonNull
     private final SlashCommandInteractionEvent event;
     @NonNull
-    private final Mono<Requester> requesterMono;
+    private final Requester requesterMono;
     private final long channelId;
     @NonNull
     private final String commandString;
     private final Long guildId;
 
-    public SlashEventAdapterImpl(@NonNull SlashCommandInteractionEvent event, @NonNull Mono<Requester> requesterMono) {
+    public SlashEventAdapterImpl(@NonNull SlashCommandInteractionEvent event, @NonNull Requester requesterMono) {
         this.event = event;
         this.requesterMono = requesterMono;
         this.channelId = event.getChannel().getIdLong();
@@ -112,7 +112,7 @@ public class SlashEventAdapterImpl extends DiscordAdapterImpl implements SlashEv
 
 
     @Override
-    public Mono<Requester> getRequester() {
+    public Requester getRequester() {
         return requesterMono;
     }
 

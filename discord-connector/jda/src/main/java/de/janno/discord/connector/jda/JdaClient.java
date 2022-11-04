@@ -108,10 +108,10 @@ public class JdaClient {
                                         .filter(command -> command.getCommandId().equals(event.getName()))
                                         .next()
                                         .flatMap(command -> command.handleSlashCommandEvent(new SlashEventAdapterImpl(event,
-                                                Mono.just(new Requester(event.getInteraction().getUser().getName(),
+                                                new Requester(event.getInteraction().getUser().getName(),
                                                         event.getChannel().getName(),
                                                         Optional.ofNullable(event.getGuild()).map(Guild::getName).orElse(""),
-                                                        event.getJDA().getShardInfo().getShardString()))
+                                                        event.getJDA().getShardInfo().getShardString())
                                         )))
                                         .onErrorResume(e -> {
                                             log.error("SlashCommandEvent Exception: ", e);
@@ -133,11 +133,11 @@ public class JdaClient {
                                         .filter(command -> command.matchingComponentCustomId(event.getInteraction().getComponentId()))
                                         .next()
                                         .flatMap(command -> command.handleComponentInteractEvent(new ButtonEventAdapterImpl(event,
-                                                Mono.just(new Requester(event.getInteraction().getUser().getName(),
+                                                new Requester(event.getInteraction().getUser().getName(),
                                                         event.getChannel().getName(),
                                                         Optional.ofNullable(event.getInteraction().getGuild()).map(Guild::getName).orElse(""),
                                                         event.getJDA().getShardInfo().getShardString()
-                                                )))))
+                                                ))))
                                         .onErrorResume(e -> {
                                             log.error("ButtonInteractEvent Exception: ", e);
                                             return Mono.empty();

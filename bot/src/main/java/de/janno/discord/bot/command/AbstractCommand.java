@@ -154,7 +154,6 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
 
         //all the answer actions
         List<Mono<Void>> actions = new ArrayList<>();
-        actions.add(event.acknowledge());
         //the delete action must be the last action
         Mono<Void> createNewButtonMessageAndOptionalDeleteOld = Mono.empty();
         boolean keepExistingButtonMessage = shouldKeepExistingButtonMessage(event);
@@ -178,18 +177,17 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
         if (answer.isPresent()) {
             BotMetrics.incrementButtonMetricCounter(getCommandId(), config.toShortString());
 
-            actions.add(event.createResultMessageWithEventReference(answer.get(), answerTargetChannelId).then(
-                    event.getRequester()
-                            .doOnNext(requester -> log.info("{} '{}'.'{}': '{}'={} -> {} in {}ms",
-                                            requester.getShard(),
-                                            requester.getGuildName(),
-                                            requester.getChannelName(),
-                                            event.getCustomId().replace(CUSTOM_ID_DELIMITER, ":"),
-                                            state.toShortString(),
-                                            answer.get().toShortString(),
-                                            stopwatch.elapsed(TimeUnit.MILLISECONDS)
-                                    )
-                            ).ofType(Void.class)));
+            actions.add(event.createResultMessageWithEventReference(answer.get(), answerTargetChannelId)
+                    .doOnSuccess(v -> log.info("{} '{}'.'{}': '{}'={} -> {} in {}ms",
+                            event.getRequester().getShard(),
+                            event.getRequester().getGuildName(),
+                            event.getRequester().getChannelName(),
+                            event.getCustomId().replace(CUSTOM_ID_DELIMITER, ":"),
+                            state.toShortString(),
+                            answer.get().toShortString(),
+                            stopwatch.elapsed(TimeUnit.MILLISECONDS)
+                    )));
+
         }
         Optional<MessageDefinition> newButtonMessage = createNewButtonMessageWithState(config, state);
 
@@ -276,14 +274,21 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
 
             Optional<String> validationMessage = getStartOptionsValidationMessage(options);
             if (validationMessage.isPresent()) {
-                log.info("Validation message: {} for {}", validationMessage.get(), commandString);
+                log.info("'{}'.'{}' Validation message: {} for {}", event.getRequester().getGuildName(),
+                        event.getRequester().getChannelName(),
+                        validationMessage.get(),
+                        commandString);
                 return event.reply(String.format("%s\n%s", commandString, validationMessage.get()), true);
             }
             C config = getConfigFromStartOptions(options);
             BotMetrics.incrementSlashStartMetricCounter(getCommandId(), config.toShortString());
 
             long channelId = event.getChannelId();
-
+            log.info("{} '{}'.'{}': '{}'",
+                    event.getRequester().getShard(),
+                    event.getRequester().getGuildName(),
+                    event.getRequester().getChannelName(),
+                    commandString.replace("`", ""));
             return event.reply(commandString, false)
                     .then(event.createButtonMessage(createNewButtonMessage(config))
                             .map(newMessageId -> {
@@ -292,15 +297,7 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
                                 return newMessageId;
                             })
                             .then()
-                    )
-                    .then(event.getRequester()
-                            .doOnNext(requester -> log.info("{}' {}'.'{}': '{}'",
-                                    requester.getShard(),
-                                    requester.getGuildName(),
-                                    requester.getChannelName(),
-                                    commandString.replace("`", "")
-                            ))
-                            .ofType(Void.class));
+                    );
 
         } else if (event.getOption(ACTION_HELP).isPresent()) {
             BotMetrics.incrementSlashHelpMetricCounter(getCommandId());

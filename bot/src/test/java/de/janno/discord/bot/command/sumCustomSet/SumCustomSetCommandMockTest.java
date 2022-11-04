@@ -42,11 +42,10 @@ public class SumCustomSetCommandMockTest {
         underTest.handleComponentInteractEvent(click3).block();
 
         assertThat(click1.getActions()).containsExactly(
-                "acknowledge", "editMessage: message:invokingUser∶ 1, buttonValues=1_button,2_button,roll,clear,back");
+                "editMessage: message:invokingUser∶ 1, buttonValues=1_button,2_button,roll,clear,back");
         assertThat(click2.getActions()).containsExactly(
-                "acknowledge", "editMessage: message:invokingUser∶ 12, buttonValues=1_button,2_button,roll,clear,back");
+                "editMessage: message:invokingUser∶ 12, buttonValues=1_button,2_button,roll,clear,back");
         assertThat(click3.getActions()).containsExactly(
-                "acknowledge",
                 "editMessage: message:Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back",
                 "createAnswer: title=12 ⇒ 12, description=, fieldValues:, answerChannel:null",
                 "createButtonMessage: content=Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back",
@@ -65,9 +64,8 @@ public class SumCustomSetCommandMockTest {
         underTest.handleComponentInteractEvent(click2).block();
 
         assertThat(click1.getActions()).containsExactly(
-                "acknowledge", "editMessage: message:invokingUser∶ 1, buttonValues=1_button,2_button,roll,clear,back");
+                "editMessage: message:invokingUser∶ 1, buttonValues=1_button,2_button,roll,clear,back");
         assertThat(click2.getActions()).containsExactly(
-                "acknowledge",
                 "editMessage: message:Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back");
     }
 
@@ -85,12 +83,10 @@ public class SumCustomSetCommandMockTest {
         underTest.handleComponentInteractEvent(click3).block();
 
         assertThat(click1.getActions()).containsExactly(
-                "acknowledge", "editMessage: message:invokingUser∶ 1, buttonValues=1_button,2_button,roll,clear,back");
+                "editMessage: message:invokingUser∶ 1, buttonValues=1_button,2_button,roll,clear,back");
         assertThat(click2.getActions()).containsExactly(
-                "acknowledge",
                 "editMessage: message:Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back");
         assertThat(click2.getActions()).containsExactly(
-                "acknowledge",
                 "editMessage: message:Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back");
     }
 
@@ -108,13 +104,10 @@ public class SumCustomSetCommandMockTest {
         underTest.handleComponentInteractEvent(click3).block();
 
         assertThat(click1.getActions()).containsExactly(
-                "acknowledge",
                 "editMessage: message:invokingUser∶ 1, buttonValues=1_button,2_button,roll,clear,back");
         assertThat(click2.getActions()).containsExactly(
-                "acknowledge",
                 "editMessage: message:invokingUser∶ 12, buttonValues=1_button,2_button,roll,clear,back");
         assertThat(click3.getActions()).containsExactly(
-                "acknowledge",
                 "editMessage: message:Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back",
                 "createAnswer: title=12 ⇒ 12, description=, fieldValues:, answerChannel:null",
                 "createButtonMessage: content=Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back");
@@ -134,13 +127,10 @@ public class SumCustomSetCommandMockTest {
         underTest.handleComponentInteractEvent(click3).block();
 
         assertThat(click1.getActions()).containsExactly(
-                "acknowledge",
                 "editMessage: message:invokingUser∶ 1, buttonValues=1_button,2_button,roll,clear,back");
         assertThat(click2.getActions()).containsExactly(
-                "acknowledge",
                 "editMessage: message:invokingUser∶ 12, buttonValues=1_button,2_button,roll,clear,back");
         assertThat(click3.getActions()).containsExactly(
-                "acknowledge",
                 "editMessage: message:Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back",
                 "createAnswer: title=12 ⇒ 12, description=, fieldValues:, answerChannel:2");
     }
@@ -163,20 +153,16 @@ public class SumCustomSetCommandMockTest {
         underTest.handleComponentInteractEvent(click5).block();
 
         assertThat(click1.getActions()).containsExactly(
-                "acknowledge",
                 "editMessage: message:invokingUser∶ 1, buttonValues=1_button,2_button,roll,clear,back");
         assertThat(click2.getActions()).containsExactly(
-                "acknowledge",
                 "editMessage: message:invokingUser∶ 12, buttonValues=1_button,2_button,roll,clear,back");
         assertThat(click3.getActions()).containsExactly(
-                "acknowledge",
                 "editMessage: message:Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back",
                 "createAnswer: title=12 ⇒ 12, description=, fieldValues:, answerChannel:null",
                 "createButtonMessage: content=Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back");
         assertThat(click4.getActions()).containsExactly(
-                "acknowledge", "editMessage: message:invokingUser∶ 1, buttonValues=1_button,2_button,roll,clear,back");
+                "editMessage: message:invokingUser∶ 1, buttonValues=1_button,2_button,roll,clear,back");
         assertThat(click5.getActions()).containsExactly(
-                "acknowledge",
                 "editMessage: message:Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back",
                 "createAnswer: title=1 ⇒ 1, description=, fieldValues:, answerChannel:null",
                 "createButtonMessage: content=Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back",
@@ -201,20 +187,15 @@ public class SumCustomSetCommandMockTest {
         underTest.handleComponentInteractEvent(click5).block();
 
         assertThat(click1.getActions()).containsExactly(
-                "acknowledge",
                 "editMessage: message:invokingUser∶ 1, buttonValues=1_button,2_button,roll,clear,back");
         assertThat(click2.getActions()).containsExactly(
-                "acknowledge",
                 "editMessage: message:invokingUser∶ 12, buttonValues=1_button,2_button,roll,clear,back");
         assertThat(click3.getActions()).containsExactly(
-                "acknowledge",
                 "editMessage: message:Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back",
                 "createAnswer: title=12 ⇒ 12, description=, fieldValues:, answerChannel:2");
         assertThat(click4.getActions()).containsExactly(
-                "acknowledge",
                 "editMessage: message:invokingUser∶ 1, buttonValues=1_button,2_button,roll,clear,back");
         assertThat(click5.getActions()).containsExactly(
-                "acknowledge",
                 "editMessage: message:Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back",
                 "createAnswer: title=1 ⇒ 1, description=, fieldValues:, answerChannel:2");
     }

@@ -36,14 +36,14 @@ public class ButtonEventAdapterImpl extends DiscordAdapterImpl implements Button
     @NonNull
     private final List<LabelAndCustomId> allButtonIds;
     @NonNull
-    private final Mono<Requester> requesterMono;
+    private final Requester requester;
     @NonNull
     private final String invokingGuildMemberName;
 
     public ButtonEventAdapterImpl(@NonNull ButtonInteractionEvent event,
-                                  @NonNull Mono<Requester> requesterMono) {
+                                  @NonNull Requester requester) {
         this.event = event;
-        this.requesterMono = requesterMono;
+        this.requester = requester;
         this.messageId = event.getMessageIdLong();
         this.customId = event.getInteraction().getComponentId();
         this.isPinned = event.getMessage().isPinned();
@@ -93,12 +93,6 @@ public class ButtonEventAdapterImpl extends DiscordAdapterImpl implements Button
     @Override
     public @NonNull String getMessageContent() {
         return messageContent;
-    }
-
-    @Override
-    public Mono<Void> acknowledge() {
-        //not needed with JDA
-        return Mono.empty();
     }
 
 
@@ -171,8 +165,8 @@ public class ButtonEventAdapterImpl extends DiscordAdapterImpl implements Button
     }
 
     @Override
-    public Mono<Requester> getRequester() {
-        return requesterMono;
+    public @NonNull Requester getRequester() {
+        return requester;
     }
 
     @Override

@@ -64,12 +64,6 @@ public class ButtonEventAdaptorMock implements ButtonEventAdaptor {
     }
 
     @Override
-    public Mono<Void> acknowledge() {
-        actions.add("acknowledge");
-        return Mono.just("").then();
-    }
-
-    @Override
     public Mono<Void> editMessage(@Nullable String message, @Nullable List<ComponentRowDefinition> componentRowDefinitions) {
         actions.add(String.format("editMessage: message:%s, buttonValues=%s", message, Optional.ofNullable(componentRowDefinitions).stream()
                 .flatMap(Collection::stream)
@@ -101,8 +95,8 @@ public class ButtonEventAdaptorMock implements ButtonEventAdaptor {
     }
 
     @Override
-    public Mono<Requester> getRequester() {
-        return Mono.just(new Requester("invokingUser", "channelName", "guildName", "[0 / 1]"));
+    public Requester getRequester() {
+        return new Requester("invokingUser", "channelName", "guildName", "[0 / 1]");
     }
 
     @Override
