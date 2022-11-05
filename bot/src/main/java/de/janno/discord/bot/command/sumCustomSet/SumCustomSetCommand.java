@@ -11,10 +11,7 @@ import de.janno.discord.bot.command.AbstractCommand;
 import de.janno.discord.bot.command.ButtonIdLabelAndDiceExpression;
 import de.janno.discord.bot.command.ConfigAndState;
 import de.janno.discord.bot.command.State;
-import de.janno.discord.bot.dice.Dice;
-import de.janno.discord.bot.dice.DiceParser;
-import de.janno.discord.bot.dice.DiceParserSystem;
-import de.janno.discord.bot.dice.DiceSystemAdapter;
+import de.janno.discord.bot.dice.*;
 import de.janno.discord.bot.persistance.Mapper;
 import de.janno.discord.bot.persistance.MessageDataDAO;
 import de.janno.discord.bot.persistance.MessageDataDTO;
@@ -127,7 +124,10 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
     @Override
     protected @NonNull EmbedDefinition getHelpMessage() {
         return EmbedDefinition.builder()
-                .description("Creates buttons with custom dice expression components, that can be combined afterwards. e.g. '/sum_custom_set start buttons:+;1d6;1;2;3'. \n" + diceSystemAdapter.getHelpText(DiceParserSystem.DICEROLL_PARSER))
+                .description("Creates buttons with custom dice expression components, that can be combined afterwards.. \n" + DiceEvaluatorAdapter.getHelp())
+                .field(new EmbedDefinition.Field("Example", "`/sum_custom_set start buttons:+;d6;1;2;3;4;5;6;7;8;9;0`", false))
+                .field(new EmbedDefinition.Field("Full documentation", "https://github.com/twonirwana/DiscordDiceBot", false))
+                .field(new EmbedDefinition.Field("Discord Server", "https://discord.gg/e43BsqKpFr", false))
                 .build();
     }
 
@@ -142,8 +142,10 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
                 .map(ButtonIdAndExpression::getExpression)
                 .distinct()
                 .collect(Collectors.toList());
-        DiceParserSystem diceParserSystem = options.getName().equals(LEGACY_START_ACTION) ? DiceParserSystem.DICEROLL_PARSER : DiceParserSystem.DICE_EVALUATOR;
-        return diceSystemAdapter.validateListOfExpressions(diceExpressionWithOptionalLabel, "/sum_custom_set help", diceParserSystem);
+        if (options.getName().equals(LEGACY_START_ACTION)) {
+            return diceSystemAdapter.validateListOfExpressions(diceExpressionWithOptionalLabel, "/sum_custom_set help", DiceParserSystem.DICEROLL_PARSER);
+        }
+        return Optional.empty();
     }
 
     @Override

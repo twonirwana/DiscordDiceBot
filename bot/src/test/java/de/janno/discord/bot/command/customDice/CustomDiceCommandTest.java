@@ -6,6 +6,7 @@ import de.janno.discord.bot.command.ConfigAndState;
 import de.janno.discord.bot.command.State;
 import de.janno.discord.bot.command.StateData;
 import de.janno.discord.bot.dice.Dice;
+import de.janno.discord.bot.dice.DiceEvaluatorAdapter;
 import de.janno.discord.bot.dice.DiceParser;
 import de.janno.discord.bot.dice.DiceParserSystem;
 import de.janno.discord.bot.persistance.MessageDataDAO;
@@ -20,7 +21,6 @@ import de.janno.discord.connector.api.message.EmbedDefinition;
 import de.janno.discord.connector.api.message.MessageDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinitionOption;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
-import de.janno.evaluator.dice.DiceEvaluator;
 import dev.diceroll.parser.NDice;
 import dev.diceroll.parser.ResultTree;
 import org.junit.jupiter.api.BeforeEach;
@@ -233,7 +233,7 @@ class CustomDiceCommandTest {
         when(buttonEventAdaptor.createResultMessageWithEventReference(any(), eq(null))).thenReturn(Mono.just(mock(Void.class)));
         when(buttonEventAdaptor.createButtonMessage(any())).thenReturn(Mono.just(2L));
         when(buttonEventAdaptor.deleteMessage(anyLong(), anyBoolean())).thenReturn(Mono.just(2L));
-        when(buttonEventAdaptor.getRequester()).thenReturn(new Requester("user", "channel", "guild","[0 / 1]"));
+        when(buttonEventAdaptor.getRequester()).thenReturn(new Requester("user", "channel", "guild", "[0 / 1]"));
         when(buttonEventAdaptor.getAllButtonIds()).thenReturn(ImmutableList.of(new ButtonEventAdaptor.LabelAndCustomId("1d6", "custom_dice\u00001d6")));
         Mono<Void> res = underTest.handleComponentInteractEvent(buttonEventAdaptor);
 
@@ -272,7 +272,7 @@ class CustomDiceCommandTest {
         when(buttonEventAdaptor.createButtonMessage(any())).thenReturn(Mono.just(2L));
         when(buttonEventAdaptor.createResultMessageWithEventReference(any(), eq(null))).thenReturn(Mono.just(mock(Void.class)));
         when(buttonEventAdaptor.deleteMessage(anyLong(), anyBoolean())).thenReturn(Mono.just(2L));
-        when(buttonEventAdaptor.getRequester()).thenReturn(new Requester("user", "channel", "guild","[0 / 1]"));
+        when(buttonEventAdaptor.getRequester()).thenReturn(new Requester("user", "channel", "guild", "[0 / 1]"));
         when(buttonEventAdaptor.getAllButtonIds()).thenReturn(ImmutableList.of(new ButtonEventAdaptor.LabelAndCustomId("1d6", "custom_dice\u00001d6")));
 
         Mono<Void> res = underTest.handleComponentInteractEvent(buttonEventAdaptor);
@@ -337,7 +337,7 @@ class CustomDiceCommandTest {
 
         when(event.createButtonMessage(any())).thenReturn(Mono.just(2L));
         when(event.deleteMessage(anyLong(), anyBoolean())).thenReturn(Mono.just(2L));
-        when(event.getRequester()).thenReturn(new Requester("user", "channel", "guild","[0 / 1]"));
+        when(event.getRequester()).thenReturn(new Requester("user", "channel", "guild", "[0 / 1]"));
         when(event.reply(any(), anyBoolean())).thenReturn(Mono.just(mock(Void.class)));
         when(diceMock.detailedRoll(any())).thenAnswer(a -> new DiceParser().detailedRoll(a.getArgument(0)));
 
@@ -392,7 +392,7 @@ class CustomDiceCommandTest {
 
         when(event.createButtonMessage(any())).thenReturn(Mono.just(2L));
         when(event.deleteMessage(anyLong(), anyBoolean())).thenReturn(Mono.just(2L));
-        when(event.getRequester()).thenReturn(new Requester("user", "channel", "guild","[0 / 1]"));
+        when(event.getRequester()).thenReturn(new Requester("user", "channel", "guild", "[0 / 1]"));
         when(event.reply(any(), anyBoolean())).thenReturn(Mono.just(mock(Void.class)));
         when(diceMock.detailedRoll(any())).thenAnswer(a -> new DiceParser().detailedRoll(a.getArgument(0)));
 
@@ -510,9 +510,11 @@ class CustomDiceCommandTest {
         verify(event).checkPermissions();
         verify(event).getCommandString();
         verify(event, times(3)).getOption(any());
-        verify(event).replyEmbed(EmbedDefinition.builder()
-                .description("Creates up to 25 buttons with custom dice expression e.g. '/custom_dice start buttons:3d6;10d10;3d20'. \n" +
-                        "```\n" + DiceEvaluator.getHelpText() + "\n```\nSee here: https://github.com/twonirwana/DiscordDiceBot")
+        verify(event).replyEmbed( EmbedDefinition.builder()
+                .description("Creates up to 25 buttons with custom dice expression.\n" + DiceEvaluatorAdapter.getHelp())
+                .field(new EmbedDefinition.Field("Example", "`/custom_dice start buttons:3d6;10d10;3d20`", false))
+                .field(new EmbedDefinition.Field("Full documentation", "https://github.com/twonirwana/DiscordDiceBot", false))
+                .field(new EmbedDefinition.Field("Discord Server", "https://discord.gg/e43BsqKpFr", false))
                 .build(), true);
 
     }

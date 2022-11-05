@@ -105,7 +105,9 @@ public class FateCommand extends AbstractCommand<FateConfig, StateData> {
                 .description("Buttons for Fate/Fudge dice. There are two types, the simple produces one button that rolls four dice and " +
                         "provides the result together with the sum. The type with_modifier produces multiple buttons for modifier -4 to +10" +
                         " that roll four dice and add the modifier of the button.")
-                .field(new EmbedDefinition.Field("Example", "'/fate start type:with_modifier' or '/fate start type:simple'", false))
+                .field(new EmbedDefinition.Field("Example", "`/fate start type:with_modifier` or `/fate start type:simple`", false))
+                .field(new EmbedDefinition.Field("Full documentation", "https://github.com/twonirwana/DiscordDiceBot", false))
+                .field(new EmbedDefinition.Field("Discord Server", "https://discord.gg/e43BsqKpFr", false))
                 .build();
     }
 
