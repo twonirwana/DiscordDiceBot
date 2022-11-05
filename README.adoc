@@ -3,11 +3,11 @@ https://www.gnu.org/licenses/agpl-3.0[image:https://img.shields.io/badge/License
 == Button Dice Roller
 
 This is dice rolling bot for Discord.
-The bot needs to be configured with a slash command in a channel and then provides a message with a button selection.
+The bot needs to be configured with a slash command in a channel and then provides a message with a buttons.
 Upon clicking on a button the bot will post the result and move the message with the buttons to the bottom of the channel.
 If the message is pined, then it will only be copied and not moved.
 This allows it to roll dice without typing commands and thereby improves usability, especially for touchscreen users.
-The bot supports Discord thread (the button message must be added after the thread creation), Text in Voice and it is possible to send the answer in a different channel.
+The bot supports Discord thread (the button message must be added after the thread creation), Text in Voice, and it is possible to send the answer in a different channel.
 
 image:image/example.webp[image]
 
