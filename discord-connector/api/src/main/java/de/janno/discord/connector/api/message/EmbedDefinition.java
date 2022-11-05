@@ -18,6 +18,9 @@ public class EmbedDefinition {
     @Singular
     List<Field> fields;
 
+    @Builder.Default
+    boolean minimize = false;
+
     public String toShortString() {
         List<String> fieldStringList = fields.stream()
                 .map(Field::toShortString).toList();

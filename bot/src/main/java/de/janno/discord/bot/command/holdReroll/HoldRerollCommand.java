@@ -136,7 +136,7 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollConfig, HoldRer
             title = String.format("Success: %d, Failure: %d and Rerolls: %d", successes, failures, rerollCount);
         }
 
-        return Optional.of(new EmbedDefinition(title, CommandUtils.markIn(state.getData().getCurrentResults(), getToMark(config)), ImmutableList.of()));
+        return Optional.of(new EmbedDefinition(title, CommandUtils.markIn(state.getData().getCurrentResults(), getToMark(config)), ImmutableList.of(), minimizeAnswer(config)));
     }
 
     @Override
@@ -147,7 +147,7 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollConfig, HoldRer
         Set<Integer> successSet = CommandUtils.toSet(customIdSplit[5], SUBSET_DELIMITER, EMPTY);
         Set<Integer> failureSet = CommandUtils.toSet(customIdSplit[6], SUBSET_DELIMITER, EMPTY);
         Long answerTargetChannelId = getOptionalLongFromArray(customIdSplit, 8);
-        return new HoldRerollConfig(answerTargetChannelId, sideOfDie, rerollSet, successSet, failureSet);
+        return new HoldRerollConfig(answerTargetChannelId, sideOfDie, rerollSet, successSet, failureSet, ANSWER_TYPE_EMBED);
     }
 
 
@@ -212,7 +212,7 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollConfig, HoldRer
         Set<Integer> rerollSet = CommandUtils.getSetFromCommandOptions(options, REROLL_SET_ID, ",");
         Set<Integer> successSet = CommandUtils.getSetFromCommandOptions(options, SUCCESS_SET_ID, ",");
         Set<Integer> failureSet = CommandUtils.getSetFromCommandOptions(options, FAILURE_SET_ID, ",");
-        return new HoldRerollConfig(getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null), sideValue, rerollSet, successSet, failureSet);
+        return new HoldRerollConfig(getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null), sideValue, rerollSet, successSet, failureSet, getAnswerTypeFromStartCommandOption(options));
     }
 
     @Override

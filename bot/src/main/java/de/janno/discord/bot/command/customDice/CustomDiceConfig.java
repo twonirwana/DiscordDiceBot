@@ -25,8 +25,9 @@ public class CustomDiceConfig extends Config {
     @JsonCreator
     public CustomDiceConfig(@JsonProperty("answerTargetChannelId") Long answerTargetChannelId,
                             @JsonProperty("buttonIdLabelAndDiceExpressions") @NonNull List<ButtonIdLabelAndDiceExpression> buttonIdLabelAndDiceExpressions,
-                            @JsonProperty("diceParserSystem") DiceParserSystem diceParserSystem) {
-        super(answerTargetChannelId);
+                            @JsonProperty("diceParserSystem") DiceParserSystem diceParserSystem,
+                            @JsonProperty("answerDisplayType") String answerDisplayType) {
+        super(answerTargetChannelId, answerDisplayType);
         this.buttonIdLabelAndDiceExpressions = buttonIdLabelAndDiceExpressions;
         this.diceParserSystem = diceParserSystem == null ? DiceParserSystem.DICEROLL_PARSER : diceParserSystem;
     }
@@ -36,7 +37,7 @@ public class CustomDiceConfig extends Config {
         String buttons = buttonIdLabelAndDiceExpressions.stream()
                 .map(ButtonIdLabelAndDiceExpression::toShortString)
                 .collect(Collectors.joining(", "));
-        return "[%s, %s, %s]".formatted(buttons, getTargetChannelShortString(), diceParserSystem);
+        return "[%s, %s, %s, %s]".formatted(buttons, getTargetChannelShortString(), diceParserSystem, getAnswerDisplayType());
     }
 
 }

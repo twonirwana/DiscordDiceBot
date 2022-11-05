@@ -130,7 +130,7 @@ public class FateCommand extends AbstractCommand<FateConfig, StateData> {
     @Override
     protected @NonNull FateConfig getConfigFromStartOptions(@NonNull CommandInteractionOption options) {
         return new FateConfig(getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null),
-                options.getStringSubOptionWithName(ACTION_MODIFIER_OPTION).orElse(ACTION_MODIFIER_OPTION_SIMPLE));
+                options.getStringSubOptionWithName(ACTION_MODIFIER_OPTION).orElse(ACTION_MODIFIER_OPTION_SIMPLE), getAnswerTypeFromStartCommandOption(options));
     }
 
     @Override
@@ -149,11 +149,11 @@ public class FateCommand extends AbstractCommand<FateConfig, StateData> {
 
             String title = String.format("4dF%s = %d", modifierString, resultWithModifier);
             String details = DiceUtils.convertFateNumberToString(rollResult);
-            return Optional.of(new EmbedDefinition(title, details, ImmutableList.of()));
+            return Optional.of(new EmbedDefinition(title, details, ImmutableList.of(), minimizeAnswer(config)));
         } else {
             String title = String.format("4dF = %d", DiceUtils.fateResult(rollResult));
             String details = DiceUtils.convertFateNumberToString(rollResult);
-            return Optional.of(new EmbedDefinition(title, details, ImmutableList.of()));
+            return Optional.of(new EmbedDefinition(title, details, ImmutableList.of(), minimizeAnswer(config)));
         }
     }
 
@@ -212,7 +212,7 @@ public class FateCommand extends AbstractCommand<FateConfig, StateData> {
     @Override
     protected @NonNull FateConfig getConfigFromEvent(@NonNull ButtonEventAdaptor event) {
         String[] split = event.getCustomId().split(BottomCustomIdUtils.LEGACY_CONFIG_SPLIT_DELIMITER_REGEX);
-        return new FateConfig(getOptionalLongFromArray(split, 3), split[2]);
+        return new FateConfig(getOptionalLongFromArray(split, 3), split[2], ANSWER_TYPE_EMBED);
     }
 
     @Override

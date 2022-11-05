@@ -141,7 +141,7 @@ public class ButtonEventAdapterImpl extends DiscordAdapterImpl implements Button
                         .map(g -> g.getChannelById(MessageChannel.class, targetChannelId)))
                 .orElse(event.getInteraction().getMessageChannel());
         return createEmbedMessageWithReference(targetChannel,
-                answer, invokingGuildMemberName,
+                answer, invokingGuildMemberName, event.getUser().getAsMention(),
                 Optional.ofNullable(event.getMember()).map(Member::getEffectiveAvatarUrl).orElse(event.getUser().getEffectiveAvatarUrl()),
                 event.getUser().getId())
                 .onErrorResume(t -> handleException("Error on creating answer message", t, false).ofType(Message.class))

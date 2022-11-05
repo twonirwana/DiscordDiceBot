@@ -169,7 +169,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
         return new CustomParameterConfig(
                 getOptionalLongFromArray(split, CustomIdIndex.ANSWER_TARGET_CHANNEL.index),
                 split[CustomIdIndex.BASE_EXPRESSION.index],
-                DiceParserSystem.DICEROLL_PARSER);
+                DiceParserSystem.DICEROLL_PARSER, ANSWER_TYPE_EMBED);
     }
 
     @Override
@@ -222,7 +222,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     protected @NonNull CustomParameterConfig getConfigFromStartOptions(@NonNull CommandInteractionOption options) {
         String baseExpression = options.getStringSubOptionWithName(EXPRESSION_OPTION).orElse("");
         Optional<Long> answerTargetChannelId = getAnswerTargetChannelIdFromStartCommandOption(options);
-        return new CustomParameterConfig(answerTargetChannelId.orElse(null), baseExpression, DiceParserSystem.DICE_EVALUATOR);
+        return new CustomParameterConfig(answerTargetChannelId.orElse(null), baseExpression, DiceParserSystem.DICE_EVALUATOR, getAnswerTypeFromStartCommandOption(options));
     }
 
     @Override

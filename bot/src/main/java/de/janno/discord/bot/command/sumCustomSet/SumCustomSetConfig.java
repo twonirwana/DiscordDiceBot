@@ -27,8 +27,9 @@ public class SumCustomSetConfig extends Config {
     public SumCustomSetConfig(@JsonProperty("answerTargetChannelId") Long answerTargetChannelId,
                               @JsonProperty("labelAndExpression") @NonNull List<ButtonIdLabelAndDiceExpression> labelAndExpression,
                               @JsonProperty("diceParserSystem") DiceParserSystem diceParserSystem,
-                              @JsonProperty("alwaysSumResult") Boolean alwaysSumResult) {
-        super(answerTargetChannelId);
+                              @JsonProperty("alwaysSumResult") Boolean alwaysSumResult,
+                              @JsonProperty("answerDisplayType") String answerDisplayType) {
+        super(answerTargetChannelId, answerDisplayType);
         this.labelAndExpression = labelAndExpression;
         this.diceParserSystem = diceParserSystem == null ? DiceParserSystem.DICEROLL_PARSER : diceParserSystem;
         this.alwaysSumResult = alwaysSumResult == null || alwaysSumResult;
@@ -40,6 +41,6 @@ public class SumCustomSetConfig extends Config {
         String buttons = labelAndExpression.stream()
                 .map(ButtonIdLabelAndDiceExpression::toShortString)
                 .collect(Collectors.joining(", "));
-        return "[%s, %s, %s, %s]".formatted(buttons, getTargetChannelShortString(), diceParserSystem, alwaysSumResult);
+        return "[%s, %s, %s, %s, %s]".formatted(buttons, getTargetChannelShortString(), diceParserSystem, alwaysSumResult, getAnswerDisplayType());
     }
 }

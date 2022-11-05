@@ -162,13 +162,13 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
         if (LEGACY_START_ACTION.equals(options.getName())) {
             BotMetrics.incrementLegacyStartCounter(getCommandId());
             return getConfigOptionStringList(getButtonsFromCommandOption(options), getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null),
-                    DiceParserSystem.DICEROLL_PARSER);
+                    DiceParserSystem.DICEROLL_PARSER, ANSWER_TYPE_EMBED);
         }
-        return getConfigOptionStringList(getButtonsFromCommandOption(options), getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null), DiceParserSystem.DICE_EVALUATOR);
+        return getConfigOptionStringList(getButtonsFromCommandOption(options), getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null), DiceParserSystem.DICE_EVALUATOR, getAnswerTypeFromStartCommandOption(options));
     }
 
     @VisibleForTesting
-    CustomDiceConfig getConfigOptionStringList(List<ButtonIdAndExpression> startOptions, Long channelId, DiceParserSystem diceParserSystem) {
+    CustomDiceConfig getConfigOptionStringList(List<ButtonIdAndExpression> startOptions, Long channelId, DiceParserSystem diceParserSystem, String answerDisplayType) {
         return new CustomDiceConfig(channelId, startOptions.stream()
                 .filter(be -> !be.getExpression().contains(BottomCustomIdUtils.CUSTOM_ID_DELIMITER))
                 .filter(be -> !be.getExpression().contains(LABEL_DELIMITER) || be.getExpression().split(LABEL_DELIMITER).length == 2)
@@ -187,7 +187,7 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
                 .distinct()
                 .limit(25)
                 .collect(Collectors.toList()),
-                diceParserSystem);
+                diceParserSystem, answerDisplayType);
     }
 
     @Override
@@ -238,7 +238,7 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
 
         return new CustomDiceConfig(answerTargetChannelId, event.getAllButtonIds().stream()
                 .map(lv -> new ButtonIdLabelAndDiceExpression(buttonIds.pop(), lv.getLabel(), BottomCustomIdUtils.getButtonValueFromLegacyCustomId(lv.getCustomId())))
-                .collect(Collectors.toList()), DiceParserSystem.DICEROLL_PARSER);
+                .collect(Collectors.toList()), DiceParserSystem.DICEROLL_PARSER, ANSWER_TYPE_EMBED);
     }
 
     @Override

@@ -38,6 +38,7 @@ public class SlashEventAdapterImpl extends DiscordAdapterImpl implements SlashEv
         this.channelId = event.getChannel().getIdLong();
         this.commandString = String.format("`%s`", event.getCommandString());
         this.guildId = Optional.ofNullable(event.getGuild()).map(Guild::getIdLong).orElse(null);
+
     }
 
     @Override
@@ -94,6 +95,7 @@ public class SlashEventAdapterImpl extends DiscordAdapterImpl implements SlashEv
         return createEmbedMessageWithReference(event.getMessageChannel(),
                 answer,
                 Optional.ofNullable(event.getMember()).map(Member::getEffectiveName).orElse(event.getUser().getName()),
+                event.getMember().getAsMention(),
                 Optional.ofNullable(event.getMember()).map(Member::getEffectiveAvatarUrl).orElse(event.getUser().getEffectiveAvatarUrl()),
                 event.getUser().getId())
                 .onErrorResume(t -> handleException("Error on creating answer message", t, false).ofType(Message.class))

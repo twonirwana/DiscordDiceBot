@@ -86,6 +86,7 @@ public class DiceEvaluatorAdapter {
             if (rolls.size() == 1) {
                 String title = optionalLabel.orElse(diceExpression);
                 answer = EmbedDefinition.builder()
+                        .minimize(true)
                         .title("%s ⇒ %s".formatted(title, getTitleResult(rolls.get(0), sumUp)))
                         .description(getDetailResult(rolls.get(0), optionalLabel.map(l -> diceExpression).orElse(null)))
                         .build();
@@ -95,12 +96,14 @@ public class DiceEvaluatorAdapter {
                         .map(r -> new EmbedDefinition.Field("%s ⇒ %s".formatted(r.getExpression(), getTitleResult(r, sumUp)), getDetailResult(r, null), false))
                         .collect(ImmutableList.toImmutableList());
                 answer = EmbedDefinition.builder()
+                        .minimize(true)
                         .title(optionalLabel.orElse(diceExpression))
                         .fields(fields)
                         .build();
             }
         } catch (ExpressionException e) {
             answer = EmbedDefinition.builder()
+                    .minimize(true)
                     .title("Error in: " + diceExpression)
                     .description(e.getMessage())
                     .build();

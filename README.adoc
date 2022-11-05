@@ -33,7 +33,7 @@ Some example for commands, many more systems can be mapped with commands, please
 
 ==== OSR
 
-`/custom_dice start buttons:1d20@D20;1d6@D6;2d6@2D6;1d4@D4;1d8@D8;3d6,3d6,3d6,3d6,3d6,3d6@Stats;(3d6=)*10@Gold;1d100@D100;1d10@D10;1d12@D12`
+`/custom_dice start buttons:1d20@D20;1d6@D6;2d6@2D6;1d4@D4;1d8@D8;3d6=,3d6=,3d6=,3d6=,3d6=,3d6=@Stats;(3d6=)*10@Gold;1d100@D100;1d10@D10;1d12@D12`
 
 ==== Fate
 

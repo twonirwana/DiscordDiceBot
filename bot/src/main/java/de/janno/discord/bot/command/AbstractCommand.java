@@ -13,6 +13,7 @@ import de.janno.discord.connector.api.message.EmbedDefinition;
 import de.janno.discord.connector.api.message.MessageDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinitionOption;
+import de.janno.discord.connector.api.slash.CommandDefinitionOptionChoice;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -31,11 +32,28 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
     protected static final String ACTION_START = "start";
     protected static final String ACTION_HELP = "help";
     protected static final String ANSWER_TARGET_CHANNEL_OPTION = "target_channel";
+    protected static final String ANSWER_TYPE_OPTION = "answer_type";
+    public static final String ANSWER_TYPE_EMBED = "full";
+    protected static final String ANSWER_TYPE_MESSAGE = "compact";
 
     protected static final CommandDefinitionOption ANSWER_TARGET_CHANNEL_COMMAND_OPTION = CommandDefinitionOption.builder()
             .name(ANSWER_TARGET_CHANNEL_OPTION)
             .description("The channel where the answer will be given")
             .type(CommandDefinitionOption.Type.CHANNEL)
+            .build();
+
+    protected static final CommandDefinitionOption ANSWER_TYPE_COMMAND_OPTION = CommandDefinitionOption.builder()
+            .name(ANSWER_TYPE_OPTION)
+            .description("How the answer will be displayed")
+            .type(CommandDefinitionOption.Type.STRING)
+            .choice(CommandDefinitionOptionChoice.builder()
+                    .name(ANSWER_TYPE_EMBED)
+                    .value(ANSWER_TYPE_EMBED)
+                    .build())
+            .choice(CommandDefinitionOptionChoice.builder()
+                    .name(ANSWER_TYPE_MESSAGE)
+                    .value(ANSWER_TYPE_MESSAGE)
+                    .build())
             .build();
 
     protected final MessageDataDAO messageDataDAO;
@@ -59,6 +77,11 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
         return options.getChannelIdSubOptionWithName(ANSWER_TARGET_CHANNEL_OPTION);
     }
 
+    protected String getAnswerTypeFromStartCommandOption(@NonNull CommandInteractionOption options) {
+        return options.getStringSubOptionWithName(ANSWER_TYPE_OPTION).orElse(ANSWER_TYPE_EMBED);
+    }
+
+
     @Override
     public boolean matchingComponentCustomId(@NonNull String buttonCustomId) {
         if (BottomCustomIdUtils.isLegacyCustomId(buttonCustomId)) {
@@ -78,6 +101,7 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
                         .type(CommandDefinitionOption.Type.SUB_COMMAND)
                         .options(getStartOptions())
                         .option(ANSWER_TARGET_CHANNEL_COMMAND_OPTION)
+                        .option(ANSWER_TYPE_COMMAND_OPTION)
                         .build())
                 .option(CommandDefinitionOption.builder()
                         .name(ACTION_HELP)
@@ -308,6 +332,10 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
 
     protected @NonNull List<CommandDefinitionOption> getStartOptions() {
         return ImmutableList.of();
+    }
+
+    protected boolean minimizeAnswer(C config) {
+        return ANSWER_TYPE_MESSAGE.equals(config.getAnswerDisplayType());
     }
 
     protected abstract @NonNull String getCommandDescription();

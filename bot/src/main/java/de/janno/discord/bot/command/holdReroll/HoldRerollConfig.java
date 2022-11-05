@@ -32,8 +32,9 @@ public class HoldRerollConfig extends Config {
                             @JsonProperty("sidesOfDie") int sidesOfDie,
                             @JsonProperty("rerollSet") @NonNull Set<Integer> rerollSet,
                             @JsonProperty("successSet") @NonNull Set<Integer> successSet,
-                            @JsonProperty("failureSet") @NonNull Set<Integer> failureSet) {
-        super(answerTargetChannelId);
+                            @JsonProperty("failureSet") @NonNull Set<Integer> failureSet,
+                            @JsonProperty("answerDisplayType") String answerDisplayType) {
+        super(answerTargetChannelId, answerDisplayType);
         this.sidesOfDie = sidesOfDie;
         this.rerollSet = rerollSet;
         this.successSet = successSet;
@@ -47,7 +48,8 @@ public class HoldRerollConfig extends Config {
                 rerollSet.stream().map(String::valueOf).collect(Collectors.joining(SUBSET_DELIMITER)),
                 successSet.stream().map(String::valueOf).collect(Collectors.joining(SUBSET_DELIMITER)),
                 failureSet.stream().map(String::valueOf).collect(Collectors.joining(SUBSET_DELIMITER)),
-                getTargetChannelShortString()
+                getTargetChannelShortString(),
+                getAnswerDisplayType()
         ).toString();
     }
 }

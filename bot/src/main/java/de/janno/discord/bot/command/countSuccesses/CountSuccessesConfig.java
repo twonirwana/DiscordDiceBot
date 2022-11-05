@@ -37,8 +37,9 @@ public class CountSuccessesConfig extends Config {
                                 @JsonProperty("maxNumberOfButtons") int maxNumberOfButtons,
                                 @JsonProperty("minDiceCount") Integer minDiceCount,
                                 @JsonProperty("rerollSet") Set<Integer> rerollSet,
-                                @JsonProperty("botchSet") Set<Integer> botchSet) {
-        super(answerTargetChannelId);
+                                @JsonProperty("botchSet") Set<Integer> botchSet,
+                                @JsonProperty("answerDisplayType") String answerDisplayType) {
+        super(answerTargetChannelId, answerDisplayType);
         this.diceSides = diceSides;
         this.target = target;
         this.glitchOption = glitchOption;
@@ -57,7 +58,8 @@ public class CountSuccessesConfig extends Config {
                 String.valueOf(getMinDiceCount()),
                 rerollSet.stream().map(String::valueOf).collect(Collectors.joining(CountSuccessesCommand.SUBSET_DELIMITER)),
                 botchSet.stream().map(String::valueOf).collect(Collectors.joining(CountSuccessesCommand.SUBSET_DELIMITER)),
-                getTargetChannelShortString()
+                getTargetChannelShortString(),
+                getAnswerDisplayType()
         ).toList().toString();
     }
 }

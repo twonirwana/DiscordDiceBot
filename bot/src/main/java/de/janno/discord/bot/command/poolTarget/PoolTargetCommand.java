@@ -213,7 +213,7 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTar
         }
         String details = String.format("%s ≥%d = %s", CommandUtils.markIn(rollResult, toMark), state.getData().getTargetNumber(), totalResults);
         String title = String.format("%dd%d = %d", state.getData().getDicePool(), config.getDiceSides(), totalResults);
-        return Optional.of(new EmbedDefinition(title, details, ImmutableList.of()));
+        return Optional.of(new EmbedDefinition(title, details, ImmutableList.of(), minimizeAnswer(config)));
     }
 
     @Override
@@ -226,7 +226,7 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTar
         Set<Integer> botchSet = CommandUtils.toSet(customIdSplit[BOTCH_SET_INDEX], SUBSET_DELIMITER, EMPTY);
         String rerollVariant = customIdSplit[REROLL_VARIANT_INDEX];
         Long answerTargetChannelId = getOptionalLongFromArray(customIdSplit, ANSWER_TARGET_CHANNEL_INDEX);
-        return new PoolTargetConfig(answerTargetChannelId, sideOfDie, maxNumberOfButtons, rerollSet, botchSet, rerollVariant);
+        return new PoolTargetConfig(answerTargetChannelId, sideOfDie, maxNumberOfButtons, rerollSet, botchSet, rerollVariant, ANSWER_TYPE_EMBED);
     }
 
     private PoolTargetStateData updatePoolTargetStateData(PoolTargetConfig config,
@@ -296,7 +296,7 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTar
                 .findFirst()
                 .orElse(ALWAYS_REROLL);
         Long answerTargetChannelId = getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null);
-        return new PoolTargetConfig(answerTargetChannelId, sideValue, maxButton, rerollSet, botchSet, rerollVariant);
+        return new PoolTargetConfig(answerTargetChannelId, sideValue, maxButton, rerollSet, botchSet, rerollVariant, getAnswerTypeFromStartCommandOption(options));
     }
 
 

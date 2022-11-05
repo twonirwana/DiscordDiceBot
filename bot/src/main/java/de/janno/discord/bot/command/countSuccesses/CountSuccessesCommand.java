@@ -109,7 +109,7 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesConfig,
         String glitchOption = split.length < 5 ? GLITCH_NO_OPTION : split[4];
         int maxNumberOfButtons = split.length < 6 ? 15 : Integer.parseInt(split[5]);
         Long answerTargetChannelId = getOptionalLongFromArray(split, 6);
-        return new CountSuccessesConfig(answerTargetChannelId, sideOfDie, target, glitchOption, maxNumberOfButtons, 1, Set.of(), Set.of());
+        return new CountSuccessesConfig(answerTargetChannelId, sideOfDie, target, glitchOption, maxNumberOfButtons, 1, Set.of(), Set.of(), ANSWER_TYPE_EMBED);
     }
 
     @Override
@@ -239,9 +239,7 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesConfig,
         final String title = baseTitle + glitchTitle;
         final String details = baseDetails + glitchDetails;
 
-        return Optional.of(new EmbedDefinition(title, details, ImmutableList.of()));
-
-
+        return Optional.of(new EmbedDefinition(title, details, ImmutableList.of(), minimizeAnswer(config)));
     }
 
     @Override
@@ -298,7 +296,8 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesConfig,
                 .collect(Collectors.toSet());
         Set<Integer> botchSet = CommandUtils.getSetFromCommandOptions(options, ACTION_BOTCH_SET_OPTION, ",");
         Long answerTargetChannelId = getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null);
-        return new CountSuccessesConfig(answerTargetChannelId, sideValue, targetValue, glitchOption, maxDice, minDiceCount, rerollSet, botchSet);
+        String answerType = getAnswerTypeFromStartCommandOption(options);
+        return new CountSuccessesConfig(answerTargetChannelId, sideValue, targetValue, glitchOption, maxDice, minDiceCount, rerollSet, botchSet, answerType);
     }
 
     private List<ComponentRowDefinition> createButtonLayout(CountSuccessesConfig config) {

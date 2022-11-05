@@ -17,13 +17,14 @@ public class FateConfig extends Config {
 
     @JsonCreator
     public FateConfig(@JsonProperty("answerTargetChannelId") Long answerTargetChannelId,
-                      @JsonProperty("type") @NonNull String type) {
-        super(answerTargetChannelId);
+                      @JsonProperty("type") @NonNull String type,
+                      @JsonProperty("answerDisplayType") String answerDisplayType) {
+        super(answerTargetChannelId, answerDisplayType);
         this.type = type;
     }
 
     @Override
     public String toShortString() {
-        return String.format("[%s, %s]", type, getTargetChannelShortString());
+        return String.format("[%s, %s, %s]", type, getTargetChannelShortString(), getAnswerDisplayType());
     }
 }

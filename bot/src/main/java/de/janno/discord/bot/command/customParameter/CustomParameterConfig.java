@@ -20,14 +20,15 @@ public class CustomParameterConfig extends Config {
     public CustomParameterConfig(
             @JsonProperty("answerTargetChannelId") Long answerTargetChannelId,
             @JsonProperty("baseExpression") @NonNull String baseExpression,
-            @JsonProperty("diceParserSystem") DiceParserSystem diceParserSystem) {
-        super(answerTargetChannelId);
+            @JsonProperty("diceParserSystem") DiceParserSystem diceParserSystem,
+            @JsonProperty("answerDisplayType") String answerDisplayType) {
+        super(answerTargetChannelId, answerDisplayType);
         this.baseExpression = baseExpression;
         this.diceParserSystem = diceParserSystem == null ? DiceParserSystem.DICEROLL_PARSER : diceParserSystem;
     }
 
     @Override
     public String toShortString() {
-        return "[%s, %s, %s]".formatted(baseExpression, getTargetChannelShortString(), diceParserSystem);
+        return "[%s, %s, %s, %s]".formatted(baseExpression, getTargetChannelShortString(), diceParserSystem, getAnswerDisplayType());
     }
 }

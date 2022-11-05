@@ -15,6 +15,7 @@ import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.exceptions.ErrorResponseException;
 import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
 import net.dv8tion.jda.api.requests.RestAction;
+import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Nullable;
 import reactor.core.publisher.Mono;
@@ -25,6 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 @Slf4j
 public abstract class DiscordAdapterImpl implements de.janno.discord.connector.api.DiscordAdapter {
@@ -46,29 +48,38 @@ public abstract class DiscordAdapterImpl implements de.janno.discord.connector.a
             @NonNull MessageChannel messageChannel,
             @NonNull EmbedDefinition answer,
             @NonNull String rollRequesterName,
+            @NonNull String rollRequesterMention,
             @Nullable String rollRequesterAvatar,
             @NonNull String rollRequesterId) {
 
-        EmbedBuilder builder = new EmbedBuilder();
-        builder.setTitle(StringUtils.abbreviate(encodeUTF8(answer.getTitle()), 256))//https://discord.com/developers/docs/resources/channel#embed-limits
-                .setAuthor(rollRequesterName,
-                        null,
-                        rollRequesterAvatar)
-                .setColor(Color.decode(String.valueOf(rollRequesterId.hashCode())));
-        if (!Strings.isNullOrEmpty(answer.getDescription())) {
-            builder.setDescription(StringUtils.abbreviate(encodeUTF8(answer.getDescription()), 4096)); //https://discord.com/developers/docs/resources/channel#embed-limits
-        }
+        if (!answer.isMinimize()) {
+            EmbedBuilder builder = new EmbedBuilder();
+            builder.setTitle(StringUtils.abbreviate(encodeUTF8(answer.getTitle()), 256))//https://discord.com/developers/docs/resources/channel#embed-limits
+                    .setAuthor(rollRequesterName,
+                            null,
+                            rollRequesterAvatar)
+                    .setColor(Color.decode(String.valueOf(rollRequesterId.hashCode())));
+            if (!Strings.isNullOrEmpty(answer.getDescription())) {
+                builder.setDescription(StringUtils.abbreviate(encodeUTF8(answer.getDescription()), 4096)); //https://discord.com/developers/docs/resources/channel#embed-limits
+            }
 
-        if (answer.getFields().size() > 25) {
-            log.error("Number of dice results was {} and was reduced", answer.getFields().size());
+            if (answer.getFields().size() > 25) {
+                log.error("Number of dice results was {} and was reduced", answer.getFields().size());
+            }
+            List<EmbedDefinition.Field> limitedList = answer.getFields().stream().limit(25).collect(ImmutableList.toImmutableList()); //https://discord.com/developers/docs/resources/channel#embed-limits
+            for (EmbedDefinition.Field field : limitedList) {
+                builder.addField(StringUtils.abbreviate(encodeUTF8(field.getName()), 256), //https://discord.com/developers/docs/resources/channel#embed-limits
+                        StringUtils.abbreviate(encodeUTF8(field.getValue()), 1024), //https://discord.com/developers/docs/resources/channel#embed-limits
+                        field.isInline());
+            }
+            return createMonoFrom(() -> messageChannel.sendMessageEmbeds(builder.build()));
+        } else {
+            MessageCreateBuilder builder = new MessageCreateBuilder();
+            String answerString = rollRequesterMention + ": " + Optional.ofNullable(answer.getTitle()).map(s -> s + " ").orElse("") + answer.getFields().stream().map(EmbedDefinition.Field::getName).collect(Collectors.joining(" "));
+            answerString = StringUtils.abbreviate(encodeUTF8(answerString), 2000); //seems to be the limit
+            builder.setContent(answerString);
+            return createMonoFrom(() -> messageChannel.sendMessage(builder.build()));
         }
-        List<EmbedDefinition.Field> limitedList = answer.getFields().stream().limit(25).collect(ImmutableList.toImmutableList()); //https://discord.com/developers/docs/resources/channel#embed-limits
-        for (EmbedDefinition.Field field : limitedList) {
-            builder.addField(StringUtils.abbreviate(encodeUTF8(field.getName()), 256), //https://discord.com/developers/docs/resources/channel#embed-limits
-                    StringUtils.abbreviate(encodeUTF8(field.getValue()), 1024), //https://discord.com/developers/docs/resources/channel#embed-limits
-                    field.isInline());
-        }
-        return createMonoFrom(() -> messageChannel.sendMessageEmbeds(builder.build()));
     }
 
     protected Mono<Message> createButtonMessage(@NonNull MessageChannel channel,

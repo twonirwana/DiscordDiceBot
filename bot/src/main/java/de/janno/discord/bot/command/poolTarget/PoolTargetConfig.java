@@ -30,8 +30,9 @@ public class PoolTargetConfig extends Config {
                             @JsonProperty("maxNumberOfButtons") int maxNumberOfButtons,
                             @JsonProperty("rerollSet") @NonNull Set<Integer> rerollSet,
                             @JsonProperty("botchSet") @NonNull Set<Integer> botchSet,
-                            @JsonProperty("rerollVariant") String rerollVariant) {
-        super(answerTargetChannelId);
+                            @JsonProperty("rerollVariant") String rerollVariant,
+                            @JsonProperty("answerDisplayType") String answerDisplayType) {
+        super(answerTargetChannelId, answerDisplayType);
         this.diceSides = diceSides;
         this.maxNumberOfButtons = maxNumberOfButtons;
         this.rerollSet = rerollSet;
@@ -47,7 +48,8 @@ public class PoolTargetConfig extends Config {
                 rerollSet.stream().map(String::valueOf).collect(Collectors.joining(PoolTargetCommand.SUBSET_DELIMITER)),
                 botchSet.stream().map(String::valueOf).collect(Collectors.joining(PoolTargetCommand.SUBSET_DELIMITER)),
                 rerollVariant,
-                getTargetChannelShortString()
+                getTargetChannelShortString(),
+                getAnswerDisplayType()
         ).toString();
     }
 }

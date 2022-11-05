@@ -187,7 +187,7 @@ public class SumDiceSetCommand extends AbstractCommand<Config, SumDiceSetStateDa
                 }).toList();
         long sumResult = diceResultValues.stream().mapToLong(Integer::longValue).sum();
         String title = parseDiceMapToMessageString(state.getData().getDiceSet());
-        return Optional.of(new EmbedDefinition(String.format("%s = %d", title, sumResult), diceResultValues.toString(), ImmutableList.of()));
+        return Optional.of(new EmbedDefinition(String.format("%s = %d", title, sumResult), diceResultValues.toString(), ImmutableList.of(), minimizeAnswer(config)));
     }
 
     private int limit(int input) {
@@ -276,7 +276,7 @@ public class SumDiceSetCommand extends AbstractCommand<Config, SumDiceSetStateDa
     protected @NonNull Config getConfigFromEvent(@NonNull ButtonEventAdaptor event) {
         String[] split = event.getCustomId().split(BottomCustomIdUtils.LEGACY_CONFIG_SPLIT_DELIMITER_REGEX);
 
-        return new Config(getOptionalLongFromArray(split, 2));
+        return new Config(getOptionalLongFromArray(split, 2), ANSWER_TYPE_EMBED);
     }
 
     @Override
@@ -327,7 +327,7 @@ public class SumDiceSetCommand extends AbstractCommand<Config, SumDiceSetStateDa
 
     @Override
     protected @NonNull Config getConfigFromStartOptions(@NonNull CommandInteractionOption options) {
-        return new Config(getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null));
+        return new Config(getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null), getAnswerTypeFromStartCommandOption(options));
     }
 
     private List<ComponentRowDefinition> createButtonLayout() {
