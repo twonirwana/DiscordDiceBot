@@ -268,7 +268,8 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
 
             Optional<Long> answerTargetChannelId = getAnswerTargetChannelIdFromStartCommandOption(options);
             if (answerTargetChannelId.isPresent() && !event.isValidAnswerChannel(answerTargetChannelId.get())) {
-                log.info("Invalid answer target channel for {}", commandString);
+                log.info("'{}'.'{}' Invalid answer target channel for {}", event.getRequester().getGuildName(),
+                        event.getRequester().getChannelName(), commandString);
                 return event.reply("The target channel is not a valid message channel", true);
             }
 
