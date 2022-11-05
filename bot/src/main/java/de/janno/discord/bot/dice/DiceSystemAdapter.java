@@ -29,13 +29,6 @@ public class DiceSystemAdapter {
         return expressionWithOptionalLabel;
     }
 
-    public String getHelpText(DiceParserSystem system) {
-        return switch (system) {
-            case DICE_EVALUATOR -> DiceEvaluatorAdapter.getHelp();
-            case DICEROLL_PARSER -> DiceParserAdapter.HELP;
-        };
-    }
-
     public EmbedDefinition answerRollWithOptionalLabelInExpression(String expression, boolean sumUp, DiceParserSystem system) {
         BotMetrics.incrementDiceParserSystemCounter(system);
         return switch (system) {

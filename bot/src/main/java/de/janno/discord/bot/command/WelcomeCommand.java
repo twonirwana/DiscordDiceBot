@@ -125,7 +125,10 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
 
     @Override
     protected @NonNull EmbedDefinition getHelpMessage() {
-        return EmbedDefinition.builder().description("Displays the welcome message").build();
+        return EmbedDefinition.builder().description("Displays the welcome message")
+                .field(new EmbedDefinition.Field("Full documentation", "https://github.com/twonirwana/DiscordDiceBot", false))
+                .field(new EmbedDefinition.Field("Discord Server", "https://discord.gg/e43BsqKpFr", false))
+                .build();
     }
 
     @Override

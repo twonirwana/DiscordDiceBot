@@ -139,8 +139,9 @@ public class SumDiceSetCommand extends AbstractCommand<Config, SumDiceSetStateDa
     @Override
     protected @NonNull EmbedDefinition getHelpMessage() {
         return EmbedDefinition.builder()
-                .description("Use '/sum_dice_set start' " +
-                        "to get message, where the user can create a dice set and roll it.")
+                .description("Use `/sum_dice_set start` to get message, where the user can create a dice set and roll it.")
+                .field(new EmbedDefinition.Field("Full documentation", "https://github.com/twonirwana/DiscordDiceBot", false))
+                .field(new EmbedDefinition.Field("Discord Server", "https://discord.gg/e43BsqKpFr", false))
                 .build();
     }
 
