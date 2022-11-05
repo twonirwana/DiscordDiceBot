@@ -25,7 +25,7 @@ WARNING: *If you can’t see the bots messages*: The link preview in the discord
 
 === Example RPG System Commands
 
-Some example for commands, many more systems can be mapped with commands, please see in the detail’s description below for further options
+Some example for commands, many more systems can be mapped, please see in the detail’s description below for further options
 
 ==== DnD 5e
 
