@@ -2,6 +2,7 @@ package de.janno.discord.connector.jda;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
+import de.janno.discord.connector.api.DiscordAdapter;
 import de.janno.discord.connector.api.message.EmbedDefinition;
 import de.janno.discord.connector.api.message.MessageDefinition;
 import lombok.NonNull;
@@ -27,7 +28,7 @@ import java.util.Optional;
 import java.util.function.Supplier;
 
 @Slf4j
-public abstract class DiscordAdapterImpl implements de.janno.discord.connector.api.DiscordAdapter {
+public abstract class DiscordAdapterImpl implements DiscordAdapter {
 
     //needed to correctly show utf8 characters in discord
     private static String encodeUTF8(@NonNull String in) {
@@ -82,6 +83,7 @@ public abstract class DiscordAdapterImpl implements de.janno.discord.connector.a
     protected Mono<Void> handleException(@NonNull String errorMessage,
                                          @NonNull Throwable throwable,
                                          boolean ignoreNotFound) {
+        //todo: add guild and channel
         if (throwable instanceof InsufficientPermissionException) {
             log.info(String.format("Missing permissions: %s", errorMessage));
             return Mono.empty();
@@ -121,7 +123,10 @@ public abstract class DiscordAdapterImpl implements de.janno.discord.connector.a
         if (checks.isEmpty()) {
             return Optional.empty();
         }
-        String result = String.format("The bot is missing the permission: %s. It will not work correctly without it. Please check the guild and channel permissions for the bot", String.join(" and ", checks));
+        String result = String.format("'%s'.'%s': The bot is missing the permission: %s. It will not work correctly without it. Please check the guild and channel permissions for the bot",
+                Optional.ofNullable(guild).map(Guild::getName).orElse("-"),
+                messageChannel.getName(),
+                String.join(" and ", checks));
         log.info(result);
         return Optional.of(result);
     }
