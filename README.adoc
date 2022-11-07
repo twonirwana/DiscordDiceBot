@@ -238,7 +238,27 @@ The clear command removes all button configuration in a channel from the bot and
 
 == Dice Expression Notation
 
-see https://github.com/twonirwana/DiceEvaluator for more details.
+see https://github.com/twonirwana/DiceEvaluator for all details.
+
+
+The evaluator processes dice expression and returns a list of rolls, each containing a list of elements.
+Elements have a value (a number or a text) and can have a color.
+For example `2d6` rolls two six-sided dice and returns a list with two elements, each with a value between 1 and 6. To get the sum of the roll, simple add a `=` at the end, for example in this case `2d6=`.
+The same applies to numbers `3 + 5` has as result a list with the elements 3 and 5, only if written as `3 + 5=` the result is 8.
+The same applies to numbers `3 + 5` has as result a list with the elements 3 and 5, only if written as `3 + 5=` the result is 8. To use text in the expression it is often necessary to escape the text with `'`. For example `1d('head' + 'tail')` will flip a coin.
+Without the escape characters the d in head would be interpreted as dice operator.
+List can be included into the expression by using brackets.
+For example `1d[2/2/4/4/6/6]` will a die which has two sides with 2, two sides with 4 and two sides with 6. The roll will be a list with one element, which has a value of 2, 4 or 6. Lists also escape characters, so `1d[head/tail]` will also flip a coin.
+
+Multiple expression can be separated by `,`.
+For example `3d6, 4d8` will roll two six-sided dice and return a list with two rolls, the first one containing the roll elements of the `3d6` and the second one the roll of the `4d8`.
+
+Operators have a precedent, which is defined by the order of the operators in the table below.
+Operators with a higher precedence are evaluated first.
+Brackets can be used to change the order of evaluation.
+For example `1d4+3d6` is the appending of roll of 1d4 and 3d6, but `(1d4+3=)d6)` gets first the sum of the roll of 1d4 and 3 and then rolls this number of d6.
+
+The number of dice is limited to 1000 and every number approve 2147483647 will be handled like text and not as number.
 
 === Operators
 
