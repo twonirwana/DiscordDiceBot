@@ -179,9 +179,9 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     protected @NonNull EmbedOrMessageDefinition getHelpMessage() {
         return EmbedOrMessageDefinition.builder()
                 .descriptionOrContent("Use '/custom_parameter start' and provide a dice expression with parameter variables with the format {parameter_name}. \n" + DiceEvaluatorAdapter.getHelp())
-                .field(new EmbedDefinition.Field("Example", "`/custom_parameter expression:{numberOfDice:1<⇒10}d{sides:4/6/8/10/12/20/100}`", false))
-                .field(new EmbedDefinition.Field("Full documentation", "https://github.com/twonirwana/DiscordDiceBot", false))
-                .field(new EmbedDefinition.Field("Discord Server", "https://discord.gg/e43BsqKpFr", false))
+                .field(new EmbedOrMessageDefinition.Field("Example", "`/custom_parameter expression:{numberOfDice:1<⇒10}d{sides:4/6/8/10/12/20/100}`", false))
+                .field(new EmbedOrMessageDefinition.Field("Full documentation", "https://github.com/twonirwana/DiscordDiceBot", false))
+                .field(new EmbedOrMessageDefinition.Field("Discord Server", "https://discord.gg/e43BsqKpFr", false))
                 .build();
     }
 

@@ -74,9 +74,9 @@ public class DirectRollCommand implements SlashCommand {
                 BotMetrics.incrementSlashHelpMetricCounter(getCommandId());
                 return event.replyEmbed(EmbedOrMessageDefinition.builder()
                         .descriptionOrContent("Type /r and a dice expression.\n" + DiceEvaluatorAdapter.getHelp())
-                        .field(new EmbedDefinition.Field("Example", "`/r expression:1d6`", false))
-                        .field(new EmbedDefinition.Field("Full documentation", "https://github.com/twonirwana/DiscordDiceBot", false))
-                        .field(new EmbedDefinition.Field("Discord Server", "https://discord.gg/e43BsqKpFr", false))
+                        .field(new EmbedOrMessageDefinition.Field("Example", "`/r expression:1d6`", false))
+                        .field(new EmbedOrMessageDefinition.Field("Full documentation", "https://github.com/twonirwana/DiscordDiceBot", false))
+                        .field(new EmbedOrMessageDefinition.Field("Discord Server", "https://discord.gg/e43BsqKpFr", false))
                         .build(), true);
             }
 
