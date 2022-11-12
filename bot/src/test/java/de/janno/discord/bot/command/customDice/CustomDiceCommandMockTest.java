@@ -3,6 +3,7 @@ package de.janno.discord.bot.command.customDice;
 import com.google.common.collect.ImmutableList;
 import de.janno.discord.bot.ButtonEventAdaptorMock;
 import de.janno.discord.bot.ButtonEventAdaptorMockFactory;
+import de.janno.discord.bot.command.AnswerFormatType;
 import de.janno.discord.bot.command.ButtonIdLabelAndDiceExpression;
 import de.janno.discord.bot.command.StateData;
 import de.janno.discord.bot.dice.DiceParserSystem;
@@ -30,7 +31,7 @@ public class CustomDiceCommandMockTest {
 
     @Test
     void roll() {
-        CustomDiceConfig config = new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "5", "5")), DiceParserSystem.DICE_EVALUATOR);
+        CustomDiceConfig config = new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "5", "5")), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full);
         ButtonEventAdaptorMockFactory<CustomDiceConfig, StateData> factory = new ButtonEventAdaptorMockFactory<>("custom_dice", underTest, config, messageDataDAO, false);
         ButtonEventAdaptorMock buttonEvent = factory.getButtonClickOnLastButtonMessage("1_button");
 
@@ -45,7 +46,7 @@ public class CustomDiceCommandMockTest {
 
     @Test
     void roll_pinned() {
-        CustomDiceConfig config = new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "5", "5")), DiceParserSystem.DICE_EVALUATOR);
+        CustomDiceConfig config = new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "5", "5")), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full);
         ButtonEventAdaptorMockFactory<CustomDiceConfig, StateData> factory = new ButtonEventAdaptorMockFactory<>("custom_dice", underTest, config, messageDataDAO, true);
         ButtonEventAdaptorMock buttonEvent = factory.getButtonClickOnLastButtonMessage("1_button");
 
@@ -59,7 +60,7 @@ public class CustomDiceCommandMockTest {
 
     @Test
     void roll_pinnedTwice() {
-        CustomDiceConfig config = new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "5", "5")), DiceParserSystem.DICE_EVALUATOR);
+        CustomDiceConfig config = new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "5", "5")), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full);
         ButtonEventAdaptorMockFactory<CustomDiceConfig, StateData> factory = new ButtonEventAdaptorMockFactory<>("custom_dice", underTest, config, messageDataDAO, true);
 
         ButtonEventAdaptorMock buttonEvent1 = factory.getButtonClickOnLastButtonMessage("1_button");
@@ -81,7 +82,7 @@ public class CustomDiceCommandMockTest {
 
     @Test
     void roll_answerChannel() {
-        CustomDiceConfig config = new CustomDiceConfig(2L, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "5", "5")), DiceParserSystem.DICE_EVALUATOR);
+        CustomDiceConfig config = new CustomDiceConfig(2L, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "5", "5")), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full);
         ButtonEventAdaptorMockFactory<CustomDiceConfig, StateData> factory = new ButtonEventAdaptorMockFactory<>("custom_dice", underTest, config, messageDataDAO, false);
         ButtonEventAdaptorMock buttonEvent = factory.getButtonClickOnLastButtonMessage("1_button");
 
@@ -94,7 +95,7 @@ public class CustomDiceCommandMockTest {
 
     @Test
     void roll_answerChannelTwice() {
-        CustomDiceConfig config = new CustomDiceConfig(2L, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "5", "5")), DiceParserSystem.DICE_EVALUATOR);
+        CustomDiceConfig config = new CustomDiceConfig(2L, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "5", "5")), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full);
         ButtonEventAdaptorMockFactory<CustomDiceConfig, StateData> factory = new ButtonEventAdaptorMockFactory<>("custom_dice", underTest, config, messageDataDAO, false);
 
         ButtonEventAdaptorMock buttonEvent1 = factory.getButtonClickOnLastButtonMessage("1_button");

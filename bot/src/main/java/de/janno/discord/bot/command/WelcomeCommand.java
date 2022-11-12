@@ -20,7 +20,7 @@ import de.janno.discord.connector.api.BottomCustomIdUtils;
 import de.janno.discord.connector.api.ButtonEventAdaptor;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
-import de.janno.discord.connector.api.message.EmbedDefinition;
+import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
 import de.janno.discord.connector.api.message.MessageDefinition;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import lombok.NonNull;
@@ -43,11 +43,11 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
     private static final String SHADOWRUN_BUTTON_ID = "shadowrun";
     private static final String COIN_BUTTON_ID = "coin";
     private static final String DICE_CALCULATOR_ID = "dice_calculator";
-    private final static FateConfig FATE_CONFIG = new FateConfig(null, "with_modifier");
-    private final static CountSuccessesConfig NWOD_CONFIG = new CountSuccessesConfig(null, 10, 8, "no_glitch", 15, 1, Set.of(10), Set.of());
-    private final static CountSuccessesConfig SHADOWRUN_CONFIG = new CountSuccessesConfig(null, 6, 5, "half_dice_one", 20, 1, Set.of(), Set.of());
-    private final static PoolTargetConfig OWOD_CONFIG = new PoolTargetConfig(null, 10, 15, ImmutableSet.of(10), ImmutableSet.of(1), "ask");
-    private final static CustomDiceConfig COIN_CONFIG = new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Coin Toss \uD83E\uDE99", "1d[Head \uD83D\uDE00/Tail \uD83E\uDD85]")), DiceParserSystem.DICE_EVALUATOR);
+    private final static FateConfig FATE_CONFIG = new FateConfig(null, "with_modifier", AnswerFormatType.full);
+    private final static CountSuccessesConfig NWOD_CONFIG = new CountSuccessesConfig(null, 10, 8, "no_glitch", 15, 1, Set.of(10), Set.of(), AnswerFormatType.full);
+    private final static CountSuccessesConfig SHADOWRUN_CONFIG = new CountSuccessesConfig(null, 6, 5, "half_dice_one", 20, 1, Set.of(), Set.of(), AnswerFormatType.full);
+    private final static PoolTargetConfig OWOD_CONFIG = new PoolTargetConfig(null, 10, 15, ImmutableSet.of(10), ImmutableSet.of(1), "ask", AnswerFormatType.full);
+    private final static CustomDiceConfig COIN_CONFIG = new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Coin Toss \uD83E\uDE99", "1d[Head \uD83D\uDE00/Tail \uD83E\uDD85]")), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full);
     private final static CustomDiceConfig DND5_CONFIG = new CustomDiceConfig(null, ImmutableList.of(
             new ButtonIdLabelAndDiceExpression("1_button", "D4", "1d4"),
             new ButtonIdLabelAndDiceExpression("2_button", "D6", "1d6"),
@@ -64,13 +64,13 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
             new ButtonIdLabelAndDiceExpression("13_button", "2D10", "2d10="),
             new ButtonIdLabelAndDiceExpression("14_button", "2D12", "2d12="),
             new ButtonIdLabelAndDiceExpression("15_button", "2D20", "2d20=")
-    ), DiceParserSystem.DICE_EVALUATOR);
+    ), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full);
 
     private final SumCustomSetConfig DICE_CALCULATOR_CONFIG = new SumCustomSetConfig(null, List.of(
             new ButtonIdLabelAndDiceExpression("1_button", "7", "7"), new ButtonIdLabelAndDiceExpression("2_button", "8", "8"), new ButtonIdLabelAndDiceExpression("3_button", "9", "9"), new ButtonIdLabelAndDiceExpression("5_button", "+", "+"), new ButtonIdLabelAndDiceExpression("6_button", "-", "-"),
             new ButtonIdLabelAndDiceExpression("7_button", "4", "4"), new ButtonIdLabelAndDiceExpression("8_button", "5", "5"), new ButtonIdLabelAndDiceExpression("9_button", "6", "6"), new ButtonIdLabelAndDiceExpression("10_button", "d", "d"), new ButtonIdLabelAndDiceExpression("11_button", "k", "k"),
             new ButtonIdLabelAndDiceExpression("12_button", "1", "1"), new ButtonIdLabelAndDiceExpression("13_button", "2", "2"), new ButtonIdLabelAndDiceExpression("14_button", "3", "3"), new ButtonIdLabelAndDiceExpression("15_button", "0", "0"), new ButtonIdLabelAndDiceExpression("16_button", "l", "l")
-    ), DiceParserSystem.DICE_EVALUATOR, true);
+    ), DiceParserSystem.DICE_EVALUATOR, true, AnswerFormatType.full);
 
     public WelcomeCommand(MessageDataDAO messageDataDAO) {
         super(messageDataDAO);
@@ -81,7 +81,7 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
                                                                                                  long messageId,
                                                                                                  @NonNull String buttonValue,
                                                                                                  @NonNull String invokingUserName) {
-        return Optional.of(new ConfigAndState<>(UUID.randomUUID(), new Config(null), new State<>(buttonValue, StateData.empty())));
+        return Optional.of(new ConfigAndState<>(UUID.randomUUID(), new Config(null, AnswerFormatType.full), new State<>(buttonValue, StateData.empty())));
     }
 
     @Override
@@ -124,8 +124,8 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
     }
 
     @Override
-    protected @NonNull EmbedDefinition getHelpMessage() {
-        return EmbedDefinition.builder().description("Displays the welcome message").build();
+    protected @NonNull EmbedOrMessageDefinition getHelpMessage() {
+        return EmbedOrMessageDefinition.builder().descriptionOrContent("Displays the welcome message").build();
     }
 
     @Override
@@ -158,7 +158,7 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
     }
 
     @Override
-    protected @NonNull Optional<EmbedDefinition> getAnswer(Config config, State<StateData> state) {
+    protected @NonNull Optional<RollAnswer> getAnswer(Config config, State<StateData> state) {
         return Optional.empty();
     }
 
@@ -220,12 +220,12 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
 
     @Override
     protected @NonNull Config getConfigFromStartOptions(@NonNull CommandInteractionOption options) {
-        return new Config(null);
+        return new Config(null, AnswerFormatType.full);
     }
 
     @Override
     protected @NonNull Config getConfigFromEvent(@NonNull ButtonEventAdaptor event) {
-        return new Config(null);
+        return new Config(null, AnswerFormatType.full);
     }
 
     @Override

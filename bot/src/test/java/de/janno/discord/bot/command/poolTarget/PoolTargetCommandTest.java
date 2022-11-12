@@ -2,6 +2,7 @@ package de.janno.discord.bot.command.poolTarget;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import de.janno.discord.bot.command.AnswerFormatType;
 import de.janno.discord.bot.command.ConfigAndState;
 import de.janno.discord.bot.command.State;
 import de.janno.discord.bot.dice.DiceUtils;
@@ -12,7 +13,7 @@ import de.janno.discord.connector.api.ButtonEventAdaptor;
 import de.janno.discord.connector.api.Requester;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
-import de.janno.discord.connector.api.message.EmbedDefinition;
+import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinitionOption;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import org.junit.jupiter.api.BeforeEach;
@@ -85,18 +86,20 @@ class PoolTargetCommandTest {
 
     @Test
     void getDiceResult_withoutReroll() {
-        EmbedDefinition res = underTest.getAnswer(new PoolTargetConfig(null, 6, 15, ImmutableSet.of(6), ImmutableSet.of(1), "ask"), new State<>("6", new PoolTargetStateData(6, 3, false))).orElseThrow();
+        EmbedOrMessageDefinition res = underTest.getAnswer(new PoolTargetConfig(null, 6, 15, ImmutableSet.of(6), ImmutableSet.of(1), "ask", AnswerFormatType.full), new State<>("6", new PoolTargetStateData(6, 3, false)))
+                .orElseThrow().toEmbedOrMessageDefinition();
         assertThat(res.getFields()).hasSize(0);
-        assertThat(res.getTitle()).isEqualTo("6d6 = -1");
-        assertThat(res.getDescription()).isEqualTo("[**1**,**1**,**1**,2,**5**,**6**] ≥3 = -1");
+        assertThat(res.getTitle()).isEqualTo("6d6 ≥3 ⇒ -1");
+        assertThat(res.getDescriptionOrContent()).isEqualTo("[**1**,**1**,**1**,2,**5**,**6**]");
     }
 
     @Test
     void getDiceResult_withReroll() {
-        EmbedDefinition res = underTest.getAnswer(new PoolTargetConfig(null, 6, 15, ImmutableSet.of(6), ImmutableSet.of(1), "ask"), new State<>("6", new PoolTargetStateData(6, 3, true))).orElseThrow();
+        EmbedOrMessageDefinition res = underTest.getAnswer(new PoolTargetConfig(null, 6, 15, ImmutableSet.of(6), ImmutableSet.of(1), "ask", AnswerFormatType.full), new State<>("6", new PoolTargetStateData(6, 3, true)))
+                .orElseThrow().toEmbedOrMessageDefinition();
         assertThat(res.getFields()).hasSize(0);
-        assertThat(res.getTitle()).isEqualTo("6d6 = 1");
-        assertThat(res.getDescription()).isEqualTo("[**1**,**1**,**1**,2,2,**5**,**6**,**6**,**6**] ≥3 = 1");
+        assertThat(res.getTitle()).isEqualTo("6d6 ≥3 ⇒ 1");
+        assertThat(res.getDescriptionOrContent()).isEqualTo("[**1**,**1**,**1**,2,2,**5**,**6**,**6**,**6**]");
     }
 
     @Test
@@ -110,7 +113,7 @@ class PoolTargetCommandTest {
                 20,
                 ImmutableSet.of(9, 10),
                 ImmutableSet.of(1, 2),
-                "ask"));
+                "ask", AnswerFormatType.full));
     }
 
     @Test
@@ -124,7 +127,7 @@ class PoolTargetCommandTest {
                 20,
                 ImmutableSet.of(9, 10),
                 ImmutableSet.of(1, 2),
-                "ask"));
+                "ask", AnswerFormatType.full));
     }
 
     @Test
@@ -138,7 +141,7 @@ class PoolTargetCommandTest {
                 20,
                 ImmutableSet.of(9, 10),
                 ImmutableSet.of(1, 2),
-                "ask"));
+                "ask", AnswerFormatType.full));
     }
 
     @Test
@@ -163,31 +166,31 @@ class PoolTargetCommandTest {
 
     @Test
     void getAnswer_allStateInfoAvailable() {
-        assertThat(underTest.getAnswer(new PoolTargetConfig(null, 10, 20, ImmutableSet.of(), ImmutableSet.of(), "always"), new State<>("10", new PoolTargetStateData(10, 8, true)))
+        assertThat(underTest.getAnswer(new PoolTargetConfig(null, 10, 20, ImmutableSet.of(), ImmutableSet.of(), "always", AnswerFormatType.full), new State<>("10", new PoolTargetStateData(10, 8, true)))
         ).isNotEmpty();
     }
 
     @Test
     void getAnswer_dicePoolMissing() {
-        assertThat(underTest.getAnswer(new PoolTargetConfig(null, 10, 20, ImmutableSet.of(), ImmutableSet.of(), "always"), new State<>("clear", new PoolTargetStateData(null, 8, true)))
+        assertThat(underTest.getAnswer(new PoolTargetConfig(null, 10, 20, ImmutableSet.of(), ImmutableSet.of(), "always", AnswerFormatType.full), new State<>("clear", new PoolTargetStateData(null, 8, true)))
         ).isEmpty();
     }
 
     @Test
     void getAnswer_targetNumberMissing() {
-        assertThat(underTest.getAnswer(new PoolTargetConfig(null, 10, 20, ImmutableSet.of(), ImmutableSet.of(), "always"), new State<>("10", new PoolTargetStateData(10, null, true)))
+        assertThat(underTest.getAnswer(new PoolTargetConfig(null, 10, 20, ImmutableSet.of(), ImmutableSet.of(), "always", AnswerFormatType.full), new State<>("10", new PoolTargetStateData(10, null, true)))
         ).isEmpty();
     }
 
     @Test
     void getAnswer_doRerollMissing() {
-        assertThat(underTest.getAnswer(new PoolTargetConfig(null, 10, 20, ImmutableSet.of(), ImmutableSet.of(), "always"), new State<>("10", new PoolTargetStateData(10, 8, null)))
+        assertThat(underTest.getAnswer(new PoolTargetConfig(null, 10, 20, ImmutableSet.of(), ImmutableSet.of(), "always", AnswerFormatType.full), new State<>("10", new PoolTargetStateData(10, 8, null)))
         ).isEmpty();
     }
 
     @Test
     void getButtonMessage_rerollBotchEmpty() {
-        String res = underTest.createNewButtonMessage(new PoolTargetConfig(null, 10, 20, ImmutableSet.of(), ImmutableSet.of(), "ask"))
+        String res = underTest.createNewButtonMessage(new PoolTargetConfig(null, 10, 20, ImmutableSet.of(), ImmutableSet.of(), "ask", AnswerFormatType.full))
                 .getContent();
 
         assertThat(res).isEqualTo("Click on the buttons to roll dice");
@@ -195,7 +198,7 @@ class PoolTargetCommandTest {
 
     @Test
     void getButtonMessage_rerollEmpty() {
-        String res = underTest.createNewButtonMessage(new PoolTargetConfig(null, 10, 20, ImmutableSet.of(), ImmutableSet.of(1, 2), "ask"))
+        String res = underTest.createNewButtonMessage(new PoolTargetConfig(null, 10, 20, ImmutableSet.of(), ImmutableSet.of(1, 2), "ask", AnswerFormatType.full))
                 .getContent();
 
         assertThat(res).isEqualTo("Click on the buttons to roll dice, with botch:1,2");
@@ -203,7 +206,7 @@ class PoolTargetCommandTest {
 
     @Test
     void getButtonMessage_botchEmpty() {
-        String res = underTest.createNewButtonMessage(new PoolTargetConfig(null, 10, 20, ImmutableSet.of(10, 9), ImmutableSet.of(), "ask"))
+        String res = underTest.createNewButtonMessage(new PoolTargetConfig(null, 10, 20, ImmutableSet.of(10, 9), ImmutableSet.of(), "ask", AnswerFormatType.full))
                 .getContent();
 
         assertThat(res).isEqualTo("Click on the buttons to roll dice, with ask reroll:9,10");
@@ -211,7 +214,7 @@ class PoolTargetCommandTest {
 
     @Test
     void getButtonMessage_ask() {
-        String res = underTest.createNewButtonMessage(new PoolTargetConfig(null, 10, 20, ImmutableSet.of(10, 9), ImmutableSet.of(1, 2), "ask"))
+        String res = underTest.createNewButtonMessage(new PoolTargetConfig(null, 10, 20, ImmutableSet.of(10, 9), ImmutableSet.of(1, 2), "ask", AnswerFormatType.full))
                 .getContent();
 
         assertThat(res).isEqualTo("Click on the buttons to roll dice, with ask reroll:9,10 and botch:1,2");
@@ -219,7 +222,7 @@ class PoolTargetCommandTest {
 
     @Test
     void getButtonMessage_always() {
-        String res = underTest.createNewButtonMessage(new PoolTargetConfig(null, 10, 20, ImmutableSet.of(10, 9), ImmutableSet.of(1, 2), "always"))
+        String res = underTest.createNewButtonMessage(new PoolTargetConfig(null, 10, 20, ImmutableSet.of(10, 9), ImmutableSet.of(1, 2), "always", AnswerFormatType.full))
                 .getContent();
 
         assertThat(res).isEqualTo("Click on the buttons to roll dice, with always reroll:9,10 and botch:1,2");
@@ -227,7 +230,7 @@ class PoolTargetCommandTest {
 
     @Test
     void getCurrentMessageContentChange_poolWasSet() {
-        String res = underTest.getCurrentMessageContentChange(new PoolTargetConfig(null, 10, 20, ImmutableSet.of(10, 9), ImmutableSet.of(1, 2), "ask"), new State<>("10", new PoolTargetStateData(10, null, null)))
+        String res = underTest.getCurrentMessageContentChange(new PoolTargetConfig(null, 10, 20, ImmutableSet.of(10, 9), ImmutableSet.of(1, 2), "ask", AnswerFormatType.full), new State<>("10", new PoolTargetStateData(10, null, null)))
                 .orElseThrow();
 
         assertThat(res).isEqualTo("Click on the target to roll 10d10 against it, with ask reroll:9,10 and botch:1,2");
@@ -235,7 +238,7 @@ class PoolTargetCommandTest {
 
     @Test
     void getCurrentMessageContentChange_targetWasSet() {
-        String res = underTest.getCurrentMessageContentChange(new PoolTargetConfig(null, 10, 20, ImmutableSet.of(10, 9), ImmutableSet.of(1, 2), "ask"), new State<>("10", new PoolTargetStateData(10, 10, null)))
+        String res = underTest.getCurrentMessageContentChange(new PoolTargetConfig(null, 10, 20, ImmutableSet.of(10, 9), ImmutableSet.of(1, 2), "ask", AnswerFormatType.full), new State<>("10", new PoolTargetStateData(10, 10, null)))
                 .orElseThrow();
 
         assertThat(res).isEqualTo("Should 10s,9s in 10d10 against 10 be be rerolled?");
@@ -243,7 +246,7 @@ class PoolTargetCommandTest {
 
     @Test
     void getCurrentMessageContentChange_clear() {
-        String res = underTest.getCurrentMessageContentChange(new PoolTargetConfig(null, 10, 20, ImmutableSet.of(10, 9), ImmutableSet.of(1, 2), "ask"), new State<>("clear", new PoolTargetStateData(null, null, null)))
+        String res = underTest.getCurrentMessageContentChange(new PoolTargetConfig(null, 10, 20, ImmutableSet.of(10, 9), ImmutableSet.of(1, 2), "ask", AnswerFormatType.full), new State<>("clear", new PoolTargetStateData(null, null, null)))
                 .orElseThrow();
 
         assertThat(res).isEqualTo("Click on the buttons to roll dice, with ask reroll:9,10 and botch:1,2");
@@ -251,7 +254,7 @@ class PoolTargetCommandTest {
 
     @Test
     void getCurrentMessageComponentChange_missingDoReroll_askForReroll() {
-        List<ComponentRowDefinition> res = underTest.getCurrentMessageComponentChange(new PoolTargetConfig(null, 10, 20, ImmutableSet.of(10, 9), ImmutableSet.of(1, 2), "ask"), new State<>("10", new PoolTargetStateData(10, 10, null)))
+        List<ComponentRowDefinition> res = underTest.getCurrentMessageComponentChange(new PoolTargetConfig(null, 10, 20, ImmutableSet.of(10, 9), ImmutableSet.of(1, 2), "ask", AnswerFormatType.full), new State<>("10", new PoolTargetStateData(10, 10, null)))
                 .orElseThrow();
 
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel))
@@ -262,7 +265,7 @@ class PoolTargetCommandTest {
 
     @Test
     void getButtonLayoutWithState_statesAreGiven_newButtons() {
-        List<ComponentRowDefinition> res = underTest.createNewButtonMessageWithState(new PoolTargetConfig(null, 10, 20, ImmutableSet.of(10, 9), ImmutableSet.of(1, 2), "ask"), new State<>("10", new PoolTargetStateData(10, 10, true)))
+        List<ComponentRowDefinition> res = underTest.createNewButtonMessageWithState(new PoolTargetConfig(null, 10, 20, ImmutableSet.of(10, 9), ImmutableSet.of(1, 2), "ask", AnswerFormatType.full), new State<>("10", new PoolTargetStateData(10, 10, true)))
                 .orElseThrow().getComponentRowDefinitions();
 
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel))
@@ -292,7 +295,7 @@ class PoolTargetCommandTest {
 
     @Test
     void getCurrentMessageComponentChange_missingTarget_askTarget() {
-        List<ComponentRowDefinition> res = underTest.getCurrentMessageComponentChange(new PoolTargetConfig(null, 10, 20, ImmutableSet.of(10, 9), ImmutableSet.of(1, 2), "ask"), new State<>("10", new PoolTargetStateData(10, null, null)))
+        List<ComponentRowDefinition> res = underTest.getCurrentMessageComponentChange(new PoolTargetConfig(null, 10, 20, ImmutableSet.of(10, 9), ImmutableSet.of(1, 2), "ask", AnswerFormatType.full), new State<>("10", new PoolTargetStateData(10, null, null)))
                 .orElseThrow();
 
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel))
@@ -313,7 +316,7 @@ class PoolTargetCommandTest {
     @Test
     void createNewButtonMessage() {
         List<ComponentRowDefinition> res = underTest.createNewButtonMessage(
-                        new PoolTargetConfig(null, 10, 20, ImmutableSet.of(10, 9), ImmutableSet.of(1, 2), "ask"))
+                        new PoolTargetConfig(null, 10, 20, ImmutableSet.of(10, 9), ImmutableSet.of(1, 2), "ask", AnswerFormatType.full))
                 .getComponentRowDefinitions();
 
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel))
@@ -345,7 +348,7 @@ class PoolTargetCommandTest {
     @Test
     void getButtonLayout() {
         List<ComponentRowDefinition> res = underTest.createNewButtonMessage(
-                        new PoolTargetConfig(null, 10, 20, ImmutableSet.of(10, 9), ImmutableSet.of(1, 2), "ask"))
+                        new PoolTargetConfig(null, 10, 20, ImmutableSet.of(10, 9), ImmutableSet.of(1, 2), "ask", AnswerFormatType.full))
                 .getComponentRowDefinitions();
 
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel))
@@ -376,7 +379,7 @@ class PoolTargetCommandTest {
     @Test
     void validate_valid() {
         Optional<String> res = underTest.validate(
-                new PoolTargetConfig(null, 10, 20, ImmutableSet.of(10, 9), ImmutableSet.of(1, 2), "ask"));
+                new PoolTargetConfig(null, 10, 20, ImmutableSet.of(10, 9), ImmutableSet.of(1, 2), "ask", AnswerFormatType.full));
 
         assertThat(res).isEmpty();
     }
@@ -384,7 +387,7 @@ class PoolTargetCommandTest {
     @Test
     void validate_numberInRerollSetToBig() {
         Optional<String> res = underTest.validate(
-                new PoolTargetConfig(null, 10, 20, ImmutableSet.of(10, 9, 12), ImmutableSet.of(1, 2), "ask"));
+                new PoolTargetConfig(null, 10, 20, ImmutableSet.of(10, 9, 12), ImmutableSet.of(1, 2), "ask", AnswerFormatType.full));
 
         assertThat(res).contains("Reroll set [10, 9, 12] contains a number bigger then the sides of the die 10");
     }
@@ -392,7 +395,7 @@ class PoolTargetCommandTest {
     @Test
     void validate_numberInBotSetToBig() {
         Optional<String> res = underTest.validate(
-                new PoolTargetConfig(null, 10, 20, ImmutableSet.of(10, 9), ImmutableSet.of(1, 2, 12), "ask"));
+                new PoolTargetConfig(null, 10, 20, ImmutableSet.of(10, 9), ImmutableSet.of(1, 2, 12), "ask", AnswerFormatType.full));
 
         assertThat(res).contains("Botch set [1, 2, 12] contains a number bigger then the sides of the die 10");
     }
@@ -400,7 +403,7 @@ class PoolTargetCommandTest {
     @Test
     void validate_toManyNumberInRerollSet() {
         Optional<String> res = underTest.validate(
-                new PoolTargetConfig(null, 10, 20, ImmutableSet.of(10, 9, 8, 7, 6, 5, 4, 3, 2, 1), ImmutableSet.of(1, 2), "ask"));
+                new PoolTargetConfig(null, 10, 20, ImmutableSet.of(10, 9, 8, 7, 6, 5, 4, 3, 2, 1), ImmutableSet.of(1, 2), "ask", AnswerFormatType.full));
 
         assertThat(res).contains("The reroll must not contain all numbers");
     }
@@ -487,8 +490,8 @@ class PoolTargetCommandTest {
         verify(buttonEventAdaptor).editMessage(eq("processing ..."), anyList());
         verify(buttonEventAdaptor).createButtonMessage(any());
         verify(buttonEventAdaptor).deleteMessage(1L, false);
-        verify(buttonEventAdaptor).createResultMessageWithEventReference(eq(new EmbedDefinition("15d10 = -4",
-                "[**1**,**1**,**1**,**2**,**2**,**2**,3,4,5,5,6,6,6,6,7,**10**,**10**] ≥8 = -4", ImmutableList.of())), eq(null));
+        verify(buttonEventAdaptor).createResultMessageWithEventReference(eq(new EmbedOrMessageDefinition("15d10 ≥8 ⇒ -4",
+                "[**1**,**1**,**1**,**2**,**2**,**2**,3,4,5,5,6,6,6,6,7,**10**,**10**]", ImmutableList.of(), EmbedOrMessageDefinition.Type.EMBED)), eq(null));
         verify(buttonEventAdaptor, times(5)).getCustomId();
         verify(buttonEventAdaptor).getMessageId();
         verify(buttonEventAdaptor).getChannelId();
@@ -541,8 +544,8 @@ class PoolTargetCommandTest {
         verify(buttonEventAdaptor).editMessage(eq("processing ..."), anyList());
         verify(buttonEventAdaptor).createButtonMessage(any());
         verify(buttonEventAdaptor).deleteMessage(1L, false);
-        verify(buttonEventAdaptor).createResultMessageWithEventReference(eq(new EmbedDefinition("15d10 = -4",
-                "[**1**,**1**,**1**,**2**,**2**,**2**,3,4,5,5,6,6,6,6,7,**10**,**10**] ≥8 = -4", ImmutableList.of())), eq(null));
+        verify(buttonEventAdaptor).createResultMessageWithEventReference(eq(new EmbedOrMessageDefinition("15d10 ≥8 ⇒ -4",
+                "[**1**,**1**,**1**,**2**,**2**,**2**,3,4,5,5,6,6,6,6,7,**10**,**10**]", ImmutableList.of(), EmbedOrMessageDefinition.Type.EMBED)), eq(null));
         verify(buttonEventAdaptor, times(3)).getCustomId();
         verify(buttonEventAdaptor).getMessageId();
         verify(buttonEventAdaptor).getChannelId();
@@ -603,8 +606,8 @@ class PoolTargetCommandTest {
         verify(buttonEventAdaptor).editMessage(eq("processing ..."), anyList());
         verify(buttonEventAdaptor).createButtonMessage(any());
         verify(buttonEventAdaptor).deleteMessage(1L, false);
-        verify(buttonEventAdaptor).createResultMessageWithEventReference(eq(new EmbedDefinition("15d10 = -4",
-                "[**1**,**1**,**1**,**2**,**2**,**2**,3,4,5,5,6,6,6,6,7,**10**,**10**] ≥8 = -4", ImmutableList.of())), eq(null));
+        verify(buttonEventAdaptor).createResultMessageWithEventReference(eq(new EmbedOrMessageDefinition("15d10 ≥8 ⇒ -4",
+                "[**1**,**1**,**1**,**2**,**2**,**2**,3,4,5,5,6,6,6,6,7,**10**,**10**]", ImmutableList.of(), EmbedOrMessageDefinition.Type.EMBED)), eq(null));
         verify(buttonEventAdaptor, times(5)).getCustomId();
         verify(buttonEventAdaptor).getMessageId();
         verify(buttonEventAdaptor).getChannelId();
@@ -753,7 +756,7 @@ class PoolTargetCommandTest {
         long channelId = System.currentTimeMillis();
         long messageId = System.currentTimeMillis();
         UUID configUUID = UUID.randomUUID();
-        PoolTargetConfig config = new PoolTargetConfig(123L, 10, 12, ImmutableSet.of(7, 8, 9, 10), ImmutableSet.of(1), "ask");
+        PoolTargetConfig config = new PoolTargetConfig(123L, 10, 12, ImmutableSet.of(7, 8, 9, 10), ImmutableSet.of(1), "ask", AnswerFormatType.full);
         State<PoolTargetStateData> state = new State<>("3", new PoolTargetStateData(5, null, null));
         Optional<MessageDataDTO> toSave = underTest.createMessageDataForNewMessage(configUUID, 1L, channelId, messageId, config, state);
         messageDataDAO.saveMessageData(toSave.orElseThrow());
@@ -794,7 +797,7 @@ class PoolTargetCommandTest {
 
 
         ConfigAndState<PoolTargetConfig, PoolTargetStateData> configAndState = underTest.deserializeAndUpdateState(savedData, "3");
-        assertThat(configAndState.getConfig()).isEqualTo(new PoolTargetConfig(123L, 10, 12, ImmutableSet.of(7, 8, 9, 10), ImmutableSet.of(1), "ask"));
+        assertThat(configAndState.getConfig()).isEqualTo(new PoolTargetConfig(123L, 10, 12, ImmutableSet.of(7, 8, 9, 10), ImmutableSet.of(1), "ask", AnswerFormatType.full));
         assertThat(configAndState.getConfigUUID()).isEqualTo(configUUID);
         assertThat(configAndState.getState().getData()).isEqualTo(new PoolTargetStateData(5, 3, null));
     }

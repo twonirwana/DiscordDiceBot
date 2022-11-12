@@ -3,6 +3,7 @@ package de.janno.discord.bot.command.countSuccesses;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableSet;
+import de.janno.discord.bot.command.AnswerFormatType;
 import de.janno.discord.bot.command.Config;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -16,7 +17,7 @@ import java.util.stream.Stream;
 
 @EqualsAndHashCode(callSuper = true)
 @Getter
-@ToString
+@ToString(callSuper = true)
 public class CountSuccessesConfig extends Config {
     private final int diceSides;
     private final int target;
@@ -38,8 +39,8 @@ public class CountSuccessesConfig extends Config {
                                 @JsonProperty("minDiceCount") Integer minDiceCount,
                                 @JsonProperty("rerollSet") Set<Integer> rerollSet,
                                 @JsonProperty("botchSet") Set<Integer> botchSet,
-                                @JsonProperty("answerDisplayType") String answerDisplayType) {
-        super(answerTargetChannelId, answerDisplayType);
+                                @JsonProperty("answerFormatType") AnswerFormatType answerFormatType) {
+        super(answerTargetChannelId, answerFormatType);
         this.diceSides = diceSides;
         this.target = target;
         this.glitchOption = glitchOption;
@@ -59,7 +60,7 @@ public class CountSuccessesConfig extends Config {
                 rerollSet.stream().map(String::valueOf).collect(Collectors.joining(CountSuccessesCommand.SUBSET_DELIMITER)),
                 botchSet.stream().map(String::valueOf).collect(Collectors.joining(CountSuccessesCommand.SUBSET_DELIMITER)),
                 getTargetChannelShortString(),
-                getAnswerDisplayType()
+                getAnswerFormatType()
         ).toList().toString();
     }
 }

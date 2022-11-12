@@ -3,10 +3,7 @@ package de.janno.discord.bot.command.sumDiceSet;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
-import de.janno.discord.bot.command.AbstractCommand;
-import de.janno.discord.bot.command.Config;
-import de.janno.discord.bot.command.ConfigAndState;
-import de.janno.discord.bot.command.State;
+import de.janno.discord.bot.command.*;
 import de.janno.discord.bot.dice.DiceUtils;
 import de.janno.discord.bot.persistance.Mapper;
 import de.janno.discord.bot.persistance.MessageDataDAO;
@@ -15,7 +12,7 @@ import de.janno.discord.connector.api.BottomCustomIdUtils;
 import de.janno.discord.connector.api.ButtonEventAdaptor;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
-import de.janno.discord.connector.api.message.EmbedDefinition;
+import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
 import de.janno.discord.connector.api.message.MessageDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinitionOption;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
@@ -137,9 +134,9 @@ public class SumDiceSetCommand extends AbstractCommand<Config, SumDiceSetStateDa
     }
 
     @Override
-    protected @NonNull EmbedDefinition getHelpMessage() {
-        return EmbedDefinition.builder()
-                .description("Use '/sum_dice_set start' " +
+    protected @NonNull EmbedOrMessageDefinition getHelpMessage() {
+        return EmbedOrMessageDefinition.builder()
+                .descriptionOrContent("Use '/sum_dice_set start' " +
                         "to get message, where the user can create a dice set and roll it.")
                 .build();
     }
@@ -155,7 +152,7 @@ public class SumDiceSetCommand extends AbstractCommand<Config, SumDiceSetStateDa
     }
 
     @Override
-    protected @NonNull Optional<EmbedDefinition> getAnswer(Config config, State<SumDiceSetStateData> state) {
+    protected @NonNull Optional<RollAnswer> getAnswer(Config config, State<SumDiceSetStateData> state) {
         if (!(ROLL_BUTTON_ID.equals(state.getButtonValue()) &&
                 !Optional.ofNullable(state.getData())
                         .map(SumDiceSetStateData::getDiceSet)
@@ -186,8 +183,13 @@ public class SumDiceSetCommand extends AbstractCommand<Config, SumDiceSetStateDa
                             });
                 }).toList();
         long sumResult = diceResultValues.stream().mapToLong(Integer::longValue).sum();
-        String title = parseDiceMapToMessageString(state.getData().getDiceSet());
-        return Optional.of(new EmbedDefinition(String.format("%s = %d", title, sumResult), diceResultValues.toString(), ImmutableList.of(), minimizeAnswer(config)));
+        String expression = parseDiceMapToMessageString(state.getData().getDiceSet());
+        return Optional.of(RollAnswer.builder()
+                .answerFormatType(config.getAnswerFormatType())
+                .expression(expression)
+                .result(String.valueOf(sumResult))
+                .rollDetails(diceResultValues.toString())
+                .build());
     }
 
     private int limit(int input) {
@@ -276,7 +278,7 @@ public class SumDiceSetCommand extends AbstractCommand<Config, SumDiceSetStateDa
     protected @NonNull Config getConfigFromEvent(@NonNull ButtonEventAdaptor event) {
         String[] split = event.getCustomId().split(BottomCustomIdUtils.LEGACY_CONFIG_SPLIT_DELIMITER_REGEX);
 
-        return new Config(getOptionalLongFromArray(split, 2), ANSWER_TYPE_EMBED);
+        return new Config(getOptionalLongFromArray(split, 2), AnswerFormatType.full);
     }
 
     @Override

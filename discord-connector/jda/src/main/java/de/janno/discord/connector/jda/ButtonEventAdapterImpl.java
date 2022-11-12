@@ -4,7 +4,7 @@ import com.google.common.base.Strings;
 import de.janno.discord.connector.api.ButtonEventAdaptor;
 import de.janno.discord.connector.api.Requester;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
-import de.janno.discord.connector.api.message.EmbedDefinition;
+import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
 import de.janno.discord.connector.api.message.MessageDefinition;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -134,13 +134,13 @@ public class ButtonEventAdapterImpl extends DiscordAdapterImpl implements Button
     }
 
     @Override
-    public Mono<Void> createResultMessageWithEventReference(EmbedDefinition answer, Long targetChannelId) {
+    public Mono<Void> createResultMessageWithEventReference(EmbedOrMessageDefinition answer, Long targetChannelId) {
 
         MessageChannel targetChannel = Optional.ofNullable(targetChannelId)
                 .flatMap(id -> Optional.ofNullable(event.getGuild())
                         .map(g -> g.getChannelById(MessageChannel.class, targetChannelId)))
                 .orElse(event.getInteraction().getMessageChannel());
-        return createEmbedMessageWithReference(targetChannel,
+        return createMessageWithReference(targetChannel,
                 answer, invokingGuildMemberName, event.getUser().getAsMention(),
                 Optional.ofNullable(event.getMember()).map(Member::getEffectiveAvatarUrl).orElse(event.getUser().getEffectiveAvatarUrl()),
                 event.getUser().getId())

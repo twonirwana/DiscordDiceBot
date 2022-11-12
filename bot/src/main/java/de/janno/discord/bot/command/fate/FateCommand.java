@@ -3,10 +3,7 @@ package de.janno.discord.bot.command.fate;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
-import de.janno.discord.bot.command.AbstractCommand;
-import de.janno.discord.bot.command.ConfigAndState;
-import de.janno.discord.bot.command.State;
-import de.janno.discord.bot.command.StateData;
+import de.janno.discord.bot.command.*;
 import de.janno.discord.bot.dice.DiceUtils;
 import de.janno.discord.bot.persistance.Mapper;
 import de.janno.discord.bot.persistance.MessageDataDAO;
@@ -15,7 +12,7 @@ import de.janno.discord.connector.api.BottomCustomIdUtils;
 import de.janno.discord.connector.api.ButtonEventAdaptor;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
-import de.janno.discord.connector.api.message.EmbedDefinition;
+import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
 import de.janno.discord.connector.api.message.MessageDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinitionOption;
 import de.janno.discord.connector.api.slash.CommandDefinitionOptionChoice;
@@ -100,12 +97,12 @@ public class FateCommand extends AbstractCommand<FateConfig, StateData> {
     }
 
     @Override
-    protected @NonNull EmbedDefinition getHelpMessage() {
-        return EmbedDefinition.builder()
-                .description("Buttons for Fate/Fudge dice. There are two types, the simple produces one button that rolls four dice and " +
+    protected @NonNull EmbedOrMessageDefinition getHelpMessage() {
+        return EmbedOrMessageDefinition.builder()
+                .descriptionOrContent("Buttons for Fate/Fudge dice. There are two types, the simple produces one button that rolls four dice and " +
                         "provides the result together with the sum. The type with_modifier produces multiple buttons for modifier -4 to +10" +
                         " that roll four dice and add the modifier of the button.")
-                .field(new EmbedDefinition.Field("Example", "'/fate start type:with_modifier' or '/fate start type:simple'", false))
+                .field(new EmbedOrMessageDefinition.Field("Example", "'/fate start type:with_modifier' or '/fate start type:simple'", false))
                 .build();
     }
 
@@ -134,7 +131,7 @@ public class FateCommand extends AbstractCommand<FateConfig, StateData> {
     }
 
     @Override
-    protected @NonNull Optional<EmbedDefinition> getAnswer(FateConfig config, State<StateData> state) {
+    protected @NonNull Optional<RollAnswer> getAnswer(FateConfig config, State<StateData> state) {
         List<Integer> rollResult = diceUtils.rollFate();
 
         if (ACTION_MODIFIER_OPTION_MODIFIER.equals(config.getType())) {
@@ -147,13 +144,21 @@ public class FateCommand extends AbstractCommand<FateConfig, StateData> {
             }
             int resultWithModifier = DiceUtils.fateResult(rollResult) + modifier;
 
-            String title = String.format("4dF%s = %d", modifierString, resultWithModifier);
             String details = DiceUtils.convertFateNumberToString(rollResult);
-            return Optional.of(new EmbedDefinition(title, details, ImmutableList.of(), minimizeAnswer(config)));
+            return Optional.of(RollAnswer.builder()
+                    .answerFormatType(config.getAnswerFormatType())
+                    .expression(String.format("4dF%s", modifierString))
+                    .result(String.valueOf(resultWithModifier))
+                    .rollDetails(details)
+                    .build());
         } else {
-            String title = String.format("4dF = %d", DiceUtils.fateResult(rollResult));
             String details = DiceUtils.convertFateNumberToString(rollResult);
-            return Optional.of(new EmbedDefinition(title, details, ImmutableList.of(), minimizeAnswer(config)));
+            return Optional.of(RollAnswer.builder()
+                    .answerFormatType(config.getAnswerFormatType())
+                    .expression("4dF")
+                    .result(String.valueOf(DiceUtils.fateResult(rollResult)))
+                    .rollDetails(details)
+                    .build());
         }
     }
 
@@ -212,7 +217,7 @@ public class FateCommand extends AbstractCommand<FateConfig, StateData> {
     @Override
     protected @NonNull FateConfig getConfigFromEvent(@NonNull ButtonEventAdaptor event) {
         String[] split = event.getCustomId().split(BottomCustomIdUtils.LEGACY_CONFIG_SPLIT_DELIMITER_REGEX);
-        return new FateConfig(getOptionalLongFromArray(split, 3), split[2], ANSWER_TYPE_EMBED);
+        return new FateConfig(getOptionalLongFromArray(split, 3), split[2], AnswerFormatType.full);
     }
 
     @Override

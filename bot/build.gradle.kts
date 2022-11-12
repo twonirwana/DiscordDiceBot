@@ -11,7 +11,7 @@ repositories {
 dependencies {
     implementation(project(":discord-connector"))
     implementation("com.github.twonirwana:dice-parser:0.7.1")
-    implementation("io.github.twonirwana:dice-evaluator:v0.1.3")
+    implementation("io.github.twonirwana:dice-evaluator:v0.1.4")
 
     implementation(libs.log4j.to.slf4j)
     implementation(libs.reactor.core)
@@ -24,7 +24,7 @@ dependencies {
     implementation("io.micrometer:micrometer-registry-prometheus:1.9.5")
     implementation("io.undertow:undertow-core:2.3.0.Final")
     implementation("com.h2database:h2:2.1.214")
-    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.13.4")
+    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.14.0")
 
     testImplementation(libs.junit.jupiter.api)
     testRuntimeOnly(libs.junit.jupiter.engine)

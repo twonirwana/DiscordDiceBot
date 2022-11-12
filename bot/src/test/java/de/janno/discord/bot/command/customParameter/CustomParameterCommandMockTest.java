@@ -2,6 +2,7 @@ package de.janno.discord.bot.command.customParameter;
 
 import de.janno.discord.bot.ButtonEventAdaptorMock;
 import de.janno.discord.bot.ButtonEventAdaptorMockFactory;
+import de.janno.discord.bot.command.AnswerFormatType;
 import de.janno.discord.bot.dice.DiceParserSystem;
 import de.janno.discord.bot.persistance.MessageDataDAO;
 import de.janno.discord.bot.persistance.MessageDataDAOImpl;
@@ -28,7 +29,7 @@ public class CustomParameterCommandMockTest {
 
     @Test
     void roll() {
-        CustomParameterConfig config = new CustomParameterConfig(null, "{numberOfDice:1<=>10}d{sides:1/4/6/8/10/12/20/100}", DiceParserSystem.DICE_EVALUATOR);
+        CustomParameterConfig config = new CustomParameterConfig(null, "{numberOfDice:1<=>10}d{sides:1/4/6/8/10/12/20/100}", DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full);
         ButtonEventAdaptorMockFactory<CustomParameterConfig, CustomParameterStateData> factory = new ButtonEventAdaptorMockFactory<>("custom_parameter", underTest, config, messageDataDAO, false);
 
         ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("4");
@@ -40,14 +41,14 @@ public class CustomParameterCommandMockTest {
                 "editMessage: message:invokingUser∶4d*{sides}*: Please select value for *{sides}*, buttonValues=1,4,6,8,10,12,20,100,clear");
         assertThat(click2.getActions()).containsExactly(
                 "editMessage: message:processing ..., buttonValues=",
-                "createAnswer: title=4d1 ⇒ 1, 1, 1, 1, description=1, 1, 1, 1, fieldValues:, answerChannel:null",
+                "createAnswer: title=4d1 ⇒ 1, 1, 1, 1, description=[1, 1, 1, 1], fieldValues:, answerChannel:null",
                 "createButtonMessage: content=*{numberOfDice}*d*{sides}*: Please select value for *{numberOfDice}*, buttonValues=1,2,3,4,5,6,7,8,9,10",
                 "deleteMessage: 0");
     }
 
     @Test
     void clear() {
-        CustomParameterConfig config = new CustomParameterConfig(null, "{numberOfDice:1<=>10}d{sides:1/4/6/8/10/12/20/100}", DiceParserSystem.DICE_EVALUATOR);
+        CustomParameterConfig config = new CustomParameterConfig(null, "{numberOfDice:1<=>10}d{sides:1/4/6/8/10/12/20/100}", DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full);
         ButtonEventAdaptorMockFactory<CustomParameterConfig, CustomParameterStateData> factory = new ButtonEventAdaptorMockFactory<>("custom_parameter", underTest, config, messageDataDAO, false);
 
         ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("4");
@@ -63,7 +64,7 @@ public class CustomParameterCommandMockTest {
 
     @Test
     void roll_pinned() {
-        CustomParameterConfig config = new CustomParameterConfig(null, "{numberOfDice:1<=>10}d{sides:1/4/6/8/10/12/20/100}", DiceParserSystem.DICE_EVALUATOR);
+        CustomParameterConfig config = new CustomParameterConfig(null, "{numberOfDice:1<=>10}d{sides:1/4/6/8/10/12/20/100}", DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full);
         ButtonEventAdaptorMockFactory<CustomParameterConfig, CustomParameterStateData> factory = new ButtonEventAdaptorMockFactory<>("custom_parameter", underTest, config, messageDataDAO, true);
 
         ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("4");
@@ -75,13 +76,13 @@ public class CustomParameterCommandMockTest {
                 "editMessage: message:invokingUser∶4d*{sides}*: Please select value for *{sides}*, buttonValues=1,4,6,8,10,12,20,100,clear");
         assertThat(click2.getActions()).containsExactly(
                 "editMessage: message:*{numberOfDice}*d*{sides}*: Please select value for *{numberOfDice}*, buttonValues=1,2,3,4,5,6,7,8,9,10",
-                "createAnswer: title=4d1 ⇒ 1, 1, 1, 1, description=1, 1, 1, 1, fieldValues:, answerChannel:null",
+                "createAnswer: title=4d1 ⇒ 1, 1, 1, 1, description=[1, 1, 1, 1], fieldValues:, answerChannel:null",
                 "createButtonMessage: content=*{numberOfDice}*d*{sides}*: Please select value for *{numberOfDice}*, buttonValues=1,2,3,4,5,6,7,8,9,10");
     }
 
     @Test
     void roll_answerChannel() {
-        CustomParameterConfig config = new CustomParameterConfig(2L, "{numberOfDice:1<=>10}d{sides:1/4/6/8/10/12/20/100}", DiceParserSystem.DICE_EVALUATOR);
+        CustomParameterConfig config = new CustomParameterConfig(2L, "{numberOfDice:1<=>10}d{sides:1/4/6/8/10/12/20/100}", DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full);
         ButtonEventAdaptorMockFactory<CustomParameterConfig, CustomParameterStateData> factory = new ButtonEventAdaptorMockFactory<>("custom_parameter", underTest, config, messageDataDAO, false);
 
         ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("4");
@@ -93,12 +94,12 @@ public class CustomParameterCommandMockTest {
                 "editMessage: message:invokingUser∶4d*{sides}*: Please select value for *{sides}*, buttonValues=1,4,6,8,10,12,20,100,clear");
         assertThat(click2.getActions()).containsExactly(
                 "editMessage: message:*{numberOfDice}*d*{sides}*: Please select value for *{numberOfDice}*, buttonValues=1,2,3,4,5,6,7,8,9,10",
-                "createAnswer: title=4d1 ⇒ 1, 1, 1, 1, description=1, 1, 1, 1, fieldValues:, answerChannel:2");
+                "createAnswer: title=4d1 ⇒ 1, 1, 1, 1, description=[1, 1, 1, 1], fieldValues:, answerChannel:2");
     }
 
     @Test
     void roll_pinnedTwice() {
-        CustomParameterConfig config = new CustomParameterConfig(null, "{numberOfDice:1<=>10}d{sides:1/4/6/8/10/12/20/100}", DiceParserSystem.DICE_EVALUATOR);
+        CustomParameterConfig config = new CustomParameterConfig(null, "{numberOfDice:1<=>10}d{sides:1/4/6/8/10/12/20/100}", DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full);
         ButtonEventAdaptorMockFactory<CustomParameterConfig, CustomParameterStateData> factory = new ButtonEventAdaptorMockFactory<>("custom_parameter", underTest, config, messageDataDAO, true);
 
         ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("4");
@@ -114,20 +115,20 @@ public class CustomParameterCommandMockTest {
                 "editMessage: message:invokingUser∶4d*{sides}*: Please select value for *{sides}*, buttonValues=1,4,6,8,10,12,20,100,clear");
         assertThat(click2.getActions()).containsExactly(
                 "editMessage: message:*{numberOfDice}*d*{sides}*: Please select value for *{numberOfDice}*, buttonValues=1,2,3,4,5,6,7,8,9,10",
-                "createAnswer: title=4d1 ⇒ 1, 1, 1, 1, description=1, 1, 1, 1, fieldValues:, answerChannel:null",
+                "createAnswer: title=4d1 ⇒ 1, 1, 1, 1, description=[1, 1, 1, 1], fieldValues:, answerChannel:null",
                 "createButtonMessage: content=*{numberOfDice}*d*{sides}*: Please select value for *{numberOfDice}*, buttonValues=1,2,3,4,5,6,7,8,9,10");
         assertThat(click3.getActions()).containsExactly(
                 "editMessage: message:invokingUser∶4d*{sides}*: Please select value for *{sides}*, buttonValues=1,4,6,8,10,12,20,100,clear");
         assertThat(click4.getActions()).containsExactly(
                 "editMessage: message:processing ..., buttonValues=",
-                "createAnswer: title=4d1 ⇒ 1, 1, 1, 1, description=1, 1, 1, 1, fieldValues:, answerChannel:null",
+                "createAnswer: title=4d1 ⇒ 1, 1, 1, 1, description=[1, 1, 1, 1], fieldValues:, answerChannel:null",
                 "createButtonMessage: content=*{numberOfDice}*d*{sides}*: Please select value for *{numberOfDice}*, buttonValues=1,2,3,4,5,6,7,8,9,10",
                 "deleteMessage: 1");
     }
 
     @Test
     void roll_answerChannelTwice() {
-        CustomParameterConfig config = new CustomParameterConfig(2L, "{numberOfDice:1<=>10}d{sides:1/4/6/8/10/12/20/100}", DiceParserSystem.DICE_EVALUATOR);
+        CustomParameterConfig config = new CustomParameterConfig(2L, "{numberOfDice:1<=>10}d{sides:1/4/6/8/10/12/20/100}", DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full);
         ButtonEventAdaptorMockFactory<CustomParameterConfig, CustomParameterStateData> factory = new ButtonEventAdaptorMockFactory<>("custom_parameter", underTest, config, messageDataDAO, false);
 
         ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("4");
@@ -143,11 +144,11 @@ public class CustomParameterCommandMockTest {
                 "editMessage: message:invokingUser∶4d*{sides}*: Please select value for *{sides}*, buttonValues=1,4,6,8,10,12,20,100,clear");
         assertThat(click2.getActions()).containsExactly(
                 "editMessage: message:*{numberOfDice}*d*{sides}*: Please select value for *{numberOfDice}*, buttonValues=1,2,3,4,5,6,7,8,9,10",
-                "createAnswer: title=4d1 ⇒ 1, 1, 1, 1, description=1, 1, 1, 1, fieldValues:, answerChannel:2");
+                "createAnswer: title=4d1 ⇒ 1, 1, 1, 1, description=[1, 1, 1, 1], fieldValues:, answerChannel:2");
         assertThat(click3.getActions()).containsExactly(
                 "editMessage: message:invokingUser∶4d*{sides}*: Please select value for *{sides}*, buttonValues=1,4,6,8,10,12,20,100,clear");
         assertThat(click4.getActions()).containsExactly(
                 "editMessage: message:*{numberOfDice}*d*{sides}*: Please select value for *{numberOfDice}*, buttonValues=1,2,3,4,5,6,7,8,9,10",
-                "createAnswer: title=4d1 ⇒ 1, 1, 1, 1, description=1, 1, 1, 1, fieldValues:, answerChannel:2");
+                "createAnswer: title=4d1 ⇒ 1, 1, 1, 1, description=[1, 1, 1, 1], fieldValues:, answerChannel:2");
     }
 }

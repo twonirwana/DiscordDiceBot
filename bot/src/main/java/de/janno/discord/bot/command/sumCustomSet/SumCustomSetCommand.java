@@ -7,10 +7,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import de.janno.discord.bot.BotMetrics;
-import de.janno.discord.bot.command.AbstractCommand;
-import de.janno.discord.bot.command.ButtonIdLabelAndDiceExpression;
-import de.janno.discord.bot.command.ConfigAndState;
-import de.janno.discord.bot.command.State;
+import de.janno.discord.bot.command.*;
 import de.janno.discord.bot.dice.Dice;
 import de.janno.discord.bot.dice.DiceParser;
 import de.janno.discord.bot.dice.DiceParserSystem;
@@ -22,7 +19,7 @@ import de.janno.discord.connector.api.BottomCustomIdUtils;
 import de.janno.discord.connector.api.ButtonEventAdaptor;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
-import de.janno.discord.connector.api.message.EmbedDefinition;
+import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
 import de.janno.discord.connector.api.message.MessageDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinitionOption;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
@@ -125,9 +122,9 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
 
 
     @Override
-    protected @NonNull EmbedDefinition getHelpMessage() {
-        return EmbedDefinition.builder()
-                .description("Creates buttons with custom dice expression components, that can be combined afterwards. e.g. '/sum_custom_set start buttons:+;1d6;1;2;3'. \n" + diceSystemAdapter.getHelpText(DiceParserSystem.DICEROLL_PARSER))
+    protected @NonNull EmbedOrMessageDefinition getHelpMessage() {
+        return EmbedOrMessageDefinition.builder()
+                .descriptionOrContent("Creates buttons with custom dice expression components, that can be combined afterwards. e.g. '/sum_custom_set start buttons:+;1d6;1;2;3'. \n" + diceSystemAdapter.getHelpText(DiceParserSystem.DICEROLL_PARSER))
                 .build();
     }
 
@@ -186,7 +183,7 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
     }
 
     @Override
-    protected @NonNull Optional<EmbedDefinition> getAnswer(SumCustomSetConfig config, State<SumCustomSetStateData> state) {
+    protected @NonNull Optional<RollAnswer> getAnswer(SumCustomSetConfig config, State<SumCustomSetStateData> state) {
         if (!(ROLL_BUTTON_ID.equals(state.getButtonValue()) &&
                 !Optional.ofNullable(state.getData())
                         .map(SumCustomSetStateData::getDiceExpressions)
@@ -199,7 +196,11 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
                 .map(ButtonIdLabelAndDiceExpression::getLabel)
                 .findFirst().orElse(null);
 
-        return Optional.of(diceSystemAdapter.answerRollWithGivenLabel(combineExpressions(state.getData().getDiceExpressions()), label, config.isAlwaysSumResult(), config.getDiceParserSystem()));
+        return Optional.of(diceSystemAdapter.answerRollWithGivenLabel(combineExpressions(state.getData().getDiceExpressions()),
+                label,
+                config.isAlwaysSumResult(),
+                config.getDiceParserSystem(),
+                config.getAnswerFormatType()));
     }
 
     @Override
@@ -264,7 +265,7 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
         return new SumCustomSetConfig(answerTargetChannelId, event.getAllButtonIds().stream()
                 .filter(lv -> !ImmutableSet.of(ROLL_BUTTON_ID, CLEAR_BUTTON_ID, BACK_BUTTON_ID).contains(BottomCustomIdUtils.getButtonValueFromLegacyCustomId(lv.getCustomId())))
                 .map(lv -> new ButtonIdLabelAndDiceExpression(buttonIds.pop(), lv.getLabel(), BottomCustomIdUtils.getButtonValueFromLegacyCustomId(lv.getCustomId())))
-                .collect(Collectors.toList()), DiceParserSystem.DICEROLL_PARSER, true, ANSWER_TYPE_EMBED);
+                .collect(Collectors.toList()), DiceParserSystem.DICEROLL_PARSER, true, AnswerFormatType.full);
     }
 
     private State<SumCustomSetStateData> updateStateWithButtonValue(@NonNull final String buttonValue,
@@ -343,7 +344,12 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
                     .map(ButtonIdLabelAndDiceExpression::getButtonId)
                     .findFirst().orElse("");
         }
-        return updateStateWithButtonValue(buttonId, currentExpression, event.getInvokingGuildMemberName(), lockedToUser, config.getLabelAndExpression(), config.getDiceParserSystem());
+        return updateStateWithButtonValue(buttonId,
+                currentExpression,
+                event.getInvokingGuildMemberName(),
+                lockedToUser,
+                config.getLabelAndExpression(),
+                config.getDiceParserSystem());
     }
 
     @Override
@@ -379,7 +385,11 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
     }
 
     @VisibleForTesting
-    SumCustomSetConfig getConfigOptionStringList(List<ButtonIdAndExpression> startOptions, Long answerTargetChannelId, DiceParserSystem diceParserSystem, boolean alwaysSumResult, String answerDisplayType) {
+    SumCustomSetConfig getConfigOptionStringList(List<ButtonIdAndExpression> startOptions,
+                                                 Long answerTargetChannelId,
+                                                 DiceParserSystem diceParserSystem,
+                                                 boolean alwaysSumResult,
+                                                 AnswerFormatType answerFormatType) {
         return new SumCustomSetConfig(answerTargetChannelId, startOptions.stream()
                 .filter(be -> !be.getExpression().contains(BottomCustomIdUtils.CUSTOM_ID_DELIMITER))
                 .filter(be -> !be.getExpression().contains(LABEL_DELIMITER) || be.getExpression().split(LABEL_DELIMITER).length == 2)
@@ -414,7 +424,7 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
                 .distinct()
                 .limit(22)
                 .collect(Collectors.toList()),
-                diceParserSystem, alwaysSumResult, answerDisplayType);
+                diceParserSystem, alwaysSumResult, answerFormatType);
     }
 
     private List<ComponentRowDefinition> createButtonLayout(SumCustomSetConfig config, boolean rollDisabled) {

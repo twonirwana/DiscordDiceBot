@@ -1,9 +1,12 @@
 package de.janno.discord.bot.command.customParameter;
 
 import com.google.common.collect.ImmutableList;
+import de.janno.discord.bot.command.AnswerFormatType;
 import de.janno.discord.bot.command.ConfigAndState;
+import de.janno.discord.bot.command.RollAnswer;
 import de.janno.discord.bot.command.State;
 import de.janno.discord.bot.dice.Dice;
+import de.janno.discord.bot.dice.DiceParser;
 import de.janno.discord.bot.dice.DiceParserSystem;
 import de.janno.discord.bot.persistance.MessageDataDAO;
 import de.janno.discord.bot.persistance.MessageDataDAOImpl;
@@ -11,10 +14,11 @@ import de.janno.discord.bot.persistance.MessageDataDTO;
 import de.janno.discord.connector.api.ButtonEventAdaptor;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
-import de.janno.discord.connector.api.message.EmbedDefinition;
+import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
 import de.janno.discord.connector.api.message.MessageDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinitionOption;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
+import de.janno.evaluator.dice.random.RandomNumberSupplier;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -87,7 +91,7 @@ class CustomParameterCommandTest {
 
     @BeforeEach
     void setup() {
-        underTest = new CustomParameterCommand(messageDataDAO);
+        underTest = new CustomParameterCommand(messageDataDAO, new DiceParser(), new RandomNumberSupplier(0), 1000);
     }
 
     @ParameterizedTest
@@ -190,26 +194,27 @@ class CustomParameterCommandTest {
 
     @Test
     void getAnswer_complete() {
-        Optional<EmbedDefinition> res = underTest.getAnswer(createConfigFromCustomId(LAST_SELECT_CUSTOM_ID), createParameterStateFromLegacyId(LAST_SELECT_CUSTOM_ID,
-                "", ""));
+        Optional<EmbedOrMessageDefinition> res = underTest.getAnswer(createConfigFromCustomId(LAST_SELECT_CUSTOM_ID), createParameterStateFromLegacyId(LAST_SELECT_CUSTOM_ID,
+                "", "")).map(RollAnswer::toEmbedOrMessageDefinition);
 
         assertThat(res).isPresent();
-        assertThat(res.map(EmbedDefinition::getTitle).orElseThrow()).startsWith("1d2 = ");
+        assertThat(res.map(EmbedOrMessageDefinition::getTitle).orElseThrow()).startsWith("1d2 ⇒ ");
     }
 
     @Test
     void getAnswer_completeAndLabel() {
-        Optional<EmbedDefinition> res = underTest.getAnswer(createConfigFromCustomId(LAST_SELECT_WITH_LABEL_CUSTOM_ID), createParameterStateFromLegacyId(LAST_SELECT_WITH_LABEL_CUSTOM_ID,
-                "", ""));
+        Optional<EmbedOrMessageDefinition> res = underTest.getAnswer(createConfigFromCustomId(LAST_SELECT_WITH_LABEL_CUSTOM_ID), createParameterStateFromLegacyId(LAST_SELECT_WITH_LABEL_CUSTOM_ID,
+                "", "")).map(RollAnswer::toEmbedOrMessageDefinition);
 
         assertThat(res).isPresent();
-        assertThat(res.map(EmbedDefinition::getTitle).orElseThrow()).startsWith("Att: 1d2 = ");
+        assertThat(res.map(EmbedOrMessageDefinition::getTitle).orElseThrow()).startsWith("Att ⇒ ");
+        assertThat(res.map(EmbedOrMessageDefinition::getDescriptionOrContent).orElseThrow()).startsWith("1d2: [");
     }
 
     @Test
     void getAnswer_notComplete() {
-        Optional<EmbedDefinition> res = underTest.getAnswer(createConfigFromCustomId(FIRST_SELECT_CUSTOM_ID), createParameterStateFromLegacyId(FIRST_SELECT_CUSTOM_ID,
-                "", ""));
+        Optional<EmbedOrMessageDefinition> res = underTest.getAnswer(createConfigFromCustomId(FIRST_SELECT_CUSTOM_ID), createParameterStateFromLegacyId(FIRST_SELECT_CUSTOM_ID,
+                "", "")).map(RollAnswer::toEmbedOrMessageDefinition);
 
         assertThat(res).isEmpty();
     }
@@ -358,7 +363,7 @@ class CustomParameterCommandTest {
         long channelId = System.currentTimeMillis();
         long messageId = System.currentTimeMillis();
         UUID configUUID = UUID.randomUUID();
-        CustomParameterConfig config = new CustomParameterConfig(123L, "{n}d{s}", DiceParserSystem.DICE_EVALUATOR);
+        CustomParameterConfig config = new CustomParameterConfig(123L, "{n}d{s}", DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full);
         State<CustomParameterStateData> state = new State<>("5", new CustomParameterStateData(ImmutableList.of("5"), "userName"));
         Optional<MessageDataDTO> toSave = underTest.createMessageDataForNewMessage(configUUID, 1L, channelId, messageId, config, state);
         messageDataDAO.saveMessageData(toSave.orElseThrow());
@@ -389,7 +394,7 @@ class CustomParameterCommandTest {
 
 
         ConfigAndState<CustomParameterConfig, CustomParameterStateData> configAndState = underTest.deserializeAndUpdateState(savedData, "3", "userName");
-        assertThat(configAndState.getConfig()).isEqualTo(new CustomParameterConfig(123L, "{n}d{s}", DiceParserSystem.DICEROLL_PARSER));
+        assertThat(configAndState.getConfig()).isEqualTo(new CustomParameterConfig(123L, "{n}d{s}", DiceParserSystem.DICEROLL_PARSER, AnswerFormatType.full));
         assertThat(configAndState.getConfigUUID()).isEqualTo(configUUID);
         assertThat(configAndState.getState().getData()).isEqualTo(new CustomParameterStateData(ImmutableList.of("5", "3"), "userName"));
     }
@@ -412,7 +417,7 @@ class CustomParameterCommandTest {
 
 
         ConfigAndState<CustomParameterConfig, CustomParameterStateData> configAndState = underTest.deserializeAndUpdateState(savedData, "3", "userName");
-        assertThat(configAndState.getConfig()).isEqualTo(new CustomParameterConfig(123L, "{n}d{s}", DiceParserSystem.DICE_EVALUATOR));
+        assertThat(configAndState.getConfig()).isEqualTo(new CustomParameterConfig(123L, "{n}d{s}", DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full));
         assertThat(configAndState.getConfigUUID()).isEqualTo(configUUID);
         assertThat(configAndState.getState().getData()).isEqualTo(new CustomParameterStateData(ImmutableList.of("5", "3"), "userName"));
     }

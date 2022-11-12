@@ -6,9 +6,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
-import de.janno.discord.bot.command.AbstractCommand;
-import de.janno.discord.bot.command.ConfigAndState;
-import de.janno.discord.bot.command.State;
+import de.janno.discord.bot.command.*;
 import de.janno.discord.bot.dice.*;
 import de.janno.discord.bot.persistance.Mapper;
 import de.janno.discord.bot.persistance.MessageDataDAO;
@@ -17,7 +15,7 @@ import de.janno.discord.connector.api.BottomCustomIdUtils;
 import de.janno.discord.connector.api.ButtonEventAdaptor;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
-import de.janno.discord.connector.api.message.EmbedDefinition;
+import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
 import de.janno.discord.connector.api.message.MessageDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinitionOption;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
@@ -169,7 +167,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
         return new CustomParameterConfig(
                 getOptionalLongFromArray(split, CustomIdIndex.ANSWER_TARGET_CHANNEL.index),
                 split[CustomIdIndex.BASE_EXPRESSION.index],
-                DiceParserSystem.DICEROLL_PARSER, ANSWER_TYPE_EMBED);
+                DiceParserSystem.DICEROLL_PARSER, AnswerFormatType.full);
     }
 
     @Override
@@ -178,9 +176,9 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     }
 
     @Override
-    protected @NonNull EmbedDefinition getHelpMessage() {
-        return EmbedDefinition.builder()
-                .description("Use '/custom_parameter start' and provide a dice expression with parameter variables with the format {parameter_name}. \n" + diceSystemAdapter.getHelpText(DiceParserSystem.DICE_EVALUATOR))
+    protected @NonNull EmbedOrMessageDefinition getHelpMessage() {
+        return EmbedOrMessageDefinition.builder()
+                .descriptionOrContent("Use '/custom_parameter start' and provide a dice expression with parameter variables with the format {parameter_name}. \n" + diceSystemAdapter.getHelpText(DiceParserSystem.DICE_EVALUATOR))
                 .build();
     }
 
@@ -201,9 +199,12 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     }
 
     @Override
-    protected @NonNull Optional<EmbedDefinition> getAnswer(CustomParameterConfig config, State<CustomParameterStateData> state) {
+    protected @NonNull Optional<RollAnswer> getAnswer(CustomParameterConfig config, State<CustomParameterStateData> state) {
         if (!hasMissingParameter(getFilledExpression(config, state))) {
-            return Optional.of(diceSystemAdapter.answerRollWithOptionalLabelInExpression(getFilledExpression(config, state), false, config.getDiceParserSystem()));
+            return Optional.of(diceSystemAdapter.answerRollWithOptionalLabelInExpression(getFilledExpression(config, state),
+                    false,
+                    config.getDiceParserSystem(),
+                    config.getAnswerFormatType()));
         }
         return Optional.empty();
     }

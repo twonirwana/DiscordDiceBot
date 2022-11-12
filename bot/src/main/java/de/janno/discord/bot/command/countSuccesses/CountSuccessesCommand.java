@@ -14,7 +14,7 @@ import de.janno.discord.connector.api.BottomCustomIdUtils;
 import de.janno.discord.connector.api.ButtonEventAdaptor;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
-import de.janno.discord.connector.api.message.EmbedDefinition;
+import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
 import de.janno.discord.connector.api.message.MessageDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinitionOption;
 import de.janno.discord.connector.api.slash.CommandDefinitionOptionChoice;
@@ -109,7 +109,7 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesConfig,
         String glitchOption = split.length < 5 ? GLITCH_NO_OPTION : split[4];
         int maxNumberOfButtons = split.length < 6 ? 15 : Integer.parseInt(split[5]);
         Long answerTargetChannelId = getOptionalLongFromArray(split, 6);
-        return new CountSuccessesConfig(answerTargetChannelId, sideOfDie, target, glitchOption, maxNumberOfButtons, 1, Set.of(), Set.of(), ANSWER_TYPE_EMBED);
+        return new CountSuccessesConfig(answerTargetChannelId, sideOfDie, target, glitchOption, maxNumberOfButtons, 1, Set.of(), Set.of(), AnswerFormatType.full);
     }
 
     @Override
@@ -123,9 +123,9 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesConfig,
     }
 
     @Override
-    protected @NonNull EmbedDefinition getHelpMessage() {
-        return EmbedDefinition.builder().description("Use '/count_successes start dice_sides:X target_number:Y' " + "to get Buttons that roll with X sided dice against the target of Y and count the successes." + " A successes are all dice that have a result greater or equal then the target number")
-                .field(new EmbedDefinition.Field("Example", "/count_successes start dice_sides:10 target_number:7", false)).build();
+    protected @NonNull EmbedOrMessageDefinition getHelpMessage() {
+        return EmbedOrMessageDefinition.builder().descriptionOrContent("Use '/count_successes start dice_sides:X target_number:Y' " + "to get Buttons that roll with X sided dice against the target of Y and count the successes." + " A successes are all dice that have a result greater or equal then the target number")
+                .field(new EmbedOrMessageDefinition.Field("Example", "/count_successes start dice_sides:10 target_number:7", false)).build();
     }
 
     @Override
@@ -201,7 +201,7 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesConfig,
 
 
     @Override
-    protected @NonNull Optional<EmbedDefinition> getAnswer(CountSuccessesConfig config, State<StateData> state) {
+    protected @NonNull Optional<RollAnswer> getAnswer(CountSuccessesConfig config, State<StateData> state) {
         final int numberOfDice = Integer.parseInt(state.getButtonValue());
 
         final List<Integer> rollResult = diceUtils.explodingReroll(config.getDiceSides(), diceUtils.rollDiceOfType(numberOfDice, config.getDiceSides()), config.getRerollSet()).stream()
@@ -215,11 +215,11 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesConfig,
 
         final int totalResults = numberOfSuccesses - numberOfBotches;
 
-        final String glitchTitle;
+        final String glitchResult;
         final String glitchDetails;
         if (GLITCH_COUNT_ONES.equals(config.getGlitchOption())) {
             int numberOfOnes = DiceUtils.numberOfDiceResultsEqual(rollResult, ImmutableSet.of(1));
-            glitchTitle = String.format(" successes and %d ones", numberOfOnes);
+            glitchResult = String.format(" successes and %d ones", numberOfOnes);
             toMark.add(1);
             glitchDetails = "";
         } else if (GLITCH_OPTION_HALF_ONES.equals(config.getGlitchOption())) {
@@ -228,18 +228,24 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesConfig,
             if (isGlitch) {
                 toMark.add(1);
             }
-            glitchTitle = isGlitch ? " - Glitch!" : "";
+            glitchResult = isGlitch ? " - Glitch!" : "";
         } else {
-            glitchTitle = "";
+            glitchResult = "";
             glitchDetails = "";
         }
-        String baseDetails = String.format("%s ≥%d = %s%s%s", CommandUtils.markIn(rollResult, toMark), config.getTarget(), totalResults, getRerollDescription(config), getBotchDescription(config));
-        final String baseTitle = String.format("%dd%d = %d", numberOfDice, config.getDiceSides(), totalResults);
 
-        final String title = baseTitle + glitchTitle;
-        final String details = baseDetails + glitchDetails;
-
-        return Optional.of(new EmbedDefinition(title, details, ImmutableList.of(), minimizeAnswer(config)));
+        return Optional.of(RollAnswer.builder()
+                .answerFormatType(config.getAnswerFormatType())
+                .expression(String.format("%dd%d", numberOfDice, config.getDiceSides()))
+                .result(totalResults + glitchResult)
+                .rollDetails(String.format("%s ≥%d = %s%s%s",
+                        CommandUtils.markIn(rollResult, toMark),
+                        config.getTarget(),
+                        totalResults,
+                        getRerollDescription(config),
+                        getBotchDescription(config)
+                ) + glitchDetails)
+                .build());
     }
 
     @Override
@@ -296,7 +302,7 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesConfig,
                 .collect(Collectors.toSet());
         Set<Integer> botchSet = CommandUtils.getSetFromCommandOptions(options, ACTION_BOTCH_SET_OPTION, ",");
         Long answerTargetChannelId = getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null);
-        String answerType = getAnswerTypeFromStartCommandOption(options);
+        AnswerFormatType answerType = getAnswerTypeFromStartCommandOption(options);
         return new CountSuccessesConfig(answerTargetChannelId, sideValue, targetValue, glitchOption, maxDice, minDiceCount, rerollSet, botchSet, answerType);
     }
 

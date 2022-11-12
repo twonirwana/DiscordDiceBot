@@ -17,7 +17,7 @@ import de.janno.discord.connector.api.BottomCustomIdUtils;
 import de.janno.discord.connector.api.ButtonEventAdaptor;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
-import de.janno.discord.connector.api.message.EmbedDefinition;
+import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
 import de.janno.discord.connector.api.message.MessageDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinitionOption;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
@@ -120,9 +120,9 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
 
 
     @Override
-    protected @NonNull EmbedDefinition getHelpMessage() {
-        return EmbedDefinition.builder()
-                .description("Creates up to 25 buttons with custom dice expression e.g. '/custom_dice start buttons:3d6;10d10;3d20'. \n" + diceSystemAdapter.getHelpText(DiceParserSystem.DICE_EVALUATOR))
+    protected @NonNull EmbedOrMessageDefinition getHelpMessage() {
+        return EmbedOrMessageDefinition.builder()
+                .descriptionOrContent("Creates up to 25 buttons with custom dice expression e.g. '/custom_dice start buttons:3d6;10d10;3d20'. \n" + diceSystemAdapter.getHelpText(DiceParserSystem.DICE_EVALUATOR))
                 .build();
     }
 
@@ -162,13 +162,15 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
         if (LEGACY_START_ACTION.equals(options.getName())) {
             BotMetrics.incrementLegacyStartCounter(getCommandId());
             return getConfigOptionStringList(getButtonsFromCommandOption(options), getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null),
-                    DiceParserSystem.DICEROLL_PARSER, ANSWER_TYPE_EMBED);
+                    DiceParserSystem.DICEROLL_PARSER, AnswerFormatType.full);
         }
         return getConfigOptionStringList(getButtonsFromCommandOption(options), getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null), DiceParserSystem.DICE_EVALUATOR, getAnswerTypeFromStartCommandOption(options));
     }
 
     @VisibleForTesting
-    CustomDiceConfig getConfigOptionStringList(List<ButtonIdAndExpression> startOptions, Long channelId, DiceParserSystem diceParserSystem, String answerDisplayType) {
+    CustomDiceConfig getConfigOptionStringList(List<ButtonIdAndExpression> startOptions,
+                                               Long channelId, DiceParserSystem diceParserSystem,
+                                               AnswerFormatType answerFormatType) {
         return new CustomDiceConfig(channelId, startOptions.stream()
                 .filter(be -> !be.getExpression().contains(BottomCustomIdUtils.CUSTOM_ID_DELIMITER))
                 .filter(be -> !be.getExpression().contains(LABEL_DELIMITER) || be.getExpression().split(LABEL_DELIMITER).length == 2)
@@ -187,11 +189,11 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
                 .distinct()
                 .limit(25)
                 .collect(Collectors.toList()),
-                diceParserSystem, answerDisplayType);
+                diceParserSystem, answerFormatType);
     }
 
     @Override
-    protected @NonNull Optional<EmbedDefinition> getAnswer(CustomDiceConfig config, State<StateData> state) {
+    protected @NonNull Optional<RollAnswer> getAnswer(CustomDiceConfig config, State<StateData> state) {
         Optional<ButtonIdLabelAndDiceExpression> selectedButton = Optional.ofNullable(state).map(State::getButtonValue)
                 .flatMap(bv -> config.getButtonIdLabelAndDiceExpressions().stream()
                         .filter(bld -> bld.getButtonId().equals(bv))
@@ -202,7 +204,7 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
         }
         //add the label only if it is different from the expression
         final String label = selectedButton.get().getDiceExpression().equals(selectedButton.get().getLabel()) ? null : selectedButton.get().getLabel();
-        return Optional.of(diceSystemAdapter.answerRollWithGivenLabel(selectedButton.get().getDiceExpression(), label, false, config.getDiceParserSystem()));
+        return Optional.of(diceSystemAdapter.answerRollWithGivenLabel(selectedButton.get().getDiceExpression(), label, false, config.getDiceParserSystem(), config.getAnswerFormatType()));
     }
 
     @Override
@@ -238,7 +240,7 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
 
         return new CustomDiceConfig(answerTargetChannelId, event.getAllButtonIds().stream()
                 .map(lv -> new ButtonIdLabelAndDiceExpression(buttonIds.pop(), lv.getLabel(), BottomCustomIdUtils.getButtonValueFromLegacyCustomId(lv.getCustomId())))
-                .collect(Collectors.toList()), DiceParserSystem.DICEROLL_PARSER, ANSWER_TYPE_EMBED);
+                .collect(Collectors.toList()), DiceParserSystem.DICEROLL_PARSER, AnswerFormatType.full);
     }
 
     @Override

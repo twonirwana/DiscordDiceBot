@@ -9,7 +9,7 @@ import de.janno.discord.bot.dice.DiceParserSystem;
 import de.janno.discord.bot.dice.DiceSystemAdapter;
 import de.janno.discord.connector.api.SlashCommand;
 import de.janno.discord.connector.api.SlashEventAdaptor;
-import de.janno.discord.connector.api.message.EmbedDefinition;
+import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinitionOption;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
@@ -75,8 +75,8 @@ public class DirectRollCommand implements SlashCommand {
                     .orElseThrow();
             if (commandParameter.equals(HELP)) {
                 BotMetrics.incrementSlashHelpMetricCounter(getCommandId());
-                return event.replyEmbed(EmbedDefinition.builder()
-                        .description("Type /r and a dice expression e.g. `/r 1d6` \n" + diceSystemAdapter.getHelpText(DiceParserSystem.DICE_EVALUATOR))
+                return event.replyEmbed(EmbedOrMessageDefinition.builder()
+                        .descriptionOrContent("Type /r and a dice expression e.g. `/r 1d6` \n" + diceSystemAdapter.getHelpText(DiceParserSystem.DICE_EVALUATOR))
                         .build(), true);
             }
 
@@ -92,10 +92,10 @@ public class DirectRollCommand implements SlashCommand {
             String diceExpression = DiceSystemAdapter.getExpressionFromExpressionWithOptionalLabel(commandParameter);
             BotMetrics.incrementSlashStartMetricCounter(getCommandId(), diceExpression);
 
-            EmbedDefinition answer = diceSystemAdapter.answerRollWithOptionalLabelInExpression(commandParameter, true, DiceParserSystem.DICE_EVALUATOR);
+            RollAnswer answer = diceSystemAdapter.answerRollWithOptionalLabelInExpression(commandParameter, true, DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full);
 
             return Flux.merge(event.acknowledgeAndRemoveSlash(),
-                            event.createResultMessageWithEventReference(answer))
+                            event.createResultMessageWithEventReference(answer.toEmbedOrMessageDefinition()))
                     .doOnComplete(() -> log.info("{} '{}'.'{}': '{}'={} -> {} in {}ms",
                             event.getRequester().getShard(),
                             event.getRequester().getGuildName(),

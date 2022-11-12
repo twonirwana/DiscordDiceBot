@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableList;
 import de.janno.discord.bot.dice.Dice;
 import de.janno.discord.connector.api.Requester;
 import de.janno.discord.connector.api.SlashEventAdaptor;
-import de.janno.discord.connector.api.message.EmbedDefinition;
+import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinitionOption;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
@@ -67,7 +67,7 @@ class DirectRollCommandTest {
         verify(slashEventAdaptor, never()).createButtonMessage(any());
         verify(slashEventAdaptor, never()).deleteMessage(anyLong(), anyBoolean());
         verify(slashEventAdaptor, never()).replyEmbed(any(), anyBoolean());
-        verify(slashEventAdaptor).createResultMessageWithEventReference(ArgumentMatchers.eq(new EmbedDefinition("Test Label ⇒ 0", "1d6 throws 0", ImmutableList.of())));
+        verify(slashEventAdaptor).createResultMessageWithEventReference(ArgumentMatchers.eq(new EmbedOrMessageDefinition("Test Label ⇒ 0", "1d6: [0]", ImmutableList.of(), EmbedOrMessageDefinition.Type.EMBED)));
 
         verify(slashEventAdaptor, never()).getChannelId();
     }
@@ -131,8 +131,8 @@ class DirectRollCommandTest {
         verify(slashEventAdaptor, never()).deleteMessage(anyLong(), anyBoolean());
         verify(slashEventAdaptor, never()).createResultMessageWithEventReference(any());
         verify(slashEventAdaptor, never()).deleteMessage(anyLong(), anyBoolean());
-        verify(slashEventAdaptor).replyEmbed(EmbedDefinition.builder()
-                .description("Type /r and a dice expression e.g. `/r 1d6` \n" + "```\n" + DiceEvaluator.getHelpText() + "\n```\nSee here: https://github.com/twonirwana/DiscordDiceBot")
+        verify(slashEventAdaptor).replyEmbed(EmbedOrMessageDefinition.builder()
+                .descriptionOrContent("Type /r and a dice expression e.g. `/r 1d6` \n" + "```\n" + DiceEvaluator.getHelpText() + "\n```\nSee here: https://github.com/twonirwana/DiscordDiceBot")
                 .build(), true);
 
         verify(slashEventAdaptor, never()).getChannelId();

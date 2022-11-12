@@ -9,8 +9,6 @@ import lombok.ToString;
 
 import java.io.Serializable;
 
-import static de.janno.discord.bot.command.AbstractCommand.ANSWER_TYPE_EMBED;
-
 /**
  * A configuration for a dice system. It will be created with the slash command and not modified afterwards.
  */
@@ -22,17 +20,17 @@ public class Config implements Serializable {
     private final Long answerTargetChannelId;
 
     @NonNull
-    private final String answerDisplayType;
+    private final AnswerFormatType answerFormatType;
 
     @JsonCreator
     public Config(@JsonProperty("answerTargetChannelId") Long answerTargetChannelId,
-                  @JsonProperty("answerDisplayType") String answerDisplayType) {
+                  @JsonProperty("answerFormatType") AnswerFormatType answerFormatType) {
         this.answerTargetChannelId = answerTargetChannelId;
-        this.answerDisplayType = answerDisplayType == null ? ANSWER_TYPE_EMBED : answerDisplayType;
+        this.answerFormatType = answerFormatType == null ? AnswerFormatType.full : answerFormatType;
     }
 
     public String toShortString() {
-        return String.format("[%s, %s]", getTargetChannelShortString(), answerDisplayType);
+        return String.format("[%s, %s]", getTargetChannelShortString(), answerFormatType);
     }
 
     protected String getTargetChannelShortString() {
