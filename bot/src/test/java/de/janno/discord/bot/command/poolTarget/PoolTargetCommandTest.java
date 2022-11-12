@@ -772,7 +772,7 @@ class PoolTargetCommandTest {
     }
 
     @Test
-    void deserialization() {
+    void deserialization_legacy() {
         UUID configUUID = UUID.randomUUID();
         MessageDataDTO savedData = new MessageDataDTO(configUUID, 1L, 1660644934298L, 1660644934298L, "pool_target", "PoolTargetConfig", """
                 ---
@@ -798,6 +798,38 @@ class PoolTargetCommandTest {
 
         ConfigAndState<PoolTargetConfig, PoolTargetStateData> configAndState = underTest.deserializeAndUpdateState(savedData, "3");
         assertThat(configAndState.getConfig()).isEqualTo(new PoolTargetConfig(123L, 10, 12, ImmutableSet.of(7, 8, 9, 10), ImmutableSet.of(1), "ask", AnswerFormatType.full));
+        assertThat(configAndState.getConfigUUID()).isEqualTo(configUUID);
+        assertThat(configAndState.getState().getData()).isEqualTo(new PoolTargetStateData(5, 3, null));
+    }
+
+    @Test
+    void deserialization() {
+        UUID configUUID = UUID.randomUUID();
+        MessageDataDTO savedData = new MessageDataDTO(configUUID, 1L, 1660644934298L, 1660644934298L, "pool_target", "PoolTargetConfig", """
+                ---
+                answerTargetChannelId: 123
+                diceSides: 10
+                maxNumberOfButtons: 12
+                rerollSet:
+                - 7
+                - 8
+                - 9
+                - 10
+                botchSet:
+                - 1
+                rerollVariant: "ask"
+                answerFormatType: compact
+                """,
+                "PoolTargetStateData", """
+                ---
+                dicePool: 5
+                targetNumber: null
+                doReroll: null
+                """);
+
+
+        ConfigAndState<PoolTargetConfig, PoolTargetStateData> configAndState = underTest.deserializeAndUpdateState(savedData, "3");
+        assertThat(configAndState.getConfig()).isEqualTo(new PoolTargetConfig(123L, 10, 12, ImmutableSet.of(7, 8, 9, 10), ImmutableSet.of(1), "ask", AnswerFormatType.compact));
         assertThat(configAndState.getConfigUUID()).isEqualTo(configUUID);
         assertThat(configAndState.getState().getData()).isEqualTo(new PoolTargetStateData(5, 3, null));
     }

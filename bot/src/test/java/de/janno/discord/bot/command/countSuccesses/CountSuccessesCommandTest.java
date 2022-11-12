@@ -463,6 +463,33 @@ class CountSuccessesCommandTest {
                 botchSet:
                 - 10
                 - 9
+                answerFormatType: compact
+                """, "None", null);
+
+
+        ConfigAndState<CountSuccessesConfig, StateData> configAndState = underTest.deserializeAndUpdateState(savedData, "3");
+        assertThat(configAndState.getConfig()).isEqualTo(new CountSuccessesConfig(123L, 6, 5, "no_glitch", 12, 2, Set.of(1, 2), Set.of(9, 10), AnswerFormatType.compact));
+        assertThat(configAndState.getConfigUUID()).isEqualTo(configUUID);
+        assertThat(configAndState.getState().getData()).isEqualTo(StateData.empty());
+    }
+
+    @Test
+    void deserialization_legacy2() {
+        UUID configUUID = UUID.randomUUID();
+        MessageDataDTO savedData = new MessageDataDTO(configUUID, 1L, 1660644934298L, 1660644934298L, "count_successes", "CountSuccessesConfig", """
+                ---
+                answerTargetChannelId: 123
+                diceSides: 6
+                target: 5
+                glitchOption: "no_glitch"
+                maxNumberOfButtons: 12
+                minDiceCount: 2
+                rerollSet:
+                - 2
+                - 1
+                botchSet:
+                - 10
+                - 9
                 """, "None", null);
 
 

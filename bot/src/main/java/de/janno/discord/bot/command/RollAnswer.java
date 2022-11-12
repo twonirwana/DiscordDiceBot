@@ -21,7 +21,6 @@ public class RollAnswer {
     AnswerFormatType answerFormatType;
     @NonNull
     String expression;
-
     @Nullable
     String expressionLabel;
     @Nullable

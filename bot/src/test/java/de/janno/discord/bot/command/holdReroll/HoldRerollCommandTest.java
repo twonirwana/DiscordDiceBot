@@ -461,7 +461,7 @@ class HoldRerollCommandTest {
     }
 
     @Test
-    void deserialization() {
+    void deserialization_legacy2() {
         UUID configUUID = UUID.randomUUID();
         MessageDataDTO savedData = new MessageDataDTO(configUUID, 1L, 1660644934298L, 1660644934298L, "hold_reroll", "HoldRerollConfig", """
                 ---
@@ -489,6 +489,39 @@ class HoldRerollCommandTest {
 
         ConfigAndState<HoldRerollConfig, HoldRerollStateData> configAndState = underTest.deserializeAndUpdateState(savedData, "reroll");
         assertThat(configAndState.getConfig()).isEqualTo(new HoldRerollConfig(123L, 10, ImmutableSet.of(9, 10), ImmutableSet.of(7, 8, 9, 10), ImmutableSet.of(1), AnswerFormatType.full));
+        assertThat(configAndState.getConfigUUID()).isEqualTo(configUUID);
+        assertThat(configAndState.getState().getData()).isEqualTo(new HoldRerollStateData(ImmutableList.of(1, 2, 1), 3));
+    }
+    @Test
+    void deserialization() {
+        UUID configUUID = UUID.randomUUID();
+        MessageDataDTO savedData = new MessageDataDTO(configUUID, 1L, 1660644934298L, 1660644934298L, "hold_reroll", "HoldRerollConfig", """
+                ---
+                answerTargetChannelId: 123
+                sidesOfDie: 10
+                rerollSet:
+                - 9
+                - 10
+                successSet:
+                - 7
+                - 8
+                - 9
+                - 10
+                failureSet:
+                - 1
+                answerFormatType: compact
+                """, "HoldRerollStateData", """
+                ---
+                currentResults:
+                - 1
+                - 2
+                - 10
+                rerollCounter: 2
+                """);
+
+
+        ConfigAndState<HoldRerollConfig, HoldRerollStateData> configAndState = underTest.deserializeAndUpdateState(savedData, "reroll");
+        assertThat(configAndState.getConfig()).isEqualTo(new HoldRerollConfig(123L, 10, ImmutableSet.of(9, 10), ImmutableSet.of(7, 8, 9, 10), ImmutableSet.of(1), AnswerFormatType.compact));
         assertThat(configAndState.getConfigUUID()).isEqualTo(configUUID);
         assertThat(configAndState.getState().getData()).isEqualTo(new HoldRerollStateData(ImmutableList.of(1, 2, 1), 3));
     }

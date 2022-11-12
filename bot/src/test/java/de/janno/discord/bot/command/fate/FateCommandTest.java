@@ -279,7 +279,7 @@ class FateCommandTest {
     }
 
     @Test
-    void deserialization() {
+    void deserialization_legacy2() {
         UUID configUUID = UUID.randomUUID();
         MessageDataDTO savedData = new MessageDataDTO(configUUID, 1L, 1660644934298L, 1660644934298L, "fate", "FateConfig", """
                 ---
@@ -290,6 +290,23 @@ class FateCommandTest {
 
         ConfigAndState<FateConfig, StateData> configAndState = underTest.deserializeAndUpdateState(savedData, "3");
         assertThat(configAndState.getConfig()).isEqualTo(new FateConfig(123L, "with_modifier", AnswerFormatType.full));
+        assertThat(configAndState.getConfigUUID()).isEqualTo(configUUID);
+        assertThat(configAndState.getState().getData()).isEqualTo(StateData.empty());
+    }
+
+    @Test
+    void deserialization() {
+        UUID configUUID = UUID.randomUUID();
+        MessageDataDTO savedData = new MessageDataDTO(configUUID, 1L, 1660644934298L, 1660644934298L, "fate", "FateConfig", """
+                ---
+                answerTargetChannelId: 123
+                type: "with_modifier"
+                answerFormatType: compact
+                """, "None", null);
+
+
+        ConfigAndState<FateConfig, StateData> configAndState = underTest.deserializeAndUpdateState(savedData, "3");
+        assertThat(configAndState.getConfig()).isEqualTo(new FateConfig(123L, "with_modifier", AnswerFormatType.compact));
         assertThat(configAndState.getConfigUUID()).isEqualTo(configUUID);
         assertThat(configAndState.getState().getData()).isEqualTo(StateData.empty());
     }

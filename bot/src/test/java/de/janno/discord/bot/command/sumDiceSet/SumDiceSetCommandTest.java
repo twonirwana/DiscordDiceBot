@@ -478,7 +478,7 @@ class SumDiceSetCommandTest {
     }
 
     @Test
-    void deserialization() {
+    void deserialization_legacy() {
         UUID configUUID = UUID.randomUUID();
         MessageDataDTO savedData = new MessageDataDTO(configUUID, 1L, 1660644934298L, 1660644934298L, "sum_dice_set", "Config", """
                 ---
@@ -495,6 +495,29 @@ class SumDiceSetCommandTest {
 
         ConfigAndState<Config, SumDiceSetStateData> configAndState = underTest.deserializeAndUpdateState(savedData, "+1d6");
         assertThat(configAndState.getConfig()).isEqualTo(new Config(123L, AnswerFormatType.full));
+        assertThat(configAndState.getConfigUUID()).isEqualTo(configUUID);
+        assertThat(configAndState.getState().getData()).isEqualTo(new SumDiceSetStateData(ImmutableList.of(new DiceKeyAndValue("d6", 4), new DiceKeyAndValue("m", -4))));
+    }
+
+    @Test
+    void deserialization() {
+        UUID configUUID = UUID.randomUUID();
+        MessageDataDTO savedData = new MessageDataDTO(configUUID, 1L, 1660644934298L, 1660644934298L, "sum_dice_set", "Config", """
+                ---
+                answerTargetChannelId: 123
+                answerFormatType: compact
+                """, "SumDiceSetStateData", """
+                ---
+                diceSet:
+                - diceKey: "d6"
+                  value: 3
+                - diceKey: "m"
+                  value: -4
+                """);
+
+
+        ConfigAndState<Config, SumDiceSetStateData> configAndState = underTest.deserializeAndUpdateState(savedData, "+1d6");
+        assertThat(configAndState.getConfig()).isEqualTo(new Config(123L, AnswerFormatType.compact));
         assertThat(configAndState.getConfigUUID()).isEqualTo(configUUID);
         assertThat(configAndState.getState().getData()).isEqualTo(new SumDiceSetStateData(ImmutableList.of(new DiceKeyAndValue("d6", 4), new DiceKeyAndValue("m", -4))));
     }
