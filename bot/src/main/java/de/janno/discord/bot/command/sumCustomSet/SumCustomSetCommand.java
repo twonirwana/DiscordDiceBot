@@ -293,7 +293,6 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
         if (ROLL_BUTTON_ID.equals(buttonValue)) {
             if (!diceSystemAdapter.isValidExpression(currentExpression, diceParserSystem)) {
                 //should not happen, button only enabled if expression is valid
-                log.error("Roll button pressed but expression is not valid: {}", currentExpression);
                 return new State<>(NO_ACTION, new SumCustomSetStateData(currentExpressions, lockedToUser));
             }
             return new State<>(buttonValue, new SumCustomSetStateData(currentExpressions, lockedToUser));

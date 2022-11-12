@@ -91,6 +91,7 @@ public class DirectRollCommand implements SlashCommand {
 
             String diceExpression = DiceSystemAdapter.getExpressionFromExpressionWithOptionalLabel(commandParameter);
             BotMetrics.incrementSlashStartMetricCounter(getCommandId(), diceExpression);
+            BotMetrics.incrementAnswerFormatCounter(AnswerFormatType.full, getCommandId());
 
             RollAnswer answer = diceSystemAdapter.answerRollWithOptionalLabelInExpression(commandParameter, true, DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full);
 

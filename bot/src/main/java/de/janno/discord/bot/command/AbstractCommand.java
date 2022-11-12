@@ -204,6 +204,7 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
         Optional<RollAnswer> answer = getAnswer(config, state);
         if (answer.isPresent()) {
             BotMetrics.incrementButtonMetricCounter(getCommandId(), config.toShortString());
+            BotMetrics.incrementAnswerFormatCounter(config.getAnswerFormatType(), getCommandId());
 
             actions.add(event.createResultMessageWithEventReference(answer.get().toEmbedOrMessageDefinition(), answerTargetChannelId)
                     .doOnSuccess(v -> log.info("{} '{}'.'{}': '{}'={} -> {} in {}ms",
