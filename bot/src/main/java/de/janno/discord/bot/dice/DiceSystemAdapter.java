@@ -30,13 +30,6 @@ public class DiceSystemAdapter {
         return expressionWithOptionalLabel;
     }
 
-    public String getHelpText(DiceParserSystem system) {
-        return switch (system) {
-            case DICE_EVALUATOR -> DiceEvaluatorAdapter.getHelp();
-            case DICEROLL_PARSER -> DiceParserAdapter.HELP;
-        };
-    }
-
     public RollAnswer answerRollWithOptionalLabelInExpression(String expression, boolean sumUp, DiceParserSystem system, AnswerFormatType answerFormatType) {
         BotMetrics.incrementDiceParserSystemCounter(system);
         return switch (system) {

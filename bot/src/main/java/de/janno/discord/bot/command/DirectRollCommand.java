@@ -3,10 +3,7 @@ package de.janno.discord.bot.command;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Stopwatch;
 import de.janno.discord.bot.BotMetrics;
-import de.janno.discord.bot.dice.Dice;
-import de.janno.discord.bot.dice.DiceParser;
-import de.janno.discord.bot.dice.DiceParserSystem;
-import de.janno.discord.bot.dice.DiceSystemAdapter;
+import de.janno.discord.bot.dice.*;
 import de.janno.discord.connector.api.SlashCommand;
 import de.janno.discord.connector.api.SlashEventAdaptor;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
@@ -76,7 +73,10 @@ public class DirectRollCommand implements SlashCommand {
             if (commandParameter.equals(HELP)) {
                 BotMetrics.incrementSlashHelpMetricCounter(getCommandId());
                 return event.replyEmbed(EmbedOrMessageDefinition.builder()
-                        .descriptionOrContent("Type /r and a dice expression e.g. `/r 1d6` \n" + diceSystemAdapter.getHelpText(DiceParserSystem.DICE_EVALUATOR))
+                        .descriptionOrContent("Type /r and a dice expression.\n" + DiceEvaluatorAdapter.getHelp())
+                        .field(new EmbedDefinition.Field("Example", "`/r expression:1d6`", false))
+                        .field(new EmbedDefinition.Field("Full documentation", "https://github.com/twonirwana/DiscordDiceBot", false))
+                        .field(new EmbedDefinition.Field("Discord Server", "https://discord.gg/e43BsqKpFr", false))
                         .build(), true);
             }
 

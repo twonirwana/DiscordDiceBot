@@ -81,6 +81,9 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTar
     protected @NonNull EmbedOrMessageDefinition getHelpMessage() {
         return EmbedOrMessageDefinition.builder()
                 .descriptionOrContent("Use '/pool_target start' to get message, where the user can roll dice")
+                .field(new EmbedDefinition.Field("Example", "`/pool_target start sides:10 max_dice:15 reroll_set:10 botch_set:1 reroll_variant:ask`", false))
+                .field(new EmbedDefinition.Field("Full documentation", "https://github.com/twonirwana/DiscordDiceBot", false))
+                .field(new EmbedDefinition.Field("Discord Server", "https://discord.gg/e43BsqKpFr", false))
                 .build();
     }
 

@@ -21,7 +21,7 @@ dependencies {
     implementation(libs.guava)
     implementation(libs.micrometer.core)
     implementation(libs.commons.lang3)
-    implementation("io.micrometer:micrometer-registry-prometheus:1.9.5")
+    implementation("io.micrometer:micrometer-registry-prometheus:1.10.0")
     implementation("io.undertow:undertow-core:2.3.0.Final")
     implementation("com.h2database:h2:2.1.214")
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.14.0")
@@ -32,7 +32,7 @@ dependencies {
     testCompileOnly(libs.lombok)
     testAnnotationProcessor(libs.lombok)
 
-    testImplementation("io.projectreactor:reactor-test:3.4.24")
+    testImplementation("io.projectreactor:reactor-test:3.5.0")
     testImplementation("org.junit.jupiter:junit-jupiter-params:5.9.1")
     testImplementation("org.mockito:mockito-core:4.8.1")
     testImplementation("org.mockito:mockito-inline:4.8.1")
