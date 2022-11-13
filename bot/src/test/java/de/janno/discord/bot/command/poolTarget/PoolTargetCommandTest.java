@@ -546,7 +546,7 @@ class PoolTargetCommandTest {
 
         verify(buttonEventAdaptor).editMessage(eq("processing ..."), anyList());
         verify(buttonEventAdaptor).createButtonMessage(any());
-        verify(buttonEventAdaptor).deleteMessage(1L, false);
+        verify(buttonEventAdaptor, never()).deleteMessage(anyLong(), anyBoolean());
         verify(buttonEventAdaptor).createResultMessageWithEventReference(eq(new EmbedOrMessageDefinition("15d10 ≥8 ⇒ -4",
                 "[**1**,**1**,**1**,**2**,**2**,**2**,3,4,5,5,6,6,6,6,7,**10**,**10**]", ImmutableList.of(), EmbedOrMessageDefinition.Type.EMBED)), eq(null));
         verify(buttonEventAdaptor, times(3)).getCustomId();
