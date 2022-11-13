@@ -154,8 +154,8 @@ class CustomDiceCommandTest {
     @Test
     void getDiceResult_1d6() {
         when(diceMock.detailedRoll("1d6")).thenReturn(new ResultTree(new NDice(6, 1), 3, ImmutableList.of()));
-        EmbedOrMessageDefinition res = underTest.getAnswer(new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "1d6", "1d6")), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full), new State<>("1_button", StateData.empty()))
-                .orElseThrow().toEmbedOrMessageDefinition();
+        EmbedOrMessageDefinition res = RollAnswerConverter.toEmbedOrMessageDefinition(underTest.getAnswer(new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "1d6", "1d6")), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full), new State<>("1_button", StateData.empty()))
+                .orElseThrow());
 
         assertThat(res.getFields()).hasSize(0);
         assertThat(res.getTitle()).isEqualTo("1d6 ⇒ 3");
@@ -165,8 +165,8 @@ class CustomDiceCommandTest {
     @Test
     void getDiceResult_3x1d6() {
         when(diceMock.detailedRoll("1d6")).thenReturn(new ResultTree(new NDice(6, 1), 6, ImmutableList.of()));
-        EmbedOrMessageDefinition res = underTest.getAnswer(new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "3x[1d6]", "3x[1d6]")), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full), new State<>("1_button", StateData.empty()))
-                .orElseThrow().toEmbedOrMessageDefinition();
+        EmbedOrMessageDefinition res = RollAnswerConverter.toEmbedOrMessageDefinition(underTest.getAnswer(new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "3x[1d6]", "3x[1d6]")), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full), new State<>("1_button", StateData.empty()))
+                .orElseThrow());
 
         assertThat(res).isEqualTo(new EmbedOrMessageDefinition("Error in `3x[1d6]`", "There need to be an operator or a separator between two values", ImmutableList.of(), EmbedOrMessageDefinition.Type.EMBED));
     }
@@ -174,8 +174,8 @@ class CustomDiceCommandTest {
 
     @Test
     void getDiceResult_1d6Label() {
-        EmbedOrMessageDefinition res = underTest.getAnswer(new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Label", "1d6")), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full), new State<>("1_button", StateData.empty()))
-                .orElseThrow().toEmbedOrMessageDefinition();
+        EmbedOrMessageDefinition res = RollAnswerConverter.toEmbedOrMessageDefinition(underTest.getAnswer(new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Label", "1d6")), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full), new State<>("1_button", StateData.empty()))
+                .orElseThrow());
 
         assertThat(res.getFields()).hasSize(0);
         assertThat(res.getTitle()).isEqualTo("Label ⇒ 3");
@@ -184,8 +184,8 @@ class CustomDiceCommandTest {
 
     @Test
     void getDiceResult_3x1d6Label() {
-        EmbedOrMessageDefinition res = underTest.getAnswer(new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Label", "1d6,1d6,1d6")), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full), new State<>("1_button", StateData.empty()))
-                .orElseThrow().toEmbedOrMessageDefinition();
+        EmbedOrMessageDefinition res = RollAnswerConverter.toEmbedOrMessageDefinition(underTest.getAnswer(new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Label", "1d6,1d6,1d6")), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full), new State<>("1_button", StateData.empty()))
+                .orElseThrow());
 
         assertThat(res).isEqualTo(new EmbedOrMessageDefinition("Label", null, ImmutableList.of(new EmbedOrMessageDefinition.Field("1d6 ⇒ 3", "[3]", false), new EmbedOrMessageDefinition.Field("1d6 ⇒ 3", "[3]", false), new EmbedOrMessageDefinition.Field("1d6 ⇒ 3", "[3]", false)), EmbedOrMessageDefinition.Type.EMBED));
     }
@@ -491,7 +491,7 @@ class CustomDiceCommandTest {
 
         Optional<String> res = underTest.getStartOptionsValidationMessage(option);
 
-        assertThat(res).contains("The following dice expression is invalid: '2x[2d4]'. Use /custom_dice help to get more information on how to use the command.");
+        assertThat(res).contains("The following dice expression is invalid: '2x[2d4]'");
     }
 
     @Test

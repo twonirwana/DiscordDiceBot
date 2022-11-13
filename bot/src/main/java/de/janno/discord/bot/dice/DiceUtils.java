@@ -2,26 +2,30 @@ package de.janno.discord.bot.dice;
 
 
 import com.google.common.collect.ImmutableList;
-import de.janno.evaluator.dice.random.ThreadLocalSfc64Random;
+import de.janno.evaluator.ExpressionException;
+import de.janno.evaluator.dice.random.GivenNumberSupplier;
+import de.janno.evaluator.dice.random.NumberSupplier;
+import de.janno.evaluator.dice.random.RandomNumberSupplier;
 
-import java.util.*;
-import java.util.function.Function;
-import java.util.random.RandomGenerator;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class DiceUtils {
     public static final String MINUS = "\u2212";
-    private static final RandomGenerator randomNumberGenerator = new ThreadLocalSfc64Random();
-    private final Function<Integer, Integer> numberSupplier;
+    private final NumberSupplier numberSupplier;
 
     public DiceUtils() {
-        numberSupplier = diceSides -> (int) (randomNumberGenerator.nextInt(diceSides) + 1);
+        numberSupplier = new RandomNumberSupplier();
+    }
+
+    public DiceUtils(long seed) {
+        numberSupplier = new RandomNumberSupplier(seed);
     }
 
     public DiceUtils(Integer... resultNumbers) {
-        Deque<Integer> results = new ArrayDeque<>(ImmutableList.copyOf(resultNumbers));
-        numberSupplier = diceSides -> results.pop();
+        numberSupplier = new GivenNumberSupplier(resultNumbers);
     }
 
     public static int numberOfDiceResultsGreaterEqual(List<Integer> results, int target) {
@@ -53,7 +57,11 @@ public class DiceUtils {
     }
 
     public int rollDice(int diceSides) {
-        return numberSupplier.apply(diceSides);
+        try {
+            return numberSupplier.get(0, diceSides);
+        } catch (ExpressionException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public List<Integer> rollFate() {
@@ -69,7 +77,7 @@ public class DiceUtils {
     }
 
     public List<Integer> explodingReroll(int sidesOfDie, List<Integer> results, Set<Integer> resultNumbersToReroll) {
-        if(resultNumbersToReroll.isEmpty()){
+        if (resultNumbersToReroll.isEmpty()) {
             return results;
         }
         ImmutableList.Builder<Integer> resultBuilder = ImmutableList.builder();

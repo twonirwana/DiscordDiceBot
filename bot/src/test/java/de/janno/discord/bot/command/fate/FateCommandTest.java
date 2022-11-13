@@ -90,8 +90,8 @@ class FateCommandTest {
 
     @Test
     void getDiceResult_simple() {
-        EmbedOrMessageDefinition res = underTest.getAnswer(new FateConfig(null, "simple", AnswerFormatType.full), new State<>("roll", StateData.empty()))
-                .orElseThrow().toEmbedOrMessageDefinition();
+        EmbedOrMessageDefinition res = RollAnswerConverter.toEmbedOrMessageDefinition(underTest.getAnswer(new FateConfig(null, "simple", AnswerFormatType.full), new State<>("roll", StateData.empty()))
+                .orElseThrow());
 
         assertThat(res.getFields()).hasSize(0);
         assertThat(res.getTitle()).isEqualTo("4dF ⇒ -1");
@@ -100,8 +100,8 @@ class FateCommandTest {
 
     @Test
     void getDiceResult_modifier_minus1() {
-        EmbedOrMessageDefinition res = underTest.getAnswer(new FateConfig(null, "with_modifier", AnswerFormatType.full), new State<>("-1", StateData.empty()))
-                .orElseThrow().toEmbedOrMessageDefinition();
+        EmbedOrMessageDefinition res = RollAnswerConverter.toEmbedOrMessageDefinition(underTest.getAnswer(new FateConfig(null, "with_modifier", AnswerFormatType.full), new State<>("-1", StateData.empty()))
+                .orElseThrow());
 
         assertThat(res.getFields()).hasSize(0);
         assertThat(res.getTitle()).isEqualTo("4dF -1 ⇒ -2");
@@ -110,8 +110,8 @@ class FateCommandTest {
 
     @Test
     void getDiceResult_modifier_plus1() {
-        EmbedOrMessageDefinition res = underTest.getAnswer(new FateConfig(null, "with_modifier", AnswerFormatType.full), new State<>("1", StateData.empty()))
-                .orElseThrow().toEmbedOrMessageDefinition();
+        EmbedOrMessageDefinition res = RollAnswerConverter.toEmbedOrMessageDefinition(underTest.getAnswer(new FateConfig(null, "with_modifier", AnswerFormatType.full), new State<>("1", StateData.empty()))
+                .orElseThrow());
 
         assertThat(res.getFields()).hasSize(0);
         assertThat(res.getTitle()).isEqualTo("4dF +1 ⇒ 0");
@@ -120,8 +120,8 @@ class FateCommandTest {
 
     @Test
     void getDiceResult_modifier_0() {
-        EmbedOrMessageDefinition res = underTest.getAnswer(new FateConfig(null, "with_modifier", AnswerFormatType.full), new State<>("0", StateData.empty()))
-                .orElseThrow().toEmbedOrMessageDefinition();
+        EmbedOrMessageDefinition res = RollAnswerConverter.toEmbedOrMessageDefinition(underTest.getAnswer(new FateConfig(null, "with_modifier", AnswerFormatType.full), new State<>("0", StateData.empty()))
+                .orElseThrow());
 
         assertThat(res.getFields()).hasSize(0);
         assertThat(res.getTitle()).isEqualTo("4dF ⇒ -1");

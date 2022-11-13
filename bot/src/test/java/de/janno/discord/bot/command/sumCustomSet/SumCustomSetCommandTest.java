@@ -405,7 +405,7 @@ class SumCustomSetCommandTest {
 
         Optional<String> res = underTest.getStartOptionsValidationMessage(option);
 
-        assertThat(res).contains("The following dice expression is invalid: '2x[2d4]'. Use /sum_custom_set help to get more information on how to use the command.");
+        assertThat(res).contains("The following dice expression is invalid: '2x[2d4]'");
     }
 
 
@@ -489,8 +489,8 @@ class SumCustomSetCommandTest {
     void rollDice_1d6plus10() {
 
 
-        EmbedOrMessageDefinition res = underTest.getAnswer(defaultConfig, new State<>("roll", new SumCustomSetStateData(ImmutableList.of("1d6", "+", "10"), "user1")))
-                .orElseThrow().toEmbedOrMessageDefinition();
+        EmbedOrMessageDefinition res = RollAnswerConverter.toEmbedOrMessageDefinition(underTest.getAnswer(defaultConfig, new State<>("roll", new SumCustomSetStateData(ImmutableList.of("1d6", "+", "10"), "user1")))
+                .orElseThrow());
 
         assertThat(res.getFields()).hasSize(0);
         assertThat(res.getTitle()).isEqualTo("1d6+10 ⇒ 10");

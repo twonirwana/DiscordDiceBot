@@ -90,7 +90,7 @@ public class DiceSystemAdapter {
         }
         return switch (system) {
             case DICE_EVALUATOR -> diceEvaluatorAdapter.validateDiceExpression(diceExpression, helpCommand);
-            case DICEROLL_PARSER -> parserHelper.validateDiceExpression(diceExpression, helpCommand);
+            case DICEROLL_PARSER -> parserHelper.validateDiceExpression(diceExpression);
         };
     }
 

@@ -108,14 +108,14 @@ public class DiceParserAdapter {
         return Optional.empty();
     }
 
-    public Optional<String> validateDiceExpression(String expression, String helpCommand) {
+    public Optional<String> validateDiceExpression(String expression) {
         if (!validExpression(expression)) {
-            return Optional.of(String.format("The following dice expression is invalid: '%s'. Use %s to get more information on how to use the command.", expression, helpCommand));
+            return Optional.of(String.format("The following dice expression is invalid: '%s'", expression));
         }
         return Optional.empty();
     }
 
-    public Optional<String> validateDiceExpressionWitOptionalLabel(@NonNull String expressionWithOptionalLabel, String labelDelimiter, String helpCommand) {
+    public Optional<String> validateDiceExpressionWitOptionalLabel(@NonNull String expressionWithOptionalLabel, String labelDelimiter) {
         String label;
         String diceExpression;
 
@@ -139,18 +139,18 @@ public class DiceParserAdapter {
         if (diceExpression.isBlank()) {
             return Optional.of(String.format("Dice expression for '%s' is empty", expressionWithOptionalLabel));
         }
-        return validateDiceExpression(diceExpression, helpCommand);
+        return validateDiceExpression(diceExpression);
     }
 
-    public Optional<String> validateListOfExpressions(List<String> optionValues, String labelDelimiter, String helpCommand) {
+    public Optional<String> validateListOfExpressions(List<String> optionValues, String labelDelimiter) {
         if (optionValues.isEmpty()) {
-            return Optional.of(String.format("You must configure at least one dice expression. Use '%s' to get more information on how to use the command.", helpCommand));
+            return Optional.of("You must configure at least one dice expression");
         }
         for (String startOptionString : optionValues) {
             if (startOptionString.contains(BottomCustomIdUtils.CUSTOM_ID_DELIMITER)) {
                 return Optional.of(String.format("The button definition '%s' is not allowed to contain '%s'", startOptionString, BottomCustomIdUtils.CUSTOM_ID_DELIMITER));
             }
-            Optional<String> diceParserValidation = validateDiceExpressionWitOptionalLabel(startOptionString, labelDelimiter, helpCommand);
+            Optional<String> diceParserValidation = validateDiceExpressionWitOptionalLabel(startOptionString, labelDelimiter);
             if (diceParserValidation.isPresent()) {
                 return diceParserValidation;
             }

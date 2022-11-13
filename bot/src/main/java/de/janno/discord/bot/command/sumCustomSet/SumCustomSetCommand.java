@@ -140,7 +140,7 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
                 .distinct()
                 .collect(Collectors.toList());
         if (options.getName().equals(LEGACY_START_ACTION)) {
-            return diceSystemAdapter.validateListOfExpressions(diceExpressionWithOptionalLabel, "/sum_custom_set help", DiceParserSystem.DICEROLL_PARSER);
+            return diceSystemAdapter.validateListOfExpressions(diceExpressionWithOptionalLabel, "", DiceParserSystem.DICEROLL_PARSER);
         }
         return Optional.empty();
     }

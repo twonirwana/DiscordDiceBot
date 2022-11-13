@@ -206,7 +206,7 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
             BotMetrics.incrementButtonMetricCounter(getCommandId(), config.toShortString());
             BotMetrics.incrementAnswerFormatCounter(config.getAnswerFormatType(), getCommandId());
 
-            actions.add(event.createResultMessageWithEventReference(answer.get().toEmbedOrMessageDefinition(), answerTargetChannelId)
+            actions.add(event.createResultMessageWithEventReference(RollAnswerConverter.toEmbedOrMessageDefinition(answer.get()), answerTargetChannelId)
                     .doOnSuccess(v -> log.info("{} '{}'.'{}': '{}'={} -> {} in {}ms",
                             event.getRequester().getShard(),
                             event.getRequester().getGuildName(),

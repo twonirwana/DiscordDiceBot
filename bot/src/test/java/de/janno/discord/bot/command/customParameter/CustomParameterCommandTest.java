@@ -3,7 +3,7 @@ package de.janno.discord.bot.command.customParameter;
 import com.google.common.collect.ImmutableList;
 import de.janno.discord.bot.command.AnswerFormatType;
 import de.janno.discord.bot.command.ConfigAndState;
-import de.janno.discord.bot.command.RollAnswer;
+import de.janno.discord.bot.command.RollAnswerConverter;
 import de.janno.discord.bot.command.State;
 import de.janno.discord.bot.dice.Dice;
 import de.janno.discord.bot.dice.DiceParser;
@@ -195,7 +195,7 @@ class CustomParameterCommandTest {
     @Test
     void getAnswer_complete() {
         Optional<EmbedOrMessageDefinition> res = underTest.getAnswer(createConfigFromCustomId(LAST_SELECT_CUSTOM_ID), createParameterStateFromLegacyId(LAST_SELECT_CUSTOM_ID,
-                "", "")).map(RollAnswer::toEmbedOrMessageDefinition);
+                "", "")).map(RollAnswerConverter::toEmbedOrMessageDefinition);
 
         assertThat(res).isPresent();
         assertThat(res.map(EmbedOrMessageDefinition::getTitle).orElseThrow()).startsWith("1d2 ⇒ ");
@@ -204,7 +204,7 @@ class CustomParameterCommandTest {
     @Test
     void getAnswer_completeAndLabel() {
         Optional<EmbedOrMessageDefinition> res = underTest.getAnswer(createConfigFromCustomId(LAST_SELECT_WITH_LABEL_CUSTOM_ID), createParameterStateFromLegacyId(LAST_SELECT_WITH_LABEL_CUSTOM_ID,
-                "", "")).map(RollAnswer::toEmbedOrMessageDefinition);
+                "", "")).map(RollAnswerConverter::toEmbedOrMessageDefinition);
 
         assertThat(res).isPresent();
         assertThat(res.map(EmbedOrMessageDefinition::getTitle).orElseThrow()).startsWith("Att ⇒ ");
@@ -214,7 +214,7 @@ class CustomParameterCommandTest {
     @Test
     void getAnswer_notComplete() {
         Optional<EmbedOrMessageDefinition> res = underTest.getAnswer(createConfigFromCustomId(FIRST_SELECT_CUSTOM_ID), createParameterStateFromLegacyId(FIRST_SELECT_CUSTOM_ID,
-                "", "")).map(RollAnswer::toEmbedOrMessageDefinition);
+                "", "")).map(RollAnswerConverter::toEmbedOrMessageDefinition);
 
         assertThat(res).isEmpty();
     }

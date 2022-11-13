@@ -10,7 +10,7 @@ import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class RollAnswerTest {
+class RollAnswerConverterTest {
 
     static Stream<Arguments> generateConversionData() {
         return Stream.of(
@@ -139,14 +139,14 @@ class RollAnswerTest {
         );
     }
 
-    @ParameterizedTest(name = "{index} rollAnswer={0} -> expectedTitle={1}, expectedDescription={2}")
+    @ParameterizedTest(name = "{index} rollAnswer={0} -> expectedTitle={1}, expectedDescription={2}, expectedType={3}")
     @MethodSource("generateConversionData")
     void testConversion(RollAnswer rollAnswer, String expectedTitle, String expectedDescription, EmbedOrMessageDefinition.Type expectedType, ImmutableList<EmbedOrMessageDefinition.Field> expectedFields) {
-
-        assertThat(rollAnswer.toEmbedOrMessageDefinition().getTitle()).isEqualTo(expectedTitle);
-        assertThat(rollAnswer.toEmbedOrMessageDefinition().getDescriptionOrContent()).isEqualTo(expectedDescription);
-        assertThat(rollAnswer.toEmbedOrMessageDefinition().getType()).isEqualTo(expectedType);
-        assertThat(rollAnswer.toEmbedOrMessageDefinition().getFields()).isEqualTo(expectedFields);
+        EmbedOrMessageDefinition embedOrMessageDefinition = RollAnswerConverter.toEmbedOrMessageDefinition(rollAnswer);
+        assertThat(embedOrMessageDefinition.getTitle()).isEqualTo(expectedTitle);
+        assertThat(embedOrMessageDefinition.getDescriptionOrContent()).isEqualTo(expectedDescription);
+        assertThat(embedOrMessageDefinition.getType()).isEqualTo(expectedType);
+        assertThat(embedOrMessageDefinition.getFields()).isEqualTo(expectedFields);
     }
 
 }

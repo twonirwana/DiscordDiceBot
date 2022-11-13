@@ -5,9 +5,11 @@ import de.janno.discord.bot.ButtonEventAdaptorMock;
 import de.janno.discord.bot.ButtonEventAdaptorMockFactory;
 import de.janno.discord.bot.command.AnswerFormatType;
 import de.janno.discord.bot.command.ButtonIdLabelAndDiceExpression;
+import de.janno.discord.bot.dice.DiceParser;
 import de.janno.discord.bot.dice.DiceParserSystem;
 import de.janno.discord.bot.persistance.MessageDataDAO;
 import de.janno.discord.bot.persistance.MessageDataDAOImpl;
+import de.janno.evaluator.dice.random.RandomNumberSupplier;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -20,19 +22,18 @@ public class SumCustomSetCommandMockTest {
 
     MessageDataDAO messageDataDAO;
     AtomicLong messageIdCounter;
-    SumCustomSetCommand underTest;
 
     @BeforeEach
     void setup() {
         messageIdCounter = new AtomicLong(0);
         messageDataDAO = new MessageDataDAOImpl("jdbc:h2:mem:" + UUID.randomUUID(), null, null);
-        underTest = new SumCustomSetCommand(messageDataDAO);
     }
 
     @Test
-    void roll() {
-        SumCustomSetConfig config = new SumCustomSetConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "+1", "1"),
-                new ButtonIdLabelAndDiceExpression("2_button", "+2", "2")), DiceParserSystem.DICE_EVALUATOR, true, AnswerFormatType.full);
+    void roll_full() {
+        SumCustomSetCommand underTest = new SumCustomSetCommand(messageDataDAO, new DiceParser(), new RandomNumberSupplier(0));
+        SumCustomSetConfig config = new SumCustomSetConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "+1d6"),
+                new ButtonIdLabelAndDiceExpression("2_button", "bonus", "+2")), DiceParserSystem.DICE_EVALUATOR, true, AnswerFormatType.full);
         ButtonEventAdaptorMockFactory<SumCustomSetConfig, SumCustomSetStateData> factory = new ButtonEventAdaptorMockFactory<>("sum_custom_st", underTest, config, messageDataDAO, false);
 
         ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("1_button");
@@ -43,20 +44,71 @@ public class SumCustomSetCommandMockTest {
         underTest.handleComponentInteractEvent(click3).block();
 
         assertThat(click1.getActions()).containsExactly(
-                "editMessage: message:invokingUser∶ 1, buttonValues=1_button,2_button,roll,clear,back");
+                "editMessage: message:invokingUser∶ +1d6, buttonValues=1_button,2_button,roll,clear,back");
         assertThat(click2.getActions()).containsExactly(
-                "editMessage: message:invokingUser∶ 12, buttonValues=1_button,2_button,roll,clear,back");
+                "editMessage: message:invokingUser∶ +1d6+2, buttonValues=1_button,2_button,roll,clear,back");
         assertThat(click3.getActions()).containsExactly(
                 "editMessage: message:Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back",
-                "createAnswer: title=12 ⇒ 12, description=, fieldValues:, answerChannel:null",
+                "createAnswer: title=+1d6+2 ⇒ 3, description=[1], fieldValues:, answerChannel:null, type:EMBED",
+                "createButtonMessage: content=Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back",
+                "deleteMessage: 0");
+    }
+
+    @Test
+    void roll_compact() {
+        SumCustomSetCommand underTest = new SumCustomSetCommand(messageDataDAO, new DiceParser(), new RandomNumberSupplier(0));
+        SumCustomSetConfig config = new SumCustomSetConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "+1d6"),
+                new ButtonIdLabelAndDiceExpression("2_button", "bonus", "+2")), DiceParserSystem.DICE_EVALUATOR, true, AnswerFormatType.compact);
+        ButtonEventAdaptorMockFactory<SumCustomSetConfig, SumCustomSetStateData> factory = new ButtonEventAdaptorMockFactory<>("sum_custom_st", underTest, config, messageDataDAO, false);
+
+        ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("1_button");
+        underTest.handleComponentInteractEvent(click1).block();
+        ButtonEventAdaptorMock click2 = factory.getButtonClickOnLastButtonMessage("2_button");
+        underTest.handleComponentInteractEvent(click2).block();
+        ButtonEventAdaptorMock click3 = factory.getButtonClickOnLastButtonMessage("roll");
+        underTest.handleComponentInteractEvent(click3).block();
+
+        assertThat(click1.getActions()).containsExactly(
+                "editMessage: message:invokingUser∶ +1d6, buttonValues=1_button,2_button,roll,clear,back");
+        assertThat(click2.getActions()).containsExactly(
+                "editMessage: message:invokingUser∶ +1d6+2, buttonValues=1_button,2_button,roll,clear,back");
+        assertThat(click3.getActions()).containsExactly(
+                "editMessage: message:Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back",
+                "createAnswer: title=null, description=__**+1d6+2 ⇒ 3**__  [1], fieldValues:, answerChannel:null, type:MESSAGE",
+                "createButtonMessage: content=Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back",
+                "deleteMessage: 0");
+    }
+
+    @Test
+    void roll_minimal() {
+        SumCustomSetCommand underTest = new SumCustomSetCommand(messageDataDAO, new DiceParser(), new RandomNumberSupplier(0));
+        SumCustomSetConfig config = new SumCustomSetConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "+1d6"),
+                new ButtonIdLabelAndDiceExpression("2_button", "bonus", "+2")), DiceParserSystem.DICE_EVALUATOR, true, AnswerFormatType.minimal);
+        ButtonEventAdaptorMockFactory<SumCustomSetConfig, SumCustomSetStateData> factory = new ButtonEventAdaptorMockFactory<>("sum_custom_st", underTest, config, messageDataDAO, false);
+
+        ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("1_button");
+        underTest.handleComponentInteractEvent(click1).block();
+        ButtonEventAdaptorMock click2 = factory.getButtonClickOnLastButtonMessage("2_button");
+        underTest.handleComponentInteractEvent(click2).block();
+        ButtonEventAdaptorMock click3 = factory.getButtonClickOnLastButtonMessage("roll");
+        underTest.handleComponentInteractEvent(click3).block();
+
+        assertThat(click1.getActions()).containsExactly(
+                "editMessage: message:invokingUser∶ +1d6, buttonValues=1_button,2_button,roll,clear,back");
+        assertThat(click2.getActions()).containsExactly(
+                "editMessage: message:invokingUser∶ +1d6+2, buttonValues=1_button,2_button,roll,clear,back");
+        assertThat(click3.getActions()).containsExactly(
+                "editMessage: message:Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back",
+                "createAnswer: title=null, description=+1d6+2 ⇒ 3, fieldValues:, answerChannel:null, type:MESSAGE",
                 "createButtonMessage: content=Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back",
                 "deleteMessage: 0");
     }
 
     @Test
     void clear() {
-        SumCustomSetConfig config = new SumCustomSetConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "+1", "1"),
-                new ButtonIdLabelAndDiceExpression("2_button", "+2", "2")), DiceParserSystem.DICE_EVALUATOR, true, AnswerFormatType.full);
+        SumCustomSetCommand underTest = new SumCustomSetCommand(messageDataDAO, new DiceParser(), new RandomNumberSupplier(0));
+        SumCustomSetConfig config = new SumCustomSetConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "+1d6"),
+                new ButtonIdLabelAndDiceExpression("2_button", "bonus", "+2")), DiceParserSystem.DICE_EVALUATOR, true, AnswerFormatType.full);
         ButtonEventAdaptorMockFactory<SumCustomSetConfig, SumCustomSetStateData> factory = new ButtonEventAdaptorMockFactory<>("sum_custom_st", underTest, config, messageDataDAO, false);
 
         ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("1_button");
@@ -65,15 +117,16 @@ public class SumCustomSetCommandMockTest {
         underTest.handleComponentInteractEvent(click2).block();
 
         assertThat(click1.getActions()).containsExactly(
-                "editMessage: message:invokingUser∶ 1, buttonValues=1_button,2_button,roll,clear,back");
+                "editMessage: message:invokingUser∶ +1d6, buttonValues=1_button,2_button,roll,clear,back");
         assertThat(click2.getActions()).containsExactly(
                 "editMessage: message:Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back");
     }
 
     @Test
     void backBack() {
-        SumCustomSetConfig config = new SumCustomSetConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "+1", "1"),
-                new ButtonIdLabelAndDiceExpression("2_button", "+2", "2")), DiceParserSystem.DICE_EVALUATOR, true, AnswerFormatType.full);
+        SumCustomSetCommand underTest = new SumCustomSetCommand(messageDataDAO, new DiceParser(), new RandomNumberSupplier(0));
+        SumCustomSetConfig config = new SumCustomSetConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "+1d6"),
+                new ButtonIdLabelAndDiceExpression("2_button", "bonus", "+2")), DiceParserSystem.DICE_EVALUATOR, true, AnswerFormatType.full);
         ButtonEventAdaptorMockFactory<SumCustomSetConfig, SumCustomSetStateData> factory = new ButtonEventAdaptorMockFactory<>("sum_custom_st", underTest, config, messageDataDAO, false);
 
         ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("1_button");
@@ -84,7 +137,7 @@ public class SumCustomSetCommandMockTest {
         underTest.handleComponentInteractEvent(click3).block();
 
         assertThat(click1.getActions()).containsExactly(
-                "editMessage: message:invokingUser∶ 1, buttonValues=1_button,2_button,roll,clear,back");
+                "editMessage: message:invokingUser∶ +1d6, buttonValues=1_button,2_button,roll,clear,back");
         assertThat(click2.getActions()).containsExactly(
                 "editMessage: message:Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back");
         assertThat(click2.getActions()).containsExactly(
@@ -93,8 +146,9 @@ public class SumCustomSetCommandMockTest {
 
     @Test
     void roll_pinned() {
-        SumCustomSetConfig config = new SumCustomSetConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "+1", "1"),
-                new ButtonIdLabelAndDiceExpression("2_button", "+2", "2")), DiceParserSystem.DICE_EVALUATOR, true, AnswerFormatType.full);
+        SumCustomSetCommand underTest = new SumCustomSetCommand(messageDataDAO, new DiceParser(), new RandomNumberSupplier(0));
+        SumCustomSetConfig config = new SumCustomSetConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "+1d6"),
+                new ButtonIdLabelAndDiceExpression("2_button", "bonus", "+2")), DiceParserSystem.DICE_EVALUATOR, true, AnswerFormatType.full);
         ButtonEventAdaptorMockFactory<SumCustomSetConfig, SumCustomSetStateData> factory = new ButtonEventAdaptorMockFactory<>("sum_custom_st", underTest, config, messageDataDAO, true);
 
         ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("1_button");
@@ -105,19 +159,20 @@ public class SumCustomSetCommandMockTest {
         underTest.handleComponentInteractEvent(click3).block();
 
         assertThat(click1.getActions()).containsExactly(
-                "editMessage: message:invokingUser∶ 1, buttonValues=1_button,2_button,roll,clear,back");
+                "editMessage: message:invokingUser∶ +1d6, buttonValues=1_button,2_button,roll,clear,back");
         assertThat(click2.getActions()).containsExactly(
-                "editMessage: message:invokingUser∶ 12, buttonValues=1_button,2_button,roll,clear,back");
+                "editMessage: message:invokingUser∶ +1d6+2, buttonValues=1_button,2_button,roll,clear,back");
         assertThat(click3.getActions()).containsExactly(
                 "editMessage: message:Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back",
-                "createAnswer: title=12 ⇒ 12, description=, fieldValues:, answerChannel:null",
+                "createAnswer: title=+1d6+2 ⇒ 3, description=[1], fieldValues:, answerChannel:null, type:EMBED",
                 "createButtonMessage: content=Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back");
     }
 
     @Test
     void roll_answerChannel() {
-        SumCustomSetConfig config = new SumCustomSetConfig(2L, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "+1", "1"),
-                new ButtonIdLabelAndDiceExpression("2_button", "+2", "2")), DiceParserSystem.DICE_EVALUATOR, true, AnswerFormatType.full);
+        SumCustomSetCommand underTest = new SumCustomSetCommand(messageDataDAO, new DiceParser(), new RandomNumberSupplier(0));
+        SumCustomSetConfig config = new SumCustomSetConfig(2L, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "+1d6"),
+                new ButtonIdLabelAndDiceExpression("2_button", "bonus", "+2")), DiceParserSystem.DICE_EVALUATOR, true, AnswerFormatType.full);
         ButtonEventAdaptorMockFactory<SumCustomSetConfig, SumCustomSetStateData> factory = new ButtonEventAdaptorMockFactory<>("sum_custom_st", underTest, config, messageDataDAO, false);
 
         ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("1_button");
@@ -128,18 +183,20 @@ public class SumCustomSetCommandMockTest {
         underTest.handleComponentInteractEvent(click3).block();
 
         assertThat(click1.getActions()).containsExactly(
-                "editMessage: message:invokingUser∶ 1, buttonValues=1_button,2_button,roll,clear,back");
+                "editMessage: message:invokingUser∶ +1d6, buttonValues=1_button,2_button,roll,clear,back");
         assertThat(click2.getActions()).containsExactly(
-                "editMessage: message:invokingUser∶ 12, buttonValues=1_button,2_button,roll,clear,back");
+                "editMessage: message:invokingUser∶ +1d6+2, buttonValues=1_button,2_button,roll,clear,back");
         assertThat(click3.getActions()).containsExactly(
                 "editMessage: message:Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back",
-                "createAnswer: title=12 ⇒ 12, description=, fieldValues:, answerChannel:2");
+                "createAnswer: title=+1d6+2 ⇒ 3, description=[1], fieldValues:, answerChannel:2, type:EMBED"
+        );
     }
 
     @Test
     void roll_pinnedTwice() {
-        SumCustomSetConfig config = new SumCustomSetConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "+1", "1"),
-                new ButtonIdLabelAndDiceExpression("2_button", "+2", "2")), DiceParserSystem.DICE_EVALUATOR, true, AnswerFormatType.full);
+        SumCustomSetCommand underTest = new SumCustomSetCommand(messageDataDAO, new DiceParser(), new RandomNumberSupplier(0));
+        SumCustomSetConfig config = new SumCustomSetConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "+1d6"),
+                new ButtonIdLabelAndDiceExpression("2_button", "bonus", "+2")), DiceParserSystem.DICE_EVALUATOR, true, AnswerFormatType.full);
         ButtonEventAdaptorMockFactory<SumCustomSetConfig, SumCustomSetStateData> factory = new ButtonEventAdaptorMockFactory<>("sum_custom_st", underTest, config, messageDataDAO, true);
 
         ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("1_button");
@@ -154,26 +211,27 @@ public class SumCustomSetCommandMockTest {
         underTest.handleComponentInteractEvent(click5).block();
 
         assertThat(click1.getActions()).containsExactly(
-                "editMessage: message:invokingUser∶ 1, buttonValues=1_button,2_button,roll,clear,back");
+                "editMessage: message:invokingUser∶ +1d6, buttonValues=1_button,2_button,roll,clear,back");
         assertThat(click2.getActions()).containsExactly(
-                "editMessage: message:invokingUser∶ 12, buttonValues=1_button,2_button,roll,clear,back");
+                "editMessage: message:invokingUser∶ +1d6+2, buttonValues=1_button,2_button,roll,clear,back");
         assertThat(click3.getActions()).containsExactly(
                 "editMessage: message:Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back",
-                "createAnswer: title=12 ⇒ 12, description=, fieldValues:, answerChannel:null",
+                "createAnswer: title=+1d6+2 ⇒ 3, description=[1], fieldValues:, answerChannel:null, type:EMBED",
                 "createButtonMessage: content=Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back");
         assertThat(click4.getActions()).containsExactly(
-                "editMessage: message:invokingUser∶ 1, buttonValues=1_button,2_button,roll,clear,back");
+                "editMessage: message:invokingUser∶ +1d6, buttonValues=1_button,2_button,roll,clear,back");
         assertThat(click5.getActions()).containsExactly(
                 "editMessage: message:Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back",
-                "createAnswer: title=1 ⇒ 1, description=, fieldValues:, answerChannel:null",
+                "createAnswer: title=+1d6 ⇒ 2, description=[2], fieldValues:, answerChannel:null, type:EMBED",
                 "createButtonMessage: content=Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back",
                 "deleteMessage: 1");
     }
 
     @Test
     void roll_answerChannelTwice() {
-        SumCustomSetConfig config = new SumCustomSetConfig(2L, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "+1", "1"),
-                new ButtonIdLabelAndDiceExpression("2_button", "+2", "2")), DiceParserSystem.DICE_EVALUATOR, true, AnswerFormatType.full);
+        SumCustomSetCommand underTest = new SumCustomSetCommand(messageDataDAO, new DiceParser(), new RandomNumberSupplier(0));
+        SumCustomSetConfig config = new SumCustomSetConfig(2L, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "+1d6"),
+                new ButtonIdLabelAndDiceExpression("2_button", "bonus", "+2")), DiceParserSystem.DICE_EVALUATOR, true, AnswerFormatType.full);
         ButtonEventAdaptorMockFactory<SumCustomSetConfig, SumCustomSetStateData> factory = new ButtonEventAdaptorMockFactory<>("sum_custom_st", underTest, config, messageDataDAO, false);
 
         ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("1_button");
@@ -188,16 +246,18 @@ public class SumCustomSetCommandMockTest {
         underTest.handleComponentInteractEvent(click5).block();
 
         assertThat(click1.getActions()).containsExactly(
-                "editMessage: message:invokingUser∶ 1, buttonValues=1_button,2_button,roll,clear,back");
+                "editMessage: message:invokingUser∶ +1d6, buttonValues=1_button,2_button,roll,clear,back");
         assertThat(click2.getActions()).containsExactly(
-                "editMessage: message:invokingUser∶ 12, buttonValues=1_button,2_button,roll,clear,back");
+                "editMessage: message:invokingUser∶ +1d6+2, buttonValues=1_button,2_button,roll,clear,back");
         assertThat(click3.getActions()).containsExactly(
                 "editMessage: message:Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back",
-                "createAnswer: title=12 ⇒ 12, description=, fieldValues:, answerChannel:2");
+                "createAnswer: title=+1d6+2 ⇒ 3, description=[1], fieldValues:, answerChannel:2, type:EMBED"
+        );
         assertThat(click4.getActions()).containsExactly(
-                "editMessage: message:invokingUser∶ 1, buttonValues=1_button,2_button,roll,clear,back");
+                "editMessage: message:invokingUser∶ +1d6, buttonValues=1_button,2_button,roll,clear,back");
         assertThat(click5.getActions()).containsExactly(
                 "editMessage: message:Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back",
-                "createAnswer: title=1 ⇒ 1, description=, fieldValues:, answerChannel:2");
+                "createAnswer: title=+1d6 ⇒ 2, description=[2], fieldValues:, answerChannel:2, type:EMBED"
+        );
     }
 }

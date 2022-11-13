@@ -3,6 +3,7 @@ package de.janno.discord.bot.dice;
 import com.google.common.collect.ImmutableList;
 import de.janno.discord.bot.command.AnswerFormatType;
 import de.janno.discord.bot.command.RollAnswer;
+import de.janno.discord.bot.command.RollAnswerConverter;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
 import dev.diceroll.parser.DiceExpression;
 import dev.diceroll.parser.ResultTree;
@@ -26,7 +27,7 @@ class DiceParserAdapterTest {
 
     private static Stream<Arguments> generateValidateData() {
         return Stream.of(
-                Arguments.of(ImmutableList.of(), "You must configure at least one dice expression. Use '/custom_dice help' to get more information on how to use the command."),
+                Arguments.of(ImmutableList.of(), "You must configure at least one dice expression"),
                 Arguments.of(ImmutableList.of("1d6"), null),
                 Arguments.of(ImmutableList.of("+1d6"), null),
                 Arguments.of(ImmutableList.of("1d6 "), null),
@@ -40,14 +41,14 @@ class DiceParserAdapterTest {
                 Arguments.of(ImmutableList.of("2d6>4?a:b&3d10<6?c:d"), null),
                 Arguments.of(ImmutableList.of("2d6&3d10@Test"), null),
                 Arguments.of(ImmutableList.of("2d6>4?a:b&3d10<6?c:d@Test"), null),
-                Arguments.of(ImmutableList.of("2x[2d6]&1d8"), "The following dice expression is invalid: '2x[2d6]&1d8'. Use /custom_dice help to get more information on how to use the command."),
+                Arguments.of(ImmutableList.of("2x[2d6]&1d8"), "The following dice expression is invalid: '2x[2d6]&1d8'"),
                 Arguments.of(ImmutableList.of("1d6@Attack", "1d6@Parry"), null),
                 Arguments.of(ImmutableList.of("1d6@a,b"), null),
                 Arguments.of(ImmutableList.of("1d6@a\u001eb"), "The button definition '1d6@a\u001Eb' is not allowed to contain '\u001E'"),
                 Arguments.of(ImmutableList.of(" 1d6 @ Attack "), null),
-                Arguments.of(ImmutableList.of("a"), "The following dice expression is invalid: 'a'. Use /custom_dice help to get more information on how to use the command."),
+                Arguments.of(ImmutableList.of("a"), "The following dice expression is invalid: 'a'"),
                 Arguments.of(ImmutableList.of("@"), "The button definition '@' should have the diceExpression@Label"),
-                Arguments.of(ImmutableList.of("a@Attack"), "The following dice expression is invalid: 'a'. Use /custom_dice help to get more information on how to use the command."),
+                Arguments.of(ImmutableList.of("a@Attack"), "The following dice expression is invalid: 'a'"),
                 Arguments.of(ImmutableList.of("a@"), "The button definition 'a@' should have the diceExpression@Label"),
                 Arguments.of(ImmutableList.of("@Attack"), "Dice expression for '@Attack' is empty"),
                 Arguments.of(ImmutableList.of("1d6@1d6"), null),
@@ -134,7 +135,8 @@ class DiceParserAdapterTest {
         when(diceMock.detailedRoll(any())).thenReturn(new ResultTree(mock(DiceExpression.class), 3, ImmutableList.of()));
 
         RollAnswer res = underTest.answerRollWithGivenLabel(diceExpression, label, AnswerFormatType.full);
-        assertThat(res.toEmbedOrMessageDefinition()).isEqualTo(expected);
+
+        assertThat(RollAnswerConverter.toEmbedOrMessageDefinition(res)).isEqualTo(expected);
     }
 
     @Test
@@ -144,8 +146,9 @@ class DiceParserAdapterTest {
         when(diceMock.detailedRoll(any())).thenReturn(new ResultTree(mock(DiceExpression.class), 3, ImmutableList.of()));
 
         RollAnswer res = underTest.answerRollWithGivenLabel("1d6>3?t:f", null, AnswerFormatType.full);
-        assertThat(res.toEmbedOrMessageDefinition().getTitle()).isEqualTo("1d6 ⇒ f");
-        assertThat(res.toEmbedOrMessageDefinition().getDescriptionOrContent()).isEqualTo("[3] = 3 ⟹ f");
+
+        assertThat(RollAnswerConverter.toEmbedOrMessageDefinition(res).getTitle()).isEqualTo("1d6 ⇒ f");
+        assertThat(RollAnswerConverter.toEmbedOrMessageDefinition(res).getDescriptionOrContent()).isEqualTo("[3] = 3 ⟹ f");
     }
 
     @ParameterizedTest(name = "{index} input:{0} -> {1}")
@@ -159,9 +162,9 @@ class DiceParserAdapterTest {
     @MethodSource("generateValidateData")
     void validate(List<String> optionValue, String expected) {
         if (expected == null) {
-            assertThat(underTest.validateListOfExpressions(optionValue, "@", "/custom_dice help")).isEmpty();
+            assertThat(underTest.validateListOfExpressions(optionValue, "@")).isEmpty();
         } else {
-            assertThat(underTest.validateListOfExpressions(optionValue, "@", "/custom_dice help")).contains(expected);
+            assertThat(underTest.validateListOfExpressions(optionValue, "@")).contains(expected);
         }
     }
 
@@ -194,7 +197,7 @@ class DiceParserAdapterTest {
 
     @Test
     void roll_3x3d6() {
-        EmbedOrMessageDefinition res = underTest.answerRollWithGivenLabel("3x[3d6]", null, AnswerFormatType.full).toEmbedOrMessageDefinition();
+        EmbedOrMessageDefinition res = RollAnswerConverter.toEmbedOrMessageDefinition(underTest.answerRollWithGivenLabel("3x[3d6]", null, AnswerFormatType.full));
 
         assertThat(res.getFields()).hasSize(3);
         assertThat(res.getDescriptionOrContent()).isNull();
@@ -203,7 +206,7 @@ class DiceParserAdapterTest {
 
     @Test
     void roll_3d6() {
-        EmbedOrMessageDefinition res = underTest.answerRollWithGivenLabel("3d6", null, AnswerFormatType.full).toEmbedOrMessageDefinition();
+        EmbedOrMessageDefinition res = RollAnswerConverter.toEmbedOrMessageDefinition(underTest.answerRollWithGivenLabel("3d6", null, AnswerFormatType.full));
 
         assertThat(res.getFields()).hasSize(0);
         assertThat(res.getDescriptionOrContent()).isNotEmpty();
@@ -212,7 +215,7 @@ class DiceParserAdapterTest {
 
     @Test
     void roll_plus3d6() {
-        EmbedOrMessageDefinition res = underTest.answerRollWithGivenLabel("+3d6", null, AnswerFormatType.full).toEmbedOrMessageDefinition();
+        EmbedOrMessageDefinition res = RollAnswerConverter.toEmbedOrMessageDefinition(underTest.answerRollWithGivenLabel("+3d6", null, AnswerFormatType.full));
 
         assertThat(res.getFields()).hasSize(0);
         assertThat(res.getDescriptionOrContent()).isNotEmpty();
@@ -221,7 +224,7 @@ class DiceParserAdapterTest {
 
     @Test
     void roll_3x3d6Label() {
-        EmbedOrMessageDefinition res = underTest.answerRollWithGivenLabel("3x[3d6]", "Label", AnswerFormatType.full).toEmbedOrMessageDefinition();
+        EmbedOrMessageDefinition res = RollAnswerConverter.toEmbedOrMessageDefinition(underTest.answerRollWithGivenLabel("3x[3d6]", "Label", AnswerFormatType.full));
 
         assertThat(res.getFields()).hasSize(3);
         assertThat(res.getDescriptionOrContent()).isNull();
@@ -230,7 +233,7 @@ class DiceParserAdapterTest {
 
     @Test
     void roll_3d6Label() {
-        EmbedOrMessageDefinition res = underTest.answerRollWithGivenLabel("3d6", "Label", AnswerFormatType.full).toEmbedOrMessageDefinition();
+        EmbedOrMessageDefinition res = RollAnswerConverter.toEmbedOrMessageDefinition(underTest.answerRollWithGivenLabel("3d6", "Label", AnswerFormatType.full));
 
         assertThat(res.getFields()).hasSize(0);
         assertThat(res.getDescriptionOrContent()).isNotEmpty();
@@ -239,7 +242,7 @@ class DiceParserAdapterTest {
 
     @Test
     void roll_boolean3d6() {
-        EmbedOrMessageDefinition res = underTest.answerRollWithGivenLabel("3d6>3<2?Success:Failure", "3d6 Test", AnswerFormatType.full).toEmbedOrMessageDefinition();
+        EmbedOrMessageDefinition res = RollAnswerConverter.toEmbedOrMessageDefinition(underTest.answerRollWithGivenLabel("3d6>3<2?Success:Failure", "3d6 Test", AnswerFormatType.full));
 
         assertThat(res.getFields()).hasSize(0);
         assertThat(res.getDescriptionOrContent()).isNotEmpty();
@@ -248,7 +251,7 @@ class DiceParserAdapterTest {
 
     @Test
     void roll_overflow() {
-        EmbedOrMessageDefinition res = underTest.answerRollWithGivenLabel("2147483647+1", "Label", AnswerFormatType.full).toEmbedOrMessageDefinition();
+        EmbedOrMessageDefinition res = RollAnswerConverter.toEmbedOrMessageDefinition(underTest.answerRollWithGivenLabel("2147483647+1", "Label", AnswerFormatType.full));
 
         assertThat(res.getFields()).hasSize(0);
         assertThat(res.getDescriptionOrContent()).isNotEmpty();
@@ -258,7 +261,7 @@ class DiceParserAdapterTest {
 
     @Test
     void roll_overflow_multiple() {
-        EmbedOrMessageDefinition res = underTest.answerRollWithGivenLabel("3x[2147483647+1]", "Label", AnswerFormatType.full).toEmbedOrMessageDefinition();
+        EmbedOrMessageDefinition res = RollAnswerConverter.toEmbedOrMessageDefinition(underTest.answerRollWithGivenLabel("3x[2147483647+1]", "Label", AnswerFormatType.full));
 
         assertThat(res.getFields()).hasSize(0);
         assertThat(res.getTitle()).isEqualTo("Error in `3x[2147483647+1]`");
@@ -267,7 +270,7 @@ class DiceParserAdapterTest {
 
     @Test
     void roll_3x3d6Bool() {
-        EmbedOrMessageDefinition res = underTest.answerRollWithGivenLabel("2x[3d6>3<2?Success:Failure]", "3d6 2*Test", AnswerFormatType.full).toEmbedOrMessageDefinition();
+        EmbedOrMessageDefinition res = RollAnswerConverter.toEmbedOrMessageDefinition(underTest.answerRollWithGivenLabel("2x[3d6>3<2?Success:Failure]", "3d6 2*Test", AnswerFormatType.full));
 
         assertThat(res.getFields()).hasSize(2);
         assertThat(res.getDescriptionOrContent()).isNull();
@@ -276,7 +279,7 @@ class DiceParserAdapterTest {
 
     @Test
     void roll_multiDiff() {
-        EmbedOrMessageDefinition res = underTest.answerRollWithGivenLabel("2d6&3d10", null, AnswerFormatType.full).toEmbedOrMessageDefinition();
+        EmbedOrMessageDefinition res = RollAnswerConverter.toEmbedOrMessageDefinition(underTest.answerRollWithGivenLabel("2d6&3d10", null, AnswerFormatType.full));
 
         assertThat(res.getFields()).hasSize(2);
         assertThat(res.getDescriptionOrContent()).isNull();
@@ -285,7 +288,7 @@ class DiceParserAdapterTest {
 
     @Test
     void roll_multiDiffLabel() {
-        EmbedOrMessageDefinition res = underTest.answerRollWithGivenLabel("2d6&3d10", "Test", AnswerFormatType.full).toEmbedOrMessageDefinition();
+        EmbedOrMessageDefinition res = RollAnswerConverter.toEmbedOrMessageDefinition(underTest.answerRollWithGivenLabel("2d6&3d10", "Test", AnswerFormatType.full));
 
         assertThat(res.getFields()).hasSize(2);
         assertThat(res.getFields().get(0).getName()).startsWith("2d6");
@@ -297,7 +300,7 @@ class DiceParserAdapterTest {
 
     @Test
     void roll_multiDiffBoolLabel() {
-        EmbedOrMessageDefinition res = underTest.answerRollWithGivenLabel("2d6>4?a:b&3d10<6?c:d", "Test", AnswerFormatType.full).toEmbedOrMessageDefinition();
+        EmbedOrMessageDefinition res = RollAnswerConverter.toEmbedOrMessageDefinition(underTest.answerRollWithGivenLabel("2d6>4?a:b&3d10<6?c:d", "Test", AnswerFormatType.full));
 
         assertThat(res.getFields()).hasSize(2);
         assertThat(res.getFields().get(0).getName()).startsWith("2d6");

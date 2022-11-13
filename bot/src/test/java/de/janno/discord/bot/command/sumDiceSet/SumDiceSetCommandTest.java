@@ -350,11 +350,11 @@ class SumDiceSetCommandTest {
 
     @Test
     void rollDice_1d4plus1d6plus10() {
-        EmbedOrMessageDefinition res = underTest.getAnswer(new Config(null, AnswerFormatType.full), new State<>("roll", new SumDiceSetStateData(ImmutableList.of(new DiceKeyAndValue(
+        EmbedOrMessageDefinition res = RollAnswerConverter.toEmbedOrMessageDefinition(underTest.getAnswer(new Config(null, AnswerFormatType.full), new State<>("roll", new SumDiceSetStateData(ImmutableList.of(new DiceKeyAndValue(
                         "d4", 1),
                 new DiceKeyAndValue("d6", 1),
                 new DiceKeyAndValue("m", 10)
-        )))).orElseThrow().toEmbedOrMessageDefinition();
+        )))).orElseThrow());
 
         assertThat(res.getFields()).hasSize(0);
         assertThat(res.getTitle()).isEqualTo("1d4 +1d6 +10 ⇒ 12");
@@ -363,11 +363,11 @@ class SumDiceSetCommandTest {
 
     @Test
     void rollDice_minus1d4plus1d6minux10() {
-        EmbedOrMessageDefinition res = underTest.getAnswer(new Config(null, AnswerFormatType.full), new State<>("roll", new SumDiceSetStateData(ImmutableList.of(new DiceKeyAndValue(
+        EmbedOrMessageDefinition res = RollAnswerConverter.toEmbedOrMessageDefinition(underTest.getAnswer(new Config(null, AnswerFormatType.full), new State<>("roll", new SumDiceSetStateData(ImmutableList.of(new DiceKeyAndValue(
                         "d4", -1),
                 new DiceKeyAndValue("d6", 1),
                 new DiceKeyAndValue("m", -10)
-        )))).orElseThrow().toEmbedOrMessageDefinition();
+        )))).orElseThrow());
 
         assertThat(res.getFields()).hasSize(0);
         assertThat(res.getTitle()).isEqualTo("-1d4 +1d6 -10 ⇒ -10");
