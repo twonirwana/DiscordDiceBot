@@ -3,7 +3,7 @@ package de.janno.discord.connector.jda;
 import com.google.common.collect.ImmutableSet;
 import de.janno.discord.connector.api.Requester;
 import de.janno.discord.connector.api.SlashEventAdaptor;
-import de.janno.discord.connector.api.message.EmbedDefinition;
+import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
 import de.janno.discord.connector.api.message.MessageDefinition;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import lombok.NonNull;
@@ -38,6 +38,7 @@ public class SlashEventAdapterImpl extends DiscordAdapterImpl implements SlashEv
         this.channelId = event.getChannel().getIdLong();
         this.commandString = String.format("`%s`", event.getCommandString());
         this.guildId = Optional.ofNullable(event.getGuild()).map(Guild::getIdLong).orElse(null);
+
     }
 
     @Override
@@ -72,11 +73,11 @@ public class SlashEventAdapterImpl extends DiscordAdapterImpl implements SlashEv
     }
 
     @Override
-    public Mono<Void> replyEmbed(@NonNull EmbedDefinition embedDefinition, boolean ephemeral) {
+    public Mono<Void> replyEmbed(@NonNull EmbedOrMessageDefinition embedOrMessageDefinition, boolean ephemeral) {
         //todo combine with DiscordAdapter.createEmbedMessageWithReference
         EmbedBuilder embedBuilder = new EmbedBuilder()
-                .setDescription(embedDefinition.getDescription());
-        embedDefinition.getFields().forEach(f -> embedBuilder.addField(f.getName(), f.getValue(), f.isInline()));
+                .setDescription(embedOrMessageDefinition.getDescriptionOrContent());
+        embedOrMessageDefinition.getFields().forEach(f -> embedBuilder.addField(f.getName(), f.getValue(), f.isInline()));
         return createMonoFrom(() -> event.replyEmbeds(ImmutableSet.of(embedBuilder.build())).setEphemeral(ephemeral))
                 .onErrorResume(t -> handleException("Error on replay ephemeral", t, true).ofType(InteractionHook.class))
                 .then();
@@ -90,10 +91,11 @@ public class SlashEventAdapterImpl extends DiscordAdapterImpl implements SlashEv
     }
 
     @Override
-    public Mono<Void> createResultMessageWithEventReference(EmbedDefinition answer) {
-        return createEmbedMessageWithReference(event.getMessageChannel(),
+    public Mono<Void> createResultMessageWithEventReference(EmbedOrMessageDefinition answer) {
+        return createMessageWithReference(event.getMessageChannel(),
                 answer,
                 Optional.ofNullable(event.getMember()).map(Member::getEffectiveName).orElse(event.getUser().getName()),
+                event.getMember().getAsMention(),
                 Optional.ofNullable(event.getMember()).map(Member::getEffectiveAvatarUrl).orElse(event.getUser().getEffectiveAvatarUrl()),
                 event.getUser().getId())
                 .onErrorResume(t -> handleException("Error on creating answer message", t, false).ofType(Message.class))

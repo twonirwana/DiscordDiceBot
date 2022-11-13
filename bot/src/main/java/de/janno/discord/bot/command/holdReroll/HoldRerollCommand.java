@@ -4,10 +4,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import de.janno.discord.bot.command.AbstractCommand;
-import de.janno.discord.bot.command.CommandUtils;
-import de.janno.discord.bot.command.ConfigAndState;
-import de.janno.discord.bot.command.State;
+import de.janno.discord.bot.command.*;
 import de.janno.discord.bot.dice.DiceUtils;
 import de.janno.discord.bot.persistance.Mapper;
 import de.janno.discord.bot.persistance.MessageDataDAO;
@@ -16,7 +13,7 @@ import de.janno.discord.connector.api.BottomCustomIdUtils;
 import de.janno.discord.connector.api.ButtonEventAdaptor;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
-import de.janno.discord.connector.api.message.EmbedDefinition;
+import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
 import de.janno.discord.connector.api.message.MessageDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinitionOption;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
@@ -71,12 +68,12 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollConfig, HoldRer
     }
 
     @Override
-    protected @NonNull EmbedDefinition getHelpMessage() {
-        return EmbedDefinition.builder()
-                .description("Use '/hold_reroll start' to get message, where the user can roll dice")
-                .field(new EmbedDefinition.Field("Example", "`/hold_reroll start sides:6 reroll_set:2,3,4 success_set:5,6 failure_set:1`", false))
-                .field(new EmbedDefinition.Field("Full documentation", "https://github.com/twonirwana/DiscordDiceBot", false))
-                .field(new EmbedDefinition.Field("Discord Server", "https://discord.gg/e43BsqKpFr", false))
+    protected @NonNull EmbedOrMessageDefinition getHelpMessage() {
+        return EmbedOrMessageDefinition.builder()
+                .descriptionOrContent("Use '/hold_reroll start' to get message, where the user can roll dice")
+                .field(new EmbedOrMessageDefinition.Field("Example", "`/hold_reroll start sides:6 reroll_set:2,3,4 success_set:5,6 failure_set:1`", false))
+                .field(new EmbedOrMessageDefinition.Field("Full documentation", "https://github.com/twonirwana/DiscordDiceBot", false))
+                .field(new EmbedOrMessageDefinition.Field("Discord Server", "https://discord.gg/e43BsqKpFr", false))
                 .build();
     }
 
@@ -118,7 +115,7 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollConfig, HoldRer
     }
 
     @Override
-    protected @NonNull Optional<EmbedDefinition> getAnswer(HoldRerollConfig config, State<HoldRerollStateData> state) {
+    protected @NonNull Optional<RollAnswer> getAnswer(HoldRerollConfig config, State<HoldRerollStateData> state) {
         if (CLEAR_BUTTON_ID.equals(state.getButtonValue())) {
             return Optional.empty();
         }
@@ -131,14 +128,18 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollConfig, HoldRer
         int successes = DiceUtils.numberOfDiceResultsEqual(state.getData().getCurrentResults(), config.getSuccessSet());
         int failures = DiceUtils.numberOfDiceResultsEqual(state.getData().getCurrentResults(), config.getFailureSet());
         int rerollCount = state.getData().getRerollCounter();
-        String title;
+        String result;
         if (rerollCount == 0) {
-            title = String.format("Success: %d and Failure: %d", successes, failures);
+            result = String.format("Success: %d and Failure: %d", successes, failures);
         } else {
-            title = String.format("Success: %d, Failure: %d and Rerolls: %d", successes, failures, rerollCount);
+            result = String.format("Success: %d, Failure: %d and Rerolls: %d", successes, failures, rerollCount);
         }
-
-        return Optional.of(new EmbedDefinition(title, CommandUtils.markIn(state.getData().getCurrentResults(), getToMark(config)), ImmutableList.of()));
+        return Optional.of(RollAnswer.builder()
+                .answerFormatType(config.getAnswerFormatType())
+                .expression("%dd%d".formatted(state.getData().getCurrentResults().size(), config.getSidesOfDie()))
+                .result(result)
+                .rollDetails(CommandUtils.markIn(state.getData().getCurrentResults(), getToMark(config)))
+                .build());
     }
 
     @Override
@@ -149,7 +150,7 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollConfig, HoldRer
         Set<Integer> successSet = CommandUtils.toSet(customIdSplit[5], SUBSET_DELIMITER, EMPTY);
         Set<Integer> failureSet = CommandUtils.toSet(customIdSplit[6], SUBSET_DELIMITER, EMPTY);
         Long answerTargetChannelId = getOptionalLongFromArray(customIdSplit, 8);
-        return new HoldRerollConfig(answerTargetChannelId, sideOfDie, rerollSet, successSet, failureSet);
+        return new HoldRerollConfig(answerTargetChannelId, sideOfDie, rerollSet, successSet, failureSet, AnswerFormatType.full);
     }
 
 
@@ -214,7 +215,7 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollConfig, HoldRer
         Set<Integer> rerollSet = CommandUtils.getSetFromCommandOptions(options, REROLL_SET_ID, ",");
         Set<Integer> successSet = CommandUtils.getSetFromCommandOptions(options, SUCCESS_SET_ID, ",");
         Set<Integer> failureSet = CommandUtils.getSetFromCommandOptions(options, FAILURE_SET_ID, ",");
-        return new HoldRerollConfig(getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null), sideValue, rerollSet, successSet, failureSet);
+        return new HoldRerollConfig(getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null), sideValue, rerollSet, successSet, failureSet, getAnswerTypeFromStartCommandOption(options));
     }
 
     @Override

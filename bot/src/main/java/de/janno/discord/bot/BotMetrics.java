@@ -1,6 +1,7 @@
 package de.janno.discord.bot;
 
 import com.google.common.base.Strings;
+import de.janno.discord.bot.command.AnswerFormatType;
 import de.janno.discord.bot.dice.DiceParserSystem;
 import io.micrometer.core.instrument.Metrics;
 import io.micrometer.core.instrument.Tags;
@@ -30,9 +31,11 @@ public class BotMetrics {
     private final static String METRIC_SLASH_PREFIX = "slashEvent";
     private final static String METRIC_SLASH_HELP_PREFIX = "slashHelpEvent";
     private final static String METRIC_SLASH_LEGACY_START_PREFIX = "slashLegacyStart";
+    private final static String METRIC_ANSWER_FORMAT_PREFIX = "answerFormat";
     private final static String METRIC_DICE_PARSER_SYSTEM_PREFIX = "diceParserSystem";
     private final static String CONFIG_TAG = "config";
     private final static String COMMAND_TAG = "command";
+    private final static String ANSWER_FORMAT_TAG = "answerFormat";
     private final static String DICE_SYSTEM_TAG = "diceSystem";
     private final static String ACTION_TAG = "action";
 
@@ -86,6 +89,13 @@ public class BotMetrics {
 
     public static void incrementLegacyStartCounter(@NonNull String commandName) {
         globalRegistry.counter(METRIC_PREFIX + METRIC_SLASH_LEGACY_START_PREFIX, Tags.of(COMMAND_TAG, commandName)).increment();
+    }
+
+    public static void incrementAnswerFormatCounter(@NonNull AnswerFormatType answerFormatType, @NonNull String commandName) {
+        globalRegistry.counter(METRIC_PREFIX + METRIC_ANSWER_FORMAT_PREFIX, Tags.of(
+                COMMAND_TAG, commandName,
+                ANSWER_FORMAT_TAG, answerFormatType.name()
+        )).increment();
     }
 
 

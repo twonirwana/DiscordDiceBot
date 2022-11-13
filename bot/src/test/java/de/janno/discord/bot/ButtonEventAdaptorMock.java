@@ -5,7 +5,7 @@ import de.janno.discord.connector.api.ButtonEventAdaptor;
 import de.janno.discord.connector.api.Requester;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
-import de.janno.discord.connector.api.message.EmbedDefinition;
+import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
 import de.janno.discord.connector.api.message.MessageDefinition;
 import lombok.NonNull;
 import org.apache.commons.lang3.NotImplementedException;
@@ -105,10 +105,10 @@ public class ButtonEventAdaptorMock implements ButtonEventAdaptor {
     }
 
     @Override
-    public Mono<Void> createResultMessageWithEventReference(EmbedDefinition answer, Long targetChannelId) {
-        actions.add(String.format("createAnswer: title=%s, description=%s, fieldValues:%s, answerChannel:%s", answer.getTitle(), answer.getDescription(), answer.getFields().stream()
-                .map(EmbedDefinition.Field::getValue)
-                .collect(Collectors.joining(",")), targetChannelId));
+    public Mono<Void> createResultMessageWithEventReference(EmbedOrMessageDefinition answer, Long targetChannelId) {
+        actions.add(String.format("createAnswer: title=%s, description=%s, fieldValues:%s, answerChannel:%s, type:%s", answer.getTitle(), answer.getDescriptionOrContent(), answer.getFields().stream()
+                .map(EmbedOrMessageDefinition.Field::getValue)
+                .collect(Collectors.joining(",")), targetChannelId, answer.getType()));
         return Mono.just("").then();
     }
 

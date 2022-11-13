@@ -3,8 +3,9 @@ package de.janno.discord.bot.dice;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
+import de.janno.discord.bot.command.AnswerFormatType;
+import de.janno.discord.bot.command.RollAnswer;
 import de.janno.discord.connector.api.BottomCustomIdUtils;
-import de.janno.discord.connector.api.message.EmbedDefinition;
 import dev.diceroll.parser.ResultTree;
 import lombok.NonNull;
 import lombok.Value;
@@ -107,14 +108,14 @@ public class DiceParserAdapter {
         return Optional.empty();
     }
 
-    public Optional<String> validateDiceExpression(String expression, String helpCommand) {
+    public Optional<String> validateDiceExpression(String expression) {
         if (!validExpression(expression)) {
-            return Optional.of(String.format("The following dice expression is invalid: '%s'. Use %s to get more information on how to use the command.", expression, helpCommand));
+            return Optional.of(String.format("The following dice expression is invalid: '%s'", expression));
         }
         return Optional.empty();
     }
 
-    public Optional<String> validateDiceExpressionWitOptionalLabel(@NonNull String expressionWithOptionalLabel, String labelDelimiter, String helpCommand) {
+    public Optional<String> validateDiceExpressionWitOptionalLabel(@NonNull String expressionWithOptionalLabel, String labelDelimiter) {
         String label;
         String diceExpression;
 
@@ -138,18 +139,18 @@ public class DiceParserAdapter {
         if (diceExpression.isBlank()) {
             return Optional.of(String.format("Dice expression for '%s' is empty", expressionWithOptionalLabel));
         }
-        return validateDiceExpression(diceExpression, helpCommand);
+        return validateDiceExpression(diceExpression);
     }
 
-    public Optional<String> validateListOfExpressions(List<String> optionValues, String labelDelimiter, String helpCommand) {
+    public Optional<String> validateListOfExpressions(List<String> optionValues, String labelDelimiter) {
         if (optionValues.isEmpty()) {
-            return Optional.of(String.format("You must configure at least one dice expression. Use '%s' to get more information on how to use the command.", helpCommand));
+            return Optional.of("You must configure at least one dice expression");
         }
         for (String startOptionString : optionValues) {
             if (startOptionString.contains(BottomCustomIdUtils.CUSTOM_ID_DELIMITER)) {
                 return Optional.of(String.format("The button definition '%s' is not allowed to contain '%s'", startOptionString, BottomCustomIdUtils.CUSTOM_ID_DELIMITER));
             }
-            Optional<String> diceParserValidation = validateDiceExpressionWitOptionalLabel(startOptionString, labelDelimiter, helpCommand);
+            Optional<String> diceParserValidation = validateDiceExpressionWitOptionalLabel(startOptionString, labelDelimiter);
             if (diceParserValidation.isPresent()) {
                 return diceParserValidation;
             }
@@ -172,74 +173,71 @@ public class DiceParserAdapter {
                 .collect(Collectors.toList());
     }
 
-    public EmbedDefinition answerRollWithOptionalLabelInExpression(String expressionAndOptionalLabel, String labelDelimiter) {
+    public RollAnswer answerRollWithOptionalLabelInExpression(String expressionAndOptionalLabel, String labelDelimiter, AnswerFormatType answerFormatType) {
         String label = DiceParserAdapter.getLabelFromExpressionWithOptionalLabel(expressionAndOptionalLabel, labelDelimiter).orElse(null);
         String diceExpression = DiceParserAdapter.getExpressionFromExpressionWithOptionalLabel(expressionAndOptionalLabel, labelDelimiter);
-        return answerRollWithGivenLabel(diceExpression, label);
+        return answerRollWithGivenLabel(diceExpression, label, answerFormatType);
     }
 
-    public EmbedDefinition answerRollWithGivenLabel(String input, @Nullable String label) {
+    public RollAnswer answerRollWithGivenLabel(String input, @Nullable String label, AnswerFormatType answerFormatType) {
         try {
             if (isMultipleRoll(input)) {
-                List<LabelResult> labelResults;
+                List<ExpressionLabelResultAndDetails> expressionLabelResultAndDetails;
                 if (isMultipleIdenticalRolls(input)) {
                     int numberOfRolls = getNumberOfMultipleRolls(input);
                     String innerExpression = getInnerDiceExpressionFromMultiRoll(input);
-                    labelResults = IntStream.range(0, numberOfRolls)
+                    expressionLabelResultAndDetails = IntStream.range(0, numberOfRolls)
                             .mapToObj(i -> singleRoll(innerExpression, null))
                             .collect(Collectors.toList());
                 } else if (isMultipleDifferentRolls(input)) {
-                    labelResults = splitMultipleDifferentExpressions(input).stream()
+                    expressionLabelResultAndDetails = splitMultipleDifferentExpressions(input).stream()
                             .map(s -> singleRoll(s, null))
                             .collect(Collectors.toList());
                 } else {
                     throw new IllegalStateException(String.format("Can't find correct multi roll version for: %s", input));
                 }
 
-                List<EmbedDefinition.Field> fields = labelResults.stream()
-                        .limit(25) //max number of embedFields
-                        .map(r -> new EmbedDefinition.Field(r.getLabel(), r.getResult(), false))
+                List<RollAnswer.RollResults> multiRollResults = expressionLabelResultAndDetails.stream()
+                        .map(r -> new RollAnswer.RollResults(r.getExpression(), r.getResult(), r.getDetails()))
                         .collect(ImmutableList.toImmutableList());
-                String title = Strings.isNullOrEmpty(label) ? "Multiple Results" : label;
-                return EmbedDefinition.builder()
-                        .title(title)
-                        .fields(fields).build();
+                return RollAnswer.builder()
+                        .answerFormatType(answerFormatType)
+                        .expression(input)
+                        .expressionLabel(Strings.isNullOrEmpty(label) ? "Multiple Results" : label)
+                        .multiRollResults(multiRollResults)
+                        .build();
             } else {
-                LabelResult labelResult = singleRoll(input, label);
-                return EmbedDefinition.builder()
-                        .title(labelResult.getLabel())
-                        .description(labelResult.getResult()).build();
+                ExpressionLabelResultAndDetails expressionLabelResultAndDetails = singleRoll(input, label);
+                return RollAnswer.builder()
+                        .answerFormatType(answerFormatType)
+                        .expression(expressionLabelResultAndDetails.getExpression())
+                        .expressionLabel(expressionLabelResultAndDetails.getLabel())
+                        .result(expressionLabelResultAndDetails.getResult())
+                        .rollDetails(expressionLabelResultAndDetails.getDetails())
+                        .build();
             }
-        } catch (ArithmeticException t) {
-            return EmbedDefinition.builder()
-                    .title("Arithmetic Error")
-                    .description(String.format("Executing '%s' resulting in: %s", input, t.getMessage()))
-                    .build();
         } catch (Throwable t) {
-            return EmbedDefinition.builder()
-                    .title("Error")
-                    .description(String.format("Could not execute the dice expression: %s", input))
+            return RollAnswer.builder()
+                    .answerFormatType(answerFormatType)
+                    .expression(input)
+                    .errorMessage(t.getMessage())
                     .build();
         }
     }
 
-    private LabelResult singleRoll(String input, String label) {
+    private ExpressionLabelResultAndDetails singleRoll(String input, String label) {
         if (isBooleanExpression(input)) {
             BooleanExpression booleanExpression = getBooleanExpression(input);
             RollWithDetails rollWithDetails = rollWithDiceParser(booleanExpression.getExpression());
             if (rollWithDetails.getResult() == null) { //there was an error
-                return new LabelResult(rollWithDetails.getRoll(), rollWithDetails.getDetails());
+                return new ExpressionLabelResultAndDetails(input, label, rollWithDetails.getRoll(), rollWithDetails.getDetails());
             }
-
             String result = booleanExpression.getResult(rollWithDetails.getResult());
-            String labelOrExpression = Strings.isNullOrEmpty(label) ? booleanExpression.getExpression() : label;
-            String title = String.format("%s: %s", labelOrExpression, result);
             String details = String.format("%s = %s", rollWithDetails.getDetails(), booleanExpression.getDetail(rollWithDetails.getResult()));
-            return new LabelResult(title, details);
+            return new ExpressionLabelResultAndDetails(booleanExpression.getExpression(), label, result, details);
         } else {
             RollWithDetails rollWithDetails = rollWithDiceParser(input);
-            String title = Strings.isNullOrEmpty(label) ? rollWithDetails.getRoll() : String.format("%s: %s", label, rollWithDetails.getRoll());
-            return new LabelResult(title, rollWithDetails.getDetails());
+            return new ExpressionLabelResultAndDetails(input, label, String.valueOf(rollWithDetails.getResult()), rollWithDetails.getDetails());
         }
     }
 
@@ -303,11 +301,15 @@ public class DiceParserAdapter {
     }
 
     @Value
-    private static class LabelResult {
+    private static class ExpressionLabelResultAndDetails {
         @NonNull
+        String expression;
+        @Nullable
         String label;
         @NonNull
         String result;
+        @NonNull
+        String details;
     }
 
     @Value

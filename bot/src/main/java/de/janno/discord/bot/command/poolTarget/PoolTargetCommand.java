@@ -4,10 +4,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import de.janno.discord.bot.command.AbstractCommand;
-import de.janno.discord.bot.command.CommandUtils;
-import de.janno.discord.bot.command.ConfigAndState;
-import de.janno.discord.bot.command.State;
+import de.janno.discord.bot.command.*;
 import de.janno.discord.bot.dice.DiceUtils;
 import de.janno.discord.bot.persistance.Mapper;
 import de.janno.discord.bot.persistance.MessageDataDAO;
@@ -16,7 +13,7 @@ import de.janno.discord.connector.api.BottomCustomIdUtils;
 import de.janno.discord.connector.api.ButtonEventAdaptor;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
-import de.janno.discord.connector.api.message.EmbedDefinition;
+import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
 import de.janno.discord.connector.api.message.MessageDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinitionOption;
 import de.janno.discord.connector.api.slash.CommandDefinitionOptionChoice;
@@ -81,12 +78,12 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTar
     }
 
     @Override
-    protected @NonNull EmbedDefinition getHelpMessage() {
-        return EmbedDefinition.builder()
-                .description("Use '/pool_target start' to get message, where the user can roll dice")
-                .field(new EmbedDefinition.Field("Example", "`/pool_target start sides:10 max_dice:15 reroll_set:10 botch_set:1 reroll_variant:ask`", false))
-                .field(new EmbedDefinition.Field("Full documentation", "https://github.com/twonirwana/DiscordDiceBot", false))
-                .field(new EmbedDefinition.Field("Discord Server", "https://discord.gg/e43BsqKpFr", false))
+    protected @NonNull EmbedOrMessageDefinition getHelpMessage() {
+        return EmbedOrMessageDefinition.builder()
+                .descriptionOrContent("Use '/pool_target start' to get message, where the user can roll dice")
+                .field(new EmbedOrMessageDefinition.Field("Example", "`/pool_target start sides:10 max_dice:15 reroll_set:10 botch_set:1 reroll_variant:ask`", false))
+                .field(new EmbedOrMessageDefinition.Field("Full documentation", "https://github.com/twonirwana/DiscordDiceBot", false))
+                .field(new EmbedOrMessageDefinition.Field("Discord Server", "https://discord.gg/e43BsqKpFr", false))
                 .build();
     }
 
@@ -192,7 +189,7 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTar
     }
 
     @Override
-    protected @NonNull Optional<EmbedDefinition> getAnswer(PoolTargetConfig config, State<PoolTargetStateData> state) {
+    protected @NonNull Optional<RollAnswer> getAnswer(PoolTargetConfig config, State<PoolTargetStateData> state) {
         Optional<PoolTargetStateData> stateData = Optional.ofNullable(state.getData());
         if (stateData.map(PoolTargetStateData::getDicePool).isEmpty() ||
                 stateData.map(PoolTargetStateData::getTargetNumber).isEmpty() ||
@@ -214,9 +211,12 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTar
         if (state.getData().getDoReroll()) {
             toMark.addAll(config.getRerollSet());
         }
-        String details = String.format("%s ≥%d = %s", CommandUtils.markIn(rollResult, toMark), state.getData().getTargetNumber(), totalResults);
-        String title = String.format("%dd%d = %d", state.getData().getDicePool(), config.getDiceSides(), totalResults);
-        return Optional.of(new EmbedDefinition(title, details, ImmutableList.of()));
+        return Optional.of(RollAnswer.builder()
+                .answerFormatType(config.getAnswerFormatType())
+                .expression(String.format("%dd%d ≥%d", state.getData().getDicePool(), config.getDiceSides(), state.getData().getTargetNumber()))
+                .result(String.valueOf(totalResults))
+                .rollDetails(CommandUtils.markIn(rollResult, toMark))
+                .build());
     }
 
     @Override
@@ -229,7 +229,7 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTar
         Set<Integer> botchSet = CommandUtils.toSet(customIdSplit[BOTCH_SET_INDEX], SUBSET_DELIMITER, EMPTY);
         String rerollVariant = customIdSplit[REROLL_VARIANT_INDEX];
         Long answerTargetChannelId = getOptionalLongFromArray(customIdSplit, ANSWER_TARGET_CHANNEL_INDEX);
-        return new PoolTargetConfig(answerTargetChannelId, sideOfDie, maxNumberOfButtons, rerollSet, botchSet, rerollVariant);
+        return new PoolTargetConfig(answerTargetChannelId, sideOfDie, maxNumberOfButtons, rerollSet, botchSet, rerollVariant, AnswerFormatType.full);
     }
 
     private PoolTargetStateData updatePoolTargetStateData(PoolTargetConfig config,
@@ -299,7 +299,7 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTar
                 .findFirst()
                 .orElse(ALWAYS_REROLL);
         Long answerTargetChannelId = getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null);
-        return new PoolTargetConfig(answerTargetChannelId, sideValue, maxButton, rerollSet, botchSet, rerollVariant);
+        return new PoolTargetConfig(answerTargetChannelId, sideValue, maxButton, rerollSet, botchSet, rerollVariant, getAnswerTypeFromStartCommandOption(options));
     }
 
 

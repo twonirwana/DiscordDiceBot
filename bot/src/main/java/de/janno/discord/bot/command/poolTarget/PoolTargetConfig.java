@@ -3,6 +3,7 @@ package de.janno.discord.bot.command.poolTarget;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableList;
+import de.janno.discord.bot.command.AnswerFormatType;
 import de.janno.discord.bot.command.Config;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -14,7 +15,7 @@ import java.util.stream.Collectors;
 
 @EqualsAndHashCode(callSuper = true)
 @Getter
-@ToString
+@ToString(callSuper = true)
 public class PoolTargetConfig extends Config {
     private final int diceSides;
     private final int maxNumberOfButtons;
@@ -30,8 +31,9 @@ public class PoolTargetConfig extends Config {
                             @JsonProperty("maxNumberOfButtons") int maxNumberOfButtons,
                             @JsonProperty("rerollSet") @NonNull Set<Integer> rerollSet,
                             @JsonProperty("botchSet") @NonNull Set<Integer> botchSet,
-                            @JsonProperty("rerollVariant") String rerollVariant) {
-        super(answerTargetChannelId);
+                            @JsonProperty("rerollVariant") String rerollVariant,
+                            @JsonProperty("answerFormatType") AnswerFormatType answerFormatType) {
+        super(answerTargetChannelId, answerFormatType);
         this.diceSides = diceSides;
         this.maxNumberOfButtons = maxNumberOfButtons;
         this.rerollSet = rerollSet;
@@ -47,7 +49,8 @@ public class PoolTargetConfig extends Config {
                 rerollSet.stream().map(String::valueOf).collect(Collectors.joining(PoolTargetCommand.SUBSET_DELIMITER)),
                 botchSet.stream().map(String::valueOf).collect(Collectors.joining(PoolTargetCommand.SUBSET_DELIMITER)),
                 rerollVariant,
-                getTargetChannelShortString()
+                getTargetChannelShortString(),
+                getAnswerFormatType()
         ).toString();
     }
 }

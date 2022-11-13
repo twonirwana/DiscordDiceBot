@@ -2,6 +2,7 @@ package de.janno.discord.bot.command.sumCustomSet;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import de.janno.discord.bot.command.AnswerFormatType;
 import de.janno.discord.bot.command.ButtonIdLabelAndDiceExpression;
 import de.janno.discord.bot.command.Config;
 import de.janno.discord.bot.dice.DiceParserSystem;
@@ -15,7 +16,7 @@ import java.util.stream.Collectors;
 
 @EqualsAndHashCode(callSuper = true)
 @Getter
-@ToString
+@ToString(callSuper = true)
 public class SumCustomSetConfig extends Config {
     @NonNull
     private final List<ButtonIdLabelAndDiceExpression> labelAndExpression;
@@ -27,8 +28,9 @@ public class SumCustomSetConfig extends Config {
     public SumCustomSetConfig(@JsonProperty("answerTargetChannelId") Long answerTargetChannelId,
                               @JsonProperty("labelAndExpression") @NonNull List<ButtonIdLabelAndDiceExpression> labelAndExpression,
                               @JsonProperty("diceParserSystem") DiceParserSystem diceParserSystem,
-                              @JsonProperty("alwaysSumResult") Boolean alwaysSumResult) {
-        super(answerTargetChannelId);
+                              @JsonProperty("alwaysSumResult") Boolean alwaysSumResult,
+                              @JsonProperty("answerFormatType") AnswerFormatType answerFormatType) {
+        super(answerTargetChannelId, answerFormatType);
         this.labelAndExpression = labelAndExpression;
         this.diceParserSystem = diceParserSystem == null ? DiceParserSystem.DICEROLL_PARSER : diceParserSystem;
         this.alwaysSumResult = alwaysSumResult == null || alwaysSumResult;
@@ -40,6 +42,6 @@ public class SumCustomSetConfig extends Config {
         String buttons = labelAndExpression.stream()
                 .map(ButtonIdLabelAndDiceExpression::toShortString)
                 .collect(Collectors.joining(", "));
-        return "[%s, %s, %s, %s]".formatted(buttons, getTargetChannelShortString(), diceParserSystem, alwaysSumResult);
+        return "[%s, %s, %s, %s, %s]".formatted(buttons, getTargetChannelShortString(), diceParserSystem, alwaysSumResult, getAnswerFormatType());
     }
 }

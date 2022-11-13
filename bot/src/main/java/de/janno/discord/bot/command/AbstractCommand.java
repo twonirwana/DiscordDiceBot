@@ -9,10 +9,11 @@ import de.janno.discord.bot.persistance.MessageDataDAO;
 import de.janno.discord.bot.persistance.MessageDataDTO;
 import de.janno.discord.connector.api.*;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
-import de.janno.discord.connector.api.message.EmbedDefinition;
+import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
 import de.janno.discord.connector.api.message.MessageDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinitionOption;
+import de.janno.discord.connector.api.slash.CommandDefinitionOptionChoice;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -31,11 +32,30 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
     protected static final String ACTION_START = "start";
     protected static final String ACTION_HELP = "help";
     protected static final String ANSWER_TARGET_CHANNEL_OPTION = "target_channel";
+    protected static final String ANSWER_FORMAT_OPTION = "answer_format";
 
     protected static final CommandDefinitionOption ANSWER_TARGET_CHANNEL_COMMAND_OPTION = CommandDefinitionOption.builder()
             .name(ANSWER_TARGET_CHANNEL_OPTION)
             .description("The channel where the answer will be given")
             .type(CommandDefinitionOption.Type.CHANNEL)
+            .build();
+
+    protected static final CommandDefinitionOption ANSWER_FORMAT_COMMAND_OPTION = CommandDefinitionOption.builder()
+            .name(ANSWER_FORMAT_OPTION)
+            .description("How the answer will be displayed")
+            .type(CommandDefinitionOption.Type.STRING)
+            .choice(CommandDefinitionOptionChoice.builder()
+                    .name(AnswerFormatType.full.name())
+                    .value(AnswerFormatType.full.name())
+                    .build())
+            .choice(CommandDefinitionOptionChoice.builder()
+                    .name(AnswerFormatType.compact.name())
+                    .value(AnswerFormatType.compact.name())
+                    .build())
+            .choice(CommandDefinitionOptionChoice.builder()
+                    .name(AnswerFormatType.minimal.name())
+                    .value(AnswerFormatType.minimal.name())
+                    .build())
             .build();
 
     protected final MessageDataDAO messageDataDAO;
@@ -59,6 +79,13 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
         return options.getChannelIdSubOptionWithName(ANSWER_TARGET_CHANNEL_OPTION);
     }
 
+    protected AnswerFormatType getAnswerTypeFromStartCommandOption(@NonNull CommandInteractionOption options) {
+        return options.getStringSubOptionWithName(ANSWER_FORMAT_OPTION)
+                .map(AnswerFormatType::valueOf)
+                .orElse(AnswerFormatType.full);
+    }
+
+
     @Override
     public boolean matchingComponentCustomId(@NonNull String buttonCustomId) {
         if (BottomCustomIdUtils.isLegacyCustomId(buttonCustomId)) {
@@ -78,6 +105,7 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
                         .type(CommandDefinitionOption.Type.SUB_COMMAND)
                         .options(getStartOptions())
                         .option(ANSWER_TARGET_CHANNEL_COMMAND_OPTION)
+                        .option(ANSWER_FORMAT_COMMAND_OPTION)
                         .build())
                 .option(CommandDefinitionOption.builder()
                         .name(ACTION_HELP)
@@ -173,11 +201,12 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
         // Remove buttons on set to "processing ..."?
         actions.add(event.editMessage(editMessage, editMessageComponents.orElse(null)));
 
-        Optional<EmbedDefinition> answer = getAnswer(config, state);
+        Optional<RollAnswer> answer = getAnswer(config, state);
         if (answer.isPresent()) {
             BotMetrics.incrementButtonMetricCounter(getCommandId(), config.toShortString());
+            BotMetrics.incrementAnswerFormatCounter(config.getAnswerFormatType(), getCommandId());
 
-            actions.add(event.createResultMessageWithEventReference(answer.get(), answerTargetChannelId)
+            actions.add(event.createResultMessageWithEventReference(RollAnswerConverter.toEmbedOrMessageDefinition(answer.get()), answerTargetChannelId)
                     .doOnSuccess(v -> log.info("{} '{}'.'{}': '{}'={} -> {} in {}ms",
                             event.getRequester().getShard(),
                             event.getRequester().getGuildName(),
@@ -313,7 +342,7 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
 
     protected abstract @NonNull String getCommandDescription();
 
-    protected abstract @NonNull EmbedDefinition getHelpMessage();
+    protected abstract @NonNull EmbedOrMessageDefinition getHelpMessage();
 
     /**
      * The text content for the old button message, after a button event. Returns null means no editing should be done.
@@ -328,7 +357,7 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
      */
     protected abstract @NonNull Optional<MessageDefinition> createNewButtonMessageWithState(C config, State<S> state);
 
-    protected abstract @NonNull Optional<EmbedDefinition> getAnswer(C config, State<S> state);
+    protected abstract @NonNull Optional<RollAnswer> getAnswer(C config, State<S> state);
 
     /**
      * The new button message, after a slash event

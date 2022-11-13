@@ -1,12 +1,13 @@
 package de.janno.discord.bot.dice;
 
 import com.google.common.collect.ImmutableList;
-import de.janno.discord.connector.api.message.EmbedDefinition;
+import de.janno.discord.bot.command.AnswerFormatType;
+import de.janno.discord.bot.command.RollAnswer;
 import de.janno.evaluator.ExpressionException;
 import de.janno.evaluator.dice.DiceEvaluator;
-import de.janno.evaluator.dice.random.NumberSupplier;
 import de.janno.evaluator.dice.Roll;
 import de.janno.evaluator.dice.RollElement;
+import de.janno.evaluator.dice.random.NumberSupplier;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -40,7 +41,7 @@ public class DiceEvaluatorAdapter {
         return Optional.empty();
     }
 
-    private static String getTitleResult(Roll roll, boolean sumUp) {
+    private static String getResult(Roll roll, boolean sumUp) {
         if (sumUp && allElementsAreIntegers(roll) && allElementsHaveNoColor(roll)) {
             return String.valueOf(roll.getElements().stream().flatMap(r -> r.asInteger().stream()).mapToInt(i -> i).sum());
         }
@@ -53,10 +54,6 @@ public class DiceEvaluatorAdapter {
 
     private static boolean allElementsHaveNoColor(Roll roll) {
         return roll.getElements().stream().allMatch(r -> RollElement.NO_COLOR.equals(r.getColor()));
-    }
-
-    private static String getDetailResult(@NonNull Roll result, @Nullable String expression) {
-        return Optional.ofNullable(expression).map(e -> "%s throws %s".formatted(e, result.getRandomElementsString())).orElse(result.getRandomElementsString());
     }
 
     public static String getHelp() {
@@ -72,40 +69,41 @@ public class DiceEvaluatorAdapter {
         }
     }
 
-    public EmbedDefinition answerRollWithOptionalLabelInExpression(String expression, String labelDelimiter, boolean sumUp) {
+    public RollAnswer answerRollWithOptionalLabelInExpression(String expression, String labelDelimiter, boolean sumUp, AnswerFormatType answerFormatType) {
         String diceExpression = getExpressionFromExpressionWithOptionalLabel(expression, labelDelimiter);
         String label = getLabelFromExpressionWithOptionalLabel(expression, labelDelimiter).orElse(null);
-        return answerRollWithGivenLabel(diceExpression, label, sumUp);
+        return answerRollWithGivenLabel(diceExpression, label, sumUp, answerFormatType);
     }
 
-    public EmbedDefinition answerRollWithGivenLabel(String diceExpression, @Nullable String label, boolean sumUp) {
-        EmbedDefinition answer;
-        Optional<String> optionalLabel = Optional.ofNullable(label);
+    public RollAnswer answerRollWithGivenLabel(String diceExpression, @Nullable String label, boolean sumUp, AnswerFormatType answerFormatType) {
         try {
             List<Roll> rolls = diceEvaluator.evaluate(diceExpression);
             if (rolls.size() == 1) {
-                String title = optionalLabel.orElse(diceExpression);
-                answer = EmbedDefinition.builder()
-                        .title("%s ⇒ %s".formatted(title, getTitleResult(rolls.get(0), sumUp)))
-                        .description(getDetailResult(rolls.get(0), optionalLabel.map(l -> diceExpression).orElse(null)))
+                return RollAnswer.builder()
+                        .answerFormatType(answerFormatType)
+                        .expression(diceExpression)
+                        .expressionLabel(label)
+                        .result(getResult(rolls.get(0), sumUp))
+                        .rollDetails(rolls.get(0).getRandomElementsString())
                         .build();
             } else {
-                List<EmbedDefinition.Field> fields = rolls.stream()
-                        .limit(25) //max number of embedFields
-                        .map(r -> new EmbedDefinition.Field("%s ⇒ %s".formatted(r.getExpression(), getTitleResult(r, sumUp)), getDetailResult(r, null), false))
+                List<RollAnswer.RollResults> multiRollResults = rolls.stream()
+                        .map(r -> new RollAnswer.RollResults(r.getExpression(), getResult(r, sumUp), r.getRandomElementsString()))
                         .collect(ImmutableList.toImmutableList());
-                answer = EmbedDefinition.builder()
-                        .title(optionalLabel.orElse(diceExpression))
-                        .fields(fields)
+                return RollAnswer.builder()
+                        .answerFormatType(answerFormatType)
+                        .expression(diceExpression)
+                        .expressionLabel(label)
+                        .multiRollResults(multiRollResults)
                         .build();
             }
         } catch (ExpressionException e) {
-            answer = EmbedDefinition.builder()
-                    .title("Error in: " + diceExpression)
-                    .description(e.getMessage())
+            return RollAnswer.builder()
+                    .answerFormatType(answerFormatType)
+                    .expression(diceExpression)
+                    .errorMessage(e.getMessage())
                     .build();
         }
-        return answer;
     }
 
 

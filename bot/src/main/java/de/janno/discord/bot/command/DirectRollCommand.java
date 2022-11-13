@@ -6,7 +6,7 @@ import de.janno.discord.bot.BotMetrics;
 import de.janno.discord.bot.dice.*;
 import de.janno.discord.connector.api.SlashCommand;
 import de.janno.discord.connector.api.SlashEventAdaptor;
-import de.janno.discord.connector.api.message.EmbedDefinition;
+import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinitionOption;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
@@ -72,11 +72,11 @@ public class DirectRollCommand implements SlashCommand {
                     .orElseThrow();
             if (commandParameter.equals(HELP)) {
                 BotMetrics.incrementSlashHelpMetricCounter(getCommandId());
-                return event.replyEmbed(EmbedDefinition.builder()
-                        .description("Type /r and a dice expression.\n" + DiceEvaluatorAdapter.getHelp())
-                        .field(new EmbedDefinition.Field("Example", "`/r expression:1d6`", false))
-                        .field(new EmbedDefinition.Field("Full documentation", "https://github.com/twonirwana/DiscordDiceBot", false))
-                        .field(new EmbedDefinition.Field("Discord Server", "https://discord.gg/e43BsqKpFr", false))
+                return event.replyEmbed(EmbedOrMessageDefinition.builder()
+                        .descriptionOrContent("Type /r and a dice expression.\n" + DiceEvaluatorAdapter.getHelp())
+                        .field(new EmbedOrMessageDefinition.Field("Example", "`/r expression:1d6`", false))
+                        .field(new EmbedOrMessageDefinition.Field("Full documentation", "https://github.com/twonirwana/DiscordDiceBot", false))
+                        .field(new EmbedOrMessageDefinition.Field("Discord Server", "https://discord.gg/e43BsqKpFr", false))
                         .build(), true);
             }
 
@@ -91,11 +91,12 @@ public class DirectRollCommand implements SlashCommand {
 
             String diceExpression = DiceSystemAdapter.getExpressionFromExpressionWithOptionalLabel(commandParameter);
             BotMetrics.incrementSlashStartMetricCounter(getCommandId(), diceExpression);
+            BotMetrics.incrementAnswerFormatCounter(AnswerFormatType.full, getCommandId());
 
-            EmbedDefinition answer = diceSystemAdapter.answerRollWithOptionalLabelInExpression(commandParameter, true, DiceParserSystem.DICE_EVALUATOR);
+            RollAnswer answer = diceSystemAdapter.answerRollWithOptionalLabelInExpression(commandParameter, true, DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full);
 
             return Flux.merge(event.acknowledgeAndRemoveSlash(),
-                            event.createResultMessageWithEventReference(answer))
+                            event.createResultMessageWithEventReference(RollAnswerConverter.toEmbedOrMessageDefinition(answer)))
                     .doOnComplete(() -> log.info("{} '{}'.'{}': '{}'={} -> {} in {}ms",
                             event.getRequester().getShard(),
                             event.getRequester().getGuildName(),

@@ -3,6 +3,7 @@ package de.janno.discord.bot.command.holdReroll;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableList;
+import de.janno.discord.bot.command.AnswerFormatType;
 import de.janno.discord.bot.command.Config;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -16,7 +17,7 @@ import static de.janno.discord.bot.command.holdReroll.HoldRerollCommand.SUBSET_D
 
 @EqualsAndHashCode(callSuper = true)
 @Getter
-@ToString
+@ToString(callSuper = true)
 public class HoldRerollConfig extends Config {
 
     private final int sidesOfDie;
@@ -32,8 +33,9 @@ public class HoldRerollConfig extends Config {
                             @JsonProperty("sidesOfDie") int sidesOfDie,
                             @JsonProperty("rerollSet") @NonNull Set<Integer> rerollSet,
                             @JsonProperty("successSet") @NonNull Set<Integer> successSet,
-                            @JsonProperty("failureSet") @NonNull Set<Integer> failureSet) {
-        super(answerTargetChannelId);
+                            @JsonProperty("failureSet") @NonNull Set<Integer> failureSet,
+                            @JsonProperty("answerFormatType") AnswerFormatType answerFormatType) {
+        super(answerTargetChannelId, answerFormatType);
         this.sidesOfDie = sidesOfDie;
         this.rerollSet = rerollSet;
         this.successSet = successSet;
@@ -47,7 +49,8 @@ public class HoldRerollConfig extends Config {
                 rerollSet.stream().map(String::valueOf).collect(Collectors.joining(SUBSET_DELIMITER)),
                 successSet.stream().map(String::valueOf).collect(Collectors.joining(SUBSET_DELIMITER)),
                 failureSet.stream().map(String::valueOf).collect(Collectors.joining(SUBSET_DELIMITER)),
-                getTargetChannelShortString()
+                getTargetChannelShortString(),
+                getAnswerFormatType()
         ).toString();
     }
 }

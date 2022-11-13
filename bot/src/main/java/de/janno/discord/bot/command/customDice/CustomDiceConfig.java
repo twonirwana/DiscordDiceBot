@@ -2,6 +2,7 @@ package de.janno.discord.bot.command.customDice;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import de.janno.discord.bot.command.AnswerFormatType;
 import de.janno.discord.bot.command.ButtonIdLabelAndDiceExpression;
 import de.janno.discord.bot.command.Config;
 import de.janno.discord.bot.dice.DiceParserSystem;
@@ -15,7 +16,7 @@ import java.util.stream.Collectors;
 
 @EqualsAndHashCode(callSuper = true)
 @Getter
-@ToString
+@ToString(callSuper = true)
 public class CustomDiceConfig extends Config {
     @NonNull
     private final List<ButtonIdLabelAndDiceExpression> buttonIdLabelAndDiceExpressions;
@@ -25,8 +26,9 @@ public class CustomDiceConfig extends Config {
     @JsonCreator
     public CustomDiceConfig(@JsonProperty("answerTargetChannelId") Long answerTargetChannelId,
                             @JsonProperty("buttonIdLabelAndDiceExpressions") @NonNull List<ButtonIdLabelAndDiceExpression> buttonIdLabelAndDiceExpressions,
-                            @JsonProperty("diceParserSystem") DiceParserSystem diceParserSystem) {
-        super(answerTargetChannelId);
+                            @JsonProperty("diceParserSystem") DiceParserSystem diceParserSystem,
+                            @JsonProperty("answerFormatType") AnswerFormatType answerFormatType) {
+        super(answerTargetChannelId, answerFormatType);
         this.buttonIdLabelAndDiceExpressions = buttonIdLabelAndDiceExpressions;
         this.diceParserSystem = diceParserSystem == null ? DiceParserSystem.DICEROLL_PARSER : diceParserSystem;
     }
@@ -36,7 +38,7 @@ public class CustomDiceConfig extends Config {
         String buttons = buttonIdLabelAndDiceExpressions.stream()
                 .map(ButtonIdLabelAndDiceExpression::toShortString)
                 .collect(Collectors.joining(", "));
-        return "[%s, %s, %s]".formatted(buttons, getTargetChannelShortString(), diceParserSystem);
+        return "[%s, %s, %s, %s]".formatted(buttons, getTargetChannelShortString(), diceParserSystem, getAnswerFormatType());
     }
 
 }
