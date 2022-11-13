@@ -1,6 +1,7 @@
 package de.janno.discord.bot.persistance;
 
 import com.google.common.base.Stopwatch;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import de.janno.discord.bot.BotMetrics;
 import io.micrometer.core.instrument.Gauge;
@@ -14,6 +15,7 @@ import org.jetbrains.annotations.Nullable;
 import javax.sql.DataSource;
 import java.sql.*;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -118,15 +120,15 @@ public class MessageDataDAOImpl implements MessageDataDAO {
 
 
     @Override
-    public @NonNull Set<Long> getAllMessageIdsForConfig(@NonNull UUID configUUID) {
+    public @NonNull List<IdAndCreationDate> getAllMessageIdsForConfig(@NonNull UUID configUUID) {
         Stopwatch stopwatch = Stopwatch.createStarted();
         try (Connection con = connectionPool.getConnection()) {
-            try (PreparedStatement preparedStatement = con.prepareStatement("SELECT DISTINCT MC.MESSAGE_ID FROM MESSAGE_DATA MC WHERE MC.CONFIG_ID = ?")) {
+            try (PreparedStatement preparedStatement = con.prepareStatement("SELECT DISTINCT MC.MESSAGE_ID, MC.CREATION_DATE FROM MESSAGE_DATA MC WHERE MC.CONFIG_ID = ?")) {
                 preparedStatement.setObject(1, configUUID);
                 ResultSet resultSet = preparedStatement.executeQuery();
-                final ImmutableSet.Builder<Long> resultBuilder = ImmutableSet.builder();
+                final ImmutableList.Builder<IdAndCreationDate> resultBuilder = ImmutableList.builder();
                 while (resultSet.next()) {
-                    resultBuilder.add(resultSet.getLong("MESSAGE_ID"));
+                    resultBuilder.add(new IdAndCreationDate(resultSet.getLong("MESSAGE_ID"), resultSet.getTimestamp("CREATION_DATE").toLocalDateTime()));
                 }
                 BotMetrics.databaseTimer("getAllMessageIdsForConfig", stopwatch.elapsed());
 

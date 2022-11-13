@@ -7,6 +7,7 @@ import de.janno.discord.bot.command.ConfigAndState;
 import de.janno.discord.bot.command.RollAnswerConverter;
 import de.janno.discord.bot.command.State;
 import de.janno.discord.bot.dice.DiceUtils;
+import de.janno.discord.bot.persistance.IdAndCreationDate;
 import de.janno.discord.bot.persistance.MessageDataDAO;
 import de.janno.discord.bot.persistance.MessageDataDAOImpl;
 import de.janno.discord.bot.persistance.MessageDataDTO;
@@ -25,6 +26,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -533,7 +535,7 @@ class PoolTargetCommandTest {
                 targetNumber: null
                 doReroll: null
                 """)));
-        when(messageDataDAO.getAllMessageIdsForConfig(any())).thenReturn(ImmutableSet.of(1L, 2L));
+        when(messageDataDAO.getAllMessageIdsForConfig(any())).thenReturn(ImmutableList.of(new IdAndCreationDate(1L, LocalDateTime.now()),new IdAndCreationDate(2L, LocalDateTime.now())));
 
 
         Mono<Void> res = underTest.handleComponentInteractEvent(buttonEventAdaptor);

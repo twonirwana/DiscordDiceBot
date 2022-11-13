@@ -2,6 +2,7 @@ package de.janno.discord.bot.persistance;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -18,9 +19,9 @@ class MessageDataDAOImplTest {
         underTest.saveMessageData(new MessageDataDTO(uuid, 1L, 1L, 3L, "testCommand", "testConfigClass", "configClass"));
         underTest.saveMessageData(new MessageDataDTO(UUID.randomUUID(), 1L, 2L, 4L, "testCommand", "testConfigClass", "configClass"));
 
-        Set<Long> res = underTest.getAllMessageIdsForConfig(uuid);
+        List<IdAndCreationDate> res = underTest.getAllMessageIdsForConfig(uuid);
 
-        assertThat(res).containsExactly(2L, 3L);
+        assertThat(res.stream().map(IdAndCreationDate::getId)).containsExactly(2L, 3L);
     }
 
     @Test

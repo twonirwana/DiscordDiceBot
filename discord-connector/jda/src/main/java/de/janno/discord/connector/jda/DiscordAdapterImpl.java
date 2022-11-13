@@ -99,7 +99,7 @@ public abstract class DiscordAdapterImpl implements DiscordAdapter {
                                          boolean ignoreNotFound) {
         //todo: add guild and channel
         if (throwable instanceof InsufficientPermissionException) {
-            log.info(String.format("Missing permissions: %s", errorMessage));
+            log.info(String.format("Missing permissions: %s - %s", errorMessage, throwable.getMessage()));
             return Mono.empty();
         } else if (throwable instanceof ErrorResponseException &&
                 ((ErrorResponseException) throwable).getErrorResponse().getCode() < 20000

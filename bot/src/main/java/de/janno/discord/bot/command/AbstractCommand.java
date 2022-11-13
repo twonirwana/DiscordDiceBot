@@ -4,7 +4,9 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Stopwatch;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import de.janno.discord.bot.BotMetrics;
+import de.janno.discord.bot.persistance.IdAndCreationDate;
 import de.janno.discord.bot.persistance.MessageDataDAO;
 import de.janno.discord.bot.persistance.MessageDataDTO;
 import de.janno.discord.connector.api.*;
@@ -23,6 +25,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import static de.janno.discord.connector.api.BottomCustomIdUtils.CUSTOM_ID_DELIMITER;
 
@@ -250,32 +253,39 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
                 .then(createNewButtonMessageAndOptionalDeleteOld);
     }
 
-    private Mono<Void> deleteMessageAndData(@NonNull Mono<Long> newMessageIdMono,
-                                            @Nullable Long retainMessageId,
-                                            @NonNull UUID configUUID,
-                                            long channelId,
-                                            @NonNull ButtonEventAdaptor event) {
+    @VisibleForTesting
+    Mono<Void> deleteMessageAndData(@NonNull Mono<Long> newMessageIdMono, //the new message should not be deleted
+                                    @Nullable Long retainMessageId, //if the old message is pinned or should otherwise be retained
+                                    @NonNull UUID configUUID,
+                                    long channelId,
+                                    @NonNull ButtonEventAdaptor event) {
         return newMessageIdMono
                 .flux()
                 .flatMap(newMessageId -> {
-                    Set<Long> ids = messageDataDAO.getAllMessageIdsForConfig(configUUID);
-                    if (ids.size() > 5) { //expected one old, one new messageData and one sometimes one parallel or from the legacy migration
+                    List<IdAndCreationDate> ids = messageDataDAO.getAllMessageIdsForConfig(configUUID);
+                    if (ids.size() > 7) { //expected one old, one new messageData and 5 old messages
                         log.warn(String.format("ConfigUUID %s had %d to many messageData persisted", configUUID, ids.size() - 2));
                     }
-                    return Flux.fromIterable(ids)
-                            .filter(id -> filterWithOptionalSecondId(id, newMessageId, retainMessageId));
+                    ImmutableSet.Builder<Long> keepMessageIdsBuilder = ImmutableSet.<Long>builder()
+                            .add(newMessageId);
+                    if (retainMessageId != null) {
+                        keepMessageIdsBuilder.add(retainMessageId);
+                    }
+                    keepMessageIdsBuilder.addAll(ids.stream()
+                            .sorted(Comparator.comparing(IdAndCreationDate::getCreationDate).reversed())
+                            .limit(5) //we keep at least the last 5 messages so there is no problem if multiple user clicking out of date buttons
+                            .map(IdAndCreationDate::getId)
+                            .collect(Collectors.toList()));
+                    Set<Long> keepMessageIds = keepMessageIdsBuilder.build();
+
+                    return Flux.fromStream(ids.stream()
+                            .map(IdAndCreationDate::getId)
+                            .filter(id -> !keepMessageIds.contains(id)));
                 })
                 .flatMap(oldMessageId -> event.deleteMessage(oldMessageId, false)
                         .filter(Objects::nonNull)
                         .doOnNext(l -> messageDataDAO.deleteDataForMessage(channelId, l)))
                 .then();
-    }
-
-    private boolean filterWithOptionalSecondId(long input, long filterId, @Nullable Long optionalFilterId) {
-        if (optionalFilterId != null) {
-            return !Objects.equals(input, filterId) && !Objects.equals(input, optionalFilterId);
-        }
-        return !Objects.equals(input, filterId);
     }
 
     @Override
