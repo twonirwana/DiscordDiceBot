@@ -15,7 +15,7 @@ public interface SlashEventAdaptor extends DiscordAdapter {
 
     Mono<Void> replyEmbed(@NonNull EmbedOrMessageDefinition embedOrMessageDefinition, boolean ephemeral);
 
-    Mono<Long> createButtonMessage(@NonNull MessageDefinition messageDefinition);
+    @NonNull Mono<Long> createButtonMessage(@NonNull MessageDefinition messageDefinition);
 
     long getChannelId();
 

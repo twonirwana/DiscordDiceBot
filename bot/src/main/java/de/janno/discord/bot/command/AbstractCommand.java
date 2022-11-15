@@ -6,7 +6,6 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import de.janno.discord.bot.BotMetrics;
-import de.janno.discord.bot.persistance.IdAndCreationDate;
 import de.janno.discord.bot.persistance.MessageDataDAO;
 import de.janno.discord.bot.persistance.MessageDataDTO;
 import de.janno.discord.connector.api.*;
@@ -23,6 +22,7 @@ import org.jetbrains.annotations.Nullable;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -210,10 +210,8 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
             BotMetrics.incrementAnswerFormatCounter(config.getAnswerFormatType(), getCommandId());
 
             actions.add(event.createResultMessageWithEventReference(RollAnswerConverter.toEmbedOrMessageDefinition(answer.get()), answerTargetChannelId)
-                    .doOnSuccess(v -> log.info("{} '{}'.'{}': '{}'={} -> {} in {}ms",
-                            event.getRequester().getShard(),
-                            event.getRequester().getGuildName(),
-                            event.getRequester().getChannelName(),
+                    .doOnSuccess(v -> log.info("{}: '{}'={} -> {} in {}ms",
+                            event.getRequester().toLogString(),
                             event.getCustomId().replace(CUSTOM_ID_DELIMITER, ":"),
                             state.toShortString(),
                             answer.get().toShortString(),
@@ -232,10 +230,12 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
                     });
             if (!keepExistingButtonMessage) {
                 if (isLegacyMessage) {
-                    createNewButtonMessageAndOptionalDeleteOld = event.deleteMessage(messageId, false)
+                    //todo check state ...
+                    createNewButtonMessageAndOptionalDeleteOld = event.deleteMessageById(messageId)
                             .then(newMessageIdMono)
                             .then();
                 } else {
+                    //todo always delete the message, cleanup of data will happen with the next click
                     //delete all other button messages with the same config, retain only the new message
                     createNewButtonMessageAndOptionalDeleteOld = deleteMessageAndData(newMessageIdMono, null, configUUID, channelId, event);
                 }
@@ -259,10 +259,12 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
                                     @NonNull UUID configUUID,
                                     long channelId,
                                     @NonNull ButtonEventAdaptor event) {
+        OffsetDateTime now = OffsetDateTime.now();
         return newMessageIdMono
                 .flux()
                 .flatMap(newMessageId -> {
-                    List<IdAndCreationDate> ids = messageDataDAO.getAllMessageIdsForConfig(configUUID);
+                    Set<Long> ids = messageDataDAO.getAllMessageIdsForConfig(configUUID);
+
                     if (ids.size() > 7) { //expected one old, one new messageData and 5 old messages
                         log.warn(String.format("ConfigUUID %s had %d to many messageData persisted", configUUID, ids.size() - 2));
                     }
@@ -271,21 +273,28 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
                     if (retainMessageId != null) {
                         keepMessageIdsBuilder.add(retainMessageId);
                     }
-                    keepMessageIdsBuilder.addAll(ids.stream()
-                            .sorted(Comparator.comparing(IdAndCreationDate::getCreationDate).reversed())
-                            .limit(5) //we keep at least the last 5 messages so there is no problem if multiple user clicking out of date buttons
-                            .map(IdAndCreationDate::getId)
-                            .collect(Collectors.toList()));
                     Set<Long> keepMessageIds = keepMessageIdsBuilder.build();
 
-                    return Flux.fromStream(ids.stream()
-                            .map(IdAndCreationDate::getId)
-                            .filter(id -> !keepMessageIds.contains(id)));
+                    Set<Long> deleteMessageIds = ids.stream()
+                            .filter(id -> !keepMessageIds.contains(id))
+                            .collect(Collectors.toSet());
+
+                    return event.getMessagesState(deleteMessageIds);
                 })
-                .flatMap(oldMessageId -> event.deleteMessage(oldMessageId, false)
-                        .filter(Objects::nonNull)
-                        .doOnNext(l -> messageDataDAO.deleteDataForMessage(channelId, l)))
-                .then();
+                .flatMap(ms -> {
+                    if (ms.isCanBeDeleted() && !ms.isPinned() && ms.isExists()) {
+                        return event.deleteMessageById(ms.getMessageId())
+                                .doOnSuccess(s -> {
+                                    if (ms.getCreationTime().isBefore(now.minusMinutes(5))) {
+                                        messageDataDAO.deleteDataForMessage(channelId, ms.getMessageId());
+                                    }
+                                });
+                    } else if (!ms.isExists()) {
+                        return Mono.fromRunnable(() -> messageDataDAO.deleteDataForMessage(channelId, ms.getMessageId()));
+                    } else {
+                        return Mono.empty();
+                    }
+                }).then();
     }
 
     @Override
@@ -307,15 +316,13 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
 
             Optional<Long> answerTargetChannelId = getAnswerTargetChannelIdFromStartCommandOption(options);
             if (answerTargetChannelId.isPresent() && !event.isValidAnswerChannel(answerTargetChannelId.get())) {
-                log.info("'{}'.'{}' Invalid answer target channel for {}", event.getRequester().getGuildName(),
-                        event.getRequester().getChannelName(), commandString);
+                log.info("{}: Invalid answer target channel for {}", event.getRequester().toLogString(), commandString);
                 return event.reply("The target channel is not a valid message channel", true);
             }
 
             Optional<String> validationMessage = getStartOptionsValidationMessage(options);
             if (validationMessage.isPresent()) {
-                log.info("'{}'.'{}' Validation message: {} for {}", event.getRequester().getGuildName(),
-                        event.getRequester().getChannelName(),
+                log.info("{}: Validation message: {} for {}", event.getRequester().toLogString(),
                         validationMessage.get(),
                         commandString);
                 return event.reply(String.format("%s\n%s", commandString, validationMessage.get()), true);
@@ -324,10 +331,8 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
             BotMetrics.incrementSlashStartMetricCounter(getCommandId(), config.toShortString());
 
             long channelId = event.getChannelId();
-            log.info("{} '{}'.'{}': '{}'",
-                    event.getRequester().getShard(),
-                    event.getRequester().getGuildName(),
-                    event.getRequester().getChannelName(),
+            log.info("{}: '{}'",
+                    event.getRequester().toLogString(),
                     commandString.replace("`", ""));
             return event.reply(commandString, false)
                     .then(event.createButtonMessage(createNewButtonMessage(config))

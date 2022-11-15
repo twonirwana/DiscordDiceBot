@@ -260,7 +260,7 @@ class CountSuccessesCommandTest {
         when(buttonEventAdaptor.editMessage(any(), any())).thenReturn(Mono.just(mock(Void.class)));
         when(buttonEventAdaptor.createResultMessageWithEventReference(any(), eq(null))).thenReturn(Mono.just(mock(Void.class)));
         when(buttonEventAdaptor.createButtonMessage(any())).thenReturn(Mono.just(2L));
-        when(buttonEventAdaptor.deleteMessage(anyLong(), anyBoolean())).thenReturn(Mono.just(2L));
+        when(buttonEventAdaptor.deleteMessageById(anyLong())).thenReturn(Mono.empty());
         when(buttonEventAdaptor.getRequester()).thenReturn(new Requester("user", "channel", "guild", "[0 / 1]"));
 
         Mono<Void> res = underTest.handleComponentInteractEvent(buttonEventAdaptor);
@@ -271,7 +271,7 @@ class CountSuccessesCommandTest {
 
         verify(buttonEventAdaptor).editMessage("processing ...", null);
         verify(buttonEventAdaptor).createButtonMessage(any());
-        verify(buttonEventAdaptor).deleteMessage(1L, false);
+        verify(buttonEventAdaptor).deleteMessageById(1L);
         verify(buttonEventAdaptor).createResultMessageWithEventReference(eq(new EmbedOrMessageDefinition("6d6 ⇒ 2 - Glitch!",
                 "[**1**,**1**,**1**,**1**,**5**,**6**] ≥4 = 2 and more then half of all dice show 1s", ImmutableList.of(), EmbedOrMessageDefinition.Type.EMBED)), eq(null));
         verify(buttonEventAdaptor, times(4)).getCustomId();
@@ -292,7 +292,7 @@ class CountSuccessesCommandTest {
         when(buttonEventAdaptor.editMessage(any(), any())).thenReturn(Mono.just(mock(Void.class)));
         when(buttonEventAdaptor.createButtonMessage(any())).thenReturn(Mono.just(2L));
         when(buttonEventAdaptor.createResultMessageWithEventReference(any(), eq(null))).thenReturn(Mono.just(mock(Void.class)));
-        when(buttonEventAdaptor.deleteMessage(anyLong(), anyBoolean())).thenReturn(Mono.just(2L));
+        when(buttonEventAdaptor.deleteMessageById(anyLong())).thenReturn(Mono.empty());
         when(buttonEventAdaptor.getRequester()).thenReturn(new Requester("user", "channel", "guild", "[0 / 1]"));
 
 
@@ -303,7 +303,7 @@ class CountSuccessesCommandTest {
 
         verify(buttonEventAdaptor).editMessage(eq("Click to roll the dice against 4 and check for more then half of dice 1s"), anyList());
         verify(buttonEventAdaptor).createButtonMessage(any());
-        verify(buttonEventAdaptor, never()).deleteMessage(anyLong(), anyBoolean());
+        verify(buttonEventAdaptor, never()).deleteMessageById(anyLong());
         verify(buttonEventAdaptor).createResultMessageWithEventReference(eq(new EmbedOrMessageDefinition("6d6 ⇒ 2 - Glitch!",
                 "[**1**,**1**,**1**,**1**,**5**,**6**] ≥4 = 2 and more then half of all dice show 1s", ImmutableList.of(), EmbedOrMessageDefinition.Type.EMBED)), eq(null));
         verify(messageDataDAO, times(2)).saveMessageData(any());

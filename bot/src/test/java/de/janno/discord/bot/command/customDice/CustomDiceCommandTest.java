@@ -233,7 +233,7 @@ class CustomDiceCommandTest {
         when(buttonEventAdaptor.editMessage(any(), any())).thenReturn(Mono.just(mock(Void.class)));
         when(buttonEventAdaptor.createResultMessageWithEventReference(any(), eq(null))).thenReturn(Mono.just(mock(Void.class)));
         when(buttonEventAdaptor.createButtonMessage(any())).thenReturn(Mono.just(2L));
-        when(buttonEventAdaptor.deleteMessage(anyLong(), anyBoolean())).thenReturn(Mono.just(2L));
+        when(buttonEventAdaptor.deleteMessageById(anyLong())).thenReturn(Mono.empty());
         when(buttonEventAdaptor.getRequester()).thenReturn(new Requester("user", "channel", "guild", "[0 / 1]"));
         when(buttonEventAdaptor.getAllButtonIds()).thenReturn(ImmutableList.of(new ButtonEventAdaptor.LabelAndCustomId("1d6", "custom_dice\u00001d6")));
         Mono<Void> res = underTest.handleComponentInteractEvent(buttonEventAdaptor);
@@ -251,7 +251,7 @@ class CustomDiceCommandTest {
                                 .build())
                         .build())
                 .build());
-        verify(buttonEventAdaptor).deleteMessage(anyLong(), anyBoolean());
+        verify(buttonEventAdaptor).deleteMessageById(anyLong());
         verify(buttonEventAdaptor).createResultMessageWithEventReference(eq(new EmbedOrMessageDefinition("1d6 ⇒ 3", "[3]", ImmutableList.of(), EmbedOrMessageDefinition.Type.EMBED)), eq(null));
         verify(buttonEventAdaptor, times(5)).getCustomId();
         verify(buttonEventAdaptor).getMessageId();
@@ -272,7 +272,7 @@ class CustomDiceCommandTest {
         when(buttonEventAdaptor.editMessage(any(), any())).thenReturn(Mono.just(mock(Void.class)));
         when(buttonEventAdaptor.createButtonMessage(any())).thenReturn(Mono.just(2L));
         when(buttonEventAdaptor.createResultMessageWithEventReference(any(), eq(null))).thenReturn(Mono.just(mock(Void.class)));
-        when(buttonEventAdaptor.deleteMessage(anyLong(), anyBoolean())).thenReturn(Mono.just(2L));
+        when(buttonEventAdaptor.deleteMessageById(anyLong())).thenReturn(Mono.empty());
         when(buttonEventAdaptor.getRequester()).thenReturn(new Requester("user", "channel", "guild", "[0 / 1]"));
         when(buttonEventAdaptor.getAllButtonIds()).thenReturn(ImmutableList.of(new ButtonEventAdaptor.LabelAndCustomId("1d6", "custom_dice\u00001d6")));
 
@@ -290,7 +290,7 @@ class CustomDiceCommandTest {
                                 .build())
                         .build())
                 .build());
-        verify(buttonEventAdaptor, never()).deleteMessage(anyLong(), anyBoolean());
+        verify(buttonEventAdaptor, never()).deleteMessageById(anyLong());
         verify(buttonEventAdaptor).createResultMessageWithEventReference(eq(new EmbedOrMessageDefinition("1d6 ⇒ 3", "[3]", ImmutableList.of(), EmbedOrMessageDefinition.Type.EMBED)), eq(null));
         verify(messageDataDAO, times(2)).saveMessageData(any());
         verify(messageDataDAO).getAllMessageIdsForConfig(any());
@@ -337,7 +337,7 @@ class CustomDiceCommandTest {
                 .build()));
 
         when(event.createButtonMessage(any())).thenReturn(Mono.just(2L));
-        when(event.deleteMessage(anyLong(), anyBoolean())).thenReturn(Mono.just(2L));
+        when(event.deleteMessageById(anyLong())).thenReturn(Mono.empty());
         when(event.getRequester()).thenReturn(new Requester("user", "channel", "guild", "[0 / 1]"));
         when(event.reply(any(), anyBoolean())).thenReturn(Mono.just(mock(Void.class)));
         when(diceMock.detailedRoll(any())).thenAnswer(a -> new DiceParser().detailedRoll(a.getArgument(0)));
@@ -392,7 +392,7 @@ class CustomDiceCommandTest {
                 .build()));
 
         when(event.createButtonMessage(any())).thenReturn(Mono.just(2L));
-        when(event.deleteMessage(anyLong(), anyBoolean())).thenReturn(Mono.just(2L));
+        when(event.deleteMessageById(anyLong())).thenReturn(Mono.empty());
         when(event.getRequester()).thenReturn(new Requester("user", "channel", "guild", "[0 / 1]"));
         when(event.reply(any(), anyBoolean())).thenReturn(Mono.just(mock(Void.class)));
         when(diceMock.detailedRoll(any())).thenAnswer(a -> new DiceParser().detailedRoll(a.getArgument(0)));

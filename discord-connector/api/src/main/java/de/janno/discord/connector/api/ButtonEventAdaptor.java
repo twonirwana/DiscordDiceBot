@@ -2,7 +2,6 @@ package de.janno.discord.connector.api;
 
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
-import de.janno.discord.connector.api.message.MessageDefinition;
 import lombok.NonNull;
 import lombok.Value;
 import reactor.core.publisher.Mono;
@@ -24,8 +23,6 @@ public interface ButtonEventAdaptor extends DiscordAdapter {
     String getInvokingGuildMemberName();
 
     Mono<Void> editMessage(@Nullable String message, @Nullable List<ComponentRowDefinition> componentRowDefinitions);
-
-    Mono<Long> createButtonMessage(MessageDefinition messageDefinition);
 
     /**
      * will be removed when almost all users have switched to the persisted button id

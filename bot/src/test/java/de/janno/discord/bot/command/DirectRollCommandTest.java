@@ -47,7 +47,7 @@ class DirectRollCommandTest {
         when(diceMock.detailedRoll("1d6")).thenReturn(new ResultTree(new NDice(6, 1), 3, ImmutableList.of()));
         when(slashEventAdaptor.getChannelId()).thenReturn(1L);
         when(slashEventAdaptor.createResultMessageWithEventReference(any())).thenReturn(Mono.just(mock(Void.class)));
-        when(slashEventAdaptor.deleteMessage(anyLong(), anyBoolean())).thenReturn(Mono.just(2L));
+        when(slashEventAdaptor.deleteMessageById(anyLong())).thenReturn(Mono.empty());
         when(slashEventAdaptor.acknowledgeAndRemoveSlash()).thenReturn(Mono.just(mock(Void.class)));
         when(slashEventAdaptor.getCommandString()).thenReturn("/r expression:1d6");
         when(slashEventAdaptor.getRequester()).thenReturn(new Requester("user", "channel", "guild", "[0 / 1]"));
@@ -65,7 +65,7 @@ class DirectRollCommandTest {
         verify(slashEventAdaptor).getOption("expression");
         verify(slashEventAdaptor).getCommandString();
         verify(slashEventAdaptor, never()).createButtonMessage(any());
-        verify(slashEventAdaptor, never()).deleteMessage(anyLong(), anyBoolean());
+        verify(slashEventAdaptor, never()).deleteMessageById(anyLong());
         verify(slashEventAdaptor, never()).replyEmbed(any(), anyBoolean());
         verify(slashEventAdaptor).createResultMessageWithEventReference(ArgumentMatchers.eq(new EmbedOrMessageDefinition("Test Label ⇒ 0", "1d6: [0]", ImmutableList.of(), EmbedOrMessageDefinition.Type.EMBED)));
 
@@ -94,10 +94,10 @@ class DirectRollCommandTest {
         verify(slashEventAdaptor).getOption("expression");
         verify(slashEventAdaptor, times(1)).getCommandString();
         verify(slashEventAdaptor, never()).createButtonMessage(any());
-        verify(slashEventAdaptor, never()).deleteMessage(anyLong(), anyBoolean());
+        verify(slashEventAdaptor, never()).deleteMessageById(anyLong());
         verify(slashEventAdaptor, never()).replyEmbed(any(), anyBoolean());
         verify(slashEventAdaptor, never()).createResultMessageWithEventReference(any());
-        verify(slashEventAdaptor, never()).deleteMessage(anyLong(), anyBoolean());
+        verify(slashEventAdaptor, never()).deleteMessageById(anyLong());
         verify(slashEventAdaptor).reply("/r expression:asdfasdf\n" +
                 "The following expression is invalid: 'asdfasdf'. The error is: '[d, D]' requires as left input a single integer but was '[as]'. Use `/r expression:help` to get more information on how to use the command.", true);
 
@@ -128,9 +128,9 @@ class DirectRollCommandTest {
         verify(slashEventAdaptor).getOption("expression");
         verify(slashEventAdaptor, times(1)).getCommandString();
         verify(slashEventAdaptor, never()).createButtonMessage(any());
-        verify(slashEventAdaptor, never()).deleteMessage(anyLong(), anyBoolean());
+        verify(slashEventAdaptor, never()).deleteMessageById(anyLong());
         verify(slashEventAdaptor, never()).createResultMessageWithEventReference(any());
-        verify(slashEventAdaptor, never()).deleteMessage(anyLong(), anyBoolean());
+        verify(slashEventAdaptor, never()).deleteMessageById(anyLong());
         verify(slashEventAdaptor).replyEmbed(EmbedOrMessageDefinition.builder()
                 .descriptionOrContent("Type /r and a dice expression.\n" + DiceEvaluatorAdapter.getHelp())
                 .field(new EmbedOrMessageDefinition.Field("Example", "`/r expression:1d6`", false))

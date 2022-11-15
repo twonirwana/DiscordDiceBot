@@ -3,6 +3,7 @@ package de.janno.discord.connector.jda;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import de.janno.discord.connector.api.DiscordAdapter;
+import de.janno.discord.connector.api.MessageState;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
 import de.janno.discord.connector.api.message.MessageDefinition;
 import lombok.NonNull;
@@ -19,15 +20,17 @@ import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Nullable;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.awt.*;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+
+import static net.dv8tion.jda.api.requests.ErrorResponse.*;
 
 @Slf4j
 public abstract class DiscordAdapterImpl implements DiscordAdapter {
@@ -37,6 +40,8 @@ public abstract class DiscordAdapterImpl implements DiscordAdapter {
         return new String(in.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8);
     }
 
+
+    //todo include the error handling
     protected static <T> Mono<T> createMonoFrom(Supplier<RestAction<T>> actionSupplier) {
         try {
             return Mono.fromFuture(actionSupplier.get().submit());
@@ -97,28 +102,17 @@ public abstract class DiscordAdapterImpl implements DiscordAdapter {
     protected Mono<Void> handleException(@NonNull String errorMessage,
                                          @NonNull Throwable throwable,
                                          boolean ignoreNotFound) {
-        //todo: add guild and channel
         if (throwable instanceof InsufficientPermissionException) {
-            log.info(String.format("Missing permissions: %s - %s", errorMessage, throwable.getMessage()));
+            log.info(String.format("%s: Missing permissions: %s - %s", getGuildAndChannelName(), errorMessage, throwable.getMessage()));
             return Mono.empty();
         } else if (throwable instanceof ErrorResponseException &&
                 ((ErrorResponseException) throwable).getErrorResponse().getCode() < 20000
                 && ignoreNotFound) {
-            log.trace(String.format("Not found: %s", errorMessage));
+            log.trace(String.format("%s: Not found: %s", getGuildAndChannelName(), errorMessage));
         } else {
-            log.error(errorMessage, throwable);
+            log.error("%s: %s".formatted(getGuildAndChannelName(), errorMessage), throwable);
         }
         return Mono.empty();
-    }
-
-    protected Mono<Long> deleteMessage(MessageChannel messageChannel, long messageId, boolean deletePinned) {
-        //retrieveMessageByIds would be nice
-        return createMonoFrom(() -> messageChannel.retrieveMessageById(messageId))
-                .filter(m -> !m.isPinned() || deletePinned)
-                .filter(m -> m.getType().canDelete())
-                .flatMap(m -> createMonoFrom(m::delete)
-                        .then(Mono.just(messageId)))
-                .onErrorResume(t -> handleException("Error on deleting message", t, true).ofType(Long.class));
     }
 
     protected Optional<String> checkPermission(@NonNull MessageChannel messageChannel, @Nullable Guild guild) {
@@ -145,4 +139,40 @@ public abstract class DiscordAdapterImpl implements DiscordAdapter {
         return Optional.of(result);
     }
 
+    @Override
+    public @NonNull Flux<MessageState> getMessagesState(@NonNull Collection<Long> messageIds) {
+        return Flux.fromIterable(messageIds)
+                .flatMap(id -> Mono.fromFuture(getMessageChannel().retrieveMessageById(id)
+                        .submit()
+                        .handle((m, t) -> {
+                            if (m != null) {
+                                return new MessageState(m.getIdLong(), m.isPinned(), true, m.getType().canDelete(), m.getTimeCreated());
+                            }
+                            if (t != null) {
+                                if (t instanceof ErrorResponseException errorResponseException) {
+                                    if (Set.of(MISSING_ACCESS, MISSING_PERMISSIONS, INVALID_DM_ACTION).contains(errorResponseException.getErrorResponse())) {
+                                        return new MessageState(id, false, true, false, null);
+                                    } else if (Set.of(UNKNOWN_MESSAGE, UNKNOWN_CHANNEL).contains(errorResponseException.getErrorResponse())) {
+                                        return new MessageState(id, false, false, false, null);
+                                    }
+                                } else if (t instanceof InsufficientPermissionException) {
+                                    return new MessageState(id, false, true, false, null);
+                                }
+                                throw new RuntimeException(t);
+                            }
+                            throw new IllegalStateException("Message and throwable are null");
+                        })
+                ))
+                .onErrorResume(t -> handleException("Error on getting message state", t, false).ofType(MessageState.class));
+    }
+
+    @Override
+    public @NonNull Mono<Void> deleteMessageById(long messageId) {
+        return Mono.fromFuture(getMessageChannel().deleteMessageById(messageId).submit())
+                .onErrorResume(t -> handleException("Error on deleting message", t, true).ofType(Void.class));
+    }
+
+    protected abstract @NonNull MessageChannel getMessageChannel();
+
+    protected abstract @NonNull String getGuildAndChannelName();
 }

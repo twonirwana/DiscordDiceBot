@@ -82,8 +82,7 @@ public class DirectRollCommand implements SlashCommand {
 
             Optional<String> validationMessage = diceSystemAdapter.validateDiceExpressionWitOptionalLabel(commandParameter, "`/r expression:help`", DiceParserSystem.DICE_EVALUATOR);
             if (validationMessage.isPresent()) {
-                log.info("'{}'.'{}' Validation message: {} for {}", event.getRequester().getGuildName(),
-                        event.getRequester().getChannelName(),
+                log.info("{} Validation message: {} for {}", event.getRequester().toLogString(),
                         validationMessage.get(),
                         commandString);
                 return event.reply(String.format("%s\n%s", commandString, validationMessage.get()), true);
@@ -97,10 +96,8 @@ public class DirectRollCommand implements SlashCommand {
 
             return Flux.merge(event.acknowledgeAndRemoveSlash(),
                             event.createResultMessageWithEventReference(RollAnswerConverter.toEmbedOrMessageDefinition(answer)))
-                    .doOnComplete(() -> log.info("{} '{}'.'{}': '{}'={} -> {} in {}ms",
-                            event.getRequester().getShard(),
-                            event.getRequester().getGuildName(),
-                            event.getRequester().getChannelName(),
+                    .doOnComplete(() -> log.info("{}: '{}'={} -> {} in {}ms",
+                            event.getRequester().toLogString(),
                             commandString.replace("`", ""),
                             diceExpression,
                             answer.toShortString(),

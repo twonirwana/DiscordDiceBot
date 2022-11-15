@@ -120,22 +120,15 @@ public class ButtonEventAdapterImpl extends DiscordAdapterImpl implements Button
 
     }
 
-
     @Override
-    public Mono<Long> createButtonMessage(MessageDefinition messageDefinition) {
+    public @NonNull Mono<Long> createButtonMessage(@NonNull MessageDefinition messageDefinition) {
         return createButtonMessage(event.getMessageChannel(), messageDefinition)
                 .onErrorResume(t -> handleException("Error on creating button message", t, false).ofType(Message.class))
                 .map(Message::getIdLong);
     }
 
     @Override
-    public Mono<Long> deleteMessage(long messageId, boolean deletePinned) {
-        return deleteMessage(event.getInteraction().getMessageChannel(), messageId, deletePinned);
-    }
-
-    @Override
     public Mono<Void> createResultMessageWithEventReference(EmbedOrMessageDefinition answer, Long targetChannelId) {
-
         MessageChannel targetChannel = Optional.ofNullable(targetChannelId)
                 .flatMap(id -> Optional.ofNullable(event.getGuild())
                         .map(g -> g.getChannelById(MessageChannel.class, targetChannelId)))
@@ -175,9 +168,21 @@ public class ButtonEventAdapterImpl extends DiscordAdapterImpl implements Button
     }
 
     @Override
-    public Mono<Void> reply(@NonNull String message, boolean ephemeral) {
+    public @NonNull Mono<Void> reply(@NonNull String message, boolean ephemeral) {
         return createMonoFrom(() -> event.reply(message).setEphemeral(ephemeral))
                 .onErrorResume(t -> handleException("Error on replay", t, true).ofType(InteractionHook.class))
                 .then();
     }
+
+    @Override
+    protected @NonNull MessageChannel getMessageChannel() {
+        return event.getMessageChannel();
+    }
+
+    @Override
+    protected @NonNull String getGuildAndChannelName() {
+        return requester.toLogString();
+    }
+
+
 }

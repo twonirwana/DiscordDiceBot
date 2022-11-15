@@ -27,15 +27,15 @@ class ClearCommandTest {
         when(slashEventAdaptor.reply(any(), anyBoolean())).thenReturn(Mono.empty());
         when(slashEventAdaptor.getChannelId()).thenReturn(0L);
         when(messageDataDAO.deleteDataForChannel(anyLong())).thenReturn(ImmutableSet.of(1L, 2L));
-        when(slashEventAdaptor.deleteMessage(anyLong(), anyBoolean())).thenReturn(Mono.empty());
+        when(slashEventAdaptor.deleteMessageById(anyLong())).thenReturn(Mono.empty());
 
         Mono<Void> res = underTest.handleSlashCommandEvent(slashEventAdaptor);
         StepVerifier.create(res).verifyComplete();
 
 
         verify(messageDataDAO).deleteDataForChannel(0L);
-        verify(slashEventAdaptor).deleteMessage(1L, true);
-        verify(slashEventAdaptor).deleteMessage(2L, true);
+        verify(slashEventAdaptor).deleteMessageById(1L);
+        verify(slashEventAdaptor).deleteMessageById(2L);
     }
 
 }

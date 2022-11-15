@@ -571,7 +571,7 @@ class SumCustomSetCommandTest {
         when(buttonEventAdaptor.editMessage(any(), any())).thenReturn(Mono.just(mock(Void.class)));
         when(buttonEventAdaptor.createResultMessageWithEventReference(any(), eq(null))).thenReturn(Mono.just(mock(Void.class)));
         when(buttonEventAdaptor.createButtonMessage(any())).thenReturn(Mono.just(2L));
-        when(buttonEventAdaptor.deleteMessage(anyLong(), anyBoolean())).thenReturn(Mono.just(2L));
+        when(buttonEventAdaptor.deleteMessageById(anyLong())).thenReturn(Mono.empty());
         when(buttonEventAdaptor.getRequester()).thenReturn(new Requester("user", "channel", "guild", "[0 / 1]"));
         when(buttonEventAdaptor.getInvokingGuildMemberName()).thenReturn("testUser");
 
@@ -583,7 +583,7 @@ class SumCustomSetCommandTest {
 
         verify(buttonEventAdaptor).editMessage(eq("Click the buttons to add dice to the set and then on Roll"), notNull());
         verify(buttonEventAdaptor).createButtonMessage(any());
-        verify(buttonEventAdaptor).deleteMessage(anyLong(), anyBoolean());
+        verify(buttonEventAdaptor).deleteMessageById(anyLong());
         verify(buttonEventAdaptor).createResultMessageWithEventReference(eq(new EmbedOrMessageDefinition("1d6 ⇒ 3",
                 "[3]", ImmutableList.of(), EmbedOrMessageDefinition.Type.EMBED)), eq(null));
         verify(buttonEventAdaptor, times(5)).getCustomId();
@@ -607,7 +607,7 @@ class SumCustomSetCommandTest {
         when(buttonEventAdaptor.editMessage(any(), any())).thenReturn(Mono.just(mock(Void.class)));
         when(buttonEventAdaptor.createButtonMessage(any())).thenReturn(Mono.just(2L));
         when(buttonEventAdaptor.createResultMessageWithEventReference(any(), eq(null))).thenReturn(Mono.just(mock(Void.class)));
-        when(buttonEventAdaptor.deleteMessage(anyLong(), anyBoolean())).thenReturn(Mono.just(2L));
+        when(buttonEventAdaptor.deleteMessageById(anyLong())).thenReturn(Mono.empty());
         when(buttonEventAdaptor.getRequester()).thenReturn(new Requester("user", "channel", "guild", "[0 / 1]"));
 
         Mono<Void> res = underTest.handleComponentInteractEvent(buttonEventAdaptor);
@@ -617,7 +617,7 @@ class SumCustomSetCommandTest {
 
         verify(buttonEventAdaptor).editMessage(eq("Click the buttons to add dice to the set and then on Roll"), anyList());
         verify(buttonEventAdaptor).createButtonMessage(any());
-        verify(buttonEventAdaptor, never()).deleteMessage(anyLong(), anyBoolean());
+        verify(buttonEventAdaptor, never()).deleteMessageById(anyLong());
         verify(buttonEventAdaptor).createResultMessageWithEventReference(eq(new EmbedOrMessageDefinition("1d6 ⇒ 3",
                 "[3]", ImmutableList.of(), EmbedOrMessageDefinition.Type.EMBED)), eq(null));
         verify(messageDataDAO, times(2)).saveMessageData(any());

@@ -1,17 +1,21 @@
 package de.janno.discord.connector.api;
 
+import de.janno.discord.connector.api.message.MessageDefinition;
 import lombok.NonNull;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.util.Collection;
 
 public interface DiscordAdapter {
     Long getGuildId();
 
-    Mono<Void> reply(@NonNull String message, boolean ephemeral);
+    @NonNull Mono<Void> reply(@NonNull String message, boolean ephemeral);
 
-    /**
-     * returns the id of the delete message and will not delete pinned messages
-     */
-    Mono<Long> deleteMessage(long messageId, boolean deletePinned);
+    @NonNull Flux<MessageState> getMessagesState(@NonNull Collection<Long> messageIds);
 
+    @NonNull Mono<Void> deleteMessageById(long messageId);
+
+    @NonNull Mono<Long> createButtonMessage(@NonNull MessageDefinition messageDefinition);
 
 }

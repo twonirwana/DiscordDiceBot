@@ -26,15 +26,15 @@ public class SlashEventAdapterImpl extends DiscordAdapterImpl implements SlashEv
     @NonNull
     private final SlashCommandInteractionEvent event;
     @NonNull
-    private final Requester requesterMono;
+    private final Requester requester;
     private final long channelId;
     @NonNull
     private final String commandString;
     private final Long guildId;
 
-    public SlashEventAdapterImpl(@NonNull SlashCommandInteractionEvent event, @NonNull Requester requesterMono) {
+    public SlashEventAdapterImpl(@NonNull SlashCommandInteractionEvent event, @NonNull Requester requester) {
         this.event = event;
-        this.requesterMono = requesterMono;
+        this.requester = requester;
         this.channelId = event.getChannel().getIdLong();
         this.commandString = String.format("`%s`", event.getCommandString());
         this.guildId = Optional.ofNullable(event.getGuild()).map(Guild::getIdLong).orElse(null);
@@ -66,7 +66,7 @@ public class SlashEventAdapterImpl extends DiscordAdapterImpl implements SlashEv
     }
 
     @Override
-    public Mono<Void> reply(@NonNull String message, boolean ephemeral) {
+    public @NonNull Mono<Void> reply(@NonNull String message, boolean ephemeral) {
         return createMonoFrom(() -> event.reply(message).setEphemeral(ephemeral))
                 .onErrorResume(t -> handleException("Error on replay", t, true).ofType(InteractionHook.class))
                 .then();
@@ -84,7 +84,7 @@ public class SlashEventAdapterImpl extends DiscordAdapterImpl implements SlashEv
     }
 
     @Override
-    public Mono<Long> createButtonMessage(@NonNull MessageDefinition messageDefinition) {
+    public @NonNull Mono<Long> createButtonMessage(@NonNull MessageDefinition messageDefinition) {
         return createButtonMessage(event.getMessageChannel(), messageDefinition)
                 .onErrorResume(t -> handleException("Error on creating button message", t, false).ofType(Message.class))
                 .map(Message::getIdLong);
@@ -114,13 +114,8 @@ public class SlashEventAdapterImpl extends DiscordAdapterImpl implements SlashEv
 
 
     @Override
-    public Requester getRequester() {
-        return requesterMono;
-    }
-
-    @Override
-    public Mono<Long> deleteMessage(long messageId, boolean deletePinned) {
-        return deleteMessage(event.getMessageChannel(), messageId, deletePinned);
+    public @NonNull Requester getRequester() {
+        return requester;
     }
 
     @Override
@@ -138,5 +133,15 @@ public class SlashEventAdapterImpl extends DiscordAdapterImpl implements SlashEv
                         .onErrorResume(t -> handleException("Error on deleting reply", t, true)));
 
 
+    }
+
+    @Override
+    protected @NonNull MessageChannel getMessageChannel() {
+        return event.getMessageChannel();
+    }
+
+    @Override
+    protected @NonNull String getGuildAndChannelName() {
+        return requester.toLogString();
     }
 }
