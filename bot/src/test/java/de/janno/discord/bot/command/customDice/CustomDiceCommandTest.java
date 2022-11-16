@@ -293,7 +293,7 @@ class CustomDiceCommandTest {
         verify(buttonEventAdaptor, never()).deleteMessageById(anyLong());
         verify(buttonEventAdaptor).createResultMessageWithEventReference(eq(new EmbedOrMessageDefinition("1d6 ⇒ 3", "[3]", ImmutableList.of(), EmbedOrMessageDefinition.Type.EMBED)), eq(null));
         verify(messageDataDAO, times(2)).saveMessageData(any());
-        verify(messageDataDAO).getAllMessageIdsForConfig(any());
+        verify(messageDataDAO).getAllAfterTheNewestMessageIdsForConfig(any());
         verify(buttonEventAdaptor, times(5)).getCustomId();
         verify(buttonEventAdaptor).getMessageId();
         verify(buttonEventAdaptor).getChannelId();

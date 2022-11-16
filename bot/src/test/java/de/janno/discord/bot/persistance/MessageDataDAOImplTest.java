@@ -18,7 +18,7 @@ class MessageDataDAOImplTest {
         underTest.saveMessageData(new MessageDataDTO(uuid, 1L, 1L, 3L, "testCommand", "testConfigClass", "configClass"));
         underTest.saveMessageData(new MessageDataDTO(UUID.randomUUID(), 1L, 2L, 4L, "testCommand", "testConfigClass", "configClass"));
 
-        Set<Long> res = underTest.getAllMessageIdsForConfig(uuid);
+        Set<Long> res = underTest.getAllAfterTheNewestMessageIdsForConfig(uuid);
 
         assertThat(res).containsExactly(2L, 3L);
     }

@@ -4,9 +4,12 @@ import de.janno.discord.connector.api.message.ComponentRowDefinition;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
 import lombok.NonNull;
 import lombok.Value;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import javax.annotation.Nullable;
+import java.time.OffsetDateTime;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -39,6 +42,10 @@ public interface ButtonEventAdaptor extends DiscordAdapter {
     Optional<String> checkPermissions(Long answerTargetChannelId);
 
     Mono<Void> createResultMessageWithEventReference(EmbedOrMessageDefinition answer, Long targetChannelId);
+
+    @NonNull Flux<MessageState> getMessagesState(@NonNull Collection<Long> messageIds);
+
+    @NonNull OffsetDateTime getMessageCreationTime();
 
     @Value
     class LabelAndCustomId {

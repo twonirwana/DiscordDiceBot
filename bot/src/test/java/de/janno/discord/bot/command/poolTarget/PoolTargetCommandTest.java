@@ -533,7 +533,7 @@ class PoolTargetCommandTest {
                 targetNumber: null
                 doReroll: null
                 """)));
-        when(messageDataDAO.getAllMessageIdsForConfig(any())).thenReturn(ImmutableSet.of(1L, 2L));
+        when(messageDataDAO.getAllAfterTheNewestMessageIdsForConfig(any())).thenReturn(ImmutableSet.of(1L, 2L));
 
 
         Mono<Void> res = underTest.handleComponentInteractEvent(buttonEventAdaptor);

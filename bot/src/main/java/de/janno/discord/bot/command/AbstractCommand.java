@@ -4,7 +4,6 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Stopwatch;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 import de.janno.discord.bot.BotMetrics;
 import de.janno.discord.bot.persistance.MessageDataDAO;
 import de.janno.discord.bot.persistance.MessageDataDTO;
@@ -22,10 +21,11 @@ import org.jetbrains.annotations.Nullable;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.time.Duration;
 import java.time.OffsetDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 import static de.janno.discord.connector.api.BottomCustomIdUtils.CUSTOM_ID_DELIMITER;
 
@@ -186,7 +186,6 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
         //all the answer actions
         List<Mono<Void>> actions = new ArrayList<>();
         //the delete action must be the last action
-        Mono<Void> createNewButtonMessageAndOptionalDeleteOld = Mono.empty();
         boolean keepExistingButtonMessage = shouldKeepExistingButtonMessage(event);
         String editMessage;
         Optional<List<ComponentRowDefinition>> editMessageComponents;
@@ -201,47 +200,43 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
             editMessageComponents = getCurrentMessageComponentChange(config, state);
         }
         //Todo check if message/button are the same. If the message will deleted it should always be "processing...".
-        // Remove buttons on set to "processing ..."?
-        actions.add(event.editMessage(editMessage, editMessageComponents.orElse(null)));
+        //Remove buttons on set to "processing ..."?
+        actions.add(Mono.defer(() -> event.editMessage(editMessage, editMessageComponents.orElse(null))));
 
         Optional<RollAnswer> answer = getAnswer(config, state);
         if (answer.isPresent()) {
             BotMetrics.incrementButtonMetricCounter(getCommandId(), config.toShortString());
             BotMetrics.incrementAnswerFormatCounter(config.getAnswerFormatType(), getCommandId());
 
-            actions.add(event.createResultMessageWithEventReference(RollAnswerConverter.toEmbedOrMessageDefinition(answer.get()), answerTargetChannelId)
+            actions.add(Mono.defer(() -> event.createResultMessageWithEventReference(RollAnswerConverter.toEmbedOrMessageDefinition(answer.get()), answerTargetChannelId)
                     .doOnSuccess(v -> log.info("{}: '{}'={} -> {} in {}ms",
                             event.getRequester().toLogString(),
                             event.getCustomId().replace(CUSTOM_ID_DELIMITER, ":"),
                             state.toShortString(),
                             answer.get().toShortString(),
                             stopwatch.elapsed(TimeUnit.MILLISECONDS)
-                    )));
+                    ))));
 
         }
         Optional<MessageDefinition> newButtonMessage = createNewButtonMessageWithState(config, state);
 
         if (newButtonMessage.isPresent() && answerTargetChannelId == null) {
-            Mono<Long> newMessageIdMono = event.createButtonMessage(newButtonMessage.get())
-                    .map(newMessageId -> {
+            actions.add(Mono.defer(() -> event.createButtonMessage(newButtonMessage.get())
+                    .doOnNext(newMessageId -> {
                         final Optional<MessageDataDTO> nextMessageData = createMessageDataForNewMessage(configUUID, event.getGuildId(), channelId, newMessageId, config, state);
                         nextMessageData.ifPresent(messageDataDAO::saveMessageData);
-                        return newMessageId;
-                    });
+                    })).delaySubscription(calculateDelay(event)).then());
             if (!keepExistingButtonMessage) {
-                if (isLegacyMessage) {
-                    //todo check state ...
-                    createNewButtonMessageAndOptionalDeleteOld = event.deleteMessageById(messageId)
-                            .then(newMessageIdMono)
-                            .then();
-                } else {
-                    //todo always delete the message, cleanup of data will happen with the next click
+                //todo check if can be deleted or ignore errors
+                //always delete the current button message
+                actions.add(Mono.defer(() -> event.deleteMessageById(messageId)));
+                if (!isLegacyMessage) {
                     //delete all other button messages with the same config, retain only the new message
-                    createNewButtonMessageAndOptionalDeleteOld = deleteMessageAndData(newMessageIdMono, null, configUUID, channelId, event);
+                    actions.add(Mono.defer(() -> deleteMessageAndData(configUUID, channelId, event)));
                 }
             } else {
                 //delete all other button messages with the same config, retain only the new and the current message
-                createNewButtonMessageAndOptionalDeleteOld = deleteMessageAndData(newMessageIdMono, messageId, configUUID, channelId, event);
+                actions.add(Mono.defer(() -> deleteMessageAndData(configUUID, channelId, event)));
             }
         }
         //don't update the state data async or there will be racing conditions
@@ -249,38 +244,35 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
         updateCurrentMessageStateData(channelId, messageId, config, state);
         return Flux.merge(1, actions.toArray(new Mono<?>[0]))
                 .parallel()
-                .then()
-                .then(createNewButtonMessageAndOptionalDeleteOld);
+                .then();
+    }
+
+    private Duration calculateDelay(ButtonEventAdaptor event) {
+        long milliBetween = ChronoUnit.MILLIS.between(event.getMessageCreationTime(), OffsetDateTime.now());
+        if (milliBetween < 4000) {
+            BotMetrics.delayTimer(getCommandId(), Duration.ofMillis(milliBetween));
+            BotMetrics.incrementDelayCounter(getCommandId(), true);
+            long delay = 4000 - milliBetween;
+            log.info("{}: Delaying button message creation for {}ms", event.getRequester().toLogString(), delay);
+            return Duration.ofMillis(delay);
+        }
+        BotMetrics.incrementDelayCounter(getCommandId(), false);
+        return Duration.ZERO;
     }
 
     @VisibleForTesting
-    Mono<Void> deleteMessageAndData(@NonNull Mono<Long> newMessageIdMono, //the new message should not be deleted
-                                    @Nullable Long retainMessageId, //if the old message is pinned or should otherwise be retained
-                                    @NonNull UUID configUUID,
-                                    long channelId,
-                                    @NonNull ButtonEventAdaptor event) {
+    Mono<Void> deleteMessageAndData(
+            @NonNull UUID configUUID,
+            long channelId,
+            @NonNull ButtonEventAdaptor event) {
         OffsetDateTime now = OffsetDateTime.now();
-        return newMessageIdMono
-                .flux()
-                .flatMap(newMessageId -> {
-                    Set<Long> ids = messageDataDAO.getAllMessageIdsForConfig(configUUID);
 
-                    if (ids.size() > 7) { //expected one old, one new messageData and 5 old messages
-                        log.warn(String.format("ConfigUUID %s had %d to many messageData persisted", configUUID, ids.size() - 2));
-                    }
-                    ImmutableSet.Builder<Long> keepMessageIdsBuilder = ImmutableSet.<Long>builder()
-                            .add(newMessageId);
-                    if (retainMessageId != null) {
-                        keepMessageIdsBuilder.add(retainMessageId);
-                    }
-                    Set<Long> keepMessageIds = keepMessageIdsBuilder.build();
+        Set<Long> ids = messageDataDAO.getAllAfterTheNewestMessageIdsForConfig(configUUID);
 
-                    Set<Long> deleteMessageIds = ids.stream()
-                            .filter(id -> !keepMessageIds.contains(id))
-                            .collect(Collectors.toSet());
-
-                    return event.getMessagesState(deleteMessageIds);
-                })
+        if (ids.size() > 7) { //expected one old, one new messageData and 5 old messages
+            log.warn(String.format("ConfigUUID %s had %d to many messageData persisted", configUUID, ids.size() - 2));
+        }
+        return event.getMessagesState(ids)
                 .flatMap(ms -> {
                     if (ms.isCanBeDeleted() && !ms.isPinned() && ms.isExists()) {
                         return event.deleteMessageById(ms.getMessageId())
@@ -399,5 +391,4 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
      * will be removed when almost all users have switched to the persisted button id
      */
     protected abstract @NonNull State<S> getStateFromEvent(@NonNull ButtonEventAdaptor event);
-
 }

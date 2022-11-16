@@ -5,7 +5,6 @@ import de.janno.discord.bot.persistance.MessageDataDAOImpl;
 import de.janno.discord.bot.persistance.MessageDataDTO;
 import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 import java.time.Duration;
 import java.util.Set;
@@ -29,9 +28,9 @@ class AbstractCommandTest {
                 .doOnNext(messageDataDAO::saveMessageData)
                 .blockLast();
 
-        underTest.deleteMessageAndData(Mono.just(9L), 8L, configUUID, 1L, buttonEventAdaptorMock).block();
+        underTest.deleteMessageAndData(configUUID, 1L, buttonEventAdaptorMock).block();
 
-        assertThat(messageDataDAO.getAllMessageIdsForConfig(configUUID)).containsExactly(2L, 5L, 6L, 7L, 8L, 9L);
+        assertThat(messageDataDAO.getAllAfterTheNewestMessageIdsForConfig(configUUID)).containsExactly(2L, 5L, 6L, 7L, 8L, 9L);
         assertThat(buttonEventAdaptorMock.getActions()).containsExactly("deleteMessage: 1", "deleteMessage: 3", "deleteMessage: 4");
     }
 
@@ -46,9 +45,9 @@ class AbstractCommandTest {
                 .blockLast();
 
 
-        underTest.deleteMessageAndData(Mono.just(9L), null, configUUID, 1L, buttonEventAdaptorMock).block();
+        underTest.deleteMessageAndData(configUUID, 1L, buttonEventAdaptorMock).block();
 
-        assertThat(messageDataDAO.getAllMessageIdsForConfig(configUUID)).containsExactly(2L, 5L, 6L, 7L, 8L, 9L);
+        assertThat(messageDataDAO.getAllAfterTheNewestMessageIdsForConfig(configUUID)).containsExactly(2L, 5L, 6L, 7L, 8L, 9L);
         assertThat(buttonEventAdaptorMock.getActions()).containsExactly("deleteMessage: 1", "deleteMessage: 3", "deleteMessage: 4");
     }
 
@@ -62,9 +61,9 @@ class AbstractCommandTest {
                 .doOnNext(messageDataDAO::saveMessageData)
                 .blockLast();
 
-        underTest.deleteMessageAndData(Mono.just(3L), null, configUUID, 1L, buttonEventAdaptorMock).block();
+        underTest.deleteMessageAndData(configUUID, 1L, buttonEventAdaptorMock).block();
 
-        assertThat(messageDataDAO.getAllMessageIdsForConfig(configUUID)).containsExactly(1L, 2L, 3L, 4L);
+        assertThat(messageDataDAO.getAllAfterTheNewestMessageIdsForConfig(configUUID)).containsExactly(1L, 2L, 3L, 4L);
         assertThat(buttonEventAdaptorMock.getActions()).isEmpty();
     }
 }

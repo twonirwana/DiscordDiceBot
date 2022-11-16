@@ -3,7 +3,6 @@ package de.janno.discord.connector.jda;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import de.janno.discord.connector.api.DiscordAdapter;
-import de.janno.discord.connector.api.MessageState;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
 import de.janno.discord.connector.api.message.MessageDefinition;
 import lombok.NonNull;
@@ -20,17 +19,15 @@ import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Nullable;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.awt.*;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.*;
+import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
-
-import static net.dv8tion.jda.api.requests.ErrorResponse.*;
 
 @Slf4j
 public abstract class DiscordAdapterImpl implements DiscordAdapter {
@@ -40,8 +37,6 @@ public abstract class DiscordAdapterImpl implements DiscordAdapter {
         return new String(in.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8);
     }
 
-
-    //todo include the error handling
     protected static <T> Mono<T> createMonoFrom(Supplier<RestAction<T>> actionSupplier) {
         try {
             return Mono.fromFuture(actionSupplier.get().submit());
@@ -137,33 +132,6 @@ public abstract class DiscordAdapterImpl implements DiscordAdapter {
                 String.join(" and ", checks));
         log.info(result);
         return Optional.of(result);
-    }
-
-    @Override
-    public @NonNull Flux<MessageState> getMessagesState(@NonNull Collection<Long> messageIds) {
-        return Flux.fromIterable(messageIds)
-                .flatMap(id -> Mono.fromFuture(getMessageChannel().retrieveMessageById(id)
-                        .submit()
-                        .handle((m, t) -> {
-                            if (m != null) {
-                                return new MessageState(m.getIdLong(), m.isPinned(), true, m.getType().canDelete(), m.getTimeCreated());
-                            }
-                            if (t != null) {
-                                if (t instanceof ErrorResponseException errorResponseException) {
-                                    if (Set.of(MISSING_ACCESS, MISSING_PERMISSIONS, INVALID_DM_ACTION).contains(errorResponseException.getErrorResponse())) {
-                                        return new MessageState(id, false, true, false, null);
-                                    } else if (Set.of(UNKNOWN_MESSAGE, UNKNOWN_CHANNEL).contains(errorResponseException.getErrorResponse())) {
-                                        return new MessageState(id, false, false, false, null);
-                                    }
-                                } else if (t instanceof InsufficientPermissionException) {
-                                    return new MessageState(id, false, true, false, null);
-                                }
-                                throw new RuntimeException(t);
-                            }
-                            throw new IllegalStateException("Message and throwable are null");
-                        })
-                ))
-                .onErrorResume(t -> handleException("Error on getting message state", t, false).ofType(MessageState.class));
     }
 
     @Override
