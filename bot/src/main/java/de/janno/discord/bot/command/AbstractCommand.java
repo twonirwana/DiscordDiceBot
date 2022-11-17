@@ -200,7 +200,7 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
             editMessageComponents = getCurrentMessageComponentChange(config, state);
         }
         //Todo check if message/button are the same. If the message will deleted it should always be "processing...".
-        //Remove buttons on set to "processing ..."?
+        //Todo Remove buttons on set to "processing ..."?
         actions.add(Mono.defer(() -> event.editMessage(editMessage, editMessageComponents.orElse(null))));
 
         Optional<RollAnswer> answer = getAnswer(config, state);
@@ -220,6 +220,7 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
         }
         Optional<MessageDefinition> newButtonMessage = createNewButtonMessageWithState(config, state);
 
+        final boolean deleteCurrentButtonMessage;
         if (newButtonMessage.isPresent() && answerTargetChannelId == null) {
             actions.add(Mono.defer(() -> event.createButtonMessage(newButtonMessage.get())
                     .doOnNext(newMessageId -> {
@@ -227,9 +228,8 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
                         nextMessageData.ifPresent(messageDataDAO::saveMessageData);
                     })).delaySubscription(calculateDelay(event)).then());
             if (!keepExistingButtonMessage) {
-                //todo check if can be deleted or ignore errors
                 //always delete the current button message
-                actions.add(Mono.defer(() -> event.deleteMessageById(messageId)));
+                deleteCurrentButtonMessage = true;
                 if (!isLegacyMessage) {
                     //delete all other button messages with the same config, retain only the new message
                     actions.add(Mono.defer(() -> deleteMessageAndData(configUUID, channelId, event)));
@@ -237,11 +237,19 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
             } else {
                 //delete all other button messages with the same config, retain only the new and the current message
                 actions.add(Mono.defer(() -> deleteMessageAndData(configUUID, channelId, event)));
+                deleteCurrentButtonMessage = false;
             }
+        } else {
+            deleteCurrentButtonMessage = false;
         }
-        //don't update the state data async or there will be racing conditions
-        //todo update only the message if the message is not going to be deleted
-        updateCurrentMessageStateData(channelId, messageId, config, state);
+
+        if (deleteCurrentButtonMessage) {
+            actions.add(Mono.defer(() -> event.deleteMessageById(messageId)));
+        } else {
+            //don't update the state data async or there will be racing conditions
+            updateCurrentMessageStateData(channelId, messageId, config, state);
+        }
+
         return Flux.merge(1, actions.toArray(new Mono<?>[0]))
                 .parallel()
                 .then();

@@ -44,8 +44,8 @@ public class CustomParameterCommandMockTest {
         assertThat(click2.getActions()).containsExactly(
                 "editMessage: message:processing ..., buttonValues=",
                 "createAnswer: title=4d6 ⇒ 2, 3, 1, 4, description=[2, 3, 1, 4], fieldValues:, answerChannel:null, type:EMBED",
-                "deleteMessageById: 0",
-                "createButtonMessage: content=*{numberOfDice}*d*{sides}*: Please select value for *{numberOfDice}*, buttonValues=1,2,3,4,5,6,7,8,9,10");
+                "createButtonMessage: content=*{numberOfDice}*d*{sides}*: Please select value for *{numberOfDice}*, buttonValues=1,2,3,4,5,6,7,8,9,10",
+                "deleteMessageById: 0");
     }
 
     @Test
@@ -65,8 +65,8 @@ public class CustomParameterCommandMockTest {
         assertThat(click2.getActions()).containsExactly(
                 "editMessage: message:processing ..., buttonValues=",
                 "createAnswer: title=null, description=__**4d6 ⇒ 2, 3, 1, 4**__  [2, 3, 1, 4], fieldValues:, answerChannel:null, type:MESSAGE",
-                "deleteMessageById: 0",
-                "createButtonMessage: content=*{numberOfDice}*d*{sides}*: Please select value for *{numberOfDice}*, buttonValues=1,2,3,4,5,6,7,8,9,10");
+                "createButtonMessage: content=*{numberOfDice}*d*{sides}*: Please select value for *{numberOfDice}*, buttonValues=1,2,3,4,5,6,7,8,9,10",
+                "deleteMessageById: 0");
     }
 
     @Test
@@ -86,8 +86,8 @@ public class CustomParameterCommandMockTest {
         assertThat(click2.getActions()).containsExactly(
                 "editMessage: message:processing ..., buttonValues=",
                 "createAnswer: title=null, description=4d6 ⇒ 2, 3, 1, 4, fieldValues:, answerChannel:null, type:MESSAGE",
-                "deleteMessageById: 0",
-                "createButtonMessage: content=*{numberOfDice}*d*{sides}*: Please select value for *{numberOfDice}*, buttonValues=1,2,3,4,5,6,7,8,9,10");
+                "createButtonMessage: content=*{numberOfDice}*d*{sides}*: Please select value for *{numberOfDice}*, buttonValues=1,2,3,4,5,6,7,8,9,10",
+                "deleteMessageById: 0");
     }
 
     @Test
@@ -175,8 +175,8 @@ public class CustomParameterCommandMockTest {
         assertThat(click4.getActions()).containsExactly(
                 "editMessage: message:processing ..., buttonValues=",
                 "createAnswer: title=4d6 ⇒ 1, 1, 6, 3, description=[1, 1, 6, 3], fieldValues:, answerChannel:null, type:EMBED",
-                "deleteMessageById: 1",
-                "createButtonMessage: content=*{numberOfDice}*d*{sides}*: Please select value for *{numberOfDice}*, buttonValues=1,2,3,4,5,6,7,8,9,10");
+                "createButtonMessage: content=*{numberOfDice}*d*{sides}*: Please select value for *{numberOfDice}*, buttonValues=1,2,3,4,5,6,7,8,9,10",
+                "deleteMessageById: 1");
     }
 
     @Test

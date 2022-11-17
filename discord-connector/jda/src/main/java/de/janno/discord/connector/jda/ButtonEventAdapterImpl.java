@@ -185,29 +185,34 @@ public class ButtonEventAdapterImpl extends DiscordAdapterImpl implements Button
 
     @Override
     public @NonNull Flux<MessageState> getMessagesState(@NonNull Collection<Long> messageIds) {
-        // todo dont request the message of the event
         return Flux.fromIterable(messageIds)
-                .flatMap(id -> Mono.fromFuture(event.getMessageChannel().retrieveMessageById(id)
-                        .submit()
-                        .handle((m, t) -> {
-                            if (m != null) {
-                                return new MessageState(m.getIdLong(), m.isPinned(), true, m.getType().canDelete(), m.getTimeCreated());
-                            }
-                            if (t != null) {
-                                if (t instanceof ErrorResponseException errorResponseException) {
-                                    if (Set.of(MISSING_ACCESS, MISSING_PERMISSIONS, INVALID_DM_ACTION).contains(errorResponseException.getErrorResponse())) {
-                                        return new MessageState(id, false, true, false, null);
-                                    } else if (Set.of(UNKNOWN_MESSAGE, UNKNOWN_CHANNEL).contains(errorResponseException.getErrorResponse())) {
-                                        return new MessageState(id, false, false, false, null);
-                                    }
-                                } else if (t instanceof InsufficientPermissionException) {
-                                    return new MessageState(id, false, true, false, null);
+                .flatMap(id -> {
+                    //small optimization to avoid unnecessary requests
+                    if (id.equals(messageId)) {
+                        return Mono.just(new MessageState(id, isPinned, true, true, getMessageCreationTime()));
+                    }
+                    return Mono.fromFuture(event.getMessageChannel().retrieveMessageById(id)
+                            .submit()
+                            .handle((m, t) -> {
+                                if (m != null) {
+                                    return new MessageState(m.getIdLong(), m.isPinned(), true, m.getType().canDelete(), m.getTimeCreated());
                                 }
-                                throw new RuntimeException(t);
-                            }
-                            throw new IllegalStateException("Message and throwable are null");
-                        })
-                ))
+                                if (t != null) {
+                                    if (t instanceof ErrorResponseException errorResponseException) {
+                                        if (Set.of(MISSING_ACCESS, MISSING_PERMISSIONS, INVALID_DM_ACTION).contains(errorResponseException.getErrorResponse())) {
+                                            return new MessageState(id, false, true, false, null);
+                                        } else if (Set.of(UNKNOWN_MESSAGE, UNKNOWN_CHANNEL).contains(errorResponseException.getErrorResponse())) {
+                                            return new MessageState(id, false, false, false, null);
+                                        }
+                                    } else if (t instanceof InsufficientPermissionException) {
+                                        return new MessageState(id, false, true, false, null);
+                                    }
+                                    throw new RuntimeException(t);
+                                }
+                                throw new IllegalStateException("Message and throwable are null");
+                            })
+                    );
+                })
                 .onErrorResume(t -> handleException("Error on getting message state", t, false).ofType(MessageState.class));
     }
 
