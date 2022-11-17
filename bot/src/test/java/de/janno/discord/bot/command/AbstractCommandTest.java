@@ -42,7 +42,7 @@ class AbstractCommandTest {
         underTest.deleteMessageAndData(configUUID, 1L, buttonEventAdaptorMock).block();
 
         assertThat(messageDataDAO.getAllAfterTheNewestMessageIdsForConfig(configUUID)).containsExactly();
-        assertThat(buttonEventAdaptorMock.getActions()).containsExactly();
+        assertThat(buttonEventAdaptorMock.getActions()).containsExactlyInAnyOrder();
     }
 
     @Test
@@ -61,7 +61,7 @@ class AbstractCommandTest {
         underTest.deleteMessageAndData(configUUID, 1L, buttonEventAdaptorMock).block();
 
         assertThat(messageDataDAO.getAllAfterTheNewestMessageIdsForConfig(configUUID)).containsExactly(5L, 4L, 3L, 2L, 1L);
-        assertThat(buttonEventAdaptorMock.getActions()).containsExactly("deleteMessageById: 8",
+        assertThat(buttonEventAdaptorMock.getActions()).containsExactlyInAnyOrder("deleteMessageById: 8",
                 "deleteMessageById: 7",
                 "deleteMessageById: 6",
                 "deleteMessageById: 5",
@@ -85,7 +85,7 @@ class AbstractCommandTest {
         underTest.deleteMessageAndData(configUUID, 1L, buttonEventAdaptorMock).block();
 
         assertThat(messageDataDAO.getAllAfterTheNewestMessageIdsForConfig(configUUID)).containsExactly(8L);
-        assertThat(buttonEventAdaptorMock.getActions()).containsExactly("deleteMessageById: 13",
+        assertThat(buttonEventAdaptorMock.getActions()).containsExactlyInAnyOrder("deleteMessageById: 13",
                 "deleteMessageById: 12",
                 "deleteMessageById: 11",
                 "deleteMessageById: 10",

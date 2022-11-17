@@ -39,7 +39,7 @@ public class CustomDiceCommandMockTest {
 
         underTest.handleComponentInteractEvent(buttonEvent).block();
 
-        assertThat(buttonEvent.getActions()).containsExactly(
+        assertThat(buttonEvent.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:processing ..., buttonValues=",
                 "createAnswer: title=Dmg ⇒ 2, description=1d6: [2], fieldValues:, answerChannel:null, type:EMBED",
                 "createButtonMessage: content=Click on a button to roll the dice, buttonValues=1_button",
@@ -55,7 +55,7 @@ public class CustomDiceCommandMockTest {
 
         underTest.handleComponentInteractEvent(buttonEvent).block();
 
-        assertThat(buttonEvent.getActions()).containsExactly(
+        assertThat(buttonEvent.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:processing ..., buttonValues=",
                 "createAnswer: title=Dmg ⇒ 1, description=1: [1], fieldValues:, answerChannel:null, type:EMBED",
                 "createButtonMessage: content=Click on a button to roll the dice, buttonValues=1_button",
@@ -71,7 +71,7 @@ public class CustomDiceCommandMockTest {
 
         underTest.handleComponentInteractEvent(buttonEvent).block();
 
-        assertThat(buttonEvent.getActions()).containsExactly(
+        assertThat(buttonEvent.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:processing ..., buttonValues=",
                 "createAnswer: title=null, description=__**Dmg ⇒ 2**__  1d6: [2], fieldValues:, answerChannel:null, type:MESSAGE",
                 "createButtonMessage: content=Click on a button to roll the dice, buttonValues=1_button",
@@ -87,7 +87,7 @@ public class CustomDiceCommandMockTest {
 
         underTest.handleComponentInteractEvent(buttonEvent).block();
 
-        assertThat(buttonEvent.getActions()).containsExactly(
+        assertThat(buttonEvent.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:processing ..., buttonValues=",
                 "createAnswer: title=null, description=Dmg ⇒ 2, fieldValues:, answerChannel:null, type:MESSAGE",
                 "createButtonMessage: content=Click on a button to roll the dice, buttonValues=1_button",
@@ -103,7 +103,7 @@ public class CustomDiceCommandMockTest {
 
         underTest.handleComponentInteractEvent(buttonEvent).block();
 
-        assertThat(buttonEvent.getActions()).containsExactly(
+        assertThat(buttonEvent.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:Click on a button to roll the dice, buttonValues=1_button",
                 "createAnswer: title=Dmg ⇒ 2, description=1d6: [2], fieldValues:, answerChannel:null, type:EMBED",
                 "createButtonMessage: content=Click on a button to roll the dice, buttonValues=1_button"
@@ -121,12 +121,12 @@ public class CustomDiceCommandMockTest {
         ButtonEventAdaptorMock buttonEvent2 = factory.getButtonClickOnLastButtonMessage("1_button");
         underTest.handleComponentInteractEvent(buttonEvent2).block();
 
-        assertThat(buttonEvent1.getActions()).containsExactly(
+        assertThat(buttonEvent1.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:Click on a button to roll the dice, buttonValues=1_button",
                 "createAnswer: title=Dmg ⇒ 2, description=1d6: [2], fieldValues:, answerChannel:null, type:EMBED",
                 "createButtonMessage: content=Click on a button to roll the dice, buttonValues=1_button");
 
-        assertThat(buttonEvent2.getActions()).containsExactly(
+        assertThat(buttonEvent2.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:processing ..., buttonValues=",
                 "createAnswer: title=Dmg ⇒ 3, description=1d6: [3], fieldValues:, answerChannel:null, type:EMBED",
                 "createButtonMessage: content=Click on a button to roll the dice, buttonValues=1_button",
@@ -142,7 +142,7 @@ public class CustomDiceCommandMockTest {
 
         underTest.handleComponentInteractEvent(buttonEvent).block();
 
-        assertThat(buttonEvent.getActions()).containsExactly(
+        assertThat(buttonEvent.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:Click on a button to roll the dice, buttonValues=1_button",
                 "createAnswer: title=Dmg ⇒ 2, description=1d6: [2], fieldValues:, answerChannel:2, type:EMBED"
         );
@@ -159,11 +159,11 @@ public class CustomDiceCommandMockTest {
         ButtonEventAdaptorMock buttonEvent2 = factory.getButtonClickOnLastButtonMessage("1_button");
         underTest.handleComponentInteractEvent(buttonEvent2).block();
 
-        assertThat(buttonEvent1.getActions()).containsExactly(
+        assertThat(buttonEvent1.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:Click on a button to roll the dice, buttonValues=1_button",
                 "createAnswer: title=Dmg ⇒ 2, description=1d6: [2], fieldValues:, answerChannel:2, type:EMBED"
         );
-        assertThat(buttonEvent2.getActions()).containsExactly(
+        assertThat(buttonEvent2.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:Click on a button to roll the dice, buttonValues=1_button",
                 "createAnswer: title=Dmg ⇒ 3, description=1d6: [3], fieldValues:, answerChannel:2, type:EMBED"
         );

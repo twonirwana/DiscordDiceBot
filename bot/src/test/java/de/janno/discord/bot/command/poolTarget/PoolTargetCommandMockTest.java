@@ -38,14 +38,14 @@ public class PoolTargetCommandMockTest {
         ButtonEventAdaptorMock click3 = factory.getButtonClickOnLastButtonMessage("do_reroll");
         underTest.handleComponentInteractEvent(click3).block();
 
-        assertThat(click1.getActions()).containsExactly(
+        assertThat(click1.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:Click on the target to roll 9d10 against it, with ask reroll:9,10 and botch:1,2, buttonValues=2,3,4,5,6,7,8,9,10,clear"
         );
 
-        assertThat(click2.getActions()).containsExactly(
+        assertThat(click2.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:Should 9s,10s in 9d10 against 6 be be rerolled?, buttonValues=do_reroll,no_reroll");
 
-        assertThat(click3.getActions()).containsExactly(
+        assertThat(click3.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:processing ..., buttonValues=1,2,3,4,5,6,7,8,9,10,11,12,13,14,15",
                 "createAnswer: title=9d10 ≥6 ⇒ 3, description=[**1**,**1**,**1**,3,3,5,5,**6**,**6**,**9**,**10**,**10**,**10**], fieldValues:, answerChannel:null, type:EMBED",
                 "createButtonMessage: content=Click on the buttons to roll dice, with ask reroll:9,10 and botch:1,2, buttonValues=1,2,3,4,5,6,7,8,9,10,11,12,13,14,15",
@@ -65,14 +65,14 @@ public class PoolTargetCommandMockTest {
         ButtonEventAdaptorMock click3 = factory.getButtonClickOnLastButtonMessage("do_reroll");
         underTest.handleComponentInteractEvent(click3).block();
 
-        assertThat(click1.getActions()).containsExactly(
+        assertThat(click1.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:Click on the target to roll 9d10 against it, with ask reroll:9,10 and botch:1,2, buttonValues=2,3,4,5,6,7,8,9,10,clear"
         );
 
-        assertThat(click2.getActions()).containsExactly(
+        assertThat(click2.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:Should 9s,10s in 9d10 against 6 be be rerolled?, buttonValues=do_reroll,no_reroll");
 
-        assertThat(click3.getActions()).containsExactly(
+        assertThat(click3.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:processing ..., buttonValues=1,2,3,4,5,6,7,8,9,10,11,12,13,14,15",
                 "createAnswer: title=null, description=__**9d10 ≥6 ⇒ 3**__  [**1**,**1**,**1**,3,3,5,5,**6**,**6**,**9**,**10**,**10**,**10**], fieldValues:, answerChannel:null, type:MESSAGE",
                 "createButtonMessage: content=Click on the buttons to roll dice, with ask reroll:9,10 and botch:1,2, buttonValues=1,2,3,4,5,6,7,8,9,10,11,12,13,14,15",
@@ -92,14 +92,14 @@ public class PoolTargetCommandMockTest {
         ButtonEventAdaptorMock click3 = factory.getButtonClickOnLastButtonMessage("do_reroll");
         underTest.handleComponentInteractEvent(click3).block();
 
-        assertThat(click1.getActions()).containsExactly(
+        assertThat(click1.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:Click on the target to roll 9d10 against it, with ask reroll:9,10 and botch:1,2, buttonValues=2,3,4,5,6,7,8,9,10,clear"
         );
 
-        assertThat(click2.getActions()).containsExactly(
+        assertThat(click2.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:Should 9s,10s in 9d10 against 6 be be rerolled?, buttonValues=do_reroll,no_reroll");
 
-        assertThat(click3.getActions()).containsExactly(
+        assertThat(click3.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:processing ..., buttonValues=1,2,3,4,5,6,7,8,9,10,11,12,13,14,15",
                 "createAnswer: title=null, description=9d10 ≥6 ⇒ 3, fieldValues:, answerChannel:null, type:MESSAGE",
                 "createButtonMessage: content=Click on the buttons to roll dice, with ask reroll:9,10 and botch:1,2, buttonValues=1,2,3,4,5,6,7,8,9,10,11,12,13,14,15",
