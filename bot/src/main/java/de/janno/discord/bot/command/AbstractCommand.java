@@ -26,6 +26,7 @@ import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import static de.janno.discord.connector.api.BottomCustomIdUtils.CUSTOM_ID_DELIMITER;
 
@@ -275,7 +276,10 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
             @NonNull ButtonEventAdaptor event) {
         OffsetDateTime now = OffsetDateTime.now();
 
-        Set<Long> ids = messageDataDAO.getAllAfterTheNewestMessageIdsForConfig(configUUID);
+        Set<Long> ids = messageDataDAO.getAllAfterTheNewestMessageIdsForConfig(configUUID).stream()
+                //this will already delete directly
+                .filter(id -> id != event.getMessageId())
+                .collect(Collectors.toSet());
 
         if (ids.size() > 7) { //expected one old, one new messageData and 5 old messages
             log.warn(String.format("ConfigUUID %s had %d to many messageData persisted", configUUID, ids.size() - 2));

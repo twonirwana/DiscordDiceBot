@@ -20,12 +20,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 class AbstractCommandTest {
 
 
-
     @Test
     void deleteMessageAndData_notExist() {
         MessageDataDAOImpl messageDataDAO = new MessageDataDAOImpl("jdbc:h2:mem:" + UUID.randomUUID(), null, null);
         TestCommand underTest = new TestCommand(messageDataDAO);
-        ButtonEventAdaptorMock buttonEventAdaptorMock = new ButtonEventAdaptorMock("testCommand", "a", new AtomicLong(), Set.of(2L)){
+        ButtonEventAdaptorMock buttonEventAdaptorMock = new ButtonEventAdaptorMock("testCommand", "a", new AtomicLong(), Set.of(2L)) {
             @Override
             public @NonNull Flux<MessageState> getMessagesState(@NonNull Collection<Long> messageIds) {
                 return Flux.fromIterable(messageIds).map(id -> new MessageState(id, false, false, true, OffsetDateTime.now().minusMinutes(id)));
@@ -61,7 +60,7 @@ class AbstractCommandTest {
         underTest.deleteMessageAndData(configUUID, 1L, buttonEventAdaptorMock).block();
 
         assertThat(messageDataDAO.getAllAfterTheNewestMessageIdsForConfig(configUUID)).containsExactly(5L, 4L, 3L, 2L, 1L);
-        assertThat(buttonEventAdaptorMock.getActions()).containsExactly("deleteMessageById: 8",
+        assertThat(buttonEventAdaptorMock.getActions()).containsExactlyInAnyOrder("deleteMessageById: 8",
                 "deleteMessageById: 7",
                 "deleteMessageById: 6",
                 "deleteMessageById: 5",
@@ -85,7 +84,7 @@ class AbstractCommandTest {
         underTest.deleteMessageAndData(configUUID, 1L, buttonEventAdaptorMock).block();
 
         assertThat(messageDataDAO.getAllAfterTheNewestMessageIdsForConfig(configUUID)).containsExactly(8L);
-        assertThat(buttonEventAdaptorMock.getActions()).containsExactly("deleteMessageById: 13",
+        assertThat(buttonEventAdaptorMock.getActions()).containsExactlyInAnyOrder("deleteMessageById: 13",
                 "deleteMessageById: 12",
                 "deleteMessageById: 11",
                 "deleteMessageById: 10",
