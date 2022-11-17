@@ -1,7 +1,9 @@
 package de.janno.discord.bot.persistance;
 
 import org.junit.jupiter.api.Test;
+import reactor.core.publisher.Flux;
 
+import java.time.Duration;
 import java.util.Set;
 import java.util.UUID;
 
@@ -14,13 +16,16 @@ class MessageDataDAOImplTest {
     @Test
     void getAllMessageIdsForConfig() {
         UUID uuid = UUID.randomUUID();
-        underTest.saveMessageData(new MessageDataDTO(uuid, 1L, 1L, 2L, "testCommand", "testConfigClass", "configClass"));
-        underTest.saveMessageData(new MessageDataDTO(uuid, 1L, 1L, 3L, "testCommand", "testConfigClass", "configClass"));
-        underTest.saveMessageData(new MessageDataDTO(UUID.randomUUID(), 1L, 2L, 4L, "testCommand", "testConfigClass", "configClass"));
+        Flux.range(1, 3)
+                .map(i -> new MessageDataDTO(uuid, 1L, 1L, i, "testCommand", "testConfigClass", "configClass"))
+                .delayElements(Duration.ofMillis(10))
+                .doOnNext(underTest::saveMessageData)
+                .blockLast();
+        underTest.saveMessageData(new MessageDataDTO(UUID.randomUUID(), 1L, 2L, 5L, "testCommand", "testConfigClass", "configClass"));
 
         Set<Long> res = underTest.getAllAfterTheNewestMessageIdsForConfig(uuid);
-
-        assertThat(res).containsExactly(2L, 3L);
+        System.out.println(res);
+        assertThat(res).containsExactly(2L, 1L);
     }
 
     @Test

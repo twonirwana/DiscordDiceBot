@@ -37,6 +37,7 @@ public class FateCommandMockTest {
         assertThat(click1.getActions()).containsExactly(
                 "editMessage: message:processing ..., buttonValues=",
                 "createAnswer: title=4dF ⇒ -1, description=[▢,＋,−,−], fieldValues:, answerChannel:null, type:EMBED",
+                "deleteMessageById: 0",
                 "createButtonMessage: content=Click a button to roll four fate dice, buttonValues=roll");
     }
 
@@ -52,6 +53,7 @@ public class FateCommandMockTest {
         assertThat(click1.getActions()).containsExactly(
                 "editMessage: message:processing ..., buttonValues=",
                 "createAnswer: title=null, description=__**4dF ⇒ -1**__  [▢,＋,−,−], fieldValues:, answerChannel:null, type:MESSAGE",
+                "deleteMessageById: 0",
                 "createButtonMessage: content=Click a button to roll four fate dice, buttonValues=roll");
     }
 
@@ -67,6 +69,7 @@ public class FateCommandMockTest {
         assertThat(click1.getActions()).containsExactly(
                 "editMessage: message:processing ..., buttonValues=",
                 "createAnswer: title=null, description=4dF ⇒ -1, fieldValues:, answerChannel:null, type:MESSAGE",
+                "deleteMessageById: 0",
                 "createButtonMessage: content=Click a button to roll four fate dice, buttonValues=roll");
     }
 
@@ -82,6 +85,7 @@ public class FateCommandMockTest {
         assertThat(click1.getActions()).containsExactly(
                 "editMessage: message:processing ..., buttonValues=",
                 "createAnswer: title=4dF +3 ⇒ 2, description=[▢,＋,−,−], fieldValues:, answerChannel:null, type:EMBED",
+                "deleteMessageById: 0",
                 "createButtonMessage: content=Click a button to roll four fate dice and add the value of the button, buttonValues=-4,-3,-2,-1,0,1,2,3,4,5,6,7,8,9,10");
     }
 
@@ -97,6 +101,7 @@ public class FateCommandMockTest {
         assertThat(click1.getActions()).containsExactly(
                 "editMessage: message:processing ..., buttonValues=",
                 "createAnswer: title=null, description=__**4dF +3 ⇒ 2**__  [▢,＋,−,−], fieldValues:, answerChannel:null, type:MESSAGE",
+                "deleteMessageById: 0",
                 "createButtonMessage: content=Click a button to roll four fate dice and add the value of the button, buttonValues=-4,-3,-2,-1,0,1,2,3,4,5,6,7,8,9,10");
     }
 
@@ -112,6 +117,7 @@ public class FateCommandMockTest {
         assertThat(click1.getActions()).containsExactly(
                 "editMessage: message:processing ..., buttonValues=",
                 "createAnswer: title=null, description=4dF +3 ⇒ 2, fieldValues:, answerChannel:null, type:MESSAGE",
+                "deleteMessageById: 0",
                 "createButtonMessage: content=Click a button to roll four fate dice and add the value of the button, buttonValues=-4,-3,-2,-1,0,1,2,3,4,5,6,7,8,9,10");
     }
 }

@@ -42,6 +42,7 @@ public class CustomDiceCommandMockTest {
         assertThat(buttonEvent.getActions()).containsExactly(
                 "editMessage: message:processing ..., buttonValues=",
                 "createAnswer: title=Dmg ⇒ 2, description=1d6: [2], fieldValues:, answerChannel:null, type:EMBED",
+                "deleteMessageById: 0",
                 "createButtonMessage: content=Click on a button to roll the dice, buttonValues=1_button");
     }
 
@@ -57,6 +58,7 @@ public class CustomDiceCommandMockTest {
         assertThat(buttonEvent.getActions()).containsExactly(
                 "editMessage: message:processing ..., buttonValues=",
                 "createAnswer: title=Dmg ⇒ 1, description=1: [1], fieldValues:, answerChannel:null, type:EMBED",
+                "deleteMessageById: 0",
                 "createButtonMessage: content=Click on a button to roll the dice, buttonValues=1_button");
     }
 
@@ -72,6 +74,7 @@ public class CustomDiceCommandMockTest {
         assertThat(buttonEvent.getActions()).containsExactly(
                 "editMessage: message:processing ..., buttonValues=",
                 "createAnswer: title=null, description=__**Dmg ⇒ 2**__  1d6: [2], fieldValues:, answerChannel:null, type:MESSAGE",
+                "deleteMessageById: 0",
                 "createButtonMessage: content=Click on a button to roll the dice, buttonValues=1_button");
     }
 
@@ -87,6 +90,7 @@ public class CustomDiceCommandMockTest {
         assertThat(buttonEvent.getActions()).containsExactly(
                 "editMessage: message:processing ..., buttonValues=",
                 "createAnswer: title=null, description=Dmg ⇒ 2, fieldValues:, answerChannel:null, type:MESSAGE",
+                "deleteMessageById: 0",
                 "createButtonMessage: content=Click on a button to roll the dice, buttonValues=1_button");
     }
 
@@ -125,6 +129,7 @@ public class CustomDiceCommandMockTest {
         assertThat(buttonEvent2.getActions()).containsExactly(
                 "editMessage: message:processing ..., buttonValues=",
                 "createAnswer: title=Dmg ⇒ 3, description=1d6: [3], fieldValues:, answerChannel:null, type:EMBED",
+                "deleteMessageById: 1",
                 "createButtonMessage: content=Click on a button to roll the dice, buttonValues=1_button");
     }
 

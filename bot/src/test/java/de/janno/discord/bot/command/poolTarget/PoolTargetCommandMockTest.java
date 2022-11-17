@@ -48,6 +48,7 @@ public class PoolTargetCommandMockTest {
         assertThat(click3.getActions()).containsExactly(
                 "editMessage: message:processing ..., buttonValues=1,2,3,4,5,6,7,8,9,10,11,12,13,14,15",
                 "createAnswer: title=9d10 ≥6 ⇒ 3, description=[**1**,**1**,**1**,3,3,5,5,**6**,**6**,**9**,**10**,**10**,**10**], fieldValues:, answerChannel:null, type:EMBED",
+                "deleteMessageById: 0",
                 "createButtonMessage: content=Click on the buttons to roll dice, with ask reroll:9,10 and botch:1,2, buttonValues=1,2,3,4,5,6,7,8,9,10,11,12,13,14,15");
     }
 
@@ -74,6 +75,7 @@ public class PoolTargetCommandMockTest {
         assertThat(click3.getActions()).containsExactly(
                 "editMessage: message:processing ..., buttonValues=1,2,3,4,5,6,7,8,9,10,11,12,13,14,15",
                 "createAnswer: title=null, description=__**9d10 ≥6 ⇒ 3**__  [**1**,**1**,**1**,3,3,5,5,**6**,**6**,**9**,**10**,**10**,**10**], fieldValues:, answerChannel:null, type:MESSAGE",
+                "deleteMessageById: 0",
                 "createButtonMessage: content=Click on the buttons to roll dice, with ask reroll:9,10 and botch:1,2, buttonValues=1,2,3,4,5,6,7,8,9,10,11,12,13,14,15");
     }
 
@@ -100,6 +102,7 @@ public class PoolTargetCommandMockTest {
         assertThat(click3.getActions()).containsExactly(
                 "editMessage: message:processing ..., buttonValues=1,2,3,4,5,6,7,8,9,10,11,12,13,14,15",
                 "createAnswer: title=null, description=9d10 ≥6 ⇒ 3, fieldValues:, answerChannel:null, type:MESSAGE",
+                "deleteMessageById: 0",
                 "createButtonMessage: content=Click on the buttons to roll dice, with ask reroll:9,10 and botch:1,2, buttonValues=1,2,3,4,5,6,7,8,9,10,11,12,13,14,15");
     }
 

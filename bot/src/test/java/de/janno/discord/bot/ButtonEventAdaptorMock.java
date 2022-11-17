@@ -129,7 +129,7 @@ public class ButtonEventAdaptorMock implements ButtonEventAdaptor {
 
     @Override
     public @NonNull Flux<MessageState> getMessagesState(@NonNull Collection<Long> messageIds) {
-        return Flux.fromIterable(messageIds).map(id -> new MessageState(id, pinnedMessageIds.contains(id), true, true, OffsetDateTime.now().minusMinutes(10)));
+        return Flux.fromIterable(messageIds).map(id -> new MessageState(id, pinnedMessageIds.contains(id), true, true, OffsetDateTime.now().minusMinutes(id)));
     }
 
     @Override
@@ -139,6 +139,7 @@ public class ButtonEventAdaptorMock implements ButtonEventAdaptor {
 
     @Override
     public @NonNull Mono<Void> deleteMessageById(long messageId) {
+        actions.add(String.format("deleteMessageById: %s", messageId));
         return Mono.empty();
     }
 }

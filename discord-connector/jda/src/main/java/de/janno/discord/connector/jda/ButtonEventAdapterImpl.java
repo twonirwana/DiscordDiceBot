@@ -185,6 +185,7 @@ public class ButtonEventAdapterImpl extends DiscordAdapterImpl implements Button
 
     @Override
     public @NonNull Flux<MessageState> getMessagesState(@NonNull Collection<Long> messageIds) {
+        // todo dont request the message of the event
         return Flux.fromIterable(messageIds)
                 .flatMap(id -> Mono.fromFuture(event.getMessageChannel().retrieveMessageById(id)
                         .submit()

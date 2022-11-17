@@ -50,6 +50,7 @@ public class SumCustomSetCommandMockTest {
         assertThat(click3.getActions()).containsExactly(
                 "editMessage: message:Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back",
                 "createAnswer: title=+1d6+2 ⇒ 3, description=[1], fieldValues:, answerChannel:null, type:EMBED",
+                "deleteMessageById: 0",
                 "createButtonMessage: content=Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back");
     }
 
@@ -74,6 +75,7 @@ public class SumCustomSetCommandMockTest {
         assertThat(click3.getActions()).containsExactly(
                 "editMessage: message:Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back",
                 "createAnswer: title=null, description=__**+1d6+2 ⇒ 3**__  [1], fieldValues:, answerChannel:null, type:MESSAGE",
+                "deleteMessageById: 0",
                 "createButtonMessage: content=Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back");
     }
 
@@ -98,6 +100,7 @@ public class SumCustomSetCommandMockTest {
         assertThat(click3.getActions()).containsExactly(
                 "editMessage: message:Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back",
                 "createAnswer: title=null, description=+1d6+2 ⇒ 3, fieldValues:, answerChannel:null, type:MESSAGE",
+                "deleteMessageById: 0",
                 "createButtonMessage: content=Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back");
     }
 
@@ -220,6 +223,7 @@ public class SumCustomSetCommandMockTest {
         assertThat(click5.getActions()).containsExactly(
                 "editMessage: message:Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back",
                 "createAnswer: title=+1d6 ⇒ 2, description=[2], fieldValues:, answerChannel:null, type:EMBED",
+                "deleteMessageById: 1",
                 "createButtonMessage: content=Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back");
     }
 
