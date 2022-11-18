@@ -61,7 +61,7 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
                     .value(AnswerFormatType.minimal.name())
                     .build())
             .build();
-
+    private static final int MIN_MS_DELAY_BETWEEN_BUTTON_MESSAGES = 4000;
     protected final MessageDataDAO messageDataDAO;
 
     protected AbstractCommand(MessageDataDAO messageDataDAO) {
@@ -88,7 +88,6 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
                 .map(AnswerFormatType::valueOf)
                 .orElse(AnswerFormatType.full);
     }
-
 
     @Override
     public boolean matchingComponentCustomId(@NonNull String buttonCustomId) {
@@ -258,10 +257,10 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
 
     private Duration calculateDelay(ButtonEventAdaptor event) {
         long milliBetween = ChronoUnit.MILLIS.between(event.getMessageCreationTime(), OffsetDateTime.now());
-        if (milliBetween < 4000) {
+        if (milliBetween < MIN_MS_DELAY_BETWEEN_BUTTON_MESSAGES) {
             BotMetrics.delayTimer(getCommandId(), Duration.ofMillis(milliBetween));
             BotMetrics.incrementDelayCounter(getCommandId(), true);
-            long delay = 4000 - milliBetween;
+            long delay = MIN_MS_DELAY_BETWEEN_BUTTON_MESSAGES - milliBetween;
             log.info("{}: Delaying button message creation for {}ms", event.getRequester().toLogString(), delay);
             return Duration.ofMillis(delay);
         }
@@ -276,12 +275,14 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
             @NonNull ButtonEventAdaptor event) {
         OffsetDateTime now = OffsetDateTime.now();
 
+        //We don't request the newest message dato because it is, most likely, the current message data and we don't want to delete it.
+        //Even if it is not the current message data there is no harm in keeping it.
         Set<Long> ids = messageDataDAO.getAllAfterTheNewestMessageIdsForConfig(configUUID).stream()
                 //this will already delete directly
                 .filter(id -> id != event.getMessageId())
                 .collect(Collectors.toSet());
 
-        if (ids.size() > 7) { //expected one old, one new messageData and 5 old messages
+        if (ids.size() > 7) { //expected one old, one new messageData and 5 old messages, more is unexpected
             log.warn(String.format("ConfigUUID %s had %d to many messageData persisted", configUUID, ids.size() - 2));
         }
         return event.getMessagesState(ids)
@@ -289,6 +290,7 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
                     if (ms.isCanBeDeleted() && !ms.isPinned() && ms.isExists()) {
                         return event.deleteMessageById(ms.getMessageId())
                                 .doOnSuccess(s -> {
+                                    //keep new messageData to make sure we get no concurrency problems
                                     if (ms.getCreationTime().isBefore(now.minusMinutes(5))) {
                                         messageDataDAO.deleteDataForMessage(channelId, ms.getMessageId());
                                     }
