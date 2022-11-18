@@ -27,6 +27,8 @@ public class BotMetrics {
     private final static String METRIC_PREFIX = "dice.";
     private final static String METRIC_BUTTON_PREFIX = "buttonEvent";
     private final static String METRIC_DATABASE_PREFIX = "database";
+    private final static String METRIC_ANSWER_DELAY_PREFIX = "answerDelayDuration";
+    private final static String METRIC_IS_DELAYED_PREFIX = "answerIsDelayed";
     private final static String METRIC_LEGACY_BUTTON_PREFIX = "legacyButtonEvent";
     private final static String METRIC_SLASH_PREFIX = "slashEvent";
     private final static String METRIC_SLASH_HELP_PREFIX = "slashHelpEvent";
@@ -38,6 +40,7 @@ public class BotMetrics {
     private final static String ANSWER_FORMAT_TAG = "answerFormat";
     private final static String DICE_SYSTEM_TAG = "diceSystem";
     private final static String ACTION_TAG = "action";
+    private final static String DELAYED_TAG = "delayed";
 
     public static void init(String publishMetricsToUrl) {
         if (!Strings.isNullOrEmpty(publishMetricsToUrl)) {
@@ -106,6 +109,19 @@ public class BotMetrics {
                 .publishPercentileHistogram(true)
                 .register(globalRegistry)
                 .record(duration);
+    }
+
+    public static void delayTimer(@NonNull String commandName, @NonNull Duration duration) {
+        Timer.builder(METRIC_PREFIX + METRIC_ANSWER_DELAY_PREFIX)
+                .tags(Tags.of(COMMAND_TAG, commandName))
+                .publishPercentiles(0.5, 0.95, 0.99)
+                .publishPercentileHistogram(true)
+                .register(globalRegistry)
+                .record(duration);
+    }
+
+    public static void incrementDelayCounter(@NonNull String commandName, boolean isDelayed) {
+        globalRegistry.counter(METRIC_PREFIX + METRIC_IS_DELAYED_PREFIX, Tags.of(COMMAND_TAG, commandName, DELAYED_TAG, String.valueOf(isDelayed))).increment();
     }
 
 }

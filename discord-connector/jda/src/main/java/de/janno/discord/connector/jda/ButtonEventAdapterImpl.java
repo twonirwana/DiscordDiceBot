@@ -2,6 +2,7 @@ package de.janno.discord.connector.jda;
 
 import com.google.common.base.Strings;
 import de.janno.discord.connector.api.ButtonEventAdaptor;
+import de.janno.discord.connector.api.MessageState;
 import de.janno.discord.connector.api.Requester;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
@@ -13,13 +14,21 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.exceptions.ErrorResponseException;
+import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
 import net.dv8tion.jda.api.interactions.InteractionHook;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.time.OffsetDateTime;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static net.dv8tion.jda.api.requests.ErrorResponse.*;
 
 @Slf4j
 public class ButtonEventAdapterImpl extends DiscordAdapterImpl implements ButtonEventAdaptor {
@@ -120,22 +129,15 @@ public class ButtonEventAdapterImpl extends DiscordAdapterImpl implements Button
 
     }
 
-
     @Override
-    public Mono<Long> createButtonMessage(MessageDefinition messageDefinition) {
+    public @NonNull Mono<Long> createButtonMessage(@NonNull MessageDefinition messageDefinition) {
         return createButtonMessage(event.getMessageChannel(), messageDefinition)
                 .onErrorResume(t -> handleException("Error on creating button message", t, false).ofType(Message.class))
                 .map(Message::getIdLong);
     }
 
     @Override
-    public Mono<Long> deleteMessage(long messageId, boolean deletePinned) {
-        return deleteMessage(event.getInteraction().getMessageChannel(), messageId, deletePinned);
-    }
-
-    @Override
     public Mono<Void> createResultMessageWithEventReference(EmbedOrMessageDefinition answer, Long targetChannelId) {
-
         MessageChannel targetChannel = Optional.ofNullable(targetChannelId)
                 .flatMap(id -> Optional.ofNullable(event.getGuild())
                         .map(g -> g.getChannelById(MessageChannel.class, targetChannelId)))
@@ -175,9 +177,57 @@ public class ButtonEventAdapterImpl extends DiscordAdapterImpl implements Button
     }
 
     @Override
-    public Mono<Void> reply(@NonNull String message, boolean ephemeral) {
+    public @NonNull Mono<Void> reply(@NonNull String message, boolean ephemeral) {
         return createMonoFrom(() -> event.reply(message).setEphemeral(ephemeral))
                 .onErrorResume(t -> handleException("Error on replay", t, true).ofType(InteractionHook.class))
                 .then();
+    }
+
+    @Override
+    public @NonNull Flux<MessageState> getMessagesState(@NonNull Collection<Long> messageIds) {
+        return Flux.fromIterable(messageIds)
+                .flatMap(id -> {
+                    //small optimization to avoid unnecessary requests
+                    if (id.equals(messageId)) {
+                        return Mono.just(new MessageState(id, isPinned, true, true, getMessageCreationTime()));
+                    }
+                    return Mono.fromFuture(event.getMessageChannel().retrieveMessageById(id)
+                            .submit()
+                            .handle((m, t) -> {
+                                if (m != null) {
+                                    return new MessageState(m.getIdLong(), m.isPinned(), true, m.getType().canDelete(), m.getTimeCreated());
+                                }
+                                if (t != null) {
+                                    if (t instanceof ErrorResponseException errorResponseException) {
+                                        if (Set.of(MISSING_ACCESS, MISSING_PERMISSIONS, INVALID_DM_ACTION).contains(errorResponseException.getErrorResponse())) {
+                                            return new MessageState(id, false, true, false, null);
+                                        } else if (Set.of(UNKNOWN_MESSAGE, UNKNOWN_CHANNEL).contains(errorResponseException.getErrorResponse())) {
+                                            return new MessageState(id, false, false, false, null);
+                                        }
+                                    } else if (t instanceof InsufficientPermissionException) {
+                                        return new MessageState(id, false, true, false, null);
+                                    }
+                                    throw new RuntimeException(t);
+                                }
+                                throw new IllegalStateException("Message and throwable are null");
+                            })
+                    );
+                })
+                .onErrorResume(t -> handleException("Error on getting message state", t, false).ofType(MessageState.class));
+    }
+
+    @Override
+    protected @NonNull MessageChannel getMessageChannel() {
+        return event.getMessageChannel();
+    }
+
+    @Override
+    protected @NonNull String getGuildAndChannelName() {
+        return requester.toLogString();
+    }
+
+    @Override
+    public @NonNull OffsetDateTime getMessageCreationTime() {
+        return event.getMessage().getTimeCreated();
     }
 }

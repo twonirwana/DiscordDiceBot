@@ -39,7 +39,7 @@ public class ClearCommand implements SlashCommand {
                 .then(Mono.just(messageDataDAO.deleteDataForChannel(event.getChannelId()))
                         .flux()
                         .flatMap(Flux::fromIterable)
-                        .flatMap(id -> event.deleteMessage(id, true))
+                        .flatMap(event::deleteMessageById)
                         .then());
     }
 }

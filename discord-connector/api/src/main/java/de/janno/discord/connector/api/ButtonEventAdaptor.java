@@ -2,12 +2,14 @@ package de.janno.discord.connector.api;
 
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
-import de.janno.discord.connector.api.message.MessageDefinition;
 import lombok.NonNull;
 import lombok.Value;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import javax.annotation.Nullable;
+import java.time.OffsetDateTime;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,8 +27,6 @@ public interface ButtonEventAdaptor extends DiscordAdapter {
 
     Mono<Void> editMessage(@Nullable String message, @Nullable List<ComponentRowDefinition> componentRowDefinitions);
 
-    Mono<Long> createButtonMessage(MessageDefinition messageDefinition);
-
     /**
      * will be removed when almost all users have switched to the persisted button id
      */
@@ -42,6 +42,10 @@ public interface ButtonEventAdaptor extends DiscordAdapter {
     Optional<String> checkPermissions(Long answerTargetChannelId);
 
     Mono<Void> createResultMessageWithEventReference(EmbedOrMessageDefinition answer, Long targetChannelId);
+
+    @NonNull Flux<MessageState> getMessagesState(@NonNull Collection<Long> messageIds);
+
+    @NonNull OffsetDateTime getMessageCreationTime();
 
     @Value
     class LabelAndCustomId {

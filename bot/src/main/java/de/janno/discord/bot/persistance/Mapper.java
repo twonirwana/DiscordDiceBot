@@ -19,7 +19,6 @@ public class Mapper {
         }
     }
 
-
     public static <T> T deserializeObject(@NonNull String object, @NonNull Class<T> classOfObject) {
         try {
             return mapper.readValue(object, classOfObject);

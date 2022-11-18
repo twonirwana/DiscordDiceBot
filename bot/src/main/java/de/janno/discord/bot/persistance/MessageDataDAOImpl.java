@@ -59,6 +59,8 @@ public class MessageDataDAOImpl implements MessageDataDAO {
                     CREATE INDEX IF NOT EXISTS MESSAGE_DATA_GUILD ON MESSAGE_DATA (GUILD_ID);
                     CREATE INDEX IF NOT EXISTS MESSAGE_DATA_GUILD_CHANNEl ON MESSAGE_DATA (GUILD_ID, CHANNEL_ID);
                     CREATE INDEX IF NOT EXISTS MESSAGE_DATA_CREATION_DATE_GUILD_CHANNEl ON MESSAGE_DATA (CREATION_DATE, GUILD_ID);
+                    CREATE UNIQUE INDEX IF NOT EXISTS MESSAGE_DATA_CREATION_DATE_MESSAGE_ID ON MESSAGE_DATA (CREATION_DATE, MESSAGE_ID);
+                    CREATE INDEX IF NOT EXISTS MESSAGE_DATA_CREATION_DATE ON MESSAGE_DATA (CREATION_DATE);
                     """);
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -118,10 +120,10 @@ public class MessageDataDAOImpl implements MessageDataDAO {
 
 
     @Override
-    public @NonNull Set<Long> getAllMessageIdsForConfig(@NonNull UUID configUUID) {
+    public @NonNull Set<Long> getAllAfterTheNewestMessageIdsForConfig(@NonNull UUID configUUID) {
         Stopwatch stopwatch = Stopwatch.createStarted();
         try (Connection con = connectionPool.getConnection()) {
-            try (PreparedStatement preparedStatement = con.prepareStatement("SELECT DISTINCT MC.MESSAGE_ID FROM MESSAGE_DATA MC WHERE MC.CONFIG_ID = ?")) {
+            try (PreparedStatement preparedStatement = con.prepareStatement("SELECT DISTINCT MC.MESSAGE_ID, MC.CREATION_DATE FROM MESSAGE_DATA MC WHERE MC.CONFIG_ID = ? order by MC.CREATION_DATE desc OFFSET 1")) {
                 preparedStatement.setObject(1, configUUID);
                 ResultSet resultSet = preparedStatement.executeQuery();
                 final ImmutableSet.Builder<Long> resultBuilder = ImmutableSet.builder();

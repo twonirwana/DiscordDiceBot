@@ -2,6 +2,7 @@ package de.janno.discord.bot;
 
 import de.janno.discord.connector.api.BottomCustomIdUtils;
 import de.janno.discord.connector.api.ButtonEventAdaptor;
+import de.janno.discord.connector.api.MessageState;
 import de.janno.discord.connector.api.Requester;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
@@ -10,8 +11,10 @@ import de.janno.discord.connector.api.message.MessageDefinition;
 import lombok.NonNull;
 import org.apache.commons.lang3.NotImplementedException;
 import org.jetbrains.annotations.Nullable;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
@@ -75,7 +78,7 @@ public class ButtonEventAdaptorMock implements ButtonEventAdaptor {
     }
 
     @Override
-    public Mono<Long> createButtonMessage(MessageDefinition messageDefinition) {
+    public @NonNull Mono<Long> createButtonMessage(@NonNull MessageDefinition messageDefinition) {
         actions.add(String.format("createButtonMessage: content=%s, buttonValues=%s", messageDefinition.getContent(), messageDefinition.getComponentRowDefinitions().stream()
                 .flatMap(r -> r.getButtonDefinitions().stream())
                 .map(ButtonDefinition::getId)
@@ -118,20 +121,25 @@ public class ButtonEventAdaptorMock implements ButtonEventAdaptor {
     }
 
     @Override
-    public Mono<Void> reply(@NonNull String message, boolean ephemeral) {
+    public @NonNull Mono<Void> reply(@NonNull String message, boolean ephemeral) {
         actions.add(String.format("reply: %s", message));
 
         return Mono.just("").then();
     }
 
     @Override
-    public Mono<Long> deleteMessage(long messageId, boolean deletePinned) {
-        if (pinnedMessageIds.contains(messageId) && !deletePinned) {
-            return Mono.empty();
-        }
-        actions.add(String.format("deleteMessage: %s", messageId));
-        return Mono.just(messageId);
+    public @NonNull Flux<MessageState> getMessagesState(@NonNull Collection<Long> messageIds) {
+        return Flux.fromIterable(messageIds).map(id -> new MessageState(id, pinnedMessageIds.contains(id), true, true, OffsetDateTime.now().minusMinutes(id)));
     }
 
+    @Override
+    public @NonNull OffsetDateTime getMessageCreationTime() {
+        return OffsetDateTime.now().minusSeconds(5);
+    }
 
+    @Override
+    public @NonNull Mono<Void> deleteMessageById(long messageId) {
+        actions.add(String.format("deleteMessageById: %s", messageId));
+        return Mono.empty();
+    }
 }

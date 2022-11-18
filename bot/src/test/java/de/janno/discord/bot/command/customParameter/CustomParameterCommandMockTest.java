@@ -39,13 +39,13 @@ public class CustomParameterCommandMockTest {
         ButtonEventAdaptorMock click2 = factory.getButtonClickOnLastButtonMessage("6");
         underTest.handleComponentInteractEvent(click2).block();
 
-        assertThat(click1.getActions()).containsExactly(
+        assertThat(click1.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:invokingUser∶4d*{sides}*: Please select value for *{sides}*, buttonValues=1,4,6,8,10,12,20,100,clear");
-        assertThat(click2.getActions()).containsExactly(
+        assertThat(click2.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:processing ..., buttonValues=",
                 "createAnswer: title=4d6 ⇒ 2, 3, 1, 4, description=[2, 3, 1, 4], fieldValues:, answerChannel:null, type:EMBED",
                 "createButtonMessage: content=*{numberOfDice}*d*{sides}*: Please select value for *{numberOfDice}*, buttonValues=1,2,3,4,5,6,7,8,9,10",
-                "deleteMessage: 0");
+                "deleteMessageById: 0");
     }
 
     @Test
@@ -60,13 +60,13 @@ public class CustomParameterCommandMockTest {
         ButtonEventAdaptorMock click2 = factory.getButtonClickOnLastButtonMessage("6");
         underTest.handleComponentInteractEvent(click2).block();
 
-        assertThat(click1.getActions()).containsExactly(
+        assertThat(click1.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:invokingUser∶4d*{sides}*: Please select value for *{sides}*, buttonValues=1,4,6,8,10,12,20,100,clear");
-        assertThat(click2.getActions()).containsExactly(
+        assertThat(click2.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:processing ..., buttonValues=",
                 "createAnswer: title=null, description=__**4d6 ⇒ 2, 3, 1, 4**__  [2, 3, 1, 4], fieldValues:, answerChannel:null, type:MESSAGE",
                 "createButtonMessage: content=*{numberOfDice}*d*{sides}*: Please select value for *{numberOfDice}*, buttonValues=1,2,3,4,5,6,7,8,9,10",
-                "deleteMessage: 0");
+                "deleteMessageById: 0");
     }
 
     @Test
@@ -81,13 +81,13 @@ public class CustomParameterCommandMockTest {
         ButtonEventAdaptorMock click2 = factory.getButtonClickOnLastButtonMessage("6");
         underTest.handleComponentInteractEvent(click2).block();
 
-        assertThat(click1.getActions()).containsExactly(
+        assertThat(click1.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:invokingUser∶4d*{sides}*: Please select value for *{sides}*, buttonValues=1,4,6,8,10,12,20,100,clear");
-        assertThat(click2.getActions()).containsExactly(
+        assertThat(click2.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:processing ..., buttonValues=",
                 "createAnswer: title=null, description=4d6 ⇒ 2, 3, 1, 4, fieldValues:, answerChannel:null, type:MESSAGE",
                 "createButtonMessage: content=*{numberOfDice}*d*{sides}*: Please select value for *{numberOfDice}*, buttonValues=1,2,3,4,5,6,7,8,9,10",
-                "deleteMessage: 0");
+                "deleteMessageById: 0");
     }
 
     @Test
@@ -102,9 +102,9 @@ public class CustomParameterCommandMockTest {
         ButtonEventAdaptorMock click2 = factory.getButtonClickOnLastButtonMessage("clear");
         underTest.handleComponentInteractEvent(click2).block();
 
-        assertThat(click1.getActions()).containsExactly(
+        assertThat(click1.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:invokingUser∶4d*{sides}*: Please select value for *{sides}*, buttonValues=1,4,6,8,10,12,20,100,clear");
-        assertThat(click2.getActions()).containsExactly(
+        assertThat(click2.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:*{numberOfDice}*d*{sides}*: Please select value for *{numberOfDice}*, buttonValues=1,2,3,4,5,6,7,8,9,10");
     }
 
@@ -120,9 +120,9 @@ public class CustomParameterCommandMockTest {
         ButtonEventAdaptorMock click2 = factory.getButtonClickOnLastButtonMessage("6");
         underTest.handleComponentInteractEvent(click2).block();
 
-        assertThat(click1.getActions()).containsExactly(
+        assertThat(click1.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:invokingUser∶4d*{sides}*: Please select value for *{sides}*, buttonValues=1,4,6,8,10,12,20,100,clear");
-        assertThat(click2.getActions()).containsExactly(
+        assertThat(click2.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:*{numberOfDice}*d*{sides}*: Please select value for *{numberOfDice}*, buttonValues=1,2,3,4,5,6,7,8,9,10",
                 "createAnswer: title=4d6 ⇒ 2, 3, 1, 4, description=[2, 3, 1, 4], fieldValues:, answerChannel:null, type:EMBED",
                 "createButtonMessage: content=*{numberOfDice}*d*{sides}*: Please select value for *{numberOfDice}*, buttonValues=1,2,3,4,5,6,7,8,9,10");
@@ -140,9 +140,9 @@ public class CustomParameterCommandMockTest {
         ButtonEventAdaptorMock click2 = factory.getButtonClickOnLastButtonMessage("6");
         underTest.handleComponentInteractEvent(click2).block();
 
-        assertThat(click1.getActions()).containsExactly(
+        assertThat(click1.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:invokingUser∶4d*{sides}*: Please select value for *{sides}*, buttonValues=1,4,6,8,10,12,20,100,clear");
-        assertThat(click2.getActions()).containsExactly(
+        assertThat(click2.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:*{numberOfDice}*d*{sides}*: Please select value for *{numberOfDice}*, buttonValues=1,2,3,4,5,6,7,8,9,10",
                 "createAnswer: title=4d6 ⇒ 2, 3, 1, 4, description=[2, 3, 1, 4], fieldValues:, answerChannel:2, type:EMBED"
         );
@@ -164,19 +164,19 @@ public class CustomParameterCommandMockTest {
         ButtonEventAdaptorMock click4 = factory.getButtonClickOnLastButtonMessage("6");
         underTest.handleComponentInteractEvent(click4).block();
 
-        assertThat(click1.getActions()).containsExactly(
+        assertThat(click1.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:invokingUser∶4d*{sides}*: Please select value for *{sides}*, buttonValues=1,4,6,8,10,12,20,100,clear");
-        assertThat(click2.getActions()).containsExactly(
+        assertThat(click2.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:*{numberOfDice}*d*{sides}*: Please select value for *{numberOfDice}*, buttonValues=1,2,3,4,5,6,7,8,9,10",
                 "createAnswer: title=4d6 ⇒ 2, 3, 1, 4, description=[2, 3, 1, 4], fieldValues:, answerChannel:null, type:EMBED",
                 "createButtonMessage: content=*{numberOfDice}*d*{sides}*: Please select value for *{numberOfDice}*, buttonValues=1,2,3,4,5,6,7,8,9,10");
-        assertThat(click3.getActions()).containsExactly(
+        assertThat(click3.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:invokingUser∶4d*{sides}*: Please select value for *{sides}*, buttonValues=1,4,6,8,10,12,20,100,clear");
-        assertThat(click4.getActions()).containsExactly(
+        assertThat(click4.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:processing ..., buttonValues=",
                 "createAnswer: title=4d6 ⇒ 1, 1, 6, 3, description=[1, 1, 6, 3], fieldValues:, answerChannel:null, type:EMBED",
                 "createButtonMessage: content=*{numberOfDice}*d*{sides}*: Please select value for *{numberOfDice}*, buttonValues=1,2,3,4,5,6,7,8,9,10",
-                "deleteMessage: 1");
+                "deleteMessageById: 1");
     }
 
     @Test
@@ -195,15 +195,15 @@ public class CustomParameterCommandMockTest {
         ButtonEventAdaptorMock click4 = factory.getButtonClickOnLastButtonMessage("6");
         underTest.handleComponentInteractEvent(click4).block();
 
-        assertThat(click1.getActions()).containsExactly(
+        assertThat(click1.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:invokingUser∶4d*{sides}*: Please select value for *{sides}*, buttonValues=1,4,6,8,10,12,20,100,clear");
-        assertThat(click2.getActions()).containsExactly(
+        assertThat(click2.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:*{numberOfDice}*d*{sides}*: Please select value for *{numberOfDice}*, buttonValues=1,2,3,4,5,6,7,8,9,10",
                 "createAnswer: title=4d6 ⇒ 2, 3, 1, 4, description=[2, 3, 1, 4], fieldValues:, answerChannel:2, type:EMBED"
         );
-        assertThat(click3.getActions()).containsExactly(
+        assertThat(click3.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:invokingUser∶4d*{sides}*: Please select value for *{sides}*, buttonValues=1,4,6,8,10,12,20,100,clear");
-        assertThat(click4.getActions()).containsExactly(
+        assertThat(click4.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:*{numberOfDice}*d*{sides}*: Please select value for *{numberOfDice}*, buttonValues=1,2,3,4,5,6,7,8,9,10",
                 "createAnswer: title=4d6 ⇒ 1, 1, 6, 3, description=[1, 1, 6, 3], fieldValues:, answerChannel:2, type:EMBED"
         );

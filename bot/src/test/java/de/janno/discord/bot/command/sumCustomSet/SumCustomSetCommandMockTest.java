@@ -43,15 +43,15 @@ public class SumCustomSetCommandMockTest {
         ButtonEventAdaptorMock click3 = factory.getButtonClickOnLastButtonMessage("roll");
         underTest.handleComponentInteractEvent(click3).block();
 
-        assertThat(click1.getActions()).containsExactly(
+        assertThat(click1.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:invokingUser∶ +1d6, buttonValues=1_button,2_button,roll,clear,back");
-        assertThat(click2.getActions()).containsExactly(
+        assertThat(click2.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:invokingUser∶ +1d6+2, buttonValues=1_button,2_button,roll,clear,back");
-        assertThat(click3.getActions()).containsExactly(
+        assertThat(click3.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back",
                 "createAnswer: title=+1d6+2 ⇒ 3, description=[1], fieldValues:, answerChannel:null, type:EMBED",
                 "createButtonMessage: content=Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back",
-                "deleteMessage: 0");
+                "deleteMessageById: 0");
     }
 
     @Test
@@ -68,15 +68,15 @@ public class SumCustomSetCommandMockTest {
         ButtonEventAdaptorMock click3 = factory.getButtonClickOnLastButtonMessage("roll");
         underTest.handleComponentInteractEvent(click3).block();
 
-        assertThat(click1.getActions()).containsExactly(
+        assertThat(click1.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:invokingUser∶ +1d6, buttonValues=1_button,2_button,roll,clear,back");
-        assertThat(click2.getActions()).containsExactly(
+        assertThat(click2.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:invokingUser∶ +1d6+2, buttonValues=1_button,2_button,roll,clear,back");
-        assertThat(click3.getActions()).containsExactly(
+        assertThat(click3.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back",
                 "createAnswer: title=null, description=__**+1d6+2 ⇒ 3**__  [1], fieldValues:, answerChannel:null, type:MESSAGE",
                 "createButtonMessage: content=Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back",
-                "deleteMessage: 0");
+                "deleteMessageById: 0");
     }
 
     @Test
@@ -93,15 +93,15 @@ public class SumCustomSetCommandMockTest {
         ButtonEventAdaptorMock click3 = factory.getButtonClickOnLastButtonMessage("roll");
         underTest.handleComponentInteractEvent(click3).block();
 
-        assertThat(click1.getActions()).containsExactly(
+        assertThat(click1.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:invokingUser∶ +1d6, buttonValues=1_button,2_button,roll,clear,back");
-        assertThat(click2.getActions()).containsExactly(
+        assertThat(click2.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:invokingUser∶ +1d6+2, buttonValues=1_button,2_button,roll,clear,back");
-        assertThat(click3.getActions()).containsExactly(
+        assertThat(click3.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back",
                 "createAnswer: title=null, description=+1d6+2 ⇒ 3, fieldValues:, answerChannel:null, type:MESSAGE",
                 "createButtonMessage: content=Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back",
-                "deleteMessage: 0");
+                "deleteMessageById: 0");
     }
 
     @Test
@@ -116,9 +116,9 @@ public class SumCustomSetCommandMockTest {
         ButtonEventAdaptorMock click2 = factory.getButtonClickOnLastButtonMessage("clear");
         underTest.handleComponentInteractEvent(click2).block();
 
-        assertThat(click1.getActions()).containsExactly(
+        assertThat(click1.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:invokingUser∶ +1d6, buttonValues=1_button,2_button,roll,clear,back");
-        assertThat(click2.getActions()).containsExactly(
+        assertThat(click2.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back");
     }
 
@@ -136,11 +136,11 @@ public class SumCustomSetCommandMockTest {
         ButtonEventAdaptorMock click3 = factory.getButtonClickOnLastButtonMessage("back");
         underTest.handleComponentInteractEvent(click3).block();
 
-        assertThat(click1.getActions()).containsExactly(
+        assertThat(click1.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:invokingUser∶ +1d6, buttonValues=1_button,2_button,roll,clear,back");
-        assertThat(click2.getActions()).containsExactly(
+        assertThat(click2.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back");
-        assertThat(click2.getActions()).containsExactly(
+        assertThat(click2.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back");
     }
 
@@ -158,11 +158,11 @@ public class SumCustomSetCommandMockTest {
         ButtonEventAdaptorMock click3 = factory.getButtonClickOnLastButtonMessage("roll");
         underTest.handleComponentInteractEvent(click3).block();
 
-        assertThat(click1.getActions()).containsExactly(
+        assertThat(click1.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:invokingUser∶ +1d6, buttonValues=1_button,2_button,roll,clear,back");
-        assertThat(click2.getActions()).containsExactly(
+        assertThat(click2.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:invokingUser∶ +1d6+2, buttonValues=1_button,2_button,roll,clear,back");
-        assertThat(click3.getActions()).containsExactly(
+        assertThat(click3.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back",
                 "createAnswer: title=+1d6+2 ⇒ 3, description=[1], fieldValues:, answerChannel:null, type:EMBED",
                 "createButtonMessage: content=Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back");
@@ -182,11 +182,11 @@ public class SumCustomSetCommandMockTest {
         ButtonEventAdaptorMock click3 = factory.getButtonClickOnLastButtonMessage("roll");
         underTest.handleComponentInteractEvent(click3).block();
 
-        assertThat(click1.getActions()).containsExactly(
+        assertThat(click1.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:invokingUser∶ +1d6, buttonValues=1_button,2_button,roll,clear,back");
-        assertThat(click2.getActions()).containsExactly(
+        assertThat(click2.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:invokingUser∶ +1d6+2, buttonValues=1_button,2_button,roll,clear,back");
-        assertThat(click3.getActions()).containsExactly(
+        assertThat(click3.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back",
                 "createAnswer: title=+1d6+2 ⇒ 3, description=[1], fieldValues:, answerChannel:2, type:EMBED"
         );
@@ -210,21 +210,21 @@ public class SumCustomSetCommandMockTest {
         ButtonEventAdaptorMock click5 = factory.getButtonClickOnLastButtonMessage("roll");
         underTest.handleComponentInteractEvent(click5).block();
 
-        assertThat(click1.getActions()).containsExactly(
+        assertThat(click1.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:invokingUser∶ +1d6, buttonValues=1_button,2_button,roll,clear,back");
-        assertThat(click2.getActions()).containsExactly(
+        assertThat(click2.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:invokingUser∶ +1d6+2, buttonValues=1_button,2_button,roll,clear,back");
-        assertThat(click3.getActions()).containsExactly(
+        assertThat(click3.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back",
                 "createAnswer: title=+1d6+2 ⇒ 3, description=[1], fieldValues:, answerChannel:null, type:EMBED",
                 "createButtonMessage: content=Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back");
-        assertThat(click4.getActions()).containsExactly(
+        assertThat(click4.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:invokingUser∶ +1d6, buttonValues=1_button,2_button,roll,clear,back");
-        assertThat(click5.getActions()).containsExactly(
+        assertThat(click5.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back",
                 "createAnswer: title=+1d6 ⇒ 2, description=[2], fieldValues:, answerChannel:null, type:EMBED",
                 "createButtonMessage: content=Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back",
-                "deleteMessage: 1");
+                "deleteMessageById: 1");
     }
 
     @Test
@@ -245,17 +245,17 @@ public class SumCustomSetCommandMockTest {
         ButtonEventAdaptorMock click5 = factory.getButtonClickOnLastButtonMessage("roll");
         underTest.handleComponentInteractEvent(click5).block();
 
-        assertThat(click1.getActions()).containsExactly(
+        assertThat(click1.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:invokingUser∶ +1d6, buttonValues=1_button,2_button,roll,clear,back");
-        assertThat(click2.getActions()).containsExactly(
+        assertThat(click2.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:invokingUser∶ +1d6+2, buttonValues=1_button,2_button,roll,clear,back");
-        assertThat(click3.getActions()).containsExactly(
+        assertThat(click3.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back",
                 "createAnswer: title=+1d6+2 ⇒ 3, description=[1], fieldValues:, answerChannel:2, type:EMBED"
         );
-        assertThat(click4.getActions()).containsExactly(
+        assertThat(click4.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:invokingUser∶ +1d6, buttonValues=1_button,2_button,roll,clear,back");
-        assertThat(click5.getActions()).containsExactly(
+        assertThat(click5.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back",
                 "createAnswer: title=+1d6 ⇒ 2, description=[2], fieldValues:, answerChannel:2, type:EMBED"
         );

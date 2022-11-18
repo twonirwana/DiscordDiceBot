@@ -97,28 +97,17 @@ public abstract class DiscordAdapterImpl implements DiscordAdapter {
     protected Mono<Void> handleException(@NonNull String errorMessage,
                                          @NonNull Throwable throwable,
                                          boolean ignoreNotFound) {
-        //todo: add guild and channel
         if (throwable instanceof InsufficientPermissionException) {
-            log.info(String.format("Missing permissions: %s", errorMessage));
+            log.info(String.format("%s: Missing permissions: %s - %s", getGuildAndChannelName(), errorMessage, throwable.getMessage()));
             return Mono.empty();
         } else if (throwable instanceof ErrorResponseException &&
                 ((ErrorResponseException) throwable).getErrorResponse().getCode() < 20000
                 && ignoreNotFound) {
-            log.trace(String.format("Not found: %s", errorMessage));
+            log.trace(String.format("%s: Not found: %s", getGuildAndChannelName(), errorMessage));
         } else {
-            log.error(errorMessage, throwable);
+            log.error("%s: %s".formatted(getGuildAndChannelName(), errorMessage), throwable);
         }
         return Mono.empty();
-    }
-
-    protected Mono<Long> deleteMessage(MessageChannel messageChannel, long messageId, boolean deletePinned) {
-        //retrieveMessageByIds would be nice
-        return createMonoFrom(() -> messageChannel.retrieveMessageById(messageId))
-                .filter(m -> !m.isPinned() || deletePinned)
-                .filter(m -> m.getType().canDelete())
-                .flatMap(m -> createMonoFrom(m::delete)
-                        .then(Mono.just(messageId)))
-                .onErrorResume(t -> handleException("Error on deleting message", t, true).ofType(Long.class));
     }
 
     protected Optional<String> checkPermission(@NonNull MessageChannel messageChannel, @Nullable Guild guild) {
@@ -145,4 +134,13 @@ public abstract class DiscordAdapterImpl implements DiscordAdapter {
         return Optional.of(result);
     }
 
+    @Override
+    public @NonNull Mono<Void> deleteMessageById(long messageId) {
+        return Mono.fromFuture(getMessageChannel().deleteMessageById(messageId).submit())
+                .onErrorResume(t -> handleException("Error on deleting message", t, true).ofType(Void.class));
+    }
+
+    protected abstract @NonNull MessageChannel getMessageChannel();
+
+    protected abstract @NonNull String getGuildAndChannelName();
 }
