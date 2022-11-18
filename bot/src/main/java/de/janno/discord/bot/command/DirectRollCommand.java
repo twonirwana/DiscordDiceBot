@@ -94,15 +94,17 @@ public class DirectRollCommand implements SlashCommand {
 
             RollAnswer answer = diceSystemAdapter.answerRollWithOptionalLabelInExpression(commandParameter, true, DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full);
 
-            return Flux.merge(event.acknowledgeAndRemoveSlash(),
-                            event.createResultMessageWithEventReference(RollAnswerConverter.toEmbedOrMessageDefinition(answer)))
-                    .doOnComplete(() -> log.info("{}: '{}'={} -> {} in {}ms",
-                            event.getRequester().toLogString(),
-                            commandString.replace("`", ""),
-                            diceExpression,
-                            answer.toShortString(),
-                            stopwatch.elapsed(TimeUnit.MILLISECONDS)
-                    )).then();
+            return Flux.merge(Mono.defer(event::acknowledgeAndRemoveSlash),
+                            Mono.defer(() -> event.createResultMessageWithEventReference(RollAnswerConverter.toEmbedOrMessageDefinition(answer))
+                                    .doOnSuccess(v -> log.info("{}: '{}'={} -> {} in {}ms",
+                                            event.getRequester().toLogString(),
+                                            commandString.replace("`", ""),
+                                            diceExpression,
+                                            answer.toShortString(),
+                                            stopwatch.elapsed(TimeUnit.MILLISECONDS)
+                                    )))
+                    )
+                    .parallel().then();
 
         }
 
