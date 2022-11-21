@@ -46,6 +46,7 @@ public interface ButtonEventAdaptor extends DiscordAdapter {
     @NonNull Flux<MessageState> getMessagesState(@NonNull Collection<Long> messageIds);
 
     @NonNull OffsetDateTime getMessageCreationTime();
+    @NonNull OffsetDateTime getEventCreationTime();
 
     @Value
     class LabelAndCustomId {

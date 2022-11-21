@@ -614,6 +614,7 @@ class SumCustomSetCommandTest {
         when(buttonEventAdaptor.deleteMessageById(anyLong())).thenReturn(Mono.empty());
         when(buttonEventAdaptor.getRequester()).thenReturn(new Requester("user", "channel", "guild", "[0 / 1]"));
         when(buttonEventAdaptor.getMessageCreationTime()).thenReturn(OffsetDateTime.now().minusSeconds(2));
+        when(buttonEventAdaptor.getEventCreationTime()).thenReturn(OffsetDateTime.now().minusSeconds(1));
         when(buttonEventAdaptor.getMessagesState(any())).thenReturn(Mono.just(new MessageState(1L, true, true, true, OffsetDateTime.now().minusSeconds(2))).flux());
 
         Mono<Void> res = underTest.handleComponentInteractEvent(buttonEventAdaptor);
@@ -627,7 +628,7 @@ class SumCustomSetCommandTest {
         verify(buttonEventAdaptor).createResultMessageWithEventReference(eq(new EmbedOrMessageDefinition("1d6 ⇒ 3",
                 "[3]", ImmutableList.of(), EmbedOrMessageDefinition.Type.EMBED)), eq(null));
         verify(messageDataDAO, times(2)).saveMessageData(any());
-        verify(messageDataDAO).getAllAfterTheNewestMessageIdsForConfig(any());
+        verify(messageDataDAO).getAllMessageIdsForConfig(any());
 
 
         verify(buttonEventAdaptor, times(5)).getCustomId();

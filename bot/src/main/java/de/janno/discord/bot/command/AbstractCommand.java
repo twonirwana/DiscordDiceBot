@@ -61,7 +61,7 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
                     .value(AnswerFormatType.minimal.name())
                     .build())
             .build();
-    private static final int MIN_MS_DELAY_BETWEEN_BUTTON_MESSAGES = 4000;
+    private static final int MIN_MS_DELAY_BETWEEN_BUTTON_MESSAGES = 2000;
     protected final MessageDataDAO messageDataDAO;
 
     protected AbstractCommand(MessageDataDAO messageDataDAO) {
@@ -223,28 +223,20 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
         final boolean deleteCurrentButtonMessage;
         if (newButtonMessage.isPresent() && answerTargetChannelId == null) {
             actions.add(Mono.defer(() -> event.createButtonMessage(newButtonMessage.get())
-                    .doOnNext(newMessageId -> {
-                        final Optional<MessageDataDTO> nextMessageData = createMessageDataForNewMessage(configUUID, event.getGuildId(), channelId, newMessageId, config, state);
-                        nextMessageData.ifPresent(messageDataDAO::saveMessageData);
-                    })).delaySubscription(calculateDelay(event)).then());
-            if (!keepExistingButtonMessage) {
-                //always delete the current button message
-                deleteCurrentButtonMessage = true;
-                if (!isLegacyMessage) {
-                    //delete all other button messages with the same config, retain only the new message
-                    actions.add(Mono.defer(() -> deleteMessageAndData(configUUID, channelId, event)));
-                }
-            } else {
-                //delete all other button messages with the same config, retain only the new and the current message
-                actions.add(Mono.defer(() -> deleteMessageAndData(configUUID, channelId, event)));
-                deleteCurrentButtonMessage = false;
-            }
+                            .flatMap(newMessageId -> {
+                                final Optional<MessageDataDTO> nextMessageData = createMessageDataForNewMessage(configUUID, event.getGuildId(), channelId, newMessageId, config, state);
+                                nextMessageData.ifPresent(messageDataDAO::saveMessageData);
+                                return deleteOldAndConcurrentMessageAndData(newMessageId, configUUID, channelId, event);
+                            })).delaySubscription(calculateDelay(event))
+                    .then());
+            deleteCurrentButtonMessage = !keepExistingButtonMessage;
         } else {
             deleteCurrentButtonMessage = false;
         }
 
         if (deleteCurrentButtonMessage) {
-            actions.add(Mono.defer(() -> event.deleteMessageById(messageId)));
+            actions.add(Mono.defer(() -> event.deleteMessageById(messageId)
+                    .doOnSuccess(v -> messageDataDAO.deleteDataForMessage(channelId, messageId))));
         } else {
             //don't update the state data async or there will be racing conditions
             updateCurrentMessageStateData(channelId, messageId, config, state);
@@ -269,32 +261,32 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
     }
 
     @VisibleForTesting
-    Mono<Void> deleteMessageAndData(
+    Mono<Void> deleteOldAndConcurrentMessageAndData(
+            long newMessageId,
             @NonNull UUID configUUID,
             long channelId,
             @NonNull ButtonEventAdaptor event) {
-        OffsetDateTime now = OffsetDateTime.now();
 
-        //We don't request the newest message dato because it is, most likely, the current message data and we don't want to delete it.
-        //Even if it is not the current message data there is no harm in keeping it.
-        Set<Long> ids = messageDataDAO.getAllAfterTheNewestMessageIdsForConfig(configUUID).stream()
+        Set<Long> ids = messageDataDAO.getAllMessageIdsForConfig(configUUID).stream()
                 //this will already delete directly
                 .filter(id -> id != event.getMessageId())
+                //we don't want to delete the new message
+                .filter(id -> id != newMessageId)
                 .collect(Collectors.toSet());
 
-        if (ids.size() > 7) { //expected one old, one new messageData and 5 old messages, more is unexpected
-            log.warn(String.format("ConfigUUID %s had %d to many messageData persisted", configUUID, ids.size() - 2));
+        if (ids.size() > 5) { //there should be not many old message datas
+            log.warn(String.format("ConfigUUID %s had %d to many messageData persisted", configUUID, ids.size()));
         }
+
+        if (ids.isEmpty()) {
+            return Mono.empty();
+        }
+
         return event.getMessagesState(ids)
                 .flatMap(ms -> {
-                    if (ms.isCanBeDeleted() && !ms.isPinned() && ms.isExists()) {
+                    if (ms.isCanBeDeleted() && !ms.isPinned() && ms.isExists() && ms.getCreationTime() != null) {
                         return event.deleteMessageById(ms.getMessageId())
-                                .doOnSuccess(s -> {
-                                    //keep new messageData to make sure we get no concurrency problems
-                                    if (ms.getCreationTime().isBefore(now.minusMinutes(5))) {
-                                        messageDataDAO.deleteDataForMessage(channelId, ms.getMessageId());
-                                    }
-                                });
+                                .doOnSuccess(s -> messageDataDAO.deleteDataForMessage(channelId, ms.getMessageId()));
                     } else if (!ms.isExists()) {
                         return Mono.fromRunnable(() -> messageDataDAO.deleteDataForMessage(channelId, ms.getMessageId()));
                     } else {

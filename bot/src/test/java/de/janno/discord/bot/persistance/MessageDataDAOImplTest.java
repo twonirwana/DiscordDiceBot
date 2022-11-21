@@ -23,9 +23,9 @@ class MessageDataDAOImplTest {
                 .blockLast();
         underTest.saveMessageData(new MessageDataDTO(UUID.randomUUID(), 1L, 2L, 5L, "testCommand", "testConfigClass", "configClass"));
 
-        Set<Long> res = underTest.getAllAfterTheNewestMessageIdsForConfig(uuid);
+        Set<Long> res = underTest.getAllMessageIdsForConfig(uuid);
         System.out.println(res);
-        assertThat(res).containsExactly(2L, 1L);
+        assertThat(res).containsExactlyInAnyOrder(3L, 2L, 1L);
     }
 
     @Test

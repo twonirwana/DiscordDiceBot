@@ -11,7 +11,7 @@ public interface MessageDataDAO {
 
     @NonNull Optional<MessageDataDTO> getDataForMessage(long channelId, long messageId);
 
-    @NonNull Set<Long> getAllAfterTheNewestMessageIdsForConfig(@NonNull UUID configUUID);
+    @NonNull Set<Long> getAllMessageIdsForConfig(@NonNull UUID configUUID);
 
     void deleteDataForMessage(long channelId, long messageId);
 
