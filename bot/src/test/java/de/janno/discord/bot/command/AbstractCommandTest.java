@@ -59,15 +59,15 @@ class AbstractCommandTest {
 
         underTest.deleteOldAndConcurrentMessageAndData(6L, configUUID, 1L, buttonEventAdaptorMock).block();
 
-        assertThat(messageDataDAO.getAllMessageIdsForConfig(configUUID)).containsExactlyInAnyOrder(6L, 2L);
+        assertThat(messageDataDAO.getAllMessageIdsForConfig(configUUID)).containsExactlyInAnyOrder(1L, 2L, 3L, 4L, 5L, 6L);
         assertThat(buttonEventAdaptorMock.getActions()).containsExactlyInAnyOrder(
-                "deleteMessageById: 9",
-                "deleteMessageById: 8",
-                "deleteMessageById: 7",
-                "deleteMessageById: 5",
-                "deleteMessageById: 4",
+                "deleteMessageById: 1",
                 "deleteMessageById: 3",
-                "deleteMessageById: 1");
+                "deleteMessageById: 4",
+                "deleteMessageById: 5",
+                "deleteMessageById: 7",
+                "deleteMessageById: 8",
+                "deleteMessageById: 9");
     }
 
     @Test

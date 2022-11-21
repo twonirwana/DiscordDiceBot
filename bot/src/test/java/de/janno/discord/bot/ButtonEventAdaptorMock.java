@@ -129,7 +129,7 @@ public class ButtonEventAdaptorMock implements ButtonEventAdaptor {
 
     @Override
     public @NonNull Flux<MessageState> getMessagesState(@NonNull Collection<Long> messageIds) {
-        return Flux.fromIterable(messageIds).map(id -> new MessageState(id, pinnedMessageIds.contains(id), true, true, OffsetDateTime.now().minusMinutes(id)));
+        return Flux.fromIterable(messageIds).map(id -> new MessageState(id, pinnedMessageIds.contains(id), true, true, OffsetDateTime.now().minusSeconds(id * 5)));
     }
 
     @Override
