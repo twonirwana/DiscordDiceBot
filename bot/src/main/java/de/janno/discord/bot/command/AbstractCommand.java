@@ -286,7 +286,12 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
                 .flatMap(ms -> {
                     if (ms.isCanBeDeleted() && !ms.isPinned() && ms.isExists() && ms.getCreationTime() != null) {
                         return event.deleteMessageById(ms.getMessageId())
-                                .doOnSuccess(s -> messageDataDAO.deleteDataForMessage(channelId, ms.getMessageId()));
+                                .doOnSuccess(s -> {
+                                    //keep new messageData to make sure we get no concurrency problems
+                                    if (ms.getCreationTime().isBefore(OffsetDateTime.now().minusSeconds(30))) {
+                                        messageDataDAO.deleteDataForMessage(channelId, ms.getMessageId());
+                                    }
+                                });
                     } else if (!ms.isExists()) {
                         return Mono.fromRunnable(() -> messageDataDAO.deleteDataForMessage(channelId, ms.getMessageId()));
                     } else {
