@@ -120,10 +120,10 @@ public class MessageDataDAOImpl implements MessageDataDAO {
 
 
     @Override
-    public @NonNull Set<Long> getAllAfterTheNewestMessageIdsForConfig(@NonNull UUID configUUID) {
+    public @NonNull Set<Long> getAllMessageIdsForConfig(@NonNull UUID configUUID) {
         Stopwatch stopwatch = Stopwatch.createStarted();
         try (Connection con = connectionPool.getConnection()) {
-            try (PreparedStatement preparedStatement = con.prepareStatement("SELECT DISTINCT MC.MESSAGE_ID, MC.CREATION_DATE FROM MESSAGE_DATA MC WHERE MC.CONFIG_ID = ? order by MC.CREATION_DATE desc OFFSET 1")) {
+            try (PreparedStatement preparedStatement = con.prepareStatement("SELECT DISTINCT MC.MESSAGE_ID FROM MESSAGE_DATA MC WHERE MC.CONFIG_ID = ?")) {
                 preparedStatement.setObject(1, configUUID);
                 ResultSet resultSet = preparedStatement.executeQuery();
                 final ImmutableSet.Builder<Long> resultBuilder = ImmutableSet.builder();

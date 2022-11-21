@@ -142,4 +142,9 @@ public class ButtonEventAdaptorMock implements ButtonEventAdaptor {
         actions.add(String.format("deleteMessageById: %s", messageId));
         return Mono.empty();
     }
+
+    @Override
+    public @NonNull OffsetDateTime getEventCreationTime() {
+        return OffsetDateTime.now().minusSeconds(1);
+    }
 }

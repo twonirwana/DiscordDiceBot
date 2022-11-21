@@ -104,7 +104,6 @@ public class ButtonEventAdapterImpl extends DiscordAdapterImpl implements Button
         return messageContent;
     }
 
-
     @Override
     public Mono<Void> editMessage(String message, List<ComponentRowDefinition> componentRowDefinitions) {
         if (message == null && componentRowDefinitions == null) {
@@ -191,27 +190,29 @@ public class ButtonEventAdapterImpl extends DiscordAdapterImpl implements Button
                     if (id.equals(messageId)) {
                         return Mono.just(new MessageState(id, isPinned, true, true, getMessageCreationTime()));
                     }
-                    return Mono.fromFuture(event.getMessageChannel().retrieveMessageById(id)
-                            .submit()
-                            .handle((m, t) -> {
-                                if (m != null) {
-                                    return new MessageState(m.getIdLong(), m.isPinned(), true, m.getType().canDelete(), m.getTimeCreated());
-                                }
-                                if (t != null) {
-                                    if (t instanceof ErrorResponseException errorResponseException) {
-                                        if (Set.of(MISSING_ACCESS, MISSING_PERMISSIONS, INVALID_DM_ACTION).contains(errorResponseException.getErrorResponse())) {
-                                            return new MessageState(id, false, true, false, null);
-                                        } else if (Set.of(UNKNOWN_MESSAGE, UNKNOWN_CHANNEL).contains(errorResponseException.getErrorResponse())) {
-                                            return new MessageState(id, false, false, false, null);
-                                        }
-                                    } else if (t instanceof InsufficientPermissionException) {
-                                        return new MessageState(id, false, true, false, null);
+                    try {
+                        return Mono.fromFuture(event.getMessageChannel().retrieveMessageById(id)
+                                .submit().handle((m, t) -> {
+                                    if (m != null) {
+                                        return new MessageState(m.getIdLong(), m.isPinned(), true, m.getType().canDelete(), m.getTimeCreated());
                                     }
-                                    throw new RuntimeException(t);
-                                }
-                                throw new IllegalStateException("Message and throwable are null");
-                            })
-                    );
+                                    if (t != null) {
+                                        if (t instanceof ErrorResponseException errorResponseException) {
+                                            if (Set.of(MISSING_ACCESS, MISSING_PERMISSIONS, UNKNOWN_MESSAGE, UNKNOWN_CHANNEL).contains(errorResponseException.getErrorResponse())) {
+                                                return new MessageState(id, false, false, false, null);
+                                            }
+                                        }
+                                        throw new RuntimeException(t);
+                                    }
+                                    throw new IllegalStateException("Message and throwable are null");
+                                }));
+                    } catch (Exception e) {
+                        //for some reason it is thrown outside the handle method, and we need to catch it here
+                        if (e instanceof InsufficientPermissionException) {
+                            return Mono.just(new MessageState(id, false, false, false, null));
+                        }
+                        return Mono.error(e);
+                    }
                 })
                 .onErrorResume(t -> handleException("Error on getting message state", t, false).ofType(MessageState.class));
     }
@@ -229,5 +230,10 @@ public class ButtonEventAdapterImpl extends DiscordAdapterImpl implements Button
     @Override
     public @NonNull OffsetDateTime getMessageCreationTime() {
         return event.getMessage().getTimeCreated();
+    }
+
+    @Override
+    public @NonNull OffsetDateTime getEventCreationTime() {
+        return event.getTimeCreated();
     }
 }

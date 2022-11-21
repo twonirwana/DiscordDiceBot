@@ -538,7 +538,7 @@ class PoolTargetCommandTest {
                 targetNumber: null
                 doReroll: null
                 """)));
-        when(messageDataDAO.getAllAfterTheNewestMessageIdsForConfig(any())).thenReturn(ImmutableSet.of());
+        when(messageDataDAO.getAllMessageIdsForConfig(any())).thenReturn(ImmutableSet.of());
         when(buttonEventAdaptor.getMessageCreationTime()).thenReturn(OffsetDateTime.now().minusSeconds(2));
         when(buttonEventAdaptor.getMessagesState(any())).thenReturn(Flux.empty());
 
@@ -604,7 +604,7 @@ class PoolTargetCommandTest {
         when(buttonEventAdaptor.createButtonMessage(any())).thenReturn(Mono.just(2L));
         when(buttonEventAdaptor.deleteMessageById(anyLong())).thenReturn(Mono.empty());
         when(buttonEventAdaptor.getRequester()).thenReturn(new Requester("user", "channel", "guild", "[0 / 1]"));
-        when(messageDataDAO.getAllAfterTheNewestMessageIdsForConfig(any())).thenReturn(ImmutableSet.of());
+        when(messageDataDAO.getAllMessageIdsForConfig(any())).thenReturn(ImmutableSet.of());
         when(buttonEventAdaptor.getMessageCreationTime()).thenReturn(OffsetDateTime.now().minusSeconds(2));
         when(buttonEventAdaptor.getMessagesState(any())).thenReturn(Flux.empty());
 
