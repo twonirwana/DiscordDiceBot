@@ -123,6 +123,8 @@ public abstract class DiscordAdapterImpl implements DiscordAdapter {
         if (missingEmbedPermission) {
             checks.add("'EMBED_LINKS'");
         }
+        /*
+        //active later
         boolean missingMessageHistoryPermission = Optional.of(messageChannel)
                 .filter(m -> m instanceof GuildMessageChannel)
                 .map(m -> (GuildMessageChannel) m)
@@ -130,7 +132,7 @@ public abstract class DiscordAdapterImpl implements DiscordAdapter {
                 .orElse(true);
         if (missingMessageHistoryPermission) {
             checks.add("'MESSAGE_HISTORY'");
-        }
+        }*/
         if (checks.isEmpty()) {
             return Optional.empty();
         }
