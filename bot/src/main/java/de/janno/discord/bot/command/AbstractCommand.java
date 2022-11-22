@@ -25,6 +25,7 @@ import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -61,8 +62,10 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
                     .value(AnswerFormatType.minimal.name())
                     .build())
             .build();
-    private static final int MIN_MS_DELAY_BETWEEN_BUTTON_MESSAGES = 2000;
+    private static final int MIN_MS_DELAY_BETWEEN_BUTTON_MESSAGES = 1000;
+    private final static ConcurrentSkipListSet<Long> MESSAGE_DATA_IDS_TO_DELETE = new ConcurrentSkipListSet<>();
     protected final MessageDataDAO messageDataDAO;
+    private Duration delayMessageDataDeletion = Duration.ofSeconds(10);
 
     protected AbstractCommand(MessageDataDAO messageDataDAO) {
         this.messageDataDAO = messageDataDAO;
@@ -73,6 +76,11 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
             return Long.parseLong(optionArray[index]);
         }
         return null;
+    }
+
+    @VisibleForTesting
+    public void setMessageDataDeleteDuration(Duration delayMessageDataDeletion) {
+        this.delayMessageDataDeletion = delayMessageDataDeletion;
     }
 
     protected Set<String> getStartOptionIds() {
@@ -173,7 +181,7 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
                 state = messageData.get().getState();
                 configUUID = messageData.get().getConfigUUID();
             } else {
-                log.warn("Missing messageData for channelId: {}, messageId: {} and commandName: {} ", channelId, messageId, getCommandId());
+                log.warn("{}: Missing messageData for channelId: {}, messageId: {} and commandName: {} ", event.getRequester().toLogString(), channelId, messageId, getCommandId());
                 return event.reply(String.format("Configuration for the message is missing, please create a new message with the slash command `/%s start`", getCommandId()), false);
             }
         }
@@ -236,7 +244,7 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
 
         if (deleteCurrentButtonMessage) {
             actions.add(Mono.defer(() -> event.deleteMessageById(messageId)
-                    .doOnSuccess(v -> messageDataDAO.deleteDataForMessage(channelId, messageId))));
+                    .then(deleteMessageDataWithDelay(channelId, messageId))));
         } else {
             //don't update the state data async or there will be racing conditions
             updateCurrentMessageStateData(channelId, messageId, config, state);
@@ -260,6 +268,16 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
         return Duration.ZERO;
     }
 
+    private Mono<Void> deleteMessageDataWithDelay(long channelId, long messageId) {
+        MESSAGE_DATA_IDS_TO_DELETE.add(messageId);
+        return Mono.defer(() -> Mono.just(0)
+                .delayElement(delayMessageDataDeletion)
+                .doOnNext(v -> {
+                    MESSAGE_DATA_IDS_TO_DELETE.remove(messageId);
+                    messageDataDAO.deleteDataForMessage(channelId, messageId);
+                }).ofType(Void.class));
+    }
+
     @VisibleForTesting
     Mono<Void> deleteOldAndConcurrentMessageAndData(
             long newMessageId,
@@ -272,9 +290,11 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
                 .filter(id -> id != event.getMessageId())
                 //we don't want to delete the new message
                 .filter(id -> id != newMessageId)
+                //we don't want to check the state of messages where the data is already scheduled to be deleted
+                .filter(id -> !MESSAGE_DATA_IDS_TO_DELETE.contains(id))
                 .collect(Collectors.toSet());
 
-        if (ids.size() > 5) { //there should be not many old message datas
+        if (ids.size() > 5) { //there should be not many old message data
             log.warn(String.format("ConfigUUID %s had %d to many messageData persisted", configUUID, ids.size()));
         }
 
@@ -286,14 +306,9 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
                 .flatMap(ms -> {
                     if (ms.isCanBeDeleted() && !ms.isPinned() && ms.isExists() && ms.getCreationTime() != null) {
                         return event.deleteMessageById(ms.getMessageId())
-                                .doOnSuccess(s -> {
-                                    //keep new messageData to make sure we get no concurrency problems
-                                    if (ms.getCreationTime().isBefore(OffsetDateTime.now().minusSeconds(30))) {
-                                        messageDataDAO.deleteDataForMessage(channelId, ms.getMessageId());
-                                    }
-                                });
+                                .then(deleteMessageDataWithDelay(channelId, ms.getMessageId()));
                     } else if (!ms.isExists()) {
-                        return Mono.fromRunnable(() -> messageDataDAO.deleteDataForMessage(channelId, ms.getMessageId()));
+                        return deleteMessageDataWithDelay(channelId, ms.getMessageId());
                     } else {
                         return Mono.empty();
                     }

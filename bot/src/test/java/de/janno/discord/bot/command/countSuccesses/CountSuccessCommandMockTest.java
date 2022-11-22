@@ -10,6 +10,7 @@ import de.janno.discord.bot.persistance.MessageDataDAOImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.Duration;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
@@ -26,6 +27,7 @@ public class CountSuccessCommandMockTest {
         messageIdCounter = new AtomicLong(0);
         messageDataDAO = new MessageDataDAOImpl("jdbc:h2:mem:" + UUID.randomUUID(), null, null);
         underTest = new CountSuccessesCommand(messageDataDAO, new DiceUtils(1, 1, 5, 6));
+        underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
     }
 
     @Test

@@ -21,6 +21,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -102,6 +103,8 @@ class SumDiceSetCommandTest {
     @BeforeEach
     void setup() {
         underTest = new SumDiceSetCommand(mock(MessageDataDAO.class), new DiceUtils(1, 1, 1, 1, 5, 6, 6, 6));
+        underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
+
     }
 
     @Test
@@ -459,6 +462,7 @@ class SumDiceSetCommandTest {
     void checkPersistence() {
         MessageDataDAO messageDataDAO = new MessageDataDAOImpl("jdbc:h2:mem:" + UUID.randomUUID(), null, null);
         underTest = new SumDiceSetCommand(messageDataDAO, mock(DiceUtils.class));
+        underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
 
         long channelId = System.currentTimeMillis();
         long messageId = System.currentTimeMillis();

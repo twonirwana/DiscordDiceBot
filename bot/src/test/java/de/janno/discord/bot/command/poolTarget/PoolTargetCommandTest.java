@@ -27,6 +27,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -65,6 +66,8 @@ class PoolTargetCommandTest {
     @BeforeEach
     void setup() {
         underTest = new PoolTargetCommand(messageDataDAO, new DiceUtils(1, 1, 1, 2, 5, 6, 6, 6, 2, 10, 10, 2, 3, 4, 5, 6, 7, 8));
+        underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
+
     }
 
     @ParameterizedTest(name = "{index} config={0} -> {1}")
@@ -485,7 +488,7 @@ class PoolTargetCommandTest {
         when(buttonEventAdaptor.deleteMessageById(anyLong())).thenReturn(Mono.empty());
         when(buttonEventAdaptor.getRequester()).thenReturn(new Requester("user", "channel", "guild", "[0 / 1]"));
         when(buttonEventAdaptor.getMessageCreationTime()).thenReturn(OffsetDateTime.now().minusSeconds(2));
-        when(buttonEventAdaptor.getMessagesState(any())).thenReturn(Mono.just(new MessageState(1L, false, true, true, OffsetDateTime.now().minusSeconds(2))).flux());
+        when(buttonEventAdaptor.getMessagesState(any())).thenReturn(Mono.just(new MessageState(1L, false, true, true, OffsetDateTime.now().minusSeconds(2))).flux().parallel());
 
         Mono<Void> res = underTest.handleComponentInteractEvent(buttonEventAdaptor);
 
@@ -540,7 +543,7 @@ class PoolTargetCommandTest {
                 """)));
         when(messageDataDAO.getAllMessageIdsForConfig(any())).thenReturn(ImmutableSet.of());
         when(buttonEventAdaptor.getMessageCreationTime()).thenReturn(OffsetDateTime.now().minusSeconds(2));
-        when(buttonEventAdaptor.getMessagesState(any())).thenReturn(Flux.empty());
+        when(buttonEventAdaptor.getMessagesState(any())).thenReturn(Flux.<MessageState>empty().parallel());
 
 
         Mono<Void> res = underTest.handleComponentInteractEvent(buttonEventAdaptor);
@@ -606,7 +609,7 @@ class PoolTargetCommandTest {
         when(buttonEventAdaptor.getRequester()).thenReturn(new Requester("user", "channel", "guild", "[0 / 1]"));
         when(messageDataDAO.getAllMessageIdsForConfig(any())).thenReturn(ImmutableSet.of());
         when(buttonEventAdaptor.getMessageCreationTime()).thenReturn(OffsetDateTime.now().minusSeconds(2));
-        when(buttonEventAdaptor.getMessagesState(any())).thenReturn(Flux.empty());
+        when(buttonEventAdaptor.getMessagesState(any())).thenReturn(Flux.<MessageState>empty().parallel());
 
         Mono<Void> res = underTest.handleComponentInteractEvent(buttonEventAdaptor);
 
@@ -763,6 +766,7 @@ class PoolTargetCommandTest {
     void checkPersistence() {
         MessageDataDAO messageDataDAO = new MessageDataDAOImpl("jdbc:h2:mem:" + UUID.randomUUID(), null, null);
         underTest = new PoolTargetCommand(messageDataDAO, mock(DiceUtils.class));
+        underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
 
         long channelId = System.currentTimeMillis();
         long messageId = System.currentTimeMillis();

@@ -21,6 +21,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -48,6 +49,8 @@ class HoldRerollCommandTest {
     @BeforeEach
     void setup() {
         underTest = new HoldRerollCommand(mock(MessageDataDAO.class), new DiceUtils(1, 1, 1, 1, 5, 6, 6, 6));
+        underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
+
     }
 
     @Test
@@ -443,6 +446,7 @@ class HoldRerollCommandTest {
     void checkPersistence() {
         MessageDataDAO messageDataDAO = new MessageDataDAOImpl("jdbc:h2:mem:" + UUID.randomUUID(), null, null);
         underTest = new HoldRerollCommand(messageDataDAO, mock(DiceUtils.class));
+        underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
 
         long channelId = System.currentTimeMillis();
         long messageId = System.currentTimeMillis();

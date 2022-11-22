@@ -13,6 +13,7 @@ import org.apache.commons.lang3.NotImplementedException;
 import org.jetbrains.annotations.Nullable;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.publisher.ParallelFlux;
 
 import java.time.OffsetDateTime;
 import java.util.*;
@@ -128,8 +129,9 @@ public class ButtonEventAdaptorMock implements ButtonEventAdaptor {
     }
 
     @Override
-    public @NonNull Flux<MessageState> getMessagesState(@NonNull Collection<Long> messageIds) {
-        return Flux.fromIterable(messageIds).map(id -> new MessageState(id, pinnedMessageIds.contains(id), true, true, OffsetDateTime.now().minusSeconds(id * 5)));
+    public @NonNull ParallelFlux<MessageState> getMessagesState(@NonNull Collection<Long> messageIds) {
+        actions.add(String.format("getMessagesState: %s", messageIds));
+        return Flux.fromIterable(messageIds).parallel().map(id -> new MessageState(id, pinnedMessageIds.contains(id), true, true, OffsetDateTime.now().minusSeconds(id * 5)));
     }
 
     @Override

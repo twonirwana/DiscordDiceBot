@@ -10,12 +10,14 @@ import lombok.NonNull;
 import org.apache.commons.lang3.NotImplementedException;
 import org.jetbrains.annotations.Nullable;
 
+import java.time.Duration;
 import java.util.Optional;
 import java.util.UUID;
 
 public class TestCommand extends AbstractCommand<Config, StateData> {
     protected TestCommand(MessageDataDAO messageDataDAO) {
         super(messageDataDAO);
+        setMessageDataDeleteDuration(Duration.ofMillis(10));
     }
 
     @Override

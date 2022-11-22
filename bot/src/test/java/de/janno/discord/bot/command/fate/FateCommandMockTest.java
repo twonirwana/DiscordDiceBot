@@ -10,6 +10,7 @@ import de.janno.discord.bot.persistance.MessageDataDAOImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.Duration;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -28,6 +29,8 @@ public class FateCommandMockTest {
     @Test
     void roll_simple_full() {
         FateCommand underTest = new FateCommand(messageDataDAO, new DiceUtils(0L));
+        underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
+
         FateConfig config = new FateConfig(null, "simple", AnswerFormatType.full);
         ButtonEventAdaptorMockFactory<FateConfig, StateData> factory = new ButtonEventAdaptorMockFactory<>("fate", underTest, config, messageDataDAO, false);
 
@@ -44,6 +47,8 @@ public class FateCommandMockTest {
     @Test
     void roll_simple_compact() {
         FateCommand underTest = new FateCommand(messageDataDAO, new DiceUtils(0L));
+        underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
+
         FateConfig config = new FateConfig(null, "simple", AnswerFormatType.compact);
         ButtonEventAdaptorMockFactory<FateConfig, StateData> factory = new ButtonEventAdaptorMockFactory<>("fate", underTest, config, messageDataDAO, false);
 
@@ -60,6 +65,8 @@ public class FateCommandMockTest {
     @Test
     void roll_simple_minimal() {
         FateCommand underTest = new FateCommand(messageDataDAO, new DiceUtils(0L));
+        underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
+
         FateConfig config = new FateConfig(null, "simple", AnswerFormatType.minimal);
         ButtonEventAdaptorMockFactory<FateConfig, StateData> factory = new ButtonEventAdaptorMockFactory<>("fate", underTest, config, messageDataDAO, false);
 
@@ -76,6 +83,8 @@ public class FateCommandMockTest {
     @Test
     void roll_modifier_full() {
         FateCommand underTest = new FateCommand(messageDataDAO, new DiceUtils(0L));
+        underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
+
         FateConfig config = new FateConfig(null, "with_modifier", AnswerFormatType.full);
         ButtonEventAdaptorMockFactory<FateConfig, StateData> factory = new ButtonEventAdaptorMockFactory<>("fate", underTest, config, messageDataDAO, false);
 
@@ -92,6 +101,8 @@ public class FateCommandMockTest {
     @Test
     void roll_modifier_compact() {
         FateCommand underTest = new FateCommand(messageDataDAO, new DiceUtils(0L));
+        underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
+
         FateConfig config = new FateConfig(null, "with_modifier", AnswerFormatType.compact);
         ButtonEventAdaptorMockFactory<FateConfig, StateData> factory = new ButtonEventAdaptorMockFactory<>("fate", underTest, config, messageDataDAO, false);
 
@@ -108,6 +119,8 @@ public class FateCommandMockTest {
     @Test
     void roll_modifier_minimal() {
         FateCommand underTest = new FateCommand(messageDataDAO, new DiceUtils(0L));
+        underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
+
         FateConfig config = new FateConfig(null, "with_modifier", AnswerFormatType.minimal);
         ButtonEventAdaptorMockFactory<FateConfig, StateData> factory = new ButtonEventAdaptorMockFactory<>("fate", underTest, config, messageDataDAO, false);
 
