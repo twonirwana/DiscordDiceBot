@@ -13,6 +13,7 @@ import de.janno.evaluator.dice.random.RandomNumberSupplier;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.Duration;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -32,6 +33,8 @@ public class SumCustomSetCommandMockTest {
     @Test
     void roll_full() {
         SumCustomSetCommand underTest = new SumCustomSetCommand(messageDataDAO, new DiceParser(), new RandomNumberSupplier(0));
+        underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
+
         SumCustomSetConfig config = new SumCustomSetConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "+1d6"),
                 new ButtonIdLabelAndDiceExpression("2_button", "bonus", "+2")), DiceParserSystem.DICE_EVALUATOR, true, AnswerFormatType.full);
         ButtonEventAdaptorMockFactory<SumCustomSetConfig, SumCustomSetStateData> factory = new ButtonEventAdaptorMockFactory<>("sum_custom_st", underTest, config, messageDataDAO, false);
@@ -57,6 +60,8 @@ public class SumCustomSetCommandMockTest {
     @Test
     void roll_compact() {
         SumCustomSetCommand underTest = new SumCustomSetCommand(messageDataDAO, new DiceParser(), new RandomNumberSupplier(0));
+        underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
+
         SumCustomSetConfig config = new SumCustomSetConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "+1d6"),
                 new ButtonIdLabelAndDiceExpression("2_button", "bonus", "+2")), DiceParserSystem.DICE_EVALUATOR, true, AnswerFormatType.compact);
         ButtonEventAdaptorMockFactory<SumCustomSetConfig, SumCustomSetStateData> factory = new ButtonEventAdaptorMockFactory<>("sum_custom_st", underTest, config, messageDataDAO, false);
@@ -82,6 +87,8 @@ public class SumCustomSetCommandMockTest {
     @Test
     void roll_minimal() {
         SumCustomSetCommand underTest = new SumCustomSetCommand(messageDataDAO, new DiceParser(), new RandomNumberSupplier(0));
+        underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
+
         SumCustomSetConfig config = new SumCustomSetConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "+1d6"),
                 new ButtonIdLabelAndDiceExpression("2_button", "bonus", "+2")), DiceParserSystem.DICE_EVALUATOR, true, AnswerFormatType.minimal);
         ButtonEventAdaptorMockFactory<SumCustomSetConfig, SumCustomSetStateData> factory = new ButtonEventAdaptorMockFactory<>("sum_custom_st", underTest, config, messageDataDAO, false);
@@ -107,6 +114,8 @@ public class SumCustomSetCommandMockTest {
     @Test
     void clear() {
         SumCustomSetCommand underTest = new SumCustomSetCommand(messageDataDAO, new DiceParser(), new RandomNumberSupplier(0));
+        underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
+
         SumCustomSetConfig config = new SumCustomSetConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "+1d6"),
                 new ButtonIdLabelAndDiceExpression("2_button", "bonus", "+2")), DiceParserSystem.DICE_EVALUATOR, true, AnswerFormatType.full);
         ButtonEventAdaptorMockFactory<SumCustomSetConfig, SumCustomSetStateData> factory = new ButtonEventAdaptorMockFactory<>("sum_custom_st", underTest, config, messageDataDAO, false);
@@ -125,6 +134,8 @@ public class SumCustomSetCommandMockTest {
     @Test
     void backBack() {
         SumCustomSetCommand underTest = new SumCustomSetCommand(messageDataDAO, new DiceParser(), new RandomNumberSupplier(0));
+        underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
+
         SumCustomSetConfig config = new SumCustomSetConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "+1d6"),
                 new ButtonIdLabelAndDiceExpression("2_button", "bonus", "+2")), DiceParserSystem.DICE_EVALUATOR, true, AnswerFormatType.full);
         ButtonEventAdaptorMockFactory<SumCustomSetConfig, SumCustomSetStateData> factory = new ButtonEventAdaptorMockFactory<>("sum_custom_st", underTest, config, messageDataDAO, false);
@@ -147,6 +158,8 @@ public class SumCustomSetCommandMockTest {
     @Test
     void roll_pinned() {
         SumCustomSetCommand underTest = new SumCustomSetCommand(messageDataDAO, new DiceParser(), new RandomNumberSupplier(0));
+        underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
+
         SumCustomSetConfig config = new SumCustomSetConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "+1d6"),
                 new ButtonIdLabelAndDiceExpression("2_button", "bonus", "+2")), DiceParserSystem.DICE_EVALUATOR, true, AnswerFormatType.full);
         ButtonEventAdaptorMockFactory<SumCustomSetConfig, SumCustomSetStateData> factory = new ButtonEventAdaptorMockFactory<>("sum_custom_st", underTest, config, messageDataDAO, true);
@@ -171,6 +184,8 @@ public class SumCustomSetCommandMockTest {
     @Test
     void roll_answerChannel() {
         SumCustomSetCommand underTest = new SumCustomSetCommand(messageDataDAO, new DiceParser(), new RandomNumberSupplier(0));
+        underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
+
         SumCustomSetConfig config = new SumCustomSetConfig(2L, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "+1d6"),
                 new ButtonIdLabelAndDiceExpression("2_button", "bonus", "+2")), DiceParserSystem.DICE_EVALUATOR, true, AnswerFormatType.full);
         ButtonEventAdaptorMockFactory<SumCustomSetConfig, SumCustomSetStateData> factory = new ButtonEventAdaptorMockFactory<>("sum_custom_st", underTest, config, messageDataDAO, false);
@@ -195,6 +210,8 @@ public class SumCustomSetCommandMockTest {
     @Test
     void roll_pinnedTwice() {
         SumCustomSetCommand underTest = new SumCustomSetCommand(messageDataDAO, new DiceParser(), new RandomNumberSupplier(0));
+        underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
+
         SumCustomSetConfig config = new SumCustomSetConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "+1d6"),
                 new ButtonIdLabelAndDiceExpression("2_button", "bonus", "+2")), DiceParserSystem.DICE_EVALUATOR, true, AnswerFormatType.full);
         ButtonEventAdaptorMockFactory<SumCustomSetConfig, SumCustomSetStateData> factory = new ButtonEventAdaptorMockFactory<>("sum_custom_st", underTest, config, messageDataDAO, true);
@@ -224,12 +241,15 @@ public class SumCustomSetCommandMockTest {
                 "editMessage: message:Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back",
                 "createAnswer: title=+1d6 ⇒ 2, description=[2], fieldValues:, answerChannel:null, type:EMBED",
                 "createButtonMessage: content=Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back",
-                "deleteMessageById: 1");
+                "deleteMessageById: 1",
+                "getMessagesState: [0]");
     }
 
     @Test
     void roll_answerChannelTwice() {
         SumCustomSetCommand underTest = new SumCustomSetCommand(messageDataDAO, new DiceParser(), new RandomNumberSupplier(0));
+        underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
+
         SumCustomSetConfig config = new SumCustomSetConfig(2L, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "+1d6"),
                 new ButtonIdLabelAndDiceExpression("2_button", "bonus", "+2")), DiceParserSystem.DICE_EVALUATOR, true, AnswerFormatType.full);
         ButtonEventAdaptorMockFactory<SumCustomSetConfig, SumCustomSetStateData> factory = new ButtonEventAdaptorMockFactory<>("sum_custom_st", underTest, config, messageDataDAO, false);

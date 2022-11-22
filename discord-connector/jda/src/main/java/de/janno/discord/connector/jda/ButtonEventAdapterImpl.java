@@ -19,6 +19,7 @@ import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.publisher.ParallelFlux;
 
 import java.time.OffsetDateTime;
 import java.util.Collection;
@@ -183,8 +184,9 @@ public class ButtonEventAdapterImpl extends DiscordAdapterImpl implements Button
     }
 
     @Override
-    public @NonNull Flux<MessageState> getMessagesState(@NonNull Collection<Long> messageIds) {
+    public @NonNull ParallelFlux<MessageState> getMessagesState(@NonNull Collection<Long> messageIds) {
         return Flux.fromIterable(messageIds)
+                .parallel()
                 .flatMap(id -> {
                     //small optimization to avoid unnecessary requests
                     if (id.equals(messageId)) {
@@ -213,8 +215,7 @@ public class ButtonEventAdapterImpl extends DiscordAdapterImpl implements Button
                         }
                         return Mono.error(e);
                     }
-                })
-                .onErrorResume(t -> handleException("Error on getting message state", t, false).ofType(MessageState.class));
+                });
     }
 
     @Override

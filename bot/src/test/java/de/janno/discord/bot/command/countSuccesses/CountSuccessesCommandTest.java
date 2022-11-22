@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -38,6 +39,7 @@ class CountSuccessesCommandTest {
     @BeforeEach
     void setup() {
         underTest = new CountSuccessesCommand(messageDataDAO, new DiceUtils(1, 1, 1, 1, 5, 6, 6, 6));
+        underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
     }
 
     @Test
@@ -265,7 +267,7 @@ class CountSuccessesCommandTest {
         when(buttonEventAdaptor.deleteMessageById(anyLong())).thenReturn(Mono.empty());
         when(buttonEventAdaptor.getRequester()).thenReturn(new Requester("user", "channel", "guild", "[0 / 1]"));
         when(buttonEventAdaptor.getMessageCreationTime()).thenReturn(OffsetDateTime.now().minusSeconds(2));
-        when(buttonEventAdaptor.getMessagesState(any())).thenReturn(Mono.just(new MessageState(1L, false, true, true, OffsetDateTime.now().minusSeconds(2))).flux());
+        when(buttonEventAdaptor.getMessagesState(any())).thenReturn(Mono.just(new MessageState(1L, false, true, true, OffsetDateTime.now().minusSeconds(2))).flux().parallel());
 
 
         Mono<Void> res = underTest.handleComponentInteractEvent(buttonEventAdaptor);
@@ -301,7 +303,7 @@ class CountSuccessesCommandTest {
         when(buttonEventAdaptor.getRequester()).thenReturn(new Requester("user", "channel", "guild", "[0 / 1]"));
         when(buttonEventAdaptor.getMessageCreationTime()).thenReturn(OffsetDateTime.now().minusSeconds(2));
         when(buttonEventAdaptor.getEventCreationTime()).thenReturn(OffsetDateTime.now().minusSeconds(1));
-        when(buttonEventAdaptor.getMessagesState(any())).thenReturn(Mono.just(new MessageState(1L, true, true, true, OffsetDateTime.now().minusSeconds(2))).flux());
+        when(buttonEventAdaptor.getMessagesState(any())).thenReturn(Mono.just(new MessageState(1L, true, true, true, OffsetDateTime.now().minusSeconds(2))).flux().parallel());
 
 
         Mono<Void> res = underTest.handleComponentInteractEvent(buttonEventAdaptor);
