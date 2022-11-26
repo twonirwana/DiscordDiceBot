@@ -9,11 +9,13 @@ import de.janno.evaluator.dice.Roll;
 import de.janno.evaluator.dice.RollElement;
 import de.janno.evaluator.dice.random.NumberSupplier;
 import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 public class DiceEvaluatorAdapter {
 
     private final DiceEvaluator diceEvaluator;
@@ -62,6 +64,7 @@ public class DiceEvaluatorAdapter {
 
     public Optional<String> validateDiceExpression(String expression, String helpCommand) {
         try {
+            log.debug("Validating expression: {}", expression);
             diceEvaluator.evaluate(expression);
             return Optional.empty();
         } catch (ExpressionException | ArithmeticException e) {
@@ -77,6 +80,7 @@ public class DiceEvaluatorAdapter {
 
     public RollAnswer answerRollWithGivenLabel(String diceExpression, @Nullable String label, boolean sumUp, AnswerFormatType answerFormatType) {
         try {
+            log.debug("Roll expression: {}", diceExpression);
             List<Roll> rolls = diceEvaluator.evaluate(diceExpression);
             if (rolls.size() == 1) {
                 return RollAnswer.builder()
@@ -109,6 +113,7 @@ public class DiceEvaluatorAdapter {
 
     public boolean validExpression(String expression) {
         try {
+            log.debug("check if valid: {}", expression);
             diceEvaluator.evaluate(expression);
             return true;
         } catch (ExpressionException | ArithmeticException e) {
