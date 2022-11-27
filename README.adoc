@@ -86,6 +86,11 @@ Some example for commands, many more systems can be mapped, please see in the de
 
 `/custom_dice start buttons: 1d100; 2d100L1@1d100 Advantage; 2d100K1@1d100 Penalty; 1d3; 1d4; 1d6; 1d8; 1d10; 1d12; 1d20; 3d6`
 
+[discrete]
+=== Universal Dice Calculator ===
+
+`/sum_custom_set start buttons: 7;8;9;+;-;4;5;6;d;k;1;2;3;0;l always_sum_result: true`
+
 == Commands
 
 All button configurations can be used with the `target_channel` option.
