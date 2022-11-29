@@ -2,7 +2,7 @@ package de.janno.discord.bot.dice;
 
 
 import com.google.common.collect.ImmutableList;
-import de.janno.evaluator.ExpressionException;
+import de.janno.evaluator.dice.ExpressionException;
 import de.janno.evaluator.dice.random.GivenNumberSupplier;
 import de.janno.evaluator.dice.random.NumberSupplier;
 import de.janno.evaluator.dice.random.RandomNumberSupplier;
