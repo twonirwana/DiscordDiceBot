@@ -97,14 +97,37 @@ All button configurations can be used with the `target_channel` option.
 If this option is used then the answer of a roll will be posted in the provided channel.
 The target channel must be a text channel and need the bot need the usual permissions.
 If a message sends the answer to another channel, it will not be moved to the end of its own channel.
-All commands have an `answer_format` option that determines how the answer of a dice roll is shown. There are three options: `full`, `compact` and `minimal`.
 
-* `full` is the default and shows result as multiline with avatar of the user, color coding and all details.
-* `without_expression` is the same as `full` but don't show the dice expression in the result.
-* `compact` shows the result as single line (if there are multiple expressions in on roll, they will be displayed in multiple lines) and all details.
+=== Answer Format
+
+All commands have an `answer_format` option that determines how the answer of a dice roll is shown.
+There are three options: `full`,`without_expression`, `compact` and `minimal`.
+
+==== Full
+
+`full` is the default and shows result as multiline with avatar of the user, color coding and all details.
+
+image:image/full.png[image]
+
+==== Without expression
+
+`without_expression` is the same as `full` but don't show the dice expression in the result.
+
+image:image/without_expression.png[image]
+
+==== Compact
+
+`compact` shows the result as single line (if there are multiple expressions in on roll, they will be displayed in multiple lines) and all details.
+
+image:image/compact.png[image]
+
+==== Minimal
+
 * `minimal` shows the result as single line with only the expression (or the if available instant of the expression the label) and result, without the details like the result of each die.
 
-=== Custom dice buttons
+image:image/minimal.png[image]
+
+=== Custom Dice Buttons
 
 image:image/custom_dice.webp[image]
 
@@ -268,7 +291,6 @@ The clear command removes all button configuration in a channel from the bot and
 == Dice Expression Notation
 
 see https://github.com/twonirwana/DiceEvaluator for all details.
-
 
 The evaluator processes dice expression and returns a list of rolls, each containing a list of elements.
 Elements have a value (a number or a text) and can have a color.
