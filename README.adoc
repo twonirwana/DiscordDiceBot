@@ -111,7 +111,7 @@ image:image/full.png[image]
 
 ==== Without expression
 
-`without_expression` is the same as `full` but don't show the dice expression in the result.
+`without_expression` is the same as `full` but don't show the dice expression in the result. This is useful if the expression is very long and it is recommended to add a label.
 
 image:image/without_expression.png[image]
 
