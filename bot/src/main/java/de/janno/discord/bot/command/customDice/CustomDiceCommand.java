@@ -185,7 +185,6 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
                 .filter(s -> !s.getLabel().isEmpty())
                 .filter(lv -> diceSystemAdapter.isValidExpression(lv.getDiceExpression(), diceParserSystem))
                 .filter(s -> s.getDiceExpression().length() <= 2000) //limit of the discord message content
-                .filter(s -> s.getLabel().length() <= 80) //https://discord.com/developers/docs/interactions/message-components#buttons
                 .distinct()
                 .limit(25)
                 .collect(Collectors.toList()),

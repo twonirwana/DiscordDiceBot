@@ -100,6 +100,7 @@ If a message sends the answer to another channel, it will not be moved to the en
 All commands have an `answer_format` option that determines how the answer of a dice roll is shown. There are three options: `full`, `compact` and `minimal`.
 
 * `full` is the default and shows result as multiline with avatar of the user, color coding and all details.
+* `without_expression` is the same as `full` but don't show the dice expression in the result.
 * `compact` shows the result as single line (if there are multiple expressions in on roll, they will be displayed in multiple lines) and all details.
 * `minimal` shows the result as single line with only the expression (or the if available instant of the expression the label) and result, without the details like the result of each die.
 

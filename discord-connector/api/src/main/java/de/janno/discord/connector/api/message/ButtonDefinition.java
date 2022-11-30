@@ -4,6 +4,7 @@ import com.google.common.base.Preconditions;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.Value;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.Objects;
 
@@ -20,9 +21,9 @@ public class ButtonDefinition {
     boolean disabled;
 
     ButtonDefinition(@NonNull String label, @NonNull String id, Style style, boolean disabled) {
-        Preconditions.checkArgument(label.length() <= 80, String.format("Label '%s' is to long", label));
+        //https://discord.com/developers/docs/interactions/message-components#button-object
         Preconditions.checkArgument(id.length() <= 100, String.format("ID '%s' is to long", id));
-        this.label = label;
+        this.label = StringUtils.abbreviate(label, 80);
         this.id = id;
         this.style = Objects.requireNonNullElse(style, Style.PRIMARY);
         this.disabled = disabled;
