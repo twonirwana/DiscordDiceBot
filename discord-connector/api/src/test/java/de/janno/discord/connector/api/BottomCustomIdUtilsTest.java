@@ -70,27 +70,6 @@ class BottomCustomIdUtilsTest {
     }
 
     @Test
-    void getCommandNameFromCustomId() {
-        String res = BottomCustomIdUtils.getCommandNameFromCustomId("a\u001eb");
-
-        assertThat(res).isEqualTo("a");
-    }
-
-    @Test
-    void getCommandNameFromCustomId_legacyV1() {
-        String res = BottomCustomIdUtils.getCommandNameFromCustomId("a\u0000b");
-
-        assertThat(res).isEqualTo("a");
-    }
-
-    @Test
-    void getCommandNameFromCustomId_legacyV2() {
-        String res = BottomCustomIdUtils.getCommandNameFromCustomId("a,b");
-
-        assertThat(res).isEqualTo("a");
-    }
-
-    @Test
     void matchesLegacyCustomId_v1_true() {
         boolean res = BottomCustomIdUtils.matchesLegacyCustomId("a,b", "a");
 

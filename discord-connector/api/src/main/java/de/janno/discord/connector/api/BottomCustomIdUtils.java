@@ -38,13 +38,6 @@ public final class BottomCustomIdUtils {
         return customId.split(CUSTOM_ID_DELIMITER)[COMMAND_NAME_INDEX];
     }
 
-    public static String getCommandNameFromCustomId(String customId) {
-        if (!isLegacyCustomId(customId)) {
-            return getCommandNameFromCustomIdWithPersistence(customId);
-        }
-        return customId.split(LEGACY_CONFIG_SPLIT_DELIMITER_REGEX)[COMMAND_NAME_INDEX];
-    }
-
     /**
      * will be removed when almost all users have switched to the persisted button id
      */

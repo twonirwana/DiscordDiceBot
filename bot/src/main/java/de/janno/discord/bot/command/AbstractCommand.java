@@ -211,13 +211,16 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
             BotMetrics.incrementAnswerFormatCounter(config.getAnswerFormatType(), getCommandId());
 
             actions.add(Mono.defer(() -> event.createResultMessageWithEventReference(RollAnswerConverter.toEmbedOrMessageDefinition(answer.get()), answerTargetChannelId)
-                    .doOnSuccess(v -> log.info("{}: '{}'={} -> {} in {}ms",
-                            event.getRequester().toLogString(),
-                            event.getCustomId().replace(CUSTOM_ID_DELIMITER, ":"),
-                            state.toShortString(),
-                            answer.get().toShortString(),
-                            stopwatch.elapsed(TimeUnit.MILLISECONDS)
-                    ))));
+                    .doOnSuccess(v -> {
+                        BotMetrics.timerAnswerMetricCounter(getCommandId(), stopwatch.elapsed());
+                        log.info("{}: '{}'={} -> {} in {}ms",
+                                event.getRequester().toLogString(),
+                                event.getCustomId().replace(CUSTOM_ID_DELIMITER, ":"),
+                                state.toShortString(),
+                                answer.get().toShortString(),
+                                stopwatch.elapsed(TimeUnit.MILLISECONDS)
+                        );
+                    })));
 
         }
         Optional<MessageDefinition> newButtonMessage = createNewButtonMessageWithState(config, state);
@@ -230,6 +233,7 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
                                 nextMessageData.ifPresent(messageDataDAO::saveMessageData);
                                 return deleteOldAndConcurrentMessageAndData(newMessageId, configUUID, channelId, event);
                             })).delaySubscription(calculateDelay(event))
+                    .doOnSuccess(v -> BotMetrics.timerNewButtonMessageMetricCounter(getCommandId(), stopwatch.elapsed()))
                     .then());
             deleteCurrentButtonMessage = !keepExistingButtonMessage;
         } else {

@@ -1,7 +1,5 @@
 package de.janno.discord.connector.jda;
 
-import com.google.common.base.Stopwatch;
-import de.janno.discord.connector.api.BottomCustomIdUtils;
 import de.janno.discord.connector.api.ComponentInteractEventHandler;
 import de.janno.discord.connector.api.Requester;
 import de.janno.discord.connector.api.SlashCommand;
@@ -101,7 +99,6 @@ public class JdaClient {
 
                             @Override
                             public void onSlashCommandInteraction(@NonNull SlashCommandInteractionEvent event) {
-                                Stopwatch stopwatch = Stopwatch.createStarted();
                                 log.trace("ChatInputEvent: {} from {}", event.getInteraction().getCommandId(),
                                         event.getInteraction().getUser().getName());
                                 Flux.fromIterable(commands)
@@ -117,16 +114,12 @@ public class JdaClient {
                                             log.error("SlashCommandEvent Exception: ", e);
                                             return Mono.empty();
                                         })
-                                        .doAfterTerminate(() ->
-                                                JdaMetrics.timerSlashStartMetricCounter(event.getName(), stopwatch.elapsed())
-                                        )
                                         .subscribeOn(scheduler)
                                         .subscribe();
                             }
 
                             @Override
                             public void onButtonInteraction(@NonNull ButtonInteractionEvent event) {
-                                Stopwatch stopwatch = Stopwatch.createStarted();
                                 log.trace("ComponentEvent: {} from {}", event.getInteraction().getComponentId(), event.getInteraction().getUser().getName());
                                 Flux.fromIterable(commands)
                                         .ofType(ComponentInteractEventHandler.class)
@@ -142,9 +135,6 @@ public class JdaClient {
                                             log.error("ButtonInteractEvent Exception: ", e);
                                             return Mono.empty();
                                         })
-                                        .doAfterTerminate(() ->
-                                                JdaMetrics.timerButtonMetricCounter(BottomCustomIdUtils.getCommandNameFromCustomId(event.getInteraction().getComponentId()), stopwatch.elapsed())
-                                        )
                                         .subscribeOn(scheduler)
                                         .subscribe();
                             }
