@@ -130,9 +130,6 @@ public class DiceParserAdapter {
             label = expressionWithOptionalLabel;
             diceExpression = expressionWithOptionalLabel;
         }
-        if (label.length() > 80) {
-            return Optional.of(String.format("Label for '%s' is to long, max number of characters is 80", expressionWithOptionalLabel));
-        }
         if (label.isBlank()) {
             return Optional.of(String.format("Label for '%s' requires a visible name", expressionWithOptionalLabel));
         }

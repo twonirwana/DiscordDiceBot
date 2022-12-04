@@ -49,18 +49,12 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
             .name(ANSWER_FORMAT_OPTION)
             .description("How the answer will be displayed")
             .type(CommandDefinitionOption.Type.STRING)
-            .choice(CommandDefinitionOptionChoice.builder()
-                    .name(AnswerFormatType.full.name())
-                    .value(AnswerFormatType.full.name())
-                    .build())
-            .choice(CommandDefinitionOptionChoice.builder()
-                    .name(AnswerFormatType.compact.name())
-                    .value(AnswerFormatType.compact.name())
-                    .build())
-            .choice(CommandDefinitionOptionChoice.builder()
-                    .name(AnswerFormatType.minimal.name())
-                    .value(AnswerFormatType.minimal.name())
-                    .build())
+            .choices(Arrays.stream(AnswerFormatType.values())
+                    .map(answerFormatType -> CommandDefinitionOptionChoice.builder()
+                            .name(answerFormatType.name())
+                            .value(answerFormatType.name())
+                            .build())
+                    .collect(Collectors.toList()))
             .build();
     private static final int MIN_MS_DELAY_BETWEEN_BUTTON_MESSAGES = 1000;
     private final static ConcurrentSkipListSet<Long> MESSAGE_DATA_IDS_TO_DELETE = new ConcurrentSkipListSet<>();
@@ -217,13 +211,16 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
             BotMetrics.incrementAnswerFormatCounter(config.getAnswerFormatType(), getCommandId());
 
             actions.add(Mono.defer(() -> event.createResultMessageWithEventReference(RollAnswerConverter.toEmbedOrMessageDefinition(answer.get()), answerTargetChannelId)
-                    .doOnSuccess(v -> log.info("{}: '{}'={} -> {} in {}ms",
-                            event.getRequester().toLogString(),
-                            event.getCustomId().replace(CUSTOM_ID_DELIMITER, ":"),
-                            state.toShortString(),
-                            answer.get().toShortString(),
-                            stopwatch.elapsed(TimeUnit.MILLISECONDS)
-                    ))));
+                    .doOnSuccess(v -> {
+                        BotMetrics.timerAnswerMetricCounter(getCommandId(), stopwatch.elapsed());
+                        log.info("{}: '{}'={} -> {} in {}ms",
+                                event.getRequester().toLogString(),
+                                event.getCustomId().replace(CUSTOM_ID_DELIMITER, ":"),
+                                state.toShortString(),
+                                answer.get().toShortString(),
+                                stopwatch.elapsed(TimeUnit.MILLISECONDS)
+                        );
+                    })));
 
         }
         Optional<MessageDefinition> newButtonMessage = createNewButtonMessageWithState(config, state);
@@ -236,6 +233,7 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
                                 nextMessageData.ifPresent(messageDataDAO::saveMessageData);
                                 return deleteOldAndConcurrentMessageAndData(newMessageId, configUUID, channelId, event);
                             })).delaySubscription(calculateDelay(event))
+                    .doOnSuccess(v -> BotMetrics.timerNewButtonMessageMetricCounter(getCommandId(), stopwatch.elapsed()))
                     .then());
             deleteCurrentButtonMessage = !keepExistingButtonMessage;
         } else {

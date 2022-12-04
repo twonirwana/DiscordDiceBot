@@ -421,7 +421,6 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
                     }
                     return true;
                 })
-                .filter(s -> s.getLabel().length() <= 80) //https://discord.com/developers/docs/interactions/message-components#buttons
                 .distinct()
                 .limit(22)
                 .collect(Collectors.toList()),

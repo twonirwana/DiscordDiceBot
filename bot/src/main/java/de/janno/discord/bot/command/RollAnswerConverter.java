@@ -48,6 +48,29 @@ public class RollAnswerConverter {
                             .build();
                 }
             }
+            case without_expression -> {
+                if (rollAnswer.getMultiRollResults() != null) {
+                    yield EmbedOrMessageDefinition.builder()
+                            .title(Optional.ofNullable(rollAnswer.getExpressionLabel()).orElse("Roll"))
+                            .fields(rollAnswer.getMultiRollResults().stream()
+                                    .limit(25) //max number of embedFields
+                                    .map(r -> new EmbedOrMessageDefinition.Field(
+                                            r.getResult(),
+                                            r.getRollDetails(),
+                                            false))
+                                    .collect(ImmutableList.toImmutableList()))
+                            .type(EmbedOrMessageDefinition.Type.EMBED)
+                            .build();
+
+                } else {
+                    final String description = Optional.ofNullable(rollAnswer.getRollDetails()).orElse("");
+                    yield EmbedOrMessageDefinition.builder()
+                            .title("%s ⇒ %s".formatted(Optional.ofNullable(rollAnswer.getExpressionLabel()).orElse("Roll"), rollAnswer.getResult()))
+                            .descriptionOrContent(description)
+                            .type(EmbedOrMessageDefinition.Type.EMBED)
+                            .build();
+                }
+            }
             case compact -> {
                 final String description;
                 if (rollAnswer.getMultiRollResults() != null) {

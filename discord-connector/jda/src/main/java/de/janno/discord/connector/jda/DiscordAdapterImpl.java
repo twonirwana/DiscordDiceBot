@@ -33,7 +33,10 @@ import java.util.stream.Collectors;
 public abstract class DiscordAdapterImpl implements DiscordAdapter {
 
     //needed to correctly show utf8 characters in discord
-    private static String encodeUTF8(@NonNull String in) {
+    private static String encodeUTF8(String in) {
+        if(in == null) {
+            return null;
+        }
         return new String(in.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8);
     }
 
