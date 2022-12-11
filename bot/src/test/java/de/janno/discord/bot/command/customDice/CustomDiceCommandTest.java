@@ -167,12 +167,28 @@ class CustomDiceCommandTest {
     }
 
     @Test
-    void getDiceResult_3x1d6() {
+    void getDiceResult_diceParser_3x1d6() {
         when(diceMock.detailedRoll("1d6")).thenReturn(new ResultTree(new NDice(6, 1), 6, ImmutableList.of()));
-        EmbedOrMessageDefinition res = RollAnswerConverter.toEmbedOrMessageDefinition(underTest.getAnswer(new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "3x[1d6]", "3x[1d6]")), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full), new State<>("1_button", StateData.empty()))
+        EmbedOrMessageDefinition res = RollAnswerConverter.toEmbedOrMessageDefinition(underTest.getAnswer(new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "3x[1d6]", "3x[1d6]")), DiceParserSystem.DICEROLL_PARSER, AnswerFormatType.full), new State<>("1_button", StateData.empty()))
                 .orElseThrow());
 
-        assertThat(res).isEqualTo(new EmbedOrMessageDefinition("Error in `3x[1d6]`", "There need to be an operator or a separator between two values", ImmutableList.of(), EmbedOrMessageDefinition.Type.EMBED));
+        assertThat(res).isEqualTo(new EmbedOrMessageDefinition("Multiple Results", null, ImmutableList.of(
+                new EmbedOrMessageDefinition.Field("1d6 ⇒ 6", "[6]", false),
+                new EmbedOrMessageDefinition.Field("1d6 ⇒ 6", "[6]", false),
+                new EmbedOrMessageDefinition.Field("1d6 ⇒ 6", "[6]", false)
+        ), EmbedOrMessageDefinition.Type.EMBED));
+    }
+
+    @Test
+    void getDiceResult_diceEvaluator_3x1d6() {
+        EmbedOrMessageDefinition res = RollAnswerConverter.toEmbedOrMessageDefinition(underTest.getAnswer(new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "3x1d6", "3x1d6")), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full), new State<>("1_button", StateData.empty()))
+                .orElseThrow());
+
+        assertThat(res).isEqualTo(new EmbedOrMessageDefinition("3x1d6", null, ImmutableList.of(
+                new EmbedOrMessageDefinition.Field("1d6 ⇒ 3", "[3]", false),
+                new EmbedOrMessageDefinition.Field("1d6 ⇒ 3", "[3]", false),
+                new EmbedOrMessageDefinition.Field("1d6 ⇒ 3", "[3]", false)
+        ), EmbedOrMessageDefinition.Type.EMBED));
     }
 
 
