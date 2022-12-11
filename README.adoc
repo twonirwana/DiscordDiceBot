@@ -41,7 +41,7 @@ Some example for commands, many more systems can be mapped, please see in the de
 [discrete]
 === OSR
 
-`/custom_dice start buttons:1d20@D20;1d6@D6;2d6@2D6;1d4@D4;1d8@D8;3d6=,3d6=,3d6=,3d6=,3d6=,3d6=@Stats;(3d6=)*10@Gold;1d100@D100;1d10@D10;1d12@D12`
+`/custom_dice start buttons:1d20@D20;1d6@D6;2d6@2D6;1d4@D4;1d8@D8;6x3d6=@Stats;(3d6=)*10@Gold;1d100@D100;1d10@D10;1d12@D12`
 
 [discrete]
 === Fate
@@ -316,22 +316,24 @@ The number of dice is limited to 1000 and every number approve 2147483647 will b
 [width="100%",cols="9%,8%,7%,48%,4%,8%,8%,8%",options="header",]
 |===
 |Name |Notation |Example |Description |Precedent |Associativity |Left parameter |Right parameter
-|Sum |`<left> =` |`2d6=` |Sums the list of on the left side of the symbol |0 |left |a list |-
-|Multiply |`<left> * <right>` |`2 * 6` |Multiplies the right number with the left number |1 |left |a single number |a single number
-|Divide |`<left> / <right>` |`4 / 2` |Divides the right number with the left number |2 |left |a single number |a single number
-|Count |`<list> c` |`3d6>3c` |Counts the number of elements in a list |3 |left |a list |-
-|Greater Then Filter |`<list> > <number>` |`3d6>3` |Keeps only the elements of the left list that are bigger as the right number |4 |left |one or more numbers |a single number
-|Lesser Then Filter |`<list> < <number>` |`3d6<3` |Keeps only the elements of the left list that are lesser as the right number |5 |left |one or more numbers |a single number
-|Greater Equal Then Filter |`<list> >= <number>` |`3d6>=3` |Keeps only the elements of the left list that are bigger or equal as the right number |6 |left |one or more numbers |a single number
-|Lesser Equal Then Filter |`<list> <= <number>` |`3d6<=3` |Keeps only the elements of the left list that are lesser or equal as the right number |7 |left |one or more numbers |a single number
-|Equal Filter |`<list> == <value>` |`3d6==3` |Keeps only the elements of the left list that are equal to the value |8 |left |one or more elements |a single elements
-|Keep Highest |`<list> k <numberToKept>` |`3d6k2` |keeps the highest values out a list, like the roll of multiple dice |9 |left |one or more values |a single number
-|Keep Lowest |`<list> l <numberToKept>` |`3d6l2` |keeps the lowest values out a list, like the roll of multiple dice |10 |left |one or more values |a single number
-|Appending |`<left> + <right>` |`2d6 + 2` or `+3` |Combines the rolls of both sides to a single list. If used as unary operator, it will be ignored e.g. `+5` will process to `5` |11 (max for unary) |left for binary and right for unary |none or more value |one or more value
-|Negative Appending |`<left> - <right>` |`2 - 1` or `-d6` |Combines the rolls of both sides to a single list. The right side is multiplied by -1. |12 |left for binary and right for unary |none or more value |one or more numbers
-|Exploding Add Dice |`<numberOfDice>d!!<numberOfFaces>` |`3d!!6` |Throws dice and any time the max value of a die is rolled, that die is re-rolled and added to the die previous resul total. A roll of the reroll the sum of the value. |13 |left for binary and right for unary |none or a single positiv number (max 1000) |a single number
-|Exploding Dice |`<numberOfDice>d!<numberOfFaces>` |`4d!6` or `d!6` |Throws dice and any time the max value of a die is rolled, that die is re-rolled and added to the dice set total. A reroll will be represented as two dice roll values |14 |left for binary and right for unary |none or a single number (max 1000) |a single positiv number
-|Regular Dice |`<numberOfDice>d<numberOfFaces>` |`3d20`, `d20` or `3d[2/4/8]` |Throws a number of dice given by the left number. The number sides are given by the right number. If the right side a list, an element of the list is randomly picked. The roll is a list with the dice throw |15 |left for binary and right for unary |none or a single number (max 1000) |a single positiv number or multiple values
+|Repeat |`<number>x<expression>` |`3x2d6` |Repeats the expression a number of times given in <number>. This should be used outside other expressions and will not work inside most expressions |0 |left |a single number between 1-10 | a expression
+|Sum |`<left> =` |`2d6=` |Sums the list of on the left side of the symbol |1 |left |a list |-
+|Multiply |`<left> * <right>` |`2 * 6` |Multiplies the right number with the left number |2 |left |a single number |a single number
+|Divide |`<left> / <right>` |`4 / 2` |Divides the right number with the left number |3 |left |a single number |a single number
+|Count |`<list> c` |`3d6>3c` |Counts the number of elements in a list |4 |left |a list |-
+|Greater Then Filter |`<list> > <number>` |`3d6>3` |Keeps only the elements of the left list that are bigger as the right number |5 |left |one or more numbers |a single number
+|Lesser Then Filter |`<list> < <number>` |`3d6<3` |Keeps only the elements of the left list that are lesser as the right number |6 |left |one or more numbers |a single number
+|Greater Equal Then Filter |`<list> >= <number>` |`3d6>=3` |Keeps only the elements of the left list that are bigger or equal as the right number |7 |left |one or more numbers |a single number
+|Lesser Equal Then Filter |`<list> <= <number>` |`3d6<=3` |Keeps only the elements of the left list that are lesser or equal as the right number |8 |left |one or more numbers |a single number
+|Equal Filter |`<list> == <element>` |`3d6==3` |Keeps only the elements of the left list that are equal to the element |9 |left |one or more elements |a single elements
+|Keep Highest |`<list> k <numberToKept>` |`3d6k2` |keeps the highest values out a list, like the roll of multiple dice |10 |left |one or more elements |a single number
+|Keep Lowest |`<list> l <numberToKept>` |`3d6l2` |keeps the lowest values out a list, like the roll of multiple dice |11 |left |one or more elements |a single number
+|Appending |`<left> + <right>` |`2d6 + 2` or `+3` |Combines the rolls of both sides to a single list. If used as unary operator, it will be ignored e.g. `+5` will process to `5` |12 (max for unary) |left for binary and right for unary |none or more elements |one or more elements
+|Negative Appending |`<left> - <right>` |`2 - 1` or `-d6` |Combines the rolls of both sides to a single list. The right side is multiplied by -1. |13 |left for binary and right for unary |none or more elements |one or more numbers
+|Reroll |`<expression>rr<rerollIfIn>` |`10d6rr1` | Reroll the whole `<expression>` once if any of the elements of `<expression>` are in the elements of `<rerollIfIn>` |14|left|one or more elements|one or more elements
+|Exploding Add Dice |`<numberOfDice>d!!<numberOfFaces>` |`3d!!6` |Throws dice and any time the max value of a die is rolled, that die is re-rolled and added to the die previous resul total. A roll of the reroll the sum of the value. |15 |left for binary and right for unary |none or a single positiv number (max 1000) |a single number
+|Exploding Dice |`<numberOfDice>d!<numberOfFaces>` |`4d!6` or `d!6` |Throws dice and any time the max value of a die is rolled, that die is re-rolled and added to the dice set total. A reroll will be represented as two dice roll elements |16 |left for binary and right for unary |none or a single number (max 1000) |a single positiv number
+|Regular Dice |`<numberOfDice>d<numberOfFaces>` |`3d20`, `d20` or `3d[2/4/8]` |Throws a number of dice given by the left number. The number sides are given by the right number. If the right side a list, an element of the list is randomly picked. The roll is a list with the dice throw |17 |left for binary and right for unary |none or a single number (max 1000) |a single positiv number or multiple elements
 |===
 
 === Functions
@@ -348,7 +350,7 @@ The number of dice is limited to 1000 and every number approve 2147483647 will b
 |chancel |`chancel(<expression>, <listA>, <listB>)` |`chancel(8d10, 10, 1)` |the elements of listA and listB (can also be single elements) chancel each other and remove each other from the result.
 |replace |`replace(<expression>, <find>, <replace>)` |`replace(8d10, [9/10], 'bonus')` | each element in `<expression>` that matches on of the elements in `<find>` will be replaced with the elements in `<replace>`.
 |if equal |`ifE(<expression>,<compareTo>,<true>,<false>)` |`ifE(1d6,6,'six','not six')` or `ifE(1d6,6,'six')` or `ifE(1d6,6,'six',5,'five',`else`)` |compares the elements of `<expression>` and `<compareTo>` and if they are equal return the `<true>` expression or else the `<false>` expression. The `<false>` expression is optional, if it is missing and the elements are not equal, the result will be the input expression. It is possible to add more than `<compareTo>,<true>` pair in the function, the result will be the `<true>` of the first, coming from left, matching `<compareTo>`.
-|if in |`ifIn(<expression>,<compareTo>,<true>,<false>)` |`ifIn(1d6,[1/6],'1or6','2-5')` or `ifIn(1d6,[1/6],'1or6')` or `ifIn(1d6,[1/6],'up',[2/5],'down',`middle`)` | returns `<true>` expression if the element of `<expression>` is in `<compareTo>` or else the `<false>` expression. `<expression>` musst provide a single value. The `<false>` expression is optional, if it is missing and the elements are not equal, the result will be the input expression. It is possible to add more than `<compareTo>,<true>` pair in the function, the result will be the `<true>` of the first, coming from left, matching `<compareTo>`.
+|if in |`ifIn(<expression>,<compareTo>,<true>,<false>)` |`ifIn(1d6,[1/6],'1or6','2-5')` or `ifIn(1d6,[1/6],'1or6')` or `ifIn(1d6,[1/6],'up',[2/5],'down',`middle`)` | returns `<true>` expression if the element of `<expression>` is in `<compareTo>` or else the `<false>` expression. `<expression>` musst provide a single element. The `<false>` expression is optional, if it is missing and the elements are not equal, the result will be the input expression. It is possible to add more than `<compareTo>,<true>` pair in the function, the result will be the `<true>` of the first, coming from left, matching `<compareTo>`.
 |if greater |`ifG(<expression>,<compareTo>,<true>,<false>)` |`ifG(1d6,4,'high','low')` or `ifG(1d6,4,'high')` or `ifG(1d6,4,'high',2,'mid','low')` |compares the elements of `<expression>` and `<compareTo>` and if `<expression>` is greater than `<compareTo>` then return the `<true>` expression or else the `<false>` expression. The `<false>` expression is optional, if it is missing and the elements are not equal, the result will be the input expression. It is possible to add more than `<compareTo>,<true>` pair in the function, the result will be the `<true>` of the first, coming from left, matching `<compareTo>`. `<expression>` and `<compareTo>` need to have a single element as result.
 |if lesser |`ifL(<expression>,<compareTo>,<true>,<false>)` |`ifL(1d6,3,'low','high')` or `ifL(1d6,3,'low')` or `ifL(1d6,5,'mid',3,'low','high')`|compares the elements of `<expression>` and `<compareTo>` and if `<expression>` is lesser than `<compareTo>` then return the `<true>` expression or else the `<false>` expression. The `<false>` expression is optional, if it is missing and the elements are not equal, the result will be the input expression. It is possible to add more than `<compareTo>,<true>` pair in the function, the result will be the `<true>` of the first, coming from left, matching `<compareTo>`. `<expression>` and `<compareTo>` need to have a single element as result.
 |group count |`groupC(<expression1>, <expression2> ...)` |`groupC(20d6)` | counts all elements of with the same value and provides the results as list in the format of `<count>x<value>`
