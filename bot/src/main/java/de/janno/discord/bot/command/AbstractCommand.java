@@ -256,9 +256,9 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
     private Duration calculateDelay(ButtonEventAdaptor event) {
         long milliBetween = ChronoUnit.MILLIS.between(event.getMessageCreationTime(), OffsetDateTime.now());
         if (milliBetween < MIN_MS_DELAY_BETWEEN_BUTTON_MESSAGES) {
-            BotMetrics.delayTimer(getCommandId(), Duration.ofMillis(milliBetween));
             BotMetrics.incrementDelayCounter(getCommandId(), true);
             long delay = MIN_MS_DELAY_BETWEEN_BUTTON_MESSAGES - milliBetween;
+            BotMetrics.delayTimer(getCommandId(), Duration.ofMillis(delay));
             log.info("{}: Delaying button message creation for {}ms", event.getRequester().toLogString(), delay);
             return Duration.ofMillis(delay);
         }

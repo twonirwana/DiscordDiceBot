@@ -33,7 +33,7 @@ public class MessageDataDAOImpl implements MessageDataDAO {
         queryGauge("db.channel.count", "select count (distinct CHANNEL_ID) from MESSAGE_DATA;", connectionPool, Set.of());
         queryGauge("db.guild.count", "select count (distinct GUILD_ID) from MESSAGE_DATA;", connectionPool, Set.of());
         queryGauge("db.guild-null.count", "select count (distinct CHANNEL_ID) from MESSAGE_DATA where GUILD_ID is null;", connectionPool, Set.of());
-        queryGauge("db.guild-30d.active", "select count (distinct GUILD_ID) from MESSAGE_DATA where (CURRENT_DATE - CREATION_DATE) <= interval '43200' MINUTE;", connectionPool, Set.of());
+        queryGauge("db.guild-30d.active", "select count (distinct GUILD_ID) from MESSAGE_DATA where (CURRENT_TIMESTAMP - CREATION_DATE) <= interval '43200' MINUTE;", connectionPool, Set.of());
 
         try (Connection connection = connectionPool.getConnection()) {
             Statement statement = connection.createStatement();
