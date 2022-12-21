@@ -80,13 +80,13 @@ class CustomParameterCommandTest {
     private static Stream<Arguments> getStateFromEvent() {
         return Stream.of(
                 //first select
-                Arguments.of(FIRST_SELECT_CUSTOM_ID, "{n}d{s}: Please select value for {n}", "user1", ImmutableList.of("1"), "1d{s}", "{s}", "*{s}*", true),
+                Arguments.of(FIRST_SELECT_CUSTOM_ID, "{n}d{s}: Please select value for {n}", "user1", ImmutableList.of("1"), "1d{s}", "{s}", "{s}", true),
                 //last select
                 Arguments.of(LAST_SELECT_CUSTOM_ID, "user1\u22361d{s}: Please select value for {s}", "user1", ImmutableList.of("1", "2"), "1d2", null, null, false),
                 //clear
-                Arguments.of(CLEAR_CUSTOM_ID, "user1\u22361d{s}: Please select value for {s}", "user2", ImmutableList.of(), "{n}d{s}", "{n}", "*{n}*", true),
+                Arguments.of(CLEAR_CUSTOM_ID, "user1\u22361d{s}: Please select value for {s}", "user2", ImmutableList.of(), "{n}d{s}", "{n}", "{n}", true),
                 //not action because click from other user
-                Arguments.of(LAST_SELECT_CUSTOM_ID, "user1\u22361d{s}: Please select value for {s}", "user2", ImmutableList.of("1"), "1d{s}", "{s}", "*{s}*", true)
+                Arguments.of(LAST_SELECT_CUSTOM_ID, "user1\u22361d{s}: Please select value for {s}", "user2", ImmutableList.of("1"), "1d{s}", "{s}", "{s}", true)
         );
     }
 
@@ -225,7 +225,8 @@ class CustomParameterCommandTest {
     void createNewButtonMessage() {
         MessageDefinition res = underTest.createNewButtonMessage(createConfigFromCustomId(LAST_SELECT_CUSTOM_ID));
 
-        assertThat(res.getContent()).isEqualTo("*{n}*d*{s}*: Please select value for *{n}*");
+        assertThat(res.getContent()).isEqualTo("{n}d{s}\n" +
+                "Please select value for **n**");
         assertThat(res.getComponentRowDefinitions().stream()
                 .flatMap(c -> c.getButtonDefinitions().stream())
                 .map(ButtonDefinition::getId)
@@ -313,7 +314,8 @@ class CustomParameterCommandTest {
 
         Optional<String> res = underTest.getCurrentMessageContentChange(createConfigFromCustomId(FIRST_SELECT_CUSTOM_ID), createParameterStateFromLegacyId(FIRST_SELECT_CUSTOM_ID, "", ""));
 
-        assertThat(res).contains("∶1d*{s}*: Please select value for *{s}*");
+        assertThat(res).contains("1d{s}\n" +
+                "Please select value for **s**");
     }
 
     @Test
@@ -321,7 +323,8 @@ class CustomParameterCommandTest {
 
         Optional<String> res = underTest.getCurrentMessageContentChange(createConfigFromCustomId(FIRST_SELECT_CUSTOM_ID), createParameterStateFromLegacyId(FIRST_SELECT_CUSTOM_ID, "user1\u22361d{s}: Please select value for {s}", "user1"));
 
-        assertThat(res).contains("user1∶1d*{s}*: Please select value for *{s}*");
+        assertThat(res).contains("user1:  1d{s}\n" +
+                "Please select value for **s**");
     }
 
     @Test
@@ -329,7 +332,8 @@ class CustomParameterCommandTest {
 
         Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(createConfigFromCustomId(LAST_SELECT_CUSTOM_ID), createParameterStateFromLegacyId(LAST_SELECT_CUSTOM_ID, "user1\u22361d{s}: Please select value for {s}", "user1"));
 
-        assertThat(res.orElseThrow().getContent()).isEqualTo("*{n}*d*{s}*: Please select value for *{n}*");
+        assertThat(res.orElseThrow().getContent()).isEqualTo("{n}d{s}\n" +
+                "Please select value for **n**");
         assertThat(res.orElseThrow().getComponentRowDefinitions().stream()
                 .flatMap(c -> c.getButtonDefinitions().stream())
                 .map(ButtonDefinition::getId)

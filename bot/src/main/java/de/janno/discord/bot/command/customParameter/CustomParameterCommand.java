@@ -73,11 +73,8 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     }
 
 
-    private static String cleanupExpressionForDisplay(String expression) {
-        return expression
-                .replaceAll(RANGE_REPLACE_REGEX, "")
-                .replace("{", "*{")
-                .replace("}", "}*");
+    private static String removeRange(String expression) {
+        return expression.replaceAll(RANGE_REPLACE_REGEX, "");
     }
 
     private static List<String> getSelectedParameterValues(String buttonValue, List<String> alreadySelectedParameter, String lockedForUserName, @NonNull String invokingUser) {
@@ -153,7 +150,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     @VisibleForTesting
     static String getCurrentParameterName(CustomParameterConfig config, State<CustomParameterStateData> state) {
         String currentParameterExpression = getCurrentParameterExpression(config, state);
-        return currentParameterExpression != null ? cleanupExpressionForDisplay(currentParameterExpression) : null;
+        return currentParameterExpression != null ? removeRange(currentParameterExpression) : null;
     }
 
     private static String[] splitCustomId(String customId) {
@@ -232,7 +229,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     @Override
     public @NonNull MessageDefinition createNewButtonMessage(CustomParameterConfig config) {
         return MessageDefinition.builder()
-                .content(String.format("%s: Please select value for %s", cleanupExpressionForDisplay(config.getBaseExpression()), cleanupExpressionForDisplay(getNextParameterExpression(config.getBaseExpression()))))
+                .content(formatMessageContent(config, removeRange(config.getBaseExpression()), removeRange(getNextParameterExpression(config.getBaseExpression())), ""))
                 .componentRowDefinitions(getButtonLayoutWithOptionalState(config, null))
                 .build();
     }
@@ -251,10 +248,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
                                                                                                                                @NonNull String buttonValue,
                                                                                                                                @NonNull String invokingUserName) {
         final Optional<MessageDataDTO> messageDataDTO = messageDataDAO.getDataForMessage(channelId, messageId);
-        if (messageDataDTO.isEmpty()) {
-            return Optional.empty();
-        }
-        return Optional.of(deserializeAndUpdateState(messageDataDTO.get(), buttonValue, invokingUserName));
+        return messageDataDTO.map(dataDTO -> deserializeAndUpdateState(dataDTO, buttonValue, invokingUserName));
     }
 
     @VisibleForTesting
@@ -306,20 +300,32 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
         }
         String cleanName = Optional.ofNullable(state.getData())
                 .map(CustomParameterStateData::getLockedForUserName)
-                .map(n -> String.format("%s%s", n, LOCKED_USER_NAME_DELIMITER))
                 .orElse("");
-        return Optional.of(String.format("%s%s: Please select value for %s", cleanName, cleanupExpressionForDisplay(getFilledExpression(config, state)), getCurrentParameterName(config, state)));
+        return Optional.of(formatMessageContent(config, removeRange(getFilledExpression(config, state)), getCurrentParameterName(config, state), cleanName));
     }
 
     @Override
     protected @NonNull Optional<MessageDefinition> createNewButtonMessageWithState(CustomParameterConfig config, State<CustomParameterStateData> state) {
         if (!hasMissingParameter(getFilledExpression(config, state))) {
             return Optional.of(MessageDefinition.builder()
-                    .content(String.format("%s: Please select value for %s", cleanupExpressionForDisplay(config.getBaseExpression()), cleanupExpressionForDisplay(getNextParameterExpression(config.getBaseExpression()))))
+                    .content(formatMessageContent(config, removeRange(config.getBaseExpression()), removeRange(getNextParameterExpression(config.getBaseExpression())), ""))
                     .componentRowDefinitions(getButtonLayoutWithOptionalState(config, null))
                     .build());
         }
         return Optional.empty();
+    }
+
+    private String formatMessageContent(CustomParameterConfig config, String expression, String currentVariable, String userName) {
+        List<String> nameAndExpression = new ArrayList<>();
+        if (!Strings.isNullOrEmpty(userName)) {
+            nameAndExpression.add(userName + ": ");
+        }
+        if (config.getAnswerFormatType() == AnswerFormatType.full) {
+            nameAndExpression.add(expression + "\n");
+        }
+        String nameExpressionAndSeparator = String.join(" ", nameAndExpression);
+        String variableNameWithoutBrackets = currentVariable.substring(1, currentVariable.length() - 1);
+        return String.format("%sPlease select value for **%s**", nameExpressionAndSeparator, variableNameWithoutBrackets);
     }
 
     private List<ComponentRowDefinition> getButtonLayoutWithOptionalState(@NonNull CustomParameterConfig config, @Nullable State<CustomParameterStateData> state) {
@@ -484,4 +490,13 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
         @NotNull
         List<String> parameter;
     }
+
+    @Value
+    static class ButtonIdAndLabel {
+        @NonNull
+        String buttonId;
+        @NonNull
+        String label;
+    }
+
 }
