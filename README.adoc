@@ -69,7 +69,7 @@ Some example for commands, many more systems can be mapped, please see in the de
 [discrete]
 === Savage Worlds:
 
-`/custom_parameter start expression: (d!!{side:4/6/8/12/20} + {Hero: 0/1d!!6})k1`
+`/custom_parameter start expression: (d!!{Dice:4@D4/6@D6/8@D8/12@D12/20@D20} + {Type: 0@Regular/1d!!6@Wildcard})k1`
 
 [discrete]
 === Traveller

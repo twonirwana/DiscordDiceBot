@@ -20,7 +20,7 @@ public class Bot {
         final String token = args[0];
         final boolean disableCommandUpdate = Boolean.parseBoolean(args[1]);
         final String publishMetricsToUrl = args[2];
-        BotMetrics.init(publishMetricsToUrl);
+        BotMetrics.init(publishMetricsToUrl, 8080);
 
         final String h2Url;
         if (args.length >= 4) {

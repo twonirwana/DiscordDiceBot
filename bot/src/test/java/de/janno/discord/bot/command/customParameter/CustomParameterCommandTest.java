@@ -2,8 +2,8 @@ package de.janno.discord.bot.command.customParameter;
 
 import com.google.common.collect.ImmutableList;
 import de.janno.discord.bot.command.AnswerFormatType;
+import de.janno.discord.bot.command.ButtonIdLabelAndDiceExpression;
 import de.janno.discord.bot.command.ConfigAndState;
-import de.janno.discord.bot.command.RollAnswerConverter;
 import de.janno.discord.bot.command.State;
 import de.janno.discord.bot.dice.Dice;
 import de.janno.discord.bot.dice.DiceParser;
@@ -12,9 +12,6 @@ import de.janno.discord.bot.persistance.MessageDataDAO;
 import de.janno.discord.bot.persistance.MessageDataDAOImpl;
 import de.janno.discord.bot.persistance.MessageDataDTO;
 import de.janno.discord.connector.api.ButtonEventAdaptor;
-import de.janno.discord.connector.api.message.ButtonDefinition;
-import de.janno.discord.connector.api.message.ComponentRowDefinition;
-import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
 import de.janno.discord.connector.api.message.MessageDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinitionOption;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
@@ -28,8 +25,10 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static de.janno.discord.bot.command.customParameter.CustomParameterCommand.*;
@@ -42,19 +41,19 @@ class CustomParameterCommandTest {
     private static final String FIRST_SELECT_CUSTOM_ID = "custom_parameter\u0000{n}d{s}\u0000\u0000\u00001\u0000";
     private static final String LAST_SELECT_CUSTOM_ID = "custom_parameter\u0000{n}d{s}\u0000\u00001\u00002\u0000";
     private static final String LAST_SELECT_WITH_TARGET_CUSTOM_ID = "custom_parameter\u0000{n}d{s}\u00001234\u00001\u00002\u0000";
-    private static final String LAST_SELECT_WITH_LABEL_CUSTOM_ID = "custom_parameter\u0000{n}d{s}@{label:Att/Par/Dam}\u0000\u00001\t2\u0000Att\u0000";
     private static final String CLEAR_CUSTOM_ID = "custom_parameter\u0000{n}d{s}\u0000\u00001\u0000clear\u0000";
     CustomParameterCommand underTest;
     MessageDataDAO messageDataDAO = mock(MessageDataDAO.class);
 
     private static Stream<Arguments> generateParameterExpression2ButtonValuesData() {
         return Stream.of(
-                Arguments.of("{test}", ImmutableList.of("1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15")),
-                Arguments.of("{test:2<=>4}", ImmutableList.of("2", "3", "4")),
-                Arguments.of("{test:2<=>1}", ImmutableList.of("2")),
-                Arguments.of("{test:-2<=>1}", ImmutableList.of("-2", "-1", "0", "1")),
-                Arguments.of("{test:-10<=>-5}", ImmutableList.of("-10", "-9", "-8", "-7", "-6", "-5")),
-                Arguments.of("{test:1d6/+5/abc}", ImmutableList.of("1d6", "+5", "abc"))
+                Arguments.of("{test}", IntStream.range(1, 16).mapToObj(i -> new ButtonIdLabelAndDiceExpression("custom_parameter\u001E" + i, String.valueOf(i), String.valueOf(i))).toList()),
+                Arguments.of("{test:2<=>4}", IntStream.range(2, 5).mapToObj(i -> new ButtonIdLabelAndDiceExpression("custom_parameter\u001E" + i, String.valueOf(i), String.valueOf(i))).toList()),
+                Arguments.of("{test:2<=>1}", ImmutableList.of(new ButtonIdLabelAndDiceExpression("custom_parameter\u001E2", "2", "2"))),
+                Arguments.of("{test:-2<=>1}", IntStream.range(-2, 2).mapToObj(i -> new ButtonIdLabelAndDiceExpression("custom_parameter\u001E" + i, String.valueOf(i), String.valueOf(i))).toList()),
+                Arguments.of("{test:-10<=>-5}", IntStream.range(-10, -4).mapToObj(i -> new ButtonIdLabelAndDiceExpression("custom_parameter\u001E" + i, String.valueOf(i), String.valueOf(i))).toList()),
+                Arguments.of("{test:1d6/+5/abc}", ImmutableList.of(new ButtonIdLabelAndDiceExpression("custom_parameter\u001E1d6", "1d6", "1d6"), new ButtonIdLabelAndDiceExpression("custom_parameter\u001E+5", "+5", "+5"), new ButtonIdLabelAndDiceExpression("custom_parameter\u001Eabc", "abc", "abc"))),
+                Arguments.of("{test:1d6@d6/+5@Bonus/abc}", ImmutableList.of(new ButtonIdLabelAndDiceExpression("custom_parameter\u001E1d6", "d6", "1d6"), new ButtonIdLabelAndDiceExpression("custom_parameter\u001E+5", "Bonus", "+5"), new ButtonIdLabelAndDiceExpression("custom_parameter\u001Eabc", "abc", "abc")))
         );
     }
 
@@ -80,13 +79,45 @@ class CustomParameterCommandTest {
     private static Stream<Arguments> getStateFromEvent() {
         return Stream.of(
                 //first select
-                Arguments.of(FIRST_SELECT_CUSTOM_ID, "{n}d{s}: Please select value for {n}", "user1", ImmutableList.of("1"), "1d{s}", "{s}", "{s}", true),
+                Arguments.of(FIRST_SELECT_CUSTOM_ID, "{n}d{s}: Please select value for {n}", "user1", List.of(), "{n}d{s}", "{n}", "{n}", true),
                 //last select
-                Arguments.of(LAST_SELECT_CUSTOM_ID, "user1\u22361d{s}: Please select value for {s}", "user1", ImmutableList.of("1", "2"), "1d2", null, null, false),
+                Arguments.of(LAST_SELECT_CUSTOM_ID, "user1\u22361d{s}: Please select value for {s}", "user1", List.of(), "{n}d{s}", "{n}", "{n}", true),
                 //clear
-                Arguments.of(CLEAR_CUSTOM_ID, "user1\u22361d{s}: Please select value for {s}", "user2", ImmutableList.of(), "{n}d{s}", "{n}", "{n}", true),
+                Arguments.of(CLEAR_CUSTOM_ID, "user1\u22361d{s}: Please select value for {s}", "user2", List.of(), "{n}d{s}", "{n}", "{n}", true),
                 //not action because click from other user
-                Arguments.of(LAST_SELECT_CUSTOM_ID, "user1\u22361d{s}: Please select value for {s}", "user2", ImmutableList.of("1"), "1d{s}", "{s}", "{s}", true)
+                Arguments.of(LAST_SELECT_CUSTOM_ID, "user1\u22361d{s}: Please select value for {s}", "user2", List.of(), "{n}d{s}", "{n}", "{n}", true)
+        );
+    }
+
+    public static Stream<Arguments> generateExpression2Parameters() {
+        return Stream.of(
+                Arguments.of("{number}d{sides}", List.of(new Parameter("{number}", "number", IntStream.range(1, 16)
+                        .mapToObj(String::valueOf)
+                        .map(s -> new Parameter.ValueAndLabel(s, s))
+                        .toList()), new Parameter("{sides}", "sides", IntStream.range(1, 16)
+                        .mapToObj(String::valueOf)
+                        .map(s -> new Parameter.ValueAndLabel(s, s))
+                        .toList()))),
+                Arguments.of("{number}d{sides:-2<=>2}", List.of(new Parameter("{number}", "number", IntStream.range(1, 16)
+                        .mapToObj(String::valueOf)
+                        .map(s -> new Parameter.ValueAndLabel(s, s))
+                        .toList()), new Parameter("{sides:-2<=>2}", "sides", IntStream.range(-2, 3)
+                        .mapToObj(String::valueOf)
+                        .map(s -> new Parameter.ValueAndLabel(s, s))
+                        .toList()))),
+                Arguments.of("{number}d{sides:4/12/+5}", List.of(new Parameter("{number}", "number", IntStream.range(1, 16)
+                        .mapToObj(String::valueOf)
+                        .map(s -> new Parameter.ValueAndLabel(s, s))
+                        .toList()), new Parameter("{sides:4/12/+5}", "sides", List.of(new Parameter.ValueAndLabel("4", "4"),
+                        new Parameter.ValueAndLabel("12", "12"),
+                        new Parameter.ValueAndLabel("+5", "+5"))))),
+                Arguments.of("{number}d{sides:4@D4/12@D12/+5@Bonus}", List.of(new Parameter("{number}", "number", IntStream.range(1, 16)
+                        .mapToObj(String::valueOf)
+                        .map(s -> new Parameter.ValueAndLabel(s, s))
+                        .toList()), new Parameter("{sides:4@D4/12@D12/+5@Bonus}", "sides", List.of(new Parameter.ValueAndLabel("4", "D4"),
+                        new Parameter.ValueAndLabel("12", "D12"),
+                        new Parameter.ValueAndLabel("+5", "Bonus")))))
+
         );
     }
 
@@ -104,7 +135,7 @@ class CustomParameterCommandTest {
             "{test:0<=>4},      0"
     })
     void getMinButtonFrom(String parameterExpression, int expectedResult) {
-        int res = underTest.getMinButtonFrom(parameterExpression);
+        int res = CustomParameterCommand.getMinButtonFrom(parameterExpression);
 
         assertThat(res).isEqualTo(expectedResult);
 
@@ -119,18 +150,26 @@ class CustomParameterCommandTest {
             "{test:1<=>27},     24",
     })
     void getMaxButtonFrom(String parameterExpression, int expectedResult) {
-        int res = underTest.getMaxButtonFrom(parameterExpression);
+        int res = CustomParameterCommand.getMaxButtonFrom(parameterExpression);
 
         assertThat(res).isEqualTo(expectedResult);
-
     }
 
     @ParameterizedTest(name = "{index} {0} -> {1}")
     @MethodSource("generateParameterExpression2ButtonValuesData")
-    void getButtonValues(String parameterExpression, List<String> expectedResult) {
-        List<String> res = underTest.getButtonValues(parameterExpression);
+    void getButtonValues(String parameterExpression, List<ButtonIdLabelAndDiceExpression> expectedResult) {
+        CustomParameterConfig config = new CustomParameterConfig(null, "1d6 + {a} + " + parameterExpression, DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.without_expression);
+        List<ButtonIdLabelAndDiceExpression> res = underTest.getButtons(config, parameterExpression);
         assertThat(res).isEqualTo(expectedResult);
     }
+
+    @ParameterizedTest(name = "{index} {0} -> {1}")
+    @MethodSource("generateExpression2Parameters")
+    void createParameterListFromBaseExpression(String parameterExpression, List<Parameter> expectedResult) {
+        List<Parameter> res = CustomParameterCommand.createParameterListFromBaseExpression(parameterExpression);
+        assertThat(res).isEqualTo(expectedResult);
+    }
+
 
     @ParameterizedTest(name = "{index} config={0} -> {1}")
     @MethodSource("generateValidationData")
@@ -180,11 +219,14 @@ class CustomParameterCommandTest {
         State<CustomParameterStateData> res = underTest.getStateFromEvent(buttonEventAdaptor);
 
         CustomParameterConfig config = createConfigFromCustomId(customButtonId);
-        assertThat(Optional.ofNullable(res.getData()).map(CustomParameterStateData::getSelectedParameterValues)).contains(selectedParameterValues);
+        assertThat(res.getData().getSelectedParameterValues().stream()
+                .map(SelectedParameter::getSelectedValue)
+                .filter(Objects::nonNull))
+                .containsExactlyElementsOf(selectedParameterValues);
         assertThat(getFilledExpression(config, res)).isEqualTo(filledExpression);
-        assertThat(getCurrentParameterExpression(config, res)).isEqualTo(currentParameterExpression);
-        assertThat(getCurrentParameterName(config, res)).isEqualTo(currentParameterName);
-        assertThat(hasMissingParameter(getFilledExpression(config, res))).isEqualTo(hasMissingParameter);
+        assertThat(getCurrentParameterExpression(res)).contains(currentParameterExpression);
+        assertThat(getCurrentParameterName(res)).contains(currentParameterName);
+        assertThat(hasMissingParameter(res)).isEqualTo(hasMissingParameter);
     }
 
     @Test
@@ -194,63 +236,6 @@ class CustomParameterCommandTest {
         assertThat(res.stream().map(CommandDefinitionOption::getName)).containsExactly("expression");
     }
 
-    @Test
-    void getAnswer_complete() {
-        Optional<EmbedOrMessageDefinition> res = underTest.getAnswer(createConfigFromCustomId(LAST_SELECT_CUSTOM_ID), createParameterStateFromLegacyId(LAST_SELECT_CUSTOM_ID,
-                "", "")).map(RollAnswerConverter::toEmbedOrMessageDefinition);
-
-        assertThat(res).isPresent();
-        assertThat(res.map(EmbedOrMessageDefinition::getTitle).orElseThrow()).startsWith("1d2 ⇒ ");
-    }
-
-    @Test
-    void getAnswer_completeAndLabel() {
-        Optional<EmbedOrMessageDefinition> res = underTest.getAnswer(createConfigFromCustomId(LAST_SELECT_WITH_LABEL_CUSTOM_ID), createParameterStateFromLegacyId(LAST_SELECT_WITH_LABEL_CUSTOM_ID,
-                "", "")).map(RollAnswerConverter::toEmbedOrMessageDefinition);
-
-        assertThat(res).isPresent();
-        assertThat(res.map(EmbedOrMessageDefinition::getTitle).orElseThrow()).startsWith("Att ⇒ ");
-        assertThat(res.map(EmbedOrMessageDefinition::getDescriptionOrContent).orElseThrow()).startsWith("1d2: [");
-    }
-
-    @Test
-    void getAnswer_notComplete() {
-        Optional<EmbedOrMessageDefinition> res = underTest.getAnswer(createConfigFromCustomId(FIRST_SELECT_CUSTOM_ID), createParameterStateFromLegacyId(FIRST_SELECT_CUSTOM_ID,
-                "", "")).map(RollAnswerConverter::toEmbedOrMessageDefinition);
-
-        assertThat(res).isEmpty();
-    }
-
-    @Test
-    void createNewButtonMessage() {
-        MessageDefinition res = underTest.createNewButtonMessage(createConfigFromCustomId(LAST_SELECT_CUSTOM_ID));
-
-        assertThat(res.getContent()).isEqualTo("{n}d{s}\n" +
-                "Please select value for **n**");
-        assertThat(res.getComponentRowDefinitions().stream()
-                .flatMap(c -> c.getButtonDefinitions().stream())
-                .map(ButtonDefinition::getId)
-        ).containsExactly("custom_parameter1",
-                "custom_parameter2",
-                "custom_parameter3",
-                "custom_parameter4",
-                "custom_parameter5",
-                "custom_parameter6",
-                "custom_parameter7",
-                "custom_parameter8",
-                "custom_parameter9",
-                "custom_parameter10",
-                "custom_parameter11",
-                "custom_parameter12",
-                "custom_parameter13",
-                "custom_parameter14",
-                "custom_parameter15");
-
-        assertThat(res.getComponentRowDefinitions().stream()
-                .flatMap(c -> c.getButtonDefinitions().stream())
-                .map(ButtonDefinition::getLabel)
-        ).containsExactly("1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15");
-    }
 
     @Test
     void getAnswerTargetChannelId_local() {
@@ -266,93 +251,6 @@ class CustomParameterCommandTest {
         assertThat(res).isEqualTo(1234L);
     }
 
-    @Test
-    void getCurrentMessageComponentChange_inSelection() {
-
-        Optional<List<ComponentRowDefinition>> res = underTest.getCurrentMessageComponentChange(createConfigFromCustomId(FIRST_SELECT_CUSTOM_ID), createParameterStateFromLegacyId(FIRST_SELECT_CUSTOM_ID, "", ""));
-
-        assertThat(res).isPresent();
-        assertThat(res.orElseThrow().stream()
-                .flatMap(c -> c.getButtonDefinitions().stream())
-                .map(ButtonDefinition::getId)
-        ).containsExactly("custom_parameter1",
-                "custom_parameter2",
-                "custom_parameter3",
-                "custom_parameter4",
-                "custom_parameter5",
-                "custom_parameter6",
-                "custom_parameter7",
-                "custom_parameter8",
-                "custom_parameter9",
-                "custom_parameter10",
-                "custom_parameter11",
-                "custom_parameter12",
-                "custom_parameter13",
-                "custom_parameter14",
-                "custom_parameter15",
-                "custom_parameterclear");
-    }
-
-    @Test
-    void getCurrentMessageComponentChange_complete() {
-
-        Optional<List<ComponentRowDefinition>> res = underTest.getCurrentMessageComponentChange(createConfigFromCustomId(LAST_SELECT_CUSTOM_ID), createParameterStateFromLegacyId(LAST_SELECT_CUSTOM_ID, "", ""));
-
-        assertThat(res).isEmpty();
-    }
-
-    @Test
-    void getCurrentMessageContentChange_complete() {
-
-        Optional<String> res = underTest.getCurrentMessageContentChange(createConfigFromCustomId(LAST_SELECT_CUSTOM_ID), createParameterStateFromLegacyId(LAST_SELECT_CUSTOM_ID, "", ""));
-
-        assertThat(res).isEmpty();
-    }
-
-    @Test
-    void getCurrentMessageContentChange_inSelection() {
-
-        Optional<String> res = underTest.getCurrentMessageContentChange(createConfigFromCustomId(FIRST_SELECT_CUSTOM_ID), createParameterStateFromLegacyId(FIRST_SELECT_CUSTOM_ID, "", ""));
-
-        assertThat(res).contains("1d{s}\n" +
-                "Please select value for **s**");
-    }
-
-    @Test
-    void getCurrentMessageContentChange_inSelectionLocked() {
-
-        Optional<String> res = underTest.getCurrentMessageContentChange(createConfigFromCustomId(FIRST_SELECT_CUSTOM_ID), createParameterStateFromLegacyId(FIRST_SELECT_CUSTOM_ID, "user1\u22361d{s}: Please select value for {s}", "user1"));
-
-        assertThat(res).contains("user1:  1d{s}\n" +
-                "Please select value for **s**");
-    }
-
-    @Test
-    void createNewButtonMessageWithState_complete() {
-
-        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(createConfigFromCustomId(LAST_SELECT_CUSTOM_ID), createParameterStateFromLegacyId(LAST_SELECT_CUSTOM_ID, "user1\u22361d{s}: Please select value for {s}", "user1"));
-
-        assertThat(res.orElseThrow().getContent()).isEqualTo("{n}d{s}\n" +
-                "Please select value for **n**");
-        assertThat(res.orElseThrow().getComponentRowDefinitions().stream()
-                .flatMap(c -> c.getButtonDefinitions().stream())
-                .map(ButtonDefinition::getId)
-        ).containsExactly("custom_parameter1",
-                "custom_parameter2",
-                "custom_parameter3",
-                "custom_parameter4",
-                "custom_parameter5",
-                "custom_parameter6",
-                "custom_parameter7",
-                "custom_parameter8",
-                "custom_parameter9",
-                "custom_parameter10",
-                "custom_parameter11",
-                "custom_parameter12",
-                "custom_parameter13",
-                "custom_parameter14",
-                "custom_parameter15");
-    }
 
     @Test
     void createNewButtonMessageWithState_inSelection() {
@@ -371,7 +269,9 @@ class CustomParameterCommandTest {
         long messageId = System.currentTimeMillis();
         UUID configUUID = UUID.randomUUID();
         CustomParameterConfig config = new CustomParameterConfig(123L, "{n}d{s}", DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full);
-        State<CustomParameterStateData> state = new State<>("5", new CustomParameterStateData(ImmutableList.of("5"), "userName"));
+        State<CustomParameterStateData> state = new State<>("5", new CustomParameterStateData(List.of(
+                new SelectedParameter("{n}", "n", "5", "5"),
+                new SelectedParameter("{s}", "s", null, null)), "userName"));
         Optional<MessageDataDTO> toSave = underTest.createMessageDataForNewMessage(configUUID, 1L, channelId, messageId, config, state);
         messageDataDAO.saveMessageData(toSave.orElseThrow());
         underTest.updateCurrentMessageStateData(channelId, messageId, config, state);
@@ -381,7 +281,9 @@ class CustomParameterCommandTest {
         ConfigAndState<CustomParameterConfig, CustomParameterStateData> configAndState = underTest.deserializeAndUpdateState(loaded, "3", "userName");
         assertThat(configAndState.getConfig()).isEqualTo(config);
         assertThat(configAndState.getConfigUUID()).isEqualTo(configUUID);
-        assertThat(configAndState.getState().getData()).isEqualTo(new CustomParameterStateData(ImmutableList.of("5", "3"), "userName"));
+        assertThat(configAndState.getState().getData()).isEqualTo(new CustomParameterStateData(List.of(
+                new SelectedParameter("{n}", "n", "5", "5"),
+                new SelectedParameter("{s}", "s", "3", "3")), "userName"));
     }
 
     @Test
@@ -403,7 +305,9 @@ class CustomParameterCommandTest {
         ConfigAndState<CustomParameterConfig, CustomParameterStateData> configAndState = underTest.deserializeAndUpdateState(savedData, "3", "userName");
         assertThat(configAndState.getConfig()).isEqualTo(new CustomParameterConfig(123L, "{n}d{s}", DiceParserSystem.DICEROLL_PARSER, AnswerFormatType.full));
         assertThat(configAndState.getConfigUUID()).isEqualTo(configUUID);
-        assertThat(configAndState.getState().getData()).isEqualTo(new CustomParameterStateData(ImmutableList.of("5", "3"), "userName"));
+        assertThat(configAndState.getState().getData()).isEqualTo(new CustomParameterStateData(List.of(
+                new SelectedParameter("{n}", "n", "3", "3"),
+                new SelectedParameter("{s}", "s", null, null)), "userName"));
     }
 
     @Test
@@ -426,11 +330,13 @@ class CustomParameterCommandTest {
         ConfigAndState<CustomParameterConfig, CustomParameterStateData> configAndState = underTest.deserializeAndUpdateState(savedData, "3", "userName");
         assertThat(configAndState.getConfig()).isEqualTo(new CustomParameterConfig(123L, "{n}d{s}", DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full));
         assertThat(configAndState.getConfigUUID()).isEqualTo(configUUID);
-        assertThat(configAndState.getState().getData()).isEqualTo(new CustomParameterStateData(ImmutableList.of("5", "3"), "userName"));
+        assertThat(configAndState.getState().getData()).isEqualTo(new CustomParameterStateData(List.of(
+                new SelectedParameter("{n}", "n", "3", "3"),
+                new SelectedParameter("{s}", "s", null, null)), "userName"));
     }
 
     @Test
-    void deserialization() {
+    void deserialization_legacy3() {
         UUID configUUID = UUID.randomUUID();
         MessageDataDTO savedData = new MessageDataDTO(configUUID, 1L, 1660644934298L, 1660644934298L, "custom_dice", "CustomParameterConfig", """
                 ---
@@ -450,7 +356,42 @@ class CustomParameterCommandTest {
         ConfigAndState<CustomParameterConfig, CustomParameterStateData> configAndState = underTest.deserializeAndUpdateState(savedData, "3", "userName");
         assertThat(configAndState.getConfig()).isEqualTo(new CustomParameterConfig(123L, "{n}d{s}", DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.compact));
         assertThat(configAndState.getConfigUUID()).isEqualTo(configUUID);
-        assertThat(configAndState.getState().getData()).isEqualTo(new CustomParameterStateData(ImmutableList.of("5", "3"), "userName"));
+        assertThat(configAndState.getState().getData()).isEqualTo(new CustomParameterStateData(List.of(
+                new SelectedParameter("{n}", "n", "3", "3"),
+                new SelectedParameter("{s}", "s", null, null)), "userName"));
+    }
+
+    @Test
+    void deserialization() {
+        UUID configUUID = UUID.randomUUID();
+        MessageDataDTO savedData = new MessageDataDTO(configUUID, 1L, 1660644934298L, 1660644934298L, "custom_dice", "CustomParameterConfig", """
+                ---
+                answerTargetChannelId: 123
+                baseExpression: "{n}d{s}"
+                diceParserSystem: "DICE_EVALUATOR"
+                answerFormatType: compact
+                """,
+                "CustomParameterStateDataV2", """
+                ---
+                selectedParameterValues:
+                - parameterExpression: "{n}"
+                  name: "n"
+                  selectedValue: "5"
+                  labelOfSelectedValue: "bonus"
+                - parameterExpression: "{s}"
+                  name: "s"
+                  selectedValue: null
+                  labelOfSelectedValue: null
+                lockedForUserName: "userName"
+                """);
+
+
+        ConfigAndState<CustomParameterConfig, CustomParameterStateData> configAndState = underTest.deserializeAndUpdateState(savedData, "3", "userName");
+        assertThat(configAndState.getConfig()).isEqualTo(new CustomParameterConfig(123L, "{n}d{s}", DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.compact));
+        assertThat(configAndState.getConfigUUID()).isEqualTo(configUUID);
+        assertThat(configAndState.getState().getData()).isEqualTo(new CustomParameterStateData(List.of(
+                new SelectedParameter("{n}", "n", "5", "bonus"),
+                new SelectedParameter("{s}", "s", "3", "3")), "userName"));
     }
 
 }

@@ -67,7 +67,7 @@ public class CustomParameterCommandMockTest {
                 "editMessage: message:invokingUser: Please select value for **sides**, buttonValues=1,4,6,8,10,12,20,100,clear");
         assertThat(click2.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:processing ..., buttonValues=",
-                "createAnswer: title=null, description=__**4d6 ⇒ 2, 3, 1, 4**__  [2, 3, 1, 4], fieldValues:, answerChannel:null, type:MESSAGE",
+                "createAnswer: title=null, description=__**numberOfDice:4, sides:6 ⇒ 2, 3, 1, 4**__  4d6: [2, 3, 1, 4], fieldValues:, answerChannel:null, type:MESSAGE",
                 "createButtonMessage: content=Please select value for **numberOfDice**, buttonValues=1,2,3,4,5,6,7,8,9,10",
                 "deleteMessageById: 0");
     }
@@ -89,7 +89,7 @@ public class CustomParameterCommandMockTest {
                 "editMessage: message:invokingUser: Please select value for **sides**, buttonValues=1,4,6,8,10,12,20,100,clear");
         assertThat(click2.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:processing ..., buttonValues=",
-                "createAnswer: title=null, description=4d6 ⇒ 2, 3, 1, 4, fieldValues:, answerChannel:null, type:MESSAGE",
+                "createAnswer: title=null, description=numberOfDice:4, sides:6 ⇒ 2, 3, 1, 4, fieldValues:, answerChannel:null, type:MESSAGE",
                 "createButtonMessage: content=Please select value for **numberOfDice**, buttonValues=1,2,3,4,5,6,7,8,9,10",
                 "deleteMessageById: 0");
     }
