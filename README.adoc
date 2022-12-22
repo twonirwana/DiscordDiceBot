@@ -111,7 +111,8 @@ image:image/full.png[image]
 
 ==== Without expression
 
-`without_expression` is the same as `full` but don't show the dice expression in the result. This is useful if the expression is very long and it is recommended to add a label.
+`without_expression` is the same as `full` but don't show the dice expression in the result.
+This is useful if the expression is very long and it is recommended to add a label.
 
 image:image/without_expression.png[image]
 
@@ -269,20 +270,23 @@ The old version of the command, with the old dice expression, can be still used 
 
 image:image/custom_parameter.webp[image]
 
-Use for example the slash command `/custom_parameter expression:{numberOfDice:1<=>10}d{sides:4/6/8/10/12/20/100}` to create a message with a dice expression, where the user can fill the parameter with buttons.
+Use for example the slash command `/custom_parameter expression:{numberOfDice:1\<\=>10}d{sides:4@D4/6@D6/8@D8/12@D12/20@D20}` to create a message with a dice expression, where the user can fill the parameter with buttons.
 For the dice expression see the section <<Dice Expression Notation>>.
 The parameter have the format `+{name}+`.
 If there is no range given, then button for the values 1-15 are presented.
 There are two parameter range notations:
 
-* `{numberOfDice:1<=>10}`: Provides the buttons for the given range (including).
+* `{numberOfDice:1\<\=>10}`: Provides the buttons for the given range (including).
 The maximum are 23 buttons.
-* `{sides:4/6/8/10/12/20/100}`: Provides each value, seperated be a slash up to 23 buttons.
+* `{sides:4/6/8/10/12/20}`: Provides each value, seperated be a slash up to 23 buttons.
+It is possible to add an optional label to each value in the format `value@label`.
+For example `{bonus:0@None/3@Small Bonus/5@Big Bonus}` will show on the buttons 'None', 'Small Bonus' and 'Big Bonus' but apply the values 0, 3 or 5 to the expression
 
 The user can click on the buttons to fill all open parameter of the expression.
 If all parameter are selected then the expression will be rolled.
 The first user that clicks on a button add his name to the message and only this user can select further parameter.
 Every user can still use the `Clear` button.
+The command uses the `without_expression` as default answer format.
 
 === Clear Command
 
