@@ -11,6 +11,8 @@ public class State<T extends StateData> {
 
     @NonNull
     String buttonValue;
+
+    //todo optional getter
     @Nullable
     T data;
 

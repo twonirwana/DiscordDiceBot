@@ -1,5 +1,6 @@
 package de.janno.discord.bot.command.customParameter;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import de.janno.discord.bot.command.AnswerFormatType;
 import de.janno.discord.bot.command.Config;
@@ -8,6 +9,8 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.ToString;
+
+import java.util.List;
 
 @EqualsAndHashCode(callSuper = true)
 @Getter
@@ -18,6 +21,10 @@ public class CustomParameterConfig extends Config {
     @NonNull
     private final DiceParserSystem diceParserSystem;
 
+    @NonNull
+    @JsonIgnore
+    private final List<Parameter> paramters;
+
     public CustomParameterConfig(
             @JsonProperty("answerTargetChannelId") Long answerTargetChannelId,
             @JsonProperty("baseExpression") @NonNull String baseExpression,
@@ -26,6 +33,7 @@ public class CustomParameterConfig extends Config {
         super(answerTargetChannelId, answerFormatType);
         this.baseExpression = baseExpression;
         this.diceParserSystem = diceParserSystem == null ? DiceParserSystem.DICEROLL_PARSER : diceParserSystem;
+        this.paramters = CustomParameterCommand.createParameterListFromBaseExpression(baseExpression);
     }
 
     @Override

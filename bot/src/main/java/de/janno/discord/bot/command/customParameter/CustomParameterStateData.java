@@ -11,20 +11,20 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 
 @Value
 @EqualsAndHashCode(callSuper = true)
 public class CustomParameterStateData extends StateData {
 
-    @NonNull List<String> selectedParameterValues;
+    @NonNull List<SelectedParameter> selectedParameterValues;
     @Nullable
     String lockedForUserName;
 
-
     @JsonCreator
     public CustomParameterStateData(
-            @JsonProperty("selectedParameterValues") @NonNull List<String> selectedParameterValues,
+            @JsonProperty("selectedParameterValues") @NonNull List<SelectedParameter> selectedParameterValues,
             @JsonProperty("lockedForUserName") @Nullable String lockedForUserName) {
         this.selectedParameterValues = selectedParameterValues;
         this.lockedForUserName = lockedForUserName;
@@ -33,7 +33,15 @@ public class CustomParameterStateData extends StateData {
     @JsonIgnore
     @Override
     public String getShortStringValues() {
-        return String.format("%s, %s", selectedParameterValues,
-                (Optional.ofNullable(lockedForUserName).orElse("")));
+        return String.format("%s, %s", selectedParameterValues.stream()
+                        .map(SelectedParameter::getShortString).collect(Collectors.joining(", ")),
+                Optional.ofNullable(lockedForUserName).orElse(""));
+    }
+
+    @JsonIgnore
+    public Optional<SelectedParameter> getNextUnselectedParameterExpression() {
+        return selectedParameterValues.stream()
+                .filter(sp -> sp.getSelectedValue() == null)
+                .findFirst();
     }
 }

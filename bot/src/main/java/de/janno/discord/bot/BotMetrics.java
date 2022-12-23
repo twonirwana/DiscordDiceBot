@@ -44,7 +44,7 @@ public class BotMetrics {
     private static final String ANSWER_TIMER_PREFIX = "answerTimer";
     private static final String NEW_BUTTON_TIMER_PREFIX = "newButtonTimer";
 
-    public static void init(String publishMetricsToUrl) {
+    public static void init(String publishMetricsToUrl, int port) {
         if (!Strings.isNullOrEmpty(publishMetricsToUrl)) {
             PrometheusMeterRegistry prometheusRegistry = new PrometheusMeterRegistry(PrometheusConfig.DEFAULT);
             Metrics.addRegistry(prometheusRegistry);
@@ -55,7 +55,7 @@ public class BotMetrics {
                 exchange.getResponseSender().send(prometheusRegistry.scrape());
             });
             Undertow server = Undertow.builder()
-                    .addHttpListener(8080, publishMetricsToUrl)
+                    .addHttpListener(port, publishMetricsToUrl)
                     .setHandler(handler).build();
             server.start();
 

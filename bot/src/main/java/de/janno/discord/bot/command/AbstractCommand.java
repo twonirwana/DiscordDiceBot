@@ -88,7 +88,11 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
     protected AnswerFormatType getAnswerTypeFromStartCommandOption(@NonNull CommandInteractionOption options) {
         return options.getStringSubOptionWithName(ANSWER_FORMAT_OPTION)
                 .map(AnswerFormatType::valueOf)
-                .orElse(AnswerFormatType.full);
+                .orElse(defaultAnswerFormat());
+    }
+
+    protected AnswerFormatType defaultAnswerFormat(){
+        return AnswerFormatType.full;
     }
 
     @Override

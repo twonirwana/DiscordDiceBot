@@ -4,7 +4,6 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import de.janno.discord.bot.command.*;
 import de.janno.discord.bot.dice.*;
@@ -50,7 +49,8 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     private final static Pattern BUTTON_RANGE_PATTERN = Pattern.compile(RANGE_DELIMITER + "(-?\\d+)<=>(-?\\d+)");
     private final static String BUTTON_VALUE_DELIMITER = "/";
     private final static Pattern BUTTON_VALUE_PATTERN = Pattern.compile(RANGE_DELIMITER + "(.+" + BUTTON_VALUE_DELIMITER + ".+)}");
-    private static final String STATE_DATA_TYPE_ID = "CustomParameterStateData";
+    private static final String STATE_DATA_TYPE_ID = "CustomParameterStateDataV2";
+    private static final String STATE_DATA_TYPE_ID_LEGACY = "CustomParameterStateData";
     private static final String CONFIG_TYPE_ID = "CustomParameterConfig";
     private final DiceSystemAdapter diceSystemAdapter;
 
@@ -73,24 +73,8 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     }
 
 
-    private static String cleanupExpressionForDisplay(String expression) {
-        return expression
-                .replaceAll(RANGE_REPLACE_REGEX, "")
-                .replace("{", "*{")
-                .replace("}", "}*");
-    }
-
-    private static List<String> getSelectedParameterValues(String buttonValue, List<String> alreadySelectedParameter, String lockedForUserName, @NonNull String invokingUser) {
-        if (CLEAR_BUTTON_ID.equals(buttonValue)) {
-            return ImmutableList.of();
-        }
-        ImmutableList.Builder<String> selectedParameterBuilder =
-                ImmutableList.<String>builder()
-                        .addAll(alreadySelectedParameter);
-        if (lockedForUserName.equals(invokingUser)) {
-            selectedParameterBuilder.add(buttonValue);
-        }
-        return selectedParameterBuilder.build();
+    private static String removeRange(String expression) {
+        return expression.replaceAll(RANGE_REPLACE_REGEX, "");
     }
 
     private static String getUserNameFromMessage(@NonNull String messageContent) {
@@ -101,59 +85,92 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     }
 
     @VisibleForTesting
-    static boolean hasMissingParameter(@NonNull String expression) {
-        return PARAMETER_VARIABLE_PATTERN.matcher(expression).find();
+    static boolean hasMissingParameter(@NonNull State<CustomParameterStateData> state) {
+        return Optional.ofNullable(state.getData())
+                .flatMap(CustomParameterStateData::getNextUnselectedParameterExpression)
+                .isPresent();
     }
 
     @VisibleForTesting
     static State<CustomParameterStateData> createParameterStateFromLegacyId(String customId, String messageContent, String invokingUser) {
         String[] split = splitCustomId(customId);
         String buttonValue = split[CustomIdIndex.BUTTON_VALUE.index];
-        String currentlySelectedParameter = split[CustomIdIndex.SELECTED_PARAMETER.index];
-        List<String> currentlySelectedParameterList = Arrays.stream(currentlySelectedParameter.split(SELECTED_PARAMETER_DELIMITER))
-                .filter(s -> !Strings.isNullOrEmpty(s))
-                .toList();
+        List<SelectedParameter> currentlySelectedParameters = List.of(); //legacy forgets the state
         String lockedForUserName = getUserNameFromMessage(messageContent);
-
-
-        return new State<>(buttonValue, updateState(currentlySelectedParameterList, buttonValue, lockedForUserName, invokingUser));
+        CustomParameterConfig config = createConfigFromCustomId(customId);
+        return new State<>(buttonValue, updateState(currentlySelectedParameters, config, buttonValue, lockedForUserName, invokingUser));
     }
 
-    private static CustomParameterStateData updateState(@NonNull List<String> currentlySelectedParameterList,
+    private static CustomParameterStateData updateState(@Nullable List<SelectedParameter> currentlySelectedParameterList,
+                                                        @NonNull CustomParameterConfig config,
                                                         @NonNull String buttonValue,
                                                         @Nullable String currentlyLockedForUser,
                                                         @NonNull String invokingUser) {
         final String shouldBeLockedForUser;
-        if (CLEAR_BUTTON_ID.equals(buttonValue)) {
-            shouldBeLockedForUser = null;
+        List<SelectedParameter> currentOrNewSelectedParameter = Optional.ofNullable(currentlySelectedParameterList).orElse(config.getParamters().stream()
+                .map(p -> new SelectedParameter(p.getParameterExpression(), p.getName(), null, null))
+                .toList());
+        Optional<String> currentParameterExpression = currentOrNewSelectedParameter.stream()
+                .filter(sp -> sp.getSelectedValue() == null)
+                .map(SelectedParameter::getParameterExpression)
+                .findFirst();
+        if (CLEAR_BUTTON_ID.equals(buttonValue) || currentParameterExpression.isEmpty()) {
+            ImmutableList<SelectedParameter> newSelectedParameterList = config.getParamters().stream()
+                    .map(sp -> new SelectedParameter(sp.getParameterExpression(), sp.getName(), null, null)).collect(ImmutableList.toImmutableList());
+            return new CustomParameterStateData(newSelectedParameterList, null);
         } else {
             shouldBeLockedForUser = Optional.ofNullable(currentlyLockedForUser).orElse(invokingUser);
         }
-        List<String> selectedParameterValues = getSelectedParameterValues(buttonValue, currentlySelectedParameterList, shouldBeLockedForUser, invokingUser);
-        return new CustomParameterStateData(selectedParameterValues, shouldBeLockedForUser);
+
+        ImmutableList<SelectedParameter> newSelectedParameterList = currentOrNewSelectedParameter.stream()
+                .map(sp -> {
+                    if (Objects.equals(sp.getParameterExpression(), currentParameterExpression.get())) {
+                        String label = getParameterForParameterExpression(config, sp.getParameterExpression())
+                                .map(Parameter::getParameterOptions).orElse(List.of()).stream()
+                                .filter(vl -> vl.getValue().equals(buttonValue))
+                                .map(Parameter.ValueAndLabel::getLabel)
+                                .filter(Objects::nonNull)
+                                .findFirst().orElse(null);
+                        return new SelectedParameter(sp.getParameterExpression(), sp.getName(), buttonValue, label);
+                    }
+                    return sp.copy();
+                }).collect(ImmutableList.toImmutableList());
+        return new CustomParameterStateData(newSelectedParameterList, shouldBeLockedForUser);
+    }
+
+    private static Optional<Parameter> getParameterForParameterExpression(@NonNull CustomParameterConfig config, @Nullable String parameterExpression) {
+        if (parameterExpression == null) {
+            return Optional.empty();
+        }
+        return config.getParamters().stream()
+                .filter(p -> p.getParameterExpression().equals(parameterExpression))
+                .findFirst();
     }
 
     @VisibleForTesting
     static String getFilledExpression(CustomParameterConfig config, State<CustomParameterStateData> state) {
         String filledExpression = config.getBaseExpression();
-        List<String> selectedParameter = Optional.ofNullable(state.getData()).map(CustomParameterStateData::getSelectedParameterValues).orElse(ImmutableList.of());
-        for (String parameterValue : selectedParameter) {
-            String nextParameterName = getNextParameterExpression(filledExpression);
-            filledExpression = filledExpression.replace(nextParameterName, parameterValue);
+        List<SelectedParameter> selectedParameters = Optional.ofNullable(state.getData()).map(CustomParameterStateData::getSelectedParameterValues).orElse(ImmutableList.of());
+        for (SelectedParameter selectedParameter : selectedParameters) {
+            if (selectedParameter.getSelectedValue() != null) {
+                filledExpression = filledExpression.replace(selectedParameter.getParameterExpression(), selectedParameter.getSelectedValue());
+            }
         }
         return filledExpression;
     }
 
     @VisibleForTesting
-    static String getCurrentParameterExpression(CustomParameterConfig config, State<CustomParameterStateData> state) {
-        String filledExpression = getFilledExpression(config, state);
-        return hasMissingParameter(filledExpression) ? getNextParameterExpression(filledExpression) : null;
+    static Optional<String> getCurrentParameterExpression(State<CustomParameterStateData> state) {
+        return Optional.ofNullable(state.getData())
+                .flatMap(CustomParameterStateData::getNextUnselectedParameterExpression)
+                .map(SelectedParameter::getParameterExpression);
     }
 
     @VisibleForTesting
-    static String getCurrentParameterName(CustomParameterConfig config, State<CustomParameterStateData> state) {
-        String currentParameterExpression = getCurrentParameterExpression(config, state);
-        return currentParameterExpression != null ? cleanupExpressionForDisplay(currentParameterExpression) : null;
+    static Optional<String> getCurrentParameterName(State<CustomParameterStateData> state) {
+        return Optional.ofNullable(state.getData())
+                .flatMap(CustomParameterStateData::getNextUnselectedParameterExpression)
+                .map(SelectedParameter::getParameterExpression);
     }
 
     private static String[] splitCustomId(String customId) {
@@ -168,6 +185,67 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
                 getOptionalLongFromArray(split, CustomIdIndex.ANSWER_TARGET_CHANNEL.index),
                 split[CustomIdIndex.BASE_EXPRESSION.index],
                 DiceParserSystem.DICEROLL_PARSER, AnswerFormatType.full);
+    }
+
+    static List<Parameter> createParameterListFromBaseExpression(String expression) {
+        Matcher variableMatcher = PARAMETER_VARIABLE_PATTERN.matcher(expression);
+        ImmutableList.Builder<Parameter> builder = ImmutableList.builder();
+        while (variableMatcher.find()) {
+            String parameterExpression = variableMatcher.group();
+            String expressionWithoutRange = removeRange(parameterExpression);
+            String name = expressionWithoutRange.substring(1, expressionWithoutRange.length() - 1);
+            if (BUTTON_RANGE_PATTERN.matcher(parameterExpression).find()) {
+                int min = getMinButtonFrom(parameterExpression);
+                int max = getMaxButtonFrom(parameterExpression);
+                builder.add(new Parameter(parameterExpression, name, IntStream.range(min, max + 1)
+                        .mapToObj(String::valueOf)
+                        .map(s -> new Parameter.ValueAndLabel(s, s))
+                        .toList()));
+            } else if (BUTTON_VALUE_PATTERN.matcher(parameterExpression).find()) {
+                Matcher valueMatcher = BUTTON_VALUE_PATTERN.matcher(parameterExpression);
+                valueMatcher.find();
+                String buttonValueExpression = valueMatcher.group(1);
+                builder.add(new Parameter(parameterExpression, name, Arrays.stream(buttonValueExpression.split(BUTTON_VALUE_DELIMITER))
+                        .limit(23)
+                        .map(s -> {
+                            if (s.contains(DiceSystemAdapter.LABEL_DELIMITER)) {
+                                String[] split = s.split(DiceSystemAdapter.LABEL_DELIMITER);
+                                if (split.length == 2 && !Strings.isNullOrEmpty(split[0]) && !Strings.isNullOrEmpty(split[1])) {
+                                    return new Parameter.ValueAndLabel(split[0], split[1]);
+                                }
+                            }
+                            return new Parameter.ValueAndLabel(s, s);
+                        })
+                        .toList()));
+            } else {
+                builder.add(new Parameter(parameterExpression, name, IntStream.range(1, 16)
+                        .mapToObj(String::valueOf)
+                        .map(s -> new Parameter.ValueAndLabel(s, s))
+                        .toList()));
+            }
+        }
+
+        return builder.build();
+    }
+
+    @VisibleForTesting
+    static int getMinButtonFrom(String currentParameterExpression) {
+        Matcher matcher = BUTTON_RANGE_PATTERN.matcher(currentParameterExpression);
+        if (matcher.find()) {
+            return Integer.parseInt(matcher.group(1));
+        }
+        return 1;
+    }
+
+    @VisibleForTesting
+    static int getMaxButtonFrom(String currentParameterExpression) {
+        Matcher matcher = BUTTON_RANGE_PATTERN.matcher(currentParameterExpression);
+        if (matcher.find()) {
+            int min = Integer.parseInt(matcher.group(1));
+            int max = Integer.parseInt(matcher.group(2));
+            return Math.min(Math.max(min, max), min + 23);
+        }
+        return 15;
     }
 
     @Override
@@ -203,8 +281,18 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
 
     @Override
     protected @NonNull Optional<RollAnswer> getAnswer(CustomParameterConfig config, State<CustomParameterStateData> state) {
-        if (!hasMissingParameter(getFilledExpression(config, state))) {
-            return Optional.of(diceSystemAdapter.answerRollWithOptionalLabelInExpression(getFilledExpression(config, state),
+        if (!hasMissingParameter(state)) {
+            String expression = getFilledExpression(config, state);
+            final String label;
+            if (config.getAnswerFormatType() == AnswerFormatType.full) {
+                label = null;
+            } else {
+                label = Optional.ofNullable(state.getData()).map(CustomParameterStateData::getSelectedParameterValues).orElse(List.of()).stream()
+                        .map(sp -> "%s:%s".formatted(sp.getName(), sp.getLabelOfSelectedValue()))
+                        .collect(Collectors.joining(", "));
+            }
+            return Optional.of(diceSystemAdapter.answerRollWithGivenLabel(expression,
+                    label,
                     false,
                     config.getDiceParserSystem(),
                     config.getAnswerFormatType()));
@@ -230,16 +318,21 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     }
 
     @Override
+    protected AnswerFormatType defaultAnswerFormat() {
+        return AnswerFormatType.without_expression;
+    }
+
+    @Override
     public @NonNull MessageDefinition createNewButtonMessage(CustomParameterConfig config) {
         return MessageDefinition.builder()
-                .content(String.format("%s: Please select value for %s", cleanupExpressionForDisplay(config.getBaseExpression()), cleanupExpressionForDisplay(getNextParameterExpression(config.getBaseExpression()))))
+                .content(formatMessageContent(config, null, null))
                 .componentRowDefinitions(getButtonLayoutWithOptionalState(config, null))
                 .build();
     }
 
     @Override
     protected Optional<List<ComponentRowDefinition>> getCurrentMessageComponentChange(CustomParameterConfig config, State<CustomParameterStateData> state) {
-        if (!hasMissingParameter(getFilledExpression(config, state))) {
+        if (!hasMissingParameter(state)) {
             return Optional.empty();
         }
         return Optional.of(getButtonLayoutWithOptionalState(config, state));
@@ -251,10 +344,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
                                                                                                                                @NonNull String buttonValue,
                                                                                                                                @NonNull String invokingUserName) {
         final Optional<MessageDataDTO> messageDataDTO = messageDataDAO.getDataForMessage(channelId, messageId);
-        if (messageDataDTO.isEmpty()) {
-            return Optional.empty();
-        }
-        return Optional.of(deserializeAndUpdateState(messageDataDTO.get(), buttonValue, invokingUserName));
+        return messageDataDTO.map(dataDTO -> deserializeAndUpdateState(dataDTO, buttonValue, invokingUserName));
     }
 
     @VisibleForTesting
@@ -262,15 +352,21 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
                                                                                               @NonNull String buttonValue,
                                                                                               @NonNull String invokingUser) {
         Preconditions.checkArgument(CONFIG_TYPE_ID.equals(messageDataDTO.getConfigClassId()), "Unknown configClassId: %s", messageDataDTO.getConfigClassId());
-        Preconditions.checkArgument(STATE_DATA_TYPE_ID.equals(messageDataDTO.getStateDataClassId())
+        Preconditions.checkArgument(STATE_DATA_TYPE_ID.equals(messageDataDTO.getStateDataClassId()) ||
+                STATE_DATA_TYPE_ID_LEGACY.equals(messageDataDTO.getStateDataClassId())
                 || Mapper.NO_PERSISTED_STATE.equals(messageDataDTO.getStateDataClassId()), "Unknown stateDataClassId: %s", messageDataDTO.getStateDataClassId());
-
-        final CustomParameterStateData loadedStateData = Optional.ofNullable(messageDataDTO.getStateData())
-                .map(sd -> Mapper.deserializeObject(sd, CustomParameterStateData.class))
-                .orElse(null);
+        final CustomParameterStateData loadedStateData;
+        if (STATE_DATA_TYPE_ID_LEGACY.equals(messageDataDTO.getStateDataClassId())) {
+            loadedStateData = null;
+        } else {
+            loadedStateData = Optional.ofNullable(messageDataDTO.getStateData())
+                    .map(sd -> Mapper.deserializeObject(sd, CustomParameterStateData.class))
+                    .orElse(null);
+        }
         final CustomParameterConfig loadedConfig = Mapper.deserializeObject(messageDataDTO.getConfig(), CustomParameterConfig.class);
         final CustomParameterStateData updatedStateData = updateState(
-                Optional.ofNullable(loadedStateData).map(CustomParameterStateData::getSelectedParameterValues).orElse(ImmutableList.of()),
+                Optional.ofNullable(loadedStateData).map(CustomParameterStateData::getSelectedParameterValues).orElse(null),
+                loadedConfig,
                 buttonValue,
                 Optional.ofNullable(loadedStateData).map(CustomParameterStateData::getLockedForUserName).orElse(null),
                 invokingUser
@@ -292,7 +388,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
 
     @Override
     protected void updateCurrentMessageStateData(long channelId, long messageId, @NonNull CustomParameterConfig config, @NonNull State<CustomParameterStateData> state) {
-        if (state.getData() == null || !hasMissingParameter(getFilledExpression(config, state))) {
+        if (Optional.ofNullable(state.getData()).isEmpty() || !hasMissingParameter(state)) {
             messageDataDAO.updateCommandConfigOfMessage(channelId, messageId, Mapper.NO_PERSISTED_STATE, null);
         } else {
             messageDataDAO.updateCommandConfigOfMessage(channelId, messageId, STATE_DATA_TYPE_ID, Mapper.serializedObject(state.getData()));
@@ -301,43 +397,66 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
 
     @Override
     public @NonNull Optional<String> getCurrentMessageContentChange(CustomParameterConfig config, State<CustomParameterStateData> state) {
-        if (!hasMissingParameter(getFilledExpression(config, state))) {
+        if (!hasMissingParameter(state)) {
             return Optional.empty();
         }
         String cleanName = Optional.ofNullable(state.getData())
                 .map(CustomParameterStateData::getLockedForUserName)
-                .map(n -> String.format("%s%s", n, LOCKED_USER_NAME_DELIMITER))
                 .orElse("");
-        return Optional.of(String.format("%s%s: Please select value for %s", cleanName, cleanupExpressionForDisplay(getFilledExpression(config, state)), getCurrentParameterName(config, state)));
+        return Optional.of(formatMessageContent(config, state, cleanName));
     }
 
     @Override
     protected @NonNull Optional<MessageDefinition> createNewButtonMessageWithState(CustomParameterConfig config, State<CustomParameterStateData> state) {
-        if (!hasMissingParameter(getFilledExpression(config, state))) {
+        if (!hasMissingParameter(state)) {
             return Optional.of(MessageDefinition.builder()
-                    .content(String.format("%s: Please select value for %s", cleanupExpressionForDisplay(config.getBaseExpression()), cleanupExpressionForDisplay(getNextParameterExpression(config.getBaseExpression()))))
+                    .content(formatMessageContent(config, state, null))
                     .componentRowDefinitions(getButtonLayoutWithOptionalState(config, null))
                     .build());
         }
         return Optional.empty();
     }
 
+    private String formatMessageContent(CustomParameterConfig config, State<CustomParameterStateData> state, String userName) {
+        Parameter currentParameter = Optional.ofNullable(state)
+                .map(State::getData)
+                .flatMap(CustomParameterStateData::getNextUnselectedParameterExpression)
+                .flatMap(s -> getParameterForParameterExpression(config, s.getParameterExpression()))
+                .orElse(config.getParamters().get(0));
+        List<String> nameAndExpression = new ArrayList<>();
+        if (!Strings.isNullOrEmpty(userName)) {
+            nameAndExpression.add(userName + ": ");
+        }
+        if (config.getAnswerFormatType() == AnswerFormatType.full) {
+            final String expression;
+            if (state != null && hasMissingParameter(state)) {
+                expression = getFilledExpression(config, state);
+            } else {
+                expression = config.getBaseExpression();
+            }
+            nameAndExpression.add(removeRange(expression) + "\n");
+        }
+        String nameExpressionAndSeparator = String.join(" ", nameAndExpression);
+        return String.format("%sPlease select value for **%s**", nameExpressionAndSeparator, currentParameter.getName());
+    }
+
     private List<ComponentRowDefinition> getButtonLayoutWithOptionalState(@NonNull CustomParameterConfig config, @Nullable State<CustomParameterStateData> state) {
-        String parameterExpression = Optional.ofNullable(state)
-                .map(s -> getCurrentParameterExpression(config, s))
-                .orElse(getNextParameterExpression(config.getBaseExpression()));
-        List<String> buttonValues = getButtonValues(parameterExpression);
-        List<ButtonDefinition> buttons = buttonValues.stream()
-                .map(v -> ButtonDefinition.builder()
-                        .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), v))
-                        .label(v)
+        String currentParameterExpression = Optional.ofNullable(state)
+                .map(State::getData)
+                .flatMap(CustomParameterStateData::getNextUnselectedParameterExpression)
+                .map(SelectedParameter::getParameterExpression)
+                .orElse(config.getParamters().get(0).getParameterExpression());
+        Parameter parameter = config.getParamters().stream()
+                .filter(p -> Objects.equals(p.getParameterExpression(), currentParameterExpression))
+                .findFirst().orElse(config.getParamters().get(0));
+        List<ButtonDefinition> buttons = parameter.getParameterOptions().stream()
+                .map(vl -> ButtonDefinition.builder()
+                        .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), vl.getValue()))
+                        .label(vl.getLabel())
                         .build())
                 .collect(Collectors.toList());
-        List<String> selectedParameter = Optional.ofNullable(state)
-                .map(State::getData)
-                .map(CustomParameterStateData::getSelectedParameterValues)
-                .orElse(ImmutableList.of());
-        if (state != null && !selectedParameter.isEmpty()) {
+        boolean hasSelectedParameter = hasAnySelectedValues(state);
+        if (hasSelectedParameter) {
             buttons.add(ButtonDefinition.builder()
                     .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), CLEAR_BUTTON_ID))
                     .label("Clear")
@@ -349,6 +468,13 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
                 .collect(Collectors.toList());
     }
 
+    private boolean hasAnySelectedValues(@Nullable State<CustomParameterStateData> state) {
+        return Optional.ofNullable(state)
+                .map(State::getData)
+                .map(CustomParameterStateData::getSelectedParameterValues)
+                .orElse(List.of()).stream()
+                .anyMatch(sp -> sp.getSelectedValue() != null);
+    }
 
     @Override
     protected @NonNull Optional<String> getStartOptionsValidationMessage(@NonNull CommandInteractionOption options) {
@@ -375,7 +501,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
             return Optional.of(String.format("Expression contains invalid character: '%s'", SELECTED_PARAMETER_DELIMITER));
         }
         CustomParameterConfig config = getConfigFromStartOptions(options);
-        if (getButtonValues(getNextParameterExpression(config.getBaseExpression())).isEmpty()) {
+        if (createParameterListFromBaseExpression(getNextParameterExpression(config.getBaseExpression())).isEmpty()) {
             return Optional.of(String.format("The expression '%s' contains no valid parameter options", getNextParameterExpression(config.getBaseExpression())));
         }
         return validateAllPossibleStates(config);
@@ -389,17 +515,20 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
             if (customId.length() > 100) {
                 return Optional.of(String.format("The following expression with parameters is %d to long: %s", (customId.length() - 100), getFilledExpression(config, aState.getState())));
             }
-            if (aState.getParameter().size() != ImmutableSet.copyOf(aState.getParameter()).size()) {
-                return Optional.of(String.format("Parameter '%s' contains duplicate parameter option but they must be unique.", aState.getParameter()));
+            if (aState.getButtonIdLabelAndDiceExpressions().stream().map(ButtonIdLabelAndDiceExpression::getButtonId).count() != aState.getButtonIdLabelAndDiceExpressions().stream().map(ButtonIdLabelAndDiceExpression::getButtonId).distinct().count()) {
+                return Optional.of(String.format("Parameter '%s' contains duplicate parameter option but they must be unique.", aState.getButtonIdLabelAndDiceExpressions().stream().map(ButtonIdLabelAndDiceExpression::getDiceExpression).toList()));
             }
-            if (!hasMissingParameter(getFilledExpression(config, aState.getState()))) {
+            if (!hasMissingParameter(aState.getState())) {
                 Optional<String> validationMessage = diceSystemAdapter.validateDiceExpressionWitOptionalLabel(getFilledExpression(config, aState.getState()), "/custom_parameter help", config.getDiceParserSystem());
                 if (validationMessage.isPresent()) {
                     return validationMessage;
                 }
             }
-            if (hasMissingParameter(getFilledExpression(config, aState.getState())) && getButtonValues(getCurrentParameterExpression(config, aState.getState())).isEmpty()) {
-                return Optional.of(String.format("The expression '%s' contains no valid parameter options", getCurrentParameterExpression(config, aState.getState())));
+            if (hasMissingParameter(aState.getState()) && getParameterForParameterExpression(config, getCurrentParameterExpression(aState.getState()).orElse(null))
+                    .map(Parameter::getParameterOptions)
+                    .map(List::isEmpty)
+                    .orElse(true)) {
+                return Optional.of(String.format("The expression '%s' contains no valid parameter options", getCurrentParameterExpression(aState.getState()).orElse("")));
             }
         }
         return Optional.empty();
@@ -408,72 +537,40 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     private List<StateWithCustomIdAndParameter> allPossibleStatePermutations(CustomParameterConfig config) {
         List<StateWithCustomIdAndParameter> out = new ArrayList<>();
         String parameterExpression = getNextParameterExpression(config.getBaseExpression());
-        List<String> parameterValues = getButtonValues(parameterExpression);
 
-        for (String parameterValue : parameterValues) {
-            String customId = BottomCustomIdUtils.createButtonCustomId(getCommandId(), parameterValue);
-            State<CustomParameterStateData> nextState = new State<>(parameterValue, updateState(ImmutableList.of(), parameterValue, null, "test"));
-            out.add(new StateWithCustomIdAndParameter(customId, nextState, parameterValues));
+        List<ButtonIdLabelAndDiceExpression> buttonIdLabelAndDiceExpressions = getButtons(config, parameterExpression);
+
+        for (ButtonIdLabelAndDiceExpression buttonIdLabelAndDiceExpression : buttonIdLabelAndDiceExpressions) {
+            State<CustomParameterStateData> nextState = new State<>(buttonIdLabelAndDiceExpression.getDiceExpression(), updateState(null, config, buttonIdLabelAndDiceExpression.getDiceExpression(), null, "test"));
+            out.add(new StateWithCustomIdAndParameter(buttonIdLabelAndDiceExpression.getButtonId(), nextState, buttonIdLabelAndDiceExpressions));
             out.addAll(allPossibleStatePermutations(config, nextState));
         }
         return out;
     }
 
+    List<ButtonIdLabelAndDiceExpression> getButtons(CustomParameterConfig config, String parameterExpression) {
+        return getParameterForParameterExpression(config, parameterExpression)
+                .map(Parameter::getParameterOptions).orElse(List.of()).stream()
+                .map(vl -> new ButtonIdLabelAndDiceExpression(BottomCustomIdUtils.createButtonCustomId(getCommandId(), vl.getValue()), vl.getLabel(), vl.getValue()))
+                .toList();
+    }
 
     private List<StateWithCustomIdAndParameter> allPossibleStatePermutations(CustomParameterConfig config, State<CustomParameterStateData> state) {
         List<StateWithCustomIdAndParameter> out = new ArrayList<>();
-        if (hasMissingParameter(getFilledExpression(config, state))) {
-            String parameterExpression = getCurrentParameterExpression(config, state);
-            List<String> parameterValues = getButtonValues(parameterExpression);
-            for (String parameterValue : parameterValues) {
-                String customId = BottomCustomIdUtils.createButtonCustomId(getCommandId(), parameterValue);
-                State<CustomParameterStateData> nextState = new State<>(parameterValue,
-                        updateState(Optional.ofNullable(state.getData()).map(CustomParameterStateData::getSelectedParameterValues).orElse(ImmutableList.of()),
-                                parameterValue, null, "test"));
-                out.add(new StateWithCustomIdAndParameter(customId, nextState, parameterValues));
+        Optional<String> parameterExpression = getCurrentParameterExpression(state);
+
+        if (parameterExpression.isPresent()) {
+            List<ButtonIdLabelAndDiceExpression> parameterValues = getButtons(config, parameterExpression.get());
+            for (ButtonIdLabelAndDiceExpression parameterValue : parameterValues) {
+                State<CustomParameterStateData> nextState = new State<>(parameterValue.getDiceExpression(),
+                        updateState(Optional.ofNullable(state.getData()).map(CustomParameterStateData::getSelectedParameterValues).orElse(List.of()), config,
+                                parameterValue.getDiceExpression(), null, "test"));
+                out.add(new StateWithCustomIdAndParameter(parameterValue.getButtonId(), nextState, parameterValues));
                 out.addAll(allPossibleStatePermutations(config, nextState));
             }
         }
         return out;
     }
-
-    @VisibleForTesting
-    @NonNull List<String> getButtonValues(String currentParameterExpression) {
-        if (currentParameterExpression == null) {
-            return ImmutableList.of();
-        }
-        Matcher matcher = BUTTON_VALUE_PATTERN.matcher(currentParameterExpression);
-        if (BUTTON_RANGE_PATTERN.matcher(currentParameterExpression).find()) {
-            int min = getMinButtonFrom(currentParameterExpression);
-            int max = getMaxButtonFrom(currentParameterExpression);
-            return IntStream.range(min, max + 1).mapToObj(String::valueOf).collect(Collectors.toList());
-        } else if (matcher.find()) {
-            String buttonValueExpression = matcher.group(1);
-            return Arrays.stream(buttonValueExpression.split(BUTTON_VALUE_DELIMITER)).limit(23).toList();
-        }
-        return IntStream.range(1, 16).mapToObj(String::valueOf).collect(Collectors.toList());
-    }
-
-    @VisibleForTesting
-    int getMinButtonFrom(String currentParameterExpression) {
-        Matcher matcher = BUTTON_RANGE_PATTERN.matcher(currentParameterExpression);
-        if (matcher.find()) {
-            return Integer.parseInt(matcher.group(1));
-        }
-        return 1;
-    }
-
-    @VisibleForTesting
-    int getMaxButtonFrom(String currentParameterExpression) {
-        Matcher matcher = BUTTON_RANGE_PATTERN.matcher(currentParameterExpression);
-        if (matcher.find()) {
-            int min = Integer.parseInt(matcher.group(1));
-            int max = Integer.parseInt(matcher.group(2));
-            return Math.min(Math.max(min, max), min + 23);
-        }
-        return 15;
-    }
-
 
     @Value
     private static class StateWithCustomIdAndParameter {
@@ -482,6 +579,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
         @NonNull
         State<CustomParameterStateData> state;
         @NotNull
-        List<String> parameter;
+        List<ButtonIdLabelAndDiceExpression> buttonIdLabelAndDiceExpressions;
     }
+
 }

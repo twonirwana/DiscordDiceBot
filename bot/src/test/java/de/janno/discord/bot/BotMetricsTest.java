@@ -12,8 +12,8 @@ class BotMetricsTest {
 
     @Test
     void init() throws IOException {
-        BotMetrics.init("localhost");
-        String res = IOUtils.toString(new URL("http://localhost:8080/prometheus").openStream());
+        BotMetrics.init("localhost", 9090);
+        String res = IOUtils.toString(new URL("http://localhost:9090/prometheus").openStream());
 
         assertThat(res).contains("process_uptime_seconds");
     }
