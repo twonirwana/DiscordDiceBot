@@ -52,6 +52,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     private static final String STATE_DATA_TYPE_ID = "CustomParameterStateDataV2";
     private static final String STATE_DATA_TYPE_ID_LEGACY = "CustomParameterStateData";
     private static final String CONFIG_TYPE_ID = "CustomParameterConfig";
+    private final static Pattern LABEL_MATCHER = Pattern.compile("@[^}]+$");
     private final DiceSystemAdapter diceSystemAdapter;
 
     public CustomParameterCommand(MessageDataDAO messageDataDAO) {
@@ -71,7 +72,6 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
         }
         throw new IllegalStateException(String.format("Expression '%s' missing a parameter definition like {name}", expression));
     }
-
 
     private static String removeRange(String expression) {
         return expression.replaceAll(RANGE_REPLACE_REGEX, "");
@@ -176,7 +176,6 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     private static String[] splitCustomId(String customId) {
         return customId.split(BottomCustomIdUtils.LEGACY_CONFIG_SPLIT_DELIMITER_REGEX);
     }
-
 
     @VisibleForTesting
     static CustomParameterConfig createConfigFromCustomId(String customId) {
@@ -283,7 +282,33 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     protected @NonNull Optional<RollAnswer> getAnswer(CustomParameterConfig config, State<CustomParameterStateData> state) {
         if (!hasMissingParameter(state)) {
             String expression = getFilledExpression(config, state);
-            final String label;
+            String label = getLabel(config, state);
+            String expressionWithoutSuffixLabel = removeSuffixLabelFromExpression(expression, label);
+            return Optional.of(diceSystemAdapter.answerRollWithGivenLabel(expressionWithoutSuffixLabel,
+                    label,
+                    false,
+                    config.getDiceParserSystem(),
+                    config.getAnswerFormatType()));
+        }
+        return Optional.empty();
+    }
+
+    private String removeSuffixLabelFromExpression(@NonNull String expression, @Nullable String label) {
+        String atWithLabel = "@" + label;
+        if (label != null && expression.endsWith(atWithLabel)) { //only remove if the label is from the suffix
+            return expression.substring(0, expression.length() - atWithLabel.length());
+        }
+        return expression;
+    }
+
+    private String getLabel(CustomParameterConfig config, State<CustomParameterStateData> state) {
+        final String label;
+        Matcher labelMatcher = LABEL_MATCHER.matcher(removeRange(config.getBaseExpression()));
+
+        if (labelMatcher.find()) {
+            String match = labelMatcher.group();
+            label = match.substring(1); //remove @
+        } else {
             if (config.getAnswerFormatType() == AnswerFormatType.full) {
                 label = null;
             } else {
@@ -291,13 +316,8 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
                         .map(sp -> "%s:%s".formatted(sp.getName(), sp.getLabelOfSelectedValue()))
                         .collect(Collectors.joining(", "));
             }
-            return Optional.of(diceSystemAdapter.answerRollWithGivenLabel(expression,
-                    label,
-                    false,
-                    config.getDiceParserSystem(),
-                    config.getAnswerFormatType()));
         }
-        return Optional.empty();
+        return label;
     }
 
     @Override
@@ -425,7 +445,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
                 .orElse(config.getParamters().get(0));
         List<String> nameAndExpression = new ArrayList<>();
         if (!Strings.isNullOrEmpty(userName)) {
-            nameAndExpression.add(userName + ": ");
+            nameAndExpression.add(userName + ":");
         }
         if (config.getAnswerFormatType() == AnswerFormatType.full) {
             final String expression;
@@ -435,6 +455,8 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
                 expression = config.getBaseExpression();
             }
             nameAndExpression.add(removeRange(expression) + "\n");
+        } else {
+            nameAndExpression.add("");
         }
         String nameExpressionAndSeparator = String.join(" ", nameAndExpression);
         return String.format("%sPlease select value for **%s**", nameExpressionAndSeparator, currentParameter.getName());
@@ -519,7 +541,10 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
                 return Optional.of(String.format("Parameter '%s' contains duplicate parameter option but they must be unique.", aState.getButtonIdLabelAndDiceExpressions().stream().map(ButtonIdLabelAndDiceExpression::getDiceExpression).toList()));
             }
             if (!hasMissingParameter(aState.getState())) {
-                Optional<String> validationMessage = diceSystemAdapter.validateDiceExpressionWitOptionalLabel(getFilledExpression(config, aState.getState()), "/custom_parameter help", config.getDiceParserSystem());
+                String expression = getFilledExpression(config, aState.getState());
+                String label = getLabel(config, aState.getState());
+                String expressionWithoutSuffixLabel = removeSuffixLabelFromExpression(expression, label);
+                Optional<String> validationMessage = diceSystemAdapter.validateDiceExpressionWitOptionalLabel(expressionWithoutSuffixLabel, "/custom_parameter help", config.getDiceParserSystem());
                 if (validationMessage.isPresent()) {
                     return validationMessage;
                 }
