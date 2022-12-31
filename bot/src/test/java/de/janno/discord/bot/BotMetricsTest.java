@@ -16,5 +16,9 @@ class BotMetricsTest {
         String res = IOUtils.toString(new URL("http://localhost:9090/prometheus").openStream());
 
         assertThat(res).contains("process_uptime_seconds");
+
+        String res2 = IOUtils.toString(new URL("http://localhost:9090/prometheus").openStream());
+
+        assertThat(res).isNotEqualTo(res2);
     }
 }
