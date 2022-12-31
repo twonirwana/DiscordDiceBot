@@ -1,6 +1,8 @@
 package de.janno.discord.bot;
 
 import com.google.common.base.Strings;
+import com.sun.net.httpserver.HttpServer;
+import com.sun.net.httpserver.SimpleFileServer;
 import de.janno.discord.bot.command.AnswerFormatType;
 import de.janno.discord.bot.dice.DiceParserSystem;
 import io.micrometer.core.instrument.Metrics;
@@ -12,12 +14,11 @@ import io.micrometer.core.instrument.binder.system.ProcessorMetrics;
 import io.micrometer.core.instrument.binder.system.UptimeMetrics;
 import io.micrometer.prometheus.PrometheusConfig;
 import io.micrometer.prometheus.PrometheusMeterRegistry;
-import io.undertow.Handlers;
-import io.undertow.Undertow;
-import io.undertow.server.handlers.PathHandler;
-import io.undertow.util.Headers;
 import lombok.NonNull;
 
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 
 import static io.micrometer.core.instrument.Metrics.globalRegistry;
@@ -44,19 +45,25 @@ public class BotMetrics {
     private static final String ANSWER_TIMER_PREFIX = "answerTimer";
     private static final String NEW_BUTTON_TIMER_PREFIX = "newButtonTimer";
 
-    public static void init(String publishMetricsToUrl, int port) {
+    public static void init(String publishMetricsToUrl, int port) throws IOException {
         if (!Strings.isNullOrEmpty(publishMetricsToUrl)) {
             PrometheusMeterRegistry prometheusRegistry = new PrometheusMeterRegistry(PrometheusConfig.DEFAULT);
             Metrics.addRegistry(prometheusRegistry);
             new UptimeMetrics().bindTo(globalRegistry);
-            PathHandler handler = Handlers.path().addExactPath("prometheus", exchange ->
-            {
-                exchange.getResponseHeaders().put(Headers.CONTENT_TYPE, "text/plain");
-                exchange.getResponseSender().send(prometheusRegistry.scrape());
-            });
-            Undertow server = Undertow.builder()
-                    .addHttpListener(port, publishMetricsToUrl)
-                    .setHandler(handler).build();
+
+            HttpServer server = HttpServer.create(new InetSocketAddress(publishMetricsToUrl, port),
+                    SimpleFileServer.OutputLevel.INFO.ordinal(),
+                    "/prometheus",
+                    exchange -> {
+                        final var bytes = prometheusRegistry.scrape().getBytes(StandardCharsets.UTF_8);
+                        try (exchange) {
+                            exchange.getRequestBody().readAllBytes();
+                            exchange.sendResponseHeaders(200, bytes.length);
+                            exchange.getResponseBody().write(bytes);
+                        }
+                    }
+            );
+
             server.start();
 
             prometheusRegistry.config().commonTags("application", "DiscordDiceBot");
@@ -125,6 +132,7 @@ public class BotMetrics {
     public static void incrementDelayCounter(@NonNull String commandName, boolean isDelayed) {
         globalRegistry.counter(METRIC_PREFIX + METRIC_IS_DELAYED_PREFIX, Tags.of(COMMAND_TAG, commandName, DELAYED_TAG, String.valueOf(isDelayed))).increment();
     }
+
     public static void timerAnswerMetricCounter(@NonNull String commandName, @NonNull Duration duration) {
         Timer.builder(METRIC_PREFIX + ANSWER_TIMER_PREFIX)
                 .tags(Tags.of(COMMAND_TAG, commandName))
