@@ -128,7 +128,7 @@ public class SlashEventAdapterImpl extends DiscordAdapterImpl implements SlashEv
     @Override
     public Mono<Void> acknowledgeAndRemoveSlash() {
         return createMonoFrom(() -> event.reply("..."))
-                .onErrorResume(t -> handleException("Error on reply to slash", t, false).ofType(InteractionHook.class))
+                .onErrorResume(t -> handleException("Error on reply to slash", t, true).ofType(InteractionHook.class))
                 .flatMap(i -> createMonoFrom(i::deleteOriginal)
                         .onErrorResume(t -> handleException("Error on deleting reply", t, true)));
 
