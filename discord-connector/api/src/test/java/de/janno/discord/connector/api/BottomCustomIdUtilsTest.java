@@ -49,20 +49,6 @@ class BottomCustomIdUtilsTest {
     }
 
     @Test
-    void getButtonValueFromLegacyCustomId() {
-        String res = BottomCustomIdUtils.getButtonValueFromLegacyCustomId("a,b");
-
-        assertThat(res).isEqualTo("b");
-    }
-
-    @Test
-    void getButtonValueFromLegacyCustomIdV2() {
-        String res = BottomCustomIdUtils.getButtonValueFromLegacyCustomId("a\u0000b");
-
-        assertThat(res).isEqualTo("b");
-    }
-
-    @Test
     void getCommandNameFromCustomIdWithPersistence() {
         String res = BottomCustomIdUtils.getCommandNameFromCustomIdWithPersistence("a\u001eb");
 
