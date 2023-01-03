@@ -4,7 +4,6 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import de.janno.discord.bot.BotMetrics;
 import de.janno.discord.bot.command.*;
 import de.janno.discord.bot.dice.*;
 import de.janno.discord.bot.persistance.Mapper;
@@ -33,8 +32,6 @@ import java.util.stream.IntStream;
 public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateData> {
 
     private static final String COMMAND_NAME = "custom_dice";
-    private static final List<String> LEGACY_DICE_COMMAND_OPTIONS_IDS = IntStream.range(1, 25).mapToObj(i -> i + "_button").toList();
-    private static final String LEGACY_START_ACTION = "legacy_start";
     private static final String BUTTONS_COMMAND_OPTIONS_ID = "buttons";
     private static final String LABEL_DELIMITER = "@";
     private static final String BUTTON_MESSAGE = "Click on a button to roll the dice";
@@ -108,7 +105,7 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
 
     @Override
     protected Set<String> getStartOptionIds() {
-        return Set.of(ACTION_START, LEGACY_START_ACTION);
+        return Set.of(ACTION_START);
     }
 
     @Override
@@ -117,18 +114,12 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
                 .map(ButtonIdAndExpression::getExpression)
                 .distinct()
                 .collect(Collectors.toList());
-        DiceParserSystem diceParserSystem = options.getName().equals(LEGACY_START_ACTION) ? DiceParserSystem.DICEROLL_PARSER : DiceParserSystem.DICE_EVALUATOR;
+        DiceParserSystem diceParserSystem = DiceParserSystem.DICE_EVALUATOR;
         return diceSystemAdapter.validateListOfExpressions(diceExpressionWithOptionalLabel, "/custom_dice help", diceParserSystem);
 
     }
 
     private List<ButtonIdAndExpression> getButtonsFromCommandOption(@NonNull CommandInteractionOption options) {
-        if (LEGACY_START_ACTION.equals(options.getName())) {
-            return LEGACY_DICE_COMMAND_OPTIONS_IDS.stream()
-                    .flatMap(id -> options.getStringSubOptionWithName(id).stream()
-                            .map(e -> new ButtonIdAndExpression(id, e)))
-                    .collect(Collectors.toList());
-        }
         ImmutableList.Builder<ButtonIdAndExpression> builder = ImmutableList.builder();
         String buttons = options.getStringSubOptionWithName(BUTTONS_COMMAND_OPTIONS_ID).orElseThrow();
         int idCounter = 1;
@@ -139,17 +130,12 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
     }
 
     protected @NonNull CustomDiceConfig getConfigFromStartOptions(@NonNull CommandInteractionOption options) {
-        if (LEGACY_START_ACTION.equals(options.getName())) {
-            BotMetrics.incrementLegacyStartCounter(getCommandId());
-            return getConfigOptionStringList(getButtonsFromCommandOption(options), getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null),
-                    DiceParserSystem.DICEROLL_PARSER, AnswerFormatType.full);
-        }
-        return getConfigOptionStringList(getButtonsFromCommandOption(options), getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null), DiceParserSystem.DICE_EVALUATOR, getAnswerTypeFromStartCommandOption(options));
+        return getConfigOptionStringList(getButtonsFromCommandOption(options), getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null), getAnswerTypeFromStartCommandOption(options));
     }
 
     @VisibleForTesting
     CustomDiceConfig getConfigOptionStringList(List<ButtonIdAndExpression> startOptions,
-                                               Long channelId, DiceParserSystem diceParserSystem,
+                                               Long channelId,
                                                AnswerFormatType answerFormatType) {
         return new CustomDiceConfig(channelId, startOptions.stream()
                 .filter(be -> !be.getExpression().contains(BottomCustomIdUtils.CUSTOM_ID_DELIMITER))
@@ -163,12 +149,12 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
                 })
                 .filter(s -> !s.getDiceExpression().isEmpty())
                 .filter(s -> !s.getLabel().isEmpty())
-                .filter(lv -> diceSystemAdapter.isValidExpression(lv.getDiceExpression(), diceParserSystem))
+                .filter(lv -> diceSystemAdapter.isValidExpression(lv.getDiceExpression(), DiceParserSystem.DICE_EVALUATOR))
                 .filter(s -> s.getDiceExpression().length() <= 2000) //limit of the discord message content
                 .distinct()
                 .limit(25)
                 .collect(Collectors.toList()),
-                diceParserSystem, answerFormatType);
+                DiceParserSystem.DICE_EVALUATOR, answerFormatType);
     }
 
     @Override

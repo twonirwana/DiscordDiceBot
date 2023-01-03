@@ -80,7 +80,7 @@ class CustomDiceCommandTest {
         final List<CustomDiceCommand.ButtonIdAndExpression> idAndExpressions = optionValue.stream()
                 .map(e -> new CustomDiceCommand.ButtonIdAndExpression(counter.getAndIncrement() + "_button", e))
                 .toList();
-        assertThat(underTest.getConfigOptionStringList(idAndExpressions, null, DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full)).isEqualTo(expected);
+        assertThat(underTest.getConfigOptionStringList(idAndExpressions, null, AnswerFormatType.full)).isEqualTo(expected);
     }
 
     @BeforeEach
@@ -367,61 +367,6 @@ class CustomDiceCommandTest {
 
         verify(event).checkPermissions();
         verify(event).getCommandString();
-        verify(event, times(2)).getOption(any());
-        verify(event).reply(any(), anyBoolean());
-        verify(event).createButtonMessage(MessageDefinition.builder()
-                .content("Click on a button to roll the dice")
-                .componentRowDefinitions(ImmutableList.of(ComponentRowDefinition.builder()
-                        .buttonDefinition(ButtonDefinition.builder()
-                                .id("custom_dice1_button")
-                                .label("1d6")
-                                .build())
-                        .buttonDefinition(ButtonDefinition.builder()
-                                .id("custom_dice2_button")
-                                .label("Attack")
-                                .build())
-                        .buttonDefinition(ButtonDefinition.builder()
-                                .id("custom_dice3_button")
-                                .label("3d10,3d10,3d10")
-                                .build())
-                        .build()))
-                .build());
-
-    }
-
-
-    @Test
-    void handleSlashCommandEvent_legacy() {
-        SlashEventAdaptor event = mock(SlashEventAdaptor.class);
-        when(event.getCommandString()).thenReturn("/custom_dice legacy_start 1_button:1d6 2_button:1d20@Attack 3_button:3x[3d10]");
-        when(event.getOption("legacy_start")).thenReturn(Optional.of(CommandInteractionOption.builder()
-                .name("legacy_start")
-                .option(CommandInteractionOption.builder()
-                        .name("1_button")
-                        .stringValue("1d6")
-                        .build())
-                .option(CommandInteractionOption.builder()
-                        .name("2_button")
-                        .stringValue("1d20@Attack")
-                        .build())
-                .option(CommandInteractionOption.builder()
-                        .name("3_button")
-                        .stringValue("3x[3d10]")
-                        .build())
-                .build()));
-
-        when(event.createButtonMessage(any())).thenReturn(Mono.just(2L));
-        when(event.deleteMessageById(anyLong())).thenReturn(Mono.empty());
-        when(event.getRequester()).thenReturn(new Requester("user", "channel", "guild", "[0 / 1]"));
-        when(event.reply(any(), anyBoolean())).thenReturn(Mono.just(mock(Void.class)));
-        when(diceMock.detailedRoll(any())).thenAnswer(a -> new DiceParser().detailedRoll(a.getArgument(0)));
-
-        Mono<Void> res = underTest.handleSlashCommandEvent(event);
-        StepVerifier.create(res).verifyComplete();
-
-
-        verify(event).checkPermissions();
-        verify(event).getCommandString();
         verify(event).getOption(any());
         verify(event).reply(any(), anyBoolean());
         verify(event).createButtonMessage(MessageDefinition.builder()
@@ -437,7 +382,7 @@ class CustomDiceCommandTest {
                                 .build())
                         .buttonDefinition(ButtonDefinition.builder()
                                 .id("custom_dice3_button")
-                                .label("3x[3d10]")
+                                .label("3d10,3d10,3d10")
                                 .build())
                         .build()))
                 .build());
@@ -475,43 +420,6 @@ class CustomDiceCommandTest {
         assertThat(res).contains("The following expression is invalid: '2d6*10'. The error is: '*' requires as left input a single integer but was '[3, 3]'. Try to sum the numbers together like (2d6=). Use /custom_dice help to get more information on how to use the command.");
     }
 
-    @Test
-    void getStartOptionsValidationMessageLegacy_valid() {
-        CommandInteractionOption option = CommandInteractionOption.builder()
-                .name("legacy_start")
-                .option(CommandInteractionOption.builder()
-                        .name("1_button")
-                        .stringValue("1d6@Label")
-                        .build())
-                .option(CommandInteractionOption.builder()
-                        .name("2_button")
-                        .stringValue("2d4")
-                        .build())
-                .build();
-
-        Optional<String> res = underTest.getStartOptionsValidationMessage(option);
-
-        assertThat(res).isEmpty();
-    }
-
-    @Test
-    void getStartOptionsValidationMessageLegacy_invalid() {
-        CommandInteractionOption option = CommandInteractionOption.builder()
-                .name("legacy_start")
-                .option(CommandInteractionOption.builder()
-                        .name("1_button")
-                        .stringValue("1d6@Label")
-                        .build())
-                .option(CommandInteractionOption.builder()
-                        .name("2_button")
-                        .stringValue("2x[2d4]")
-                        .build())
-                .build();
-
-        Optional<String> res = underTest.getStartOptionsValidationMessage(option);
-
-        assertThat(res).contains("The following dice expression is invalid: '2x[2d4]'");
-    }
 
     @Test
     void handleSlashCommandEvent_help() {
@@ -529,7 +437,7 @@ class CustomDiceCommandTest {
 
         verify(event).checkPermissions();
         verify(event).getCommandString();
-        verify(event, times(3)).getOption(any());
+        verify(event, times(2)).getOption(any());
         verify(event).replyEmbed(EmbedOrMessageDefinition.builder()
                 .descriptionOrContent("Creates up to 25 buttons with custom dice expression.\n" + DiceEvaluatorAdapter.getHelp())
                 .field(new EmbedOrMessageDefinition.Field("Example", "`/custom_dice start buttons:3d6;10d10;3d20`", false))

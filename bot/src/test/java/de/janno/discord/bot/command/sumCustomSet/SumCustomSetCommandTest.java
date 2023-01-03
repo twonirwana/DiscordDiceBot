@@ -206,17 +206,6 @@ class SumCustomSetCommandTest {
     }
 
     @Test
-    void getStateFromEvent_legacy() {
-        ButtonEventAdaptor event = mock(ButtonEventAdaptor.class);
-        when(event.getCustomId()).thenReturn("sum_custom_set\u0000+1d6");
-        when(event.getInvokingGuildMemberName()).thenReturn("user1");
-        when(event.getAllButtonIds()).thenReturn(ImmutableList.of(new ButtonEventAdaptor.LabelAndCustomId("+1d6", "sum_custom_set\u0000+1d6")));
-        when(event.getMessageContent()).thenReturn("Click on the buttons to add dice to the set");
-        assertThat(underTest.getStateFromEvent(event)).isEqualTo(new State<>("1_button", new SumCustomSetStateData(ImmutableList.of("+1d6"), "user1")));
-    }
-
-
-    @Test
     void getStateFromEvent_clear() {
         ButtonEventAdaptor event = mock(ButtonEventAdaptor.class);
         when(event.getCustomId()).thenReturn("sum_custom_set\u0000clear");
@@ -373,66 +362,6 @@ class SumCustomSetCommandTest {
 
         assertThat(res).isEmpty();
     }
-
-    @Test
-    void getStartOptionsValidationMessageLegacy_valid() {
-        CommandInteractionOption option = CommandInteractionOption.builder()
-                .name("legacy_start")
-                .option(CommandInteractionOption.builder()
-                        .name("1_button")
-                        .stringValue("1d6@Label")
-                        .build())
-                .option(CommandInteractionOption.builder()
-                        .name("2_button")
-                        .stringValue("2d4")
-                        .build())
-                .build();
-
-        Optional<String> res = underTest.getStartOptionsValidationMessage(option);
-
-        assertThat(res).isEmpty();
-    }
-
-    @Test
-    void getStartOptionsValidationMessageLegacy_invalid() {
-        CommandInteractionOption option = CommandInteractionOption.builder()
-                .name("legacy_start")
-                .option(CommandInteractionOption.builder()
-                        .name("1_button")
-                        .stringValue("1d6@Label")
-                        .build())
-                .option(CommandInteractionOption.builder()
-                        .name("2_button")
-                        .stringValue("2x[2d4]")
-                        .build())
-                .build();
-
-        Optional<String> res = underTest.getStartOptionsValidationMessage(option);
-
-        assertThat(res).contains("The following dice expression is invalid: '2x[2d4]'");
-    }
-
-
-    @Test
-    void getConfigValuesFromStartOptions_legacy() {
-        CommandInteractionOption option = CommandInteractionOption.builder()
-                .name("legacy_start")
-                .option(CommandInteractionOption.builder()
-                        .name("1_button")
-                        .stringValue("1d6@Label")
-                        .build())
-                .option(CommandInteractionOption.builder()
-                        .name("2_button")
-                        .stringValue("2d4")
-                        .build())
-                .build();
-        SumCustomSetConfig res = underTest.getConfigFromStartOptions(option);
-        assertThat(res).isEqualTo(new SumCustomSetConfig(null, ImmutableList.of(
-                new ButtonIdLabelAndDiceExpression("1_button", "Label", "+1d6"),
-                new ButtonIdLabelAndDiceExpression("2_button", "+2d4", "+2d4")
-        ), DiceParserSystem.DICEROLL_PARSER, true, AnswerFormatType.full));
-    }
-
 
     @Test
     void getConfigFromEvent() {
