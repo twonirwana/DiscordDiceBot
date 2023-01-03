@@ -14,6 +14,7 @@ import net.dv8tion.jda.api.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.api.events.guild.GuildReadyEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.events.session.ReadyEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder;
 import net.dv8tion.jda.api.sharding.ShardManager;
@@ -39,7 +40,11 @@ public class JdaClient {
 
     public static final Duration START_UP_BUFFER = Duration.of(5, ChronoUnit.MINUTES);
 
-    public void start(String token, boolean disableCommandUpdate, List<SlashCommand> commands, MessageDefinition welcomeMessageDefinition) throws LoginException {
+    public void start(String token,
+                      boolean disableCommandUpdate,
+                      List<SlashCommand> commands,
+                      MessageDefinition welcomeMessageDefinition,
+                      Set<Long> allGuildIdsInPersistence) throws LoginException {
         LocalDateTime startTimePlusBuffer = LocalDateTime.now().plus(START_UP_BUFFER);
         Scheduler scheduler = Schedulers.boundedElastic();
         Set<Long> botInGuildIdSet = new ConcurrentSkipListSet<>();
@@ -95,6 +100,14 @@ public class JdaClient {
                                             event.getGuild().getMemberCount());
                                     botInGuildIdSet.add(event.getGuild().getIdLong());
                                 }
+                            }
+
+                            @Override
+                            public void onReady(@NonNull ReadyEvent event) {
+                                long inactiveGuildIdCountWithConfig = allGuildIdsInPersistence.stream()
+                                        .filter(id -> !botInGuildIdSet.contains(id))
+                                        .count();
+                                log.info("Inactive guild count with config: {}", inactiveGuildIdCountWithConfig);
                             }
 
                             @Override

@@ -155,6 +155,7 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
         final UUID configUUID;
         if (isLegacyMessage) {
             BotMetrics.incrementLegacyButtonMetricCounter(getCommandId());
+            log.info("{}: Legacy id {}", event.getRequester().toLogString(), event.getCustomId());
             return event.reply("The button uses an old format that isn't supported anymore. Please delete it and create a new button message with a slash command.", false);
         } else {
             final String buttonValue = BottomCustomIdUtils.getButtonValueFromCustomId(event.getCustomId());

@@ -20,4 +20,6 @@ public interface MessageDataDAO {
     void saveMessageData(@NonNull MessageDataDTO messageData);
 
     void updateCommandConfigOfMessage(long channelId, long messageId, @NonNull String stateDataClassId, @Nullable String stateData);
+
+    Set<Long> getAllGuildIds();
 }

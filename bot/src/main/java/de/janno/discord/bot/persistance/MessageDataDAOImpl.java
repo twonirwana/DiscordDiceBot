@@ -139,7 +139,7 @@ public class MessageDataDAOImpl implements MessageDataDAO {
         }
     }
 
-    public void queryGauge(String name, String query, DataSource dataSource, Set<Tag> tags) {
+    private void queryGauge(String name, String query, DataSource dataSource, Set<Tag> tags) {
         ToDoubleFunction<DataSource> totalRows = ds -> {
             try (Connection conn = ds.getConnection();
                  PreparedStatement ps = conn.prepareStatement(query);
@@ -238,6 +238,22 @@ public class MessageDataDAOImpl implements MessageDataDAO {
             throw new RuntimeException(e);
         }
         BotMetrics.databaseTimer("saveMessageData", stopwatch.elapsed());
+    }
+
+    @Override
+    public Set<Long> getAllGuildIds() {
+        try (Connection con = connectionPool.getConnection()) {
+            try (PreparedStatement preparedStatement = con.prepareStatement("SELECT DISTINCT GUILD_ID FROM MESSAGE_DATA MC WHERE MC.GUILD_ID IS NOT NULL")) {
+                ResultSet resultSet = preparedStatement.executeQuery();
+                final ImmutableSet.Builder<Long> resultBuilder = ImmutableSet.builder();
+                while (resultSet.next()) {
+                    resultBuilder.add(resultSet.getLong("GUILD_ID"));
+                }
+                return resultBuilder.build();
+            }
+        } catch (Exception e) {
+            throw new IllegalStateException(e);
+        }
     }
 
 }
