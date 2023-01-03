@@ -72,8 +72,8 @@ class CustomParameterCommandTest {
                 Arguments.of("1d6", "The expression needs at least one parameter expression like '{name}"),
                 Arguments.of("{number:3<=>6}d{sides:6/10/12}", null),
                 Arguments.of("{number}{a:a/c/b/d/d}{sides:3<=>6}", "Parameter '[a, c, b, d, d]' contains duplicate parameter option but they must be unique."),
-                Arguments.of("{number}d{sides:3/4/ab}", null),
-                Arguments.of("{number}d{sides:3/4/ab}@roll", null)
+                Arguments.of("{number}d{sides:3/4/'ab'}", null),
+                Arguments.of("{number}d{sides:3/4/'ab'}@roll", null)
         );
     }
 

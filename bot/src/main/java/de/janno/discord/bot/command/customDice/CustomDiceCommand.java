@@ -57,10 +57,7 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
                                                                                                            @NonNull String buttonValue,
                                                                                                            @NonNull String invokingUserName) {
         final Optional<MessageDataDTO> messageDataDTO = messageDataDAO.getDataForMessage(channelId, messageId);
-        if (messageDataDTO.isEmpty()) {
-            return Optional.empty();
-        }
-        return Optional.of(deserializeAndUpdateState(messageDataDTO.get(), buttonValue));
+        return messageDataDTO.map(dataDTO -> deserializeAndUpdateState(dataDTO, buttonValue));
     }
 
     @VisibleForTesting
@@ -95,23 +92,6 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
                 .description("Define one or more buttons separated by ';'")
                 .type(CommandDefinitionOption.Type.STRING)
                 .required(true)
-                .build());
-    }
-
-    @Override
-    protected Collection<CommandDefinitionOption> additionalCommandOptions() {
-        return List.of(CommandDefinitionOption.builder()
-                .name(LEGACY_START_ACTION)
-                .description("Old start command")
-                .type(CommandDefinitionOption.Type.SUB_COMMAND)
-                .options(LEGACY_DICE_COMMAND_OPTIONS_IDS.stream()
-                        .map(id -> CommandDefinitionOption.builder()
-                                .name(id)
-                                .description("xdy for a set of x dice with y sides, e.g. '3d6'")
-                                .type(CommandDefinitionOption.Type.STRING)
-                                .build())
-                        .collect(Collectors.toList()))
-                .option(ANSWER_TARGET_CHANNEL_COMMAND_OPTION)
                 .build());
     }
 

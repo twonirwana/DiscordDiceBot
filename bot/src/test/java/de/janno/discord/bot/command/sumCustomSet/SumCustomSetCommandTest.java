@@ -28,7 +28,6 @@ import reactor.test.StepVerifier;
 
 import java.time.Duration;
 import java.time.OffsetDateTime;
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -508,14 +507,6 @@ class SumCustomSetCommandTest {
 
         assertThat(res.stream().map(CommandDefinitionOption::getName)).containsExactly("buttons", "always_sum_result");
     }
-
-    @Test
-    void getLegacyStartOptions() {
-        Collection<CommandDefinitionOption> res = underTest.additionalCommandOptions();
-        assertThat(res.stream().map(CommandDefinitionOption::getName)).containsExactly("legacy_start");
-        assertThat(res.stream().flatMap(o -> o.getOptions().stream()).map(CommandDefinitionOption::getName)).containsExactly("1_button", "2_button", "3_button", "4_button", "5_button", "6_button", "7_button", "8_button", "9_button", "10_button", "11_button", "12_button", "13_button", "14_button", "15_button", "16_button", "17_button", "18_button", "19_button", "20_button", "21_button", "target_channel");
-    }
-
 
     @Test
     void getStateFromEvent() {
