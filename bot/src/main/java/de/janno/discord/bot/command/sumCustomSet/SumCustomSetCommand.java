@@ -26,7 +26,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -145,12 +144,6 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
                         .type(CommandDefinitionOption.Type.BOOLEAN)
                         .required(false)
                         .build());
-    }
-
-
-    @Override
-    protected Set<String> getStartOptionIds() {
-        return Set.of(ACTION_START);
     }
 
     @Override

@@ -9,7 +9,6 @@ import de.janno.discord.connector.api.message.ComponentRowDefinition;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
 import de.janno.discord.connector.api.message.MessageDefinition;
 import lombok.NonNull;
-import org.apache.commons.lang3.NotImplementedException;
 import org.jetbrains.annotations.Nullable;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -36,6 +35,13 @@ public class ButtonEventAdaptorMock implements ButtonEventAdaptor {
         this.massageId = messageIdCounter.get();
         this.messageIdCounter = messageIdCounter;
         this.pinnedMessageIds = pinnedMessageIds;
+    }
+
+    public ButtonEventAdaptorMock(String legacyId) {
+        this.customId = legacyId;
+        this.massageId = 0;
+        this.messageIdCounter = new AtomicLong(0);
+        this.pinnedMessageIds = Set.of();
     }
 
     public List<String> getActions() {
@@ -89,16 +95,6 @@ public class ButtonEventAdaptorMock implements ButtonEventAdaptor {
     }
 
     @Override
-    public List<LabelAndCustomId> getAllButtonIds() {
-        throw new NotImplementedException();
-    }
-
-    @Override
-    public String getMessageContent() {
-        throw new NotImplementedException();
-    }
-
-    @Override
     public Requester getRequester() {
         return new Requester("invokingUser", "channelName", "guildName", "[0 / 1]");
     }
@@ -143,10 +139,5 @@ public class ButtonEventAdaptorMock implements ButtonEventAdaptor {
     public @NonNull Mono<Void> deleteMessageById(long messageId) {
         actions.add(String.format("deleteMessageById: %s", messageId));
         return Mono.empty();
-    }
-
-    @Override
-    public @NonNull OffsetDateTime getEventCreationTime() {
-        return OffsetDateTime.now().minusSeconds(1);
     }
 }

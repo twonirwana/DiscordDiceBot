@@ -25,7 +25,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -102,11 +101,6 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
                 .field(new EmbedOrMessageDefinition.Field("Full documentation", "https://github.com/twonirwana/DiscordDiceBot", false))
                 .field(new EmbedOrMessageDefinition.Field("Discord Server", "https://discord.gg/e43BsqKpFr", false))
                 .build();
-    }
-
-    @Override
-    protected Set<String> getStartOptionIds() {
-        return Set.of(ACTION_START);
     }
 
     @Override

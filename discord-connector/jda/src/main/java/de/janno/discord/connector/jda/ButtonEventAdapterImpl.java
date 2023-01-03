@@ -1,6 +1,5 @@
 package de.janno.discord.connector.jda;
 
-import com.google.common.base.Strings;
 import de.janno.discord.connector.api.ButtonEventAdaptor;
 import de.janno.discord.connector.api.MessageState;
 import de.janno.discord.connector.api.Requester;
@@ -26,8 +25,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static net.dv8tion.jda.api.requests.ErrorResponse.*;
 
@@ -42,10 +39,6 @@ public class ButtonEventAdapterImpl extends DiscordAdapterImpl implements Button
     private final Long guildId;
     private final boolean isPinned;
     @NonNull
-    private final String messageContent;
-    @NonNull
-    private final List<LabelAndCustomId> allButtonIds;
-    @NonNull
     private final Requester requester;
     @NonNull
     private final String invokingGuildMemberName;
@@ -59,14 +52,6 @@ public class ButtonEventAdapterImpl extends DiscordAdapterImpl implements Button
         this.isPinned = event.getMessage().isPinned();
         this.guildId = Optional.ofNullable(event.getGuild()).map(Guild::getIdLong).orElse(null);
         this.channelId = event.getChannel().getIdLong();
-        this.messageContent = event.getMessage().getContentRaw();
-        this.allButtonIds = event.getMessage().getButtons().stream()
-                .flatMap(l -> {
-                    if (l.getLabel().isEmpty() || Strings.isNullOrEmpty(l.getId())) {
-                        return Stream.empty();
-                    }
-                    return Stream.of(new LabelAndCustomId(l.getLabel(), l.getId()));
-                }).collect(Collectors.toList());
         this.invokingGuildMemberName = Optional.ofNullable(event.getMember()).map(Member::getEffectiveName).orElse(event.getUser().getName());
     }
 
@@ -95,15 +80,6 @@ public class ButtonEventAdapterImpl extends DiscordAdapterImpl implements Button
         return isPinned;
     }
 
-    @Override
-    public @NonNull List<LabelAndCustomId> getAllButtonIds() {
-        return allButtonIds;
-    }
-
-    @Override
-    public @NonNull String getMessageContent() {
-        return messageContent;
-    }
 
     @Override
     public Mono<Void> editMessage(String message, List<ComponentRowDefinition> componentRowDefinitions) {
@@ -231,10 +207,5 @@ public class ButtonEventAdapterImpl extends DiscordAdapterImpl implements Button
     @Override
     public @NonNull OffsetDateTime getMessageCreationTime() {
         return event.getMessage().getTimeCreated();
-    }
-
-    @Override
-    public @NonNull OffsetDateTime getEventCreationTime() {
-        return event.getTimeCreated();
     }
 }

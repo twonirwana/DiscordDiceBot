@@ -43,16 +43,6 @@ public final class CommandUtils {
         }).collect(Collectors.joining(",")));
     }
 
-    public static Set<Integer> toSet(@NonNull String value, @NonNull String delimiter, @NonNull String emptyValue) {
-        if (value.trim().equals(emptyValue)) {
-            return ImmutableSet.of();
-        }
-        return Arrays.stream(value.split(delimiter))
-                .filter(NumberUtils::isParsable)
-                .map(Integer::parseInt)
-                .collect(ImmutableSet.toImmutableSet());
-    }
-
     public static Set<Integer> getSetFromCommandOptions(@NonNull CommandInteractionOption options,
                                                         @NonNull String optionId,
                                                         @NonNull String delimiter) {

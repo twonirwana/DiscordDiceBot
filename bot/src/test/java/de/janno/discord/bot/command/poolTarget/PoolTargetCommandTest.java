@@ -393,8 +393,6 @@ class PoolTargetCommandTest {
         verify(buttonEventAdaptor).getMessageId();
         verify(buttonEventAdaptor).getChannelId();
         verify(buttonEventAdaptor).isPinned();
-        verify(buttonEventAdaptor, never()).getAllButtonIds();
-        verify(buttonEventAdaptor, never()).getMessageContent();
     }
 
     @Test
@@ -423,8 +421,6 @@ class PoolTargetCommandTest {
         verify(buttonEventAdaptor).getMessageId();
         verify(buttonEventAdaptor).getChannelId();
         verify(buttonEventAdaptor, never()).isPinned();
-        verify(buttonEventAdaptor, never()).getAllButtonIds();
-        verify(buttonEventAdaptor, never()).getMessageContent();
     }
 
     private CommandInteractionOption createCommandInteractionOption(Long sides,
