@@ -10,7 +10,6 @@ import de.janno.discord.bot.dice.DiceUtils;
 import de.janno.discord.bot.persistance.MessageDataDAO;
 import de.janno.discord.bot.persistance.MessageDataDAOImpl;
 import de.janno.discord.bot.persistance.MessageDataDTO;
-import de.janno.discord.connector.api.ButtonEventAdaptor;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
@@ -29,7 +28,6 @@ import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 class HoldRerollCommandTest {
 
@@ -94,86 +92,6 @@ class HoldRerollCommandTest {
         assertThat(res.getFields()).hasSize(0);
         assertThat(res.getTitle()).isEqualTo("6d6 ⇒ Success: 2, Failure: 1 and Rerolls: 2");
         assertThat(res.getDescriptionOrContent()).isEqualTo("[**1**,2,3,4,**5**,**6**]");
-    }
-
-    @Test
-    void getConfigFromEvent_roll3d6() {
-        ButtonEventAdaptor event = mock(ButtonEventAdaptor.class);
-        when(event.getCustomId()).thenReturn("hold_reroll\u00003\u0000EMPTY\u00006\u00002;3;4\u00005;6\u00001\u00000\u0000");
-
-        assertThat(underTest.getConfigFromEvent(event)).isEqualTo(new HoldRerollConfig(
-                null,
-                6,
-                ImmutableSet.of(2, 3, 4),
-                ImmutableSet.of(5, 6),
-                ImmutableSet.of(1), AnswerFormatType.full));
-    }
-
-    @Test
-    void getStateFromEvent_roll3d6() {
-        ButtonEventAdaptor event = mock(ButtonEventAdaptor.class);
-        when(event.getCustomId()).thenReturn("hold_reroll\u00003\u0000EMPTY\u00006\u00002;3;4\u00005;6\u00001\u00000\u0000");
-
-        assertThat(underTest.getStateFromEvent(event)).isEqualTo(new State<>("3", new HoldRerollStateData(ImmutableList.of(1, 1, 1), 0)));
-    }
-
-    @Test
-    void getConfigFromEvent_finish() {
-        ButtonEventAdaptor event = mock(ButtonEventAdaptor.class);
-        when(event.getCustomId()).thenReturn("hold_reroll\u0000finish,1;2;3;4;5;6,6,2;3;4,5;6,1,0");
-        assertThat(underTest.getConfigFromEvent(event)).isEqualTo(new HoldRerollConfig(
-                null,
-                6,
-                ImmutableSet.of(2, 3, 4),
-                ImmutableSet.of(5, 6),
-                ImmutableSet.of(1), AnswerFormatType.full));
-    }
-
-    @Test
-    void getStateFromEvent_finish() {
-        ButtonEventAdaptor event = mock(ButtonEventAdaptor.class);
-        when(event.getCustomId()).thenReturn("hold_reroll\u0000finish,1;2;3;4;5;6,6,2;3;4,5;6,1,0");
-        assertThat(underTest.getStateFromEvent(event)).isEqualTo(new State<>("finish", new HoldRerollStateData(ImmutableList.of(1, 2, 3, 4, 5, 6), 0)));
-    }
-
-    @Test
-    void getConfigFromEvent_clear() {
-        ButtonEventAdaptor event = mock(ButtonEventAdaptor.class);
-        when(event.getCustomId()).thenReturn("hold_reroll\u0000clear,1;2;3;4;5;6,6,2;3;4,5;6,1,0");
-        assertThat(underTest.getConfigFromEvent(event))
-                .isEqualTo(new HoldRerollConfig(
-                        null,
-                        6,
-                        ImmutableSet.of(2, 3, 4),
-                        ImmutableSet.of(5, 6),
-                        ImmutableSet.of(1), AnswerFormatType.full));
-    }
-
-    @Test
-    void getStateFromEvent_clear() {
-        ButtonEventAdaptor event = mock(ButtonEventAdaptor.class);
-        when(event.getCustomId()).thenReturn("hold_reroll\u0000clear,1;2;3;4;5;6,6,2;3;4,5;6,1,0");
-        assertThat(underTest.getStateFromEvent(event))
-                .isEqualTo(new State<>("clear", new HoldRerollStateData(ImmutableList.of(), 0)));
-    }
-
-    @Test
-    void getConfigFromEvent_reroll() {
-        ButtonEventAdaptor event = mock(ButtonEventAdaptor.class);
-        when(event.getCustomId()).thenReturn("hold_reroll\u0000reroll,1;2;3;4;5;6,6,2;3;4,5;6,1,1");
-        assertThat(underTest.getConfigFromEvent(event)).isEqualTo(new HoldRerollConfig(
-                null,
-                6,
-                ImmutableSet.of(2, 3, 4),
-                ImmutableSet.of(5, 6),
-                ImmutableSet.of(1), AnswerFormatType.full));
-    }
-
-    @Test
-    void getStateFromEvent_reroll() {
-        ButtonEventAdaptor event = mock(ButtonEventAdaptor.class);
-        when(event.getCustomId()).thenReturn("hold_reroll\u0000reroll,1;2;3;4;5;6,6,2;3;4,5;6,1,1");
-        assertThat(underTest.getStateFromEvent(event)).isEqualTo(new State<>("reroll", new HoldRerollStateData(ImmutableList.of(1, 1, 1, 1, 5, 6), 2)));
     }
 
     @Test
@@ -269,16 +187,6 @@ class HoldRerollCommandTest {
         } else {
             assertThat(underTest.validate(config)).contains(expected);
         }
-    }
-
-    @Test
-    void getStateFromEvent() {
-        ButtonEventAdaptor event = mock(ButtonEventAdaptor.class);
-        when(event.getCustomId()).thenReturn("hold_reroll\u0000finish,1;2;3;4;5;6,6,2;3;4,5;6,1,0");
-
-        State<HoldRerollStateData> res = underTest.getStateFromEvent(event);
-
-        assertThat(res).isEqualTo(new State<>("finish", new HoldRerollStateData(ImmutableList.of(1, 2, 3, 4, 5, 6), 0)));
     }
 
     @Test
@@ -497,6 +405,7 @@ class HoldRerollCommandTest {
         assertThat(configAndState.getConfigUUID()).isEqualTo(configUUID);
         assertThat(configAndState.getState().getData()).isEqualTo(new HoldRerollStateData(ImmutableList.of(1, 2, 1), 3));
     }
+
     @Test
     void deserialization() {
         UUID configUUID = UUID.randomUUID();

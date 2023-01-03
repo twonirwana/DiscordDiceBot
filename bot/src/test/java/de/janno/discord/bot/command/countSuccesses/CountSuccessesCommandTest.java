@@ -1,14 +1,10 @@
 package de.janno.discord.bot.command.countSuccesses;
 
-import com.google.common.collect.ImmutableList;
 import de.janno.discord.bot.command.*;
 import de.janno.discord.bot.dice.DiceUtils;
 import de.janno.discord.bot.persistance.MessageDataDAO;
 import de.janno.discord.bot.persistance.MessageDataDAOImpl;
 import de.janno.discord.bot.persistance.MessageDataDTO;
-import de.janno.discord.connector.api.ButtonEventAdaptor;
-import de.janno.discord.connector.api.MessageState;
-import de.janno.discord.connector.api.Requester;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
@@ -17,19 +13,15 @@ import de.janno.discord.connector.api.slash.CommandDefinitionOption;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import reactor.core.publisher.Mono;
-import reactor.test.StepVerifier;
 
 import java.time.Duration;
-import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
 
 class CountSuccessesCommandTest {
 
@@ -115,41 +107,6 @@ class CountSuccessesCommandTest {
     }
 
     @Test
-    void getConfigFromEvent_legacyOnlyTwo() {
-        ButtonEventAdaptor event = mock(ButtonEventAdaptor.class);
-        when(event.getCustomId()).thenReturn("count_successes,1,6,6");
-        assertThat(underTest.getConfigFromEvent(event)).isEqualTo(new CountSuccessesConfig(null, 6, 6, "no_glitch", 15, 1, Set.of(), Set.of(), AnswerFormatType.full));
-    }
-
-    @Test
-    void getConfigFromEvent_legacyOnlyThree() {
-        ButtonEventAdaptor event = mock(ButtonEventAdaptor.class);
-        when(event.getCustomId()).thenReturn("count_successes,1,6,6,no_glitch");
-        assertThat(underTest.getConfigFromEvent(event)).isEqualTo(new CountSuccessesConfig(null, 6, 6, "no_glitch", 15, 1, Set.of(), Set.of(), AnswerFormatType.full));
-    }
-
-    @Test
-    void getConfigFromEvent() {
-        ButtonEventAdaptor event = mock(ButtonEventAdaptor.class);
-        when(event.getCustomId()).thenReturn("count_successes\u00001\u00006\u00006\u0000no_glitch\u000015\u0000");
-        assertThat(underTest.getConfigFromEvent(event)).isEqualTo(new CountSuccessesConfig(null, 6, 6, "no_glitch", 15, 1, Set.of(), Set.of(), AnswerFormatType.full));
-    }
-
-    @Test
-    void getConfigFromEvent_withTarget() {
-        ButtonEventAdaptor event = mock(ButtonEventAdaptor.class);
-        when(event.getCustomId()).thenReturn("count_successes\u00001\u00006\u00006\u0000no_glitch\u000015\u0000123");
-        assertThat(underTest.getConfigFromEvent(event)).isEqualTo(new CountSuccessesConfig(123L, 6, 6, "no_glitch", 15, 1, Set.of(), Set.of(), AnswerFormatType.full));
-    }
-
-    @Test
-    void getConfigFromEvent_legacy() {
-        ButtonEventAdaptor event = mock(ButtonEventAdaptor.class);
-        when(event.getCustomId()).thenReturn("count_successes\u00001\u00006\u00006\u0000no_glitch\u000015");
-        assertThat(underTest.getConfigFromEvent(event)).isEqualTo(new CountSuccessesConfig(null, 6, 6, "no_glitch", 15, 1, Set.of(), Set.of(), AnswerFormatType.full));
-    }
-
-    @Test
     void matchingComponentCustomId_match_legacy() {
         assertThat(underTest.matchingComponentCustomId("count_successes,x")).isTrue();
     }
@@ -230,100 +187,6 @@ class CountSuccessesCommandTest {
                 "min_dice_count",
                 "reroll_set",
                 "botch_set");
-    }
-
-
-    @Test
-    void getStateFromEvent_legacyV1() {
-        ButtonEventAdaptor event = mock(ButtonEventAdaptor.class);
-        when(event.getCustomId()).thenReturn("count_successes,4");
-
-        State<StateData> res = underTest.getStateFromEvent(event);
-
-        assertThat(res).isEqualTo(new State<>("4", StateData.empty()));
-    }
-
-    @Test
-    void getStateFromEvent() {
-        ButtonEventAdaptor event = mock(ButtonEventAdaptor.class);
-        when(event.getCustomId()).thenReturn("count_successes\u00004");
-
-        State<StateData> res = underTest.getStateFromEvent(event);
-
-        assertThat(res).isEqualTo(new State<>("4", StateData.empty()));
-    }
-
-
-    @Test
-    void handleComponentInteractEventLegacy() {
-        ButtonEventAdaptor buttonEventAdaptor = mock(ButtonEventAdaptor.class);
-        when(buttonEventAdaptor.getCustomId()).thenReturn("count_successes\u00006\u00006\u00004\u0000half_dice_one\u000012");
-        when(buttonEventAdaptor.getChannelId()).thenReturn(1L);
-        when(buttonEventAdaptor.getMessageId()).thenReturn(1L);
-        when(buttonEventAdaptor.isPinned()).thenReturn(false);
-        when(buttonEventAdaptor.editMessage(any(), any())).thenReturn(Mono.just(mock(Void.class)));
-        when(buttonEventAdaptor.createResultMessageWithEventReference(any(), eq(null))).thenReturn(Mono.just(mock(Void.class)));
-        when(buttonEventAdaptor.createButtonMessage(any())).thenReturn(Mono.just(2L));
-        when(buttonEventAdaptor.deleteMessageById(anyLong())).thenReturn(Mono.empty());
-        when(buttonEventAdaptor.getRequester()).thenReturn(new Requester("user", "channel", "guild", "[0 / 1]"));
-        when(buttonEventAdaptor.getMessageCreationTime()).thenReturn(OffsetDateTime.now().minusSeconds(2));
-        when(buttonEventAdaptor.getMessagesState(any())).thenReturn(Mono.just(new MessageState(1L, false, true, true, OffsetDateTime.now().minusSeconds(2))).flux().parallel());
-
-
-        Mono<Void> res = underTest.handleComponentInteractEvent(buttonEventAdaptor);
-
-
-        StepVerifier.create(res)
-                .verifyComplete();
-
-        verify(buttonEventAdaptor).editMessage("processing ...", null);
-        verify(buttonEventAdaptor).createButtonMessage(any());
-        verify(buttonEventAdaptor).deleteMessageById(1L);
-        verify(buttonEventAdaptor).createResultMessageWithEventReference(eq(new EmbedOrMessageDefinition("6d6 ⇒ 2 - Glitch!",
-                "[**1**,**1**,**1**,**1**,**5**,**6**] ≥4 = 2 and more then half of all dice show 1s", ImmutableList.of(), EmbedOrMessageDefinition.Type.EMBED)), eq(null));
-        verify(buttonEventAdaptor, times(4)).getCustomId();
-        verify(buttonEventAdaptor).getMessageId();
-        verify(buttonEventAdaptor).getChannelId();
-        verify(buttonEventAdaptor).isPinned();
-        verify(buttonEventAdaptor, never()).getAllButtonIds();
-        verify(buttonEventAdaptor, never()).getMessageContent();
-    }
-
-    @Test
-    void handleComponentInteractEventLegacy_pinned() {
-        ButtonEventAdaptor buttonEventAdaptor = mock(ButtonEventAdaptor.class);
-        when(buttonEventAdaptor.getCustomId()).thenReturn("count_successes,6,6,4,half_dice_one,12");
-        when(buttonEventAdaptor.getChannelId()).thenReturn(1L);
-        when(buttonEventAdaptor.getMessageId()).thenReturn(1L);
-        when(buttonEventAdaptor.isPinned()).thenReturn(true);
-        when(buttonEventAdaptor.editMessage(any(), any())).thenReturn(Mono.just(mock(Void.class)));
-        when(buttonEventAdaptor.createButtonMessage(any())).thenReturn(Mono.just(2L));
-        when(buttonEventAdaptor.createResultMessageWithEventReference(any(), eq(null))).thenReturn(Mono.just(mock(Void.class)));
-        when(buttonEventAdaptor.deleteMessageById(anyLong())).thenReturn(Mono.empty());
-        when(buttonEventAdaptor.getRequester()).thenReturn(new Requester("user", "channel", "guild", "[0 / 1]"));
-        when(buttonEventAdaptor.getMessageCreationTime()).thenReturn(OffsetDateTime.now().minusSeconds(2));
-        when(buttonEventAdaptor.getEventCreationTime()).thenReturn(OffsetDateTime.now().minusSeconds(1));
-        when(buttonEventAdaptor.getMessagesState(any())).thenReturn(Mono.just(new MessageState(1L, true, true, true, OffsetDateTime.now().minusSeconds(2))).flux().parallel());
-
-
-        Mono<Void> res = underTest.handleComponentInteractEvent(buttonEventAdaptor);
-        StepVerifier.create(res)
-                .verifyComplete();
-
-
-        verify(buttonEventAdaptor).editMessage(eq("Click to roll the dice against 4 and check for more then half of dice 1s"), anyList());
-        verify(buttonEventAdaptor).createButtonMessage(any());
-        verify(buttonEventAdaptor, never()).deleteMessageById(anyLong());
-        verify(buttonEventAdaptor).createResultMessageWithEventReference(eq(new EmbedOrMessageDefinition("6d6 ⇒ 2 - Glitch!",
-                "[**1**,**1**,**1**,**1**,**5**,**6**] ≥4 = 2 and more then half of all dice show 1s", ImmutableList.of(), EmbedOrMessageDefinition.Type.EMBED)), eq(null));
-        verify(messageDataDAO, times(2)).saveMessageData(any());
-        verify(messageDataDAO).getAllMessageIdsForConfig(any());
-        verify(buttonEventAdaptor, times(4)).getCustomId();
-        verify(buttonEventAdaptor).getMessageId();
-        verify(buttonEventAdaptor).getChannelId();
-        verify(buttonEventAdaptor).isPinned();
-        verify(buttonEventAdaptor, never()).getAllButtonIds();
-        verify(buttonEventAdaptor, never()).getMessageContent();
     }
 
     @Test

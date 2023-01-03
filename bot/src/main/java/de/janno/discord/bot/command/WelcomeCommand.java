@@ -225,15 +225,4 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
     protected @NonNull Config getConfigFromStartOptions(@NonNull CommandInteractionOption options) {
         return new Config(null, AnswerFormatType.full);
     }
-
-    @Override
-    protected @NonNull Config getConfigFromEvent(@NonNull ButtonEventAdaptor event) {
-        return new Config(null, AnswerFormatType.full);
-    }
-
-    @Override
-    protected @NonNull State<StateData> getStateFromEvent(@NonNull ButtonEventAdaptor event) {
-        String buttonId = BottomCustomIdUtils.getButtonValueFromLegacyCustomId(event.getCustomId());
-        return new State<>(buttonId, StateData.empty());
-    }
 }

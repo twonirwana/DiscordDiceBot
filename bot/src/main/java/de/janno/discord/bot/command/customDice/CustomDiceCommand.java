@@ -10,7 +10,6 @@ import de.janno.discord.bot.persistance.Mapper;
 import de.janno.discord.bot.persistance.MessageDataDAO;
 import de.janno.discord.bot.persistance.MessageDataDTO;
 import de.janno.discord.connector.api.BottomCustomIdUtils;
-import de.janno.discord.connector.api.ButtonEventAdaptor;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
@@ -24,9 +23,11 @@ import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 @Slf4j
 public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateData> {
@@ -195,29 +196,6 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
         return Lists.partition(buttons, 5).stream()
                 .map(bl -> ComponentRowDefinition.builder().buttonDefinitions(bl).build())
                 .collect(Collectors.toList());
-    }
-
-    @Override
-    protected @NonNull CustomDiceConfig getConfigFromEvent(@NonNull ButtonEventAdaptor event) {
-        String[] split = event.getCustomId().split(BottomCustomIdUtils.LEGACY_CONFIG_SPLIT_DELIMITER_REGEX);
-        Long answerTargetChannelId = getOptionalLongFromArray(split, 2);
-        Deque<String> buttonIds = new ArrayDeque<>(IntStream.range(1, 26).mapToObj(i -> i + "_button").toList()); //legacy can have 25 buttons
-
-        return new CustomDiceConfig(answerTargetChannelId, event.getAllButtonIds().stream()
-                .map(lv -> new ButtonIdLabelAndDiceExpression(buttonIds.pop(), lv.getLabel(), BottomCustomIdUtils.getButtonValueFromLegacyCustomId(lv.getCustomId())))
-                .collect(Collectors.toList()), DiceParserSystem.DICEROLL_PARSER, AnswerFormatType.full);
-    }
-
-    @Override
-    protected @NonNull State<StateData> getStateFromEvent(@NonNull ButtonEventAdaptor event) {
-        final CustomDiceConfig config = getConfigFromEvent(event);
-        final String buttonValue = BottomCustomIdUtils.getButtonValueFromLegacyCustomId(event.getCustomId());
-        final String mappedButtonValue = config.getButtonIdLabelAndDiceExpressions().stream()
-                .filter(bld -> bld.getDiceExpression().equals(buttonValue))
-                .map(ButtonIdLabelAndDiceExpression::getButtonId)
-                .findFirst()
-                .orElseThrow();
-        return new State<>(mappedButtonValue, StateData.empty());
     }
 
     @Override

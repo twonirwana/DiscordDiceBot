@@ -4,7 +4,6 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import de.janno.discord.bot.command.*;
 import de.janno.discord.bot.dice.*;
@@ -12,7 +11,6 @@ import de.janno.discord.bot.persistance.Mapper;
 import de.janno.discord.bot.persistance.MessageDataDAO;
 import de.janno.discord.bot.persistance.MessageDataDTO;
 import de.janno.discord.connector.api.BottomCustomIdUtils;
-import de.janno.discord.connector.api.ButtonEventAdaptor;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
@@ -26,9 +24,11 @@ import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 
 @Slf4j
@@ -41,7 +41,7 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
     private static final String EMPTY_MESSAGE = "Click the buttons to add dice to the set and then on Roll";
     private static final String CLEAR_BUTTON_ID = "clear";
     private static final String BACK_BUTTON_ID = "back";
-    private static final String INVOKING_USER_NAME_DELIMITER = "\u2236 ";
+
     private static final String LABEL_DELIMITER = "@";
     private static final String CONFIG_TYPE_ID = "SumCustomSetConfig";
     private static final String STATE_DATA_TYPE_ID = "SumCustomSetStateData";
@@ -221,23 +221,12 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
             if (Optional.ofNullable(state.getData()).map(SumCustomSetStateData::getLockedForUserName).isEmpty()) {
                 return Optional.ofNullable(state.getData()).map(SumCustomSetStateData::getDiceExpressions).map(this::combineExpressions);
             } else {
-                String cleanName = state.getData().getLockedForUserName().replace(INVOKING_USER_NAME_DELIMITER, "");
-                return Optional.of(String.format("%s%s%s", cleanName, INVOKING_USER_NAME_DELIMITER, combineExpressions(state.getData().getDiceExpressions())));
+                String cleanName = state.getData().getLockedForUserName();
+                return Optional.of(String.format("%s: %s", cleanName, combineExpressions(state.getData().getDiceExpressions())));
             }
         }
     }
 
-
-    @Override
-    protected @NonNull SumCustomSetConfig getConfigFromEvent(@NonNull ButtonEventAdaptor event) {
-        String[] split = event.getCustomId().split(BottomCustomIdUtils.LEGACY_CONFIG_SPLIT_DELIMITER_REGEX);
-        Long answerTargetChannelId = getOptionalLongFromArray(split, 2);
-        Deque<String> buttonIds = new ArrayDeque<>(IntStream.range(1, 23).mapToObj(i -> i + "_button").toList()); //legacy can have 22 buttons
-        return new SumCustomSetConfig(answerTargetChannelId, event.getAllButtonIds().stream()
-                .filter(lv -> !ImmutableSet.of(ROLL_BUTTON_ID, CLEAR_BUTTON_ID, BACK_BUTTON_ID).contains(BottomCustomIdUtils.getButtonValueFromLegacyCustomId(lv.getCustomId())))
-                .map(lv -> new ButtonIdLabelAndDiceExpression(buttonIds.pop(), lv.getLabel(), BottomCustomIdUtils.getButtonValueFromLegacyCustomId(lv.getCustomId())))
-                .collect(Collectors.toList()), DiceParserSystem.DICEROLL_PARSER, true, AnswerFormatType.full);
-    }
 
     private State<SumCustomSetStateData> updateStateWithButtonValue(@NonNull final String buttonValue,
                                                                     @NonNull final List<String> currentExpressions,
@@ -285,41 +274,6 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
 
     private String combineExpressions(List<String> expressions) {
         return String.join("", expressions);
-    }
-
-    @Override
-    protected @NonNull State<SumCustomSetStateData> getStateFromEvent(@NonNull ButtonEventAdaptor event) {
-        String buttonValue = BottomCustomIdUtils.getButtonValueFromLegacyCustomId(event.getCustomId());
-        String buttonMessageWithOptionalUser = event.getMessageContent();
-
-        String lockedToUser = null;
-        List<String> currentExpression;
-
-        if (buttonMessageWithOptionalUser.contains(INVOKING_USER_NAME_DELIMITER)) {
-            int firstDelimiter = buttonMessageWithOptionalUser.indexOf(INVOKING_USER_NAME_DELIMITER);
-            lockedToUser = buttonMessageWithOptionalUser.substring(0, firstDelimiter);
-            currentExpression = ImmutableList.of(buttonMessageWithOptionalUser.substring(firstDelimiter + INVOKING_USER_NAME_DELIMITER.length()));
-        } else if (EMPTY_MESSAGE.equals(buttonMessageWithOptionalUser)) {
-            currentExpression = ImmutableList.of();
-        } else {
-            currentExpression = ImmutableList.of(buttonMessageWithOptionalUser);
-        }
-        SumCustomSetConfig config = getConfigFromEvent(event);
-        final String buttonId;
-        if (ImmutableSet.of(CLEAR_BUTTON_ID, BACK_BUTTON_ID, ROLL_BUTTON_ID).contains(buttonValue)) {
-            buttonId = buttonValue;
-        } else {
-            buttonId = config.getLabelAndExpression().stream()
-                    .filter(bld -> bld.getDiceExpression().equals(buttonValue))
-                    .map(ButtonIdLabelAndDiceExpression::getButtonId)
-                    .findFirst().orElse("");
-        }
-        return updateStateWithButtonValue(buttonId,
-                currentExpression,
-                event.getInvokingGuildMemberName(),
-                lockedToUser,
-                config.getLabelAndExpression(),
-                config.getDiceParserSystem());
     }
 
     @Override

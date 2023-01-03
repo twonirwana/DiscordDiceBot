@@ -7,35 +7,26 @@ import de.janno.discord.bot.dice.DiceParserSystem;
 import de.janno.discord.bot.persistance.MessageDataDAO;
 import de.janno.discord.bot.persistance.MessageDataDAOImpl;
 import de.janno.discord.bot.persistance.MessageDataDTO;
-import de.janno.discord.connector.api.ButtonEventAdaptor;
-import de.janno.discord.connector.api.MessageState;
-import de.janno.discord.connector.api.Requester;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
 import de.janno.discord.connector.api.message.MessageDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinitionOption;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
-import dev.diceroll.parser.NDice;
-import dev.diceroll.parser.ResultTree;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import reactor.core.publisher.Mono;
-import reactor.test.StepVerifier;
 
 import java.time.Duration;
-import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
 
 class SumCustomSetCommandTest {
     SumCustomSetCommand underTest;
@@ -53,9 +44,9 @@ class SumCustomSetCommandTest {
     static Stream<Arguments> generateGetEditButtonMessageData() {
         return Stream.of(
                 Arguments.of(new State<>("1d4", new SumCustomSetStateData(ImmutableList.of(), "user1")), "Click the buttons to add dice to the set and then on Roll"),
-                Arguments.of(new State<>("1d4", new SumCustomSetStateData(ImmutableList.of("1d4"), "user1")), "user1∶ 1d4"),
+                Arguments.of(new State<>("1d4", new SumCustomSetStateData(ImmutableList.of("1d4"), "user1")), "user1: 1d4"),
                 Arguments.of(new State<>("1d4", new SumCustomSetStateData(ImmutableList.of("1d4"), null)), "1d4"),
-                Arguments.of(new State<>("-1d4", new SumCustomSetStateData(ImmutableList.of("-1d4"), "user1")), "user1∶ -1d4")
+                Arguments.of(new State<>("-1d4", new SumCustomSetStateData(ImmutableList.of("-1d4"), "user1")), "user1: -1d4")
         );
     }
 
@@ -129,131 +120,6 @@ class SumCustomSetCommandTest {
     }
 
     @Test
-    void getStateFromEvent_1d6() {
-        ButtonEventAdaptor event = mock(ButtonEventAdaptor.class);
-        when(event.getCustomId()).thenReturn("sum_custom_set\u0000+1d6");
-        when(event.getAllButtonIds()).thenReturn(ImmutableList.of(new ButtonEventAdaptor.LabelAndCustomId("1d6", "sum_custom_set\u0000+1d6")));
-        when(event.getMessageContent()).thenReturn("user1∶ 1d6");
-        when(event.getInvokingGuildMemberName()).thenReturn("user1");
-        assertThat(underTest.getStateFromEvent(event)).isEqualTo(new State<>("1_button", new SumCustomSetStateData(ImmutableList.of("1d6", "+1d6"), "user1")));
-    }
-
-    @Test
-    void getStateFromEvent_1d6plus() {
-        ButtonEventAdaptor event = mock(ButtonEventAdaptor.class);
-        when(event.getCustomId()).thenReturn("sum_custom_set\u0000+1d6");
-        when(event.getAllButtonIds()).thenReturn(ImmutableList.of(new ButtonEventAdaptor.LabelAndCustomId("+1d6", "sum_custom_set\u0000+1d6")));
-        when(event.getMessageContent()).thenReturn("user1∶ 1d6");
-        when(event.getInvokingGuildMemberName()).thenReturn("user1");
-        assertThat(underTest.getStateFromEvent(event)).isEqualTo(new State<>("1_button", new SumCustomSetStateData(ImmutableList.of("1d6", "+1d6"), "user1")));
-    }
-
-    @Test
-    void getStateFromEvent_1d6minus() {
-        ButtonEventAdaptor event = mock(ButtonEventAdaptor.class);
-        when(event.getCustomId()).thenReturn("sum_custom_set\u0000-1d6");
-        when(event.getAllButtonIds()).thenReturn(ImmutableList.of(new ButtonEventAdaptor.LabelAndCustomId("-1d6", "sum_custom_set\u0000-1d6")));
-
-        when(event.getMessageContent()).thenReturn("user1∶ 1d6");
-        when(event.getInvokingGuildMemberName()).thenReturn("user1");
-        assertThat(underTest.getStateFromEvent(event)).isEqualTo(new State<>("1_button", new SumCustomSetStateData(ImmutableList.of("1d6", "-1d6"), "user1")));
-    }
-
-    @Test
-    void getStateFromEvent_1d6_differentUser() {
-        ButtonEventAdaptor event = mock(ButtonEventAdaptor.class);
-        when(event.getCustomId()).thenReturn("sum_custom_set\u0000+1d6");
-        when(event.getAllButtonIds()).thenReturn(ImmutableList.of(new ButtonEventAdaptor.LabelAndCustomId("+1d6", "sum_custom_set\u0000+1d6")));
-        when(event.getMessageContent()).thenReturn("user1∶ 1d6");
-        when(event.getInvokingGuildMemberName()).thenReturn("user2");
-        assertThat(underTest.getStateFromEvent(event)).isEqualTo(new State<>("no action", new SumCustomSetStateData(ImmutableList.of("1d6"), "user1")));
-    }
-
-    @Test
-    void getStateFromEvent_invalidContent() {
-        ButtonEventAdaptor event = mock(ButtonEventAdaptor.class);
-        when(event.getCustomId()).thenReturn("sum_custom_set\u0000+1d6");
-        when(event.getMessageContent()).thenReturn("user1∶ asdfasfdasf");
-        when(event.getAllButtonIds()).thenReturn(ImmutableList.of(new ButtonEventAdaptor.LabelAndCustomId("+1d6", "sum_custom_set\u0000+1d6")));
-        when(event.getInvokingGuildMemberName()).thenReturn("user1");
-        when(diceMock.detailedRoll(any())).thenThrow(new RuntimeException("test"));
-
-        State<SumCustomSetStateData> res = underTest.getStateFromEvent(event);
-
-        //invalid expression but roll is not possible
-        assertThat(res).isEqualTo(new State<>("1_button", new SumCustomSetStateData(ImmutableList.of("asdfasfdasf", "+1d6"), "user1")));
-    }
-
-    @Test
-    void getStateFromEvent_1d4_2d6_3d8_4d12_5d20() {
-        ButtonEventAdaptor event = mock(ButtonEventAdaptor.class);
-        when(event.getCustomId()).thenReturn("sum_custom_set\u0000+1d6");
-        when(event.getAllButtonIds()).thenReturn(ImmutableList.of(new ButtonEventAdaptor.LabelAndCustomId("+1d6", "sum_custom_set\u0000+1d6")));
-        when(event.getMessageContent()).thenReturn("user1∶ 1d4+2d6+3d8+4d12+5d20");
-        when(event.getInvokingGuildMemberName()).thenReturn("user1");
-        assertThat(underTest.getStateFromEvent(event)).isEqualTo(new State<>("1_button", new SumCustomSetStateData(ImmutableList.of("1d4+2d6+3d8+4d12+5d20", "+1d6"), "user1")));
-    }
-
-
-    @Test
-    void getStateFromEvent_empty() {
-        ButtonEventAdaptor event = mock(ButtonEventAdaptor.class);
-        when(event.getCustomId()).thenReturn("sum_custom_set\u0000+1d6");
-        when(event.getAllButtonIds()).thenReturn(ImmutableList.of(new ButtonEventAdaptor.LabelAndCustomId("+1d6", "sum_custom_set\u0000+1d6")));
-        when(event.getInvokingGuildMemberName()).thenReturn("user1");
-        when(event.getMessageContent()).thenReturn("Click the buttons to add dice to the set and then on Roll");
-        assertThat(underTest.getStateFromEvent(event)).isEqualTo(new State<>("1_button", new SumCustomSetStateData(ImmutableList.of("+1d6"), "user1")));
-    }
-
-    @Test
-    void getStateFromEvent_clear() {
-        ButtonEventAdaptor event = mock(ButtonEventAdaptor.class);
-        when(event.getCustomId()).thenReturn("sum_custom_set\u0000clear");
-        when(event.getMessageContent()).thenReturn("user1∶ 1d6");
-        when(event.getInvokingGuildMemberName()).thenReturn("user1");
-        assertThat(underTest.getStateFromEvent(event)).isEqualTo(new State<>("clear", new SumCustomSetStateData(ImmutableList.of(), null)));
-    }
-
-
-    @Test
-    void getStateFromEvent_backEmpty() {
-        ButtonEventAdaptor event = mock(ButtonEventAdaptor.class);
-        when(event.getCustomId()).thenReturn("sum_custom_set\u0000back");
-        when(event.getMessageContent()).thenReturn("user1∶ 1d6");
-        when(event.getInvokingGuildMemberName()).thenReturn("user1");
-        assertThat(underTest.getStateFromEvent(event)).isEqualTo(new State<>("back", new SumCustomSetStateData(ImmutableList.of(), null)));
-    }
-
-    @Test
-    void getStateFromEvent_back() {
-        ButtonEventAdaptor event = mock(ButtonEventAdaptor.class);
-        when(event.getCustomId()).thenReturn("sum_custom_set\u0000back");
-        when(event.getMessageContent()).thenReturn("user1∶ 1d6+1d6");
-        when(event.getInvokingGuildMemberName()).thenReturn("user1");
-        //don't work correctly with the new config
-        assertThat(underTest.getStateFromEvent(event)).isEqualTo(new State<>("back", new SumCustomSetStateData(ImmutableList.of(), null)));
-    }
-
-    @Test
-    void getStateFromEvent_backMinus() {
-        ButtonEventAdaptor event = mock(ButtonEventAdaptor.class);
-        when(event.getCustomId()).thenReturn("sum_custom_set\u0000back");
-        when(event.getMessageContent()).thenReturn("user1∶ 1d6-1d6");
-        when(event.getInvokingGuildMemberName()).thenReturn("user1");
-        //don't work correctly with the new config
-        assertThat(underTest.getStateFromEvent(event)).isEqualTo(new State<>("back", new SumCustomSetStateData(ImmutableList.of(), null)));
-    }
-
-    @Test
-    void getStateFromEvent_roll() {
-        ButtonEventAdaptor event = mock(ButtonEventAdaptor.class);
-        when(event.getCustomId()).thenReturn("sum_custom_set\u0000roll");
-        when(event.getMessageContent()).thenReturn("user1∶ 1d6");
-        when(event.getInvokingGuildMemberName()).thenReturn("user1");
-        assertThat(underTest.getStateFromEvent(event)).isEqualTo(new State<>("roll", new SumCustomSetStateData(ImmutableList.of("1d6"), "user1")));
-    }
-
-    @Test
     void matchingComponentCustomId_match_legacy() {
         assertThat(underTest.matchingComponentCustomId("sum_custom_set\u0000x")).isTrue();
     }
@@ -312,7 +178,7 @@ class SumCustomSetCommandTest {
     @Test
     void getCurrentMessageContentChange_1d6() {
         Optional<String> res = underTest.getCurrentMessageContentChange(defaultConfig, new State<>("+1d6", new SumCustomSetStateData(ImmutableList.of("1d6"), "user1")));
-        assertThat(res).contains("user1∶ 1d6");
+        assertThat(res).contains("user1: 1d6");
     }
 
     @Test
@@ -364,61 +230,6 @@ class SumCustomSetCommandTest {
     }
 
     @Test
-    void getConfigFromEvent() {
-        ButtonEventAdaptor event = mock(ButtonEventAdaptor.class);
-        when(event.getAllButtonIds()).thenReturn(ImmutableList.of(
-                new ButtonEventAdaptor.LabelAndCustomId("1d6", "sum_custom_set\u00001d6\u0000"),
-                new ButtonEventAdaptor.LabelAndCustomId("Label", "sum_custom_set\u0000-1d6\u0000"),
-                new ButtonEventAdaptor.LabelAndCustomId("Roll", "sum_custom_set\u0000roll\u0000"),
-                new ButtonEventAdaptor.LabelAndCustomId("Clear", "sum_custom_set\u0000clear\u0000"),
-                new ButtonEventAdaptor.LabelAndCustomId("Back", "sum_custom_set\u0000back\u0000")
-        ));
-        when(event.getCustomId()).thenReturn("sum_custom_set\u00001d6\u0000");
-        assertThat(underTest.getConfigFromEvent(event))
-                .isEqualTo(new SumCustomSetConfig(null, ImmutableList.of(
-                        new ButtonIdLabelAndDiceExpression("1_button", "1d6", "1d6"),
-                        new ButtonIdLabelAndDiceExpression("2_button", "Label", "-1d6")
-                ), DiceParserSystem.DICEROLL_PARSER, true, AnswerFormatType.full));
-    }
-
-    @Test
-    void getConfigFromEvent_target() {
-        ButtonEventAdaptor event = mock(ButtonEventAdaptor.class);
-        when(event.getAllButtonIds()).thenReturn(ImmutableList.of(
-                new ButtonEventAdaptor.LabelAndCustomId("1d6", "sum_custom_set\u00001d6\u0000123"),
-                new ButtonEventAdaptor.LabelAndCustomId("Label", "sum_custom_set\u0000-1d6\u0000123"),
-                new ButtonEventAdaptor.LabelAndCustomId("Roll", "sum_custom_set\u0000roll\u0000123"),
-                new ButtonEventAdaptor.LabelAndCustomId("Clear", "sum_custom_set\u0000clear\u0000123"),
-                new ButtonEventAdaptor.LabelAndCustomId("Back", "sum_custom_set\u0000back\u0000123")
-        ));
-        when(event.getCustomId()).thenReturn("sum_custom_set\u00001d6\u0000123");
-        assertThat(underTest.getConfigFromEvent(event))
-                .isEqualTo(new SumCustomSetConfig(123L, ImmutableList.of(
-                        new ButtonIdLabelAndDiceExpression("1_button", "1d6", "1d6"),
-                        new ButtonIdLabelAndDiceExpression("2_button", "Label", "-1d6")
-                ), DiceParserSystem.DICEROLL_PARSER, true, AnswerFormatType.full));
-    }
-
-    @Test
-    void getConfigFromEvent_legacy() {
-        ButtonEventAdaptor event = mock(ButtonEventAdaptor.class);
-        when(event.getAllButtonIds()).thenReturn(ImmutableList.of(
-                new ButtonEventAdaptor.LabelAndCustomId("1d6", "sum_custom_set\u00001d6"),
-                new ButtonEventAdaptor.LabelAndCustomId("Label", "sum_custom_set\u0000-1d6"),
-                new ButtonEventAdaptor.LabelAndCustomId("Roll", "sum_custom_set\u0000roll"),
-                new ButtonEventAdaptor.LabelAndCustomId("Clear", "sum_custom_set\u0000clear"),
-                new ButtonEventAdaptor.LabelAndCustomId("Back", "sum_custom_set\u0000back")
-        ));
-        when(event.getCustomId()).thenReturn("sum_custom_set\u00001d6\u0000");
-        assertThat(underTest.getConfigFromEvent(event))
-                .isEqualTo(new SumCustomSetConfig(null, ImmutableList.of(
-                        new ButtonIdLabelAndDiceExpression("1_button", "1d6", "1d6"),
-                        new ButtonIdLabelAndDiceExpression("2_button", "Label", "-1d6")
-                ), DiceParserSystem.DICEROLL_PARSER, true, AnswerFormatType.full));
-    }
-
-
-    @Test
     void rollDice_1d6plus10() {
 
 
@@ -435,19 +246,6 @@ class SumCustomSetCommandTest {
         List<CommandDefinitionOption> res = underTest.getStartOptions();
 
         assertThat(res.stream().map(CommandDefinitionOption::getName)).containsExactly("buttons", "always_sum_result");
-    }
-
-    @Test
-    void getStateFromEvent() {
-        ButtonEventAdaptor event = mock(ButtonEventAdaptor.class);
-        when(event.getAllButtonIds()).thenReturn(ImmutableList.of(new ButtonEventAdaptor.LabelAndCustomId("1d6", "sum_custom_set\u00001d6")));
-        when(event.getCustomId()).thenReturn("sum_custom_set\u00001d6");
-        when(event.getMessageContent()).thenReturn("user1∶ 1d6");
-        when(event.getInvokingGuildMemberName()).thenReturn("user1");
-
-        State<SumCustomSetStateData> res = underTest.getStateFromEvent(event);
-
-        assertThat(res).isEqualTo(new State<>("1_button", new SumCustomSetStateData(ImmutableList.of("1d6", "1d6"), "user1")));
     }
 
     @Test
@@ -481,86 +279,6 @@ class SumCustomSetCommandTest {
                         "sum_custom_setroll",
                         "sum_custom_setclear",
                         "sum_custom_setback");
-    }
-
-
-    @Test
-    void handleComponentInteractEventLegacy() {
-        ButtonEventAdaptor buttonEventAdaptor = mock(ButtonEventAdaptor.class);
-        when(buttonEventAdaptor.getCustomId()).thenReturn("sum_custom_set\u0000roll");
-        when(diceMock.detailedRoll("1d6")).thenReturn(new ResultTree(new NDice(6, 1), 3, ImmutableList.of()));
-        when(buttonEventAdaptor.getChannelId()).thenReturn(1L);
-        when(buttonEventAdaptor.getMessageId()).thenReturn(1L);
-        when(buttonEventAdaptor.isPinned()).thenReturn(false);
-        when(buttonEventAdaptor.getMessageContent()).thenReturn("1d6");
-        when(buttonEventAdaptor.editMessage(any(), any())).thenReturn(Mono.just(mock(Void.class)));
-        when(buttonEventAdaptor.createResultMessageWithEventReference(any(), eq(null))).thenReturn(Mono.just(mock(Void.class)));
-        when(buttonEventAdaptor.createButtonMessage(any())).thenReturn(Mono.just(2L));
-        when(buttonEventAdaptor.deleteMessageById(anyLong())).thenReturn(Mono.empty());
-        when(buttonEventAdaptor.getRequester()).thenReturn(new Requester("user", "channel", "guild", "[0 / 1]"));
-        when(buttonEventAdaptor.getInvokingGuildMemberName()).thenReturn("testUser");
-        when(buttonEventAdaptor.getMessageCreationTime()).thenReturn(OffsetDateTime.now().minusSeconds(2));
-        when(buttonEventAdaptor.getMessagesState(any())).thenReturn(Mono.just(new MessageState(1L, false, true, true, OffsetDateTime.now().minusSeconds(2))).flux().parallel());
-
-        Mono<Void> res = underTest.handleComponentInteractEvent(buttonEventAdaptor);
-
-
-        StepVerifier.create(res)
-                .verifyComplete();
-
-        verify(buttonEventAdaptor).editMessage(eq("Click the buttons to add dice to the set and then on Roll"), notNull());
-        verify(buttonEventAdaptor).createButtonMessage(any());
-        verify(buttonEventAdaptor).deleteMessageById(anyLong());
-        verify(buttonEventAdaptor).createResultMessageWithEventReference(eq(new EmbedOrMessageDefinition("1d6 ⇒ 3",
-                "[3]", ImmutableList.of(), EmbedOrMessageDefinition.Type.EMBED)), eq(null));
-        verify(buttonEventAdaptor, times(5)).getCustomId();
-        verify(buttonEventAdaptor).getMessageId();
-        verify(buttonEventAdaptor).getChannelId();
-        verify(buttonEventAdaptor).isPinned();
-        verify(buttonEventAdaptor, times(2)).getAllButtonIds();
-        verify(buttonEventAdaptor, times(1)).getMessageContent();
-    }
-
-    @Test
-    void handleComponentInteractEventLegacy_pinned() {
-        ButtonEventAdaptor buttonEventAdaptor = mock(ButtonEventAdaptor.class);
-        when(buttonEventAdaptor.getCustomId()).thenReturn("sum_custom_set\u0000roll");
-        when(diceMock.detailedRoll("1d6")).thenReturn(new ResultTree(new NDice(6, 1), 3, ImmutableList.of()));
-        when(buttonEventAdaptor.getChannelId()).thenReturn(1L);
-        when(buttonEventAdaptor.getMessageId()).thenReturn(1L);
-        when(buttonEventAdaptor.getInvokingGuildMemberName()).thenReturn("testUser");
-        when(buttonEventAdaptor.isPinned()).thenReturn(true);
-        when(buttonEventAdaptor.getMessageContent()).thenReturn("1d6");
-        when(buttonEventAdaptor.editMessage(any(), any())).thenReturn(Mono.just(mock(Void.class)));
-        when(buttonEventAdaptor.createButtonMessage(any())).thenReturn(Mono.just(2L));
-        when(buttonEventAdaptor.createResultMessageWithEventReference(any(), eq(null))).thenReturn(Mono.just(mock(Void.class)));
-        when(buttonEventAdaptor.deleteMessageById(anyLong())).thenReturn(Mono.empty());
-        when(buttonEventAdaptor.getRequester()).thenReturn(new Requester("user", "channel", "guild", "[0 / 1]"));
-        when(buttonEventAdaptor.getMessageCreationTime()).thenReturn(OffsetDateTime.now().minusSeconds(2));
-        when(buttonEventAdaptor.getEventCreationTime()).thenReturn(OffsetDateTime.now().minusSeconds(1));
-        when(buttonEventAdaptor.getMessagesState(any())).thenReturn(Mono.just(new MessageState(1L, true, true, true, OffsetDateTime.now().minusSeconds(2))).flux().parallel());
-
-        Mono<Void> res = underTest.handleComponentInteractEvent(buttonEventAdaptor);
-        StepVerifier.create(res)
-                .verifyComplete();
-
-
-        verify(buttonEventAdaptor).editMessage(eq("Click the buttons to add dice to the set and then on Roll"), anyList());
-        verify(buttonEventAdaptor).createButtonMessage(any());
-        verify(buttonEventAdaptor, never()).deleteMessageById(anyLong());
-        verify(buttonEventAdaptor).createResultMessageWithEventReference(eq(new EmbedOrMessageDefinition("1d6 ⇒ 3",
-                "[3]", ImmutableList.of(), EmbedOrMessageDefinition.Type.EMBED)), eq(null));
-        verify(messageDataDAO, times(2)).saveMessageData(any());
-        verify(messageDataDAO).getAllMessageIdsForConfig(any());
-
-
-        verify(buttonEventAdaptor, times(5)).getCustomId();
-        verify(buttonEventAdaptor).getMessageId();
-        verify(buttonEventAdaptor).getChannelId();
-        verify(buttonEventAdaptor).isPinned();
-        verify(buttonEventAdaptor, times(2)).getAllButtonIds();
-        verify(buttonEventAdaptor, times(1)).getMessageContent();
-
     }
 
     @Test

@@ -9,8 +9,6 @@ import de.janno.discord.bot.dice.DiceParserSystem;
 import de.janno.discord.bot.persistance.MessageDataDAO;
 import de.janno.discord.bot.persistance.MessageDataDAOImpl;
 import de.janno.discord.bot.persistance.MessageDataDTO;
-import de.janno.discord.connector.api.ButtonEventAdaptor;
-import de.janno.discord.connector.api.MessageState;
 import de.janno.discord.connector.api.Requester;
 import de.janno.discord.connector.api.SlashEventAdaptor;
 import de.janno.discord.connector.api.message.ButtonDefinition;
@@ -30,7 +28,6 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.time.Duration;
-import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -102,36 +99,6 @@ class CustomDiceCommandTest {
         String res = underTest.createNewButtonMessage(new CustomDiceConfig(null, ImmutableList.of(), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full)).getContent();
 
         assertThat(res).isEqualTo("Click on a button to roll the dice");
-    }
-
-    @Test
-    void getConfigFromEvent() {
-        ButtonEventAdaptor event = mock(ButtonEventAdaptor.class);
-        when(event.getAllButtonIds()).thenReturn(ImmutableList.of(
-                new ButtonEventAdaptor.LabelAndCustomId("1d6", "custom_dice\u00001d6\u0000"),
-                new ButtonEventAdaptor.LabelAndCustomId("w8", "custom_dice\u00001d8\u0000")
-        ));
-        when(event.getCustomId()).thenReturn("custom_dice\u00001d6\u0000");
-        assertThat(underTest.getConfigFromEvent(event)).isEqualTo(new CustomDiceConfig(null, ImmutableList.of(
-                new ButtonIdLabelAndDiceExpression("1_button", "1d6", "1d6"),
-                new ButtonIdLabelAndDiceExpression("2_button", "w8", "1d8")
-        ), DiceParserSystem.DICEROLL_PARSER, AnswerFormatType.full));
-    }
-
-    @Test
-    void getConfigFromEventWithTargetChannel() {
-        ButtonEventAdaptor event = mock(ButtonEventAdaptor.class);
-        when(event.getAllButtonIds()).thenReturn(ImmutableList.of(new ButtonEventAdaptor.LabelAndCustomId("1d6", "custom_dice\u00001d6\u0000123")));
-        when(event.getCustomId()).thenReturn("custom_dice\u00001d6\u0000123");
-        assertThat(underTest.getConfigFromEvent(event)).isEqualTo(new CustomDiceConfig(123L, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "1d6", "1d6")), DiceParserSystem.DICEROLL_PARSER, AnswerFormatType.full));
-    }
-
-    @Test
-    void getConfigFromEventLegacy() {
-        ButtonEventAdaptor event = mock(ButtonEventAdaptor.class);
-        when(event.getAllButtonIds()).thenReturn(ImmutableList.of(new ButtonEventAdaptor.LabelAndCustomId("1d6", "custom_dice\u00001d6")));
-        when(event.getCustomId()).thenReturn("custom_dice\u00001d6");
-        assertThat(underTest.getConfigFromEvent(event)).isEqualTo(new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "1d6", "1d6")), DiceParserSystem.DICEROLL_PARSER, AnswerFormatType.full));
     }
 
     @Test
@@ -221,104 +188,6 @@ class CustomDiceCommandTest {
         List<CommandDefinitionOption> res = underTest.getStartOptions();
 
         assertThat(res.stream().map(CommandDefinitionOption::getName)).containsExactly("buttons");
-    }
-
-    @Test
-    void getStateFromEvent() {
-        ButtonEventAdaptor event = mock(ButtonEventAdaptor.class);
-        when(event.getCustomId()).thenReturn("custom_dice\u00002d6");
-        when(event.getAllButtonIds()).thenReturn(ImmutableList.of(new ButtonEventAdaptor.LabelAndCustomId("2d6", "custom_dice\u00002d6")));
-
-        State<StateData> res = underTest.getStateFromEvent(event);
-
-        assertThat(res).isEqualTo(new State<>("1_button", StateData.empty()));
-    }
-
-    @Test
-    void handleComponentInteractEventLegacy() {
-        ButtonEventAdaptor buttonEventAdaptor = mock(ButtonEventAdaptor.class);
-        when(buttonEventAdaptor.getCustomId()).thenReturn("custom_dice\u00001d6\u0000");
-        when(diceMock.detailedRoll("1d6")).thenReturn(new ResultTree(new NDice(6, 1), 3, ImmutableList.of()));
-        when(buttonEventAdaptor.getChannelId()).thenReturn(1L);
-        when(buttonEventAdaptor.getMessageId()).thenReturn(1L);
-        when(buttonEventAdaptor.isPinned()).thenReturn(false);
-        when(buttonEventAdaptor.editMessage(any(), any())).thenReturn(Mono.just(mock(Void.class)));
-        when(buttonEventAdaptor.createResultMessageWithEventReference(any(), eq(null))).thenReturn(Mono.just(mock(Void.class)));
-        when(buttonEventAdaptor.createButtonMessage(any())).thenReturn(Mono.just(2L));
-        when(buttonEventAdaptor.deleteMessageById(anyLong())).thenReturn(Mono.empty());
-        when(buttonEventAdaptor.getRequester()).thenReturn(new Requester("user", "channel", "guild", "[0 / 1]"));
-        when(buttonEventAdaptor.getAllButtonIds()).thenReturn(ImmutableList.of(new ButtonEventAdaptor.LabelAndCustomId("1d6", "custom_dice\u00001d6")));
-        when(buttonEventAdaptor.getMessageCreationTime()).thenReturn(OffsetDateTime.now().minusSeconds(2));
-        when(buttonEventAdaptor.getMessagesState(any())).thenReturn(Mono.just(new MessageState(1L, false, true, true, OffsetDateTime.now().minusSeconds(2))).flux().parallel());
-
-
-        Mono<Void> res = underTest.handleComponentInteractEvent(buttonEventAdaptor);
-
-
-        StepVerifier.create(res).verifyComplete();
-
-        verify(buttonEventAdaptor).editMessage("processing ...", null);
-        verify(buttonEventAdaptor).createButtonMessage(MessageDefinition.builder()
-                .content("Click on a button to roll the dice")
-                .componentRowDefinition(ComponentRowDefinition.builder()
-                        .buttonDefinition(ButtonDefinition.builder()
-                                .id("custom_dice\u001E1_button")
-                                .label("1d6")
-                                .build())
-                        .build())
-                .build());
-        verify(buttonEventAdaptor).deleteMessageById(anyLong());
-        verify(buttonEventAdaptor).createResultMessageWithEventReference(eq(new EmbedOrMessageDefinition("1d6 ⇒ 3", "[3]", ImmutableList.of(), EmbedOrMessageDefinition.Type.EMBED)), eq(null));
-        verify(buttonEventAdaptor, times(5)).getCustomId();
-        verify(buttonEventAdaptor).getMessageId();
-        verify(buttonEventAdaptor).getChannelId();
-        verify(buttonEventAdaptor).isPinned();
-        verify(buttonEventAdaptor, times(2)).getAllButtonIds();
-        verify(buttonEventAdaptor, never()).getMessageContent();
-    }
-
-    @Test
-    void handleComponentInteractEventLegacy_pinned() {
-        ButtonEventAdaptor buttonEventAdaptor = mock(ButtonEventAdaptor.class);
-        when(buttonEventAdaptor.getCustomId()).thenReturn("custom_dice\u00001d6");
-        when(diceMock.detailedRoll("1d6")).thenReturn(new ResultTree(new NDice(6, 1), 3, ImmutableList.of()));
-        when(buttonEventAdaptor.getChannelId()).thenReturn(1L);
-        when(buttonEventAdaptor.getMessageId()).thenReturn(1L);
-        when(buttonEventAdaptor.isPinned()).thenReturn(true);
-        when(buttonEventAdaptor.editMessage(any(), any())).thenReturn(Mono.just(mock(Void.class)));
-        when(buttonEventAdaptor.createButtonMessage(any())).thenReturn(Mono.just(2L));
-        when(buttonEventAdaptor.createResultMessageWithEventReference(any(), eq(null))).thenReturn(Mono.just(mock(Void.class)));
-        when(buttonEventAdaptor.deleteMessageById(anyLong())).thenReturn(Mono.empty());
-        when(buttonEventAdaptor.getRequester()).thenReturn(new Requester("user", "channel", "guild", "[0 / 1]"));
-        when(buttonEventAdaptor.getAllButtonIds()).thenReturn(ImmutableList.of(new ButtonEventAdaptor.LabelAndCustomId("1d6", "custom_dice\u00001d6")));
-        when(buttonEventAdaptor.getMessageCreationTime()).thenReturn(OffsetDateTime.now().minusSeconds(2));
-        when(buttonEventAdaptor.getEventCreationTime()).thenReturn(OffsetDateTime.now().minusSeconds(1));
-        when(buttonEventAdaptor.getMessagesState(any())).thenReturn(Mono.just(new MessageState(1L, true, true, true, OffsetDateTime.now().minusSeconds(2))).flux().parallel());
-
-        Mono<Void> res = underTest.handleComponentInteractEvent(buttonEventAdaptor);
-        StepVerifier.create(res).verifyComplete();
-
-
-        verify(buttonEventAdaptor).editMessage(eq("Click on a button to roll the dice"), anyList());
-        verify(buttonEventAdaptor).createButtonMessage(MessageDefinition.builder()
-                .content("Click on a button to roll the dice")
-                .componentRowDefinition(ComponentRowDefinition.builder()
-                        .buttonDefinition(ButtonDefinition.builder()
-                                .id("custom_dice\u001E1_button")
-                                .label("1d6")
-                                .build())
-                        .build())
-                .build());
-        verify(buttonEventAdaptor, never()).deleteMessageById(anyLong());
-        verify(buttonEventAdaptor).createResultMessageWithEventReference(eq(new EmbedOrMessageDefinition("1d6 ⇒ 3", "[3]", ImmutableList.of(), EmbedOrMessageDefinition.Type.EMBED)), eq(null));
-        verify(messageDataDAO, times(2)).saveMessageData(any());
-        verify(messageDataDAO).getAllMessageIdsForConfig(any());
-        verify(buttonEventAdaptor, times(5)).getCustomId();
-        verify(buttonEventAdaptor).getMessageId();
-        verify(buttonEventAdaptor).getChannelId();
-        verify(buttonEventAdaptor).isPinned();
-        verify(buttonEventAdaptor, times(2)).getAllButtonIds();
-        verify(buttonEventAdaptor, never()).getMessageContent();
     }
 
     @Test

@@ -9,7 +9,6 @@ import de.janno.discord.bot.persistance.Mapper;
 import de.janno.discord.bot.persistance.MessageDataDAO;
 import de.janno.discord.bot.persistance.MessageDataDTO;
 import de.janno.discord.connector.api.BottomCustomIdUtils;
-import de.janno.discord.connector.api.ButtonEventAdaptor;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
@@ -18,11 +17,9 @@ import de.janno.discord.connector.api.slash.CommandDefinitionOption;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.math.NumberUtils;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -274,58 +271,6 @@ public class SumDiceSetCommand extends AbstractCommand<Config, SumDiceSetStateDa
         return Optional.of(parseDiceMapToMessageString(currentDiceSet));
     }
 
-    @Override
-    protected @NonNull Config getConfigFromEvent(@NonNull ButtonEventAdaptor event) {
-        String[] split = event.getCustomId().split(BottomCustomIdUtils.LEGACY_CONFIG_SPLIT_DELIMITER_REGEX);
-
-        return new Config(getOptionalLongFromArray(split, 2), AnswerFormatType.full);
-    }
-
-    @Override
-    protected @NonNull State<SumDiceSetStateData> getStateFromEvent(@NonNull ButtonEventAdaptor event) {
-        final String buttonMessage = event.getMessageContent();
-        final String buttonValue = BottomCustomIdUtils.getButtonValueFromLegacyCustomId(event.getCustomId());
-        final SumDiceSetStateData stateFromId;
-        if (EMPTY_MESSAGE.equals(buttonMessage)) {
-            stateFromId = new SumDiceSetStateData(ImmutableList.of());
-        } else {
-            stateFromId = new SumDiceSetStateData(Arrays.stream(buttonMessage.split(Pattern.quote(DICE_SET_DELIMITER)))
-                    //for handling legacy buttons with '1d4 + 1d6')
-                    .filter(s -> !"+".equals(s))
-                    .filter(Objects::nonNull)
-                    //adding the + for the first die type in the message
-                    .map(s -> {
-                        if (!s.startsWith("-") && !s.startsWith("+")) {
-                            return "+" + s;
-                        }
-                        return s;
-                    })
-                    .map(s -> {
-                        final String diceKey;
-                        if (s.contains(DICE_SYMBOL)) {
-                            diceKey = s.substring(s.indexOf(DICE_SYMBOL));
-                        } else {
-                            diceKey = MODIFIER_KEY;
-                        }
-                        final int value;
-                        if (s.contains(DICE_SYMBOL)) {
-                            value = Integer.parseInt(s.substring(0, s.indexOf(DICE_SYMBOL)));
-                        } else {
-                            s = s.replace("+", "");
-                            if (NumberUtils.isParsable(s)) {
-                                value = Integer.parseInt(s);
-                            } else {
-                                log.error(String.format("Can't parse number %s for buttonId: %s and buttonMessage: %s", s, event.getCustomId(), buttonMessage));
-                                value = 0;
-                            }
-                        }
-                        return new DiceKeyAndValue(diceKey, value);
-                    })
-                    .distinct()
-                    .toList());
-        }
-        return updateState(buttonValue, stateFromId);
-    }
 
     @Override
     protected @NonNull Config getConfigFromStartOptions(@NonNull CommandInteractionOption options) {
