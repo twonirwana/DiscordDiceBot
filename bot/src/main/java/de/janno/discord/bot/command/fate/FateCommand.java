@@ -52,10 +52,7 @@ public class FateCommand extends AbstractCommand<FateConfig, StateData> {
                                                                                                      @NonNull String buttonValue,
                                                                                                      @NonNull String invokingUserName) {
         final Optional<MessageDataDTO> messageDataDTO = messageDataDAO.getDataForMessage(channelId, messageId);
-        if (messageDataDTO.isEmpty()) {
-            return Optional.empty();
-        }
-        return Optional.of(deserializeAndUpdateState(messageDataDTO.get(), buttonValue));
+        return messageDataDTO.map(dataDTO -> deserializeAndUpdateState(dataDTO, buttonValue));
     }
 
     @VisibleForTesting

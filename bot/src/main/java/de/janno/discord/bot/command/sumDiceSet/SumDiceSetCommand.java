@@ -80,10 +80,7 @@ public class SumDiceSetCommand extends AbstractCommand<Config, SumDiceSetStateDa
                                                                                                            @NonNull String buttonValue,
                                                                                                            @NonNull String invokingUserName) {
         final Optional<MessageDataDTO> messageDataDTO = messageDataDAO.getDataForMessage(channelId, messageId);
-        if (messageDataDTO.isEmpty()) {
-            return Optional.empty();
-        }
-        return Optional.of(deserializeAndUpdateState(messageDataDTO.get(), buttonValue));
+        return messageDataDTO.map(dataDTO -> deserializeAndUpdateState(dataDTO, buttonValue));
     }
 
     @VisibleForTesting
@@ -229,19 +226,21 @@ public class SumDiceSetCommand extends AbstractCommand<Config, SumDiceSetStateDa
     @VisibleForTesting
     List<DiceKeyAndValue> updateDiceSet(List<DiceKeyAndValue> currentDiceSet, String buttonValue) {
         switch (buttonValue) {
-            case ROLL_BUTTON_ID:
+            case ROLL_BUTTON_ID -> {
                 return currentDiceSet;
-            case CLEAR_BUTTON_ID:
+            }
+            case CLEAR_BUTTON_ID -> {
                 return ImmutableList.of();
-            case X2_BUTTON_ID:
+            }
+            case X2_BUTTON_ID -> {
                 return currentDiceSet.stream()
                         .map(kv -> new DiceKeyAndValue(kv.getDiceKey(), limit(kv.getValue() * 2)))
                         .toList();
-            default:
+            }
+            default -> {
                 Map<String, Integer> updatedDiceSet = currentDiceSet.stream().collect(Collectors.toMap(DiceKeyAndValue::getDiceKey, DiceKeyAndValue::getValue));
                 int diceModifier;
                 String die;
-
                 if (buttonValue.contains(DICE_SYMBOL)) {
                     diceModifier = "-".equals(buttonValue.substring(0, 1)) ? -1 : +1;
                     die = buttonValue.substring(2);
@@ -252,7 +251,6 @@ public class SumDiceSetCommand extends AbstractCommand<Config, SumDiceSetStateDa
                 int currentCount = updatedDiceSet.getOrDefault(die, 0);
                 int newCount = currentCount + diceModifier;
                 newCount = limit(newCount);
-
                 if (newCount == 0) {
                     updatedDiceSet.remove(die);
                 } else {
@@ -262,6 +260,7 @@ public class SumDiceSetCommand extends AbstractCommand<Config, SumDiceSetStateDa
                         .map(dv -> new DiceKeyAndValue(dv.getKey(), dv.getValue()))
                         .sorted(Comparator.comparing(DiceKeyAndValue::getDiceKey)) //make the list order deterministic
                         .toList();
+            }
         }
     }
 

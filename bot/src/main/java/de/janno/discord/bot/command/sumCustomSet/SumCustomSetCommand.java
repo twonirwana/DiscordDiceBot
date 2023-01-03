@@ -67,10 +67,7 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
                                                                                                                          @NonNull String buttonValue,
                                                                                                                          @NonNull String invokingUserName) {
         final Optional<MessageDataDTO> messageDataDTO = messageDataDAO.getDataForMessage(channelId, messageId);
-        if (messageDataDTO.isEmpty()) {
-            return Optional.empty();
-        }
-        return Optional.of(deserializeAndUpdateState(messageDataDTO.get(), buttonValue, invokingUserName));
+        return messageDataDTO.map(dataDTO -> deserializeAndUpdateState(dataDTO, buttonValue, invokingUserName));
     }
 
     @Override
@@ -161,23 +158,6 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
                         .build());
     }
 
-
-    @Override
-    protected Collection<CommandDefinitionOption> additionalCommandOptions() {
-        return List.of(CommandDefinitionOption.builder()
-                .name(LEGACY_START_ACTION)
-                .description("Old start command")
-                .type(CommandDefinitionOption.Type.SUB_COMMAND)
-                .options(LEGACY_DICE_COMMAND_OPTIONS_IDS.stream()
-                        .map(id -> CommandDefinitionOption.builder()
-                                .name(id)
-                                .description("xdy for a set of x dice with y sides, e.g. '3d6'")
-                                .type(CommandDefinitionOption.Type.STRING)
-                                .build())
-                        .collect(Collectors.toList()))
-                .option(ANSWER_TARGET_CHANNEL_COMMAND_OPTION)
-                .build());
-    }
 
     @Override
     protected Set<String> getStartOptionIds() {
