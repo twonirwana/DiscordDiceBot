@@ -2,7 +2,6 @@ package de.janno.discord.bot.command;
 
 import de.janno.discord.bot.persistance.MessageDataDAO;
 import de.janno.discord.bot.persistance.MessageDataDTO;
-import de.janno.discord.connector.api.ButtonEventAdaptor;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
 import de.janno.discord.connector.api.message.MessageDefinition;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
@@ -57,16 +56,6 @@ public class TestCommand extends AbstractCommand<Config, StateData> {
 
     @Override
     protected @NonNull Config getConfigFromStartOptions(@NonNull CommandInteractionOption options) {
-        throw new NotImplementedException("Not implemented");
-    }
-
-    @Override
-    protected @NonNull Config getConfigFromEvent(@NonNull ButtonEventAdaptor event) {
-        throw new NotImplementedException("Not implemented");
-    }
-
-    @Override
-    protected @NonNull State<StateData> getStateFromEvent(@NonNull ButtonEventAdaptor event) {
         throw new NotImplementedException("Not implemented");
     }
 

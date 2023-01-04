@@ -10,7 +10,6 @@ import de.janno.discord.bot.persistance.Mapper;
 import de.janno.discord.bot.persistance.MessageDataDAO;
 import de.janno.discord.bot.persistance.MessageDataDTO;
 import de.janno.discord.connector.api.BottomCustomIdUtils;
-import de.janno.discord.connector.api.ButtonEventAdaptor;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
@@ -45,19 +44,7 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTar
     private static final String DO_NOT_REROLL_ID = "no_reroll";
     private static final long MAX_NUMBER_OF_DICE = 25;
     private static final String DICE_SYMBOL = "d";
-    private static final int BUTTON_VALUE_INDEX = 1;
 
-    private static final int SIDE_OF_DIE_INDEX = 2;
-    private static final int MAX_DICE_INDEX = 3;
-    private static final int REROLL_SET_INDEX = 4;
-    private static final int BOTCH_SET_INDEX = 5;
-    private static final int REROLL_VARIANT_INDEX = 6;
-
-    //state in id
-    private static final int POOL_SIZE_VALUE_INDEX = 7;
-    private static final int TARGET_INDEX = 8;
-    private static final int ANSWER_TARGET_CHANNEL_INDEX = 9;
-    private static final String EMPTY = "EMPTY";
     private static final String CONFIG_TYPE_ID = "PoolTargetConfig";
     private static final String STATE_DATA_TYPE_ID = "PoolTargetStateData";
     private final DiceUtils diceUtils;
@@ -98,10 +85,7 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTar
                                                                                                                      @NonNull String buttonValue,
                                                                                                                      @NonNull String invokingUserName) {
         final Optional<MessageDataDTO> messageDataDTO = messageDataDAO.getDataForMessage(channelId, messageId);
-        if (messageDataDTO.isEmpty()) {
-            return Optional.empty();
-        }
-        return Optional.of(deserializeAndUpdateState(messageDataDTO.get(), buttonValue));
+        return messageDataDTO.map(dataDTO -> deserializeAndUpdateState(dataDTO, buttonValue));
     }
 
     @VisibleForTesting
@@ -219,19 +203,6 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTar
                 .build());
     }
 
-    @Override
-    protected @NonNull PoolTargetConfig getConfigFromEvent(@NonNull ButtonEventAdaptor event) {
-        String[] customIdSplit = event.getCustomId().split(BottomCustomIdUtils.LEGACY_CONFIG_SPLIT_DELIMITER_REGEX);
-
-        int sideOfDie = Integer.parseInt(customIdSplit[SIDE_OF_DIE_INDEX]);
-        int maxNumberOfButtons = Integer.parseInt(customIdSplit[MAX_DICE_INDEX]);
-        Set<Integer> rerollSet = CommandUtils.toSet(customIdSplit[REROLL_SET_INDEX], SUBSET_DELIMITER, EMPTY);
-        Set<Integer> botchSet = CommandUtils.toSet(customIdSplit[BOTCH_SET_INDEX], SUBSET_DELIMITER, EMPTY);
-        String rerollVariant = customIdSplit[REROLL_VARIANT_INDEX];
-        Long answerTargetChannelId = getOptionalLongFromArray(customIdSplit, ANSWER_TARGET_CHANNEL_INDEX);
-        return new PoolTargetConfig(answerTargetChannelId, sideOfDie, maxNumberOfButtons, rerollSet, botchSet, rerollVariant, AnswerFormatType.full);
-    }
-
     private PoolTargetStateData updatePoolTargetStateData(PoolTargetConfig config,
                                                           String buttonValue,
                                                           Integer dicePool,
@@ -259,27 +230,6 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTar
         }
 
         return new PoolTargetStateData(null, null, null);
-    }
-
-
-    private Integer toNumber(String input) {
-        if (StringUtils.isNumeric(input)) {
-            return Integer.valueOf(input);
-        }
-        return null;
-    }
-
-    @Override
-    protected @NonNull State<PoolTargetStateData> getStateFromEvent(@NonNull ButtonEventAdaptor event) {
-        String[] customIdSplit = event.getCustomId().split(BottomCustomIdUtils.LEGACY_CONFIG_SPLIT_DELIMITER_REGEX);
-        String buttonValue = customIdSplit[BUTTON_VALUE_INDEX];
-
-        Integer dicePool = toNumber(customIdSplit[POOL_SIZE_VALUE_INDEX]);
-        Integer targetNumber = toNumber(customIdSplit[TARGET_INDEX]);
-
-        PoolTargetConfig config = getConfigFromEvent(event);
-
-        return new State<>(buttonValue, updatePoolTargetStateData(config, buttonValue, dicePool, targetNumber));
     }
 
     @Override

@@ -11,7 +11,6 @@ import de.janno.discord.bot.persistance.Mapper;
 import de.janno.discord.bot.persistance.MessageDataDAO;
 import de.janno.discord.bot.persistance.MessageDataDTO;
 import de.janno.discord.connector.api.BottomCustomIdUtils;
-import de.janno.discord.connector.api.ButtonEventAdaptor;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
@@ -38,14 +37,13 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
 
     //todo button label, pagination for buttons
 
-    static final String CLEAR_BUTTON_ID = "clear";
-    final static Pattern PARAMETER_VARIABLE_PATTERN = Pattern.compile("\\Q{\\E.*?\\Q}\\E");
-    static final String LOCKED_USER_NAME_DELIMITER = "\u2236"; //"∶" Ratio
-    static final String SELECTED_PARAMETER_DELIMITER = "\t";
+    private static final String CLEAR_BUTTON_ID = "clear";
+    private final static Pattern PARAMETER_VARIABLE_PATTERN = Pattern.compile("\\Q{\\E.*?\\Q}\\E");
+    private static final String SELECTED_PARAMETER_DELIMITER = "\t";
     private static final String COMMAND_NAME = "custom_parameter";
     private static final String EXPRESSION_OPTION = "expression";
     private static final String RANGE_DELIMITER = ":";
-    final static String RANGE_REPLACE_REGEX = RANGE_DELIMITER + ".+?(?=\\Q}\\E)";
+    private final static String RANGE_REPLACE_REGEX = RANGE_DELIMITER + ".+?(?=\\Q}\\E)";
     private final static Pattern BUTTON_RANGE_PATTERN = Pattern.compile(RANGE_DELIMITER + "(-?\\d+)<=>(-?\\d+)");
     private final static String BUTTON_VALUE_DELIMITER = "/";
     private final static Pattern BUTTON_VALUE_PATTERN = Pattern.compile(RANGE_DELIMITER + "(.+" + BUTTON_VALUE_DELIMITER + ".+)}");
@@ -77,28 +75,12 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
         return expression.replaceAll(RANGE_REPLACE_REGEX, "");
     }
 
-    private static String getUserNameFromMessage(@NonNull String messageContent) {
-        if (messageContent.contains(LOCKED_USER_NAME_DELIMITER)) {
-            return messageContent.split(LOCKED_USER_NAME_DELIMITER)[0];
-        }
-        return null;
-    }
 
     @VisibleForTesting
     static boolean hasMissingParameter(@NonNull State<CustomParameterStateData> state) {
         return Optional.ofNullable(state.getData())
                 .flatMap(CustomParameterStateData::getNextUnselectedParameterExpression)
                 .isPresent();
-    }
-
-    @VisibleForTesting
-    static State<CustomParameterStateData> createParameterStateFromLegacyId(String customId, String messageContent, String invokingUser) {
-        String[] split = splitCustomId(customId);
-        String buttonValue = split[CustomIdIndex.BUTTON_VALUE.index];
-        List<SelectedParameter> currentlySelectedParameters = List.of(); //legacy forgets the state
-        String lockedForUserName = getUserNameFromMessage(messageContent);
-        CustomParameterConfig config = createConfigFromCustomId(customId);
-        return new State<>(buttonValue, updateState(currentlySelectedParameters, config, buttonValue, lockedForUserName, invokingUser));
     }
 
     private static CustomParameterStateData updateState(@Nullable List<SelectedParameter> currentlySelectedParameterList,
@@ -164,26 +146,6 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
         return Optional.ofNullable(state.getData())
                 .flatMap(CustomParameterStateData::getNextUnselectedParameterExpression)
                 .map(SelectedParameter::getParameterExpression);
-    }
-
-    @VisibleForTesting
-    static Optional<String> getCurrentParameterName(State<CustomParameterStateData> state) {
-        return Optional.ofNullable(state.getData())
-                .flatMap(CustomParameterStateData::getNextUnselectedParameterExpression)
-                .map(SelectedParameter::getParameterExpression);
-    }
-
-    private static String[] splitCustomId(String customId) {
-        return customId.split(BottomCustomIdUtils.LEGACY_CONFIG_SPLIT_DELIMITER_REGEX);
-    }
-
-    @VisibleForTesting
-    static CustomParameterConfig createConfigFromCustomId(String customId) {
-        String[] split = splitCustomId(customId);
-        return new CustomParameterConfig(
-                getOptionalLongFromArray(split, CustomIdIndex.ANSWER_TARGET_CHANNEL.index),
-                split[CustomIdIndex.BASE_EXPRESSION.index],
-                DiceParserSystem.DICEROLL_PARSER, AnswerFormatType.full);
     }
 
     static List<Parameter> createParameterListFromBaseExpression(String expression) {
@@ -318,16 +280,6 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
             }
         }
         return label;
-    }
-
-    @Override
-    protected @NonNull CustomParameterConfig getConfigFromEvent(@NonNull ButtonEventAdaptor event) {
-        return createConfigFromCustomId(event.getCustomId());
-    }
-
-    @Override
-    protected @NonNull State<CustomParameterStateData> getStateFromEvent(@NonNull ButtonEventAdaptor event) {
-        return createParameterStateFromLegacyId(event.getCustomId(), event.getMessageContent(), event.getInvokingGuildMemberName());
     }
 
     @Override

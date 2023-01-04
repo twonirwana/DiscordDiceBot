@@ -99,7 +99,7 @@ class DirectRollCommandTest {
         verify(slashEventAdaptor, never()).createResultMessageWithEventReference(any());
         verify(slashEventAdaptor, never()).deleteMessageById(anyLong());
         verify(slashEventAdaptor).reply("/r expression:asdfasdf\n" +
-                "The following expression is invalid: 'asdfasdf'. The error is: '[D, d]' requires as left input a single integer but was '[as]'. Use `/r expression:help` to get more information on how to use the command.", true);
+                "The following expression is invalid: 'asdfasdf'. The error is: No matching operator for 'asdfasdf', non-functional text and value names must to be surrounded by '' or []. Use `/r expression:help` to get more information on how to use the command.", true);
 
         verify(slashEventAdaptor, never()).getChannelId();
     }

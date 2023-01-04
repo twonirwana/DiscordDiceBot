@@ -10,7 +10,6 @@ public final class BottomCustomIdUtils {
     private static final String LEGACY_DELIMITER_V1 = ",";
     public static final String LEGACY_CONFIG_SPLIT_DELIMITER_REGEX = String.format("[%s%s]", LEGACY_DELIMITER_V2, LEGACY_DELIMITER_V1);
     private static final int COMMAND_NAME_INDEX = 0;
-    private static final int LEGACY_BUTTON_VALUE_INDEX = 1;
     private static final int BUTTON_VALUE_INDEX = 1;
 
     static public @NonNull String createButtonCustomId(@NonNull String commandId, @NonNull String buttonValue) {
@@ -24,13 +23,6 @@ public final class BottomCustomIdUtils {
     public static @NonNull String getButtonValueFromCustomId(@NonNull String customId) {
         Preconditions.checkArgument(StringUtils.countMatches(customId, CUSTOM_ID_DELIMITER) == 1, "'%s' contains not the correct number of delimiter", customId);
         return customId.split(CUSTOM_ID_DELIMITER)[BUTTON_VALUE_INDEX];
-    }
-
-    /**
-     * will be removed when almost all users have switched to the persisted button id
-     */
-    public static @NonNull String getButtonValueFromLegacyCustomId(@NonNull String customId) {
-        return customId.split(LEGACY_CONFIG_SPLIT_DELIMITER_REGEX)[LEGACY_BUTTON_VALUE_INDEX];
     }
 
     public static @NonNull String getCommandNameFromCustomIdWithPersistence(@NonNull String customId) {

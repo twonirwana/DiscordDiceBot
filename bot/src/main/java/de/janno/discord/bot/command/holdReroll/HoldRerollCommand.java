@@ -10,7 +10,6 @@ import de.janno.discord.bot.persistance.Mapper;
 import de.janno.discord.bot.persistance.MessageDataDAO;
 import de.janno.discord.bot.persistance.MessageDataDTO;
 import de.janno.discord.connector.api.BottomCustomIdUtils;
-import de.janno.discord.connector.api.ButtonEventAdaptor;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
@@ -39,7 +38,6 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollConfig, HoldRer
     private static final String FAILURE_SET_ID = "failure_set";
     private static final String CLEAR_BUTTON_ID = "clear";
     private static final String DICE_SYMBOL = "d";
-    private static final String EMPTY = "EMPTY";
     private static final String CONFIG_TYPE_ID = "HoldRerollConfig";
     private static final String STATE_DATA_TYPE_ID = "HoldRerollStateData";
     private final DiceUtils diceUtils;
@@ -142,29 +140,6 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollConfig, HoldRer
                 .build());
     }
 
-    @Override
-    protected @NonNull HoldRerollConfig getConfigFromEvent(@NonNull ButtonEventAdaptor event) {
-        String[] customIdSplit = event.getCustomId().split(BottomCustomIdUtils.LEGACY_CONFIG_SPLIT_DELIMITER_REGEX);
-        int sideOfDie = Integer.parseInt(customIdSplit[3]);
-        Set<Integer> rerollSet = CommandUtils.toSet(customIdSplit[4], SUBSET_DELIMITER, EMPTY);
-        Set<Integer> successSet = CommandUtils.toSet(customIdSplit[5], SUBSET_DELIMITER, EMPTY);
-        Set<Integer> failureSet = CommandUtils.toSet(customIdSplit[6], SUBSET_DELIMITER, EMPTY);
-        Long answerTargetChannelId = getOptionalLongFromArray(customIdSplit, 8);
-        return new HoldRerollConfig(answerTargetChannelId, sideOfDie, rerollSet, successSet, failureSet, AnswerFormatType.full);
-    }
-
-
-    @Override
-    protected @NonNull State<HoldRerollStateData> getStateFromEvent(@NonNull ButtonEventAdaptor event) {
-        String[] customIdSplit = event.getCustomId().split(BottomCustomIdUtils.LEGACY_CONFIG_SPLIT_DELIMITER_REGEX);
-        List<Integer> currentResult = getCurrentRollResult(customIdSplit[2]);
-        int rerollCount = Integer.parseInt(customIdSplit[7]);
-        String buttonValue = customIdSplit[1];
-        HoldRerollConfig config = getConfigFromEvent(event);
-
-        return new State<>(buttonValue, updateStateWithButtonValue(buttonValue, config, currentResult, rerollCount));
-    }
-
     private HoldRerollStateData updateStateWithButtonValue(@NonNull String buttonValue,
                                                            @NonNull HoldRerollConfig config,
                                                            @NonNull List<Integer> currentResult,
@@ -187,17 +162,6 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollConfig, HoldRer
             rerollCount = 0;
         }
         return new HoldRerollStateData(currentResult, rerollCount);
-    }
-
-
-    private List<Integer> getCurrentRollResult(String currentRollResultString) {
-        if (EMPTY.equals(currentRollResultString)) {
-            return ImmutableList.of();
-        }
-        return Arrays.stream(currentRollResultString.split(SUBSET_DELIMITER))
-                .filter(NumberUtils::isParsable)
-                .map(Integer::parseInt)
-                .collect(Collectors.toList());
     }
 
     private boolean rollFinished(State<HoldRerollStateData> state, HoldRerollConfig config) {
@@ -261,10 +225,7 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollConfig, HoldRer
                                                                                                                      @NonNull String buttonValue,
                                                                                                                      @NonNull String invokingUserName) {
         final Optional<MessageDataDTO> messageDataDTO = messageDataDAO.getDataForMessage(channelId, messageId);
-        if (messageDataDTO.isEmpty()) {
-            return Optional.empty();
-        }
-        return Optional.of(deserializeAndUpdateState(messageDataDTO.get(), buttonValue));
+        return messageDataDTO.map(dataDTO -> deserializeAndUpdateState(dataDTO, buttonValue));
     }
 
     @Override

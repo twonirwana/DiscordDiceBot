@@ -3,7 +3,6 @@ package de.janno.discord.connector.api;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
 import lombok.NonNull;
-import lombok.Value;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.ParallelFlux;
 
@@ -27,16 +26,6 @@ public interface ButtonEventAdaptor extends DiscordAdapter {
 
     Mono<Void> editMessage(@Nullable String message, @Nullable List<ComponentRowDefinition> componentRowDefinitions);
 
-    /**
-     * will be removed when almost all users have switched to the persisted button id
-     */
-    List<LabelAndCustomId> getAllButtonIds();
-
-    /**
-     * will be removed when almost all users have switched to the persisted button id
-     */
-    String getMessageContent();
-
     Requester getRequester();
 
     Optional<String> checkPermissions(Long answerTargetChannelId);
@@ -47,13 +36,4 @@ public interface ButtonEventAdaptor extends DiscordAdapter {
 
     @NonNull OffsetDateTime getMessageCreationTime();
 
-    @NonNull OffsetDateTime getEventCreationTime();
-
-    @Value
-    class LabelAndCustomId {
-        @NonNull
-        String label;
-        @NonNull
-        String customId;
-    }
 }

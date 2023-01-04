@@ -33,7 +33,6 @@ public class BotMetrics {
     private final static String METRIC_LEGACY_BUTTON_PREFIX = "legacyButtonEvent";
     private final static String METRIC_SLASH_PREFIX = "slashEvent";
     private final static String METRIC_SLASH_HELP_PREFIX = "slashHelpEvent";
-    private final static String METRIC_SLASH_LEGACY_START_PREFIX = "slashLegacyStart";
     private final static String METRIC_ANSWER_FORMAT_PREFIX = "answerFormat";
     private final static String METRIC_DICE_PARSER_SYSTEM_PREFIX = "diceParserSystem";
     private final static String CONFIG_TAG = "config";
@@ -97,10 +96,6 @@ public class BotMetrics {
 
     public static void incrementDiceParserSystemCounter(@NonNull DiceParserSystem diceParserSystem) {
         globalRegistry.counter(METRIC_PREFIX + METRIC_DICE_PARSER_SYSTEM_PREFIX, Tags.of(DICE_SYSTEM_TAG, diceParserSystem.name())).increment();
-    }
-
-    public static void incrementLegacyStartCounter(@NonNull String commandName) {
-        globalRegistry.counter(METRIC_PREFIX + METRIC_SLASH_LEGACY_START_PREFIX, Tags.of(COMMAND_TAG, commandName)).increment();
     }
 
     public static void incrementAnswerFormatCounter(@NonNull AnswerFormatType answerFormatType, @NonNull String commandName) {

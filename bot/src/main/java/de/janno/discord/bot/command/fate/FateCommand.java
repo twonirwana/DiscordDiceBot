@@ -9,7 +9,6 @@ import de.janno.discord.bot.persistance.Mapper;
 import de.janno.discord.bot.persistance.MessageDataDAO;
 import de.janno.discord.bot.persistance.MessageDataDTO;
 import de.janno.discord.connector.api.BottomCustomIdUtils;
-import de.janno.discord.connector.api.ButtonEventAdaptor;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
@@ -52,10 +51,7 @@ public class FateCommand extends AbstractCommand<FateConfig, StateData> {
                                                                                                      @NonNull String buttonValue,
                                                                                                      @NonNull String invokingUserName) {
         final Optional<MessageDataDTO> messageDataDTO = messageDataDAO.getDataForMessage(channelId, messageId);
-        if (messageDataDTO.isEmpty()) {
-            return Optional.empty();
-        }
-        return Optional.of(deserializeAndUpdateState(messageDataDTO.get(), buttonValue));
+        return messageDataDTO.map(dataDTO -> deserializeAndUpdateState(dataDTO, buttonValue));
     }
 
     @VisibleForTesting
@@ -214,18 +210,6 @@ public class FateCommand extends AbstractCommand<FateConfig, StateData> {
                             ButtonDefinition.builder().id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), ROLL_BUTTON_ID)).label("Roll 4dF").build()
                     ).build());
         }
-    }
-
-    @Override
-    protected @NonNull FateConfig getConfigFromEvent(@NonNull ButtonEventAdaptor event) {
-        String[] split = event.getCustomId().split(BottomCustomIdUtils.LEGACY_CONFIG_SPLIT_DELIMITER_REGEX);
-        return new FateConfig(getOptionalLongFromArray(split, 3), split[2], AnswerFormatType.full);
-    }
-
-    @Override
-    protected @NonNull State<StateData> getStateFromEvent(@NonNull ButtonEventAdaptor event) {
-        String buttonValue = BottomCustomIdUtils.getButtonValueFromLegacyCustomId(event.getCustomId());
-        return new State<>(buttonValue, StateData.empty());
     }
 
 }

@@ -2,7 +2,6 @@ package de.janno.discord.bot.command;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Stopwatch;
-import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import de.janno.discord.bot.BotMetrics;
 import de.janno.discord.bot.persistance.MessageDataDAO;
@@ -65,13 +64,6 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
         this.messageDataDAO = messageDataDAO;
     }
 
-    public static Long getOptionalLongFromArray(@NonNull String[] optionArray, int index) {
-        if (optionArray.length >= index + 1 && !Strings.isNullOrEmpty(optionArray[index])) {
-            return Long.parseLong(optionArray[index]);
-        }
-        return null;
-    }
-
     @VisibleForTesting
     public void setMessageDataDeleteDuration(Duration delayMessageDataDeletion) {
         this.delayMessageDataDeletion = delayMessageDataDeletion;
@@ -91,7 +83,7 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
                 .orElse(defaultAnswerFormat());
     }
 
-    protected AnswerFormatType defaultAnswerFormat(){
+    protected AnswerFormatType defaultAnswerFormat() {
         return AnswerFormatType.full;
     }
 
@@ -163,11 +155,8 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
         final UUID configUUID;
         if (isLegacyMessage) {
             BotMetrics.incrementLegacyButtonMetricCounter(getCommandId());
-            config = getConfigFromEvent(event);
-            state = getStateFromEvent(event);
-            configUUID = UUID.randomUUID();
-            //we need to save the current config/state or the update will not work
-            createMessageDataForNewMessage(configUUID, event.getGuildId(), channelId, messageId, config, state).ifPresent(messageDataDAO::saveMessageData);
+            log.info("{}: Legacy id {}", event.getRequester().toLogString(), event.getCustomId());
+            return event.reply("The button uses an old format that isn't supported anymore. Please delete it and create a new button message with a slash command.", false);
         } else {
             final String buttonValue = BottomCustomIdUtils.getButtonValueFromCustomId(event.getCustomId());
             final Optional<ConfigAndState<C, S>> messageData = getMessageDataAndUpdateWithButtonValue(channelId,
@@ -409,14 +398,4 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
     }
 
     protected abstract @NonNull C getConfigFromStartOptions(@NonNull CommandInteractionOption options);
-
-    /**
-     * will be removed when almost all users have switched to the persisted button id
-     */
-    protected abstract @NonNull C getConfigFromEvent(@NonNull ButtonEventAdaptor event);
-
-    /**
-     * will be removed when almost all users have switched to the persisted button id
-     */
-    protected abstract @NonNull State<S> getStateFromEvent(@NonNull ButtonEventAdaptor event);
 }

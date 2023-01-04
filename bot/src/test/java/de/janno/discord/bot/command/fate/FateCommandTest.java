@@ -5,7 +5,6 @@ import de.janno.discord.bot.dice.DiceUtils;
 import de.janno.discord.bot.persistance.MessageDataDAO;
 import de.janno.discord.bot.persistance.MessageDataDAOImpl;
 import de.janno.discord.bot.persistance.MessageDataDTO;
-import de.janno.discord.connector.api.ButtonEventAdaptor;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
@@ -19,7 +18,6 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 class FateCommandTest {
 
@@ -136,36 +134,6 @@ class FateCommandTest {
     }
 
     @Test
-    void getStateFromEvent_simple() {
-        ButtonEventAdaptor event = mock(ButtonEventAdaptor.class);
-        when(event.getCustomId()).thenReturn("fate\u0000roll,simple");
-
-        State<StateData> res = underTest.getStateFromEvent(event);
-
-        assertThat(res).isEqualTo(new State<>("roll", StateData.empty()));
-    }
-
-    @Test
-    void getStateFromEvent_modifier() {
-        ButtonEventAdaptor event = mock(ButtonEventAdaptor.class);
-        when(event.getCustomId()).thenReturn("fate\u00005\u0000with_modifier\u0000");
-
-        State<StateData> res = underTest.getStateFromEvent(event);
-
-        assertThat(res).isEqualTo(new State<>("5", StateData.empty()));
-    }
-
-    @Test
-    void getStateFromEvent_modifierNegativ() {
-        ButtonEventAdaptor event = mock(ButtonEventAdaptor.class);
-        when(event.getCustomId()).thenReturn("fate\u0000-3\u0000with_modifier\u0000");
-
-        State<StateData> res = underTest.getStateFromEvent(event);
-
-        assertThat(res).isEqualTo(new State<>("-3", StateData.empty()));
-    }
-
-    @Test
     void getButtonLayoutWithState_simple() {
         List<ComponentRowDefinition> res = underTest.createNewButtonMessageWithState(new FateConfig(null, "simple", AnswerFormatType.full), new State<>("roll", StateData.empty()))
                 .orElseThrow().getComponentRowDefinitions();
@@ -235,27 +203,6 @@ class FateCommandTest {
     @Test
     void getCurrentMessageContentChange() {
         assertThat(underTest.getCurrentMessageContentChange(new FateConfig(null, "with_modifier", AnswerFormatType.full), new State<>("2", StateData.empty()))).isEmpty();
-    }
-
-    @Test
-    void getConfigFromEvent() {
-        ButtonEventAdaptor event = mock(ButtonEventAdaptor.class);
-        when(event.getCustomId()).thenReturn("fate\u0000roll\u0000simple\u0000");
-        assertThat(underTest.getConfigFromEvent(event)).isEqualTo(new FateConfig(null, "simple", AnswerFormatType.full));
-    }
-
-    @Test
-    void getConfigFromEvent_target() {
-        ButtonEventAdaptor event = mock(ButtonEventAdaptor.class);
-        when(event.getCustomId()).thenReturn("fate\u0000roll\u0000simple\u0000123");
-        assertThat(underTest.getConfigFromEvent(event)).isEqualTo(new FateConfig(123L, "simple", AnswerFormatType.full));
-    }
-
-    @Test
-    void getConfigFromEvent_legacy() {
-        ButtonEventAdaptor event = mock(ButtonEventAdaptor.class);
-        when(event.getCustomId()).thenReturn("fate\u0000roll\u0000simple");
-        assertThat(underTest.getConfigFromEvent(event)).isEqualTo(new FateConfig(null, "simple", AnswerFormatType.full));
     }
 
     @Test

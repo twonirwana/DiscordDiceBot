@@ -11,7 +11,6 @@ import de.janno.discord.bot.persistance.Mapper;
 import de.janno.discord.bot.persistance.MessageDataDAO;
 import de.janno.discord.bot.persistance.MessageDataDTO;
 import de.janno.discord.connector.api.BottomCustomIdUtils;
-import de.janno.discord.connector.api.ButtonEventAdaptor;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
@@ -74,10 +73,7 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesConfig,
                                                                                                                @NonNull String buttonValue,
                                                                                                                @NonNull String invokingUserName) {
         final Optional<MessageDataDTO> messageDataDTO = messageDataDAO.getDataForMessage(channelId, messageId);
-        if (messageDataDTO.isEmpty()) {
-            return Optional.empty();
-        }
-        return Optional.of(deserializeAndUpdateState(messageDataDTO.get(), buttonValue));
+        return messageDataDTO.map(dataDTO -> deserializeAndUpdateState(dataDTO, buttonValue));
     }
 
     @VisibleForTesting
@@ -98,23 +94,6 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesConfig,
         return Optional.of(new MessageDataDTO(configUUID, guildId, channelId, messageId, getCommandId(),
                 CONFIG_TYPE_ID, Mapper.serializedObject(config),
                 Mapper.NO_PERSISTED_STATE, null));
-    }
-
-    @Override
-    protected @NonNull CountSuccessesConfig getConfigFromEvent(@NonNull ButtonEventAdaptor event) {
-        String[] split = event.getCustomId().split(BottomCustomIdUtils.LEGACY_CONFIG_SPLIT_DELIMITER_REGEX);
-        int sideOfDie = Integer.parseInt(split[2]);
-        int target = Integer.parseInt(split[3]);
-        //legacy message could be missing the glitch and max dice option
-        String glitchOption = split.length < 5 ? GLITCH_NO_OPTION : split[4];
-        int maxNumberOfButtons = split.length < 6 ? 15 : Integer.parseInt(split[5]);
-        Long answerTargetChannelId = getOptionalLongFromArray(split, 6);
-        return new CountSuccessesConfig(answerTargetChannelId, sideOfDie, target, glitchOption, maxNumberOfButtons, 1, Set.of(), Set.of(), AnswerFormatType.full);
-    }
-
-    @Override
-    protected @NonNull State<StateData> getStateFromEvent(@NonNull ButtonEventAdaptor event) {
-        return new State<>(BottomCustomIdUtils.getButtonValueFromLegacyCustomId(event.getCustomId()), StateData.empty());
     }
 
     @Override

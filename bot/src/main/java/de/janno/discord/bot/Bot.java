@@ -2,7 +2,10 @@ package de.janno.discord.bot;
 
 
 import com.google.common.collect.ImmutableList;
-import de.janno.discord.bot.command.*;
+import de.janno.discord.bot.command.ClearCommand;
+import de.janno.discord.bot.command.DirectRollCommand;
+import de.janno.discord.bot.command.HelpCommand;
+import de.janno.discord.bot.command.WelcomeCommand;
 import de.janno.discord.bot.command.countSuccesses.CountSuccessesCommand;
 import de.janno.discord.bot.command.customDice.CustomDiceCommand;
 import de.janno.discord.bot.command.customParameter.CustomParameterCommand;
@@ -14,6 +17,8 @@ import de.janno.discord.bot.command.sumDiceSet.SumDiceSetCommand;
 import de.janno.discord.bot.persistance.MessageDataDAO;
 import de.janno.discord.bot.persistance.MessageDataDAOImpl;
 import de.janno.discord.connector.DiscordConnectorImpl;
+
+import java.util.Set;
 
 public class Bot {
     public static void main(final String[] args) throws Exception {
@@ -43,7 +48,11 @@ public class Bot {
 
         MessageDataDAO messageDataDAO = new MessageDataDAOImpl(h2Url, h2User, h2Password);
 
-        DiscordConnectorImpl.createAndStart(token, disableCommandUpdate, ImmutableList.of(
+        Set<Long> allGuildIdsInPersistence = messageDataDAO.getAllGuildIds();
+
+        DiscordConnectorImpl.createAndStart(token,
+                disableCommandUpdate,
+                ImmutableList.of(
                         new CountSuccessesCommand(messageDataDAO),
                         new CustomDiceCommand(messageDataDAO),
                         new FateCommand(messageDataDAO),
@@ -57,7 +66,8 @@ public class Bot {
                         new ClearCommand(messageDataDAO),
                         new HelpCommand()
                 ),
-                new WelcomeCommand(messageDataDAO).getWelcomeMessage());
+                new WelcomeCommand(messageDataDAO).getWelcomeMessage(),
+                allGuildIdsInPersistence);
     }
 
 }

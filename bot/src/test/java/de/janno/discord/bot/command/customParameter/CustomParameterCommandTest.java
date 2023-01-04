@@ -11,8 +11,6 @@ import de.janno.discord.bot.dice.DiceParserSystem;
 import de.janno.discord.bot.persistance.MessageDataDAO;
 import de.janno.discord.bot.persistance.MessageDataDAOImpl;
 import de.janno.discord.bot.persistance.MessageDataDTO;
-import de.janno.discord.connector.api.ButtonEventAdaptor;
-import de.janno.discord.connector.api.message.MessageDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinitionOption;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import de.janno.evaluator.dice.random.RandomNumberSupplier;
@@ -25,23 +23,16 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import java.time.Duration;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import static de.janno.discord.bot.command.customParameter.CustomParameterCommand.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 class CustomParameterCommandTest {
 
-    private static final String FIRST_SELECT_CUSTOM_ID = "custom_parameter\u0000{n}d{s}\u0000\u0000\u00001\u0000";
-    private static final String LAST_SELECT_CUSTOM_ID = "custom_parameter\u0000{n}d{s}\u0000\u00001\u00002\u0000";
-    private static final String LAST_SELECT_WITH_TARGET_CUSTOM_ID = "custom_parameter\u0000{n}d{s}\u00001234\u00001\u00002\u0000";
-    private static final String CLEAR_CUSTOM_ID = "custom_parameter\u0000{n}d{s}\u0000\u00001\u0000clear\u0000";
     CustomParameterCommand underTest;
     MessageDataDAO messageDataDAO = mock(MessageDataDAO.class);
 
@@ -72,23 +63,11 @@ class CustomParameterCommandTest {
                 Arguments.of("1d6", "The expression needs at least one parameter expression like '{name}"),
                 Arguments.of("{number:3<=>6}d{sides:6/10/12}", null),
                 Arguments.of("{number}{a:a/c/b/d/d}{sides:3<=>6}", "Parameter '[a, c, b, d, d]' contains duplicate parameter option but they must be unique."),
-                Arguments.of("{number}d{sides:3/4/ab}", null),
-                Arguments.of("{number}d{sides:3/4/ab}@roll", null)
+                Arguments.of("{number}d{sides:3/4/'ab'}", null),
+                Arguments.of("{number}d{sides:3/4/'ab'}@roll", null)
         );
     }
 
-    private static Stream<Arguments> getStateFromEvent() {
-        return Stream.of(
-                //first select
-                Arguments.of(FIRST_SELECT_CUSTOM_ID, "{n}d{s}: Please select value for {n}", "user1", List.of(), "{n}d{s}", "{n}", "{n}", true),
-                //last select
-                Arguments.of(LAST_SELECT_CUSTOM_ID, "user1\u22361d{s}: Please select value for {s}", "user1", List.of(), "{n}d{s}", "{n}", "{n}", true),
-                //clear
-                Arguments.of(CLEAR_CUSTOM_ID, "user1\u22361d{s}: Please select value for {s}", "user2", List.of(), "{n}d{s}", "{n}", "{n}", true),
-                //not action because click from other user
-                Arguments.of(LAST_SELECT_CUSTOM_ID, "user1\u22361d{s}: Please select value for {s}", "user2", List.of(), "{n}d{s}", "{n}", "{n}", true)
-        );
-    }
 
     public static Stream<Arguments> generateExpression2Parameters() {
         return Stream.of(
@@ -208,57 +187,11 @@ class CustomParameterCommandTest {
         assertThat(underTest.matchingComponentCustomId("custom_parameter25_button")).isFalse();
     }
 
-    @ParameterizedTest(name = "{index} customButtonId={0}")
-    @MethodSource("getStateFromEvent")
-    void getStateFromEvent(String customButtonId, String messageContent, String invokingUser,
-                           //expected
-                           List<String> selectedParameterValues, String filledExpression, String currentParameterExpression, String currentParameterName, boolean hasMissingParameter) {
-        ButtonEventAdaptor buttonEventAdaptor = mock(ButtonEventAdaptor.class);
-        when(buttonEventAdaptor.getCustomId()).thenReturn(customButtonId);
-        when(buttonEventAdaptor.getMessageContent()).thenReturn(messageContent);
-        when(buttonEventAdaptor.getInvokingGuildMemberName()).thenReturn(invokingUser);
-        State<CustomParameterStateData> res = underTest.getStateFromEvent(buttonEventAdaptor);
-
-        CustomParameterConfig config = createConfigFromCustomId(customButtonId);
-        assertThat(res.getData()).isNotNull();
-        assertThat(res.getData().getSelectedParameterValues().stream()
-                .map(SelectedParameter::getSelectedValue)
-                .filter(Objects::nonNull))
-                .containsExactlyElementsOf(selectedParameterValues);
-        assertThat(getFilledExpression(config, res)).isEqualTo(filledExpression);
-        assertThat(getCurrentParameterExpression(res)).contains(currentParameterExpression);
-        assertThat(getCurrentParameterName(res)).contains(currentParameterName);
-        assertThat(hasMissingParameter(res)).isEqualTo(hasMissingParameter);
-    }
-
     @Test
     void getStartOptions() {
         List<CommandDefinitionOption> res = underTest.getStartOptions();
 
         assertThat(res.stream().map(CommandDefinitionOption::getName)).containsExactly("expression");
-    }
-
-
-    @Test
-    void getAnswerTargetChannelId_local() {
-        Long res = createConfigFromCustomId(LAST_SELECT_CUSTOM_ID).getAnswerTargetChannelId();
-
-        assertThat(res).isNull();
-    }
-
-    @Test
-    void getAnswerTargetChannelId_target() {
-        Long res = createConfigFromCustomId(LAST_SELECT_WITH_TARGET_CUSTOM_ID).getAnswerTargetChannelId();
-
-        assertThat(res).isEqualTo(1234L);
-    }
-
-
-    @Test
-    void createNewButtonMessageWithState_inSelection() {
-        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(createConfigFromCustomId(FIRST_SELECT_CUSTOM_ID), createParameterStateFromLegacyId(FIRST_SELECT_CUSTOM_ID, "{n}d{s}: Please select value for {n}", "user1"));
-
-        assertThat(res).isEmpty();
     }
 
     @Test

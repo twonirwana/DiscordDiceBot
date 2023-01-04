@@ -15,7 +15,6 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 class WelcomeCommandTest {
 
@@ -345,15 +344,6 @@ class WelcomeCommandTest {
         assertThat(underTest.getAnswer(null, null)).isEmpty();
     }
 
-    @Test
-    public void getStateFromEvent() {
-        ButtonEventAdaptor event = mock(ButtonEventAdaptor.class);
-        when(event.getCustomId()).thenReturn("welcome,fate");
-
-        State<StateData> res = underTest.getStateFromEvent(event);
-
-        assertThat(res).isEqualTo(new State<>("fate", StateData.empty()));
-    }
 
     @Test
     public void matchingComponentCustomId() {
