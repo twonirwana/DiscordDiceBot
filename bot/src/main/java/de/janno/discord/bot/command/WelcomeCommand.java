@@ -47,9 +47,9 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
     private static final String COIN_BUTTON_ID = "coin";
     private static final String DICE_CALCULATOR_ID = "dice_calculator";
     private final static FateConfig FATE_CONFIG = new FateConfig(null, "with_modifier", AnswerFormatType.full, ResultImage.none);
-    private final static CountSuccessesConfig NWOD_CONFIG = new CountSuccessesConfig(null, 10, 8, "no_glitch", 15, 1, Set.of(10), Set.of(), AnswerFormatType.full, ResultImage.image_alie_v1);
+    private final static CountSuccessesConfig NWOD_CONFIG = new CountSuccessesConfig(null, 10, 8, "no_glitch", 15, 1, Set.of(10), Set.of(), AnswerFormatType.full, ResultImage.alies_black_gold);
     private final static CountSuccessesConfig SHADOWRUN_CONFIG = new CountSuccessesConfig(null, 6, 5, "half_dice_one", 20, 1, Set.of(), Set.of(), AnswerFormatType.full, ResultImage.none);
-    private final static PoolTargetConfig OWOD_CONFIG = new PoolTargetConfig(null, 10, 15, ImmutableSet.of(10), ImmutableSet.of(1), "ask", AnswerFormatType.full, ResultImage.image_alie_v1);
+    private final static PoolTargetConfig OWOD_CONFIG = new PoolTargetConfig(null, 10, 15, ImmutableSet.of(10), ImmutableSet.of(1), "ask", AnswerFormatType.full, ResultImage.alies_black_gold);
     private final static CustomDiceConfig COIN_CONFIG = new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Coin Toss \uD83E\uDE99", "1d[Head \uD83D\uDE00/Tail \uD83E\uDD85]")), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.without_expression, ResultImage.none);
     private final static CustomDiceConfig DND5_CONFIG = new CustomDiceConfig(null, ImmutableList.of(
             new ButtonIdLabelAndDiceExpression("1_button", "D4", "1d4"),
@@ -67,13 +67,13 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
             new ButtonIdLabelAndDiceExpression("13_button", "2D10", "2d10="),
             new ButtonIdLabelAndDiceExpression("14_button", "2D12", "2d12="),
             new ButtonIdLabelAndDiceExpression("15_button", "2D20", "2d20=")
-    ), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full, ResultImage.image_alie_v1);
+    ), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full, ResultImage.alies_black_gold);
 
     private final SumCustomSetConfig DICE_CALCULATOR_CONFIG = new SumCustomSetConfig(null, List.of(
             new ButtonIdLabelAndDiceExpression("1_button", "7", "7"), new ButtonIdLabelAndDiceExpression("2_button", "8", "8"), new ButtonIdLabelAndDiceExpression("3_button", "9", "9"), new ButtonIdLabelAndDiceExpression("5_button", "+", "+"), new ButtonIdLabelAndDiceExpression("6_button", "-", "-"),
             new ButtonIdLabelAndDiceExpression("7_button", "4", "4"), new ButtonIdLabelAndDiceExpression("8_button", "5", "5"), new ButtonIdLabelAndDiceExpression("9_button", "6", "6"), new ButtonIdLabelAndDiceExpression("10_button", "d", "d"), new ButtonIdLabelAndDiceExpression("11_button", "k", "k"),
             new ButtonIdLabelAndDiceExpression("12_button", "1", "1"), new ButtonIdLabelAndDiceExpression("13_button", "2", "2"), new ButtonIdLabelAndDiceExpression("14_button", "3", "3"), new ButtonIdLabelAndDiceExpression("15_button", "0", "0"), new ButtonIdLabelAndDiceExpression("16_button", "l", "l")
-    ), DiceParserSystem.DICE_EVALUATOR, true, AnswerFormatType.full, ResultImage.image_alie_v1);
+    ), DiceParserSystem.DICE_EVALUATOR, true, AnswerFormatType.full, ResultImage.alies_black_gold);
 
     public WelcomeCommand(MessageDataDAO messageDataDAO) {
         super(messageDataDAO);
@@ -246,6 +246,6 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
 
     @Override
     protected @NonNull Config getConfigFromStartOptions(@NonNull CommandInteractionOption options) {
-        return new Config(null, AnswerFormatType.full, ResultImage.image_alie_v1);
+        return new Config(null, AnswerFormatType.full, ResultImage.alies_black_gold);
     }
 }

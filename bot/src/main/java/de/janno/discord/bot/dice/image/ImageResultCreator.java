@@ -51,6 +51,10 @@ public class ImageResultCreator {
             }));
 
     public ImageResultCreator() {
+        createCacheIndexFileIfMissing();
+    }
+
+    private void createCacheIndexFileIfMissing() {
         try {
             Files.createDirectories(Paths.get("imageCache"));
             File cacheIndex = new File(CACHE_INDEX);
@@ -67,7 +71,14 @@ public class ImageResultCreator {
         if (randomElement.getMaxInc() == 100) {
             int number = randomElement.getRollElement().asInteger().orElseThrow();
             int tens = number / 10;
+
             int ones = number - (tens * 10);
+            if (ones == 0) {
+                ones = 10;
+            }
+            if (tens == 0) {
+                tens = 10;
+            }
             return List.of(
                     DICE_IMAGE_MAP.get(100).get(tens),
                     DICE_IMAGE_MAP.get(10).get(ones)
@@ -82,7 +93,8 @@ public class ImageResultCreator {
                 randomElement.getMaxInc() == null ||
                 !DICE_IMAGE_MAP.containsKey(randomElement.getMaxInc()) ||
                 randomElement.getRollElement().asInteger().isEmpty() ||
-                randomElement.getRollElement().asInteger().get() > randomElement.getMaxInc();
+                randomElement.getRollElement().asInteger().get() > randomElement.getMaxInc() ||
+                randomElement.getRollElement().asInteger().get() < 1;
     }
 
     private String createRollCacheName(Roll roll) {
@@ -162,6 +174,7 @@ public class ImageResultCreator {
 
     private synchronized void writeFile(BufferedImage combined, File outputFile, String name) {
         try {
+            createCacheIndexFileIfMissing();
             ImageIO.write(combined, "PNG", outputFile);
             Files.writeString(
                     Paths.get(CACHE_INDEX),

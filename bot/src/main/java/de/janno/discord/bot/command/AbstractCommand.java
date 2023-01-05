@@ -60,7 +60,7 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
 
     protected static final CommandDefinitionOption RESULT_IMAGE_COMMAND_OPTION = CommandDefinitionOption.builder()
             .name(RESULT_IMAGE_OPTION)
-            .description("If the dice should be shown as image in the result")
+            .description("If and in what style the dice throw should be shown as image")
             .type(CommandDefinitionOption.Type.STRING)
             .choices(Arrays.stream(ResultImage.values())
                     .map(ri -> CommandDefinitionOptionChoice.builder()
@@ -105,7 +105,7 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
     }
 
     protected ResultImage defaultResultImage() {
-        return ResultImage.image_alie_v1;
+        return ResultImage.alies_black_gold;
     }
 
     protected AnswerFormatType defaultAnswerFormat() {

@@ -2,6 +2,7 @@ package de.janno.discord.bot.command.fate;
 
 import de.janno.discord.bot.ButtonEventAdaptorMock;
 import de.janno.discord.bot.ButtonEventAdaptorMockFactory;
+import de.janno.discord.bot.ResultImage;
 import de.janno.discord.bot.command.AnswerFormatType;
 import de.janno.discord.bot.command.StateData;
 import de.janno.discord.bot.dice.DiceUtils;
@@ -31,7 +32,7 @@ public class FateCommandMockTest {
         FateCommand underTest = new FateCommand(messageDataDAO, new DiceUtils(0L));
         underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
 
-        FateConfig config = new FateConfig(null, "simple", AnswerFormatType.full);
+        FateConfig config = new FateConfig(null, "simple", AnswerFormatType.full, ResultImage.none);
         ButtonEventAdaptorMockFactory<FateConfig, StateData> factory = new ButtonEventAdaptorMockFactory<>("fate", underTest, config, messageDataDAO, false);
 
         ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("roll");
@@ -49,7 +50,7 @@ public class FateCommandMockTest {
         FateCommand underTest = new FateCommand(messageDataDAO, new DiceUtils(0L));
         underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
 
-        FateConfig config = new FateConfig(null, "simple", AnswerFormatType.compact);
+        FateConfig config = new FateConfig(null, "simple", AnswerFormatType.compact, ResultImage.none);
         ButtonEventAdaptorMockFactory<FateConfig, StateData> factory = new ButtonEventAdaptorMockFactory<>("fate", underTest, config, messageDataDAO, false);
 
         ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("roll");
@@ -67,7 +68,7 @@ public class FateCommandMockTest {
         FateCommand underTest = new FateCommand(messageDataDAO, new DiceUtils(0L));
         underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
 
-        FateConfig config = new FateConfig(null, "simple", AnswerFormatType.minimal);
+        FateConfig config = new FateConfig(null, "simple", AnswerFormatType.minimal, ResultImage.none);
         ButtonEventAdaptorMockFactory<FateConfig, StateData> factory = new ButtonEventAdaptorMockFactory<>("fate", underTest, config, messageDataDAO, false);
 
         ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("roll");
@@ -85,7 +86,7 @@ public class FateCommandMockTest {
         FateCommand underTest = new FateCommand(messageDataDAO, new DiceUtils(0L));
         underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
 
-        FateConfig config = new FateConfig(null, "with_modifier", AnswerFormatType.full);
+        FateConfig config = new FateConfig(null, "with_modifier", AnswerFormatType.full, ResultImage.none);
         ButtonEventAdaptorMockFactory<FateConfig, StateData> factory = new ButtonEventAdaptorMockFactory<>("fate", underTest, config, messageDataDAO, false);
 
         ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("3");
@@ -103,7 +104,7 @@ public class FateCommandMockTest {
         FateCommand underTest = new FateCommand(messageDataDAO, new DiceUtils(0L));
         underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
 
-        FateConfig config = new FateConfig(null, "with_modifier", AnswerFormatType.compact);
+        FateConfig config = new FateConfig(null, "with_modifier", AnswerFormatType.compact, ResultImage.none);
         ButtonEventAdaptorMockFactory<FateConfig, StateData> factory = new ButtonEventAdaptorMockFactory<>("fate", underTest, config, messageDataDAO, false);
 
         ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("3");
@@ -121,7 +122,7 @@ public class FateCommandMockTest {
         FateCommand underTest = new FateCommand(messageDataDAO, new DiceUtils(0L));
         underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
 
-        FateConfig config = new FateConfig(null, "with_modifier", AnswerFormatType.minimal);
+        FateConfig config = new FateConfig(null, "with_modifier", AnswerFormatType.minimal, ResultImage.none);
         ButtonEventAdaptorMockFactory<FateConfig, StateData> factory = new ButtonEventAdaptorMockFactory<>("fate", underTest, config, messageDataDAO, false);
 
         ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("3");

@@ -2,6 +2,7 @@ package de.janno.discord.bot.command.poolTarget;
 
 import de.janno.discord.bot.ButtonEventAdaptorMock;
 import de.janno.discord.bot.ButtonEventAdaptorMockFactory;
+import de.janno.discord.bot.ResultImage;
 import de.janno.discord.bot.command.AnswerFormatType;
 import de.janno.discord.bot.dice.DiceUtils;
 import de.janno.discord.bot.persistance.MessageDataDAO;
@@ -31,7 +32,7 @@ public class PoolTargetCommandMockTest {
         PoolTargetCommand underTest = new PoolTargetCommand(messageDataDAO, new DiceUtils(0L));
         underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
 
-        PoolTargetConfig config = new PoolTargetConfig(null, 10, 15, Set.of(9, 10), Set.of(1, 2), "ask", AnswerFormatType.full);
+        PoolTargetConfig config = new PoolTargetConfig(null, 10, 15, Set.of(9, 10), Set.of(1, 2), "ask", AnswerFormatType.full, ResultImage.none);
         ButtonEventAdaptorMockFactory<PoolTargetConfig, PoolTargetStateData> factory = new ButtonEventAdaptorMockFactory<>("pool_target", underTest, config, messageDataDAO, false);
 
         ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("9");
@@ -60,7 +61,7 @@ public class PoolTargetCommandMockTest {
         PoolTargetCommand underTest = new PoolTargetCommand(messageDataDAO, new DiceUtils(0L));
         underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
 
-        PoolTargetConfig config = new PoolTargetConfig(null, 10, 15, Set.of(9, 10), Set.of(1, 2), "ask", AnswerFormatType.compact);
+        PoolTargetConfig config = new PoolTargetConfig(null, 10, 15, Set.of(9, 10), Set.of(1, 2), "ask", AnswerFormatType.compact, ResultImage.none);
         ButtonEventAdaptorMockFactory<PoolTargetConfig, PoolTargetStateData> factory = new ButtonEventAdaptorMockFactory<>("pool_target", underTest, config, messageDataDAO, false);
 
         ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("9");
@@ -89,7 +90,7 @@ public class PoolTargetCommandMockTest {
         PoolTargetCommand underTest = new PoolTargetCommand(messageDataDAO, new DiceUtils(0L));
         underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
 
-        PoolTargetConfig config = new PoolTargetConfig(null, 10, 15, Set.of(9, 10), Set.of(1, 2), "ask", AnswerFormatType.minimal);
+        PoolTargetConfig config = new PoolTargetConfig(null, 10, 15, Set.of(9, 10), Set.of(1, 2), "ask", AnswerFormatType.minimal, ResultImage.none);
         ButtonEventAdaptorMockFactory<PoolTargetConfig, PoolTargetStateData> factory = new ButtonEventAdaptorMockFactory<>("pool_target", underTest, config, messageDataDAO, false);
 
         ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("9");

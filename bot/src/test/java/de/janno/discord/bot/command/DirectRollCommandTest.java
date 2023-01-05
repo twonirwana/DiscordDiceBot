@@ -17,6 +17,7 @@ import org.mockito.ArgumentMatchers;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.io.File;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -31,7 +32,7 @@ class DirectRollCommandTest {
     @BeforeEach
     void setup() {
         diceMock = mock(Dice.class);
-        underTest = new DirectRollCommand((minExcl, maxIncl) -> 0, diceMock);
+        underTest = new DirectRollCommand((minExcl, maxIncl) -> 1, diceMock);
     }
 
 
@@ -67,7 +68,7 @@ class DirectRollCommandTest {
         verify(slashEventAdaptor, never()).createButtonMessage(any());
         verify(slashEventAdaptor, never()).deleteMessageById(anyLong());
         verify(slashEventAdaptor, never()).replyEmbed(any(), anyBoolean());
-        verify(slashEventAdaptor).createResultMessageWithEventReference(ArgumentMatchers.eq(new EmbedOrMessageDefinition("Test Label ⇒ 0", "1d6: [0]", ImmutableList.of(), null, EmbedOrMessageDefinition.Type.EMBED)));
+        verify(slashEventAdaptor).createResultMessageWithEventReference(ArgumentMatchers.eq(new EmbedOrMessageDefinition("Test Label ⇒ 1", "1d6", ImmutableList.of(), new File("imageCache\\3508a5e5657ec58c0b858b466e3db6246961fc409069e4559429126a4bc4275f.png"), EmbedOrMessageDefinition.Type.EMBED)));
 
         verify(slashEventAdaptor, never()).getChannelId();
     }
