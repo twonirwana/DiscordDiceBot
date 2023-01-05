@@ -16,6 +16,7 @@ import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.exceptions.ErrorResponseException;
 import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
 import net.dv8tion.jda.api.requests.RestAction;
+import net.dv8tion.jda.api.utils.FileUpload;
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Nullable;
@@ -34,7 +35,7 @@ public abstract class DiscordAdapterImpl implements DiscordAdapter {
 
     //needed to correctly show utf8 characters in discord
     private static String encodeUTF8(String in) {
-        if(in == null) {
+        if (in == null) {
             return null;
         }
         return new String(in.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8);
@@ -76,7 +77,14 @@ public abstract class DiscordAdapterImpl implements DiscordAdapter {
                             StringUtils.abbreviate(encodeUTF8(field.getValue()), 1024), //https://discord.com/developers/docs/resources/channel#embed-limits
                             field.isInline());
                 }
-                return createMonoFrom(() -> messageChannel.sendMessageEmbeds(builder.build()));
+                final List<FileUpload> files;
+                if (answer.getFile() != null) {
+                    files = List.of(FileUpload.fromData(answer.getFile(), "image.png"));
+                    builder.setImage("attachment://image.png");
+                } else {
+                    files = List.of();
+                }
+                return createMonoFrom(() -> messageChannel.sendMessageEmbeds(builder.build()).setFiles(files));
             }
             case MESSAGE -> {
                 MessageCreateBuilder builder = new MessageCreateBuilder();

@@ -3,6 +3,7 @@ package de.janno.discord.bot.dice;
 import com.google.common.collect.ImmutableList;
 import de.janno.discord.bot.command.AnswerFormatType;
 import de.janno.discord.bot.command.RollAnswer;
+import de.janno.discord.bot.dice.image.ImageResultCreator;
 import de.janno.evaluator.dice.DiceEvaluator;
 import de.janno.evaluator.dice.ExpressionException;
 import de.janno.evaluator.dice.Roll;
@@ -12,12 +13,14 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.File;
 import java.util.List;
 import java.util.Optional;
 
 @Slf4j
 public class DiceEvaluatorAdapter {
 
+    private final static ImageResultCreator IMAGE_RESULT_CREATOR = new ImageResultCreator();
     private final DiceEvaluator diceEvaluator;
 
     public DiceEvaluatorAdapter(NumberSupplier numberSupplier, int maxNumberOfDice) {
@@ -79,14 +82,20 @@ public class DiceEvaluatorAdapter {
     }
 
     public RollAnswer answerRollWithGivenLabel(String diceExpression, @Nullable String label, boolean sumUp, AnswerFormatType answerFormatType) {
+
         try {
             log.debug("Roll expression: {}", diceExpression);
             List<Roll> rolls = diceEvaluator.evaluate(diceExpression);
+            File diceImage = null;
+            if (answerFormatType == AnswerFormatType.full_with_image || answerFormatType == AnswerFormatType.without_expression_with_image) {
+                diceImage = IMAGE_RESULT_CREATOR.getImageForRoll(rolls);
+            }
             if (rolls.size() == 1) {
                 return RollAnswer.builder()
                         .answerFormatType(answerFormatType)
                         .expression(diceExpression)
                         .expressionLabel(label)
+                        .file(diceImage)
                         .result(getResult(rolls.get(0), sumUp))
                         .rollDetails(rolls.get(0).getRandomElementsString())
                         .build();

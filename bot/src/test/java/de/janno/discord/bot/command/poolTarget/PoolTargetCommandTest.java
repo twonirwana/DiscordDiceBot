@@ -388,7 +388,7 @@ class PoolTargetCommandTest {
         verify(buttonEventAdaptor).createButtonMessage(any());
         verify(buttonEventAdaptor).deleteMessageById(1L);
         verify(buttonEventAdaptor).createResultMessageWithEventReference(eq(new EmbedOrMessageDefinition("15d10 ≥8 ⇒ -4",
-                "[**1**,**1**,**1**,**2**,**2**,**2**,3,4,5,5,6,6,6,6,7,**10**,**10**]", ImmutableList.of(), EmbedOrMessageDefinition.Type.EMBED)), eq(null));
+                "[**1**,**1**,**1**,**2**,**2**,**2**,3,4,5,5,6,6,6,6,7,**10**,**10**]", ImmutableList.of(), null, EmbedOrMessageDefinition.Type.EMBED)), eq(null));
         verify(buttonEventAdaptor, times(3)).getCustomId();
         verify(buttonEventAdaptor).getMessageId();
         verify(buttonEventAdaptor).getChannelId();

@@ -142,7 +142,7 @@ class CustomDiceCommandTest {
                 new EmbedOrMessageDefinition.Field("1d6 ⇒ 6", "[6]", false),
                 new EmbedOrMessageDefinition.Field("1d6 ⇒ 6", "[6]", false),
                 new EmbedOrMessageDefinition.Field("1d6 ⇒ 6", "[6]", false)
-        ), EmbedOrMessageDefinition.Type.EMBED));
+        ), null, EmbedOrMessageDefinition.Type.EMBED));
     }
 
     @Test
@@ -154,7 +154,7 @@ class CustomDiceCommandTest {
                 new EmbedOrMessageDefinition.Field("1d6 ⇒ 3", "[3]", false),
                 new EmbedOrMessageDefinition.Field("1d6 ⇒ 3", "[3]", false),
                 new EmbedOrMessageDefinition.Field("1d6 ⇒ 3", "[3]", false)
-        ), EmbedOrMessageDefinition.Type.EMBED));
+        ), null, EmbedOrMessageDefinition.Type.EMBED));
     }
 
 
@@ -173,7 +173,7 @@ class CustomDiceCommandTest {
         EmbedOrMessageDefinition res = RollAnswerConverter.toEmbedOrMessageDefinition(underTest.getAnswer(new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Label", "1d6,1d6,1d6")), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full), new State<>("1_button", StateData.empty()))
                 .orElseThrow());
 
-        assertThat(res).isEqualTo(new EmbedOrMessageDefinition("Label", null, ImmutableList.of(new EmbedOrMessageDefinition.Field("1d6 ⇒ 3", "[3]", false), new EmbedOrMessageDefinition.Field("1d6 ⇒ 3", "[3]", false), new EmbedOrMessageDefinition.Field("1d6 ⇒ 3", "[3]", false)), EmbedOrMessageDefinition.Type.EMBED));
+        assertThat(res).isEqualTo(new EmbedOrMessageDefinition("Label", null, ImmutableList.of(new EmbedOrMessageDefinition.Field("1d6 ⇒ 3", "[3]", false), new EmbedOrMessageDefinition.Field("1d6 ⇒ 3", "[3]", false), new EmbedOrMessageDefinition.Field("1d6 ⇒ 3", "[3]", false)),null, EmbedOrMessageDefinition.Type.EMBED));
     }
 
     @Test
