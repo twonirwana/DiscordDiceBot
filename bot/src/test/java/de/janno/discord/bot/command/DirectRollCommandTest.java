@@ -68,7 +68,7 @@ class DirectRollCommandTest {
         verify(slashEventAdaptor, never()).createButtonMessage(any());
         verify(slashEventAdaptor, never()).deleteMessageById(anyLong());
         verify(slashEventAdaptor, never()).replyEmbed(any(), anyBoolean());
-        verify(slashEventAdaptor).createResultMessageWithEventReference(ArgumentMatchers.eq(new EmbedOrMessageDefinition("Test Label ⇒ 1", "1d6", ImmutableList.of(), new File("imageCache\\3508a5e5657ec58c0b858b466e3db6246961fc409069e4559429126a4bc4275f.png"), EmbedOrMessageDefinition.Type.EMBED)));
+        verify(slashEventAdaptor).createResultMessageWithEventReference(ArgumentMatchers.eq(new EmbedOrMessageDefinition("Test Label ⇒ 1", "1d6", ImmutableList.of(), new File("imageCache/3508a5e5657ec58c0b858b466e3db6246961fc409069e4559429126a4bc4275f.png"), EmbedOrMessageDefinition.Type.EMBED)));
 
         verify(slashEventAdaptor, never()).getChannelId();
     }
