@@ -1,6 +1,7 @@
 package de.janno.discord.bot.dice;
 
 import de.janno.discord.bot.BotMetrics;
+import de.janno.discord.bot.ResultImage;
 import de.janno.discord.bot.command.AnswerFormatType;
 import de.janno.discord.bot.command.RollAnswer;
 import de.janno.discord.connector.api.BottomCustomIdUtils;
@@ -30,19 +31,21 @@ public class DiceSystemAdapter {
         return expressionWithOptionalLabel;
     }
 
-    public RollAnswer answerRollWithOptionalLabelInExpression(String expression, boolean sumUp, DiceParserSystem system, AnswerFormatType answerFormatType) {
+    public RollAnswer answerRollWithOptionalLabelInExpression(String expression, boolean sumUp, DiceParserSystem system, AnswerFormatType answerFormatType, ResultImage resultImage) {
         BotMetrics.incrementDiceParserSystemCounter(system);
         return switch (system) {
             case DICE_EVALUATOR ->
-                    diceEvaluatorAdapter.answerRollWithOptionalLabelInExpression(expression, LABEL_DELIMITER, sumUp, answerFormatType);
-            case DICEROLL_PARSER -> parserHelper.answerRollWithOptionalLabelInExpression(expression, LABEL_DELIMITER, answerFormatType);
+                    diceEvaluatorAdapter.answerRollWithOptionalLabelInExpression(expression, LABEL_DELIMITER, sumUp, answerFormatType, resultImage);
+            case DICEROLL_PARSER ->
+                    parserHelper.answerRollWithOptionalLabelInExpression(expression, LABEL_DELIMITER, answerFormatType);
         };
     }
 
-    public RollAnswer answerRollWithGivenLabel(String expression, @Nullable String label, boolean sumUp, DiceParserSystem system, AnswerFormatType answerFormatType) {
+    public RollAnswer answerRollWithGivenLabel(String expression, @Nullable String label, boolean sumUp, DiceParserSystem system, AnswerFormatType answerFormatType, ResultImage resultImage) {
         BotMetrics.incrementDiceParserSystemCounter(system);
         return switch (system) {
-            case DICE_EVALUATOR -> diceEvaluatorAdapter.answerRollWithGivenLabel(expression, label, sumUp, answerFormatType);
+            case DICE_EVALUATOR ->
+                    diceEvaluatorAdapter.answerRollWithGivenLabel(expression, label, sumUp, answerFormatType, resultImage);
             case DICEROLL_PARSER -> parserHelper.answerRollWithGivenLabel(expression, label, answerFormatType);
         };
     }

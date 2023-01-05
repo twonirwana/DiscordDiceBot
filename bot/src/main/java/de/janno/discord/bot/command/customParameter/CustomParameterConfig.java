@@ -2,6 +2,7 @@ package de.janno.discord.bot.command.customParameter;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import de.janno.discord.bot.ResultImage;
 import de.janno.discord.bot.command.AnswerFormatType;
 import de.janno.discord.bot.command.Config;
 import de.janno.discord.bot.dice.DiceParserSystem;
@@ -29,8 +30,9 @@ public class CustomParameterConfig extends Config {
             @JsonProperty("answerTargetChannelId") Long answerTargetChannelId,
             @JsonProperty("baseExpression") @NonNull String baseExpression,
             @JsonProperty("diceParserSystem") DiceParserSystem diceParserSystem,
-            @JsonProperty("answerFormatType") AnswerFormatType answerFormatType) {
-        super(answerTargetChannelId, answerFormatType);
+            @JsonProperty("answerFormatType") AnswerFormatType answerFormatType,
+            @JsonProperty("resultImage") ResultImage resultImage) {
+        super(answerTargetChannelId, answerFormatType, resultImage);
         this.baseExpression = baseExpression;
         this.diceParserSystem = diceParserSystem == null ? DiceParserSystem.DICEROLL_PARSER : diceParserSystem;
         this.paramters = CustomParameterCommand.createParameterListFromBaseExpression(baseExpression);

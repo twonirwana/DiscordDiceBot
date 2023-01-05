@@ -5,6 +5,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
+import de.janno.discord.bot.ResultImage;
 import de.janno.discord.bot.command.*;
 import de.janno.discord.bot.dice.DiceUtils;
 import de.janno.discord.bot.persistance.Mapper;
@@ -285,7 +286,8 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesConfig,
         Set<Integer> botchSet = CommandUtils.getSetFromCommandOptions(options, ACTION_BOTCH_SET_OPTION, ",");
         Long answerTargetChannelId = getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null);
         AnswerFormatType answerType = getAnswerTypeFromStartCommandOption(options);
-        return new CountSuccessesConfig(answerTargetChannelId, sideValue, targetValue, glitchOption, maxDice, minDiceCount, rerollSet, botchSet, answerType);
+        ResultImage resultImage = getResultImageOptionFromStartCommandOption(options);
+        return new CountSuccessesConfig(answerTargetChannelId, sideValue, targetValue, glitchOption, maxDice, minDiceCount, rerollSet, botchSet, answerType, resultImage);
     }
 
     private List<ComponentRowDefinition> createButtonLayout(CountSuccessesConfig config) {

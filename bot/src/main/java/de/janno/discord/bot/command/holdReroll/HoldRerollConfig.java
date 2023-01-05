@@ -3,6 +3,7 @@ package de.janno.discord.bot.command.holdReroll;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableList;
+import de.janno.discord.bot.ResultImage;
 import de.janno.discord.bot.command.AnswerFormatType;
 import de.janno.discord.bot.command.Config;
 import lombok.EqualsAndHashCode;
@@ -34,8 +35,9 @@ public class HoldRerollConfig extends Config {
                             @JsonProperty("rerollSet") @NonNull Set<Integer> rerollSet,
                             @JsonProperty("successSet") @NonNull Set<Integer> successSet,
                             @JsonProperty("failureSet") @NonNull Set<Integer> failureSet,
-                            @JsonProperty("answerFormatType") AnswerFormatType answerFormatType) {
-        super(answerTargetChannelId, answerFormatType);
+                            @JsonProperty("answerFormatType") AnswerFormatType answerFormatType,
+                            @JsonProperty("resultImage") ResultImage resultImage) {
+        super(answerTargetChannelId, answerFormatType, resultImage);
         this.sidesOfDie = sidesOfDie;
         this.rerollSet = rerollSet;
         this.successSet = successSet;

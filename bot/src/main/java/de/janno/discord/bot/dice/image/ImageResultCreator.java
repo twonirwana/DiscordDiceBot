@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -30,6 +31,7 @@ import java.util.stream.Stream;
 public class ImageResultCreator {
 
     private static final String CACHE_FOLDER = "imageCache";
+    private static final String CACHE_INDEX = CACHE_FOLDER + "/" + "imageCacheName.csv";
     private final static Map<Integer, Map<Integer, BufferedImage>> DICE_IMAGE_MAP = Stream.of(4, 6, 8, 10, 12, 20, 100)
             .collect(ImmutableMap.toImmutableMap(d -> d, d -> {
                 final Stream<Integer> sideStream;
@@ -51,7 +53,10 @@ public class ImageResultCreator {
     public ImageResultCreator() {
         try {
             Files.createDirectories(Paths.get("imageCache"));
-            new File("imageCacheName.csv");
+            File cacheIndex = new File(CACHE_INDEX);
+            if (!cacheIndex.exists()) {
+                cacheIndex.createNewFile();
+            }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -60,7 +65,6 @@ public class ImageResultCreator {
     private @NonNull List<BufferedImage> getImageForRandomElement(@NonNull RandomElement randomElement) {
         Preconditions.checkNotNull(randomElement.getMaxInc());
         if (randomElement.getMaxInc() == 100) {
-            //todo not working
             int number = randomElement.getRollElement().asInteger().orElseThrow();
             int tens = number / 10;
             int ones = number - (tens * 10);
@@ -112,14 +116,14 @@ public class ImageResultCreator {
         String filePath = CACHE_FOLDER + "/" + hashName + ".png";
         File imageFile = new File(filePath);
         if (!imageFile.exists()) {
-            createNewFileForRoll(rolls.get(0), imageFile);
+            createNewFileForRoll(rolls.get(0), imageFile, name);
         } else {
             log.info("Use cached file %s for %s".formatted(filePath, name));
         }
         return imageFile;
     }
 
-    private void createNewFileForRoll(Roll roll, File file) {
+    private void createNewFileForRoll(Roll roll, File file, String name) {
         Stopwatch stopwatch = Stopwatch.createStarted();
 
         List<List<BufferedImage>> images = roll.getRandomElementsInRoll().getRandomElements().stream()
@@ -150,14 +154,22 @@ public class ImageResultCreator {
         }
         g.dispose();
 
-        try {
-            ImageIO.write(combined, "PNG", file);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        writeFile(combined, file, name);
 
         log.info("Created image in {}ms", stopwatch.elapsed(TimeUnit.MILLISECONDS));
     }
 
+
+    private synchronized void writeFile(BufferedImage combined, File outputFile, String name) {
+        try {
+            ImageIO.write(combined, "PNG", outputFile);
+            Files.writeString(
+                    Paths.get(CACHE_INDEX),
+                    "%s;%s\n".formatted(name, outputFile.getName()),
+                    StandardOpenOption.APPEND);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
 }

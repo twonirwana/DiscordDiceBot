@@ -5,6 +5,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import de.janno.discord.bot.ResultImage;
 import de.janno.discord.bot.command.*;
 import de.janno.discord.bot.dice.*;
 import de.janno.discord.bot.persistance.Mapper;
@@ -250,7 +251,8 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
                     label,
                     false,
                     config.getDiceParserSystem(),
-                    config.getAnswerFormatType()));
+                    config.getAnswerFormatType(),
+                    config.getResultImage()));
         }
         return Optional.empty();
     }
@@ -286,7 +288,8 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     protected @NonNull CustomParameterConfig getConfigFromStartOptions(@NonNull CommandInteractionOption options) {
         String baseExpression = options.getStringSubOptionWithName(EXPRESSION_OPTION).orElse("");
         Optional<Long> answerTargetChannelId = getAnswerTargetChannelIdFromStartCommandOption(options);
-        return new CustomParameterConfig(answerTargetChannelId.orElse(null), baseExpression, DiceParserSystem.DICE_EVALUATOR, getAnswerTypeFromStartCommandOption(options));
+        ResultImage resultImage = getResultImageOptionFromStartCommandOption(options);
+        return new CustomParameterConfig(answerTargetChannelId.orElse(null), baseExpression, DiceParserSystem.DICE_EVALUATOR, getAnswerTypeFromStartCommandOption(options), resultImage);
     }
 
     @Override

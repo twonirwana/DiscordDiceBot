@@ -2,6 +2,7 @@ package de.janno.discord.bot.command;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import de.janno.discord.bot.ResultImage;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
@@ -22,15 +23,20 @@ public class Config implements Serializable {
     @NonNull
     private final AnswerFormatType answerFormatType;
 
+    @NonNull
+    private final ResultImage resultImage;
+
     @JsonCreator
     public Config(@JsonProperty("answerTargetChannelId") Long answerTargetChannelId,
-                  @JsonProperty("answerFormatType") AnswerFormatType answerFormatType) {
+                  @JsonProperty("answerFormatType") AnswerFormatType answerFormatType,
+                  @JsonProperty("resultImage") ResultImage resultImage) {
         this.answerTargetChannelId = answerTargetChannelId;
         this.answerFormatType = answerFormatType == null ? AnswerFormatType.full : answerFormatType;
+        this.resultImage = resultImage == null ? ResultImage.none : resultImage;
     }
 
     public String toShortString() {
-        return String.format("[%s, %s]", getTargetChannelShortString(), answerFormatType);
+        return String.format("[%s, %s, %s]", getTargetChannelShortString(), answerFormatType, resultImage);
     }
 
     protected String getTargetChannelShortString() {

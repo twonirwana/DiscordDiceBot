@@ -1,6 +1,7 @@
 package de.janno.discord.bot.dice;
 
 import com.google.common.collect.ImmutableList;
+import de.janno.discord.bot.ResultImage;
 import de.janno.discord.bot.command.AnswerFormatType;
 import de.janno.discord.bot.command.RollAnswer;
 import de.janno.discord.bot.dice.image.ImageResultCreator;
@@ -75,19 +76,19 @@ public class DiceEvaluatorAdapter {
         }
     }
 
-    public RollAnswer answerRollWithOptionalLabelInExpression(String expression, String labelDelimiter, boolean sumUp, AnswerFormatType answerFormatType) {
+    public RollAnswer answerRollWithOptionalLabelInExpression(String expression, String labelDelimiter, boolean sumUp, AnswerFormatType answerFormatType, ResultImage resultImage) {
         String diceExpression = getExpressionFromExpressionWithOptionalLabel(expression, labelDelimiter);
         String label = getLabelFromExpressionWithOptionalLabel(expression, labelDelimiter).orElse(null);
-        return answerRollWithGivenLabel(diceExpression, label, sumUp, answerFormatType);
+        return answerRollWithGivenLabel(diceExpression, label, sumUp, answerFormatType, resultImage);
     }
 
-    public RollAnswer answerRollWithGivenLabel(String diceExpression, @Nullable String label, boolean sumUp, AnswerFormatType answerFormatType) {
+    public RollAnswer answerRollWithGivenLabel(String diceExpression, @Nullable String label, boolean sumUp, AnswerFormatType answerFormatType, ResultImage resultImage) {
 
         try {
             log.debug("Roll expression: {}", diceExpression);
             List<Roll> rolls = diceEvaluator.evaluate(diceExpression);
             File diceImage = null;
-            if (answerFormatType == AnswerFormatType.full_with_image || answerFormatType == AnswerFormatType.without_expression_with_image) {
+            if (resultImage.equals(ResultImage.image_alie_v1)) {
                 diceImage = IMAGE_RESULT_CREATOR.getImageForRoll(rolls);
             }
             if (rolls.size() == 1) {

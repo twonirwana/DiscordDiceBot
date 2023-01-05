@@ -6,13 +6,12 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
 
-import java.io.File;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 public class RollAnswerConverter {
-    private static final Set<AnswerFormatType> EMBED_ANSWER_TYPES = ImmutableSet.of(AnswerFormatType.full, AnswerFormatType.full_with_image, AnswerFormatType.without_expression_with_image, AnswerFormatType.without_expression);
+    private static final Set<AnswerFormatType> EMBED_ANSWER_TYPES = ImmutableSet.of(AnswerFormatType.full, AnswerFormatType.without_expression);
 
     private static EmbedOrMessageDefinition.Type getMessageType(AnswerFormatType answerFormatType) {
         return EMBED_ANSWER_TYPES.contains(answerFormatType) ? EmbedOrMessageDefinition.Type.EMBED : EmbedOrMessageDefinition.Type.MESSAGE;
@@ -29,7 +28,7 @@ public class RollAnswerConverter {
         }
 
         return switch (rollAnswer.getAnswerFormatType()) {
-            case full_with_image, full -> {
+            case full -> {
                 if (rollAnswer.getMultiRollResults() != null) {
                     yield EmbedOrMessageDefinition.builder()
                             .title(Optional.ofNullable(rollAnswer.getExpressionLabel()).orElse(rollAnswer.getExpression()))
@@ -44,8 +43,7 @@ public class RollAnswerConverter {
                             .build();
 
                 } else {
-                    final File file = rollAnswer.getAnswerFormatType() == AnswerFormatType.full_with_image ? rollAnswer.getFile() : null;
-                    final String diceDetailsString = file != null ? null : rollAnswer.getRollDetails();
+                    final String diceDetailsString = rollAnswer.getFile() != null ? null : rollAnswer.getRollDetails();
                     final String description;
                     if (rollAnswer.getExpressionLabel() != null) {
                         description = Joiner.on(": ").skipNulls().join(rollAnswer.getExpression(), diceDetailsString);
@@ -55,12 +53,12 @@ public class RollAnswerConverter {
                     yield EmbedOrMessageDefinition.builder()
                             .title("%s ⇒ %s".formatted(Optional.ofNullable(rollAnswer.getExpressionLabel()).orElse(rollAnswer.getExpression()), rollAnswer.getResult()))
                             .descriptionOrContent(description)
-                            .file(file)
+                            .file(rollAnswer.getFile())
                             .type(type)
                             .build();
                 }
             }
-            case without_expression_with_image, without_expression -> {
+            case without_expression -> {
                 if (rollAnswer.getMultiRollResults() != null) {
                     yield EmbedOrMessageDefinition.builder()
                             .title(Optional.ofNullable(rollAnswer.getExpressionLabel()).orElse("Roll"))
@@ -75,14 +73,13 @@ public class RollAnswerConverter {
                             .build();
 
                 } else {
-                    final File file = rollAnswer.getAnswerFormatType() == AnswerFormatType.without_expression_with_image ? rollAnswer.getFile() : null;
-                    final String diceDetailsString = file != null ? null : rollAnswer.getRollDetails();
+                    final String diceDetailsString = rollAnswer.getFile() != null ? null : rollAnswer.getRollDetails();
                     final String description = Optional.ofNullable(diceDetailsString).orElse("");
                     yield EmbedOrMessageDefinition.builder()
                             .title("%s ⇒ %s".formatted(Optional.ofNullable(rollAnswer.getExpressionLabel()).orElse("Roll"), rollAnswer.getResult()))
                             .descriptionOrContent(description)
                             .type(type)
-                            .file(file)
+                            .file(rollAnswer.getFile())
                             .build();
                 }
             }

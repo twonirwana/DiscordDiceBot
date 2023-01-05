@@ -125,7 +125,9 @@ public class FateCommand extends AbstractCommand<FateConfig, StateData> {
     @Override
     protected @NonNull FateConfig getConfigFromStartOptions(@NonNull CommandInteractionOption options) {
         return new FateConfig(getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null),
-                options.getStringSubOptionWithName(ACTION_MODIFIER_OPTION).orElse(ACTION_MODIFIER_OPTION_SIMPLE), getAnswerTypeFromStartCommandOption(options));
+                options.getStringSubOptionWithName(ACTION_MODIFIER_OPTION).orElse(ACTION_MODIFIER_OPTION_SIMPLE),
+                getAnswerTypeFromStartCommandOption(options),
+                getResultImageOptionFromStartCommandOption(options));
     }
 
     @Override

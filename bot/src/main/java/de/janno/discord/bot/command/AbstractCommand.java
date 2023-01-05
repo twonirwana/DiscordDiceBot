@@ -4,6 +4,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.ImmutableList;
 import de.janno.discord.bot.BotMetrics;
+import de.janno.discord.bot.ResultImage;
 import de.janno.discord.bot.persistance.MessageDataDAO;
 import de.janno.discord.bot.persistance.MessageDataDTO;
 import de.janno.discord.connector.api.*;
@@ -37,6 +38,7 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
     protected static final String ACTION_HELP = "help";
     protected static final String ANSWER_TARGET_CHANNEL_OPTION = "target_channel";
     protected static final String ANSWER_FORMAT_OPTION = "answer_format";
+    protected static final String RESULT_IMAGE_OPTION = "result_image";
 
     protected static final CommandDefinitionOption ANSWER_TARGET_CHANNEL_COMMAND_OPTION = CommandDefinitionOption.builder()
             .name(ANSWER_TARGET_CHANNEL_OPTION)
@@ -55,6 +57,19 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
                             .build())
                     .collect(Collectors.toList()))
             .build();
+
+    protected static final CommandDefinitionOption RESULT_IMAGE_COMMAND_OPTION = CommandDefinitionOption.builder()
+            .name(RESULT_IMAGE_OPTION)
+            .description("If the dice should be shown as image in the result")
+            .type(CommandDefinitionOption.Type.STRING)
+            .choices(Arrays.stream(ResultImage.values())
+                    .map(ri -> CommandDefinitionOptionChoice.builder()
+                            .name(ri.name())
+                            .value(ri.name())
+                            .build())
+                    .collect(Collectors.toList()))
+            .build();
+
     private static final int MIN_MS_DELAY_BETWEEN_BUTTON_MESSAGES = 1000;
     private final static ConcurrentSkipListSet<Long> MESSAGE_DATA_IDS_TO_DELETE = new ConcurrentSkipListSet<>();
     protected final MessageDataDAO messageDataDAO;
@@ -83,6 +98,16 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
                 .orElse(defaultAnswerFormat());
     }
 
+    protected ResultImage getResultImageOptionFromStartCommandOption(@NonNull CommandInteractionOption options) {
+        return options.getStringSubOptionWithName(RESULT_IMAGE_OPTION)
+                .map(ResultImage::valueOf)
+                .orElse(defaultResultImage());
+    }
+
+    protected ResultImage defaultResultImage() {
+        return ResultImage.image_alie_v1;
+    }
+
     protected AnswerFormatType defaultAnswerFormat() {
         return AnswerFormatType.full;
     }
@@ -107,6 +132,7 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
                         .options(getStartOptions())
                         .option(ANSWER_TARGET_CHANNEL_COMMAND_OPTION)
                         .option(ANSWER_FORMAT_COMMAND_OPTION)
+                        .option(RESULT_IMAGE_COMMAND_OPTION)
                         .build())
                 .option(CommandDefinitionOption.builder()
                         .name(ACTION_HELP)

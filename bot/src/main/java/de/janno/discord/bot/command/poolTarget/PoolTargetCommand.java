@@ -249,7 +249,15 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTar
                 .findFirst()
                 .orElse(ALWAYS_REROLL);
         Long answerTargetChannelId = getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null);
-        return new PoolTargetConfig(answerTargetChannelId, sideValue, maxButton, rerollSet, botchSet, rerollVariant, getAnswerTypeFromStartCommandOption(options));
+        return new PoolTargetConfig(answerTargetChannelId,
+                sideValue,
+                maxButton,
+                rerollSet,
+                botchSet,
+                rerollVariant,
+                getAnswerTypeFromStartCommandOption(options),
+                getResultImageOptionFromStartCommandOption(options)
+        );
     }
 
 
