@@ -1,10 +1,12 @@
 package de.janno.discord.bot.dice.image;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.hash.Hashing;
 import com.google.common.io.Resources;
+import de.janno.discord.bot.BotMetrics;
 import de.janno.evaluator.dice.RandomElement;
 import de.janno.evaluator.dice.Roll;
 import lombok.NonNull;
@@ -97,7 +99,8 @@ public class ImageResultCreator {
                 randomElement.getRollElement().asInteger().get() < 1;
     }
 
-    private String createRollCacheName(Roll roll) {
+    @VisibleForTesting
+    String createRollCacheName(Roll roll) {
         return roll.getRandomElementsInRoll().getRandomElements().stream()
                 .map(r -> r.getRandomElements().stream()
                         .map(re -> "d%ds%d".formatted(re.getMaxInc(), re.getRollElement().asInteger().orElseThrow()))
@@ -108,7 +111,6 @@ public class ImageResultCreator {
     }
 
     public @Nullable File getImageForRoll(@NonNull List<Roll> rolls) {
-        //todo Metrics
         if (rolls.size() != 1 ||
                 rolls.get(0).getRandomElementsInRoll().getRandomElements().size() > 10 ||
                 rolls.get(0).getRandomElementsInRoll().getRandomElements().stream()
@@ -129,8 +131,10 @@ public class ImageResultCreator {
         File imageFile = new File(filePath);
         if (!imageFile.exists()) {
             createNewFileForRoll(rolls.get(0), imageFile, name);
+            BotMetrics.incrementImageResultMetricCounter(BotMetrics.CacheTag.CACHE_MISS);
         } else {
             log.info("Use cached file %s for %s".formatted(filePath, name));
+            BotMetrics.incrementImageResultMetricCounter(BotMetrics.CacheTag.CACHE_HIT);
         }
         return imageFile;
     }
@@ -168,7 +172,8 @@ public class ImageResultCreator {
 
         writeFile(combined, file, name);
 
-        log.info("Created image in {}ms", stopwatch.elapsed(TimeUnit.MILLISECONDS));
+        BotMetrics.imageCreationTimer(stopwatch.elapsed());
+        log.debug("Created image in {}ms", stopwatch.elapsed(TimeUnit.MILLISECONDS));
     }
 
 

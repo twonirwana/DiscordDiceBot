@@ -29,14 +29,17 @@ public class BotMetrics {
     private final static String METRIC_BUTTON_PREFIX = "buttonEvent";
     private final static String METRIC_DATABASE_PREFIX = "database";
     private final static String METRIC_ANSWER_DELAY_PREFIX = "answerDelayDuration";
+    private final static String METRIC_IMAGE_CREATION_DURATION_PREFIX = "imageCreationDuration";
     private final static String METRIC_IS_DELAYED_PREFIX = "answerIsDelayed";
     private final static String METRIC_LEGACY_BUTTON_PREFIX = "legacyButtonEvent";
     private final static String METRIC_SLASH_PREFIX = "slashEvent";
     private final static String METRIC_SLASH_HELP_PREFIX = "slashHelpEvent";
+    private final static String METRIC_IMAGE_RESULT_PREFIX = "imageResult";
     private final static String METRIC_ANSWER_FORMAT_PREFIX = "answerFormat";
     private final static String METRIC_DICE_PARSER_SYSTEM_PREFIX = "diceParserSystem";
     private final static String CONFIG_TAG = "config";
     private final static String COMMAND_TAG = "command";
+    private final static String CACHE_TAG = "cache";
     private final static String ANSWER_FORMAT_TAG = "answerFormat";
     private final static String DICE_SYSTEM_TAG = "diceSystem";
     private final static String ACTION_TAG = "action";
@@ -105,6 +108,9 @@ public class BotMetrics {
         )).increment();
     }
 
+    public static void incrementImageResultMetricCounter(@NonNull CacheTag tag) {
+        globalRegistry.counter(METRIC_PREFIX + METRIC_IMAGE_RESULT_PREFIX, Tags.of(CACHE_TAG, tag.name())).increment();
+    }
 
     public static void databaseTimer(@NonNull String action, @NonNull Duration duration) {
         Timer.builder(METRIC_PREFIX + METRIC_DATABASE_PREFIX)
@@ -118,6 +124,14 @@ public class BotMetrics {
     public static void delayTimer(@NonNull String commandName, @NonNull Duration duration) {
         Timer.builder(METRIC_PREFIX + METRIC_ANSWER_DELAY_PREFIX)
                 .tags(Tags.of(COMMAND_TAG, commandName))
+                .publishPercentiles(0.5, 0.95, 0.99)
+                .publishPercentileHistogram(true)
+                .register(globalRegistry)
+                .record(duration);
+    }
+
+    public static void imageCreationTimer(@NonNull Duration duration) {
+        Timer.builder(METRIC_PREFIX + METRIC_IMAGE_CREATION_DURATION_PREFIX)
                 .publishPercentiles(0.5, 0.95, 0.99)
                 .publishPercentileHistogram(true)
                 .register(globalRegistry)
@@ -144,6 +158,11 @@ public class BotMetrics {
                 .publishPercentileHistogram(true)
                 .register(globalRegistry)
                 .record(duration);
+    }
+
+    public enum CacheTag {
+        CACHE_HIT,
+        CACHE_MISS
     }
 
 }
