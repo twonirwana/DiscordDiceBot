@@ -6,6 +6,8 @@ import de.janno.discord.bot.persistance.MessageDataDTO;
 import de.janno.discord.connector.api.ButtonEventAdaptor;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.MessageDefinition;
+import de.janno.discord.connector.api.slash.CommandDefinition;
+import de.janno.discord.connector.api.slash.CommandDefinitionOption;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -373,5 +375,27 @@ class WelcomeCommandTest {
     @Test
     void getName() {
         assertThat(underTest.getCommandId()).isEqualTo("welcome");
+    }
+
+
+    @Test
+    void getCommandDefinition() {
+        CommandDefinition res = underTest.getCommandDefinition();
+
+        assertThat(res).isEqualTo(CommandDefinition.builder()
+                .name("welcome")
+                .description("Displays the welcome message")
+                .option(CommandDefinitionOption.builder()
+                        .name("start")
+                        .description("Start")
+                        .type(CommandDefinitionOption.Type.SUB_COMMAND)
+                        .build())
+                .option(CommandDefinitionOption.builder()
+                        .name("help")
+                        .description("Help")
+                        .type(CommandDefinitionOption.Type.SUB_COMMAND)
+                        .build())
+                .build());
+
     }
 }
