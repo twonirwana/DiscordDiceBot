@@ -135,8 +135,8 @@ image:image/minimal.png[image,320]
 === Result Images
 
 The `custom_dice`, `sum_custom_dice` and `custom_parameter` commands have an `result_image` option that can be configured to add an image of the rolled dice.
-There are two options: `none` and `alies_black_gold`.
-The `alies_black_gold` dice set was designed and contributed by https://www.instagram.com/alie_in_beanland/[alieinbeanland].
+There are two options: `none` and `polyhedral_black_and_gold`.
+The `polyhedral_black_and_gold` dice set was designed and contributed by https://www.instagram.com/alie_in_beanland/[alieinbeanland].
 The images will only be shown if the following conditions are met:
 
 * The `answer_format` is set to `full` or `without_expression`
@@ -388,4 +388,4 @@ All functions are case insensitiv.
 
 == Contributors
 
-Special thank for https://www.instagram.com/alie_in_beanland/[alieinbeanland ] design of the dice images.
+Special thank to https://www.instagram.com/alie_in_beanland/[alieinbeanland ] for the design of the dice images.

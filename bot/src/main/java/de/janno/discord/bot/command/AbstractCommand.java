@@ -106,7 +106,7 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
     }
 
     protected ResultImage defaultResultImage() {
-        return ResultImage.alies_black_gold;
+        return ResultImage.polyhedral_black_and_gold;
     }
 
     protected AnswerFormatType defaultAnswerFormat() {

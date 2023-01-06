@@ -88,7 +88,7 @@ public class DiceEvaluatorAdapter {
             log.debug("Roll expression: {}", diceExpression);
             List<Roll> rolls = diceEvaluator.evaluate(diceExpression);
             File diceImage = null;
-            if (resultImage.equals(ResultImage.alies_black_gold)) {
+            if (resultImage.equals(ResultImage.polyhedral_black_and_gold)) {
                 diceImage = IMAGE_RESULT_CREATOR.getImageForRoll(rolls);
             }
             if (rolls.size() == 1) {

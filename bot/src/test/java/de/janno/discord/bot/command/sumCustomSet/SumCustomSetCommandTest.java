@@ -197,7 +197,7 @@ class SumCustomSetCommandTest {
         assertThat(res).isEqualTo(new SumCustomSetConfig(null, ImmutableList.of(
                 new ButtonIdLabelAndDiceExpression("1_button", "Label", "1d6"),
                 new ButtonIdLabelAndDiceExpression("2_button", "2d4", "2d4")
-        ), DiceParserSystem.DICE_EVALUATOR, true, AnswerFormatType.full, ResultImage.alies_black_gold));
+        ), DiceParserSystem.DICE_EVALUATOR, true, AnswerFormatType.full, ResultImage.polyhedral_black_and_gold));
     }
 
     @Test

@@ -76,7 +76,7 @@ public class CustomDiceCommandMockTest {
         CustomDiceCommand underTest = new CustomDiceCommand(messageDataDAO, new DiceParser(), new RandomNumberSupplier(0), 1000);
         underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
 
-        CustomDiceConfig config = new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "1d6")), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full, ResultImage.alies_black_gold);
+        CustomDiceConfig config = new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "1d6")), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full, ResultImage.polyhedral_black_and_gold);
         ButtonEventAdaptorMockFactory<CustomDiceConfig, StateData> factory = new ButtonEventAdaptorMockFactory<>("custom_dice", underTest, config, messageDataDAO, false);
         ButtonEventAdaptorMock buttonEvent = factory.getButtonClickOnLastButtonMessage("1_button");
 
@@ -94,7 +94,7 @@ public class CustomDiceCommandMockTest {
         CustomDiceCommand underTest = new CustomDiceCommand(messageDataDAO, new DiceParser(), new RandomNumberSupplier(0), 1000);
         underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
 
-        CustomDiceConfig config = new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "1d100")), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full, ResultImage.alies_black_gold);
+        CustomDiceConfig config = new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "1d100")), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full, ResultImage.polyhedral_black_and_gold);
         ButtonEventAdaptorMockFactory<CustomDiceConfig, StateData> factory = new ButtonEventAdaptorMockFactory<>("custom_dice", underTest, config, messageDataDAO, false);
         ButtonEventAdaptorMock buttonEvent = factory.getButtonClickOnLastButtonMessage("1_button");
 
