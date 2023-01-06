@@ -117,6 +117,11 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesConfig,
     }
 
     @Override
+    protected boolean supportsResultImages() {
+        return false;
+    }
+
+    @Override
     protected @NonNull List<CommandDefinitionOption> getStartOptions() {
         return ImmutableList.of(CommandDefinitionOption.builder()
                         .name(ACTION_SIDE_OPTION)

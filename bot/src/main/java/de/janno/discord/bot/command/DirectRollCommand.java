@@ -93,7 +93,7 @@ public class DirectRollCommand implements SlashCommand {
             BotMetrics.incrementSlashStartMetricCounter(getCommandId(), diceExpression);
             BotMetrics.incrementAnswerFormatCounter(AnswerFormatType.full, getCommandId());
 
-            RollAnswer answer = diceSystemAdapter.answerRollWithOptionalLabelInExpression(commandParameter, true, DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full, ResultImage.alies_black_gold);
+            RollAnswer answer = diceSystemAdapter.answerRollWithOptionalLabelInExpression(commandParameter, true, DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full, ResultImage.none);
 
             return Flux.merge(Mono.defer(event::acknowledgeAndRemoveSlash),
                             Mono.defer(() -> event.createResultMessageWithEventReference(RollAnswerConverter.toEmbedOrMessageDefinition(answer))

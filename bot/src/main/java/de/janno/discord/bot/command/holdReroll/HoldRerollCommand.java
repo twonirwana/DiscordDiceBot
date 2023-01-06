@@ -117,6 +117,11 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollConfig, HoldRer
     }
 
     @Override
+    protected boolean supportsResultImages() {
+        return false;
+    }
+
+    @Override
     protected @NonNull Optional<RollAnswer> getAnswer(HoldRerollConfig config, State<HoldRerollStateData> state) {
         if (CLEAR_BUTTON_ID.equals(state.getButtonValue())) {
             return Optional.empty();

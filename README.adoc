@@ -101,32 +101,51 @@ If a message sends the answer to another channel, it will not be moved to the en
 === Answer Format
 
 All commands have an `answer_format` option that determines how the answer of a dice roll is shown.
-There are three options: `full`,`without_expression`, `compact` and `minimal`.
+There are the following options: `full`,`without_expression`, `compact` and `minimal`.
 
 ==== Full
 
 `full` is the default and shows result as multiline with avatar of the user, color coding and all details.
+Will show result images, if they are configured.
 
-image:image/full.png[image]
+image:image/full.png[image,320]
 
 ==== Without expression
 
 `without_expression` is the same as `full` but don't show the dice expression in the result.
 This is useful if the expression is very long and it is recommended to add a label.
+Will show result images, if they are configured.
 
-image:image/without_expression.png[image]
+image:image/without_expression.png[image,320]
 
 ==== Compact
 
 `compact` shows the result as single line (if there are multiple expressions in on roll, they will be displayed in multiple lines) and all details.
+Will not show result images, even if they are configured.
 
-image:image/compact.png[image]
+image:image/compact.png[image,320]
 
 ==== Minimal
 
-* `minimal` shows the result as single line with only the expression (or the if available instant of the expression the label) and result, without the details like the result of each die.
+`minimal` shows the result as single line with only the expression (or the if available instant of the expression the label) and result, without the details like the result of each die.
+Will not show result images, even if they are configured.
 
-image:image/minimal.png[image]
+image:image/minimal.png[image,320]
+
+=== Result Images
+
+The `custom_dice`, `sum_custom_dice` and `custom_parameter` commands have an `result_image` option that can be configured to add an image of the rolled dice.
+There are two options: `none` and `alies_black_gold`.
+The `alies_black_gold` dice set was designed and contributed by https://www.instagram.com/alie_in_beanland/[Alie].
+The images will only be shown if the following conditions are met:
+
+* The `answer_format` is set to `full` or `without_expression`
+* All dice musst be one of the following: d4, d6, d10, d8, d12, d20, d100
+* No set of dice with more than 15 dice
+* Not more the 10 sets of dice
+* No multi line result
+
+image:image/blackAndGoldExample.png[image,480]
 
 === Custom Dice Buttons
 
@@ -315,6 +334,7 @@ For example `1d4+3d6` is the appending of roll of 1d4 and 3d6, but `(1d4+3=)d6)`
 The number of dice is limited to 1000 and every number approve 2147483647 result in an error.
 
 === Operators
+
 All operators are case insensitiv.
 
 [width="100%",cols="9%,8%,7%,48%,4%,8%,8%,8%",options="header",]
@@ -343,6 +363,7 @@ All operators are case insensitiv.
 |===
 
 === Functions
+
 All functions are case insensitiv.
 
 [width="100%",cols="6%,22%,14%,58%",options="header",]
@@ -364,3 +385,7 @@ All functions are case insensitiv.
 |concatenate  |`concat(<expression1>, <expression2> ...)` |`concat('Attack: ', 2d20, ' Damage:', 3d6+5=)` | Joining all expressions together to a single result.
 |value |`val(<valueName>, <value>)` |`val('$1',6d6), '$1'=, ('$1'>4)c` | Defining a value (that get evaluated once) that can be used in multiple times in the same expression. The value name must be surrounded by two `'`. For example `val('$1',6d6), '$1'=, ('$1'>4)c` would define the result of `6d6` as `'$1'`. Therefore `'$1'=` would provide the sum and `('$1'>4)c` the count of dice with a value greater than 4 of the same dice throw.
 |===
+
+== Contributors
+
+Special thank for https://www.instagram.com/alie_in_beanland/[Alie] design of the dice images.

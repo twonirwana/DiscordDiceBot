@@ -137,6 +137,11 @@ public class SumDiceSetCommand extends AbstractCommand<Config, SumDiceSetStateDa
     }
 
     @Override
+    protected boolean supportsResultImages() {
+        return false;
+    }
+
+    @Override
     public String getCommandId() {
         return COMMAND_NAME;
     }

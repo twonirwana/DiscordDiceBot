@@ -130,6 +130,10 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTar
 
     }
 
+    @Override
+    protected boolean supportsResultImages() {
+        return false;
+    }
 
     @Override
     protected @NonNull List<CommandDefinitionOption> getStartOptions() {

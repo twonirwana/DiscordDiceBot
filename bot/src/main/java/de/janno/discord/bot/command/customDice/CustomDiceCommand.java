@@ -80,7 +80,7 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
 
     @Override
     protected @NonNull String getCommandDescription() {
-        return "Configure a custom set of dice buttons";
+        return "Configure dice buttons like: 1d6;2d8=;1d10+10=";
     }
 
     @Override

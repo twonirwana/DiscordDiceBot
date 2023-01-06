@@ -85,6 +85,11 @@ public class FateCommand extends AbstractCommand<FateConfig, StateData> {
         return "Configure Fate dice";
     }
 
+    @Override
+    protected boolean supportsResultImages() {
+        return false;
+    }
+
     private String createButtonMessage(FateConfig config) {
         if (ACTION_MODIFIER_OPTION_MODIFIER.equals(config.getType())) {
             return "Click a button to roll four fate dice and add the value of the button";

@@ -309,16 +309,24 @@ class WelcomeCommandTest {
                 .map(ButtonDefinition::getId))
                 .containsExactly("welcomefate",
                         "welcomednd5",
+                        "welcomednd5_image",
                         "welcomenWoD",
-                        "welcomedice_calculator",
                         "welcomeoWoD",
                         "welcomeshadowrun",
-                        "welcomecoin");
+                        "welcomecoin",
+                        "welcomedice_calculator");
         assertThat(res.getComponentRowDefinitions()
                 .stream()
                 .flatMap(s -> s.getButtonDefinitions().stream())
                 .map(ButtonDefinition::getLabel))
-                .containsExactly("Fate", "D&D5e", "nWoD", "Dice Calculator", "oWoD", "Shadowrun", "Coin Toss 🪙");
+                .containsExactly("Fate",
+                        "D&D5e",
+                        "D&D5e with dice images",
+                        "nWoD",
+                        "oWoD",
+                        "Shadowrun",
+                        "Coin Toss 🪙",
+                        "Dice Calculator");
 
     }
 

@@ -16,7 +16,9 @@ import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
 import de.janno.discord.connector.api.message.MessageDefinition;
+import de.janno.discord.connector.api.slash.CommandDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinitionOption;
+import de.janno.discord.connector.api.slash.CommandDefinitionOptionChoice;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import dev.diceroll.parser.NDice;
 import dev.diceroll.parser.ResultTree;
@@ -317,6 +319,71 @@ class CustomDiceCommandTest {
 
     }
 
+    @Test
+    void getCommandDefinition() {
+        CommandDefinition res = underTest.getCommandDefinition();
+
+        assertThat(res).isEqualTo(CommandDefinition.builder()
+                .name("custom_dice")
+                .description("Configure dice buttons like: 1d6;2d8=;1d10+10=")
+                .option(CommandDefinitionOption.builder()
+                        .name("start")
+                        .description("Start")
+                        .type(CommandDefinitionOption.Type.SUB_COMMAND)
+                        .option(CommandDefinitionOption.builder()
+                                .name("buttons")
+                                .description("Define one or more buttons separated by ';'")
+                                .type(CommandDefinitionOption.Type.STRING)
+                                .required(true)
+                                .build())
+                        .option(CommandDefinitionOption.builder()
+                                .name("target_channel")
+                                .description("The channel where the answer will be given")
+                                .type(CommandDefinitionOption.Type.CHANNEL)
+                                .build())
+                        .option(CommandDefinitionOption.builder()
+                                .name("answer_format")
+                                .description("How the answer will be displayed")
+                                .type(CommandDefinitionOption.Type.STRING)
+                                .choice(CommandDefinitionOptionChoice.builder()
+                                        .name("full")
+                                        .value("full")
+                                        .build())
+                                .choice(CommandDefinitionOptionChoice.builder()
+                                        .name("without_expression")
+                                        .value("without_expression")
+                                        .build())
+                                .choice(CommandDefinitionOptionChoice.builder()
+                                        .name("compact")
+                                        .value("compact")
+                                        .build())
+                                .choice(CommandDefinitionOptionChoice.builder()
+                                        .name("minimal")
+                                        .value("minimal")
+                                        .build())
+                                .build())
+                          .option(CommandDefinitionOption.builder()
+                                  .name("result_image")
+                                  .description("If and in what style the dice throw should be shown as image")
+                                  .type(CommandDefinitionOption.Type.STRING)
+                                  .choice(CommandDefinitionOptionChoice.builder()
+                                          .name("none")
+                                          .value("none")
+                                          .build())
+                                  .choice(CommandDefinitionOptionChoice.builder()
+                                          .name("alies_black_gold")
+                                          .value("alies_black_gold")
+                                          .build())
+                                  .build())
+                        .build())
+                .option(CommandDefinitionOption.builder()
+                        .name("help")
+                        .description("Help")
+                        .type(CommandDefinitionOption.Type.SUB_COMMAND)
+                        .build())
+                .build());
+    }
+
 
     @Test
     void checkPersistence() {
@@ -390,6 +457,32 @@ class CustomDiceCommandTest {
     }
 
     @Test
+    void deserialization_3() {
+        UUID configUUID = UUID.randomUUID();
+        MessageDataDTO savedData = new MessageDataDTO(configUUID, 1L, 1660644934298L, 1660644934298L, "custom_dice", "CustomDiceConfig", """
+                ---
+                answerTargetChannelId: 123
+                buttonIdLabelAndDiceExpressions:
+                - buttonId: "1_button"
+                  label: "Label"
+                  diceExpression: "+1d6"
+                - buttonId: "2_button"
+                  label: "+2d4"
+                  diceExpression: "+2d4"
+                diceParserSystem: "DICE_EVALUATOR"
+                answerFormatType: compact
+                """, "None", null);
+
+
+        ConfigAndState<CustomDiceConfig, StateData> configAndState = underTest.deserializeAndUpdateState(savedData, "3");
+        assertThat(configAndState.getConfig()).isEqualTo(new CustomDiceConfig(123L, ImmutableList.of(
+                new ButtonIdLabelAndDiceExpression("1_button", "Label", "+1d6"),
+                new ButtonIdLabelAndDiceExpression("2_button", "+2d4", "+2d4")), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.compact, ResultImage.none));
+        assertThat(configAndState.getConfigUUID()).isEqualTo(configUUID);
+        assertThat(configAndState.getState().getData()).isEqualTo(StateData.empty());
+    }
+
+    @Test
     void deserialization() {
         UUID configUUID = UUID.randomUUID();
         MessageDataDTO savedData = new MessageDataDTO(configUUID, 1L, 1660644934298L, 1660644934298L, "custom_dice", "CustomDiceConfig", """
@@ -404,6 +497,7 @@ class CustomDiceCommandTest {
                   diceExpression: "+2d4"
                 diceParserSystem: "DICE_EVALUATOR"
                 answerFormatType: compact
+                resultImage: none
                 """, "None", null);
 
 
