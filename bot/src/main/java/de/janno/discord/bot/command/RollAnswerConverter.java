@@ -3,15 +3,23 @@ package de.janno.discord.bot.command;
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
 
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class RollAnswerConverter {
+    private static final Set<AnswerFormatType> EMBED_ANSWER_TYPES = ImmutableSet.of(AnswerFormatType.full, AnswerFormatType.without_expression);
+
+    private static EmbedOrMessageDefinition.Type getMessageType(AnswerFormatType answerFormatType) {
+        return EMBED_ANSWER_TYPES.contains(answerFormatType) ? EmbedOrMessageDefinition.Type.EMBED : EmbedOrMessageDefinition.Type.MESSAGE;
+    }
+
     static public EmbedOrMessageDefinition toEmbedOrMessageDefinition(RollAnswer rollAnswer) {
+        final EmbedOrMessageDefinition.Type type = getMessageType(rollAnswer.getAnswerFormatType());
         if (rollAnswer.getErrorMessage() != null) {
-            EmbedOrMessageDefinition.Type type = rollAnswer.getAnswerFormatType() == AnswerFormatType.full ? EmbedOrMessageDefinition.Type.EMBED : EmbedOrMessageDefinition.Type.MESSAGE;
             return EmbedOrMessageDefinition.builder()
                     .title("Error in `%s`".formatted(rollAnswer.getExpression()))
                     .descriptionOrContent(rollAnswer.getErrorMessage())
@@ -31,20 +39,22 @@ public class RollAnswerConverter {
                                             r.getRollDetails(),
                                             false))
                                     .collect(ImmutableList.toImmutableList()))
-                            .type(EmbedOrMessageDefinition.Type.EMBED)
+                            .type(type)
                             .build();
 
                 } else {
+                    final String diceDetailsString = rollAnswer.getFile() != null ? null : rollAnswer.getRollDetails();
                     final String description;
                     if (rollAnswer.getExpressionLabel() != null) {
-                        description = Joiner.on(": ").skipNulls().join(rollAnswer.getExpression(), rollAnswer.getRollDetails());
+                        description = Joiner.on(": ").skipNulls().join(rollAnswer.getExpression(), diceDetailsString);
                     } else {
-                        description = Optional.ofNullable(rollAnswer.getRollDetails()).orElse("");
+                        description = Optional.ofNullable(diceDetailsString).orElse("");
                     }
                     yield EmbedOrMessageDefinition.builder()
                             .title("%s ⇒ %s".formatted(Optional.ofNullable(rollAnswer.getExpressionLabel()).orElse(rollAnswer.getExpression()), rollAnswer.getResult()))
                             .descriptionOrContent(description)
-                            .type(EmbedOrMessageDefinition.Type.EMBED)
+                            .file(rollAnswer.getFile())
+                            .type(type)
                             .build();
                 }
             }
@@ -59,15 +69,17 @@ public class RollAnswerConverter {
                                             r.getRollDetails(),
                                             false))
                                     .collect(ImmutableList.toImmutableList()))
-                            .type(EmbedOrMessageDefinition.Type.EMBED)
+                            .type(type)
                             .build();
 
                 } else {
-                    final String description = Optional.ofNullable(rollAnswer.getRollDetails()).orElse("");
+                    final String diceDetailsString = rollAnswer.getFile() != null ? null : rollAnswer.getRollDetails();
+                    final String description = Optional.ofNullable(diceDetailsString).orElse("");
                     yield EmbedOrMessageDefinition.builder()
                             .title("%s ⇒ %s".formatted(Optional.ofNullable(rollAnswer.getExpressionLabel()).orElse("Roll"), rollAnswer.getResult()))
                             .descriptionOrContent(description)
-                            .type(EmbedOrMessageDefinition.Type.EMBED)
+                            .type(type)
+                            .file(rollAnswer.getFile())
                             .build();
                 }
             }
@@ -99,7 +111,7 @@ public class RollAnswerConverter {
 
                 yield EmbedOrMessageDefinition.builder()
                         .descriptionOrContent(description)
-                        .type(EmbedOrMessageDefinition.Type.MESSAGE)
+                        .type(type)
                         .build();
             }
             case minimal -> {
@@ -118,7 +130,7 @@ public class RollAnswerConverter {
 
                 yield EmbedOrMessageDefinition.builder()
                         .descriptionOrContent(description)
-                        .type(EmbedOrMessageDefinition.Type.MESSAGE)
+                        .type(type)
                         .build();
             }
         };

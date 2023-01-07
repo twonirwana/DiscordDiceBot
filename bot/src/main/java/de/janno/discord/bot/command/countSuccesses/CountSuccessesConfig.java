@@ -3,6 +3,7 @@ package de.janno.discord.bot.command.countSuccesses;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableSet;
+import de.janno.discord.bot.ResultImage;
 import de.janno.discord.bot.command.AnswerFormatType;
 import de.janno.discord.bot.command.Config;
 import lombok.EqualsAndHashCode;
@@ -39,8 +40,9 @@ public class CountSuccessesConfig extends Config {
                                 @JsonProperty("minDiceCount") Integer minDiceCount,
                                 @JsonProperty("rerollSet") Set<Integer> rerollSet,
                                 @JsonProperty("botchSet") Set<Integer> botchSet,
-                                @JsonProperty("answerFormatType") AnswerFormatType answerFormatType) {
-        super(answerTargetChannelId, answerFormatType);
+                                @JsonProperty("answerFormatType") AnswerFormatType answerFormatType,
+                                @JsonProperty("resultImage") ResultImage resultImage) {
+        super(answerTargetChannelId, answerFormatType, resultImage);
         this.diceSides = diceSides;
         this.target = target;
         this.glitchOption = glitchOption;

@@ -4,6 +4,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import de.janno.discord.bot.ResultImage;
 import de.janno.discord.bot.command.*;
 import de.janno.discord.bot.dice.DiceUtils;
 import de.janno.discord.bot.persistance.Mapper;
@@ -21,7 +22,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -113,6 +117,11 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollConfig, HoldRer
     }
 
     @Override
+    protected boolean supportsResultImages() {
+        return false;
+    }
+
+    @Override
     protected @NonNull Optional<RollAnswer> getAnswer(HoldRerollConfig config, State<HoldRerollStateData> state) {
         if (CLEAR_BUTTON_ID.equals(state.getButtonValue())) {
             return Optional.empty();
@@ -179,7 +188,15 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollConfig, HoldRer
         Set<Integer> rerollSet = CommandUtils.getSetFromCommandOptions(options, REROLL_SET_ID, ",");
         Set<Integer> successSet = CommandUtils.getSetFromCommandOptions(options, SUCCESS_SET_ID, ",");
         Set<Integer> failureSet = CommandUtils.getSetFromCommandOptions(options, FAILURE_SET_ID, ",");
-        return new HoldRerollConfig(getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null), sideValue, rerollSet, successSet, failureSet, getAnswerTypeFromStartCommandOption(options));
+        ResultImage resultImage = getResultImageOptionFromStartCommandOption(options);
+
+        return new HoldRerollConfig(getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null),
+                sideValue,
+                rerollSet,
+                successSet,
+                failureSet,
+                getAnswerTypeFromStartCommandOption(options),
+                resultImage);
     }
 
     @Override

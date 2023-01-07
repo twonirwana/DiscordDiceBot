@@ -31,7 +31,7 @@ class DirectRollCommandTest {
     @BeforeEach
     void setup() {
         diceMock = mock(Dice.class);
-        underTest = new DirectRollCommand((minExcl, maxIncl) -> 0, diceMock);
+        underTest = new DirectRollCommand((minExcl, maxIncl) -> 1, diceMock);
     }
 
 
@@ -67,7 +67,7 @@ class DirectRollCommandTest {
         verify(slashEventAdaptor, never()).createButtonMessage(any());
         verify(slashEventAdaptor, never()).deleteMessageById(anyLong());
         verify(slashEventAdaptor, never()).replyEmbed(any(), anyBoolean());
-        verify(slashEventAdaptor).createResultMessageWithEventReference(ArgumentMatchers.eq(new EmbedOrMessageDefinition("Test Label ⇒ 0", "1d6: [0]", ImmutableList.of(), EmbedOrMessageDefinition.Type.EMBED)));
+        verify(slashEventAdaptor).createResultMessageWithEventReference(ArgumentMatchers.eq(new EmbedOrMessageDefinition("Test Label ⇒ 1", "1d6: [1]", ImmutableList.of(), null, EmbedOrMessageDefinition.Type.EMBED)));
 
         verify(slashEventAdaptor, never()).getChannelId();
     }

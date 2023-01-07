@@ -85,6 +85,11 @@ public class FateCommand extends AbstractCommand<FateConfig, StateData> {
         return "Configure Fate dice";
     }
 
+    @Override
+    protected boolean supportsResultImages() {
+        return false;
+    }
+
     private String createButtonMessage(FateConfig config) {
         if (ACTION_MODIFIER_OPTION_MODIFIER.equals(config.getType())) {
             return "Click a button to roll four fate dice and add the value of the button";
@@ -125,7 +130,9 @@ public class FateCommand extends AbstractCommand<FateConfig, StateData> {
     @Override
     protected @NonNull FateConfig getConfigFromStartOptions(@NonNull CommandInteractionOption options) {
         return new FateConfig(getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null),
-                options.getStringSubOptionWithName(ACTION_MODIFIER_OPTION).orElse(ACTION_MODIFIER_OPTION_SIMPLE), getAnswerTypeFromStartCommandOption(options));
+                options.getStringSubOptionWithName(ACTION_MODIFIER_OPTION).orElse(ACTION_MODIFIER_OPTION_SIMPLE),
+                getAnswerTypeFromStartCommandOption(options),
+                getResultImageOptionFromStartCommandOption(options));
     }
 
     @Override

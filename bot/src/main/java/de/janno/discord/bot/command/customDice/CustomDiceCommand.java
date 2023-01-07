@@ -4,6 +4,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import de.janno.discord.bot.ResultImage;
 import de.janno.discord.bot.command.*;
 import de.janno.discord.bot.dice.*;
 import de.janno.discord.bot.persistance.Mapper;
@@ -79,7 +80,7 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
 
     @Override
     protected @NonNull String getCommandDescription() {
-        return "Configure a custom set of dice buttons";
+        return "Configure dice buttons like: 1d6;2d8=;1d10+10=";
     }
 
     @Override
@@ -125,13 +126,17 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
     }
 
     protected @NonNull CustomDiceConfig getConfigFromStartOptions(@NonNull CommandInteractionOption options) {
-        return getConfigOptionStringList(getButtonsFromCommandOption(options), getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null), getAnswerTypeFromStartCommandOption(options));
+        return getConfigOptionStringList(getButtonsFromCommandOption(options),
+                getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null),
+                getAnswerTypeFromStartCommandOption(options),
+                getResultImageOptionFromStartCommandOption(options));
     }
 
     @VisibleForTesting
     CustomDiceConfig getConfigOptionStringList(List<ButtonIdAndExpression> startOptions,
                                                Long channelId,
-                                               AnswerFormatType answerFormatType) {
+                                               AnswerFormatType answerFormatType,
+                                               ResultImage resultImage) {
         return new CustomDiceConfig(channelId, startOptions.stream()
                 .filter(be -> !be.getExpression().contains(BottomCustomIdUtils.CUSTOM_ID_DELIMITER))
                 .filter(be -> !be.getExpression().contains(LABEL_DELIMITER) || be.getExpression().split(LABEL_DELIMITER).length == 2)
@@ -149,7 +154,9 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
                 .distinct()
                 .limit(25)
                 .collect(Collectors.toList()),
-                DiceParserSystem.DICE_EVALUATOR, answerFormatType);
+                DiceParserSystem.DICE_EVALUATOR,
+                answerFormatType,
+                resultImage);
     }
 
     @Override
@@ -164,7 +171,12 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
         }
         //add the label only if it is different from the expression
         final String label = selectedButton.get().getDiceExpression().equals(selectedButton.get().getLabel()) ? null : selectedButton.get().getLabel();
-        return Optional.of(diceSystemAdapter.answerRollWithGivenLabel(selectedButton.get().getDiceExpression(), label, false, config.getDiceParserSystem(), config.getAnswerFormatType()));
+        return Optional.of(diceSystemAdapter.answerRollWithGivenLabel(selectedButton.get().getDiceExpression(),
+                label,
+                false,
+                config.getDiceParserSystem(),
+                config.getAnswerFormatType(),
+                config.getResultImage()));
     }
 
     @Override

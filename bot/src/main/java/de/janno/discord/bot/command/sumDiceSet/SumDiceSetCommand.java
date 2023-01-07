@@ -137,6 +137,11 @@ public class SumDiceSetCommand extends AbstractCommand<Config, SumDiceSetStateDa
     }
 
     @Override
+    protected boolean supportsResultImages() {
+        return false;
+    }
+
+    @Override
     public String getCommandId() {
         return COMMAND_NAME;
     }
@@ -274,7 +279,10 @@ public class SumDiceSetCommand extends AbstractCommand<Config, SumDiceSetStateDa
 
     @Override
     protected @NonNull Config getConfigFromStartOptions(@NonNull CommandInteractionOption options) {
-        return new Config(getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null), getAnswerTypeFromStartCommandOption(options));
+        return new Config(getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null),
+                getAnswerTypeFromStartCommandOption(options),
+                getResultImageOptionFromStartCommandOption(options)
+        );
     }
 
     private List<ComponentRowDefinition> createButtonLayout() {

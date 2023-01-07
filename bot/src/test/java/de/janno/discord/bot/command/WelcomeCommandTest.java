@@ -1,10 +1,13 @@
 package de.janno.discord.bot.command;
 
+import de.janno.discord.bot.ResultImage;
 import de.janno.discord.bot.persistance.MessageDataDAO;
 import de.janno.discord.bot.persistance.MessageDataDTO;
 import de.janno.discord.connector.api.ButtonEventAdaptor;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.MessageDefinition;
+import de.janno.discord.connector.api.slash.CommandDefinition;
+import de.janno.discord.connector.api.slash.CommandDefinitionOption;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -306,16 +309,24 @@ class WelcomeCommandTest {
                 .map(ButtonDefinition::getId))
                 .containsExactly("welcomefate",
                         "welcomednd5",
+                        "welcomednd5_image",
                         "welcomenWoD",
-                        "welcomedice_calculator",
                         "welcomeoWoD",
                         "welcomeshadowrun",
-                        "welcomecoin");
+                        "welcomecoin",
+                        "welcomedice_calculator");
         assertThat(res.getComponentRowDefinitions()
                 .stream()
                 .flatMap(s -> s.getButtonDefinitions().stream())
                 .map(ButtonDefinition::getLabel))
-                .containsExactly("Fate", "D&D5e", "nWoD", "Dice Calculator", "oWoD", "Shadowrun", "Coin Toss 🪙");
+                .containsExactly("Fate",
+                        "D&D5e",
+                        "D&D5e with dice images",
+                        "nWoD",
+                        "oWoD",
+                        "Shadowrun",
+                        "Coin Toss 🪙",
+                        "Dice Calculator");
 
     }
 
@@ -330,7 +341,7 @@ class WelcomeCommandTest {
             "dice_calculator"
     })
     void createMessageDataForNewMessage(String buttonValue) {
-        Optional<MessageDataDTO> res = underTest.createMessageDataForNewMessage(UUID.randomUUID(), 1L, 1L, 2L, new Config(null, AnswerFormatType.full), new State<>(buttonValue, StateData.empty()));
+        Optional<MessageDataDTO> res = underTest.createMessageDataForNewMessage(UUID.randomUUID(), 1L, 1L, 2L, new Config(null, AnswerFormatType.full, ResultImage.none), new State<>(buttonValue, StateData.empty()));
         assertThat(res).isPresent();
     }
 
@@ -372,5 +383,27 @@ class WelcomeCommandTest {
     @Test
     void getName() {
         assertThat(underTest.getCommandId()).isEqualTo("welcome");
+    }
+
+
+    @Test
+    void getCommandDefinition() {
+        CommandDefinition res = underTest.getCommandDefinition();
+
+        assertThat(res).isEqualTo(CommandDefinition.builder()
+                .name("welcome")
+                .description("Displays the welcome message")
+                .option(CommandDefinitionOption.builder()
+                        .name("start")
+                        .description("Start")
+                        .type(CommandDefinitionOption.Type.SUB_COMMAND)
+                        .build())
+                .option(CommandDefinitionOption.builder()
+                        .name("help")
+                        .description("Help")
+                        .type(CommandDefinitionOption.Type.SUB_COMMAND)
+                        .build())
+                .build());
+
     }
 }

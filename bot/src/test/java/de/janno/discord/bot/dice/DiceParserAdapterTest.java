@@ -104,21 +104,21 @@ class DiceParserAdapterTest {
 
     static Stream<Arguments> generateBooleanExpressionRolls() {
         return Stream.of(
-                Arguments.of("1d6>3?t:f", null, new EmbedOrMessageDefinition("1d6 ⇒ f", "[3] = 3 ⟹ f", ImmutableList.of(), EmbedOrMessageDefinition.Type.EMBED)),
-                Arguments.of("1d6<3?t:f", null, new EmbedOrMessageDefinition("1d6 ⇒ f", "[3] = 3 ⟹ f", ImmutableList.of(), EmbedOrMessageDefinition.Type.EMBED)),
-                Arguments.of("1d6=3?t:f", null, new EmbedOrMessageDefinition("1d6 ⇒ t", "[3] = 3=3 ⟹ t", ImmutableList.of(), EmbedOrMessageDefinition.Type.EMBED)),
-                Arguments.of("1d6<=3?t:f", null, new EmbedOrMessageDefinition("1d6 ⇒ t", "[3] = 3≤3 ⟹ t", ImmutableList.of(), EmbedOrMessageDefinition.Type.EMBED)),
-                Arguments.of("1d6>=3?t:f", null, new EmbedOrMessageDefinition("1d6 ⇒ t", "[3] = 3≥3 ⟹ t", ImmutableList.of(), EmbedOrMessageDefinition.Type.EMBED)),
-                Arguments.of("1d6<>3?t:f", null, new EmbedOrMessageDefinition("1d6 ⇒ f", "[3] = 3 ⟹ f", ImmutableList.of(), EmbedOrMessageDefinition.Type.EMBED)),
+                Arguments.of("1d6>3?t:f", null, new EmbedOrMessageDefinition("1d6 ⇒ f", "[3] = 3 ⟹ f", ImmutableList.of(), null, EmbedOrMessageDefinition.Type.EMBED)),
+                Arguments.of("1d6<3?t:f", null, new EmbedOrMessageDefinition("1d6 ⇒ f", "[3] = 3 ⟹ f", ImmutableList.of(), null, EmbedOrMessageDefinition.Type.EMBED)),
+                Arguments.of("1d6=3?t:f", null, new EmbedOrMessageDefinition("1d6 ⇒ t", "[3] = 3=3 ⟹ t", ImmutableList.of(), null, EmbedOrMessageDefinition.Type.EMBED)),
+                Arguments.of("1d6<=3?t:f", null, new EmbedOrMessageDefinition("1d6 ⇒ t", "[3] = 3≤3 ⟹ t", ImmutableList.of(), null, EmbedOrMessageDefinition.Type.EMBED)),
+                Arguments.of("1d6>=3?t:f", null, new EmbedOrMessageDefinition("1d6 ⇒ t", "[3] = 3≥3 ⟹ t", ImmutableList.of(), null, EmbedOrMessageDefinition.Type.EMBED)),
+                Arguments.of("1d6<>3?t:f", null, new EmbedOrMessageDefinition("1d6 ⇒ f", "[3] = 3 ⟹ f", ImmutableList.of(), null, EmbedOrMessageDefinition.Type.EMBED)),
 
-                Arguments.of("1d6>3?t:f", "label", new EmbedOrMessageDefinition("label ⇒ f", "1d6: [3] = 3 ⟹ f", ImmutableList.of(), EmbedOrMessageDefinition.Type.EMBED)),
-                Arguments.of("1d6<3?t:f", "label", new EmbedOrMessageDefinition("label ⇒ f", "1d6: [3] = 3 ⟹ f", ImmutableList.of(), EmbedOrMessageDefinition.Type.EMBED)),
-                Arguments.of("1d6=3?t:f", "label", new EmbedOrMessageDefinition("label ⇒ t", "1d6: [3] = 3=3 ⟹ t", ImmutableList.of(), EmbedOrMessageDefinition.Type.EMBED)),
-                Arguments.of("1d6<=3?t:f", "label", new EmbedOrMessageDefinition("label ⇒ t", "1d6: [3] = 3≤3 ⟹ t", ImmutableList.of(), EmbedOrMessageDefinition.Type.EMBED)),
-                Arguments.of("1d6>=3?t:f", "label", new EmbedOrMessageDefinition("label ⇒ t", "1d6: [3] = 3≥3 ⟹ t", ImmutableList.of(), EmbedOrMessageDefinition.Type.EMBED)),
-                Arguments.of("1d6<>3?t:f", "label", new EmbedOrMessageDefinition("label ⇒ f", "1d6: [3] = 3 ⟹ f", ImmutableList.of(), EmbedOrMessageDefinition.Type.EMBED)),
+                Arguments.of("1d6>3?t:f", "label", new EmbedOrMessageDefinition("label ⇒ f", "1d6: [3] = 3 ⟹ f", ImmutableList.of(), null, EmbedOrMessageDefinition.Type.EMBED)),
+                Arguments.of("1d6<3?t:f", "label", new EmbedOrMessageDefinition("label ⇒ f", "1d6: [3] = 3 ⟹ f", ImmutableList.of(), null, EmbedOrMessageDefinition.Type.EMBED)),
+                Arguments.of("1d6=3?t:f", "label", new EmbedOrMessageDefinition("label ⇒ t", "1d6: [3] = 3=3 ⟹ t", ImmutableList.of(), null, EmbedOrMessageDefinition.Type.EMBED)),
+                Arguments.of("1d6<=3?t:f", "label", new EmbedOrMessageDefinition("label ⇒ t", "1d6: [3] = 3≤3 ⟹ t", ImmutableList.of(), null, EmbedOrMessageDefinition.Type.EMBED)),
+                Arguments.of("1d6>=3?t:f", "label", new EmbedOrMessageDefinition("label ⇒ t", "1d6: [3] = 3≥3 ⟹ t", ImmutableList.of(), null, EmbedOrMessageDefinition.Type.EMBED)),
+                Arguments.of("1d6<>3?t:f", "label", new EmbedOrMessageDefinition("label ⇒ f", "1d6: [3] = 3 ⟹ f", ImmutableList.of(), null, EmbedOrMessageDefinition.Type.EMBED)),
 
-                Arguments.of("1d6<=1?a<2?b>3?c>=4?d==5?e<>6?f:g", "label", new EmbedOrMessageDefinition("label ⇒ f", "1d6: [3] = 3≠6 ⟹ f", ImmutableList.of(), EmbedOrMessageDefinition.Type.EMBED))
+                Arguments.of("1d6<=1?a<2?b>3?c>=4?d==5?e<>6?f:g", "label", new EmbedOrMessageDefinition("label ⇒ f", "1d6: [3] = 3≠6 ⟹ f", ImmutableList.of(), null, EmbedOrMessageDefinition.Type.EMBED))
         );
     }
 

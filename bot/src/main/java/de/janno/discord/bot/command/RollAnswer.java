@@ -6,6 +6,7 @@ import lombok.NonNull;
 import lombok.Value;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.File;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,6 +28,8 @@ public class RollAnswer {
     String errorMessage;
     @Nullable
     List<RollResults> multiRollResults;
+    @Nullable
+    File file;
 
     public String toShortString() {
         String fieldStringList = Optional.ofNullable(multiRollResults)

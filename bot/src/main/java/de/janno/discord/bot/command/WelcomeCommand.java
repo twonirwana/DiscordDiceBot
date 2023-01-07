@@ -3,6 +3,7 @@ package de.janno.discord.bot.command;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import de.janno.discord.bot.BotMetrics;
+import de.janno.discord.bot.ResultImage;
 import de.janno.discord.bot.command.countSuccesses.CountSuccessesCommand;
 import de.janno.discord.bot.command.countSuccesses.CountSuccessesConfig;
 import de.janno.discord.bot.command.customDice.CustomDiceCommand;
@@ -27,27 +28,34 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @Slf4j
 public class WelcomeCommand extends AbstractCommand<Config, StateData> {
 
-    private static final String COMMAND_NAME = "welcome";
-    private static final String FATE_BUTTON_ID = "fate";
-    private static final String DND5_BUTTON_ID = "dnd5";
-    private static final String NWOD_BUTTON_ID = "nWoD";
-    private static final String OWOD_BUTTON_ID = "oWoD";
-    private static final String SHADOWRUN_BUTTON_ID = "shadowrun";
-    private static final String COIN_BUTTON_ID = "coin";
-    private static final String DICE_CALCULATOR_ID = "dice_calculator";
-    private final static FateConfig FATE_CONFIG = new FateConfig(null, "with_modifier", AnswerFormatType.full);
-    private final static CountSuccessesConfig NWOD_CONFIG = new CountSuccessesConfig(null, 10, 8, "no_glitch", 15, 1, Set.of(10), Set.of(), AnswerFormatType.full);
-    private final static CountSuccessesConfig SHADOWRUN_CONFIG = new CountSuccessesConfig(null, 6, 5, "half_dice_one", 20, 1, Set.of(), Set.of(), AnswerFormatType.full);
-    private final static PoolTargetConfig OWOD_CONFIG = new PoolTargetConfig(null, 10, 15, ImmutableSet.of(10), ImmutableSet.of(1), "ask", AnswerFormatType.full);
-    private final static CustomDiceConfig COIN_CONFIG = new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Coin Toss \uD83E\uDE99", "1d[Head \uD83D\uDE00/Tail \uD83E\uDD85]")), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.without_expression);
+    public static final String COMMAND_NAME = "welcome";
+    private final static FateConfig FATE_CONFIG = new FateConfig(null, "with_modifier", AnswerFormatType.full, ResultImage.none);
+    private final static CountSuccessesConfig NWOD_CONFIG = new CountSuccessesConfig(null, 10, 8, "no_glitch", 15, 1, Set.of(10), Set.of(), AnswerFormatType.full, ResultImage.none);
+    private final static CountSuccessesConfig SHADOWRUN_CONFIG = new CountSuccessesConfig(null, 6, 5, "half_dice_one", 20, 1, Set.of(), Set.of(), AnswerFormatType.full, ResultImage.none);
+    private final static PoolTargetConfig OWOD_CONFIG = new PoolTargetConfig(null, 10, 15, ImmutableSet.of(10), ImmutableSet.of(1), "ask", AnswerFormatType.full, ResultImage.none);
+    private final static CustomDiceConfig COIN_CONFIG = new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Coin Toss \uD83E\uDE99", "1d[Head \uD83D\uDE00/Tail \uD83E\uDD85]")), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.without_expression, ResultImage.none);
+    private final static CustomDiceConfig DND5_CONFIG_WITH_IMAGE = new CustomDiceConfig(null, ImmutableList.of(
+            new ButtonIdLabelAndDiceExpression("1_button", "D4", "1d4"),
+            new ButtonIdLabelAndDiceExpression("2_button", "D6", "1d6"),
+            new ButtonIdLabelAndDiceExpression("3_button", "D8", "1d8"),
+            new ButtonIdLabelAndDiceExpression("4_button", "D10", "1d10"),
+            new ButtonIdLabelAndDiceExpression("5_button", "D12", "1d12"),
+            new ButtonIdLabelAndDiceExpression("6_button", "D20", "1d20"),
+            new ButtonIdLabelAndDiceExpression("7_button", "D100", "1d100"),
+            new ButtonIdLabelAndDiceExpression("8_button", "D20 Advantage", "2d20k1="),
+            new ButtonIdLabelAndDiceExpression("9_button", "D20 Disadvantage", "2d20L1="),
+            new ButtonIdLabelAndDiceExpression("10_button", "2D4", "2d4="),
+            new ButtonIdLabelAndDiceExpression("11_button", "2D6", "2d6="),
+            new ButtonIdLabelAndDiceExpression("12_button", "2D8", "2d8="),
+            new ButtonIdLabelAndDiceExpression("13_button", "2D10", "2d10="),
+            new ButtonIdLabelAndDiceExpression("14_button", "2D12", "2d12="),
+            new ButtonIdLabelAndDiceExpression("15_button", "2D20", "2d20=")
+    ), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.without_expression, ResultImage.polyhedral_black_and_gold);
     private final static CustomDiceConfig DND5_CONFIG = new CustomDiceConfig(null, ImmutableList.of(
             new ButtonIdLabelAndDiceExpression("1_button", "D4", "1d4"),
             new ButtonIdLabelAndDiceExpression("2_button", "D6", "1d6"),
@@ -64,13 +72,12 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
             new ButtonIdLabelAndDiceExpression("13_button", "2D10", "2d10="),
             new ButtonIdLabelAndDiceExpression("14_button", "2D12", "2d12="),
             new ButtonIdLabelAndDiceExpression("15_button", "2D20", "2d20=")
-    ), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full);
-
+    ), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full, ResultImage.none);
     private final SumCustomSetConfig DICE_CALCULATOR_CONFIG = new SumCustomSetConfig(null, List.of(
             new ButtonIdLabelAndDiceExpression("1_button", "7", "7"), new ButtonIdLabelAndDiceExpression("2_button", "8", "8"), new ButtonIdLabelAndDiceExpression("3_button", "9", "9"), new ButtonIdLabelAndDiceExpression("5_button", "+", "+"), new ButtonIdLabelAndDiceExpression("6_button", "-", "-"),
             new ButtonIdLabelAndDiceExpression("7_button", "4", "4"), new ButtonIdLabelAndDiceExpression("8_button", "5", "5"), new ButtonIdLabelAndDiceExpression("9_button", "6", "6"), new ButtonIdLabelAndDiceExpression("10_button", "d", "d"), new ButtonIdLabelAndDiceExpression("11_button", "k", "k"),
             new ButtonIdLabelAndDiceExpression("12_button", "1", "1"), new ButtonIdLabelAndDiceExpression("13_button", "2", "2"), new ButtonIdLabelAndDiceExpression("14_button", "3", "3"), new ButtonIdLabelAndDiceExpression("15_button", "0", "0"), new ButtonIdLabelAndDiceExpression("16_button", "l", "l")
-    ), DiceParserSystem.DICE_EVALUATOR, true, AnswerFormatType.full);
+    ), DiceParserSystem.DICE_EVALUATOR, true, AnswerFormatType.full, ResultImage.none);
 
     public WelcomeCommand(MessageDataDAO messageDataDAO) {
         super(messageDataDAO);
@@ -81,7 +88,22 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
                                                                                                  long messageId,
                                                                                                  @NonNull String buttonValue,
                                                                                                  @NonNull String invokingUserName) {
-        return Optional.of(new ConfigAndState<>(UUID.randomUUID(), new Config(null, AnswerFormatType.full), new State<>(buttonValue, StateData.empty())));
+        return Optional.of(new ConfigAndState<>(UUID.randomUUID(), new Config(null, AnswerFormatType.full, ResultImage.none), new State<>(buttonValue, StateData.empty())));
+    }
+
+    @Override
+    protected boolean supportsResultImages() {
+        return false;
+    }
+
+    @Override
+    protected boolean supportsAnswerFormat() {
+        return false;
+    }
+
+    @Override
+    protected boolean supportsTargetChannel() {
+        return false;
     }
 
     @Override
@@ -94,22 +116,26 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
         if (state == null) {
             return Optional.empty();
         }
-        return switch (state.getButtonValue()) {
-            case FATE_BUTTON_ID ->
+        if (!ButtonIds.isValid(state.getButtonValue())) {
+            return Optional.empty();
+        }
+        return switch (ButtonIds.valueOf(state.getButtonValue())) {
+            case fate ->
                     new FateCommand(messageDataDAO).createMessageDataForNewMessage(configUUID, guildId, channelId, messageId, FATE_CONFIG, null);
-            case DND5_BUTTON_ID ->
+            case dnd5 ->
                     new CustomDiceCommand(messageDataDAO).createMessageDataForNewMessage(configUUID, guildId, channelId, messageId, DND5_CONFIG, null);
-            case NWOD_BUTTON_ID ->
+            case dnd5_image ->
+                    new CustomDiceCommand(messageDataDAO).createMessageDataForNewMessage(configUUID, guildId, channelId, messageId, DND5_CONFIG_WITH_IMAGE, null);
+            case nWoD ->
                     new CountSuccessesCommand(messageDataDAO).createMessageDataForNewMessage(configUUID, guildId, channelId, messageId, NWOD_CONFIG, null);
-            case OWOD_BUTTON_ID ->
+            case oWoD ->
                     new PoolTargetCommand(messageDataDAO).createMessageDataForNewMessage(configUUID, guildId, channelId, messageId, OWOD_CONFIG, null);
-            case SHADOWRUN_BUTTON_ID ->
+            case shadowrun ->
                     new CountSuccessesCommand(messageDataDAO).createMessageDataForNewMessage(configUUID, guildId, channelId, messageId, SHADOWRUN_CONFIG, null);
-            case COIN_BUTTON_ID ->
+            case coin ->
                     new CustomDiceCommand(messageDataDAO).createMessageDataForNewMessage(configUUID, guildId, channelId, messageId, COIN_CONFIG, null);
-            case DICE_CALCULATOR_ID ->
+            case dice_calculator ->
                     new SumCustomSetCommand(messageDataDAO).createMessageDataForNewMessage(configUUID, guildId, channelId, messageId, DICE_CALCULATOR_CONFIG, null);
-            default -> Optional.empty();
         };
     }
 
@@ -134,24 +160,25 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
     @Override
     protected @NonNull Optional<MessageDefinition> createNewButtonMessageWithState(Config config, State<StateData> state) {
         BotMetrics.incrementButtonMetricCounter(COMMAND_NAME, "[" + state.getButtonValue() + "]");
-        return switch (state.getButtonValue()) {
-            case FATE_BUTTON_ID -> Optional.of(new FateCommand(messageDataDAO).createNewButtonMessage(FATE_CONFIG));
-            case DND5_BUTTON_ID ->
-                    Optional.of(new CustomDiceCommand(messageDataDAO).createNewButtonMessage(DND5_CONFIG));
-            case NWOD_BUTTON_ID ->
-                    Optional.of(new CountSuccessesCommand(messageDataDAO).createNewButtonMessage(NWOD_CONFIG));
-            case OWOD_BUTTON_ID ->
-                    Optional.of(new PoolTargetCommand(messageDataDAO).createNewButtonMessage(OWOD_CONFIG));
-            case SHADOWRUN_BUTTON_ID -> Optional.of(
+        if (!ButtonIds.isValid(state.getButtonValue())) {
+            return Optional.empty();
+        }
+        return switch (ButtonIds.valueOf(state.getButtonValue())) {
+            case fate -> Optional.of(new FateCommand(messageDataDAO).createNewButtonMessage(FATE_CONFIG));
+            case dnd5 -> Optional.of(new CustomDiceCommand(messageDataDAO).createNewButtonMessage(DND5_CONFIG));
+            case dnd5_image ->
+                    Optional.of(new CustomDiceCommand(messageDataDAO).createNewButtonMessage(DND5_CONFIG_WITH_IMAGE));
+            case nWoD -> Optional.of(new CountSuccessesCommand(messageDataDAO).createNewButtonMessage(NWOD_CONFIG));
+            case oWoD -> Optional.of(new PoolTargetCommand(messageDataDAO).createNewButtonMessage(OWOD_CONFIG));
+            case shadowrun -> Optional.of(
                     new CountSuccessesCommand(messageDataDAO).createNewButtonMessage(SHADOWRUN_CONFIG)
             );
-            case COIN_BUTTON_ID -> Optional.of(
+            case coin -> Optional.of(
                     new CustomDiceCommand(messageDataDAO).createNewButtonMessage(COIN_CONFIG)
             );
-            case DICE_CALCULATOR_ID -> Optional.of(
+            case dice_calculator -> Optional.of(
                     new SumCustomSetCommand(messageDataDAO).createNewButtonMessage(DICE_CALCULATOR_CONFIG)
             );
-            default -> Optional.empty();
         };
     }
 
@@ -164,7 +191,6 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
     protected @NonNull Optional<RollAnswer> getAnswer(Config config, State<StateData> state) {
         return Optional.empty();
     }
-
 
     public MessageDefinition getWelcomeMessage() {
         return createNewButtonMessage(null);
@@ -182,21 +208,22 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
                         .buttonDefinitions(
                                 ImmutableList.of(
                                         ButtonDefinition.builder()
-                                                .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), FATE_BUTTON_ID))
+                                                .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), ButtonIds.fate.name()))
                                                 .label("Fate")
                                                 .build(),
                                         ButtonDefinition.builder()
-                                                .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), DND5_BUTTON_ID))
+                                                .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), ButtonIds.dnd5.name()))
                                                 .label("D&D5e")
                                                 .build(),
                                         ButtonDefinition.builder()
-                                                .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), NWOD_BUTTON_ID))
-                                                .label("nWoD")
+                                                .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), ButtonIds.dnd5_image.name()))
+                                                .label("D&D5e with dice images")
                                                 .build(),
                                         ButtonDefinition.builder()
-                                                .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), DICE_CALCULATOR_ID))
-                                                .label("Dice Calculator")
+                                                .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), ButtonIds.nWoD.name()))
+                                                .label("nWoD")
                                                 .build()
+
                                 )
                         )
                         .build())
@@ -204,16 +231,20 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
                         .buttonDefinitions(
                                 ImmutableList.of(
                                         ButtonDefinition.builder()
-                                                .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), OWOD_BUTTON_ID))
+                                                .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), ButtonIds.oWoD.name()))
                                                 .label("oWoD")
                                                 .build(),
                                         ButtonDefinition.builder()
-                                                .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), SHADOWRUN_BUTTON_ID))
+                                                .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), ButtonIds.shadowrun.name()))
                                                 .label("Shadowrun")
                                                 .build(),
                                         ButtonDefinition.builder()
-                                                .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), COIN_BUTTON_ID))
+                                                .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), ButtonIds.coin.name()))
                                                 .label("Coin Toss \uD83E\uDE99")
+                                                .build(),
+                                        ButtonDefinition.builder()
+                                                .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), ButtonIds.dice_calculator.name()))
+                                                .label("Dice Calculator")
                                                 .build()
                                 )
                         )
@@ -223,6 +254,21 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
 
     @Override
     protected @NonNull Config getConfigFromStartOptions(@NonNull CommandInteractionOption options) {
-        return new Config(null, AnswerFormatType.full);
+        return new Config(null, AnswerFormatType.full, ResultImage.polyhedral_black_and_gold);
+    }
+
+    private enum ButtonIds {
+        fate,
+        dnd5,
+        dnd5_image,
+        nWoD,
+        oWoD,
+        shadowrun,
+        coin,
+        dice_calculator;
+
+        public static boolean isValid(String in) {
+            return Arrays.stream(ButtonIds.values()).anyMatch(s -> s.name().equals(in));
+        }
     }
 }

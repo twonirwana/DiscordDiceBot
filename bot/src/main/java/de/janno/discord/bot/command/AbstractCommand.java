@@ -4,6 +4,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.ImmutableList;
 import de.janno.discord.bot.BotMetrics;
+import de.janno.discord.bot.ResultImage;
 import de.janno.discord.bot.persistance.MessageDataDAO;
 import de.janno.discord.bot.persistance.MessageDataDTO;
 import de.janno.discord.connector.api.*;
@@ -33,18 +34,19 @@ import static de.janno.discord.connector.api.BottomCustomIdUtils.CUSTOM_ID_DELIM
 @Slf4j
 public abstract class AbstractCommand<C extends Config, S extends StateData> implements SlashCommand, ComponentInteractEventHandler {
 
-    protected static final String ACTION_START = "start";
-    protected static final String ACTION_HELP = "help";
-    protected static final String ANSWER_TARGET_CHANNEL_OPTION = "target_channel";
-    protected static final String ANSWER_FORMAT_OPTION = "answer_format";
+    private static final String ACTION_START = "start";
+    private static final String ACTION_HELP = "help";
+    private static final String ANSWER_TARGET_CHANNEL_OPTION = "target_channel";
+    private static final String ANSWER_FORMAT_OPTION = "answer_format";
+    private static final String RESULT_IMAGE_OPTION = "result_image";
 
-    protected static final CommandDefinitionOption ANSWER_TARGET_CHANNEL_COMMAND_OPTION = CommandDefinitionOption.builder()
+    private static final CommandDefinitionOption ANSWER_TARGET_CHANNEL_COMMAND_OPTION = CommandDefinitionOption.builder()
             .name(ANSWER_TARGET_CHANNEL_OPTION)
             .description("The channel where the answer will be given")
             .type(CommandDefinitionOption.Type.CHANNEL)
             .build();
 
-    protected static final CommandDefinitionOption ANSWER_FORMAT_COMMAND_OPTION = CommandDefinitionOption.builder()
+    private static final CommandDefinitionOption ANSWER_FORMAT_COMMAND_OPTION = CommandDefinitionOption.builder()
             .name(ANSWER_FORMAT_OPTION)
             .description("How the answer will be displayed")
             .type(CommandDefinitionOption.Type.STRING)
@@ -55,6 +57,20 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
                             .build())
                     .collect(Collectors.toList()))
             .build();
+
+    private static final CommandDefinitionOption RESULT_IMAGE_COMMAND_OPTION = CommandDefinitionOption.builder()
+
+            .name(RESULT_IMAGE_OPTION)
+            .description("If and in what style the dice throw should be shown as image")
+            .type(CommandDefinitionOption.Type.STRING)
+            .choices(Arrays.stream(ResultImage.values())
+                    .map(ri -> CommandDefinitionOptionChoice.builder()
+                            .name(ri.name())
+                            .value(ri.name())
+                            .build())
+                    .collect(Collectors.toList()))
+            .build();
+
     private static final int MIN_MS_DELAY_BETWEEN_BUTTON_MESSAGES = 1000;
     private final static ConcurrentSkipListSet<Long> MESSAGE_DATA_IDS_TO_DELETE = new ConcurrentSkipListSet<>();
     protected final MessageDataDAO messageDataDAO;
@@ -83,6 +99,16 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
                 .orElse(defaultAnswerFormat());
     }
 
+    protected ResultImage getResultImageOptionFromStartCommandOption(@NonNull CommandInteractionOption options) {
+        return options.getStringSubOptionWithName(RESULT_IMAGE_OPTION)
+                .map(ResultImage::valueOf)
+                .orElse(defaultResultImage());
+    }
+
+    protected ResultImage defaultResultImage() {
+        return ResultImage.polyhedral_black_and_gold;
+    }
+
     protected AnswerFormatType defaultAnswerFormat() {
         return AnswerFormatType.full;
     }
@@ -97,6 +123,16 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
 
     @Override
     public CommandDefinition getCommandDefinition() {
+        List<CommandDefinitionOption> baseOptions = new ArrayList<>();
+        if(supportsTargetChannel()){
+            baseOptions.add(ANSWER_TARGET_CHANNEL_COMMAND_OPTION);
+        }
+        if(supportsAnswerFormat()){
+            baseOptions.add(ANSWER_FORMAT_COMMAND_OPTION);
+        }
+        if(supportsResultImages()){
+            baseOptions.add(RESULT_IMAGE_COMMAND_OPTION);
+        }
         return CommandDefinition.builder()
                 .name(getCommandId())
                 .description(getCommandDescription())
@@ -105,8 +141,7 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
                         .description("Start")
                         .type(CommandDefinitionOption.Type.SUB_COMMAND)
                         .options(getStartOptions())
-                        .option(ANSWER_TARGET_CHANNEL_COMMAND_OPTION)
-                        .option(ANSWER_FORMAT_COMMAND_OPTION)
+                        .options(baseOptions)
                         .build())
                 .option(CommandDefinitionOption.builder()
                         .name(ACTION_HELP)
@@ -115,6 +150,18 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
                         .build())
                 .options(additionalCommandOptions())
                 .build();
+    }
+
+    protected boolean supportsResultImages(){
+        return true;
+    }
+
+    protected boolean supportsAnswerFormat(){
+        return true;
+    }
+
+    protected boolean supportsTargetChannel(){
+        return true;
     }
 
     protected Collection<CommandDefinitionOption> additionalCommandOptions() {

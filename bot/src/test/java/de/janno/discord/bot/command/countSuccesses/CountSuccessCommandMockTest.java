@@ -2,6 +2,7 @@ package de.janno.discord.bot.command.countSuccesses;
 
 import de.janno.discord.bot.ButtonEventAdaptorMock;
 import de.janno.discord.bot.ButtonEventAdaptorMockFactory;
+import de.janno.discord.bot.ResultImage;
 import de.janno.discord.bot.command.AnswerFormatType;
 import de.janno.discord.bot.command.StateData;
 import de.janno.discord.bot.dice.DiceUtils;
@@ -32,7 +33,7 @@ public class CountSuccessCommandMockTest {
 
     @Test
     void roll_noGlitch_full() {
-        CountSuccessesConfig config = new CountSuccessesConfig(null, 6, 4, "no_glitch", 15, 1, Set.of(), Set.of(), AnswerFormatType.full);
+        CountSuccessesConfig config = new CountSuccessesConfig(null, 6, 4, "no_glitch", 15, 1, Set.of(), Set.of(), AnswerFormatType.full, ResultImage.none);
         ButtonEventAdaptorMockFactory<CountSuccessesConfig, StateData> factory = new ButtonEventAdaptorMockFactory<>("count_successes", underTest, config, messageDataDAO, false);
         ButtonEventAdaptorMock buttonEvent = factory.getButtonClickOnLastButtonMessage("4");
 
@@ -48,7 +49,7 @@ public class CountSuccessCommandMockTest {
 
     @Test
     void roll_subtractOnes_full() {
-        CountSuccessesConfig config = new CountSuccessesConfig(null, 6, 4, "subtract_ones", 15, 1, Set.of(), Set.of(1), AnswerFormatType.full);
+        CountSuccessesConfig config = new CountSuccessesConfig(null, 6, 4, "subtract_ones", 15, 1, Set.of(), Set.of(1), AnswerFormatType.full, ResultImage.none);
         ButtonEventAdaptorMockFactory<CountSuccessesConfig, StateData> factory = new ButtonEventAdaptorMockFactory<>("count_successes", underTest, config, messageDataDAO, false);
         ButtonEventAdaptorMock buttonEvent = factory.getButtonClickOnLastButtonMessage("4");
 
@@ -63,7 +64,7 @@ public class CountSuccessCommandMockTest {
 
     @Test
     void roll_halfOnes_full() {
-        CountSuccessesConfig config = new CountSuccessesConfig(null, 6, 4, "half_dice_one", 15, 1, Set.of(), Set.of(), AnswerFormatType.full);
+        CountSuccessesConfig config = new CountSuccessesConfig(null, 6, 4, "half_dice_one", 15, 1, Set.of(), Set.of(), AnswerFormatType.full, ResultImage.none);
         ButtonEventAdaptorMockFactory<CountSuccessesConfig, StateData> factory = new ButtonEventAdaptorMockFactory<>("count_successes", underTest, config, messageDataDAO, false);
         ButtonEventAdaptorMock buttonEvent = factory.getButtonClickOnLastButtonMessage("4");
 
@@ -78,7 +79,7 @@ public class CountSuccessCommandMockTest {
 
     @Test
     void roll_countOnes_full() {
-        CountSuccessesConfig config = new CountSuccessesConfig(null, 6, 4, "count_ones", 15, 1, Set.of(), Set.of(), AnswerFormatType.full);
+        CountSuccessesConfig config = new CountSuccessesConfig(null, 6, 4, "count_ones", 15, 1, Set.of(), Set.of(), AnswerFormatType.full, ResultImage.none);
         ButtonEventAdaptorMockFactory<CountSuccessesConfig, StateData> factory = new ButtonEventAdaptorMockFactory<>("count_successes", underTest, config, messageDataDAO, false);
         ButtonEventAdaptorMock buttonEvent = factory.getButtonClickOnLastButtonMessage("4");
 
@@ -93,7 +94,7 @@ public class CountSuccessCommandMockTest {
 
     @Test
     void roll_noGlitch_compact() {
-        CountSuccessesConfig config = new CountSuccessesConfig(null, 6, 4, "no_glitch", 15, 1, Set.of(), Set.of(), AnswerFormatType.compact);
+        CountSuccessesConfig config = new CountSuccessesConfig(null, 6, 4, "no_glitch", 15, 1, Set.of(), Set.of(), AnswerFormatType.compact, ResultImage.none);
         ButtonEventAdaptorMockFactory<CountSuccessesConfig, StateData> factory = new ButtonEventAdaptorMockFactory<>("count_successes", underTest, config, messageDataDAO, false);
         ButtonEventAdaptorMock buttonEvent = factory.getButtonClickOnLastButtonMessage("4");
 
@@ -109,7 +110,7 @@ public class CountSuccessCommandMockTest {
 
     @Test
     void roll_subtractOnes_compact() {
-        CountSuccessesConfig config = new CountSuccessesConfig(null, 6, 4, "subtract_ones", 15, 1, Set.of(), Set.of(1), AnswerFormatType.compact);
+        CountSuccessesConfig config = new CountSuccessesConfig(null, 6, 4, "subtract_ones", 15, 1, Set.of(), Set.of(1), AnswerFormatType.compact, ResultImage.none);
         ButtonEventAdaptorMockFactory<CountSuccessesConfig, StateData> factory = new ButtonEventAdaptorMockFactory<>("count_successes", underTest, config, messageDataDAO, false);
         ButtonEventAdaptorMock buttonEvent = factory.getButtonClickOnLastButtonMessage("4");
 
@@ -124,7 +125,7 @@ public class CountSuccessCommandMockTest {
 
     @Test
     void roll_halfOnes_compact() {
-        CountSuccessesConfig config = new CountSuccessesConfig(null, 6, 4, "half_dice_one", 15, 1, Set.of(), Set.of(), AnswerFormatType.compact);
+        CountSuccessesConfig config = new CountSuccessesConfig(null, 6, 4, "half_dice_one", 15, 1, Set.of(), Set.of(), AnswerFormatType.compact, ResultImage.none);
         ButtonEventAdaptorMockFactory<CountSuccessesConfig, StateData> factory = new ButtonEventAdaptorMockFactory<>("count_successes", underTest, config, messageDataDAO, false);
         ButtonEventAdaptorMock buttonEvent = factory.getButtonClickOnLastButtonMessage("4");
 
@@ -139,7 +140,7 @@ public class CountSuccessCommandMockTest {
 
     @Test
     void roll_countOnes_compact() {
-        CountSuccessesConfig config = new CountSuccessesConfig(null, 6, 4, "count_ones", 15, 1, Set.of(), Set.of(), AnswerFormatType.compact);
+        CountSuccessesConfig config = new CountSuccessesConfig(null, 6, 4, "count_ones", 15, 1, Set.of(), Set.of(), AnswerFormatType.compact, ResultImage.none);
         ButtonEventAdaptorMockFactory<CountSuccessesConfig, StateData> factory = new ButtonEventAdaptorMockFactory<>("count_successes", underTest, config, messageDataDAO, false);
         ButtonEventAdaptorMock buttonEvent = factory.getButtonClickOnLastButtonMessage("4");
 
@@ -154,7 +155,7 @@ public class CountSuccessCommandMockTest {
 
     @Test
     void roll_noGlitch_minimal() {
-        CountSuccessesConfig config = new CountSuccessesConfig(null, 6, 4, "no_glitch", 15, 1, Set.of(), Set.of(), AnswerFormatType.minimal);
+        CountSuccessesConfig config = new CountSuccessesConfig(null, 6, 4, "no_glitch", 15, 1, Set.of(), Set.of(), AnswerFormatType.minimal, ResultImage.none);
         ButtonEventAdaptorMockFactory<CountSuccessesConfig, StateData> factory = new ButtonEventAdaptorMockFactory<>("count_successes", underTest, config, messageDataDAO, false);
         ButtonEventAdaptorMock buttonEvent = factory.getButtonClickOnLastButtonMessage("4");
 
@@ -170,7 +171,7 @@ public class CountSuccessCommandMockTest {
 
     @Test
     void roll_subtractOnes_minimal() {
-        CountSuccessesConfig config = new CountSuccessesConfig(null, 6, 4, "subtract_ones", 15, 1, Set.of(), Set.of(1), AnswerFormatType.minimal);
+        CountSuccessesConfig config = new CountSuccessesConfig(null, 6, 4, "subtract_ones", 15, 1, Set.of(), Set.of(1), AnswerFormatType.minimal, ResultImage.none);
         ButtonEventAdaptorMockFactory<CountSuccessesConfig, StateData> factory = new ButtonEventAdaptorMockFactory<>("count_successes", underTest, config, messageDataDAO, false);
         ButtonEventAdaptorMock buttonEvent = factory.getButtonClickOnLastButtonMessage("4");
 
@@ -185,7 +186,7 @@ public class CountSuccessCommandMockTest {
 
     @Test
     void roll_halfOnes_minimal() {
-        CountSuccessesConfig config = new CountSuccessesConfig(null, 6, 4, "half_dice_one", 15, 1, Set.of(), Set.of(), AnswerFormatType.minimal);
+        CountSuccessesConfig config = new CountSuccessesConfig(null, 6, 4, "half_dice_one", 15, 1, Set.of(), Set.of(), AnswerFormatType.minimal, ResultImage.none);
         ButtonEventAdaptorMockFactory<CountSuccessesConfig, StateData> factory = new ButtonEventAdaptorMockFactory<>("count_successes", underTest, config, messageDataDAO, false);
         ButtonEventAdaptorMock buttonEvent = factory.getButtonClickOnLastButtonMessage("4");
 
@@ -200,7 +201,7 @@ public class CountSuccessCommandMockTest {
 
     @Test
     void roll_countOnes_minimal() {
-        CountSuccessesConfig config = new CountSuccessesConfig(null, 6, 4, "count_ones", 15, 1, Set.of(), Set.of(), AnswerFormatType.minimal);
+        CountSuccessesConfig config = new CountSuccessesConfig(null, 6, 4, "count_ones", 15, 1, Set.of(), Set.of(), AnswerFormatType.minimal, ResultImage.none);
         ButtonEventAdaptorMockFactory<CountSuccessesConfig, StateData> factory = new ButtonEventAdaptorMockFactory<>("count_successes", underTest, config, messageDataDAO, false);
         ButtonEventAdaptorMock buttonEvent = factory.getButtonClickOnLastButtonMessage("4");
 
@@ -215,7 +216,7 @@ public class CountSuccessCommandMockTest {
 
     @Test
     void roll_pinned() {
-        CountSuccessesConfig config = new CountSuccessesConfig(null, 6, 4, "no_glitch", 15, 1, Set.of(), Set.of(), AnswerFormatType.full);
+        CountSuccessesConfig config = new CountSuccessesConfig(null, 6, 4, "no_glitch", 15, 1, Set.of(), Set.of(), AnswerFormatType.full, ResultImage.none);
         ButtonEventAdaptorMockFactory<CountSuccessesConfig, StateData> factory = new ButtonEventAdaptorMockFactory<>("count_successes", underTest, config, messageDataDAO, true);
         ButtonEventAdaptorMock buttonEvent = factory.getButtonClickOnLastButtonMessage("4");
 
@@ -229,7 +230,7 @@ public class CountSuccessCommandMockTest {
 
     @Test
     void roll_answerChannel() {
-        CountSuccessesConfig config = new CountSuccessesConfig(2L, 6, 4, "no_glitch", 15, 1, Set.of(), Set.of(), AnswerFormatType.full);
+        CountSuccessesConfig config = new CountSuccessesConfig(2L, 6, 4, "no_glitch", 15, 1, Set.of(), Set.of(), AnswerFormatType.full, ResultImage.none);
         ButtonEventAdaptorMockFactory<CountSuccessesConfig, StateData> factory = new ButtonEventAdaptorMockFactory<>("count_successes", underTest, config, messageDataDAO, false);
         ButtonEventAdaptorMock buttonEvent = factory.getButtonClickOnLastButtonMessage("4");
 

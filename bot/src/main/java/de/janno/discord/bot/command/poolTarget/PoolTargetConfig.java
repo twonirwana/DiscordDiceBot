@@ -3,6 +3,7 @@ package de.janno.discord.bot.command.poolTarget;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableList;
+import de.janno.discord.bot.ResultImage;
 import de.janno.discord.bot.command.AnswerFormatType;
 import de.janno.discord.bot.command.Config;
 import lombok.EqualsAndHashCode;
@@ -32,8 +33,9 @@ public class PoolTargetConfig extends Config {
                             @JsonProperty("rerollSet") @NonNull Set<Integer> rerollSet,
                             @JsonProperty("botchSet") @NonNull Set<Integer> botchSet,
                             @JsonProperty("rerollVariant") String rerollVariant,
-                            @JsonProperty("answerFormatType") AnswerFormatType answerFormatType) {
-        super(answerTargetChannelId, answerFormatType);
+                            @JsonProperty("answerFormatType") AnswerFormatType answerFormatType,
+                            @JsonProperty("resultImage") ResultImage resultImage) {
+        super(answerTargetChannelId, answerFormatType, resultImage);
         this.diceSides = diceSides;
         this.maxNumberOfButtons = maxNumberOfButtons;
         this.rerollSet = rerollSet;

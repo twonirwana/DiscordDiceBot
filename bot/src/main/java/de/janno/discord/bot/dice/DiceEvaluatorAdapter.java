@@ -1,8 +1,10 @@
 package de.janno.discord.bot.dice;
 
 import com.google.common.collect.ImmutableList;
+import de.janno.discord.bot.ResultImage;
 import de.janno.discord.bot.command.AnswerFormatType;
 import de.janno.discord.bot.command.RollAnswer;
+import de.janno.discord.bot.dice.image.ImageResultCreator;
 import de.janno.evaluator.dice.DiceEvaluator;
 import de.janno.evaluator.dice.ExpressionException;
 import de.janno.evaluator.dice.Roll;
@@ -12,12 +14,14 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.File;
 import java.util.List;
 import java.util.Optional;
 
 @Slf4j
 public class DiceEvaluatorAdapter {
 
+    private final static ImageResultCreator IMAGE_RESULT_CREATOR = new ImageResultCreator();
     private final DiceEvaluator diceEvaluator;
 
     public DiceEvaluatorAdapter(NumberSupplier numberSupplier, int maxNumberOfDice) {
@@ -72,21 +76,27 @@ public class DiceEvaluatorAdapter {
         }
     }
 
-    public RollAnswer answerRollWithOptionalLabelInExpression(String expression, String labelDelimiter, boolean sumUp, AnswerFormatType answerFormatType) {
+    public RollAnswer answerRollWithOptionalLabelInExpression(String expression, String labelDelimiter, boolean sumUp, AnswerFormatType answerFormatType, ResultImage resultImage) {
         String diceExpression = getExpressionFromExpressionWithOptionalLabel(expression, labelDelimiter);
         String label = getLabelFromExpressionWithOptionalLabel(expression, labelDelimiter).orElse(null);
-        return answerRollWithGivenLabel(diceExpression, label, sumUp, answerFormatType);
+        return answerRollWithGivenLabel(diceExpression, label, sumUp, answerFormatType, resultImage);
     }
 
-    public RollAnswer answerRollWithGivenLabel(String diceExpression, @Nullable String label, boolean sumUp, AnswerFormatType answerFormatType) {
+    public RollAnswer answerRollWithGivenLabel(String diceExpression, @Nullable String label, boolean sumUp, AnswerFormatType answerFormatType, ResultImage resultImage) {
+
         try {
             log.debug("Roll expression: {}", diceExpression);
             List<Roll> rolls = diceEvaluator.evaluate(diceExpression);
+            File diceImage = null;
+            if (resultImage.equals(ResultImage.polyhedral_black_and_gold)) {
+                diceImage = IMAGE_RESULT_CREATOR.getImageForRoll(rolls);
+            }
             if (rolls.size() == 1) {
                 return RollAnswer.builder()
                         .answerFormatType(answerFormatType)
                         .expression(diceExpression)
                         .expressionLabel(label)
+                        .file(diceImage)
                         .result(getResult(rolls.get(0), sumUp))
                         .rollDetails(rolls.get(0).getRandomElementsString())
                         .build();

@@ -2,6 +2,7 @@ package de.janno.discord.bot.command.sumCustomSet;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import de.janno.discord.bot.ResultImage;
 import de.janno.discord.bot.command.AnswerFormatType;
 import de.janno.discord.bot.command.ButtonIdLabelAndDiceExpression;
 import de.janno.discord.bot.command.Config;
@@ -29,8 +30,9 @@ public class SumCustomSetConfig extends Config {
                               @JsonProperty("labelAndExpression") @NonNull List<ButtonIdLabelAndDiceExpression> labelAndExpression,
                               @JsonProperty("diceParserSystem") DiceParserSystem diceParserSystem,
                               @JsonProperty("alwaysSumResult") Boolean alwaysSumResult,
-                              @JsonProperty("answerFormatType") AnswerFormatType answerFormatType) {
-        super(answerTargetChannelId, answerFormatType);
+                              @JsonProperty("answerFormatType") AnswerFormatType answerFormatType,
+                              @JsonProperty("resultImage") ResultImage resultImage) {
+        super(answerTargetChannelId, answerFormatType, resultImage);
         this.labelAndExpression = labelAndExpression;
         this.diceParserSystem = diceParserSystem == null ? DiceParserSystem.DICEROLL_PARSER : diceParserSystem;
         this.alwaysSumResult = alwaysSumResult == null || alwaysSumResult;

@@ -2,6 +2,7 @@ package de.janno.discord.connector.api.message;
 
 import lombok.*;
 
+import java.io.File;
 import java.util.List;
 
 @Value
@@ -16,6 +17,7 @@ public class EmbedOrMessageDefinition {
     String descriptionOrContent;
     @Singular
     List<Field> fields;
+    File file;
 
     @Builder.Default
     Type type = Type.EMBED;
