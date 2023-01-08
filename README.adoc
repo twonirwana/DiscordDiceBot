@@ -136,8 +136,6 @@ image:image/minimal.png[image,320]
 === Result Images
 
 The `custom_dice`, `sum_custom_dice` and `custom_parameter` commands have an `result_image` option that can be configured to add an image of the rolled dice.
-There are two options: `none` and `polyhedral_black_and_gold`.
-The `polyhedral_black_and_gold` dice set was designed and contributed by https://www.instagram.com/alie_in_beanland/[alieinbeanland].
 The images will only be shown if the following conditions are met:
 
 * The `answer_format` is set to `full` or `without_expression`
@@ -146,7 +144,20 @@ The images will only be shown if the following conditions are met:
 * Not more the 10 sets of dice
 * No multi line result
 
+There are the option
+
+==== none
+No image will be shown.
+
+==== polyhedral_black_and_gold
+
+The `polyhedral_black_and_gold` dice set was designed and contributed by https://www.instagram.com/alie_in_beanland/[alieinbeanland].
+
 image:image/blackAndGoldExample.png[image,480]
+
+==== polyhedral_3d_red_and_white
+image:image/redAndWhiteExample1.png[image,,360]
+image:image/redAndWhiteExample2.png[image,,360]
 
 === Custom Dice Buttons
 
@@ -390,3 +401,4 @@ All functions are case insensitiv.
 == Contributors
 
 Special thank to https://www.instagram.com/alie_in_beanland/[alieinbeanland ] for the design of the dice images.
+The polyhedral_3d_red_and_white dice images where adapted from https://blendswap.com/blend/16634

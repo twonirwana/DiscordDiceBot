@@ -309,7 +309,7 @@ class SumDiceSetCommandTest {
                         .build())
                 .build());
 
-        assertThat(res).isEqualTo(new Config(null, AnswerFormatType.full, ResultImage.polyhedral_black_and_gold));
+        assertThat(res).isEqualTo(new Config(null, AnswerFormatType.full, ResultImage.polyhedral_3d_red_and_white));
     }
 
 
