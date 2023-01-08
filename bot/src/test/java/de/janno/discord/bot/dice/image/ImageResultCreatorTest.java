@@ -128,7 +128,7 @@ class ImageResultCreatorTest {
         assertThat(res).isNotNull();
         assertThat(res).exists();
         assertThat(res.getName()).isEqualTo("46e25fef4f2abae5dab1d23c01252d8dcbfab494021403542bb8fed6d2147266.png");
-        assertThat(getFileHash(res)).isEqualTo("341399e80d88a9a73f767d89f3a72ef810d70669a2ba57fda5c518ca1a126775");
+        assertThat(getFileHash(res)).isEqualTo("99c655db17ab28c8a0a1159cbe58bee3935b036b95a28d02c89a975f765323d6");
     }
 
     @Test
@@ -158,7 +158,7 @@ class ImageResultCreatorTest {
         assertThat(res).isNotNull();
         assertThat(res).exists();
         assertThat(res.getName()).isEqualTo("fad1676eb37f022ce8fd024c68cd63477e78aeec94809a9aed0f952cd4f7e3e0.png");
-        assertThat(getFileHash(res)).isEqualTo("843cfc42d75ec15d9c97870757f85041cb3efc1a95f9dfd8bb65fa8ef439b2ef");
+        assertThat(getFileHash(res)).isEqualTo("aeeb92835b8e23708933c7e6d3b3b728ff3e7c9ffe9531ba4c577e1a5a32edcf");
     }
 
     @Test
@@ -170,7 +170,7 @@ class ImageResultCreatorTest {
         assertThat(res).isNotNull();
         assertThat(res).exists();
         assertThat(res.getName()).isEqualTo("3f7a76229877b9f5aadb3a387a0eb0d2963d4251fb4270493645e7a17d9c9c37.png");
-        assertThat(getFileHash(res)).isEqualTo("9eae16b7f9e1f8677a9c27e0a2cb69a624602e8f90e1985a70b8c4b085e9e5b4");
+        assertThat(getFileHash(res)).isEqualTo("595bbfeb0b3e428a649edd362b5429b87acc5bf0c5bde612c2fc4b83cf590421");
     }
 
     @Test
@@ -182,6 +182,6 @@ class ImageResultCreatorTest {
         assertThat(res).isNotNull();
         assertThat(res).exists();
         assertThat(res.getName()).isEqualTo("ce19856874881bb8da73e415f57a4a798cd3073a78d3d3b66f7397af9944b193.png");
-        assertThat(getFileHash(res)).isEqualTo("cad44fb5ec6250dcbf3166017d8267b0700a70baa2a62b872e29faf4b9558f6f");
+        assertThat(getFileHash(res)).isEqualTo("7a55b361153aae5947b2d13666b994bec85ba18127f702b657bea928ef60bee6");
     }
 }
