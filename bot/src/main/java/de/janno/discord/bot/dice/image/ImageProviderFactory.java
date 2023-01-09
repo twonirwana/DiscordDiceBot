@@ -19,7 +19,7 @@ public final class ImageProviderFactory {
             .put(ResultImage.polyhedral_black_and_gold, new PolyhedralBlackAndGold())
             .put(ResultImage.polyhedral_alies_blue_and_silver, new PolyhedralAlies())
             .put(ResultImage.polyhedral_green_and_gold, new PolyhedralGreenAndGold())
-            .put(ResultImage.polyhedral_orange_and_silver, new PolyhedralOrangeAndSilver())
+            .put(ResultImage.polyhedral_red_and_gold, new PolyhedralRedAndGold())
             .build();
 
     @NonNull

@@ -54,7 +54,8 @@ public class ImageResultCreator {
                         .collect(Collectors.joining(","))
                 )
                 .filter(l -> !l.isEmpty())
-                .collect(Collectors.joining("|")));
+                        .map("[%s]"::formatted)
+                .collect(Collectors.joining(",")));
     }
 
     public @Nullable File getImageForRoll(@NonNull List<Roll> rolls, ResultImage resultImage) {
