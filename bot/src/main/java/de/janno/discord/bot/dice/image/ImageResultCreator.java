@@ -2,7 +2,6 @@ package de.janno.discord.bot.dice.image;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Stopwatch;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.hash.Hashing;
 import de.janno.discord.bot.BotMetrics;
 import de.janno.discord.bot.ResultImage;
@@ -22,7 +21,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -32,19 +30,13 @@ public class ImageResultCreator {
     private static final String CACHE_FOLDER = "imageCache";
     private static final String CACHE_INDEX = CACHE_FOLDER + "/" + "imageCacheName.csv";
 
-    private final static Map<ResultImage, ImageProvider> IMAGE_PROVIDER_MAP = ImmutableMap.of(
-            ResultImage.none, (totalDieSides, shownDieSide) -> List.of(),
-            ResultImage.polyhedral_black_and_gold, new PolyhedralBlackAndGold(),
-            ResultImage.polyhedral_3d_red_and_white, new Polyhedral3dRedAndWhite()
-    );
-
     public ImageResultCreator() {
         createCacheIndexFileIfMissing();
     }
 
     private void createCacheIndexFileIfMissing() {
         try {
-            Files.createDirectories(Paths.get("imageCache"));
+            Files.createDirectories(Paths.get(CACHE_FOLDER));
             File cacheIndex = new File(CACHE_INDEX);
             if (!cacheIndex.exists()) {
                 cacheIndex.createNewFile();
@@ -54,25 +46,16 @@ public class ImageResultCreator {
         }
     }
 
-    private boolean invalidDieResult(@NonNull RandomElement randomElement, ResultImage resultImage) {
-        return randomElement.getMinInc() == null ||
-                randomElement.getMinInc() != 1 ||
-                randomElement.getMaxInc() == null ||
-                randomElement.getRollElement().asInteger().isEmpty() ||
-                randomElement.getRollElement().asInteger().get() > randomElement.getMaxInc() ||
-                randomElement.getRollElement().asInteger().get() < 1 ||
-                IMAGE_PROVIDER_MAP.get(resultImage).getImageFor(randomElement.getMaxInc(), randomElement.getRollElement().asInteger().get()).isEmpty();
-    }
-
     @VisibleForTesting
     String createRollCacheName(Roll roll, ResultImage resultImage) {
         return "%s@%s".formatted(resultImage.name(), roll.getRandomElementsInRoll().getRandomElements().stream()
                 .map(r -> r.getRandomElements().stream()
-                        .map(re -> "d%ds%d".formatted(re.getMaxInc(), re.getRollElement().asInteger().orElseThrow()))
-                        .collect(Collectors.joining())
+                        .map(RandomElement::toString)
+                        .collect(Collectors.joining(","))
                 )
                 .filter(l -> !l.isEmpty())
-                .collect(Collectors.joining("-")));
+                        .map("[%s]"::formatted)
+                .collect(Collectors.joining(",")));
     }
 
     public @Nullable File getImageForRoll(@NonNull List<Roll> rolls, ResultImage resultImage) {
@@ -83,7 +66,7 @@ public class ImageResultCreator {
                 rolls.get(0).getRandomElementsInRoll().getRandomElements().stream().anyMatch(r -> r.getRandomElements().size() == 0) ||
                 rolls.get(0).getRandomElementsInRoll().getRandomElements().stream()
                         .flatMap(r -> r.getRandomElements().stream())
-                        .anyMatch(r -> invalidDieResult(r, resultImage))
+                        .anyMatch(r -> ImageProviderFactory.getImageFor(resultImage, r.getMaxInc(), r.getRollElement().asInteger().orElse(null)).isEmpty())
         ) {
             return null;
         }
@@ -99,7 +82,7 @@ public class ImageResultCreator {
             createNewFileForRoll(rolls.get(0), imageFile, name, resultImage);
             BotMetrics.incrementImageResultMetricCounter(BotMetrics.CacheTag.CACHE_MISS);
         } else {
-            log.info("Use cached file %s for %s".formatted(filePath, name));
+            log.debug("Use cached file %s for %s".formatted(filePath, name));
             BotMetrics.incrementImageResultMetricCounter(BotMetrics.CacheTag.CACHE_HIT);
         }
         return imageFile;
@@ -110,7 +93,7 @@ public class ImageResultCreator {
 
         List<List<BufferedImage>> images = roll.getRandomElementsInRoll().getRandomElements().stream()
                 .map(r -> r.getRandomElements().stream()
-                        .flatMap(re -> IMAGE_PROVIDER_MAP.get(resultImage).getImageFor(re.getMaxInc(), re.getRollElement().asInteger().orElse(null)).stream())
+                        .flatMap(re -> ImageProviderFactory.getImageFor(resultImage, re.getMaxInc(), re.getRollElement().asInteger().orElse(null)).stream())
                         .toList()
                 )
                 .filter(l -> !l.isEmpty())
@@ -121,7 +104,7 @@ public class ImageResultCreator {
                 .mapToInt(List::size)
                 .max().orElseThrow();
 
-        int singleDiceSize = 100;
+        int singleDiceSize = ImageProviderFactory.getDieHighAndWith(resultImage);
         int w = singleDiceSize * (maxInnerSize);
         int h = singleDiceSize * (images.size());
         BufferedImage combined = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB_PRE);

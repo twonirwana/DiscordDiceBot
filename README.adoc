@@ -133,31 +133,61 @@ Will not show result images, even if they are configured.
 
 image:image/minimal.png[image,320]
 
-=== Result Images
+=== Dice Images
 
 The `custom_dice`, `sum_custom_dice` and `custom_parameter` commands have an `result_image` option that can be configured to add an image of the rolled dice.
 The images will only be shown if the following conditions are met:
 
 * The `answer_format` is set to `full` or `without_expression`
-* All dice musst be one of the following: d4, d6, d10, d8, d12, d20, d100
 * No set of dice with more than 15 dice
 * Not more the 10 sets of dice
 * No multi line result
 
-There are the option
+There are the following options:
 
 ==== none
+
 No image will be shown.
+
+==== polyhedral_3d_red_and_white
+
+image:image/3d_red_and_white.png[image,600]
+
+Valid for d4, d6, d10, d8, d12, d20, d100
+
+==== fate_black
+
+image:image/fate_image.png[image,360]
+
+Valid for d[-1,1,1]
 
 ==== polyhedral_black_and_gold
 
-The `polyhedral_black_and_gold` dice set was designed and contributed by https://www.instagram.com/alie_in_beanland/[alieinbeanland].
+image:image/black_and_gold.png[image,600]
 
-image:image/blackAndGoldExample.png[image,480]
+Valid for d4, d6, d10, d8, d12, d20, d100.
+This set was designed and contributed by https://www.instagram.com/alie_in_beanland/[alieinbeanland].
 
-==== polyhedral_3d_red_and_white
-image:image/redAndWhiteExample1.png[image,,360]
-image:image/redAndWhiteExample2.png[image,,360]
+==== polyhedral_alies_blue_and_silver
+
+image:image/blue_and_silver.png[image,600]
+
+Valid for d4, d6, d10, d8, d12, d20, d100.
+This set was designed and contributed by https://www.instagram.com/alie_in_beanland/[alieinbeanland].
+
+==== polyhedral_green_and_gold
+
+image:image/green_and_gold.png[image,600]
+
+Valid for d4, d6, d10, d8, d12, d20, d100.
+This set was designed and contributed by https://www.instagram.com/alie_in_beanland/[alieinbeanland].
+
+==== polyhedral_red_and_gold
+
+image:image/red_and_gold.png[image,600]
+
+Valid for d4, d6, d10, d8, d12, d20, d100.
+This set was designed and contributed by https://www.instagram.com/alie_in_beanland/[alieinbeanland].
 
 === Custom Dice Buttons
 

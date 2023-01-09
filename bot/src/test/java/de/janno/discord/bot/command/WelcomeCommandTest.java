@@ -307,7 +307,9 @@ class WelcomeCommandTest {
                 .stream()
                 .flatMap(s -> s.getButtonDefinitions().stream())
                 .map(ButtonDefinition::getId))
-                .containsExactly("welcomefate",
+                .containsExactly(
+                        "welcomefate",
+                        "welcomefate_image",
                         "welcomednd5",
                         "welcomednd5_image",
                         "welcomenWoD",
@@ -319,7 +321,9 @@ class WelcomeCommandTest {
                 .stream()
                 .flatMap(s -> s.getButtonDefinitions().stream())
                 .map(ButtonDefinition::getLabel))
-                .containsExactly("Fate",
+                .containsExactly(
+                        "Fate",
+                        "Fate with dice images",
                         "D&D5e",
                         "D&D5e with dice images",
                         "nWoD",

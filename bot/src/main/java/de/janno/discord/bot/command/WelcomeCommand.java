@@ -8,6 +8,8 @@ import de.janno.discord.bot.command.countSuccesses.CountSuccessesCommand;
 import de.janno.discord.bot.command.countSuccesses.CountSuccessesConfig;
 import de.janno.discord.bot.command.customDice.CustomDiceCommand;
 import de.janno.discord.bot.command.customDice.CustomDiceConfig;
+import de.janno.discord.bot.command.customParameter.CustomParameterCommand;
+import de.janno.discord.bot.command.customParameter.CustomParameterConfig;
 import de.janno.discord.bot.command.fate.FateCommand;
 import de.janno.discord.bot.command.fate.FateConfig;
 import de.janno.discord.bot.command.poolTarget.PoolTargetCommand;
@@ -78,6 +80,7 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
             new ButtonIdLabelAndDiceExpression("7_button", "4", "4"), new ButtonIdLabelAndDiceExpression("8_button", "5", "5"), new ButtonIdLabelAndDiceExpression("9_button", "6", "6"), new ButtonIdLabelAndDiceExpression("10_button", "d", "d"), new ButtonIdLabelAndDiceExpression("11_button", "k", "k"),
             new ButtonIdLabelAndDiceExpression("12_button", "1", "1"), new ButtonIdLabelAndDiceExpression("13_button", "2", "2"), new ButtonIdLabelAndDiceExpression("14_button", "3", "3"), new ButtonIdLabelAndDiceExpression("15_button", "0", "0"), new ButtonIdLabelAndDiceExpression("16_button", "l", "l")
     ), DiceParserSystem.DICE_EVALUATOR, true, AnswerFormatType.full, ResultImage.none);
+    private final CustomParameterConfig FATE_WITH_IMAGE_CONFIG = new CustomParameterConfig(null, "4d[-1,0,1]+{Modifier:-4<=>10}=", DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.without_expression, ResultImage.fate_black);
 
     public WelcomeCommand(MessageDataDAO messageDataDAO) {
         super(messageDataDAO);
@@ -116,12 +119,14 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
         if (state == null) {
             return Optional.empty();
         }
-        if (!ButtonIds.isValid(state.getButtonValue())) {
+        if (ButtonIds.isInvalid(state.getButtonValue())) {
             return Optional.empty();
         }
         return switch (ButtonIds.valueOf(state.getButtonValue())) {
             case fate ->
                     new FateCommand(messageDataDAO).createMessageDataForNewMessage(configUUID, guildId, channelId, messageId, FATE_CONFIG, null);
+            case fate_image ->
+                    new CustomParameterCommand(messageDataDAO).createMessageDataForNewMessage(configUUID, guildId, channelId, messageId, FATE_WITH_IMAGE_CONFIG, null);
             case dnd5 ->
                     new CustomDiceCommand(messageDataDAO).createMessageDataForNewMessage(configUUID, guildId, channelId, messageId, DND5_CONFIG, null);
             case dnd5_image ->
@@ -160,11 +165,12 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
     @Override
     protected @NonNull Optional<MessageDefinition> createNewButtonMessageWithState(Config config, State<StateData> state) {
         BotMetrics.incrementButtonMetricCounter(COMMAND_NAME, "[" + state.getButtonValue() + "]");
-        if (!ButtonIds.isValid(state.getButtonValue())) {
+        if (ButtonIds.isInvalid(state.getButtonValue())) {
             return Optional.empty();
         }
         return switch (ButtonIds.valueOf(state.getButtonValue())) {
             case fate -> Optional.of(new FateCommand(messageDataDAO).createNewButtonMessage(FATE_CONFIG));
+            case fate_image -> Optional.of(new CustomParameterCommand(messageDataDAO).createNewButtonMessage(FATE_WITH_IMAGE_CONFIG));
             case dnd5 -> Optional.of(new CustomDiceCommand(messageDataDAO).createNewButtonMessage(DND5_CONFIG));
             case dnd5_image ->
                     Optional.of(new CustomDiceCommand(messageDataDAO).createNewButtonMessage(DND5_CONFIG_WITH_IMAGE));
@@ -210,6 +216,10 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
                                         ButtonDefinition.builder()
                                                 .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), ButtonIds.fate.name()))
                                                 .label("Fate")
+                                                .build(),
+                                        ButtonDefinition.builder()
+                                                .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), ButtonIds.fate_image.name()))
+                                                .label("Fate with dice images")
                                                 .build(),
                                         ButtonDefinition.builder()
                                                 .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), ButtonIds.dnd5.name()))
@@ -259,6 +269,7 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
 
     private enum ButtonIds {
         fate,
+        fate_image,
         dnd5,
         dnd5_image,
         nWoD,
@@ -267,8 +278,8 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
         coin,
         dice_calculator;
 
-        public static boolean isValid(String in) {
-            return Arrays.stream(ButtonIds.values()).anyMatch(s -> s.name().equals(in));
+        public static boolean isInvalid(String in) {
+            return Arrays.stream(ButtonIds.values()).noneMatch(s -> s.name().equals(in));
         }
     }
 }

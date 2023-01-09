@@ -10,10 +10,14 @@ import de.janno.evaluator.dice.ExpressionException;
 import de.janno.evaluator.dice.Roll;
 import de.janno.evaluator.dice.random.GivenNumberSupplier;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -24,6 +28,16 @@ class ImageResultCreatorTest {
         ByteSource byteSource = Files.asByteSource(file);
         HashCode hc = byteSource.hash(Hashing.sha256());
         return hc.toString();
+    }
+
+    static Stream<Arguments> generateResultImageData() {
+        return Stream.of(
+                Arguments.of(ResultImage.polyhedral_3d_red_and_white, List.of(4, 6, 8, 10, 12, 20, 100)),
+                Arguments.of(ResultImage.polyhedral_alies_blue_and_silver, List.of(4, 6, 8, 10, 12, 20, 100)),
+                Arguments.of(ResultImage.polyhedral_green_and_gold, List.of(4, 6, 8, 10, 12, 20, 100)),
+                Arguments.of(ResultImage.polyhedral_red_and_gold, List.of(4, 6, 8, 10, 12, 20, 100)),
+                Arguments.of(ResultImage.polyhedral_black_and_gold, List.of(4, 6, 8, 10, 12, 20, 100)),
+                Arguments.of(ResultImage.fate_black, List.of(-1, 0, 1)));
     }
 
     @Test
@@ -41,8 +55,18 @@ class ImageResultCreatorTest {
 
         String res = underTest.createRollCacheName(rolls.get(0), ResultImage.polyhedral_black_and_gold);
 
-        assertThat(res).isEqualTo("polyhedral_black_and_gold@d6s1d6s2d6s3d6s4d6s5d6s6-d6s1-d6s2d6s3d6s4");
+        assertThat(res).isEqualTo("polyhedral_black_and_gold@[1∈[1...6],2∈[1...6],3∈[1...6],4∈[1...6],5∈[1...6],6∈[1...6]],[1∈[1...6]],[2∈[1...6],3∈[1...6],4∈[1...6]]");
     }
+
+    @Test
+    void createRollCacheNameTest_fateBlack() throws ExpressionException {
+        List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(1, 2, 3, 1), 1000).evaluate("4d[-1,0,1]");
+
+        String res = underTest.createRollCacheName(rolls.get(0), ResultImage.fate_black);
+
+        assertThat(res).isEqualTo("fate_black@[-1∈[-1, 0, 1],0∈[-1, 0, 1],1∈[-1, 0, 1],-1∈[-1, 0, 1]]");
+    }
+
 
     @Test
     void getImageForRoll_blackGold() throws ExpressionException, IOException {
@@ -52,7 +76,7 @@ class ImageResultCreatorTest {
 
         assertThat(res).isNotNull();
         assertThat(res).exists();
-        assertThat(res.getName()).isEqualTo("30b270d39b928863c094018e2ff7e31ee08f3487c6c195d87393f0eda54f1595.png");
+        assertThat(res.getName()).isEqualTo("43d3709ce537a2641b6f45bb78515bde126896298034eca8e0add0300fe9b360.png");
         assertThat(getFileHash(res)).isEqualTo("704e741a90a7ca38dacd7e571863ab55bb9ae47120d0b16e7278993ac7f33b82");
     }
 
@@ -82,7 +106,7 @@ class ImageResultCreatorTest {
 
         assertThat(res).isNotNull();
         assertThat(res).exists();
-        assertThat(res.getName()).isEqualTo("b825213d06a75708264f129737dbd20bfba52dce1b54595f5f921e50f1aa7c43.png");
+        assertThat(res.getName()).isEqualTo("a5bc9c7ad782b4025de27b5fffe83f84c275993d3f06ef913fb0ca93f2fc968f.png");
         assertThat(getFileHash(res)).isEqualTo("f0cb399ebfb9e65265214e781e827bfaa20a720f3b76bed9fd97c81dcd09aec7");
     }
 
@@ -94,7 +118,7 @@ class ImageResultCreatorTest {
 
         assertThat(res).isNotNull();
         assertThat(res).exists();
-        assertThat(res.getName()).isEqualTo("309d239019987dd3d6991017a595489cc14a160e68bc0f302321958d15d740e3.png");
+        assertThat(res.getName()).isEqualTo("9b4f33844cdd200d2187bfb9b19390c1efcd39dbc9cf9e30f0985aaab6631803.png");
         assertThat(getFileHash(res)).isEqualTo("3b3f20759ccbc0177a425de9f015d16f5e9a1ffbdcab7c4d4b585dd2e28b134f");
     }
 
@@ -106,7 +130,7 @@ class ImageResultCreatorTest {
 
         assertThat(res).isNotNull();
         assertThat(res).exists();
-        assertThat(res.getName()).isEqualTo("bc0063cead0421097605c4083c52ac00c0927f97b45dad9238f05f9378718f51.png");
+        assertThat(res.getName()).isEqualTo("070fdccadb565cad95924309985ac447e72c2b91063cc791565229ff4a327ba5.png");
         assertThat(getFileHash(res)).isEqualTo("a3e5a7537f470c9d7ecefb23e16c77f9e51891ed8a39589339a95458f70c7885");
     }
 
@@ -116,7 +140,7 @@ class ImageResultCreatorTest {
 
         String res = underTest.createRollCacheName(rolls.get(0), ResultImage.polyhedral_3d_red_and_white);
 
-        assertThat(res).isEqualTo("polyhedral_3d_red_and_white@d6s1d6s2d6s3d6s4d6s5d6s6-d6s1-d6s2d6s3d6s4");
+        assertThat(res).isEqualTo("polyhedral_3d_red_and_white@[1∈[1...6],2∈[1...6],3∈[1...6],4∈[1...6],5∈[1...6],6∈[1...6]],[1∈[1...6]],[2∈[1...6],3∈[1...6],4∈[1...6]]");
     }
 
     @Test
@@ -127,7 +151,7 @@ class ImageResultCreatorTest {
 
         assertThat(res).isNotNull();
         assertThat(res).exists();
-        assertThat(res.getName()).isEqualTo("46e25fef4f2abae5dab1d23c01252d8dcbfab494021403542bb8fed6d2147266.png");
+        assertThat(res.getName()).isEqualTo("57261f71cc1e660691aecda358f65c5a7fd266718b532cf44a3c3ae21389a282.png");
         assertThat(getFileHash(res)).isEqualTo("99c655db17ab28c8a0a1159cbe58bee3935b036b95a28d02c89a975f765323d6");
     }
 
@@ -157,7 +181,7 @@ class ImageResultCreatorTest {
 
         assertThat(res).isNotNull();
         assertThat(res).exists();
-        assertThat(res.getName()).isEqualTo("fad1676eb37f022ce8fd024c68cd63477e78aeec94809a9aed0f952cd4f7e3e0.png");
+        assertThat(res.getName()).isEqualTo("373c138d418fdb26ec1beeef91de18a4af8dd21b4e237d5bcf625c582761d124.png");
         assertThat(getFileHash(res)).isEqualTo("aeeb92835b8e23708933c7e6d3b3b728ff3e7c9ffe9531ba4c577e1a5a32edcf");
     }
 
@@ -169,7 +193,7 @@ class ImageResultCreatorTest {
 
         assertThat(res).isNotNull();
         assertThat(res).exists();
-        assertThat(res.getName()).isEqualTo("3f7a76229877b9f5aadb3a387a0eb0d2963d4251fb4270493645e7a17d9c9c37.png");
+        assertThat(res.getName()).isEqualTo("e164754db096348941dd0eb760bb3b001d76533c141ae45ade55ac8ddc304a7f.png");
         assertThat(getFileHash(res)).isEqualTo("595bbfeb0b3e428a649edd362b5429b87acc5bf0c5bde612c2fc4b83cf590421");
     }
 
@@ -181,7 +205,19 @@ class ImageResultCreatorTest {
 
         assertThat(res).isNotNull();
         assertThat(res).exists();
-        assertThat(res.getName()).isEqualTo("ce19856874881bb8da73e415f57a4a798cd3073a78d3d3b66f7397af9944b193.png");
+        assertThat(res.getName()).isEqualTo("bd158cac9329a2721e4e42d3a4a3c273989105782f3fc7d44c7a8ec3580ecff9.png");
         assertThat(getFileHash(res)).isEqualTo("7a55b361153aae5947b2d13666b994bec85ba18127f702b657bea928ef60bee6");
+    }
+
+    @ParameterizedTest(name = "{index} resultImage:{0}, sides:{1} -> {2}")
+    @MethodSource("generateResultImageData")
+    void testPolyhedralResultImage(ResultImage resultImage, List<Integer> sides) throws ExpressionException {
+        for (int d : sides) {
+            for (int s = 1; s <= d; s++) {
+                List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(s), 1000).evaluate("1d%d".formatted(d));
+                File res = underTest.getImageForRoll(rolls, resultImage);
+                assertThat(res).isNotNull();
+            }
+        }
     }
 }
