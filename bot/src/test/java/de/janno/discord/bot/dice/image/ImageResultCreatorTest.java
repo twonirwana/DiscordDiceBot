@@ -152,7 +152,7 @@ class ImageResultCreatorTest {
         assertThat(res).isNotNull();
         assertThat(res).exists();
         assertThat(res.getName()).isEqualTo("57261f71cc1e660691aecda358f65c5a7fd266718b532cf44a3c3ae21389a282.png");
-        assertThat(getFileHash(res)).isEqualTo("99c655db17ab28c8a0a1159cbe58bee3935b036b95a28d02c89a975f765323d6");
+        assertThat(getFileHash(res)).isEqualTo("2956ce00e097a7332f6769e37c69c7120074918316102b614758d65486c8cbfb");
     }
 
     @Test
@@ -182,7 +182,7 @@ class ImageResultCreatorTest {
         assertThat(res).isNotNull();
         assertThat(res).exists();
         assertThat(res.getName()).isEqualTo("373c138d418fdb26ec1beeef91de18a4af8dd21b4e237d5bcf625c582761d124.png");
-        assertThat(getFileHash(res)).isEqualTo("aeeb92835b8e23708933c7e6d3b3b728ff3e7c9ffe9531ba4c577e1a5a32edcf");
+        assertThat(getFileHash(res)).isEqualTo("60679ea2b91f3607f99cf9029c5cc6a552d245fab3fcd963ac88de437cf7118a");
     }
 
     @Test
@@ -194,7 +194,7 @@ class ImageResultCreatorTest {
         assertThat(res).isNotNull();
         assertThat(res).exists();
         assertThat(res.getName()).isEqualTo("e164754db096348941dd0eb760bb3b001d76533c141ae45ade55ac8ddc304a7f.png");
-        assertThat(getFileHash(res)).isEqualTo("595bbfeb0b3e428a649edd362b5429b87acc5bf0c5bde612c2fc4b83cf590421");
+        assertThat(getFileHash(res)).isEqualTo("2333543c0c9813f3013b2b781f8614dfba8accea373755301cae4b354d971337");
     }
 
     @Test
@@ -206,7 +206,7 @@ class ImageResultCreatorTest {
         assertThat(res).isNotNull();
         assertThat(res).exists();
         assertThat(res.getName()).isEqualTo("bd158cac9329a2721e4e42d3a4a3c273989105782f3fc7d44c7a8ec3580ecff9.png");
-        assertThat(getFileHash(res)).isEqualTo("7a55b361153aae5947b2d13666b994bec85ba18127f702b657bea928ef60bee6");
+        assertThat(getFileHash(res)).isEqualTo("fffee64a526f6fdd0e4a1e44cbcfcda0fe458709d3b17c7ff8745556e386ef67");
     }
 
     @ParameterizedTest(name = "{index} resultImage:{0}, sides:{1} -> {2}")
