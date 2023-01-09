@@ -1,6 +1,7 @@
 package de.janno.discord.bot.dice;
 
 import com.google.common.collect.ImmutableList;
+import de.janno.discord.bot.BotMetrics;
 import de.janno.discord.bot.ResultImage;
 import de.janno.discord.bot.command.AnswerFormatType;
 import de.janno.discord.bot.command.RollAnswer;
@@ -87,9 +88,10 @@ public class DiceEvaluatorAdapter {
         try {
             log.debug("Roll expression: {}", diceExpression);
             List<Roll> rolls = diceEvaluator.evaluate(diceExpression);
+            BotMetrics.incrementUseImageResultMetricCounter(resultImage);
             File diceImage = null;
-            if (resultImage.equals(ResultImage.polyhedral_black_and_gold)) {
-                diceImage = IMAGE_RESULT_CREATOR.getImageForRoll(rolls);
+            if (!resultImage.equals(ResultImage.none)) {
+                diceImage = IMAGE_RESULT_CREATOR.getImageForRoll(rolls, resultImage);
             }
             if (rolls.size() == 1) {
                 return RollAnswer.builder()

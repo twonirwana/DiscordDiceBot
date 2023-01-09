@@ -279,7 +279,7 @@ class CountSuccessesCommandTest {
                         .build())
                 .build();
         CountSuccessesConfig res = underTest.getConfigFromStartOptions(option);
-        assertThat(res).isEqualTo(new CountSuccessesConfig(null, 12, 8, "half_dice_one", 13, 2, Set.of(12, 11), Set.of(1, 2), AnswerFormatType.full, ResultImage.polyhedral_black_and_gold));
+        assertThat(res).isEqualTo(new CountSuccessesConfig(null, 12, 8, "half_dice_one", 13, 2, Set.of(12, 11), Set.of(1, 2), AnswerFormatType.full, ResultImage.polyhedral_3d_red_and_white));
     }
 
 

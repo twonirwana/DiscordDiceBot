@@ -55,7 +55,7 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
             new ButtonIdLabelAndDiceExpression("13_button", "2D10", "2d10="),
             new ButtonIdLabelAndDiceExpression("14_button", "2D12", "2d12="),
             new ButtonIdLabelAndDiceExpression("15_button", "2D20", "2d20=")
-    ), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.without_expression, ResultImage.polyhedral_black_and_gold);
+    ), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.without_expression, ResultImage.polyhedral_3d_red_and_white);
     private final static CustomDiceConfig DND5_CONFIG = new CustomDiceConfig(null, ImmutableList.of(
             new ButtonIdLabelAndDiceExpression("1_button", "D4", "1d4"),
             new ButtonIdLabelAndDiceExpression("2_button", "D6", "1d6"),
@@ -254,7 +254,7 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
 
     @Override
     protected @NonNull Config getConfigFromStartOptions(@NonNull CommandInteractionOption options) {
-        return new Config(null, AnswerFormatType.full, ResultImage.polyhedral_black_and_gold);
+        return new Config(null, AnswerFormatType.full, ResultImage.none);
     }
 
     private enum ButtonIds {

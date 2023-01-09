@@ -35,11 +35,13 @@ public class BotMetrics {
     private final static String METRIC_SLASH_PREFIX = "slashEvent";
     private final static String METRIC_SLASH_HELP_PREFIX = "slashHelpEvent";
     private final static String METRIC_IMAGE_RESULT_PREFIX = "imageResult";
+    private final static String METRIC_USE_IMAGE_RESULT_PREFIX = "useImageResult";
     private final static String METRIC_ANSWER_FORMAT_PREFIX = "answerFormat";
     private final static String METRIC_DICE_PARSER_SYSTEM_PREFIX = "diceParserSystem";
     private final static String CONFIG_TAG = "config";
     private final static String COMMAND_TAG = "command";
     private final static String CACHE_TAG = "cache";
+    private final static String IMAGE_RESULT_TAG = "imageResult";
     private final static String ANSWER_FORMAT_TAG = "answerFormat";
     private final static String DICE_SYSTEM_TAG = "diceSystem";
     private final static String ACTION_TAG = "action";
@@ -110,6 +112,11 @@ public class BotMetrics {
 
     public static void incrementImageResultMetricCounter(@NonNull CacheTag tag) {
         globalRegistry.counter(METRIC_PREFIX + METRIC_IMAGE_RESULT_PREFIX, Tags.of(CACHE_TAG, tag.name())).increment();
+    }
+
+
+    public static void incrementUseImageResultMetricCounter(@NonNull ResultImage resultImage) {
+        globalRegistry.counter(METRIC_PREFIX + METRIC_USE_IMAGE_RESULT_PREFIX, Tags.of(IMAGE_RESULT_TAG, resultImage.name())).increment();
     }
 
     public static void databaseTimer(@NonNull String action, @NonNull Duration duration) {

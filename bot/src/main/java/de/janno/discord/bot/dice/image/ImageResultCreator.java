@@ -1,12 +1,11 @@
 package de.janno.discord.bot.dice.image;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Preconditions;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.hash.Hashing;
-import com.google.common.io.Resources;
 import de.janno.discord.bot.BotMetrics;
+import de.janno.discord.bot.ResultImage;
 import de.janno.evaluator.dice.RandomElement;
 import de.janno.evaluator.dice.Roll;
 import lombok.NonNull;
@@ -26,31 +25,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 @Slf4j
 public class ImageResultCreator {
 
     private static final String CACHE_FOLDER = "imageCache";
     private static final String CACHE_INDEX = CACHE_FOLDER + "/" + "imageCacheName.csv";
-    private final static Map<Integer, Map<Integer, BufferedImage>> DICE_IMAGE_MAP = Stream.of(4, 6, 8, 10, 12, 20, 100)
-            .collect(ImmutableMap.toImmutableMap(d -> d, d -> {
-                final Stream<Integer> sideStream;
-                if (d != 100) {
-                    sideStream = IntStream.range(1, d + 1).boxed();
-                } else {
-                    sideStream = IntStream.range(1, 11).boxed();
-                }
-                return sideStream
-                        .collect(ImmutableMap.toImmutableMap(s -> s, s -> {
-                            try {
-                                return ImageIO.read(Resources.getResource("images/d%d/d%ds%d.png".formatted(d, d, s)).openStream());
-                            } catch (IOException e) {
-                                throw new RuntimeException(e);
-                            }
-                        }));
-            }));
+
+    private final static Map<ResultImage, ImageProvider> IMAGE_PROVIDER_MAP = ImmutableMap.of(
+            ResultImage.none, (totalDieSides, shownDieSide) -> List.of(),
+            ResultImage.polyhedral_black_and_gold, new PolyhedralBlackAndGold(),
+            ResultImage.polyhedral_3d_red_and_white, new Polyhedral3dRedAndWhite()
+    );
 
     public ImageResultCreator() {
         createCacheIndexFileIfMissing();
@@ -68,69 +54,49 @@ public class ImageResultCreator {
         }
     }
 
-    private @NonNull List<BufferedImage> getImageForRandomElement(@NonNull RandomElement randomElement) {
-        Preconditions.checkNotNull(randomElement.getMaxInc());
-        if (randomElement.getMaxInc() == 100) {
-            int number = randomElement.getRollElement().asInteger().orElseThrow();
-            int tens = number / 10;
-
-            int ones = number - (tens * 10);
-            if (ones == 0) {
-                ones = 10;
-            }
-            if (tens == 0) {
-                tens = 10;
-            }
-            return List.of(
-                    DICE_IMAGE_MAP.get(100).get(tens),
-                    DICE_IMAGE_MAP.get(10).get(ones)
-            );
-        }
-        return List.of(DICE_IMAGE_MAP.get(randomElement.getMaxInc()).get(randomElement.getRollElement().asInteger().orElseThrow()));
-    }
-
-    private boolean invalidDieResult(@NonNull RandomElement randomElement) {
+    private boolean invalidDieResult(@NonNull RandomElement randomElement, ResultImage resultImage) {
         return randomElement.getMinInc() == null ||
                 randomElement.getMinInc() != 1 ||
                 randomElement.getMaxInc() == null ||
-                !DICE_IMAGE_MAP.containsKey(randomElement.getMaxInc()) ||
                 randomElement.getRollElement().asInteger().isEmpty() ||
                 randomElement.getRollElement().asInteger().get() > randomElement.getMaxInc() ||
-                randomElement.getRollElement().asInteger().get() < 1;
+                randomElement.getRollElement().asInteger().get() < 1 ||
+                IMAGE_PROVIDER_MAP.get(resultImage).getImageFor(randomElement.getMaxInc(), randomElement.getRollElement().asInteger().get()).isEmpty();
     }
 
     @VisibleForTesting
-    String createRollCacheName(Roll roll) {
-        return roll.getRandomElementsInRoll().getRandomElements().stream()
+    String createRollCacheName(Roll roll, ResultImage resultImage) {
+        return "%s@%s".formatted(resultImage.name(), roll.getRandomElementsInRoll().getRandomElements().stream()
                 .map(r -> r.getRandomElements().stream()
                         .map(re -> "d%ds%d".formatted(re.getMaxInc(), re.getRollElement().asInteger().orElseThrow()))
                         .collect(Collectors.joining())
                 )
                 .filter(l -> !l.isEmpty())
-                .collect(Collectors.joining("-"));
+                .collect(Collectors.joining("-")));
     }
 
-    public @Nullable File getImageForRoll(@NonNull List<Roll> rolls) {
+    public @Nullable File getImageForRoll(@NonNull List<Roll> rolls, ResultImage resultImage) {
         if (rolls.size() != 1 ||
+                rolls.get(0).getRandomElementsInRoll().getRandomElements().size() == 0 ||
                 rolls.get(0).getRandomElementsInRoll().getRandomElements().size() > 10 ||
-                rolls.get(0).getRandomElementsInRoll().getRandomElements().stream()
-                        .anyMatch(r -> r.getRandomElements().size() > 15) ||
+                rolls.get(0).getRandomElementsInRoll().getRandomElements().stream().anyMatch(r -> r.getRandomElements().size() > 15) ||
+                rolls.get(0).getRandomElementsInRoll().getRandomElements().stream().anyMatch(r -> r.getRandomElements().size() == 0) ||
                 rolls.get(0).getRandomElementsInRoll().getRandomElements().stream()
                         .flatMap(r -> r.getRandomElements().stream())
-                        .anyMatch(this::invalidDieResult)
+                        .anyMatch(r -> invalidDieResult(r, resultImage))
         ) {
             return null;
         }
 
-        String name = createRollCacheName(rolls.get(0));
+        String name = createRollCacheName(rolls.get(0), resultImage);
         String hashName = Hashing.sha256()
                 .hashString(name, StandardCharsets.UTF_8)
                 .toString();
 
-        String filePath = CACHE_FOLDER + "/" + hashName + ".png";
+        String filePath = "%s/%s.png".formatted(CACHE_FOLDER, hashName);
         File imageFile = new File(filePath);
         if (!imageFile.exists()) {
-            createNewFileForRoll(rolls.get(0), imageFile, name);
+            createNewFileForRoll(rolls.get(0), imageFile, name, resultImage);
             BotMetrics.incrementImageResultMetricCounter(BotMetrics.CacheTag.CACHE_MISS);
         } else {
             log.info("Use cached file %s for %s".formatted(filePath, name));
@@ -139,12 +105,12 @@ public class ImageResultCreator {
         return imageFile;
     }
 
-    private void createNewFileForRoll(Roll roll, File file, String name) {
+    private void createNewFileForRoll(Roll roll, File file, String name, ResultImage resultImage) {
         Stopwatch stopwatch = Stopwatch.createStarted();
 
         List<List<BufferedImage>> images = roll.getRandomElementsInRoll().getRandomElements().stream()
                 .map(r -> r.getRandomElements().stream()
-                        .flatMap(re -> getImageForRandomElement(re).stream())
+                        .flatMap(re -> IMAGE_PROVIDER_MAP.get(resultImage).getImageFor(re.getMaxInc(), re.getRollElement().asInteger().orElse(null)).stream())
                         .toList()
                 )
                 .filter(l -> !l.isEmpty())
@@ -173,7 +139,7 @@ public class ImageResultCreator {
         writeFile(combined, file, name);
 
         BotMetrics.imageCreationTimer(stopwatch.elapsed());
-        log.debug("Created image in {}ms", stopwatch.elapsed(TimeUnit.MILLISECONDS));
+        log.debug("Created image {} in {}ms", name, stopwatch.elapsed(TimeUnit.MILLISECONDS));
     }
 
 
