@@ -9,6 +9,9 @@ import de.janno.evaluator.dice.DiceEvaluator;
 import de.janno.evaluator.dice.ExpressionException;
 import de.janno.evaluator.dice.Roll;
 import de.janno.evaluator.dice.random.GivenNumberSupplier;
+import org.apache.commons.io.FileUtils;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -37,7 +40,19 @@ class ImageResultCreatorTest {
                 Arguments.of(ResultImage.polyhedral_green_and_gold, List.of(4, 6, 8, 10, 12, 20, 100)),
                 Arguments.of(ResultImage.polyhedral_red_and_gold, List.of(4, 6, 8, 10, 12, 20, 100)),
                 Arguments.of(ResultImage.polyhedral_black_and_gold, List.of(4, 6, 8, 10, 12, 20, 100)),
-                Arguments.of(ResultImage.fate_black, List.of(-1, 0, 1)));
+                Arguments.of(ResultImage.fate_black, List.of(-1, 0, 1)),
+                Arguments.of(ResultImage.d6_dots_white, List.of(6))
+        );
+    }
+
+    @BeforeEach
+    void setup() throws IOException {
+        FileUtils.cleanDirectory(new File("imageCache/"));
+    }
+
+    @AfterEach
+    void cleanUp() throws IOException {
+        FileUtils.cleanDirectory(new File("imageCache/"));
     }
 
     @Test
@@ -173,6 +188,34 @@ class ImageResultCreatorTest {
         assertThat(res).exists();
         assertThat(res.getName()).isEqualTo("070fdccadb565cad95924309985ac447e72c2b91063cc791565229ff4a327ba5.png");
         assertThat(getFileHash(res)).isEqualTo("a3e5a7537f470c9d7ecefb23e16c77f9e51891ed8a39589339a95458f70c7885");
+    }
+
+    @Test
+    void getImageForRoll_cache() throws ExpressionException, IOException {
+        List<Roll> rolls1 = new DiceEvaluator(new GivenNumberSupplier(1), 1000).evaluate("1d6");
+        File res1 = underTest.getImageForRoll(rolls1, ResultImage.polyhedral_3d_red_and_white);
+        assertThat(res1).isNotNull();
+        assertThat(res1).exists();
+        long res1LastModified = res1.lastModified();
+        assertThat(res1.getName()).isEqualTo("cea2a67e61a8b605c6702aac213960f86922331b5cac795649502b363dde97aa.png");
+        assertThat(getFileHash(res1)).isEqualTo("933002493c0ccf2ea6ad67c8656342d3f02642a19a840b032a62346e4a7a048b");
+
+        List<Roll> rolls2 = new DiceEvaluator(new GivenNumberSupplier(1), 1000).evaluate("1d6");
+        File cachedRes1 = underTest.getImageForRoll(rolls2, ResultImage.polyhedral_3d_red_and_white);
+        assertThat(cachedRes1).isNotNull();
+        assertThat(cachedRes1).exists();
+        assertThat(cachedRes1.lastModified()).isEqualTo(res1LastModified);
+        assertThat(cachedRes1.getName()).isEqualTo("cea2a67e61a8b605c6702aac213960f86922331b5cac795649502b363dde97aa.png");
+        assertThat(getFileHash(cachedRes1)).isEqualTo("933002493c0ccf2ea6ad67c8656342d3f02642a19a840b032a62346e4a7a048b");
+
+        List<Roll> rolls3 = new DiceEvaluator(new GivenNumberSupplier(2), 1000).evaluate("1d6");
+        File res2 = underTest.getImageForRoll(rolls3, ResultImage.polyhedral_3d_red_and_white);
+        assertThat(res2).isNotNull();
+        assertThat(res2).exists();
+        assertThat(res2.lastModified()).isNotEqualTo(res1LastModified);
+        assertThat(res2.getName()).isEqualTo("dbb28d1b4a2eb15d9a4b2301e76f751f0129efe722d94b4551049fc168524162.png");
+        assertThat(getFileHash(res2)).isEqualTo("beb6e26993ee00f8c4fe5e9fd8f4f39cf0450626bbb25a020d18c22717808fe5");
+
     }
 
     @Test

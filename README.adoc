@@ -164,6 +164,12 @@ image:image/fate_image.png[image,360]
 
 Valid for d[-1,1,1]
 
+==== d6_dots_white
+
+image:image/d6White.png[image,360]
+
+Valid for d6
+
 ==== polyhedral_black_and_gold
 
 image:image/black_and_gold.png[image,600]
