@@ -191,7 +191,7 @@ class ImageResultCreatorTest {
     }
 
     @Test
-    void getImageForRoll_cache() throws ExpressionException, IOException {
+    void getImageForRoll_cache() throws ExpressionException, IOException, InterruptedException {
         List<Roll> rolls1 = new DiceEvaluator(new GivenNumberSupplier(1), 1000).evaluate("1d6");
         File res1 = underTest.getImageForRoll(rolls1, ResultImage.polyhedral_3d_red_and_white);
         assertThat(res1).isNotNull();
@@ -200,6 +200,8 @@ class ImageResultCreatorTest {
         assertThat(res1.getName()).isEqualTo("cea2a67e61a8b605c6702aac213960f86922331b5cac795649502b363dde97aa.png");
         assertThat(getFileHash(res1)).isEqualTo("933002493c0ccf2ea6ad67c8656342d3f02642a19a840b032a62346e4a7a048b");
 
+        Thread.sleep(100);
+
         List<Roll> rolls2 = new DiceEvaluator(new GivenNumberSupplier(1), 1000).evaluate("1d6");
         File cachedRes1 = underTest.getImageForRoll(rolls2, ResultImage.polyhedral_3d_red_and_white);
         assertThat(cachedRes1).isNotNull();
@@ -207,6 +209,8 @@ class ImageResultCreatorTest {
         assertThat(cachedRes1.lastModified()).isEqualTo(res1LastModified);
         assertThat(cachedRes1.getName()).isEqualTo("cea2a67e61a8b605c6702aac213960f86922331b5cac795649502b363dde97aa.png");
         assertThat(getFileHash(cachedRes1)).isEqualTo("933002493c0ccf2ea6ad67c8656342d3f02642a19a840b032a62346e4a7a048b");
+
+        Thread.sleep(100);
 
         List<Roll> rolls3 = new DiceEvaluator(new GivenNumberSupplier(2), 1000).evaluate("1d6");
         File res2 = underTest.getImageForRoll(rolls3, ResultImage.polyhedral_3d_red_and_white);
