@@ -31,7 +31,7 @@ dependencies {
     testCompileOnly(libs.lombok)
     testAnnotationProcessor(libs.lombok)
 
-    testImplementation("io.projectreactor:reactor-test:3.5.1")
+    testImplementation("io.projectreactor:reactor-test:3.5.2")
     testImplementation("org.junit.jupiter:junit-jupiter-params:5.9.2")
     testImplementation("org.mockito:mockito-core:4.11.0")
     testImplementation("org.mockito:mockito-inline:4.11.0")
