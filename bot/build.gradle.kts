@@ -21,7 +21,7 @@ dependencies {
     implementation(libs.guava)
     implementation(libs.micrometer.core)
     implementation(libs.commons.lang3)
-    implementation("io.micrometer:micrometer-registry-prometheus:1.10.2")
+    implementation("io.micrometer:micrometer-registry-prometheus:1.10.3")
     implementation("com.h2database:h2:2.1.214")
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.14.1")
 
