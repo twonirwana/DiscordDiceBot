@@ -12,7 +12,7 @@ dependencyResolutionManagement {
             library("micrometer-core", "io.micrometer:micrometer-core:1.10.2")
             library("reactor-core", "io.projectreactor:reactor-core:3.5.1")
             library("guava", "com.google.guava:guava:31.1-jre")
-            library("junit-jupiter-api", "org.junit.jupiter:junit-jupiter-api:5.9.1")
+            library("junit-jupiter-api", "org.junit.jupiter:junit-jupiter-api:5.9.2")
             library("junit-jupiter-engine", "org.junit.jupiter:junit-jupiter-engine:5.9.1")
             library("assertj-core", "org.assertj:assertj-core:3.24.1")
             library("logback-classic", "ch.qos.logback:logback-classic:1.4.5")
