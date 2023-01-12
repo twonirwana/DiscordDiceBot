@@ -162,6 +162,32 @@ public class CustomParameterCommandMockTest {
     }
 
     @Test
+    void lockedToUser_block() {
+        CustomParameterCommand underTest = new CustomParameterCommand(messageDataDAO, new DiceParser(), new RandomNumberSupplier(0), 1000);
+        underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
+
+        CustomParameterConfig config = new CustomParameterConfig(null, "{numberOfDice:1<=>10}d{sides:1/4/6/8/10/12/20/100}", DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.minimal, ResultImage.none);
+        ButtonEventAdaptorMockFactory<CustomParameterConfig, CustomParameterStateData> factory = new ButtonEventAdaptorMockFactory<>("custom_parameter", underTest, config, messageDataDAO, false);
+
+        ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("4", "user1");
+        underTest.handleComponentInteractEvent(click1).block();
+        ButtonEventAdaptorMock click2 = factory.getButtonClickOnLastButtonMessage("6", "user2");
+        underTest.handleComponentInteractEvent(click2).block();
+        ButtonEventAdaptorMock click3 = factory.getButtonClickOnLastButtonMessage("6", "user1");
+        underTest.handleComponentInteractEvent(click3).block();
+
+        assertThat(click1.getActions()).containsExactlyInAnyOrder(
+                "editMessage: message:user1: Please select value for **sides**, buttonValues=1,4,6,8,10,12,20,100,clear");
+        assertThat(click2.getActions()).containsExactlyInAnyOrder(
+                "editMessage: message:user1: Please select value for **sides**, buttonValues=1,4,6,8,10,12,20,100,clear");
+        assertThat(click3.getActions()).containsExactlyInAnyOrder(
+                "editMessage: message:processing ..., buttonValues=",
+                "createAnswer: title=null, description=numberOfDice:4, sides:6 ⇒ 2, 3, 1, 4, fieldValues:, answerChannel:null, type:MESSAGE",
+                "createButtonMessage: content=Please select value for **numberOfDice**, buttonValues=1,2,3,4,5,6,7,8,9,10",
+                "deleteMessageById: 0");
+    }
+
+    @Test
     void clear() {
         CustomParameterCommand underTest = new CustomParameterCommand(messageDataDAO, new DiceParser(), new RandomNumberSupplier(0), 1000);
         underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));

@@ -107,7 +107,8 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
 
         ImmutableList<SelectedParameter> newSelectedParameterList = currentOrNewSelectedParameter.stream()
                 .map(sp -> {
-                    if (Objects.equals(sp.getParameterExpression(), currentParameterExpression.get())) {
+                    if (Objects.equals(sp.getParameterExpression(), currentParameterExpression.get()) &&
+                            (currentlyLockedForUser == null || Objects.equals(currentlyLockedForUser, invokingUser))) {
                         String label = getParameterForParameterExpression(config, sp.getParameterExpression())
                                 .map(Parameter::getParameterOptions).orElse(List.of()).stream()
                                 .filter(vl -> vl.getValue().equals(buttonValue))
