@@ -27,14 +27,19 @@ public class ButtonEventAdaptorMock implements ButtonEventAdaptor {
     private final long massageId;
     private final AtomicLong messageIdCounter;
     private final List<String> actions = new ArrayList<>();
-
     private final Set<Long> pinnedMessageIds;
+    private final String invokingUser;
 
     public ButtonEventAdaptorMock(String commandId, String buttonValue, AtomicLong messageIdCounter, Set<Long> pinnedMessageIds) {
+        this(commandId, buttonValue, messageIdCounter, pinnedMessageIds, "invokingUser");
+    }
+
+    public ButtonEventAdaptorMock(String commandId, String buttonValue, AtomicLong messageIdCounter, Set<Long> pinnedMessageIds, String invokingUser) {
         this.customId = commandId + BottomCustomIdUtils.CUSTOM_ID_DELIMITER + buttonValue;
         this.massageId = messageIdCounter.get();
         this.messageIdCounter = messageIdCounter;
         this.pinnedMessageIds = pinnedMessageIds;
+        this.invokingUser = invokingUser;
     }
 
     public ButtonEventAdaptorMock(String legacyId) {
@@ -42,6 +47,7 @@ public class ButtonEventAdaptorMock implements ButtonEventAdaptor {
         this.massageId = 0;
         this.messageIdCounter = new AtomicLong(0);
         this.pinnedMessageIds = Set.of();
+        this.invokingUser = "invokingUser";
     }
 
     public List<String> getActions() {
@@ -70,7 +76,7 @@ public class ButtonEventAdaptorMock implements ButtonEventAdaptor {
 
     @Override
     public String getInvokingGuildMemberName() {
-        return "invokingUser";
+        return invokingUser;
     }
 
     @Override

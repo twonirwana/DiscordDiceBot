@@ -29,4 +29,8 @@ public class ButtonEventAdaptorMockFactory<C extends Config, S extends StateData
     public ButtonEventAdaptorMock getButtonClickOnLastButtonMessage(String buttonValue) {
         return new ButtonEventAdaptorMock(customId, buttonValue, messageIdCounter, pinnedMessageIds);
     }
+
+    public ButtonEventAdaptorMock getButtonClickOnLastButtonMessage(String buttonValue, String invokingUser) {
+        return new ButtonEventAdaptorMock(customId, buttonValue, messageIdCounter, pinnedMessageIds, invokingUser);
+    }
 }
