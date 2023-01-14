@@ -1,6 +1,7 @@
 package de.janno.discord.bot.command.directRoll;
 
 import de.janno.discord.bot.SlashEventAdaptorMock;
+import de.janno.discord.bot.dice.DiceEvaluatorAdapter;
 import de.janno.discord.bot.persistance.PersistanceManager;
 import de.janno.discord.bot.persistance.PersistanceManagerImpl;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
@@ -43,6 +44,39 @@ public class DirectRollCommandMockTest {
         assertThat(slashEvent.getActions()).containsExactlyInAnyOrder(
                 "acknowledgeAndRemoveSlash",
                 "createResultMessageWithEventReference: EmbedOrMessageDefinition(title=1d6 ⇒ 3, descriptionOrContent=, fields=[], file=86da4f6e0c1e3d159e92de31ff146325f75ca17052630c1f619276947307302c.png, type=EMBED)");
+    }
+
+    @Test
+    void help() {
+        DirectRollCommand directRollCommand = new DirectRollCommand(new RandomNumberSupplier(0), persistanceManager);
+
+        SlashEventAdaptorMock slashEvent = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
+                .name("expression")
+                .stringValue("help")
+                .build()));
+        directRollCommand.handleSlashCommandEvent(slashEvent).block();
+
+
+        assertThat(slashEvent.getActions()).containsExactlyInAnyOrder(
+                "replyEmbed: EmbedOrMessageDefinition(title=null, descriptionOrContent=Type /r and a dice expression, configuration with /direct_roll_config\n" +
+                        DiceEvaluatorAdapter.getHelp() +
+                        ", fields=[EmbedOrMessageDefinition.Field(name=Example, value=`/r expression:1d6`, inline=false), EmbedOrMessageDefinition.Field(name=Full documentation, value=https://github.com/twonirwana/DiscordDiceBot, inline=false), EmbedOrMessageDefinition.Field(name=Discord Server for Help and News, value=https://discord.gg/e43BsqKpFr, inline=false)], file=null, type=EMBED)");
+    }
+
+    @Test
+    void invalidExpression() {
+        DirectRollCommand directRollCommand = new DirectRollCommand(new RandomNumberSupplier(0), persistanceManager);
+
+        SlashEventAdaptorMock slashEvent = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
+                .name("expression")
+                .stringValue("d")
+                .build()));
+        directRollCommand.handleSlashCommandEvent(slashEvent).block();
+
+
+        assertThat(slashEvent.getActions()).containsExactlyInAnyOrder(
+                "reply: commandString\n" +
+                        "The following expression is invalid: 'd'. The error is: Operator d has right associativity but the right value was: empty. Use `/r expression:help` to get more information on how to use the command.");
     }
 
     @Test

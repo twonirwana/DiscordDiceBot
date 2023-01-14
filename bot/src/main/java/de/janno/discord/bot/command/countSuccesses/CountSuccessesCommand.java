@@ -107,7 +107,7 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesConfig,
         return EmbedOrMessageDefinition.builder().descriptionOrContent("Use '/count_successes start dice_sides:X target_number:Y' to get Buttons that roll with X sided dice against the target of Y and count the successes. A successes are all dice that have a result greater or equal then the target number")
                 .field(new EmbedOrMessageDefinition.Field("Example", "`/count_successes start dice_sides:10 target_number:7`", false))
                 .field(new EmbedOrMessageDefinition.Field("Full documentation", "https://github.com/twonirwana/DiscordDiceBot", false))
-                .field(new EmbedOrMessageDefinition.Field("Discord Server", "https://discord.gg/e43BsqKpFr", false))
+                .field(new EmbedOrMessageDefinition.Field("Discord Server for Help and News", "https://discord.gg/e43BsqKpFr", false))
                 .build();
     }
 

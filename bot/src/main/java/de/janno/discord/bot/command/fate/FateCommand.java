@@ -106,7 +106,7 @@ public class FateCommand extends AbstractCommand<FateConfig, StateData> {
                         " that roll four dice and add the modifier of the button.")
                 .field(new EmbedOrMessageDefinition.Field("Example", "`/fate start type:with_modifier` or `/fate start type:simple`", false))
                 .field(new EmbedOrMessageDefinition.Field("Full documentation", "https://github.com/twonirwana/DiscordDiceBot", false))
-                .field(new EmbedOrMessageDefinition.Field("Discord Server", "https://discord.gg/e43BsqKpFr", false))
+                .field(new EmbedOrMessageDefinition.Field("Discord Server for Help and News", "https://discord.gg/e43BsqKpFr", false))
                 .build();
     }
 

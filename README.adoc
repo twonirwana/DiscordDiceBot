@@ -102,6 +102,7 @@ If a message sends the answer to another channel, it will not be moved to the en
 === Answer Format
 
 All commands have an `answer_format` option that determines how the answer of a dice roll is shown.
+In the case of the direct roll command `r` the `answer_format` can be configured for the current channel with the `direct_roll_config` command.
 There are the following options: `full`,`without_expression`, `compact` and `minimal`.
 
 ==== Full
@@ -136,6 +137,7 @@ image:image/minimal.png[image,320]
 === Dice Images
 
 The `custom_dice`, `sum_custom_dice` and `custom_parameter` commands have an `result_image` option that can be configured to add an image of the rolled dice.
+For the direct rolls it can be configured with the `direct_roll_config` command.
 The images will only be shown if the following conditions are met:
 
 * The `answer_format` is set to `full` or `without_expression`
@@ -205,8 +207,19 @@ Clicking on a button provides the results of the button dice expression.
 image:image/direct_roll.webp[image]
 
 With the command `/r` it is possible to directly call the dice expression (see <<Dice Expression Notation>>) without the usage of buttons.
-For example `/r 3d6' will simply roll 3d6 and post the result without showing any buttons.
+For example `/r expression:3d6` will simply roll 3d6 and post the result without showing any buttons.
 The result of the dice will be summed up per default.
+The command can be configured for a channel by using the `/direct_roll_config save` command.
+The configuration will be used for all `/r` in this channel until it is overwritten or deleted with `/direct_roll_config delete`.
+
+There are the following options:
+
+* `answer_format`: see the  <<Answer Format>> for details, the default value is `full`.
+* `always_sum_result`: if the result should always sum together.
+If set to false the `3d6` would return the result for each die, not the sum of all three.
+This can still be done by using the sum operator `=` e.g. `3d6=`.
+The default value is true
+* `image_result`: see <<Dice Images>> for details, the default value is `polyhedral_3d_red_and_white`
 
 === Count success in a pool
 

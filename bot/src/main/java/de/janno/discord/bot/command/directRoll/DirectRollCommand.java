@@ -101,7 +101,7 @@ public class DirectRollCommand extends AbstractDirectRollCommand {
                         .descriptionOrContent("Type /r and a dice expression, configuration with /direct_roll_config\n" + DiceEvaluatorAdapter.getHelp())
                         .field(new EmbedOrMessageDefinition.Field("Example", "`/r expression:1d6`", false))
                         .field(new EmbedOrMessageDefinition.Field("Full documentation", "https://github.com/twonirwana/DiscordDiceBot", false))
-                        .field(new EmbedOrMessageDefinition.Field("Discord Server", "https://discord.gg/e43BsqKpFr", false))
+                        .field(new EmbedOrMessageDefinition.Field("Discord Server for Help and News", "https://discord.gg/e43BsqKpFr", false))
                         .build(), true);
             }
 
