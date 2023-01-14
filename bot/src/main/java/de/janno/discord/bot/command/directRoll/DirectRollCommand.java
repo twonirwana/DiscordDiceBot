@@ -115,8 +115,8 @@ public class DirectRollCommand extends AbstractDirectRollCommand {
 
             String diceExpression = DiceSystemAdapter.getExpressionFromExpressionWithOptionalLabel(commandParameter);
             BotMetrics.incrementSlashStartMetricCounter(getCommandId(), diceExpression);
-            BotMetrics.incrementAnswerFormatCounter(AnswerFormatType.full, getCommandId());
             DirectRollConfig config = getDirectRollConfig(event.getChannelId());
+            BotMetrics.incrementAnswerFormatCounter(config.getAnswerFormatType(), getCommandId());
 
             RollAnswer answer = diceSystemAdapter.answerRollWithOptionalLabelInExpression(commandParameter, config.isAlwaysSumResult(), DiceParserSystem.DICE_EVALUATOR, config.getAnswerFormatType(), config.getResultImage());
 

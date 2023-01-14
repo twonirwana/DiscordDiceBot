@@ -1,5 +1,6 @@
 package de.janno.discord.bot.command.directRoll;
 
+import de.janno.discord.bot.BotMetrics;
 import de.janno.discord.bot.ResultImage;
 import de.janno.discord.bot.command.AnswerFormatType;
 import de.janno.discord.bot.command.DefaultCommandOptions;
@@ -72,6 +73,7 @@ public class DirectRollConfigCommand extends AbstractDirectRollCommand {
             AnswerFormatType answerType = DefaultCommandOptions.getAnswerTypeFromStartCommandOption(saveAction).orElse(AnswerFormatType.full);
             ResultImage resultImage = DefaultCommandOptions.getResultImageOptionFromStartCommandOption(saveAction).orElse(ResultImage.none);
             DirectRollConfig config = new DirectRollConfig(answerTargetChannelId, alwaysSumResults, answerType, resultImage);
+            BotMetrics.incrementSlashStartMetricCounter(getCommandId(), config.toShortString());
             return Mono.defer(() -> {
                 persistanceManager.deleteChannelConfig(event.getChannelId(), CONFIG_TYPE_ID);
                 persistanceManager.saveChannelConfig(new ChannelConfigDTO(UUID.randomUUID(),
@@ -86,17 +88,18 @@ public class DirectRollConfigCommand extends AbstractDirectRollCommand {
                         event.getCommandString().replace("`", ""),
                         config.toShortString()
                 );
-                return event.reply("Saved direct roll channel config", false);
+                return event.reply("`%s`\nSaved direct roll channel config".formatted(event.getCommandString()), false);
             });
         }
         if (event.getOption(DELETE_ACTION).isPresent()) {
+            BotMetrics.incrementSlashStartMetricCounter(getCommandId(), "delete");
             return Mono.defer(() -> {
                 log.info("{}: '{}'",
                         event.getRequester().toLogString(),
                         event.getCommandString().replace("`", "")
                 );
                 persistanceManager.deleteChannelConfig(event.getChannelId(), CONFIG_TYPE_ID);
-                return event.reply("Deleted direct roll channel config", false);
+                return event.reply("`%s`\nDeleted direct roll channel config".formatted(event.getCommandString()), false);
             });
         }
         log.error("unknown option for slash event: {} ", event.getOptions());

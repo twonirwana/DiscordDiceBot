@@ -124,7 +124,7 @@ public class DirectRollCommandMockTest {
                 .build()));
         directRollCommand.handleSlashCommandEvent(slashEvent2).block();
 
-        assertThat(slashEvent1.getActions()).containsExactlyInAnyOrder("reply: Saved direct roll channel config");
+        assertThat(slashEvent1.getActions()).containsExactlyInAnyOrder("reply: `commandString`\nSaved direct roll channel config");
         assertThat(slashEvent2.getActions()).containsExactlyInAnyOrder("acknowledgeAndRemoveSlash",
                 "createResultMessageWithEventReference: EmbedOrMessageDefinition(title=Roll ⇒ 3, descriptionOrContent=[3], fields=[], file=null, type=EMBED)");
     }
@@ -158,7 +158,7 @@ public class DirectRollCommandMockTest {
                 .build()));
         directRollCommand.handleSlashCommandEvent(slashEvent2).block();
 
-        assertThat(slashEvent1.getActions()).containsExactlyInAnyOrder("reply: Saved direct roll channel config");
+        assertThat(slashEvent1.getActions()).containsExactlyInAnyOrder("reply: `commandString`\nSaved direct roll channel config");
         assertThat(slashEvent2.getActions()).containsExactlyInAnyOrder(
                 "acknowledgeAndRemoveSlash",
                 "createResultMessageWithEventReference: EmbedOrMessageDefinition(title=Roll ⇒ 3, descriptionOrContent=, fields=[], file=86da4f6e0c1e3d159e92de31ff146325f75ca17052630c1f619276947307302c.png, type=EMBED)");
@@ -193,7 +193,7 @@ public class DirectRollCommandMockTest {
                 .build()));
         directRollCommand.handleSlashCommandEvent(slashEvent2).block();
 
-        assertThat(slashEvent1.getActions()).containsExactlyInAnyOrder("reply: Saved direct roll channel config");
+        assertThat(slashEvent1.getActions()).containsExactlyInAnyOrder("reply: `commandString`\nSaved direct roll channel config");
         assertThat(slashEvent2.getActions()).containsExactlyInAnyOrder(
                 "acknowledgeAndRemoveSlash",
                 "createResultMessageWithEventReference: EmbedOrMessageDefinition(title=test ⇒ 3, descriptionOrContent=, fields=[], file=86da4f6e0c1e3d159e92de31ff146325f75ca17052630c1f619276947307302c.png, type=EMBED)");
@@ -228,7 +228,7 @@ public class DirectRollCommandMockTest {
                 .build()));
         directRollCommand.handleSlashCommandEvent(slashEvent2).block();
 
-        assertThat(slashEvent1.getActions()).containsExactlyInAnyOrder("reply: Saved direct roll channel config");
+        assertThat(slashEvent1.getActions()).containsExactlyInAnyOrder("reply: `commandString`\nSaved direct roll channel config");
         assertThat(slashEvent2.getActions()).containsExactlyInAnyOrder(
                 "acknowledgeAndRemoveSlash",
                 "createResultMessageWithEventReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=__**1d6 ⇒ 3**__  [3], fields=[], file=null, type=MESSAGE)");
@@ -263,7 +263,7 @@ public class DirectRollCommandMockTest {
                 .build()));
         directRollCommand.handleSlashCommandEvent(slashEvent2).block();
 
-        assertThat(slashEvent1.getActions()).containsExactlyInAnyOrder("reply: Saved direct roll channel config");
+        assertThat(slashEvent1.getActions()).containsExactlyInAnyOrder("reply: `commandString`\nSaved direct roll channel config");
         assertThat(slashEvent2.getActions()).containsExactlyInAnyOrder(
                 "acknowledgeAndRemoveSlash",
                 "createResultMessageWithEventReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=1d6 ⇒ 3, fields=[], file=null, type=MESSAGE)");
@@ -302,8 +302,8 @@ public class DirectRollCommandMockTest {
                 .build()));
         directRollCommand.handleSlashCommandEvent(slashEvent3).block();
 
-        assertThat(slashEvent1.getActions()).containsExactlyInAnyOrder("reply: Saved direct roll channel config");
-        assertThat(slashEvent2.getActions()).containsExactlyInAnyOrder("reply: Deleted direct roll channel config");
+        assertThat(slashEvent1.getActions()).containsExactlyInAnyOrder("reply: `commandString`\nSaved direct roll channel config");
+        assertThat(slashEvent2.getActions()).containsExactlyInAnyOrder("reply: `commandString`\nDeleted direct roll channel config");
         assertThat(slashEvent3.getActions()).containsExactlyInAnyOrder(
                 "acknowledgeAndRemoveSlash",
                 "createResultMessageWithEventReference: EmbedOrMessageDefinition(title=1d6 ⇒ 3, descriptionOrContent=, fields=[], file=86da4f6e0c1e3d159e92de31ff146325f75ca17052630c1f619276947307302c.png, type=EMBED)");
