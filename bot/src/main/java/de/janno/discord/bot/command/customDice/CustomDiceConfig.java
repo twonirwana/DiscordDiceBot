@@ -40,7 +40,7 @@ public class CustomDiceConfig extends Config {
         String buttons = buttonIdLabelAndDiceExpressions.stream()
                 .map(ButtonIdLabelAndDiceExpression::toShortString)
                 .collect(Collectors.joining(", "));
-        return "[%s, %s, %s, %s]".formatted(buttons, getTargetChannelShortString(), diceParserSystem, getAnswerFormatType());
+        return "[%s, %s, %s, %s, %s]".formatted(buttons, getTargetChannelShortString(), diceParserSystem, getAnswerFormatType(), getResultImage());
     }
 
 }

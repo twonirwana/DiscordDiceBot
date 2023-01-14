@@ -8,7 +8,7 @@ import de.janno.discord.bot.ResultImage;
 import de.janno.discord.bot.command.*;
 import de.janno.discord.bot.dice.DiceUtils;
 import de.janno.discord.bot.persistance.Mapper;
-import de.janno.discord.bot.persistance.MessageDataDAO;
+import de.janno.discord.bot.persistance.PersistanceManager;
 import de.janno.discord.bot.persistance.MessageDataDTO;
 import de.janno.discord.connector.api.BottomCustomIdUtils;
 import de.janno.discord.connector.api.message.ButtonDefinition;
@@ -46,13 +46,13 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollConfig, HoldRer
     private static final String STATE_DATA_TYPE_ID = "HoldRerollStateData";
     private final DiceUtils diceUtils;
 
-    public HoldRerollCommand(MessageDataDAO messageDataDAO) {
-        this(messageDataDAO, new DiceUtils());
+    public HoldRerollCommand(PersistanceManager persistanceManager) {
+        this(persistanceManager, new DiceUtils());
     }
 
     @VisibleForTesting
-    public HoldRerollCommand(MessageDataDAO messageDataDAO, DiceUtils diceUtils) {
-        super(messageDataDAO);
+    public HoldRerollCommand(PersistanceManager persistanceManager, DiceUtils diceUtils) {
+        super(persistanceManager);
         this.diceUtils = diceUtils;
     }
 
@@ -188,14 +188,16 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollConfig, HoldRer
         Set<Integer> rerollSet = CommandUtils.getSetFromCommandOptions(options, REROLL_SET_ID, ",");
         Set<Integer> successSet = CommandUtils.getSetFromCommandOptions(options, SUCCESS_SET_ID, ",");
         Set<Integer> failureSet = CommandUtils.getSetFromCommandOptions(options, FAILURE_SET_ID, ",");
-        ResultImage resultImage = getResultImageOptionFromStartCommandOption(options);
+        Long answerTargetChannelId = DefaultCommandOptions.getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null);
+        AnswerFormatType answerType = DefaultCommandOptions.getAnswerTypeFromStartCommandOption(options).orElse(defaultAnswerFormat());
+        ResultImage resultImage = DefaultCommandOptions.getResultImageOptionFromStartCommandOption(options).orElse(defaultResultImage());
 
-        return new HoldRerollConfig(getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null),
+        return new HoldRerollConfig(answerTargetChannelId,
                 sideValue,
                 rerollSet,
                 successSet,
                 failureSet,
-                getAnswerTypeFromStartCommandOption(options),
+                answerType,
                 resultImage);
     }
 
@@ -241,16 +243,16 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollConfig, HoldRer
                                                                                                                      long messageId,
                                                                                                                      @NonNull String buttonValue,
                                                                                                                      @NonNull String invokingUserName) {
-        final Optional<MessageDataDTO> messageDataDTO = messageDataDAO.getDataForMessage(channelId, messageId);
+        final Optional<MessageDataDTO> messageDataDTO = persistanceManager.getDataForMessage(channelId, messageId);
         return messageDataDTO.map(dataDTO -> deserializeAndUpdateState(dataDTO, buttonValue));
     }
 
     @Override
     protected void updateCurrentMessageStateData(long channelId, long messageId, @NonNull HoldRerollConfig config, @NonNull State<HoldRerollStateData> state) {
         if (state.getData() == null || (FINISH_BUTTON_ID.equals(state.getButtonValue()) || rollFinished(state, config))) {
-            messageDataDAO.updateCommandConfigOfMessage(channelId, messageId, Mapper.NO_PERSISTED_STATE, null);
+            persistanceManager.updateCommandConfigOfMessage(channelId, messageId, Mapper.NO_PERSISTED_STATE, null);
         } else {
-            messageDataDAO.updateCommandConfigOfMessage(channelId, messageId, STATE_DATA_TYPE_ID, Mapper.serializedObject(state.getData()));
+            persistanceManager.updateCommandConfigOfMessage(channelId, messageId, STATE_DATA_TYPE_ID, Mapper.serializedObject(state.getData()));
         }
     }
 

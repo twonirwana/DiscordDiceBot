@@ -218,6 +218,11 @@ class ImageResultCreatorTest {
                 File res = underTest.getImageForRoll(rolls, resultImage);
                 assertThat(res).isNotNull();
             }
+            List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(1), 1000).evaluate("1d[%d/abc]".formatted(d));
+            assertThat(rolls).isNotNull();
         }
+        List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(1), 1000).evaluate("1d[abc/cde]");
+        File res = underTest.getImageForRoll(rolls, resultImage);
+        assertThat(res).isNull();
     }
 }

@@ -52,7 +52,8 @@ public class HoldRerollConfig extends Config {
                 successSet.stream().map(String::valueOf).collect(Collectors.joining(SUBSET_DELIMITER)),
                 failureSet.stream().map(String::valueOf).collect(Collectors.joining(SUBSET_DELIMITER)),
                 getTargetChannelShortString(),
-                getAnswerFormatType()
+                getAnswerFormatType(),
+                getResultImage()
         ).toString();
     }
 }

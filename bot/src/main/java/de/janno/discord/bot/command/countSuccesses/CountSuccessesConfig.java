@@ -62,7 +62,8 @@ public class CountSuccessesConfig extends Config {
                 rerollSet.stream().map(String::valueOf).collect(Collectors.joining(CountSuccessesCommand.SUBSET_DELIMITER)),
                 botchSet.stream().map(String::valueOf).collect(Collectors.joining(CountSuccessesCommand.SUBSET_DELIMITER)),
                 getTargetChannelShortString(),
-                getAnswerFormatType()
+                getAnswerFormatType(),
+                getResultImage()
         ).toList().toString();
     }
 }

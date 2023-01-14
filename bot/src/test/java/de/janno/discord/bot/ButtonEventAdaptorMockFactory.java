@@ -4,7 +4,7 @@ import com.google.common.collect.Sets;
 import de.janno.discord.bot.command.AbstractCommand;
 import de.janno.discord.bot.command.Config;
 import de.janno.discord.bot.command.StateData;
-import de.janno.discord.bot.persistance.MessageDataDAO;
+import de.janno.discord.bot.persistance.PersistanceManager;
 
 import java.util.Collections;
 import java.util.Set;
@@ -19,11 +19,11 @@ public class ButtonEventAdaptorMockFactory<C extends Config, S extends StateData
     private final AtomicLong messageIdCounter;
     private final Set<Long> pinnedMessageIds;
 
-    public ButtonEventAdaptorMockFactory(String customId, AbstractCommand<C, S> command, C config, MessageDataDAO messageDataDAO, boolean firstMessagePinned) {
+    public ButtonEventAdaptorMockFactory(String customId, AbstractCommand<C, S> command, C config, PersistanceManager persistanceManager, boolean firstMessagePinned) {
         this.customId = customId;
         this.messageIdCounter = new AtomicLong(0);
         this.pinnedMessageIds = firstMessagePinned ? Sets.newHashSet(messageIdCounter.get()) : Collections.emptySet();
-        command.createMessageDataForNewMessage(UUID.randomUUID(), GUILD_ID, CHANNEL_ID, messageIdCounter.get(), config, null).ifPresent(messageDataDAO::saveMessageData);
+        command.createMessageDataForNewMessage(UUID.randomUUID(), GUILD_ID, CHANNEL_ID, messageIdCounter.get(), config, null).ifPresent(persistanceManager::saveMessageData);
     }
 
     public ButtonEventAdaptorMock getButtonClickOnLastButtonMessage(String buttonValue) {

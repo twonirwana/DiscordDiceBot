@@ -4,10 +4,11 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import de.janno.discord.bot.ResultImage;
 import de.janno.discord.bot.command.*;
 import de.janno.discord.bot.dice.DiceUtils;
 import de.janno.discord.bot.persistance.Mapper;
-import de.janno.discord.bot.persistance.MessageDataDAO;
+import de.janno.discord.bot.persistance.PersistanceManager;
 import de.janno.discord.bot.persistance.MessageDataDTO;
 import de.janno.discord.connector.api.BottomCustomIdUtils;
 import de.janno.discord.connector.api.message.ButtonDefinition;
@@ -49,13 +50,13 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTar
     private static final String STATE_DATA_TYPE_ID = "PoolTargetStateData";
     private final DiceUtils diceUtils;
 
-    public PoolTargetCommand(MessageDataDAO messageDataDAO) {
-        this(messageDataDAO, new DiceUtils());
+    public PoolTargetCommand(PersistanceManager persistanceManager) {
+        this(persistanceManager, new DiceUtils());
     }
 
     @VisibleForTesting
-    public PoolTargetCommand(MessageDataDAO messageDataDAO, DiceUtils diceUtils) {
-        super(messageDataDAO);
+    public PoolTargetCommand(PersistanceManager persistanceManager, DiceUtils diceUtils) {
+        super(persistanceManager);
         this.diceUtils = diceUtils;
     }
 
@@ -84,7 +85,7 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTar
                                                                                                                      long messageId,
                                                                                                                      @NonNull String buttonValue,
                                                                                                                      @NonNull String invokingUserName) {
-        final Optional<MessageDataDTO> messageDataDTO = messageDataDAO.getDataForMessage(channelId, messageId);
+        final Optional<MessageDataDTO> messageDataDTO = persistanceManager.getDataForMessage(channelId, messageId);
         return messageDataDTO.map(dataDTO -> deserializeAndUpdateState(dataDTO, buttonValue));
     }
 
@@ -123,9 +124,9 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTar
                 stateData.map(PoolTargetStateData::getTargetNumber).isPresent() &&
                 stateData.map(PoolTargetStateData::getDoReroll).isPresent())
         ) {
-            messageDataDAO.updateCommandConfigOfMessage(channelId, messageId, Mapper.NO_PERSISTED_STATE, null);
+            persistanceManager.updateCommandConfigOfMessage(channelId, messageId, Mapper.NO_PERSISTED_STATE, null);
         } else {
-            messageDataDAO.updateCommandConfigOfMessage(channelId, messageId, STATE_DATA_TYPE_ID, Mapper.serializedObject(state.getData()));
+            persistanceManager.updateCommandConfigOfMessage(channelId, messageId, STATE_DATA_TYPE_ID, Mapper.serializedObject(state.getData()));
         }
 
     }
@@ -252,15 +253,17 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTar
                 .map(CommandInteractionOption::getStringValue)
                 .findFirst()
                 .orElse(ALWAYS_REROLL);
-        Long answerTargetChannelId = getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null);
+        Long answerTargetChannelId = DefaultCommandOptions.getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null);
+        AnswerFormatType answerType = DefaultCommandOptions.getAnswerTypeFromStartCommandOption(options).orElse(defaultAnswerFormat());
+        ResultImage resultImage = DefaultCommandOptions.getResultImageOptionFromStartCommandOption(options).orElse(defaultResultImage());
         return new PoolTargetConfig(answerTargetChannelId,
                 sideValue,
                 maxButton,
                 rerollSet,
                 botchSet,
                 rerollVariant,
-                getAnswerTypeFromStartCommandOption(options),
-                getResultImageOptionFromStartCommandOption(options)
+                answerType,
+                resultImage
         );
     }
 

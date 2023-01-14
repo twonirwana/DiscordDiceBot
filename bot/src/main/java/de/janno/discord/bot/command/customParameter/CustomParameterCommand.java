@@ -9,8 +9,8 @@ import de.janno.discord.bot.ResultImage;
 import de.janno.discord.bot.command.*;
 import de.janno.discord.bot.dice.*;
 import de.janno.discord.bot.persistance.Mapper;
-import de.janno.discord.bot.persistance.MessageDataDAO;
 import de.janno.discord.bot.persistance.MessageDataDTO;
+import de.janno.discord.bot.persistance.PersistanceManager;
 import de.janno.discord.connector.api.BottomCustomIdUtils;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
@@ -54,13 +54,13 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     private final static Pattern LABEL_MATCHER = Pattern.compile("@[^}]+$");
     private final DiceSystemAdapter diceSystemAdapter;
 
-    public CustomParameterCommand(MessageDataDAO messageDataDAO) {
-        this(messageDataDAO, new DiceParser(), new RandomNumberSupplier(), 1000);
+    public CustomParameterCommand(PersistanceManager persistanceManager) {
+        this(persistanceManager, new DiceParser(), new RandomNumberSupplier(), 1000);
     }
 
     @VisibleForTesting
-    public CustomParameterCommand(MessageDataDAO messageDataDAO, Dice dice, NumberSupplier randomNumberSupplier, int maxDiceRolls) {
-        super(messageDataDAO);
+    public CustomParameterCommand(PersistanceManager persistanceManager, Dice dice, NumberSupplier randomNumberSupplier, int maxDiceRolls) {
+        super(persistanceManager);
         this.diceSystemAdapter = new DiceSystemAdapter(randomNumberSupplier, maxDiceRolls, dice);
     }
 
@@ -288,9 +288,10 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     @Override
     protected @NonNull CustomParameterConfig getConfigFromStartOptions(@NonNull CommandInteractionOption options) {
         String baseExpression = options.getStringSubOptionWithName(EXPRESSION_OPTION).orElse("");
-        Optional<Long> answerTargetChannelId = getAnswerTargetChannelIdFromStartCommandOption(options);
-        ResultImage resultImage = getResultImageOptionFromStartCommandOption(options);
-        return new CustomParameterConfig(answerTargetChannelId.orElse(null), baseExpression, DiceParserSystem.DICE_EVALUATOR, getAnswerTypeFromStartCommandOption(options), resultImage);
+        Long answerTargetChannelId = DefaultCommandOptions.getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null);
+        AnswerFormatType answerType = DefaultCommandOptions.getAnswerTypeFromStartCommandOption(options).orElse(defaultAnswerFormat());
+        ResultImage resultImage = DefaultCommandOptions.getResultImageOptionFromStartCommandOption(options).orElse(defaultResultImage());
+        return new CustomParameterConfig(answerTargetChannelId, baseExpression, DiceParserSystem.DICE_EVALUATOR, answerType, resultImage);
     }
 
     @Override
@@ -319,7 +320,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
                                                                                                                                long messageId,
                                                                                                                                @NonNull String buttonValue,
                                                                                                                                @NonNull String invokingUserName) {
-        final Optional<MessageDataDTO> messageDataDTO = messageDataDAO.getDataForMessage(channelId, messageId);
+        final Optional<MessageDataDTO> messageDataDTO = persistanceManager.getDataForMessage(channelId, messageId);
         return messageDataDTO.map(dataDTO -> deserializeAndUpdateState(dataDTO, buttonValue, invokingUserName));
     }
 
@@ -365,9 +366,9 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     @Override
     protected void updateCurrentMessageStateData(long channelId, long messageId, @NonNull CustomParameterConfig config, @NonNull State<CustomParameterStateData> state) {
         if (Optional.ofNullable(state.getData()).isEmpty() || !hasMissingParameter(state)) {
-            messageDataDAO.updateCommandConfigOfMessage(channelId, messageId, Mapper.NO_PERSISTED_STATE, null);
+            persistanceManager.updateCommandConfigOfMessage(channelId, messageId, Mapper.NO_PERSISTED_STATE, null);
         } else {
-            messageDataDAO.updateCommandConfigOfMessage(channelId, messageId, STATE_DATA_TYPE_ID, Mapper.serializedObject(state.getData()));
+            persistanceManager.updateCommandConfigOfMessage(channelId, messageId, STATE_DATA_TYPE_ID, Mapper.serializedObject(state.getData()));
         }
     }
 

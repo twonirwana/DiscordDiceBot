@@ -17,6 +17,7 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.interactions.InteractionHook;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -63,6 +64,13 @@ public class SlashEventAdapterImpl extends DiscordAdapterImpl implements SlashEv
         }
         return Optional.ofNullable(event.getOption(optionName))
                 .map(ApplicationCommandConverter::optionMapping2CommandInteractionOption);
+    }
+
+    @Override
+    public List<CommandInteractionOption> getOptions() {
+        return event.getOptions().stream()
+                .map(ApplicationCommandConverter::optionMapping2CommandInteractionOption)
+                .toList();
     }
 
     @Override

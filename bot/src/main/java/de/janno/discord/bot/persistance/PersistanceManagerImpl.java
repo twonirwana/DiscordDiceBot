@@ -22,15 +22,16 @@ import java.util.function.ToDoubleFunction;
 import static io.micrometer.core.instrument.Metrics.globalRegistry;
 
 @Slf4j
-public class MessageDataDAOImpl implements MessageDataDAO {
+public class PersistanceManagerImpl implements PersistanceManager {
 
     private final JdbcConnectionPool connectionPool;
 
-    public MessageDataDAOImpl(@NonNull String url, @Nullable String user, @Nullable String password) {
+    public PersistanceManagerImpl(@NonNull String url, @Nullable String user, @Nullable String password) {
         connectionPool = JdbcConnectionPool.create(url, user, password);
         new DatabaseTableMetrics(connectionPool, "h2", "MESSAGE_DATA", ImmutableSet.of()).bindTo(globalRegistry);
 
         queryGauge("db.channel.count", "select count (distinct CHANNEL_ID) from MESSAGE_DATA;", connectionPool, Set.of());
+        queryGauge("db.channel.config.count", "select count (distinct CHANNEL_ID) from CHANNEL_CONFIG;", connectionPool, Set.of());
         queryGauge("db.guild.count", "select count (distinct GUILD_ID) from MESSAGE_DATA;", connectionPool, Set.of());
         queryGauge("db.guild-null.count", "select count (distinct CHANNEL_ID) from MESSAGE_DATA where GUILD_ID is null;", connectionPool, Set.of());
         queryGauge("db.guild-30d.active", "select count (distinct GUILD_ID) from MESSAGE_DATA where (CURRENT_TIMESTAMP - CREATION_DATE) <= interval '43200' MINUTE;", connectionPool, Set.of());
@@ -61,6 +62,29 @@ public class MessageDataDAOImpl implements MessageDataDAO {
                     CREATE INDEX IF NOT EXISTS MESSAGE_DATA_CREATION_DATE_GUILD_CHANNEl ON MESSAGE_DATA (CREATION_DATE, GUILD_ID);
                     CREATE UNIQUE INDEX IF NOT EXISTS MESSAGE_DATA_CREATION_DATE_MESSAGE_ID ON MESSAGE_DATA (CREATION_DATE, MESSAGE_ID);
                     CREATE INDEX IF NOT EXISTS MESSAGE_DATA_CREATION_DATE ON MESSAGE_DATA (CREATION_DATE);
+                                        
+                                        
+                    CREATE TABLE IF NOT EXISTS CHANNEL_CONFIG(
+                        CONFIG_ID       UUID            NOT NULL,
+                        CHANNEL_ID      BIGINT          NOT NULL,
+                        GUILD_ID        BIGINT          NOT NULL,
+                        COMMAND_ID      VARCHAR         NOT NULL,
+                        CONFIG_CLASS_ID VARCHAR         NOT NULL,
+                        CONFIG          VARCHAR         NOT NULL,
+                        CREATION_DATE   TIMESTAMP       NOT NULL,
+                        PRIMARY KEY (CHANNEL_ID, CONFIG_CLASS_ID)
+                    );
+                                        
+                    CREATE INDEX IF NOT EXISTS CHANNEL_CONFIG_CHANNEL ON CHANNEL_CONFIG (CHANNEL_ID);
+
+                                        
+                    CREATE TABLE IF NOT EXISTS DB_VERSION(
+                        MIGRATION_NAME  VARCHAR         NOT NULL,
+                        CREATION_DATE   TIMESTAMP       NOT NULL
+                    );
+                                        
+                    INSERT INTO DB_VERSION(MIGRATION_NAME, CREATION_DATE) select 'base', CURRENT_TIMESTAMP() where not exists (select * from DB_VERSION where MIGRATION_NAME = 'base');
+
                     """);
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -78,7 +102,7 @@ public class MessageDataDAOImpl implements MessageDataDAO {
         }));
     }
 
-    private MessageDataDTO transformResultSet(ResultSet resultSet) throws SQLException {
+    private MessageDataDTO transformResultSet2MessageDataDTO(ResultSet resultSet) throws SQLException {
         if (resultSet.next()) {
             return new MessageDataDTO(
                     resultSet.getObject("CONFIG_ID", UUID.class),
@@ -104,7 +128,7 @@ public class MessageDataDAOImpl implements MessageDataDAO {
                 preparedStatement.setLong(1, channelId);
                 preparedStatement.setLong(2, messageId);
                 ResultSet resultSet = preparedStatement.executeQuery();
-                MessageDataDTO messageDataDTO = transformResultSet(resultSet);
+                MessageDataDTO messageDataDTO = transformResultSet2MessageDataDTO(resultSet);
 
                 BotMetrics.databaseTimer("getDataForMessage", stopwatch.elapsed());
 
@@ -171,7 +195,7 @@ public class MessageDataDAOImpl implements MessageDataDAO {
     }
 
     @Override
-    public @NonNull Set<Long> deleteDataForChannel(long channelId) {
+    public @NonNull Set<Long> deleteMessageDataForChannel(long channelId) {
         Stopwatch stopwatch = Stopwatch.createStarted();
         final ImmutableSet<Long> ids;
         try (Connection con = connectionPool.getConnection()) {
@@ -254,6 +278,81 @@ public class MessageDataDAOImpl implements MessageDataDAO {
         } catch (Exception e) {
             throw new IllegalStateException(e);
         }
+    }
+
+    @Override
+    public @NonNull Optional<ChannelConfigDTO> getChannelConfig(long channelId, String configClassId) {
+        Stopwatch stopwatch = Stopwatch.createStarted();
+
+        try (Connection con = connectionPool.getConnection()) {
+            try (PreparedStatement preparedStatement = con.prepareStatement("SELECT * FROM CHANNEL_CONFIG CC WHERE CC.CHANNEL_ID = ? AND CC.CONFIG_CLASS_ID = ?")) {
+                preparedStatement.setLong(1, channelId);
+                preparedStatement.setString(2, configClassId);
+                ResultSet resultSet = preparedStatement.executeQuery();
+                ChannelConfigDTO channelConfigDTO = transformResultSet2ChannelConfigDTO(resultSet);
+
+                BotMetrics.databaseTimer("getDataForMessage", stopwatch.elapsed());
+
+                if (channelConfigDTO == null) {
+                    return Optional.empty();
+                }
+                return Optional.of(channelConfigDTO);
+            }
+        } catch (Exception e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    private ChannelConfigDTO transformResultSet2ChannelConfigDTO(ResultSet resultSet) throws SQLException {
+        if (resultSet.next()) {
+            return new ChannelConfigDTO(
+                    resultSet.getObject("CONFIG_ID", UUID.class),
+                    resultSet.getLong("GUILD_ID"),
+                    resultSet.getLong("CHANNEL_ID"),
+                    resultSet.getString("COMMAND_ID"),
+                    resultSet.getString("CONFIG_CLASS_ID"),
+                    resultSet.getString("CONFIG")
+            );
+        }
+        return null;
+    }
+
+    @Override
+    public void saveChannelConfig(@NonNull ChannelConfigDTO channelConfigDTO) {
+        Stopwatch stopwatch = Stopwatch.createStarted();
+        try (Connection con = connectionPool.getConnection()) {
+            try (PreparedStatement preparedStatement =
+                         con.prepareStatement("INSERT INTO CHANNEL_CONFIG(CONFIG_ID, GUILD_ID, CHANNEL_ID, COMMAND_ID, CONFIG_CLASS_ID, CONFIG, CREATION_DATE) VALUES (?, ?, ?, ?, ?, ?, ?)")) {
+                preparedStatement.setObject(1, channelConfigDTO.getConfigUUID());
+                preparedStatement.setObject(2, channelConfigDTO.getGuildId());
+                preparedStatement.setObject(3, channelConfigDTO.getChannelId());
+                preparedStatement.setString(4, channelConfigDTO.getCommandId());
+                preparedStatement.setString(5, channelConfigDTO.getConfigClassId());
+                preparedStatement.setString(6, channelConfigDTO.getConfig());
+                preparedStatement.setTimestamp(7, Timestamp.valueOf(LocalDateTime.now()));
+                preparedStatement.execute();
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        BotMetrics.databaseTimer("saveChannelConfig", stopwatch.elapsed());
+    }
+
+    @Override
+    public void deleteChannelConfig(long channelId, String configClassId) {
+        Stopwatch stopwatch = Stopwatch.createStarted();
+        final ImmutableSet<Long> ids;
+        try (Connection con = connectionPool.getConnection()) {
+
+            try (PreparedStatement preparedStatement = con.prepareStatement("DELETE FROM CHANNEL_CONFIG WHERE CHANNEL_ID = ? AND CONFIG_CLASS_ID = ?")) {
+                preparedStatement.setLong(1, channelId);
+                preparedStatement.setString(2, configClassId);
+                preparedStatement.execute();
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        BotMetrics.databaseTimer("deleteChannelConfig", stopwatch.elapsed());
     }
 
 }

@@ -9,7 +9,7 @@ import de.janno.discord.bot.ResultImage;
 import de.janno.discord.bot.command.*;
 import de.janno.discord.bot.dice.DiceUtils;
 import de.janno.discord.bot.persistance.Mapper;
-import de.janno.discord.bot.persistance.MessageDataDAO;
+import de.janno.discord.bot.persistance.PersistanceManager;
 import de.janno.discord.bot.persistance.MessageDataDTO;
 import de.janno.discord.connector.api.BottomCustomIdUtils;
 import de.janno.discord.connector.api.message.ButtonDefinition;
@@ -54,13 +54,13 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesConfig,
     private final static String CONFIG_TYPE_ID = "CountSuccessesConfig";
     private final DiceUtils diceUtils;
 
-    public CountSuccessesCommand(MessageDataDAO messageDataDAO) {
-        this(messageDataDAO, new DiceUtils());
+    public CountSuccessesCommand(PersistanceManager persistanceManager) {
+        this(persistanceManager, new DiceUtils());
     }
 
     @VisibleForTesting
-    public CountSuccessesCommand(MessageDataDAO messageDataDAO, DiceUtils diceUtils) {
-        super(messageDataDAO);
+    public CountSuccessesCommand(PersistanceManager persistanceManager, DiceUtils diceUtils) {
+        super(persistanceManager);
         this.diceUtils = diceUtils;
     }
 
@@ -73,7 +73,7 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesConfig,
                                                                                                                long messageId,
                                                                                                                @NonNull String buttonValue,
                                                                                                                @NonNull String invokingUserName) {
-        final Optional<MessageDataDTO> messageDataDTO = messageDataDAO.getDataForMessage(channelId, messageId);
+        final Optional<MessageDataDTO> messageDataDTO = persistanceManager.getDataForMessage(channelId, messageId);
         return messageDataDTO.map(dataDTO -> deserializeAndUpdateState(dataDTO, buttonValue));
     }
 
@@ -289,9 +289,9 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesConfig,
                 .limit(sideValue / 2)
                 .collect(Collectors.toSet());
         Set<Integer> botchSet = CommandUtils.getSetFromCommandOptions(options, ACTION_BOTCH_SET_OPTION, ",");
-        Long answerTargetChannelId = getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null);
-        AnswerFormatType answerType = getAnswerTypeFromStartCommandOption(options);
-        ResultImage resultImage = getResultImageOptionFromStartCommandOption(options);
+        Long answerTargetChannelId = DefaultCommandOptions.getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null);
+        AnswerFormatType answerType = DefaultCommandOptions.getAnswerTypeFromStartCommandOption(options).orElse(defaultAnswerFormat());
+        ResultImage resultImage = DefaultCommandOptions.getResultImageOptionFromStartCommandOption(options).orElse(defaultResultImage());
         return new CountSuccessesConfig(answerTargetChannelId, sideValue, targetValue, glitchOption, maxDice, minDiceCount, rerollSet, botchSet, answerType, resultImage);
     }
 

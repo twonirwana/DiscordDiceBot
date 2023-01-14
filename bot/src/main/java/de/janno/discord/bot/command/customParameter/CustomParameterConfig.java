@@ -40,6 +40,6 @@ public class CustomParameterConfig extends Config {
 
     @Override
     public String toShortString() {
-        return "[%s, %s, %s, %s]".formatted(baseExpression, getTargetChannelShortString(), diceParserSystem, getAnswerFormatType());
+        return "[%s, %s, %s, %s, %s]".formatted(baseExpression, getTargetChannelShortString(), diceParserSystem, getAnswerFormatType(),getResultImage());
     }
 }

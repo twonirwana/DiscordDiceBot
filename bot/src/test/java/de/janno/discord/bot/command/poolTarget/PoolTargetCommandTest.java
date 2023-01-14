@@ -8,8 +8,8 @@ import de.janno.discord.bot.command.ConfigAndState;
 import de.janno.discord.bot.command.RollAnswerConverter;
 import de.janno.discord.bot.command.State;
 import de.janno.discord.bot.dice.DiceUtils;
-import de.janno.discord.bot.persistance.MessageDataDAO;
-import de.janno.discord.bot.persistance.MessageDataDAOImpl;
+import de.janno.discord.bot.persistance.PersistanceManager;
+import de.janno.discord.bot.persistance.PersistanceManagerImpl;
 import de.janno.discord.bot.persistance.MessageDataDTO;
 import de.janno.discord.connector.api.ButtonEventAdaptor;
 import de.janno.discord.connector.api.MessageState;
@@ -38,11 +38,11 @@ import static org.mockito.Mockito.*;
 class PoolTargetCommandTest {
 
     PoolTargetCommand underTest;
-    MessageDataDAO messageDataDAO = mock(MessageDataDAO.class);
+    PersistanceManager persistanceManager = mock(PersistanceManager.class);
 
     @BeforeEach
     void setup() {
-        underTest = new PoolTargetCommand(messageDataDAO, new DiceUtils(1, 1, 1, 2, 5, 6, 6, 6, 2, 10, 10, 2, 3, 4, 5, 6, 7, 8));
+        underTest = new PoolTargetCommand(persistanceManager, new DiceUtils(1, 1, 1, 2, 5, 6, 6, 6, 2, 10, 10, 2, 3, 4, 5, 6, 7, 8));
         underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
 
     }
@@ -355,7 +355,7 @@ class PoolTargetCommandTest {
         when(buttonEventAdaptor.deleteMessageById(anyLong())).thenReturn(Mono.empty());
         when(buttonEventAdaptor.getRequester()).thenReturn(new Requester("user", "channel", "guild", "[0 / 1]"));
         when(buttonEventAdaptor.getInvokingGuildMemberName()).thenReturn("testUser");
-        when(messageDataDAO.getDataForMessage(1L, 1L)).thenReturn(Optional.of(new MessageDataDTO(UUID.randomUUID(), 1L, 1L, 1L, "pool_target", "PoolTargetConfig", """
+        when(persistanceManager.getDataForMessage(1L, 1L)).thenReturn(Optional.of(new MessageDataDTO(UUID.randomUUID(), 1L, 1L, 1L, "pool_target", "PoolTargetConfig", """
                 ---
                 answerTargetChannelId:
                 diceSides: 10
@@ -374,7 +374,7 @@ class PoolTargetCommandTest {
                 targetNumber: null
                 doReroll: null
                 """)));
-        when(messageDataDAO.getAllMessageIdsForConfig(any())).thenReturn(ImmutableSet.of());
+        when(persistanceManager.getAllMessageIdsForConfig(any())).thenReturn(ImmutableSet.of());
         when(buttonEventAdaptor.getMessageCreationTime()).thenReturn(OffsetDateTime.now().minusSeconds(2));
         when(buttonEventAdaptor.getMessagesState(any())).thenReturn(Flux.<MessageState>empty().parallel());
 
@@ -406,7 +406,7 @@ class PoolTargetCommandTest {
         when(buttonEventAdaptor.createResultMessageWithEventReference(any(), eq(null))).thenReturn(Mono.just(mock(Void.class)));
         when(buttonEventAdaptor.getRequester()).thenReturn(new Requester("user", "channel", "guild", "[0 / 1]"));
         when(buttonEventAdaptor.getInvokingGuildMemberName()).thenReturn("testUser");
-        when(messageDataDAO.getDataForMessage(1L, 1L)).thenReturn(Optional.empty());
+        when(persistanceManager.getDataForMessage(1L, 1L)).thenReturn(Optional.empty());
 
 
         Mono<Void> res = underTest.handleComponentInteractEvent(buttonEventAdaptor);
@@ -528,8 +528,8 @@ class PoolTargetCommandTest {
 
     @Test
     void checkPersistence() {
-        MessageDataDAO messageDataDAO = new MessageDataDAOImpl("jdbc:h2:mem:" + UUID.randomUUID(), null, null);
-        underTest = new PoolTargetCommand(messageDataDAO, mock(DiceUtils.class));
+        PersistanceManager persistanceManager = new PersistanceManagerImpl("jdbc:h2:mem:" + UUID.randomUUID(), null, null);
+        underTest = new PoolTargetCommand(persistanceManager, mock(DiceUtils.class));
         underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
 
         long channelId = System.currentTimeMillis();
@@ -538,10 +538,10 @@ class PoolTargetCommandTest {
         PoolTargetConfig config = new PoolTargetConfig(123L, 10, 12, ImmutableSet.of(7, 8, 9, 10), ImmutableSet.of(1), "ask", AnswerFormatType.full, ResultImage.none);
         State<PoolTargetStateData> state = new State<>("3", new PoolTargetStateData(5, null, null));
         Optional<MessageDataDTO> toSave = underTest.createMessageDataForNewMessage(configUUID, 1L, channelId, messageId, config, state);
-        messageDataDAO.saveMessageData(toSave.orElseThrow());
+        persistanceManager.saveMessageData(toSave.orElseThrow());
         underTest.updateCurrentMessageStateData(channelId, messageId, config, state);
 
-        MessageDataDTO loaded = messageDataDAO.getDataForMessage(channelId, messageId).orElseThrow();
+        MessageDataDTO loaded = persistanceManager.getDataForMessage(channelId, messageId).orElseThrow();
 
 
         ConfigAndState<PoolTargetConfig, PoolTargetStateData> configAndState = underTest.deserializeAndUpdateState(loaded, "3");

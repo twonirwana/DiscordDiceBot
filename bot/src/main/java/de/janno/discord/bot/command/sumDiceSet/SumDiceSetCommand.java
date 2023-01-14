@@ -3,11 +3,12 @@ package de.janno.discord.bot.command.sumDiceSet;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+import de.janno.discord.bot.ResultImage;
 import de.janno.discord.bot.command.*;
 import de.janno.discord.bot.dice.DiceUtils;
 import de.janno.discord.bot.persistance.Mapper;
-import de.janno.discord.bot.persistance.MessageDataDAO;
 import de.janno.discord.bot.persistance.MessageDataDTO;
+import de.janno.discord.bot.persistance.PersistanceManager;
 import de.janno.discord.connector.api.BottomCustomIdUtils;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
@@ -37,13 +38,13 @@ public class SumDiceSetCommand extends AbstractCommand<Config, SumDiceSetStateDa
     private static final String STATE_DATA_TYPE_ID = "SumDiceSetStateData";
     private final DiceUtils diceUtils;
 
-    public SumDiceSetCommand(MessageDataDAO messageDataDAO) {
-        this(messageDataDAO, new DiceUtils());
+    public SumDiceSetCommand(PersistanceManager persistanceManager) {
+        this(persistanceManager, new DiceUtils());
     }
 
     @VisibleForTesting
-    public SumDiceSetCommand(MessageDataDAO messageDataDAO, DiceUtils diceUtils) {
-        super(messageDataDAO);
+    public SumDiceSetCommand(PersistanceManager persistanceManager, DiceUtils diceUtils) {
+        super(persistanceManager);
         this.diceUtils = diceUtils;
     }
 
@@ -76,7 +77,7 @@ public class SumDiceSetCommand extends AbstractCommand<Config, SumDiceSetStateDa
                                                                                                            long messageId,
                                                                                                            @NonNull String buttonValue,
                                                                                                            @NonNull String invokingUserName) {
-        final Optional<MessageDataDTO> messageDataDTO = messageDataDAO.getDataForMessage(channelId, messageId);
+        final Optional<MessageDataDTO> messageDataDTO = persistanceManager.getDataForMessage(channelId, messageId);
         return messageDataDTO.map(dataDTO -> deserializeAndUpdateState(dataDTO, buttonValue));
     }
 
@@ -108,9 +109,9 @@ public class SumDiceSetCommand extends AbstractCommand<Config, SumDiceSetStateDa
     @Override
     protected void updateCurrentMessageStateData(long channelId, long messageId, @NonNull Config config, @NonNull State<SumDiceSetStateData> state) {
         if (state.getData() == null || ROLL_BUTTON_ID.equals(state.getButtonValue())) {
-            messageDataDAO.updateCommandConfigOfMessage(channelId, messageId, Mapper.NO_PERSISTED_STATE, null);
+            persistanceManager.updateCommandConfigOfMessage(channelId, messageId, Mapper.NO_PERSISTED_STATE, null);
         } else {
-            messageDataDAO.updateCommandConfigOfMessage(channelId, messageId, STATE_DATA_TYPE_ID, Mapper.serializedObject(state.getData()));
+            persistanceManager.updateCommandConfigOfMessage(channelId, messageId, STATE_DATA_TYPE_ID, Mapper.serializedObject(state.getData()));
         }
     }
 
@@ -279,9 +280,12 @@ public class SumDiceSetCommand extends AbstractCommand<Config, SumDiceSetStateDa
 
     @Override
     protected @NonNull Config getConfigFromStartOptions(@NonNull CommandInteractionOption options) {
-        return new Config(getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null),
-                getAnswerTypeFromStartCommandOption(options),
-                getResultImageOptionFromStartCommandOption(options)
+        Long answerTargetChannelId = DefaultCommandOptions.getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null);
+        AnswerFormatType answerType = DefaultCommandOptions.getAnswerTypeFromStartCommandOption(options).orElse(defaultAnswerFormat());
+        ResultImage resultImage = DefaultCommandOptions.getResultImageOptionFromStartCommandOption(options).orElse(defaultResultImage());
+        return new Config(answerTargetChannelId,
+                answerType,
+                resultImage
         );
     }
 

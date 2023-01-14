@@ -5,8 +5,8 @@ import de.janno.discord.bot.ResultImage;
 import de.janno.discord.bot.command.*;
 import de.janno.discord.bot.dice.Dice;
 import de.janno.discord.bot.dice.DiceParserSystem;
-import de.janno.discord.bot.persistance.MessageDataDAO;
-import de.janno.discord.bot.persistance.MessageDataDAOImpl;
+import de.janno.discord.bot.persistance.PersistanceManager;
+import de.janno.discord.bot.persistance.PersistanceManagerImpl;
 import de.janno.discord.bot.persistance.MessageDataDTO;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
@@ -31,7 +31,7 @@ import static org.mockito.Mockito.mock;
 
 class SumCustomSetCommandTest {
     SumCustomSetCommand underTest;
-    MessageDataDAO messageDataDAO = mock(MessageDataDAO.class);
+    PersistanceManager persistanceManager = mock(PersistanceManager.class);
 
     SumCustomSetConfig defaultConfig = new SumCustomSetConfig(null, ImmutableList.of(
             new ButtonIdLabelAndDiceExpression("1_button", "1d6", "1d6"),
@@ -54,7 +54,7 @@ class SumCustomSetCommandTest {
     @BeforeEach
     void setup() {
         diceMock = mock(Dice.class);
-        underTest = new SumCustomSetCommand(messageDataDAO, diceMock, (minExcl, maxIncl) -> 0);
+        underTest = new SumCustomSetCommand(persistanceManager, diceMock, (minExcl, maxIncl) -> 0);
         underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
 
     }
@@ -284,8 +284,8 @@ class SumCustomSetCommandTest {
 
     @Test
     void checkPersistence() {
-        MessageDataDAO messageDataDAO = new MessageDataDAOImpl("jdbc:h2:mem:" + UUID.randomUUID(), null, null);
-        underTest = new SumCustomSetCommand(messageDataDAO, diceMock, (minExcl, maxIncl) -> 0);
+        PersistanceManager persistanceManager = new PersistanceManagerImpl("jdbc:h2:mem:" + UUID.randomUUID(), null, null);
+        underTest = new SumCustomSetCommand(persistanceManager, diceMock, (minExcl, maxIncl) -> 0);
         underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
 
         long channelId = System.currentTimeMillis();
@@ -297,11 +297,11 @@ class SumCustomSetCommandTest {
         ), DiceParserSystem.DICE_EVALUATOR, true, AnswerFormatType.full, ResultImage.none);
         State<SumCustomSetStateData> state = new State<>("2_button", new SumCustomSetStateData(ImmutableList.of("+2d4"), "testUser"));
         Optional<MessageDataDTO> toSave = underTest.createMessageDataForNewMessage(configUUID, 1L, channelId, messageId, config, state);
-        messageDataDAO.saveMessageData(toSave.orElseThrow());
+        persistanceManager.saveMessageData(toSave.orElseThrow());
 
         underTest.updateCurrentMessageStateData(channelId, messageId, config, state);
 
-        MessageDataDTO loaded = messageDataDAO.getDataForMessage(channelId, messageId).orElseThrow();
+        MessageDataDTO loaded = persistanceManager.getDataForMessage(channelId, messageId).orElseThrow();
 
         ConfigAndState<SumCustomSetConfig, SumCustomSetStateData> configAndState = underTest.deserializeAndUpdateState(loaded, "1_button", "testUser");
         assertThat(configAndState.getConfig()).isEqualTo(config);

@@ -7,8 +7,8 @@ import de.janno.discord.bot.dice.Dice;
 import de.janno.discord.bot.dice.DiceEvaluatorAdapter;
 import de.janno.discord.bot.dice.DiceParser;
 import de.janno.discord.bot.dice.DiceParserSystem;
-import de.janno.discord.bot.persistance.MessageDataDAO;
-import de.janno.discord.bot.persistance.MessageDataDAOImpl;
+import de.janno.discord.bot.persistance.PersistanceManager;
+import de.janno.discord.bot.persistance.PersistanceManagerImpl;
 import de.janno.discord.bot.persistance.MessageDataDTO;
 import de.janno.discord.connector.api.Requester;
 import de.janno.discord.connector.api.SlashEventAdaptor;
@@ -44,7 +44,7 @@ class CustomDiceCommandTest {
 
     CustomDiceCommand underTest;
     Dice diceMock;
-    MessageDataDAO messageDataDAO = mock(MessageDataDAO.class);
+    PersistanceManager persistanceManager = mock(PersistanceManager.class);
 
     private static Stream<Arguments> generateConfigOptionStringList() {
         return Stream.of(Arguments.of(ImmutableList.of(), new CustomDiceConfig(null, ImmutableList.of(), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full, ResultImage.none)),
@@ -86,7 +86,7 @@ class CustomDiceCommandTest {
     @BeforeEach
     void setup() {
         diceMock = mock(Dice.class);
-        underTest = new CustomDiceCommand(messageDataDAO, diceMock, (minExcl, maxIncl) -> 3, 10);
+        underTest = new CustomDiceCommand(persistanceManager, diceMock, (minExcl, maxIncl) -> 3, 10);
         underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
     }
 
@@ -407,7 +407,7 @@ class CustomDiceCommandTest {
 
     @Test
     void checkPersistence() {
-        MessageDataDAO messageDataDAO = new MessageDataDAOImpl("jdbc:h2:mem:" + UUID.randomUUID(), null, null);
+        PersistanceManager persistanceManager = new PersistanceManagerImpl("jdbc:h2:mem:" + UUID.randomUUID(), null, null);
         long channelId = System.currentTimeMillis();
         long messageId = System.currentTimeMillis();
         UUID configUUID = UUID.randomUUID();
@@ -416,9 +416,9 @@ class CustomDiceCommandTest {
                 new ButtonIdLabelAndDiceExpression("2_button", "+2d4", "+2d4")), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full, ResultImage.none);
         State<StateData> state = new State<>("5", StateData.empty());
         Optional<MessageDataDTO> toSave = underTest.createMessageDataForNewMessage(configUUID, 1L, channelId, messageId, config, state);
-        messageDataDAO.saveMessageData(toSave.orElseThrow());
+        persistanceManager.saveMessageData(toSave.orElseThrow());
 
-        MessageDataDTO loaded = messageDataDAO.getDataForMessage(channelId, messageId).orElseThrow();
+        MessageDataDTO loaded = persistanceManager.getDataForMessage(channelId, messageId).orElseThrow();
 
         assertThat(toSave.orElseThrow()).isEqualTo(loaded);
         ConfigAndState<CustomDiceConfig, StateData> configAndState = underTest.deserializeAndUpdateState(loaded, "3");

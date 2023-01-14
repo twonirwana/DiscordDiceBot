@@ -3,11 +3,12 @@ package de.janno.discord.bot.command.fate;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+import de.janno.discord.bot.ResultImage;
 import de.janno.discord.bot.command.*;
 import de.janno.discord.bot.dice.DiceUtils;
 import de.janno.discord.bot.persistance.Mapper;
-import de.janno.discord.bot.persistance.MessageDataDAO;
 import de.janno.discord.bot.persistance.MessageDataDTO;
+import de.janno.discord.bot.persistance.PersistanceManager;
 import de.janno.discord.connector.api.BottomCustomIdUtils;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
@@ -36,13 +37,13 @@ public class FateCommand extends AbstractCommand<FateConfig, StateData> {
     private final DiceUtils diceUtils;
 
     @VisibleForTesting
-    public FateCommand(MessageDataDAO messageDataDAO, DiceUtils diceUtils) {
-        super(messageDataDAO);
+    public FateCommand(PersistanceManager persistanceManager, DiceUtils diceUtils) {
+        super(persistanceManager);
         this.diceUtils = diceUtils;
     }
 
-    public FateCommand(MessageDataDAO messageDataDAO) {
-        this(messageDataDAO, new DiceUtils());
+    public FateCommand(PersistanceManager persistanceManager) {
+        this(persistanceManager, new DiceUtils());
     }
 
     @Override
@@ -50,7 +51,7 @@ public class FateCommand extends AbstractCommand<FateConfig, StateData> {
                                                                                                      long messageId,
                                                                                                      @NonNull String buttonValue,
                                                                                                      @NonNull String invokingUserName) {
-        final Optional<MessageDataDTO> messageDataDTO = messageDataDAO.getDataForMessage(channelId, messageId);
+        final Optional<MessageDataDTO> messageDataDTO = persistanceManager.getDataForMessage(channelId, messageId);
         return messageDataDTO.map(dataDTO -> deserializeAndUpdateState(dataDTO, buttonValue));
     }
 
@@ -129,10 +130,13 @@ public class FateCommand extends AbstractCommand<FateConfig, StateData> {
 
     @Override
     protected @NonNull FateConfig getConfigFromStartOptions(@NonNull CommandInteractionOption options) {
-        return new FateConfig(getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null),
+        Long answerTargetChannelId = DefaultCommandOptions.getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null);
+        AnswerFormatType answerType = DefaultCommandOptions.getAnswerTypeFromStartCommandOption(options).orElse(defaultAnswerFormat());
+        ResultImage resultImage = DefaultCommandOptions.getResultImageOptionFromStartCommandOption(options).orElse(defaultResultImage());
+        return new FateConfig(answerTargetChannelId,
                 options.getStringSubOptionWithName(ACTION_MODIFIER_OPTION).orElse(ACTION_MODIFIER_OPTION_SIMPLE),
-                getAnswerTypeFromStartCommandOption(options),
-                getResultImageOptionFromStartCommandOption(options));
+                answerType,
+                resultImage);
     }
 
     @Override

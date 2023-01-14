@@ -4,6 +4,7 @@ import lombok.*;
 
 import java.io.File;
 import java.util.List;
+import java.util.Optional;
 
 @Value
 @Builder
@@ -21,6 +22,17 @@ public class EmbedOrMessageDefinition {
 
     @Builder.Default
     Type type = Type.EMBED;
+
+    @Override
+    public String toString() {
+        return "EmbedOrMessageDefinition(" +
+                "title=" + title +
+                ", descriptionOrContent=" + descriptionOrContent +
+                ", fields=" + fields +
+                ", file=" + Optional.ofNullable(file).map(File::getName).orElse("null") +
+                ", type=" + type +
+                ')';
+    }
 
     public enum Type {
         MESSAGE,

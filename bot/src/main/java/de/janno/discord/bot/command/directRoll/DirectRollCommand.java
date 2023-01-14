@@ -1,11 +1,19 @@
-package de.janno.discord.bot.command;
+package de.janno.discord.bot.command.directRoll;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Preconditions;
 import com.google.common.base.Stopwatch;
 import de.janno.discord.bot.BotMetrics;
 import de.janno.discord.bot.ResultImage;
-import de.janno.discord.bot.dice.*;
-import de.janno.discord.connector.api.SlashCommand;
+import de.janno.discord.bot.command.AnswerFormatType;
+import de.janno.discord.bot.command.RollAnswer;
+import de.janno.discord.bot.command.RollAnswerConverter;
+import de.janno.discord.bot.dice.DiceEvaluatorAdapter;
+import de.janno.discord.bot.dice.DiceParserSystem;
+import de.janno.discord.bot.dice.DiceSystemAdapter;
+import de.janno.discord.bot.persistance.ChannelConfigDTO;
+import de.janno.discord.bot.persistance.Mapper;
+import de.janno.discord.bot.persistance.PersistanceManager;
 import de.janno.discord.connector.api.SlashEventAdaptor;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinition;
@@ -22,30 +30,34 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
-public class DirectRollCommand implements SlashCommand {
+public class DirectRollCommand extends AbstractDirectRollCommand {
+
     private static final String ACTION_EXPRESSION = "expression";
     private static final String HELP = "help";
     private final DiceSystemAdapter diceSystemAdapter;
+    private final PersistanceManager persistanceManager;
 
-    public DirectRollCommand() {
-        this(new RandomNumberSupplier(), new DiceParser());
+
+    public DirectRollCommand(PersistanceManager persistanceManager) {
+        this(new RandomNumberSupplier(), persistanceManager);
     }
 
     @VisibleForTesting
-    public DirectRollCommand(NumberSupplier numberSupplier, Dice dice) {
-        this.diceSystemAdapter = new DiceSystemAdapter(numberSupplier, 1000, dice);
+    public DirectRollCommand(NumberSupplier numberSupplier, PersistanceManager persistanceManager) {
+        this.diceSystemAdapter = new DiceSystemAdapter(numberSupplier, 1000, null);
+        this.persistanceManager = persistanceManager;
     }
 
     @Override
     public String getCommandId() {
-        return "r";
+        return ROLL_COMMAND_ID;
     }
 
     @Override
     public CommandDefinition getCommandDefinition() {
         return CommandDefinition.builder()
                 .name(getCommandId())
-                .description("direct roll of dice expression")
+                .description("direct roll of dice expression, configuration with /direct_roll_config")
                 .option(CommandDefinitionOption.builder()
                         .name(ACTION_EXPRESSION)
                         .required(true)
@@ -53,6 +65,18 @@ public class DirectRollCommand implements SlashCommand {
                         .type(CommandDefinitionOption.Type.STRING)
                         .build())
                 .build();
+    }
+
+    private DirectRollConfig getDirectRollConfig(long channelId) {
+        return persistanceManager.getChannelConfig(channelId, CONFIG_TYPE_ID)
+                .map(this::deserialize)
+                .orElse(new DirectRollConfig(null, true, AnswerFormatType.full, ResultImage.polyhedral_3d_red_and_white));
+    }
+
+    @VisibleForTesting
+    DirectRollConfig deserialize(ChannelConfigDTO channelConfigDTO) {
+        Preconditions.checkArgument(CONFIG_TYPE_ID.equals(channelConfigDTO.getConfigClassId()), "Unknown configClassId: %s", channelConfigDTO.getConfigClassId());
+        return Mapper.deserializeObject(channelConfigDTO.getConfig(), DirectRollConfig.class);
     }
 
     @Override
@@ -74,7 +98,7 @@ public class DirectRollCommand implements SlashCommand {
             if (commandParameter.equals(HELP)) {
                 BotMetrics.incrementSlashHelpMetricCounter(getCommandId());
                 return event.replyEmbed(EmbedOrMessageDefinition.builder()
-                        .descriptionOrContent("Type /r and a dice expression.\n" + DiceEvaluatorAdapter.getHelp())
+                        .descriptionOrContent("Type /r and a dice expression, configuration with /direct_roll_config\n" + DiceEvaluatorAdapter.getHelp())
                         .field(new EmbedOrMessageDefinition.Field("Example", "`/r expression:1d6`", false))
                         .field(new EmbedOrMessageDefinition.Field("Full documentation", "https://github.com/twonirwana/DiscordDiceBot", false))
                         .field(new EmbedOrMessageDefinition.Field("Discord Server", "https://discord.gg/e43BsqKpFr", false))
@@ -92,18 +116,20 @@ public class DirectRollCommand implements SlashCommand {
             String diceExpression = DiceSystemAdapter.getExpressionFromExpressionWithOptionalLabel(commandParameter);
             BotMetrics.incrementSlashStartMetricCounter(getCommandId(), diceExpression);
             BotMetrics.incrementAnswerFormatCounter(AnswerFormatType.full, getCommandId());
+            DirectRollConfig config = getDirectRollConfig(event.getChannelId());
 
-            RollAnswer answer = diceSystemAdapter.answerRollWithOptionalLabelInExpression(commandParameter, true, DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full, ResultImage.none);
+            RollAnswer answer = diceSystemAdapter.answerRollWithOptionalLabelInExpression(commandParameter, config.isAlwaysSumResult(), DiceParserSystem.DICE_EVALUATOR, config.getAnswerFormatType(), config.getResultImage());
 
             return Flux.merge(Mono.defer(event::acknowledgeAndRemoveSlash),
                             Mono.defer(() -> event.createResultMessageWithEventReference(RollAnswerConverter.toEmbedOrMessageDefinition(answer))
-                                    .doOnSuccess(v -> log.info("{}: '{}'={} -> {} in {}ms",
-                                            event.getRequester().toLogString(),
-                                            commandString.replace("`", ""),
-                                            diceExpression,
-                                            answer.toShortString(),
-                                            stopwatch.elapsed(TimeUnit.MILLISECONDS)
-                                    )))
+                                    .doOnSuccess(v ->
+                                            log.info("{}: '{}'={} -> {} in {}ms",
+                                                    event.getRequester().toLogString(),
+                                                    commandString.replace("`", ""),
+                                                    diceExpression,
+                                                    answer.toShortString(),
+                                                    stopwatch.elapsed(TimeUnit.MILLISECONDS)
+                                            )))
                     )
                     .parallel().then();
 
