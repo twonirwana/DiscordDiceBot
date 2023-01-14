@@ -52,7 +52,8 @@ public class PoolTargetConfig extends Config {
                 botchSet.stream().map(String::valueOf).collect(Collectors.joining(PoolTargetCommand.SUBSET_DELIMITER)),
                 rerollVariant,
                 getTargetChannelShortString(),
-                getAnswerFormatType()
+                getAnswerFormatType(),
+                getResultImage()
         ).toString();
     }
 }

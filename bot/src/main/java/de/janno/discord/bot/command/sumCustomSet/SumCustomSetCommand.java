@@ -9,8 +9,8 @@ import de.janno.discord.bot.ResultImage;
 import de.janno.discord.bot.command.*;
 import de.janno.discord.bot.dice.*;
 import de.janno.discord.bot.persistance.Mapper;
-import de.janno.discord.bot.persistance.MessageDataDAO;
 import de.janno.discord.bot.persistance.MessageDataDTO;
+import de.janno.discord.bot.persistance.PersistanceManager;
 import de.janno.discord.connector.api.BottomCustomIdUtils;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
@@ -47,13 +47,13 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
     private static final String STATE_DATA_TYPE_ID = "SumCustomSetStateData";
     private final DiceSystemAdapter diceSystemAdapter;
 
-    public SumCustomSetCommand(MessageDataDAO messageDataDAO) {
-        this(messageDataDAO, new DiceParser(), new RandomNumberSupplier());
+    public SumCustomSetCommand(PersistanceManager persistanceManager) {
+        this(persistanceManager, new DiceParser(), new RandomNumberSupplier());
     }
 
     @VisibleForTesting
-    public SumCustomSetCommand(MessageDataDAO messageDataDAO, Dice dice, NumberSupplier numberSupplier) {
-        super(messageDataDAO);
+    public SumCustomSetCommand(PersistanceManager persistanceManager, Dice dice, NumberSupplier numberSupplier) {
+        super(persistanceManager);
         this.diceSystemAdapter = new DiceSystemAdapter(numberSupplier, 1000, dice);
     }
 
@@ -62,16 +62,16 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
                                                                                                                          long messageId,
                                                                                                                          @NonNull String buttonValue,
                                                                                                                          @NonNull String invokingUserName) {
-        final Optional<MessageDataDTO> messageDataDTO = messageDataDAO.getDataForMessage(channelId, messageId);
+        final Optional<MessageDataDTO> messageDataDTO = persistanceManager.getDataForMessage(channelId, messageId);
         return messageDataDTO.map(dataDTO -> deserializeAndUpdateState(dataDTO, buttonValue, invokingUserName));
     }
 
     @Override
     protected void updateCurrentMessageStateData(long channelId, long messageId, @NonNull SumCustomSetConfig config, @NonNull State<SumCustomSetStateData> state) {
         if (state.getData() == null || ROLL_BUTTON_ID.equals(state.getButtonValue())) {
-            messageDataDAO.updateCommandConfigOfMessage(channelId, messageId, Mapper.NO_PERSISTED_STATE, null);
+            persistanceManager.updateCommandConfigOfMessage(channelId, messageId, Mapper.NO_PERSISTED_STATE, null);
         } else {
-            messageDataDAO.updateCommandConfigOfMessage(channelId, messageId, STATE_DATA_TYPE_ID, Mapper.serializedObject(state.getData()));
+            persistanceManager.updateCommandConfigOfMessage(channelId, messageId, STATE_DATA_TYPE_ID, Mapper.serializedObject(state.getData()));
         }
     }
 
@@ -117,7 +117,7 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
                 .descriptionOrContent("Creates buttons with custom dice expression components, that can be combined afterwards.. \n" + DiceEvaluatorAdapter.getHelp())
                 .field(new EmbedOrMessageDefinition.Field("Example", "`/sum_custom_set start buttons:+;d6;1;2;3;4;5;6;7;8;9;0`", false))
                 .field(new EmbedOrMessageDefinition.Field("Full documentation", "https://github.com/twonirwana/DiscordDiceBot", false))
-                .field(new EmbedOrMessageDefinition.Field("Discord Server", "https://discord.gg/e43BsqKpFr", false))
+                .field(new EmbedOrMessageDefinition.Field("Discord Server for Help and News", "https://discord.gg/e43BsqKpFr", false))
                 .build();
     }
 
@@ -276,9 +276,10 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
         List<ButtonIdAndExpression> buttons = getButtonsFromCommandInteractionOption(options);
         boolean alwaysSumResults = options.getBooleanSubOptionWithName(ALWAYS_SUM_RESULTS_COMMAND_OPTIONS_ID).orElse(true);
         final DiceParserSystem diceParserSystem = DiceParserSystem.DICE_EVALUATOR;
-        Long answerTargetChannelId = getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null);
-        ResultImage resultImage = getResultImageOptionFromStartCommandOption(options);
-        return getConfigOptionStringList(buttons, answerTargetChannelId, diceParserSystem, alwaysSumResults, getAnswerTypeFromStartCommandOption(options), resultImage);
+        Long answerTargetChannelId = DefaultCommandOptions.getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null);
+        AnswerFormatType answerType = DefaultCommandOptions.getAnswerTypeFromStartCommandOption(options).orElse(defaultAnswerFormat());
+        ResultImage resultImage = DefaultCommandOptions.getResultImageOptionFromStartCommandOption(options).orElse(defaultResultImage());
+        return getConfigOptionStringList(buttons, answerTargetChannelId, diceParserSystem, alwaysSumResults, answerType, resultImage);
     }
 
     private List<ButtonIdAndExpression> getButtonsFromCommandInteractionOption(@NonNull CommandInteractionOption options) {

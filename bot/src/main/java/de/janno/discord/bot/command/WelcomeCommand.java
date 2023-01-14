@@ -17,7 +17,7 @@ import de.janno.discord.bot.command.poolTarget.PoolTargetConfig;
 import de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommand;
 import de.janno.discord.bot.command.sumCustomSet.SumCustomSetConfig;
 import de.janno.discord.bot.dice.DiceParserSystem;
-import de.janno.discord.bot.persistance.MessageDataDAO;
+import de.janno.discord.bot.persistance.PersistanceManager;
 import de.janno.discord.bot.persistance.MessageDataDTO;
 import de.janno.discord.connector.api.BottomCustomIdUtils;
 import de.janno.discord.connector.api.ButtonEventAdaptor;
@@ -82,8 +82,8 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
     ), DiceParserSystem.DICE_EVALUATOR, true, AnswerFormatType.full, ResultImage.none);
     private final CustomParameterConfig FATE_WITH_IMAGE_CONFIG = new CustomParameterConfig(null, "4d[-1,0,1]+{Modifier:-4<=>10}=", DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.without_expression, ResultImage.fate_black);
 
-    public WelcomeCommand(MessageDataDAO messageDataDAO) {
-        super(messageDataDAO);
+    public WelcomeCommand(PersistanceManager persistanceManager) {
+        super(persistanceManager);
     }
 
     @Override
@@ -124,23 +124,23 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
         }
         return switch (ButtonIds.valueOf(state.getButtonValue())) {
             case fate ->
-                    new FateCommand(messageDataDAO).createMessageDataForNewMessage(configUUID, guildId, channelId, messageId, FATE_CONFIG, null);
+                    new FateCommand(persistanceManager).createMessageDataForNewMessage(configUUID, guildId, channelId, messageId, FATE_CONFIG, null);
             case fate_image ->
-                    new CustomParameterCommand(messageDataDAO).createMessageDataForNewMessage(configUUID, guildId, channelId, messageId, FATE_WITH_IMAGE_CONFIG, null);
+                    new CustomParameterCommand(persistanceManager).createMessageDataForNewMessage(configUUID, guildId, channelId, messageId, FATE_WITH_IMAGE_CONFIG, null);
             case dnd5 ->
-                    new CustomDiceCommand(messageDataDAO).createMessageDataForNewMessage(configUUID, guildId, channelId, messageId, DND5_CONFIG, null);
+                    new CustomDiceCommand(persistanceManager).createMessageDataForNewMessage(configUUID, guildId, channelId, messageId, DND5_CONFIG, null);
             case dnd5_image ->
-                    new CustomDiceCommand(messageDataDAO).createMessageDataForNewMessage(configUUID, guildId, channelId, messageId, DND5_CONFIG_WITH_IMAGE, null);
+                    new CustomDiceCommand(persistanceManager).createMessageDataForNewMessage(configUUID, guildId, channelId, messageId, DND5_CONFIG_WITH_IMAGE, null);
             case nWoD ->
-                    new CountSuccessesCommand(messageDataDAO).createMessageDataForNewMessage(configUUID, guildId, channelId, messageId, NWOD_CONFIG, null);
+                    new CountSuccessesCommand(persistanceManager).createMessageDataForNewMessage(configUUID, guildId, channelId, messageId, NWOD_CONFIG, null);
             case oWoD ->
-                    new PoolTargetCommand(messageDataDAO).createMessageDataForNewMessage(configUUID, guildId, channelId, messageId, OWOD_CONFIG, null);
+                    new PoolTargetCommand(persistanceManager).createMessageDataForNewMessage(configUUID, guildId, channelId, messageId, OWOD_CONFIG, null);
             case shadowrun ->
-                    new CountSuccessesCommand(messageDataDAO).createMessageDataForNewMessage(configUUID, guildId, channelId, messageId, SHADOWRUN_CONFIG, null);
+                    new CountSuccessesCommand(persistanceManager).createMessageDataForNewMessage(configUUID, guildId, channelId, messageId, SHADOWRUN_CONFIG, null);
             case coin ->
-                    new CustomDiceCommand(messageDataDAO).createMessageDataForNewMessage(configUUID, guildId, channelId, messageId, COIN_CONFIG, null);
+                    new CustomDiceCommand(persistanceManager).createMessageDataForNewMessage(configUUID, guildId, channelId, messageId, COIN_CONFIG, null);
             case dice_calculator ->
-                    new SumCustomSetCommand(messageDataDAO).createMessageDataForNewMessage(configUUID, guildId, channelId, messageId, DICE_CALCULATOR_CONFIG, null);
+                    new SumCustomSetCommand(persistanceManager).createMessageDataForNewMessage(configUUID, guildId, channelId, messageId, DICE_CALCULATOR_CONFIG, null);
         };
     }
 
@@ -158,7 +158,7 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
     protected @NonNull EmbedOrMessageDefinition getHelpMessage() {
         return EmbedOrMessageDefinition.builder().descriptionOrContent("Displays the welcome message")
                 .field(new EmbedOrMessageDefinition.Field("Full documentation", "https://github.com/twonirwana/DiscordDiceBot", false))
-                .field(new EmbedOrMessageDefinition.Field("Discord Server", "https://discord.gg/e43BsqKpFr", false))
+                .field(new EmbedOrMessageDefinition.Field("Discord Server for Help and News", "https://discord.gg/e43BsqKpFr", false))
                 .build();
     }
 
@@ -169,21 +169,21 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
             return Optional.empty();
         }
         return switch (ButtonIds.valueOf(state.getButtonValue())) {
-            case fate -> Optional.of(new FateCommand(messageDataDAO).createNewButtonMessage(FATE_CONFIG));
-            case fate_image -> Optional.of(new CustomParameterCommand(messageDataDAO).createNewButtonMessage(FATE_WITH_IMAGE_CONFIG));
-            case dnd5 -> Optional.of(new CustomDiceCommand(messageDataDAO).createNewButtonMessage(DND5_CONFIG));
+            case fate -> Optional.of(new FateCommand(persistanceManager).createNewButtonMessage(FATE_CONFIG));
+            case fate_image -> Optional.of(new CustomParameterCommand(persistanceManager).createNewButtonMessage(FATE_WITH_IMAGE_CONFIG));
+            case dnd5 -> Optional.of(new CustomDiceCommand(persistanceManager).createNewButtonMessage(DND5_CONFIG));
             case dnd5_image ->
-                    Optional.of(new CustomDiceCommand(messageDataDAO).createNewButtonMessage(DND5_CONFIG_WITH_IMAGE));
-            case nWoD -> Optional.of(new CountSuccessesCommand(messageDataDAO).createNewButtonMessage(NWOD_CONFIG));
-            case oWoD -> Optional.of(new PoolTargetCommand(messageDataDAO).createNewButtonMessage(OWOD_CONFIG));
+                    Optional.of(new CustomDiceCommand(persistanceManager).createNewButtonMessage(DND5_CONFIG_WITH_IMAGE));
+            case nWoD -> Optional.of(new CountSuccessesCommand(persistanceManager).createNewButtonMessage(NWOD_CONFIG));
+            case oWoD -> Optional.of(new PoolTargetCommand(persistanceManager).createNewButtonMessage(OWOD_CONFIG));
             case shadowrun -> Optional.of(
-                    new CountSuccessesCommand(messageDataDAO).createNewButtonMessage(SHADOWRUN_CONFIG)
+                    new CountSuccessesCommand(persistanceManager).createNewButtonMessage(SHADOWRUN_CONFIG)
             );
             case coin -> Optional.of(
-                    new CustomDiceCommand(messageDataDAO).createNewButtonMessage(COIN_CONFIG)
+                    new CustomDiceCommand(persistanceManager).createNewButtonMessage(COIN_CONFIG)
             );
             case dice_calculator -> Optional.of(
-                    new SumCustomSetCommand(messageDataDAO).createNewButtonMessage(DICE_CALCULATOR_CONFIG)
+                    new SumCustomSetCommand(persistanceManager).createNewButtonMessage(DICE_CALCULATOR_CONFIG)
             );
         };
     }

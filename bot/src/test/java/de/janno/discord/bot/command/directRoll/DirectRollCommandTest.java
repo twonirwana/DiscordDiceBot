@@ -1,23 +1,26 @@
-package de.janno.discord.bot.command;
+package de.janno.discord.bot.command.directRoll;
 
 import com.google.common.collect.ImmutableList;
-import de.janno.discord.bot.dice.Dice;
+import de.janno.discord.bot.ResultImage;
+import de.janno.discord.bot.command.AnswerFormatType;
 import de.janno.discord.bot.dice.DiceEvaluatorAdapter;
+import de.janno.discord.bot.persistance.ChannelConfigDTO;
+import de.janno.discord.bot.persistance.PersistanceManager;
 import de.janno.discord.connector.api.Requester;
 import de.janno.discord.connector.api.SlashEventAdaptor;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinitionOption;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
-import dev.diceroll.parser.NDice;
-import dev.diceroll.parser.ResultTree;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.io.File;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -26,12 +29,10 @@ import static org.mockito.Mockito.*;
 
 class DirectRollCommandTest {
     DirectRollCommand underTest;
-    Dice diceMock;
 
     @BeforeEach
     void setup() {
-        diceMock = mock(Dice.class);
-        underTest = new DirectRollCommand((minExcl, maxIncl) -> 1, diceMock);
+        underTest = new DirectRollCommand((minExcl, maxIncl) -> 1, mock(PersistanceManager.class));
     }
 
 
@@ -44,7 +45,6 @@ class DirectRollCommandTest {
                 .stringValue("1d6@Test Label")
                 .build();
         when(slashEventAdaptor.getOption(any())).thenReturn(Optional.of(interactionOption));
-        when(diceMock.detailedRoll("1d6")).thenReturn(new ResultTree(new NDice(6, 1), 3, ImmutableList.of()));
         when(slashEventAdaptor.getChannelId()).thenReturn(1L);
         when(slashEventAdaptor.createResultMessageWithEventReference(any())).thenReturn(Mono.just(mock(Void.class)));
         when(slashEventAdaptor.deleteMessageById(anyLong())).thenReturn(Mono.empty());
@@ -67,9 +67,9 @@ class DirectRollCommandTest {
         verify(slashEventAdaptor, never()).createButtonMessage(any());
         verify(slashEventAdaptor, never()).deleteMessageById(anyLong());
         verify(slashEventAdaptor, never()).replyEmbed(any(), anyBoolean());
-        verify(slashEventAdaptor).createResultMessageWithEventReference(ArgumentMatchers.eq(new EmbedOrMessageDefinition("Test Label ⇒ 1", "1d6: [1]", ImmutableList.of(), null, EmbedOrMessageDefinition.Type.EMBED)));
+        verify(slashEventAdaptor).createResultMessageWithEventReference(ArgumentMatchers.eq(new EmbedOrMessageDefinition("Test Label ⇒ 1", "1d6", ImmutableList.of(), new File("imageCache//cea2a67e61a8b605c6702aac213960f86922331b5cac795649502b363dde97aa.png"), EmbedOrMessageDefinition.Type.EMBED)));
 
-        verify(slashEventAdaptor, never()).getChannelId();
+        verify(slashEventAdaptor).getChannelId();
     }
 
     @Test
@@ -81,7 +81,6 @@ class DirectRollCommandTest {
                 .stringValue("asdfasdf")
                 .build();
         when(slashEventAdaptor.getOption(any())).thenReturn(Optional.of(interactionOption));
-        when(diceMock.detailedRoll("asdfasdf")).thenThrow(new IllegalArgumentException("not a valid expression"));
         when(slashEventAdaptor.reply(any(), anyBoolean())).thenReturn(Mono.just(mock(Void.class)));
         when(slashEventAdaptor.getCommandString()).thenReturn("/r expression:asdfasdf");
         when(slashEventAdaptor.getRequester()).thenReturn(new Requester("user", "channel", "guild", "[0 / 1]"));
@@ -132,10 +131,10 @@ class DirectRollCommandTest {
         verify(slashEventAdaptor, never()).createResultMessageWithEventReference(any());
         verify(slashEventAdaptor, never()).deleteMessageById(anyLong());
         verify(slashEventAdaptor).replyEmbed(EmbedOrMessageDefinition.builder()
-                .descriptionOrContent("Type /r and a dice expression.\n" + DiceEvaluatorAdapter.getHelp())
+                .descriptionOrContent("Type /r and a dice expression, configuration with /direct_roll_config\n" + DiceEvaluatorAdapter.getHelp())
                 .field(new EmbedOrMessageDefinition.Field("Example", "`/r expression:1d6`", false))
                 .field(new EmbedOrMessageDefinition.Field("Full documentation", "https://github.com/twonirwana/DiscordDiceBot", false))
-                .field(new EmbedOrMessageDefinition.Field("Discord Server", "https://discord.gg/e43BsqKpFr", false))
+                .field(new EmbedOrMessageDefinition.Field("Discord Server for Help and News", "https://discord.gg/e43BsqKpFr", false))
                 .build(), true);
 
         verify(slashEventAdaptor, never()).getChannelId();
@@ -154,7 +153,7 @@ class DirectRollCommandTest {
 
         assertThat(res).isEqualTo(CommandDefinition.builder()
                 .name("r")
-                .description("direct roll of dice expression")
+                .description("direct roll of dice expression, configuration with /direct_roll_config")
                 .option(CommandDefinitionOption.builder()
                         .name("expression")
                         .required(true)
@@ -162,5 +161,23 @@ class DirectRollCommandTest {
                         .type(CommandDefinitionOption.Type.STRING)
                         .build())
                 .build());
+    }
+
+    @Test
+    void deserialization() {
+        String configString = """
+                ---
+                answerTargetChannelId: null
+                alwaysSumResult: false
+                answerFormatType: "without_expression"
+                resultImage: "polyhedral_3d_red_and_white"
+                """;
+
+        ChannelConfigDTO savedData = new ChannelConfigDTO(UUID.randomUUID(), 1L, 2L, "r", "DirectRollConfig", configString);
+
+
+        DirectRollConfig res = underTest.deserialize(savedData);
+        assertThat(res).isEqualTo(new DirectRollConfig(null, false, AnswerFormatType.without_expression, ResultImage.polyhedral_3d_red_and_white));
+
     }
 }

@@ -9,8 +9,8 @@ import de.janno.discord.bot.command.State;
 import de.janno.discord.bot.dice.Dice;
 import de.janno.discord.bot.dice.DiceParser;
 import de.janno.discord.bot.dice.DiceParserSystem;
-import de.janno.discord.bot.persistance.MessageDataDAO;
-import de.janno.discord.bot.persistance.MessageDataDAOImpl;
+import de.janno.discord.bot.persistance.PersistanceManager;
+import de.janno.discord.bot.persistance.PersistanceManagerImpl;
 import de.janno.discord.bot.persistance.MessageDataDTO;
 import de.janno.discord.connector.api.slash.CommandDefinitionOption;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
@@ -35,7 +35,7 @@ import static org.mockito.Mockito.mock;
 class CustomParameterCommandTest {
 
     CustomParameterCommand underTest;
-    MessageDataDAO messageDataDAO = mock(MessageDataDAO.class);
+    PersistanceManager persistanceManager = mock(PersistanceManager.class);
 
     private static Stream<Arguments> generateParameterExpression2ButtonValuesData() {
         return Stream.of(
@@ -104,7 +104,7 @@ class CustomParameterCommandTest {
 
     @BeforeEach
     void setup() {
-        underTest = new CustomParameterCommand(messageDataDAO, new DiceParser(), new RandomNumberSupplier(0), 1000);
+        underTest = new CustomParameterCommand(persistanceManager, new DiceParser(), new RandomNumberSupplier(0), 1000);
         underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
     }
 
@@ -197,8 +197,8 @@ class CustomParameterCommandTest {
 
     @Test
     void checkPersistence() {
-        MessageDataDAO messageDataDAO = new MessageDataDAOImpl("jdbc:h2:mem:" + UUID.randomUUID(), null, null);
-        underTest = new CustomParameterCommand(messageDataDAO, mock(Dice.class), (minExcl, maxIncl) -> 0, 10);
+        PersistanceManager persistanceManager = new PersistanceManagerImpl("jdbc:h2:mem:" + UUID.randomUUID(), null, null);
+        underTest = new CustomParameterCommand(persistanceManager, mock(Dice.class), (minExcl, maxIncl) -> 0, 10);
         underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
 
         long channelId = System.currentTimeMillis();
@@ -209,10 +209,10 @@ class CustomParameterCommandTest {
                 new SelectedParameter("{n}", "n", "5", "5"),
                 new SelectedParameter("{s}", "s", null, null)), "userName"));
         Optional<MessageDataDTO> toSave = underTest.createMessageDataForNewMessage(configUUID, 1L, channelId, messageId, config, state);
-        messageDataDAO.saveMessageData(toSave.orElseThrow());
+        persistanceManager.saveMessageData(toSave.orElseThrow());
         underTest.updateCurrentMessageStateData(channelId, messageId, config, state);
 
-        MessageDataDTO loaded = messageDataDAO.getDataForMessage(channelId, messageId).orElseThrow();
+        MessageDataDTO loaded = persistanceManager.getDataForMessage(channelId, messageId).orElseThrow();
 
         ConfigAndState<CustomParameterConfig, CustomParameterStateData> configAndState = underTest.deserializeAndUpdateState(loaded, "3", "userName");
         assertThat(configAndState.getConfig()).isEqualTo(config);

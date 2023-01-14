@@ -28,6 +28,6 @@ public class FateConfig extends Config {
 
     @Override
     public String toShortString() {
-        return String.format("[%s, %s, %s]", type, getTargetChannelShortString(), getAnswerFormatType());
+        return String.format("[%s, %s, %s, %s]", type, getTargetChannelShortString(), getAnswerFormatType(),getResultImage());
     }
 }

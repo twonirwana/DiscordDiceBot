@@ -5,7 +5,7 @@ import com.google.common.base.Stopwatch;
 import com.google.common.collect.ImmutableList;
 import de.janno.discord.bot.BotMetrics;
 import de.janno.discord.bot.ResultImage;
-import de.janno.discord.bot.persistance.MessageDataDAO;
+import de.janno.discord.bot.persistance.PersistanceManager;
 import de.janno.discord.bot.persistance.MessageDataDTO;
 import de.janno.discord.connector.api.*;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
@@ -13,7 +13,6 @@ import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
 import de.janno.discord.connector.api.message.MessageDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinitionOption;
-import de.janno.discord.connector.api.slash.CommandDefinitionOptionChoice;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -29,6 +28,7 @@ import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import static de.janno.discord.bot.command.DefaultCommandOptions.*;
 import static de.janno.discord.connector.api.BottomCustomIdUtils.CUSTOM_ID_DELIMITER;
 
 @Slf4j
@@ -36,48 +36,14 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
 
     private static final String ACTION_START = "start";
     private static final String ACTION_HELP = "help";
-    private static final String ANSWER_TARGET_CHANNEL_OPTION = "target_channel";
-    private static final String ANSWER_FORMAT_OPTION = "answer_format";
-    private static final String RESULT_IMAGE_OPTION = "result_image";
-
-    private static final CommandDefinitionOption ANSWER_TARGET_CHANNEL_COMMAND_OPTION = CommandDefinitionOption.builder()
-            .name(ANSWER_TARGET_CHANNEL_OPTION)
-            .description("The channel where the answer will be given")
-            .type(CommandDefinitionOption.Type.CHANNEL)
-            .build();
-
-    private static final CommandDefinitionOption ANSWER_FORMAT_COMMAND_OPTION = CommandDefinitionOption.builder()
-            .name(ANSWER_FORMAT_OPTION)
-            .description("How the answer will be displayed")
-            .type(CommandDefinitionOption.Type.STRING)
-            .choices(Arrays.stream(AnswerFormatType.values())
-                    .map(answerFormatType -> CommandDefinitionOptionChoice.builder()
-                            .name(answerFormatType.name())
-                            .value(answerFormatType.name())
-                            .build())
-                    .collect(Collectors.toList()))
-            .build();
-
-    private static final CommandDefinitionOption RESULT_IMAGE_COMMAND_OPTION = CommandDefinitionOption.builder()
-
-            .name(RESULT_IMAGE_OPTION)
-            .description("If and in what style the dice throw should be shown as image")
-            .type(CommandDefinitionOption.Type.STRING)
-            .choices(Arrays.stream(ResultImage.values())
-                    .map(ri -> CommandDefinitionOptionChoice.builder()
-                            .name(ri.name())
-                            .value(ri.name())
-                            .build())
-                    .collect(Collectors.toList()))
-            .build();
 
     private static final int MIN_MS_DELAY_BETWEEN_BUTTON_MESSAGES = 1000;
     private final static ConcurrentSkipListSet<Long> MESSAGE_DATA_IDS_TO_DELETE = new ConcurrentSkipListSet<>();
-    protected final MessageDataDAO messageDataDAO;
+    protected final PersistanceManager persistanceManager;
     private Duration delayMessageDataDeletion = Duration.ofSeconds(10);
 
-    protected AbstractCommand(MessageDataDAO messageDataDAO) {
-        this.messageDataDAO = messageDataDAO;
+    protected AbstractCommand(PersistanceManager persistanceManager) {
+        this.persistanceManager = persistanceManager;
     }
 
     @VisibleForTesting
@@ -89,21 +55,7 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
         return Set.of(ACTION_START);
     }
 
-    protected Optional<Long> getAnswerTargetChannelIdFromStartCommandOption(@NonNull CommandInteractionOption options) {
-        return options.getChannelIdSubOptionWithName(ANSWER_TARGET_CHANNEL_OPTION);
-    }
 
-    protected AnswerFormatType getAnswerTypeFromStartCommandOption(@NonNull CommandInteractionOption options) {
-        return options.getStringSubOptionWithName(ANSWER_FORMAT_OPTION)
-                .map(AnswerFormatType::valueOf)
-                .orElse(defaultAnswerFormat());
-    }
-
-    protected ResultImage getResultImageOptionFromStartCommandOption(@NonNull CommandInteractionOption options) {
-        return options.getStringSubOptionWithName(RESULT_IMAGE_OPTION)
-                .map(ResultImage::valueOf)
-                .orElse(defaultResultImage());
-    }
 
     protected ResultImage defaultResultImage() {
         return ResultImage.polyhedral_3d_red_and_white;
@@ -270,7 +222,7 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
             actions.add(Mono.defer(() -> event.createButtonMessage(newButtonMessage.get())
                             .flatMap(newMessageId -> {
                                 final Optional<MessageDataDTO> nextMessageData = createMessageDataForNewMessage(configUUID, event.getGuildId(), channelId, newMessageId, config, state);
-                                nextMessageData.ifPresent(messageDataDAO::saveMessageData);
+                                nextMessageData.ifPresent(persistanceManager::saveMessageData);
                                 return deleteOldAndConcurrentMessageAndData(newMessageId, configUUID, channelId, event);
                             })).delaySubscription(calculateDelay(event))
                     .doOnSuccess(v -> BotMetrics.timerNewButtonMessageMetricCounter(getCommandId(), stopwatch.elapsed()))
@@ -312,7 +264,7 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
                 .delayElement(delayMessageDataDeletion)
                 .doOnNext(v -> {
                     MESSAGE_DATA_IDS_TO_DELETE.remove(messageId);
-                    messageDataDAO.deleteDataForMessage(channelId, messageId);
+                    persistanceManager.deleteDataForMessage(channelId, messageId);
                 }).ofType(Void.class));
     }
 
@@ -323,7 +275,7 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
             long channelId,
             @NonNull ButtonEventAdaptor event) {
 
-        Set<Long> ids = messageDataDAO.getAllMessageIdsForConfig(configUUID).stream()
+        Set<Long> ids = persistanceManager.getAllMessageIdsForConfig(configUUID).stream()
                 //this will already delete directly
                 .filter(id -> id != event.getMessageId())
                 //we don't want to delete the new message
@@ -370,7 +322,7 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
         if (startOption.isPresent()) {
             CommandInteractionOption options = startOption.get();
 
-            Optional<Long> answerTargetChannelId = getAnswerTargetChannelIdFromStartCommandOption(options);
+            Optional<Long> answerTargetChannelId = DefaultCommandOptions.getAnswerTargetChannelIdFromStartCommandOption(options);
             if (answerTargetChannelId.isPresent() && !event.isValidAnswerChannel(answerTargetChannelId.get())) {
                 log.info("{}: Invalid answer target channel for {}", event.getRequester().toLogString(), commandString);
                 return event.reply("The target channel is not a valid message channel", true);
@@ -394,7 +346,7 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
                     .then(event.createButtonMessage(createNewButtonMessage(config))
                             .map(newMessageId -> {
                                 final Optional<MessageDataDTO> newMessageData = createMessageDataForNewMessage(UUID.randomUUID(), event.getGuildId(), channelId, newMessageId, config, null);
-                                newMessageData.ifPresent(messageDataDAO::saveMessageData);
+                                newMessageData.ifPresent(persistanceManager::saveMessageData);
                                 return newMessageId;
                             })
                             .then()

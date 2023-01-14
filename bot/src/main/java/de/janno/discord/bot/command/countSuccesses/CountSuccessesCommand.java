@@ -9,7 +9,7 @@ import de.janno.discord.bot.ResultImage;
 import de.janno.discord.bot.command.*;
 import de.janno.discord.bot.dice.DiceUtils;
 import de.janno.discord.bot.persistance.Mapper;
-import de.janno.discord.bot.persistance.MessageDataDAO;
+import de.janno.discord.bot.persistance.PersistanceManager;
 import de.janno.discord.bot.persistance.MessageDataDTO;
 import de.janno.discord.connector.api.BottomCustomIdUtils;
 import de.janno.discord.connector.api.message.ButtonDefinition;
@@ -54,13 +54,13 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesConfig,
     private final static String CONFIG_TYPE_ID = "CountSuccessesConfig";
     private final DiceUtils diceUtils;
 
-    public CountSuccessesCommand(MessageDataDAO messageDataDAO) {
-        this(messageDataDAO, new DiceUtils());
+    public CountSuccessesCommand(PersistanceManager persistanceManager) {
+        this(persistanceManager, new DiceUtils());
     }
 
     @VisibleForTesting
-    public CountSuccessesCommand(MessageDataDAO messageDataDAO, DiceUtils diceUtils) {
-        super(messageDataDAO);
+    public CountSuccessesCommand(PersistanceManager persistanceManager, DiceUtils diceUtils) {
+        super(persistanceManager);
         this.diceUtils = diceUtils;
     }
 
@@ -73,7 +73,7 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesConfig,
                                                                                                                long messageId,
                                                                                                                @NonNull String buttonValue,
                                                                                                                @NonNull String invokingUserName) {
-        final Optional<MessageDataDTO> messageDataDTO = messageDataDAO.getDataForMessage(channelId, messageId);
+        final Optional<MessageDataDTO> messageDataDTO = persistanceManager.getDataForMessage(channelId, messageId);
         return messageDataDTO.map(dataDTO -> deserializeAndUpdateState(dataDTO, buttonValue));
     }
 
@@ -107,7 +107,7 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesConfig,
         return EmbedOrMessageDefinition.builder().descriptionOrContent("Use '/count_successes start dice_sides:X target_number:Y' to get Buttons that roll with X sided dice against the target of Y and count the successes. A successes are all dice that have a result greater or equal then the target number")
                 .field(new EmbedOrMessageDefinition.Field("Example", "`/count_successes start dice_sides:10 target_number:7`", false))
                 .field(new EmbedOrMessageDefinition.Field("Full documentation", "https://github.com/twonirwana/DiscordDiceBot", false))
-                .field(new EmbedOrMessageDefinition.Field("Discord Server", "https://discord.gg/e43BsqKpFr", false))
+                .field(new EmbedOrMessageDefinition.Field("Discord Server for Help and News", "https://discord.gg/e43BsqKpFr", false))
                 .build();
     }
 
@@ -289,9 +289,9 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesConfig,
                 .limit(sideValue / 2)
                 .collect(Collectors.toSet());
         Set<Integer> botchSet = CommandUtils.getSetFromCommandOptions(options, ACTION_BOTCH_SET_OPTION, ",");
-        Long answerTargetChannelId = getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null);
-        AnswerFormatType answerType = getAnswerTypeFromStartCommandOption(options);
-        ResultImage resultImage = getResultImageOptionFromStartCommandOption(options);
+        Long answerTargetChannelId = DefaultCommandOptions.getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null);
+        AnswerFormatType answerType = DefaultCommandOptions.getAnswerTypeFromStartCommandOption(options).orElse(defaultAnswerFormat());
+        ResultImage resultImage = DefaultCommandOptions.getResultImageOptionFromStartCommandOption(options).orElse(defaultResultImage());
         return new CountSuccessesConfig(answerTargetChannelId, sideValue, targetValue, glitchOption, maxDice, minDiceCount, rerollSet, botchSet, answerType, resultImage);
     }
 

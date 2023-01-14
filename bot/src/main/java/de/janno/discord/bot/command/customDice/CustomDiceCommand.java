@@ -8,8 +8,8 @@ import de.janno.discord.bot.ResultImage;
 import de.janno.discord.bot.command.*;
 import de.janno.discord.bot.dice.*;
 import de.janno.discord.bot.persistance.Mapper;
-import de.janno.discord.bot.persistance.MessageDataDAO;
 import de.janno.discord.bot.persistance.MessageDataDTO;
+import de.janno.discord.bot.persistance.PersistanceManager;
 import de.janno.discord.connector.api.BottomCustomIdUtils;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
@@ -39,13 +39,13 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
     private static final String CONFIG_TYPE_ID = "CustomDiceConfig";
     private final DiceSystemAdapter diceSystemAdapter;
 
-    public CustomDiceCommand(MessageDataDAO messageDataDAO) {
-        this(messageDataDAO, new DiceParser(), new RandomNumberSupplier(), 1000);
+    public CustomDiceCommand(PersistanceManager persistanceManager) {
+        this(persistanceManager, new DiceParser(), new RandomNumberSupplier(), 1000);
     }
 
     @VisibleForTesting
-    public CustomDiceCommand(MessageDataDAO messageDataDAO, Dice dice, NumberSupplier numberSupplier, int maxRolls) {
-        super(messageDataDAO);
+    public CustomDiceCommand(PersistanceManager persistanceManager, Dice dice, NumberSupplier numberSupplier, int maxRolls) {
+        super(persistanceManager);
         this.diceSystemAdapter = new DiceSystemAdapter(numberSupplier, maxRolls, dice);
     }
 
@@ -54,7 +54,7 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
                                                                                                            long messageId,
                                                                                                            @NonNull String buttonValue,
                                                                                                            @NonNull String invokingUserName) {
-        final Optional<MessageDataDTO> messageDataDTO = messageDataDAO.getDataForMessage(channelId, messageId);
+        final Optional<MessageDataDTO> messageDataDTO = persistanceManager.getDataForMessage(channelId, messageId);
         return messageDataDTO.map(dataDTO -> deserializeAndUpdateState(dataDTO, buttonValue));
     }
 
@@ -100,7 +100,7 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
                 .descriptionOrContent("Creates up to 25 buttons with custom dice expression.\n" + DiceEvaluatorAdapter.getHelp())
                 .field(new EmbedOrMessageDefinition.Field("Example", "`/custom_dice start buttons:3d6;10d10;3d20`", false))
                 .field(new EmbedOrMessageDefinition.Field("Full documentation", "https://github.com/twonirwana/DiscordDiceBot", false))
-                .field(new EmbedOrMessageDefinition.Field("Discord Server", "https://discord.gg/e43BsqKpFr", false))
+                .field(new EmbedOrMessageDefinition.Field("Discord Server for Help and News", "https://discord.gg/e43BsqKpFr", false))
                 .build();
     }
 
@@ -127,9 +127,9 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
 
     protected @NonNull CustomDiceConfig getConfigFromStartOptions(@NonNull CommandInteractionOption options) {
         return getConfigOptionStringList(getButtonsFromCommandOption(options),
-                getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null),
-                getAnswerTypeFromStartCommandOption(options),
-                getResultImageOptionFromStartCommandOption(options));
+                DefaultCommandOptions.getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null),
+                DefaultCommandOptions.getAnswerTypeFromStartCommandOption(options).orElse(defaultAnswerFormat()),
+                DefaultCommandOptions.getResultImageOptionFromStartCommandOption(options).orElse(defaultResultImage()));
     }
 
     @VisibleForTesting

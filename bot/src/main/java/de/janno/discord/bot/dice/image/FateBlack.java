@@ -31,6 +31,9 @@ public class FateBlack implements ImageProvider {
 
     @Override
     public @NonNull List<BufferedImage> getImageFor(Integer totalDieSides, Integer shownDieSide) {
+        if (shownDieSide == null){
+            return List.of();
+        }
         switch (shownDieSide) {
             case -1 -> {
                 return List.of(MINUS);
