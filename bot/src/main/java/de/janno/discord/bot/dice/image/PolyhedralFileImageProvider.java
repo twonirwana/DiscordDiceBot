@@ -26,7 +26,7 @@ public abstract class PolyhedralFileImageProvider implements ImageProvider {
                 return sideStream
                         .collect(ImmutableMap.toImmutableMap(s -> s, s -> {
                             try {
-                                return ImageIO.read(Resources.getResource(this.getStyleFolder() + getDieFolder(d)+ getFileName(d, s) ).openStream());
+                                return ImageIO.read(Resources.getResource(this.getStyleFolder() + getDieFolder(d) + getFileName(d, s)).openStream());
                             } catch (IOException e) {
                                 throw new RuntimeException(e);
                             }
@@ -34,7 +34,9 @@ public abstract class PolyhedralFileImageProvider implements ImageProvider {
             }));
 
     protected abstract String getStyleFolder();
+
     protected abstract String getDieFolder(int totalDieSides);
+
     protected abstract String getFileName(int totalDieSides, int shownDieSide);
 
     @Override
@@ -62,6 +64,8 @@ public abstract class PolyhedralFileImageProvider implements ImageProvider {
                     diceImageMap.get(10).get(ones)
             );
         }
-        return Optional.ofNullable(diceImageMap.get(totalDieSides)).map(m -> List.of(m.get(shownDieSide))).orElse(List.of());
+        return Optional.ofNullable(diceImageMap.get(totalDieSides))
+                .map(m -> m.get(shownDieSide))
+                .map(List::of).orElse(List.of());
     }
 }

@@ -67,6 +67,44 @@ class ImageResultCreatorTest {
         assertThat(res).isEqualTo("fate_black@[-1∈[-1, 0, 1],0∈[-1, 0, 1],1∈[-1, 0, 1],-1∈[-1, 0, 1]]");
     }
 
+    @Test
+    void createRollCacheNameTest_explode() throws ExpressionException {
+        List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(6, 6, 5, 5, 4, 3), 1000).evaluate("3d!6");
+
+        String res = underTest.createRollCacheName(rolls.get(0), ResultImage.polyhedral_3d_red_and_white);
+
+        assertThat(res).isEqualTo("polyhedral_3d_red_and_white@[6∈[1...6],6∈[1...6],5∈[1...6],5∈[1...6],4∈[1...6]]");
+    }
+
+    @Test
+    void createRollCacheNameTest_explodeAdd() throws ExpressionException {
+        List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(6, 6, 5, 5, 4, 3), 1000).evaluate("3d!!6");
+
+        String res = underTest.createRollCacheName(rolls.get(0), ResultImage.polyhedral_3d_red_and_white);
+
+        assertThat(res).isEqualTo("polyhedral_3d_red_and_white@[17∈[1...6],5∈[1...6],4∈[1...6]]");
+    }
+
+    @Test
+    void getImageForRoll_explode() throws ExpressionException, IOException {
+        List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(6, 6, 5, 5, 4, 3), 1000).evaluate("3d!6");
+
+        File res = underTest.getImageForRoll(rolls, ResultImage.polyhedral_black_and_gold);
+
+        assertThat(res).isNotNull();
+        assertThat(res).exists();
+        assertThat(res.getName()).isEqualTo("ad9dcc4567d461a973d2b0ae4ce31d58e5a9914a06364c43c1f3edc35213962f.png");
+        assertThat(getFileHash(res)).isEqualTo("a78152e41956d655a4aa3428886e0be6c08c02f9dff25db08befb5e7086b3aae");
+    }
+
+    @Test
+    void getImageForRoll_explodeAdd() throws ExpressionException {
+        List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(6, 6, 5, 5, 4, 3), 1000).evaluate("3d!!6");
+
+        File res = underTest.getImageForRoll(rolls, ResultImage.polyhedral_3d_red_and_white);
+
+        assertThat(res).isNull();
+    }
 
     @Test
     void getImageForRoll_blackGold() throws ExpressionException, IOException {
