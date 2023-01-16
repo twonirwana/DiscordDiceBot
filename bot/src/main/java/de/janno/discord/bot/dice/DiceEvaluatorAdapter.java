@@ -10,7 +10,6 @@ import de.janno.evaluator.dice.DiceEvaluator;
 import de.janno.evaluator.dice.ExpressionException;
 import de.janno.evaluator.dice.Roll;
 import de.janno.evaluator.dice.RollElement;
-import de.janno.evaluator.dice.random.NumberSupplier;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
@@ -23,10 +22,10 @@ import java.util.Optional;
 public class DiceEvaluatorAdapter {
 
     private final static ImageResultCreator IMAGE_RESULT_CREATOR = new ImageResultCreator();
-    private final DiceEvaluator diceEvaluator;
+    private final CachingDiceEvaluator cachingDiceEvaluator;
 
-    public DiceEvaluatorAdapter(NumberSupplier numberSupplier, int maxNumberOfDice) {
-        this.diceEvaluator = new DiceEvaluator(numberSupplier, maxNumberOfDice);
+    public DiceEvaluatorAdapter(CachingDiceEvaluator cachingDiceEvaluator) {
+        this.cachingDiceEvaluator = cachingDiceEvaluator;
     }
 
     private static @NonNull String getExpressionFromExpressionWithOptionalLabel(String expressionWithOptionalLabel, String labelDelimiter) {
@@ -68,12 +67,11 @@ public class DiceEvaluatorAdapter {
     }
 
     public Optional<String> validateDiceExpression(String expression, String helpCommand) {
-        try {
-            log.debug("Validating expression: {}", expression);
-            diceEvaluator.evaluate(expression);
+        RollerOrError rollerOrError = cachingDiceEvaluator.get(expression);
+        if (rollerOrError.isValid()) {
             return Optional.empty();
-        } catch (ExpressionException | ArithmeticException e) {
-            return Optional.of(String.format("The following expression is invalid: '%s'. The error is: %s. Use %s to get more information on how to use the command.", expression, e.getMessage(), helpCommand));
+        } else {
+            return Optional.of(String.format("The following expression is invalid: '%s'. The error is: %s. Use %s to get more information on how to use the command.", expression, rollerOrError.getErrorMessage(), helpCommand));
         }
     }
 
@@ -83,11 +81,22 @@ public class DiceEvaluatorAdapter {
         return answerRollWithGivenLabel(diceExpression, label, sumUp, answerFormatType, resultImage);
     }
 
-    public RollAnswer answerRollWithGivenLabel(String diceExpression, @Nullable String label, boolean sumUp, AnswerFormatType answerFormatType, ResultImage resultImage) {
+    public RollAnswer answerRollWithGivenLabel(String expression, @Nullable String label, boolean sumUp, AnswerFormatType answerFormatType, ResultImage resultImage) {
 
         try {
-            log.debug("Roll expression: {}", diceExpression);
-            List<Roll> rolls = diceEvaluator.evaluate(diceExpression);
+            final RollerOrError rollerOrError = cachingDiceEvaluator.get(expression);
+
+            final List<Roll> rolls;
+            if (rollerOrError.getRoller() != null) {
+                rolls = rollerOrError.getRoller().roll();
+            } else {
+                return RollAnswer.builder()
+                        .answerFormatType(answerFormatType)
+                        .expression(expression)
+                        .errorMessage(rollerOrError.getErrorMessage())
+                        .build();
+            }
+
             BotMetrics.incrementUseImageResultMetricCounter(resultImage);
             File diceImage = null;
             if (!resultImage.equals(ResultImage.none)) {
@@ -96,7 +105,7 @@ public class DiceEvaluatorAdapter {
             if (rolls.size() == 1) {
                 return RollAnswer.builder()
                         .answerFormatType(answerFormatType)
-                        .expression(diceExpression)
+                        .expression(expression)
                         .expressionLabel(label)
                         .file(diceImage)
                         .result(getResult(rolls.get(0), sumUp))
@@ -108,15 +117,15 @@ public class DiceEvaluatorAdapter {
                         .collect(ImmutableList.toImmutableList());
                 return RollAnswer.builder()
                         .answerFormatType(answerFormatType)
-                        .expression(diceExpression)
+                        .expression(expression)
                         .expressionLabel(label)
                         .multiRollResults(multiRollResults)
                         .build();
             }
-        } catch (ExpressionException e) {
+        } catch (ExpressionException | ArithmeticException e) {
             return RollAnswer.builder()
                     .answerFormatType(answerFormatType)
-                    .expression(diceExpression)
+                    .expression(expression)
                     .errorMessage(e.getMessage())
                     .build();
         }
@@ -124,12 +133,7 @@ public class DiceEvaluatorAdapter {
 
 
     public boolean validExpression(String expression) {
-        try {
-            log.debug("check if valid: {}", expression);
-            diceEvaluator.evaluate(expression);
-            return true;
-        } catch (ExpressionException | ArithmeticException e) {
-            return false;
-        }
+        return cachingDiceEvaluator.get(expression).isValid();
     }
+
 }

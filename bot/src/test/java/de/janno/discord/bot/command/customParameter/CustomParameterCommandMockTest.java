@@ -4,6 +4,7 @@ import de.janno.discord.bot.ButtonEventAdaptorMock;
 import de.janno.discord.bot.ButtonEventAdaptorMockFactory;
 import de.janno.discord.bot.ResultImage;
 import de.janno.discord.bot.command.AnswerFormatType;
+import de.janno.discord.bot.dice.CachingDiceEvaluator;
 import de.janno.discord.bot.dice.DiceParser;
 import de.janno.discord.bot.dice.DiceParserSystem;
 import de.janno.discord.bot.persistance.PersistanceManager;
@@ -31,7 +32,7 @@ public class CustomParameterCommandMockTest {
 
     @Test
     void roll_full() {
-        CustomParameterCommand underTest = new CustomParameterCommand(persistanceManager, new DiceParser(), new RandomNumberSupplier(0), 1000);
+        CustomParameterCommand underTest = new CustomParameterCommand(persistanceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
         underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
 
         CustomParameterConfig config = new CustomParameterConfig(null, "{numberOfDice:1<=>10}d{sides:1/4/6/8/10/12/20/100}", DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full, ResultImage.none);
@@ -46,14 +47,14 @@ public class CustomParameterCommandMockTest {
                 "editMessage: message:invokingUser: 4d{sides}\nPlease select value for **sides**, buttonValues=1,4,6,8,10,12,20,100,clear");
         assertThat(click2.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:processing ..., buttonValues=",
-                "createAnswer: title=4d6 ⇒ 2, 3, 1, 4, description=[2, 3, 1, 4], fieldValues:, answerChannel:null, type:EMBED",
+                "createAnswer: title=4d6 ⇒ 1, 1, 6, 3, description=[1, 1, 6, 3], fieldValues:, answerChannel:null, type:EMBED",
                 "createButtonMessage: content={numberOfDice}d{sides}\nPlease select value for **numberOfDice**, buttonValues=1,2,3,4,5,6,7,8,9,10",
                 "deleteMessageById: 0");
     }
 
     @Test
     void roll_full_withLabel() {
-        CustomParameterCommand underTest = new CustomParameterCommand(persistanceManager, new DiceParser(), new RandomNumberSupplier(0), 1000);
+        CustomParameterCommand underTest = new CustomParameterCommand(persistanceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
         underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
 
         CustomParameterConfig config = new CustomParameterConfig(null, "{numberOfDice:1<=>10}d{sides:1/4/6/8/10/12/20/100}@Roll", DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full, ResultImage.none);
@@ -68,14 +69,14 @@ public class CustomParameterCommandMockTest {
                 "editMessage: message:invokingUser: 4d{sides}@Roll\nPlease select value for **sides**, buttonValues=1,4,6,8,10,12,20,100,clear");
         assertThat(click2.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:processing ..., buttonValues=",
-                "createAnswer: title=Roll ⇒ 2, 3, 1, 4, description=4d6: [2, 3, 1, 4], fieldValues:, answerChannel:null, type:EMBED",
+                "createAnswer: title=Roll ⇒ 1, 1, 6, 3, description=4d6: [1, 1, 6, 3], fieldValues:, answerChannel:null, type:EMBED",
                 "createButtonMessage: content={numberOfDice}d{sides}@Roll\nPlease select value for **numberOfDice**, buttonValues=1,2,3,4,5,6,7,8,9,10",
                 "deleteMessageById: 0");
     }
 
     @Test
     void roll_withoutExpression() {
-        CustomParameterCommand underTest = new CustomParameterCommand(persistanceManager, new DiceParser(), new RandomNumberSupplier(0), 1000);
+        CustomParameterCommand underTest = new CustomParameterCommand(persistanceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
         underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
 
         CustomParameterConfig config = new CustomParameterConfig(null, "{numberOfDice:1<=>10}d{sides:1/4/6/8/10/12/20/100}", DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.without_expression, ResultImage.none);
@@ -90,14 +91,14 @@ public class CustomParameterCommandMockTest {
                 "editMessage: message:invokingUser: Please select value for **sides**, buttonValues=1,4,6,8,10,12,20,100,clear");
         assertThat(click2.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:processing ..., buttonValues=",
-                "createAnswer: title=numberOfDice:4, sides:6 ⇒ 2, 3, 1, 4, description=[2, 3, 1, 4], fieldValues:, answerChannel:null, type:EMBED",
+                "createAnswer: title=numberOfDice:4, sides:6 ⇒ 1, 1, 6, 3, description=[1, 1, 6, 3], fieldValues:, answerChannel:null, type:EMBED",
                 "createButtonMessage: content=Please select value for **numberOfDice**, buttonValues=1,2,3,4,5,6,7,8,9,10",
                 "deleteMessageById: 0");
     }
 
     @Test
     void roll_withoutExpression_withLabel() {
-        CustomParameterCommand underTest = new CustomParameterCommand(persistanceManager, new DiceParser(), new RandomNumberSupplier(0), 1000);
+        CustomParameterCommand underTest = new CustomParameterCommand(persistanceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
         underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
 
         CustomParameterConfig config = new CustomParameterConfig(null, "{numberOfDice:1<=>10}d{sides:1/4/6/8/10/12/20/100}@Roll", DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.without_expression, ResultImage.none);
@@ -112,14 +113,14 @@ public class CustomParameterCommandMockTest {
                 "editMessage: message:invokingUser: Please select value for **sides**, buttonValues=1,4,6,8,10,12,20,100,clear");
         assertThat(click2.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:processing ..., buttonValues=",
-                "createAnswer: title=Roll ⇒ 2, 3, 1, 4, description=[2, 3, 1, 4], fieldValues:, answerChannel:null, type:EMBED",
+                "createAnswer: title=Roll ⇒ 1, 1, 6, 3, description=[1, 1, 6, 3], fieldValues:, answerChannel:null, type:EMBED",
                 "createButtonMessage: content=Please select value for **numberOfDice**, buttonValues=1,2,3,4,5,6,7,8,9,10",
                 "deleteMessageById: 0");
     }
 
     @Test
     void roll_compact() {
-        CustomParameterCommand underTest = new CustomParameterCommand(persistanceManager, new DiceParser(), new RandomNumberSupplier(0), 1000);
+        CustomParameterCommand underTest = new CustomParameterCommand(persistanceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
         underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
 
         CustomParameterConfig config = new CustomParameterConfig(null, "{numberOfDice:1<=>10}d{sides:1/4/6/8/10/12/20/100}", DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.compact, ResultImage.none);
@@ -134,14 +135,14 @@ public class CustomParameterCommandMockTest {
                 "editMessage: message:invokingUser: Please select value for **sides**, buttonValues=1,4,6,8,10,12,20,100,clear");
         assertThat(click2.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:processing ..., buttonValues=",
-                "createAnswer: title=null, description=__**numberOfDice:4, sides:6 ⇒ 2, 3, 1, 4**__  4d6: [2, 3, 1, 4], fieldValues:, answerChannel:null, type:MESSAGE",
+                "createAnswer: title=null, description=__**numberOfDice:4, sides:6 ⇒ 1, 1, 6, 3**__  4d6: [1, 1, 6, 3], fieldValues:, answerChannel:null, type:MESSAGE",
                 "createButtonMessage: content=Please select value for **numberOfDice**, buttonValues=1,2,3,4,5,6,7,8,9,10",
                 "deleteMessageById: 0");
     }
 
     @Test
     void roll_minimal() {
-        CustomParameterCommand underTest = new CustomParameterCommand(persistanceManager, new DiceParser(), new RandomNumberSupplier(0), 1000);
+        CustomParameterCommand underTest = new CustomParameterCommand(persistanceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
         underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
 
         CustomParameterConfig config = new CustomParameterConfig(null, "{numberOfDice:1<=>10}d{sides:1/4/6/8/10/12/20/100}", DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.minimal, ResultImage.none);
@@ -156,14 +157,14 @@ public class CustomParameterCommandMockTest {
                 "editMessage: message:invokingUser: Please select value for **sides**, buttonValues=1,4,6,8,10,12,20,100,clear");
         assertThat(click2.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:processing ..., buttonValues=",
-                "createAnswer: title=null, description=numberOfDice:4, sides:6 ⇒ 2, 3, 1, 4, fieldValues:, answerChannel:null, type:MESSAGE",
+                "createAnswer: title=null, description=numberOfDice:4, sides:6 ⇒ 1, 1, 6, 3, fieldValues:, answerChannel:null, type:MESSAGE",
                 "createButtonMessage: content=Please select value for **numberOfDice**, buttonValues=1,2,3,4,5,6,7,8,9,10",
                 "deleteMessageById: 0");
     }
 
     @Test
     void lockedToUser_block() {
-        CustomParameterCommand underTest = new CustomParameterCommand(persistanceManager, new DiceParser(), new RandomNumberSupplier(0), 1000);
+        CustomParameterCommand underTest = new CustomParameterCommand(persistanceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
         underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
 
         CustomParameterConfig config = new CustomParameterConfig(null, "{numberOfDice:1<=>10}d{sides:1/4/6/8/10/12/20/100}", DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.minimal, ResultImage.none);
@@ -182,14 +183,14 @@ public class CustomParameterCommandMockTest {
                 "editMessage: message:user1: Please select value for **sides**, buttonValues=1,4,6,8,10,12,20,100,clear");
         assertThat(click3.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:processing ..., buttonValues=",
-                "createAnswer: title=null, description=numberOfDice:4, sides:6 ⇒ 2, 3, 1, 4, fieldValues:, answerChannel:null, type:MESSAGE",
+                "createAnswer: title=null, description=numberOfDice:4, sides:6 ⇒ 1, 1, 6, 3, fieldValues:, answerChannel:null, type:MESSAGE",
                 "createButtonMessage: content=Please select value for **numberOfDice**, buttonValues=1,2,3,4,5,6,7,8,9,10",
                 "deleteMessageById: 0");
     }
 
     @Test
     void clear() {
-        CustomParameterCommand underTest = new CustomParameterCommand(persistanceManager, new DiceParser(), new RandomNumberSupplier(0), 1000);
+        CustomParameterCommand underTest = new CustomParameterCommand(persistanceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
         underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
 
         CustomParameterConfig config = new CustomParameterConfig(null, "{numberOfDice:1<=>10}d{sides:1/4/6/8/10/12/20/100}", DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full, ResultImage.none);
@@ -208,7 +209,7 @@ public class CustomParameterCommandMockTest {
 
     @Test
     void roll_pinned() {
-        CustomParameterCommand underTest = new CustomParameterCommand(persistanceManager, new DiceParser(), new RandomNumberSupplier(0), 1000);
+        CustomParameterCommand underTest = new CustomParameterCommand(persistanceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
         underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
 
         CustomParameterConfig config = new CustomParameterConfig(null, "{numberOfDice:1<=>10}d{sides:1/4/6/8/10/12/20/100}", DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full, ResultImage.none);
@@ -223,13 +224,13 @@ public class CustomParameterCommandMockTest {
                 "editMessage: message:invokingUser: 4d{sides}\nPlease select value for **sides**, buttonValues=1,4,6,8,10,12,20,100,clear");
         assertThat(click2.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:{numberOfDice}d{sides}\nPlease select value for **numberOfDice**, buttonValues=1,2,3,4,5,6,7,8,9,10",
-                "createAnswer: title=4d6 ⇒ 2, 3, 1, 4, description=[2, 3, 1, 4], fieldValues:, answerChannel:null, type:EMBED",
+                "createAnswer: title=4d6 ⇒ 1, 1, 6, 3, description=[1, 1, 6, 3], fieldValues:, answerChannel:null, type:EMBED",
                 "createButtonMessage: content={numberOfDice}d{sides}\nPlease select value for **numberOfDice**, buttonValues=1,2,3,4,5,6,7,8,9,10");
     }
 
     @Test
     void roll_answerChannel() {
-        CustomParameterCommand underTest = new CustomParameterCommand(persistanceManager, new DiceParser(), new RandomNumberSupplier(0), 1000);
+        CustomParameterCommand underTest = new CustomParameterCommand(persistanceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
         underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
 
         CustomParameterConfig config = new CustomParameterConfig(2L, "{numberOfDice:1<=>10}d{sides:1/4/6/8/10/12/20/100}", DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full, ResultImage.none);
@@ -245,13 +246,13 @@ public class CustomParameterCommandMockTest {
                         "Please select value for **sides**, buttonValues=1,4,6,8,10,12,20,100,clear");
         assertThat(click2.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:{numberOfDice}d{sides}\nPlease select value for **numberOfDice**, buttonValues=1,2,3,4,5,6,7,8,9,10",
-                "createAnswer: title=4d6 ⇒ 2, 3, 1, 4, description=[2, 3, 1, 4], fieldValues:, answerChannel:2, type:EMBED"
+                "createAnswer: title=4d6 ⇒ 1, 1, 6, 3, description=[1, 1, 6, 3], fieldValues:, answerChannel:2, type:EMBED"
         );
     }
 
     @Test
     void roll_pinnedTwice() {
-        CustomParameterCommand underTest = new CustomParameterCommand(persistanceManager, new DiceParser(), new RandomNumberSupplier(0), 1000);
+        CustomParameterCommand underTest = new CustomParameterCommand(persistanceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
         underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
 
         CustomParameterConfig config = new CustomParameterConfig(null, "{numberOfDice:1<=>10}d{sides:1/4/6/8/10/12/20/100}", DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full, ResultImage.none);
@@ -270,13 +271,13 @@ public class CustomParameterCommandMockTest {
                 "editMessage: message:invokingUser: 4d{sides}\nPlease select value for **sides**, buttonValues=1,4,6,8,10,12,20,100,clear");
         assertThat(click2.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:{numberOfDice}d{sides}\nPlease select value for **numberOfDice**, buttonValues=1,2,3,4,5,6,7,8,9,10",
-                "createAnswer: title=4d6 ⇒ 2, 3, 1, 4, description=[2, 3, 1, 4], fieldValues:, answerChannel:null, type:EMBED",
+                "createAnswer: title=4d6 ⇒ 1, 1, 6, 3, description=[1, 1, 6, 3], fieldValues:, answerChannel:null, type:EMBED",
                 "createButtonMessage: content={numberOfDice}d{sides}\nPlease select value for **numberOfDice**, buttonValues=1,2,3,4,5,6,7,8,9,10");
         assertThat(click3.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:invokingUser: 4d{sides}\nPlease select value for **sides**, buttonValues=1,4,6,8,10,12,20,100,clear");
         assertThat(click4.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:processing ..., buttonValues=",
-                "createAnswer: title=4d6 ⇒ 1, 1, 6, 3, description=[1, 1, 6, 3], fieldValues:, answerChannel:null, type:EMBED",
+                "createAnswer: title=4d6 ⇒ 3, 2, 4, 4, description=[3, 2, 4, 4], fieldValues:, answerChannel:null, type:EMBED",
                 "createButtonMessage: content={numberOfDice}d{sides}\nPlease select value for **numberOfDice**, buttonValues=1,2,3,4,5,6,7,8,9,10",
                 "deleteMessageById: 1",
                 "getMessagesState: [0]");
@@ -284,7 +285,7 @@ public class CustomParameterCommandMockTest {
 
     @Test
     void roll_answerChannelTwice() {
-        CustomParameterCommand underTest = new CustomParameterCommand(persistanceManager, new DiceParser(), new RandomNumberSupplier(0), 1000);
+        CustomParameterCommand underTest = new CustomParameterCommand(persistanceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
         underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
 
         CustomParameterConfig config = new CustomParameterConfig(2L, "{numberOfDice:1<=>10}d{sides:1/4/6/8/10/12/20/100}", DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full, ResultImage.none);
@@ -303,13 +304,13 @@ public class CustomParameterCommandMockTest {
                 "editMessage: message:invokingUser: 4d{sides}\nPlease select value for **sides**, buttonValues=1,4,6,8,10,12,20,100,clear");
         assertThat(click2.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:{numberOfDice}d{sides}\nPlease select value for **numberOfDice**, buttonValues=1,2,3,4,5,6,7,8,9,10",
-                "createAnswer: title=4d6 ⇒ 2, 3, 1, 4, description=[2, 3, 1, 4], fieldValues:, answerChannel:2, type:EMBED"
+                "createAnswer: title=4d6 ⇒ 1, 1, 6, 3, description=[1, 1, 6, 3], fieldValues:, answerChannel:2, type:EMBED"
         );
         assertThat(click3.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:invokingUser: 4d{sides}\nPlease select value for **sides**, buttonValues=1,4,6,8,10,12,20,100,clear");
         assertThat(click4.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:{numberOfDice}d{sides}\nPlease select value for **numberOfDice**, buttonValues=1,2,3,4,5,6,7,8,9,10",
-                "createAnswer: title=4d6 ⇒ 1, 1, 6, 3, description=[1, 1, 6, 3], fieldValues:, answerChannel:2, type:EMBED"
+                "createAnswer: title=4d6 ⇒ 3, 2, 4, 4, description=[3, 2, 4, 4], fieldValues:, answerChannel:2, type:EMBED"
         );
     }
 }

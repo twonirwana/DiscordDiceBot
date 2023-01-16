@@ -1,13 +1,15 @@
 package de.janno.discord.bot.command;
 
 import de.janno.discord.bot.ResultImage;
-import de.janno.discord.bot.persistance.PersistanceManager;
+import de.janno.discord.bot.dice.CachingDiceEvaluator;
 import de.janno.discord.bot.persistance.MessageDataDTO;
+import de.janno.discord.bot.persistance.PersistanceManager;
 import de.janno.discord.connector.api.ButtonEventAdaptor;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.MessageDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinitionOption;
+import de.janno.evaluator.dice.random.RandomNumberSupplier;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -21,7 +23,7 @@ import static org.mockito.Mockito.mock;
 
 class WelcomeCommandTest {
 
-    final WelcomeCommand underTest = new WelcomeCommand(mock(PersistanceManager.class));
+    final WelcomeCommand underTest = new WelcomeCommand(mock(PersistanceManager.class), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
 
     @Test
     public void getButtonMessageWithState_fate() {

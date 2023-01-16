@@ -6,6 +6,7 @@ import de.janno.discord.bot.ButtonEventAdaptorMockFactory;
 import de.janno.discord.bot.ResultImage;
 import de.janno.discord.bot.command.AnswerFormatType;
 import de.janno.discord.bot.command.ButtonIdLabelAndDiceExpression;
+import de.janno.discord.bot.dice.CachingDiceEvaluator;
 import de.janno.discord.bot.dice.DiceParser;
 import de.janno.discord.bot.dice.DiceParserSystem;
 import de.janno.discord.bot.persistance.PersistanceManager;
@@ -33,7 +34,7 @@ public class SumCustomSetCommandMockTest {
 
     @Test
     void roll_full() {
-        SumCustomSetCommand underTest = new SumCustomSetCommand(persistanceManager, new DiceParser(), new RandomNumberSupplier(0));
+        SumCustomSetCommand underTest = new SumCustomSetCommand(persistanceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 10000));
         underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
 
         SumCustomSetConfig config = new SumCustomSetConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "+1d6"),
@@ -60,7 +61,7 @@ public class SumCustomSetCommandMockTest {
 
     @Test
     void roll_compact() {
-        SumCustomSetCommand underTest = new SumCustomSetCommand(persistanceManager, new DiceParser(), new RandomNumberSupplier(0));
+        SumCustomSetCommand underTest = new SumCustomSetCommand(persistanceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 10000));
         underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
 
         SumCustomSetConfig config = new SumCustomSetConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "+1d6"),
@@ -87,7 +88,7 @@ public class SumCustomSetCommandMockTest {
 
     @Test
     void roll_minimal() {
-        SumCustomSetCommand underTest = new SumCustomSetCommand(persistanceManager, new DiceParser(), new RandomNumberSupplier(0));
+        SumCustomSetCommand underTest = new SumCustomSetCommand(persistanceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 10000));
         underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
 
         SumCustomSetConfig config = new SumCustomSetConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "+1d6"),
@@ -114,7 +115,7 @@ public class SumCustomSetCommandMockTest {
 
     @Test
     void roll_locked() {
-        SumCustomSetCommand underTest = new SumCustomSetCommand(persistanceManager, new DiceParser(), new RandomNumberSupplier(0));
+        SumCustomSetCommand underTest = new SumCustomSetCommand(persistanceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 10000));
         underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
 
         SumCustomSetConfig config = new SumCustomSetConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "+1d6"),
@@ -145,7 +146,7 @@ public class SumCustomSetCommandMockTest {
 
     @Test
     void clear() {
-        SumCustomSetCommand underTest = new SumCustomSetCommand(persistanceManager, new DiceParser(), new RandomNumberSupplier(0));
+        SumCustomSetCommand underTest = new SumCustomSetCommand(persistanceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 10000));
         underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
 
         SumCustomSetConfig config = new SumCustomSetConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "+1d6"),
@@ -165,7 +166,7 @@ public class SumCustomSetCommandMockTest {
 
     @Test
     void backBack() {
-        SumCustomSetCommand underTest = new SumCustomSetCommand(persistanceManager, new DiceParser(), new RandomNumberSupplier(0));
+        SumCustomSetCommand underTest = new SumCustomSetCommand(persistanceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 10000));
         underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
 
         SumCustomSetConfig config = new SumCustomSetConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "+1d6"),
@@ -189,7 +190,7 @@ public class SumCustomSetCommandMockTest {
 
     @Test
     void roll_pinned() {
-        SumCustomSetCommand underTest = new SumCustomSetCommand(persistanceManager, new DiceParser(), new RandomNumberSupplier(0));
+        SumCustomSetCommand underTest = new SumCustomSetCommand(persistanceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 10000));
         underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
 
         SumCustomSetConfig config = new SumCustomSetConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "+1d6"),
@@ -215,7 +216,7 @@ public class SumCustomSetCommandMockTest {
 
     @Test
     void roll_answerChannel() {
-        SumCustomSetCommand underTest = new SumCustomSetCommand(persistanceManager, new DiceParser(), new RandomNumberSupplier(0));
+        SumCustomSetCommand underTest = new SumCustomSetCommand(persistanceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 10000));
         underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
 
         SumCustomSetConfig config = new SumCustomSetConfig(2L, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "+1d6"),
@@ -241,7 +242,7 @@ public class SumCustomSetCommandMockTest {
 
     @Test
     void roll_pinnedTwice() {
-        SumCustomSetCommand underTest = new SumCustomSetCommand(persistanceManager, new DiceParser(), new RandomNumberSupplier(0));
+        SumCustomSetCommand underTest = new SumCustomSetCommand(persistanceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 10000));
         underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
 
         SumCustomSetConfig config = new SumCustomSetConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "+1d6"),
@@ -271,7 +272,7 @@ public class SumCustomSetCommandMockTest {
                 "editMessage: message:invokingUser: +1d6, buttonValues=1_button,2_button,roll,clear,back");
         assertThat(click5.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back",
-                "createAnswer: title=+1d6 ⇒ 2, description=[2], fieldValues:, answerChannel:null, type:EMBED",
+                "createAnswer: title=+1d6 ⇒ 4, description=[4], fieldValues:, answerChannel:null, type:EMBED",
                 "createButtonMessage: content=Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back",
                 "deleteMessageById: 1",
                 "getMessagesState: [0]");
@@ -279,7 +280,7 @@ public class SumCustomSetCommandMockTest {
 
     @Test
     void roll_answerChannelTwice() {
-        SumCustomSetCommand underTest = new SumCustomSetCommand(persistanceManager, new DiceParser(), new RandomNumberSupplier(0));
+        SumCustomSetCommand underTest = new SumCustomSetCommand(persistanceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 10000));
         underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
 
         SumCustomSetConfig config = new SumCustomSetConfig(2L, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "+1d6"),
@@ -309,7 +310,7 @@ public class SumCustomSetCommandMockTest {
                 "editMessage: message:invokingUser: +1d6, buttonValues=1_button,2_button,roll,clear,back");
         assertThat(click5.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back",
-                "createAnswer: title=+1d6 ⇒ 2, description=[2], fieldValues:, answerChannel:2, type:EMBED"
+                "createAnswer: title=+1d6 ⇒ 4, description=[4], fieldValues:, answerChannel:2, type:EMBED"
         );
     }
 }

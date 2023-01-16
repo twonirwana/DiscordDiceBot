@@ -18,8 +18,6 @@ import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
 import de.janno.discord.connector.api.message.MessageDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinitionOption;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
-import de.janno.evaluator.dice.random.NumberSupplier;
-import de.janno.evaluator.dice.random.RandomNumberSupplier;
 import lombok.NonNull;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
@@ -54,14 +52,14 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     private final static Pattern LABEL_MATCHER = Pattern.compile("@[^}]+$");
     private final DiceSystemAdapter diceSystemAdapter;
 
-    public CustomParameterCommand(PersistanceManager persistanceManager) {
-        this(persistanceManager, new DiceParser(), new RandomNumberSupplier(), 1000);
+    public CustomParameterCommand(PersistanceManager persistanceManager, CachingDiceEvaluator cachingDiceEvaluator) {
+        this(persistanceManager, new DiceParser(), cachingDiceEvaluator);
     }
 
     @VisibleForTesting
-    public CustomParameterCommand(PersistanceManager persistanceManager, Dice dice, NumberSupplier randomNumberSupplier, int maxDiceRolls) {
+    public CustomParameterCommand(PersistanceManager persistanceManager, Dice dice, CachingDiceEvaluator cachingDiceEvaluator) {
         super(persistanceManager);
-        this.diceSystemAdapter = new DiceSystemAdapter(randomNumberSupplier, maxDiceRolls, dice);
+        this.diceSystemAdapter = new DiceSystemAdapter(cachingDiceEvaluator, dice);
     }
 
     private static @NonNull String getNextParameterExpression(@NonNull String expression) {
