@@ -8,6 +8,7 @@ import de.janno.discord.bot.ResultImage;
 import de.janno.discord.bot.command.AnswerFormatType;
 import de.janno.discord.bot.command.RollAnswer;
 import de.janno.discord.bot.command.RollAnswerConverter;
+import de.janno.discord.bot.dice.CachingDiceEvaluator;
 import de.janno.discord.bot.dice.DiceEvaluatorAdapter;
 import de.janno.discord.bot.dice.DiceParserSystem;
 import de.janno.discord.bot.dice.DiceSystemAdapter;
@@ -19,8 +20,6 @@ import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinitionOption;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
-import de.janno.evaluator.dice.random.NumberSupplier;
-import de.janno.evaluator.dice.random.RandomNumberSupplier;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
@@ -37,14 +36,8 @@ public class DirectRollCommand extends AbstractDirectRollCommand {
     private final DiceSystemAdapter diceSystemAdapter;
     private final PersistanceManager persistanceManager;
 
-
-    public DirectRollCommand(PersistanceManager persistanceManager) {
-        this(new RandomNumberSupplier(), persistanceManager);
-    }
-
-    @VisibleForTesting
-    public DirectRollCommand(NumberSupplier numberSupplier, PersistanceManager persistanceManager) {
-        this.diceSystemAdapter = new DiceSystemAdapter(numberSupplier, 1000, null);
+    public DirectRollCommand(PersistanceManager persistanceManager, CachingDiceEvaluator cachingDiceEvaluator) {
+        this.diceSystemAdapter = new DiceSystemAdapter(cachingDiceEvaluator, null);
         this.persistanceManager = persistanceManager;
     }
 

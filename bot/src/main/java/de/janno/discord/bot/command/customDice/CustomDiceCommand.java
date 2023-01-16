@@ -17,8 +17,6 @@ import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
 import de.janno.discord.connector.api.message.MessageDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinitionOption;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
-import de.janno.evaluator.dice.random.NumberSupplier;
-import de.janno.evaluator.dice.random.RandomNumberSupplier;
 import lombok.NonNull;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
@@ -39,14 +37,14 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
     private static final String CONFIG_TYPE_ID = "CustomDiceConfig";
     private final DiceSystemAdapter diceSystemAdapter;
 
-    public CustomDiceCommand(PersistanceManager persistanceManager) {
-        this(persistanceManager, new DiceParser(), new RandomNumberSupplier(), 1000);
+    public CustomDiceCommand(PersistanceManager persistanceManager, CachingDiceEvaluator cachingDiceEvaluator) {
+        this(persistanceManager, new DiceParser(), cachingDiceEvaluator);
     }
 
     @VisibleForTesting
-    public CustomDiceCommand(PersistanceManager persistanceManager, Dice dice, NumberSupplier numberSupplier, int maxRolls) {
+    public CustomDiceCommand(PersistanceManager persistanceManager, Dice dice, CachingDiceEvaluator cachingDiceEvaluator) {
         super(persistanceManager);
-        this.diceSystemAdapter = new DiceSystemAdapter(numberSupplier, maxRolls, dice);
+        this.diceSystemAdapter = new DiceSystemAdapter(cachingDiceEvaluator, dice);
     }
 
     @Override

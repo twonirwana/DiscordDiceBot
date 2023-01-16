@@ -3,13 +3,10 @@ package de.janno.discord.bot.command.customDice;
 import com.google.common.collect.ImmutableList;
 import de.janno.discord.bot.ResultImage;
 import de.janno.discord.bot.command.*;
-import de.janno.discord.bot.dice.Dice;
-import de.janno.discord.bot.dice.DiceEvaluatorAdapter;
-import de.janno.discord.bot.dice.DiceParser;
-import de.janno.discord.bot.dice.DiceParserSystem;
+import de.janno.discord.bot.dice.*;
+import de.janno.discord.bot.persistance.MessageDataDTO;
 import de.janno.discord.bot.persistance.PersistanceManager;
 import de.janno.discord.bot.persistance.PersistanceManagerImpl;
-import de.janno.discord.bot.persistance.MessageDataDTO;
 import de.janno.discord.connector.api.Requester;
 import de.janno.discord.connector.api.SlashEventAdaptor;
 import de.janno.discord.connector.api.message.ButtonDefinition;
@@ -86,7 +83,7 @@ class CustomDiceCommandTest {
     @BeforeEach
     void setup() {
         diceMock = mock(Dice.class);
-        underTest = new CustomDiceCommand(persistanceManager, diceMock, (minExcl, maxIncl) -> 3, 10);
+        underTest = new CustomDiceCommand(persistanceManager, diceMock, new CachingDiceEvaluator((minExcl, maxIncl) -> 3, 10, 0));
         underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
     }
 
@@ -176,7 +173,7 @@ class CustomDiceCommandTest {
         EmbedOrMessageDefinition res = RollAnswerConverter.toEmbedOrMessageDefinition(underTest.getAnswer(new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Label", "1d6,1d6,1d6")), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full, ResultImage.none), new State<>("1_button", StateData.empty()))
                 .orElseThrow());
 
-        assertThat(res).isEqualTo(new EmbedOrMessageDefinition("Label", null, ImmutableList.of(new EmbedOrMessageDefinition.Field("1d6 ⇒ 3", "[3]", false), new EmbedOrMessageDefinition.Field("1d6 ⇒ 3", "[3]", false), new EmbedOrMessageDefinition.Field("1d6 ⇒ 3", "[3]", false)),null, EmbedOrMessageDefinition.Type.EMBED));
+        assertThat(res).isEqualTo(new EmbedOrMessageDefinition("Label", null, ImmutableList.of(new EmbedOrMessageDefinition.Field("1d6 ⇒ 3", "[3]", false), new EmbedOrMessageDefinition.Field("1d6 ⇒ 3", "[3]", false), new EmbedOrMessageDefinition.Field("1d6 ⇒ 3", "[3]", false)), null, EmbedOrMessageDefinition.Type.EMBED));
     }
 
     @Test
@@ -362,39 +359,39 @@ class CustomDiceCommandTest {
                                         .value("minimal")
                                         .build())
                                 .build())
-                          .option(CommandDefinitionOption.builder()
-                                  .name("result_image")
-                                  .description("If and in what style the dice throw should be shown as image")
-                                  .type(CommandDefinitionOption.Type.STRING)
-                                  .choice(CommandDefinitionOptionChoice.builder()
-                                          .name("none")
-                                          .value("none")
-                                          .build())
-                                  .choice(CommandDefinitionOptionChoice.builder()
-                                          .name("polyhedral_3d_red_and_white")
-                                          .value("polyhedral_3d_red_and_white")
-                                          .build())
-                                  .choice(CommandDefinitionOptionChoice.builder()
-                                          .name("fate_black")
-                                          .value("fate_black")
-                                          .build())
-                                  .choice(CommandDefinitionOptionChoice.builder()
-                                          .name("polyhedral_black_and_gold")
-                                          .value("polyhedral_black_and_gold")
-                                          .build())
-                                  .choice(CommandDefinitionOptionChoice.builder()
-                                          .name("polyhedral_alies_blue_and_silver")
-                                          .value("polyhedral_alies_blue_and_silver")
-                                          .build())
-                                  .choice(CommandDefinitionOptionChoice.builder()
-                                          .name("polyhedral_green_and_gold")
-                                          .value("polyhedral_green_and_gold")
-                                          .build())
-                                  .choice(CommandDefinitionOptionChoice.builder()
-                                          .name("polyhedral_red_and_gold")
-                                          .value("polyhedral_red_and_gold")
-                                          .build())
-                                  .build())
+                        .option(CommandDefinitionOption.builder()
+                                .name("result_image")
+                                .description("If and in what style the dice throw should be shown as image")
+                                .type(CommandDefinitionOption.Type.STRING)
+                                .choice(CommandDefinitionOptionChoice.builder()
+                                        .name("none")
+                                        .value("none")
+                                        .build())
+                                .choice(CommandDefinitionOptionChoice.builder()
+                                        .name("polyhedral_3d_red_and_white")
+                                        .value("polyhedral_3d_red_and_white")
+                                        .build())
+                                .choice(CommandDefinitionOptionChoice.builder()
+                                        .name("fate_black")
+                                        .value("fate_black")
+                                        .build())
+                                .choice(CommandDefinitionOptionChoice.builder()
+                                        .name("polyhedral_black_and_gold")
+                                        .value("polyhedral_black_and_gold")
+                                        .build())
+                                .choice(CommandDefinitionOptionChoice.builder()
+                                        .name("polyhedral_alies_blue_and_silver")
+                                        .value("polyhedral_alies_blue_and_silver")
+                                        .build())
+                                .choice(CommandDefinitionOptionChoice.builder()
+                                        .name("polyhedral_green_and_gold")
+                                        .value("polyhedral_green_and_gold")
+                                        .build())
+                                .choice(CommandDefinitionOptionChoice.builder()
+                                        .name("polyhedral_red_and_gold")
+                                        .value("polyhedral_red_and_gold")
+                                        .build())
+                                .build())
                         .build())
                 .option(CommandDefinitionOption.builder()
                         .name("help")

@@ -3,17 +3,19 @@ package de.janno.discord.bot.command.sumCustomSet;
 import com.google.common.collect.ImmutableList;
 import de.janno.discord.bot.ResultImage;
 import de.janno.discord.bot.command.*;
+import de.janno.discord.bot.dice.CachingDiceEvaluator;
 import de.janno.discord.bot.dice.Dice;
 import de.janno.discord.bot.dice.DiceParserSystem;
+import de.janno.discord.bot.persistance.MessageDataDTO;
 import de.janno.discord.bot.persistance.PersistanceManager;
 import de.janno.discord.bot.persistance.PersistanceManagerImpl;
-import de.janno.discord.bot.persistance.MessageDataDTO;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
 import de.janno.discord.connector.api.message.MessageDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinitionOption;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
+import de.janno.evaluator.dice.random.RandomNumberSupplier;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -54,7 +56,7 @@ class SumCustomSetCommandTest {
     @BeforeEach
     void setup() {
         diceMock = mock(Dice.class);
-        underTest = new SumCustomSetCommand(persistanceManager, diceMock, (minExcl, maxIncl) -> 0);
+        underTest = new SumCustomSetCommand(persistanceManager, diceMock, new CachingDiceEvaluator((minExcl, maxIncl) -> 0, 1000, 0));
         underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
 
     }
@@ -285,7 +287,7 @@ class SumCustomSetCommandTest {
     @Test
     void checkPersistence() {
         PersistanceManager persistanceManager = new PersistanceManagerImpl("jdbc:h2:mem:" + UUID.randomUUID(), null, null);
-        underTest = new SumCustomSetCommand(persistanceManager, diceMock, (minExcl, maxIncl) -> 0);
+        underTest = new SumCustomSetCommand(persistanceManager, diceMock, new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 10000));
         underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
 
         long channelId = System.currentTimeMillis();

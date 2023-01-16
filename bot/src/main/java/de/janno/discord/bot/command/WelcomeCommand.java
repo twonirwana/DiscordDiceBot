@@ -16,6 +16,7 @@ import de.janno.discord.bot.command.poolTarget.PoolTargetCommand;
 import de.janno.discord.bot.command.poolTarget.PoolTargetConfig;
 import de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommand;
 import de.janno.discord.bot.command.sumCustomSet.SumCustomSetConfig;
+import de.janno.discord.bot.dice.CachingDiceEvaluator;
 import de.janno.discord.bot.dice.DiceParserSystem;
 import de.janno.discord.bot.persistance.PersistanceManager;
 import de.janno.discord.bot.persistance.MessageDataDTO;
@@ -82,8 +83,10 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
     ), DiceParserSystem.DICE_EVALUATOR, true, AnswerFormatType.full, ResultImage.none);
     private final CustomParameterConfig FATE_WITH_IMAGE_CONFIG = new CustomParameterConfig(null, "4d[-1,0,1]+{Modifier:-4<=>10}=", DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.without_expression, ResultImage.fate_black);
 
-    public WelcomeCommand(PersistanceManager persistanceManager) {
+    private final CachingDiceEvaluator cachingDiceEvaluator;
+    public WelcomeCommand(PersistanceManager persistanceManager, CachingDiceEvaluator cachingDiceEvaluator) {
         super(persistanceManager);
+        this.cachingDiceEvaluator = cachingDiceEvaluator;
     }
 
     @Override
@@ -126,11 +129,11 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
             case fate ->
                     new FateCommand(persistanceManager).createMessageDataForNewMessage(configUUID, guildId, channelId, messageId, FATE_CONFIG, null);
             case fate_image ->
-                    new CustomParameterCommand(persistanceManager).createMessageDataForNewMessage(configUUID, guildId, channelId, messageId, FATE_WITH_IMAGE_CONFIG, null);
+                    new CustomParameterCommand(persistanceManager, cachingDiceEvaluator).createMessageDataForNewMessage(configUUID, guildId, channelId, messageId, FATE_WITH_IMAGE_CONFIG, null);
             case dnd5 ->
-                    new CustomDiceCommand(persistanceManager).createMessageDataForNewMessage(configUUID, guildId, channelId, messageId, DND5_CONFIG, null);
+                    new CustomDiceCommand(persistanceManager, cachingDiceEvaluator).createMessageDataForNewMessage(configUUID, guildId, channelId, messageId, DND5_CONFIG, null);
             case dnd5_image ->
-                    new CustomDiceCommand(persistanceManager).createMessageDataForNewMessage(configUUID, guildId, channelId, messageId, DND5_CONFIG_WITH_IMAGE, null);
+                    new CustomDiceCommand(persistanceManager, cachingDiceEvaluator).createMessageDataForNewMessage(configUUID, guildId, channelId, messageId, DND5_CONFIG_WITH_IMAGE, null);
             case nWoD ->
                     new CountSuccessesCommand(persistanceManager).createMessageDataForNewMessage(configUUID, guildId, channelId, messageId, NWOD_CONFIG, null);
             case oWoD ->
@@ -138,9 +141,9 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
             case shadowrun ->
                     new CountSuccessesCommand(persistanceManager).createMessageDataForNewMessage(configUUID, guildId, channelId, messageId, SHADOWRUN_CONFIG, null);
             case coin ->
-                    new CustomDiceCommand(persistanceManager).createMessageDataForNewMessage(configUUID, guildId, channelId, messageId, COIN_CONFIG, null);
+                    new CustomDiceCommand(persistanceManager, cachingDiceEvaluator).createMessageDataForNewMessage(configUUID, guildId, channelId, messageId, COIN_CONFIG, null);
             case dice_calculator ->
-                    new SumCustomSetCommand(persistanceManager).createMessageDataForNewMessage(configUUID, guildId, channelId, messageId, DICE_CALCULATOR_CONFIG, null);
+                    new SumCustomSetCommand(persistanceManager, cachingDiceEvaluator).createMessageDataForNewMessage(configUUID, guildId, channelId, messageId, DICE_CALCULATOR_CONFIG, null);
         };
     }
 
@@ -170,20 +173,20 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
         }
         return switch (ButtonIds.valueOf(state.getButtonValue())) {
             case fate -> Optional.of(new FateCommand(persistanceManager).createNewButtonMessage(FATE_CONFIG));
-            case fate_image -> Optional.of(new CustomParameterCommand(persistanceManager).createNewButtonMessage(FATE_WITH_IMAGE_CONFIG));
-            case dnd5 -> Optional.of(new CustomDiceCommand(persistanceManager).createNewButtonMessage(DND5_CONFIG));
+            case fate_image -> Optional.of(new CustomParameterCommand(persistanceManager, cachingDiceEvaluator).createNewButtonMessage(FATE_WITH_IMAGE_CONFIG));
+            case dnd5 -> Optional.of(new CustomDiceCommand(persistanceManager, cachingDiceEvaluator).createNewButtonMessage(DND5_CONFIG));
             case dnd5_image ->
-                    Optional.of(new CustomDiceCommand(persistanceManager).createNewButtonMessage(DND5_CONFIG_WITH_IMAGE));
+                    Optional.of(new CustomDiceCommand(persistanceManager, cachingDiceEvaluator).createNewButtonMessage(DND5_CONFIG_WITH_IMAGE));
             case nWoD -> Optional.of(new CountSuccessesCommand(persistanceManager).createNewButtonMessage(NWOD_CONFIG));
             case oWoD -> Optional.of(new PoolTargetCommand(persistanceManager).createNewButtonMessage(OWOD_CONFIG));
             case shadowrun -> Optional.of(
                     new CountSuccessesCommand(persistanceManager).createNewButtonMessage(SHADOWRUN_CONFIG)
             );
             case coin -> Optional.of(
-                    new CustomDiceCommand(persistanceManager).createNewButtonMessage(COIN_CONFIG)
+                    new CustomDiceCommand(persistanceManager, cachingDiceEvaluator).createNewButtonMessage(COIN_CONFIG)
             );
             case dice_calculator -> Optional.of(
-                    new SumCustomSetCommand(persistanceManager).createNewButtonMessage(DICE_CALCULATOR_CONFIG)
+                    new SumCustomSetCommand(persistanceManager, cachingDiceEvaluator).createNewButtonMessage(DICE_CALCULATOR_CONFIG)
             );
         };
     }

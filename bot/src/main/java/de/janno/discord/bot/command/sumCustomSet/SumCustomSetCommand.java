@@ -18,8 +18,6 @@ import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
 import de.janno.discord.connector.api.message.MessageDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinitionOption;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
-import de.janno.evaluator.dice.random.NumberSupplier;
-import de.janno.evaluator.dice.random.RandomNumberSupplier;
 import lombok.NonNull;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
@@ -47,14 +45,14 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
     private static final String STATE_DATA_TYPE_ID = "SumCustomSetStateData";
     private final DiceSystemAdapter diceSystemAdapter;
 
-    public SumCustomSetCommand(PersistanceManager persistanceManager) {
-        this(persistanceManager, new DiceParser(), new RandomNumberSupplier());
+    public SumCustomSetCommand(PersistanceManager persistanceManager, CachingDiceEvaluator cachingDiceEvaluator) {
+        this(persistanceManager, new DiceParser(), cachingDiceEvaluator);
     }
 
     @VisibleForTesting
-    public SumCustomSetCommand(PersistanceManager persistanceManager, Dice dice, NumberSupplier numberSupplier) {
+    public SumCustomSetCommand(PersistanceManager persistanceManager, Dice dice, CachingDiceEvaluator cachingDiceEvaluator) {
         super(persistanceManager);
-        this.diceSystemAdapter = new DiceSystemAdapter(numberSupplier, 1000, dice);
+        this.diceSystemAdapter = new DiceSystemAdapter(cachingDiceEvaluator, dice);
     }
 
     @Override

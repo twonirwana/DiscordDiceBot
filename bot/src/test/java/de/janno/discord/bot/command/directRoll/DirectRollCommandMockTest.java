@@ -1,6 +1,7 @@
 package de.janno.discord.bot.command.directRoll;
 
 import de.janno.discord.bot.SlashEventAdaptorMock;
+import de.janno.discord.bot.dice.CachingDiceEvaluator;
 import de.janno.discord.bot.dice.DiceEvaluatorAdapter;
 import de.janno.discord.bot.persistance.PersistanceManager;
 import de.janno.discord.bot.persistance.PersistanceManagerImpl;
@@ -32,7 +33,7 @@ public class DirectRollCommandMockTest {
 
     @Test
     void roll_default() {
-        DirectRollCommand directRollCommand = new DirectRollCommand(new RandomNumberSupplier(0), persistanceManager);
+        DirectRollCommand directRollCommand = new DirectRollCommand(persistanceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
 
         SlashEventAdaptorMock slashEvent = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
                 .name("expression")
@@ -43,12 +44,12 @@ public class DirectRollCommandMockTest {
 
         assertThat(slashEvent.getActions()).containsExactlyInAnyOrder(
                 "acknowledgeAndRemoveSlash",
-                "createResultMessageWithEventReference: EmbedOrMessageDefinition(title=1d6 ⇒ 3, descriptionOrContent=, fields=[], file=86da4f6e0c1e3d159e92de31ff146325f75ca17052630c1f619276947307302c.png, type=EMBED)");
+                "createResultMessageWithEventReference: EmbedOrMessageDefinition(title=1d6 ⇒ 1, descriptionOrContent=, fields=[], file=cea2a67e61a8b605c6702aac213960f86922331b5cac795649502b363dde97aa.png, type=EMBED)");
     }
 
     @Test
     void help() {
-        DirectRollCommand directRollCommand = new DirectRollCommand(new RandomNumberSupplier(0), persistanceManager);
+        DirectRollCommand directRollCommand = new DirectRollCommand(persistanceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
 
         SlashEventAdaptorMock slashEvent = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
                 .name("expression")
@@ -65,7 +66,7 @@ public class DirectRollCommandMockTest {
 
     @Test
     void invalidExpression() {
-        DirectRollCommand directRollCommand = new DirectRollCommand(new RandomNumberSupplier(0), persistanceManager);
+        DirectRollCommand directRollCommand = new DirectRollCommand(persistanceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
 
         SlashEventAdaptorMock slashEvent = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
                 .name("expression")
@@ -81,7 +82,7 @@ public class DirectRollCommandMockTest {
 
     @Test
     void roll_default_withLabel() {
-        DirectRollCommand directRollCommand = new DirectRollCommand(new RandomNumberSupplier(0), persistanceManager);
+        DirectRollCommand directRollCommand = new DirectRollCommand(persistanceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
 
         SlashEventAdaptorMock slashEvent = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
                 .name("expression")
@@ -92,12 +93,12 @@ public class DirectRollCommandMockTest {
 
         assertThat(slashEvent.getActions()).containsExactlyInAnyOrder(
                 "acknowledgeAndRemoveSlash",
-                "createResultMessageWithEventReference: EmbedOrMessageDefinition(title=test ⇒ 3, descriptionOrContent=1d6, fields=[], file=86da4f6e0c1e3d159e92de31ff146325f75ca17052630c1f619276947307302c.png, type=EMBED)");
+                "createResultMessageWithEventReference: EmbedOrMessageDefinition(title=test ⇒ 1, descriptionOrContent=1d6, fields=[], file=cea2a67e61a8b605c6702aac213960f86922331b5cac795649502b363dde97aa.png, type=EMBED)");
     }
 
     @Test
     void roll_config_full_imageNone() {
-        DirectRollCommand directRollCommand = new DirectRollCommand(new RandomNumberSupplier(0), persistanceManager);
+        DirectRollCommand directRollCommand = new DirectRollCommand(persistanceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
         DirectRollConfigCommand directRollConfig = new DirectRollConfigCommand(persistanceManager);
 
         SlashEventAdaptorMock slashEvent1 = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
@@ -126,12 +127,12 @@ public class DirectRollCommandMockTest {
 
         assertThat(slashEvent1.getActions()).containsExactlyInAnyOrder("reply: `commandString`\nSaved direct roll channel config");
         assertThat(slashEvent2.getActions()).containsExactlyInAnyOrder("acknowledgeAndRemoveSlash",
-                "createResultMessageWithEventReference: EmbedOrMessageDefinition(title=Roll ⇒ 3, descriptionOrContent=[3], fields=[], file=null, type=EMBED)");
+                "createResultMessageWithEventReference: EmbedOrMessageDefinition(title=Roll ⇒ 1, descriptionOrContent=[1], fields=[], file=null, type=EMBED)");
     }
 
     @Test
     void roll_config_withoutExpression() {
-        DirectRollCommand directRollCommand = new DirectRollCommand(new RandomNumberSupplier(0), persistanceManager);
+        DirectRollCommand directRollCommand = new DirectRollCommand(persistanceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
         DirectRollConfigCommand directRollConfig = new DirectRollConfigCommand(persistanceManager);
 
         SlashEventAdaptorMock slashEvent1 = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
@@ -161,12 +162,12 @@ public class DirectRollCommandMockTest {
         assertThat(slashEvent1.getActions()).containsExactlyInAnyOrder("reply: `commandString`\nSaved direct roll channel config");
         assertThat(slashEvent2.getActions()).containsExactlyInAnyOrder(
                 "acknowledgeAndRemoveSlash",
-                "createResultMessageWithEventReference: EmbedOrMessageDefinition(title=Roll ⇒ 3, descriptionOrContent=, fields=[], file=86da4f6e0c1e3d159e92de31ff146325f75ca17052630c1f619276947307302c.png, type=EMBED)");
+                "createResultMessageWithEventReference: EmbedOrMessageDefinition(title=Roll ⇒ 1, descriptionOrContent=, fields=[], file=cea2a67e61a8b605c6702aac213960f86922331b5cac795649502b363dde97aa.png, type=EMBED)");
     }
 
     @Test
     void roll_config_withoutExpression_withLabel() {
-        DirectRollCommand directRollCommand = new DirectRollCommand(new RandomNumberSupplier(0), persistanceManager);
+        DirectRollCommand directRollCommand = new DirectRollCommand(persistanceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
         DirectRollConfigCommand directRollConfig = new DirectRollConfigCommand(persistanceManager);
 
         SlashEventAdaptorMock slashEvent1 = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
@@ -196,12 +197,12 @@ public class DirectRollCommandMockTest {
         assertThat(slashEvent1.getActions()).containsExactlyInAnyOrder("reply: `commandString`\nSaved direct roll channel config");
         assertThat(slashEvent2.getActions()).containsExactlyInAnyOrder(
                 "acknowledgeAndRemoveSlash",
-                "createResultMessageWithEventReference: EmbedOrMessageDefinition(title=test ⇒ 3, descriptionOrContent=, fields=[], file=86da4f6e0c1e3d159e92de31ff146325f75ca17052630c1f619276947307302c.png, type=EMBED)");
+                "createResultMessageWithEventReference: EmbedOrMessageDefinition(title=test ⇒ 1, descriptionOrContent=, fields=[], file=cea2a67e61a8b605c6702aac213960f86922331b5cac795649502b363dde97aa.png, type=EMBED)");
     }
 
     @Test
     void roll_config_compact() {
-        DirectRollCommand directRollCommand = new DirectRollCommand(new RandomNumberSupplier(0), persistanceManager);
+        DirectRollCommand directRollCommand = new DirectRollCommand(persistanceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
         DirectRollConfigCommand directRollConfig = new DirectRollConfigCommand(persistanceManager);
 
         SlashEventAdaptorMock slashEvent1 = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
@@ -231,12 +232,12 @@ public class DirectRollCommandMockTest {
         assertThat(slashEvent1.getActions()).containsExactlyInAnyOrder("reply: `commandString`\nSaved direct roll channel config");
         assertThat(slashEvent2.getActions()).containsExactlyInAnyOrder(
                 "acknowledgeAndRemoveSlash",
-                "createResultMessageWithEventReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=__**1d6 ⇒ 3**__  [3], fields=[], file=null, type=MESSAGE)");
+                "createResultMessageWithEventReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=__**1d6 ⇒ 1**__  [1], fields=[], file=null, type=MESSAGE)");
     }
 
     @Test
     void roll_config_minimal() {
-        DirectRollCommand directRollCommand = new DirectRollCommand(new RandomNumberSupplier(0), persistanceManager);
+        DirectRollCommand directRollCommand = new DirectRollCommand(persistanceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
         DirectRollConfigCommand directRollConfig = new DirectRollConfigCommand(persistanceManager);
 
         SlashEventAdaptorMock slashEvent1 = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
@@ -266,12 +267,12 @@ public class DirectRollCommandMockTest {
         assertThat(slashEvent1.getActions()).containsExactlyInAnyOrder("reply: `commandString`\nSaved direct roll channel config");
         assertThat(slashEvent2.getActions()).containsExactlyInAnyOrder(
                 "acknowledgeAndRemoveSlash",
-                "createResultMessageWithEventReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=1d6 ⇒ 3, fields=[], file=null, type=MESSAGE)");
+                "createResultMessageWithEventReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=1d6 ⇒ 1, fields=[], file=null, type=MESSAGE)");
     }
 
     @Test
     void saveConfigDelete_default() {
-        DirectRollCommand directRollCommand = new DirectRollCommand(new RandomNumberSupplier(0), persistanceManager);
+        DirectRollCommand directRollCommand = new DirectRollCommand(persistanceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
         DirectRollConfigCommand directRollConfig = new DirectRollConfigCommand(persistanceManager);
 
         SlashEventAdaptorMock slashEvent1 = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
@@ -306,7 +307,7 @@ public class DirectRollCommandMockTest {
         assertThat(slashEvent2.getActions()).containsExactlyInAnyOrder("reply: `commandString`\nDeleted direct roll channel config");
         assertThat(slashEvent3.getActions()).containsExactlyInAnyOrder(
                 "acknowledgeAndRemoveSlash",
-                "createResultMessageWithEventReference: EmbedOrMessageDefinition(title=1d6 ⇒ 3, descriptionOrContent=, fields=[], file=86da4f6e0c1e3d159e92de31ff146325f75ca17052630c1f619276947307302c.png, type=EMBED)");
+                "createResultMessageWithEventReference: EmbedOrMessageDefinition(title=1d6 ⇒ 1, descriptionOrContent=, fields=[], file=cea2a67e61a8b605c6702aac213960f86922331b5cac795649502b363dde97aa.png, type=EMBED)");
     }
 
 }

@@ -3,21 +3,23 @@ package de.janno.discord.bot;
 
 import com.google.common.collect.ImmutableList;
 import de.janno.discord.bot.command.ClearCommand;
-import de.janno.discord.bot.command.directRoll.DirectRollCommand;
 import de.janno.discord.bot.command.HelpCommand;
 import de.janno.discord.bot.command.WelcomeCommand;
 import de.janno.discord.bot.command.countSuccesses.CountSuccessesCommand;
 import de.janno.discord.bot.command.customDice.CustomDiceCommand;
 import de.janno.discord.bot.command.customParameter.CustomParameterCommand;
+import de.janno.discord.bot.command.directRoll.DirectRollCommand;
 import de.janno.discord.bot.command.directRoll.DirectRollConfigCommand;
 import de.janno.discord.bot.command.fate.FateCommand;
 import de.janno.discord.bot.command.holdReroll.HoldRerollCommand;
 import de.janno.discord.bot.command.poolTarget.PoolTargetCommand;
 import de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommand;
 import de.janno.discord.bot.command.sumDiceSet.SumDiceSetCommand;
+import de.janno.discord.bot.dice.CachingDiceEvaluator;
 import de.janno.discord.bot.persistance.PersistanceManager;
 import de.janno.discord.bot.persistance.PersistanceManagerImpl;
 import de.janno.discord.connector.DiscordConnectorImpl;
+import de.janno.evaluator.dice.random.RandomNumberSupplier;
 
 import java.util.Set;
 
@@ -50,25 +52,25 @@ public class Bot {
         PersistanceManager persistanceManager = new PersistanceManagerImpl(h2Url, h2User, h2Password);
 
         Set<Long> allGuildIdsInPersistence = persistanceManager.getAllGuildIds();
-
+        CachingDiceEvaluator cachingDiceEvaluator = new CachingDiceEvaluator(new RandomNumberSupplier(), 1000, 10_000);
         DiscordConnectorImpl.createAndStart(token,
                 disableCommandUpdate,
                 ImmutableList.of(
                         new CountSuccessesCommand(persistanceManager),
-                        new CustomDiceCommand(persistanceManager),
+                        new CustomDiceCommand(persistanceManager, cachingDiceEvaluator),
                         new FateCommand(persistanceManager),
-                        new DirectRollCommand(persistanceManager),
+                        new DirectRollCommand(persistanceManager, cachingDiceEvaluator),
                         new DirectRollConfigCommand(persistanceManager),
                         new SumDiceSetCommand(persistanceManager),
-                        new SumCustomSetCommand(persistanceManager),
+                        new SumCustomSetCommand(persistanceManager, cachingDiceEvaluator),
                         new HoldRerollCommand(persistanceManager),
                         new PoolTargetCommand(persistanceManager),
-                        new CustomParameterCommand(persistanceManager),
-                        new WelcomeCommand(persistanceManager),
+                        new CustomParameterCommand(persistanceManager, cachingDiceEvaluator),
+                        new WelcomeCommand(persistanceManager, cachingDiceEvaluator),
                         new ClearCommand(persistanceManager),
                         new HelpCommand()
                 ),
-                new WelcomeCommand(persistanceManager).getWelcomeMessage(),
+                new WelcomeCommand(persistanceManager, cachingDiceEvaluator).getWelcomeMessage(),
                 allGuildIdsInPersistence);
     }
 
