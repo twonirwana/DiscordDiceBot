@@ -82,7 +82,7 @@ class ImageResultCreatorTest {
 
         String res = underTest.createRollCacheName(rolls.get(0), ResultImage.polyhedral_3d_red_and_white);
 
-        assertThat(res).isEqualTo("polyhedral_3d_red_and_white@[17∈[1...6],5∈[1...6],4∈[1...6]]");
+        assertThat(res).isEqualTo("polyhedral_3d_red_and_white@[6∈[1...6],6∈[1...6],5∈[1...6],5∈[1...6],4∈[1...6]]");
     }
 
     @Test
@@ -98,12 +98,15 @@ class ImageResultCreatorTest {
     }
 
     @Test
-    void getImageForRoll_explodeAdd() throws ExpressionException {
+    void getImageForRoll_explodeAdd() throws ExpressionException, IOException {
         List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(6, 6, 5, 5, 4, 3), 1000).evaluate("3d!!6");
 
         File res = underTest.getImageForRoll(rolls, ResultImage.polyhedral_3d_red_and_white);
 
-        assertThat(res).isNull();
+        assertThat(res).isNotNull();
+        assertThat(res).exists();
+        assertThat(res.getName()).isEqualTo("d61dc18fdf623c75a8292736f3cf5cfa56085fdc9815989c00cc049ead21e27b.png");
+        assertThat(getFileHash(res)).isEqualTo("4b433f278f98eeac7c0f838969b40fcdb1397cb82d662aeb22a47f5a326a5363");
     }
 
     @Test

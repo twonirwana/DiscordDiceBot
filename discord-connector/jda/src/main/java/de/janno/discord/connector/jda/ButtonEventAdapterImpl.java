@@ -128,7 +128,7 @@ public class ButtonEventAdapterImpl extends DiscordAdapterImpl implements Button
 
     @Override
     public Optional<String> checkPermissions(Long answerTargetChannelId) {
-        Optional<String> primaryChannelPermissionCheck = checkPermission(event.getMessageChannel(), event.getGuild());
+        Optional<String> primaryChannelPermissionCheck = checkPermission(event.getMessageChannel(), event.getGuild(), true);
         if (primaryChannelPermissionCheck.isPresent()) {
             return primaryChannelPermissionCheck;
         }
@@ -137,7 +137,7 @@ public class ButtonEventAdapterImpl extends DiscordAdapterImpl implements Button
             if (answerChannel.isEmpty()) {
                 return Optional.of("Configured answer target channel is not a valid message channel");
             }
-            return checkPermission(answerChannel.get(), event.getGuild());
+            return checkPermission(answerChannel.get(), event.getGuild(), true);
         }
         return Optional.empty();
     }
