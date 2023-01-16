@@ -121,7 +121,13 @@ public abstract class DiscordAdapterImpl implements DiscordAdapter {
         return Mono.empty();
     }
 
-    protected Optional<String> checkPermission(@NonNull MessageChannel messageChannel, @Nullable Guild guild) {
+    /**
+     * check the permissions
+     *
+     * @param allowLegacyPermission if this is set to true only the old set of permissions is checked, so old button messages work as created. Should be removed in the future.
+     * @return Optional message with the missing permissions
+     */
+    protected Optional<String> checkPermission(@NonNull MessageChannel messageChannel, @Nullable Guild guild, boolean allowLegacyPermission) {
         List<String> checks = new ArrayList<>();
         if (!messageChannel.canTalk()) {
             checks.add("'SEND_MESSAGES'");
@@ -134,16 +140,25 @@ public abstract class DiscordAdapterImpl implements DiscordAdapter {
         if (missingEmbedPermission) {
             checks.add("'EMBED_LINKS'");
         }
-        /*
-        //active later
-        boolean missingMessageHistoryPermission = Optional.of(messageChannel)
-                .filter(m -> m instanceof GuildMessageChannel)
-                .map(m -> (GuildMessageChannel) m)
-                .flatMap(g -> Optional.ofNullable(guild).map(Guild::getSelfMember).map(m -> !m.hasPermission(g, Permission.MESSAGE_HISTORY)))
-                .orElse(true);
-        if (missingMessageHistoryPermission) {
-            checks.add("'MESSAGE_HISTORY'");
-        }*/
+
+        if (!allowLegacyPermission) {
+            boolean missingMessageHistoryPermission = Optional.of(messageChannel)
+                    .filter(m -> m instanceof GuildMessageChannel)
+                    .map(m -> (GuildMessageChannel) m)
+                    .flatMap(g -> Optional.ofNullable(guild).map(Guild::getSelfMember).map(m -> !m.hasPermission(g, Permission.MESSAGE_HISTORY)))
+                    .orElse(true);
+            if (missingMessageHistoryPermission) {
+                checks.add("'MESSAGE_HISTORY'");
+            }
+            boolean missingAddFilePermission = Optional.of(messageChannel)
+                    .filter(m -> m instanceof GuildMessageChannel)
+                    .map(m -> (GuildMessageChannel) m)
+                    .flatMap(g -> Optional.ofNullable(guild).map(Guild::getSelfMember).map(m -> !m.hasPermission(g, Permission.MESSAGE_ATTACH_FILES)))
+                    .orElse(true);
+            if (missingAddFilePermission) {
+                checks.add("'ATTACH_FILES'");
+            }
+        }
         if (checks.isEmpty()) {
             return Optional.empty();
         }

@@ -15,7 +15,7 @@ It can provide images of the dice roll results.
 
 image:image/example.webp[image]
 
-*Add to Discord channel by following this link*: https://discord.com/api/oauth2/authorize?client_id=812381127943782502&permissions=274877990912&scope=bot[*Bot invite link*]
+*Add to Discord channel by following this link*: https://discord.com/api/oauth2/authorize?client_id=812381127943782502&permissions=274878023680&scope=applications.commands%20bot[*Bot invite link*]
 
 *Discord Server for trying the bot, questions and feature suggestions*: https://discord.gg/e43BsqKpFr[Button Dice Roller Discord Server]
 
@@ -24,6 +24,7 @@ image:image/example.webp[image]
 * create application commands (which are needed to control the bot)
 * send message and send message in threads (for the dice buttons and results)
 * embed links (display of structured answers)
+* attach files (add images with the dice result)
 * read message history (to detect if a button message was pinned)
 
 *If you can’t see the bots messages*: The link preview in the discord setting must be activated to see the roll results

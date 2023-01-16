@@ -71,7 +71,7 @@ public class DirectRollConfigCommand extends AbstractDirectRollCommand {
             Long answerTargetChannelId = null;
             boolean alwaysSumResults = saveAction.getBooleanSubOptionWithName(ALWAYS_SUM_RESULTS_COMMAND_OPTIONS_ID).orElse(true);
             AnswerFormatType answerType = DefaultCommandOptions.getAnswerTypeFromStartCommandOption(saveAction).orElse(AnswerFormatType.full);
-            ResultImage resultImage = DefaultCommandOptions.getResultImageOptionFromStartCommandOption(saveAction).orElse(ResultImage.none);
+            ResultImage resultImage = DefaultCommandOptions.getResultImageOptionFromStartCommandOption(saveAction).orElse(ResultImage.polyhedral_3d_red_and_white);
             DirectRollConfig config = new DirectRollConfig(answerTargetChannelId, alwaysSumResults, answerType, resultImage);
             BotMetrics.incrementSlashStartMetricCounter(getCommandId(), config.toShortString());
             return Mono.defer(() -> {

@@ -49,7 +49,7 @@ public class SlashEventAdapterImpl extends DiscordAdapterImpl implements SlashEv
 
     @Override
     public Optional<String> checkPermissions() {
-        return checkPermission(event.getMessageChannel(), event.getGuild());
+        return checkPermission(event.getMessageChannel(), event.getGuild(), false);
     }
 
     @Override
