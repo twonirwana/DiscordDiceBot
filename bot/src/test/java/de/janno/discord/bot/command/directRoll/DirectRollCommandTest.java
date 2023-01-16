@@ -3,6 +3,7 @@ package de.janno.discord.bot.command.directRoll;
 import com.google.common.collect.ImmutableList;
 import de.janno.discord.bot.ResultImage;
 import de.janno.discord.bot.command.AnswerFormatType;
+import de.janno.discord.bot.dice.CachingDiceEvaluator;
 import de.janno.discord.bot.dice.DiceEvaluatorAdapter;
 import de.janno.discord.bot.persistance.ChannelConfigDTO;
 import de.janno.discord.bot.persistance.PersistanceManager;
@@ -32,7 +33,7 @@ class DirectRollCommandTest {
 
     @BeforeEach
     void setup() {
-        underTest = new DirectRollCommand((minExcl, maxIncl) -> 1, mock(PersistanceManager.class));
+        underTest = new DirectRollCommand(mock(PersistanceManager.class), new CachingDiceEvaluator((minExcl, maxIncl) -> 1, 1000, 0));
     }
 
 

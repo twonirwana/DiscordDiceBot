@@ -5,7 +5,6 @@ import de.janno.discord.bot.ResultImage;
 import de.janno.discord.bot.command.AnswerFormatType;
 import de.janno.discord.bot.command.RollAnswer;
 import de.janno.discord.connector.api.BottomCustomIdUtils;
-import de.janno.evaluator.dice.random.NumberSupplier;
 import lombok.NonNull;
 
 import javax.annotation.Nullable;
@@ -18,8 +17,8 @@ public class DiceSystemAdapter {
     private final DiceEvaluatorAdapter diceEvaluatorAdapter;
     private final DiceParserAdapter parserHelper;
 
-    public DiceSystemAdapter(NumberSupplier numberSupplier, int maxNumberOfDice, Dice dice) {
-        this.diceEvaluatorAdapter = new DiceEvaluatorAdapter(numberSupplier, maxNumberOfDice);
+    public DiceSystemAdapter(CachingDiceEvaluator cachingDiceEvaluator, Dice dice) {
+        this.diceEvaluatorAdapter = new DiceEvaluatorAdapter(cachingDiceEvaluator);
         this.parserHelper = new DiceParserAdapter(dice);
     }
 

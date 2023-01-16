@@ -291,7 +291,7 @@ public class PersistanceManagerImpl implements PersistanceManager {
                 ResultSet resultSet = preparedStatement.executeQuery();
                 ChannelConfigDTO channelConfigDTO = transformResultSet2ChannelConfigDTO(resultSet);
 
-                BotMetrics.databaseTimer("getDataForMessage", stopwatch.elapsed());
+                BotMetrics.databaseTimer("getChannelConfig", stopwatch.elapsed());
 
                 if (channelConfigDTO == null) {
                     return Optional.empty();
@@ -341,7 +341,6 @@ public class PersistanceManagerImpl implements PersistanceManager {
     @Override
     public void deleteChannelConfig(long channelId, String configClassId) {
         Stopwatch stopwatch = Stopwatch.createStarted();
-        final ImmutableSet<Long> ids;
         try (Connection con = connectionPool.getConnection()) {
 
             try (PreparedStatement preparedStatement = con.prepareStatement("DELETE FROM CHANNEL_CONFIG WHERE CHANNEL_ID = ? AND CONFIG_CLASS_ID = ?")) {
