@@ -450,5 +450,6 @@ All functions are case insensitiv.
 
 == Contributors
 
-Special thank to https://www.instagram.com/alie_in_beanland/[alieinbeanland ] for the design of the dice images.
-The polyhedral_3d_red_and_white dice images where adapted from https://blendswap.com/blend/16634
+* Special thank to https://www.instagram.com/alie_in_beanland/[alieinbeanland ] for the design of the dice images.
+* The `polyhedral_3d_red_and_white` dice images where adapted from https://blendswap.com/blend/16634
+* The `d6_dots_white` dice images are from https://game-icons.net/
