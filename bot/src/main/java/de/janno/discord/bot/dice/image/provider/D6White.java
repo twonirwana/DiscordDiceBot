@@ -36,6 +36,9 @@ public class D6White implements ImageProvider {
 
     @Override
     public @NonNull List<BufferedImage> getImageFor(Integer totalDieSides, Integer shownDieSide) {
+        if (totalDieSides == null || shownDieSide == null) {
+            return List.of();
+        }
         if (totalDieSides == 6 && imageMap.containsKey(shownDieSide)) {
             return List.of(imageMap.get(shownDieSide));
         }
