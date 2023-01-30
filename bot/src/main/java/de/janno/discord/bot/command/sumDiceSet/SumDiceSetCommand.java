@@ -8,7 +8,7 @@ import de.janno.discord.bot.command.*;
 import de.janno.discord.bot.dice.DiceUtils;
 import de.janno.discord.bot.persistance.Mapper;
 import de.janno.discord.bot.persistance.MessageDataDTO;
-import de.janno.discord.bot.persistance.PersistanceManager;
+import de.janno.discord.bot.persistance.PersistenceManager;
 import de.janno.discord.connector.api.BottomCustomIdUtils;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
@@ -38,13 +38,13 @@ public class SumDiceSetCommand extends AbstractCommand<Config, SumDiceSetStateDa
     private static final String STATE_DATA_TYPE_ID = "SumDiceSetStateData";
     private final DiceUtils diceUtils;
 
-    public SumDiceSetCommand(PersistanceManager persistanceManager) {
-        this(persistanceManager, new DiceUtils());
+    public SumDiceSetCommand(PersistenceManager persistenceManager) {
+        this(persistenceManager, new DiceUtils());
     }
 
     @VisibleForTesting
-    public SumDiceSetCommand(PersistanceManager persistanceManager, DiceUtils diceUtils) {
-        super(persistanceManager);
+    public SumDiceSetCommand(PersistenceManager persistenceManager, DiceUtils diceUtils) {
+        super(persistenceManager);
         this.diceUtils = diceUtils;
     }
 
@@ -77,7 +77,7 @@ public class SumDiceSetCommand extends AbstractCommand<Config, SumDiceSetStateDa
                                                                                                            long messageId,
                                                                                                            @NonNull String buttonValue,
                                                                                                            @NonNull String invokingUserName) {
-        final Optional<MessageDataDTO> messageDataDTO = persistanceManager.getDataForMessage(channelId, messageId);
+        final Optional<MessageDataDTO> messageDataDTO = persistenceManager.getDataForMessage(channelId, messageId);
         return messageDataDTO.map(dataDTO -> deserializeAndUpdateState(dataDTO, buttonValue));
     }
 
@@ -109,9 +109,9 @@ public class SumDiceSetCommand extends AbstractCommand<Config, SumDiceSetStateDa
     @Override
     protected void updateCurrentMessageStateData(long channelId, long messageId, @NonNull Config config, @NonNull State<SumDiceSetStateData> state) {
         if (state.getData() == null || ROLL_BUTTON_ID.equals(state.getButtonValue())) {
-            persistanceManager.updateCommandConfigOfMessage(channelId, messageId, Mapper.NO_PERSISTED_STATE, null);
+            persistenceManager.updateCommandConfigOfMessage(channelId, messageId, Mapper.NO_PERSISTED_STATE, null);
         } else {
-            persistanceManager.updateCommandConfigOfMessage(channelId, messageId, STATE_DATA_TYPE_ID, Mapper.serializedObject(state.getData()));
+            persistenceManager.updateCommandConfigOfMessage(channelId, messageId, STATE_DATA_TYPE_ID, Mapper.serializedObject(state.getData()));
         }
     }
 

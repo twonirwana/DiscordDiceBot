@@ -22,11 +22,11 @@ import java.util.function.ToDoubleFunction;
 import static io.micrometer.core.instrument.Metrics.globalRegistry;
 
 @Slf4j
-public class PersistanceManagerImpl implements PersistanceManager {
+public class PersistenceManagerImpl implements PersistenceManager {
 
     private final JdbcConnectionPool connectionPool;
 
-    public PersistanceManagerImpl(@NonNull String url, @Nullable String user, @Nullable String password) {
+    public PersistenceManagerImpl(@NonNull String url, @Nullable String user, @Nullable String password) {
         connectionPool = JdbcConnectionPool.create(url, user, password);
         new DatabaseTableMetrics(connectionPool, "h2", "MESSAGE_DATA", ImmutableSet.of()).bindTo(globalRegistry);
 

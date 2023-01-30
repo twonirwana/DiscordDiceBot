@@ -12,12 +12,12 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-class PersistanceManagerImplTest {
-    PersistanceManagerImpl underTest;
+class PersistenceManagerImplTest {
+    PersistenceManagerImpl underTest;
 
     @BeforeEach
     void setup() {
-        underTest = new PersistanceManagerImpl("jdbc:h2:mem:" + UUID.randomUUID(), null, null);
+        underTest = new PersistenceManagerImpl("jdbc:h2:mem:" + UUID.randomUUID(), null, null);
     }
 
     @Test

@@ -5,7 +5,7 @@ import com.google.common.base.Stopwatch;
 import com.google.common.collect.ImmutableList;
 import de.janno.discord.bot.BotMetrics;
 import de.janno.discord.bot.ResultImage;
-import de.janno.discord.bot.persistance.PersistanceManager;
+import de.janno.discord.bot.persistance.PersistenceManager;
 import de.janno.discord.bot.persistance.MessageDataDTO;
 import de.janno.discord.connector.api.*;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
@@ -39,11 +39,11 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
 
     private static final int MIN_MS_DELAY_BETWEEN_BUTTON_MESSAGES = 1000;
     private final static ConcurrentSkipListSet<Long> MESSAGE_DATA_IDS_TO_DELETE = new ConcurrentSkipListSet<>();
-    protected final PersistanceManager persistanceManager;
+    protected final PersistenceManager persistenceManager;
     private Duration delayMessageDataDeletion = Duration.ofSeconds(10);
 
-    protected AbstractCommand(PersistanceManager persistanceManager) {
-        this.persistanceManager = persistanceManager;
+    protected AbstractCommand(PersistenceManager persistenceManager) {
+        this.persistenceManager = persistenceManager;
     }
 
     @VisibleForTesting
@@ -222,7 +222,7 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
             actions.add(Mono.defer(() -> event.createButtonMessage(newButtonMessage.get())
                             .flatMap(newMessageId -> {
                                 final Optional<MessageDataDTO> nextMessageData = createMessageDataForNewMessage(configUUID, event.getGuildId(), channelId, newMessageId, config, state);
-                                nextMessageData.ifPresent(persistanceManager::saveMessageData);
+                                nextMessageData.ifPresent(persistenceManager::saveMessageData);
                                 return deleteOldAndConcurrentMessageAndData(newMessageId, configUUID, channelId, event);
                             })).delaySubscription(calculateDelay(event))
                     .doOnSuccess(v -> BotMetrics.timerNewButtonMessageMetricCounter(getCommandId(), stopwatch.elapsed()))
@@ -264,7 +264,7 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
                 .delayElement(delayMessageDataDeletion)
                 .doOnNext(v -> {
                     MESSAGE_DATA_IDS_TO_DELETE.remove(messageId);
-                    persistanceManager.deleteDataForMessage(channelId, messageId);
+                    persistenceManager.deleteDataForMessage(channelId, messageId);
                 }).ofType(Void.class));
     }
 
@@ -275,7 +275,7 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
             long channelId,
             @NonNull ButtonEventAdaptor event) {
 
-        Set<Long> ids = persistanceManager.getAllMessageIdsForConfig(configUUID).stream()
+        Set<Long> ids = persistenceManager.getAllMessageIdsForConfig(configUUID).stream()
                 //this will already delete directly
                 .filter(id -> id != event.getMessageId())
                 //we don't want to delete the new message
@@ -346,7 +346,7 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
                     .then(event.createButtonMessage(createNewButtonMessage(config))
                             .map(newMessageId -> {
                                 final Optional<MessageDataDTO> newMessageData = createMessageDataForNewMessage(UUID.randomUUID(), event.getGuildId(), channelId, newMessageId, config, null);
-                                newMessageData.ifPresent(persistanceManager::saveMessageData);
+                                newMessageData.ifPresent(persistenceManager::saveMessageData);
                                 return newMessageId;
                             })
                             .then()

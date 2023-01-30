@@ -8,7 +8,7 @@ import de.janno.discord.bot.ResultImage;
 import de.janno.discord.bot.command.*;
 import de.janno.discord.bot.dice.DiceUtils;
 import de.janno.discord.bot.persistance.Mapper;
-import de.janno.discord.bot.persistance.PersistanceManager;
+import de.janno.discord.bot.persistance.PersistenceManager;
 import de.janno.discord.bot.persistance.MessageDataDTO;
 import de.janno.discord.connector.api.BottomCustomIdUtils;
 import de.janno.discord.connector.api.message.ButtonDefinition;
@@ -50,13 +50,13 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTar
     private static final String STATE_DATA_TYPE_ID = "PoolTargetStateData";
     private final DiceUtils diceUtils;
 
-    public PoolTargetCommand(PersistanceManager persistanceManager) {
-        this(persistanceManager, new DiceUtils());
+    public PoolTargetCommand(PersistenceManager persistenceManager) {
+        this(persistenceManager, new DiceUtils());
     }
 
     @VisibleForTesting
-    public PoolTargetCommand(PersistanceManager persistanceManager, DiceUtils diceUtils) {
-        super(persistanceManager);
+    public PoolTargetCommand(PersistenceManager persistenceManager, DiceUtils diceUtils) {
+        super(persistenceManager);
         this.diceUtils = diceUtils;
     }
 
@@ -85,7 +85,7 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTar
                                                                                                                      long messageId,
                                                                                                                      @NonNull String buttonValue,
                                                                                                                      @NonNull String invokingUserName) {
-        final Optional<MessageDataDTO> messageDataDTO = persistanceManager.getDataForMessage(channelId, messageId);
+        final Optional<MessageDataDTO> messageDataDTO = persistenceManager.getDataForMessage(channelId, messageId);
         return messageDataDTO.map(dataDTO -> deserializeAndUpdateState(dataDTO, buttonValue));
     }
 
@@ -124,9 +124,9 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTar
                 stateData.map(PoolTargetStateData::getTargetNumber).isPresent() &&
                 stateData.map(PoolTargetStateData::getDoReroll).isPresent())
         ) {
-            persistanceManager.updateCommandConfigOfMessage(channelId, messageId, Mapper.NO_PERSISTED_STATE, null);
+            persistenceManager.updateCommandConfigOfMessage(channelId, messageId, Mapper.NO_PERSISTED_STATE, null);
         } else {
-            persistanceManager.updateCommandConfigOfMessage(channelId, messageId, STATE_DATA_TYPE_ID, Mapper.serializedObject(state.getData()));
+            persistenceManager.updateCommandConfigOfMessage(channelId, messageId, STATE_DATA_TYPE_ID, Mapper.serializedObject(state.getData()));
         }
 
     }

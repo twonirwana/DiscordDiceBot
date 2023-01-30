@@ -1,7 +1,7 @@
 package de.janno.discord.bot.command;
 
 import de.janno.discord.bot.BotMetrics;
-import de.janno.discord.bot.persistance.PersistanceManager;
+import de.janno.discord.bot.persistance.PersistenceManager;
 import de.janno.discord.connector.api.SlashCommand;
 import de.janno.discord.connector.api.SlashEventAdaptor;
 import de.janno.discord.connector.api.slash.CommandDefinition;
@@ -13,10 +13,10 @@ import reactor.core.publisher.Mono;
 @Slf4j
 public class ClearCommand implements SlashCommand {
 
-    private final PersistanceManager persistanceManager;
+    private final PersistenceManager persistenceManager;
 
-    public ClearCommand(PersistanceManager persistanceManager) {
-        this.persistanceManager = persistanceManager;
+    public ClearCommand(PersistenceManager persistenceManager) {
+        this.persistenceManager = persistenceManager;
     }
 
     @Override
@@ -36,7 +36,7 @@ public class ClearCommand implements SlashCommand {
     public Mono<Void> handleSlashCommandEvent(@NonNull SlashEventAdaptor event) {
         BotMetrics.incrementSlashStartMetricCounter(getCommandId(), "[]");
         return event.reply("Deleting messages and data ...", false)
-                .then(Mono.just(persistanceManager.deleteMessageDataForChannel(event.getChannelId()))
+                .then(Mono.just(persistenceManager.deleteMessageDataForChannel(event.getChannelId()))
                         .flux()
                         .flatMap(Flux::fromIterable)
                         .flatMap(event::deleteMessageById)

@@ -11,8 +11,8 @@ import de.janno.discord.bot.dice.Dice;
 import de.janno.discord.bot.dice.DiceParser;
 import de.janno.discord.bot.dice.DiceParserSystem;
 import de.janno.discord.bot.persistance.MessageDataDTO;
-import de.janno.discord.bot.persistance.PersistanceManager;
-import de.janno.discord.bot.persistance.PersistanceManagerImpl;
+import de.janno.discord.bot.persistance.PersistenceManager;
+import de.janno.discord.bot.persistance.PersistenceManagerImpl;
 import de.janno.discord.connector.api.slash.CommandDefinitionOption;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import de.janno.evaluator.dice.random.RandomNumberSupplier;
@@ -36,7 +36,7 @@ import static org.mockito.Mockito.mock;
 class CustomParameterCommandTest {
 
     CustomParameterCommand underTest;
-    PersistanceManager persistanceManager = mock(PersistanceManager.class);
+    PersistenceManager persistenceManager = mock(PersistenceManager.class);
 
     private static Stream<Arguments> generateParameterExpression2ButtonValuesData() {
         return Stream.of(
@@ -105,7 +105,7 @@ class CustomParameterCommandTest {
 
     @BeforeEach
     void setup() {
-        underTest = new CustomParameterCommand(persistanceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
+        underTest = new CustomParameterCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
         underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
     }
 
@@ -198,8 +198,8 @@ class CustomParameterCommandTest {
 
     @Test
     void checkPersistence() {
-        PersistanceManager persistanceManager = new PersistanceManagerImpl("jdbc:h2:mem:" + UUID.randomUUID(), null, null);
-        underTest = new CustomParameterCommand(persistanceManager, mock(Dice.class), new CachingDiceEvaluator((minExcl, maxIncl) -> 0, 10, 0));
+        PersistenceManager persistenceManager = new PersistenceManagerImpl("jdbc:h2:mem:" + UUID.randomUUID(), null, null);
+        underTest = new CustomParameterCommand(persistenceManager, mock(Dice.class), new CachingDiceEvaluator((minExcl, maxIncl) -> 0, 10, 0));
         underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
 
         long channelId = System.currentTimeMillis();
@@ -210,10 +210,10 @@ class CustomParameterCommandTest {
                 new SelectedParameter("{n}", "n", "5", "5"),
                 new SelectedParameter("{s}", "s", null, null)), "userName"));
         Optional<MessageDataDTO> toSave = underTest.createMessageDataForNewMessage(configUUID, 1L, channelId, messageId, config, state);
-        persistanceManager.saveMessageData(toSave.orElseThrow());
+        persistenceManager.saveMessageData(toSave.orElseThrow());
         underTest.updateCurrentMessageStateData(channelId, messageId, config, state);
 
-        MessageDataDTO loaded = persistanceManager.getDataForMessage(channelId, messageId).orElseThrow();
+        MessageDataDTO loaded = persistenceManager.getDataForMessage(channelId, messageId).orElseThrow();
 
         ConfigAndState<CustomParameterConfig, CustomParameterStateData> configAndState = underTest.deserializeAndUpdateState(loaded, "3", "userName");
         assertThat(configAndState.getConfig()).isEqualTo(config);

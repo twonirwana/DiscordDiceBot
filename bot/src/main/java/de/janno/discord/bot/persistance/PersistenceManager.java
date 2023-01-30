@@ -7,7 +7,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
-public interface PersistanceManager {
+public interface PersistenceManager {
 
     @NonNull Optional<MessageDataDTO> getDataForMessage(long channelId, long messageId);
 

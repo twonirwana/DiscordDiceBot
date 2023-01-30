@@ -3,8 +3,8 @@ package de.janno.discord.bot.command.directRoll;
 import de.janno.discord.bot.SlashEventAdaptorMock;
 import de.janno.discord.bot.dice.CachingDiceEvaluator;
 import de.janno.discord.bot.dice.DiceEvaluatorAdapter;
-import de.janno.discord.bot.persistance.PersistanceManager;
-import de.janno.discord.bot.persistance.PersistanceManagerImpl;
+import de.janno.discord.bot.persistance.PersistenceManager;
+import de.janno.discord.bot.persistance.PersistenceManagerImpl;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import de.janno.evaluator.dice.random.RandomNumberSupplier;
 import org.apache.commons.io.FileUtils;
@@ -19,7 +19,7 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class DirectRollCommandMockTest {
-    PersistanceManager persistanceManager;
+    PersistenceManager persistenceManager;
 
     @BeforeEach
     void setup() {
@@ -28,12 +28,12 @@ public class DirectRollCommandMockTest {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        persistanceManager = new PersistanceManagerImpl("jdbc:h2:mem:" + UUID.randomUUID(), null, null);
+        persistenceManager = new PersistenceManagerImpl("jdbc:h2:mem:" + UUID.randomUUID(), null, null);
     }
 
     @Test
     void roll_default() {
-        DirectRollCommand directRollCommand = new DirectRollCommand(persistanceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
+        DirectRollCommand directRollCommand = new DirectRollCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
 
         SlashEventAdaptorMock slashEvent = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
                 .name("expression")
@@ -49,7 +49,7 @@ public class DirectRollCommandMockTest {
 
     @Test
     void help() {
-        DirectRollCommand directRollCommand = new DirectRollCommand(persistanceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
+        DirectRollCommand directRollCommand = new DirectRollCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
 
         SlashEventAdaptorMock slashEvent = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
                 .name("expression")
@@ -66,7 +66,7 @@ public class DirectRollCommandMockTest {
 
     @Test
     void invalidExpression() {
-        DirectRollCommand directRollCommand = new DirectRollCommand(persistanceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
+        DirectRollCommand directRollCommand = new DirectRollCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
 
         SlashEventAdaptorMock slashEvent = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
                 .name("expression")
@@ -82,7 +82,7 @@ public class DirectRollCommandMockTest {
 
     @Test
     void roll_default_withLabel() {
-        DirectRollCommand directRollCommand = new DirectRollCommand(persistanceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
+        DirectRollCommand directRollCommand = new DirectRollCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
 
         SlashEventAdaptorMock slashEvent = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
                 .name("expression")
@@ -98,8 +98,8 @@ public class DirectRollCommandMockTest {
 
     @Test
     void roll_config_full_imageNone() {
-        DirectRollCommand directRollCommand = new DirectRollCommand(persistanceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
-        DirectRollConfigCommand directRollConfig = new DirectRollConfigCommand(persistanceManager);
+        DirectRollCommand directRollCommand = new DirectRollCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
+        DirectRollConfigCommand directRollConfig = new DirectRollConfigCommand(persistenceManager);
 
         SlashEventAdaptorMock slashEvent1 = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
                 .name("save")
@@ -132,8 +132,8 @@ public class DirectRollCommandMockTest {
 
     @Test
     void roll_config_withoutExpression() {
-        DirectRollCommand directRollCommand = new DirectRollCommand(persistanceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
-        DirectRollConfigCommand directRollConfig = new DirectRollConfigCommand(persistanceManager);
+        DirectRollCommand directRollCommand = new DirectRollCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
+        DirectRollConfigCommand directRollConfig = new DirectRollConfigCommand(persistenceManager);
 
         SlashEventAdaptorMock slashEvent1 = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
                 .name("save")
@@ -167,8 +167,8 @@ public class DirectRollCommandMockTest {
 
     @Test
     void roll_config_withoutExpression_withLabel() {
-        DirectRollCommand directRollCommand = new DirectRollCommand(persistanceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
-        DirectRollConfigCommand directRollConfig = new DirectRollConfigCommand(persistanceManager);
+        DirectRollCommand directRollCommand = new DirectRollCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
+        DirectRollConfigCommand directRollConfig = new DirectRollConfigCommand(persistenceManager);
 
         SlashEventAdaptorMock slashEvent1 = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
                 .name("save")
@@ -202,8 +202,8 @@ public class DirectRollCommandMockTest {
 
     @Test
     void roll_config_compact() {
-        DirectRollCommand directRollCommand = new DirectRollCommand(persistanceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
-        DirectRollConfigCommand directRollConfig = new DirectRollConfigCommand(persistanceManager);
+        DirectRollCommand directRollCommand = new DirectRollCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
+        DirectRollConfigCommand directRollConfig = new DirectRollConfigCommand(persistenceManager);
 
         SlashEventAdaptorMock slashEvent1 = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
                 .name("save")
@@ -237,8 +237,8 @@ public class DirectRollCommandMockTest {
 
     @Test
     void roll_config_minimal() {
-        DirectRollCommand directRollCommand = new DirectRollCommand(persistanceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
-        DirectRollConfigCommand directRollConfig = new DirectRollConfigCommand(persistanceManager);
+        DirectRollCommand directRollCommand = new DirectRollCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
+        DirectRollConfigCommand directRollConfig = new DirectRollConfigCommand(persistenceManager);
 
         SlashEventAdaptorMock slashEvent1 = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
                 .name("save")
@@ -272,8 +272,8 @@ public class DirectRollCommandMockTest {
 
     @Test
     void saveConfigDelete_default() {
-        DirectRollCommand directRollCommand = new DirectRollCommand(persistanceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
-        DirectRollConfigCommand directRollConfig = new DirectRollConfigCommand(persistanceManager);
+        DirectRollCommand directRollCommand = new DirectRollCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
+        DirectRollConfigCommand directRollConfig = new DirectRollConfigCommand(persistenceManager);
 
         SlashEventAdaptorMock slashEvent1 = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
                 .name("save")

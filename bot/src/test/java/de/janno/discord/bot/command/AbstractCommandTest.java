@@ -1,7 +1,7 @@
 package de.janno.discord.bot.command;
 
 import de.janno.discord.bot.ButtonEventAdaptorMock;
-import de.janno.discord.bot.persistance.PersistanceManagerImpl;
+import de.janno.discord.bot.persistance.PersistenceManagerImpl;
 import de.janno.discord.bot.persistance.MessageDataDTO;
 import de.janno.discord.connector.api.MessageState;
 import lombok.NonNull;
@@ -23,7 +23,7 @@ class AbstractCommandTest {
 
     @Test
     void deleteMessageAndData_notExist() {
-        PersistanceManagerImpl messageDataDAO = new PersistanceManagerImpl("jdbc:h2:mem:" + UUID.randomUUID(), null, null);
+        PersistenceManagerImpl messageDataDAO = new PersistenceManagerImpl("jdbc:h2:mem:" + UUID.randomUUID(), null, null);
         TestCommand underTest = new TestCommand(messageDataDAO);
         ButtonEventAdaptorMock buttonEventAdaptorMock = new ButtonEventAdaptorMock("testCommand", "a", new AtomicLong(), Set.of(2L)) {
             @Override
@@ -47,7 +47,7 @@ class AbstractCommandTest {
 
     @Test
     void deleteMessageAndData() {
-        PersistanceManagerImpl messageDataDAO = new PersistanceManagerImpl("jdbc:h2:mem:" + UUID.randomUUID(), null, null);
+        PersistenceManagerImpl messageDataDAO = new PersistenceManagerImpl("jdbc:h2:mem:" + UUID.randomUUID(), null, null);
         TestCommand underTest = new TestCommand(messageDataDAO);
         ButtonEventAdaptorMock buttonEventAdaptorMock = new ButtonEventAdaptorMock("testCommand", "a", new AtomicLong(), Set.of(2L));
         UUID configUUID = UUID.randomUUID();
@@ -74,7 +74,7 @@ class AbstractCommandTest {
 
     @Test
     void deleteMessageAndData_deleteCache() throws InterruptedException {
-        PersistanceManagerImpl messageDataDAO = new PersistanceManagerImpl("jdbc:h2:mem:" + UUID.randomUUID(), null, null);
+        PersistenceManagerImpl messageDataDAO = new PersistenceManagerImpl("jdbc:h2:mem:" + UUID.randomUUID(), null, null);
         TestCommand underTest = new TestCommand(messageDataDAO);
         underTest.setMessageDataDeleteDuration(Duration.ofMillis(200));
         ButtonEventAdaptorMock buttonEventAdaptorMock = new ButtonEventAdaptorMock("testCommand", "a", new AtomicLong(), Set.of(2L));

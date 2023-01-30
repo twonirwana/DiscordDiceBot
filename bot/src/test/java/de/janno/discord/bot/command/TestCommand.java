@@ -1,6 +1,6 @@
 package de.janno.discord.bot.command;
 
-import de.janno.discord.bot.persistance.PersistanceManager;
+import de.janno.discord.bot.persistance.PersistenceManager;
 import de.janno.discord.bot.persistance.MessageDataDTO;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
 import de.janno.discord.connector.api.message.MessageDefinition;
@@ -14,8 +14,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 public class TestCommand extends AbstractCommand<Config, StateData> {
-    protected TestCommand(PersistanceManager persistanceManager) {
-        super(persistanceManager);
+    protected TestCommand(PersistenceManager persistenceManager) {
+        super(persistenceManager);
         setMessageDataDeleteDuration(Duration.ofMillis(10));
     }
 

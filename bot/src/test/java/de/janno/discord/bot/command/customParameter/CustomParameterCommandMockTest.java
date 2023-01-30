@@ -7,8 +7,8 @@ import de.janno.discord.bot.command.AnswerFormatType;
 import de.janno.discord.bot.dice.CachingDiceEvaluator;
 import de.janno.discord.bot.dice.DiceParser;
 import de.janno.discord.bot.dice.DiceParserSystem;
-import de.janno.discord.bot.persistance.PersistanceManager;
-import de.janno.discord.bot.persistance.PersistanceManagerImpl;
+import de.janno.discord.bot.persistance.PersistenceManager;
+import de.janno.discord.bot.persistance.PersistenceManagerImpl;
 import de.janno.evaluator.dice.random.RandomNumberSupplier;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,22 +21,22 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class CustomParameterCommandMockTest {
 
-    PersistanceManager persistanceManager;
+    PersistenceManager persistenceManager;
     AtomicLong messageIdCounter;
 
     @BeforeEach
     void setup() {
         messageIdCounter = new AtomicLong(0);
-        persistanceManager = new PersistanceManagerImpl("jdbc:h2:mem:" + UUID.randomUUID(), null, null);
+        persistenceManager = new PersistenceManagerImpl("jdbc:h2:mem:" + UUID.randomUUID(), null, null);
     }
 
     @Test
     void roll_full() {
-        CustomParameterCommand underTest = new CustomParameterCommand(persistanceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
+        CustomParameterCommand underTest = new CustomParameterCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
         underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
 
         CustomParameterConfig config = new CustomParameterConfig(null, "{numberOfDice:1<=>10}d{sides:1/4/6/8/10/12/20/100}", DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full, ResultImage.none);
-        ButtonEventAdaptorMockFactory<CustomParameterConfig, CustomParameterStateData> factory = new ButtonEventAdaptorMockFactory<>("custom_parameter", underTest, config, persistanceManager, false);
+        ButtonEventAdaptorMockFactory<CustomParameterConfig, CustomParameterStateData> factory = new ButtonEventAdaptorMockFactory<>("custom_parameter", underTest, config, persistenceManager, false);
 
         ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("4");
         underTest.handleComponentInteractEvent(click1).block();
@@ -54,11 +54,11 @@ public class CustomParameterCommandMockTest {
 
     @Test
     void roll_full_withLabel() {
-        CustomParameterCommand underTest = new CustomParameterCommand(persistanceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
+        CustomParameterCommand underTest = new CustomParameterCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
         underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
 
         CustomParameterConfig config = new CustomParameterConfig(null, "{numberOfDice:1<=>10}d{sides:1/4/6/8/10/12/20/100}@Roll", DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full, ResultImage.none);
-        ButtonEventAdaptorMockFactory<CustomParameterConfig, CustomParameterStateData> factory = new ButtonEventAdaptorMockFactory<>("custom_parameter", underTest, config, persistanceManager, false);
+        ButtonEventAdaptorMockFactory<CustomParameterConfig, CustomParameterStateData> factory = new ButtonEventAdaptorMockFactory<>("custom_parameter", underTest, config, persistenceManager, false);
 
         ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("4");
         underTest.handleComponentInteractEvent(click1).block();
@@ -76,11 +76,11 @@ public class CustomParameterCommandMockTest {
 
     @Test
     void roll_withoutExpression() {
-        CustomParameterCommand underTest = new CustomParameterCommand(persistanceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
+        CustomParameterCommand underTest = new CustomParameterCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
         underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
 
         CustomParameterConfig config = new CustomParameterConfig(null, "{numberOfDice:1<=>10}d{sides:1/4/6/8/10/12/20/100}", DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.without_expression, ResultImage.none);
-        ButtonEventAdaptorMockFactory<CustomParameterConfig, CustomParameterStateData> factory = new ButtonEventAdaptorMockFactory<>("custom_parameter", underTest, config, persistanceManager, false);
+        ButtonEventAdaptorMockFactory<CustomParameterConfig, CustomParameterStateData> factory = new ButtonEventAdaptorMockFactory<>("custom_parameter", underTest, config, persistenceManager, false);
 
         ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("4");
         underTest.handleComponentInteractEvent(click1).block();
@@ -98,11 +98,11 @@ public class CustomParameterCommandMockTest {
 
     @Test
     void roll_withoutExpression_withLabel() {
-        CustomParameterCommand underTest = new CustomParameterCommand(persistanceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
+        CustomParameterCommand underTest = new CustomParameterCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
         underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
 
         CustomParameterConfig config = new CustomParameterConfig(null, "{numberOfDice:1<=>10}d{sides:1/4/6/8/10/12/20/100}@Roll", DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.without_expression, ResultImage.none);
-        ButtonEventAdaptorMockFactory<CustomParameterConfig, CustomParameterStateData> factory = new ButtonEventAdaptorMockFactory<>("custom_parameter", underTest, config, persistanceManager, false);
+        ButtonEventAdaptorMockFactory<CustomParameterConfig, CustomParameterStateData> factory = new ButtonEventAdaptorMockFactory<>("custom_parameter", underTest, config, persistenceManager, false);
 
         ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("4");
         underTest.handleComponentInteractEvent(click1).block();
@@ -120,11 +120,11 @@ public class CustomParameterCommandMockTest {
 
     @Test
     void roll_compact() {
-        CustomParameterCommand underTest = new CustomParameterCommand(persistanceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
+        CustomParameterCommand underTest = new CustomParameterCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
         underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
 
         CustomParameterConfig config = new CustomParameterConfig(null, "{numberOfDice:1<=>10}d{sides:1/4/6/8/10/12/20/100}", DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.compact, ResultImage.none);
-        ButtonEventAdaptorMockFactory<CustomParameterConfig, CustomParameterStateData> factory = new ButtonEventAdaptorMockFactory<>("custom_parameter", underTest, config, persistanceManager, false);
+        ButtonEventAdaptorMockFactory<CustomParameterConfig, CustomParameterStateData> factory = new ButtonEventAdaptorMockFactory<>("custom_parameter", underTest, config, persistenceManager, false);
 
         ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("4");
         underTest.handleComponentInteractEvent(click1).block();
@@ -142,11 +142,11 @@ public class CustomParameterCommandMockTest {
 
     @Test
     void roll_minimal() {
-        CustomParameterCommand underTest = new CustomParameterCommand(persistanceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
+        CustomParameterCommand underTest = new CustomParameterCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
         underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
 
         CustomParameterConfig config = new CustomParameterConfig(null, "{numberOfDice:1<=>10}d{sides:1/4/6/8/10/12/20/100}", DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.minimal, ResultImage.none);
-        ButtonEventAdaptorMockFactory<CustomParameterConfig, CustomParameterStateData> factory = new ButtonEventAdaptorMockFactory<>("custom_parameter", underTest, config, persistanceManager, false);
+        ButtonEventAdaptorMockFactory<CustomParameterConfig, CustomParameterStateData> factory = new ButtonEventAdaptorMockFactory<>("custom_parameter", underTest, config, persistenceManager, false);
 
         ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("4");
         underTest.handleComponentInteractEvent(click1).block();
@@ -164,11 +164,11 @@ public class CustomParameterCommandMockTest {
 
     @Test
     void lockedToUser_block() {
-        CustomParameterCommand underTest = new CustomParameterCommand(persistanceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
+        CustomParameterCommand underTest = new CustomParameterCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
         underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
 
         CustomParameterConfig config = new CustomParameterConfig(null, "{numberOfDice:1<=>10}d{sides:1/4/6/8/10/12/20/100}", DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.minimal, ResultImage.none);
-        ButtonEventAdaptorMockFactory<CustomParameterConfig, CustomParameterStateData> factory = new ButtonEventAdaptorMockFactory<>("custom_parameter", underTest, config, persistanceManager, false);
+        ButtonEventAdaptorMockFactory<CustomParameterConfig, CustomParameterStateData> factory = new ButtonEventAdaptorMockFactory<>("custom_parameter", underTest, config, persistenceManager, false);
 
         ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("4", "user1");
         underTest.handleComponentInteractEvent(click1).block();
@@ -190,11 +190,11 @@ public class CustomParameterCommandMockTest {
 
     @Test
     void clear() {
-        CustomParameterCommand underTest = new CustomParameterCommand(persistanceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
+        CustomParameterCommand underTest = new CustomParameterCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
         underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
 
         CustomParameterConfig config = new CustomParameterConfig(null, "{numberOfDice:1<=>10}d{sides:1/4/6/8/10/12/20/100}", DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full, ResultImage.none);
-        ButtonEventAdaptorMockFactory<CustomParameterConfig, CustomParameterStateData> factory = new ButtonEventAdaptorMockFactory<>("custom_parameter", underTest, config, persistanceManager, false);
+        ButtonEventAdaptorMockFactory<CustomParameterConfig, CustomParameterStateData> factory = new ButtonEventAdaptorMockFactory<>("custom_parameter", underTest, config, persistenceManager, false);
 
         ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("4");
         underTest.handleComponentInteractEvent(click1).block();
@@ -209,11 +209,11 @@ public class CustomParameterCommandMockTest {
 
     @Test
     void roll_pinned() {
-        CustomParameterCommand underTest = new CustomParameterCommand(persistanceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
+        CustomParameterCommand underTest = new CustomParameterCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
         underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
 
         CustomParameterConfig config = new CustomParameterConfig(null, "{numberOfDice:1<=>10}d{sides:1/4/6/8/10/12/20/100}", DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full, ResultImage.none);
-        ButtonEventAdaptorMockFactory<CustomParameterConfig, CustomParameterStateData> factory = new ButtonEventAdaptorMockFactory<>("custom_parameter", underTest, config, persistanceManager, true);
+        ButtonEventAdaptorMockFactory<CustomParameterConfig, CustomParameterStateData> factory = new ButtonEventAdaptorMockFactory<>("custom_parameter", underTest, config, persistenceManager, true);
 
         ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("4");
         underTest.handleComponentInteractEvent(click1).block();
@@ -230,11 +230,11 @@ public class CustomParameterCommandMockTest {
 
     @Test
     void roll_answerChannel() {
-        CustomParameterCommand underTest = new CustomParameterCommand(persistanceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
+        CustomParameterCommand underTest = new CustomParameterCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
         underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
 
         CustomParameterConfig config = new CustomParameterConfig(2L, "{numberOfDice:1<=>10}d{sides:1/4/6/8/10/12/20/100}", DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full, ResultImage.none);
-        ButtonEventAdaptorMockFactory<CustomParameterConfig, CustomParameterStateData> factory = new ButtonEventAdaptorMockFactory<>("custom_parameter", underTest, config, persistanceManager, false);
+        ButtonEventAdaptorMockFactory<CustomParameterConfig, CustomParameterStateData> factory = new ButtonEventAdaptorMockFactory<>("custom_parameter", underTest, config, persistenceManager, false);
 
         ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("4");
         underTest.handleComponentInteractEvent(click1).block();
@@ -252,11 +252,11 @@ public class CustomParameterCommandMockTest {
 
     @Test
     void roll_pinnedTwice() {
-        CustomParameterCommand underTest = new CustomParameterCommand(persistanceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
+        CustomParameterCommand underTest = new CustomParameterCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
         underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
 
         CustomParameterConfig config = new CustomParameterConfig(null, "{numberOfDice:1<=>10}d{sides:1/4/6/8/10/12/20/100}", DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full, ResultImage.none);
-        ButtonEventAdaptorMockFactory<CustomParameterConfig, CustomParameterStateData> factory = new ButtonEventAdaptorMockFactory<>("custom_parameter", underTest, config, persistanceManager, true);
+        ButtonEventAdaptorMockFactory<CustomParameterConfig, CustomParameterStateData> factory = new ButtonEventAdaptorMockFactory<>("custom_parameter", underTest, config, persistenceManager, true);
 
         ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("4");
         underTest.handleComponentInteractEvent(click1).block();
@@ -285,11 +285,11 @@ public class CustomParameterCommandMockTest {
 
     @Test
     void roll_answerChannelTwice() {
-        CustomParameterCommand underTest = new CustomParameterCommand(persistanceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
+        CustomParameterCommand underTest = new CustomParameterCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
         underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
 
         CustomParameterConfig config = new CustomParameterConfig(2L, "{numberOfDice:1<=>10}d{sides:1/4/6/8/10/12/20/100}", DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full, ResultImage.none);
-        ButtonEventAdaptorMockFactory<CustomParameterConfig, CustomParameterStateData> factory = new ButtonEventAdaptorMockFactory<>("custom_parameter", underTest, config, persistanceManager, false);
+        ButtonEventAdaptorMockFactory<CustomParameterConfig, CustomParameterStateData> factory = new ButtonEventAdaptorMockFactory<>("custom_parameter", underTest, config, persistenceManager, false);
 
         ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("4");
         underTest.handleComponentInteractEvent(click1).block();

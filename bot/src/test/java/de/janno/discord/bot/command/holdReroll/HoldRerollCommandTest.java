@@ -8,8 +8,8 @@ import de.janno.discord.bot.command.ConfigAndState;
 import de.janno.discord.bot.command.RollAnswerConverter;
 import de.janno.discord.bot.command.State;
 import de.janno.discord.bot.dice.DiceUtils;
-import de.janno.discord.bot.persistance.PersistanceManager;
-import de.janno.discord.bot.persistance.PersistanceManagerImpl;
+import de.janno.discord.bot.persistance.PersistenceManager;
+import de.janno.discord.bot.persistance.PersistenceManagerImpl;
 import de.janno.discord.bot.persistance.MessageDataDTO;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
@@ -47,7 +47,7 @@ class HoldRerollCommandTest {
 
     @BeforeEach
     void setup() {
-        underTest = new HoldRerollCommand(mock(PersistanceManager.class), new DiceUtils(1, 1, 1, 1, 5, 6, 6, 6));
+        underTest = new HoldRerollCommand(mock(PersistenceManager.class), new DiceUtils(1, 1, 1, 1, 5, 6, 6, 6));
         underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
 
     }
@@ -353,8 +353,8 @@ class HoldRerollCommandTest {
 
     @Test
     void checkPersistence() {
-        PersistanceManager persistanceManager = new PersistanceManagerImpl("jdbc:h2:mem:" + UUID.randomUUID(), null, null);
-        underTest = new HoldRerollCommand(persistanceManager, mock(DiceUtils.class));
+        PersistenceManager persistenceManager = new PersistenceManagerImpl("jdbc:h2:mem:" + UUID.randomUUID(), null, null);
+        underTest = new HoldRerollCommand(persistenceManager, mock(DiceUtils.class));
         underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
 
         long channelId = System.currentTimeMillis();
@@ -363,10 +363,10 @@ class HoldRerollCommandTest {
         HoldRerollConfig config = new HoldRerollConfig(123L, 10, ImmutableSet.of(9, 10), ImmutableSet.of(7, 8, 9, 10), ImmutableSet.of(1), AnswerFormatType.full, ResultImage.none);
         State<HoldRerollStateData> state = new State<>("reroll", new HoldRerollStateData(ImmutableList.of(1, 2, 10), 2));
         Optional<MessageDataDTO> toSave = underTest.createMessageDataForNewMessage(configUUID, 1L, channelId, messageId, config, state);
-        persistanceManager.saveMessageData(toSave.orElseThrow());
+        persistenceManager.saveMessageData(toSave.orElseThrow());
         underTest.updateCurrentMessageStateData(channelId, messageId, config, state);
 
-        MessageDataDTO loaded = persistanceManager.getDataForMessage(channelId, messageId).orElseThrow();
+        MessageDataDTO loaded = persistenceManager.getDataForMessage(channelId, messageId).orElseThrow();
 
         ConfigAndState<HoldRerollConfig, HoldRerollStateData> configAndState = underTest.deserializeAndUpdateState(loaded, "reroll");
         assertThat(configAndState.getConfig()).isEqualTo(config);

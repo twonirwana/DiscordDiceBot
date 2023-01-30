@@ -3,8 +3,8 @@ package de.janno.discord.bot.command.countSuccesses;
 import de.janno.discord.bot.ResultImage;
 import de.janno.discord.bot.command.*;
 import de.janno.discord.bot.dice.DiceUtils;
-import de.janno.discord.bot.persistance.PersistanceManager;
-import de.janno.discord.bot.persistance.PersistanceManagerImpl;
+import de.janno.discord.bot.persistance.PersistenceManager;
+import de.janno.discord.bot.persistance.PersistenceManagerImpl;
 import de.janno.discord.bot.persistance.MessageDataDTO;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
@@ -27,11 +27,11 @@ import static org.mockito.Mockito.mock;
 class CountSuccessesCommandTest {
 
     CountSuccessesCommand underTest;
-    PersistanceManager persistanceManager = mock(PersistanceManager.class);
+    PersistenceManager persistenceManager = mock(PersistenceManager.class);
 
     @BeforeEach
     void setup() {
-        underTest = new CountSuccessesCommand(persistanceManager, new DiceUtils(1, 1, 1, 1, 5, 6, 6, 6));
+        underTest = new CountSuccessesCommand(persistenceManager, new DiceUtils(1, 1, 1, 1, 5, 6, 6, 6));
         underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
     }
 
@@ -302,16 +302,16 @@ class CountSuccessesCommandTest {
 
     @Test
     void checkPersistence() {
-        PersistanceManager persistanceManager = new PersistanceManagerImpl("jdbc:h2:mem:" + UUID.randomUUID(), null, null);
+        PersistenceManager persistenceManager = new PersistenceManagerImpl("jdbc:h2:mem:" + UUID.randomUUID(), null, null);
         long channelId = System.currentTimeMillis();
         long messageId = System.currentTimeMillis();
         UUID configUUID = UUID.randomUUID();
         CountSuccessesConfig config = new CountSuccessesConfig(123L, 6, 5, "no_glitch", 12, 2, Set.of(1, 2), Set.of(9, 10), AnswerFormatType.minimal, ResultImage.none);
         State<StateData> state = new State<>("5", StateData.empty());
         Optional<MessageDataDTO> toSave = underTest.createMessageDataForNewMessage(configUUID, 1L, channelId, messageId, config, state);
-        persistanceManager.saveMessageData(toSave.orElseThrow());
+        persistenceManager.saveMessageData(toSave.orElseThrow());
 
-        MessageDataDTO loaded = persistanceManager.getDataForMessage(channelId, messageId).orElseThrow();
+        MessageDataDTO loaded = persistenceManager.getDataForMessage(channelId, messageId).orElseThrow();
 
         assertThat(toSave.orElseThrow()).isEqualTo(loaded);
         ConfigAndState<CountSuccessesConfig, StateData> configAndState = underTest.deserializeAndUpdateState(loaded, "3");

@@ -5,8 +5,8 @@ import de.janno.discord.bot.ButtonEventAdaptorMockFactory;
 import de.janno.discord.bot.ResultImage;
 import de.janno.discord.bot.command.AnswerFormatType;
 import de.janno.discord.bot.dice.DiceUtils;
-import de.janno.discord.bot.persistance.PersistanceManager;
-import de.janno.discord.bot.persistance.PersistanceManagerImpl;
+import de.janno.discord.bot.persistance.PersistenceManager;
+import de.janno.discord.bot.persistance.PersistenceManagerImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -18,22 +18,22 @@ import java.util.concurrent.atomic.AtomicLong;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class PoolTargetCommandMockTest {
-    PersistanceManager persistanceManager;
+    PersistenceManager persistenceManager;
     AtomicLong messageIdCounter;
 
     @BeforeEach
     void setup() {
         messageIdCounter = new AtomicLong(0);
-        persistanceManager = new PersistanceManagerImpl("jdbc:h2:mem:" + UUID.randomUUID(), null, null);
+        persistenceManager = new PersistenceManagerImpl("jdbc:h2:mem:" + UUID.randomUUID(), null, null);
     }
 
     @Test
     void roll_full() {
-        PoolTargetCommand underTest = new PoolTargetCommand(persistanceManager, new DiceUtils(0L));
+        PoolTargetCommand underTest = new PoolTargetCommand(persistenceManager, new DiceUtils(0L));
         underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
 
         PoolTargetConfig config = new PoolTargetConfig(null, 10, 15, Set.of(9, 10), Set.of(1, 2), "ask", AnswerFormatType.full, ResultImage.none);
-        ButtonEventAdaptorMockFactory<PoolTargetConfig, PoolTargetStateData> factory = new ButtonEventAdaptorMockFactory<>("pool_target", underTest, config, persistanceManager, false);
+        ButtonEventAdaptorMockFactory<PoolTargetConfig, PoolTargetStateData> factory = new ButtonEventAdaptorMockFactory<>("pool_target", underTest, config, persistenceManager, false);
 
         ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("9");
         underTest.handleComponentInteractEvent(click1).block();
@@ -58,11 +58,11 @@ public class PoolTargetCommandMockTest {
 
     @Test
     void roll_compact() {
-        PoolTargetCommand underTest = new PoolTargetCommand(persistanceManager, new DiceUtils(0L));
+        PoolTargetCommand underTest = new PoolTargetCommand(persistenceManager, new DiceUtils(0L));
         underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
 
         PoolTargetConfig config = new PoolTargetConfig(null, 10, 15, Set.of(9, 10), Set.of(1, 2), "ask", AnswerFormatType.compact, ResultImage.none);
-        ButtonEventAdaptorMockFactory<PoolTargetConfig, PoolTargetStateData> factory = new ButtonEventAdaptorMockFactory<>("pool_target", underTest, config, persistanceManager, false);
+        ButtonEventAdaptorMockFactory<PoolTargetConfig, PoolTargetStateData> factory = new ButtonEventAdaptorMockFactory<>("pool_target", underTest, config, persistenceManager, false);
 
         ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("9");
         underTest.handleComponentInteractEvent(click1).block();
@@ -87,11 +87,11 @@ public class PoolTargetCommandMockTest {
 
     @Test
     void roll_minimal() {
-        PoolTargetCommand underTest = new PoolTargetCommand(persistanceManager, new DiceUtils(0L));
+        PoolTargetCommand underTest = new PoolTargetCommand(persistenceManager, new DiceUtils(0L));
         underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
 
         PoolTargetConfig config = new PoolTargetConfig(null, 10, 15, Set.of(9, 10), Set.of(1, 2), "ask", AnswerFormatType.minimal, ResultImage.none);
-        ButtonEventAdaptorMockFactory<PoolTargetConfig, PoolTargetStateData> factory = new ButtonEventAdaptorMockFactory<>("pool_target", underTest, config, persistanceManager, false);
+        ButtonEventAdaptorMockFactory<PoolTargetConfig, PoolTargetStateData> factory = new ButtonEventAdaptorMockFactory<>("pool_target", underTest, config, persistenceManager, false);
 
         ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("9");
         underTest.handleComponentInteractEvent(click1).block();

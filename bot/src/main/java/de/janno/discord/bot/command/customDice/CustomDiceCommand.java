@@ -9,7 +9,7 @@ import de.janno.discord.bot.command.*;
 import de.janno.discord.bot.dice.*;
 import de.janno.discord.bot.persistance.Mapper;
 import de.janno.discord.bot.persistance.MessageDataDTO;
-import de.janno.discord.bot.persistance.PersistanceManager;
+import de.janno.discord.bot.persistance.PersistenceManager;
 import de.janno.discord.connector.api.BottomCustomIdUtils;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
@@ -37,13 +37,13 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
     private static final String CONFIG_TYPE_ID = "CustomDiceConfig";
     private final DiceSystemAdapter diceSystemAdapter;
 
-    public CustomDiceCommand(PersistanceManager persistanceManager, CachingDiceEvaluator cachingDiceEvaluator) {
-        this(persistanceManager, new DiceParser(), cachingDiceEvaluator);
+    public CustomDiceCommand(PersistenceManager persistenceManager, CachingDiceEvaluator cachingDiceEvaluator) {
+        this(persistenceManager, new DiceParser(), cachingDiceEvaluator);
     }
 
     @VisibleForTesting
-    public CustomDiceCommand(PersistanceManager persistanceManager, Dice dice, CachingDiceEvaluator cachingDiceEvaluator) {
-        super(persistanceManager);
+    public CustomDiceCommand(PersistenceManager persistenceManager, Dice dice, CachingDiceEvaluator cachingDiceEvaluator) {
+        super(persistenceManager);
         this.diceSystemAdapter = new DiceSystemAdapter(cachingDiceEvaluator, dice);
     }
 
@@ -52,7 +52,7 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
                                                                                                            long messageId,
                                                                                                            @NonNull String buttonValue,
                                                                                                            @NonNull String invokingUserName) {
-        final Optional<MessageDataDTO> messageDataDTO = persistanceManager.getDataForMessage(channelId, messageId);
+        final Optional<MessageDataDTO> messageDataDTO = persistenceManager.getDataForMessage(channelId, messageId);
         return messageDataDTO.map(dataDTO -> deserializeAndUpdateState(dataDTO, buttonValue));
     }
 

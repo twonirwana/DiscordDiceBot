@@ -6,7 +6,7 @@ import de.janno.discord.bot.command.AnswerFormatType;
 import de.janno.discord.bot.dice.CachingDiceEvaluator;
 import de.janno.discord.bot.dice.DiceEvaluatorAdapter;
 import de.janno.discord.bot.persistance.ChannelConfigDTO;
-import de.janno.discord.bot.persistance.PersistanceManager;
+import de.janno.discord.bot.persistance.PersistenceManager;
 import de.janno.discord.connector.api.Requester;
 import de.janno.discord.connector.api.SlashEventAdaptor;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
@@ -33,7 +33,7 @@ class DirectRollCommandTest {
 
     @BeforeEach
     void setup() {
-        underTest = new DirectRollCommand(mock(PersistanceManager.class), new CachingDiceEvaluator((minExcl, maxIncl) -> 1, 1000, 0));
+        underTest = new DirectRollCommand(mock(PersistenceManager.class), new CachingDiceEvaluator((minExcl, maxIncl) -> 1, 1000, 0));
     }
 
 

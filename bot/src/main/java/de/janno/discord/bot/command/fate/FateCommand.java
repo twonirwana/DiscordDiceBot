@@ -8,7 +8,7 @@ import de.janno.discord.bot.command.*;
 import de.janno.discord.bot.dice.DiceUtils;
 import de.janno.discord.bot.persistance.Mapper;
 import de.janno.discord.bot.persistance.MessageDataDTO;
-import de.janno.discord.bot.persistance.PersistanceManager;
+import de.janno.discord.bot.persistance.PersistenceManager;
 import de.janno.discord.connector.api.BottomCustomIdUtils;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
@@ -37,13 +37,13 @@ public class FateCommand extends AbstractCommand<FateConfig, StateData> {
     private final DiceUtils diceUtils;
 
     @VisibleForTesting
-    public FateCommand(PersistanceManager persistanceManager, DiceUtils diceUtils) {
-        super(persistanceManager);
+    public FateCommand(PersistenceManager persistenceManager, DiceUtils diceUtils) {
+        super(persistenceManager);
         this.diceUtils = diceUtils;
     }
 
-    public FateCommand(PersistanceManager persistanceManager) {
-        this(persistanceManager, new DiceUtils());
+    public FateCommand(PersistenceManager persistenceManager) {
+        this(persistenceManager, new DiceUtils());
     }
 
     @Override
@@ -51,7 +51,7 @@ public class FateCommand extends AbstractCommand<FateConfig, StateData> {
                                                                                                      long messageId,
                                                                                                      @NonNull String buttonValue,
                                                                                                      @NonNull String invokingUserName) {
-        final Optional<MessageDataDTO> messageDataDTO = persistanceManager.getDataForMessage(channelId, messageId);
+        final Optional<MessageDataDTO> messageDataDTO = persistenceManager.getDataForMessage(channelId, messageId);
         return messageDataDTO.map(dataDTO -> deserializeAndUpdateState(dataDTO, buttonValue));
     }
 
