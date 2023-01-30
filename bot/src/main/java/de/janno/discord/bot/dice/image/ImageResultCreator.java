@@ -54,7 +54,7 @@ public class ImageResultCreator {
         }
 
         Gauge.builder("diceImage.cache", () -> {
-            try (Stream<Path> files = Files.list(Paths.get(CACHE_INDEX))) {
+            try (Stream<Path> files = Files.list(Paths.get(CACHE_FOLDER))) {
                 return files.count();
             } catch (IOException e) {
                 return -1;
