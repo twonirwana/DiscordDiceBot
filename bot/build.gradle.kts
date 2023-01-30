@@ -33,7 +33,7 @@ dependencies {
 
     testImplementation("io.projectreactor:reactor-test:3.5.2")
     testImplementation("org.junit.jupiter:junit-jupiter-params:5.9.2")
-    testImplementation("org.mockito:mockito-core:5.0.0")
+    testImplementation("org.mockito:mockito-core:5.1.0")
     testImplementation("org.mockito:mockito-inline:5.1.0")
     testImplementation("io.projectreactor:reactor-test")
     testImplementation("commons-io:commons-io:2.11.0")
