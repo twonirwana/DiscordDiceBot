@@ -23,7 +23,7 @@ dependencies {
     implementation(libs.commons.lang3)
     implementation("io.micrometer:micrometer-registry-prometheus:1.10.3")
     implementation("com.h2database:h2:2.1.214")
-    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.14.1")
+    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.14.2")
 
     testImplementation(libs.junit.jupiter.api)
     testRuntimeOnly(libs.junit.jupiter.engine)
