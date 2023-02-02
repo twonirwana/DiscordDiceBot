@@ -38,7 +38,7 @@ Some example for commands, many more systems can be mapped, please see in the de
 [discrete]
 === DnD 5e
 
-`/custom_dice start buttons:1d4;1d6;1d8;1d10;1d12;1d20;1d100;2d20k1@D20 Advantage;2d20L1@D20 Disadvantage;2d4;2d6;2d8;2d10;2d12;2d20;3d4;3d6;3d8;3d10;3d12;3d20`
+`/custom_dice start buttons:1d4;1d6;1d8;1d10;1d12;1d20;1d100;2d20k1@D20 Advantage;2d20L1@D20 Disadvantage;2d4=@2d4;2d6=@2d6;2d8=@2d8;2d10=@2d10;2d12=@2d12;2d20=@2d20;3d4=@3d4;3d6=@3d6;3d8=@3d8;3d10=@3d10;3d12=@3d12;3d20=@3d20`
 
 [discrete]
 === OSR
@@ -92,6 +92,21 @@ Some example for commands, many more systems can be mapped, please see in the de
 === Universal Dice Calculator ===
 
 `/sum_custom_set start buttons: 7;8;9;+;-;4;5;6;d;k;1;2;3;0;l always_sum_result: true`
+
+[discrete]
+=== Exalted 3rd ===
+
+`/custom_parameter start expression: val('$1', cancel(double({number of dice:1<=>24}d10,10),1,[7/8/9/10])), ifE(('$1'>=7)c,0,ifG(('$1'<=1)c,0,'Botch'))`
+
+[discrete]
+=== Vampire 5ed ===
+
+`/custom_parameter start expression: val('$r',{regular dice:1<=>16}d10) val('$h',{hunger dice:0<=>5}d10) val('$s',('$r'+'$h')>=6c) val('$rt','$r'==10c) val('$ht','$h'==10c) val('$ho','$h'==1c) val('$2s',((('$rt'+'$ht'=))/2)*2) val('$ts',('$s'+'$2s'=)) concat('successes: ', '$ts', ifE('$ts',0,ifG('$ho',1,' bestial failure' , ''),''), ifE('$rt' mod 2, 1, ifE('$ht' mod 2, 1, ' messy critical', ''), '')) answer_format: without_expression`
+
+[discrete]
+=== One-Roll Engine ===
+
+`/custom_parameter start expression: groupc({Number of Dice:1<=>10}d10+({Number of Extra Die:0@0/10@1/2r10@2/3r10@3/4r10@4})>={Difficulty:1<=>10})`
 
 == Commands
 
