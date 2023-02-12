@@ -6,7 +6,7 @@ import de.janno.discord.bot.command.*;
 import de.janno.discord.bot.dice.DiceUtils;
 import de.janno.discord.bot.persistance.PersistenceManager;
 import de.janno.discord.bot.persistance.PersistenceManagerImpl;
-import de.janno.discord.bot.persistance.MessageDataDTO;
+import de.janno.discord.bot.persistance.MessageStateDTO;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
@@ -420,11 +420,11 @@ class SumDiceSetCommandTest {
         UUID configUUID = UUID.randomUUID();
         Config config = new Config(123L, AnswerFormatType.full, ResultImage.none);
         State<SumDiceSetStateData> state = new State<>("+1d6", new SumDiceSetStateData(ImmutableList.of(new DiceKeyAndValue("d6", 3), new DiceKeyAndValue("m", -4))));
-        Optional<MessageDataDTO> toSave = underTest.createMessageDataForNewMessage(configUUID, 1L, channelId, messageId, config, state);
-        persistenceManager.saveMessageData(toSave.orElseThrow());
+        Optional<MessageStateDTO> toSave = underTest.createMessageDataForNewMessage(configUUID, 1L, channelId, messageId, config, state);
+        persistenceManager.saveMessageState(toSave.orElseThrow());
         underTest.updateCurrentMessageStateData(channelId, messageId, config, state);
 
-        MessageDataDTO loaded = persistenceManager.getDataForMessage(channelId, messageId).orElseThrow();
+        MessageStateDTO loaded = persistenceManager.getStateForMessage(channelId, messageId).orElseThrow();
 
         ConfigAndState<Config, SumDiceSetStateData> configAndState = underTest.deserializeAndUpdateState(loaded, "+1d6");
         assertThat(configAndState.getConfig()).isEqualTo(config);
@@ -435,7 +435,7 @@ class SumDiceSetCommandTest {
     @Test
     void deserialization_legacy() {
         UUID configUUID = UUID.randomUUID();
-        MessageDataDTO savedData = new MessageDataDTO(configUUID, 1L, 1660644934298L, 1660644934298L, "sum_dice_set", "Config", """
+        MessageStateDTO savedData = new MessageStateDTO(configUUID, 1L, 1660644934298L, 1660644934298L, "sum_dice_set", "Config", """
                 ---
                 answerTargetChannelId: 123
                 """, "SumDiceSetStateData", """
@@ -457,7 +457,7 @@ class SumDiceSetCommandTest {
     @Test
     void deserialization() {
         UUID configUUID = UUID.randomUUID();
-        MessageDataDTO savedData = new MessageDataDTO(configUUID, 1L, 1660644934298L, 1660644934298L, "sum_dice_set", "Config", """
+        MessageStateDTO savedData = new MessageStateDTO(configUUID, 1L, 1660644934298L, 1660644934298L, "sum_dice_set", "Config", """
                 ---
                 answerTargetChannelId: 123
                 answerFormatType: compact

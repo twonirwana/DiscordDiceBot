@@ -18,26 +18,31 @@ import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Slf4j
 public class DatabaseInitiator {
 
-    public DatabaseInitiator(@NonNull String url, @Nullable String user, @Nullable String password) {
+    public static void initialize(@NonNull String url, @Nullable String user, @Nullable String password) {
         JdbcConnectionPool connectionPool = JdbcConnectionPool.create(url, user, password);
 
         List<Migration> allMigrations = readMigrations();
-        log.info("found migrations: {}", allMigrations);
+        log.info("found migrations: {}", allMigrations.stream().map(Migration::getName).collect(Collectors.joining(", ")));
         List<String> alreadyAppliedMigrations = getAlreadyAppliedMigrations(connectionPool);
         log.info("db migration status: {}", alreadyAppliedMigrations);
-
+        applyMissingMigrations(allMigrations, alreadyAppliedMigrations, connectionPool);
     }
 
-    private void applyMissingMigrations(List<Migration> allMigrations, List<String> alreadyAppliedMigrations, JdbcConnectionPool connectionPool) {
+    private static void applyMissingMigrations(List<Migration> allMigrations, List<String> alreadyAppliedMigrations, JdbcConnectionPool connectionPool) {
+        Preconditions.checkArgument(allMigrations.stream().map(Migration::getOrder).distinct().count() == allMigrations.size(), "Duplicate migration order");
+        Preconditions.checkArgument(allMigrations.stream().map(Migration::getName).distinct().count() == allMigrations.size(), "Duplicate migration name");
+
         allMigrations.stream()
                 .filter(m -> !alreadyAppliedMigrations.contains(m.getName()))
                 .sorted(Comparator.comparing(Migration::getOrder))
                 .forEach(m -> {
+                    log.info("Start executing {}", m.getName());
                     try (Connection connection = connectionPool.getConnection()) {
                         Statement statement = connection.createStatement();
                         statement.execute(m.getSql());
@@ -48,17 +53,19 @@ public class DatabaseInitiator {
                             preparedStatement.execute();
                         }
                     } catch (SQLException e) {
+                        log.error("Error in {}", m.getName());
                         throw new RuntimeException(e);
                     }
+                    log.info("Finish executing {}", m.getName());
                 });
     }
 
-    private List<String> getAlreadyAppliedMigrations(JdbcConnectionPool connectionPool) {
+    private static List<String> getAlreadyAppliedMigrations(JdbcConnectionPool connectionPool) {
         try (Connection connection = connectionPool.getConnection()) {
             Statement statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery("select MIGRATION_NAME from DB_VERSION");
             ImmutableList.Builder<String> builder = ImmutableList.builder();
-            if (resultSet.next()) {
+            while (resultSet.next()) {
                 builder.add(resultSet.getString("MIGRATION_NAME"));
             }
             return builder.build();
@@ -67,34 +74,37 @@ public class DatabaseInitiator {
         }
     }
 
-    private List<Migration> readMigrations() {
+    private static List<Migration> readMigrations() {
         try (Stream<Path> stream = Files.list(Paths.get(Resources.getResource("db/migrations").toURI()))) {
             return stream
                     .filter(file -> !Files.isDirectory(file))
-                    .map(this::readMigration)
+                    .map(DatabaseInitiator::readMigration)
                     .toList();
         } catch (IOException | URISyntaxException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private Migration readMigration(Path filePath) {
-        Preconditions.checkArgument(filePath.getFileName().toString().contains("_"));
-        Preconditions.checkArgument(filePath.getFileName().endsWith("sql"));
-        String content = null;
+    private static Migration readMigration(Path filePath) {
+        Preconditions.checkArgument(filePath.getFileName().toString().contains("_"), "Wrong file format: {}", filePath);
+        Preconditions.checkArgument(filePath.getFileName().toString().endsWith("sql"), "Wrong file format: {}", filePath);
+        String content;
         try {
             content = Files.readString(filePath);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        String[] split = filePath.getFileName().toString().split("_");
-        return new Migration(Integer.parseInt(split[0]), split[1], content);
+        String fileName = filePath.getFileName().toString();
+        int firstUnderscoreIndex = fileName.indexOf("_");
+        String order = fileName.substring(0, firstUnderscoreIndex);
+        String name = fileName.substring(firstUnderscoreIndex + 1, fileName.length() - 4);
+        return new Migration(order, name, content);
     }
 
 
     @Value
     private static class Migration {
-        int order;
+        String order;
         String name;
         String sql;
     }

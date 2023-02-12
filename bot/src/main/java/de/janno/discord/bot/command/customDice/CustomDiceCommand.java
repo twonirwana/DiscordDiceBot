@@ -8,7 +8,7 @@ import de.janno.discord.bot.ResultImage;
 import de.janno.discord.bot.command.*;
 import de.janno.discord.bot.dice.*;
 import de.janno.discord.bot.persistance.Mapper;
-import de.janno.discord.bot.persistance.MessageDataDTO;
+import de.janno.discord.bot.persistance.MessageConfigDTO;
 import de.janno.discord.bot.persistance.PersistenceManager;
 import de.janno.discord.connector.api.BottomCustomIdUtils;
 import de.janno.discord.connector.api.message.ButtonDefinition;
@@ -48,32 +48,26 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
     }
 
     @Override
-    protected Optional<ConfigAndState<CustomDiceConfig, StateData>> getMessageDataAndUpdateWithButtonValue(long channelId,
+    protected Optional<ConfigAndState<CustomDiceConfig, StateData>> getMessageDataAndUpdateWithButtonValue(@Nullable UUID configId,
+                                                                                                           long channelId,
                                                                                                            long messageId,
                                                                                                            @NonNull String buttonValue,
                                                                                                            @NonNull String invokingUserName) {
-        final Optional<MessageDataDTO> messageDataDTO = persistenceManager.getDataForMessage(channelId, messageId);
-        return messageDataDTO.map(dataDTO -> deserializeAndUpdateState(dataDTO, buttonValue));
+        final Optional<MessageConfigDTO> messageConfigDTO = getMessageConfigDTO(configId, channelId, messageId);
+        return messageConfigDTO.map(dataDTO -> deserializeAndUpdateState(dataDTO, buttonValue));
     }
 
     @VisibleForTesting
-    ConfigAndState<CustomDiceConfig, StateData> deserializeAndUpdateState(@NonNull MessageDataDTO messageDataDTO, @NonNull String buttonValue) {
-        Preconditions.checkArgument(CONFIG_TYPE_ID.equals(messageDataDTO.getConfigClassId()), "Unknown configClassId: %s", messageDataDTO.getConfigClassId());
-        return new ConfigAndState<>(messageDataDTO.getConfigUUID(),
-                Mapper.deserializeObject(messageDataDTO.getConfig(), CustomDiceConfig.class),
+    ConfigAndState<CustomDiceConfig, StateData> deserializeAndUpdateState(@NonNull MessageConfigDTO messageConfigDTO, @NonNull String buttonValue) {
+        Preconditions.checkArgument(CONFIG_TYPE_ID.equals(messageConfigDTO.getConfigClassId()), "Unknown configClassId: %s", messageConfigDTO.getConfigClassId());
+        return new ConfigAndState<>(messageConfigDTO.getConfigUUID(),
+                Mapper.deserializeObject(messageConfigDTO.getConfig(), CustomDiceConfig.class),
                 new State<>(buttonValue, StateData.empty()));
     }
 
     @Override
-    public Optional<MessageDataDTO> createMessageDataForNewMessage(@NonNull UUID configUUID,
-                                                                   long guildId,
-                                                                   long channelId,
-                                                                   long messageId,
-                                                                   @NonNull CustomDiceConfig config,
-                                                                   @Nullable State<StateData> state) {
-        return Optional.of(new MessageDataDTO(configUUID, guildId, channelId, messageId, getCommandId(), CONFIG_TYPE_ID,
-                Mapper.serializedObject(config),
-                Mapper.NO_PERSISTED_STATE, null));
+    public Optional<MessageConfigDTO> createMessageConfig(@NonNull UUID configUUID, long guildId, long channelId, @NonNull CustomDiceConfig config) {
+        return Optional.of(new MessageConfigDTO(configUUID, guildId, channelId, getCommandId(), CONFIG_TYPE_ID, Mapper.serializedObject(config)));
     }
 
     @Override
@@ -178,22 +172,22 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
     }
 
     @Override
-    protected @NonNull Optional<MessageDefinition> createNewButtonMessageWithState(CustomDiceConfig config, State<StateData> state) {
-        return Optional.of(createNewButtonMessage(config));
+    protected @NonNull Optional<MessageDefinition> createNewButtonMessageWithState(UUID configUUID, CustomDiceConfig config, State<StateData> state, long guildId, long channelId) {
+        return Optional.of(createNewButtonMessage(configUUID, config));
     }
 
     @Override
-    public @NonNull MessageDefinition createNewButtonMessage(CustomDiceConfig config) {
+    public @NonNull MessageDefinition createNewButtonMessage(UUID configUUID, CustomDiceConfig config) {
         return MessageDefinition.builder()
                 .content(BUTTON_MESSAGE)
-                .componentRowDefinitions(createButtonLayout(config))
+                .componentRowDefinitions(createButtonLayout(configUUID, config))
                 .build();
     }
 
-    private List<ComponentRowDefinition> createButtonLayout(CustomDiceConfig config) {
+    private List<ComponentRowDefinition> createButtonLayout(UUID configUUID, CustomDiceConfig config) {
         List<ButtonDefinition> buttons = config.getButtonIdLabelAndDiceExpressions().stream()
                 .map(d -> ButtonDefinition.builder()
-                        .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), d.getButtonId()))
+                        .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), d.getButtonId(), configUUID))
                         .label(d.getLabel())
                         .build())
                 .collect(Collectors.toList());

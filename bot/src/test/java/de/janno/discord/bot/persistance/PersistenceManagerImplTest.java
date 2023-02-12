@@ -24,11 +24,11 @@ class PersistenceManagerImplTest {
     void getAllMessageIdsForConfig() {
         UUID uuid = UUID.randomUUID();
         Flux.range(1, 3)
-                .map(i -> new MessageDataDTO(uuid, 1L, 1L, i, "testCommand", "testConfigClass", "configClass"))
+                .map(i -> new MessageStateDTO(uuid, 1L, 1L, i, "testCommand", "testConfigClass", "configClass"))
                 .delayElements(Duration.ofMillis(10))
-                .doOnNext(underTest::saveMessageData)
+                .doOnNext(underTest::saveMessageState)
                 .blockLast();
-        underTest.saveMessageData(new MessageDataDTO(UUID.randomUUID(), 1L, 2L, 5L, "testCommand", "testConfigClass", "configClass"));
+        underTest.saveMessageState(new MessageStateDTO(UUID.randomUUID(), 1L, 2L, 5L, "testCommand", "testConfigClass", "configClass"));
 
         Set<Long> res = underTest.getAllMessageIdsForConfig(uuid);
         System.out.println(res);
@@ -37,35 +37,35 @@ class PersistenceManagerImplTest {
 
     @Test
     void deleteDataForMessage() {
-        underTest.saveMessageData(new MessageDataDTO(UUID.randomUUID(), 1L, 2L, 4L, "testCommand", "testConfigClass", "configClass"));
-        underTest.saveMessageData(new MessageDataDTO(UUID.randomUUID(), 1L, 2L, 5L, "testCommand", "testConfigClass", "configClass"));
+        underTest.saveMessageState(new MessageStateDTO(UUID.randomUUID(), 1L, 2L, 4L, "testCommand", "testConfigClass", "configClass"));
+        underTest.saveMessageState(new MessageStateDTO(UUID.randomUUID(), 1L, 2L, 5L, "testCommand", "testConfigClass", "configClass"));
 
-        underTest.deleteDataForMessage(2L, 4L);
+        underTest.deleteStateForMessage(2L, 4L);
 
-        assertThat(underTest.getDataForMessage(2L, 4L)).isEmpty();
-        assertThat(underTest.getDataForMessage(2L, 5L)).isPresent();
+        assertThat(underTest.getStateForMessage(2L, 4L)).isEmpty();
+        assertThat(underTest.getStateForMessage(2L, 5L)).isPresent();
     }
 
     @Test
     void deleteDataForChannel() {
-        underTest.saveMessageData(new MessageDataDTO(UUID.randomUUID(), 1L, 2L, 4L, "testCommand", "testConfigClass", "configClass"));
-        underTest.saveMessageData(new MessageDataDTO(UUID.randomUUID(), 1L, 2L, 5L, "testCommand", "testConfigClass", "configClass"));
-        underTest.saveMessageData(new MessageDataDTO(UUID.randomUUID(), 1L, 3L, 6L, "testCommand", "testConfigClass", "configClass"));
+        underTest.saveMessageState(new MessageStateDTO(UUID.randomUUID(), 1L, 2L, 4L, "testCommand", "testConfigClass", "configClass"));
+        underTest.saveMessageState(new MessageStateDTO(UUID.randomUUID(), 1L, 2L, 5L, "testCommand", "testConfigClass", "configClass"));
+        underTest.saveMessageState(new MessageStateDTO(UUID.randomUUID(), 1L, 3L, 6L, "testCommand", "testConfigClass", "configClass"));
 
         Set<Long> res = underTest.deleteMessageDataForChannel(2L);
 
         assertThat(res).containsExactly(4L, 5L);
-        assertThat(underTest.getDataForMessage(2L, 4L)).isEmpty();
-        assertThat(underTest.getDataForMessage(2L, 5L)).isEmpty();
-        assertThat(underTest.getDataForMessage(3L, 6L)).isPresent();
+        assertThat(underTest.getStateForMessage(2L, 4L)).isEmpty();
+        assertThat(underTest.getStateForMessage(2L, 5L)).isEmpty();
+        assertThat(underTest.getStateForMessage(3L, 6L)).isPresent();
     }
 
     @Test
     void getAllGuildIds() {
-        underTest.saveMessageData(new MessageDataDTO(UUID.randomUUID(), 1L, 2L, 4L, "testCommand", "testConfigClass", "configClass"));
-        underTest.saveMessageData(new MessageDataDTO(UUID.randomUUID(), null, 2L, 5L, "testCommand", "testConfigClass", "configClass"));
-        underTest.saveMessageData(new MessageDataDTO(UUID.randomUUID(), 2L, 3L, 6L, "testCommand", "testConfigClass", "configClass"));
-        underTest.saveMessageData(new MessageDataDTO(UUID.randomUUID(), 2L, 4L, 7L, "testCommand", "testConfigClass", "configClass"));
+        underTest.saveMessageState(new MessageStateDTO(UUID.randomUUID(), 1L, 2L, 4L, "testCommand", "testConfigClass", "configClass"));
+        underTest.saveMessageState(new MessageStateDTO(UUID.randomUUID(), null, 2L, 5L, "testCommand", "testConfigClass", "configClass"));
+        underTest.saveMessageState(new MessageStateDTO(UUID.randomUUID(), 2L, 3L, 6L, "testCommand", "testConfigClass", "configClass"));
+        underTest.saveMessageState(new MessageStateDTO(UUID.randomUUID(), 2L, 4L, 7L, "testCommand", "testConfigClass", "configClass"));
 
         Set<Long> res = underTest.getAllGuildIds();
 
@@ -74,13 +74,13 @@ class PersistenceManagerImplTest {
 
     @Test
     void updateCommandConfigOfMessage() {
-        underTest.saveMessageData(new MessageDataDTO(UUID.randomUUID(), 1L, 2L, 4L, "testCommand", "testConfigClass", "configClass"));
+        underTest.saveMessageState(new MessageStateDTO(UUID.randomUUID(), 1L, 2L, 4L, "testCommand", "testConfigClass", "configClass"));
 
-        underTest.updateCommandConfigOfMessage(2L, 4L, "testConfigClass2", "state2");
+        underTest.updateOrCrateStateOfMessage(2L, 4L, "testConfigClass2", "state2");
 
-        Optional<MessageDataDTO> res = underTest.getDataForMessage(2L, 4L);
-        assertThat(res.map(MessageDataDTO::getStateData)).contains("state2");
-        assertThat(res.map(MessageDataDTO::getStateDataClassId)).contains("testConfigClass2");
+        Optional<MessageStateDTO> res = underTest.getStateForMessage(2L, 4L);
+        assertThat(res.map(MessageStateDTO::getStateData)).contains("state2");
+        assertThat(res.map(MessageStateDTO::getStateDataClassId)).contains("testConfigClass2");
     }
 
     @Test

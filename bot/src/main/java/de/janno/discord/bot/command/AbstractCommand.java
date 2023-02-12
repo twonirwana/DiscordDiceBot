@@ -5,8 +5,8 @@ import com.google.common.base.Stopwatch;
 import com.google.common.collect.ImmutableList;
 import de.janno.discord.bot.BotMetrics;
 import de.janno.discord.bot.ResultImage;
+import de.janno.discord.bot.persistance.MessageConfigDTO;
 import de.janno.discord.bot.persistance.PersistenceManager;
-import de.janno.discord.bot.persistance.MessageDataDTO;
 import de.janno.discord.connector.api.*;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
@@ -56,7 +56,6 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
     }
 
 
-
     protected ResultImage defaultResultImage() {
         return ResultImage.polyhedral_3d_red_and_white;
     }
@@ -76,13 +75,13 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
     @Override
     public CommandDefinition getCommandDefinition() {
         List<CommandDefinitionOption> baseOptions = new ArrayList<>();
-        if(supportsTargetChannel()){
+        if (supportsTargetChannel()) {
             baseOptions.add(ANSWER_TARGET_CHANNEL_COMMAND_OPTION);
         }
-        if(supportsAnswerFormat()){
+        if (supportsAnswerFormat()) {
             baseOptions.add(ANSWER_FORMAT_COMMAND_OPTION);
         }
-        if(supportsResultImages()){
+        if (supportsResultImages()) {
             baseOptions.add(RESULT_IMAGE_COMMAND_OPTION);
         }
         return CommandDefinition.builder()
@@ -104,15 +103,15 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
                 .build();
     }
 
-    protected boolean supportsResultImages(){
+    protected boolean supportsResultImages() {
         return true;
     }
 
-    protected boolean supportsAnswerFormat(){
+    protected boolean supportsAnswerFormat() {
         return true;
     }
 
-    protected boolean supportsTargetChannel(){
+    protected boolean supportsTargetChannel() {
         return true;
     }
 
@@ -120,27 +119,33 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
         return Collections.emptyList();
     }
 
-    protected Optional<List<ComponentRowDefinition>> getCurrentMessageComponentChange(C config, State<S> state) {
+    protected Optional<List<ComponentRowDefinition>> getCurrentMessageComponentChange(UUID configUUID, C config, State<S> state) {
         return Optional.empty();
     }
 
-    protected abstract Optional<ConfigAndState<C, S>> getMessageDataAndUpdateWithButtonValue(long channelId,
+    protected abstract Optional<ConfigAndState<C, S>> getMessageDataAndUpdateWithButtonValue(@Nullable UUID configId,
+                                                                                             long channelId,
                                                                                              long messageId,
                                                                                              @NonNull String buttonValue,
                                                                                              @NonNull String invokingUserName);
 
-    //visible for welcome message
-    public abstract Optional<MessageDataDTO> createMessageDataForNewMessage(@NonNull UUID configUUID,
-                                                                            long guildId,
-                                                                            long channelId,
-                                                                            long messageId,
-                                                                            @NonNull C config,
-                                                                            @Nullable State<S> state);
+    protected @NonNull Optional<MessageConfigDTO> getMessageConfigDTO(@Nullable UUID configId, long channelId, long messageId) {
+        if (configId != null) {
+            return persistenceManager.getConfig(configId);
+        }
+        return persistenceManager.getConfigFromMessage(channelId, messageId);
+    }
+
+    //visible for welcome command
+    public abstract Optional<MessageConfigDTO> createMessageConfig(@NonNull UUID configUUID,
+                                                                   long guildId,
+                                                                   long channelId,
+                                                                   @NonNull C config);
 
     /**
      * update the saved state if the current button message is not deleted. StateData need to be set to null if the there is a answer message
      */
-    protected void updateCurrentMessageStateData(long channelId, long messageId, @NonNull C config, @NonNull State<S> state) {
+    protected void updateCurrentMessageStateData(UUID configUUID, long guildId, long channelId, long messageId, @NonNull C config, @NonNull State<S> state) {
     }
 
     @Override
@@ -148,6 +153,7 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
         Stopwatch stopwatch = Stopwatch.createStarted();
         final long messageId = event.getMessageId();
         final long channelId = event.getChannelId();
+        final long guildId = event.getGuildId();
         final boolean isLegacyMessage = BottomCustomIdUtils.isLegacyCustomId(event.getCustomId());
         final C config;
         final State<S> state;
@@ -158,7 +164,9 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
             return event.reply("The button uses an old format that isn't supported anymore. Please delete it and create a new button message with a slash command.", false);
         } else {
             final String buttonValue = BottomCustomIdUtils.getButtonValueFromCustomId(event.getCustomId());
-            final Optional<ConfigAndState<C, S>> messageData = getMessageDataAndUpdateWithButtonValue(channelId,
+            final Optional<UUID> configUUIDFromCustomID = BottomCustomIdUtils.getConfigUUIDFromCustomIdWithPersistence(event.getCustomId());
+            //todo metrics
+            final Optional<ConfigAndState<C, S>> messageData = getMessageDataAndUpdateWithButtonValue(configUUIDFromCustomID.orElse(null), channelId,
                     messageId,
                     buttonValue,
                     event.getInvokingGuildMemberName());
@@ -185,13 +193,13 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
         Optional<List<ComponentRowDefinition>> editMessageComponents;
         if (keepExistingButtonMessage || answerTargetChannelId != null) {
             //if the old button is pined or the result is copied to another channel, the old message will be edited or reset to the slash default
-            editMessage = getCurrentMessageContentChange(config, state).orElse(createNewButtonMessage(config).getContent());
-            editMessageComponents = Optional.ofNullable(getCurrentMessageComponentChange(config, state)
-                    .orElse(createNewButtonMessage(config).getComponentRowDefinitions()));
+            editMessage = getCurrentMessageContentChange(config, state).orElse(createNewButtonMessage(configUUID, config).getContent());
+            editMessageComponents = Optional.ofNullable(getCurrentMessageComponentChange(configUUID, config, state)
+                    .orElse(createNewButtonMessage(configUUID, config).getComponentRowDefinitions()));
         } else {
             //edit the current message if the command changes it or mark it as processing
             editMessage = getCurrentMessageContentChange(config, state).orElse("processing ...");
-            editMessageComponents = getCurrentMessageComponentChange(config, state);
+            editMessageComponents = getCurrentMessageComponentChange(configUUID, config, state);
         }
         //Todo check if message/button are the same. If the message will deleted it should always be "processing...".
         //Todo Remove buttons on set to "processing ..."?
@@ -215,16 +223,13 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
                     })));
 
         }
-        Optional<MessageDefinition> newButtonMessage = createNewButtonMessageWithState(config, state);
+        Optional<MessageDefinition> newButtonMessage = createNewButtonMessageWithState(configUUID, config, state, guildId, channelId);
 
         final boolean deleteCurrentButtonMessage;
         if (newButtonMessage.isPresent() && answerTargetChannelId == null) {
-            actions.add(Mono.defer(() -> event.createButtonMessage(newButtonMessage.get())
-                            .flatMap(newMessageId -> {
-                                final Optional<MessageDataDTO> nextMessageData = createMessageDataForNewMessage(configUUID, event.getGuildId(), channelId, newMessageId, config, state);
-                                nextMessageData.ifPresent(persistenceManager::saveMessageData);
-                                return deleteOldAndConcurrentMessageAndData(newMessageId, configUUID, channelId, event);
-                            })).delaySubscription(calculateDelay(event))
+            actions.add(Mono.defer(() -> event.createButtonMessage(newButtonMessage.get()))
+                    .flatMap(newMessageId -> deleteOldAndConcurrentMessageAndData(newMessageId, configUUID, channelId, event))
+                    .delaySubscription(calculateDelay(event))
                     .doOnSuccess(v -> BotMetrics.timerNewButtonMessageMetricCounter(getCommandId(), stopwatch.elapsed()))
                     .then());
             deleteCurrentButtonMessage = !keepExistingButtonMessage;
@@ -237,7 +242,7 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
                     .then(deleteMessageDataWithDelay(channelId, messageId))));
         } else {
             //don't update the state data async or there will be racing conditions
-            updateCurrentMessageStateData(channelId, messageId, config, state);
+            updateCurrentMessageStateData(configUUID, guildId, channelId, messageId, config, state);
         }
 
         return Flux.merge(1, actions.toArray(new Mono<?>[0]))
@@ -264,7 +269,7 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
                 .delayElement(delayMessageDataDeletion)
                 .doOnNext(v -> {
                     MESSAGE_DATA_IDS_TO_DELETE.remove(messageId);
-                    persistenceManager.deleteDataForMessage(channelId, messageId);
+                    persistenceManager.deleteStateForMessage(channelId, messageId);
                 }).ofType(Void.class));
     }
 
@@ -336,6 +341,7 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
                 return event.reply(String.format("%s\n%s", commandString, validationMessage.get()), true);
             }
             C config = getConfigFromStartOptions(options);
+            UUID configUUID = UUID.randomUUID();
             BotMetrics.incrementSlashStartMetricCounter(getCommandId(), config.toShortString());
 
             long channelId = event.getChannelId();
@@ -343,14 +349,11 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
                     event.getRequester().toLogString(),
                     commandString.replace("`", ""));
             return event.reply(commandString, false)
-                    .then(event.createButtonMessage(createNewButtonMessage(config))
-                            .map(newMessageId -> {
-                                final Optional<MessageDataDTO> newMessageData = createMessageDataForNewMessage(UUID.randomUUID(), event.getGuildId(), channelId, newMessageId, config, null);
-                                newMessageData.ifPresent(persistenceManager::saveMessageData);
-                                return newMessageId;
-                            })
-                            .then()
-                    );
+                    .then(Mono.defer(() -> {
+                        final Optional<MessageConfigDTO> newMessageConfig = createMessageConfig(configUUID, event.getGuildId(), channelId, config);
+                        newMessageConfig.ifPresent(persistenceManager::saveConfig);
+                        return event.createButtonMessage(createNewButtonMessage(configUUID, config)).then();
+                    }));
 
         } else if (event.getOption(ACTION_HELP).isPresent()) {
             BotMetrics.incrementSlashHelpMetricCounter(getCommandId());
@@ -378,14 +381,14 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
     /**
      * The new button message, after a button event
      */
-    protected abstract @NonNull Optional<MessageDefinition> createNewButtonMessageWithState(C config, State<S> state);
+    protected abstract @NonNull Optional<MessageDefinition> createNewButtonMessageWithState(UUID configId, C config, State<S> state, long guildId, long channelId);
 
     protected abstract @NonNull Optional<RollAnswer> getAnswer(C config, State<S> state);
 
     /**
      * The new button message, after a slash event
      */
-    public abstract @NonNull MessageDefinition createNewButtonMessage(C config);
+    public abstract @NonNull MessageDefinition createNewButtonMessage(UUID configId, C config);
 
     protected @NonNull Optional<String> getStartOptionsValidationMessage(@NonNull CommandInteractionOption options) {
         //standard is no validation

@@ -10,7 +10,7 @@ import de.janno.discord.bot.dice.CachingDiceEvaluator;
 import de.janno.discord.bot.dice.Dice;
 import de.janno.discord.bot.dice.DiceParser;
 import de.janno.discord.bot.dice.DiceParserSystem;
-import de.janno.discord.bot.persistance.MessageDataDTO;
+import de.janno.discord.bot.persistance.MessageStateDTO;
 import de.janno.discord.bot.persistance.PersistenceManager;
 import de.janno.discord.bot.persistance.PersistenceManagerImpl;
 import de.janno.discord.connector.api.slash.CommandDefinitionOption;
@@ -209,11 +209,11 @@ class CustomParameterCommandTest {
         State<CustomParameterStateData> state = new State<>("5", new CustomParameterStateData(List.of(
                 new SelectedParameter("{n}", "n", "5", "5"),
                 new SelectedParameter("{s}", "s", null, null)), "userName"));
-        Optional<MessageDataDTO> toSave = underTest.createMessageDataForNewMessage(configUUID, 1L, channelId, messageId, config, state);
-        persistenceManager.saveMessageData(toSave.orElseThrow());
+        Optional<MessageStateDTO> toSave = underTest.createMessageDataForNewMessage(configUUID, 1L, channelId, messageId, config, state);
+        persistenceManager.saveMessageState(toSave.orElseThrow());
         underTest.updateCurrentMessageStateData(channelId, messageId, config, state);
 
-        MessageDataDTO loaded = persistenceManager.getDataForMessage(channelId, messageId).orElseThrow();
+        MessageStateDTO loaded = persistenceManager.getStateForMessage(channelId, messageId).orElseThrow();
 
         ConfigAndState<CustomParameterConfig, CustomParameterStateData> configAndState = underTest.deserializeAndUpdateState(loaded, "3", "userName");
         assertThat(configAndState.getConfig()).isEqualTo(config);
@@ -226,7 +226,7 @@ class CustomParameterCommandTest {
     @Test
     void deserialization_legacy() {
         UUID configUUID = UUID.randomUUID();
-        MessageDataDTO savedData = new MessageDataDTO(configUUID, 1L, 1660644934298L, 1660644934298L, "custom_dice", "CustomParameterConfig", """
+        MessageStateDTO savedData = new MessageStateDTO(configUUID, 1L, 1660644934298L, 1660644934298L, "custom_dice", "CustomParameterConfig", """
                 ---
                 answerTargetChannelId: 123
                 baseExpression: "{n}d{s}"
@@ -250,7 +250,7 @@ class CustomParameterCommandTest {
     @Test
     void deserialization_legacy2() {
         UUID configUUID = UUID.randomUUID();
-        MessageDataDTO savedData = new MessageDataDTO(configUUID, 1L, 1660644934298L, 1660644934298L, "custom_dice", "CustomParameterConfig", """
+        MessageStateDTO savedData = new MessageStateDTO(configUUID, 1L, 1660644934298L, 1660644934298L, "custom_dice", "CustomParameterConfig", """
                 ---
                 answerTargetChannelId: 123
                 baseExpression: "{n}d{s}"
@@ -275,7 +275,7 @@ class CustomParameterCommandTest {
     @Test
     void deserialization_legacy3() {
         UUID configUUID = UUID.randomUUID();
-        MessageDataDTO savedData = new MessageDataDTO(configUUID, 1L, 1660644934298L, 1660644934298L, "custom_dice", "CustomParameterConfig", """
+        MessageStateDTO savedData = new MessageStateDTO(configUUID, 1L, 1660644934298L, 1660644934298L, "custom_dice", "CustomParameterConfig", """
                 ---
                 answerTargetChannelId: 123
                 baseExpression: "{n}d{s}"
@@ -301,7 +301,7 @@ class CustomParameterCommandTest {
     @Test
     void deserialization() {
         UUID configUUID = UUID.randomUUID();
-        MessageDataDTO savedData = new MessageDataDTO(configUUID, 1L, 1660644934298L, 1660644934298L, "custom_dice", "CustomParameterConfig", """
+        MessageStateDTO savedData = new MessageStateDTO(configUUID, 1L, 1660644934298L, 1660644934298L, "custom_dice", "CustomParameterConfig", """
                 ---
                 answerTargetChannelId: 123
                 baseExpression: "{n}d{s}"

@@ -7,7 +7,8 @@ import de.janno.discord.bot.ResultImage;
 import de.janno.discord.bot.command.*;
 import de.janno.discord.bot.dice.DiceUtils;
 import de.janno.discord.bot.persistance.Mapper;
-import de.janno.discord.bot.persistance.MessageDataDTO;
+import de.janno.discord.bot.persistance.MessageConfigDTO;
+import de.janno.discord.bot.persistance.MessageStateDTO;
 import de.janno.discord.bot.persistance.PersistenceManager;
 import de.janno.discord.connector.api.BottomCustomIdUtils;
 import de.janno.discord.connector.api.message.ButtonDefinition;
@@ -73,45 +74,46 @@ public class SumDiceSetCommand extends AbstractCommand<Config, SumDiceSetStateDa
 
 
     @Override
-    protected Optional<ConfigAndState<Config, SumDiceSetStateData>> getMessageDataAndUpdateWithButtonValue(long channelId,
+    protected Optional<ConfigAndState<Config, SumDiceSetStateData>> getMessageDataAndUpdateWithButtonValue(@Nullable UUID configUUID,
+                                                                                                           long channelId,
                                                                                                            long messageId,
                                                                                                            @NonNull String buttonValue,
                                                                                                            @NonNull String invokingUserName) {
-        final Optional<MessageDataDTO> messageDataDTO = persistenceManager.getDataForMessage(channelId, messageId);
-        return messageDataDTO.map(dataDTO -> deserializeAndUpdateState(dataDTO, buttonValue));
+        final Optional<MessageConfigDTO> messageConfigDTO = getMessageConfigDTO(configUUID, channelId, messageId);
+        final Optional<MessageStateDTO> messageStateDTO = persistenceManager.getStateForMessage(channelId, messageId);
+        return messageConfigDTO.map(configDTO -> deserializeAndUpdateState(configDTO, messageStateDTO.orElse(null), buttonValue));
     }
 
     @VisibleForTesting
-    ConfigAndState<Config, SumDiceSetStateData> deserializeAndUpdateState(@NonNull MessageDataDTO messageDataDTO, @NonNull String buttonValue) {
-        Preconditions.checkArgument(CONFIG_TYPE_ID.equals(messageDataDTO.getConfigClassId()), "Unknown configClassId: %s", messageDataDTO.getConfigClassId());
-        Preconditions.checkArgument(STATE_DATA_TYPE_ID.equals(messageDataDTO.getStateDataClassId())
-                || Mapper.NO_PERSISTED_STATE.equals(messageDataDTO.getStateDataClassId()), "Unknown stateDataClassId: %s", messageDataDTO.getStateDataClassId());
+    ConfigAndState<Config, SumDiceSetStateData> deserializeAndUpdateState(@NonNull MessageConfigDTO messageConfigDTO, @Nullable MessageStateDTO messageStateDTO, @NonNull String buttonValue) {
+        Preconditions.checkArgument(CONFIG_TYPE_ID.equals(messageConfigDTO.getConfigClassId()), "Unknown configClassId: %s", messageConfigDTO.getConfigClassId());
+        Preconditions.checkArgument(Optional.ofNullable(messageStateDTO)
+                .map(MessageStateDTO::getStateDataClassId)
+                .map(c -> Objects.equals(STATE_DATA_TYPE_ID, c))
+                .orElse(true), "Unknown stateDataClassId: %s", Optional.ofNullable(messageStateDTO)
+                .map(MessageStateDTO::getStateDataClassId).orElse("null"));
 
-        final SumDiceSetStateData loadedStateData = Optional.ofNullable(messageDataDTO.getStateData())
+        final SumDiceSetStateData loadedStateData = Optional.ofNullable(messageStateDTO)
+                .map(MessageStateDTO::getStateData)
                 .map(sd -> Mapper.deserializeObject(sd, SumDiceSetStateData.class))
                 .orElse(null);
-        final Config loadedConfig = Mapper.deserializeObject(messageDataDTO.getConfig(), Config.class);
+        final Config loadedConfig = Mapper.deserializeObject(messageConfigDTO.getConfig(), Config.class);
         final State<SumDiceSetStateData> updatedState = updateState(buttonValue, loadedStateData);
-        return new ConfigAndState<>(messageDataDTO.getConfigUUID(), loadedConfig, updatedState);
+        return new ConfigAndState<>(messageConfigDTO.getConfigUUID(), loadedConfig, updatedState);
     }
 
     @Override
-    public Optional<MessageDataDTO> createMessageDataForNewMessage(@NonNull UUID configUUID,
-                                                                   long guildId,
-                                                                   long channelId,
-                                                                   long messageId,
-                                                                   @NonNull Config config,
-                                                                   @Nullable State<SumDiceSetStateData> state) {
-        return Optional.of(new MessageDataDTO(configUUID, guildId, channelId, messageId, getCommandId(),
-                CONFIG_TYPE_ID, Mapper.serializedObject(config)));
+    public Optional<MessageConfigDTO> createMessageConfig(@NonNull UUID configUUID, long guildId, long channelId, @NonNull Config config) {
+        return Optional.of(new MessageConfigDTO(configUUID, guildId, channelId, getCommandId(), CONFIG_TYPE_ID, Mapper.serializedObject(config)));
     }
 
     @Override
-    protected void updateCurrentMessageStateData(long channelId, long messageId, @NonNull Config config, @NonNull State<SumDiceSetStateData> state) {
+    protected void updateCurrentMessageStateData(UUID configUUID, long guildId, long channelId, long messageId, @NonNull Config config, @NonNull State<SumDiceSetStateData> state) {
         if (state.getData() == null || ROLL_BUTTON_ID.equals(state.getButtonValue())) {
-            persistenceManager.updateCommandConfigOfMessage(channelId, messageId, Mapper.NO_PERSISTED_STATE, null);
+            persistenceManager.deleteStateForMessage(channelId, messageId);
         } else {
-            persistenceManager.updateCommandConfigOfMessage(channelId, messageId, STATE_DATA_TYPE_ID, Mapper.serializedObject(state.getData()));
+            persistenceManager.deleteStateForMessage(channelId, messageId);
+            persistenceManager.saveMessageState(new MessageStateDTO(configUUID, guildId, channelId, messageId, getCommandId(), STATE_DATA_TYPE_ID, Mapper.serializedObject(state.getData())));
         }
     }
 
@@ -197,22 +199,19 @@ public class SumDiceSetCommand extends AbstractCommand<Config, SumDiceSetStateDa
         if (input > 100) {
             return 100;
         }
-        if (input < -100) {
-            return -100;
-        }
-        return input;
+        return Math.max(input, -100);
     }
 
     @Override
-    public @NonNull MessageDefinition createNewButtonMessage(Config config) {
+    public @NonNull MessageDefinition createNewButtonMessage(UUID configUUID, Config config) {
         return MessageDefinition.builder()
                 .content(EMPTY_MESSAGE)
-                .componentRowDefinitions(createButtonLayout())
+                .componentRowDefinitions(createButtonLayout(configUUID))
                 .build();
     }
 
     @Override
-    protected @NonNull Optional<MessageDefinition> createNewButtonMessageWithState(Config config, State<SumDiceSetStateData> state) {
+    protected @NonNull Optional<MessageDefinition> createNewButtonMessageWithState(UUID configUUID, Config config, State<SumDiceSetStateData> state, long guildId, long channelId) {
         if (!(ROLL_BUTTON_ID.equals(state.getButtonValue()) &&
                 !Optional.ofNullable(state.getData())
                         .map(SumDiceSetStateData::getDiceSet)
@@ -222,7 +221,7 @@ public class SumDiceSetCommand extends AbstractCommand<Config, SumDiceSetStateDa
         }
         return Optional.of(MessageDefinition.builder()
                 .content(EMPTY_MESSAGE)
-                .componentRowDefinitions(createButtonLayout())
+                .componentRowDefinitions(createButtonLayout(configUUID))
                 .build());
     }
 
@@ -289,36 +288,36 @@ public class SumDiceSetCommand extends AbstractCommand<Config, SumDiceSetStateDa
         );
     }
 
-    private List<ComponentRowDefinition> createButtonLayout() {
+    private List<ComponentRowDefinition> createButtonLayout(UUID configUUID) {
         return ImmutableList.of(
                 ComponentRowDefinition.builder().buttonDefinitions(ImmutableList.of(
                         //              ID,  label
-                        ButtonDefinition.builder().id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), "+1d4")).label("+1d4").build(),
-                        ButtonDefinition.builder().id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), "-1d4")).label("-1d4").build(),
-                        ButtonDefinition.builder().id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), "+1d6")).label("+1d6").build(),
-                        ButtonDefinition.builder().id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), "-1d6")).label("-1d6").build(),
-                        ButtonDefinition.builder().id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), X2_BUTTON_ID)).style(ButtonDefinition.Style.SECONDARY).label("x2").build()
+                        ButtonDefinition.builder().id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), "+1d4", configUUID)).label("+1d4").build(),
+                        ButtonDefinition.builder().id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), "-1d4", configUUID)).label("-1d4").build(),
+                        ButtonDefinition.builder().id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), "+1d6", configUUID)).label("+1d6").build(),
+                        ButtonDefinition.builder().id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), "-1d6", configUUID)).label("-1d6").build(),
+                        ButtonDefinition.builder().id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), X2_BUTTON_ID, configUUID)).style(ButtonDefinition.Style.SECONDARY).label("x2").build()
                 )).build(),
                 ComponentRowDefinition.builder().buttonDefinitions(ImmutableList.of(
-                        ButtonDefinition.builder().id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), "+1d8")).label("+1d8").build(),
-                        ButtonDefinition.builder().id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), "-1d8")).label("-1d8").build(),
-                        ButtonDefinition.builder().id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), "+1d10")).label("+1d10").build(),
-                        ButtonDefinition.builder().id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), "-1d10")).label("-1d10").build(),
-                        ButtonDefinition.builder().id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), CLEAR_BUTTON_ID)).style(ButtonDefinition.Style.DANGER).label("Clear").build()
+                        ButtonDefinition.builder().id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), "+1d8", configUUID)).label("+1d8").build(),
+                        ButtonDefinition.builder().id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), "-1d8", configUUID)).label("-1d8").build(),
+                        ButtonDefinition.builder().id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), "+1d10", configUUID)).label("+1d10").build(),
+                        ButtonDefinition.builder().id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), "-1d10", configUUID)).label("-1d10").build(),
+                        ButtonDefinition.builder().id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), CLEAR_BUTTON_ID, configUUID)).style(ButtonDefinition.Style.DANGER).label("Clear").build()
                 )).build(),
                 ComponentRowDefinition.builder().buttonDefinitions(ImmutableList.of(
-                        ButtonDefinition.builder().id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), "+1d12")).label("+1d12").build(),
-                        ButtonDefinition.builder().id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), "-1d12")).label("-1d12").build(),
-                        ButtonDefinition.builder().id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), "+1d20")).label("+1d20").build(),
-                        ButtonDefinition.builder().id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), "-1d20")).label("-1d20").build(),
-                        ButtonDefinition.builder().id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), ROLL_BUTTON_ID)).style(ButtonDefinition.Style.SUCCESS).label("Roll").build()
+                        ButtonDefinition.builder().id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), "+1d12", configUUID)).label("+1d12").build(),
+                        ButtonDefinition.builder().id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), "-1d12", configUUID)).label("-1d12").build(),
+                        ButtonDefinition.builder().id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), "+1d20", configUUID)).label("+1d20").build(),
+                        ButtonDefinition.builder().id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), "-1d20", configUUID)).label("-1d20").build(),
+                        ButtonDefinition.builder().id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), ROLL_BUTTON_ID, configUUID)).style(ButtonDefinition.Style.SUCCESS).label("Roll").build()
                 )).build(),
                 ComponentRowDefinition.builder().buttonDefinitions(ImmutableList.of(
-                        ButtonDefinition.builder().id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), "+1")).label("+1").build(),
-                        ButtonDefinition.builder().id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), "-1")).label("-1").build(),
-                        ButtonDefinition.builder().id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), "+5")).label("+5").build(),
-                        ButtonDefinition.builder().id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), "-5")).label("-5").build(),
-                        ButtonDefinition.builder().id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), "+10")).label("+10").build()
+                        ButtonDefinition.builder().id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), "+1", configUUID)).label("+1").build(),
+                        ButtonDefinition.builder().id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), "-1", configUUID)).label("-1").build(),
+                        ButtonDefinition.builder().id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), "+5", configUUID)).label("+5").build(),
+                        ButtonDefinition.builder().id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), "-5", configUUID)).label("-5").build(),
+                        ButtonDefinition.builder().id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), "+10", configUUID)).label("+10").build()
                 )).build());
     }
 

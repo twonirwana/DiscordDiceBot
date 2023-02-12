@@ -5,7 +5,7 @@ import de.janno.discord.bot.command.*;
 import de.janno.discord.bot.dice.DiceUtils;
 import de.janno.discord.bot.persistance.PersistenceManager;
 import de.janno.discord.bot.persistance.PersistenceManagerImpl;
-import de.janno.discord.bot.persistance.MessageDataDTO;
+import de.janno.discord.bot.persistance.MessageStateDTO;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
@@ -214,10 +214,10 @@ class FateCommandTest {
         UUID configUUID = UUID.randomUUID();
         FateConfig config = new FateConfig(123L, "with_modifier", AnswerFormatType.full, ResultImage.none);
         State<StateData> state = new State<>("5", StateData.empty());
-        Optional<MessageDataDTO> toSave = underTest.createMessageDataForNewMessage(configUUID, 1L, channelId, messageId, config, state);
-        persistenceManager.saveMessageData(toSave.orElseThrow());
+        Optional<MessageStateDTO> toSave = underTest.createMessageDataForNewMessage(configUUID, 1L, channelId, messageId, config, state);
+        persistenceManager.saveMessageState(toSave.orElseThrow());
 
-        MessageDataDTO loaded = persistenceManager.getDataForMessage(channelId, messageId).orElseThrow();
+        MessageStateDTO loaded = persistenceManager.getStateForMessage(channelId, messageId).orElseThrow();
 
         assertThat(toSave.orElseThrow()).isEqualTo(loaded);
         ConfigAndState<FateConfig, StateData> configAndState = underTest.deserializeAndUpdateState(loaded, "3");
@@ -229,7 +229,7 @@ class FateCommandTest {
     @Test
     void deserialization_legacy2() {
         UUID configUUID = UUID.randomUUID();
-        MessageDataDTO savedData = new MessageDataDTO(configUUID, 1L, 1660644934298L, 1660644934298L, "fate", "FateConfig", """
+        MessageStateDTO savedData = new MessageStateDTO(configUUID, 1L, 1660644934298L, 1660644934298L, "fate", "FateConfig", """
                 ---
                 answerTargetChannelId: 123
                 type: "with_modifier"
@@ -245,7 +245,7 @@ class FateCommandTest {
     @Test
     void deserialization() {
         UUID configUUID = UUID.randomUUID();
-        MessageDataDTO savedData = new MessageDataDTO(configUUID, 1L, 1660644934298L, 1660644934298L, "fate", "FateConfig", """
+        MessageStateDTO savedData = new MessageStateDTO(configUUID, 1L, 1660644934298L, 1660644934298L, "fate", "FateConfig", """
                 ---
                 answerTargetChannelId: 123
                 type: "with_modifier"

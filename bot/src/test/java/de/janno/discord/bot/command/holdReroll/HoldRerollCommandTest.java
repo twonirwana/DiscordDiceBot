@@ -10,7 +10,7 @@ import de.janno.discord.bot.command.State;
 import de.janno.discord.bot.dice.DiceUtils;
 import de.janno.discord.bot.persistance.PersistenceManager;
 import de.janno.discord.bot.persistance.PersistenceManagerImpl;
-import de.janno.discord.bot.persistance.MessageDataDTO;
+import de.janno.discord.bot.persistance.MessageStateDTO;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
@@ -362,11 +362,11 @@ class HoldRerollCommandTest {
         UUID configUUID = UUID.randomUUID();
         HoldRerollConfig config = new HoldRerollConfig(123L, 10, ImmutableSet.of(9, 10), ImmutableSet.of(7, 8, 9, 10), ImmutableSet.of(1), AnswerFormatType.full, ResultImage.none);
         State<HoldRerollStateData> state = new State<>("reroll", new HoldRerollStateData(ImmutableList.of(1, 2, 10), 2));
-        Optional<MessageDataDTO> toSave = underTest.createMessageDataForNewMessage(configUUID, 1L, channelId, messageId, config, state);
-        persistenceManager.saveMessageData(toSave.orElseThrow());
+        Optional<MessageStateDTO> toSave = underTest.createMessageDataForNewMessage(configUUID, 1L, channelId, messageId, config, state);
+        persistenceManager.saveMessageState(toSave.orElseThrow());
         underTest.updateCurrentMessageStateData(channelId, messageId, config, state);
 
-        MessageDataDTO loaded = persistenceManager.getDataForMessage(channelId, messageId).orElseThrow();
+        MessageStateDTO loaded = persistenceManager.getStateForMessage(channelId, messageId).orElseThrow();
 
         ConfigAndState<HoldRerollConfig, HoldRerollStateData> configAndState = underTest.deserializeAndUpdateState(loaded, "reroll");
         assertThat(configAndState.getConfig()).isEqualTo(config);
@@ -377,7 +377,7 @@ class HoldRerollCommandTest {
     @Test
     void deserialization_legacy2() {
         UUID configUUID = UUID.randomUUID();
-        MessageDataDTO savedData = new MessageDataDTO(configUUID, 1L, 1660644934298L, 1660644934298L, "hold_reroll", "HoldRerollConfig", """
+        MessageStateDTO savedData = new MessageStateDTO(configUUID, 1L, 1660644934298L, 1660644934298L, "hold_reroll", "HoldRerollConfig", """
                 ---
                 answerTargetChannelId: 123
                 sidesOfDie: 10
@@ -410,7 +410,7 @@ class HoldRerollCommandTest {
     @Test
     void deserialization() {
         UUID configUUID = UUID.randomUUID();
-        MessageDataDTO savedData = new MessageDataDTO(configUUID, 1L, 1660644934298L, 1660644934298L, "hold_reroll", "HoldRerollConfig", """
+        MessageStateDTO savedData = new MessageStateDTO(configUUID, 1L, 1660644934298L, 1660644934298L, "hold_reroll", "HoldRerollConfig", """
                 ---
                 answerTargetChannelId: 123
                 sidesOfDie: 10

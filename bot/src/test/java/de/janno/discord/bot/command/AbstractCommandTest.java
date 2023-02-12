@@ -2,7 +2,7 @@ package de.janno.discord.bot.command;
 
 import de.janno.discord.bot.ButtonEventAdaptorMock;
 import de.janno.discord.bot.persistance.PersistenceManagerImpl;
-import de.janno.discord.bot.persistance.MessageDataDTO;
+import de.janno.discord.bot.persistance.MessageStateDTO;
 import de.janno.discord.connector.api.MessageState;
 import lombok.NonNull;
 import org.junit.jupiter.api.Test;
@@ -34,9 +34,9 @@ class AbstractCommandTest {
         };
         UUID configUUID = UUID.randomUUID();
         Flux.range(1, 9)
-                .map(i -> new MessageDataDTO(configUUID, 1L, 1L, i, "testCommand", "testConfigClass", "configClass"))
+                .map(i -> new MessageStateDTO(configUUID, 1L, 1L, i, "testCommand", "testConfigClass", "configClass"))
                 .delayElements(Duration.ofMillis(10))
-                .doOnNext(messageDataDAO::saveMessageData)
+                .doOnNext(messageDataDAO::saveMessageState)
                 .blockLast();
 
         underTest.deleteOldAndConcurrentMessageAndData(1L, configUUID, 1L, buttonEventAdaptorMock).block();
@@ -52,9 +52,9 @@ class AbstractCommandTest {
         ButtonEventAdaptorMock buttonEventAdaptorMock = new ButtonEventAdaptorMock("testCommand", "a", new AtomicLong(), Set.of(2L));
         UUID configUUID = UUID.randomUUID();
         Flux.range(1, 9)
-                .map(i -> new MessageDataDTO(configUUID, 1L, 1L, i, "testCommand", "testConfigClass", "configClass"))
+                .map(i -> new MessageStateDTO(configUUID, 1L, 1L, i, "testCommand", "testConfigClass", "configClass"))
                 .delayElements(Duration.ofMillis(10))
-                .doOnNext(messageDataDAO::saveMessageData)
+                .doOnNext(messageDataDAO::saveMessageState)
                 .blockLast();
 
 
@@ -80,9 +80,9 @@ class AbstractCommandTest {
         ButtonEventAdaptorMock buttonEventAdaptorMock = new ButtonEventAdaptorMock("testCommand", "a", new AtomicLong(), Set.of(2L));
         UUID configUUID = UUID.randomUUID();
         Flux.range(1, 9)
-                .map(i -> new MessageDataDTO(configUUID, 1L, 1L, i, "testCommand", "testConfigClass", "configClass"))
+                .map(i -> new MessageStateDTO(configUUID, 1L, 1L, i, "testCommand", "testConfigClass", "configClass"))
                 .delayElements(Duration.ofMillis(10))
-                .doOnNext(messageDataDAO::saveMessageData)
+                .doOnNext(messageDataDAO::saveMessageState)
                 .blockLast();
 
         underTest.deleteOldAndConcurrentMessageAndData(6L, configUUID, 1L, buttonEventAdaptorMock).subscribe();

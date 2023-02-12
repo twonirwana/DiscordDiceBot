@@ -10,7 +10,7 @@ import de.janno.discord.bot.command.State;
 import de.janno.discord.bot.dice.DiceUtils;
 import de.janno.discord.bot.persistance.PersistenceManager;
 import de.janno.discord.bot.persistance.PersistenceManagerImpl;
-import de.janno.discord.bot.persistance.MessageDataDTO;
+import de.janno.discord.bot.persistance.MessageStateDTO;
 import de.janno.discord.connector.api.ButtonEventAdaptor;
 import de.janno.discord.connector.api.MessageState;
 import de.janno.discord.connector.api.Requester;
@@ -355,7 +355,7 @@ class PoolTargetCommandTest {
         when(buttonEventAdaptor.deleteMessageById(anyLong())).thenReturn(Mono.empty());
         when(buttonEventAdaptor.getRequester()).thenReturn(new Requester("user", "channel", "guild", "[0 / 1]"));
         when(buttonEventAdaptor.getInvokingGuildMemberName()).thenReturn("testUser");
-        when(persistenceManager.getDataForMessage(1L, 1L)).thenReturn(Optional.of(new MessageDataDTO(UUID.randomUUID(), 1L, 1L, 1L, "pool_target", "PoolTargetConfig", """
+        when(persistenceManager.getStateForMessage(1L, 1L)).thenReturn(Optional.of(new MessageStateDTO(UUID.randomUUID(), 1L, 1L, 1L, "pool_target", "PoolTargetConfig", """
                 ---
                 answerTargetChannelId:
                 diceSides: 10
@@ -406,7 +406,7 @@ class PoolTargetCommandTest {
         when(buttonEventAdaptor.createResultMessageWithEventReference(any(), eq(null))).thenReturn(Mono.just(mock(Void.class)));
         when(buttonEventAdaptor.getRequester()).thenReturn(new Requester("user", "channel", "guild", "[0 / 1]"));
         when(buttonEventAdaptor.getInvokingGuildMemberName()).thenReturn("testUser");
-        when(persistenceManager.getDataForMessage(1L, 1L)).thenReturn(Optional.empty());
+        when(persistenceManager.getStateForMessage(1L, 1L)).thenReturn(Optional.empty());
 
 
         Mono<Void> res = underTest.handleComponentInteractEvent(buttonEventAdaptor);
@@ -537,11 +537,11 @@ class PoolTargetCommandTest {
         UUID configUUID = UUID.randomUUID();
         PoolTargetConfig config = new PoolTargetConfig(123L, 10, 12, ImmutableSet.of(7, 8, 9, 10), ImmutableSet.of(1), "ask", AnswerFormatType.full, ResultImage.none);
         State<PoolTargetStateData> state = new State<>("3", new PoolTargetStateData(5, null, null));
-        Optional<MessageDataDTO> toSave = underTest.createMessageDataForNewMessage(configUUID, 1L, channelId, messageId, config, state);
-        persistenceManager.saveMessageData(toSave.orElseThrow());
+        Optional<MessageStateDTO> toSave = underTest.createMessageDataForNewMessage(configUUID, 1L, channelId, messageId, config, state);
+        persistenceManager.saveMessageState(toSave.orElseThrow());
         underTest.updateCurrentMessageStateData(channelId, messageId, config, state);
 
-        MessageDataDTO loaded = persistenceManager.getDataForMessage(channelId, messageId).orElseThrow();
+        MessageStateDTO loaded = persistenceManager.getStateForMessage(channelId, messageId).orElseThrow();
 
 
         ConfigAndState<PoolTargetConfig, PoolTargetStateData> configAndState = underTest.deserializeAndUpdateState(loaded, "3");
@@ -553,7 +553,7 @@ class PoolTargetCommandTest {
     @Test
     void deserialization_legacy() {
         UUID configUUID = UUID.randomUUID();
-        MessageDataDTO savedData = new MessageDataDTO(configUUID, 1L, 1660644934298L, 1660644934298L, "pool_target", "PoolTargetConfig", """
+        MessageStateDTO savedData = new MessageStateDTO(configUUID, 1L, 1660644934298L, 1660644934298L, "pool_target", "PoolTargetConfig", """
                 ---
                 answerTargetChannelId: 123
                 diceSides: 10
@@ -584,7 +584,7 @@ class PoolTargetCommandTest {
     @Test
     void deserialization() {
         UUID configUUID = UUID.randomUUID();
-        MessageDataDTO savedData = new MessageDataDTO(configUUID, 1L, 1660644934298L, 1660644934298L, "pool_target", "PoolTargetConfig", """
+        MessageStateDTO savedData = new MessageStateDTO(configUUID, 1L, 1660644934298L, 1660644934298L, "pool_target", "PoolTargetConfig", """
                 ---
                 answerTargetChannelId: 123
                 diceSides: 10

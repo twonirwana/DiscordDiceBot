@@ -9,8 +9,8 @@ import de.janno.discord.bot.ResultImage;
 import de.janno.discord.bot.command.*;
 import de.janno.discord.bot.dice.DiceUtils;
 import de.janno.discord.bot.persistance.Mapper;
+import de.janno.discord.bot.persistance.MessageConfigDTO;
 import de.janno.discord.bot.persistance.PersistenceManager;
-import de.janno.discord.bot.persistance.MessageDataDTO;
 import de.janno.discord.connector.api.BottomCustomIdUtils;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
@@ -69,32 +69,26 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesConfig,
     }
 
     @Override
-    protected Optional<ConfigAndState<CountSuccessesConfig, StateData>> getMessageDataAndUpdateWithButtonValue(long channelId,
+    protected Optional<ConfigAndState<CountSuccessesConfig, StateData>> getMessageDataAndUpdateWithButtonValue(@Nullable UUID configId,
+                                                                                                               long channelId,
                                                                                                                long messageId,
                                                                                                                @NonNull String buttonValue,
                                                                                                                @NonNull String invokingUserName) {
-        final Optional<MessageDataDTO> messageDataDTO = persistenceManager.getDataForMessage(channelId, messageId);
-        return messageDataDTO.map(dataDTO -> deserializeAndUpdateState(dataDTO, buttonValue));
+        final Optional<MessageConfigDTO> messageConfigDTO = getMessageConfigDTO(configId, channelId, messageId);
+        return messageConfigDTO.map(dataDTO -> deserializeAndUpdateState(dataDTO, buttonValue));
     }
 
     @VisibleForTesting
-    ConfigAndState<CountSuccessesConfig, StateData> deserializeAndUpdateState(@NonNull MessageDataDTO messageDataDTO, @NonNull String buttonValue) {
-        Preconditions.checkArgument(CONFIG_TYPE_ID.equals(messageDataDTO.getConfigClassId()), "Unknown configClassId: %s", messageDataDTO.getConfigClassId());
-        return new ConfigAndState<>(messageDataDTO.getConfigUUID(),
-                Mapper.deserializeObject(messageDataDTO.getConfig(), CountSuccessesConfig.class),
+    ConfigAndState<CountSuccessesConfig, StateData> deserializeAndUpdateState(@NonNull MessageConfigDTO messageConfigDTO, @NonNull String buttonValue) {
+        Preconditions.checkArgument(CONFIG_TYPE_ID.equals(messageConfigDTO.getConfigClassId()), "Unknown configClassId: %s", messageConfigDTO.getConfigClassId());
+        return new ConfigAndState<>(messageConfigDTO.getConfigUUID(),
+                Mapper.deserializeObject(messageConfigDTO.getConfig(), CountSuccessesConfig.class),
                 new State<>(buttonValue, StateData.empty()));
     }
 
     @Override
-    public Optional<MessageDataDTO> createMessageDataForNewMessage(@NonNull UUID configUUID,
-                                                                   long guildId,
-                                                                   long channelId,
-                                                                   long messageId,
-                                                                   @NonNull CountSuccessesConfig config,
-                                                                   @Nullable State<StateData> state) {
-        return Optional.of(new MessageDataDTO(configUUID, guildId, channelId, messageId, getCommandId(),
-                CONFIG_TYPE_ID, Mapper.serializedObject(config),
-                Mapper.NO_PERSISTED_STATE, null));
+    public Optional<MessageConfigDTO> createMessageConfig(@NonNull UUID configUUID, long guildId, long channelId, @NonNull CountSuccessesConfig config) {
+        return Optional.of(new MessageConfigDTO(configUUID, guildId, channelId, getCommandId(), CONFIG_TYPE_ID, Mapper.serializedObject(config)));
     }
 
     @Override
@@ -237,8 +231,8 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesConfig,
     }
 
     @Override
-    protected @NonNull Optional<MessageDefinition> createNewButtonMessageWithState(CountSuccessesConfig config, State<StateData> state) {
-        return Optional.of(createNewButtonMessage(config));
+    protected @NonNull Optional<MessageDefinition> createNewButtonMessageWithState(UUID configUUID, CountSuccessesConfig config, State<StateData> state, long guildId, long channelId) {
+        return Optional.of(createNewButtonMessage(configUUID, config));
     }
 
     private String getRerollDescription(CountSuccessesConfig config) {
@@ -250,11 +244,11 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesConfig,
     }
 
     @Override
-    public @NonNull MessageDefinition createNewButtonMessage(CountSuccessesConfig config) {
+    public @NonNull MessageDefinition createNewButtonMessage(UUID configUUID, CountSuccessesConfig config) {
 
         return MessageDefinition.builder()
                 .content(String.format("Click to roll the dice against %s%s%s%s", config.getTarget(), getRerollDescription(config), getBotchDescription(config), getGlitchDescription(config)))
-                .componentRowDefinitions(createButtonLayout(config))
+                .componentRowDefinitions(createButtonLayout(configUUID, config))
                 .build();
     }
 
@@ -295,10 +289,10 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesConfig,
         return new CountSuccessesConfig(answerTargetChannelId, sideValue, targetValue, glitchOption, maxDice, minDiceCount, rerollSet, botchSet, answerType, resultImage);
     }
 
-    private List<ComponentRowDefinition> createButtonLayout(CountSuccessesConfig config) {
+    private List<ComponentRowDefinition> createButtonLayout(UUID configUUID, CountSuccessesConfig config) {
         List<ButtonDefinition> buttons = IntStream.range(config.getMinDiceCount(), config.getMinDiceCount() + config.getMaxNumberOfButtons())
                 .mapToObj(i -> ButtonDefinition.builder()
-                        .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), String.valueOf(i)))
+                        .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), String.valueOf(i), configUUID))
                         .label(createButtonLabel(String.valueOf(i), config))
                         .build())
                 .collect(Collectors.toList());

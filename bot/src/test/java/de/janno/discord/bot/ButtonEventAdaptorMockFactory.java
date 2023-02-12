@@ -23,7 +23,7 @@ public class ButtonEventAdaptorMockFactory<C extends Config, S extends StateData
         this.customId = customId;
         this.messageIdCounter = new AtomicLong(0);
         this.pinnedMessageIds = firstMessagePinned ? Sets.newHashSet(messageIdCounter.get()) : Collections.emptySet();
-        command.createMessageDataForNewMessage(UUID.randomUUID(), GUILD_ID, CHANNEL_ID, messageIdCounter.get(), config, null).ifPresent(persistenceManager::saveMessageData);
+        command.createMessageStateForNewMessage(UUID.randomUUID(), GUILD_ID, CHANNEL_ID, messageIdCounter.get(), config, null).ifPresent(persistenceManager::saveMessageState);
     }
 
     public ButtonEventAdaptorMock getButtonClickOnLastButtonMessage(String buttonValue) {

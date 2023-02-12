@@ -1,7 +1,7 @@
 package de.janno.discord.bot.command;
 
 import de.janno.discord.bot.persistance.PersistenceManager;
-import de.janno.discord.bot.persistance.MessageDataDTO;
+import de.janno.discord.bot.persistance.MessageStateDTO;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
 import de.janno.discord.connector.api.message.MessageDefinition;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
@@ -25,7 +25,7 @@ public class TestCommand extends AbstractCommand<Config, StateData> {
     }
 
     @Override
-    public Optional<MessageDataDTO> createMessageDataForNewMessage(@NonNull UUID configUUID, long guildId, long channelId, long messageId, @NonNull Config config, @Nullable State<StateData> state) {
+    public Optional<MessageStateDTO> createMessageDataForNewMessage(@NonNull UUID configUUID, long guildId, long channelId, long messageId, @NonNull Config config, @Nullable State<StateData> state) {
         throw new NotImplementedException("Not implemented");
     }
 

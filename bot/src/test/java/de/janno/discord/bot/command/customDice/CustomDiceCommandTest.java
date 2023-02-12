@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableList;
 import de.janno.discord.bot.ResultImage;
 import de.janno.discord.bot.command.*;
 import de.janno.discord.bot.dice.*;
-import de.janno.discord.bot.persistance.MessageDataDTO;
+import de.janno.discord.bot.persistance.MessageStateDTO;
 import de.janno.discord.bot.persistance.PersistenceManager;
 import de.janno.discord.bot.persistance.PersistenceManagerImpl;
 import de.janno.discord.connector.api.Requester;
@@ -412,10 +412,10 @@ class CustomDiceCommandTest {
                 new ButtonIdLabelAndDiceExpression("1_button", "Label", "+1d6"),
                 new ButtonIdLabelAndDiceExpression("2_button", "+2d4", "+2d4")), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full, ResultImage.none);
         State<StateData> state = new State<>("5", StateData.empty());
-        Optional<MessageDataDTO> toSave = underTest.createMessageDataForNewMessage(configUUID, 1L, channelId, messageId, config, state);
-        persistenceManager.saveMessageData(toSave.orElseThrow());
+        Optional<MessageStateDTO> toSave = underTest.createMessageDataForNewMessage(configUUID, 1L, channelId, messageId, config, state);
+        persistenceManager.saveMessageState(toSave.orElseThrow());
 
-        MessageDataDTO loaded = persistenceManager.getDataForMessage(channelId, messageId).orElseThrow();
+        MessageStateDTO loaded = persistenceManager.getStateForMessage(channelId, messageId).orElseThrow();
 
         assertThat(toSave.orElseThrow()).isEqualTo(loaded);
         ConfigAndState<CustomDiceConfig, StateData> configAndState = underTest.deserializeAndUpdateState(loaded, "3");
@@ -427,7 +427,7 @@ class CustomDiceCommandTest {
     @Test
     void deserialization_legacy() {
         UUID configUUID = UUID.randomUUID();
-        MessageDataDTO savedData = new MessageDataDTO(configUUID, 1L, 1660644934298L, 1660644934298L, "custom_dice", "CustomDiceConfig", """
+        MessageStateDTO savedData = new MessageStateDTO(configUUID, 1L, 1660644934298L, 1660644934298L, "custom_dice", "CustomDiceConfig", """
                 ---
                 answerTargetChannelId: 123
                 buttonIdLabelAndDiceExpressions:
@@ -451,7 +451,7 @@ class CustomDiceCommandTest {
     @Test
     void deserialization_legacy2() {
         UUID configUUID = UUID.randomUUID();
-        MessageDataDTO savedData = new MessageDataDTO(configUUID, 1L, 1660644934298L, 1660644934298L, "custom_dice", "CustomDiceConfig", """
+        MessageStateDTO savedData = new MessageStateDTO(configUUID, 1L, 1660644934298L, 1660644934298L, "custom_dice", "CustomDiceConfig", """
                 ---
                 answerTargetChannelId: 123
                 buttonIdLabelAndDiceExpressions:
@@ -476,7 +476,7 @@ class CustomDiceCommandTest {
     @Test
     void deserialization_3() {
         UUID configUUID = UUID.randomUUID();
-        MessageDataDTO savedData = new MessageDataDTO(configUUID, 1L, 1660644934298L, 1660644934298L, "custom_dice", "CustomDiceConfig", """
+        MessageStateDTO savedData = new MessageStateDTO(configUUID, 1L, 1660644934298L, 1660644934298L, "custom_dice", "CustomDiceConfig", """
                 ---
                 answerTargetChannelId: 123
                 buttonIdLabelAndDiceExpressions:
@@ -502,7 +502,7 @@ class CustomDiceCommandTest {
     @Test
     void deserialization() {
         UUID configUUID = UUID.randomUUID();
-        MessageDataDTO savedData = new MessageDataDTO(configUUID, 1L, 1660644934298L, 1660644934298L, "custom_dice", "CustomDiceConfig", """
+        MessageStateDTO savedData = new MessageStateDTO(configUUID, 1L, 1660644934298L, 1660644934298L, "custom_dice", "CustomDiceConfig", """
                 ---
                 answerTargetChannelId: 123
                 buttonIdLabelAndDiceExpressions:
