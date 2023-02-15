@@ -10,6 +10,9 @@ import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.UUID;
+import java.util.function.Supplier;
+
 @Slf4j
 public class ClearCommand implements SlashCommand {
 
@@ -33,7 +36,7 @@ public class ClearCommand implements SlashCommand {
     }
 
     @Override
-    public Mono<Void> handleSlashCommandEvent(@NonNull SlashEventAdaptor event) {
+    public Mono<Void> handleSlashCommandEvent(@NonNull SlashEventAdaptor event, @NonNull Supplier<UUID> uuidSupplier) {
         BotMetrics.incrementSlashStartMetricCounter(getCommandId(), "[]");
         return event.reply("Deleting messages and data ...", false)
                 .then(Mono.just(persistenceManager.deleteMessageDataForChannel(event.getChannelId()))

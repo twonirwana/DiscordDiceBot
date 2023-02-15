@@ -1,7 +1,7 @@
 package de.janno.discord.bot.command;
 
+import de.janno.discord.bot.persistance.MessageConfigDTO;
 import de.janno.discord.bot.persistance.PersistenceManager;
-import de.janno.discord.bot.persistance.MessageStateDTO;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
 import de.janno.discord.connector.api.message.MessageDefinition;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
@@ -20,12 +20,12 @@ public class TestCommand extends AbstractCommand<Config, StateData> {
     }
 
     @Override
-    protected Optional<ConfigAndState<Config, StateData>> getMessageDataAndUpdateWithButtonValue(long channelId, long messageId, @NonNull String buttonValue, @NonNull String invokingUserName) {
+    protected Optional<ConfigAndState<Config, StateData>> getMessageDataAndUpdateWithButtonValue(@Nullable UUID configId, long channelId, long messageId, @NonNull String buttonValue, @NonNull String invokingUserName) {
         throw new NotImplementedException("Not implemented");
     }
 
     @Override
-    public Optional<MessageStateDTO> createMessageDataForNewMessage(@NonNull UUID configUUID, long guildId, long channelId, long messageId, @NonNull Config config, @Nullable State<StateData> state) {
+    public Optional<MessageConfigDTO> createMessageConfig(@NonNull UUID configUUID, long guildId, long channelId, @NonNull Config config) {
         throw new NotImplementedException("Not implemented");
     }
 
@@ -40,7 +40,7 @@ public class TestCommand extends AbstractCommand<Config, StateData> {
     }
 
     @Override
-    protected @NonNull Optional<MessageDefinition> createNewButtonMessageWithState(Config config, State<StateData> state) {
+    protected @NonNull Optional<MessageDefinition> createNewButtonMessageWithState(UUID configId, Config config, State<StateData> state, long guildId, long channelId) {
         throw new NotImplementedException("Not implemented");
     }
 
@@ -50,7 +50,7 @@ public class TestCommand extends AbstractCommand<Config, StateData> {
     }
 
     @Override
-    public @NonNull MessageDefinition createNewButtonMessage(Config config) {
+    public @NonNull MessageDefinition createNewButtonMessage(UUID configId, Config config) {
         throw new NotImplementedException("Not implemented");
     }
 

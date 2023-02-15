@@ -51,9 +51,9 @@ public class PersistenceManagerImpl implements PersistenceManager {
         }));
     }
 
-    private MessageStateDTO transformResultSet2MessageDataDTO(ResultSet resultSet) throws SQLException {
+    private MessageDataDTO transformResultSet2MessageDataDTO(ResultSet resultSet) throws SQLException {
         if (resultSet.next()) {
-            return new MessageStateDTO(
+            return new MessageDataDTO(
                     resultSet.getObject("CONFIG_ID", UUID.class),
                     resultSet.getLong("GUILD_ID"),
                     resultSet.getLong("CHANNEL_ID"),
@@ -67,7 +67,7 @@ public class PersistenceManagerImpl implements PersistenceManager {
     }
 
     @Override
-    public @NonNull Optional<MessageConfigDTO> getConfig(@NonNull UUID configUUID) {
+    public @NonNull Optional<MessageConfigDTO> getMessageConfig(@NonNull UUID configUUID) {
         Stopwatch stopwatch = Stopwatch.createStarted();
 
         try (Connection con = connectionPool.getConnection()) {
@@ -122,10 +122,11 @@ public class PersistenceManagerImpl implements PersistenceManager {
             }
         } catch (Exception e) {
             throw new IllegalStateException(e);
-        }    }
+        }
+    }
 
     @Override
-    public void saveConfig(@NonNull MessageConfigDTO messageConfigDTO) {
+    public void saveMessageConfig(@NonNull MessageConfigDTO messageConfigDTO) {
         Stopwatch stopwatch = Stopwatch.createStarted();
         try (Connection con = connectionPool.getConnection()) {
             try (PreparedStatement preparedStatement =
@@ -146,7 +147,7 @@ public class PersistenceManagerImpl implements PersistenceManager {
     }
 
     @Override
-    public @NonNull Optional<MessageStateDTO> getStateForMessage(long channelId, long messageId) {
+    public @NonNull Optional<MessageDataDTO> getStateForMessage(long channelId, long messageId) {
         Stopwatch stopwatch = Stopwatch.createStarted();
 
         try (Connection con = connectionPool.getConnection()) {
@@ -154,14 +155,14 @@ public class PersistenceManagerImpl implements PersistenceManager {
                 preparedStatement.setLong(1, channelId);
                 preparedStatement.setLong(2, messageId);
                 ResultSet resultSet = preparedStatement.executeQuery();
-                MessageStateDTO messageStateDTO = transformResultSet2MessageDataDTO(resultSet);
+                MessageDataDTO messageDataDTO = transformResultSet2MessageDataDTO(resultSet);
 
                 BotMetrics.databaseTimer("getDataForMessage", stopwatch.elapsed());
 
-                if (messageStateDTO == null) {
+                if (messageDataDTO == null) {
                     return Optional.empty();
                 }
-                return Optional.of(messageStateDTO);
+                return Optional.of(messageDataDTO);
             }
         } catch (Exception e) {
             throw new IllegalStateException(e);
@@ -249,7 +250,7 @@ public class PersistenceManagerImpl implements PersistenceManager {
     }
 
     @Override
-    public void saveMessageState(@NonNull MessageStateDTO messageData) {
+    public void saveMessageData(@NonNull MessageDataDTO messageData) {
         Stopwatch stopwatch = Stopwatch.createStarted();
         try (Connection con = connectionPool.getConnection()) {
             try (PreparedStatement preparedStatement =

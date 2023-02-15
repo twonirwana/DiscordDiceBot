@@ -32,6 +32,7 @@ public class BotMetrics {
     private final static String METRIC_IMAGE_CREATION_DURATION_PREFIX = "imageCreationDuration";
     private final static String METRIC_IS_DELAYED_PREFIX = "answerIsDelayed";
     private final static String METRIC_LEGACY_BUTTON_PREFIX = "legacyButtonEvent";
+    private final static String METRIC_UUID_BUTTON_PREFIX = "uuidButtonEvent";
     private final static String METRIC_SLASH_PREFIX = "slashEvent";
     private final static String METRIC_SLASH_HELP_PREFIX = "slashHelpEvent";
     private final static String METRIC_IMAGE_RESULT_PREFIX = "imageResult";
@@ -40,6 +41,7 @@ public class BotMetrics {
     private final static String METRIC_DICE_PARSER_SYSTEM_PREFIX = "diceParserSystem";
     private final static String CONFIG_TAG = "config";
     private final static String COMMAND_TAG = "command";
+    private final static String UUID_USAGE_TAG = "uuidUsage";
     private final static String CACHE_TAG = "cache";
     private final static String IMAGE_RESULT_TAG = "imageResult";
     private final static String ANSWER_FORMAT_TAG = "answerFormat";
@@ -89,6 +91,10 @@ public class BotMetrics {
 
     public static void incrementLegacyButtonMetricCounter(@NonNull String commandName) {
         globalRegistry.counter(METRIC_PREFIX + METRIC_LEGACY_BUTTON_PREFIX, Tags.of(COMMAND_TAG, commandName)).increment();
+    }
+
+    public static void incrementButtonUUIDUsageMetricCounter(@NonNull String commandName, boolean hasUUIDinCustomId) {
+        globalRegistry.counter(METRIC_PREFIX + METRIC_UUID_BUTTON_PREFIX, Tags.of(COMMAND_TAG, commandName, UUID_USAGE_TAG, String.valueOf(hasUUIDinCustomId))).increment();
     }
 
     public static void incrementSlashStartMetricCounter(@NonNull String commandName, @NonNull String configString) {

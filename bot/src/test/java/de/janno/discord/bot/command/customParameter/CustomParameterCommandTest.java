@@ -2,17 +2,12 @@ package de.janno.discord.bot.command.customParameter;
 
 import com.google.common.collect.ImmutableList;
 import de.janno.discord.bot.ResultImage;
-import de.janno.discord.bot.command.AnswerFormatType;
-import de.janno.discord.bot.command.ButtonIdLabelAndDiceExpression;
-import de.janno.discord.bot.command.ConfigAndState;
-import de.janno.discord.bot.command.State;
+import de.janno.discord.bot.command.*;
 import de.janno.discord.bot.dice.CachingDiceEvaluator;
 import de.janno.discord.bot.dice.Dice;
 import de.janno.discord.bot.dice.DiceParser;
 import de.janno.discord.bot.dice.DiceParserSystem;
-import de.janno.discord.bot.persistance.MessageStateDTO;
-import de.janno.discord.bot.persistance.PersistenceManager;
-import de.janno.discord.bot.persistance.PersistenceManagerImpl;
+import de.janno.discord.bot.persistance.*;
 import de.janno.discord.connector.api.slash.CommandDefinitionOption;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import de.janno.evaluator.dice.random.RandomNumberSupplier;
@@ -40,13 +35,13 @@ class CustomParameterCommandTest {
 
     private static Stream<Arguments> generateParameterExpression2ButtonValuesData() {
         return Stream.of(
-                Arguments.of("{test}", IntStream.range(1, 16).mapToObj(i -> new ButtonIdLabelAndDiceExpression("custom_parameter\u001E" + i, String.valueOf(i), String.valueOf(i))).toList()),
-                Arguments.of("{test:2<=>4}", IntStream.range(2, 5).mapToObj(i -> new ButtonIdLabelAndDiceExpression("custom_parameter\u001E" + i, String.valueOf(i), String.valueOf(i))).toList()),
-                Arguments.of("{test:2<=>1}", ImmutableList.of(new ButtonIdLabelAndDiceExpression("custom_parameter\u001E2", "2", "2"))),
-                Arguments.of("{test:-2<=>1}", IntStream.range(-2, 2).mapToObj(i -> new ButtonIdLabelAndDiceExpression("custom_parameter\u001E" + i, String.valueOf(i), String.valueOf(i))).toList()),
-                Arguments.of("{test:-10<=>-5}", IntStream.range(-10, -4).mapToObj(i -> new ButtonIdLabelAndDiceExpression("custom_parameter\u001E" + i, String.valueOf(i), String.valueOf(i))).toList()),
-                Arguments.of("{test:1d6/+5/abc}", ImmutableList.of(new ButtonIdLabelAndDiceExpression("custom_parameter\u001E1d6", "1d6", "1d6"), new ButtonIdLabelAndDiceExpression("custom_parameter\u001E+5", "+5", "+5"), new ButtonIdLabelAndDiceExpression("custom_parameter\u001Eabc", "abc", "abc"))),
-                Arguments.of("{test:1d6@d6/+5@Bonus/abc}", ImmutableList.of(new ButtonIdLabelAndDiceExpression("custom_parameter\u001E1d6", "d6", "1d6"), new ButtonIdLabelAndDiceExpression("custom_parameter\u001E+5", "Bonus", "+5"), new ButtonIdLabelAndDiceExpression("custom_parameter\u001Eabc", "abc", "abc")))
+                Arguments.of("{test}", IntStream.range(1, 16).mapToObj(i -> new ButtonIdLabelAndDiceExpression("custom_parameter\u001E" + i + "00000000-0000-0000-0000-000000000000", String.valueOf(i), String.valueOf(i))).toList()),
+                Arguments.of("{test:2<=>4}", IntStream.range(2, 5).mapToObj(i -> new ButtonIdLabelAndDiceExpression("custom_parameter\u001E" + i+ "00000000-0000-0000-0000-000000000000", String.valueOf(i), String.valueOf(i))).toList()),
+                Arguments.of("{test:2<=>1}", ImmutableList.of(new ButtonIdLabelAndDiceExpression("custom_parameter\u001E200000000-0000-0000-0000-000000000000", "2", "2"))),
+                Arguments.of("{test:-2<=>1}", IntStream.range(-2, 2).mapToObj(i -> new ButtonIdLabelAndDiceExpression("custom_parameter\u001E" + i+ "00000000-0000-0000-0000-000000000000", String.valueOf(i), String.valueOf(i))).toList()),
+                Arguments.of("{test:-10<=>-5}", IntStream.range(-10, -4).mapToObj(i -> new ButtonIdLabelAndDiceExpression("custom_parameter\u001E" + i+ "00000000-0000-0000-0000-000000000000", String.valueOf(i), String.valueOf(i))).toList()),
+                Arguments.of("{test:1d6/+5/abc}", ImmutableList.of(new ButtonIdLabelAndDiceExpression("custom_parameter\u001E1d600000000-0000-0000-0000-000000000000", "1d6", "1d6"), new ButtonIdLabelAndDiceExpression("custom_parameter\u001E+500000000-0000-0000-0000-000000000000", "+5", "+5"), new ButtonIdLabelAndDiceExpression("custom_parameter\u001Eabc00000000-0000-0000-0000-000000000000", "abc", "abc"))),
+                Arguments.of("{test:1d6@d6/+5@Bonus/abc}", ImmutableList.of(new ButtonIdLabelAndDiceExpression("custom_parameter\u001E1d600000000-0000-0000-0000-000000000000", "d6", "1d6"), new ButtonIdLabelAndDiceExpression("custom_parameter\u001E+500000000-0000-0000-0000-000000000000", "Bonus", "+5"), new ButtonIdLabelAndDiceExpression("custom_parameter\u001Eabc00000000-0000-0000-0000-000000000000", "abc", "abc")))
         );
     }
 
@@ -141,7 +136,7 @@ class CustomParameterCommandTest {
     @MethodSource("generateParameterExpression2ButtonValuesData")
     void getButtonValues(String parameterExpression, List<ButtonIdLabelAndDiceExpression> expectedResult) {
         CustomParameterConfig config = new CustomParameterConfig(null, "1d6 + {a} + " + parameterExpression, DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.without_expression, ResultImage.none);
-        List<ButtonIdLabelAndDiceExpression> res = underTest.getButtons(config, parameterExpression);
+        List<ButtonIdLabelAndDiceExpression> res = underTest.getButtons(UUID.fromString("00000000-0000-0000-0000-000000000000"), config, parameterExpression);
         assertThat(res).isEqualTo(expectedResult);
     }
 
@@ -201,36 +196,38 @@ class CustomParameterCommandTest {
         PersistenceManager persistenceManager = new PersistenceManagerImpl("jdbc:h2:mem:" + UUID.randomUUID(), null, null);
         underTest = new CustomParameterCommand(persistenceManager, mock(Dice.class), new CachingDiceEvaluator((minExcl, maxIncl) -> 0, 10, 0));
         underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
-
+        UUID configUUID = UUID.randomUUID();
         long channelId = System.currentTimeMillis();
         long messageId = System.currentTimeMillis();
-        UUID configUUID = UUID.randomUUID();
         CustomParameterConfig config = new CustomParameterConfig(123L, "{n}d{s}", DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full, ResultImage.none);
-        State<CustomParameterStateData> state = new State<>("5", new CustomParameterStateData(List.of(
-                new SelectedParameter("{n}", "n", "5", "5"),
-                new SelectedParameter("{s}", "s", null, null)), "userName"));
-        Optional<MessageStateDTO> toSave = underTest.createMessageDataForNewMessage(configUUID, 1L, channelId, messageId, config, state);
-        persistenceManager.saveMessageState(toSave.orElseThrow());
-        underTest.updateCurrentMessageStateData(channelId, messageId, config, state);
+        Optional<MessageConfigDTO> toSave = underTest.createMessageConfig(configUUID, 1L, channelId, config);
+        assertThat(toSave).isPresent();
 
-        MessageStateDTO loaded = persistenceManager.getStateForMessage(channelId, messageId).orElseThrow();
+        persistenceManager.saveMessageConfig(toSave.get());
+        MessageConfigDTO loaded = persistenceManager.getMessageConfig(configUUID).orElseThrow();
 
-        ConfigAndState<CustomParameterConfig, CustomParameterStateData> configAndState = underTest.deserializeAndUpdateState(loaded, "3", "userName");
+        assertThat(toSave.get()).isEqualTo(loaded);
+        CustomParameterStateData stateData = new CustomParameterStateData(List.of(
+                new SelectedParameter("{n}", "n", null, null),
+                new SelectedParameter("{s}", "s", null, null)), "userName");
+        MessageDataDTO messageDataDTO = new MessageDataDTO(configUUID, 1L, channelId, messageId, "custom_parameter", "CustomParameterStateDataV2", Mapper.serializedObject(stateData));
+        ConfigAndState<CustomParameterConfig, CustomParameterStateData> configAndState = underTest.deserializeAndUpdateState(loaded, messageDataDTO, "5", "userName");
         assertThat(configAndState.getConfig()).isEqualTo(config);
         assertThat(configAndState.getConfigUUID()).isEqualTo(configUUID);
         assertThat(configAndState.getState().getData()).isEqualTo(new CustomParameterStateData(List.of(
                 new SelectedParameter("{n}", "n", "5", "5"),
-                new SelectedParameter("{s}", "s", "3", "3")), "userName"));
+                new SelectedParameter("{s}", "s", null, null)), "userName"));
     }
 
     @Test
     void deserialization_legacy() {
         UUID configUUID = UUID.randomUUID();
-        MessageStateDTO savedData = new MessageStateDTO(configUUID, 1L, 1660644934298L, 1660644934298L, "custom_dice", "CustomParameterConfig", """
+        MessageConfigDTO messageConfigDTO = new MessageConfigDTO(configUUID, 1L, 1660644934298L, "custom_parameter", "CustomParameterConfig", """
                 ---
                 answerTargetChannelId: 123
                 baseExpression: "{n}d{s}"
-                """,
+                """);
+        MessageDataDTO messageDataDTO = new MessageDataDTO(configUUID, 1L, 1660644934298L, 1660644934298L, "custom_parameter",
                 "CustomParameterStateData", """
                 ---
                 selectedParameterValues:
@@ -238,8 +235,7 @@ class CustomParameterCommandTest {
                 lockedForUserName: "userName"
                 """);
 
-
-        ConfigAndState<CustomParameterConfig, CustomParameterStateData> configAndState = underTest.deserializeAndUpdateState(savedData, "3", "userName");
+        ConfigAndState<CustomParameterConfig, CustomParameterStateData> configAndState = underTest.deserializeAndUpdateState(messageConfigDTO, messageDataDTO, "3", "userName");
         assertThat(configAndState.getConfig()).isEqualTo(new CustomParameterConfig(123L, "{n}d{s}", DiceParserSystem.DICEROLL_PARSER, AnswerFormatType.full, ResultImage.none));
         assertThat(configAndState.getConfigUUID()).isEqualTo(configUUID);
         assertThat(configAndState.getState().getData()).isEqualTo(new CustomParameterStateData(List.of(
@@ -250,12 +246,13 @@ class CustomParameterCommandTest {
     @Test
     void deserialization_legacy2() {
         UUID configUUID = UUID.randomUUID();
-        MessageStateDTO savedData = new MessageStateDTO(configUUID, 1L, 1660644934298L, 1660644934298L, "custom_dice", "CustomParameterConfig", """
+        MessageConfigDTO messageConfigDTO = new MessageConfigDTO(configUUID, 1L, 1660644934298L, "custom_parameter", "CustomParameterConfig", """
                 ---
                 answerTargetChannelId: 123
                 baseExpression: "{n}d{s}"
                 diceParserSystem: "DICE_EVALUATOR"
-                """,
+                """);
+        MessageDataDTO messageDataDTO = new MessageDataDTO(configUUID, 1L, 1660644934298L, 1660644934298L, "custom_parameter",
                 "CustomParameterStateData", """
                 ---
                 selectedParameterValues:
@@ -263,8 +260,7 @@ class CustomParameterCommandTest {
                 lockedForUserName: "userName"
                 """);
 
-
-        ConfigAndState<CustomParameterConfig, CustomParameterStateData> configAndState = underTest.deserializeAndUpdateState(savedData, "3", "userName");
+        ConfigAndState<CustomParameterConfig, CustomParameterStateData> configAndState = underTest.deserializeAndUpdateState(messageConfigDTO, messageDataDTO, "3", "userName");
         assertThat(configAndState.getConfig()).isEqualTo(new CustomParameterConfig(123L, "{n}d{s}", DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full, ResultImage.none));
         assertThat(configAndState.getConfigUUID()).isEqualTo(configUUID);
         assertThat(configAndState.getState().getData()).isEqualTo(new CustomParameterStateData(List.of(
@@ -275,13 +271,14 @@ class CustomParameterCommandTest {
     @Test
     void deserialization_legacy3() {
         UUID configUUID = UUID.randomUUID();
-        MessageStateDTO savedData = new MessageStateDTO(configUUID, 1L, 1660644934298L, 1660644934298L, "custom_dice", "CustomParameterConfig", """
+        MessageConfigDTO messageConfigDTO = new MessageConfigDTO(configUUID, 1L, 1660644934298L, "custom_parameter", "CustomParameterConfig", """
                 ---
                 answerTargetChannelId: 123
                 baseExpression: "{n}d{s}"
                 diceParserSystem: "DICE_EVALUATOR"
                 answerFormatType: compact
-                """,
+                """);
+        MessageDataDTO messageDataDTO = new MessageDataDTO(configUUID, 1L, 1660644934298L, 1660644934298L, "custom_parameter",
                 "CustomParameterStateData", """
                 ---
                 selectedParameterValues:
@@ -289,8 +286,7 @@ class CustomParameterCommandTest {
                 lockedForUserName: "userName"
                 """);
 
-
-        ConfigAndState<CustomParameterConfig, CustomParameterStateData> configAndState = underTest.deserializeAndUpdateState(savedData, "3", "userName");
+        ConfigAndState<CustomParameterConfig, CustomParameterStateData> configAndState = underTest.deserializeAndUpdateState(messageConfigDTO, messageDataDTO, "3", "userName");
         assertThat(configAndState.getConfig()).isEqualTo(new CustomParameterConfig(123L, "{n}d{s}", DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.compact, ResultImage.none));
         assertThat(configAndState.getConfigUUID()).isEqualTo(configUUID);
         assertThat(configAndState.getState().getData()).isEqualTo(new CustomParameterStateData(List.of(
@@ -301,13 +297,14 @@ class CustomParameterCommandTest {
     @Test
     void deserialization() {
         UUID configUUID = UUID.randomUUID();
-        MessageStateDTO savedData = new MessageStateDTO(configUUID, 1L, 1660644934298L, 1660644934298L, "custom_dice", "CustomParameterConfig", """
+        MessageConfigDTO messageConfigDTO = new MessageConfigDTO(configUUID, 1L, 1660644934298L, "custom_parameter", "CustomParameterConfig", """
                 ---
                 answerTargetChannelId: 123
                 baseExpression: "{n}d{s}"
                 diceParserSystem: "DICE_EVALUATOR"
                 answerFormatType: compact
-                """,
+                """);
+        MessageDataDTO messageDataDTO = new MessageDataDTO(configUUID, 1L, 1660644934298L, 1660644934298L, "custom_parameter",
                 "CustomParameterStateDataV2", """
                 ---
                 selectedParameterValues:
@@ -322,8 +319,7 @@ class CustomParameterCommandTest {
                 lockedForUserName: "userName"
                 """);
 
-
-        ConfigAndState<CustomParameterConfig, CustomParameterStateData> configAndState = underTest.deserializeAndUpdateState(savedData, "3", "userName");
+        ConfigAndState<CustomParameterConfig, CustomParameterStateData> configAndState = underTest.deserializeAndUpdateState(messageConfigDTO, messageDataDTO, "3", "userName");
         assertThat(configAndState.getConfig()).isEqualTo(new CustomParameterConfig(123L, "{n}d{s}", DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.compact, ResultImage.none));
         assertThat(configAndState.getConfigUUID()).isEqualTo(configUUID);
         assertThat(configAndState.getState().getData()).isEqualTo(new CustomParameterStateData(List.of(

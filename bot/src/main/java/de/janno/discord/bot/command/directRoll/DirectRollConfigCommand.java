@@ -16,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
 import java.util.UUID;
+import java.util.function.Supplier;
 
 @Slf4j
 public class DirectRollConfigCommand extends AbstractDirectRollCommand {
@@ -65,7 +66,7 @@ public class DirectRollConfigCommand extends AbstractDirectRollCommand {
     }
 
     @Override
-    public Mono<Void> handleSlashCommandEvent(@NonNull SlashEventAdaptor event) {
+    public Mono<Void> handleSlashCommandEvent(@NonNull SlashEventAdaptor event, @NonNull Supplier<UUID> uuidSupplier) {
         if (event.getOption(SAVE_ACTION).isPresent()) {
             CommandInteractionOption saveAction = event.getOption(SAVE_ACTION).get();
             Long answerTargetChannelId = null;
@@ -76,7 +77,7 @@ public class DirectRollConfigCommand extends AbstractDirectRollCommand {
             BotMetrics.incrementSlashStartMetricCounter(getCommandId(), config.toShortString());
             return Mono.defer(() -> {
                 persistenceManager.deleteChannelConfig(event.getChannelId(), CONFIG_TYPE_ID);
-                persistenceManager.saveChannelConfig(new ChannelConfigDTO(UUID.randomUUID(),
+                persistenceManager.saveChannelConfig(new ChannelConfigDTO(uuidSupplier.get(),
                         event.getGuildId(),
                         event.getChannelId(),
                         ROLL_COMMAND_ID,

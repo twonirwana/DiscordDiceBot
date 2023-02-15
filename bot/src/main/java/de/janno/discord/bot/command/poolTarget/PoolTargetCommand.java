@@ -9,7 +9,7 @@ import de.janno.discord.bot.command.*;
 import de.janno.discord.bot.dice.DiceUtils;
 import de.janno.discord.bot.persistance.Mapper;
 import de.janno.discord.bot.persistance.MessageConfigDTO;
-import de.janno.discord.bot.persistance.MessageStateDTO;
+import de.janno.discord.bot.persistance.MessageDataDTO;
 import de.janno.discord.bot.persistance.PersistenceManager;
 import de.janno.discord.connector.api.BottomCustomIdUtils;
 import de.janno.discord.connector.api.message.ButtonDefinition;
@@ -88,21 +88,21 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTar
                                                                                                                      @NonNull String buttonValue,
                                                                                                                      @NonNull String invokingUserName) {
         final Optional<MessageConfigDTO> messageConfigDTO = getMessageConfigDTO(configUUID, channelId, messageId);
-        final Optional<MessageStateDTO> messageStateDTO = persistenceManager.getStateForMessage(channelId, messageId);
+        final Optional<MessageDataDTO> messageStateDTO = persistenceManager.getStateForMessage(channelId, messageId);
         return messageConfigDTO.map(configDTO -> deserializeAndUpdateState(configDTO, messageStateDTO.orElse(null), buttonValue));
     }
 
     @VisibleForTesting
-    ConfigAndState<PoolTargetConfig, PoolTargetStateData> deserializeAndUpdateState(@NonNull MessageConfigDTO messageConfigDTO, @Nullable MessageStateDTO messageStateDTO, @NonNull String buttonValue) {
+    ConfigAndState<PoolTargetConfig, PoolTargetStateData> deserializeAndUpdateState(@NonNull MessageConfigDTO messageConfigDTO, @Nullable MessageDataDTO messageDataDTO, @NonNull String buttonValue) {
         Preconditions.checkArgument(CONFIG_TYPE_ID.equals(messageConfigDTO.getConfigClassId()), "Unknown configClassId: %s", messageConfigDTO.getConfigClassId());
-        Preconditions.checkArgument(Optional.ofNullable(messageStateDTO)
-                .map(MessageStateDTO::getStateDataClassId)
-                .map(c -> Objects.equals(STATE_DATA_TYPE_ID, c))
-                .orElse(true), "Unknown stateDataClassId: %s", Optional.ofNullable(messageStateDTO)
-                .map(MessageStateDTO::getStateDataClassId).orElse("null"));
+        Preconditions.checkArgument(Optional.ofNullable(messageDataDTO)
+                .map(MessageDataDTO::getStateDataClassId)
+                .map(c -> Set.of(STATE_DATA_TYPE_ID, Mapper.NO_PERSISTED_STATE).contains(c))
+                .orElse(true), "Unknown stateDataClassId: %s", Optional.ofNullable(messageDataDTO)
+                .map(MessageDataDTO::getStateDataClassId).orElse("null"));
 
-        final PoolTargetStateData loadedStateData = Optional.ofNullable(messageStateDTO)
-                .map(MessageStateDTO::getStateData)
+        final PoolTargetStateData loadedStateData = Optional.ofNullable(messageDataDTO)
+                .map(MessageDataDTO::getStateData)
                 .map(sd -> Mapper.deserializeObject(sd, PoolTargetStateData.class))
                 .orElse(null);
         final PoolTargetConfig loadedConfig = Mapper.deserializeObject(messageConfigDTO.getConfig(), PoolTargetConfig.class);
@@ -121,13 +121,15 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTar
     @Override
     protected void updateCurrentMessageStateData(UUID configUUID, long guildId, long channelId, long messageId, @NonNull PoolTargetConfig config, @NonNull State<PoolTargetStateData> state) {
         Optional<PoolTargetStateData> stateData = Optional.ofNullable(state.getData());
-        if (stateData.isEmpty() || (stateData.map(PoolTargetStateData::getDicePool).isPresent() &&
+        if (stateData.map(PoolTargetStateData::getDicePool).isPresent() &&
                 stateData.map(PoolTargetStateData::getTargetNumber).isPresent() &&
-                stateData.map(PoolTargetStateData::getDoReroll).isPresent())) {
+                stateData.map(PoolTargetStateData::getDoReroll).isPresent()) {
             persistenceManager.deleteStateForMessage(channelId, messageId);
-        } else {
+            //message data so we knew the button message exists
+            persistenceManager.saveMessageData(new MessageDataDTO(configUUID, guildId, channelId, messageId, getCommandId(), Mapper.NO_PERSISTED_STATE, null));
+        } else if (state.getData() != null) {
             persistenceManager.deleteStateForMessage(channelId, messageId);
-            persistenceManager.saveMessageState(new MessageStateDTO(configUUID, guildId, channelId, messageId, getCommandId(), STATE_DATA_TYPE_ID, Mapper.serializedObject(state.getData())));
+            persistenceManager.saveMessageData(new MessageDataDTO(configUUID, guildId, channelId, messageId, getCommandId(), STATE_DATA_TYPE_ID, Mapper.serializedObject(state.getData())));
         }
 
     }

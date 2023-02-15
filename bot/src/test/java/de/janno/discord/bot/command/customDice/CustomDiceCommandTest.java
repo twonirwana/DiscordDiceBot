@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableList;
 import de.janno.discord.bot.ResultImage;
 import de.janno.discord.bot.command.*;
 import de.janno.discord.bot.dice.*;
-import de.janno.discord.bot.persistance.MessageStateDTO;
+import de.janno.discord.bot.persistance.MessageConfigDTO;
 import de.janno.discord.bot.persistance.PersistenceManager;
 import de.janno.discord.bot.persistance.PersistenceManagerImpl;
 import de.janno.discord.connector.api.Requester;
@@ -89,14 +89,14 @@ class CustomDiceCommandTest {
 
     @Test
     void createNewButtonMessageWithState() {
-        String res = underTest.createNewButtonMessageWithState(new CustomDiceConfig(null, ImmutableList.of(), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full, ResultImage.none), new State<>("1d6", StateData.empty())).orElseThrow().getContent();
+        String res = underTest.createNewButtonMessageWithState(UUID.randomUUID(), new CustomDiceConfig(null, ImmutableList.of(), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full, ResultImage.none), new State<>("1d6", StateData.empty()), 1L, 2L).orElseThrow().getContent();
 
         assertThat(res).isEqualTo("Click on a button to roll the dice");
     }
 
     @Test
     void getButtonMessage() {
-        String res = underTest.createNewButtonMessage(new CustomDiceConfig(null, ImmutableList.of(), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full, ResultImage.none)).getContent();
+        String res = underTest.createNewButtonMessage(UUID.randomUUID(), new CustomDiceConfig(null, ImmutableList.of(), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full, ResultImage.none)).getContent();
 
         assertThat(res).isEqualTo("Click on a button to roll the dice");
     }
@@ -192,19 +192,19 @@ class CustomDiceCommandTest {
 
     @Test
     void getButtonLayoutWithState() {
-        List<ComponentRowDefinition> res = underTest.createNewButtonMessageWithState(new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "2d6", "2d6"), new ButtonIdLabelAndDiceExpression("2_button", "Attack", "1d20")), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full, ResultImage.none), new State<>("2d6", StateData.empty()))
+        List<ComponentRowDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "2d6", "2d6"), new ButtonIdLabelAndDiceExpression("2_button", "Attack", "1d20")), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full, ResultImage.none), new State<>("2d6", StateData.empty()), 1L, 2L)
                 .orElseThrow().getComponentRowDefinitions();
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel)).containsExactly("2d6", "Attack");
-        assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getId)).containsExactly("custom_dice1_button", "custom_dice2_button");
+        assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getId)).containsExactly("custom_dice1_button00000000-0000-0000-0000-000000000000", "custom_dice2_button00000000-0000-0000-0000-000000000000");
     }
 
     @Test
     void getButtonLayout() {
-        List<ComponentRowDefinition> res = underTest.createNewButtonMessage(new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "2d6", "2d6"), new ButtonIdLabelAndDiceExpression("2_button", "Attack", "1d20")), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full, ResultImage.none))
+        List<ComponentRowDefinition> res = underTest.createNewButtonMessage(UUID.fromString("00000000-0000-0000-0000-000000000000"), new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "2d6", "2d6"), new ButtonIdLabelAndDiceExpression("2_button", "Attack", "1d20")), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full, ResultImage.none))
                 .getComponentRowDefinitions();
 
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel)).containsExactly("2d6", "Attack");
-        assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getId)).containsExactly("custom_dice1_button", "custom_dice2_button");
+        assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getId)).containsExactly("custom_dice1_button00000000-0000-0000-0000-000000000000", "custom_dice2_button00000000-0000-0000-0000-000000000000");
     }
 
     @Test
@@ -230,7 +230,7 @@ class CustomDiceCommandTest {
         when(event.reply(any(), anyBoolean())).thenReturn(Mono.just(mock(Void.class)));
         when(diceMock.detailedRoll(any())).thenAnswer(a -> new DiceParser().detailedRoll(a.getArgument(0)));
 
-        Mono<Void> res = underTest.handleSlashCommandEvent(event);
+        Mono<Void> res = underTest.handleSlashCommandEvent(event, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"));
         StepVerifier.create(res).verifyComplete();
 
 
@@ -242,15 +242,15 @@ class CustomDiceCommandTest {
                 .content("Click on a button to roll the dice")
                 .componentRowDefinitions(ImmutableList.of(ComponentRowDefinition.builder()
                         .buttonDefinition(ButtonDefinition.builder()
-                                .id("custom_dice1_button")
+                                .id("custom_dice1_button00000000-0000-0000-0000-000000000000")
                                 .label("1d6")
                                 .build())
                         .buttonDefinition(ButtonDefinition.builder()
-                                .id("custom_dice2_button")
+                                .id("custom_dice2_button00000000-0000-0000-0000-000000000000")
                                 .label("Attack")
                                 .build())
                         .buttonDefinition(ButtonDefinition.builder()
-                                .id("custom_dice3_button")
+                                .id("custom_dice3_button00000000-0000-0000-0000-000000000000")
                                 .label("3d10,3d10,3d10")
                                 .build())
                         .build()))
@@ -299,7 +299,7 @@ class CustomDiceCommandTest {
                 .build()));
         when(event.replyEmbed(any(), anyBoolean())).thenReturn(Mono.just(mock(Void.class)));
 
-        Mono<Void> res = underTest.handleSlashCommandEvent(event);
+        Mono<Void> res = underTest.handleSlashCommandEvent(event, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"));
 
         assertThat(res).isNotNull();
 
@@ -405,29 +405,27 @@ class CustomDiceCommandTest {
     @Test
     void checkPersistence() {
         PersistenceManager persistenceManager = new PersistenceManagerImpl("jdbc:h2:mem:" + UUID.randomUUID(), null, null);
-        long channelId = System.currentTimeMillis();
-        long messageId = System.currentTimeMillis();
         UUID configUUID = UUID.randomUUID();
         CustomDiceConfig config = new CustomDiceConfig(123L, ImmutableList.of(
                 new ButtonIdLabelAndDiceExpression("1_button", "Label", "+1d6"),
                 new ButtonIdLabelAndDiceExpression("2_button", "+2d4", "+2d4")), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full, ResultImage.none);
-        State<StateData> state = new State<>("5", StateData.empty());
-        Optional<MessageStateDTO> toSave = underTest.createMessageDataForNewMessage(configUUID, 1L, channelId, messageId, config, state);
-        persistenceManager.saveMessageState(toSave.orElseThrow());
+        Optional<MessageConfigDTO> toSave = underTest.createMessageConfig(configUUID, 1L, 2L, config);
+        assertThat(toSave).isPresent();
 
-        MessageStateDTO loaded = persistenceManager.getStateForMessage(channelId, messageId).orElseThrow();
+        persistenceManager.saveMessageConfig(toSave.get());
+        MessageConfigDTO loaded = persistenceManager.getMessageConfig(configUUID).orElseThrow();
 
-        assertThat(toSave.orElseThrow()).isEqualTo(loaded);
+        assertThat(toSave.get()).isEqualTo(loaded);
         ConfigAndState<CustomDiceConfig, StateData> configAndState = underTest.deserializeAndUpdateState(loaded, "3");
         assertThat(configAndState.getConfig()).isEqualTo(config);
         assertThat(configAndState.getConfigUUID()).isEqualTo(configUUID);
-        assertThat(configAndState.getState().getData()).isEqualTo(state.getData());
+        assertThat(configAndState.getState()).isEqualTo(new State<>("3", StateData.empty()));
     }
 
     @Test
     void deserialization_legacy() {
         UUID configUUID = UUID.randomUUID();
-        MessageStateDTO savedData = new MessageStateDTO(configUUID, 1L, 1660644934298L, 1660644934298L, "custom_dice", "CustomDiceConfig", """
+        MessageConfigDTO savedData = new MessageConfigDTO(configUUID, 1L, 1660644934298L, "custom_dice", "CustomDiceConfig", """
                 ---
                 answerTargetChannelId: 123
                 buttonIdLabelAndDiceExpressions:
@@ -437,7 +435,7 @@ class CustomDiceCommandTest {
                 - buttonId: "2_button"
                   label: "+2d4"
                   diceExpression: "+2d4"
-                """, "None", null);
+                """);
 
 
         ConfigAndState<CustomDiceConfig, StateData> configAndState = underTest.deserializeAndUpdateState(savedData, "3");
@@ -451,7 +449,7 @@ class CustomDiceCommandTest {
     @Test
     void deserialization_legacy2() {
         UUID configUUID = UUID.randomUUID();
-        MessageStateDTO savedData = new MessageStateDTO(configUUID, 1L, 1660644934298L, 1660644934298L, "custom_dice", "CustomDiceConfig", """
+        MessageConfigDTO savedData = new MessageConfigDTO(configUUID, 1L, 1660644934298L, "custom_dice", "CustomDiceConfig", """
                 ---
                 answerTargetChannelId: 123
                 buttonIdLabelAndDiceExpressions:
@@ -462,7 +460,7 @@ class CustomDiceCommandTest {
                   label: "+2d4"
                   diceExpression: "+2d4"
                 diceParserSystem: "DICE_EVALUATOR"
-                """, "None", null);
+                """);
 
 
         ConfigAndState<CustomDiceConfig, StateData> configAndState = underTest.deserializeAndUpdateState(savedData, "3");
@@ -476,7 +474,7 @@ class CustomDiceCommandTest {
     @Test
     void deserialization_3() {
         UUID configUUID = UUID.randomUUID();
-        MessageStateDTO savedData = new MessageStateDTO(configUUID, 1L, 1660644934298L, 1660644934298L, "custom_dice", "CustomDiceConfig", """
+        MessageConfigDTO savedData = new MessageConfigDTO(configUUID, 1L, 1660644934298L, "custom_dice", "CustomDiceConfig", """
                 ---
                 answerTargetChannelId: 123
                 buttonIdLabelAndDiceExpressions:
@@ -488,7 +486,7 @@ class CustomDiceCommandTest {
                   diceExpression: "+2d4"
                 diceParserSystem: "DICE_EVALUATOR"
                 answerFormatType: compact
-                """, "None", null);
+                """);
 
 
         ConfigAndState<CustomDiceConfig, StateData> configAndState = underTest.deserializeAndUpdateState(savedData, "3");
@@ -502,7 +500,7 @@ class CustomDiceCommandTest {
     @Test
     void deserialization() {
         UUID configUUID = UUID.randomUUID();
-        MessageStateDTO savedData = new MessageStateDTO(configUUID, 1L, 1660644934298L, 1660644934298L, "custom_dice", "CustomDiceConfig", """
+        MessageConfigDTO savedData = new MessageConfigDTO(configUUID, 1L, 1660644934298L, "custom_dice", "CustomDiceConfig", """
                 ---
                 answerTargetChannelId: 123
                 buttonIdLabelAndDiceExpressions:
@@ -515,7 +513,7 @@ class CustomDiceCommandTest {
                 diceParserSystem: "DICE_EVALUATOR"
                 answerFormatType: compact
                 resultImage: none
-                """, "None", null);
+                """);
 
 
         ConfigAndState<CustomDiceConfig, StateData> configAndState = underTest.deserializeAndUpdateState(savedData, "3");

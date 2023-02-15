@@ -29,10 +29,7 @@ import javax.security.auth.login.LoginException;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentSkipListSet;
 
 @Slf4j
@@ -122,7 +119,7 @@ public class JdaClient {
                                                         event.getChannel().getName(),
                                                         Optional.ofNullable(event.getGuild()).map(Guild::getName).orElse(""),
                                                         event.getJDA().getShardInfo().getShardString())
-                                        )))
+                                        ), UUID::randomUUID))
                                         .onErrorResume(e -> {
                                             log.error("SlashCommandEvent Exception: ", e);
                                             return Mono.empty();

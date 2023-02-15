@@ -8,6 +8,7 @@ import lombok.NonNull;
 
 public class Mapper {
 
+    public static final String NO_PERSISTED_STATE = "None";
     private static final ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
 
     public static String serializedObject(@NonNull Object object) {

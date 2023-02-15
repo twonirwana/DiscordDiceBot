@@ -2,7 +2,6 @@ package de.janno.discord.bot.command;
 
 import de.janno.discord.bot.ResultImage;
 import de.janno.discord.bot.dice.CachingDiceEvaluator;
-import de.janno.discord.bot.persistance.MessageStateDTO;
 import de.janno.discord.bot.persistance.PersistenceManager;
 import de.janno.discord.connector.api.ButtonEventAdaptor;
 import de.janno.discord.connector.api.message.ButtonDefinition;
@@ -23,11 +22,11 @@ import static org.mockito.Mockito.mock;
 
 class WelcomeCommandTest {
 
-    final WelcomeCommand underTest = new WelcomeCommand(mock(PersistenceManager.class), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
+    final WelcomeCommand underTest = new WelcomeCommand(mock(PersistenceManager.class), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0),() -> UUID.fromString("00000000-0000-0000-0000-000000000000"));
 
     @Test
     public void getButtonMessageWithState_fate() {
-        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(null, new State<>("fate", StateData.empty()));
+        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), null, new State<>("fate", StateData.empty()), 1L, 2L);
         assertThat(res.map(MessageDefinition::getContent))
                 .contains("Click a button to roll four fate dice and add the value of the button");
         assertThat(res.map(MessageDefinition::getComponentRowDefinitions)
@@ -35,21 +34,21 @@ class WelcomeCommandTest {
                 .flatMap(Collection::stream)
                 .flatMap(s -> s.getButtonDefinitions().stream())
                 .map(ButtonDefinition::getId))
-                .containsExactly("fate-4",
-                        "fate-3",
-                        "fate-2",
-                        "fate-1",
-                        "fate0",
-                        "fate1",
-                        "fate2",
-                        "fate3",
-                        "fate4",
-                        "fate5",
-                        "fate6",
-                        "fate7",
-                        "fate8",
-                        "fate9",
-                        "fate10");
+                .containsExactly("fate-400000000-0000-0000-0000-000000000000",
+                        "fate-300000000-0000-0000-0000-000000000000",
+                        "fate-200000000-0000-0000-0000-000000000000",
+                        "fate-100000000-0000-0000-0000-000000000000",
+                        "fate000000000-0000-0000-0000-000000000000",
+                        "fate100000000-0000-0000-0000-000000000000",
+                        "fate200000000-0000-0000-0000-000000000000",
+                        "fate300000000-0000-0000-0000-000000000000",
+                        "fate400000000-0000-0000-0000-000000000000",
+                        "fate500000000-0000-0000-0000-000000000000",
+                        "fate600000000-0000-0000-0000-000000000000",
+                        "fate700000000-0000-0000-0000-000000000000",
+                        "fate800000000-0000-0000-0000-000000000000",
+                        "fate900000000-0000-0000-0000-000000000000",
+                        "fate1000000000-0000-0000-0000-000000000000");
         assertThat(res.map(MessageDefinition::getComponentRowDefinitions)
                 .stream()
                 .flatMap(Collection::stream)
@@ -61,7 +60,7 @@ class WelcomeCommandTest {
 
     @Test
     public void getButtonMessageWithState_dnd5() {
-        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(null, new State<>("dnd5", StateData.empty()));
+        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), null, new State<>("dnd5", StateData.empty()), 1L, 2L);
         assertThat(res.map(MessageDefinition::getContent))
                 .contains("Click on a button to roll the dice");
         assertThat(res.map(MessageDefinition::getComponentRowDefinitions)
@@ -69,21 +68,21 @@ class WelcomeCommandTest {
                 .flatMap(Collection::stream)
                 .flatMap(s -> s.getButtonDefinitions().stream())
                 .map(ButtonDefinition::getId))
-                .containsExactly("custom_dice1_button",
-                        "custom_dice2_button",
-                        "custom_dice3_button",
-                        "custom_dice4_button",
-                        "custom_dice5_button",
-                        "custom_dice6_button",
-                        "custom_dice7_button",
-                        "custom_dice8_button",
-                        "custom_dice9_button",
-                        "custom_dice10_button",
-                        "custom_dice11_button",
-                        "custom_dice12_button",
-                        "custom_dice13_button",
-                        "custom_dice14_button",
-                        "custom_dice15_button");
+                .containsExactly("custom_dice1_button00000000-0000-0000-0000-000000000000",
+                        "custom_dice2_button00000000-0000-0000-0000-000000000000",
+                        "custom_dice3_button00000000-0000-0000-0000-000000000000",
+                        "custom_dice4_button00000000-0000-0000-0000-000000000000",
+                        "custom_dice5_button00000000-0000-0000-0000-000000000000",
+                        "custom_dice6_button00000000-0000-0000-0000-000000000000",
+                        "custom_dice7_button00000000-0000-0000-0000-000000000000",
+                        "custom_dice8_button00000000-0000-0000-0000-000000000000",
+                        "custom_dice9_button00000000-0000-0000-0000-000000000000",
+                        "custom_dice10_button00000000-0000-0000-0000-000000000000",
+                        "custom_dice11_button00000000-0000-0000-0000-000000000000",
+                        "custom_dice12_button00000000-0000-0000-0000-000000000000",
+                        "custom_dice13_button00000000-0000-0000-0000-000000000000",
+                        "custom_dice14_button00000000-0000-0000-0000-000000000000",
+                        "custom_dice15_button00000000-0000-0000-0000-000000000000");
         assertThat(res.map(MessageDefinition::getComponentRowDefinitions)
                 .stream()
                 .flatMap(Collection::stream)
@@ -109,7 +108,7 @@ class WelcomeCommandTest {
 
     @Test
     public void getButtonMessageWithState_coin() {
-        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(null, new State<>("coin", StateData.empty()));
+        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), null, new State<>("coin", StateData.empty()), 1L, 2L);
         assertThat(res.map(MessageDefinition::getContent))
                 .contains("Click on a button to roll the dice");
         assertThat(res.map(MessageDefinition::getComponentRowDefinitions)
@@ -117,7 +116,7 @@ class WelcomeCommandTest {
                 .flatMap(Collection::stream)
                 .flatMap(s -> s.getButtonDefinitions().stream())
                 .map(ButtonDefinition::getId))
-                .containsExactly("custom_dice1_button");
+                .containsExactly("custom_dice1_button00000000-0000-0000-0000-000000000000");
         assertThat(res.map(MessageDefinition::getComponentRowDefinitions)
                 .stream()
                 .flatMap(Collection::stream)
@@ -128,7 +127,7 @@ class WelcomeCommandTest {
 
     @Test
     public void getButtonMessageWithState_nWoD() {
-        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(null, new State<>("nWoD", StateData.empty()));
+        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), null, new State<>("nWoD", StateData.empty()), 1L, 2L);
 
         assertThat(res.map(MessageDefinition::getContent))
                 .contains("Click to roll the dice against 8, reroll for: [10]");
@@ -137,21 +136,21 @@ class WelcomeCommandTest {
                 .flatMap(Collection::stream)
                 .flatMap(s -> s.getButtonDefinitions().stream())
                 .map(ButtonDefinition::getId))
-                .containsExactly("count_successes1",
-                        "count_successes2",
-                        "count_successes3",
-                        "count_successes4",
-                        "count_successes5",
-                        "count_successes6",
-                        "count_successes7",
-                        "count_successes8",
-                        "count_successes9",
-                        "count_successes10",
-                        "count_successes11",
-                        "count_successes12",
-                        "count_successes13",
-                        "count_successes14",
-                        "count_successes15");
+                .containsExactly("count_successes100000000-0000-0000-0000-000000000000",
+                        "count_successes200000000-0000-0000-0000-000000000000",
+                        "count_successes300000000-0000-0000-0000-000000000000",
+                        "count_successes400000000-0000-0000-0000-000000000000",
+                        "count_successes500000000-0000-0000-0000-000000000000",
+                        "count_successes600000000-0000-0000-0000-000000000000",
+                        "count_successes700000000-0000-0000-0000-000000000000",
+                        "count_successes800000000-0000-0000-0000-000000000000",
+                        "count_successes900000000-0000-0000-0000-000000000000",
+                        "count_successes1000000000-0000-0000-0000-000000000000",
+                        "count_successes1100000000-0000-0000-0000-000000000000",
+                        "count_successes1200000000-0000-0000-0000-000000000000",
+                        "count_successes1300000000-0000-0000-0000-000000000000",
+                        "count_successes1400000000-0000-0000-0000-000000000000",
+                        "count_successes1500000000-0000-0000-0000-000000000000");
         assertThat(res.map(MessageDefinition::getComponentRowDefinitions)
                 .stream()
                 .flatMap(Collection::stream)
@@ -162,7 +161,7 @@ class WelcomeCommandTest {
 
     @Test
     public void getButtonMessageWithState_oWoD() {
-        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(null, new State<>("oWoD", StateData.empty()));
+        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), null, new State<>("oWoD", StateData.empty()), 1L, 2L);
         assertThat(res.map(MessageDefinition::getContent))
                 .contains("Click on the buttons to roll dice, with ask reroll:10 and botch:1");
         assertThat(res.map(MessageDefinition::getComponentRowDefinitions)
@@ -170,21 +169,21 @@ class WelcomeCommandTest {
                 .flatMap(Collection::stream)
                 .flatMap(s -> s.getButtonDefinitions().stream())
                 .map(ButtonDefinition::getId))
-                .containsExactly("pool_target1",
-                        "pool_target2",
-                        "pool_target3",
-                        "pool_target4",
-                        "pool_target5",
-                        "pool_target6",
-                        "pool_target7",
-                        "pool_target8",
-                        "pool_target9",
-                        "pool_target10",
-                        "pool_target11",
-                        "pool_target12",
-                        "pool_target13",
-                        "pool_target14",
-                        "pool_target15");
+                .containsExactly("pool_target100000000-0000-0000-0000-000000000000",
+                        "pool_target200000000-0000-0000-0000-000000000000",
+                        "pool_target300000000-0000-0000-0000-000000000000",
+                        "pool_target400000000-0000-0000-0000-000000000000",
+                        "pool_target500000000-0000-0000-0000-000000000000",
+                        "pool_target600000000-0000-0000-0000-000000000000",
+                        "pool_target700000000-0000-0000-0000-000000000000",
+                        "pool_target800000000-0000-0000-0000-000000000000",
+                        "pool_target900000000-0000-0000-0000-000000000000",
+                        "pool_target1000000000-0000-0000-0000-000000000000",
+                        "pool_target1100000000-0000-0000-0000-000000000000",
+                        "pool_target1200000000-0000-0000-0000-000000000000",
+                        "pool_target1300000000-0000-0000-0000-000000000000",
+                        "pool_target1400000000-0000-0000-0000-000000000000",
+                        "pool_target1500000000-0000-0000-0000-000000000000");
         assertThat(res.map(MessageDefinition::getComponentRowDefinitions)
                 .stream()
                 .flatMap(Collection::stream)
@@ -197,7 +196,7 @@ class WelcomeCommandTest {
 
     @Test
     public void getButtonMessageWithState_Shadowrun() {
-        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(null, new State<>("shadowrun", StateData.empty()));
+        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), null, new State<>("shadowrun", StateData.empty()), 1L, 2L);
         assertThat(res.map(MessageDefinition::getContent))
                 .contains("Click to roll the dice against 5 and check for more then half of dice 1s");
         assertThat(res.map(MessageDefinition::getComponentRowDefinitions)
@@ -205,26 +204,26 @@ class WelcomeCommandTest {
                 .flatMap(Collection::stream)
                 .flatMap(s -> s.getButtonDefinitions().stream())
                 .map(ButtonDefinition::getId))
-                .containsExactly("count_successes1",
-                        "count_successes2",
-                        "count_successes3",
-                        "count_successes4",
-                        "count_successes5",
-                        "count_successes6",
-                        "count_successes7",
-                        "count_successes8",
-                        "count_successes9",
-                        "count_successes10",
-                        "count_successes11",
-                        "count_successes12",
-                        "count_successes13",
-                        "count_successes14",
-                        "count_successes15",
-                        "count_successes16",
-                        "count_successes17",
-                        "count_successes18",
-                        "count_successes19",
-                        "count_successes20");
+                .containsExactly("count_successes100000000-0000-0000-0000-000000000000",
+                        "count_successes200000000-0000-0000-0000-000000000000",
+                        "count_successes300000000-0000-0000-0000-000000000000",
+                        "count_successes400000000-0000-0000-0000-000000000000",
+                        "count_successes500000000-0000-0000-0000-000000000000",
+                        "count_successes600000000-0000-0000-0000-000000000000",
+                        "count_successes700000000-0000-0000-0000-000000000000",
+                        "count_successes800000000-0000-0000-0000-000000000000",
+                        "count_successes900000000-0000-0000-0000-000000000000",
+                        "count_successes1000000000-0000-0000-0000-000000000000",
+                        "count_successes1100000000-0000-0000-0000-000000000000",
+                        "count_successes1200000000-0000-0000-0000-000000000000",
+                        "count_successes1300000000-0000-0000-0000-000000000000",
+                        "count_successes1400000000-0000-0000-0000-000000000000",
+                        "count_successes1500000000-0000-0000-0000-000000000000",
+                        "count_successes1600000000-0000-0000-0000-000000000000",
+                        "count_successes1700000000-0000-0000-0000-000000000000",
+                        "count_successes1800000000-0000-0000-0000-000000000000",
+                        "count_successes1900000000-0000-0000-0000-000000000000",
+                        "count_successes2000000000-0000-0000-0000-000000000000");
         assertThat(res.map(MessageDefinition::getComponentRowDefinitions)
                 .stream()
                 .flatMap(Collection::stream)
@@ -236,7 +235,7 @@ class WelcomeCommandTest {
 
     @Test
     public void getButtonMessageWithState_diceCalculator() {
-        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(null, new State<>("dice_calculator", StateData.empty()));
+        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), null, new State<>("dice_calculator", StateData.empty()), 1L, 2L);
         assertThat(res.map(MessageDefinition::getContent))
                 .contains("Click the buttons to add dice to the set and then on Roll");
         assertThat(res.map(MessageDefinition::getComponentRowDefinitions)
@@ -244,24 +243,24 @@ class WelcomeCommandTest {
                 .flatMap(Collection::stream)
                 .flatMap(s -> s.getButtonDefinitions().stream())
                 .map(ButtonDefinition::getId))
-                .containsExactly("sum_custom_set1_button",
-                        "sum_custom_set2_button",
-                        "sum_custom_set3_button",
-                        "sum_custom_set5_button",
-                        "sum_custom_set6_button",
-                        "sum_custom_set7_button",
-                        "sum_custom_set8_button",
-                        "sum_custom_set9_button",
-                        "sum_custom_set10_button",
-                        "sum_custom_set11_button",
-                        "sum_custom_set12_button",
-                        "sum_custom_set13_button",
-                        "sum_custom_set14_button",
-                        "sum_custom_set15_button",
-                        "sum_custom_set16_button",
-                        "sum_custom_setroll",
-                        "sum_custom_setclear",
-                        "sum_custom_setback");
+                .containsExactly("sum_custom_set1_button00000000-0000-0000-0000-000000000000",
+                        "sum_custom_set2_button00000000-0000-0000-0000-000000000000",
+                        "sum_custom_set3_button00000000-0000-0000-0000-000000000000",
+                        "sum_custom_set5_button00000000-0000-0000-0000-000000000000",
+                        "sum_custom_set6_button00000000-0000-0000-0000-000000000000",
+                        "sum_custom_set7_button00000000-0000-0000-0000-000000000000",
+                        "sum_custom_set8_button00000000-0000-0000-0000-000000000000",
+                        "sum_custom_set9_button00000000-0000-0000-0000-000000000000",
+                        "sum_custom_set10_button00000000-0000-0000-0000-000000000000",
+                        "sum_custom_set11_button00000000-0000-0000-0000-000000000000",
+                        "sum_custom_set12_button00000000-0000-0000-0000-000000000000",
+                        "sum_custom_set13_button00000000-0000-0000-0000-000000000000",
+                        "sum_custom_set14_button00000000-0000-0000-0000-000000000000",
+                        "sum_custom_set15_button00000000-0000-0000-0000-000000000000",
+                        "sum_custom_set16_button00000000-0000-0000-0000-000000000000",
+                        "sum_custom_setroll00000000-0000-0000-0000-000000000000",
+                        "sum_custom_setclear00000000-0000-0000-0000-000000000000",
+                        "sum_custom_setback00000000-0000-0000-0000-000000000000");
         assertThat(res.map(MessageDefinition::getComponentRowDefinitions)
                 .stream()
                 .flatMap(Collection::stream)
@@ -290,7 +289,7 @@ class WelcomeCommandTest {
 
     @Test
     public void getButtonMessageWithState_other() {
-        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(null, new State<>("-", StateData.empty()));
+        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), null, new State<>("-", StateData.empty()), 1L, 2L);
         assertThat(res)
                 .isEmpty();
 
@@ -310,15 +309,15 @@ class WelcomeCommandTest {
                 .flatMap(s -> s.getButtonDefinitions().stream())
                 .map(ButtonDefinition::getId))
                 .containsExactly(
-                        "welcomefate",
-                        "welcomefate_image",
-                        "welcomednd5",
-                        "welcomednd5_image",
-                        "welcomenWoD",
-                        "welcomeoWoD",
-                        "welcomeshadowrun",
-                        "welcomecoin",
-                        "welcomedice_calculator");
+                        "welcomefate00000000-0000-0000-0000-000000000000",
+                        "welcomefate_image00000000-0000-0000-0000-000000000000",
+                        "welcomednd500000000-0000-0000-0000-000000000000",
+                        "welcomednd5_image00000000-0000-0000-0000-000000000000",
+                        "welcomenWoD00000000-0000-0000-0000-000000000000",
+                        "welcomeoWoD00000000-0000-0000-0000-000000000000",
+                        "welcomeshadowrun00000000-0000-0000-0000-000000000000",
+                        "welcomecoin00000000-0000-0000-0000-000000000000",
+                        "welcomedice_calculator00000000-0000-0000-0000-000000000000");
         assertThat(res.getComponentRowDefinitions()
                 .stream()
                 .flatMap(s -> s.getButtonDefinitions().stream())
@@ -347,7 +346,7 @@ class WelcomeCommandTest {
             "dice_calculator"
     })
     void createMessageDataForNewMessage(String buttonValue) {
-        Optional<MessageStateDTO> res = underTest.createMessageDataForNewMessage(UUID.randomUUID(), 1L, 1L, 2L, new Config(null, AnswerFormatType.full, ResultImage.none), new State<>(buttonValue, StateData.empty()));
+        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), new Config(null, AnswerFormatType.full, ResultImage.none), new State<>(buttonValue, StateData.empty()), 1L, 2L);
         assertThat(res).isPresent();
     }
 

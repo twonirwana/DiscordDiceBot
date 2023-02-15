@@ -7,9 +7,13 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 
+/**
+ * The persisted information for a single button message. Containing the optional internal state of the command.
+ * Each button message need to have a MessageData so we can use it to delete the button message even on concurrent actions.
+ */
 @Value
 @AllArgsConstructor
-public class MessageStateDTO {
+public class MessageDataDTO {
 
     @NonNull
     UUID configUUID;

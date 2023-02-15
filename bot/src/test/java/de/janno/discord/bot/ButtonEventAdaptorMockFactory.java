@@ -15,22 +15,24 @@ import static de.janno.discord.bot.ButtonEventAdaptorMock.CHANNEL_ID;
 import static de.janno.discord.bot.ButtonEventAdaptorMock.GUILD_ID;
 
 public class ButtonEventAdaptorMockFactory<C extends Config, S extends StateData> {
-    private final String customId;
+    private final String commandId;
     private final AtomicLong messageIdCounter;
     private final Set<Long> pinnedMessageIds;
+    private final UUID configUUID = UUID.randomUUID();
 
-    public ButtonEventAdaptorMockFactory(String customId, AbstractCommand<C, S> command, C config, PersistenceManager persistenceManager, boolean firstMessagePinned) {
-        this.customId = customId;
+    public ButtonEventAdaptorMockFactory(String commandId, AbstractCommand<C, S> command, C config, PersistenceManager persistenceManager, boolean firstMessagePinned) {
+        this.commandId = commandId;
         this.messageIdCounter = new AtomicLong(0);
         this.pinnedMessageIds = firstMessagePinned ? Sets.newHashSet(messageIdCounter.get()) : Collections.emptySet();
-        command.createMessageStateForNewMessage(UUID.randomUUID(), GUILD_ID, CHANNEL_ID, messageIdCounter.get(), config, null).ifPresent(persistenceManager::saveMessageState);
+        command.createMessageConfig(configUUID, GUILD_ID, CHANNEL_ID, config).ifPresent(persistenceManager::saveMessageConfig);
+        command.createEmptyMessageData(configUUID, GUILD_ID, CHANNEL_ID, messageIdCounter.get());
     }
 
     public ButtonEventAdaptorMock getButtonClickOnLastButtonMessage(String buttonValue) {
-        return new ButtonEventAdaptorMock(customId, buttonValue, messageIdCounter, pinnedMessageIds);
+        return new ButtonEventAdaptorMock(commandId, buttonValue, configUUID, messageIdCounter, pinnedMessageIds);
     }
 
     public ButtonEventAdaptorMock getButtonClickOnLastButtonMessage(String buttonValue, String invokingUser) {
-        return new ButtonEventAdaptorMock(customId, buttonValue, messageIdCounter, pinnedMessageIds, invokingUser);
+        return new ButtonEventAdaptorMock(commandId, buttonValue, configUUID, messageIdCounter, pinnedMessageIds, invokingUser);
     }
 }

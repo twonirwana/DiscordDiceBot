@@ -39,7 +39,7 @@ public class DirectRollCommandMockTest {
                 .name("expression")
                 .stringValue("1d6")
                 .build()));
-        directRollCommand.handleSlashCommandEvent(slashEvent).block();
+        directRollCommand.handleSlashCommandEvent(slashEvent, () -> UUID.fromString("00000000-0000-0000-0000-000000000000")).block();
 
 
         assertThat(slashEvent.getActions()).containsExactlyInAnyOrder(
@@ -55,7 +55,7 @@ public class DirectRollCommandMockTest {
                 .name("expression")
                 .stringValue("help")
                 .build()));
-        directRollCommand.handleSlashCommandEvent(slashEvent).block();
+        directRollCommand.handleSlashCommandEvent(slashEvent, () -> UUID.fromString("00000000-0000-0000-0000-000000000000")).block();
 
 
         assertThat(slashEvent.getActions()).containsExactlyInAnyOrder(
@@ -72,7 +72,7 @@ public class DirectRollCommandMockTest {
                 .name("expression")
                 .stringValue("d")
                 .build()));
-        directRollCommand.handleSlashCommandEvent(slashEvent).block();
+        directRollCommand.handleSlashCommandEvent(slashEvent, () -> UUID.fromString("00000000-0000-0000-0000-000000000000")).block();
 
 
         assertThat(slashEvent.getActions()).containsExactlyInAnyOrder(
@@ -88,7 +88,7 @@ public class DirectRollCommandMockTest {
                 .name("expression")
                 .stringValue("1d6@test")
                 .build()));
-        directRollCommand.handleSlashCommandEvent(slashEvent).block();
+        directRollCommand.handleSlashCommandEvent(slashEvent, () -> UUID.fromString("00000000-0000-0000-0000-000000000000")).block();
 
 
         assertThat(slashEvent.getActions()).containsExactlyInAnyOrder(
@@ -116,14 +116,14 @@ public class DirectRollCommandMockTest {
                         .stringValue("none")
                         .build())
                 .build()));
-        directRollConfig.handleSlashCommandEvent(slashEvent1).block();
+        directRollConfig.handleSlashCommandEvent(slashEvent1, () -> UUID.fromString("00000000-0000-0000-0000-000000000000")).block();
 
 
         SlashEventAdaptorMock slashEvent2 = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
                 .name("expression")
                 .stringValue("1d6")
                 .build()));
-        directRollCommand.handleSlashCommandEvent(slashEvent2).block();
+        directRollCommand.handleSlashCommandEvent(slashEvent2, () -> UUID.fromString("00000000-0000-0000-0000-000000000000")).block();
 
         assertThat(slashEvent1.getActions()).containsExactlyInAnyOrder("reply: `commandString`\nSaved direct roll channel config");
         assertThat(slashEvent2.getActions()).containsExactlyInAnyOrder("acknowledgeAndRemoveSlash",
@@ -150,14 +150,14 @@ public class DirectRollCommandMockTest {
                         .stringValue("polyhedral_3d_red_and_white")
                         .build())
                 .build()));
-        directRollConfig.handleSlashCommandEvent(slashEvent1).block();
+        directRollConfig.handleSlashCommandEvent(slashEvent1, () -> UUID.fromString("00000000-0000-0000-0000-000000000000")).block();
 
 
         SlashEventAdaptorMock slashEvent2 = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
                 .name("expression")
                 .stringValue("1d6")
                 .build()));
-        directRollCommand.handleSlashCommandEvent(slashEvent2).block();
+        directRollCommand.handleSlashCommandEvent(slashEvent2, () -> UUID.fromString("00000000-0000-0000-0000-000000000000")).block();
 
         assertThat(slashEvent1.getActions()).containsExactlyInAnyOrder("reply: `commandString`\nSaved direct roll channel config");
         assertThat(slashEvent2.getActions()).containsExactlyInAnyOrder(
@@ -185,14 +185,14 @@ public class DirectRollCommandMockTest {
                         .stringValue("polyhedral_3d_red_and_white")
                         .build())
                 .build()));
-        directRollConfig.handleSlashCommandEvent(slashEvent1).block();
+        directRollConfig.handleSlashCommandEvent(slashEvent1, () -> UUID.fromString("00000000-0000-0000-0000-000000000000")).block();
 
 
         SlashEventAdaptorMock slashEvent2 = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
                 .name("expression")
                 .stringValue("1d6@test")
                 .build()));
-        directRollCommand.handleSlashCommandEvent(slashEvent2).block();
+        directRollCommand.handleSlashCommandEvent(slashEvent2, () -> UUID.fromString("00000000-0000-0000-0000-000000000000")).block();
 
         assertThat(slashEvent1.getActions()).containsExactlyInAnyOrder("reply: `commandString`\nSaved direct roll channel config");
         assertThat(slashEvent2.getActions()).containsExactlyInAnyOrder(
@@ -220,14 +220,14 @@ public class DirectRollCommandMockTest {
                         .stringValue("polyhedral_3d_red_and_white")
                         .build())
                 .build()));
-        directRollConfig.handleSlashCommandEvent(slashEvent1).block();
+        directRollConfig.handleSlashCommandEvent(slashEvent1, () -> UUID.fromString("00000000-0000-0000-0000-000000000000")).block();
 
 
         SlashEventAdaptorMock slashEvent2 = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
                 .name("expression")
                 .stringValue("1d6")
                 .build()));
-        directRollCommand.handleSlashCommandEvent(slashEvent2).block();
+        directRollCommand.handleSlashCommandEvent(slashEvent2, () -> UUID.fromString("00000000-0000-0000-0000-000000000000")).block();
 
         assertThat(slashEvent1.getActions()).containsExactlyInAnyOrder("reply: `commandString`\nSaved direct roll channel config");
         assertThat(slashEvent2.getActions()).containsExactlyInAnyOrder(
@@ -255,14 +255,14 @@ public class DirectRollCommandMockTest {
                         .stringValue("polyhedral_3d_red_and_white")
                         .build())
                 .build()));
-        directRollConfig.handleSlashCommandEvent(slashEvent1).block();
+        directRollConfig.handleSlashCommandEvent(slashEvent1, () -> UUID.fromString("00000000-0000-0000-0000-000000000000")).block();
 
 
         SlashEventAdaptorMock slashEvent2 = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
                 .name("expression")
                 .stringValue("1d6")
                 .build()));
-        directRollCommand.handleSlashCommandEvent(slashEvent2).block();
+        directRollCommand.handleSlashCommandEvent(slashEvent2, () -> UUID.fromString("00000000-0000-0000-0000-000000000000")).block();
 
         assertThat(slashEvent1.getActions()).containsExactlyInAnyOrder("reply: `commandString`\nSaved direct roll channel config");
         assertThat(slashEvent2.getActions()).containsExactlyInAnyOrder(
@@ -290,18 +290,18 @@ public class DirectRollCommandMockTest {
                         .stringValue("polyhedral_3d_red_and_white")
                         .build())
                 .build()));
-        directRollConfig.handleSlashCommandEvent(slashEvent1).block();
+        directRollConfig.handleSlashCommandEvent(slashEvent1, () -> UUID.fromString("00000000-0000-0000-0000-000000000000")).block();
 
         SlashEventAdaptorMock slashEvent2 = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
                 .name("delete")
                 .build()));
-        directRollConfig.handleSlashCommandEvent(slashEvent2).block();
+        directRollConfig.handleSlashCommandEvent(slashEvent2, () -> UUID.fromString("00000000-0000-0000-0000-000000000000")).block();
 
         SlashEventAdaptorMock slashEvent3 = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
                 .name("expression")
                 .stringValue("1d6")
                 .build()));
-        directRollCommand.handleSlashCommandEvent(slashEvent3).block();
+        directRollCommand.handleSlashCommandEvent(slashEvent3, () -> UUID.fromString("00000000-0000-0000-0000-000000000000")).block();
 
         assertThat(slashEvent1.getActions()).containsExactlyInAnyOrder("reply: `commandString`\nSaved direct roll channel config");
         assertThat(slashEvent2.getActions()).containsExactlyInAnyOrder("reply: `commandString`\nDeleted direct roll channel config");

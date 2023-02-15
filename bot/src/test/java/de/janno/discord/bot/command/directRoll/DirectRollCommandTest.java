@@ -54,7 +54,7 @@ class DirectRollCommandTest {
         when(slashEventAdaptor.getRequester()).thenReturn(new Requester("user", "channel", "guild", "[0 / 1]"));
 
 
-        Mono<Void> res = underTest.handleSlashCommandEvent(slashEventAdaptor);
+        Mono<Void> res = underTest.handleSlashCommandEvent(slashEventAdaptor, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"));
 
 
         StepVerifier.create(res)
@@ -86,7 +86,7 @@ class DirectRollCommandTest {
         when(slashEventAdaptor.getCommandString()).thenReturn("/r expression:asdfasdf");
         when(slashEventAdaptor.getRequester()).thenReturn(new Requester("user", "channel", "guild", "[0 / 1]"));
 
-        Mono<Void> res = underTest.handleSlashCommandEvent(slashEventAdaptor);
+        Mono<Void> res = underTest.handleSlashCommandEvent(slashEventAdaptor, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"));
 
         assertThat(res).isNotNull();
 
@@ -119,7 +119,7 @@ class DirectRollCommandTest {
         when(slashEventAdaptor.getRequester()).thenReturn(new Requester("user", "channel", "guild", "[0 / 1]"));
 
 
-        Mono<Void> res = underTest.handleSlashCommandEvent(slashEventAdaptor);
+        Mono<Void> res = underTest.handleSlashCommandEvent(slashEventAdaptor, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"));
 
 
         assertThat(res).isNotNull();

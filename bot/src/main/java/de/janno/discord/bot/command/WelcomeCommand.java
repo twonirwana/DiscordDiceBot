@@ -1,5 +1,6 @@
 package de.janno.discord.bot.command;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import de.janno.discord.bot.BotMetrics;
@@ -32,6 +33,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.function.Supplier;
 
 @Slf4j
 public class WelcomeCommand extends AbstractCommand<Config, StateData> {
@@ -84,10 +86,17 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
     private final CustomParameterConfig FATE_WITH_IMAGE_CONFIG = new CustomParameterConfig(null, "4d[-1,0,1]+{Modifier:-4<=>10}=", DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.without_expression, ResultImage.fate_black);
 
     private final CachingDiceEvaluator cachingDiceEvaluator;
+    private final Supplier<UUID> uuidSupplier;
 
     public WelcomeCommand(PersistenceManager persistenceManager, CachingDiceEvaluator cachingDiceEvaluator) {
+        this(persistenceManager, cachingDiceEvaluator, UUID::randomUUID);
+    }
+
+    @VisibleForTesting
+    public WelcomeCommand(PersistenceManager persistenceManager, CachingDiceEvaluator cachingDiceEvaluator, Supplier<UUID> uuidSupplier) {
         super(persistenceManager);
         this.cachingDiceEvaluator = cachingDiceEvaluator;
+        this.uuidSupplier = uuidSupplier;
     }
 
     @Override
@@ -96,7 +105,7 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
                                                                                                  long messageId,
                                                                                                  @NonNull String buttonValue,
                                                                                                  @NonNull String invokingUserName) {
-        return Optional.of(new ConfigAndState<>(UUID.randomUUID(), new Config(null, AnswerFormatType.full, ResultImage.none), new State<>(buttonValue, StateData.empty())));
+        return Optional.of(new ConfigAndState<>(uuidSupplier.get(), new Config(null, AnswerFormatType.full, ResultImage.none), new State<>(buttonValue, StateData.empty())));
     }
 
     @Override
@@ -143,51 +152,51 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
         if (ButtonIds.isInvalid(state.getButtonValue())) {
             return Optional.empty();
         }
-        UUID newConfigUUID = UUID.randomUUID();
+        UUID newConfigUUID = uuidSupplier.get();
         return switch (ButtonIds.valueOf(state.getButtonValue())) {
             case fate -> {
                 FateCommand command = new FateCommand(persistenceManager);
-                command.createMessageConfig(newConfigUUID, guildId, channelId, FATE_CONFIG).ifPresent(persistenceManager::saveConfig);
+                command.createMessageConfig(newConfigUUID, guildId, channelId, FATE_CONFIG).ifPresent(persistenceManager::saveMessageConfig);
                 yield Optional.of(command.createNewButtonMessage(newConfigUUID, FATE_CONFIG));
             }
             case fate_image -> {
                 CustomParameterCommand command = new CustomParameterCommand(persistenceManager, cachingDiceEvaluator);
-                command.createMessageConfig(newConfigUUID, guildId, channelId, FATE_WITH_IMAGE_CONFIG).ifPresent(persistenceManager::saveConfig);
+                command.createMessageConfig(newConfigUUID, guildId, channelId, FATE_WITH_IMAGE_CONFIG).ifPresent(persistenceManager::saveMessageConfig);
                 yield Optional.of(command.createNewButtonMessage(newConfigUUID, FATE_WITH_IMAGE_CONFIG));
             }
             case dnd5 -> {
                 CustomDiceCommand command = new CustomDiceCommand(persistenceManager, cachingDiceEvaluator);
-                command.createMessageConfig(newConfigUUID, guildId, channelId, DND5_CONFIG).ifPresent(persistenceManager::saveConfig);
+                command.createMessageConfig(newConfigUUID, guildId, channelId, DND5_CONFIG).ifPresent(persistenceManager::saveMessageConfig);
                 yield Optional.of(command.createNewButtonMessage(newConfigUUID, DND5_CONFIG));
             }
             case dnd5_image -> {
                 CustomDiceCommand command = new CustomDiceCommand(persistenceManager, cachingDiceEvaluator);
-                command.createMessageConfig(newConfigUUID, guildId, channelId, DND5_CONFIG_WITH_IMAGE).ifPresent(persistenceManager::saveConfig);
+                command.createMessageConfig(newConfigUUID, guildId, channelId, DND5_CONFIG_WITH_IMAGE).ifPresent(persistenceManager::saveMessageConfig);
                 yield Optional.of(command.createNewButtonMessage(newConfigUUID, DND5_CONFIG_WITH_IMAGE));
             }
             case nWoD -> {
                 CountSuccessesCommand command = new CountSuccessesCommand(persistenceManager);
-                command.createMessageConfig(newConfigUUID, guildId, channelId, NWOD_CONFIG).ifPresent(persistenceManager::saveConfig);
+                command.createMessageConfig(newConfigUUID, guildId, channelId, NWOD_CONFIG).ifPresent(persistenceManager::saveMessageConfig);
                 yield Optional.of(command.createNewButtonMessage(newConfigUUID, NWOD_CONFIG));
             }
             case oWoD -> {
                 PoolTargetCommand command = new PoolTargetCommand(persistenceManager);
-                command.createMessageConfig(newConfigUUID, guildId, channelId, OWOD_CONFIG).ifPresent(persistenceManager::saveConfig);
+                command.createMessageConfig(newConfigUUID, guildId, channelId, OWOD_CONFIG).ifPresent(persistenceManager::saveMessageConfig);
                 yield Optional.of(command.createNewButtonMessage(newConfigUUID, OWOD_CONFIG));
             }
             case shadowrun -> {
                 CountSuccessesCommand command = new CountSuccessesCommand(persistenceManager);
-                command.createMessageConfig(newConfigUUID, guildId, channelId, SHADOWRUN_CONFIG).ifPresent(persistenceManager::saveConfig);
+                command.createMessageConfig(newConfigUUID, guildId, channelId, SHADOWRUN_CONFIG).ifPresent(persistenceManager::saveMessageConfig);
                 yield Optional.of(command.createNewButtonMessage(newConfigUUID, SHADOWRUN_CONFIG));
             }
             case coin -> {
                 CustomDiceCommand command = new CustomDiceCommand(persistenceManager, cachingDiceEvaluator);
-                command.createMessageConfig(newConfigUUID, guildId, channelId, COIN_CONFIG).ifPresent(persistenceManager::saveConfig);
+                command.createMessageConfig(newConfigUUID, guildId, channelId, COIN_CONFIG).ifPresent(persistenceManager::saveMessageConfig);
                 yield Optional.of(command.createNewButtonMessage(newConfigUUID, COIN_CONFIG));
             }
             case dice_calculator -> {
                 SumCustomSetCommand command = new SumCustomSetCommand(persistenceManager, cachingDiceEvaluator);
-                command.createMessageConfig(newConfigUUID, guildId, channelId, DICE_CALCULATOR_CONFIG).ifPresent(persistenceManager::saveConfig);
+                command.createMessageConfig(newConfigUUID, guildId, channelId, DICE_CALCULATOR_CONFIG).ifPresent(persistenceManager::saveMessageConfig);
                 yield Optional.of(command.createNewButtonMessage(newConfigUUID, DICE_CALCULATOR_CONFIG));
             }
         };
@@ -204,7 +213,7 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
     }
 
     public MessageDefinition getWelcomeMessage() {
-        return createNewButtonMessage(UUID.randomUUID(), null);
+        return createNewButtonMessage(uuidSupplier.get(), null);
     }
 
     @Override
