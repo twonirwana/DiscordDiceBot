@@ -21,7 +21,6 @@ import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Optional;
@@ -240,14 +239,11 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollConfig, HoldRer
     }
 
     @Override
-    protected Optional<ConfigAndState<HoldRerollConfig, HoldRerollStateData>> getMessageDataAndUpdateWithButtonValue(@Nullable UUID configUUID,
-                                                                                                                     long channelId,
-                                                                                                                     long messageId,
-                                                                                                                     @NonNull String buttonValue,
-                                                                                                                     @NonNull String invokingUserName) {
-        final Optional<MessageConfigDTO> messageConfigDTO = getMessageConfigDTO(configUUID, channelId, messageId);
-        final Optional<MessageDataDTO> messageStateDTO = persistenceManager.getStateForMessage(channelId, messageId);
-        return messageConfigDTO.map(configDTO -> deserializeAndUpdateState(configDTO, messageStateDTO.orElse(null), buttonValue));
+    protected ConfigAndState<HoldRerollConfig, HoldRerollStateData> getMessageDataAndUpdateWithButtonValue(@NonNull MessageConfigDTO messageConfigDTO,
+                                                                                                           @NonNull MessageDataDTO messageDataDTO,
+                                                                                                           @NonNull String buttonValue,
+                                                                                                           @NonNull String invokingUserName) {
+        return deserializeAndUpdateState(messageConfigDTO, messageDataDTO, buttonValue);
     }
 
 
@@ -265,16 +261,16 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollConfig, HoldRer
 
     @VisibleForTesting
     ConfigAndState<HoldRerollConfig, HoldRerollStateData> deserializeAndUpdateState(@NonNull MessageConfigDTO messageConfigDTO,
-                                                                                    @Nullable MessageDataDTO messageDataDTO,
+                                                                                    @NonNull MessageDataDTO messageDataDTO,
                                                                                     @NonNull String buttonValue) {
         Preconditions.checkArgument(CONFIG_TYPE_ID.equals(messageConfigDTO.getConfigClassId()), "Unknown configClassId: %s", messageConfigDTO.getConfigClassId());
-        Preconditions.checkArgument(Optional.ofNullable(messageDataDTO)
+        Preconditions.checkArgument(Optional.of(messageDataDTO)
                 .map(MessageDataDTO::getStateDataClassId)
                 .map(c -> Set.of(STATE_DATA_TYPE_ID, Mapper.NO_PERSISTED_STATE).contains(c))
-                .orElse(true), "Unknown stateDataClassId: %s", Optional.ofNullable(messageDataDTO)
+                .orElse(true), "Unknown stateDataClassId: %s", Optional.of(messageDataDTO)
                 .map(MessageDataDTO::getStateDataClassId).orElse("null"));
 
-        final HoldRerollStateData loadedStateData = Optional.ofNullable(messageDataDTO)
+        final HoldRerollStateData loadedStateData = Optional.of(messageDataDTO)
                 .map(MessageDataDTO::getStateData)
                 .map(sd -> Mapper.deserializeObject(sd, HoldRerollStateData.class))
                 .orElse(null);

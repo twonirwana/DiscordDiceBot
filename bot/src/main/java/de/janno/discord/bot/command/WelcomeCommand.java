@@ -20,6 +20,7 @@ import de.janno.discord.bot.command.sumCustomSet.SumCustomSetConfig;
 import de.janno.discord.bot.dice.CachingDiceEvaluator;
 import de.janno.discord.bot.dice.DiceParserSystem;
 import de.janno.discord.bot.persistance.MessageConfigDTO;
+import de.janno.discord.bot.persistance.MessageDataDTO;
 import de.janno.discord.bot.persistance.PersistenceManager;
 import de.janno.discord.connector.api.BottomCustomIdUtils;
 import de.janno.discord.connector.api.ButtonEventAdaptor;
@@ -84,9 +85,9 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
             new ButtonIdLabelAndDiceExpression("12_button", "1", "1"), new ButtonIdLabelAndDiceExpression("13_button", "2", "2"), new ButtonIdLabelAndDiceExpression("14_button", "3", "3"), new ButtonIdLabelAndDiceExpression("15_button", "0", "0"), new ButtonIdLabelAndDiceExpression("16_button", "l", "l")
     ), DiceParserSystem.DICE_EVALUATOR, true, AnswerFormatType.full, ResultImage.none);
     private final CustomParameterConfig FATE_WITH_IMAGE_CONFIG = new CustomParameterConfig(null, "4d[-1,0,1]+{Modifier:-4<=>10}=", DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.without_expression, ResultImage.fate_black);
-
     private final CachingDiceEvaluator cachingDiceEvaluator;
     private final Supplier<UUID> uuidSupplier;
+
 
     public WelcomeCommand(PersistenceManager persistenceManager, CachingDiceEvaluator cachingDiceEvaluator) {
         this(persistenceManager, cachingDiceEvaluator, UUID::randomUUID);
@@ -100,12 +101,16 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
     }
 
     @Override
-    protected Optional<ConfigAndState<Config, StateData>> getMessageDataAndUpdateWithButtonValue(@Nullable UUID configUUID,
-                                                                                                 long channelId,
-                                                                                                 long messageId,
-                                                                                                 @NonNull String buttonValue,
-                                                                                                 @NonNull String invokingUserName) {
-        return Optional.of(new ConfigAndState<>(uuidSupplier.get(), new Config(null, AnswerFormatType.full, ResultImage.none), new State<>(buttonValue, StateData.empty())));
+    protected ConfigAndState<Config, StateData> getMessageDataAndUpdateWithButtonValue(@NonNull MessageConfigDTO messageConfigDTO,
+                                                                                       @NonNull MessageDataDTO messageDataDTO,
+                                                                                       @NonNull String buttonValue,
+                                                                                       @NonNull String invokingUserName) {
+        return new ConfigAndState<>(messageConfigDTO.getConfigUUID(), new Config(null, AnswerFormatType.full, ResultImage.none), new State<>(buttonValue, StateData.empty()));
+    }
+
+    @Override
+    protected @NonNull Optional<MessageConfigDTO> getMessageConfigDTO(@Nullable UUID configId, long channelId, long messageId) {
+        return Optional.of(new MessageConfigDTO(uuidSupplier.get(), null, channelId, getCommandId(), "None", "None"));
     }
 
     @Override

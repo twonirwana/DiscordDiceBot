@@ -41,8 +41,8 @@ class PersistenceManagerImplTest {
 
         underTest.deleteStateForMessage(2L, 4L);
 
-        assertThat(underTest.getStateForMessage(2L, 4L)).isEmpty();
-        assertThat(underTest.getStateForMessage(2L, 5L)).isPresent();
+        assertThat(underTest.getMessageData(2L, 4L)).isEmpty();
+        assertThat(underTest.getMessageData(2L, 5L)).isPresent();
     }
 
     @Test
@@ -54,9 +54,9 @@ class PersistenceManagerImplTest {
         Set<Long> res = underTest.deleteMessageDataForChannel(2L);
 
         assertThat(res).containsExactly(4L, 5L);
-        assertThat(underTest.getStateForMessage(2L, 4L)).isEmpty();
-        assertThat(underTest.getStateForMessage(2L, 5L)).isEmpty();
-        assertThat(underTest.getStateForMessage(3L, 6L)).isPresent();
+        assertThat(underTest.getMessageData(2L, 4L)).isEmpty();
+        assertThat(underTest.getMessageData(2L, 5L)).isEmpty();
+        assertThat(underTest.getMessageData(3L, 6L)).isPresent();
     }
 
     @Test

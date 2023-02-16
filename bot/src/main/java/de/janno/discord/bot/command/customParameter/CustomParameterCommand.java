@@ -316,29 +316,26 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     }
 
     @Override
-    protected Optional<ConfigAndState<CustomParameterConfig, CustomParameterStateData>> getMessageDataAndUpdateWithButtonValue(@Nullable UUID configUUID,
-                                                                                                                               long channelId,
-                                                                                                                               long messageId,
-                                                                                                                               @NonNull String buttonValue,
-                                                                                                                               @NonNull String invokingUserName) {
-        final Optional<MessageConfigDTO> messageConfigDTO = getMessageConfigDTO(configUUID, channelId, messageId);
-        final Optional<MessageDataDTO> messageStateDTO = persistenceManager.getStateForMessage(channelId, messageId);
-        return messageConfigDTO.map(configDTO -> deserializeAndUpdateState(configDTO, messageStateDTO.orElse(null), buttonValue, invokingUserName));
+    protected ConfigAndState<CustomParameterConfig, CustomParameterStateData> getMessageDataAndUpdateWithButtonValue(@NonNull MessageConfigDTO messageConfigDTO,
+                                                                                                                     @NonNull MessageDataDTO messageDataDTO,
+                                                                                                                     @NonNull String buttonValue,
+                                                                                                                     @NonNull String invokingUserName) {
+        return deserializeAndUpdateState(messageConfigDTO, messageDataDTO, buttonValue, invokingUserName);
     }
 
     @VisibleForTesting
     ConfigAndState<CustomParameterConfig, CustomParameterStateData> deserializeAndUpdateState(@NonNull MessageConfigDTO messageConfigDTO,
-                                                                                              @Nullable MessageDataDTO messageDataDTO,
+                                                                                              @NonNull MessageDataDTO messageDataDTO,
                                                                                               @NonNull String buttonValue,
                                                                                               @NonNull String invokingUser) {
         Preconditions.checkArgument(CONFIG_TYPE_ID.equals(messageConfigDTO.getConfigClassId()), "Unknown configClassId: %s", messageConfigDTO.getConfigClassId());
-        Preconditions.checkArgument(Optional.ofNullable(messageDataDTO)
+        Preconditions.checkArgument(Optional.of(messageDataDTO)
                 .map(MessageDataDTO::getStateDataClassId)
                 .map(c -> Set.of(STATE_DATA_TYPE_ID_LEGACY, STATE_DATA_TYPE_ID, Mapper.NO_PERSISTED_STATE).contains(c))
-                .orElse(true), "Unknown stateDataClassId: %s", Optional.ofNullable(messageDataDTO)
+                .orElse(true), "Unknown stateDataClassId: %s", Optional.of(messageDataDTO)
                 .map(MessageDataDTO::getStateDataClassId).orElse("null"));
 
-        final CustomParameterStateData loadedStateData = Optional.ofNullable(messageDataDTO)
+        final CustomParameterStateData loadedStateData = Optional.of(messageDataDTO)
                 .filter(m -> STATE_DATA_TYPE_ID.equals(m.getStateDataClassId()))
                 .map(MessageDataDTO::getStateData)
                 .map(sd -> Mapper.deserializeObject(sd, CustomParameterStateData.class))

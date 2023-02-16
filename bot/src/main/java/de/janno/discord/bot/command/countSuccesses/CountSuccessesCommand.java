@@ -10,6 +10,7 @@ import de.janno.discord.bot.command.*;
 import de.janno.discord.bot.dice.DiceUtils;
 import de.janno.discord.bot.persistance.Mapper;
 import de.janno.discord.bot.persistance.MessageConfigDTO;
+import de.janno.discord.bot.persistance.MessageDataDTO;
 import de.janno.discord.bot.persistance.PersistenceManager;
 import de.janno.discord.connector.api.BottomCustomIdUtils;
 import de.janno.discord.connector.api.message.ButtonDefinition;
@@ -21,7 +22,6 @@ import de.janno.discord.connector.api.slash.CommandDefinitionOptionChoice;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Optional;
@@ -69,13 +69,11 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesConfig,
     }
 
     @Override
-    protected Optional<ConfigAndState<CountSuccessesConfig, StateData>> getMessageDataAndUpdateWithButtonValue(@Nullable UUID configId,
-                                                                                                               long channelId,
-                                                                                                               long messageId,
-                                                                                                               @NonNull String buttonValue,
-                                                                                                               @NonNull String invokingUserName) {
-        final Optional<MessageConfigDTO> messageConfigDTO = getMessageConfigDTO(configId, channelId, messageId);
-        return messageConfigDTO.map(dataDTO -> deserializeAndUpdateState(dataDTO, buttonValue));
+    protected ConfigAndState<CountSuccessesConfig, StateData> getMessageDataAndUpdateWithButtonValue(@NonNull MessageConfigDTO messageConfigDTO,
+                                                                                                     @NonNull MessageDataDTO messageDataDTO,
+                                                                                                     @NonNull String buttonValue,
+                                                                                                     @NonNull String invokingUserName) {
+        return deserializeAndUpdateState(messageConfigDTO, buttonValue);
     }
 
     @VisibleForTesting

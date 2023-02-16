@@ -72,28 +72,24 @@ public class SumDiceSetCommand extends AbstractCommand<Config, SumDiceSetStateDa
         return message;
     }
 
-
     @Override
-    protected Optional<ConfigAndState<Config, SumDiceSetStateData>> getMessageDataAndUpdateWithButtonValue(@Nullable UUID configUUID,
-                                                                                                           long channelId,
-                                                                                                           long messageId,
-                                                                                                           @NonNull String buttonValue,
-                                                                                                           @NonNull String invokingUserName) {
-        final Optional<MessageConfigDTO> messageConfigDTO = getMessageConfigDTO(configUUID, channelId, messageId);
-        final Optional<MessageDataDTO> messageStateDTO = persistenceManager.getStateForMessage(channelId, messageId);
-        return messageConfigDTO.map(configDTO -> deserializeAndUpdateState(configDTO, messageStateDTO.orElse(null), buttonValue));
+    protected ConfigAndState<Config, SumDiceSetStateData> getMessageDataAndUpdateWithButtonValue(@NonNull MessageConfigDTO messageConfigDTO,
+                                                                                                 @NonNull MessageDataDTO messageDataDTO,
+                                                                                                 @NonNull String buttonValue,
+                                                                                                 @NonNull String invokingUserName) {
+        return deserializeAndUpdateState(messageConfigDTO, messageDataDTO, buttonValue);
     }
 
     @VisibleForTesting
-    ConfigAndState<Config, SumDiceSetStateData> deserializeAndUpdateState(@NonNull MessageConfigDTO messageConfigDTO, @Nullable MessageDataDTO messageDataDTO, @NonNull String buttonValue) {
+    ConfigAndState<Config, SumDiceSetStateData> deserializeAndUpdateState(@NonNull MessageConfigDTO messageConfigDTO, @NonNull MessageDataDTO messageDataDTO, @NonNull String buttonValue) {
         Preconditions.checkArgument(CONFIG_TYPE_ID.equals(messageConfigDTO.getConfigClassId()), "Unknown configClassId: %s", messageConfigDTO.getConfigClassId());
-        Preconditions.checkArgument(Optional.ofNullable(messageDataDTO)
+        Preconditions.checkArgument(Optional.of(messageDataDTO)
                 .map(MessageDataDTO::getStateDataClassId)
                 .map(c -> Set.of(STATE_DATA_TYPE_ID, Mapper.NO_PERSISTED_STATE).contains(c))
-                .orElse(true), "Unknown stateDataClassId: %s", Optional.ofNullable(messageDataDTO)
+                .orElse(true), "Unknown stateDataClassId: %s", Optional.of(messageDataDTO)
                 .map(MessageDataDTO::getStateDataClassId).orElse("null"));
 
-        final SumDiceSetStateData loadedStateData = Optional.ofNullable(messageDataDTO)
+        final SumDiceSetStateData loadedStateData = Optional.of(messageDataDTO)
                 .map(MessageDataDTO::getStateData)
                 .map(sd -> Mapper.deserializeObject(sd, SumDiceSetStateData.class))
                 .orElse(null);

@@ -14,7 +14,7 @@ public interface PersistenceManager {
 
     void saveMessageConfig(@NonNull MessageConfigDTO messageConfigDTO);
 
-    @NonNull Optional<MessageDataDTO> getStateForMessage(long channelId, long messageId);
+    @NonNull Optional<MessageDataDTO> getMessageData(long channelId, long messageId);
 
     @NonNull Set<Long> getAllMessageIdsForConfig(@NonNull UUID configUUID);
 

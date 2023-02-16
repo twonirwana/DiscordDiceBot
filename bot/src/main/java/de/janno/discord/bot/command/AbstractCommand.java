@@ -126,11 +126,10 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
         return Optional.empty();
     }
 
-    protected abstract Optional<ConfigAndState<C, S>> getMessageDataAndUpdateWithButtonValue(@Nullable UUID configId,
-                                                                                             long channelId,
-                                                                                             long messageId,
-                                                                                             @NonNull String buttonValue,
-                                                                                             @NonNull String invokingUserName);
+    protected abstract ConfigAndState<C, S> getMessageDataAndUpdateWithButtonValue(@NonNull MessageConfigDTO messageConfigDTO,
+                                                                                   @NonNull MessageDataDTO messageDataDTO,
+                                                                                   @NonNull String buttonValue,
+                                                                                   @NonNull String invokingUserName);
 
     protected @NonNull Optional<MessageConfigDTO> getMessageConfigDTO(@Nullable UUID configId, long channelId, long messageId) {
         if (configId != null) {
@@ -139,15 +138,23 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
         return persistenceManager.getConfigFromMessage(channelId, messageId);
     }
 
+    private @NonNull MessageDataDTO getMessageDataDTOOrCreateNew(@NonNull UUID configId, long guildId, long channelId, long messageId) {
+        Optional<MessageDataDTO> loadedData = persistenceManager.getMessageData(channelId, messageId);
+        //if the messageData is missing we need to create a new one so we know the message exists and we can remove it later, even on concurrent actions
+        return loadedData.orElseGet(() -> createEmptyMessageData(configId, guildId, channelId, messageId));
+    }
+
     /**
      * On the creation of a message an empty state need to be saved so we know the message exists and we can remove it later, even on concurrent actions
      */
     @VisibleForTesting
-    public void createEmptyMessageData(@NonNull UUID configUUID,
-                                       long guildId,
-                                       long channelId,
-                                       long messageId) {
-        persistenceManager.saveMessageData(new MessageDataDTO(configUUID, guildId, channelId, messageId, getCommandId(), Mapper.NO_PERSISTED_STATE, null));
+    public MessageDataDTO createEmptyMessageData(@NonNull UUID configUUID,
+                                                 long guildId,
+                                                 long channelId,
+                                                 long messageId) {
+        MessageDataDTO messageDataDTO = new MessageDataDTO(configUUID, guildId, channelId, messageId, getCommandId(), Mapper.NO_PERSISTED_STATE, null);
+        persistenceManager.saveMessageData(messageDataDTO);
+        return messageDataDTO;
     }
 
     //visible for welcome command
@@ -180,18 +187,16 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
             final String buttonValue = BottomCustomIdUtils.getButtonValueFromCustomId(event.getCustomId());
             final Optional<UUID> configUUIDFromCustomID = BottomCustomIdUtils.getConfigUUIDFromCustomIdWithPersistence(event.getCustomId());
             BotMetrics.incrementButtonUUIDUsageMetricCounter(getCommandId(), configUUIDFromCustomID.isPresent());
-            final Optional<ConfigAndState<C, S>> messageData = getMessageDataAndUpdateWithButtonValue(configUUIDFromCustomID.orElse(null), channelId,
-                    messageId,
-                    buttonValue,
-                    event.getInvokingGuildMemberName());
-            if (messageData.isPresent()) {
-                config = messageData.get().getConfig();
-                state = messageData.get().getState();
-                configUUID = messageData.get().getConfigUUID();
-            } else {
+            final Optional<MessageConfigDTO> messageConfigDTO = getMessageConfigDTO(configUUIDFromCustomID.orElse(null), channelId, messageId);
+            if (messageConfigDTO.isEmpty()) {
                 log.warn("{}: Missing messageData for channelId: {}, messageId: {} and commandName: {} ", event.getRequester().toLogString(), channelId, messageId, getCommandId());
                 return event.reply(String.format("Configuration for the message is missing, please create a new message with the slash command `/%s start`", getCommandId()), false);
             }
+            configUUID = messageConfigDTO.get().getConfigUUID();
+            final MessageDataDTO messageDataDTO = getMessageDataDTOOrCreateNew(configUUID, guildId, channelId, messageId);
+            final ConfigAndState<C, S> configAndState = getMessageDataAndUpdateWithButtonValue(messageConfigDTO.get(), messageDataDTO, buttonValue, event.getInvokingGuildMemberName());
+            config = configAndState.getConfig();
+            state = configAndState.getState();
         }
         final Long answerTargetChannelId = config.getAnswerTargetChannelId();
         Optional<String> checkPermissions = event.checkPermissions(answerTargetChannelId);

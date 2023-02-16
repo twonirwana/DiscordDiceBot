@@ -1,13 +1,13 @@
 package de.janno.discord.bot.command;
 
 import de.janno.discord.bot.persistance.MessageConfigDTO;
+import de.janno.discord.bot.persistance.MessageDataDTO;
 import de.janno.discord.bot.persistance.PersistenceManager;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
 import de.janno.discord.connector.api.message.MessageDefinition;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import lombok.NonNull;
 import org.apache.commons.lang3.NotImplementedException;
-import org.jetbrains.annotations.Nullable;
 
 import java.time.Duration;
 import java.util.Optional;
@@ -20,7 +20,7 @@ public class TestCommand extends AbstractCommand<Config, StateData> {
     }
 
     @Override
-    protected Optional<ConfigAndState<Config, StateData>> getMessageDataAndUpdateWithButtonValue(@Nullable UUID configId, long channelId, long messageId, @NonNull String buttonValue, @NonNull String invokingUserName) {
+    protected ConfigAndState<Config, StateData> getMessageDataAndUpdateWithButtonValue(@NonNull MessageConfigDTO messageConfigDTO, @NonNull MessageDataDTO messageDataDTO, @NonNull String buttonValue, @NonNull String invokingUserName) {
         throw new NotImplementedException("Not implemented");
     }
 

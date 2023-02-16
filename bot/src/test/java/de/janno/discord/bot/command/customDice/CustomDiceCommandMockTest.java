@@ -11,22 +11,30 @@ import de.janno.discord.bot.command.StateData;
 import de.janno.discord.bot.dice.CachingDiceEvaluator;
 import de.janno.discord.bot.dice.DiceParser;
 import de.janno.discord.bot.dice.DiceParserSystem;
+import de.janno.discord.bot.persistance.Mapper;
 import de.janno.discord.bot.persistance.PersistenceManager;
 import de.janno.discord.bot.persistance.PersistenceManagerImpl;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import de.janno.evaluator.dice.random.RandomNumberSupplier;
 import org.apache.commons.io.FileUtils;
+import org.h2.jdbcx.JdbcConnectionPool;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.Timestamp;
 import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
 
+import static de.janno.discord.bot.ButtonEventAdaptorMock.CHANNEL_ID;
+import static de.janno.discord.bot.ButtonEventAdaptorMock.GUILD_ID;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class CustomDiceCommandMockTest {
@@ -56,6 +64,60 @@ public class CustomDiceCommandMockTest {
                 "reply: The button uses an old format that isn't supported anymore. Please delete it and create a new button message with a slash command.");
     }
 
+    @Test
+    void without_configUUID_existingLegacyData() {
+        String url = "jdbc:h2:mem:" + UUID.randomUUID();
+        persistenceManager = new PersistenceManagerImpl(url, null, null);
+        CustomDiceCommand underTest = new CustomDiceCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
+        JdbcConnectionPool connectionPool = JdbcConnectionPool.create(url, null, null);
+        UUID configUUID = UUID.randomUUID();
+        long messageId = 0;
+        CustomDiceConfig config = new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "1d6")), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full, ResultImage.none);
+        try (Connection con = connectionPool.getConnection()) {
+            try (PreparedStatement preparedStatement =
+                         con.prepareStatement("INSERT INTO MESSAGE_DATA(CONFIG_ID, GUILD_ID, CHANNEL_ID, MESSAGE_ID, COMMAND_ID, STATE_CLASS_ID, STATE, CONFIG_CLASS_ID, CONFIG, CREATION_DATE) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
+                preparedStatement.setObject(1, configUUID);
+                preparedStatement.setObject(2, GUILD_ID);
+                preparedStatement.setObject(3, CHANNEL_ID);
+                preparedStatement.setLong(4, messageId);
+                preparedStatement.setString(5, "custom_dice");
+                preparedStatement.setString(6, "None");
+                preparedStatement.setString(7, null);
+                preparedStatement.setString(8, "CustomDiceConfig");
+                preparedStatement.setString(9, Mapper.serializedObject(config));
+                preparedStatement.setTimestamp(10, Timestamp.valueOf(LocalDateTime.now()));
+                preparedStatement.execute();
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        underTest.createMessageConfig(configUUID, GUILD_ID, CHANNEL_ID, config).ifPresent(persistenceManager::saveMessageConfig);
+        ButtonEventAdaptorMock buttonEvent = new ButtonEventAdaptorMock("custom_dice", "1_button");
+
+        underTest.handleComponentInteractEvent(buttonEvent).block();
+
+        assertThat(buttonEvent.getActions()).containsExactlyInAnyOrder(
+                "editMessage: message:processing ..., buttonValues=",
+                "createAnswer: title=Dmg ⇒ 3, description=1d6: [3], fieldValues:, answerChannel:null, type:EMBED",
+                "deleteMessageById: 0",
+                "createButtonMessage: content=Click on a button to roll the dice, buttonValues=1_button");
+    }
+
+
+    @Test
+    void without_configUUID_missingData() {
+        CustomDiceCommand underTest = new CustomDiceCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
+        ButtonEventAdaptorMock buttonEvent = new ButtonEventAdaptorMock("custom_dice", "1_button");
+        UUID configUUID = UUID.randomUUID();
+        CustomDiceConfig config = new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "1d6")), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full, ResultImage.none);
+        underTest.createMessageConfig(configUUID, GUILD_ID, CHANNEL_ID, config).ifPresent(persistenceManager::saveMessageConfig);
+
+
+        underTest.handleComponentInteractEvent(buttonEvent).block();
+
+        assertThat(buttonEvent.getActions()).containsExactlyInAnyOrder(
+                "reply: Configuration for the message is missing, please create a new message with the slash command `/custom_dice start`");
+    }
 
     @Test
     void roll_diceEvaluator_full() {

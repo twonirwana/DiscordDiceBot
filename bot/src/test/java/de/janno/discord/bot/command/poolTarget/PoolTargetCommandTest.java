@@ -342,7 +342,7 @@ class PoolTargetCommandTest {
         when(buttonEventAdaptor.createResultMessageWithEventReference(any(), eq(null))).thenReturn(Mono.just(mock(Void.class)));
         when(buttonEventAdaptor.getRequester()).thenReturn(new Requester("user", "channel", "guild", "[0 / 1]"));
         when(buttonEventAdaptor.getInvokingGuildMemberName()).thenReturn("testUser");
-        when(persistenceManager.getStateForMessage(1L, 1L)).thenReturn(Optional.empty());
+        when(persistenceManager.getMessageData(1L, 1L)).thenReturn(Optional.empty());
 
 
         Mono<Void> res = underTest.handleComponentInteractEvent(buttonEventAdaptor);
