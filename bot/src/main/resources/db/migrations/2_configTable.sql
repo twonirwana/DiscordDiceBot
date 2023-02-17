@@ -18,9 +18,10 @@ select distinct md.CONFIG_ID,
                 md.CONFIG_CLASS_ID,
                 md.CONFIG,
                 CURRENT_TIMESTAMP()
+-- remove duplicate with join
 from message_data md
-where GUILD_ID is not null;
-
+         join message_data md2 on (md.CONFIG_ID = md2.CONFIG_ID and md.CREATION_DATE > md2.CREATION_DATE)
+where md.GUILD_ID is not null;
 ALTER TABLE MESSAGE_DATA
     ALTER COLUMN CONFIG_CLASS_ID DROP NOT NULL;
 ALTER TABLE MESSAGE_DATA
