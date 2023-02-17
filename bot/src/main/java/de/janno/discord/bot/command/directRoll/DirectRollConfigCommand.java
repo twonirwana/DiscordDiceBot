@@ -6,7 +6,7 @@ import de.janno.discord.bot.command.AnswerFormatType;
 import de.janno.discord.bot.command.DefaultCommandOptions;
 import de.janno.discord.bot.persistance.ChannelConfigDTO;
 import de.janno.discord.bot.persistance.Mapper;
-import de.janno.discord.bot.persistance.PersistanceManager;
+import de.janno.discord.bot.persistance.PersistenceManager;
 import de.janno.discord.connector.api.SlashEventAdaptor;
 import de.janno.discord.connector.api.slash.CommandDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinitionOption;
@@ -16,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
 import java.util.UUID;
+import java.util.function.Supplier;
 
 @Slf4j
 public class DirectRollConfigCommand extends AbstractDirectRollCommand {
@@ -23,10 +24,10 @@ public class DirectRollConfigCommand extends AbstractDirectRollCommand {
     private static final String SAVE_ACTION = "save";
     private static final String DELETE_ACTION = "delete";
     private static final String ALWAYS_SUM_RESULTS_COMMAND_OPTIONS_ID = "always_sum_result";
-    private final PersistanceManager persistanceManager;
+    private final PersistenceManager persistenceManager;
 
-    public DirectRollConfigCommand(PersistanceManager persistanceManager) {
-        this.persistanceManager = persistanceManager;
+    public DirectRollConfigCommand(PersistenceManager persistenceManager) {
+        this.persistenceManager = persistenceManager;
     }
 
     @Override
@@ -65,7 +66,7 @@ public class DirectRollConfigCommand extends AbstractDirectRollCommand {
     }
 
     @Override
-    public Mono<Void> handleSlashCommandEvent(@NonNull SlashEventAdaptor event) {
+    public Mono<Void> handleSlashCommandEvent(@NonNull SlashEventAdaptor event, @NonNull Supplier<UUID> uuidSupplier) {
         if (event.getOption(SAVE_ACTION).isPresent()) {
             CommandInteractionOption saveAction = event.getOption(SAVE_ACTION).get();
             Long answerTargetChannelId = null;
@@ -75,8 +76,8 @@ public class DirectRollConfigCommand extends AbstractDirectRollCommand {
             DirectRollConfig config = new DirectRollConfig(answerTargetChannelId, alwaysSumResults, answerType, resultImage);
             BotMetrics.incrementSlashStartMetricCounter(getCommandId(), config.toShortString());
             return Mono.defer(() -> {
-                persistanceManager.deleteChannelConfig(event.getChannelId(), CONFIG_TYPE_ID);
-                persistanceManager.saveChannelConfig(new ChannelConfigDTO(UUID.randomUUID(),
+                persistenceManager.deleteChannelConfig(event.getChannelId(), CONFIG_TYPE_ID);
+                persistenceManager.saveChannelConfig(new ChannelConfigDTO(uuidSupplier.get(),
                         event.getGuildId(),
                         event.getChannelId(),
                         ROLL_COMMAND_ID,
@@ -98,7 +99,7 @@ public class DirectRollConfigCommand extends AbstractDirectRollCommand {
                         event.getRequester().toLogString(),
                         event.getCommandString().replace("`", "")
                 );
-                persistanceManager.deleteChannelConfig(event.getChannelId(), CONFIG_TYPE_ID);
+                persistenceManager.deleteChannelConfig(event.getChannelId(), CONFIG_TYPE_ID);
                 return event.reply("`%s`\nDeleted direct roll channel config".formatted(event.getCommandString()), false);
             });
         }

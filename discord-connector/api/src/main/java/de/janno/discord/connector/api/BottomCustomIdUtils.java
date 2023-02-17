@@ -1,8 +1,10 @@
 package de.janno.discord.connector.api;
 
-import com.google.common.base.Preconditions;
 import lombok.NonNull;
 import org.apache.commons.lang3.StringUtils;
+
+import java.util.Optional;
+import java.util.UUID;
 
 public final class BottomCustomIdUtils {
     public static final String CUSTOM_ID_DELIMITER = "\u001e";
@@ -11,9 +13,10 @@ public final class BottomCustomIdUtils {
     public static final String LEGACY_CONFIG_SPLIT_DELIMITER_REGEX = String.format("[%s%s]", LEGACY_DELIMITER_V2, LEGACY_DELIMITER_V1);
     private static final int COMMAND_NAME_INDEX = 0;
     private static final int BUTTON_VALUE_INDEX = 1;
+    private static final int CONFIG_UUID_INDEX = 2;
 
-    static public @NonNull String createButtonCustomId(@NonNull String commandId, @NonNull String buttonValue) {
-        return commandId + CUSTOM_ID_DELIMITER + buttonValue;
+    static public @NonNull String createButtonCustomId(@NonNull String commandId, @NonNull String buttonValue, @NonNull UUID configUUID) {
+        return commandId + CUSTOM_ID_DELIMITER + buttonValue + CUSTOM_ID_DELIMITER + configUUID;
     }
 
     public static boolean isLegacyCustomId(@NonNull String customId) {
@@ -21,13 +24,30 @@ public final class BottomCustomIdUtils {
     }
 
     public static @NonNull String getButtonValueFromCustomId(@NonNull String customId) {
-        Preconditions.checkArgument(StringUtils.countMatches(customId, CUSTOM_ID_DELIMITER) == 1, "'%s' contains not the correct number of delimiter", customId);
-        return customId.split(CUSTOM_ID_DELIMITER)[BUTTON_VALUE_INDEX];
+        if (StringUtils.countMatches(customId, CUSTOM_ID_DELIMITER) == 1) {
+            return customId.split(CUSTOM_ID_DELIMITER)[BUTTON_VALUE_INDEX];
+        } else if (StringUtils.countMatches(customId, CUSTOM_ID_DELIMITER) == 2) {
+            return customId.split(CUSTOM_ID_DELIMITER)[BUTTON_VALUE_INDEX];
+        }
+        throw new IllegalStateException("'%s' contains not the correct number of delimiter".formatted(customId));
     }
 
     public static @NonNull String getCommandNameFromCustomIdWithPersistence(@NonNull String customId) {
-        Preconditions.checkArgument(StringUtils.countMatches(customId, CUSTOM_ID_DELIMITER) == 1, "'%s' contains not the correct number of delimiter", customId);
-        return customId.split(CUSTOM_ID_DELIMITER)[COMMAND_NAME_INDEX];
+        if (StringUtils.countMatches(customId, CUSTOM_ID_DELIMITER) == 1) {
+            return customId.split(CUSTOM_ID_DELIMITER)[COMMAND_NAME_INDEX];
+        } else if (StringUtils.countMatches(customId, CUSTOM_ID_DELIMITER) == 2) {
+            return customId.split(CUSTOM_ID_DELIMITER)[COMMAND_NAME_INDEX];
+        }
+        throw new IllegalStateException("'%s' contains not the correct number of delimiter".formatted(customId));
+    }
+
+    public static @NonNull Optional<UUID> getConfigUUIDFromCustomIdWithPersistence(@NonNull String customId) {
+        if (StringUtils.countMatches(customId, CUSTOM_ID_DELIMITER) == 1) {
+            return Optional.empty();
+        } else if (StringUtils.countMatches(customId, CUSTOM_ID_DELIMITER) == 2) {
+            return Optional.of(UUID.fromString(customId.split(CUSTOM_ID_DELIMITER)[CONFIG_UUID_INDEX]));
+        }
+        throw new IllegalStateException("'%s' contains not the correct number of delimiter".formatted(customId));
     }
 
     /**

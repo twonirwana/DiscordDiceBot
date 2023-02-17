@@ -14,7 +14,7 @@ import de.janno.discord.bot.dice.DiceParserSystem;
 import de.janno.discord.bot.dice.DiceSystemAdapter;
 import de.janno.discord.bot.persistance.ChannelConfigDTO;
 import de.janno.discord.bot.persistance.Mapper;
-import de.janno.discord.bot.persistance.PersistanceManager;
+import de.janno.discord.bot.persistance.PersistenceManager;
 import de.janno.discord.connector.api.SlashEventAdaptor;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinition;
@@ -26,7 +26,9 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 
 @Slf4j
 public class DirectRollCommand extends AbstractDirectRollCommand {
@@ -34,11 +36,11 @@ public class DirectRollCommand extends AbstractDirectRollCommand {
     private static final String ACTION_EXPRESSION = "expression";
     private static final String HELP = "help";
     private final DiceSystemAdapter diceSystemAdapter;
-    private final PersistanceManager persistanceManager;
+    private final PersistenceManager persistenceManager;
 
-    public DirectRollCommand(PersistanceManager persistanceManager, CachingDiceEvaluator cachingDiceEvaluator) {
+    public DirectRollCommand(PersistenceManager persistenceManager, CachingDiceEvaluator cachingDiceEvaluator) {
         this.diceSystemAdapter = new DiceSystemAdapter(cachingDiceEvaluator, null);
-        this.persistanceManager = persistanceManager;
+        this.persistenceManager = persistenceManager;
     }
 
     @Override
@@ -61,7 +63,7 @@ public class DirectRollCommand extends AbstractDirectRollCommand {
     }
 
     private DirectRollConfig getDirectRollConfig(long channelId) {
-        return persistanceManager.getChannelConfig(channelId, CONFIG_TYPE_ID)
+        return persistenceManager.getChannelConfig(channelId, CONFIG_TYPE_ID)
                 .map(this::deserialize)
                 .orElse(new DirectRollConfig(null, true, AnswerFormatType.full, ResultImage.polyhedral_3d_red_and_white));
     }
@@ -73,7 +75,7 @@ public class DirectRollCommand extends AbstractDirectRollCommand {
     }
 
     @Override
-    public Mono<Void> handleSlashCommandEvent(@NonNull SlashEventAdaptor event) {
+    public Mono<Void> handleSlashCommandEvent(@NonNull SlashEventAdaptor event, @NonNull Supplier<UUID> uuidSupplier) {
         Stopwatch stopwatch = Stopwatch.createStarted();
 
         Optional<String> checkPermissions = event.checkPermissions();

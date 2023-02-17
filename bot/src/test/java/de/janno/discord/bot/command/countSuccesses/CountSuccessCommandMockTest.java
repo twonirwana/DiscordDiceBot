@@ -6,8 +6,8 @@ import de.janno.discord.bot.ResultImage;
 import de.janno.discord.bot.command.AnswerFormatType;
 import de.janno.discord.bot.command.StateData;
 import de.janno.discord.bot.dice.DiceUtils;
-import de.janno.discord.bot.persistance.PersistanceManager;
-import de.janno.discord.bot.persistance.PersistanceManagerImpl;
+import de.janno.discord.bot.persistance.PersistenceManager;
+import de.janno.discord.bot.persistance.PersistenceManagerImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -19,22 +19,22 @@ import java.util.concurrent.atomic.AtomicLong;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class CountSuccessCommandMockTest {
-    PersistanceManager persistanceManager;
+    PersistenceManager persistenceManager;
     AtomicLong messageIdCounter;
     CountSuccessesCommand underTest;
 
     @BeforeEach
     void setup() {
         messageIdCounter = new AtomicLong(0);
-        persistanceManager = new PersistanceManagerImpl("jdbc:h2:mem:" + UUID.randomUUID(), null, null);
-        underTest = new CountSuccessesCommand(persistanceManager, new DiceUtils(1, 1, 5, 6));
+        persistenceManager = new PersistenceManagerImpl("jdbc:h2:mem:" + UUID.randomUUID(), null, null);
+        underTest = new CountSuccessesCommand(persistenceManager, new DiceUtils(1, 1, 5, 6));
         underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
     }
 
     @Test
     void roll_noGlitch_full() {
         CountSuccessesConfig config = new CountSuccessesConfig(null, 6, 4, "no_glitch", 15, 1, Set.of(), Set.of(), AnswerFormatType.full, ResultImage.none);
-        ButtonEventAdaptorMockFactory<CountSuccessesConfig, StateData> factory = new ButtonEventAdaptorMockFactory<>("count_successes", underTest, config, persistanceManager, false);
+        ButtonEventAdaptorMockFactory<CountSuccessesConfig, StateData> factory = new ButtonEventAdaptorMockFactory<>("count_successes", underTest, config, persistenceManager, false);
         ButtonEventAdaptorMock buttonEvent = factory.getButtonClickOnLastButtonMessage("4");
 
         underTest.handleComponentInteractEvent(buttonEvent).block();
@@ -50,7 +50,7 @@ public class CountSuccessCommandMockTest {
     @Test
     void roll_subtractOnes_full() {
         CountSuccessesConfig config = new CountSuccessesConfig(null, 6, 4, "subtract_ones", 15, 1, Set.of(), Set.of(1), AnswerFormatType.full, ResultImage.none);
-        ButtonEventAdaptorMockFactory<CountSuccessesConfig, StateData> factory = new ButtonEventAdaptorMockFactory<>("count_successes", underTest, config, persistanceManager, false);
+        ButtonEventAdaptorMockFactory<CountSuccessesConfig, StateData> factory = new ButtonEventAdaptorMockFactory<>("count_successes", underTest, config, persistenceManager, false);
         ButtonEventAdaptorMock buttonEvent = factory.getButtonClickOnLastButtonMessage("4");
 
         underTest.handleComponentInteractEvent(buttonEvent).block();
@@ -65,7 +65,7 @@ public class CountSuccessCommandMockTest {
     @Test
     void roll_halfOnes_full() {
         CountSuccessesConfig config = new CountSuccessesConfig(null, 6, 4, "half_dice_one", 15, 1, Set.of(), Set.of(), AnswerFormatType.full, ResultImage.none);
-        ButtonEventAdaptorMockFactory<CountSuccessesConfig, StateData> factory = new ButtonEventAdaptorMockFactory<>("count_successes", underTest, config, persistanceManager, false);
+        ButtonEventAdaptorMockFactory<CountSuccessesConfig, StateData> factory = new ButtonEventAdaptorMockFactory<>("count_successes", underTest, config, persistenceManager, false);
         ButtonEventAdaptorMock buttonEvent = factory.getButtonClickOnLastButtonMessage("4");
 
         underTest.handleComponentInteractEvent(buttonEvent).block();
@@ -80,7 +80,7 @@ public class CountSuccessCommandMockTest {
     @Test
     void roll_countOnes_full() {
         CountSuccessesConfig config = new CountSuccessesConfig(null, 6, 4, "count_ones", 15, 1, Set.of(), Set.of(), AnswerFormatType.full, ResultImage.none);
-        ButtonEventAdaptorMockFactory<CountSuccessesConfig, StateData> factory = new ButtonEventAdaptorMockFactory<>("count_successes", underTest, config, persistanceManager, false);
+        ButtonEventAdaptorMockFactory<CountSuccessesConfig, StateData> factory = new ButtonEventAdaptorMockFactory<>("count_successes", underTest, config, persistenceManager, false);
         ButtonEventAdaptorMock buttonEvent = factory.getButtonClickOnLastButtonMessage("4");
 
         underTest.handleComponentInteractEvent(buttonEvent).block();
@@ -95,7 +95,7 @@ public class CountSuccessCommandMockTest {
     @Test
     void roll_noGlitch_compact() {
         CountSuccessesConfig config = new CountSuccessesConfig(null, 6, 4, "no_glitch", 15, 1, Set.of(), Set.of(), AnswerFormatType.compact, ResultImage.none);
-        ButtonEventAdaptorMockFactory<CountSuccessesConfig, StateData> factory = new ButtonEventAdaptorMockFactory<>("count_successes", underTest, config, persistanceManager, false);
+        ButtonEventAdaptorMockFactory<CountSuccessesConfig, StateData> factory = new ButtonEventAdaptorMockFactory<>("count_successes", underTest, config, persistenceManager, false);
         ButtonEventAdaptorMock buttonEvent = factory.getButtonClickOnLastButtonMessage("4");
 
         underTest.handleComponentInteractEvent(buttonEvent).block();
@@ -111,7 +111,7 @@ public class CountSuccessCommandMockTest {
     @Test
     void roll_subtractOnes_compact() {
         CountSuccessesConfig config = new CountSuccessesConfig(null, 6, 4, "subtract_ones", 15, 1, Set.of(), Set.of(1), AnswerFormatType.compact, ResultImage.none);
-        ButtonEventAdaptorMockFactory<CountSuccessesConfig, StateData> factory = new ButtonEventAdaptorMockFactory<>("count_successes", underTest, config, persistanceManager, false);
+        ButtonEventAdaptorMockFactory<CountSuccessesConfig, StateData> factory = new ButtonEventAdaptorMockFactory<>("count_successes", underTest, config, persistenceManager, false);
         ButtonEventAdaptorMock buttonEvent = factory.getButtonClickOnLastButtonMessage("4");
 
         underTest.handleComponentInteractEvent(buttonEvent).block();
@@ -126,7 +126,7 @@ public class CountSuccessCommandMockTest {
     @Test
     void roll_halfOnes_compact() {
         CountSuccessesConfig config = new CountSuccessesConfig(null, 6, 4, "half_dice_one", 15, 1, Set.of(), Set.of(), AnswerFormatType.compact, ResultImage.none);
-        ButtonEventAdaptorMockFactory<CountSuccessesConfig, StateData> factory = new ButtonEventAdaptorMockFactory<>("count_successes", underTest, config, persistanceManager, false);
+        ButtonEventAdaptorMockFactory<CountSuccessesConfig, StateData> factory = new ButtonEventAdaptorMockFactory<>("count_successes", underTest, config, persistenceManager, false);
         ButtonEventAdaptorMock buttonEvent = factory.getButtonClickOnLastButtonMessage("4");
 
         underTest.handleComponentInteractEvent(buttonEvent).block();
@@ -141,7 +141,7 @@ public class CountSuccessCommandMockTest {
     @Test
     void roll_countOnes_compact() {
         CountSuccessesConfig config = new CountSuccessesConfig(null, 6, 4, "count_ones", 15, 1, Set.of(), Set.of(), AnswerFormatType.compact, ResultImage.none);
-        ButtonEventAdaptorMockFactory<CountSuccessesConfig, StateData> factory = new ButtonEventAdaptorMockFactory<>("count_successes", underTest, config, persistanceManager, false);
+        ButtonEventAdaptorMockFactory<CountSuccessesConfig, StateData> factory = new ButtonEventAdaptorMockFactory<>("count_successes", underTest, config, persistenceManager, false);
         ButtonEventAdaptorMock buttonEvent = factory.getButtonClickOnLastButtonMessage("4");
 
         underTest.handleComponentInteractEvent(buttonEvent).block();
@@ -156,7 +156,7 @@ public class CountSuccessCommandMockTest {
     @Test
     void roll_noGlitch_minimal() {
         CountSuccessesConfig config = new CountSuccessesConfig(null, 6, 4, "no_glitch", 15, 1, Set.of(), Set.of(), AnswerFormatType.minimal, ResultImage.none);
-        ButtonEventAdaptorMockFactory<CountSuccessesConfig, StateData> factory = new ButtonEventAdaptorMockFactory<>("count_successes", underTest, config, persistanceManager, false);
+        ButtonEventAdaptorMockFactory<CountSuccessesConfig, StateData> factory = new ButtonEventAdaptorMockFactory<>("count_successes", underTest, config, persistenceManager, false);
         ButtonEventAdaptorMock buttonEvent = factory.getButtonClickOnLastButtonMessage("4");
 
         underTest.handleComponentInteractEvent(buttonEvent).block();
@@ -172,7 +172,7 @@ public class CountSuccessCommandMockTest {
     @Test
     void roll_subtractOnes_minimal() {
         CountSuccessesConfig config = new CountSuccessesConfig(null, 6, 4, "subtract_ones", 15, 1, Set.of(), Set.of(1), AnswerFormatType.minimal, ResultImage.none);
-        ButtonEventAdaptorMockFactory<CountSuccessesConfig, StateData> factory = new ButtonEventAdaptorMockFactory<>("count_successes", underTest, config, persistanceManager, false);
+        ButtonEventAdaptorMockFactory<CountSuccessesConfig, StateData> factory = new ButtonEventAdaptorMockFactory<>("count_successes", underTest, config, persistenceManager, false);
         ButtonEventAdaptorMock buttonEvent = factory.getButtonClickOnLastButtonMessage("4");
 
         underTest.handleComponentInteractEvent(buttonEvent).block();
@@ -187,7 +187,7 @@ public class CountSuccessCommandMockTest {
     @Test
     void roll_halfOnes_minimal() {
         CountSuccessesConfig config = new CountSuccessesConfig(null, 6, 4, "half_dice_one", 15, 1, Set.of(), Set.of(), AnswerFormatType.minimal, ResultImage.none);
-        ButtonEventAdaptorMockFactory<CountSuccessesConfig, StateData> factory = new ButtonEventAdaptorMockFactory<>("count_successes", underTest, config, persistanceManager, false);
+        ButtonEventAdaptorMockFactory<CountSuccessesConfig, StateData> factory = new ButtonEventAdaptorMockFactory<>("count_successes", underTest, config, persistenceManager, false);
         ButtonEventAdaptorMock buttonEvent = factory.getButtonClickOnLastButtonMessage("4");
 
         underTest.handleComponentInteractEvent(buttonEvent).block();
@@ -202,7 +202,7 @@ public class CountSuccessCommandMockTest {
     @Test
     void roll_countOnes_minimal() {
         CountSuccessesConfig config = new CountSuccessesConfig(null, 6, 4, "count_ones", 15, 1, Set.of(), Set.of(), AnswerFormatType.minimal, ResultImage.none);
-        ButtonEventAdaptorMockFactory<CountSuccessesConfig, StateData> factory = new ButtonEventAdaptorMockFactory<>("count_successes", underTest, config, persistanceManager, false);
+        ButtonEventAdaptorMockFactory<CountSuccessesConfig, StateData> factory = new ButtonEventAdaptorMockFactory<>("count_successes", underTest, config, persistenceManager, false);
         ButtonEventAdaptorMock buttonEvent = factory.getButtonClickOnLastButtonMessage("4");
 
         underTest.handleComponentInteractEvent(buttonEvent).block();
@@ -217,7 +217,7 @@ public class CountSuccessCommandMockTest {
     @Test
     void roll_pinned() {
         CountSuccessesConfig config = new CountSuccessesConfig(null, 6, 4, "no_glitch", 15, 1, Set.of(), Set.of(), AnswerFormatType.full, ResultImage.none);
-        ButtonEventAdaptorMockFactory<CountSuccessesConfig, StateData> factory = new ButtonEventAdaptorMockFactory<>("count_successes", underTest, config, persistanceManager, true);
+        ButtonEventAdaptorMockFactory<CountSuccessesConfig, StateData> factory = new ButtonEventAdaptorMockFactory<>("count_successes", underTest, config, persistenceManager, true);
         ButtonEventAdaptorMock buttonEvent = factory.getButtonClickOnLastButtonMessage("4");
 
         underTest.handleComponentInteractEvent(buttonEvent).block();
@@ -231,7 +231,7 @@ public class CountSuccessCommandMockTest {
     @Test
     void roll_answerChannel() {
         CountSuccessesConfig config = new CountSuccessesConfig(2L, 6, 4, "no_glitch", 15, 1, Set.of(), Set.of(), AnswerFormatType.full, ResultImage.none);
-        ButtonEventAdaptorMockFactory<CountSuccessesConfig, StateData> factory = new ButtonEventAdaptorMockFactory<>("count_successes", underTest, config, persistanceManager, false);
+        ButtonEventAdaptorMockFactory<CountSuccessesConfig, StateData> factory = new ButtonEventAdaptorMockFactory<>("count_successes", underTest, config, persistenceManager, false);
         ButtonEventAdaptorMock buttonEvent = factory.getButtonClickOnLastButtonMessage("4");
 
         underTest.handleComponentInteractEvent(buttonEvent).block();

@@ -1,8 +1,8 @@
 package de.janno.discord.bot.command;
 
 import de.janno.discord.bot.ButtonEventAdaptorMock;
-import de.janno.discord.bot.persistance.PersistanceManagerImpl;
 import de.janno.discord.bot.persistance.MessageDataDTO;
+import de.janno.discord.bot.persistance.PersistenceManagerImpl;
 import de.janno.discord.connector.api.MessageState;
 import lombok.NonNull;
 import org.junit.jupiter.api.Test;
@@ -23,9 +23,9 @@ class AbstractCommandTest {
 
     @Test
     void deleteMessageAndData_notExist() {
-        PersistanceManagerImpl messageDataDAO = new PersistanceManagerImpl("jdbc:h2:mem:" + UUID.randomUUID(), null, null);
+        PersistenceManagerImpl messageDataDAO = new PersistenceManagerImpl("jdbc:h2:mem:" + UUID.randomUUID(), null, null);
         TestCommand underTest = new TestCommand(messageDataDAO);
-        ButtonEventAdaptorMock buttonEventAdaptorMock = new ButtonEventAdaptorMock("testCommand", "a", new AtomicLong(), Set.of(2L)) {
+        ButtonEventAdaptorMock buttonEventAdaptorMock = new ButtonEventAdaptorMock("testCommand", "a", UUID.randomUUID(), new AtomicLong(), Set.of(2L)) {
             @Override
             public @NonNull ParallelFlux<MessageState> getMessagesState(@NonNull Collection<Long> messageIds) {
                 return Flux.fromIterable(messageIds).parallel().map(id -> new MessageState(id, false, false, true, OffsetDateTime.now().minusMinutes(id)));
@@ -47,9 +47,9 @@ class AbstractCommandTest {
 
     @Test
     void deleteMessageAndData() {
-        PersistanceManagerImpl messageDataDAO = new PersistanceManagerImpl("jdbc:h2:mem:" + UUID.randomUUID(), null, null);
+        PersistenceManagerImpl messageDataDAO = new PersistenceManagerImpl("jdbc:h2:mem:" + UUID.randomUUID(), null, null);
         TestCommand underTest = new TestCommand(messageDataDAO);
-        ButtonEventAdaptorMock buttonEventAdaptorMock = new ButtonEventAdaptorMock("testCommand", "a", new AtomicLong(), Set.of(2L));
+        ButtonEventAdaptorMock buttonEventAdaptorMock = new ButtonEventAdaptorMock("testCommand", "a", UUID.randomUUID(), new AtomicLong(), Set.of(2L));
         UUID configUUID = UUID.randomUUID();
         Flux.range(1, 9)
                 .map(i -> new MessageDataDTO(configUUID, 1L, 1L, i, "testCommand", "testConfigClass", "configClass"))
@@ -74,10 +74,10 @@ class AbstractCommandTest {
 
     @Test
     void deleteMessageAndData_deleteCache() throws InterruptedException {
-        PersistanceManagerImpl messageDataDAO = new PersistanceManagerImpl("jdbc:h2:mem:" + UUID.randomUUID(), null, null);
+        PersistenceManagerImpl messageDataDAO = new PersistenceManagerImpl("jdbc:h2:mem:" + UUID.randomUUID(), null, null);
         TestCommand underTest = new TestCommand(messageDataDAO);
         underTest.setMessageDataDeleteDuration(Duration.ofMillis(200));
-        ButtonEventAdaptorMock buttonEventAdaptorMock = new ButtonEventAdaptorMock("testCommand", "a", new AtomicLong(), Set.of(2L));
+        ButtonEventAdaptorMock buttonEventAdaptorMock = new ButtonEventAdaptorMock("testCommand", "a", UUID.randomUUID(), new AtomicLong(), Set.of(2L));
         UUID configUUID = UUID.randomUUID();
         Flux.range(1, 9)
                 .map(i -> new MessageDataDTO(configUUID, 1L, 1L, i, "testCommand", "testConfigClass", "configClass"))

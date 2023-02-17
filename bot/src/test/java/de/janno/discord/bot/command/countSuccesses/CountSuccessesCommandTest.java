@@ -3,9 +3,9 @@ package de.janno.discord.bot.command.countSuccesses;
 import de.janno.discord.bot.ResultImage;
 import de.janno.discord.bot.command.*;
 import de.janno.discord.bot.dice.DiceUtils;
-import de.janno.discord.bot.persistance.PersistanceManager;
-import de.janno.discord.bot.persistance.PersistanceManagerImpl;
-import de.janno.discord.bot.persistance.MessageDataDTO;
+import de.janno.discord.bot.persistance.MessageConfigDTO;
+import de.janno.discord.bot.persistance.PersistenceManager;
+import de.janno.discord.bot.persistance.PersistenceManagerImpl;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
@@ -27,11 +27,11 @@ import static org.mockito.Mockito.mock;
 class CountSuccessesCommandTest {
 
     CountSuccessesCommand underTest;
-    PersistanceManager persistanceManager = mock(PersistanceManager.class);
+    PersistenceManager persistenceManager = mock(PersistenceManager.class);
 
     @BeforeEach
     void setup() {
-        underTest = new CountSuccessesCommand(persistanceManager, new DiceUtils(1, 1, 1, 1, 5, 6, 6, 6));
+        underTest = new CountSuccessesCommand(persistenceManager, new DiceUtils(1, 1, 1, 1, 5, 6, 6, 6));
         underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
     }
 
@@ -49,7 +49,7 @@ class CountSuccessesCommandTest {
     @Test
     void getButtonMessage_noGlitch() {
         CountSuccessesConfig config = new CountSuccessesConfig(null, 6, 6, "no_glitch", 15, 1, Set.of(), Set.of(), AnswerFormatType.full, ResultImage.none);
-        assertThat(underTest.createNewButtonMessage(config).getContent()).isEqualTo("Click to roll the dice against 6");
+        assertThat(underTest.createNewButtonMessage(UUID.randomUUID(), config).getContent()).isEqualTo("Click to roll the dice against 6");
     }
 
 
@@ -57,21 +57,21 @@ class CountSuccessesCommandTest {
     void getButtonMessage_halfDiceOne() {
         CountSuccessesConfig config = new CountSuccessesConfig(null, 6, 6, "half_dice_one", 15, 1, Set.of(), Set.of(), AnswerFormatType.full, ResultImage.none);
 
-        assertThat(underTest.createNewButtonMessage(config).getContent()).isEqualTo("Click to roll the dice against 6 and check for more then half of dice 1s");
+        assertThat(underTest.createNewButtonMessage(UUID.randomUUID(), config).getContent()).isEqualTo("Click to roll the dice against 6 and check for more then half of dice 1s");
     }
 
     @Test
     void getButtonMessage_countOnes() {
         CountSuccessesConfig config = new CountSuccessesConfig(null, 6, 6, "count_ones", 15, 1, Set.of(), Set.of(), AnswerFormatType.full, ResultImage.none);
 
-        assertThat(underTest.createNewButtonMessage(config).getContent()).isEqualTo("Click to roll the dice against 6 and count the 1s");
+        assertThat(underTest.createNewButtonMessage(UUID.randomUUID(), config).getContent()).isEqualTo("Click to roll the dice against 6 and count the 1s");
     }
 
     @Test
     void getButtonMessage_subtractOnes() {
         CountSuccessesConfig config = new CountSuccessesConfig(null, 6, 6, "subtract_ones", 15, 1, Set.of(), Set.of(), AnswerFormatType.full, ResultImage.none);
 
-        assertThat(underTest.createNewButtonMessage(config).getContent()).isEqualTo("Click to roll the dice against 6 minus 1s");
+        assertThat(underTest.createNewButtonMessage(UUID.randomUUID(), config).getContent()).isEqualTo("Click to roll the dice against 6 minus 1s");
     }
 
     @Test
@@ -79,7 +79,7 @@ class CountSuccessesCommandTest {
         CountSuccessesConfig config = new CountSuccessesConfig(null, 6, 6, "no_glitch", 15, 1, Set.of(), Set.of(), AnswerFormatType.full, ResultImage.none);
         State<StateData> state = new State<>("6", StateData.empty());
 
-        assertThat(underTest.createNewButtonMessageWithState(config, state).map(MessageDefinition::getContent)).contains("Click to roll the dice against 6");
+        assertThat(underTest.createNewButtonMessageWithState(UUID.randomUUID(), config, state, 1L, 2L).map(MessageDefinition::getContent)).contains("Click to roll the dice against 6");
     }
 
 
@@ -88,7 +88,7 @@ class CountSuccessesCommandTest {
         CountSuccessesConfig config = new CountSuccessesConfig(null, 6, 6, "half_dice_one", 15, 1, Set.of(), Set.of(), AnswerFormatType.full, ResultImage.none);
         State<StateData> state = new State<>("6", StateData.empty());
 
-        assertThat(underTest.createNewButtonMessageWithState(config, state).map(MessageDefinition::getContent)).contains("Click to roll the dice against 6 and check for more then half of dice 1s");
+        assertThat(underTest.createNewButtonMessageWithState(UUID.randomUUID(), config, state, 1L, 2L).map(MessageDefinition::getContent)).contains("Click to roll the dice against 6 and check for more then half of dice 1s");
     }
 
     @Test
@@ -96,7 +96,7 @@ class CountSuccessesCommandTest {
         CountSuccessesConfig config = new CountSuccessesConfig(null, 6, 6, "count_ones", 15, 1, Set.of(), Set.of(), AnswerFormatType.full, ResultImage.none);
         State<StateData> state = new State<>("6", StateData.empty());
 
-        assertThat(underTest.createNewButtonMessageWithState(config, state).map(MessageDefinition::getContent)).contains("Click to roll the dice against 6 and count the 1s");
+        assertThat(underTest.createNewButtonMessageWithState(UUID.randomUUID(), config, state, 1L, 2L).map(MessageDefinition::getContent)).contains("Click to roll the dice against 6 and count the 1s");
     }
 
     @Test
@@ -104,7 +104,7 @@ class CountSuccessesCommandTest {
         CountSuccessesConfig config = new CountSuccessesConfig(null, 6, 6, "subtract_ones", 15, 1, Set.of(), Set.of(), AnswerFormatType.full, ResultImage.none);
         State<StateData> state = new State<>("6", StateData.empty());
 
-        assertThat(underTest.createNewButtonMessageWithState(config, state).map(MessageDefinition::getContent)).contains("Click to roll the dice against 6 minus 1s");
+        assertThat(underTest.createNewButtonMessageWithState(UUID.randomUUID(), config, state, 1L, 2L).map(MessageDefinition::getContent)).contains("Click to roll the dice against 6 minus 1s");
     }
 
     @Test
@@ -192,52 +192,55 @@ class CountSuccessesCommandTest {
 
     @Test
     void getButtonLayoutWithState() {
-        List<ComponentRowDefinition> res = underTest.createNewButtonMessageWithState(new CountSuccessesConfig(null, 6, 6, "count_ones", 15, 1, Set.of(), Set.of(), AnswerFormatType.full, ResultImage.none), new State<>("6", StateData.empty()))
+        UUID uuid = UUID.fromString("00000000-0000-0000-0000-000000000000");
+        List<ComponentRowDefinition> res = underTest.createNewButtonMessageWithState(uuid, new CountSuccessesConfig(null, 6, 6, "count_ones", 15, 1, Set.of(), Set.of(), AnswerFormatType.full, ResultImage.none), new State<>("6", StateData.empty()), 1L, 2L)
                 .orElseThrow().getComponentRowDefinitions();
 
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel))
                 .containsExactly("1d6", "2d6", "3d6", "4d6", "5d6", "6d6", "7d6", "8d6", "9d6", "10d6", "11d6", "12d6", "13d6", "14d6", "15d6");
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getId))
-                .containsExactly("count_successes1",
-                        "count_successes2",
-                        "count_successes3",
-                        "count_successes4",
-                        "count_successes5",
-                        "count_successes6",
-                        "count_successes7",
-                        "count_successes8",
-                        "count_successes9",
-                        "count_successes10",
-                        "count_successes11",
-                        "count_successes12",
-                        "count_successes13",
-                        "count_successes14",
-                        "count_successes15");
+                .containsExactly("count_successes100000000-0000-0000-0000-000000000000",
+                        "count_successes200000000-0000-0000-0000-000000000000",
+                        "count_successes300000000-0000-0000-0000-000000000000",
+                        "count_successes400000000-0000-0000-0000-000000000000",
+                        "count_successes500000000-0000-0000-0000-000000000000",
+                        "count_successes600000000-0000-0000-0000-000000000000",
+                        "count_successes700000000-0000-0000-0000-000000000000",
+                        "count_successes800000000-0000-0000-0000-000000000000",
+                        "count_successes900000000-0000-0000-0000-000000000000",
+                        "count_successes1000000000-0000-0000-0000-000000000000",
+                        "count_successes1100000000-0000-0000-0000-000000000000",
+                        "count_successes1200000000-0000-0000-0000-000000000000",
+                        "count_successes1300000000-0000-0000-0000-000000000000",
+                        "count_successes1400000000-0000-0000-0000-000000000000",
+                        "count_successes1500000000-0000-0000-0000-000000000000");
     }
 
     @Test
     void getButtonLayout() {
-        List<ComponentRowDefinition> res = underTest.createNewButtonMessage(new CountSuccessesConfig(null, 6, 6, "count_ones", 15, 1, Set.of(), Set.of(), AnswerFormatType.full, ResultImage.none)).
+        UUID uuid = UUID.fromString("00000000-0000-0000-0000-000000000000");
+
+        List<ComponentRowDefinition> res = underTest.createNewButtonMessage(uuid, new CountSuccessesConfig(null, 6, 6, "count_ones", 15, 1, Set.of(), Set.of(), AnswerFormatType.full, ResultImage.none)).
                 getComponentRowDefinitions();
 
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel))
                 .containsExactly("1d6", "2d6", "3d6", "4d6", "5d6", "6d6", "7d6", "8d6", "9d6", "10d6", "11d6", "12d6", "13d6", "14d6", "15d6");
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getId))
-                .containsExactly("count_successes1",
-                        "count_successes2",
-                        "count_successes3",
-                        "count_successes4",
-                        "count_successes5",
-                        "count_successes6",
-                        "count_successes7",
-                        "count_successes8",
-                        "count_successes9",
-                        "count_successes10",
-                        "count_successes11",
-                        "count_successes12",
-                        "count_successes13",
-                        "count_successes14",
-                        "count_successes15");
+                .containsExactly("count_successes100000000-0000-0000-0000-000000000000",
+                        "count_successes200000000-0000-0000-0000-000000000000",
+                        "count_successes300000000-0000-0000-0000-000000000000",
+                        "count_successes400000000-0000-0000-0000-000000000000",
+                        "count_successes500000000-0000-0000-0000-000000000000",
+                        "count_successes600000000-0000-0000-0000-000000000000",
+                        "count_successes700000000-0000-0000-0000-000000000000",
+                        "count_successes800000000-0000-0000-0000-000000000000",
+                        "count_successes900000000-0000-0000-0000-000000000000",
+                        "count_successes1000000000-0000-0000-0000-000000000000",
+                        "count_successes1100000000-0000-0000-0000-000000000000",
+                        "count_successes1200000000-0000-0000-0000-000000000000",
+                        "count_successes1300000000-0000-0000-0000-000000000000",
+                        "count_successes1400000000-0000-0000-0000-000000000000",
+                        "count_successes1500000000-0000-0000-0000-000000000000");
     }
 
     @Test
@@ -301,29 +304,28 @@ class CountSuccessesCommandTest {
     }
 
     @Test
-    void checkPersistence() {
-        PersistanceManager persistanceManager = new PersistanceManagerImpl("jdbc:h2:mem:" + UUID.randomUUID(), null, null);
-        long channelId = System.currentTimeMillis();
-        long messageId = System.currentTimeMillis();
+    void checkConfigPersistence() {
+        PersistenceManager persistenceManager = new PersistenceManagerImpl("jdbc:h2:mem:" + UUID.randomUUID(), null, null);
+
         UUID configUUID = UUID.randomUUID();
         CountSuccessesConfig config = new CountSuccessesConfig(123L, 6, 5, "no_glitch", 12, 2, Set.of(1, 2), Set.of(9, 10), AnswerFormatType.minimal, ResultImage.none);
-        State<StateData> state = new State<>("5", StateData.empty());
-        Optional<MessageDataDTO> toSave = underTest.createMessageDataForNewMessage(configUUID, 1L, channelId, messageId, config, state);
-        persistanceManager.saveMessageData(toSave.orElseThrow());
+        Optional<MessageConfigDTO> toSave = underTest.createMessageConfig(configUUID, 1L, 2L, config);
+        assertThat(toSave).isPresent();
 
-        MessageDataDTO loaded = persistanceManager.getDataForMessage(channelId, messageId).orElseThrow();
+        persistenceManager.saveMessageConfig(toSave.get());
+        MessageConfigDTO loaded = persistenceManager.getMessageConfig(configUUID).orElseThrow();
 
-        assertThat(toSave.orElseThrow()).isEqualTo(loaded);
+        assertThat(toSave.get()).isEqualTo(loaded);
         ConfigAndState<CountSuccessesConfig, StateData> configAndState = underTest.deserializeAndUpdateState(loaded, "3");
         assertThat(configAndState.getConfig()).isEqualTo(config);
         assertThat(configAndState.getConfigUUID()).isEqualTo(configUUID);
-        assertThat(configAndState.getState().getData()).isEqualTo(state.getData());
+        assertThat(configAndState.getState()).isEqualTo(new State<>("3", StateData.empty()));
     }
 
     @Test
     void deserialization() {
         UUID configUUID = UUID.randomUUID();
-        MessageDataDTO savedData = new MessageDataDTO(configUUID, 1L, 1660644934298L, 1660644934298L, "count_successes", "CountSuccessesConfig", """
+        MessageConfigDTO savedData = new MessageConfigDTO(configUUID, 1L, 1660644934298L, "count_successes", "CountSuccessesConfig", """
                 ---
                 answerTargetChannelId: 123
                 diceSides: 6
@@ -338,7 +340,7 @@ class CountSuccessesCommandTest {
                 - 10
                 - 9
                 answerFormatType: compact
-                """, "None", null);
+                """);
 
 
         ConfigAndState<CountSuccessesConfig, StateData> configAndState = underTest.deserializeAndUpdateState(savedData, "3");
@@ -350,7 +352,7 @@ class CountSuccessesCommandTest {
     @Test
     void deserialization_legacy2() {
         UUID configUUID = UUID.randomUUID();
-        MessageDataDTO savedData = new MessageDataDTO(configUUID, 1L, 1660644934298L, 1660644934298L, "count_successes", "CountSuccessesConfig", """
+        MessageConfigDTO savedData = new MessageConfigDTO(configUUID, 1L, 1660644934298L, "count_successes", "CountSuccessesConfig", """
                 ---
                 answerTargetChannelId: 123
                 diceSides: 6
@@ -364,7 +366,7 @@ class CountSuccessesCommandTest {
                 botchSet:
                 - 10
                 - 9
-                """, "None", null);
+                """);
 
 
         ConfigAndState<CountSuccessesConfig, StateData> configAndState = underTest.deserializeAndUpdateState(savedData, "3");
@@ -376,14 +378,14 @@ class CountSuccessesCommandTest {
     @Test
     void deserialization_legacy() {
         UUID configUUID = UUID.randomUUID();
-        MessageDataDTO savedData = new MessageDataDTO(configUUID, 1L, 1660644934298L, 1660644934298L, "count_successes", "CountSuccessesConfig", """
+        MessageConfigDTO savedData = new MessageConfigDTO(configUUID, 1L, 1660644934298L, "count_successes", "CountSuccessesConfig", """
                 ---
                 answerTargetChannelId: 123
                 diceSides: 6
                 target: 5
                 glitchOption: "no_glitch"
                 maxNumberOfButtons: 12
-                """, "None", null);
+                """);
 
 
         ConfigAndState<CountSuccessesConfig, StateData> configAndState = underTest.deserializeAndUpdateState(savedData, "3");

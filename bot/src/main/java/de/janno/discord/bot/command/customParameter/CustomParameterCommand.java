@@ -9,8 +9,9 @@ import de.janno.discord.bot.ResultImage;
 import de.janno.discord.bot.command.*;
 import de.janno.discord.bot.dice.*;
 import de.janno.discord.bot.persistance.Mapper;
+import de.janno.discord.bot.persistance.MessageConfigDTO;
 import de.janno.discord.bot.persistance.MessageDataDTO;
-import de.janno.discord.bot.persistance.PersistanceManager;
+import de.janno.discord.bot.persistance.PersistenceManager;
 import de.janno.discord.connector.api.BottomCustomIdUtils;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
@@ -52,13 +53,13 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     private final static Pattern LABEL_MATCHER = Pattern.compile("@[^}]+$");
     private final DiceSystemAdapter diceSystemAdapter;
 
-    public CustomParameterCommand(PersistanceManager persistanceManager, CachingDiceEvaluator cachingDiceEvaluator) {
-        this(persistanceManager, new DiceParser(), cachingDiceEvaluator);
+    public CustomParameterCommand(PersistenceManager persistenceManager, CachingDiceEvaluator cachingDiceEvaluator) {
+        this(persistenceManager, new DiceParser(), cachingDiceEvaluator);
     }
 
     @VisibleForTesting
-    public CustomParameterCommand(PersistanceManager persistanceManager, Dice dice, CachingDiceEvaluator cachingDiceEvaluator) {
-        super(persistanceManager);
+    public CustomParameterCommand(PersistenceManager persistenceManager, Dice dice, CachingDiceEvaluator cachingDiceEvaluator) {
+        super(persistenceManager);
         this.diceSystemAdapter = new DiceSystemAdapter(cachingDiceEvaluator, dice);
     }
 
@@ -298,47 +299,49 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     }
 
     @Override
-    public @NonNull MessageDefinition createNewButtonMessage(CustomParameterConfig config) {
+    public @NonNull MessageDefinition createNewButtonMessage(UUID configUUID, CustomParameterConfig config) {
         return MessageDefinition.builder()
                 .content(formatMessageContent(config, null, null))
-                .componentRowDefinitions(getButtonLayoutWithOptionalState(config, null))
+                .componentRowDefinitions(getButtonLayoutWithOptionalState(configUUID, config, null))
                 .build();
     }
 
+
     @Override
-    protected Optional<List<ComponentRowDefinition>> getCurrentMessageComponentChange(CustomParameterConfig config, State<CustomParameterStateData> state) {
+    protected Optional<List<ComponentRowDefinition>> getCurrentMessageComponentChange(UUID configUUID, CustomParameterConfig config, State<CustomParameterStateData> state) {
         if (!hasMissingParameter(state)) {
             return Optional.empty();
         }
-        return Optional.of(getButtonLayoutWithOptionalState(config, state));
+        return Optional.of(getButtonLayoutWithOptionalState(configUUID, config, state));
     }
 
     @Override
-    protected Optional<ConfigAndState<CustomParameterConfig, CustomParameterStateData>> getMessageDataAndUpdateWithButtonValue(long channelId,
-                                                                                                                               long messageId,
-                                                                                                                               @NonNull String buttonValue,
-                                                                                                                               @NonNull String invokingUserName) {
-        final Optional<MessageDataDTO> messageDataDTO = persistanceManager.getDataForMessage(channelId, messageId);
-        return messageDataDTO.map(dataDTO -> deserializeAndUpdateState(dataDTO, buttonValue, invokingUserName));
+    protected ConfigAndState<CustomParameterConfig, CustomParameterStateData> getMessageDataAndUpdateWithButtonValue(@NonNull MessageConfigDTO messageConfigDTO,
+                                                                                                                     @NonNull MessageDataDTO messageDataDTO,
+                                                                                                                     @NonNull String buttonValue,
+                                                                                                                     @NonNull String invokingUserName) {
+        return deserializeAndUpdateState(messageConfigDTO, messageDataDTO, buttonValue, invokingUserName);
     }
 
     @VisibleForTesting
-    ConfigAndState<CustomParameterConfig, CustomParameterStateData> deserializeAndUpdateState(@NonNull MessageDataDTO messageDataDTO,
+    ConfigAndState<CustomParameterConfig, CustomParameterStateData> deserializeAndUpdateState(@NonNull MessageConfigDTO messageConfigDTO,
+                                                                                              @NonNull MessageDataDTO messageDataDTO,
                                                                                               @NonNull String buttonValue,
                                                                                               @NonNull String invokingUser) {
-        Preconditions.checkArgument(CONFIG_TYPE_ID.equals(messageDataDTO.getConfigClassId()), "Unknown configClassId: %s", messageDataDTO.getConfigClassId());
-        Preconditions.checkArgument(STATE_DATA_TYPE_ID.equals(messageDataDTO.getStateDataClassId()) ||
-                STATE_DATA_TYPE_ID_LEGACY.equals(messageDataDTO.getStateDataClassId())
-                || Mapper.NO_PERSISTED_STATE.equals(messageDataDTO.getStateDataClassId()), "Unknown stateDataClassId: %s", messageDataDTO.getStateDataClassId());
-        final CustomParameterStateData loadedStateData;
-        if (STATE_DATA_TYPE_ID_LEGACY.equals(messageDataDTO.getStateDataClassId())) {
-            loadedStateData = null;
-        } else {
-            loadedStateData = Optional.ofNullable(messageDataDTO.getStateData())
-                    .map(sd -> Mapper.deserializeObject(sd, CustomParameterStateData.class))
-                    .orElse(null);
-        }
-        final CustomParameterConfig loadedConfig = Mapper.deserializeObject(messageDataDTO.getConfig(), CustomParameterConfig.class);
+        Preconditions.checkArgument(CONFIG_TYPE_ID.equals(messageConfigDTO.getConfigClassId()), "Unknown configClassId: %s", messageConfigDTO.getConfigClassId());
+        Preconditions.checkArgument(Optional.of(messageDataDTO)
+                .map(MessageDataDTO::getStateDataClassId)
+                .map(c -> Set.of(STATE_DATA_TYPE_ID_LEGACY, STATE_DATA_TYPE_ID, Mapper.NO_PERSISTED_STATE).contains(c))
+                .orElse(true), "Unknown stateDataClassId: %s", Optional.of(messageDataDTO)
+                .map(MessageDataDTO::getStateDataClassId).orElse("null"));
+
+        final CustomParameterStateData loadedStateData = Optional.of(messageDataDTO)
+                .filter(m -> STATE_DATA_TYPE_ID.equals(m.getStateDataClassId()))
+                .map(MessageDataDTO::getStateData)
+                .map(sd -> Mapper.deserializeObject(sd, CustomParameterStateData.class))
+                .orElse(null);
+
+        final CustomParameterConfig loadedConfig = Mapper.deserializeObject(messageConfigDTO.getConfig(), CustomParameterConfig.class);
         final CustomParameterStateData updatedStateData = updateState(
                 Optional.ofNullable(loadedStateData).map(CustomParameterStateData::getSelectedParameterValues).orElse(null),
                 loadedConfig,
@@ -346,27 +349,25 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
                 Optional.ofNullable(loadedStateData).map(CustomParameterStateData::getLockedForUserName).orElse(null),
                 invokingUser
         );
-        return new ConfigAndState<>(messageDataDTO.getConfigUUID(),
+        return new ConfigAndState<>(messageConfigDTO.getConfigUUID(),
                 loadedConfig,
                 new State<>(buttonValue, updatedStateData));
     }
 
     @Override
-    public Optional<MessageDataDTO> createMessageDataForNewMessage(@NonNull UUID configUUID,
-                                                                   long guildId,
-                                                                   long channelId,
-                                                                   long messageId,
-                                                                   @NonNull CustomParameterConfig config,
-                                                                   @Nullable State<CustomParameterStateData> state) {
-        return Optional.of(new MessageDataDTO(configUUID, guildId, channelId, messageId, getCommandId(), CONFIG_TYPE_ID, Mapper.serializedObject(config)));
+    public Optional<MessageConfigDTO> createMessageConfig(@NonNull UUID configUUID, long guildId, long channelId, @NonNull CustomParameterConfig config) {
+        return Optional.of(new MessageConfigDTO(configUUID, guildId, channelId, getCommandId(), CONFIG_TYPE_ID, Mapper.serializedObject(config)));
     }
 
     @Override
-    protected void updateCurrentMessageStateData(long channelId, long messageId, @NonNull CustomParameterConfig config, @NonNull State<CustomParameterStateData> state) {
-        if (Optional.ofNullable(state.getData()).isEmpty() || !hasMissingParameter(state)) {
-            persistanceManager.updateCommandConfigOfMessage(channelId, messageId, Mapper.NO_PERSISTED_STATE, null);
-        } else {
-            persistanceManager.updateCommandConfigOfMessage(channelId, messageId, STATE_DATA_TYPE_ID, Mapper.serializedObject(state.getData()));
+    protected void updateCurrentMessageStateData(UUID configUUID, long guildId, long channelId, long messageId, @NonNull CustomParameterConfig config, @NonNull State<CustomParameterStateData> state) {
+        if (!hasMissingParameter(state)) {
+            persistenceManager.deleteStateForMessage(channelId, messageId);
+            //message data so we knew the button message exists
+            persistenceManager.saveMessageData(new MessageDataDTO(configUUID, guildId, channelId, messageId, getCommandId(), Mapper.NO_PERSISTED_STATE, null));
+        } else if (state.getData() != null) {
+            persistenceManager.deleteStateForMessage(channelId, messageId);
+            persistenceManager.saveMessageData(new MessageDataDTO(configUUID, guildId, channelId, messageId, getCommandId(), STATE_DATA_TYPE_ID, Mapper.serializedObject(state.getData())));
         }
     }
 
@@ -382,11 +383,11 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     }
 
     @Override
-    protected @NonNull Optional<MessageDefinition> createNewButtonMessageWithState(CustomParameterConfig config, State<CustomParameterStateData> state) {
+    protected @NonNull Optional<MessageDefinition> createNewButtonMessageWithState(UUID configUUID, CustomParameterConfig config, State<CustomParameterStateData> state, long guildId, long channelId) {
         if (!hasMissingParameter(state)) {
             return Optional.of(MessageDefinition.builder()
                     .content(formatMessageContent(config, state, null))
-                    .componentRowDefinitions(getButtonLayoutWithOptionalState(config, null))
+                    .componentRowDefinitions(getButtonLayoutWithOptionalState(configUUID, config, null))
                     .build());
         }
         return Optional.empty();
@@ -417,7 +418,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
         return String.format("%sPlease select value for **%s**", nameExpressionAndSeparator, currentParameter.getName());
     }
 
-    private List<ComponentRowDefinition> getButtonLayoutWithOptionalState(@NonNull CustomParameterConfig config, @Nullable State<CustomParameterStateData> state) {
+    private List<ComponentRowDefinition> getButtonLayoutWithOptionalState(@NonNull UUID configUUID, @NonNull CustomParameterConfig config, @Nullable State<CustomParameterStateData> state) {
         String currentParameterExpression = Optional.ofNullable(state)
                 .map(State::getData)
                 .flatMap(CustomParameterStateData::getNextUnselectedParameterExpression)
@@ -428,14 +429,14 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
                 .findFirst().orElse(config.getParamters().get(0));
         List<ButtonDefinition> buttons = parameter.getParameterOptions().stream()
                 .map(vl -> ButtonDefinition.builder()
-                        .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), vl.getValue()))
+                        .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), vl.getValue(), configUUID))
                         .label(vl.getLabel())
                         .build())
                 .collect(Collectors.toList());
         boolean hasSelectedParameter = hasAnySelectedValues(state);
         if (hasSelectedParameter) {
             buttons.add(ButtonDefinition.builder()
-                    .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), CLEAR_BUTTON_ID))
+                    .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), CLEAR_BUTTON_ID, configUUID))
                     .label("Clear")
                     .style(ButtonDefinition.Style.DANGER)
                     .build());
@@ -518,7 +519,8 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
         List<StateWithCustomIdAndParameter> out = new ArrayList<>();
         String parameterExpression = getNextParameterExpression(config.getBaseExpression());
 
-        List<ButtonIdLabelAndDiceExpression> buttonIdLabelAndDiceExpressions = getButtons(config, parameterExpression);
+        //use random uuid for simulating states
+        List<ButtonIdLabelAndDiceExpression> buttonIdLabelAndDiceExpressions = getButtons(UUID.randomUUID(), config, parameterExpression);
 
         for (ButtonIdLabelAndDiceExpression buttonIdLabelAndDiceExpression : buttonIdLabelAndDiceExpressions) {
             State<CustomParameterStateData> nextState = new State<>(buttonIdLabelAndDiceExpression.getDiceExpression(), updateState(null, config, buttonIdLabelAndDiceExpression.getDiceExpression(), null, "test"));
@@ -528,10 +530,10 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
         return out;
     }
 
-    List<ButtonIdLabelAndDiceExpression> getButtons(CustomParameterConfig config, String parameterExpression) {
+    List<ButtonIdLabelAndDiceExpression> getButtons(UUID configUUID, CustomParameterConfig config, String parameterExpression) {
         return getParameterForParameterExpression(config, parameterExpression)
                 .map(Parameter::getParameterOptions).orElse(List.of()).stream()
-                .map(vl -> new ButtonIdLabelAndDiceExpression(BottomCustomIdUtils.createButtonCustomId(getCommandId(), vl.getValue()), vl.getLabel(), vl.getValue()))
+                .map(vl -> new ButtonIdLabelAndDiceExpression(BottomCustomIdUtils.createButtonCustomId(getCommandId(), vl.getValue(), configUUID), vl.getLabel(), vl.getValue()))
                 .toList();
     }
 
@@ -540,7 +542,8 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
         Optional<String> parameterExpression = getCurrentParameterExpression(state);
 
         if (parameterExpression.isPresent()) {
-            List<ButtonIdLabelAndDiceExpression> parameterValues = getButtons(config, parameterExpression.get());
+            //use random uuid for simulating states
+            List<ButtonIdLabelAndDiceExpression> parameterValues = getButtons(UUID.randomUUID(), config, parameterExpression.get());
             for (ButtonIdLabelAndDiceExpression parameterValue : parameterValues) {
                 State<CustomParameterStateData> nextState = new State<>(parameterValue.getDiceExpression(),
                         updateState(Optional.ofNullable(state.getData()).map(CustomParameterStateData::getSelectedParameterValues).orElse(List.of()), config,

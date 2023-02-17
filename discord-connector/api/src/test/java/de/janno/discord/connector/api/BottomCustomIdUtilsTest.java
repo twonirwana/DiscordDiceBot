@@ -2,6 +2,8 @@ package de.janno.discord.connector.api;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.UUID;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 class BottomCustomIdUtilsTest {
@@ -20,9 +22,10 @@ class BottomCustomIdUtilsTest {
 
     @Test
     void createButtonCustomId() {
-        String res = BottomCustomIdUtils.createButtonCustomId("testCommand", "testValue");
+        UUID uuid = UUID.randomUUID();
+        String res = BottomCustomIdUtils.createButtonCustomId("testCommand", "testValue", uuid);
 
-        assertThat(res).isEqualTo("testCommand\u001EtestValue");
+        assertThat(res).isEqualTo("testCommand\u001EtestValue\u001E"+uuid);
     }
 
     @Test
