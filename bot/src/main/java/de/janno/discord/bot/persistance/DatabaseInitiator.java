@@ -3,6 +3,7 @@ package de.janno.discord.bot.persistance;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.Resources;
+import io.micrometer.core.instrument.util.IOUtils;
 import lombok.NonNull;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
@@ -10,10 +11,7 @@ import org.h2.jdbcx.JdbcConnectionPool;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.charset.StandardCharsets;
 import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.Comparator;
@@ -75,26 +73,21 @@ public class DatabaseInitiator {
     }
 
     private static List<Migration> readMigrations() {
-        try (Stream<Path> stream = Files.list(Paths.get(Resources.getResource("db/migrations").toURI()))) {
-            return stream
-                    .filter(file -> !Files.isDirectory(file))
-                    .map(DatabaseInitiator::readMigration)
-                    .toList();
-        } catch (IOException | URISyntaxException e) {
-            throw new RuntimeException(e);
-        }
+        return Stream.of("1_base.sql", "2_configTable.sql")
+                .map(DatabaseInitiator::readMigration)
+                .toList();
     }
 
-    private static Migration readMigration(Path filePath) {
-        Preconditions.checkArgument(filePath.getFileName().toString().contains("_"), "Wrong file format: {}", filePath);
-        Preconditions.checkArgument(filePath.getFileName().toString().endsWith("sql"), "Wrong file format: {}", filePath);
+    private static Migration readMigration(final String fileName) {
+
+        Preconditions.checkArgument(fileName.contains("_"), "Wrong file format: {}", fileName);
+        Preconditions.checkArgument(fileName.endsWith("sql"), "Wrong file format: {}", fileName);
         String content;
         try {
-            content = Files.readString(filePath);
+            content = IOUtils.toString(Resources.getResource("db/migrations/" + fileName).openStream(), StandardCharsets.UTF_8);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        String fileName = filePath.getFileName().toString();
         int firstUnderscoreIndex = fileName.indexOf("_");
         String order = fileName.substring(0, firstUnderscoreIndex);
         String name = fileName.substring(firstUnderscoreIndex + 1, fileName.length() - 4);

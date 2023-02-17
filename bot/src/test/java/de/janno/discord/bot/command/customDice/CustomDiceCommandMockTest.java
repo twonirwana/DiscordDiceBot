@@ -92,7 +92,8 @@ public class CustomDiceCommandMockTest {
             throw new RuntimeException(e);
         }
         underTest.createMessageConfig(configUUID, GUILD_ID, CHANNEL_ID, config).ifPresent(persistenceManager::saveMessageConfig);
-        ButtonEventAdaptorMock buttonEvent = new ButtonEventAdaptorMock("custom_dice", "1_button");
+        AtomicLong messageIdCounter = new AtomicLong(0);
+        ButtonEventAdaptorMock buttonEvent = new ButtonEventAdaptorMock("custom_dice", "1_button", messageIdCounter);
 
         underTest.handleComponentInteractEvent(buttonEvent).block();
 
@@ -101,13 +102,17 @@ public class CustomDiceCommandMockTest {
                 "createAnswer: title=Dmg ⇒ 3, description=1d6: [3], fieldValues:, answerChannel:null, type:EMBED",
                 "deleteMessageById: 0",
                 "createButtonMessage: content=Click on a button to roll the dice, buttonValues=1_button");
+        System.out.println(persistenceManager.getMessageConfig(configUUID));
+        System.out.println(persistenceManager.getMessageData(CHANNEL_ID, messageIdCounter.get()));
+        assertThat(persistenceManager.getMessageConfig(configUUID)).isPresent();
+        assertThat(persistenceManager.getMessageData(CHANNEL_ID, messageIdCounter.get())).isPresent();
     }
 
 
     @Test
     void without_configUUID_missingData() {
         CustomDiceCommand underTest = new CustomDiceCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
-        ButtonEventAdaptorMock buttonEvent = new ButtonEventAdaptorMock("custom_dice", "1_button");
+        ButtonEventAdaptorMock buttonEvent = new ButtonEventAdaptorMock("custom_dice", "1_button", new AtomicLong(0));
         UUID configUUID = UUID.randomUUID();
         CustomDiceConfig config = new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "1d6")), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full, ResultImage.none);
         underTest.createMessageConfig(configUUID, GUILD_ID, CHANNEL_ID, config).ifPresent(persistenceManager::saveMessageConfig);

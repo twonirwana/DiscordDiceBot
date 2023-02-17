@@ -36,7 +36,7 @@ public class ButtonEventAdaptorMock implements ButtonEventAdaptor {
         this(commandId, buttonValue, configUUID, messageIdCounter, pinnedMessageIds, "invokingUser");
     }
 
-    public ButtonEventAdaptorMock(String commandId, String buttonValue, UUID configUUID, AtomicLong messageIdCounter, Set<Long> pinnedMessageIds, String invokingUser) {
+    public ButtonEventAdaptorMock(String commandId, String buttonValue, UUID configUUID,AtomicLong messageIdCounter, Set<Long> pinnedMessageIds, String invokingUser) {
         this.customId = BottomCustomIdUtils.createButtonCustomId(commandId, buttonValue, configUUID);
         this.massageId = messageIdCounter.get();
         this.messageIdCounter = messageIdCounter;
@@ -44,10 +44,10 @@ public class ButtonEventAdaptorMock implements ButtonEventAdaptor {
         this.invokingUser = invokingUser;
     }
 
-    public ButtonEventAdaptorMock(String commandId, String buttonValue) {
+    public ButtonEventAdaptorMock(String commandId, String buttonValue, AtomicLong messageIdCounter) {
         this.customId = commandId + CUSTOM_ID_DELIMITER + buttonValue;
-        this.massageId = 0;
-        this.messageIdCounter = new AtomicLong(0);
+        this.massageId = messageIdCounter.get();
+        this.messageIdCounter = messageIdCounter;
         this.pinnedMessageIds = Set.of();
         this.invokingUser = "invokingUser";
     }
