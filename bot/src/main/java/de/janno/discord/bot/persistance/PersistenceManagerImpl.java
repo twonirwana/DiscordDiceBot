@@ -32,11 +32,13 @@ public class PersistenceManagerImpl implements PersistenceManager {
         connectionPool = JdbcConnectionPool.create(url, user, password);
 
         new DatabaseTableMetrics(connectionPool, "h2", "MESSAGE_DATA", ImmutableSet.of()).bindTo(globalRegistry);
+        new DatabaseTableMetrics(connectionPool, "h2", "MESSAGE_CONFIG", ImmutableSet.of()).bindTo(globalRegistry);
 
         queryGauge("db.channel.count", "select count (distinct CHANNEL_ID) from MESSAGE_DATA;", connectionPool, Set.of());
         queryGauge("db.channel.config.count", "select count (distinct CHANNEL_ID) from CHANNEL_CONFIG;", connectionPool, Set.of());
         queryGauge("db.guild.count", "select count (distinct GUILD_ID) from MESSAGE_DATA;", connectionPool, Set.of());
         queryGauge("db.guild-null.count", "select count (distinct CHANNEL_ID) from MESSAGE_DATA where GUILD_ID is null;", connectionPool, Set.of());
+        queryGauge("db.messageDataWithConfig.count", "SELECT COUNT(*) FROM (SELECT DISTINCT CHANNEL_ID, MESSAGE_ID FROM MESSAGE_DATA WHERE CONFIG_CLASS_ID IS NOT NULL);", connectionPool, Set.of());
         queryGauge("db.guild-30d.active", "select count (distinct GUILD_ID) from MESSAGE_DATA where (CURRENT_TIMESTAMP - CREATION_DATE) <= interval '43200' MINUTE;", connectionPool, Set.of());
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
