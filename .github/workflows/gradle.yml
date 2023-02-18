@@ -27,7 +27,7 @@ jobs:
         distribution: 'temurin'
     - uses: gradle/gradle-build-action@v2
       with:
-        gradle-version: 8.0
+        gradle-version: wrapper
         arguments: test
     - name: Publish Test Report
       uses: mikepenz/action-junit-report@v3
@@ -36,7 +36,7 @@ jobs:
         report_paths: '**/build/test-results/test/TEST-*.xml'
     - uses: gradle/gradle-build-action@v2
       with:
-        gradle-version: 8.0
+        gradle-version: wrapper
         arguments: testCodeCoverageReport
     - uses: codecov/codecov-action@v3
       with:
