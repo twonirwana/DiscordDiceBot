@@ -214,7 +214,7 @@ class SumDiceSetCommandTest {
                         .type(CommandDefinitionOption.Type.SUB_COMMAND)
                         .option(CommandDefinitionOption.builder()
                                 .name("target_channel")
-                                .description("The channel where the answer will be given")
+                                .description("Another channel where the answer will be given")
                                 .type(CommandDefinitionOption.Type.CHANNEL)
                                 .build())
                         .option(CommandDefinitionOption.builder()
