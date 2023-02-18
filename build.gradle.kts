@@ -10,9 +10,6 @@ apply(plugin = "java")
 apply(plugin = "com.github.johnrengelman.shadow")
 apply(plugin = "jacoco")
 
-group "de.janno"
-version "1.0-SNAPSHOT"
-
 repositories {
     mavenCentral()
     maven { setUrl("https://jitpack.io") }
