@@ -19,7 +19,11 @@ public class MessageComponentConverter {
 
     public static MessageCreateData messageComponent2MessageLayout(String content, List<ComponentRowDefinition> rows) {
         LayoutComponent[] layoutComponents = componentRowDefinition2LayoutComponent(rows);
-        return new MessageCreateBuilder().addContent(content).addComponents(layoutComponents).build();
+        return new MessageCreateBuilder()
+                .addContent(content)
+                .addComponents(layoutComponents)
+                .setSuppressedNotifications(true)
+                .build();
     }
 
     public static LayoutComponent[] componentRowDefinition2LayoutComponent(List<ComponentRowDefinition> rows) {
