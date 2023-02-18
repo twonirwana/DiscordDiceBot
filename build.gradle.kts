@@ -4,14 +4,12 @@ plugins {
     id("com.github.johnrengelman.shadow") version "7.1.2"
     id("jacoco-report-aggregation")
     id("java")
+    id("org.gradle.toolchains.foojay-resolver-convention") version("0.4.0")
 }
 
 apply(plugin = "java")
 apply(plugin = "com.github.johnrengelman.shadow")
 apply(plugin = "jacoco")
-
-group "de.janno"
-version "1.0-SNAPSHOT"
 
 repositories {
     mavenCentral()
