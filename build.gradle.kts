@@ -4,7 +4,6 @@ plugins {
     id("com.github.johnrengelman.shadow") version "7.1.2"
     id("jacoco-report-aggregation")
     id("java")
-    id("org.gradle.toolchains.foojay-resolver-convention") version("0.4.0")
 }
 
 apply(plugin = "java")
