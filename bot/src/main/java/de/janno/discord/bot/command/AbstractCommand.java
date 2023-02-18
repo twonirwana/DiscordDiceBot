@@ -348,6 +348,10 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
             CommandInteractionOption options = startOption.get();
 
             Optional<Long> answerTargetChannelId = DefaultCommandOptions.getAnswerTargetChannelIdFromStartCommandOption(options);
+            if (answerTargetChannelId.isPresent() && answerTargetChannelId.get().equals(event.getChannelId())) {
+                log.info("{}:same answer channel for {}", event.getRequester().toLogString(), commandString);
+                return event.reply("The answer target channel must be not the same as the current channel, keep this option empty if the answer should appear in this channel", true);
+            }
             if (answerTargetChannelId.isPresent() && !event.isValidAnswerChannel(answerTargetChannelId.get())) {
                 log.info("{}: Invalid answer target channel for {}", event.getRequester().toLogString(), commandString);
                 return event.reply("The target channel is not a valid message channel", true);

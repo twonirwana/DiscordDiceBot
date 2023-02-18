@@ -290,6 +290,26 @@ public class CustomDiceCommandMockTest {
     }
 
     @Test
+    void slash_targetChannelTheSame_error() {
+        CustomDiceCommand underTest = new CustomDiceCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
+
+        SlashEventAdaptorMock slashEvent = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
+                .name("start")
+                .option(CommandInteractionOption.builder()
+                        .name("buttons")
+                        .stringValue("1d6;1d20@Attack;3d10,3d10,3d10")
+                        .build())
+                .option(CommandInteractionOption.builder()
+                        .name("target_channel")
+                        .channelIdValue(CHANNEL_ID)
+                        .build())
+                .build()));
+        underTest.handleSlashCommandEvent(slashEvent, () -> UUID.fromString("00000000-0000-0000-0000-000000000000")).block();
+
+        assertThat(slashEvent.getActions()).containsExactlyInAnyOrder("reply: The answer target channel must be not the same as the current channel, keep this option empty if the answer should appear in this channel");
+    }
+
+    @Test
     void roll_answerChannel() {
         CustomDiceCommand underTest = new CustomDiceCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
         underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
