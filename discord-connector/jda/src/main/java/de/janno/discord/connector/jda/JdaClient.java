@@ -6,6 +6,7 @@ import de.janno.discord.connector.api.SlashCommand;
 import de.janno.discord.connector.api.message.MessageDefinition;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
@@ -167,7 +168,7 @@ public class JdaClient {
 
                 Runtime.getRuntime().addShutdownHook(new Thread(() -> {
                     log.info("start jda %s shutdown".formatted(jda.getShardInfo().getShardString()));
-                    jda.shutdown();
+                    shutdown(jda);
                     log.info("finished jda %s shutdown".formatted(jda.getShardInfo().getShardString()));
                 }));
             } catch (InterruptedException e) {
@@ -178,5 +179,21 @@ public class JdaClient {
         SlashCommandRegistry.builder()
                 .addSlashCommands(commands)
                 .registerSlashCommands(shardManager.getShards().get(0), disableCommandUpdate);
+    }
+
+
+    private void shutdown(JDA jda) {
+        // Initiating the shutdown, this closes the gateway connection and subsequently closes the requester queue
+        jda.shutdown();
+        try {
+            // Allow at most 5 seconds for remaining requests to finish
+            if (!jda.awaitShutdown(Duration.ofSeconds(5))) { // returns true if shutdown is graceful, false if timeout exceeded
+                log.warn("shutdown took more then 5sec");
+                jda.shutdownNow(); // Cancel all remaining requests, and stop thread-pools
+                jda.awaitShutdown(); // Wait until shutdown is complete (indefinitely)
+            }
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
