@@ -372,6 +372,7 @@ The maximum are 23 buttons.
 It is possible to add an optional label to each value in the format `value@label`.
 For example `{bonus:0@None/3@Small Bonus/5@Big Bonus}` will show on the buttons 'None', 'Small Bonus' and 'Big Bonus' but apply the values 0, 3 or 5 to the expression
 
+A expression can have up to 4 parameter.
 The user can click on the buttons to fill all open parameter of the expression.
 If all parameter are selected then the expression will be rolled.
 The first user that clicks on a button add his name to the message and only this user can select further parameter.

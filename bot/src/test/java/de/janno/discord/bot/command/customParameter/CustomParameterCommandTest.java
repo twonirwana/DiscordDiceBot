@@ -58,6 +58,7 @@ class CustomParameterCommandTest {
                 Arguments.of("{number}d{sides:/}", null), //invalid range is mapped to 1-15
                 Arguments.of("{number}d{}", "A parameter expression must not be empty"),
                 Arguments.of("1d6", "The expression needs at least one parameter expression like '{name}"),
+                Arguments.of("{a1}{a2}{a3}{a4}{a6}", "The expression is allowed a maximum of 4 variables"),
                 Arguments.of("{number:3<=>6}d{sides:6/10/12}", null),
                 Arguments.of("{number}{a:a/c/b/d/d}{sides:3<=>6}", "Parameter '[a, c, b, d, d]' contains duplicate parameter option but they must be unique."),
                 Arguments.of("{number}d{sides:3/4/'ab'}", null),

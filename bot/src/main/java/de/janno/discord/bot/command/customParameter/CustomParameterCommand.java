@@ -277,7 +277,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
                 label = null;
             } else {
                 label = Optional.ofNullable(state.getData()).map(CustomParameterStateData::getSelectedParameterValues).orElse(List.of()).stream()
-                        .map(sp -> "%s:%s".formatted(sp.getName(), sp.getLabelOfSelectedValue()))
+                        .map(sp -> "%s: %s".formatted(sp.getName(), sp.getLabelOfSelectedValue()))
                         .collect(Collectors.joining(", "));
             }
         }
@@ -457,8 +457,17 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     @Override
     protected @NonNull Optional<String> getStartOptionsValidationMessage(@NonNull CommandInteractionOption options) {
         String baseExpression = options.getStringSubOptionWithName(EXPRESSION_OPTION).orElse("");
-        if (!PARAMETER_VARIABLE_PATTERN.matcher(baseExpression).find()) {
+        log.info("Start validating: {}", baseExpression);
+        int variableCount = 0;
+        Matcher variableMatcher = PARAMETER_VARIABLE_PATTERN.matcher(baseExpression);
+        while(variableMatcher.find()){
+            variableCount++;
+        }
+        if (variableCount ==0) {
             return Optional.of("The expression needs at least one parameter expression like '{name}");
+        }
+        if (variableCount > 4) {
+            return Optional.of("The expression is allowed a maximum of 4 variables");
         }
         if (Pattern.compile("(\\Q{\\E(?)\\Q{\\E(?)(.*)(?)\\Q}\\E(?)\\Q}\\E)").matcher(baseExpression).find()) {
             return Optional.of("Nested brackets are not allowed");
@@ -469,7 +478,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
         if (baseExpression.contains("{}")) {
             return Optional.of("A parameter expression must not be empty");
         }
-        if (baseExpression.length() > 1000) { //max length of the message content, where the current state is given is 2000
+        if (baseExpression.length() > 1000) { //not sure if this is a hard limit
             return Optional.of(String.format("The expression has %s to many characters", (baseExpression.length() - 1000)));
         }
         if (baseExpression.contains(BottomCustomIdUtils.CUSTOM_ID_DELIMITER)) {
