@@ -155,10 +155,14 @@ public class DirectRollCommand extends AbstractDirectRollCommand {
 
         //specific before general
         for (Alias alias : userAlias) {
-            expressionWithOptionalLabelsAndAppliedAliases = expressionWithOptionalLabelsAndAppliedAliases.replace(alias.getName(), alias.getValue());
+            if(expressionWithOptionalLabelsAndAppliedAliases.contains(alias.getName())){
+                BotMetrics.incrementAliasUseMetricCounter("userChannel");
+                expressionWithOptionalLabelsAndAppliedAliases = expressionWithOptionalLabelsAndAppliedAliases.replace(alias.getName(), alias.getValue());
+            }
         }
 
         for (Alias alias : channelAlias) {
+            BotMetrics.incrementAliasUseMetricCounter("channel");
             expressionWithOptionalLabelsAndAppliedAliases = expressionWithOptionalLabelsAndAppliedAliases.replace(alias.getName(), alias.getValue());
         }
 

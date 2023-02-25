@@ -173,7 +173,6 @@ class DirectRollCommandTest {
     @Test
     void getCommandId() {
         String res = underTest.getCommandId();
-
         assertThat(res).isEqualTo("r");
     }
 
@@ -191,6 +190,13 @@ class DirectRollCommandTest {
                         .type(CommandDefinitionOption.Type.STRING)
                         .build())
                 .build());
+    }
+
+    @Test
+    void getConfigCommandDefinition() {
+        CommandDefinition res = new DirectRollConfigCommand(null).getCommandDefinition();
+
+        assertThat(res.getOptions().stream().map(CommandDefinitionOption::getName)).containsExactlyInAnyOrder("save_config", "delete_config", "channel_alias", "user_channel_alias");
     }
 
     @Test
