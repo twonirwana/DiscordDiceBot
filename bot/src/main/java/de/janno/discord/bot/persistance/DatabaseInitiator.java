@@ -73,7 +73,7 @@ public class DatabaseInitiator {
     }
 
     private static List<Migration> readMigrations() {
-        return Stream.of("1_base.sql", "2_configTable.sql")
+        return Stream.of("1_base.sql", "2_configTable.sql", "3_channelConfigUser.sql")
                 .map(DatabaseInitiator::readMigration)
                 .toList();
     }

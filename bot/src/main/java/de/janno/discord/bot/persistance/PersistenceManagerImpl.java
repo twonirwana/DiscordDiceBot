@@ -9,6 +9,7 @@ import io.micrometer.core.instrument.binder.db.DatabaseTableMetrics;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.h2.jdbcx.JdbcConnectionPool;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.sql.DataSource;
@@ -290,11 +291,11 @@ public class PersistenceManagerImpl implements PersistenceManager {
     }
 
     @Override
-    public @NonNull Optional<ChannelConfigDTO> getChannelConfig(long channelId, String configClassId) {
+    public @NonNull Optional<ChannelConfigDTO> getChannelConfig(long channelId, @NotNull String configClassId) {
         Stopwatch stopwatch = Stopwatch.createStarted();
 
         try (Connection con = connectionPool.getConnection()) {
-            try (PreparedStatement preparedStatement = con.prepareStatement("SELECT CONFIG_ID, CHANNEL_ID, GUILD_ID, COMMAND_ID, CONFIG_CLASS_ID, CONFIG FROM CHANNEL_CONFIG CC WHERE CC.CHANNEL_ID = ? AND CC.CONFIG_CLASS_ID = ?")) {
+            try (PreparedStatement preparedStatement = con.prepareStatement("SELECT CONFIG_ID, CHANNEL_ID, GUILD_ID, COMMAND_ID, USER_ID, CONFIG_CLASS_ID, CONFIG FROM CHANNEL_CONFIG CC WHERE CC.CHANNEL_ID = ? AND CC.CONFIG_CLASS_ID = ? AND CC.USER_ID IS NULL")) {
                 preparedStatement.setLong(1, channelId);
                 preparedStatement.setString(2, configClassId);
                 ResultSet resultSet = preparedStatement.executeQuery();
@@ -312,12 +313,37 @@ public class PersistenceManagerImpl implements PersistenceManager {
         }
     }
 
+    @Override
+    public @NonNull Optional<ChannelConfigDTO> getUserChannelConfig(long channelId, long userId, @NotNull String configClassId) {
+        Stopwatch stopwatch = Stopwatch.createStarted();
+
+        try (Connection con = connectionPool.getConnection()) {
+            try (PreparedStatement preparedStatement = con.prepareStatement("SELECT CONFIG_ID, CHANNEL_ID, GUILD_ID, USER_ID COMMAND_ID, CONFIG_CLASS_ID, CONFIG FROM CHANNEL_CONFIG CC WHERE CC.USER_ID = ? AND CC.CHANNEL_ID = ? AND CC.CONFIG_CLASS_ID = ?")) {
+                preparedStatement.setLong(1, userId);
+                preparedStatement.setLong(2, channelId);
+                preparedStatement.setString(3, configClassId);
+                ResultSet resultSet = preparedStatement.executeQuery();
+                ChannelConfigDTO channelConfigDTO = transformResultSet2ChannelConfigDTO(resultSet);
+
+                BotMetrics.databaseTimer("getUserChannelConfig", stopwatch.elapsed());
+
+                if (channelConfigDTO == null) {
+                    return Optional.empty();
+                }
+                return Optional.of(channelConfigDTO);
+            }
+        } catch (Exception e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
     private ChannelConfigDTO transformResultSet2ChannelConfigDTO(ResultSet resultSet) throws SQLException {
         if (resultSet.next()) {
             return new ChannelConfigDTO(
                     resultSet.getObject("CONFIG_ID", UUID.class),
                     resultSet.getLong("GUILD_ID"),
                     resultSet.getLong("CHANNEL_ID"),
+                    resultSet.getObject("USER_ID", Long.class),
                     resultSet.getString("COMMAND_ID"),
                     resultSet.getString("CONFIG_CLASS_ID"),
                     resultSet.getString("CONFIG")
@@ -331,14 +357,15 @@ public class PersistenceManagerImpl implements PersistenceManager {
         Stopwatch stopwatch = Stopwatch.createStarted();
         try (Connection con = connectionPool.getConnection()) {
             try (PreparedStatement preparedStatement =
-                         con.prepareStatement("INSERT INTO CHANNEL_CONFIG(CONFIG_ID, GUILD_ID, CHANNEL_ID, COMMAND_ID, CONFIG_CLASS_ID, CONFIG, CREATION_DATE) VALUES (?, ?, ?, ?, ?, ?, ?)")) {
+                         con.prepareStatement("INSERT INTO CHANNEL_CONFIG(CONFIG_ID, GUILD_ID, CHANNEL_ID, USER_ID, COMMAND_ID, CONFIG_CLASS_ID, CONFIG, CREATION_DATE) VALUES (?, ?, ?, ?, ?, ?, ?, ?)")) {
                 preparedStatement.setObject(1, channelConfigDTO.getConfigUUID());
                 preparedStatement.setObject(2, channelConfigDTO.getGuildId());
                 preparedStatement.setObject(3, channelConfigDTO.getChannelId());
-                preparedStatement.setString(4, channelConfigDTO.getCommandId());
-                preparedStatement.setString(5, channelConfigDTO.getConfigClassId());
-                preparedStatement.setString(6, channelConfigDTO.getConfig());
-                preparedStatement.setTimestamp(7, Timestamp.valueOf(LocalDateTime.now()));
+                preparedStatement.setObject(4, channelConfigDTO.getUserId());
+                preparedStatement.setString(5, channelConfigDTO.getCommandId());
+                preparedStatement.setString(6, channelConfigDTO.getConfigClassId());
+                preparedStatement.setString(7, channelConfigDTO.getConfig());
+                preparedStatement.setTimestamp(8, Timestamp.valueOf(LocalDateTime.now()));
                 preparedStatement.execute();
             }
         } catch (Exception e) {
@@ -352,7 +379,7 @@ public class PersistenceManagerImpl implements PersistenceManager {
         Stopwatch stopwatch = Stopwatch.createStarted();
         try (Connection con = connectionPool.getConnection()) {
 
-            try (PreparedStatement preparedStatement = con.prepareStatement("DELETE FROM CHANNEL_CONFIG WHERE CHANNEL_ID = ? AND CONFIG_CLASS_ID = ?")) {
+            try (PreparedStatement preparedStatement = con.prepareStatement("DELETE FROM CHANNEL_CONFIG WHERE CHANNEL_ID = ? AND CONFIG_CLASS_ID = ? AND USER_ID is null")) {
                 preparedStatement.setLong(1, channelId);
                 preparedStatement.setString(2, configClassId);
                 preparedStatement.execute();
@@ -361,6 +388,23 @@ public class PersistenceManagerImpl implements PersistenceManager {
             throw new RuntimeException(e);
         }
         BotMetrics.databaseTimer("deleteChannelConfig", stopwatch.elapsed());
+    }
+
+    @Override
+    public void deleteUserChannelConfig(long channelId, long userId, String configClassId) {
+        Stopwatch stopwatch = Stopwatch.createStarted();
+        try (Connection con = connectionPool.getConnection()) {
+
+            try (PreparedStatement preparedStatement = con.prepareStatement("DELETE FROM CHANNEL_CONFIG WHERE CHANNEL_ID = ? AND USER_ID = ? AND CONFIG_CLASS_ID = ?")) {
+                preparedStatement.setLong(1, channelId);
+                preparedStatement.setLong(2, userId);
+                preparedStatement.setString(3, configClassId);
+                preparedStatement.execute();
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        BotMetrics.databaseTimer("deleteUserChannelConfig", stopwatch.elapsed());
     }
 
 }
