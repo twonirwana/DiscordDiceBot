@@ -11,7 +11,8 @@ import java.util.List;
 
 public abstract class AbstractDirectRollCommand implements SlashCommand {
     protected static final String CONFIG_TYPE_ID = "DirectRollConfig";
-    protected static final String ALIAS_CONFIG_TYPE_ID = "AliasConfig";
+    protected static final String CHANNEL_ALIAS_CONFIG_TYPE_ID = "AliasConfig";
+    protected static final String USER_ALIAS_CONFIG_TYPE_ID = "UserAliasConfig";
     protected static final String ROLL_COMMAND_ID = "r";
     protected final PersistenceManager persistenceManager;
 
@@ -21,19 +22,19 @@ public abstract class AbstractDirectRollCommand implements SlashCommand {
 
     @VisibleForTesting
     AliasConfig deserializeAliasConfig(ChannelConfigDTO channelConfigDTO) {
-        Preconditions.checkArgument(ALIAS_CONFIG_TYPE_ID.equals(channelConfigDTO.getConfigClassId()), "Unknown configClassId: %s", channelConfigDTO.getConfigClassId());
+        Preconditions.checkArgument(CHANNEL_ALIAS_CONFIG_TYPE_ID.equals(channelConfigDTO.getConfigClassId()) || USER_ALIAS_CONFIG_TYPE_ID.equals(channelConfigDTO.getConfigClassId()), "Unknown configClassId: %s", channelConfigDTO.getConfigClassId());
         return Mapper.deserializeObject(channelConfigDTO.getConfig(), AliasConfig.class);
     }
 
     protected List<Alias> getChannelAlias(long channelId) {
-        return persistenceManager.getChannelConfig(channelId, ALIAS_CONFIG_TYPE_ID)
+        return persistenceManager.getChannelConfig(channelId, CHANNEL_ALIAS_CONFIG_TYPE_ID)
                 .map(this::deserializeAliasConfig)
                 .map(AliasConfig::getAliasList)
                 .orElse(List.of());
     }
 
     protected List<Alias> getUserChannelAlias(long channelId, long userId) {
-        return persistenceManager.getUserChannelConfig(channelId, userId, ALIAS_CONFIG_TYPE_ID)
+        return persistenceManager.getUserChannelConfig(channelId, userId, USER_ALIAS_CONFIG_TYPE_ID)
                 .map(this::deserializeAliasConfig)
                 .map(AliasConfig::getAliasList)
                 .orElse(List.of());

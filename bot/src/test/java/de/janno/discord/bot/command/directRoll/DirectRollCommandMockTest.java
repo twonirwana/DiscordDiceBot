@@ -404,9 +404,9 @@ public class DirectRollCommandMockTest {
         directRollConfig.handleSlashCommandEvent(slashEvent4, () -> UUID.fromString("00000000-0000-0000-0000-000000000000")).block();
 
         assertThat(slashEvent1.getActions()).containsExactlyInAnyOrder("reply: `commandString`\nSaved new alias");
-        assertThat(slashEvent2.getActions()).containsExactlyInAnyOrder("reply: `commandString`\nexisting alias:att->2d20+10");
+        assertThat(slashEvent2.getActions()).containsExactlyInAnyOrder("reply: `commandString`\nexisting alias:\natt->2d20+10");
         assertThat(slashEvent3.getActions()).containsExactlyInAnyOrder("reply: `commandString`\ndeleted alias");
-        assertThat(slashEvent4.getActions()).containsExactlyInAnyOrder("reply: `commandString`\nexisting alias:");
+        assertThat(slashEvent4.getActions()).containsExactlyInAnyOrder("reply: `commandString`\nexisting alias:\n");
     }
 
     @Test
@@ -449,9 +449,9 @@ public class DirectRollCommandMockTest {
         directRollConfig.handleSlashCommandEvent(slashEvent4, () -> UUID.fromString("00000000-0000-0000-0000-000000000000")).block();
 
         assertThat(slashEvent1.getActions()).containsExactlyInAnyOrder("reply: `commandString`\nSaved new alias");
-        assertThat(slashEvent2.getActions()).containsExactlyInAnyOrder("reply: `commandString`\nexisting alias:att->2d20+10");
+        assertThat(slashEvent2.getActions()).containsExactlyInAnyOrder("reply: `commandString`\nexisting alias:\natt->2d20+10");
         assertThat(slashEvent3.getActions()).containsExactlyInAnyOrder("reply: `commandString`\ndeleted alias");
-        assertThat(slashEvent4.getActions()).containsExactlyInAnyOrder("reply: `commandString`\nexisting alias:");
+        assertThat(slashEvent4.getActions()).containsExactlyInAnyOrder("reply: `commandString`\nexisting alias:\n");
     }
 
 }

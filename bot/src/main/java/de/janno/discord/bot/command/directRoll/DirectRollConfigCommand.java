@@ -38,7 +38,7 @@ public class DirectRollConfigCommand extends AbstractDirectRollCommand {
     private static final String DELETE_ALIAS_ACTION = "delete";
 
     private static final CommandDefinitionOption SAVE_ALIAS_OPTION = CommandDefinitionOption.builder()
-            .type(CommandDefinitionOption.Type.SUB_COMMAND_GROUP)
+            .type(CommandDefinitionOption.Type.SUB_COMMAND)
             .name(SAVE_ALIAS_ACTION)
             .description("Add a new alias")
             .option(CommandDefinitionOption.builder()
@@ -56,7 +56,7 @@ public class DirectRollConfigCommand extends AbstractDirectRollCommand {
             .build();
 
     private static final CommandDefinitionOption DELETE_ALIAS_OPTION = CommandDefinitionOption.builder()
-            .type(CommandDefinitionOption.Type.SUB_COMMAND_GROUP)
+            .type(CommandDefinitionOption.Type.SUB_COMMAND)
             .name(DELETE_ALIAS_ACTION)
             .description("Delete alias")
             .option(CommandDefinitionOption.builder()
@@ -68,7 +68,7 @@ public class DirectRollConfigCommand extends AbstractDirectRollCommand {
             .build();
 
     private static final CommandDefinitionOption LIST_ALIAS_OPTION = CommandDefinitionOption.builder()
-            .type(CommandDefinitionOption.Type.SUB_COMMAND_GROUP)
+            .type(CommandDefinitionOption.Type.SUB_COMMAND)
             .name(LIST_ALIAS_ACTION)
             .description("List all alias")
             .build();
@@ -103,12 +103,12 @@ public class DirectRollConfigCommand extends AbstractDirectRollCommand {
                 .option(CommandDefinitionOption.builder()
                         .name(DELETE_CONFIG_ACTION)
                         .description("remove the current channel config")
-                        .type(CommandDefinitionOption.Type.SUB_COMMAND)
+                        .type(CommandDefinitionOption.Type.SUB_COMMAND_GROUP)
                         .build())
                 .option(CommandDefinitionOption.builder()
                         .name(CHANNEL_ALIAS)
                         .description("add, list or remove channel alias")
-                        .type(CommandDefinitionOption.Type.SUB_COMMAND)
+                        .type(CommandDefinitionOption.Type.SUB_COMMAND_GROUP)
                         .option(SAVE_ALIAS_OPTION)
                         .option(DELETE_ALIAS_OPTION)
                         .option(LIST_ALIAS_OPTION)
@@ -116,7 +116,7 @@ public class DirectRollConfigCommand extends AbstractDirectRollCommand {
                 .option(CommandDefinitionOption.builder()
                         .name(USER_CHANNEL_ALIAS)
                         .description("add, list or remove user channel alias")
-                        .type(CommandDefinitionOption.Type.SUB_COMMAND)
+                        .type(CommandDefinitionOption.Type.SUB_COMMAND_GROUP)
                         .option(SAVE_ALIAS_OPTION)
                         .option(DELETE_ALIAS_OPTION)
                         .option(LIST_ALIAS_OPTION)
@@ -198,8 +198,8 @@ public class DirectRollConfigCommand extends AbstractDirectRollCommand {
             deleteAlias(event.getChannelId(), userId);
             saveAlias(event.getChannelId(), event.getGuildId(), userId, newAliasList);
             log.info("{}: save {} alias: {}",
-                    userId == null ? "channel" : "user channel",
                     event.getRequester().toLogString(),
+                    userId == null ? "channel" : "user channel",
                     alias
             );
             return event.reply("`%s`\nSaved new alias".formatted(event.getCommandString()), userId != null);
@@ -216,8 +216,8 @@ public class DirectRollConfigCommand extends AbstractDirectRollCommand {
             deleteAlias(event.getChannelId(), userId);
             saveAlias(event.getChannelId(), event.getGuildId(), userId, newAliasList);
             log.info("{}: delete {} alias: {}",
-                    userId == null ? "channel" : "user channel",
                     event.getRequester().toLogString(),
+                    userId == null ? "channel" : "user channel",
                     name
             );
             return event.reply("`%s`\ndeleted alias".formatted(event.getCommandString()), userId != null);
@@ -227,7 +227,7 @@ public class DirectRollConfigCommand extends AbstractDirectRollCommand {
             BotMetrics.incrementSlashStartMetricCounter(getCommandId(), type + ", list");
 
             String aliasList = existingAlias.stream().map(Objects::toString).collect(Collectors.joining("\n"));
-            return event.reply("`%s`\nexisting alias:%s".formatted(event.getCommandString(), aliasList), userId != null);
+            return event.reply("`%s`\nexisting alias:\n%s".formatted(event.getCommandString(), aliasList), userId != null);
         }
         log.error("unknown option for slash event: {} ", event.getOptions());
         return event.reply("Unknown slash event options", false);
@@ -243,9 +243,9 @@ public class DirectRollConfigCommand extends AbstractDirectRollCommand {
 
     private void deleteAlias(long channelId, Long userId) {
         if (userId == null) {
-            persistenceManager.deleteChannelConfig(channelId, ALIAS_CONFIG_TYPE_ID);
+            persistenceManager.deleteChannelConfig(channelId, CHANNEL_ALIAS_CONFIG_TYPE_ID);
         } else {
-            persistenceManager.deleteUserChannelConfig(channelId, userId, ALIAS_CONFIG_TYPE_ID);
+            persistenceManager.deleteUserChannelConfig(channelId, userId, USER_ALIAS_CONFIG_TYPE_ID);
         }
     }
 
@@ -255,7 +255,7 @@ public class DirectRollConfigCommand extends AbstractDirectRollCommand {
                 channelId,
                 userId,
                 ROLL_COMMAND_ID,
-                ALIAS_CONFIG_TYPE_ID,
+                userId == null ? CHANNEL_ALIAS_CONFIG_TYPE_ID : USER_ALIAS_CONFIG_TYPE_ID,
                 Mapper.serializedObject(new AliasConfig(aliasList))));
     }
 }
