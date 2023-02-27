@@ -4,6 +4,7 @@ plugins {
     id("com.github.johnrengelman.shadow") version "8.0.0"
     id("jacoco-report-aggregation")
     id("java")
+    id("io.freefair.github.dependency-submission") version "6.6.3"
 }
 
 apply(plugin = "java")
