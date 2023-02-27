@@ -187,8 +187,8 @@ public class JdaClient {
         jda.shutdown();
         try {
             // Allow at most 5 seconds for remaining requests to finish
-            if (!jda.awaitShutdown(Duration.ofSeconds(5))) { // returns true if shutdown is graceful, false if timeout exceeded
-                log.warn("shutdown took more then 5sec");
+            if (!jda.awaitShutdown(Duration.ofSeconds(10))) { // returns true if shutdown is graceful, false if timeout exceeded
+                log.warn("shutdown took more then 10sec");
                 jda.shutdownNow(); // Cancel all remaining requests, and stop thread-pools
                 jda.awaitShutdown(); // Wait until shutdown is complete (indefinitely)
             }
