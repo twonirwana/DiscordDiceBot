@@ -26,9 +26,13 @@ public interface PersistenceManager {
 
     Set<Long> getAllGuildIds();
 
-    @NonNull Optional<ChannelConfigDTO> getChannelConfig(long channelId, String configClassId);
+    @NonNull Optional<ChannelConfigDTO> getChannelConfig(long channelId, @NonNull String configClassId);
+
+    @NonNull Optional<ChannelConfigDTO> getUserChannelConfig(long channelId, long userId, @NonNull String configClassId);
 
     void saveChannelConfig(@NonNull ChannelConfigDTO channelConfigDTO);
 
     void deleteChannelConfig(long channelId, String configClassId);
+
+    void deleteUserChannelConfig(long channelId, long userId, String configClassId);
 }
