@@ -69,7 +69,6 @@ public class CustomDiceCommandMockTest {
         String url = "jdbc:h2:mem:" + UUID.randomUUID();
         persistenceManager = new PersistenceManagerImpl(url, null, null);
         CustomDiceCommand underTest = new CustomDiceCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
-        underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
         JdbcConnectionPool connectionPool = JdbcConnectionPool.create(url, null, null);
         UUID configUUID = UUID.randomUUID();
         long messageId = 0;

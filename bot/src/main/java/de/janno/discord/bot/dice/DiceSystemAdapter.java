@@ -30,6 +30,16 @@ public class DiceSystemAdapter {
         return expressionWithOptionalLabel;
     }
 
+    public RollAnswer answerRollWithOptionalLabelInExpression(String expression, boolean sumUp, DiceParserSystem system, AnswerFormatType answerFormatType, ResultImage resultImage) {
+        BotMetrics.incrementDiceParserSystemCounter(system);
+        return switch (system) {
+            case DICE_EVALUATOR ->
+                    diceEvaluatorAdapter.answerRollWithOptionalLabelInExpression(expression, LABEL_DELIMITER, sumUp, answerFormatType, resultImage);
+            case DICEROLL_PARSER ->
+                    parserHelper.answerRollWithOptionalLabelInExpression(expression, LABEL_DELIMITER, answerFormatType);
+        };
+    }
+
     public RollAnswer answerRollWithGivenLabel(String expression, @Nullable String label, boolean sumUp, DiceParserSystem system, AnswerFormatType answerFormatType, ResultImage resultImage) {
         BotMetrics.incrementDiceParserSystemCounter(system);
         return switch (system) {
@@ -56,8 +66,7 @@ public class DiceSystemAdapter {
         return Optional.empty();
     }
 
-    public static Optional<String> validateLabel(@NonNull String expressionWithOptionalLabel) {
-        //todo remove duplicate
+    public Optional<String> validateDiceExpressionWitOptionalLabel(@NonNull String expressionWithOptionalLabel, String helpCommand, DiceParserSystem system) {
         String label;
         String diceExpression;
 
@@ -78,15 +87,6 @@ public class DiceSystemAdapter {
         if (diceExpression.isBlank()) {
             return Optional.of(String.format("Dice expression for '%s' is empty", expressionWithOptionalLabel));
         }
-        return Optional.empty();
-    }
-
-    public Optional<String> validateDiceExpressionWitOptionalLabel(@NonNull String expressionWithOptionalLabel, String helpCommand, DiceParserSystem system) {
-        Optional<String> validateLabel = validateLabel(expressionWithOptionalLabel);
-        if (validateLabel.isPresent()) {
-            return validateLabel;
-        }
-        String diceExpression = DiceSystemAdapter.getExpressionFromExpressionWithOptionalLabel(expressionWithOptionalLabel);
         return switch (system) {
             case DICE_EVALUATOR -> diceEvaluatorAdapter.validateDiceExpression(diceExpression, helpCommand);
             case DICEROLL_PARSER -> parserHelper.validateDiceExpression(diceExpression);

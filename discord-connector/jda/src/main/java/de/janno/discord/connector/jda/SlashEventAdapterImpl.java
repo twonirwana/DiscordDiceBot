@@ -139,12 +139,8 @@ public class SlashEventAdapterImpl extends DiscordAdapterImpl implements SlashEv
                 .onErrorResume(t -> handleException("Error on reply to slash", t, true).ofType(InteractionHook.class))
                 .flatMap(i -> createMonoFrom(i::deleteOriginal)
                         .onErrorResume(t -> handleException("Error on deleting reply", t, true)));
-    }
 
 
-    @Override
-    public long getUserId() {
-        return event.getUser().getIdLong();
     }
 
     @Override

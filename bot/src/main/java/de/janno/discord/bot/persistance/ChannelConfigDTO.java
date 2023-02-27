@@ -14,7 +14,6 @@ public class ChannelConfigDTO {
     UUID configUUID;
     Long guildId;
     long channelId;
-    Long userId;
     @NonNull
     String commandId;
     @NonNull
