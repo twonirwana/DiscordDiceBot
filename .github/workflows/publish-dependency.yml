@@ -23,7 +23,6 @@ jobs:
       - name: Run snapshot action
         uses: mikepenz/gradle-dependency-submission@v0.8.4
         with:
-          use-gradlew: false
           gradle-build-module: |-
             :bot
             :discord-connector
