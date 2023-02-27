@@ -73,8 +73,8 @@ class PersistenceManagerImplTest {
 
     @Test
     void saveChannelData() {
-        ChannelConfigDTO channelConfigDTO1 = new ChannelConfigDTO(UUID.randomUUID(), 1L, 2L, "testCommand", "testConfigClass", "configClass");
-        ChannelConfigDTO channelConfigDTO2 = new ChannelConfigDTO(UUID.randomUUID(), 1L, 3L, "testCommand", "testConfigClass", "configClass");
+        ChannelConfigDTO channelConfigDTO1 = new ChannelConfigDTO(UUID.randomUUID(), 1L, 2L, null,"testCommand", "testConfigClass", "configClass");
+        ChannelConfigDTO channelConfigDTO2 = new ChannelConfigDTO(UUID.randomUUID(), 1L, 3L, null,"testCommand", "testConfigClass", "configClass");
         underTest.saveChannelConfig(channelConfigDTO1);
         underTest.saveChannelConfig(channelConfigDTO2);
 
@@ -86,7 +86,7 @@ class PersistenceManagerImplTest {
 
     @Test
     void deleteChannelData() {
-        ChannelConfigDTO channelConfigDTO1 = new ChannelConfigDTO(UUID.randomUUID(), 1L, 2L, "testCommand", "testConfigClass", "configClass");
+        ChannelConfigDTO channelConfigDTO1 = new ChannelConfigDTO(UUID.randomUUID(), 1L, 2L, null,"testCommand", "testConfigClass", "configClass");
         underTest.saveChannelConfig(channelConfigDTO1);
 
         assertThat(underTest.getChannelConfig(2L, "testConfigClass")).contains(channelConfigDTO1);
@@ -103,8 +103,8 @@ class PersistenceManagerImplTest {
 
     @Test
     void noTwoConfigsForSameConfigTypeAndChannel() {
-        ChannelConfigDTO channelConfigDTO1 = new ChannelConfigDTO(UUID.randomUUID(), 1L, 2L, "testCommand", "testConfigClass", "configClass");
-        ChannelConfigDTO channelConfigDTO2 = new ChannelConfigDTO(UUID.randomUUID(), 1L, 2L, "testCommand", "testConfigClass", "configClass2");
+        ChannelConfigDTO channelConfigDTO1 = new ChannelConfigDTO(UUID.randomUUID(), 1L, 2L, null,"testCommand", "testConfigClass", "configClass");
+        ChannelConfigDTO channelConfigDTO2 = new ChannelConfigDTO(UUID.randomUUID(), 1L, 2L, null,"testCommand", "testConfigClass", "configClass2");
         underTest.saveChannelConfig(channelConfigDTO1);
         assertThrows(RuntimeException.class, () -> underTest.saveChannelConfig(channelConfigDTO2));
     }
