@@ -19,7 +19,7 @@ jobs:
           java-version: '18'
           distribution: 'temurin'
       - name: Run snapshot action
-        uses: mikepenz/gradle-dependency-submission@v0.8.4
+        uses: mikepenz/gradle-dependency-submission@v0.8.5
         with:
           use-gradlew: false
           gradle-build-module: |-
