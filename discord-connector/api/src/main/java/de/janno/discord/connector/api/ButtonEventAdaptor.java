@@ -20,6 +20,8 @@ public interface ButtonEventAdaptor extends DiscordAdapter {
 
     long getChannelId();
 
+    long getUserId();
+
     boolean isPinned();
 
     String getInvokingGuildMemberName();

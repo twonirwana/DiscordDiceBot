@@ -80,6 +80,11 @@ public class ButtonEventAdaptorMock implements ButtonEventAdaptor {
     }
 
     @Override
+    public long getUserId() {
+        return 0;
+    }
+
+    @Override
     public boolean isPinned() {
         return pinnedMessageIds.contains(massageId);
     }

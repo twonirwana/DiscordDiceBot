@@ -73,13 +73,12 @@ public class DatabaseInitiator {
     }
 
     private static List<Migration> readMigrations() {
-        return Stream.of("1_base.sql", "2_configTable.sql", "3_channelConfigUser.sql")
+        return Stream.of("1_base.sql", "2_configTable.sql", "3_channelConfigUser.sql", "4_aliasCommandIdCleanUp.sql")
                 .map(DatabaseInitiator::readMigration)
                 .toList();
     }
 
     private static Migration readMigration(final String fileName) {
-
         Preconditions.checkArgument(fileName.contains("_"), "Wrong file format: {}", fileName);
         Preconditions.checkArgument(fileName.endsWith("sql"), "Wrong file format: {}", fileName);
         String content;

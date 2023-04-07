@@ -89,7 +89,7 @@ class FateCommandTest {
 
     @Test
     void getDiceResult_simple() {
-        EmbedOrMessageDefinition res = RollAnswerConverter.toEmbedOrMessageDefinition(underTest.getAnswer(new FateConfig(null, "simple", AnswerFormatType.full, ResultImage.none), new State<>("roll", StateData.empty()))
+        EmbedOrMessageDefinition res = RollAnswerConverter.toEmbedOrMessageDefinition(underTest.getAnswer(new FateConfig(null, "simple", AnswerFormatType.full, ResultImage.none), new State<>("roll", StateData.empty()), 0, 0)
                 .orElseThrow());
 
         assertThat(res.getFields()).hasSize(0);
@@ -99,7 +99,7 @@ class FateCommandTest {
 
     @Test
     void getDiceResult_modifier_minus1() {
-        EmbedOrMessageDefinition res = RollAnswerConverter.toEmbedOrMessageDefinition(underTest.getAnswer(new FateConfig(null, "with_modifier", AnswerFormatType.full, ResultImage.none), new State<>("-1", StateData.empty()))
+        EmbedOrMessageDefinition res = RollAnswerConverter.toEmbedOrMessageDefinition(underTest.getAnswer(new FateConfig(null, "with_modifier", AnswerFormatType.full, ResultImage.none), new State<>("-1", StateData.empty()), 0, 0)
                 .orElseThrow());
 
         assertThat(res.getFields()).hasSize(0);
@@ -109,7 +109,7 @@ class FateCommandTest {
 
     @Test
     void getDiceResult_modifier_plus1() {
-        EmbedOrMessageDefinition res = RollAnswerConverter.toEmbedOrMessageDefinition(underTest.getAnswer(new FateConfig(null, "with_modifier", AnswerFormatType.full, ResultImage.none), new State<>("1", StateData.empty()))
+        EmbedOrMessageDefinition res = RollAnswerConverter.toEmbedOrMessageDefinition(underTest.getAnswer(new FateConfig(null, "with_modifier", AnswerFormatType.full, ResultImage.none), new State<>("1", StateData.empty()), 0, 0)
                 .orElseThrow());
 
         assertThat(res.getFields()).hasSize(0);
@@ -119,7 +119,7 @@ class FateCommandTest {
 
     @Test
     void getDiceResult_modifier_0() {
-        EmbedOrMessageDefinition res = RollAnswerConverter.toEmbedOrMessageDefinition(underTest.getAnswer(new FateConfig(null, "with_modifier", AnswerFormatType.full, ResultImage.none), new State<>("0", StateData.empty()))
+        EmbedOrMessageDefinition res = RollAnswerConverter.toEmbedOrMessageDefinition(underTest.getAnswer(new FateConfig(null, "with_modifier", AnswerFormatType.full, ResultImage.none), new State<>("0", StateData.empty()), 0L, 0L)
                 .orElseThrow());
 
         assertThat(res.getFields()).hasSize(0);

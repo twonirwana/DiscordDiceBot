@@ -1,4 +1,4 @@
-package de.janno.discord.bot.command.directRoll;
+package de.janno.discord.bot.command.channelConfig;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;

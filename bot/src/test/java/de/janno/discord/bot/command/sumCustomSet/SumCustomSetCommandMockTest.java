@@ -4,18 +4,22 @@ import com.google.common.collect.ImmutableList;
 import de.janno.discord.bot.ButtonEventAdaptorMock;
 import de.janno.discord.bot.ButtonEventAdaptorMockFactory;
 import de.janno.discord.bot.ResultImage;
+import de.janno.discord.bot.SlashEventAdaptorMock;
 import de.janno.discord.bot.command.AnswerFormatType;
 import de.janno.discord.bot.command.ButtonIdLabelAndDiceExpression;
+import de.janno.discord.bot.command.channelConfig.ChannelConfigCommand;
 import de.janno.discord.bot.dice.CachingDiceEvaluator;
 import de.janno.discord.bot.dice.DiceParser;
 import de.janno.discord.bot.dice.DiceParserSystem;
 import de.janno.discord.bot.persistance.PersistenceManager;
 import de.janno.discord.bot.persistance.PersistenceManagerImpl;
+import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import de.janno.evaluator.dice.random.RandomNumberSupplier;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -311,6 +315,80 @@ public class SumCustomSetCommandMockTest {
         assertThat(click5.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back",
                 "createAnswer: title=+1d6 ⇒ 4, description=[4], fieldValues:, answerChannel:2, type:EMBED"
+        );
+    }
+
+    @Test
+    void channelAlias() {
+        SumCustomSetCommand underTest = new SumCustomSetCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 10000));
+        underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
+
+        ChannelConfigCommand channelConfig = new ChannelConfigCommand(persistenceManager);
+
+        SlashEventAdaptorMock slashEvent1 = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
+                .name("channel_alias")
+                .option(CommandInteractionOption.builder()
+                        .name("save")
+                        .option(CommandInteractionOption.builder().name("name").stringValue("att").build())
+                        .option(CommandInteractionOption.builder().name("value").stringValue("2d20+10").build())
+                        .build())
+                .build()));
+        channelConfig.handleSlashCommandEvent(slashEvent1, () -> UUID.fromString("00000000-0000-0000-0000-000000000000")).block();
+
+
+        SumCustomSetConfig config = new SumCustomSetConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Attack", "att")), DiceParserSystem.DICE_EVALUATOR, true, AnswerFormatType.full, ResultImage.none);
+        ButtonEventAdaptorMockFactory<SumCustomSetConfig, SumCustomSetStateData> factory = new ButtonEventAdaptorMockFactory<>("sum_custom_st", underTest, config, persistenceManager, false);
+        ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("1_button");
+
+        underTest.handleComponentInteractEvent(click1).block();
+        ButtonEventAdaptorMock click2 = factory.getButtonClickOnLastButtonMessage("roll");
+        underTest.handleComponentInteractEvent(click2).block();
+
+        assertThat(click1.getActions()).containsExactlyInAnyOrder(
+                "editMessage: message:invokingUser: att, buttonValues=1_button,roll,clear,back"
+        );
+        assertThat(click2.getActions()).containsExactlyInAnyOrder(
+                "editMessage: message:Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,roll,clear,back",
+                "createAnswer: title=2d20+10 ⇒ 31, description=[11, 10], fieldValues:, answerChannel:null, type:EMBED",
+                "deleteMessageById: 0",
+                "createButtonMessage: content=Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,roll,clear,back"
+        );
+    }
+
+    @Test
+    void userChannelAlias() {
+        SumCustomSetCommand underTest = new SumCustomSetCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 10000));
+        underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
+
+        ChannelConfigCommand channelConfig = new ChannelConfigCommand(persistenceManager);
+
+        SlashEventAdaptorMock slashEvent1 = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
+                .name("user_channel_alias")
+                .option(CommandInteractionOption.builder()
+                        .name("save")
+                        .option(CommandInteractionOption.builder().name("name").stringValue("att").build())
+                        .option(CommandInteractionOption.builder().name("value").stringValue("2d20+10").build())
+                        .build())
+                .build()));
+        channelConfig.handleSlashCommandEvent(slashEvent1, () -> UUID.fromString("00000000-0000-0000-0000-000000000000")).block();
+
+
+        SumCustomSetConfig config = new SumCustomSetConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Attack", "att")), DiceParserSystem.DICE_EVALUATOR, true, AnswerFormatType.full, ResultImage.none);
+        ButtonEventAdaptorMockFactory<SumCustomSetConfig, SumCustomSetStateData> factory = new ButtonEventAdaptorMockFactory<>("sum_custom_st", underTest, config, persistenceManager, false);
+        ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("1_button");
+
+        underTest.handleComponentInteractEvent(click1).block();
+        ButtonEventAdaptorMock click2 = factory.getButtonClickOnLastButtonMessage("roll");
+        underTest.handleComponentInteractEvent(click2).block();
+
+        assertThat(click1.getActions()).containsExactlyInAnyOrder(
+                "editMessage: message:invokingUser: att, buttonValues=1_button,roll,clear,back"
+        );
+        assertThat(click2.getActions()).containsExactlyInAnyOrder(
+                "editMessage: message:Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,roll,clear,back",
+                "createAnswer: title=2d20+10 ⇒ 31, description=[11, 10], fieldValues:, answerChannel:null, type:EMBED",
+                "deleteMessageById: 0",
+                "createButtonMessage: content=Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,roll,clear,back"
         );
     }
 }

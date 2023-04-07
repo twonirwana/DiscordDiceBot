@@ -133,7 +133,7 @@ public class FateCommand extends AbstractCommand<FateConfig, StateData> {
     }
 
     @Override
-    protected @NonNull Optional<RollAnswer> getAnswer(FateConfig config, State<StateData> state) {
+    protected @NonNull Optional<RollAnswer> getAnswer(FateConfig config, State<StateData> state, long channelId, long userId) {
         List<Integer> rollResult = diceUtils.rollFate();
 
         if (ACTION_MODIFIER_OPTION_MODIFIER.equals(config.getType())) {

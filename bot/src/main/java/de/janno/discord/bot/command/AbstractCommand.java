@@ -122,7 +122,7 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
         return Collections.emptyList();
     }
 
-    protected Optional<List<ComponentRowDefinition>> getCurrentMessageComponentChange(UUID configUUID, C config, State<S> state) {
+    protected Optional<List<ComponentRowDefinition>> getCurrentMessageComponentChange(UUID configUUID, C config, State<S> state, long channelId, long userId) {
         return Optional.empty();
     }
 
@@ -174,6 +174,7 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
         Stopwatch stopwatch = Stopwatch.createStarted();
         final long messageId = event.getMessageId();
         final long channelId = event.getChannelId();
+        final long userId = event.getUserId();
         final long guildId = event.getGuildId();
         final boolean isLegacyMessage = BottomCustomIdUtils.isLegacyCustomId(event.getCustomId());
         final C config;
@@ -213,18 +214,18 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
         if (keepExistingButtonMessage || answerTargetChannelId != null) {
             //if the old button is pined or the result is copied to another channel, the old message will be edited or reset to the slash default
             editMessage = getCurrentMessageContentChange(config, state).orElse(createNewButtonMessage(configUUID, config).getContent());
-            editMessageComponents = Optional.ofNullable(getCurrentMessageComponentChange(configUUID, config, state)
+            editMessageComponents = Optional.ofNullable(getCurrentMessageComponentChange(configUUID, config, state, channelId, userId)
                     .orElse(createNewButtonMessage(configUUID, config).getComponentRowDefinitions()));
         } else {
             //edit the current message if the command changes it or mark it as processing
             editMessage = getCurrentMessageContentChange(config, state).orElse("processing ...");
-            editMessageComponents = getCurrentMessageComponentChange(configUUID, config, state);
+            editMessageComponents = getCurrentMessageComponentChange(configUUID, config, state, channelId, userId);
         }
         //Todo check if message/button are the same. If the message will deleted it should always be "processing...".
         //Todo Remove buttons on set to "processing ..."?
         actions.add(Mono.defer(() -> event.editMessage(editMessage, editMessageComponents.orElse(null))));
 
-        Optional<RollAnswer> answer = getAnswer(config, state);
+        Optional<RollAnswer> answer = getAnswer(config, state, channelId, userId);
         if (answer.isPresent()) {
             BotMetrics.incrementButtonMetricCounter(getCommandId(), config.toShortString());
             BotMetrics.incrementAnswerFormatCounter(config.getAnswerFormatType(), getCommandId());
@@ -357,7 +358,7 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
                 return event.reply("The target channel is not a valid message channel", true);
             }
 
-            Optional<String> validationMessage = getStartOptionsValidationMessage(options);
+            Optional<String> validationMessage = getStartOptionsValidationMessage(options, event.getChannelId(), event.getUserId());
             if (validationMessage.isPresent()) {
                 log.info("{}: Validation message: {} for {}", event.getRequester().toLogString(),
                         validationMessage.get(),
@@ -410,14 +411,14 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
      */
     protected abstract @NonNull Optional<MessageDefinition> createNewButtonMessageWithState(UUID configId, C config, State<S> state, long guildId, long channelId);
 
-    protected abstract @NonNull Optional<RollAnswer> getAnswer(C config, State<S> state);
+    protected abstract @NonNull Optional<RollAnswer> getAnswer(C config, State<S> state, long channelId, long userId);
 
     /**
      * The new button message, after a slash event
      */
     public abstract @NonNull MessageDefinition createNewButtonMessage(UUID configId, C config);
 
-    protected @NonNull Optional<String> getStartOptionsValidationMessage(@NonNull CommandInteractionOption options) {
+    protected @NonNull Optional<String> getStartOptionsValidationMessage(@NonNull CommandInteractionOption options, long channelId, long userId) {
         //standard is no validation
         return Optional.empty();
     }

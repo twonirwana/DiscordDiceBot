@@ -52,7 +52,7 @@ class PoolTargetCommandTest {
 
     @Test
     void getDiceResult_withoutReroll() {
-        EmbedOrMessageDefinition res = RollAnswerConverter.toEmbedOrMessageDefinition(underTest.getAnswer(new PoolTargetConfig(null, 6, 15, ImmutableSet.of(6), ImmutableSet.of(1), "ask", AnswerFormatType.full, ResultImage.none), new State<>("6", new PoolTargetStateData(6, 3, false)))
+        EmbedOrMessageDefinition res = RollAnswerConverter.toEmbedOrMessageDefinition(underTest.getAnswer(new PoolTargetConfig(null, 6, 15, ImmutableSet.of(6), ImmutableSet.of(1), "ask", AnswerFormatType.full, ResultImage.none), new State<>("6", new PoolTargetStateData(6, 3, false)), 0L, 0L)
                 .orElseThrow());
         assertThat(res.getFields()).hasSize(0);
         assertThat(res.getTitle()).isEqualTo("6d6 ≥3 ⇒ -1");
@@ -61,7 +61,7 @@ class PoolTargetCommandTest {
 
     @Test
     void getDiceResult_withReroll() {
-        EmbedOrMessageDefinition res = RollAnswerConverter.toEmbedOrMessageDefinition(underTest.getAnswer(new PoolTargetConfig(null, 6, 15, ImmutableSet.of(6), ImmutableSet.of(1), "ask", AnswerFormatType.full, ResultImage.none), new State<>("6", new PoolTargetStateData(6, 3, true)))
+        EmbedOrMessageDefinition res = RollAnswerConverter.toEmbedOrMessageDefinition(underTest.getAnswer(new PoolTargetConfig(null, 6, 15, ImmutableSet.of(6), ImmutableSet.of(1), "ask", AnswerFormatType.full, ResultImage.none), new State<>("6", new PoolTargetStateData(6, 3, true)), 0L, 0L)
                 .orElseThrow());
         assertThat(res.getFields()).hasSize(0);
         assertThat(res.getTitle()).isEqualTo("6d6 ≥3 ⇒ 1");
@@ -90,25 +90,25 @@ class PoolTargetCommandTest {
 
     @Test
     void getAnswer_allStateInfoAvailable() {
-        assertThat(underTest.getAnswer(new PoolTargetConfig(null, 10, 20, ImmutableSet.of(), ImmutableSet.of(), "always", AnswerFormatType.full, ResultImage.none), new State<>("10", new PoolTargetStateData(10, 8, true)))
+        assertThat(underTest.getAnswer(new PoolTargetConfig(null, 10, 20, ImmutableSet.of(), ImmutableSet.of(), "always", AnswerFormatType.full, ResultImage.none), new State<>("10", new PoolTargetStateData(10, 8, true)), 0L, 0L)
         ).isNotEmpty();
     }
 
     @Test
     void getAnswer_dicePoolMissing() {
-        assertThat(underTest.getAnswer(new PoolTargetConfig(null, 10, 20, ImmutableSet.of(), ImmutableSet.of(), "always", AnswerFormatType.full, ResultImage.none), new State<>("clear", new PoolTargetStateData(null, 8, true)))
+        assertThat(underTest.getAnswer(new PoolTargetConfig(null, 10, 20, ImmutableSet.of(), ImmutableSet.of(), "always", AnswerFormatType.full, ResultImage.none), new State<>("clear", new PoolTargetStateData(null, 8, true)), 0L, 0L)
         ).isEmpty();
     }
 
     @Test
     void getAnswer_targetNumberMissing() {
-        assertThat(underTest.getAnswer(new PoolTargetConfig(null, 10, 20, ImmutableSet.of(), ImmutableSet.of(), "always", AnswerFormatType.full, ResultImage.none), new State<>("10", new PoolTargetStateData(10, null, true)))
+        assertThat(underTest.getAnswer(new PoolTargetConfig(null, 10, 20, ImmutableSet.of(), ImmutableSet.of(), "always", AnswerFormatType.full, ResultImage.none), new State<>("10", new PoolTargetStateData(10, null, true)), 0L, 0L)
         ).isEmpty();
     }
 
     @Test
     void getAnswer_doRerollMissing() {
-        assertThat(underTest.getAnswer(new PoolTargetConfig(null, 10, 20, ImmutableSet.of(), ImmutableSet.of(), "always", AnswerFormatType.full, ResultImage.none), new State<>("10", new PoolTargetStateData(10, 8, null)))
+        assertThat(underTest.getAnswer(new PoolTargetConfig(null, 10, 20, ImmutableSet.of(), ImmutableSet.of(), "always", AnswerFormatType.full, ResultImage.none), new State<>("10", new PoolTargetStateData(10, 8, null)), 0L, 0L)
         ).isEmpty();
     }
 
@@ -178,7 +178,7 @@ class PoolTargetCommandTest {
 
     @Test
     void getCurrentMessageComponentChange_missingDoReroll_askForReroll() {
-        List<ComponentRowDefinition> res = underTest.getCurrentMessageComponentChange(UUID.fromString("00000000-0000-0000-0000-000000000000"), new PoolTargetConfig(null, 10, 20, ImmutableSet.of(10, 9), ImmutableSet.of(1, 2), "ask", AnswerFormatType.full, ResultImage.none), new State<>("10", new PoolTargetStateData(10, 10, null)))
+        List<ComponentRowDefinition> res = underTest.getCurrentMessageComponentChange(UUID.fromString("00000000-0000-0000-0000-000000000000"), new PoolTargetConfig(null, 10, 20, ImmutableSet.of(10, 9), ImmutableSet.of(1, 2), "ask", AnswerFormatType.full, ResultImage.none), new State<>("10", new PoolTargetStateData(10, 10, null)), 1L, 1L)
                 .orElseThrow();
 
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel))
@@ -219,7 +219,7 @@ class PoolTargetCommandTest {
 
     @Test
     void getCurrentMessageComponentChange_missingTarget_askTarget() {
-        List<ComponentRowDefinition> res = underTest.getCurrentMessageComponentChange(UUID.fromString("00000000-0000-0000-0000-000000000000"), new PoolTargetConfig(null, 10, 20, ImmutableSet.of(10, 9), ImmutableSet.of(1, 2), "ask", AnswerFormatType.full, ResultImage.none), new State<>("10", new PoolTargetStateData(10, null, null)))
+        List<ComponentRowDefinition> res = underTest.getCurrentMessageComponentChange(UUID.fromString("00000000-0000-0000-0000-000000000000"), new PoolTargetConfig(null, 10, 20, ImmutableSet.of(10, 9), ImmutableSet.of(1, 2), "ask", AnswerFormatType.full, ResultImage.none), new State<>("10", new PoolTargetStateData(10, null, null)), 1L, 1L)
                 .orElseThrow();
 
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel))
@@ -392,8 +392,8 @@ class PoolTargetCommandTest {
 
     @Test
     void getStartOptionsValidationMessage() {
-        CommandInteractionOption option = createCommandInteractionOption(10L, 12L, "9,10", "1,2,3", "ask");
-        Optional<String> res = underTest.getStartOptionsValidationMessage(option);
+        CommandInteractionOption option = createCommandInteractionOption(8L, 11L, "7,8", "1,2,3", "always");
+        Optional<String> res = underTest.getStartOptionsValidationMessage(option, 0L, 0L);
 
         assertThat(res).isEmpty();
     }
@@ -401,7 +401,7 @@ class PoolTargetCommandTest {
     @Test
     void getStartOptionsValidationMessage_botchSetZero() {
         CommandInteractionOption option = createCommandInteractionOption(10L, 12L, "9,10", "0,2,3", "ask");
-        Optional<String> res = underTest.getStartOptionsValidationMessage(option);
+        Optional<String> res = underTest.getStartOptionsValidationMessage(option, 0L, 0L);
 
         assertThat(res).contains("The parameter need to have numbers greater zero, seperated by ','. The following parameter where not greater zero: '0'");
     }
@@ -409,7 +409,7 @@ class PoolTargetCommandTest {
     @Test
     void getStartOptionsValidationMessage_botchSetNegative() {
         CommandInteractionOption option = createCommandInteractionOption(10L, 12L, "9,10", "-1,2,3", "ask");
-        Optional<String> res = underTest.getStartOptionsValidationMessage(option);
+        Optional<String> res = underTest.getStartOptionsValidationMessage(option, 0L, 0L);
 
         assertThat(res).contains("The parameter need to have numbers greater zero, seperated by ','. The following parameter where not greater zero: '-1'");
     }
@@ -417,7 +417,7 @@ class PoolTargetCommandTest {
     @Test
     void getStartOptionsValidationMessage_botchSetNotANumber() {
         CommandInteractionOption option = createCommandInteractionOption(10L, 12L, "9,10", "1,a,3", "ask");
-        Optional<String> res = underTest.getStartOptionsValidationMessage(option);
+        Optional<String> res = underTest.getStartOptionsValidationMessage(option, 0L, 0L);
 
         assertThat(res).contains("The parameter need to have numbers, seperated by ','. The following parameter where not numbers: 'a'");
     }
@@ -425,7 +425,7 @@ class PoolTargetCommandTest {
     @Test
     void getStartOptionsValidationMessage_botchSetEmpty() {
         CommandInteractionOption option = createCommandInteractionOption(10L, 12L, "9,10", "1,,3", "ask");
-        Optional<String> res = underTest.getStartOptionsValidationMessage(option);
+        Optional<String> res = underTest.getStartOptionsValidationMessage(option, 0L, 0L);
 
         assertThat(res).contains("The parameter need to have numbers, seperated by ','. The following parameter where not numbers: ''");
     }
@@ -433,7 +433,7 @@ class PoolTargetCommandTest {
     @Test
     void getStartOptionsValidationMessage_rerollSetZero() {
         CommandInteractionOption option = createCommandInteractionOption(10L, 12L, "0,0,9,10", "1,2,3", "ask");
-        Optional<String> res = underTest.getStartOptionsValidationMessage(option);
+        Optional<String> res = underTest.getStartOptionsValidationMessage(option, 0L, 0L);
 
         assertThat(res).contains("The parameter need to have numbers greater zero, seperated by ','. The following parameter where not greater zero: '0'");
     }
@@ -441,7 +441,7 @@ class PoolTargetCommandTest {
     @Test
     void getStartOptionsValidationMessage_rerollSetNegative() {
         CommandInteractionOption option = createCommandInteractionOption(10L, 12L, "-9,-10", "1,2,3", "ask");
-        Optional<String> res = underTest.getStartOptionsValidationMessage(option);
+        Optional<String> res = underTest.getStartOptionsValidationMessage(option, 0L, 0L);
 
         assertThat(res).contains("The parameter need to have numbers greater zero, seperated by ','. The following parameter where not greater zero: '-9', '-10'");
     }
@@ -449,7 +449,7 @@ class PoolTargetCommandTest {
     @Test
     void getStartOptionsValidationMessage_rerollSetNotANumber() {
         CommandInteractionOption option = createCommandInteractionOption(10L, 12L, "9a,asfd,..,10", "1,2,3", "ask");
-        Optional<String> res = underTest.getStartOptionsValidationMessage(option);
+        Optional<String> res = underTest.getStartOptionsValidationMessage(option, 0L, 0L);
 
         assertThat(res).contains("The parameter need to have numbers, seperated by ','. The following parameter where not numbers: '..', '9a', 'asfd'");
     }
@@ -457,7 +457,7 @@ class PoolTargetCommandTest {
     @Test
     void getStartOptionsValidationMessage_rerollSetEmpty() {
         CommandInteractionOption option = createCommandInteractionOption(10L, 12L, "9,,,,10", "1", "ask");
-        Optional<String> res = underTest.getStartOptionsValidationMessage(option);
+        Optional<String> res = underTest.getStartOptionsValidationMessage(option, 0L, 0L);
 
         assertThat(res).contains("The parameter need to have numbers, seperated by ','. The following parameter where not numbers: ''");
     }

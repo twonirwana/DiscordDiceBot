@@ -8,8 +8,8 @@ import de.janno.discord.bot.command.WelcomeCommand;
 import de.janno.discord.bot.command.countSuccesses.CountSuccessesCommand;
 import de.janno.discord.bot.command.customDice.CustomDiceCommand;
 import de.janno.discord.bot.command.customParameter.CustomParameterCommand;
+import de.janno.discord.bot.command.channelConfig.ChannelConfigCommand;
 import de.janno.discord.bot.command.directRoll.DirectRollCommand;
-import de.janno.discord.bot.command.directRoll.DirectRollConfigCommand;
 import de.janno.discord.bot.command.fate.FateCommand;
 import de.janno.discord.bot.command.holdReroll.HoldRerollCommand;
 import de.janno.discord.bot.command.poolTarget.PoolTargetCommand;
@@ -60,7 +60,7 @@ public class Bot {
                         new CustomDiceCommand(persistenceManager, cachingDiceEvaluator),
                         new FateCommand(persistenceManager),
                         new DirectRollCommand(persistenceManager, cachingDiceEvaluator),
-                        new DirectRollConfigCommand(persistenceManager),
+                        new ChannelConfigCommand(persistenceManager),
                         new SumDiceSetCommand(persistenceManager),
                         new SumCustomSetCommand(persistenceManager, cachingDiceEvaluator),
                         new HoldRerollCommand(persistenceManager),

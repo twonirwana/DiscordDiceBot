@@ -122,7 +122,7 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollConfig, HoldRer
     }
 
     @Override
-    protected @NonNull Optional<RollAnswer> getAnswer(HoldRerollConfig config, State<HoldRerollStateData> state) {
+    protected @NonNull Optional<RollAnswer> getAnswer(HoldRerollConfig config, State<HoldRerollStateData> state, long channelId, long userId) {
         if (CLEAR_BUTTON_ID.equals(state.getButtonValue())) {
             return Optional.empty();
         }
@@ -227,7 +227,7 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollConfig, HoldRer
     }
 
     @Override
-    protected Optional<List<ComponentRowDefinition>> getCurrentMessageComponentChange(@NonNull UUID configUUID, HoldRerollConfig config, State<HoldRerollStateData> state) {
+    protected Optional<List<ComponentRowDefinition>> getCurrentMessageComponentChange(@NonNull UUID configUUID, HoldRerollConfig config, State<HoldRerollStateData> state, long channelId, long userId) {
         if (config.getRerollSet().isEmpty()
                 || CLEAR_BUTTON_ID.equals(state.getButtonValue())
                 || FINISH_BUTTON_ID.equals(state.getButtonValue())
@@ -347,7 +347,7 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollConfig, HoldRer
     }
 
     @Override
-    protected @NonNull Optional<String> getStartOptionsValidationMessage(@NonNull CommandInteractionOption options) {
+    protected @NonNull Optional<String> getStartOptionsValidationMessage(@NonNull CommandInteractionOption options, long channelId, long userId) {
         HoldRerollConfig conf = getConfigFromStartOptions(options);
         return validate(conf);
     }
