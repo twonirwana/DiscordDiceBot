@@ -1,6 +1,7 @@
 package de.janno.discord.bot.command.directRoll;
 
 import de.janno.discord.bot.SlashEventAdaptorMock;
+import de.janno.discord.bot.command.channelConfig.ChannelConfigCommand;
 import de.janno.discord.bot.dice.CachingDiceEvaluator;
 import de.janno.discord.bot.dice.DiceEvaluatorAdapter;
 import de.janno.discord.bot.persistance.PersistenceManager;
@@ -59,7 +60,7 @@ public class DirectRollCommandMockTest {
 
 
         assertThat(slashEvent.getActions()).containsExactlyInAnyOrder(
-                "replyEmbed: EmbedOrMessageDefinition(title=null, descriptionOrContent=Type /r and a dice expression, configuration with /direct_roll_config\n" +
+                "replyEmbed: EmbedOrMessageDefinition(title=null, descriptionOrContent=Type /r and a dice expression, configuration with /channel_config\n" +
                         DiceEvaluatorAdapter.getHelp() +
                         ", fields=[EmbedOrMessageDefinition.Field(name=Example, value=`/r expression:1d6`, inline=false), EmbedOrMessageDefinition.Field(name=Full documentation, value=https://github.com/twonirwana/DiscordDiceBot, inline=false), EmbedOrMessageDefinition.Field(name=Discord Server for Help and News, value=https://discord.gg/e43BsqKpFr, inline=false)], file=null, type=EMBED)");
     }
@@ -99,10 +100,10 @@ public class DirectRollCommandMockTest {
     @Test
     void roll_config_full_imageNone() {
         DirectRollCommand directRollCommand = new DirectRollCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
-        DirectRollConfigCommand directRollConfig = new DirectRollConfigCommand(persistenceManager);
+        ChannelConfigCommand channelConfig = new ChannelConfigCommand(persistenceManager);
 
         SlashEventAdaptorMock slashEvent1 = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
-                .name("save_config")
+                .name("save_direct_roll_config")
                 .option(CommandInteractionOption.builder()
                         .name("always_sum_result")
                         .booleanValue(false)
@@ -116,7 +117,7 @@ public class DirectRollCommandMockTest {
                         .stringValue("none")
                         .build())
                 .build()));
-        directRollConfig.handleSlashCommandEvent(slashEvent1, () -> UUID.fromString("00000000-0000-0000-0000-000000000000")).block();
+        channelConfig.handleSlashCommandEvent(slashEvent1, () -> UUID.fromString("00000000-0000-0000-0000-000000000000")).block();
 
 
         SlashEventAdaptorMock slashEvent2 = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
@@ -133,10 +134,10 @@ public class DirectRollCommandMockTest {
     @Test
     void roll_config_withoutExpression() {
         DirectRollCommand directRollCommand = new DirectRollCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
-        DirectRollConfigCommand directRollConfig = new DirectRollConfigCommand(persistenceManager);
+        ChannelConfigCommand channelConfig = new ChannelConfigCommand(persistenceManager);
 
         SlashEventAdaptorMock slashEvent1 = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
-                .name("save_config")
+                .name("save_direct_roll_config")
                 .option(CommandInteractionOption.builder()
                         .name("always_sum_result")
                         .booleanValue(false)
@@ -150,7 +151,7 @@ public class DirectRollCommandMockTest {
                         .stringValue("polyhedral_3d_red_and_white")
                         .build())
                 .build()));
-        directRollConfig.handleSlashCommandEvent(slashEvent1, () -> UUID.fromString("00000000-0000-0000-0000-000000000000")).block();
+        channelConfig.handleSlashCommandEvent(slashEvent1, () -> UUID.fromString("00000000-0000-0000-0000-000000000000")).block();
 
 
         SlashEventAdaptorMock slashEvent2 = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
@@ -168,10 +169,10 @@ public class DirectRollCommandMockTest {
     @Test
     void roll_config_withoutExpression_withLabel() {
         DirectRollCommand directRollCommand = new DirectRollCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
-        DirectRollConfigCommand directRollConfig = new DirectRollConfigCommand(persistenceManager);
+        ChannelConfigCommand channelConfig = new ChannelConfigCommand(persistenceManager);
 
         SlashEventAdaptorMock slashEvent1 = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
-                .name("save_config")
+                .name("save_direct_roll_config")
                 .option(CommandInteractionOption.builder()
                         .name("always_sum_result")
                         .booleanValue(false)
@@ -185,7 +186,7 @@ public class DirectRollCommandMockTest {
                         .stringValue("polyhedral_3d_red_and_white")
                         .build())
                 .build()));
-        directRollConfig.handleSlashCommandEvent(slashEvent1, () -> UUID.fromString("00000000-0000-0000-0000-000000000000")).block();
+        channelConfig.handleSlashCommandEvent(slashEvent1, () -> UUID.fromString("00000000-0000-0000-0000-000000000000")).block();
 
 
         SlashEventAdaptorMock slashEvent2 = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
@@ -203,10 +204,10 @@ public class DirectRollCommandMockTest {
     @Test
     void roll_config_compact() {
         DirectRollCommand directRollCommand = new DirectRollCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
-        DirectRollConfigCommand directRollConfig = new DirectRollConfigCommand(persistenceManager);
+        ChannelConfigCommand channelConfig = new ChannelConfigCommand(persistenceManager);
 
         SlashEventAdaptorMock slashEvent1 = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
-                .name("save_config")
+                .name("save_direct_roll_config")
                 .option(CommandInteractionOption.builder()
                         .name("always_sum_result")
                         .booleanValue(false)
@@ -220,7 +221,7 @@ public class DirectRollCommandMockTest {
                         .stringValue("polyhedral_3d_red_and_white")
                         .build())
                 .build()));
-        directRollConfig.handleSlashCommandEvent(slashEvent1, () -> UUID.fromString("00000000-0000-0000-0000-000000000000")).block();
+        channelConfig.handleSlashCommandEvent(slashEvent1, () -> UUID.fromString("00000000-0000-0000-0000-000000000000")).block();
 
 
         SlashEventAdaptorMock slashEvent2 = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
@@ -238,10 +239,10 @@ public class DirectRollCommandMockTest {
     @Test
     void roll_config_minimal() {
         DirectRollCommand directRollCommand = new DirectRollCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
-        DirectRollConfigCommand directRollConfig = new DirectRollConfigCommand(persistenceManager);
+        ChannelConfigCommand channelConfig = new ChannelConfigCommand(persistenceManager);
 
         SlashEventAdaptorMock slashEvent1 = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
-                .name("save_config")
+                .name("save_direct_roll_config")
                 .option(CommandInteractionOption.builder()
                         .name("always_sum_result")
                         .booleanValue(false)
@@ -255,7 +256,7 @@ public class DirectRollCommandMockTest {
                         .stringValue("polyhedral_3d_red_and_white")
                         .build())
                 .build()));
-        directRollConfig.handleSlashCommandEvent(slashEvent1, () -> UUID.fromString("00000000-0000-0000-0000-000000000000")).block();
+        channelConfig.handleSlashCommandEvent(slashEvent1, () -> UUID.fromString("00000000-0000-0000-0000-000000000000")).block();
 
 
         SlashEventAdaptorMock slashEvent2 = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
@@ -271,49 +272,9 @@ public class DirectRollCommandMockTest {
     }
 
     @Test
-    void saveConfigDelete_default() {
-        DirectRollCommand directRollCommand = new DirectRollCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
-        DirectRollConfigCommand directRollConfig = new DirectRollConfigCommand(persistenceManager);
-
-        SlashEventAdaptorMock slashEvent1 = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
-                .name("save_config")
-                .option(CommandInteractionOption.builder()
-                        .name("always_sum_result")
-                        .booleanValue(false)
-                        .build())
-                .option(CommandInteractionOption.builder()
-                        .name("answer_format")
-                        .stringValue("minimal")
-                        .build())
-                .option(CommandInteractionOption.builder()
-                        .name("result_image")
-                        .stringValue("polyhedral_3d_red_and_white")
-                        .build())
-                .build()));
-        directRollConfig.handleSlashCommandEvent(slashEvent1, () -> UUID.fromString("00000000-0000-0000-0000-000000000000")).block();
-
-        SlashEventAdaptorMock slashEvent2 = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
-                .name("delete_config")
-                .build()));
-        directRollConfig.handleSlashCommandEvent(slashEvent2, () -> UUID.fromString("00000000-0000-0000-0000-000000000000")).block();
-
-        SlashEventAdaptorMock slashEvent3 = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
-                .name("expression")
-                .stringValue("1d6")
-                .build()));
-        directRollCommand.handleSlashCommandEvent(slashEvent3, () -> UUID.fromString("00000000-0000-0000-0000-000000000000")).block();
-
-        assertThat(slashEvent1.getActions()).containsExactlyInAnyOrder("reply: `commandString`\nSaved direct roll channel config");
-        assertThat(slashEvent2.getActions()).containsExactlyInAnyOrder("reply: `commandString`\nDeleted direct roll channel config");
-        assertThat(slashEvent3.getActions()).containsExactlyInAnyOrder(
-                "acknowledgeAndRemoveSlash",
-                "createResultMessageWithEventReference: EmbedOrMessageDefinition(title=1d6 ⇒ 1, descriptionOrContent=, fields=[], file=cea2a67e61a8b605c6702aac213960f86922331b5cac795649502b363dde97aa.png, type=EMBED)");
-    }
-
-    @Test
     void channelAlias() {
         DirectRollCommand directRollCommand = new DirectRollCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
-        DirectRollConfigCommand directRollConfig = new DirectRollConfigCommand(persistenceManager);
+        ChannelConfigCommand channelConfig = new ChannelConfigCommand(persistenceManager);
 
         SlashEventAdaptorMock slashEvent1 = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
                 .name("channel_alias")
@@ -323,7 +284,7 @@ public class DirectRollCommandMockTest {
                         .option(CommandInteractionOption.builder().name("value").stringValue("2d20+10").build())
                         .build())
                 .build()));
-        directRollConfig.handleSlashCommandEvent(slashEvent1, () -> UUID.fromString("00000000-0000-0000-0000-000000000000")).block();
+        channelConfig.handleSlashCommandEvent(slashEvent1, () -> UUID.fromString("00000000-0000-0000-0000-000000000000")).block();
 
 
         SlashEventAdaptorMock slashEvent2 = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
@@ -340,7 +301,7 @@ public class DirectRollCommandMockTest {
     @Test
     void userChannelAlias() {
         DirectRollCommand directRollCommand = new DirectRollCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
-        DirectRollConfigCommand directRollConfig = new DirectRollConfigCommand(persistenceManager);
+        ChannelConfigCommand channelConfig = new ChannelConfigCommand(persistenceManager);
 
         SlashEventAdaptorMock slashEvent1 = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
                 .name("user_channel_alias")
@@ -350,7 +311,7 @@ public class DirectRollCommandMockTest {
                         .option(CommandInteractionOption.builder().name("value").stringValue("2d20+10").build())
                         .build())
                 .build()));
-        directRollConfig.handleSlashCommandEvent(slashEvent1, () -> UUID.fromString("00000000-0000-0000-0000-000000000000")).block();
+        channelConfig.handleSlashCommandEvent(slashEvent1, () -> UUID.fromString("00000000-0000-0000-0000-000000000000")).block();
 
 
         SlashEventAdaptorMock slashEvent2 = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
@@ -364,94 +325,5 @@ public class DirectRollCommandMockTest {
                 "createResultMessageWithEventReference: EmbedOrMessageDefinition(title=2d20+10 ⇒ 36, descriptionOrContent=, fields=[], file=97dc22f364d30e78c07db37e7ffca23a9df79ae0e0d29664282f8f2b26e98a0d.png, type=EMBED)");
     }
 
-    @Test
-    void channelAlias_createListDelete() {
-        DirectRollConfigCommand directRollConfig = new DirectRollConfigCommand(persistenceManager);
-
-        SlashEventAdaptorMock slashEvent1 = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
-                .name("channel_alias")
-                .option(CommandInteractionOption.builder()
-                        .name("save")
-                        .option(CommandInteractionOption.builder().name("name").stringValue("att").build())
-                        .option(CommandInteractionOption.builder().name("value").stringValue("2d20+10").build())
-                        .build())
-                .build()));
-        directRollConfig.handleSlashCommandEvent(slashEvent1, () -> UUID.fromString("00000000-0000-0000-0000-000000000000")).block();
-
-        SlashEventAdaptorMock slashEvent2 = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
-                .name("channel_alias")
-                .option(CommandInteractionOption.builder()
-                        .name("list")
-                        .build())
-                .build()));
-        directRollConfig.handleSlashCommandEvent(slashEvent2, () -> UUID.fromString("00000000-0000-0000-0000-000000000000")).block();
-
-        SlashEventAdaptorMock slashEvent3 = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
-                .name("channel_alias")
-                .option(CommandInteractionOption.builder()
-                        .name("delete")
-                        .option(CommandInteractionOption.builder().name("name").stringValue("att").build())
-                        .build())
-                .build()));
-        directRollConfig.handleSlashCommandEvent(slashEvent3, () -> UUID.fromString("00000000-0000-0000-0000-000000000000")).block();
-
-        SlashEventAdaptorMock slashEvent4 = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
-                .name("channel_alias")
-                .option(CommandInteractionOption.builder()
-                        .name("list")
-                        .build())
-                .build()));
-        directRollConfig.handleSlashCommandEvent(slashEvent4, () -> UUID.fromString("00000000-0000-0000-0000-000000000000")).block();
-
-        assertThat(slashEvent1.getActions()).containsExactlyInAnyOrder("reply: `commandString`\nSaved new alias");
-        assertThat(slashEvent2.getActions()).containsExactlyInAnyOrder("reply: `commandString`\nexisting alias:\natt->2d20+10");
-        assertThat(slashEvent3.getActions()).containsExactlyInAnyOrder("reply: `commandString`\ndeleted alias");
-        assertThat(slashEvent4.getActions()).containsExactlyInAnyOrder("reply: `commandString`\nexisting alias:\n");
-    }
-
-    @Test
-    void userChannelAlias_createListDelete() {
-        DirectRollConfigCommand directRollConfig = new DirectRollConfigCommand(persistenceManager);
-
-        SlashEventAdaptorMock slashEvent1 = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
-                .name("user_channel_alias")
-                .option(CommandInteractionOption.builder()
-                        .name("save")
-                        .option(CommandInteractionOption.builder().name("name").stringValue("att").build())
-                        .option(CommandInteractionOption.builder().name("value").stringValue("2d20+10").build())
-                        .build())
-                .build()));
-        directRollConfig.handleSlashCommandEvent(slashEvent1, () -> UUID.fromString("00000000-0000-0000-0000-000000000000")).block();
-
-        SlashEventAdaptorMock slashEvent2 = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
-                .name("user_channel_alias")
-                .option(CommandInteractionOption.builder()
-                        .name("list")
-                        .build())
-                .build()));
-        directRollConfig.handleSlashCommandEvent(slashEvent2, () -> UUID.fromString("00000000-0000-0000-0000-000000000000")).block();
-
-        SlashEventAdaptorMock slashEvent3 = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
-                .name("user_channel_alias")
-                .option(CommandInteractionOption.builder()
-                        .name("delete")
-                        .option(CommandInteractionOption.builder().name("name").stringValue("att").build())
-                        .build())
-                .build()));
-        directRollConfig.handleSlashCommandEvent(slashEvent3, () -> UUID.fromString("00000000-0000-0000-0000-000000000000")).block();
-
-        SlashEventAdaptorMock slashEvent4 = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
-                .name("user_channel_alias")
-                .option(CommandInteractionOption.builder()
-                        .name("list")
-                        .build())
-                .build()));
-        directRollConfig.handleSlashCommandEvent(slashEvent4, () -> UUID.fromString("00000000-0000-0000-0000-000000000000")).block();
-
-        assertThat(slashEvent1.getActions()).containsExactlyInAnyOrder("reply: `commandString`\nSaved new alias");
-        assertThat(slashEvent2.getActions()).containsExactlyInAnyOrder("reply: `commandString`\nexisting alias:\natt->2d20+10");
-        assertThat(slashEvent3.getActions()).containsExactlyInAnyOrder("reply: `commandString`\ndeleted alias");
-        assertThat(slashEvent4.getActions()).containsExactlyInAnyOrder("reply: `commandString`\nexisting alias:\n");
-    }
 
 }

@@ -7,6 +7,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import de.janno.discord.bot.ResultImage;
 import de.janno.discord.bot.command.*;
+import de.janno.discord.bot.command.channelConfig.AliasHelper;
 import de.janno.discord.bot.dice.*;
 import de.janno.discord.bot.persistance.Mapper;
 import de.janno.discord.bot.persistance.MessageConfigDTO;
@@ -99,7 +100,7 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
                 Optional.ofNullable(loadedStateData).map(SumCustomSetStateData::getDiceExpressions).orElse(ImmutableList.of()),
                 invokingUserName,
                 Optional.ofNullable(loadedStateData).map(SumCustomSetStateData::getLockedForUserName).orElse(""),
-                loadedConfig.getLabelAndExpression(), loadedConfig.getDiceParserSystem());
+                loadedConfig.getLabelAndExpression());
         return new ConfigAndState<>(messageConfigDTO.getConfigUUID(), loadedConfig, updatedState);
     }
 
@@ -129,11 +130,6 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
     }
 
     @Override
-    protected @NonNull Optional<String> getStartOptionsValidationMessage(@NonNull CommandInteractionOption options) {
-        return Optional.empty();
-    }
-
-    @Override
     protected @NonNull List<CommandDefinitionOption> getStartOptions() {
         return List.of(CommandDefinitionOption.builder()
                         .name(BUTTONS_COMMAND_OPTIONS_ID)
@@ -150,7 +146,7 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
     }
 
     @Override
-    protected @NonNull Optional<RollAnswer> getAnswer(SumCustomSetConfig config, State<SumCustomSetStateData> state) {
+    protected @NonNull Optional<RollAnswer> getAnswer(SumCustomSetConfig config, State<SumCustomSetStateData> state, long channelId, long userId) {
         if (!(ROLL_BUTTON_ID.equals(state.getButtonValue()) &&
                 !Optional.ofNullable(state.getData())
                         .map(SumCustomSetStateData::getDiceExpressions)
@@ -162,8 +158,9 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
                 .filter(ld -> ld.getButtonId().equals(state.getButtonValue()))
                 .map(ButtonIdLabelAndDiceExpression::getLabel)
                 .findFirst().orElse(null);
+        String newExpression = AliasHelper.getAndApplyAliaseToExpression(channelId, userId, persistenceManager, combineExpressions(state.getData().getDiceExpressions()));
 
-        return Optional.of(diceSystemAdapter.answerRollWithGivenLabel(combineExpressions(state.getData().getDiceExpressions()),
+        return Optional.of(diceSystemAdapter.answerRollWithGivenLabel(newExpression,
                 label,
                 config.isAlwaysSumResult(),
                 config.getDiceParserSystem(),
@@ -194,11 +191,12 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
     }
 
     @Override
-    protected Optional<List<ComponentRowDefinition>> getCurrentMessageComponentChange(UUID customUuid, SumCustomSetConfig config, State<SumCustomSetStateData> state) {
+    protected Optional<List<ComponentRowDefinition>> getCurrentMessageComponentChange(UUID customUuid, SumCustomSetConfig config, State<SumCustomSetStateData> state, long channelId, long userId) {
         if (state.getData() == null) {
             return Optional.empty();
         }
-        String expression = combineExpressions(state.getData().getDiceExpressions());
+        String expression = AliasHelper.getAndApplyAliaseToExpression(channelId, userId, persistenceManager, combineExpressions(state.getData().getDiceExpressions()));
+
         return Optional.of(createButtonLayout(customUuid, config, !diceSystemAdapter.isValidExpression(expression, config.getDiceParserSystem())));
     }
 
@@ -229,9 +227,7 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
                                                                     @NonNull final List<String> currentExpressions,
                                                                     @NonNull final String invokingUserName,
                                                                     @Nullable final String lockedToUser,
-                                                                    @NonNull final List<ButtonIdLabelAndDiceExpression> buttonIdLabelAndDiceExpressions,
-                                                                    @NonNull final DiceParserSystem diceParserSystem) {
-        String currentExpression = combineExpressions(currentExpressions);
+                                                                    @NonNull final List<ButtonIdLabelAndDiceExpression> buttonIdLabelAndDiceExpressions) {
         if (CLEAR_BUTTON_ID.equals(buttonValue)) {
             return new State<>(buttonValue, new SumCustomSetStateData(ImmutableList.of(), null));
         }
@@ -248,10 +244,6 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
             return new State<>(buttonValue, new SumCustomSetStateData(newExpressionList, newExpressionList.isEmpty() ? null : lockedToUser));
         }
         if (ROLL_BUTTON_ID.equals(buttonValue)) {
-            if (!diceSystemAdapter.isValidExpression(currentExpression, diceParserSystem)) {
-                //should not happen, button only enabled if expression is valid
-                return new State<>(NO_ACTION, new SumCustomSetStateData(currentExpressions, lockedToUser));
-            }
             return new State<>(buttonValue, new SumCustomSetStateData(currentExpressions, lockedToUser));
         }
         final Optional<String> addExpression = buttonIdLabelAndDiceExpressions.stream()

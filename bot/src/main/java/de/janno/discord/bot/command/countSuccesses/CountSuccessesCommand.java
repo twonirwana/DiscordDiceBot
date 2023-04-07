@@ -170,7 +170,7 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesConfig,
     }
 
     @Override
-    protected @NonNull Optional<String> getStartOptionsValidationMessage(@NonNull CommandInteractionOption options) {
+    protected @NonNull Optional<String> getStartOptionsValidationMessage(@NonNull CommandInteractionOption options, long channelId, long userId) {
         long sideValue = options.getLongSubOptionWithName(ACTION_SIDE_OPTION).orElseThrow();
         int rerollSetSize = CommandUtils.getSetFromCommandOptions(options, ACTION_REROLL_SET_OPTION, ",").size();
         if ((rerollSetSize * 2L) >= sideValue) {
@@ -181,7 +181,7 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesConfig,
 
 
     @Override
-    protected @NonNull Optional<RollAnswer> getAnswer(CountSuccessesConfig config, State<StateData> state) {
+    protected @NonNull Optional<RollAnswer> getAnswer(CountSuccessesConfig config, State<StateData> state, long channelId, long userId) {
         final int numberOfDice = Integer.parseInt(state.getButtonValue());
 
         final List<Integer> rollResult = diceUtils.explodingReroll(config.getDiceSides(), diceUtils.rollDiceOfType(numberOfDice, config.getDiceSides()), config.getRerollSet()).stream()

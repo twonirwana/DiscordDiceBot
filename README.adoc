@@ -118,7 +118,7 @@ If a message sends the answer to another channel, it will not be moved to the en
 === Answer Format
 
 All commands have an `answer_format` option that determines how the answer of a dice roll is shown.
-In the case of the direct roll command `r` the `answer_format` can be configured for the current channel with the `direct_roll_config` command.
+In the case of the direct roll command `r` the `answer_format` can be configured for the current channel with the `channel_config` command.
 There are the following options: `full`,`without_expression`, `compact` and `minimal`.
 
 ==== Full
@@ -153,7 +153,7 @@ image:image/minimal.png[image,320]
 === Dice Images
 
 The `custom_dice`, `sum_custom_dice` and `custom_parameter` commands have an `result_image` option that can be configured to add an image of the rolled dice.
-For the direct rolls it can be configured with the `direct_roll_config` command.
+For the direct rolls it can be configured with the `channel_config` command.
 The images will only be shown if the following conditions are met:
 
 * The `answer_format` is set to `full` or `without_expression`
@@ -214,9 +214,14 @@ image:image/custom_dice.webp[image]
 Use the slash command: `custom_dice start` and add up to 25 custom buttons, each with its own dice expression (see the section <<Dice Expression Notation>>).
 The expressions for the buttons are seperated by `;`.
 For example `/custom_dice start buttons:3d6@Attack;10d10;3d20` will produce three buttons, one with `3d6` (and the label Attack), one with `10d10` and one with `3d20`.
-The old version of the command, with the old dice expression, can be still used with `custom_dice legacy_start`, which is not recommended.
-
 Clicking on a button provides the results of the button dice expression.
+
+It is possible to use alias with custom dice buttons.
+The alias must be created before the button is created.
+A usage example would be:
+Create the server alias `attack modifier` with the value 0.
+Then create a custom dice button with the expression `d20+attack modifier@Attack` and each player create a user alias for `attack modifier` with the attack modifier of its character.
+This will provide a button called `Attack` which rolls with a personalized modifier for each player.
 
 === Direct Roll
 
@@ -225,8 +230,17 @@ image:image/direct_roll.webp[image]
 With the command `/r` it is possible to directly call the dice expression (see <<Dice Expression Notation>>) without the usage of buttons.
 For example `/r expression:3d6` will simply roll 3d6 and post the result without showing any buttons.
 The result of the dice will be summed up per default.
-The command can be configured for a channel by using the `/direct_roll_config save` command.
-The configuration will be used for all `/r` in this channel until it is overwritten or deleted with `/direct_roll_config delete`.
+The output can be configured with the `channel_config` command.
+
+=== Channel Config
+
+This command is used create a channel specific configuration.
+It is possible to configure alias and the output for the direct rolls:
+
+==== Direct Roll Config
+
+The command can be configured for a channel by using the `/channel_config save_direct_roll_config` command.
+The configuration will be used for all `/r` in this channel until it is overwritten or deleted with `/channel_config delete_direct_roll_config`.
 
 There are the following options:
 
@@ -237,11 +251,13 @@ This can still be done by using the sum operator `=` e.g. `3d6=`.
 The default value is true
 * `image_result`: see <<Dice Images>> for details, the default value is `polyhedral_3d_red_and_white`
 
-==== Direct Roll Aliases
+==== Aliases
 
 It is possible to configure alias in a channel.
+Alias can be used with direct roll and custom dice.
+If a custom dice button is created that should use an alias, the alias musst exist before the button is created.
 
-For example `/direct_roll_config user_channel_alias save name: att value: (2d20k1)+10+1d4` creates an alias attack alias for the user.
+For example `/channel_config user_channel_alias save name: att value: (2d20k1)+10+1d4` creates an attack alias for the user.
 Each time the user uses the slash command `/r expression: att`, the `att` will automatically replaced with `(2d20k1)+10+1d4`
 
 An alias has a name and a value and will replace each occurrence in the dice expression of its name with its value.
@@ -372,7 +388,9 @@ Clicking on the `Roll` button will roll the dice the message and copy a clear bu
 The `Roll` can only be clicked if the expression is valid. `Back` will undo the last addition and `Clear` reset all.
 If the option `always_sum_result` is true (the default) then the result of the dice will be added together, the equivalent of adding `=` at the end of the expression.
 
-The old version of the command, with the old dice expression, can be still used with `sum_custom_set legacy_start`, which is not recommended.
+This command can also use alias (see the `channel_config` command).
+The substitution of the alias name with its value happen upon pressing the `Roll` button.
+If there is no valid alias then the expression can be invalid and it is not possible to press the `Roll` button.
 
 === Custom Parameter
 

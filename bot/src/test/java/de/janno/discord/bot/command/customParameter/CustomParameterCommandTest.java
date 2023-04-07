@@ -157,7 +157,7 @@ class CustomParameterCommandTest {
                 .option(CommandInteractionOption.builder()
                         .name("expression")
                         .stringValue(slashExpression).build())
-                .build());
+                .build(), 0L, 0L);
         if (expectedResult == null) {
             assertThat(res).isEmpty();
         } else {

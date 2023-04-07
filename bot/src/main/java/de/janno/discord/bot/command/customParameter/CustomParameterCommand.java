@@ -156,6 +156,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
             String parameterExpression = variableMatcher.group();
             String expressionWithoutRange = removeRange(parameterExpression);
             String name = expressionWithoutRange.substring(1, expressionWithoutRange.length() - 1);
+            Matcher valueMatcher = BUTTON_VALUE_PATTERN.matcher(parameterExpression);
             if (BUTTON_RANGE_PATTERN.matcher(parameterExpression).find()) {
                 int min = getMinButtonFrom(parameterExpression);
                 int max = getMaxButtonFrom(parameterExpression);
@@ -163,9 +164,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
                         .mapToObj(String::valueOf)
                         .map(s -> new Parameter.ValueAndLabel(s, s))
                         .toList()));
-            } else if (BUTTON_VALUE_PATTERN.matcher(parameterExpression).find()) {
-                Matcher valueMatcher = BUTTON_VALUE_PATTERN.matcher(parameterExpression);
-                valueMatcher.find();
+            } else if (valueMatcher.find()) {
                 String buttonValueExpression = valueMatcher.group(1);
                 builder.add(new Parameter(parameterExpression, name, Arrays.stream(buttonValueExpression.split(BUTTON_VALUE_DELIMITER))
                         .limit(23)
@@ -242,7 +241,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     }
 
     @Override
-    protected @NonNull Optional<RollAnswer> getAnswer(CustomParameterConfig config, State<CustomParameterStateData> state) {
+    protected @NonNull Optional<RollAnswer> getAnswer(CustomParameterConfig config, State<CustomParameterStateData> state, long channelId, long userId) {
         if (!hasMissingParameter(state)) {
             String expression = getFilledExpression(config, state);
             String label = getLabel(config, state);
@@ -308,7 +307,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
 
 
     @Override
-    protected Optional<List<ComponentRowDefinition>> getCurrentMessageComponentChange(UUID configUUID, CustomParameterConfig config, State<CustomParameterStateData> state) {
+    protected Optional<List<ComponentRowDefinition>> getCurrentMessageComponentChange(UUID configUUID, CustomParameterConfig config, State<CustomParameterStateData> state, long channelId, long userId) {
         if (!hasMissingParameter(state)) {
             return Optional.empty();
         }
@@ -455,15 +454,15 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     }
 
     @Override
-    protected @NonNull Optional<String> getStartOptionsValidationMessage(@NonNull CommandInteractionOption options) {
+    protected @NonNull Optional<String> getStartOptionsValidationMessage(@NonNull CommandInteractionOption options, long channelId, long userId) {
         String baseExpression = options.getStringSubOptionWithName(EXPRESSION_OPTION).orElse("");
         log.info("Start validating: {}", baseExpression);
         int variableCount = 0;
         Matcher variableMatcher = PARAMETER_VARIABLE_PATTERN.matcher(baseExpression);
-        while(variableMatcher.find()){
+        while (variableMatcher.find()) {
             variableCount++;
         }
-        if (variableCount ==0) {
+        if (variableCount == 0) {
             return Optional.of("The expression needs at least one parameter expression like '{name}");
         }
         if (variableCount > 4) {

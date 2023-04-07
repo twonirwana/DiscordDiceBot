@@ -45,7 +45,7 @@ public class TestCommand extends AbstractCommand<Config, StateData> {
     }
 
     @Override
-    protected @NonNull Optional<RollAnswer> getAnswer(Config config, State<StateData> state) {
+    protected @NonNull Optional<RollAnswer> getAnswer(Config config, State<StateData> state, long channelId, long userId) {
         throw new NotImplementedException("Not implemented");
     }
 

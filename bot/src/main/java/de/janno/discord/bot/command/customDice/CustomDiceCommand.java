@@ -6,6 +6,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import de.janno.discord.bot.ResultImage;
 import de.janno.discord.bot.command.*;
+import de.janno.discord.bot.command.channelConfig.AliasHelper;
 import de.janno.discord.bot.dice.*;
 import de.janno.discord.bot.persistance.Mapper;
 import de.janno.discord.bot.persistance.MessageConfigDTO;
@@ -96,9 +97,10 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
     }
 
     @Override
-    protected @NonNull Optional<String> getStartOptionsValidationMessage(@NonNull CommandInteractionOption options) {
+    protected @NonNull Optional<String> getStartOptionsValidationMessage(@NonNull CommandInteractionOption options, long channelId, long userId) {
         List<String> diceExpressionWithOptionalLabel = getButtonsFromCommandOption(options).stream()
                 .map(ButtonIdAndExpression::getExpression)
+                .map(e -> AliasHelper.getAndApplyAliaseToExpression(channelId, userId, persistenceManager, e))
                 .distinct()
                 .collect(Collectors.toList());
         DiceParserSystem diceParserSystem = DiceParserSystem.DICE_EVALUATOR;
@@ -140,7 +142,6 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
                 })
                 .filter(s -> !s.getDiceExpression().isEmpty())
                 .filter(s -> !s.getLabel().isEmpty())
-                .filter(lv -> diceSystemAdapter.isValidExpression(lv.getDiceExpression(), DiceParserSystem.DICE_EVALUATOR))
                 .filter(s -> s.getDiceExpression().length() <= 2000) //limit of the discord message content
                 .distinct()
                 .limit(25)
@@ -151,7 +152,7 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
     }
 
     @Override
-    protected @NonNull Optional<RollAnswer> getAnswer(CustomDiceConfig config, State<StateData> state) {
+    protected @NonNull Optional<RollAnswer> getAnswer(CustomDiceConfig config, State<StateData> state, long channelId, long userId) {
         Optional<ButtonIdLabelAndDiceExpression> selectedButton = Optional.ofNullable(state).map(State::getButtonValue)
                 .flatMap(bv -> config.getButtonIdLabelAndDiceExpressions().stream()
                         .filter(bld -> bld.getButtonId().equals(bv))
@@ -162,7 +163,8 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
         }
         //add the label only if it is different from the expression
         final String label = selectedButton.get().getDiceExpression().equals(selectedButton.get().getLabel()) ? null : selectedButton.get().getLabel();
-        return Optional.of(diceSystemAdapter.answerRollWithGivenLabel(selectedButton.get().getDiceExpression(),
+        final String expression = AliasHelper.getAndApplyAliaseToExpression(channelId, userId, persistenceManager, selectedButton.get().getDiceExpression());
+        return Optional.of(diceSystemAdapter.answerRollWithGivenLabel(expression,
                 label,
                 false,
                 config.getDiceParserSystem(),

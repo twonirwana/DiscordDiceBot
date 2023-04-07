@@ -129,7 +129,7 @@ class CountSuccessesCommandTest {
 
     @Test
     void rollDice() {
-        EmbedOrMessageDefinition results = RollAnswerConverter.toEmbedOrMessageDefinition(underTest.getAnswer(new CountSuccessesConfig(null, 6, 6, "no_glitch", 15, 1, Set.of(), Set.of(), AnswerFormatType.full, ResultImage.none), new State<>("6", StateData.empty()))
+        EmbedOrMessageDefinition results = RollAnswerConverter.toEmbedOrMessageDefinition(underTest.getAnswer(new CountSuccessesConfig(null, 6, 6, "no_glitch", 15, 1, Set.of(), Set.of(), AnswerFormatType.full, ResultImage.none), new State<>("6", StateData.empty()), 0, 0)
                 .orElseThrow());
 
         assertThat(results.getFields()).hasSize(0);
@@ -139,7 +139,7 @@ class CountSuccessesCommandTest {
 
     @Test
     void rollDice_halfDiceOne_glitch() {
-        EmbedOrMessageDefinition results = RollAnswerConverter.toEmbedOrMessageDefinition(underTest.getAnswer(new CountSuccessesConfig(null, 6, 6, "half_dice_one", 15, 1, Set.of(), Set.of(), AnswerFormatType.full, ResultImage.none), new State<>("6", StateData.empty()))
+        EmbedOrMessageDefinition results = RollAnswerConverter.toEmbedOrMessageDefinition(underTest.getAnswer(new CountSuccessesConfig(null, 6, 6, "half_dice_one", 15, 1, Set.of(), Set.of(), AnswerFormatType.full, ResultImage.none), new State<>("6", StateData.empty()), 0, 0)
                 .orElseThrow());
 
         assertThat(results.getFields()).hasSize(0);
@@ -149,7 +149,7 @@ class CountSuccessesCommandTest {
 
     @Test
     void rollDice_halfDiceOne_noGlitch() {
-        EmbedOrMessageDefinition results = RollAnswerConverter.toEmbedOrMessageDefinition(underTest.getAnswer(new CountSuccessesConfig(null, 6, 6, "half_dice_one", 15, 1, Set.of(), Set.of(), AnswerFormatType.full, ResultImage.none), new State<>("8", StateData.empty()))
+        EmbedOrMessageDefinition results = RollAnswerConverter.toEmbedOrMessageDefinition(underTest.getAnswer(new CountSuccessesConfig(null, 6, 6, "half_dice_one", 15, 1, Set.of(), Set.of(), AnswerFormatType.full, ResultImage.none), new State<>("8", StateData.empty()), 0, 0)
                 .orElseThrow());
 
         assertThat(results.getFields()).hasSize(0);
@@ -159,7 +159,7 @@ class CountSuccessesCommandTest {
 
     @Test
     void rollDice_countOnes() {
-        EmbedOrMessageDefinition results = RollAnswerConverter.toEmbedOrMessageDefinition(underTest.getAnswer(new CountSuccessesConfig(null, 6, 6, "count_ones", 15, 1, Set.of(), Set.of(), AnswerFormatType.full, ResultImage.none), new State<>("6", StateData.empty()))
+        EmbedOrMessageDefinition results = RollAnswerConverter.toEmbedOrMessageDefinition(underTest.getAnswer(new CountSuccessesConfig(null, 6, 6, "count_ones", 15, 1, Set.of(), Set.of(), AnswerFormatType.full, ResultImage.none), new State<>("6", StateData.empty()), 0, 0)
                 .orElseThrow());
 
         assertThat(results.getFields()).hasSize(0);
@@ -169,7 +169,7 @@ class CountSuccessesCommandTest {
 
     @Test
     void rollDice_subtractOnes() {
-        EmbedOrMessageDefinition results = RollAnswerConverter.toEmbedOrMessageDefinition(underTest.getAnswer(new CountSuccessesConfig(null, 6, 6, "subtract_ones", 15, 1, Set.of(), Set.of(1), AnswerFormatType.full, ResultImage.none), new State<>("6", StateData.empty()))
+        EmbedOrMessageDefinition results = RollAnswerConverter.toEmbedOrMessageDefinition(underTest.getAnswer(new CountSuccessesConfig(null, 6, 6, "subtract_ones", 15, 1, Set.of(), Set.of(1), AnswerFormatType.full, ResultImage.none), new State<>("6", StateData.empty()), 0, 0)
                 .orElseThrow());
 
         assertThat(results.getFields()).hasSize(0);
@@ -299,7 +299,7 @@ class CountSuccessesCommandTest {
                         .stringValue("1,2,3")
                         .build())
                 .build();
-        Optional<String> res = underTest.getStartOptionsValidationMessage(option);
+        Optional<String> res = underTest.getStartOptionsValidationMessage(option, 0L, 0L);
         assertThat(res).contains("The reroll set must be smaller then half the number of dice sides");
     }
 

@@ -37,6 +37,7 @@ public class ButtonEventAdapterImpl extends DiscordAdapterImpl implements Button
     private final long messageId;
     private final long channelId;
     private final Long guildId;
+    private final long userId;
     private final boolean isPinned;
     @NonNull
     private final Requester requester;
@@ -52,7 +53,13 @@ public class ButtonEventAdapterImpl extends DiscordAdapterImpl implements Button
         this.isPinned = event.getMessage().isPinned();
         this.guildId = Optional.ofNullable(event.getGuild()).map(Guild::getIdLong).orElse(null);
         this.channelId = event.getChannel().getIdLong();
+        this.userId = event.getUser().getIdLong();
         this.invokingGuildMemberName = Optional.ofNullable(event.getMember()).map(Member::getEffectiveName).orElse(event.getUser().getName());
+    }
+
+    @Override
+    public long getUserId() {
+        return userId;
     }
 
     @Override

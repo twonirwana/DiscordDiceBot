@@ -22,7 +22,7 @@ import static org.mockito.Mockito.mock;
 
 class WelcomeCommandTest {
 
-    final WelcomeCommand underTest = new WelcomeCommand(mock(PersistenceManager.class), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0),() -> UUID.fromString("00000000-0000-0000-0000-000000000000"));
+    final WelcomeCommand underTest = new WelcomeCommand(mock(PersistenceManager.class), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0), () -> UUID.fromString("00000000-0000-0000-0000-000000000000"));
 
     @Test
     public void getButtonMessageWithState_fate() {
@@ -357,7 +357,7 @@ class WelcomeCommandTest {
 
     @Test
     public void getAnswer() {
-        assertThat(underTest.getAnswer(null, null)).isEmpty();
+        assertThat(underTest.getAnswer(null, null, 0L, 0L)).isEmpty();
     }
 
 

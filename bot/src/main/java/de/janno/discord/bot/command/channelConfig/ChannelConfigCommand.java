@@ -1,13 +1,15 @@
-package de.janno.discord.bot.command.directRoll;
+package de.janno.discord.bot.command.channelConfig;
 
 import com.google.common.collect.ImmutableList;
 import de.janno.discord.bot.BotMetrics;
 import de.janno.discord.bot.ResultImage;
 import de.janno.discord.bot.command.AnswerFormatType;
 import de.janno.discord.bot.command.DefaultCommandOptions;
+import de.janno.discord.bot.command.directRoll.DirectRollCommand;
 import de.janno.discord.bot.persistance.ChannelConfigDTO;
 import de.janno.discord.bot.persistance.Mapper;
 import de.janno.discord.bot.persistance.PersistenceManager;
+import de.janno.discord.connector.api.SlashCommand;
 import de.janno.discord.connector.api.SlashEventAdaptor;
 import de.janno.discord.connector.api.slash.CommandDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinitionOption;
@@ -23,11 +25,15 @@ import java.util.UUID;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-@Slf4j
-public class DirectRollConfigCommand extends AbstractDirectRollCommand {
+import static de.janno.discord.bot.command.channelConfig.AliasHelper.*;
 
-    private static final String SAVE_CONFIG_ACTION = "save_config";
-    private static final String DELETE_CONFIG_ACTION = "delete_config";
+@Slf4j
+public class ChannelConfigCommand implements SlashCommand {
+
+    public static final String DIRECT_ROLL_CONFIG_TYPE_ID = "DirectRollConfig";
+    private static final String COMMAND_ID = "channel_config";
+    private static final String SAVE_DIRECT_ROLL_CONFIG_ACTION = "save_direct_roll_config";
+    private static final String DELETE_DIRECT_ROLL_CONFIG_ACTION = "delete_direct_roll_config";
     private static final String ALWAYS_SUM_RESULTS_COMMAND_OPTIONS_ID = "always_sum_result";
     private static final String CHANNEL_ALIAS = "channel_alias";
     private static final String USER_CHANNEL_ALIAS = "user_channel_alias";
@@ -36,7 +42,6 @@ public class DirectRollConfigCommand extends AbstractDirectRollCommand {
     private static final String ALIAS_VALUE_OPTION = "value";
     private static final String LIST_ALIAS_ACTION = "list";
     private static final String DELETE_ALIAS_ACTION = "delete";
-
     private static final CommandDefinitionOption SAVE_ALIAS_OPTION = CommandDefinitionOption.builder()
             .type(CommandDefinitionOption.Type.SUB_COMMAND)
             .name(SAVE_ALIAS_ACTION)
@@ -54,7 +59,6 @@ public class DirectRollConfigCommand extends AbstractDirectRollCommand {
                     .required(true)
                     .build())
             .build();
-
     private static final CommandDefinitionOption DELETE_ALIAS_OPTION = CommandDefinitionOption.builder()
             .type(CommandDefinitionOption.Type.SUB_COMMAND)
             .name(DELETE_ALIAS_ACTION)
@@ -66,29 +70,29 @@ public class DirectRollConfigCommand extends AbstractDirectRollCommand {
                     .required(true)
                     .build())
             .build();
-
     private static final CommandDefinitionOption LIST_ALIAS_OPTION = CommandDefinitionOption.builder()
             .type(CommandDefinitionOption.Type.SUB_COMMAND)
             .name(LIST_ALIAS_ACTION)
             .description("List all alias")
             .build();
+    private final PersistenceManager persistenceManager;
 
-    public DirectRollConfigCommand(PersistenceManager persistenceManager) {
-        super(persistenceManager);
+    public ChannelConfigCommand(PersistenceManager persistenceManager) {
+        this.persistenceManager = persistenceManager;
     }
 
     @Override
     public String getCommandId() {
-        return "direct_roll_config";
+        return COMMAND_ID;
     }
 
     @Override
     public CommandDefinition getCommandDefinition() {
         return CommandDefinition.builder()
                 .name(getCommandId())
-                .description("Configure the direct roll command in this channel")
+                .description("Configure options in this channel")
                 .option(CommandDefinitionOption.builder()
-                        .name(SAVE_CONFIG_ACTION)
+                        .name(SAVE_DIRECT_ROLL_CONFIG_ACTION)
                         .description("add or update the channel config")
                         .type(CommandDefinitionOption.Type.SUB_COMMAND)
                         .option(DefaultCommandOptions.ANSWER_FORMAT_COMMAND_OPTION)
@@ -101,7 +105,7 @@ public class DirectRollConfigCommand extends AbstractDirectRollCommand {
                                 .build())
                         .build())
                 .option(CommandDefinitionOption.builder()
-                        .name(DELETE_CONFIG_ACTION)
+                        .name(DELETE_DIRECT_ROLL_CONFIG_ACTION)
                         .description("remove the current channel config")
                         .type(CommandDefinitionOption.Type.SUB_COMMAND_GROUP)
                         .build())
@@ -124,27 +128,27 @@ public class DirectRollConfigCommand extends AbstractDirectRollCommand {
                 .build();
     }
 
-    private String serializeConfig(DirectRollConfig directRollConfig) {
-        return Mapper.serializedObject(directRollConfig);
+    private String serializeConfig(DirectRollConfig channelConfig) {
+        return Mapper.serializedObject(channelConfig);
     }
 
     @Override
     public Mono<Void> handleSlashCommandEvent(@NonNull SlashEventAdaptor event, @NonNull Supplier<UUID> uuidSupplier) {
-        if (event.getOption(SAVE_CONFIG_ACTION).isPresent()) {
-            CommandInteractionOption saveAction = event.getOption(SAVE_CONFIG_ACTION).get();
+        if (event.getOption(SAVE_DIRECT_ROLL_CONFIG_ACTION).isPresent()) {
+            CommandInteractionOption saveAction = event.getOption(SAVE_DIRECT_ROLL_CONFIG_ACTION).get();
             boolean alwaysSumResults = saveAction.getBooleanSubOptionWithName(ALWAYS_SUM_RESULTS_COMMAND_OPTIONS_ID).orElse(true);
             AnswerFormatType answerType = DefaultCommandOptions.getAnswerTypeFromStartCommandOption(saveAction).orElse(AnswerFormatType.full);
             ResultImage resultImage = DefaultCommandOptions.getResultImageOptionFromStartCommandOption(saveAction).orElse(ResultImage.polyhedral_3d_red_and_white);
             DirectRollConfig config = new DirectRollConfig(null, alwaysSumResults, answerType, resultImage);
             BotMetrics.incrementSlashStartMetricCounter(getCommandId(), config.toShortString());
             return Mono.defer(() -> {
-                persistenceManager.deleteChannelConfig(event.getChannelId(), CONFIG_TYPE_ID);
+                persistenceManager.deleteChannelConfig(event.getChannelId(), DIRECT_ROLL_CONFIG_TYPE_ID);
                 persistenceManager.saveChannelConfig(new ChannelConfigDTO(uuidSupplier.get(),
                         event.getGuildId(),
                         event.getChannelId(),
                         null,
-                        ROLL_COMMAND_ID,
-                        CONFIG_TYPE_ID,
+                        DirectRollCommand.ROLL_COMMAND_ID,
+                        DIRECT_ROLL_CONFIG_TYPE_ID,
                         serializeConfig(config)
                 ));
                 log.info("{}: '{}' -> {}",
@@ -155,14 +159,14 @@ public class DirectRollConfigCommand extends AbstractDirectRollCommand {
                 return event.reply("`%s`\nSaved direct roll channel config".formatted(event.getCommandString()), false);
             });
         }
-        if (event.getOption(DELETE_CONFIG_ACTION).isPresent()) {
+        if (event.getOption(DELETE_DIRECT_ROLL_CONFIG_ACTION).isPresent()) {
             BotMetrics.incrementSlashStartMetricCounter(getCommandId(), "delete");
             return Mono.defer(() -> {
                 log.info("{}: '{}'",
                         event.getRequester().toLogString(),
                         event.getCommandString().replace("`", "")
                 );
-                persistenceManager.deleteChannelConfig(event.getChannelId(), CONFIG_TYPE_ID);
+                persistenceManager.deleteChannelConfig(event.getChannelId(), DIRECT_ROLL_CONFIG_TYPE_ID);
                 return event.reply("`%s`\nDeleted direct roll channel config".formatted(event.getCommandString()), false);
             });
         }
@@ -175,7 +179,6 @@ public class DirectRollConfigCommand extends AbstractDirectRollCommand {
         log.error("unknown option for slash event: {} ", event.getOptions());
         return event.reply("Unknown slash event options", false);
     }
-
 
     private Mono<Void> handelChannelEvent(@NonNull SlashEventAdaptor event, @Nullable Long userId) {
         String type = userId == null ? "channel_alias" : "user_channel_alias";
@@ -235,9 +238,9 @@ public class DirectRollConfigCommand extends AbstractDirectRollCommand {
 
     private List<Alias> loadAlias(long channelId, Long userId) {
         if (userId == null) {
-            return getChannelAlias(channelId);
+            return getChannelAlias(channelId, persistenceManager);
         } else {
-            return getUserChannelAlias(channelId, userId);
+            return getUserChannelAlias(channelId, userId, persistenceManager);
         }
     }
 
@@ -254,7 +257,7 @@ public class DirectRollConfigCommand extends AbstractDirectRollCommand {
                 guildId,
                 channelId,
                 userId,
-                ROLL_COMMAND_ID,
+                getCommandId(),
                 userId == null ? CHANNEL_ALIAS_CONFIG_TYPE_ID : USER_ALIAS_CONFIG_TYPE_ID,
                 Mapper.serializedObject(new AliasConfig(aliasList))));
     }

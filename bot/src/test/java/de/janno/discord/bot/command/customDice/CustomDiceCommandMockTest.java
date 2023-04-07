@@ -8,6 +8,7 @@ import de.janno.discord.bot.SlashEventAdaptorMock;
 import de.janno.discord.bot.command.AnswerFormatType;
 import de.janno.discord.bot.command.ButtonIdLabelAndDiceExpression;
 import de.janno.discord.bot.command.StateData;
+import de.janno.discord.bot.command.channelConfig.ChannelConfigCommand;
 import de.janno.discord.bot.dice.CachingDiceEvaluator;
 import de.janno.discord.bot.dice.DiceParser;
 import de.janno.discord.bot.dice.DiceParserSystem;
@@ -347,6 +348,64 @@ public class CustomDiceCommandMockTest {
         assertThat(buttonEvent2.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:Click on a button to roll the dice, buttonValues=1_button",
                 "createAnswer: title=Dmg ⇒ 1, description=1d6: [1], fieldValues:, answerChannel:2, type:EMBED"
+        );
+    }
+
+    @Test
+    void channelAlias() {
+        CachingDiceEvaluator cachingDiceEvaluator = new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 100);
+        CustomDiceCommand underTest = new CustomDiceCommand(persistenceManager, new DiceParser(), cachingDiceEvaluator);
+        ChannelConfigCommand channelConfig = new ChannelConfigCommand(persistenceManager);
+
+        SlashEventAdaptorMock slashEvent1 = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
+                .name("channel_alias")
+                .option(CommandInteractionOption.builder()
+                        .name("save")
+                        .option(CommandInteractionOption.builder().name("name").stringValue("att").build())
+                        .option(CommandInteractionOption.builder().name("value").stringValue("2d20+10").build())
+                        .build())
+                .build()));
+        channelConfig.handleSlashCommandEvent(slashEvent1, () -> UUID.fromString("00000000-0000-0000-0000-000000000000")).block();
+
+
+        CustomDiceConfig config = new CustomDiceConfig(2L, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "att")), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full, ResultImage.none);
+        ButtonEventAdaptorMockFactory<CustomDiceConfig, StateData> factory = new ButtonEventAdaptorMockFactory<>("custom_dice", underTest, config, persistenceManager, false);
+        ButtonEventAdaptorMock buttonEvent = factory.getButtonClickOnLastButtonMessage("1_button");
+
+        underTest.handleComponentInteractEvent(buttonEvent).block();
+
+        assertThat(buttonEvent.getActions()).containsExactlyInAnyOrder(
+                "editMessage: message:Click on a button to roll the dice, buttonValues=1_button",
+                "createAnswer: title=Dmg ⇒ 11, 10, 10, description=2d20+10: [11, 10], fieldValues:, answerChannel:2, type:EMBED"
+        );
+    }
+
+    @Test
+    void userChannelAlias() {
+        CachingDiceEvaluator cachingDiceEvaluator = new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 100);
+        CustomDiceCommand underTest = new CustomDiceCommand(persistenceManager, new DiceParser(), cachingDiceEvaluator);
+        ChannelConfigCommand channelConfig = new ChannelConfigCommand(persistenceManager);
+
+        SlashEventAdaptorMock slashEvent1 = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
+                .name("user_channel_alias")
+                .option(CommandInteractionOption.builder()
+                        .name("save")
+                        .option(CommandInteractionOption.builder().name("name").stringValue("att").build())
+                        .option(CommandInteractionOption.builder().name("value").stringValue("2d20+10").build())
+                        .build())
+                .build()));
+        channelConfig.handleSlashCommandEvent(slashEvent1, () -> UUID.fromString("00000000-0000-0000-0000-000000000000")).block();
+
+
+        CustomDiceConfig config = new CustomDiceConfig(2L, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "att")), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full, ResultImage.none);
+        ButtonEventAdaptorMockFactory<CustomDiceConfig, StateData> factory = new ButtonEventAdaptorMockFactory<>("custom_dice", underTest, config, persistenceManager, false);
+        ButtonEventAdaptorMock buttonEvent = factory.getButtonClickOnLastButtonMessage("1_button");
+
+        underTest.handleComponentInteractEvent(buttonEvent).block();
+
+        assertThat(buttonEvent.getActions()).containsExactlyInAnyOrder(
+                "editMessage: message:Click on a button to roll the dice, buttonValues=1_button",
+                "createAnswer: title=Dmg ⇒ 11, 10, 10, description=2d20+10: [11, 10], fieldValues:, answerChannel:2, type:EMBED"
         );
     }
 }

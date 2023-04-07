@@ -251,13 +251,13 @@ class SumDiceSetCommandTest {
     void getAnswer_roll_true() {
         Optional<RollAnswer> res = underTest.getAnswer(new Config(null, AnswerFormatType.full, ResultImage.none), new State<>("roll", new SumDiceSetStateData(ImmutableList.of(new DiceKeyAndValue(
                 "d6", 1
-        )))));
+        )))), 0L, 0L);
         assertThat(res).isNotEmpty();
     }
 
     @Test
     void getAnswer_rollNoConfig_false() {
-        Optional<RollAnswer> res = underTest.getAnswer(new Config(null, AnswerFormatType.full, ResultImage.none), new State<>("roll", new SumDiceSetStateData(ImmutableList.of())));
+        Optional<RollAnswer> res = underTest.getAnswer(new Config(null, AnswerFormatType.full, ResultImage.none), new State<>("roll", new SumDiceSetStateData(ImmutableList.of())), 0L, 0L);
         assertThat(res).isEmpty();
     }
 
@@ -265,7 +265,7 @@ class SumDiceSetCommandTest {
     void getAnswer_modifyMessage_false() {
         Optional<RollAnswer> res = underTest.getAnswer(new Config(null, AnswerFormatType.full, ResultImage.none), new State<>("+1d6", new SumDiceSetStateData(ImmutableList.of(new DiceKeyAndValue(
                 "d6", 1
-        )))));
+        )))), 0L, 0L);
         assertThat(res).isEmpty();
     }
 
@@ -319,7 +319,7 @@ class SumDiceSetCommandTest {
                         "d4", 1),
                 new DiceKeyAndValue("d6", 1),
                 new DiceKeyAndValue("m", 10)
-        )))).orElseThrow());
+        ))), 0L, 0L).orElseThrow());
 
         assertThat(res.getFields()).hasSize(0);
         assertThat(res.getTitle()).isEqualTo("1d4 +1d6 +10 ⇒ 12");
@@ -332,7 +332,7 @@ class SumDiceSetCommandTest {
                         "d4", -1),
                 new DiceKeyAndValue("d6", 1),
                 new DiceKeyAndValue("m", -10)
-        )))).orElseThrow());
+        ))), 0L, 0L).orElseThrow());
 
         assertThat(res.getFields()).hasSize(0);
         assertThat(res.getTitle()).isEqualTo("-1d4 +1d6 -10 ⇒ -10");

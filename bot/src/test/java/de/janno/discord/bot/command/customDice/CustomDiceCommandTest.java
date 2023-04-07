@@ -124,7 +124,7 @@ class CustomDiceCommandTest {
     @Test
     void getDiceResult_1d6() {
         when(diceMock.detailedRoll("1d6")).thenReturn(new ResultTree(new NDice(6, 1), 3, ImmutableList.of()));
-        EmbedOrMessageDefinition res = RollAnswerConverter.toEmbedOrMessageDefinition(underTest.getAnswer(new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "1d6", "1d6")), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full, ResultImage.none), new State<>("1_button", StateData.empty()))
+        EmbedOrMessageDefinition res = RollAnswerConverter.toEmbedOrMessageDefinition(underTest.getAnswer(new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "1d6", "1d6")), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full, ResultImage.none), new State<>("1_button", StateData.empty()), 0, 0)
                 .orElseThrow());
 
         assertThat(res.getFields()).hasSize(0);
@@ -135,7 +135,7 @@ class CustomDiceCommandTest {
     @Test
     void getDiceResult_diceParser_3x1d6() {
         when(diceMock.detailedRoll("1d6")).thenReturn(new ResultTree(new NDice(6, 1), 6, ImmutableList.of()));
-        EmbedOrMessageDefinition res = RollAnswerConverter.toEmbedOrMessageDefinition(underTest.getAnswer(new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "3x[1d6]", "3x[1d6]")), DiceParserSystem.DICEROLL_PARSER, AnswerFormatType.full, ResultImage.none), new State<>("1_button", StateData.empty()))
+        EmbedOrMessageDefinition res = RollAnswerConverter.toEmbedOrMessageDefinition(underTest.getAnswer(new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "3x[1d6]", "3x[1d6]")), DiceParserSystem.DICEROLL_PARSER, AnswerFormatType.full, ResultImage.none), new State<>("1_button", StateData.empty()), 0, 0)
                 .orElseThrow());
 
         assertThat(res).isEqualTo(new EmbedOrMessageDefinition("Multiple Results", null, ImmutableList.of(
@@ -147,7 +147,7 @@ class CustomDiceCommandTest {
 
     @Test
     void getDiceResult_diceEvaluator_3x1d6() {
-        EmbedOrMessageDefinition res = RollAnswerConverter.toEmbedOrMessageDefinition(underTest.getAnswer(new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "3x1d6", "3x1d6")), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full, ResultImage.none), new State<>("1_button", StateData.empty()))
+        EmbedOrMessageDefinition res = RollAnswerConverter.toEmbedOrMessageDefinition(underTest.getAnswer(new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "3x1d6", "3x1d6")), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full, ResultImage.none), new State<>("1_button", StateData.empty()), 0, 0)
                 .orElseThrow());
 
         assertThat(res).isEqualTo(new EmbedOrMessageDefinition("3x1d6", null, ImmutableList.of(
@@ -160,7 +160,7 @@ class CustomDiceCommandTest {
 
     @Test
     void getDiceResult_1d6Label() {
-        EmbedOrMessageDefinition res = RollAnswerConverter.toEmbedOrMessageDefinition(underTest.getAnswer(new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Label", "1d6")), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full, ResultImage.none), new State<>("1_button", StateData.empty()))
+        EmbedOrMessageDefinition res = RollAnswerConverter.toEmbedOrMessageDefinition(underTest.getAnswer(new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Label", "1d6")), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full, ResultImage.none), new State<>("1_button", StateData.empty()), 0, 0)
                 .orElseThrow());
 
         assertThat(res.getFields()).hasSize(0);
@@ -170,7 +170,7 @@ class CustomDiceCommandTest {
 
     @Test
     void getDiceResult_3x1d6Label() {
-        EmbedOrMessageDefinition res = RollAnswerConverter.toEmbedOrMessageDefinition(underTest.getAnswer(new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Label", "1d6,1d6,1d6")), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full, ResultImage.none), new State<>("1_button", StateData.empty()))
+        EmbedOrMessageDefinition res = RollAnswerConverter.toEmbedOrMessageDefinition(underTest.getAnswer(new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Label", "1d6,1d6,1d6")), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full, ResultImage.none), new State<>("1_button", StateData.empty()), 0, 0)
                 .orElseThrow());
 
         assertThat(res).isEqualTo(new EmbedOrMessageDefinition("Label", null, ImmutableList.of(new EmbedOrMessageDefinition.Field("1d6 ⇒ 3", "[3]", false), new EmbedOrMessageDefinition.Field("1d6 ⇒ 3", "[3]", false), new EmbedOrMessageDefinition.Field("1d6 ⇒ 3", "[3]", false)), null, EmbedOrMessageDefinition.Type.EMBED));
@@ -269,7 +269,7 @@ class CustomDiceCommandTest {
                         .build())
                 .build();
 
-        Optional<String> res = underTest.getStartOptionsValidationMessage(option);
+        Optional<String> res = underTest.getStartOptionsValidationMessage(option, 0L, 0L);
 
         assertThat(res).isEmpty();
     }
@@ -284,7 +284,7 @@ class CustomDiceCommandTest {
                         .build())
                 .build();
 
-        Optional<String> res = underTest.getStartOptionsValidationMessage(option);
+        Optional<String> res = underTest.getStartOptionsValidationMessage(option, 0L, 0L);
 
         assertThat(res).contains("The following expression is invalid: '2d6*10'. The error is: '*' requires as left input a single integer but was '[3, 3]'. Try to sum the numbers together like (2d6=). Use /custom_dice help to get more information on how to use the command.");
     }

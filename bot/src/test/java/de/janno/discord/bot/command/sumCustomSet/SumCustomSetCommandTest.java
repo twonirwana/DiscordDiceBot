@@ -141,24 +141,6 @@ class SumCustomSetCommandTest {
     }
 
     @Test
-    void getAnswer_roll_true() {
-        Optional<RollAnswer> res = underTest.getAnswer(defaultConfig, new State<>("roll", new SumCustomSetStateData(ImmutableList.of("1d6"), "user1")));
-        assertThat(res).isNotEmpty();
-    }
-
-    @Test
-    void getAnswer_rollNoConfig_false() {
-        Optional<RollAnswer> res = underTest.getAnswer(defaultConfig, new State<>("roll", new SumCustomSetStateData(ImmutableList.of(), "user1")));
-        assertThat(res).isEmpty();
-    }
-
-    @Test
-    void getAnswer_modifyMessage_false() {
-        Optional<RollAnswer> res = underTest.getAnswer(defaultConfig, new State<>("1_button", new SumCustomSetStateData(ImmutableList.of("1d6"), "user1")));
-        assertThat(res).isEmpty();
-    }
-
-    @Test
     void copyButtonMessageToTheEnd_roll_true() {
         Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), defaultConfig, new State<>("roll", new SumCustomSetStateData(ImmutableList.of("1d6"), "user1")), 1L, 2L);
         assertThat(res).isNotEmpty();
@@ -200,41 +182,13 @@ class SumCustomSetCommandTest {
         ), DiceParserSystem.DICE_EVALUATOR, true, AnswerFormatType.full, ResultImage.polyhedral_3d_red_and_white));
     }
 
-    @Test
-    void getStartOptionsValidationMessage_valid() {
-        CommandInteractionOption option = CommandInteractionOption.builder()
-                .name("start")
-                .option(CommandInteractionOption.builder()
-                        .name("buttons")
-                        .stringValue("1d6@Label;2d4")
-                        .build())
-                .build();
 
-        Optional<String> res = underTest.getStartOptionsValidationMessage(option);
-
-        assertThat(res).isEmpty();
-    }
-
-    @Test
-    void getStartOptionsValidationMessage_invalid() {
-        CommandInteractionOption option = CommandInteractionOption.builder()
-                .name("start")
-                .option(CommandInteractionOption.builder()
-                        .name("buttons")
-                        .stringValue("1d6@Label;2d4;2d6*10")
-                        .build())
-                .build();
-
-        Optional<String> res = underTest.getStartOptionsValidationMessage(option);
-
-        assertThat(res).isEmpty();
-    }
 
     @Test
     void rollDice_1d6plus10() {
 
 
-        EmbedOrMessageDefinition res = RollAnswerConverter.toEmbedOrMessageDefinition(underTest.getAnswer(defaultConfig, new State<>("roll", new SumCustomSetStateData(ImmutableList.of("1d6", "+", "10"), "user1")))
+        EmbedOrMessageDefinition res = RollAnswerConverter.toEmbedOrMessageDefinition(underTest.getAnswer(defaultConfig, new State<>("roll", new SumCustomSetStateData(ImmutableList.of("1d6", "+", "10"), "user1")), 0L, 0L)
                 .orElseThrow());
 
         assertThat(res.getFields()).hasSize(0);

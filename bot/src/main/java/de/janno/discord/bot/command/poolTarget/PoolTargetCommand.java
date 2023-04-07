@@ -179,7 +179,7 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTar
     }
 
     @Override
-    protected @NonNull Optional<RollAnswer> getAnswer(PoolTargetConfig config, State<PoolTargetStateData> state) {
+    protected @NonNull Optional<RollAnswer> getAnswer(PoolTargetConfig config, State<PoolTargetStateData> state, long channelId, long userId) {
         Optional<PoolTargetStateData> stateData = Optional.ofNullable(state.getData());
         if (stateData.map(PoolTargetStateData::getDicePool).isEmpty() ||
                 stateData.map(PoolTargetStateData::getTargetNumber).isEmpty() ||
@@ -299,7 +299,7 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTar
 
 
     @Override
-    protected Optional<List<ComponentRowDefinition>> getCurrentMessageComponentChange(UUID configUUID, PoolTargetConfig config, State<PoolTargetStateData> state) {
+    protected Optional<List<ComponentRowDefinition>> getCurrentMessageComponentChange(UUID configUUID, PoolTargetConfig config, State<PoolTargetStateData> state, long channelId, long userId) {
         if (Optional.ofNullable(state.getData()).map(PoolTargetStateData::getDicePool).orElse(null) == null && !CLEAR_BUTTON_ID.equals(state.getButtonValue())) {
             return Optional.empty();
         }
@@ -388,7 +388,7 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTar
     }
 
     @Override
-    protected @NonNull Optional<String> getStartOptionsValidationMessage(@NonNull CommandInteractionOption options) {
+    protected @NonNull Optional<String> getStartOptionsValidationMessage(@NonNull CommandInteractionOption options, long channelId, long userId) {
         Optional<String> botchSetValidation = CommandUtils.validateIntegerSetFromCommandOptions(options, BOTCH_SET_OPTION, ",");
         if (botchSetValidation.isPresent()) {
             return botchSetValidation;
