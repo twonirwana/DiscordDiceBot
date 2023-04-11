@@ -9,7 +9,7 @@ dependencyResolutionManagement {
     versionCatalogs {
         create("libs") {
             library("lombok", "org.projectlombok:lombok:1.18.26")
-            library("micrometer-core", "io.micrometer:micrometer-core:1.10.5")
+            library("micrometer-core", "io.micrometer:micrometer-core:1.10.6")
             library("reactor-core", "io.projectreactor:reactor-core:3.5.4")
             library("guava", "com.google.guava:guava:31.1-jre")
             library("junit-jupiter-api", "org.junit.jupiter:junit-jupiter-api:5.9.2")
