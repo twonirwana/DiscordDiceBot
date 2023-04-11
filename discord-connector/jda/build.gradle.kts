@@ -9,7 +9,7 @@ repositories {
 dependencies {
     implementation( project(":discord-connector:api"))
 
-    implementation("net.dv8tion:JDA:5.0.0-beta.6")
+    implementation("net.dv8tion:JDA:5.0.0-beta.8")
     implementation(libs.reactor.core)
     implementation(libs.logback.classic)
     implementation(libs.log4j.to.slf4j)
