@@ -17,7 +17,7 @@ public final class DefaultCommandOptions {
 
     public static final CommandDefinitionOption ANSWER_TARGET_CHANNEL_COMMAND_OPTION = CommandDefinitionOption.builder()
             .name(ANSWER_TARGET_CHANNEL_OPTION)
-            .description("The channel where the answer will be given")
+            .description("Another channel where the answer will be given")
             .type(CommandDefinitionOption.Type.CHANNEL)
             .build();
 

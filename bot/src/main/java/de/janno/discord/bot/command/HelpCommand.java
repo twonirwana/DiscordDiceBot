@@ -9,6 +9,9 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
+import java.util.UUID;
+import java.util.function.Supplier;
+
 @Slf4j
 public class HelpCommand implements SlashCommand {
     @Override
@@ -25,7 +28,7 @@ public class HelpCommand implements SlashCommand {
     }
 
     @Override
-    public Mono<Void> handleSlashCommandEvent(@NonNull SlashEventAdaptor event) {
+    public Mono<Void> handleSlashCommandEvent(@NonNull SlashEventAdaptor event, @NonNull Supplier<UUID> uuidSupplier) {
         BotMetrics.incrementSlashStartMetricCounter(getCommandId(), "[]");
         return event.replyEmbed(EmbedOrMessageDefinition.builder()
                 .field(new EmbedOrMessageDefinition.Field("Command help", "type '/count_successes help', '/custom_dice help' or '/fate help' to get help for the commands", false))

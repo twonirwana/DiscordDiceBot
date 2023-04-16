@@ -1,5 +1,6 @@
 package de.janno.discord.bot.command;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import de.janno.discord.bot.BotMetrics;
@@ -18,8 +19,9 @@ import de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommand;
 import de.janno.discord.bot.command.sumCustomSet.SumCustomSetConfig;
 import de.janno.discord.bot.dice.CachingDiceEvaluator;
 import de.janno.discord.bot.dice.DiceParserSystem;
-import de.janno.discord.bot.persistance.PersistanceManager;
+import de.janno.discord.bot.persistance.MessageConfigDTO;
 import de.janno.discord.bot.persistance.MessageDataDTO;
+import de.janno.discord.bot.persistance.PersistenceManager;
 import de.janno.discord.connector.api.BottomCustomIdUtils;
 import de.janno.discord.connector.api.ButtonEventAdaptor;
 import de.janno.discord.connector.api.message.ButtonDefinition;
@@ -32,6 +34,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.function.Supplier;
 
 @Slf4j
 public class WelcomeCommand extends AbstractCommand<Config, StateData> {
@@ -82,19 +85,32 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
             new ButtonIdLabelAndDiceExpression("12_button", "1", "1"), new ButtonIdLabelAndDiceExpression("13_button", "2", "2"), new ButtonIdLabelAndDiceExpression("14_button", "3", "3"), new ButtonIdLabelAndDiceExpression("15_button", "0", "0"), new ButtonIdLabelAndDiceExpression("16_button", "l", "l")
     ), DiceParserSystem.DICE_EVALUATOR, true, AnswerFormatType.full, ResultImage.none);
     private final CustomParameterConfig FATE_WITH_IMAGE_CONFIG = new CustomParameterConfig(null, "4d[-1,0,1]+{Modifier:-4<=>10}=", DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.without_expression, ResultImage.fate_black);
-
     private final CachingDiceEvaluator cachingDiceEvaluator;
-    public WelcomeCommand(PersistanceManager persistanceManager, CachingDiceEvaluator cachingDiceEvaluator) {
-        super(persistanceManager);
+    private final Supplier<UUID> uuidSupplier;
+
+
+    public WelcomeCommand(PersistenceManager persistenceManager, CachingDiceEvaluator cachingDiceEvaluator) {
+        this(persistenceManager, cachingDiceEvaluator, UUID::randomUUID);
+    }
+
+    @VisibleForTesting
+    public WelcomeCommand(PersistenceManager persistenceManager, CachingDiceEvaluator cachingDiceEvaluator, Supplier<UUID> uuidSupplier) {
+        super(persistenceManager);
         this.cachingDiceEvaluator = cachingDiceEvaluator;
+        this.uuidSupplier = uuidSupplier;
     }
 
     @Override
-    protected Optional<ConfigAndState<Config, StateData>> getMessageDataAndUpdateWithButtonValue(long channelId,
-                                                                                                 long messageId,
-                                                                                                 @NonNull String buttonValue,
-                                                                                                 @NonNull String invokingUserName) {
-        return Optional.of(new ConfigAndState<>(UUID.randomUUID(), new Config(null, AnswerFormatType.full, ResultImage.none), new State<>(buttonValue, StateData.empty())));
+    protected ConfigAndState<Config, StateData> getMessageDataAndUpdateWithButtonValue(@NonNull MessageConfigDTO messageConfigDTO,
+                                                                                       @NonNull MessageDataDTO messageDataDTO,
+                                                                                       @NonNull String buttonValue,
+                                                                                       @NonNull String invokingUserName) {
+        return new ConfigAndState<>(messageConfigDTO.getConfigUUID(), new Config(null, AnswerFormatType.full, ResultImage.none), new State<>(buttonValue, StateData.empty()));
+    }
+
+    @Override
+    protected @NonNull Optional<MessageConfigDTO> getMessageConfigDTO(@Nullable UUID configId, long channelId, long messageId) {
+        return Optional.of(new MessageConfigDTO(uuidSupplier.get(), null, channelId, getCommandId(), "None", "None"));
     }
 
     @Override
@@ -113,38 +129,8 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
     }
 
     @Override
-    public Optional<MessageDataDTO> createMessageDataForNewMessage(@NonNull UUID configUUID,
-                                                                   long guildId,
-                                                                   long channelId,
-                                                                   long messageId,
-                                                                   @NonNull Config config,
-                                                                   @Nullable State<StateData> state) {
-        if (state == null) {
-            return Optional.empty();
-        }
-        if (ButtonIds.isInvalid(state.getButtonValue())) {
-            return Optional.empty();
-        }
-        return switch (ButtonIds.valueOf(state.getButtonValue())) {
-            case fate ->
-                    new FateCommand(persistanceManager).createMessageDataForNewMessage(configUUID, guildId, channelId, messageId, FATE_CONFIG, null);
-            case fate_image ->
-                    new CustomParameterCommand(persistanceManager, cachingDiceEvaluator).createMessageDataForNewMessage(configUUID, guildId, channelId, messageId, FATE_WITH_IMAGE_CONFIG, null);
-            case dnd5 ->
-                    new CustomDiceCommand(persistanceManager, cachingDiceEvaluator).createMessageDataForNewMessage(configUUID, guildId, channelId, messageId, DND5_CONFIG, null);
-            case dnd5_image ->
-                    new CustomDiceCommand(persistanceManager, cachingDiceEvaluator).createMessageDataForNewMessage(configUUID, guildId, channelId, messageId, DND5_CONFIG_WITH_IMAGE, null);
-            case nWoD ->
-                    new CountSuccessesCommand(persistanceManager).createMessageDataForNewMessage(configUUID, guildId, channelId, messageId, NWOD_CONFIG, null);
-            case oWoD ->
-                    new PoolTargetCommand(persistanceManager).createMessageDataForNewMessage(configUUID, guildId, channelId, messageId, OWOD_CONFIG, null);
-            case shadowrun ->
-                    new CountSuccessesCommand(persistanceManager).createMessageDataForNewMessage(configUUID, guildId, channelId, messageId, SHADOWRUN_CONFIG, null);
-            case coin ->
-                    new CustomDiceCommand(persistanceManager, cachingDiceEvaluator).createMessageDataForNewMessage(configUUID, guildId, channelId, messageId, COIN_CONFIG, null);
-            case dice_calculator ->
-                    new SumCustomSetCommand(persistanceManager, cachingDiceEvaluator).createMessageDataForNewMessage(configUUID, guildId, channelId, messageId, DICE_CALCULATOR_CONFIG, null);
-        };
+    public Optional<MessageConfigDTO> createMessageConfig(@NonNull UUID configUUID, long guildId, long channelId, @NonNull Config config) {
+        return Optional.empty();
     }
 
     @Override
@@ -166,28 +152,58 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
     }
 
     @Override
-    protected @NonNull Optional<MessageDefinition> createNewButtonMessageWithState(Config config, State<StateData> state) {
+    protected @NonNull Optional<MessageDefinition> createNewButtonMessageWithState(UUID configUUID, Config config, State<StateData> state, long guildId, long channelId) {
         BotMetrics.incrementButtonMetricCounter(COMMAND_NAME, "[" + state.getButtonValue() + "]");
         if (ButtonIds.isInvalid(state.getButtonValue())) {
             return Optional.empty();
         }
+        UUID newConfigUUID = uuidSupplier.get();
         return switch (ButtonIds.valueOf(state.getButtonValue())) {
-            case fate -> Optional.of(new FateCommand(persistanceManager).createNewButtonMessage(FATE_CONFIG));
-            case fate_image -> Optional.of(new CustomParameterCommand(persistanceManager, cachingDiceEvaluator).createNewButtonMessage(FATE_WITH_IMAGE_CONFIG));
-            case dnd5 -> Optional.of(new CustomDiceCommand(persistanceManager, cachingDiceEvaluator).createNewButtonMessage(DND5_CONFIG));
-            case dnd5_image ->
-                    Optional.of(new CustomDiceCommand(persistanceManager, cachingDiceEvaluator).createNewButtonMessage(DND5_CONFIG_WITH_IMAGE));
-            case nWoD -> Optional.of(new CountSuccessesCommand(persistanceManager).createNewButtonMessage(NWOD_CONFIG));
-            case oWoD -> Optional.of(new PoolTargetCommand(persistanceManager).createNewButtonMessage(OWOD_CONFIG));
-            case shadowrun -> Optional.of(
-                    new CountSuccessesCommand(persistanceManager).createNewButtonMessage(SHADOWRUN_CONFIG)
-            );
-            case coin -> Optional.of(
-                    new CustomDiceCommand(persistanceManager, cachingDiceEvaluator).createNewButtonMessage(COIN_CONFIG)
-            );
-            case dice_calculator -> Optional.of(
-                    new SumCustomSetCommand(persistanceManager, cachingDiceEvaluator).createNewButtonMessage(DICE_CALCULATOR_CONFIG)
-            );
+            case fate -> {
+                FateCommand command = new FateCommand(persistenceManager);
+                command.createMessageConfig(newConfigUUID, guildId, channelId, FATE_CONFIG).ifPresent(persistenceManager::saveMessageConfig);
+                yield Optional.of(command.createNewButtonMessage(newConfigUUID, FATE_CONFIG));
+            }
+            case fate_image -> {
+                CustomParameterCommand command = new CustomParameterCommand(persistenceManager, cachingDiceEvaluator);
+                command.createMessageConfig(newConfigUUID, guildId, channelId, FATE_WITH_IMAGE_CONFIG).ifPresent(persistenceManager::saveMessageConfig);
+                yield Optional.of(command.createNewButtonMessage(newConfigUUID, FATE_WITH_IMAGE_CONFIG));
+            }
+            case dnd5 -> {
+                CustomDiceCommand command = new CustomDiceCommand(persistenceManager, cachingDiceEvaluator);
+                command.createMessageConfig(newConfigUUID, guildId, channelId, DND5_CONFIG).ifPresent(persistenceManager::saveMessageConfig);
+                yield Optional.of(command.createNewButtonMessage(newConfigUUID, DND5_CONFIG));
+            }
+            case dnd5_image -> {
+                CustomDiceCommand command = new CustomDiceCommand(persistenceManager, cachingDiceEvaluator);
+                command.createMessageConfig(newConfigUUID, guildId, channelId, DND5_CONFIG_WITH_IMAGE).ifPresent(persistenceManager::saveMessageConfig);
+                yield Optional.of(command.createNewButtonMessage(newConfigUUID, DND5_CONFIG_WITH_IMAGE));
+            }
+            case nWoD -> {
+                CountSuccessesCommand command = new CountSuccessesCommand(persistenceManager);
+                command.createMessageConfig(newConfigUUID, guildId, channelId, NWOD_CONFIG).ifPresent(persistenceManager::saveMessageConfig);
+                yield Optional.of(command.createNewButtonMessage(newConfigUUID, NWOD_CONFIG));
+            }
+            case oWoD -> {
+                PoolTargetCommand command = new PoolTargetCommand(persistenceManager);
+                command.createMessageConfig(newConfigUUID, guildId, channelId, OWOD_CONFIG).ifPresent(persistenceManager::saveMessageConfig);
+                yield Optional.of(command.createNewButtonMessage(newConfigUUID, OWOD_CONFIG));
+            }
+            case shadowrun -> {
+                CountSuccessesCommand command = new CountSuccessesCommand(persistenceManager);
+                command.createMessageConfig(newConfigUUID, guildId, channelId, SHADOWRUN_CONFIG).ifPresent(persistenceManager::saveMessageConfig);
+                yield Optional.of(command.createNewButtonMessage(newConfigUUID, SHADOWRUN_CONFIG));
+            }
+            case coin -> {
+                CustomDiceCommand command = new CustomDiceCommand(persistenceManager, cachingDiceEvaluator);
+                command.createMessageConfig(newConfigUUID, guildId, channelId, COIN_CONFIG).ifPresent(persistenceManager::saveMessageConfig);
+                yield Optional.of(command.createNewButtonMessage(newConfigUUID, COIN_CONFIG));
+            }
+            case dice_calculator -> {
+                SumCustomSetCommand command = new SumCustomSetCommand(persistenceManager, cachingDiceEvaluator);
+                command.createMessageConfig(newConfigUUID, guildId, channelId, DICE_CALCULATOR_CONFIG).ifPresent(persistenceManager::saveMessageConfig);
+                yield Optional.of(command.createNewButtonMessage(newConfigUUID, DICE_CALCULATOR_CONFIG));
+            }
         };
     }
 
@@ -197,16 +213,16 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
     }
 
     @Override
-    protected @NonNull Optional<RollAnswer> getAnswer(Config config, State<StateData> state) {
+    protected @NonNull Optional<RollAnswer> getAnswer(Config config, State<StateData> state, long channelId, long userId) {
         return Optional.empty();
     }
 
     public MessageDefinition getWelcomeMessage() {
-        return createNewButtonMessage(null);
+        return createNewButtonMessage(uuidSupplier.get(), null);
     }
 
     @Override
-    public @NonNull MessageDefinition createNewButtonMessage(Config config) {
+    public @NonNull MessageDefinition createNewButtonMessage(UUID configUUID, Config config) {
         return MessageDefinition.builder()
                 .content("""
                         Welcome to the Button Dice Bot,
@@ -217,23 +233,23 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
                         .buttonDefinitions(
                                 ImmutableList.of(
                                         ButtonDefinition.builder()
-                                                .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), ButtonIds.fate.name()))
+                                                .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), ButtonIds.fate.name(), configUUID))
                                                 .label("Fate")
                                                 .build(),
                                         ButtonDefinition.builder()
-                                                .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), ButtonIds.fate_image.name()))
+                                                .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), ButtonIds.fate_image.name(), configUUID))
                                                 .label("Fate with dice images")
                                                 .build(),
                                         ButtonDefinition.builder()
-                                                .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), ButtonIds.dnd5.name()))
+                                                .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), ButtonIds.dnd5.name(), configUUID))
                                                 .label("D&D5e")
                                                 .build(),
                                         ButtonDefinition.builder()
-                                                .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), ButtonIds.dnd5_image.name()))
+                                                .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), ButtonIds.dnd5_image.name(), configUUID))
                                                 .label("D&D5e with dice images")
                                                 .build(),
                                         ButtonDefinition.builder()
-                                                .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), ButtonIds.nWoD.name()))
+                                                .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), ButtonIds.nWoD.name(), configUUID))
                                                 .label("nWoD")
                                                 .build()
 
@@ -244,19 +260,19 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
                         .buttonDefinitions(
                                 ImmutableList.of(
                                         ButtonDefinition.builder()
-                                                .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), ButtonIds.oWoD.name()))
+                                                .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), ButtonIds.oWoD.name(), configUUID))
                                                 .label("oWoD")
                                                 .build(),
                                         ButtonDefinition.builder()
-                                                .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), ButtonIds.shadowrun.name()))
+                                                .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), ButtonIds.shadowrun.name(), configUUID))
                                                 .label("Shadowrun")
                                                 .build(),
                                         ButtonDefinition.builder()
-                                                .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), ButtonIds.coin.name()))
+                                                .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), ButtonIds.coin.name(), configUUID))
                                                 .label("Coin Toss \uD83E\uDE99")
                                                 .build(),
                                         ButtonDefinition.builder()
-                                                .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), ButtonIds.dice_calculator.name()))
+                                                .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), ButtonIds.dice_calculator.name(), configUUID))
                                                 .label("Dice Calculator")
                                                 .build()
                                 )

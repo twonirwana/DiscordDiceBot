@@ -6,10 +6,12 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import de.janno.discord.bot.ResultImage;
 import de.janno.discord.bot.command.*;
+import de.janno.discord.bot.command.channelConfig.AliasHelper;
 import de.janno.discord.bot.dice.*;
 import de.janno.discord.bot.persistance.Mapper;
+import de.janno.discord.bot.persistance.MessageConfigDTO;
 import de.janno.discord.bot.persistance.MessageDataDTO;
-import de.janno.discord.bot.persistance.PersistanceManager;
+import de.janno.discord.bot.persistance.PersistenceManager;
 import de.janno.discord.connector.api.BottomCustomIdUtils;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
@@ -20,7 +22,6 @@ import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import lombok.NonNull;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Optional;
@@ -37,43 +38,36 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
     private static final String CONFIG_TYPE_ID = "CustomDiceConfig";
     private final DiceSystemAdapter diceSystemAdapter;
 
-    public CustomDiceCommand(PersistanceManager persistanceManager, CachingDiceEvaluator cachingDiceEvaluator) {
-        this(persistanceManager, new DiceParser(), cachingDiceEvaluator);
+    public CustomDiceCommand(PersistenceManager persistenceManager, CachingDiceEvaluator cachingDiceEvaluator) {
+        this(persistenceManager, new DiceParser(), cachingDiceEvaluator);
     }
 
     @VisibleForTesting
-    public CustomDiceCommand(PersistanceManager persistanceManager, Dice dice, CachingDiceEvaluator cachingDiceEvaluator) {
-        super(persistanceManager);
+    public CustomDiceCommand(PersistenceManager persistenceManager, Dice dice, CachingDiceEvaluator cachingDiceEvaluator) {
+        super(persistenceManager);
         this.diceSystemAdapter = new DiceSystemAdapter(cachingDiceEvaluator, dice);
     }
 
     @Override
-    protected Optional<ConfigAndState<CustomDiceConfig, StateData>> getMessageDataAndUpdateWithButtonValue(long channelId,
-                                                                                                           long messageId,
-                                                                                                           @NonNull String buttonValue,
-                                                                                                           @NonNull String invokingUserName) {
-        final Optional<MessageDataDTO> messageDataDTO = persistanceManager.getDataForMessage(channelId, messageId);
-        return messageDataDTO.map(dataDTO -> deserializeAndUpdateState(dataDTO, buttonValue));
+    protected ConfigAndState<CustomDiceConfig, StateData> getMessageDataAndUpdateWithButtonValue(@NonNull MessageConfigDTO messageConfigDTO,
+                                                                                                 @NonNull MessageDataDTO messageDataDTO,
+                                                                                                 @NonNull String buttonValue,
+                                                                                                 @NonNull String invokingUserName) {
+        return deserializeAndUpdateState(messageConfigDTO, buttonValue);
     }
 
+
     @VisibleForTesting
-    ConfigAndState<CustomDiceConfig, StateData> deserializeAndUpdateState(@NonNull MessageDataDTO messageDataDTO, @NonNull String buttonValue) {
-        Preconditions.checkArgument(CONFIG_TYPE_ID.equals(messageDataDTO.getConfigClassId()), "Unknown configClassId: %s", messageDataDTO.getConfigClassId());
-        return new ConfigAndState<>(messageDataDTO.getConfigUUID(),
-                Mapper.deserializeObject(messageDataDTO.getConfig(), CustomDiceConfig.class),
+    ConfigAndState<CustomDiceConfig, StateData> deserializeAndUpdateState(@NonNull MessageConfigDTO messageConfigDTO, @NonNull String buttonValue) {
+        Preconditions.checkArgument(CONFIG_TYPE_ID.equals(messageConfigDTO.getConfigClassId()), "Unknown configClassId: %s", messageConfigDTO.getConfigClassId());
+        return new ConfigAndState<>(messageConfigDTO.getConfigUUID(),
+                Mapper.deserializeObject(messageConfigDTO.getConfig(), CustomDiceConfig.class),
                 new State<>(buttonValue, StateData.empty()));
     }
 
     @Override
-    public Optional<MessageDataDTO> createMessageDataForNewMessage(@NonNull UUID configUUID,
-                                                                   long guildId,
-                                                                   long channelId,
-                                                                   long messageId,
-                                                                   @NonNull CustomDiceConfig config,
-                                                                   @Nullable State<StateData> state) {
-        return Optional.of(new MessageDataDTO(configUUID, guildId, channelId, messageId, getCommandId(), CONFIG_TYPE_ID,
-                Mapper.serializedObject(config),
-                Mapper.NO_PERSISTED_STATE, null));
+    public Optional<MessageConfigDTO> createMessageConfig(@NonNull UUID configUUID, long guildId, long channelId, @NonNull CustomDiceConfig config) {
+        return Optional.of(new MessageConfigDTO(configUUID, guildId, channelId, getCommandId(), CONFIG_TYPE_ID, Mapper.serializedObject(config)));
     }
 
     @Override
@@ -103,9 +97,10 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
     }
 
     @Override
-    protected @NonNull Optional<String> getStartOptionsValidationMessage(@NonNull CommandInteractionOption options) {
+    protected @NonNull Optional<String> getStartOptionsValidationMessage(@NonNull CommandInteractionOption options, long channelId, long userId) {
         List<String> diceExpressionWithOptionalLabel = getButtonsFromCommandOption(options).stream()
                 .map(ButtonIdAndExpression::getExpression)
+                .map(e -> AliasHelper.getAndApplyAliaseToExpression(channelId, userId, persistenceManager, e))
                 .distinct()
                 .collect(Collectors.toList());
         DiceParserSystem diceParserSystem = DiceParserSystem.DICE_EVALUATOR;
@@ -147,7 +142,6 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
                 })
                 .filter(s -> !s.getDiceExpression().isEmpty())
                 .filter(s -> !s.getLabel().isEmpty())
-                .filter(lv -> diceSystemAdapter.isValidExpression(lv.getDiceExpression(), DiceParserSystem.DICE_EVALUATOR))
                 .filter(s -> s.getDiceExpression().length() <= 2000) //limit of the discord message content
                 .distinct()
                 .limit(25)
@@ -158,7 +152,7 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
     }
 
     @Override
-    protected @NonNull Optional<RollAnswer> getAnswer(CustomDiceConfig config, State<StateData> state) {
+    protected @NonNull Optional<RollAnswer> getAnswer(CustomDiceConfig config, State<StateData> state, long channelId, long userId) {
         Optional<ButtonIdLabelAndDiceExpression> selectedButton = Optional.ofNullable(state).map(State::getButtonValue)
                 .flatMap(bv -> config.getButtonIdLabelAndDiceExpressions().stream()
                         .filter(bld -> bld.getButtonId().equals(bv))
@@ -169,7 +163,8 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
         }
         //add the label only if it is different from the expression
         final String label = selectedButton.get().getDiceExpression().equals(selectedButton.get().getLabel()) ? null : selectedButton.get().getLabel();
-        return Optional.of(diceSystemAdapter.answerRollWithGivenLabel(selectedButton.get().getDiceExpression(),
+        final String expression = AliasHelper.getAndApplyAliaseToExpression(channelId, userId, persistenceManager, selectedButton.get().getDiceExpression());
+        return Optional.of(diceSystemAdapter.answerRollWithGivenLabel(expression,
                 label,
                 false,
                 config.getDiceParserSystem(),
@@ -178,22 +173,22 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
     }
 
     @Override
-    protected @NonNull Optional<MessageDefinition> createNewButtonMessageWithState(CustomDiceConfig config, State<StateData> state) {
-        return Optional.of(createNewButtonMessage(config));
+    protected @NonNull Optional<MessageDefinition> createNewButtonMessageWithState(UUID configUUID, CustomDiceConfig config, State<StateData> state, long guildId, long channelId) {
+        return Optional.of(createNewButtonMessage(configUUID, config));
     }
 
     @Override
-    public @NonNull MessageDefinition createNewButtonMessage(CustomDiceConfig config) {
+    public @NonNull MessageDefinition createNewButtonMessage(UUID configUUID, CustomDiceConfig config) {
         return MessageDefinition.builder()
                 .content(BUTTON_MESSAGE)
-                .componentRowDefinitions(createButtonLayout(config))
+                .componentRowDefinitions(createButtonLayout(configUUID, config))
                 .build();
     }
 
-    private List<ComponentRowDefinition> createButtonLayout(CustomDiceConfig config) {
+    private List<ComponentRowDefinition> createButtonLayout(UUID configUUID, CustomDiceConfig config) {
         List<ButtonDefinition> buttons = config.getButtonIdLabelAndDiceExpressions().stream()
                 .map(d -> ButtonDefinition.builder()
-                        .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), d.getButtonId()))
+                        .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), d.getButtonId(), configUUID))
                         .label(d.getLabel())
                         .build())
                 .collect(Collectors.toList());

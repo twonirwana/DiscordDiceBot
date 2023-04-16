@@ -6,9 +6,7 @@ import de.janno.discord.bot.command.*;
 import de.janno.discord.bot.dice.CachingDiceEvaluator;
 import de.janno.discord.bot.dice.Dice;
 import de.janno.discord.bot.dice.DiceParserSystem;
-import de.janno.discord.bot.persistance.MessageDataDTO;
-import de.janno.discord.bot.persistance.PersistanceManager;
-import de.janno.discord.bot.persistance.PersistanceManagerImpl;
+import de.janno.discord.bot.persistance.*;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
@@ -33,7 +31,7 @@ import static org.mockito.Mockito.mock;
 
 class SumCustomSetCommandTest {
     SumCustomSetCommand underTest;
-    PersistanceManager persistanceManager = mock(PersistanceManager.class);
+    PersistenceManager persistenceManager = mock(PersistenceManager.class);
 
     SumCustomSetConfig defaultConfig = new SumCustomSetConfig(null, ImmutableList.of(
             new ButtonIdLabelAndDiceExpression("1_button", "1d6", "1d6"),
@@ -56,7 +54,7 @@ class SumCustomSetCommandTest {
     @BeforeEach
     void setup() {
         diceMock = mock(Dice.class);
-        underTest = new SumCustomSetCommand(persistanceManager, diceMock, new CachingDiceEvaluator((minExcl, maxIncl) -> 0, 1000, 0));
+        underTest = new SumCustomSetCommand(persistenceManager, diceMock, new CachingDiceEvaluator((minExcl, maxIncl) -> 0, 1000, 0));
         underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
 
     }
@@ -71,47 +69,47 @@ class SumCustomSetCommandTest {
 
     @Test
     void getButtonMessageWithState_clear() {
-        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(defaultConfig, new State<>("clear", new SumCustomSetStateData(ImmutableList.of("1d6"), "user1")));
+        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), defaultConfig, new State<>("clear", new SumCustomSetStateData(ImmutableList.of("1d6"), "user1")), 1L, 2L);
         assertThat(res).isEmpty();
     }
 
     @Test
     void getButtonMessageWithState_roll() {
-        String res = underTest.createNewButtonMessageWithState(defaultConfig, new State<>("roll", new SumCustomSetStateData(ImmutableList.of("1d6"), "user1")))
+        String res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), defaultConfig, new State<>("roll", new SumCustomSetStateData(ImmutableList.of("1d6"), "user1")), 1L, 2L)
                 .orElseThrow().getContent();
         assertThat(res).isEqualTo("Click the buttons to add dice to the set and then on Roll");
     }
 
     @Test
     void getEditButtonMessage_backLast() {
-        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(defaultConfig, new State<>("back", new SumCustomSetStateData(ImmutableList.of("1d6"), "user1")));
+        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), defaultConfig, new State<>("back", new SumCustomSetStateData(ImmutableList.of("1d6"), "user1")), 1L, 2L);
 
         assertThat(res).isEmpty();
     }
 
     @Test
     void getEditButtonMessage_back() {
-        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(defaultConfig, new State<>("back", new SumCustomSetStateData(ImmutableList.of("+1d6", "+1d6"), "user1")));
+        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), defaultConfig, new State<>("back", new SumCustomSetStateData(ImmutableList.of("+1d6", "+1d6"), "user1")), 1L, 2L);
 
         assertThat(res).isEmpty();
     }
 
     @Test
     void getCurrentMessageContentChange_clear() {
-        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(defaultConfig, new State<>("clear", new SumCustomSetStateData(ImmutableList.of("+1d6", "+1d6"), "user1")));
+        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), defaultConfig, new State<>("clear", new SumCustomSetStateData(ImmutableList.of("+1d6", "+1d6"), "user1")), 1L, 2L);
 
         assertThat(res).isEmpty();
     }
 
     @Test
     void getButtonMessage() {
-        String res = underTest.createNewButtonMessage(defaultConfig).getContent();
+        String res = underTest.createNewButtonMessage(UUID.fromString("00000000-0000-0000-0000-000000000000"), defaultConfig).getContent();
         assertThat(res).isEqualTo("Click the buttons to add dice to the set and then on Roll");
     }
 
     @Test
     void createNewButtonMessageWithState() {
-        String res = underTest.createNewButtonMessageWithState(defaultConfig, new State<>("roll", new SumCustomSetStateData(ImmutableList.of("1d6"), "user1")))
+        String res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), defaultConfig, new State<>("roll", new SumCustomSetStateData(ImmutableList.of("1d6"), "user1")), 1L, 2L)
                 .orElseThrow().getContent();
         assertThat(res).isEqualTo("Click the buttons to add dice to the set and then on Roll");
     }
@@ -143,38 +141,20 @@ class SumCustomSetCommandTest {
     }
 
     @Test
-    void getAnswer_roll_true() {
-        Optional<RollAnswer> res = underTest.getAnswer(defaultConfig, new State<>("roll", new SumCustomSetStateData(ImmutableList.of("1d6"), "user1")));
-        assertThat(res).isNotEmpty();
-    }
-
-    @Test
-    void getAnswer_rollNoConfig_false() {
-        Optional<RollAnswer> res = underTest.getAnswer(defaultConfig, new State<>("roll", new SumCustomSetStateData(ImmutableList.of(), "user1")));
-        assertThat(res).isEmpty();
-    }
-
-    @Test
-    void getAnswer_modifyMessage_false() {
-        Optional<RollAnswer> res = underTest.getAnswer(defaultConfig, new State<>("1_button", new SumCustomSetStateData(ImmutableList.of("1d6"), "user1")));
-        assertThat(res).isEmpty();
-    }
-
-    @Test
     void copyButtonMessageToTheEnd_roll_true() {
-        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(defaultConfig, new State<>("roll", new SumCustomSetStateData(ImmutableList.of("1d6"), "user1")));
+        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), defaultConfig, new State<>("roll", new SumCustomSetStateData(ImmutableList.of("1d6"), "user1")), 1L, 2L);
         assertThat(res).isNotEmpty();
     }
 
     @Test
     void copyButtonMessageToTheEnd_rollNoConfig_false() {
-        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(defaultConfig, new State<>("roll", new SumCustomSetStateData(ImmutableList.of(), "user1")));
+        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), defaultConfig, new State<>("roll", new SumCustomSetStateData(ImmutableList.of(), "user1")), 1L, 2L);
         assertThat(res).isEmpty();
     }
 
     @Test
     void copyButtonMessageToTheEnd_modifyMessage_false() {
-        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(defaultConfig, new State<>("+1d6", new SumCustomSetStateData(ImmutableList.of("1d6"), "user1")));
+        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), defaultConfig, new State<>("+1d6", new SumCustomSetStateData(ImmutableList.of("1d6"), "user1")), 1L, 2L);
         assertThat(res).isEmpty();
     }
 
@@ -202,41 +182,13 @@ class SumCustomSetCommandTest {
         ), DiceParserSystem.DICE_EVALUATOR, true, AnswerFormatType.full, ResultImage.polyhedral_3d_red_and_white));
     }
 
-    @Test
-    void getStartOptionsValidationMessage_valid() {
-        CommandInteractionOption option = CommandInteractionOption.builder()
-                .name("start")
-                .option(CommandInteractionOption.builder()
-                        .name("buttons")
-                        .stringValue("1d6@Label;2d4")
-                        .build())
-                .build();
 
-        Optional<String> res = underTest.getStartOptionsValidationMessage(option);
-
-        assertThat(res).isEmpty();
-    }
-
-    @Test
-    void getStartOptionsValidationMessage_invalid() {
-        CommandInteractionOption option = CommandInteractionOption.builder()
-                .name("start")
-                .option(CommandInteractionOption.builder()
-                        .name("buttons")
-                        .stringValue("1d6@Label;2d4;2d6*10")
-                        .build())
-                .build();
-
-        Optional<String> res = underTest.getStartOptionsValidationMessage(option);
-
-        assertThat(res).isEmpty();
-    }
 
     @Test
     void rollDice_1d6plus10() {
 
 
-        EmbedOrMessageDefinition res = RollAnswerConverter.toEmbedOrMessageDefinition(underTest.getAnswer(defaultConfig, new State<>("roll", new SumCustomSetStateData(ImmutableList.of("1d6", "+", "10"), "user1")))
+        EmbedOrMessageDefinition res = RollAnswerConverter.toEmbedOrMessageDefinition(underTest.getAnswer(defaultConfig, new State<>("roll", new SumCustomSetStateData(ImmutableList.of("1d6", "+", "10"), "user1")), 0L, 0L)
                 .orElseThrow());
 
         assertThat(res.getFields()).hasSize(0);
@@ -253,59 +205,60 @@ class SumCustomSetCommandTest {
 
     @Test
     void getButtonLayoutWithState() {
-        List<ComponentRowDefinition> res = underTest.createNewButtonMessageWithState(defaultConfig, new State<>("roll", new SumCustomSetStateData(ImmutableList.of("1d6"), "user1")))
+        List<ComponentRowDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), defaultConfig, new State<>("roll", new SumCustomSetStateData(ImmutableList.of("1d6"), "user1")), 1L, 2L)
                 .orElseThrow().getComponentRowDefinitions();
 
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel))
                 .containsExactly("1d6", "3d6", "4", "2d10min10", "Roll", "Clear", "Back");
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getId))
-                .containsExactly("sum_custom_set1_button",
-                        "sum_custom_set2_button",
-                        "sum_custom_set3_button",
-                        "sum_custom_set4_button",
-                        "sum_custom_setroll",
-                        "sum_custom_setclear",
-                        "sum_custom_setback");
+                .containsExactly("sum_custom_set1_button00000000-0000-0000-0000-000000000000",
+                        "sum_custom_set2_button00000000-0000-0000-0000-000000000000",
+                        "sum_custom_set3_button00000000-0000-0000-0000-000000000000",
+                        "sum_custom_set4_button00000000-0000-0000-0000-000000000000",
+                        "sum_custom_setroll00000000-0000-0000-0000-000000000000",
+                        "sum_custom_setclear00000000-0000-0000-0000-000000000000",
+                        "sum_custom_setback00000000-0000-0000-0000-000000000000");
     }
 
     @Test
     void getButtonLayout() {
-        List<ComponentRowDefinition> res = underTest.createNewButtonMessage(defaultConfig).getComponentRowDefinitions();
+        List<ComponentRowDefinition> res = underTest.createNewButtonMessage(UUID.fromString("00000000-0000-0000-0000-000000000000"), defaultConfig).getComponentRowDefinitions();
 
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel))
                 .containsExactly("1d6", "3d6", "4", "2d10min10", "Roll", "Clear", "Back");
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getId))
-                .containsExactly("sum_custom_set1_button",
-                        "sum_custom_set2_button",
-                        "sum_custom_set3_button",
-                        "sum_custom_set4_button",
-                        "sum_custom_setroll",
-                        "sum_custom_setclear",
-                        "sum_custom_setback");
+                .containsExactly("sum_custom_set1_button00000000-0000-0000-0000-000000000000",
+                        "sum_custom_set2_button00000000-0000-0000-0000-000000000000",
+                        "sum_custom_set3_button00000000-0000-0000-0000-000000000000",
+                        "sum_custom_set4_button00000000-0000-0000-0000-000000000000",
+                        "sum_custom_setroll00000000-0000-0000-0000-000000000000",
+                        "sum_custom_setclear00000000-0000-0000-0000-000000000000",
+                        "sum_custom_setback00000000-0000-0000-0000-000000000000");
     }
 
     @Test
     void checkPersistence() {
-        PersistanceManager persistanceManager = new PersistanceManagerImpl("jdbc:h2:mem:" + UUID.randomUUID(), null, null);
-        underTest = new SumCustomSetCommand(persistanceManager, diceMock, new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 10000));
+        PersistenceManager persistenceManager = new PersistenceManagerImpl("jdbc:h2:mem:" + UUID.randomUUID(), null, null);
+        underTest = new SumCustomSetCommand(persistenceManager, diceMock, new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 10000));
         underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
-
+        UUID configUUID = UUID.randomUUID();
         long channelId = System.currentTimeMillis();
         long messageId = System.currentTimeMillis();
-        UUID configUUID = UUID.randomUUID();
         SumCustomSetConfig config = new SumCustomSetConfig(123L, ImmutableList.of(
                 new ButtonIdLabelAndDiceExpression("1_button", "Label", "+1d6"),
                 new ButtonIdLabelAndDiceExpression("2_button", "+2d4", "+2d4")
         ), DiceParserSystem.DICE_EVALUATOR, true, AnswerFormatType.full, ResultImage.none);
-        State<SumCustomSetStateData> state = new State<>("2_button", new SumCustomSetStateData(ImmutableList.of("+2d4"), "testUser"));
-        Optional<MessageDataDTO> toSave = underTest.createMessageDataForNewMessage(configUUID, 1L, channelId, messageId, config, state);
-        persistanceManager.saveMessageData(toSave.orElseThrow());
+        Optional<MessageConfigDTO> toSave = underTest.createMessageConfig(configUUID, 1L, channelId, config);
+        assertThat(toSave).isPresent();
 
-        underTest.updateCurrentMessageStateData(channelId, messageId, config, state);
+        persistenceManager.saveMessageConfig(toSave.get());
+        MessageConfigDTO loaded = persistenceManager.getMessageConfig(configUUID).orElseThrow();
 
-        MessageDataDTO loaded = persistanceManager.getDataForMessage(channelId, messageId).orElseThrow();
+        assertThat(toSave.get()).isEqualTo(loaded);
+        SumCustomSetStateData stateData = new SumCustomSetStateData(ImmutableList.of("+2d4"), "testUser");
 
-        ConfigAndState<SumCustomSetConfig, SumCustomSetStateData> configAndState = underTest.deserializeAndUpdateState(loaded, "1_button", "testUser");
+        MessageDataDTO messageDataDTO = new MessageDataDTO(configUUID, 1L, channelId, messageId, "sum_custom_set", "SumCustomSetStateData", Mapper.serializedObject(stateData));
+        ConfigAndState<SumCustomSetConfig, SumCustomSetStateData> configAndState = underTest.deserializeAndUpdateState(loaded, messageDataDTO, "1_button", "testUser");
         assertThat(configAndState.getConfig()).isEqualTo(config);
         assertThat(configAndState.getConfigUUID()).isEqualTo(configUUID);
         assertThat(configAndState.getState().getData()).isEqualTo(new SumCustomSetStateData(ImmutableList.of("+2d4", "+1d6"), "testUser"));
@@ -313,8 +266,8 @@ class SumCustomSetCommandTest {
 
     @Test
     void deserialization_legacy() {
-        UUID configUUID = UUID.randomUUID();
-        MessageDataDTO savedData = new MessageDataDTO(configUUID, 1L, 1660644934298L, 1660644934298L, "sum_custom_set", "SumCustomSetConfig", """
+        UUID configUUID = UUID.fromString("00000000-0000-0000-0000-000000000000");
+        MessageConfigDTO messageConfigDTO = new MessageConfigDTO(configUUID, 1L, 1660644934298L, "sum_custom_set", "SumCustomSetConfig", """
                 ---
                 answerTargetChannelId: 123
                 labelAndExpression:
@@ -324,7 +277,8 @@ class SumCustomSetCommandTest {
                 - buttonId: "2_button"
                   label: "+2d4"
                   diceExpression: "+2d4"
-                """,
+                """);
+        MessageDataDTO messageDataDTO = new MessageDataDTO(configUUID, 1L, 1660644934298L, 1660644934298L, "sum_custom_set",
                 "SumCustomSetStateData", """
                 ---
                 diceExpressions:
@@ -332,8 +286,7 @@ class SumCustomSetCommandTest {
                 lockedForUserName: "testUser"
                 """);
 
-
-        ConfigAndState<SumCustomSetConfig, SumCustomSetStateData> configAndState = underTest.deserializeAndUpdateState(savedData, "1_button", "testUser");
+        ConfigAndState<SumCustomSetConfig, SumCustomSetStateData> configAndState = underTest.deserializeAndUpdateState(messageConfigDTO, messageDataDTO, "1_button", "testUser");
         assertThat(configAndState.getConfig()).isEqualTo(new SumCustomSetConfig(123L, ImmutableList.of(
                 new ButtonIdLabelAndDiceExpression("1_button", "Label", "+1d6"),
                 new ButtonIdLabelAndDiceExpression("2_button", "+2d4", "+2d4")
@@ -342,10 +295,11 @@ class SumCustomSetCommandTest {
         assertThat(configAndState.getState().getData()).isEqualTo(new SumCustomSetStateData(ImmutableList.of("2d4", "+1d6"), "testUser"));
     }
 
+
     @Test
     void deserialization_legacy2() {
-        UUID configUUID = UUID.randomUUID();
-        MessageDataDTO savedData = new MessageDataDTO(configUUID, 1L, 1660644934298L, 1660644934298L, "sum_custom_set", "SumCustomSetConfig", """
+        UUID configUUID = UUID.fromString("00000000-0000-0000-0000-000000000000");
+        MessageConfigDTO messageConfigDTO = new MessageConfigDTO(configUUID, 1L, 1660644934298L, "sum_custom_set", "SumCustomSetConfig", """
                 ---
                 answerTargetChannelId: 123
                 labelAndExpression:
@@ -357,7 +311,8 @@ class SumCustomSetCommandTest {
                   diceExpression: "+2d4"
                 diceParserSystem: "DICE_EVALUATOR"
                 alwaysSumResult: true
-                """,
+                """);
+        MessageDataDTO messageDataDTO = new MessageDataDTO(configUUID, 1L, 1660644934298L, 1660644934298L, "sum_custom_set",
                 "SumCustomSetStateData", """
                 ---
                 diceExpressions:
@@ -365,8 +320,7 @@ class SumCustomSetCommandTest {
                 lockedForUserName: "testUser"
                 """);
 
-
-        ConfigAndState<SumCustomSetConfig, SumCustomSetStateData> configAndState = underTest.deserializeAndUpdateState(savedData, "1_button", "testUser");
+        ConfigAndState<SumCustomSetConfig, SumCustomSetStateData> configAndState = underTest.deserializeAndUpdateState(messageConfigDTO, messageDataDTO, "1_button", "testUser");
         assertThat(configAndState.getConfig()).isEqualTo(new SumCustomSetConfig(123L, ImmutableList.of(
                 new ButtonIdLabelAndDiceExpression("1_button", "Label", "+1d6"),
                 new ButtonIdLabelAndDiceExpression("2_button", "+2d4", "+2d4")
@@ -378,7 +332,7 @@ class SumCustomSetCommandTest {
     @Test
     void deserialization() {
         UUID configUUID = UUID.randomUUID();
-        MessageDataDTO savedData = new MessageDataDTO(configUUID, 1L, 1660644934298L, 1660644934298L, "sum_custom_set", "SumCustomSetConfig", """
+        MessageConfigDTO messageConfigDTO = new MessageConfigDTO(configUUID, 1L, 1660644934298L, "sum_custom_set", "SumCustomSetConfig", """
                 ---
                 answerTargetChannelId: 123
                 labelAndExpression:
@@ -391,7 +345,8 @@ class SumCustomSetCommandTest {
                 diceParserSystem: "DICE_EVALUATOR"
                 alwaysSumResult: true
                 answerFormatType: compact
-                """,
+                """);
+        MessageDataDTO messageDataDTO = new MessageDataDTO(configUUID, 1L, 1660644934298L, 1660644934298L, "sum_custom_set",
                 "SumCustomSetStateData", """
                 ---
                 diceExpressions:
@@ -399,8 +354,7 @@ class SumCustomSetCommandTest {
                 lockedForUserName: "testUser"
                 """);
 
-
-        ConfigAndState<SumCustomSetConfig, SumCustomSetStateData> configAndState = underTest.deserializeAndUpdateState(savedData, "1_button", "testUser");
+        ConfigAndState<SumCustomSetConfig, SumCustomSetStateData> configAndState = underTest.deserializeAndUpdateState(messageConfigDTO, messageDataDTO, "1_button", "testUser");
         assertThat(configAndState.getConfig()).isEqualTo(new SumCustomSetConfig(123L, ImmutableList.of(
                 new ButtonIdLabelAndDiceExpression("1_button", "Label", "+1d6"),
                 new ButtonIdLabelAndDiceExpression("2_button", "+2d4", "+2d4")

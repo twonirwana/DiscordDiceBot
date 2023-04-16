@@ -84,12 +84,13 @@ public abstract class DiscordAdapterImpl implements DiscordAdapter {
                 } else {
                     files = List.of();
                 }
-                return createMonoFrom(() -> messageChannel.sendMessageEmbeds(builder.build()).setFiles(files));
+                return createMonoFrom(() -> messageChannel.sendMessageEmbeds(builder.build()).setFiles(files).setSuppressedNotifications(true));
             }
             case MESSAGE -> {
                 MessageCreateBuilder builder = new MessageCreateBuilder();
                 String answerString = rollRequesterMention + ": " + Optional.ofNullable(answer.getDescriptionOrContent()).map(s -> s + " ").orElse("") + answer.getFields().stream().map(EmbedOrMessageDefinition.Field::getName).collect(Collectors.joining(" "));
                 answerString = StringUtils.abbreviate(encodeUTF8(answerString), 2000); //seems to be the limit
+                builder.setSuppressedNotifications(true);
                 builder.setContent(answerString);
                 return createMonoFrom(() -> messageChannel.sendMessage(builder.build()));
             }

@@ -8,8 +8,9 @@ import de.janno.discord.bot.ResultImage;
 import de.janno.discord.bot.command.*;
 import de.janno.discord.bot.dice.DiceUtils;
 import de.janno.discord.bot.persistance.Mapper;
-import de.janno.discord.bot.persistance.PersistanceManager;
+import de.janno.discord.bot.persistance.MessageConfigDTO;
 import de.janno.discord.bot.persistance.MessageDataDTO;
+import de.janno.discord.bot.persistance.PersistenceManager;
 import de.janno.discord.connector.api.BottomCustomIdUtils;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
@@ -21,7 +22,6 @@ import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -50,13 +50,13 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTar
     private static final String STATE_DATA_TYPE_ID = "PoolTargetStateData";
     private final DiceUtils diceUtils;
 
-    public PoolTargetCommand(PersistanceManager persistanceManager) {
-        this(persistanceManager, new DiceUtils());
+    public PoolTargetCommand(PersistenceManager persistenceManager) {
+        this(persistenceManager, new DiceUtils());
     }
 
     @VisibleForTesting
-    public PoolTargetCommand(PersistanceManager persistanceManager, DiceUtils diceUtils) {
-        super(persistanceManager);
+    public PoolTargetCommand(PersistenceManager persistenceManager, DiceUtils diceUtils) {
+        super(persistenceManager);
         this.diceUtils = diceUtils;
     }
 
@@ -81,52 +81,53 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTar
     }
 
     @Override
-    protected Optional<ConfigAndState<PoolTargetConfig, PoolTargetStateData>> getMessageDataAndUpdateWithButtonValue(long channelId,
-                                                                                                                     long messageId,
-                                                                                                                     @NonNull String buttonValue,
-                                                                                                                     @NonNull String invokingUserName) {
-        final Optional<MessageDataDTO> messageDataDTO = persistanceManager.getDataForMessage(channelId, messageId);
-        return messageDataDTO.map(dataDTO -> deserializeAndUpdateState(dataDTO, buttonValue));
+    protected ConfigAndState<PoolTargetConfig, PoolTargetStateData> getMessageDataAndUpdateWithButtonValue(@NonNull MessageConfigDTO messageConfigDTO,
+                                                                                                           @NonNull MessageDataDTO messageDataDTO,
+                                                                                                           @NonNull String buttonValue,
+                                                                                                           @NonNull String invokingUserName) {
+        return deserializeAndUpdateState(messageConfigDTO, messageDataDTO, buttonValue);
     }
 
     @VisibleForTesting
-    ConfigAndState<PoolTargetConfig, PoolTargetStateData> deserializeAndUpdateState(@NonNull MessageDataDTO messageDataDTO, @NonNull String buttonValue) {
-        Preconditions.checkArgument(CONFIG_TYPE_ID.equals(messageDataDTO.getConfigClassId()), "Unknown configClassId: %s", messageDataDTO.getConfigClassId());
-        Preconditions.checkArgument(STATE_DATA_TYPE_ID.equals(messageDataDTO.getStateDataClassId())
-                || Mapper.NO_PERSISTED_STATE.equals(messageDataDTO.getStateDataClassId()), "Unknown stateDataClassId: %s", messageDataDTO.getStateDataClassId());
+    ConfigAndState<PoolTargetConfig, PoolTargetStateData> deserializeAndUpdateState(@NonNull MessageConfigDTO messageConfigDTO,
+                                                                                    @NonNull MessageDataDTO messageDataDTO,
+                                                                                    @NonNull String buttonValue) {
+        Preconditions.checkArgument(CONFIG_TYPE_ID.equals(messageConfigDTO.getConfigClassId()), "Unknown configClassId: %s", messageConfigDTO.getConfigClassId());
+        Preconditions.checkArgument(Optional.of(messageDataDTO)
+                .map(MessageDataDTO::getStateDataClassId)
+                .map(c -> Set.of(STATE_DATA_TYPE_ID, Mapper.NO_PERSISTED_STATE).contains(c))
+                .orElse(true), "Unknown stateDataClassId: %s", Optional.of(messageDataDTO)
+                .map(MessageDataDTO::getStateDataClassId).orElse("null"));
 
-        final PoolTargetStateData loadedStateData = Optional.ofNullable(messageDataDTO.getStateData())
+        final PoolTargetStateData loadedStateData = Optional.of(messageDataDTO)
+                .map(MessageDataDTO::getStateData)
                 .map(sd -> Mapper.deserializeObject(sd, PoolTargetStateData.class))
                 .orElse(null);
-        final PoolTargetConfig loadedConfig = Mapper.deserializeObject(messageDataDTO.getConfig(), PoolTargetConfig.class);
+        final PoolTargetConfig loadedConfig = Mapper.deserializeObject(messageConfigDTO.getConfig(), PoolTargetConfig.class);
         final PoolTargetStateData updatedData = updatePoolTargetStateData(loadedConfig,
                 buttonValue,
                 Optional.ofNullable(loadedStateData).map(PoolTargetStateData::getDicePool).orElse(null),
                 Optional.ofNullable(loadedStateData).map(PoolTargetStateData::getTargetNumber).orElse(null));
-        return new ConfigAndState<>(messageDataDTO.getConfigUUID(), loadedConfig, new State<>(buttonValue, updatedData));
-    }
-
-
-    @Override
-    public Optional<MessageDataDTO> createMessageDataForNewMessage(@NonNull UUID configUUID,
-                                                                   long guildId,
-                                                                   long channelId,
-                                                                   long messageId,
-                                                                   @NonNull PoolTargetConfig config,
-                                                                   @Nullable State<PoolTargetStateData> stateData) {
-        return Optional.of(new MessageDataDTO(configUUID, guildId, channelId, messageId, getCommandId(), CONFIG_TYPE_ID, Mapper.serializedObject(config)));
+        return new ConfigAndState<>(messageConfigDTO.getConfigUUID(), loadedConfig, new State<>(buttonValue, updatedData));
     }
 
     @Override
-    protected void updateCurrentMessageStateData(long channelId, long messageId, @NonNull PoolTargetConfig config, @NonNull State<PoolTargetStateData> state) {
+    public Optional<MessageConfigDTO> createMessageConfig(@NonNull UUID configUUID, long guildId, long channelId, @NonNull PoolTargetConfig config) {
+        return Optional.of(new MessageConfigDTO(configUUID, guildId, channelId, getCommandId(), CONFIG_TYPE_ID, Mapper.serializedObject(config)));
+    }
+
+    @Override
+    protected void updateCurrentMessageStateData(UUID configUUID, long guildId, long channelId, long messageId, @NonNull PoolTargetConfig config, @NonNull State<PoolTargetStateData> state) {
         Optional<PoolTargetStateData> stateData = Optional.ofNullable(state.getData());
-        if (stateData.isEmpty() || (stateData.map(PoolTargetStateData::getDicePool).isPresent() &&
+        if (stateData.map(PoolTargetStateData::getDicePool).isPresent() &&
                 stateData.map(PoolTargetStateData::getTargetNumber).isPresent() &&
-                stateData.map(PoolTargetStateData::getDoReroll).isPresent())
-        ) {
-            persistanceManager.updateCommandConfigOfMessage(channelId, messageId, Mapper.NO_PERSISTED_STATE, null);
-        } else {
-            persistanceManager.updateCommandConfigOfMessage(channelId, messageId, STATE_DATA_TYPE_ID, Mapper.serializedObject(state.getData()));
+                stateData.map(PoolTargetStateData::getDoReroll).isPresent()) {
+            persistenceManager.deleteStateForMessage(channelId, messageId);
+            //message data so we knew the button message exists
+            persistenceManager.saveMessageData(new MessageDataDTO(configUUID, guildId, channelId, messageId, getCommandId(), Mapper.NO_PERSISTED_STATE, null));
+        } else if (state.getData() != null) {
+            persistenceManager.deleteStateForMessage(channelId, messageId);
+            persistenceManager.saveMessageData(new MessageDataDTO(configUUID, guildId, channelId, messageId, getCommandId(), STATE_DATA_TYPE_ID, Mapper.serializedObject(state.getData())));
         }
 
     }
@@ -178,7 +179,7 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTar
     }
 
     @Override
-    protected @NonNull Optional<RollAnswer> getAnswer(PoolTargetConfig config, State<PoolTargetStateData> state) {
+    protected @NonNull Optional<RollAnswer> getAnswer(PoolTargetConfig config, State<PoolTargetStateData> state, long channelId, long userId) {
         Optional<PoolTargetStateData> stateData = Optional.ofNullable(state.getData());
         if (stateData.map(PoolTargetStateData::getDicePool).isEmpty() ||
                 stateData.map(PoolTargetStateData::getTargetNumber).isEmpty() ||
@@ -288,21 +289,21 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTar
     }
 
     @Override
-    public @NonNull MessageDefinition createNewButtonMessage(PoolTargetConfig config) {
+    public @NonNull MessageDefinition createNewButtonMessage(UUID configUUID, PoolTargetConfig config) {
         String configDescription = getConfigDescription(config);
         return MessageDefinition.builder()
                 .content(String.format("Click on the buttons to roll dice%s", configDescription))
-                .componentRowDefinitions(createPoolButtonLayout(config))
+                .componentRowDefinitions(createPoolButtonLayout(configUUID, config))
                 .build();
     }
 
 
     @Override
-    protected Optional<List<ComponentRowDefinition>> getCurrentMessageComponentChange(PoolTargetConfig config, State<PoolTargetStateData> state) {
+    protected Optional<List<ComponentRowDefinition>> getCurrentMessageComponentChange(UUID configUUID, PoolTargetConfig config, State<PoolTargetStateData> state, long channelId, long userId) {
         if (Optional.ofNullable(state.getData()).map(PoolTargetStateData::getDicePool).orElse(null) == null && !CLEAR_BUTTON_ID.equals(state.getButtonValue())) {
             return Optional.empty();
         }
-        return Optional.of(getButtonLayoutWithState(state, config));
+        return Optional.of(getButtonLayoutWithState(configUUID, state, config));
     }
 
     @Override
@@ -326,29 +327,29 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTar
     }
 
     @Override
-    protected @NonNull Optional<MessageDefinition> createNewButtonMessageWithState(PoolTargetConfig config, State<PoolTargetStateData> state) {
+    protected @NonNull Optional<MessageDefinition> createNewButtonMessageWithState(UUID configUUID, PoolTargetConfig config, State<PoolTargetStateData> state, long guildId, long channelId) {
         if (Optional.ofNullable(state.getData()).map(PoolTargetStateData::getDicePool).orElse(null) != null && state.getData().getTargetNumber() != null && state.getData().getDoReroll() != null) {
             return Optional.of(MessageDefinition.builder()
                     .content(String.format("Click on the buttons to roll dice%s", getConfigDescription(config)))
-                    .componentRowDefinitions(getButtonLayoutWithState(state, config))
+                    .componentRowDefinitions(getButtonLayoutWithState(configUUID, state, config))
                     .build());
         }
         return Optional.empty();
     }
 
-    private List<ComponentRowDefinition> getButtonLayoutWithState(State<PoolTargetStateData> state, PoolTargetConfig config) {
+    private List<ComponentRowDefinition> getButtonLayoutWithState(UUID configUUID, State<PoolTargetStateData> state, PoolTargetConfig config) {
         if (Optional.ofNullable(state.getData()).map(PoolTargetStateData::getDicePool).orElse(null) != null &&
                 state.getData().getTargetNumber() != null && state.getData().getDoReroll() == null) {
             return ImmutableList.of(
                     ComponentRowDefinition.builder()
                             .buttonDefinition(
                                     ButtonDefinition.builder()
-                                            .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), DO_REROLL_ID))
+                                            .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), DO_REROLL_ID, configUUID))
                                             .label("Reroll")
                                             .build())
                             .buttonDefinition(
                                     ButtonDefinition.builder()
-                                            .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), DO_NOT_REROLL_ID))
+                                            .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), DO_NOT_REROLL_ID, configUUID))
                                             .label("No reroll")
                                             .build())
                             .build()
@@ -358,26 +359,26 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTar
                 state.getData().getTargetNumber() == null) {
             List<ButtonDefinition> buttons = IntStream.range(2, config.getDiceSides() + 1)
                     .mapToObj(i -> ButtonDefinition.builder()
-                            .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), String.valueOf(i)))
+                            .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), String.valueOf(i), configUUID))
                             .label(String.format("%d", i))
                             .build()
                     )
                     .collect(Collectors.toList());
             buttons.add(ButtonDefinition.builder()
-                    .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), CLEAR_BUTTON_ID))
+                    .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), CLEAR_BUTTON_ID, configUUID))
                     .label("Clear")
                     .build());
             return Lists.partition(buttons, 5).stream()
                     .map(bl -> ComponentRowDefinition.builder().buttonDefinitions(bl).build()).collect(Collectors.toList());
         }
-        return createPoolButtonLayout(config);
+        return createPoolButtonLayout(configUUID, config);
     }
 
 
-    private List<ComponentRowDefinition> createPoolButtonLayout(PoolTargetConfig config) {
+    private List<ComponentRowDefinition> createPoolButtonLayout(UUID configUUID, PoolTargetConfig config) {
         List<ButtonDefinition> buttons = IntStream.range(1, config.getMaxNumberOfButtons() + 1)
                 .mapToObj(i -> ButtonDefinition.builder()
-                        .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), String.valueOf(i)))
+                        .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), String.valueOf(i), configUUID))
                         .label(String.format("%d%s%s", i, DICE_SYMBOL, config.getDiceSides()))
                         .build())
                 .collect(Collectors.toList());
@@ -387,7 +388,7 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTar
     }
 
     @Override
-    protected @NonNull Optional<String> getStartOptionsValidationMessage(@NonNull CommandInteractionOption options) {
+    protected @NonNull Optional<String> getStartOptionsValidationMessage(@NonNull CommandInteractionOption options, long channelId, long userId) {
         Optional<String> botchSetValidation = CommandUtils.validateIntegerSetFromCommandOptions(options, BOTCH_SET_OPTION, ",");
         if (botchSetValidation.isPresent()) {
             return botchSetValidation;

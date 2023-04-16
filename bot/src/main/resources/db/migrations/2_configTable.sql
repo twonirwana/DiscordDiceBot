@@ -1,0 +1,29 @@
+CREATE TABLE IF NOT EXISTS MESSAGE_CONFIG
+(
+    CONFIG_ID       UUID      NOT NULL,
+    CHANNEL_ID      BIGINT    NOT NULL,
+    GUILD_ID        BIGINT    NOT NULL,
+    COMMAND_ID      VARCHAR   NOT NULL,
+    CONFIG_CLASS_ID VARCHAR   NOT NULL,
+    CONFIG          VARCHAR   NOT NULL,
+    CREATION_DATE   TIMESTAMP NOT NULL,
+    PRIMARY KEY (CONFIG_ID)
+);
+
+insert into MESSAGE_CONFIG (CONFIG_ID, CHANNEL_ID, GUILD_ID, COMMAND_ID, CONFIG_CLASS_ID, CONFIG, CREATION_DATE)
+select distinct md.CONFIG_ID,
+                md.CHANNEL_ID,
+                md.GUILD_ID,
+                md.COMMAND_ID,
+                md.CONFIG_CLASS_ID,
+                md.CONFIG,
+                CURRENT_TIMESTAMP()
+from message_data md
+where md.GUILD_ID is not null
+-- remove duplicate
+  and md.CREATION_DATE = (select max(md2.CREATION_DATE) from MESSAGE_DATA md2 where md2.CONFIG_ID = md.CONFIG_ID);
+
+ALTER TABLE MESSAGE_DATA
+    ALTER COLUMN CONFIG_CLASS_ID DROP NOT NULL;
+ALTER TABLE MESSAGE_DATA
+    ALTER COLUMN CONFIG DROP NOT NULL;

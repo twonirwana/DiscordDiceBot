@@ -8,16 +8,16 @@ import de.janno.discord.bot.command.WelcomeCommand;
 import de.janno.discord.bot.command.countSuccesses.CountSuccessesCommand;
 import de.janno.discord.bot.command.customDice.CustomDiceCommand;
 import de.janno.discord.bot.command.customParameter.CustomParameterCommand;
+import de.janno.discord.bot.command.channelConfig.ChannelConfigCommand;
 import de.janno.discord.bot.command.directRoll.DirectRollCommand;
-import de.janno.discord.bot.command.directRoll.DirectRollConfigCommand;
 import de.janno.discord.bot.command.fate.FateCommand;
 import de.janno.discord.bot.command.holdReroll.HoldRerollCommand;
 import de.janno.discord.bot.command.poolTarget.PoolTargetCommand;
 import de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommand;
 import de.janno.discord.bot.command.sumDiceSet.SumDiceSetCommand;
 import de.janno.discord.bot.dice.CachingDiceEvaluator;
-import de.janno.discord.bot.persistance.PersistanceManager;
-import de.janno.discord.bot.persistance.PersistanceManagerImpl;
+import de.janno.discord.bot.persistance.PersistenceManager;
+import de.janno.discord.bot.persistance.PersistenceManagerImpl;
 import de.janno.discord.connector.DiscordConnectorImpl;
 import de.janno.evaluator.dice.random.RandomNumberSupplier;
 
@@ -49,28 +49,28 @@ public class Bot {
             h2Password = null;
         }
 
-        PersistanceManager persistanceManager = new PersistanceManagerImpl(h2Url, h2User, h2Password);
+        PersistenceManager persistenceManager = new PersistenceManagerImpl(h2Url, h2User, h2Password);
 
-        Set<Long> allGuildIdsInPersistence = persistanceManager.getAllGuildIds();
+        Set<Long> allGuildIdsInPersistence = persistenceManager.getAllGuildIds();
         CachingDiceEvaluator cachingDiceEvaluator = new CachingDiceEvaluator(new RandomNumberSupplier(), 1000, 10_000);
         DiscordConnectorImpl.createAndStart(token,
                 disableCommandUpdate,
                 ImmutableList.of(
-                        new CountSuccessesCommand(persistanceManager),
-                        new CustomDiceCommand(persistanceManager, cachingDiceEvaluator),
-                        new FateCommand(persistanceManager),
-                        new DirectRollCommand(persistanceManager, cachingDiceEvaluator),
-                        new DirectRollConfigCommand(persistanceManager),
-                        new SumDiceSetCommand(persistanceManager),
-                        new SumCustomSetCommand(persistanceManager, cachingDiceEvaluator),
-                        new HoldRerollCommand(persistanceManager),
-                        new PoolTargetCommand(persistanceManager),
-                        new CustomParameterCommand(persistanceManager, cachingDiceEvaluator),
-                        new WelcomeCommand(persistanceManager, cachingDiceEvaluator),
-                        new ClearCommand(persistanceManager),
+                        new CountSuccessesCommand(persistenceManager),
+                        new CustomDiceCommand(persistenceManager, cachingDiceEvaluator),
+                        new FateCommand(persistenceManager),
+                        new DirectRollCommand(persistenceManager, cachingDiceEvaluator),
+                        new ChannelConfigCommand(persistenceManager),
+                        new SumDiceSetCommand(persistenceManager),
+                        new SumCustomSetCommand(persistenceManager, cachingDiceEvaluator),
+                        new HoldRerollCommand(persistenceManager),
+                        new PoolTargetCommand(persistenceManager),
+                        new CustomParameterCommand(persistenceManager, cachingDiceEvaluator),
+                        new WelcomeCommand(persistenceManager, cachingDiceEvaluator),
+                        new ClearCommand(persistenceManager),
                         new HelpCommand()
                 ),
-                new WelcomeCommand(persistanceManager, cachingDiceEvaluator).getWelcomeMessage(),
+                new WelcomeCommand(persistenceManager, cachingDiceEvaluator).getWelcomeMessage(),
                 allGuildIdsInPersistence);
     }
 

@@ -5,19 +5,18 @@ import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Flux;
 
 import java.time.Duration;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-class PersistanceManagerImplTest {
-    PersistanceManagerImpl underTest;
+class PersistenceManagerImplTest {
+    PersistenceManagerImpl underTest;
 
     @BeforeEach
     void setup() {
-        underTest = new PersistanceManagerImpl("jdbc:h2:mem:" + UUID.randomUUID(), null, null);
+        underTest = new PersistenceManagerImpl("jdbc:h2:mem:" + UUID.randomUUID(), null, null);
     }
 
     @Test
@@ -40,10 +39,10 @@ class PersistanceManagerImplTest {
         underTest.saveMessageData(new MessageDataDTO(UUID.randomUUID(), 1L, 2L, 4L, "testCommand", "testConfigClass", "configClass"));
         underTest.saveMessageData(new MessageDataDTO(UUID.randomUUID(), 1L, 2L, 5L, "testCommand", "testConfigClass", "configClass"));
 
-        underTest.deleteDataForMessage(2L, 4L);
+        underTest.deleteStateForMessage(2L, 4L);
 
-        assertThat(underTest.getDataForMessage(2L, 4L)).isEmpty();
-        assertThat(underTest.getDataForMessage(2L, 5L)).isPresent();
+        assertThat(underTest.getMessageData(2L, 4L)).isEmpty();
+        assertThat(underTest.getMessageData(2L, 5L)).isPresent();
     }
 
     @Test
@@ -55,9 +54,9 @@ class PersistanceManagerImplTest {
         Set<Long> res = underTest.deleteMessageDataForChannel(2L);
 
         assertThat(res).containsExactly(4L, 5L);
-        assertThat(underTest.getDataForMessage(2L, 4L)).isEmpty();
-        assertThat(underTest.getDataForMessage(2L, 5L)).isEmpty();
-        assertThat(underTest.getDataForMessage(3L, 6L)).isPresent();
+        assertThat(underTest.getMessageData(2L, 4L)).isEmpty();
+        assertThat(underTest.getMessageData(2L, 5L)).isEmpty();
+        assertThat(underTest.getMessageData(3L, 6L)).isPresent();
     }
 
     @Test
@@ -73,20 +72,9 @@ class PersistanceManagerImplTest {
     }
 
     @Test
-    void updateCommandConfigOfMessage() {
-        underTest.saveMessageData(new MessageDataDTO(UUID.randomUUID(), 1L, 2L, 4L, "testCommand", "testConfigClass", "configClass"));
-
-        underTest.updateCommandConfigOfMessage(2L, 4L, "testConfigClass2", "state2");
-
-        Optional<MessageDataDTO> res = underTest.getDataForMessage(2L, 4L);
-        assertThat(res.map(MessageDataDTO::getStateData)).contains("state2");
-        assertThat(res.map(MessageDataDTO::getStateDataClassId)).contains("testConfigClass2");
-    }
-
-    @Test
     void saveChannelData() {
-        ChannelConfigDTO channelConfigDTO1 = new ChannelConfigDTO(UUID.randomUUID(), 1L, 2L, "testCommand", "testConfigClass", "configClass");
-        ChannelConfigDTO channelConfigDTO2 = new ChannelConfigDTO(UUID.randomUUID(), 1L, 3L, "testCommand", "testConfigClass", "configClass");
+        ChannelConfigDTO channelConfigDTO1 = new ChannelConfigDTO(UUID.randomUUID(), 1L, 2L, null,"testCommand", "testConfigClass", "configClass");
+        ChannelConfigDTO channelConfigDTO2 = new ChannelConfigDTO(UUID.randomUUID(), 1L, 3L, null,"testCommand", "testConfigClass", "configClass");
         underTest.saveChannelConfig(channelConfigDTO1);
         underTest.saveChannelConfig(channelConfigDTO2);
 
@@ -98,7 +86,7 @@ class PersistanceManagerImplTest {
 
     @Test
     void deleteChannelData() {
-        ChannelConfigDTO channelConfigDTO1 = new ChannelConfigDTO(UUID.randomUUID(), 1L, 2L, "testCommand", "testConfigClass", "configClass");
+        ChannelConfigDTO channelConfigDTO1 = new ChannelConfigDTO(UUID.randomUUID(), 1L, 2L, null,"testCommand", "testConfigClass", "configClass");
         underTest.saveChannelConfig(channelConfigDTO1);
 
         assertThat(underTest.getChannelConfig(2L, "testConfigClass")).contains(channelConfigDTO1);
@@ -115,8 +103,8 @@ class PersistanceManagerImplTest {
 
     @Test
     void noTwoConfigsForSameConfigTypeAndChannel() {
-        ChannelConfigDTO channelConfigDTO1 = new ChannelConfigDTO(UUID.randomUUID(), 1L, 2L, "testCommand", "testConfigClass", "configClass");
-        ChannelConfigDTO channelConfigDTO2 = new ChannelConfigDTO(UUID.randomUUID(), 1L, 2L, "testCommand", "testConfigClass", "configClass2");
+        ChannelConfigDTO channelConfigDTO1 = new ChannelConfigDTO(UUID.randomUUID(), 1L, 2L, null,"testCommand", "testConfigClass", "configClass");
+        ChannelConfigDTO channelConfigDTO2 = new ChannelConfigDTO(UUID.randomUUID(), 1L, 2L, null,"testCommand", "testConfigClass", "configClass2");
         underTest.saveChannelConfig(channelConfigDTO1);
         assertThrows(RuntimeException.class, () -> underTest.saveChannelConfig(channelConfigDTO2));
     }

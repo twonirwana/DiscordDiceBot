@@ -3,9 +3,9 @@ package de.janno.discord.bot.command.fate;
 import de.janno.discord.bot.ResultImage;
 import de.janno.discord.bot.command.*;
 import de.janno.discord.bot.dice.DiceUtils;
-import de.janno.discord.bot.persistance.PersistanceManager;
-import de.janno.discord.bot.persistance.PersistanceManagerImpl;
-import de.janno.discord.bot.persistance.MessageDataDTO;
+import de.janno.discord.bot.persistance.MessageConfigDTO;
+import de.janno.discord.bot.persistance.PersistenceManager;
+import de.janno.discord.bot.persistance.PersistenceManagerImpl;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
@@ -27,7 +27,7 @@ class FateCommandTest {
 
     @BeforeEach
     void setup() {
-        underTest = new FateCommand(mock(PersistanceManager.class), new DiceUtils(1, 2, 3, 1, 2, 3, 1, 2));
+        underTest = new FateCommand(mock(PersistenceManager.class), new DiceUtils(1, 2, 3, 1, 2, 3, 1, 2));
     }
 
     @Test
@@ -37,7 +37,7 @@ class FateCommandTest {
 
     @Test
     void getButtonMessage_modifier() {
-        String res = underTest.createNewButtonMessage(new FateConfig(null, "with_modifier", AnswerFormatType.full, ResultImage.none))
+        String res = underTest.createNewButtonMessage(UUID.fromString("00000000-0000-0000-0000-000000000000"), new FateConfig(null, "with_modifier", AnswerFormatType.full, ResultImage.none))
                 .getContent();
 
         assertThat(res).isEqualTo("Click a button to roll four fate dice and add the value of the button");
@@ -45,7 +45,7 @@ class FateCommandTest {
 
     @Test
     void getButtonMessage_simple() {
-        String res = underTest.createNewButtonMessage(new FateConfig(null, "simple", AnswerFormatType.full, ResultImage.none))
+        String res = underTest.createNewButtonMessage(UUID.fromString("00000000-0000-0000-0000-000000000000"), new FateConfig(null, "simple", AnswerFormatType.full, ResultImage.none))
                 .getContent();
 
         assertThat(res).isEqualTo("Click a button to roll four fate dice");
@@ -53,7 +53,7 @@ class FateCommandTest {
 
     @Test
     void getButtonMessageWithState_modifier() {
-        String res = underTest.createNewButtonMessageWithState(new FateConfig(null, "with_modifier", AnswerFormatType.full, ResultImage.none), new State<>("0", StateData.empty()))
+        String res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), new FateConfig(null, "with_modifier", AnswerFormatType.full, ResultImage.none), new State<>("0", StateData.empty()), 1, 2)
                 .orElseThrow().getContent();
 
         assertThat(res).isEqualTo("Click a button to roll four fate dice and add the value of the button");
@@ -61,7 +61,7 @@ class FateCommandTest {
 
     @Test
     void getButtonMessageWithState_simple() {
-        String res = underTest.createNewButtonMessageWithState(new FateConfig(null, "simple", AnswerFormatType.full, ResultImage.none), new State<>("0", StateData.empty()))
+        String res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), new FateConfig(null, "simple", AnswerFormatType.full, ResultImage.none), new State<>("0", StateData.empty()), 1, 2)
                 .orElseThrow().getContent();
 
         assertThat(res).isEqualTo("Click a button to roll four fate dice");
@@ -89,7 +89,7 @@ class FateCommandTest {
 
     @Test
     void getDiceResult_simple() {
-        EmbedOrMessageDefinition res = RollAnswerConverter.toEmbedOrMessageDefinition(underTest.getAnswer(new FateConfig(null, "simple", AnswerFormatType.full, ResultImage.none), new State<>("roll", StateData.empty()))
+        EmbedOrMessageDefinition res = RollAnswerConverter.toEmbedOrMessageDefinition(underTest.getAnswer(new FateConfig(null, "simple", AnswerFormatType.full, ResultImage.none), new State<>("roll", StateData.empty()), 0, 0)
                 .orElseThrow());
 
         assertThat(res.getFields()).hasSize(0);
@@ -99,7 +99,7 @@ class FateCommandTest {
 
     @Test
     void getDiceResult_modifier_minus1() {
-        EmbedOrMessageDefinition res = RollAnswerConverter.toEmbedOrMessageDefinition(underTest.getAnswer(new FateConfig(null, "with_modifier", AnswerFormatType.full, ResultImage.none), new State<>("-1", StateData.empty()))
+        EmbedOrMessageDefinition res = RollAnswerConverter.toEmbedOrMessageDefinition(underTest.getAnswer(new FateConfig(null, "with_modifier", AnswerFormatType.full, ResultImage.none), new State<>("-1", StateData.empty()), 0, 0)
                 .orElseThrow());
 
         assertThat(res.getFields()).hasSize(0);
@@ -109,7 +109,7 @@ class FateCommandTest {
 
     @Test
     void getDiceResult_modifier_plus1() {
-        EmbedOrMessageDefinition res = RollAnswerConverter.toEmbedOrMessageDefinition(underTest.getAnswer(new FateConfig(null, "with_modifier", AnswerFormatType.full, ResultImage.none), new State<>("1", StateData.empty()))
+        EmbedOrMessageDefinition res = RollAnswerConverter.toEmbedOrMessageDefinition(underTest.getAnswer(new FateConfig(null, "with_modifier", AnswerFormatType.full, ResultImage.none), new State<>("1", StateData.empty()), 0, 0)
                 .orElseThrow());
 
         assertThat(res.getFields()).hasSize(0);
@@ -119,7 +119,7 @@ class FateCommandTest {
 
     @Test
     void getDiceResult_modifier_0() {
-        EmbedOrMessageDefinition res = RollAnswerConverter.toEmbedOrMessageDefinition(underTest.getAnswer(new FateConfig(null, "with_modifier", AnswerFormatType.full, ResultImage.none), new State<>("0", StateData.empty()))
+        EmbedOrMessageDefinition res = RollAnswerConverter.toEmbedOrMessageDefinition(underTest.getAnswer(new FateConfig(null, "with_modifier", AnswerFormatType.full, ResultImage.none), new State<>("0", StateData.empty()), 0L, 0L)
                 .orElseThrow());
 
         assertThat(res.getFields()).hasSize(0);
@@ -136,69 +136,69 @@ class FateCommandTest {
 
     @Test
     void getButtonLayoutWithState_simple() {
-        List<ComponentRowDefinition> res = underTest.createNewButtonMessageWithState(new FateConfig(null, "simple", AnswerFormatType.full, ResultImage.none), new State<>("roll", StateData.empty()))
+        List<ComponentRowDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), new FateConfig(null, "simple", AnswerFormatType.full, ResultImage.none), new State<>("roll", StateData.empty()), 1, 2)
                 .orElseThrow().getComponentRowDefinitions();
 
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel)).containsExactly("Roll 4dF");
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getId))
-                .containsExactly("fate\u001Eroll");
+                .containsExactly("fate\u001Eroll00000000-0000-0000-0000-000000000000");
     }
 
     @Test
     void getButtonLayout_simple() {
-        List<ComponentRowDefinition> res = underTest.createNewButtonMessage(new FateConfig(null, "simple", AnswerFormatType.full, ResultImage.none))
+        List<ComponentRowDefinition> res = underTest.createNewButtonMessage(UUID.fromString("00000000-0000-0000-0000-000000000000"), new FateConfig(null, "simple", AnswerFormatType.full, ResultImage.none))
                 .getComponentRowDefinitions();
 
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel)).containsExactly("Roll 4dF");
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getId))
-                .containsExactly("fate\u001Eroll");
+                .containsExactly("fate\u001Eroll00000000-0000-0000-0000-000000000000");
     }
 
     @Test
     void getButtonLayoutWithState_modifier() {
-        List<ComponentRowDefinition> res = underTest.createNewButtonMessageWithState(new FateConfig(null, "with_modifier", AnswerFormatType.full, ResultImage.none), new State<>("2", StateData.empty()))
+        List<ComponentRowDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), new FateConfig(null, "with_modifier", AnswerFormatType.full, ResultImage.none), new State<>("2", StateData.empty()), 1, 2)
                 .orElseThrow().getComponentRowDefinitions();
 
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel)).containsExactly("-4", "-3", "-2", "-1", "0", "+1", "+2", "+3", "+4", "+5", "+6", "+7", "+8", "+9", "+10");
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getId))
-                .containsExactly("fate-4",
-                        "fate-3",
-                        "fate-2",
-                        "fate-1",
-                        "fate0",
-                        "fate1",
-                        "fate2",
-                        "fate3",
-                        "fate4",
-                        "fate5",
-                        "fate6",
-                        "fate7",
-                        "fate8",
-                        "fate9",
-                        "fate10");
+                .containsExactly("fate-400000000-0000-0000-0000-000000000000",
+                        "fate-300000000-0000-0000-0000-000000000000",
+                        "fate-200000000-0000-0000-0000-000000000000",
+                        "fate-100000000-0000-0000-0000-000000000000",
+                        "fate000000000-0000-0000-0000-000000000000",
+                        "fate100000000-0000-0000-0000-000000000000",
+                        "fate200000000-0000-0000-0000-000000000000",
+                        "fate300000000-0000-0000-0000-000000000000",
+                        "fate400000000-0000-0000-0000-000000000000",
+                        "fate500000000-0000-0000-0000-000000000000",
+                        "fate600000000-0000-0000-0000-000000000000",
+                        "fate700000000-0000-0000-0000-000000000000",
+                        "fate800000000-0000-0000-0000-000000000000",
+                        "fate900000000-0000-0000-0000-000000000000",
+                        "fate1000000000-0000-0000-0000-000000000000");
     }
 
     @Test
     void getButtonLayout_modifier() {
-        List<ComponentRowDefinition> res = underTest.createNewButtonMessage(new FateConfig(null, "with_modifier", AnswerFormatType.full, ResultImage.none)).getComponentRowDefinitions();
+        List<ComponentRowDefinition> res = underTest.createNewButtonMessage(UUID.fromString("00000000-0000-0000-0000-000000000000"), new FateConfig(null, "with_modifier", AnswerFormatType.full, ResultImage.none)).getComponentRowDefinitions();
 
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel)).containsExactly("-4", "-3", "-2", "-1", "0", "+1", "+2", "+3", "+4", "+5", "+6", "+7", "+8", "+9", "+10");
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getId))
-                .containsExactly("fate-4",
-                        "fate-3",
-                        "fate-2",
-                        "fate-1",
-                        "fate0",
-                        "fate1",
-                        "fate2",
-                        "fate3",
-                        "fate4",
-                        "fate5",
-                        "fate6",
-                        "fate7",
-                        "fate8",
-                        "fate9",
-                        "fate10");
+                .containsExactly("fate-400000000-0000-0000-0000-000000000000",
+                        "fate-300000000-0000-0000-0000-000000000000",
+                        "fate-200000000-0000-0000-0000-000000000000",
+                        "fate-100000000-0000-0000-0000-000000000000",
+                        "fate000000000-0000-0000-0000-000000000000",
+                        "fate100000000-0000-0000-0000-000000000000",
+                        "fate200000000-0000-0000-0000-000000000000",
+                        "fate300000000-0000-0000-0000-000000000000",
+                        "fate400000000-0000-0000-0000-000000000000",
+                        "fate500000000-0000-0000-0000-000000000000",
+                        "fate600000000-0000-0000-0000-000000000000",
+                        "fate700000000-0000-0000-0000-000000000000",
+                        "fate800000000-0000-0000-0000-000000000000",
+                        "fate900000000-0000-0000-0000-000000000000",
+                        "fate1000000000-0000-0000-0000-000000000000");
     }
 
     @Test
@@ -208,32 +208,30 @@ class FateCommandTest {
 
     @Test
     void checkPersistence() {
-        PersistanceManager persistanceManager = new PersistanceManagerImpl("jdbc:h2:mem:" + UUID.randomUUID(), null, null);
-        long channelId = System.currentTimeMillis();
-        long messageId = System.currentTimeMillis();
-        UUID configUUID = UUID.randomUUID();
+        PersistenceManager persistenceManager = new PersistenceManagerImpl("jdbc:h2:mem:" + UUID.fromString("00000000-0000-0000-0000-000000000000"), null, null);
+        UUID configUUID = UUID.fromString("00000000-0000-0000-0000-000000000000");
         FateConfig config = new FateConfig(123L, "with_modifier", AnswerFormatType.full, ResultImage.none);
-        State<StateData> state = new State<>("5", StateData.empty());
-        Optional<MessageDataDTO> toSave = underTest.createMessageDataForNewMessage(configUUID, 1L, channelId, messageId, config, state);
-        persistanceManager.saveMessageData(toSave.orElseThrow());
+        Optional<MessageConfigDTO> toSave = underTest.createMessageConfig(configUUID, 1L, 2L, config);
+        assertThat(toSave).isPresent();
 
-        MessageDataDTO loaded = persistanceManager.getDataForMessage(channelId, messageId).orElseThrow();
+        persistenceManager.saveMessageConfig(toSave.get());
+        MessageConfigDTO loaded = persistenceManager.getMessageConfig(configUUID).orElseThrow();
 
-        assertThat(toSave.orElseThrow()).isEqualTo(loaded);
+        assertThat(toSave.get()).isEqualTo(loaded);
         ConfigAndState<FateConfig, StateData> configAndState = underTest.deserializeAndUpdateState(loaded, "3");
         assertThat(configAndState.getConfig()).isEqualTo(config);
         assertThat(configAndState.getConfigUUID()).isEqualTo(configUUID);
-        assertThat(configAndState.getState().getData()).isEqualTo(state.getData());
+        assertThat(configAndState.getState()).isEqualTo(new State<>("3", StateData.empty()));
     }
 
     @Test
     void deserialization_legacy2() {
-        UUID configUUID = UUID.randomUUID();
-        MessageDataDTO savedData = new MessageDataDTO(configUUID, 1L, 1660644934298L, 1660644934298L, "fate", "FateConfig", """
+        UUID configUUID = UUID.fromString("00000000-0000-0000-0000-000000000000");
+        MessageConfigDTO savedData = new MessageConfigDTO(configUUID, 1L, 1660644934298L, "fate", "FateConfig", """
                 ---
                 answerTargetChannelId: 123
                 type: "with_modifier"
-                """, "None", null);
+                """);
 
 
         ConfigAndState<FateConfig, StateData> configAndState = underTest.deserializeAndUpdateState(savedData, "3");
@@ -244,13 +242,13 @@ class FateCommandTest {
 
     @Test
     void deserialization() {
-        UUID configUUID = UUID.randomUUID();
-        MessageDataDTO savedData = new MessageDataDTO(configUUID, 1L, 1660644934298L, 1660644934298L, "fate", "FateConfig", """
+        UUID configUUID = UUID.fromString("00000000-0000-0000-0000-000000000000");
+        MessageConfigDTO savedData = new MessageConfigDTO(configUUID, 1L, 1660644934298L, "fate", "FateConfig", """
                 ---
                 answerTargetChannelId: 123
                 type: "with_modifier"
                 answerFormatType: compact
-                """, "None", null);
+                """);
 
 
         ConfigAndState<FateConfig, StateData> configAndState = underTest.deserializeAndUpdateState(savedData, "3");

@@ -7,6 +7,7 @@ import de.janno.discord.bot.BotMetrics;
 import de.janno.discord.bot.ResultImage;
 import de.janno.evaluator.dice.RandomElement;
 import de.janno.evaluator.dice.Roll;
+import io.micrometer.core.instrument.Gauge;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
@@ -18,11 +19,15 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static io.micrometer.core.instrument.Metrics.globalRegistry;
 
 @Slf4j
 public class ImageResultCreator {
@@ -39,11 +44,23 @@ public class ImageResultCreator {
             Files.createDirectories(Paths.get(CACHE_FOLDER));
             File cacheIndex = new File(CACHE_INDEX);
             if (!cacheIndex.exists()) {
-                cacheIndex.createNewFile();
+                boolean createdCacheFolder = cacheIndex.createNewFile();
+                if (createdCacheFolder) {
+                    log.info("created new image cache folder");
+                }
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+
+        Gauge.builder("diceImage.cache", () -> {
+            try (Stream<Path> files = Files.list(Paths.get(CACHE_FOLDER))) {
+                return files.count();
+            } catch (IOException e) {
+                return -1;
+            }
+        }).register(globalRegistry);
+
     }
 
     @VisibleForTesting
@@ -54,7 +71,7 @@ public class ImageResultCreator {
                         .collect(Collectors.joining(","))
                 )
                 .filter(l -> !l.isEmpty())
-                        .map("[%s]"::formatted)
+                .map("[%s]"::formatted)
                 .collect(Collectors.joining(",")));
     }
 
@@ -82,7 +99,7 @@ public class ImageResultCreator {
             createNewFileForRoll(rolls.get(0), imageFile, name, resultImage);
             BotMetrics.incrementImageResultMetricCounter(BotMetrics.CacheTag.CACHE_MISS);
         } else {
-            log.debug("Use cached file %s for %s".formatted(filePath, name));
+            log.trace("Use cached file %s for %s".formatted(filePath, name));
             BotMetrics.incrementImageResultMetricCounter(BotMetrics.CacheTag.CACHE_HIT);
         }
         return imageFile;

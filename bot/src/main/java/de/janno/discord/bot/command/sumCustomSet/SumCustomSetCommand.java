@@ -7,10 +7,12 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import de.janno.discord.bot.ResultImage;
 import de.janno.discord.bot.command.*;
+import de.janno.discord.bot.command.channelConfig.AliasHelper;
 import de.janno.discord.bot.dice.*;
 import de.janno.discord.bot.persistance.Mapper;
+import de.janno.discord.bot.persistance.MessageConfigDTO;
 import de.janno.discord.bot.persistance.MessageDataDTO;
-import de.janno.discord.bot.persistance.PersistanceManager;
+import de.janno.discord.bot.persistance.PersistenceManager;
 import de.janno.discord.connector.api.BottomCustomIdUtils;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
@@ -25,6 +27,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -45,69 +48,71 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
     private static final String STATE_DATA_TYPE_ID = "SumCustomSetStateData";
     private final DiceSystemAdapter diceSystemAdapter;
 
-    public SumCustomSetCommand(PersistanceManager persistanceManager, CachingDiceEvaluator cachingDiceEvaluator) {
-        this(persistanceManager, new DiceParser(), cachingDiceEvaluator);
+    public SumCustomSetCommand(PersistenceManager persistenceManager, CachingDiceEvaluator cachingDiceEvaluator) {
+        this(persistenceManager, new DiceParser(), cachingDiceEvaluator);
     }
 
     @VisibleForTesting
-    public SumCustomSetCommand(PersistanceManager persistanceManager, Dice dice, CachingDiceEvaluator cachingDiceEvaluator) {
-        super(persistanceManager);
+    public SumCustomSetCommand(PersistenceManager persistenceManager, Dice dice, CachingDiceEvaluator cachingDiceEvaluator) {
+        super(persistenceManager);
         this.diceSystemAdapter = new DiceSystemAdapter(cachingDiceEvaluator, dice);
     }
 
     @Override
-    protected Optional<ConfigAndState<SumCustomSetConfig, SumCustomSetStateData>> getMessageDataAndUpdateWithButtonValue(long channelId,
-                                                                                                                         long messageId,
-                                                                                                                         @NonNull String buttonValue,
-                                                                                                                         @NonNull String invokingUserName) {
-        final Optional<MessageDataDTO> messageDataDTO = persistanceManager.getDataForMessage(channelId, messageId);
-        return messageDataDTO.map(dataDTO -> deserializeAndUpdateState(dataDTO, buttonValue, invokingUserName));
+    protected ConfigAndState<SumCustomSetConfig, SumCustomSetStateData> getMessageDataAndUpdateWithButtonValue(@NonNull MessageConfigDTO messageConfigDTO,
+                                                                                                               @NonNull MessageDataDTO messageDataDTO,
+                                                                                                               @NonNull String buttonValue,
+                                                                                                               @NonNull String invokingUserName) {
+        return deserializeAndUpdateState(messageConfigDTO, messageDataDTO, buttonValue, invokingUserName);
     }
 
     @Override
-    protected void updateCurrentMessageStateData(long channelId, long messageId, @NonNull SumCustomSetConfig config, @NonNull State<SumCustomSetStateData> state) {
-        if (state.getData() == null || ROLL_BUTTON_ID.equals(state.getButtonValue())) {
-            persistanceManager.updateCommandConfigOfMessage(channelId, messageId, Mapper.NO_PERSISTED_STATE, null);
-        } else {
-            persistanceManager.updateCommandConfigOfMessage(channelId, messageId, STATE_DATA_TYPE_ID, Mapper.serializedObject(state.getData()));
+    protected void updateCurrentMessageStateData(UUID configUUID, long guildId, long channelId, long messageId, @NonNull SumCustomSetConfig config, @NonNull State<SumCustomSetStateData> state) {
+        if (ROLL_BUTTON_ID.equals(state.getButtonValue())) {
+            persistenceManager.deleteStateForMessage(channelId, messageId);
+            //message data so we knew the button message exists
+            persistenceManager.saveMessageData(new MessageDataDTO(configUUID, guildId, channelId, messageId, getCommandId(), Mapper.NO_PERSISTED_STATE, null));
+        } else if (state.getData() != null) {
+            persistenceManager.deleteStateForMessage(channelId, messageId);
+            persistenceManager.saveMessageData(new MessageDataDTO(configUUID, guildId, channelId, messageId, getCommandId(), STATE_DATA_TYPE_ID, Mapper.serializedObject(state.getData())));
         }
     }
 
     @VisibleForTesting
-    ConfigAndState<SumCustomSetConfig, SumCustomSetStateData> deserializeAndUpdateState(@NonNull MessageDataDTO messageDataDTO,
-                                                                                        @NonNull String buttonValue,
-                                                                                        @NonNull String invokingUserName) {
-        Preconditions.checkArgument(CONFIG_TYPE_ID.equals(messageDataDTO.getConfigClassId()), "Unknown configClassId: %s", messageDataDTO.getConfigClassId());
-        Preconditions.checkArgument(STATE_DATA_TYPE_ID.equals(messageDataDTO.getStateDataClassId())
-                || Mapper.NO_PERSISTED_STATE.equals(messageDataDTO.getStateDataClassId()), "Unknown stateDataClassId: %s", messageDataDTO.getStateDataClassId());
+    ConfigAndState<SumCustomSetConfig, SumCustomSetStateData> deserializeAndUpdateState(
+            @NonNull MessageConfigDTO messageConfigDTO,
+            @NonNull MessageDataDTO messageDataDTO,
+            @NonNull String buttonValue,
+            @NonNull String invokingUserName) {
+        Preconditions.checkArgument(CONFIG_TYPE_ID.equals(messageConfigDTO.getConfigClassId()), "Unknown configClassId: %s", messageConfigDTO.getConfigClassId());
+        Preconditions.checkArgument(Optional.of(messageDataDTO)
+                .map(MessageDataDTO::getStateDataClassId)
+                .map(c -> Set.of(STATE_DATA_TYPE_ID, Mapper.NO_PERSISTED_STATE).contains(c))
+                .orElse(true), "Unknown stateDataClassId: %s", Optional.of(messageDataDTO)
+                .map(MessageDataDTO::getStateDataClassId).orElse("null"));
 
-        final SumCustomSetStateData loadedStateData = Optional.ofNullable(messageDataDTO.getStateData())
+        final SumCustomSetStateData loadedStateData = Optional.of(messageDataDTO)
+                .map(MessageDataDTO::getStateData)
                 .map(sd -> Mapper.deserializeObject(sd, SumCustomSetStateData.class))
                 .orElse(null);
-        final SumCustomSetConfig loadedConfig = Mapper.deserializeObject(messageDataDTO.getConfig(), SumCustomSetConfig.class);
+        final SumCustomSetConfig loadedConfig = Mapper.deserializeObject(messageConfigDTO.getConfig(), SumCustomSetConfig.class);
         final State<SumCustomSetStateData> updatedState = updateStateWithButtonValue(buttonValue,
                 Optional.ofNullable(loadedStateData).map(SumCustomSetStateData::getDiceExpressions).orElse(ImmutableList.of()),
                 invokingUserName,
                 Optional.ofNullable(loadedStateData).map(SumCustomSetStateData::getLockedForUserName).orElse(""),
-                loadedConfig.getLabelAndExpression(), loadedConfig.getDiceParserSystem());
-        return new ConfigAndState<>(messageDataDTO.getConfigUUID(), loadedConfig, updatedState);
+                loadedConfig.getLabelAndExpression());
+        return new ConfigAndState<>(messageConfigDTO.getConfigUUID(), loadedConfig, updatedState);
     }
 
     @Override
-    public Optional<MessageDataDTO> createMessageDataForNewMessage(@NonNull UUID configUUID,
-                                                                   long guildId,
-                                                                   long channelId,
-                                                                   long messageId,
-                                                                   @NonNull SumCustomSetConfig config,
-                                                                   @Nullable State<SumCustomSetStateData> state) {
-        return Optional.of(new MessageDataDTO(configUUID, guildId, channelId, messageId, getCommandId(), CONFIG_TYPE_ID, Mapper.serializedObject(config)));
+    public Optional<MessageConfigDTO> createMessageConfig(@NonNull UUID configUUID, long guildId, long channelId, @NonNull SumCustomSetConfig config) {
+        return Optional.of(new MessageConfigDTO(configUUID, guildId, channelId, getCommandId(), CONFIG_TYPE_ID, Mapper.serializedObject(config)));
     }
 
     @Override
     protected @NonNull String getCommandDescription() {
         return "Configure a variable set of dice";
     }
-
 
     @Override
     protected @NonNull EmbedOrMessageDefinition getHelpMessage() {
@@ -122,11 +127,6 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
     @Override
     public String getCommandId() {
         return COMMAND_NAME;
-    }
-
-    @Override
-    protected @NonNull Optional<String> getStartOptionsValidationMessage(@NonNull CommandInteractionOption options) {
-        return Optional.empty();
     }
 
     @Override
@@ -146,7 +146,7 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
     }
 
     @Override
-    protected @NonNull Optional<RollAnswer> getAnswer(SumCustomSetConfig config, State<SumCustomSetStateData> state) {
+    protected @NonNull Optional<RollAnswer> getAnswer(SumCustomSetConfig config, State<SumCustomSetStateData> state, long channelId, long userId) {
         if (!(ROLL_BUTTON_ID.equals(state.getButtonValue()) &&
                 !Optional.ofNullable(state.getData())
                         .map(SumCustomSetStateData::getDiceExpressions)
@@ -158,8 +158,9 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
                 .filter(ld -> ld.getButtonId().equals(state.getButtonValue()))
                 .map(ButtonIdLabelAndDiceExpression::getLabel)
                 .findFirst().orElse(null);
+        String newExpression = AliasHelper.getAndApplyAliaseToExpression(channelId, userId, persistenceManager, combineExpressions(state.getData().getDiceExpressions()));
 
-        return Optional.of(diceSystemAdapter.answerRollWithGivenLabel(combineExpressions(state.getData().getDiceExpressions()),
+        return Optional.of(diceSystemAdapter.answerRollWithGivenLabel(newExpression,
                 label,
                 config.isAlwaysSumResult(),
                 config.getDiceParserSystem(),
@@ -168,34 +169,35 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
     }
 
     @Override
-    public @NonNull MessageDefinition createNewButtonMessage(SumCustomSetConfig config) {
+    public @NonNull MessageDefinition createNewButtonMessage(UUID configUUID, SumCustomSetConfig config) {
         return MessageDefinition.builder()
                 .content(EMPTY_MESSAGE)
-                .componentRowDefinitions(createButtonLayout(config, true))
+                .componentRowDefinitions(createButtonLayout(configUUID, config, true))
                 .build();
     }
 
     @Override
-    protected @NonNull Optional<MessageDefinition> createNewButtonMessageWithState(SumCustomSetConfig config, State<SumCustomSetStateData> state) {
+    protected @NonNull Optional<MessageDefinition> createNewButtonMessageWithState(UUID customUuid, SumCustomSetConfig config, State<SumCustomSetStateData> state, long guildId, long channelId) {
         if (ROLL_BUTTON_ID.equals(state.getButtonValue()) && !Optional.ofNullable(state.getData())
                 .map(SumCustomSetStateData::getDiceExpressions)
                 .map(List::isEmpty)
                 .orElse(false)) {
             return Optional.of(MessageDefinition.builder()
                     .content(EMPTY_MESSAGE)
-                    .componentRowDefinitions(createButtonLayout(config, true))
+                    .componentRowDefinitions(createButtonLayout(customUuid, config, true))
                     .build());
         }
         return Optional.empty();
     }
 
     @Override
-    protected Optional<List<ComponentRowDefinition>> getCurrentMessageComponentChange(SumCustomSetConfig config, State<SumCustomSetStateData> state) {
+    protected Optional<List<ComponentRowDefinition>> getCurrentMessageComponentChange(UUID customUuid, SumCustomSetConfig config, State<SumCustomSetStateData> state, long channelId, long userId) {
         if (state.getData() == null) {
             return Optional.empty();
         }
-        String expression = combineExpressions(state.getData().getDiceExpressions());
-        return Optional.of(createButtonLayout(config, !diceSystemAdapter.isValidExpression(expression, config.getDiceParserSystem())));
+        String expression = AliasHelper.getAndApplyAliaseToExpression(channelId, userId, persistenceManager, combineExpressions(state.getData().getDiceExpressions()));
+
+        return Optional.of(createButtonLayout(customUuid, config, !diceSystemAdapter.isValidExpression(expression, config.getDiceParserSystem())));
     }
 
     @Override
@@ -225,9 +227,7 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
                                                                     @NonNull final List<String> currentExpressions,
                                                                     @NonNull final String invokingUserName,
                                                                     @Nullable final String lockedToUser,
-                                                                    @NonNull final List<ButtonIdLabelAndDiceExpression> buttonIdLabelAndDiceExpressions,
-                                                                    @NonNull final DiceParserSystem diceParserSystem) {
-        String currentExpression = combineExpressions(currentExpressions);
+                                                                    @NonNull final List<ButtonIdLabelAndDiceExpression> buttonIdLabelAndDiceExpressions) {
         if (CLEAR_BUTTON_ID.equals(buttonValue)) {
             return new State<>(buttonValue, new SumCustomSetStateData(ImmutableList.of(), null));
         }
@@ -244,10 +244,6 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
             return new State<>(buttonValue, new SumCustomSetStateData(newExpressionList, newExpressionList.isEmpty() ? null : lockedToUser));
         }
         if (ROLL_BUTTON_ID.equals(buttonValue)) {
-            if (!diceSystemAdapter.isValidExpression(currentExpression, diceParserSystem)) {
-                //should not happen, button only enabled if expression is valid
-                return new State<>(NO_ACTION, new SumCustomSetStateData(currentExpressions, lockedToUser));
-            }
             return new State<>(buttonValue, new SumCustomSetStateData(currentExpressions, lockedToUser));
         }
         final Optional<String> addExpression = buttonIdLabelAndDiceExpressions.stream()
@@ -288,6 +284,34 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
             builder.add(new ButtonIdAndExpression(idCounter++ + "_button", button));
         }
         return builder.build();
+    }
+
+    private List<ComponentRowDefinition> createButtonLayout(UUID customUUID, SumCustomSetConfig config, boolean rollDisabled) {
+        List<ButtonDefinition> buttons = config.getLabelAndExpression().stream()
+                .map(d -> ButtonDefinition.builder()
+                        .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), d.getButtonId(), customUUID))
+                        .label(d.getLabel())
+                        .build())
+                .collect(Collectors.toList());
+        buttons.add(ButtonDefinition.builder()
+                .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), ROLL_BUTTON_ID, customUUID))
+                .label("Roll")
+                .disabled(rollDisabled)
+                .style(rollDisabled ? ButtonDefinition.Style.PRIMARY : ButtonDefinition.Style.SUCCESS)
+                .build());
+        buttons.add(ButtonDefinition.builder()
+                .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), CLEAR_BUTTON_ID, customUUID))
+                .label("Clear")
+                .style(ButtonDefinition.Style.DANGER)
+                .build());
+        buttons.add(ButtonDefinition.builder()
+                .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), BACK_BUTTON_ID, customUUID))
+                .label("Back")
+                .style(ButtonDefinition.Style.SECONDARY)
+                .build());
+        return Lists.partition(buttons, 5).stream()
+                .map(bl -> ComponentRowDefinition.builder().buttonDefinitions(bl).build())
+                .collect(Collectors.toList());
     }
 
     @VisibleForTesting
@@ -331,34 +355,6 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
                 .limit(22)
                 .collect(Collectors.toList()),
                 diceParserSystem, alwaysSumResult, answerFormatType, resultImage);
-    }
-
-    private List<ComponentRowDefinition> createButtonLayout(SumCustomSetConfig config, boolean rollDisabled) {
-        List<ButtonDefinition> buttons = config.getLabelAndExpression().stream()
-                .map(d -> ButtonDefinition.builder()
-                        .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), d.getButtonId()))
-                        .label(d.getLabel())
-                        .build())
-                .collect(Collectors.toList());
-        buttons.add(ButtonDefinition.builder()
-                .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), ROLL_BUTTON_ID))
-                .label("Roll")
-                .disabled(rollDisabled)
-                .style(rollDisabled ? ButtonDefinition.Style.PRIMARY : ButtonDefinition.Style.SUCCESS)
-                .build());
-        buttons.add(ButtonDefinition.builder()
-                .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), CLEAR_BUTTON_ID))
-                .label("Clear")
-                .style(ButtonDefinition.Style.DANGER)
-                .build());
-        buttons.add(ButtonDefinition.builder()
-                .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), BACK_BUTTON_ID))
-                .label("Back")
-                .style(ButtonDefinition.Style.SECONDARY)
-                .build());
-        return Lists.partition(buttons, 5).stream()
-                .map(bl -> ComponentRowDefinition.builder().buttonDefinitions(bl).build())
-                .collect(Collectors.toList());
     }
 
     @Value

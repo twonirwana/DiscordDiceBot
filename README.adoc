@@ -38,7 +38,7 @@ Some example for commands, many more systems can be mapped, please see in the de
 [discrete]
 === DnD 5e
 
-`/custom_dice start buttons:1d4;1d6;1d8;1d10;1d12;1d20;1d100;2d20k1@D20 Advantage;2d20L1@D20 Disadvantage;2d4;2d6;2d8;2d10;2d12;2d20;3d4;3d6;3d8;3d10;3d12;3d20`
+`/custom_dice start buttons:1d4;1d6;1d8;1d10;1d12;1d20;1d100;2d20k1@D20 Advantage;2d20L1@D20 Disadvantage;2d4=@2d4;2d6=@2d6;2d8=@2d8;2d10=@2d10;2d12=@2d12;2d20=@2d20;3d4=@3d4;3d6=@3d6;3d8=@3d8;3d10=@3d10;3d12=@3d12;3d20=@3d20`
 
 [discrete]
 === OSR
@@ -93,6 +93,21 @@ Some example for commands, many more systems can be mapped, please see in the de
 
 `/sum_custom_set start buttons: 7;8;9;+;-;4;5;6;d;k;1;2;3;0;l always_sum_result: true`
 
+[discrete]
+=== Exalted 3rd ===
+
+`/custom_parameter start expression: val('$1', cancel(double({number of dice:1<=>24}d10,10),1,[7/8/9/10])), ifE(('$1'>=7)c,0,ifG(('$1'\<=1)c,0,'Botch'))`
+
+[discrete]
+=== Vampire 5ed ===
+
+`/custom_parameter start expression: val('$r',{regular dice:1<=>16}d10) val('$h',{hunger dice:0<=>5}d10) val('$s',('$r'+'$h')>=6c) val('$rt','$r'==10c) val('$ht','$h'==10c) val('$ho','$h'==1c) val('$2s',((('$rt'+'$ht'=))/2)*2) val('$ts',('$s'+'$2s'=)) concat('successes: ', '$ts', ifE('$ts',0,ifG('$ho',1,' bestial failure' , ''),''), ifE('$rt' mod 2, 1, ifE('$ht' mod 2, 1, ' messy critical', ''), '')) answer_format: without_expression`
+
+[discrete]
+=== One-Roll Engine ===
+
+`/custom_parameter start expression: groupc({Number of Dice:1<=>10}d10+({Number of Extra Die:0@0/10@1/2r10@2/3r10@3/4r10@4})>={Difficulty:1<=>10})`
+
 == Commands
 
 All button configurations can be used with the `target_channel` option.
@@ -103,7 +118,7 @@ If a message sends the answer to another channel, it will not be moved to the en
 === Answer Format
 
 All commands have an `answer_format` option that determines how the answer of a dice roll is shown.
-In the case of the direct roll command `r` the `answer_format` can be configured for the current channel with the `direct_roll_config` command.
+In the case of the direct roll command `r` the `answer_format` can be configured for the current channel with the `channel_config` command.
 There are the following options: `full`,`without_expression`, `compact` and `minimal`.
 
 ==== Full
@@ -138,7 +153,7 @@ image:image/minimal.png[image,320]
 === Dice Images
 
 The `custom_dice`, `sum_custom_dice` and `custom_parameter` commands have an `result_image` option that can be configured to add an image of the rolled dice.
-For the direct rolls it can be configured with the `direct_roll_config` command.
+For the direct rolls it can be configured with the `channel_config` command.
 The images will only be shown if the following conditions are met:
 
 * The `answer_format` is set to `full` or `without_expression`
@@ -205,9 +220,14 @@ image:image/custom_dice.webp[image]
 Use the slash command: `custom_dice start` and add up to 25 custom buttons, each with its own dice expression (see the section <<Dice Expression Notation>>).
 The expressions for the buttons are seperated by `;`.
 For example `/custom_dice start buttons:3d6@Attack;10d10;3d20` will produce three buttons, one with `3d6` (and the label Attack), one with `10d10` and one with `3d20`.
-The old version of the command, with the old dice expression, can be still used with `custom_dice legacy_start`, which is not recommended.
-
 Clicking on a button provides the results of the button dice expression.
+
+It is possible to use alias with custom dice buttons.
+The alias must be created before the button is created.
+A usage example would be:
+Create the server alias `attack modifier` with the value 0.
+Then create a custom dice button with the expression `d20+attack modifier@Attack` and each player create a user alias for `attack modifier` with the attack modifier of its character.
+This will provide a button called `Attack` which rolls with a personalized modifier for each player.
 
 === Direct Roll
 
@@ -216,8 +236,17 @@ image:image/direct_roll.webp[image]
 With the command `/r` it is possible to directly call the dice expression (see <<Dice Expression Notation>>) without the usage of buttons.
 For example `/r expression:3d6` will simply roll 3d6 and post the result without showing any buttons.
 The result of the dice will be summed up per default.
-The command can be configured for a channel by using the `/direct_roll_config save` command.
-The configuration will be used for all `/r` in this channel until it is overwritten or deleted with `/direct_roll_config delete`.
+The output can be configured with the `channel_config` command.
+
+=== Channel Config
+
+This command is used create a channel specific configuration.
+It is possible to configure alias and the output for the direct rolls:
+
+==== Direct Roll Config
+
+The command can be configured for a channel by using the `/channel_config save_direct_roll_config` command.
+The configuration will be used for all `/r` in this channel until it is overwritten or deleted with `/channel_config delete_direct_roll_config`.
 
 There are the following options:
 
@@ -227,6 +256,26 @@ If set to false the `3d6` would return the result for each die, not the sum of a
 This can still be done by using the sum operator `=` e.g. `3d6=`.
 The default value is true
 * `image_result`: see <<Dice Images>> for details, the default value is `polyhedral_3d_red_and_white`
+
+==== Aliases
+
+It is possible to configure alias in a channel.
+Alias can be used with direct roll and custom dice.
+If a custom dice button is created that should use an alias, the alias musst exist before the button is created.
+
+For example `/channel_config user_channel_alias save name: att value: (2d20k1)+10+1d4` creates an attack alias for the user.
+Each time the user uses the slash command `/r expression: att`, the `att` will automatically replaced with `(2d20k1)+10+1d4`
+
+An alias has a name and a value and will replace each occurrence in the dice expression of its name with its value.
+There are two types of alias, channel alias and user channel alias.
+A channel alias will be applied to each roll in a channel, for every user.
+The user channel alias will only apply to for the user who created the alias in the channel.
+The user channel alias will be applied first.
+Three are three commands for each type.
+
+* `save` creates or overwrites an alias
+* `delete` removes an alias by its name
+* `list` provides a list of all alias
 
 === Count success in a pool
 
@@ -345,7 +394,9 @@ Clicking on the `Roll` button will roll the dice the message and copy a clear bu
 The `Roll` can only be clicked if the expression is valid. `Back` will undo the last addition and `Clear` reset all.
 If the option `always_sum_result` is true (the default) then the result of the dice will be added together, the equivalent of adding `=` at the end of the expression.
 
-The old version of the command, with the old dice expression, can be still used with `sum_custom_set legacy_start`, which is not recommended.
+This command can also use alias (see the `channel_config` command).
+The substitution of the alias name with its value happen upon pressing the `Roll` button.
+If there is no valid alias then the expression can be invalid and it is not possible to press the `Roll` button.
 
 === Custom Parameter
 
@@ -363,6 +414,7 @@ The maximum are 23 buttons.
 It is possible to add an optional label to each value in the format `value@label`.
 For example `{bonus:0@None/3@Small Bonus/5@Big Bonus}` will show on the buttons 'None', 'Small Bonus' and 'Big Bonus' but apply the values 0, 3 or 5 to the expression
 
+A expression can have up to 4 parameter.
 The user can click on the buttons to fill all open parameter of the expression.
 If all parameter are selected then the expression will be rolled.
 The first user that clicks on a button add his name to the message and only this user can select further parameter.
@@ -412,7 +464,7 @@ All operators are case insensitiv.
 |Greater Then Filter |`<list> > <number>` |`3d6>3` |Keeps only the elements of the left list that are bigger as the right number |7 |left |one or more numbers |a single number
 |Lesser Then Filter |`<list> < <number>` |`3d6<3` |Keeps only the elements of the left list that are lesser as the right number |8 |left |one or more numbers |a single number
 |Greater Equal Then Filter |`<list> >= <number>` |`3d6>=3` |Keeps only the elements of the left list that are bigger or equal as the right number |9 |left |one or more numbers |a single number
-|Lesser Equal Then Filter |`<list> <= <number>` |`3d6<=3` |Keeps only the elements of the left list that are lesser or equal as the right number |10 |left |one or more numbers |a single number
+|Lesser Equal Then Filter |`<list> \<= <number>` |`3d6\<=3` |Keeps only the elements of the left list that are lesser or equal as the right number |10 |left |one or more numbers |a single number
 |Equal Filter |`<list> == <element>` |`3d6==3` |Keeps only the elements of the left list that are equal to the element |11 |left |one or more elements |a single elements
 |Keep Highest |`<list> k <numberToKept>` |`3d6k2` |keeps the highest values out a list, like the roll of multiple dice |12 |left |one or more elements |a single number
 |Keep Lowest |`<list> l <numberToKept>` |`3d6l2` |keeps the lowest values out a list, like the roll of multiple dice |13 |left |one or more elements |a single number
