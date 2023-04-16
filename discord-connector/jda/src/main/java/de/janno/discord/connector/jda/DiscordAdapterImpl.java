@@ -59,8 +59,10 @@ public abstract class DiscordAdapterImpl implements DiscordAdapter {
         switch (answer.getType()) {
             case EMBED -> {
                 EmbedBuilder builder = new EmbedBuilder();
-                builder.setTitle(StringUtils.abbreviate(encodeUTF8(answer.getTitle()), 256))//https://discord.com/developers/docs/resources/channel#embed-limits
-                        .setAuthor(rollRequesterName,
+                if (!Strings.isNullOrEmpty(answer.getTitle())) {
+                    builder.setTitle(StringUtils.abbreviate(encodeUTF8(answer.getTitle()), 256));//https://discord.com/developers/docs/resources/channel#embed-limits
+                }
+                builder.setAuthor(rollRequesterName,
                                 null,
                                 rollRequesterAvatar)
                         .setColor(Color.decode(String.valueOf(rollRequesterId.hashCode())));

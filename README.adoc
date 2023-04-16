@@ -136,6 +136,13 @@ Will show result images, if they are configured.
 
 image:image/without_expression.png[image,320]
 
+==== Only Dice
+
+`only_dice` shows only dice results, if configured as images.
+The expression, static modifier and calculated results beside the dice will not be shown.
+
+image:image/only_dice.png[image,320]
+
 ==== Compact
 
 `compact` shows the result as single line (if there are multiple expressions in on roll, they will be displayed in multiple lines) and all details.

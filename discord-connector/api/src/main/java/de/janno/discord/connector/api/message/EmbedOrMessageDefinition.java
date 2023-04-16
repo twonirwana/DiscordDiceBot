@@ -46,6 +46,5 @@ public class EmbedOrMessageDefinition {
         @NonNull
         String value;
         boolean inline;
-
     }
 }
