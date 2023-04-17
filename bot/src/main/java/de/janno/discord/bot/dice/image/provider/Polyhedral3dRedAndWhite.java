@@ -1,4 +1,4 @@
-package de.janno.discord.bot.dice.image;
+package de.janno.discord.bot.dice.image.provider;
 
 public class Polyhedral3dRedAndWhite extends PolyhedralFileImageProvider {
     @Override

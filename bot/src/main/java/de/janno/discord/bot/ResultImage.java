@@ -4,6 +4,7 @@ public enum ResultImage {
     none,
     polyhedral_3d_red_and_white,
     fate_black,
+    d6_dots_white,
     polyhedral_black_and_gold,
     // polyhedral_black_and_gold_v2,
     polyhedral_alies_blue_and_silver,

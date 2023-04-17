@@ -179,6 +179,12 @@ image:image/fate_image.png[image,360]
 
 Valid for d[-1,1,1]
 
+==== d6_dots_white
+
+image:image/d6White.png[image,360]
+
+Valid for d6
+
 ==== polyhedral_black_and_gold
 
 image:image/black_and_gold.png[image,600]
@@ -496,5 +502,6 @@ All functions are case insensitiv.
 
 == Contributors
 
-Special thank to https://www.instagram.com/alie_in_beanland/[alieinbeanland ] for the design of the dice images.
-The polyhedral_3d_red_and_white dice images where adapted from https://blendswap.com/blend/16634
+* Special thank to https://www.instagram.com/alie_in_beanland/[alieinbeanland ] for the design of the dice images.
+* The `polyhedral_3d_red_and_white` dice images where adapted from https://blendswap.com/blend/16634
+* The `d6_dots_white` dice images are from https://game-icons.net/

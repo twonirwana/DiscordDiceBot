@@ -1,4 +1,4 @@
-package de.janno.discord.bot.dice.image;
+package de.janno.discord.bot.dice.image.provider;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Resources;
