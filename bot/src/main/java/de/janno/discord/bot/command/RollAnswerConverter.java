@@ -11,7 +11,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class RollAnswerConverter {
-    private static final Set<AnswerFormatType> EMBED_ANSWER_TYPES = ImmutableSet.of(AnswerFormatType.full, AnswerFormatType.without_expression);
+    private static final Set<AnswerFormatType> EMBED_ANSWER_TYPES = ImmutableSet.of(AnswerFormatType.full, AnswerFormatType.without_expression, AnswerFormatType.only_dice);
 
     private static EmbedOrMessageDefinition.Type getMessageType(AnswerFormatType answerFormatType) {
         return EMBED_ANSWER_TYPES.contains(answerFormatType) ? EmbedOrMessageDefinition.Type.EMBED : EmbedOrMessageDefinition.Type.MESSAGE;
@@ -39,7 +39,7 @@ public class RollAnswerConverter {
                                             r.getRollDetails(),
                                             false))
                                     .collect(ImmutableList.toImmutableList()))
-                            .type(type)
+                            .type(EmbedOrMessageDefinition.Type.EMBED)
                             .build();
 
                 } else {
@@ -54,7 +54,7 @@ public class RollAnswerConverter {
                             .title("%s ⇒ %s".formatted(Optional.ofNullable(rollAnswer.getExpressionLabel()).orElse(rollAnswer.getExpression()), rollAnswer.getResult()))
                             .descriptionOrContent(description)
                             .file(rollAnswer.getFile())
-                            .type(type)
+                            .type(EmbedOrMessageDefinition.Type.EMBED)
                             .build();
                 }
             }
@@ -69,7 +69,7 @@ public class RollAnswerConverter {
                                             r.getRollDetails(),
                                             false))
                                     .collect(ImmutableList.toImmutableList()))
-                            .type(type)
+                            .type(EmbedOrMessageDefinition.Type.EMBED)
                             .build();
 
                 } else {
@@ -78,7 +78,25 @@ public class RollAnswerConverter {
                     yield EmbedOrMessageDefinition.builder()
                             .title("%s ⇒ %s".formatted(Optional.ofNullable(rollAnswer.getExpressionLabel()).orElse("Roll"), rollAnswer.getResult()))
                             .descriptionOrContent(description)
-                            .type(type)
+                            .type(EmbedOrMessageDefinition.Type.EMBED)
+                            .file(rollAnswer.getFile())
+                            .build();
+                }
+            }
+            case only_dice -> {
+                if (rollAnswer.getMultiRollResults() != null) {
+                    yield EmbedOrMessageDefinition.builder()
+                            .descriptionOrContent(rollAnswer.getMultiRollResults().stream()
+                                    .map(RollAnswer.RollResults::getRollDetails)
+                                    .collect(Collectors.joining("\n")))
+                            .type(EmbedOrMessageDefinition.Type.EMBED)
+                            .build();
+                } else {
+                    final String diceDetailsString = rollAnswer.getFile() != null ? null : rollAnswer.getRollDetails();
+                    final String description = Optional.ofNullable(diceDetailsString).orElse("");
+                    yield EmbedOrMessageDefinition.builder()
+                            .descriptionOrContent(description)
+                            .type(EmbedOrMessageDefinition.Type.EMBED)
                             .file(rollAnswer.getFile())
                             .build();
                 }
@@ -111,7 +129,7 @@ public class RollAnswerConverter {
 
                 yield EmbedOrMessageDefinition.builder()
                         .descriptionOrContent(description)
-                        .type(type)
+                        .type(EmbedOrMessageDefinition.Type.MESSAGE)
                         .build();
             }
             case minimal -> {
@@ -130,7 +148,7 @@ public class RollAnswerConverter {
 
                 yield EmbedOrMessageDefinition.builder()
                         .descriptionOrContent(description)
-                        .type(type)
+                        .type(EmbedOrMessageDefinition.Type.MESSAGE)
                         .build();
             }
         };
