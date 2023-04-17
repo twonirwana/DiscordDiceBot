@@ -190,7 +190,10 @@ public class JdaClient {
             if (!jda.awaitShutdown(Duration.ofSeconds(10))) { // returns true if shutdown is graceful, false if timeout exceeded
                 log.warn("shutdown took more then 10sec");
                 jda.shutdownNow(); // Cancel all remaining requests, and stop thread-pools
-                jda.awaitShutdown(); // Wait until shutdown is complete (indefinitely)
+                boolean finishWithoutTimeout = jda.awaitShutdown(Duration.ofSeconds(10)); // Wait until shutdown is complete (10 sec)
+                if (!finishWithoutTimeout) {
+                    log.warn("shutdown now took more then 10sec");
+                }
             }
         } catch (InterruptedException e) {
             throw new RuntimeException(e);

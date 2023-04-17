@@ -8,6 +8,7 @@
     <logger name="org.xnio.nio" level="INFO"/>
     <logger name="net.dv8tion.jda.internal.requests.Requester" level="INFO"/>
     <logger name="net.dv8tion.jda.internal.requests.RateLimiter" level="INFO"/>
+    <logger name="net.dv8tion.jda.api.requests.RestRateLimiter" level="INFO"/>
     <logger name="net.dv8tion.jda.internal.requests.WebSocketClient" level="INFO"/>
     <logger name="net.dv8tion.jda.internal.handle.GuildSetupController" level="INFO"/>
     <logger name="net.dv8tion.jda.internal.handle.EventCache" level="INFO"/>
