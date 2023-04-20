@@ -1,5 +1,6 @@
 package de.janno.discord.bot.persistance;
 
+import com.google.common.base.Preconditions;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.ImmutableSet;
 import de.janno.discord.bot.BotMetrics;
@@ -15,6 +16,7 @@ import org.jetbrains.annotations.Nullable;
 import javax.sql.DataSource;
 import java.sql.*;
 import java.time.LocalDateTime;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -25,6 +27,7 @@ import static io.micrometer.core.instrument.Metrics.globalRegistry;
 @Slf4j
 public class PersistenceManagerImpl implements PersistenceManager {
 
+    private final static long USER_ID_NULL_PLACEHOLDER = -1L;
     private final JdbcConnectionPool connectionPool;
 
     public PersistenceManagerImpl(@NonNull String url, @Nullable String user, @Nullable String password) {
@@ -172,7 +175,6 @@ public class PersistenceManagerImpl implements PersistenceManager {
         }
     }
 
-
     @Override
     public @NonNull Set<Long> getAllMessageIdsForConfig(@NonNull UUID configUUID) {
         Stopwatch stopwatch = Stopwatch.createStarted();
@@ -295,7 +297,7 @@ public class PersistenceManagerImpl implements PersistenceManager {
         Stopwatch stopwatch = Stopwatch.createStarted();
 
         try (Connection con = connectionPool.getConnection()) {
-            try (PreparedStatement preparedStatement = con.prepareStatement("SELECT CONFIG_ID, CHANNEL_ID, GUILD_ID, COMMAND_ID, USER_ID, CONFIG_CLASS_ID, CONFIG FROM CHANNEL_CONFIG CC WHERE CC.CHANNEL_ID = ? AND CC.CONFIG_CLASS_ID = ? AND CC.USER_ID IS NULL")) {
+            try (PreparedStatement preparedStatement = con.prepareStatement("SELECT CONFIG_ID, CHANNEL_ID, GUILD_ID, COMMAND_ID, USER_ID, CONFIG_CLASS_ID, CONFIG FROM CHANNEL_CONFIG CC WHERE CC.CHANNEL_ID = ? AND CC.CONFIG_CLASS_ID = ? AND CC.USER_ID = " + USER_ID_NULL_PLACEHOLDER)) {
                 preparedStatement.setLong(1, channelId);
                 preparedStatement.setString(2, configClassId);
                 ResultSet resultSet = preparedStatement.executeQuery();
@@ -316,9 +318,10 @@ public class PersistenceManagerImpl implements PersistenceManager {
     @Override
     public @NonNull Optional<ChannelConfigDTO> getUserChannelConfig(long channelId, long userId, @NotNull String configClassId) {
         Stopwatch stopwatch = Stopwatch.createStarted();
+        Preconditions.checkArgument(!Objects.equals(userId, USER_ID_NULL_PLACEHOLDER), "The userId is not to be allowed to be %d".formatted(USER_ID_NULL_PLACEHOLDER));
 
         try (Connection con = connectionPool.getConnection()) {
-            try (PreparedStatement preparedStatement = con.prepareStatement("SELECT CONFIG_ID, CHANNEL_ID, GUILD_ID, USER_ID COMMAND_ID, CONFIG_CLASS_ID, CONFIG FROM CHANNEL_CONFIG CC WHERE CC.USER_ID = ? AND CC.CHANNEL_ID = ? AND CC.CONFIG_CLASS_ID = ?")) {
+            try (PreparedStatement preparedStatement = con.prepareStatement("SELECT CONFIG_ID, CHANNEL_ID, GUILD_ID, USER_ID, COMMAND_ID, CONFIG_CLASS_ID, CONFIG FROM CHANNEL_CONFIG CC WHERE CC.USER_ID = ? AND CC.CHANNEL_ID = ? AND CC.CONFIG_CLASS_ID = ?")) {
                 preparedStatement.setLong(1, userId);
                 preparedStatement.setLong(2, channelId);
                 preparedStatement.setString(3, configClassId);
@@ -339,11 +342,12 @@ public class PersistenceManagerImpl implements PersistenceManager {
 
     private ChannelConfigDTO transformResultSet2ChannelConfigDTO(ResultSet resultSet) throws SQLException {
         if (resultSet.next()) {
+            Long userIdInDB = resultSet.getObject("USER_ID", Long.class);
             return new ChannelConfigDTO(
                     resultSet.getObject("CONFIG_ID", UUID.class),
                     resultSet.getLong("GUILD_ID"),
                     resultSet.getLong("CHANNEL_ID"),
-                    resultSet.getObject("USER_ID", Long.class),
+                    userIdInDB == USER_ID_NULL_PLACEHOLDER ? null : userIdInDB,
                     resultSet.getString("COMMAND_ID"),
                     resultSet.getString("CONFIG_CLASS_ID"),
                     resultSet.getString("CONFIG")
@@ -354,14 +358,16 @@ public class PersistenceManagerImpl implements PersistenceManager {
 
     @Override
     public void saveChannelConfig(@NonNull ChannelConfigDTO channelConfigDTO) {
+        Preconditions.checkArgument(!Objects.equals(channelConfigDTO.getUserId(), USER_ID_NULL_PLACEHOLDER), "The userId is not to be allowed to be %d".formatted(USER_ID_NULL_PLACEHOLDER));
         Stopwatch stopwatch = Stopwatch.createStarted();
         try (Connection con = connectionPool.getConnection()) {
+            final long userId = channelConfigDTO.getUserId() == null ? USER_ID_NULL_PLACEHOLDER : channelConfigDTO.getUserId();
             try (PreparedStatement preparedStatement =
                          con.prepareStatement("INSERT INTO CHANNEL_CONFIG(CONFIG_ID, GUILD_ID, CHANNEL_ID, USER_ID, COMMAND_ID, CONFIG_CLASS_ID, CONFIG, CREATION_DATE) VALUES (?, ?, ?, ?, ?, ?, ?, ?)")) {
                 preparedStatement.setObject(1, channelConfigDTO.getConfigUUID());
                 preparedStatement.setObject(2, channelConfigDTO.getGuildId());
                 preparedStatement.setObject(3, channelConfigDTO.getChannelId());
-                preparedStatement.setObject(4, channelConfigDTO.getUserId());
+                preparedStatement.setObject(4, userId);
                 preparedStatement.setString(5, channelConfigDTO.getCommandId());
                 preparedStatement.setString(6, channelConfigDTO.getConfigClassId());
                 preparedStatement.setString(7, channelConfigDTO.getConfig());
@@ -379,7 +385,7 @@ public class PersistenceManagerImpl implements PersistenceManager {
         Stopwatch stopwatch = Stopwatch.createStarted();
         try (Connection con = connectionPool.getConnection()) {
 
-            try (PreparedStatement preparedStatement = con.prepareStatement("DELETE FROM CHANNEL_CONFIG WHERE CHANNEL_ID = ? AND CONFIG_CLASS_ID = ? AND USER_ID is null")) {
+            try (PreparedStatement preparedStatement = con.prepareStatement("DELETE FROM CHANNEL_CONFIG WHERE CHANNEL_ID = ? AND CONFIG_CLASS_ID = ? AND USER_ID = " + USER_ID_NULL_PLACEHOLDER)) {
                 preparedStatement.setLong(1, channelId);
                 preparedStatement.setString(2, configClassId);
                 preparedStatement.execute();
@@ -392,6 +398,7 @@ public class PersistenceManagerImpl implements PersistenceManager {
 
     @Override
     public void deleteUserChannelConfig(long channelId, long userId, String configClassId) {
+        Preconditions.checkArgument(!Objects.equals(userId, USER_ID_NULL_PLACEHOLDER), "The userId is not to be allowed to be %d".formatted(USER_ID_NULL_PLACEHOLDER));
         Stopwatch stopwatch = Stopwatch.createStarted();
         try (Connection con = connectionPool.getConnection()) {
 

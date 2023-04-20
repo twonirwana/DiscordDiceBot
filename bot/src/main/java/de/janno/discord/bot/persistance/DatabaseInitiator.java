@@ -17,10 +17,17 @@ import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Slf4j
 public class DatabaseInitiator {
+
+    private final static List<String> MIGRATION_FILES = ImmutableList.<String>builder()
+            .add("1_base.sql")
+            .add("2_configTable.sql")
+            .add("3_channelConfigUser.sql")
+            .add("4_aliasCommandIdCleanUp.sql")
+            .add("5_channelConfigFix.sql")
+            .build();
 
     public static void initialize(@NonNull String url, @Nullable String user, @Nullable String password) {
         JdbcConnectionPool connectionPool = JdbcConnectionPool.create(url, user, password);
@@ -73,7 +80,7 @@ public class DatabaseInitiator {
     }
 
     private static List<Migration> readMigrations() {
-        return Stream.of("1_base.sql", "2_configTable.sql", "3_channelConfigUser.sql", "4_aliasCommandIdCleanUp.sql")
+        return MIGRATION_FILES.stream()
                 .map(DatabaseInitiator::readMigration)
                 .toList();
     }

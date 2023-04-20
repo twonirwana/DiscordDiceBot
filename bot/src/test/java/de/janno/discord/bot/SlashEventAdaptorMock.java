@@ -19,9 +19,15 @@ public class SlashEventAdaptorMock implements SlashEventAdaptor {
     public static final long GUILD_ID = 1L;
     public final List<CommandInteractionOption> commandInteractionOptions;
     private final List<String> actions = new ArrayList<>();
+    private final long userId;
 
     public SlashEventAdaptorMock(List<CommandInteractionOption> commandInteractionOptions) {
+        this(commandInteractionOptions, 0L);
+    }
+
+    public SlashEventAdaptorMock(List<CommandInteractionOption> commandInteractionOptions, long userId) {
         this.commandInteractionOptions = commandInteractionOptions;
+        this.userId = userId;
     }
 
     public List<String> getActions() {
@@ -110,6 +116,6 @@ public class SlashEventAdaptorMock implements SlashEventAdaptor {
 
     @Override
     public long getUserId() {
-        return 0;
+        return userId;
     }
 }
