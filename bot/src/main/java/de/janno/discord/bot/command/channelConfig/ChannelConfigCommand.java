@@ -171,16 +171,16 @@ public class ChannelConfigCommand implements SlashCommand {
             });
         }
         if (event.getOption(CHANNEL_ALIAS).isPresent()) {
-            return handelChannelEvent(event, null);
+            return handelChannelEvent(event, null, uuidSupplier);
         }
         if (event.getOption(USER_CHANNEL_ALIAS).isPresent()) {
-            return handelChannelEvent(event, event.getUserId());
+            return handelChannelEvent(event, event.getUserId(), uuidSupplier);
         }
         log.error("unknown option for slash event: {} ", event.getOptions());
         return event.reply("Unknown slash event options", false);
     }
 
-    private Mono<Void> handelChannelEvent(@NonNull SlashEventAdaptor event, @Nullable Long userId) {
+    private Mono<Void> handelChannelEvent(@NonNull SlashEventAdaptor event, @Nullable Long userId, @NonNull Supplier<UUID> uuidSupplier) {
         String type = userId == null ? "channel_alias" : "user_channel_alias";
         if (event.getOption(SAVE_ALIAS_ACTION).isPresent()) {
             CommandInteractionOption commandInteractionOption = event.getOption(SAVE_ALIAS_ACTION).get();
@@ -199,7 +199,7 @@ public class ChannelConfigCommand implements SlashCommand {
                     .add(alias)
                     .build();
             deleteAlias(event.getChannelId(), userId);
-            saveAlias(event.getChannelId(), event.getGuildId(), userId, newAliasList);
+            saveAlias(event.getChannelId(), event.getGuildId(), userId, newAliasList, uuidSupplier);
             log.info("{}: save {} alias: {}",
                     event.getRequester().toLogString(),
                     userId == null ? "channel" : "user channel",
@@ -217,7 +217,7 @@ public class ChannelConfigCommand implements SlashCommand {
                     .filter(alias -> !alias.getName().equals(name))
                     .toList();
             deleteAlias(event.getChannelId(), userId);
-            saveAlias(event.getChannelId(), event.getGuildId(), userId, newAliasList);
+            saveAlias(event.getChannelId(), event.getGuildId(), userId, newAliasList, uuidSupplier);
             log.info("{}: delete {} alias: {}",
                     event.getRequester().toLogString(),
                     userId == null ? "channel" : "user channel",
@@ -252,8 +252,8 @@ public class ChannelConfigCommand implements SlashCommand {
         }
     }
 
-    private void saveAlias(long channelId, long guildId, Long userId, List<Alias> aliasList) {
-        persistenceManager.saveChannelConfig(new ChannelConfigDTO(UUID.randomUUID(),
+    private void saveAlias(long channelId, long guildId, Long userId, @NonNull List<Alias> aliasList, @NonNull Supplier<UUID> uuidSupplier) {
+        persistenceManager.saveChannelConfig(new ChannelConfigDTO(uuidSupplier.get(),
                 guildId,
                 channelId,
                 userId,

@@ -46,6 +46,7 @@ public class BotMetrics {
     private final static String CACHE_TAG = "cache";
     private final static String IMAGE_RESULT_TAG = "imageResult";
     private final static String TYPE_TAG = "type";
+    private final static String ALIAS_TAG = "alias";
     private final static String ANSWER_FORMAT_TAG = "answerFormat";
     private final static String DICE_SYSTEM_TAG = "diceSystem";
     private final static String ACTION_TAG = "action";
@@ -127,8 +128,8 @@ public class BotMetrics {
         globalRegistry.counter(METRIC_PREFIX + METRIC_USE_IMAGE_RESULT_PREFIX, Tags.of(IMAGE_RESULT_TAG, resultImage.name())).increment();
     }
 
-    public static void incrementAliasUseMetricCounter(@NonNull String type) {
-        globalRegistry.counter(METRIC_PREFIX + METRIC_USE_ALIAS_PREFIX, Tags.of(TYPE_TAG, type)).increment();
+    public static void incrementAliasUseMetricCounter(@NonNull String type, @NonNull String alias) {
+        globalRegistry.counter(METRIC_PREFIX + METRIC_USE_ALIAS_PREFIX, Tags.of(TYPE_TAG, type, ALIAS_TAG, alias)).increment();
     }
 
 
