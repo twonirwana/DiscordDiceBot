@@ -13,6 +13,7 @@ import java.util.List;
 public class AliasHelper {
     public static final String CHANNEL_ALIAS_CONFIG_TYPE_ID = "AliasConfig";
     public static final String USER_ALIAS_CONFIG_TYPE_ID = "UserAliasConfig";
+
     @VisibleForTesting
     static AliasConfig deserializeAliasConfig(ChannelConfigDTO channelConfigDTO) {
         Preconditions.checkArgument(CHANNEL_ALIAS_CONFIG_TYPE_ID.equals(channelConfigDTO.getConfigClassId()) || USER_ALIAS_CONFIG_TYPE_ID.equals(channelConfigDTO.getConfigClassId()), "Unknown configClassId: %s", channelConfigDTO.getConfigClassId());
@@ -42,13 +43,13 @@ public class AliasHelper {
         //specific before general
         for (Alias alias : userAlias) {
             if (expressionWithOptionalLabelsAndAppliedAliases.contains(alias.getName())) {
-                BotMetrics.incrementAliasUseMetricCounter("userChannel");
+                BotMetrics.incrementAliasUseMetricCounter("userChannel", alias.toString());
                 expressionWithOptionalLabelsAndAppliedAliases = expressionWithOptionalLabelsAndAppliedAliases.replace(alias.getName(), alias.getValue());
             }
         }
 
         for (Alias alias : channelAlias) {
-            BotMetrics.incrementAliasUseMetricCounter("channel");
+            BotMetrics.incrementAliasUseMetricCounter("channel", alias.toString());
             expressionWithOptionalLabelsAndAppliedAliases = expressionWithOptionalLabelsAndAppliedAliases.replace(alias.getName(), alias.getValue());
         }
 
