@@ -11,7 +11,7 @@ Upon clicking on a button the bot will post the result and move the message with
 If the message is pined, then it will only be copied and not moved.
 This allows it to roll dice without typing commands and thereby improves usability, especially for touchscreen users.
 The bot supports Discord thread (the button message must be added after the thread creation), forum, Text in Voice, and it is possible to send the answer in a different channel.
-It can provide images of the dice roll results.
+It can provide images of the dice roll results and it is possible to configure channel or user specific aliases.
 
 image:image/example.webp[image]
 
@@ -219,6 +219,19 @@ image:image/red_and_gold.png[image,600]
 
 Valid for d4, d6, d10, d8, d12, d20, d100.
 This set was designed and contributed by https://www.instagram.com/alie_in_beanland/[alieinbeanland].
+
+==== polyhedral_draw_color
+
+image:image/draw_color.png[image,600]
+
+Valid for d4, d6, d10, d8, d12, d20, d100.
+Generates the dice images in the given color of the die (default is red).
+The color of a die can be set with the `color` function.
+
+The supported colors are: 'white', 'gray', 'black', 'red', 'pink', 'orange', 'yellow', 'green', 'magenta', 'cyan', 'blue'.
+
+For example:
+`color(1d4,'gray') + color(1d6,'black') + color(1d8,'white') + color(1d10,'red') + color(1d12,'blue') + color(1d20,'green') + color(1d100,'orange')` rolls die type in another color.
 
 === Custom Dice Buttons
 

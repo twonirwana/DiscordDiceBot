@@ -45,7 +45,7 @@ public abstract class PolyhedralFileImageProvider implements ImageProvider {
     }
 
     @Override
-    public @NonNull List<BufferedImage> getImageFor(Integer totalDieSides, Integer shownDieSide) {
+    public @NonNull List<BufferedImage> getImageFor(Integer totalDieSides, Integer shownDieSide, String color) {
         if (totalDieSides == null || shownDieSide == null) {
             return List.of();
         }
