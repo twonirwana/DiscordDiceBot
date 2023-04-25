@@ -56,16 +56,16 @@ public class ImageResultCreator {
     }
 
     private void createCacheIndexFileIfMissing() {
-        Arrays.stream(ResultImage.values()).forEach(ri -> createFolderIfMissing(ri.name()));
-
-        Gauge.builder("diceImage.cache", () -> {
-            try (Stream<Path> files = Files.list(Paths.get(CACHE_FOLDER))) {
-                return files.count();
-            } catch (IOException e) {
-                return -1;
-            }
-        }).register(globalRegistry);
-
+        Arrays.stream(ResultImage.values()).forEach(ri -> {
+            createFolderIfMissing(ri.name());
+            Gauge.builder("diceImage.cache", () -> {
+                try (Stream<Path> files = Files.list(Paths.get("%s/%s/".formatted(CACHE_FOLDER, ri.name())))) {
+                    return files.count();
+                } catch (IOException e) {
+                    return -1;
+                }
+            }).tag("type", ri.name()).register(globalRegistry);
+        });
     }
 
     @VisibleForTesting
