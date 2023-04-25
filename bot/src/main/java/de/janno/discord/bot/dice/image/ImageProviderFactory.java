@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import de.janno.discord.bot.ResultImage;
 import de.janno.discord.bot.dice.image.provider.*;
 import lombok.NonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.awt.image.BufferedImage;
 import java.util.List;
@@ -22,13 +23,15 @@ public final class ImageProviderFactory {
             .put(ResultImage.polyhedral_alies_blue_and_silver, new PolyhedralAlies())
             .put(ResultImage.polyhedral_green_and_gold, new PolyhedralGreenAndGold())
             .put(ResultImage.polyhedral_red_and_gold, new PolyhedralRedAndGold())
+            .put(ResultImage.polyhedral_draw_color, new PolyhedralSvgWithColor())
             .build();
 
     @NonNull
     public static List<BufferedImage> getImageFor(@NonNull ResultImage resultImage,
-                                                  Integer totalDieSides,
-                                                  Integer shownDieSide) {
-        return IMAGE_PROVIDER_MAP.getOrDefault(resultImage, NONE_PROVIDER).getImageFor(totalDieSides, shownDieSide);
+                                                  @Nullable Integer totalDieSides,
+                                                  @Nullable Integer shownDieSide,
+                                                  @Nullable String color) {
+        return IMAGE_PROVIDER_MAP.getOrDefault(resultImage, NONE_PROVIDER).getImageFor(totalDieSides, shownDieSide, color);
     }
 
     public static int getDieHighAndWith(@NonNull ResultImage resultImage) {

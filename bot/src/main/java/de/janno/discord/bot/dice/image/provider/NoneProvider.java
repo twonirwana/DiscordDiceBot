@@ -7,7 +7,7 @@ import java.util.List;
 
 public final class NoneProvider implements ImageProvider {
     @Override
-    public @NonNull List<BufferedImage> getImageFor(Integer totalDieSides, Integer shownDieSide) {
+    public @NonNull List<BufferedImage> getImageFor(Integer totalDieSides, Integer shownDieSide, String color) {
         return List.of();
     }
 

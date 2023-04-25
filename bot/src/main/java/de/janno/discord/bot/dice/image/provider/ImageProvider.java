@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface ImageProvider {
 
-    @NonNull List<BufferedImage> getImageFor(Integer totalDieSides, Integer shownDieSide);
+    @NonNull List<BufferedImage> getImageFor(Integer totalDieSides, Integer shownDieSide, String color);
 
     int getDieHighAndWith();
 }
