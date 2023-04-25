@@ -23,7 +23,7 @@ dependencies {
     implementation(libs.commons.lang3)
     implementation("io.micrometer:micrometer-registry-prometheus:1.10.6")
     implementation("com.h2database:h2:2.1.214")
-    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.14.2")
+    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.15.0")
     implementation("org.apache.xmlgraphics:batik:1.16")
     implementation("org.apache.xmlgraphics:batik-transcoder:1.16")
     implementation("org.apache.xmlgraphics:batik-codec:1.16")
@@ -36,7 +36,7 @@ dependencies {
 
     testImplementation("io.projectreactor:reactor-test:3.5.5")
     testImplementation("org.junit.jupiter:junit-jupiter-params:5.9.2")
-    testImplementation("org.mockito:mockito-core:5.3.0")
+    testImplementation("org.mockito:mockito-core:5.3.1")
     testImplementation("org.mockito:mockito-inline:5.2.0")
     testImplementation("io.projectreactor:reactor-test")
     testImplementation("commons-io:commons-io:2.11.0")
