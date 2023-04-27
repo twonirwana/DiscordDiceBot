@@ -16,13 +16,17 @@ public final class ImageProviderFactory {
 
     private final static Map<ResultImage, ImageProvider> IMAGE_PROVIDER_MAP = ImmutableMap.<ResultImage, ImageProvider>builder()
             .put(ResultImage.none, NONE_PROVIDER)
-            .put(ResultImage.polyhedral_3d_red_and_white, new Polyhedral3dRedAndWhite())
+            .put(ResultImage.polyhedral_3d_red_and_white, new PolyhedralFileImageProvider(ResultImage.polyhedral_3d_red_and_white.name()))
             .put(ResultImage.d6_dots_white, new D6White())
             .put(ResultImage.fate_black, new FateBlack())
-            .put(ResultImage.polyhedral_black_and_gold, new PolyhedralBlackAndGold())
-            .put(ResultImage.polyhedral_alies_blue_and_silver, new PolyhedralAlies())
-            .put(ResultImage.polyhedral_green_and_gold, new PolyhedralGreenAndGold())
-            .put(ResultImage.polyhedral_red_and_gold, new PolyhedralRedAndGold())
+            .put(ResultImage.polyhedral_black_and_gold, new PolyhedralFileImageProvider(ResultImage.polyhedral_black_and_gold.name()))
+            .put(ResultImage.polyhedral_alies_blue_and_silver, new PolyhedralFileImageProvider(ResultImage.polyhedral_alies_blue_and_silver.name()))
+            .put(ResultImage.polyhedral_green_and_gold, new PolyhedralFileImageProvider(ResultImage.polyhedral_green_and_gold.name()))
+            .put(ResultImage.polyhedral_red_and_gold, new PolyhedralFileImageProvider(ResultImage.polyhedral_red_and_gold.name()))
+            .put(ResultImage.polyhedral_black_and_gold_v2, new PolyhedralFileImageProvider(ResultImage.polyhedral_black_and_gold_v2.name()))
+            .put(ResultImage.polyhedral_blue_and_gold, new PolyhedralFileImageProvider(ResultImage.polyhedral_blue_and_gold.name()))
+            .put(ResultImage.polyhedral_orange_and_silver, new PolyhedralFileImageProvider(ResultImage.polyhedral_orange_and_silver.name()))
+            .put(ResultImage.polyhedral_purple_and_silver, new PolyhedralFileImageProvider(ResultImage.polyhedral_purple_and_silver.name()))
             .put(ResultImage.polyhedral_draw_color, new PolyhedralSvgWithColor())
             .build();
 

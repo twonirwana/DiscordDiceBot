@@ -41,6 +41,10 @@ class ImageResultCreatorTest {
                 Arguments.of(ResultImage.polyhedral_red_and_gold, List.of(4, 6, 8, 10, 12, 20, 100)),
                 Arguments.of(ResultImage.polyhedral_black_and_gold, List.of(4, 6, 8, 10, 12, 20, 100)),
                 Arguments.of(ResultImage.polyhedral_draw_color, List.of(4, 6, 8, 10, 12, 20, 100)),
+                Arguments.of(ResultImage.polyhedral_purple_and_silver, List.of(4, 6, 8, 10, 12, 20, 100)),
+                Arguments.of(ResultImage.polyhedral_orange_and_silver, List.of(4, 6, 8, 10, 12, 20, 100)),
+                Arguments.of(ResultImage.polyhedral_blue_and_gold, List.of(4, 6, 8, 10, 12, 20, 100)),
+                Arguments.of(ResultImage.polyhedral_black_and_gold_v2, List.of(4, 6, 8, 10, 12, 20, 100)),
                 Arguments.of(ResultImage.fate_black, List.of(-1, 0, 1)),
                 Arguments.of(ResultImage.d6_dots_white, List.of(6))
         );
@@ -307,8 +311,6 @@ class ImageResultCreatorTest {
                 File res = underTest.getImageForRoll(rolls, resultImage);
                 assertThat(res).isNotNull();
             }
-            List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(1), 1000).evaluate("1d[%d/abc]".formatted(d));
-            assertThat(rolls).isNotNull();
         }
         List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(1), 1000).evaluate("1d[abc/cde]");
         File res = underTest.getImageForRoll(rolls, resultImage);
