@@ -192,9 +192,29 @@ image:image/d6White.png[image,360]
 
 Valid for d6
 
+==== polyhedral_draw_color
+
+image:image/draw_color.png[image,600]
+
+Valid for d4, d6, d10, d8, d12, d20, d100.
+Generates the dice images in the given color of the die (default is red).
+The color of a die can be set with the `color` function.
+
+The supported colors are: 'white', 'gray', 'black', 'red', 'pink', 'orange', 'yellow', 'green', 'magenta', 'cyan', 'blue'.
+
+For example:
+`color(1d4,'gray') + color(1d6,'black') + color(1d8,'white') + color(1d10,'red') + color(1d12,'blue') + color(1d20,'green') + color(1d100,'orange')` rolls each die type in another color.
+
 ==== polyhedral_black_and_gold
 
 image:image/black_and_gold.png[image,600]
+
+Valid for d4, d6, d10, d8, d12, d20, d100.
+This set was designed and contributed by https://www.instagram.com/alie_in_beanland/[alieinbeanland].
+
+==== polyhedral_black_and_gold_v2
+
+image:image/polyhedral_black_and_gold_v2.png[image,600]
 
 Valid for d4, d6, d10, d8, d12, d20, d100.
 This set was designed and contributed by https://www.instagram.com/alie_in_beanland/[alieinbeanland].
@@ -220,18 +240,26 @@ image:image/red_and_gold.png[image,600]
 Valid for d4, d6, d10, d8, d12, d20, d100.
 This set was designed and contributed by https://www.instagram.com/alie_in_beanland/[alieinbeanland].
 
-==== polyhedral_draw_color
+==== polyhedral_blue_and_gold
 
-image:image/draw_color.png[image,600]
+image:image/polyhedral_blue_and_gold.png[image,600]
 
 Valid for d4, d6, d10, d8, d12, d20, d100.
-Generates the dice images in the given color of the die (default is red).
-The color of a die can be set with the `color` function.
+This set was designed and contributed by https://www.instagram.com/alie_in_beanland/[alieinbeanland].
 
-The supported colors are: 'white', 'gray', 'black', 'red', 'pink', 'orange', 'yellow', 'green', 'magenta', 'cyan', 'blue'.
+==== polyhedral_orange_and_silver
 
-For example:
-`color(1d4,'gray') + color(1d6,'black') + color(1d8,'white') + color(1d10,'red') + color(1d12,'blue') + color(1d20,'green') + color(1d100,'orange')` rolls die type in another color.
+image:image/polyhedral_orange_and_silver.png[image,600]
+
+Valid for d4, d6, d10, d8, d12, d20, d100.
+This set was designed and contributed by https://www.instagram.com/alie_in_beanland/[alieinbeanland].
+
+==== polyhedral_purple_and_silver
+
+image:image/polyhedral_purple_and_silver.png[image,600]
+
+Valid for d4, d6, d10, d8, d12, d20, d100.
+This set was designed and contributed by https://www.instagram.com/alie_in_beanland/[alieinbeanland].
 
 === Custom Dice Buttons
 

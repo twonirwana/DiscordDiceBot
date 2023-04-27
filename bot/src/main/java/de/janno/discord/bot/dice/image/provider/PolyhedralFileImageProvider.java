@@ -13,31 +13,30 @@ import java.util.Optional;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-public abstract class PolyhedralFileImageProvider implements ImageProvider {
+public class PolyhedralFileImageProvider implements ImageProvider {
 
-    private final Map<Integer, Map<Integer, BufferedImage>> diceImageMap = Stream.of(4, 6, 8, 10, 12, 20, 100)
-            .collect(ImmutableMap.toImmutableMap(d -> d, d -> {
-                final Stream<Integer> sideStream;
-                if (d != 100) {
-                    sideStream = IntStream.range(1, d + 1).boxed();
-                } else {
-                    sideStream = IntStream.range(1, 11).boxed();
-                }
-                return sideStream
-                        .collect(ImmutableMap.toImmutableMap(s -> s, s -> {
-                            try {
-                                return ImageIO.read(Resources.getResource(this.getStyleFolder() + getDieFolder(d) + getFileName(d, s)).openStream());
-                            } catch (IOException e) {
-                                throw new RuntimeException(e);
-                            }
-                        }));
-            }));
+    private final Map<Integer, Map<Integer, BufferedImage>> diceImageMap;
 
-    protected abstract String getStyleFolder();
+    public PolyhedralFileImageProvider(String styleFolder) {
+        this.diceImageMap = Stream.of(4, 6, 8, 10, 12, 20, 100)
+                .collect(ImmutableMap.toImmutableMap(d -> d, d -> {
+                    final Stream<Integer> sideStream;
+                    if (d != 100) {
+                        sideStream = IntStream.range(1, d + 1).boxed();
+                    } else {
+                        sideStream = IntStream.range(1, 11).boxed();
+                    }
+                    return sideStream
+                            .collect(ImmutableMap.toImmutableMap(s -> s, s -> {
+                                try {
+                                    return ImageIO.read(Resources.getResource("images/%s/d%d/d%ds%d.png".formatted(styleFolder, d, d, s)).openStream());
+                                } catch (IOException e) {
+                                    throw new RuntimeException(e);
+                                }
+                            }));
+                }));
+    }
 
-    protected abstract String getDieFolder(int totalDieSides);
-
-    protected abstract String getFileName(int totalDieSides, int shownDieSide);
 
     @Override
     public int getDieHighAndWith() {

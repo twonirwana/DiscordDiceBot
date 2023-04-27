@@ -5,13 +5,13 @@ public enum ResultImage {
     polyhedral_3d_red_and_white,
     fate_black,
     d6_dots_white,
+    polyhedral_draw_color,
     polyhedral_black_and_gold,
-    // polyhedral_black_and_gold_v2,
+    polyhedral_black_and_gold_v2,
     polyhedral_alies_blue_and_silver,
-    //  polyhedral_blue_and_gold,
+    polyhedral_blue_and_gold,
     polyhedral_green_and_gold,
-    //polyhedral_orange_and_silver,
-    // polyhedral_purple_and_silver,
+    polyhedral_orange_and_silver,
     polyhedral_red_and_gold,
-    polyhedral_draw_color
+    polyhedral_purple_and_silver
 }
