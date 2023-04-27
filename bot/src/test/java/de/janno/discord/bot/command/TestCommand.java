@@ -60,7 +60,7 @@ public class TestCommand extends AbstractCommand<Config, StateData> {
     }
 
     @Override
-    public String getCommandId() {
+    public @NonNull String getCommandId() {
         throw new NotImplementedException("Not implemented");
     }
 }

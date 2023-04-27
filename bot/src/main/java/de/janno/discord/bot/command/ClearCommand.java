@@ -23,12 +23,12 @@ public class ClearCommand implements SlashCommand {
     }
 
     @Override
-    public String getCommandId() {
+    public @NonNull String getCommandId() {
         return "clear";
     }
 
     @Override
-    public CommandDefinition getCommandDefinition() {
+    public @NonNull CommandDefinition getCommandDefinition() {
         return CommandDefinition.builder()
                 .name(getCommandId())
                 .description("Removes all button messages and saved bot data for this channel")
@@ -36,7 +36,7 @@ public class ClearCommand implements SlashCommand {
     }
 
     @Override
-    public Mono<Void> handleSlashCommandEvent(@NonNull SlashEventAdaptor event, @NonNull Supplier<UUID> uuidSupplier) {
+    public @NonNull Mono<Void> handleSlashCommandEvent(@NonNull SlashEventAdaptor event, @NonNull Supplier<UUID> uuidSupplier) {
         BotMetrics.incrementSlashStartMetricCounter(getCommandId(), "[]");
         return event.reply("Deleting messages and data ...", false)
                 .then(Mono.just(persistenceManager.deleteMessageDataForChannel(event.getChannelId()))

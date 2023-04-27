@@ -76,7 +76,7 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTar
     }
 
     @Override
-    public String getCommandId() {
+    public @NonNull String getCommandId() {
         return COMMAND_NAME;
     }
 

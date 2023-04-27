@@ -70,7 +70,7 @@ public class FateCommand extends AbstractCommand<FateConfig, StateData> {
     }
 
     @Override
-    public String getCommandId() {
+    public @NonNull String getCommandId() {
         return COMMAND_NAME;
     }
 

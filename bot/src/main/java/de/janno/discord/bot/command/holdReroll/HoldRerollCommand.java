@@ -80,7 +80,7 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollConfig, HoldRer
     }
 
     @Override
-    public String getCommandId() {
+    public @NonNull String getCommandId() {
         return COMMAND_NAME;
     }
 

@@ -16,13 +16,15 @@ public class CommandDefinitionOption {
     String name;
     String description;
     @Builder.Default
-    Boolean required = false;
+    boolean required = false;
     @Singular
     List<CommandDefinitionOptionChoice> choices;
     @Singular
     List<CommandDefinitionOption> options;
     Long minValue;
     Long maxValue;
+    @Builder.Default
+    boolean autoComplete = false;
 
     public enum Type {
         UNKNOWN(-1),

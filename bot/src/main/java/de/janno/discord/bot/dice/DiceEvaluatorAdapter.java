@@ -18,6 +18,8 @@ import java.io.File;
 import java.util.List;
 import java.util.Optional;
 
+import static de.janno.discord.bot.dice.DiceSystemAdapter.LABEL_DELIMITER;
+
 @Slf4j
 public class DiceEvaluatorAdapter {
 
@@ -72,6 +74,36 @@ public class DiceEvaluatorAdapter {
             return Optional.empty();
         } else {
             return Optional.of(String.format("The following expression is invalid: '%s'. The error is: %s. Use %s to get more information on how to use the command.", expression, rollerOrError.getErrorMessage(), helpCommand));
+        }
+    }
+
+
+    public Optional<String> shortValidateDiceExpressionWitOptionalLabel(@NonNull String expressionWithOptionalLabel) {
+        String label;
+        String diceExpression;
+
+        if (expressionWithOptionalLabel.contains(LABEL_DELIMITER)) {
+            String[] split = expressionWithOptionalLabel.split(LABEL_DELIMITER);
+            if (split.length != 2) {
+                return Optional.of("The expression must have the format diceExpression@Label");
+            }
+            label = split[1].trim();
+            diceExpression = split[0].trim();
+        } else {
+            label = expressionWithOptionalLabel;
+            diceExpression = expressionWithOptionalLabel;
+        }
+        if (label.isBlank()) {
+            return Optional.of("Lable must not be empty");
+        }
+        if (diceExpression.isBlank()) {
+            return Optional.of("Expression must not be empty");
+        }
+        RollerOrError rollerOrError = cachingDiceEvaluator.get(expressionWithOptionalLabel);
+        if (rollerOrError.isValid()) {
+            return Optional.empty();
+        } else {
+            return Optional.of(rollerOrError.getErrorMessage());
         }
     }
 

@@ -125,7 +125,7 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
     }
 
     @Override
-    public String getCommandId() {
+    public @NonNull String getCommandId() {
         return COMMAND_NAME;
     }
 

@@ -473,6 +473,15 @@ The command uses the `without_expression` as default answer format.
 
 The clear command removes all button configuration in a channel from the bot and deletes the button messages.
 
+=== Validation Command
+
+This command can be used to develop new expressions and get a fast feedback if the expression has the correct syntax.
+Upon typing the autocomplete will be open and show the typed expression if it has a valid syntax and can be executed.
+If the expression is invalid it will show the first 100 characters of the error message.
+To get the complete error message press enter twice (even if the autocomplete will replace the expression with the error text).
+The autocomplete validation will not apply alias.
+This command will change when discord the autocomplete improves.
+
 == Dice Expression Notation
 
 see https://github.com/twonirwana/DiceEvaluator for all details.

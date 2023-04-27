@@ -198,7 +198,7 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
     }
 
     @Override
-    public String getCommandId() {
+    public @NonNull String getCommandId() {
         return COMMAND_NAME;
     }
 

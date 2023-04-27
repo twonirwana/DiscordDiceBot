@@ -15,12 +15,12 @@ import java.util.function.Supplier;
 @Slf4j
 public class HelpCommand implements SlashCommand {
     @Override
-    public String getCommandId() {
+    public @NonNull String getCommandId() {
         return "help";
     }
 
     @Override
-    public CommandDefinition getCommandDefinition() {
+    public @NonNull CommandDefinition getCommandDefinition() {
         return CommandDefinition.builder()
                 .name(getCommandId())
                 .description("Help to the commands and links for further information")
@@ -28,7 +28,7 @@ public class HelpCommand implements SlashCommand {
     }
 
     @Override
-    public Mono<Void> handleSlashCommandEvent(@NonNull SlashEventAdaptor event, @NonNull Supplier<UUID> uuidSupplier) {
+    public @NonNull Mono<Void> handleSlashCommandEvent(@NonNull SlashEventAdaptor event, @NonNull Supplier<UUID> uuidSupplier) {
         BotMetrics.incrementSlashStartMetricCounter(getCommandId(), "[]");
         return event.replyEmbed(EmbedOrMessageDefinition.builder()
                 .field(new EmbedOrMessageDefinition.Field("Command help", "type '/count_successes help', '/custom_dice help' or '/fate help' to get help for the commands", false))
