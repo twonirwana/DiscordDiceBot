@@ -13,6 +13,7 @@ import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.api.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.api.events.guild.GuildReadyEvent;
+import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.session.ReadyEvent;
@@ -106,6 +107,18 @@ public class JdaClient {
                                         .filter(id -> !botInGuildIdSet.contains(id))
                                         .count();
                                 log.info("Inactive guild count with config: {}", inactiveGuildIdCountWithConfig);
+                            }
+
+                            @Override
+                            public void onCommandAutoCompleteInteraction(@NonNull CommandAutoCompleteInteractionEvent event) {
+                                Flux.fromIterable(commands)
+                                        .filter(command -> command.getCommandId().equals(event.getName()))
+                                        .next()
+                                        .map(command -> command.getAutoCompleteAnswer(event.getFocusedOption().getName(), event.getFocusedOption().getValue()))
+                                        .flatMap(a -> a.map(autoCompleteAnswer -> Mono.fromFuture(event.replyChoice(autoCompleteAnswer.getName(), autoCompleteAnswer.getValue()).submit()))
+                                                .orElseGet(() -> Mono.fromFuture(event.replyChoices().submit())))
+                                        .subscribeOn(scheduler)
+                                        .subscribe();
                             }
 
                             @Override

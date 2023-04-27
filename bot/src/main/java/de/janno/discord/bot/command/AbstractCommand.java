@@ -76,7 +76,7 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
     }
 
     @Override
-    public CommandDefinition getCommandDefinition() {
+    public @NonNull CommandDefinition getCommandDefinition() {
         List<CommandDefinitionOption> baseOptions = new ArrayList<>();
         if (supportsTargetChannel()) {
             baseOptions.add(ANSWER_TARGET_CHANNEL_COMMAND_OPTION);
@@ -332,7 +332,7 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
     }
 
     @Override
-    public Mono<Void> handleSlashCommandEvent(@NonNull SlashEventAdaptor event, @NonNull Supplier<UUID> uuidSupplier) {
+    public @NonNull Mono<Void> handleSlashCommandEvent(@NonNull SlashEventAdaptor event, @NonNull Supplier<UUID> uuidSupplier) {
         Optional<String> checkPermissions = event.checkPermissions();
         if (checkPermissions.isPresent()) {
             return event.reply(checkPermissions.get(), false);

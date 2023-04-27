@@ -38,10 +38,11 @@ import static de.janno.discord.bot.command.channelConfig.ChannelConfigCommand.DI
 public class DirectRollCommand implements SlashCommand {
 
     public static final String ROLL_COMMAND_ID = "r";
-    private static final String ACTION_EXPRESSION = "expression";
+    protected static final String ACTION_EXPRESSION = "expression";
     private static final String HELP = "help";
     private final DiceEvaluatorAdapter diceEvaluatorAdapter;
     private final PersistenceManager persistenceManager;
+    protected boolean removeSlash = true;
 
     public DirectRollCommand(PersistenceManager persistenceManager, CachingDiceEvaluator cachingDiceEvaluator) {
         this.diceEvaluatorAdapter = new DiceEvaluatorAdapter(cachingDiceEvaluator);
@@ -49,12 +50,12 @@ public class DirectRollCommand implements SlashCommand {
     }
 
     @Override
-    public String getCommandId() {
+    public @NonNull String getCommandId() {
         return ROLL_COMMAND_ID;
     }
 
     @Override
-    public CommandDefinition getCommandDefinition() {
+    public @NonNull CommandDefinition getCommandDefinition() {
         return CommandDefinition.builder()
                 .name(getCommandId())
                 .description("direct roll of dice expression, configuration with /channel_config")
@@ -80,7 +81,7 @@ public class DirectRollCommand implements SlashCommand {
     }
 
     @Override
-    public Mono<Void> handleSlashCommandEvent(@NonNull SlashEventAdaptor event, @NonNull Supplier<UUID> uuidSupplier) {
+    public @NonNull Mono<Void> handleSlashCommandEvent(@NonNull SlashEventAdaptor event, @NonNull Supplier<UUID> uuidSupplier) {
         Stopwatch stopwatch = Stopwatch.createStarted();
 
         Optional<String> checkPermissions = event.checkPermissions();
@@ -122,7 +123,7 @@ public class DirectRollCommand implements SlashCommand {
 
             RollAnswer answer = diceEvaluatorAdapter.answerRollWithOptionalLabelInExpression(expressionWithOptionalLabelsAndAppliedAliases, DiceSystemAdapter.LABEL_DELIMITER, config.isAlwaysSumResult(), config.getAnswerFormatType(), config.getResultImage());
 
-            return Flux.merge(Mono.defer(event::acknowledgeAndRemoveSlash),
+            return Flux.merge(removeSlash ? Mono.defer(event::acknowledgeAndRemoveSlash) : event.reply(commandString, true),
                             Mono.defer(() -> event.createResultMessageWithEventReference(RollAnswerConverter.toEmbedOrMessageDefinition(answer))
                                     .doOnSuccess(v ->
                                             log.info("{}: '{}'={} -> {} in {}ms",
@@ -134,7 +135,6 @@ public class DirectRollCommand implements SlashCommand {
                                             )))
                     )
                     .parallel().then();
-
         }
 
         return Mono.empty();

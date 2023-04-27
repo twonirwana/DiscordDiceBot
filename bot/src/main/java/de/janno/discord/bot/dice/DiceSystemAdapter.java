@@ -64,7 +64,7 @@ public class DiceSystemAdapter {
         if (expressionWithOptionalLabel.contains(LABEL_DELIMITER)) {
             String[] split = expressionWithOptionalLabel.split(LABEL_DELIMITER);
             if (split.length != 2) {
-                return Optional.of(String.format("The button definition '%s' should have the diceExpression@Label", expressionWithOptionalLabel));
+                return Optional.of(String.format("The expression '%s' should have the diceExpression@Label", expressionWithOptionalLabel));
             }
             label = split[1].trim();
             diceExpression = split[0].trim();

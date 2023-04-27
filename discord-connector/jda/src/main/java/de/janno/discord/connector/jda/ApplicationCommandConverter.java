@@ -63,6 +63,7 @@ public class ApplicationCommandConverter {
                 .name(commandOption.getName())
                 .description(commandOption.getDescription())
                 .required(commandOption.isRequired())
+                .autoComplete(commandOption.isAutoComplete())
                 .minValue(Optional.ofNullable(commandOption.getMinValue()).map(Number::longValue).orElse(null))
                 .maxValue(Optional.ofNullable(commandOption.getMaxValue()).map(Number::longValue).orElse(null))
                 .choices(commandOption.getChoices().stream()
@@ -109,7 +110,8 @@ public class ApplicationCommandConverter {
         OptionData optionData = new OptionData(OptionType.fromKey(commandDefinitionOption.getType().getValue()),
                 commandDefinitionOption.getName(),
                 commandDefinitionOption.getDescription())
-                .setRequired(commandDefinitionOption.getRequired())
+                .setRequired(commandDefinitionOption.isRequired())
+                .setAutoComplete(commandDefinitionOption.isAutoComplete())
                 .addChoices(commandDefinitionOption.getChoices().stream()
                         .map(choice -> new Command.Choice(choice.getName(), choice.getValue()))
                         .collect(Collectors.toList()));

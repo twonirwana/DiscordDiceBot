@@ -82,12 +82,12 @@ public class ChannelConfigCommand implements SlashCommand {
     }
 
     @Override
-    public String getCommandId() {
+    public @NonNull String getCommandId() {
         return COMMAND_ID;
     }
 
     @Override
-    public CommandDefinition getCommandDefinition() {
+    public @NonNull CommandDefinition getCommandDefinition() {
         return CommandDefinition.builder()
                 .name(getCommandId())
                 .description("Configure options in this channel")
@@ -133,7 +133,7 @@ public class ChannelConfigCommand implements SlashCommand {
     }
 
     @Override
-    public Mono<Void> handleSlashCommandEvent(@NonNull SlashEventAdaptor event, @NonNull Supplier<UUID> uuidSupplier) {
+    public @NonNull Mono<Void> handleSlashCommandEvent(@NonNull SlashEventAdaptor event, @NonNull Supplier<UUID> uuidSupplier) {
         if (event.getOption(SAVE_DIRECT_ROLL_CONFIG_ACTION).isPresent()) {
             CommandInteractionOption saveAction = event.getOption(SAVE_DIRECT_ROLL_CONFIG_ACTION).get();
             boolean alwaysSumResults = saveAction.getBooleanSubOptionWithName(ALWAYS_SUM_RESULTS_COMMAND_OPTIONS_ID).orElse(true);
