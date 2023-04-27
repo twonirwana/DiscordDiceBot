@@ -451,6 +451,7 @@ This command can be used to develop new expressions and get a fast feedback if t
 Upon typing the autocomplete will be open and show the typed expression if it has a valid syntax and can be executed.
 If the expression is invalid it will show the first 100 characters of the error message.
 To get the complete error message press enter twice (even if the autocomplete will replace the expression with the error text).
+The autocomplete validation will not apply alias.
 This command will change when discord the autocomplete improves.
 
 == Dice Expression Notation
