@@ -1,5 +1,6 @@
 package de.janno.discord.bot.command.channelConfig;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import de.janno.discord.bot.BotMetrics;
 import de.janno.discord.bot.ResultImage;
@@ -16,9 +17,11 @@ import de.janno.discord.connector.api.slash.CommandDefinitionOption;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Nullable;
 import reactor.core.publisher.Mono;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -38,7 +41,9 @@ public class ChannelConfigCommand implements SlashCommand {
     private static final String CHANNEL_ALIAS = "channel_alias";
     private static final String USER_CHANNEL_ALIAS = "user_channel_alias";
     private static final String SAVE_ALIAS_ACTION = "save";
+    private static final String SAVE_MULTI_ALIAS_ACTION = "multi_save";
     private static final String ALIAS_NAME_OPTION = "name";
+    private static final String ALIASES_OPTION = "aliases";
     private static final String ALIAS_VALUE_OPTION = "value";
     private static final String LIST_ALIAS_ACTION = "list";
     private static final String DELETE_ALIAS_ACTION = "delete";
@@ -56,6 +61,17 @@ public class ChannelConfigCommand implements SlashCommand {
                     .type(CommandDefinitionOption.Type.STRING)
                     .name(ALIAS_VALUE_OPTION)
                     .description("The value of the alias (the name in the expression will be replaced with the value)")
+                    .required(true)
+                    .build())
+            .build();
+    private static final CommandDefinitionOption MULTI_SAVE_ALIAS_OPTION = CommandDefinitionOption.builder()
+            .type(CommandDefinitionOption.Type.SUB_COMMAND)
+            .name(SAVE_MULTI_ALIAS_ACTION)
+            .description("Save multiple alias")
+            .option(CommandDefinitionOption.builder()
+                    .type(CommandDefinitionOption.Type.STRING)
+                    .name(ALIASES_OPTION)
+                    .description("Separate alias name and value by `:` and aliases by `;` e.g.: att:2d20;dmg:2d6+3=")
                     .required(true)
                     .build())
             .build();
@@ -116,6 +132,7 @@ public class ChannelConfigCommand implements SlashCommand {
                         .option(SAVE_ALIAS_OPTION)
                         .option(DELETE_ALIAS_OPTION)
                         .option(LIST_ALIAS_OPTION)
+                        .option(MULTI_SAVE_ALIAS_OPTION)
                         .build())
                 .option(CommandDefinitionOption.builder()
                         .name(USER_CHANNEL_ALIAS)
@@ -124,6 +141,7 @@ public class ChannelConfigCommand implements SlashCommand {
                         .option(SAVE_ALIAS_OPTION)
                         .option(DELETE_ALIAS_OPTION)
                         .option(LIST_ALIAS_OPTION)
+                        .option(MULTI_SAVE_ALIAS_OPTION)
                         .build())
                 .build();
     }
@@ -180,30 +198,64 @@ public class ChannelConfigCommand implements SlashCommand {
         return event.reply("Unknown slash event options", false);
     }
 
+    private void saveAlias(@NonNull Alias alias, @NonNull SlashEventAdaptor event, @Nullable Long userId, @NonNull Supplier<UUID> uuidSupplier) {
+        final List<Alias> existingAlias = loadAlias(event.getChannelId(), userId)
+                .stream()
+                .filter(a -> !a.getName().equals(alias.getName()))
+                .toList();
+
+        List<Alias> newAliasList = ImmutableList.<Alias>builder()
+                .addAll(existingAlias)
+                .add(alias)
+                .build();
+        deleteAlias(event.getChannelId(), userId);
+        saveAlias(event.getChannelId(), event.getGuildId(), userId, newAliasList, uuidSupplier);
+    }
+
     private Mono<Void> handelChannelEvent(@NonNull SlashEventAdaptor event, @Nullable Long userId, @NonNull Supplier<UUID> uuidSupplier) {
         String type = userId == null ? "channel_alias" : "user_channel_alias";
         if (event.getOption(SAVE_ALIAS_ACTION).isPresent()) {
+            BotMetrics.incrementSlashStartMetricCounter(getCommandId(), type + ", save");
             CommandInteractionOption commandInteractionOption = event.getOption(SAVE_ALIAS_ACTION).get();
             String name = commandInteractionOption.getStringSubOptionWithName(ALIAS_NAME_OPTION).orElseThrow();
             String value = commandInteractionOption.getStringSubOptionWithName(ALIAS_VALUE_OPTION).orElseThrow();
-            BotMetrics.incrementSlashStartMetricCounter(getCommandId(), type + ", save");
+
             Alias alias = new Alias(name, value);
-
-            final List<Alias> existingAlias = loadAlias(event.getChannelId(), userId)
-                    .stream()
-                    .filter(a -> !a.getName().equals(name))
-                    .toList();
-
-            List<Alias> newAliasList = ImmutableList.<Alias>builder()
-                    .addAll(existingAlias)
-                    .add(alias)
-                    .build();
-            deleteAlias(event.getChannelId(), userId);
-            saveAlias(event.getChannelId(), event.getGuildId(), userId, newAliasList, uuidSupplier);
+            saveAlias(alias, event, userId, uuidSupplier);
             log.info("{}: save {} alias: {}",
                     event.getRequester().toLogString(),
                     userId == null ? "channel" : "user channel",
                     alias
+            );
+            return event.reply("`%s`\nSaved new alias".formatted(event.getCommandString()), userId != null);
+        } else if (event.getOption(SAVE_MULTI_ALIAS_ACTION).isPresent()) {
+            BotMetrics.incrementSlashStartMetricCounter(getCommandId(), type + ", multi save");
+            CommandInteractionOption commandInteractionOption = event.getOption(SAVE_MULTI_ALIAS_ACTION).get();
+            String aliasesString = commandInteractionOption.getStringSubOptionWithName(ALIASES_OPTION).orElseThrow();
+            List<String> nameValuePair = Arrays.stream(aliasesString.split(";"))
+                    .filter(s -> !Strings.isNullOrEmpty(s))
+                    .toList();
+            if (nameValuePair.isEmpty()) {
+                return event.reply("`%s`\nNo name/value pair".formatted(event.getCommandString()), true);
+            }
+            List<String> missingNameValue = nameValuePair.stream()
+                    .filter(s -> StringUtils.countMatches(s, ":") != 1)
+                    .toList();
+            if (!missingNameValue.isEmpty()) {
+                return event.reply("`%s`\nMissing name value separator `:` in: %s".formatted(event.getCommandString(), missingNameValue), true);
+            }
+           List<Alias> aliases = nameValuePair.stream()
+                    .map(s -> {
+                        String[] split = s.split(":");
+                        return new Alias(split[0], split[1]);
+                    })
+                   .toList();
+           aliases.forEach(a -> saveAlias(a, event, userId, uuidSupplier));
+
+            log.info("{}: save {} aliases: {}",
+                    event.getRequester().toLogString(),
+                    userId == null ? "channel" : "user channel",
+                    aliases
             );
             return event.reply("`%s`\nSaved new alias".formatted(event.getCommandString()), userId != null);
         } else if (event.getOption(DELETE_ALIAS_ACTION).isPresent()) {

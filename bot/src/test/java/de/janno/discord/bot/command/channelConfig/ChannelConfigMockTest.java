@@ -208,4 +208,62 @@ public class ChannelConfigMockTest {
         assertThat(slashEvent3.getActions()).containsExactlyInAnyOrder("reply: `commandString`\nexisting alias:\natt->2d20+10");
         assertThat(slashEvent4.getActions()).containsExactlyInAnyOrder("reply: `commandString`\nexisting alias:\natt->2d20+1");
     }
+
+    @Test
+    void channelAlias_multiCreateList() {
+        ChannelConfigCommand channelConfig = new ChannelConfigCommand(persistenceManager);
+
+        SlashEventAdaptorMock slashEvent1 = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
+                .name("channel_alias")
+                .option(CommandInteractionOption.builder()
+                        .name("multi_save")
+                        .option(CommandInteractionOption.builder()
+                                .name("aliases")
+                                .stringValue("att:2d20;dmg:2d6+3=")
+                                .build())
+                        .build())
+                .build()));
+        channelConfig.handleSlashCommandEvent(slashEvent1, () -> UUID.fromString("00000000-0000-0000-0000-000000000000")).block();
+
+        SlashEventAdaptorMock slashEvent2 = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
+                .name("channel_alias")
+                .option(CommandInteractionOption.builder()
+                        .name("list")
+                        .build())
+                .build()));
+        channelConfig.handleSlashCommandEvent(slashEvent2, () -> UUID.fromString("00000000-0000-0000-0000-000000000000")).block();
+
+
+        assertThat(slashEvent1.getActions()).containsExactlyInAnyOrder("reply: `commandString`\nSaved new alias");
+        assertThat(slashEvent2.getActions()).containsExactlyInAnyOrder("reply: `commandString`\nexisting alias:\natt->2d20\ndmg->2d6+3=");
+    }
+
+    @Test
+    void channelUserAlias_multiCreateList() {
+        ChannelConfigCommand channelConfig = new ChannelConfigCommand(persistenceManager);
+
+        SlashEventAdaptorMock slashEvent1 = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
+                .name("user_channel_alias")
+                .option(CommandInteractionOption.builder()
+                        .name("multi_save")
+                        .option(CommandInteractionOption.builder()
+                                .name("aliases")
+                                .stringValue("att:2d20;dmg:2d6+3=")
+                                .build())
+                        .build())
+                .build()));
+        channelConfig.handleSlashCommandEvent(slashEvent1, () -> UUID.fromString("00000000-0000-0000-0000-000000000000")).block();
+
+        SlashEventAdaptorMock slashEvent2 = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
+                .name("user_channel_alias")
+                .option(CommandInteractionOption.builder()
+                        .name("list")
+                        .build())
+                .build()));
+        channelConfig.handleSlashCommandEvent(slashEvent2, () -> UUID.fromString("00000000-0000-0000-0000-000000000000")).block();
+
+
+        assertThat(slashEvent1.getActions()).containsExactlyInAnyOrder("reply: `commandString`\nSaved new alias");
+        assertThat(slashEvent2.getActions()).containsExactlyInAnyOrder("reply: `commandString`\nexisting alias:\natt->2d20\ndmg->2d6+3=");
+    }
 }
