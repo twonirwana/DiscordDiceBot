@@ -319,9 +319,14 @@ There are two types of alias, channel alias and user channel alias.
 A channel alias will be applied to each roll in a channel, for every user.
 The user channel alias will only apply to for the user who created the alias in the channel.
 The user channel alias will be applied first.
-Three are three commands for each type.
+Three are four commands for each type.
 
 * `save` creates or overwrites an alias
+* `multi_save` creates or overwrites multiple alias.
+Alias are seperated by `;` and the name and the value are seperated by `:`.
+For example: `/channel_config channel_alias multi_save aliases: att:2d20;dmg:2d6+4=` saves two alias:
+** `att` with `2d20`
+** `dmg` with `2d6+4=`
 * `delete` removes an alias by its name
 * `list` provides a list of all alias
 
@@ -480,7 +485,7 @@ Upon typing the autocomplete will be open and show the typed expression if it ha
 If the expression is invalid it will show the first 100 characters of the error message.
 To get the complete error message press enter twice (even if the autocomplete will replace the expression with the error text).
 The autocomplete validation will not apply alias.
-This command will change when discord the autocomplete improves.
+This command will change when discord improves the autocomplete.
 
 == Dice Expression Notation
 

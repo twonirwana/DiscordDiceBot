@@ -153,6 +153,8 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
                                                  long channelId,
                                                  long messageId) {
         MessageDataDTO messageDataDTO = new MessageDataDTO(configUUID, guildId, channelId, messageId, getCommandId(), Mapper.NO_PERSISTED_STATE, null);
+        //should not be needed but sometimes there is a retry ect and then there is already a state
+        persistenceManager.deleteStateForMessage(channelId, messageId);
         persistenceManager.saveMessageData(messageDataDTO);
         return messageDataDTO;
     }
