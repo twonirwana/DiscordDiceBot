@@ -285,8 +285,7 @@ class CustomDiceCommandTest {
                 .build();
 
         Optional<String> res = underTest.getStartOptionsValidationMessage(option, 0L, 0L);
-
-        assertThat(res).contains("The following expression is invalid: '2d6*10'. The error is: '*' requires as left input a single integer but was '[3, 3]'. Try to sum the numbers together like (2d6=). Use /custom_dice help to get more information on how to use the command.");
+        assertThat(res).contains("The following expression is invalid: '2d6*10'. The error is: '*' requires as left input a single decimal but was '[3, 3]'. Try to sum the numbers together like (2d6=). Use /custom_dice help to get more information on how to use the command.");
     }
 
 
