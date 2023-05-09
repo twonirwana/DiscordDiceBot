@@ -21,7 +21,7 @@ dependencies {
     implementation(libs.guava)
     implementation(libs.micrometer.core)
     implementation(libs.commons.lang3)
-    implementation("io.micrometer:micrometer-registry-prometheus:1.10.6")
+    implementation("io.micrometer:micrometer-registry-prometheus:1.11.0")
     implementation("com.h2database:h2:2.1.214")
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.15.0")
     implementation("org.apache.xmlgraphics:batik:1.16")
