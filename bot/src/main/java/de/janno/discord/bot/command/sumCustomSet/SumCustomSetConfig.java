@@ -7,6 +7,7 @@ import de.janno.discord.bot.command.AnswerFormatType;
 import de.janno.discord.bot.command.ButtonIdLabelAndDiceExpression;
 import de.janno.discord.bot.command.Config;
 import de.janno.discord.bot.dice.DiceParserSystem;
+import de.janno.discord.bot.dice.image.DiceImageStyle;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
@@ -31,8 +32,10 @@ public class SumCustomSetConfig extends Config {
                               @JsonProperty("diceParserSystem") DiceParserSystem diceParserSystem,
                               @JsonProperty("alwaysSumResult") Boolean alwaysSumResult,
                               @JsonProperty("answerFormatType") AnswerFormatType answerFormatType,
-                              @JsonProperty("resultImage") ResultImage resultImage) {
-        super(answerTargetChannelId, answerFormatType, resultImage);
+                              @JsonProperty("resultImage") ResultImage resultImage,
+                              @JsonProperty("diceImageStyle") DiceImageStyle diceImageStyle,
+                              @JsonProperty("diceDefaultColor") String diceDefaultColor) {
+        super(answerTargetChannelId, answerFormatType, resultImage, diceImageStyle, diceDefaultColor);
         this.labelAndExpression = labelAndExpression;
         this.diceParserSystem = diceParserSystem == null ? DiceParserSystem.DICEROLL_PARSER : diceParserSystem;
         this.alwaysSumResult = alwaysSumResult == null || alwaysSumResult;
@@ -44,6 +47,6 @@ public class SumCustomSetConfig extends Config {
         String buttons = labelAndExpression.stream()
                 .map(ButtonIdLabelAndDiceExpression::toShortString)
                 .collect(Collectors.joining(", "));
-        return "[%s, %s, %s, %s, %s, %s]".formatted(buttons, getTargetChannelShortString(), diceParserSystem, alwaysSumResult, getAnswerFormatType(), getResultImage());
+        return "[%s, %s, %s, %s, %s, %s]".formatted(buttons, getTargetChannelShortString(), diceParserSystem, alwaysSumResult, getAnswerFormatType(), getDiceStyleAndColor());
     }
 }

@@ -4,7 +4,6 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import de.janno.discord.bot.BotMetrics;
-import de.janno.discord.bot.ResultImage;
 import de.janno.discord.bot.command.countSuccesses.CountSuccessesCommand;
 import de.janno.discord.bot.command.countSuccesses.CountSuccessesConfig;
 import de.janno.discord.bot.command.customDice.CustomDiceCommand;
@@ -19,6 +18,7 @@ import de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommand;
 import de.janno.discord.bot.command.sumCustomSet.SumCustomSetConfig;
 import de.janno.discord.bot.dice.CachingDiceEvaluator;
 import de.janno.discord.bot.dice.DiceParserSystem;
+import de.janno.discord.bot.dice.image.DiceImageStyle;
 import de.janno.discord.bot.persistance.MessageConfigDTO;
 import de.janno.discord.bot.persistance.MessageDataDTO;
 import de.janno.discord.bot.persistance.PersistenceManager;
@@ -40,11 +40,11 @@ import java.util.function.Supplier;
 public class WelcomeCommand extends AbstractCommand<Config, StateData> {
 
     public static final String COMMAND_NAME = "welcome";
-    private final static FateConfig FATE_CONFIG = new FateConfig(null, "with_modifier", AnswerFormatType.full, ResultImage.none);
-    private final static CountSuccessesConfig NWOD_CONFIG = new CountSuccessesConfig(null, 10, 8, "no_glitch", 15, 1, Set.of(10), Set.of(), AnswerFormatType.full, ResultImage.none);
-    private final static CountSuccessesConfig SHADOWRUN_CONFIG = new CountSuccessesConfig(null, 6, 5, "half_dice_one", 20, 1, Set.of(), Set.of(), AnswerFormatType.full, ResultImage.none);
-    private final static PoolTargetConfig OWOD_CONFIG = new PoolTargetConfig(null, 10, 15, ImmutableSet.of(10), ImmutableSet.of(1), "ask", AnswerFormatType.full, ResultImage.none);
-    private final static CustomDiceConfig COIN_CONFIG = new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Coin Toss \uD83E\uDE99", "1d[Head \uD83D\uDE00/Tail \uD83E\uDD85]")), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.without_expression, ResultImage.none);
+    private final static FateConfig FATE_CONFIG = new FateConfig(null, "with_modifier", AnswerFormatType.full, null, DiceImageStyle.none, DiceImageStyle.none.getDefaultColor());
+    private final static CountSuccessesConfig NWOD_CONFIG = new CountSuccessesConfig(null, 10, 8, "no_glitch", 15, 1, Set.of(10), Set.of(), AnswerFormatType.full, null, DiceImageStyle.none, DiceImageStyle.none.getDefaultColor());
+    private final static CountSuccessesConfig SHADOWRUN_CONFIG = new CountSuccessesConfig(null, 6, 5, "half_dice_one", 20, 1, Set.of(), Set.of(), AnswerFormatType.full, null, DiceImageStyle.none, DiceImageStyle.none.getDefaultColor());
+    private final static PoolTargetConfig OWOD_CONFIG = new PoolTargetConfig(null, 10, 15, ImmutableSet.of(10), ImmutableSet.of(1), "ask", AnswerFormatType.full, null, DiceImageStyle.none, DiceImageStyle.none.getDefaultColor());
+    private final static CustomDiceConfig COIN_CONFIG = new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Coin Toss \uD83E\uDE99", "1d[Head \uD83D\uDE00/Tail \uD83E\uDD85]")), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.without_expression, null, DiceImageStyle.none, DiceImageStyle.none.getDefaultColor());
     private final static CustomDiceConfig DND5_CONFIG_WITH_IMAGE = new CustomDiceConfig(null, ImmutableList.of(
             new ButtonIdLabelAndDiceExpression("1_button", "D4", "1d4"),
             new ButtonIdLabelAndDiceExpression("2_button", "D6", "1d6"),
@@ -61,7 +61,7 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
             new ButtonIdLabelAndDiceExpression("13_button", "2D10", "2d10="),
             new ButtonIdLabelAndDiceExpression("14_button", "2D12", "2d12="),
             new ButtonIdLabelAndDiceExpression("15_button", "2D20", "2d20=")
-    ), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.without_expression, ResultImage.polyhedral_3d_red_and_white);
+    ), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.without_expression, null, DiceImageStyle.polyhedral_3d, DiceImageStyle.polyhedral_3d.getDefaultColor());
     private final static CustomDiceConfig DND5_CONFIG = new CustomDiceConfig(null, ImmutableList.of(
             new ButtonIdLabelAndDiceExpression("1_button", "D4", "1d4"),
             new ButtonIdLabelAndDiceExpression("2_button", "D6", "1d6"),
@@ -78,13 +78,13 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
             new ButtonIdLabelAndDiceExpression("13_button", "2D10", "2d10="),
             new ButtonIdLabelAndDiceExpression("14_button", "2D12", "2d12="),
             new ButtonIdLabelAndDiceExpression("15_button", "2D20", "2d20=")
-    ), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full, ResultImage.none);
+    ), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full, null, DiceImageStyle.none, DiceImageStyle.none.getDefaultColor());
     private final SumCustomSetConfig DICE_CALCULATOR_CONFIG = new SumCustomSetConfig(null, List.of(
             new ButtonIdLabelAndDiceExpression("1_button", "7", "7"), new ButtonIdLabelAndDiceExpression("2_button", "8", "8"), new ButtonIdLabelAndDiceExpression("3_button", "9", "9"), new ButtonIdLabelAndDiceExpression("5_button", "+", "+"), new ButtonIdLabelAndDiceExpression("6_button", "-", "-"),
             new ButtonIdLabelAndDiceExpression("7_button", "4", "4"), new ButtonIdLabelAndDiceExpression("8_button", "5", "5"), new ButtonIdLabelAndDiceExpression("9_button", "6", "6"), new ButtonIdLabelAndDiceExpression("10_button", "d", "d"), new ButtonIdLabelAndDiceExpression("11_button", "k", "k"),
             new ButtonIdLabelAndDiceExpression("12_button", "1", "1"), new ButtonIdLabelAndDiceExpression("13_button", "2", "2"), new ButtonIdLabelAndDiceExpression("14_button", "3", "3"), new ButtonIdLabelAndDiceExpression("15_button", "0", "0"), new ButtonIdLabelAndDiceExpression("16_button", "l", "l")
-    ), DiceParserSystem.DICE_EVALUATOR, true, AnswerFormatType.full, ResultImage.none);
-    private final CustomParameterConfig FATE_WITH_IMAGE_CONFIG = new CustomParameterConfig(null, "4d[-1,0,1]+{Modifier:-4<=>10}=", DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.without_expression, ResultImage.fate_black);
+    ), DiceParserSystem.DICE_EVALUATOR, true, AnswerFormatType.full, null, DiceImageStyle.polyhedral_3d, DiceImageStyle.polyhedral_3d.getDefaultColor());
+    private final CustomParameterConfig FATE_WITH_IMAGE_CONFIG = new CustomParameterConfig(null, "4d[-1,0,1]+{Modifier:-4<=>10}=", DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.without_expression, null, DiceImageStyle.fate, DiceImageStyle.fate.getDefaultColor());
     private final CachingDiceEvaluator cachingDiceEvaluator;
     private final Supplier<UUID> uuidSupplier;
 
@@ -105,7 +105,7 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
                                                                                        @NonNull MessageDataDTO messageDataDTO,
                                                                                        @NonNull String buttonValue,
                                                                                        @NonNull String invokingUserName) {
-        return new ConfigAndState<>(messageConfigDTO.getConfigUUID(), new Config(null, AnswerFormatType.full, ResultImage.none), new State<>(buttonValue, StateData.empty()));
+        return new ConfigAndState<>(messageConfigDTO.getConfigUUID(), new Config(null, AnswerFormatType.full, null, DiceImageStyle.none, DiceImageStyle.none.getDefaultColor()), new State<>(buttonValue, StateData.empty()));
     }
 
     @Override
@@ -283,7 +283,7 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
 
     @Override
     protected @NonNull Config getConfigFromStartOptions(@NonNull CommandInteractionOption options) {
-        return new Config(null, AnswerFormatType.full, ResultImage.none);
+        return new Config(null, AnswerFormatType.full, null, DiceImageStyle.none, DiceImageStyle.none.getDefaultColor());
     }
 
     private enum ButtonIds {

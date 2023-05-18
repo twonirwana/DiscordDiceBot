@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
 public abstract class DiscordAdapterImpl implements DiscordAdapter {
 
     //needed to correctly show utf8 characters in discord
-    private static String encodeUTF8(String in) {
+    protected static String encodeUTF8(String in) {
         if (in == null) {
             return null;
         }
@@ -91,7 +91,7 @@ public abstract class DiscordAdapterImpl implements DiscordAdapter {
             case MESSAGE -> {
                 MessageCreateBuilder builder = new MessageCreateBuilder();
                 String answerString = rollRequesterMention + ": " + Optional.ofNullable(answer.getDescriptionOrContent()).map(s -> s + " ").orElse("") + answer.getFields().stream().map(EmbedOrMessageDefinition.Field::getName).collect(Collectors.joining(" "));
-                answerString = StringUtils.abbreviate(encodeUTF8(answerString), 2000); //seems to be the limit
+                answerString = StringUtils.abbreviate(encodeUTF8(answerString), Message.MAX_CONTENT_LENGTH);
                 builder.setSuppressedNotifications(true);
                 builder.setContent(answerString);
                 return createMonoFrom(() -> messageChannel.sendMessage(builder.build()));
@@ -104,7 +104,7 @@ public abstract class DiscordAdapterImpl implements DiscordAdapter {
                                                 @NonNull MessageDefinition messageDefinition) {
         return createMonoFrom(() -> channel.sendMessage(
                 MessageComponentConverter.messageComponent2MessageLayout(
-                        StringUtils.abbreviate(encodeUTF8(messageDefinition.getContent()), 2000), //seems to be the limit
+                        StringUtils.abbreviate(encodeUTF8(messageDefinition.getContent()), Message.MAX_CONTENT_LENGTH),
                         messageDefinition.getComponentRowDefinitions())));
     }
 

@@ -4,7 +4,6 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.ImmutableList;
 import de.janno.discord.bot.BotMetrics;
-import de.janno.discord.bot.ResultImage;
 import de.janno.discord.bot.persistance.Mapper;
 import de.janno.discord.bot.persistance.MessageConfigDTO;
 import de.janno.discord.bot.persistance.MessageDataDTO;
@@ -58,11 +57,6 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
         return Set.of(ACTION_START);
     }
 
-
-    protected ResultImage defaultResultImage() {
-        return ResultImage.polyhedral_3d_red_and_white;
-    }
-
     protected AnswerFormatType defaultAnswerFormat() {
         return AnswerFormatType.full;
     }
@@ -85,7 +79,8 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
             baseOptions.add(ANSWER_FORMAT_COMMAND_OPTION);
         }
         if (supportsResultImages()) {
-            baseOptions.add(RESULT_IMAGE_COMMAND_OPTION);
+            baseOptions.add(DICE_IMAGE_STYLE_COMMAND_OPTION);
+            baseOptions.add(DICE_IMAGE_COLOR_COMMAND_OPTION);
         }
         return CommandDefinition.builder()
                 .name(getCommandId())

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import de.janno.discord.bot.ResultImage;
 import de.janno.discord.bot.command.AnswerFormatType;
 import de.janno.discord.bot.command.Config;
+import de.janno.discord.bot.dice.image.DiceImageStyle;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
@@ -21,13 +22,15 @@ public class FateConfig extends Config {
     public FateConfig(@JsonProperty("answerTargetChannelId") Long answerTargetChannelId,
                       @JsonProperty("type") @NonNull String type,
                       @JsonProperty("answerFormatType") AnswerFormatType answerFormatType,
-                      @JsonProperty("resultImage") ResultImage resultImage) {
-        super(answerTargetChannelId, answerFormatType, resultImage);
+                      @JsonProperty("resultImage") ResultImage resultImage,
+                      @JsonProperty("diceImageStyle") DiceImageStyle diceImageStyle,
+                      @JsonProperty("diceDefaultColor") String diceDefaultColor) {
+        super(answerTargetChannelId, answerFormatType, resultImage, diceImageStyle, diceDefaultColor);
         this.type = type;
     }
 
     @Override
     public String toShortString() {
-        return String.format("[%s, %s, %s, %s]", type, getTargetChannelShortString(), getAnswerFormatType(),getResultImage());
+        return String.format("[%s, %s, %s, %s]", type, getTargetChannelShortString(), getAnswerFormatType(), getDiceStyleAndColor());
     }
 }

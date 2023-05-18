@@ -1,42 +1,28 @@
 package de.janno.discord.bot.dice.image.provider;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.io.Resources;
 import lombok.NonNull;
 
-import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
+import java.util.function.Function;
 
 public class PolyhedralFileImageProvider implements ImageProvider {
 
-    private final Map<Integer, Map<Integer, BufferedImage>> diceImageMap;
+    private final Map<String, FileSidesDiceImageMap> color2DiceSideImageMap;
+    private final List<String> supportedColors;
+    private final String defaultColor;
 
-    public PolyhedralFileImageProvider(String styleFolder) {
-        this.diceImageMap = Stream.of(4, 6, 8, 10, 12, 20, 100)
-                .collect(ImmutableMap.toImmutableMap(d -> d, d -> {
-                    final Stream<Integer> sideStream;
-                    if (d != 100) {
-                        sideStream = IntStream.range(1, d + 1).boxed();
-                    } else {
-                        sideStream = IntStream.range(1, 11).boxed();
-                    }
-                    return sideStream
-                            .collect(ImmutableMap.toImmutableMap(s -> s, s -> {
-                                try {
-                                    return ImageIO.read(Resources.getResource("images/%s/d%d/d%ds%d.png".formatted(styleFolder, d, d, s)).openStream());
-                                } catch (IOException e) {
-                                    throw new RuntimeException(e);
-                                }
-                            }));
-                }));
+    public PolyhedralFileImageProvider(String styleFolder, List<String> supportedColors, String defaultColor) {
+        this.color2DiceSideImageMap = supportedColors.stream()
+                .collect(ImmutableMap.toImmutableMap(Function.identity(), c -> new FileSidesDiceImageMap(styleFolder + "_" + c, List.of(4, 6, 8, 10, 12, 20, 100))));
+        this.defaultColor = defaultColor;
+        Preconditions.checkArgument(supportedColors.contains(defaultColor), "The default color {} was not in the supported colors {}", defaultColor, supportedColors);
+        this.supportedColors = supportedColors;
     }
-
 
     @Override
     public int getDieHighAndWith() {
@@ -44,10 +30,29 @@ public class PolyhedralFileImageProvider implements ImageProvider {
     }
 
     @Override
+    public @NonNull String getDefaultColor() {
+        return defaultColor;
+    }
+
+    @Override
+    public @NonNull List<String> getSupportedColors() {
+        return supportedColors;
+    }
+
+    @Override
     public @NonNull List<BufferedImage> getImageFor(Integer totalDieSides, Integer shownDieSide, String color) {
         if (totalDieSides == null || shownDieSide == null) {
             return List.of();
         }
+
+        final String validatedColor;
+        if (color == null || !getSupportedColors().contains(color)) {
+            validatedColor = getDefaultColor();
+        } else {
+            validatedColor = color;
+        }
+
+        FileSidesDiceImageMap fileSidesDiceImageMap = color2DiceSideImageMap.get(validatedColor);
         if (totalDieSides == 100) {
             int tens = shownDieSide / 10;
 
@@ -59,11 +64,11 @@ public class PolyhedralFileImageProvider implements ImageProvider {
                 tens = 10;
             }
             return List.of(
-                    diceImageMap.get(100).get(tens),
-                    diceImageMap.get(10).get(ones)
+                    fileSidesDiceImageMap.getDiceImageMap().get(100).get(tens),
+                    fileSidesDiceImageMap.getDiceImageMap().get(10).get(ones)
             );
         }
-        return Optional.ofNullable(diceImageMap.get(totalDieSides))
+        return Optional.ofNullable(fileSidesDiceImageMap.getDiceImageMap().get(totalDieSides))
                 .map(m -> m.get(shownDieSide))
                 .map(List::of).orElse(List.of());
     }

@@ -4,7 +4,6 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Stopwatch;
 import de.janno.discord.bot.BotMetrics;
-import de.janno.discord.bot.ResultImage;
 import de.janno.discord.bot.command.AnswerFormatType;
 import de.janno.discord.bot.command.RollAnswer;
 import de.janno.discord.bot.command.RollAnswerConverter;
@@ -13,6 +12,7 @@ import de.janno.discord.bot.command.channelConfig.DirectRollConfig;
 import de.janno.discord.bot.dice.CachingDiceEvaluator;
 import de.janno.discord.bot.dice.DiceEvaluatorAdapter;
 import de.janno.discord.bot.dice.DiceSystemAdapter;
+import de.janno.discord.bot.dice.image.DiceImageStyle;
 import de.janno.discord.bot.persistance.ChannelConfigDTO;
 import de.janno.discord.bot.persistance.Mapper;
 import de.janno.discord.bot.persistance.PersistenceManager;
@@ -71,7 +71,7 @@ public class DirectRollCommand implements SlashCommand {
     private DirectRollConfig getDirectRollConfig(long channelId) {
         return persistenceManager.getChannelConfig(channelId, DIRECT_ROLL_CONFIG_TYPE_ID)
                 .map(this::deserializeConfig)
-                .orElse(new DirectRollConfig(null, true, AnswerFormatType.full, ResultImage.polyhedral_3d_red_and_white));
+                .orElse(new DirectRollConfig(null, true, AnswerFormatType.full, null, DiceImageStyle.polyhedral_3d, DiceImageStyle.polyhedral_3d.getImageProvider().getDefaultColor()));
     }
 
     @VisibleForTesting
@@ -121,7 +121,7 @@ public class DirectRollCommand implements SlashCommand {
             DirectRollConfig config = getDirectRollConfig(event.getChannelId());
             BotMetrics.incrementAnswerFormatCounter(config.getAnswerFormatType(), getCommandId());
 
-            RollAnswer answer = diceEvaluatorAdapter.answerRollWithOptionalLabelInExpression(expressionWithOptionalLabelsAndAppliedAliases, DiceSystemAdapter.LABEL_DELIMITER, config.isAlwaysSumResult(), config.getAnswerFormatType(), config.getResultImage());
+            RollAnswer answer = diceEvaluatorAdapter.answerRollWithOptionalLabelInExpression(expressionWithOptionalLabelsAndAppliedAliases, DiceSystemAdapter.LABEL_DELIMITER, config.isAlwaysSumResult(), config.getAnswerFormatType(), config.getDiceStyleAndColor());
 
             return Flux.merge(removeSlash ? Mono.defer(event::acknowledgeAndRemoveSlash) : event.reply(commandString, true),
                             Mono.defer(() -> event.createResultMessageWithEventReference(RollAnswerConverter.toEmbedOrMessageDefinition(answer))

@@ -5,9 +5,9 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import de.janno.discord.bot.ResultImage;
 import de.janno.discord.bot.command.*;
 import de.janno.discord.bot.dice.*;
+import de.janno.discord.bot.dice.image.DiceImageStyle;
 import de.janno.discord.bot.persistance.Mapper;
 import de.janno.discord.bot.persistance.MessageConfigDTO;
 import de.janno.discord.bot.persistance.MessageDataDTO;
@@ -251,7 +251,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
                     false,
                     config.getDiceParserSystem(),
                     config.getAnswerFormatType(),
-                    config.getResultImage()));
+                    config.getDiceStyleAndColor()));
         }
         return Optional.empty();
     }
@@ -288,8 +288,13 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
         String baseExpression = options.getStringSubOptionWithName(EXPRESSION_OPTION).orElse("");
         Long answerTargetChannelId = DefaultCommandOptions.getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null);
         AnswerFormatType answerType = DefaultCommandOptions.getAnswerTypeFromStartCommandOption(options).orElse(defaultAnswerFormat());
-        ResultImage resultImage = DefaultCommandOptions.getResultImageOptionFromStartCommandOption(options).orElse(defaultResultImage());
-        return new CustomParameterConfig(answerTargetChannelId, baseExpression, DiceParserSystem.DICE_EVALUATOR, answerType, resultImage);
+        return new CustomParameterConfig(answerTargetChannelId,
+                baseExpression,
+                DiceParserSystem.DICE_EVALUATOR,
+                answerType,
+                null,
+                DefaultCommandOptions.getDiceStyleOptionFromStartCommandOption(options).orElse(DiceImageStyle.polyhedral_3d),
+                DefaultCommandOptions.getDiceColorOptionFromStartCommandOption(options).orElse(DiceImageStyle.polyhedral_3d.getDefaultColor()));
     }
 
     @Override

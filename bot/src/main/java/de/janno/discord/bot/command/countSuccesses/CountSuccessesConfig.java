@@ -6,6 +6,7 @@ import com.google.common.collect.ImmutableSet;
 import de.janno.discord.bot.ResultImage;
 import de.janno.discord.bot.command.AnswerFormatType;
 import de.janno.discord.bot.command.Config;
+import de.janno.discord.bot.dice.image.DiceImageStyle;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
@@ -41,8 +42,10 @@ public class CountSuccessesConfig extends Config {
                                 @JsonProperty("rerollSet") Set<Integer> rerollSet,
                                 @JsonProperty("botchSet") Set<Integer> botchSet,
                                 @JsonProperty("answerFormatType") AnswerFormatType answerFormatType,
-                                @JsonProperty("resultImage") ResultImage resultImage) {
-        super(answerTargetChannelId, answerFormatType, resultImage);
+                                @JsonProperty("resultImage") ResultImage resultImage,
+                                @JsonProperty("diceImageStyle") DiceImageStyle diceImageStyle,
+                                @JsonProperty("diceDefaultColor") String diceDefaultColor) {
+        super(answerTargetChannelId, answerFormatType, resultImage, diceImageStyle, diceDefaultColor);
         this.diceSides = diceSides;
         this.target = target;
         this.glitchOption = glitchOption;
@@ -63,7 +66,7 @@ public class CountSuccessesConfig extends Config {
                 botchSet.stream().map(String::valueOf).collect(Collectors.joining(CountSuccessesCommand.SUBSET_DELIMITER)),
                 getTargetChannelShortString(),
                 getAnswerFormatType(),
-                getResultImage()
+                getDiceStyleAndColor()
         ).toList().toString();
     }
 }

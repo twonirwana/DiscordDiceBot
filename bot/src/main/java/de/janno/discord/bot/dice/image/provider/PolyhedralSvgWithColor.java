@@ -1,5 +1,6 @@
 package de.janno.discord.bot.dice.image.provider;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Resources;
 import lombok.NonNull;
@@ -37,6 +38,7 @@ public class PolyhedralSvgWithColor implements ImageProvider {
                     throw new RuntimeException(e);
                 }
             }));
+    private static final String RED = "red";
 
     private static final Map<String, Color> COLOR_MAP = ImmutableMap.<String, Color>builder()
             .put("white", Color.white)
@@ -44,7 +46,7 @@ public class PolyhedralSvgWithColor implements ImageProvider {
             .put("gray", Color.gray)
             //.put("dark_gray", Color.darkGray)
             .put("black", Color.black)
-            .put("red", Color.red)
+            .put(RED, Color.red)
             .put("pink", Color.pink)
             .put("orange", Color.orange)
             .put("yellow", Color.yellow)
@@ -60,6 +62,12 @@ public class PolyhedralSvgWithColor implements ImageProvider {
         if (totalDieSides == null || shownDieSide == null || !DICE_IMAGE_MAP.containsKey(totalDieSides)) {
             return List.of();
         }
+        final String validatedColor;
+        if (colorString == null || !getSupportedColors().contains(colorString)) {
+            validatedColor = getDefaultColor();
+        } else {
+            validatedColor = colorString;
+        }
 
         if (totalDieSides == 100) {
             int tens = (shownDieSide / 10) * 10;
@@ -72,12 +80,12 @@ public class PolyhedralSvgWithColor implements ImageProvider {
                 tensString = String.valueOf(tens);
             }
             return List.of(
-                    getImageAndSetNumberAndColor(100, tensString, colorString),
-                    getImageAndSetNumberAndColor(10, String.valueOf(ones), colorString)
+                    getImageAndSetNumberAndColor(100, tensString, validatedColor),
+                    getImageAndSetNumberAndColor(10, String.valueOf(ones), validatedColor)
             );
         }
 
-        return List.of(getImageAndSetNumberAndColor(totalDieSides, String.valueOf(shownDieSide), colorString));
+        return List.of(getImageAndSetNumberAndColor(totalDieSides, String.valueOf(shownDieSide), validatedColor));
     }
 
     private BufferedImage getImageAndSetNumberAndColor(Integer totalDieSides, String shownDieSide, String colorString) {
@@ -115,5 +123,15 @@ public class PolyhedralSvgWithColor implements ImageProvider {
     @Override
     public int getDieHighAndWith() {
         return 100;
+    }
+
+    @Override
+    public @NonNull String getDefaultColor() {
+        return RED;
+    }
+
+    @Override
+    public @NonNull List<String> getSupportedColors() {
+        return ImmutableList.copyOf(COLOR_MAP.keySet());
     }
 }

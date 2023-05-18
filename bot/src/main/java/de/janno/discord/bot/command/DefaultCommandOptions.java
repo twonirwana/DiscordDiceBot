@@ -1,6 +1,6 @@
 package de.janno.discord.bot.command;
 
-import de.janno.discord.bot.ResultImage;
+import de.janno.discord.bot.dice.image.DiceImageStyle;
 import de.janno.discord.connector.api.slash.CommandDefinitionOption;
 import de.janno.discord.connector.api.slash.CommandDefinitionOptionChoice;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
@@ -13,7 +13,8 @@ import java.util.stream.Collectors;
 public final class DefaultCommandOptions {
     public static final String ANSWER_TARGET_CHANNEL_OPTION = "target_channel";
     public static final String ANSWER_FORMAT_OPTION = "answer_format";
-    public static final String RESULT_IMAGE_OPTION = "result_image";
+    public static final String DICE_IMAGE_STYLE_OPTION = "dice_image_style";
+    public static final String DICE_IMAGE_COLOR_OPTION = "dice_image_color";
 
     public static final CommandDefinitionOption ANSWER_TARGET_CHANNEL_COMMAND_OPTION = CommandDefinitionOption.builder()
             .name(ANSWER_TARGET_CHANNEL_OPTION)
@@ -33,17 +34,29 @@ public final class DefaultCommandOptions {
                     .collect(Collectors.toList()))
             .build();
 
-    public static final CommandDefinitionOption RESULT_IMAGE_COMMAND_OPTION = CommandDefinitionOption.builder()
-
-            .name(RESULT_IMAGE_OPTION)
+    public static final CommandDefinitionOption DICE_IMAGE_STYLE_COMMAND_OPTION = CommandDefinitionOption.builder()
+            .name(DICE_IMAGE_STYLE_OPTION)
             .description("If and in what style the dice throw should be shown as image")
             .type(CommandDefinitionOption.Type.STRING)
-            .choices(Arrays.stream(ResultImage.values())
+            .choices(Arrays.stream(DiceImageStyle.values())
                     .map(ri -> CommandDefinitionOptionChoice.builder()
                             .name(ri.name())
                             .value(ri.name())
                             .build())
                     .collect(Collectors.toList()))
+            .build();
+
+    public static final CommandDefinitionOption DICE_IMAGE_COLOR_COMMAND_OPTION = CommandDefinitionOption.builder()
+            .name(DICE_IMAGE_COLOR_OPTION)
+            .description("The default color option. Can be influenced by the `color` method")
+            .type(CommandDefinitionOption.Type.STRING)
+            //todo autocomplete choice over image styles
+            /* .choices(Arrays.stream(ResultImage.values())
+                     .map(ri -> CommandDefinitionOptionChoice.builder()
+                             .name(ri.name())
+                             .value(ri.name())
+                             .build())
+                     .collect(Collectors.toList()))*/
             .build();
 
     public static Optional<Long> getAnswerTargetChannelIdFromStartCommandOption(@NonNull CommandInteractionOption options) {
@@ -55,8 +68,12 @@ public final class DefaultCommandOptions {
                 .map(AnswerFormatType::valueOf);
     }
 
-    public static Optional<ResultImage> getResultImageOptionFromStartCommandOption(@NonNull CommandInteractionOption options) {
-        return options.getStringSubOptionWithName(RESULT_IMAGE_OPTION)
-                .map(ResultImage::valueOf);
+    public static Optional<DiceImageStyle> getDiceStyleOptionFromStartCommandOption(@NonNull CommandInteractionOption options) {
+        return options.getStringSubOptionWithName(DICE_IMAGE_STYLE_OPTION)
+                .map(DiceImageStyle::valueOf);
+    }
+
+    public static Optional<String> getDiceColorOptionFromStartCommandOption(@NonNull CommandInteractionOption options) {
+        return options.getStringSubOptionWithName(DICE_IMAGE_COLOR_OPTION);
     }
 }

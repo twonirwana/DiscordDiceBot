@@ -10,12 +10,13 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-public class D6White implements ImageProvider {
+public class D6Dotted implements ImageProvider {
 
+    private static final String WHITE = "white";
     private final Map<Integer, BufferedImage> imageMap;
 
 
-    public D6White() {
+    public D6Dotted() {
         try {
             imageMap = ImmutableMap.of(
                     1, ImageIO.read(Resources.getResource("images/d6_white/dice-six-faces-one.png").openStream()),
@@ -32,6 +33,16 @@ public class D6White implements ImageProvider {
     @Override
     public int getDieHighAndWith() {
         return 50;
+    }
+
+    @Override
+    public @NonNull String getDefaultColor() {
+        return WHITE;
+    }
+
+    @Override
+    public @NonNull List<String> getSupportedColors() {
+        return List.of(WHITE);
     }
 
     @Override

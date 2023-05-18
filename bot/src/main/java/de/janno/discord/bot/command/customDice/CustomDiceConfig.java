@@ -7,6 +7,7 @@ import de.janno.discord.bot.command.AnswerFormatType;
 import de.janno.discord.bot.command.ButtonIdLabelAndDiceExpression;
 import de.janno.discord.bot.command.Config;
 import de.janno.discord.bot.dice.DiceParserSystem;
+import de.janno.discord.bot.dice.image.DiceImageStyle;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
@@ -29,8 +30,10 @@ public class CustomDiceConfig extends Config {
                             @JsonProperty("buttonIdLabelAndDiceExpressions") @NonNull List<ButtonIdLabelAndDiceExpression> buttonIdLabelAndDiceExpressions,
                             @JsonProperty("diceParserSystem") DiceParserSystem diceParserSystem,
                             @JsonProperty("answerFormatType") AnswerFormatType answerFormatType,
-                            @JsonProperty("resultImage") ResultImage resultImage) {
-        super(answerTargetChannelId, answerFormatType, resultImage);
+                            @JsonProperty("resultImage") ResultImage resultImage,
+                            @JsonProperty("diceImageStyle") DiceImageStyle diceImageStyle,
+                            @JsonProperty("diceDefaultColor") String diceDefaultColor) {
+        super(answerTargetChannelId, answerFormatType, resultImage, diceImageStyle, diceDefaultColor);
         this.buttonIdLabelAndDiceExpressions = buttonIdLabelAndDiceExpressions;
         this.diceParserSystem = diceParserSystem == null ? DiceParserSystem.DICEROLL_PARSER : diceParserSystem;
     }
@@ -40,7 +43,7 @@ public class CustomDiceConfig extends Config {
         String buttons = buttonIdLabelAndDiceExpressions.stream()
                 .map(ButtonIdLabelAndDiceExpression::toShortString)
                 .collect(Collectors.joining(", "));
-        return "[%s, %s, %s, %s, %s]".formatted(buttons, getTargetChannelShortString(), diceParserSystem, getAnswerFormatType(), getResultImage());
+        return "[%s, %s, %s, %s, %s]".formatted(buttons, getTargetChannelShortString(), diceParserSystem, getAnswerFormatType(), getDiceStyleAndColor());
     }
 
 }

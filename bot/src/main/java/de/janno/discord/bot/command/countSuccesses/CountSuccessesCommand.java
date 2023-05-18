@@ -5,9 +5,9 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
-import de.janno.discord.bot.ResultImage;
 import de.janno.discord.bot.command.*;
 import de.janno.discord.bot.dice.DiceUtils;
+import de.janno.discord.bot.dice.image.DiceImageStyle;
 import de.janno.discord.bot.persistance.Mapper;
 import de.janno.discord.bot.persistance.MessageConfigDTO;
 import de.janno.discord.bot.persistance.MessageDataDTO;
@@ -283,8 +283,7 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesConfig,
         Set<Integer> botchSet = CommandUtils.getSetFromCommandOptions(options, ACTION_BOTCH_SET_OPTION, ",");
         Long answerTargetChannelId = DefaultCommandOptions.getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null);
         AnswerFormatType answerType = DefaultCommandOptions.getAnswerTypeFromStartCommandOption(options).orElse(defaultAnswerFormat());
-        ResultImage resultImage = DefaultCommandOptions.getResultImageOptionFromStartCommandOption(options).orElse(defaultResultImage());
-        return new CountSuccessesConfig(answerTargetChannelId, sideValue, targetValue, glitchOption, maxDice, minDiceCount, rerollSet, botchSet, answerType, resultImage);
+        return new CountSuccessesConfig(answerTargetChannelId, sideValue, targetValue, glitchOption, maxDice, minDiceCount, rerollSet, botchSet, answerType, null, DiceImageStyle.none, DiceImageStyle.none.getDefaultColor());
     }
 
     private List<ComponentRowDefinition> createButtonLayout(UUID configUUID, CountSuccessesConfig config) {

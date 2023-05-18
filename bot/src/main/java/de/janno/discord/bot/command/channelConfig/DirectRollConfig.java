@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import de.janno.discord.bot.ResultImage;
 import de.janno.discord.bot.command.AnswerFormatType;
 import de.janno.discord.bot.command.Config;
+import de.janno.discord.bot.dice.image.DiceImageStyle;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
@@ -19,14 +20,16 @@ public class DirectRollConfig extends Config {
     public DirectRollConfig(@JsonProperty("answerTargetChannelId") Long answerTargetChannelId,
                             @JsonProperty("alwaysSumResult") Boolean alwaysSumResult,
                             @JsonProperty("answerFormatType") AnswerFormatType answerFormatType,
-                            @JsonProperty("resultImage") ResultImage resultImage) {
-        super(answerTargetChannelId, answerFormatType, resultImage);
+                            @JsonProperty("resultImage") ResultImage resultImage,
+                            @JsonProperty("diceImageStyle") DiceImageStyle diceImageStyle,
+                            @JsonProperty("diceDefaultColor") String diceDefaultColor) {
+        super(answerTargetChannelId, answerFormatType, resultImage, diceImageStyle, diceDefaultColor);
         this.alwaysSumResult = alwaysSumResult == null || alwaysSumResult;
 
     }
 
     @Override
     public String toShortString() {
-        return "[%s, %s, %s, %s]".formatted(getTargetChannelShortString(), alwaysSumResult, getAnswerFormatType(), getResultImage());
+        return "[%s, %s, %s, %s]".formatted(getTargetChannelShortString(), alwaysSumResult, getAnswerFormatType(), getDiceStyleAndColor());
     }
 }

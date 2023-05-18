@@ -15,4 +15,14 @@ public final class NoneProvider implements ImageProvider {
     public int getDieHighAndWith() {
         return 0;
     }
+
+    @Override
+    public @NonNull String getDefaultColor() {
+        return "none";
+    }
+
+    @Override
+    public @NonNull List<String> getSupportedColors() {
+        return List.of();
+    }
 }

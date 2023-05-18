@@ -7,6 +7,7 @@ import de.janno.discord.bot.ResultImage;
 import de.janno.discord.bot.command.AnswerFormatType;
 import de.janno.discord.bot.command.DefaultCommandOptions;
 import de.janno.discord.bot.command.directRoll.DirectRollCommand;
+import de.janno.discord.bot.dice.image.DiceImageStyle;
 import de.janno.discord.bot.persistance.ChannelConfigDTO;
 import de.janno.discord.bot.persistance.Mapper;
 import de.janno.discord.bot.persistance.PersistenceManager;
@@ -156,8 +157,9 @@ public class ChannelConfigCommand implements SlashCommand {
             CommandInteractionOption saveAction = event.getOption(SAVE_DIRECT_ROLL_CONFIG_ACTION).get();
             boolean alwaysSumResults = saveAction.getBooleanSubOptionWithName(ALWAYS_SUM_RESULTS_COMMAND_OPTIONS_ID).orElse(true);
             AnswerFormatType answerType = DefaultCommandOptions.getAnswerTypeFromStartCommandOption(saveAction).orElse(AnswerFormatType.full);
-            ResultImage resultImage = DefaultCommandOptions.getResultImageOptionFromStartCommandOption(saveAction).orElse(ResultImage.polyhedral_3d_red_and_white);
-            DirectRollConfig config = new DirectRollConfig(null, alwaysSumResults, answerType, resultImage);
+            DiceImageStyle diceImageStyle = DefaultCommandOptions.getDiceStyleOptionFromStartCommandOption(saveAction).orElse(DiceImageStyle.polyhedral_3d);
+            String defaultDiceColor = DefaultCommandOptions.getDiceColorOptionFromStartCommandOption(saveAction).orElse(DiceImageStyle.polyhedral_3d.getDefaultColor());
+            DirectRollConfig config = new DirectRollConfig(null, alwaysSumResults, answerType, null, diceImageStyle, defaultDiceColor);
             BotMetrics.incrementSlashStartMetricCounter(getCommandId(), config.toShortString());
             return Mono.defer(() -> {
                 persistenceManager.deleteChannelConfig(event.getChannelId(), DIRECT_ROLL_CONFIG_TYPE_ID);
@@ -244,13 +246,13 @@ public class ChannelConfigCommand implements SlashCommand {
             if (!missingNameValue.isEmpty()) {
                 return event.reply("`%s`\nMissing name value separator `:` in: %s".formatted(event.getCommandString(), missingNameValue), true);
             }
-           List<Alias> aliases = nameValuePair.stream()
+            List<Alias> aliases = nameValuePair.stream()
                     .map(s -> {
                         String[] split = s.split(":");
                         return new Alias(split[0], split[1]);
                     })
-                   .toList();
-           aliases.forEach(a -> saveAlias(a, event, userId, uuidSupplier));
+                    .toList();
+            aliases.forEach(a -> saveAlias(a, event, userId, uuidSupplier));
 
             log.info("{}: save {} aliases: {}",
                     event.getRequester().toLogString(),

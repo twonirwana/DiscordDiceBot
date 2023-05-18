@@ -8,6 +8,7 @@ import de.janno.discord.bot.ResultImage;
 import de.janno.discord.bot.command.*;
 import de.janno.discord.bot.command.channelConfig.AliasHelper;
 import de.janno.discord.bot.dice.*;
+import de.janno.discord.bot.dice.image.DiceImageStyle;
 import de.janno.discord.bot.persistance.Mapper;
 import de.janno.discord.bot.persistance.MessageConfigDTO;
 import de.janno.discord.bot.persistance.MessageDataDTO;
@@ -122,14 +123,19 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
         return getConfigOptionStringList(getButtonsFromCommandOption(options),
                 DefaultCommandOptions.getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null),
                 DefaultCommandOptions.getAnswerTypeFromStartCommandOption(options).orElse(defaultAnswerFormat()),
-                DefaultCommandOptions.getResultImageOptionFromStartCommandOption(options).orElse(defaultResultImage()));
+                null,
+                DefaultCommandOptions.getDiceStyleOptionFromStartCommandOption(options).orElse(DiceImageStyle.polyhedral_3d),
+                DefaultCommandOptions.getDiceColorOptionFromStartCommandOption(options).orElse(DiceImageStyle.polyhedral_3d.getDefaultColor())
+        );
     }
 
     @VisibleForTesting
     CustomDiceConfig getConfigOptionStringList(List<ButtonIdAndExpression> startOptions,
                                                Long channelId,
                                                AnswerFormatType answerFormatType,
-                                               ResultImage resultImage) {
+                                               ResultImage resultImage,
+                                               DiceImageStyle diceImageStyle,
+                                               String defaultDiceColor) {
         return new CustomDiceConfig(channelId, startOptions.stream()
                 .filter(be -> !be.getExpression().contains(BottomCustomIdUtils.CUSTOM_ID_DELIMITER))
                 .filter(be -> !be.getExpression().contains(LABEL_DELIMITER) || be.getExpression().split(LABEL_DELIMITER).length == 2)
@@ -148,7 +154,9 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
                 .collect(Collectors.toList()),
                 DiceParserSystem.DICE_EVALUATOR,
                 answerFormatType,
-                resultImage);
+                resultImage,
+                diceImageStyle,
+                defaultDiceColor);
     }
 
     @Override
@@ -169,7 +177,7 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
                 false,
                 config.getDiceParserSystem(),
                 config.getAnswerFormatType(),
-                config.getResultImage()));
+                config.getDiceStyleAndColor()));
     }
 
     @Override
