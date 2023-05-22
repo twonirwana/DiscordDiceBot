@@ -346,9 +346,9 @@ class SumDiceSetCommandTest {
 
     @Test
     void getStartOptions() {
-        List<CommandDefinitionOption> res = underTest.getStartOptions();
+        List<CommandDefinitionOption> res = underTest.getCommandDefinition().getOptions();
 
-        assertThat(res).isEmpty();
+        assertThat(res.stream().map(CommandDefinitionOption::getName)).containsExactly("start", "help");
     }
 
     @Test

@@ -78,7 +78,7 @@ class CustomDiceCommandTest {
         final List<CustomDiceCommand.ButtonIdAndExpression> idAndExpressions = optionValue.stream()
                 .map(e -> new CustomDiceCommand.ButtonIdAndExpression(counter.getAndIncrement() + "_button", e))
                 .toList();
-        assertThat(underTest.getConfigOptionStringList(idAndExpressions, null, AnswerFormatType.full, null, DiceImageStyle.none, "none")).isEqualTo(expected);
+        assertThat(underTest.getConfigOptionStringList(idAndExpressions, null, AnswerFormatType.full, DiceImageStyle.none, "none")).isEqualTo(expected);
     }
 
     @BeforeEach
