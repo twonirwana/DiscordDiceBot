@@ -1,8 +1,9 @@
 package de.janno.discord.bot.command.customParameter;
 
 import com.google.common.collect.ImmutableList;
-import de.janno.discord.bot.ResultImage;
-import de.janno.discord.bot.command.*;
+import de.janno.discord.bot.command.AnswerFormatType;
+import de.janno.discord.bot.command.ButtonIdLabelAndDiceExpression;
+import de.janno.discord.bot.command.ConfigAndState;
 import de.janno.discord.bot.dice.CachingDiceEvaluator;
 import de.janno.discord.bot.dice.Dice;
 import de.janno.discord.bot.dice.DiceParser;
@@ -38,10 +39,10 @@ class CustomParameterCommandTest {
     private static Stream<Arguments> generateParameterExpression2ButtonValuesData() {
         return Stream.of(
                 Arguments.of("{test}", IntStream.range(1, 16).mapToObj(i -> new ButtonIdLabelAndDiceExpression("custom_parameter\u001E" + i + "00000000-0000-0000-0000-000000000000", String.valueOf(i), String.valueOf(i))).toList()),
-                Arguments.of("{test:2<=>4}", IntStream.range(2, 5).mapToObj(i -> new ButtonIdLabelAndDiceExpression("custom_parameter\u001E" + i+ "00000000-0000-0000-0000-000000000000", String.valueOf(i), String.valueOf(i))).toList()),
+                Arguments.of("{test:2<=>4}", IntStream.range(2, 5).mapToObj(i -> new ButtonIdLabelAndDiceExpression("custom_parameter\u001E" + i + "00000000-0000-0000-0000-000000000000", String.valueOf(i), String.valueOf(i))).toList()),
                 Arguments.of("{test:2<=>1}", ImmutableList.of(new ButtonIdLabelAndDiceExpression("custom_parameter\u001E200000000-0000-0000-0000-000000000000", "2", "2"))),
-                Arguments.of("{test:-2<=>1}", IntStream.range(-2, 2).mapToObj(i -> new ButtonIdLabelAndDiceExpression("custom_parameter\u001E" + i+ "00000000-0000-0000-0000-000000000000", String.valueOf(i), String.valueOf(i))).toList()),
-                Arguments.of("{test:-10<=>-5}", IntStream.range(-10, -4).mapToObj(i -> new ButtonIdLabelAndDiceExpression("custom_parameter\u001E" + i+ "00000000-0000-0000-0000-000000000000", String.valueOf(i), String.valueOf(i))).toList()),
+                Arguments.of("{test:-2<=>1}", IntStream.range(-2, 2).mapToObj(i -> new ButtonIdLabelAndDiceExpression("custom_parameter\u001E" + i + "00000000-0000-0000-0000-000000000000", String.valueOf(i), String.valueOf(i))).toList()),
+                Arguments.of("{test:-10<=>-5}", IntStream.range(-10, -4).mapToObj(i -> new ButtonIdLabelAndDiceExpression("custom_parameter\u001E" + i + "00000000-0000-0000-0000-000000000000", String.valueOf(i), String.valueOf(i))).toList()),
                 Arguments.of("{test:1d6/+5/abc}", ImmutableList.of(new ButtonIdLabelAndDiceExpression("custom_parameter\u001E1d600000000-0000-0000-0000-000000000000", "1d6", "1d6"), new ButtonIdLabelAndDiceExpression("custom_parameter\u001E+500000000-0000-0000-0000-000000000000", "+5", "+5"), new ButtonIdLabelAndDiceExpression("custom_parameter\u001Eabc00000000-0000-0000-0000-000000000000", "abc", "abc"))),
                 Arguments.of("{test:1d6@d6/+5@Bonus/abc}", ImmutableList.of(new ButtonIdLabelAndDiceExpression("custom_parameter\u001E1d600000000-0000-0000-0000-000000000000", "d6", "1d6"), new ButtonIdLabelAndDiceExpression("custom_parameter\u001E+500000000-0000-0000-0000-000000000000", "Bonus", "+5"), new ButtonIdLabelAndDiceExpression("custom_parameter\u001Eabc00000000-0000-0000-0000-000000000000", "abc", "abc")))
         );

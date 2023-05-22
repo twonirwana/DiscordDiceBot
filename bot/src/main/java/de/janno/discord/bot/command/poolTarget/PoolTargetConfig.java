@@ -6,7 +6,6 @@ import com.google.common.collect.ImmutableList;
 import de.janno.discord.bot.ResultImage;
 import de.janno.discord.bot.command.AnswerFormatType;
 import de.janno.discord.bot.command.Config;
-import de.janno.discord.bot.dice.image.DiceImageStyle;
 import de.janno.discord.bot.dice.image.DiceStyleAndColor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -37,7 +36,7 @@ public class PoolTargetConfig extends Config {
                             @JsonProperty("rerollVariant") String rerollVariant,
                             @JsonProperty("answerFormatType") AnswerFormatType answerFormatType,
                             @JsonProperty("resultImage") ResultImage resultImage,
-                           @JsonProperty("diceImageStyle") DiceStyleAndColor diceStyleAndColor) {
+                            @JsonProperty("diceImageStyle") DiceStyleAndColor diceStyleAndColor) {
         super(answerTargetChannelId, answerFormatType, resultImage, diceStyleAndColor);
         this.diceSides = diceSides;
         this.maxNumberOfButtons = maxNumberOfButtons;

@@ -124,7 +124,6 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
         return getConfigOptionStringList(getButtonsFromCommandOption(options),
                 BaseCommandOptions.getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null),
                 BaseCommandOptions.getAnswerTypeFromStartCommandOption(options).orElse(defaultAnswerFormat()),
-                null,
                 BaseCommandOptions.getDiceStyleOptionFromStartCommandOption(options).orElse(DiceImageStyle.polyhedral_3d),
                 BaseCommandOptions.getDiceColorOptionFromStartCommandOption(options).orElse(DiceImageStyle.polyhedral_3d.getDefaultColor())
         );
@@ -134,7 +133,6 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
     CustomDiceConfig getConfigOptionStringList(List<ButtonIdAndExpression> startOptions,
                                                Long channelId,
                                                AnswerFormatType answerFormatType,
-                                               ResultImage resultImage,
                                                DiceImageStyle diceImageStyle,
                                                String defaultDiceColor) {
         return new CustomDiceConfig(channelId, startOptions.stream()
@@ -155,7 +153,7 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
                 .collect(Collectors.toList()),
                 DiceParserSystem.DICE_EVALUATOR,
                 answerFormatType,
-                resultImage,
+                null,
                 new DiceStyleAndColor(diceImageStyle, defaultDiceColor)
         );
     }

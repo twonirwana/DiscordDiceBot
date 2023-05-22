@@ -149,11 +149,6 @@ public class SumDiceSetCommand extends AbstractCommand<Config, SumDiceSetStateDa
     }
 
     @Override
-    protected @NonNull List<CommandDefinitionOption> getStartOptions() {
-        return ImmutableList.of();
-    }
-
-    @Override
     protected @NonNull Optional<RollAnswer> getAnswer(Config config, State<SumDiceSetStateData> state, long channelId, long userId) {
         if (!(ROLL_BUTTON_ID.equals(state.getButtonValue()) &&
                 !Optional.ofNullable(state.getData())
