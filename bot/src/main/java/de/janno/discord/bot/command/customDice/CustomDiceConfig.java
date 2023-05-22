@@ -8,6 +8,7 @@ import de.janno.discord.bot.command.ButtonIdLabelAndDiceExpression;
 import de.janno.discord.bot.command.Config;
 import de.janno.discord.bot.dice.DiceParserSystem;
 import de.janno.discord.bot.dice.image.DiceImageStyle;
+import de.janno.discord.bot.dice.image.DiceStyleAndColor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
@@ -31,9 +32,8 @@ public class CustomDiceConfig extends Config {
                             @JsonProperty("diceParserSystem") DiceParserSystem diceParserSystem,
                             @JsonProperty("answerFormatType") AnswerFormatType answerFormatType,
                             @JsonProperty("resultImage") ResultImage resultImage,
-                            @JsonProperty("diceImageStyle") DiceImageStyle diceImageStyle,
-                            @JsonProperty("diceDefaultColor") String diceDefaultColor) {
-        super(answerTargetChannelId, answerFormatType, resultImage, diceImageStyle, diceDefaultColor);
+                            @JsonProperty("diceImageStyle") DiceStyleAndColor diceStyleAndColor) {
+        super(answerTargetChannelId, answerFormatType, resultImage, diceStyleAndColor);
         this.buttonIdLabelAndDiceExpressions = buttonIdLabelAndDiceExpressions;
         this.diceParserSystem = diceParserSystem == null ? DiceParserSystem.DICEROLL_PARSER : diceParserSystem;
     }

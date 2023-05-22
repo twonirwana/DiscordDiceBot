@@ -3,6 +3,8 @@ package de.janno.discord.bot.command.countSuccesses;
 import de.janno.discord.bot.ResultImage;
 import de.janno.discord.bot.command.*;
 import de.janno.discord.bot.dice.DiceUtils;
+import de.janno.discord.bot.dice.image.DiceImageStyle;
+import de.janno.discord.bot.dice.image.DiceStyleAndColor;
 import de.janno.discord.bot.persistance.MessageConfigDTO;
 import de.janno.discord.bot.persistance.PersistenceManager;
 import de.janno.discord.bot.persistance.PersistenceManagerImpl;
@@ -48,35 +50,35 @@ class CountSuccessesCommandTest {
 
     @Test
     void getButtonMessage_noGlitch() {
-        CountSuccessesConfig config = new CountSuccessesConfig(null, 6, 6, "no_glitch", 15, 1, Set.of(), Set.of(), AnswerFormatType.full, ResultImage.none);
+        CountSuccessesConfig config = new CountSuccessesConfig(null, 6, 6, "no_glitch", 15, 1, Set.of(), Set.of(), AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"));
         assertThat(underTest.createNewButtonMessage(UUID.randomUUID(), config).getContent()).isEqualTo("Click to roll the dice against 6");
     }
 
 
     @Test
     void getButtonMessage_halfDiceOne() {
-        CountSuccessesConfig config = new CountSuccessesConfig(null, 6, 6, "half_dice_one", 15, 1, Set.of(), Set.of(), AnswerFormatType.full, ResultImage.none);
+        CountSuccessesConfig config = new CountSuccessesConfig(null, 6, 6, "half_dice_one", 15, 1, Set.of(), Set.of(), AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"));
 
         assertThat(underTest.createNewButtonMessage(UUID.randomUUID(), config).getContent()).isEqualTo("Click to roll the dice against 6 and check for more then half of dice 1s");
     }
 
     @Test
     void getButtonMessage_countOnes() {
-        CountSuccessesConfig config = new CountSuccessesConfig(null, 6, 6, "count_ones", 15, 1, Set.of(), Set.of(), AnswerFormatType.full, ResultImage.none);
+        CountSuccessesConfig config = new CountSuccessesConfig(null, 6, 6, "count_ones", 15, 1, Set.of(), Set.of(), AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"));
 
         assertThat(underTest.createNewButtonMessage(UUID.randomUUID(), config).getContent()).isEqualTo("Click to roll the dice against 6 and count the 1s");
     }
 
     @Test
     void getButtonMessage_subtractOnes() {
-        CountSuccessesConfig config = new CountSuccessesConfig(null, 6, 6, "subtract_ones", 15, 1, Set.of(), Set.of(), AnswerFormatType.full, ResultImage.none);
+        CountSuccessesConfig config = new CountSuccessesConfig(null, 6, 6, "subtract_ones", 15, 1, Set.of(), Set.of(), AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"));
 
         assertThat(underTest.createNewButtonMessage(UUID.randomUUID(), config).getContent()).isEqualTo("Click to roll the dice against 6 minus 1s");
     }
 
     @Test
     void getButtonMessageWithState_noGlitch() {
-        CountSuccessesConfig config = new CountSuccessesConfig(null, 6, 6, "no_glitch", 15, 1, Set.of(), Set.of(), AnswerFormatType.full, ResultImage.none);
+        CountSuccessesConfig config = new CountSuccessesConfig(null, 6, 6, "no_glitch", 15, 1, Set.of(), Set.of(), AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"));
         State<StateData> state = new State<>("6", StateData.empty());
 
         assertThat(underTest.createNewButtonMessageWithState(UUID.randomUUID(), config, state, 1L, 2L).map(MessageDefinition::getContent)).contains("Click to roll the dice against 6");
@@ -85,7 +87,7 @@ class CountSuccessesCommandTest {
 
     @Test
     void getButtonMessageWithState_halfDiceOne() {
-        CountSuccessesConfig config = new CountSuccessesConfig(null, 6, 6, "half_dice_one", 15, 1, Set.of(), Set.of(), AnswerFormatType.full, ResultImage.none);
+        CountSuccessesConfig config = new CountSuccessesConfig(null, 6, 6, "half_dice_one", 15, 1, Set.of(), Set.of(), AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"));
         State<StateData> state = new State<>("6", StateData.empty());
 
         assertThat(underTest.createNewButtonMessageWithState(UUID.randomUUID(), config, state, 1L, 2L).map(MessageDefinition::getContent)).contains("Click to roll the dice against 6 and check for more then half of dice 1s");
@@ -93,7 +95,7 @@ class CountSuccessesCommandTest {
 
     @Test
     void getButtonMessageWithState_countOnes() {
-        CountSuccessesConfig config = new CountSuccessesConfig(null, 6, 6, "count_ones", 15, 1, Set.of(), Set.of(), AnswerFormatType.full, ResultImage.none);
+        CountSuccessesConfig config = new CountSuccessesConfig(null, 6, 6, "count_ones", 15, 1, Set.of(), Set.of(), AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"));
         State<StateData> state = new State<>("6", StateData.empty());
 
         assertThat(underTest.createNewButtonMessageWithState(UUID.randomUUID(), config, state, 1L, 2L).map(MessageDefinition::getContent)).contains("Click to roll the dice against 6 and count the 1s");
@@ -101,7 +103,7 @@ class CountSuccessesCommandTest {
 
     @Test
     void getButtonMessageWithState_subtractOnes() {
-        CountSuccessesConfig config = new CountSuccessesConfig(null, 6, 6, "subtract_ones", 15, 1, Set.of(), Set.of(), AnswerFormatType.full, ResultImage.none);
+        CountSuccessesConfig config = new CountSuccessesConfig(null, 6, 6, "subtract_ones", 15, 1, Set.of(), Set.of(), AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"));
         State<StateData> state = new State<>("6", StateData.empty());
 
         assertThat(underTest.createNewButtonMessageWithState(UUID.randomUUID(), config, state, 1L, 2L).map(MessageDefinition::getContent)).contains("Click to roll the dice against 6 minus 1s");
@@ -129,7 +131,7 @@ class CountSuccessesCommandTest {
 
     @Test
     void rollDice() {
-        EmbedOrMessageDefinition results = RollAnswerConverter.toEmbedOrMessageDefinition(underTest.getAnswer(new CountSuccessesConfig(null, 6, 6, "no_glitch", 15, 1, Set.of(), Set.of(), AnswerFormatType.full, ResultImage.none), new State<>("6", StateData.empty()), 0, 0)
+        EmbedOrMessageDefinition results = RollAnswerConverter.toEmbedOrMessageDefinition(underTest.getAnswer(new CountSuccessesConfig(null, 6, 6, "no_glitch", 15, 1, Set.of(), Set.of(), AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none")), new State<>("6", StateData.empty()), 0, 0)
                 .orElseThrow());
 
         assertThat(results.getFields()).hasSize(0);
@@ -139,7 +141,7 @@ class CountSuccessesCommandTest {
 
     @Test
     void rollDice_halfDiceOne_glitch() {
-        EmbedOrMessageDefinition results = RollAnswerConverter.toEmbedOrMessageDefinition(underTest.getAnswer(new CountSuccessesConfig(null, 6, 6, "half_dice_one", 15, 1, Set.of(), Set.of(), AnswerFormatType.full, ResultImage.none), new State<>("6", StateData.empty()), 0, 0)
+        EmbedOrMessageDefinition results = RollAnswerConverter.toEmbedOrMessageDefinition(underTest.getAnswer(new CountSuccessesConfig(null, 6, 6, "half_dice_one", 15, 1, Set.of(), Set.of(), AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none")), new State<>("6", StateData.empty()), 0, 0)
                 .orElseThrow());
 
         assertThat(results.getFields()).hasSize(0);
@@ -149,7 +151,7 @@ class CountSuccessesCommandTest {
 
     @Test
     void rollDice_halfDiceOne_noGlitch() {
-        EmbedOrMessageDefinition results = RollAnswerConverter.toEmbedOrMessageDefinition(underTest.getAnswer(new CountSuccessesConfig(null, 6, 6, "half_dice_one", 15, 1, Set.of(), Set.of(), AnswerFormatType.full, ResultImage.none), new State<>("8", StateData.empty()), 0, 0)
+        EmbedOrMessageDefinition results = RollAnswerConverter.toEmbedOrMessageDefinition(underTest.getAnswer(new CountSuccessesConfig(null, 6, 6, "half_dice_one", 15, 1, Set.of(), Set.of(), AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none")), new State<>("8", StateData.empty()), 0, 0)
                 .orElseThrow());
 
         assertThat(results.getFields()).hasSize(0);
@@ -159,7 +161,7 @@ class CountSuccessesCommandTest {
 
     @Test
     void rollDice_countOnes() {
-        EmbedOrMessageDefinition results = RollAnswerConverter.toEmbedOrMessageDefinition(underTest.getAnswer(new CountSuccessesConfig(null, 6, 6, "count_ones", 15, 1, Set.of(), Set.of(), AnswerFormatType.full, ResultImage.none), new State<>("6", StateData.empty()), 0, 0)
+        EmbedOrMessageDefinition results = RollAnswerConverter.toEmbedOrMessageDefinition(underTest.getAnswer(new CountSuccessesConfig(null, 6, 6, "count_ones", 15, 1, Set.of(), Set.of(), AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none")), new State<>("6", StateData.empty()), 0, 0)
                 .orElseThrow());
 
         assertThat(results.getFields()).hasSize(0);
@@ -169,7 +171,7 @@ class CountSuccessesCommandTest {
 
     @Test
     void rollDice_subtractOnes() {
-        EmbedOrMessageDefinition results = RollAnswerConverter.toEmbedOrMessageDefinition(underTest.getAnswer(new CountSuccessesConfig(null, 6, 6, "subtract_ones", 15, 1, Set.of(), Set.of(1), AnswerFormatType.full, ResultImage.none), new State<>("6", StateData.empty()), 0, 0)
+        EmbedOrMessageDefinition results = RollAnswerConverter.toEmbedOrMessageDefinition(underTest.getAnswer(new CountSuccessesConfig(null, 6, 6, "subtract_ones", 15, 1, Set.of(), Set.of(1), AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none")), new State<>("6", StateData.empty()), 0, 0)
                 .orElseThrow());
 
         assertThat(results.getFields()).hasSize(0);
@@ -193,7 +195,7 @@ class CountSuccessesCommandTest {
     @Test
     void getButtonLayoutWithState() {
         UUID uuid = UUID.fromString("00000000-0000-0000-0000-000000000000");
-        List<ComponentRowDefinition> res = underTest.createNewButtonMessageWithState(uuid, new CountSuccessesConfig(null, 6, 6, "count_ones", 15, 1, Set.of(), Set.of(), AnswerFormatType.full, ResultImage.none), new State<>("6", StateData.empty()), 1L, 2L)
+        List<ComponentRowDefinition> res = underTest.createNewButtonMessageWithState(uuid, new CountSuccessesConfig(null, 6, 6, "count_ones", 15, 1, Set.of(), Set.of(), AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none")), new State<>("6", StateData.empty()), 1L, 2L)
                 .orElseThrow().getComponentRowDefinitions();
 
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel))
@@ -220,7 +222,7 @@ class CountSuccessesCommandTest {
     void getButtonLayout() {
         UUID uuid = UUID.fromString("00000000-0000-0000-0000-000000000000");
 
-        List<ComponentRowDefinition> res = underTest.createNewButtonMessage(uuid, new CountSuccessesConfig(null, 6, 6, "count_ones", 15, 1, Set.of(), Set.of(), AnswerFormatType.full, ResultImage.none)).
+        List<ComponentRowDefinition> res = underTest.createNewButtonMessage(uuid, new CountSuccessesConfig(null, 6, 6, "count_ones", 15, 1, Set.of(), Set.of(), AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"))).
                 getComponentRowDefinitions();
 
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel))
@@ -245,7 +247,7 @@ class CountSuccessesCommandTest {
 
     @Test
     void getCurrentMessageContentChange() {
-        assertThat(underTest.getCurrentMessageContentChange(new CountSuccessesConfig(null, 6, 6, "count_ones", 15, 1, Set.of(), Set.of(), AnswerFormatType.full, ResultImage.none), new State<>("6", StateData.empty()))).isEmpty();
+        assertThat(underTest.getCurrentMessageContentChange(new CountSuccessesConfig(null, 6, 6, "count_ones", 15, 1, Set.of(), Set.of(), AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none")), new State<>("6", StateData.empty()))).isEmpty();
     }
 
     @Test
@@ -282,7 +284,7 @@ class CountSuccessesCommandTest {
                         .build())
                 .build();
         CountSuccessesConfig res = underTest.getConfigFromStartOptions(option);
-        assertThat(res).isEqualTo(new CountSuccessesConfig(null, 12, 8, "half_dice_one", 13, 2, Set.of(12, 11), Set.of(1, 2), AnswerFormatType.full, ResultImage.polyhedral_3d_red_and_white));
+        assertThat(res).isEqualTo(new CountSuccessesConfig(null, 12, 8, "half_dice_one", 13, 2, Set.of(12, 11), Set.of(1, 2), AnswerFormatType.full, ResultImage.none, null));
     }
 
 
@@ -308,7 +310,7 @@ class CountSuccessesCommandTest {
         PersistenceManager persistenceManager = new PersistenceManagerImpl("jdbc:h2:mem:" + UUID.randomUUID(), null, null);
 
         UUID configUUID = UUID.randomUUID();
-        CountSuccessesConfig config = new CountSuccessesConfig(123L, 6, 5, "no_glitch", 12, 2, Set.of(1, 2), Set.of(9, 10), AnswerFormatType.minimal, ResultImage.none);
+        CountSuccessesConfig config = new CountSuccessesConfig(123L, 6, 5, "no_glitch", 12, 2, Set.of(1, 2), Set.of(9, 10), AnswerFormatType.minimal, null, new DiceStyleAndColor(DiceImageStyle.none, "none"));
         Optional<MessageConfigDTO> toSave = underTest.createMessageConfig(configUUID, 1L, 2L, config);
         assertThat(toSave).isPresent();
 
@@ -344,7 +346,7 @@ class CountSuccessesCommandTest {
 
 
         ConfigAndState<CountSuccessesConfig, StateData> configAndState = underTest.deserializeAndUpdateState(savedData, "3");
-        assertThat(configAndState.getConfig()).isEqualTo(new CountSuccessesConfig(123L, 6, 5, "no_glitch", 12, 2, Set.of(1, 2), Set.of(9, 10), AnswerFormatType.compact, ResultImage.none));
+        assertThat(configAndState.getConfig()).isEqualTo(new CountSuccessesConfig(123L, 6, 5, "no_glitch", 12, 2, Set.of(1, 2), Set.of(9, 10), AnswerFormatType.compact, null, new DiceStyleAndColor(DiceImageStyle.none, "none")));
         assertThat(configAndState.getConfigUUID()).isEqualTo(configUUID);
         assertThat(configAndState.getState().getData()).isEqualTo(StateData.empty());
     }
@@ -370,7 +372,7 @@ class CountSuccessesCommandTest {
 
 
         ConfigAndState<CountSuccessesConfig, StateData> configAndState = underTest.deserializeAndUpdateState(savedData, "3");
-        assertThat(configAndState.getConfig()).isEqualTo(new CountSuccessesConfig(123L, 6, 5, "no_glitch", 12, 2, Set.of(1, 2), Set.of(9, 10), AnswerFormatType.full, ResultImage.none));
+        assertThat(configAndState.getConfig()).isEqualTo(new CountSuccessesConfig(123L, 6, 5, "no_glitch", 12, 2, Set.of(1, 2), Set.of(9, 10), AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none")));
         assertThat(configAndState.getConfigUUID()).isEqualTo(configUUID);
         assertThat(configAndState.getState().getData()).isEqualTo(StateData.empty());
     }
@@ -389,7 +391,7 @@ class CountSuccessesCommandTest {
 
 
         ConfigAndState<CountSuccessesConfig, StateData> configAndState = underTest.deserializeAndUpdateState(savedData, "3");
-        assertThat(configAndState.getConfig()).isEqualTo(new CountSuccessesConfig(123L, 6, 5, "no_glitch", 12, 1, Set.of(), Set.of(), AnswerFormatType.full, ResultImage.none));
+        assertThat(configAndState.getConfig()).isEqualTo(new CountSuccessesConfig(123L, 6, 5, "no_glitch", 12, 1, Set.of(), Set.of(), AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none")));
         assertThat(configAndState.getConfigUUID()).isEqualTo(configUUID);
         assertThat(configAndState.getState().getData()).isEqualTo(StateData.empty());
     }

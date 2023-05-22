@@ -113,7 +113,7 @@ public class DirectRollCommandMockTest {
                         .stringValue("without_expression")
                         .build())
                 .option(CommandInteractionOption.builder()
-                        .name("result_image")
+                        .name("dice_image_style")
                         .stringValue("none")
                         .build())
                 .build()));

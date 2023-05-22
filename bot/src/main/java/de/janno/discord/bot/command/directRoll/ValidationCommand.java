@@ -1,15 +1,18 @@
 package de.janno.discord.bot.command.directRoll;
 
+import com.google.common.base.Strings;
 import de.janno.discord.bot.BotMetrics;
 import de.janno.discord.bot.dice.CachingDiceEvaluator;
 import de.janno.discord.bot.dice.DiceEvaluatorAdapter;
 import de.janno.discord.bot.persistance.PersistenceManager;
 import de.janno.discord.connector.api.AutoCompleteAnswer;
+import de.janno.discord.connector.api.AutoCompleteRequest;
 import de.janno.discord.connector.api.slash.CommandDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinitionOption;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -25,17 +28,18 @@ public class ValidationCommand extends DirectRollCommand {
     }
 
     @Override
-    public @NonNull Optional<AutoCompleteAnswer> getAutoCompleteAnswer(String option, String value) {
-        if (!ACTION_EXPRESSION.equals(option)) {
-            return Optional.empty();
+    public @NonNull List<AutoCompleteAnswer> getAutoCompleteAnswer(AutoCompleteRequest option) {
+        if (!ACTION_EXPRESSION.equals(option.getFocusedOptionName())) {
+            return List.of();
         }
-        if (value.isEmpty()) {
-            return Optional.of(new AutoCompleteAnswer("2d6=", "2d6="));
+        if (Strings.isNullOrEmpty(option.getFocusedOptionValue())) {
+            return List.of(new AutoCompleteAnswer("2d6=", "2d6="));
         }
-        Optional<String> validation = diceEvaluatorAdapter.shortValidateDiceExpressionWitOptionalLabel(value);
+        Optional<String> validation = diceEvaluatorAdapter.shortValidateDiceExpressionWitOptionalLabel(option.getFocusedOptionValue());
         BotMetrics.incrementValidationCounter(validation.isEmpty());
-        return validation.map(s -> new AutoCompleteAnswer(s, value))
-                .or(() -> Optional.of(new AutoCompleteAnswer(value, value)));
+        return validation
+                .map(s -> List.of(new AutoCompleteAnswer(s, option.getFocusedOptionValue())))
+                .orElse(List.of(new AutoCompleteAnswer(option.getFocusedOptionValue(), option.getFocusedOptionValue())));
     }
 
     @Override

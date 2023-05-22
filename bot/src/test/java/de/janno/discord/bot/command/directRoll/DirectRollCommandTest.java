@@ -1,12 +1,13 @@
 package de.janno.discord.bot.command.directRoll;
 
 import com.google.common.collect.ImmutableList;
-import de.janno.discord.bot.ResultImage;
 import de.janno.discord.bot.command.AnswerFormatType;
 import de.janno.discord.bot.command.channelConfig.ChannelConfigCommand;
 import de.janno.discord.bot.command.channelConfig.DirectRollConfig;
 import de.janno.discord.bot.dice.CachingDiceEvaluator;
 import de.janno.discord.bot.dice.DiceEvaluatorAdapter;
+import de.janno.discord.bot.dice.image.DiceImageStyle;
+import de.janno.discord.bot.dice.image.DiceStyleAndColor;
 import de.janno.discord.bot.persistance.ChannelConfigDTO;
 import de.janno.discord.bot.persistance.PersistenceManager;
 import de.janno.discord.connector.api.Requester;
@@ -37,7 +38,6 @@ class DirectRollCommandTest {
     void setup() {
         underTest = new DirectRollCommand(mock(PersistenceManager.class), new CachingDiceEvaluator((minExcl, maxIncl) -> 1, 1000, 0));
     }
-
 
     @Test
     void handleComponentInteractEvent() {
@@ -173,7 +173,7 @@ class DirectRollCommandTest {
     }
 
     @Test
-    void deserialization_config() {
+    void deserialization_config_legacy() {
         String configString = """
                 ---
                 answerTargetChannelId: null
@@ -186,9 +186,25 @@ class DirectRollCommandTest {
 
 
         DirectRollConfig res = underTest.deserializeConfig(savedData);
-        assertThat(res).isEqualTo(new DirectRollConfig(null, false, AnswerFormatType.without_expression, ResultImage.polyhedral_3d_red_and_white));
-
+        assertThat(res).isEqualTo(new DirectRollConfig(null, false, AnswerFormatType.without_expression, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_3d, "red_and_white")));
     }
 
+    @Test
+    void deserialization_config() {
+        String configString = """
+                ---
+                answerTargetChannelId: null
+                alwaysSumResult: false
+                answerFormatType: "without_expression"
+                diceStyleAndColor:
+                  diceImageStyle: "polyhedral_alies_v2"
+                  configuredDefaultColor: "blue_and_silver"
+                """;
 
+        ChannelConfigDTO savedData = new ChannelConfigDTO(UUID.randomUUID(), 1L, 2L, null, "r", "DirectRollConfig", configString);
+
+
+        DirectRollConfig res = underTest.deserializeConfig(savedData);
+        assertThat(res).isEqualTo(new DirectRollConfig(null, false, AnswerFormatType.without_expression, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v2, "blue_and_silver")));
+    }
 }

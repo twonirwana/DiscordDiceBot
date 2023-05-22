@@ -9,6 +9,7 @@ import de.janno.discord.bot.command.*;
 import de.janno.discord.bot.command.channelConfig.AliasHelper;
 import de.janno.discord.bot.dice.*;
 import de.janno.discord.bot.dice.image.DiceImageStyle;
+import de.janno.discord.bot.dice.image.DiceStyleAndColor;
 import de.janno.discord.bot.persistance.Mapper;
 import de.janno.discord.bot.persistance.MessageConfigDTO;
 import de.janno.discord.bot.persistance.MessageDataDTO;
@@ -121,11 +122,11 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
 
     protected @NonNull CustomDiceConfig getConfigFromStartOptions(@NonNull CommandInteractionOption options) {
         return getConfigOptionStringList(getButtonsFromCommandOption(options),
-                DefaultCommandOptions.getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null),
-                DefaultCommandOptions.getAnswerTypeFromStartCommandOption(options).orElse(defaultAnswerFormat()),
+                BaseCommandOptions.getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null),
+                BaseCommandOptions.getAnswerTypeFromStartCommandOption(options).orElse(defaultAnswerFormat()),
                 null,
-                DefaultCommandOptions.getDiceStyleOptionFromStartCommandOption(options).orElse(DiceImageStyle.polyhedral_3d),
-                DefaultCommandOptions.getDiceColorOptionFromStartCommandOption(options).orElse(DiceImageStyle.polyhedral_3d.getDefaultColor())
+                BaseCommandOptions.getDiceStyleOptionFromStartCommandOption(options).orElse(DiceImageStyle.polyhedral_3d),
+                BaseCommandOptions.getDiceColorOptionFromStartCommandOption(options).orElse(DiceImageStyle.polyhedral_3d.getDefaultColor())
         );
     }
 
@@ -155,8 +156,8 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
                 DiceParserSystem.DICE_EVALUATOR,
                 answerFormatType,
                 resultImage,
-                diceImageStyle,
-                defaultDiceColor);
+                new DiceStyleAndColor(diceImageStyle, defaultDiceColor)
+        );
     }
 
     @Override

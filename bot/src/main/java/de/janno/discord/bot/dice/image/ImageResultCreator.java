@@ -4,7 +4,6 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Stopwatch;
 import com.google.common.hash.Hashing;
 import de.janno.discord.bot.BotMetrics;
-import de.janno.discord.bot.ResultImage;
 import de.janno.evaluator.dice.RandomElement;
 import de.janno.evaluator.dice.Roll;
 import io.micrometer.core.instrument.Gauge;
@@ -56,16 +55,19 @@ public class ImageResultCreator {
     }
 
     private void createCacheIndexFileIfMissing() {
-        Arrays.stream(ResultImage.values()).forEach(ri -> {
-            createFolderIfMissing(ri.name());
-            Gauge.builder("diceImage.cache", () -> {
-                try (Stream<Path> files = Files.list(Paths.get("%s/%s/".formatted(CACHE_FOLDER, ri.name())))) {
-                    return files.count();
-                } catch (IOException e) {
-                    return -1;
-                }
-            }).tag("type", ri.name()).register(globalRegistry);
-        });
+        Arrays.stream(DiceImageStyle.values())
+                .flatMap(s -> s.getSupportedColors().stream()
+                        .map(c -> DiceImageStyle.combineStyleAndColorName(s, c)))
+                .forEach(ri -> {
+                    createFolderIfMissing(ri);
+                    Gauge.builder("diceImage.cache", () -> {
+                        try (Stream<Path> files = Files.list(Paths.get("%s/%s/".formatted(CACHE_FOLDER, ri)))) {
+                            return files.count();
+                        } catch (IOException e) {
+                            return -1;
+                        }
+                    }).tag("type", ri).register(globalRegistry);
+                });
     }
 
     @VisibleForTesting
@@ -151,7 +153,6 @@ public class ImageResultCreator {
         log.debug("Created image {} in {}ms", name, stopwatch.elapsed(TimeUnit.MILLISECONDS));
     }
 
-
     private synchronized void writeFile(BufferedImage combined, File outputFile, Path indexFile, String name) {
         try {
             createCacheIndexFileIfMissing();
@@ -164,5 +165,4 @@ public class ImageResultCreator {
             throw new RuntimeException(e);
         }
     }
-
 }

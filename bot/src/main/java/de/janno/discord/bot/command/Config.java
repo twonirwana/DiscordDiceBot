@@ -12,7 +12,6 @@ import lombok.NonNull;
 import lombok.ToString;
 
 import java.io.Serializable;
-import java.util.Optional;
 
 /**
  * A configuration for a dice system. It will be created with the slash command and not modified afterwards.
@@ -34,15 +33,16 @@ public class Config implements Serializable {
     public Config(@JsonProperty("answerTargetChannelId") Long answerTargetChannelId,
                   @JsonProperty("answerFormatType") AnswerFormatType answerFormatType,
                   @JsonProperty("resultImage") ResultImage resultImage,
-                  @JsonProperty("diceImageStyle") DiceImageStyle diceImageStyle,
-                  @JsonProperty("diceDefaultColor") String diceDefaultColor) {
+                  @JsonProperty("diceImageStyle") DiceStyleAndColor diceStyleAndColor) {
         this.answerTargetChannelId = answerTargetChannelId;
         this.answerFormatType = answerFormatType == null ? AnswerFormatType.full : answerFormatType;
 
         if (resultImage != null) {
-            diceStyleAndColor = LegacyImageConfigHelper.getStyleAndColor(resultImage);
+            this.diceStyleAndColor = LegacyImageConfigHelper.getStyleAndColor(resultImage);
+        } else if (diceStyleAndColor != null) {
+            this.diceStyleAndColor = diceStyleAndColor;
         } else {
-            diceStyleAndColor = new DiceStyleAndColor(diceImageStyle, diceDefaultColor);
+            this.diceStyleAndColor = new DiceStyleAndColor(DiceImageStyle.none, DiceImageStyle.none.getDefaultColor());
         }
     }
 

@@ -1,6 +1,10 @@
 package de.janno.discord.bot.dice.image;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.base.Strings;
 import lombok.NonNull;
+import lombok.Value;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.image.BufferedImage;
@@ -8,30 +12,42 @@ import java.util.List;
 import java.util.Optional;
 
 
+@Value
 public class DiceStyleAndColor {
     @NonNull
-    private final DiceImageStyle diceImageStyle;
+    DiceImageStyle diceImageStyle;
     @NonNull
-    private final String configuredDefaultColor;
+    String configuredDefaultColor;
 
-    public DiceStyleAndColor(@NonNull DiceImageStyle diceImageStyle, @Nullable String configuredDefaultColor) {
+    public DiceStyleAndColor(@NonNull @JsonProperty("diceImageStyle") DiceImageStyle diceImageStyle,
+                             @Nullable @JsonProperty("configuredDefaultColor") String configuredDefaultColor) {
         this.diceImageStyle = diceImageStyle;
-        this.configuredDefaultColor = Optional.ofNullable(configuredDefaultColor).orElse(diceImageStyle.getImageProvider().getDefaultColor());
+        this.configuredDefaultColor = Optional.ofNullable(configuredDefaultColor)
+                .map(c -> {
+                    if (diceImageStyle.getSupportedColors().contains(c)) {
+                        return c;
+                    }
+                    return diceImageStyle.getDefaultColor();
+                })
+                .orElse(diceImageStyle.getDefaultColor());
     }
 
     public @NonNull List<BufferedImage> getImageFor(@Nullable Integer totalDieSides,
                                                     @Nullable Integer shownDieSide,
                                                     @Nullable String rollColor) {
 
-        return diceImageStyle.getImageProvider().getImageFor(totalDieSides, shownDieSide, Optional.ofNullable(rollColor).orElse(configuredDefaultColor));
+        return diceImageStyle.getImageProvider().getImageFor(totalDieSides, shownDieSide, Optional.ofNullable(rollColor)
+                .filter(c -> !Strings.isNullOrEmpty(c))
+                .orElse(configuredDefaultColor));
     }
 
+    @JsonIgnore
     public int getDieHighAndWith() {
         return diceImageStyle.getImageProvider().getDieHighAndWith();
     }
 
     @Override
     public String toString() {
-        return "%s-%s".formatted(diceImageStyle.name(), configuredDefaultColor);
+        return DiceImageStyle.combineStyleAndColorName(diceImageStyle, configuredDefaultColor);
     }
 }

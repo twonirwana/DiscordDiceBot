@@ -30,7 +30,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import static de.janno.discord.bot.command.DefaultCommandOptions.*;
+import static de.janno.discord.bot.command.BaseCommandOptions.*;
 import static de.janno.discord.connector.api.BottomCustomIdUtils.CUSTOM_ID_DELIMITER;
 
 @Slf4j
@@ -115,6 +115,11 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
 
     protected Collection<CommandDefinitionOption> additionalCommandOptions() {
         return Collections.emptyList();
+    }
+
+    @Override
+    public @NonNull List<AutoCompleteAnswer> getAutoCompleteAnswer(AutoCompleteRequest autoCompleteRequest) {
+        return BaseCommandOptions.autoCompleteColorOption(autoCompleteRequest);
     }
 
     protected Optional<List<ComponentRowDefinition>> getCurrentMessageComponentChange(UUID configUUID, C config, State<S> state, long channelId, long userId) {
@@ -345,7 +350,7 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
         if (startOption.isPresent()) {
             CommandInteractionOption options = startOption.get();
 
-            Optional<Long> answerTargetChannelId = DefaultCommandOptions.getAnswerTargetChannelIdFromStartCommandOption(options);
+            Optional<Long> answerTargetChannelId = BaseCommandOptions.getAnswerTargetChannelIdFromStartCommandOption(options);
             if (answerTargetChannelId.isPresent() && answerTargetChannelId.get().equals(event.getChannelId())) {
                 log.info("{}:same answer channel for {}", event.getRequester().toLogString(), commandString);
                 return event.reply("The answer target channel must be not the same as the current channel, keep this option empty if the answer should appear in this channel", true);

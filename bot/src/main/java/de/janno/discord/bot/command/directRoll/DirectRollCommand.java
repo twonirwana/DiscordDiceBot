@@ -13,6 +13,7 @@ import de.janno.discord.bot.dice.CachingDiceEvaluator;
 import de.janno.discord.bot.dice.DiceEvaluatorAdapter;
 import de.janno.discord.bot.dice.DiceSystemAdapter;
 import de.janno.discord.bot.dice.image.DiceImageStyle;
+import de.janno.discord.bot.dice.image.DiceStyleAndColor;
 import de.janno.discord.bot.persistance.ChannelConfigDTO;
 import de.janno.discord.bot.persistance.Mapper;
 import de.janno.discord.bot.persistance.PersistenceManager;
@@ -71,7 +72,7 @@ public class DirectRollCommand implements SlashCommand {
     private DirectRollConfig getDirectRollConfig(long channelId) {
         return persistenceManager.getChannelConfig(channelId, DIRECT_ROLL_CONFIG_TYPE_ID)
                 .map(this::deserializeConfig)
-                .orElse(new DirectRollConfig(null, true, AnswerFormatType.full, null, DiceImageStyle.polyhedral_3d, DiceImageStyle.polyhedral_3d.getImageProvider().getDefaultColor()));
+                .orElse(new DirectRollConfig(null, true, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_3d, DiceImageStyle.polyhedral_3d.getDefaultColor())));
     }
 
     @VisibleForTesting

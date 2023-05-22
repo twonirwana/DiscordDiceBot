@@ -7,6 +7,7 @@ import de.janno.discord.bot.ResultImage;
 import de.janno.discord.bot.command.AnswerFormatType;
 import de.janno.discord.bot.command.Config;
 import de.janno.discord.bot.dice.image.DiceImageStyle;
+import de.janno.discord.bot.dice.image.DiceStyleAndColor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
@@ -43,9 +44,8 @@ public class CountSuccessesConfig extends Config {
                                 @JsonProperty("botchSet") Set<Integer> botchSet,
                                 @JsonProperty("answerFormatType") AnswerFormatType answerFormatType,
                                 @JsonProperty("resultImage") ResultImage resultImage,
-                                @JsonProperty("diceImageStyle") DiceImageStyle diceImageStyle,
-                                @JsonProperty("diceDefaultColor") String diceDefaultColor) {
-        super(answerTargetChannelId, answerFormatType, resultImage, diceImageStyle, diceDefaultColor);
+                                @JsonProperty("diceImageStyle") DiceStyleAndColor diceStyleAndColor) {
+        super(answerTargetChannelId, answerFormatType, resultImage, diceStyleAndColor);
         this.diceSides = diceSides;
         this.target = target;
         this.glitchOption = glitchOption;

@@ -107,17 +107,17 @@ public class DiceEvaluatorAdapter {
         }
     }
 
-    public RollAnswer answerRollWithOptionalLabelInExpression(String expression, String labelDelimiter, boolean sumUp, AnswerFormatType answerFormatType, DiceStyleAndColor diceImageStyles) {
+    public RollAnswer answerRollWithOptionalLabelInExpression(String expression, String labelDelimiter, boolean sumUp, AnswerFormatType answerFormatType, DiceStyleAndColor diceStyleAndColor) {
         String diceExpression = getExpressionFromExpressionWithOptionalLabel(expression, labelDelimiter);
         String label = getLabelFromExpressionWithOptionalLabel(expression, labelDelimiter).orElse(null);
-        return answerRollWithGivenLabel(diceExpression, label, sumUp, answerFormatType, diceImageStyles);
+        return answerRollWithGivenLabel(diceExpression, label, sumUp, answerFormatType, diceStyleAndColor);
     }
 
     public RollAnswer answerRollWithGivenLabel(String expression,
                                                @Nullable String label,
                                                boolean sumUp,
                                                AnswerFormatType answerFormatType,
-                                               DiceStyleAndColor diceImageStyles) {
+                                               DiceStyleAndColor styleAndColor) {
         try {
             final RollerOrError rollerOrError = cachingDiceEvaluator.get(expression);
 
@@ -132,8 +132,8 @@ public class DiceEvaluatorAdapter {
                         .build();
             }
 
-            BotMetrics.incrementUseImageResultMetricCounter(diceImageStyles);
-            File diceImage = IMAGE_RESULT_CREATOR.getImageForRoll(rolls, diceImageStyles);
+            BotMetrics.incrementUseImageResultMetricCounter(styleAndColor);
+            File diceImage = IMAGE_RESULT_CREATOR.getImageForRoll(rolls, styleAndColor);
             if (rolls.size() == 1) {
                 return RollAnswer.builder()
                         .answerFormatType(answerFormatType)
