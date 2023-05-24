@@ -15,5 +15,6 @@ public class Parameter {
     public static class ValueAndLabel{
         String value;
         String label;
+        String id;
     }
 }

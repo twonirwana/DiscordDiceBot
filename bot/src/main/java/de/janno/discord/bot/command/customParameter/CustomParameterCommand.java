@@ -28,6 +28,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -109,13 +110,19 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
                 .map(sp -> {
                     if (Objects.equals(sp.getParameterExpression(), currentParameterExpression.get()) &&
                             (currentlyLockedForUser == null || Objects.equals(currentlyLockedForUser, invokingUser))) {
-                        String label = getParameterForParameterExpression(config, sp.getParameterExpression())
-                                .map(Parameter::getParameterOptions).orElse(List.of()).stream()
-                                .filter(vl -> vl.getValue().equals(buttonValue))
-                                .map(Parameter.ValueAndLabel::getLabel)
-                                .filter(Objects::nonNull)
-                                .findFirst().orElse(null);
-                        return new SelectedParameter(sp.getParameterExpression(), sp.getName(), buttonValue, label);
+                        List<Parameter.ValueAndLabel> parameters = getParameterForParameterExpression(config, sp.getParameterExpression())
+                                .map(Parameter::getParameterOptions).orElse(List.of());
+                        Optional<Parameter.ValueAndLabel> selectedParameterOption = parameters.stream()
+                                .filter(vl -> vl.getId().equals(buttonValue))
+                                .findFirst();
+                        //fallback for legacy buttons, which use the value and not the index as button id
+                        if (selectedParameterOption.isEmpty()) {
+                            selectedParameterOption = parameters.stream()
+                                    .filter(vl -> vl.getValue().equals(buttonValue))
+                                    .findFirst();
+                        }
+                        Parameter.ValueAndLabel selectedParameter = selectedParameterOption.orElseThrow(() -> new RuntimeException("Found no parameter in for value %s in %s".formatted(buttonValue, parameters)));
+                        return new SelectedParameter(sp.getParameterExpression(), sp.getName(), selectedParameter.getValue(), selectedParameter.getLabel());
                     }
                     return sp.copy();
                 }).collect(ImmutableList.toImmutableList());
@@ -161,28 +168,30 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
             if (BUTTON_RANGE_PATTERN.matcher(parameterExpression).find()) {
                 int min = getMinButtonFrom(parameterExpression);
                 int max = getMaxButtonFrom(parameterExpression);
+                AtomicInteger counter = new AtomicInteger(1);
                 builder.add(new Parameter(parameterExpression, name, IntStream.range(min, max + 1)
                         .mapToObj(String::valueOf)
-                        .map(s -> new Parameter.ValueAndLabel(s, s))
+                        .map(s -> new Parameter.ValueAndLabel(s, s, String.valueOf(counter.getAndIncrement())))
                         .toList()));
             } else if (valueMatcher.find()) {
                 String buttonValueExpression = valueMatcher.group(1);
+                AtomicInteger counter = new AtomicInteger(1);
                 builder.add(new Parameter(parameterExpression, name, Arrays.stream(buttonValueExpression.split(BUTTON_VALUE_DELIMITER))
                         .limit(23)
                         .map(s -> {
                             if (s.contains(DiceSystemAdapter.LABEL_DELIMITER)) {
                                 String[] split = s.split(DiceSystemAdapter.LABEL_DELIMITER);
                                 if (split.length == 2 && !Strings.isNullOrEmpty(split[0]) && !Strings.isNullOrEmpty(split[1])) {
-                                    return new Parameter.ValueAndLabel(split[0], split[1]);
+                                    return new Parameter.ValueAndLabel(split[0], split[1], String.valueOf(counter.getAndIncrement()));
                                 }
                             }
-                            return new Parameter.ValueAndLabel(s, s);
+                            return new Parameter.ValueAndLabel(s, s, String.valueOf(counter.getAndIncrement()));
                         })
                         .toList()));
             } else {
                 builder.add(new Parameter(parameterExpression, name, IntStream.range(1, 16)
                         .mapToObj(String::valueOf)
-                        .map(s -> new Parameter.ValueAndLabel(s, s))
+                        .map(s -> new Parameter.ValueAndLabel(s, s, s))
                         .toList()));
             }
         }
@@ -436,7 +445,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
                 .findFirst().orElse(config.getParamters().get(0));
         List<ButtonDefinition> buttons = parameter.getParameterOptions().stream()
                 .map(vl -> ButtonDefinition.builder()
-                        .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), vl.getValue(), configUUID))
+                        .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), String.valueOf(vl.getId()), configUUID))
                         .label(vl.getLabel())
                         .build())
                 .collect(Collectors.toList());
@@ -485,9 +494,6 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
         if (baseExpression.contains("{}")) {
             return Optional.of("A parameter expression must not be empty");
         }
-        if (baseExpression.length() > 1000) { //not sure if this is a hard limit
-            return Optional.of(String.format("The expression has %s to many characters", (baseExpression.length() - 1000)));
-        }
         if (baseExpression.contains(BottomCustomIdUtils.CUSTOM_ID_DELIMITER)) {
             return Optional.of(String.format("Expression contains invalid character: '%s'", BottomCustomIdUtils.CUSTOM_ID_DELIMITER));
         }
@@ -505,10 +511,6 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
 
         List<StateWithCustomIdAndParameter> allPossibleStatePermutations = allPossibleStatePermutations(config);
         for (StateWithCustomIdAndParameter aState : allPossibleStatePermutations) {
-            String customId = aState.getCustomId();
-            if (customId.length() > 100) {
-                return Optional.of(String.format("The following expression with parameters is %d to long: %s", (customId.length() - 100), getFilledExpression(config, aState.getState())));
-            }
             if (aState.getButtonIdLabelAndDiceExpressions().stream().map(ButtonIdLabelAndDiceExpression::getButtonId).count() != aState.getButtonIdLabelAndDiceExpressions().stream().map(ButtonIdLabelAndDiceExpression::getButtonId).distinct().count()) {
                 return Optional.of(String.format("Parameter '%s' contains duplicate parameter option but they must be unique.", aState.getButtonIdLabelAndDiceExpressions().stream().map(ButtonIdLabelAndDiceExpression::getDiceExpression).toList()));
             }
@@ -549,9 +551,11 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     List<ButtonIdLabelAndDiceExpression> getButtons(UUID configUUID, CustomParameterConfig config, String parameterExpression) {
         return getParameterForParameterExpression(config, parameterExpression)
                 .map(Parameter::getParameterOptions).orElse(List.of()).stream()
-                .map(vl -> new ButtonIdLabelAndDiceExpression(BottomCustomIdUtils.createButtonCustomId(getCommandId(), vl.getValue(), configUUID), vl.getLabel(), vl.getValue()))
+                //todo change to better class
+                .map(vl -> new ButtonIdLabelAndDiceExpression(BottomCustomIdUtils.createButtonCustomId(getCommandId(), vl.getId(), configUUID), vl.getLabel(), vl.getId()))
                 .toList();
     }
+
 
     private List<StateWithCustomIdAndParameter> allPossibleStatePermutations(CustomParameterConfig config, State<CustomParameterStateData> state) {
         List<StateWithCustomIdAndParameter> out = new ArrayList<>();

@@ -39,12 +39,12 @@ class CustomParameterCommandTest {
     private static Stream<Arguments> generateParameterExpression2ButtonValuesData() {
         return Stream.of(
                 Arguments.of("{test}", IntStream.range(1, 16).mapToObj(i -> new ButtonIdLabelAndDiceExpression("custom_parameter\u001E" + i + "00000000-0000-0000-0000-000000000000", String.valueOf(i), String.valueOf(i))).toList()),
-                Arguments.of("{test:2<=>4}", IntStream.range(2, 5).mapToObj(i -> new ButtonIdLabelAndDiceExpression("custom_parameter\u001E" + i + "00000000-0000-0000-0000-000000000000", String.valueOf(i), String.valueOf(i))).toList()),
-                Arguments.of("{test:2<=>1}", ImmutableList.of(new ButtonIdLabelAndDiceExpression("custom_parameter\u001E200000000-0000-0000-0000-000000000000", "2", "2"))),
-                Arguments.of("{test:-2<=>1}", IntStream.range(-2, 2).mapToObj(i -> new ButtonIdLabelAndDiceExpression("custom_parameter\u001E" + i + "00000000-0000-0000-0000-000000000000", String.valueOf(i), String.valueOf(i))).toList()),
-                Arguments.of("{test:-10<=>-5}", IntStream.range(-10, -4).mapToObj(i -> new ButtonIdLabelAndDiceExpression("custom_parameter\u001E" + i + "00000000-0000-0000-0000-000000000000", String.valueOf(i), String.valueOf(i))).toList()),
-                Arguments.of("{test:1d6/+5/abc}", ImmutableList.of(new ButtonIdLabelAndDiceExpression("custom_parameter\u001E1d600000000-0000-0000-0000-000000000000", "1d6", "1d6"), new ButtonIdLabelAndDiceExpression("custom_parameter\u001E+500000000-0000-0000-0000-000000000000", "+5", "+5"), new ButtonIdLabelAndDiceExpression("custom_parameter\u001Eabc00000000-0000-0000-0000-000000000000", "abc", "abc"))),
-                Arguments.of("{test:1d6@d6/+5@Bonus/abc}", ImmutableList.of(new ButtonIdLabelAndDiceExpression("custom_parameter\u001E1d600000000-0000-0000-0000-000000000000", "d6", "1d6"), new ButtonIdLabelAndDiceExpression("custom_parameter\u001E+500000000-0000-0000-0000-000000000000", "Bonus", "+5"), new ButtonIdLabelAndDiceExpression("custom_parameter\u001Eabc00000000-0000-0000-0000-000000000000", "abc", "abc")))
+                Arguments.of("{test:2<=>4}", IntStream.range(1, 4).mapToObj(i -> new ButtonIdLabelAndDiceExpression("custom_parameter\u001E" + i + "00000000-0000-0000-0000-000000000000", String.valueOf(i + 1), String.valueOf(i))).toList()),
+                Arguments.of("{test:2<=>1}", ImmutableList.of(new ButtonIdLabelAndDiceExpression("custom_parameter\u001E100000000-0000-0000-0000-000000000000", "2", "1"))),
+                Arguments.of("{test:-2<=>1}", IntStream.range(1, 5).mapToObj(i -> new ButtonIdLabelAndDiceExpression("custom_parameter\u001E" + i + "00000000-0000-0000-0000-000000000000", String.valueOf(i - 3), String.valueOf(i))).toList()),
+                Arguments.of("{test:-10<=>-5}", IntStream.range(1, 7).mapToObj(i -> new ButtonIdLabelAndDiceExpression("custom_parameter\u001E" + i + "00000000-0000-0000-0000-000000000000", String.valueOf(i - 11), String.valueOf(i))).toList()),
+                Arguments.of("{test:1d6/+5/abc}", ImmutableList.of(new ButtonIdLabelAndDiceExpression("custom_parameter\u001E100000000-0000-0000-0000-000000000000", "1d6", "1"), new ButtonIdLabelAndDiceExpression("custom_parameter\u001E200000000-0000-0000-0000-000000000000", "+5", "2"), new ButtonIdLabelAndDiceExpression("custom_parameter\u001E300000000-0000-0000-0000-000000000000", "abc", "3"))),
+                Arguments.of("{test:1d6@d6/+5@Bonus/abc}", ImmutableList.of(new ButtonIdLabelAndDiceExpression("custom_parameter\u001E100000000-0000-0000-0000-000000000000", "d6", "1"), new ButtonIdLabelAndDiceExpression("custom_parameter\u001E200000000-0000-0000-0000-000000000000", "Bonus", "2"), new ButtonIdLabelAndDiceExpression("custom_parameter\u001E300000000-0000-0000-0000-000000000000", "abc", "3")))
         );
     }
 
@@ -63,9 +63,10 @@ class CustomParameterCommandTest {
                 Arguments.of("1d6", "The expression needs at least one parameter expression like '{name}"),
                 Arguments.of("{a1}{a2}{a3}{a4}{a6}", "The expression is allowed a maximum of 4 variables"),
                 Arguments.of("{number:3<=>6}d{sides:6/10/12}", null),
-                Arguments.of("{number}{a:a/c/b/d/d}{sides:3<=>6}", "Parameter '[a, c, b, d, d]' contains duplicate parameter option but they must be unique."),
+                Arguments.of("{number}{a:a/c/b/d/d}{sides:3<=>6}", "The following expression is invalid: '1a3'. The error is: No matching operator for 'a3', non-functional text and value names must to be surrounded by '' or []. Use /custom_parameter help to get more information on how to use the command."),
                 Arguments.of("{number}d{sides:3/4/'ab'}", null),
-                Arguments.of("{number}d{sides:3/4/'ab'}@roll", null)
+                Arguments.of("{number}d{sides:3/4/'ab'}@roll", null),
+                Arguments.of("{number}d{sides:['11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111','21111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111']@big,6}@roll", null)
         );
     }
 
@@ -74,31 +75,30 @@ class CustomParameterCommandTest {
         return Stream.of(
                 Arguments.of("{number}d{sides}", List.of(new Parameter("{number}", "number", IntStream.range(1, 16)
                         .mapToObj(String::valueOf)
-                        .map(s -> new Parameter.ValueAndLabel(s, s))
+                        .map(s -> new Parameter.ValueAndLabel(s, s, s))
                         .toList()), new Parameter("{sides}", "sides", IntStream.range(1, 16)
                         .mapToObj(String::valueOf)
-                        .map(s -> new Parameter.ValueAndLabel(s, s))
+                        .map(s -> new Parameter.ValueAndLabel(s, s, s))
                         .toList()))),
                 Arguments.of("{number}d{sides:-2<=>2}", List.of(new Parameter("{number}", "number", IntStream.range(1, 16)
                         .mapToObj(String::valueOf)
-                        .map(s -> new Parameter.ValueAndLabel(s, s))
-                        .toList()), new Parameter("{sides:-2<=>2}", "sides", IntStream.range(-2, 3)
-                        .mapToObj(String::valueOf)
-                        .map(s -> new Parameter.ValueAndLabel(s, s))
+                        .map(s -> new Parameter.ValueAndLabel(s, s, s))
+                        .toList()), new Parameter("{sides:-2<=>2}", "sides", IntStream.range(1, 6)
+                        .boxed()
+                        .map(s -> new Parameter.ValueAndLabel(String.valueOf(s - 3), String.valueOf(s - 3), String.valueOf(s)))
                         .toList()))),
                 Arguments.of("{number}d{sides:4/12/+5}", List.of(new Parameter("{number}", "number", IntStream.range(1, 16)
                         .mapToObj(String::valueOf)
-                        .map(s -> new Parameter.ValueAndLabel(s, s))
-                        .toList()), new Parameter("{sides:4/12/+5}", "sides", List.of(new Parameter.ValueAndLabel("4", "4"),
-                        new Parameter.ValueAndLabel("12", "12"),
-                        new Parameter.ValueAndLabel("+5", "+5"))))),
+                        .map(s -> new Parameter.ValueAndLabel(s, s, s))
+                        .toList()), new Parameter("{sides:4/12/+5}", "sides", List.of(new Parameter.ValueAndLabel("4", "4", "1"),
+                        new Parameter.ValueAndLabel("12", "12", "2"),
+                        new Parameter.ValueAndLabel("+5", "+5", "3"))))),
                 Arguments.of("{number}d{sides:4@D4/12@D12/+5@Bonus}", List.of(new Parameter("{number}", "number", IntStream.range(1, 16)
                         .mapToObj(String::valueOf)
-                        .map(s -> new Parameter.ValueAndLabel(s, s))
-                        .toList()), new Parameter("{sides:4@D4/12@D12/+5@Bonus}", "sides", List.of(new Parameter.ValueAndLabel("4", "D4"),
-                        new Parameter.ValueAndLabel("12", "D12"),
-                        new Parameter.ValueAndLabel("+5", "Bonus")))))
-
+                        .map(s -> new Parameter.ValueAndLabel(s, s, s))
+                        .toList()), new Parameter("{sides:4@D4/12@D12/+5@Bonus}", "sides", List.of(new Parameter.ValueAndLabel("4", "D4", "1"),
+                        new Parameter.ValueAndLabel("12", "D12", "2"),
+                        new Parameter.ValueAndLabel("+5", "Bonus", "3")))))
         );
     }
 
@@ -166,6 +166,17 @@ class CustomParameterCommandTest {
         } else {
             assertThat(res).contains(expectedResult);
         }
+    }
+
+    @Test
+    void debug() {
+        Optional<String> res = underTest.getStartOptionsValidationMessage(CommandInteractionOption.builder()
+                .name("start")
+                .option(CommandInteractionOption.builder()
+                        .name("expression")
+                        .stringValue("{number}d{sides}@{label:attack/damage}").build())
+                .build(), 0L, 0L);
+        assertThat(res).isEmpty();
     }
 
     @Test
