@@ -25,7 +25,7 @@ public class CustomParameterConfig extends Config {
 
     @NonNull
     @JsonIgnore
-    private final List<Parameter> paramters;
+    private final List<Parameter> parameters;
 
     public CustomParameterConfig(
             @JsonProperty("answerTargetChannelId") Long answerTargetChannelId,
@@ -37,7 +37,7 @@ public class CustomParameterConfig extends Config {
         super(answerTargetChannelId, answerFormatType, resultImage, diceStyleAndColor);
         this.baseExpression = baseExpression;
         this.diceParserSystem = diceParserSystem == null ? DiceParserSystem.DICEROLL_PARSER : diceParserSystem;
-        this.paramters = CustomParameterCommand.createParameterListFromBaseExpression(baseExpression);
+        this.parameters = CustomParameterCommand.createParameterListFromBaseExpression(baseExpression);
     }
 
     @Override

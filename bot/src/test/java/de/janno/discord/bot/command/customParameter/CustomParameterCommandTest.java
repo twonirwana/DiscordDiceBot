@@ -2,7 +2,6 @@ package de.janno.discord.bot.command.customParameter;
 
 import com.google.common.collect.ImmutableList;
 import de.janno.discord.bot.command.AnswerFormatType;
-import de.janno.discord.bot.command.ButtonIdLabelAndDiceExpression;
 import de.janno.discord.bot.command.ConfigAndState;
 import de.janno.discord.bot.dice.CachingDiceEvaluator;
 import de.janno.discord.bot.dice.Dice;
@@ -38,13 +37,13 @@ class CustomParameterCommandTest {
 
     private static Stream<Arguments> generateParameterExpression2ButtonValuesData() {
         return Stream.of(
-                Arguments.of("{test}", IntStream.range(1, 16).mapToObj(i -> new ButtonIdLabelAndDiceExpression("custom_parameter\u001E" + i + "00000000-0000-0000-0000-000000000000", String.valueOf(i), String.valueOf(i))).toList()),
-                Arguments.of("{test:2<=>4}", IntStream.range(1, 4).mapToObj(i -> new ButtonIdLabelAndDiceExpression("custom_parameter\u001E" + i + "00000000-0000-0000-0000-000000000000", String.valueOf(i + 1), String.valueOf(i))).toList()),
-                Arguments.of("{test:2<=>1}", ImmutableList.of(new ButtonIdLabelAndDiceExpression("custom_parameter\u001E100000000-0000-0000-0000-000000000000", "2", "1"))),
-                Arguments.of("{test:-2<=>1}", IntStream.range(1, 5).mapToObj(i -> new ButtonIdLabelAndDiceExpression("custom_parameter\u001E" + i + "00000000-0000-0000-0000-000000000000", String.valueOf(i - 3), String.valueOf(i))).toList()),
-                Arguments.of("{test:-10<=>-5}", IntStream.range(1, 7).mapToObj(i -> new ButtonIdLabelAndDiceExpression("custom_parameter\u001E" + i + "00000000-0000-0000-0000-000000000000", String.valueOf(i - 11), String.valueOf(i))).toList()),
-                Arguments.of("{test:1d6/+5/abc}", ImmutableList.of(new ButtonIdLabelAndDiceExpression("custom_parameter\u001E100000000-0000-0000-0000-000000000000", "1d6", "1"), new ButtonIdLabelAndDiceExpression("custom_parameter\u001E200000000-0000-0000-0000-000000000000", "+5", "2"), new ButtonIdLabelAndDiceExpression("custom_parameter\u001E300000000-0000-0000-0000-000000000000", "abc", "3"))),
-                Arguments.of("{test:1d6@d6/+5@Bonus/abc}", ImmutableList.of(new ButtonIdLabelAndDiceExpression("custom_parameter\u001E100000000-0000-0000-0000-000000000000", "d6", "1"), new ButtonIdLabelAndDiceExpression("custom_parameter\u001E200000000-0000-0000-0000-000000000000", "Bonus", "2"), new ButtonIdLabelAndDiceExpression("custom_parameter\u001E300000000-0000-0000-0000-000000000000", "abc", "3")))
+                Arguments.of("{test}", IntStream.range(1, 16).mapToObj(i -> new CustomParameterCommand.ButtonLabelAndValue(String.valueOf(i), "id%d".formatted(i))).toList()),
+                Arguments.of("{test:2<=>4}", IntStream.range(1, 4).mapToObj(i -> new CustomParameterCommand.ButtonLabelAndValue(String.valueOf(i + 1), "id%d".formatted(i))).toList()),
+                Arguments.of("{test:2<=>1}", ImmutableList.of(new CustomParameterCommand.ButtonLabelAndValue("2", "id1"))),
+                Arguments.of("{test:-2<=>1}", IntStream.range(1, 5).mapToObj(i -> new CustomParameterCommand.ButtonLabelAndValue(String.valueOf(i - 3), "id%d".formatted(i))).toList()),
+                Arguments.of("{test:-10<=>-5}", IntStream.range(1, 7).mapToObj(i -> new CustomParameterCommand.ButtonLabelAndValue(String.valueOf(i - 11), "id%d".formatted(i))).toList()),
+                Arguments.of("{test:1d6/+5/abc}", ImmutableList.of(new CustomParameterCommand.ButtonLabelAndValue("1d6", "id1"), new CustomParameterCommand.ButtonLabelAndValue("+5", "id2"), new CustomParameterCommand.ButtonLabelAndValue("abc", "id3"))),
+                Arguments.of("{test:1d6@d6/+5@Bonus/abc}", ImmutableList.of(new CustomParameterCommand.ButtonLabelAndValue("d6", "id1"), new CustomParameterCommand.ButtonLabelAndValue("Bonus", "id2"), new CustomParameterCommand.ButtonLabelAndValue("abc", "id3")))
         );
     }
 
@@ -75,30 +74,30 @@ class CustomParameterCommandTest {
         return Stream.of(
                 Arguments.of("{number}d{sides}", List.of(new Parameter("{number}", "number", IntStream.range(1, 16)
                         .mapToObj(String::valueOf)
-                        .map(s -> new Parameter.ValueAndLabel(s, s, s))
+                        .map(s -> new Parameter.ParameterOption(s, s, "id%s".formatted(s)))
                         .toList()), new Parameter("{sides}", "sides", IntStream.range(1, 16)
                         .mapToObj(String::valueOf)
-                        .map(s -> new Parameter.ValueAndLabel(s, s, s))
+                        .map(s -> new Parameter.ParameterOption(s, s, "id%s".formatted(s)))
                         .toList()))),
                 Arguments.of("{number}d{sides:-2<=>2}", List.of(new Parameter("{number}", "number", IntStream.range(1, 16)
                         .mapToObj(String::valueOf)
-                        .map(s -> new Parameter.ValueAndLabel(s, s, s))
+                        .map(s -> new Parameter.ParameterOption(s, s, "id%s".formatted(s)))
                         .toList()), new Parameter("{sides:-2<=>2}", "sides", IntStream.range(1, 6)
                         .boxed()
-                        .map(s -> new Parameter.ValueAndLabel(String.valueOf(s - 3), String.valueOf(s - 3), String.valueOf(s)))
+                        .map(s -> new Parameter.ParameterOption(String.valueOf(s - 3), String.valueOf(s - 3), "id%s".formatted(s)))
                         .toList()))),
                 Arguments.of("{number}d{sides:4/12/+5}", List.of(new Parameter("{number}", "number", IntStream.range(1, 16)
                         .mapToObj(String::valueOf)
-                        .map(s -> new Parameter.ValueAndLabel(s, s, s))
-                        .toList()), new Parameter("{sides:4/12/+5}", "sides", List.of(new Parameter.ValueAndLabel("4", "4", "1"),
-                        new Parameter.ValueAndLabel("12", "12", "2"),
-                        new Parameter.ValueAndLabel("+5", "+5", "3"))))),
+                        .map(s -> new Parameter.ParameterOption(s, s, "id%s".formatted(s)))
+                        .toList()), new Parameter("{sides:4/12/+5}", "sides", List.of(new Parameter.ParameterOption("4", "4", "id1"),
+                        new Parameter.ParameterOption("12", "12", "id2"),
+                        new Parameter.ParameterOption("+5", "+5", "id3"))))),
                 Arguments.of("{number}d{sides:4@D4/12@D12/+5@Bonus}", List.of(new Parameter("{number}", "number", IntStream.range(1, 16)
                         .mapToObj(String::valueOf)
-                        .map(s -> new Parameter.ValueAndLabel(s, s, s))
-                        .toList()), new Parameter("{sides:4@D4/12@D12/+5@Bonus}", "sides", List.of(new Parameter.ValueAndLabel("4", "D4", "1"),
-                        new Parameter.ValueAndLabel("12", "D12", "2"),
-                        new Parameter.ValueAndLabel("+5", "Bonus", "3")))))
+                        .map(s -> new Parameter.ParameterOption(s, s, "id%s".formatted(s)))
+                        .toList()), new Parameter("{sides:4@D4/12@D12/+5@Bonus}", "sides", List.of(new Parameter.ParameterOption("4", "D4", "id1"),
+                        new Parameter.ParameterOption("12", "D12", "id2"),
+                        new Parameter.ParameterOption("+5", "Bonus", "id3")))))
         );
     }
 
@@ -138,9 +137,9 @@ class CustomParameterCommandTest {
 
     @ParameterizedTest(name = "{index} {0} -> {1}")
     @MethodSource("generateParameterExpression2ButtonValuesData")
-    void getButtonValues(String parameterExpression, List<ButtonIdLabelAndDiceExpression> expectedResult) {
+    void getButtonValues(String parameterExpression, List<CustomParameterCommand.ButtonLabelAndValue> expectedResult) {
         CustomParameterConfig config = new CustomParameterConfig(null, "1d6 + {a} + " + parameterExpression, DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.without_expression, null, new DiceStyleAndColor(DiceImageStyle.none, "none"));
-        List<ButtonIdLabelAndDiceExpression> res = underTest.getButtons(UUID.fromString("00000000-0000-0000-0000-000000000000"), config, parameterExpression);
+        List<CustomParameterCommand.ButtonLabelAndValue> res = underTest.getButtons(config, parameterExpression);
         assertThat(res).isEqualTo(expectedResult);
     }
 

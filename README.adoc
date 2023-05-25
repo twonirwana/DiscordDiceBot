@@ -159,7 +159,16 @@ image:image/minimal.png[image,320]
 
 === Dice Images
 
-The `custom_dice`, `sum_custom_dice` and `custom_parameter` commands have an `result_image` option that can be configured to add an image of the rolled dice.
+The `custom_dice`, `sum_custom_dice` and `custom_parameter` commands have a `dice_image_style` and a `dice_image_color` option that can be configured to add an image of the rolled dice.
+The color of specific dice can be overwritten, with valid colors for the style, in the expression.
+For example:
+
+`/custom_dice start buttons: 2d6+color(2d10, 'red_and_gold')+color(2d20,'green_and_gold')@color roll answer_format: without_expression dice_image_style: polyhedral_alies_v2 dice_image_color: blue_and_gold`
+
+produces:
+
+image:image/colorRoll.png[image,320]
+
 For the direct rolls it can be configured with the `channel_config` command.
 The images will only be shown if the following conditions are met:
 
@@ -174,92 +183,71 @@ There are the following options:
 
 No image will be shown.
 
-==== polyhedral_3d_red_and_white
+==== polyhedral_3d
 
 image:image/3d_red_and_white.png[image,600]
 
-Valid for d4, d6, d10, d8, d12, d20, d100
+Valid for d4, d6, d10, d8, d12, d20, d100 and the only supported color is: `red_and_white`
 
-==== fate_black
+==== fate
 
 image:image/fate_image.png[image,360]
 
-Valid for d[-1,1,1]
+Valid for d[-1,1,1] and the only supported color is: `black`
 
-==== d6_dots_white
+==== d6_dots
 
 image:image/d6White.png[image,360]
 
-Valid for d6
+Valid for d6 and the only supported color is: `white`
 
-==== polyhedral_draw_color
+==== polyhedral_2d
 
 image:image/draw_color.png[image,600]
 
-Valid for d4, d6, d10, d8, d12, d20, d100.
-Generates the dice images in the given color of the die (default is red).
-The color of a die can be set with the `color` function.
+Valid for d4, d6, d10, d8, d12, d20, d100 and the supported colors are: `white`, `gray`, `black`, `red`, `pink`, `orange`, `yellow`, `green`, `magenta`, `cyan`, `blue`.
 
-The supported colors are: 'white', 'gray', 'black', 'red', 'pink', 'orange', 'yellow', 'green', 'magenta', 'cyan', 'blue'.
-
-For example:
-`color(1d4,'gray') + color(1d6,'black') + color(1d8,'white') + color(1d10,'red') + color(1d12,'blue') + color(1d20,'green') + color(1d100,'orange')` rolls each die type in another color.
-
-==== polyhedral_black_and_gold
+==== polyhedral_alies_v1
 
 image:image/black_and_gold.png[image,600]
 
-Valid for d4, d6, d10, d8, d12, d20, d100.
+Valid for d4, d6, d10, d8, d12, d20, d100 and the only supported color is: `black_and_gold`
 This set was designed and contributed by https://www.instagram.com/alie_in_beanland/[alieinbeanland].
 
-==== polyhedral_black_and_gold_v2
+==== polyhedral_alies_v2
 
+Valid for d4, d6, d10, d8, d12, d20, d100 and supported colors are: `black_and_gold`, `blue_and_silver`, `blue_and_gold`, `green_and_gold`, `orange_and_silver`, `red_and_gold`, `purple_and_silver`
+
+.black_and_gold
 image:image/polyhedral_black_and_gold_v2.png[image,600]
 
-Valid for d4, d6, d10, d8, d12, d20, d100.
-This set was designed and contributed by https://www.instagram.com/alie_in_beanland/[alieinbeanland].
-
-==== polyhedral_alies_blue_and_silver
-
+.blue_and_silver
 image:image/blue_and_silver.png[image,600]
 
-Valid for d4, d6, d10, d8, d12, d20, d100.
-This set was designed and contributed by https://www.instagram.com/alie_in_beanland/[alieinbeanland].
-
-==== polyhedral_green_and_gold
-
+.green_and_gold
 image:image/green_and_gold.png[image,600]
 
-Valid for d4, d6, d10, d8, d12, d20, d100.
-This set was designed and contributed by https://www.instagram.com/alie_in_beanland/[alieinbeanland].
-
-==== polyhedral_red_and_gold
-
+.red_and_gold
 image:image/red_and_gold.png[image,600]
 
-Valid for d4, d6, d10, d8, d12, d20, d100.
-This set was designed and contributed by https://www.instagram.com/alie_in_beanland/[alieinbeanland].
-
-==== polyhedral_blue_and_gold
-
+.blue_and_gold
 image:image/polyhedral_blue_and_gold.png[image,600]
 
-Valid for d4, d6, d10, d8, d12, d20, d100.
-This set was designed and contributed by https://www.instagram.com/alie_in_beanland/[alieinbeanland].
-
-==== polyhedral_orange_and_silver
-
+.orange_and_silver
 image:image/polyhedral_orange_and_silver.png[image,600]
 
-Valid for d4, d6, d10, d8, d12, d20, d100.
-This set was designed and contributed by https://www.instagram.com/alie_in_beanland/[alieinbeanland].
-
-==== polyhedral_purple_and_silver
-
+.purple_and_silver
 image:image/polyhedral_purple_and_silver.png[image,600]
 
-Valid for d4, d6, d10, d8, d12, d20, d100.
 This set was designed and contributed by https://www.instagram.com/alie_in_beanland/[alieinbeanland].
+
+==== polyhedral_knots
+
+image:image/polyhedral_knots_purple.png[image,600]
+
+Valid for d4, d6, d10, d8, d12, d20, d100 and the only supported color is: `purple`
+
+This set was designed and contributed by mailto:minuette@gmail.com[Myrynvalona].
 
 === Custom Dice Buttons
 
@@ -467,7 +455,7 @@ The maximum are 23 buttons.
 It is possible to add an optional label to each value in the format `value@label`.
 For example `{bonus:0@None/3@Small Bonus/5@Big Bonus}` will show on the buttons 'None', 'Small Bonus' and 'Big Bonus' but apply the values 0, 3 or 5 to the expression
 
-A expression can have up to 4 parameter.
+An expression can have up to 4 parameter.
 The user can click on the buttons to fill all open parameter of the expression.
 If all parameter are selected then the expression will be rolled.
 The first user that clicks on a button add his name to the message and only this user can select further parameter.
@@ -577,6 +565,7 @@ All functions are case insensitiv.
 
 == Contributors
 
-* Special thank to https://www.instagram.com/alie_in_beanland/[alieinbeanland ] for the design of the dice images.
-* The `polyhedral_3d_red_and_white` dice images where adapted from https://blendswap.com/blend/16634
-* The `d6_dots_white` dice images are from https://game-icons.net/
+* Special thank to https://www.instagram.com/alie_in_beanland/[alieinbeanland] for the design of the dice images for `polyhedral_alies_v1` and `polyhedral_alies_v2`
+* Special thank to mailto:minuette@gmail.com[Myrynvalona] for the design of the dice images for `polyhedral_knots`
+* The `polyhedral_3d` dice images where adapted from https://blendswap.com/blend/16634
+* The `d6_dot` dice images are from https://game-icons.net/

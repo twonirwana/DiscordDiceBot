@@ -91,7 +91,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
                                                         @Nullable String currentlyLockedForUser,
                                                         @NonNull String invokingUser) {
         final String shouldBeLockedForUser;
-        List<SelectedParameter> currentOrNewSelectedParameter = Optional.ofNullable(currentlySelectedParameterList).orElse(config.getParamters().stream()
+        List<SelectedParameter> currentOrNewSelectedParameter = Optional.ofNullable(currentlySelectedParameterList).orElse(config.getParameters().stream()
                 .map(p -> new SelectedParameter(p.getParameterExpression(), p.getName(), null, null))
                 .toList());
         Optional<String> currentParameterExpression = currentOrNewSelectedParameter.stream()
@@ -99,7 +99,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
                 .map(SelectedParameter::getParameterExpression)
                 .findFirst();
         if (CLEAR_BUTTON_ID.equals(buttonValue) || currentParameterExpression.isEmpty()) {
-            ImmutableList<SelectedParameter> newSelectedParameterList = config.getParamters().stream()
+            ImmutableList<SelectedParameter> newSelectedParameterList = config.getParameters().stream()
                     .map(sp -> new SelectedParameter(sp.getParameterExpression(), sp.getName(), null, null)).collect(ImmutableList.toImmutableList());
             return new CustomParameterStateData(newSelectedParameterList, null);
         } else {
@@ -110,18 +110,19 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
                 .map(sp -> {
                     if (Objects.equals(sp.getParameterExpression(), currentParameterExpression.get()) &&
                             (currentlyLockedForUser == null || Objects.equals(currentlyLockedForUser, invokingUser))) {
-                        List<Parameter.ValueAndLabel> parameters = getParameterForParameterExpression(config, sp.getParameterExpression())
+                        List<Parameter.ParameterOption> parameters = getParameterForParameterExpression(config, sp.getParameterExpression())
                                 .map(Parameter::getParameterOptions).orElse(List.of());
-                        Optional<Parameter.ValueAndLabel> selectedParameterOption = parameters.stream()
+                        Optional<Parameter.ParameterOption> selectedParameterOption = parameters.stream()
                                 .filter(vl -> vl.getId().equals(buttonValue))
                                 .findFirst();
                         //fallback for legacy buttons, which use the value and not the index as button id
+                        //This can be false if the old value matches an indexId, e.g. is something like id2
                         if (selectedParameterOption.isEmpty()) {
                             selectedParameterOption = parameters.stream()
                                     .filter(vl -> vl.getValue().equals(buttonValue))
                                     .findFirst();
                         }
-                        Parameter.ValueAndLabel selectedParameter = selectedParameterOption.orElseThrow(() -> new RuntimeException("Found no parameter in for value %s in %s".formatted(buttonValue, parameters)));
+                        Parameter.ParameterOption selectedParameter = selectedParameterOption.orElseThrow(() -> new RuntimeException("Found no parameter in for value %s in %s".formatted(buttonValue, parameters)));
                         return new SelectedParameter(sp.getParameterExpression(), sp.getName(), selectedParameter.getValue(), selectedParameter.getLabel());
                     }
                     return sp.copy();
@@ -133,7 +134,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
         if (parameterExpression == null) {
             return Optional.empty();
         }
-        return config.getParamters().stream()
+        return config.getParameters().stream()
                 .filter(p -> p.getParameterExpression().equals(parameterExpression))
                 .findFirst();
     }
@@ -171,7 +172,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
                 AtomicInteger counter = new AtomicInteger(1);
                 builder.add(new Parameter(parameterExpression, name, IntStream.range(min, max + 1)
                         .mapToObj(String::valueOf)
-                        .map(s -> new Parameter.ValueAndLabel(s, s, String.valueOf(counter.getAndIncrement())))
+                        .map(s -> new Parameter.ParameterOption(s, s, createParameterOptionIdFromIndex(counter.getAndIncrement())))
                         .toList()));
             } else if (valueMatcher.find()) {
                 String buttonValueExpression = valueMatcher.group(1);
@@ -182,21 +183,25 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
                             if (s.contains(DiceSystemAdapter.LABEL_DELIMITER)) {
                                 String[] split = s.split(DiceSystemAdapter.LABEL_DELIMITER);
                                 if (split.length == 2 && !Strings.isNullOrEmpty(split[0]) && !Strings.isNullOrEmpty(split[1])) {
-                                    return new Parameter.ValueAndLabel(split[0], split[1], String.valueOf(counter.getAndIncrement()));
+                                    return new Parameter.ParameterOption(split[0], split[1], createParameterOptionIdFromIndex(counter.getAndIncrement()));
                                 }
                             }
-                            return new Parameter.ValueAndLabel(s, s, String.valueOf(counter.getAndIncrement()));
+                            return new Parameter.ParameterOption(s, s, createParameterOptionIdFromIndex(counter.getAndIncrement()));
                         })
                         .toList()));
             } else {
                 builder.add(new Parameter(parameterExpression, name, IntStream.range(1, 16)
-                        .mapToObj(String::valueOf)
-                        .map(s -> new Parameter.ValueAndLabel(s, s, s))
+                        .boxed()
+                        .map(s -> new Parameter.ParameterOption(String.valueOf(s), String.valueOf(s), createParameterOptionIdFromIndex(s)))
                         .toList()));
             }
         }
 
         return builder.build();
+    }
+
+    private static String createParameterOptionIdFromIndex(int index) {
+        return "id%d".formatted(index);
     }
 
     @VisibleForTesting
@@ -414,7 +419,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
                 .map(State::getData)
                 .flatMap(CustomParameterStateData::getNextUnselectedParameterExpression)
                 .flatMap(s -> getParameterForParameterExpression(config, s.getParameterExpression()))
-                .orElse(config.getParamters().get(0));
+                .orElse(config.getParameters().get(0));
         List<String> nameAndExpression = new ArrayList<>();
         if (!Strings.isNullOrEmpty(userName)) {
             nameAndExpression.add(userName + ":");
@@ -439,13 +444,13 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
                 .map(State::getData)
                 .flatMap(CustomParameterStateData::getNextUnselectedParameterExpression)
                 .map(SelectedParameter::getParameterExpression)
-                .orElse(config.getParamters().get(0).getParameterExpression());
-        Parameter parameter = config.getParamters().stream()
+                .orElse(config.getParameters().get(0).getParameterExpression());
+        Parameter parameter = config.getParameters().stream()
                 .filter(p -> Objects.equals(p.getParameterExpression(), currentParameterExpression))
-                .findFirst().orElse(config.getParamters().get(0));
+                .findFirst().orElse(config.getParameters().get(0));
         List<ButtonDefinition> buttons = parameter.getParameterOptions().stream()
                 .map(vl -> ButtonDefinition.builder()
-                        .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), String.valueOf(vl.getId()), configUUID))
+                        .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), vl.getId(), configUUID))
                         .label(vl.getLabel())
                         .build())
                 .collect(Collectors.toList());
@@ -511,9 +516,6 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
 
         List<StateWithCustomIdAndParameter> allPossibleStatePermutations = allPossibleStatePermutations(config);
         for (StateWithCustomIdAndParameter aState : allPossibleStatePermutations) {
-            if (aState.getButtonIdLabelAndDiceExpressions().stream().map(ButtonIdLabelAndDiceExpression::getButtonId).count() != aState.getButtonIdLabelAndDiceExpressions().stream().map(ButtonIdLabelAndDiceExpression::getButtonId).distinct().count()) {
-                return Optional.of(String.format("Parameter '%s' contains duplicate parameter option but they must be unique.", aState.getButtonIdLabelAndDiceExpressions().stream().map(ButtonIdLabelAndDiceExpression::getDiceExpression).toList()));
-            }
             if (!hasMissingParameter(aState.getState())) {
                 String expression = getFilledExpression(config, aState.getState());
                 String label = getLabel(config, aState.getState());
@@ -537,42 +539,44 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
         List<StateWithCustomIdAndParameter> out = new ArrayList<>();
         String parameterExpression = getNextParameterExpression(config.getBaseExpression());
 
-        //use random uuid for simulating states
-        List<ButtonIdLabelAndDiceExpression> buttonIdLabelAndDiceExpressions = getButtons(UUID.randomUUID(), config, parameterExpression);
+        List<ButtonLabelAndValue> buttonLabelAndValues = getButtons(config, parameterExpression);
 
-        for (ButtonIdLabelAndDiceExpression buttonIdLabelAndDiceExpression : buttonIdLabelAndDiceExpressions) {
-            State<CustomParameterStateData> nextState = new State<>(buttonIdLabelAndDiceExpression.getDiceExpression(), updateState(null, config, buttonIdLabelAndDiceExpression.getDiceExpression(), null, "test"));
-            out.add(new StateWithCustomIdAndParameter(buttonIdLabelAndDiceExpression.getButtonId(), nextState, buttonIdLabelAndDiceExpressions));
+        for (ButtonLabelAndValue buttonLabelAndValue : buttonLabelAndValues) {
+            State<CustomParameterStateData> nextState = new State<>(buttonLabelAndValue.getValue(), updateState(null, config, buttonLabelAndValue.getValue(), null, "test"));
+            out.add(new StateWithCustomIdAndParameter(buttonLabelAndValue.getValue(), nextState, buttonLabelAndValues));
             out.addAll(allPossibleStatePermutations(config, nextState));
         }
         return out;
     }
 
-    List<ButtonIdLabelAndDiceExpression> getButtons(UUID configUUID, CustomParameterConfig config, String parameterExpression) {
+    List<ButtonLabelAndValue> getButtons(CustomParameterConfig config, String parameterExpression) {
         return getParameterForParameterExpression(config, parameterExpression)
                 .map(Parameter::getParameterOptions).orElse(List.of()).stream()
-                //todo change to better class
-                .map(vl -> new ButtonIdLabelAndDiceExpression(BottomCustomIdUtils.createButtonCustomId(getCommandId(), vl.getId(), configUUID), vl.getLabel(), vl.getId()))
+                .map(vl -> new ButtonLabelAndValue(vl.getLabel(), vl.getId()))
                 .toList();
     }
-
 
     private List<StateWithCustomIdAndParameter> allPossibleStatePermutations(CustomParameterConfig config, State<CustomParameterStateData> state) {
         List<StateWithCustomIdAndParameter> out = new ArrayList<>();
         Optional<String> parameterExpression = getCurrentParameterExpression(state);
 
         if (parameterExpression.isPresent()) {
-            //use random uuid for simulating states
-            List<ButtonIdLabelAndDiceExpression> parameterValues = getButtons(UUID.randomUUID(), config, parameterExpression.get());
-            for (ButtonIdLabelAndDiceExpression parameterValue : parameterValues) {
-                State<CustomParameterStateData> nextState = new State<>(parameterValue.getDiceExpression(),
+            List<ButtonLabelAndValue> parameterValues = getButtons(config, parameterExpression.get());
+            for (ButtonLabelAndValue parameterValue : parameterValues) {
+                State<CustomParameterStateData> nextState = new State<>(parameterValue.getValue(),
                         updateState(Optional.ofNullable(state.getData()).map(CustomParameterStateData::getSelectedParameterValues).orElse(List.of()), config,
-                                parameterValue.getDiceExpression(), null, "test"));
-                out.add(new StateWithCustomIdAndParameter(parameterValue.getButtonId(), nextState, parameterValues));
+                                parameterValue.getValue(), null, "test"));
+                out.add(new StateWithCustomIdAndParameter(parameterValue.getValue(), nextState, parameterValues));
                 out.addAll(allPossibleStatePermutations(config, nextState));
             }
         }
         return out;
+    }
+
+    @Value
+    static class ButtonLabelAndValue {
+        String label;
+        String value;
     }
 
     @Value
@@ -582,7 +586,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
         @NonNull
         State<CustomParameterStateData> state;
         @NotNull
-        List<ButtonIdLabelAndDiceExpression> buttonIdLabelAndDiceExpressions;
+        List<ButtonLabelAndValue> buttonIdLabelAndDiceExpressions;
     }
 
 }
