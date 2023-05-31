@@ -4,7 +4,6 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Stopwatch;
 import com.google.common.hash.Hashing;
 import de.janno.discord.bot.BotMetrics;
-import de.janno.discord.bot.ResultImage;
 import de.janno.evaluator.dice.RandomElement;
 import de.janno.evaluator.dice.Roll;
 import io.micrometer.core.instrument.Gauge;
@@ -56,21 +55,24 @@ public class ImageResultCreator {
     }
 
     private void createCacheIndexFileIfMissing() {
-        Arrays.stream(ResultImage.values()).forEach(ri -> {
-            createFolderIfMissing(ri.name());
-            Gauge.builder("diceImage.cache", () -> {
-                try (Stream<Path> files = Files.list(Paths.get("%s/%s/".formatted(CACHE_FOLDER, ri.name())))) {
-                    return files.count();
-                } catch (IOException e) {
-                    return -1;
-                }
-            }).tag("type", ri.name()).register(globalRegistry);
-        });
+        Arrays.stream(DiceImageStyle.values())
+                .flatMap(s -> s.getSupportedColors().stream()
+                        .map(c -> DiceImageStyle.combineStyleAndColorName(s, c)))
+                .forEach(ri -> {
+                    createFolderIfMissing(ri);
+                    Gauge.builder("diceImage.cache", () -> {
+                        try (Stream<Path> files = Files.list(Paths.get("%s/%s/".formatted(CACHE_FOLDER, ri)))) {
+                            return files.count();
+                        } catch (IOException e) {
+                            return -1;
+                        }
+                    }).tag("type", ri).register(globalRegistry);
+                });
     }
 
     @VisibleForTesting
-    String createRollCacheName(Roll roll, ResultImage resultImage) {
-        return "%s@%s".formatted(resultImage.name(), roll.getRandomElementsInRoll().getRandomElements().stream()
+    String createRollCacheName(Roll roll, DiceStyleAndColor diceStyleAndColor) {
+        return "%s@%s".formatted(diceStyleAndColor.toString(), roll.getRandomElementsInRoll().getRandomElements().stream()
                 .map(r -> r.getRandomElements().stream()
                         .map(RandomElement::toString)
                         .collect(Collectors.joining(","))
@@ -80,7 +82,10 @@ public class ImageResultCreator {
                 .collect(Collectors.joining(",")));
     }
 
-    public @Nullable File getImageForRoll(@NonNull List<Roll> rolls, ResultImage resultImage) {
+    public @Nullable File getImageForRoll(@NonNull List<Roll> rolls, @Nullable DiceStyleAndColor diceStyleAndColor) {
+        if (diceStyleAndColor == null) {
+            return null;
+        }
         if (rolls.size() != 1 ||
                 rolls.get(0).getRandomElementsInRoll().getRandomElements().size() == 0 ||
                 rolls.get(0).getRandomElementsInRoll().getRandomElements().size() > 10 ||
@@ -88,20 +93,20 @@ public class ImageResultCreator {
                 rolls.get(0).getRandomElementsInRoll().getRandomElements().stream().anyMatch(r -> r.getRandomElements().size() == 0) ||
                 rolls.get(0).getRandomElementsInRoll().getRandomElements().stream()
                         .flatMap(r -> r.getRandomElements().stream())
-                        .anyMatch(r -> ImageProviderFactory.getImageFor(resultImage, r.getMaxInc(), r.getRollElement().asInteger().orElse(null), r.getRollElement().getColor()).isEmpty())
+                        .anyMatch(r -> diceStyleAndColor.getImageFor(r.getMaxInc(), r.getRollElement().asInteger().orElse(null), r.getRollElement().getColor()).isEmpty())
         ) {
             return null;
         }
 
-        String name = createRollCacheName(rolls.get(0), resultImage);
+        String name = createRollCacheName(rolls.get(0), diceStyleAndColor);
         String hashName = Hashing.sha256()
                 .hashString(name, StandardCharsets.UTF_8)
                 .toString();
 
-        String filePath = "%s/%s/%s.png".formatted(CACHE_FOLDER, resultImage.name(), hashName);
+        String filePath = "%s/%s/%s.png".formatted(CACHE_FOLDER, diceStyleAndColor.toString(), hashName);
         File imageFile = new File(filePath);
         if (!imageFile.exists()) {
-            createNewFileForRoll(rolls.get(0), imageFile, name, resultImage);
+            createNewFileForRoll(rolls.get(0), imageFile, name, diceStyleAndColor);
             BotMetrics.incrementImageResultMetricCounter(BotMetrics.CacheTag.CACHE_MISS);
         } else {
             log.trace("Use cached file %s for %s".formatted(filePath, name));
@@ -110,12 +115,12 @@ public class ImageResultCreator {
         return imageFile;
     }
 
-    private void createNewFileForRoll(Roll roll, File file, String name, ResultImage resultImage) {
+    private void createNewFileForRoll(Roll roll, File file, String name, DiceStyleAndColor diceStyleAndColor) {
         Stopwatch stopwatch = Stopwatch.createStarted();
 
         List<List<BufferedImage>> images = roll.getRandomElementsInRoll().getRandomElements().stream()
                 .map(r -> r.getRandomElements().stream()
-                        .flatMap(re -> ImageProviderFactory.getImageFor(resultImage, re.getMaxInc(), re.getRollElement().asInteger().orElse(null), re.getRollElement().getColor()).stream())
+                        .flatMap(re -> diceStyleAndColor.getImageFor(re.getMaxInc(), re.getRollElement().asInteger().orElse(null), re.getRollElement().getColor()).stream())
                         .toList()
                 )
                 .filter(l -> !l.isEmpty())
@@ -126,7 +131,7 @@ public class ImageResultCreator {
                 .mapToInt(List::size)
                 .max().orElseThrow();
 
-        int singleDiceSize = ImageProviderFactory.getDieHighAndWith(resultImage);
+        int singleDiceSize = diceStyleAndColor.getDieHighAndWith();
         int w = singleDiceSize * (maxInnerSize);
         int h = singleDiceSize * (images.size());
         BufferedImage combined = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB_PRE);
@@ -140,14 +145,13 @@ public class ImageResultCreator {
             }
         }
         g.dispose();
-        String indexPath = "%s/%s/%s".formatted(CACHE_FOLDER, resultImage.name(), CACHE_INDEX_FILE);
+        String indexPath = "%s/%s/%s".formatted(CACHE_FOLDER, diceStyleAndColor.toString(), CACHE_INDEX_FILE);
 
         writeFile(combined, file, Path.of(indexPath), name);
 
         BotMetrics.imageCreationTimer(stopwatch.elapsed());
         log.debug("Created image {} in {}ms", name, stopwatch.elapsed(TimeUnit.MILLISECONDS));
     }
-
 
     private synchronized void writeFile(BufferedImage combined, File outputFile, Path indexFile, String name) {
         try {
@@ -161,5 +165,4 @@ public class ImageResultCreator {
             throw new RuntimeException(e);
         }
     }
-
 }

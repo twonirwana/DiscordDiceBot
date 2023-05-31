@@ -9,11 +9,12 @@ public class Parameter {
     //parameter with {} and range
     String parameterExpression;
     String name;
-    List<ValueAndLabel> parameterOptions;
+    List<ParameterOption> parameterOptions;
 
     @Value
-    public static class ValueAndLabel{
+    public static class ParameterOption {
         String value;
         String label;
+        String id;
     }
 }

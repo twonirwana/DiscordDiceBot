@@ -6,6 +6,7 @@ import de.janno.discord.bot.ResultImage;
 import de.janno.discord.bot.command.AnswerFormatType;
 import de.janno.discord.bot.command.Config;
 import de.janno.discord.bot.dice.DiceParserSystem;
+import de.janno.discord.bot.dice.image.DiceStyleAndColor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
@@ -24,22 +25,23 @@ public class CustomParameterConfig extends Config {
 
     @NonNull
     @JsonIgnore
-    private final List<Parameter> paramters;
+    private final List<Parameter> parameters;
 
     public CustomParameterConfig(
             @JsonProperty("answerTargetChannelId") Long answerTargetChannelId,
             @JsonProperty("baseExpression") @NonNull String baseExpression,
             @JsonProperty("diceParserSystem") DiceParserSystem diceParserSystem,
             @JsonProperty("answerFormatType") AnswerFormatType answerFormatType,
-            @JsonProperty("resultImage") ResultImage resultImage) {
-        super(answerTargetChannelId, answerFormatType, resultImage);
+            @JsonProperty("resultImage") ResultImage resultImage,
+            @JsonProperty("diceImageStyle") DiceStyleAndColor diceStyleAndColor) {
+        super(answerTargetChannelId, answerFormatType, resultImage, diceStyleAndColor);
         this.baseExpression = baseExpression;
         this.diceParserSystem = diceParserSystem == null ? DiceParserSystem.DICEROLL_PARSER : diceParserSystem;
-        this.paramters = CustomParameterCommand.createParameterListFromBaseExpression(baseExpression);
+        this.parameters = CustomParameterCommand.createParameterListFromBaseExpression(baseExpression);
     }
 
     @Override
     public String toShortString() {
-        return "[%s, %s, %s, %s, %s]".formatted(baseExpression, getTargetChannelShortString(), diceParserSystem, getAnswerFormatType(),getResultImage());
+        return "[%s, %s, %s, %s, %s]".formatted(baseExpression, getTargetChannelShortString(), diceParserSystem, getAnswerFormatType(), getDiceStyleAndColor());
     }
 }

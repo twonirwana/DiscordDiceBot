@@ -2,9 +2,9 @@ package de.janno.discord.bot.dice;
 
 import com.google.common.collect.ImmutableList;
 import de.janno.discord.bot.BotMetrics;
-import de.janno.discord.bot.ResultImage;
 import de.janno.discord.bot.command.AnswerFormatType;
 import de.janno.discord.bot.command.RollAnswer;
+import de.janno.discord.bot.dice.image.DiceStyleAndColor;
 import de.janno.discord.bot.dice.image.ImageResultCreator;
 import de.janno.evaluator.dice.DiceEvaluator;
 import de.janno.evaluator.dice.ExpressionException;
@@ -107,14 +107,17 @@ public class DiceEvaluatorAdapter {
         }
     }
 
-    public RollAnswer answerRollWithOptionalLabelInExpression(String expression, String labelDelimiter, boolean sumUp, AnswerFormatType answerFormatType, ResultImage resultImage) {
+    public RollAnswer answerRollWithOptionalLabelInExpression(String expression, String labelDelimiter, boolean sumUp, AnswerFormatType answerFormatType, DiceStyleAndColor diceStyleAndColor) {
         String diceExpression = getExpressionFromExpressionWithOptionalLabel(expression, labelDelimiter);
         String label = getLabelFromExpressionWithOptionalLabel(expression, labelDelimiter).orElse(null);
-        return answerRollWithGivenLabel(diceExpression, label, sumUp, answerFormatType, resultImage);
+        return answerRollWithGivenLabel(diceExpression, label, sumUp, answerFormatType, diceStyleAndColor);
     }
 
-    public RollAnswer answerRollWithGivenLabel(String expression, @Nullable String label, boolean sumUp, AnswerFormatType answerFormatType, ResultImage resultImage) {
-
+    public RollAnswer answerRollWithGivenLabel(String expression,
+                                               @Nullable String label,
+                                               boolean sumUp,
+                                               AnswerFormatType answerFormatType,
+                                               DiceStyleAndColor styleAndColor) {
         try {
             final RollerOrError rollerOrError = cachingDiceEvaluator.get(expression);
 
@@ -129,11 +132,8 @@ public class DiceEvaluatorAdapter {
                         .build();
             }
 
-            BotMetrics.incrementUseImageResultMetricCounter(resultImage);
-            File diceImage = null;
-            if (!resultImage.equals(ResultImage.none)) {
-                diceImage = IMAGE_RESULT_CREATOR.getImageForRoll(rolls, resultImage);
-            }
+            BotMetrics.incrementUseImageResultMetricCounter(styleAndColor);
+            File diceImage = IMAGE_RESULT_CREATOR.getImageForRoll(rolls, styleAndColor);
             if (rolls.size() == 1) {
                 return RollAnswer.builder()
                         .answerFormatType(answerFormatType)

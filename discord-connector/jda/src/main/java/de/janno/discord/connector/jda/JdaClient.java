@@ -1,8 +1,6 @@
 package de.janno.discord.connector.jda;
 
-import de.janno.discord.connector.api.ComponentInteractEventHandler;
-import de.janno.discord.connector.api.Requester;
-import de.janno.discord.connector.api.SlashCommand;
+import de.janno.discord.connector.api.*;
 import de.janno.discord.connector.api.message.MessageDefinition;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +16,7 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.session.ReadyEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder;
 import net.dv8tion.jda.api.sharding.ShardManager;
 import net.dv8tion.jda.internal.utils.IOUtil;
@@ -114,11 +113,22 @@ public class JdaClient {
                                 Flux.fromIterable(commands)
                                         .filter(command -> command.getCommandId().equals(event.getName()))
                                         .next()
-                                        .map(command -> command.getAutoCompleteAnswer(event.getFocusedOption().getName(), event.getFocusedOption().getValue()))
-                                        .flatMap(a -> a.map(autoCompleteAnswer -> Mono.fromFuture(event.replyChoice(autoCompleteAnswer.getName(), autoCompleteAnswer.getValue()).submit()))
-                                                .orElseGet(() -> Mono.fromFuture(event.replyChoices().submit())))
+                                        .map(command -> command.getAutoCompleteAnswer(fromEvent(event)))
+                                        .flatMap(a -> Mono.fromFuture(event.replyChoices(a.stream()
+                                                .map(c -> new Command.Choice(c.getName(), c.getValue()))
+                                                .limit(25)
+                                                .toList()).submit()))
                                         .subscribeOn(scheduler)
                                         .subscribe();
+                            }
+
+                            private AutoCompleteRequest fromEvent(CommandAutoCompleteInteractionEvent event) {
+                                return new AutoCompleteRequest(event.getFocusedOption().getName(),
+                                        event.getFocusedOption().getValue(),
+                                        event.getOptions().stream()
+                                                .map(s -> new OptionValue(s.getName(), s.getAsString()))
+                                                .toList()
+                                );
                             }
 
                             @Override

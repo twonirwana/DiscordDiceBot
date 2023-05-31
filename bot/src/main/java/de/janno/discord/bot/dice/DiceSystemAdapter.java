@@ -4,6 +4,7 @@ import de.janno.discord.bot.BotMetrics;
 import de.janno.discord.bot.ResultImage;
 import de.janno.discord.bot.command.AnswerFormatType;
 import de.janno.discord.bot.command.RollAnswer;
+import de.janno.discord.bot.dice.image.DiceStyleAndColor;
 import de.janno.discord.connector.api.BottomCustomIdUtils;
 import lombok.NonNull;
 
@@ -30,11 +31,11 @@ public class DiceSystemAdapter {
         return expressionWithOptionalLabel;
     }
 
-    public RollAnswer answerRollWithGivenLabel(String expression, @Nullable String label, boolean sumUp, DiceParserSystem system, AnswerFormatType answerFormatType, ResultImage resultImage) {
+    public RollAnswer answerRollWithGivenLabel(String expression, @Nullable String label, boolean sumUp, DiceParserSystem system, AnswerFormatType answerFormatType, DiceStyleAndColor diceStyleAndColor) {
         BotMetrics.incrementDiceParserSystemCounter(system);
         return switch (system) {
             case DICE_EVALUATOR ->
-                    diceEvaluatorAdapter.answerRollWithGivenLabel(expression, label, sumUp, answerFormatType, resultImage);
+                    diceEvaluatorAdapter.answerRollWithGivenLabel(expression, label, sumUp, answerFormatType, diceStyleAndColor);
             case DICEROLL_PARSER -> parserHelper.answerRollWithGivenLabel(expression, label, answerFormatType);
         };
     }

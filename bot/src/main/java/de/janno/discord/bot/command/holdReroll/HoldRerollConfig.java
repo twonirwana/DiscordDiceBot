@@ -6,6 +6,7 @@ import com.google.common.collect.ImmutableList;
 import de.janno.discord.bot.ResultImage;
 import de.janno.discord.bot.command.AnswerFormatType;
 import de.janno.discord.bot.command.Config;
+import de.janno.discord.bot.dice.image.DiceStyleAndColor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
@@ -36,8 +37,9 @@ public class HoldRerollConfig extends Config {
                             @JsonProperty("successSet") @NonNull Set<Integer> successSet,
                             @JsonProperty("failureSet") @NonNull Set<Integer> failureSet,
                             @JsonProperty("answerFormatType") AnswerFormatType answerFormatType,
-                            @JsonProperty("resultImage") ResultImage resultImage) {
-        super(answerTargetChannelId, answerFormatType, resultImage);
+                            @JsonProperty("resultImage") ResultImage resultImage,
+                            @JsonProperty("diceImageStyle") DiceStyleAndColor diceStyleAndColor) {
+        super(answerTargetChannelId, answerFormatType, resultImage, diceStyleAndColor);
         this.sidesOfDie = sidesOfDie;
         this.rerollSet = rerollSet;
         this.successSet = successSet;
@@ -53,7 +55,7 @@ public class HoldRerollConfig extends Config {
                 failureSet.stream().map(String::valueOf).collect(Collectors.joining(SUBSET_DELIMITER)),
                 getTargetChannelShortString(),
                 getAnswerFormatType(),
-                getResultImage()
+                getDiceStyleAndColor()
         ).toString();
     }
 }

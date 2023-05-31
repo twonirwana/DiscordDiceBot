@@ -1,7 +1,8 @@
 package de.janno.discord.bot.command;
 
-import de.janno.discord.bot.ResultImage;
 import de.janno.discord.bot.dice.CachingDiceEvaluator;
+import de.janno.discord.bot.dice.image.DiceImageStyle;
+import de.janno.discord.bot.dice.image.DiceStyleAndColor;
 import de.janno.discord.bot.persistance.PersistenceManager;
 import de.janno.discord.connector.api.ButtonEventAdaptor;
 import de.janno.discord.connector.api.message.ButtonDefinition;
@@ -346,7 +347,7 @@ class WelcomeCommandTest {
             "dice_calculator"
     })
     void createMessageDataForNewMessage(String buttonValue) {
-        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), new Config(null, AnswerFormatType.full, ResultImage.none), new State<>(buttonValue, StateData.empty()), 1L, 2L);
+        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), new Config(null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none")), new State<>(buttonValue, StateData.empty()), 1L, 2L);
         assertThat(res).isPresent();
     }
 

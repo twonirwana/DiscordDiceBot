@@ -1,9 +1,13 @@
 package de.janno.discord.bot.command.poolTarget;
 
 import com.google.common.collect.ImmutableSet;
-import de.janno.discord.bot.ResultImage;
-import de.janno.discord.bot.command.*;
+import de.janno.discord.bot.command.AnswerFormatType;
+import de.janno.discord.bot.command.ConfigAndState;
+import de.janno.discord.bot.command.RollAnswerConverter;
+import de.janno.discord.bot.command.State;
 import de.janno.discord.bot.dice.DiceUtils;
+import de.janno.discord.bot.dice.image.DiceImageStyle;
+import de.janno.discord.bot.dice.image.DiceStyleAndColor;
 import de.janno.discord.bot.persistance.*;
 import de.janno.discord.connector.api.ButtonEventAdaptor;
 import de.janno.discord.connector.api.Requester;
@@ -52,7 +56,7 @@ class PoolTargetCommandTest {
 
     @Test
     void getDiceResult_withoutReroll() {
-        EmbedOrMessageDefinition res = RollAnswerConverter.toEmbedOrMessageDefinition(underTest.getAnswer(new PoolTargetConfig(null, 6, 15, ImmutableSet.of(6), ImmutableSet.of(1), "ask", AnswerFormatType.full, ResultImage.none), new State<>("6", new PoolTargetStateData(6, 3, false)), 0L, 0L)
+        EmbedOrMessageDefinition res = RollAnswerConverter.toEmbedOrMessageDefinition(underTest.getAnswer(new PoolTargetConfig(null, 6, 15, ImmutableSet.of(6), ImmutableSet.of(1), "ask", AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none")), new State<>("6", new PoolTargetStateData(6, 3, false)), 0L, 0L)
                 .orElseThrow());
         assertThat(res.getFields()).hasSize(0);
         assertThat(res.getTitle()).isEqualTo("6d6 ≥3 ⇒ -1");
@@ -61,7 +65,7 @@ class PoolTargetCommandTest {
 
     @Test
     void getDiceResult_withReroll() {
-        EmbedOrMessageDefinition res = RollAnswerConverter.toEmbedOrMessageDefinition(underTest.getAnswer(new PoolTargetConfig(null, 6, 15, ImmutableSet.of(6), ImmutableSet.of(1), "ask", AnswerFormatType.full, ResultImage.none), new State<>("6", new PoolTargetStateData(6, 3, true)), 0L, 0L)
+        EmbedOrMessageDefinition res = RollAnswerConverter.toEmbedOrMessageDefinition(underTest.getAnswer(new PoolTargetConfig(null, 6, 15, ImmutableSet.of(6), ImmutableSet.of(1), "ask", AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none")), new State<>("6", new PoolTargetStateData(6, 3, true)), 0L, 0L)
                 .orElseThrow());
         assertThat(res.getFields()).hasSize(0);
         assertThat(res.getTitle()).isEqualTo("6d6 ≥3 ⇒ 1");
@@ -90,31 +94,31 @@ class PoolTargetCommandTest {
 
     @Test
     void getAnswer_allStateInfoAvailable() {
-        assertThat(underTest.getAnswer(new PoolTargetConfig(null, 10, 20, ImmutableSet.of(), ImmutableSet.of(), "always", AnswerFormatType.full, ResultImage.none), new State<>("10", new PoolTargetStateData(10, 8, true)), 0L, 0L)
+        assertThat(underTest.getAnswer(new PoolTargetConfig(null, 10, 20, ImmutableSet.of(), ImmutableSet.of(), "always", AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none")), new State<>("10", new PoolTargetStateData(10, 8, true)), 0L, 0L)
         ).isNotEmpty();
     }
 
     @Test
     void getAnswer_dicePoolMissing() {
-        assertThat(underTest.getAnswer(new PoolTargetConfig(null, 10, 20, ImmutableSet.of(), ImmutableSet.of(), "always", AnswerFormatType.full, ResultImage.none), new State<>("clear", new PoolTargetStateData(null, 8, true)), 0L, 0L)
+        assertThat(underTest.getAnswer(new PoolTargetConfig(null, 10, 20, ImmutableSet.of(), ImmutableSet.of(), "always", AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none")), new State<>("clear", new PoolTargetStateData(null, 8, true)), 0L, 0L)
         ).isEmpty();
     }
 
     @Test
     void getAnswer_targetNumberMissing() {
-        assertThat(underTest.getAnswer(new PoolTargetConfig(null, 10, 20, ImmutableSet.of(), ImmutableSet.of(), "always", AnswerFormatType.full, ResultImage.none), new State<>("10", new PoolTargetStateData(10, null, true)), 0L, 0L)
+        assertThat(underTest.getAnswer(new PoolTargetConfig(null, 10, 20, ImmutableSet.of(), ImmutableSet.of(), "always", AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none")), new State<>("10", new PoolTargetStateData(10, null, true)), 0L, 0L)
         ).isEmpty();
     }
 
     @Test
     void getAnswer_doRerollMissing() {
-        assertThat(underTest.getAnswer(new PoolTargetConfig(null, 10, 20, ImmutableSet.of(), ImmutableSet.of(), "always", AnswerFormatType.full, ResultImage.none), new State<>("10", new PoolTargetStateData(10, 8, null)), 0L, 0L)
+        assertThat(underTest.getAnswer(new PoolTargetConfig(null, 10, 20, ImmutableSet.of(), ImmutableSet.of(), "always", AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none")), new State<>("10", new PoolTargetStateData(10, 8, null)), 0L, 0L)
         ).isEmpty();
     }
 
     @Test
     void getButtonMessage_rerollBotchEmpty() {
-        String res = underTest.createNewButtonMessage(UUID.fromString("00000000-0000-0000-0000-000000000000"), new PoolTargetConfig(null, 10, 20, ImmutableSet.of(), ImmutableSet.of(), "ask", AnswerFormatType.full, ResultImage.none))
+        String res = underTest.createNewButtonMessage(UUID.fromString("00000000-0000-0000-0000-000000000000"), new PoolTargetConfig(null, 10, 20, ImmutableSet.of(), ImmutableSet.of(), "ask", AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none")))
                 .getContent();
 
         assertThat(res).isEqualTo("Click on the buttons to roll dice");
@@ -122,7 +126,7 @@ class PoolTargetCommandTest {
 
     @Test
     void getButtonMessage_rerollEmpty() {
-        String res = underTest.createNewButtonMessage(UUID.fromString("00000000-0000-0000-0000-000000000000"), new PoolTargetConfig(null, 10, 20, ImmutableSet.of(), ImmutableSet.of(1, 2), "ask", AnswerFormatType.full, ResultImage.none))
+        String res = underTest.createNewButtonMessage(UUID.fromString("00000000-0000-0000-0000-000000000000"), new PoolTargetConfig(null, 10, 20, ImmutableSet.of(), ImmutableSet.of(1, 2), "ask", AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none")))
                 .getContent();
 
         assertThat(res).isEqualTo("Click on the buttons to roll dice, with botch:1,2");
@@ -130,7 +134,7 @@ class PoolTargetCommandTest {
 
     @Test
     void getButtonMessage_botchEmpty() {
-        String res = underTest.createNewButtonMessage(UUID.fromString("00000000-0000-0000-0000-000000000000"), new PoolTargetConfig(null, 10, 20, ImmutableSet.of(10, 9), ImmutableSet.of(), "ask", AnswerFormatType.full, ResultImage.none))
+        String res = underTest.createNewButtonMessage(UUID.fromString("00000000-0000-0000-0000-000000000000"), new PoolTargetConfig(null, 10, 20, ImmutableSet.of(10, 9), ImmutableSet.of(), "ask", AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none")))
                 .getContent();
 
         assertThat(res).isEqualTo("Click on the buttons to roll dice, with ask reroll:9,10");
@@ -138,7 +142,7 @@ class PoolTargetCommandTest {
 
     @Test
     void getButtonMessage_ask() {
-        String res = underTest.createNewButtonMessage(UUID.fromString("00000000-0000-0000-0000-000000000000"), new PoolTargetConfig(null, 10, 20, ImmutableSet.of(10, 9), ImmutableSet.of(1, 2), "ask", AnswerFormatType.full, ResultImage.none))
+        String res = underTest.createNewButtonMessage(UUID.fromString("00000000-0000-0000-0000-000000000000"), new PoolTargetConfig(null, 10, 20, ImmutableSet.of(10, 9), ImmutableSet.of(1, 2), "ask", AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none")))
                 .getContent();
 
         assertThat(res).isEqualTo("Click on the buttons to roll dice, with ask reroll:9,10 and botch:1,2");
@@ -146,7 +150,7 @@ class PoolTargetCommandTest {
 
     @Test
     void getButtonMessage_always() {
-        String res = underTest.createNewButtonMessage(UUID.fromString("00000000-0000-0000-0000-000000000000"), new PoolTargetConfig(null, 10, 20, ImmutableSet.of(10, 9), ImmutableSet.of(1, 2), "always", AnswerFormatType.full, ResultImage.none))
+        String res = underTest.createNewButtonMessage(UUID.fromString("00000000-0000-0000-0000-000000000000"), new PoolTargetConfig(null, 10, 20, ImmutableSet.of(10, 9), ImmutableSet.of(1, 2), "always", AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none")))
                 .getContent();
 
         assertThat(res).isEqualTo("Click on the buttons to roll dice, with always reroll:9,10 and botch:1,2");
@@ -154,7 +158,7 @@ class PoolTargetCommandTest {
 
     @Test
     void getCurrentMessageContentChange_poolWasSet() {
-        String res = underTest.getCurrentMessageContentChange(new PoolTargetConfig(null, 10, 20, ImmutableSet.of(10, 9), ImmutableSet.of(1, 2), "ask", AnswerFormatType.full, ResultImage.none), new State<>("10", new PoolTargetStateData(10, null, null)))
+        String res = underTest.getCurrentMessageContentChange(new PoolTargetConfig(null, 10, 20, ImmutableSet.of(10, 9), ImmutableSet.of(1, 2), "ask", AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none")), new State<>("10", new PoolTargetStateData(10, null, null)))
                 .orElseThrow();
 
         assertThat(res).isEqualTo("Click on the target to roll 10d10 against it, with ask reroll:9,10 and botch:1,2");
@@ -162,7 +166,7 @@ class PoolTargetCommandTest {
 
     @Test
     void getCurrentMessageContentChange_targetWasSet() {
-        String res = underTest.getCurrentMessageContentChange(new PoolTargetConfig(null, 10, 20, ImmutableSet.of(10, 9), ImmutableSet.of(1, 2), "ask", AnswerFormatType.full, ResultImage.none), new State<>("10", new PoolTargetStateData(10, 10, null)))
+        String res = underTest.getCurrentMessageContentChange(new PoolTargetConfig(null, 10, 20, ImmutableSet.of(10, 9), ImmutableSet.of(1, 2), "ask", AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none")), new State<>("10", new PoolTargetStateData(10, 10, null)))
                 .orElseThrow();
 
         assertThat(res).isEqualTo("Should 10s,9s in 10d10 against 10 be be rerolled?");
@@ -170,7 +174,7 @@ class PoolTargetCommandTest {
 
     @Test
     void getCurrentMessageContentChange_clear() {
-        String res = underTest.getCurrentMessageContentChange(new PoolTargetConfig(null, 10, 20, ImmutableSet.of(10, 9), ImmutableSet.of(1, 2), "ask", AnswerFormatType.full, ResultImage.none), new State<>("clear", new PoolTargetStateData(null, null, null)))
+        String res = underTest.getCurrentMessageContentChange(new PoolTargetConfig(null, 10, 20, ImmutableSet.of(10, 9), ImmutableSet.of(1, 2), "ask", AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none")), new State<>("clear", new PoolTargetStateData(null, null, null)))
                 .orElseThrow();
 
         assertThat(res).isEqualTo("Click on the buttons to roll dice, with ask reroll:9,10 and botch:1,2");
@@ -178,7 +182,7 @@ class PoolTargetCommandTest {
 
     @Test
     void getCurrentMessageComponentChange_missingDoReroll_askForReroll() {
-        List<ComponentRowDefinition> res = underTest.getCurrentMessageComponentChange(UUID.fromString("00000000-0000-0000-0000-000000000000"), new PoolTargetConfig(null, 10, 20, ImmutableSet.of(10, 9), ImmutableSet.of(1, 2), "ask", AnswerFormatType.full, ResultImage.none), new State<>("10", new PoolTargetStateData(10, 10, null)), 1L, 1L)
+        List<ComponentRowDefinition> res = underTest.getCurrentMessageComponentChange(UUID.fromString("00000000-0000-0000-0000-000000000000"), new PoolTargetConfig(null, 10, 20, ImmutableSet.of(10, 9), ImmutableSet.of(1, 2), "ask", AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none")), new State<>("10", new PoolTargetStateData(10, 10, null)), 1L, 1L)
                 .orElseThrow();
 
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel))
@@ -189,7 +193,7 @@ class PoolTargetCommandTest {
 
     @Test
     void getButtonLayoutWithState_statesAreGiven_newButtons() {
-        List<ComponentRowDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), new PoolTargetConfig(null, 10, 20, ImmutableSet.of(10, 9), ImmutableSet.of(1, 2), "ask", AnswerFormatType.full, ResultImage.none), new State<>("10", new PoolTargetStateData(10, 10, true)), 1L, 2L)
+        List<ComponentRowDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), new PoolTargetConfig(null, 10, 20, ImmutableSet.of(10, 9), ImmutableSet.of(1, 2), "ask", AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none")), new State<>("10", new PoolTargetStateData(10, 10, true)), 1L, 2L)
                 .orElseThrow().getComponentRowDefinitions();
 
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel))
@@ -219,7 +223,7 @@ class PoolTargetCommandTest {
 
     @Test
     void getCurrentMessageComponentChange_missingTarget_askTarget() {
-        List<ComponentRowDefinition> res = underTest.getCurrentMessageComponentChange(UUID.fromString("00000000-0000-0000-0000-000000000000"), new PoolTargetConfig(null, 10, 20, ImmutableSet.of(10, 9), ImmutableSet.of(1, 2), "ask", AnswerFormatType.full, ResultImage.none), new State<>("10", new PoolTargetStateData(10, null, null)), 1L, 1L)
+        List<ComponentRowDefinition> res = underTest.getCurrentMessageComponentChange(UUID.fromString("00000000-0000-0000-0000-000000000000"), new PoolTargetConfig(null, 10, 20, ImmutableSet.of(10, 9), ImmutableSet.of(1, 2), "ask", AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none")), new State<>("10", new PoolTargetStateData(10, null, null)), 1L, 1L)
                 .orElseThrow();
 
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel))
@@ -240,7 +244,7 @@ class PoolTargetCommandTest {
     @Test
     void createNewButtonMessage() {
         List<ComponentRowDefinition> res = underTest.createNewButtonMessage(UUID.fromString("00000000-0000-0000-0000-000000000000"),
-                        new PoolTargetConfig(null, 10, 20, ImmutableSet.of(10, 9), ImmutableSet.of(1, 2), "ask", AnswerFormatType.full, ResultImage.none))
+                        new PoolTargetConfig(null, 10, 20, ImmutableSet.of(10, 9), ImmutableSet.of(1, 2), "ask", AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none")))
                 .getComponentRowDefinitions();
 
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel))
@@ -272,7 +276,7 @@ class PoolTargetCommandTest {
     @Test
     void getButtonLayout() {
         List<ComponentRowDefinition> res = underTest.createNewButtonMessage(UUID.fromString("00000000-0000-0000-0000-000000000000"),
-                        new PoolTargetConfig(null, 10, 20, ImmutableSet.of(10, 9), ImmutableSet.of(1, 2), "ask", AnswerFormatType.full, ResultImage.none))
+                        new PoolTargetConfig(null, 10, 20, ImmutableSet.of(10, 9), ImmutableSet.of(1, 2), "ask", AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none")))
                 .getComponentRowDefinitions();
 
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel))
@@ -303,7 +307,7 @@ class PoolTargetCommandTest {
     @Test
     void validate_valid() {
         Optional<String> res = underTest.validate(
-                new PoolTargetConfig(null, 10, 20, ImmutableSet.of(10, 9), ImmutableSet.of(1, 2), "ask", AnswerFormatType.full, ResultImage.none));
+                new PoolTargetConfig(null, 10, 20, ImmutableSet.of(10, 9), ImmutableSet.of(1, 2), "ask", AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none")));
 
         assertThat(res).isEmpty();
     }
@@ -311,7 +315,7 @@ class PoolTargetCommandTest {
     @Test
     void validate_numberInRerollSetToBig() {
         Optional<String> res = underTest.validate(
-                new PoolTargetConfig(null, 10, 20, ImmutableSet.of(10, 9, 12), ImmutableSet.of(1, 2), "ask", AnswerFormatType.full, ResultImage.none));
+                new PoolTargetConfig(null, 10, 20, ImmutableSet.of(10, 9, 12), ImmutableSet.of(1, 2), "ask", AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none")));
 
         assertThat(res).contains("Reroll set [10, 9, 12] contains a number bigger then the sides of the die 10");
     }
@@ -319,7 +323,7 @@ class PoolTargetCommandTest {
     @Test
     void validate_numberInBotSetToBig() {
         Optional<String> res = underTest.validate(
-                new PoolTargetConfig(null, 10, 20, ImmutableSet.of(10, 9), ImmutableSet.of(1, 2, 12), "ask", AnswerFormatType.full, ResultImage.none));
+                new PoolTargetConfig(null, 10, 20, ImmutableSet.of(10, 9), ImmutableSet.of(1, 2, 12), "ask", AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none")));
 
         assertThat(res).contains("Botch set [1, 2, 12] contains a number bigger then the sides of the die 10");
     }
@@ -327,7 +331,7 @@ class PoolTargetCommandTest {
     @Test
     void validate_toManyNumberInRerollSet() {
         Optional<String> res = underTest.validate(
-                new PoolTargetConfig(null, 10, 20, ImmutableSet.of(10, 9, 8, 7, 6, 5, 4, 3, 2, 1), ImmutableSet.of(1, 2), "ask", AnswerFormatType.full, ResultImage.none));
+                new PoolTargetConfig(null, 10, 20, ImmutableSet.of(10, 9, 8, 7, 6, 5, 4, 3, 2, 1), ImmutableSet.of(1, 2), "ask", AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none")));
 
         assertThat(res).contains("The reroll must not contain all numbers");
     }
@@ -470,7 +474,7 @@ class PoolTargetCommandTest {
         UUID configUUID = UUID.randomUUID();
         long channelId = System.currentTimeMillis();
         long messageId = System.currentTimeMillis();
-        PoolTargetConfig config = new PoolTargetConfig(123L, 10, 12, ImmutableSet.of(7, 8, 9, 10), ImmutableSet.of(1), "ask", AnswerFormatType.full, ResultImage.none);
+        PoolTargetConfig config = new PoolTargetConfig(123L, 10, 12, ImmutableSet.of(7, 8, 9, 10), ImmutableSet.of(1), "ask", AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"));
         Optional<MessageConfigDTO> toSave = underTest.createMessageConfig(configUUID, 1L, channelId, config);
         assertThat(toSave).isPresent();
 
@@ -513,7 +517,7 @@ class PoolTargetCommandTest {
                 """);
 
         ConfigAndState<PoolTargetConfig, PoolTargetStateData> configAndState = underTest.deserializeAndUpdateState(messageConfigDTO, messageDataDTO, "3");
-        assertThat(configAndState.getConfig()).isEqualTo(new PoolTargetConfig(123L, 10, 12, ImmutableSet.of(7, 8, 9, 10), ImmutableSet.of(1), "ask", AnswerFormatType.full, ResultImage.none));
+        assertThat(configAndState.getConfig()).isEqualTo(new PoolTargetConfig(123L, 10, 12, ImmutableSet.of(7, 8, 9, 10), ImmutableSet.of(1), "ask", AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none")));
         assertThat(configAndState.getConfigUUID()).isEqualTo(configUUID);
         assertThat(configAndState.getState().getData()).isEqualTo(new PoolTargetStateData(5, 3, null));
     }
@@ -545,7 +549,7 @@ class PoolTargetCommandTest {
                 """);
 
         ConfigAndState<PoolTargetConfig, PoolTargetStateData> configAndState = underTest.deserializeAndUpdateState(messageConfigDTO, messageDataDTO, "3");
-        assertThat(configAndState.getConfig()).isEqualTo(new PoolTargetConfig(123L, 10, 12, ImmutableSet.of(7, 8, 9, 10), ImmutableSet.of(1), "ask", AnswerFormatType.compact, ResultImage.none));
+        assertThat(configAndState.getConfig()).isEqualTo(new PoolTargetConfig(123L, 10, 12, ImmutableSet.of(7, 8, 9, 10), ImmutableSet.of(1), "ask", AnswerFormatType.compact, null, new DiceStyleAndColor(DiceImageStyle.none, "none")));
         assertThat(configAndState.getConfigUUID()).isEqualTo(configUUID);
         assertThat(configAndState.getState().getData()).isEqualTo(new PoolTargetStateData(5, 3, null));
     }

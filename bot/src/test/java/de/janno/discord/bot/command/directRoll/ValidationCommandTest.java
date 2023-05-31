@@ -1,15 +1,17 @@
 package de.janno.discord.bot.command.directRoll;
 
 import com.google.common.collect.ImmutableList;
-import de.janno.discord.bot.ResultImage;
 import de.janno.discord.bot.command.AnswerFormatType;
 import de.janno.discord.bot.command.channelConfig.ChannelConfigCommand;
 import de.janno.discord.bot.command.channelConfig.DirectRollConfig;
 import de.janno.discord.bot.dice.CachingDiceEvaluator;
 import de.janno.discord.bot.dice.DiceEvaluatorAdapter;
+import de.janno.discord.bot.dice.image.DiceImageStyle;
+import de.janno.discord.bot.dice.image.DiceStyleAndColor;
 import de.janno.discord.bot.persistance.ChannelConfigDTO;
 import de.janno.discord.bot.persistance.PersistenceManager;
 import de.janno.discord.connector.api.AutoCompleteAnswer;
+import de.janno.discord.connector.api.AutoCompleteRequest;
 import de.janno.discord.connector.api.Requester;
 import de.janno.discord.connector.api.SlashEventAdaptor;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
@@ -23,6 +25,7 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.io.File;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -41,23 +44,23 @@ class ValidationCommandTest {
 
     @Test
     void autoCompleteValid() {
-        Optional<AutoCompleteAnswer> res = underTest.getAutoCompleteAnswer("expression", "1d6");
+        List<AutoCompleteAnswer> res = underTest.getAutoCompleteAnswer(new AutoCompleteRequest("expression", "1d6", List.of()));
 
-        assertThat(res).contains(new AutoCompleteAnswer("1d6", "1d6"));
+        assertThat(res).containsExactly(new AutoCompleteAnswer("1d6", "1d6"));
     }
 
     @Test
     void autoComplete_wrongAction() {
-        Optional<AutoCompleteAnswer> res = underTest.getAutoCompleteAnswer("help", "1d6");
+        List<AutoCompleteAnswer> res = underTest.getAutoCompleteAnswer(new AutoCompleteRequest("help", "1d6", List.of()));
 
         assertThat(res).isEmpty();
     }
 
     @Test
     void autoComplete_Invalid() {
-        Optional<AutoCompleteAnswer> res = underTest.getAutoCompleteAnswer("expression", "1d");
+        List<AutoCompleteAnswer> res = underTest.getAutoCompleteAnswer(new AutoCompleteRequest("expression", "1d", List.of()));
 
-        assertThat(res).contains(new AutoCompleteAnswer("Operator d has right associativity but the right value was: empty", "1d"));
+        assertThat(res).containsExactly(new AutoCompleteAnswer("Operator d has right associativity but the right value was: empty", "1d"));
     }
 
     @Test
@@ -208,7 +211,7 @@ class ValidationCommandTest {
 
 
         DirectRollConfig res = underTest.deserializeConfig(savedData);
-        assertThat(res).isEqualTo(new DirectRollConfig(null, false, AnswerFormatType.without_expression, ResultImage.polyhedral_3d_red_and_white));
+        assertThat(res).isEqualTo(new DirectRollConfig(null, false, AnswerFormatType.without_expression, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_3d, "red_and_white")));
 
     }
 

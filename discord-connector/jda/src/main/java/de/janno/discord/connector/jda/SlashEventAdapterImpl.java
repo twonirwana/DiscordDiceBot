@@ -15,6 +15,7 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
+import org.apache.commons.lang3.StringUtils;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -75,7 +76,7 @@ public class SlashEventAdapterImpl extends DiscordAdapterImpl implements SlashEv
 
     @Override
     public @NonNull Mono<Void> reply(@NonNull String message, boolean ephemeral) {
-        return createMonoFrom(() -> event.reply(message).setEphemeral(ephemeral))
+        return createMonoFrom(() -> event.reply(StringUtils.abbreviate(encodeUTF8(message), Message.MAX_CONTENT_LENGTH)).setEphemeral(ephemeral))
                 .onErrorResume(t -> handleException("Error on replay", t, true).ofType(InteractionHook.class))
                 .then();
     }

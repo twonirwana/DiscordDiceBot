@@ -4,10 +4,11 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import de.janno.discord.bot.ResultImage;
 import de.janno.discord.bot.command.*;
 import de.janno.discord.bot.command.channelConfig.AliasHelper;
 import de.janno.discord.bot.dice.*;
+import de.janno.discord.bot.dice.image.DiceImageStyle;
+import de.janno.discord.bot.dice.image.DiceStyleAndColor;
 import de.janno.discord.bot.persistance.Mapper;
 import de.janno.discord.bot.persistance.MessageConfigDTO;
 import de.janno.discord.bot.persistance.MessageDataDTO;
@@ -120,16 +121,19 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
 
     protected @NonNull CustomDiceConfig getConfigFromStartOptions(@NonNull CommandInteractionOption options) {
         return getConfigOptionStringList(getButtonsFromCommandOption(options),
-                DefaultCommandOptions.getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null),
-                DefaultCommandOptions.getAnswerTypeFromStartCommandOption(options).orElse(defaultAnswerFormat()),
-                DefaultCommandOptions.getResultImageOptionFromStartCommandOption(options).orElse(defaultResultImage()));
+                BaseCommandOptions.getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null),
+                BaseCommandOptions.getAnswerTypeFromStartCommandOption(options).orElse(defaultAnswerFormat()),
+                BaseCommandOptions.getDiceStyleOptionFromStartCommandOption(options).orElse(DiceImageStyle.polyhedral_3d),
+                BaseCommandOptions.getDiceColorOptionFromStartCommandOption(options).orElse(DiceImageStyle.polyhedral_3d.getDefaultColor())
+        );
     }
 
     @VisibleForTesting
     CustomDiceConfig getConfigOptionStringList(List<ButtonIdAndExpression> startOptions,
                                                Long channelId,
                                                AnswerFormatType answerFormatType,
-                                               ResultImage resultImage) {
+                                               DiceImageStyle diceImageStyle,
+                                               String defaultDiceColor) {
         return new CustomDiceConfig(channelId, startOptions.stream()
                 .filter(be -> !be.getExpression().contains(BottomCustomIdUtils.CUSTOM_ID_DELIMITER))
                 .filter(be -> !be.getExpression().contains(LABEL_DELIMITER) || be.getExpression().split(LABEL_DELIMITER).length == 2)
@@ -148,7 +152,9 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
                 .collect(Collectors.toList()),
                 DiceParserSystem.DICE_EVALUATOR,
                 answerFormatType,
-                resultImage);
+                null,
+                new DiceStyleAndColor(diceImageStyle, defaultDiceColor)
+        );
     }
 
     @Override
@@ -169,7 +175,7 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
                 false,
                 config.getDiceParserSystem(),
                 config.getAnswerFormatType(),
-                config.getResultImage()));
+                config.getDiceStyleAndColor()));
     }
 
     @Override

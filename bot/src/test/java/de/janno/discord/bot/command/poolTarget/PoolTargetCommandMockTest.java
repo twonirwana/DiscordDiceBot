@@ -2,9 +2,10 @@ package de.janno.discord.bot.command.poolTarget;
 
 import de.janno.discord.bot.ButtonEventAdaptorMock;
 import de.janno.discord.bot.ButtonEventAdaptorMockFactory;
-import de.janno.discord.bot.ResultImage;
 import de.janno.discord.bot.command.AnswerFormatType;
 import de.janno.discord.bot.dice.DiceUtils;
+import de.janno.discord.bot.dice.image.DiceImageStyle;
+import de.janno.discord.bot.dice.image.DiceStyleAndColor;
 import de.janno.discord.bot.persistance.PersistenceManager;
 import de.janno.discord.bot.persistance.PersistenceManagerImpl;
 import org.junit.jupiter.api.BeforeEach;
@@ -32,7 +33,7 @@ public class PoolTargetCommandMockTest {
         PoolTargetCommand underTest = new PoolTargetCommand(persistenceManager, new DiceUtils(0L));
         underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
 
-        PoolTargetConfig config = new PoolTargetConfig(null, 10, 15, Set.of(9, 10), Set.of(1, 2), "ask", AnswerFormatType.full, ResultImage.none);
+        PoolTargetConfig config = new PoolTargetConfig(null, 10, 15, Set.of(9, 10), Set.of(1, 2), "ask", AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"));
         ButtonEventAdaptorMockFactory<PoolTargetConfig, PoolTargetStateData> factory = new ButtonEventAdaptorMockFactory<>("pool_target", underTest, config, persistenceManager, false);
 
         ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("9");
@@ -61,7 +62,7 @@ public class PoolTargetCommandMockTest {
         PoolTargetCommand underTest = new PoolTargetCommand(persistenceManager, new DiceUtils(0L));
         underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
 
-        PoolTargetConfig config = new PoolTargetConfig(null, 10, 15, Set.of(9, 10), Set.of(1, 2), "ask", AnswerFormatType.compact, ResultImage.none);
+        PoolTargetConfig config = new PoolTargetConfig(null, 10, 15, Set.of(9, 10), Set.of(1, 2), "ask", AnswerFormatType.compact, null, new DiceStyleAndColor(DiceImageStyle.none, "none"));
         ButtonEventAdaptorMockFactory<PoolTargetConfig, PoolTargetStateData> factory = new ButtonEventAdaptorMockFactory<>("pool_target", underTest, config, persistenceManager, false);
 
         ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("9");
@@ -90,7 +91,7 @@ public class PoolTargetCommandMockTest {
         PoolTargetCommand underTest = new PoolTargetCommand(persistenceManager, new DiceUtils(0L));
         underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
 
-        PoolTargetConfig config = new PoolTargetConfig(null, 10, 15, Set.of(9, 10), Set.of(1, 2), "ask", AnswerFormatType.minimal, ResultImage.none);
+        PoolTargetConfig config = new PoolTargetConfig(null, 10, 15, Set.of(9, 10), Set.of(1, 2), "ask", AnswerFormatType.minimal, null, new DiceStyleAndColor(DiceImageStyle.none, "none"));
         ButtonEventAdaptorMockFactory<PoolTargetConfig, PoolTargetStateData> factory = new ButtonEventAdaptorMockFactory<>("pool_target", underTest, config, persistenceManager, false);
 
         ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("9");

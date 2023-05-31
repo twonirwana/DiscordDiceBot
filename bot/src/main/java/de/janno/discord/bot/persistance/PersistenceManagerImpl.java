@@ -37,6 +37,7 @@ public class PersistenceManagerImpl implements PersistenceManager {
 
         new DatabaseTableMetrics(connectionPool, "h2", "MESSAGE_DATA", ImmutableSet.of()).bindTo(globalRegistry);
         new DatabaseTableMetrics(connectionPool, "h2", "MESSAGE_CONFIG", ImmutableSet.of()).bindTo(globalRegistry);
+        new DatabaseTableMetrics(connectionPool, "h2", "CHANNEL_CONFIG", ImmutableSet.of()).bindTo(globalRegistry);
 
         queryGauge("db.channel.count", "select count (distinct CHANNEL_ID) from MESSAGE_DATA;", connectionPool, Set.of());
         queryGauge("db.channel.config.count", "select count (distinct CHANNEL_ID) from CHANNEL_CONFIG;", connectionPool, Set.of());

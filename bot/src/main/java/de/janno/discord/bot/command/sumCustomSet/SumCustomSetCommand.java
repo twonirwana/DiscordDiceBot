@@ -5,10 +5,11 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import de.janno.discord.bot.ResultImage;
 import de.janno.discord.bot.command.*;
 import de.janno.discord.bot.command.channelConfig.AliasHelper;
 import de.janno.discord.bot.dice.*;
+import de.janno.discord.bot.dice.image.DiceImageStyle;
+import de.janno.discord.bot.dice.image.DiceStyleAndColor;
 import de.janno.discord.bot.persistance.Mapper;
 import de.janno.discord.bot.persistance.MessageConfigDTO;
 import de.janno.discord.bot.persistance.MessageDataDTO;
@@ -165,7 +166,7 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
                 config.isAlwaysSumResult(),
                 config.getDiceParserSystem(),
                 config.getAnswerFormatType(),
-                config.getResultImage()));
+                config.getDiceStyleAndColor()));
     }
 
     @Override
@@ -270,10 +271,11 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
         List<ButtonIdAndExpression> buttons = getButtonsFromCommandInteractionOption(options);
         boolean alwaysSumResults = options.getBooleanSubOptionWithName(ALWAYS_SUM_RESULTS_COMMAND_OPTIONS_ID).orElse(true);
         final DiceParserSystem diceParserSystem = DiceParserSystem.DICE_EVALUATOR;
-        Long answerTargetChannelId = DefaultCommandOptions.getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null);
-        AnswerFormatType answerType = DefaultCommandOptions.getAnswerTypeFromStartCommandOption(options).orElse(defaultAnswerFormat());
-        ResultImage resultImage = DefaultCommandOptions.getResultImageOptionFromStartCommandOption(options).orElse(defaultResultImage());
-        return getConfigOptionStringList(buttons, answerTargetChannelId, diceParserSystem, alwaysSumResults, answerType, resultImage);
+        Long answerTargetChannelId = BaseCommandOptions.getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null);
+        AnswerFormatType answerType = BaseCommandOptions.getAnswerTypeFromStartCommandOption(options).orElse(defaultAnswerFormat());
+        return getConfigOptionStringList(buttons, answerTargetChannelId, diceParserSystem, alwaysSumResults, answerType,
+                BaseCommandOptions.getDiceStyleOptionFromStartCommandOption(options).orElse(DiceImageStyle.polyhedral_3d),
+                BaseCommandOptions.getDiceColorOptionFromStartCommandOption(options).orElse(DiceImageStyle.polyhedral_3d.getDefaultColor()));
     }
 
     private List<ButtonIdAndExpression> getButtonsFromCommandInteractionOption(@NonNull CommandInteractionOption options) {
@@ -320,7 +322,8 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
                                                  DiceParserSystem diceParserSystem,
                                                  boolean alwaysSumResult,
                                                  AnswerFormatType answerFormatType,
-                                                 ResultImage resultImage) {
+                                                 DiceImageStyle diceImageStyle,
+                                                 String defaultDiceColor) {
         return new SumCustomSetConfig(answerTargetChannelId, startOptions.stream()
                 .filter(be -> !be.getExpression().contains(BottomCustomIdUtils.CUSTOM_ID_DELIMITER))
                 .filter(be -> !be.getExpression().contains(LABEL_DELIMITER) || be.getExpression().split(LABEL_DELIMITER).length == 2)
@@ -354,7 +357,7 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
                 .distinct()
                 .limit(22)
                 .collect(Collectors.toList()),
-                diceParserSystem, alwaysSumResult, answerFormatType, resultImage);
+                diceParserSystem, alwaysSumResult, answerFormatType, null, new DiceStyleAndColor(diceImageStyle, defaultDiceColor));
     }
 
     @Value

@@ -5,6 +5,7 @@ import com.sun.net.httpserver.HttpServer;
 import com.sun.net.httpserver.SimpleFileServer;
 import de.janno.discord.bot.command.AnswerFormatType;
 import de.janno.discord.bot.dice.DiceParserSystem;
+import de.janno.discord.bot.dice.image.DiceStyleAndColor;
 import io.micrometer.core.instrument.Metrics;
 import io.micrometer.core.instrument.Tags;
 import io.micrometer.core.instrument.Timer;
@@ -126,8 +127,8 @@ public class BotMetrics {
     }
 
 
-    public static void incrementUseImageResultMetricCounter(@NonNull ResultImage resultImage) {
-        globalRegistry.counter(METRIC_PREFIX + METRIC_USE_IMAGE_RESULT_PREFIX, Tags.of(IMAGE_RESULT_TAG, resultImage.name())).increment();
+    public static void incrementUseImageResultMetricCounter(@NonNull DiceStyleAndColor resultImage) {
+        globalRegistry.counter(METRIC_PREFIX + METRIC_USE_IMAGE_RESULT_PREFIX, Tags.of(IMAGE_RESULT_TAG, resultImage.toString())).increment();
     }
 
     public static void incrementAliasUseMetricCounter(@NonNull String type, @NonNull String alias) {

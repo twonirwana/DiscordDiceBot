@@ -50,6 +50,19 @@ class ImageResultCreatorTest {
         );
     }
 
+    static Stream<Arguments> generateDiceStyleData() {
+        return Stream.of(
+                Arguments.of(DiceImageStyle.polyhedral_alies_v1, List.of(4, 6, 8, 10, 12, 20, 100)),
+                Arguments.of(DiceImageStyle.polyhedral_alies_v2, List.of(4, 6, 8, 10, 12, 20, 100)),
+                Arguments.of(DiceImageStyle.polyhedral_3d, List.of(4, 6, 8, 10, 12, 20, 100)),
+                //creating all color versions of this takes to long (~90s)
+                //Arguments.of(DiceImageStyle.polyhedral_2d, List.of(4, 6, 8, 10, 12, 20, 100)),
+                Arguments.of(DiceImageStyle.polyhedral_knots, List.of(4, 6, 8, 10, 12, 20, 100)),
+                Arguments.of(DiceImageStyle.fate, List.of(-1, 0, 1)),
+                Arguments.of(DiceImageStyle.d6_dots, List.of(6))
+        );
+    }
+
     @BeforeEach
     void setup() throws IOException {
         FileUtils.cleanDirectory(new File("imageCache/"));
@@ -64,7 +77,7 @@ class ImageResultCreatorTest {
     void getImageForRoll_ResultImageNone() throws ExpressionException {
         List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(100), 1000).evaluate("1d6");
 
-        File res = underTest.getImageForRoll(rolls, ResultImage.none);
+        File res = underTest.getImageForRoll(rolls, new DiceStyleAndColor(DiceImageStyle.none, "none"));
 
         assertThat(res).isNull();
     }
@@ -73,16 +86,16 @@ class ImageResultCreatorTest {
     void createRollCacheNameTest_blackGold() throws ExpressionException {
         List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6), 1000).evaluate("6d6+1d6+3d6");
 
-        String res = underTest.createRollCacheName(rolls.get(0), ResultImage.polyhedral_black_and_gold);
+        String res = underTest.createRollCacheName(rolls.get(0), new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v1, "black_and_gold"));
 
-        assertThat(res).isEqualTo("polyhedral_black_and_gold@[1∈[1...6],2∈[1...6],3∈[1...6],4∈[1...6],5∈[1...6],6∈[1...6]],[1∈[1...6]],[2∈[1...6],3∈[1...6],4∈[1...6]]");
+        assertThat(res).isEqualTo("polyhedral_alies_v1_black_and_gold@[1∈[1...6],2∈[1...6],3∈[1...6],4∈[1...6],5∈[1...6],6∈[1...6]],[1∈[1...6]],[2∈[1...6],3∈[1...6],4∈[1...6]]");
     }
 
     @Test
     void createRollCacheNameTest_fateBlack() throws ExpressionException {
         List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(1, 2, 3, 1), 1000).evaluate("4d[-1,0,1]");
 
-        String res = underTest.createRollCacheName(rolls.get(0), ResultImage.fate_black);
+        String res = underTest.createRollCacheName(rolls.get(0), new DiceStyleAndColor(DiceImageStyle.fate, "black"));
 
         assertThat(res).isEqualTo("fate_black@[-1∈[-1, 0, 1],0∈[-1, 0, 1],1∈[-1, 0, 1],-1∈[-1, 0, 1]]");
     }
@@ -91,7 +104,7 @@ class ImageResultCreatorTest {
     void createRollCacheNameTest_explode() throws ExpressionException {
         List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(6, 6, 5, 5, 4, 3), 1000).evaluate("3d!6");
 
-        String res = underTest.createRollCacheName(rolls.get(0), ResultImage.polyhedral_3d_red_and_white);
+        String res = underTest.createRollCacheName(rolls.get(0), new DiceStyleAndColor(DiceImageStyle.polyhedral_3d, "red_and_white"));
 
         assertThat(res).isEqualTo("polyhedral_3d_red_and_white@[6∈[1...6],6∈[1...6],5∈[1...6],5∈[1...6],4∈[1...6]]");
     }
@@ -100,7 +113,7 @@ class ImageResultCreatorTest {
     void createRollCacheNameTest_explodeAdd() throws ExpressionException {
         List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(6, 6, 5, 5, 4, 3), 1000).evaluate("3d!!6");
 
-        String res = underTest.createRollCacheName(rolls.get(0), ResultImage.polyhedral_3d_red_and_white);
+        String res = underTest.createRollCacheName(rolls.get(0), new DiceStyleAndColor(DiceImageStyle.polyhedral_3d, "red_and_white"));
 
         assertThat(res).isEqualTo("polyhedral_3d_red_and_white@[6∈[1...6],6∈[1...6],5∈[1...6],5∈[1...6],4∈[1...6]]");
     }
@@ -109,11 +122,11 @@ class ImageResultCreatorTest {
     void getImageForRoll_explode() throws ExpressionException, IOException {
         List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(6, 6, 5, 5, 4, 3), 1000).evaluate("3d!6");
 
-        File res = underTest.getImageForRoll(rolls, ResultImage.polyhedral_black_and_gold);
+        File res = underTest.getImageForRoll(rolls, new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v1, "black_and_gold"));
 
         assertThat(res).isNotNull();
         assertThat(res).exists();
-        assertThat(res.getName()).isEqualTo("ad9dcc4567d461a973d2b0ae4ce31d58e5a9914a06364c43c1f3edc35213962f.png");
+        assertThat(res.getName()).isEqualTo("80d2e9d37b7823ea0e1e340b0d39bf76c560a773967983898c44cfdd036fba64.png");
         assertThat(getFileHash(res)).isEqualTo("a78152e41956d655a4aa3428886e0be6c08c02f9dff25db08befb5e7086b3aae");
     }
 
@@ -121,7 +134,7 @@ class ImageResultCreatorTest {
     void getImageForRoll_explodeAdd() throws ExpressionException, IOException {
         List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(6, 6, 5, 5, 4, 3), 1000).evaluate("3d!!6");
 
-        File res = underTest.getImageForRoll(rolls, ResultImage.polyhedral_3d_red_and_white);
+        File res = underTest.getImageForRoll(rolls, new DiceStyleAndColor(DiceImageStyle.polyhedral_3d, "red_and_white"));
 
         assertThat(res).isNotNull();
         assertThat(res).exists();
@@ -133,11 +146,11 @@ class ImageResultCreatorTest {
     void getImageForRoll_blackGold() throws ExpressionException, IOException {
         List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6), 1000).evaluate("6d6+1d6+3d6");
 
-        File res = underTest.getImageForRoll(rolls, ResultImage.polyhedral_black_and_gold);
+        File res = underTest.getImageForRoll(rolls, new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v1, "black_and_gold"));
 
         assertThat(res).isNotNull();
         assertThat(res).exists();
-        assertThat(res.getName()).isEqualTo("43d3709ce537a2641b6f45bb78515bde126896298034eca8e0add0300fe9b360.png");
+        assertThat(res.getName()).isEqualTo("7aa4997dc0a11e1669b443090eaa6659c261f65387389a236896061342404120.png");
         assertThat(getFileHash(res)).isEqualTo("704e741a90a7ca38dacd7e571863ab55bb9ae47120d0b16e7278993ac7f33b82");
     }
 
@@ -145,7 +158,7 @@ class ImageResultCreatorTest {
     void getImageForRoll_noDie_blackGold() throws ExpressionException {
         List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(), 1000).evaluate("5");
 
-        File res = underTest.getImageForRoll(rolls, ResultImage.polyhedral_black_and_gold);
+        File res = underTest.getImageForRoll(rolls, new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v1, "black_and_gold"));
 
         assertThat(res).isNull();
     }
@@ -154,7 +167,7 @@ class ImageResultCreatorTest {
     void getImageForRoll_D7_blackGold() throws ExpressionException {
         List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(100), 1000).evaluate("1d7");
 
-        File res = underTest.getImageForRoll(rolls, ResultImage.polyhedral_black_and_gold);
+        File res = underTest.getImageForRoll(rolls, new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v1, "black_and_gold"));
 
         assertThat(res).isNull();
     }
@@ -163,11 +176,11 @@ class ImageResultCreatorTest {
     void getImageForRoll_D100_00_blackGold() throws ExpressionException, IOException {
         List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(100), 1000).evaluate("1d100");
 
-        File res = underTest.getImageForRoll(rolls, ResultImage.polyhedral_black_and_gold);
+        File res = underTest.getImageForRoll(rolls, new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v1, "black_and_gold"));
 
         assertThat(res).isNotNull();
         assertThat(res).exists();
-        assertThat(res.getName()).isEqualTo("a5bc9c7ad782b4025de27b5fffe83f84c275993d3f06ef913fb0ca93f2fc968f.png");
+        assertThat(res.getName()).isEqualTo("7826d692fa9123c730674d847b37463c456e233245a08e40fbfb73af006a98e4.png");
         assertThat(getFileHash(res)).isEqualTo("f0cb399ebfb9e65265214e781e827bfaa20a720f3b76bed9fd97c81dcd09aec7");
     }
 
@@ -175,11 +188,11 @@ class ImageResultCreatorTest {
     void getImageForRoll_D100_01_blackGold() throws ExpressionException, IOException {
         List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(1), 1000).evaluate("1d100");
 
-        File res = underTest.getImageForRoll(rolls, ResultImage.polyhedral_black_and_gold);
+        File res = underTest.getImageForRoll(rolls, new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v1, "black_and_gold"));
 
         assertThat(res).isNotNull();
         assertThat(res).exists();
-        assertThat(res.getName()).isEqualTo("9b4f33844cdd200d2187bfb9b19390c1efcd39dbc9cf9e30f0985aaab6631803.png");
+        assertThat(res.getName()).isEqualTo("345c673601f34b98a86c7996ec632ea67997957dadc46fc6d30e7d0b789bd568.png");
         assertThat(getFileHash(res)).isEqualTo("3b3f20759ccbc0177a425de9f015d16f5e9a1ffbdcab7c4d4b585dd2e28b134f");
     }
 
@@ -187,18 +200,18 @@ class ImageResultCreatorTest {
     void getImageForRoll_D100_99_blackGold() throws ExpressionException, IOException {
         List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(99), 1000).evaluate("1d100");
 
-        File res = underTest.getImageForRoll(rolls, ResultImage.polyhedral_black_and_gold);
+        File res = underTest.getImageForRoll(rolls, new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v1, "black_and_gold"));
 
         assertThat(res).isNotNull();
         assertThat(res).exists();
-        assertThat(res.getName()).isEqualTo("070fdccadb565cad95924309985ac447e72c2b91063cc791565229ff4a327ba5.png");
+        assertThat(res.getName()).isEqualTo("2ad274a0488eb8c9c9aeb6ca30501edc8bd441c18dab77326f55d4f3e0a93bf7.png");
         assertThat(getFileHash(res)).isEqualTo("a3e5a7537f470c9d7ecefb23e16c77f9e51891ed8a39589339a95458f70c7885");
     }
 
     @Test
     void getImageForRoll_cache() throws ExpressionException, IOException, InterruptedException {
         List<Roll> rolls1 = new DiceEvaluator(new GivenNumberSupplier(1), 1000).evaluate("1d6");
-        File res1 = underTest.getImageForRoll(rolls1, ResultImage.polyhedral_3d_red_and_white);
+        File res1 = underTest.getImageForRoll(rolls1, new DiceStyleAndColor(DiceImageStyle.polyhedral_3d, "red_and_white"));
         assertThat(res1).isNotNull();
         assertThat(res1).exists();
         long res1LastModified = res1.lastModified();
@@ -208,7 +221,7 @@ class ImageResultCreatorTest {
         Thread.sleep(100);
 
         List<Roll> rolls2 = new DiceEvaluator(new GivenNumberSupplier(1), 1000).evaluate("1d6");
-        File cachedRes1 = underTest.getImageForRoll(rolls2, ResultImage.polyhedral_3d_red_and_white);
+        File cachedRes1 = underTest.getImageForRoll(rolls2, new DiceStyleAndColor(DiceImageStyle.polyhedral_3d, "red_and_white"));
         assertThat(cachedRes1).isNotNull();
         assertThat(cachedRes1).exists();
         assertThat(cachedRes1.lastModified()).isEqualTo(res1LastModified);
@@ -218,7 +231,7 @@ class ImageResultCreatorTest {
         Thread.sleep(100);
 
         List<Roll> rolls3 = new DiceEvaluator(new GivenNumberSupplier(2), 1000).evaluate("1d6");
-        File res2 = underTest.getImageForRoll(rolls3, ResultImage.polyhedral_3d_red_and_white);
+        File res2 = underTest.getImageForRoll(rolls3, new DiceStyleAndColor(DiceImageStyle.polyhedral_3d, "red_and_white"));
         assertThat(res2).isNotNull();
         assertThat(res2).exists();
         assertThat(res2.lastModified()).isNotEqualTo(res1LastModified);
@@ -231,7 +244,7 @@ class ImageResultCreatorTest {
     void createRollCacheNameTest_3dRedWhite() throws ExpressionException {
         List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6), 1000).evaluate("6d6+1d6+3d6");
 
-        String res = underTest.createRollCacheName(rolls.get(0), ResultImage.polyhedral_3d_red_and_white);
+        String res = underTest.createRollCacheName(rolls.get(0), new DiceStyleAndColor(DiceImageStyle.polyhedral_3d, "red_and_white"));
 
         assertThat(res).isEqualTo("polyhedral_3d_red_and_white@[1∈[1...6],2∈[1...6],3∈[1...6],4∈[1...6],5∈[1...6],6∈[1...6]],[1∈[1...6]],[2∈[1...6],3∈[1...6],4∈[1...6]]");
     }
@@ -240,7 +253,7 @@ class ImageResultCreatorTest {
     void getImageForRoll_3dRedWhite() throws ExpressionException, IOException {
         List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6), 1000).evaluate("6d6+1d6+3d6");
 
-        File res = underTest.getImageForRoll(rolls, ResultImage.polyhedral_3d_red_and_white);
+        File res = underTest.getImageForRoll(rolls, new DiceStyleAndColor(DiceImageStyle.polyhedral_3d, "red_and_white"));
 
         assertThat(res).isNotNull();
         assertThat(res).exists();
@@ -252,7 +265,7 @@ class ImageResultCreatorTest {
     void getImageForRoll_noDie_3dRedWhite() throws ExpressionException {
         List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(), 1000).evaluate("5");
 
-        File res = underTest.getImageForRoll(rolls, ResultImage.polyhedral_3d_red_and_white);
+        File res = underTest.getImageForRoll(rolls, new DiceStyleAndColor(DiceImageStyle.polyhedral_3d, "red_and_white"));
 
         assertThat(res).isNull();
     }
@@ -261,7 +274,7 @@ class ImageResultCreatorTest {
     void getImageForRoll_D7_3dRedWhite() throws ExpressionException {
         List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(100), 1000).evaluate("1d7");
 
-        File res = underTest.getImageForRoll(rolls, ResultImage.polyhedral_3d_red_and_white);
+        File res = underTest.getImageForRoll(rolls, new DiceStyleAndColor(DiceImageStyle.polyhedral_3d, "red_and_white"));
 
         assertThat(res).isNull();
     }
@@ -270,7 +283,7 @@ class ImageResultCreatorTest {
     void getImageForRoll_D100_00_3dRedWhite() throws ExpressionException, IOException {
         List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(100), 1000).evaluate("1d100");
 
-        File res = underTest.getImageForRoll(rolls, ResultImage.polyhedral_3d_red_and_white);
+        File res = underTest.getImageForRoll(rolls, new DiceStyleAndColor(DiceImageStyle.polyhedral_3d, "red_and_white"));
 
         assertThat(res).isNotNull();
         assertThat(res).exists();
@@ -282,7 +295,7 @@ class ImageResultCreatorTest {
     void getImageForRoll_D100_01_3dRedWhite() throws ExpressionException, IOException {
         List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(1), 1000).evaluate("1d100");
 
-        File res = underTest.getImageForRoll(rolls, ResultImage.polyhedral_3d_red_and_white);
+        File res = underTest.getImageForRoll(rolls, new DiceStyleAndColor(DiceImageStyle.polyhedral_3d, "red_and_white"));
 
         assertThat(res).isNotNull();
         assertThat(res).exists();
@@ -294,7 +307,7 @@ class ImageResultCreatorTest {
     void getImageForRoll_D100_99_3dRedWhite() throws ExpressionException, IOException {
         List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(99), 1000).evaluate("1d100");
 
-        File res = underTest.getImageForRoll(rolls, ResultImage.polyhedral_3d_red_and_white);
+        File res = underTest.getImageForRoll(rolls, new DiceStyleAndColor(DiceImageStyle.polyhedral_3d, "red_and_white"));
 
         assertThat(res).isNotNull();
         assertThat(res).exists();
@@ -304,16 +317,33 @@ class ImageResultCreatorTest {
 
     @ParameterizedTest(name = "{index} resultImage:{0}, sides:{1} -> {2}")
     @MethodSource("generateResultImageData")
-    void testPolyhedralResultImage(ResultImage resultImage, List<Integer> sides) throws ExpressionException {
+    void testLegacyPolyhedralResultImage(ResultImage resultImage, List<Integer> sides) throws ExpressionException {
         for (int d : sides) {
             for (int s = 1; s <= d; s++) {
                 List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(s), 1000).evaluate("1d%d".formatted(d));
-                File res = underTest.getImageForRoll(rolls, resultImage);
+                File res = underTest.getImageForRoll(rolls, LegacyImageConfigHelper.getStyleAndColor(resultImage));
                 assertThat(res).isNotNull();
             }
         }
         List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(1), 1000).evaluate("1d[abc/cde]");
-        File res = underTest.getImageForRoll(rolls, resultImage);
+        File res = underTest.getImageForRoll(rolls, LegacyImageConfigHelper.getStyleAndColor(resultImage));
+        assertThat(res).isNull();
+    }
+
+    @ParameterizedTest(name = "{index} resultImage:{0}, sides:{1} -> {2}")
+    @MethodSource("generateDiceStyleData")
+    void testPolyhedralResultImage(DiceImageStyle diceImageStyle, List<Integer> sides) throws ExpressionException {
+        for (int d : sides) {
+            for (int s = 1; s <= d; s++) {
+                List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(s), 1000).evaluate("1d%d".formatted(d));
+                for (String color : diceImageStyle.getSupportedColors()) {
+                    File res = underTest.getImageForRoll(rolls, new DiceStyleAndColor(diceImageStyle, color));
+                    assertThat(res).isNotNull();
+                }
+            }
+        }
+        List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(1), 1000).evaluate("1d[abc/cde]");
+        File res = underTest.getImageForRoll(rolls, new DiceStyleAndColor(diceImageStyle, "notAColor"));
         assertThat(res).isNull();
     }
 
@@ -321,11 +351,11 @@ class ImageResultCreatorTest {
     void getImageForRoll_polyhedralDrawColor() throws ExpressionException {
         List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(4, 6, 8, 10, 12, 20, 99), 1000).evaluate("color(1d4,'gray') + color(1d6,'black') + color(1d8,'white') + color(1d10,'red') + color(1d12,'blue') + color(1d20,'green') + color(1d100,'orange')");
 
-        File res = underTest.getImageForRoll(rolls, ResultImage.polyhedral_draw_color);
+        File res = underTest.getImageForRoll(rolls, new DiceStyleAndColor(DiceImageStyle.polyhedral_2d, DiceImageStyle.polyhedral_2d.getDefaultColor()));
 
         assertThat(res).isNotNull();
         assertThat(res).exists();
-        assertThat(res.getName()).isEqualTo("5fc38cf64c8f88285a5fedf9ef6649f74f901c071b696c0bd27729596f978442.png");
+        assertThat(res.getName()).isEqualTo("06a75350871a27e834984e9d7df253106cbb3e1d5567ca129dc998f0bf851b01.png");
         //hash is different in the github build task, maybe the fonts
         //assertThat(getFileHash(res)).isEqualTo("d384fa1d1447eefa2255889df8a9c6b106c6fc9228e49d5adc9ec3272fb46b81");
         assertThat(res).exists();

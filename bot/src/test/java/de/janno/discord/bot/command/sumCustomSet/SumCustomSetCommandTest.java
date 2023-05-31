@@ -1,11 +1,12 @@
 package de.janno.discord.bot.command.sumCustomSet;
 
 import com.google.common.collect.ImmutableList;
-import de.janno.discord.bot.ResultImage;
 import de.janno.discord.bot.command.*;
 import de.janno.discord.bot.dice.CachingDiceEvaluator;
 import de.janno.discord.bot.dice.Dice;
 import de.janno.discord.bot.dice.DiceParserSystem;
+import de.janno.discord.bot.dice.image.DiceImageStyle;
+import de.janno.discord.bot.dice.image.DiceStyleAndColor;
 import de.janno.discord.bot.persistance.*;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
@@ -38,7 +39,7 @@ class SumCustomSetCommandTest {
             new ButtonIdLabelAndDiceExpression("2_button", "3d6", "add 3d6"),
             new ButtonIdLabelAndDiceExpression("3_button", "4", "4"),
             new ButtonIdLabelAndDiceExpression("4_button", "2d10min10", "min10")
-    ), DiceParserSystem.DICE_EVALUATOR, true, AnswerFormatType.full, ResultImage.none);
+    ), DiceParserSystem.DICE_EVALUATOR, true, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"));
 
     Dice diceMock;
 
@@ -179,9 +180,8 @@ class SumCustomSetCommandTest {
         assertThat(res).isEqualTo(new SumCustomSetConfig(null, ImmutableList.of(
                 new ButtonIdLabelAndDiceExpression("1_button", "Label", "1d6"),
                 new ButtonIdLabelAndDiceExpression("2_button", "2d4", "2d4")
-        ), DiceParserSystem.DICE_EVALUATOR, true, AnswerFormatType.full, ResultImage.polyhedral_3d_red_and_white));
+        ), DiceParserSystem.DICE_EVALUATOR, true, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_3d, "red_and_white")));
     }
-
 
 
     @Test
@@ -247,7 +247,7 @@ class SumCustomSetCommandTest {
         SumCustomSetConfig config = new SumCustomSetConfig(123L, ImmutableList.of(
                 new ButtonIdLabelAndDiceExpression("1_button", "Label", "+1d6"),
                 new ButtonIdLabelAndDiceExpression("2_button", "+2d4", "+2d4")
-        ), DiceParserSystem.DICE_EVALUATOR, true, AnswerFormatType.full, ResultImage.none);
+        ), DiceParserSystem.DICE_EVALUATOR, true, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"));
         Optional<MessageConfigDTO> toSave = underTest.createMessageConfig(configUUID, 1L, channelId, config);
         assertThat(toSave).isPresent();
 
@@ -290,7 +290,7 @@ class SumCustomSetCommandTest {
         assertThat(configAndState.getConfig()).isEqualTo(new SumCustomSetConfig(123L, ImmutableList.of(
                 new ButtonIdLabelAndDiceExpression("1_button", "Label", "+1d6"),
                 new ButtonIdLabelAndDiceExpression("2_button", "+2d4", "+2d4")
-        ), DiceParserSystem.DICEROLL_PARSER, true, AnswerFormatType.full, ResultImage.none));
+        ), DiceParserSystem.DICEROLL_PARSER, true, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none")));
         assertThat(configAndState.getConfigUUID()).isEqualTo(configUUID);
         assertThat(configAndState.getState().getData()).isEqualTo(new SumCustomSetStateData(ImmutableList.of("2d4", "+1d6"), "testUser"));
     }
@@ -324,13 +324,13 @@ class SumCustomSetCommandTest {
         assertThat(configAndState.getConfig()).isEqualTo(new SumCustomSetConfig(123L, ImmutableList.of(
                 new ButtonIdLabelAndDiceExpression("1_button", "Label", "+1d6"),
                 new ButtonIdLabelAndDiceExpression("2_button", "+2d4", "+2d4")
-        ), DiceParserSystem.DICE_EVALUATOR, true, AnswerFormatType.full, ResultImage.none));
+        ), DiceParserSystem.DICE_EVALUATOR, true, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none")));
         assertThat(configAndState.getConfigUUID()).isEqualTo(configUUID);
         assertThat(configAndState.getState().getData()).isEqualTo(new SumCustomSetStateData(ImmutableList.of("2d4", "+1d6"), "testUser"));
     }
 
     @Test
-    void deserialization() {
+    void deserialization_legacy3() {
         UUID configUUID = UUID.randomUUID();
         MessageConfigDTO messageConfigDTO = new MessageConfigDTO(configUUID, 1L, 1660644934298L, "sum_custom_set", "SumCustomSetConfig", """
                 ---
@@ -358,10 +358,46 @@ class SumCustomSetCommandTest {
         assertThat(configAndState.getConfig()).isEqualTo(new SumCustomSetConfig(123L, ImmutableList.of(
                 new ButtonIdLabelAndDiceExpression("1_button", "Label", "+1d6"),
                 new ButtonIdLabelAndDiceExpression("2_button", "+2d4", "+2d4")
-        ), DiceParserSystem.DICE_EVALUATOR, true, AnswerFormatType.compact, ResultImage.none));
+        ), DiceParserSystem.DICE_EVALUATOR, true, AnswerFormatType.compact, null, new DiceStyleAndColor(DiceImageStyle.none, "none")));
         assertThat(configAndState.getConfigUUID()).isEqualTo(configUUID);
         assertThat(configAndState.getState().getData()).isEqualTo(new SumCustomSetStateData(ImmutableList.of("2d4", "+1d6"), "testUser"));
     }
 
+    @Test
+    void deserialization() {
+        UUID configUUID = UUID.randomUUID();
+        MessageConfigDTO messageConfigDTO = new MessageConfigDTO(configUUID, 1L, 1660644934298L, "sum_custom_set", "SumCustomSetConfig", """
+                ---
+                answerTargetChannelId: 123
+                labelAndExpression:
+                - buttonId: "1_button"
+                  label: "Label"
+                  diceExpression: "+1d6"
+                - buttonId: "2_button"
+                  label: "+2d4"
+                  diceExpression: "+2d4"
+                diceParserSystem: "DICE_EVALUATOR"
+                alwaysSumResult: true
+                answerFormatType: full
+                diceStyleAndColor:
+                    diceImageStyle: "polyhedral_alies_v2"
+                    configuredDefaultColor: "blue_and_silver"
+                """);
+        MessageDataDTO messageDataDTO = new MessageDataDTO(configUUID, 1L, 1660644934298L, 1660644934298L, "sum_custom_set",
+                "SumCustomSetStateData", """
+                ---
+                diceExpressions:
+                - "2d4"
+                lockedForUserName: "testUser"
+                """);
+
+        ConfigAndState<SumCustomSetConfig, SumCustomSetStateData> configAndState = underTest.deserializeAndUpdateState(messageConfigDTO, messageDataDTO, "1_button", "testUser");
+        assertThat(configAndState.getConfig()).isEqualTo(new SumCustomSetConfig(123L, ImmutableList.of(
+                new ButtonIdLabelAndDiceExpression("1_button", "Label", "+1d6"),
+                new ButtonIdLabelAndDiceExpression("2_button", "+2d4", "+2d4")
+        ), DiceParserSystem.DICE_EVALUATOR, true, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v2, "blue_and_silver")));
+        assertThat(configAndState.getConfigUUID()).isEqualTo(configUUID);
+        assertThat(configAndState.getState().getData()).isEqualTo(new SumCustomSetStateData(ImmutableList.of("2d4", "+1d6"), "testUser"));
+    }
 
 }

@@ -4,7 +4,6 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.ImmutableList;
 import de.janno.discord.bot.BotMetrics;
-import de.janno.discord.bot.ResultImage;
 import de.janno.discord.bot.persistance.Mapper;
 import de.janno.discord.bot.persistance.MessageConfigDTO;
 import de.janno.discord.bot.persistance.MessageDataDTO;
@@ -31,7 +30,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import static de.janno.discord.bot.command.DefaultCommandOptions.*;
+import static de.janno.discord.bot.command.BaseCommandOptions.*;
 import static de.janno.discord.connector.api.BottomCustomIdUtils.CUSTOM_ID_DELIMITER;
 
 @Slf4j
@@ -58,11 +57,6 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
         return Set.of(ACTION_START);
     }
 
-
-    protected ResultImage defaultResultImage() {
-        return ResultImage.polyhedral_3d_red_and_white;
-    }
-
     protected AnswerFormatType defaultAnswerFormat() {
         return AnswerFormatType.full;
     }
@@ -85,7 +79,8 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
             baseOptions.add(ANSWER_FORMAT_COMMAND_OPTION);
         }
         if (supportsResultImages()) {
-            baseOptions.add(RESULT_IMAGE_COMMAND_OPTION);
+            baseOptions.add(DICE_IMAGE_STYLE_COMMAND_OPTION);
+            baseOptions.add(DICE_IMAGE_COLOR_COMMAND_OPTION);
         }
         return CommandDefinition.builder()
                 .name(getCommandId())
@@ -120,6 +115,11 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
 
     protected Collection<CommandDefinitionOption> additionalCommandOptions() {
         return Collections.emptyList();
+    }
+
+    @Override
+    public @NonNull List<AutoCompleteAnswer> getAutoCompleteAnswer(AutoCompleteRequest autoCompleteRequest) {
+        return BaseCommandOptions.autoCompleteColorOption(autoCompleteRequest);
     }
 
     protected Optional<List<ComponentRowDefinition>> getCurrentMessageComponentChange(UUID configUUID, C config, State<S> state, long channelId, long userId) {
@@ -350,7 +350,7 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
         if (startOption.isPresent()) {
             CommandInteractionOption options = startOption.get();
 
-            Optional<Long> answerTargetChannelId = DefaultCommandOptions.getAnswerTargetChannelIdFromStartCommandOption(options);
+            Optional<Long> answerTargetChannelId = BaseCommandOptions.getAnswerTargetChannelIdFromStartCommandOption(options);
             if (answerTargetChannelId.isPresent() && answerTargetChannelId.get().equals(event.getChannelId())) {
                 log.info("{}:same answer channel for {}", event.getRequester().toLogString(), commandString);
                 return event.reply("The answer target channel must be not the same as the current channel, keep this option empty if the answer should appear in this channel", true);
