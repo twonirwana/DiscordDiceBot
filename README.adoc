@@ -243,9 +243,16 @@ This set was designed and contributed by https://www.instagram.com/alie_in_beanl
 
 ==== polyhedral_knots
 
-image:image/polyhedral_knots_purple.png[image,600]
+.blue
+image:image/polyhedral_knots_blue.png[image,600]
 
-Valid for d4, d6, d10, d8, d12, d20, d100 and the only supported color is: `purple`
+.purple_dark
+image:image/polyhedral_knots_purple-dark.png[image,600]
+
+.purple_white
+image:image/polyhedral_knots_purple-white.png[image,600]
+
+Valid for d4, d6, d10, d8, d12, d20, d100 and the supported color is: `blue`, `purple_dark` and `purple_white`
 
 This set was designed and contributed by mailto:minuette@gmail.com[Myrynvalona].
 

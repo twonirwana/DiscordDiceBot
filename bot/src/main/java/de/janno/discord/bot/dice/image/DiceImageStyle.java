@@ -13,7 +13,7 @@ public enum DiceImageStyle {
             "polyhedral_alies_v2",
             List.of("blue_and_silver", "black_and_gold", "blue_and_gold", "green_and_gold", "orange_and_silver", "red_and_gold", "purple_and_silver"),
             "blue_and_silver")),
-    polyhedral_knots(new PolyhedralFileImageProvider("polyhedral_knots", List.of("purple"), "purple")),
+    polyhedral_knots(new PolyhedralFileImageProvider("polyhedral_knots", List.of("purple_dark", "purple_white", "blue"), "blue")),
     fate(new FateBasic()),
     d6_dots(new D6Dotted()),
     polyhedral_2d(new PolyhedralSvgWithColor()),
