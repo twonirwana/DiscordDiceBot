@@ -4,8 +4,8 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Stopwatch;
 import com.google.common.hash.Hashing;
 import de.janno.discord.bot.BotMetrics;
-import de.janno.evaluator.dice.RandomElement;
 import de.janno.evaluator.dice.Roll;
+import de.janno.evaluator.dice.RollElement;
 import io.micrometer.core.instrument.Gauge;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -74,7 +74,12 @@ public class ImageResultCreator {
     String createRollCacheName(Roll roll, DiceStyleAndColor diceStyleAndColor) {
         return "%s@%s".formatted(diceStyleAndColor.toString(), roll.getRandomElementsInRoll().getRandomElements().stream()
                 .map(r -> r.getRandomElements().stream()
-                        .map(RandomElement::toString)
+                        .map(re -> {
+                            if (RollElement.NO_COLOR.equals(re.getRollElement().getColor())) {
+                                return re.toString();
+                            }
+                            return "%s:%s".formatted(re.getRollElement().getColor(), re.toString());
+                        })
                         .collect(Collectors.joining(","))
                 )
                 .filter(l -> !l.isEmpty())
