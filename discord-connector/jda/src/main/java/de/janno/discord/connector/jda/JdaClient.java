@@ -46,9 +46,12 @@ public class JdaClient {
         LocalDateTime startTimePlusBuffer = LocalDateTime.now().plus(START_UP_BUFFER);
         Scheduler scheduler = Schedulers.boundedElastic();
         Set<Long> botInGuildIdSet = new ConcurrentSkipListSet<>();
-
+        Duration timeout = Duration.of(30, ChronoUnit.SECONDS);
         OkHttpClient okHttpClient = IOUtil.newHttpClientBuilder()
                 .eventListener(JdaMetrics.getOkHttpEventListener())
+                .writeTimeout(timeout)
+                .readTimeout(timeout)
+                .connectTimeout(timeout)
                 .build();
 
         JdaMetrics.registerHttpClient(okHttpClient);

@@ -92,6 +92,24 @@ class ImageResultCreatorTest {
     }
 
     @Test
+    void createRollCacheNameTest_multiColor() throws ExpressionException {
+        List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(4, 6, 8, 10, 12, 20, 99), 1000).evaluate("color(1d4,'gray') + color(1d6,'black') + color(1d8,'white') + color(1d10,'red') + color(1d12,'blue') + color(1d20,'green') + color(1d100,'orange')");
+
+        String res = underTest.createRollCacheName(rolls.get(0), new DiceStyleAndColor(DiceImageStyle.polyhedral_2d, "red"));
+
+        assertThat(res).isEqualTo("polyhedral_2d_red@[gray:4∈[1...4]],[black:6∈[1...6]],[white:8∈[1...8]],[red:10∈[1...10]],[blue:12∈[1...12]],[green:20∈[1...20]],[orange:99∈[1...100]]");
+    }
+
+    @Test
+    void createRollCacheNameTest_multiCol() throws ExpressionException {
+        List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(4, 6, 8, 10, 12, 20, 99), 1000).evaluate("1d4 col 'gray' + 1d6 col 'black' + 1d8 col 'white' + 1d10 col 'red' + 1d12 col 'blue' + 1d20 col 'green' + 1d100 col 'orange'");
+
+        String res = underTest.createRollCacheName(rolls.get(0), new DiceStyleAndColor(DiceImageStyle.polyhedral_2d, "red"));
+
+        assertThat(res).isEqualTo("polyhedral_2d_red@[gray:4∈[1...4]],[black:6∈[1...6]],[white:8∈[1...8]],[red:10∈[1...10]],[blue:12∈[1...12]],[green:20∈[1...20]],[orange:99∈[1...100]]");
+    }
+
+    @Test
     void createRollCacheNameTest_fateBlack() throws ExpressionException {
         List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(1, 2, 3, 1), 1000).evaluate("4d[-1,0,1]");
 
