@@ -106,7 +106,7 @@ public class ButtonEventAdapterImpl extends DiscordAdapterImpl implements Button
 
         return createMonoFrom(() -> event.getHook()
                 .editOriginalComponents(MessageComponentConverter.componentRowDefinition2LayoutComponent(componentRowDefinitions))
-                .setContent(message))
+                .setContent(StringUtils.abbreviate(encodeUTF8(message), Message.MAX_CONTENT_LENGTH)))
                 .then(createMonoFrom(event::deferEdit))
                 .then()
                 .onErrorResume(t -> handleException("Error on edit button event", t, true));
