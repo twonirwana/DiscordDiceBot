@@ -11,7 +11,7 @@ dependencyResolutionManagement {
             library("lombok", "org.projectlombok:lombok:1.18.28")
             library("micrometer-core", "io.micrometer:micrometer-core:1.11.1")
             library("reactor-core", "io.projectreactor:reactor-core:3.5.7")
-            library("guava", "com.google.guava:guava:32.0.1-jre")
+            library("guava", "com.google.guava:guava:32.1.0-jre")
             library("junit-jupiter-api", "org.junit.jupiter:junit-jupiter-api:5.9.3")
             library("junit-jupiter-engine", "org.junit.jupiter:junit-jupiter-engine:5.9.3")
             library("assertj-core", "org.assertj:assertj-core:3.24.2")
