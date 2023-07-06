@@ -22,7 +22,7 @@ dependencies {
     implementation(libs.micrometer.core)
     implementation(libs.commons.lang3)
     implementation("io.micrometer:micrometer-registry-prometheus:1.11.1")
-    implementation("com.h2database:h2:2.1.214")
+    implementation("com.h2database:h2:2.2.220")
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.15.2")
     implementation("org.apache.xmlgraphics:batik:1.16")
     implementation("org.apache.xmlgraphics:batik-transcoder:1.16")
