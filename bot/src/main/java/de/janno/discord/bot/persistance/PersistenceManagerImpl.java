@@ -6,10 +6,8 @@ import com.google.common.collect.ImmutableSet;
 import de.janno.discord.bot.BotMetrics;
 import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.Tag;
-import io.micrometer.core.instrument.binder.db.DatabaseTableMetrics;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import org.h2.jdbcx.JdbcConnectionPool;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -28,27 +26,22 @@ import static io.micrometer.core.instrument.Metrics.globalRegistry;
 public class PersistenceManagerImpl implements PersistenceManager {
 
     private final static long USER_ID_NULL_PLACEHOLDER = -1L;
-    private final JdbcConnectionPool connectionPool;
+    private final DatabaseConnector databaseConnector;
 
     public PersistenceManagerImpl(@NonNull String url, @Nullable String user, @Nullable String password) {
-        DatabaseInitiator.initialize(url, user, password);
+        databaseConnector = new DatabaseConnector(url, user, password);
+        DatabaseInitiator.initialize(databaseConnector);
 
-        connectionPool = JdbcConnectionPool.create(url, user, password);
-
-        new DatabaseTableMetrics(connectionPool, "h2", "MESSAGE_DATA", ImmutableSet.of()).bindTo(globalRegistry);
-        new DatabaseTableMetrics(connectionPool, "h2", "MESSAGE_CONFIG", ImmutableSet.of()).bindTo(globalRegistry);
-        new DatabaseTableMetrics(connectionPool, "h2", "CHANNEL_CONFIG", ImmutableSet.of()).bindTo(globalRegistry);
-
-        queryGauge("db.channel.count", "select count (distinct CHANNEL_ID) from MESSAGE_DATA;", connectionPool, Set.of());
-        queryGauge("db.channel.config.count", "select count (distinct CHANNEL_ID) from CHANNEL_CONFIG;", connectionPool, Set.of());
-        queryGauge("db.guild.count", "select count (distinct GUILD_ID) from MESSAGE_DATA;", connectionPool, Set.of());
-        queryGauge("db.guild-null.count", "select count (distinct CHANNEL_ID) from MESSAGE_DATA where GUILD_ID is null;", connectionPool, Set.of());
-        queryGauge("db.messageDataWithConfig.count", "SELECT COUNT(*) FROM (SELECT DISTINCT CHANNEL_ID, MESSAGE_ID FROM MESSAGE_DATA WHERE CONFIG_CLASS_ID IS NOT NULL);", connectionPool, Set.of());
-        queryGauge("db.guild-30d.active", "select count (distinct GUILD_ID) from MESSAGE_DATA where (CURRENT_TIMESTAMP - CREATION_DATE) <= interval '43200' MINUTE;", connectionPool, Set.of());
+        queryGauge("db.channel.count", "select count (distinct CHANNEL_ID) from MESSAGE_DATA;", databaseConnector.getDataSource(), Set.of());
+        queryGauge("db.channel.config.count", "select count (distinct CHANNEL_ID) from CHANNEL_CONFIG;", databaseConnector.getDataSource(), Set.of());
+        queryGauge("db.guild.count", "select count (distinct GUILD_ID) from MESSAGE_DATA;", databaseConnector.getDataSource(), Set.of());
+        queryGauge("db.guild-null.count", "select count (distinct CHANNEL_ID) from MESSAGE_DATA where GUILD_ID is null;", databaseConnector.getDataSource(), Set.of());
+        queryGauge("db.messageDataWithConfig.count", "SELECT COUNT(*) FROM (SELECT DISTINCT CHANNEL_ID, MESSAGE_ID FROM MESSAGE_DATA WHERE CONFIG_CLASS_ID IS NOT NULL);", databaseConnector.getDataSource(), Set.of());
+        queryGauge("db.guild-30d.active", "select count (distinct GUILD_ID) from MESSAGE_DATA where (CURRENT_TIMESTAMP - CREATION_DATE) <= interval '43200' MINUTE;", databaseConnector.getDataSource(), Set.of());
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             log.info("start db shutdown");
-            connectionPool.dispose();
+            databaseConnector.dispose();
             try (Connection connection = DriverManager.getConnection(url, user, password)) {
                 connection.createStatement().execute("SHUTDOWN");
                 log.info("db shutdown");
@@ -77,7 +70,7 @@ public class PersistenceManagerImpl implements PersistenceManager {
     public @NonNull Optional<MessageConfigDTO> getMessageConfig(@NonNull UUID configUUID) {
         Stopwatch stopwatch = Stopwatch.createStarted();
 
-        try (Connection con = connectionPool.getConnection()) {
+        try (Connection con = databaseConnector.getConnection()) {
             try (PreparedStatement preparedStatement = con.prepareStatement("SELECT CONFIG_ID, CHANNEL_ID, GUILD_ID, COMMAND_ID, CONFIG_CLASS_ID, CONFIG FROM MESSAGE_CONFIG MC WHERE MC.CONFIG_ID = ?")) {
                 preparedStatement.setObject(1, configUUID);
                 ResultSet resultSet = preparedStatement.executeQuery();
@@ -113,7 +106,7 @@ public class PersistenceManagerImpl implements PersistenceManager {
     public @NonNull Optional<MessageConfigDTO> getConfigFromMessage(long channelId, long messageId) {
         Stopwatch stopwatch = Stopwatch.createStarted();
 
-        try (Connection con = connectionPool.getConnection()) {
+        try (Connection con = databaseConnector.getConnection()) {
             try (PreparedStatement preparedStatement = con.prepareStatement("SELECT CONFIG_ID, GUILD_ID, CHANNEL_ID, COMMAND_ID, CONFIG_CLASS_ID, CONFIG FROM MESSAGE_DATA MC WHERE MC.CHANNEL_ID = ? AND MC.MESSAGE_ID = ? AND MC.CONFIG_CLASS_ID IS NOT NULL")) {
                 preparedStatement.setLong(1, channelId);
                 preparedStatement.setLong(2, messageId);
@@ -135,7 +128,7 @@ public class PersistenceManagerImpl implements PersistenceManager {
     @Override
     public void saveMessageConfig(@NonNull MessageConfigDTO messageConfigDTO) {
         Stopwatch stopwatch = Stopwatch.createStarted();
-        try (Connection con = connectionPool.getConnection()) {
+        try (Connection con = databaseConnector.getConnection()) {
             try (PreparedStatement preparedStatement =
                          con.prepareStatement("INSERT INTO MESSAGE_CONFIG(CONFIG_ID, GUILD_ID, CHANNEL_ID, COMMAND_ID, CONFIG_CLASS_ID, CONFIG, CREATION_DATE) VALUES (?, ?, ?, ?, ?, ?, ?)")) {
                 preparedStatement.setObject(1, messageConfigDTO.getConfigUUID());
@@ -157,7 +150,7 @@ public class PersistenceManagerImpl implements PersistenceManager {
     public @NonNull Optional<MessageDataDTO> getMessageData(long channelId, long messageId) {
         Stopwatch stopwatch = Stopwatch.createStarted();
 
-        try (Connection con = connectionPool.getConnection()) {
+        try (Connection con = databaseConnector.getConnection()) {
             try (PreparedStatement preparedStatement = con.prepareStatement("SELECT CONFIG_ID, CHANNEL_ID, MESSAGE_ID, COMMAND_ID, STATE_CLASS_ID, STATE, GUILD_ID FROM MESSAGE_DATA MC WHERE MC.CHANNEL_ID = ? AND MC.MESSAGE_ID = ?")) {
                 preparedStatement.setLong(1, channelId);
                 preparedStatement.setLong(2, messageId);
@@ -179,7 +172,7 @@ public class PersistenceManagerImpl implements PersistenceManager {
     @Override
     public @NonNull Set<Long> getAllMessageIdsForConfig(@NonNull UUID configUUID) {
         Stopwatch stopwatch = Stopwatch.createStarted();
-        try (Connection con = connectionPool.getConnection()) {
+        try (Connection con = databaseConnector.getConnection()) {
             try (PreparedStatement preparedStatement = con.prepareStatement("SELECT DISTINCT MC.MESSAGE_ID FROM MESSAGE_DATA MC WHERE MC.CONFIG_ID = ?")) {
                 preparedStatement.setObject(1, configUUID);
                 ResultSet resultSet = preparedStatement.executeQuery();
@@ -215,7 +208,7 @@ public class PersistenceManagerImpl implements PersistenceManager {
     @Override
     public void deleteStateForMessage(long channelId, long messageId) {
         Stopwatch stopwatch = Stopwatch.createStarted();
-        try (Connection con = connectionPool.getConnection()) {
+        try (Connection con = databaseConnector.getConnection()) {
             try (PreparedStatement preparedStatement = con.prepareStatement("DELETE FROM MESSAGE_DATA WHERE CHANNEL_ID = ? AND MESSAGE_ID = ?")) {
                 preparedStatement.setLong(1, channelId);
                 preparedStatement.setLong(2, messageId);
@@ -231,7 +224,7 @@ public class PersistenceManagerImpl implements PersistenceManager {
     public @NonNull Set<Long> deleteMessageDataForChannel(long channelId) {
         Stopwatch stopwatch = Stopwatch.createStarted();
         final ImmutableSet<Long> ids;
-        try (Connection con = connectionPool.getConnection()) {
+        try (Connection con = databaseConnector.getConnection()) {
             con.setAutoCommit(false);
             try (PreparedStatement preparedStatement = con.prepareStatement("SELECT DISTINCT MC.MESSAGE_ID FROM MESSAGE_DATA MC WHERE MC.CHANNEL_ID = ?")) {
                 preparedStatement.setObject(1, channelId);
@@ -258,7 +251,7 @@ public class PersistenceManagerImpl implements PersistenceManager {
     @Override
     public void saveMessageData(@NonNull MessageDataDTO messageData) {
         Stopwatch stopwatch = Stopwatch.createStarted();
-        try (Connection con = connectionPool.getConnection()) {
+        try (Connection con = databaseConnector.getConnection()) {
             try (PreparedStatement preparedStatement =
                          con.prepareStatement("INSERT INTO MESSAGE_DATA(CONFIG_ID, GUILD_ID, CHANNEL_ID, MESSAGE_ID, COMMAND_ID, STATE_CLASS_ID, STATE, CREATION_DATE) VALUES (?, ?, ?, ?, ?, ?, ?, ?)")) {
                 preparedStatement.setObject(1, messageData.getConfigUUID());
@@ -279,7 +272,7 @@ public class PersistenceManagerImpl implements PersistenceManager {
 
     @Override
     public Set<Long> getAllGuildIds() {
-        try (Connection con = connectionPool.getConnection()) {
+        try (Connection con = databaseConnector.getConnection()) {
             try (PreparedStatement preparedStatement = con.prepareStatement("SELECT DISTINCT GUILD_ID FROM MESSAGE_DATA MC WHERE MC.GUILD_ID IS NOT NULL")) {
                 ResultSet resultSet = preparedStatement.executeQuery();
                 final ImmutableSet.Builder<Long> resultBuilder = ImmutableSet.builder();
@@ -297,7 +290,7 @@ public class PersistenceManagerImpl implements PersistenceManager {
     public @NonNull Optional<ChannelConfigDTO> getChannelConfig(long channelId, @NotNull String configClassId) {
         Stopwatch stopwatch = Stopwatch.createStarted();
 
-        try (Connection con = connectionPool.getConnection()) {
+        try (Connection con = databaseConnector.getConnection()) {
             try (PreparedStatement preparedStatement = con.prepareStatement("SELECT CONFIG_ID, CHANNEL_ID, GUILD_ID, COMMAND_ID, USER_ID, CONFIG_CLASS_ID, CONFIG FROM CHANNEL_CONFIG CC WHERE CC.CHANNEL_ID = ? AND CC.CONFIG_CLASS_ID = ? AND CC.USER_ID = " + USER_ID_NULL_PLACEHOLDER)) {
                 preparedStatement.setLong(1, channelId);
                 preparedStatement.setString(2, configClassId);
@@ -321,7 +314,7 @@ public class PersistenceManagerImpl implements PersistenceManager {
         Stopwatch stopwatch = Stopwatch.createStarted();
         Preconditions.checkArgument(!Objects.equals(userId, USER_ID_NULL_PLACEHOLDER), "The userId is not to be allowed to be %d".formatted(USER_ID_NULL_PLACEHOLDER));
 
-        try (Connection con = connectionPool.getConnection()) {
+        try (Connection con = databaseConnector.getConnection()) {
             try (PreparedStatement preparedStatement = con.prepareStatement("SELECT CONFIG_ID, CHANNEL_ID, GUILD_ID, USER_ID, COMMAND_ID, CONFIG_CLASS_ID, CONFIG FROM CHANNEL_CONFIG CC WHERE CC.USER_ID = ? AND CC.CHANNEL_ID = ? AND CC.CONFIG_CLASS_ID = ?")) {
                 preparedStatement.setLong(1, userId);
                 preparedStatement.setLong(2, channelId);
@@ -361,7 +354,7 @@ public class PersistenceManagerImpl implements PersistenceManager {
     public void saveChannelConfig(@NonNull ChannelConfigDTO channelConfigDTO) {
         Preconditions.checkArgument(!Objects.equals(channelConfigDTO.getUserId(), USER_ID_NULL_PLACEHOLDER), "The userId is not to be allowed to be %d".formatted(USER_ID_NULL_PLACEHOLDER));
         Stopwatch stopwatch = Stopwatch.createStarted();
-        try (Connection con = connectionPool.getConnection()) {
+        try (Connection con = databaseConnector.getConnection()) {
             final long userId = channelConfigDTO.getUserId() == null ? USER_ID_NULL_PLACEHOLDER : channelConfigDTO.getUserId();
             try (PreparedStatement preparedStatement =
                          con.prepareStatement("INSERT INTO CHANNEL_CONFIG(CONFIG_ID, GUILD_ID, CHANNEL_ID, USER_ID, COMMAND_ID, CONFIG_CLASS_ID, CONFIG, CREATION_DATE) VALUES (?, ?, ?, ?, ?, ?, ?, ?)")) {
@@ -384,7 +377,7 @@ public class PersistenceManagerImpl implements PersistenceManager {
     @Override
     public void deleteChannelConfig(long channelId, String configClassId) {
         Stopwatch stopwatch = Stopwatch.createStarted();
-        try (Connection con = connectionPool.getConnection()) {
+        try (Connection con = databaseConnector.getConnection()) {
 
             try (PreparedStatement preparedStatement = con.prepareStatement("DELETE FROM CHANNEL_CONFIG WHERE CHANNEL_ID = ? AND CONFIG_CLASS_ID = ? AND USER_ID = " + USER_ID_NULL_PLACEHOLDER)) {
                 preparedStatement.setLong(1, channelId);
@@ -401,7 +394,7 @@ public class PersistenceManagerImpl implements PersistenceManager {
     public void deleteUserChannelConfig(long channelId, long userId, String configClassId) {
         Preconditions.checkArgument(!Objects.equals(userId, USER_ID_NULL_PLACEHOLDER), "The userId is not to be allowed to be %d".formatted(USER_ID_NULL_PLACEHOLDER));
         Stopwatch stopwatch = Stopwatch.createStarted();
-        try (Connection con = connectionPool.getConnection()) {
+        try (Connection con = databaseConnector.getConnection()) {
 
             try (PreparedStatement preparedStatement = con.prepareStatement("DELETE FROM CHANNEL_CONFIG WHERE CHANNEL_ID = ? AND USER_ID = ? AND CONFIG_CLASS_ID = ?")) {
                 preparedStatement.setLong(1, channelId);
