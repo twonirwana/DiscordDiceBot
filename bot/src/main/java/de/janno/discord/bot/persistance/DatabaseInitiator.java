@@ -15,6 +15,7 @@ import java.nio.file.Path;
 import java.sql.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
 import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.List;
@@ -22,6 +23,9 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
+
+import static java.time.format.DateTimeFormatter.ISO_LOCAL_DATE;
+import static java.time.temporal.ChronoField.*;
 
 @Slf4j
 public class DatabaseInitiator {
@@ -34,6 +38,17 @@ public class DatabaseInitiator {
             .add("5_channelConfigFix.sql")
             .build();
     private final static String BACKUP_FILE_NAME = "backup.zip";
+    private static final DateTimeFormatter DATE_TIME_FORMATTER = new DateTimeFormatterBuilder()
+            .parseCaseInsensitive()
+            .append(ISO_LOCAL_DATE)
+            .appendLiteral('T')
+            .appendValue(HOUR_OF_DAY, 2)
+            .appendLiteral('-')
+            .appendValue(MINUTE_OF_HOUR, 2)
+            .optionalStart()
+            .appendLiteral('-')
+            .appendValue(SECOND_OF_MINUTE, 2)
+            .toFormatter();
 
     public static void initialize(@NonNull DatabaseConnector databaseConnector) {
         applyBackupFile(databaseConnector);
@@ -66,7 +81,7 @@ public class DatabaseInitiator {
                 throw new RuntimeException(e);
             }
             try {
-                String backupMoveName = "applied_backup_" + LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) + ".zip";
+                String backupMoveName = "applied_backup_" + LocalDateTime.now().format(DATE_TIME_FORMATTER) + ".zip";
                 Files.move(Path.of(BACKUP_FILE_NAME), Path.of(backupMoveName));
                 log.info("Finished importing backup and moved to {}", backupMoveName);
             } catch (IOException e) {
