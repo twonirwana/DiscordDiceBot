@@ -7,16 +7,24 @@ import io.micrometer.core.instrument.util.IOUtils;
 import lombok.NonNull;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
-import org.h2.jdbcx.JdbcConnectionPool;
-import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.sql.*;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
 import java.util.Comparator;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
+
+import static java.time.format.DateTimeFormatter.ISO_LOCAL_DATE;
+import static java.time.temporal.ChronoField.*;
 
 @Slf4j
 public class DatabaseInitiator {
@@ -28,18 +36,61 @@ public class DatabaseInitiator {
             .add("4_aliasCommandIdCleanUp.sql")
             .add("5_channelConfigFix.sql")
             .build();
+    private final static String BACKUP_FILE_NAME = "backup.zip";
+    private static final DateTimeFormatter DATE_TIME_FORMATTER = new DateTimeFormatterBuilder()
+            .parseCaseInsensitive()
+            .append(ISO_LOCAL_DATE)
+            .appendLiteral('T')
+            .appendValue(HOUR_OF_DAY, 2)
+            .appendLiteral('-')
+            .appendValue(MINUTE_OF_HOUR, 2)
+            .optionalStart()
+            .appendLiteral('-')
+            .appendValue(SECOND_OF_MINUTE, 2)
+            .toFormatter();
 
-    public static void initialize(@NonNull String url, @Nullable String user, @Nullable String password) {
-        JdbcConnectionPool connectionPool = JdbcConnectionPool.create(url, user, password);
-
+    public static void initialize(@NonNull DatabaseConnector databaseConnector) {
+        applyBackupFile(databaseConnector);
         List<Migration> allMigrations = readMigrations();
         log.info("found migrations: {}", allMigrations.stream().map(Migration::getName).collect(Collectors.joining(", ")));
-        List<String> alreadyAppliedMigrations = getAlreadyAppliedMigrations(connectionPool);
+        List<String> alreadyAppliedMigrations = getAlreadyAppliedMigrations(databaseConnector);
         log.info("db migration status: {}", alreadyAppliedMigrations);
-        applyMissingMigrations(allMigrations, alreadyAppliedMigrations, connectionPool);
+        applyMissingMigrations(allMigrations, alreadyAppliedMigrations, databaseConnector);
     }
 
-    private static void applyMissingMigrations(List<Migration> allMigrations, List<String> alreadyAppliedMigrations, JdbcConnectionPool connectionPool) {
+    private static void applyBackupFile(DatabaseConnector databaseConnector) {
+        if (Files.exists(Path.of(BACKUP_FILE_NAME))) {
+            log.info("Start importing backup");
+            try (ZipFile zipFile = new ZipFile(BACKUP_FILE_NAME)) {
+                Enumeration<? extends ZipEntry> entries = zipFile.entries();
+                while (entries.hasMoreElements()) {
+                    ZipEntry entry = entries.nextElement();
+                    String backup = IOUtils.toString(zipFile.getInputStream(entry), StandardCharsets.UTF_8);
+                    log.info("Finished loading backup script");
+                    try (Connection connection = databaseConnector.getConnection()) {
+                        Statement statement = connection.createStatement();
+                        statement.execute(backup);
+                    } catch (SQLException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            try {
+                String backupMoveName = "applied_backup_" + LocalDateTime.now().format(DATE_TIME_FORMATTER) + ".zip";
+                Files.move(Path.of(BACKUP_FILE_NAME), Path.of(backupMoveName));
+                log.info("Finished importing backup and moved to {}", backupMoveName);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+
+    private static void applyMissingMigrations(List<Migration> allMigrations,
+                                               List<String> alreadyAppliedMigrations,
+                                               DatabaseConnector databaseConnector) {
         Preconditions.checkArgument(allMigrations.stream().map(Migration::getOrder).distinct().count() == allMigrations.size(), "Duplicate migration order");
         Preconditions.checkArgument(allMigrations.stream().map(Migration::getName).distinct().count() == allMigrations.size(), "Duplicate migration name");
 
@@ -48,7 +99,7 @@ public class DatabaseInitiator {
                 .sorted(Comparator.comparing(Migration::getOrder))
                 .forEach(m -> {
                     log.info("Start executing {}", m.getName());
-                    try (Connection connection = connectionPool.getConnection()) {
+                    try (Connection connection = databaseConnector.getConnection()) {
                         Statement statement = connection.createStatement();
                         statement.execute(m.getSql());
                         try (PreparedStatement preparedStatement =
@@ -65,8 +116,8 @@ public class DatabaseInitiator {
                 });
     }
 
-    private static List<String> getAlreadyAppliedMigrations(JdbcConnectionPool connectionPool) {
-        try (Connection connection = connectionPool.getConnection()) {
+    private static List<String> getAlreadyAppliedMigrations(DatabaseConnector databaseConnector) {
+        try (Connection connection = databaseConnector.getConnection()) {
             Statement statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery("select MIGRATION_NAME from DB_VERSION");
             ImmutableList.Builder<String> builder = ImmutableList.builder();

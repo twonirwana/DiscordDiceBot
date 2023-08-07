@@ -23,6 +23,8 @@ dependencies {
     implementation(libs.commons.lang3)
     implementation("io.micrometer:micrometer-registry-prometheus:1.11.2")
     implementation("com.h2database:h2:2.2.220")
+    implementation("org.apache.derby:derby:10.16.1.1")
+    implementation("org.apache.derby:derbyclient:10.16.1.1")
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.15.2")
     implementation("org.apache.xmlgraphics:batik:1.16")
     implementation("org.apache.xmlgraphics:batik-transcoder:1.16")
