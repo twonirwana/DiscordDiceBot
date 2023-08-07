@@ -19,7 +19,6 @@ import java.time.format.DateTimeFormatterBuilder;
 import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -62,19 +61,17 @@ public class DatabaseInitiator {
     private static void applyBackupFile(DatabaseConnector databaseConnector) {
         if (Files.exists(Path.of(BACKUP_FILE_NAME))) {
             log.info("Start importing backup");
-            AtomicLong statementCounter = new AtomicLong(0);
             try (ZipFile zipFile = new ZipFile(BACKUP_FILE_NAME)) {
                 Enumeration<? extends ZipEntry> entries = zipFile.entries();
-                {
-                    while (entries.hasMoreElements()) {
-                        ZipEntry entry = entries.nextElement();
-                        String backup = IOUtils.toString(zipFile.getInputStream(entry), StandardCharsets.UTF_8);
-                        try (Connection connection = databaseConnector.getConnection()) {
-                            Statement statement = connection.createStatement();
-                            statement.execute(backup);
-                        } catch (SQLException e) {
-                            throw new RuntimeException(e);
-                        }
+                while (entries.hasMoreElements()) {
+                    ZipEntry entry = entries.nextElement();
+                    String backup = IOUtils.toString(zipFile.getInputStream(entry), StandardCharsets.UTF_8);
+                    log.info("Finished loading backup script");
+                    try (Connection connection = databaseConnector.getConnection()) {
+                        Statement statement = connection.createStatement();
+                        statement.execute(backup);
+                    } catch (SQLException e) {
+                        throw new RuntimeException(e);
                     }
                 }
             } catch (IOException e) {
