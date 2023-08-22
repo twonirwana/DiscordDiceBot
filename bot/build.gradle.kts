@@ -26,9 +26,9 @@ dependencies {
     implementation("org.apache.derby:derby:10.16.1.1")
     implementation("org.apache.derby:derbyclient:10.16.1.1")
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.15.2")
-    implementation("org.apache.xmlgraphics:batik:1.16")
-    implementation("org.apache.xmlgraphics:batik-transcoder:1.16")
-    implementation("org.apache.xmlgraphics:batik-codec:1.16")
+    implementation("org.apache.xmlgraphics:batik:1.17")
+    implementation("org.apache.xmlgraphics:batik-transcoder:1.17")
+    implementation("org.apache.xmlgraphics:batik-codec:1.17")
 
     testImplementation(libs.junit.jupiter.api)
     testRuntimeOnly(libs.junit.jupiter.engine)
