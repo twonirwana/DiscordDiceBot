@@ -11,7 +11,7 @@ repositories {
 dependencies {
     implementation(project(":discord-connector"))
     implementation("com.github.twonirwana:dice-parser:0.7.1")
-    implementation("io.github.twonirwana:dice-evaluator:v0.4.3")
+    implementation("io.github.twonirwana:dice-evaluator:v0.4.4")
 
     implementation(libs.log4j.to.slf4j)
     implementation(libs.reactor.core)
@@ -46,7 +46,7 @@ dependencies {
 
 java {
     toolchain {
-        languageVersion.set(JavaLanguageVersion.of(18))
+        languageVersion.set(JavaLanguageVersion.of(20))
     }
 }
 
