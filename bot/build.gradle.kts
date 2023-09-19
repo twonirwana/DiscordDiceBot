@@ -22,7 +22,7 @@ dependencies {
     implementation(libs.micrometer.core)
     implementation(libs.commons.lang3)
     implementation("io.micrometer:micrometer-registry-prometheus:1.11.4")
-    implementation("com.h2database:h2:2.2.222")
+    implementation("com.h2database:h2:2.2.224")
     implementation("org.apache.derby:derby:10.16.1.1")
     implementation("org.apache.derby:derbyclient:10.16.1.1")
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.15.2")
