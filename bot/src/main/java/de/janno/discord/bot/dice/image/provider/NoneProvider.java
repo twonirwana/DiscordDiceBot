@@ -12,7 +12,7 @@ public final class NoneProvider implements ImageProvider {
     }
 
     @Override
-    public int getDieHighAndWith() {
+    public int getDieHighAndWide() {
         return 0;
     }
 

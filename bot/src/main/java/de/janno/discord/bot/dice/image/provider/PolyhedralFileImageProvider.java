@@ -17,15 +17,19 @@ public class PolyhedralFileImageProvider implements ImageProvider {
     private final String defaultColor;
 
     public PolyhedralFileImageProvider(String styleFolder, List<String> supportedColors, String defaultColor) {
+        this(styleFolder, supportedColors, defaultColor, supportedColors.stream().collect(ImmutableMap.toImmutableMap(Function.identity(), c -> List.of(4, 6, 8, 10, 12, 20, 100))));
+    }
+
+    public PolyhedralFileImageProvider(String styleFolder, List<String> supportedColors, String defaultColor, Map<String, List<Integer>> colorSupportedDiceSides) {
         this.color2DiceSideImageMap = supportedColors.stream()
-                .collect(ImmutableMap.toImmutableMap(Function.identity(), c -> new FileSidesDiceImageMap(styleFolder + "_" + c, List.of(4, 6, 8, 10, 12, 20, 100))));
+                .collect(ImmutableMap.toImmutableMap(Function.identity(), c -> new FileSidesDiceImageMap(styleFolder + "_" + c, colorSupportedDiceSides.get(c))));
         this.defaultColor = defaultColor;
         Preconditions.checkArgument(supportedColors.contains(defaultColor), "The default color {} was not in the supported colors {}", defaultColor, supportedColors);
         this.supportedColors = supportedColors;
     }
 
     @Override
-    public int getDieHighAndWith() {
+    public int getDieHighAndWide() {
         return 100;
     }
 

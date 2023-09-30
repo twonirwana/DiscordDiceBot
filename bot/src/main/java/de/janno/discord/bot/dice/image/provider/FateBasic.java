@@ -26,7 +26,7 @@ public class FateBasic implements ImageProvider {
     }
 
     @Override
-    public int getDieHighAndWith() {
+    public int getDieHighAndWide() {
         return 50;
     }
 

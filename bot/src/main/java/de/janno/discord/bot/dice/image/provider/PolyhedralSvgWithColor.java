@@ -33,7 +33,7 @@ public class PolyhedralSvgWithColor implements ImageProvider {
                     fileName = "images/polyhedral_draw_color/D%d.svg".formatted(d);
                 }
                 try {
-                    return IOUtils.toString(Resources.getResource(fileName).openStream(), StandardCharsets.UTF_8.name());
+                    return IOUtils.toString(Resources.getResource(fileName).openStream(), StandardCharsets.UTF_8);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
@@ -99,11 +99,11 @@ public class PolyhedralSvgWithColor implements ImageProvider {
             svgString = svgString.replace("x=\"300\"", "x=\"60\"");
         }
 
-        TranscoderInput transcoderInput = new TranscoderInput(IOUtils.toInputStream(svgString));
+        TranscoderInput transcoderInput = new TranscoderInput(IOUtils.toInputStream(svgString, StandardCharsets.UTF_8));
 
         PNGTranscoder pngTranscoder = new PNGTranscoder();
-        pngTranscoder.addTranscodingHint(PNGTranscoder.KEY_WIDTH, (float) getDieHighAndWith());
-        pngTranscoder.addTranscodingHint(PNGTranscoder.KEY_HEIGHT, (float) getDieHighAndWith());
+        pngTranscoder.addTranscodingHint(PNGTranscoder.KEY_WIDTH, (float) getDieHighAndWide());
+        pngTranscoder.addTranscodingHint(PNGTranscoder.KEY_HEIGHT, (float) getDieHighAndWide());
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         TranscoderOutput output = new TranscoderOutput(outputStream);
 
@@ -121,7 +121,7 @@ public class PolyhedralSvgWithColor implements ImageProvider {
     }
 
     @Override
-    public int getDieHighAndWith() {
+    public int getDieHighAndWide() {
         return 100;
     }
 

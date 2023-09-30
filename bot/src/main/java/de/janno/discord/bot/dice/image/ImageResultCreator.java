@@ -92,10 +92,10 @@ public class ImageResultCreator {
             return null;
         }
         if (rolls.size() != 1 ||
-                rolls.get(0).getRandomElementsInRoll().getRandomElements().size() == 0 ||
+                rolls.get(0).getRandomElementsInRoll().getRandomElements().isEmpty() ||
                 rolls.get(0).getRandomElementsInRoll().getRandomElements().size() > 10 ||
                 rolls.get(0).getRandomElementsInRoll().getRandomElements().stream().anyMatch(r -> r.getRandomElements().size() > 15) ||
-                rolls.get(0).getRandomElementsInRoll().getRandomElements().stream().anyMatch(r -> r.getRandomElements().size() == 0) ||
+                rolls.get(0).getRandomElementsInRoll().getRandomElements().stream().anyMatch(r -> r.getRandomElements().isEmpty()) ||
                 rolls.get(0).getRandomElementsInRoll().getRandomElements().stream()
                         .flatMap(r -> r.getRandomElements().stream())
                         .anyMatch(r -> diceStyleAndColor.getImageFor(r.getMaxInc(), r.getRollElement().asInteger().orElse(null), r.getRollElement().getColor()).isEmpty())
