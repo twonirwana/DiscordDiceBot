@@ -108,6 +108,11 @@ Some example for commands, many more systems can be mapped, please see in the de
 
 `/custom_parameter start expression: groupc({Number of Dice:1<=>10}d10+({Number of Extra Die:0@0/10@1/2r10@2/3r10@3/4r10@4})>={Difficulty:1<=>10})`
 
+[discrete]
+=== Rêve de Dragon ===
+
+`/custom_dice start buttons: 1d4@D4;1d6@D6;2d6=@2D6;1d7@D7;1d8@D8;val('roll',1d!8 col 'special') val('diceCount','roll'c) 'roll'-'diceCount'+7=@DDR;2d10=@2D10;1d12@D12;val('$r',1d12 col 'special'),if('$r'=?1,'vaisseau','$r'=?2,'sirène','$r'=?3,'faucon','$r'=?4,'couronne','$r'=?5,'dragon','$r'=?6,'épées','$r'=?7,'lyre','$r'=?8,'serpent','$r'=?9,'poisson acrobate','$r'=?10,'araignée','$r'=?11,'roseaux','$r'=?12,'château dormant')@DAS;1d20@D20;1d100@D100 answer_format: without_expression dice_image_style: polyhedral_RdD`
+
 == Commands
 
 All button configurations can be used with the `target_channel` option.
@@ -163,7 +168,7 @@ The `custom_dice`, `sum_custom_dice` and `custom_parameter` commands have a `dic
 The color of specific dice can be overwritten, with valid colors for the style, in the expression.
 For example:
 
-`/custom_dice start buttons: 2d6+color(2d10, 'red_and_gold')+color(2d20,'green_and_gold')@color roll answer_format: without_expression dice_image_style: polyhedral_alies_v2 dice_image_color: blue_and_gold`
+`/custom_dice start buttons: 2d6+2d10 col 'red_and_gold' + 2d20 col 'green_and_gold'@color roll answer_format: without_expression dice_image_style: polyhedral_alies_v2 dice_image_color: blue_and_gold`
 
 produces:
 
@@ -255,6 +260,20 @@ image:image/polyhedral_knots_purple-white.png[image,600]
 Valid for d4, d6, d10, d8, d12, d20, d100 and the supported color is: `blue`, `purple_dark` and `purple_white`
 
 This set was designed and contributed by mailto:minuette@gmail.com[Myrynvalona].
+
+==== polyhedral_RdD
+
+.default
+image:image/polyhedral_RdD_default.png[image,600]
+
+.special
+image:image/polyhedral_RdD_special.png[image,170]
+
+The style has two "colors": `default` and `special`. The `default` "color" contains universal images for d4, d6, d7, d10, d8, d12, d20, d100.
+The `special` "color" contains only images for d8 (image values are 0 to 7 and a dragon for the 8) and d12 with only special symbols.
+
+This set was designed and contributed by http://scriptarium.org[scriptarium.org].
+
 
 === Custom Dice Buttons
 
@@ -579,5 +598,6 @@ All functions are case insensitiv.
 
 * Special thank to https://www.instagram.com/alie_in_beanland/[alieinbeanland] for the design of the dice images for `polyhedral_alies_v1` and `polyhedral_alies_v2`
 * Special thank to mailto:minuette@gmail.com[Myrynvalona] for the design of the dice images for `polyhedral_knots`
+* Special thank to http://scriptarium.org[scriptarium.org]] for creating the dice images for `polyhedral_RdD`
 * The `polyhedral_3d` dice images where adapted from https://blendswap.com/blend/16634
 * The `d6_dot` dice images are from https://game-icons.net/

@@ -63,6 +63,15 @@ class ImageResultCreatorTest {
         );
     }
 
+    static Stream<Arguments> generateDiceStyleDataPerColor() {
+        return Stream.of(
+                Arguments.of(DiceImageStyle.polyhedral_2d, List.of(4, 6, 8, 10, 12, 20, 100), "red"),
+                Arguments.of(DiceImageStyle.polyhedral_RdD, List.of(4, 6, 7, 8, 10, 12, 20, 100), "default"),
+                Arguments.of(DiceImageStyle.polyhedral_RdD, List.of(8, 12), "special")
+        );
+    }
+
+
     @BeforeEach
     void setup() throws IOException {
         FileUtils.cleanDirectory(new File("imageCache/"));
@@ -236,7 +245,7 @@ class ImageResultCreatorTest {
         assertThat(res1.getName()).isEqualTo("cea2a67e61a8b605c6702aac213960f86922331b5cac795649502b363dde97aa.png");
         assertThat(getFileHash(res1)).isEqualTo("933002493c0ccf2ea6ad67c8656342d3f02642a19a840b032a62346e4a7a048b");
 
-        Thread.sleep(100);
+        Thread.sleep(10);
 
         List<Roll> rolls2 = new DiceEvaluator(new GivenNumberSupplier(1), 1000).evaluate("1d6");
         File cachedRes1 = underTest.getImageForRoll(rolls2, new DiceStyleAndColor(DiceImageStyle.polyhedral_3d, "red_and_white"));
@@ -246,7 +255,7 @@ class ImageResultCreatorTest {
         assertThat(cachedRes1.getName()).isEqualTo("cea2a67e61a8b605c6702aac213960f86922331b5cac795649502b363dde97aa.png");
         assertThat(getFileHash(cachedRes1)).isEqualTo("933002493c0ccf2ea6ad67c8656342d3f02642a19a840b032a62346e4a7a048b");
 
-        Thread.sleep(100);
+        Thread.sleep(10);
 
         List<Roll> rolls3 = new DiceEvaluator(new GivenNumberSupplier(2), 1000).evaluate("1d6");
         File res2 = underTest.getImageForRoll(rolls3, new DiceStyleAndColor(DiceImageStyle.polyhedral_3d, "red_and_white"));
@@ -365,8 +374,23 @@ class ImageResultCreatorTest {
         assertThat(res).isNull();
     }
 
+    @ParameterizedTest(name = "{index} resultImage:{0}, sides:{1}, color:{2} -> {3}")
+    @MethodSource("generateDiceStyleDataPerColor")
+    void testPolyhedralResultImagePerColor(DiceImageStyle diceImageStyle, List<Integer> sides, String color) throws ExpressionException {
+        for (int d : sides) {
+            for (int s = 1; s <= d; s++) {
+                List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(s), 1000).evaluate("1d%d".formatted(d));
+                File res = underTest.getImageForRoll(rolls, new DiceStyleAndColor(diceImageStyle, color));
+                assertThat(res).isNotNull();
+            }
+        }
+        List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(1), 1000).evaluate("1d[abc/cde]");
+        File res = underTest.getImageForRoll(rolls, new DiceStyleAndColor(diceImageStyle, "notAColor"));
+        assertThat(res).isNull();
+    }
+
     @Test
-    void getImageForRoll_polyhedralDrawColor() throws ExpressionException {
+    void getImageForRoll_polyhedralDrawColor() throws ExpressionException, IOException {
         List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(4, 6, 8, 10, 12, 20, 99), 1000).evaluate("color(1d4,'gray') + color(1d6,'black') + color(1d8,'white') + color(1d10,'red') + color(1d12,'blue') + color(1d20,'green') + color(1d100,'orange')");
 
         File res = underTest.getImageForRoll(rolls, new DiceStyleAndColor(DiceImageStyle.polyhedral_2d, DiceImageStyle.polyhedral_2d.getDefaultColor()));
@@ -374,8 +398,20 @@ class ImageResultCreatorTest {
         assertThat(res).isNotNull();
         assertThat(res).exists();
         assertThat(res.getName()).isEqualTo("06a75350871a27e834984e9d7df253106cbb3e1d5567ca129dc998f0bf851b01.png");
-        //hash is different in the github build task, maybe the fonts
-        //assertThat(getFileHash(res)).isEqualTo("d384fa1d1447eefa2255889df8a9c6b106c6fc9228e49d5adc9ec3272fb46b81");
+        assertThat(getFileHash(res)).isEqualTo("95e4da4728bbbb27416801a6be380a7ac886ec254da2a9f28e9117c948e08c76");
+        assertThat(res).exists();
+    }
+
+    @Test
+    void getImageForRoll_polyhedral_RdD() throws ExpressionException, IOException {
+        List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(4, 6, 7, 8, 10, 12, 20, 99, 8, 12), 1000).evaluate("1d4 + 1d6 + 1d7 + 1d8 + 1d10 +1d12 + 1d20 + 1d100  + 1d8 col 'special' + 1d12 col 'special'");
+
+        File res = underTest.getImageForRoll(rolls, new DiceStyleAndColor(DiceImageStyle.polyhedral_RdD, DiceImageStyle.polyhedral_RdD.getDefaultColor()));
+
+        assertThat(res).isNotNull();
+        assertThat(res).exists();
+        assertThat(res.getName()).isEqualTo("61c14c61b4aa28b648319b8e36b62ef9a1c61720c2e753cd34c0e97a89b67784.png");
+        assertThat(getFileHash(res)).isEqualTo("de01222cf4ea85e2fe2eea6539ebdfe9809bfe88f6dfb8ece5736df9eeb6603d");
         assertThat(res).exists();
     }
 }

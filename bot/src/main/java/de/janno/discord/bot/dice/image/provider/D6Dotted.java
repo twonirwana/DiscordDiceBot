@@ -31,7 +31,7 @@ public class D6Dotted implements ImageProvider {
     }
 
     @Override
-    public int getDieHighAndWith() {
+    public int getDieHighAndWide() {
         return 50;
     }
 
