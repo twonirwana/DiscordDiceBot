@@ -13,5 +13,6 @@ public enum ResultImage {
     polyhedral_green_and_gold,
     polyhedral_orange_and_silver,
     polyhedral_red_and_gold,
-    polyhedral_purple_and_silver
+    polyhedral_purple_and_silver,
+
 }

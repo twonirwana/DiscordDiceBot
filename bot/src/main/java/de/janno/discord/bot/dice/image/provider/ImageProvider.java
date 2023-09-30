@@ -10,7 +10,7 @@ public interface ImageProvider {
 
     @NonNull List<BufferedImage> getImageFor(Integer totalDieSides, Integer shownDieSide, @Nullable String color);
 
-    int getDieHighAndWith();
+    int getDieHighAndWide();
 
     @NonNull String getDefaultColor();
 

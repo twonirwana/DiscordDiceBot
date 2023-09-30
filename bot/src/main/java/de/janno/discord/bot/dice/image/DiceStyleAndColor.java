@@ -43,7 +43,7 @@ public class DiceStyleAndColor {
 
     @JsonIgnore
     public int getDieHighAndWith() {
-        return diceImageStyle.getImageProvider().getDieHighAndWith();
+        return diceImageStyle.getImageProvider().getDieHighAndWide();
     }
 
     @Override
