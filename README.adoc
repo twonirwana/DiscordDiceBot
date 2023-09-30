@@ -598,6 +598,6 @@ All functions are case insensitiv.
 
 * Special thank to https://www.instagram.com/alie_in_beanland/[alieinbeanland] for the design of the dice images for `polyhedral_alies_v1` and `polyhedral_alies_v2`
 * Special thank to mailto:minuette@gmail.com[Myrynvalona] for the design of the dice images for `polyhedral_knots`
-* Special thank to http://scriptarium.org[scriptarium.org]] for creating the dice images for `polyhedral_RdD`
+* Special thank to http://scriptarium.org[scriptarium.org] for creating the dice images for `polyhedral_RdD`
 * The `polyhedral_3d` dice images where adapted from https://blendswap.com/blend/16634
 * The `d6_dot` dice images are from https://game-icons.net/
