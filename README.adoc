@@ -270,7 +270,7 @@ image:image/polyhedral_RdD_default.png[image,600]
 image:image/polyhedral_RdD_special.png[image,170]
 
 The style has two "colors": `default` and `special`. The `default` "color" contains universal images for d4, d6, d7, d10, d8, d12, d20, d100.
-The `special` "color" contains only images for d8 (image values are 0 to 7 and a dragon for the 8) and d12 with only special symbols.
+The `special` "color" contains only images for Draconic d8 (image values are 0 to 7 and a dragon for the 8) and Astral d12 with only special symbols.
 
 This set was designed and contributed by http://scriptarium.org[scriptarium.org].
 
