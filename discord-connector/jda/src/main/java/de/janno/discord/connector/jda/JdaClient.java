@@ -177,7 +177,7 @@ public class JdaClient {
                             }
                         }
                 )
-                .setActivity(Activity.listening("Type /help"));
+                .setActivity(Activity.customStatus("Type /help or /welcome start"));
 
         ShardManager shardManager = shardManagerBuilder.build();
         JdaMetrics.startGuildCountGauge(botInGuildIdSet);

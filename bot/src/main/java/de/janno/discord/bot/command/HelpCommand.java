@@ -31,7 +31,8 @@ public class HelpCommand implements SlashCommand {
     public @NonNull Mono<Void> handleSlashCommandEvent(@NonNull SlashEventAdaptor event, @NonNull Supplier<UUID> uuidSupplier) {
         BotMetrics.incrementSlashStartMetricCounter(getCommandId(), "[]");
         return event.replyEmbed(EmbedOrMessageDefinition.builder()
-                .field(new EmbedOrMessageDefinition.Field("Command help", "type '/count_successes help', '/custom_dice help' or '/fate help' to get help for the commands", false))
+                .field(new EmbedOrMessageDefinition.Field("Quick start", "Write to `/welcome start` get a quick start message", false))
+                .field(new EmbedOrMessageDefinition.Field("Command help", "Add `help` after a command to get specific help for it, e.g. '/custom_dice help'", false))
                 .field(new EmbedOrMessageDefinition.Field("Full documentation", "https://github.com/twonirwana/DiscordDiceBot", false))
                 .field(new EmbedOrMessageDefinition.Field("Discord Server", "https://discord.gg/e43BsqKpFr", false))
                 .build(), true);
