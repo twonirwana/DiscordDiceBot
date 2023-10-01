@@ -45,7 +45,7 @@ public class DirectRollCommandMockTest {
 
         assertThat(slashEvent.getActions()).containsExactlyInAnyOrder(
                 "acknowledgeAndRemoveSlash",
-                "createResultMessageWithEventReference: EmbedOrMessageDefinition(title=1d6 ⇒ 1, descriptionOrContent=, fields=[], file=cea2a67e61a8b605c6702aac213960f86922331b5cac795649502b363dde97aa.png, type=EMBED)");
+                "createResultMessageWithEventReference: EmbedOrMessageDefinition(title=1d6 ⇒ 1, descriptionOrContent=, fields=[], hasImage=true, type=EMBED)");
     }
 
     @Test
@@ -62,7 +62,7 @@ public class DirectRollCommandMockTest {
         assertThat(slashEvent.getActions()).containsExactlyInAnyOrder(
                 "replyEmbed: EmbedOrMessageDefinition(title=null, descriptionOrContent=Type /r and a dice expression, configuration with /channel_config\n" +
                         DiceEvaluatorAdapter.getHelp() +
-                        ", fields=[EmbedOrMessageDefinition.Field(name=Example, value=`/r expression:1d6`, inline=false), EmbedOrMessageDefinition.Field(name=Full documentation, value=https://github.com/twonirwana/DiscordDiceBot, inline=false), EmbedOrMessageDefinition.Field(name=Discord Server for Help and News, value=https://discord.gg/e43BsqKpFr, inline=false)], file=null, type=EMBED)");
+                        ", fields=[EmbedOrMessageDefinition.Field(name=Example, value=`/r expression:1d6`, inline=false), EmbedOrMessageDefinition.Field(name=Full documentation, value=https://github.com/twonirwana/DiscordDiceBot, inline=false), EmbedOrMessageDefinition.Field(name=Discord Server for Help and News, value=https://discord.gg/e43BsqKpFr, inline=false)], hasImage=false, type=EMBED)");
     }
 
     @Test
@@ -94,7 +94,7 @@ public class DirectRollCommandMockTest {
 
         assertThat(slashEvent.getActions()).containsExactlyInAnyOrder(
                 "acknowledgeAndRemoveSlash",
-                "createResultMessageWithEventReference: EmbedOrMessageDefinition(title=test ⇒ 1, descriptionOrContent=1d6, fields=[], file=cea2a67e61a8b605c6702aac213960f86922331b5cac795649502b363dde97aa.png, type=EMBED)");
+                "createResultMessageWithEventReference: EmbedOrMessageDefinition(title=test ⇒ 1, descriptionOrContent=1d6, fields=[], hasImage=true, type=EMBED)");
     }
 
     @Test
@@ -128,7 +128,7 @@ public class DirectRollCommandMockTest {
 
         assertThat(slashEvent1.getActions()).containsExactlyInAnyOrder("reply: `commandString`\nSaved direct roll channel config");
         assertThat(slashEvent2.getActions()).containsExactlyInAnyOrder("acknowledgeAndRemoveSlash",
-                "createResultMessageWithEventReference: EmbedOrMessageDefinition(title=Roll ⇒ 1, descriptionOrContent=[1], fields=[], file=null, type=EMBED)");
+                "createResultMessageWithEventReference: EmbedOrMessageDefinition(title=Roll ⇒ 1, descriptionOrContent=[1], fields=[], hasImage=false, type=EMBED)");
     }
 
     @Test
@@ -163,7 +163,7 @@ public class DirectRollCommandMockTest {
         assertThat(slashEvent1.getActions()).containsExactlyInAnyOrder("reply: `commandString`\nSaved direct roll channel config");
         assertThat(slashEvent2.getActions()).containsExactlyInAnyOrder(
                 "acknowledgeAndRemoveSlash",
-                "createResultMessageWithEventReference: EmbedOrMessageDefinition(title=Roll ⇒ 1, descriptionOrContent=, fields=[], file=cea2a67e61a8b605c6702aac213960f86922331b5cac795649502b363dde97aa.png, type=EMBED)");
+                "createResultMessageWithEventReference: EmbedOrMessageDefinition(title=Roll ⇒ 1, descriptionOrContent=, fields=[], hasImage=true, type=EMBED)");
     }
 
     @Test
@@ -198,7 +198,7 @@ public class DirectRollCommandMockTest {
         assertThat(slashEvent1.getActions()).containsExactlyInAnyOrder("reply: `commandString`\nSaved direct roll channel config");
         assertThat(slashEvent2.getActions()).containsExactlyInAnyOrder(
                 "acknowledgeAndRemoveSlash",
-                "createResultMessageWithEventReference: EmbedOrMessageDefinition(title=test ⇒ 1, descriptionOrContent=, fields=[], file=cea2a67e61a8b605c6702aac213960f86922331b5cac795649502b363dde97aa.png, type=EMBED)");
+                "createResultMessageWithEventReference: EmbedOrMessageDefinition(title=test ⇒ 1, descriptionOrContent=, fields=[], hasImage=true, type=EMBED)");
     }
 
     @Test
@@ -233,7 +233,7 @@ public class DirectRollCommandMockTest {
         assertThat(slashEvent1.getActions()).containsExactlyInAnyOrder("reply: `commandString`\nSaved direct roll channel config");
         assertThat(slashEvent2.getActions()).containsExactlyInAnyOrder(
                 "acknowledgeAndRemoveSlash",
-                "createResultMessageWithEventReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=__**1d6 ⇒ 1**__  [1], fields=[], file=null, type=MESSAGE)");
+                "createResultMessageWithEventReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=__**1d6 ⇒ 1**__  [1], fields=[], hasImage=false, type=MESSAGE)");
     }
 
     @Test
@@ -268,7 +268,7 @@ public class DirectRollCommandMockTest {
         assertThat(slashEvent1.getActions()).containsExactlyInAnyOrder("reply: `commandString`\nSaved direct roll channel config");
         assertThat(slashEvent2.getActions()).containsExactlyInAnyOrder(
                 "acknowledgeAndRemoveSlash",
-                "createResultMessageWithEventReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=1d6 ⇒ 1, fields=[], file=null, type=MESSAGE)");
+                "createResultMessageWithEventReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=1d6 ⇒ 1, fields=[], hasImage=false, type=MESSAGE)");
     }
 
     @Test
@@ -295,7 +295,7 @@ public class DirectRollCommandMockTest {
 
         assertThat(slashEvent1.getActions()).containsExactlyInAnyOrder("reply: `commandString`\nSaved new alias");
         assertThat(slashEvent2.getActions()).containsExactlyInAnyOrder("acknowledgeAndRemoveSlash",
-                "createResultMessageWithEventReference: EmbedOrMessageDefinition(title=2d20+10 ⇒ 36, descriptionOrContent=, fields=[], file=97dc22f364d30e78c07db37e7ffca23a9df79ae0e0d29664282f8f2b26e98a0d.png, type=EMBED)");
+                "createResultMessageWithEventReference: EmbedOrMessageDefinition(title=2d20+10 ⇒ 36, descriptionOrContent=, fields=[], hasImage=true, type=EMBED)");
     }
 
     @Test
@@ -322,7 +322,7 @@ public class DirectRollCommandMockTest {
 
         assertThat(slashEvent1.getActions()).containsExactlyInAnyOrder("reply: `commandString`\nSaved new alias");
         assertThat(slashEvent2.getActions()).containsExactlyInAnyOrder("acknowledgeAndRemoveSlash",
-                "createResultMessageWithEventReference: EmbedOrMessageDefinition(title=2d20+10 ⇒ 36, descriptionOrContent=, fields=[], file=97dc22f364d30e78c07db37e7ffca23a9df79ae0e0d29664282f8f2b26e98a0d.png, type=EMBED)");
+                "createResultMessageWithEventReference: EmbedOrMessageDefinition(title=2d20+10 ⇒ 36, descriptionOrContent=, fields=[], hasImage=true, type=EMBED)");
     }
 
 

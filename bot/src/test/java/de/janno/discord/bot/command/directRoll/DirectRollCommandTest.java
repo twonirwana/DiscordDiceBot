@@ -1,6 +1,5 @@
 package de.janno.discord.bot.command.directRoll;
 
-import com.google.common.collect.ImmutableList;
 import de.janno.discord.bot.command.AnswerFormatType;
 import de.janno.discord.bot.command.channelConfig.ChannelConfigCommand;
 import de.janno.discord.bot.command.channelConfig.DirectRollConfig;
@@ -22,7 +21,7 @@ import org.mockito.ArgumentMatchers;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import java.io.File;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -70,7 +69,7 @@ class DirectRollCommandTest {
         verify(slashEventAdaptor, never()).createButtonMessage(any());
         verify(slashEventAdaptor, never()).deleteMessageById(anyLong());
         verify(slashEventAdaptor, never()).replyEmbed(any(), anyBoolean());
-        verify(slashEventAdaptor).createResultMessageWithEventReference(ArgumentMatchers.eq(new EmbedOrMessageDefinition("Test Label ⇒ 1", "1d6", ImmutableList.of(), new File("imageCache//polyhedral_3d_red_and_white//cea2a67e61a8b605c6702aac213960f86922331b5cac795649502b363dde97aa.png"), EmbedOrMessageDefinition.Type.EMBED)));
+        verify(slashEventAdaptor).createResultMessageWithEventReference(ArgumentMatchers.argThat(argument -> Objects.equals(argument.toString(), "EmbedOrMessageDefinition(title=Test Label ⇒ 1, descriptionOrContent=1d6, fields=[], hasImage=true, type=EMBED)")));
 
         verify(slashEventAdaptor, times(2)).getChannelId();
     }

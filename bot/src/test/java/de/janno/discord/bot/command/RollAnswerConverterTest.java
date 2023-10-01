@@ -6,7 +6,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import java.io.File;
+import java.io.ByteArrayInputStream;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -39,7 +39,7 @@ class RollAnswerConverterTest {
                         .expression("2d6=")
                         .rollDetails("[1,2]")
                         .result("3")
-                        .file(new File("/"))
+                        .image(() -> new ByteArrayInputStream(new byte[0]))
                         .build(), "2d6= ⇒ 3", "", EmbedOrMessageDefinition.Type.EMBED, ImmutableList.of(), true),
                 Arguments.of(RollAnswer.builder()
                         .answerFormatType(AnswerFormatType.full)
@@ -87,7 +87,7 @@ class RollAnswerConverterTest {
                 Arguments.of(RollAnswer.builder()
                         .answerFormatType(AnswerFormatType.without_expression)
                         .expression("2d6=")
-                        .file(new File("/"))
+                        .image(() -> new ByteArrayInputStream(new byte[0]))
                         .rollDetails("[1,2]")
                         .result("3")
                         .build(), "Roll ⇒ 3", "", EmbedOrMessageDefinition.Type.EMBED, ImmutableList.of(), true),
@@ -138,7 +138,7 @@ class RollAnswerConverterTest {
                         .answerFormatType(AnswerFormatType.only_dice)
                         .expression("2d6=")
                         .rollDetails("[1,2]")
-                        .file(new File(""))
+                        .image(() -> new ByteArrayInputStream(new byte[0]))
                         .result("3")
                         .build(), null, "", EmbedOrMessageDefinition.Type.EMBED, ImmutableList.of(), true),
                 Arguments.of(RollAnswer.builder()
@@ -182,7 +182,7 @@ class RollAnswerConverterTest {
                         .answerFormatType(AnswerFormatType.compact)
                         .expression("2d6=")
                         .rollDetails("[1,2]")
-                        .file(new File(""))
+                        .image(() -> new ByteArrayInputStream(new byte[0]))
                         .result("3")
                         .build(), null, "__**2d6= ⇒ 3**__  [1,2]", EmbedOrMessageDefinition.Type.MESSAGE, ImmutableList.of(), false),
                 Arguments.of(RollAnswer.builder()
@@ -233,7 +233,7 @@ class RollAnswerConverterTest {
                         .answerFormatType(AnswerFormatType.minimal)
                         .expression("2d6=")
                         .rollDetails("[1,2]")
-                        .file(new File(""))
+                        .image(() -> new ByteArrayInputStream(new byte[0]))
                         .result("3")
                         .build(), null, "2d6= ⇒ 3", EmbedOrMessageDefinition.Type.MESSAGE, ImmutableList.of(), false),
                 Arguments.of(RollAnswer.builder()
@@ -265,7 +265,7 @@ class RollAnswerConverterTest {
         assertThat(embedOrMessageDefinition.getDescriptionOrContent()).isEqualTo(expectedDescription);
         assertThat(embedOrMessageDefinition.getType()).isEqualTo(expectedType);
         assertThat(embedOrMessageDefinition.getFields()).isEqualTo(expectedFields);
-        assertThat(embedOrMessageDefinition.getFile() != null).isEqualTo(expectedFile);
+        assertThat(embedOrMessageDefinition.getImage() != null).isEqualTo(expectedFile);
     }
 
 }

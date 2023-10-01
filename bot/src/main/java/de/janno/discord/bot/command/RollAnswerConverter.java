@@ -43,7 +43,7 @@ public class RollAnswerConverter {
                             .build();
 
                 } else {
-                    final String diceDetailsString = rollAnswer.getFile() != null ? null : rollAnswer.getRollDetails();
+                    final String diceDetailsString = rollAnswer.getImage() != null ? null : rollAnswer.getRollDetails();
                     final String description;
                     if (rollAnswer.getExpressionLabel() != null) {
                         description = Joiner.on(": ").skipNulls().join(rollAnswer.getExpression(), diceDetailsString);
@@ -53,7 +53,7 @@ public class RollAnswerConverter {
                     yield EmbedOrMessageDefinition.builder()
                             .title("%s ⇒ %s".formatted(Optional.ofNullable(rollAnswer.getExpressionLabel()).orElse(rollAnswer.getExpression()), rollAnswer.getResult()))
                             .descriptionOrContent(description)
-                            .file(rollAnswer.getFile())
+                            .image(rollAnswer.getImage())
                             .type(EmbedOrMessageDefinition.Type.EMBED)
                             .build();
                 }
@@ -73,13 +73,13 @@ public class RollAnswerConverter {
                             .build();
 
                 } else {
-                    final String diceDetailsString = rollAnswer.getFile() != null ? null : rollAnswer.getRollDetails();
+                    final String diceDetailsString = rollAnswer.getImage() != null ? null : rollAnswer.getRollDetails();
                     final String description = Optional.ofNullable(diceDetailsString).orElse("");
                     yield EmbedOrMessageDefinition.builder()
                             .title("%s ⇒ %s".formatted(Optional.ofNullable(rollAnswer.getExpressionLabel()).orElse("Roll"), rollAnswer.getResult()))
                             .descriptionOrContent(description)
                             .type(EmbedOrMessageDefinition.Type.EMBED)
-                            .file(rollAnswer.getFile())
+                            .image(rollAnswer.getImage())
                             .build();
                 }
             }
@@ -92,12 +92,12 @@ public class RollAnswerConverter {
                             .type(EmbedOrMessageDefinition.Type.EMBED)
                             .build();
                 } else {
-                    final String diceDetailsString = rollAnswer.getFile() != null ? null : rollAnswer.getRollDetails();
+                    final String diceDetailsString = rollAnswer.getImage() != null ? null : rollAnswer.getRollDetails();
                     final String description = Optional.ofNullable(diceDetailsString).orElse("");
                     yield EmbedOrMessageDefinition.builder()
                             .descriptionOrContent(description)
                             .type(EmbedOrMessageDefinition.Type.EMBED)
-                            .file(rollAnswer.getFile())
+                            .image(rollAnswer.getImage())
                             .build();
                 }
             }

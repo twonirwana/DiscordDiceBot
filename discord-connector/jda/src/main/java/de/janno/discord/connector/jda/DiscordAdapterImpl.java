@@ -80,8 +80,8 @@ public abstract class DiscordAdapterImpl implements DiscordAdapter {
                             field.isInline());
                 }
                 final List<FileUpload> files;
-                if (answer.getFile() != null) {
-                    files = List.of(FileUpload.fromData(answer.getFile(), "image.png"));
+                if (answer.getImage() != null) {
+                    files = List.of(FileUpload.fromStreamSupplier("image.png", answer.getImage()));
                     builder.setImage("attachment://image.png");
                 } else {
                     files = List.of();
