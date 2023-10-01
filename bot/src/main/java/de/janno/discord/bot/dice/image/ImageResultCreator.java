@@ -35,10 +35,16 @@ public class ImageResultCreator {
 
     private static final String CACHE_FOLDER = "imageCache";
     private static final String CACHE_INDEX_FILE = "imageCacheName.csv";
-    private final BigInteger MAX_ROLL_COMBINATION_TO_CACHE = BigInteger.valueOf(1000);
+    private final BigInteger MAX_ROLL_COMBINATION_TO_CACHE;
 
     public ImageResultCreator() {
+        this(1000);
+    }
+
+    @VisibleForTesting
+    public ImageResultCreator(int maxRollCombinationToCache) {
         createCacheIndexFileIfMissing();
+        MAX_ROLL_COMBINATION_TO_CACHE = BigInteger.valueOf(maxRollCombinationToCache);
     }
 
     private void createFolderIfMissing(String folderName) {
@@ -163,10 +169,8 @@ public class ImageResultCreator {
                 .map(r -> {
                             if (r.getMaxInc() != null && r.getMinInc() != null) {
                                 return (r.getMaxInc() + 1) - r.getMinInc();
-                            } else if (r.getRandomSelectedFrom() != null) {
-                                return r.getRandomSelectedFrom().size();
                             } else {
-                                return 1;
+                                throw new IllegalStateException("The roll %s should not used to crate images".formatted(roll));
                             }
                         }
 

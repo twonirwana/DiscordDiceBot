@@ -345,10 +345,11 @@ class ImageResultCreatorTest {
     @ParameterizedTest(name = "{index} resultImage:{0}, sides:{1} -> {2}")
     @MethodSource("generateResultImageData")
     void testLegacyPolyhedralResultImage(ResultImage resultImage, List<Integer> sides) throws ExpressionException {
+        ImageResultCreator underTestWithoutCache = new ImageResultCreator(-1);
         for (int d : sides) {
             for (int s = 1; s <= d; s++) {
                 List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(s), 1000).evaluate("1d%d".formatted(d));
-                Supplier<? extends InputStream> res = underTest.getImageForRoll(rolls, LegacyImageConfigHelper.getStyleAndColor(resultImage));
+                Supplier<? extends InputStream> res = underTestWithoutCache.getImageForRoll(rolls, LegacyImageConfigHelper.getStyleAndColor(resultImage));
                 assertThat(res).isNotNull();
             }
         }
@@ -360,12 +361,14 @@ class ImageResultCreatorTest {
     @ParameterizedTest(name = "{index} resultImage:{0}, sides:{1} -> {2}")
     @MethodSource("generateDiceStyleData")
     void testPolyhedralResultImage(DiceImageStyle diceImageStyle, List<Integer> sides) throws ExpressionException {
+        ImageResultCreator underTestWithoutCache = new ImageResultCreator(-1);
         for (int d : sides) {
             for (int s = 1; s <= d; s++) {
                 List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(s), 1000).evaluate("1d%d".formatted(d));
                 for (String color : diceImageStyle.getSupportedColors()) {
-                    Supplier<? extends InputStream> res = underTest.getImageForRoll(rolls, new DiceStyleAndColor(diceImageStyle, color));
+                    Supplier<? extends InputStream> res = underTestWithoutCache.getImageForRoll(rolls, new DiceStyleAndColor(diceImageStyle, color));
                     assertThat(res).isNotNull();
+                    assertThat(res.get()).isNotEmpty();
                 }
             }
         }
