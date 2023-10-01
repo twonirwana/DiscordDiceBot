@@ -14,7 +14,6 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.File;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Optional;
@@ -44,7 +43,7 @@ public class DiceEvaluatorAdapter {
         if (expressionWithOptionalLabel.contains(labelDelimiter)) {
             int firstDelimiter = expressionWithOptionalLabel.indexOf(labelDelimiter);
             String label = expressionWithOptionalLabel.substring(firstDelimiter + labelDelimiter.length());
-            if (label.length() > 0) {
+            if (!label.isEmpty()) {
                 return Optional.of(label);
             }
         }

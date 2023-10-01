@@ -1,6 +1,5 @@
 package de.janno.discord.bot.command.directRoll;
 
-import com.google.common.collect.ImmutableList;
 import de.janno.discord.bot.command.AnswerFormatType;
 import de.janno.discord.bot.command.channelConfig.ChannelConfigCommand;
 import de.janno.discord.bot.command.channelConfig.DirectRollConfig;
