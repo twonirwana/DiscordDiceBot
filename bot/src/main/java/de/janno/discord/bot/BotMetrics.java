@@ -190,7 +190,8 @@ public class BotMetrics {
 
     public enum CacheTag {
         CACHE_HIT,
-        CACHE_MISS
+        CACHE_MISS,
+        CACHE_SKIP
     }
 
 }

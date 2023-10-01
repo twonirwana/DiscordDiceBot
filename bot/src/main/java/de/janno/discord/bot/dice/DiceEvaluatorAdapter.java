@@ -15,8 +15,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 import static de.janno.discord.bot.dice.DiceSystemAdapter.LABEL_DELIMITER;
 
@@ -133,13 +135,13 @@ public class DiceEvaluatorAdapter {
             }
 
             BotMetrics.incrementUseImageResultMetricCounter(styleAndColor);
-            File diceImage = IMAGE_RESULT_CREATOR.getImageForRoll(rolls, styleAndColor);
+            Supplier<? extends InputStream> diceImage = IMAGE_RESULT_CREATOR.getImageForRoll(rolls, styleAndColor);
             if (rolls.size() == 1) {
                 return RollAnswer.builder()
                         .answerFormatType(answerFormatType)
                         .expression(expression)
                         .expressionLabel(label)
-                        .file(diceImage)
+                        .image(diceImage)
                         .result(getResult(rolls.get(0), sumUp))
                         .rollDetails(rolls.get(0).getRandomElementsString())
                         .build();

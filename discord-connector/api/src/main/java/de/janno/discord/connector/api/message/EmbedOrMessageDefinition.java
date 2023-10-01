@@ -2,15 +2,14 @@ package de.janno.discord.connector.api.message;
 
 import lombok.*;
 
-import java.io.File;
+import java.io.InputStream;
 import java.util.List;
-import java.util.Optional;
+import java.util.function.Supplier;
 
 @Value
 @Builder
 @AllArgsConstructor
 public class EmbedOrMessageDefinition {
-    private static final String MINUS = "\u2212";
 
     //todo ephemeral field
 
@@ -18,7 +17,7 @@ public class EmbedOrMessageDefinition {
     String descriptionOrContent;
     @Singular
     List<Field> fields;
-    File file;
+    Supplier<? extends InputStream> image;
 
     @Builder.Default
     Type type = Type.EMBED;
@@ -29,7 +28,7 @@ public class EmbedOrMessageDefinition {
                 "title=" + title +
                 ", descriptionOrContent=" + descriptionOrContent +
                 ", fields=" + fields +
-                ", file=" + Optional.ofNullable(file).map(File::getName).orElse("null") +
+                ", hasImage=" + (image != null) +
                 ", type=" + type +
                 ')';
     }

@@ -14,8 +14,8 @@ import org.jetbrains.annotations.Nullable;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
+import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -24,6 +24,7 @@ import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -34,6 +35,7 @@ public class ImageResultCreator {
 
     private static final String CACHE_FOLDER = "imageCache";
     private static final String CACHE_INDEX_FILE = "imageCacheName.csv";
+    private final BigInteger MAX_ROLL_COMBINATION_TO_CACHE = BigInteger.valueOf(1000);
 
     public ImageResultCreator() {
         createCacheIndexFileIfMissing();
@@ -87,7 +89,7 @@ public class ImageResultCreator {
                 .collect(Collectors.joining(",")));
     }
 
-    public @Nullable File getImageForRoll(@NonNull List<Roll> rolls, @Nullable DiceStyleAndColor diceStyleAndColor) {
+    public @Nullable Supplier<? extends InputStream> getImageForRoll(@NonNull List<Roll> rolls, @Nullable DiceStyleAndColor diceStyleAndColor) {
         if (diceStyleAndColor == null) {
             return null;
         }
@@ -111,16 +113,21 @@ public class ImageResultCreator {
         String filePath = "%s/%s/%s.png".formatted(CACHE_FOLDER, diceStyleAndColor.toString(), hashName);
         File imageFile = new File(filePath);
         if (!imageFile.exists()) {
-            createNewFileForRoll(rolls.get(0), imageFile, name, diceStyleAndColor);
             BotMetrics.incrementImageResultMetricCounter(BotMetrics.CacheTag.CACHE_MISS);
+            return createNewFileForRoll(rolls.get(0), imageFile, name, diceStyleAndColor);
         } else {
             log.trace("Use cached file %s for %s".formatted(filePath, name));
             BotMetrics.incrementImageResultMetricCounter(BotMetrics.CacheTag.CACHE_HIT);
+            try {
+                byte[] imageBytes = com.google.common.io.Files.toByteArray(imageFile);
+                return () -> new ByteArrayInputStream(imageBytes);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
-        return imageFile;
     }
 
-    private void createNewFileForRoll(Roll roll, File file, String name, DiceStyleAndColor diceStyleAndColor) {
+    private Supplier<? extends InputStream> createNewFileForRoll(Roll roll, File file, String name, DiceStyleAndColor diceStyleAndColor) {
         Stopwatch stopwatch = Stopwatch.createStarted();
 
         List<List<BufferedImage>> images = roll.getRandomElementsInRoll().getRandomElements().stream()
@@ -151,11 +158,39 @@ public class ImageResultCreator {
         }
         g.dispose();
         String indexPath = "%s/%s/%s".formatted(CACHE_FOLDER, diceStyleAndColor.toString(), CACHE_INDEX_FILE);
+        BigInteger combinations = roll.getRandomElementsInRoll().getRandomElements()
+                .stream().flatMap(r -> r.getRandomElements().stream())
+                .map(r -> {
+                            if (r.getMaxInc() != null && r.getMinInc() != null) {
+                                return (r.getMaxInc() + 1) - r.getMinInc();
+                            } else if (r.getRandomSelectedFrom() != null) {
+                                return r.getRandomSelectedFrom().size();
+                            } else {
+                                return 1;
+                            }
+                        }
 
-        writeFile(combined, file, Path.of(indexPath), name);
-
-        BotMetrics.imageCreationTimer(stopwatch.elapsed());
-        log.debug("Created image {} in {}ms", name, stopwatch.elapsed(TimeUnit.MILLISECONDS));
+                )
+                .map(BigInteger::valueOf)
+                .reduce(BigInteger.ONE, BigInteger::multiply);
+        //don't cache images that unlikely to ever get generated again
+        if (MAX_ROLL_COMBINATION_TO_CACHE.compareTo(combinations) < 0) {
+            BotMetrics.incrementImageResultMetricCounter(BotMetrics.CacheTag.CACHE_SKIP);
+            log.trace("no cache because roll has {} combinations", combinations);
+        } else {
+            writeFile(combined, file, Path.of(indexPath), name);
+        }
+        return () -> {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            try {
+                ImageIO.write(combined, "png", baos);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            log.debug("Created image {} in {}ms", name, stopwatch.elapsed(TimeUnit.MILLISECONDS));
+            BotMetrics.imageCreationTimer(stopwatch.elapsed());
+            return new ByteArrayInputStream(baos.toByteArray());
+        };
     }
 
     private synchronized void writeFile(BufferedImage combined, File outputFile, Path indexFile, String name) {
