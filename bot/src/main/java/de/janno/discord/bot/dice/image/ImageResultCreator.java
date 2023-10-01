@@ -191,7 +191,7 @@ public class ImageResultCreator {
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
-            log.debug("Created image {} in {}ms", name, stopwatch.elapsed(TimeUnit.MILLISECONDS));
+            log.trace("Created image {} in {}ms", name, stopwatch.elapsed(TimeUnit.MILLISECONDS));
             BotMetrics.imageCreationTimer(stopwatch.elapsed());
             return new ByteArrayInputStream(baos.toByteArray());
         };
