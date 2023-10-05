@@ -25,7 +25,7 @@ public class ChannelConfigMockTest {
     @BeforeEach
     void setup() {
         try {
-            FileUtils.cleanDirectory(new File("imageCache/"));
+            FileUtils.cleanDirectory(new File("imageCache"));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

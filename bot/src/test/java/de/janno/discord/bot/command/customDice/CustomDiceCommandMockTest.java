@@ -45,14 +45,14 @@ public class CustomDiceCommandMockTest {
 
     @BeforeEach
     void setup() throws IOException {
-        FileUtils.cleanDirectory(new File("imageCache/"));
+        FileUtils.cleanDirectory(new File("imageCache"));
         messageIdCounter = new AtomicLong(0);
         persistenceManager = new PersistenceManagerImpl("jdbc:h2:mem:" + UUID.randomUUID(), null, null);
     }
 
     @AfterEach
     void cleanUp() throws IOException {
-        FileUtils.cleanDirectory(new File("imageCache/"));
+        FileUtils.cleanDirectory(new File("imageCache"));
     }
 
     @Test
