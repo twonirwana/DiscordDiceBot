@@ -23,11 +23,10 @@ public class ChannelConfigMockTest {
     PersistenceManager persistenceManager;
 
     @BeforeEach
-    void setup() {
-        try {
-            FileUtils.cleanDirectory(new File("imageCache"));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+    void setup() throws IOException {
+        File cacheDirectory = new File("imageCache/");
+        if (cacheDirectory.exists()) {
+            FileUtils.cleanDirectory(cacheDirectory);
         }
         persistenceManager = new PersistenceManagerImpl("jdbc:h2:mem:" + UUID.randomUUID(), null, null);
     }
@@ -174,7 +173,7 @@ public class ChannelConfigMockTest {
                         .option(CommandInteractionOption.builder().name("name").stringValue("att").build())
                         .option(CommandInteractionOption.builder().name("value").stringValue("2d20+10").build())
                         .build())
-                .build()),1L);
+                .build()), 1L);
         channelConfig.handleSlashCommandEvent(slashEvent1, () -> UUID.fromString("00000000-0000-0000-0000-000000000000")).block();
 
         SlashEventAdaptorMock slashEvent2 = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
@@ -184,7 +183,7 @@ public class ChannelConfigMockTest {
                         .option(CommandInteractionOption.builder().name("name").stringValue("att").build())
                         .option(CommandInteractionOption.builder().name("value").stringValue("2d20+1").build())
                         .build())
-                .build()),2L);
+                .build()), 2L);
         channelConfig.handleSlashCommandEvent(slashEvent2, () -> UUID.fromString("00000000-0000-0000-0000-000000000001")).block();
 
         SlashEventAdaptorMock slashEvent3 = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
@@ -192,7 +191,7 @@ public class ChannelConfigMockTest {
                 .option(CommandInteractionOption.builder()
                         .name("list")
                         .build())
-                .build()),1L);
+                .build()), 1L);
         channelConfig.handleSlashCommandEvent(slashEvent3, () -> UUID.fromString("00000000-0000-0000-0000-000000000002")).block();
 
         SlashEventAdaptorMock slashEvent4 = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
@@ -200,7 +199,7 @@ public class ChannelConfigMockTest {
                 .option(CommandInteractionOption.builder()
                         .name("list")
                         .build())
-                .build()),2L);
+                .build()), 2L);
         channelConfig.handleSlashCommandEvent(slashEvent4, () -> UUID.fromString("00000000-0000-0000-0000-000000000003")).block();
 
         assertThat(slashEvent1.getActions()).containsExactlyInAnyOrder("reply: `commandString`\nSaved new alias");

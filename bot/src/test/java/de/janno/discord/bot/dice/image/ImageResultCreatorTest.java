@@ -74,12 +74,18 @@ class ImageResultCreatorTest {
 
     @BeforeEach
     void setup() throws IOException {
-        FileUtils.cleanDirectory(new File("imageCache"));
+        File cacheDirectory = new File("imageCache/");
+        if(cacheDirectory.exists()){
+            FileUtils.cleanDirectory(cacheDirectory);
+        }
     }
 
     @AfterEach
     void cleanUp() throws IOException {
-        FileUtils.cleanDirectory(new File("imageCache"));
+        File cacheDirectory = new File("imageCache/");
+        if(cacheDirectory.exists()){
+            FileUtils.cleanDirectory(cacheDirectory);
+        }
     }
 
     @Test

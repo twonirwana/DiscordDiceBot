@@ -23,11 +23,10 @@ public class DirectRollCommandMockTest {
     PersistenceManager persistenceManager;
 
     @BeforeEach
-    void setup() {
-        try {
-            FileUtils.cleanDirectory(new File("imageCache"));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+    void setup() throws IOException {
+        File cacheDirectory = new File("imageCache/");
+        if(cacheDirectory.exists()){
+            FileUtils.cleanDirectory(cacheDirectory);
         }
         persistenceManager = new PersistenceManagerImpl("jdbc:h2:mem:" + UUID.randomUUID(), null, null);
     }
