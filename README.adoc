@@ -37,6 +37,7 @@ Some example for commands, many more systems can be mapped, please see in the de
 
 [discrete]
 === DnD 5e
+
 `/quickstart system:Dungeon & Dragons 5e`
 
 or
@@ -55,68 +56,120 @@ or
 [discrete]
 === Fate
 
+`/quickstart system: Fate`
+
+or
+
 `/fate start type:with_modifier`
 
 [discrete]
 === World of Darkness
 
 [discrete]
-==== Chronicles of Darkness / nWoD
+==== nWod / Chronicles of Darkness
+
+`/quickstart system: nWod / Chronicles of Darkness`
+
+or
 
 `/count_successes start dice_sides: 10 target_number: 8 reroll_set: 10`
 
 [discrete]
-==== Storyteller System / oWoD
+==== oWod / Storyteller System
+
+`/quickstart system: oWod / Storyteller System`
+
+or
 
 `/pool_target start sides:10 max_dice:15 reroll_set:10 botch_set:1 reroll_variant:ask`
 
 [discrete]
 === Shadowrun
 
+`/quickstart system: Shadowrun`
+
+or
+
 `/count_successes start dice_sides:6 target_number:5 glitch:half_dice_one max_dice:20`
 
 [discrete]
 === Savage Worlds:
+
+`/quickstart system:`
+
+or
 
 `/custom_parameter start expression: (d!!{Dice:4@D4/6@D6/8@D8/12@D12/20@D20} + {Type: 0@Regular/1d!!6@Wildcard})k1`
 
 [discrete]
 === Traveller
 
+`/quickstart system: Traveller`
+
+or
+
 `/sum_custom_set start buttons:+2d6;+(3d6k2)@Boon;+(3d6l2)@Bane;+1d6;+1;+2;+3;+4;-1;-2;-3;-4`
 
 [discrete]
 === Blades in the Dark
 
+`/quickstart system: Blades in the Dark`
+
+or
+
 `/custom_dice start buttons: ifE(2d[0/0/0/1/1/3]l1,3,'Success',1,'Partial','Failure')@Zero;ifE(1d[0/0/0/1/1/3],3,'Success',1,'Partial','Failure')@1d6;ifG(2d[0/0/0/1/1/3]k2=,5,'Critical',2,'Success',0,'Partial','Failure')@2d6;ifG(3d[0/0/0/1/1/3]k2=,5,'Critical',2,'Success',0,'Partial','Failure')@3d6;ifG(4d[0/0/0/1/1/3]k2=,5,'Critical',2,'Success',0,'Partial','Failure')@4d6;ifG(5d[0/0/0/1/1/3]k2=,5,'Critical',2,'Success',0,'Partial','Failure')@5d6;ifG(6d[0/0/0/1/1/3]k2=,5,'Critical',2,'Success',0,'Partial','Failure')@6d6;ifG(7d[0/0/0/1/1/3]k2=,5,'Critical',2,'Success',0,'Partial','Failure')@7d6`
 
 [discrete]
-=== Call of Cthulhu (7th Edition)
+=== Call of Cthulhu 7th Edition
+
+`/quickstart system: Call of Cthulhu 7th Edition`
+
+or
 
 `/custom_dice start buttons: 1d100; 2d100L1@1d100 Advantage; 2d100K1@1d100 Penalty; 1d3; 1d4; 1d6; 1d8; 1d10; 1d12; 1d20; 3d6`
 
 [discrete]
 === Universal Dice Calculator ===
 
+`/quickstart system: Dice Calculator`
+
+or
+
 `/sum_custom_set start buttons: 7;8;9;+;-;4;5;6;d;k;1;2;3;0;l always_sum_result: true`
 
 [discrete]
 === Exalted 3rd ===
+
+`/quickstart system: Exalted 3ed`
+
+or
 
 `/custom_parameter start expression: val('$1', cancel(double({number of dice:1<=>24}d10,10),1,[7/8/9/10])), ifE(('$1'>=7)c,0,ifG(('$1'\<=1)c,0,'Botch'))`
 
 [discrete]
 === Vampire 5ed ===
 
-`/custom_parameter start expression: val('$r',{regular dice:1<=>16}d10) val('$h',{hunger dice:0<=>5}d10) val('$s',('$r'+'$h')>=6c) val('$rt','$r'==10c) val('$ht','$h'==10c) val('$ho','$h'==1c) val('$2s',((('$rt'+'$ht'=))/2)*2) val('$ts',('$s'+'$2s'=)) concat('successes: ', '$ts', ifE('$ts',0,ifG('$ho',1,' bestial failure' , ''),''), ifE('$rt' mod 2, 1, ifE('$ht' mod 2, 1, ' messy critical', ''), '')) answer_format: without_expression`
+`/quickstart system: Vampire 5ed`
+
+or
+
+`/custom_dice expression: val('$r',{regular dice:1<=>16}d10 col 'blue') val('$h',{hunger dice:0<=>5}d10  col 'purple_dark') val('$s',('$r'+'$h')>=6c) val('$rt','$r'==10c) val('$ht','$h'==10c) val('$ho','$h'==1c) val('$2s',((('$rt'+'$ht'=))/2)*2) val('$ts',('$s'+'$2s'=)) concat('successes: ', '$ts', ifE('$ts',0,ifG('$ho',1,' bestial failure' , ''),''), ifE('$rt' mod 2, 1, ifE('$ht' mod 2, 1, ' messy critical', ''), '')) answer_format: without_expression dice_image_style: polyhedral_knots dice_image_color: blue`
 
 [discrete]
 === One-Roll Engine ===
+
+`/quickstart system: One-Roll Engine`
+
+or
 
 `/custom_parameter start expression: groupc({Number of Dice:1<=>10}d10+({Number of Extra Die:0@0/10@1/2r10@2/3r10@3/4r10@4})>={Difficulty:1<=>10})`
 
 [discrete]
 === Rêve de Dragon ===
+
+`/quickstart system: Rêve de Dragon`
+
+or
 
 `/custom_dice start buttons: 1d4@D4;1d6@D6;2d6=@2D6;1d7@D7;1d8@D8;val('roll',1d!8 col 'special') val('diceCount','roll' c) 'roll'-'diceCount'+7=@DDR;2d10=@2D10;1d12@D12;val('$r',1d12 col 'special'),if('$r'=?1,'vaisseau','$r'=?2,'sirène','$r'=?3,'faucon','$r'=?4,'couronne','$r'=?5,'dragon','$r'=?6,'épées','$r'=?7,'lyre','$r'=?8,'serpent','$r'=?9,'poisson acrobate','$r'=?10,'araignée','$r'=?11,'roseaux','$r'=?12,'château dormant')@DAS;1d20@D20;1d100@D100 answer_format: without_expression dice_image_style: polyhedral_RdD`
 
@@ -129,7 +182,9 @@ If a message sends the answer to another channel, it will not be moved to the en
 
 === Quickstart
 
-Type `/quickstart system' and the bot will offer a list of ready to play dice sets. Simple select a system out of the list or keep typing to search and filter in the list. Please let me know if you're missing an RPG system in the quickstart list.
+Type `/quickstart system' and the bot will offer a list of ready to play dice sets.
+Simple select a system out of the list or keep typing to search and filter in the list.
+Please let me know if you're missing an RPG system in the quickstart list.
 
 === Answer Format
 
@@ -280,11 +335,11 @@ image:image/polyhedral_RdD_default.png[image,600]
 .special
 image:image/polyhedral_RdD_special.png[image,170]
 
-The style has two "colors": `default` and `special`. The `default` "color" contains universal images for d4, d6, d7, d10, d8, d12, d20, d100.
+The style has two "colors": `default` and `special`.
+The `default` "color" contains universal images for d4, d6, d7, d10, d8, d12, d20, d100.
 The `special` "color" contains only images for Draconic d8 (image values are 0 to 7 and a dragon for the 8) and Astral d12 with only special symbols.
 
 This set was designed and contributed by http://scriptarium.org[scriptarium.org].
-
 
 === Custom Dice Buttons
 
