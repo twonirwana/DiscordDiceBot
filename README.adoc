@@ -37,11 +37,18 @@ Some example for commands, many more systems can be mapped, please see in the de
 
 [discrete]
 === DnD 5e
+`/quickstart system:Dungeon & Dragons 5e`
+
+or
 
 `/custom_dice start buttons:1d4;1d6;1d8;1d10;1d12;1d20;1d100;2d20k1@D20 Advantage;2d20L1@D20 Disadvantage;2d4=@2d4;2d6=@2d6;2d8=@2d8;2d10=@2d10;2d12=@2d12;2d20=@2d20`
 
 [discrete]
 === OSR
+
+`/quickstart system:OSR`
+
+or
 
 `/custom_dice start buttons:1d20@D20;1d6@D6;2d6@2D6;1d4@D4;1d8@D8;6x3d6=@Stats;(3d6=)*10@Gold;1d100@D100;1d10@D10;1d12@D12`
 
@@ -119,6 +126,10 @@ All button configurations can be used with the `target_channel` option.
 If this option is used then the answer of a roll will be posted in the provided channel.
 The target channel must be a text channel and need the bot need the usual permissions.
 If a message sends the answer to another channel, it will not be moved to the end of its own channel.
+
+=== Quickstart
+
+Type `/quickstart system' and the bot will offer a list of ready to play dice sets. Simple select a system out of the list or keep typing to search and filter in the list. Please let me know if you're missing an RPG system in the quickstart list.
 
 === Answer Format
 
