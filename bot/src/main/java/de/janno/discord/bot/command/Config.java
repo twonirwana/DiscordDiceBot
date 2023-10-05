@@ -35,7 +35,7 @@ public class Config implements Serializable {
     public Config(@JsonProperty("answerTargetChannelId") Long answerTargetChannelId,
                   @JsonProperty("answerFormatType") AnswerFormatType answerFormatType,
                   @JsonProperty("resultImage") ResultImage resultImage,
-                  @NonNull @JsonProperty("diceImageStyle") DiceStyleAndColor diceStyleAndColor) {
+                  @JsonProperty("diceImageStyle") DiceStyleAndColor diceStyleAndColor) {
         this.answerTargetChannelId = answerTargetChannelId;
         this.answerFormatType = answerFormatType == null ? AnswerFormatType.full : answerFormatType;
 
