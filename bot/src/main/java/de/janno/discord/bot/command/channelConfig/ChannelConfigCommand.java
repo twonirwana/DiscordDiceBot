@@ -35,10 +35,10 @@ import static de.janno.discord.bot.command.channelConfig.AliasHelper.*;
 public class ChannelConfigCommand implements SlashCommand {
 
     public static final String DIRECT_ROLL_CONFIG_TYPE_ID = "DirectRollConfig";
+    static final String ALWAYS_SUM_RESULTS_COMMAND_OPTIONS_ID = "always_sum_result";
     private static final String COMMAND_ID = "channel_config";
     private static final String SAVE_DIRECT_ROLL_CONFIG_ACTION = "save_direct_roll_config";
     private static final String DELETE_DIRECT_ROLL_CONFIG_ACTION = "delete_direct_roll_config";
-    private static final String ALWAYS_SUM_RESULTS_COMMAND_OPTIONS_ID = "always_sum_result";
     private static final String CHANNEL_ALIAS = "channel_alias";
     private static final String USER_CHANNEL_ALIAS = "user_channel_alias";
     private static final String SAVE_ALIAS_ACTION = "save";

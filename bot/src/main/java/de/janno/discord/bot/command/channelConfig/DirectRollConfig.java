@@ -31,4 +31,9 @@ public class DirectRollConfig extends Config {
     public String toShortString() {
         return "[%s, %s, %s, %s]".formatted(getTargetChannelShortString(), alwaysSumResult, getAnswerFormatType(), getDiceStyleAndColor());
     }
+
+    @Override
+    public String toCommandOptionsString() {
+        return "%s: %s %s".formatted(ChannelConfigCommand.ALWAYS_SUM_RESULTS_COMMAND_OPTIONS_ID, alwaysSumResult, super.toCommandOptionsString());
+    }
 }

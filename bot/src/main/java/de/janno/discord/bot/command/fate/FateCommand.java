@@ -29,8 +29,8 @@ import java.util.UUID;
 @Slf4j
 public class FateCommand extends AbstractCommand<FateConfig, StateData> {
 
+    static final String ACTION_MODIFIER_OPTION = "type";
     private static final String COMMAND_NAME = "fate";
-    private static final String ACTION_MODIFIER_OPTION = "type";
     private static final String ACTION_MODIFIER_OPTION_SIMPLE = "simple";
     private static final String ACTION_MODIFIER_OPTION_MODIFIER = "with_modifier";
     private static final String ROLL_BUTTON_ID = "roll";

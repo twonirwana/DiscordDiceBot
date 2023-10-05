@@ -38,7 +38,7 @@ Some example for commands, many more systems can be mapped, please see in the de
 [discrete]
 === DnD 5e
 
-`/custom_dice start buttons:1d4;1d6;1d8;1d10;1d12;1d20;1d100;2d20k1@D20 Advantage;2d20L1@D20 Disadvantage;2d4=@2d4;2d6=@2d6;2d8=@2d8;2d10=@2d10;2d12=@2d12;2d20=@2d20;3d4=@3d4;3d6=@3d6;3d8=@3d8;3d10=@3d10;3d12=@3d12;3d20=@3d20`
+`/custom_dice start buttons:1d4;1d6;1d8;1d10;1d12;1d20;1d100;2d20k1@D20 Advantage;2d20L1@D20 Disadvantage;2d4=@2d4;2d6=@2d6;2d8=@2d8;2d10=@2d10;2d12=@2d12;2d20=@2d20`
 
 [discrete]
 === OSR

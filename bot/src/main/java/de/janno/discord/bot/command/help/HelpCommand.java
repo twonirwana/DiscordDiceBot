@@ -1,4 +1,4 @@
-package de.janno.discord.bot.command;
+package de.janno.discord.bot.command.help;
 
 import de.janno.discord.bot.BotMetrics;
 import de.janno.discord.connector.api.SlashCommand;

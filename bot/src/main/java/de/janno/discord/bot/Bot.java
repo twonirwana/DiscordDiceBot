@@ -3,15 +3,17 @@ package de.janno.discord.bot;
 
 import com.google.common.collect.ImmutableList;
 import de.janno.discord.bot.command.ClearCommand;
-import de.janno.discord.bot.command.HelpCommand;
-import de.janno.discord.bot.command.WelcomeCommand;
+import de.janno.discord.bot.command.channelConfig.ChannelConfigCommand;
 import de.janno.discord.bot.command.countSuccesses.CountSuccessesCommand;
 import de.janno.discord.bot.command.customDice.CustomDiceCommand;
 import de.janno.discord.bot.command.customParameter.CustomParameterCommand;
-import de.janno.discord.bot.command.channelConfig.ChannelConfigCommand;
 import de.janno.discord.bot.command.directRoll.DirectRollCommand;
 import de.janno.discord.bot.command.directRoll.ValidationCommand;
 import de.janno.discord.bot.command.fate.FateCommand;
+import de.janno.discord.bot.command.help.HelpCommand;
+import de.janno.discord.bot.command.help.RpgSystemCommandPreset;
+import de.janno.discord.bot.command.help.QuickstartCommand;
+import de.janno.discord.bot.command.help.WelcomeCommand;
 import de.janno.discord.bot.command.holdReroll.HoldRerollCommand;
 import de.janno.discord.bot.command.poolTarget.PoolTargetCommand;
 import de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommand;
@@ -54,25 +56,36 @@ public class Bot {
 
         Set<Long> allGuildIdsInPersistence = persistenceManager.getAllGuildIds();
         CachingDiceEvaluator cachingDiceEvaluator = new CachingDiceEvaluator(new RandomNumberSupplier(), 1000, 10_000);
+
+        CountSuccessesCommand countSuccessesCommand = new CountSuccessesCommand(persistenceManager);
+        CustomDiceCommand customDiceCommand = new CustomDiceCommand(persistenceManager, cachingDiceEvaluator);
+        FateCommand fateCommand = new FateCommand(persistenceManager);
+        CustomParameterCommand customParameterCommand = new CustomParameterCommand(persistenceManager, cachingDiceEvaluator);
+        SumCustomSetCommand sumCustomSetCommand = new SumCustomSetCommand(persistenceManager, cachingDiceEvaluator);
+        PoolTargetCommand poolTargetCommand = new PoolTargetCommand(persistenceManager);
+        RpgSystemCommandPreset rpgSystemCommandPreset = new RpgSystemCommandPreset(persistenceManager, customParameterCommand, fateCommand, customDiceCommand, countSuccessesCommand, sumCustomSetCommand, poolTargetCommand);
+
+        WelcomeCommand welcomeCommand = new WelcomeCommand(persistenceManager, rpgSystemCommandPreset);
+
         DiscordConnectorImpl.createAndStart(token,
                 disableCommandUpdate,
-                ImmutableList.of(
-                        new CountSuccessesCommand(persistenceManager),
-                        new CustomDiceCommand(persistenceManager, cachingDiceEvaluator),
-                        new FateCommand(persistenceManager),
+                ImmutableList.of(countSuccessesCommand,
+                        customDiceCommand,
+                        fateCommand,
                         new DirectRollCommand(persistenceManager, cachingDiceEvaluator),
                         new ValidationCommand(persistenceManager, cachingDiceEvaluator),
                         new ChannelConfigCommand(persistenceManager),
                         new SumDiceSetCommand(persistenceManager),
-                        new SumCustomSetCommand(persistenceManager, cachingDiceEvaluator),
+                        sumCustomSetCommand,
                         new HoldRerollCommand(persistenceManager),
-                        new PoolTargetCommand(persistenceManager),
-                        new CustomParameterCommand(persistenceManager, cachingDiceEvaluator),
-                        new WelcomeCommand(persistenceManager, cachingDiceEvaluator),
+                        poolTargetCommand,
+                        customParameterCommand,
+                        welcomeCommand,
                         new ClearCommand(persistenceManager),
+                        new QuickstartCommand(rpgSystemCommandPreset),
                         new HelpCommand()
                 ),
-                new WelcomeCommand(persistenceManager, cachingDiceEvaluator).getWelcomeMessage(),
+                welcomeCommand.getWelcomeMessage(),
                 allGuildIdsInPersistence);
     }
 

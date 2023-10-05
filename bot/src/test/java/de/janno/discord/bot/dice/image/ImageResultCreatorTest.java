@@ -276,6 +276,58 @@ class ImageResultCreatorTest {
     }
 
     @Test
+    void getImageForCustomRoll_cache() throws ExpressionException, IOException, InterruptedException {
+        List<Roll> rolls1 = new DiceEvaluator(new GivenNumberSupplier(1), 1000).evaluate("1d[-1,0,1]");
+        Supplier<? extends InputStream> res1 = underTest.getImageForRoll(rolls1, new DiceStyleAndColor(DiceImageStyle.fate, "black"));
+        assertThat(res1).isNotNull();
+
+        File cacheFile = new File("imageCache/fate_black/9f295c8cb283c4dbc3c58ba29e5b93884bb3f0cb369ca66f3f932220db2fa6bf.png");
+        assertThat(cacheFile).exists();
+        long res1LastModified = cacheFile.lastModified();
+        assertThat(getDataHash(res1)).isEqualTo("cb853512212a4e57391479cdae47cee5e014be1eed9511b1298908b12623c0bb");
+
+        Thread.sleep(100);
+
+        List<Roll> rolls2 = new DiceEvaluator(new GivenNumberSupplier(1), 1000).evaluate("1d[-1,0,1]");
+        Supplier<? extends InputStream> cachedRes1 = underTest.getImageForRoll(rolls2, new DiceStyleAndColor(DiceImageStyle.fate, "black"));
+        assertThat(cachedRes1).isNotNull();
+
+        File cacheFile2 = new File("imageCache/fate_black/9f295c8cb283c4dbc3c58ba29e5b93884bb3f0cb369ca66f3f932220db2fa6bf.png");
+        assertThat(cacheFile2).exists();
+        assertThat(cacheFile2.lastModified()).isEqualTo(res1LastModified);
+        assertThat(getDataHash(cachedRes1)).isEqualTo("cb853512212a4e57391479cdae47cee5e014be1eed9511b1298908b12623c0bb");
+
+        Thread.sleep(100);
+
+        List<Roll> rolls3 = new DiceEvaluator(new GivenNumberSupplier(2), 1000).evaluate("1d[-1,0,1]");
+        Supplier<? extends InputStream> res2 = underTest.getImageForRoll(rolls3, new DiceStyleAndColor(DiceImageStyle.fate, "black"));
+        assertThat(res2).isNotNull();
+
+        File cacheFile3 = new File("imageCache/fate_black/3b1ffd07870d80beda782bd15bd670798617a179419084d5a5206f91c7ce8048.png");
+        assertThat(cacheFile3).exists();
+        assertThat(cacheFile3.lastModified()).isNotEqualTo(res1LastModified);
+
+        assertThat(getDataHash(res2)).isEqualTo("6aee5beb6715fbbfd1b808a4215c3d066488aeadd7f57d30b476b0286df3ef58");
+    }
+
+    @Test
+    void getImageForCustomRoll_noCacheForLargeDiceSets() throws ExpressionException, IOException {
+        List<Roll> rolls1 = new DiceEvaluator(new GivenNumberSupplier(1), 1000).evaluate("7d[-1,0,1]");
+        Supplier<? extends InputStream> res1 = underTest.getImageForRoll(rolls1, new DiceStyleAndColor(DiceImageStyle.fate, "black"));
+        assertThat(res1).isNotNull();
+        File cacheFolder = new File("imageCache/");
+        assertThat(cacheFolder).isEmptyDirectory();
+        assertThat(getDataHash(res1)).isEqualTo("b3929fb41bad88f279554cb27e729c05ca783f03134ffe531f6bd3c3cb315d5a");
+
+        List<Roll> rolls2 = new DiceEvaluator(new GivenNumberSupplier(1), 1000).evaluate("7d[-1,0,1]");
+        Supplier<? extends InputStream> res2 = underTest.getImageForRoll(rolls2, new DiceStyleAndColor(DiceImageStyle.fate, "black"));
+
+        assertThat(cacheFolder).isEmptyDirectory();
+        assertThat(res2).isNotNull();
+        assertThat(getDataHash(res2)).isEqualTo("b3929fb41bad88f279554cb27e729c05ca783f03134ffe531f6bd3c3cb315d5a");
+    }
+
+    @Test
     void createRollCacheNameTest_3dRedWhite() throws ExpressionException {
         List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6), 1000).evaluate("6d6+1d6+3d6");
 

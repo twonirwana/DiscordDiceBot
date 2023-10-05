@@ -33,13 +33,13 @@ import java.util.stream.Stream;
 public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTargetStateData> {
 
     static final String SUBSET_DELIMITER = ";";
+    static final String SIDES_OF_DIE_OPTION = "sides";
+    static final String MAX_DICE_OPTION = "max_dice";
+    static final String REROLL_SET_OPTION = "reroll_set";
+    static final String BOTCH_SET_OPTION = "botch_set";
+    static final String REROLL_VARIANT_OPTION = "reroll_variant";
     private static final String COMMAND_NAME = "pool_target";
-    private static final String SIDES_OF_DIE_OPTION = "sides";
-    private static final String MAX_DICE_OPTION = "max_dice";
-    private static final String REROLL_SET_OPTION = "reroll_set";
-    private static final String BOTCH_SET_OPTION = "botch_set";
-    private static final String REROLL_VARIANT_OPTION = "reroll_variant";
-    private static final String ALWAYS_REROLL = "always";
+     static final String ALWAYS_REROLL = "always";
     private static final String ASK_FOR_REROLL = "ask";
     private static final String CLEAR_BUTTON_ID = "clear";
     private static final String DO_REROLL_ID = "do_reroll";

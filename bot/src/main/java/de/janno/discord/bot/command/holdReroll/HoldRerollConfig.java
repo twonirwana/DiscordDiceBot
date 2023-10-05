@@ -11,6 +11,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.ToString;
+import org.apache.commons.lang3.NotImplementedException;
 
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -57,5 +58,10 @@ public class HoldRerollConfig extends Config {
                 getAnswerFormatType(),
                 getDiceStyleAndColor()
         ).toString();
+    }
+
+    @Override
+    public String toCommandOptionsString() {
+        throw new NotImplementedException();
     }
 }

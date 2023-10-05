@@ -169,11 +169,12 @@ public class ImageResultCreator {
                 .map(r -> {
                             if (r.getMaxInc() != null && r.getMinInc() != null) {
                                 return (r.getMaxInc() + 1) - r.getMinInc();
+                            } else if (r.getRandomSelectedFrom() != null) {
+                                return r.getRandomSelectedFrom().size();
                             } else {
                                 throw new IllegalStateException("The roll %s should not used to crate images".formatted(roll));
                             }
                         }
-
                 )
                 .map(BigInteger::valueOf)
                 .reduce(BigInteger.ONE, BigInteger::multiply);
