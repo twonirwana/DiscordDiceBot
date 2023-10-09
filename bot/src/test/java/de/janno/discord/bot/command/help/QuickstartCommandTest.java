@@ -21,6 +21,7 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Stream;
 
@@ -34,7 +35,7 @@ class QuickstartCommandTest {
         return Stream.of(
                 Arguments.of(RpgSystemCommandPreset.PresetId.DND5_IMAGE, List.of("reply: `/custom_dice buttons: 1d4;1d6;1d8;1d10;1d12;1d20;1d100;2d20k1@D20 Advantage;2d20L1@D20 Disadvantage;2d4=@2d4;2d6=@2d6;2d8=@2d8;2d10=@2d10;2d12=@2d12;2d20=@2d20 answer_format: without_expression dice_image_style: polyhedral_3d dice_image_color: red_and_white`",
                         "createButtonMessage: MessageDefinition(content=Click on a button to roll the dice, componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=1d4, id=custom_dice1_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=1d6, id=custom_dice2_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=1d8, id=custom_dice3_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=1d10, id=custom_dice4_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=1d12, id=custom_dice5_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)]), ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=1d20, id=custom_dice6_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=1d100, id=custom_dice7_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=D20 Advantage, id=custom_dice8_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=D20 Disadvantage, id=custom_dice9_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=2d4, id=custom_dice10_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)]), ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=2d6, id=custom_dice11_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=2d8, id=custom_dice12_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=2d10, id=custom_dice13_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=2d12, id=custom_dice14_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=2d20, id=custom_dice15_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])])")),
-        Arguments.of(RpgSystemCommandPreset.PresetId.DND5, List.of("reply: `/custom_dice buttons: 1d4;1d6;1d8;1d10;1d12;1d20;1d100;2d20k1@D20 Advantage;2d20L1@D20 Disadvantage;2d4=@2d4;2d6=@2d6;2d8=@2d8;2d10=@2d10;2d12=@2d12;2d20=@2d20 answer_format: full dice_image_style: none dice_image_color: none`",
+                Arguments.of(RpgSystemCommandPreset.PresetId.DND5, List.of("reply: `/custom_dice buttons: 1d4;1d6;1d8;1d10;1d12;1d20;1d100;2d20k1@D20 Advantage;2d20L1@D20 Disadvantage;2d4=@2d4;2d6=@2d6;2d8=@2d8;2d10=@2d10;2d12=@2d12;2d20=@2d20 answer_format: full dice_image_style: none dice_image_color: none`",
                         "createButtonMessage: MessageDefinition(content=Click on a button to roll the dice, componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=1d4, id=custom_dice1_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=1d6, id=custom_dice2_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=1d8, id=custom_dice3_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=1d10, id=custom_dice4_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=1d12, id=custom_dice5_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)]), ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=1d20, id=custom_dice6_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=1d100, id=custom_dice7_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=D20 Advantage, id=custom_dice8_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=D20 Disadvantage, id=custom_dice9_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=2d4, id=custom_dice10_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)]), ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=2d6, id=custom_dice11_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=2d8, id=custom_dice12_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=2d10, id=custom_dice13_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=2d12, id=custom_dice14_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=2d20, id=custom_dice15_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])])")),
                 Arguments.of(RpgSystemCommandPreset.PresetId.DND5_CALC, List.of("reply: `/custom_dice buttons: d4;d6;d8;d10;d12;d20;d100;1;2;3;4;5;k@Keep Highest;L@Keep Lowest;(2d20k1)@D20 Advantage;(2d20L1)@D20 Disadvantage;-@Minus;+@Plus;(4r(d6))k3=@Stats;,@Split always_sum_result: true answer_format: full dice_image_style: polyhedral_3d dice_image_color: red_and_white`",
                         "createButtonMessage: MessageDefinition(content=Click the buttons to add dice to the set and then on Roll, componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=d4, id=sum_custom_set1_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=d6, id=sum_custom_set2_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=d8, id=sum_custom_set3_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=d10, id=sum_custom_set4_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=d12, id=sum_custom_set5_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)]), ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=d20, id=sum_custom_set6_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=d100, id=sum_custom_set7_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=1, id=sum_custom_set8_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=2, id=sum_custom_set9_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=3, id=sum_custom_set10_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)]), ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=4, id=sum_custom_set11_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=5, id=sum_custom_set12_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=Keep Highest, id=sum_custom_set13_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=Keep Lowest, id=sum_custom_set14_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=D20 Advantage, id=sum_custom_set15_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)]), ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=D20 Disadvantage, id=sum_custom_set16_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=Minus, id=sum_custom_set17_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=Plus, id=sum_custom_set18_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=Stats, id=sum_custom_set19_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=Split, id=sum_custom_set20_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)]), ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Roll, id=sum_custom_setroll00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=true), ButtonDefinition(label=Clear, id=sum_custom_setclear00000000-0000-0000-0000-000000000000, style=DANGER, disabled=false), ButtonDefinition(label=Back, id=sum_custom_setback00000000-0000-0000-0000-000000000000, style=SECONDARY, disabled=false)])])")),
@@ -140,5 +141,40 @@ class QuickstartCommandTest {
         Mono<Void> res = underTest.handleSlashCommandEvent(slashEventAdaptor, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"));
         StepVerifier.create(res).verifyComplete();
         assertThat(slashEventAdaptor.getActions()).containsExactlyInAnyOrderElementsOf(actions);
+    }
+
+    @Test
+    void getPresetId_idMatch() {
+        Optional<RpgSystemCommandPreset.PresetId> res = QuickstartCommand.getPresetId("DND5");
+
+        assertThat(res).contains(RpgSystemCommandPreset.PresetId.DND5);
+    }
+
+    @Test
+    void getPresetId_nameMatch() {
+        Optional<RpgSystemCommandPreset.PresetId> res = QuickstartCommand.getPresetId("Dungeon & dragons 5e ");
+
+        assertThat(res).contains(RpgSystemCommandPreset.PresetId.DND5);
+    }
+
+    @Test
+    void getPresetId_synonymeMatch() {
+        Optional<RpgSystemCommandPreset.PresetId> res = QuickstartCommand.getPresetId(" reve de Dragon");
+
+        assertThat(res).contains(RpgSystemCommandPreset.PresetId.REVE_DE_DRAGON);
+    }
+
+    @Test
+    void getPresetId_nameStartsWith() {
+        Optional<RpgSystemCommandPreset.PresetId> res = QuickstartCommand.getPresetId(" oWod ");
+
+        assertThat(res).contains(RpgSystemCommandPreset.PresetId.OWOD);
+    }
+
+    @Test
+    void getPresetId_noMatch() {
+        Optional<RpgSystemCommandPreset.PresetId> res = QuickstartCommand.getPresetId(" Opus Anima ");
+
+        assertThat(res).isEmpty();
     }
 }

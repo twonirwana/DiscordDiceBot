@@ -1,5 +1,6 @@
 package de.janno.discord.bot.command.help;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Stopwatch;
 import de.janno.discord.bot.BotMetrics;
 import de.janno.discord.connector.api.AutoCompleteAnswer;
@@ -14,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -29,7 +31,35 @@ public class QuickstartCommand implements SlashCommand {
         this.rpgSystemCommandPreset = rpgSystemCommandPreset;
     }
 
-
+    @VisibleForTesting
+    static Optional<RpgSystemCommandPreset.PresetId> getPresetId(@NonNull String id) {
+        String trimId = id.trim().toLowerCase();
+        Optional<RpgSystemCommandPreset.PresetId> matchingId = Arrays.stream(RpgSystemCommandPreset.PresetId.values())
+                .filter(presetId -> Objects.equals(presetId.name().toLowerCase(), trimId))
+                .findFirst();
+        if (matchingId.isPresent()) {
+            return matchingId;
+        }
+        Optional<RpgSystemCommandPreset.PresetId> matchingDisplayName = Arrays.stream(RpgSystemCommandPreset.PresetId.values())
+                .filter(presetId -> Objects.equals(presetId.getDisplayName().toLowerCase(), trimId))
+                .findFirst();
+        if (matchingDisplayName.isPresent()) {
+            return matchingDisplayName;
+        }
+        Optional<RpgSystemCommandPreset.PresetId> matchingSynonymeName = Arrays.stream(RpgSystemCommandPreset.PresetId.values())
+                .filter(presetId -> presetId.getSynonymes().stream().map(String::toLowerCase).anyMatch(s -> s.equals(trimId)))
+                .findFirst();
+        if (matchingSynonymeName.isPresent()) {
+            return matchingSynonymeName;
+        }
+        Optional<RpgSystemCommandPreset.PresetId> startsWithDisplayName = Arrays.stream(RpgSystemCommandPreset.PresetId.values())
+                .filter(presetId -> presetId.getDisplayName().toLowerCase().startsWith(trimId))
+                .findFirst();
+        if (startsWithDisplayName.isPresent()) {
+            return matchingSynonymeName;
+        }
+        return Optional.empty();
+    }
 
     @Override
     public @NonNull List<AutoCompleteAnswer> getAutoCompleteAnswer(AutoCompleteRequest option) {
@@ -81,12 +111,24 @@ public class QuickstartCommand implements SlashCommand {
             final String systemId = expressionOptional
                     .map(CommandInteractionOption::getStringValue)
                     .orElseThrow();
-            BotMetrics.incrementSlashStartMetricCounter(getCommandId(), systemId);
-            final RpgSystemCommandPreset.PresetId presetId = RpgSystemCommandPreset.PresetId.valueOf(systemId);
-            RpgSystemCommandPreset.CommandAndMessageDefinition commandAndMessageDefinition = rpgSystemCommandPreset.createMessage(presetId, newConfigUUID, guildId, channelId);
-            return Mono.defer(() -> event.createButtonMessage(commandAndMessageDefinition.getMessageDefinition()))
-                    .doOnSuccess(v -> BotMetrics.timerNewButtonMessageMetricCounter(getCommandId(), stopwatch.elapsed()))
-                    .then(event.reply("`%s`".formatted(commandAndMessageDefinition.getCommand()), false));
+            final Optional<RpgSystemCommandPreset.PresetId> presetIdOptional = getPresetId(systemId);
+            if (presetIdOptional.isPresent()) {
+                final RpgSystemCommandPreset.PresetId presetId = presetIdOptional.get();
+                BotMetrics.incrementSlashStartMetricCounter(getCommandId(), presetId.name());
+                RpgSystemCommandPreset.CommandAndMessageDefinition commandAndMessageDefinition = rpgSystemCommandPreset.createMessage(presetId, newConfigUUID, guildId, channelId);
+                return Mono.defer(() -> event.createButtonMessage(commandAndMessageDefinition.getMessageDefinition()))
+                        .doOnSuccess(v -> BotMetrics.timerNewButtonMessageMetricCounter(getCommandId(), stopwatch.elapsed()))
+                        .then(event.reply("`%s`".formatted(commandAndMessageDefinition.getCommand()), false))
+                        .doOnSuccess(v ->
+                                log.info("{}: '{}' {}ms",
+                                        event.getRequester().toLogString(),
+                                        presetId.name(),
+                                        stopwatch.elapsed(TimeUnit.MILLISECONDS)
+                                ));
+            } else {
+                log.error("Can't match RPG system id: '{}'", systemId);
+                return event.reply("Unknown rpg: `%s`".formatted(systemId), true);
+            }
 
         }
         return Mono.empty();
