@@ -36,15 +36,15 @@ import java.util.stream.IntStream;
 public class CountSuccessesCommand extends AbstractCommand<CountSuccessesConfig, StateData> {
 
     static final String SUBSET_DELIMITER = ";";
+    static final String ACTION_SIDE_OPTION = "dice_sides";
+    static final String ACTION_TARGET_OPTION = "target_number";
+    static final String ACTION_MAX_DICE_OPTION = "max_dice";
+    static final String ACTION_MIN_DICE_COUNT_OPTION = "min_dice_count";
+    static final String ACTION_REROLL_SET_OPTION = "reroll_set";
+    static final String ACTION_BOTCH_SET_OPTION = "botch_set";
+    static final String ACTION_GLITCH_OPTION = "glitch";
     private static final String COMMAND_NAME = "count_successes";
-    private static final String ACTION_SIDE_OPTION = "dice_sides";
-    private static final String ACTION_TARGET_OPTION = "target_number";
-    private static final String ACTION_MAX_DICE_OPTION = "max_dice";
-    private static final String ACTION_MIN_DICE_COUNT_OPTION = "min_dice_count";
-    private static final String ACTION_REROLL_SET_OPTION = "reroll_set";
-    private static final String ACTION_BOTCH_SET_OPTION = "botch_set";
     private static final long MAX_NUMBER_OF_DICE = 25;
-    private static final String ACTION_GLITCH_OPTION = "glitch";
     private static final long MAX_NUMBER_SIDES_OR_TARGET_NUMBER = 1000;
     private static final String GLITCH_OPTION_HALF_ONES = "half_dice_one";
     private static final String GLITCH_NO_OPTION = "no_glitch";

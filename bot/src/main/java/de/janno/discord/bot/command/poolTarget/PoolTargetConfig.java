@@ -12,6 +12,9 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.ToString;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -25,6 +28,7 @@ public class PoolTargetConfig extends Config {
     private final Set<Integer> rerollSet;
     @NonNull
     private final Set<Integer> botchSet;
+    @NonNull
     private final String rerollVariant;
 
     @JsonCreator
@@ -42,7 +46,7 @@ public class PoolTargetConfig extends Config {
         this.maxNumberOfButtons = maxNumberOfButtons;
         this.rerollSet = rerollSet;
         this.botchSet = botchSet;
-        this.rerollVariant = rerollVariant;
+        this.rerollVariant = Optional.ofNullable(rerollVariant).orElse(PoolTargetCommand.ALWAYS_REROLL);
     }
 
     @Override
@@ -57,5 +61,20 @@ public class PoolTargetConfig extends Config {
                 getAnswerFormatType(),
                 getDiceStyleAndColor()
         ).toString();
+    }
+
+    @Override
+    public String toCommandOptionsString() {
+        List<String> out = new ArrayList<>();
+        out.add(String.format("%s: %s", PoolTargetCommand.SIDES_OF_DIE_OPTION, diceSides));
+        out.add(String.format("%s: %s", PoolTargetCommand.MAX_DICE_OPTION, maxNumberOfButtons));
+        out.add(String.format("%s: %s", PoolTargetCommand.REROLL_VARIANT_OPTION, rerollVariant));
+        if (!rerollSet.isEmpty()) {
+            out.add(String.format("%s: %s", PoolTargetCommand.REROLL_SET_OPTION, rerollSet.stream().sorted().map(Object::toString).collect(Collectors.joining(", "))));
+        }
+        if (!botchSet.isEmpty()) {
+            out.add(String.format("%s: %s", PoolTargetCommand.BOTCH_SET_OPTION, botchSet.stream().sorted().map(Object::toString).collect(Collectors.joining(", "))));
+        }
+        return "%s %s".formatted(String.join(" ", out), super.toCommandOptionsString());
     }
 }

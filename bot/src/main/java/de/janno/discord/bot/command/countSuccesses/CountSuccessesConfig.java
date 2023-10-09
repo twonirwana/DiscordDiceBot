@@ -12,6 +12,8 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.ToString;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -67,5 +69,22 @@ public class CountSuccessesConfig extends Config {
                 getAnswerFormatType(),
                 getDiceStyleAndColor()
         ).toList().toString();
+    }
+
+    @Override
+    public String toCommandOptionsString() {
+        List<String> out = new ArrayList<>();
+        out.add(String.format("%s: %s", CountSuccessesCommand.ACTION_SIDE_OPTION, diceSides));
+        out.add(String.format("%s: %s", CountSuccessesCommand.ACTION_TARGET_OPTION, target));
+        out.add(String.format("%s: %s", CountSuccessesCommand.ACTION_GLITCH_OPTION, glitchOption));
+        out.add(String.format("%s: %s", CountSuccessesCommand.ACTION_MAX_DICE_OPTION, maxNumberOfButtons));
+        out.add(String.format("%s: %s", CountSuccessesCommand.ACTION_MIN_DICE_COUNT_OPTION, minDiceCount));
+        if (!rerollSet.isEmpty()) {
+            out.add(String.format("%s: %s", CountSuccessesCommand.ACTION_REROLL_SET_OPTION, rerollSet.stream().sorted().map(Object::toString).collect(Collectors.joining(", "))));
+        }
+        if (!botchSet.isEmpty()) {
+            out.add(String.format("%s: %s", CountSuccessesCommand.ACTION_BOTCH_SET_OPTION, botchSet.stream().sorted().map(Object::toString).collect(Collectors.joining(", "))));
+        }
+        return "%s %s".formatted(String.join(" ", out), super.toCommandOptionsString());
     }
 }

@@ -45,4 +45,17 @@ public class CustomDiceConfig extends Config {
         return "[%s, %s, %s, %s, %s]".formatted(buttons, getTargetChannelShortString(), diceParserSystem, getAnswerFormatType(), getDiceStyleAndColor());
     }
 
+
+    @Override
+    public String toCommandOptionsString() {
+        String buttons = buttonIdLabelAndDiceExpressions.stream()
+                .map(b -> {
+                    if (b.getDiceExpression().equals(b.getLabel())) {
+                        return b.getDiceExpression();
+                    }
+                    return "%s@%s".formatted(b.getDiceExpression(), b.getLabel());
+                })
+                .collect(Collectors.joining(";"));
+        return "%s: %s %s".formatted(CustomDiceCommand.BUTTONS_COMMAND_OPTIONS_ID, String.join(" ", buttons), super.toCommandOptionsString());
+    }
 }

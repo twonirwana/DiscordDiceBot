@@ -12,6 +12,8 @@ import lombok.NonNull;
 import lombok.ToString;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A configuration for a dice system. It will be created with the slash command and not modified afterwards.
@@ -48,6 +50,17 @@ public class Config implements Serializable {
 
     public String toShortString() {
         return String.format("[%s, %s, %s]", getTargetChannelShortString(), answerFormatType, diceStyleAndColor);
+    }
+
+    public String toCommandOptionsString() {
+        List<String> out = new ArrayList<>();
+        out.add(String.format("%s: %s", BaseCommandOptions.ANSWER_FORMAT_OPTION, answerFormatType));
+        out.add(String.format("%s: %s", BaseCommandOptions.DICE_IMAGE_STYLE_OPTION, diceStyleAndColor.getDiceImageStyle()));
+        out.add(String.format("%s: %s", BaseCommandOptions.DICE_IMAGE_COLOR_OPTION, diceStyleAndColor.getConfiguredDefaultColor()));
+        if (answerTargetChannelId != null) {
+            out.add(String.format("%s: <#%s>", BaseCommandOptions.ANSWER_TARGET_CHANNEL_OPTION, answerTargetChannelId));
+        }
+        return String.join(" ", out);
     }
 
     protected String getTargetChannelShortString() {

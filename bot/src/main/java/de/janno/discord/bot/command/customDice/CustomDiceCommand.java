@@ -32,8 +32,8 @@ import java.util.stream.Collectors;
 @Slf4j
 public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateData> {
 
+    static final String BUTTONS_COMMAND_OPTIONS_ID = "buttons";
     private static final String COMMAND_NAME = "custom_dice";
-    private static final String BUTTONS_COMMAND_OPTIONS_ID = "buttons";
     private static final String LABEL_DELIMITER = "@";
     private static final String BUTTON_MESSAGE = "Click on a button to roll the dice";
     private static final String CONFIG_TYPE_ID = "CustomDiceConfig";

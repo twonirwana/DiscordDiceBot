@@ -44,4 +44,9 @@ public class CustomParameterConfig extends Config {
     public String toShortString() {
         return "[%s, %s, %s, %s, %s]".formatted(baseExpression, getTargetChannelShortString(), diceParserSystem, getAnswerFormatType(), getDiceStyleAndColor());
     }
+
+    @Override
+    public String toCommandOptionsString() {
+        return "%s: %s %s".formatted(CustomParameterCommand.EXPRESSION_OPTION, baseExpression, super.toCommandOptionsString());
+    }
 }

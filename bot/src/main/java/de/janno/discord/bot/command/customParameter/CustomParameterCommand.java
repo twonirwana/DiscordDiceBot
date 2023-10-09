@@ -39,11 +39,11 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
 
     //todo button label, pagination for buttons
 
+    static final String EXPRESSION_OPTION = "expression";
     private static final String CLEAR_BUTTON_ID = "clear";
     private final static Pattern PARAMETER_VARIABLE_PATTERN = Pattern.compile("\\Q{\\E.*?\\Q}\\E");
     private static final String SELECTED_PARAMETER_DELIMITER = "\t";
     private static final String COMMAND_NAME = "custom_parameter";
-    private static final String EXPRESSION_OPTION = "expression";
     private static final String RANGE_DELIMITER = ":";
     private final static String RANGE_REPLACE_REGEX = RANGE_DELIMITER + ".+?(?=\\Q}\\E)";
     private final static Pattern BUTTON_RANGE_PATTERN = Pattern.compile(RANGE_DELIMITER + "(-?\\d+)<=>(-?\\d+)");

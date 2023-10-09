@@ -1,7 +1,6 @@
 package de.janno.discord.bot.dice;
 
 import de.janno.discord.bot.BotMetrics;
-import de.janno.discord.bot.ResultImage;
 import de.janno.discord.bot.command.AnswerFormatType;
 import de.janno.discord.bot.command.RollAnswer;
 import de.janno.discord.bot.dice.image.DiceStyleAndColor;
@@ -31,6 +30,31 @@ public class DiceSystemAdapter {
         return expressionWithOptionalLabel;
     }
 
+    public static Optional<String> validateLabel(@NonNull String expressionWithOptionalLabel) {
+        //todo remove duplicate
+        String label;
+        String diceExpression;
+
+        if (expressionWithOptionalLabel.contains(LABEL_DELIMITER)) {
+            String[] split = expressionWithOptionalLabel.split(LABEL_DELIMITER);
+            if (split.length != 2) {
+                return Optional.of(String.format("The expression '%s' should have the diceExpression@Label", expressionWithOptionalLabel));
+            }
+            label = split[1].trim();
+            diceExpression = split[0].trim();
+        } else {
+            label = expressionWithOptionalLabel;
+            diceExpression = expressionWithOptionalLabel;
+        }
+        if (label.isBlank()) {
+            return Optional.of(String.format("Label for '%s' requires a visible name", expressionWithOptionalLabel));
+        }
+        if (diceExpression.isBlank()) {
+            return Optional.of(String.format("Dice expression for '%s' is empty", expressionWithOptionalLabel));
+        }
+        return Optional.empty();
+    }
+
     public RollAnswer answerRollWithGivenLabel(String expression, @Nullable String label, boolean sumUp, DiceParserSystem system, AnswerFormatType answerFormatType, DiceStyleAndColor diceStyleAndColor) {
         BotMetrics.incrementDiceParserSystemCounter(system);
         return switch (system) {
@@ -54,31 +78,6 @@ public class DiceSystemAdapter {
             }
         }
 
-        return Optional.empty();
-    }
-
-    public static Optional<String> validateLabel(@NonNull String expressionWithOptionalLabel) {
-        //todo remove duplicate
-        String label;
-        String diceExpression;
-
-        if (expressionWithOptionalLabel.contains(LABEL_DELIMITER)) {
-            String[] split = expressionWithOptionalLabel.split(LABEL_DELIMITER);
-            if (split.length != 2) {
-                return Optional.of(String.format("The expression '%s' should have the diceExpression@Label", expressionWithOptionalLabel));
-            }
-            label = split[1].trim();
-            diceExpression = split[0].trim();
-        } else {
-            label = expressionWithOptionalLabel;
-            diceExpression = expressionWithOptionalLabel;
-        }
-        if (label.isBlank()) {
-            return Optional.of(String.format("Label for '%s' requires a visible name", expressionWithOptionalLabel));
-        }
-        if (diceExpression.isBlank()) {
-            return Optional.of(String.format("Dice expression for '%s' is empty", expressionWithOptionalLabel));
-        }
         return Optional.empty();
     }
 

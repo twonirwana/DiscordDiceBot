@@ -32,4 +32,9 @@ public class FateConfig extends Config {
     public String toShortString() {
         return String.format("[%s, %s, %s, %s]", type, getTargetChannelShortString(), getAnswerFormatType(), getDiceStyleAndColor());
     }
+
+    @Override
+    public String toCommandOptionsString() {
+        return "%s: %s %s".formatted(FateCommand.ACTION_MODIFIER_OPTION, type, super.toCommandOptionsString());
+    }
 }

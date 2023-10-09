@@ -48,4 +48,19 @@ public class SumCustomSetConfig extends Config {
                 .collect(Collectors.joining(", "));
         return "[%s, %s, %s, %s, %s, %s]".formatted(buttons, getTargetChannelShortString(), diceParserSystem, alwaysSumResult, getAnswerFormatType(), getDiceStyleAndColor());
     }
+
+    @Override
+    public String toCommandOptionsString() {
+        String buttons = labelAndExpression.stream()
+                .map(b -> {
+                    if (b.getDiceExpression().equals(b.getLabel())) {
+                        return b.getDiceExpression();
+                    }
+                    return "%s@%s".formatted(b.getDiceExpression(), b.getLabel());
+                })
+                .collect(Collectors.joining(";"));
+        return "%s: %s %s: %s %s".formatted(SumCustomSetCommand.BUTTONS_COMMAND_OPTIONS_ID, String.join(" ", buttons),
+                SumCustomSetCommand.ALWAYS_SUM_RESULTS_COMMAND_OPTIONS_ID, alwaysSumResult,
+                super.toCommandOptionsString());
+    }
 }

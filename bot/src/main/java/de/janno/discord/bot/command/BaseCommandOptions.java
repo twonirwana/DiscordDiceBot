@@ -15,13 +15,13 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 public final class BaseCommandOptions {
-    private static final String ANSWER_TARGET_CHANNEL_OPTION = "target_channel";
+    public static final String ANSWER_TARGET_CHANNEL_OPTION = "target_channel";
     public static final CommandDefinitionOption ANSWER_TARGET_CHANNEL_COMMAND_OPTION = CommandDefinitionOption.builder()
             .name(ANSWER_TARGET_CHANNEL_OPTION)
             .description("Another channel where the answer will be given")
             .type(CommandDefinitionOption.Type.CHANNEL)
             .build();
-    private static final String ANSWER_FORMAT_OPTION = "answer_format";
+    public static final String ANSWER_FORMAT_OPTION = "answer_format";
     public static final CommandDefinitionOption ANSWER_FORMAT_COMMAND_OPTION = CommandDefinitionOption.builder()
             .name(ANSWER_FORMAT_OPTION)
             .description("How the answer will be displayed")
@@ -33,7 +33,7 @@ public final class BaseCommandOptions {
                             .build())
                     .collect(Collectors.toList()))
             .build();
-    private static final String DICE_IMAGE_STYLE_OPTION = "dice_image_style";
+    public static final String DICE_IMAGE_STYLE_OPTION = "dice_image_style";
     public static final CommandDefinitionOption DICE_IMAGE_STYLE_COMMAND_OPTION = CommandDefinitionOption.builder()
             .name(DICE_IMAGE_STYLE_OPTION)
             .description("If and in what style the dice throw should be shown as image")
@@ -45,7 +45,7 @@ public final class BaseCommandOptions {
                             .build())
                     .collect(Collectors.toList()))
             .build();
-    private static final String DICE_IMAGE_COLOR_OPTION = "dice_image_color";
+    public static final String DICE_IMAGE_COLOR_OPTION = "dice_image_color";
     public static final CommandDefinitionOption DICE_IMAGE_COLOR_COMMAND_OPTION = CommandDefinitionOption.builder()
             .name(DICE_IMAGE_COLOR_OPTION)
             .description("The default color option. Can be influenced by the `color` method")
