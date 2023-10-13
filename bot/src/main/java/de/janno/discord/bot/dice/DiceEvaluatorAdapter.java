@@ -164,7 +164,6 @@ public class DiceEvaluatorAdapter {
         }
     }
 
-
     public boolean validExpression(String expression) {
         return cachingDiceEvaluator.get(expression).isValid();
     }
