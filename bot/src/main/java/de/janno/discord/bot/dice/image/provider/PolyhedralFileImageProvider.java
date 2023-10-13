@@ -7,8 +7,10 @@ import lombok.NonNull;
 import java.awt.image.BufferedImage;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
 public class PolyhedralFileImageProvider implements ImageProvider {
 
@@ -67,10 +69,12 @@ public class PolyhedralFileImageProvider implements ImageProvider {
             if (tens == 0) {
                 tens = 10;
             }
-            return List.of(
-                    fileSidesDiceImageMap.getDiceImageMap().get(100).get(tens),
-                    fileSidesDiceImageMap.getDiceImageMap().get(10).get(ones)
-            );
+
+            return Stream.of(
+                            fileSidesDiceImageMap.getDiceImageMap().getOrDefault(100, Map.of()).getOrDefault(tens, null),
+                            fileSidesDiceImageMap.getDiceImageMap().getOrDefault(10, Map.of()).getOrDefault(ones, null))
+                    .filter(Objects::nonNull)
+                    .toList();
         }
         return Optional.ofNullable(fileSidesDiceImageMap.getDiceImageMap().get(totalDieSides))
                 .map(m -> m.get(shownDieSide))
