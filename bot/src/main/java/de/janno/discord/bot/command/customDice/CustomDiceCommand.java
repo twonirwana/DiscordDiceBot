@@ -2,6 +2,7 @@ package de.janno.discord.bot.command.customDice;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import de.janno.discord.bot.command.*;
@@ -208,6 +209,22 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
         return COMMAND_NAME;
     }
 
+    @Override
+    protected @NonNull Optional<String> getConfigWarnMessage(CustomDiceConfig config) {
+        return Optional.ofNullable(Strings.emptyToNull(config.getButtonIdLabelAndDiceExpressions().stream()
+                .map(b -> {
+                    String warning = diceSystemAdapter.answerRollWithGivenLabel(b.getDiceExpression(), null, false, DiceParserSystem.DICE_EVALUATOR, config.getAnswerFormatType(),
+                            config.getDiceStyleAndColor()).getWarning();
+                    if (!Strings.isNullOrEmpty(warning)) {
+                        return "`%s`: %s".formatted(b.getDiceExpression(), warning);
+                    }
+                    return null;
+                })
+                .filter(s -> !Strings.isNullOrEmpty(s))
+                .distinct()
+                .collect(Collectors.joining(", "))));
+    }
+
     @Value
     static class ButtonIdAndExpression {
         @NonNull
@@ -215,5 +232,4 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
         @NonNull
         String expression;
     }
-
 }

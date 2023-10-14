@@ -46,7 +46,7 @@ public class CustomDiceCommandMockTest {
     @BeforeEach
     void setup() throws IOException {
         File cacheDirectory = new File("imageCache/");
-        if(cacheDirectory.exists()){
+        if (cacheDirectory.exists()) {
             FileUtils.cleanDirectory(cacheDirectory);
         }
         messageIdCounter = new AtomicLong(0);
@@ -56,7 +56,7 @@ public class CustomDiceCommandMockTest {
     @AfterEach
     void cleanUp() throws IOException {
         File cacheDirectory = new File("imageCache/");
-        if(cacheDirectory.exists()){
+        if (cacheDirectory.exists()) {
             FileUtils.cleanDirectory(cacheDirectory);
         }
     }
@@ -296,6 +296,25 @@ public class CustomDiceCommandMockTest {
         assertThat(slashEvent.getActions()).containsExactlyInAnyOrder(
                 "reply: commandString",
                 "createButtonMessage: MessageDefinition(content=Click on a button to roll the dice, componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=1d6, id=custom_dice1_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=Attack, id=custom_dice2_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=3d10,3d10,3d10, id=custom_dice3_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])])");
+    }
+
+    @Test
+    void slash_start_warn() {
+        CustomDiceCommand underTest = new CustomDiceCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
+
+        SlashEventAdaptorMock slashEvent = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
+                .name("start")
+                .option(CommandInteractionOption.builder()
+                        .name("buttons")
+                        .stringValue("1d6;1d20@Attack;3d10,3d10,3d10;3;'a'")
+                        .build())
+                .build()));
+        underTest.handleSlashCommandEvent(slashEvent, () -> UUID.fromString("00000000-0000-0000-0000-000000000000")).block();
+
+        assertThat(slashEvent.getActions()).containsExactlyInAnyOrder(
+                "reply: commandString `3`: did not contain any random element, try `d20` to roll a 20 sided die, `'a'`: did not contain any random element, try `d20` to roll a 20 sided die",
+                "createButtonMessage: MessageDefinition(content=Click on a button to roll the dice, componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=1d6, id=custom_dice1_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=Attack, id=custom_dice2_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=3d10,3d10,3d10, id=custom_dice3_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=3, id=custom_dice4_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label='a', id=custom_dice5_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])])"
+        );
     }
 
     @Test

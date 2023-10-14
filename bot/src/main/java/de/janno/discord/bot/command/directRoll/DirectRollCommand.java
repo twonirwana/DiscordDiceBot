@@ -3,6 +3,7 @@ package de.janno.discord.bot.command.directRoll;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Stopwatch;
+import com.google.common.base.Strings;
 import de.janno.discord.bot.BotMetrics;
 import de.janno.discord.bot.command.AnswerFormatType;
 import de.janno.discord.bot.command.RollAnswer;
@@ -32,6 +33,8 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static de.janno.discord.bot.command.channelConfig.ChannelConfigCommand.DIRECT_ROLL_CONFIG_TYPE_ID;
 
@@ -41,13 +44,18 @@ public class DirectRollCommand implements SlashCommand {
     public static final String ROLL_COMMAND_ID = "r";
     protected static final String ACTION_EXPRESSION = "expression";
     private static final String HELP = "help";
+    protected final boolean removeSlash;
     private final DiceEvaluatorAdapter diceEvaluatorAdapter;
     private final PersistenceManager persistenceManager;
-    protected boolean removeSlash = true;
 
     public DirectRollCommand(PersistenceManager persistenceManager, CachingDiceEvaluator cachingDiceEvaluator) {
+        this(persistenceManager, cachingDiceEvaluator, true);
+    }
+
+    public DirectRollCommand(PersistenceManager persistenceManager, CachingDiceEvaluator cachingDiceEvaluator, boolean removeSlash) {
         this.diceEvaluatorAdapter = new DiceEvaluatorAdapter(cachingDiceEvaluator);
         this.persistenceManager = persistenceManager;
+        this.removeSlash = removeSlash;
     }
 
     @Override
@@ -124,7 +132,10 @@ public class DirectRollCommand implements SlashCommand {
 
             RollAnswer answer = diceEvaluatorAdapter.answerRollWithOptionalLabelInExpression(expressionWithOptionalLabelsAndAppliedAliases, DiceSystemAdapter.LABEL_DELIMITER, config.isAlwaysSumResult(), config.getAnswerFormatType(), config.getDiceStyleAndColor());
 
-            return Flux.merge(removeSlash ? Mono.defer(event::acknowledgeAndRemoveSlash) : event.reply(commandString, true),
+            String replayMessage = Stream.of(commandString, answer.getWarning())
+                    .filter(s -> !Strings.isNullOrEmpty(s))
+                    .collect(Collectors.joining(" "));
+            return Flux.merge(removeSlash && Strings.isNullOrEmpty(answer.getWarning()) ? Mono.defer(event::acknowledgeAndRemoveSlash) : event.reply(replayMessage, true),
                             Mono.defer(() -> event.createResultMessageWithEventReference(RollAnswerConverter.toEmbedOrMessageDefinition(answer))
                                     .doOnSuccess(v ->
                                             log.info("{}: '{}'={} -> {} in {}ms",

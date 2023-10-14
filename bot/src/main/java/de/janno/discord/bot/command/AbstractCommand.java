@@ -2,6 +2,7 @@ package de.janno.discord.bot.command;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Stopwatch;
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import de.janno.discord.bot.BotMetrics;
 import de.janno.discord.bot.persistance.Mapper;
@@ -29,6 +30,7 @@ import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static de.janno.discord.bot.command.BaseCommandOptions.*;
 import static de.janno.discord.connector.api.BottomCustomIdUtils.CUSTOM_ID_DELIMITER;
@@ -376,7 +378,11 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
             log.info("{}: '{}'",
                     event.getRequester().toLogString(),
                     commandString.replace("`", ""));
-            return event.reply(commandString, false)
+            String replayMessage = Stream.of(commandString, getConfigWarnMessage(config).orElse(null))
+                    .filter(s -> !Strings.isNullOrEmpty(s))
+                    .collect(Collectors.joining(" "));
+
+            return event.reply(replayMessage, false)
                     .then(Mono.defer(() -> {
                         final Optional<MessageConfigDTO> newMessageConfig = createMessageConfig(configUUID, guildId, channelId, config);
                         newMessageConfig.ifPresent(persistenceManager::saveMessageConfig);
@@ -390,6 +396,10 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
             return event.replyEmbed(getHelpMessage(), true);
         }
         return Mono.empty();
+    }
+
+    protected @NonNull Optional<String> getConfigWarnMessage(C config) {
+        return Optional.empty();
     }
 
     protected @NonNull List<CommandDefinitionOption> getStartOptions() {

@@ -1,5 +1,6 @@
 package de.janno.discord.bot.dice;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import de.janno.discord.bot.BotMetrics;
 import de.janno.discord.bot.command.AnswerFormatType;
@@ -16,8 +17,10 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.InputStream;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import static de.janno.discord.bot.dice.DiceSystemAdapter.LABEL_DELIMITER;
 
@@ -141,6 +144,7 @@ public class DiceEvaluatorAdapter {
                         .expression(expression)
                         .expressionLabel(label)
                         .image(diceImage)
+                        .warning(getWarningFromRoll(rolls))
                         .result(getResult(rolls.get(0), sumUp))
                         .rollDetails(rolls.get(0).getRandomElementsString())
                         .build();
@@ -152,6 +156,7 @@ public class DiceEvaluatorAdapter {
                         .answerFormatType(answerFormatType)
                         .expression(expression)
                         .expressionLabel(label)
+                        .warning(getWarningFromRoll(rolls))
                         .multiRollResults(multiRollResults)
                         .build();
             }
@@ -166,6 +171,19 @@ public class DiceEvaluatorAdapter {
 
     public boolean validExpression(String expression) {
         return cachingDiceEvaluator.get(expression).isValid();
+    }
+
+    private String getWarningFromRoll(List<Roll> rolls) {
+        return Strings.emptyToNull(rolls.stream()
+                .map(r -> {
+                    if (r.getRandomElementsInRoll().getRandomElements().isEmpty()) {
+                        return "did not contain any random element, try `d20` to roll a 20 sided die";
+                    }
+                    return null;
+                })
+                .filter(Objects::nonNull)
+                .distinct()
+                .collect(Collectors.joining(", ")));
     }
 
 }
