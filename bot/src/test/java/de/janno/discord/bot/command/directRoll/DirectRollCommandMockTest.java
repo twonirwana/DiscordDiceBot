@@ -48,6 +48,24 @@ public class DirectRollCommandMockTest {
     }
 
     @Test
+    void roll_warn() {
+        DirectRollCommand directRollCommand = new DirectRollCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
+
+        SlashEventAdaptorMock slashEvent = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
+                .name("expression")
+                .stringValue("20")
+                .build()));
+        directRollCommand.handleSlashCommandEvent(slashEvent, () -> UUID.fromString("00000000-0000-0000-0000-000000000000")).block();
+
+
+        assertThat(slashEvent.getActions()).containsExactlyInAnyOrder(
+                "reply: commandString did not contain any random element, try `d20` to roll a 20 sided die",
+                "createResultMessageWithEventReference: EmbedOrMessageDefinition(title=20 ⇒ 20, descriptionOrContent=, fields=[], hasImage=false, type=EMBED)"
+        );
+    }
+
+
+    @Test
     void help() {
         DirectRollCommand directRollCommand = new DirectRollCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
 

@@ -470,4 +470,13 @@ class ImageResultCreatorTest {
         assertThat(res).isNotNull();
         assertThat(getDataHash(res)).isEqualTo("de01222cf4ea85e2fe2eea6539ebdfe9809bfe88f6dfb8ece5736df9eeb6603d");
     }
+
+    @Test
+    void getImageForRoll_polyhedral_RdD_specialColor() throws ExpressionException {
+        List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier( 99), 1000).evaluate("1d100");
+
+        Supplier<? extends InputStream> res = underTest.getImageForRoll(rolls, new DiceStyleAndColor(DiceImageStyle.polyhedral_RdD, "special"));
+
+        assertThat(res).isNull();
+    }
 }
