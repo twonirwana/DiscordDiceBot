@@ -161,4 +161,16 @@ public class ButtonEventAdaptorMock implements ButtonEventAdaptor {
         actions.add(String.format("deleteMessageById: %s", messageId));
         return Mono.empty();
     }
+
+    @Override
+    public Mono<Void> acknowledgeAndRemoveButtons() {
+        actions.add("acknowledge");
+        return Mono.empty();
+    }
+
+    @Override
+    public EmbedOrMessageDefinition getMessageDefinitionOfEventMessageWithoutButtons() {
+        actions.add("getMessageDefinitionOfEventMessageWithoutButtons");
+        return null;
+    }
 }

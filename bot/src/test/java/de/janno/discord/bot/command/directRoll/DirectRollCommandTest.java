@@ -68,7 +68,7 @@ class DirectRollCommandTest {
         verify(slashEventAdaptor).getCommandString();
         verify(slashEventAdaptor, never()).createButtonMessage(any());
         verify(slashEventAdaptor, never()).deleteMessageById(anyLong());
-        verify(slashEventAdaptor, never()).replyEmbed(any(), anyBoolean());
+        verify(slashEventAdaptor, never()).replyWithEmbedOrMessageDefinition(any(), anyBoolean());
         verify(slashEventAdaptor).createResultMessageWithEventReference(ArgumentMatchers.argThat(argument -> Objects.equals(argument.toString(), "EmbedOrMessageDefinition(title=Test Label ⇒ 1, descriptionOrContent=1d6, fields=[], hasImage=true, type=EMBED)")));
 
         verify(slashEventAdaptor, times(2)).getChannelId();
@@ -96,7 +96,7 @@ class DirectRollCommandTest {
         verify(slashEventAdaptor, times(1)).getCommandString();
         verify(slashEventAdaptor, never()).createButtonMessage(any());
         verify(slashEventAdaptor, never()).deleteMessageById(anyLong());
-        verify(slashEventAdaptor, never()).replyEmbed(any(), anyBoolean());
+        verify(slashEventAdaptor, never()).replyWithEmbedOrMessageDefinition(any(), anyBoolean());
         verify(slashEventAdaptor, never()).createResultMessageWithEventReference(any());
         verify(slashEventAdaptor, never()).deleteMessageById(anyLong());
         verify(slashEventAdaptor).reply("/r expression:asdfasdf\n" +
@@ -115,7 +115,7 @@ class DirectRollCommandTest {
                 .build();
         when(slashEventAdaptor.getOption(any())).thenReturn(Optional.of(interactionOption));
         when(slashEventAdaptor.getChannelId()).thenReturn(1L);
-        when(slashEventAdaptor.replyEmbed(any(), anyBoolean())).thenReturn(Mono.just(mock(Void.class)));
+        when(slashEventAdaptor.replyWithEmbedOrMessageDefinition(any(), anyBoolean())).thenReturn(Mono.just(mock(Void.class)));
         when(slashEventAdaptor.getCommandString()).thenReturn("/r expression:help");
         when(slashEventAdaptor.getRequester()).thenReturn(new Requester("user", "channel", "guild", "[0 / 1]"));
 
@@ -132,7 +132,7 @@ class DirectRollCommandTest {
         verify(slashEventAdaptor, never()).deleteMessageById(anyLong());
         verify(slashEventAdaptor, never()).createResultMessageWithEventReference(any());
         verify(slashEventAdaptor, never()).deleteMessageById(anyLong());
-        verify(slashEventAdaptor).replyEmbed(EmbedOrMessageDefinition.builder()
+        verify(slashEventAdaptor).replyWithEmbedOrMessageDefinition(EmbedOrMessageDefinition.builder()
                 .descriptionOrContent("Type /r and a dice expression, configuration with /channel_config\n" + DiceEvaluatorAdapter.getHelp())
                 .field(new EmbedOrMessageDefinition.Field("Example", "`/r expression:1d6`", false))
                 .field(new EmbedOrMessageDefinition.Field("Full documentation", "https://github.com/twonirwana/DiscordDiceBot", false))

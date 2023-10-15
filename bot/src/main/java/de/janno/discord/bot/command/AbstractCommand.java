@@ -393,7 +393,7 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
 
         } else if (event.getOption(ACTION_HELP).isPresent()) {
             BotMetrics.incrementSlashHelpMetricCounter(getCommandId());
-            return event.replyEmbed(getHelpMessage(), true);
+            return event.replyWithEmbedOrMessageDefinition(getHelpMessage(), true);
         }
         return Mono.empty();
     }

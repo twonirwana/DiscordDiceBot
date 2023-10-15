@@ -38,4 +38,13 @@ public interface ButtonEventAdaptor extends DiscordAdapter {
 
     @NonNull OffsetDateTime getMessageCreationTime();
 
+    /**
+     * acknowledge the event and remove all buttons form the message where the button was clicked
+     */
+    Mono<Void> acknowledgeAndRemoveButtons();
+
+    /**
+     * Gives the message definition of the message where the button was clicked
+     */
+    EmbedOrMessageDefinition getMessageDefinitionOfEventMessageWithoutButtons();
 }

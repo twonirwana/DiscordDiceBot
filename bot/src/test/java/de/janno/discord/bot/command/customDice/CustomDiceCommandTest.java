@@ -143,7 +143,7 @@ class CustomDiceCommandTest {
                 new EmbedOrMessageDefinition.Field("1d6 ⇒ 6", "[6]", false),
                 new EmbedOrMessageDefinition.Field("1d6 ⇒ 6", "[6]", false),
                 new EmbedOrMessageDefinition.Field("1d6 ⇒ 6", "[6]", false)
-        ), null, EmbedOrMessageDefinition.Type.EMBED));
+        ), null, List.of(), EmbedOrMessageDefinition.Type.EMBED));
     }
 
     @Test
@@ -155,7 +155,7 @@ class CustomDiceCommandTest {
                 new EmbedOrMessageDefinition.Field("1d6 ⇒ 3", "[3]", false),
                 new EmbedOrMessageDefinition.Field("1d6 ⇒ 3", "[3]", false),
                 new EmbedOrMessageDefinition.Field("1d6 ⇒ 3", "[3]", false)
-        ), null, EmbedOrMessageDefinition.Type.EMBED));
+        ), null,  List.of(), EmbedOrMessageDefinition.Type.EMBED));
     }
 
 
@@ -174,7 +174,7 @@ class CustomDiceCommandTest {
         EmbedOrMessageDefinition res = RollAnswerConverter.toEmbedOrMessageDefinition(underTest.getAnswer(new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Label", "1d6,1d6,1d6")), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none")), new State<>("1_button", StateData.empty()), 0, 0)
                 .orElseThrow());
 
-        assertThat(res).isEqualTo(new EmbedOrMessageDefinition("Label", null, ImmutableList.of(new EmbedOrMessageDefinition.Field("1d6 ⇒ 3", "[3]", false), new EmbedOrMessageDefinition.Field("1d6 ⇒ 3", "[3]", false), new EmbedOrMessageDefinition.Field("1d6 ⇒ 3", "[3]", false)), null, EmbedOrMessageDefinition.Type.EMBED));
+        assertThat(res).isEqualTo(new EmbedOrMessageDefinition("Label", null, ImmutableList.of(new EmbedOrMessageDefinition.Field("1d6 ⇒ 3", "[3]", false), new EmbedOrMessageDefinition.Field("1d6 ⇒ 3", "[3]", false), new EmbedOrMessageDefinition.Field("1d6 ⇒ 3", "[3]", false)), null,  List.of(), EmbedOrMessageDefinition.Type.EMBED));
     }
 
     @Test
@@ -297,7 +297,7 @@ class CustomDiceCommandTest {
         when(event.getOption("help")).thenReturn(Optional.of(CommandInteractionOption.builder()
                 .name("help")
                 .build()));
-        when(event.replyEmbed(any(), anyBoolean())).thenReturn(Mono.just(mock(Void.class)));
+        when(event.replyWithEmbedOrMessageDefinition(any(), anyBoolean())).thenReturn(Mono.just(mock(Void.class)));
 
         Mono<Void> res = underTest.handleSlashCommandEvent(event, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"));
 
@@ -307,7 +307,7 @@ class CustomDiceCommandTest {
         verify(event).checkPermissions();
         verify(event).getCommandString();
         verify(event, times(2)).getOption(any());
-        verify(event).replyEmbed(EmbedOrMessageDefinition.builder()
+        verify(event).replyWithEmbedOrMessageDefinition(EmbedOrMessageDefinition.builder()
                 .descriptionOrContent("Creates up to 25 buttons with custom dice expression.\n" + DiceEvaluatorAdapter.getHelp())
                 .field(new EmbedOrMessageDefinition.Field("Example", "`/custom_dice start buttons:3d6;10d10;3d20`", false))
                 .field(new EmbedOrMessageDefinition.Field("Full documentation", "https://github.com/twonirwana/DiscordDiceBot", false))

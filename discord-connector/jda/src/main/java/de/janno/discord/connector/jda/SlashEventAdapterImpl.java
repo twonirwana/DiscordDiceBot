@@ -82,15 +82,12 @@ public class SlashEventAdapterImpl extends DiscordAdapterImpl implements SlashEv
     }
 
     @Override
-    public Mono<Void> replyEmbed(@NonNull EmbedOrMessageDefinition embedOrMessageDefinition, boolean ephemeral) {
-        //todo combine with DiscordAdapter.createEmbedMessageWithReference
-        EmbedBuilder embedBuilder = new EmbedBuilder()
-                .setDescription(embedOrMessageDefinition.getDescriptionOrContent());
-        embedOrMessageDefinition.getFields().forEach(f -> embedBuilder.addField(f.getName(), f.getValue(), f.isInline()));
-        return createMonoFrom(() -> event.replyEmbeds(ImmutableSet.of(embedBuilder.build())).setEphemeral(ephemeral))
-                .onErrorResume(t -> handleException("Error on replay ephemeral", t, true).ofType(InteractionHook.class))
+    public Mono<Void> replyWithEmbedOrMessageDefinition(@NonNull EmbedOrMessageDefinition messageDefinition, boolean ephemeral) {
+        return replyWithMessage(event, messageDefinition, ephemeral)
+                .onErrorResume(t -> handleException("Error on replay", t, true).ofType(InteractionHook.class))
                 .then();
     }
+
 
     @Override
     public @NonNull Mono<Long> createButtonMessage(@NonNull MessageDefinition messageDefinition) {

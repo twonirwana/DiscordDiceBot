@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.function.Supplier;
 
 @Value
-@Builder
+@Builder(toBuilder = true)
 @AllArgsConstructor
 public class EmbedOrMessageDefinition {
 
@@ -18,7 +18,9 @@ public class EmbedOrMessageDefinition {
     @NonNull
     List<Field> fields;
     Supplier<? extends InputStream> image;
-
+    @Singular
+    @NonNull
+    List<ComponentRowDefinition> componentRowDefinitions;
     @Builder.Default
     Type type = Type.EMBED;
 
@@ -28,6 +30,7 @@ public class EmbedOrMessageDefinition {
                 "title=" + title +
                 ", descriptionOrContent=" + descriptionOrContent +
                 ", fields=" + fields +
+                ", componentRowDefinitions=" + componentRowDefinitions +
                 ", hasImage=" + (image != null) +
                 ", type=" + type +
                 ')';

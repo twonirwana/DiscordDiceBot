@@ -16,7 +16,7 @@ public interface SlashEventAdaptor extends DiscordAdapter {
 
     List<CommandInteractionOption> getOptions();
 
-    Mono<Void> replyEmbed(@NonNull EmbedOrMessageDefinition embedOrMessageDefinition, boolean ephemeral);
+    Mono<Void> replyWithEmbedOrMessageDefinition(@NonNull EmbedOrMessageDefinition messageDefinition, boolean ephemeral);
 
     @NonNull Mono<Long> createButtonMessage(@NonNull MessageDefinition messageDefinition);
 

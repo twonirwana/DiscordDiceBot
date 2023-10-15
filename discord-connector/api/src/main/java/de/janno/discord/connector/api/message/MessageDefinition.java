@@ -9,6 +9,7 @@ import java.util.List;
 
 @Value
 @Builder
+//Todo replace with EmbedOrMessageDefinition
 public class MessageDefinition {
     @NonNull
     String content;

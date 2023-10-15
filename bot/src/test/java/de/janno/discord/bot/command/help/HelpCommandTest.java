@@ -23,7 +23,7 @@ class HelpCommandTest {
     @Test
     void handleSlashCommandEvent() {
         SlashEventAdaptor slashEventAdaptor = mock(SlashEventAdaptor.class);
-        when(slashEventAdaptor.replyEmbed(any(), anyBoolean())).thenReturn(Mono.empty());
+        when(slashEventAdaptor.replyWithEmbedOrMessageDefinition(any(), anyBoolean())).thenReturn(Mono.empty());
 
         Mono<Void> res = underTest.handleSlashCommandEvent(slashEventAdaptor, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"));
         StepVerifier.create(res).verifyComplete();

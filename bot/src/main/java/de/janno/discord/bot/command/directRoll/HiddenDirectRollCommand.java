@@ -3,7 +3,6 @@ package de.janno.discord.bot.command.directRoll;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Stopwatch;
-import com.google.common.base.Strings;
 import de.janno.discord.bot.BotMetrics;
 import de.janno.discord.bot.command.AnswerFormatType;
 import de.janno.discord.bot.command.RollAnswer;
@@ -18,8 +17,9 @@ import de.janno.discord.bot.dice.image.DiceStyleAndColor;
 import de.janno.discord.bot.persistance.ChannelConfigDTO;
 import de.janno.discord.bot.persistance.Mapper;
 import de.janno.discord.bot.persistance.PersistenceManager;
-import de.janno.discord.connector.api.SlashCommand;
-import de.janno.discord.connector.api.SlashEventAdaptor;
+import de.janno.discord.connector.api.*;
+import de.janno.discord.connector.api.message.ButtonDefinition;
+import de.janno.discord.connector.api.message.ComponentRowDefinition;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinitionOption;
@@ -29,30 +29,29 @@ import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static de.janno.discord.bot.command.channelConfig.ChannelConfigCommand.DIRECT_ROLL_CONFIG_TYPE_ID;
 
 @Slf4j
-public class DirectRollCommand implements SlashCommand {
+public class HiddenDirectRollCommand implements SlashCommand, ComponentInteractEventHandler {
 
-    public static final String ROLL_COMMAND_ID = "r";
+    public static final String ROLL_COMMAND_ID = "h";
     protected static final String ACTION_EXPRESSION = "expression";
     private static final String HELP = "help";
     protected final boolean removeSlash;
     private final DiceEvaluatorAdapter diceEvaluatorAdapter;
     private final PersistenceManager persistenceManager;
 
-    public DirectRollCommand(PersistenceManager persistenceManager, CachingDiceEvaluator cachingDiceEvaluator) {
+    public HiddenDirectRollCommand(PersistenceManager persistenceManager, CachingDiceEvaluator cachingDiceEvaluator) {
         this(persistenceManager, cachingDiceEvaluator, true);
     }
 
-    public DirectRollCommand(PersistenceManager persistenceManager, CachingDiceEvaluator cachingDiceEvaluator, boolean removeSlash) {
+    public HiddenDirectRollCommand(PersistenceManager persistenceManager, CachingDiceEvaluator cachingDiceEvaluator, boolean removeSlash) {
         this.diceEvaluatorAdapter = new DiceEvaluatorAdapter(cachingDiceEvaluator);
         this.persistenceManager = persistenceManager;
         this.removeSlash = removeSlash;
@@ -131,22 +130,24 @@ public class DirectRollCommand implements SlashCommand {
             BotMetrics.incrementAnswerFormatCounter(config.getAnswerFormatType(), getCommandId());
 
             RollAnswer answer = diceEvaluatorAdapter.answerRollWithOptionalLabelInExpression(expressionWithOptionalLabelsAndAppliedAliases, DiceSystemAdapter.LABEL_DELIMITER, config.isAlwaysSumResult(), config.getAnswerFormatType(), config.getDiceStyleAndColor());
-
-            String replayMessage = Stream.of(commandString, answer.getWarning())
-                    .filter(s -> !Strings.isNullOrEmpty(s))
-                    .collect(Collectors.joining(" "));
-            return Flux.merge(removeSlash && Strings.isNullOrEmpty(answer.getWarning()) ? Mono.defer(event::acknowledgeAndRemoveSlash) : event.reply(replayMessage, true),
-                            Mono.defer(() -> event.createResultMessageWithEventReference(RollAnswerConverter.toEmbedOrMessageDefinition(answer))
-                                    .doOnSuccess(v ->
-                                            log.info("{}: '{}'={} -> {} in {}ms",
-                                                    event.getRequester().toLogString(),
-                                                    commandString.replace("`", ""),
-                                                    diceExpression,
-                                                    answer.toShortString(),
-                                                    stopwatch.elapsed(TimeUnit.MILLISECONDS)
-                                            )))
+            EmbedOrMessageDefinition embedOrMessageDefinition = RollAnswerConverter.toEmbedOrMessageDefinition(answer).toBuilder()
+                    .componentRowDefinition(ComponentRowDefinition.builder()
+                            .buttonDefinition(ButtonDefinition.builder()
+                                    .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), "reveal", UUID.randomUUID()))
+                                    .label("Reveal").build())
+                            .build()
                     )
-                    .parallel().then();
+                    .build();
+
+            return Mono.defer(() -> event.replyWithEmbedOrMessageDefinition(embedOrMessageDefinition, true)
+                    .doOnSuccess(v ->
+                            log.info("{}: '{}'={} -> {} in {}ms",
+                                    event.getRequester().toLogString(),
+                                    commandString.replace("`", ""),
+                                    diceExpression,
+                                    answer.toShortString(),
+                                    stopwatch.elapsed(TimeUnit.MILLISECONDS)
+                            )));
         }
 
         return Mono.empty();
@@ -159,4 +160,26 @@ public class DirectRollCommand implements SlashCommand {
         return event.reply(String.format("%s\n%s", commandString, validationMessage), true);
     }
 
+    @Override
+    public Mono<Void> handleComponentInteractEvent(@NonNull ButtonEventAdaptor event) {
+        Stopwatch stopwatch = Stopwatch.createStarted();
+
+        return Flux.merge(1,
+                        event.acknowledgeAndRemoveButtons(), //ephemeral message cant be deleted
+                        event.createResultMessageWithEventReference(event.getMessageDefinitionOfEventMessageWithoutButtons(), null)
+                                .doOnSuccess(v ->
+                                        log.info("{}:-> {} in {}ms",
+                                                event.getRequester().toLogString(),
+                                                "reveal",
+                                                stopwatch.elapsed(TimeUnit.MILLISECONDS)
+                                        ))
+                )
+                .parallel()
+                .then();
+    }
+
+    @Override
+    public boolean matchingComponentCustomId(String buttonCustomId) {
+        return Objects.equals(getCommandId(), BottomCustomIdUtils.getCommandNameFromCustomIdWithPersistence(buttonCustomId));
+    }
 }

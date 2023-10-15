@@ -71,8 +71,8 @@ public class SlashEventAdaptorMock implements SlashEventAdaptor {
     }
 
     @Override
-    public Mono<Void> replyEmbed(@NonNull EmbedOrMessageDefinition embedOrMessageDefinition, boolean ephemeral) {
-        actions.add(String.format("replyEmbed: %s", embedOrMessageDefinition));
+    public Mono<Void> replyWithEmbedOrMessageDefinition(@NonNull EmbedOrMessageDefinition messageDefinition, boolean ephemeral) {
+        actions.add(String.format("replyEmbedOrMessageDefinition: %s", messageDefinition));
         return Mono.just("").then();
     }
 
