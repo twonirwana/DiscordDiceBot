@@ -14,7 +14,6 @@ import java.util.function.Supplier;
 @Value
 @Builder
 public class RollAnswer {
-    private static final String MINUS = "\u2212";
     @NonNull
     AnswerFormatType answerFormatType;
     @NonNull
@@ -31,6 +30,8 @@ public class RollAnswer {
     List<RollResults> multiRollResults;
     @Nullable
     Supplier<? extends InputStream> image;
+    @Nullable
+    String warning;
 
     public String toShortString() {
         String fieldStringList = Optional.ofNullable(multiRollResults)
@@ -39,10 +40,10 @@ public class RollAnswer {
                         .toList().toString())
                 .orElse(null);
         return String.format("%s=%s", expression,
-                        Joiner.on(",").skipNulls().join(result, rollDetails, errorMessage, fieldStringList))
+                        Joiner.on(",").skipNulls().join(result, rollDetails, errorMessage, warning, fieldStringList))
                 .replace("▢", "0")
                 .replace("＋", "+")
-                .replace(MINUS, "-")
+                .replace("−", "-") //minus is not hyphen-minus
                 .replace("*", "");
     }
 

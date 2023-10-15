@@ -11,11 +11,11 @@ import java.util.function.Supplier;
 @AllArgsConstructor
 public class EmbedOrMessageDefinition {
 
-    //todo ephemeral field
 
     String title;
     String descriptionOrContent;
     @Singular
+    @NonNull
     List<Field> fields;
     Supplier<? extends InputStream> image;
 

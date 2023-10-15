@@ -22,9 +22,8 @@ public class ValidationCommand extends DirectRollCommand {
     private final DiceEvaluatorAdapter diceEvaluatorAdapter;
 
     public ValidationCommand(PersistenceManager persistenceManager, CachingDiceEvaluator cachingDiceEvaluator) {
-        super(persistenceManager, cachingDiceEvaluator);
+        super(persistenceManager, cachingDiceEvaluator, false);
         this.diceEvaluatorAdapter = new DiceEvaluatorAdapter(cachingDiceEvaluator);
-        removeSlash = false;
     }
 
     @Override
