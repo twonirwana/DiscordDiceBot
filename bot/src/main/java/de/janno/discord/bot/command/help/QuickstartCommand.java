@@ -126,7 +126,7 @@ public class QuickstartCommand implements SlashCommand {
                                         stopwatch.elapsed(TimeUnit.MILLISECONDS)
                                 ));
             } else {
-                log.error("Can't match RPG system id: '{}'", systemId);
+                log.info("Can't match RPG system id: '{}'", systemId);
                 return event.reply("Unknown rpg: `%s`".formatted(systemId), true);
             }
 
