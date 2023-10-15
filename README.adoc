@@ -276,7 +276,7 @@ Valid for d6 and the only supported color is: `white`
 
 image:image/draw_color.png[image,600]
 
-Valid for d4, d6, d10, d8, d12, d20, d100 and the supported colors are: `white`, `gray`, `black`, `red`, `pink`, `orange`, `yellow`, `green`, `magenta`, `cyan`, `blue`.
+Valid for d4, d6, d10, d8, d12, d20, d100 and the supported colors are: `white`, `gray`, `black`, `red`, `pink`, `orange`, `yellow`, `green`, `magenta`, `cyan`, `blue` and `indigo`.
 
 ==== polyhedral_alies_v1
 
