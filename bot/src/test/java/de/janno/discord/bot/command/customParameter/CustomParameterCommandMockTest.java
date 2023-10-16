@@ -48,8 +48,8 @@ public class CustomParameterCommandMockTest {
                 "editMessage: message:invokingUser: 4d{sides}\nPlease select value for **sides**, buttonValues=id1,id2,id3,id4,id5,id6,id7,id8,clear");
         assertThat(click2.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:processing ..., buttonValues=",
-                "createAnswer: title=4d6 ⇒ 1, 1, 6, 3, description=[1, 1, 6, 3], fieldValues:, answerChannel:null, type:EMBED",
-                "createButtonMessage: content={numberOfDice}d{sides}\nPlease select value for **numberOfDice**, buttonValues=id1,id2,id3,id4,id5,id6,id7,id8,id9,id10",
+                "createResultMessageWithReference: title=4d6 ⇒ 1, 1, 6, 3, description=[1, 1, 6, 3], fieldValues:, answerChannel:null, type:EMBED",
+                "createMessageWithoutReference: content={numberOfDice}d{sides}\nPlease select value for **numberOfDice**, buttonValues=id1,id2,id3,id4,id5,id6,id7,id8,id9,id10",
                 "deleteMessageById: 0");
     }
 
@@ -70,8 +70,8 @@ public class CustomParameterCommandMockTest {
                 "editMessage: message:invokingUser: d['-','0','1']+{bonus}\nPlease select value for **bonus**, buttonValues=id1,id2,id3,id4,id5,id6,id7,id8,id9,id10,clear");
         assertThat(click2.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:processing ..., buttonValues=",
-                "createAnswer: title=d['-','0','1']+4 ⇒ '1', 4, description=['1'], fieldValues:, answerChannel:null, type:EMBED",
-                "createButtonMessage: content={dice}+{bonus}\nPlease select value for **dice**, buttonValues=id1,id2",
+                "createResultMessageWithReference: title=d['-','0','1']+4 ⇒ '1', 4, description=['1'], fieldValues:, answerChannel:null, type:EMBED",
+                "createMessageWithoutReference: content={dice}+{bonus}\nPlease select value for **dice**, buttonValues=id1,id2",
                 "deleteMessageById: 0");
     }
 
@@ -88,9 +88,9 @@ public class CustomParameterCommandMockTest {
 
         assertThat(click1.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:processing ..., buttonValues=",
-                "createAnswer: title=2 ⇒ 2, description=, fieldValues:, answerChannel:null, type:EMBED",
+                "createResultMessageWithReference: title=2 ⇒ 2, description=, fieldValues:, answerChannel:null, type:EMBED",
                 "deleteMessageById: 0",
-                "createButtonMessage: content={bonus}\nPlease select value for **bonus**, buttonValues=id1,id2,id3,id4,id5,id6,id7,id8,id9,id10,id11");
+                "createMessageWithoutReference: content={bonus}\nPlease select value for **bonus**, buttonValues=id1,id2,id3,id4,id5,id6,id7,id8,id9,id10,id11");
     }
 
     @Test
@@ -110,8 +110,8 @@ public class CustomParameterCommandMockTest {
                 "editMessage: message:invokingUser: d['-','0','1']+{bonus}\nPlease select value for **bonus**, buttonValues=id1,id2,id3,id4,id5,id6,id7,id8,id9,id10,clear");
         assertThat(click2.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:processing ..., buttonValues=",
-                "createAnswer: title=d['-','0','1']+4 ⇒ '1', 4, description=['1'], fieldValues:, answerChannel:null, type:EMBED",
-                "createButtonMessage: content={dice}+{bonus}\nPlease select value for **dice**, buttonValues=id1,id2",
+                "createResultMessageWithReference: title=d['-','0','1']+4 ⇒ '1', 4, description=['1'], fieldValues:, answerChannel:null, type:EMBED",
+                "createMessageWithoutReference: content={dice}+{bonus}\nPlease select value for **dice**, buttonValues=id1,id2",
                 "deleteMessageById: 0");
     }
 
@@ -132,8 +132,8 @@ public class CustomParameterCommandMockTest {
                 "editMessage: message:invokingUser: 4d{sides}@Roll\nPlease select value for **sides**, buttonValues=id1,id2,id3,id4,id5,id6,id7,id8,clear");
         assertThat(click2.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:processing ..., buttonValues=",
-                "createAnswer: title=Roll ⇒ 1, 1, 6, 3, description=4d6: [1, 1, 6, 3], fieldValues:, answerChannel:null, type:EMBED",
-                "createButtonMessage: content={numberOfDice}d{sides}@Roll\nPlease select value for **numberOfDice**, buttonValues=id1,id2,id3,id4,id5,id6,id7,id8,id9,id10",
+                "createResultMessageWithReference: title=Roll ⇒ 1, 1, 6, 3, description=4d6: [1, 1, 6, 3], fieldValues:, answerChannel:null, type:EMBED",
+                "createMessageWithoutReference: content={numberOfDice}d{sides}@Roll\nPlease select value for **numberOfDice**, buttonValues=id1,id2,id3,id4,id5,id6,id7,id8,id9,id10",
                 "deleteMessageById: 0");
     }
 
@@ -154,8 +154,8 @@ public class CustomParameterCommandMockTest {
                 "editMessage: message:invokingUser: Please select value for **sides**, buttonValues=id1,id2,id3,id4,id5,id6,id7,id8,clear");
         assertThat(click2.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:processing ..., buttonValues=",
-                "createAnswer: title=numberOfDice: 4, sides: 6 ⇒ 1, 1, 6, 3, description=[1, 1, 6, 3], fieldValues:, answerChannel:null, type:EMBED",
-                "createButtonMessage: content=Please select value for **numberOfDice**, buttonValues=id1,id2,id3,id4,id5,id6,id7,id8,id9,id10",
+                "createResultMessageWithReference: title=numberOfDice: 4, sides: 6 ⇒ 1, 1, 6, 3, description=[1, 1, 6, 3], fieldValues:, answerChannel:null, type:EMBED",
+                "createMessageWithoutReference: content=Please select value for **numberOfDice**, buttonValues=id1,id2,id3,id4,id5,id6,id7,id8,id9,id10",
                 "deleteMessageById: 0");
     }
 
@@ -176,8 +176,8 @@ public class CustomParameterCommandMockTest {
                 "editMessage: message:invokingUser: Please select value for **sides**, buttonValues=id1,id2,id3,id4,id5,id6,id7,id8,clear");
         assertThat(click2.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:processing ..., buttonValues=",
-                "createAnswer: title=Roll ⇒ 1, 1, 6, 3, description=[1, 1, 6, 3], fieldValues:, answerChannel:null, type:EMBED",
-                "createButtonMessage: content=Please select value for **numberOfDice**, buttonValues=id1,id2,id3,id4,id5,id6,id7,id8,id9,id10",
+                "createResultMessageWithReference: title=Roll ⇒ 1, 1, 6, 3, description=[1, 1, 6, 3], fieldValues:, answerChannel:null, type:EMBED",
+                "createMessageWithoutReference: content=Please select value for **numberOfDice**, buttonValues=id1,id2,id3,id4,id5,id6,id7,id8,id9,id10",
                 "deleteMessageById: 0");
     }
 
@@ -198,8 +198,8 @@ public class CustomParameterCommandMockTest {
                 "editMessage: message:invokingUser: Please select value for **sides**, buttonValues=id1,id2,id3,id4,id5,id6,id7,id8,clear");
         assertThat(click2.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:processing ..., buttonValues=",
-                "createAnswer: title=null, description=__**numberOfDice: 4, sides: 6 ⇒ 1, 1, 6, 3**__  4d6: [1, 1, 6, 3], fieldValues:, answerChannel:null, type:MESSAGE",
-                "createButtonMessage: content=Please select value for **numberOfDice**, buttonValues=id1,id2,id3,id4,id5,id6,id7,id8,id9,id10",
+                "createResultMessageWithReference: title=null, description=__**numberOfDice: 4, sides: 6 ⇒ 1, 1, 6, 3**__  4d6: [1, 1, 6, 3], fieldValues:, answerChannel:null, type:MESSAGE",
+                "createMessageWithoutReference: content=Please select value for **numberOfDice**, buttonValues=id1,id2,id3,id4,id5,id6,id7,id8,id9,id10",
                 "deleteMessageById: 0");
     }
 
@@ -220,8 +220,8 @@ public class CustomParameterCommandMockTest {
                 "editMessage: message:invokingUser: Please select value for **sides**, buttonValues=id1,id2,id3,id4,id5,id6,id7,id8,clear");
         assertThat(click2.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:processing ..., buttonValues=",
-                "createAnswer: title=null, description=numberOfDice: 4, sides: 6 ⇒ 1, 1, 6, 3, fieldValues:, answerChannel:null, type:MESSAGE",
-                "createButtonMessage: content=Please select value for **numberOfDice**, buttonValues=id1,id2,id3,id4,id5,id6,id7,id8,id9,id10",
+                "createResultMessageWithReference: title=null, description=numberOfDice: 4, sides: 6 ⇒ 1, 1, 6, 3, fieldValues:, answerChannel:null, type:MESSAGE",
+                "createMessageWithoutReference: content=Please select value for **numberOfDice**, buttonValues=id1,id2,id3,id4,id5,id6,id7,id8,id9,id10",
                 "deleteMessageById: 0");
     }
 
@@ -246,8 +246,8 @@ public class CustomParameterCommandMockTest {
                 "editMessage: message:user1: Please select value for **sides**, buttonValues=id1,id2,id3,id4,id5,id6,id7,id8,clear");
         assertThat(click3.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:processing ..., buttonValues=",
-                "createAnswer: title=null, description=numberOfDice: 4, sides: 6 ⇒ 1, 1, 6, 3, fieldValues:, answerChannel:null, type:MESSAGE",
-                "createButtonMessage: content=Please select value for **numberOfDice**, buttonValues=id1,id2,id3,id4,id5,id6,id7,id8,id9,id10",
+                "createResultMessageWithReference: title=null, description=numberOfDice: 4, sides: 6 ⇒ 1, 1, 6, 3, fieldValues:, answerChannel:null, type:MESSAGE",
+                "createMessageWithoutReference: content=Please select value for **numberOfDice**, buttonValues=id1,id2,id3,id4,id5,id6,id7,id8,id9,id10",
                 "deleteMessageById: 0");
     }
 
@@ -287,8 +287,8 @@ public class CustomParameterCommandMockTest {
                 "editMessage: message:invokingUser: 4d{sides}\nPlease select value for **sides**, buttonValues=id1,id2,id3,id4,id5,id6,id7,id8,clear");
         assertThat(click2.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:{numberOfDice}d{sides}\nPlease select value for **numberOfDice**, buttonValues=id1,id2,id3,id4,id5,id6,id7,id8,id9,id10",
-                "createAnswer: title=4d6 ⇒ 1, 1, 6, 3, description=[1, 1, 6, 3], fieldValues:, answerChannel:null, type:EMBED",
-                "createButtonMessage: content={numberOfDice}d{sides}\nPlease select value for **numberOfDice**, buttonValues=id1,id2,id3,id4,id5,id6,id7,id8,id9,id10");
+                "createResultMessageWithReference: title=4d6 ⇒ 1, 1, 6, 3, description=[1, 1, 6, 3], fieldValues:, answerChannel:null, type:EMBED",
+                "createMessageWithoutReference: content={numberOfDice}d{sides}\nPlease select value for **numberOfDice**, buttonValues=id1,id2,id3,id4,id5,id6,id7,id8,id9,id10");
     }
 
     @Test
@@ -309,7 +309,7 @@ public class CustomParameterCommandMockTest {
                         "Please select value for **sides**, buttonValues=id1,id2,id3,id4,id5,id6,id7,id8,clear");
         assertThat(click2.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:{numberOfDice}d{sides}\nPlease select value for **numberOfDice**, buttonValues=id1,id2,id3,id4,id5,id6,id7,id8,id9,id10",
-                "createAnswer: title=4d6 ⇒ 1, 1, 6, 3, description=[1, 1, 6, 3], fieldValues:, answerChannel:2, type:EMBED"
+                "createResultMessageWithReference: title=4d6 ⇒ 1, 1, 6, 3, description=[1, 1, 6, 3], fieldValues:, answerChannel:2, type:EMBED"
         );
     }
 
@@ -334,14 +334,14 @@ public class CustomParameterCommandMockTest {
                 "editMessage: message:invokingUser: 4d{sides}\nPlease select value for **sides**, buttonValues=id1,id2,id3,id4,id5,id6,id7,id8,clear");
         assertThat(click2.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:{numberOfDice}d{sides}\nPlease select value for **numberOfDice**, buttonValues=id1,id2,id3,id4,id5,id6,id7,id8,id9,id10",
-                "createAnswer: title=4d6 ⇒ 1, 1, 6, 3, description=[1, 1, 6, 3], fieldValues:, answerChannel:null, type:EMBED",
-                "createButtonMessage: content={numberOfDice}d{sides}\nPlease select value for **numberOfDice**, buttonValues=id1,id2,id3,id4,id5,id6,id7,id8,id9,id10");
+                "createResultMessageWithReference: title=4d6 ⇒ 1, 1, 6, 3, description=[1, 1, 6, 3], fieldValues:, answerChannel:null, type:EMBED",
+                "createMessageWithoutReference: content={numberOfDice}d{sides}\nPlease select value for **numberOfDice**, buttonValues=id1,id2,id3,id4,id5,id6,id7,id8,id9,id10");
         assertThat(click3.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:invokingUser: 4d{sides}\nPlease select value for **sides**, buttonValues=id1,id2,id3,id4,id5,id6,id7,id8,clear");
         assertThat(click4.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:processing ..., buttonValues=",
-                "createAnswer: title=4d6 ⇒ 3, 2, 4, 4, description=[3, 2, 4, 4], fieldValues:, answerChannel:null, type:EMBED",
-                "createButtonMessage: content={numberOfDice}d{sides}\nPlease select value for **numberOfDice**, buttonValues=id1,id2,id3,id4,id5,id6,id7,id8,id9,id10",
+                "createResultMessageWithReference: title=4d6 ⇒ 3, 2, 4, 4, description=[3, 2, 4, 4], fieldValues:, answerChannel:null, type:EMBED",
+                "createMessageWithoutReference: content={numberOfDice}d{sides}\nPlease select value for **numberOfDice**, buttonValues=id1,id2,id3,id4,id5,id6,id7,id8,id9,id10",
                 "deleteMessageById: 1",
                 "getMessagesState: [0]");
     }
@@ -367,13 +367,13 @@ public class CustomParameterCommandMockTest {
                 "editMessage: message:invokingUser: 4d{sides}\nPlease select value for **sides**, buttonValues=id1,id2,id3,id4,id5,id6,id7,id8,clear");
         assertThat(click2.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:{numberOfDice}d{sides}\nPlease select value for **numberOfDice**, buttonValues=id1,id2,id3,id4,id5,id6,id7,id8,id9,id10",
-                "createAnswer: title=4d6 ⇒ 1, 1, 6, 3, description=[1, 1, 6, 3], fieldValues:, answerChannel:2, type:EMBED"
+                "createResultMessageWithReference: title=4d6 ⇒ 1, 1, 6, 3, description=[1, 1, 6, 3], fieldValues:, answerChannel:2, type:EMBED"
         );
         assertThat(click3.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:invokingUser: 4d{sides}\nPlease select value for **sides**, buttonValues=id1,id2,id3,id4,id5,id6,id7,id8,clear");
         assertThat(click4.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:{numberOfDice}d{sides}\nPlease select value for **numberOfDice**, buttonValues=id1,id2,id3,id4,id5,id6,id7,id8,id9,id10",
-                "createAnswer: title=4d6 ⇒ 3, 2, 4, 4, description=[3, 2, 4, 4], fieldValues:, answerChannel:2, type:EMBED"
+                "createResultMessageWithReference: title=4d6 ⇒ 3, 2, 4, 4, description=[3, 2, 4, 4], fieldValues:, answerChannel:2, type:EMBED"
         );
     }
 }

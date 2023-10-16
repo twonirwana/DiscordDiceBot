@@ -59,8 +59,8 @@ public class SumCustomSetCommandMockTest {
                 "editMessage: message:invokingUser: +1d6+2, buttonValues=1_button,2_button,roll,clear,back");
         assertThat(click3.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back",
-                "createAnswer: title=+1d6+2 ⇒ 3, description=[1], fieldValues:, answerChannel:null, type:EMBED",
-                "createButtonMessage: content=Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back",
+                "createResultMessageWithReference: title=+1d6+2 ⇒ 3, description=[1], fieldValues:, answerChannel:null, type:EMBED",
+                "createMessageWithoutReference: content=Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back",
                 "deleteMessageById: 0");
     }
 
@@ -86,8 +86,8 @@ public class SumCustomSetCommandMockTest {
                 "editMessage: message:invokingUser: +1d6+2, buttonValues=1_button,2_button,roll,clear,back");
         assertThat(click3.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back",
-                "createAnswer: title=null, description=__**+1d6+2 ⇒ 3**__  [1], fieldValues:, answerChannel:null, type:MESSAGE",
-                "createButtonMessage: content=Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back",
+                "createResultMessageWithReference: title=null, description=__**+1d6+2 ⇒ 3**__  [1], fieldValues:, answerChannel:null, type:MESSAGE",
+                "createMessageWithoutReference: content=Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back",
                 "deleteMessageById: 0");
     }
 
@@ -113,8 +113,8 @@ public class SumCustomSetCommandMockTest {
                 "editMessage: message:invokingUser: +1d6+2, buttonValues=1_button,2_button,roll,clear,back");
         assertThat(click3.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back",
-                "createAnswer: title=null, description=+1d6+2 ⇒ 3, fieldValues:, answerChannel:null, type:MESSAGE",
-                "createButtonMessage: content=Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back",
+                "createResultMessageWithReference: title=null, description=+1d6+2 ⇒ 3, fieldValues:, answerChannel:null, type:MESSAGE",
+                "createMessageWithoutReference: content=Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back",
                 "deleteMessageById: 0");
     }
 
@@ -144,8 +144,8 @@ public class SumCustomSetCommandMockTest {
                 "editMessage: message:invokingUser: +1d6+2, buttonValues=1_button,2_button,roll,clear,back");
         assertThat(click4.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back",
-                "createAnswer: title=null, description=+1d6+2 ⇒ 3, fieldValues:, answerChannel:null, type:MESSAGE",
-                "createButtonMessage: content=Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back",
+                "createResultMessageWithReference: title=null, description=+1d6+2 ⇒ 3, fieldValues:, answerChannel:null, type:MESSAGE",
+                "createMessageWithoutReference: content=Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back",
                 "deleteMessageById: 0");
     }
 
@@ -215,8 +215,8 @@ public class SumCustomSetCommandMockTest {
                 "editMessage: message:invokingUser: +1d6+2, buttonValues=1_button,2_button,roll,clear,back");
         assertThat(click3.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back",
-                "createAnswer: title=+1d6+2 ⇒ 3, description=[1], fieldValues:, answerChannel:null, type:EMBED",
-                "createButtonMessage: content=Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back");
+                "createResultMessageWithReference: title=+1d6+2 ⇒ 3, description=[1], fieldValues:, answerChannel:null, type:EMBED",
+                "createMessageWithoutReference: content=Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back");
     }
 
     @Test
@@ -241,7 +241,7 @@ public class SumCustomSetCommandMockTest {
                 "editMessage: message:invokingUser: +1d6+2, buttonValues=1_button,2_button,roll,clear,back");
         assertThat(click3.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back",
-                "createAnswer: title=+1d6+2 ⇒ 3, description=[1], fieldValues:, answerChannel:2, type:EMBED"
+                "createResultMessageWithReference: title=+1d6+2 ⇒ 3, description=[1], fieldValues:, answerChannel:2, type:EMBED"
         );
     }
 
@@ -271,14 +271,14 @@ public class SumCustomSetCommandMockTest {
                 "editMessage: message:invokingUser: +1d6+2, buttonValues=1_button,2_button,roll,clear,back");
         assertThat(click3.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back",
-                "createAnswer: title=+1d6+2 ⇒ 3, description=[1], fieldValues:, answerChannel:null, type:EMBED",
-                "createButtonMessage: content=Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back");
+                "createResultMessageWithReference: title=+1d6+2 ⇒ 3, description=[1], fieldValues:, answerChannel:null, type:EMBED",
+                "createMessageWithoutReference: content=Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back");
         assertThat(click4.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:invokingUser: +1d6, buttonValues=1_button,2_button,roll,clear,back");
         assertThat(click5.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back",
-                "createAnswer: title=+1d6 ⇒ 4, description=[4], fieldValues:, answerChannel:null, type:EMBED",
-                "createButtonMessage: content=Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back",
+                "createResultMessageWithReference: title=+1d6 ⇒ 4, description=[4], fieldValues:, answerChannel:null, type:EMBED",
+                "createMessageWithoutReference: content=Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back",
                 "deleteMessageById: 1",
                 "getMessagesState: [0]");
     }
@@ -309,13 +309,13 @@ public class SumCustomSetCommandMockTest {
                 "editMessage: message:invokingUser: +1d6+2, buttonValues=1_button,2_button,roll,clear,back");
         assertThat(click3.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back",
-                "createAnswer: title=+1d6+2 ⇒ 3, description=[1], fieldValues:, answerChannel:2, type:EMBED"
+                "createResultMessageWithReference: title=+1d6+2 ⇒ 3, description=[1], fieldValues:, answerChannel:2, type:EMBED"
         );
         assertThat(click4.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:invokingUser: +1d6, buttonValues=1_button,2_button,roll,clear,back");
         assertThat(click5.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back",
-                "createAnswer: title=+1d6 ⇒ 4, description=[4], fieldValues:, answerChannel:2, type:EMBED"
+                "createResultMessageWithReference: title=+1d6 ⇒ 4, description=[4], fieldValues:, answerChannel:2, type:EMBED"
         );
     }
 
@@ -350,9 +350,9 @@ public class SumCustomSetCommandMockTest {
         );
         assertThat(click2.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,roll,clear,back",
-                "createAnswer: title=2d20+10 ⇒ 31, description=[11, 10], fieldValues:, answerChannel:null, type:EMBED",
+                "createResultMessageWithReference: title=2d20+10 ⇒ 31, description=[11, 10], fieldValues:, answerChannel:null, type:EMBED",
                 "deleteMessageById: 0",
-                "createButtonMessage: content=Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,roll,clear,back"
+                "createMessageWithoutReference: content=Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,roll,clear,back"
         );
     }
 
@@ -387,9 +387,9 @@ public class SumCustomSetCommandMockTest {
         );
         assertThat(click2.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,roll,clear,back",
-                "createAnswer: title=2d20+10 ⇒ 31, description=[11, 10], fieldValues:, answerChannel:null, type:EMBED",
+                "createResultMessageWithReference: title=2d20+10 ⇒ 31, description=[11, 10], fieldValues:, answerChannel:null, type:EMBED",
                 "deleteMessageById: 0",
-                "createButtonMessage: content=Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,roll,clear,back"
+                "createMessageWithoutReference: content=Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,roll,clear,back"
         );
     }
 }

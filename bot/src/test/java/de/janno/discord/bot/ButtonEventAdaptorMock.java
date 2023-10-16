@@ -106,7 +106,7 @@ public class ButtonEventAdaptorMock implements ButtonEventAdaptor {
 
     @Override
     public @NonNull Mono<Long> createMessageWithoutReference(@NonNull EmbedOrMessageDefinition messageDefinition) {
-        actions.add(String.format("createButtonMessage: content=%s, buttonValues=%s", messageDefinition.getDescriptionOrContent(), messageDefinition.getComponentRowDefinitions().stream()
+        actions.add(String.format("createMessageWithoutReference: content=%s, buttonValues=%s", messageDefinition.getDescriptionOrContent(), messageDefinition.getComponentRowDefinitions().stream()
                 .flatMap(r -> r.getButtonDefinitions().stream())
                 .map(ButtonDefinition::getId)
                 .map(BottomCustomIdUtils::getButtonValueFromCustomId)
@@ -126,7 +126,7 @@ public class ButtonEventAdaptorMock implements ButtonEventAdaptor {
 
     @Override
     public Mono<Void> createResultMessageWithReference(EmbedOrMessageDefinition answer, Long targetChannelId) {
-        actions.add(String.format("createAnswer: title=%s, description=%s, fieldValues:%s, answerChannel:%s, type:%s", answer.getTitle(), answer.getDescriptionOrContent(), answer.getFields().stream()
+        actions.add(String.format("createResultMessageWithReference: title=%s, description=%s, fieldValues:%s, answerChannel:%s, type:%s", answer.getTitle(), answer.getDescriptionOrContent(), answer.getFields().stream()
                 .map(EmbedOrMessageDefinition.Field::getValue)
                 .collect(Collectors.joining(",")), targetChannelId, answer.getType()));
         return Mono.just("").then();
@@ -163,13 +163,17 @@ public class ButtonEventAdaptorMock implements ButtonEventAdaptor {
 
     @Override
     public Mono<Void> acknowledgeAndRemoveButtons() {
-        actions.add("acknowledge");
+        actions.add("acknowledgeAndRemoveButtons");
         return Mono.empty();
     }
 
     @Override
     public EmbedOrMessageDefinition getMessageDefinitionOfEventMessageWithoutButtons() {
         actions.add("getMessageDefinitionOfEventMessageWithoutButtons");
-        return null;
+        return EmbedOrMessageDefinition.builder()
+                .type(EmbedOrMessageDefinition.Type.EMBED)
+                .title("ButtonMessageTitle")
+                .descriptionOrContent("ButtonMessageDescription")
+                .build();
     }
 }

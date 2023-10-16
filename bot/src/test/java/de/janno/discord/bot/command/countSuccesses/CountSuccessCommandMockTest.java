@@ -42,8 +42,8 @@ public class CountSuccessCommandMockTest {
 
         assertThat(buttonEvent.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:processing ..., buttonValues=",
-                "createAnswer: title=4d6 ⇒ 2, description=[1,1,**5**,**6**] ≥4 = 2, fieldValues:, answerChannel:null, type:EMBED",
-                "createButtonMessage: content=Click to roll the dice against 4, buttonValues=1,2,3,4,5,6,7,8,9,10,11,12,13,14,15",
+                "createResultMessageWithReference: title=4d6 ⇒ 2, description=[1,1,**5**,**6**] ≥4 = 2, fieldValues:, answerChannel:null, type:EMBED",
+                "createMessageWithoutReference: content=Click to roll the dice against 4, buttonValues=1,2,3,4,5,6,7,8,9,10,11,12,13,14,15",
                 "deleteMessageById: 0");
     }
 
@@ -58,8 +58,8 @@ public class CountSuccessCommandMockTest {
 
         assertThat(buttonEvent.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:processing ..., buttonValues=",
-                "createAnswer: title=4d6 ⇒ 0, description=[**1**,**1**,**5**,**6**] ≥4 = 0, remove success for: [1], fieldValues:, answerChannel:null, type:EMBED",
-                "createButtonMessage: content=Click to roll the dice against 4, remove success for: [1] minus 1s, buttonValues=1,2,3,4,5,6,7,8,9,10,11,12,13,14,15",
+                "createResultMessageWithReference: title=4d6 ⇒ 0, description=[**1**,**1**,**5**,**6**] ≥4 = 0, remove success for: [1], fieldValues:, answerChannel:null, type:EMBED",
+                "createMessageWithoutReference: content=Click to roll the dice against 4, remove success for: [1] minus 1s, buttonValues=1,2,3,4,5,6,7,8,9,10,11,12,13,14,15",
                 "deleteMessageById: 0");
     }
 
@@ -73,8 +73,8 @@ public class CountSuccessCommandMockTest {
 
         assertThat(buttonEvent.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:processing ..., buttonValues=",
-                "createAnswer: title=4d6 ⇒ 2, description=[1,1,**5**,**6**] ≥4 = 2, fieldValues:, answerChannel:null, type:EMBED",
-                "createButtonMessage: content=Click to roll the dice against 4 and check for more then half of dice 1s, buttonValues=1,2,3,4,5,6,7,8,9,10,11,12,13,14,15",
+                "createResultMessageWithReference: title=4d6 ⇒ 2, description=[1,1,**5**,**6**] ≥4 = 2, fieldValues:, answerChannel:null, type:EMBED",
+                "createMessageWithoutReference: content=Click to roll the dice against 4 and check for more then half of dice 1s, buttonValues=1,2,3,4,5,6,7,8,9,10,11,12,13,14,15",
                 "deleteMessageById: 0");
     }
 
@@ -88,8 +88,8 @@ public class CountSuccessCommandMockTest {
 
         assertThat(buttonEvent.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:processing ..., buttonValues=",
-                "createAnswer: title=4d6 ⇒ 2 successes and 2 ones, description=[**1**,**1**,**5**,**6**] ≥4 = 2, fieldValues:, answerChannel:null, type:EMBED",
-                "createButtonMessage: content=Click to roll the dice against 4 and count the 1s, buttonValues=1,2,3,4,5,6,7,8,9,10,11,12,13,14,15",
+                "createResultMessageWithReference: title=4d6 ⇒ 2 successes and 2 ones, description=[**1**,**1**,**5**,**6**] ≥4 = 2, fieldValues:, answerChannel:null, type:EMBED",
+                "createMessageWithoutReference: content=Click to roll the dice against 4 and count the 1s, buttonValues=1,2,3,4,5,6,7,8,9,10,11,12,13,14,15",
                 "deleteMessageById: 0");
     }
 
@@ -103,8 +103,8 @@ public class CountSuccessCommandMockTest {
 
         assertThat(buttonEvent.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:processing ..., buttonValues=",
-                "createAnswer: title=null, description=__**4d6 ⇒ 2**__  [1,1,**5**,**6**] ≥4 = 2, fieldValues:, answerChannel:null, type:MESSAGE",
-                "createButtonMessage: content=Click to roll the dice against 4, buttonValues=1,2,3,4,5,6,7,8,9,10,11,12,13,14,15",
+                "createResultMessageWithReference: title=null, description=__**4d6 ⇒ 2**__  [1,1,**5**,**6**] ≥4 = 2, fieldValues:, answerChannel:null, type:MESSAGE",
+                "createMessageWithoutReference: content=Click to roll the dice against 4, buttonValues=1,2,3,4,5,6,7,8,9,10,11,12,13,14,15",
                 "deleteMessageById: 0");
     }
 
@@ -119,8 +119,8 @@ public class CountSuccessCommandMockTest {
 
         assertThat(buttonEvent.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:processing ..., buttonValues=",
-                "createAnswer: title=null, description=__**4d6 ⇒ 0**__  [**1**,**1**,**5**,**6**] ≥4 = 0, remove success for: [1], fieldValues:, answerChannel:null, type:MESSAGE",
-                "createButtonMessage: content=Click to roll the dice against 4, remove success for: [1] minus 1s, buttonValues=1,2,3,4,5,6,7,8,9,10,11,12,13,14,15",
+                "createResultMessageWithReference: title=null, description=__**4d6 ⇒ 0**__  [**1**,**1**,**5**,**6**] ≥4 = 0, remove success for: [1], fieldValues:, answerChannel:null, type:MESSAGE",
+                "createMessageWithoutReference: content=Click to roll the dice against 4, remove success for: [1] minus 1s, buttonValues=1,2,3,4,5,6,7,8,9,10,11,12,13,14,15",
                 "deleteMessageById: 0");
     }
 
@@ -134,8 +134,8 @@ public class CountSuccessCommandMockTest {
 
         assertThat(buttonEvent.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:processing ..., buttonValues=",
-                "createAnswer: title=null, description=__**4d6 ⇒ 2**__  [1,1,**5**,**6**] ≥4 = 2, fieldValues:, answerChannel:null, type:MESSAGE",
-                "createButtonMessage: content=Click to roll the dice against 4 and check for more then half of dice 1s, buttonValues=1,2,3,4,5,6,7,8,9,10,11,12,13,14,15",
+                "createResultMessageWithReference: title=null, description=__**4d6 ⇒ 2**__  [1,1,**5**,**6**] ≥4 = 2, fieldValues:, answerChannel:null, type:MESSAGE",
+                "createMessageWithoutReference: content=Click to roll the dice against 4 and check for more then half of dice 1s, buttonValues=1,2,3,4,5,6,7,8,9,10,11,12,13,14,15",
                 "deleteMessageById: 0");
     }
 
@@ -149,8 +149,8 @@ public class CountSuccessCommandMockTest {
 
         assertThat(buttonEvent.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:processing ..., buttonValues=",
-                "createAnswer: title=null, description=__**4d6 ⇒ 2 successes and 2 ones**__  [**1**,**1**,**5**,**6**] ≥4 = 2, fieldValues:, answerChannel:null, type:MESSAGE",
-                "createButtonMessage: content=Click to roll the dice against 4 and count the 1s, buttonValues=1,2,3,4,5,6,7,8,9,10,11,12,13,14,15",
+                "createResultMessageWithReference: title=null, description=__**4d6 ⇒ 2 successes and 2 ones**__  [**1**,**1**,**5**,**6**] ≥4 = 2, fieldValues:, answerChannel:null, type:MESSAGE",
+                "createMessageWithoutReference: content=Click to roll the dice against 4 and count the 1s, buttonValues=1,2,3,4,5,6,7,8,9,10,11,12,13,14,15",
                 "deleteMessageById: 0");
     }
 
@@ -164,8 +164,8 @@ public class CountSuccessCommandMockTest {
 
         assertThat(buttonEvent.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:processing ..., buttonValues=",
-                "createAnswer: title=null, description=4d6 ⇒ 2, fieldValues:, answerChannel:null, type:MESSAGE",
-                "createButtonMessage: content=Click to roll the dice against 4, buttonValues=1,2,3,4,5,6,7,8,9,10,11,12,13,14,15",
+                "createResultMessageWithReference: title=null, description=4d6 ⇒ 2, fieldValues:, answerChannel:null, type:MESSAGE",
+                "createMessageWithoutReference: content=Click to roll the dice against 4, buttonValues=1,2,3,4,5,6,7,8,9,10,11,12,13,14,15",
                 "deleteMessageById: 0");
     }
 
@@ -180,8 +180,8 @@ public class CountSuccessCommandMockTest {
 
         assertThat(buttonEvent.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:processing ..., buttonValues=",
-                "createAnswer: title=null, description=4d6 ⇒ 0, fieldValues:, answerChannel:null, type:MESSAGE",
-                "createButtonMessage: content=Click to roll the dice against 4, remove success for: [1] minus 1s, buttonValues=1,2,3,4,5,6,7,8,9,10,11,12,13,14,15",
+                "createResultMessageWithReference: title=null, description=4d6 ⇒ 0, fieldValues:, answerChannel:null, type:MESSAGE",
+                "createMessageWithoutReference: content=Click to roll the dice against 4, remove success for: [1] minus 1s, buttonValues=1,2,3,4,5,6,7,8,9,10,11,12,13,14,15",
                 "deleteMessageById: 0");
     }
 
@@ -195,8 +195,8 @@ public class CountSuccessCommandMockTest {
 
         assertThat(buttonEvent.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:processing ..., buttonValues=",
-                "createAnswer: title=null, description=4d6 ⇒ 2, fieldValues:, answerChannel:null, type:MESSAGE",
-                "createButtonMessage: content=Click to roll the dice against 4 and check for more then half of dice 1s, buttonValues=1,2,3,4,5,6,7,8,9,10,11,12,13,14,15",
+                "createResultMessageWithReference: title=null, description=4d6 ⇒ 2, fieldValues:, answerChannel:null, type:MESSAGE",
+                "createMessageWithoutReference: content=Click to roll the dice against 4 and check for more then half of dice 1s, buttonValues=1,2,3,4,5,6,7,8,9,10,11,12,13,14,15",
                 "deleteMessageById: 0");
     }
 
@@ -210,8 +210,8 @@ public class CountSuccessCommandMockTest {
 
         assertThat(buttonEvent.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:processing ..., buttonValues=",
-                "createAnswer: title=null, description=4d6 ⇒ 2 successes and 2 ones, fieldValues:, answerChannel:null, type:MESSAGE",
-                "createButtonMessage: content=Click to roll the dice against 4 and count the 1s, buttonValues=1,2,3,4,5,6,7,8,9,10,11,12,13,14,15",
+                "createResultMessageWithReference: title=null, description=4d6 ⇒ 2 successes and 2 ones, fieldValues:, answerChannel:null, type:MESSAGE",
+                "createMessageWithoutReference: content=Click to roll the dice against 4 and count the 1s, buttonValues=1,2,3,4,5,6,7,8,9,10,11,12,13,14,15",
                 "deleteMessageById: 0");
     }
 
@@ -225,8 +225,8 @@ public class CountSuccessCommandMockTest {
 
         assertThat(buttonEvent.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:Click to roll the dice against 4, buttonValues=1,2,3,4,5,6,7,8,9,10,11,12,13,14,15",
-                "createAnswer: title=4d6 ⇒ 2, description=[1,1,**5**,**6**] ≥4 = 2, fieldValues:, answerChannel:null, type:EMBED",
-                "createButtonMessage: content=Click to roll the dice against 4, buttonValues=1,2,3,4,5,6,7,8,9,10,11,12,13,14,15");
+                "createResultMessageWithReference: title=4d6 ⇒ 2, description=[1,1,**5**,**6**] ≥4 = 2, fieldValues:, answerChannel:null, type:EMBED",
+                "createMessageWithoutReference: content=Click to roll the dice against 4, buttonValues=1,2,3,4,5,6,7,8,9,10,11,12,13,14,15");
     }
 
     @Test
@@ -239,7 +239,7 @@ public class CountSuccessCommandMockTest {
 
         assertThat(buttonEvent.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:Click to roll the dice against 4, buttonValues=1,2,3,4,5,6,7,8,9,10,11,12,13,14,15",
-                "createAnswer: title=4d6 ⇒ 2, description=[1,1,**5**,**6**] ≥4 = 2, fieldValues:, answerChannel:2, type:EMBED"
+                "createResultMessageWithReference: title=4d6 ⇒ 2, description=[1,1,**5**,**6**] ≥4 = 2, fieldValues:, answerChannel:2, type:EMBED"
         );
     }
 }

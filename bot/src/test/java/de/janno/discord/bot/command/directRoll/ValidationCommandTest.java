@@ -93,7 +93,7 @@ class ValidationCommandTest {
         verify(slashEventAdaptor, never()).createMessageWithoutReference(any());
         verify(slashEventAdaptor, never()).deleteMessageById(anyLong());
         verify(slashEventAdaptor, never()).replyWithEmbedOrMessageDefinition(any(), anyBoolean());
-        verify(slashEventAdaptor).createResultMessageWithReference(ArgumentMatchers.argThat(argument -> Objects.equals(argument.toString(), "EmbedOrMessageDefinition(title=Test Label ⇒ 1, descriptionOrContent=1d6, fields=[], hasImage=true, type=EMBED)")));
+        verify(slashEventAdaptor).createResultMessageWithReference(ArgumentMatchers.argThat(argument -> Objects.equals(argument.toString(), "EmbedOrMessageDefinition(title=Test Label ⇒ 1, descriptionOrContent=1d6, fields=[], componentRowDefinitions=[], hasImage=true, type=EMBED)")));
 
         verify(slashEventAdaptor, times(2)).getChannelId();
     }
@@ -157,8 +157,8 @@ class ValidationCommandTest {
         verify(slashEventAdaptor, never()).createResultMessageWithReference(any());
         verify(slashEventAdaptor, never()).deleteMessageById(anyLong());
         verify(slashEventAdaptor).replyWithEmbedOrMessageDefinition(EmbedOrMessageDefinition.builder()
-                .descriptionOrContent("Type /r and a dice expression, configuration with /channel_config\n" + DiceEvaluatorAdapter.getHelp())
-                .field(new EmbedOrMessageDefinition.Field("Example", "`/r expression:1d6`", false))
+                .descriptionOrContent("Type /validation and a dice expression, configuration with /channel_config\n" + DiceEvaluatorAdapter.getHelp())
+                .field(new EmbedOrMessageDefinition.Field("Example", "`/validation expression:1d6`", false))
                 .field(new EmbedOrMessageDefinition.Field("Full documentation", "https://github.com/twonirwana/DiscordDiceBot", false))
                 .field(new EmbedOrMessageDefinition.Field("Discord Server for Help and News", "https://discord.gg/e43BsqKpFr", false))
                 .build(), true);

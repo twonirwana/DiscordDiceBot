@@ -46,7 +46,7 @@ public class SlashEventAdaptorMock implements SlashEventAdaptor {
 
     @Override
     public @NonNull Mono<Void> deleteMessageById(long messageId) {
-        actions.add(String.format("delete: %d", messageId));
+        actions.add(String.format("deleteMessageById: %d", messageId));
         return Mono.just("").then();
     }
 
@@ -71,13 +71,13 @@ public class SlashEventAdaptorMock implements SlashEventAdaptor {
 
     @Override
     public Mono<Void> replyWithEmbedOrMessageDefinition(@NonNull EmbedOrMessageDefinition messageDefinition, boolean ephemeral) {
-        actions.add(String.format("replyEmbedOrMessageDefinition: %s", messageDefinition));
+        actions.add(String.format("replyWithEmbedOrMessageDefinition: %s", messageDefinition));
         return Mono.just("").then();
     }
 
     @Override
     public @NonNull Mono<Long> createMessageWithoutReference(@NonNull EmbedOrMessageDefinition messageDefinition) {
-        actions.add(String.format("createButtonMessage: %s", messageDefinition));
+        actions.add(String.format("createMessageWithoutReference: %s", messageDefinition));
         return Mono.just(1L);
     }
 

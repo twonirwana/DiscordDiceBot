@@ -108,9 +108,9 @@ public class CustomDiceCommandMockTest {
 
         assertThat(buttonEvent.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:processing ..., buttonValues=",
-                "createAnswer: title=Dmg ⇒ 3, description=1d6: [3], fieldValues:, answerChannel:null, type:EMBED",
+                "createResultMessageWithReference: title=Dmg ⇒ 3, description=1d6: [3], fieldValues:, answerChannel:null, type:EMBED",
                 "deleteMessageById: 0",
-                "createButtonMessage: content=Click on a button to roll the dice, buttonValues=1_button");
+                "createMessageWithoutReference: content=Click on a button to roll the dice, buttonValues=1_button");
         System.out.println(persistenceManager.getMessageConfig(configUUID));
         System.out.println(persistenceManager.getMessageData(CHANNEL_ID, messageIdCounter.get()));
         assertThat(persistenceManager.getMessageConfig(configUUID)).isPresent();
@@ -146,8 +146,8 @@ public class CustomDiceCommandMockTest {
 
         assertThat(buttonEvent.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:processing ..., buttonValues=",
-                "createAnswer: title=Dmg ⇒ 3, description=1d6: [3], fieldValues:, answerChannel:null, type:EMBED",
-                "createButtonMessage: content=Click on a button to roll the dice, buttonValues=1_button",
+                "createResultMessageWithReference: title=Dmg ⇒ 3, description=1d6: [3], fieldValues:, answerChannel:null, type:EMBED",
+                "createMessageWithoutReference: content=Click on a button to roll the dice, buttonValues=1_button",
                 "deleteMessageById: 0");
     }
 
@@ -164,8 +164,8 @@ public class CustomDiceCommandMockTest {
 
         assertThat(buttonEvent.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:processing ..., buttonValues=",
-                "createAnswer: title=Dmg ⇒ 3, description=1d6, fieldValues:, answerChannel:null, type:EMBED",
-                "createButtonMessage: content=Click on a button to roll the dice, buttonValues=1_button",
+                "createResultMessageWithReference: title=Dmg ⇒ 3, description=1d6, fieldValues:, answerChannel:null, type:EMBED",
+                "createMessageWithoutReference: content=Click on a button to roll the dice, buttonValues=1_button",
                 "deleteMessageById: 0");
     }
 
@@ -182,8 +182,8 @@ public class CustomDiceCommandMockTest {
 
         assertThat(buttonEvent.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:processing ..., buttonValues=",
-                "createAnswer: title=Dmg ⇒ 73, description=1d100, fieldValues:, answerChannel:null, type:EMBED",
-                "createButtonMessage: content=Click on a button to roll the dice, buttonValues=1_button",
+                "createResultMessageWithReference: title=Dmg ⇒ 73, description=1d100, fieldValues:, answerChannel:null, type:EMBED",
+                "createMessageWithoutReference: content=Click on a button to roll the dice, buttonValues=1_button",
                 "deleteMessageById: 0");
     }
 
@@ -199,8 +199,8 @@ public class CustomDiceCommandMockTest {
 
         assertThat(buttonEvent.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:processing ..., buttonValues=",
-                "createAnswer: title=Dmg ⇒ 1, description=1: [1], fieldValues:, answerChannel:null, type:EMBED",
-                "createButtonMessage: content=Click on a button to roll the dice, buttonValues=1_button",
+                "createResultMessageWithReference: title=Dmg ⇒ 1, description=1: [1], fieldValues:, answerChannel:null, type:EMBED",
+                "createMessageWithoutReference: content=Click on a button to roll the dice, buttonValues=1_button",
                 "deleteMessageById: 0");
     }
 
@@ -216,8 +216,8 @@ public class CustomDiceCommandMockTest {
 
         assertThat(buttonEvent.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:processing ..., buttonValues=",
-                "createAnswer: title=null, description=__**Dmg ⇒ 3**__  1d6: [3], fieldValues:, answerChannel:null, type:MESSAGE",
-                "createButtonMessage: content=Click on a button to roll the dice, buttonValues=1_button",
+                "createResultMessageWithReference: title=null, description=__**Dmg ⇒ 3**__  1d6: [3], fieldValues:, answerChannel:null, type:MESSAGE",
+                "createMessageWithoutReference: content=Click on a button to roll the dice, buttonValues=1_button",
                 "deleteMessageById: 0");
     }
 
@@ -233,8 +233,8 @@ public class CustomDiceCommandMockTest {
 
         assertThat(buttonEvent.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:processing ..., buttonValues=",
-                "createAnswer: title=null, description=Dmg ⇒ 3, fieldValues:, answerChannel:null, type:MESSAGE",
-                "createButtonMessage: content=Click on a button to roll the dice, buttonValues=1_button",
+                "createResultMessageWithReference: title=null, description=Dmg ⇒ 3, fieldValues:, answerChannel:null, type:MESSAGE",
+                "createMessageWithoutReference: content=Click on a button to roll the dice, buttonValues=1_button",
                 "deleteMessageById: 0");
     }
 
@@ -250,8 +250,8 @@ public class CustomDiceCommandMockTest {
 
         assertThat(buttonEvent.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:Click on a button to roll the dice, buttonValues=1_button",
-                "createAnswer: title=Dmg ⇒ 3, description=1d6: [3], fieldValues:, answerChannel:null, type:EMBED",
-                "createButtonMessage: content=Click on a button to roll the dice, buttonValues=1_button"
+                "createResultMessageWithReference: title=Dmg ⇒ 3, description=1d6: [3], fieldValues:, answerChannel:null, type:EMBED",
+                "createMessageWithoutReference: content=Click on a button to roll the dice, buttonValues=1_button"
         );
     }
 
@@ -269,13 +269,13 @@ public class CustomDiceCommandMockTest {
 
         assertThat(buttonEvent1.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:Click on a button to roll the dice, buttonValues=1_button",
-                "createAnswer: title=Dmg ⇒ 3, description=1d6: [3], fieldValues:, answerChannel:null, type:EMBED",
-                "createButtonMessage: content=Click on a button to roll the dice, buttonValues=1_button");
+                "createResultMessageWithReference: title=Dmg ⇒ 3, description=1d6: [3], fieldValues:, answerChannel:null, type:EMBED",
+                "createMessageWithoutReference: content=Click on a button to roll the dice, buttonValues=1_button");
 
         assertThat(buttonEvent2.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:processing ..., buttonValues=",
-                "createAnswer: title=Dmg ⇒ 4, description=1d6: [4], fieldValues:, answerChannel:null, type:EMBED",
-                "createButtonMessage: content=Click on a button to roll the dice, buttonValues=1_button",
+                "createResultMessageWithReference: title=Dmg ⇒ 4, description=1d6: [4], fieldValues:, answerChannel:null, type:EMBED",
+                "createMessageWithoutReference: content=Click on a button to roll the dice, buttonValues=1_button",
                 "deleteMessageById: 1",
                 "getMessagesState: [0]");
     }
@@ -295,7 +295,7 @@ public class CustomDiceCommandMockTest {
 
         assertThat(slashEvent.getActions()).containsExactlyInAnyOrder(
                 "reply: commandString",
-                "createButtonMessage: EmbedOrMessageDefinition(content=Click on a button to roll the dice, componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=1d6, id=custom_dice1_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=Attack, id=custom_dice2_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=3d10,3d10,3d10, id=custom_dice3_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])])");
+                "createMessageWithoutReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click on a button to roll the dice, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=1d6, id=custom_dice1_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=Attack, id=custom_dice2_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=3d10,3d10,3d10, id=custom_dice3_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE)"        );
     }
 
     @Test
@@ -313,8 +313,7 @@ public class CustomDiceCommandMockTest {
 
         assertThat(slashEvent.getActions()).containsExactlyInAnyOrder(
                 "reply: commandString `3`: did not contain any random element, try `d20` to roll a 20 sided die, `'a'`: did not contain any random element, try `d20` to roll a 20 sided die",
-                "createButtonMessage: EmbedOrMessageDefinition(content=Click on a button to roll the dice, componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=1d6, id=custom_dice1_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=Attack, id=custom_dice2_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=3d10,3d10,3d10, id=custom_dice3_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=3, id=custom_dice4_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label='a', id=custom_dice5_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])])"
-        );
+                "createMessageWithoutReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click on a button to roll the dice, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=1d6, id=custom_dice1_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=Attack, id=custom_dice2_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=3d10,3d10,3d10, id=custom_dice3_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=3, id=custom_dice4_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label='a', id=custom_dice5_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE)"        );
     }
 
     @Test
@@ -349,7 +348,7 @@ public class CustomDiceCommandMockTest {
 
         assertThat(buttonEvent.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:Click on a button to roll the dice, buttonValues=1_button",
-                "createAnswer: title=Dmg ⇒ 3, description=1d6: [3], fieldValues:, answerChannel:2, type:EMBED"
+                "createResultMessageWithReference: title=Dmg ⇒ 3, description=1d6: [3], fieldValues:, answerChannel:2, type:EMBED"
         );
     }
 
@@ -369,11 +368,11 @@ public class CustomDiceCommandMockTest {
         assertThat(cachingDiceEvaluator.getCacheSize()).isEqualTo(1);
         assertThat(buttonEvent1.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:Click on a button to roll the dice, buttonValues=1_button",
-                "createAnswer: title=Dmg ⇒ 3, description=1d6: [3], fieldValues:, answerChannel:2, type:EMBED"
+                "createResultMessageWithReference: title=Dmg ⇒ 3, description=1d6: [3], fieldValues:, answerChannel:2, type:EMBED"
         );
         assertThat(buttonEvent2.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:Click on a button to roll the dice, buttonValues=1_button",
-                "createAnswer: title=Dmg ⇒ 1, description=1d6: [1], fieldValues:, answerChannel:2, type:EMBED"
+                "createResultMessageWithReference: title=Dmg ⇒ 1, description=1d6: [1], fieldValues:, answerChannel:2, type:EMBED"
         );
     }
 
@@ -402,7 +401,7 @@ public class CustomDiceCommandMockTest {
 
         assertThat(buttonEvent.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:Click on a button to roll the dice, buttonValues=1_button",
-                "createAnswer: title=Dmg ⇒ 11, 10, 10, description=2d20+10: [11, 10], fieldValues:, answerChannel:2, type:EMBED"
+                "createResultMessageWithReference: title=Dmg ⇒ 11, 10, 10, description=2d20+10: [11, 10], fieldValues:, answerChannel:2, type:EMBED"
         );
     }
 
@@ -431,7 +430,7 @@ public class CustomDiceCommandMockTest {
 
         assertThat(buttonEvent.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:Click on a button to roll the dice, buttonValues=1_button",
-                "createAnswer: title=Dmg ⇒ 11, 10, 10, description=2d20+10: [11, 10], fieldValues:, answerChannel:2, type:EMBED"
+                "createResultMessageWithReference: title=Dmg ⇒ 11, 10, 10, description=2d20+10: [11, 10], fieldValues:, answerChannel:2, type:EMBED"
         );
     }
 }

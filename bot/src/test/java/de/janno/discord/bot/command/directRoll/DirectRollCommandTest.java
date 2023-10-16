@@ -69,7 +69,7 @@ class DirectRollCommandTest {
         verify(slashEventAdaptor, never()).createMessageWithoutReference(any());
         verify(slashEventAdaptor, never()).deleteMessageById(anyLong());
         verify(slashEventAdaptor, never()).replyWithEmbedOrMessageDefinition(any(), anyBoolean());
-        verify(slashEventAdaptor).createResultMessageWithReference(ArgumentMatchers.argThat(argument -> Objects.equals(argument.toString(), "EmbedOrMessageDefinition(title=Test Label ⇒ 1, descriptionOrContent=1d6, fields=[], hasImage=true, type=EMBED)")));
+        verify(slashEventAdaptor).createResultMessageWithReference(ArgumentMatchers.argThat(argument -> Objects.equals(argument.toString(), "EmbedOrMessageDefinition(title=Test Label ⇒ 1, descriptionOrContent=1d6, fields=[], componentRowDefinitions=[], hasImage=true, type=EMBED)")));
 
         verify(slashEventAdaptor, times(2)).getChannelId();
     }
