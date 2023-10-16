@@ -147,7 +147,7 @@ public class HiddenDirectRollCommand implements SlashCommand, ComponentInteractE
                                                     answer.toShortString(),
                                                     stopwatch.elapsed(TimeUnit.MILLISECONDS)
                                             )),
-                            event.createResultMessageWithEventReference(EmbedOrMessageDefinition.builder()
+                            event.createResultMessageWithReference(EmbedOrMessageDefinition.builder()
                                     .type(EmbedOrMessageDefinition.Type.MESSAGE)
                                     .descriptionOrContent("Made a hidden roll")
                                     .build()))

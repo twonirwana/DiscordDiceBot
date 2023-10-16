@@ -136,7 +136,7 @@ public class DirectRollCommand implements SlashCommand {
                     .filter(s -> !Strings.isNullOrEmpty(s))
                     .collect(Collectors.joining(" "));
             return Flux.merge(removeSlash && Strings.isNullOrEmpty(answer.getWarning()) ? Mono.defer(event::acknowledgeAndRemoveSlash) : event.reply(replayMessage, true),
-                            Mono.defer(() -> event.createResultMessageWithEventReference(RollAnswerConverter.toEmbedOrMessageDefinition(answer))
+                            Mono.defer(() -> event.createResultMessageWithReference(RollAnswerConverter.toEmbedOrMessageDefinition(answer))
                                     .doOnSuccess(v ->
                                             log.info("{}: '{}'={} -> {} in {}ms",
                                                     event.getRequester().toLogString(),

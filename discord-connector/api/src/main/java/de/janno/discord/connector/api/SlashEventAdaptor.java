@@ -17,8 +17,7 @@ public interface SlashEventAdaptor extends DiscordAdapter {
 
     Mono<Void> replyWithEmbedOrMessageDefinition(@NonNull EmbedOrMessageDefinition messageDefinition, boolean ephemeral);
 
-    //todo combiend with ButtonEventAdaptor.createResultMessageWithReference?
-    Mono<Void> createResultMessageWithEventReference(EmbedOrMessageDefinition answer);
+    Mono<Void> createResultMessageWithReference(EmbedOrMessageDefinition answer);
 
     long getChannelId();
 

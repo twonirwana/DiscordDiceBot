@@ -127,8 +127,7 @@ public abstract class DiscordAdapterImpl implements DiscordAdapter {
         return builder;
     }
 
-    //todo move to SlashEventAdaptorImpl or generlize
-    protected Mono<InteractionHook> replyWithMessage(
+    protected Mono<InteractionHook> replyWithEmbedOrMessageDefinition(
             @NonNull SlashCommandInteractionEvent event,
             @NonNull EmbedOrMessageDefinition messageDefinition,
             boolean ephemeral) {

@@ -80,7 +80,7 @@ public class SlashEventAdapterImpl extends DiscordAdapterImpl implements SlashEv
 
     @Override
     public Mono<Void> replyWithEmbedOrMessageDefinition(@NonNull EmbedOrMessageDefinition messageDefinition, boolean ephemeral) {
-        return replyWithMessage(event, messageDefinition, ephemeral)
+        return replyWithEmbedOrMessageDefinition(event, messageDefinition, ephemeral)
                 .onErrorResume(t -> handleException("Error on replay", t, true).ofType(InteractionHook.class))
                 .then();
     }
@@ -94,7 +94,7 @@ public class SlashEventAdapterImpl extends DiscordAdapterImpl implements SlashEv
     }
 
     @Override
-    public Mono<Void> createResultMessageWithEventReference(EmbedOrMessageDefinition answer) {
+    public Mono<Void> createResultMessageWithReference(EmbedOrMessageDefinition answer) {
         return createMessageWithReference(event.getMessageChannel(),
                 answer,
                 Optional.ofNullable(event.getMember()).map(Member::getEffectiveName).orElse(event.getUser().getName()),

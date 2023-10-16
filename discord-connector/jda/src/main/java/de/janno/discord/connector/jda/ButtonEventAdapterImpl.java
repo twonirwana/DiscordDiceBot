@@ -238,7 +238,6 @@ public class ButtonEventAdapterImpl extends DiscordAdapterImpl implements Button
         final Supplier<InputStream> imageSupplier;
         final List<EmbedOrMessageDefinition.Field> fields;
         final String title;
-        final List<ComponentRowDefinition> componentRowDefinitions;
         if (message.getEmbeds().isEmpty()) {
             type = EmbedOrMessageDefinition.Type.MESSAGE;
             descriptionOrContent = message.getContentRaw();
