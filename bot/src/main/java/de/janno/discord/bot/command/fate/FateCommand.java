@@ -15,7 +15,7 @@ import de.janno.discord.connector.api.BottomCustomIdUtils;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
-import de.janno.discord.connector.api.message.MessageDefinition;
+import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinitionOption;
 import de.janno.discord.connector.api.slash.CommandDefinitionOptionChoice;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
@@ -166,14 +166,15 @@ public class FateCommand extends AbstractCommand<FateConfig, StateData> {
     }
 
     @Override
-    protected @NonNull Optional<MessageDefinition> createNewButtonMessageWithState(UUID configUUID, FateConfig config, State<StateData> state, long guildId, long channelId) {
+    protected @NonNull Optional<EmbedOrMessageDefinition> createNewButtonMessageWithState(UUID configUUID, FateConfig config, State<StateData> state, long guildId, long channelId) {
         return Optional.of(createNewButtonMessage(configUUID, config));
     }
 
     @Override
-    public @NonNull MessageDefinition createNewButtonMessage(UUID configUUID, FateConfig config) {
-        return MessageDefinition.builder()
-                .content(createButtonMessage(config))
+    public @NonNull EmbedOrMessageDefinition createNewButtonMessage(UUID configUUID, FateConfig config) {
+        return EmbedOrMessageDefinition.builder()
+                .type(EmbedOrMessageDefinition.Type.MESSAGE)
+                .descriptionOrContent(createButtonMessage(config))
                 .componentRowDefinitions(createButtonLayout(configUUID, config))
                 .build();
     }

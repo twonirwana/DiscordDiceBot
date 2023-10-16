@@ -66,7 +66,7 @@ class DirectRollCommandTest {
         verify(slashEventAdaptor).acknowledgeAndRemoveSlash();
         verify(slashEventAdaptor).getOption("expression");
         verify(slashEventAdaptor).getCommandString();
-        verify(slashEventAdaptor, never()).createButtonMessage(any());
+        verify(slashEventAdaptor, never()).createMessageWithoutReference(any());
         verify(slashEventAdaptor, never()).deleteMessageById(anyLong());
         verify(slashEventAdaptor, never()).replyWithEmbedOrMessageDefinition(any(), anyBoolean());
         verify(slashEventAdaptor).createResultMessageWithEventReference(ArgumentMatchers.argThat(argument -> Objects.equals(argument.toString(), "EmbedOrMessageDefinition(title=Test Label ⇒ 1, descriptionOrContent=1d6, fields=[], hasImage=true, type=EMBED)")));
@@ -94,7 +94,7 @@ class DirectRollCommandTest {
         verify(slashEventAdaptor).checkPermissions();
         verify(slashEventAdaptor).getOption("expression");
         verify(slashEventAdaptor, times(1)).getCommandString();
-        verify(slashEventAdaptor, never()).createButtonMessage(any());
+        verify(slashEventAdaptor, never()).createMessageWithoutReference(any());
         verify(slashEventAdaptor, never()).deleteMessageById(anyLong());
         verify(slashEventAdaptor, never()).replyWithEmbedOrMessageDefinition(any(), anyBoolean());
         verify(slashEventAdaptor, never()).createResultMessageWithEventReference(any());
@@ -128,7 +128,7 @@ class DirectRollCommandTest {
         verify(slashEventAdaptor).checkPermissions();
         verify(slashEventAdaptor).getOption("expression");
         verify(slashEventAdaptor, times(1)).getCommandString();
-        verify(slashEventAdaptor, never()).createButtonMessage(any());
+        verify(slashEventAdaptor, never()).createMessageWithoutReference(any());
         verify(slashEventAdaptor, never()).deleteMessageById(anyLong());
         verify(slashEventAdaptor, never()).createResultMessageWithEventReference(any());
         verify(slashEventAdaptor, never()).deleteMessageById(anyLong());

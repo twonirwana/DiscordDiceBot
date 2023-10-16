@@ -15,7 +15,7 @@ import de.janno.discord.connector.api.BottomCustomIdUtils;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
-import de.janno.discord.connector.api.message.MessageDefinition;
+import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -196,15 +196,16 @@ public class SumDiceSetCommand extends AbstractCommand<Config, SumDiceSetStateDa
     }
 
     @Override
-    public @NonNull MessageDefinition createNewButtonMessage(UUID configUUID, Config config) {
-        return MessageDefinition.builder()
-                .content(EMPTY_MESSAGE)
+    public @NonNull EmbedOrMessageDefinition createNewButtonMessage(UUID configUUID, Config config) {
+        return EmbedOrMessageDefinition.builder()
+                .type(EmbedOrMessageDefinition.Type.MESSAGE)
+                .descriptionOrContent(EMPTY_MESSAGE)
                 .componentRowDefinitions(createButtonLayout(configUUID))
                 .build();
     }
 
     @Override
-    protected @NonNull Optional<MessageDefinition> createNewButtonMessageWithState(UUID configUUID, Config config, State<SumDiceSetStateData> state, long guildId, long channelId) {
+    protected @NonNull Optional<EmbedOrMessageDefinition> createNewButtonMessageWithState(UUID configUUID, Config config, State<SumDiceSetStateData> state, long guildId, long channelId) {
         if (!(ROLL_BUTTON_ID.equals(state.getButtonValue()) &&
                 !Optional.ofNullable(state.getData())
                         .map(SumDiceSetStateData::getDiceSet)
@@ -212,8 +213,8 @@ public class SumDiceSetCommand extends AbstractCommand<Config, SumDiceSetStateDa
                         .orElse(true))) {
             return Optional.empty();
         }
-        return Optional.of(MessageDefinition.builder()
-                .content(EMPTY_MESSAGE)
+        return Optional.of(EmbedOrMessageDefinition.builder()
+                .descriptionOrContent(EMPTY_MESSAGE)
                 .componentRowDefinitions(createButtonLayout(configUUID))
                 .build());
     }

@@ -21,7 +21,7 @@ import de.janno.discord.bot.dice.DiceParserSystem;
 import de.janno.discord.bot.dice.image.DiceImageStyle;
 import de.janno.discord.bot.dice.image.DiceStyleAndColor;
 import de.janno.discord.bot.persistance.PersistenceManager;
-import de.janno.discord.connector.api.message.MessageDefinition;
+import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NonNull;
@@ -266,6 +266,6 @@ public class RpgSystemCommandPreset {
         @NonNull
         String command;
         @NonNull
-        MessageDefinition messageDefinition;
+        EmbedOrMessageDefinition messageDefinition;
     }
 }

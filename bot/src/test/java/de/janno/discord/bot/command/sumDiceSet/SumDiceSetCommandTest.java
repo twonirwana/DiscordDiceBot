@@ -9,7 +9,7 @@ import de.janno.discord.bot.persistance.*;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
-import de.janno.discord.connector.api.message.MessageDefinition;
+import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinitionOption;
 import de.janno.discord.connector.api.slash.CommandDefinitionOptionChoice;
@@ -107,7 +107,7 @@ class SumDiceSetCommandTest {
 
     @Test
     void getButtonMessageWithState_clear() {
-        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), new Config(null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none")), new State<>("clear", new SumDiceSetStateData(ImmutableList.of(
+        Optional<EmbedOrMessageDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), new Config(null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none")), new State<>("clear", new SumDiceSetStateData(ImmutableList.of(
                         new DiceKeyAndValue("d4", 1),
                         new DiceKeyAndValue("d6", 1),
                         new DiceKeyAndValue("d8", 1),
@@ -128,7 +128,7 @@ class SumDiceSetCommandTest {
                                 new DiceKeyAndValue("d12", 1),
                                 new DiceKeyAndValue("d20", 1)))),
                         1L, 2L)
-                .orElseThrow().getContent();
+                .orElseThrow().getDescriptionOrContent();
         assertThat(res).isEqualTo("Click on the buttons to add dice to the set");
     }
 
@@ -158,14 +158,14 @@ class SumDiceSetCommandTest {
 
     @Test
     void getButtonMessage() {
-        String res = underTest.createNewButtonMessage(UUID.fromString("00000000-0000-0000-0000-000000000000"), new Config(null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"))).getContent();
+        String res = underTest.createNewButtonMessage(UUID.fromString("00000000-0000-0000-0000-000000000000"), new Config(null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"))).getDescriptionOrContent();
         assertThat(res).isEqualTo("Click on the buttons to add dice to the set");
     }
 
     @Test
     void createNewButtonMessageWithState() {
         String res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), new Config(null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none")), new State<>("roll", new SumDiceSetStateData(ImmutableList.of(new DiceKeyAndValue("d4", 51)))), 1L, 2L)
-                .orElseThrow().getContent();
+                .orElseThrow().getDescriptionOrContent();
         assertThat(res).isEqualTo("Click on the buttons to add dice to the set");
     }
 
@@ -276,7 +276,7 @@ class SumDiceSetCommandTest {
 
     @Test
     void copyButtonMessageToTheEnd_roll_true() {
-        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), new Config(null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none")), new State<>("roll", new SumDiceSetStateData(ImmutableList.of(new DiceKeyAndValue(
+        Optional<EmbedOrMessageDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), new Config(null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none")), new State<>("roll", new SumDiceSetStateData(ImmutableList.of(new DiceKeyAndValue(
                 "d6", 1
         )))), 1L, 2L);
         assertThat(res).isNotEmpty();
@@ -284,13 +284,13 @@ class SumDiceSetCommandTest {
 
     @Test
     void copyButtonMessageToTheEnd_rollNoConfig_false() {
-        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), new Config(null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none")), new State<>("roll", new SumDiceSetStateData(ImmutableList.of())), 1L, 2L);
+        Optional<EmbedOrMessageDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), new Config(null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none")), new State<>("roll", new SumDiceSetStateData(ImmutableList.of())), 1L, 2L);
         assertThat(res).isEmpty();
     }
 
     @Test
     void copyButtonMessageToTheEnd_modifyMessage_false() {
-        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), new Config(null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none")), new State<>("+1d6", new SumDiceSetStateData(ImmutableList.of(new DiceKeyAndValue(
+        Optional<EmbedOrMessageDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), new Config(null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none")), new State<>("+1d6", new SumDiceSetStateData(ImmutableList.of(new DiceKeyAndValue(
                 "d6", 1
         )))), 1L, 2L);
         assertThat(res).isEmpty();

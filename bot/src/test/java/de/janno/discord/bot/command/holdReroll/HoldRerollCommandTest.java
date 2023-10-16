@@ -122,7 +122,7 @@ class HoldRerollCommandTest {
                         ImmutableSet.of(2, 3, 4),
                         ImmutableSet.of(5, 6),
                         ImmutableSet.of(1), AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none")), new State<>("clear", new HoldRerollStateData(ImmutableList.of(1, 2, 3, 4, 5, 6), 2)), 1L, 2L)
-                .orElseThrow().getContent();
+                .orElseThrow().getDescriptionOrContent();
 
         assertThat(res).isEqualTo("Click on the buttons to roll dice. Reroll set: [2, 3, 4], Success Set: [5, 6] and Failure Set: [1]");
     }
@@ -135,7 +135,7 @@ class HoldRerollCommandTest {
                         ImmutableSet.of(2, 3, 4),
                         ImmutableSet.of(5, 6),
                         ImmutableSet.of(1), AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none")), new State<>("finish", new HoldRerollStateData(ImmutableList.of(1, 2, 3, 4, 5, 6), 2)), 1L, 2L)
-                .orElseThrow().getContent();
+                .orElseThrow().getDescriptionOrContent();
 
         assertThat(res).isEqualTo("Click on the buttons to roll dice. Reroll set: [2, 3, 4], Success Set: [5, 6] and Failure Set: [1]");
     }
@@ -148,7 +148,7 @@ class HoldRerollCommandTest {
                         ImmutableSet.of(2, 3, 4),
                         ImmutableSet.of(5, 6),
                         ImmutableSet.of(1), AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none")), new State<>("reroll", new HoldRerollStateData(ImmutableList.of(1, 1, 1, 5, 5, 6), 2)), 1L, 2L)
-                .orElseThrow().getContent();
+                .orElseThrow().getDescriptionOrContent();
 
         assertThat(res).isEqualTo("Click on the buttons to roll dice. Reroll set: [2, 3, 4], Success Set: [5, 6] and Failure Set: [1]");
     }
@@ -174,7 +174,7 @@ class HoldRerollCommandTest {
                         ImmutableSet.of(2, 3, 4),
                         ImmutableSet.of(5, 6),
                         ImmutableSet.of(1), AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none")))
-                .getContent();
+                .getDescriptionOrContent();
 
         assertThat(res).isEqualTo("Click on the buttons to roll dice. Reroll set: [2, 3, 4], Success Set: [5, 6] and Failure Set: [1]");
     }

@@ -5,7 +5,6 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import de.janno.discord.connector.api.DiscordAdapter;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
-import de.janno.discord.connector.api.message.MessageDefinition;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -57,19 +56,20 @@ public abstract class DiscordAdapterImpl implements DiscordAdapter {
     protected Mono<Message> createMessageWithReference(
             @NonNull MessageChannel messageChannel,
             @NonNull EmbedOrMessageDefinition messageDefinition,
-            @NonNull String rollRequesterName,
-            @NonNull String rollRequesterMention,
+            @Nullable String rollRequesterName,
+            @Nullable String rollRequesterMention,
             @Nullable String rollRequesterAvatar,
-            @NonNull String rollRequesterId) {
+            @Nullable String rollRequesterId) {
+        LayoutComponent[] layoutComponents = MessageComponentConverter.componentRowDefinition2LayoutComponent(messageDefinition.getComponentRowDefinitions());
         switch (messageDefinition.getType()) {
             case EMBED -> {
                 EmbedBuilder builder = convertToEmbedMessage(messageDefinition, rollRequesterName, rollRequesterAvatar, rollRequesterId);
-                final List<FileUpload> files = applyFiles(builder,messageDefinition);
+                final List<FileUpload> files = applyFiles(builder, messageDefinition);
 
-                return createMonoFrom(() -> messageChannel.sendMessageEmbeds(builder.build()).setFiles(files).setSuppressedNotifications(true));
+                return createMonoFrom(() -> messageChannel.sendMessageEmbeds(builder.build()).setComponents(layoutComponents).setFiles(files).setSuppressedNotifications(true));
             }
             case MESSAGE -> {
-                return createMonoFrom(() -> messageChannel.sendMessage(convertToMessageCreateData(messageDefinition, rollRequesterMention)));
+                return createMonoFrom(() -> messageChannel.sendMessage(convertToMessageCreateData(messageDefinition, rollRequesterMention)).setComponents(layoutComponents).setSuppressedNotifications(true));
             }
             default -> throw new IllegalStateException("Unknown type in %s".formatted(messageDefinition));
         }
@@ -127,6 +127,7 @@ public abstract class DiscordAdapterImpl implements DiscordAdapter {
         return builder;
     }
 
+    //todo move to SlashEventAdaptorImpl or generlize
     protected Mono<InteractionHook> replyWithMessage(
             @NonNull SlashCommandInteractionEvent event,
             @NonNull EmbedOrMessageDefinition messageDefinition,
@@ -135,12 +136,11 @@ public abstract class DiscordAdapterImpl implements DiscordAdapter {
         switch (messageDefinition.getType()) {
             case EMBED -> {
                 EmbedBuilder builder = convertToEmbedMessage(messageDefinition, null, null, null);
-                final List<FileUpload> files = applyFiles(builder,messageDefinition);
-
+                final List<FileUpload> files = applyFiles(builder, messageDefinition);
                 return createMonoFrom(() -> event.replyEmbeds(builder.build()).setComponents(layoutComponents).setEphemeral(ephemeral).setFiles(files).setSuppressedNotifications(true));
             }
             case MESSAGE -> {
-                return createMonoFrom(() -> event.reply(convertToMessageCreateData(messageDefinition, null)).setComponents(layoutComponents).setEphemeral(ephemeral));
+                return createMonoFrom(() -> event.reply(convertToMessageCreateData(messageDefinition, null)).setComponents(layoutComponents).setEphemeral(ephemeral).setSuppressedNotifications(true));
             }
             default -> throw new IllegalStateException("Unknown type in %s".formatted(messageDefinition));
         }
@@ -154,12 +154,9 @@ public abstract class DiscordAdapterImpl implements DiscordAdapter {
         return List.of();
     }
 
-    protected Mono<Message> createButtonMessage(@NonNull MessageChannel channel,
-                                                @NonNull MessageDefinition messageDefinition) {
-        return createMonoFrom(() -> channel.sendMessage(
-                MessageComponentConverter.messageComponent2MessageLayout(
-                        StringUtils.abbreviate(encodeUTF8(messageDefinition.getContent()), Message.MAX_CONTENT_LENGTH),
-                        messageDefinition.getComponentRowDefinitions())));
+    protected Mono<Message> createMessageWithoutReference(@NonNull MessageChannel channel,
+                                                          @NonNull EmbedOrMessageDefinition messageDefinition) {
+        return createMessageWithReference(channel, messageDefinition, null, null, null, null);
     }
 
     protected Mono<Void> handleException(@NonNull String errorMessage,

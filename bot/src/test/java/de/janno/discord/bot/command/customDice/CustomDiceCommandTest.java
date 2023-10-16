@@ -13,7 +13,6 @@ import de.janno.discord.connector.api.SlashEventAdaptor;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
-import de.janno.discord.connector.api.message.MessageDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinitionOption;
 import de.janno.discord.connector.api.slash.CommandDefinitionOptionChoice;
@@ -90,14 +89,14 @@ class CustomDiceCommandTest {
 
     @Test
     void createNewButtonMessageWithState() {
-        String res = underTest.createNewButtonMessageWithState(UUID.randomUUID(), new CustomDiceConfig(null, ImmutableList.of(), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none")), new State<>("1d6", StateData.empty()), 1L, 2L).orElseThrow().getContent();
+        String res = underTest.createNewButtonMessageWithState(UUID.randomUUID(), new CustomDiceConfig(null, ImmutableList.of(), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none")), new State<>("1d6", StateData.empty()), 1L, 2L).orElseThrow().getDescriptionOrContent();
 
         assertThat(res).isEqualTo("Click on a button to roll the dice");
     }
 
     @Test
     void getButtonMessage() {
-        String res = underTest.createNewButtonMessage(UUID.randomUUID(), new CustomDiceConfig(null, ImmutableList.of(), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"))).getContent();
+        String res = underTest.createNewButtonMessage(UUID.randomUUID(), new CustomDiceConfig(null, ImmutableList.of(), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"))).getDescriptionOrContent();
 
         assertThat(res).isEqualTo("Click on a button to roll the dice");
     }
@@ -155,7 +154,7 @@ class CustomDiceCommandTest {
                 new EmbedOrMessageDefinition.Field("1d6 ⇒ 3", "[3]", false),
                 new EmbedOrMessageDefinition.Field("1d6 ⇒ 3", "[3]", false),
                 new EmbedOrMessageDefinition.Field("1d6 ⇒ 3", "[3]", false)
-        ), null,  List.of(), EmbedOrMessageDefinition.Type.EMBED));
+        ), null, List.of(), EmbedOrMessageDefinition.Type.EMBED));
     }
 
 
@@ -174,7 +173,7 @@ class CustomDiceCommandTest {
         EmbedOrMessageDefinition res = RollAnswerConverter.toEmbedOrMessageDefinition(underTest.getAnswer(new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Label", "1d6,1d6,1d6")), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none")), new State<>("1_button", StateData.empty()), 0, 0)
                 .orElseThrow());
 
-        assertThat(res).isEqualTo(new EmbedOrMessageDefinition("Label", null, ImmutableList.of(new EmbedOrMessageDefinition.Field("1d6 ⇒ 3", "[3]", false), new EmbedOrMessageDefinition.Field("1d6 ⇒ 3", "[3]", false), new EmbedOrMessageDefinition.Field("1d6 ⇒ 3", "[3]", false)), null,  List.of(), EmbedOrMessageDefinition.Type.EMBED));
+        assertThat(res).isEqualTo(new EmbedOrMessageDefinition("Label", null, ImmutableList.of(new EmbedOrMessageDefinition.Field("1d6 ⇒ 3", "[3]", false), new EmbedOrMessageDefinition.Field("1d6 ⇒ 3", "[3]", false), new EmbedOrMessageDefinition.Field("1d6 ⇒ 3", "[3]", false)), null, List.of(), EmbedOrMessageDefinition.Type.EMBED));
     }
 
     @Test
@@ -225,7 +224,7 @@ class CustomDiceCommandTest {
                         .build())
                 .build()));
 
-        when(event.createButtonMessage(any())).thenReturn(Mono.just(2L));
+        when(event.createMessageWithoutReference(any())).thenReturn(Mono.just(2L));
         when(event.deleteMessageById(anyLong())).thenReturn(Mono.empty());
         when(event.getRequester()).thenReturn(new Requester("user", "channel", "guild", "[0 / 1]"));
         when(event.reply(any(), anyBoolean())).thenReturn(Mono.just(mock(Void.class)));
@@ -239,8 +238,9 @@ class CustomDiceCommandTest {
         verify(event).getCommandString();
         verify(event).getOption(any());
         verify(event).reply(any(), anyBoolean());
-        verify(event).createButtonMessage(MessageDefinition.builder()
-                .content("Click on a button to roll the dice")
+        verify(event).createMessageWithoutReference(EmbedOrMessageDefinition.builder()
+                .type(EmbedOrMessageDefinition.Type.MESSAGE)
+                .descriptionOrContent("Click on a button to roll the dice")
                 .componentRowDefinitions(ImmutableList.of(ComponentRowDefinition.builder()
                         .buttonDefinition(ButtonDefinition.builder()
                                 .id("custom_dice1_button00000000-0000-0000-0000-000000000000")

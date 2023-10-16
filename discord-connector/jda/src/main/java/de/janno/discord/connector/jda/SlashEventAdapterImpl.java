@@ -1,14 +1,11 @@
 package de.janno.discord.connector.jda;
 
-import com.google.common.collect.ImmutableSet;
 import de.janno.discord.connector.api.Requester;
 import de.janno.discord.connector.api.SlashEventAdaptor;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
-import de.janno.discord.connector.api.message.MessageDefinition;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
@@ -90,8 +87,8 @@ public class SlashEventAdapterImpl extends DiscordAdapterImpl implements SlashEv
 
 
     @Override
-    public @NonNull Mono<Long> createButtonMessage(@NonNull MessageDefinition messageDefinition) {
-        return createButtonMessage(event.getMessageChannel(), messageDefinition)
+    public @NonNull Mono<Long> createMessageWithoutReference(@NonNull EmbedOrMessageDefinition messageDefinition) {
+        return createMessageWithoutReference(event.getMessageChannel(), messageDefinition)
                 .onErrorResume(t -> handleException("Error on creating button message", t, false).ofType(Message.class))
                 .map(Message::getIdLong);
     }

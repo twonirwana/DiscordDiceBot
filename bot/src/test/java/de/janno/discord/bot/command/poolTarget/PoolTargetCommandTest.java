@@ -119,7 +119,7 @@ class PoolTargetCommandTest {
     @Test
     void getButtonMessage_rerollBotchEmpty() {
         String res = underTest.createNewButtonMessage(UUID.fromString("00000000-0000-0000-0000-000000000000"), new PoolTargetConfig(null, 10, 20, ImmutableSet.of(), ImmutableSet.of(), "ask", AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none")))
-                .getContent();
+                .getDescriptionOrContent();
 
         assertThat(res).isEqualTo("Click on the buttons to roll dice");
     }
@@ -127,7 +127,7 @@ class PoolTargetCommandTest {
     @Test
     void getButtonMessage_rerollEmpty() {
         String res = underTest.createNewButtonMessage(UUID.fromString("00000000-0000-0000-0000-000000000000"), new PoolTargetConfig(null, 10, 20, ImmutableSet.of(), ImmutableSet.of(1, 2), "ask", AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none")))
-                .getContent();
+                .getDescriptionOrContent();
 
         assertThat(res).isEqualTo("Click on the buttons to roll dice, with botch:1,2");
     }
@@ -135,7 +135,7 @@ class PoolTargetCommandTest {
     @Test
     void getButtonMessage_botchEmpty() {
         String res = underTest.createNewButtonMessage(UUID.fromString("00000000-0000-0000-0000-000000000000"), new PoolTargetConfig(null, 10, 20, ImmutableSet.of(10, 9), ImmutableSet.of(), "ask", AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none")))
-                .getContent();
+                .getDescriptionOrContent();
 
         assertThat(res).isEqualTo("Click on the buttons to roll dice, with ask reroll:9,10");
     }
@@ -143,7 +143,7 @@ class PoolTargetCommandTest {
     @Test
     void getButtonMessage_ask() {
         String res = underTest.createNewButtonMessage(UUID.fromString("00000000-0000-0000-0000-000000000000"), new PoolTargetConfig(null, 10, 20, ImmutableSet.of(10, 9), ImmutableSet.of(1, 2), "ask", AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none")))
-                .getContent();
+                .getDescriptionOrContent();
 
         assertThat(res).isEqualTo("Click on the buttons to roll dice, with ask reroll:9,10 and botch:1,2");
     }
@@ -151,7 +151,7 @@ class PoolTargetCommandTest {
     @Test
     void getButtonMessage_always() {
         String res = underTest.createNewButtonMessage(UUID.fromString("00000000-0000-0000-0000-000000000000"), new PoolTargetConfig(null, 10, 20, ImmutableSet.of(10, 9), ImmutableSet.of(1, 2), "always", AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none")))
-                .getContent();
+                .getDescriptionOrContent();
 
         assertThat(res).isEqualTo("Click on the buttons to roll dice, with always reroll:9,10 and botch:1,2");
     }
@@ -343,7 +343,7 @@ class PoolTargetCommandTest {
         when(buttonEventAdaptor.getChannelId()).thenReturn(1L);
         when(buttonEventAdaptor.getMessageId()).thenReturn(1L);
         when(buttonEventAdaptor.reply(any(), anyBoolean())).thenReturn(Mono.just(mock(Void.class)));
-        when(buttonEventAdaptor.createResultMessageWithEventReference(any(), eq(null))).thenReturn(Mono.just(mock(Void.class)));
+        when(buttonEventAdaptor.createResultMessageWithReference(any(), eq(null))).thenReturn(Mono.just(mock(Void.class)));
         when(buttonEventAdaptor.getRequester()).thenReturn(new Requester("user", "channel", "guild", "[0 / 1]"));
         when(buttonEventAdaptor.getInvokingGuildMemberName()).thenReturn("testUser");
         when(persistenceManager.getMessageData(1L, 1L)).thenReturn(Optional.empty());
@@ -355,9 +355,9 @@ class PoolTargetCommandTest {
         assertThat(res).isNotNull();
         verify(buttonEventAdaptor).reply("Configuration for the message is missing, please create a new message with the slash command `/pool_target start`", false);
         verify(buttonEventAdaptor, never()).editMessage(anyString(), anyList());
-        verify(buttonEventAdaptor, never()).createButtonMessage(any());
+        verify(buttonEventAdaptor, never()).createMessageWithoutReference(any());
         verify(buttonEventAdaptor, never()).deleteMessageById(anyLong());
-        verify(buttonEventAdaptor, never()).createResultMessageWithEventReference(any(), any());
+        verify(buttonEventAdaptor, never()).createResultMessageWithReference(any(), any());
         verify(buttonEventAdaptor, times(3)).getCustomId();
         verify(buttonEventAdaptor).getMessageId();
         verify(buttonEventAdaptor).getChannelId();

@@ -138,16 +138,21 @@ public class HiddenDirectRollCommand implements SlashCommand, ComponentInteractE
                             .build()
                     )
                     .build();
-
-            return Mono.defer(() -> event.replyWithEmbedOrMessageDefinition(embedOrMessageDefinition, true)
-                    .doOnSuccess(v ->
-                            log.info("{}: '{}'={} -> {} in {}ms",
-                                    event.getRequester().toLogString(),
-                                    commandString.replace("`", ""),
-                                    diceExpression,
-                                    answer.toShortString(),
-                                    stopwatch.elapsed(TimeUnit.MILLISECONDS)
-                            )));
+            return Flux.merge(1, event.replyWithEmbedOrMessageDefinition(embedOrMessageDefinition, true)
+                                    .doOnSuccess(v ->
+                                            log.info("{}: '{}'={} -> {} in {}ms",
+                                                    event.getRequester().toLogString(),
+                                                    commandString.replace("`", ""),
+                                                    diceExpression,
+                                                    answer.toShortString(),
+                                                    stopwatch.elapsed(TimeUnit.MILLISECONDS)
+                                            )),
+                            event.createResultMessageWithEventReference(EmbedOrMessageDefinition.builder()
+                                    .type(EmbedOrMessageDefinition.Type.MESSAGE)
+                                    .descriptionOrContent("Made a hidden roll")
+                                    .build()))
+                    .parallel()
+                    .then();
         }
 
         return Mono.empty();
@@ -166,7 +171,7 @@ public class HiddenDirectRollCommand implements SlashCommand, ComponentInteractE
 
         return Flux.merge(1,
                         event.acknowledgeAndRemoveButtons(), //ephemeral message cant be deleted
-                        event.createResultMessageWithEventReference(event.getMessageDefinitionOfEventMessageWithoutButtons(), null)
+                        event.createResultMessageWithReference(event.getMessageDefinitionOfEventMessageWithoutButtons(), null)
                                 .doOnSuccess(v ->
                                         log.info("{}:-> {} in {}ms",
                                                 event.getRequester().toLogString(),

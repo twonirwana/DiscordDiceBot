@@ -11,7 +11,7 @@ import de.janno.discord.bot.persistance.*;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
-import de.janno.discord.connector.api.message.MessageDefinition;
+import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinitionOption;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import de.janno.evaluator.dice.random.RandomNumberSupplier;
@@ -70,48 +70,48 @@ class SumCustomSetCommandTest {
 
     @Test
     void getButtonMessageWithState_clear() {
-        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), defaultConfig, new State<>("clear", new SumCustomSetStateData(ImmutableList.of("1d6"), "user1")), 1L, 2L);
+        Optional<EmbedOrMessageDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), defaultConfig, new State<>("clear", new SumCustomSetStateData(ImmutableList.of("1d6"), "user1")), 1L, 2L);
         assertThat(res).isEmpty();
     }
 
     @Test
     void getButtonMessageWithState_roll() {
         String res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), defaultConfig, new State<>("roll", new SumCustomSetStateData(ImmutableList.of("1d6"), "user1")), 1L, 2L)
-                .orElseThrow().getContent();
+                .orElseThrow().getDescriptionOrContent();
         assertThat(res).isEqualTo("Click the buttons to add dice to the set and then on Roll");
     }
 
     @Test
     void getEditButtonMessage_backLast() {
-        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), defaultConfig, new State<>("back", new SumCustomSetStateData(ImmutableList.of("1d6"), "user1")), 1L, 2L);
+        Optional<EmbedOrMessageDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), defaultConfig, new State<>("back", new SumCustomSetStateData(ImmutableList.of("1d6"), "user1")), 1L, 2L);
 
         assertThat(res).isEmpty();
     }
 
     @Test
     void getEditButtonMessage_back() {
-        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), defaultConfig, new State<>("back", new SumCustomSetStateData(ImmutableList.of("+1d6", "+1d6"), "user1")), 1L, 2L);
+        Optional<EmbedOrMessageDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), defaultConfig, new State<>("back", new SumCustomSetStateData(ImmutableList.of("+1d6", "+1d6"), "user1")), 1L, 2L);
 
         assertThat(res).isEmpty();
     }
 
     @Test
     void getCurrentMessageContentChange_clear() {
-        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), defaultConfig, new State<>("clear", new SumCustomSetStateData(ImmutableList.of("+1d6", "+1d6"), "user1")), 1L, 2L);
+        Optional<EmbedOrMessageDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), defaultConfig, new State<>("clear", new SumCustomSetStateData(ImmutableList.of("+1d6", "+1d6"), "user1")), 1L, 2L);
 
         assertThat(res).isEmpty();
     }
 
     @Test
     void getButtonMessage() {
-        String res = underTest.createNewButtonMessage(UUID.fromString("00000000-0000-0000-0000-000000000000"), defaultConfig).getContent();
+        String res = underTest.createNewButtonMessage(UUID.fromString("00000000-0000-0000-0000-000000000000"), defaultConfig).getDescriptionOrContent();
         assertThat(res).isEqualTo("Click the buttons to add dice to the set and then on Roll");
     }
 
     @Test
     void createNewButtonMessageWithState() {
         String res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), defaultConfig, new State<>("roll", new SumCustomSetStateData(ImmutableList.of("1d6"), "user1")), 1L, 2L)
-                .orElseThrow().getContent();
+                .orElseThrow().getDescriptionOrContent();
         assertThat(res).isEqualTo("Click the buttons to add dice to the set and then on Roll");
     }
 
@@ -143,19 +143,19 @@ class SumCustomSetCommandTest {
 
     @Test
     void copyButtonMessageToTheEnd_roll_true() {
-        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), defaultConfig, new State<>("roll", new SumCustomSetStateData(ImmutableList.of("1d6"), "user1")), 1L, 2L);
+        Optional<EmbedOrMessageDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), defaultConfig, new State<>("roll", new SumCustomSetStateData(ImmutableList.of("1d6"), "user1")), 1L, 2L);
         assertThat(res).isNotEmpty();
     }
 
     @Test
     void copyButtonMessageToTheEnd_rollNoConfig_false() {
-        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), defaultConfig, new State<>("roll", new SumCustomSetStateData(ImmutableList.of(), "user1")), 1L, 2L);
+        Optional<EmbedOrMessageDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), defaultConfig, new State<>("roll", new SumCustomSetStateData(ImmutableList.of(), "user1")), 1L, 2L);
         assertThat(res).isEmpty();
     }
 
     @Test
     void copyButtonMessageToTheEnd_modifyMessage_false() {
-        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), defaultConfig, new State<>("+1d6", new SumCustomSetStateData(ImmutableList.of("1d6"), "user1")), 1L, 2L);
+        Optional<EmbedOrMessageDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), defaultConfig, new State<>("+1d6", new SumCustomSetStateData(ImmutableList.of("1d6"), "user1")), 1L, 2L);
         assertThat(res).isEmpty();
     }
 

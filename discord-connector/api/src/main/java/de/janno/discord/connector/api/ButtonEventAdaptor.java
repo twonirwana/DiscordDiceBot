@@ -32,7 +32,7 @@ public interface ButtonEventAdaptor extends DiscordAdapter {
 
     Optional<String> checkPermissions(Long answerTargetChannelId);
 
-    Mono<Void> createResultMessageWithEventReference(EmbedOrMessageDefinition answer, Long targetChannelId);
+    Mono<Void> createResultMessageWithReference(EmbedOrMessageDefinition answer, Long targetChannelId);
 
     @NonNull ParallelFlux<MessageState> getMessagesState(@NonNull Collection<Long> messageIds);
 

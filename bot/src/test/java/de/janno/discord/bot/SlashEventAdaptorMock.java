@@ -3,7 +3,7 @@ package de.janno.discord.bot;
 import de.janno.discord.connector.api.Requester;
 import de.janno.discord.connector.api.SlashEventAdaptor;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
-import de.janno.discord.connector.api.message.MessageDefinition;
+import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import lombok.NonNull;
 import reactor.core.publisher.Mono;
@@ -77,7 +77,7 @@ public class SlashEventAdaptorMock implements SlashEventAdaptor {
     }
 
     @Override
-    public @NonNull Mono<Long> createButtonMessage(@NonNull MessageDefinition messageDefinition) {
+    public @NonNull Mono<Long> createMessageWithoutReference(@NonNull EmbedOrMessageDefinition messageDefinition) {
         actions.add(String.format("createButtonMessage: %s", messageDefinition));
         return Mono.just(1L);
     }

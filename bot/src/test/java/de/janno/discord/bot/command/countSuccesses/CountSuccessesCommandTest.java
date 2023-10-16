@@ -11,7 +11,7 @@ import de.janno.discord.bot.persistance.PersistenceManagerImpl;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
-import de.janno.discord.connector.api.message.MessageDefinition;
+import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinitionOption;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import org.junit.jupiter.api.BeforeEach;
@@ -51,7 +51,7 @@ class CountSuccessesCommandTest {
     @Test
     void getButtonMessage_noGlitch() {
         CountSuccessesConfig config = new CountSuccessesConfig(null, 6, 6, "no_glitch", 15, 1, Set.of(), Set.of(), AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"));
-        assertThat(underTest.createNewButtonMessage(UUID.randomUUID(), config).getContent()).isEqualTo("Click to roll the dice against 6");
+        assertThat(underTest.createNewButtonMessage(UUID.randomUUID(), config).getDescriptionOrContent()).isEqualTo("Click to roll the dice against 6");
     }
 
 
@@ -59,21 +59,21 @@ class CountSuccessesCommandTest {
     void getButtonMessage_halfDiceOne() {
         CountSuccessesConfig config = new CountSuccessesConfig(null, 6, 6, "half_dice_one", 15, 1, Set.of(), Set.of(), AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"));
 
-        assertThat(underTest.createNewButtonMessage(UUID.randomUUID(), config).getContent()).isEqualTo("Click to roll the dice against 6 and check for more then half of dice 1s");
+        assertThat(underTest.createNewButtonMessage(UUID.randomUUID(), config).getDescriptionOrContent()).isEqualTo("Click to roll the dice against 6 and check for more then half of dice 1s");
     }
 
     @Test
     void getButtonMessage_countOnes() {
         CountSuccessesConfig config = new CountSuccessesConfig(null, 6, 6, "count_ones", 15, 1, Set.of(), Set.of(), AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"));
 
-        assertThat(underTest.createNewButtonMessage(UUID.randomUUID(), config).getContent()).isEqualTo("Click to roll the dice against 6 and count the 1s");
+        assertThat(underTest.createNewButtonMessage(UUID.randomUUID(), config).getDescriptionOrContent()).isEqualTo("Click to roll the dice against 6 and count the 1s");
     }
 
     @Test
     void getButtonMessage_subtractOnes() {
         CountSuccessesConfig config = new CountSuccessesConfig(null, 6, 6, "subtract_ones", 15, 1, Set.of(), Set.of(), AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"));
 
-        assertThat(underTest.createNewButtonMessage(UUID.randomUUID(), config).getContent()).isEqualTo("Click to roll the dice against 6 minus 1s");
+        assertThat(underTest.createNewButtonMessage(UUID.randomUUID(), config).getDescriptionOrContent()).isEqualTo("Click to roll the dice against 6 minus 1s");
     }
 
     @Test
@@ -81,7 +81,7 @@ class CountSuccessesCommandTest {
         CountSuccessesConfig config = new CountSuccessesConfig(null, 6, 6, "no_glitch", 15, 1, Set.of(), Set.of(), AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"));
         State<StateData> state = new State<>("6", StateData.empty());
 
-        assertThat(underTest.createNewButtonMessageWithState(UUID.randomUUID(), config, state, 1L, 2L).map(MessageDefinition::getContent)).contains("Click to roll the dice against 6");
+        assertThat(underTest.createNewButtonMessageWithState(UUID.randomUUID(), config, state, 1L, 2L).map(EmbedOrMessageDefinition::getDescriptionOrContent)).contains("Click to roll the dice against 6");
     }
 
 
@@ -90,7 +90,7 @@ class CountSuccessesCommandTest {
         CountSuccessesConfig config = new CountSuccessesConfig(null, 6, 6, "half_dice_one", 15, 1, Set.of(), Set.of(), AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"));
         State<StateData> state = new State<>("6", StateData.empty());
 
-        assertThat(underTest.createNewButtonMessageWithState(UUID.randomUUID(), config, state, 1L, 2L).map(MessageDefinition::getContent)).contains("Click to roll the dice against 6 and check for more then half of dice 1s");
+        assertThat(underTest.createNewButtonMessageWithState(UUID.randomUUID(), config, state, 1L, 2L).map(EmbedOrMessageDefinition::getDescriptionOrContent)).contains("Click to roll the dice against 6 and check for more then half of dice 1s");
     }
 
     @Test
@@ -98,7 +98,7 @@ class CountSuccessesCommandTest {
         CountSuccessesConfig config = new CountSuccessesConfig(null, 6, 6, "count_ones", 15, 1, Set.of(), Set.of(), AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"));
         State<StateData> state = new State<>("6", StateData.empty());
 
-        assertThat(underTest.createNewButtonMessageWithState(UUID.randomUUID(), config, state, 1L, 2L).map(MessageDefinition::getContent)).contains("Click to roll the dice against 6 and count the 1s");
+        assertThat(underTest.createNewButtonMessageWithState(UUID.randomUUID(), config, state, 1L, 2L).map(EmbedOrMessageDefinition::getDescriptionOrContent)).contains("Click to roll the dice against 6 and count the 1s");
     }
 
     @Test
@@ -106,7 +106,7 @@ class CountSuccessesCommandTest {
         CountSuccessesConfig config = new CountSuccessesConfig(null, 6, 6, "subtract_ones", 15, 1, Set.of(), Set.of(), AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"));
         State<StateData> state = new State<>("6", StateData.empty());
 
-        assertThat(underTest.createNewButtonMessageWithState(UUID.randomUUID(), config, state, 1L, 2L).map(MessageDefinition::getContent)).contains("Click to roll the dice against 6 minus 1s");
+        assertThat(underTest.createNewButtonMessageWithState(UUID.randomUUID(), config, state, 1L, 2L).map(EmbedOrMessageDefinition::getDescriptionOrContent)).contains("Click to roll the dice against 6 minus 1s");
     }
 
     @Test

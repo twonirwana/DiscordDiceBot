@@ -4,10 +4,8 @@ import com.google.common.base.Strings;
 import de.janno.discord.connector.api.ButtonEventAdaptor;
 import de.janno.discord.connector.api.MessageState;
 import de.janno.discord.connector.api.Requester;
-import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
-import de.janno.discord.connector.api.message.MessageDefinition;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.entities.Guild;
@@ -32,7 +30,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 import static net.dv8tion.jda.api.requests.ErrorResponse.*;
 
@@ -121,14 +118,14 @@ public class ButtonEventAdapterImpl extends DiscordAdapterImpl implements Button
     }
 
     @Override
-    public @NonNull Mono<Long> createButtonMessage(@NonNull MessageDefinition messageDefinition) {
-        return createButtonMessage(event.getMessageChannel(), messageDefinition)
+    public @NonNull Mono<Long> createMessageWithoutReference(@NonNull EmbedOrMessageDefinition messageDefinition) {
+        return createMessageWithoutReference(event.getMessageChannel(), messageDefinition)
                 .onErrorResume(t -> handleException("Error on creating button message", t, false).ofType(Message.class))
                 .map(Message::getIdLong);
     }
 
     @Override
-    public Mono<Void> createResultMessageWithEventReference(EmbedOrMessageDefinition answer, Long targetChannelId) {
+    public Mono<Void> createResultMessageWithReference(EmbedOrMessageDefinition answer, Long targetChannelId) {
         MessageChannel targetChannel = Optional.ofNullable(targetChannelId)
                 .flatMap(id -> Optional.ofNullable(event.getGuild())
                         .map(g -> g.getChannelById(MessageChannel.class, targetChannelId)))
@@ -257,6 +254,7 @@ public class ButtonEventAdapterImpl extends DiscordAdapterImpl implements Button
                     return embed.getImage().getProxy().download().get();
                 } catch (InterruptedException | ExecutionException e) {
                     throw new RuntimeException(e);
+                    //todo use InputStream.nullInputStream()?
                 }
             };
             fields = embed.getFields().stream()

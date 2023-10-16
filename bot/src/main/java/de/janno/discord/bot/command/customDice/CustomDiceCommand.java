@@ -18,7 +18,7 @@ import de.janno.discord.connector.api.BottomCustomIdUtils;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
-import de.janno.discord.connector.api.message.MessageDefinition;
+import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinitionOption;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import lombok.NonNull;
@@ -180,14 +180,15 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
     }
 
     @Override
-    protected @NonNull Optional<MessageDefinition> createNewButtonMessageWithState(UUID configUUID, CustomDiceConfig config, State<StateData> state, long guildId, long channelId) {
+    protected @NonNull Optional<EmbedOrMessageDefinition> createNewButtonMessageWithState(UUID configUUID, CustomDiceConfig config, State<StateData> state, long guildId, long channelId) {
         return Optional.of(createNewButtonMessage(configUUID, config));
     }
 
     @Override
-    public @NonNull MessageDefinition createNewButtonMessage(UUID configUUID, CustomDiceConfig config) {
-        return MessageDefinition.builder()
-                .content(BUTTON_MESSAGE)
+    public @NonNull EmbedOrMessageDefinition createNewButtonMessage(UUID configUUID, CustomDiceConfig config) {
+        return EmbedOrMessageDefinition.builder()
+                .type(EmbedOrMessageDefinition.Type.MESSAGE)
+                .descriptionOrContent(BUTTON_MESSAGE)
                 .componentRowDefinitions(createButtonLayout(configUUID, config))
                 .build();
     }

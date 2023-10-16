@@ -7,7 +7,7 @@ import de.janno.discord.connector.api.Requester;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
-import de.janno.discord.connector.api.message.MessageDefinition;
+import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 import reactor.core.publisher.Flux;
@@ -106,8 +106,8 @@ public class ButtonEventAdaptorMock implements ButtonEventAdaptor {
     }
 
     @Override
-    public @NonNull Mono<Long> createButtonMessage(@NonNull MessageDefinition messageDefinition) {
-        actions.add(String.format("createButtonMessage: content=%s, buttonValues=%s", messageDefinition.getContent(), messageDefinition.getComponentRowDefinitions().stream()
+    public @NonNull Mono<Long> createMessageWithoutReference(@NonNull EmbedOrMessageDefinition messageDefinition) {
+        actions.add(String.format("createButtonMessage: content=%s, buttonValues=%s", messageDefinition.getDescriptionOrContent(), messageDefinition.getComponentRowDefinitions().stream()
                 .flatMap(r -> r.getButtonDefinitions().stream())
                 .map(ButtonDefinition::getId)
                 .map(BottomCustomIdUtils::getButtonValueFromCustomId)
@@ -126,7 +126,7 @@ public class ButtonEventAdaptorMock implements ButtonEventAdaptor {
     }
 
     @Override
-    public Mono<Void> createResultMessageWithEventReference(EmbedOrMessageDefinition answer, Long targetChannelId) {
+    public Mono<Void> createResultMessageWithReference(EmbedOrMessageDefinition answer, Long targetChannelId) {
         actions.add(String.format("createAnswer: title=%s, description=%s, fieldValues:%s, answerChannel:%s, type:%s", answer.getTitle(), answer.getDescriptionOrContent(), answer.getFields().stream()
                 .map(EmbedOrMessageDefinition.Field::getValue)
                 .collect(Collectors.joining(",")), targetChannelId, answer.getType()));

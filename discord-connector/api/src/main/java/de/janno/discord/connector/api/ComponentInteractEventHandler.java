@@ -7,6 +7,5 @@ public interface ComponentInteractEventHandler {
 
     Mono<Void> handleComponentInteractEvent(@NonNull ButtonEventAdaptor event);
 
-    //todo default
     boolean matchingComponentCustomId(String buttonCustomId);
 }
