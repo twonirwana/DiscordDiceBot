@@ -17,6 +17,7 @@ import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.exceptions.ErrorResponseException;
 import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
 import net.dv8tion.jda.api.interactions.InteractionHook;
+import net.dv8tion.jda.api.utils.AttachmentProxy;
 import org.apache.commons.lang3.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -249,14 +250,21 @@ public class ButtonEventAdapterImpl extends DiscordAdapterImpl implements Button
             MessageEmbed embed = message.getEmbeds().get(0);
             descriptionOrContent = embed.getDescription();
             title = embed.getTitle();
-            imageSupplier = () -> {
-                try {
-                    return embed.getImage().getProxy().download().get();
-                } catch (InterruptedException | ExecutionException e) {
-                    throw new RuntimeException(e);
-                    //todo use InputStream.nullInputStream()?
-                }
-            };
+            if (embed.getImage() == null) {
+                imageSupplier = null;
+            } else {
+                imageSupplier = () -> Optional.ofNullable(embed.getImage().getProxy())
+                        .map(AttachmentProxy::download)
+                        .map(inputStreamCompletableFuture -> {
+                            try {
+                                return inputStreamCompletableFuture.get();
+                            } catch (InterruptedException | ExecutionException e) {
+                                log.error(e.getMessage());
+                            }
+                            return InputStream.nullInputStream();
+                        })
+                        .orElse(InputStream.nullInputStream());
+            }
             fields = embed.getFields().stream()
                     .filter(f -> !Strings.isNullOrEmpty(f.getName()))
                     .filter(f -> !Strings.isNullOrEmpty(f.getValue()))

@@ -16,7 +16,6 @@ import de.janno.discord.connector.api.BottomCustomIdUtils;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
-import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinitionOption;
 import de.janno.discord.connector.api.slash.CommandDefinitionOptionChoice;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
@@ -38,8 +37,8 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTar
     static final String REROLL_SET_OPTION = "reroll_set";
     static final String BOTCH_SET_OPTION = "botch_set";
     static final String REROLL_VARIANT_OPTION = "reroll_variant";
+    static final String ALWAYS_REROLL = "always";
     private static final String COMMAND_NAME = "pool_target";
-     static final String ALWAYS_REROLL = "always";
     private static final String ASK_FOR_REROLL = "ask";
     private static final String CLEAR_BUTTON_ID = "clear";
     private static final String DO_REROLL_ID = "do_reroll";

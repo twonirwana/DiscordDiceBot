@@ -1,7 +1,6 @@
 package de.janno.discord.connector.api;
 
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
-import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import lombok.NonNull;
 import reactor.core.publisher.Mono;
@@ -20,6 +19,7 @@ public interface SlashEventAdaptor extends DiscordAdapter {
 
     //todo combiend with ButtonEventAdaptor.createResultMessageWithReference?
     Mono<Void> createResultMessageWithEventReference(EmbedOrMessageDefinition answer);
+
     long getChannelId();
 
     String getCommandString();
