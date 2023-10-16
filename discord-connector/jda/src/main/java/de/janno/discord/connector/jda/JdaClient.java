@@ -70,7 +70,6 @@ public class JdaClient {
                                         Optional.ofNullable(event.getGuild().getSystemChannel())
                                                 .filter(GuildMessageChannel::canTalk)
                                                 .ifPresent(textChannel -> Mono.fromFuture(textChannel.sendMessage(
-                                                        //todo map full EmbedOrMessageDefinition
                                                                         MessageComponentConverter.messageComponent2MessageLayout(welcomeMessageDefinition.getDescriptionOrContent(),
                                                                                 welcomeMessageDefinition.getComponentRowDefinitions()))
                                                                 .submit())
