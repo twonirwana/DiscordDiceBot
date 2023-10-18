@@ -407,6 +407,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     protected @NonNull Optional<EmbedOrMessageDefinition> createNewButtonMessageWithState(UUID configUUID, CustomParameterConfig config, State<CustomParameterStateData> state, long guildId, long channelId) {
         if (!hasMissingParameter(state)) {
             return Optional.of(EmbedOrMessageDefinition.builder()
+                    .type(EmbedOrMessageDefinition.Type.MESSAGE)
                     .descriptionOrContent(formatMessageContent(config, state, null))
                     .componentRowDefinitions(getButtonLayoutWithOptionalState(configUUID, config, null))
                     .build());

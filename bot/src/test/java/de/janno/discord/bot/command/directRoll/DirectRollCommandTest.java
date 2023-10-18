@@ -46,7 +46,7 @@ class DirectRollCommandTest {
                 .build();
         when(slashEventAdaptor.getOption(any())).thenReturn(Optional.of(interactionOption));
         when(slashEventAdaptor.getChannelId()).thenReturn(1L);
-        when(slashEventAdaptor.createResultMessageWithReference(any())).thenReturn(Mono.just(mock(Void.class)));
+        when(slashEventAdaptor.createResultMessageWithReference(any())).thenReturn(Mono.just(0L));
         when(slashEventAdaptor.deleteMessageById(anyLong())).thenReturn(Mono.empty());
         when(slashEventAdaptor.acknowledgeAndRemoveSlash()).thenReturn(Mono.just(mock(Void.class)));
         when(slashEventAdaptor.getCommandString()).thenReturn("/r expression:1d6");

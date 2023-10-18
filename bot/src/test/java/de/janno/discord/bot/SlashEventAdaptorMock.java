@@ -98,9 +98,9 @@ public class SlashEventAdaptorMock implements SlashEventAdaptor {
     }
 
     @Override
-    public Mono<Void> createResultMessageWithReference(EmbedOrMessageDefinition answer) {
+    public Mono<Long> createResultMessageWithReference(EmbedOrMessageDefinition answer) {
         actions.add(String.format("createResultMessageWithReference: %s", answer));
-        return Mono.just("").then();
+        return Mono.just(1L);
     }
 
     @Override

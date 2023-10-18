@@ -219,6 +219,7 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollConfig, HoldRer
                 || FINISH_BUTTON_ID.equals(state.getButtonValue())
                 || rollFinished(state, config)) {
             return Optional.of(EmbedOrMessageDefinition.builder()
+                    .type(EmbedOrMessageDefinition.Type.MESSAGE)
                     .descriptionOrContent(String.format("Click on the buttons to roll dice. Reroll set: %s, Success Set: %s and Failure Set: %s",
                             config.getRerollSet(), config.getSuccessSet(), config.getFailureSet()))
                     .componentRowDefinitions(getButtonLayoutWithState(configUUID, state, config))

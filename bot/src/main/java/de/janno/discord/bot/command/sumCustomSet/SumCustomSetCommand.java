@@ -185,6 +185,7 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
                 .orElse(false)) {
             return Optional.of(EmbedOrMessageDefinition.builder()
                     .descriptionOrContent(EMPTY_MESSAGE)
+                    .type(EmbedOrMessageDefinition.Type.MESSAGE)
                     .componentRowDefinitions(createButtonLayout(customUuid, config, true))
                     .build());
         }

@@ -70,7 +70,7 @@ class ValidationCommandTest {
                 .build();
         when(slashEventAdaptor.getOption(any())).thenReturn(Optional.of(interactionOption));
         when(slashEventAdaptor.getChannelId()).thenReturn(1L);
-        when(slashEventAdaptor.createResultMessageWithReference(any())).thenReturn(Mono.just(mock(Void.class)));
+        when(slashEventAdaptor.createResultMessageWithReference(any())).thenReturn(Mono.just(0L));
         when(slashEventAdaptor.deleteMessageById(anyLong())).thenReturn(Mono.empty());
         when(slashEventAdaptor.reply(any(), anyBoolean())).thenReturn(Mono.just(mock(Void.class)));
         when(slashEventAdaptor.getCommandString()).thenReturn("/validation expression:1d6");

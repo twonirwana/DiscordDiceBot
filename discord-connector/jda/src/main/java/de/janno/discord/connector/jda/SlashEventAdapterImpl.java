@@ -94,7 +94,7 @@ public class SlashEventAdapterImpl extends DiscordAdapterImpl implements SlashEv
     }
 
     @Override
-    public Mono<Void> createResultMessageWithReference(EmbedOrMessageDefinition answer) {
+    public Mono<Long> createResultMessageWithReference(EmbedOrMessageDefinition answer) {
         return createMessageWithReference(event.getMessageChannel(),
                 answer,
                 Optional.ofNullable(event.getMember()).map(Member::getEffectiveName).orElse(event.getUser().getName()),
@@ -102,7 +102,7 @@ public class SlashEventAdapterImpl extends DiscordAdapterImpl implements SlashEv
                 Optional.ofNullable(event.getMember()).map(Member::getEffectiveAvatarUrl).orElse(event.getUser().getEffectiveAvatarUrl()),
                 event.getUser().getId())
                 .onErrorResume(t -> handleException("Error on creating answer message", t, false).ofType(Message.class))
-                .ofType(Void.class);
+                .ofType(Long.class);
     }
 
     @Override

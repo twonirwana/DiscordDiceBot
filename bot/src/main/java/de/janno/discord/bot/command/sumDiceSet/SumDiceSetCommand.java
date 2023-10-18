@@ -214,6 +214,7 @@ public class SumDiceSetCommand extends AbstractCommand<Config, SumDiceSetStateDa
         }
         return Optional.of(EmbedOrMessageDefinition.builder()
                 .descriptionOrContent(EMPTY_MESSAGE)
+                .type(EmbedOrMessageDefinition.Type.MESSAGE)
                 .componentRowDefinitions(createButtonLayout(configUUID))
                 .build());
     }

@@ -331,6 +331,7 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTar
     protected @NonNull Optional<EmbedOrMessageDefinition> createNewButtonMessageWithState(UUID configUUID, PoolTargetConfig config, State<PoolTargetStateData> state, long guildId, long channelId) {
         if (Optional.ofNullable(state.getData()).map(PoolTargetStateData::getDicePool).orElse(null) != null && state.getData().getTargetNumber() != null && state.getData().getDoReroll() != null) {
             return Optional.of(EmbedOrMessageDefinition.builder()
+                    .type(EmbedOrMessageDefinition.Type.MESSAGE)
                     .descriptionOrContent(String.format("Click on the buttons to roll dice%s", getConfigDescription(config)))
                     .componentRowDefinitions(getButtonLayoutWithState(configUUID, state, config))
                     .build());
