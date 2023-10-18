@@ -22,18 +22,15 @@ import org.junit.jupiter.api.Test;
 import java.time.Duration;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicLong;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class SumCustomSetCommandMockTest {
 
     PersistenceManager persistenceManager;
-    AtomicLong messageIdCounter;
 
     @BeforeEach
     void setup() {
-        messageIdCounter = new AtomicLong(0);
         persistenceManager = new PersistenceManagerImpl("jdbc:h2:mem:" + UUID.randomUUID(), null, null);
     }
 

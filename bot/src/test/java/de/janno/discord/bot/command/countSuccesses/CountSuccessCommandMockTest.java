@@ -15,18 +15,15 @@ import org.junit.jupiter.api.Test;
 import java.time.Duration;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicLong;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class CountSuccessCommandMockTest {
     PersistenceManager persistenceManager;
-    AtomicLong messageIdCounter;
     CountSuccessesCommand underTest;
 
     @BeforeEach
     void setup() {
-        messageIdCounter = new AtomicLong(0);
         persistenceManager = new PersistenceManagerImpl("jdbc:h2:mem:" + UUID.randomUUID(), null, null);
         underTest = new CountSuccessesCommand(persistenceManager, new DiceUtils(1, 1, 5, 6));
         underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));

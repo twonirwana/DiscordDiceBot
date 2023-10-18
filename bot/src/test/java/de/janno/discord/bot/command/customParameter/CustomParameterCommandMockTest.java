@@ -16,18 +16,15 @@ import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicLong;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class CustomParameterCommandMockTest {
 
     PersistenceManager persistenceManager;
-    AtomicLong messageIdCounter;
 
     @BeforeEach
     void setup() {
-        messageIdCounter = new AtomicLong(0);
         persistenceManager = new PersistenceManagerImpl("jdbc:h2:mem:" + UUID.randomUUID(), null, null);
     }
 

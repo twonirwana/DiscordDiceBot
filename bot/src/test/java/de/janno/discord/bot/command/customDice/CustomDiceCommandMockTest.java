@@ -41,7 +41,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class CustomDiceCommandMockTest {
     PersistenceManager persistenceManager;
-    AtomicLong messageIdCounter;
 
     @BeforeEach
     void setup() throws IOException {
@@ -49,7 +48,6 @@ public class CustomDiceCommandMockTest {
         if (cacheDirectory.exists()) {
             FileUtils.cleanDirectory(cacheDirectory);
         }
-        messageIdCounter = new AtomicLong(0);
         persistenceManager = new PersistenceManagerImpl("jdbc:h2:mem:" + UUID.randomUUID(), null, null);
     }
 

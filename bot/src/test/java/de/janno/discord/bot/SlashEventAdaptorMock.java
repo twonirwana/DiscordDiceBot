@@ -21,7 +21,7 @@ public class SlashEventAdaptorMock implements SlashEventAdaptor {
     @Getter
     private final List<String> actions = new ArrayList<>();
     @Getter
-    private final List<EmbedOrMessageDefinition> allReplays = new ArrayList();
+    private final List<EmbedOrMessageDefinition> allReplays = new ArrayList<>();
     private final long userId;
 
     public SlashEventAdaptorMock(List<CommandInteractionOption> commandInteractionOptions) {
