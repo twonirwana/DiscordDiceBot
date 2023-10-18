@@ -18,7 +18,7 @@ public class ButtonEventAdaptorMockFactory<C extends Config, S extends StateData
     private final String commandId;
     private final AtomicLong messageIdCounter;
     private final Set<Long> pinnedMessageIds;
-    private final UUID configUUID = UUID.randomUUID();
+    private final UUID configUUID = UUID.fromString("00000000-0000-0000-0000-000000000000");
 
     public ButtonEventAdaptorMockFactory(String commandId, AbstractCommand<C, S> command, C config, PersistenceManager persistenceManager, boolean firstMessagePinned) {
         this.commandId = commandId;

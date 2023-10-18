@@ -67,7 +67,7 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
         if (BottomCustomIdUtils.isLegacyCustomId(buttonCustomId)) {
             return BottomCustomIdUtils.matchesLegacyCustomId(buttonCustomId, getCommandId());
         }
-        return Objects.equals(getCommandId(), BottomCustomIdUtils.getCommandNameFromCustomIdWithPersistence(buttonCustomId));
+        return Objects.equals(getCommandId(), BottomCustomIdUtils.getCommandNameFromCustomId(buttonCustomId));
     }
 
     @Override
@@ -189,7 +189,7 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
             return event.reply("The button uses an old format that isn't supported anymore. Please delete it and create a new button message with a slash command.", false);
         } else {
             final String buttonValue = BottomCustomIdUtils.getButtonValueFromCustomId(event.getCustomId());
-            final Optional<UUID> configUUIDFromCustomID = BottomCustomIdUtils.getConfigUUIDFromCustomIdWithPersistence(event.getCustomId());
+            final Optional<UUID> configUUIDFromCustomID = BottomCustomIdUtils.getConfigUUIDFromCustomId(event.getCustomId());
             BotMetrics.incrementButtonUUIDUsageMetricCounter(getCommandId(), configUUIDFromCustomID.isPresent());
             final Optional<MessageConfigDTO> messageConfigDTO = getMessageConfigDTO(configUUIDFromCustomID.orElse(null), channelId, messageId);
             if (messageConfigDTO.isEmpty()) {

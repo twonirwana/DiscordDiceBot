@@ -20,7 +20,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.Objects;
-import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
@@ -54,11 +53,15 @@ public class HiddenDirectRollCommand extends DirectRollCommand implements Compon
     }
 
     @Override
-    protected @NonNull Mono<Void> createResponse(@NonNull SlashEventAdaptor event, String commandString, String diceExpression, RollAnswer answer, Stopwatch stopwatch) {
+    protected @NonNull Mono<Void> createResponse(@NonNull SlashEventAdaptor event,
+                                                 @NonNull String commandString,
+                                                 @NonNull String diceExpression,
+                                                 @NonNull RollAnswer answer,
+                                                 @NonNull Stopwatch stopwatch) {
         EmbedOrMessageDefinition embedOrMessageDefinition = RollAnswerConverter.toEmbedOrMessageDefinition(answer).toBuilder()
                 .componentRowDefinition(ComponentRowDefinition.builder()
                         .buttonDefinition(ButtonDefinition.builder()
-                                .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), REVEAL_BUTTON_ID, UUID.randomUUID()))
+                                .id(BottomCustomIdUtils.createButtonCustomIdWithoutConfigId(getCommandId(), REVEAL_BUTTON_ID))
                                 .label("Reveal").build())
                         .build()
                 )
@@ -101,6 +104,6 @@ public class HiddenDirectRollCommand extends DirectRollCommand implements Compon
 
     @Override
     public boolean matchingComponentCustomId(String buttonCustomId) {
-        return Objects.equals(getCommandId(), BottomCustomIdUtils.getCommandNameFromCustomIdWithPersistence(buttonCustomId));
+        return Objects.equals(getCommandId(), BottomCustomIdUtils.getCommandNameFromCustomId(buttonCustomId));
     }
 }

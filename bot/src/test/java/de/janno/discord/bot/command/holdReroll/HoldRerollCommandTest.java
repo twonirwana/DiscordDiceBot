@@ -355,7 +355,7 @@ class HoldRerollCommandTest {
         PersistenceManager persistenceManager = new PersistenceManagerImpl("jdbc:h2:mem:" + UUID.randomUUID(), null, null);
         underTest = new HoldRerollCommand(persistenceManager, mock(DiceUtils.class));
         underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
-        UUID configUUID = UUID.randomUUID();
+        UUID configUUID = UUID.fromString("00000000-0000-0000-0000-000000000001");
         long channelId = System.currentTimeMillis();
         long messageId = System.currentTimeMillis();
         HoldRerollConfig config = new HoldRerollConfig(123L, 10, ImmutableSet.of(9, 10), ImmutableSet.of(7, 8, 9, 10), ImmutableSet.of(1), AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"));
@@ -377,7 +377,7 @@ class HoldRerollCommandTest {
 
     @Test
     void deserialization_legacy2() {
-        UUID configUUID = UUID.randomUUID();
+        UUID configUUID = UUID.fromString("00000000-0000-0000-0000-000000000001");
         MessageConfigDTO messageConfigDTO = new MessageConfigDTO(configUUID, 1L, 1660644934298L, "hold_reroll", "HoldRerollConfig", """
                 ---
                 answerTargetChannelId: 123
@@ -413,7 +413,7 @@ class HoldRerollCommandTest {
     @Test
     void deserialization() {
 
-        UUID configUUID = UUID.randomUUID();
+        UUID configUUID = UUID.fromString("00000000-0000-0000-0000-000000000001");
         MessageConfigDTO messageConfigDTO = new MessageConfigDTO(configUUID, 1L, 1660644934298L, "hold_reroll", "HoldRerollConfig", """
                 ---
                 answerTargetChannelId: 123

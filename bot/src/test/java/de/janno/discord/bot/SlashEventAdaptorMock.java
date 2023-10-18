@@ -4,6 +4,7 @@ import de.janno.discord.connector.api.Requester;
 import de.janno.discord.connector.api.SlashEventAdaptor;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
+import lombok.Getter;
 import lombok.NonNull;
 import reactor.core.publisher.Mono;
 
@@ -17,7 +18,10 @@ public class SlashEventAdaptorMock implements SlashEventAdaptor {
     public static final long CHANNEL_ID = 1L;
     public static final long GUILD_ID = 1L;
     public final List<CommandInteractionOption> commandInteractionOptions;
+    @Getter
     private final List<String> actions = new ArrayList<>();
+    @Getter
+    private final List<EmbedOrMessageDefinition> allReplays = new ArrayList();
     private final long userId;
 
     public SlashEventAdaptorMock(List<CommandInteractionOption> commandInteractionOptions) {
@@ -27,10 +31,6 @@ public class SlashEventAdaptorMock implements SlashEventAdaptor {
     public SlashEventAdaptorMock(List<CommandInteractionOption> commandInteractionOptions, long userId) {
         this.commandInteractionOptions = commandInteractionOptions;
         this.userId = userId;
-    }
-
-    public List<String> getActions() {
-        return actions;
     }
 
     @Override
@@ -71,6 +71,7 @@ public class SlashEventAdaptorMock implements SlashEventAdaptor {
 
     @Override
     public Mono<Void> replyWithEmbedOrMessageDefinition(@NonNull EmbedOrMessageDefinition messageDefinition, boolean ephemeral) {
+        allReplays.add(messageDefinition);
         actions.add(String.format("replyWithEmbedOrMessageDefinition: %s", messageDefinition));
         return Mono.just("").then();
     }

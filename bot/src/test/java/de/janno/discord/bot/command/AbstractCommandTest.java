@@ -25,14 +25,14 @@ class AbstractCommandTest {
     void deleteMessageAndData_notExist() {
         PersistenceManagerImpl messageDataDAO = new PersistenceManagerImpl("jdbc:h2:mem:" + UUID.randomUUID(), null, null);
         TestCommand underTest = new TestCommand(messageDataDAO);
-        ButtonEventAdaptorMock buttonEventAdaptorMock = new ButtonEventAdaptorMock("testCommand", "a", UUID.randomUUID(), new AtomicLong(), Set.of(2L)) {
+        ButtonEventAdaptorMock buttonEventAdaptorMock = new ButtonEventAdaptorMock("testCommand", "a", UUID.fromString("00000000-0000-0000-0000-000000000000"), new AtomicLong(), Set.of(2L)) {
             @Override
             public @NonNull ParallelFlux<MessageState> getMessagesState(@NonNull Collection<Long> messageIds) {
                 return Flux.fromIterable(messageIds).parallel().map(id -> new MessageState(id, false, false, true, OffsetDateTime.now().minusMinutes(id)));
             }
 
         };
-        UUID configUUID = UUID.randomUUID();
+        UUID configUUID = UUID.fromString("00000000-0000-0000-0000-000000000001");
         Flux.range(1, 9)
                 .map(i -> new MessageDataDTO(configUUID, 1L, 1L, i, "testCommand", "testConfigClass", "configClass"))
                 .delayElements(Duration.ofMillis(10))
@@ -49,8 +49,8 @@ class AbstractCommandTest {
     void deleteMessageAndData() {
         PersistenceManagerImpl messageDataDAO = new PersistenceManagerImpl("jdbc:h2:mem:" + UUID.randomUUID(), null, null);
         TestCommand underTest = new TestCommand(messageDataDAO);
-        ButtonEventAdaptorMock buttonEventAdaptorMock = new ButtonEventAdaptorMock("testCommand", "a", UUID.randomUUID(), new AtomicLong(), Set.of(2L));
-        UUID configUUID = UUID.randomUUID();
+        ButtonEventAdaptorMock buttonEventAdaptorMock = new ButtonEventAdaptorMock("testCommand", "a", UUID.fromString("00000000-0000-0000-0000-000000000000"), new AtomicLong(), Set.of(2L));
+        UUID configUUID = UUID.fromString("00000000-0000-0000-0000-000000000001");
         Flux.range(1, 9)
                 .map(i -> new MessageDataDTO(configUUID, 1L, 1L, i, "testCommand", "testConfigClass", "configClass"))
                 .delayElements(Duration.ofMillis(10))
@@ -77,8 +77,8 @@ class AbstractCommandTest {
         PersistenceManagerImpl messageDataDAO = new PersistenceManagerImpl("jdbc:h2:mem:" + UUID.randomUUID(), null, null);
         TestCommand underTest = new TestCommand(messageDataDAO);
         underTest.setMessageDataDeleteDuration(Duration.ofMillis(200));
-        ButtonEventAdaptorMock buttonEventAdaptorMock = new ButtonEventAdaptorMock("testCommand", "a", UUID.randomUUID(), new AtomicLong(), Set.of(2L));
-        UUID configUUID = UUID.randomUUID();
+        ButtonEventAdaptorMock buttonEventAdaptorMock = new ButtonEventAdaptorMock("testCommand", "a", UUID.fromString("00000000-0000-0000-0000-000000000000"), new AtomicLong(), Set.of(2L));
+        UUID configUUID = UUID.fromString("00000000-0000-0000-0000-000000000001");
         Flux.range(1, 9)
                 .map(i -> new MessageDataDTO(configUUID, 1L, 1L, i, "testCommand", "testConfigClass", "configClass"))
                 .delayElements(Duration.ofMillis(10))

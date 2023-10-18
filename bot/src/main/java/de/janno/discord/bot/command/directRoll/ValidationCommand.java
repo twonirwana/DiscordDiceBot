@@ -20,7 +20,9 @@ import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -70,7 +72,11 @@ public class ValidationCommand extends DirectRollCommand {
                 .build();
     }
 
-    protected @NonNull Mono<Void> createResponse(@NonNull SlashEventAdaptor event, String commandString, String diceExpression, RollAnswer answer, Stopwatch stopwatch) {
+    protected @NonNull Mono<Void> createResponse(@NonNull SlashEventAdaptor event,
+                                                 @NonNull String commandString,
+                                                 @NonNull String diceExpression,
+                                                 @NonNull RollAnswer answer,
+                                                 @NonNull Stopwatch stopwatch) {
         String replayMessage = Stream.of(commandString, answer.getWarning())
                 .filter(s -> !Strings.isNullOrEmpty(s))
                 .collect(Collectors.joining(" "));

@@ -132,7 +132,11 @@ public class DirectRollCommand implements SlashCommand {
         return Mono.empty();
     }
 
-    protected @NonNull Mono<Void> createResponse(@NonNull SlashEventAdaptor event, String commandString, String diceExpression, RollAnswer answer, Stopwatch stopwatch) {
+    protected @NonNull Mono<Void> createResponse(@NonNull SlashEventAdaptor event,
+                                                 @NonNull String commandString,
+                                                 @NonNull String diceExpression,
+                                                 @NonNull RollAnswer answer,
+                                                 @NonNull Stopwatch stopwatch) {
         String replayMessage = Stream.of(commandString, answer.getWarning())
                 .filter(s -> !Strings.isNullOrEmpty(s))
                 .collect(Collectors.joining(" "));

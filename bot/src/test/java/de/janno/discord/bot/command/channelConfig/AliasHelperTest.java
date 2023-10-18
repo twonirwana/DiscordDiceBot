@@ -53,7 +53,7 @@ public class AliasHelperTest {
                   value: "3d6+4"
                 """;
 
-        ChannelConfigDTO savedData = new ChannelConfigDTO(UUID.randomUUID(), 1L, 2L, null, "r", "AliasConfig", aliasString);
+        ChannelConfigDTO savedData = new ChannelConfigDTO(UUID.fromString("00000000-0000-0000-0000-000000000000"), 1L, 2L, null, "r", "AliasConfig", aliasString);
 
         AliasConfig res = AliasHelper.deserializeAliasConfig(savedData);
         assertThat(res).isEqualTo(new AliasConfig(List.of(new Alias("att", "d20+5"), new Alias("par", "d20+3"), new Alias("dmg", "3d6+4"))));

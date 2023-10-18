@@ -7,6 +7,7 @@ import de.janno.discord.connector.api.Requester;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
+import lombok.Getter;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 import reactor.core.publisher.Flux;
@@ -27,20 +28,33 @@ public class ButtonEventAdaptorMock implements ButtonEventAdaptor {
     private final String customId;
     private final long massageId;
     private final AtomicLong messageIdCounter;
+    @Getter
     private final List<String> actions = new ArrayList<>();
     private final Set<Long> pinnedMessageIds;
     private final String invokingUser;
+    private final EmbedOrMessageDefinition eventMessage;
 
     public ButtonEventAdaptorMock(String commandId, String buttonValue, UUID configUUID, AtomicLong messageIdCounter, Set<Long> pinnedMessageIds) {
         this(commandId, buttonValue, configUUID, messageIdCounter, pinnedMessageIds, "invokingUser");
     }
 
-    public ButtonEventAdaptorMock(String commandId, String buttonValue, UUID configUUID, AtomicLong messageIdCounter, Set<Long> pinnedMessageIds, String invokingUser) {
-        this.customId = BottomCustomIdUtils.createButtonCustomId(commandId, buttonValue, configUUID);
+    public ButtonEventAdaptorMock(String commandId, String buttonValue, EmbedOrMessageDefinition eventMessage) {
+        this(commandId, buttonValue, null, new AtomicLong(), null, "invokingUser", eventMessage);
+
+    }
+
+    public ButtonEventAdaptorMock(String commandId, String buttonValue, UUID configUUID, AtomicLong messageIdCounter, Set<Long> pinnedMessageIds, String invokingUser, EmbedOrMessageDefinition eventMessage) {
+        this.customId = configUUID != null ? BottomCustomIdUtils.createButtonCustomId(commandId, buttonValue, configUUID) : BottomCustomIdUtils.createButtonCustomIdWithoutConfigId(commandId, buttonValue);
         this.massageId = messageIdCounter.get();
         this.messageIdCounter = messageIdCounter;
         this.pinnedMessageIds = pinnedMessageIds;
         this.invokingUser = invokingUser;
+        this.eventMessage = eventMessage;
+    }
+
+    public ButtonEventAdaptorMock(String commandId, String buttonValue, UUID configUUID, AtomicLong messageIdCounter, Set<Long> pinnedMessageIds, String invokingUser) {
+        this(commandId, buttonValue, configUUID, messageIdCounter, pinnedMessageIds, invokingUser, null);
+
     }
 
     public ButtonEventAdaptorMock(String commandId, String buttonValue, AtomicLong messageIdCounter) {
@@ -49,6 +63,7 @@ public class ButtonEventAdaptorMock implements ButtonEventAdaptor {
         this.messageIdCounter = messageIdCounter;
         this.pinnedMessageIds = Set.of();
         this.invokingUser = "invokingUser";
+        this.eventMessage = null;
     }
 
     public ButtonEventAdaptorMock(String legacyId) {
@@ -57,10 +72,7 @@ public class ButtonEventAdaptorMock implements ButtonEventAdaptor {
         this.messageIdCounter = new AtomicLong(0);
         this.pinnedMessageIds = Set.of();
         this.invokingUser = "invokingUser";
-    }
-
-    public List<String> getActions() {
-        return actions;
+        this.eventMessage = null;
     }
 
     @Override
@@ -106,11 +118,7 @@ public class ButtonEventAdaptorMock implements ButtonEventAdaptor {
 
     @Override
     public @NonNull Mono<Long> createMessageWithoutReference(@NonNull EmbedOrMessageDefinition messageDefinition) {
-        actions.add(String.format("createMessageWithoutReference: content=%s, buttonValues=%s", messageDefinition.getDescriptionOrContent(), messageDefinition.getComponentRowDefinitions().stream()
-                .flatMap(r -> r.getButtonDefinitions().stream())
-                .map(ButtonDefinition::getId)
-                .map(BottomCustomIdUtils::getButtonValueFromCustomId)
-                .collect(Collectors.joining(","))));
+        actions.add(String.format("createMessageWithoutReference: %s", messageDefinition));
         return Mono.just(messageIdCounter.incrementAndGet());
     }
 
@@ -126,9 +134,7 @@ public class ButtonEventAdaptorMock implements ButtonEventAdaptor {
 
     @Override
     public Mono<Void> createResultMessageWithReference(EmbedOrMessageDefinition answer, Long targetChannelId) {
-        actions.add(String.format("createResultMessageWithReference: title=%s, description=%s, fieldValues:%s, answerChannel:%s, type:%s", answer.getTitle(), answer.getDescriptionOrContent(), answer.getFields().stream()
-                .map(EmbedOrMessageDefinition.Field::getValue)
-                .collect(Collectors.joining(",")), targetChannelId, answer.getType()));
+        actions.add(String.format("createResultMessageWithReference: %s, targetChannelId: %s", answer, targetChannelId));
         return Mono.just("").then();
     }
 
@@ -170,10 +176,6 @@ public class ButtonEventAdaptorMock implements ButtonEventAdaptor {
     @Override
     public EmbedOrMessageDefinition getMessageDefinitionOfEventMessageWithoutButtons() {
         actions.add("getMessageDefinitionOfEventMessageWithoutButtons");
-        return EmbedOrMessageDefinition.builder()
-                .type(EmbedOrMessageDefinition.Type.EMBED)
-                .title("ButtonMessageTitle")
-                .descriptionOrContent("ButtonMessageDescription")
-                .build();
+        return eventMessage;
     }
 }

@@ -418,7 +418,7 @@ class SumDiceSetCommandTest {
         PersistenceManager persistenceManager = new PersistenceManagerImpl("jdbc:h2:mem:" + UUID.randomUUID(), null, null);
         underTest = new SumDiceSetCommand(persistenceManager, mock(DiceUtils.class));
         underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
-        UUID configUUID = UUID.randomUUID();
+        UUID configUUID = UUID.fromString("00000000-0000-0000-0000-000000000001");
         long channelId = System.currentTimeMillis();
         long messageId = System.currentTimeMillis();
         Config config = new Config(123L, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"));

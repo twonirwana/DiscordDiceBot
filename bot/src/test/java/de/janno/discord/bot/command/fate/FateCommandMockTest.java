@@ -41,9 +41,9 @@ public class FateCommandMockTest {
 
         assertThat(click1.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:processing ..., buttonValues=",
-                "createResultMessageWithReference: title=4dF ⇒ -1, description=[▢,＋,−,−], fieldValues:, answerChannel:null, type:EMBED",
-                "createMessageWithoutReference: content=Click a button to roll four fate dice, buttonValues=roll",
-                "deleteMessageById: 0");
+                "createResultMessageWithReference: EmbedOrMessageDefinition(title=4dF ⇒ -1, descriptionOrContent=[▢,＋,−,−], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED), targetChannelId: null",
+                "deleteMessageById: 0",
+                "createMessageWithoutReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click a button to roll four fate dice, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Roll 4dF, id=fateroll00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE)");
     }
 
     @Test
@@ -59,9 +59,9 @@ public class FateCommandMockTest {
 
         assertThat(click1.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:processing ..., buttonValues=",
-                "createResultMessageWithReference: title=null, description=__**4dF ⇒ -1**__  [▢,＋,−,−], fieldValues:, answerChannel:null, type:MESSAGE",
-                "createMessageWithoutReference: content=Click a button to roll four fate dice, buttonValues=roll",
-                "deleteMessageById: 0");
+                "createResultMessageWithReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=__**4dF ⇒ -1**__  [▢,＋,−,−], fields=[], componentRowDefinitions=[], hasImage=false, type=MESSAGE), targetChannelId: null",
+                "deleteMessageById: 0",
+                "createMessageWithoutReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click a button to roll four fate dice, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Roll 4dF, id=fateroll00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE)");
     }
 
     @Test
@@ -77,9 +77,10 @@ public class FateCommandMockTest {
 
         assertThat(click1.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:processing ..., buttonValues=",
-                "createResultMessageWithReference: title=null, description=4dF ⇒ -1, fieldValues:, answerChannel:null, type:MESSAGE",
-                "createMessageWithoutReference: content=Click a button to roll four fate dice, buttonValues=roll",
-                "deleteMessageById: 0");
+                "createResultMessageWithReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=4dF ⇒ -1, fields=[], componentRowDefinitions=[], hasImage=false, type=MESSAGE), targetChannelId: null",
+                "deleteMessageById: 0",
+                "createMessageWithoutReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click a button to roll four fate dice, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Roll 4dF, id=fateroll00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE)"
+        );
     }
 
     @Test
@@ -95,9 +96,10 @@ public class FateCommandMockTest {
 
         assertThat(click1.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:processing ..., buttonValues=",
-                "createResultMessageWithReference: title=4dF +3 ⇒ 2, description=[▢,＋,−,−], fieldValues:, answerChannel:null, type:EMBED",
-                "createMessageWithoutReference: content=Click a button to roll four fate dice and add the value of the button, buttonValues=-4,-3,-2,-1,0,1,2,3,4,5,6,7,8,9,10",
-                "deleteMessageById: 0");
+                "createResultMessageWithReference: EmbedOrMessageDefinition(title=4dF +3 ⇒ 2, descriptionOrContent=[▢,＋,−,−], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED), targetChannelId: null",
+                "deleteMessageById: 0",
+                "createMessageWithoutReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click a button to roll four fate dice and add the value of the button, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=-4, id=fate-400000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=-3, id=fate-300000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=-2, id=fate-200000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=-1, id=fate-100000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=0, id=fate000000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)]), ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=+1, id=fate100000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=+2, id=fate200000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=+3, id=fate300000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=+4, id=fate400000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=+5, id=fate500000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)]), ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=+6, id=fate600000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=+7, id=fate700000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=+8, id=fate800000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=+9, id=fate900000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=+10, id=fate1000000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE)"
+        );
     }
 
     @Test
@@ -113,9 +115,10 @@ public class FateCommandMockTest {
 
         assertThat(click1.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:processing ..., buttonValues=",
-                "createResultMessageWithReference: title=null, description=__**4dF +3 ⇒ 2**__  [▢,＋,−,−], fieldValues:, answerChannel:null, type:MESSAGE",
-                "createMessageWithoutReference: content=Click a button to roll four fate dice and add the value of the button, buttonValues=-4,-3,-2,-1,0,1,2,3,4,5,6,7,8,9,10",
-                "deleteMessageById: 0");
+                "createResultMessageWithReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=__**4dF +3 ⇒ 2**__  [▢,＋,−,−], fields=[], componentRowDefinitions=[], hasImage=false, type=MESSAGE), targetChannelId: null",
+                "deleteMessageById: 0",
+                "createMessageWithoutReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click a button to roll four fate dice and add the value of the button, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=-4, id=fate-400000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=-3, id=fate-300000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=-2, id=fate-200000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=-1, id=fate-100000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=0, id=fate000000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)]), ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=+1, id=fate100000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=+2, id=fate200000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=+3, id=fate300000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=+4, id=fate400000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=+5, id=fate500000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)]), ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=+6, id=fate600000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=+7, id=fate700000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=+8, id=fate800000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=+9, id=fate900000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=+10, id=fate1000000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE)"
+        );
     }
 
     @Test
@@ -131,8 +134,9 @@ public class FateCommandMockTest {
 
         assertThat(click1.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:processing ..., buttonValues=",
-                "createResultMessageWithReference: title=null, description=4dF +3 ⇒ 2, fieldValues:, answerChannel:null, type:MESSAGE",
-                "createMessageWithoutReference: content=Click a button to roll four fate dice and add the value of the button, buttonValues=-4,-3,-2,-1,0,1,2,3,4,5,6,7,8,9,10",
-                "deleteMessageById: 0");
+                "createResultMessageWithReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=4dF +3 ⇒ 2, fields=[], componentRowDefinitions=[], hasImage=false, type=MESSAGE), targetChannelId: null",
+                "deleteMessageById: 0",
+                "createMessageWithoutReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click a button to roll four fate dice and add the value of the button, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=-4, id=fate-400000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=-3, id=fate-300000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=-2, id=fate-200000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=-1, id=fate-100000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=0, id=fate000000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)]), ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=+1, id=fate100000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=+2, id=fate200000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=+3, id=fate300000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=+4, id=fate400000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=+5, id=fate500000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)]), ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=+6, id=fate600000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=+7, id=fate700000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=+8, id=fate800000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=+9, id=fate900000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=+10, id=fate1000000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE)"
+        );
     }
 }
