@@ -54,6 +54,7 @@ public class PolyhedralSvgWithColor implements ImageProvider {
             .put("magenta", Color.magenta)
             .put("cyan", Color.cyan)
             .put("blue", Color.blue)
+            .put("indigo", new Color(	75, 0, 130))
             .build();
 
 
