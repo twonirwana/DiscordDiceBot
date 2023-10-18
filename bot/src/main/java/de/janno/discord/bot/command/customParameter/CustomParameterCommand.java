@@ -17,7 +17,6 @@ import de.janno.discord.connector.api.BottomCustomIdUtils;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
-import de.janno.discord.connector.api.message.MessageDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinitionOption;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import lombok.NonNull;
@@ -320,9 +319,10 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     }
 
     @Override
-    public @NonNull MessageDefinition createNewButtonMessage(UUID configUUID, CustomParameterConfig config) {
-        return MessageDefinition.builder()
-                .content(formatMessageContent(config, null, null))
+    public @NonNull EmbedOrMessageDefinition createNewButtonMessage(UUID configUUID, CustomParameterConfig config) {
+        return EmbedOrMessageDefinition.builder()
+                .type(EmbedOrMessageDefinition.Type.MESSAGE)
+                .descriptionOrContent(formatMessageContent(config, null, null))
                 .componentRowDefinitions(getButtonLayoutWithOptionalState(configUUID, config, null))
                 .build();
     }
@@ -404,10 +404,10 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     }
 
     @Override
-    protected @NonNull Optional<MessageDefinition> createNewButtonMessageWithState(UUID configUUID, CustomParameterConfig config, State<CustomParameterStateData> state, long guildId, long channelId) {
+    protected @NonNull Optional<EmbedOrMessageDefinition> createNewButtonMessageWithState(UUID configUUID, CustomParameterConfig config, State<CustomParameterStateData> state, long guildId, long channelId) {
         if (!hasMissingParameter(state)) {
-            return Optional.of(MessageDefinition.builder()
-                    .content(formatMessageContent(config, state, null))
+            return Optional.of(EmbedOrMessageDefinition.builder()
+                    .descriptionOrContent(formatMessageContent(config, state, null))
                     .componentRowDefinitions(getButtonLayoutWithOptionalState(configUUID, config, null))
                     .build());
         }

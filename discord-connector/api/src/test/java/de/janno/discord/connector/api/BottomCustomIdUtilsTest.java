@@ -53,7 +53,7 @@ class BottomCustomIdUtilsTest {
 
     @Test
     void getCommandNameFromCustomIdWithPersistence() {
-        String res = BottomCustomIdUtils.getCommandNameFromCustomIdWithPersistence("a\u001eb");
+        String res = BottomCustomIdUtils.getCommandNameFromCustomId("a\u001eb");
 
         assertThat(res).isEqualTo("a");
     }

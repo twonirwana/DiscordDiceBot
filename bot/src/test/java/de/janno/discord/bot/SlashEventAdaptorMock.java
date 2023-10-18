@@ -3,8 +3,8 @@ package de.janno.discord.bot;
 import de.janno.discord.connector.api.Requester;
 import de.janno.discord.connector.api.SlashEventAdaptor;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
-import de.janno.discord.connector.api.message.MessageDefinition;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
+import lombok.Getter;
 import lombok.NonNull;
 import reactor.core.publisher.Mono;
 
@@ -18,7 +18,10 @@ public class SlashEventAdaptorMock implements SlashEventAdaptor {
     public static final long CHANNEL_ID = 1L;
     public static final long GUILD_ID = 1L;
     public final List<CommandInteractionOption> commandInteractionOptions;
+    @Getter
     private final List<String> actions = new ArrayList<>();
+    @Getter
+    private final List<EmbedOrMessageDefinition> allReplays = new ArrayList<>();
     private final long userId;
 
     public SlashEventAdaptorMock(List<CommandInteractionOption> commandInteractionOptions) {
@@ -28,10 +31,6 @@ public class SlashEventAdaptorMock implements SlashEventAdaptor {
     public SlashEventAdaptorMock(List<CommandInteractionOption> commandInteractionOptions, long userId) {
         this.commandInteractionOptions = commandInteractionOptions;
         this.userId = userId;
-    }
-
-    public List<String> getActions() {
-        return actions;
     }
 
     @Override
@@ -47,7 +46,7 @@ public class SlashEventAdaptorMock implements SlashEventAdaptor {
 
     @Override
     public @NonNull Mono<Void> deleteMessageById(long messageId) {
-        actions.add(String.format("delete: %d", messageId));
+        actions.add(String.format("deleteMessageById: %d", messageId));
         return Mono.just("").then();
     }
 
@@ -71,14 +70,15 @@ public class SlashEventAdaptorMock implements SlashEventAdaptor {
     }
 
     @Override
-    public Mono<Void> replyEmbed(@NonNull EmbedOrMessageDefinition embedOrMessageDefinition, boolean ephemeral) {
-        actions.add(String.format("replyEmbed: %s", embedOrMessageDefinition));
+    public Mono<Void> replyWithEmbedOrMessageDefinition(@NonNull EmbedOrMessageDefinition messageDefinition, boolean ephemeral) {
+        allReplays.add(messageDefinition);
+        actions.add(String.format("replyWithEmbedOrMessageDefinition: %s", messageDefinition));
         return Mono.just("").then();
     }
 
     @Override
-    public @NonNull Mono<Long> createButtonMessage(@NonNull MessageDefinition messageDefinition) {
-        actions.add(String.format("createButtonMessage: %s", messageDefinition));
+    public @NonNull Mono<Long> createMessageWithoutReference(@NonNull EmbedOrMessageDefinition messageDefinition) {
+        actions.add(String.format("createMessageWithoutReference: %s", messageDefinition));
         return Mono.just(1L);
     }
 
@@ -98,8 +98,8 @@ public class SlashEventAdaptorMock implements SlashEventAdaptor {
     }
 
     @Override
-    public Mono<Void> createResultMessageWithEventReference(EmbedOrMessageDefinition answer) {
-        actions.add(String.format("createResultMessageWithEventReference: %s", answer));
+    public Mono<Void> createResultMessageWithReference(EmbedOrMessageDefinition answer) {
+        actions.add(String.format("createResultMessageWithReference: %s", answer));
         return Mono.just("").then();
     }
 

@@ -44,18 +44,12 @@ public class DirectRollCommand implements SlashCommand {
     public static final String ROLL_COMMAND_ID = "r";
     protected static final String ACTION_EXPRESSION = "expression";
     private static final String HELP = "help";
-    protected final boolean removeSlash;
     private final DiceEvaluatorAdapter diceEvaluatorAdapter;
     private final PersistenceManager persistenceManager;
 
     public DirectRollCommand(PersistenceManager persistenceManager, CachingDiceEvaluator cachingDiceEvaluator) {
-        this(persistenceManager, cachingDiceEvaluator, true);
-    }
-
-    public DirectRollCommand(PersistenceManager persistenceManager, CachingDiceEvaluator cachingDiceEvaluator, boolean removeSlash) {
         this.diceEvaluatorAdapter = new DiceEvaluatorAdapter(cachingDiceEvaluator);
         this.persistenceManager = persistenceManager;
-        this.removeSlash = removeSlash;
     }
 
     @Override
@@ -107,9 +101,9 @@ public class DirectRollCommand implements SlashCommand {
                     .orElseThrow();
             if (commandParameter.equals(HELP)) {
                 BotMetrics.incrementSlashHelpMetricCounter(getCommandId());
-                return event.replyEmbed(EmbedOrMessageDefinition.builder()
-                        .descriptionOrContent("Type /r and a dice expression, configuration with /channel_config\n" + DiceEvaluatorAdapter.getHelp())
-                        .field(new EmbedOrMessageDefinition.Field("Example", "`/r expression:1d6`", false))
+                return event.replyWithEmbedOrMessageDefinition(EmbedOrMessageDefinition.builder()
+                        .descriptionOrContent("Type /%s and a dice expression, configuration with /channel_config\n%s".formatted(getCommandId(), DiceEvaluatorAdapter.getHelp()))
+                        .field(new EmbedOrMessageDefinition.Field("Example", "`/%s expression:1d6`".formatted(getCommandId()), false))
                         .field(new EmbedOrMessageDefinition.Field("Full documentation", "https://github.com/twonirwana/DiscordDiceBot", false))
                         .field(new EmbedOrMessageDefinition.Field("Discord Server for Help and News", "https://discord.gg/e43BsqKpFr", false))
                         .build(), true);
@@ -131,25 +125,33 @@ public class DirectRollCommand implements SlashCommand {
             BotMetrics.incrementAnswerFormatCounter(config.getAnswerFormatType(), getCommandId());
 
             RollAnswer answer = diceEvaluatorAdapter.answerRollWithOptionalLabelInExpression(expressionWithOptionalLabelsAndAppliedAliases, DiceSystemAdapter.LABEL_DELIMITER, config.isAlwaysSumResult(), config.getAnswerFormatType(), config.getDiceStyleAndColor());
+            return createResponse(event, commandString, diceExpression, answer, stopwatch);
 
-            String replayMessage = Stream.of(commandString, answer.getWarning())
-                    .filter(s -> !Strings.isNullOrEmpty(s))
-                    .collect(Collectors.joining(" "));
-            return Flux.merge(removeSlash && Strings.isNullOrEmpty(answer.getWarning()) ? Mono.defer(event::acknowledgeAndRemoveSlash) : event.reply(replayMessage, true),
-                            Mono.defer(() -> event.createResultMessageWithEventReference(RollAnswerConverter.toEmbedOrMessageDefinition(answer))
-                                    .doOnSuccess(v ->
-                                            log.info("{}: '{}'={} -> {} in {}ms",
-                                                    event.getRequester().toLogString(),
-                                                    commandString.replace("`", ""),
-                                                    diceExpression,
-                                                    answer.toShortString(),
-                                                    stopwatch.elapsed(TimeUnit.MILLISECONDS)
-                                            )))
-                    )
-                    .parallel().then();
         }
 
         return Mono.empty();
+    }
+
+    protected @NonNull Mono<Void> createResponse(@NonNull SlashEventAdaptor event,
+                                                 @NonNull String commandString,
+                                                 @NonNull String diceExpression,
+                                                 @NonNull RollAnswer answer,
+                                                 @NonNull Stopwatch stopwatch) {
+        String replayMessage = Stream.of(commandString, answer.getWarning())
+                .filter(s -> !Strings.isNullOrEmpty(s))
+                .collect(Collectors.joining(" "));
+        return Flux.merge(Strings.isNullOrEmpty(answer.getWarning()) ? Mono.defer(event::acknowledgeAndRemoveSlash) : event.reply(replayMessage, true),
+                        Mono.defer(() -> event.createResultMessageWithReference(RollAnswerConverter.toEmbedOrMessageDefinition(answer))
+                                .doOnSuccess(v ->
+                                        log.info("{}: '{}'={} -> {} in {}ms",
+                                                event.getRequester().toLogString(),
+                                                commandString.replace("`", ""),
+                                                diceExpression,
+                                                answer.toShortString(),
+                                                stopwatch.elapsed(TimeUnit.MILLISECONDS)
+                                        )))
+                )
+                .parallel().then();
     }
 
     private Mono<Void> replyValidationMessage(@NonNull SlashEventAdaptor event, @NonNull String validationMessage, @NonNull String commandString) {

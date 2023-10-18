@@ -8,6 +8,7 @@ import de.janno.discord.bot.command.countSuccesses.CountSuccessesCommand;
 import de.janno.discord.bot.command.customDice.CustomDiceCommand;
 import de.janno.discord.bot.command.customParameter.CustomParameterCommand;
 import de.janno.discord.bot.command.directRoll.DirectRollCommand;
+import de.janno.discord.bot.command.directRoll.HiddenDirectRollCommand;
 import de.janno.discord.bot.command.directRoll.ValidationCommand;
 import de.janno.discord.bot.command.fate.FateCommand;
 import de.janno.discord.bot.command.help.HelpCommand;
@@ -73,6 +74,7 @@ public class Bot {
                         customDiceCommand,
                         fateCommand,
                         new DirectRollCommand(persistenceManager, cachingDiceEvaluator),
+                        new HiddenDirectRollCommand(persistenceManager, cachingDiceEvaluator),
                         new ValidationCommand(persistenceManager, cachingDiceEvaluator),
                         new ChannelConfigCommand(persistenceManager),
                         new SumDiceSetCommand(persistenceManager),

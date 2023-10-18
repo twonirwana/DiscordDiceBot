@@ -1,8 +1,5 @@
 package de.janno.discord.bot.dice.image;
 
-import com.google.common.hash.HashCode;
-import com.google.common.hash.Hashing;
-import com.google.common.io.ByteSource;
 import de.janno.discord.bot.dice.image.provider.PolyhedralSvgWithColor;
 import org.assertj.core.util.Files;
 import org.junit.jupiter.api.Test;
@@ -18,12 +15,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class DrawImageTest {
 
     PolyhedralSvgWithColor underTest = new PolyhedralSvgWithColor();
-
-    private static String getFileHash(File file) throws IOException {
-        ByteSource byteSource = com.google.common.io.Files.asByteSource(file);
-        HashCode hc = byteSource.hash(Hashing.sha256());
-        return hc.toString();
-    }
 
     @Test
     public void test_noColor() throws IOException {

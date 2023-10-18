@@ -17,7 +17,6 @@ import de.janno.discord.connector.api.BottomCustomIdUtils;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
-import de.janno.discord.connector.api.message.MessageDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinitionOption;
 import de.janno.discord.connector.api.slash.CommandDefinitionOptionChoice;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
@@ -230,7 +229,7 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesConfig,
     }
 
     @Override
-    protected @NonNull Optional<MessageDefinition> createNewButtonMessageWithState(UUID configUUID, CountSuccessesConfig config, State<StateData> state, long guildId, long channelId) {
+    protected @NonNull Optional<EmbedOrMessageDefinition> createNewButtonMessageWithState(UUID configUUID, CountSuccessesConfig config, State<StateData> state, long guildId, long channelId) {
         return Optional.of(createNewButtonMessage(configUUID, config));
     }
 
@@ -243,10 +242,11 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesConfig,
     }
 
     @Override
-    public @NonNull MessageDefinition createNewButtonMessage(UUID configUUID, CountSuccessesConfig config) {
+    public @NonNull EmbedOrMessageDefinition createNewButtonMessage(UUID configUUID, CountSuccessesConfig config) {
 
-        return MessageDefinition.builder()
-                .content(String.format("Click to roll the dice against %s%s%s%s", config.getTarget(), getRerollDescription(config), getBotchDescription(config), getGlitchDescription(config)))
+        return EmbedOrMessageDefinition.builder()
+                .type(EmbedOrMessageDefinition.Type.MESSAGE)
+                .descriptionOrContent(String.format("Click to roll the dice against %s%s%s%s", config.getTarget(), getRerollDescription(config), getBotchDescription(config), getGlitchDescription(config)))
                 .componentRowDefinitions(createButtonLayout(configUUID, config))
                 .build();
     }

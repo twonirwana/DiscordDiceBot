@@ -39,7 +39,7 @@ class FateCommandTest {
     @Test
     void getButtonMessage_modifier() {
         String res = underTest.createNewButtonMessage(UUID.fromString("00000000-0000-0000-0000-000000000000"), new FateConfig(null, "with_modifier", AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none")))
-                .getContent();
+                .getDescriptionOrContent();
 
         assertThat(res).isEqualTo("Click a button to roll four fate dice and add the value of the button");
     }
@@ -47,7 +47,7 @@ class FateCommandTest {
     @Test
     void getButtonMessage_simple() {
         String res = underTest.createNewButtonMessage(UUID.fromString("00000000-0000-0000-0000-000000000000"), new FateConfig(null, "simple", AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none")))
-                .getContent();
+                .getDescriptionOrContent();
 
         assertThat(res).isEqualTo("Click a button to roll four fate dice");
     }
@@ -55,7 +55,7 @@ class FateCommandTest {
     @Test
     void getButtonMessageWithState_modifier() {
         String res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), new FateConfig(null, "with_modifier", AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none")), new State<>("0", StateData.empty()), 1, 2)
-                .orElseThrow().getContent();
+                .orElseThrow().getDescriptionOrContent();
 
         assertThat(res).isEqualTo("Click a button to roll four fate dice and add the value of the button");
     }
@@ -63,7 +63,7 @@ class FateCommandTest {
     @Test
     void getButtonMessageWithState_simple() {
         String res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), new FateConfig(null, "simple", AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none")), new State<>("0", StateData.empty()), 1, 2)
-                .orElseThrow().getContent();
+                .orElseThrow().getDescriptionOrContent();
 
         assertThat(res).isEqualTo("Click a button to roll four fate dice");
     }

@@ -22,18 +22,15 @@ import org.junit.jupiter.api.Test;
 import java.time.Duration;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicLong;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class SumCustomSetCommandMockTest {
 
     PersistenceManager persistenceManager;
-    AtomicLong messageIdCounter;
 
     @BeforeEach
     void setup() {
-        messageIdCounter = new AtomicLong(0);
         persistenceManager = new PersistenceManagerImpl("jdbc:h2:mem:" + UUID.randomUUID(), null, null);
     }
 
@@ -59,9 +56,10 @@ public class SumCustomSetCommandMockTest {
                 "editMessage: message:invokingUser: +1d6+2, buttonValues=1_button,2_button,roll,clear,back");
         assertThat(click3.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back",
-                "createAnswer: title=+1d6+2 ⇒ 3, description=[1], fieldValues:, answerChannel:null, type:EMBED",
-                "createButtonMessage: content=Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back",
-                "deleteMessageById: 0");
+                "createResultMessageWithReference: EmbedOrMessageDefinition(title=+1d6+2 ⇒ 3, descriptionOrContent=[1], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED), targetChannelId: null",
+                "deleteMessageById: 0",
+                "createMessageWithoutReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click the buttons to add dice to the set and then on Roll, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=sum_custom_set1_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=bonus, id=sum_custom_set2_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=Roll, id=sum_custom_setroll00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=true), ButtonDefinition(label=Clear, id=sum_custom_setclear00000000-0000-0000-0000-000000000000, style=DANGER, disabled=false), ButtonDefinition(label=Back, id=sum_custom_setback00000000-0000-0000-0000-000000000000, style=SECONDARY, disabled=false)])], hasImage=false, type=EMBED)"
+        );
     }
 
     @Test
@@ -86,9 +84,10 @@ public class SumCustomSetCommandMockTest {
                 "editMessage: message:invokingUser: +1d6+2, buttonValues=1_button,2_button,roll,clear,back");
         assertThat(click3.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back",
-                "createAnswer: title=null, description=__**+1d6+2 ⇒ 3**__  [1], fieldValues:, answerChannel:null, type:MESSAGE",
-                "createButtonMessage: content=Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back",
-                "deleteMessageById: 0");
+                "createResultMessageWithReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=__**+1d6+2 ⇒ 3**__  [1], fields=[], componentRowDefinitions=[], hasImage=false, type=MESSAGE), targetChannelId: null",
+                "deleteMessageById: 0",
+                "createMessageWithoutReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click the buttons to add dice to the set and then on Roll, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=sum_custom_set1_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=bonus, id=sum_custom_set2_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=Roll, id=sum_custom_setroll00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=true), ButtonDefinition(label=Clear, id=sum_custom_setclear00000000-0000-0000-0000-000000000000, style=DANGER, disabled=false), ButtonDefinition(label=Back, id=sum_custom_setback00000000-0000-0000-0000-000000000000, style=SECONDARY, disabled=false)])], hasImage=false, type=EMBED)"
+        );
     }
 
     @Test
@@ -113,9 +112,10 @@ public class SumCustomSetCommandMockTest {
                 "editMessage: message:invokingUser: +1d6+2, buttonValues=1_button,2_button,roll,clear,back");
         assertThat(click3.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back",
-                "createAnswer: title=null, description=+1d6+2 ⇒ 3, fieldValues:, answerChannel:null, type:MESSAGE",
-                "createButtonMessage: content=Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back",
-                "deleteMessageById: 0");
+                "createResultMessageWithReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=+1d6+2 ⇒ 3, fields=[], componentRowDefinitions=[], hasImage=false, type=MESSAGE), targetChannelId: null",
+                "deleteMessageById: 0",
+                "createMessageWithoutReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click the buttons to add dice to the set and then on Roll, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=sum_custom_set1_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=bonus, id=sum_custom_set2_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=Roll, id=sum_custom_setroll00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=true), ButtonDefinition(label=Clear, id=sum_custom_setclear00000000-0000-0000-0000-000000000000, style=DANGER, disabled=false), ButtonDefinition(label=Back, id=sum_custom_setback00000000-0000-0000-0000-000000000000, style=SECONDARY, disabled=false)])], hasImage=false, type=EMBED)"
+        );
     }
 
     @Test
@@ -144,9 +144,10 @@ public class SumCustomSetCommandMockTest {
                 "editMessage: message:invokingUser: +1d6+2, buttonValues=1_button,2_button,roll,clear,back");
         assertThat(click4.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back",
-                "createAnswer: title=null, description=+1d6+2 ⇒ 3, fieldValues:, answerChannel:null, type:MESSAGE",
-                "createButtonMessage: content=Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back",
-                "deleteMessageById: 0");
+                "createResultMessageWithReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=+1d6+2 ⇒ 3, fields=[], componentRowDefinitions=[], hasImage=false, type=MESSAGE), targetChannelId: null",
+                "deleteMessageById: 0",
+                "createMessageWithoutReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click the buttons to add dice to the set and then on Roll, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=sum_custom_set1_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=bonus, id=sum_custom_set2_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=Roll, id=sum_custom_setroll00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=true), ButtonDefinition(label=Clear, id=sum_custom_setclear00000000-0000-0000-0000-000000000000, style=DANGER, disabled=false), ButtonDefinition(label=Back, id=sum_custom_setback00000000-0000-0000-0000-000000000000, style=SECONDARY, disabled=false)])], hasImage=false, type=EMBED)"
+        );
     }
 
     @Test
@@ -215,8 +216,9 @@ public class SumCustomSetCommandMockTest {
                 "editMessage: message:invokingUser: +1d6+2, buttonValues=1_button,2_button,roll,clear,back");
         assertThat(click3.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back",
-                "createAnswer: title=+1d6+2 ⇒ 3, description=[1], fieldValues:, answerChannel:null, type:EMBED",
-                "createButtonMessage: content=Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back");
+                "createResultMessageWithReference: EmbedOrMessageDefinition(title=+1d6+2 ⇒ 3, descriptionOrContent=[1], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED), targetChannelId: null",
+                "createMessageWithoutReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click the buttons to add dice to the set and then on Roll, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=sum_custom_set1_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=bonus, id=sum_custom_set2_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=Roll, id=sum_custom_setroll00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=true), ButtonDefinition(label=Clear, id=sum_custom_setclear00000000-0000-0000-0000-000000000000, style=DANGER, disabled=false), ButtonDefinition(label=Back, id=sum_custom_setback00000000-0000-0000-0000-000000000000, style=SECONDARY, disabled=false)])], hasImage=false, type=EMBED)"
+        );
     }
 
     @Test
@@ -241,7 +243,7 @@ public class SumCustomSetCommandMockTest {
                 "editMessage: message:invokingUser: +1d6+2, buttonValues=1_button,2_button,roll,clear,back");
         assertThat(click3.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back",
-                "createAnswer: title=+1d6+2 ⇒ 3, description=[1], fieldValues:, answerChannel:2, type:EMBED"
+                "createResultMessageWithReference: EmbedOrMessageDefinition(title=+1d6+2 ⇒ 3, descriptionOrContent=[1], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED), targetChannelId: 2"
         );
     }
 
@@ -271,15 +273,16 @@ public class SumCustomSetCommandMockTest {
                 "editMessage: message:invokingUser: +1d6+2, buttonValues=1_button,2_button,roll,clear,back");
         assertThat(click3.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back",
-                "createAnswer: title=+1d6+2 ⇒ 3, description=[1], fieldValues:, answerChannel:null, type:EMBED",
-                "createButtonMessage: content=Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back");
+                "createResultMessageWithReference: EmbedOrMessageDefinition(title=+1d6+2 ⇒ 3, descriptionOrContent=[1], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED), targetChannelId: null",
+                "createMessageWithoutReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click the buttons to add dice to the set and then on Roll, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=sum_custom_set1_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=bonus, id=sum_custom_set2_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=Roll, id=sum_custom_setroll00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=true), ButtonDefinition(label=Clear, id=sum_custom_setclear00000000-0000-0000-0000-000000000000, style=DANGER, disabled=false), ButtonDefinition(label=Back, id=sum_custom_setback00000000-0000-0000-0000-000000000000, style=SECONDARY, disabled=false)])], hasImage=false, type=EMBED)"
+        );
         assertThat(click4.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:invokingUser: +1d6, buttonValues=1_button,2_button,roll,clear,back");
         assertThat(click5.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back",
-                "createAnswer: title=+1d6 ⇒ 4, description=[4], fieldValues:, answerChannel:null, type:EMBED",
-                "createButtonMessage: content=Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back",
+                "createResultMessageWithReference: EmbedOrMessageDefinition(title=+1d6 ⇒ 4, descriptionOrContent=[4], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED), targetChannelId: null",
                 "deleteMessageById: 1",
+                "createMessageWithoutReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click the buttons to add dice to the set and then on Roll, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=sum_custom_set1_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=bonus, id=sum_custom_set2_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=Roll, id=sum_custom_setroll00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=true), ButtonDefinition(label=Clear, id=sum_custom_setclear00000000-0000-0000-0000-000000000000, style=DANGER, disabled=false), ButtonDefinition(label=Back, id=sum_custom_setback00000000-0000-0000-0000-000000000000, style=SECONDARY, disabled=false)])], hasImage=false, type=EMBED)",
                 "getMessagesState: [0]");
     }
 
@@ -309,13 +312,13 @@ public class SumCustomSetCommandMockTest {
                 "editMessage: message:invokingUser: +1d6+2, buttonValues=1_button,2_button,roll,clear,back");
         assertThat(click3.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back",
-                "createAnswer: title=+1d6+2 ⇒ 3, description=[1], fieldValues:, answerChannel:2, type:EMBED"
+                "createResultMessageWithReference: EmbedOrMessageDefinition(title=+1d6+2 ⇒ 3, descriptionOrContent=[1], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED), targetChannelId: 2"
         );
         assertThat(click4.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:invokingUser: +1d6, buttonValues=1_button,2_button,roll,clear,back");
         assertThat(click5.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back",
-                "createAnswer: title=+1d6 ⇒ 4, description=[4], fieldValues:, answerChannel:2, type:EMBED"
+                "createResultMessageWithReference: EmbedOrMessageDefinition(title=+1d6 ⇒ 4, descriptionOrContent=[4], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED), targetChannelId: 2"
         );
     }
 
@@ -350,9 +353,9 @@ public class SumCustomSetCommandMockTest {
         );
         assertThat(click2.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,roll,clear,back",
-                "createAnswer: title=2d20+10 ⇒ 31, description=[11, 10], fieldValues:, answerChannel:null, type:EMBED",
+                "createResultMessageWithReference: EmbedOrMessageDefinition(title=2d20+10 ⇒ 31, descriptionOrContent=[11, 10], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED), targetChannelId: null",
                 "deleteMessageById: 0",
-                "createButtonMessage: content=Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,roll,clear,back"
+                "createMessageWithoutReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click the buttons to add dice to the set and then on Roll, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Attack, id=sum_custom_set1_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=Roll, id=sum_custom_setroll00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=true), ButtonDefinition(label=Clear, id=sum_custom_setclear00000000-0000-0000-0000-000000000000, style=DANGER, disabled=false), ButtonDefinition(label=Back, id=sum_custom_setback00000000-0000-0000-0000-000000000000, style=SECONDARY, disabled=false)])], hasImage=false, type=EMBED)"
         );
     }
 
@@ -387,9 +390,9 @@ public class SumCustomSetCommandMockTest {
         );
         assertThat(click2.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,roll,clear,back",
-                "createAnswer: title=2d20+10 ⇒ 31, description=[11, 10], fieldValues:, answerChannel:null, type:EMBED",
+                "createResultMessageWithReference: EmbedOrMessageDefinition(title=2d20+10 ⇒ 31, descriptionOrContent=[11, 10], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED), targetChannelId: null",
                 "deleteMessageById: 0",
-                "createButtonMessage: content=Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,roll,clear,back"
+                "createMessageWithoutReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click the buttons to add dice to the set and then on Roll, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Attack, id=sum_custom_set1_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=Roll, id=sum_custom_setroll00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=true), ButtonDefinition(label=Clear, id=sum_custom_setclear00000000-0000-0000-0000-000000000000, style=DANGER, disabled=false), ButtonDefinition(label=Back, id=sum_custom_setback00000000-0000-0000-0000-000000000000, style=SECONDARY, disabled=false)])], hasImage=false, type=EMBED)"
         );
     }
 }

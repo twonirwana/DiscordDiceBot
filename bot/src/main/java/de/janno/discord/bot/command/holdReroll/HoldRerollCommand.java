@@ -16,7 +16,6 @@ import de.janno.discord.connector.api.BottomCustomIdUtils;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
-import de.janno.discord.connector.api.message.MessageDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinitionOption;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import lombok.NonNull;
@@ -204,22 +203,23 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollConfig, HoldRer
     }
 
     @Override
-    public @NonNull MessageDefinition createNewButtonMessage(@NonNull UUID configUUID, HoldRerollConfig config) {
-        return MessageDefinition.builder()
-                .content(String.format("Click on the buttons to roll dice. Reroll set: %s, Success Set: %s and Failure Set: %s",
+    public @NonNull EmbedOrMessageDefinition createNewButtonMessage(@NonNull UUID configUUID, HoldRerollConfig config) {
+        return EmbedOrMessageDefinition.builder()
+                .type(EmbedOrMessageDefinition.Type.MESSAGE)
+                .descriptionOrContent(String.format("Click on the buttons to roll dice. Reroll set: %s, Success Set: %s and Failure Set: %s",
                         config.getRerollSet(), config.getSuccessSet(), config.getFailureSet()))
                 .componentRowDefinitions(createButtonLayout(configUUID, config))
                 .build();
     }
 
     @Override
-    protected @NonNull Optional<MessageDefinition> createNewButtonMessageWithState(@NonNull UUID configUUID, HoldRerollConfig config, State<HoldRerollStateData> state, long guildId, long channelId) {
+    protected @NonNull Optional<EmbedOrMessageDefinition> createNewButtonMessageWithState(@NonNull UUID configUUID, HoldRerollConfig config, State<HoldRerollStateData> state, long guildId, long channelId) {
         if (config.getRerollSet().isEmpty()
                 || CLEAR_BUTTON_ID.equals(state.getButtonValue())
                 || FINISH_BUTTON_ID.equals(state.getButtonValue())
                 || rollFinished(state, config)) {
-            return Optional.of(MessageDefinition.builder()
-                    .content(String.format("Click on the buttons to roll dice. Reroll set: %s, Success Set: %s and Failure Set: %s",
+            return Optional.of(EmbedOrMessageDefinition.builder()
+                    .descriptionOrContent(String.format("Click on the buttons to roll dice. Reroll set: %s, Success Set: %s and Failure Set: %s",
                             config.getRerollSet(), config.getSuccessSet(), config.getFailureSet()))
                     .componentRowDefinitions(getButtonLayoutWithState(configUUID, state, config))
                     .build());

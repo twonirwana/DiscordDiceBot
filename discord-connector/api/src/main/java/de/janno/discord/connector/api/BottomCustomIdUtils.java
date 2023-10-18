@@ -19,32 +19,32 @@ public final class BottomCustomIdUtils {
         return commandId + CUSTOM_ID_DELIMITER + buttonValue + CUSTOM_ID_DELIMITER + configUUID;
     }
 
+    static public @NonNull String createButtonCustomIdWithoutConfigId(@NonNull String commandId, @NonNull String buttonValue) {
+        return commandId + CUSTOM_ID_DELIMITER + buttonValue;
+    }
+
     public static boolean isLegacyCustomId(@NonNull String customId) {
         return !customId.contains(CUSTOM_ID_DELIMITER);
     }
 
     public static @NonNull String getButtonValueFromCustomId(@NonNull String customId) {
-        if (StringUtils.countMatches(customId, CUSTOM_ID_DELIMITER) == 1) {
-            return customId.split(CUSTOM_ID_DELIMITER)[BUTTON_VALUE_INDEX];
-        } else if (StringUtils.countMatches(customId, CUSTOM_ID_DELIMITER) == 2) {
+        if (StringUtils.countMatches(customId, CUSTOM_ID_DELIMITER) >= 1) {
             return customId.split(CUSTOM_ID_DELIMITER)[BUTTON_VALUE_INDEX];
         }
         throw new IllegalStateException("'%s' contains not the correct number of delimiter".formatted(customId));
     }
 
-    public static @NonNull String getCommandNameFromCustomIdWithPersistence(@NonNull String customId) {
-        if (StringUtils.countMatches(customId, CUSTOM_ID_DELIMITER) == 1) {
-            return customId.split(CUSTOM_ID_DELIMITER)[COMMAND_NAME_INDEX];
-        } else if (StringUtils.countMatches(customId, CUSTOM_ID_DELIMITER) == 2) {
+    public static @NonNull String getCommandNameFromCustomId(@NonNull String customId) {
+        if (StringUtils.countMatches(customId, CUSTOM_ID_DELIMITER) >= 1) {
             return customId.split(CUSTOM_ID_DELIMITER)[COMMAND_NAME_INDEX];
         }
         throw new IllegalStateException("'%s' contains not the correct number of delimiter".formatted(customId));
     }
 
-    public static @NonNull Optional<UUID> getConfigUUIDFromCustomIdWithPersistence(@NonNull String customId) {
+    public static @NonNull Optional<UUID> getConfigUUIDFromCustomId(@NonNull String customId) {
         if (StringUtils.countMatches(customId, CUSTOM_ID_DELIMITER) == 1) {
             return Optional.empty();
-        } else if (StringUtils.countMatches(customId, CUSTOM_ID_DELIMITER) == 2) {
+        } else if (StringUtils.countMatches(customId, CUSTOM_ID_DELIMITER) >= 2) {
             return Optional.of(UUID.fromString(customId.split(CUSTOM_ID_DELIMITER)[CONFIG_UUID_INDEX]));
         }
         throw new IllegalStateException("'%s' contains not the correct number of delimiter".formatted(customId));

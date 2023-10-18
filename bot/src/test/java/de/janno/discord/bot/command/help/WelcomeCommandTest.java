@@ -16,7 +16,7 @@ import de.janno.discord.bot.dice.image.DiceStyleAndColor;
 import de.janno.discord.bot.persistance.PersistenceManager;
 import de.janno.discord.connector.api.ButtonEventAdaptor;
 import de.janno.discord.connector.api.message.ButtonDefinition;
-import de.janno.discord.connector.api.message.MessageDefinition;
+import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinitionOption;
 import de.janno.evaluator.dice.random.RandomNumberSupplier;
@@ -52,10 +52,10 @@ class WelcomeCommandTest {
 
     @Test
     public void getButtonMessageWithState_fate() {
-        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), null, new State<>("fate", StateData.empty()), 1L, 2L);
-        Assertions.assertThat(res.map(MessageDefinition::getContent))
+        Optional<EmbedOrMessageDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), null, new State<>("fate", StateData.empty()), 1L, 2L);
+        Assertions.assertThat(res.map(EmbedOrMessageDefinition::getDescriptionOrContent))
                 .contains("Click a button to roll four fate dice and add the value of the button");
-        Assertions.assertThat(res.map(MessageDefinition::getComponentRowDefinitions)
+        Assertions.assertThat(res.map(EmbedOrMessageDefinition::getComponentRowDefinitions)
                         .stream()
                         .flatMap(Collection::stream)
                         .flatMap(s -> s.getButtonDefinitions().stream())
@@ -75,7 +75,7 @@ class WelcomeCommandTest {
                         "fate800000000-0000-0000-0000-000000000000",
                         "fate900000000-0000-0000-0000-000000000000",
                         "fate1000000000-0000-0000-0000-000000000000");
-        Assertions.assertThat(res.map(MessageDefinition::getComponentRowDefinitions)
+        Assertions.assertThat(res.map(EmbedOrMessageDefinition::getComponentRowDefinitions)
                         .stream()
                         .flatMap(Collection::stream)
                         .flatMap(s -> s.getButtonDefinitions().stream())
@@ -86,10 +86,10 @@ class WelcomeCommandTest {
 
     @Test
     public void getButtonMessageWithState_dnd5() {
-        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), null, new State<>("dnd5", StateData.empty()), 1L, 2L);
-        Assertions.assertThat(res.map(MessageDefinition::getContent))
+        Optional<EmbedOrMessageDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), null, new State<>("dnd5", StateData.empty()), 1L, 2L);
+        Assertions.assertThat(res.map(EmbedOrMessageDefinition::getDescriptionOrContent))
                 .contains("Click on a button to roll the dice");
-        Assertions.assertThat(res.map(MessageDefinition::getComponentRowDefinitions)
+        Assertions.assertThat(res.map(EmbedOrMessageDefinition::getComponentRowDefinitions)
                         .stream()
                         .flatMap(Collection::stream)
                         .flatMap(s -> s.getButtonDefinitions().stream())
@@ -109,7 +109,7 @@ class WelcomeCommandTest {
                         "custom_dice13_button00000000-0000-0000-0000-000000000000",
                         "custom_dice14_button00000000-0000-0000-0000-000000000000",
                         "custom_dice15_button00000000-0000-0000-0000-000000000000");
-        Assertions.assertThat(res.map(MessageDefinition::getComponentRowDefinitions)
+        Assertions.assertThat(res.map(EmbedOrMessageDefinition::getComponentRowDefinitions)
                         .stream()
                         .flatMap(Collection::stream)
                         .flatMap(s -> s.getButtonDefinitions().stream())
@@ -134,16 +134,16 @@ class WelcomeCommandTest {
 
     @Test
     public void getButtonMessageWithState_coin() {
-        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), null, new State<>("coin", StateData.empty()), 1L, 2L);
-        Assertions.assertThat(res.map(MessageDefinition::getContent))
+        Optional<EmbedOrMessageDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), null, new State<>("coin", StateData.empty()), 1L, 2L);
+        Assertions.assertThat(res.map(EmbedOrMessageDefinition::getDescriptionOrContent))
                 .contains("Click on a button to roll the dice");
-        Assertions.assertThat(res.map(MessageDefinition::getComponentRowDefinitions)
+        Assertions.assertThat(res.map(EmbedOrMessageDefinition::getComponentRowDefinitions)
                         .stream()
                         .flatMap(Collection::stream)
                         .flatMap(s -> s.getButtonDefinitions().stream())
                         .map(ButtonDefinition::getId))
                 .containsExactly("custom_dice1_button00000000-0000-0000-0000-000000000000");
-        Assertions.assertThat(res.map(MessageDefinition::getComponentRowDefinitions)
+        Assertions.assertThat(res.map(EmbedOrMessageDefinition::getComponentRowDefinitions)
                         .stream()
                         .flatMap(Collection::stream)
                         .flatMap(s -> s.getButtonDefinitions().stream())
@@ -153,11 +153,11 @@ class WelcomeCommandTest {
 
     @Test
     public void getButtonMessageWithState_nWoD() {
-        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), null, new State<>("nWoD", StateData.empty()), 1L, 2L);
+        Optional<EmbedOrMessageDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), null, new State<>("nWoD", StateData.empty()), 1L, 2L);
 
-        Assertions.assertThat(res.map(MessageDefinition::getContent))
+        Assertions.assertThat(res.map(EmbedOrMessageDefinition::getDescriptionOrContent))
                 .contains("Click to roll the dice against 8, reroll for: [10]");
-        Assertions.assertThat(res.map(MessageDefinition::getComponentRowDefinitions)
+        Assertions.assertThat(res.map(EmbedOrMessageDefinition::getComponentRowDefinitions)
                         .stream()
                         .flatMap(Collection::stream)
                         .flatMap(s -> s.getButtonDefinitions().stream())
@@ -177,7 +177,7 @@ class WelcomeCommandTest {
                         "count_successes1300000000-0000-0000-0000-000000000000",
                         "count_successes1400000000-0000-0000-0000-000000000000",
                         "count_successes1500000000-0000-0000-0000-000000000000");
-        Assertions.assertThat(res.map(MessageDefinition::getComponentRowDefinitions)
+        Assertions.assertThat(res.map(EmbedOrMessageDefinition::getComponentRowDefinitions)
                         .stream()
                         .flatMap(Collection::stream)
                         .flatMap(s -> s.getButtonDefinitions().stream())
@@ -187,10 +187,10 @@ class WelcomeCommandTest {
 
     @Test
     public void getButtonMessageWithState_oWoD() {
-        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), null, new State<>("oWoD", StateData.empty()), 1L, 2L);
-        Assertions.assertThat(res.map(MessageDefinition::getContent))
+        Optional<EmbedOrMessageDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), null, new State<>("oWoD", StateData.empty()), 1L, 2L);
+        Assertions.assertThat(res.map(EmbedOrMessageDefinition::getDescriptionOrContent))
                 .contains("Click on the buttons to roll dice, with ask reroll:10 and botch:1");
-        Assertions.assertThat(res.map(MessageDefinition::getComponentRowDefinitions)
+        Assertions.assertThat(res.map(EmbedOrMessageDefinition::getComponentRowDefinitions)
                         .stream()
                         .flatMap(Collection::stream)
                         .flatMap(s -> s.getButtonDefinitions().stream())
@@ -210,7 +210,7 @@ class WelcomeCommandTest {
                         "pool_target1300000000-0000-0000-0000-000000000000",
                         "pool_target1400000000-0000-0000-0000-000000000000",
                         "pool_target1500000000-0000-0000-0000-000000000000");
-        Assertions.assertThat(res.map(MessageDefinition::getComponentRowDefinitions)
+        Assertions.assertThat(res.map(EmbedOrMessageDefinition::getComponentRowDefinitions)
                         .stream()
                         .flatMap(Collection::stream)
                         .flatMap(s -> s.getButtonDefinitions().stream())
@@ -222,10 +222,10 @@ class WelcomeCommandTest {
 
     @Test
     public void getButtonMessageWithState_Shadowrun() {
-        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), null, new State<>("shadowrun", StateData.empty()), 1L, 2L);
-        Assertions.assertThat(res.map(MessageDefinition::getContent))
+        Optional<EmbedOrMessageDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), null, new State<>("shadowrun", StateData.empty()), 1L, 2L);
+        Assertions.assertThat(res.map(EmbedOrMessageDefinition::getDescriptionOrContent))
                 .contains("Click to roll the dice against 5 and check for more then half of dice 1s");
-        Assertions.assertThat(res.map(MessageDefinition::getComponentRowDefinitions)
+        Assertions.assertThat(res.map(EmbedOrMessageDefinition::getComponentRowDefinitions)
                         .stream()
                         .flatMap(Collection::stream)
                         .flatMap(s -> s.getButtonDefinitions().stream())
@@ -250,7 +250,7 @@ class WelcomeCommandTest {
                         "count_successes1800000000-0000-0000-0000-000000000000",
                         "count_successes1900000000-0000-0000-0000-000000000000",
                         "count_successes2000000000-0000-0000-0000-000000000000");
-        Assertions.assertThat(res.map(MessageDefinition::getComponentRowDefinitions)
+        Assertions.assertThat(res.map(EmbedOrMessageDefinition::getComponentRowDefinitions)
                         .stream()
                         .flatMap(Collection::stream)
                         .flatMap(s -> s.getButtonDefinitions().stream())
@@ -261,10 +261,10 @@ class WelcomeCommandTest {
 
     @Test
     public void getButtonMessageWithState_diceCalculator() {
-        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), null, new State<>("dice_calculator", StateData.empty()), 1L, 2L);
-        Assertions.assertThat(res.map(MessageDefinition::getContent))
+        Optional<EmbedOrMessageDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), null, new State<>("dice_calculator", StateData.empty()), 1L, 2L);
+        Assertions.assertThat(res.map(EmbedOrMessageDefinition::getDescriptionOrContent))
                 .contains("Click the buttons to add dice to the set and then on Roll");
-        Assertions.assertThat(res.map(MessageDefinition::getComponentRowDefinitions)
+        Assertions.assertThat(res.map(EmbedOrMessageDefinition::getComponentRowDefinitions)
                         .stream()
                         .flatMap(Collection::stream)
                         .flatMap(s -> s.getButtonDefinitions().stream())
@@ -287,7 +287,7 @@ class WelcomeCommandTest {
                         "sum_custom_setroll00000000-0000-0000-0000-000000000000",
                         "sum_custom_setclear00000000-0000-0000-0000-000000000000",
                         "sum_custom_setback00000000-0000-0000-0000-000000000000");
-        Assertions.assertThat(res.map(MessageDefinition::getComponentRowDefinitions)
+        Assertions.assertThat(res.map(EmbedOrMessageDefinition::getComponentRowDefinitions)
                         .stream()
                         .flatMap(Collection::stream)
                         .flatMap(s -> s.getButtonDefinitions().stream())
@@ -315,7 +315,7 @@ class WelcomeCommandTest {
 
     @Test
     public void getButtonMessageWithState_other() {
-        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), null, new State<>("-", StateData.empty()), 1L, 2L);
+        Optional<EmbedOrMessageDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), null, new State<>("-", StateData.empty()), 1L, 2L);
         Assertions.assertThat(res)
                 .isEmpty();
 
@@ -323,8 +323,8 @@ class WelcomeCommandTest {
 
     @Test
     public void getWelcomeMessage() {
-        MessageDefinition res = underTest.getWelcomeMessage();
-        Assertions.assertThat(res.getContent())
+        EmbedOrMessageDefinition res = underTest.getWelcomeMessage();
+        Assertions.assertThat(res.getDescriptionOrContent())
                 .isEqualTo("""
                         Welcome to the Button Dice Bot,
                         use one of the example buttons below to start one of the RPG dice systems or use the slash command to configure your own custom dice system (see https://github.com/twonirwana/DiscordDiceBot for details or the slash command `/help`).\s
@@ -372,7 +372,7 @@ class WelcomeCommandTest {
             "dice_calculator"
     })
     void createMessageDataForNewMessage(String buttonValue) {
-        Optional<MessageDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), new Config(null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none")), new State<>(buttonValue, StateData.empty()), 1L, 2L);
+        Optional<EmbedOrMessageDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), new Config(null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none")), new State<>(buttonValue, StateData.empty()), 1L, 2L);
         Assertions.assertThat(res).isPresent();
     }
 

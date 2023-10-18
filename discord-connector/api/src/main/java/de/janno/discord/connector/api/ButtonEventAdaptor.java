@@ -32,10 +32,19 @@ public interface ButtonEventAdaptor extends DiscordAdapter {
 
     Optional<String> checkPermissions(Long answerTargetChannelId);
 
-    Mono<Void> createResultMessageWithEventReference(EmbedOrMessageDefinition answer, Long targetChannelId);
+    Mono<Void> createResultMessageWithReference(EmbedOrMessageDefinition answer, Long targetChannelId);
 
     @NonNull ParallelFlux<MessageState> getMessagesState(@NonNull Collection<Long> messageIds);
 
     @NonNull OffsetDateTime getMessageCreationTime();
 
+    /**
+     * acknowledge the event and remove all buttons form the message where the button was clicked
+     */
+    Mono<Void> acknowledgeAndRemoveButtons();
+
+    /**
+     * Gives the message definition of the message where the button was clicked
+     */
+    EmbedOrMessageDefinition getMessageDefinitionOfEventMessageWithoutButtons();
 }

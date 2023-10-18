@@ -1,10 +1,10 @@
 package de.janno.discord.connector.jda;
 
+import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import de.janno.discord.connector.api.DiscordAdapter;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
-import de.janno.discord.connector.api.message.MessageDefinition;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -13,11 +13,15 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.exceptions.ErrorResponseException;
 import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
+import net.dv8tion.jda.api.interactions.InteractionHook;
+import net.dv8tion.jda.api.interactions.components.LayoutComponent;
 import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.utils.FileUpload;
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
+import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Nullable;
 import reactor.core.publisher.Mono;
@@ -51,61 +55,107 @@ public abstract class DiscordAdapterImpl implements DiscordAdapter {
 
     protected Mono<Message> createMessageWithReference(
             @NonNull MessageChannel messageChannel,
-            @NonNull EmbedOrMessageDefinition answer,
-            @NonNull String rollRequesterName,
-            @NonNull String rollRequesterMention,
+            @NonNull EmbedOrMessageDefinition messageDefinition,
+            @Nullable String rollRequesterName,
+            @Nullable String rollRequesterMention,
             @Nullable String rollRequesterAvatar,
-            @NonNull String rollRequesterId) {
-        switch (answer.getType()) {
+            @Nullable String rollRequesterId) {
+        LayoutComponent[] layoutComponents = MessageComponentConverter.componentRowDefinition2LayoutComponent(messageDefinition.getComponentRowDefinitions());
+        switch (messageDefinition.getType()) {
             case EMBED -> {
-                EmbedBuilder builder = new EmbedBuilder();
-                if (!Strings.isNullOrEmpty(answer.getTitle())) {
-                    builder.setTitle(StringUtils.abbreviate(encodeUTF8(answer.getTitle()), 256));//https://discord.com/developers/docs/resources/channel#embed-limits
-                }
-                builder.setAuthor(rollRequesterName,
-                                null,
-                                rollRequesterAvatar)
-                        .setColor(Color.decode(String.valueOf(rollRequesterId.hashCode())));
-                if (!Strings.isNullOrEmpty(answer.getDescriptionOrContent())) {
-                    builder.setDescription(StringUtils.abbreviate(encodeUTF8(answer.getDescriptionOrContent()), 4096)); //https://discord.com/developers/docs/resources/channel#embed-limits
-                }
+                EmbedBuilder builder = convertToEmbedMessage(messageDefinition, rollRequesterName, rollRequesterAvatar, rollRequesterId);
+                final List<FileUpload> files = applyFiles(builder, messageDefinition);
 
-                if (answer.getFields().size() > 25) {
-                    log.error("Number of dice results was {} and was reduced", answer.getFields().size());
-                }
-                List<EmbedOrMessageDefinition.Field> limitedList = answer.getFields().stream().limit(25).collect(ImmutableList.toImmutableList()); //https://discord.com/developers/docs/resources/channel#embed-limits
-                for (EmbedOrMessageDefinition.Field field : limitedList) {
-                    builder.addField(StringUtils.abbreviate(encodeUTF8(field.getName()), 256), //https://discord.com/developers/docs/resources/channel#embed-limits
-                            StringUtils.abbreviate(encodeUTF8(field.getValue()), 1024), //https://discord.com/developers/docs/resources/channel#embed-limits
-                            field.isInline());
-                }
-                final List<FileUpload> files;
-                if (answer.getImage() != null) {
-                    files = List.of(FileUpload.fromStreamSupplier("image.png", answer.getImage()));
-                    builder.setImage("attachment://image.png");
-                } else {
-                    files = List.of();
-                }
-                return createMonoFrom(() -> messageChannel.sendMessageEmbeds(builder.build()).setFiles(files).setSuppressedNotifications(true));
+                return createMonoFrom(() -> messageChannel.sendMessageEmbeds(builder.build()).setComponents(layoutComponents).setFiles(files).setSuppressedNotifications(true));
             }
             case MESSAGE -> {
-                MessageCreateBuilder builder = new MessageCreateBuilder();
-                String answerString = rollRequesterMention + ": " + Optional.ofNullable(answer.getDescriptionOrContent()).map(s -> s + " ").orElse("") + answer.getFields().stream().map(EmbedOrMessageDefinition.Field::getName).collect(Collectors.joining(" "));
-                answerString = StringUtils.abbreviate(encodeUTF8(answerString), Message.MAX_CONTENT_LENGTH);
-                builder.setSuppressedNotifications(true);
-                builder.setContent(answerString);
-                return createMonoFrom(() -> messageChannel.sendMessage(builder.build()));
+                return createMonoFrom(() -> messageChannel.sendMessage(convertToMessageCreateData(messageDefinition, rollRequesterMention)).setComponents(layoutComponents).setSuppressedNotifications(true));
             }
-            default -> throw new IllegalStateException("Unknown type in %s".formatted(answer));
+            default -> throw new IllegalStateException("Unknown type in %s".formatted(messageDefinition));
         }
     }
 
-    protected Mono<Message> createButtonMessage(@NonNull MessageChannel channel,
-                                                @NonNull MessageDefinition messageDefinition) {
-        return createMonoFrom(() -> channel.sendMessage(
-                MessageComponentConverter.messageComponent2MessageLayout(
-                        StringUtils.abbreviate(encodeUTF8(messageDefinition.getContent()), Message.MAX_CONTENT_LENGTH),
-                        messageDefinition.getComponentRowDefinitions())));
+    private MessageCreateData convertToMessageCreateData(@NonNull EmbedOrMessageDefinition messageDefinition,
+                                                         @Nullable String rollRequesterMention) {
+        Preconditions.checkArgument(messageDefinition.getType() == EmbedOrMessageDefinition.Type.MESSAGE);
+        MessageCreateBuilder builder = new MessageCreateBuilder();
+        final String answerString;
+        if (rollRequesterMention != null) {
+            answerString = "%s: %s%s".formatted(rollRequesterMention,
+                    Optional.ofNullable(messageDefinition.getDescriptionOrContent()).map(s -> s + " ").orElse(""),
+                    messageDefinition.getFields().stream().map(EmbedOrMessageDefinition.Field::getName).collect(Collectors.joining(" ")));
+        } else {
+            answerString = "%s%s".formatted(Optional.ofNullable(messageDefinition.getDescriptionOrContent()).map(s -> s + " ").orElse(""),
+                    messageDefinition.getFields().stream().map(EmbedOrMessageDefinition.Field::getName).collect(Collectors.joining(" ")));
+        }
+
+        builder.setSuppressedNotifications(true);
+        builder.setContent(StringUtils.abbreviate(encodeUTF8(answerString), Message.MAX_CONTENT_LENGTH));
+        return builder.build();
+    }
+
+    private EmbedBuilder convertToEmbedMessage(@NonNull EmbedOrMessageDefinition messageDefinition,
+                                               @Nullable String rollRequesterName,
+                                               @Nullable String rollRequesterAvatar,
+                                               @Nullable String rollRequesterId) {
+        Preconditions.checkArgument(messageDefinition.getType() == EmbedOrMessageDefinition.Type.EMBED);
+        EmbedBuilder builder = new EmbedBuilder();
+        if (!Strings.isNullOrEmpty(messageDefinition.getTitle())) {
+            builder.setTitle(StringUtils.abbreviate(encodeUTF8(messageDefinition.getTitle()), 256));//https://discord.com/developers/docs/resources/channel#embed-limits
+        }
+        builder.setAuthor(rollRequesterName,
+                null,
+                rollRequesterAvatar);
+        if (rollRequesterId != null) {
+            builder.setColor(Color.decode(String.valueOf(rollRequesterId.hashCode())));
+        }
+
+        if (!Strings.isNullOrEmpty(messageDefinition.getDescriptionOrContent())) {
+            builder.setDescription(StringUtils.abbreviate(encodeUTF8(messageDefinition.getDescriptionOrContent()), 4096)); //https://discord.com/developers/docs/resources/channel#embed-limits
+        }
+
+        if (messageDefinition.getFields().size() > 25) {
+            log.error("Number of dice results was {} and was reduced", messageDefinition.getFields().size());
+        }
+        List<EmbedOrMessageDefinition.Field> limitedList = messageDefinition.getFields().stream().limit(25).collect(ImmutableList.toImmutableList()); //https://discord.com/developers/docs/resources/channel#embed-limits
+        for (EmbedOrMessageDefinition.Field field : limitedList) {
+            builder.addField(StringUtils.abbreviate(encodeUTF8(field.getName()), 256), //https://discord.com/developers/docs/resources/channel#embed-limits
+                    StringUtils.abbreviate(encodeUTF8(field.getValue()), 1024), //https://discord.com/developers/docs/resources/channel#embed-limits
+                    field.isInline());
+        }
+
+        return builder;
+    }
+
+    protected Mono<InteractionHook> replyWithEmbedOrMessageDefinition(
+            @NonNull SlashCommandInteractionEvent event,
+            @NonNull EmbedOrMessageDefinition messageDefinition,
+            boolean ephemeral) {
+        LayoutComponent[] layoutComponents = MessageComponentConverter.componentRowDefinition2LayoutComponent(messageDefinition.getComponentRowDefinitions());
+        switch (messageDefinition.getType()) {
+            case EMBED -> {
+                EmbedBuilder builder = convertToEmbedMessage(messageDefinition, null, null, null);
+                final List<FileUpload> files = applyFiles(builder, messageDefinition);
+                return createMonoFrom(() -> event.replyEmbeds(builder.build()).setComponents(layoutComponents).setEphemeral(ephemeral).setFiles(files).setSuppressedNotifications(true));
+            }
+            case MESSAGE -> {
+                return createMonoFrom(() -> event.reply(convertToMessageCreateData(messageDefinition, null)).setComponents(layoutComponents).setEphemeral(ephemeral).setSuppressedNotifications(true));
+            }
+            default -> throw new IllegalStateException("Unknown type in %s".formatted(messageDefinition));
+        }
+    }
+
+    private List<FileUpload> applyFiles(@NonNull EmbedBuilder builder, @NonNull EmbedOrMessageDefinition messageDefinition) {
+        if (messageDefinition.getImage() != null) {
+            builder.setImage("attachment://image.png");
+            return List.of(FileUpload.fromStreamSupplier("image.png", messageDefinition.getImage()));
+        }
+        return List.of();
+    }
+
+    protected Mono<Message> createMessageWithoutReference(@NonNull MessageChannel channel,
+                                                          @NonNull EmbedOrMessageDefinition messageDefinition) {
+        return createMessageWithReference(channel, messageDefinition, null, null, null, null);
     }
 
     protected Mono<Void> handleException(@NonNull String errorMessage,

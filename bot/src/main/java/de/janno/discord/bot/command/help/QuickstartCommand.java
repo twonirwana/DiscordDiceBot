@@ -116,7 +116,7 @@ public class QuickstartCommand implements SlashCommand {
                 final RpgSystemCommandPreset.PresetId presetId = presetIdOptional.get();
                 BotMetrics.incrementSlashStartMetricCounter(getCommandId(), presetId.name());
                 RpgSystemCommandPreset.CommandAndMessageDefinition commandAndMessageDefinition = rpgSystemCommandPreset.createMessage(presetId, newConfigUUID, guildId, channelId);
-                return Mono.defer(() -> event.createButtonMessage(commandAndMessageDefinition.getMessageDefinition()))
+                return Mono.defer(() -> event.createMessageWithoutReference(commandAndMessageDefinition.getMessageDefinition()))
                         .doOnSuccess(v -> BotMetrics.timerNewButtonMessageMetricCounter(getCommandId(), stopwatch.elapsed()))
                         .then(event.reply("`%s`".formatted(commandAndMessageDefinition.getCommand()), false))
                         .doOnSuccess(v ->

@@ -366,6 +366,15 @@ For example `/r expression:3d6` will simply roll 3d6 and post the result without
 The result of the dice will be summed up per default.
 The output can be configured with the `channel_config` command.
 
+=== Hidden Direct Roll
+
+image:image/hiddenDircetRoll.webp[image]
+
+With the command `/h` it is possible to directly call the dice expression (see <<Dice Expression Notation>>) like <<Direct Roll>> but the answer is initial only visible to the user and can be revealed to other user by pressing on the button "Reveal".
+For example `/h expression:3d6` will simply roll 3d6 and show only the current user the result.
+The result of the dice will be summed up per default.
+The output can be configured with the `channel_config` command.
+
 === Channel Config
 
 This command is used create a channel specific configuration.

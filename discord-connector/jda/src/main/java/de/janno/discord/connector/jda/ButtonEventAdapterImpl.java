@@ -1,31 +1,36 @@
 package de.janno.discord.connector.jda;
 
+import com.google.common.base.Strings;
 import de.janno.discord.connector.api.ButtonEventAdaptor;
 import de.janno.discord.connector.api.MessageState;
 import de.janno.discord.connector.api.Requester;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
-import de.janno.discord.connector.api.message.MessageDefinition;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.exceptions.ErrorResponseException;
 import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
 import net.dv8tion.jda.api.interactions.InteractionHook;
+import net.dv8tion.jda.api.utils.AttachmentProxy;
 import org.apache.commons.lang3.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.ParallelFlux;
 
+import java.io.InputStream;
 import java.time.OffsetDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
+import java.util.function.Supplier;
 
 import static net.dv8tion.jda.api.requests.ErrorResponse.*;
 
@@ -114,14 +119,14 @@ public class ButtonEventAdapterImpl extends DiscordAdapterImpl implements Button
     }
 
     @Override
-    public @NonNull Mono<Long> createButtonMessage(@NonNull MessageDefinition messageDefinition) {
-        return createButtonMessage(event.getMessageChannel(), messageDefinition)
+    public @NonNull Mono<Long> createMessageWithoutReference(@NonNull EmbedOrMessageDefinition messageDefinition) {
+        return createMessageWithoutReference(event.getMessageChannel(), messageDefinition)
                 .onErrorResume(t -> handleException("Error on creating button message", t, false).ofType(Message.class))
                 .map(Message::getIdLong);
     }
 
     @Override
-    public Mono<Void> createResultMessageWithEventReference(EmbedOrMessageDefinition answer, Long targetChannelId) {
+    public Mono<Void> createResultMessageWithReference(EmbedOrMessageDefinition answer, Long targetChannelId) {
         MessageChannel targetChannel = Optional.ofNullable(targetChannelId)
                 .flatMap(id -> Optional.ofNullable(event.getGuild())
                         .map(g -> g.getChannelById(MessageChannel.class, targetChannelId)))
@@ -215,5 +220,63 @@ public class ButtonEventAdapterImpl extends DiscordAdapterImpl implements Button
     @Override
     public @NonNull OffsetDateTime getMessageCreationTime() {
         return event.getMessage().getTimeCreated();
+    }
+
+    @Override
+    public Mono<Void> acknowledgeAndRemoveButtons() {
+        return createMonoFrom(() -> event.editComponents(List.of()))
+                .onErrorResume(t -> handleException("Error on acknowledge and remove buttons", t, true).ofType(InteractionHook.class))
+                .then();
+    }
+
+    @Override
+    public EmbedOrMessageDefinition getMessageDefinitionOfEventMessageWithoutButtons() {
+        Message message = event.getMessage();
+
+        final String descriptionOrContent;
+        final EmbedOrMessageDefinition.Type type;
+        final Supplier<InputStream> imageSupplier;
+        final List<EmbedOrMessageDefinition.Field> fields;
+        final String title;
+        if (message.getEmbeds().isEmpty()) {
+            type = EmbedOrMessageDefinition.Type.MESSAGE;
+            descriptionOrContent = message.getContentRaw();
+            imageSupplier = null;
+            fields = List.of();
+            title = null;
+        } else {
+            type = EmbedOrMessageDefinition.Type.EMBED;
+            MessageEmbed embed = message.getEmbeds().get(0);
+            descriptionOrContent = embed.getDescription();
+            title = embed.getTitle();
+            if (embed.getImage() == null) {
+                imageSupplier = null;
+            } else {
+                imageSupplier = () -> Optional.ofNullable(embed.getImage().getProxy())
+                        .map(AttachmentProxy::download)
+                        .map(inputStreamCompletableFuture -> {
+                            try {
+                                return inputStreamCompletableFuture.get();
+                            } catch (InterruptedException | ExecutionException e) {
+                                log.error(e.getMessage());
+                            }
+                            return InputStream.nullInputStream();
+                        })
+                        .orElse(InputStream.nullInputStream());
+            }
+            fields = embed.getFields().stream()
+                    .filter(f -> !Strings.isNullOrEmpty(f.getName()))
+                    .filter(f -> !Strings.isNullOrEmpty(f.getValue()))
+                    .map(f -> new EmbedOrMessageDefinition.Field(f.getName(), f.getValue(), f.isInline()))
+                    .toList();
+        }
+
+        return EmbedOrMessageDefinition.builder()
+                .type(type)
+                .title(title)
+                .descriptionOrContent(descriptionOrContent)
+                .image(imageSupplier)
+                .fields(fields)
+                .build();
     }
 }

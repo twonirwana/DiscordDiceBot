@@ -16,18 +16,15 @@ import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicLong;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class CustomParameterCommandMockTest {
 
     PersistenceManager persistenceManager;
-    AtomicLong messageIdCounter;
 
     @BeforeEach
     void setup() {
-        messageIdCounter = new AtomicLong(0);
         persistenceManager = new PersistenceManagerImpl("jdbc:h2:mem:" + UUID.randomUUID(), null, null);
     }
 
@@ -48,9 +45,10 @@ public class CustomParameterCommandMockTest {
                 "editMessage: message:invokingUser: 4d{sides}\nPlease select value for **sides**, buttonValues=id1,id2,id3,id4,id5,id6,id7,id8,clear");
         assertThat(click2.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:processing ..., buttonValues=",
-                "createAnswer: title=4d6 ⇒ 1, 1, 6, 3, description=[1, 1, 6, 3], fieldValues:, answerChannel:null, type:EMBED",
-                "createButtonMessage: content={numberOfDice}d{sides}\nPlease select value for **numberOfDice**, buttonValues=id1,id2,id3,id4,id5,id6,id7,id8,id9,id10",
-                "deleteMessageById: 0");
+                "createResultMessageWithReference: EmbedOrMessageDefinition(title=4d6 ⇒ 1, 1, 6, 3, descriptionOrContent=[1, 1, 6, 3], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED), targetChannelId: null",
+                "deleteMessageById: 0",
+                "createMessageWithoutReference: EmbedOrMessageDefinition(title=null, descriptionOrContent={numberOfDice}d{sides}\nPlease select value for **numberOfDice**, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=1, id=custom_parameterid100000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=2, id=custom_parameterid200000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=3, id=custom_parameterid300000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=4, id=custom_parameterid400000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=5, id=custom_parameterid500000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)]), ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=6, id=custom_parameterid600000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=7, id=custom_parameterid700000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=8, id=custom_parameterid800000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=9, id=custom_parameterid900000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=10, id=custom_parameterid1000000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=EMBED)"
+        );
     }
 
     @Test
@@ -70,9 +68,9 @@ public class CustomParameterCommandMockTest {
                 "editMessage: message:invokingUser: d['-','0','1']+{bonus}\nPlease select value for **bonus**, buttonValues=id1,id2,id3,id4,id5,id6,id7,id8,id9,id10,clear");
         assertThat(click2.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:processing ..., buttonValues=",
-                "createAnswer: title=d['-','0','1']+4 ⇒ '1', 4, description=['1'], fieldValues:, answerChannel:null, type:EMBED",
-                "createButtonMessage: content={dice}+{bonus}\nPlease select value for **dice**, buttonValues=id1,id2",
-                "deleteMessageById: 0");
+                "createResultMessageWithReference: EmbedOrMessageDefinition(title=d['-','0','1']+4 ⇒ '1', 4, descriptionOrContent=['1'], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED), targetChannelId: null",
+                "deleteMessageById: 0",
+                "createMessageWithoutReference: EmbedOrMessageDefinition(title=null, descriptionOrContent={dice}+{bonus}\nPlease select value for **dice**, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=d4, id=custom_parameterid100000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=Fate, id=custom_parameterid200000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=EMBED)");
     }
 
     @Test
@@ -88,9 +86,10 @@ public class CustomParameterCommandMockTest {
 
         assertThat(click1.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:processing ..., buttonValues=",
-                "createAnswer: title=2 ⇒ 2, description=, fieldValues:, answerChannel:null, type:EMBED",
+                "createResultMessageWithReference: EmbedOrMessageDefinition(title=2 ⇒ 2, descriptionOrContent=, fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED), targetChannelId: null",
                 "deleteMessageById: 0",
-                "createButtonMessage: content={bonus}\nPlease select value for **bonus**, buttonValues=id1,id2,id3,id4,id5,id6,id7,id8,id9,id10,id11");
+                "createMessageWithoutReference: EmbedOrMessageDefinition(title=null, descriptionOrContent={bonus}\nPlease select value for **bonus**, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=-5, id=custom_parameterid100000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=-4, id=custom_parameterid200000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=-3, id=custom_parameterid300000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=-2, id=custom_parameterid400000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=-1, id=custom_parameterid500000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)]), ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=0, id=custom_parameterid600000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=1, id=custom_parameterid700000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=2, id=custom_parameterid800000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=3, id=custom_parameterid900000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=4, id=custom_parameterid1000000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)]), ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=5, id=custom_parameterid1100000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=EMBED)"
+        );
     }
 
     @Test
@@ -110,9 +109,10 @@ public class CustomParameterCommandMockTest {
                 "editMessage: message:invokingUser: d['-','0','1']+{bonus}\nPlease select value for **bonus**, buttonValues=id1,id2,id3,id4,id5,id6,id7,id8,id9,id10,clear");
         assertThat(click2.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:processing ..., buttonValues=",
-                "createAnswer: title=d['-','0','1']+4 ⇒ '1', 4, description=['1'], fieldValues:, answerChannel:null, type:EMBED",
-                "createButtonMessage: content={dice}+{bonus}\nPlease select value for **dice**, buttonValues=id1,id2",
-                "deleteMessageById: 0");
+                "createResultMessageWithReference: EmbedOrMessageDefinition(title=d['-','0','1']+4 ⇒ '1', 4, descriptionOrContent=['1'], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED), targetChannelId: null",
+                "deleteMessageById: 0",
+                "createMessageWithoutReference: EmbedOrMessageDefinition(title=null, descriptionOrContent={dice}+{bonus}\nPlease select value for **dice**, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=d4, id=custom_parameterid100000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=Fate, id=custom_parameterid200000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=EMBED)"
+        );
     }
 
     @Test
@@ -132,9 +132,10 @@ public class CustomParameterCommandMockTest {
                 "editMessage: message:invokingUser: 4d{sides}@Roll\nPlease select value for **sides**, buttonValues=id1,id2,id3,id4,id5,id6,id7,id8,clear");
         assertThat(click2.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:processing ..., buttonValues=",
-                "createAnswer: title=Roll ⇒ 1, 1, 6, 3, description=4d6: [1, 1, 6, 3], fieldValues:, answerChannel:null, type:EMBED",
-                "createButtonMessage: content={numberOfDice}d{sides}@Roll\nPlease select value for **numberOfDice**, buttonValues=id1,id2,id3,id4,id5,id6,id7,id8,id9,id10",
-                "deleteMessageById: 0");
+                "createResultMessageWithReference: EmbedOrMessageDefinition(title=Roll ⇒ 1, 1, 6, 3, descriptionOrContent=4d6: [1, 1, 6, 3], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED), targetChannelId: null",
+                "deleteMessageById: 0",
+                "createMessageWithoutReference: EmbedOrMessageDefinition(title=null, descriptionOrContent={numberOfDice}d{sides}@Roll\nPlease select value for **numberOfDice**, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=1, id=custom_parameterid100000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=2, id=custom_parameterid200000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=3, id=custom_parameterid300000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=4, id=custom_parameterid400000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=5, id=custom_parameterid500000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)]), ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=6, id=custom_parameterid600000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=7, id=custom_parameterid700000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=8, id=custom_parameterid800000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=9, id=custom_parameterid900000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=10, id=custom_parameterid1000000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=EMBED)"
+        );
     }
 
     @Test
@@ -154,9 +155,10 @@ public class CustomParameterCommandMockTest {
                 "editMessage: message:invokingUser: Please select value for **sides**, buttonValues=id1,id2,id3,id4,id5,id6,id7,id8,clear");
         assertThat(click2.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:processing ..., buttonValues=",
-                "createAnswer: title=numberOfDice: 4, sides: 6 ⇒ 1, 1, 6, 3, description=[1, 1, 6, 3], fieldValues:, answerChannel:null, type:EMBED",
-                "createButtonMessage: content=Please select value for **numberOfDice**, buttonValues=id1,id2,id3,id4,id5,id6,id7,id8,id9,id10",
-                "deleteMessageById: 0");
+                "createResultMessageWithReference: EmbedOrMessageDefinition(title=numberOfDice: 4, sides: 6 ⇒ 1, 1, 6, 3, descriptionOrContent=[1, 1, 6, 3], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED), targetChannelId: null",
+                "deleteMessageById: 0",
+                "createMessageWithoutReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=Please select value for **numberOfDice**, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=1, id=custom_parameterid100000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=2, id=custom_parameterid200000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=3, id=custom_parameterid300000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=4, id=custom_parameterid400000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=5, id=custom_parameterid500000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)]), ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=6, id=custom_parameterid600000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=7, id=custom_parameterid700000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=8, id=custom_parameterid800000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=9, id=custom_parameterid900000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=10, id=custom_parameterid1000000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=EMBED)"
+        );
     }
 
     @Test
@@ -176,9 +178,10 @@ public class CustomParameterCommandMockTest {
                 "editMessage: message:invokingUser: Please select value for **sides**, buttonValues=id1,id2,id3,id4,id5,id6,id7,id8,clear");
         assertThat(click2.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:processing ..., buttonValues=",
-                "createAnswer: title=Roll ⇒ 1, 1, 6, 3, description=[1, 1, 6, 3], fieldValues:, answerChannel:null, type:EMBED",
-                "createButtonMessage: content=Please select value for **numberOfDice**, buttonValues=id1,id2,id3,id4,id5,id6,id7,id8,id9,id10",
-                "deleteMessageById: 0");
+                "createResultMessageWithReference: EmbedOrMessageDefinition(title=Roll ⇒ 1, 1, 6, 3, descriptionOrContent=[1, 1, 6, 3], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED), targetChannelId: null",
+                "deleteMessageById: 0",
+                "createMessageWithoutReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=Please select value for **numberOfDice**, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=1, id=custom_parameterid100000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=2, id=custom_parameterid200000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=3, id=custom_parameterid300000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=4, id=custom_parameterid400000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=5, id=custom_parameterid500000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)]), ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=6, id=custom_parameterid600000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=7, id=custom_parameterid700000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=8, id=custom_parameterid800000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=9, id=custom_parameterid900000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=10, id=custom_parameterid1000000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=EMBED)"
+        );
     }
 
     @Test
@@ -198,9 +201,10 @@ public class CustomParameterCommandMockTest {
                 "editMessage: message:invokingUser: Please select value for **sides**, buttonValues=id1,id2,id3,id4,id5,id6,id7,id8,clear");
         assertThat(click2.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:processing ..., buttonValues=",
-                "createAnswer: title=null, description=__**numberOfDice: 4, sides: 6 ⇒ 1, 1, 6, 3**__  4d6: [1, 1, 6, 3], fieldValues:, answerChannel:null, type:MESSAGE",
-                "createButtonMessage: content=Please select value for **numberOfDice**, buttonValues=id1,id2,id3,id4,id5,id6,id7,id8,id9,id10",
-                "deleteMessageById: 0");
+                "createResultMessageWithReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=__**numberOfDice: 4, sides: 6 ⇒ 1, 1, 6, 3**__  4d6: [1, 1, 6, 3], fields=[], componentRowDefinitions=[], hasImage=false, type=MESSAGE), targetChannelId: null",
+                "deleteMessageById: 0",
+                "createMessageWithoutReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=Please select value for **numberOfDice**, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=1, id=custom_parameterid100000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=2, id=custom_parameterid200000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=3, id=custom_parameterid300000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=4, id=custom_parameterid400000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=5, id=custom_parameterid500000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)]), ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=6, id=custom_parameterid600000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=7, id=custom_parameterid700000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=8, id=custom_parameterid800000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=9, id=custom_parameterid900000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=10, id=custom_parameterid1000000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=EMBED)"
+        );
     }
 
     @Test
@@ -220,9 +224,10 @@ public class CustomParameterCommandMockTest {
                 "editMessage: message:invokingUser: Please select value for **sides**, buttonValues=id1,id2,id3,id4,id5,id6,id7,id8,clear");
         assertThat(click2.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:processing ..., buttonValues=",
-                "createAnswer: title=null, description=numberOfDice: 4, sides: 6 ⇒ 1, 1, 6, 3, fieldValues:, answerChannel:null, type:MESSAGE",
-                "createButtonMessage: content=Please select value for **numberOfDice**, buttonValues=id1,id2,id3,id4,id5,id6,id7,id8,id9,id10",
-                "deleteMessageById: 0");
+                "createResultMessageWithReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=numberOfDice: 4, sides: 6 ⇒ 1, 1, 6, 3, fields=[], componentRowDefinitions=[], hasImage=false, type=MESSAGE), targetChannelId: null",
+                "deleteMessageById: 0",
+                "createMessageWithoutReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=Please select value for **numberOfDice**, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=1, id=custom_parameterid100000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=2, id=custom_parameterid200000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=3, id=custom_parameterid300000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=4, id=custom_parameterid400000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=5, id=custom_parameterid500000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)]), ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=6, id=custom_parameterid600000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=7, id=custom_parameterid700000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=8, id=custom_parameterid800000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=9, id=custom_parameterid900000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=10, id=custom_parameterid1000000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=EMBED)"
+        );
     }
 
     @Test
@@ -246,9 +251,10 @@ public class CustomParameterCommandMockTest {
                 "editMessage: message:user1: Please select value for **sides**, buttonValues=id1,id2,id3,id4,id5,id6,id7,id8,clear");
         assertThat(click3.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:processing ..., buttonValues=",
-                "createAnswer: title=null, description=numberOfDice: 4, sides: 6 ⇒ 1, 1, 6, 3, fieldValues:, answerChannel:null, type:MESSAGE",
-                "createButtonMessage: content=Please select value for **numberOfDice**, buttonValues=id1,id2,id3,id4,id5,id6,id7,id8,id9,id10",
-                "deleteMessageById: 0");
+                "createResultMessageWithReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=numberOfDice: 4, sides: 6 ⇒ 1, 1, 6, 3, fields=[], componentRowDefinitions=[], hasImage=false, type=MESSAGE), targetChannelId: null",
+                "deleteMessageById: 0",
+                "createMessageWithoutReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=Please select value for **numberOfDice**, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=1, id=custom_parameterid100000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=2, id=custom_parameterid200000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=3, id=custom_parameterid300000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=4, id=custom_parameterid400000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=5, id=custom_parameterid500000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)]), ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=6, id=custom_parameterid600000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=7, id=custom_parameterid700000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=8, id=custom_parameterid800000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=9, id=custom_parameterid900000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=10, id=custom_parameterid1000000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=EMBED)"
+        );
     }
 
     @Test
@@ -287,8 +293,9 @@ public class CustomParameterCommandMockTest {
                 "editMessage: message:invokingUser: 4d{sides}\nPlease select value for **sides**, buttonValues=id1,id2,id3,id4,id5,id6,id7,id8,clear");
         assertThat(click2.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:{numberOfDice}d{sides}\nPlease select value for **numberOfDice**, buttonValues=id1,id2,id3,id4,id5,id6,id7,id8,id9,id10",
-                "createAnswer: title=4d6 ⇒ 1, 1, 6, 3, description=[1, 1, 6, 3], fieldValues:, answerChannel:null, type:EMBED",
-                "createButtonMessage: content={numberOfDice}d{sides}\nPlease select value for **numberOfDice**, buttonValues=id1,id2,id3,id4,id5,id6,id7,id8,id9,id10");
+                "createResultMessageWithReference: EmbedOrMessageDefinition(title=4d6 ⇒ 1, 1, 6, 3, descriptionOrContent=[1, 1, 6, 3], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED), targetChannelId: null",
+                "createMessageWithoutReference: EmbedOrMessageDefinition(title=null, descriptionOrContent={numberOfDice}d{sides}\nPlease select value for **numberOfDice**, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=1, id=custom_parameterid100000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=2, id=custom_parameterid200000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=3, id=custom_parameterid300000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=4, id=custom_parameterid400000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=5, id=custom_parameterid500000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)]), ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=6, id=custom_parameterid600000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=7, id=custom_parameterid700000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=8, id=custom_parameterid800000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=9, id=custom_parameterid900000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=10, id=custom_parameterid1000000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=EMBED)"
+        );
     }
 
     @Test
@@ -309,7 +316,7 @@ public class CustomParameterCommandMockTest {
                         "Please select value for **sides**, buttonValues=id1,id2,id3,id4,id5,id6,id7,id8,clear");
         assertThat(click2.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:{numberOfDice}d{sides}\nPlease select value for **numberOfDice**, buttonValues=id1,id2,id3,id4,id5,id6,id7,id8,id9,id10",
-                "createAnswer: title=4d6 ⇒ 1, 1, 6, 3, description=[1, 1, 6, 3], fieldValues:, answerChannel:2, type:EMBED"
+                "createResultMessageWithReference: EmbedOrMessageDefinition(title=4d6 ⇒ 1, 1, 6, 3, descriptionOrContent=[1, 1, 6, 3], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED), targetChannelId: 2"
         );
     }
 
@@ -334,16 +341,19 @@ public class CustomParameterCommandMockTest {
                 "editMessage: message:invokingUser: 4d{sides}\nPlease select value for **sides**, buttonValues=id1,id2,id3,id4,id5,id6,id7,id8,clear");
         assertThat(click2.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:{numberOfDice}d{sides}\nPlease select value for **numberOfDice**, buttonValues=id1,id2,id3,id4,id5,id6,id7,id8,id9,id10",
-                "createAnswer: title=4d6 ⇒ 1, 1, 6, 3, description=[1, 1, 6, 3], fieldValues:, answerChannel:null, type:EMBED",
-                "createButtonMessage: content={numberOfDice}d{sides}\nPlease select value for **numberOfDice**, buttonValues=id1,id2,id3,id4,id5,id6,id7,id8,id9,id10");
+                "createResultMessageWithReference: EmbedOrMessageDefinition(title=4d6 ⇒ 1, 1, 6, 3, descriptionOrContent=[1, 1, 6, 3], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED), targetChannelId: null",
+                "createMessageWithoutReference: EmbedOrMessageDefinition(title=null, descriptionOrContent={numberOfDice}d{sides}\nPlease select value for **numberOfDice**, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=1, id=custom_parameterid100000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=2, id=custom_parameterid200000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=3, id=custom_parameterid300000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=4, id=custom_parameterid400000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=5, id=custom_parameterid500000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)]), ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=6, id=custom_parameterid600000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=7, id=custom_parameterid700000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=8, id=custom_parameterid800000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=9, id=custom_parameterid900000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=10, id=custom_parameterid1000000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=EMBED)"
+
+        );
         assertThat(click3.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:invokingUser: 4d{sides}\nPlease select value for **sides**, buttonValues=id1,id2,id3,id4,id5,id6,id7,id8,clear");
         assertThat(click4.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:processing ..., buttonValues=",
-                "createAnswer: title=4d6 ⇒ 3, 2, 4, 4, description=[3, 2, 4, 4], fieldValues:, answerChannel:null, type:EMBED",
-                "createButtonMessage: content={numberOfDice}d{sides}\nPlease select value for **numberOfDice**, buttonValues=id1,id2,id3,id4,id5,id6,id7,id8,id9,id10",
+                "createResultMessageWithReference: EmbedOrMessageDefinition(title=4d6 ⇒ 3, 2, 4, 4, descriptionOrContent=[3, 2, 4, 4], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED), targetChannelId: null",
                 "deleteMessageById: 1",
-                "getMessagesState: [0]");
+                "createMessageWithoutReference: EmbedOrMessageDefinition(title=null, descriptionOrContent={numberOfDice}d{sides}\nPlease select value for **numberOfDice**, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=1, id=custom_parameterid100000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=2, id=custom_parameterid200000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=3, id=custom_parameterid300000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=4, id=custom_parameterid400000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=5, id=custom_parameterid500000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)]), ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=6, id=custom_parameterid600000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=7, id=custom_parameterid700000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=8, id=custom_parameterid800000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=9, id=custom_parameterid900000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=10, id=custom_parameterid1000000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=EMBED)",
+                "getMessagesState: [0]"
+        );
     }
 
     @Test
@@ -367,13 +377,13 @@ public class CustomParameterCommandMockTest {
                 "editMessage: message:invokingUser: 4d{sides}\nPlease select value for **sides**, buttonValues=id1,id2,id3,id4,id5,id6,id7,id8,clear");
         assertThat(click2.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:{numberOfDice}d{sides}\nPlease select value for **numberOfDice**, buttonValues=id1,id2,id3,id4,id5,id6,id7,id8,id9,id10",
-                "createAnswer: title=4d6 ⇒ 1, 1, 6, 3, description=[1, 1, 6, 3], fieldValues:, answerChannel:2, type:EMBED"
+                "createResultMessageWithReference: EmbedOrMessageDefinition(title=4d6 ⇒ 1, 1, 6, 3, descriptionOrContent=[1, 1, 6, 3], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED), targetChannelId: 2"
         );
         assertThat(click3.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:invokingUser: 4d{sides}\nPlease select value for **sides**, buttonValues=id1,id2,id3,id4,id5,id6,id7,id8,clear");
         assertThat(click4.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:{numberOfDice}d{sides}\nPlease select value for **numberOfDice**, buttonValues=id1,id2,id3,id4,id5,id6,id7,id8,id9,id10",
-                "createAnswer: title=4d6 ⇒ 3, 2, 4, 4, description=[3, 2, 4, 4], fieldValues:, answerChannel:2, type:EMBED"
+                "createResultMessageWithReference: EmbedOrMessageDefinition(title=4d6 ⇒ 3, 2, 4, 4, descriptionOrContent=[3, 2, 4, 4], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED), targetChannelId: 2"
         );
     }
 }

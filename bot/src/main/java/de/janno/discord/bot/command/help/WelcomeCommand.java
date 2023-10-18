@@ -14,7 +14,6 @@ import de.janno.discord.connector.api.ButtonEventAdaptor;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
-import de.janno.discord.connector.api.message.MessageDefinition;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -95,7 +94,7 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
     }
 
     @Override
-    protected @NonNull Optional<MessageDefinition> createNewButtonMessageWithState(UUID configUUID, Config ignore, State<StateData> state, long guildId, long channelId) {
+    protected @NonNull Optional<EmbedOrMessageDefinition> createNewButtonMessageWithState(UUID configUUID, Config ignore, State<StateData> state, long guildId, long channelId) {
         BotMetrics.incrementButtonMetricCounter(COMMAND_NAME, "[" + state.getButtonValue() + "]");
         if (ButtonIds.isInvalid(state.getButtonValue())) {
             return Optional.empty();
@@ -134,14 +133,15 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
         return Optional.empty();
     }
 
-    public MessageDefinition getWelcomeMessage() {
+    public EmbedOrMessageDefinition getWelcomeMessage() {
         return createNewButtonMessage(uuidSupplier.get(), null);
     }
 
     @Override
-    public @NonNull MessageDefinition createNewButtonMessage(UUID configUUID, Config config) {
-        return MessageDefinition.builder()
-                .content("""
+    public @NonNull EmbedOrMessageDefinition createNewButtonMessage(UUID configUUID, Config config) {
+        return EmbedOrMessageDefinition.builder()
+                .type(EmbedOrMessageDefinition.Type.MESSAGE)
+                .descriptionOrContent("""
                         Welcome to the Button Dice Bot,
                         use one of the example buttons below to start one of the RPG dice systems or use the slash command to configure your own custom dice system (see https://github.com/twonirwana/DiscordDiceBot for details or the slash command `/help`).\s
                         You can also use the slash command `/r` to directly roll dice with.

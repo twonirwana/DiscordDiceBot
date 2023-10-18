@@ -1,7 +1,7 @@
 package de.janno.discord.connector.jda;
 
 import de.janno.discord.connector.api.*;
-import de.janno.discord.connector.api.message.MessageDefinition;
+import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.JDA;
@@ -41,7 +41,7 @@ public class JdaClient {
     public void start(String token,
                       boolean disableCommandUpdate,
                       List<SlashCommand> commands,
-                      MessageDefinition welcomeMessageDefinition,
+                      EmbedOrMessageDefinition welcomeMessageDefinition,
                       Set<Long> allGuildIdsInPersistence) throws LoginException {
         LocalDateTime startTimePlusBuffer = LocalDateTime.now().plus(START_UP_BUFFER);
         Scheduler scheduler = Schedulers.boundedElastic();
@@ -70,7 +70,7 @@ public class JdaClient {
                                         Optional.ofNullable(event.getGuild().getSystemChannel())
                                                 .filter(GuildMessageChannel::canTalk)
                                                 .ifPresent(textChannel -> Mono.fromFuture(textChannel.sendMessage(
-                                                                        MessageComponentConverter.messageComponent2MessageLayout(welcomeMessageDefinition.getContent(),
+                                                                        MessageComponentConverter.messageComponent2MessageLayout(welcomeMessageDefinition.getDescriptionOrContent(),
                                                                                 welcomeMessageDefinition.getComponentRowDefinitions()))
                                                                 .submit())
                                                         .doOnSuccess(m -> {

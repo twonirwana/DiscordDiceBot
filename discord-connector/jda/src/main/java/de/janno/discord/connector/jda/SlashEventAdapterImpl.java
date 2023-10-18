@@ -1,14 +1,11 @@
 package de.janno.discord.connector.jda;
 
-import com.google.common.collect.ImmutableSet;
 import de.janno.discord.connector.api.Requester;
 import de.janno.discord.connector.api.SlashEventAdaptor;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
-import de.janno.discord.connector.api.message.MessageDefinition;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
@@ -82,25 +79,22 @@ public class SlashEventAdapterImpl extends DiscordAdapterImpl implements SlashEv
     }
 
     @Override
-    public Mono<Void> replyEmbed(@NonNull EmbedOrMessageDefinition embedOrMessageDefinition, boolean ephemeral) {
-        //todo combine with DiscordAdapter.createEmbedMessageWithReference
-        EmbedBuilder embedBuilder = new EmbedBuilder()
-                .setDescription(embedOrMessageDefinition.getDescriptionOrContent());
-        embedOrMessageDefinition.getFields().forEach(f -> embedBuilder.addField(f.getName(), f.getValue(), f.isInline()));
-        return createMonoFrom(() -> event.replyEmbeds(ImmutableSet.of(embedBuilder.build())).setEphemeral(ephemeral))
-                .onErrorResume(t -> handleException("Error on replay ephemeral", t, true).ofType(InteractionHook.class))
+    public Mono<Void> replyWithEmbedOrMessageDefinition(@NonNull EmbedOrMessageDefinition messageDefinition, boolean ephemeral) {
+        return replyWithEmbedOrMessageDefinition(event, messageDefinition, ephemeral)
+                .onErrorResume(t -> handleException("Error on replay", t, true).ofType(InteractionHook.class))
                 .then();
     }
 
+
     @Override
-    public @NonNull Mono<Long> createButtonMessage(@NonNull MessageDefinition messageDefinition) {
-        return createButtonMessage(event.getMessageChannel(), messageDefinition)
+    public @NonNull Mono<Long> createMessageWithoutReference(@NonNull EmbedOrMessageDefinition messageDefinition) {
+        return createMessageWithoutReference(event.getMessageChannel(), messageDefinition)
                 .onErrorResume(t -> handleException("Error on creating button message", t, false).ofType(Message.class))
                 .map(Message::getIdLong);
     }
 
     @Override
-    public Mono<Void> createResultMessageWithEventReference(EmbedOrMessageDefinition answer) {
+    public Mono<Void> createResultMessageWithReference(EmbedOrMessageDefinition answer) {
         return createMessageWithReference(event.getMessageChannel(),
                 answer,
                 Optional.ofNullable(event.getMember()).map(Member::getEffectiveName).orElse(event.getUser().getName()),

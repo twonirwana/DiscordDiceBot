@@ -4,7 +4,6 @@ import de.janno.discord.bot.persistance.MessageConfigDTO;
 import de.janno.discord.bot.persistance.MessageDataDTO;
 import de.janno.discord.bot.persistance.PersistenceManager;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
-import de.janno.discord.connector.api.message.MessageDefinition;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import lombok.NonNull;
 import org.apache.commons.lang3.NotImplementedException;
@@ -40,7 +39,7 @@ public class TestCommand extends AbstractCommand<Config, StateData> {
     }
 
     @Override
-    protected @NonNull Optional<MessageDefinition> createNewButtonMessageWithState(UUID configId, Config config, State<StateData> state, long guildId, long channelId) {
+    protected @NonNull Optional<EmbedOrMessageDefinition> createNewButtonMessageWithState(UUID configId, Config config, State<StateData> state, long guildId, long channelId) {
         throw new NotImplementedException("Not implemented");
     }
 
@@ -50,7 +49,7 @@ public class TestCommand extends AbstractCommand<Config, StateData> {
     }
 
     @Override
-    public @NonNull MessageDefinition createNewButtonMessage(UUID configId, Config config) {
+    public @NonNull EmbedOrMessageDefinition createNewButtonMessage(UUID configId, Config config) {
         throw new NotImplementedException("Not implemented");
     }
 

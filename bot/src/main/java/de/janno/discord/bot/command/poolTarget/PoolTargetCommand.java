@@ -16,7 +16,6 @@ import de.janno.discord.connector.api.BottomCustomIdUtils;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
-import de.janno.discord.connector.api.message.MessageDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinitionOption;
 import de.janno.discord.connector.api.slash.CommandDefinitionOptionChoice;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
@@ -38,8 +37,8 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTar
     static final String REROLL_SET_OPTION = "reroll_set";
     static final String BOTCH_SET_OPTION = "botch_set";
     static final String REROLL_VARIANT_OPTION = "reroll_variant";
+    static final String ALWAYS_REROLL = "always";
     private static final String COMMAND_NAME = "pool_target";
-     static final String ALWAYS_REROLL = "always";
     private static final String ASK_FOR_REROLL = "ask";
     private static final String CLEAR_BUTTON_ID = "clear";
     private static final String DO_REROLL_ID = "do_reroll";
@@ -290,10 +289,11 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTar
     }
 
     @Override
-    public @NonNull MessageDefinition createNewButtonMessage(UUID configUUID, PoolTargetConfig config) {
+    public @NonNull EmbedOrMessageDefinition createNewButtonMessage(UUID configUUID, PoolTargetConfig config) {
         String configDescription = getConfigDescription(config);
-        return MessageDefinition.builder()
-                .content(String.format("Click on the buttons to roll dice%s", configDescription))
+        return EmbedOrMessageDefinition.builder()
+                .type(EmbedOrMessageDefinition.Type.MESSAGE)
+                .descriptionOrContent(String.format("Click on the buttons to roll dice%s", configDescription))
                 .componentRowDefinitions(createPoolButtonLayout(configUUID, config))
                 .build();
     }
@@ -328,10 +328,10 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTar
     }
 
     @Override
-    protected @NonNull Optional<MessageDefinition> createNewButtonMessageWithState(UUID configUUID, PoolTargetConfig config, State<PoolTargetStateData> state, long guildId, long channelId) {
+    protected @NonNull Optional<EmbedOrMessageDefinition> createNewButtonMessageWithState(UUID configUUID, PoolTargetConfig config, State<PoolTargetStateData> state, long guildId, long channelId) {
         if (Optional.ofNullable(state.getData()).map(PoolTargetStateData::getDicePool).orElse(null) != null && state.getData().getTargetNumber() != null && state.getData().getDoReroll() != null) {
-            return Optional.of(MessageDefinition.builder()
-                    .content(String.format("Click on the buttons to roll dice%s", getConfigDescription(config)))
+            return Optional.of(EmbedOrMessageDefinition.builder()
+                    .descriptionOrContent(String.format("Click on the buttons to roll dice%s", getConfigDescription(config)))
                     .componentRowDefinitions(getButtonLayoutWithState(configUUID, state, config))
                     .build());
         }
