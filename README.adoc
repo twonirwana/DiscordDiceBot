@@ -268,9 +268,15 @@ Valid for d[-1,1,1] and the only supported color is: `black`
 
 ==== d6_dots
 
-image:image/d6White.png[image,360]
+.white
+image:image/d6_white.png[image,360]
 
-Valid for d6 and the only supported color is: `white`
+.black_and_gold
+image:image/d6_black_and_gold.png[image,360]
+
+Valid for d6 and the only supported color is: `white` and `black_and_gold`
+
+The by `black_and_gold` was adapted from https://speakthesky.itch.io/typeface-dicier[Dicier].
 
 ==== polyhedral_2d
 
@@ -675,4 +681,5 @@ All functions are case insensitiv.
 * Special thank to mailto:minuette@gmail.com[Myrynvalona] for the design of the dice images for `polyhedral_knots`
 * Special thank to http://scriptarium.org[scriptarium.org] for creating the dice images for `polyhedral_RdD`
 * The `polyhedral_3d` dice images where adapted from https://blendswap.com/blend/16634
-* The `d6_dot` dice images are from https://game-icons.net/
+* The `d6_dot` in `white` dice images are from https://game-icons.net/
+* The `d6_dot` in `black_and_white` dice images are adapted from https://speakthesky.itch.io/typeface-dicier and the Infinite Revolution RPG
