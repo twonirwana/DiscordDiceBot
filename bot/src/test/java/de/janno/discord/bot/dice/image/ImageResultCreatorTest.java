@@ -353,6 +353,29 @@ class ImageResultCreatorTest {
     }
 
     @Test
+    void getImageForRoll_d6DotsWhite() throws ExpressionException, IOException {
+        List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(1, 2, 3, 4, 5, 6), 1000).evaluate("6d6");
+
+        Supplier<? extends InputStream> res = underTest.getImageForRoll(rolls, new DiceStyleAndColor(DiceImageStyle.d6_dots, "white"));
+
+        assertThat(res).isNotNull();
+        assertThat(getDataHash(res)).isEqualTo("2be6d12e5678f9b2ac87d0b5b49169d8b657881a2d2c849332426e24d8a6be54");
+    }
+
+    @Test
+    void getImageForRoll_d6DotsBlackAndGold() throws ExpressionException, IOException {
+        List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(1, 2, 3, 4, 5, 6), 1000).evaluate("6d6");
+
+        Supplier<? extends InputStream> res = underTest.getImageForRoll(rolls, new DiceStyleAndColor(DiceImageStyle.d6_dots, "black_and_gold"));
+
+        assertThat(res).isNotNull();
+        assertThat(getDataHash(res)).isEqualTo("bd8246680e77103a186bd6eae3cdc230b8847c92ff55fffdef1f3fbb74aed45c");
+    }
+
+
+
+
+    @Test
     void getImageForRoll_noDie_3dRedWhite() throws ExpressionException {
         List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(), 1000).evaluate("5");
 

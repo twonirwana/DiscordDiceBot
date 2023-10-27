@@ -1,33 +1,25 @@
 package de.janno.discord.bot.dice.image.provider;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.io.Resources;
 import lombok.NonNull;
 
-import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.function.Function;
 
 public class D6Dotted implements ImageProvider {
 
     private static final String WHITE = "white";
-    private final Map<Integer, BufferedImage> imageMap;
+    private static final String BLACK_AND_GOLD = "black_and_gold";
+    private static final List<String> SUPPORTED_COLORS = List.of(WHITE, BLACK_AND_GOLD);
+    private final Map<String, FileSidesDiceImageMap> color2DiceSideImageMap;
 
 
     public D6Dotted() {
-        try {
-            imageMap = ImmutableMap.of(
-                    1, ImageIO.read(Resources.getResource("images/d6_white/dice-six-faces-one.png").openStream()),
-                    2, ImageIO.read(Resources.getResource("images/d6_white/dice-six-faces-two.png").openStream()),
-                    3, ImageIO.read(Resources.getResource("images/d6_white/dice-six-faces-three.png").openStream()),
-                    4, ImageIO.read(Resources.getResource("images/d6_white/dice-six-faces-four.png").openStream()),
-                    5, ImageIO.read(Resources.getResource("images/d6_white/dice-six-faces-five.png").openStream()),
-                    6, ImageIO.read(Resources.getResource("images/d6_white/dice-six-faces-six.png").openStream()));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        this.color2DiceSideImageMap = SUPPORTED_COLORS.stream()
+                .collect(ImmutableMap.toImmutableMap(Function.identity(), c -> new FileSidesDiceImageMap("d6_" + c, List.of(6))));
     }
 
     @Override
@@ -42,7 +34,7 @@ public class D6Dotted implements ImageProvider {
 
     @Override
     public @NonNull List<String> getSupportedColors() {
-        return List.of(WHITE);
+        return SUPPORTED_COLORS;
     }
 
     @Override
@@ -50,9 +42,17 @@ public class D6Dotted implements ImageProvider {
         if (totalDieSides == null || shownDieSide == null) {
             return List.of();
         }
-        if (totalDieSides == 6 && imageMap.containsKey(shownDieSide)) {
-            return List.of(imageMap.get(shownDieSide));
+
+        final String validatedColor;
+        if (color == null || !getSupportedColors().contains(color)) {
+            validatedColor = getDefaultColor();
+        } else {
+            validatedColor = color;
         }
-        return List.of();
+
+        FileSidesDiceImageMap fileSidesDiceImageMap = color2DiceSideImageMap.get(validatedColor);
+        return Optional.ofNullable(fileSidesDiceImageMap.getDiceImageMap().get(totalDieSides))
+                .map(m -> m.get(shownDieSide))
+                .map(List::of).orElse(List.of());
     }
 }

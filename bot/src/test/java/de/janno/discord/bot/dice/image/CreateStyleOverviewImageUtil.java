@@ -13,18 +13,18 @@ import java.util.Map;
 public class CreateStyleOverviewImageUtil {
 
     public static void main(String[] args) throws IOException {
-        String style = "polyhedral_RdD_default";
-        Map<Integer, Integer> showDieFace = Map.of(4, 4, 6, 6, 8, 8, 10, 10, 12, 12, 20, 20, 100, 10);
+        String style = "d6_black_and_gold";
+        Map<Integer, List<Integer>> showDieFace = Map.of(6, List.of(1, 2, 3, 4, 5, 6));
         int singleDiceSize = 100;
         List<BufferedImage> images = showDieFace.entrySet().stream()
                 .sorted(Map.Entry.comparingByKey())
-                .map(d -> {
+                .flatMap(d -> d.getValue().stream().map(s -> {
                     try {
-                        return ImageIO.read(Resources.getResource("images/%s/d%d/d%ds%d.png".formatted(style, d.getKey(), d.getKey(), d.getValue())));
+                        return ImageIO.read(Resources.getResource("images/%s/d%d/d%ds%d.png".formatted(style, d.getKey(), d.getKey(), s)));
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
-                })
+                }))
                 .toList();
 
 
