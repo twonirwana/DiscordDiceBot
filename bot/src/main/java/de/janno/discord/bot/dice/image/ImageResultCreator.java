@@ -2,6 +2,10 @@ package de.janno.discord.bot.dice.image;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Stopwatch;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
+import com.google.common.collect.ImmutableList;
 import com.google.common.hash.Hashing;
 import de.janno.discord.bot.BotMetrics;
 import de.janno.evaluator.dice.Roll;
@@ -36,6 +40,22 @@ public class ImageResultCreator {
     private static final String CACHE_FOLDER = "imageCache";
     private static final String CACHE_INDEX_FILE = "imageCacheName.csv";
     private final BigInteger MAX_ROLL_COMBINATION_TO_CACHE;
+    private final LoadingCache<Integer, BufferedImage> separatorImage = CacheBuilder.newBuilder()
+            .maximumSize(10)
+            .build(new CacheLoader<>() {
+                @Override
+                public @NonNull BufferedImage load(@NonNull Integer high) {
+                    BufferedImage combined = new BufferedImage(15, high, BufferedImage.TYPE_INT_ARGB_PRE);
+
+                    Graphics g = combined.getGraphics();
+                    g.setColor(Color.lightGray);
+                    g.fillRect(1, (high / 2) - 2, 13, 4);
+                    g.setColor(Color.black);
+                    g.drawRect(1, (high / 2) - 2, 13, 4);
+                    g.dispose();
+                    return combined;
+                }
+            });
 
     public ImageResultCreator() {
         this(1000);
@@ -101,9 +121,7 @@ public class ImageResultCreator {
         }
         if (rolls.size() != 1 ||
                 rolls.get(0).getRandomElementsInRoll().getRandomElements().isEmpty() ||
-                rolls.get(0).getRandomElementsInRoll().getRandomElements().size() > 10 ||
-                rolls.get(0).getRandomElementsInRoll().getRandomElements().stream().anyMatch(r -> r.getRandomElements().size() > 15) ||
-                rolls.get(0).getRandomElementsInRoll().getRandomElements().stream().anyMatch(r -> r.getRandomElements().isEmpty()) ||
+                rolls.get(0).getRandomElementsInRoll().getRandomElements().stream().mapToInt(r -> r.getRandomElements().size()).sum() > 30 ||
                 rolls.get(0).getRandomElementsInRoll().getRandomElements().stream()
                         .flatMap(r -> r.getRandomElements().stream())
                         .anyMatch(r -> diceStyleAndColor.getImageFor(r.getMaxInc(), r.getRollElement().asInteger().orElse(null), r.getRollElement().getColor()).isEmpty())
@@ -136,34 +154,50 @@ public class ImageResultCreator {
     private Supplier<? extends InputStream> createNewFileForRoll(Roll roll, File file, String name, DiceStyleAndColor diceStyleAndColor) {
         Stopwatch stopwatch = Stopwatch.createStarted();
 
-        List<List<BufferedImage>> images = roll.getRandomElementsInRoll().getRandomElements().stream()
+        final List<List<BufferedImage>> images = roll.getRandomElementsInRoll().getRandomElements().stream()
                 .map(r -> r.getRandomElements().stream()
                         .flatMap(re -> diceStyleAndColor.getImageFor(re.getMaxInc(), re.getRollElement().asInteger().orElse(null), re.getRollElement().getColor()).stream())
                         .toList()
                 )
                 .filter(l -> !l.isEmpty())
                 .toList();
+        final int singleDiceSize = diceStyleAndColor.getDieHighAndWith();
 
+        BufferedImage separator = separatorImage.getUnchecked(singleDiceSize);
+        ImmutableList.Builder<BufferedImage> builder = ImmutableList.builder();
+        for (int i = 0; i < images.size() - 1; i++) {
+            builder.addAll(images.get(i));
+            builder.add(separator);
+        }
+        builder.addAll(images.get(images.size() - 1));
 
-        int maxInnerSize = images.stream()
-                .mapToInt(List::size)
-                .max().orElseThrow();
+        final List<BufferedImage> imagesWithSeparators = builder.build();
 
-        int singleDiceSize = diceStyleAndColor.getDieHighAndWith();
-        int w = singleDiceSize * (maxInnerSize);
-        int h = singleDiceSize * (images.size());
+        final int maxLineWidth = 640;
+
+        final int allInOneLineWidth = imagesWithSeparators.stream().mapToInt(BufferedImage::getWidth).sum();
+        final int numberOfImageLines = (int) Math.ceil(((double) allInOneLineWidth) / ((double) maxLineWidth));
+
+        final int w = Math.min(allInOneLineWidth, maxLineWidth);
+        final int h = singleDiceSize * numberOfImageLines;
         BufferedImage combined = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB_PRE);
 
         Graphics g = combined.getGraphics();
 
-        for (int i = 0; i < images.size(); i++) {
-            List<BufferedImage> line = images.get(i);
-            for (int j = 0; j < line.size(); j++) {
-                g.drawImage(line.get(j), singleDiceSize * j, singleDiceSize * i, singleDiceSize, singleDiceSize, null);
+        int currentLine = 0;
+        int currentLineWidth = 0;
+        for (BufferedImage image : imagesWithSeparators) {
+            if (image.getWidth() + currentLineWidth > maxLineWidth) {
+                currentLine++;
+                currentLineWidth = image.getWidth();
+            } else {
+                currentLineWidth += image.getWidth();
             }
+            g.drawImage(image, currentLineWidth - image.getWidth(), singleDiceSize * currentLine, image.getWidth(), singleDiceSize, null);
         }
+
         g.dispose();
-        String indexPath = "%s/%s/%s".formatted(CACHE_FOLDER, diceStyleAndColor.toString(), CACHE_INDEX_FILE);
+        final String indexPath = "%s/%s/%s".formatted(CACHE_FOLDER, diceStyleAndColor.toString(), CACHE_INDEX_FILE);
         BigInteger combinations = roll.getRandomElementsInRoll().getRandomElements()
                 .stream().flatMap(r -> r.getRandomElements().stream())
                 .map(r -> {
@@ -178,6 +212,7 @@ public class ImageResultCreator {
                 )
                 .map(BigInteger::valueOf)
                 .reduce(BigInteger.ONE, BigInteger::multiply);
+
         //don't cache images that unlikely to ever get generated again
         if (MAX_ROLL_COMBINATION_TO_CACHE.compareTo(combinations) < 0) {
             BotMetrics.incrementImageResultMetricCounter(BotMetrics.CacheTag.CACHE_SKIP);

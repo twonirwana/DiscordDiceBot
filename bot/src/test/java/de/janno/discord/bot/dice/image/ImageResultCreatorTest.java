@@ -10,6 +10,7 @@ import de.janno.evaluator.dice.random.GivenNumberSupplier;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -75,7 +76,7 @@ class ImageResultCreatorTest {
     @BeforeEach
     void setup() throws IOException {
         File cacheDirectory = new File("imageCache/");
-        if(cacheDirectory.exists()){
+        if (cacheDirectory.exists()) {
             FileUtils.cleanDirectory(cacheDirectory);
         }
     }
@@ -83,7 +84,7 @@ class ImageResultCreatorTest {
     @AfterEach
     void cleanUp() throws IOException {
         File cacheDirectory = new File("imageCache/");
-        if(cacheDirectory.exists()){
+        if (cacheDirectory.exists()) {
             FileUtils.cleanDirectory(cacheDirectory);
         }
     }
@@ -178,7 +179,7 @@ class ImageResultCreatorTest {
         Supplier<? extends InputStream> res = underTest.getImageForRoll(rolls, new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v1, "black_and_gold"));
 
         assertThat(res).isNotNull();
-        assertThat(getDataHash(res)).isEqualTo("704e741a90a7ca38dacd7e571863ab55bb9ae47120d0b16e7278993ac7f33b82");
+        assertThat(getDataHash(res)).isEqualTo("a2c774609da21cd6982d3fad969a7ec87db430c1cb83cf7dadb61b3374cf5589");
     }
 
     @Test
@@ -271,14 +272,14 @@ class ImageResultCreatorTest {
         assertThat(res1).isNotNull();
         File cacheFolder = new File("imageCache/");
         assertThat(cacheFolder).isEmptyDirectory();
-        assertThat(getDataHash(res1)).isEqualTo("5672d47a89d51f0098bc154b22c72f1ea2059ba8d77a589adca8bd720c7ace2b");
+        assertThat(getDataHash(res1)).isEqualTo("c6ea9275d2ab8391ff4978a4fd8e3f36fa0ef0ab4dc6fa85074a175e2bd307b0");
 
         List<Roll> rolls2 = new DiceEvaluator(new GivenNumberSupplier(1), 1000).evaluate("7d10");
         Supplier<? extends InputStream> res2 = underTest.getImageForRoll(rolls2, new DiceStyleAndColor(DiceImageStyle.polyhedral_3d, "red_and_white"));
 
         assertThat(cacheFolder).isEmptyDirectory();
         assertThat(res2).isNotNull();
-        assertThat(getDataHash(res2)).isEqualTo("5672d47a89d51f0098bc154b22c72f1ea2059ba8d77a589adca8bd720c7ace2b");
+        assertThat(getDataHash(res2)).isEqualTo("c6ea9275d2ab8391ff4978a4fd8e3f36fa0ef0ab4dc6fa85074a175e2bd307b0");
     }
 
     @Test
@@ -349,7 +350,7 @@ class ImageResultCreatorTest {
         Supplier<? extends InputStream> res = underTest.getImageForRoll(rolls, new DiceStyleAndColor(DiceImageStyle.polyhedral_3d, "red_and_white"));
 
         assertThat(res).isNotNull();
-        assertThat(getDataHash(res)).isEqualTo("2956ce00e097a7332f6769e37c69c7120074918316102b614758d65486c8cbfb");
+        assertThat(getDataHash(res)).isEqualTo("5bb342eaacea0ef00fab10901e786a3b5f3b38b287f7c7961b9cf7f117694f6e");
     }
 
     @Test
@@ -369,10 +370,8 @@ class ImageResultCreatorTest {
         Supplier<? extends InputStream> res = underTest.getImageForRoll(rolls, new DiceStyleAndColor(DiceImageStyle.d6_dots, "black_and_gold"));
 
         assertThat(res).isNotNull();
-        assertThat(getDataHash(res)).isEqualTo("bd8246680e77103a186bd6eae3cdc230b8847c92ff55fffdef1f3fbb74aed45c");
+        assertThat(getDataHash(res)).isEqualTo("d2cbedfb456d593a51fd5339c95b802ef1dc6157279083e4f9e947b86744226f");
     }
-
-
 
 
     @Test
@@ -491,15 +490,28 @@ class ImageResultCreatorTest {
         Supplier<? extends InputStream> res = underTest.getImageForRoll(rolls, new DiceStyleAndColor(DiceImageStyle.polyhedral_RdD, DiceImageStyle.polyhedral_RdD.getDefaultColor()));
 
         assertThat(res).isNotNull();
-        assertThat(getDataHash(res)).isEqualTo("de01222cf4ea85e2fe2eea6539ebdfe9809bfe88f6dfb8ece5736df9eeb6603d");
+        assertThat(getDataHash(res)).isEqualTo("134795311673058eac57eaeecb83010b9323b0f9056bd8d80af3355d81d3e674");
     }
 
     @Test
     void getImageForRoll_polyhedral_RdD_specialColor() throws ExpressionException {
-        List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier( 99), 1000).evaluate("1d100");
+        List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(99), 1000).evaluate("1d100");
 
         Supplier<? extends InputStream> res = underTest.getImageForRoll(rolls, new DiceStyleAndColor(DiceImageStyle.polyhedral_RdD, "special"));
 
         assertThat(res).isNull();
+    }
+
+    @Test
+    @Disabled
+    void debug() throws ExpressionException, IOException {
+        List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(4, 1, 2, 3, 4, 5, 6, 7, 8, 10, 12, 20, 99, 8, 12), 1000).evaluate("1d4 + 6d6 + 1d7 + 1d8 + 1d10 +1d12 + 1d20 + 1d100  + 1d8 col 'special' + 1d12 col 'special'");
+
+        Supplier<? extends InputStream> res = underTest.getImageForRoll(rolls, new DiceStyleAndColor(DiceImageStyle.polyhedral_RdD, DiceImageStyle.polyhedral_RdD.getDefaultColor()));
+
+
+        File out = new File("out.png");
+        assertThat(res).isNotNull();
+        FileUtils.copyInputStreamToFile(res.get(), out);
     }
 }
