@@ -91,7 +91,7 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesConfig,
 
     @Override
     protected @NonNull String getCommandDescription() {
-        return "Configure buttons for dice, with the same side, that counts successes against a target number";
+        return "Legacy command, use /custom_parameter";
     }
 
     @Override

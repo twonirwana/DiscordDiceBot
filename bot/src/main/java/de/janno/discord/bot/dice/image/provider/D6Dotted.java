@@ -11,8 +11,8 @@ import java.util.function.Function;
 
 public class D6Dotted implements ImageProvider {
 
-    private static final String WHITE = "white";
-    private static final String BLACK_AND_GOLD = "black_and_gold";
+    public static final String WHITE = "white";
+    public static final String BLACK_AND_GOLD = "black_and_gold";
     private static final List<String> SUPPORTED_COLORS = List.of(WHITE, BLACK_AND_GOLD);
     private final Map<String, FileSidesDiceImageMap> color2DiceSideImageMap;
 

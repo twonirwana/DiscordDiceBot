@@ -62,7 +62,7 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTar
 
     @Override
     protected @NonNull String getCommandDescription() {
-        return "Roll dice and against a variable target";
+        return "Legacy command, use /custom_parameter";
     }
 
     @Override

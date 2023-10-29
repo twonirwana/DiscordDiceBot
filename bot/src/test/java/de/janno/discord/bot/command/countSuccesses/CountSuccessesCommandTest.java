@@ -38,7 +38,7 @@ class CountSuccessesCommandTest {
 
     @Test
     void getCommandDescription() {
-        assertThat(underTest.getCommandDescription()).isEqualTo("Configure buttons for dice, with the same side, that counts successes against a target number");
+        assertThat(underTest.getCommandDescription()).isEqualTo("Legacy command, use /custom_parameter");
     }
 
     @Test

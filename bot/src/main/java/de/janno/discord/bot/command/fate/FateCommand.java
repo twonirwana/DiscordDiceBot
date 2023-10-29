@@ -76,7 +76,7 @@ public class FateCommand extends AbstractCommand<FateConfig, StateData> {
 
     @Override
     protected @NonNull String getCommandDescription() {
-        return "Configure Fate dice";
+        return "Legacy command, use /custom_parameter or /custom_dice";
     }
 
     @Override

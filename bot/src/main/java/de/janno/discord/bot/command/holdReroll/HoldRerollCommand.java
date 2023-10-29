@@ -66,7 +66,7 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollConfig, HoldRer
 
     @Override
     protected @NonNull String getCommandDescription() {
-        return "Roll dice and with a option to reroll";
+        return "Legacy command, use /custom_parameter";
     }
 
     @Override
