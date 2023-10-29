@@ -95,7 +95,7 @@ or
 [discrete]
 === Savage Worlds:
 
-`/quickstart system:`
+`/quickstart system: Savage Worlds`
 
 or
 
