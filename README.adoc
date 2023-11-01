@@ -559,7 +559,7 @@ All functions are case insensitiv.
 |===
 |Name |Notation |Example |Description
 |min |`min(<expression1>, <expression2> ...)` |`min(4d6)` |returns the smallest elements (multiple if the smallest is not unique) of one or more inner expressions. Text is compared alphabetically
-|max |`max(<expression1>, <expression2> ...)` |`max(4d6)` |returns the smallest elements (multiple if the smallest is not unique) of one or more inner expressions. Text is compared alphabetically
+|max |`max(<expression1>, <expression2> ...)` |`max(4d6)` |returns the largest elements (multiple if the largest is not unique) of one or more inner expressions. Text is compared alphabetically
 |sort asc |`asc(<expression1>, <expression2> ...)` |`asc(4d6)` |sorts all elements ascending of one or more inner expressions. Text is compared alphabetically
 |sort desc |`desc(<expression1>, <expression2> ...)` |`desc(4d6)` |sorts all elements descending of one or more inner expressions. Text is compared alphabetically
 |chancel |`chancel(<expression>, <listA>, <listB>)` |`chancel(8d10, 10, 1)` |the elements of listA and listB (can also be single elements) chancel each other and remove each other from the result.
