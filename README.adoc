@@ -244,8 +244,7 @@ For the direct rolls it can be configured with the `channel_config` command.
 The images will only be shown if the following conditions are met:
 
 * The `answer_format` is set to `full` or `without_expression`
-* No set of dice with more than 15 dice
-* Not more the 10 sets of dice
+* No set of dice with more than 30 dice
 * No multi line result
 
 There are the following options:
