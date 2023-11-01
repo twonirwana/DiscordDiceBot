@@ -325,7 +325,7 @@ class CustomDiceCommandTest {
                 .description("Configure dice buttons like: 1d6;2d8=;1d10+10=")
                 .option(CommandDefinitionOption.builder()
                         .name("start")
-                        .description("Start")
+                        .description("Configure dice buttons like: 1d6;2d8=;1d10+10=")
                         .type(CommandDefinitionOption.Type.SUB_COMMAND)
                         .option(CommandDefinitionOption.builder()
                                 .name("buttons")
@@ -413,7 +413,7 @@ class CustomDiceCommandTest {
                         .build())
                 .option(CommandDefinitionOption.builder()
                         .name("help")
-                        .description("Help")
+                        .description("Get help for custom_dice")
                         .type(CommandDefinitionOption.Type.SUB_COMMAND)
                         .build())
                 .build());

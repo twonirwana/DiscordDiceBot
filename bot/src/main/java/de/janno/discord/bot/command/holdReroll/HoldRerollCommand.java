@@ -66,13 +66,13 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollConfig, HoldRer
 
     @Override
     protected @NonNull String getCommandDescription() {
-        return "Roll dice and with a option to reroll";
+        return "Legacy command, use /custom_parameter";
     }
 
     @Override
     protected @NonNull EmbedOrMessageDefinition getHelpMessage() {
         return EmbedOrMessageDefinition.builder()
-                .descriptionOrContent("Use '/hold_reroll start' to get message, where the user can roll dice")
+                .descriptionOrContent("**Legacy command, use /custom_parameter**")
                 .field(new EmbedOrMessageDefinition.Field("Example", "`/hold_reroll start sides:6 reroll_set:2,3,4 success_set:5,6 failure_set:1`", false))
                 .field(new EmbedOrMessageDefinition.Field("Full documentation", "https://github.com/twonirwana/DiscordDiceBot", false))
                 .field(new EmbedOrMessageDefinition.Field("Discord Server for Help and News", "https://discord.gg/e43BsqKpFr", false))

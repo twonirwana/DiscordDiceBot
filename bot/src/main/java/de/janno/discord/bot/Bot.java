@@ -12,8 +12,8 @@ import de.janno.discord.bot.command.directRoll.HiddenDirectRollCommand;
 import de.janno.discord.bot.command.directRoll.ValidationCommand;
 import de.janno.discord.bot.command.fate.FateCommand;
 import de.janno.discord.bot.command.help.HelpCommand;
-import de.janno.discord.bot.command.help.RpgSystemCommandPreset;
 import de.janno.discord.bot.command.help.QuickstartCommand;
+import de.janno.discord.bot.command.help.RpgSystemCommandPreset;
 import de.janno.discord.bot.command.help.WelcomeCommand;
 import de.janno.discord.bot.command.holdReroll.HoldRerollCommand;
 import de.janno.discord.bot.command.poolTarget.PoolTargetCommand;
@@ -64,7 +64,7 @@ public class Bot {
         CustomParameterCommand customParameterCommand = new CustomParameterCommand(persistenceManager, cachingDiceEvaluator);
         SumCustomSetCommand sumCustomSetCommand = new SumCustomSetCommand(persistenceManager, cachingDiceEvaluator);
         PoolTargetCommand poolTargetCommand = new PoolTargetCommand(persistenceManager);
-        RpgSystemCommandPreset rpgSystemCommandPreset = new RpgSystemCommandPreset(persistenceManager, customParameterCommand, fateCommand, customDiceCommand, countSuccessesCommand, sumCustomSetCommand, poolTargetCommand);
+        RpgSystemCommandPreset rpgSystemCommandPreset = new RpgSystemCommandPreset(persistenceManager, customParameterCommand, customDiceCommand, sumCustomSetCommand);
 
         WelcomeCommand welcomeCommand = new WelcomeCommand(persistenceManager, rpgSystemCommandPreset);
 

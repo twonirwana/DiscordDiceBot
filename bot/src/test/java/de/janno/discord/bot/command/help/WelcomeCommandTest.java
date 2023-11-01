@@ -4,11 +4,8 @@ import de.janno.discord.bot.command.AnswerFormatType;
 import de.janno.discord.bot.command.Config;
 import de.janno.discord.bot.command.State;
 import de.janno.discord.bot.command.StateData;
-import de.janno.discord.bot.command.countSuccesses.CountSuccessesCommand;
 import de.janno.discord.bot.command.customDice.CustomDiceCommand;
 import de.janno.discord.bot.command.customParameter.CustomParameterCommand;
-import de.janno.discord.bot.command.fate.FateCommand;
-import de.janno.discord.bot.command.poolTarget.PoolTargetCommand;
 import de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommand;
 import de.janno.discord.bot.dice.CachingDiceEvaluator;
 import de.janno.discord.bot.dice.image.DiceImageStyle;
@@ -39,13 +36,10 @@ class WelcomeCommandTest {
     void setup() {
         PersistenceManager persistenceManager = Mockito.mock(PersistenceManager.class);
         CachingDiceEvaluator cachingDiceEvaluator = new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0);
-        CountSuccessesCommand countSuccessesCommand = new CountSuccessesCommand(persistenceManager);
         CustomDiceCommand customDiceCommand = new CustomDiceCommand(persistenceManager, cachingDiceEvaluator);
-        FateCommand fateCommand = new FateCommand(persistenceManager);
         CustomParameterCommand customParameterCommand = new CustomParameterCommand(persistenceManager, cachingDiceEvaluator);
         SumCustomSetCommand sumCustomSetCommand = new SumCustomSetCommand(persistenceManager, cachingDiceEvaluator);
-        PoolTargetCommand poolTargetCommand = new PoolTargetCommand(persistenceManager);
-        RpgSystemCommandPreset rpgSystemCommandPreset = new RpgSystemCommandPreset(persistenceManager, customParameterCommand, fateCommand, customDiceCommand, countSuccessesCommand, sumCustomSetCommand, poolTargetCommand);
+        RpgSystemCommandPreset rpgSystemCommandPreset = new RpgSystemCommandPreset(persistenceManager, customParameterCommand, customDiceCommand, sumCustomSetCommand);
         underTest = new WelcomeCommand(persistenceManager, rpgSystemCommandPreset, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"));
     }
 
@@ -54,33 +48,33 @@ class WelcomeCommandTest {
     public void getButtonMessageWithState_fate() {
         Optional<EmbedOrMessageDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), null, new State<>("fate", StateData.empty()), 1L, 2L);
         Assertions.assertThat(res.map(EmbedOrMessageDefinition::getDescriptionOrContent))
-                .contains("Click a button to roll four fate dice and add the value of the button");
+                .contains("Please select value for **Modifier**");
         Assertions.assertThat(res.map(EmbedOrMessageDefinition::getComponentRowDefinitions)
                         .stream()
                         .flatMap(Collection::stream)
                         .flatMap(s -> s.getButtonDefinitions().stream())
                         .map(ButtonDefinition::getId))
-                .containsExactly("fate-400000000-0000-0000-0000-000000000000",
-                        "fate-300000000-0000-0000-0000-000000000000",
-                        "fate-200000000-0000-0000-0000-000000000000",
-                        "fate-100000000-0000-0000-0000-000000000000",
-                        "fate000000000-0000-0000-0000-000000000000",
-                        "fate100000000-0000-0000-0000-000000000000",
-                        "fate200000000-0000-0000-0000-000000000000",
-                        "fate300000000-0000-0000-0000-000000000000",
-                        "fate400000000-0000-0000-0000-000000000000",
-                        "fate500000000-0000-0000-0000-000000000000",
-                        "fate600000000-0000-0000-0000-000000000000",
-                        "fate700000000-0000-0000-0000-000000000000",
-                        "fate800000000-0000-0000-0000-000000000000",
-                        "fate900000000-0000-0000-0000-000000000000",
-                        "fate1000000000-0000-0000-0000-000000000000");
+                .containsExactly("custom_parameterid100000000-0000-0000-0000-000000000000",
+                        "custom_parameterid200000000-0000-0000-0000-000000000000",
+                        "custom_parameterid300000000-0000-0000-0000-000000000000",
+                        "custom_parameterid400000000-0000-0000-0000-000000000000",
+                        "custom_parameterid500000000-0000-0000-0000-000000000000",
+                        "custom_parameterid600000000-0000-0000-0000-000000000000",
+                        "custom_parameterid700000000-0000-0000-0000-000000000000",
+                        "custom_parameterid800000000-0000-0000-0000-000000000000",
+                        "custom_parameterid900000000-0000-0000-0000-000000000000",
+                        "custom_parameterid1000000000-0000-0000-0000-000000000000",
+                        "custom_parameterid1100000000-0000-0000-0000-000000000000",
+                        "custom_parameterid1200000000-0000-0000-0000-000000000000",
+                        "custom_parameterid1300000000-0000-0000-0000-000000000000",
+                        "custom_parameterid1400000000-0000-0000-0000-000000000000",
+                        "custom_parameterid1500000000-0000-0000-0000-000000000000");
         Assertions.assertThat(res.map(EmbedOrMessageDefinition::getComponentRowDefinitions)
                         .stream()
                         .flatMap(Collection::stream)
                         .flatMap(s -> s.getButtonDefinitions().stream())
                         .map(ButtonDefinition::getLabel))
-                .containsExactly("-4", "-3", "-2", "-1", "0", "+1", "+2", "+3", "+4", "+5", "+6", "+7", "+8", "+9", "+10");
+                .containsExactly("-4", "-3", "-2", "-1", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10");
 
     }
 
@@ -156,67 +150,67 @@ class WelcomeCommandTest {
         Optional<EmbedOrMessageDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), null, new State<>("nWoD", StateData.empty()), 1L, 2L);
 
         Assertions.assertThat(res.map(EmbedOrMessageDefinition::getDescriptionOrContent))
-                .contains("Click to roll the dice against 8, reroll for: [10]");
+                .contains("Please select value for **Number of Dice**");
         Assertions.assertThat(res.map(EmbedOrMessageDefinition::getComponentRowDefinitions)
                         .stream()
                         .flatMap(Collection::stream)
                         .flatMap(s -> s.getButtonDefinitions().stream())
                         .map(ButtonDefinition::getId))
-                .containsExactly("count_successes100000000-0000-0000-0000-000000000000",
-                        "count_successes200000000-0000-0000-0000-000000000000",
-                        "count_successes300000000-0000-0000-0000-000000000000",
-                        "count_successes400000000-0000-0000-0000-000000000000",
-                        "count_successes500000000-0000-0000-0000-000000000000",
-                        "count_successes600000000-0000-0000-0000-000000000000",
-                        "count_successes700000000-0000-0000-0000-000000000000",
-                        "count_successes800000000-0000-0000-0000-000000000000",
-                        "count_successes900000000-0000-0000-0000-000000000000",
-                        "count_successes1000000000-0000-0000-0000-000000000000",
-                        "count_successes1100000000-0000-0000-0000-000000000000",
-                        "count_successes1200000000-0000-0000-0000-000000000000",
-                        "count_successes1300000000-0000-0000-0000-000000000000",
-                        "count_successes1400000000-0000-0000-0000-000000000000",
-                        "count_successes1500000000-0000-0000-0000-000000000000");
+                .containsExactly("custom_parameterid100000000-0000-0000-0000-000000000000",
+                        "custom_parameterid200000000-0000-0000-0000-000000000000",
+                        "custom_parameterid300000000-0000-0000-0000-000000000000",
+                        "custom_parameterid400000000-0000-0000-0000-000000000000",
+                        "custom_parameterid500000000-0000-0000-0000-000000000000",
+                        "custom_parameterid600000000-0000-0000-0000-000000000000",
+                        "custom_parameterid700000000-0000-0000-0000-000000000000",
+                        "custom_parameterid800000000-0000-0000-0000-000000000000",
+                        "custom_parameterid900000000-0000-0000-0000-000000000000",
+                        "custom_parameterid1000000000-0000-0000-0000-000000000000",
+                        "custom_parameterid1100000000-0000-0000-0000-000000000000",
+                        "custom_parameterid1200000000-0000-0000-0000-000000000000",
+                        "custom_parameterid1300000000-0000-0000-0000-000000000000",
+                        "custom_parameterid1400000000-0000-0000-0000-000000000000",
+                        "custom_parameterid1500000000-0000-0000-0000-000000000000");
         Assertions.assertThat(res.map(EmbedOrMessageDefinition::getComponentRowDefinitions)
                         .stream()
                         .flatMap(Collection::stream)
                         .flatMap(s -> s.getButtonDefinitions().stream())
                         .map(ButtonDefinition::getLabel))
-                .containsExactly("1d10", "2d10", "3d10", "4d10", "5d10", "6d10", "7d10", "8d10", "9d10", "10d10", "11d10", "12d10", "13d10", "14d10", "15d10");
+                .containsExactly("1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15");
     }
 
     @Test
     public void getButtonMessageWithState_oWoD() {
         Optional<EmbedOrMessageDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), null, new State<>("oWoD", StateData.empty()), 1L, 2L);
         Assertions.assertThat(res.map(EmbedOrMessageDefinition::getDescriptionOrContent))
-                .contains("Click on the buttons to roll dice, with ask reroll:10 and botch:1");
+                .contains("Please select value for **Number of Dice**");
         Assertions.assertThat(res.map(EmbedOrMessageDefinition::getComponentRowDefinitions)
                         .stream()
                         .flatMap(Collection::stream)
                         .flatMap(s -> s.getButtonDefinitions().stream())
                         .map(ButtonDefinition::getId))
-                .containsExactly("pool_target100000000-0000-0000-0000-000000000000",
-                        "pool_target200000000-0000-0000-0000-000000000000",
-                        "pool_target300000000-0000-0000-0000-000000000000",
-                        "pool_target400000000-0000-0000-0000-000000000000",
-                        "pool_target500000000-0000-0000-0000-000000000000",
-                        "pool_target600000000-0000-0000-0000-000000000000",
-                        "pool_target700000000-0000-0000-0000-000000000000",
-                        "pool_target800000000-0000-0000-0000-000000000000",
-                        "pool_target900000000-0000-0000-0000-000000000000",
-                        "pool_target1000000000-0000-0000-0000-000000000000",
-                        "pool_target1100000000-0000-0000-0000-000000000000",
-                        "pool_target1200000000-0000-0000-0000-000000000000",
-                        "pool_target1300000000-0000-0000-0000-000000000000",
-                        "pool_target1400000000-0000-0000-0000-000000000000",
-                        "pool_target1500000000-0000-0000-0000-000000000000");
+                .containsExactly("custom_parameterid100000000-0000-0000-0000-000000000000",
+                        "custom_parameterid200000000-0000-0000-0000-000000000000",
+                        "custom_parameterid300000000-0000-0000-0000-000000000000",
+                        "custom_parameterid400000000-0000-0000-0000-000000000000",
+                        "custom_parameterid500000000-0000-0000-0000-000000000000",
+                        "custom_parameterid600000000-0000-0000-0000-000000000000",
+                        "custom_parameterid700000000-0000-0000-0000-000000000000",
+                        "custom_parameterid800000000-0000-0000-0000-000000000000",
+                        "custom_parameterid900000000-0000-0000-0000-000000000000",
+                        "custom_parameterid1000000000-0000-0000-0000-000000000000",
+                        "custom_parameterid1100000000-0000-0000-0000-000000000000",
+                        "custom_parameterid1200000000-0000-0000-0000-000000000000",
+                        "custom_parameterid1300000000-0000-0000-0000-000000000000",
+                        "custom_parameterid1400000000-0000-0000-0000-000000000000",
+                        "custom_parameterid1500000000-0000-0000-0000-000000000000");
         Assertions.assertThat(res.map(EmbedOrMessageDefinition::getComponentRowDefinitions)
                         .stream()
                         .flatMap(Collection::stream)
                         .flatMap(s -> s.getButtonDefinitions().stream())
                         .map(ButtonDefinition::getLabel))
-                .containsExactly("1d10", "2d10", "3d10", "4d10", "5d10", "6d10", "7d10", "8d10", "9d10", "10d10",
-                        "11d10", "12d10", "13d10", "14d10", "15d10");
+                .containsExactly("1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15");
+
 
     }
 
@@ -224,38 +218,38 @@ class WelcomeCommandTest {
     public void getButtonMessageWithState_Shadowrun() {
         Optional<EmbedOrMessageDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), null, new State<>("shadowrun", StateData.empty()), 1L, 2L);
         Assertions.assertThat(res.map(EmbedOrMessageDefinition::getDescriptionOrContent))
-                .contains("Click to roll the dice against 5 and check for more then half of dice 1s");
+                .contains("Please select value for **number of dice**");
         Assertions.assertThat(res.map(EmbedOrMessageDefinition::getComponentRowDefinitions)
                         .stream()
                         .flatMap(Collection::stream)
                         .flatMap(s -> s.getButtonDefinitions().stream())
                         .map(ButtonDefinition::getId))
-                .containsExactly("count_successes100000000-0000-0000-0000-000000000000",
-                        "count_successes200000000-0000-0000-0000-000000000000",
-                        "count_successes300000000-0000-0000-0000-000000000000",
-                        "count_successes400000000-0000-0000-0000-000000000000",
-                        "count_successes500000000-0000-0000-0000-000000000000",
-                        "count_successes600000000-0000-0000-0000-000000000000",
-                        "count_successes700000000-0000-0000-0000-000000000000",
-                        "count_successes800000000-0000-0000-0000-000000000000",
-                        "count_successes900000000-0000-0000-0000-000000000000",
-                        "count_successes1000000000-0000-0000-0000-000000000000",
-                        "count_successes1100000000-0000-0000-0000-000000000000",
-                        "count_successes1200000000-0000-0000-0000-000000000000",
-                        "count_successes1300000000-0000-0000-0000-000000000000",
-                        "count_successes1400000000-0000-0000-0000-000000000000",
-                        "count_successes1500000000-0000-0000-0000-000000000000",
-                        "count_successes1600000000-0000-0000-0000-000000000000",
-                        "count_successes1700000000-0000-0000-0000-000000000000",
-                        "count_successes1800000000-0000-0000-0000-000000000000",
-                        "count_successes1900000000-0000-0000-0000-000000000000",
-                        "count_successes2000000000-0000-0000-0000-000000000000");
+                .containsExactly("custom_parameterid100000000-0000-0000-0000-000000000000",
+                        "custom_parameterid200000000-0000-0000-0000-000000000000",
+                        "custom_parameterid300000000-0000-0000-0000-000000000000",
+                        "custom_parameterid400000000-0000-0000-0000-000000000000",
+                        "custom_parameterid500000000-0000-0000-0000-000000000000",
+                        "custom_parameterid600000000-0000-0000-0000-000000000000",
+                        "custom_parameterid700000000-0000-0000-0000-000000000000",
+                        "custom_parameterid800000000-0000-0000-0000-000000000000",
+                        "custom_parameterid900000000-0000-0000-0000-000000000000",
+                        "custom_parameterid1000000000-0000-0000-0000-000000000000",
+                        "custom_parameterid1100000000-0000-0000-0000-000000000000",
+                        "custom_parameterid1200000000-0000-0000-0000-000000000000",
+                        "custom_parameterid1300000000-0000-0000-0000-000000000000",
+                        "custom_parameterid1400000000-0000-0000-0000-000000000000",
+                        "custom_parameterid1500000000-0000-0000-0000-000000000000",
+                        "custom_parameterid1600000000-0000-0000-0000-000000000000",
+                        "custom_parameterid1700000000-0000-0000-0000-000000000000",
+                        "custom_parameterid1800000000-0000-0000-0000-000000000000",
+                        "custom_parameterid1900000000-0000-0000-0000-000000000000",
+                        "custom_parameterid2000000000-0000-0000-0000-000000000000");
         Assertions.assertThat(res.map(EmbedOrMessageDefinition::getComponentRowDefinitions)
                         .stream()
                         .flatMap(Collection::stream)
                         .flatMap(s -> s.getButtonDefinitions().stream())
                         .map(ButtonDefinition::getLabel))
-                .containsExactly("1d6", "2d6", "3d6", "4d6", "5d6", "6d6", "7d6", "8d6", "9d6", "10d6", "11d6", "12d6", "13d6", "14d6", "15d6", "16d6", "17d6", "18d6", "19d6", "20d6");
+                .containsExactly("1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20");
 
     }
 
@@ -426,12 +420,12 @@ class WelcomeCommandTest {
                 .description("Displays the welcome message")
                 .option(CommandDefinitionOption.builder()
                         .name("start")
-                        .description("Start")
+                        .description("Displays the welcome message")
                         .type(CommandDefinitionOption.Type.SUB_COMMAND)
                         .build())
                 .option(CommandDefinitionOption.builder()
                         .name("help")
-                        .description("Help")
+                        .description("Get help for welcome")
                         .type(CommandDefinitionOption.Type.SUB_COMMAND)
                         .build())
                 .build());

@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class DiceUtils {
-    public static final String MINUS = "\u2212";
+    public static final String MINUS = "−";
     private final NumberSupplier numberSupplier;
 
     public DiceUtils() {
