@@ -26,11 +26,6 @@ public class FateBasic implements ImageProvider {
     }
 
     @Override
-    public int getDieHighAndWide() {
-        return 50;
-    }
-
-    @Override
     public @NonNull String getDefaultColor() {
         return BLACK;
     }

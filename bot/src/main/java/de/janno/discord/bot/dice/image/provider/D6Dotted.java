@@ -23,11 +23,6 @@ public class D6Dotted implements ImageProvider {
     }
 
     @Override
-    public int getDieHighAndWide() {
-        return 50;
-    }
-
-    @Override
     public @NonNull String getDefaultColor() {
         return WHITE;
     }

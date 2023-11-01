@@ -54,9 +54,9 @@ public class PolyhedralSvgWithColor implements ImageProvider {
             .put("magenta", Color.magenta)
             .put("cyan", Color.cyan)
             .put("blue", Color.blue)
-            .put("indigo", new Color(	75, 0, 130))
+            .put("indigo", new Color(75, 0, 130))
             .build();
-
+    private static final float IMAGE_SIZE = 100;
 
     @Override
     public @NonNull List<BufferedImage> getImageFor(Integer totalDieSides, Integer shownDieSide, String colorString) {
@@ -103,8 +103,8 @@ public class PolyhedralSvgWithColor implements ImageProvider {
         TranscoderInput transcoderInput = new TranscoderInput(IOUtils.toInputStream(svgString, StandardCharsets.UTF_8));
 
         PNGTranscoder pngTranscoder = new PNGTranscoder();
-        pngTranscoder.addTranscodingHint(PNGTranscoder.KEY_WIDTH, (float) getDieHighAndWide());
-        pngTranscoder.addTranscodingHint(PNGTranscoder.KEY_HEIGHT, (float) getDieHighAndWide());
+        pngTranscoder.addTranscodingHint(PNGTranscoder.KEY_WIDTH, IMAGE_SIZE);
+        pngTranscoder.addTranscodingHint(PNGTranscoder.KEY_HEIGHT, IMAGE_SIZE);
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         TranscoderOutput output = new TranscoderOutput(outputStream);
 
@@ -119,11 +119,6 @@ public class PolyhedralSvgWithColor implements ImageProvider {
         } catch (TranscoderException | IOException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    @Override
-    public int getDieHighAndWide() {
-        return 100;
     }
 
     @Override

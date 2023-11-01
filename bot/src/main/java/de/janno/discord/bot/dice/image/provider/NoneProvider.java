@@ -12,11 +12,6 @@ public final class NoneProvider implements ImageProvider {
     }
 
     @Override
-    public int getDieHighAndWide() {
-        return 0;
-    }
-
-    @Override
     public @NonNull String getDefaultColor() {
         return "none";
     }
