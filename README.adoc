@@ -39,11 +39,11 @@ Some example for commands, many more systems can be mapped, please see in the de
 [discrete]
 === DnD 5e
 
-`/quickstart system:Dungeon & Dragons 5e`
+`/quickstart system:Dungeon & Dragons 5e with Dice Images`
 
 or
 
-`/custom_dice start buttons:1d4;1d6;1d8;1d10;1d12;1d20;1d100;2d20k1@D20 Advantage;2d20L1@D20 Disadvantage;2d4=@2d4;2d6=@2d6;2d8=@2d8;2d10=@2d10;2d12=@2d12;2d20=@2d20`
+`/custom_dice buttons: 1d4;1d6;1d8;1d10;1d12;1d20;1d100;2d20k1@D20 Advantage;2d20L1@D20 Disadvantage;2d4=@2d4;2d6=@2d6;2d8=@2d8;2d10=@2d10;2d12=@2d12;2d20=@2d20 answer_format: without_expression dice_image_style: polyhedral_RdD dice_image_color: default`
 
 [discrete]
 === OSR
@@ -55,13 +55,13 @@ or
 `/custom_dice start buttons:1d20@D20;1d6@D6;2d6@2D6;1d4@D4;1d8@D8;6x3d6=@Stats;(3d6=)*10@Gold;1d100@D100;1d10@D10;1d12@D12`
 
 [discrete]
-=== Fate
+=== Fate with Dice Images
 
-`/quickstart system: Fate`
+`/quickstart system: Fate with Dice Images`
 
 or
 
-`/custom_parameter start expression: 4d[-1,0,1]+{Modifier:-4\<\=>10}=`
+`/custom_dice expression: 4d[-1,0,1]+{Modifier:-4\<\=>10}= answer_format: without_expression dice_image_style: fate dice_image_color: black`
 
 [discrete]
 === World of Darkness
@@ -519,36 +519,37 @@ All operators are case insensitiv.
 |Name |Notation |Example |Description |Precedent |Associativity |Left parameter |Right parameter
 |Repeat |`<number>x<expression>` |`3x2d6` |Repeats the expression separately a number of times given in <number>. This should be used outside other expressions and will not work inside most expressions |0 |left |a single integer number between 1-10 | a expression
 |List Repeat |`<number>r<expression>` |`3r(2d6=)` |Repeats the expression a number of times given in <number> and combines the results in one list. |1 |left |a single integer number between 0-10 | a expression
-|Or |`<boolean>\|\|<boolean>` |`d6=?5 \|\| d6=?6` | Boolean or operation of the two boolean values | 2 |left | boolean value | boolean value
-|And |`<boolean>&&<boolean>` |`d6=?5 && d6=?6` | Boolean and operation of the two boolean values | 3 |left | boolean value | boolean value
-|And |`!<boolean>` |`!d6=?5` | Negates the boolean value right from it | 4 |right |  | boolean value
-|Equal |`<left> =? <right>` |`d6=?5` | Compare the left and the right and returns true if equal and false otherwise | 5 |left |one or more elements  | one or more elements
-|Lesser |`<left> <? <right>` |`d6<?5` | Compare the left and the right and returns true if `<left>` is lesser than `<right>` otherwise false | 6 |left |a single number | a single number
-|Lesser Equal |`<left> <=? <right>` |`d6<=?5` | Compare the left and the right and returns true if `<left>` is lesser or equal then `<right>` otherwise false | 7 |left |a single number | a single number
-|Greater |`<left> >? <right>` |`d6>?5` | Compare the left and the right and returns true if `<left>` is greater than `<right>` otherwise false | 8 |left |a single number | a single number
-|Greater Equal |`<left> >=? <right>` |`d6>=?5` | Compare the left and the right and returns true if `<left>` is greater or equal than `<right>` otherwise false | 9 |left |a single number | a single number
-| In |`<left> in <right>` |`d6 in [1/3/5]` | Returns true if every element in left is contained in right otherwise false | 10 |left |a one or more elements | one or more elements
-|Sum |`<left> =` |`2d6=` |Sums the list of on the left side of the symbol |11 |left |a list of numbers |-
-|Modulo |`<left> mod <right>` |`d6 mod 2` | returns the remainder of the division |12 |left |a single integer number |a single non zero integer number
-|Multiply |`<left> * <right>` |`2 * 6` |Multiplies the right number with the left number |13|left |a single number |a single number
-|Divide |`<left> / <right>` |`4 / 2` |Divides the right number with the left number and rounds down to the next full number |14 |left |a single integer number |a single integer number
-|Decimal Divide |`<left> // <right>` |`4 / 2` |Divides the right number with the left number and provides a decimal number with up to 5 decimal digital |15 |left |a single number |a single number
-|Count |`<list> c` |`3d6>3c` |Counts the number of elements in a list |16 |left |a list |-
-|Greater Then Filter |`<list> > <number>` |`3d6>3` |Keeps only the elements of the left list that are bigger as the right number. Applies only to elements with the same tag. |17 |left |one or more numbers |a single number
-|Lesser Then Filter |`<list> < <number>` |`3d6<3` |Keeps only the elements of the left list that are lesser as the right number. Applies only to elements with the same tag. |18 |left |one or more numbers |a single number
-|Greater Equal Then Filter |`<list> >= <number>` |`3d6>=3` |Keeps only the elements of the left list that are bigger or equal as the right number. Applies only to elements with the same tag. |19 |left |one or more numbers |a single number
-|Lesser Equal Then Filter |`<list> \<= <number>` |`3d6\<=3` |Keeps only the elements of the left list that are lesser or equal as the right number. Applies only to elements with the same tag. |20 |left |one or more numbers |a single number
-|Equal Filter |`<list> == <element>` |`3d6==3` |Keeps only the elements of the left list that are equal to the element. Applies only to elements with the same tag. |21 |left |one or more elements |a single elements
-|Keep Highest |`<list> k <numberToKept>` |`3d6k2` |keeps the highest values out a list, like the roll of multiple dice. Applies only to elements with the same tag. |22 |left |one or more elements |a single number
-|Keep Lowest |`<list> l <numberToKept>` |`3d6l2` |keeps the lowest values out a list, like the roll of multiple dice. Applies only to elements with the same tag. |23 |left |one or more elements |a single number
-|Appending |`<left> + <right>` |`2d6 + 2` or `+3` |Combines the rolls of both sides to a single list. If used as unary operator, it will be ignored e.g. `+5` will process to `5` |24 (max for unary) |left for binary and right for unary |none or more elements |one or more elements
-|Negative Appending |`<left> - <right>` |`2 - 1` or `-d6` |Combines the rolls of both sides to a single list. The right side is multiplied by -1. |25 |left for binary and right for unary |none or more elements |one or more numbers
-|Reroll |`<expression>rr<rerollIfIn>` |`10d6rr1` | Reroll the whole `<expression>` once if any of the elements of `<expression>` are in the elements of `<rerollIfIn>` |26 |left|one or more elements|one or more elements
-|Tag |`<expression>tag<text>` |`d6 tag 'special'` | Set a tag to all elements of an expression, most operator work on elements with the same tag. The tag will be appended to the name but a number remains a number, even with a text tag. |27 |left|one or more elements|a single text
-|Color |`<expression>col<text>` |`d6 col 'red'` | Set a color to all elements, and all in it involved random elements, of an expression. The color will not directly given in the result and has no effect on other operations |28 |left|one or more elements|a single text
-|Exploding Add Dice |`<numberOfDice>d!!<numberOfFaces>` |`3d!!6` |Throws dice and any time the max value of a die is rolled, that die is re-rolled and added to the die previous resul total. A roll of the reroll the sum of the value. |29 |left for binary and right for unary |none or a single positiv integer number (max 1000) |a single integer number
-|Exploding Dice |`<numberOfDice>d!<numberOfFaces>` |`4d!6` or `d!6` |Throws dice and any time the max value of a die is rolled, that die is re-rolled and added to the dice set total. A reroll will be represented as two dice roll elements |30 |left for binary and right for unary |none or a single integer number (max 1000) |a single positiv integer number
-|Regular Dice |`<numberOfDice>d<numberOfFaces>` |`3d20`, `d20` or `3d[2/4/8]` |Throws a number of dice given by the left number. The number sides are given by the right number. If the right side a list, an element of the list is randomly picked. The roll is a list with the dice throw |31 |left for binary and right for unary |none or a single integer number (max 1000) |a single positiv number or multiple elements
+| Concat |`<expression>_<expression>` |`d20_'dmg''` | Combines the result of both expression into on single element |2 |left |one or more elements | one or more elements
+|Or |`<boolean>\|\|<boolean>` |`d6=?5 \|\| d6=?6` | Boolean or operation of the two boolean values | 3 |left | boolean value | boolean value
+|And |`<boolean>&&<boolean>` |`d6=?5 && d6=?6` | Boolean and operation of the two boolean values | 4 |left | boolean value | boolean value
+|And |`!<boolean>` |`!d6=?5` | Negates the boolean value right from it | 5 |right |  | boolean value
+|Equal |`<left> =? <right>` |`d6=?5` | Compare the left and the right and returns true if equal and false otherwise | 6 |left |one or more elements  | one or more elements
+|Lesser |`<left> <? <right>` |`d6<?5` | Compare the left and the right and returns true if `<left>` is lesser than `<right>` otherwise false | 7 |left |a single number | a single number
+|Lesser Equal |`<left> <=? <right>` |`d6<=?5` | Compare the left and the right and returns true if `<left>` is lesser or equal then `<right>` otherwise false | 8 |left |a single number | a single number
+|Greater |`<left> >? <right>` |`d6>?5` | Compare the left and the right and returns true if `<left>` is greater than `<right>` otherwise false | 9 |left |a single number | a single number
+|Greater Equal |`<left> >=? <right>` |`d6>=?5` | Compare the left and the right and returns true if `<left>` is greater or equal than `<right>` otherwise false | 10 |left |a single number | a single number
+| In |`<left> in <right>` |`d6 in [1/3/5]` | Returns true if every element in left is contained in right otherwise false | 11 |left |a one or more elements | one or more elements
+|Sum |`<left> =` |`2d6=` |Sums the list of on the left side of the symbol |12 |left |a list of numbers |-
+|Modulo |`<left> mod <right>` |`d6 mod 2` | returns the remainder of the division |13 |left |a single integer number |a single non zero integer number
+|Multiply |`<left> * <right>` |`2 * 6` |Multiplies the right number with the left number |14|left |a single number |a single number
+|Divide |`<left> / <right>` |`4 / 2` |Divides the right number with the left number and rounds down to the next full number |15 |left |a single integer number |a single integer number
+|Decimal Divide |`<left> // <right>` |`4 / 2` |Divides the right number with the left number and provides a decimal number with up to 5 decimal digital |16 |left |a single number |a single number
+|Count |`<list> c` |`3d6>3c` |Counts the number of elements in a list |17 |left |a list |-
+|Greater Then Filter |`<list> > <number>` |`3d6>3` |Keeps only the elements of the left list that are bigger as the right number. Applies only to elements with the same tag. |18 |left |one or more numbers |a single number
+|Lesser Then Filter |`<list> < <number>` |`3d6<3` |Keeps only the elements of the left list that are lesser as the right number. Applies only to elements with the same tag. |19 |left |one or more numbers |a single number
+|Greater Equal Then Filter |`<list> >= <number>` |`3d6>=3` |Keeps only the elements of the left list that are bigger or equal as the right number. Applies only to elements with the same tag. |20 |left |one or more numbers |a single number
+|Lesser Equal Then Filter |`<list> \<= <number>` |`3d6\<=3` |Keeps only the elements of the left list that are lesser or equal as the right number. Applies only to elements with the same tag. |21 |left |one or more numbers |a single number
+|Equal Filter |`<list> == <element>` |`3d6==3` |Keeps only the elements of the left list that are equal to the element. Applies only to elements with the same tag. |22 |left |one or more elements |a single elements
+|Keep Highest |`<list> k <numberToKept>` |`3d6k2` |keeps the highest values out a list, like the roll of multiple dice. Applies only to elements with the same tag. |23 |left |one or more elements |a single number
+|Keep Lowest |`<list> l <numberToKept>` |`3d6l2` |keeps the lowest values out a list, like the roll of multiple dice. Applies only to elements with the same tag. |24 |left |one or more elements |a single number
+|Appending |`<left> + <right>` |`2d6 + 2` or `+3` |Combines the rolls of both sides to a single list. If used as unary operator, it will be ignored e.g. `+5` will process to `5` |25 (max for unary) |left for binary and right for unary |none or more elements |one or more elements
+|Negative Appending |`<left> - <right>` |`2 - 1` or `-d6` |Combines the rolls of both sides to a single list. The right side is multiplied by -1. |26 |left for binary and right for unary |none or more elements |one or more numbers
+|Reroll |`<expression>rr<rerollIfIn>` |`10d6rr1` | Reroll the whole `<expression>` once if any of the elements of `<expression>` are in the elements of `<rerollIfIn>` |27 |left|one or more elements|one or more elements
+|Tag |`<expression>tag<text>` |`d6 tag 'special'` | Set a tag to all elements of an expression, most operator work on elements with the same tag. The tag will be appended to the name but a number remains a number, even with a text tag. |28 |left|one or more elements|a single text
+|Color |`<expression>col<text>` |`d6 col 'red'` | Set a color to all elements, and all in it involved random elements, of an expression. The color will not directly given in the result and has no effect on other operations |29 |left|one or more elements|a single text
+|Exploding Add Dice |`<numberOfDice>d!!<numberOfFaces>` |`3d!!6` |Throws dice and any time the max value of a die is rolled, that die is re-rolled and added to the die previous resul total. A roll of the reroll the sum of the value. |30 |left for binary and right for unary |none or a single positiv integer number (max 1000) |a single integer number
+|Exploding Dice |`<numberOfDice>d!<numberOfFaces>` |`4d!6` or `d!6` |Throws dice and any time the max value of a die is rolled, that die is re-rolled and added to the dice set total. A reroll will be represented as two dice roll elements |31 |left for binary and right for unary |none or a single integer number (max 1000) |a single positiv integer number
+|Regular Dice |`<numberOfDice>d<numberOfFaces>` |`3d20`, `d20` or `3d[2/4/8]` |Throws a number of dice given by the left number. The number sides are given by the right number. If the right side a list, an element of the list is randomly picked. The roll is a list with the dice throw |32 |left for binary and right for unary |none or a single integer number (max 1000) |a single positiv number or multiple elements
 |===
 
 === Functions
@@ -564,7 +565,7 @@ All functions are case insensitiv.
 |sort desc |`desc(<expression1>, <expression2> ...)` |`desc(4d6)` |sorts all elements descending of one or more inner expressions. Text is compared alphabetically
 |sort desc |`desc(<expression1>, <expression2> ...)` |`desc(4d6)` |sorts all elements descending of one or more inner expressions. Text is compared alphabetically
 |chancel |`chancel(<expression>, <listA>, <listB>)` |`chancel(8d10, 10, 1)` |the elements of listA and listB (can also be single elements) chancel each other and remove each other from the result.
-|replace |`replace(<expression>, <find>, <replace>)` |`replace(8d10, [9/10], 'bonus')` | each element in `<expression>` that matches on of the elements in `<find>` will be replaced with the elements in `<replace>`. `<replace>` can be an empty list `[]` or literal `''` and thereby removing the found elements.
+|replace |`replace(<expression>, <find>, <replace> ...)` |`replace(8d10, [9/10], 'bonus')` | each element in `<expression>` that matches on of the elements in `<find>` will be replaced with the elements in `<replace>`. `<replace>` can be an empty list `[]` or literal `''` and thereby removing the found elements. It is possible to add multiple <find>/<replace> pairs to replace different elements in one replace.
 |if |`if(<boolean>,<true>,<false>)` |`if(1d6=?6,'six','not six')` or `if(1d6=?6,'six')` or `val('$r',1d6), if('$r'=?1,'one','$r'=?2,'two','else') |if `<boolean>` equal true then return the `<true>` expression or else the `<false>` expression. The `<false>` expression is optional, if it is missing and `<boolean>` is `false` then the result empty. It is possible to add more than `<boolean>,<true>` pair in the function, the result will be the `<true>` of the first true `<boolean>`, coming from left. All <boolean> must be non-empty and contain only on element (therefor can't contain only `val`). `val` are will only set in the first <true>. Use the following structure to use `if` to set different value in a `val`: `if(1d6>?4, val('$a',10), val('$a',-10))`, this will set '$a' to 10 if the 1d6 roll is bigger than 4 and to -10 otherwise.
 |group count |`groupC(<expression1>, <expression2> ...)` |`groupC(20d6)` | counts all elements of with the same value and provides the results as list in the format of `<count>x<value>`
 |concatenate  |`concat(<expression1>, <expression2> ...)` |`concat('Attack: ', 2d20, ' Damage:', 3d6+5=)` | Joining all expressions together to a single result.

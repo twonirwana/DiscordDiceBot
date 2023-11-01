@@ -210,7 +210,7 @@ class SumDiceSetCommandTest {
                 .description("Configure a variable set of d4 to d20 dice")
                 .option(CommandDefinitionOption.builder()
                         .name("start")
-                        .description("Start")
+                        .description("Configure a variable set of d4 to d20 dice")
                         .type(CommandDefinitionOption.Type.SUB_COMMAND)
                         .option(CommandDefinitionOption.builder()
                                 .name("target_channel")
@@ -245,7 +245,7 @@ class SumDiceSetCommandTest {
                         .build())
                 .option(CommandDefinitionOption.builder()
                         .name("help")
-                        .description("Help")
+                        .description("Get help for sum_dice_set")
                         .type(CommandDefinitionOption.Type.SUB_COMMAND)
                         .build())
                 .build());

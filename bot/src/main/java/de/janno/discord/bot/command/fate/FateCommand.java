@@ -94,9 +94,7 @@ public class FateCommand extends AbstractCommand<FateConfig, StateData> {
     @Override
     protected @NonNull EmbedOrMessageDefinition getHelpMessage() {
         return EmbedOrMessageDefinition.builder()
-                .descriptionOrContent("Buttons for Fate/Fudge dice. There are two types, the simple produces one button that rolls four dice and " +
-                        "provides the result together with the sum. The type with_modifier produces multiple buttons for modifier -4 to +10" +
-                        " that roll four dice and add the modifier of the button.")
+                .descriptionOrContent("**Legacy command, use /custom_parameter or /custom_dice**")
                 .field(new EmbedOrMessageDefinition.Field("Example", "`/fate start type:with_modifier` or `/fate start type:simple`", false))
                 .field(new EmbedOrMessageDefinition.Field("Full documentation", "https://github.com/twonirwana/DiscordDiceBot", false))
                 .field(new EmbedOrMessageDefinition.Field("Discord Server for Help and News", "https://discord.gg/e43BsqKpFr", false))
