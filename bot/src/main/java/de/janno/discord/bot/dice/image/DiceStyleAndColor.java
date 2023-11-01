@@ -1,6 +1,5 @@
 package de.janno.discord.bot.dice.image;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Strings;
 import lombok.NonNull;
@@ -39,11 +38,6 @@ public class DiceStyleAndColor {
         return diceImageStyle.getImageProvider().getImageFor(totalDieSides, shownDieSide, Optional.ofNullable(rollColor)
                 .filter(c -> !Strings.isNullOrEmpty(c))
                 .orElse(configuredDefaultColor));
-    }
-
-    @JsonIgnore
-    public int getDieHighAndWith() {
-        return diceImageStyle.getImageProvider().getDieHighAndWide();
     }
 
     @Override

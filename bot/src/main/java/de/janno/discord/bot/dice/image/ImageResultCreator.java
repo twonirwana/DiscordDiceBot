@@ -26,6 +26,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
@@ -161,9 +162,10 @@ public class ImageResultCreator {
                 )
                 .filter(l -> !l.isEmpty())
                 .toList();
-        final int singleDiceSize = diceStyleAndColor.getDieHighAndWith();
+        final int maxImageHight = images.stream().flatMap(Collection::stream)
+                .mapToInt(BufferedImage::getHeight).max().orElse(0);
 
-        BufferedImage separator = separatorImage.getUnchecked(singleDiceSize);
+        BufferedImage separator = separatorImage.getUnchecked(maxImageHight);
         ImmutableList.Builder<BufferedImage> builder = ImmutableList.builder();
         for (int i = 0; i < images.size() - 1; i++) {
             builder.addAll(images.get(i));
@@ -179,7 +181,7 @@ public class ImageResultCreator {
         final int numberOfImageLines = (int) Math.ceil(((double) allInOneLineWidth) / ((double) maxLineWidth));
 
         final int w = Math.min(allInOneLineWidth, maxLineWidth);
-        final int h = singleDiceSize * numberOfImageLines;
+        final int h = maxImageHight * numberOfImageLines;
         BufferedImage combined = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB_PRE);
 
         Graphics g = combined.getGraphics();
@@ -193,7 +195,7 @@ public class ImageResultCreator {
             } else {
                 currentLineWidth += image.getWidth();
             }
-            g.drawImage(image, currentLineWidth - image.getWidth(), singleDiceSize * currentLine, image.getWidth(), singleDiceSize, null);
+            g.drawImage(image, currentLineWidth - image.getWidth(), maxImageHight * currentLine, image.getWidth(), image.getHeight(), null);
         }
 
         g.dispose();

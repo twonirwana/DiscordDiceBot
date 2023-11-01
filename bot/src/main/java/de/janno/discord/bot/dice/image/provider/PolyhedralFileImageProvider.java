@@ -31,11 +31,6 @@ public class PolyhedralFileImageProvider implements ImageProvider {
     }
 
     @Override
-    public int getDieHighAndWide() {
-        return 100;
-    }
-
-    @Override
     public @NonNull String getDefaultColor() {
         return defaultColor;
     }
