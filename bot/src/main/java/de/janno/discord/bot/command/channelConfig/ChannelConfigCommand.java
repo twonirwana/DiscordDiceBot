@@ -11,6 +11,8 @@ import de.janno.discord.bot.dice.image.DiceStyleAndColor;
 import de.janno.discord.bot.persistance.ChannelConfigDTO;
 import de.janno.discord.bot.persistance.Mapper;
 import de.janno.discord.bot.persistance.PersistenceManager;
+import de.janno.discord.connector.api.AutoCompleteAnswer;
+import de.janno.discord.connector.api.AutoCompleteRequest;
 import de.janno.discord.connector.api.SlashCommand;
 import de.janno.discord.connector.api.SlashEventAdaptor;
 import de.janno.discord.connector.api.slash.CommandDefinition;
@@ -146,6 +148,11 @@ public class ChannelConfigCommand implements SlashCommand {
                         .option(MULTI_SAVE_ALIAS_OPTION)
                         .build())
                 .build();
+    }
+
+    @Override
+    public @NonNull List<AutoCompleteAnswer> getAutoCompleteAnswer(AutoCompleteRequest autoCompleteRequest) {
+        return BaseCommandOptions.autoCompleteColorOption(autoCompleteRequest);
     }
 
     private String serializeConfig(DirectRollConfig channelConfig) {
