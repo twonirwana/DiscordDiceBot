@@ -21,7 +21,7 @@ dependencies {
     implementation(libs.guava)
     implementation(libs.micrometer.core)
     implementation(libs.commons.lang3)
-    implementation("io.micrometer:micrometer-registry-prometheus:1.11.5")
+    implementation("io.micrometer:micrometer-registry-prometheus:1.12.0")
     implementation("com.h2database:h2:2.2.224")
     implementation("org.apache.derby:derby:10.17.1.0")
     implementation("org.apache.derby:derbyclient:10.17.1.0")
