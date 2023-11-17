@@ -1,0 +1,45 @@
+package de.janno.discord.bot;
+
+import com.google.common.collect.ImmutableList;
+import de.janno.discord.connector.api.slash.LocaleValue;
+
+import java.text.MessageFormat;
+import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
+import java.util.ResourceBundle;
+
+public final class I18n {
+    private final static String MESSAGES_KEY = "botMessages";
+
+    private I18n() {
+    }
+
+    public static String getMessage(String key, Locale locale) {
+        return ResourceBundle.getBundle(MESSAGES_KEY, locale).getString(key);
+    }
+
+    public static String getMessage(String key, Locale locale, Object... arguments) {
+        return MessageFormat.format(getMessage(key, locale), arguments);
+    }
+
+    public static List<Locale> getAdditionalLanguage() {
+        return List.of(Locale.GERMAN);
+    }
+
+    public static List<Locale> allSupportedLanguage() {
+        return ImmutableList.<Locale>builder()
+                .add(Locale.ENGLISH)
+                .addAll(getAdditionalLanguage())
+                .build();
+    }
+
+    public static List<LocaleValue> additionalMessages(String key) {
+        return getAdditionalLanguage().stream()
+                .map(l -> new LocaleValue(l, getMessage(key, l)))
+                .filter(m -> !Objects.equals(m.value(), getMessage(key, Locale.ENGLISH))) //remove all locals that are equal to the default english one
+                .toList();
+    }
+
+
+}

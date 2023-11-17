@@ -23,10 +23,7 @@ import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -90,12 +87,7 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesConfig,
     }
 
     @Override
-    protected @NonNull String getCommandDescription() {
-        return "Legacy command, use /custom_parameter";
-    }
-
-    @Override
-    protected @NonNull EmbedOrMessageDefinition getHelpMessage() {
+    protected @NonNull EmbedOrMessageDefinition getHelpMessage(Locale userLocale) {
         return EmbedOrMessageDefinition.builder().descriptionOrContent("**Legacy command, use /custom_parameter**")
                 .field(new EmbedOrMessageDefinition.Field("Example", "`/count_successes start dice_sides:10 target_number:7`", false))
                 .field(new EmbedOrMessageDefinition.Field("Full documentation", "https://github.com/twonirwana/DiscordDiceBot", false))
@@ -170,7 +162,7 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesConfig,
     }
 
     @Override
-    protected @NonNull Optional<String> getStartOptionsValidationMessage(@NonNull CommandInteractionOption options, long channelId, long userId) {
+    protected @NonNull Optional<String> getStartOptionsValidationMessage(@NonNull CommandInteractionOption options, long channelId, long userId, Locale userLocale) {
         long sideValue = options.getLongSubOptionWithName(ACTION_SIDE_OPTION).orElseThrow();
         int rerollSetSize = CommandUtils.getSetFromCommandOptions(options, ACTION_REROLL_SET_OPTION, ",").size();
         if ((rerollSetSize * 2L) >= sideValue) {
@@ -229,7 +221,7 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesConfig,
     }
 
     @Override
-    protected @NonNull Optional<EmbedOrMessageDefinition> createNewButtonMessageWithState(UUID configUUID, CountSuccessesConfig config, State<StateData> state, long guildId, long channelId) {
+    protected @NonNull Optional<EmbedOrMessageDefinition> createNewButtonMessageWithState(@NonNull UUID configUUID, CountSuccessesConfig config, @NonNull State<StateData> state, long guildId, long channelId) {
         return Optional.of(createNewButtonMessage(configUUID, config));
     }
 
@@ -262,7 +254,12 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesConfig,
     }
 
     @Override
-    protected @NonNull CountSuccessesConfig getConfigFromStartOptions(@NonNull CommandInteractionOption options) {
+    protected boolean supportsLocale() {
+        return false;
+    }
+
+    @Override
+    protected @NonNull CountSuccessesConfig getConfigFromStartOptions(@NonNull CommandInteractionOption options, Locale userLocale) {
         int sideValue = Math.toIntExact(options.getLongSubOptionWithName(ACTION_SIDE_OPTION)
                 .map(l -> Math.min(l, MAX_NUMBER_SIDES_OR_TARGET_NUMBER))
                 .orElse(6L));

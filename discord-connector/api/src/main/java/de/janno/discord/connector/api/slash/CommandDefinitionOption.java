@@ -14,7 +14,11 @@ public class CommandDefinitionOption {
 
     Type type;
     String name;
+    @Singular
+    List<LocaleValue> nameLocales;
     String description;
+    @Singular
+    List<LocaleValue> descriptionLocales;
     @Builder.Default
     boolean required = false;
     @Singular

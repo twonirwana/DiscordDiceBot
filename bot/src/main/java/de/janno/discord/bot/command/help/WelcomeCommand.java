@@ -20,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Supplier;
@@ -27,6 +28,7 @@ import java.util.function.Supplier;
 @Slf4j
 public class WelcomeCommand extends AbstractCommand<Config, StateData> {
 
+    //todo i18n
     public static final String COMMAND_NAME = "welcome";
     private final Supplier<UUID> uuidSupplier;
     private final RpgSystemCommandPreset rpgSystemCommandPreset;
@@ -47,7 +49,8 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
                                                                                        @NonNull MessageDataDTO messageDataDTO,
                                                                                        @NonNull String buttonValue,
                                                                                        @NonNull String invokingUserName) {
-        return new ConfigAndState<>(messageConfigDTO.getConfigUUID(), new Config(null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, DiceImageStyle.none.getDefaultColor())), new State<>(buttonValue, StateData.empty()));
+        //todo i18n
+        return new ConfigAndState<>(messageConfigDTO.getConfigUUID(), new Config(null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, DiceImageStyle.none.getDefaultColor()), Locale.ENGLISH), new State<>(buttonValue, StateData.empty()));
     }
 
     @Override
@@ -81,12 +84,8 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
     }
 
     @Override
-    protected @NonNull String getCommandDescription() {
-        return "Displays the welcome message";
-    }
-
-    @Override
-    protected @NonNull EmbedOrMessageDefinition getHelpMessage() {
+    protected @NonNull EmbedOrMessageDefinition getHelpMessage(Locale userLocale) {
+        //todo i18n
         return EmbedOrMessageDefinition.builder().descriptionOrContent("Displays the welcome message")
                 .field(new EmbedOrMessageDefinition.Field("Full documentation", "https://github.com/twonirwana/DiscordDiceBot", false))
                 .field(new EmbedOrMessageDefinition.Field("Discord Server for Help and News", "https://discord.gg/e43BsqKpFr", false))
@@ -94,13 +93,15 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
     }
 
     @Override
-    protected @NonNull Optional<EmbedOrMessageDefinition> createNewButtonMessageWithState(UUID configUUID, Config ignore, State<StateData> state, long guildId, long channelId) {
+    protected @NonNull Optional<EmbedOrMessageDefinition> createNewButtonMessageWithState(@NonNull UUID configUUID, Config ignore, @NonNull State<StateData> state, long guildId, long channelId) {
         BotMetrics.incrementButtonMetricCounter(COMMAND_NAME, "[" + state.getButtonValue() + "]");
         if (ButtonIds.isInvalid(state.getButtonValue())) {
             return Optional.empty();
         }
         UUID newConfigUUID = uuidSupplier.get();
         log.info("Click on welcome command creation: " + state.getButtonValue());
+        //todo i18n
+        //change locale
         return switch (ButtonIds.valueOf(state.getButtonValue())) {
             case fate ->
                     Optional.of(rpgSystemCommandPreset.createMessage(RpgSystemCommandPreset.PresetId.FATE, newConfigUUID, guildId, channelId).getMessageDefinition());
@@ -141,6 +142,7 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
     public @NonNull EmbedOrMessageDefinition createNewButtonMessage(UUID configUUID, Config config) {
         return EmbedOrMessageDefinition.builder()
                 .type(EmbedOrMessageDefinition.Type.MESSAGE)
+                //todo i18n
                 .descriptionOrContent("""
                         Welcome to the Button Dice Bot,
                         use one of the example buttons below to start one of the RPG dice systems or use the slash command to configure your own custom dice system (see https://github.com/twonirwana/DiscordDiceBot for details or the slash command `/help`).\s
@@ -199,8 +201,8 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
     }
 
     @Override
-    protected @NonNull Config getConfigFromStartOptions(@NonNull CommandInteractionOption options) {
-        return new Config(null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, DiceImageStyle.none.getDefaultColor()));
+    protected @NonNull Config getConfigFromStartOptions(@NonNull CommandInteractionOption options, @NonNull Locale userLocale) {
+        return new Config(null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, DiceImageStyle.none.getDefaultColor()), userLocale);
     }
 
     private enum ButtonIds {

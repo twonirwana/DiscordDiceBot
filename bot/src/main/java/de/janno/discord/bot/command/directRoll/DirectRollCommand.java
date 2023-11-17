@@ -29,6 +29,7 @@ import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -61,6 +62,7 @@ public class DirectRollCommand implements SlashCommand {
     public @NonNull CommandDefinition getCommandDefinition() {
         return CommandDefinition.builder()
                 .name(getCommandId())
+                //todo i18n
                 .description("direct roll of dice expression, configuration with /channel_config")
                 .option(CommandDefinitionOption.builder()
                         .name(ACTION_EXPRESSION)
@@ -74,7 +76,8 @@ public class DirectRollCommand implements SlashCommand {
     private DirectRollConfig getDirectRollConfig(long channelId) {
         return persistenceManager.getChannelConfig(channelId, DIRECT_ROLL_CONFIG_TYPE_ID)
                 .map(this::deserializeConfig)
-                .orElse(new DirectRollConfig(null, true, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_3d, DiceImageStyle.polyhedral_3d.getDefaultColor())));
+                //default direct roll config is english
+                .orElse(new DirectRollConfig(null, true, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_3d, DiceImageStyle.polyhedral_3d.getDefaultColor()), Locale.ENGLISH));
     }
 
     @VisibleForTesting
@@ -101,6 +104,7 @@ public class DirectRollCommand implements SlashCommand {
                     .orElseThrow();
             if (commandParameter.equals(HELP)) {
                 BotMetrics.incrementSlashHelpMetricCounter(getCommandId());
+                //todo i18n
                 return event.replyWithEmbedOrMessageDefinition(EmbedOrMessageDefinition.builder()
                         .descriptionOrContent("Type /%s and a dice expression, configuration with /channel_config\n%s".formatted(getCommandId(), DiceEvaluatorAdapter.getHelp()))
                         .field(new EmbedOrMessageDefinition.Field("Example", "`/%s expression:1d6`".formatted(getCommandId()), false))

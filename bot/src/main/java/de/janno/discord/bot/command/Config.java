@@ -14,6 +14,8 @@ import lombok.ToString;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
 
 /**
  * A configuration for a dice system. It will be created with the slash command and not modified afterwards.
@@ -31,13 +33,17 @@ public class Config implements Serializable {
     @NonNull
     private final DiceStyleAndColor diceStyleAndColor;
 
+    @NonNull
+    private final Locale configLocale;
+
     @JsonCreator
     public Config(@JsonProperty("answerTargetChannelId") Long answerTargetChannelId,
                   @JsonProperty("answerFormatType") AnswerFormatType answerFormatType,
                   @JsonProperty("resultImage") ResultImage resultImage,
-                  @JsonProperty("diceImageStyle") DiceStyleAndColor diceStyleAndColor) {
+                  @JsonProperty("diceImageStyle") DiceStyleAndColor diceStyleAndColor,
+                  @JsonProperty("configLocale") Locale configLocale) {
         this.answerTargetChannelId = answerTargetChannelId;
-        this.answerFormatType = answerFormatType == null ? AnswerFormatType.full : answerFormatType;
+        this.answerFormatType = Optional.ofNullable(answerFormatType).orElse(AnswerFormatType.full);
 
         if (resultImage != null) {
             this.diceStyleAndColor = LegacyImageConfigHelper.getStyleAndColor(resultImage);
@@ -46,6 +52,7 @@ public class Config implements Serializable {
         } else {
             this.diceStyleAndColor = new DiceStyleAndColor(DiceImageStyle.none, DiceImageStyle.none.getDefaultColor());
         }
+        this.configLocale = Optional.ofNullable(configLocale).orElse(Locale.ENGLISH);
     }
 
     public String toShortString() {
@@ -54,11 +61,11 @@ public class Config implements Serializable {
 
     public String toCommandOptionsString() {
         List<String> out = new ArrayList<>();
-        out.add(String.format("%s: %s", BaseCommandOptions.ANSWER_FORMAT_OPTION, answerFormatType));
-        out.add(String.format("%s: %s", BaseCommandOptions.DICE_IMAGE_STYLE_OPTION, diceStyleAndColor.getDiceImageStyle()));
-        out.add(String.format("%s: %s", BaseCommandOptions.DICE_IMAGE_COLOR_OPTION, diceStyleAndColor.getConfiguredDefaultColor()));
+        out.add(String.format("%s: %s", BaseCommandOptions.ANSWER_FORMAT_OPTION_NAME, answerFormatType));
+        out.add(String.format("%s: %s", BaseCommandOptions.DICE_IMAGE_STYLE_OPTION_NAME, diceStyleAndColor.getDiceImageStyle()));
+        out.add(String.format("%s: %s", BaseCommandOptions.DICE_IMAGE_COLOR_OPTION_NAME, diceStyleAndColor.getConfiguredDefaultColor()));
         if (answerTargetChannelId != null) {
-            out.add(String.format("%s: <#%s>", BaseCommandOptions.ANSWER_TARGET_CHANNEL_OPTION, answerTargetChannelId));
+            out.add(String.format("%s: <#%s>", BaseCommandOptions.TARGET_CHANNEL_OPTION_NAME, answerTargetChannelId));
         }
         return String.join(" ", out);
     }

@@ -60,13 +60,9 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTar
         this.diceUtils = diceUtils;
     }
 
-    @Override
-    protected @NonNull String getCommandDescription() {
-        return "Legacy command, use /custom_parameter";
-    }
 
     @Override
-    protected @NonNull EmbedOrMessageDefinition getHelpMessage() {
+    protected @NonNull EmbedOrMessageDefinition getHelpMessage(Locale userLocale) {
         return EmbedOrMessageDefinition.builder()
                 .descriptionOrContent("**Legacy command, use /custom_parameter**")
                 .field(new EmbedOrMessageDefinition.Field("Example", "`/pool_target start sides:10 max_dice:15 reroll_set:10 botch_set:1 reroll_variant:ask`", false))
@@ -239,7 +235,7 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTar
     }
 
     @Override
-    protected @NonNull PoolTargetConfig getConfigFromStartOptions(@NonNull CommandInteractionOption options) {
+    protected @NonNull PoolTargetConfig getConfigFromStartOptions(@NonNull CommandInteractionOption options, Locale userLocale) {
         int sideValue = Math.toIntExact(options.getLongSubOptionWithName(SIDES_OF_DIE_OPTION)
                 .map(l -> Math.min(l, 1000))
                 .orElse(10L));
@@ -328,7 +324,7 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTar
     }
 
     @Override
-    protected @NonNull Optional<EmbedOrMessageDefinition> createNewButtonMessageWithState(UUID configUUID, PoolTargetConfig config, State<PoolTargetStateData> state, long guildId, long channelId) {
+    protected @NonNull Optional<EmbedOrMessageDefinition> createNewButtonMessageWithState(@NonNull UUID configUUID, PoolTargetConfig config, @NonNull State<PoolTargetStateData> state, long guildId, long channelId) {
         if (Optional.ofNullable(state.getData()).map(PoolTargetStateData::getDicePool).orElse(null) != null && state.getData().getTargetNumber() != null && state.getData().getDoReroll() != null) {
             return Optional.of(EmbedOrMessageDefinition.builder()
                     .type(EmbedOrMessageDefinition.Type.MESSAGE)
@@ -390,7 +386,7 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTar
     }
 
     @Override
-    protected @NonNull Optional<String> getStartOptionsValidationMessage(@NonNull CommandInteractionOption options, long channelId, long userId) {
+    protected @NonNull Optional<String> getStartOptionsValidationMessage(@NonNull CommandInteractionOption options, long channelId, long userId, Locale userLocale) {
         Optional<String> botchSetValidation = CommandUtils.validateIntegerSetFromCommandOptions(options, BOTCH_SET_OPTION, ",");
         if (botchSetValidation.isPresent()) {
             return botchSetValidation;
@@ -399,7 +395,7 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTar
         if (rerollSetValidation.isPresent()) {
             return rerollSetValidation;
         }
-        PoolTargetConfig conf = getConfigFromStartOptions(options);
+        PoolTargetConfig conf = getConfigFromStartOptions(options, userLocale);
         return validate(conf);
     }
 

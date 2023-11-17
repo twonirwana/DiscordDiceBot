@@ -14,6 +14,8 @@ import lombok.NonNull;
 import lombok.ToString;
 
 import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @EqualsAndHashCode(callSuper = true)
@@ -31,10 +33,11 @@ public class CustomDiceConfig extends Config {
                             @JsonProperty("diceParserSystem") DiceParserSystem diceParserSystem,
                             @JsonProperty("answerFormatType") AnswerFormatType answerFormatType,
                             @JsonProperty("resultImage") ResultImage resultImage,
-                            @JsonProperty("diceImageStyle") DiceStyleAndColor diceStyleAndColor) {
-        super(answerTargetChannelId, answerFormatType, resultImage, diceStyleAndColor);
+                            @JsonProperty("diceImageStyle") DiceStyleAndColor diceStyleAndColor,
+                            @JsonProperty("configLocale") Locale configLocale) {
+        super(answerTargetChannelId, answerFormatType, resultImage, diceStyleAndColor, configLocale);
         this.buttonIdLabelAndDiceExpressions = buttonIdLabelAndDiceExpressions;
-        this.diceParserSystem = diceParserSystem == null ? DiceParserSystem.DICEROLL_PARSER : diceParserSystem;
+        this.diceParserSystem = Optional.ofNullable(diceParserSystem).orElse(DiceParserSystem.DICEROLL_PARSER);
     }
 
     @Override
@@ -56,6 +59,6 @@ public class CustomDiceConfig extends Config {
                     return "%s@%s".formatted(b.getDiceExpression(), b.getLabel());
                 })
                 .collect(Collectors.joining(";"));
-        return "%s: %s %s".formatted(CustomDiceCommand.BUTTONS_COMMAND_OPTIONS_ID, String.join(" ", buttons), super.toCommandOptionsString());
+        return "%s: %s %s".formatted(CustomDiceCommand.BUTTONS_OPTION_NAME, String.join(" ", buttons), super.toCommandOptionsString());
     }
 }

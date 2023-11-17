@@ -45,6 +45,7 @@ public enum DiceImageStyle {
         return imageProvider.getDefaultColor();
     }
 
+    //todo I18n
     public List<String> getSupportedColors() {
         return imageProvider.getSupportedColors();
     }

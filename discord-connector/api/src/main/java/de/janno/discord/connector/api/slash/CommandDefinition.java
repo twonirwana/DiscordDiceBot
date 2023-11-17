@@ -13,6 +13,10 @@ public class CommandDefinition {
     String name;
     String description;
     @Singular
+    List<LocaleValue> nameLocales;
+    @Singular
+    List<LocaleValue> descriptionLocales;
+    @Singular
     List<CommandDefinitionOption> options;
 
 }

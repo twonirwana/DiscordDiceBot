@@ -5,6 +5,7 @@ import com.google.common.base.Stopwatch;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import de.janno.discord.bot.BotMetrics;
+import de.janno.discord.bot.I18n;
 import de.janno.discord.bot.persistance.Mapper;
 import de.janno.discord.bot.persistance.MessageConfigDTO;
 import de.janno.discord.bot.persistance.MessageDataDTO;
@@ -37,8 +38,10 @@ import static de.janno.discord.connector.api.BottomCustomIdUtils.CUSTOM_ID_DELIM
 @Slf4j
 public abstract class AbstractCommand<C extends Config, S extends StateData> implements SlashCommand, ComponentInteractEventHandler {
 
-    private static final String ACTION_START = "start";
-    private static final String ACTION_HELP = "help";
+    private static final String START_OPTION_NAME_KEY = "command.start";
+    private static final String START_OPTION_NAME = I18n.getMessage(START_OPTION_NAME_KEY, Locale.ENGLISH);
+    private static final String HELP_OPTION_NAME_KEY = "command.help";
+    private static final String HELP_OPTION_NAME = I18n.getMessage(HELP_OPTION_NAME_KEY, Locale.ENGLISH);
 
     private static final int MIN_MS_DELAY_BETWEEN_BUTTON_MESSAGES = 1000;
     private final static ConcurrentSkipListSet<Long> MESSAGE_STATE_IDS_TO_DELETE = new ConcurrentSkipListSet<>();
@@ -52,10 +55,6 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
     @VisibleForTesting
     public void setMessageDataDeleteDuration(Duration delayMessageDataDeletion) {
         this.delayMessageDataDeletion = delayMessageDataDeletion;
-    }
-
-    protected Set<String> getStartOptionIds() {
-        return Set.of(ACTION_START);
     }
 
     protected AnswerFormatType defaultAnswerFormat() {
@@ -83,19 +82,27 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
             baseOptions.add(DICE_IMAGE_STYLE_COMMAND_OPTION);
             baseOptions.add(DICE_IMAGE_COLOR_COMMAND_OPTION);
         }
+        if (supportsLocale()) {
+            baseOptions.add(LOCALE_COMMAND_OPTION);
+        }
         return CommandDefinition.builder()
                 .name(getCommandId())
-                .description(getCommandDescription())
+                .nameLocales(I18n.additionalMessages("command.%s.name".formatted(getCommandId())))
+                .description(I18n.getMessage("command.%s.description".formatted(getCommandId()), Locale.ENGLISH)) //not visible, because the description of the first option will be shown
+                .descriptionLocales(I18n.additionalMessages("command.%s.description".formatted(getCommandId()))) //not visible, because the description of the first option will be shown
                 .option(CommandDefinitionOption.builder()
-                        .name(ACTION_START)
-                        .description(getCommandDescription())
+                        .name(START_OPTION_NAME)
+                        .description(I18n.getMessage("command.%s.description".formatted(getCommandId()), Locale.ENGLISH))
+                        .descriptionLocales(I18n.additionalMessages("command.%s.description".formatted(getCommandId())))
+                        .nameLocales(I18n.additionalMessages(START_OPTION_NAME_KEY))
                         .type(CommandDefinitionOption.Type.SUB_COMMAND)
                         .options(getStartOptions())
                         .options(baseOptions)
                         .build())
                 .option(CommandDefinitionOption.builder()
-                        .name(ACTION_HELP)
-                        .description("Get help for " + getCommandId())
+                        .name(HELP_OPTION_NAME)
+                        .nameLocales(I18n.additionalMessages(HELP_OPTION_NAME_KEY))
+                        .description(I18n.getMessage("command.get.help.for", Locale.ENGLISH, getCommandId()))
                         .type(CommandDefinitionOption.Type.SUB_COMMAND)
                         .build())
                 .options(additionalCommandOptions())
@@ -110,6 +117,11 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
         return true;
     }
 
+    protected boolean supportsLocale() {
+        return true;
+    }
+
+
     protected boolean supportsTargetChannel() {
         return true;
     }
@@ -119,8 +131,8 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
     }
 
     @Override
-    public @NonNull List<AutoCompleteAnswer> getAutoCompleteAnswer(AutoCompleteRequest autoCompleteRequest) {
-        return BaseCommandOptions.autoCompleteColorOption(autoCompleteRequest);
+    public @NonNull List<AutoCompleteAnswer> getAutoCompleteAnswer(AutoCompleteRequest autoCompleteRequest, Locale userLocale) {
+        return BaseCommandOptions.autoCompleteColorOption(autoCompleteRequest, userLocale);
     }
 
     protected Optional<List<ComponentRowDefinition>> getCurrentMessageComponentChange(UUID configUUID, C config, State<S> state, long channelId, long userId) {
@@ -341,13 +353,9 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
             return event.reply(checkPermissions.get(), false);
         }
 
-        String commandString = event.getCommandString();
-        Optional<CommandInteractionOption> startOption = getStartOptionIds().stream()
-                .sorted() //for deterministic tests
-                .map(event::getOption)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .findFirst();
+        final String commandString = event.getCommandString();
+        Optional<CommandInteractionOption> startOption = event.getOption(START_OPTION_NAME);
+
         if (startOption.isPresent()) {
             CommandInteractionOption options = startOption.get();
 
@@ -360,15 +368,16 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
                 log.info("{}: Invalid answer target channel for {}", event.getRequester().toLogString(), commandString);
                 return event.reply("The target channel is not a valid message channel", true);
             }
-
-            Optional<String> validationMessage = getStartOptionsValidationMessage(options, event.getChannelId(), event.getUserId());
+            final Locale userOrConfigLocale = BaseCommandOptions.getLocaleOptionFromStartCommandOption(options)
+                    .orElse(event.getRequester().getUserLocal());
+            Optional<String> validationMessage = getStartOptionsValidationMessage(options, event.getChannelId(), event.getUserId(), userOrConfigLocale);
             if (validationMessage.isPresent()) {
                 log.info("{}: Validation message: {} for {}", event.getRequester().toLogString(),
                         validationMessage.get(),
                         commandString);
                 return event.reply(String.format("%s\n%s", commandString, validationMessage.get()), true);
             }
-            final C config = getConfigFromStartOptions(options);
+            final C config = getConfigFromStartOptions(options, userOrConfigLocale);
             final UUID configUUID = uuidSupplier.get();
             BotMetrics.incrementSlashStartMetricCounter(getCommandId(), config.toShortString());
 
@@ -390,9 +399,9 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
                                 .then();
                     }));
 
-        } else if (event.getOption(ACTION_HELP).isPresent()) {
+        } else if (event.getOption(HELP_OPTION_NAME).isPresent()) {
             BotMetrics.incrementSlashHelpMetricCounter(getCommandId());
-            return event.replyWithEmbedOrMessageDefinition(getHelpMessage(), true);
+            return event.replyWithEmbedOrMessageDefinition(getHelpMessage(event.getRequester().getUserLocal()), true);
         }
         return Mono.empty();
     }
@@ -405,9 +414,7 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
         return ImmutableList.of();
     }
 
-    protected abstract @NonNull String getCommandDescription();
-
-    protected abstract @NonNull EmbedOrMessageDefinition getHelpMessage();
+    protected abstract @NonNull EmbedOrMessageDefinition getHelpMessage(Locale userLocale);
 
     /**
      * The text content for the old button message, after a button event. Returns null means no editing should be done.
@@ -420,16 +427,20 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
     /**
      * The new button message, after a button event
      */
-    protected abstract @NonNull Optional<EmbedOrMessageDefinition> createNewButtonMessageWithState(UUID configId, C config, State<S> state, long guildId, long channelId);
+    protected abstract @NonNull Optional<EmbedOrMessageDefinition> createNewButtonMessageWithState(@NonNull UUID configId,
+                                                                                                   @NonNull C config,
+                                                                                                   @NonNull State<S> state,
+                                                                                                   long guildId,
+                                                                                                   long channelId);
 
     protected abstract @NonNull Optional<RollAnswer> getAnswer(C config, State<S> state, long channelId, long userId);
 
     /**
      * The new button message, after a slash event
      */
-    public abstract @NonNull EmbedOrMessageDefinition createNewButtonMessage(UUID configId, C config);
+    public abstract @NonNull EmbedOrMessageDefinition createNewButtonMessage(@NonNull UUID configId, @NonNull C config);
 
-    protected @NonNull Optional<String> getStartOptionsValidationMessage(@NonNull CommandInteractionOption options, long channelId, long userId) {
+    protected @NonNull Optional<String> getStartOptionsValidationMessage(@NonNull CommandInteractionOption options, long channelId, long userId, @NonNull Locale userLocale) {
         //standard is no validation
         return Optional.empty();
     }
@@ -438,5 +449,5 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
         return event.isPinned();
     }
 
-    protected abstract @NonNull C getConfigFromStartOptions(@NonNull CommandInteractionOption options);
+    protected abstract @NonNull C getConfigFromStartOptions(@NonNull CommandInteractionOption options, @NonNull Locale userLocale);
 }

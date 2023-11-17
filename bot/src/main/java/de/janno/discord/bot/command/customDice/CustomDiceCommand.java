@@ -5,6 +5,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import de.janno.discord.bot.I18n;
 import de.janno.discord.bot.command.*;
 import de.janno.discord.bot.command.channelConfig.AliasHelper;
 import de.janno.discord.bot.dice.*;
@@ -25,6 +26,7 @@ import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -32,10 +34,11 @@ import java.util.stream.Collectors;
 @Slf4j
 public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateData> {
 
-    static final String BUTTONS_COMMAND_OPTIONS_ID = "buttons";
+    private static final String BUTTONS_OPTION_NAME_KEY = "command.custom_dice.option.buttons.name";
+    static final String BUTTONS_OPTION_NAME = I18n.getMessage(BUTTONS_OPTION_NAME_KEY, Locale.ENGLISH);
+    private static final String BUTTONS_OPTION_DESCRIPTION_KEY = "command.custom_dice.option.buttons.description";
     private static final String COMMAND_NAME = "custom_dice";
     private static final String LABEL_DELIMITER = "@";
-    private static final String BUTTON_MESSAGE = "Click on a button to roll the dice";
     private static final String CONFIG_TYPE_ID = "CustomDiceConfig";
     private final DiceSystemAdapter diceSystemAdapter;
 
@@ -72,15 +75,12 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
     }
 
     @Override
-    protected @NonNull String getCommandDescription() {
-        return "Configure dice buttons like: 1d6;2d8=;1d10+10=";
-    }
-
-    @Override
     protected @NonNull List<CommandDefinitionOption> getStartOptions() {
         return List.of(CommandDefinitionOption.builder()
-                .name(BUTTONS_COMMAND_OPTIONS_ID)
-                .description("Define one or more buttons separated by ';'")
+                .name(BUTTONS_OPTION_NAME)
+                .nameLocales(I18n.additionalMessages(BUTTONS_OPTION_NAME_KEY))
+                .description(I18n.getMessage(BUTTONS_OPTION_DESCRIPTION_KEY, Locale.ENGLISH))
+                .descriptionLocales(I18n.additionalMessages(BUTTONS_OPTION_DESCRIPTION_KEY))
                 .type(CommandDefinitionOption.Type.STRING)
                 .required(true)
                 .build());
@@ -88,30 +88,31 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
 
 
     @Override
-    protected @NonNull EmbedOrMessageDefinition getHelpMessage() {
+    protected @NonNull EmbedOrMessageDefinition getHelpMessage(Locale userLocale) {
         return EmbedOrMessageDefinition.builder()
-                .descriptionOrContent("Creates up to 25 buttons with custom dice expression.\n" + DiceEvaluatorAdapter.getHelp())
-                .field(new EmbedOrMessageDefinition.Field("Example", "`/custom_dice start buttons:3d6;10d10;3d20`", false))
-                .field(new EmbedOrMessageDefinition.Field("Full documentation", "https://github.com/twonirwana/DiscordDiceBot", false))
-                .field(new EmbedOrMessageDefinition.Field("Discord Server for Help and News", "https://discord.gg/e43BsqKpFr", false))
+                .descriptionOrContent(I18n.getMessage("command.custom_dice.help.message", userLocale) + "\n" + DiceEvaluatorAdapter.getHelp())
+                .field(new EmbedOrMessageDefinition.Field(I18n.getMessage("command.custom_dice.help.example.title", userLocale), I18n.getMessage("command.custom_dice.help.example.text", userLocale), false))
+                .field(new EmbedOrMessageDefinition.Field(I18n.getMessage("command.help.documentation", userLocale), "https://github.com/twonirwana/DiscordDiceBot", false))
+                .field(new EmbedOrMessageDefinition.Field(I18n.getMessage("command.help.discord.server", userLocale), "https://discord.gg/e43BsqKpFr", false))
                 .build();
     }
 
     @Override
-    protected @NonNull Optional<String> getStartOptionsValidationMessage(@NonNull CommandInteractionOption options, long channelId, long userId) {
+    protected @NonNull Optional<String> getStartOptionsValidationMessage(@NonNull CommandInteractionOption options, long channelId, long userId, @NonNull Locale userLocale) {
         List<String> diceExpressionWithOptionalLabel = getButtonsFromCommandOption(options).stream()
                 .map(ButtonIdAndExpression::getExpression)
                 .map(e -> AliasHelper.getAndApplyAliaseToExpression(channelId, userId, persistenceManager, e))
                 .distinct()
                 .collect(Collectors.toList());
         DiceParserSystem diceParserSystem = DiceParserSystem.DICE_EVALUATOR;
-        return diceSystemAdapter.validateListOfExpressions(diceExpressionWithOptionalLabel, "/custom_dice help", diceParserSystem);
+        return diceSystemAdapter.validateListOfExpressions(diceExpressionWithOptionalLabel, "/%s /%s".formatted(I18n.getMessage("command.custom_dice.name", userLocale),
+                I18n.getMessage("command.help", userLocale)), diceParserSystem);
 
     }
 
     private List<ButtonIdAndExpression> getButtonsFromCommandOption(@NonNull CommandInteractionOption options) {
         ImmutableList.Builder<ButtonIdAndExpression> builder = ImmutableList.builder();
-        String buttons = options.getStringSubOptionWithName(BUTTONS_COMMAND_OPTIONS_ID).orElseThrow();
+        String buttons = options.getStringSubOptionWithName(BUTTONS_OPTION_NAME).orElseThrow();
         int idCounter = 1;
         for (String button : buttons.split(";")) {
             builder.add(new ButtonIdAndExpression(idCounter++ + "_button", button));
@@ -119,12 +120,13 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
         return builder.build();
     }
 
-    protected @NonNull CustomDiceConfig getConfigFromStartOptions(@NonNull CommandInteractionOption options) {
+    protected @NonNull CustomDiceConfig getConfigFromStartOptions(@NonNull CommandInteractionOption options, @NonNull Locale userLocale) {
         return getConfigOptionStringList(getButtonsFromCommandOption(options),
                 BaseCommandOptions.getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null),
                 BaseCommandOptions.getAnswerTypeFromStartCommandOption(options).orElse(defaultAnswerFormat()),
                 BaseCommandOptions.getDiceStyleOptionFromStartCommandOption(options).orElse(DiceImageStyle.polyhedral_3d),
-                BaseCommandOptions.getDiceColorOptionFromStartCommandOption(options).orElse(DiceImageStyle.polyhedral_3d.getDefaultColor())
+                BaseCommandOptions.getDiceColorOptionFromStartCommandOption(options).orElse(DiceImageStyle.polyhedral_3d.getDefaultColor()),
+                userLocale
         );
     }
 
@@ -133,7 +135,8 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
                                                Long channelId,
                                                AnswerFormatType answerFormatType,
                                                DiceImageStyle diceImageStyle,
-                                               String defaultDiceColor) {
+                                               String defaultDiceColor,
+                                               @NonNull Locale userLocale) {
         return new CustomDiceConfig(channelId, startOptions.stream()
                 .filter(be -> !be.getExpression().contains(BottomCustomIdUtils.CUSTOM_ID_DELIMITER))
                 .filter(be -> !be.getExpression().contains(LABEL_DELIMITER) || be.getExpression().split(LABEL_DELIMITER).length == 2)
@@ -153,7 +156,8 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
                 DiceParserSystem.DICE_EVALUATOR,
                 answerFormatType,
                 null,
-                new DiceStyleAndColor(diceImageStyle, defaultDiceColor)
+                new DiceStyleAndColor(diceImageStyle, defaultDiceColor),
+                userLocale
         );
     }
 
@@ -179,15 +183,19 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
     }
 
     @Override
-    protected @NonNull Optional<EmbedOrMessageDefinition> createNewButtonMessageWithState(UUID configUUID, CustomDiceConfig config, State<StateData> state, long guildId, long channelId) {
+    protected @NonNull Optional<EmbedOrMessageDefinition> createNewButtonMessageWithState(@NonNull UUID configUUID,
+                                                                                          @NonNull CustomDiceConfig config,
+                                                                                          @NonNull State<StateData> state,
+                                                                                          long guildId,
+                                                                                          long channelId) {
         return Optional.of(createNewButtonMessage(configUUID, config));
     }
 
     @Override
-    public @NonNull EmbedOrMessageDefinition createNewButtonMessage(UUID configUUID, CustomDiceConfig config) {
+    public @NonNull EmbedOrMessageDefinition createNewButtonMessage(@NonNull UUID configUUID, @NonNull CustomDiceConfig config) {
         return EmbedOrMessageDefinition.builder()
                 .type(EmbedOrMessageDefinition.Type.MESSAGE)
-                .descriptionOrContent(BUTTON_MESSAGE)
+                .descriptionOrContent(I18n.getMessage("command.custom_dice.buttonMessage.message", config.getConfigLocale()))
                 .componentRowDefinitions(createButtonLayout(configUUID, config))
                 .build();
     }

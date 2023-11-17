@@ -10,6 +10,8 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 
+import java.util.Locale;
+
 @EqualsAndHashCode(callSuper = true)
 @Getter
 @ToString(callSuper = true)
@@ -21,8 +23,9 @@ public class DirectRollConfig extends Config {
                             @JsonProperty("alwaysSumResult") Boolean alwaysSumResult,
                             @JsonProperty("answerFormatType") AnswerFormatType answerFormatType,
                             @JsonProperty("resultImage") ResultImage resultImage,
-                            @JsonProperty("diceImageStyle") DiceStyleAndColor diceStyleAndColor) {
-        super(answerTargetChannelId, answerFormatType, resultImage, diceStyleAndColor);
+                            @JsonProperty("diceImageStyle") DiceStyleAndColor diceStyleAndColor,
+                            @JsonProperty("configLocale") Locale configLocale) {
+        super(answerTargetChannelId, answerFormatType, resultImage, diceStyleAndColor, configLocale);
         this.alwaysSumResult = alwaysSumResult == null || alwaysSumResult;
 
     }

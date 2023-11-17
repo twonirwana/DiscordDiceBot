@@ -39,7 +39,7 @@ public class TestCommand extends AbstractCommand<Config, StateData> {
     }
 
     @Override
-    protected @NonNull Optional<EmbedOrMessageDefinition> createNewButtonMessageWithState(UUID configId, Config config, State<StateData> state, long guildId, long channelId) {
+    protected @NonNull Optional<EmbedOrMessageDefinition> createNewButtonMessageWithState(@NonNull UUID configId, Config config, @NonNull State<StateData> state, long guildId, long channelId) {
         throw new NotImplementedException("Not implemented");
     }
 

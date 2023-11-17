@@ -22,10 +22,7 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.math.NumberUtils;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -65,12 +62,7 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollConfig, HoldRer
     }
 
     @Override
-    protected @NonNull String getCommandDescription() {
-        return "Legacy command, use /custom_parameter";
-    }
-
-    @Override
-    protected @NonNull EmbedOrMessageDefinition getHelpMessage() {
+    protected @NonNull EmbedOrMessageDefinition getHelpMessage(Locale userLocale) {
         return EmbedOrMessageDefinition.builder()
                 .descriptionOrContent("**Legacy command, use /custom_parameter**")
                 .field(new EmbedOrMessageDefinition.Field("Example", "`/hold_reroll start sides:6 reroll_set:2,3,4 success_set:5,6 failure_set:1`", false))
@@ -181,7 +173,7 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollConfig, HoldRer
     }
 
     @Override
-    protected @NonNull HoldRerollConfig getConfigFromStartOptions(@NonNull CommandInteractionOption options) {
+    protected @NonNull HoldRerollConfig getConfigFromStartOptions(@NonNull CommandInteractionOption options, Locale userLocale) {
         int sideValue = Math.toIntExact(options.getLongSubOptionWithName(SIDES_OF_DIE_ID)
                 .map(l -> Math.min(l, 1000))
                 .orElse(6L));
@@ -213,7 +205,7 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollConfig, HoldRer
     }
 
     @Override
-    protected @NonNull Optional<EmbedOrMessageDefinition> createNewButtonMessageWithState(@NonNull UUID configUUID, HoldRerollConfig config, State<HoldRerollStateData> state, long guildId, long channelId) {
+    protected @NonNull Optional<EmbedOrMessageDefinition> createNewButtonMessageWithState(@NonNull UUID configUUID, HoldRerollConfig config, @NonNull State<HoldRerollStateData> state, long guildId, long channelId) {
         if (config.getRerollSet().isEmpty()
                 || CLEAR_BUTTON_ID.equals(state.getButtonValue())
                 || FINISH_BUTTON_ID.equals(state.getButtonValue())
@@ -350,9 +342,14 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollConfig, HoldRer
     }
 
     @Override
-    protected @NonNull Optional<String> getStartOptionsValidationMessage(@NonNull CommandInteractionOption options, long channelId, long userId) {
-        HoldRerollConfig conf = getConfigFromStartOptions(options);
+    protected @NonNull Optional<String> getStartOptionsValidationMessage(@NonNull CommandInteractionOption options, long channelId, long userId, Locale userLocale) {
+        HoldRerollConfig conf = getConfigFromStartOptions(options, userLocale);
         return validate(conf);
+    }
+
+    @Override
+    protected boolean supportsLocale() {
+        return false;
     }
 
     @VisibleForTesting

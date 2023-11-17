@@ -19,6 +19,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -36,17 +37,19 @@ public class ValidationCommand extends DirectRollCommand {
     }
 
     @Override
-    public @NonNull List<AutoCompleteAnswer> getAutoCompleteAnswer(AutoCompleteRequest option) {
+    public @NonNull List<AutoCompleteAnswer> getAutoCompleteAnswer(AutoCompleteRequest option, Locale userLocale) {
         if (!ACTION_EXPRESSION.equals(option.getFocusedOptionName())) {
             return List.of();
         }
         if (Strings.isNullOrEmpty(option.getFocusedOptionValue())) {
+            //todo i18n
             return List.of(new AutoCompleteAnswer("2d6=", "2d6="));
         }
         Optional<String> validation = diceEvaluatorAdapter.shortValidateDiceExpressionWitOptionalLabel(option.getFocusedOptionValue());
         BotMetrics.incrementValidationCounter(validation.isEmpty());
         return validation
                 .map(s -> List.of(new AutoCompleteAnswer(s, option.getFocusedOptionValue())))
+                //todo sometimes to long
                 .orElse(List.of(new AutoCompleteAnswer(option.getFocusedOptionValue(), option.getFocusedOptionValue())));
     }
 
@@ -59,6 +62,7 @@ public class ValidationCommand extends DirectRollCommand {
     public @NonNull CommandDefinition getCommandDefinition() {
         return CommandDefinition.builder()
                 .name(getCommandId())
+                //todo i18n
                 .description("provide a expression and the autocomplete will show a error message if invalid")
                 .option(CommandDefinitionOption.builder()
                         .name(ACTION_EXPRESSION)

@@ -24,7 +24,7 @@ public class FateConfig extends Config {
                       @JsonProperty("answerFormatType") AnswerFormatType answerFormatType,
                       @JsonProperty("resultImage") ResultImage resultImage,
                       @JsonProperty("diceImageStyle") DiceStyleAndColor diceStyleAndColor) {
-        super(answerTargetChannelId, answerFormatType, resultImage, diceStyleAndColor);
+        super(answerTargetChannelId, answerFormatType, resultImage, diceStyleAndColor, null);
         this.type = type;
     }
 

@@ -123,12 +123,7 @@ public class SumDiceSetCommand extends AbstractCommand<Config, SumDiceSetStateDa
     }
 
     @Override
-    protected @NonNull String getCommandDescription() {
-        return "Configure a variable set of d4 to d20 dice";
-    }
-
-    @Override
-    protected @NonNull EmbedOrMessageDefinition getHelpMessage() {
+    protected @NonNull EmbedOrMessageDefinition getHelpMessage(Locale userLocale) {
         return EmbedOrMessageDefinition.builder()
                 .descriptionOrContent("Use `/sum_dice_set start` to get message, where the user can create a dice set and roll it.")
                 .field(new EmbedOrMessageDefinition.Field("Full documentation", "https://github.com/twonirwana/DiscordDiceBot", false))
@@ -204,7 +199,7 @@ public class SumDiceSetCommand extends AbstractCommand<Config, SumDiceSetStateDa
     }
 
     @Override
-    protected @NonNull Optional<EmbedOrMessageDefinition> createNewButtonMessageWithState(UUID configUUID, Config config, State<SumDiceSetStateData> state, long guildId, long channelId) {
+    protected @NonNull Optional<EmbedOrMessageDefinition> createNewButtonMessageWithState(@NonNull UUID configUUID, Config config, @NonNull State<SumDiceSetStateData> state, long guildId, long channelId) {
         if (!(ROLL_BUTTON_ID.equals(state.getButtonValue()) &&
                 !Optional.ofNullable(state.getData())
                         .map(SumDiceSetStateData::getDiceSet)
@@ -272,14 +267,20 @@ public class SumDiceSetCommand extends AbstractCommand<Config, SumDiceSetStateDa
 
 
     @Override
-    protected @NonNull Config getConfigFromStartOptions(@NonNull CommandInteractionOption options) {
+    protected @NonNull Config getConfigFromStartOptions(@NonNull CommandInteractionOption options, Locale userLocal) {
         Long answerTargetChannelId = BaseCommandOptions.getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null);
         AnswerFormatType answerType = BaseCommandOptions.getAnswerTypeFromStartCommandOption(options).orElse(defaultAnswerFormat());
         return new Config(answerTargetChannelId,
                 answerType,
                 null,
-                new DiceStyleAndColor(DiceImageStyle.none, DiceImageStyle.none.getDefaultColor())
+                new DiceStyleAndColor(DiceImageStyle.none, DiceImageStyle.none.getDefaultColor()),
+                userLocal
         );
+    }
+
+    @Override
+    protected boolean supportsLocale() {
+        return false;
     }
 
     private List<ComponentRowDefinition> createButtonLayout(UUID configUUID) {

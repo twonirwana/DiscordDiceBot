@@ -24,10 +24,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Nullable;
 import reactor.core.publisher.Mono;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -35,7 +32,7 @@ import static de.janno.discord.bot.command.channelConfig.AliasHelper.*;
 
 @Slf4j
 public class ChannelConfigCommand implements SlashCommand {
-
+    //todo i18n
     public static final String DIRECT_ROLL_CONFIG_TYPE_ID = "DirectRollConfig";
     static final String ALWAYS_SUM_RESULTS_COMMAND_OPTIONS_ID = "always_sum_result";
     private static final String COMMAND_ID = "channel_config";
@@ -109,6 +106,7 @@ public class ChannelConfigCommand implements SlashCommand {
     public @NonNull CommandDefinition getCommandDefinition() {
         return CommandDefinition.builder()
                 .name(getCommandId())
+                //todo i18n
                 .description("Configure options in this channel")
                 .option(CommandDefinitionOption.builder()
                         .name(SAVE_DIRECT_ROLL_CONFIG_ACTION)
@@ -151,8 +149,8 @@ public class ChannelConfigCommand implements SlashCommand {
     }
 
     @Override
-    public @NonNull List<AutoCompleteAnswer> getAutoCompleteAnswer(AutoCompleteRequest autoCompleteRequest) {
-        return BaseCommandOptions.autoCompleteColorOption(autoCompleteRequest);
+    public @NonNull List<AutoCompleteAnswer> getAutoCompleteAnswer(AutoCompleteRequest autoCompleteRequest, Locale userLocale) {
+        return BaseCommandOptions.autoCompleteColorOption(autoCompleteRequest, userLocale);
     }
 
     private String serializeConfig(DirectRollConfig channelConfig) {
@@ -167,7 +165,9 @@ public class ChannelConfigCommand implements SlashCommand {
             AnswerFormatType answerType = BaseCommandOptions.getAnswerTypeFromStartCommandOption(saveAction).orElse(AnswerFormatType.full);
             DiceImageStyle diceImageStyle = BaseCommandOptions.getDiceStyleOptionFromStartCommandOption(saveAction).orElse(DiceImageStyle.polyhedral_3d);
             String defaultDiceColor = BaseCommandOptions.getDiceColorOptionFromStartCommandOption(saveAction).orElse(DiceImageStyle.polyhedral_3d.getDefaultColor());
-            DirectRollConfig config = new DirectRollConfig(null, alwaysSumResults, answerType, null, new DiceStyleAndColor(diceImageStyle, defaultDiceColor));
+            final Locale userOrConfigLocale = BaseCommandOptions.getLocaleOptionFromStartCommandOption(saveAction)
+                    .orElse(event.getRequester().getUserLocal());
+            DirectRollConfig config = new DirectRollConfig(null, alwaysSumResults, answerType, null, new DiceStyleAndColor(diceImageStyle, defaultDiceColor), userOrConfigLocale);
             BotMetrics.incrementSlashStartMetricCounter(getCommandId(), config.toShortString());
             return Mono.defer(() -> {
                 persistenceManager.deleteChannelConfig(event.getChannelId(), DIRECT_ROLL_CONFIG_TYPE_ID);
@@ -184,6 +184,7 @@ public class ChannelConfigCommand implements SlashCommand {
                         event.getCommandString().replace("`", ""),
                         config.toShortString()
                 );
+                //todo i18n
                 return event.reply("`%s`\nSaved direct roll channel config".formatted(event.getCommandString()), false);
             });
         }
@@ -195,6 +196,7 @@ public class ChannelConfigCommand implements SlashCommand {
                         event.getCommandString().replace("`", "")
                 );
                 persistenceManager.deleteChannelConfig(event.getChannelId(), DIRECT_ROLL_CONFIG_TYPE_ID);
+                //todo i18n
                 return event.reply("`%s`\nDeleted direct roll channel config".formatted(event.getCommandString()), false);
             });
         }
@@ -237,6 +239,7 @@ public class ChannelConfigCommand implements SlashCommand {
                     userId == null ? "channel" : "user channel",
                     alias
             );
+            //todo i18n
             return event.reply("`%s`\nSaved new alias".formatted(event.getCommandString()), userId != null);
         } else if (event.getOption(SAVE_MULTI_ALIAS_ACTION).isPresent()) {
             BotMetrics.incrementSlashStartMetricCounter(getCommandId(), type + ", multi save");
@@ -246,12 +249,14 @@ public class ChannelConfigCommand implements SlashCommand {
                     .filter(s -> !Strings.isNullOrEmpty(s))
                     .toList();
             if (nameValuePair.isEmpty()) {
+                //todo i18n
                 return event.reply("`%s`\nNo name/value pair".formatted(event.getCommandString()), true);
             }
             List<String> missingNameValue = nameValuePair.stream()
                     .filter(s -> StringUtils.countMatches(s, ":") != 1)
                     .toList();
             if (!missingNameValue.isEmpty()) {
+                //todo i18n
                 return event.reply("`%s`\nMissing name value separator `:` in: %s".formatted(event.getCommandString(), missingNameValue), true);
             }
             List<Alias> aliases = nameValuePair.stream()
@@ -285,6 +290,7 @@ public class ChannelConfigCommand implements SlashCommand {
                     userId == null ? "channel" : "user channel",
                     name
             );
+            //todo i18n
             return event.reply("`%s`\ndeleted alias".formatted(event.getCommandString()), userId != null);
         } else if (event.getOption(LIST_ALIAS_ACTION).isPresent()) {
             final List<Alias> existingAlias = loadAlias(event.getChannelId(), userId);
@@ -292,9 +298,11 @@ public class ChannelConfigCommand implements SlashCommand {
             BotMetrics.incrementSlashStartMetricCounter(getCommandId(), type + ", list");
 
             String aliasList = existingAlias.stream().map(Objects::toString).collect(Collectors.joining("\n"));
+            //todo i18n
             return event.reply("`%s`\nexisting alias:\n%s".formatted(event.getCommandString(), aliasList), userId != null);
         }
         log.error("unknown option for slash event: {} ", event.getOptions());
+        //todo i18n
         return event.reply("Unknown slash event options", false);
     }
 

@@ -116,7 +116,7 @@ public class JdaClient {
                                 Flux.fromIterable(commands)
                                         .filter(command -> command.getCommandId().equals(event.getName()))
                                         .next()
-                                        .map(command -> command.getAutoCompleteAnswer(fromEvent(event)))
+                                        .map(command -> command.getAutoCompleteAnswer(fromEvent(event), event.getUserLocale().toLocale()))
                                         .flatMap(a -> Mono.fromFuture(event.replyChoices(a.stream()
                                                 .map(c -> new Command.Choice(c.getName(), c.getValue()))
                                                 .limit(25)
@@ -141,12 +141,17 @@ public class JdaClient {
                                 Flux.fromIterable(commands)
                                         .filter(command -> command.getCommandId().equals(event.getName()))
                                         .next()
-                                        .flatMap(command -> command.handleSlashCommandEvent(new SlashEventAdapterImpl(event,
-                                                new Requester(event.getInteraction().getUser().getName(),
-                                                        event.getChannel().getName(),
-                                                        Optional.ofNullable(event.getGuild()).map(Guild::getName).orElse(""),
-                                                        event.getJDA().getShardInfo().getShardString())
-                                        ), UUID::randomUUID))
+                                        .flatMap(command -> {
+                                            Locale userLocale = event.getInteraction().getUserLocale().toLocale();
+                                            JdaMetrics.userLocalInteraction(userLocale);
+                                            return command.handleSlashCommandEvent(new SlashEventAdapterImpl(event,
+                                                    new Requester(event.getInteraction().getUser().getName(),
+                                                            event.getChannel().getName(),
+                                                            Optional.ofNullable(event.getGuild()).map(Guild::getName).orElse(""),
+                                                            event.getJDA().getShardInfo().getShardString(),
+                                                            userLocale)
+                                            ), UUID::randomUUID);
+                                        })
                                         .onErrorResume(e -> {
                                             log.error("SlashCommandEvent Exception: ", e);
                                             return Mono.empty();
@@ -162,12 +167,17 @@ public class JdaClient {
                                         .ofType(ComponentInteractEventHandler.class)
                                         .filter(command -> command.matchingComponentCustomId(event.getInteraction().getComponentId()))
                                         .next()
-                                        .flatMap(command -> command.handleComponentInteractEvent(new ButtonEventAdapterImpl(event,
-                                                new Requester(event.getInteraction().getUser().getName(),
-                                                        event.getChannel().getName(),
-                                                        Optional.ofNullable(event.getInteraction().getGuild()).map(Guild::getName).orElse(""),
-                                                        event.getJDA().getShardInfo().getShardString()
-                                                ))))
+                                        .flatMap(command -> {
+                                            Locale userLocale = event.getInteraction().getUserLocale().toLocale();
+                                            JdaMetrics.userLocalInteraction(userLocale);
+                                            return command.handleComponentInteractEvent(new ButtonEventAdapterImpl(event,
+                                                    new Requester(event.getInteraction().getUser().getName(),
+                                                            event.getChannel().getName(),
+                                                            Optional.ofNullable(event.getInteraction().getGuild()).map(Guild::getName).orElse(""),
+                                                            event.getJDA().getShardInfo().getShardString(),
+                                                            userLocale
+                                                    )));
+                                        })
                                         .onErrorResume(e -> {
                                             log.error("ButtonInteractEvent Exception: ", e);
                                             return Mono.empty();

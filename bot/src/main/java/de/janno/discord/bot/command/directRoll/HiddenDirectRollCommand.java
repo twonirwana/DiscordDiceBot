@@ -42,6 +42,7 @@ public class HiddenDirectRollCommand extends DirectRollCommand implements Compon
     public @NonNull CommandDefinition getCommandDefinition() {
         return CommandDefinition.builder()
                 .name(getCommandId())
+                //todo i18n
                 .description("hidden direct roll of dice expression, configuration with /channel_config")
                 .option(CommandDefinitionOption.builder()
                         .name(ACTION_EXPRESSION)

@@ -46,7 +46,7 @@ public class CountSuccessesConfig extends Config {
                                 @JsonProperty("answerFormatType") AnswerFormatType answerFormatType,
                                 @JsonProperty("resultImage") ResultImage resultImage,
                                 @JsonProperty("diceImageStyle") DiceStyleAndColor diceStyleAndColor) {
-        super(answerTargetChannelId, answerFormatType, resultImage, diceStyleAndColor);
+        super(answerTargetChannelId, answerFormatType, resultImage, diceStyleAndColor, null);
         this.diceSides = diceSides;
         this.target = target;
         this.glitchOption = glitchOption;
