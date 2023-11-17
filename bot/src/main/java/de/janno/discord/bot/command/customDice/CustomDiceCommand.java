@@ -91,9 +91,9 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
     protected @NonNull EmbedOrMessageDefinition getHelpMessage(Locale userLocale) {
         return EmbedOrMessageDefinition.builder()
                 .descriptionOrContent(I18n.getMessage("custom_dice.help.message", userLocale) + "\n" + DiceEvaluatorAdapter.getHelp())
-                .field(new EmbedOrMessageDefinition.Field(I18n.getMessage("custom_dice.help.example.title", userLocale), I18n.getMessage("custom_dice.help.example.text", userLocale), false))
-                .field(new EmbedOrMessageDefinition.Field(I18n.getMessage("help.documentation", userLocale), "https://github.com/twonirwana/DiscordDiceBot", false))
-                .field(new EmbedOrMessageDefinition.Field(I18n.getMessage("help.discord.server", userLocale), "https://discord.gg/e43BsqKpFr", false))
+                .field(new EmbedOrMessageDefinition.Field(I18n.getMessage("custom_dice.help.example.field.name", userLocale), I18n.getMessage("custom_dice.help.example.field.value", userLocale), false))
+                .field(new EmbedOrMessageDefinition.Field(I18n.getMessage("help.documentation.field.name", userLocale), I18n.getMessage("help.documentation.field.value", userLocale), false))
+                .field(new EmbedOrMessageDefinition.Field(I18n.getMessage("help.discord.server.field.name", userLocale), I18n.getMessage("help.discord.server.field.value", userLocale), false))
                 .build();
     }
 

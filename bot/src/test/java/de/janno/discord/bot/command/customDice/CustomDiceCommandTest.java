@@ -310,8 +310,8 @@ class CustomDiceCommandTest {
         verify(event).replyWithEmbedOrMessageDefinition(EmbedOrMessageDefinition.builder()
                 .descriptionOrContent("Creates up to 25 buttons with custom dice expression.\n" + DiceEvaluatorAdapter.getHelp())
                 .field(new EmbedOrMessageDefinition.Field("Example", "`/custom_dice start buttons:3d6;10d10;3d20`", false))
-                .field(new EmbedOrMessageDefinition.Field("Full documentation", "https://github.com/twonirwana/DiscordDiceBot", false))
-                .field(new EmbedOrMessageDefinition.Field("Discord Server for Help and News", "https://discord.gg/e43BsqKpFr", false))
+                .field(new EmbedOrMessageDefinition.Field("Full documentation", I18n.getMessage("help.documentation.field.value", userLocale), false))
+                .field(new EmbedOrMessageDefinition.Field("Discord Server for Help and News", I18n.getMessage("help.discord.server.field.value", userLocale), false))
                 .build(), true);
 
     }

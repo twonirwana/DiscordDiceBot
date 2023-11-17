@@ -5,6 +5,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Stopwatch;
 import com.google.common.base.Strings;
 import de.janno.discord.bot.BotMetrics;
+import de.janno.discord.bot.I18n;
 import de.janno.discord.bot.command.AnswerFormatType;
 import de.janno.discord.bot.command.RollAnswer;
 import de.janno.discord.bot.command.RollAnswerConverter;
@@ -87,7 +88,7 @@ public class DirectRollCommand implements SlashCommand {
     }
 
     @Override
-    public @NonNull Mono<Void> handleSlashCommandEvent(@NonNull SlashEventAdaptor event, @NonNull Supplier<UUID> uuidSupplier) {
+    public @NonNull Mono<Void> handleSlashCommandEvent(@NonNull SlashEventAdaptor event, @NonNull Supplier<UUID> uuidSupplier, @NonNull Locale userLocale) {
         Stopwatch stopwatch = Stopwatch.createStarted();
 
         Optional<String> checkPermissions = event.checkPermissions();
@@ -108,8 +109,8 @@ public class DirectRollCommand implements SlashCommand {
                 return event.replyWithEmbedOrMessageDefinition(EmbedOrMessageDefinition.builder()
                         .descriptionOrContent("Type /%s and a dice expression, configuration with /channel_config\n%s".formatted(getCommandId(), DiceEvaluatorAdapter.getHelp()))
                         .field(new EmbedOrMessageDefinition.Field("Example", "`/%s expression:1d6`".formatted(getCommandId()), false))
-                        .field(new EmbedOrMessageDefinition.Field("Full documentation", "https://github.com/twonirwana/DiscordDiceBot", false))
-                        .field(new EmbedOrMessageDefinition.Field("Discord Server for Help and News", "https://discord.gg/e43BsqKpFr", false))
+                        .field(new EmbedOrMessageDefinition.Field("Full documentation", I18n.getMessage("help.documentation.field.value", userLocale), false))
+                        .field(new EmbedOrMessageDefinition.Field("Discord Server for Help and News", I18n.getMessage("help.discord.server.field.value", userLocale), false))
                         .build(), true);
             }
 

@@ -62,7 +62,7 @@ public class QuickstartCommand implements SlashCommand {
     }
 
     @Override
-    public @NonNull List<AutoCompleteAnswer> getAutoCompleteAnswer(AutoCompleteRequest option, Locale userLocale) {
+    public @NonNull List<AutoCompleteAnswer> getAutoCompleteAnswer(@NonNull AutoCompleteRequest option, @NonNull Locale userLocale) {
         if (!ACTION_SYSTEM.equals(option.getFocusedOptionName())) {
             return List.of();
         }
@@ -95,7 +95,7 @@ public class QuickstartCommand implements SlashCommand {
     }
 
     @Override
-    public @NonNull Mono<Void> handleSlashCommandEvent(@NonNull SlashEventAdaptor event, @NonNull Supplier<UUID> uuidSupplier) {
+    public @NonNull Mono<Void> handleSlashCommandEvent(@NonNull SlashEventAdaptor event, @NonNull Supplier<UUID> uuidSupplier, @NonNull Locale userLocal) {
         Stopwatch stopwatch = Stopwatch.createStarted();
 
         Optional<String> checkPermissions = event.checkPermissions();

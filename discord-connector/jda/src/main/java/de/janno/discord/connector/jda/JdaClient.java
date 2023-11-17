@@ -150,7 +150,7 @@ public class JdaClient {
                                                             Optional.ofNullable(event.getGuild()).map(Guild::getName).orElse(""),
                                                             event.getJDA().getShardInfo().getShardString(),
                                                             userLocale)
-                                            ), UUID::randomUUID);
+                                            ), UUID::randomUUID, event.getUserLocale().toLocale());
                                         })
                                         .onErrorResume(e -> {
                                             log.error("SlashCommandEvent Exception: ", e);

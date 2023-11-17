@@ -5,6 +5,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
+import de.janno.discord.bot.I18n;
 import de.janno.discord.bot.command.*;
 import de.janno.discord.bot.dice.DiceUtils;
 import de.janno.discord.bot.dice.image.DiceImageStyle;
@@ -90,8 +91,8 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesConfig,
     protected @NonNull EmbedOrMessageDefinition getHelpMessage(Locale userLocale) {
         return EmbedOrMessageDefinition.builder().descriptionOrContent("**Legacy command, use /custom_parameter**")
                 .field(new EmbedOrMessageDefinition.Field("Example", "`/count_successes start dice_sides:10 target_number:7`", false))
-                .field(new EmbedOrMessageDefinition.Field("Full documentation", "https://github.com/twonirwana/DiscordDiceBot", false))
-                .field(new EmbedOrMessageDefinition.Field("Discord Server for Help and News", "https://discord.gg/e43BsqKpFr", false))
+                .field(new EmbedOrMessageDefinition.Field("Full documentation", I18n.getMessage("help.documentation.field.value", userLocale), false))
+                .field(new EmbedOrMessageDefinition.Field("Discord Server for Help and News", I18n.getMessage("help.discord.server.field.value", userLocale), false))
                 .build();
     }
 

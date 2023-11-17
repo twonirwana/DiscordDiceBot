@@ -3,6 +3,7 @@ package de.janno.discord.bot.command.help;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import de.janno.discord.bot.BotMetrics;
+import de.janno.discord.bot.I18n;
 import de.janno.discord.bot.command.*;
 import de.janno.discord.bot.dice.image.DiceImageStyle;
 import de.janno.discord.bot.dice.image.DiceStyleAndColor;
@@ -87,8 +88,8 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
     protected @NonNull EmbedOrMessageDefinition getHelpMessage(Locale userLocale) {
         //todo i18n
         return EmbedOrMessageDefinition.builder().descriptionOrContent("Displays the welcome message")
-                .field(new EmbedOrMessageDefinition.Field("Full documentation", "https://github.com/twonirwana/DiscordDiceBot", false))
-                .field(new EmbedOrMessageDefinition.Field("Discord Server for Help and News", "https://discord.gg/e43BsqKpFr", false))
+                .field(new EmbedOrMessageDefinition.Field("Full documentation", I18n.getMessage("help.documentation.field.value", userLocale), false))
+                .field(new EmbedOrMessageDefinition.Field("Discord Server for Help and News", I18n.getMessage("help.discord.server.field.value", userLocale), false))
                 .build();
     }
 

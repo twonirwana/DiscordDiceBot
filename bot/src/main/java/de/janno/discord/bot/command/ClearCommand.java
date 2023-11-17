@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.Locale;
 import java.util.UUID;
 import java.util.function.Supplier;
 
@@ -29,6 +30,7 @@ public class ClearCommand implements SlashCommand {
 
     @Override
     public @NonNull CommandDefinition getCommandDefinition() {
+        //todo i18n
         return CommandDefinition.builder()
                 .name(getCommandId())
                 .description("Removes all button messages and saved bot data for this channel")
@@ -36,8 +38,9 @@ public class ClearCommand implements SlashCommand {
     }
 
     @Override
-    public @NonNull Mono<Void> handleSlashCommandEvent(@NonNull SlashEventAdaptor event, @NonNull Supplier<UUID> uuidSupplier) {
+    public @NonNull Mono<Void> handleSlashCommandEvent(@NonNull SlashEventAdaptor event, @NonNull Supplier<UUID> uuidSupplier, @NonNull Locale userLocal) {
         BotMetrics.incrementSlashStartMetricCounter(getCommandId(), "[]");
+        //todo i18n
         return event.reply("Deleting messages and data ...", false)
                 .then(Mono.just(persistenceManager.deleteMessageDataForChannel(event.getChannelId()))
                         .flux()

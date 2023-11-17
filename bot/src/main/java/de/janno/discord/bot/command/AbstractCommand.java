@@ -132,7 +132,7 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
     }
 
     @Override
-    public @NonNull List<AutoCompleteAnswer> getAutoCompleteAnswer(AutoCompleteRequest autoCompleteRequest, Locale userLocale) {
+    public @NonNull List<AutoCompleteAnswer> getAutoCompleteAnswer(@NonNull AutoCompleteRequest autoCompleteRequest, @NonNull Locale userLocale) {
         return BaseCommandOptions.autoCompleteColorOption(autoCompleteRequest, userLocale);
     }
 
@@ -348,7 +348,7 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
     }
 
     @Override
-    public @NonNull Mono<Void> handleSlashCommandEvent(@NonNull SlashEventAdaptor event, @NonNull Supplier<UUID> uuidSupplier) {
+    public @NonNull Mono<Void> handleSlashCommandEvent(@NonNull SlashEventAdaptor event, @NonNull Supplier<UUID> uuidSupplier, @NonNull Locale userLocale) {
         Optional<String> checkPermissions = event.checkPermissions();
         if (checkPermissions.isPresent()) {
             return event.reply(checkPermissions.get(), false);
@@ -363,10 +363,12 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
             Optional<Long> answerTargetChannelId = BaseCommandOptions.getAnswerTargetChannelIdFromStartCommandOption(options);
             if (answerTargetChannelId.isPresent() && answerTargetChannelId.get().equals(event.getChannelId())) {
                 log.info("{}:same answer channel for {}", event.getRequester().toLogString(), commandString);
+                //todo i18n
                 return event.reply("The answer target channel must be not the same as the current channel, keep this option empty if the answer should appear in this channel", true);
             }
             if (answerTargetChannelId.isPresent() && !event.isValidAnswerChannel(answerTargetChannelId.get())) {
                 log.info("{}: Invalid answer target channel for {}", event.getRequester().toLogString(), commandString);
+                //todo i18n
                 return event.reply("The target channel is not a valid message channel", true);
             }
             final Locale userOrConfigLocale = BaseCommandOptions.getLocaleOptionFromStartCommandOption(options)
@@ -376,6 +378,7 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
                 log.info("{}: Validation message: {} for {}", event.getRequester().toLogString(),
                         validationMessage.get(),
                         commandString);
+                //todo i18n?
                 return event.reply(String.format("%s\n%s", commandString, validationMessage.get()), true);
             }
             final C config = getConfigFromStartOptions(options, userOrConfigLocale);
