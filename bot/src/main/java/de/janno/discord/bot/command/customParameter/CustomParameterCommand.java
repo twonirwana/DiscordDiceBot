@@ -38,12 +38,14 @@ import java.util.stream.IntStream;
 public class CustomParameterCommand extends AbstractCommand<CustomParameterConfig, CustomParameterStateData> {
 
     //todo button label, pagination for buttons
-//todo i18n
-    static final String EXPRESSION_OPTION = "expression";
+
+    static final String EXPRESSION_OPTION_NAME_KEY = "custom_parameter.option.expression.name";
+    static final String EXPRESSION_OPTION_NAME = I18n.getMessage(EXPRESSION_OPTION_NAME_KEY, Locale.ENGLISH);
+
+    private static final String COMMAND_NAME = "custom_parameter";
     private static final String CLEAR_BUTTON_ID = "clear";
     private final static Pattern PARAMETER_VARIABLE_PATTERN = Pattern.compile("\\Q{\\E.*?\\Q}\\E");
     private static final String SELECTED_PARAMETER_DELIMITER = "\t";
-    private static final String COMMAND_NAME = "custom_parameter";
     private static final String RANGE_DELIMITER = ":";
     private final static String RANGE_REPLACE_REGEX = RANGE_DELIMITER + ".+?(?=\\Q}\\E)";
     private final static Pattern BUTTON_RANGE_PATTERN = Pattern.compile(RANGE_DELIMITER + "(-?\\d+)<=>(-?\\d+)");
@@ -227,11 +229,10 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     @Override
     protected @NonNull EmbedOrMessageDefinition getHelpMessage(Locale userLocale) {
         return EmbedOrMessageDefinition.builder()
-                //todo i18n
-                .descriptionOrContent(I18n.getMessage("command.custom_parameter.help.message", userLocale) + "\n" + DiceEvaluatorAdapter.getHelp())
-                .field(new EmbedOrMessageDefinition.Field(I18n.getMessage("command.custom_parameter.help.example.title", userLocale), I18n.getMessage("command.custom_parameter.help.example.text", userLocale), false))
-                .field(new EmbedOrMessageDefinition.Field(I18n.getMessage("command.help.documentation", userLocale), "https://github.com/twonirwana/DiscordDiceBot", false))
-                .field(new EmbedOrMessageDefinition.Field(I18n.getMessage("command.help.discord.server", userLocale), "https://discord.gg/e43BsqKpFr", false))
+                .descriptionOrContent(I18n.getMessage("custom_parameter.help.message", userLocale) + " \n" + DiceEvaluatorAdapter.getHelp())
+                .field(new EmbedOrMessageDefinition.Field(I18n.getMessage("custom_parameter.help.example.title", userLocale), I18n.getMessage("custom_parameter.help.example.text", userLocale), false))
+                .field(new EmbedOrMessageDefinition.Field(I18n.getMessage("help.documentation", userLocale), "https://github.com/twonirwana/DiscordDiceBot", false))
+                .field(new EmbedOrMessageDefinition.Field(I18n.getMessage("help.discord.server", userLocale), "https://discord.gg/e43BsqKpFr", false))
                 .build();
     }
 
@@ -244,9 +245,11 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     protected @NonNull List<CommandDefinitionOption> getStartOptions() {
         return ImmutableList.of(
                 CommandDefinitionOption.builder()
-                        .name(EXPRESSION_OPTION)
+                        .name(EXPRESSION_OPTION_NAME)
+                        .nameLocales(I18n.additionalMessages(EXPRESSION_OPTION_NAME_KEY))
+                        .description(I18n.getMessage("custom_parameter.option.expression.description", Locale.ENGLISH))
+                        .descriptionLocales(I18n.additionalMessages("custom_parameter.option.expression.description"))
                         .required(true)
-                        .description("Expression")
                         .type(CommandDefinitionOption.Type.STRING)
                         .build());
     }
@@ -295,8 +298,8 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     }
 
     @Override
-    protected @NonNull CustomParameterConfig getConfigFromStartOptions(@NonNull CommandInteractionOption options, Locale userLocale) {
-        String baseExpression = options.getStringSubOptionWithName(EXPRESSION_OPTION).orElse("").trim();
+    protected @NonNull CustomParameterConfig getConfigFromStartOptions(@NonNull CommandInteractionOption options, @NonNull Locale userLocale) {
+        String baseExpression = options.getStringSubOptionWithName(EXPRESSION_OPTION_NAME).orElse("").trim();
         Long answerTargetChannelId = BaseCommandOptions.getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null);
         AnswerFormatType answerType = BaseCommandOptions.getAnswerTypeFromStartCommandOption(options).orElse(defaultAnswerFormat());
         return new CustomParameterConfig(answerTargetChannelId,
@@ -317,7 +320,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     }
 
     @Override
-    public @NonNull EmbedOrMessageDefinition createNewButtonMessage(UUID configUUID, CustomParameterConfig config) {
+    public @NonNull EmbedOrMessageDefinition createNewButtonMessage(@NonNull UUID configUUID, @NonNull CustomParameterConfig config) {
         return EmbedOrMessageDefinition.builder()
                 .type(EmbedOrMessageDefinition.Type.MESSAGE)
                 .descriptionOrContent(formatMessageContent(config, null, null))
@@ -402,7 +405,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     }
 
     @Override
-    protected @NonNull Optional<EmbedOrMessageDefinition> createNewButtonMessageWithState(@NonNull UUID configUUID, CustomParameterConfig config, @NonNull State<CustomParameterStateData> state, long guildId, long channelId) {
+    protected @NonNull Optional<EmbedOrMessageDefinition> createNewButtonMessageWithState(@NonNull UUID configUUID, @NonNull CustomParameterConfig config, @NonNull State<CustomParameterStateData> state, long guildId, long channelId) {
         if (!hasMissingParameter(state)) {
             return Optional.of(EmbedOrMessageDefinition.builder()
                     .type(EmbedOrMessageDefinition.Type.MESSAGE)
@@ -435,8 +438,10 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
             nameAndExpression.add("");
         }
         String nameExpressionAndSeparator = String.join(" ", nameAndExpression);
-        //todo i18n
-        return String.format("%sPlease select value for **%s**", nameExpressionAndSeparator, currentParameter.getName());
+        return I18n.getMessage("custom_parameter.select.parameter",
+                config.getConfigLocale(),
+                nameExpressionAndSeparator,
+                currentParameter.getName());
     }
 
     private List<ComponentRowDefinition> getButtonLayoutWithOptionalState(@NonNull UUID configUUID, @NonNull CustomParameterConfig config, @Nullable State<CustomParameterStateData> state) {
@@ -476,8 +481,8 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     }
 
     @Override
-    protected @NonNull Optional<String> getStartOptionsValidationMessage(@NonNull CommandInteractionOption options, long channelId, long userId, Locale userLocale) {
-        String baseExpression = options.getStringSubOptionWithName(EXPRESSION_OPTION).orElse("");
+    protected @NonNull Optional<String> getStartOptionsValidationMessage(@NonNull CommandInteractionOption options, long channelId, long userId, @NonNull Locale userLocale) {
+        String baseExpression = options.getStringSubOptionWithName(EXPRESSION_OPTION_NAME).orElse("");
         log.info("Start validating: {}", baseExpression);
         int variableCount = 0;
         Matcher variableMatcher = PARAMETER_VARIABLE_PATTERN.matcher(baseExpression);
@@ -485,37 +490,30 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
             variableCount++;
         }
         if (variableCount == 0) {
-            //todo i18n
-            return Optional.of("The expression needs at least one parameter expression like '{name}");
+            return Optional.of(I18n.getMessage("custom_parameter.validation.variable.count.zero", userLocale));
         }
         if (variableCount > 4) {
-            //todo i18n
-            return Optional.of("The expression is allowed a maximum of 4 variables");
+            return Optional.of(I18n.getMessage("custom_parameter.validation.variable.count.max.four", userLocale));
         }
         if (Pattern.compile("(\\Q{\\E(?)\\Q{\\E(?)(.*)(?)\\Q}\\E(?)\\Q}\\E)").matcher(baseExpression).find()) {
-            //todo i18n
-            return Optional.of("Nested brackets are not allowed");
+            return Optional.of(I18n.getMessage("custom_parameter.validation.nested.brackets", userLocale));
         }
         if (StringUtils.countMatches(baseExpression, "{") != StringUtils.countMatches(baseExpression, "}")) {
-            //todo i18n
-            return Optional.of("All brackets must be closed");
+            return Optional.of(I18n.getMessage("custom_parameter.validation.unclosed.bracket", userLocale));
         }
+        //todo check for brackets with whitespace
         if (baseExpression.contains("{}")) {
-            //todo i18n
-            return Optional.of("A parameter expression must not be empty");
+            return Optional.of(I18n.getMessage("custom_parameter.validation.empty.brackets", userLocale));
         }
         if (baseExpression.contains(BottomCustomIdUtils.CUSTOM_ID_DELIMITER)) {
-            //todo i18n
-            return Optional.of(String.format("Expression contains invalid character: '%s'", BottomCustomIdUtils.CUSTOM_ID_DELIMITER));
+            return Optional.of(I18n.getMessage("custom_parameter.validation.invalid.character", userLocale, BottomCustomIdUtils.CUSTOM_ID_DELIMITER));
         }
         if (baseExpression.contains(SELECTED_PARAMETER_DELIMITER)) {
-            //todo i18n
-            return Optional.of(String.format("Expression contains invalid character: '%s'", SELECTED_PARAMETER_DELIMITER));
+            return Optional.of(I18n.getMessage("custom_parameter.validation.invalid.character", userLocale, SELECTED_PARAMETER_DELIMITER));
         }
         CustomParameterConfig config = getConfigFromStartOptions(options, userLocale);
         if (createParameterListFromBaseExpression(getNextParameterExpression(config.getBaseExpression())).isEmpty()) {
-            //todo i18n
-            return Optional.of(String.format("The expression '%s' contains no valid parameter options", getNextParameterExpression(config.getBaseExpression())));
+            return Optional.of(I18n.getMessage("custom_parameter.validation.invalid.parameter.option", userLocale, getNextParameterExpression(config.getBaseExpression())));
         }
         return validateAllPossibleStates(config);
     }
@@ -528,8 +526,9 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
                 String expression = getFilledExpression(config, aState.getState());
                 String label = getLabel(config, aState.getState());
                 String expressionWithoutSuffixLabel = removeSuffixLabelFromExpression(expression, label);
-                //todo i18n
-                Optional<String> validationMessage = diceSystemAdapter.validateDiceExpressionWitOptionalLabel(expressionWithoutSuffixLabel, "/custom_parameter help", config.getDiceParserSystem());
+                Optional<String> validationMessage = diceSystemAdapter.validateDiceExpressionWitOptionalLabel(expressionWithoutSuffixLabel,
+                        "/%s %s".formatted(I18n.getMessage("custom_parameter.name", config.getConfigLocale()), I18n.getMessage("base.option.help", config.getConfigLocale())),
+                        config.getDiceParserSystem());
                 if (validationMessage.isPresent()) {
                     return validationMessage;
                 }
@@ -538,8 +537,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
                     .map(Parameter::getParameterOptions)
                     .map(List::isEmpty)
                     .orElse(true)) {
-                //todo i18n
-                return Optional.of(String.format("The expression '%s' contains no valid parameter options", getCurrentParameterExpression(aState.getState()).orElse("")));
+                return Optional.of(I18n.getMessage("custom_parameter.validation.invalid.parameter.option", config.getConfigLocale(), getCurrentParameterExpression(aState.getState()).orElse("")));
             }
         }
         return Optional.empty();

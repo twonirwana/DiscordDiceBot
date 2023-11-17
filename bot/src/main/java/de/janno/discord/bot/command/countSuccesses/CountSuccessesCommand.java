@@ -162,7 +162,7 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesConfig,
     }
 
     @Override
-    protected @NonNull Optional<String> getStartOptionsValidationMessage(@NonNull CommandInteractionOption options, long channelId, long userId, Locale userLocale) {
+    protected @NonNull Optional<String> getStartOptionsValidationMessage(@NonNull CommandInteractionOption options, long channelId, long userId, @NonNull Locale userLocale) {
         long sideValue = options.getLongSubOptionWithName(ACTION_SIDE_OPTION).orElseThrow();
         int rerollSetSize = CommandUtils.getSetFromCommandOptions(options, ACTION_REROLL_SET_OPTION, ",").size();
         if ((rerollSetSize * 2L) >= sideValue) {
@@ -221,7 +221,7 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesConfig,
     }
 
     @Override
-    protected @NonNull Optional<EmbedOrMessageDefinition> createNewButtonMessageWithState(@NonNull UUID configUUID, CountSuccessesConfig config, @NonNull State<StateData> state, long guildId, long channelId) {
+    protected @NonNull Optional<EmbedOrMessageDefinition> createNewButtonMessageWithState(@NonNull UUID configUUID, @NonNull CountSuccessesConfig config, @NonNull State<StateData> state, long guildId, long channelId) {
         return Optional.of(createNewButtonMessage(configUUID, config));
     }
 
@@ -234,7 +234,7 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesConfig,
     }
 
     @Override
-    public @NonNull EmbedOrMessageDefinition createNewButtonMessage(UUID configUUID, CountSuccessesConfig config) {
+    public @NonNull EmbedOrMessageDefinition createNewButtonMessage(@NonNull UUID configUUID, @NonNull CountSuccessesConfig config) {
 
         return EmbedOrMessageDefinition.builder()
                 .type(EmbedOrMessageDefinition.Type.MESSAGE)
@@ -259,7 +259,7 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesConfig,
     }
 
     @Override
-    protected @NonNull CountSuccessesConfig getConfigFromStartOptions(@NonNull CommandInteractionOption options, Locale userLocale) {
+    protected @NonNull CountSuccessesConfig getConfigFromStartOptions(@NonNull CommandInteractionOption options, @NonNull Locale userLocale) {
         int sideValue = Math.toIntExact(options.getLongSubOptionWithName(ACTION_SIDE_OPTION)
                 .map(l -> Math.min(l, MAX_NUMBER_SIDES_OR_TARGET_NUMBER))
                 .orElse(6L));

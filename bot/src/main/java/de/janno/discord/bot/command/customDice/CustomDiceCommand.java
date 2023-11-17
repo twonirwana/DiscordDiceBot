@@ -34,9 +34,9 @@ import java.util.stream.Collectors;
 @Slf4j
 public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateData> {
 
-    private static final String BUTTONS_OPTION_NAME_KEY = "command.custom_dice.option.buttons.name";
+    private static final String BUTTONS_OPTION_NAME_KEY = "custom_dice.option.buttons.name";
     static final String BUTTONS_OPTION_NAME = I18n.getMessage(BUTTONS_OPTION_NAME_KEY, Locale.ENGLISH);
-    private static final String BUTTONS_OPTION_DESCRIPTION_KEY = "command.custom_dice.option.buttons.description";
+    private static final String BUTTONS_OPTION_DESCRIPTION_KEY = "custom_dice.option.buttons.description";
     private static final String COMMAND_NAME = "custom_dice";
     private static final String LABEL_DELIMITER = "@";
     private static final String CONFIG_TYPE_ID = "CustomDiceConfig";
@@ -90,10 +90,10 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
     @Override
     protected @NonNull EmbedOrMessageDefinition getHelpMessage(Locale userLocale) {
         return EmbedOrMessageDefinition.builder()
-                .descriptionOrContent(I18n.getMessage("command.custom_dice.help.message", userLocale) + "\n" + DiceEvaluatorAdapter.getHelp())
-                .field(new EmbedOrMessageDefinition.Field(I18n.getMessage("command.custom_dice.help.example.title", userLocale), I18n.getMessage("command.custom_dice.help.example.text", userLocale), false))
-                .field(new EmbedOrMessageDefinition.Field(I18n.getMessage("command.help.documentation", userLocale), "https://github.com/twonirwana/DiscordDiceBot", false))
-                .field(new EmbedOrMessageDefinition.Field(I18n.getMessage("command.help.discord.server", userLocale), "https://discord.gg/e43BsqKpFr", false))
+                .descriptionOrContent(I18n.getMessage("custom_dice.help.message", userLocale) + "\n" + DiceEvaluatorAdapter.getHelp())
+                .field(new EmbedOrMessageDefinition.Field(I18n.getMessage("custom_dice.help.example.title", userLocale), I18n.getMessage("custom_dice.help.example.text", userLocale), false))
+                .field(new EmbedOrMessageDefinition.Field(I18n.getMessage("help.documentation", userLocale), "https://github.com/twonirwana/DiscordDiceBot", false))
+                .field(new EmbedOrMessageDefinition.Field(I18n.getMessage("help.discord.server", userLocale), "https://discord.gg/e43BsqKpFr", false))
                 .build();
     }
 
@@ -105,8 +105,8 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
                 .distinct()
                 .collect(Collectors.toList());
         DiceParserSystem diceParserSystem = DiceParserSystem.DICE_EVALUATOR;
-        return diceSystemAdapter.validateListOfExpressions(diceExpressionWithOptionalLabel, "/%s /%s".formatted(I18n.getMessage("command.custom_dice.name", userLocale),
-                I18n.getMessage("command.help", userLocale)), diceParserSystem);
+        return diceSystemAdapter.validateListOfExpressions(diceExpressionWithOptionalLabel, "/%s /%s".formatted(I18n.getMessage("custom_dice.name", userLocale),
+                I18n.getMessage("base.option.help", userLocale)), diceParserSystem);
 
     }
 
@@ -195,7 +195,7 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
     public @NonNull EmbedOrMessageDefinition createNewButtonMessage(@NonNull UUID configUUID, @NonNull CustomDiceConfig config) {
         return EmbedOrMessageDefinition.builder()
                 .type(EmbedOrMessageDefinition.Type.MESSAGE)
-                .descriptionOrContent(I18n.getMessage("command.custom_dice.buttonMessage.message", config.getConfigLocale()))
+                .descriptionOrContent(I18n.getMessage("custom_dice.buttonMessage.message", config.getConfigLocale()))
                 .componentRowDefinitions(createButtonLayout(configUUID, config))
                 .build();
     }

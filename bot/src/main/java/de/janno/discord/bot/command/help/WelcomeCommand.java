@@ -93,7 +93,7 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
     }
 
     @Override
-    protected @NonNull Optional<EmbedOrMessageDefinition> createNewButtonMessageWithState(@NonNull UUID configUUID, Config ignore, @NonNull State<StateData> state, long guildId, long channelId) {
+    protected @NonNull Optional<EmbedOrMessageDefinition> createNewButtonMessageWithState(@NonNull UUID configUUID, @NonNull Config ignore, @NonNull State<StateData> state, long guildId, long channelId) {
         BotMetrics.incrementButtonMetricCounter(COMMAND_NAME, "[" + state.getButtonValue() + "]");
         if (ButtonIds.isInvalid(state.getButtonValue())) {
             return Optional.empty();
@@ -135,11 +135,12 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
     }
 
     public EmbedOrMessageDefinition getWelcomeMessage() {
+        //todo null config
         return createNewButtonMessage(uuidSupplier.get(), null);
     }
 
     @Override
-    public @NonNull EmbedOrMessageDefinition createNewButtonMessage(UUID configUUID, Config config) {
+    public @NonNull EmbedOrMessageDefinition createNewButtonMessage(@NonNull UUID configUUID,  Config config) {
         return EmbedOrMessageDefinition.builder()
                 .type(EmbedOrMessageDefinition.Type.MESSAGE)
                 //todo i18n

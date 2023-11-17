@@ -165,7 +165,7 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
     }
 
     @Override
-    public @NonNull EmbedOrMessageDefinition createNewButtonMessage(UUID configUUID, SumCustomSetConfig config) {
+    public @NonNull EmbedOrMessageDefinition createNewButtonMessage(@NonNull UUID configUUID, @NonNull SumCustomSetConfig config) {
         return EmbedOrMessageDefinition.builder()
                 .descriptionOrContent(EMPTY_MESSAGE)
                 .type(EmbedOrMessageDefinition.Type.MESSAGE)
@@ -174,7 +174,7 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
     }
 
     @Override
-    protected @NonNull Optional<EmbedOrMessageDefinition> createNewButtonMessageWithState(@NonNull UUID customUuid, SumCustomSetConfig config, @NonNull State<SumCustomSetStateData> state, long guildId, long channelId) {
+    protected @NonNull Optional<EmbedOrMessageDefinition> createNewButtonMessageWithState(@NonNull UUID customUuid, @NonNull SumCustomSetConfig config, @NonNull State<SumCustomSetStateData> state, long guildId, long channelId) {
         if (ROLL_BUTTON_ID.equals(state.getButtonValue()) && !Optional.ofNullable(state.getData())
                 .map(SumCustomSetStateData::getDiceExpressions)
                 .map(List::isEmpty)
@@ -264,7 +264,7 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
     }
 
     @Override
-    protected @NonNull SumCustomSetConfig getConfigFromStartOptions(@NonNull CommandInteractionOption options, Locale userLocale) {
+    protected @NonNull SumCustomSetConfig getConfigFromStartOptions(@NonNull CommandInteractionOption options, @NonNull Locale userLocale) {
         List<ButtonIdAndExpression> buttons = getButtonsFromCommandInteractionOption(options);
         boolean alwaysSumResults = options.getBooleanSubOptionWithName(ALWAYS_SUM_RESULTS_COMMAND_OPTIONS_ID).orElse(true);
         final DiceParserSystem diceParserSystem = DiceParserSystem.DICE_EVALUATOR;

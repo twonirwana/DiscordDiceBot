@@ -173,7 +173,7 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollConfig, HoldRer
     }
 
     @Override
-    protected @NonNull HoldRerollConfig getConfigFromStartOptions(@NonNull CommandInteractionOption options, Locale userLocale) {
+    protected @NonNull HoldRerollConfig getConfigFromStartOptions(@NonNull CommandInteractionOption options, @NonNull Locale userLocale) {
         int sideValue = Math.toIntExact(options.getLongSubOptionWithName(SIDES_OF_DIE_ID)
                 .map(l -> Math.min(l, 1000))
                 .orElse(6L));
@@ -195,7 +195,7 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollConfig, HoldRer
     }
 
     @Override
-    public @NonNull EmbedOrMessageDefinition createNewButtonMessage(@NonNull UUID configUUID, HoldRerollConfig config) {
+    public @NonNull EmbedOrMessageDefinition createNewButtonMessage(@NonNull UUID configUUID, @NonNull HoldRerollConfig config) {
         return EmbedOrMessageDefinition.builder()
                 .type(EmbedOrMessageDefinition.Type.MESSAGE)
                 .descriptionOrContent(String.format("Click on the buttons to roll dice. Reroll set: %s, Success Set: %s and Failure Set: %s",
@@ -205,7 +205,7 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollConfig, HoldRer
     }
 
     @Override
-    protected @NonNull Optional<EmbedOrMessageDefinition> createNewButtonMessageWithState(@NonNull UUID configUUID, HoldRerollConfig config, @NonNull State<HoldRerollStateData> state, long guildId, long channelId) {
+    protected @NonNull Optional<EmbedOrMessageDefinition> createNewButtonMessageWithState(@NonNull UUID configUUID, @NonNull HoldRerollConfig config, @NonNull State<HoldRerollStateData> state, long guildId, long channelId) {
         if (config.getRerollSet().isEmpty()
                 || CLEAR_BUTTON_ID.equals(state.getButtonValue())
                 || FINISH_BUTTON_ID.equals(state.getButtonValue())
@@ -342,7 +342,7 @@ public class HoldRerollCommand extends AbstractCommand<HoldRerollConfig, HoldRer
     }
 
     @Override
-    protected @NonNull Optional<String> getStartOptionsValidationMessage(@NonNull CommandInteractionOption options, long channelId, long userId, Locale userLocale) {
+    protected @NonNull Optional<String> getStartOptionsValidationMessage(@NonNull CommandInteractionOption options, long channelId, long userId, @NonNull Locale userLocale) {
         HoldRerollConfig conf = getConfigFromStartOptions(options, userLocale);
         return validate(conf);
     }

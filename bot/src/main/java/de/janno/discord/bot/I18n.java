@@ -4,10 +4,8 @@ import com.google.common.collect.ImmutableList;
 import de.janno.discord.connector.api.slash.LocaleValue;
 
 import java.text.MessageFormat;
-import java.util.List;
-import java.util.Locale;
-import java.util.Objects;
-import java.util.ResourceBundle;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public final class I18n {
     private final static String MESSAGES_KEY = "botMessages";
@@ -37,6 +35,15 @@ public final class I18n {
     public static List<LocaleValue> additionalMessages(String key) {
         return getAdditionalLanguage().stream()
                 .map(l -> new LocaleValue(l, getMessage(key, l)))
+                .filter(m -> !Objects.equals(m.value(), getMessage(key, Locale.ENGLISH))) //remove all locals that are equal to the default english one
+                .toList();
+    }
+
+    public static List<LocaleValue> additionalMessagesWithKeys(String key, String... keys) {
+        return getAdditionalLanguage().stream()
+                .map(l -> new LocaleValue(l, getMessage(key, l, Arrays.stream(keys)
+                        .map(k -> getMessage(k, l))
+                        .collect(Collectors.toList()))))
                 .filter(m -> !Objects.equals(m.value(), getMessage(key, Locale.ENGLISH))) //remove all locals that are equal to the default english one
                 .toList();
     }

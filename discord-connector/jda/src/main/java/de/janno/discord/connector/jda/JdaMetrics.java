@@ -2,7 +2,6 @@ package de.janno.discord.connector.jda;
 
 import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.Metrics;
-import io.micrometer.core.instrument.Tag;
 import io.micrometer.core.instrument.Tags;
 import io.micrometer.core.instrument.binder.okhttp3.OkHttpConnectionPoolMetrics;
 import io.micrometer.core.instrument.binder.okhttp3.OkHttpMetricsEventListener;

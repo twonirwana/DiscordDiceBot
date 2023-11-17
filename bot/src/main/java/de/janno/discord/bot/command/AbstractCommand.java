@@ -38,9 +38,9 @@ import static de.janno.discord.connector.api.BottomCustomIdUtils.CUSTOM_ID_DELIM
 @Slf4j
 public abstract class AbstractCommand<C extends Config, S extends StateData> implements SlashCommand, ComponentInteractEventHandler {
 
-    private static final String START_OPTION_NAME_KEY = "command.start";
+    private static final String START_OPTION_NAME_KEY = "base.option.start";
     private static final String START_OPTION_NAME = I18n.getMessage(START_OPTION_NAME_KEY, Locale.ENGLISH);
-    private static final String HELP_OPTION_NAME_KEY = "command.help";
+    private static final String HELP_OPTION_NAME_KEY = "base.option.help";
     private static final String HELP_OPTION_NAME = I18n.getMessage(HELP_OPTION_NAME_KEY, Locale.ENGLISH);
 
     private static final int MIN_MS_DELAY_BETWEEN_BUTTON_MESSAGES = 1000;
@@ -87,13 +87,13 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
         }
         return CommandDefinition.builder()
                 .name(getCommandId())
-                .nameLocales(I18n.additionalMessages("command.%s.name".formatted(getCommandId())))
-                .description(I18n.getMessage("command.%s.description".formatted(getCommandId()), Locale.ENGLISH)) //not visible, because the description of the first option will be shown
-                .descriptionLocales(I18n.additionalMessages("command.%s.description".formatted(getCommandId()))) //not visible, because the description of the first option will be shown
+                .nameLocales(I18n.additionalMessages("%s.name".formatted(getCommandId())))
+                .description(I18n.getMessage("%s.description".formatted(getCommandId()), Locale.ENGLISH)) //not visible, because the description of the first option will be shown
+                .descriptionLocales(I18n.additionalMessages("%s.description".formatted(getCommandId()))) //not visible, because the description of the first option will be shown
                 .option(CommandDefinitionOption.builder()
                         .name(START_OPTION_NAME)
-                        .description(I18n.getMessage("command.%s.description".formatted(getCommandId()), Locale.ENGLISH))
-                        .descriptionLocales(I18n.additionalMessages("command.%s.description".formatted(getCommandId())))
+                        .description(I18n.getMessage("%s.description".formatted(getCommandId()), Locale.ENGLISH))
+                        .descriptionLocales(I18n.additionalMessages("%s.description".formatted(getCommandId())))
                         .nameLocales(I18n.additionalMessages(START_OPTION_NAME_KEY))
                         .type(CommandDefinitionOption.Type.SUB_COMMAND)
                         .options(getStartOptions())
@@ -102,7 +102,8 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
                 .option(CommandDefinitionOption.builder()
                         .name(HELP_OPTION_NAME)
                         .nameLocales(I18n.additionalMessages(HELP_OPTION_NAME_KEY))
-                        .description(I18n.getMessage("command.get.help.for", Locale.ENGLISH, getCommandId()))
+                        .description(I18n.getMessage("base.help.description", Locale.ENGLISH, (I18n.getMessage("%s.name".formatted(getCommandId()), Locale.ENGLISH))))
+                        .descriptionLocales(I18n.additionalMessagesWithKeys("base.help.description", "%s.name".formatted(getCommandId())))
                         .type(CommandDefinitionOption.Type.SUB_COMMAND)
                         .build())
                 .options(additionalCommandOptions())

@@ -49,6 +49,6 @@ public class CustomParameterConfig extends Config {
 
     @Override
     public String toCommandOptionsString() {
-        return "%s: %s %s".formatted(CustomParameterCommand.EXPRESSION_OPTION, baseExpression, super.toCommandOptionsString());
+        return "%s: %s %s".formatted(CustomParameterCommand.EXPRESSION_OPTION_NAME, baseExpression, super.toCommandOptionsString());
     }
 }

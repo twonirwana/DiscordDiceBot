@@ -190,7 +190,7 @@ public class SumDiceSetCommand extends AbstractCommand<Config, SumDiceSetStateDa
     }
 
     @Override
-    public @NonNull EmbedOrMessageDefinition createNewButtonMessage(UUID configUUID, Config config) {
+    public @NonNull EmbedOrMessageDefinition createNewButtonMessage(@NonNull UUID configUUID, @NonNull Config config) {
         return EmbedOrMessageDefinition.builder()
                 .type(EmbedOrMessageDefinition.Type.MESSAGE)
                 .descriptionOrContent(EMPTY_MESSAGE)
@@ -199,7 +199,7 @@ public class SumDiceSetCommand extends AbstractCommand<Config, SumDiceSetStateDa
     }
 
     @Override
-    protected @NonNull Optional<EmbedOrMessageDefinition> createNewButtonMessageWithState(@NonNull UUID configUUID, Config config, @NonNull State<SumDiceSetStateData> state, long guildId, long channelId) {
+    protected @NonNull Optional<EmbedOrMessageDefinition> createNewButtonMessageWithState(@NonNull UUID configUUID, @NonNull Config config, @NonNull State<SumDiceSetStateData> state, long guildId, long channelId) {
         if (!(ROLL_BUTTON_ID.equals(state.getButtonValue()) &&
                 !Optional.ofNullable(state.getData())
                         .map(SumDiceSetStateData::getDiceSet)
@@ -267,7 +267,7 @@ public class SumDiceSetCommand extends AbstractCommand<Config, SumDiceSetStateDa
 
 
     @Override
-    protected @NonNull Config getConfigFromStartOptions(@NonNull CommandInteractionOption options, Locale userLocal) {
+    protected @NonNull Config getConfigFromStartOptions(@NonNull CommandInteractionOption options, @NonNull Locale userLocal) {
         Long answerTargetChannelId = BaseCommandOptions.getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null);
         AnswerFormatType answerType = BaseCommandOptions.getAnswerTypeFromStartCommandOption(options).orElse(defaultAnswerFormat());
         return new Config(answerTargetChannelId,
