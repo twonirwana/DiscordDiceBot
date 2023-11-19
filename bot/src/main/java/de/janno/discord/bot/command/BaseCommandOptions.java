@@ -17,11 +17,10 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 public final class BaseCommandOptions {
-    private static final String LOCALE_OPTION_NAME_KEY = "base.option.locale.name";
-    public static final String LOCALE_OPTION_NAME = I18n.getMessage(LOCALE_OPTION_NAME_KEY, Locale.ENGLISH);
+    public static final String LOCALE_OPTION_NAME = "language";
     public static final CommandDefinitionOption LOCALE_COMMAND_OPTION = CommandDefinitionOption.builder()
             .name(LOCALE_OPTION_NAME)
-            .nameLocales(I18n.additionalMessages(LOCALE_OPTION_NAME_KEY))
+            .nameLocales(I18n.additionalMessages("base.option.locale.name"))
             .description(I18n.getMessage("base.option.locale.description", Locale.ENGLISH))
             .descriptionLocales(I18n.additionalMessages("base.option.locale.description"))
             .type(CommandDefinitionOption.Type.STRING)
@@ -34,21 +33,19 @@ public final class BaseCommandOptions {
                     .collect(Collectors.toList()))
             .build();
 
-    private static final String DICE_IMAGE_COLOR_OPTION_NAME_KEY = "base.option.dice_color.name";
-    public static final String DICE_IMAGE_COLOR_OPTION_NAME = I18n.getMessage(DICE_IMAGE_COLOR_OPTION_NAME_KEY, Locale.ENGLISH);
+    public static final String DICE_IMAGE_COLOR_OPTION_NAME = "dice_image_color";
     public static final CommandDefinitionOption DICE_IMAGE_COLOR_COMMAND_OPTION = CommandDefinitionOption.builder()
             .name(DICE_IMAGE_COLOR_OPTION_NAME)
-            .nameLocales(I18n.additionalMessages(DICE_IMAGE_COLOR_OPTION_NAME_KEY))
+            .nameLocales(I18n.additionalMessages("base.option.dice_color.name"))
             .description(I18n.getMessage("base.option.dice_color.description", Locale.ENGLISH))
             .descriptionLocales(I18n.additionalMessages("base.option.dice_color.description"))
             .type(CommandDefinitionOption.Type.STRING)
             .autoComplete(true)
             .build();
-    private static final String DICE_IMAGE_STYLE_OPTION_NAME_KEY = "base.option.dice_image_style.name";
-    public static final String DICE_IMAGE_STYLE_OPTION_NAME = I18n.getMessage(DICE_IMAGE_STYLE_OPTION_NAME_KEY, Locale.ENGLISH);
+    public static final String DICE_IMAGE_STYLE_OPTION_NAME = "dice_image_style";
     public static final CommandDefinitionOption DICE_IMAGE_STYLE_COMMAND_OPTION = CommandDefinitionOption.builder()
             .name(DICE_IMAGE_STYLE_OPTION_NAME)
-            .nameLocales(I18n.additionalMessages(DICE_IMAGE_STYLE_OPTION_NAME_KEY))
+            .nameLocales(I18n.additionalMessages("base.option.dice_image_style.name"))
             .description(I18n.getMessage("base.option.dice_image_style.description", Locale.ENGLISH))
             .descriptionLocales(I18n.additionalMessages("base.option.dice_image_style.description"))
             .type(CommandDefinitionOption.Type.STRING)
@@ -60,11 +57,10 @@ public final class BaseCommandOptions {
                             .build())
                     .collect(Collectors.toList()))
             .build();
-    private static final String ANSWER_FORMAT_OPTION_NAME_KEY = "base.option.answer_format.name";
-    public static final String ANSWER_FORMAT_OPTION_NAME = I18n.getMessage(ANSWER_FORMAT_OPTION_NAME_KEY, Locale.ENGLISH);
+    public static final String ANSWER_FORMAT_OPTION_NAME = "answer_format";
     public static final CommandDefinitionOption ANSWER_FORMAT_COMMAND_OPTION = CommandDefinitionOption.builder()
             .name(ANSWER_FORMAT_OPTION_NAME)
-            .nameLocales(I18n.additionalMessages(ANSWER_FORMAT_OPTION_NAME_KEY))
+            .nameLocales(I18n.additionalMessages("base.option.answer_format.name"))
             .description(I18n.getMessage("base.option.answer_format.description", Locale.ENGLISH))
             .descriptionLocales(I18n.additionalMessages("base.option.answer_format.description"))
             .type(CommandDefinitionOption.Type.STRING)
@@ -76,11 +72,10 @@ public final class BaseCommandOptions {
                             .build())
                     .collect(Collectors.toList()))
             .build();
-    private static final String TARGET_CHANNEL_OPTION_NAME_KEY = "base.option.target_channel.name";
-    public static final String TARGET_CHANNEL_OPTION_NAME = I18n.getMessage(TARGET_CHANNEL_OPTION_NAME_KEY, Locale.ENGLISH);
+    public static final String TARGET_CHANNEL_OPTION_NAME = "target_channel";
     public static final CommandDefinitionOption ANSWER_TARGET_CHANNEL_COMMAND_OPTION = CommandDefinitionOption.builder()
             .name(TARGET_CHANNEL_OPTION_NAME)
-            .nameLocales(I18n.additionalMessages(TARGET_CHANNEL_OPTION_NAME_KEY))
+            .nameLocales(I18n.additionalMessages("base.option.target_channel.name"))
             .description(I18n.getMessage("base.option.target_channel.description", Locale.ENGLISH))
             .descriptionLocales(I18n.additionalMessages("base.option.target_channel.description"))
             .type(CommandDefinitionOption.Type.CHANNEL)
@@ -95,7 +90,7 @@ public final class BaseCommandOptions {
                 .map(OptionValue::getOptionValue)
                 .findFirst();
         if (styleOptionValue.isEmpty() || !DiceImageStyle.isValidStyle(styleOptionValue.get())) {
-            return List.of(new AutoCompleteAnswer(I18n.getMessage("base.option.dice_image_style.auto.complete.missing.style.name", userLocale),
+            return List.of(new AutoCompleteAnswer(I18n.getMessage("base.option.dice_image_style.autoComplete.missingStyle.name", userLocale),
                     I18n.getMessage("base.option.dice.dice_image_style.auto.complete.missing.style.value", userLocale)));
         }
         return DiceImageStyle.valueOf(styleOptionValue.get()).getSupportedColors().stream()

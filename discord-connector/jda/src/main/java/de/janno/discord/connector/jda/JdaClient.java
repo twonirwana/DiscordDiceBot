@@ -59,7 +59,6 @@ public class JdaClient {
                 .setHttpClient(okHttpClient)
                 .addEventListeners(
                         new ListenerAdapter() {
-
                             @Override
                             public void onGuildJoin(@NonNull GuildJoinEvent event) {
                                 if (!botInGuildIdSet.contains(event.getGuild().getIdLong())) {

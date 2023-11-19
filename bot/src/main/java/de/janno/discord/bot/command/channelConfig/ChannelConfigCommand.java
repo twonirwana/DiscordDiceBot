@@ -3,6 +3,7 @@ package de.janno.discord.bot.command.channelConfig;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import de.janno.discord.bot.BotMetrics;
+import de.janno.discord.bot.I18n;
 import de.janno.discord.bot.command.AnswerFormatType;
 import de.janno.discord.bot.command.BaseCommandOptions;
 import de.janno.discord.bot.command.directRoll.DirectRollCommand;
@@ -32,64 +33,79 @@ import static de.janno.discord.bot.command.channelConfig.AliasHelper.*;
 
 @Slf4j
 public class ChannelConfigCommand implements SlashCommand {
-    //todo i18n
     public static final String DIRECT_ROLL_CONFIG_TYPE_ID = "DirectRollConfig";
-    static final String ALWAYS_SUM_RESULTS_COMMAND_OPTIONS_ID = "always_sum_result";
+    static final String ALWAYS_SUM_RESULTS_OPTION_NAME = "always_sum_result";
     private static final String COMMAND_ID = "channel_config";
-    private static final String SAVE_DIRECT_ROLL_CONFIG_ACTION = "save_direct_roll_config";
-    private static final String DELETE_DIRECT_ROLL_CONFIG_ACTION = "delete_direct_roll_config";
-    private static final String CHANNEL_ALIAS = "channel_alias";
-    private static final String USER_CHANNEL_ALIAS = "user_channel_alias";
-    private static final String SAVE_ALIAS_ACTION = "save";
-    private static final String SAVE_MULTI_ALIAS_ACTION = "multi_save";
-    private static final String ALIAS_NAME_OPTION = "name";
-    private static final String ALIASES_OPTION = "aliases";
-    private static final String ALIAS_VALUE_OPTION = "value";
-    private static final String LIST_ALIAS_ACTION = "list";
-    private static final String DELETE_ALIAS_ACTION = "delete";
+    private static final String SAVE_DIRECT_ROLL_CONFIG_OPTION_NAME = "save_direct_roll_config";
+    private static final String DELETE_DIRECT_ROLL_CONFIG_OPTION_NAME = "delete_direct_roll_config";
+    private static final String CHANNEL_ALIAS_OPTION_NAME = "channel_alias";
+    private static final String USER_CHANNEL_ALIAS_OPTION_NAME = "user_channel_alias";
+    private static final String SAVE_ALIAS_OPTION_NAME = "save";
+    private static final String SAVE_MULTI_ALIAS_OPTION_NAME = "multi_save";
+    private static final String ALIAS_NAME_OPTION_NAME = "name";
+    private static final String ALIASES_OPTION_NAME = "aliases";
+    private static final String ALIAS_VALUE_OPTION_NAME = "value";
+    private static final String LIST_ALIAS_OPTION_NAME = "list";
+    private static final String DELETE_ALIAS_OPTION_NAME = "delete";
     private static final CommandDefinitionOption SAVE_ALIAS_OPTION = CommandDefinitionOption.builder()
             .type(CommandDefinitionOption.Type.SUB_COMMAND)
-            .name(SAVE_ALIAS_ACTION)
-            .description("Add a new alias")
+            .name(SAVE_ALIAS_OPTION_NAME)
+            .nameLocales(I18n.additionalMessages("channel_config.option.save.name"))
+            .description(I18n.getMessage("channel_config.option.save.description", Locale.ENGLISH))
+            .descriptionLocales(I18n.additionalMessages("channel_config.option.save.description"))
             .option(CommandDefinitionOption.builder()
                     .type(CommandDefinitionOption.Type.STRING)
-                    .name(ALIAS_NAME_OPTION)
-                    .description("The name of the alias (the name in the expression will be replaced with the value)")
+                    .name(ALIAS_NAME_OPTION_NAME)
+                    .nameLocales(I18n.additionalMessages("channel_config.option.aliasName.name"))
+                    .description(I18n.getMessage("channel_config.option.aliasName.description", Locale.ENGLISH))
+                    .descriptionLocales(I18n.additionalMessages("channel_config.option.aliasName.description"))
                     .required(true)
                     .build())
             .option(CommandDefinitionOption.builder()
                     .type(CommandDefinitionOption.Type.STRING)
-                    .name(ALIAS_VALUE_OPTION)
-                    .description("The value of the alias (the name in the expression will be replaced with the value)")
+                    .name(ALIAS_VALUE_OPTION_NAME)
+                    .nameLocales(I18n.additionalMessages("channel_config.option.value.name"))
+                    .description(I18n.getMessage("channel_config.option.value.description", Locale.ENGLISH))
+                    .descriptionLocales(I18n.additionalMessages("channel_config.option.value.description"))
                     .required(true)
                     .build())
             .build();
     private static final CommandDefinitionOption MULTI_SAVE_ALIAS_OPTION = CommandDefinitionOption.builder()
             .type(CommandDefinitionOption.Type.SUB_COMMAND)
-            .name(SAVE_MULTI_ALIAS_ACTION)
-            .description("Save multiple alias")
+            .name(SAVE_MULTI_ALIAS_OPTION_NAME)
+            .nameLocales(I18n.additionalMessages("channel_config.option.multiSave.name"))
+            .description(I18n.getMessage("channel_config.option.multiSave.description", Locale.ENGLISH))
+            .descriptionLocales(I18n.additionalMessages("channel_config.option.multiSave.description"))
             .option(CommandDefinitionOption.builder()
                     .type(CommandDefinitionOption.Type.STRING)
-                    .name(ALIASES_OPTION)
-                    .description("Separate alias name and value by `:` and aliases by `;` e.g.: att:2d20;dmg:2d6+3=")
+                    .name(ALIASES_OPTION_NAME)
+                    .nameLocales(I18n.additionalMessages("channel_config.option.aliases.name"))
+                    .description(I18n.getMessage("channel_config.option.aliases.description", Locale.ENGLISH))
+                    .descriptionLocales(I18n.additionalMessages("channel_config.option.aliases.description"))
                     .required(true)
                     .build())
             .build();
     private static final CommandDefinitionOption DELETE_ALIAS_OPTION = CommandDefinitionOption.builder()
             .type(CommandDefinitionOption.Type.SUB_COMMAND)
-            .name(DELETE_ALIAS_ACTION)
-            .description("Delete alias")
+            .name(DELETE_ALIAS_OPTION_NAME)
+            .nameLocales(I18n.additionalMessages("channel_config.option.delete.name"))
+            .description(I18n.getMessage("channel_config.option.delete.description", Locale.ENGLISH))
+            .descriptionLocales(I18n.additionalMessages("channel_config.option.delete.description"))
             .option(CommandDefinitionOption.builder()
                     .type(CommandDefinitionOption.Type.STRING)
-                    .name(ALIAS_NAME_OPTION)
-                    .description("The name of the alias to delete")
+                    .name(ALIAS_NAME_OPTION_NAME)
+                    .nameLocales(I18n.additionalMessages("channel_config.option.aliasName.name"))
+                    .description(I18n.getMessage("channel_config.option.delete.aliasName.description", Locale.ENGLISH))
+                    .descriptionLocales(I18n.additionalMessages("channel_config.option.delete.aliasName.description"))
                     .required(true)
                     .build())
             .build();
     private static final CommandDefinitionOption LIST_ALIAS_OPTION = CommandDefinitionOption.builder()
             .type(CommandDefinitionOption.Type.SUB_COMMAND)
-            .name(LIST_ALIAS_ACTION)
-            .description("List all alias")
+            .name(LIST_ALIAS_OPTION_NAME)
+            .nameLocales(I18n.additionalMessages("channel_config.option.list.name"))
+            .description(I18n.getMessage("channel_config.option.list.description", Locale.ENGLISH))
+            .descriptionLocales(I18n.additionalMessages("channel_config.option.list.description"))
             .build();
     private final PersistenceManager persistenceManager;
 
@@ -106,30 +122,39 @@ public class ChannelConfigCommand implements SlashCommand {
     public @NonNull CommandDefinition getCommandDefinition() {
         return CommandDefinition.builder()
                 .name(getCommandId())
-                //todo i18n
-                .description("Configure options in this channel")
+                .nameLocales(I18n.additionalMessages("channel_config.name"))
+                .description(I18n.getMessage("channel_config.description", Locale.ENGLISH))
+                .descriptionLocales(I18n.additionalMessages("channel_config.description"))
                 .option(CommandDefinitionOption.builder()
-                        .name(SAVE_DIRECT_ROLL_CONFIG_ACTION)
-                        .description("add or update the channel config")
+                        .name(SAVE_DIRECT_ROLL_CONFIG_OPTION_NAME)
+                        .nameLocales(I18n.additionalMessages("channel_config.option.save_direct_roll_config.name"))
+                        .description(I18n.getMessage("channel_config.option.save_direct_roll_config.description", Locale.ENGLISH))
+                        .descriptionLocales(I18n.additionalMessages("channel_config.option.save_direct_roll_config.description"))
                         .type(CommandDefinitionOption.Type.SUB_COMMAND)
                         .option(BaseCommandOptions.ANSWER_FORMAT_COMMAND_OPTION)
                         .option(BaseCommandOptions.DICE_IMAGE_STYLE_COMMAND_OPTION)
                         .option(BaseCommandOptions.DICE_IMAGE_COLOR_COMMAND_OPTION)
                         .option(CommandDefinitionOption.builder()
-                                .name(ALWAYS_SUM_RESULTS_COMMAND_OPTIONS_ID)
-                                .description("Always sum the results of the dice expressions")
+                                .name(ALWAYS_SUM_RESULTS_OPTION_NAME)
+                                .nameLocales(I18n.additionalMessages("channel_config.option.always_sum_result.name"))
+                                .description(I18n.getMessage("channel_config.option.always_sum_result.description", Locale.ENGLISH))
+                                .descriptionLocales(I18n.additionalMessages("channel_config.option.always_sum_result.description"))
                                 .type(CommandDefinitionOption.Type.BOOLEAN)
                                 .required(false)
                                 .build())
                         .build())
                 .option(CommandDefinitionOption.builder()
-                        .name(DELETE_DIRECT_ROLL_CONFIG_ACTION)
-                        .description("remove the current channel config")
+                        .name(DELETE_DIRECT_ROLL_CONFIG_OPTION_NAME)
+                        .nameLocales(I18n.additionalMessages("channel_config.option.delete_direct_roll_config.name"))
+                        .description(I18n.getMessage("channel_config.option.delete_direct_roll_config.description", Locale.ENGLISH))
+                        .descriptionLocales(I18n.additionalMessages("channel_config.option.delete_direct_roll_config.description"))
                         .type(CommandDefinitionOption.Type.SUB_COMMAND_GROUP)
                         .build())
                 .option(CommandDefinitionOption.builder()
-                        .name(CHANNEL_ALIAS)
-                        .description("add, list or remove channel alias")
+                        .name(CHANNEL_ALIAS_OPTION_NAME)
+                        .nameLocales(I18n.additionalMessages("channel_config.option.channel_alias.name"))
+                        .description(I18n.getMessage("channel_config.option.channel_alias.description", Locale.ENGLISH))
+                        .descriptionLocales(I18n.additionalMessages("channel_config.option.channel_alias.description"))
                         .type(CommandDefinitionOption.Type.SUB_COMMAND_GROUP)
                         .option(SAVE_ALIAS_OPTION)
                         .option(DELETE_ALIAS_OPTION)
@@ -137,8 +162,10 @@ public class ChannelConfigCommand implements SlashCommand {
                         .option(MULTI_SAVE_ALIAS_OPTION)
                         .build())
                 .option(CommandDefinitionOption.builder()
-                        .name(USER_CHANNEL_ALIAS)
-                        .description("add, list or remove user channel alias")
+                        .name(USER_CHANNEL_ALIAS_OPTION_NAME)
+                        .nameLocales(I18n.additionalMessages("channel_config.option.user_channel_alias.name"))
+                        .description(I18n.getMessage("channel_config.option.user_channel_alias.description", Locale.ENGLISH))
+                        .descriptionLocales(I18n.additionalMessages("channel_config.option.user_channel_alias.description"))
                         .type(CommandDefinitionOption.Type.SUB_COMMAND_GROUP)
                         .option(SAVE_ALIAS_OPTION)
                         .option(DELETE_ALIAS_OPTION)
@@ -159,9 +186,9 @@ public class ChannelConfigCommand implements SlashCommand {
 
     @Override
     public @NonNull Mono<Void> handleSlashCommandEvent(@NonNull SlashEventAdaptor event, @NonNull Supplier<UUID> uuidSupplier, @NonNull Locale userLocal) {
-        if (event.getOption(SAVE_DIRECT_ROLL_CONFIG_ACTION).isPresent()) {
-            CommandInteractionOption saveAction = event.getOption(SAVE_DIRECT_ROLL_CONFIG_ACTION).get();
-            boolean alwaysSumResults = saveAction.getBooleanSubOptionWithName(ALWAYS_SUM_RESULTS_COMMAND_OPTIONS_ID).orElse(true);
+        if (event.getOption(SAVE_DIRECT_ROLL_CONFIG_OPTION_NAME).isPresent()) {
+            CommandInteractionOption saveAction = event.getOption(SAVE_DIRECT_ROLL_CONFIG_OPTION_NAME).get();
+            boolean alwaysSumResults = saveAction.getBooleanSubOptionWithName(ALWAYS_SUM_RESULTS_OPTION_NAME).orElse(true);
             AnswerFormatType answerType = BaseCommandOptions.getAnswerTypeFromStartCommandOption(saveAction).orElse(AnswerFormatType.full);
             DiceImageStyle diceImageStyle = BaseCommandOptions.getDiceStyleOptionFromStartCommandOption(saveAction).orElse(DiceImageStyle.polyhedral_3d);
             String defaultDiceColor = BaseCommandOptions.getDiceColorOptionFromStartCommandOption(saveAction).orElse(DiceImageStyle.polyhedral_3d.getDefaultColor());
@@ -184,11 +211,10 @@ public class ChannelConfigCommand implements SlashCommand {
                         event.getCommandString().replace("`", ""),
                         config.toShortString()
                 );
-                //todo i18n
-                return event.reply("`%s`\nSaved direct roll channel config".formatted(event.getCommandString()), false);
+                return event.reply(I18n.getMessage("channel_config.save.reply", userLocal, event.getCommandString()), false);
             });
         }
-        if (event.getOption(DELETE_DIRECT_ROLL_CONFIG_ACTION).isPresent()) {
+        if (event.getOption(DELETE_DIRECT_ROLL_CONFIG_OPTION_NAME).isPresent()) {
             BotMetrics.incrementSlashStartMetricCounter(getCommandId(), "delete");
             return Mono.defer(() -> {
                 log.info("{}: '{}'",
@@ -196,18 +222,17 @@ public class ChannelConfigCommand implements SlashCommand {
                         event.getCommandString().replace("`", "")
                 );
                 persistenceManager.deleteChannelConfig(event.getChannelId(), DIRECT_ROLL_CONFIG_TYPE_ID);
-                //todo i18n
-                return event.reply("`%s`\nDeleted direct roll channel config".formatted(event.getCommandString()), false);
+                return event.reply(I18n.getMessage("channel_config.deleted.reply", userLocal, event.getCommandString()), false);
             });
         }
-        if (event.getOption(CHANNEL_ALIAS).isPresent()) {
-            return handelChannelEvent(event, null, uuidSupplier);
+        if (event.getOption(CHANNEL_ALIAS_OPTION_NAME).isPresent()) {
+            return handelChannelEvent(event, null, uuidSupplier, userLocal);
         }
-        if (event.getOption(USER_CHANNEL_ALIAS).isPresent()) {
-            return handelChannelEvent(event, event.getUserId(), uuidSupplier);
+        if (event.getOption(USER_CHANNEL_ALIAS_OPTION_NAME).isPresent()) {
+            return handelChannelEvent(event, event.getUserId(), uuidSupplier, userLocal);
         }
         log.error("unknown option for slash event: {} ", event.getOptions());
-        return event.reply("Unknown slash event options", false);
+        return event.reply(I18n.getMessage("channel_config.unknown.reply", userLocal), false);
     }
 
     private void saveAlias(@NonNull Alias alias, @NonNull SlashEventAdaptor event, @Nullable Long userId, @NonNull Supplier<UUID> uuidSupplier) {
@@ -224,13 +249,13 @@ public class ChannelConfigCommand implements SlashCommand {
         saveAlias(event.getChannelId(), event.getGuildId(), userId, newAliasList, uuidSupplier);
     }
 
-    private Mono<Void> handelChannelEvent(@NonNull SlashEventAdaptor event, @Nullable Long userId, @NonNull Supplier<UUID> uuidSupplier) {
+    private Mono<Void> handelChannelEvent(@NonNull SlashEventAdaptor event, @Nullable Long userId, @NonNull Supplier<UUID> uuidSupplier, @NonNull Locale userLocale) {
         String type = userId == null ? "channel_alias" : "user_channel_alias";
-        if (event.getOption(SAVE_ALIAS_ACTION).isPresent()) {
+        if (event.getOption(SAVE_ALIAS_OPTION_NAME).isPresent()) {
             BotMetrics.incrementSlashStartMetricCounter(getCommandId(), type + ", save");
-            CommandInteractionOption commandInteractionOption = event.getOption(SAVE_ALIAS_ACTION).get();
-            String name = commandInteractionOption.getStringSubOptionWithName(ALIAS_NAME_OPTION).orElseThrow();
-            String value = commandInteractionOption.getStringSubOptionWithName(ALIAS_VALUE_OPTION).orElseThrow();
+            CommandInteractionOption commandInteractionOption = event.getOption(SAVE_ALIAS_OPTION_NAME).get();
+            String name = commandInteractionOption.getStringSubOptionWithName(ALIAS_NAME_OPTION_NAME).orElseThrow();
+            String value = commandInteractionOption.getStringSubOptionWithName(ALIAS_VALUE_OPTION_NAME).orElseThrow();
 
             Alias alias = new Alias(name, value);
             saveAlias(alias, event, userId, uuidSupplier);
@@ -239,25 +264,23 @@ public class ChannelConfigCommand implements SlashCommand {
                     userId == null ? "channel" : "user channel",
                     alias
             );
-            //todo i18n
-            return event.reply("`%s`\nSaved new alias".formatted(event.getCommandString()), userId != null);
-        } else if (event.getOption(SAVE_MULTI_ALIAS_ACTION).isPresent()) {
+
+            return event.reply(I18n.getMessage("channel_config.savedAlias.reply", userLocale, event.getCommandString()), userId != null);
+        } else if (event.getOption(SAVE_MULTI_ALIAS_OPTION_NAME).isPresent()) {
             BotMetrics.incrementSlashStartMetricCounter(getCommandId(), type + ", multi save");
-            CommandInteractionOption commandInteractionOption = event.getOption(SAVE_MULTI_ALIAS_ACTION).get();
-            String aliasesString = commandInteractionOption.getStringSubOptionWithName(ALIASES_OPTION).orElseThrow();
+            CommandInteractionOption commandInteractionOption = event.getOption(SAVE_MULTI_ALIAS_OPTION_NAME).get();
+            String aliasesString = commandInteractionOption.getStringSubOptionWithName(ALIASES_OPTION_NAME).orElseThrow();
             List<String> nameValuePair = Arrays.stream(aliasesString.split(";"))
                     .filter(s -> !Strings.isNullOrEmpty(s))
                     .toList();
             if (nameValuePair.isEmpty()) {
-                //todo i18n
-                return event.reply("`%s`\nNo name/value pair".formatted(event.getCommandString()), true);
+                return event.reply(I18n.getMessage("channel_config.noNameValue.reply", userLocale, event.getCommandString()), true);
             }
             List<String> missingNameValue = nameValuePair.stream()
                     .filter(s -> StringUtils.countMatches(s, ":") != 1)
                     .toList();
             if (!missingNameValue.isEmpty()) {
-                //todo i18n
-                return event.reply("`%s`\nMissing name value separator `:` in: %s".formatted(event.getCommandString(), missingNameValue), true);
+                return event.reply(I18n.getMessage("channel_config.missingSeparator.reply", userLocale, event.getCommandString(), missingNameValue), true);
             }
             List<Alias> aliases = nameValuePair.stream()
                     .map(s -> {
@@ -272,10 +295,10 @@ public class ChannelConfigCommand implements SlashCommand {
                     userId == null ? "channel" : "user channel",
                     aliases
             );
-            return event.reply("`%s`\nSaved new alias".formatted(event.getCommandString()), userId != null);
-        } else if (event.getOption(DELETE_ALIAS_ACTION).isPresent()) {
-            CommandInteractionOption commandInteractionOption = event.getOption(DELETE_ALIAS_ACTION).get();
-            String name = commandInteractionOption.getStringSubOptionWithName(ALIAS_NAME_OPTION).orElseThrow();
+            return event.reply(I18n.getMessage("channel_config.savedAlias.reply", userLocale, event.getCommandString()), userId != null);
+        } else if (event.getOption(DELETE_ALIAS_OPTION_NAME).isPresent()) {
+            CommandInteractionOption commandInteractionOption = event.getOption(DELETE_ALIAS_OPTION_NAME).get();
+            String name = commandInteractionOption.getStringSubOptionWithName(ALIAS_NAME_OPTION_NAME).orElseThrow();
 
             BotMetrics.incrementSlashStartMetricCounter(getCommandId(), type + ", delete");
             final List<Alias> existingAlias = loadAlias(event.getChannelId(), userId);
@@ -290,20 +313,17 @@ public class ChannelConfigCommand implements SlashCommand {
                     userId == null ? "channel" : "user channel",
                     name
             );
-            //todo i18n
-            return event.reply("`%s`\ndeleted alias".formatted(event.getCommandString()), userId != null);
-        } else if (event.getOption(LIST_ALIAS_ACTION).isPresent()) {
+            return event.reply(I18n.getMessage("channel_config.deletedAlias.reply", userLocale, event.getCommandString()), userId != null);
+        } else if (event.getOption(LIST_ALIAS_OPTION_NAME).isPresent()) {
             final List<Alias> existingAlias = loadAlias(event.getChannelId(), userId);
 
             BotMetrics.incrementSlashStartMetricCounter(getCommandId(), type + ", list");
 
             String aliasList = existingAlias.stream().map(Objects::toString).collect(Collectors.joining("\n"));
-            //todo i18n
-            return event.reply("`%s`\nexisting alias:\n%s".formatted(event.getCommandString(), aliasList), userId != null);
+            return event.reply(I18n.getMessage("channel_config.listAlias.reply", userLocale, event.getCommandString(), aliasList), userId != null);
         }
         log.error("unknown option for slash event: {} ", event.getOptions());
-        //todo i18n
-        return event.reply("Unknown slash event options", false);
+        return event.reply(I18n.getMessage("channel_config.unknown.reply", userLocale), false);
     }
 
     private List<Alias> loadAlias(long channelId, Long userId) {

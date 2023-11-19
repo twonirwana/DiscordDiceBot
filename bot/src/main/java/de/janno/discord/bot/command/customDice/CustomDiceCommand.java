@@ -34,9 +34,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateData> {
 
-    private static final String BUTTONS_OPTION_NAME_KEY = "custom_dice.option.buttons.name";
-    static final String BUTTONS_OPTION_NAME = I18n.getMessage(BUTTONS_OPTION_NAME_KEY, Locale.ENGLISH);
-    private static final String BUTTONS_OPTION_DESCRIPTION_KEY = "custom_dice.option.buttons.description";
+    static final String BUTTONS_OPTION_NAME = "buttons";
     private static final String COMMAND_NAME = "custom_dice";
     private static final String LABEL_DELIMITER = "@";
     private static final String CONFIG_TYPE_ID = "CustomDiceConfig";
@@ -78,9 +76,9 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
     protected @NonNull List<CommandDefinitionOption> getStartOptions() {
         return List.of(CommandDefinitionOption.builder()
                 .name(BUTTONS_OPTION_NAME)
-                .nameLocales(I18n.additionalMessages(BUTTONS_OPTION_NAME_KEY))
-                .description(I18n.getMessage(BUTTONS_OPTION_DESCRIPTION_KEY, Locale.ENGLISH))
-                .descriptionLocales(I18n.additionalMessages(BUTTONS_OPTION_DESCRIPTION_KEY))
+                .nameLocales(I18n.additionalMessages("custom_dice.option.buttons.name"))
+                .description(I18n.getMessage("custom_dice.option.buttons.description", Locale.ENGLISH))
+                .descriptionLocales(I18n.additionalMessages("custom_dice.option.buttons.description"))
                 .type(CommandDefinitionOption.Type.STRING)
                 .required(true)
                 .build());
@@ -91,7 +89,7 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
     protected @NonNull EmbedOrMessageDefinition getHelpMessage(Locale userLocale) {
         return EmbedOrMessageDefinition.builder()
                 .descriptionOrContent(I18n.getMessage("custom_dice.help.message", userLocale) + "\n" + DiceEvaluatorAdapter.getHelp())
-                .field(new EmbedOrMessageDefinition.Field(I18n.getMessage("custom_dice.help.example.field.name", userLocale), I18n.getMessage("custom_dice.help.example.field.value", userLocale), false))
+                .field(new EmbedOrMessageDefinition.Field(I18n.getMessage("help.example.field.name", userLocale), I18n.getMessage("custom_dice.help.example.field.value", userLocale), false))
                 .field(new EmbedOrMessageDefinition.Field(I18n.getMessage("help.documentation.field.name", userLocale), I18n.getMessage("help.documentation.field.value", userLocale), false))
                 .field(new EmbedOrMessageDefinition.Field(I18n.getMessage("help.discord.server.field.name", userLocale), I18n.getMessage("help.discord.server.field.value", userLocale), false))
                 .build();

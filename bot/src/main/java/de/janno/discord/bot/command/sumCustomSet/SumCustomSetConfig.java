@@ -61,8 +61,8 @@ public class SumCustomSetConfig extends Config {
                     return "%s@%s".formatted(b.getDiceExpression(), b.getLabel());
                 })
                 .collect(Collectors.joining(";"));
-        return "%s: %s %s: %s %s".formatted(SumCustomSetCommand.BUTTONS_COMMAND_OPTIONS_ID, String.join(" ", buttons),
-                SumCustomSetCommand.ALWAYS_SUM_RESULTS_COMMAND_OPTIONS_ID, alwaysSumResult,
+        return "%s: %s %s: %s %s".formatted(SumCustomSetCommand.BUTTONS_COMMAND_OPTIONS_NAME, String.join(" ", buttons),
+                SumCustomSetCommand.ALWAYS_SUM_RESULTS_COMMAND_OPTIONS_NAME, alwaysSumResult,
                 super.toCommandOptionsString());
     }
 }

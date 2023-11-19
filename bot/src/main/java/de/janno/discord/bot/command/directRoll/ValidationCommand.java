@@ -3,6 +3,7 @@ package de.janno.discord.bot.command.directRoll;
 import com.google.common.base.Stopwatch;
 import com.google.common.base.Strings;
 import de.janno.discord.bot.BotMetrics;
+import de.janno.discord.bot.I18n;
 import de.janno.discord.bot.command.RollAnswer;
 import de.janno.discord.bot.command.RollAnswerConverter;
 import de.janno.discord.bot.dice.CachingDiceEvaluator;
@@ -38,12 +39,11 @@ public class ValidationCommand extends DirectRollCommand {
 
     @Override
     public @NonNull List<AutoCompleteAnswer> getAutoCompleteAnswer(@NonNull AutoCompleteRequest option, @NonNull Locale userLocale) {
-        if (!ACTION_EXPRESSION.equals(option.getFocusedOptionName())) {
+        if (!EXPRESSION_OPTION_NAME.equals(option.getFocusedOptionName())) {
             return List.of();
         }
         if (Strings.isNullOrEmpty(option.getFocusedOptionValue())) {
-            //todo i18n
-            return List.of(new AutoCompleteAnswer("2d6=", "2d6="));
+            return List.of(new AutoCompleteAnswer(I18n.getMessage("validation.autoComplete.example", userLocale), I18n.getMessage("validation.autoComplete.example", userLocale)));
         }
         Optional<String> validation = diceEvaluatorAdapter.shortValidateDiceExpressionWitOptionalLabel(option.getFocusedOptionValue());
         BotMetrics.incrementValidationCounter(validation.isEmpty());
@@ -62,13 +62,16 @@ public class ValidationCommand extends DirectRollCommand {
     public @NonNull CommandDefinition getCommandDefinition() {
         return CommandDefinition.builder()
                 .name(getCommandId())
-                //todo i18n
-                .description("provide a expression and the autocomplete will show a error message if invalid")
+                .nameLocales(I18n.additionalMessages("validation.name"))
+                .description(I18n.getMessage("validation.description", Locale.ENGLISH))
+                .descriptionLocales(I18n.additionalMessages("validation.description"))
                 .option(CommandDefinitionOption.builder()
-                        .name(ACTION_EXPRESSION)
+                        .name(EXPRESSION_OPTION_NAME)
+                        .nameLocales(I18n.additionalMessages("r.expression.name"))
+                        .description(I18n.getMessage("validation.description", Locale.ENGLISH))
+                        .descriptionLocales(I18n.additionalMessages("validation.description"))
                         .required(true)
                         .autoComplete(true)
-                        .description("provide a expression (e.g. 2d6) and the autocomplete will show if it is invalid")
                         .type(CommandDefinitionOption.Type.STRING)
                         .build())
                 .build();

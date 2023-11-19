@@ -39,8 +39,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
 
     //todo button label, pagination for buttons
 
-    static final String EXPRESSION_OPTION_NAME_KEY = "custom_parameter.option.expression.name";
-    static final String EXPRESSION_OPTION_NAME = I18n.getMessage(EXPRESSION_OPTION_NAME_KEY, Locale.ENGLISH);
+    static final String EXPRESSION_OPTION_NAME = "expression";
 
     private static final String COMMAND_NAME = "custom_parameter";
     private static final String CLEAR_BUTTON_ID = "clear";
@@ -230,7 +229,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     protected @NonNull EmbedOrMessageDefinition getHelpMessage(Locale userLocale) {
         return EmbedOrMessageDefinition.builder()
                 .descriptionOrContent(I18n.getMessage("custom_parameter.help.message", userLocale) + " \n" + DiceEvaluatorAdapter.getHelp())
-                .field(new EmbedOrMessageDefinition.Field(I18n.getMessage("custom_parameter.help.example.field.name", userLocale), I18n.getMessage("custom_parameter.help.example.field.value", userLocale), false))
+                .field(new EmbedOrMessageDefinition.Field(I18n.getMessage("help.example.field.name", userLocale), I18n.getMessage("custom_parameter.help.example.field.value", userLocale), false))
                 .field(new EmbedOrMessageDefinition.Field(I18n.getMessage("help.documentation.field.name", userLocale), I18n.getMessage("help.documentation.field.value", userLocale), false))
                 .field(new EmbedOrMessageDefinition.Field(I18n.getMessage("help.discord.server.field.name", userLocale), I18n.getMessage("help.discord.server.field.value", userLocale), false))
                 .build();
@@ -246,7 +245,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
         return ImmutableList.of(
                 CommandDefinitionOption.builder()
                         .name(EXPRESSION_OPTION_NAME)
-                        .nameLocales(I18n.additionalMessages(EXPRESSION_OPTION_NAME_KEY))
+                        .nameLocales(I18n.additionalMessages("custom_parameter.option.expression.name"))
                         .description(I18n.getMessage("custom_parameter.option.expression.description", Locale.ENGLISH))
                         .descriptionLocales(I18n.additionalMessages("custom_parameter.option.expression.description"))
                         .required(true)

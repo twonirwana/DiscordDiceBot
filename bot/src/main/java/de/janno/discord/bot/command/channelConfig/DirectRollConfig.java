@@ -37,6 +37,6 @@ public class DirectRollConfig extends Config {
 
     @Override
     public String toCommandOptionsString() {
-        return "%s: %s %s".formatted(ChannelConfigCommand.ALWAYS_SUM_RESULTS_COMMAND_OPTIONS_ID, alwaysSumResult, super.toCommandOptionsString());
+        return "%s: %s %s".formatted(ChannelConfigCommand.ALWAYS_SUM_RESULTS_OPTION_NAME, alwaysSumResult, super.toCommandOptionsString());
     }
 }

@@ -44,7 +44,7 @@ import static de.janno.discord.bot.command.channelConfig.ChannelConfigCommand.DI
 public class DirectRollCommand implements SlashCommand {
 
     public static final String ROLL_COMMAND_ID = "r";
-    protected static final String ACTION_EXPRESSION = "expression";
+    protected static final String EXPRESSION_OPTION_NAME = "expression";
     private static final String HELP = "help";
     private final DiceEvaluatorAdapter diceEvaluatorAdapter;
     private final PersistenceManager persistenceManager;
@@ -63,12 +63,15 @@ public class DirectRollCommand implements SlashCommand {
     public @NonNull CommandDefinition getCommandDefinition() {
         return CommandDefinition.builder()
                 .name(getCommandId())
-                //todo i18n
-                .description("direct roll of dice expression, configuration with /channel_config")
+                .nameLocales(I18n.additionalMessages("r.name"))
+                .description(I18n.getMessage("r.description", Locale.ENGLISH))
+                .descriptionLocales(I18n.additionalMessages("r.description"))
                 .option(CommandDefinitionOption.builder()
-                        .name(ACTION_EXPRESSION)
+                        .name(EXPRESSION_OPTION_NAME)
+                        .nameLocales(I18n.additionalMessages("r.expression.name"))
+                        .description(I18n.getMessage("r.description", Locale.ENGLISH))
+                        .descriptionLocales(I18n.additionalMessages("r.description"))
                         .required(true)
-                        .description("dice expression, e.g. '2d6'")
                         .type(CommandDefinitionOption.Type.STRING)
                         .build())
                 .build();
@@ -98,19 +101,18 @@ public class DirectRollCommand implements SlashCommand {
 
         final String commandString = event.getCommandString();
 
-        Optional<CommandInteractionOption> expressionOptional = event.getOption(ACTION_EXPRESSION);
+        Optional<CommandInteractionOption> expressionOptional = event.getOption(EXPRESSION_OPTION_NAME);
         if (expressionOptional.isPresent()) {
             final String commandParameter = expressionOptional
                     .map(CommandInteractionOption::getStringValue)
                     .orElseThrow();
             if (commandParameter.equals(HELP)) {
                 BotMetrics.incrementSlashHelpMetricCounter(getCommandId());
-                //todo i18n
                 return event.replyWithEmbedOrMessageDefinition(EmbedOrMessageDefinition.builder()
-                        .descriptionOrContent("Type /%s and a dice expression, configuration with /channel_config\n%s".formatted(getCommandId(), DiceEvaluatorAdapter.getHelp()))
-                        .field(new EmbedOrMessageDefinition.Field("Example", "`/%s expression:1d6`".formatted(getCommandId()), false))
-                        .field(new EmbedOrMessageDefinition.Field("Full documentation", I18n.getMessage("help.documentation.field.value", userLocale), false))
-                        .field(new EmbedOrMessageDefinition.Field("Discord Server for Help and News", I18n.getMessage("help.discord.server.field.value", userLocale), false))
+                        .descriptionOrContent(I18n.getMessage("r.help.message", userLocale, I18n.getMessage(getCommandId() + ".name", userLocale) + "\n" + DiceEvaluatorAdapter.getHelp()))
+                        .field(new EmbedOrMessageDefinition.Field(I18n.getMessage("help.example.field.name", userLocale), I18n.getMessage("r.help.example.value", userLocale, I18n.getMessage(getCommandId() + ".name", userLocale)), false))
+                        .field(new EmbedOrMessageDefinition.Field(I18n.getMessage("help.documentation.field.name", userLocale), I18n.getMessage("help.documentation.field.value", userLocale), false))
+                        .field(new EmbedOrMessageDefinition.Field(I18n.getMessage("help.discord.server.field.name", userLocale), I18n.getMessage("help.discord.server.field.value", userLocale), false))
                         .build(), true);
             }
 
@@ -130,7 +132,7 @@ public class DirectRollCommand implements SlashCommand {
             BotMetrics.incrementAnswerFormatCounter(config.getAnswerFormatType(), getCommandId());
 
             RollAnswer answer = diceEvaluatorAdapter.answerRollWithOptionalLabelInExpression(expressionWithOptionalLabelsAndAppliedAliases, DiceSystemAdapter.LABEL_DELIMITER, config.isAlwaysSumResult(), config.getAnswerFormatType(), config.getDiceStyleAndColor());
-            return createResponse(event, commandString, diceExpression, answer, stopwatch);
+            return createResponse(event, commandString, diceExpression, answer, stopwatch, userLocale);
 
         }
 
@@ -141,7 +143,8 @@ public class DirectRollCommand implements SlashCommand {
                                                  @NonNull String commandString,
                                                  @NonNull String diceExpression,
                                                  @NonNull RollAnswer answer,
-                                                 @NonNull Stopwatch stopwatch) {
+                                                 @NonNull Stopwatch stopwatch,
+                                                 @NonNull Locale userLocale) {
         String replayMessage = Stream.of(commandString, answer.getWarning())
                 .filter(s -> !Strings.isNullOrEmpty(s))
                 .collect(Collectors.joining(" "));

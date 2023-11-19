@@ -29,8 +29,8 @@ import java.util.function.Supplier;
 @Slf4j
 public class WelcomeCommand extends AbstractCommand<Config, StateData> {
 
-    //todo i18n
-    public static final String COMMAND_NAME = "welcome";
+    private static final String COMMAND_NAME = "welcome";
+    private static final Config NONE_CONFIG = new Config(null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, DiceImageStyle.none.getDefaultColor()), Locale.ENGLISH);
     private final Supplier<UUID> uuidSupplier;
     private final RpgSystemCommandPreset rpgSystemCommandPreset;
 
@@ -50,8 +50,7 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
                                                                                        @NonNull MessageDataDTO messageDataDTO,
                                                                                        @NonNull String buttonValue,
                                                                                        @NonNull String invokingUserName) {
-        //todo i18n
-        return new ConfigAndState<>(messageConfigDTO.getConfigUUID(), new Config(null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, DiceImageStyle.none.getDefaultColor()), Locale.ENGLISH), new State<>(buttonValue, StateData.empty()));
+        return new ConfigAndState<>(messageConfigDTO.getConfigUUID(), NONE_CONFIG, new State<>(buttonValue, StateData.empty()));
     }
 
     @Override
@@ -86,10 +85,9 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
 
     @Override
     protected @NonNull EmbedOrMessageDefinition getHelpMessage(Locale userLocale) {
-        //todo i18n
-        return EmbedOrMessageDefinition.builder().descriptionOrContent("Displays the welcome message")
-                .field(new EmbedOrMessageDefinition.Field("Full documentation", I18n.getMessage("help.documentation.field.value", userLocale), false))
-                .field(new EmbedOrMessageDefinition.Field("Discord Server for Help and News", I18n.getMessage("help.discord.server.field.value", userLocale), false))
+        return EmbedOrMessageDefinition.builder().descriptionOrContent(I18n.getMessage("welcome.help.message", userLocale))
+                .field(new EmbedOrMessageDefinition.Field(I18n.getMessage("help.documentation.field.name", userLocale), I18n.getMessage("help.documentation.field.value", userLocale), false))
+                .field(new EmbedOrMessageDefinition.Field(I18n.getMessage("help.discord.server.field.name", userLocale), I18n.getMessage("help.discord.server.field.value", userLocale), false))
                 .build();
     }
 
@@ -136,42 +134,37 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
     }
 
     public EmbedOrMessageDefinition getWelcomeMessage() {
-        //todo null config
-        return createNewButtonMessage(uuidSupplier.get(), null);
+        //todo add usage of event.getGuild().getLocale()
+        return createNewButtonMessage(uuidSupplier.get(), NONE_CONFIG);
     }
 
     @Override
-    public @NonNull EmbedOrMessageDefinition createNewButtonMessage(@NonNull UUID configUUID,  Config config) {
+    public @NonNull EmbedOrMessageDefinition createNewButtonMessage(@NonNull UUID configUUID, @NonNull Config config) {
         return EmbedOrMessageDefinition.builder()
                 .type(EmbedOrMessageDefinition.Type.MESSAGE)
-                //todo i18n
-                .descriptionOrContent("""
-                        Welcome to the Button Dice Bot,
-                        use one of the example buttons below to start one of the RPG dice systems or use the slash command to configure your own custom dice system (see https://github.com/twonirwana/DiscordDiceBot for details or the slash command `/help`).\s
-                        You can also use the slash command `/r` to directly roll dice with.
-                        For help or feature request come to the support discord server: https://discord.gg/e43BsqKpFr""")
+                .descriptionOrContent(I18n.getMessage("welcome.message", config.getConfigLocale()))
                 .componentRowDefinition(ComponentRowDefinition.builder()
                         .buttonDefinitions(
                                 ImmutableList.of(
                                         ButtonDefinition.builder()
                                                 .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), ButtonIds.fate.name(), configUUID))
-                                                .label("Fate")
+                                                .label(I18n.getMessage("welcome.button.label.fate", config.getConfigLocale()))
                                                 .build(),
                                         ButtonDefinition.builder()
                                                 .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), ButtonIds.fate_image.name(), configUUID))
-                                                .label("Fate with dice images")
+                                                .label(I18n.getMessage("welcome.button.label.fateImage", config.getConfigLocale()))
                                                 .build(),
                                         ButtonDefinition.builder()
                                                 .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), ButtonIds.dnd5.name(), configUUID))
-                                                .label("D&D5e")
+                                                .label(I18n.getMessage("welcome.button.label.dnd5", config.getConfigLocale()))
                                                 .build(),
                                         ButtonDefinition.builder()
                                                 .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), ButtonIds.dnd5_image.name(), configUUID))
-                                                .label("D&D5e with dice images")
+                                                .label(I18n.getMessage("welcome.button.label.dnd5Image", config.getConfigLocale()))
                                                 .build(),
                                         ButtonDefinition.builder()
                                                 .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), ButtonIds.nWoD.name(), configUUID))
-                                                .label("nWoD")
+                                                .label(I18n.getMessage("welcome.button.label.nWoD", config.getConfigLocale()))
                                                 .build()
 
                                 )
@@ -182,19 +175,19 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
                                 ImmutableList.of(
                                         ButtonDefinition.builder()
                                                 .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), ButtonIds.oWoD.name(), configUUID))
-                                                .label("oWoD")
+                                                .label(I18n.getMessage("welcome.button.label.oWoD", config.getConfigLocale()))
                                                 .build(),
                                         ButtonDefinition.builder()
                                                 .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), ButtonIds.shadowrun.name(), configUUID))
-                                                .label("Shadowrun")
+                                                .label(I18n.getMessage("welcome.button.label.shadowrun", config.getConfigLocale()))
                                                 .build(),
                                         ButtonDefinition.builder()
                                                 .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), ButtonIds.coin.name(), configUUID))
-                                                .label("Coin Toss \uD83E\uDE99")
+                                                .label(I18n.getMessage("welcome.button.label.coin", config.getConfigLocale()))
                                                 .build(),
                                         ButtonDefinition.builder()
                                                 .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), ButtonIds.dice_calculator.name(), configUUID))
-                                                .label("Dice Calculator")
+                                                .label(I18n.getMessage("welcome.button.label.diceCalculator", config.getConfigLocale()))
                                                 .build()
                                 )
                         )
