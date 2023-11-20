@@ -462,7 +462,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
         if (hasSelectedParameter) {
             buttons.add(ButtonDefinition.builder()
                     .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), CLEAR_BUTTON_ID, configUUID))
-                    .label("Clear")
+                    .label(I18n.getMessage("custom_parameter.button.label.clear", config.getConfigLocale()))
                     .style(ButtonDefinition.Style.DANGER)
                     .build());
         }

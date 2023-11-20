@@ -50,6 +50,7 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
                                                                                        @NonNull MessageDataDTO messageDataDTO,
                                                                                        @NonNull String buttonValue,
                                                                                        @NonNull String invokingUserName) {
+        //todo load?
         return new ConfigAndState<>(messageConfigDTO.getConfigUUID(), NONE_CONFIG, new State<>(buttonValue, StateData.empty()));
     }
 
@@ -75,6 +76,7 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
 
     @Override
     public Optional<MessageConfigDTO> createMessageConfig(@NonNull UUID configUUID, long guildId, long channelId, @NonNull Config config) {
+        //todo save config with locale
         return Optional.empty();
     }
 
@@ -92,34 +94,36 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
     }
 
     @Override
-    protected @NonNull Optional<EmbedOrMessageDefinition> createNewButtonMessageWithState(@NonNull UUID configUUID, @NonNull Config ignore, @NonNull State<StateData> state, long guildId, long channelId) {
+    protected @NonNull Optional<EmbedOrMessageDefinition> createNewButtonMessageWithState(@NonNull UUID configUUID,
+                                                                                          @NonNull Config config,
+                                                                                          @NonNull State<StateData> state,
+                                                                                          long guildId,
+                                                                                          long channelId) {
         BotMetrics.incrementButtonMetricCounter(COMMAND_NAME, "[" + state.getButtonValue() + "]");
         if (ButtonIds.isInvalid(state.getButtonValue())) {
             return Optional.empty();
         }
         UUID newConfigUUID = uuidSupplier.get();
         log.info("Click on welcome command creation: " + state.getButtonValue());
-        //todo i18n
-        //change locale
         return switch (ButtonIds.valueOf(state.getButtonValue())) {
             case fate ->
-                    Optional.of(rpgSystemCommandPreset.createMessage(RpgSystemCommandPreset.PresetId.FATE, newConfigUUID, guildId, channelId).getMessageDefinition());
+                    Optional.of(rpgSystemCommandPreset.createMessage(RpgSystemCommandPreset.PresetId.FATE, newConfigUUID, guildId, channelId, config.getConfigLocale()).getMessageDefinition());
             case fate_image ->
-                    Optional.of(rpgSystemCommandPreset.createMessage(RpgSystemCommandPreset.PresetId.FATE_IMAGE, newConfigUUID, guildId, channelId).getMessageDefinition());
+                    Optional.of(rpgSystemCommandPreset.createMessage(RpgSystemCommandPreset.PresetId.FATE_IMAGE, newConfigUUID, guildId, channelId, config.getConfigLocale()).getMessageDefinition());
             case dnd5 ->
-                    Optional.of(rpgSystemCommandPreset.createMessage(RpgSystemCommandPreset.PresetId.DND5, newConfigUUID, guildId, channelId).getMessageDefinition());
+                    Optional.of(rpgSystemCommandPreset.createMessage(RpgSystemCommandPreset.PresetId.DND5, newConfigUUID, guildId, channelId, config.getConfigLocale()).getMessageDefinition());
             case dnd5_image ->
-                    Optional.of(rpgSystemCommandPreset.createMessage(RpgSystemCommandPreset.PresetId.DND5_IMAGE, newConfigUUID, guildId, channelId).getMessageDefinition());
+                    Optional.of(rpgSystemCommandPreset.createMessage(RpgSystemCommandPreset.PresetId.DND5_IMAGE, newConfigUUID, guildId, channelId, config.getConfigLocale()).getMessageDefinition());
             case nWoD ->
-                    Optional.of(rpgSystemCommandPreset.createMessage(RpgSystemCommandPreset.PresetId.NWOD, newConfigUUID, guildId, channelId).getMessageDefinition());
+                    Optional.of(rpgSystemCommandPreset.createMessage(RpgSystemCommandPreset.PresetId.NWOD, newConfigUUID, guildId, channelId, config.getConfigLocale()).getMessageDefinition());
             case oWoD ->
-                    Optional.of(rpgSystemCommandPreset.createMessage(RpgSystemCommandPreset.PresetId.OWOD, newConfigUUID, guildId, channelId).getMessageDefinition());
+                    Optional.of(rpgSystemCommandPreset.createMessage(RpgSystemCommandPreset.PresetId.OWOD, newConfigUUID, guildId, channelId, config.getConfigLocale()).getMessageDefinition());
             case shadowrun ->
-                    Optional.of(rpgSystemCommandPreset.createMessage(RpgSystemCommandPreset.PresetId.SHADOWRUN, newConfigUUID, guildId, channelId).getMessageDefinition());
+                    Optional.of(rpgSystemCommandPreset.createMessage(RpgSystemCommandPreset.PresetId.SHADOWRUN, newConfigUUID, guildId, channelId, config.getConfigLocale()).getMessageDefinition());
             case coin ->
-                    Optional.of(rpgSystemCommandPreset.createMessage(RpgSystemCommandPreset.PresetId.COIN, newConfigUUID, guildId, channelId).getMessageDefinition());
+                    Optional.of(rpgSystemCommandPreset.createMessage(RpgSystemCommandPreset.PresetId.COIN, newConfigUUID, guildId, channelId, config.getConfigLocale()).getMessageDefinition());
             case dice_calculator ->
-                    Optional.of(rpgSystemCommandPreset.createMessage(RpgSystemCommandPreset.PresetId.DICE_CALCULATOR, newConfigUUID, guildId, channelId).getMessageDefinition());
+                    Optional.of(rpgSystemCommandPreset.createMessage(RpgSystemCommandPreset.PresetId.DICE_CALCULATOR, newConfigUUID, guildId, channelId, config.getConfigLocale()).getMessageDefinition());
         };
     }
 
@@ -197,6 +201,7 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
 
     @Override
     protected @NonNull Config getConfigFromStartOptions(@NonNull CommandInteractionOption options, @NonNull Locale userLocale) {
+        //todo save?
         return new Config(null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, DiceImageStyle.none.getDefaultColor()), userLocale);
     }
 

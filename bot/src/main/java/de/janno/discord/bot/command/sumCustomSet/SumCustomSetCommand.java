@@ -169,7 +169,7 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
         return EmbedOrMessageDefinition.builder()
                 .descriptionOrContent(I18n.getMessage("sum_custom_set.buttonMessage.empty", config.getConfigLocale()))
                 .type(EmbedOrMessageDefinition.Type.MESSAGE)
-                .componentRowDefinitions(createButtonLayout(configUUID, config, true))
+                .componentRowDefinitions(createButtonLayout(configUUID, config, true, config.getConfigLocale()))
                 .build();
     }
 
@@ -182,7 +182,7 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
             return Optional.of(EmbedOrMessageDefinition.builder()
                     .descriptionOrContent(I18n.getMessage("sum_custom_set.buttonMessage.empty", config.getConfigLocale()))
                     .type(EmbedOrMessageDefinition.Type.MESSAGE)
-                    .componentRowDefinitions(createButtonLayout(customUuid, config, true))
+                    .componentRowDefinitions(createButtonLayout(customUuid, config, true, config.getConfigLocale()))
                     .build());
         }
         return Optional.empty();
@@ -195,7 +195,7 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
         }
         String expression = AliasHelper.getAndApplyAliaseToExpression(channelId, userId, persistenceManager, combineExpressions(state.getData().getDiceExpressions()));
 
-        return Optional.of(createButtonLayout(customUuid, config, !diceSystemAdapter.isValidExpression(expression, config.getDiceParserSystem())));
+        return Optional.of(createButtonLayout(customUuid, config, !diceSystemAdapter.isValidExpression(expression, config.getDiceParserSystem()), config.getConfigLocale()));
     }
 
     @Override
@@ -286,7 +286,7 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
         return builder.build();
     }
 
-    private List<ComponentRowDefinition> createButtonLayout(UUID customUUID, SumCustomSetConfig config, boolean rollDisabled) {
+    private List<ComponentRowDefinition> createButtonLayout(UUID customUUID, SumCustomSetConfig config, boolean rollDisabled, Locale configLocale) {
         List<ButtonDefinition> buttons = config.getLabelAndExpression().stream()
                 .map(d -> ButtonDefinition.builder()
                         .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), d.getButtonId(), customUUID))
@@ -295,18 +295,18 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
                 .collect(Collectors.toList());
         buttons.add(ButtonDefinition.builder()
                 .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), ROLL_BUTTON_ID, customUUID))
-                .label("Roll")
+                .label(I18n.getMessage("sum_custom_set.button.label.roll", configLocale))
                 .disabled(rollDisabled)
                 .style(rollDisabled ? ButtonDefinition.Style.PRIMARY : ButtonDefinition.Style.SUCCESS)
                 .build());
         buttons.add(ButtonDefinition.builder()
                 .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), CLEAR_BUTTON_ID, customUUID))
-                .label("Clear")
+                .label(I18n.getMessage("sum_custom_set.button.label.clear", configLocale))
                 .style(ButtonDefinition.Style.DANGER)
                 .build());
         buttons.add(ButtonDefinition.builder()
                 .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), BACK_BUTTON_ID, customUUID))
-                .label("Back")
+                .label(I18n.getMessage("sum_custom_set.button.label.back", configLocale))
                 .style(ButtonDefinition.Style.SECONDARY)
                 .build());
         return Lists.partition(buttons, 5).stream()

@@ -33,7 +33,7 @@ public class QuickstartCommand implements SlashCommand {
     }
 
     @VisibleForTesting
-    static Optional<RpgSystemCommandPreset.PresetId> getPresetId(@NonNull String id) {
+    static Optional<RpgSystemCommandPreset.PresetId> getPresetId(@NonNull String id, @NonNull Locale userLocal) {
         String trimId = id.trim().toLowerCase();
         Optional<RpgSystemCommandPreset.PresetId> matchingId = Arrays.stream(RpgSystemCommandPreset.PresetId.values())
                 .filter(presetId -> Objects.equals(presetId.name().toLowerCase(), trimId))
@@ -42,19 +42,19 @@ public class QuickstartCommand implements SlashCommand {
             return matchingId;
         }
         Optional<RpgSystemCommandPreset.PresetId> matchingDisplayName = Arrays.stream(RpgSystemCommandPreset.PresetId.values())
-                .filter(presetId -> Objects.equals(presetId.getDisplayName().toLowerCase(), trimId))
+                .filter(presetId -> Objects.equals(presetId.getName(userLocal).toLowerCase(), trimId))
                 .findFirst();
         if (matchingDisplayName.isPresent()) {
             return matchingDisplayName;
         }
         Optional<RpgSystemCommandPreset.PresetId> matchingSynonymeName = Arrays.stream(RpgSystemCommandPreset.PresetId.values())
-                .filter(presetId -> presetId.getSynonymes().stream().map(String::toLowerCase).anyMatch(s -> s.equals(trimId)))
+                .filter(presetId -> presetId.getSynonymes(userLocal).stream().map(String::toLowerCase).anyMatch(s -> s.equals(trimId)))
                 .findFirst();
         if (matchingSynonymeName.isPresent()) {
             return matchingSynonymeName;
         }
         Optional<RpgSystemCommandPreset.PresetId> startsWithDisplayName = Arrays.stream(RpgSystemCommandPreset.PresetId.values())
-                .filter(presetId -> presetId.getDisplayName().toLowerCase().startsWith(trimId))
+                .filter(presetId -> presetId.getName(userLocal).toLowerCase().startsWith(trimId))
                 .findFirst();
         if (startsWithDisplayName.isPresent()) {
             return matchingSynonymeName;
@@ -67,12 +67,11 @@ public class QuickstartCommand implements SlashCommand {
         if (!SYSTEM_OPTION_NAME.equals(option.getFocusedOptionName())) {
             return List.of();
         }
-        //todo I18n
         return Arrays.stream(RpgSystemCommandPreset.PresetId.values())
-                .filter(p -> Stream.concat(Stream.of(p.getDisplayName()), p.getSynonymes().stream())
+                .filter(p -> Stream.concat(Stream.of(p.getName(userLocale)), p.getSynonymes(userLocale).stream())
                         .anyMatch(n -> n.toLowerCase().contains(option.getFocusedOptionValue().toLowerCase())))
-                .sorted(Comparator.comparing(RpgSystemCommandPreset.PresetId::getDisplayName))
-                .map(p -> new AutoCompleteAnswer(p.getDisplayName(), p.name()))
+                .sorted(Comparator.comparing(p -> p.getName(userLocale)))
+                .map(p -> new AutoCompleteAnswer(p.getName(userLocale), p.name()))
                 .collect(Collectors.toList());
     }
 
@@ -117,11 +116,11 @@ public class QuickstartCommand implements SlashCommand {
             final String systemId = expressionOptional
                     .map(CommandInteractionOption::getStringValue)
                     .orElseThrow();
-            final Optional<RpgSystemCommandPreset.PresetId> presetIdOptional = getPresetId(systemId);
+            final Optional<RpgSystemCommandPreset.PresetId> presetIdOptional = getPresetId(systemId, userLocal);
             if (presetIdOptional.isPresent()) {
                 final RpgSystemCommandPreset.PresetId presetId = presetIdOptional.get();
                 BotMetrics.incrementSlashStartMetricCounter(getCommandId(), presetId.name());
-                RpgSystemCommandPreset.CommandAndMessageDefinition commandAndMessageDefinition = rpgSystemCommandPreset.createMessage(presetId, newConfigUUID, guildId, channelId);
+                RpgSystemCommandPreset.CommandAndMessageDefinition commandAndMessageDefinition = rpgSystemCommandPreset.createMessage(presetId, newConfigUUID, guildId, channelId, userLocal);
                 return Mono.defer(() -> event.createMessageWithoutReference(commandAndMessageDefinition.getMessageDefinition()))
                         .doOnSuccess(v -> BotMetrics.timerNewButtonMessageMetricCounter(getCommandId(), stopwatch.elapsed()))
                         .then(event.reply("`%s`".formatted(commandAndMessageDefinition.getCommand()), false))
