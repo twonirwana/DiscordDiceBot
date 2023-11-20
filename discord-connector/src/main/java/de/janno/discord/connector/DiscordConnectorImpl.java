@@ -6,12 +6,11 @@ import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
 import de.janno.discord.connector.jda.JdaClient;
 
 import java.util.List;
-import java.util.Locale;
 import java.util.Set;
 import java.util.function.Function;
 
 public class DiscordConnectorImpl implements DiscordConnector {
-    public static void createAndStart(String token, boolean disableCommandUpdate, List<SlashCommand> commands, Function<WelcomeRequest,EmbedOrMessageDefinition> welcomeMessageDefinition, Set<Long> allGuildIdsInPersistence) throws Exception {
+    public static void createAndStart(String token, boolean disableCommandUpdate, List<SlashCommand> commands, Function<WelcomeRequest, EmbedOrMessageDefinition> welcomeMessageDefinition, Set<Long> allGuildIdsInPersistence) throws Exception {
         new DiscordConnectorImpl().start(token, disableCommandUpdate, commands, welcomeMessageDefinition, allGuildIdsInPersistence);
     }
 

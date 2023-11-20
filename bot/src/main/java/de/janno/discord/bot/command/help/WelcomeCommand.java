@@ -33,7 +33,6 @@ import java.util.function.Supplier;
 public class WelcomeCommand extends AbstractCommand<Config, StateData> {
 
     private static final String COMMAND_NAME = "welcome";
-    private static final Config NONE_CONFIG = new Config(null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, DiceImageStyle.none.getDefaultColor()), Locale.ENGLISH);
     private static final String CONFIG_TYPE_ID = "Config";
     private final Supplier<UUID> uuidSupplier;
     private final RpgSystemCommandPreset rpgSystemCommandPreset;
