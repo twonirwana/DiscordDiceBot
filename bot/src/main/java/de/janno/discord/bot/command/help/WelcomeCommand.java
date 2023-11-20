@@ -1,29 +1,32 @@
 package de.janno.discord.bot.command.help;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import de.janno.discord.bot.BotMetrics;
 import de.janno.discord.bot.I18n;
 import de.janno.discord.bot.command.*;
 import de.janno.discord.bot.dice.image.DiceImageStyle;
 import de.janno.discord.bot.dice.image.DiceStyleAndColor;
+import de.janno.discord.bot.persistance.Mapper;
 import de.janno.discord.bot.persistance.MessageConfigDTO;
 import de.janno.discord.bot.persistance.MessageDataDTO;
 import de.janno.discord.bot.persistance.PersistenceManager;
 import de.janno.discord.connector.api.BottomCustomIdUtils;
 import de.janno.discord.connector.api.ButtonEventAdaptor;
+import de.janno.discord.connector.api.DiscordConnector;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 @Slf4j
@@ -31,6 +34,7 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
 
     private static final String COMMAND_NAME = "welcome";
     private static final Config NONE_CONFIG = new Config(null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, DiceImageStyle.none.getDefaultColor()), Locale.ENGLISH);
+    private static final String CONFIG_TYPE_ID = "Config";
     private final Supplier<UUID> uuidSupplier;
     private final RpgSystemCommandPreset rpgSystemCommandPreset;
 
@@ -50,14 +54,21 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
                                                                                        @NonNull MessageDataDTO messageDataDTO,
                                                                                        @NonNull String buttonValue,
                                                                                        @NonNull String invokingUserName) {
-        //todo load?
-        return new ConfigAndState<>(messageConfigDTO.getConfigUUID(), NONE_CONFIG, new State<>(buttonValue, StateData.empty()));
+        return deserializeAndUpdateState(messageConfigDTO, buttonValue);
     }
 
+    ConfigAndState<Config, StateData> deserializeAndUpdateState(@NonNull MessageConfigDTO messageConfigDTO, @NonNull String buttonValue) {
+        Preconditions.checkArgument(CONFIG_TYPE_ID.equals(messageConfigDTO.getConfigClassId()), "Unknown configClassId: %s", messageConfigDTO.getConfigClassId());
+        final Config loadedConfig = Mapper.deserializeObject(messageConfigDTO.getConfig(), Config.class);
+        final State<StateData> updatedState = new State<>(buttonValue, StateData.empty());
+        return new ConfigAndState<>(messageConfigDTO.getConfigUUID(), loadedConfig, updatedState);
+    }
+
+    /*
     @Override
     protected @NonNull Optional<MessageConfigDTO> getMessageConfigDTO(@Nullable UUID configId, long channelId, long messageId) {
         return Optional.of(new MessageConfigDTO(uuidSupplier.get(), null, channelId, getCommandId(), "None", "None"));
-    }
+    }*/
 
     @Override
     protected boolean supportsResultImages() {
@@ -76,8 +87,7 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
 
     @Override
     public Optional<MessageConfigDTO> createMessageConfig(@NonNull UUID configUUID, long guildId, long channelId, @NonNull Config config) {
-        //todo save config with locale
-        return Optional.empty();
+        return Optional.of(new MessageConfigDTO(configUUID, guildId, channelId, getCommandId(), CONFIG_TYPE_ID, Mapper.serializedObject(config)));
     }
 
     @Override
@@ -137,9 +147,19 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
         return Optional.empty();
     }
 
-    public EmbedOrMessageDefinition getWelcomeMessage() {
-        //todo add usage of event.getGuild().getLocale()
-        return createNewButtonMessage(uuidSupplier.get(), NONE_CONFIG);
+    public Function<DiscordConnector.WelcomeRequest, EmbedOrMessageDefinition> getWelcomeMessage() {
+        return request -> {
+            Config config = new Config(null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, DiceImageStyle.none.getDefaultColor()), request.guildLocale());
+            UUID configUUID = uuidSupplier.get();
+            final Optional<MessageConfigDTO> newMessageConfig = createMessageConfig(configUUID, request.guildId(), request.channelId(), config);
+            newMessageConfig.ifPresent(persistenceManager::saveMessageConfig);
+            return createNewButtonMessage(configUUID, config);
+        };
+    }
+
+    @Override
+    protected Optional<ConfigAndState<Config, StateData>> createNewConfigAndStateIfMissing(String buttonValue) {
+        return Optional.of(new ConfigAndState<>(uuidSupplier.get(), new Config(null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, DiceImageStyle.none.getDefaultColor()), Locale.ENGLISH), new State<>(buttonValue, StateData.empty())));
     }
 
     @Override
@@ -201,7 +221,6 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
 
     @Override
     protected @NonNull Config getConfigFromStartOptions(@NonNull CommandInteractionOption options, @NonNull Locale userLocale) {
-        //todo save?
         return new Config(null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, DiceImageStyle.none.getDefaultColor()), userLocale);
     }
 

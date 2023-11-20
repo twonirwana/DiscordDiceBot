@@ -183,6 +183,13 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
     protected void updateCurrentMessageStateData(UUID configUUID, long guildId, long channelId, long messageId, @NonNull C config, @NonNull State<S> state) {
     }
 
+    /**
+     * Creates a config and state if there is no saved config for a button event
+     */
+    protected Optional<ConfigAndState<C, S>> createNewConfigAndStateIfMissing(String buttonValue) {
+        return Optional.empty();
+    }
+
     @Override
     public Mono<Void> handleComponentInteractEvent(@NonNull ButtonEventAdaptor event) {
         Stopwatch stopwatch = Stopwatch.createStarted();
@@ -197,19 +204,26 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
         if (isLegacyMessage) {
             BotMetrics.incrementLegacyButtonMetricCounter(getCommandId());
             log.info("{}: Legacy id {}", event.getRequester().toLogString(), event.getCustomId());
-            return event.reply("The button uses an old format that isn't supported anymore. Please delete it and create a new button message with a slash command.", false);
+            return event.reply(I18n.getMessage("base.reply.legacyButtonId", event.getRequester().getUserLocal()), false);
         } else {
             final String buttonValue = BottomCustomIdUtils.getButtonValueFromCustomId(event.getCustomId());
             final Optional<UUID> configUUIDFromCustomID = BottomCustomIdUtils.getConfigUUIDFromCustomId(event.getCustomId());
             BotMetrics.incrementButtonUUIDUsageMetricCounter(getCommandId(), configUUIDFromCustomID.isPresent());
             final Optional<MessageConfigDTO> messageConfigDTO = getMessageConfigDTO(configUUIDFromCustomID.orElse(null), channelId, messageId);
-            if (messageConfigDTO.isEmpty()) {
+            final Optional<ConfigAndState<C, S>> fallbackConfigAndState = createNewConfigAndStateIfMissing(buttonValue);
+            if (messageConfigDTO.isEmpty() && fallbackConfigAndState.isEmpty()) {
                 log.warn("{}: Missing messageData for channelId: {}, messageId: {} and commandName: {} ", event.getRequester().toLogString(), channelId, messageId, getCommandId());
-                return event.reply(String.format("Configuration for the message is missing, please create a new message with the slash command `/%s start`", getCommandId()), false);
+                return event.reply(I18n.getMessage("base.reply.missingConfig", event.getRequester().getUserLocal(), I18n.getMessage(getCommandId() + ".name", event.getRequester().getUserLocal())), false);
             }
-            configUUID = messageConfigDTO.get().getConfigUUID();
-            final MessageDataDTO messageDataDTO = getMessageDataDTOOrCreateNew(configUUID, guildId, channelId, messageId);
-            final ConfigAndState<C, S> configAndState = getMessageDataAndUpdateWithButtonValue(messageConfigDTO.get(), messageDataDTO, buttonValue, event.getInvokingGuildMemberName());
+            final ConfigAndState<C, S> configAndState;
+            if (messageConfigDTO.isEmpty() && fallbackConfigAndState.isPresent()) {
+                configAndState = fallbackConfigAndState.get();
+                configUUID = configAndState.getConfigUUID();
+            } else {
+                configUUID = messageConfigDTO.get().getConfigUUID();
+                final MessageDataDTO messageDataDTO = getMessageDataDTOOrCreateNew(configUUID, guildId, channelId, messageId);
+                configAndState = getMessageDataAndUpdateWithButtonValue(messageConfigDTO.get(), messageDataDTO, buttonValue, event.getInvokingGuildMemberName());
+            }
             config = configAndState.getConfig();
             state = configAndState.getState();
         }

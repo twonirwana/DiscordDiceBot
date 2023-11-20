@@ -32,6 +32,7 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.function.Function;
 
 @Slf4j
 public class JdaClient {
@@ -41,7 +42,7 @@ public class JdaClient {
     public void start(String token,
                       boolean disableCommandUpdate,
                       List<SlashCommand> commands,
-                      EmbedOrMessageDefinition welcomeMessageDefinition,
+                      Function<DiscordConnector.WelcomeRequest, EmbedOrMessageDefinition> welcomeMessageDefinition,
                       Set<Long> allGuildIdsInPersistence) throws LoginException {
         LocalDateTime startTimePlusBuffer = LocalDateTime.now().plus(START_UP_BUFFER);
         Scheduler scheduler = Schedulers.boundedElastic();
@@ -68,18 +69,21 @@ public class JdaClient {
                                     if (LocalDateTime.now().isAfter(startTimePlusBuffer)) {
                                         Optional.ofNullable(event.getGuild().getSystemChannel())
                                                 .filter(GuildMessageChannel::canTalk)
-                                                .ifPresent(textChannel -> Mono.fromFuture(textChannel.sendMessage(
-                                                                        MessageComponentConverter.messageComponent2MessageLayout(welcomeMessageDefinition.getDescriptionOrContent(),
-                                                                                welcomeMessageDefinition.getComponentRowDefinitions()))
-                                                                .submit())
-                                                        .doOnSuccess(m -> {
-                                                            JdaMetrics.sendWelcomeMessage();
-                                                            log.info("Welcome message send in '{}'.'{}'",
-                                                                    event.getGuild().getName(),
-                                                                    textChannel.getName());
-                                                        })
-                                                        .subscribeOn(scheduler)
-                                                        .subscribe());
+                                                .ifPresent(textChannel -> {
+                                                    EmbedOrMessageDefinition welcomeMessage = welcomeMessageDefinition.apply(new DiscordConnector.WelcomeRequest(event.getGuild().getIdLong(), textChannel.getIdLong(), event.getGuild().getLocale().toLocale()));
+                                                    Mono.fromFuture(textChannel.sendMessage(
+                                                                            MessageComponentConverter.messageComponent2MessageLayout(welcomeMessage.getDescriptionOrContent(),
+                                                                                    welcomeMessage.getComponentRowDefinitions()))
+                                                                    .submit())
+                                                            .doOnSuccess(m -> {
+                                                                JdaMetrics.sendWelcomeMessage();
+                                                                log.info("Welcome message send in '{}'.'{}'",
+                                                                        event.getGuild().getName(),
+                                                                        textChannel.getName());
+                                                            })
+                                                            .subscribeOn(scheduler)
+                                                            .subscribe();
+                                                });
                                     }
                                 }
                             }
