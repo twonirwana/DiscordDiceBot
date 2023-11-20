@@ -2,6 +2,7 @@ package de.janno.discord.bot;
 
 import com.google.common.collect.ImmutableList;
 import de.janno.discord.connector.api.slash.LocaleValue;
+import org.apache.commons.lang3.StringEscapeUtils;
 
 import java.text.MessageFormat;
 import java.util.*;
@@ -14,7 +15,7 @@ public final class I18n {
     }
 
     public static String getMessage(String key, Locale locale) {
-        return ResourceBundle.getBundle(MESSAGES_KEY, locale).getString(key);
+        return StringEscapeUtils.unescapeJava(ResourceBundle.getBundle(MESSAGES_KEY, locale).getString(key));
     }
 
     public static String getMessage(String key, Locale locale, Object... arguments) {
