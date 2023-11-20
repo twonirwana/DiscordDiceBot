@@ -33,9 +33,9 @@ public class ClearCommand implements SlashCommand {
     public @NonNull CommandDefinition getCommandDefinition() {
         return CommandDefinition.builder()
                 .name(getCommandId())
-                .nameLocales(I18n.additionalMessages("clear.name"))
+                .nameLocales(I18n.allNoneEnglishMessages("clear.name"))
                 .description(I18n.getMessage("clear.description", Locale.ENGLISH))
-                .descriptionLocales(I18n.additionalMessages("clear.description"))
+                .descriptionLocales(I18n.allNoneEnglishMessages("clear.description"))
                 .build();
     }
 

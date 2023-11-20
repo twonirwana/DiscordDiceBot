@@ -32,14 +32,14 @@ public final class I18n {
                 .build();
     }
 
-    public static List<LocaleValue> additionalMessages(String key) {
+    public static List<LocaleValue> allNoneEnglishMessages(String key) {
         return getAdditionalLanguage().stream()
                 .map(l -> new LocaleValue(l, getMessage(key, l)))
                 .filter(m -> !Objects.equals(m.value(), getMessage(key, Locale.ENGLISH))) //remove all locals that are equal to the default english one
                 .toList();
     }
 
-    public static List<LocaleValue> additionalMessagesWithKeys(String key, String... keys) {
+    public static List<LocaleValue> allNoneEnglishWithKeys(String key, String... keys) {
         return getAdditionalLanguage().stream()
                 .map(l -> new LocaleValue(l, getMessage(key, l, Arrays.stream(keys)
                         .map(k -> getMessage(k, l))

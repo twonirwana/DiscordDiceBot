@@ -38,9 +38,7 @@ import static de.janno.discord.connector.api.BottomCustomIdUtils.CUSTOM_ID_DELIM
 @Slf4j
 public abstract class AbstractCommand<C extends Config, S extends StateData> implements SlashCommand, ComponentInteractEventHandler {
 
-    private static final String START_OPTION_NAME_KEY = "base.option.start";
     private static final String START_OPTION_NAME = "start";
-    private static final String HELP_OPTION_NAME_KEY = "base.option.help";
     private static final String HELP_OPTION_NAME = "help";
 
     private static final int MIN_MS_DELAY_BETWEEN_BUTTON_MESSAGES = 1000;
@@ -87,23 +85,23 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
         }
         return CommandDefinition.builder()
                 .name(getCommandId())
-                .nameLocales(I18n.additionalMessages("%s.name".formatted(getCommandId())))
+                .nameLocales(I18n.allNoneEnglishMessages("%s.name".formatted(getCommandId())))
                 .description(I18n.getMessage("%s.description".formatted(getCommandId()), Locale.ENGLISH)) //not visible, because the description of the first option will be shown
-                .descriptionLocales(I18n.additionalMessages("%s.description".formatted(getCommandId()))) //not visible, because the description of the first option will be shown
+                .descriptionLocales(I18n.allNoneEnglishMessages("%s.description".formatted(getCommandId()))) //not visible, because the description of the first option will be shown
                 .option(CommandDefinitionOption.builder()
                         .name(START_OPTION_NAME)
+                        .nameLocales(I18n.allNoneEnglishMessages("base.option.start"))
                         .description(I18n.getMessage("%s.description".formatted(getCommandId()), Locale.ENGLISH))
-                        .descriptionLocales(I18n.additionalMessages("%s.description".formatted(getCommandId())))
-                        .nameLocales(I18n.additionalMessages(START_OPTION_NAME_KEY))
+                        .descriptionLocales(I18n.allNoneEnglishMessages("%s.description".formatted(getCommandId())))
                         .type(CommandDefinitionOption.Type.SUB_COMMAND)
                         .options(getStartOptions())
                         .options(baseOptions)
                         .build())
                 .option(CommandDefinitionOption.builder()
                         .name(HELP_OPTION_NAME)
-                        .nameLocales(I18n.additionalMessages(HELP_OPTION_NAME_KEY))
+                        .nameLocales(I18n.allNoneEnglishMessages("base.option.help"))
                         .description(I18n.getMessage("base.help.description", Locale.ENGLISH, (I18n.getMessage("%s.name".formatted(getCommandId()), Locale.ENGLISH))))
-                        .descriptionLocales(I18n.additionalMessagesWithKeys("base.help.description", "%s.name".formatted(getCommandId())))
+                        .descriptionLocales(I18n.allNoneEnglishWithKeys("base.help.description", "%s.name".formatted(getCommandId())))
                         .type(CommandDefinitionOption.Type.SUB_COMMAND)
                         .build())
                 .options(additionalCommandOptions())
@@ -234,7 +232,7 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
                     .orElse(createNewButtonMessage(configUUID, config).getComponentRowDefinitions()));
         } else {
             //edit the current message if the command changes it or mark it as processing
-            editMessage = getCurrentMessageContentChange(config, state).orElse("processing ...");
+            editMessage = getCurrentMessageContentChange(config, state).orElse(I18n.getMessage("base.edit.processing", config.getConfigLocale()));
             editMessageComponents = getCurrentMessageComponentChange(configUUID, config, state, channelId, userId);
         }
         //Todo check if message/button are the same. If the message will deleted it should always be "processing...".

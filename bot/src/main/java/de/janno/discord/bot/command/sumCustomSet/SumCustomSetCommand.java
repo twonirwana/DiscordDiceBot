@@ -125,17 +125,17 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
     protected @NonNull List<CommandDefinitionOption> getStartOptions() {
         return List.of(CommandDefinitionOption.builder()
                         .name(BUTTONS_COMMAND_OPTIONS_NAME)
-                        .nameLocales(I18n.additionalMessages("sum_dice_set.option.buttons.name"))
+                        .nameLocales(I18n.allNoneEnglishMessages("sum_dice_set.option.buttons.name"))
                         .description(I18n.getMessage("sum_dice_set.option.buttons.description", Locale.ENGLISH))
-                        .descriptionLocales(I18n.additionalMessages("sum_dice_set.option.buttons.description"))
+                        .descriptionLocales(I18n.allNoneEnglishMessages("sum_dice_set.option.buttons.description"))
                         .type(CommandDefinitionOption.Type.STRING)
                         .required(true)
                         .build(),
                 CommandDefinitionOption.builder()
                         .name(ALWAYS_SUM_RESULTS_COMMAND_OPTIONS_NAME)
-                        .nameLocales(I18n.additionalMessages("sum_dice_set.option.alwaysSum.name"))
+                        .nameLocales(I18n.allNoneEnglishMessages("sum_dice_set.option.alwaysSum.name"))
                         .description(I18n.getMessage("sum_dice_set.option.alwaysSum.description", Locale.ENGLISH))
-                        .descriptionLocales(I18n.additionalMessages("sum_dice_set.option.alwaysSum.description"))
+                        .descriptionLocales(I18n.allNoneEnglishMessages("sum_dice_set.option.alwaysSum.description"))
                         .type(CommandDefinitionOption.Type.BOOLEAN)
                         .required(false)
                         .build());
