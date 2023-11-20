@@ -26,8 +26,8 @@ public final class BaseCommandOptions {
             .type(CommandDefinitionOption.Type.STRING)
             .choices(I18n.allSupportedLanguage().stream()
                     .map(ri -> CommandDefinitionOptionChoice.builder()
-                            //todo I18n
                             .name(ri.getDisplayName())
+                            .nameLocales(I18n.additionalMessages("base.option.language." + ri.getLanguage()))
                             .value(ri.getLanguage())
                             .build())
                     .collect(Collectors.toList()))
@@ -51,8 +51,8 @@ public final class BaseCommandOptions {
             .type(CommandDefinitionOption.Type.STRING)
             .choices(Arrays.stream(DiceImageStyle.values())
                     .map(ri -> CommandDefinitionOptionChoice.builder()
-                            //todo I18n
                             .name(ri.name())
+                            .nameLocales(I18n.additionalMessages("base.option.dice_image_style." + ri.name()))
                             .value(ri.name())
                             .build())
                     .collect(Collectors.toList()))
@@ -66,8 +66,8 @@ public final class BaseCommandOptions {
             .type(CommandDefinitionOption.Type.STRING)
             .choices(Arrays.stream(AnswerFormatType.values())
                     .map(answerFormatType -> CommandDefinitionOptionChoice.builder()
-                            //todo I18n
                             .name(answerFormatType.name())
+                            .nameLocales(I18n.additionalMessages("base.option.answer_format." + answerFormatType.name()))
                             .value(answerFormatType.name())
                             .build())
                     .collect(Collectors.toList()))
@@ -91,13 +91,13 @@ public final class BaseCommandOptions {
                 .findFirst();
         if (styleOptionValue.isEmpty() || !DiceImageStyle.isValidStyle(styleOptionValue.get())) {
             return List.of(new AutoCompleteAnswer(I18n.getMessage("base.option.dice_image_style.autoComplete.missingStyle.name", userLocale),
-                    I18n.getMessage("base.option.dice.dice_image_style.auto.complete.missing.style.value", userLocale)));
+                    I18n.getMessage("base.option.dice.dice_image_style.autoComplete.missing.style.value", userLocale)));
         }
-        return DiceImageStyle.valueOf(styleOptionValue.get()).getSupportedColors().stream()
-                //todo I18n
+        DiceImageStyle diceImageStyle = DiceImageStyle.valueOf(styleOptionValue.get());
+        return diceImageStyle.getSupportedColors().stream()
                 .filter(s -> s.contains(autoCompleteRequest.getFocusedOptionValue()))
                 .limit(25)
-                .map(c -> new AutoCompleteAnswer(c, c))
+                .map(c -> new AutoCompleteAnswer(diceImageStyle.getLocalizedColorName(c, userLocale), c))
                 .collect(Collectors.toList());
     }
 
