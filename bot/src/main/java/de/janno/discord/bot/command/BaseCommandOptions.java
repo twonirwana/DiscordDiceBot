@@ -67,7 +67,7 @@ public final class BaseCommandOptions {
             .choices(Arrays.stream(AnswerFormatType.values())
                     .map(answerFormatType -> CommandDefinitionOptionChoice.builder()
                             .name(answerFormatType.name())
-                            .nameLocales(I18n.allNoneEnglishMessages("base.option.answer_format." + answerFormatType.name()))
+                            .nameLocales(I18n.allNoneEnglishMessages("base.option.answer_format.%s.name".formatted(answerFormatType.name())))
                             .value(answerFormatType.name())
                             .build())
                     .collect(Collectors.toList()))
