@@ -45,7 +45,7 @@ public class ValidationCommand extends DirectRollCommand {
         if (Strings.isNullOrEmpty(option.getFocusedOptionValue())) {
             return List.of(new AutoCompleteAnswer(I18n.getMessage("validation.autoComplete.example", userLocale), I18n.getMessage("validation.autoComplete.example", userLocale)));
         }
-        Optional<String> validation = diceEvaluatorAdapter.shortValidateDiceExpressionWitOptionalLabel(option.getFocusedOptionValue());
+        Optional<String> validation = diceEvaluatorAdapter.shortValidateDiceExpressionWitOptionalLabel(option.getFocusedOptionValue(), userLocale);
         BotMetrics.incrementValidationCounter(validation.isEmpty());
         return validation
                 .map(s -> List.of(new AutoCompleteAnswer(s, option.getFocusedOptionValue())))
@@ -81,7 +81,8 @@ public class ValidationCommand extends DirectRollCommand {
                                                  @NonNull String commandString,
                                                  @NonNull String diceExpression,
                                                  @NonNull RollAnswer answer,
-                                                 @NonNull Stopwatch stopwatch) {
+                                                 @NonNull Stopwatch stopwatch,
+                                                 @NonNull Locale userLocale) {
         String replayMessage = Stream.of(commandString, answer.getWarning())
                 .filter(s -> !Strings.isNullOrEmpty(s))
                 .collect(Collectors.joining(" "));

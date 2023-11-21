@@ -9,6 +9,7 @@ import lombok.NonNull;
 import org.apache.commons.lang3.NotImplementedException;
 
 import java.time.Duration;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -28,13 +29,9 @@ public class TestCommand extends AbstractCommand<Config, StateData> {
         throw new NotImplementedException("Not implemented");
     }
 
-    @Override
-    protected @NonNull String getCommandDescription() {
-        throw new NotImplementedException("Not implemented");
-    }
 
     @Override
-    protected @NonNull EmbedOrMessageDefinition getHelpMessage() {
+    protected @NonNull EmbedOrMessageDefinition getHelpMessage(Locale userLocale) {
         throw new NotImplementedException("Not implemented");
     }
 
@@ -54,7 +51,7 @@ public class TestCommand extends AbstractCommand<Config, StateData> {
     }
 
     @Override
-    protected @NonNull Config getConfigFromStartOptions(@NonNull CommandInteractionOption options) {
+    protected @NonNull Config getConfigFromStartOptions(@NonNull CommandInteractionOption options, @NonNull Locale userLocale) {
         throw new NotImplementedException("Not implemented");
     }
 

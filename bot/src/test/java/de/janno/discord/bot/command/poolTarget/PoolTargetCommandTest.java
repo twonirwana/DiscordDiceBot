@@ -22,6 +22,7 @@ import reactor.core.publisher.Mono;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -343,7 +344,7 @@ class PoolTargetCommandTest {
         when(buttonEventAdaptor.getMessageId()).thenReturn(1L);
         when(buttonEventAdaptor.reply(any(), anyBoolean())).thenReturn(Mono.just(mock(Void.class)));
         when(buttonEventAdaptor.createResultMessageWithReference(any(), eq(null))).thenReturn(Mono.just(mock(Void.class)));
-        when(buttonEventAdaptor.getRequester()).thenReturn(new Requester("user", "channel", "guild", "[0 / 1]"));
+        when(buttonEventAdaptor.getRequester()).thenReturn(new Requester("user", "channel", "guild", "[0 / 1]", Locale.ENGLISH));
         when(buttonEventAdaptor.getInvokingGuildMemberName()).thenReturn("testUser");
         when(persistenceManager.getMessageData(1L, 1L)).thenReturn(Optional.empty());
 
@@ -396,7 +397,7 @@ class PoolTargetCommandTest {
     @Test
     void getStartOptionsValidationMessage() {
         CommandInteractionOption option = createCommandInteractionOption(8L, 11L, "7,8", "1,2,3", "always");
-        Optional<String> res = underTest.getStartOptionsValidationMessage(option, 0L, 0L);
+        Optional<String> res = underTest.getStartOptionsValidationMessage(option, 0L, 0L, Locale.ENGLISH);
 
         assertThat(res).isEmpty();
     }
@@ -404,7 +405,7 @@ class PoolTargetCommandTest {
     @Test
     void getStartOptionsValidationMessage_botchSetZero() {
         CommandInteractionOption option = createCommandInteractionOption(10L, 12L, "9,10", "0,2,3", "ask");
-        Optional<String> res = underTest.getStartOptionsValidationMessage(option, 0L, 0L);
+        Optional<String> res = underTest.getStartOptionsValidationMessage(option, 0L, 0L, Locale.ENGLISH);
 
         assertThat(res).contains("The parameter need to have numbers greater zero, seperated by ','. The following parameter where not greater zero: '0'");
     }
@@ -412,7 +413,7 @@ class PoolTargetCommandTest {
     @Test
     void getStartOptionsValidationMessage_botchSetNegative() {
         CommandInteractionOption option = createCommandInteractionOption(10L, 12L, "9,10", "-1,2,3", "ask");
-        Optional<String> res = underTest.getStartOptionsValidationMessage(option, 0L, 0L);
+        Optional<String> res = underTest.getStartOptionsValidationMessage(option, 0L, 0L, Locale.ENGLISH);
 
         assertThat(res).contains("The parameter need to have numbers greater zero, seperated by ','. The following parameter where not greater zero: '-1'");
     }
@@ -420,7 +421,7 @@ class PoolTargetCommandTest {
     @Test
     void getStartOptionsValidationMessage_botchSetNotANumber() {
         CommandInteractionOption option = createCommandInteractionOption(10L, 12L, "9,10", "1,a,3", "ask");
-        Optional<String> res = underTest.getStartOptionsValidationMessage(option, 0L, 0L);
+        Optional<String> res = underTest.getStartOptionsValidationMessage(option, 0L, 0L, Locale.ENGLISH);
 
         assertThat(res).contains("The parameter need to have numbers, seperated by ','. The following parameter where not numbers: 'a'");
     }
@@ -428,7 +429,7 @@ class PoolTargetCommandTest {
     @Test
     void getStartOptionsValidationMessage_botchSetEmpty() {
         CommandInteractionOption option = createCommandInteractionOption(10L, 12L, "9,10", "1,,3", "ask");
-        Optional<String> res = underTest.getStartOptionsValidationMessage(option, 0L, 0L);
+        Optional<String> res = underTest.getStartOptionsValidationMessage(option, 0L, 0L, Locale.ENGLISH);
 
         assertThat(res).contains("The parameter need to have numbers, seperated by ','. The following parameter where not numbers: ''");
     }
@@ -436,7 +437,7 @@ class PoolTargetCommandTest {
     @Test
     void getStartOptionsValidationMessage_rerollSetZero() {
         CommandInteractionOption option = createCommandInteractionOption(10L, 12L, "0,0,9,10", "1,2,3", "ask");
-        Optional<String> res = underTest.getStartOptionsValidationMessage(option, 0L, 0L);
+        Optional<String> res = underTest.getStartOptionsValidationMessage(option, 0L, 0L, Locale.ENGLISH);
 
         assertThat(res).contains("The parameter need to have numbers greater zero, seperated by ','. The following parameter where not greater zero: '0'");
     }
@@ -444,7 +445,7 @@ class PoolTargetCommandTest {
     @Test
     void getStartOptionsValidationMessage_rerollSetNegative() {
         CommandInteractionOption option = createCommandInteractionOption(10L, 12L, "-9,-10", "1,2,3", "ask");
-        Optional<String> res = underTest.getStartOptionsValidationMessage(option, 0L, 0L);
+        Optional<String> res = underTest.getStartOptionsValidationMessage(option, 0L, 0L, Locale.ENGLISH);
 
         assertThat(res).contains("The parameter need to have numbers greater zero, seperated by ','. The following parameter where not greater zero: '-9', '-10'");
     }
@@ -452,7 +453,7 @@ class PoolTargetCommandTest {
     @Test
     void getStartOptionsValidationMessage_rerollSetNotANumber() {
         CommandInteractionOption option = createCommandInteractionOption(10L, 12L, "9a,asfd,..,10", "1,2,3", "ask");
-        Optional<String> res = underTest.getStartOptionsValidationMessage(option, 0L, 0L);
+        Optional<String> res = underTest.getStartOptionsValidationMessage(option, 0L, 0L, Locale.ENGLISH);
 
         assertThat(res).contains("The parameter need to have numbers, seperated by ','. The following parameter where not numbers: '..', '9a', 'asfd'");
     }
@@ -460,7 +461,7 @@ class PoolTargetCommandTest {
     @Test
     void getStartOptionsValidationMessage_rerollSetEmpty() {
         CommandInteractionOption option = createCommandInteractionOption(10L, 12L, "9,,,,10", "1", "ask");
-        Optional<String> res = underTest.getStartOptionsValidationMessage(option, 0L, 0L);
+        Optional<String> res = underTest.getStartOptionsValidationMessage(option, 0L, 0L, Locale.ENGLISH);
 
         assertThat(res).contains("The parameter need to have numbers, seperated by ','. The following parameter where not numbers: ''");
     }

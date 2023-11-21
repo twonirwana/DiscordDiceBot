@@ -18,6 +18,7 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Stream;
@@ -146,42 +147,42 @@ class QuickstartCommandTest {
                 .stringValue(presetId.name())
                 .build()));
 
-        Mono<Void> res = underTest.handleSlashCommandEvent(slashEventAdaptor, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"));
+        Mono<Void> res = underTest.handleSlashCommandEvent(slashEventAdaptor, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"), Locale.ENGLISH);
         StepVerifier.create(res).verifyComplete();
         assertThat(slashEventAdaptor.getActions()).containsExactlyInAnyOrderElementsOf(actions);
     }
 
     @Test
     void getPresetId_idMatch() {
-        Optional<RpgSystemCommandPreset.PresetId> res = QuickstartCommand.getPresetId("DND5");
+        Optional<RpgSystemCommandPreset.PresetId> res = QuickstartCommand.getPresetId("DND5", Locale.ENGLISH);
 
         assertThat(res).contains(RpgSystemCommandPreset.PresetId.DND5);
     }
 
     @Test
     void getPresetId_nameMatch() {
-        Optional<RpgSystemCommandPreset.PresetId> res = QuickstartCommand.getPresetId("Dungeon & dragons 5e ");
+        Optional<RpgSystemCommandPreset.PresetId> res = QuickstartCommand.getPresetId("Dungeon & dragons 5e ", Locale.ENGLISH);
 
         assertThat(res).contains(RpgSystemCommandPreset.PresetId.DND5);
     }
 
     @Test
     void getPresetId_synonymeMatch() {
-        Optional<RpgSystemCommandPreset.PresetId> res = QuickstartCommand.getPresetId(" reve de Dragon");
+        Optional<RpgSystemCommandPreset.PresetId> res = QuickstartCommand.getPresetId(" reve de Dragon", Locale.ENGLISH);
 
         assertThat(res).contains(RpgSystemCommandPreset.PresetId.REVE_DE_DRAGON);
     }
 
     @Test
     void getPresetId_nameStartsWith() {
-        Optional<RpgSystemCommandPreset.PresetId> res = QuickstartCommand.getPresetId(" oWod ");
+        Optional<RpgSystemCommandPreset.PresetId> res = QuickstartCommand.getPresetId(" oWod ", Locale.ENGLISH);
 
         assertThat(res).contains(RpgSystemCommandPreset.PresetId.OWOD);
     }
 
     @Test
     void getPresetId_noMatch() {
-        Optional<RpgSystemCommandPreset.PresetId> res = QuickstartCommand.getPresetId(" Opus Anima ");
+        Optional<RpgSystemCommandPreset.PresetId> res = QuickstartCommand.getPresetId(" Opus Anima ", Locale.ENGLISH);
 
         assertThat(res).isEmpty();
     }

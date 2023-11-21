@@ -103,8 +103,8 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
                 .distinct()
                 .collect(Collectors.toList());
         DiceParserSystem diceParserSystem = DiceParserSystem.DICE_EVALUATOR;
-        return diceSystemAdapter.validateListOfExpressions(diceExpressionWithOptionalLabel, "/%s /%s".formatted(I18n.getMessage("custom_dice.name", userLocale),
-                I18n.getMessage("base.option.help", userLocale)), diceParserSystem);
+        return diceSystemAdapter.validateListOfExpressions(diceExpressionWithOptionalLabel, "/%s %s".formatted(I18n.getMessage("custom_dice.name", userLocale),
+                I18n.getMessage("base.option.help", userLocale)), diceParserSystem, userLocale);
 
     }
 
@@ -177,7 +177,8 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
                 false,
                 config.getDiceParserSystem(),
                 config.getAnswerFormatType(),
-                config.getDiceStyleAndColor()));
+                config.getDiceStyleAndColor(),
+                config.getConfigLocale()));
     }
 
     @Override
@@ -216,11 +217,11 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
     }
 
     @Override
-    protected @NonNull Optional<String> getConfigWarnMessage(CustomDiceConfig config) {
+    protected @NonNull Optional<String> getConfigWarnMessage(CustomDiceConfig config, Locale userLocale) {
         return Optional.ofNullable(Strings.emptyToNull(config.getButtonIdLabelAndDiceExpressions().stream()
                 .map(b -> {
                     String warning = diceSystemAdapter.answerRollWithGivenLabel(b.getDiceExpression(), null, false, DiceParserSystem.DICE_EVALUATOR, config.getAnswerFormatType(),
-                            config.getDiceStyleAndColor()).getWarning();
+                            config.getDiceStyleAndColor(), userLocale).getWarning();
                     if (!Strings.isNullOrEmpty(warning)) {
                         return "`%s`: %s".formatted(b.getDiceExpression(), warning);
                     }

@@ -11,7 +11,6 @@ import de.janno.discord.connector.api.message.ComponentRowDefinition;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinitionOption;
-import de.janno.discord.connector.api.slash.CommandDefinitionOptionChoice;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,6 +20,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Stream;
@@ -106,7 +106,7 @@ class SumDiceSetCommandTest {
 
     @Test
     void getButtonMessageWithState_clear() {
-        Optional<EmbedOrMessageDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), new Config(null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none")), new State<>("clear", new SumDiceSetStateData(ImmutableList.of(
+        Optional<EmbedOrMessageDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), new Config(null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH), new State<>("clear", new SumDiceSetStateData(ImmutableList.of(
                         new DiceKeyAndValue("d4", 1),
                         new DiceKeyAndValue("d6", 1),
                         new DiceKeyAndValue("d8", 1),
@@ -119,7 +119,7 @@ class SumDiceSetCommandTest {
 
     @Test
     void getButtonMessageWithState_roll() {
-        String res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), new Config(null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none")), new State<>("roll", new SumDiceSetStateData(ImmutableList.of(
+        String res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), new Config(null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH), new State<>("roll", new SumDiceSetStateData(ImmutableList.of(
                                 new DiceKeyAndValue("d4", 1),
                                 new DiceKeyAndValue("d6", 1),
                                 new DiceKeyAndValue("d8", 1),
@@ -157,13 +157,13 @@ class SumDiceSetCommandTest {
 
     @Test
     void getButtonMessage() {
-        String res = underTest.createNewButtonMessage(UUID.fromString("00000000-0000-0000-0000-000000000000"), new Config(null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"))).getDescriptionOrContent();
+        String res = underTest.createNewButtonMessage(UUID.fromString("00000000-0000-0000-0000-000000000000"), new Config(null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH)).getDescriptionOrContent();
         assertThat(res).isEqualTo("Click on the buttons to add dice to the set");
     }
 
     @Test
     void createNewButtonMessageWithState() {
-        String res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), new Config(null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none")), new State<>("roll", new SumDiceSetStateData(ImmutableList.of(new DiceKeyAndValue("d4", 51)))), 1L, 2L)
+        String res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), new Config(null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH), new State<>("roll", new SumDiceSetStateData(ImmutableList.of(new DiceKeyAndValue("d4", 51)))), 1L, 2L)
                 .orElseThrow().getDescriptionOrContent();
         assertThat(res).isEqualTo("Click on the buttons to add dice to the set");
     }
@@ -172,7 +172,7 @@ class SumDiceSetCommandTest {
     @MethodSource("generateGetEditButtonMessageData")
     void getCurrentMessageContentChange(State<SumDiceSetStateData> state, String expected) {
         State<SumDiceSetStateData> updated = underTest.updateState(state.getButtonValue(), state.getData());
-        Optional<String> res = underTest.getCurrentMessageContentChange(new Config(null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none")), updated);
+        Optional<String> res = underTest.getCurrentMessageContentChange(new Config(null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH), updated);
         assertThat(res).contains(expected);
     }
 
@@ -205,55 +205,12 @@ class SumDiceSetCommandTest {
     void getCommandDefinition() {
         CommandDefinition res = underTest.getCommandDefinition();
 
-        assertThat(res).isEqualTo(CommandDefinition.builder()
-                .name("sum_dice_set")
-                .description("Configure a variable set of d4 to d20 dice")
-                .option(CommandDefinitionOption.builder()
-                        .name("start")
-                        .description("Configure a variable set of d4 to d20 dice")
-                        .type(CommandDefinitionOption.Type.SUB_COMMAND)
-                        .option(CommandDefinitionOption.builder()
-                                .name("target_channel")
-                                .description("Another channel where the answer will be given")
-                                .type(CommandDefinitionOption.Type.CHANNEL)
-                                .build())
-                        .option(CommandDefinitionOption.builder()
-                                .name("answer_format")
-                                .description("How the answer will be displayed")
-                                .type(CommandDefinitionOption.Type.STRING)
-                                .choice(CommandDefinitionOptionChoice.builder()
-                                        .name("full")
-                                        .value("full")
-                                        .build())
-                                .choice(CommandDefinitionOptionChoice.builder()
-                                        .name("without_expression")
-                                        .value("without_expression")
-                                        .build())
-                                .choice(CommandDefinitionOptionChoice.builder()
-                                        .name("only_dice")
-                                        .value("only_dice")
-                                        .build())
-                                .choice(CommandDefinitionOptionChoice.builder()
-                                        .name("compact")
-                                        .value("compact")
-                                        .build())
-                                .choice(CommandDefinitionOptionChoice.builder()
-                                        .name("minimal")
-                                        .value("minimal")
-                                        .build())
-                                .build())
-                        .build())
-                .option(CommandDefinitionOption.builder()
-                        .name("help")
-                        .description("Get help for sum_dice_set")
-                        .type(CommandDefinitionOption.Type.SUB_COMMAND)
-                        .build())
-                .build());
+        assertThat(res.toString()).isEqualTo("CommandDefinition(name=sum_dice_set, description=Legacy command, use /sum_custom_set, nameLocales=[], descriptionLocales=[], options=[CommandDefinitionOption(type=SUB_COMMAND, name=start, nameLocales=[], description=Legacy command, use /sum_custom_set, descriptionLocales=[], required=false, choices=[], options=[CommandDefinitionOption(type=CHANNEL, name=target_channel, nameLocales=[], description=Another channel where the answer will be given, descriptionLocales=[], required=false, choices=[], options=[], minValue=null, maxValue=null, autoComplete=false), CommandDefinitionOption(type=STRING, name=answer_format, nameLocales=[], description=How the answer will be displayed, descriptionLocales=[], required=false, choices=[CommandDefinitionOptionChoice(name=full, value=full, nameLocales=[]), CommandDefinitionOptionChoice(name=without_expression, value=without_expression, nameLocales=[]), CommandDefinitionOptionChoice(name=only_dice, value=only_dice, nameLocales=[]), CommandDefinitionOptionChoice(name=compact, value=compact, nameLocales=[]), CommandDefinitionOptionChoice(name=minimal, value=minimal, nameLocales=[])], options=[], minValue=null, maxValue=null, autoComplete=false)], minValue=null, maxValue=null, autoComplete=false), CommandDefinitionOption(type=SUB_COMMAND, name=help, nameLocales=[LocaleValue[locale=de, value=hilfe]], description=Get help for /sum_dice_set, descriptionLocales=[LocaleValue[locale=de, value=Get help for /[sum_dice_set]]], required=false, choices=[], options=[], minValue=null, maxValue=null, autoComplete=false)])");
     }
 
     @Test
     void getAnswer_roll_true() {
-        Optional<RollAnswer> res = underTest.getAnswer(new Config(null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none")), new State<>("roll", new SumDiceSetStateData(ImmutableList.of(new DiceKeyAndValue(
+        Optional<RollAnswer> res = underTest.getAnswer(new Config(null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH), new State<>("roll", new SumDiceSetStateData(ImmutableList.of(new DiceKeyAndValue(
                 "d6", 1
         )))), 0L, 0L);
         assertThat(res).isNotEmpty();
@@ -261,13 +218,13 @@ class SumDiceSetCommandTest {
 
     @Test
     void getAnswer_rollNoConfig_false() {
-        Optional<RollAnswer> res = underTest.getAnswer(new Config(null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none")), new State<>("roll", new SumDiceSetStateData(ImmutableList.of())), 0L, 0L);
+        Optional<RollAnswer> res = underTest.getAnswer(new Config(null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH), new State<>("roll", new SumDiceSetStateData(ImmutableList.of())), 0L, 0L);
         assertThat(res).isEmpty();
     }
 
     @Test
     void getAnswer_modifyMessage_false() {
-        Optional<RollAnswer> res = underTest.getAnswer(new Config(null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none")), new State<>("+1d6", new SumDiceSetStateData(ImmutableList.of(new DiceKeyAndValue(
+        Optional<RollAnswer> res = underTest.getAnswer(new Config(null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH), new State<>("+1d6", new SumDiceSetStateData(ImmutableList.of(new DiceKeyAndValue(
                 "d6", 1
         )))), 0L, 0L);
         assertThat(res).isEmpty();
@@ -275,7 +232,7 @@ class SumDiceSetCommandTest {
 
     @Test
     void copyButtonMessageToTheEnd_roll_true() {
-        Optional<EmbedOrMessageDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), new Config(null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none")), new State<>("roll", new SumDiceSetStateData(ImmutableList.of(new DiceKeyAndValue(
+        Optional<EmbedOrMessageDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), new Config(null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH), new State<>("roll", new SumDiceSetStateData(ImmutableList.of(new DiceKeyAndValue(
                 "d6", 1
         )))), 1L, 2L);
         assertThat(res).isNotEmpty();
@@ -283,13 +240,13 @@ class SumDiceSetCommandTest {
 
     @Test
     void copyButtonMessageToTheEnd_rollNoConfig_false() {
-        Optional<EmbedOrMessageDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), new Config(null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none")), new State<>("roll", new SumDiceSetStateData(ImmutableList.of())), 1L, 2L);
+        Optional<EmbedOrMessageDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), new Config(null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH), new State<>("roll", new SumDiceSetStateData(ImmutableList.of())), 1L, 2L);
         assertThat(res).isEmpty();
     }
 
     @Test
     void copyButtonMessageToTheEnd_modifyMessage_false() {
-        Optional<EmbedOrMessageDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), new Config(null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none")), new State<>("+1d6", new SumDiceSetStateData(ImmutableList.of(new DiceKeyAndValue(
+        Optional<EmbedOrMessageDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), new Config(null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH), new State<>("+1d6", new SumDiceSetStateData(ImmutableList.of(new DiceKeyAndValue(
                 "d6", 1
         )))), 1L, 2L);
         assertThat(res).isEmpty();
@@ -297,7 +254,7 @@ class SumDiceSetCommandTest {
 
     @Test
     void getCurrentMessageContentChange_1d6() {
-        Optional<String> res = underTest.getCurrentMessageContentChange(new Config(null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none")), new State<>("+1d6", new SumDiceSetStateData(ImmutableList.of(new DiceKeyAndValue(
+        Optional<String> res = underTest.getCurrentMessageContentChange(new Config(null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH), new State<>("+1d6", new SumDiceSetStateData(ImmutableList.of(new DiceKeyAndValue(
                 "d6", 1
         )))));
         assertThat(res).contains("1d6");
@@ -311,15 +268,15 @@ class SumDiceSetCommandTest {
                         .name("target_channel")
                         .channelIdValue(null)
                         .build())
-                .build());
+                .build(), Locale.ENGLISH);
 
-        assertThat(res).isEqualTo(new Config(null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none")));
+        assertThat(res).isEqualTo(new Config(null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH));
     }
 
 
     @Test
     void rollDice_1d4plus1d6plus10() {
-        EmbedOrMessageDefinition res = RollAnswerConverter.toEmbedOrMessageDefinition(underTest.getAnswer(new Config(null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none")), new State<>("roll", new SumDiceSetStateData(ImmutableList.of(new DiceKeyAndValue(
+        EmbedOrMessageDefinition res = RollAnswerConverter.toEmbedOrMessageDefinition(underTest.getAnswer(new Config(null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH), new State<>("roll", new SumDiceSetStateData(ImmutableList.of(new DiceKeyAndValue(
                         "d4", 1),
                 new DiceKeyAndValue("d6", 1),
                 new DiceKeyAndValue("m", 10)
@@ -332,7 +289,7 @@ class SumDiceSetCommandTest {
 
     @Test
     void rollDice_minus1d4plus1d6minux10() {
-        EmbedOrMessageDefinition res = RollAnswerConverter.toEmbedOrMessageDefinition(underTest.getAnswer(new Config(null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none")), new State<>("roll", new SumDiceSetStateData(ImmutableList.of(new DiceKeyAndValue(
+        EmbedOrMessageDefinition res = RollAnswerConverter.toEmbedOrMessageDefinition(underTest.getAnswer(new Config(null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH), new State<>("roll", new SumDiceSetStateData(ImmutableList.of(new DiceKeyAndValue(
                         "d4", -1),
                 new DiceKeyAndValue("d6", 1),
                 new DiceKeyAndValue("m", -10)
@@ -352,7 +309,7 @@ class SumDiceSetCommandTest {
 
     @Test
     void getButtonLayoutWithState() {
-        List<ComponentRowDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), new Config(null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none")), new State<>("roll", new SumDiceSetStateData(ImmutableList.of(
+        List<ComponentRowDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), new Config(null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH), new State<>("roll", new SumDiceSetStateData(ImmutableList.of(
                         new DiceKeyAndValue("d4", -1),
                         new DiceKeyAndValue("d6", 1),
                         new DiceKeyAndValue("m", -10)
@@ -386,7 +343,7 @@ class SumDiceSetCommandTest {
 
     @Test
     void getButtonLayout() {
-        List<ComponentRowDefinition> res = underTest.createNewButtonMessage(UUID.fromString("00000000-0000-0000-0000-000000000000"), new Config(null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"))).getComponentRowDefinitions();
+        List<ComponentRowDefinition> res = underTest.createNewButtonMessage(UUID.fromString("00000000-0000-0000-0000-000000000000"), new Config(null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH)).getComponentRowDefinitions();
 
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel))
                 .containsExactly("+1d4", "-1d4", "+1d6", "-1d6", "x2", "+1d8", "-1d8", "+1d10", "-1d10", "Clear", "+1d12", "-1d12", "+1d20", "-1d20", "Roll", "+1", "-1", "+5", "-5", "+10");
@@ -421,7 +378,7 @@ class SumDiceSetCommandTest {
         UUID configUUID = UUID.fromString("00000000-0000-0000-0000-000000000001");
         long channelId = System.currentTimeMillis();
         long messageId = System.currentTimeMillis();
-        Config config = new Config(123L, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"));
+        Config config = new Config(123L, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
         Optional<MessageConfigDTO> toSave = underTest.createMessageConfig(configUUID, 1L, channelId, config);
         assertThat(toSave).isPresent();
 
@@ -456,7 +413,7 @@ class SumDiceSetCommandTest {
                 """);
 
         ConfigAndState<Config, SumDiceSetStateData> configAndState = underTest.deserializeAndUpdateState(messageConfigDTO, messageDataDTO, "+1d6");
-        assertThat(configAndState.getConfig()).isEqualTo(new Config(123L, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none")));
+        assertThat(configAndState.getConfig()).isEqualTo(new Config(123L, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH));
         assertThat(configAndState.getConfigUUID()).isEqualTo(configUUID);
         assertThat(configAndState.getState().getData()).isEqualTo(new SumDiceSetStateData(ImmutableList.of(new DiceKeyAndValue("d6", 4), new DiceKeyAndValue("m", -4))));
     }
@@ -481,7 +438,7 @@ class SumDiceSetCommandTest {
                 """);
 
         ConfigAndState<Config, SumDiceSetStateData> configAndState = underTest.deserializeAndUpdateState(messageConfigDTO, messageDataDTO, "+1d6");
-        assertThat(configAndState.getConfig()).isEqualTo(new Config(123L, AnswerFormatType.compact, null, new DiceStyleAndColor(DiceImageStyle.none, "none")));
+        assertThat(configAndState.getConfig()).isEqualTo(new Config(123L, AnswerFormatType.compact, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH));
         assertThat(configAndState.getConfigUUID()).isEqualTo(configUUID);
         assertThat(configAndState.getState().getData()).isEqualTo(new SumDiceSetStateData(ImmutableList.of(new DiceKeyAndValue("d6", 4), new DiceKeyAndValue("m", -4))));
     }

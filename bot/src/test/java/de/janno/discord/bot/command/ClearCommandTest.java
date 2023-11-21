@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.util.Locale;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -30,7 +31,7 @@ class ClearCommandTest {
         when(persistenceManager.deleteMessageDataForChannel(anyLong())).thenReturn(ImmutableSet.of(1L, 2L));
         when(slashEventAdaptor.deleteMessageById(anyLong())).thenReturn(Mono.empty());
 
-        Mono<Void> res = underTest.handleSlashCommandEvent(slashEventAdaptor, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"));
+        Mono<Void> res = underTest.handleSlashCommandEvent(slashEventAdaptor, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"), Locale.ENGLISH);
         StepVerifier.create(res).verifyComplete();
 
 

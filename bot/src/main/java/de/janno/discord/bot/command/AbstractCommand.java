@@ -400,7 +400,7 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
             log.info("{}: '{}'",
                     event.getRequester().toLogString(),
                     commandString.replace("`", ""));
-            String replayMessage = Stream.of(commandString, getConfigWarnMessage(config).orElse(null))
+            String replayMessage = Stream.of(commandString, getConfigWarnMessage(config, userLocale).orElse(null))
                     .filter(s -> !Strings.isNullOrEmpty(s))
                     .collect(Collectors.joining(" "));
 
@@ -420,7 +420,7 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
         return Mono.empty();
     }
 
-    protected @NonNull Optional<String> getConfigWarnMessage(C config) {
+    protected @NonNull Optional<String> getConfigWarnMessage(C config, Locale userLocale) {
         return Optional.empty();
     }
 

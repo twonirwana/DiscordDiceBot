@@ -161,7 +161,8 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
                 config.isAlwaysSumResult(),
                 config.getDiceParserSystem(),
                 config.getAnswerFormatType(),
-                config.getDiceStyleAndColor()));
+                config.getDiceStyleAndColor(),
+                config.getConfigLocale()));
     }
 
     @Override

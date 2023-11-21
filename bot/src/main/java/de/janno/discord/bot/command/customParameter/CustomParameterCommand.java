@@ -264,7 +264,8 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
                     false,
                     config.getDiceParserSystem(),
                     config.getAnswerFormatType(),
-                    config.getDiceStyleAndColor()));
+                    config.getDiceStyleAndColor(),
+                    config.getConfigLocale()));
         }
         return Optional.empty();
     }
@@ -527,7 +528,8 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
                 String expressionWithoutSuffixLabel = removeSuffixLabelFromExpression(expression, label);
                 Optional<String> validationMessage = diceSystemAdapter.validateDiceExpressionWitOptionalLabel(expressionWithoutSuffixLabel,
                         "/%s %s".formatted(I18n.getMessage("custom_parameter.name", config.getConfigLocale()), I18n.getMessage("base.option.help", config.getConfigLocale())),
-                        config.getDiceParserSystem());
+                        config.getDiceParserSystem(),
+                        config.getConfigLocale());
                 if (validationMessage.isPresent()) {
                     return validationMessage;
                 }
