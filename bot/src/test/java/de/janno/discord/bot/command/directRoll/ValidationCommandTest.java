@@ -172,7 +172,7 @@ class ValidationCommandTest {
     void getCommandDefinition() {
         CommandDefinition res = underTest.getCommandDefinition();
 
-        assertThat(res.toString()).isEqualTo("CommandDefinition(name=validation, description=provide an expression (e.g. 2d6) and the autocomplete will show an error message if it is invalid, nameLocales=[], descriptionLocales=[], options=[CommandDefinitionOption(type=STRING, name=expression, nameLocales=[], description=provide an expression (e.g. 2d6) and the autocomplete will show an error message if it is invalid, descriptionLocales=[], required=true, choices=[], options=[], minValue=null, maxValue=null, autoComplete=true)])");
+        assertThat(res.toString()).isEqualTo("CommandDefinition(name=validation, description=provide an expression (e.g. 2d6) and the autocomplete will show an error message if it is invalid, nameLocales=[], descriptionLocales=[LocaleValue[locale=de, value=Gib einen Würfelausdruck (z.B. 2d6) und das Autocomplete gibt direkt Fehlermeldungen]], options=[CommandDefinitionOption(type=STRING, name=expression, nameLocales=[LocaleValue[locale=de, value=ausdruck]], description=provide an expression (e.g. 2d6) and the autocomplete will show an error message if it is invalid, descriptionLocales=[LocaleValue[locale=de, value=Gib einen Würfelausdruck (z.B. 2d6) und das Autocomplete gibt direkt Fehlermeldungen]], required=true, choices=[], options=[], minValue=null, maxValue=null, autoComplete=true)])");
     }
 
     @Test

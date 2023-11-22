@@ -21,6 +21,7 @@ dependencies {
     implementation(libs.guava)
     implementation(libs.micrometer.core)
     implementation(libs.commons.lang3)
+    implementation("org.apache.commons:commons-text:1.11.0")
     implementation("io.micrometer:micrometer-registry-prometheus:1.12.0")
     implementation("com.h2database:h2:2.2.224")
     implementation("org.apache.derby:derby:10.17.1.0")
@@ -42,6 +43,7 @@ dependencies {
     testImplementation("org.mockito:mockito-inline:5.2.0")
     testImplementation("io.projectreactor:reactor-test")
     testImplementation("commons-io:commons-io:2.15.0")
+
 }
 
 java {

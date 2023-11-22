@@ -151,7 +151,7 @@ class DirectRollCommandTest {
     void getCommandDefinition() {
         CommandDefinition res = underTest.getCommandDefinition();
 
-        assertThat(res.toString()).isEqualTo("CommandDefinition(name=r, description=direct roll of dice expression, e.g. `2d6`. Configuration with `/channel_config`, nameLocales=[], descriptionLocales=[], options=[CommandDefinitionOption(type=STRING, name=expression, nameLocales=[], description=direct roll of dice expression, e.g. `2d6`. Configuration with `/channel_config`, descriptionLocales=[], required=true, choices=[], options=[], minValue=null, maxValue=null, autoComplete=false)])");
+        assertThat(res.toString()).isEqualTo("CommandDefinition(name=r, description=direct roll of dice expression, e.g. `2d6`. Configuration with `/channel_config`, nameLocales=[], descriptionLocales=[LocaleValue[locale=de, value=Direkter Wurf eines Würfelausdruckes, z.B. `2d6`. Konfiguration mit `/channel_config`]], options=[CommandDefinitionOption(type=STRING, name=expression, nameLocales=[LocaleValue[locale=de, value=ausdruck]], description=direct roll of dice expression, e.g. `2d6`. Configuration with `/channel_config`, descriptionLocales=[LocaleValue[locale=de, value=Direkter Wurf eines Würfelausdruckes, z.B. `2d6`. Konfiguration mit `/channel_config`]], required=true, choices=[], options=[], minValue=null, maxValue=null, autoComplete=false)])");
     }
 
     @Test

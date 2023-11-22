@@ -60,7 +60,7 @@ public class DirectRollCommandMockTest {
 
 
         assertThat(slashEvent.getActions()).containsExactlyInAnyOrder(
-                "reply: commandString did not contain any random element, try `d20` to roll a 20 sided die",
+                "reply: commandString did not contain any random element, try for Example `d20` to roll a 20 sided die",
                 "createResultMessageWithReference: EmbedOrMessageDefinition(title=20 ⇒ 20, descriptionOrContent=, fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED)"
         );
     }
