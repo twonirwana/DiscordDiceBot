@@ -1,0 +1,41 @@
+de.janno.discord.bot.command.directRoll.ValidationCommandTest.getCommandDefinition=[
+  {
+    "name" : "validation",
+    "description" : "provide an expression (e.g. 2d6) and the autocomplete will show an error message if it is invalid",
+    "nameLocales" : [ ],
+    "descriptionLocales" : [
+      {
+        "locale" : "de",
+        "value" : "Gib einen Würfelausdruck (z.B. 2d6) und das Autocomplete gibt direkt Fehlermeldungen"
+      }
+    ],
+    "options" : [
+      {
+        "type" : "STRING",
+        "name" : "expression",
+        "nameLocales" : [
+          {
+            "locale" : "de",
+            "value" : "ausdruck"
+          }
+        ],
+        "description" : "provide an expression (e.g. 2d6) and the autocomplete will show an error message if it is invalid",
+        "descriptionLocales" : [
+          {
+            "locale" : "de",
+            "value" : "Gib einen Würfelausdruck (z.B. 2d6) und das Autocomplete gibt direkt Fehlermeldungen"
+          }
+        ],
+        "required" : true,
+        "choices" : [ ],
+        "options" : [ ],
+        "autoComplete" : true
+      }
+    ]
+  }
+]
+
+
+de.janno.discord.bot.command.directRoll.ValidationCommandTest.getId=[
+  "validation"
+]

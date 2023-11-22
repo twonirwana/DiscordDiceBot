@@ -1,24 +1,25 @@
 package de.janno.discord.bot.command.help;
 
-import de.janno.discord.bot.command.AnswerFormatType;
-import de.janno.discord.bot.command.Config;
-import de.janno.discord.bot.command.State;
-import de.janno.discord.bot.command.StateData;
+import au.com.origin.snapshots.Expect;
+import au.com.origin.snapshots.junit5.SnapshotExtension;
+import de.janno.discord.bot.command.*;
 import de.janno.discord.bot.command.customDice.CustomDiceCommand;
 import de.janno.discord.bot.command.customParameter.CustomParameterCommand;
 import de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommand;
 import de.janno.discord.bot.dice.CachingDiceEvaluator;
 import de.janno.discord.bot.dice.image.DiceImageStyle;
 import de.janno.discord.bot.dice.image.DiceStyleAndColor;
+import de.janno.discord.bot.persistance.MessageConfigDTO;
 import de.janno.discord.bot.persistance.PersistenceManager;
+import de.janno.discord.bot.persistance.PersistenceManagerImpl;
 import de.janno.discord.connector.api.ButtonEventAdaptor;
 import de.janno.discord.connector.api.DiscordConnector;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
-import de.janno.discord.connector.api.slash.CommandDefinition;
 import de.janno.evaluator.dice.random.RandomNumberSupplier;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.Mockito;
@@ -30,9 +31,11 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@ExtendWith(SnapshotExtension.class)
 class WelcomeCommandTest {
 
     WelcomeCommand underTest;
+    private Expect expect;
 
     @BeforeEach
     void setup() {
@@ -44,7 +47,6 @@ class WelcomeCommandTest {
         RpgSystemCommandPreset rpgSystemCommandPreset = new RpgSystemCommandPreset(persistenceManager, customParameterCommand, customDiceCommand, sumCustomSetCommand);
         underTest = new WelcomeCommand(persistenceManager, rpgSystemCommandPreset, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"));
     }
-
 
     @Test
     public void getButtonMessageWithState_fate() {
@@ -128,7 +130,6 @@ class WelcomeCommandTest {
                         "2d12",
                         "2d20");
     }
-
 
     @Test
     public void getButtonMessageWithState_coin() {
@@ -367,7 +368,9 @@ class WelcomeCommandTest {
     @ParameterizedTest
     @CsvSource({
             "fate",
+            "fate_image",
             "dnd5",
+            "dnd5_image",
             "nWoD",
             "oWoD",
             "shadowrun",
@@ -388,7 +391,6 @@ class WelcomeCommandTest {
     public void getAnswer() {
         assertThat(underTest.getAnswer(null, null, 0L, 0L)).isEmpty();
     }
-
 
     @Test
     public void matchingComponentCustomId() {
@@ -415,16 +417,61 @@ class WelcomeCommandTest {
     }
 
     @Test
-    void getName() {
-        assertThat(underTest.getCommandId()).isEqualTo("welcome");
+    public void getCommandDefinition() {
+        expect.toMatchSnapshot(underTest.getCommandDefinition());
     }
 
+    @Test
+    public void getId() {
+        expect.toMatchSnapshot(underTest.getCommandId());
+    }
 
     @Test
-    void getCommandDefinition() {
-        CommandDefinition res = underTest.getCommandDefinition();
+    void checkPersistence() {
+        PersistenceManager persistenceManager = new PersistenceManagerImpl("jdbc:h2:mem:" + UUID.randomUUID(), null, null);
+        UUID configUUID = UUID.fromString("00000000-0000-0000-0000-000000000000");
+        Config config = new Config(123L, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.GERMAN);
+        Optional<MessageConfigDTO> toSave = underTest.createMessageConfig(configUUID, 1L, 2L, config);
+        assertThat(toSave).isPresent();
 
-        assertThat(res.toString()).isEqualTo("CommandDefinition(name=welcome, description=Displays the welcome message, nameLocales=[], descriptionLocales=[LocaleValue[locale=de, value=Erzeuge eine Wegkommensnachricht]], options=[CommandDefinitionOption(type=SUB_COMMAND, name=start, nameLocales=[], description=Displays the welcome message, descriptionLocales=[LocaleValue[locale=de, value=Erzeuge eine Wegkommensnachricht]], required=false, choices=[], options=[CommandDefinitionOption(type=STRING, name=language, nameLocales=[LocaleValue[locale=de, value=sprache]], description=The language of the bot messages, descriptionLocales=[LocaleValue[locale=de, value=Die Sprach des Bots]], required=false, choices=[CommandDefinitionOptionChoice(name=English, value=en, nameLocales=[LocaleValue[locale=de, value=Englisch]]), CommandDefinitionOptionChoice(name=German, value=de, nameLocales=[LocaleValue[locale=de, value=Deutsch]])], options=[], minValue=null, maxValue=null, autoComplete=false)], minValue=null, maxValue=null, autoComplete=false), CommandDefinitionOption(type=SUB_COMMAND, name=help, nameLocales=[LocaleValue[locale=de, value=hilfe]], description=Get help for /welcome, descriptionLocales=[LocaleValue[locale=de, value=Hilfe für /welcome]], required=false, choices=[], options=[], minValue=null, maxValue=null, autoComplete=false)])");
+        persistenceManager.saveMessageConfig(toSave.get());
+        MessageConfigDTO loaded = persistenceManager.getMessageConfig(configUUID).orElseThrow();
 
+        assertThat(toSave.get()).isEqualTo(loaded);
+        ConfigAndState<Config, StateData> configAndState = underTest.deserializeAndUpdateState(loaded, "3");
+
+        assertThat(configAndState.getConfig()).isEqualTo(config);
+        assertThat(configAndState.getConfigUUID()).isEqualTo(configUUID);
+        assertThat(configAndState.getState()).isEqualTo(new State<>("3", StateData.empty()));
+    }
+
+    @Test
+    void deserialization() {
+        UUID configUUID = UUID.fromString("00000000-0000-0000-0000-000000000000");
+        MessageConfigDTO savedData = new MessageConfigDTO(configUUID, 1L, 1660644934298L, "welcome", "Config", """
+                ---
+                answerTargetChannelId: 123
+                answerFormatType: "full"
+                configLocale: "de"
+                diceStyleAndColor:
+                  diceImageStyle: "none"
+                  configuredDefaultColor: "none"
+                """);
+
+
+        ConfigAndState<Config, StateData> configAndState = underTest.deserializeAndUpdateState(savedData, "3");
+        assertThat(configAndState.getConfig()).isEqualTo(new Config(123L, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.GERMAN));
+        assertThat(configAndState.getConfigUUID()).isEqualTo(configUUID);
+        assertThat(configAndState.getState().getData()).isEqualTo(StateData.empty());
+    }
+
+    @Test
+    void configSerialization(){
+        UUID configUUID = UUID.fromString("00000000-0000-0000-0000-000000000000");
+        Config config = new Config(123L, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.GERMAN);
+        Optional<MessageConfigDTO> toSave = underTest.createMessageConfig(configUUID, 1L, 2L, config);
+        assertThat(toSave).isPresent();
+
+        expect.toMatchSnapshot(toSave.get());
     }
 }

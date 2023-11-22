@@ -1,7 +1,8 @@
 package de.janno.discord.bot.command.directRoll;
 
+import au.com.origin.snapshots.Expect;
+import au.com.origin.snapshots.junit5.SnapshotExtension;
 import de.janno.discord.bot.command.AnswerFormatType;
-import de.janno.discord.bot.command.channelConfig.ChannelConfigCommand;
 import de.janno.discord.bot.command.channelConfig.DirectRollConfig;
 import de.janno.discord.bot.dice.CachingDiceEvaluator;
 import de.janno.discord.bot.dice.DiceEvaluatorAdapter;
@@ -14,11 +15,10 @@ import de.janno.discord.connector.api.AutoCompleteRequest;
 import de.janno.discord.connector.api.Requester;
 import de.janno.discord.connector.api.SlashEventAdaptor;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
-import de.janno.discord.connector.api.slash.CommandDefinition;
-import de.janno.discord.connector.api.slash.CommandDefinitionOption;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatchers;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -28,8 +28,10 @@ import java.util.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
+@ExtendWith(SnapshotExtension.class)
 class ValidationCommandTest {
     ValidationCommand underTest;
+    private Expect expect;
 
     @BeforeEach
     void setup() {
@@ -72,7 +74,6 @@ class ValidationCommandTest {
         when(slashEventAdaptor.reply(any(), anyBoolean())).thenReturn(Mono.just(mock(Void.class)));
         when(slashEventAdaptor.getCommandString()).thenReturn("/validation expression:1d6");
         when(slashEventAdaptor.getRequester()).thenReturn(new Requester("user", "channel", "guild", "[0 / 1]", Locale.ENGLISH));
-
 
 
         Mono<Void> res = underTest.handleSlashCommandEvent(slashEventAdaptor, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"), Locale.ENGLISH);
@@ -163,27 +164,18 @@ class ValidationCommandTest {
     }
 
     @Test
-    void getCommandId() {
-        String res = underTest.getCommandId();
-        assertThat(res).isEqualTo("validation");
+    public void getCommandDefinition() {
+        expect.toMatchSnapshot(underTest.getCommandDefinition());
     }
 
     @Test
-    void getCommandDefinition() {
-        CommandDefinition res = underTest.getCommandDefinition();
-
-        assertThat(res.toString()).isEqualTo("CommandDefinition(name=validation, description=provide an expression (e.g. 2d6) and the autocomplete will show an error message if it is invalid, nameLocales=[], descriptionLocales=[LocaleValue[locale=de, value=Gib einen Würfelausdruck (z.B. 2d6) und das Autocomplete gibt direkt Fehlermeldungen]], options=[CommandDefinitionOption(type=STRING, name=expression, nameLocales=[LocaleValue[locale=de, value=ausdruck]], description=provide an expression (e.g. 2d6) and the autocomplete will show an error message if it is invalid, descriptionLocales=[LocaleValue[locale=de, value=Gib einen Würfelausdruck (z.B. 2d6) und das Autocomplete gibt direkt Fehlermeldungen]], required=true, choices=[], options=[], minValue=null, maxValue=null, autoComplete=true)])");
+    public void getId() {
+        expect.toMatchSnapshot(underTest.getCommandId());
     }
 
-    @Test
-    void getConfigCommandDefinition() {
-        CommandDefinition res = new ChannelConfigCommand(null).getCommandDefinition();
-
-        assertThat(res.getOptions().stream().map(CommandDefinitionOption::getName)).containsExactlyInAnyOrder("save_direct_roll_config", "delete_direct_roll_config", "channel_alias", "user_channel_alias");
-    }
 
     @Test
-    void deserialization_config() {
+    void deserialization_config_legacy() {
         String configString = """
                 ---
                 answerTargetChannelId: null
@@ -200,5 +192,24 @@ class ValidationCommandTest {
 
     }
 
+    @Test
+    void deserialization_config() {
+        String configString = """
+                ---
+                answerTargetChannelId: null
+                alwaysSumResult: false
+                answerFormatType: "without_expression"
+                configLocale: "de"
+                diceStyleAndColor:
+                  diceImageStyle: "polyhedral_alies_v2"
+                  configuredDefaultColor: "blue_and_silver"
+                """;
+
+        ChannelConfigDTO savedData = new ChannelConfigDTO(UUID.randomUUID(), 1L, 2L, null, "r", "DirectRollConfig", configString);
+
+
+        DirectRollConfig res = underTest.deserializeConfig(savedData);
+        assertThat(res).isEqualTo(new DirectRollConfig(null, false, AnswerFormatType.without_expression, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v2, "blue_and_silver"), Locale.GERMAN));
+    }
 
 }

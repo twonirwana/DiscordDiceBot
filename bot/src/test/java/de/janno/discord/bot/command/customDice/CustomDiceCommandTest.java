@@ -1,5 +1,7 @@
 package de.janno.discord.bot.command.customDice;
 
+import au.com.origin.snapshots.Expect;
+import au.com.origin.snapshots.junit5.SnapshotExtension;
 import com.google.common.collect.ImmutableList;
 import de.janno.discord.bot.command.*;
 import de.janno.discord.bot.dice.*;
@@ -13,13 +15,13 @@ import de.janno.discord.connector.api.SlashEventAdaptor;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
-import de.janno.discord.connector.api.slash.CommandDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinitionOption;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import dev.diceroll.parser.NDice;
 import dev.diceroll.parser.ResultTree;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -37,11 +39,13 @@ import java.util.stream.Stream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
+@ExtendWith(SnapshotExtension.class)
 class CustomDiceCommandTest {
 
     CustomDiceCommand underTest;
     Dice diceMock;
     PersistenceManager persistenceManager = mock(PersistenceManager.class);
+    private Expect expect;
 
     private static Stream<Arguments> generateConfigOptionStringList() {
         return Stream.of(Arguments.of(ImmutableList.of(), new CustomDiceConfig(null, ImmutableList.of(), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH)),
@@ -157,7 +161,6 @@ class CustomDiceCommandTest {
         ), null, List.of(), EmbedOrMessageDefinition.Type.EMBED));
     }
 
-
     @Test
     void getDiceResult_1d6Label() {
         EmbedOrMessageDefinition res = RollAnswerConverter.toEmbedOrMessageDefinition(underTest.getAnswer(new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Label", "1d6")), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH), new State<>("1_button", StateData.empty()), 0, 0)
@@ -259,7 +262,6 @@ class CustomDiceCommandTest {
 
     }
 
-
     @Test
     void getStartOptionsValidationMessage_valid() {
         CommandInteractionOption option = CommandInteractionOption.builder()
@@ -289,7 +291,6 @@ class CustomDiceCommandTest {
         assertThat(res).contains("The following expression is invalid: `2d6*10`. The error is: '*' requires as left input a single decimal but was '[3, 3]'. Try to sum the numbers together like (2d6=). Use /custom_dice help to get more information on how to use the command.");
     }
 
-
     @Test
     void handleSlashCommandEvent_help() {
         SlashEventAdaptor event = mock(SlashEventAdaptor.class);
@@ -318,12 +319,14 @@ class CustomDiceCommandTest {
     }
 
     @Test
-    void getCommandDefinition() {
-        CommandDefinition res = underTest.getCommandDefinition();
-
-        assertThat(res.toString()).isEqualTo("CommandDefinition(name=custom_dice, description=Configure dice buttons like: 1d6;2d8=;1d10+10=, nameLocales=[], descriptionLocales=[LocaleValue[locale=de, value=Konfiguriere Buttons, zum Beispiel: 1d6;2d8=;1d10+10=]], options=[CommandDefinitionOption(type=SUB_COMMAND, name=start, nameLocales=[], description=Configure dice buttons like: 1d6;2d8=;1d10+10=, descriptionLocales=[LocaleValue[locale=de, value=Konfiguriere Buttons, zum Beispiel: 1d6;2d8=;1d10+10=]], required=false, choices=[], options=[CommandDefinitionOption(type=STRING, name=buttons, nameLocales=[], description=Define one or more buttons separated by `;`, descriptionLocales=[LocaleValue[locale=de, value=Definiere ein oder mehrere Buttons, separiert mit `;`]], required=true, choices=[], options=[], minValue=null, maxValue=null, autoComplete=false), CommandDefinitionOption(type=CHANNEL, name=target_channel, nameLocales=[LocaleValue[locale=de, value=antwort_kanal]], description=Another channel where the answer will be given, descriptionLocales=[LocaleValue[locale=de, value=Ein anderer Kanal in der die Nachricht gesendet wird]], required=false, choices=[], options=[], minValue=null, maxValue=null, autoComplete=false), CommandDefinitionOption(type=STRING, name=answer_format, nameLocales=[LocaleValue[locale=de, value=antwort_format]], description=How the answer will be displayed, descriptionLocales=[LocaleValue[locale=de, value=Wie die Antwort formatiert wird]], required=false, choices=[CommandDefinitionOptionChoice(name=full, value=full, nameLocales=[LocaleValue[locale=de, value=voll]]), CommandDefinitionOptionChoice(name=without_expression, value=without_expression, nameLocales=[LocaleValue[locale=de, value=ohne_ausdruck]]), CommandDefinitionOptionChoice(name=only_dice, value=only_dice, nameLocales=[LocaleValue[locale=de, value=nur_würfel]]), CommandDefinitionOptionChoice(name=compact, value=compact, nameLocales=[LocaleValue[locale=de, value=kompakt]]), CommandDefinitionOptionChoice(name=minimal, value=minimal, nameLocales=[])], options=[], minValue=null, maxValue=null, autoComplete=false), CommandDefinitionOption(type=STRING, name=dice_image_style, nameLocales=[LocaleValue[locale=de, value=würfel_bild_stil]], description=If and in what style the dice throw should be shown as image, descriptionLocales=[LocaleValue[locale=de, value=Ob und in welchen Stil Würfelbilder gezeigt werden]], required=false, choices=[CommandDefinitionOptionChoice(name=none, value=none, nameLocales=[]), CommandDefinitionOptionChoice(name=polyhedral_3d, value=polyhedral_3d, nameLocales=[]), CommandDefinitionOptionChoice(name=polyhedral_alies_v2, value=polyhedral_alies_v2, nameLocales=[]), CommandDefinitionOptionChoice(name=polyhedral_knots, value=polyhedral_knots, nameLocales=[]), CommandDefinitionOptionChoice(name=polyhedral_RdD, value=polyhedral_RdD, nameLocales=[]), CommandDefinitionOptionChoice(name=fate, value=fate, nameLocales=[]), CommandDefinitionOptionChoice(name=d6_dots, value=d6_dots, nameLocales=[]), CommandDefinitionOptionChoice(name=polyhedral_2d, value=polyhedral_2d, nameLocales=[]), CommandDefinitionOptionChoice(name=polyhedral_alies_v1, value=polyhedral_alies_v1, nameLocales=[])], options=[], minValue=null, maxValue=null, autoComplete=false), CommandDefinitionOption(type=STRING, name=dice_image_color, nameLocales=[LocaleValue[locale=de, value=würfel_bild_farbe]], description=The default color option. Can be influenced by the `col` operator, descriptionLocales=[LocaleValue[locale=de, value=Die Standardfarbe, kann mit noch mit `col` beeinflusst werden.]], required=false, choices=[], options=[], minValue=null, maxValue=null, autoComplete=true), CommandDefinitionOption(type=STRING, name=language, nameLocales=[LocaleValue[locale=de, value=sprache]], description=The language of the bot messages, descriptionLocales=[LocaleValue[locale=de, value=Die Sprach des Bots]], required=false, choices=[CommandDefinitionOptionChoice(name=English, value=en, nameLocales=[LocaleValue[locale=de, value=Englisch]]), CommandDefinitionOptionChoice(name=German, value=de, nameLocales=[LocaleValue[locale=de, value=Deutsch]])], options=[], minValue=null, maxValue=null, autoComplete=false)], minValue=null, maxValue=null, autoComplete=false), CommandDefinitionOption(type=SUB_COMMAND, name=help, nameLocales=[LocaleValue[locale=de, value=hilfe]], description=Get help for /custom_dice, descriptionLocales=[LocaleValue[locale=de, value=Hilfe für /custom_dice]], required=false, choices=[], options=[], minValue=null, maxValue=null, autoComplete=false)])");
+    public void getCommandDefinition() {
+        expect.toMatchSnapshot(underTest.getCommandDefinition());
     }
 
+    @Test
+    public void getId() {
+        expect.toMatchSnapshot(underTest.getCommandId());
+    }
 
     @Test
     void checkPersistence() {
@@ -448,7 +451,7 @@ class CustomDiceCommandTest {
     }
 
     @Test
-    void deserialization() {
+    void deserialization_legacy5() {
         UUID configUUID = UUID.randomUUID();
         MessageConfigDTO savedData = new MessageConfigDTO(configUUID, 1L, 1660644934298L, "custom_dice", "CustomDiceConfig", """
                 ---
@@ -474,5 +477,47 @@ class CustomDiceCommandTest {
                 new ButtonIdLabelAndDiceExpression("2_button", "+2d4", "+2d4")), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.compact, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v2, "blue_and_silver"), Locale.ENGLISH));
         assertThat(configAndState.getConfigUUID()).isEqualTo(configUUID);
         assertThat(configAndState.getState().getData()).isEqualTo(StateData.empty());
+    }
+
+    @Test
+    void deserialization() {
+        UUID configUUID = UUID.randomUUID();
+        MessageConfigDTO savedData = new MessageConfigDTO(configUUID, 1L, 1660644934298L, "custom_dice", "CustomDiceConfig", """
+                ---
+                answerTargetChannelId: 123
+                configLocale: "de"
+                buttonIdLabelAndDiceExpressions:
+                - buttonId: "1_button"
+                  label: "Label"
+                  diceExpression: "+1d6"
+                - buttonId: "2_button"
+                  label: "+2d4"
+                  diceExpression: "+2d4"
+                diceParserSystem: "DICE_EVALUATOR"
+                answerFormatType: compact
+                diceStyleAndColor:
+                  diceImageStyle: "polyhedral_alies_v2"
+                  configuredDefaultColor: "blue_and_silver"
+                """);
+
+
+        ConfigAndState<CustomDiceConfig, StateData> configAndState = underTest.deserializeAndUpdateState(savedData, "3");
+        assertThat(configAndState.getConfig()).isEqualTo(new CustomDiceConfig(123L, ImmutableList.of(
+                new ButtonIdLabelAndDiceExpression("1_button", "Label", "+1d6"),
+                new ButtonIdLabelAndDiceExpression("2_button", "+2d4", "+2d4")), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.compact, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v2, "blue_and_silver"), Locale.GERMAN));
+        assertThat(configAndState.getConfigUUID()).isEqualTo(configUUID);
+        assertThat(configAndState.getState().getData()).isEqualTo(StateData.empty());
+    }
+
+    @Test
+    void configSerialization() {
+        UUID configUUID = UUID.fromString("00000000-0000-0000-0000-000000000000");
+        CustomDiceConfig config = new CustomDiceConfig(123L, ImmutableList.of(
+                new ButtonIdLabelAndDiceExpression("1_button", "Label", "+1d6"),
+                new ButtonIdLabelAndDiceExpression("2_button", "+2d4", "+2d4")), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.compact, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v2, "blue_and_silver"), Locale.GERMAN);
+        Optional<MessageConfigDTO> toSave = underTest.createMessageConfig(configUUID, 1L, 2L, config);
+        assertThat(toSave).isPresent();
+
+        expect.toMatchSnapshot(toSave.get());
     }
 }

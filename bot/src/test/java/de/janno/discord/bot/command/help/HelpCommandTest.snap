@@ -1,0 +1,19 @@
+de.janno.discord.bot.command.help.HelpCommandTest.getCommandDefinition=[
+  {
+    "name" : "help",
+    "description" : "Help to the commands and links for further information",
+    "nameLocales" : [ ],
+    "descriptionLocales" : [
+      {
+        "locale" : "de",
+        "value" : "Hilfe zu Befehle und Links zu weiterer Information"
+      }
+    ],
+    "options" : [ ]
+  }
+]
+
+
+de.janno.discord.bot.command.help.HelpCommandTest.getId=[
+  "help"
+]

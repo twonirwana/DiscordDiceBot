@@ -1,27 +1,26 @@
 package de.janno.discord.bot.command;
 
+import au.com.origin.snapshots.Expect;
+import au.com.origin.snapshots.junit5.SnapshotExtension;
 import com.google.common.collect.ImmutableSet;
 import de.janno.discord.bot.persistance.PersistenceManager;
 import de.janno.discord.connector.api.SlashEventAdaptor;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.util.Locale;
 import java.util.UUID;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
+@ExtendWith(SnapshotExtension.class)
 class ClearCommandTest {
 
     final PersistenceManager persistenceManager = mock(PersistenceManager.class);
     final ClearCommand underTest = new ClearCommand(persistenceManager);
-
-    @Test
-    void getName() {
-        assertThat(underTest.getCommandId()).isEqualTo("clear");
-    }
+    private Expect expect;
 
     @Test
     void handleSlashCommandEvent() {
@@ -38,6 +37,16 @@ class ClearCommandTest {
         verify(persistenceManager).deleteMessageDataForChannel(0L);
         verify(slashEventAdaptor).deleteMessageById(1L);
         verify(slashEventAdaptor).deleteMessageById(2L);
+    }
+
+    @Test
+    public void getCommandDefinition() {
+        expect.toMatchSnapshot(underTest.getCommandDefinition());
+    }
+
+    @Test
+    public void getId() {
+        expect.toMatchSnapshot(underTest.getCommandId());
     }
 
 }

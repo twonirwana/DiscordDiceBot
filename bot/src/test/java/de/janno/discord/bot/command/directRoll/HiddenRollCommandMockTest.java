@@ -485,5 +485,4 @@ public class HiddenRollCommandMockTest {
         );
     }
 
-
 }

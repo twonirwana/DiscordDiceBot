@@ -1,0 +1,585 @@
+de.janno.discord.bot.command.channelConfig.ChannelConfigTest.getCommandDefinition=[
+  {
+    "name" : "channel_config",
+    "description" : "Configure options in this channel",
+    "nameLocales" : [ ],
+    "descriptionLocales" : [
+      {
+        "locale" : "de",
+        "value" : "Konfiguration des Bots in diesem Kanal"
+      }
+    ],
+    "options" : [
+      {
+        "type" : "SUB_COMMAND",
+        "name" : "save_direct_roll_config",
+        "nameLocales" : [
+          {
+            "locale" : "de",
+            "value" : "speicher_direkt_wurf_konfig"
+          }
+        ],
+        "description" : "add or update the channel config",
+        "descriptionLocales" : [
+          {
+            "locale" : "de",
+            "value" : "Hinzufügen und aktualisieren von Kanalkonfiguration"
+          }
+        ],
+        "required" : false,
+        "choices" : [ ],
+        "options" : [
+          {
+            "type" : "STRING",
+            "name" : "answer_format",
+            "nameLocales" : [
+              {
+                "locale" : "de",
+                "value" : "antwort_format"
+              }
+            ],
+            "description" : "How the answer will be displayed",
+            "descriptionLocales" : [
+              {
+                "locale" : "de",
+                "value" : "Wie die Antwort formatiert wird"
+              }
+            ],
+            "required" : false,
+            "choices" : [
+              {
+                "name" : "full",
+                "value" : "full",
+                "nameLocales" : [
+                  {
+                    "locale" : "de",
+                    "value" : "voll"
+                  }
+                ]
+              },
+              {
+                "name" : "without_expression",
+                "value" : "without_expression",
+                "nameLocales" : [
+                  {
+                    "locale" : "de",
+                    "value" : "ohne_ausdruck"
+                  }
+                ]
+              },
+              {
+                "name" : "only_dice",
+                "value" : "only_dice",
+                "nameLocales" : [
+                  {
+                    "locale" : "de",
+                    "value" : "nur_würfel"
+                  }
+                ]
+              },
+              {
+                "name" : "compact",
+                "value" : "compact",
+                "nameLocales" : [
+                  {
+                    "locale" : "de",
+                    "value" : "kompakt"
+                  }
+                ]
+              },
+              {
+                "name" : "minimal",
+                "value" : "minimal",
+                "nameLocales" : [ ]
+              }
+            ],
+            "options" : [ ],
+            "autoComplete" : false
+          },
+          {
+            "type" : "STRING",
+            "name" : "dice_image_style",
+            "nameLocales" : [
+              {
+                "locale" : "de",
+                "value" : "würfel_bild_stil"
+              }
+            ],
+            "description" : "If and in what style the dice throw should be shown as image",
+            "descriptionLocales" : [
+              {
+                "locale" : "de",
+                "value" : "Ob und in welchen Stil Würfelbilder gezeigt werden"
+              }
+            ],
+            "required" : false,
+            "choices" : [
+              {
+                "name" : "none",
+                "value" : "none",
+                "nameLocales" : [ ]
+              },
+              {
+                "name" : "polyhedral_3d",
+                "value" : "polyhedral_3d",
+                "nameLocales" : [ ]
+              },
+              {
+                "name" : "polyhedral_alies_v2",
+                "value" : "polyhedral_alies_v2",
+                "nameLocales" : [ ]
+              },
+              {
+                "name" : "polyhedral_knots",
+                "value" : "polyhedral_knots",
+                "nameLocales" : [ ]
+              },
+              {
+                "name" : "polyhedral_RdD",
+                "value" : "polyhedral_RdD",
+                "nameLocales" : [ ]
+              },
+              {
+                "name" : "fate",
+                "value" : "fate",
+                "nameLocales" : [ ]
+              },
+              {
+                "name" : "d6_dots",
+                "value" : "d6_dots",
+                "nameLocales" : [ ]
+              },
+              {
+                "name" : "polyhedral_2d",
+                "value" : "polyhedral_2d",
+                "nameLocales" : [ ]
+              },
+              {
+                "name" : "polyhedral_alies_v1",
+                "value" : "polyhedral_alies_v1",
+                "nameLocales" : [ ]
+              }
+            ],
+            "options" : [ ],
+            "autoComplete" : false
+          },
+          {
+            "type" : "STRING",
+            "name" : "dice_image_color",
+            "nameLocales" : [
+              {
+                "locale" : "de",
+                "value" : "würfel_bild_farbe"
+              }
+            ],
+            "description" : "The default color option. Can be influenced by the `col` operator",
+            "descriptionLocales" : [
+              {
+                "locale" : "de",
+                "value" : "Die Standardfarbe, kann mit noch mit `col` beeinflusst werden."
+              }
+            ],
+            "required" : false,
+            "choices" : [ ],
+            "options" : [ ],
+            "autoComplete" : true
+          },
+          {
+            "type" : "BOOLEAN",
+            "name" : "always_sum_result",
+            "nameLocales" : [
+              {
+                "locale" : "de",
+                "value" : "ergebnis_zusammen_zählen"
+              }
+            ],
+            "description" : "Always sum the results of the dice expressions",
+            "descriptionLocales" : [
+              {
+                "locale" : "de",
+                "value" : "Addiere die Würfel immer zusammen"
+              }
+            ],
+            "required" : false,
+            "choices" : [ ],
+            "options" : [ ],
+            "autoComplete" : false
+          }
+        ],
+        "autoComplete" : false
+      },
+      {
+        "type" : "SUB_COMMAND_GROUP",
+        "name" : "delete_direct_roll_config",
+        "nameLocales" : [
+          {
+            "locale" : "de",
+            "value" : "lösch_direkt_wurf_konfig"
+          }
+        ],
+        "description" : "remove the current channel config",
+        "descriptionLocales" : [
+          {
+            "locale" : "de",
+            "value" : "Entferne die aktuelle Kanalkonfig"
+          }
+        ],
+        "required" : false,
+        "choices" : [ ],
+        "options" : [ ],
+        "autoComplete" : false
+      },
+      {
+        "type" : "SUB_COMMAND_GROUP",
+        "name" : "channel_alias",
+        "nameLocales" : [
+          {
+            "locale" : "de",
+            "value" : "kanal_alias"
+          }
+        ],
+        "description" : "add, list or remove channel alias",
+        "descriptionLocales" : [
+          {
+            "locale" : "de",
+            "value" : "Kanalkonfig hinzufügen, auflisten und löschen"
+          }
+        ],
+        "required" : false,
+        "choices" : [ ],
+        "options" : [
+          {
+            "type" : "SUB_COMMAND",
+            "name" : "save",
+            "nameLocales" : [
+              {
+                "locale" : "de",
+                "value" : "speichern"
+              }
+            ],
+            "description" : "Add a new alias",
+            "descriptionLocales" : [
+              {
+                "locale" : "de",
+                "value" : "Füge einen neuen Alias hinzu"
+              }
+            ],
+            "required" : false,
+            "choices" : [ ],
+            "options" : [
+              {
+                "type" : "STRING",
+                "name" : "name",
+                "nameLocales" : [ ],
+                "description" : "The name of the alias (the name in the expression will be replaced with the value)",
+                "descriptionLocales" : [
+                  {
+                    "locale" : "de",
+                    "value" : "Der Name des Alias (der Name in den Würfelausdruck wirt mit dem Wert ersetzt)"
+                  }
+                ],
+                "required" : true,
+                "choices" : [ ],
+                "options" : [ ],
+                "autoComplete" : false
+              },
+              {
+                "type" : "STRING",
+                "name" : "value",
+                "nameLocales" : [
+                  {
+                    "locale" : "de",
+                    "value" : "wert"
+                  }
+                ],
+                "description" : "The value of the alias (the name in the expression will be replaced with the value)",
+                "descriptionLocales" : [
+                  {
+                    "locale" : "de",
+                    "value" : "Der Wert des Alias (der Name in den Würfelausdruck wirt mit dem Wert ersetzt)"
+                  }
+                ],
+                "required" : true,
+                "choices" : [ ],
+                "options" : [ ],
+                "autoComplete" : false
+              }
+            ],
+            "autoComplete" : false
+          },
+          {
+            "type" : "SUB_COMMAND",
+            "name" : "delete",
+            "nameLocales" : [
+              {
+                "locale" : "de",
+                "value" : "löschen"
+              }
+            ],
+            "description" : "Delete an alias",
+            "descriptionLocales" : [
+              {
+                "locale" : "de",
+                "value" : "Lösche einen Alias"
+              }
+            ],
+            "required" : false,
+            "choices" : [ ],
+            "options" : [
+              {
+                "type" : "STRING",
+                "name" : "name",
+                "nameLocales" : [ ],
+                "description" : "The name of the alias to delete",
+                "descriptionLocales" : [
+                  {
+                    "locale" : "de",
+                    "value" : "Der Name des Alias zum Löschen"
+                  }
+                ],
+                "required" : true,
+                "choices" : [ ],
+                "options" : [ ],
+                "autoComplete" : false
+              }
+            ],
+            "autoComplete" : false
+          },
+          {
+            "type" : "SUB_COMMAND",
+            "name" : "list",
+            "nameLocales" : [ ],
+            "description" : "List all alias",
+            "descriptionLocales" : [
+              {
+                "locale" : "de",
+                "value" : "Liste aller Alias"
+              }
+            ],
+            "required" : false,
+            "choices" : [ ],
+            "options" : [ ],
+            "autoComplete" : false
+          },
+          {
+            "type" : "SUB_COMMAND",
+            "name" : "multi_save",
+            "nameLocales" : [
+              {
+                "locale" : "de",
+                "value" : "mehrfach_speichern"
+              }
+            ],
+            "description" : "Save multiple alias",
+            "descriptionLocales" : [
+              {
+                "locale" : "de",
+                "value" : "Speichere mehrere Alias auf einmal"
+              }
+            ],
+            "required" : false,
+            "choices" : [ ],
+            "options" : [
+              {
+                "type" : "STRING",
+                "name" : "aliases",
+                "nameLocales" : [ ],
+                "description" : "Separate alias name and value by `:` and aliases by `;` e.g.: att:2d20;dmg:2d6+3=",
+                "descriptionLocales" : [
+                  {
+                    "locale" : "de",
+                    "value" : "Separiere Name und Wert mit `:` und Aliases mit `;` z.B.: Angriff:2d20;Schaden:2d6+3="
+                  }
+                ],
+                "required" : true,
+                "choices" : [ ],
+                "options" : [ ],
+                "autoComplete" : false
+              }
+            ],
+            "autoComplete" : false
+          }
+        ],
+        "autoComplete" : false
+      },
+      {
+        "type" : "SUB_COMMAND_GROUP",
+        "name" : "user_channel_alias",
+        "nameLocales" : [
+          {
+            "locale" : "de",
+            "value" : "benutzer_kanal_alias"
+          }
+        ],
+        "description" : "add, list or remove user channel alias",
+        "descriptionLocales" : [
+          {
+            "locale" : "de",
+            "value" : "Benutzer-Kanalkonfig hinzufügen, auflisten und löschen"
+          }
+        ],
+        "required" : false,
+        "choices" : [ ],
+        "options" : [
+          {
+            "type" : "SUB_COMMAND",
+            "name" : "save",
+            "nameLocales" : [
+              {
+                "locale" : "de",
+                "value" : "speichern"
+              }
+            ],
+            "description" : "Add a new alias",
+            "descriptionLocales" : [
+              {
+                "locale" : "de",
+                "value" : "Füge einen neuen Alias hinzu"
+              }
+            ],
+            "required" : false,
+            "choices" : [ ],
+            "options" : [
+              {
+                "type" : "STRING",
+                "name" : "name",
+                "nameLocales" : [ ],
+                "description" : "The name of the alias (the name in the expression will be replaced with the value)",
+                "descriptionLocales" : [
+                  {
+                    "locale" : "de",
+                    "value" : "Der Name des Alias (der Name in den Würfelausdruck wirt mit dem Wert ersetzt)"
+                  }
+                ],
+                "required" : true,
+                "choices" : [ ],
+                "options" : [ ],
+                "autoComplete" : false
+              },
+              {
+                "type" : "STRING",
+                "name" : "value",
+                "nameLocales" : [
+                  {
+                    "locale" : "de",
+                    "value" : "wert"
+                  }
+                ],
+                "description" : "The value of the alias (the name in the expression will be replaced with the value)",
+                "descriptionLocales" : [
+                  {
+                    "locale" : "de",
+                    "value" : "Der Wert des Alias (der Name in den Würfelausdruck wirt mit dem Wert ersetzt)"
+                  }
+                ],
+                "required" : true,
+                "choices" : [ ],
+                "options" : [ ],
+                "autoComplete" : false
+              }
+            ],
+            "autoComplete" : false
+          },
+          {
+            "type" : "SUB_COMMAND",
+            "name" : "delete",
+            "nameLocales" : [
+              {
+                "locale" : "de",
+                "value" : "löschen"
+              }
+            ],
+            "description" : "Delete an alias",
+            "descriptionLocales" : [
+              {
+                "locale" : "de",
+                "value" : "Lösche einen Alias"
+              }
+            ],
+            "required" : false,
+            "choices" : [ ],
+            "options" : [
+              {
+                "type" : "STRING",
+                "name" : "name",
+                "nameLocales" : [ ],
+                "description" : "The name of the alias to delete",
+                "descriptionLocales" : [
+                  {
+                    "locale" : "de",
+                    "value" : "Der Name des Alias zum Löschen"
+                  }
+                ],
+                "required" : true,
+                "choices" : [ ],
+                "options" : [ ],
+                "autoComplete" : false
+              }
+            ],
+            "autoComplete" : false
+          },
+          {
+            "type" : "SUB_COMMAND",
+            "name" : "list",
+            "nameLocales" : [ ],
+            "description" : "List all alias",
+            "descriptionLocales" : [
+              {
+                "locale" : "de",
+                "value" : "Liste aller Alias"
+              }
+            ],
+            "required" : false,
+            "choices" : [ ],
+            "options" : [ ],
+            "autoComplete" : false
+          },
+          {
+            "type" : "SUB_COMMAND",
+            "name" : "multi_save",
+            "nameLocales" : [
+              {
+                "locale" : "de",
+                "value" : "mehrfach_speichern"
+              }
+            ],
+            "description" : "Save multiple alias",
+            "descriptionLocales" : [
+              {
+                "locale" : "de",
+                "value" : "Speichere mehrere Alias auf einmal"
+              }
+            ],
+            "required" : false,
+            "choices" : [ ],
+            "options" : [
+              {
+                "type" : "STRING",
+                "name" : "aliases",
+                "nameLocales" : [ ],
+                "description" : "Separate alias name and value by `:` and aliases by `;` e.g.: att:2d20;dmg:2d6+3=",
+                "descriptionLocales" : [
+                  {
+                    "locale" : "de",
+                    "value" : "Separiere Name und Wert mit `:` und Aliases mit `;` z.B.: Angriff:2d20;Schaden:2d6+3="
+                  }
+                ],
+                "required" : true,
+                "choices" : [ ],
+                "options" : [ ],
+                "autoComplete" : false
+              }
+            ],
+            "autoComplete" : false
+          }
+        ],
+        "autoComplete" : false
+      }
+    ]
+  }
+]
+
+
+de.janno.discord.bot.command.channelConfig.ChannelConfigTest.getId=[
+  "channel_config"
+]

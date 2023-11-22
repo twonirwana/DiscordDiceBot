@@ -1,7 +1,8 @@
 package de.janno.discord.bot.command.directRoll;
 
+import au.com.origin.snapshots.Expect;
+import au.com.origin.snapshots.junit5.SnapshotExtension;
 import de.janno.discord.bot.command.AnswerFormatType;
-import de.janno.discord.bot.command.channelConfig.ChannelConfigCommand;
 import de.janno.discord.bot.command.channelConfig.DirectRollConfig;
 import de.janno.discord.bot.dice.CachingDiceEvaluator;
 import de.janno.discord.bot.dice.DiceEvaluatorAdapter;
@@ -12,11 +13,10 @@ import de.janno.discord.bot.persistance.PersistenceManager;
 import de.janno.discord.connector.api.Requester;
 import de.janno.discord.connector.api.SlashEventAdaptor;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
-import de.janno.discord.connector.api.slash.CommandDefinition;
-import de.janno.discord.connector.api.slash.CommandDefinitionOption;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatchers;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -29,8 +29,10 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
+@ExtendWith(SnapshotExtension.class)
 class DirectRollCommandTest {
     DirectRollCommand underTest;
+    private Expect expect;
 
     @BeforeEach
     void setup() {
@@ -142,23 +144,13 @@ class DirectRollCommandTest {
     }
 
     @Test
-    void getCommandId() {
-        String res = underTest.getCommandId();
-        assertThat(res).isEqualTo("r");
+    public void getCommandDefinition() {
+        expect.toMatchSnapshot(underTest.getCommandDefinition());
     }
 
     @Test
-    void getCommandDefinition() {
-        CommandDefinition res = underTest.getCommandDefinition();
-
-        assertThat(res.toString()).isEqualTo("CommandDefinition(name=r, description=direct roll of dice expression, e.g. `2d6`. Configuration with `/channel_config`, nameLocales=[], descriptionLocales=[LocaleValue[locale=de, value=Direkter Wurf eines Würfelausdruckes, z.B. `2d6`. Konfiguration mit `/channel_config`]], options=[CommandDefinitionOption(type=STRING, name=expression, nameLocales=[LocaleValue[locale=de, value=ausdruck]], description=direct roll of dice expression, e.g. `2d6`. Configuration with `/channel_config`, descriptionLocales=[LocaleValue[locale=de, value=Direkter Wurf eines Würfelausdruckes, z.B. `2d6`. Konfiguration mit `/channel_config`]], required=true, choices=[], options=[], minValue=null, maxValue=null, autoComplete=false)])");
-    }
-
-    @Test
-    void getConfigCommandDefinition() {
-        CommandDefinition res = new ChannelConfigCommand(null).getCommandDefinition();
-
-        assertThat(res.getOptions().stream().map(CommandDefinitionOption::getName)).containsExactlyInAnyOrder("save_direct_roll_config", "delete_direct_roll_config", "channel_alias", "user_channel_alias");
+    public void getId() {
+        expect.toMatchSnapshot(underTest.getCommandId());
     }
 
     @Test
@@ -179,7 +171,7 @@ class DirectRollCommandTest {
     }
 
     @Test
-    void deserialization_config() {
+    void deserialization_config_legacy2() {
         String configString = """
                 ---
                 answerTargetChannelId: null
@@ -196,4 +188,25 @@ class DirectRollCommandTest {
         DirectRollConfig res = underTest.deserializeConfig(savedData);
         assertThat(res).isEqualTo(new DirectRollConfig(null, false, AnswerFormatType.without_expression, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v2, "blue_and_silver"), Locale.ENGLISH));
     }
+
+    @Test
+    void deserialization_config() {
+        String configString = """
+                ---
+                answerTargetChannelId: null
+                alwaysSumResult: false
+                answerFormatType: "without_expression"
+                configLocale: "de"
+                diceStyleAndColor:
+                  diceImageStyle: "polyhedral_alies_v2"
+                  configuredDefaultColor: "blue_and_silver"
+                """;
+
+        ChannelConfigDTO savedData = new ChannelConfigDTO(UUID.randomUUID(), 1L, 2L, null, "r", "DirectRollConfig", configString);
+
+
+        DirectRollConfig res = underTest.deserializeConfig(savedData);
+        assertThat(res).isEqualTo(new DirectRollConfig(null, false, AnswerFormatType.without_expression, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v2, "blue_and_silver"), Locale.GERMAN));
+    }
+
 }

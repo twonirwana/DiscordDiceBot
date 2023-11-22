@@ -1,0 +1,112 @@
+de.janno.discord.bot.command.help.WelcomeCommandTest.configSerialization=[
+  {
+    "configUUID" : "00000000-0000-0000-0000-000000000000",
+    "guildId" : 1,
+    "channelId" : 2,
+    "commandId" : "welcome",
+    "configClassId" : "Config",
+    "config" : "---\nanswerTargetChannelId: 123\nanswerFormatType: \"full\"\nconfigLocale: \"de\"\ndiceStyleAndColor:\n  diceImageStyle: \"none\"\n  configuredDefaultColor: \"none\"\n"
+  }
+]
+
+
+de.janno.discord.bot.command.help.WelcomeCommandTest.getCommandDefinition=[
+  {
+    "name" : "welcome",
+    "description" : "Displays the welcome message",
+    "nameLocales" : [ ],
+    "descriptionLocales" : [
+      {
+        "locale" : "de",
+        "value" : "Erzeuge eine Wegkommensnachricht"
+      }
+    ],
+    "options" : [
+      {
+        "type" : "SUB_COMMAND",
+        "name" : "start",
+        "nameLocales" : [ ],
+        "description" : "Displays the welcome message",
+        "descriptionLocales" : [
+          {
+            "locale" : "de",
+            "value" : "Erzeuge eine Wegkommensnachricht"
+          }
+        ],
+        "required" : false,
+        "choices" : [ ],
+        "options" : [
+          {
+            "type" : "STRING",
+            "name" : "language",
+            "nameLocales" : [
+              {
+                "locale" : "de",
+                "value" : "sprache"
+              }
+            ],
+            "description" : "The language of the bot messages",
+            "descriptionLocales" : [
+              {
+                "locale" : "de",
+                "value" : "Die Sprach des Bots"
+              }
+            ],
+            "required" : false,
+            "choices" : [
+              {
+                "name" : "English",
+                "value" : "en",
+                "nameLocales" : [
+                  {
+                    "locale" : "de",
+                    "value" : "Englisch"
+                  }
+                ]
+              },
+              {
+                "name" : "German",
+                "value" : "de",
+                "nameLocales" : [
+                  {
+                    "locale" : "de",
+                    "value" : "Deutsch"
+                  }
+                ]
+              }
+            ],
+            "options" : [ ],
+            "autoComplete" : false
+          }
+        ],
+        "autoComplete" : false
+      },
+      {
+        "type" : "SUB_COMMAND",
+        "name" : "help",
+        "nameLocales" : [
+          {
+            "locale" : "de",
+            "value" : "hilfe"
+          }
+        ],
+        "description" : "Get help for /welcome",
+        "descriptionLocales" : [
+          {
+            "locale" : "de",
+            "value" : "Hilfe für /welcome"
+          }
+        ],
+        "required" : false,
+        "choices" : [ ],
+        "options" : [ ],
+        "autoComplete" : false
+      }
+    ]
+  }
+]
+
+
+de.janno.discord.bot.command.help.WelcomeCommandTest.getId=[
+  "welcome"
+]

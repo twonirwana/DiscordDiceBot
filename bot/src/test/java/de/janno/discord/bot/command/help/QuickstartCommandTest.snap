@@ -1,0 +1,36 @@
+de.janno.discord.bot.command.help.QuickstartCommandTest.getCommandDefinition=[
+  {
+    "name" : "quickstart",
+    "description" : "Select a preconfigured dice set from a given systems",
+    "nameLocales" : [ ],
+    "descriptionLocales" : [
+      {
+        "locale" : "de",
+        "value" : "Wähle eine der fertigen Würfelsystem für ein gegebenes RPG"
+      }
+    ],
+    "options" : [
+      {
+        "type" : "STRING",
+        "name" : "system",
+        "nameLocales" : [ ],
+        "description" : "Start typing to filter and see more options",
+        "descriptionLocales" : [
+          {
+            "locale" : "de",
+            "value" : "Tippe um zu filtern und mehr Optionen zu sehen"
+          }
+        ],
+        "required" : true,
+        "choices" : [ ],
+        "options" : [ ],
+        "autoComplete" : true
+      }
+    ]
+  }
+]
+
+
+de.janno.discord.bot.command.help.QuickstartCommandTest.getId=[
+  "quickstart"
+]

@@ -1,0 +1,304 @@
+de.janno.discord.bot.command.customDice.CustomDiceCommandTest.configSerialization=[
+  {
+    "configUUID" : "00000000-0000-0000-0000-000000000000",
+    "guildId" : 1,
+    "channelId" : 2,
+    "commandId" : "custom_dice",
+    "configClassId" : "CustomDiceConfig",
+    "config" : "---\nanswerTargetChannelId: 123\nbuttonIdLabelAndDiceExpressions:\n- buttonId: \"1_button\"\n  label: \"Label\"\n  diceExpression: \"+1d6\"\n- buttonId: \"2_button\"\n  label: \"+2d4\"\n  diceExpression: \"+2d4\"\ndiceParserSystem: \"DICE_EVALUATOR\"\nanswerFormatType: \"compact\"\nconfigLocale: \"de\"\ndiceStyleAndColor:\n  diceImageStyle: \"polyhedral_alies_v2\"\n  configuredDefaultColor: \"blue_and_silver\"\n"
+  }
+]
+
+
+de.janno.discord.bot.command.customDice.CustomDiceCommandTest.getCommandDefinition=[
+  {
+    "name" : "custom_dice",
+    "description" : "Configure dice buttons like: 1d6;2d8=;1d10+10=",
+    "nameLocales" : [ ],
+    "descriptionLocales" : [
+      {
+        "locale" : "de",
+        "value" : "Konfiguriere Buttons, zum Beispiel: 1d6;2d8=;1d10+10="
+      }
+    ],
+    "options" : [
+      {
+        "type" : "SUB_COMMAND",
+        "name" : "start",
+        "nameLocales" : [ ],
+        "description" : "Configure dice buttons like: 1d6;2d8=;1d10+10=",
+        "descriptionLocales" : [
+          {
+            "locale" : "de",
+            "value" : "Konfiguriere Buttons, zum Beispiel: 1d6;2d8=;1d10+10="
+          }
+        ],
+        "required" : false,
+        "choices" : [ ],
+        "options" : [
+          {
+            "type" : "STRING",
+            "name" : "buttons",
+            "nameLocales" : [ ],
+            "description" : "Define one or more buttons separated by `;`",
+            "descriptionLocales" : [
+              {
+                "locale" : "de",
+                "value" : "Definiere ein oder mehrere Buttons, separiert mit `;`"
+              }
+            ],
+            "required" : true,
+            "choices" : [ ],
+            "options" : [ ],
+            "autoComplete" : false
+          },
+          {
+            "type" : "CHANNEL",
+            "name" : "target_channel",
+            "nameLocales" : [
+              {
+                "locale" : "de",
+                "value" : "antwort_kanal"
+              }
+            ],
+            "description" : "Another channel where the answer will be given",
+            "descriptionLocales" : [
+              {
+                "locale" : "de",
+                "value" : "Ein anderer Kanal in der die Nachricht gesendet wird"
+              }
+            ],
+            "required" : false,
+            "choices" : [ ],
+            "options" : [ ],
+            "autoComplete" : false
+          },
+          {
+            "type" : "STRING",
+            "name" : "answer_format",
+            "nameLocales" : [
+              {
+                "locale" : "de",
+                "value" : "antwort_format"
+              }
+            ],
+            "description" : "How the answer will be displayed",
+            "descriptionLocales" : [
+              {
+                "locale" : "de",
+                "value" : "Wie die Antwort formatiert wird"
+              }
+            ],
+            "required" : false,
+            "choices" : [
+              {
+                "name" : "full",
+                "value" : "full",
+                "nameLocales" : [
+                  {
+                    "locale" : "de",
+                    "value" : "voll"
+                  }
+                ]
+              },
+              {
+                "name" : "without_expression",
+                "value" : "without_expression",
+                "nameLocales" : [
+                  {
+                    "locale" : "de",
+                    "value" : "ohne_ausdruck"
+                  }
+                ]
+              },
+              {
+                "name" : "only_dice",
+                "value" : "only_dice",
+                "nameLocales" : [
+                  {
+                    "locale" : "de",
+                    "value" : "nur_würfel"
+                  }
+                ]
+              },
+              {
+                "name" : "compact",
+                "value" : "compact",
+                "nameLocales" : [
+                  {
+                    "locale" : "de",
+                    "value" : "kompakt"
+                  }
+                ]
+              },
+              {
+                "name" : "minimal",
+                "value" : "minimal",
+                "nameLocales" : [ ]
+              }
+            ],
+            "options" : [ ],
+            "autoComplete" : false
+          },
+          {
+            "type" : "STRING",
+            "name" : "dice_image_style",
+            "nameLocales" : [
+              {
+                "locale" : "de",
+                "value" : "würfel_bild_stil"
+              }
+            ],
+            "description" : "If and in what style the dice throw should be shown as image",
+            "descriptionLocales" : [
+              {
+                "locale" : "de",
+                "value" : "Ob und in welchen Stil Würfelbilder gezeigt werden"
+              }
+            ],
+            "required" : false,
+            "choices" : [
+              {
+                "name" : "none",
+                "value" : "none",
+                "nameLocales" : [ ]
+              },
+              {
+                "name" : "polyhedral_3d",
+                "value" : "polyhedral_3d",
+                "nameLocales" : [ ]
+              },
+              {
+                "name" : "polyhedral_alies_v2",
+                "value" : "polyhedral_alies_v2",
+                "nameLocales" : [ ]
+              },
+              {
+                "name" : "polyhedral_knots",
+                "value" : "polyhedral_knots",
+                "nameLocales" : [ ]
+              },
+              {
+                "name" : "polyhedral_RdD",
+                "value" : "polyhedral_RdD",
+                "nameLocales" : [ ]
+              },
+              {
+                "name" : "fate",
+                "value" : "fate",
+                "nameLocales" : [ ]
+              },
+              {
+                "name" : "d6_dots",
+                "value" : "d6_dots",
+                "nameLocales" : [ ]
+              },
+              {
+                "name" : "polyhedral_2d",
+                "value" : "polyhedral_2d",
+                "nameLocales" : [ ]
+              },
+              {
+                "name" : "polyhedral_alies_v1",
+                "value" : "polyhedral_alies_v1",
+                "nameLocales" : [ ]
+              }
+            ],
+            "options" : [ ],
+            "autoComplete" : false
+          },
+          {
+            "type" : "STRING",
+            "name" : "dice_image_color",
+            "nameLocales" : [
+              {
+                "locale" : "de",
+                "value" : "würfel_bild_farbe"
+              }
+            ],
+            "description" : "The default color option. Can be influenced by the `col` operator",
+            "descriptionLocales" : [
+              {
+                "locale" : "de",
+                "value" : "Die Standardfarbe, kann mit noch mit `col` beeinflusst werden."
+              }
+            ],
+            "required" : false,
+            "choices" : [ ],
+            "options" : [ ],
+            "autoComplete" : true
+          },
+          {
+            "type" : "STRING",
+            "name" : "language",
+            "nameLocales" : [
+              {
+                "locale" : "de",
+                "value" : "sprache"
+              }
+            ],
+            "description" : "The language of the bot messages",
+            "descriptionLocales" : [
+              {
+                "locale" : "de",
+                "value" : "Die Sprach des Bots"
+              }
+            ],
+            "required" : false,
+            "choices" : [
+              {
+                "name" : "English",
+                "value" : "en",
+                "nameLocales" : [
+                  {
+                    "locale" : "de",
+                    "value" : "Englisch"
+                  }
+                ]
+              },
+              {
+                "name" : "German",
+                "value" : "de",
+                "nameLocales" : [
+                  {
+                    "locale" : "de",
+                    "value" : "Deutsch"
+                  }
+                ]
+              }
+            ],
+            "options" : [ ],
+            "autoComplete" : false
+          }
+        ],
+        "autoComplete" : false
+      },
+      {
+        "type" : "SUB_COMMAND",
+        "name" : "help",
+        "nameLocales" : [
+          {
+            "locale" : "de",
+            "value" : "hilfe"
+          }
+        ],
+        "description" : "Get help for /custom_dice",
+        "descriptionLocales" : [
+          {
+            "locale" : "de",
+            "value" : "Hilfe für /custom_dice"
+          }
+        ],
+        "required" : false,
+        "choices" : [ ],
+        "options" : [ ],
+        "autoComplete" : false
+      }
+    ]
+  }
+]
+
+
+de.janno.discord.bot.command.customDice.CustomDiceCommandTest.getId=[
+  "custom_dice"
+]
