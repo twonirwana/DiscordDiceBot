@@ -43,7 +43,7 @@ public final class I18n {
         return getAdditionalLanguage().stream()
                 .map(l -> new LocaleValue(l, getMessage(key, l, Arrays.stream(keys)
                         .map(k -> getMessage(k, l))
-                        .toArray(String[]::new))))
+                        .toArray(Object[]::new))))
                 .filter(m -> !Objects.equals(m.value(), getMessage(key, Locale.ENGLISH))) //remove all locals that are equal to the default english one
                 .toList();
     }
