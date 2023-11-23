@@ -27,7 +27,7 @@ public final class BaseCommandOptions {
             .choices(I18n.allSupportedLanguage().stream()
                     .map(ri -> CommandDefinitionOptionChoice.builder()
                             .name(ri.getDisplayName())
-                            .nameLocales(I18n.allNoneEnglishMessages("base.option.language." + ri.getLanguage()))
+                            .nameLocales(I18n.allNoneEnglishMessages("base.option.language." + ri))
                             .value(ri.getLanguage())
                             .build())
                     .collect(Collectors.toList()))

@@ -2,11 +2,13 @@ package de.janno.discord.bot;
 
 import com.google.common.collect.ImmutableList;
 import de.janno.discord.connector.api.slash.LocaleValue;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.text.StringEscapeUtils;
 
 import java.text.MessageFormat;
 import java.util.*;
 
+@Slf4j
 public final class I18n {
     private final static String MESSAGES_KEY = "botMessages";
 
@@ -22,7 +24,7 @@ public final class I18n {
     }
 
     public static List<Locale> getAdditionalLanguage() {
-        return List.of(Locale.GERMAN);
+        return List.of(Locale.GERMAN, Locale.of("pt","BR"));
     }
 
     public static List<Locale> allSupportedLanguage() {

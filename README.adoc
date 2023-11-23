@@ -186,7 +186,7 @@ If a message sends the answer to another channel, it will not be moved to the en
 
 == Language
 
-The bot supports multiple languages (currently English and German).
+The bot supports multiple languages (currently English, German and Brazilian Portuguese).
 The bot will use the discord client language for the slash command and options.
 Each button message has a language configuration and will return its answers always in the language of its configuration.
 All existing button messages are default in English.

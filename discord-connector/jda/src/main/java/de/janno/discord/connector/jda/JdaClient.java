@@ -70,7 +70,8 @@ public class JdaClient {
                                         Optional.ofNullable(event.getGuild().getSystemChannel())
                                                 .filter(GuildMessageChannel::canTalk)
                                                 .ifPresent(textChannel -> {
-                                                    EmbedOrMessageDefinition welcomeMessage = welcomeMessageDefinition.apply(new DiscordConnector.WelcomeRequest(event.getGuild().getIdLong(), textChannel.getIdLong(), event.getGuild().getLocale().toLocale()));
+                                                    EmbedOrMessageDefinition welcomeMessage = welcomeMessageDefinition.apply(new DiscordConnector.WelcomeRequest(event.getGuild().getIdLong(),
+                                                            textChannel.getIdLong(), LocaleConverter.toLocale(event.getGuild().getLocale())));
                                                     Mono.fromFuture(textChannel.sendMessage(
                                                                             MessageComponentConverter.messageComponent2MessageLayout(welcomeMessage.getDescriptionOrContent(),
                                                                                     welcomeMessage.getComponentRowDefinitions()))
@@ -119,7 +120,7 @@ public class JdaClient {
                                 Flux.fromIterable(commands)
                                         .filter(command -> command.getCommandId().equals(event.getName()))
                                         .next()
-                                        .map(command -> command.getAutoCompleteAnswer(fromEvent(event), event.getUserLocale().toLocale()))
+                                        .map(command -> command.getAutoCompleteAnswer(fromEvent(event), LocaleConverter.toLocale(event.getUserLocale())))
                                         .flatMap(a -> Mono.fromFuture(event.replyChoices(a.stream()
                                                 .map(c -> new Command.Choice(c.getName(), c.getValue()))
                                                 .limit(25)
@@ -145,7 +146,7 @@ public class JdaClient {
                                         .filter(command -> command.getCommandId().equals(event.getName()))
                                         .next()
                                         .flatMap(command -> {
-                                            Locale userLocale = event.getInteraction().getUserLocale().toLocale();
+                                            Locale userLocale = LocaleConverter.toLocale(event.getInteraction().getUserLocale());
                                             JdaMetrics.userLocalInteraction(userLocale);
                                             return command.handleSlashCommandEvent(new SlashEventAdapterImpl(event,
                                                     new Requester(event.getInteraction().getUser().getName(),
@@ -153,7 +154,7 @@ public class JdaClient {
                                                             Optional.ofNullable(event.getGuild()).map(Guild::getName).orElse(""),
                                                             event.getJDA().getShardInfo().getShardString(),
                                                             userLocale)
-                                            ), UUID::randomUUID, event.getUserLocale().toLocale());
+                                            ), UUID::randomUUID, LocaleConverter.toLocale(event.getUserLocale()));
                                         })
                                         .onErrorResume(e -> {
                                             log.error("SlashCommandEvent Exception: ", e);
@@ -171,7 +172,7 @@ public class JdaClient {
                                         .filter(command -> command.matchingComponentCustomId(event.getInteraction().getComponentId()))
                                         .next()
                                         .flatMap(command -> {
-                                            Locale userLocale = event.getInteraction().getUserLocale().toLocale();
+                                            Locale userLocale = LocaleConverter.toLocale(event.getInteraction().getUserLocale());
                                             JdaMetrics.userLocalInteraction(userLocale);
                                             return command.handleComponentInteractEvent(new ButtonEventAdapterImpl(event,
                                                     new Requester(event.getInteraction().getUser().getName(),

@@ -146,7 +146,7 @@ public class ApplicationCommandConverter {
 
     private static List<LocaleValue> discordLocale2Locale(LocalizationMap localizationMap) {
         return localizationMap.toMap().entrySet().stream()
-                .map(e -> new LocaleValue(e.getKey().toLocale(), e.getValue()))
+                .map(e -> new LocaleValue(LocaleConverter.toLocale(e.getKey()), e.getValue()))
                 .sorted(Comparator.comparing(lv -> lv.locale().toString()))
                 .collect(Collectors.toList());
     }
