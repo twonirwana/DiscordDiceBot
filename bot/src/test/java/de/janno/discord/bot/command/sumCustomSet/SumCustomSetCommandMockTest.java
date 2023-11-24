@@ -88,7 +88,35 @@ public class SumCustomSetCommandMockTest {
                 "editMessage: message:Klick auf einen Button um die Würfel hinzuzufügen und dann auf Würfeln, buttonValues=1_button,2_button,roll,clear,back",
                 "createResultMessageWithReference: EmbedOrMessageDefinition(title=+1d6+2 ⇒ 3, descriptionOrContent=[1], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED), targetChannelId: null",
                 "deleteMessageById: 0",
-                "createMessageWithoutReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=Klick auf einen Button um die Würfel hinzuzufügen und dann auf Würfeln, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=sum_custom_set1_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=bonus, id=sum_custom_set2_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=Würfeln, id=sum_custom_setroll00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=true), ButtonDefinition(label=Löschen, id=sum_custom_setclear00000000-0000-0000-0000-000000000000, style=DANGER, disabled=false), ButtonDefinition(label=Zurück, id=sum_custom_setback00000000-0000-0000-0000-000000000000, style=SECONDARY, disabled=false)])], hasImage=false, type=MESSAGE)"        );
+                "createMessageWithoutReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=Klick auf einen Button um die Würfel hinzuzufügen und dann auf Würfeln, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=sum_custom_set1_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=bonus, id=sum_custom_set2_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=Würfeln, id=sum_custom_setroll00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=true), ButtonDefinition(label=Löschen, id=sum_custom_setclear00000000-0000-0000-0000-000000000000, style=DANGER, disabled=false), ButtonDefinition(label=Zurück, id=sum_custom_setback00000000-0000-0000-0000-000000000000, style=SECONDARY, disabled=false)])], hasImage=false, type=MESSAGE)");
+    }
+
+    @Test
+    void roll_full_ptBR() {
+        SumCustomSetCommand underTest = new SumCustomSetCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 10000));
+        underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
+
+        SumCustomSetConfig config = new SumCustomSetConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "+1d6"),
+                new ButtonIdLabelAndDiceExpression("2_button", "bonus", "+2")), DiceParserSystem.DICE_EVALUATOR, true, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.of("pt", "BR"));
+        ButtonEventAdaptorMockFactory<SumCustomSetConfig, SumCustomSetStateData> factory = new ButtonEventAdaptorMockFactory<>("sum_custom_st", underTest, config, persistenceManager, false);
+
+        ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("1_button");
+        underTest.handleComponentInteractEvent(click1).block();
+        ButtonEventAdaptorMock click2 = factory.getButtonClickOnLastButtonMessage("2_button");
+        underTest.handleComponentInteractEvent(click2).block();
+        ButtonEventAdaptorMock click3 = factory.getButtonClickOnLastButtonMessage("roll");
+        underTest.handleComponentInteractEvent(click3).block();
+
+        assertThat(click1.getActions()).containsExactlyInAnyOrder(
+                "editMessage: message:invokingUser: +1d6, buttonValues=1_button,2_button,roll,clear,back");
+        assertThat(click2.getActions()).containsExactlyInAnyOrder(
+                "editMessage: message:invokingUser: +1d6+2, buttonValues=1_button,2_button,roll,clear,back");
+        assertThat(click3.getActions()).containsExactlyInAnyOrder(
+                "editMessage: message:Clique nos botões para adicionar dados ao conjunto e então em Rolar, buttonValues=1_button,2_button,roll,clear,back",
+                "createResultMessageWithReference: EmbedOrMessageDefinition(title=+1d6+2 ⇒ 3, descriptionOrContent=[1], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED), targetChannelId: null",
+                "deleteMessageById: 0",
+                "createMessageWithoutReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=Clique nos botões para adicionar dados ao conjunto e então em Rolar, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=sum_custom_set1_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=bonus, id=sum_custom_set2_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=Rolar, id=sum_custom_setroll00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=true), ButtonDefinition(label=Limpar, id=sum_custom_setclear00000000-0000-0000-0000-000000000000, style=DANGER, disabled=false), ButtonDefinition(label=Voltar, id=sum_custom_setback00000000-0000-0000-0000-000000000000, style=SECONDARY, disabled=false)])], hasImage=false, type=MESSAGE)"
+        );
     }
 
     @Test

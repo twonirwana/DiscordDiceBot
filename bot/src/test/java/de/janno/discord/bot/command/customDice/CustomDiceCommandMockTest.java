@@ -172,6 +172,25 @@ public class CustomDiceCommandMockTest {
     }
 
     @Test
+    void roll_diceEvaluator_full_ptBR() {
+        CustomDiceCommand underTest = new CustomDiceCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
+        underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
+
+        CustomDiceConfig config = new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "1d6")), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.of("pt", "BR"));
+        ButtonEventAdaptorMockFactory<CustomDiceConfig, StateData> factory = new ButtonEventAdaptorMockFactory<>("custom_dice", underTest, config, persistenceManager, false);
+        ButtonEventAdaptorMock buttonEvent = factory.getButtonClickOnLastButtonMessage("1_button");
+
+        underTest.handleComponentInteractEvent(buttonEvent).block();
+
+        assertThat(buttonEvent.getActions()).containsExactlyInAnyOrder(
+                "editMessage: message:processando ..., buttonValues=",
+                "createResultMessageWithReference: EmbedOrMessageDefinition(title=Dmg ⇒ 3, descriptionOrContent=1d6: [3], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED), targetChannelId: null",
+                "deleteMessageById: 0",
+                "createMessageWithoutReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=Clique em um botão para rolar os dados, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=custom_dice1_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE)"
+        );
+    }
+
+    @Test
     void roll_diceEvaluator_full_with_images() {
         CustomDiceCommand underTest = new CustomDiceCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
         underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
