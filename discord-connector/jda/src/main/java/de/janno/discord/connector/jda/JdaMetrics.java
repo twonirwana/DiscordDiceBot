@@ -2,6 +2,7 @@ package de.janno.discord.connector.jda;
 
 import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.Metrics;
+import io.micrometer.core.instrument.Tags;
 import io.micrometer.core.instrument.binder.okhttp3.OkHttpConnectionPoolMetrics;
 import io.micrometer.core.instrument.binder.okhttp3.OkHttpMetricsEventListener;
 import lombok.extern.slf4j.Slf4j;
@@ -9,6 +10,7 @@ import net.dv8tion.jda.api.JDA;
 import okhttp3.EventListener;
 import okhttp3.OkHttpClient;
 
+import java.util.Locale;
 import java.util.Set;
 
 import static io.micrometer.core.instrument.Metrics.globalRegistry;
@@ -18,6 +20,8 @@ public class JdaMetrics {
 
     private static final String METRIC_PREFIX = "dice.";
     private static final String METRIC_WELCOME_COUNTER_PREFIX = "welcomeCounter";
+    private static final String USER_LOCALE = "userLocale";
+    private static final String LOCALE_TAG = "locale";
     private static final String SHARD_ID = "shardId";
 
     public static void registerHttpClient(OkHttpClient client) {
@@ -69,6 +73,10 @@ public class JdaMetrics {
 
     public static void sendWelcomeMessage() {
         globalRegistry.counter(METRIC_PREFIX + METRIC_WELCOME_COUNTER_PREFIX).increment();
+    }
+
+    public static void userLocalInteraction(Locale locale) {
+        globalRegistry.counter(METRIC_PREFIX + USER_LOCALE, Tags.of(LOCALE_TAG, locale.toString())).increment();
     }
 
     public static EventListener getOkHttpEventListener() {

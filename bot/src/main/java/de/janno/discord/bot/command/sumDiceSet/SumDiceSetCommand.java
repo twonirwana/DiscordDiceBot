@@ -3,6 +3,7 @@ package de.janno.discord.bot.command.sumDiceSet;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+import de.janno.discord.bot.I18n;
 import de.janno.discord.bot.command.*;
 import de.janno.discord.bot.dice.DiceUtils;
 import de.janno.discord.bot.dice.image.DiceImageStyle;
@@ -123,16 +124,11 @@ public class SumDiceSetCommand extends AbstractCommand<Config, SumDiceSetStateDa
     }
 
     @Override
-    protected @NonNull String getCommandDescription() {
-        return "Configure a variable set of d4 to d20 dice";
-    }
-
-    @Override
-    protected @NonNull EmbedOrMessageDefinition getHelpMessage() {
+    protected @NonNull EmbedOrMessageDefinition getHelpMessage(Locale userLocale) {
         return EmbedOrMessageDefinition.builder()
                 .descriptionOrContent("Use `/sum_dice_set start` to get message, where the user can create a dice set and roll it.")
-                .field(new EmbedOrMessageDefinition.Field("Full documentation", "https://github.com/twonirwana/DiscordDiceBot", false))
-                .field(new EmbedOrMessageDefinition.Field("Discord Server for Help and News", "https://discord.gg/e43BsqKpFr", false))
+                .field(new EmbedOrMessageDefinition.Field(I18n.getMessage("help.documentation.field.name", userLocale), I18n.getMessage("help.documentation.field.value", userLocale), false))
+                .field(new EmbedOrMessageDefinition.Field(I18n.getMessage("help.discord.server.field.name", userLocale), I18n.getMessage("help.discord.server.field.value", userLocale), false))
                 .build();
     }
 
@@ -195,7 +191,7 @@ public class SumDiceSetCommand extends AbstractCommand<Config, SumDiceSetStateDa
     }
 
     @Override
-    public @NonNull EmbedOrMessageDefinition createNewButtonMessage(UUID configUUID, Config config) {
+    public @NonNull EmbedOrMessageDefinition createNewButtonMessage(@NonNull UUID configUUID, @NonNull Config config) {
         return EmbedOrMessageDefinition.builder()
                 .type(EmbedOrMessageDefinition.Type.MESSAGE)
                 .descriptionOrContent(EMPTY_MESSAGE)
@@ -204,7 +200,7 @@ public class SumDiceSetCommand extends AbstractCommand<Config, SumDiceSetStateDa
     }
 
     @Override
-    protected @NonNull Optional<EmbedOrMessageDefinition> createNewButtonMessageWithState(UUID configUUID, Config config, State<SumDiceSetStateData> state, long guildId, long channelId) {
+    protected @NonNull Optional<EmbedOrMessageDefinition> createNewButtonMessageWithState(@NonNull UUID configUUID, @NonNull Config config, @NonNull State<SumDiceSetStateData> state, long guildId, long channelId) {
         if (!(ROLL_BUTTON_ID.equals(state.getButtonValue()) &&
                 !Optional.ofNullable(state.getData())
                         .map(SumDiceSetStateData::getDiceSet)
@@ -272,14 +268,20 @@ public class SumDiceSetCommand extends AbstractCommand<Config, SumDiceSetStateDa
 
 
     @Override
-    protected @NonNull Config getConfigFromStartOptions(@NonNull CommandInteractionOption options) {
+    protected @NonNull Config getConfigFromStartOptions(@NonNull CommandInteractionOption options, @NonNull Locale userLocal) {
         Long answerTargetChannelId = BaseCommandOptions.getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null);
         AnswerFormatType answerType = BaseCommandOptions.getAnswerTypeFromStartCommandOption(options).orElse(defaultAnswerFormat());
         return new Config(answerTargetChannelId,
                 answerType,
                 null,
-                new DiceStyleAndColor(DiceImageStyle.none, DiceImageStyle.none.getDefaultColor())
+                new DiceStyleAndColor(DiceImageStyle.none, DiceImageStyle.none.getDefaultColor()),
+                userLocal
         );
+    }
+
+    @Override
+    protected boolean supportsLocale() {
+        return false;
     }
 
     private List<ComponentRowDefinition> createButtonLayout(UUID configUUID) {

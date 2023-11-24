@@ -13,8 +13,6 @@ import io.micrometer.core.instrument.Tags;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.concurrent.ExecutionException;
-
 import static io.micrometer.core.instrument.Metrics.globalRegistry;
 
 @Slf4j
@@ -50,11 +48,7 @@ public class CachingDiceEvaluator {
     }
 
     public @NonNull RollerOrError get(@NonNull String expression) {
-        try {
-            return diceRollerCache.get(expression);
-        } catch (ExecutionException e) {
-            throw new IllegalStateException(e);
-        }
+        return diceRollerCache.getUnchecked(expression);
     }
 
     @VisibleForTesting

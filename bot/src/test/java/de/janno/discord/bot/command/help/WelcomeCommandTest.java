@@ -1,36 +1,41 @@
 package de.janno.discord.bot.command.help;
 
-import de.janno.discord.bot.command.AnswerFormatType;
-import de.janno.discord.bot.command.Config;
-import de.janno.discord.bot.command.State;
-import de.janno.discord.bot.command.StateData;
+import au.com.origin.snapshots.Expect;
+import au.com.origin.snapshots.junit5.SnapshotExtension;
+import de.janno.discord.bot.command.*;
 import de.janno.discord.bot.command.customDice.CustomDiceCommand;
 import de.janno.discord.bot.command.customParameter.CustomParameterCommand;
 import de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommand;
 import de.janno.discord.bot.dice.CachingDiceEvaluator;
 import de.janno.discord.bot.dice.image.DiceImageStyle;
 import de.janno.discord.bot.dice.image.DiceStyleAndColor;
+import de.janno.discord.bot.persistance.MessageConfigDTO;
 import de.janno.discord.bot.persistance.PersistenceManager;
+import de.janno.discord.bot.persistance.PersistenceManagerImpl;
 import de.janno.discord.connector.api.ButtonEventAdaptor;
+import de.janno.discord.connector.api.DiscordConnector;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
-import de.janno.discord.connector.api.slash.CommandDefinition;
-import de.janno.discord.connector.api.slash.CommandDefinitionOption;
 import de.janno.evaluator.dice.random.RandomNumberSupplier;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.Mockito;
 
 import java.util.Collection;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
+@ExtendWith(SnapshotExtension.class)
 class WelcomeCommandTest {
 
     WelcomeCommand underTest;
+    private Expect expect;
 
     @BeforeEach
     void setup() {
@@ -43,17 +48,17 @@ class WelcomeCommandTest {
         underTest = new WelcomeCommand(persistenceManager, rpgSystemCommandPreset, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"));
     }
 
-
     @Test
     public void getButtonMessageWithState_fate() {
-        Optional<EmbedOrMessageDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), null, new State<>("fate", StateData.empty()), 1L, 2L);
-        Assertions.assertThat(res.map(EmbedOrMessageDefinition::getDescriptionOrContent))
+        Optional<EmbedOrMessageDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"),
+                new Config(null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH), new State<>("fate", StateData.empty()), 1L, 2L);
+        assertThat(res.map(EmbedOrMessageDefinition::getDescriptionOrContent))
                 .contains("Please select value for **Modifier**");
-        Assertions.assertThat(res.map(EmbedOrMessageDefinition::getComponentRowDefinitions)
-                        .stream()
-                        .flatMap(Collection::stream)
-                        .flatMap(s -> s.getButtonDefinitions().stream())
-                        .map(ButtonDefinition::getId))
+        assertThat(res.map(EmbedOrMessageDefinition::getComponentRowDefinitions)
+                .stream()
+                .flatMap(Collection::stream)
+                .flatMap(s -> s.getButtonDefinitions().stream())
+                .map(ButtonDefinition::getId))
                 .containsExactly("custom_parameterid100000000-0000-0000-0000-000000000000",
                         "custom_parameterid200000000-0000-0000-0000-000000000000",
                         "custom_parameterid300000000-0000-0000-0000-000000000000",
@@ -69,25 +74,26 @@ class WelcomeCommandTest {
                         "custom_parameterid1300000000-0000-0000-0000-000000000000",
                         "custom_parameterid1400000000-0000-0000-0000-000000000000",
                         "custom_parameterid1500000000-0000-0000-0000-000000000000");
-        Assertions.assertThat(res.map(EmbedOrMessageDefinition::getComponentRowDefinitions)
-                        .stream()
-                        .flatMap(Collection::stream)
-                        .flatMap(s -> s.getButtonDefinitions().stream())
-                        .map(ButtonDefinition::getLabel))
+        assertThat(res.map(EmbedOrMessageDefinition::getComponentRowDefinitions)
+                .stream()
+                .flatMap(Collection::stream)
+                .flatMap(s -> s.getButtonDefinitions().stream())
+                .map(ButtonDefinition::getLabel))
                 .containsExactly("-4", "-3", "-2", "-1", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10");
 
     }
 
     @Test
     public void getButtonMessageWithState_dnd5() {
-        Optional<EmbedOrMessageDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), null, new State<>("dnd5", StateData.empty()), 1L, 2L);
-        Assertions.assertThat(res.map(EmbedOrMessageDefinition::getDescriptionOrContent))
+        Optional<EmbedOrMessageDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"),
+                new Config(null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH), new State<>("dnd5", StateData.empty()), 1L, 2L);
+        assertThat(res.map(EmbedOrMessageDefinition::getDescriptionOrContent))
                 .contains("Click on a button to roll the dice");
-        Assertions.assertThat(res.map(EmbedOrMessageDefinition::getComponentRowDefinitions)
-                        .stream()
-                        .flatMap(Collection::stream)
-                        .flatMap(s -> s.getButtonDefinitions().stream())
-                        .map(ButtonDefinition::getId))
+        assertThat(res.map(EmbedOrMessageDefinition::getComponentRowDefinitions)
+                .stream()
+                .flatMap(Collection::stream)
+                .flatMap(s -> s.getButtonDefinitions().stream())
+                .map(ButtonDefinition::getId))
                 .containsExactly("custom_dice1_button00000000-0000-0000-0000-000000000000",
                         "custom_dice2_button00000000-0000-0000-0000-000000000000",
                         "custom_dice3_button00000000-0000-0000-0000-000000000000",
@@ -103,11 +109,11 @@ class WelcomeCommandTest {
                         "custom_dice13_button00000000-0000-0000-0000-000000000000",
                         "custom_dice14_button00000000-0000-0000-0000-000000000000",
                         "custom_dice15_button00000000-0000-0000-0000-000000000000");
-        Assertions.assertThat(res.map(EmbedOrMessageDefinition::getComponentRowDefinitions)
-                        .stream()
-                        .flatMap(Collection::stream)
-                        .flatMap(s -> s.getButtonDefinitions().stream())
-                        .map(ButtonDefinition::getLabel))
+        assertThat(res.map(EmbedOrMessageDefinition::getComponentRowDefinitions)
+                .stream()
+                .flatMap(Collection::stream)
+                .flatMap(s -> s.getButtonDefinitions().stream())
+                .map(ButtonDefinition::getLabel))
                 .containsExactly("1d4",
                         "1d6",
                         "1d8",
@@ -125,37 +131,38 @@ class WelcomeCommandTest {
                         "2d20");
     }
 
-
     @Test
     public void getButtonMessageWithState_coin() {
-        Optional<EmbedOrMessageDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), null, new State<>("coin", StateData.empty()), 1L, 2L);
-        Assertions.assertThat(res.map(EmbedOrMessageDefinition::getDescriptionOrContent))
+        Optional<EmbedOrMessageDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"),
+                new Config(null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH), new State<>("coin", StateData.empty()), 1L, 2L);
+        assertThat(res.map(EmbedOrMessageDefinition::getDescriptionOrContent))
                 .contains("Click on a button to roll the dice");
-        Assertions.assertThat(res.map(EmbedOrMessageDefinition::getComponentRowDefinitions)
-                        .stream()
-                        .flatMap(Collection::stream)
-                        .flatMap(s -> s.getButtonDefinitions().stream())
-                        .map(ButtonDefinition::getId))
+        assertThat(res.map(EmbedOrMessageDefinition::getComponentRowDefinitions)
+                .stream()
+                .flatMap(Collection::stream)
+                .flatMap(s -> s.getButtonDefinitions().stream())
+                .map(ButtonDefinition::getId))
                 .containsExactly("custom_dice1_button00000000-0000-0000-0000-000000000000");
-        Assertions.assertThat(res.map(EmbedOrMessageDefinition::getComponentRowDefinitions)
-                        .stream()
-                        .flatMap(Collection::stream)
-                        .flatMap(s -> s.getButtonDefinitions().stream())
-                        .map(ButtonDefinition::getLabel))
+        assertThat(res.map(EmbedOrMessageDefinition::getComponentRowDefinitions)
+                .stream()
+                .flatMap(Collection::stream)
+                .flatMap(s -> s.getButtonDefinitions().stream())
+                .map(ButtonDefinition::getLabel))
                 .containsExactly("Coin Toss \uD83E\uDE99");
     }
 
     @Test
     public void getButtonMessageWithState_nWoD() {
-        Optional<EmbedOrMessageDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), null, new State<>("nWoD", StateData.empty()), 1L, 2L);
+        Optional<EmbedOrMessageDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"),
+                new Config(null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH), new State<>("nWoD", StateData.empty()), 1L, 2L);
 
-        Assertions.assertThat(res.map(EmbedOrMessageDefinition::getDescriptionOrContent))
+        assertThat(res.map(EmbedOrMessageDefinition::getDescriptionOrContent))
                 .contains("Please select value for **Number of Dice**");
-        Assertions.assertThat(res.map(EmbedOrMessageDefinition::getComponentRowDefinitions)
-                        .stream()
-                        .flatMap(Collection::stream)
-                        .flatMap(s -> s.getButtonDefinitions().stream())
-                        .map(ButtonDefinition::getId))
+        assertThat(res.map(EmbedOrMessageDefinition::getComponentRowDefinitions)
+                .stream()
+                .flatMap(Collection::stream)
+                .flatMap(s -> s.getButtonDefinitions().stream())
+                .map(ButtonDefinition::getId))
                 .containsExactly("custom_parameterid100000000-0000-0000-0000-000000000000",
                         "custom_parameterid200000000-0000-0000-0000-000000000000",
                         "custom_parameterid300000000-0000-0000-0000-000000000000",
@@ -171,24 +178,25 @@ class WelcomeCommandTest {
                         "custom_parameterid1300000000-0000-0000-0000-000000000000",
                         "custom_parameterid1400000000-0000-0000-0000-000000000000",
                         "custom_parameterid1500000000-0000-0000-0000-000000000000");
-        Assertions.assertThat(res.map(EmbedOrMessageDefinition::getComponentRowDefinitions)
-                        .stream()
-                        .flatMap(Collection::stream)
-                        .flatMap(s -> s.getButtonDefinitions().stream())
-                        .map(ButtonDefinition::getLabel))
+        assertThat(res.map(EmbedOrMessageDefinition::getComponentRowDefinitions)
+                .stream()
+                .flatMap(Collection::stream)
+                .flatMap(s -> s.getButtonDefinitions().stream())
+                .map(ButtonDefinition::getLabel))
                 .containsExactly("1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15");
     }
 
     @Test
     public void getButtonMessageWithState_oWoD() {
-        Optional<EmbedOrMessageDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), null, new State<>("oWoD", StateData.empty()), 1L, 2L);
-        Assertions.assertThat(res.map(EmbedOrMessageDefinition::getDescriptionOrContent))
+        Optional<EmbedOrMessageDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"),
+                new Config(null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH), new State<>("oWoD", StateData.empty()), 1L, 2L);
+        assertThat(res.map(EmbedOrMessageDefinition::getDescriptionOrContent))
                 .contains("Please select value for **Number of Dice**");
-        Assertions.assertThat(res.map(EmbedOrMessageDefinition::getComponentRowDefinitions)
-                        .stream()
-                        .flatMap(Collection::stream)
-                        .flatMap(s -> s.getButtonDefinitions().stream())
-                        .map(ButtonDefinition::getId))
+        assertThat(res.map(EmbedOrMessageDefinition::getComponentRowDefinitions)
+                .stream()
+                .flatMap(Collection::stream)
+                .flatMap(s -> s.getButtonDefinitions().stream())
+                .map(ButtonDefinition::getId))
                 .containsExactly("custom_parameterid100000000-0000-0000-0000-000000000000",
                         "custom_parameterid200000000-0000-0000-0000-000000000000",
                         "custom_parameterid300000000-0000-0000-0000-000000000000",
@@ -204,11 +212,11 @@ class WelcomeCommandTest {
                         "custom_parameterid1300000000-0000-0000-0000-000000000000",
                         "custom_parameterid1400000000-0000-0000-0000-000000000000",
                         "custom_parameterid1500000000-0000-0000-0000-000000000000");
-        Assertions.assertThat(res.map(EmbedOrMessageDefinition::getComponentRowDefinitions)
-                        .stream()
-                        .flatMap(Collection::stream)
-                        .flatMap(s -> s.getButtonDefinitions().stream())
-                        .map(ButtonDefinition::getLabel))
+        assertThat(res.map(EmbedOrMessageDefinition::getComponentRowDefinitions)
+                .stream()
+                .flatMap(Collection::stream)
+                .flatMap(s -> s.getButtonDefinitions().stream())
+                .map(ButtonDefinition::getLabel))
                 .containsExactly("1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15");
 
 
@@ -216,14 +224,15 @@ class WelcomeCommandTest {
 
     @Test
     public void getButtonMessageWithState_Shadowrun() {
-        Optional<EmbedOrMessageDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), null, new State<>("shadowrun", StateData.empty()), 1L, 2L);
-        Assertions.assertThat(res.map(EmbedOrMessageDefinition::getDescriptionOrContent))
+        Optional<EmbedOrMessageDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"),
+                new Config(null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH), new State<>("shadowrun", StateData.empty()), 1L, 2L);
+        assertThat(res.map(EmbedOrMessageDefinition::getDescriptionOrContent))
                 .contains("Please select value for **number of dice**");
-        Assertions.assertThat(res.map(EmbedOrMessageDefinition::getComponentRowDefinitions)
-                        .stream()
-                        .flatMap(Collection::stream)
-                        .flatMap(s -> s.getButtonDefinitions().stream())
-                        .map(ButtonDefinition::getId))
+        assertThat(res.map(EmbedOrMessageDefinition::getComponentRowDefinitions)
+                .stream()
+                .flatMap(Collection::stream)
+                .flatMap(s -> s.getButtonDefinitions().stream())
+                .map(ButtonDefinition::getId))
                 .containsExactly("custom_parameterid100000000-0000-0000-0000-000000000000",
                         "custom_parameterid200000000-0000-0000-0000-000000000000",
                         "custom_parameterid300000000-0000-0000-0000-000000000000",
@@ -244,25 +253,25 @@ class WelcomeCommandTest {
                         "custom_parameterid1800000000-0000-0000-0000-000000000000",
                         "custom_parameterid1900000000-0000-0000-0000-000000000000",
                         "custom_parameterid2000000000-0000-0000-0000-000000000000");
-        Assertions.assertThat(res.map(EmbedOrMessageDefinition::getComponentRowDefinitions)
-                        .stream()
-                        .flatMap(Collection::stream)
-                        .flatMap(s -> s.getButtonDefinitions().stream())
-                        .map(ButtonDefinition::getLabel))
+        assertThat(res.map(EmbedOrMessageDefinition::getComponentRowDefinitions)
+                .stream()
+                .flatMap(Collection::stream)
+                .flatMap(s -> s.getButtonDefinitions().stream())
+                .map(ButtonDefinition::getLabel))
                 .containsExactly("1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20");
 
     }
 
     @Test
     public void getButtonMessageWithState_diceCalculator() {
-        Optional<EmbedOrMessageDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), null, new State<>("dice_calculator", StateData.empty()), 1L, 2L);
-        Assertions.assertThat(res.map(EmbedOrMessageDefinition::getDescriptionOrContent))
+        Optional<EmbedOrMessageDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), new Config(null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH), new State<>("dice_calculator", StateData.empty()), 1L, 2L);
+        assertThat(res.map(EmbedOrMessageDefinition::getDescriptionOrContent))
                 .contains("Click the buttons to add dice to the set and then on Roll");
-        Assertions.assertThat(res.map(EmbedOrMessageDefinition::getComponentRowDefinitions)
-                        .stream()
-                        .flatMap(Collection::stream)
-                        .flatMap(s -> s.getButtonDefinitions().stream())
-                        .map(ButtonDefinition::getId))
+        assertThat(res.map(EmbedOrMessageDefinition::getComponentRowDefinitions)
+                .stream()
+                .flatMap(Collection::stream)
+                .flatMap(s -> s.getButtonDefinitions().stream())
+                .map(ButtonDefinition::getId))
                 .containsExactly("sum_custom_set1_button00000000-0000-0000-0000-000000000000",
                         "sum_custom_set2_button00000000-0000-0000-0000-000000000000",
                         "sum_custom_set3_button00000000-0000-0000-0000-000000000000",
@@ -281,11 +290,11 @@ class WelcomeCommandTest {
                         "sum_custom_setroll00000000-0000-0000-0000-000000000000",
                         "sum_custom_setclear00000000-0000-0000-0000-000000000000",
                         "sum_custom_setback00000000-0000-0000-0000-000000000000");
-        Assertions.assertThat(res.map(EmbedOrMessageDefinition::getComponentRowDefinitions)
-                        .stream()
-                        .flatMap(Collection::stream)
-                        .flatMap(s -> s.getButtonDefinitions().stream())
-                        .map(ButtonDefinition::getLabel))
+        assertThat(res.map(EmbedOrMessageDefinition::getComponentRowDefinitions)
+                .stream()
+                .flatMap(Collection::stream)
+                .flatMap(s -> s.getButtonDefinitions().stream())
+                .map(ButtonDefinition::getLabel))
                 .containsExactly("7",
                         "8",
                         "9",
@@ -309,25 +318,26 @@ class WelcomeCommandTest {
 
     @Test
     public void getButtonMessageWithState_other() {
-        Optional<EmbedOrMessageDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), null, new State<>("-", StateData.empty()), 1L, 2L);
-        Assertions.assertThat(res)
+        Optional<EmbedOrMessageDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"),
+                new Config(null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH), new State<>("-", StateData.empty()), 1L, 2L);
+        assertThat(res)
                 .isEmpty();
 
     }
 
     @Test
     public void getWelcomeMessage() {
-        EmbedOrMessageDefinition res = underTest.getWelcomeMessage();
-        Assertions.assertThat(res.getDescriptionOrContent())
+        EmbedOrMessageDefinition res = underTest.getWelcomeMessage().apply(new DiscordConnector.WelcomeRequest(123L, 456L, Locale.ENGLISH));
+        assertThat(res.getDescriptionOrContent())
                 .isEqualTo("""
                         Welcome to the Button Dice Bot,
-                        use one of the example buttons below to start one of the RPG dice systems or use the slash command to configure your own custom dice system (see https://github.com/twonirwana/DiscordDiceBot for details or the slash command `/help`).\s
+                        use one of the example buttons below to start one of the RPG dice systems, use `/quickstart system` to select one of many RPG presets or use the slash command to configure your own custom dice system (see https://github.com/twonirwana/DiscordDiceBot for details or the slash command `/help`).
                         You can also use the slash command `/r` to directly roll dice with.
                         For help or feature request come to the support discord server: https://discord.gg/e43BsqKpFr""");
-        Assertions.assertThat(res.getComponentRowDefinitions()
-                        .stream()
-                        .flatMap(s -> s.getButtonDefinitions().stream())
-                        .map(ButtonDefinition::getId))
+        assertThat(res.getComponentRowDefinitions()
+                .stream()
+                .flatMap(s -> s.getButtonDefinitions().stream())
+                .map(ButtonDefinition::getId))
                 .containsExactly(
                         "welcomefate00000000-0000-0000-0000-000000000000",
                         "welcomefate_image00000000-0000-0000-0000-000000000000",
@@ -338,10 +348,10 @@ class WelcomeCommandTest {
                         "welcomeshadowrun00000000-0000-0000-0000-000000000000",
                         "welcomecoin00000000-0000-0000-0000-000000000000",
                         "welcomedice_calculator00000000-0000-0000-0000-000000000000");
-        Assertions.assertThat(res.getComponentRowDefinitions()
-                        .stream()
-                        .flatMap(s -> s.getButtonDefinitions().stream())
-                        .map(ButtonDefinition::getLabel))
+        assertThat(res.getComponentRowDefinitions()
+                .stream()
+                .flatMap(s -> s.getButtonDefinitions().stream())
+                .map(ButtonDefinition::getLabel))
                 .containsExactly(
                         "Fate",
                         "Fate with dice images",
@@ -358,7 +368,9 @@ class WelcomeCommandTest {
     @ParameterizedTest
     @CsvSource({
             "fate",
+            "fate_image",
             "dnd5",
+            "dnd5_image",
             "nWoD",
             "oWoD",
             "shadowrun",
@@ -366,69 +378,100 @@ class WelcomeCommandTest {
             "dice_calculator"
     })
     void createMessageDataForNewMessage(String buttonValue) {
-        Optional<EmbedOrMessageDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), new Config(null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none")), new State<>(buttonValue, StateData.empty()), 1L, 2L);
-        Assertions.assertThat(res).isPresent();
+        Optional<EmbedOrMessageDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), new Config(null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH), new State<>(buttonValue, StateData.empty()), 1L, 2L);
+        assertThat(res).isPresent();
     }
 
     @Test
     public void shouldKeepExistingButtonMessage() {
-        Assertions.assertThat(underTest.shouldKeepExistingButtonMessage(Mockito.mock(ButtonEventAdaptor.class))).isTrue();
+        assertThat(underTest.shouldKeepExistingButtonMessage(Mockito.mock(ButtonEventAdaptor.class))).isTrue();
     }
 
     @Test
     public void getAnswer() {
-        Assertions.assertThat(underTest.getAnswer(null, null, 0L, 0L)).isEmpty();
+        assertThat(underTest.getAnswer(null, null, 0L, 0L)).isEmpty();
     }
-
 
     @Test
     public void matchingComponentCustomId() {
         boolean res = underTest.matchingComponentCustomId("welcome,fate");
 
-        Assertions.assertThat(res).isTrue();
+        assertThat(res).isTrue();
     }
 
     @Test
     public void matchingComponentCustomId_notMatch() {
         boolean res = underTest.matchingComponentCustomId("welcome2,fate");
 
-        Assertions.assertThat(res).isFalse();
+        assertThat(res).isFalse();
     }
 
     @Test
     void matchingComponentCustomId_match() {
-        Assertions.assertThat(underTest.matchingComponentCustomId("welcomefate")).isTrue();
+        assertThat(underTest.matchingComponentCustomId("welcomefate")).isTrue();
     }
 
     @Test
     void matchingComponentCustomId_noMatch() {
-        Assertions.assertThat(underTest.matchingComponentCustomId("welcome2fate")).isFalse();
+        assertThat(underTest.matchingComponentCustomId("welcome2fate")).isFalse();
     }
 
     @Test
-    void getName() {
-        Assertions.assertThat(underTest.getCommandId()).isEqualTo("welcome");
+    public void getCommandDefinition() {
+        expect.toMatchSnapshot(underTest.getCommandDefinition());
     }
 
+    @Test
+    public void getId() {
+        expect.toMatchSnapshot(underTest.getCommandId());
+    }
 
     @Test
-    void getCommandDefinition() {
-        CommandDefinition res = underTest.getCommandDefinition();
+    void checkPersistence() {
+        PersistenceManager persistenceManager = new PersistenceManagerImpl("jdbc:h2:mem:" + UUID.randomUUID(), null, null);
+        UUID configUUID = UUID.fromString("00000000-0000-0000-0000-000000000000");
+        Config config = new Config(123L, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.GERMAN);
+        Optional<MessageConfigDTO> toSave = underTest.createMessageConfig(configUUID, 1L, 2L, config);
+        assertThat(toSave).isPresent();
 
-        Assertions.assertThat(res).isEqualTo(CommandDefinition.builder()
-                .name("welcome")
-                .description("Displays the welcome message")
-                .option(CommandDefinitionOption.builder()
-                        .name("start")
-                        .description("Displays the welcome message")
-                        .type(CommandDefinitionOption.Type.SUB_COMMAND)
-                        .build())
-                .option(CommandDefinitionOption.builder()
-                        .name("help")
-                        .description("Get help for welcome")
-                        .type(CommandDefinitionOption.Type.SUB_COMMAND)
-                        .build())
-                .build());
+        persistenceManager.saveMessageConfig(toSave.get());
+        MessageConfigDTO loaded = persistenceManager.getMessageConfig(configUUID).orElseThrow();
 
+        assertThat(toSave.get()).isEqualTo(loaded);
+        ConfigAndState<Config, StateData> configAndState = underTest.deserializeAndUpdateState(loaded, "3");
+
+        assertThat(configAndState.getConfig()).isEqualTo(config);
+        assertThat(configAndState.getConfigUUID()).isEqualTo(configUUID);
+        assertThat(configAndState.getState()).isEqualTo(new State<>("3", StateData.empty()));
+    }
+
+    @Test
+    void deserialization() {
+        UUID configUUID = UUID.fromString("00000000-0000-0000-0000-000000000000");
+        MessageConfigDTO savedData = new MessageConfigDTO(configUUID, 1L, 1660644934298L, "welcome", "Config", """
+                ---
+                answerTargetChannelId: 123
+                answerFormatType: "full"
+                configLocale: "de"
+                diceStyleAndColor:
+                  diceImageStyle: "none"
+                  configuredDefaultColor: "none"
+                """);
+
+
+        ConfigAndState<Config, StateData> configAndState = underTest.deserializeAndUpdateState(savedData, "3");
+        assertThat(configAndState.getConfig()).isEqualTo(new Config(123L, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.GERMAN));
+        assertThat(configAndState.getConfigUUID()).isEqualTo(configUUID);
+        assertThat(configAndState.getState().getData()).isEqualTo(StateData.empty());
+    }
+
+    @Test
+    void configSerialization(){
+        UUID configUUID = UUID.fromString("00000000-0000-0000-0000-000000000000");
+        Config config = new Config(123L, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.GERMAN);
+        Optional<MessageConfigDTO> toSave = underTest.createMessageConfig(configUUID, 1L, 2L, config);
+        assertThat(toSave).isPresent();
+
+        expect.toMatchSnapshot(toSave.get());
     }
 }

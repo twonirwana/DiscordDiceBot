@@ -40,7 +40,7 @@ public class HoldRerollConfig extends Config {
                             @JsonProperty("answerFormatType") AnswerFormatType answerFormatType,
                             @JsonProperty("resultImage") ResultImage resultImage,
                             @JsonProperty("diceImageStyle") DiceStyleAndColor diceStyleAndColor) {
-        super(answerTargetChannelId, answerFormatType, resultImage, diceStyleAndColor);
+        super(answerTargetChannelId, answerFormatType, resultImage, diceStyleAndColor, null);
         this.sidesOfDie = sidesOfDie;
         this.rerollSet = rerollSet;
         this.successSet = successSet;

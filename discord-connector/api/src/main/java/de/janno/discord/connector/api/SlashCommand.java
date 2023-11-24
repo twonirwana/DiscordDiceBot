@@ -5,6 +5,7 @@ import lombok.NonNull;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 import java.util.function.Supplier;
 
@@ -14,9 +15,9 @@ public interface SlashCommand {
 
     @NonNull CommandDefinition getCommandDefinition();
 
-    @NonNull Mono<Void> handleSlashCommandEvent(@NonNull SlashEventAdaptor event, @NonNull Supplier<UUID> uuidSupplier);
+    @NonNull Mono<Void> handleSlashCommandEvent(@NonNull SlashEventAdaptor event, @NonNull Supplier<UUID> uuidSupplier, @NonNull Locale userLocale);
 
-    default @NonNull List<AutoCompleteAnswer> getAutoCompleteAnswer(AutoCompleteRequest autoCompleteRequest) {
+    default @NonNull List<AutoCompleteAnswer> getAutoCompleteAnswer(@NonNull AutoCompleteRequest autoCompleteRequest, @NonNull Locale userLocale) {
         return List.of();
     }
 

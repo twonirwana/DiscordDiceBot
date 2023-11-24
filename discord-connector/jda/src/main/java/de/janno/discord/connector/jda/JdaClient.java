@@ -32,6 +32,7 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.function.Function;
 
 @Slf4j
 public class JdaClient {
@@ -41,7 +42,7 @@ public class JdaClient {
     public void start(String token,
                       boolean disableCommandUpdate,
                       List<SlashCommand> commands,
-                      EmbedOrMessageDefinition welcomeMessageDefinition,
+                      Function<DiscordConnector.WelcomeRequest, EmbedOrMessageDefinition> welcomeMessageDefinition,
                       Set<Long> allGuildIdsInPersistence) throws LoginException {
         LocalDateTime startTimePlusBuffer = LocalDateTime.now().plus(START_UP_BUFFER);
         Scheduler scheduler = Schedulers.boundedElastic();
@@ -59,7 +60,6 @@ public class JdaClient {
                 .setHttpClient(okHttpClient)
                 .addEventListeners(
                         new ListenerAdapter() {
-
                             @Override
                             public void onGuildJoin(@NonNull GuildJoinEvent event) {
                                 if (!botInGuildIdSet.contains(event.getGuild().getIdLong())) {
@@ -69,18 +69,22 @@ public class JdaClient {
                                     if (LocalDateTime.now().isAfter(startTimePlusBuffer)) {
                                         Optional.ofNullable(event.getGuild().getSystemChannel())
                                                 .filter(GuildMessageChannel::canTalk)
-                                                .ifPresent(textChannel -> Mono.fromFuture(textChannel.sendMessage(
-                                                                        MessageComponentConverter.messageComponent2MessageLayout(welcomeMessageDefinition.getDescriptionOrContent(),
-                                                                                welcomeMessageDefinition.getComponentRowDefinitions()))
-                                                                .submit())
-                                                        .doOnSuccess(m -> {
-                                                            JdaMetrics.sendWelcomeMessage();
-                                                            log.info("Welcome message send in '{}'.'{}'",
-                                                                    event.getGuild().getName(),
-                                                                    textChannel.getName());
-                                                        })
-                                                        .subscribeOn(scheduler)
-                                                        .subscribe());
+                                                .ifPresent(textChannel -> {
+                                                    EmbedOrMessageDefinition welcomeMessage = welcomeMessageDefinition.apply(new DiscordConnector.WelcomeRequest(event.getGuild().getIdLong(),
+                                                            textChannel.getIdLong(), LocaleConverter.toLocale(event.getGuild().getLocale())));
+                                                    Mono.fromFuture(textChannel.sendMessage(
+                                                                            MessageComponentConverter.messageComponent2MessageLayout(welcomeMessage.getDescriptionOrContent(),
+                                                                                    welcomeMessage.getComponentRowDefinitions()))
+                                                                    .submit())
+                                                            .doOnSuccess(m -> {
+                                                                JdaMetrics.sendWelcomeMessage();
+                                                                log.info("Welcome message send in '{}'.'{}'",
+                                                                        event.getGuild().getName(),
+                                                                        textChannel.getName());
+                                                            })
+                                                            .subscribeOn(scheduler)
+                                                            .subscribe();
+                                                });
                                     }
                                 }
                             }
@@ -116,7 +120,7 @@ public class JdaClient {
                                 Flux.fromIterable(commands)
                                         .filter(command -> command.getCommandId().equals(event.getName()))
                                         .next()
-                                        .map(command -> command.getAutoCompleteAnswer(fromEvent(event)))
+                                        .map(command -> command.getAutoCompleteAnswer(fromEvent(event), LocaleConverter.toLocale(event.getUserLocale())))
                                         .flatMap(a -> Mono.fromFuture(event.replyChoices(a.stream()
                                                 .map(c -> new Command.Choice(c.getName(), c.getValue()))
                                                 .limit(25)
@@ -141,12 +145,17 @@ public class JdaClient {
                                 Flux.fromIterable(commands)
                                         .filter(command -> command.getCommandId().equals(event.getName()))
                                         .next()
-                                        .flatMap(command -> command.handleSlashCommandEvent(new SlashEventAdapterImpl(event,
-                                                new Requester(event.getInteraction().getUser().getName(),
-                                                        event.getChannel().getName(),
-                                                        Optional.ofNullable(event.getGuild()).map(Guild::getName).orElse(""),
-                                                        event.getJDA().getShardInfo().getShardString())
-                                        ), UUID::randomUUID))
+                                        .flatMap(command -> {
+                                            Locale userLocale = LocaleConverter.toLocale(event.getInteraction().getUserLocale());
+                                            JdaMetrics.userLocalInteraction(userLocale);
+                                            return command.handleSlashCommandEvent(new SlashEventAdapterImpl(event,
+                                                    new Requester(event.getInteraction().getUser().getName(),
+                                                            event.getChannel().getName(),
+                                                            Optional.ofNullable(event.getGuild()).map(Guild::getName).orElse(""),
+                                                            event.getJDA().getShardInfo().getShardString(),
+                                                            userLocale)
+                                            ), UUID::randomUUID, LocaleConverter.toLocale(event.getUserLocale()));
+                                        })
                                         .onErrorResume(e -> {
                                             log.error("SlashCommandEvent Exception: ", e);
                                             return Mono.empty();
@@ -162,12 +171,17 @@ public class JdaClient {
                                         .ofType(ComponentInteractEventHandler.class)
                                         .filter(command -> command.matchingComponentCustomId(event.getInteraction().getComponentId()))
                                         .next()
-                                        .flatMap(command -> command.handleComponentInteractEvent(new ButtonEventAdapterImpl(event,
-                                                new Requester(event.getInteraction().getUser().getName(),
-                                                        event.getChannel().getName(),
-                                                        Optional.ofNullable(event.getInteraction().getGuild()).map(Guild::getName).orElse(""),
-                                                        event.getJDA().getShardInfo().getShardString()
-                                                ))))
+                                        .flatMap(command -> {
+                                            Locale userLocale = LocaleConverter.toLocale(event.getInteraction().getUserLocale());
+                                            JdaMetrics.userLocalInteraction(userLocale);
+                                            return command.handleComponentInteractEvent(new ButtonEventAdapterImpl(event,
+                                                    new Requester(event.getInteraction().getUser().getName(),
+                                                            event.getChannel().getName(),
+                                                            Optional.ofNullable(event.getInteraction().getGuild()).map(Guild::getName).orElse(""),
+                                                            event.getJDA().getShardInfo().getShardString(),
+                                                            userLocale
+                                                    )));
+                                        })
                                         .onErrorResume(e -> {
                                             log.error("ButtonInteractEvent Exception: ", e);
                                             return Mono.empty();

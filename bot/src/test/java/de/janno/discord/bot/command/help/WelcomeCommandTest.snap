@@ -1,0 +1,163 @@
+de.janno.discord.bot.command.help.WelcomeCommandTest.configSerialization=[
+  {
+    "configUUID" : "00000000-0000-0000-0000-000000000000",
+    "guildId" : 1,
+    "channelId" : 2,
+    "commandId" : "welcome",
+    "configClassId" : "Config",
+    "config" : "---\nanswerTargetChannelId: 123\nanswerFormatType: \"full\"\nconfigLocale: \"de\"\ndiceStyleAndColor:\n  diceImageStyle: \"none\"\n  configuredDefaultColor: \"none\"\n"
+  }
+]
+
+
+de.janno.discord.bot.command.help.WelcomeCommandTest.getCommandDefinition=[
+  {
+    "name" : "welcome",
+    "description" : "Displays the welcome message",
+    "nameLocales" : [ ],
+    "descriptionLocales" : [
+      {
+        "locale" : "de",
+        "description" : "Erzeuge eine Wegkommensnachricht"
+      },
+      {
+        "locale" : "pt_BR",
+        "description" : "Exibe a mensagem de boas vindas"
+      }
+    ],
+    "options" : [
+      {
+        "type" : "SUB_COMMAND",
+        "name" : "start",
+        "nameLocales" : [
+          {
+            "locale" : "pt_BR",
+            "name" : "iniciar"
+          }
+        ],
+        "description" : "Displays the welcome message",
+        "descriptionLocales" : [
+          {
+            "locale" : "de",
+            "description" : "Erzeuge eine Wegkommensnachricht"
+          },
+          {
+            "locale" : "pt_BR",
+            "description" : "Exibe a mensagem de boas vindas"
+          }
+        ],
+        "required" : false,
+        "choices" : [ ],
+        "options" : [
+          {
+            "type" : "STRING",
+            "name" : "language",
+            "nameLocales" : [
+              {
+                "locale" : "de",
+                "name" : "sprache"
+              },
+              {
+                "locale" : "pt_BR",
+                "name" : "idioma"
+              }
+            ],
+            "description" : "The language of the bot messages",
+            "descriptionLocales" : [
+              {
+                "locale" : "de",
+                "description" : "Die Sprach des Bots"
+              },
+              {
+                "locale" : "pt_BR",
+                "description" : "O idioma da mensagem do bot"
+              }
+            ],
+            "required" : false,
+            "choices" : [
+              {
+                "name" : "English",
+                "value" : "en",
+                "nameLocales" : [
+                  {
+                    "locale" : "de",
+                    "choice" : "Englisch"
+                  },
+                  {
+                    "locale" : "pt_BR",
+                    "choice" : "Inglês"
+                  }
+                ]
+              },
+              {
+                "name" : "German",
+                "value" : "de",
+                "nameLocales" : [
+                  {
+                    "locale" : "de",
+                    "choice" : "Deutsch"
+                  },
+                  {
+                    "locale" : "pt_BR",
+                    "choice" : "Alemão"
+                  }
+                ]
+              },
+              {
+                "name" : "Portuguese (Brazil)",
+                "value" : "pt_BR",
+                "nameLocales" : [
+                  {
+                    "locale" : "de",
+                    "choice" : "Brasilianisches Portugiesisch"
+                  },
+                  {
+                    "locale" : "pt_BR",
+                    "choice" : "Português Brasileiro"
+                  }
+                ]
+              }
+            ],
+            "options" : [ ],
+            "autoComplete" : false
+          }
+        ],
+        "autoComplete" : false
+      },
+      {
+        "type" : "SUB_COMMAND",
+        "name" : "help",
+        "nameLocales" : [
+          {
+            "locale" : "de",
+            "name" : "hilfe"
+          },
+          {
+            "locale" : "pt_BR",
+            "name" : "ajuda"
+          }
+        ],
+        "description" : "Get help for /welcome",
+        "descriptionLocales" : [
+          {
+            "locale" : "de",
+            "description" : "Hilfe für /welcome"
+          },
+          {
+            "locale" : "pt_BR",
+            "description" : "Consiga ajuda para /welcome"
+          }
+        ],
+        "required" : false,
+        "choices" : [ ],
+        "options" : [ ],
+        "autoComplete" : false
+      }
+    ]
+  }
+]
+
+
+de.janno.discord.bot.command.help.WelcomeCommandTest.getId=[
+  "welcome"
+]

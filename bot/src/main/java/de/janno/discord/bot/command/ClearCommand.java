@@ -1,6 +1,7 @@
 package de.janno.discord.bot.command;
 
 import de.janno.discord.bot.BotMetrics;
+import de.janno.discord.bot.I18n;
 import de.janno.discord.bot.persistance.PersistenceManager;
 import de.janno.discord.connector.api.SlashCommand;
 import de.janno.discord.connector.api.SlashEventAdaptor;
@@ -10,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.Locale;
 import java.util.UUID;
 import java.util.function.Supplier;
 
@@ -31,14 +33,17 @@ public class ClearCommand implements SlashCommand {
     public @NonNull CommandDefinition getCommandDefinition() {
         return CommandDefinition.builder()
                 .name(getCommandId())
-                .description("Removes all button messages and saved bot data for this channel")
+                .nameLocales(I18n.allNoneEnglishMessagesNames("clear.name"))
+                .description(I18n.getMessage("clear.description", Locale.ENGLISH))
+                .descriptionLocales(I18n.allNoneEnglishMessagesDescriptions("clear.description"))
                 .build();
     }
 
     @Override
-    public @NonNull Mono<Void> handleSlashCommandEvent(@NonNull SlashEventAdaptor event, @NonNull Supplier<UUID> uuidSupplier) {
+    public @NonNull Mono<Void> handleSlashCommandEvent(@NonNull SlashEventAdaptor event, @NonNull Supplier<UUID> uuidSupplier, @NonNull Locale userLocal) {
         BotMetrics.incrementSlashStartMetricCounter(getCommandId(), "[]");
-        return event.reply("Deleting messages and data ...", false)
+
+        return event.reply(I18n.getMessage("clear.reply", userLocal), false)
                 .then(Mono.just(persistenceManager.deleteMessageDataForChannel(event.getChannelId()))
                         .flux()
                         .flatMap(Flux::fromIterable)
