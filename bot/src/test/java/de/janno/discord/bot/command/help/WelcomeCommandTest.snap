@@ -18,19 +18,32 @@ de.janno.discord.bot.command.help.WelcomeCommandTest.getCommandDefinition=[
     "descriptionLocales" : [
       {
         "locale" : "de",
-        "value" : "Erzeuge eine Wegkommensnachricht"
+        "description" : "Erzeuge eine Wegkommensnachricht"
+      },
+      {
+        "locale" : "pt_BR",
+        "description" : "Exibe a mensagem de boas vindas"
       }
     ],
     "options" : [
       {
         "type" : "SUB_COMMAND",
         "name" : "start",
-        "nameLocales" : [ ],
+        "nameLocales" : [
+          {
+            "locale" : "pt_BR",
+            "name" : "iniciar"
+          }
+        ],
         "description" : "Displays the welcome message",
         "descriptionLocales" : [
           {
             "locale" : "de",
-            "value" : "Erzeuge eine Wegkommensnachricht"
+            "description" : "Erzeuge eine Wegkommensnachricht"
+          },
+          {
+            "locale" : "pt_BR",
+            "description" : "Exibe a mensagem de boas vindas"
           }
         ],
         "required" : false,
@@ -42,14 +55,22 @@ de.janno.discord.bot.command.help.WelcomeCommandTest.getCommandDefinition=[
             "nameLocales" : [
               {
                 "locale" : "de",
-                "value" : "sprache"
+                "name" : "sprache"
+              },
+              {
+                "locale" : "pt_BR",
+                "name" : "idioma"
               }
             ],
             "description" : "The language of the bot messages",
             "descriptionLocales" : [
               {
                 "locale" : "de",
-                "value" : "Die Sprach des Bots"
+                "description" : "Die Sprach des Bots"
+              },
+              {
+                "locale" : "pt_BR",
+                "description" : "O idioma da mensagem do bot"
               }
             ],
             "required" : false,
@@ -60,7 +81,11 @@ de.janno.discord.bot.command.help.WelcomeCommandTest.getCommandDefinition=[
                 "nameLocales" : [
                   {
                     "locale" : "de",
-                    "value" : "Englisch"
+                    "choice" : "Englisch"
+                  },
+                  {
+                    "locale" : "pt_BR",
+                    "choice" : "Inglês"
                   }
                 ]
               },
@@ -70,7 +95,25 @@ de.janno.discord.bot.command.help.WelcomeCommandTest.getCommandDefinition=[
                 "nameLocales" : [
                   {
                     "locale" : "de",
-                    "value" : "Deutsch"
+                    "choice" : "Deutsch"
+                  },
+                  {
+                    "locale" : "pt_BR",
+                    "choice" : "Alemão"
+                  }
+                ]
+              },
+              {
+                "name" : "Portuguese (Brazil)",
+                "value" : "pt_BR",
+                "nameLocales" : [
+                  {
+                    "locale" : "de",
+                    "choice" : "Brasilianisches Portugiesisch"
+                  },
+                  {
+                    "locale" : "pt_BR",
+                    "choice" : "Português Brasileiro"
                   }
                 ]
               }
@@ -87,14 +130,22 @@ de.janno.discord.bot.command.help.WelcomeCommandTest.getCommandDefinition=[
         "nameLocales" : [
           {
             "locale" : "de",
-            "value" : "hilfe"
+            "name" : "hilfe"
+          },
+          {
+            "locale" : "pt_BR",
+            "name" : "ajuda"
           }
         ],
         "description" : "Get help for /welcome",
         "descriptionLocales" : [
           {
             "locale" : "de",
-            "value" : "Hilfe für /welcome"
+            "description" : "Hilfe für /welcome"
+          },
+          {
+            "locale" : "pt_BR",
+            "description" : "Consiga ajuda para /welcome"
           }
         ],
         "required" : false,

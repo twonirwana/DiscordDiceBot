@@ -6,7 +6,11 @@ de.janno.discord.bot.command.directRoll.DirectRollCommandTest.getCommandDefiniti
     "descriptionLocales" : [
       {
         "locale" : "de",
-        "value" : "Direkter Wurf eines Würfelausdruckes, z.B. `2d6`. Konfiguration mit `/channel_config`"
+        "description" : "Direkter Wurf eines Würfelausdruckes, z.B. `2d6`. Konfiguration mit `/channel_config`"
+      },
+      {
+        "locale" : "pt_BR",
+        "description" : "fórmula direta de rolagem de dados, ex.: `2d6`. Configure com `/channel_config`"
       }
     ],
     "options" : [
@@ -16,14 +20,22 @@ de.janno.discord.bot.command.directRoll.DirectRollCommandTest.getCommandDefiniti
         "nameLocales" : [
           {
             "locale" : "de",
-            "value" : "ausdruck"
+            "name" : "ausdruck"
+          },
+          {
+            "locale" : "pt_BR",
+            "name" : "formula"
           }
         ],
         "description" : "direct roll of dice expression, e.g. `2d6`. Configuration with `/channel_config`",
         "descriptionLocales" : [
           {
             "locale" : "de",
-            "value" : "Direkter Wurf eines Würfelausdruckes, z.B. `2d6`. Konfiguration mit `/channel_config`"
+            "description" : "Direkter Wurf eines Würfelausdruckes, z.B. `2d6`. Konfiguration mit `/channel_config`"
+          },
+          {
+            "locale" : "pt_BR",
+            "description" : "fórmula direta de rolagem de dados, ex.: `2d6`. Configure com `/channel_config`"
           }
         ],
         "required" : true,

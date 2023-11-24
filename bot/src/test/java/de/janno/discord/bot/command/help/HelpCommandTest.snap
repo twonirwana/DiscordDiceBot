@@ -6,7 +6,11 @@ de.janno.discord.bot.command.help.HelpCommandTest.getCommandDefinition=[
     "descriptionLocales" : [
       {
         "locale" : "de",
-        "value" : "Hilfe zu Befehle und Links zu weiterer Information"
+        "description" : "Hilfe zu Befehle und Links zu weiterer Information"
+      },
+      {
+        "locale" : "pt_BR",
+        "description" : "Ajuda para os comandos e links para e mais informações"
       }
     ],
     "options" : [ ]

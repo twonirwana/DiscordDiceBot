@@ -245,9 +245,9 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
         return ImmutableList.of(
                 CommandDefinitionOption.builder()
                         .name(EXPRESSION_OPTION_NAME)
-                        .nameLocales(I18n.allNoneEnglishMessages("custom_parameter.option.expression.name"))
+                        .nameLocales(I18n.allNoneEnglishMessagesNames("custom_parameter.option.expression.name"))
                         .description(I18n.getMessage("custom_parameter.option.expression.description", Locale.ENGLISH))
-                        .descriptionLocales(I18n.allNoneEnglishMessages("custom_parameter.option.expression.description"))
+                        .descriptionLocales(I18n.allNoneEnglishMessagesDescriptions("custom_parameter.option.expression.description"))
                         .required(true)
                         .type(CommandDefinitionOption.Type.STRING)
                         .build());

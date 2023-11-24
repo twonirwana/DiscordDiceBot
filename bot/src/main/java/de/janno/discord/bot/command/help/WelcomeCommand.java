@@ -21,6 +21,7 @@ import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import reactor.core.publisher.Mono;
 
 import java.util.Arrays;
 import java.util.Locale;
@@ -62,12 +63,6 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
         final State<StateData> updatedState = new State<>(buttonValue, StateData.empty());
         return new ConfigAndState<>(messageConfigDTO.getConfigUUID(), loadedConfig, updatedState);
     }
-
-    /*
-    @Override
-    protected @NonNull Optional<MessageConfigDTO> getMessageConfigDTO(@Nullable UUID configId, long channelId, long messageId) {
-        return Optional.of(new MessageConfigDTO(uuidSupplier.get(), null, channelId, getCommandId(), "None", "None"));
-    }*/
 
     @Override
     protected boolean supportsResultImages() {
@@ -160,6 +155,16 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
     protected Optional<ConfigAndState<Config, StateData>> createNewConfigAndStateIfMissing(String buttonValue) {
         return Optional.of(new ConfigAndState<>(uuidSupplier.get(), new Config(null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, DiceImageStyle.none.getDefaultColor()), Locale.ENGLISH), new State<>(buttonValue, StateData.empty())));
     }
+
+    protected Mono<Void> deleteOldAndConcurrentMessageAndData(
+            long newMessageId,
+            @NonNull UUID configUUID,
+            long channelId,
+            @NonNull ButtonEventAdaptor event){
+        //welcome never deletes its config
+        return Mono.empty();
+    }
+
 
     @Override
     public @NonNull EmbedOrMessageDefinition createNewButtonMessage(@NonNull UUID configUUID, @NonNull Config config) {

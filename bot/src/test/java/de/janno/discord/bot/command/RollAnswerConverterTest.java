@@ -171,7 +171,7 @@ class RollAnswerConverterTest {
                         .answerFormatType(AnswerFormatType.compact)
                         .expression("2d6=")
                         .errorMessage("error")
-                        .build(), "Error in `2d6=`", "error", EmbedOrMessageDefinition.Type.MESSAGE, ImmutableList.of(), false),
+                        .build(), null, "error", EmbedOrMessageDefinition.Type.MESSAGE, ImmutableList.of(), false),
                 Arguments.of(RollAnswer.builder()
                         .answerFormatType(AnswerFormatType.compact)
                         .expression("2d6=")
@@ -222,7 +222,7 @@ class RollAnswerConverterTest {
                         .answerFormatType(AnswerFormatType.minimal)
                         .expression("2d6=")
                         .errorMessage("error")
-                        .build(), "Error in `2d6=`", "error", EmbedOrMessageDefinition.Type.MESSAGE, ImmutableList.of(), false),
+                        .build(), null, "error", EmbedOrMessageDefinition.Type.MESSAGE, ImmutableList.of(), false),
                 Arguments.of(RollAnswer.builder()
                         .answerFormatType(AnswerFormatType.minimal)
                         .expression("2d6=")

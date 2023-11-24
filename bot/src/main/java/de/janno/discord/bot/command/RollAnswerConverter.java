@@ -21,7 +21,7 @@ public class RollAnswerConverter {
         final EmbedOrMessageDefinition.Type type = getMessageType(rollAnswer.getAnswerFormatType());
         if (rollAnswer.getErrorMessage() != null) {
             return EmbedOrMessageDefinition.builder()
-                    .title("Error in `%s`".formatted(rollAnswer.getExpression()))
+                    .title(type == EmbedOrMessageDefinition.Type.EMBED ? "Error in `%s`".formatted(rollAnswer.getExpression()) : null)
                     .descriptionOrContent(rollAnswer.getErrorMessage())
                     .type(type)
                     .build();

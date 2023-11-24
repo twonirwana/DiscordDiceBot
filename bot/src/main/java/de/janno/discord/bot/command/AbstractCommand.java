@@ -85,23 +85,23 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
         }
         return CommandDefinition.builder()
                 .name(getCommandId())
-                .nameLocales(I18n.allNoneEnglishMessages("%s.name".formatted(getCommandId())))
+                .nameLocales(I18n.allNoneEnglishMessagesNames("%s.name".formatted(getCommandId())))
                 .description(I18n.getMessage("%s.description".formatted(getCommandId()), Locale.ENGLISH)) //not visible, because the description of the first option will be shown
-                .descriptionLocales(I18n.allNoneEnglishMessages("%s.description".formatted(getCommandId()))) //not visible, because the description of the first option will be shown
+                .descriptionLocales(I18n.allNoneEnglishMessagesDescriptions("%s.description".formatted(getCommandId()))) //not visible, because the description of the first option will be shown
                 .option(CommandDefinitionOption.builder()
                         .name(START_OPTION_NAME)
-                        .nameLocales(I18n.allNoneEnglishMessages("base.option.start"))
+                        .nameLocales(I18n.allNoneEnglishMessagesNames("base.option.start"))
                         .description(I18n.getMessage("%s.description".formatted(getCommandId()), Locale.ENGLISH))
-                        .descriptionLocales(I18n.allNoneEnglishMessages("%s.description".formatted(getCommandId())))
+                        .descriptionLocales(I18n.allNoneEnglishMessagesDescriptions("%s.description".formatted(getCommandId())))
                         .type(CommandDefinitionOption.Type.SUB_COMMAND)
                         .options(getStartOptions())
                         .options(baseOptions)
                         .build())
                 .option(CommandDefinitionOption.builder()
                         .name(HELP_OPTION_NAME)
-                        .nameLocales(I18n.allNoneEnglishMessages("base.option.help"))
+                        .nameLocales(I18n.allNoneEnglishMessagesNames("base.option.help"))
                         .description(I18n.getMessage("base.help.description", Locale.ENGLISH, (I18n.getMessage("%s.name".formatted(getCommandId()), Locale.ENGLISH))))
-                        .descriptionLocales(I18n.allNoneEnglishWithKeys("base.help.description", "%s.name".formatted(getCommandId())))
+                        .descriptionLocales(I18n.allNoneEnglishDescriptionsWithKeys("base.help.description", "%s.name".formatted(getCommandId())))
                         .type(CommandDefinitionOption.Type.SUB_COMMAND)
                         .build())
                 .options(additionalCommandOptions())
@@ -322,8 +322,7 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
                 }).ofType(Void.class));
     }
 
-    @VisibleForTesting
-    Mono<Void> deleteOldAndConcurrentMessageAndData(
+   protected Mono<Void> deleteOldAndConcurrentMessageAndData(
             long newMessageId,
             @NonNull UUID configUUID,
             long channelId,

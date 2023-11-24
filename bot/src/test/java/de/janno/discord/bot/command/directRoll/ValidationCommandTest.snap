@@ -6,7 +6,11 @@ de.janno.discord.bot.command.directRoll.ValidationCommandTest.getCommandDefiniti
     "descriptionLocales" : [
       {
         "locale" : "de",
-        "value" : "Gib einen Würfelausdruck (z.B. 2d6) und das Autocomplete gibt direkt Fehlermeldungen"
+        "description" : "Gib einen Würfelausdruck (z.B. 2d6) und das Autocomplete gibt direkt Fehlermeldungen"
+      },
+      {
+        "locale" : "pt_BR",
+        "description" : "forneça uma fórmula (ex.: 2d6) e o autocompletar vai mostrar uma mensagem de errose ela for inválida"
       }
     ],
     "options" : [
@@ -16,14 +20,22 @@ de.janno.discord.bot.command.directRoll.ValidationCommandTest.getCommandDefiniti
         "nameLocales" : [
           {
             "locale" : "de",
-            "value" : "ausdruck"
+            "name" : "ausdruck"
+          },
+          {
+            "locale" : "pt_BR",
+            "name" : "formula"
           }
         ],
         "description" : "provide an expression (e.g. 2d6) and the autocomplete will show an error message if it is invalid",
         "descriptionLocales" : [
           {
             "locale" : "de",
-            "value" : "Gib einen Würfelausdruck (z.B. 2d6) und das Autocomplete gibt direkt Fehlermeldungen"
+            "description" : "Gib einen Würfelausdruck (z.B. 2d6) und das Autocomplete gibt direkt Fehlermeldungen"
+          },
+          {
+            "locale" : "pt_BR",
+            "description" : "forneça uma fórmula (ex.: 2d6) e o autocompletar vai mostrar uma mensagem de errose ela for inválida"
           }
         ],
         "required" : true,

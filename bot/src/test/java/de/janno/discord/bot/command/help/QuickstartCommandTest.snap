@@ -6,19 +6,32 @@ de.janno.discord.bot.command.help.QuickstartCommandTest.getCommandDefinition=[
     "descriptionLocales" : [
       {
         "locale" : "de",
-        "value" : "Wähle eine der fertigen Würfelsystem für ein gegebenes RPG"
+        "description" : "Wähle eine der fertigen Würfelsystem für ein gegebenes RPG"
+      },
+      {
+        "locale" : "pt_BR",
+        "description" : "Selecione um conjunto de dados pré-configurado de alguns sistemas"
       }
     ],
     "options" : [
       {
         "type" : "STRING",
         "name" : "system",
-        "nameLocales" : [ ],
+        "nameLocales" : [
+          {
+            "locale" : "pt_BR",
+            "name" : "sistema"
+          }
+        ],
         "description" : "Start typing to filter and see more options",
         "descriptionLocales" : [
           {
             "locale" : "de",
-            "value" : "Tippe um zu filtern und mehr Optionen zu sehen"
+            "description" : "Tippe um zu filtern und mehr Optionen zu sehen"
+          },
+          {
+            "locale" : "pt_BR",
+            "description" : "Comece a digitar para filtar e ver mais opções"
           }
         ],
         "required" : true,

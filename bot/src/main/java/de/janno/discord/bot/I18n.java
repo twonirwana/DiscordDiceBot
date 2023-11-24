@@ -1,7 +1,9 @@
 package de.janno.discord.bot;
 
 import com.google.common.collect.ImmutableList;
-import de.janno.discord.connector.api.slash.LocaleValue;
+import de.janno.discord.connector.api.slash.CommandLocaleChoice;
+import de.janno.discord.connector.api.slash.CommandLocaleDescription;
+import de.janno.discord.connector.api.slash.CommandLocaleName;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.text.StringEscapeUtils;
 
@@ -34,21 +36,40 @@ public final class I18n {
                 .build();
     }
 
-    public static List<LocaleValue> allNoneEnglishMessages(String key) {
+    private static List<LocaleString> allNoneEnglishMessagesValues(String key) {
         return getAdditionalLanguage().stream()
-                .map(l -> new LocaleValue(l, getMessage(key, l)))
+                .map(l -> new LocaleString(l, getMessage(key, l)))
                 .filter(m -> !Objects.equals(m.value(), getMessage(key, Locale.ENGLISH))) //remove all locals that are equal to the default english one
                 .toList();
     }
 
-    public static List<LocaleValue> allNoneEnglishWithKeys(String key, String... keys) {
+    public static List<CommandLocaleName> allNoneEnglishMessagesNames(String key) {
+        return allNoneEnglishMessagesValues(key).stream()
+                .map(lv -> new CommandLocaleName(lv.locale(), lv.value()))
+                .toList();
+    }
+
+    public static List<CommandLocaleDescription> allNoneEnglishMessagesDescriptions(String key) {
+        return allNoneEnglishMessagesValues(key).stream()
+                .map(lv -> new CommandLocaleDescription(lv.locale(), lv.value()))
+                .toList();
+    }
+
+    public static List<CommandLocaleChoice> allNoneEnglishMessagesChoices(String key) {
+        return allNoneEnglishMessagesValues(key).stream()
+                .map(lv -> new CommandLocaleChoice(lv.locale(), lv.value()))
+                .toList();
+    }
+
+    public static List<CommandLocaleDescription> allNoneEnglishDescriptionsWithKeys(String key, String... keys) {
         return getAdditionalLanguage().stream()
-                .map(l -> new LocaleValue(l, getMessage(key, l, Arrays.stream(keys)
+                .map(l -> new CommandLocaleDescription(l, getMessage(key, l, Arrays.stream(keys)
                         .map(k -> getMessage(k, l))
                         .toArray(Object[]::new))))
-                .filter(m -> !Objects.equals(m.value(), getMessage(key, Locale.ENGLISH))) //remove all locals that are equal to the default english one
+                .filter(m -> !Objects.equals(m.getDescription(), getMessage(key, Locale.ENGLISH))) //remove all locals that are equal to the default english one
                 .toList();
     }
 
+    private record LocaleString(Locale locale, String value){}
 
 }

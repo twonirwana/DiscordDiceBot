@@ -28,8 +28,8 @@ public class ApplicationCommandConverter {
         return CommandDefinition.builder()
                 .name(slashCommand.getName())
                 .description(slashCommand.getDescription())
-                .nameLocales(discordLocale2Locale(slashCommand.getNameLocalizations()))
-                .descriptionLocales(discordLocale2Locale(slashCommand.getDescriptionLocalizations()))
+                .nameLocales(discordLocale2LocaleName(slashCommand.getNameLocalizations()))
+                .descriptionLocales(discordLocale2LocaleDescription(slashCommand.getDescriptionLocalizations()))
                 .options(optionList)
                 .build();
     }
@@ -39,8 +39,8 @@ public class ApplicationCommandConverter {
                 .type(CommandDefinitionOption.Type.SUB_COMMAND_GROUP)
                 .name(subcommandGroup.getName())
                 .description(subcommandGroup.getDescription())
-                .nameLocales(discordLocale2Locale(subcommandGroup.getNameLocalizations()))
-                .descriptionLocales(discordLocale2Locale(subcommandGroup.getDescriptionLocalizations()))
+                .nameLocales(discordLocale2LocaleName(subcommandGroup.getNameLocalizations()))
+                .descriptionLocales(discordLocale2LocaleDescription(subcommandGroup.getDescriptionLocalizations()))
                 .options(subcommandGroup.getSubcommands().stream()
                         .map(ApplicationCommandConverter::subcommand2CommandDefinitionOption)
                         .collect(Collectors.toList()))
@@ -52,8 +52,8 @@ public class ApplicationCommandConverter {
                 .type(CommandDefinitionOption.Type.SUB_COMMAND)
                 .name(subcommand.getName())
                 .description(subcommand.getDescription())
-                .nameLocales(discordLocale2Locale(subcommand.getNameLocalizations()))
-                .descriptionLocales(discordLocale2Locale(subcommand.getDescriptionLocalizations()))
+                .nameLocales(discordLocale2LocaleName(subcommand.getNameLocalizations()))
+                .descriptionLocales(discordLocale2LocaleDescription(subcommand.getDescriptionLocalizations()))
                 .options(subcommand.getOptions().stream()
                         .map(ApplicationCommandConverter::commandOption2CommandDefinitionOption)
                         .collect(Collectors.toList()))
@@ -65,8 +65,8 @@ public class ApplicationCommandConverter {
                 .type(CommandDefinitionOption.Type.of(commandOption.getType().getKey()))
                 .name(commandOption.getName())
                 .description(commandOption.getDescription())
-                .nameLocales(discordLocale2Locale(commandOption.getNameLocalizations()))
-                .descriptionLocales(discordLocale2Locale(commandOption.getDescriptionLocalizations()))
+                .nameLocales(discordLocale2LocaleName(commandOption.getNameLocalizations()))
+                .descriptionLocales(discordLocale2LocaleDescription(commandOption.getDescriptionLocalizations()))
                 .required(commandOption.isRequired())
                 .autoComplete(commandOption.isAutoComplete())
                 .minValue(Optional.ofNullable(commandOption.getMinValue()).map(Number::longValue).orElse(null))
@@ -75,7 +75,7 @@ public class ApplicationCommandConverter {
                         .map(c -> CommandDefinitionOptionChoice.builder()
                                 .name(c.getName())
                                 .value(c.getAsString())
-                                .nameLocales(discordLocale2Locale(c.getNameLocalizations()))
+                                .nameLocales(discordLocale2LocaleChoice(c.getNameLocalizations()))
                                 .build()
                         ).collect(Collectors.toList())
                 )
@@ -84,8 +84,8 @@ public class ApplicationCommandConverter {
 
     public static CommandData commandDefinition2CommandData(CommandDefinition commandDefinition) {
         return new CommandDataImpl(commandDefinition.getName(), commandDefinition.getDescription())
-                .setNameLocalizations(localeValue2DiscorLocaleMap(commandDefinition.getNameLocales()))
-                .setDescriptionLocalizations(localeValue2DiscorLocaleMap(commandDefinition.getDescriptionLocales()))
+                .setNameLocalizations(localeName2DiscordLocaleMap(commandDefinition.getNameLocales()))
+                .setDescriptionLocalizations(localeDescription2DiscordLocaleMap(commandDefinition.getDescriptionLocales()))
                 .addSubcommands(commandDefinition.getOptions().stream()
                         .filter(c -> c.getType() == CommandDefinitionOption.Type.SUB_COMMAND)
                         .map(ApplicationCommandConverter::commandDefinitionOption2SubcommandData)
@@ -102,8 +102,8 @@ public class ApplicationCommandConverter {
 
     private static SubcommandGroupData commandDefinitionOption2SubcommandGroupData(CommandDefinitionOption commandDefinitionOption) {
         return new SubcommandGroupData(commandDefinitionOption.getName(), commandDefinitionOption.getDescription())
-                .setNameLocalizations(localeValue2DiscorLocaleMap(commandDefinitionOption.getNameLocales()))
-                .setDescriptionLocalizations(localeValue2DiscorLocaleMap(commandDefinitionOption.getDescriptionLocales()))
+                .setNameLocalizations(localeName2DiscordLocaleMap(commandDefinitionOption.getNameLocales()))
+                .setDescriptionLocalizations(localeDescription2DiscordLocaleMap(commandDefinitionOption.getDescriptionLocales()))
                 .addSubcommands(commandDefinitionOption.getOptions().stream()
                         .map(ApplicationCommandConverter::commandDefinitionOption2SubcommandData)
                         .collect(Collectors.toList()));
@@ -111,8 +111,8 @@ public class ApplicationCommandConverter {
 
     private static SubcommandData commandDefinitionOption2SubcommandData(CommandDefinitionOption commandDefinitionOption) {
         return new SubcommandData(commandDefinitionOption.getName(), commandDefinitionOption.getDescription())
-                .setNameLocalizations(localeValue2DiscorLocaleMap(commandDefinitionOption.getNameLocales()))
-                .setDescriptionLocalizations(localeValue2DiscorLocaleMap(commandDefinitionOption.getDescriptionLocales()))
+                .setNameLocalizations(localeName2DiscordLocaleMap(commandDefinitionOption.getNameLocales()))
+                .setDescriptionLocalizations(localeDescription2DiscordLocaleMap(commandDefinitionOption.getDescriptionLocales()))
                 .addOptions(commandDefinitionOption.getOptions().stream()
                         .map(ApplicationCommandConverter::commandDefinitionOption2OptionData)
                         .collect(Collectors.toList()));
@@ -124,11 +124,11 @@ public class ApplicationCommandConverter {
                 commandDefinitionOption.getDescription())
                 .setRequired(commandDefinitionOption.isRequired())
                 .setAutoComplete(commandDefinitionOption.isAutoComplete())
-                .setNameLocalizations(localeValue2DiscorLocaleMap(commandDefinitionOption.getNameLocales()))
-                .setDescriptionLocalizations(localeValue2DiscorLocaleMap(commandDefinitionOption.getDescriptionLocales()))
+                .setNameLocalizations(localeName2DiscordLocaleMap(commandDefinitionOption.getNameLocales()))
+                .setDescriptionLocalizations(localeDescription2DiscordLocaleMap(commandDefinitionOption.getDescriptionLocales()))
                 .addChoices(commandDefinitionOption.getChoices().stream()
                         .map(choice -> new Command.Choice(choice.getName(), choice.getValue())
-                                .setNameLocalizations(localeValue2DiscorLocaleMap(choice.getNameLocales()))
+                                .setNameLocalizations(localeChoice2DiscordLocaleMap(choice.getNameLocales()))
                         )
                         .collect(Collectors.toList()));
         if (commandDefinitionOption.getMinValue() != null) {
@@ -140,14 +140,37 @@ public class ApplicationCommandConverter {
         return optionData;
     }
 
-    private static Map<DiscordLocale, String> localeValue2DiscorLocaleMap(List<LocaleValue> localeValues) {
-        return localeValues.stream().collect(Collectors.toMap(lv -> DiscordLocale.from(lv.locale()), LocaleValue::value));
+    private static Map<DiscordLocale, String> localeDescription2DiscordLocaleMap(List<CommandLocaleDescription> commandLocaleDesciptions) {
+        return commandLocaleDesciptions.stream().collect(Collectors.toMap(lv -> DiscordLocale.from(lv.getLocale()), CommandLocaleDescription::getDescription));
     }
 
-    private static List<LocaleValue> discordLocale2Locale(LocalizationMap localizationMap) {
+    private static Map<DiscordLocale, String> localeName2DiscordLocaleMap(List<CommandLocaleName> commandLocaleNames) {
+        return commandLocaleNames.stream().collect(Collectors.toMap(lv -> DiscordLocale.from(lv.getLocale()), CommandLocaleName::getName));
+    }
+
+    private static Map<DiscordLocale, String> localeChoice2DiscordLocaleMap(List<CommandLocaleChoice> commandLocaleChoices) {
+        return commandLocaleChoices.stream().collect(Collectors.toMap(lv -> DiscordLocale.from(lv.getLocale()), CommandLocaleChoice::getChoice));
+    }
+
+
+    private static List<CommandLocaleName> discordLocale2LocaleName(LocalizationMap localizationMap) {
         return localizationMap.toMap().entrySet().stream()
-                .map(e -> new LocaleValue(LocaleConverter.toLocale(e.getKey()), e.getValue()))
-                .sorted(Comparator.comparing(lv -> lv.locale().toString()))
+                .map(e -> new CommandLocaleName(LocaleConverter.toLocale(e.getKey()), e.getValue()))
+                .sorted(Comparator.comparing(lv -> lv.getLocale().toString()))
+                .collect(Collectors.toList());
+    }
+
+    private static List<CommandLocaleDescription> discordLocale2LocaleDescription(LocalizationMap localizationMap) {
+        return localizationMap.toMap().entrySet().stream()
+                .map(e -> new CommandLocaleDescription(LocaleConverter.toLocale(e.getKey()), e.getValue()))
+                .sorted(Comparator.comparing(lv -> lv.getLocale().toString()))
+                .collect(Collectors.toList());
+    }
+
+    private static List<CommandLocaleChoice> discordLocale2LocaleChoice(LocalizationMap localizationMap) {
+        return localizationMap.toMap().entrySet().stream()
+                .map(e -> new CommandLocaleChoice(LocaleConverter.toLocale(e.getKey()), e.getValue()))
+                .sorted(Comparator.comparing(lv -> lv.getLocale().toString()))
                 .collect(Collectors.toList());
     }
 

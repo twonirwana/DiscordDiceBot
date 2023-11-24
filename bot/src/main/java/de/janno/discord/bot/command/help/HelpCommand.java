@@ -25,9 +25,9 @@ public class HelpCommand implements SlashCommand {
     public @NonNull CommandDefinition getCommandDefinition() {
         return CommandDefinition.builder()
                 .name(getCommandId())
-                .nameLocales(I18n.allNoneEnglishMessages("help.name"))
+                .nameLocales(I18n.allNoneEnglishMessagesNames("help.name"))
                 .description(I18n.getMessage("help.description", Locale.ENGLISH))
-                .descriptionLocales(I18n.allNoneEnglishMessages("help.description"))
+                .descriptionLocales(I18n.allNoneEnglishMessagesDescriptions("help.description"))
                 .build();
     }
 

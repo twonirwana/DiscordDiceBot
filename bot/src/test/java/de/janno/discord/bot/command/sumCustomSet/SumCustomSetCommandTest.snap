@@ -18,19 +18,32 @@ de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandTest.getCommandDefi
     "descriptionLocales" : [
       {
         "locale" : "de",
-        "value" : "Konfiguriere eine variable Menge an Würfeln"
+        "description" : "Konfiguriere eine variable Menge an Würfeln"
+      },
+      {
+        "locale" : "pt_BR",
+        "description" : "Configure uma conjunto de dados variáveis"
       }
     ],
     "options" : [
       {
         "type" : "SUB_COMMAND",
         "name" : "start",
-        "nameLocales" : [ ],
+        "nameLocales" : [
+          {
+            "locale" : "pt_BR",
+            "name" : "iniciar"
+          }
+        ],
         "description" : "Configure a variable set of dice",
         "descriptionLocales" : [
           {
             "locale" : "de",
-            "value" : "Konfiguriere eine variable Menge an Würfeln"
+            "description" : "Konfiguriere eine variable Menge an Würfeln"
+          },
+          {
+            "locale" : "pt_BR",
+            "description" : "Configure uma conjunto de dados variáveis"
           }
         ],
         "required" : false,
@@ -39,12 +52,21 @@ de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandTest.getCommandDefi
           {
             "type" : "STRING",
             "name" : "buttons",
-            "nameLocales" : [ ],
+            "nameLocales" : [
+              {
+                "locale" : "pt_BR",
+                "name" : "botoes"
+              }
+            ],
             "description" : "Define one or more buttons separated by `;`",
             "descriptionLocales" : [
               {
                 "locale" : "de",
-                "value" : "Definiere ein oder mehrere Buttons, separiert mit `;`"
+                "description" : "Definiere ein oder mehrere Buttons, separiert mit `;`"
+              },
+              {
+                "locale" : "pt_BR",
+                "description" : "Defina um ou mais botôes separados por `;`"
               }
             ],
             "required" : true,
@@ -58,14 +80,22 @@ de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandTest.getCommandDefi
             "nameLocales" : [
               {
                 "locale" : "de",
-                "value" : "ergebnis_zusammen_zählen"
+                "name" : "ergebnis_zusammen_zählen"
+              },
+              {
+                "locale" : "pt_BR",
+                "name" : "sempre_somar_resultado"
               }
             ],
             "description" : "Always sum the results of the dice expressions",
             "descriptionLocales" : [
               {
                 "locale" : "de",
-                "value" : "Addiere die Würfel immer zusammen"
+                "description" : "Addiere die Würfel immer zusammen"
+              },
+              {
+                "locale" : "pt_BR",
+                "description" : "Sempre soma os resultados das fórmulas de rolagens"
               }
             ],
             "required" : false,
@@ -79,14 +109,22 @@ de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandTest.getCommandDefi
             "nameLocales" : [
               {
                 "locale" : "de",
-                "value" : "antwort_kanal"
+                "name" : "antwort_kanal"
+              },
+              {
+                "locale" : "pt_BR",
+                "name" : "canal_alvo"
               }
             ],
             "description" : "Another channel where the answer will be given",
             "descriptionLocales" : [
               {
                 "locale" : "de",
-                "value" : "Ein anderer Kanal in der die Nachricht gesendet wird"
+                "description" : "Ein anderer Kanal in der die Nachricht gesendet wird"
+              },
+              {
+                "locale" : "pt_BR",
+                "description" : "Outro canal onde o resultado será mostrado"
               }
             ],
             "required" : false,
@@ -100,14 +138,22 @@ de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandTest.getCommandDefi
             "nameLocales" : [
               {
                 "locale" : "de",
-                "value" : "antwort_format"
+                "name" : "antwort_format"
+              },
+              {
+                "locale" : "pt_BR",
+                "name" : "formato_resultado"
               }
             ],
             "description" : "How the answer will be displayed",
             "descriptionLocales" : [
               {
                 "locale" : "de",
-                "value" : "Wie die Antwort formatiert wird"
+                "description" : "Wie die Antwort formatiert wird"
+              },
+              {
+                "locale" : "pt_BR",
+                "description" : "Como o resultado será exibido"
               }
             ],
             "required" : false,
@@ -118,7 +164,11 @@ de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandTest.getCommandDefi
                 "nameLocales" : [
                   {
                     "locale" : "de",
-                    "value" : "voll"
+                    "choice" : "voll"
+                  },
+                  {
+                    "locale" : "pt_BR",
+                    "choice" : "completo"
                   }
                 ]
               },
@@ -128,7 +178,11 @@ de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandTest.getCommandDefi
                 "nameLocales" : [
                   {
                     "locale" : "de",
-                    "value" : "ohne_ausdruck"
+                    "choice" : "ohne_ausdruck"
+                  },
+                  {
+                    "locale" : "pt_BR",
+                    "choice" : "sem_formula"
                   }
                 ]
               },
@@ -138,7 +192,11 @@ de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandTest.getCommandDefi
                 "nameLocales" : [
                   {
                     "locale" : "de",
-                    "value" : "nur_würfel"
+                    "choice" : "nur_würfel"
+                  },
+                  {
+                    "locale" : "pt_BR",
+                    "choice" : "apenas_dados"
                   }
                 ]
               },
@@ -148,14 +206,23 @@ de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandTest.getCommandDefi
                 "nameLocales" : [
                   {
                     "locale" : "de",
-                    "value" : "kompakt"
+                    "choice" : "kompakt"
+                  },
+                  {
+                    "locale" : "pt_BR",
+                    "choice" : "compacto"
                   }
                 ]
               },
               {
                 "name" : "minimal",
                 "value" : "minimal",
-                "nameLocales" : [ ]
+                "nameLocales" : [
+                  {
+                    "locale" : "pt_BR",
+                    "choice" : "minimo"
+                  }
+                ]
               }
             ],
             "options" : [ ],
@@ -167,14 +234,22 @@ de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandTest.getCommandDefi
             "nameLocales" : [
               {
                 "locale" : "de",
-                "value" : "würfel_bild_stil"
+                "name" : "würfel_bild_stil"
+              },
+              {
+                "locale" : "pt_BR",
+                "name" : "estilo_imagem_dados"
               }
             ],
             "description" : "If and in what style the dice throw should be shown as image",
             "descriptionLocales" : [
               {
                 "locale" : "de",
-                "value" : "Ob und in welchen Stil Würfelbilder gezeigt werden"
+                "description" : "Ob und in welchen Stil Würfelbilder gezeigt werden"
+              },
+              {
+                "locale" : "pt_BR",
+                "description" : "Se os dados devem ser mostrados como imagens e em qual estilo"
               }
             ],
             "required" : false,
@@ -182,7 +257,12 @@ de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandTest.getCommandDefi
               {
                 "name" : "none",
                 "value" : "none",
-                "nameLocales" : [ ]
+                "nameLocales" : [
+                  {
+                    "locale" : "pt_BR",
+                    "choice" : "nenhum"
+                  }
+                ]
               },
               {
                 "name" : "polyhedral_3d",
@@ -234,14 +314,22 @@ de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandTest.getCommandDefi
             "nameLocales" : [
               {
                 "locale" : "de",
-                "value" : "würfel_bild_farbe"
+                "name" : "würfel_bild_farbe"
+              },
+              {
+                "locale" : "pt_BR",
+                "name" : "cor_dos_dados"
               }
             ],
             "description" : "The default color option. Can be influenced by the `col` operator",
             "descriptionLocales" : [
               {
                 "locale" : "de",
-                "value" : "Die Standardfarbe, kann mit noch mit `col` beeinflusst werden."
+                "description" : "Die Standardfarbe, kann mit noch mit `col` beeinflusst werden."
+              },
+              {
+                "locale" : "pt_BR",
+                "description" : "A opção de cor padrão. Pode ser influenciada pelo operador `col`"
               }
             ],
             "required" : false,
@@ -255,14 +343,22 @@ de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandTest.getCommandDefi
             "nameLocales" : [
               {
                 "locale" : "de",
-                "value" : "sprache"
+                "name" : "sprache"
+              },
+              {
+                "locale" : "pt_BR",
+                "name" : "idioma"
               }
             ],
             "description" : "The language of the bot messages",
             "descriptionLocales" : [
               {
                 "locale" : "de",
-                "value" : "Die Sprach des Bots"
+                "description" : "Die Sprach des Bots"
+              },
+              {
+                "locale" : "pt_BR",
+                "description" : "O idioma da mensagem do bot"
               }
             ],
             "required" : false,
@@ -273,7 +369,11 @@ de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandTest.getCommandDefi
                 "nameLocales" : [
                   {
                     "locale" : "de",
-                    "value" : "Englisch"
+                    "choice" : "Englisch"
+                  },
+                  {
+                    "locale" : "pt_BR",
+                    "choice" : "Inglês"
                   }
                 ]
               },
@@ -283,7 +383,25 @@ de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandTest.getCommandDefi
                 "nameLocales" : [
                   {
                     "locale" : "de",
-                    "value" : "Deutsch"
+                    "choice" : "Deutsch"
+                  },
+                  {
+                    "locale" : "pt_BR",
+                    "choice" : "Alemão"
+                  }
+                ]
+              },
+              {
+                "name" : "Portuguese (Brazil)",
+                "value" : "pt_BR",
+                "nameLocales" : [
+                  {
+                    "locale" : "de",
+                    "choice" : "Brasilianisches Portugiesisch"
+                  },
+                  {
+                    "locale" : "pt_BR",
+                    "choice" : "Português Brasileiro"
                   }
                 ]
               }
@@ -300,14 +418,22 @@ de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandTest.getCommandDefi
         "nameLocales" : [
           {
             "locale" : "de",
-            "value" : "hilfe"
+            "name" : "hilfe"
+          },
+          {
+            "locale" : "pt_BR",
+            "name" : "ajuda"
           }
         ],
         "description" : "Get help for /sum_custom_set",
         "descriptionLocales" : [
           {
             "locale" : "de",
-            "value" : "Hilfe für /sum_custom_set"
+            "description" : "Hilfe für /sum_custom_set"
+          },
+          {
+            "locale" : "pt_BR",
+            "description" : "Consiga ajuda para /sum_custom_set"
           }
         ],
         "required" : false,

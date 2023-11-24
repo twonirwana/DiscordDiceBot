@@ -26,4 +26,17 @@ class I18nTest {
         assertThat(res).isEqualTo("hilfe");
     }
 
+    @Test
+    void testBrazilian() {
+        String res = I18n.getMessage("base.option.help",  Locale.of("pt", "BR"));
+        assertThat(res).isEqualTo("ajuda");
+    }
+
+    @Test
+    void testPortuguese() {
+        String res = I18n.getMessage("base.option.help",  Locale.of("pt"));
+        //pt is currently not the fallback for pt_BR
+        assertThat(res).isEqualTo("help");
+    }
+
 }

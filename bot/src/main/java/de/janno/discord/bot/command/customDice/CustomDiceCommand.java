@@ -76,9 +76,9 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
     protected @NonNull List<CommandDefinitionOption> getStartOptions() {
         return List.of(CommandDefinitionOption.builder()
                 .name(BUTTONS_OPTION_NAME)
-                .nameLocales(I18n.allNoneEnglishMessages("custom_dice.option.buttons.name"))
+                .nameLocales(I18n.allNoneEnglishMessagesNames("custom_dice.option.buttons.name"))
                 .description(I18n.getMessage("custom_dice.option.buttons.description", Locale.ENGLISH))
-                .descriptionLocales(I18n.allNoneEnglishMessages("custom_dice.option.buttons.description"))
+                .descriptionLocales(I18n.allNoneEnglishMessagesDescriptions("custom_dice.option.buttons.description"))
                 .type(CommandDefinitionOption.Type.STRING)
                 .required(true)
                 .build());
