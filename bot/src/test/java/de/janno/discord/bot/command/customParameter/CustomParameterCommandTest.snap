@@ -22,7 +22,7 @@ de.janno.discord.bot.command.customParameter.CustomParameterCommandTest.getComma
       },
       {
         "locale" : "pt_BR",
-        "description" : "Preencha um parametro personalizade de uma determinada formula e role-o"
+        "description" : "Preencha um parâmetro personalizado de uma formula e role-o quando os parâmetros forem fornecidos"
       }
     ],
     "options" : [
@@ -43,7 +43,7 @@ de.janno.discord.bot.command.customParameter.CustomParameterCommandTest.getComma
           },
           {
             "locale" : "pt_BR",
-            "description" : "Preencha um parametro personalizade de uma determinada formula e role-o"
+            "description" : "Preencha um parâmetro personalizado de uma formula e role-o quando os parâmetros forem fornecidos"
           }
         ],
         "required" : false,

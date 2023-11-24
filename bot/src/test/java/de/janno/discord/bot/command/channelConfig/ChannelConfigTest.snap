@@ -317,7 +317,7 @@ de.janno.discord.bot.command.channelConfig.ChannelConfigTest.getCommandDefinitio
           },
           {
             "locale" : "pt_BR",
-            "name" : "apelido_do_canal"
+            "name" : "apelidos_do_canal"
           }
         ],
         "description" : "add, list or remove channel alias",
@@ -566,7 +566,7 @@ de.janno.discord.bot.command.channelConfig.ChannelConfigTest.getCommandDefinitio
           },
           {
             "locale" : "pt_BR",
-            "name" : "usuário_apelido_do_canal"
+            "name" : "apelidos_do_usuario"
           }
         ],
         "description" : "add, list or remove user channel alias",
