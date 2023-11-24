@@ -95,7 +95,7 @@ public final class BaseCommandOptions {
         }
         DiceImageStyle diceImageStyle = DiceImageStyle.valueOf(styleOptionValue.get());
         return diceImageStyle.getSupportedColors().stream()
-                .filter(s -> s.contains(autoCompleteRequest.getFocusedOptionValue()))
+                .filter(s -> diceImageStyle.getLocalizedColorName(s, userLocale).contains(autoCompleteRequest.getFocusedOptionValue()))
                 .limit(25)
                 .map(c -> new AutoCompleteAnswer(diceImageStyle.getLocalizedColorName(c, userLocale), c))
                 .collect(Collectors.toList());

@@ -51,7 +51,7 @@ public enum DiceImageStyle {
         return imageProvider.getSupportedColors();
     }
 
-    public String getLocalizedColorName( String colorName, Locale locale) {
+    public String getLocalizedColorName(String colorName, Locale locale) {
         return I18n.getMessage("base.option.dice_color.%s.%s".formatted(name(), colorName), locale);
     }
 }
