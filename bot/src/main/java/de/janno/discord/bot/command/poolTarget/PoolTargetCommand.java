@@ -4,6 +4,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import de.janno.discord.bot.I18n;
 import de.janno.discord.bot.command.*;
 import de.janno.discord.bot.dice.DiceUtils;
 import de.janno.discord.bot.dice.image.DiceImageStyle;
@@ -60,18 +61,14 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTar
         this.diceUtils = diceUtils;
     }
 
-    @Override
-    protected @NonNull String getCommandDescription() {
-        return "Legacy command, use /custom_parameter";
-    }
 
     @Override
-    protected @NonNull EmbedOrMessageDefinition getHelpMessage() {
+    protected @NonNull EmbedOrMessageDefinition getHelpMessage(Locale userLocale) {
         return EmbedOrMessageDefinition.builder()
                 .descriptionOrContent("**Legacy command, use /custom_parameter**")
-                .field(new EmbedOrMessageDefinition.Field("Example", "`/pool_target start sides:10 max_dice:15 reroll_set:10 botch_set:1 reroll_variant:ask`", false))
-                .field(new EmbedOrMessageDefinition.Field("Full documentation", "https://github.com/twonirwana/DiscordDiceBot", false))
-                .field(new EmbedOrMessageDefinition.Field("Discord Server for Help and News", "https://discord.gg/e43BsqKpFr", false))
+                .field(new EmbedOrMessageDefinition.Field(I18n.getMessage("help.example.field.name", userLocale), "`/pool_target start sides:10 max_dice:15 reroll_set:10 botch_set:1 reroll_variant:ask`", false))
+                .field(new EmbedOrMessageDefinition.Field(I18n.getMessage("help.documentation.field.name", userLocale), I18n.getMessage("help.documentation.field.value", userLocale), false))
+                .field(new EmbedOrMessageDefinition.Field(I18n.getMessage("help.discord.server.field.name", userLocale), I18n.getMessage("help.discord.server.field.value", userLocale), false))
                 .build();
     }
 
@@ -239,7 +236,7 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTar
     }
 
     @Override
-    protected @NonNull PoolTargetConfig getConfigFromStartOptions(@NonNull CommandInteractionOption options) {
+    protected @NonNull PoolTargetConfig getConfigFromStartOptions(@NonNull CommandInteractionOption options, @NonNull Locale userLocale) {
         int sideValue = Math.toIntExact(options.getLongSubOptionWithName(SIDES_OF_DIE_OPTION)
                 .map(l -> Math.min(l, 1000))
                 .orElse(10L));
@@ -289,7 +286,7 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTar
     }
 
     @Override
-    public @NonNull EmbedOrMessageDefinition createNewButtonMessage(UUID configUUID, PoolTargetConfig config) {
+    public @NonNull EmbedOrMessageDefinition createNewButtonMessage(@NonNull UUID configUUID, @NonNull PoolTargetConfig config) {
         String configDescription = getConfigDescription(config);
         return EmbedOrMessageDefinition.builder()
                 .type(EmbedOrMessageDefinition.Type.MESSAGE)
@@ -328,7 +325,7 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTar
     }
 
     @Override
-    protected @NonNull Optional<EmbedOrMessageDefinition> createNewButtonMessageWithState(UUID configUUID, PoolTargetConfig config, State<PoolTargetStateData> state, long guildId, long channelId) {
+    protected @NonNull Optional<EmbedOrMessageDefinition> createNewButtonMessageWithState(@NonNull UUID configUUID, @NonNull PoolTargetConfig config, @NonNull State<PoolTargetStateData> state, long guildId, long channelId) {
         if (Optional.ofNullable(state.getData()).map(PoolTargetStateData::getDicePool).orElse(null) != null && state.getData().getTargetNumber() != null && state.getData().getDoReroll() != null) {
             return Optional.of(EmbedOrMessageDefinition.builder()
                     .type(EmbedOrMessageDefinition.Type.MESSAGE)
@@ -390,7 +387,7 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTar
     }
 
     @Override
-    protected @NonNull Optional<String> getStartOptionsValidationMessage(@NonNull CommandInteractionOption options, long channelId, long userId) {
+    protected @NonNull Optional<String> getStartOptionsValidationMessage(@NonNull CommandInteractionOption options, long channelId, long userId, @NonNull Locale userLocale) {
         Optional<String> botchSetValidation = CommandUtils.validateIntegerSetFromCommandOptions(options, BOTCH_SET_OPTION, ",");
         if (botchSetValidation.isPresent()) {
             return botchSetValidation;
@@ -399,7 +396,7 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTar
         if (rerollSetValidation.isPresent()) {
             return rerollSetValidation;
         }
-        PoolTargetConfig conf = getConfigFromStartOptions(options);
+        PoolTargetConfig conf = getConfigFromStartOptions(options, userLocale);
         return validate(conf);
     }
 

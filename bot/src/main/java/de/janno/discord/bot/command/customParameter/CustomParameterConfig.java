@@ -13,6 +13,7 @@ import lombok.NonNull;
 import lombok.ToString;
 
 import java.util.List;
+import java.util.Locale;
 
 @EqualsAndHashCode(callSuper = true)
 @Getter
@@ -33,8 +34,9 @@ public class CustomParameterConfig extends Config {
             @JsonProperty("diceParserSystem") DiceParserSystem diceParserSystem,
             @JsonProperty("answerFormatType") AnswerFormatType answerFormatType,
             @JsonProperty("resultImage") ResultImage resultImage,
-            @JsonProperty("diceImageStyle") DiceStyleAndColor diceStyleAndColor) {
-        super(answerTargetChannelId, answerFormatType, resultImage, diceStyleAndColor);
+            @JsonProperty("diceImageStyle") DiceStyleAndColor diceStyleAndColor,
+            @JsonProperty("configLocale") Locale configLocale) {
+        super(answerTargetChannelId, answerFormatType, resultImage, diceStyleAndColor, configLocale);
         this.baseExpression = baseExpression;
         this.diceParserSystem = diceParserSystem == null ? DiceParserSystem.DICEROLL_PARSER : diceParserSystem;
         this.parameters = CustomParameterCommand.createParameterListFromBaseExpression(baseExpression);
@@ -47,6 +49,6 @@ public class CustomParameterConfig extends Config {
 
     @Override
     public String toCommandOptionsString() {
-        return "%s: %s %s".formatted(CustomParameterCommand.EXPRESSION_OPTION, baseExpression, super.toCommandOptionsString());
+        return "%s: %s %s".formatted(CustomParameterCommand.EXPRESSION_OPTION_NAME, baseExpression, super.toCommandOptionsString());
     }
 }

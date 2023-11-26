@@ -1,9 +1,11 @@
 package de.janno.discord.bot.dice.image;
 
+import de.janno.discord.bot.I18n;
 import de.janno.discord.bot.dice.image.provider.*;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -47,5 +49,9 @@ public enum DiceImageStyle {
 
     public List<String> getSupportedColors() {
         return imageProvider.getSupportedColors();
+    }
+
+    public String getLocalizedColorName(String colorName, Locale locale) {
+        return I18n.getMessage("base.option.dice_color.%s.%s".formatted(name(), colorName), locale);
     }
 }

@@ -8,10 +8,7 @@ import lombok.Getter;
 import lombok.NonNull;
 import reactor.core.publisher.Mono;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Stream;
 
 public class SlashEventAdaptorMock implements SlashEventAdaptor {
@@ -94,7 +91,7 @@ public class SlashEventAdaptorMock implements SlashEventAdaptor {
 
     @Override
     public Requester getRequester() {
-        return new Requester("invokingUser", "channelName", "guildName", "[0 / 1]");
+        return new Requester("invokingUser", "channelName", "guildName", "[0 / 1]", Locale.ENGLISH);
     }
 
     @Override

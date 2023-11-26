@@ -5,6 +5,7 @@ import com.google.common.base.Stopwatch;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import de.janno.discord.bot.BotMetrics;
+import de.janno.discord.bot.I18n;
 import de.janno.discord.bot.persistance.Mapper;
 import de.janno.discord.bot.persistance.MessageConfigDTO;
 import de.janno.discord.bot.persistance.MessageDataDTO;
@@ -37,8 +38,8 @@ import static de.janno.discord.connector.api.BottomCustomIdUtils.CUSTOM_ID_DELIM
 @Slf4j
 public abstract class AbstractCommand<C extends Config, S extends StateData> implements SlashCommand, ComponentInteractEventHandler {
 
-    private static final String ACTION_START = "start";
-    private static final String ACTION_HELP = "help";
+    private static final String START_OPTION_NAME = "start";
+    private static final String HELP_OPTION_NAME = "help";
 
     private static final int MIN_MS_DELAY_BETWEEN_BUTTON_MESSAGES = 1000;
     private final static ConcurrentSkipListSet<Long> MESSAGE_STATE_IDS_TO_DELETE = new ConcurrentSkipListSet<>();
@@ -52,10 +53,6 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
     @VisibleForTesting
     public void setMessageDataDeleteDuration(Duration delayMessageDataDeletion) {
         this.delayMessageDataDeletion = delayMessageDataDeletion;
-    }
-
-    protected Set<String> getStartOptionIds() {
-        return Set.of(ACTION_START);
     }
 
     protected AnswerFormatType defaultAnswerFormat() {
@@ -83,19 +80,28 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
             baseOptions.add(DICE_IMAGE_STYLE_COMMAND_OPTION);
             baseOptions.add(DICE_IMAGE_COLOR_COMMAND_OPTION);
         }
+        if (supportsLocale()) {
+            baseOptions.add(LOCALE_COMMAND_OPTION);
+        }
         return CommandDefinition.builder()
                 .name(getCommandId())
-                .description(getCommandDescription())
+                .nameLocales(I18n.allNoneEnglishMessagesNames("%s.name".formatted(getCommandId())))
+                .description(I18n.getMessage("%s.description".formatted(getCommandId()), Locale.ENGLISH)) //not visible, because the description of the first option will be shown
+                .descriptionLocales(I18n.allNoneEnglishMessagesDescriptions("%s.description".formatted(getCommandId()))) //not visible, because the description of the first option will be shown
                 .option(CommandDefinitionOption.builder()
-                        .name(ACTION_START)
-                        .description(getCommandDescription())
+                        .name(START_OPTION_NAME)
+                        .nameLocales(I18n.allNoneEnglishMessagesNames("base.option.start"))
+                        .description(I18n.getMessage("%s.description".formatted(getCommandId()), Locale.ENGLISH))
+                        .descriptionLocales(I18n.allNoneEnglishMessagesDescriptions("%s.description".formatted(getCommandId())))
                         .type(CommandDefinitionOption.Type.SUB_COMMAND)
                         .options(getStartOptions())
                         .options(baseOptions)
                         .build())
                 .option(CommandDefinitionOption.builder()
-                        .name(ACTION_HELP)
-                        .description("Get help for " + getCommandId())
+                        .name(HELP_OPTION_NAME)
+                        .nameLocales(I18n.allNoneEnglishMessagesNames("base.option.help"))
+                        .description(I18n.getMessage("base.help.description", Locale.ENGLISH, (I18n.getMessage("%s.name".formatted(getCommandId()), Locale.ENGLISH))))
+                        .descriptionLocales(I18n.allNoneEnglishDescriptionsWithKeys("base.help.description", "%s.name".formatted(getCommandId())))
                         .type(CommandDefinitionOption.Type.SUB_COMMAND)
                         .build())
                 .options(additionalCommandOptions())
@@ -110,6 +116,11 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
         return true;
     }
 
+    protected boolean supportsLocale() {
+        return true;
+    }
+
+
     protected boolean supportsTargetChannel() {
         return true;
     }
@@ -119,8 +130,8 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
     }
 
     @Override
-    public @NonNull List<AutoCompleteAnswer> getAutoCompleteAnswer(AutoCompleteRequest autoCompleteRequest) {
-        return BaseCommandOptions.autoCompleteColorOption(autoCompleteRequest);
+    public @NonNull List<AutoCompleteAnswer> getAutoCompleteAnswer(@NonNull AutoCompleteRequest autoCompleteRequest, @NonNull Locale userLocale) {
+        return BaseCommandOptions.autoCompleteColorOption(autoCompleteRequest, userLocale);
     }
 
     protected Optional<List<ComponentRowDefinition>> getCurrentMessageComponentChange(UUID configUUID, C config, State<S> state, long channelId, long userId) {
@@ -172,6 +183,13 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
     protected void updateCurrentMessageStateData(UUID configUUID, long guildId, long channelId, long messageId, @NonNull C config, @NonNull State<S> state) {
     }
 
+    /**
+     * Creates a config and state if there is no saved config for a button event
+     */
+    protected Optional<ConfigAndState<C, S>> createNewConfigAndStateIfMissing(String buttonValue) {
+        return Optional.empty();
+    }
+
     @Override
     public Mono<Void> handleComponentInteractEvent(@NonNull ButtonEventAdaptor event) {
         Stopwatch stopwatch = Stopwatch.createStarted();
@@ -186,19 +204,26 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
         if (isLegacyMessage) {
             BotMetrics.incrementLegacyButtonMetricCounter(getCommandId());
             log.info("{}: Legacy id {}", event.getRequester().toLogString(), event.getCustomId());
-            return event.reply("The button uses an old format that isn't supported anymore. Please delete it and create a new button message with a slash command.", false);
+            return event.reply(I18n.getMessage("base.reply.legacyButtonId", event.getRequester().getUserLocal()), false);
         } else {
             final String buttonValue = BottomCustomIdUtils.getButtonValueFromCustomId(event.getCustomId());
             final Optional<UUID> configUUIDFromCustomID = BottomCustomIdUtils.getConfigUUIDFromCustomId(event.getCustomId());
             BotMetrics.incrementButtonUUIDUsageMetricCounter(getCommandId(), configUUIDFromCustomID.isPresent());
             final Optional<MessageConfigDTO> messageConfigDTO = getMessageConfigDTO(configUUIDFromCustomID.orElse(null), channelId, messageId);
-            if (messageConfigDTO.isEmpty()) {
+            final Optional<ConfigAndState<C, S>> fallbackConfigAndState = createNewConfigAndStateIfMissing(buttonValue);
+            if (messageConfigDTO.isEmpty() && fallbackConfigAndState.isEmpty()) {
                 log.warn("{}: Missing messageData for channelId: {}, messageId: {} and commandName: {} ", event.getRequester().toLogString(), channelId, messageId, getCommandId());
-                return event.reply(String.format("Configuration for the message is missing, please create a new message with the slash command `/%s start`", getCommandId()), false);
+                return event.reply(I18n.getMessage("base.reply.missingConfig", event.getRequester().getUserLocal(), I18n.getMessage(getCommandId() + ".name", event.getRequester().getUserLocal())), false);
             }
-            configUUID = messageConfigDTO.get().getConfigUUID();
-            final MessageDataDTO messageDataDTO = getMessageDataDTOOrCreateNew(configUUID, guildId, channelId, messageId);
-            final ConfigAndState<C, S> configAndState = getMessageDataAndUpdateWithButtonValue(messageConfigDTO.get(), messageDataDTO, buttonValue, event.getInvokingGuildMemberName());
+            final ConfigAndState<C, S> configAndState;
+            if (messageConfigDTO.isEmpty() && fallbackConfigAndState.isPresent()) {
+                configAndState = fallbackConfigAndState.get();
+                configUUID = configAndState.getConfigUUID();
+            } else {
+                configUUID = messageConfigDTO.get().getConfigUUID();
+                final MessageDataDTO messageDataDTO = getMessageDataDTOOrCreateNew(configUUID, guildId, channelId, messageId);
+                configAndState = getMessageDataAndUpdateWithButtonValue(messageConfigDTO.get(), messageDataDTO, buttonValue, event.getInvokingGuildMemberName());
+            }
             config = configAndState.getConfig();
             state = configAndState.getState();
         }
@@ -221,7 +246,7 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
                     .orElse(createNewButtonMessage(configUUID, config).getComponentRowDefinitions()));
         } else {
             //edit the current message if the command changes it or mark it as processing
-            editMessage = getCurrentMessageContentChange(config, state).orElse("processing ...");
+            editMessage = getCurrentMessageContentChange(config, state).orElse(I18n.getMessage("base.edit.processing", config.getConfigLocale()));
             editMessageComponents = getCurrentMessageComponentChange(configUUID, config, state, channelId, userId);
         }
         //Todo check if message/button are the same. If the message will deleted it should always be "processing...".
@@ -297,8 +322,7 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
                 }).ofType(Void.class));
     }
 
-    @VisibleForTesting
-    Mono<Void> deleteOldAndConcurrentMessageAndData(
+   protected Mono<Void> deleteOldAndConcurrentMessageAndData(
             long newMessageId,
             @NonNull UUID configUUID,
             long channelId,
@@ -335,40 +359,38 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
     }
 
     @Override
-    public @NonNull Mono<Void> handleSlashCommandEvent(@NonNull SlashEventAdaptor event, @NonNull Supplier<UUID> uuidSupplier) {
+    public @NonNull Mono<Void> handleSlashCommandEvent(@NonNull SlashEventAdaptor event, @NonNull Supplier<UUID> uuidSupplier, @NonNull Locale userLocale) {
         Optional<String> checkPermissions = event.checkPermissions();
         if (checkPermissions.isPresent()) {
             return event.reply(checkPermissions.get(), false);
         }
 
-        String commandString = event.getCommandString();
-        Optional<CommandInteractionOption> startOption = getStartOptionIds().stream()
-                .sorted() //for deterministic tests
-                .map(event::getOption)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .findFirst();
+        final String commandString = event.getCommandString();
+        Optional<CommandInteractionOption> startOption = event.getOption(START_OPTION_NAME);
+
         if (startOption.isPresent()) {
             CommandInteractionOption options = startOption.get();
 
             Optional<Long> answerTargetChannelId = BaseCommandOptions.getAnswerTargetChannelIdFromStartCommandOption(options);
             if (answerTargetChannelId.isPresent() && answerTargetChannelId.get().equals(event.getChannelId())) {
                 log.info("{}:same answer channel for {}", event.getRequester().toLogString(), commandString);
-                return event.reply("The answer target channel must be not the same as the current channel, keep this option empty if the answer should appear in this channel", true);
+                return event.reply(I18n.getMessage("base.reply.targetChannel.same", userLocale), true);
             }
             if (answerTargetChannelId.isPresent() && !event.isValidAnswerChannel(answerTargetChannelId.get())) {
                 log.info("{}: Invalid answer target channel for {}", event.getRequester().toLogString(), commandString);
-                return event.reply("The target channel is not a valid message channel", true);
+                return event.reply(I18n.getMessage("base.reply.targetChannel.invalid", userLocale), true);
             }
-
-            Optional<String> validationMessage = getStartOptionsValidationMessage(options, event.getChannelId(), event.getUserId());
+            final Locale userOrConfigLocale = BaseCommandOptions.getLocaleOptionFromStartCommandOption(options)
+                    .orElse(event.getRequester().getUserLocal());
+            Optional<String> validationMessage = getStartOptionsValidationMessage(options, event.getChannelId(), event.getUserId(), userOrConfigLocale);
             if (validationMessage.isPresent()) {
                 log.info("{}: Validation message: {} for {}", event.getRequester().toLogString(),
                         validationMessage.get(),
                         commandString);
+                //todo i18n?
                 return event.reply(String.format("%s\n%s", commandString, validationMessage.get()), true);
             }
-            final C config = getConfigFromStartOptions(options);
+            final C config = getConfigFromStartOptions(options, userOrConfigLocale);
             final UUID configUUID = uuidSupplier.get();
             BotMetrics.incrementSlashStartMetricCounter(getCommandId(), config.toShortString());
 
@@ -377,7 +399,7 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
             log.info("{}: '{}'",
                     event.getRequester().toLogString(),
                     commandString.replace("`", ""));
-            String replayMessage = Stream.of(commandString, getConfigWarnMessage(config).orElse(null))
+            String replayMessage = Stream.of(commandString, getConfigWarnMessage(config, userLocale).orElse(null))
                     .filter(s -> !Strings.isNullOrEmpty(s))
                     .collect(Collectors.joining(" "));
 
@@ -390,14 +412,14 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
                                 .then();
                     }));
 
-        } else if (event.getOption(ACTION_HELP).isPresent()) {
+        } else if (event.getOption(HELP_OPTION_NAME).isPresent()) {
             BotMetrics.incrementSlashHelpMetricCounter(getCommandId());
-            return event.replyWithEmbedOrMessageDefinition(getHelpMessage(), true);
+            return event.replyWithEmbedOrMessageDefinition(getHelpMessage(event.getRequester().getUserLocal()), true);
         }
         return Mono.empty();
     }
 
-    protected @NonNull Optional<String> getConfigWarnMessage(C config) {
+    protected @NonNull Optional<String> getConfigWarnMessage(C config, Locale userLocale) {
         return Optional.empty();
     }
 
@@ -405,9 +427,7 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
         return ImmutableList.of();
     }
 
-    protected abstract @NonNull String getCommandDescription();
-
-    protected abstract @NonNull EmbedOrMessageDefinition getHelpMessage();
+    protected abstract @NonNull EmbedOrMessageDefinition getHelpMessage(Locale userLocale);
 
     /**
      * The text content for the old button message, after a button event. Returns null means no editing should be done.
@@ -420,16 +440,20 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
     /**
      * The new button message, after a button event
      */
-    protected abstract @NonNull Optional<EmbedOrMessageDefinition> createNewButtonMessageWithState(UUID configId, C config, State<S> state, long guildId, long channelId);
+    protected abstract @NonNull Optional<EmbedOrMessageDefinition> createNewButtonMessageWithState(@NonNull UUID configId,
+                                                                                                   @NonNull C config,
+                                                                                                   @NonNull State<S> state,
+                                                                                                   long guildId,
+                                                                                                   long channelId);
 
     protected abstract @NonNull Optional<RollAnswer> getAnswer(C config, State<S> state, long channelId, long userId);
 
     /**
      * The new button message, after a slash event
      */
-    public abstract @NonNull EmbedOrMessageDefinition createNewButtonMessage(UUID configId, C config);
+    public abstract @NonNull EmbedOrMessageDefinition createNewButtonMessage(@NonNull UUID configId, @NonNull C config);
 
-    protected @NonNull Optional<String> getStartOptionsValidationMessage(@NonNull CommandInteractionOption options, long channelId, long userId) {
+    protected @NonNull Optional<String> getStartOptionsValidationMessage(@NonNull CommandInteractionOption options, long channelId, long userId, @NonNull Locale userLocale) {
         //standard is no validation
         return Optional.empty();
     }
@@ -438,5 +462,5 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
         return event.isPinned();
     }
 
-    protected abstract @NonNull C getConfigFromStartOptions(@NonNull CommandInteractionOption options);
+    protected abstract @NonNull C getConfigFromStartOptions(@NonNull CommandInteractionOption options, @NonNull Locale userLocale);
 }

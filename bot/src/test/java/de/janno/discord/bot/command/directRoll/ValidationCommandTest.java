@@ -1,7 +1,8 @@
 package de.janno.discord.bot.command.directRoll;
 
+import au.com.origin.snapshots.Expect;
+import au.com.origin.snapshots.junit5.SnapshotExtension;
 import de.janno.discord.bot.command.AnswerFormatType;
-import de.janno.discord.bot.command.channelConfig.ChannelConfigCommand;
 import de.janno.discord.bot.command.channelConfig.DirectRollConfig;
 import de.janno.discord.bot.dice.CachingDiceEvaluator;
 import de.janno.discord.bot.dice.DiceEvaluatorAdapter;
@@ -14,25 +15,23 @@ import de.janno.discord.connector.api.AutoCompleteRequest;
 import de.janno.discord.connector.api.Requester;
 import de.janno.discord.connector.api.SlashEventAdaptor;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
-import de.janno.discord.connector.api.slash.CommandDefinition;
-import de.janno.discord.connector.api.slash.CommandDefinitionOption;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatchers;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
+@ExtendWith(SnapshotExtension.class)
 class ValidationCommandTest {
     ValidationCommand underTest;
+    private Expect expect;
 
     @BeforeEach
     void setup() {
@@ -41,21 +40,21 @@ class ValidationCommandTest {
 
     @Test
     void autoCompleteValid() {
-        List<AutoCompleteAnswer> res = underTest.getAutoCompleteAnswer(new AutoCompleteRequest("expression", "1d6", List.of()));
+        List<AutoCompleteAnswer> res = underTest.getAutoCompleteAnswer(new AutoCompleteRequest("expression", "1d6", List.of()), Locale.ENGLISH);
 
         assertThat(res).containsExactly(new AutoCompleteAnswer("1d6", "1d6"));
     }
 
     @Test
     void autoComplete_wrongAction() {
-        List<AutoCompleteAnswer> res = underTest.getAutoCompleteAnswer(new AutoCompleteRequest("help", "1d6", List.of()));
+        List<AutoCompleteAnswer> res = underTest.getAutoCompleteAnswer(new AutoCompleteRequest("help", "1d6", List.of()), Locale.ENGLISH);
 
         assertThat(res).isEmpty();
     }
 
     @Test
     void autoComplete_Invalid() {
-        List<AutoCompleteAnswer> res = underTest.getAutoCompleteAnswer(new AutoCompleteRequest("expression", "1d", List.of()));
+        List<AutoCompleteAnswer> res = underTest.getAutoCompleteAnswer(new AutoCompleteRequest("expression", "1d", List.of()), Locale.ENGLISH);
 
         assertThat(res).containsExactly(new AutoCompleteAnswer("Operator d has right associativity but the right value was: empty", "1d"));
     }
@@ -74,10 +73,10 @@ class ValidationCommandTest {
         when(slashEventAdaptor.deleteMessageById(anyLong())).thenReturn(Mono.empty());
         when(slashEventAdaptor.reply(any(), anyBoolean())).thenReturn(Mono.just(mock(Void.class)));
         when(slashEventAdaptor.getCommandString()).thenReturn("/validation expression:1d6");
-        when(slashEventAdaptor.getRequester()).thenReturn(new Requester("user", "channel", "guild", "[0 / 1]"));
+        when(slashEventAdaptor.getRequester()).thenReturn(new Requester("user", "channel", "guild", "[0 / 1]", Locale.ENGLISH));
 
 
-        Mono<Void> res = underTest.handleSlashCommandEvent(slashEventAdaptor, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"));
+        Mono<Void> res = underTest.handleSlashCommandEvent(slashEventAdaptor, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"), Locale.ENGLISH);
 
 
         StepVerifier.create(res)
@@ -107,9 +106,9 @@ class ValidationCommandTest {
         when(slashEventAdaptor.getOption(any())).thenReturn(Optional.of(interactionOption));
         when(slashEventAdaptor.reply(any(), anyBoolean())).thenReturn(Mono.just(mock(Void.class)));
         when(slashEventAdaptor.getCommandString()).thenReturn("/r expression:asdfasdf");
-        when(slashEventAdaptor.getRequester()).thenReturn(new Requester("user", "channel", "guild", "[0 / 1]"));
+        when(slashEventAdaptor.getRequester()).thenReturn(new Requester("user", "channel", "guild", "[0 / 1]", Locale.ENGLISH));
 
-        Mono<Void> res = underTest.handleSlashCommandEvent(slashEventAdaptor, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"));
+        Mono<Void> res = underTest.handleSlashCommandEvent(slashEventAdaptor, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"), Locale.ENGLISH);
 
         assertThat(res).isNotNull();
 
@@ -122,7 +121,7 @@ class ValidationCommandTest {
         verify(slashEventAdaptor, never()).createResultMessageWithReference(any());
         verify(slashEventAdaptor, never()).deleteMessageById(anyLong());
         verify(slashEventAdaptor).reply("/r expression:asdfasdf\n" +
-                "The following expression is invalid: 'asdfasdf'. The error is: No matching operator for 'asdfasdf', non-functional text and value names must to be surrounded by '' or []. Use `/r expression:help` to get more information on how to use the command.", true);
+                "The following expression is invalid: `asdfasdf`. The error is: No matching operator for 'asdfasdf', non-functional text and value names must to be surrounded by '' or []. Use `/r expression:help` to get more information on how to use the command.", true);
 
         verify(slashEventAdaptor, times(1)).getChannelId();
     }
@@ -139,10 +138,10 @@ class ValidationCommandTest {
         when(slashEventAdaptor.getChannelId()).thenReturn(1L);
         when(slashEventAdaptor.replyWithEmbedOrMessageDefinition(any(), anyBoolean())).thenReturn(Mono.just(mock(Void.class)));
         when(slashEventAdaptor.getCommandString()).thenReturn("/r expression:help");
-        when(slashEventAdaptor.getRequester()).thenReturn(new Requester("user", "channel", "guild", "[0 / 1]"));
+        when(slashEventAdaptor.getRequester()).thenReturn(new Requester("user", "channel", "guild", "[0 / 1]", Locale.ENGLISH));
 
 
-        Mono<Void> res = underTest.handleSlashCommandEvent(slashEventAdaptor, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"));
+        Mono<Void> res = underTest.handleSlashCommandEvent(slashEventAdaptor, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"), Locale.ENGLISH);
 
 
         assertThat(res).isNotNull();
@@ -165,37 +164,18 @@ class ValidationCommandTest {
     }
 
     @Test
-    void getCommandId() {
-        String res = underTest.getCommandId();
-        assertThat(res).isEqualTo("validation");
+    public void getCommandDefinition() {
+        expect.toMatchSnapshot(underTest.getCommandDefinition());
     }
 
     @Test
-    void getCommandDefinition() {
-        CommandDefinition res = underTest.getCommandDefinition();
-
-        assertThat(res).isEqualTo(CommandDefinition.builder()
-                .name("validation")
-                .description("provide a expression and the autocomplete will show a error message if invalid")
-                .option(CommandDefinitionOption.builder()
-                        .name("expression")
-                        .required(true)
-                        .autoComplete(true)
-                        .description("provide a expression (e.g. 2d6) and the autocomplete will show if it is invalid")
-                        .type(CommandDefinitionOption.Type.STRING)
-                        .build())
-                .build());
+    public void getId() {
+        expect.toMatchSnapshot(underTest.getCommandId());
     }
 
-    @Test
-    void getConfigCommandDefinition() {
-        CommandDefinition res = new ChannelConfigCommand(null).getCommandDefinition();
-
-        assertThat(res.getOptions().stream().map(CommandDefinitionOption::getName)).containsExactlyInAnyOrder("save_direct_roll_config", "delete_direct_roll_config", "channel_alias", "user_channel_alias");
-    }
 
     @Test
-    void deserialization_config() {
+    void deserialization_config_legacy() {
         String configString = """
                 ---
                 answerTargetChannelId: null
@@ -208,9 +188,28 @@ class ValidationCommandTest {
 
 
         DirectRollConfig res = underTest.deserializeConfig(savedData);
-        assertThat(res).isEqualTo(new DirectRollConfig(null, false, AnswerFormatType.without_expression, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_3d, "red_and_white")));
+        assertThat(res).isEqualTo(new DirectRollConfig(null, false, AnswerFormatType.without_expression, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_3d, "red_and_white"), Locale.ENGLISH));
 
     }
 
+    @Test
+    void deserialization_config() {
+        String configString = """
+                ---
+                answerTargetChannelId: null
+                alwaysSumResult: false
+                answerFormatType: "without_expression"
+                configLocale: "de"
+                diceStyleAndColor:
+                  diceImageStyle: "polyhedral_alies_v2"
+                  configuredDefaultColor: "blue_and_silver"
+                """;
+
+        ChannelConfigDTO savedData = new ChannelConfigDTO(UUID.randomUUID(), 1L, 2L, null, "r", "DirectRollConfig", configString);
+
+
+        DirectRollConfig res = underTest.deserializeConfig(savedData);
+        assertThat(res).isEqualTo(new DirectRollConfig(null, false, AnswerFormatType.without_expression, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v2, "blue_and_silver"), Locale.GERMAN));
+    }
 
 }

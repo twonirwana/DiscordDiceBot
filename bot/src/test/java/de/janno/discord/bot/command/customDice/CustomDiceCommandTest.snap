@@ -1,0 +1,422 @@
+de.janno.discord.bot.command.customDice.CustomDiceCommandTest.configSerialization=[
+  {
+    "configUUID" : "00000000-0000-0000-0000-000000000000",
+    "guildId" : 1,
+    "channelId" : 2,
+    "commandId" : "custom_dice",
+    "configClassId" : "CustomDiceConfig",
+    "config" : "---\nanswerTargetChannelId: 123\nbuttonIdLabelAndDiceExpressions:\n- buttonId: \"1_button\"\n  label: \"Label\"\n  diceExpression: \"+1d6\"\n- buttonId: \"2_button\"\n  label: \"+2d4\"\n  diceExpression: \"+2d4\"\ndiceParserSystem: \"DICE_EVALUATOR\"\nanswerFormatType: \"compact\"\nconfigLocale: \"de\"\ndiceStyleAndColor:\n  diceImageStyle: \"polyhedral_alies_v2\"\n  configuredDefaultColor: \"blue_and_silver\"\n"
+  }
+]
+
+
+de.janno.discord.bot.command.customDice.CustomDiceCommandTest.getCommandDefinition=[
+  {
+    "name" : "custom_dice",
+    "description" : "Configure dice buttons like: 1d6;2d8=;1d10+10=",
+    "nameLocales" : [ ],
+    "descriptionLocales" : [
+      {
+        "locale" : "de",
+        "description" : "Konfiguriere Buttons, zum Beispiel: 1d6;2d8=;1d10+10="
+      },
+      {
+        "locale" : "pt_BR",
+        "description" : "Configure os botões de dados assim: 1d6;2d8=;1d10+10="
+      }
+    ],
+    "options" : [
+      {
+        "type" : "SUB_COMMAND",
+        "name" : "start",
+        "nameLocales" : [
+          {
+            "locale" : "pt_BR",
+            "name" : "iniciar"
+          }
+        ],
+        "description" : "Configure dice buttons like: 1d6;2d8=;1d10+10=",
+        "descriptionLocales" : [
+          {
+            "locale" : "de",
+            "description" : "Konfiguriere Buttons, zum Beispiel: 1d6;2d8=;1d10+10="
+          },
+          {
+            "locale" : "pt_BR",
+            "description" : "Configure os botões de dados assim: 1d6;2d8=;1d10+10="
+          }
+        ],
+        "required" : false,
+        "choices" : [ ],
+        "options" : [
+          {
+            "type" : "STRING",
+            "name" : "buttons",
+            "nameLocales" : [
+              {
+                "locale" : "pt_BR",
+                "name" : "botoes"
+              }
+            ],
+            "description" : "Define one or more buttons separated by `;`",
+            "descriptionLocales" : [
+              {
+                "locale" : "de",
+                "description" : "Definiere ein oder mehrere Buttons, separiert mit `;`"
+              },
+              {
+                "locale" : "pt_BR",
+                "description" : "Defina um ou mais botões, separados por `;`"
+              }
+            ],
+            "required" : true,
+            "choices" : [ ],
+            "options" : [ ],
+            "autoComplete" : false
+          },
+          {
+            "type" : "CHANNEL",
+            "name" : "target_channel",
+            "nameLocales" : [
+              {
+                "locale" : "de",
+                "name" : "antwort_kanal"
+              },
+              {
+                "locale" : "pt_BR",
+                "name" : "canal_alvo"
+              }
+            ],
+            "description" : "Another channel where the answer will be given",
+            "descriptionLocales" : [
+              {
+                "locale" : "de",
+                "description" : "Ein anderer Kanal in der die Nachricht gesendet wird"
+              },
+              {
+                "locale" : "pt_BR",
+                "description" : "Outro canal onde o resultado será mostrado"
+              }
+            ],
+            "required" : false,
+            "choices" : [ ],
+            "options" : [ ],
+            "autoComplete" : false
+          },
+          {
+            "type" : "STRING",
+            "name" : "answer_format",
+            "nameLocales" : [
+              {
+                "locale" : "de",
+                "name" : "antwort_format"
+              },
+              {
+                "locale" : "pt_BR",
+                "name" : "formato_resultado"
+              }
+            ],
+            "description" : "How the answer will be displayed",
+            "descriptionLocales" : [
+              {
+                "locale" : "de",
+                "description" : "Wie die Antwort formatiert wird"
+              },
+              {
+                "locale" : "pt_BR",
+                "description" : "Como o resultado será exibido"
+              }
+            ],
+            "required" : false,
+            "choices" : [
+              {
+                "name" : "full",
+                "value" : "full",
+                "nameLocales" : [
+                  {
+                    "locale" : "de",
+                    "choice" : "voll"
+                  },
+                  {
+                    "locale" : "pt_BR",
+                    "choice" : "completo"
+                  }
+                ]
+              },
+              {
+                "name" : "without_expression",
+                "value" : "without_expression",
+                "nameLocales" : [
+                  {
+                    "locale" : "de",
+                    "choice" : "ohne_ausdruck"
+                  },
+                  {
+                    "locale" : "pt_BR",
+                    "choice" : "sem_formula"
+                  }
+                ]
+              },
+              {
+                "name" : "only_dice",
+                "value" : "only_dice",
+                "nameLocales" : [
+                  {
+                    "locale" : "de",
+                    "choice" : "nur_würfel"
+                  },
+                  {
+                    "locale" : "pt_BR",
+                    "choice" : "apenas_dados"
+                  }
+                ]
+              },
+              {
+                "name" : "compact",
+                "value" : "compact",
+                "nameLocales" : [
+                  {
+                    "locale" : "de",
+                    "choice" : "kompakt"
+                  },
+                  {
+                    "locale" : "pt_BR",
+                    "choice" : "compacto"
+                  }
+                ]
+              },
+              {
+                "name" : "minimal",
+                "value" : "minimal",
+                "nameLocales" : [
+                  {
+                    "locale" : "pt_BR",
+                    "choice" : "minimo"
+                  }
+                ]
+              }
+            ],
+            "options" : [ ],
+            "autoComplete" : false
+          },
+          {
+            "type" : "STRING",
+            "name" : "dice_image_style",
+            "nameLocales" : [
+              {
+                "locale" : "de",
+                "name" : "würfel_bild_stil"
+              },
+              {
+                "locale" : "pt_BR",
+                "name" : "estilo_imagem_dados"
+              }
+            ],
+            "description" : "If and in what style the dice throw should be shown as image",
+            "descriptionLocales" : [
+              {
+                "locale" : "de",
+                "description" : "Ob und in welchen Stil Würfelbilder gezeigt werden"
+              },
+              {
+                "locale" : "pt_BR",
+                "description" : "Se os dados devem ser mostrados como imagens e em qual estilo"
+              }
+            ],
+            "required" : false,
+            "choices" : [
+              {
+                "name" : "none",
+                "value" : "none",
+                "nameLocales" : [
+                  {
+                    "locale" : "pt_BR",
+                    "choice" : "nenhum"
+                  }
+                ]
+              },
+              {
+                "name" : "polyhedral_3d",
+                "value" : "polyhedral_3d",
+                "nameLocales" : [ ]
+              },
+              {
+                "name" : "polyhedral_alies_v2",
+                "value" : "polyhedral_alies_v2",
+                "nameLocales" : [ ]
+              },
+              {
+                "name" : "polyhedral_knots",
+                "value" : "polyhedral_knots",
+                "nameLocales" : [ ]
+              },
+              {
+                "name" : "polyhedral_RdD",
+                "value" : "polyhedral_RdD",
+                "nameLocales" : [ ]
+              },
+              {
+                "name" : "fate",
+                "value" : "fate",
+                "nameLocales" : [ ]
+              },
+              {
+                "name" : "d6_dots",
+                "value" : "d6_dots",
+                "nameLocales" : [ ]
+              },
+              {
+                "name" : "polyhedral_2d",
+                "value" : "polyhedral_2d",
+                "nameLocales" : [ ]
+              },
+              {
+                "name" : "polyhedral_alies_v1",
+                "value" : "polyhedral_alies_v1",
+                "nameLocales" : [ ]
+              }
+            ],
+            "options" : [ ],
+            "autoComplete" : false
+          },
+          {
+            "type" : "STRING",
+            "name" : "dice_image_color",
+            "nameLocales" : [
+              {
+                "locale" : "de",
+                "name" : "würfel_bild_farbe"
+              },
+              {
+                "locale" : "pt_BR",
+                "name" : "cor_dos_dados"
+              }
+            ],
+            "description" : "The default color option. Can be influenced by the `col` operator",
+            "descriptionLocales" : [
+              {
+                "locale" : "de",
+                "description" : "Die Standardfarbe, kann mit noch mit `col` beeinflusst werden."
+              },
+              {
+                "locale" : "pt_BR",
+                "description" : "A opção de cor padrão. Pode ser influenciada pelo operador `col`"
+              }
+            ],
+            "required" : false,
+            "choices" : [ ],
+            "options" : [ ],
+            "autoComplete" : true
+          },
+          {
+            "type" : "STRING",
+            "name" : "language",
+            "nameLocales" : [
+              {
+                "locale" : "de",
+                "name" : "sprache"
+              },
+              {
+                "locale" : "pt_BR",
+                "name" : "idioma"
+              }
+            ],
+            "description" : "The language of the bot messages",
+            "descriptionLocales" : [
+              {
+                "locale" : "de",
+                "description" : "Die Sprach des Bots"
+              },
+              {
+                "locale" : "pt_BR",
+                "description" : "O idioma da mensagem do bot"
+              }
+            ],
+            "required" : false,
+            "choices" : [
+              {
+                "name" : "English",
+                "value" : "en",
+                "nameLocales" : [
+                  {
+                    "locale" : "de",
+                    "choice" : "Englisch"
+                  },
+                  {
+                    "locale" : "pt_BR",
+                    "choice" : "Inglês"
+                  }
+                ]
+              },
+              {
+                "name" : "German",
+                "value" : "de",
+                "nameLocales" : [
+                  {
+                    "locale" : "de",
+                    "choice" : "Deutsch"
+                  },
+                  {
+                    "locale" : "pt_BR",
+                    "choice" : "Alemão"
+                  }
+                ]
+              },
+              {
+                "name" : "Portuguese (Brazil)",
+                "value" : "pt_BR",
+                "nameLocales" : [
+                  {
+                    "locale" : "de",
+                    "choice" : "Brasilianisches Portugiesisch"
+                  },
+                  {
+                    "locale" : "pt_BR",
+                    "choice" : "Português Brasileiro"
+                  }
+                ]
+              }
+            ],
+            "options" : [ ],
+            "autoComplete" : false
+          }
+        ],
+        "autoComplete" : false
+      },
+      {
+        "type" : "SUB_COMMAND",
+        "name" : "help",
+        "nameLocales" : [
+          {
+            "locale" : "de",
+            "name" : "hilfe"
+          },
+          {
+            "locale" : "pt_BR",
+            "name" : "ajuda"
+          }
+        ],
+        "description" : "Get help for /custom_dice",
+        "descriptionLocales" : [
+          {
+            "locale" : "de",
+            "description" : "Hilfe für /custom_dice"
+          },
+          {
+            "locale" : "pt_BR",
+            "description" : "Consiga ajuda para /custom_dice"
+          }
+        ],
+        "required" : false,
+        "choices" : [ ],
+        "options" : [ ],
+        "autoComplete" : false
+      }
+    ]
+  }
+]
+
+
+de.janno.discord.bot.command.customDice.CustomDiceCommandTest.getId=[
+  "custom_dice"
+]

@@ -5,6 +5,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import de.janno.discord.bot.I18n;
 import de.janno.discord.bot.command.*;
 import de.janno.discord.bot.command.channelConfig.AliasHelper;
 import de.janno.discord.bot.dice.*;
@@ -25,21 +26,17 @@ import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
 @Slf4j
 public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, SumCustomSetStateData> {
-    static final String BUTTONS_COMMAND_OPTIONS_ID = "buttons";
-    static final String ALWAYS_SUM_RESULTS_COMMAND_OPTIONS_ID = "always_sum_result";
+    static final String BUTTONS_COMMAND_OPTIONS_NAME = "buttons";
+    static final String ALWAYS_SUM_RESULTS_COMMAND_OPTIONS_NAME = "always_sum_result";
     private static final String COMMAND_NAME = "sum_custom_set";
     private static final String ROLL_BUTTON_ID = "roll";
     private static final String NO_ACTION = "no action";
-    private static final String EMPTY_MESSAGE = "Click the buttons to add dice to the set and then on Roll";
     private static final String CLEAR_BUTTON_ID = "clear";
     private static final String BACK_BUTTON_ID = "back";
 
@@ -110,17 +107,12 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
     }
 
     @Override
-    protected @NonNull String getCommandDescription() {
-        return "Configure a variable set of dice";
-    }
-
-    @Override
-    protected @NonNull EmbedOrMessageDefinition getHelpMessage() {
+    protected @NonNull EmbedOrMessageDefinition getHelpMessage(Locale userLocale) {
         return EmbedOrMessageDefinition.builder()
-                .descriptionOrContent("Creates buttons with custom dice expression components, that can be combined afterwards.. \n" + DiceEvaluatorAdapter.getHelp())
-                .field(new EmbedOrMessageDefinition.Field("Example", "`/sum_custom_set start buttons:+;d6;1;2;3;4;5;6;7;8;9;0`", false))
-                .field(new EmbedOrMessageDefinition.Field("Full documentation", "https://github.com/twonirwana/DiscordDiceBot", false))
-                .field(new EmbedOrMessageDefinition.Field("Discord Server for Help and News", "https://discord.gg/e43BsqKpFr", false))
+                .descriptionOrContent(I18n.getMessage("sum_custom_set.help.message", userLocale) + "\n" + DiceEvaluatorAdapter.getHelp())
+                .field(new EmbedOrMessageDefinition.Field(I18n.getMessage("help.example.field.name", userLocale), I18n.getMessage("sum_custom_set.help.example.field.value", userLocale), false))
+                .field(new EmbedOrMessageDefinition.Field(I18n.getMessage("help.documentation.field.name", userLocale), I18n.getMessage("help.documentation.field.value", userLocale), false))
+                .field(new EmbedOrMessageDefinition.Field(I18n.getMessage("help.discord.server.field.name", userLocale), I18n.getMessage("help.discord.server.field.value", userLocale), false))
                 .build();
     }
 
@@ -132,14 +124,18 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
     @Override
     protected @NonNull List<CommandDefinitionOption> getStartOptions() {
         return List.of(CommandDefinitionOption.builder()
-                        .name(BUTTONS_COMMAND_OPTIONS_ID)
-                        .description("Define one or more buttons separated by ';'")
+                        .name(BUTTONS_COMMAND_OPTIONS_NAME)
+                        .nameLocales(I18n.allNoneEnglishMessagesNames("sum_dice_set.option.buttons.name"))
+                        .description(I18n.getMessage("sum_dice_set.option.buttons.description", Locale.ENGLISH))
+                        .descriptionLocales(I18n.allNoneEnglishMessagesDescriptions("sum_dice_set.option.buttons.description"))
                         .type(CommandDefinitionOption.Type.STRING)
                         .required(true)
                         .build(),
                 CommandDefinitionOption.builder()
-                        .name(ALWAYS_SUM_RESULTS_COMMAND_OPTIONS_ID)
-                        .description("Always sum the results of the dice expressions")
+                        .name(ALWAYS_SUM_RESULTS_COMMAND_OPTIONS_NAME)
+                        .nameLocales(I18n.allNoneEnglishMessagesNames("sum_dice_set.option.alwaysSum.name"))
+                        .description(I18n.getMessage("sum_dice_set.option.alwaysSum.description", Locale.ENGLISH))
+                        .descriptionLocales(I18n.allNoneEnglishMessagesDescriptions("sum_dice_set.option.alwaysSum.description"))
                         .type(CommandDefinitionOption.Type.BOOLEAN)
                         .required(false)
                         .build());
@@ -165,28 +161,29 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
                 config.isAlwaysSumResult(),
                 config.getDiceParserSystem(),
                 config.getAnswerFormatType(),
-                config.getDiceStyleAndColor()));
+                config.getDiceStyleAndColor(),
+                config.getConfigLocale()));
     }
 
     @Override
-    public @NonNull EmbedOrMessageDefinition createNewButtonMessage(UUID configUUID, SumCustomSetConfig config) {
+    public @NonNull EmbedOrMessageDefinition createNewButtonMessage(@NonNull UUID configUUID, @NonNull SumCustomSetConfig config) {
         return EmbedOrMessageDefinition.builder()
-                .descriptionOrContent(EMPTY_MESSAGE)
+                .descriptionOrContent(I18n.getMessage("sum_custom_set.buttonMessage.empty", config.getConfigLocale()))
                 .type(EmbedOrMessageDefinition.Type.MESSAGE)
-                .componentRowDefinitions(createButtonLayout(configUUID, config, true))
+                .componentRowDefinitions(createButtonLayout(configUUID, config, true, config.getConfigLocale()))
                 .build();
     }
 
     @Override
-    protected @NonNull Optional<EmbedOrMessageDefinition> createNewButtonMessageWithState(UUID customUuid, SumCustomSetConfig config, State<SumCustomSetStateData> state, long guildId, long channelId) {
+    protected @NonNull Optional<EmbedOrMessageDefinition> createNewButtonMessageWithState(@NonNull UUID customUuid, @NonNull SumCustomSetConfig config, @NonNull State<SumCustomSetStateData> state, long guildId, long channelId) {
         if (ROLL_BUTTON_ID.equals(state.getButtonValue()) && !Optional.ofNullable(state.getData())
                 .map(SumCustomSetStateData::getDiceExpressions)
                 .map(List::isEmpty)
                 .orElse(false)) {
             return Optional.of(EmbedOrMessageDefinition.builder()
-                    .descriptionOrContent(EMPTY_MESSAGE)
+                    .descriptionOrContent(I18n.getMessage("sum_custom_set.buttonMessage.empty", config.getConfigLocale()))
                     .type(EmbedOrMessageDefinition.Type.MESSAGE)
-                    .componentRowDefinitions(createButtonLayout(customUuid, config, true))
+                    .componentRowDefinitions(createButtonLayout(customUuid, config, true, config.getConfigLocale()))
                     .build());
         }
         return Optional.empty();
@@ -199,21 +196,21 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
         }
         String expression = AliasHelper.getAndApplyAliaseToExpression(channelId, userId, persistenceManager, combineExpressions(state.getData().getDiceExpressions()));
 
-        return Optional.of(createButtonLayout(customUuid, config, !diceSystemAdapter.isValidExpression(expression, config.getDiceParserSystem())));
+        return Optional.of(createButtonLayout(customUuid, config, !diceSystemAdapter.isValidExpression(expression, config.getDiceParserSystem()), config.getConfigLocale()));
     }
 
     @Override
     public @NonNull Optional<String> getCurrentMessageContentChange(SumCustomSetConfig config, State<SumCustomSetStateData> state) {
         if (ROLL_BUTTON_ID.equals(state.getButtonValue())) {
-            return Optional.of(EMPTY_MESSAGE);
+            return Optional.of(I18n.getMessage("sum_custom_set.buttonMessage.empty", config.getConfigLocale()));
         } else if (CLEAR_BUTTON_ID.equals(state.getButtonValue())) {
-            return Optional.of(EMPTY_MESSAGE);
+            return Optional.of(I18n.getMessage("sum_custom_set.buttonMessage.empty", config.getConfigLocale()));
         } else {
             if (Optional.ofNullable(state.getData())
                     .map(SumCustomSetStateData::getDiceExpressions)
                     .map(List::isEmpty)
                     .orElse(false)) {
-                return Optional.of(EMPTY_MESSAGE);
+                return Optional.of(I18n.getMessage("sum_custom_set.buttonMessage.empty", config.getConfigLocale()));
             }
             if (Optional.ofNullable(state.getData()).map(SumCustomSetStateData::getLockedForUserName).isEmpty()) {
                 return Optional.ofNullable(state.getData()).map(SumCustomSetStateData::getDiceExpressions).map(this::combineExpressions);
@@ -268,28 +265,29 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
     }
 
     @Override
-    protected @NonNull SumCustomSetConfig getConfigFromStartOptions(@NonNull CommandInteractionOption options) {
+    protected @NonNull SumCustomSetConfig getConfigFromStartOptions(@NonNull CommandInteractionOption options, @NonNull Locale userLocale) {
         List<ButtonIdAndExpression> buttons = getButtonsFromCommandInteractionOption(options);
-        boolean alwaysSumResults = options.getBooleanSubOptionWithName(ALWAYS_SUM_RESULTS_COMMAND_OPTIONS_ID).orElse(true);
+        boolean alwaysSumResults = options.getBooleanSubOptionWithName(ALWAYS_SUM_RESULTS_COMMAND_OPTIONS_NAME).orElse(true);
         final DiceParserSystem diceParserSystem = DiceParserSystem.DICE_EVALUATOR;
         Long answerTargetChannelId = BaseCommandOptions.getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null);
         AnswerFormatType answerType = BaseCommandOptions.getAnswerTypeFromStartCommandOption(options).orElse(defaultAnswerFormat());
         return getConfigOptionStringList(buttons, answerTargetChannelId, diceParserSystem, alwaysSumResults, answerType,
                 BaseCommandOptions.getDiceStyleOptionFromStartCommandOption(options).orElse(DiceImageStyle.polyhedral_3d),
-                BaseCommandOptions.getDiceColorOptionFromStartCommandOption(options).orElse(DiceImageStyle.polyhedral_3d.getDefaultColor()));
+                BaseCommandOptions.getDiceColorOptionFromStartCommandOption(options).orElse(DiceImageStyle.polyhedral_3d.getDefaultColor()),
+                userLocale);
     }
 
     private List<ButtonIdAndExpression> getButtonsFromCommandInteractionOption(@NonNull CommandInteractionOption options) {
         ImmutableList.Builder<ButtonIdAndExpression> builder = ImmutableList.builder();
-        String buttons = options.getStringSubOptionWithName(BUTTONS_COMMAND_OPTIONS_ID).orElseThrow();
+        String buttons = options.getStringSubOptionWithName(BUTTONS_COMMAND_OPTIONS_NAME).orElseThrow();
         int idCounter = 1;
         for (String button : buttons.split(";")) {
-            builder.add(new ButtonIdAndExpression(idCounter++ + "_button", button));
+            builder.add(new ButtonIdAndExpression(idCounter++ + "_button", button.trim()));
         }
         return builder.build();
     }
 
-    private List<ComponentRowDefinition> createButtonLayout(UUID customUUID, SumCustomSetConfig config, boolean rollDisabled) {
+    private List<ComponentRowDefinition> createButtonLayout(UUID customUUID, SumCustomSetConfig config, boolean rollDisabled, Locale configLocale) {
         List<ButtonDefinition> buttons = config.getLabelAndExpression().stream()
                 .map(d -> ButtonDefinition.builder()
                         .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), d.getButtonId(), customUUID))
@@ -298,18 +296,18 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
                 .collect(Collectors.toList());
         buttons.add(ButtonDefinition.builder()
                 .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), ROLL_BUTTON_ID, customUUID))
-                .label("Roll")
+                .label(I18n.getMessage("sum_custom_set.button.label.roll", configLocale))
                 .disabled(rollDisabled)
                 .style(rollDisabled ? ButtonDefinition.Style.PRIMARY : ButtonDefinition.Style.SUCCESS)
                 .build());
         buttons.add(ButtonDefinition.builder()
                 .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), CLEAR_BUTTON_ID, customUUID))
-                .label("Clear")
+                .label(I18n.getMessage("sum_custom_set.button.label.clear", configLocale))
                 .style(ButtonDefinition.Style.DANGER)
                 .build());
         buttons.add(ButtonDefinition.builder()
                 .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), BACK_BUTTON_ID, customUUID))
-                .label("Back")
+                .label(I18n.getMessage("sum_custom_set.button.label.back", configLocale))
                 .style(ButtonDefinition.Style.SECONDARY)
                 .build());
         return Lists.partition(buttons, 5).stream()
@@ -324,7 +322,8 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
                                                  boolean alwaysSumResult,
                                                  AnswerFormatType answerFormatType,
                                                  DiceImageStyle diceImageStyle,
-                                                 String defaultDiceColor) {
+                                                 String defaultDiceColor,
+                                                 Locale userLocale) {
         return new SumCustomSetConfig(answerTargetChannelId, startOptions.stream()
                 .filter(be -> !be.getExpression().contains(BottomCustomIdUtils.CUSTOM_ID_DELIMITER))
                 .filter(be -> !be.getExpression().contains(LABEL_DELIMITER) || be.getExpression().split(LABEL_DELIMITER).length == 2)
@@ -358,7 +357,8 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
                 .distinct()
                 .limit(22)
                 .collect(Collectors.toList()),
-                diceParserSystem, alwaysSumResult, answerFormatType, null, new DiceStyleAndColor(diceImageStyle, defaultDiceColor));
+                diceParserSystem, alwaysSumResult, answerFormatType, null, new DiceStyleAndColor(diceImageStyle, defaultDiceColor),
+                userLocale);
     }
 
     @Value

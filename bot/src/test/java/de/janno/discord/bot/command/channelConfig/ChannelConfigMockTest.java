@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -52,18 +53,18 @@ public class ChannelConfigMockTest {
                         .stringValue("polyhedral_3d_red_and_white")
                         .build())
                 .build()));
-        channelConfig.handleSlashCommandEvent(slashEvent1, () -> UUID.fromString("00000000-0000-0000-0000-000000000000")).block();
+        channelConfig.handleSlashCommandEvent(slashEvent1, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"), Locale.ENGLISH).block();
 
         SlashEventAdaptorMock slashEvent2 = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
                 .name("delete_direct_roll_config")
                 .build()));
-        channelConfig.handleSlashCommandEvent(slashEvent2, () -> UUID.fromString("00000000-0000-0000-0000-000000000000")).block();
+        channelConfig.handleSlashCommandEvent(slashEvent2, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"), Locale.ENGLISH).block();
 
         SlashEventAdaptorMock slashEvent3 = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
                 .name("expression")
                 .stringValue("1d6")
                 .build()));
-        directRollCommand.handleSlashCommandEvent(slashEvent3, () -> UUID.fromString("00000000-0000-0000-0000-000000000000")).block();
+        directRollCommand.handleSlashCommandEvent(slashEvent3, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"), Locale.ENGLISH).block();
 
         assertThat(slashEvent1.getActions()).containsExactlyInAnyOrder("reply: `commandString`\nSaved direct roll channel config");
         assertThat(slashEvent2.getActions()).containsExactlyInAnyOrder("reply: `commandString`\nDeleted direct roll channel config");
@@ -84,7 +85,7 @@ public class ChannelConfigMockTest {
                         .option(CommandInteractionOption.builder().name("value").stringValue("2d20+10").build())
                         .build())
                 .build()));
-        channelConfig.handleSlashCommandEvent(slashEvent1, () -> UUID.fromString("00000000-0000-0000-0000-000000000000")).block();
+        channelConfig.handleSlashCommandEvent(slashEvent1, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"), Locale.ENGLISH).block();
 
         SlashEventAdaptorMock slashEvent2 = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
                 .name("channel_alias")
@@ -92,7 +93,7 @@ public class ChannelConfigMockTest {
                         .name("list")
                         .build())
                 .build()));
-        channelConfig.handleSlashCommandEvent(slashEvent2, () -> UUID.fromString("00000000-0000-0000-0000-000000000000")).block();
+        channelConfig.handleSlashCommandEvent(slashEvent2, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"), Locale.ENGLISH).block();
 
         SlashEventAdaptorMock slashEvent3 = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
                 .name("channel_alias")
@@ -101,7 +102,7 @@ public class ChannelConfigMockTest {
                         .option(CommandInteractionOption.builder().name("name").stringValue("att").build())
                         .build())
                 .build()));
-        channelConfig.handleSlashCommandEvent(slashEvent3, () -> UUID.fromString("00000000-0000-0000-0000-000000000000")).block();
+        channelConfig.handleSlashCommandEvent(slashEvent3, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"), Locale.ENGLISH).block();
 
         SlashEventAdaptorMock slashEvent4 = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
                 .name("channel_alias")
@@ -109,12 +110,12 @@ public class ChannelConfigMockTest {
                         .name("list")
                         .build())
                 .build()));
-        channelConfig.handleSlashCommandEvent(slashEvent4, () -> UUID.fromString("00000000-0000-0000-0000-000000000000")).block();
+        channelConfig.handleSlashCommandEvent(slashEvent4, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"), Locale.ENGLISH).block();
 
         assertThat(slashEvent1.getActions()).containsExactlyInAnyOrder("reply: `commandString`\nSaved new alias");
-        assertThat(slashEvent2.getActions()).containsExactlyInAnyOrder("reply: `commandString`\nexisting alias:\natt->2d20+10");
-        assertThat(slashEvent3.getActions()).containsExactlyInAnyOrder("reply: `commandString`\ndeleted alias");
-        assertThat(slashEvent4.getActions()).containsExactlyInAnyOrder("reply: `commandString`\nexisting alias:\n");
+        assertThat(slashEvent2.getActions()).containsExactlyInAnyOrder("reply: `commandString`\nExisting alias:\natt->2d20+10");
+        assertThat(slashEvent3.getActions()).containsExactlyInAnyOrder("reply: `commandString`\nDeleted alias");
+        assertThat(slashEvent4.getActions()).containsExactlyInAnyOrder("reply: `commandString`\nExisting alias:\n");
     }
 
     @Test
@@ -129,7 +130,7 @@ public class ChannelConfigMockTest {
                         .option(CommandInteractionOption.builder().name("value").stringValue("2d20+10").build())
                         .build())
                 .build()));
-        channelConfig.handleSlashCommandEvent(slashEvent1, () -> UUID.fromString("00000000-0000-0000-0000-000000000000")).block();
+        channelConfig.handleSlashCommandEvent(slashEvent1, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"), Locale.ENGLISH).block();
 
         SlashEventAdaptorMock slashEvent2 = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
                 .name("user_channel_alias")
@@ -137,7 +138,7 @@ public class ChannelConfigMockTest {
                         .name("list")
                         .build())
                 .build()));
-        channelConfig.handleSlashCommandEvent(slashEvent2, () -> UUID.fromString("00000000-0000-0000-0000-000000000000")).block();
+        channelConfig.handleSlashCommandEvent(slashEvent2, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"), Locale.ENGLISH).block();
 
         SlashEventAdaptorMock slashEvent3 = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
                 .name("user_channel_alias")
@@ -146,7 +147,7 @@ public class ChannelConfigMockTest {
                         .option(CommandInteractionOption.builder().name("name").stringValue("att").build())
                         .build())
                 .build()));
-        channelConfig.handleSlashCommandEvent(slashEvent3, () -> UUID.fromString("00000000-0000-0000-0000-000000000000")).block();
+        channelConfig.handleSlashCommandEvent(slashEvent3, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"), Locale.ENGLISH).block();
 
         SlashEventAdaptorMock slashEvent4 = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
                 .name("user_channel_alias")
@@ -154,12 +155,12 @@ public class ChannelConfigMockTest {
                         .name("list")
                         .build())
                 .build()));
-        channelConfig.handleSlashCommandEvent(slashEvent4, () -> UUID.fromString("00000000-0000-0000-0000-000000000000")).block();
+        channelConfig.handleSlashCommandEvent(slashEvent4, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"), Locale.ENGLISH).block();
 
         assertThat(slashEvent1.getActions()).containsExactlyInAnyOrder("reply: `commandString`\nSaved new alias");
-        assertThat(slashEvent2.getActions()).containsExactlyInAnyOrder("reply: `commandString`\nexisting alias:\natt->2d20+10");
-        assertThat(slashEvent3.getActions()).containsExactlyInAnyOrder("reply: `commandString`\ndeleted alias");
-        assertThat(slashEvent4.getActions()).containsExactlyInAnyOrder("reply: `commandString`\nexisting alias:\n");
+        assertThat(slashEvent2.getActions()).containsExactlyInAnyOrder("reply: `commandString`\nExisting alias:\natt->2d20+10");
+        assertThat(slashEvent3.getActions()).containsExactlyInAnyOrder("reply: `commandString`\nDeleted alias");
+        assertThat(slashEvent4.getActions()).containsExactlyInAnyOrder("reply: `commandString`\nExisting alias:\n");
     }
 
     @Test
@@ -174,7 +175,7 @@ public class ChannelConfigMockTest {
                         .option(CommandInteractionOption.builder().name("value").stringValue("2d20+10").build())
                         .build())
                 .build()), 1L);
-        channelConfig.handleSlashCommandEvent(slashEvent1, () -> UUID.fromString("00000000-0000-0000-0000-000000000000")).block();
+        channelConfig.handleSlashCommandEvent(slashEvent1, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"), Locale.ENGLISH).block();
 
         SlashEventAdaptorMock slashEvent2 = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
                 .name("user_channel_alias")
@@ -184,7 +185,7 @@ public class ChannelConfigMockTest {
                         .option(CommandInteractionOption.builder().name("value").stringValue("2d20+1").build())
                         .build())
                 .build()), 2L);
-        channelConfig.handleSlashCommandEvent(slashEvent2, () -> UUID.fromString("00000000-0000-0000-0000-000000000001")).block();
+        channelConfig.handleSlashCommandEvent(slashEvent2, () -> UUID.fromString("00000000-0000-0000-0000-000000000001"), Locale.ENGLISH).block();
 
         SlashEventAdaptorMock slashEvent3 = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
                 .name("user_channel_alias")
@@ -192,7 +193,7 @@ public class ChannelConfigMockTest {
                         .name("list")
                         .build())
                 .build()), 1L);
-        channelConfig.handleSlashCommandEvent(slashEvent3, () -> UUID.fromString("00000000-0000-0000-0000-000000000002")).block();
+        channelConfig.handleSlashCommandEvent(slashEvent3, () -> UUID.fromString("00000000-0000-0000-0000-000000000002"), Locale.ENGLISH).block();
 
         SlashEventAdaptorMock slashEvent4 = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
                 .name("user_channel_alias")
@@ -200,12 +201,12 @@ public class ChannelConfigMockTest {
                         .name("list")
                         .build())
                 .build()), 2L);
-        channelConfig.handleSlashCommandEvent(slashEvent4, () -> UUID.fromString("00000000-0000-0000-0000-000000000003")).block();
+        channelConfig.handleSlashCommandEvent(slashEvent4, () -> UUID.fromString("00000000-0000-0000-0000-000000000003"), Locale.ENGLISH).block();
 
         assertThat(slashEvent1.getActions()).containsExactlyInAnyOrder("reply: `commandString`\nSaved new alias");
         assertThat(slashEvent2.getActions()).containsExactlyInAnyOrder("reply: `commandString`\nSaved new alias");
-        assertThat(slashEvent3.getActions()).containsExactlyInAnyOrder("reply: `commandString`\nexisting alias:\natt->2d20+10");
-        assertThat(slashEvent4.getActions()).containsExactlyInAnyOrder("reply: `commandString`\nexisting alias:\natt->2d20+1");
+        assertThat(slashEvent3.getActions()).containsExactlyInAnyOrder("reply: `commandString`\nExisting alias:\natt->2d20+10");
+        assertThat(slashEvent4.getActions()).containsExactlyInAnyOrder("reply: `commandString`\nExisting alias:\natt->2d20+1");
     }
 
     @Test
@@ -222,7 +223,7 @@ public class ChannelConfigMockTest {
                                 .build())
                         .build())
                 .build()));
-        channelConfig.handleSlashCommandEvent(slashEvent1, () -> UUID.fromString("00000000-0000-0000-0000-000000000000")).block();
+        channelConfig.handleSlashCommandEvent(slashEvent1, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"), Locale.ENGLISH).block();
 
         SlashEventAdaptorMock slashEvent2 = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
                 .name("channel_alias")
@@ -230,11 +231,11 @@ public class ChannelConfigMockTest {
                         .name("list")
                         .build())
                 .build()));
-        channelConfig.handleSlashCommandEvent(slashEvent2, () -> UUID.fromString("00000000-0000-0000-0000-000000000000")).block();
+        channelConfig.handleSlashCommandEvent(slashEvent2, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"), Locale.ENGLISH).block();
 
 
         assertThat(slashEvent1.getActions()).containsExactlyInAnyOrder("reply: `commandString`\nSaved new alias");
-        assertThat(slashEvent2.getActions()).containsExactlyInAnyOrder("reply: `commandString`\nexisting alias:\natt->2d20\ndmg->2d6+3=");
+        assertThat(slashEvent2.getActions()).containsExactlyInAnyOrder("reply: `commandString`\nExisting alias:\natt->2d20\ndmg->2d6+3=");
     }
 
     @Test
@@ -251,7 +252,7 @@ public class ChannelConfigMockTest {
                                 .build())
                         .build())
                 .build()));
-        channelConfig.handleSlashCommandEvent(slashEvent1, () -> UUID.fromString("00000000-0000-0000-0000-000000000000")).block();
+        channelConfig.handleSlashCommandEvent(slashEvent1, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"), Locale.ENGLISH).block();
 
         SlashEventAdaptorMock slashEvent2 = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
                 .name("user_channel_alias")
@@ -259,10 +260,10 @@ public class ChannelConfigMockTest {
                         .name("list")
                         .build())
                 .build()));
-        channelConfig.handleSlashCommandEvent(slashEvent2, () -> UUID.fromString("00000000-0000-0000-0000-000000000000")).block();
+        channelConfig.handleSlashCommandEvent(slashEvent2, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"), Locale.ENGLISH).block();
 
 
         assertThat(slashEvent1.getActions()).containsExactlyInAnyOrder("reply: `commandString`\nSaved new alias");
-        assertThat(slashEvent2.getActions()).containsExactlyInAnyOrder("reply: `commandString`\nexisting alias:\natt->2d20\ndmg->2d6+3=");
+        assertThat(slashEvent2.getActions()).containsExactlyInAnyOrder("reply: `commandString`\nExisting alias:\natt->2d20\ndmg->2d6+3=");
     }
 }

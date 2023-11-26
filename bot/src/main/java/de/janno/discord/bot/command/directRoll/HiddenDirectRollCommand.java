@@ -1,6 +1,7 @@
 package de.janno.discord.bot.command.directRoll;
 
 import com.google.common.base.Stopwatch;
+import de.janno.discord.bot.I18n;
 import de.janno.discord.bot.command.RollAnswer;
 import de.janno.discord.bot.command.RollAnswerConverter;
 import de.janno.discord.bot.dice.CachingDiceEvaluator;
@@ -19,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.Locale;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
@@ -42,11 +44,15 @@ public class HiddenDirectRollCommand extends DirectRollCommand implements Compon
     public @NonNull CommandDefinition getCommandDefinition() {
         return CommandDefinition.builder()
                 .name(getCommandId())
-                .description("hidden direct roll of dice expression, configuration with /channel_config")
+                .nameLocales(I18n.allNoneEnglishMessagesNames("h.name"))
+                .description(I18n.getMessage("h.description", Locale.ENGLISH))
+                .descriptionLocales(I18n.allNoneEnglishMessagesDescriptions("h.description"))
                 .option(CommandDefinitionOption.builder()
-                        .name(ACTION_EXPRESSION)
+                        .name(EXPRESSION_OPTION_NAME)
+                        .nameLocales(I18n.allNoneEnglishMessagesNames("r.expression.name"))
+                        .description(I18n.getMessage("h.description", Locale.ENGLISH))
+                        .descriptionLocales(I18n.allNoneEnglishMessagesDescriptions("h.description"))
                         .required(true)
-                        .description("dice expression, e.g. '2d6'")
                         .type(CommandDefinitionOption.Type.STRING)
                         .build())
                 .build();
@@ -57,12 +63,13 @@ public class HiddenDirectRollCommand extends DirectRollCommand implements Compon
                                                  @NonNull String commandString,
                                                  @NonNull String diceExpression,
                                                  @NonNull RollAnswer answer,
-                                                 @NonNull Stopwatch stopwatch) {
+                                                 @NonNull Stopwatch stopwatch,
+                                                 @NonNull Locale userLocale) {
         EmbedOrMessageDefinition embedOrMessageDefinition = RollAnswerConverter.toEmbedOrMessageDefinition(answer).toBuilder()
                 .componentRowDefinition(ComponentRowDefinition.builder()
                         .buttonDefinition(ButtonDefinition.builder()
                                 .id(BottomCustomIdUtils.createButtonCustomIdWithoutConfigId(getCommandId(), REVEAL_BUTTON_ID))
-                                .label("Reveal").build())
+                                .label(I18n.getMessage("h.button.reveal.label", userLocale)).build())
                         .build()
                 )
                 .build();
@@ -77,7 +84,7 @@ public class HiddenDirectRollCommand extends DirectRollCommand implements Compon
                                         )),
                         event.createResultMessageWithReference(EmbedOrMessageDefinition.builder()
                                 .type(EmbedOrMessageDefinition.Type.MESSAGE)
-                                .descriptionOrContent("Made a hidden roll")
+                                .descriptionOrContent(I18n.getMessage("h.madeHiddenRoll.message", userLocale))
                                 .build()))
                 .parallel()
                 .then();

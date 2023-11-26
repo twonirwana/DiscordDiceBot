@@ -9,6 +9,7 @@ import lombok.NonNull;
 import org.apache.commons.lang3.NotImplementedException;
 
 import java.time.Duration;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -28,18 +29,14 @@ public class TestCommand extends AbstractCommand<Config, StateData> {
         throw new NotImplementedException("Not implemented");
     }
 
+
     @Override
-    protected @NonNull String getCommandDescription() {
+    protected @NonNull EmbedOrMessageDefinition getHelpMessage(Locale userLocale) {
         throw new NotImplementedException("Not implemented");
     }
 
     @Override
-    protected @NonNull EmbedOrMessageDefinition getHelpMessage() {
-        throw new NotImplementedException("Not implemented");
-    }
-
-    @Override
-    protected @NonNull Optional<EmbedOrMessageDefinition> createNewButtonMessageWithState(UUID configId, Config config, State<StateData> state, long guildId, long channelId) {
+    protected @NonNull Optional<EmbedOrMessageDefinition> createNewButtonMessageWithState(@NonNull UUID configId, @NonNull Config config, @NonNull State<StateData> state, long guildId, long channelId) {
         throw new NotImplementedException("Not implemented");
     }
 
@@ -49,12 +46,12 @@ public class TestCommand extends AbstractCommand<Config, StateData> {
     }
 
     @Override
-    public @NonNull EmbedOrMessageDefinition createNewButtonMessage(UUID configId, Config config) {
+    public @NonNull EmbedOrMessageDefinition createNewButtonMessage(@NonNull UUID configId, @NonNull Config config) {
         throw new NotImplementedException("Not implemented");
     }
 
     @Override
-    protected @NonNull Config getConfigFromStartOptions(@NonNull CommandInteractionOption options) {
+    protected @NonNull Config getConfigFromStartOptions(@NonNull CommandInteractionOption options, @NonNull Locale userLocale) {
         throw new NotImplementedException("Not implemented");
     }
 

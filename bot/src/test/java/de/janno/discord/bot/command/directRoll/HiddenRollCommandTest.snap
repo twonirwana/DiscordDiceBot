@@ -1,0 +1,53 @@
+de.janno.discord.bot.command.directRoll.HiddenRollCommandTest.getCommandDefinition=[
+  {
+    "name" : "h",
+    "description" : "hidden direct roll of dice expression, e.g. `2d6`. Configuration with `/channel_config`",
+    "nameLocales" : [ ],
+    "descriptionLocales" : [
+      {
+        "locale" : "de",
+        "description" : "Versteckter direkter Wurf eines Würfelausdruckes, z.B. `2d6`. Konfiguration mit `/channel_config`"
+      },
+      {
+        "locale" : "pt_BR",
+        "description" : "fórmula de rolagem de dados direta escondida, e.g. `2d6`. Configure com `/channel_config`"
+      }
+    ],
+    "options" : [
+      {
+        "type" : "STRING",
+        "name" : "expression",
+        "nameLocales" : [
+          {
+            "locale" : "de",
+            "name" : "ausdruck"
+          },
+          {
+            "locale" : "pt_BR",
+            "name" : "formula"
+          }
+        ],
+        "description" : "hidden direct roll of dice expression, e.g. `2d6`. Configuration with `/channel_config`",
+        "descriptionLocales" : [
+          {
+            "locale" : "de",
+            "description" : "Versteckter direkter Wurf eines Würfelausdruckes, z.B. `2d6`. Konfiguration mit `/channel_config`"
+          },
+          {
+            "locale" : "pt_BR",
+            "description" : "fórmula de rolagem de dados direta escondida, e.g. `2d6`. Configure com `/channel_config`"
+          }
+        ],
+        "required" : true,
+        "choices" : [ ],
+        "options" : [ ],
+        "autoComplete" : false
+      }
+    ]
+  }
+]
+
+
+de.janno.discord.bot.command.directRoll.HiddenRollCommandTest.getId=[
+  "h"
+]

@@ -3,6 +3,7 @@ package de.janno.discord.bot.command.fate;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+import de.janno.discord.bot.I18n;
 import de.janno.discord.bot.command.*;
 import de.janno.discord.bot.dice.DiceUtils;
 import de.janno.discord.bot.dice.image.DiceImageStyle;
@@ -22,6 +23,7 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -75,11 +77,6 @@ public class FateCommand extends AbstractCommand<FateConfig, StateData> {
     }
 
     @Override
-    protected @NonNull String getCommandDescription() {
-        return "Legacy command, use /custom_parameter or /custom_dice";
-    }
-
-    @Override
     protected boolean supportsResultImages() {
         return false;
     }
@@ -92,12 +89,12 @@ public class FateCommand extends AbstractCommand<FateConfig, StateData> {
     }
 
     @Override
-    protected @NonNull EmbedOrMessageDefinition getHelpMessage() {
+    protected @NonNull EmbedOrMessageDefinition getHelpMessage(Locale userLocale) {
         return EmbedOrMessageDefinition.builder()
                 .descriptionOrContent("**Legacy command, use /custom_parameter or /custom_dice**")
-                .field(new EmbedOrMessageDefinition.Field("Example", "`/fate start type:with_modifier` or `/fate start type:simple`", false))
-                .field(new EmbedOrMessageDefinition.Field("Full documentation", "https://github.com/twonirwana/DiscordDiceBot", false))
-                .field(new EmbedOrMessageDefinition.Field("Discord Server for Help and News", "https://discord.gg/e43BsqKpFr", false))
+                .field(new EmbedOrMessageDefinition.Field(I18n.getMessage("help.example.field.name", userLocale), "`/fate start type:with_modifier` or `/fate start type:simple`", false))
+                .field(new EmbedOrMessageDefinition.Field(I18n.getMessage("help.documentation.field.name", userLocale), I18n.getMessage("help.documentation.field.value", userLocale), false))
+                .field(new EmbedOrMessageDefinition.Field(I18n.getMessage("help.discord.server.field.name", userLocale), I18n.getMessage("help.discord.server.field.value", userLocale), false))
                 .build();
     }
 
@@ -120,7 +117,7 @@ public class FateCommand extends AbstractCommand<FateConfig, StateData> {
     }
 
     @Override
-    protected @NonNull FateConfig getConfigFromStartOptions(@NonNull CommandInteractionOption options) {
+    protected @NonNull FateConfig getConfigFromStartOptions(@NonNull CommandInteractionOption options, @NonNull Locale userLocale) {
         Long answerTargetChannelId = BaseCommandOptions.getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null);
         AnswerFormatType answerType = BaseCommandOptions.getAnswerTypeFromStartCommandOption(options).orElse(defaultAnswerFormat());
         return new FateConfig(answerTargetChannelId,
@@ -128,6 +125,11 @@ public class FateCommand extends AbstractCommand<FateConfig, StateData> {
                 answerType,
                 null,
                 new DiceStyleAndColor(DiceImageStyle.none, DiceImageStyle.none.getDefaultColor()));
+    }
+
+    @Override
+    protected boolean supportsLocale() {
+        return false;
     }
 
     @Override
@@ -163,12 +165,12 @@ public class FateCommand extends AbstractCommand<FateConfig, StateData> {
     }
 
     @Override
-    protected @NonNull Optional<EmbedOrMessageDefinition> createNewButtonMessageWithState(UUID configUUID, FateConfig config, State<StateData> state, long guildId, long channelId) {
+    protected @NonNull Optional<EmbedOrMessageDefinition> createNewButtonMessageWithState(@NonNull UUID configUUID, @NonNull FateConfig config, @NonNull State<StateData> state, long guildId, long channelId) {
         return Optional.of(createNewButtonMessage(configUUID, config));
     }
 
     @Override
-    public @NonNull EmbedOrMessageDefinition createNewButtonMessage(UUID configUUID, FateConfig config) {
+    public @NonNull EmbedOrMessageDefinition createNewButtonMessage(@NonNull UUID configUUID, @NonNull FateConfig config) {
         return EmbedOrMessageDefinition.builder()
                 .type(EmbedOrMessageDefinition.Type.MESSAGE)
                 .descriptionOrContent(createButtonMessage(config))

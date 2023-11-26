@@ -184,6 +184,17 @@ If this option is used then the answer of a roll will be posted in the provided 
 The target channel must be a text channel and need the bot need the usual permissions.
 If a message sends the answer to another channel, it will not be moved to the end of its own channel.
 
+== Language
+
+The bot supports multiple languages (currently English, German and Brazilian Portuguese).
+The bot will use the discord client language for the slash command and options.
+Each button message has a language configuration and will return its answers always in the language of its configuration.
+All existing button messages are default in English.
+Button messages are per default created in the language of the discord client but that can be overwritten with the `language` option of the slash commands.
+The direct roll messages are using the language that is configured with the `channel_config` command and not the discord client language.
+The dice expressions are currently not translated.
+Contributions of additonal language and improvements are very welcome.
+
 === Quickstart
 
 Type `/quickstart system' and the bot will offer a list of ready to play dice sets.
@@ -578,6 +589,7 @@ All functions are case insensitiv.
 * Special thank to https://www.instagram.com/alie_in_beanland/[alieinbeanland] for the design of the dice images for `polyhedral_alies_v1` and `polyhedral_alies_v2`
 * Special thank to mailto:minuette@gmail.com[Myrynvalona] for the design of the dice images for `polyhedral_knots`
 * Special thank to http://scriptarium.org[scriptarium.org] for creating the dice images for `polyhedral_RdD`
+* Special thank to https://github.com/igorteuri[igorteuri] for the brazilian prologuise translation
 * The `polyhedral_3d` dice images where adapted from https://blendswap.com/blend/16634
 * The `d6_dot` in `white` dice images are from https://game-icons.net/
 * The `d6_dot` in `black_and_white` dice images are adapted from https://speakthesky.itch.io/typeface-dicier and the Infinite Revolution RPG

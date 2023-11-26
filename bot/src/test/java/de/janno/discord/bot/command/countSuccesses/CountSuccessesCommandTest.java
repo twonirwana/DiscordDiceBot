@@ -17,10 +17,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -34,11 +31,6 @@ class CountSuccessesCommandTest {
     void setup() {
         underTest = new CountSuccessesCommand(persistenceManager, new DiceUtils(1, 1, 1, 1, 5, 6, 6, 6));
         underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
-    }
-
-    @Test
-    void getCommandDescription() {
-        assertThat(underTest.getCommandDescription()).isEqualTo("Legacy command, use /custom_parameter");
     }
 
     @Test
@@ -282,7 +274,7 @@ class CountSuccessesCommandTest {
                         .stringValue("1,2")
                         .build())
                 .build();
-        CountSuccessesConfig res = underTest.getConfigFromStartOptions(option);
+        CountSuccessesConfig res = underTest.getConfigFromStartOptions(option, Locale.ENGLISH);
         assertThat(res).isEqualTo(new CountSuccessesConfig(null, 12, 8, "half_dice_one", 13, 2, Set.of(12, 11), Set.of(1, 2), AnswerFormatType.full, ResultImage.none, null));
     }
 
@@ -300,7 +292,7 @@ class CountSuccessesCommandTest {
                         .stringValue("1,2,3")
                         .build())
                 .build();
-        Optional<String> res = underTest.getStartOptionsValidationMessage(option, 0L, 0L);
+        Optional<String> res = underTest.getStartOptionsValidationMessage(option, 0L, 0L, Locale.ENGLISH);
         assertThat(res).contains("The reroll set must be smaller then half the number of dice sides");
     }
 

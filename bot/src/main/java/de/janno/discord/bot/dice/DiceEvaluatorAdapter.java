@@ -3,6 +3,7 @@ package de.janno.discord.bot.dice;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import de.janno.discord.bot.BotMetrics;
+import de.janno.discord.bot.I18n;
 import de.janno.discord.bot.command.AnswerFormatType;
 import de.janno.discord.bot.command.RollAnswer;
 import de.janno.discord.bot.dice.image.DiceStyleAndColor;
@@ -17,6 +18,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.InputStream;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -72,24 +74,24 @@ public class DiceEvaluatorAdapter {
         return "```\n" + DiceEvaluator.getHelpText() + "\n```";
     }
 
-    public Optional<String> validateDiceExpression(String expression, String helpCommand) {
+    public Optional<String> validateDiceExpression(String expression, String helpCommand, @NonNull Locale userLocale) {
         RollerOrError rollerOrError = cachingDiceEvaluator.get(expression);
         if (rollerOrError.isValid()) {
             return Optional.empty();
         } else {
-            return Optional.of(String.format("The following expression is invalid: '%s'. The error is: %s. Use %s to get more information on how to use the command.", expression, rollerOrError.getErrorMessage(), helpCommand));
+            return Optional.of(I18n.getMessage("diceEvaluator.reply.validation.invalid", userLocale, expression, rollerOrError.getErrorMessage(), helpCommand));
         }
     }
 
 
-    public Optional<String> shortValidateDiceExpressionWitOptionalLabel(@NonNull String expressionWithOptionalLabel) {
+    public Optional<String> shortValidateDiceExpressionWitOptionalLabel(@NonNull String expressionWithOptionalLabel, @NonNull Locale userLocale) {
         String label;
         String diceExpression;
 
         if (expressionWithOptionalLabel.contains(LABEL_DELIMITER)) {
             String[] split = expressionWithOptionalLabel.split(LABEL_DELIMITER);
             if (split.length != 2) {
-                return Optional.of("The expression must have the format diceExpression@Label");
+                return Optional.of(I18n.getMessage("diceEvaluator.reply.validation.toManyAt", userLocale, expressionWithOptionalLabel));
             }
             label = split[1].trim();
             diceExpression = split[0].trim();
@@ -98,10 +100,10 @@ public class DiceEvaluatorAdapter {
             diceExpression = expressionWithOptionalLabel;
         }
         if (label.isBlank()) {
-            return Optional.of("Lable must not be empty");
+            return Optional.of(I18n.getMessage("diceEvaluator.reply.validation.blankLabel", userLocale, expressionWithOptionalLabel));
         }
         if (diceExpression.isBlank()) {
-            return Optional.of("Expression must not be empty");
+            return Optional.of(I18n.getMessage("diceEvaluator.reply.validation.blankExpression", userLocale, expressionWithOptionalLabel));
         }
         RollerOrError rollerOrError = cachingDiceEvaluator.get(expressionWithOptionalLabel);
         if (rollerOrError.isValid()) {
@@ -111,17 +113,18 @@ public class DiceEvaluatorAdapter {
         }
     }
 
-    public RollAnswer answerRollWithOptionalLabelInExpression(String expression, String labelDelimiter, boolean sumUp, AnswerFormatType answerFormatType, DiceStyleAndColor diceStyleAndColor) {
+    public RollAnswer answerRollWithOptionalLabelInExpression(String expression, String labelDelimiter, boolean sumUp, AnswerFormatType answerFormatType, DiceStyleAndColor diceStyleAndColor, Locale userLocale) {
         String diceExpression = getExpressionFromExpressionWithOptionalLabel(expression, labelDelimiter);
         String label = getLabelFromExpressionWithOptionalLabel(expression, labelDelimiter).orElse(null);
-        return answerRollWithGivenLabel(diceExpression, label, sumUp, answerFormatType, diceStyleAndColor);
+        return answerRollWithGivenLabel(diceExpression, label, sumUp, answerFormatType, diceStyleAndColor, userLocale);
     }
 
     public RollAnswer answerRollWithGivenLabel(String expression,
                                                @Nullable String label,
                                                boolean sumUp,
                                                AnswerFormatType answerFormatType,
-                                               DiceStyleAndColor styleAndColor) {
+                                               DiceStyleAndColor styleAndColor,
+                                               @NonNull Locale userLocale) {
         try {
             final RollerOrError rollerOrError = cachingDiceEvaluator.get(expression);
 
@@ -144,7 +147,7 @@ public class DiceEvaluatorAdapter {
                         .expression(expression)
                         .expressionLabel(label)
                         .image(diceImage)
-                        .warning(getWarningFromRoll(rolls))
+                        .warning(getWarningFromRoll(rolls, userLocale))
                         .result(getResult(rolls.get(0), sumUp))
                         .rollDetails(rolls.get(0).getRandomElementsString())
                         .build();
@@ -156,7 +159,7 @@ public class DiceEvaluatorAdapter {
                         .answerFormatType(answerFormatType)
                         .expression(expression)
                         .expressionLabel(label)
-                        .warning(getWarningFromRoll(rolls))
+                        .warning(getWarningFromRoll(rolls, userLocale))
                         .multiRollResults(multiRollResults)
                         .build();
             }
@@ -173,11 +176,11 @@ public class DiceEvaluatorAdapter {
         return cachingDiceEvaluator.get(expression).isValid();
     }
 
-    private String getWarningFromRoll(List<Roll> rolls) {
+    private String getWarningFromRoll(List<Roll> rolls, Locale userLocale) {
         return Strings.emptyToNull(rolls.stream()
                 .map(r -> {
                     if (r.getRandomElementsInRoll().getRandomElements().isEmpty()) {
-                        return "did not contain any random element, try `d20` to roll a 20 sided die";
+                        return I18n.getMessage("diceEvaluator.reply.warning.noRandomElement", userLocale);
                     }
                     return null;
                 })

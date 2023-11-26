@@ -14,6 +14,7 @@ import lombok.NonNull;
 import lombok.ToString;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 @EqualsAndHashCode(callSuper = true)
@@ -33,8 +34,9 @@ public class SumCustomSetConfig extends Config {
                               @JsonProperty("alwaysSumResult") Boolean alwaysSumResult,
                               @JsonProperty("answerFormatType") AnswerFormatType answerFormatType,
                               @JsonProperty("resultImage") ResultImage resultImage,
-                              @JsonProperty("diceImageStyle") DiceStyleAndColor diceStyleAndColor) {
-        super(answerTargetChannelId, answerFormatType, resultImage, diceStyleAndColor);
+                              @JsonProperty("diceImageStyle") DiceStyleAndColor diceStyleAndColor,
+                              @JsonProperty("configLocale") Locale configLocale) {
+        super(answerTargetChannelId, answerFormatType, resultImage, diceStyleAndColor, configLocale);
         this.labelAndExpression = labelAndExpression;
         this.diceParserSystem = diceParserSystem == null ? DiceParserSystem.DICEROLL_PARSER : diceParserSystem;
         this.alwaysSumResult = alwaysSumResult == null || alwaysSumResult;
@@ -59,8 +61,8 @@ public class SumCustomSetConfig extends Config {
                     return "%s@%s".formatted(b.getDiceExpression(), b.getLabel());
                 })
                 .collect(Collectors.joining(";"));
-        return "%s: %s %s: %s %s".formatted(SumCustomSetCommand.BUTTONS_COMMAND_OPTIONS_ID, String.join(" ", buttons),
-                SumCustomSetCommand.ALWAYS_SUM_RESULTS_COMMAND_OPTIONS_ID, alwaysSumResult,
+        return "%s: %s %s: %s %s".formatted(SumCustomSetCommand.BUTTONS_COMMAND_OPTIONS_NAME, String.join(" ", buttons),
+                SumCustomSetCommand.ALWAYS_SUM_RESULTS_COMMAND_OPTIONS_NAME, alwaysSumResult,
                 super.toCommandOptionsString());
     }
 }

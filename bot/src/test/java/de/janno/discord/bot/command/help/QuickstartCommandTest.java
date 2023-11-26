@@ -1,15 +1,20 @@
 package de.janno.discord.bot.command.help;
 
+import au.com.origin.snapshots.Expect;
+import au.com.origin.snapshots.junit5.SnapshotExtension;
 import de.janno.discord.bot.SlashEventAdaptorMock;
 import de.janno.discord.bot.command.customDice.CustomDiceCommand;
 import de.janno.discord.bot.command.customParameter.CustomParameterCommand;
 import de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommand;
 import de.janno.discord.bot.dice.CachingDiceEvaluator;
 import de.janno.discord.bot.persistance.PersistenceManager;
+import de.janno.discord.connector.api.AutoCompleteAnswer;
+import de.janno.discord.connector.api.AutoCompleteRequest;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import de.janno.evaluator.dice.random.RandomNumberSupplier;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -18,15 +23,18 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@ExtendWith(SnapshotExtension.class)
 class QuickstartCommandTest {
 
     QuickstartCommand underTest;
+    private Expect expect;
 
     private static Stream<Arguments> generateData() {
         return Stream.of(
@@ -146,43 +154,75 @@ class QuickstartCommandTest {
                 .stringValue(presetId.name())
                 .build()));
 
-        Mono<Void> res = underTest.handleSlashCommandEvent(slashEventAdaptor, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"));
+        Mono<Void> res = underTest.handleSlashCommandEvent(slashEventAdaptor, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"), Locale.ENGLISH);
         StepVerifier.create(res).verifyComplete();
         assertThat(slashEventAdaptor.getActions()).containsExactlyInAnyOrderElementsOf(actions);
     }
 
     @Test
     void getPresetId_idMatch() {
-        Optional<RpgSystemCommandPreset.PresetId> res = QuickstartCommand.getPresetId("DND5");
+        Optional<RpgSystemCommandPreset.PresetId> res = QuickstartCommand.getPresetId("DND5", Locale.ENGLISH);
 
         assertThat(res).contains(RpgSystemCommandPreset.PresetId.DND5);
     }
 
     @Test
     void getPresetId_nameMatch() {
-        Optional<RpgSystemCommandPreset.PresetId> res = QuickstartCommand.getPresetId("Dungeon & dragons 5e ");
+        Optional<RpgSystemCommandPreset.PresetId> res = QuickstartCommand.getPresetId("Dungeon & dragons 5e ", Locale.ENGLISH);
 
         assertThat(res).contains(RpgSystemCommandPreset.PresetId.DND5);
     }
 
     @Test
     void getPresetId_synonymeMatch() {
-        Optional<RpgSystemCommandPreset.PresetId> res = QuickstartCommand.getPresetId(" reve de Dragon");
+        Optional<RpgSystemCommandPreset.PresetId> res = QuickstartCommand.getPresetId(" reve de Dragon", Locale.ENGLISH);
 
         assertThat(res).contains(RpgSystemCommandPreset.PresetId.REVE_DE_DRAGON);
     }
 
     @Test
     void getPresetId_nameStartsWith() {
-        Optional<RpgSystemCommandPreset.PresetId> res = QuickstartCommand.getPresetId(" oWod ");
+        Optional<RpgSystemCommandPreset.PresetId> res = QuickstartCommand.getPresetId(" oWod ", Locale.ENGLISH);
 
         assertThat(res).contains(RpgSystemCommandPreset.PresetId.OWOD);
     }
 
     @Test
     void getPresetId_noMatch() {
-        Optional<RpgSystemCommandPreset.PresetId> res = QuickstartCommand.getPresetId(" Opus Anima ");
+        Optional<RpgSystemCommandPreset.PresetId> res = QuickstartCommand.getPresetId(" Opus Anima ", Locale.ENGLISH);
 
         assertThat(res).isEmpty();
+    }
+
+    @Test
+    public void getCommandDefinition() {
+        expect.toMatchSnapshot(underTest.getCommandDefinition());
+    }
+
+    @Test
+    public void getId() {
+        expect.toMatchSnapshot(underTest.getCommandId());
+    }
+
+    @Test
+    void getAutoCompleteAnswer() {
+        List<AutoCompleteAnswer> res = underTest.getAutoCompleteAnswer(new AutoCompleteRequest("system", "du", List.of()), Locale.ENGLISH);
+        assertThat(res.stream().map(AutoCompleteAnswer::getName)).containsExactly("Dungeon & Dragons 5e",
+                "Dungeon & Dragons 5e Calculator",
+                "Dungeon & Dragons 5e with Dice Images",
+                "Dungeon Crawl Classics");
+        assertThat(res.stream().map(AutoCompleteAnswer::getValue)).containsExactly("DND5", "DND5_CALC", "DND5_IMAGE", "DUNGEON_CRAWL_CLASSICS");
+    }
+
+    @Test
+    void getAutoCompleteAnswer_german() {
+        List<AutoCompleteAnswer> res = underTest.getAutoCompleteAnswer(new AutoCompleteRequest("system", "du", List.of()), Locale.GERMAN);
+        assertThat(res.stream().map(AutoCompleteAnswer::getName)).containsExactly("Dungeon & Dragons 5e",
+                "Dungeon & Dragons 5e Kalkulator",
+                "Dungeon & Dragons 5e mit Würfelbildern",
+                "Dungeon Crawl Classics",
+                "nWod / Chronicles of Darkness",
+                "oWod / Storyteller System");
+        assertThat(res.stream().map(AutoCompleteAnswer::getValue)).containsExactly("DND5", "DND5_CALC", "DND5_IMAGE", "DUNGEON_CRAWL_CLASSICS", "NWOD", "OWOD");
     }
 }

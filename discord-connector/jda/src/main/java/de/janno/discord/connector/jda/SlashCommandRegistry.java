@@ -49,7 +49,7 @@ public class SlashCommandRegistry {
                         .collect(Collectors.toMap(SlashCommand::getCommandId, Function.identity()));
 
                 //get already existing commands
-                Map<String, Command> currentlyRegisteredCommands = jda.retrieveCommands().complete().stream()
+                Map<String, Command> currentlyRegisteredCommands = jda.retrieveCommands(true).complete().stream()
                         .collect(Collectors.toMap(Command::getName, Function.identity()));
                 log.info("Existing Commands: {}", String.join(", ", currentlyRegisteredCommands.keySet()));
                 //delete old commands

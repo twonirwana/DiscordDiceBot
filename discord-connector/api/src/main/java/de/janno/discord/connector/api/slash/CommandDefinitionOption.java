@@ -1,30 +1,100 @@
 package de.janno.discord.connector.api.slash;
 
 
+import com.google.common.base.Preconditions;
 import lombok.Builder;
 import lombok.Singular;
 import lombok.Value;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
+import java.util.function.Function;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Value
 @Builder
 public class CommandDefinitionOption {
 
+    private final static Pattern NAME_PATTERN = Pattern.compile("^[-_\\p{L}\\p{N}\\p{sc=Deva}\\p{sc=Thai}]{1,32}$");
     Type type;
     String name;
+    @Singular
+    List<CommandLocaleName> nameLocales;
     String description;
-    @Builder.Default
-    boolean required = false;
+    @Singular
+    List<CommandLocaleDescription> descriptionLocales;
+    boolean required;
     @Singular
     List<CommandDefinitionOptionChoice> choices;
     @Singular
     List<CommandDefinitionOption> options;
     Long minValue;
     Long maxValue;
-    @Builder.Default
-    boolean autoComplete = false;
+    boolean autoComplete;
+
+    public CommandDefinitionOption(Type type, String name, List<CommandLocaleName> nameLocales, String description,
+                                   List<CommandLocaleDescription> descriptionLocales, Boolean required, List<CommandDefinitionOptionChoice> choices,
+                                   List<CommandDefinitionOption> options, Long minValue, Long maxValue, Boolean autoComplete) {
+        this.type = type;
+        this.name = name;
+        this.nameLocales = nameLocales;
+        this.description = description;
+        this.descriptionLocales = descriptionLocales;
+        this.required = Optional.ofNullable(required).orElse(false);
+        this.choices = choices;
+        this.options = options;
+        this.minValue = minValue;
+        this.maxValue = maxValue;
+        this.autoComplete = Optional.ofNullable(autoComplete).orElse(false);
+
+        //https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-naming
+        Preconditions.checkArgument(NAME_PATTERN.matcher(name).matches(), "Invalid command name: {}", name);
+        Preconditions.checkArgument(name.toLowerCase(Locale.ROOT).equals(name), "Name must be lowercase only! Provided: \"%s\"", name);
+        Preconditions.checkArgument(description.length() <= 100, "command description to long: {}", description);
+        Preconditions.checkArgument(options.size() <= 25, "Too many options in {}, max is 25", options);
+        List<String> duplicatedOptionNames = options.stream().map(CommandDefinitionOption::getName)
+                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
+                .entrySet().stream()
+                .filter(e -> e.getValue() > 1)
+                .map(Map.Entry::getKey)
+                .toList();
+        Preconditions.checkArgument(duplicatedOptionNames.isEmpty(), "The following optionName are not unique: {}", duplicatedOptionNames);
+        Map<String, List<String>> duplicatedOptionLocaleNames = options.stream().flatMap(cd -> cd.getNameLocales().stream())
+                .collect(Collectors.groupingBy(c -> c.getLocale().toString())).entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, l -> l.getValue().stream()
+                        .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
+                        .entrySet().stream()
+                        .filter(e -> e.getValue() > 1)
+                        .map(Map.Entry::getKey)
+                        .map(CommandLocaleName::getName)
+                        .toList()
+                )).entrySet().stream()
+                .filter(e -> !e.getValue().isEmpty())
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        Preconditions.checkArgument(duplicatedOptionLocaleNames.isEmpty(), "The following optionName locale are not unique: {}", duplicatedOptionLocaleNames);
+
+        Preconditions.checkArgument(choices.size() <= 25, "Too many choices in {}, max is 25", choices);
+        List<String> duplicatedChoicesNames = choices.stream().map(CommandDefinitionOptionChoice::getName)
+                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
+                .entrySet().stream()
+                .filter(e -> e.getValue() > 1)
+                .map(Map.Entry::getKey)
+                .toList();
+        Preconditions.checkArgument(duplicatedChoicesNames.isEmpty(), "The following choicesName are not unique: {}", duplicatedChoicesNames);
+        Map<String, List<String>> duplicatedChoiceLocaleNames = choices.stream().flatMap(cd -> cd.getNameLocales().stream())
+                .collect(Collectors.groupingBy(c -> c.getLocale().toString())).entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, l -> l.getValue().stream()
+                        .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
+                        .entrySet().stream()
+                        .filter(e -> e.getValue() > 1)
+                        .map(Map.Entry::getKey)
+                        .map(CommandLocaleChoice::getChoice)
+                        .toList()
+                )).entrySet().stream()
+                .filter(e -> !e.getValue().isEmpty())
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        Preconditions.checkArgument(duplicatedChoiceLocaleNames.isEmpty(), "The following choicesName locale are not unique: {}", duplicatedChoiceLocaleNames);
+    }
 
     public enum Type {
         UNKNOWN(-1),
