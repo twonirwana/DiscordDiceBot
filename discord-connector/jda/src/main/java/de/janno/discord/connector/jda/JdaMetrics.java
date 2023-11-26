@@ -89,6 +89,6 @@ public class JdaMetrics {
         if (in.length() <= 2) {
             return in;
         }
-        return in.substring(in.length() - 2);
+        return in.substring(in.length() - 2).toUpperCase();
     }
 }
