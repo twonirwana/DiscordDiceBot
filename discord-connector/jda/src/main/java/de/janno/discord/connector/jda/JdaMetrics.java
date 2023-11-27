@@ -21,7 +21,6 @@ public class JdaMetrics {
     private static final String METRIC_PREFIX = "dice.";
     private static final String METRIC_WELCOME_COUNTER_PREFIX = "welcomeCounter";
     private static final String USER_LOCALE = "userLocale";
-    private static final String LOCALE_TAG = "locale";
     private static final String SHARD_ID = "shardId";
 
     public static void registerHttpClient(OkHttpClient client) {
@@ -76,10 +75,20 @@ public class JdaMetrics {
     }
 
     public static void userLocalInteraction(Locale locale) {
-        globalRegistry.counter(METRIC_PREFIX + USER_LOCALE, Tags.of(LOCALE_TAG, locale.toString())).increment();
+        globalRegistry.counter(METRIC_PREFIX + USER_LOCALE, Tags.of("locale", locale.toString(), "language", locale.getLanguage(), "country", locale.getCountry(), "displayCountry", locale.getDisplayCountry(), "cCountry", lastToCharacters(locale.toString()))).increment();
     }
 
     public static EventListener getOkHttpEventListener() {
         return OkHttpMetricsEventListener.builder(globalRegistry, "okHttpEvents").build();
+    }
+
+    private static String lastToCharacters(String in) {
+        if (in == null) {
+            return null;
+        }
+        if (in.length() <= 2) {
+            return in;
+        }
+        return in.substring(in.length() - 2).toUpperCase();
     }
 }
