@@ -26,14 +26,14 @@ public class CommandDefinitionOptionChoice {
         this.name = name;
         this.value = value;
         this.nameLocales = nameLocales;
-        Preconditions.checkArgument(name.length() <= 100, "command choice name to long: {}", name);
-        Preconditions.checkArgument(value.length() <= 100, "command name value to long: {}", value);
+        Preconditions.checkArgument(name.length() <= 100, "command choice name to long: %s", name);
+        Preconditions.checkArgument(value.length() <= 100, "command name value to long: %s", value);
         List<String> duplicatedOptionNames = nameLocales.stream().map(CommandLocaleChoice::getChoice)
                 .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
                 .entrySet().stream()
                 .filter(e -> e.getValue() > 1)
                 .map(Map.Entry::getKey)
                 .toList();
-        Preconditions.checkArgument(duplicatedOptionNames.isEmpty(), "The following name locales are not unique: {}", duplicatedOptionNames);
+        Preconditions.checkArgument(duplicatedOptionNames.isEmpty(), "The following name locales are not unique: %s", duplicatedOptionNames);
     }
 }

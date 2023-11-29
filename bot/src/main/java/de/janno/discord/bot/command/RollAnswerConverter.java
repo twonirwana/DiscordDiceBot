@@ -20,9 +20,16 @@ public class RollAnswerConverter {
     static public EmbedOrMessageDefinition toEmbedOrMessageDefinition(RollAnswer rollAnswer) {
         final EmbedOrMessageDefinition.Type type = getMessageType(rollAnswer.getAnswerFormatType());
         if (rollAnswer.getErrorMessage() != null) {
+            if (type == EmbedOrMessageDefinition.Type.EMBED) {
+                return EmbedOrMessageDefinition.builder()
+                        .shortedTitle("Error in `%s`".formatted(rollAnswer.getExpression()))
+                        .shortedDescription(rollAnswer.getErrorMessage())
+                        .type(type)
+                        .build();
+            }
+
             return EmbedOrMessageDefinition.builder()
-                    .title(type == EmbedOrMessageDefinition.Type.EMBED ? "Error in `%s`".formatted(rollAnswer.getExpression()) : null)
-                    .descriptionOrContent(rollAnswer.getErrorMessage())
+                    .shortedDescription(rollAnswer.getErrorMessage())
                     .type(type)
                     .build();
         }
@@ -31,7 +38,7 @@ public class RollAnswerConverter {
             case full -> {
                 if (rollAnswer.getMultiRollResults() != null) {
                     yield EmbedOrMessageDefinition.builder()
-                            .title(Optional.ofNullable(rollAnswer.getExpressionLabel()).orElse(rollAnswer.getExpression()))
+                            .shortedTitle(Optional.ofNullable(rollAnswer.getExpressionLabel()).orElse(rollAnswer.getExpression()))
                             .fields(rollAnswer.getMultiRollResults().stream()
                                     .limit(25) //max number of embedFields
                                     .map(r -> new EmbedOrMessageDefinition.Field(
@@ -51,8 +58,8 @@ public class RollAnswerConverter {
                         description = Optional.ofNullable(diceDetailsString).orElse("");
                     }
                     yield EmbedOrMessageDefinition.builder()
-                            .title("%s ⇒ %s".formatted(Optional.ofNullable(rollAnswer.getExpressionLabel()).orElse(rollAnswer.getExpression()), rollAnswer.getResult()))
-                            .descriptionOrContent(description)
+                            .shortedTitle("%s ⇒ %s".formatted(Optional.ofNullable(rollAnswer.getExpressionLabel()).orElse(rollAnswer.getExpression()), rollAnswer.getResult()))
+                            .shortedDescription(description)
                             .image(rollAnswer.getImage())
                             .type(EmbedOrMessageDefinition.Type.EMBED)
                             .build();
@@ -61,7 +68,7 @@ public class RollAnswerConverter {
             case without_expression -> {
                 if (rollAnswer.getMultiRollResults() != null) {
                     yield EmbedOrMessageDefinition.builder()
-                            .title(Optional.ofNullable(rollAnswer.getExpressionLabel()).orElse("Roll"))
+                            .shortedTitle(Optional.ofNullable(rollAnswer.getExpressionLabel()).orElse("Roll"))
                             .fields(rollAnswer.getMultiRollResults().stream()
                                     .limit(25) //max number of embedFields
                                     .map(r -> new EmbedOrMessageDefinition.Field(
@@ -76,8 +83,8 @@ public class RollAnswerConverter {
                     final String diceDetailsString = rollAnswer.getImage() != null ? null : rollAnswer.getRollDetails();
                     final String description = Optional.ofNullable(diceDetailsString).orElse("");
                     yield EmbedOrMessageDefinition.builder()
-                            .title("%s ⇒ %s".formatted(Optional.ofNullable(rollAnswer.getExpressionLabel()).orElse("Roll"), rollAnswer.getResult()))
-                            .descriptionOrContent(description)
+                            .shortedTitle("%s ⇒ %s".formatted(Optional.ofNullable(rollAnswer.getExpressionLabel()).orElse("Roll"), rollAnswer.getResult()))
+                            .shortedDescription(description)
                             .type(EmbedOrMessageDefinition.Type.EMBED)
                             .image(rollAnswer.getImage())
                             .build();
@@ -86,7 +93,7 @@ public class RollAnswerConverter {
             case only_dice -> {
                 if (rollAnswer.getMultiRollResults() != null) {
                     yield EmbedOrMessageDefinition.builder()
-                            .descriptionOrContent(rollAnswer.getMultiRollResults().stream()
+                            .shortedDescription(rollAnswer.getMultiRollResults().stream()
                                     .map(RollAnswer.RollResults::getRollDetails)
                                     .collect(Collectors.joining("\n")))
                             .type(EmbedOrMessageDefinition.Type.EMBED)
@@ -95,7 +102,7 @@ public class RollAnswerConverter {
                     final String diceDetailsString = rollAnswer.getImage() != null ? null : rollAnswer.getRollDetails();
                     final String description = Optional.ofNullable(diceDetailsString).orElse("");
                     yield EmbedOrMessageDefinition.builder()
-                            .descriptionOrContent(description)
+                            .shortedDescription(description)
                             .type(EmbedOrMessageDefinition.Type.EMBED)
                             .image(rollAnswer.getImage())
                             .build();
@@ -128,7 +135,7 @@ public class RollAnswerConverter {
                 }
 
                 yield EmbedOrMessageDefinition.builder()
-                        .descriptionOrContent(description)
+                        .shortedContent(description)
                         .type(EmbedOrMessageDefinition.Type.MESSAGE)
                         .build();
             }
@@ -147,7 +154,7 @@ public class RollAnswerConverter {
                 }
 
                 yield EmbedOrMessageDefinition.builder()
-                        .descriptionOrContent(description)
+                        .shortedContent(description)
                         .type(EmbedOrMessageDefinition.Type.MESSAGE)
                         .build();
             }

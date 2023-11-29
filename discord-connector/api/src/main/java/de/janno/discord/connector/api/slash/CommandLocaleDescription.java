@@ -12,6 +12,6 @@ public class CommandLocaleDescription {
     public CommandLocaleDescription(Locale locale, String description) {
         this.locale = locale;
         this.description = description;
-        Preconditions.checkArgument(description.length() <= 100, "command description to long: {}", description);
+        Preconditions.checkArgument(description.length() <= 100, "command description to long: %s", description);
     }
 }
