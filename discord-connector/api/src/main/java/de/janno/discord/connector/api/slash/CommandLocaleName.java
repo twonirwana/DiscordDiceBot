@@ -17,7 +17,7 @@ public class CommandLocaleName {
     public CommandLocaleName(Locale locale, String name) {
         this.locale = locale;
         this.name = name;
-        Preconditions.checkArgument(NAME_PATTERN.matcher(name).matches(), "Invalid command name: {}", name);
+        Preconditions.checkArgument(NAME_PATTERN.matcher(name).matches(), "Invalid command name: %s", name);
         Preconditions.checkArgument(name.toLowerCase(Locale.ROOT).equals(name), "Name must be lowercase only! Provided: \"%s\"", name);
     }
 }

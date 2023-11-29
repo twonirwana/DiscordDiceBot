@@ -37,17 +37,17 @@ public class CommandDefinition {
         this.options = options;
 
         //https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-naming
-        Preconditions.checkArgument(NAME_PATTERN.matcher(name).matches(), "Invalid command name: {}", name);
+        Preconditions.checkArgument(NAME_PATTERN.matcher(name).matches(), "Invalid command name: %s", name);
         Preconditions.checkArgument(name.toLowerCase(Locale.ROOT).equals(name), "Name must be lowercase only! Provided: \"%s\"", name);
-        Preconditions.checkArgument(description.length() <= 100, "command description to long: {}", description);
-        Preconditions.checkArgument(options.size() <= 25, "Too many options in {}, max is 25", options);
+        Preconditions.checkArgument(description.length() <= 100, "command description to long: %s", description);
+        Preconditions.checkArgument(options.size() <= 25, "Too many options in %s, max is 25", options);
         List<String> duplicatedOptionNames = options.stream().map(CommandDefinitionOption::getName)
                 .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
                 .entrySet().stream()
                 .filter(e -> e.getValue() > 1)
                 .map(Map.Entry::getKey)
                 .toList();
-        Preconditions.checkArgument(duplicatedOptionNames.isEmpty(), "The following optionName are not unique: {}", duplicatedOptionNames);
+        Preconditions.checkArgument(duplicatedOptionNames.isEmpty(), "The following optionName are not unique: %s", duplicatedOptionNames);
         Map<String, List<String>> duplicatedOptionLocaleNames = options.stream().flatMap(cd -> cd.getNameLocales().stream())
                 .collect(Collectors.groupingBy(c -> c.getLocale().toString())).entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, l -> l.getValue().stream()
@@ -60,6 +60,6 @@ public class CommandDefinition {
                 )).entrySet().stream()
                 .filter(e -> !e.getValue().isEmpty())
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-        Preconditions.checkArgument(duplicatedOptionLocaleNames.isEmpty(), "The following optionName locale are not unique: {}", duplicatedOptionLocaleNames);
+        Preconditions.checkArgument(duplicatedOptionLocaleNames.isEmpty(), "The following optionName locale are not unique: %s", duplicatedOptionLocaleNames);
     }
 }

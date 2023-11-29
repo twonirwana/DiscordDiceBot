@@ -12,6 +12,6 @@ public class CommandLocaleChoice {
     public CommandLocaleChoice(Locale locale, String choice) {
         this.locale = locale;
         this.choice = choice;
-        Preconditions.checkArgument(choice.length() <= 100, "command choice to long: {}", choice);
+        Preconditions.checkArgument(choice.length() <= 100, "command choice to long: %s", choice);
     }
 }
