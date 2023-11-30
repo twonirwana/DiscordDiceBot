@@ -2,6 +2,7 @@ package de.janno.discord.bot.command.customParameter;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Stopwatch;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -28,11 +29,14 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 @Slf4j
 public class CustomParameterCommand extends AbstractCommand<CustomParameterConfig, CustomParameterStateData> {
@@ -521,71 +525,149 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     private Optional<String> validateAllPossibleStates(CustomParameterConfig config) {
 
         List<StateWithCustomIdAndParameter> allPossibleStatePermutations = allPossibleStatePermutations(config);
-        for (StateWithCustomIdAndParameter aState : allPossibleStatePermutations) {
-            if (!hasMissingParameter(aState.getState())) {
-                String expression = getFilledExpression(config, aState.getState());
-                String label = getLabel(config, aState.getState());
-                String expressionWithoutSuffixLabel = removeSuffixLabelFromExpression(expression, label);
-                Optional<String> validationMessage = diceSystemAdapter.validateDiceExpressionWitOptionalLabel(expressionWithoutSuffixLabel,
-                        "/%s %s".formatted(I18n.getMessage("custom_parameter.name", config.getConfigLocale()), I18n.getMessage("base.option.help", config.getConfigLocale())),
-                        config.getDiceParserSystem(),
-                        config.getConfigLocale());
-                if (validationMessage.isPresent()) {
-                    return validationMessage;
-                }
-            }
-            if (hasMissingParameter(aState.getState()) && getParameterForParameterExpression(config, getCurrentParameterExpression(aState.getState()).orElse(null))
-                    .map(Parameter::getParameterOptions)
-                    .map(List::isEmpty)
-                    .orElse(true)) {
-                return Optional.of(I18n.getMessage("custom_parameter.validation.invalid.parameter.option", config.getConfigLocale(), getCurrentParameterExpression(aState.getState()).orElse("")));
+        Stopwatch stopwatch = Stopwatch.createStarted();
+        Optional<String> result = allPossibleStatePermutations.parallelStream()
+                .map(s -> validateStateWithCustomIdAndParameter(config, s))
+                .filter(Objects::nonNull)
+                .findFirst();
+        log.info("{} in {}ms validated", config, stopwatch.elapsed(TimeUnit.MILLISECONDS));
+        return result;
+    }
+
+    private String validateStateWithCustomIdAndParameter(CustomParameterConfig config, StateWithCustomIdAndParameter aState) {
+        if (!hasMissingParameter(aState.getState())) {
+            String expression = getFilledExpression(config, aState.getState());
+            String label = getLabel(config, aState.getState());
+            String expressionWithoutSuffixLabel = removeSuffixLabelFromExpression(expression, label);
+            Optional<String> validationMessage = diceSystemAdapter.validateDiceExpressionWitOptionalLabel(expressionWithoutSuffixLabel,
+                    "/%s %s".formatted(I18n.getMessage("custom_parameter.name", config.getConfigLocale()), I18n.getMessage("base.option.help", config.getConfigLocale())),
+                    config.getDiceParserSystem(),
+                    config.getConfigLocale());
+            if (validationMessage.isPresent()) {
+                return validationMessage.get();
             }
         }
-        return Optional.empty();
+        if (hasMissingParameter(aState.getState()) && getParameterForParameterExpression(config, getCurrentParameterExpression(aState.getState()).orElse(null))
+                .map(Parameter::getParameterOptions)
+                .map(List::isEmpty)
+                .orElse(true)) {
+            return I18n.getMessage("custom_parameter.validation.invalid.parameter.option", config.getConfigLocale(), getCurrentParameterExpression(aState.getState()).orElse(""));
+        }
+        return null;
     }
 
     private List<StateWithCustomIdAndParameter> allPossibleStatePermutations(CustomParameterConfig config) {
         List<StateWithCustomIdAndParameter> out = new ArrayList<>();
         String parameterExpression = getNextParameterExpression(config.getBaseExpression());
 
-        List<ButtonLabelAndValue> buttonLabelAndValues = getButtons(config, parameterExpression);
+        Optional<Parameter> currentParameter = getParameterForParameterExpression(config, parameterExpression);
+        List<ButtonLabelAndId> buttonLabelAndIds = filterToCornerCases(getButtons(config, parameterExpression), currentParameter.map(Parameter::getParameterOptions).orElse(List.of()));
 
-        for (ButtonLabelAndValue buttonLabelAndValue : buttonLabelAndValues) {
-            State<CustomParameterStateData> nextState = new State<>(buttonLabelAndValue.getValue(), updateState(null, config, buttonLabelAndValue.getValue(), null, "test"));
-            out.add(new StateWithCustomIdAndParameter(buttonLabelAndValue.getValue(), nextState, buttonLabelAndValues));
-            out.addAll(allPossibleStatePermutations(config, nextState));
+        for (ButtonLabelAndId buttonLabelAndId : buttonLabelAndIds) {
+            State<CustomParameterStateData> nextState = new State<>(buttonLabelAndId.getId(), updateState(null, config, buttonLabelAndId.getId(), null, "test"));
+            out.add(new StateWithCustomIdAndParameter(buttonLabelAndId.getId(), nextState, buttonLabelAndIds));
+            out.addAll(getCornerStatePermutations(config, nextState));
         }
         return out;
     }
 
-    List<ButtonLabelAndValue> getButtons(CustomParameterConfig config, String parameterExpression) {
+    List<ButtonLabelAndId> getButtons(CustomParameterConfig config, String parameterExpression) {
         return getParameterForParameterExpression(config, parameterExpression)
                 .map(Parameter::getParameterOptions).orElse(List.of()).stream()
-                .map(vl -> new ButtonLabelAndValue(vl.getLabel(), vl.getId()))
+                .map(vl -> new ButtonLabelAndId(vl.getLabel(), vl.getId()))
                 .toList();
     }
 
-    private List<StateWithCustomIdAndParameter> allPossibleStatePermutations(CustomParameterConfig config, State<CustomParameterStateData> state) {
+    private List<StateWithCustomIdAndParameter> getCornerStatePermutations(CustomParameterConfig config, State<CustomParameterStateData> state) {
         List<StateWithCustomIdAndParameter> out = new ArrayList<>();
         Optional<String> parameterExpression = getCurrentParameterExpression(state);
 
         if (parameterExpression.isPresent()) {
-            List<ButtonLabelAndValue> parameterValues = getButtons(config, parameterExpression.get());
-            for (ButtonLabelAndValue parameterValue : parameterValues) {
-                State<CustomParameterStateData> nextState = new State<>(parameterValue.getValue(),
+
+            Optional<Parameter> currentParameter = getParameterForParameterExpression(config, parameterExpression.get());
+            List<ButtonLabelAndId> parameterValues = filterToCornerCases(getButtons(config, parameterExpression.get()), currentParameter.map(Parameter::getParameterOptions).orElse(List.of()));
+
+            for (ButtonLabelAndId parameterValue : parameterValues) {
+                State<CustomParameterStateData> nextState = new State<>(parameterValue.getId(),
                         updateState(Optional.ofNullable(state.getData()).map(CustomParameterStateData::getSelectedParameterValues).orElse(List.of()), config,
-                                parameterValue.getValue(), null, "test"));
-                out.add(new StateWithCustomIdAndParameter(parameterValue.getValue(), nextState, parameterValues));
-                out.addAll(allPossibleStatePermutations(config, nextState));
+                                parameterValue.getId(), null, "test"));
+                out.add(new StateWithCustomIdAndParameter(parameterValue.getId(), nextState, parameterValues));
+                out.addAll(getCornerStatePermutations(config, nextState));
             }
         }
         return out;
     }
 
+    @VisibleForTesting
+    List<ButtonLabelAndId> filterToCornerCases(List<ButtonLabelAndId> in, List<Parameter.ParameterOption> parameterOptions) {
+        List<ButtonLabelIdAndValue> withValue = in.stream()
+                .map(b -> getValueFromId(b, parameterOptions)
+                        .map(s -> new ButtonLabelIdAndValue(s, b))
+                        .orElse(null))
+                .filter(Objects::nonNull)
+                .toList();
+        return Stream.of(
+                        getMaxNumeric(withValue).stream(),
+                        getMinNumeric(withValue).stream(),
+                        getZero(withValue).stream(),
+                        allNoneNumeric(withValue).stream()
+                )
+                .flatMap(Function.identity())
+                .map(ButtonLabelIdAndValue::getButtonLabelAndId)
+                .distinct()
+                .toList();
+    }
+
+    private Optional<String> getValueFromId(ButtonLabelAndId buttonLabelAndId, List<Parameter.ParameterOption> parameterOptions) {
+        return parameterOptions.stream()
+                .filter(po -> Objects.equals(buttonLabelAndId.getId(), po.getId()))
+                .map(Parameter.ParameterOption::getValue)
+                .findFirst();
+    }
+
+    private Optional<ButtonLabelIdAndValue> getMaxNumeric(List<ButtonLabelIdAndValue> in) {
+        return in.stream()
+                .filter(bv -> isNumber(bv.getValue()))
+                .max(Comparator.comparing(buttonLabelAndValue -> Long.parseLong(buttonLabelAndValue.getValue())));
+    }
+
+    private Optional<ButtonLabelIdAndValue> getMinNumeric(List<ButtonLabelIdAndValue> in) {
+        return in.stream()
+                .filter(bv -> isNumber(bv.getValue()))
+                .min(Comparator.comparing(buttonLabelAndValue -> Long.parseLong(buttonLabelAndValue.getValue())));
+    }
+
+    private Optional<ButtonLabelIdAndValue> getZero(List<ButtonLabelIdAndValue> in) {
+        return in.stream()
+                .filter(bv -> Objects.equals(StringUtils.trim(bv.getValue()), "0"))
+                .findFirst();
+    }
+
+    private List<ButtonLabelIdAndValue> allNoneNumeric(List<ButtonLabelIdAndValue> in) {
+        return in.stream()
+                .filter(bv -> !isNumber(bv.getValue()))
+                .toList();
+    }
+
+    private boolean isNumber(String in){
+        try{
+            Long.parseLong(in);
+            return true;
+        } catch (NumberFormatException e){
+            return false;
+        }
+    }
+
     @Value
-    static class ButtonLabelAndValue {
-        String label;
-        String value;
+    static class ButtonLabelIdAndValue {
+        @NonNull String value;
+        @NonNull CustomParameterCommand.ButtonLabelAndId buttonLabelAndId;
+    }
+
+    @Value
+    static class ButtonLabelAndId {
+        @NonNull String label;
+        @NonNull String id;
     }
 
     @Value
@@ -595,7 +677,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
         @NonNull
         State<CustomParameterStateData> state;
         @NotNull
-        List<ButtonLabelAndValue> buttonIdLabelAndDiceExpressions;
+        List<ButtonLabelAndId> buttonIdLabelAndDiceExpressions;
     }
 
 }

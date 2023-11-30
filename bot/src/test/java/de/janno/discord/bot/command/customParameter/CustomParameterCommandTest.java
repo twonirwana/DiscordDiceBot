@@ -42,13 +42,13 @@ class CustomParameterCommandTest {
 
     private static Stream<Arguments> generateParameterExpression2ButtonValuesData() {
         return Stream.of(
-                Arguments.of("{test}", IntStream.range(1, 16).mapToObj(i -> new CustomParameterCommand.ButtonLabelAndValue(String.valueOf(i), "id%d".formatted(i))).toList()),
-                Arguments.of("{test:2<=>4}", IntStream.range(1, 4).mapToObj(i -> new CustomParameterCommand.ButtonLabelAndValue(String.valueOf(i + 1), "id%d".formatted(i))).toList()),
-                Arguments.of("{test:2<=>1}", ImmutableList.of(new CustomParameterCommand.ButtonLabelAndValue("2", "id1"))),
-                Arguments.of("{test:-2<=>1}", IntStream.range(1, 5).mapToObj(i -> new CustomParameterCommand.ButtonLabelAndValue(String.valueOf(i - 3), "id%d".formatted(i))).toList()),
-                Arguments.of("{test:-10<=>-5}", IntStream.range(1, 7).mapToObj(i -> new CustomParameterCommand.ButtonLabelAndValue(String.valueOf(i - 11), "id%d".formatted(i))).toList()),
-                Arguments.of("{test:1d6/+5/abc}", ImmutableList.of(new CustomParameterCommand.ButtonLabelAndValue("1d6", "id1"), new CustomParameterCommand.ButtonLabelAndValue("+5", "id2"), new CustomParameterCommand.ButtonLabelAndValue("abc", "id3"))),
-                Arguments.of("{test:1d6@d6/+5@Bonus/abc}", ImmutableList.of(new CustomParameterCommand.ButtonLabelAndValue("d6", "id1"), new CustomParameterCommand.ButtonLabelAndValue("Bonus", "id2"), new CustomParameterCommand.ButtonLabelAndValue("abc", "id3")))
+                Arguments.of("{test}", IntStream.range(1, 16).mapToObj(i -> new CustomParameterCommand.ButtonLabelAndId(String.valueOf(i), "id%d".formatted(i))).toList()),
+                Arguments.of("{test:2<=>4}", IntStream.range(1, 4).mapToObj(i -> new CustomParameterCommand.ButtonLabelAndId(String.valueOf(i + 1), "id%d".formatted(i))).toList()),
+                Arguments.of("{test:2<=>1}", ImmutableList.of(new CustomParameterCommand.ButtonLabelAndId("2", "id1"))),
+                Arguments.of("{test:-2<=>1}", IntStream.range(1, 5).mapToObj(i -> new CustomParameterCommand.ButtonLabelAndId(String.valueOf(i - 3), "id%d".formatted(i))).toList()),
+                Arguments.of("{test:-10<=>-5}", IntStream.range(1, 7).mapToObj(i -> new CustomParameterCommand.ButtonLabelAndId(String.valueOf(i - 11), "id%d".formatted(i))).toList()),
+                Arguments.of("{test:1d6/+5/abc}", ImmutableList.of(new CustomParameterCommand.ButtonLabelAndId("1d6", "id1"), new CustomParameterCommand.ButtonLabelAndId("+5", "id2"), new CustomParameterCommand.ButtonLabelAndId("abc", "id3"))),
+                Arguments.of("{test:1d6@d6/+5@Bonus/abc}", ImmutableList.of(new CustomParameterCommand.ButtonLabelAndId("d6", "id1"), new CustomParameterCommand.ButtonLabelAndId("Bonus", "id2"), new CustomParameterCommand.ButtonLabelAndId("abc", "id3")))
         );
     }
 
@@ -67,7 +67,7 @@ class CustomParameterCommandTest {
                 Arguments.of("1d6", "The expression needs at least one parameter expression like `{name}`"),
                 Arguments.of("{a1}{a2}{a3}{a4}{a6}", "The expression is allowed a maximum of 4 variables"),
                 Arguments.of("{number:3<=>6}d{sides:6/10/12}", null),
-                Arguments.of("{number}{a:a/c/b/d/d}{sides:3<=>6}", "The following expression is invalid: `1a3`. The error is: No matching operator for 'a3', non-functional text and value names must to be surrounded by '' or []. Use /custom_parameter help to get more information on how to use the command."),
+                Arguments.of("{number}{a:a/c/b/d/d}{sides:3<=>6}", "The following expression is invalid: `15a6`. The error is: No matching operator for 'a6', non-functional text and value names must to be surrounded by '' or []. Use /custom_parameter help to get more information on how to use the command."),
                 Arguments.of("{number}d{sides:3/4/'ab'}", null),
                 Arguments.of("{number}d{sides:3/4/'ab'}@roll", null),
                 Arguments.of("{number}d{sides:['11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111','21111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111']@big,6}@roll", null)
@@ -141,9 +141,9 @@ class CustomParameterCommandTest {
 
     @ParameterizedTest(name = "{index} {0} -> {1}")
     @MethodSource("generateParameterExpression2ButtonValuesData")
-    void getButtonValues(String parameterExpression, List<CustomParameterCommand.ButtonLabelAndValue> expectedResult) {
+    void getButtonValues(String parameterExpression, List<CustomParameterCommand.ButtonLabelAndId> expectedResult) {
         CustomParameterConfig config = new CustomParameterConfig(null, "1d6 + {a} + " + parameterExpression, DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.without_expression, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
-        List<CustomParameterCommand.ButtonLabelAndValue> res = underTest.getButtons(config, parameterExpression);
+        List<CustomParameterCommand.ButtonLabelAndId> res = underTest.getButtons(config, parameterExpression);
         assertThat(res).isEqualTo(expectedResult);
     }
 
@@ -209,6 +209,32 @@ class CustomParameterCommandTest {
     @Test
     public void getId() {
         expect.toMatchSnapshot(underTest.getCommandId());
+    }
+
+    @Test
+    public void filterToCornerCases() {
+        List<CustomParameterCommand.ButtonLabelAndId> buttonLabelAndIds = List.of(
+                new CustomParameterCommand.ButtonLabelAndId("ignore", "1"),
+                new CustomParameterCommand.ButtonLabelAndId("ignore", "2"),
+                new CustomParameterCommand.ButtonLabelAndId("ignore", "3"),
+                new CustomParameterCommand.ButtonLabelAndId("ignore", "4"),
+                new CustomParameterCommand.ButtonLabelAndId("ignore", "5"),
+                new CustomParameterCommand.ButtonLabelAndId("ignore", "6"),
+                new CustomParameterCommand.ButtonLabelAndId("ignore", "7")
+        );
+        List<Parameter.ParameterOption> parameterOptions = List.of(
+                new Parameter.ParameterOption("-2", "ignore", "1"),
+                new Parameter.ParameterOption("-1", "ignore", "2"),
+                new Parameter.ParameterOption("0", "ignore", "3"),
+                new Parameter.ParameterOption("1", "ignore", "4"),
+                new Parameter.ParameterOption("2", "ignore", "5"),
+                new Parameter.ParameterOption("a", "ignore", "6"),
+                new Parameter.ParameterOption("z", "ignore", "7")
+        );
+
+        List<CustomParameterCommand.ButtonLabelAndId> res = underTest.filterToCornerCases(buttonLabelAndIds, parameterOptions);
+
+        assertThat(res.stream().map(CustomParameterCommand.ButtonLabelAndId::getId)).containsExactlyInAnyOrder("1", "3", "5", "6", "7");
     }
 
     @Test

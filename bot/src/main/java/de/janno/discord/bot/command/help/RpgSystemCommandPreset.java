@@ -193,11 +193,29 @@ public class RpgSystemCommandPreset {
                     new CustomDiceConfig(null, string2ButtonIdLabelAndDiceExpression(I18n.getMessage("rpg.system.command.preset.PARANOIA.expression", userLocale)),
                             DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.without_expression, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_2d, "grey"), userLocale)
                     , customDiceCommand, newConfigUUID, guildId, channelId);
+            //Candela Obscura (https://darringtonpress.com/candela/)
+            ///sum_custom_set start buttons: +2d6l1 col 'blue'@None;+1d6@1;+2d6@2;+3d6@3;+4d6@4;+5d6@5;+6d6@6;+1d6 col  'purple_white'@:star2: Add Gilded? always_sum_result: false answer_format: without_expression dice_image_style: polyhedral_knots
+            case CANDELA_OBSCURA -> startPreset(
+                    new SumCustomSetConfig(null, string2ButtonIdLabelAndDiceExpression(I18n.getMessage("rpg.system.command.preset.CANDELA_OBSCURA.expression", userLocale)), DiceParserSystem.DICE_EVALUATOR, false, AnswerFormatType.without_expression, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_knots, DiceImageStyle.polyhedral_knots.getDefaultColor()), userLocale)
+                    , sumCustomSetCommand, newConfigUUID, guildId, channelId);
+            //Prowlers & Paragons Ultimate Edition (https://www.drivethrurpg.com/product/346742/Prowlers--Paragons-Ultimate-Edition)
+            ///custom_parameter start expression: val('$r',{number of dice:1<=>12}d6),
+            //val('$total',replace('$r', [1/3/5], 0, [2/4], 1, [6], 2)=), '$total'_' successes' dice_image_style: polyhedral_alies_v1
+            case PROWLERS_PARAGONS -> startPreset(
+                    new CustomParameterConfig(null, I18n.getMessage("rpg.system.command.preset.PROWLERS_PARAGONS.expression", userLocale), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.without_expression, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v1, DiceImageStyle.polyhedral_alies_v1.getDefaultColor()), userLocale)
+                    , customParameterCommand, newConfigUUID, guildId, channelId);
+            //Bluebeard's Bride (https://www.drivethrurpg.com/product/224782/Bluebeards-Bride)
+            ///custom_parameter start expression: val('$roll',(2d6))
+            //val('$mod',{Modifier:-1<=>1})
+            //val('$total',('$roll'+'$mod')=) if('$total'>=?10, 'Hit', '$total'<=?6, 'Miss', 'Mitigated Hit') answer_format: without_expression dice_image_style: polyhedral_alies_v2 dice_image_color: blue_and_gold
+            case BLUEBEARD_BRIDE -> startPreset(
+                    new CustomParameterConfig(null, I18n.getMessage("rpg.system.command.preset.BLUEBEARD_BRIDE.expression", userLocale), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.without_expression, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v2, "blue_and_gold"), userLocale)
+                    , customParameterCommand, newConfigUUID, guildId, channelId);
         };
     }
 
     private <C extends Config> CommandAndMessageDefinition startPreset(C config, AbstractCommand<C, ?> command, UUID newConfigUUID, long guildId, long channelId) {
-        String commandString = "/%s %s".formatted(customDiceCommand.getCommandId(), config.toCommandOptionsString());
+        String commandString = "/%s %s".formatted(command.getCommandId(), config.toCommandOptionsString());
         command.createMessageConfig(newConfigUUID, guildId, channelId, config).ifPresent(persistenceManager::saveMessageConfig);
         return new CommandAndMessageDefinition(commandString, command.createNewButtonMessage(newConfigUUID, config));
     }
@@ -233,7 +251,10 @@ public class RpgSystemCommandPreset {
         KIDS_ON_BROOMS,
         REVE_DE_DRAGON,
         PARANOIA,
-        PUBLIC_ACCESS;
+        PUBLIC_ACCESS,
+        CANDELA_OBSCURA,
+        PROWLERS_PARAGONS,
+        BLUEBEARD_BRIDE;
 
         public String getName(Locale locale) {
             return I18n.getMessage("rpg.system.command.preset.%s.name".formatted(name()), locale);

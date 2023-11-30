@@ -18,6 +18,7 @@ import net.dv8tion.jda.api.exceptions.ErrorResponseException;
 import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.components.LayoutComponent;
+import net.dv8tion.jda.api.requests.ErrorResponse;
 import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.utils.FileUpload;
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
@@ -161,15 +162,18 @@ public abstract class DiscordAdapterImpl implements DiscordAdapter {
     protected Mono<Void> handleException(@NonNull String errorMessage,
                                          @NonNull Throwable throwable,
                                          boolean ignoreNotFound) {
-        if (throwable instanceof InsufficientPermissionException) {
-            log.info(String.format("%s: Missing permissions: %s - %s", getGuildAndChannelName(), errorMessage, throwable.getMessage()));
-            return Mono.empty();
-        } else if (throwable instanceof ErrorResponseException &&
-                ((ErrorResponseException) throwable).getErrorResponse().getCode() < 20000
-                && ignoreNotFound) {
-            log.trace(String.format("%s: Not found: %s", getGuildAndChannelName(), errorMessage));
-        } else {
-            log.error("%s: %s".formatted(getGuildAndChannelName(), errorMessage), throwable);
+        switch (throwable) {
+            case InsufficientPermissionException ignored -> {
+                log.info(String.format("%s: Missing permissions: %s - %s", getGuildAndChannelName(), errorMessage, throwable.getMessage()));
+                return Mono.empty();
+            }
+            case ErrorResponseException ignored when ((ErrorResponseException) throwable).getErrorResponse() == ErrorResponse.MISSING_PERMISSIONS -> {
+                log.info(String.format("%s: Missing permissions: %s - %s", getGuildAndChannelName(), errorMessage, throwable.getMessage()));
+                return Mono.empty();
+            }
+            case ErrorResponseException ignored when ((ErrorResponseException) throwable).getErrorResponse().getCode() < 20000 && ignoreNotFound ->
+                    log.trace(String.format("%s: Not found: %s", getGuildAndChannelName(), errorMessage));
+            default -> log.error("%s: %s".formatted(getGuildAndChannelName(), errorMessage), throwable);
         }
         return Mono.empty();
     }
