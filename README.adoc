@@ -406,14 +406,18 @@ image:image/sum_custom_set.webp[image]
 
 Use the slash command `/sum_custom_set start buttons:+1d6;+1d20;+1@Boon;-1@Bane` to create a message with a custom dice set.
 In this case it will create four buttons: `1d6`,`1d20`,`+1@Boon` and `-1@Bane`.
-The buttons can be created with the dice notation, see the section <<Dice Expression Notation>> and are seperated by `;`.
-The text after an optional `@` will be used as label for the button.
 The user can click on a button to add it to the set, even multiple times.
 The first user that clicks on a button add his name to the message and only this user can add, remove or roll dice.
 Every user can still use the `Clear` button.
 Clicking on the `Roll` button will roll the dice the message and copy a clear button message to the end.
 The `Roll` can only be clicked if the expression is valid. `Back` will undo the last addition and `Clear` reset all.
-If the option `always_sum_result` is true (the default) then the result of the dice will be added together, the equivalent of adding `=` at the end of the expression.
+The buttons can be created with the dice notation, see the section <<Dice Expression Notation>> and are seperated by `;`.
+The text after an optional `@` will be used as label for the button.
+
+If the option `always_sum_result` is `true` (the default) then the result of the dice will be added together, the equivalent of adding `=` at the end of the expression.
+
+If the option `hide_expression` is `true` (the default) then the result and the message with the current expression will show the label of the buttons and the expression only if the button has now specific label.
+If it is set to `false` then it will show always the expression.
 
 This command can also use alias (see the `channel_config` command).
 The substitution of the alias name with its value happen upon pressing the `Roll` button.

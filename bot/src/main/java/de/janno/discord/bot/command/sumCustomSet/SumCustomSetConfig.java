@@ -27,14 +27,14 @@ public class SumCustomSetConfig extends Config {
     @NonNull
     private final DiceParserSystem diceParserSystem;
     private final boolean alwaysSumResult;
-    private final boolean useLabelForStatusAndAnswer;
+    private final boolean hideExpressionInStatusAndAnswer;
 
     @JsonCreator
     public SumCustomSetConfig(@JsonProperty("answerTargetChannelId") Long answerTargetChannelId,
                               @JsonProperty("labelAndExpression") @NonNull List<ButtonIdLabelAndDiceExpression> labelAndExpression,
                               @JsonProperty("diceParserSystem") DiceParserSystem diceParserSystem,
                               @JsonProperty("alwaysSumResult") Boolean alwaysSumResult,
-                              @JsonProperty("useLabelForStatusAndAnswer") Boolean useLabelForStatusAndAnswer,
+                              @JsonProperty("hideExpressionInStatusAndAnswer") Boolean hideExpressionInStatusAndAnswer,
                               @JsonProperty("answerFormatType") AnswerFormatType answerFormatType,
                               @JsonProperty("resultImage") ResultImage resultImage,
                               @JsonProperty("diceImageStyle") DiceStyleAndColor diceStyleAndColor,
@@ -44,7 +44,7 @@ public class SumCustomSetConfig extends Config {
         this.labelAndExpression = labelAndExpression;
         this.diceParserSystem = diceParserSystem == null ? DiceParserSystem.DICEROLL_PARSER : diceParserSystem;
         this.alwaysSumResult = alwaysSumResult == null || alwaysSumResult;
-        this.useLabelForStatusAndAnswer = Optional.ofNullable(useLabelForStatusAndAnswer).orElse(false);
+        this.hideExpressionInStatusAndAnswer = Optional.ofNullable(hideExpressionInStatusAndAnswer).orElse(false);
     }
 
     @Override
@@ -52,7 +52,7 @@ public class SumCustomSetConfig extends Config {
         String buttons = labelAndExpression.stream()
                 .map(ButtonIdLabelAndDiceExpression::toShortString)
                 .collect(Collectors.joining(", "));
-        String statusAndAnswerType = useLabelForStatusAndAnswer ? "labelAnswer" : "expressionAnswer";
+        String statusAndAnswerType = hideExpressionInStatusAndAnswer ? "labelAnswer" : "expressionAnswer";
         return "[%s, %s, %s, %s, %s, %s, %s]".formatted(buttons, getTargetChannelShortString(), diceParserSystem, alwaysSumResult, getAnswerFormatType(), getDiceStyleAndColor(), statusAndAnswerType);
     }
 
@@ -68,7 +68,7 @@ public class SumCustomSetConfig extends Config {
                 .collect(Collectors.joining(";"));
         return "%s: %s %s: %s %s: %s %s".formatted(SumCustomSetCommand.BUTTONS_COMMAND_OPTIONS_NAME, String.join(" ", buttons),
                 SumCustomSetCommand.ALWAYS_SUM_RESULTS_COMMAND_OPTIONS_NAME, alwaysSumResult,
-                SumCustomSetCommand.USE_LABEL_FOR_ANSWER, useLabelForStatusAndAnswer,
+                SumCustomSetCommand.HIDE_EXPRESSION_IN_ANSWER, hideExpressionInStatusAndAnswer,
                 super.toCommandOptionsString());
     }
 }

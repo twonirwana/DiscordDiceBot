@@ -5,7 +5,7 @@ de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandTest.configSerializ
     "channelId" : 2,
     "commandId" : "sum_custom_set",
     "configClassId" : "SumCustomSetConfig",
-    "config" : "---\nanswerTargetChannelId: 123\nlabelAndExpression:\n- buttonId: \"1_button\"\n  label: \"Label\"\n  diceExpression: \"+1d6\"\n- buttonId: \"2_button\"\n  label: \"+2d4\"\n  diceExpression: \"+2d4\"\ndiceParserSystem: \"DICE_EVALUATOR\"\nalwaysSumResult: true\nuseLabelForStatusAndAnswer: true\nanswerFormatType: \"full\"\nconfigLocale: \"de\"\ndiceStyleAndColor:\n  diceImageStyle: \"polyhedral_alies_v2\"\n  configuredDefaultColor: \"blue_and_silver\"\n"
+    "config" : "---\nanswerTargetChannelId: 123\nlabelAndExpression:\n- buttonId: \"1_button\"\n  label: \"Label\"\n  diceExpression: \"+1d6\"\n- buttonId: \"2_button\"\n  label: \"+2d4\"\n  diceExpression: \"+2d4\"\ndiceParserSystem: \"DICE_EVALUATOR\"\nalwaysSumResult: true\nhideExpressionInStatusAndAnswer: true\nanswerFormatType: \"full\"\nconfigLocale: \"de\"\ndiceStyleAndColor:\n  diceImageStyle: \"polyhedral_alies_v2\"\n  configuredDefaultColor: \"blue_and_silver\"\n"
   }
 ]
 
@@ -105,11 +105,11 @@ de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandTest.getCommandDefi
           },
           {
             "type" : "BOOLEAN",
-            "name" : "use_label_for_answer",
+            "name" : "hide_expression_in_answer",
             "nameLocales" : [
               {
                 "locale" : "de",
-                "name" : "button_beschriftung_für_antwort"
+                "name" : "würfelausdruck_verstecken"
               }
             ],
             "description" : "Show the label of the buttons and not the dice expression for the answer",

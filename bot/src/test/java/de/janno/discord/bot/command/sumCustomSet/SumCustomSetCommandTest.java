@@ -456,7 +456,7 @@ class SumCustomSetCommandTest {
                   diceExpression: "+2d4"
                 diceParserSystem: "DICE_EVALUATOR"
                 alwaysSumResult: true
-                useLabelForStatusAndAnswer: true
+                hideExpressionInStatusAndAnswer: true
                 answerFormatType: "full"
                 configLocale: "de"
                 diceStyleAndColor:

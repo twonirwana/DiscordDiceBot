@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
 public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, SumCustomSetStateDataV2> {
     static final String BUTTONS_COMMAND_OPTIONS_NAME = "buttons";
     static final String ALWAYS_SUM_RESULTS_COMMAND_OPTIONS_NAME = "always_sum_result";
-    static final String USE_LABEL_FOR_ANSWER = "use_label_for_answer";
+    static final String HIDE_EXPRESSION_IN_ANSWER = "hide_expression_in_answer";
     private static final String COMMAND_NAME = "sum_custom_set";
     private static final String ROLL_BUTTON_ID = "roll";
     private static final String NO_ACTION = "no action";
@@ -158,10 +158,10 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
                         .required(false)
                         .build(),
                 CommandDefinitionOption.builder()
-                        .name(USE_LABEL_FOR_ANSWER)
-                        .nameLocales(I18n.allNoneEnglishMessagesNames("sum_dice_set.option.useLabel.name"))
-                        .description(I18n.getMessage("sum_dice_set.option.useLabel.description", Locale.ENGLISH))
-                        .descriptionLocales(I18n.allNoneEnglishMessagesDescriptions("sum_dice_set.option.useLabel.description"))
+                        .name(HIDE_EXPRESSION_IN_ANSWER)
+                        .nameLocales(I18n.allNoneEnglishMessagesNames("sum_dice_set.option.hideExpression.name"))
+                        .description(I18n.getMessage("sum_dice_set.option.hiddeExpression.description", Locale.ENGLISH))
+                        .descriptionLocales(I18n.allNoneEnglishMessagesDescriptions("sum_dice_set.option.hiddeExpression.description"))
                         .type(CommandDefinitionOption.Type.BOOLEAN)
                         .required(false)
                         .build()
@@ -291,7 +291,7 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
     }
 
     private String combineLabel(List<ExpressionAndLabel> expressions, SumCustomSetConfig config) {
-        if (config.isUseLabelForStatusAndAnswer()) {
+        if (config.isHideExpressionInStatusAndAnswer()) {
             return expressions.stream()
                     .map(ExpressionAndLabel::getLabel)
                     .collect(Collectors.joining(" "));
@@ -306,13 +306,13 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
         final DiceParserSystem diceParserSystem = DiceParserSystem.DICE_EVALUATOR;
         final Long answerTargetChannelId = BaseCommandOptions.getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null);
         final AnswerFormatType answerType = BaseCommandOptions.getAnswerTypeFromStartCommandOption(options).orElse(defaultAnswerFormat());
-        final boolean useLabelForAnswer = options.getBooleanSubOptionWithName(USE_LABEL_FOR_ANSWER).orElse(true);
+        final boolean hideExpressionInAnswer = options.getBooleanSubOptionWithName(HIDE_EXPRESSION_IN_ANSWER).orElse(true);
 
         return getConfigOptionStringList(buttons, answerTargetChannelId, diceParserSystem, alwaysSumResults, answerType,
                 BaseCommandOptions.getDiceStyleOptionFromStartCommandOption(options).orElse(DiceImageStyle.polyhedral_3d),
                 BaseCommandOptions.getDiceColorOptionFromStartCommandOption(options).orElse(DiceImageStyle.polyhedral_3d.getDefaultColor()),
                 userLocale,
-                useLabelForAnswer
+                hideExpressionInAnswer
         );
     }
 
