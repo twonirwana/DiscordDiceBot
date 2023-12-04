@@ -34,6 +34,10 @@ public class ButtonEventAdaptorMock implements ButtonEventAdaptor {
     private final String invokingUser;
     private final EmbedOrMessageDefinition eventMessage;
 
+    public List<String> getSortedActions(){
+        return actions.stream().sorted().toList();
+    }
+
     public ButtonEventAdaptorMock(String commandId, String buttonValue, UUID configUUID, AtomicLong messageIdCounter, Set<Long> pinnedMessageIds) {
         this(commandId, buttonValue, configUUID, messageIdCounter, pinnedMessageIds, "invokingUser");
     }
