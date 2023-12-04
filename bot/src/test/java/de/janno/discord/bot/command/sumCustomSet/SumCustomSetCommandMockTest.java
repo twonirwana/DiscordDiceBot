@@ -1,5 +1,7 @@
 package de.janno.discord.bot.command.sumCustomSet;
 
+import au.com.origin.snapshots.Expect;
+import au.com.origin.snapshots.junit5.SnapshotExtension;
 import com.google.common.collect.ImmutableList;
 import de.janno.discord.bot.ButtonEventAdaptorMock;
 import de.janno.discord.bot.ButtonEventAdaptorMockFactory;
@@ -18,17 +20,18 @@ import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import de.janno.evaluator.dice.random.RandomNumberSupplier;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.time.Duration;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
+@ExtendWith(SnapshotExtension.class)
 public class SumCustomSetCommandMockTest {
 
     PersistenceManager persistenceManager;
+    private Expect expect;
 
     @BeforeEach
     void setup() {
@@ -36,13 +39,13 @@ public class SumCustomSetCommandMockTest {
     }
 
     @Test
-    void roll_full() {
+    void roll_fullExpression() {
         SumCustomSetCommand underTest = new SumCustomSetCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 10000));
         underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
 
         SumCustomSetConfig config = new SumCustomSetConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "+1d6"),
-                new ButtonIdLabelAndDiceExpression("2_button", "bonus", "+2")), DiceParserSystem.DICE_EVALUATOR, true, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
-        ButtonEventAdaptorMockFactory<SumCustomSetConfig, SumCustomSetStateData> factory = new ButtonEventAdaptorMockFactory<>("sum_custom_st", underTest, config, persistenceManager, false);
+                new ButtonIdLabelAndDiceExpression("2_button", "bonus", "+2")), DiceParserSystem.DICE_EVALUATOR, true, false, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
+        ButtonEventAdaptorMockFactory<SumCustomSetConfig, SumCustomSetStateDataV2> factory = new ButtonEventAdaptorMockFactory<>("sum_custom_set", underTest, config, persistenceManager, false);
 
         ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("1_button");
         underTest.handleComponentInteractEvent(click1).block();
@@ -51,16 +54,32 @@ public class SumCustomSetCommandMockTest {
         ButtonEventAdaptorMock click3 = factory.getButtonClickOnLastButtonMessage("roll");
         underTest.handleComponentInteractEvent(click3).block();
 
-        assertThat(click1.getActions()).containsExactlyInAnyOrder(
-                "editMessage: message:invokingUser: +1d6, buttonValues=1_button,2_button,roll,clear,back");
-        assertThat(click2.getActions()).containsExactlyInAnyOrder(
-                "editMessage: message:invokingUser: +1d6+2, buttonValues=1_button,2_button,roll,clear,back");
-        assertThat(click3.getActions()).containsExactlyInAnyOrder(
-                "editMessage: message:Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back",
-                "createResultMessageWithReference: EmbedOrMessageDefinition(title=+1d6+2 ⇒ 3, descriptionOrContent=[1], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED), targetChannelId: null",
-                "deleteMessageById: 0",
-                "createMessageWithoutReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click the buttons to add dice to the set and then on Roll, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=sum_custom_set1_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=bonus, id=sum_custom_set2_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=Roll, id=sum_custom_setroll00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=true), ButtonDefinition(label=Clear, id=sum_custom_setclear00000000-0000-0000-0000-000000000000, style=DANGER, disabled=false), ButtonDefinition(label=Back, id=sum_custom_setback00000000-0000-0000-0000-000000000000, style=SECONDARY, disabled=false)])], hasImage=false, type=MESSAGE)"
-        );
+
+        expect.scenario("click1").toMatchSnapshot(click1.getSortedActions());
+        expect.scenario("click2").toMatchSnapshot(click2.getSortedActions());
+        expect.scenario("click3").toMatchSnapshot(click3.getSortedActions());
+    }
+
+    @Test
+    void roll_full() {
+        SumCustomSetCommand underTest = new SumCustomSetCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 10000));
+        underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
+
+        SumCustomSetConfig config = new SumCustomSetConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "+1d6"),
+                new ButtonIdLabelAndDiceExpression("2_button", "bonus", "+2")), DiceParserSystem.DICE_EVALUATOR, true, true, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
+        ButtonEventAdaptorMockFactory<SumCustomSetConfig, SumCustomSetStateDataV2> factory = new ButtonEventAdaptorMockFactory<>("sum_custom_set", underTest, config, persistenceManager, false);
+
+        ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("1_button");
+        underTest.handleComponentInteractEvent(click1).block();
+        ButtonEventAdaptorMock click2 = factory.getButtonClickOnLastButtonMessage("2_button");
+        underTest.handleComponentInteractEvent(click2).block();
+        ButtonEventAdaptorMock click3 = factory.getButtonClickOnLastButtonMessage("roll");
+        underTest.handleComponentInteractEvent(click3).block();
+
+
+        expect.scenario("click1").toMatchSnapshot(click1.getSortedActions());
+        expect.scenario("click2").toMatchSnapshot(click2.getSortedActions());
+        expect.scenario("click3").toMatchSnapshot(click3.getSortedActions());
     }
 
 
@@ -70,8 +89,8 @@ public class SumCustomSetCommandMockTest {
         underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
 
         SumCustomSetConfig config = new SumCustomSetConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "+1d6"),
-                new ButtonIdLabelAndDiceExpression("2_button", "bonus", "+2")), DiceParserSystem.DICE_EVALUATOR, true, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.GERMAN);
-        ButtonEventAdaptorMockFactory<SumCustomSetConfig, SumCustomSetStateData> factory = new ButtonEventAdaptorMockFactory<>("sum_custom_st", underTest, config, persistenceManager, false);
+                new ButtonIdLabelAndDiceExpression("2_button", "bonus", "+2")), DiceParserSystem.DICE_EVALUATOR, true, false, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.GERMAN);
+        ButtonEventAdaptorMockFactory<SumCustomSetConfig, SumCustomSetStateDataV2> factory = new ButtonEventAdaptorMockFactory<>("sum_custom_set", underTest, config, persistenceManager, false);
 
         ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("1_button");
         underTest.handleComponentInteractEvent(click1).block();
@@ -80,15 +99,9 @@ public class SumCustomSetCommandMockTest {
         ButtonEventAdaptorMock click3 = factory.getButtonClickOnLastButtonMessage("roll");
         underTest.handleComponentInteractEvent(click3).block();
 
-        assertThat(click1.getActions()).containsExactlyInAnyOrder(
-                "editMessage: message:invokingUser: +1d6, buttonValues=1_button,2_button,roll,clear,back");
-        assertThat(click2.getActions()).containsExactlyInAnyOrder(
-                "editMessage: message:invokingUser: +1d6+2, buttonValues=1_button,2_button,roll,clear,back");
-        assertThat(click3.getActions()).containsExactlyInAnyOrder(
-                "editMessage: message:Klick auf einen Button um die Würfel hinzuzufügen und dann auf Würfeln, buttonValues=1_button,2_button,roll,clear,back",
-                "createResultMessageWithReference: EmbedOrMessageDefinition(title=+1d6+2 ⇒ 3, descriptionOrContent=[1], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED), targetChannelId: null",
-                "deleteMessageById: 0",
-                "createMessageWithoutReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=Klick auf einen Button um die Würfel hinzuzufügen und dann auf Würfeln, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=sum_custom_set1_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=bonus, id=sum_custom_set2_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=Würfeln, id=sum_custom_setroll00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=true), ButtonDefinition(label=Löschen, id=sum_custom_setclear00000000-0000-0000-0000-000000000000, style=DANGER, disabled=false), ButtonDefinition(label=Zurück, id=sum_custom_setback00000000-0000-0000-0000-000000000000, style=SECONDARY, disabled=false)])], hasImage=false, type=MESSAGE)");
+        expect.scenario("click1").toMatchSnapshot(click1.getSortedActions());
+        expect.scenario("click2").toMatchSnapshot(click2.getSortedActions());
+        expect.scenario("click3").toMatchSnapshot(click3.getSortedActions());
     }
 
     @Test
@@ -97,8 +110,8 @@ public class SumCustomSetCommandMockTest {
         underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
 
         SumCustomSetConfig config = new SumCustomSetConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "+1d6"),
-                new ButtonIdLabelAndDiceExpression("2_button", "bonus", "+2")), DiceParserSystem.DICE_EVALUATOR, true, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.of("pt", "BR"));
-        ButtonEventAdaptorMockFactory<SumCustomSetConfig, SumCustomSetStateData> factory = new ButtonEventAdaptorMockFactory<>("sum_custom_st", underTest, config, persistenceManager, false);
+                new ButtonIdLabelAndDiceExpression("2_button", "bonus", "+2")), DiceParserSystem.DICE_EVALUATOR, true, false, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.of("pt", "BR"));
+        ButtonEventAdaptorMockFactory<SumCustomSetConfig, SumCustomSetStateDataV2> factory = new ButtonEventAdaptorMockFactory<>("sum_custom_set", underTest, config, persistenceManager, false);
 
         ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("1_button");
         underTest.handleComponentInteractEvent(click1).block();
@@ -107,16 +120,9 @@ public class SumCustomSetCommandMockTest {
         ButtonEventAdaptorMock click3 = factory.getButtonClickOnLastButtonMessage("roll");
         underTest.handleComponentInteractEvent(click3).block();
 
-        assertThat(click1.getActions()).containsExactlyInAnyOrder(
-                "editMessage: message:invokingUser: +1d6, buttonValues=1_button,2_button,roll,clear,back");
-        assertThat(click2.getActions()).containsExactlyInAnyOrder(
-                "editMessage: message:invokingUser: +1d6+2, buttonValues=1_button,2_button,roll,clear,back");
-        assertThat(click3.getActions()).containsExactlyInAnyOrder(
-                "editMessage: message:Clique nos botões para adicionar dados ao conjunto e então em Rolar, buttonValues=1_button,2_button,roll,clear,back",
-                "createResultMessageWithReference: EmbedOrMessageDefinition(title=+1d6+2 ⇒ 3, descriptionOrContent=[1], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED), targetChannelId: null",
-                "deleteMessageById: 0",
-                "createMessageWithoutReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=Clique nos botões para adicionar dados ao conjunto e então em Rolar, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=sum_custom_set1_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=bonus, id=sum_custom_set2_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=Rolar, id=sum_custom_setroll00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=true), ButtonDefinition(label=Limpar, id=sum_custom_setclear00000000-0000-0000-0000-000000000000, style=DANGER, disabled=false), ButtonDefinition(label=Voltar, id=sum_custom_setback00000000-0000-0000-0000-000000000000, style=SECONDARY, disabled=false)])], hasImage=false, type=MESSAGE)"
-        );
+        expect.scenario("click1").toMatchSnapshot(click1.getSortedActions());
+        expect.scenario("click2").toMatchSnapshot(click2.getSortedActions());
+        expect.scenario("click3").toMatchSnapshot(click3.getSortedActions());
     }
 
     @Test
@@ -125,8 +131,8 @@ public class SumCustomSetCommandMockTest {
         underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
 
         SumCustomSetConfig config = new SumCustomSetConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "+1d6"),
-                new ButtonIdLabelAndDiceExpression("2_button", "bonus", "+2")), DiceParserSystem.DICE_EVALUATOR, true, AnswerFormatType.compact, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
-        ButtonEventAdaptorMockFactory<SumCustomSetConfig, SumCustomSetStateData> factory = new ButtonEventAdaptorMockFactory<>("sum_custom_st", underTest, config, persistenceManager, false);
+                new ButtonIdLabelAndDiceExpression("2_button", "bonus", "+2")), DiceParserSystem.DICE_EVALUATOR, true, false, AnswerFormatType.compact, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
+        ButtonEventAdaptorMockFactory<SumCustomSetConfig, SumCustomSetStateDataV2> factory = new ButtonEventAdaptorMockFactory<>("sum_custom_set", underTest, config, persistenceManager, false);
 
         ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("1_button");
         underTest.handleComponentInteractEvent(click1).block();
@@ -135,16 +141,9 @@ public class SumCustomSetCommandMockTest {
         ButtonEventAdaptorMock click3 = factory.getButtonClickOnLastButtonMessage("roll");
         underTest.handleComponentInteractEvent(click3).block();
 
-        assertThat(click1.getActions()).containsExactlyInAnyOrder(
-                "editMessage: message:invokingUser: +1d6, buttonValues=1_button,2_button,roll,clear,back");
-        assertThat(click2.getActions()).containsExactlyInAnyOrder(
-                "editMessage: message:invokingUser: +1d6+2, buttonValues=1_button,2_button,roll,clear,back");
-        assertThat(click3.getActions()).containsExactlyInAnyOrder(
-                "editMessage: message:Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back",
-                "createResultMessageWithReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=__**+1d6+2 ⇒ 3**__  [1], fields=[], componentRowDefinitions=[], hasImage=false, type=MESSAGE), targetChannelId: null",
-                "deleteMessageById: 0",
-                "createMessageWithoutReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click the buttons to add dice to the set and then on Roll, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=sum_custom_set1_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=bonus, id=sum_custom_set2_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=Roll, id=sum_custom_setroll00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=true), ButtonDefinition(label=Clear, id=sum_custom_setclear00000000-0000-0000-0000-000000000000, style=DANGER, disabled=false), ButtonDefinition(label=Back, id=sum_custom_setback00000000-0000-0000-0000-000000000000, style=SECONDARY, disabled=false)])], hasImage=false, type=MESSAGE)"
-        );
+        expect.scenario("click1").toMatchSnapshot(click1.getSortedActions());
+        expect.scenario("click2").toMatchSnapshot(click2.getSortedActions());
+        expect.scenario("click3").toMatchSnapshot(click3.getSortedActions());
     }
 
     @Test
@@ -153,8 +152,8 @@ public class SumCustomSetCommandMockTest {
         underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
 
         SumCustomSetConfig config = new SumCustomSetConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "+1d6"),
-                new ButtonIdLabelAndDiceExpression("2_button", "bonus", "+2")), DiceParserSystem.DICE_EVALUATOR, true, AnswerFormatType.minimal, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
-        ButtonEventAdaptorMockFactory<SumCustomSetConfig, SumCustomSetStateData> factory = new ButtonEventAdaptorMockFactory<>("sum_custom_st", underTest, config, persistenceManager, false);
+                new ButtonIdLabelAndDiceExpression("2_button", "bonus", "+2")), DiceParserSystem.DICE_EVALUATOR, true, false, AnswerFormatType.minimal, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
+        ButtonEventAdaptorMockFactory<SumCustomSetConfig, SumCustomSetStateDataV2> factory = new ButtonEventAdaptorMockFactory<>("sum_custom_set", underTest, config, persistenceManager, false);
 
         ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("1_button");
         underTest.handleComponentInteractEvent(click1).block();
@@ -163,16 +162,9 @@ public class SumCustomSetCommandMockTest {
         ButtonEventAdaptorMock click3 = factory.getButtonClickOnLastButtonMessage("roll");
         underTest.handleComponentInteractEvent(click3).block();
 
-        assertThat(click1.getActions()).containsExactlyInAnyOrder(
-                "editMessage: message:invokingUser: +1d6, buttonValues=1_button,2_button,roll,clear,back");
-        assertThat(click2.getActions()).containsExactlyInAnyOrder(
-                "editMessage: message:invokingUser: +1d6+2, buttonValues=1_button,2_button,roll,clear,back");
-        assertThat(click3.getActions()).containsExactlyInAnyOrder(
-                "editMessage: message:Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back",
-                "createResultMessageWithReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=+1d6+2 ⇒ 3, fields=[], componentRowDefinitions=[], hasImage=false, type=MESSAGE), targetChannelId: null",
-                "deleteMessageById: 0",
-                "createMessageWithoutReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click the buttons to add dice to the set and then on Roll, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=sum_custom_set1_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=bonus, id=sum_custom_set2_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=Roll, id=sum_custom_setroll00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=true), ButtonDefinition(label=Clear, id=sum_custom_setclear00000000-0000-0000-0000-000000000000, style=DANGER, disabled=false), ButtonDefinition(label=Back, id=sum_custom_setback00000000-0000-0000-0000-000000000000, style=SECONDARY, disabled=false)])], hasImage=false, type=MESSAGE)"
-        );
+        expect.scenario("click1").toMatchSnapshot(click1.getSortedActions());
+        expect.scenario("click2").toMatchSnapshot(click2.getSortedActions());
+        expect.scenario("click3").toMatchSnapshot(click3.getSortedActions());
     }
 
     @Test
@@ -181,8 +173,8 @@ public class SumCustomSetCommandMockTest {
         underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
 
         SumCustomSetConfig config = new SumCustomSetConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "+1d6"),
-                new ButtonIdLabelAndDiceExpression("2_button", "bonus", "+2")), DiceParserSystem.DICE_EVALUATOR, true, AnswerFormatType.minimal, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
-        ButtonEventAdaptorMockFactory<SumCustomSetConfig, SumCustomSetStateData> factory = new ButtonEventAdaptorMockFactory<>("sum_custom_st", underTest, config, persistenceManager, false);
+                new ButtonIdLabelAndDiceExpression("2_button", "bonus", "+2")), DiceParserSystem.DICE_EVALUATOR, true, false, AnswerFormatType.minimal, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
+        ButtonEventAdaptorMockFactory<SumCustomSetConfig, SumCustomSetStateDataV2> factory = new ButtonEventAdaptorMockFactory<>("sum_custom_set", underTest, config, persistenceManager, false);
 
         ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("1_button");
         underTest.handleComponentInteractEvent(click1).block();
@@ -193,18 +185,10 @@ public class SumCustomSetCommandMockTest {
         ButtonEventAdaptorMock click4 = factory.getButtonClickOnLastButtonMessage("roll");
         underTest.handleComponentInteractEvent(click4).block();
 
-        assertThat(click1.getActions()).containsExactlyInAnyOrder(
-                "editMessage: message:invokingUser: +1d6, buttonValues=1_button,2_button,roll,clear,back");
-        assertThat(click2.getActions()).containsExactlyInAnyOrder(
-                "editMessage: message:invokingUser: +1d6, buttonValues=1_button,2_button,roll,clear,back");
-        assertThat(click3.getActions()).containsExactlyInAnyOrder(
-                "editMessage: message:invokingUser: +1d6+2, buttonValues=1_button,2_button,roll,clear,back");
-        assertThat(click4.getActions()).containsExactlyInAnyOrder(
-                "editMessage: message:Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back",
-                "createResultMessageWithReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=+1d6+2 ⇒ 3, fields=[], componentRowDefinitions=[], hasImage=false, type=MESSAGE), targetChannelId: null",
-                "deleteMessageById: 0",
-                "createMessageWithoutReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click the buttons to add dice to the set and then on Roll, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=sum_custom_set1_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=bonus, id=sum_custom_set2_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=Roll, id=sum_custom_setroll00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=true), ButtonDefinition(label=Clear, id=sum_custom_setclear00000000-0000-0000-0000-000000000000, style=DANGER, disabled=false), ButtonDefinition(label=Back, id=sum_custom_setback00000000-0000-0000-0000-000000000000, style=SECONDARY, disabled=false)])], hasImage=false, type=MESSAGE)"
-        );
+        expect.scenario("click1").toMatchSnapshot(click1.getSortedActions());
+        expect.scenario("click2").toMatchSnapshot(click2.getSortedActions());
+        expect.scenario("click3").toMatchSnapshot(click3.getSortedActions());
+        expect.scenario("click4").toMatchSnapshot(click4.getSortedActions());
     }
 
     @Test
@@ -213,18 +197,16 @@ public class SumCustomSetCommandMockTest {
         underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
 
         SumCustomSetConfig config = new SumCustomSetConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "+1d6"),
-                new ButtonIdLabelAndDiceExpression("2_button", "bonus", "+2")), DiceParserSystem.DICE_EVALUATOR, true, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
-        ButtonEventAdaptorMockFactory<SumCustomSetConfig, SumCustomSetStateData> factory = new ButtonEventAdaptorMockFactory<>("sum_custom_st", underTest, config, persistenceManager, false);
+                new ButtonIdLabelAndDiceExpression("2_button", "bonus", "+2")), DiceParserSystem.DICE_EVALUATOR, true, false, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
+        ButtonEventAdaptorMockFactory<SumCustomSetConfig, SumCustomSetStateDataV2> factory = new ButtonEventAdaptorMockFactory<>("sum_custom_set", underTest, config, persistenceManager, false);
 
         ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("1_button");
         underTest.handleComponentInteractEvent(click1).block();
         ButtonEventAdaptorMock click2 = factory.getButtonClickOnLastButtonMessage("clear");
         underTest.handleComponentInteractEvent(click2).block();
 
-        assertThat(click1.getActions()).containsExactlyInAnyOrder(
-                "editMessage: message:invokingUser: +1d6, buttonValues=1_button,2_button,roll,clear,back");
-        assertThat(click2.getActions()).containsExactlyInAnyOrder(
-                "editMessage: message:Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back");
+        expect.scenario("click1").toMatchSnapshot(click1.getSortedActions());
+        expect.scenario("click2").toMatchSnapshot(click2.getSortedActions());
     }
 
     @Test
@@ -233,8 +215,8 @@ public class SumCustomSetCommandMockTest {
         underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
 
         SumCustomSetConfig config = new SumCustomSetConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "+1d6"),
-                new ButtonIdLabelAndDiceExpression("2_button", "bonus", "+2")), DiceParserSystem.DICE_EVALUATOR, true, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
-        ButtonEventAdaptorMockFactory<SumCustomSetConfig, SumCustomSetStateData> factory = new ButtonEventAdaptorMockFactory<>("sum_custom_st", underTest, config, persistenceManager, false);
+                new ButtonIdLabelAndDiceExpression("2_button", "bonus", "+2")), DiceParserSystem.DICE_EVALUATOR, true, false, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
+        ButtonEventAdaptorMockFactory<SumCustomSetConfig, SumCustomSetStateDataV2> factory = new ButtonEventAdaptorMockFactory<>("sum_custom_set", underTest, config, persistenceManager, false);
 
         ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("1_button");
         underTest.handleComponentInteractEvent(click1).block();
@@ -243,12 +225,9 @@ public class SumCustomSetCommandMockTest {
         ButtonEventAdaptorMock click3 = factory.getButtonClickOnLastButtonMessage("back");
         underTest.handleComponentInteractEvent(click3).block();
 
-        assertThat(click1.getActions()).containsExactlyInAnyOrder(
-                "editMessage: message:invokingUser: +1d6, buttonValues=1_button,2_button,roll,clear,back");
-        assertThat(click2.getActions()).containsExactlyInAnyOrder(
-                "editMessage: message:Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back");
-        assertThat(click2.getActions()).containsExactlyInAnyOrder(
-                "editMessage: message:Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back");
+        expect.scenario("click1").toMatchSnapshot(click1.getSortedActions());
+        expect.scenario("click2").toMatchSnapshot(click2.getSortedActions());
+        expect.scenario("click2").toMatchSnapshot(click2.getSortedActions());
     }
 
     @Test
@@ -257,8 +236,8 @@ public class SumCustomSetCommandMockTest {
         underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
 
         SumCustomSetConfig config = new SumCustomSetConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "+1d6"),
-                new ButtonIdLabelAndDiceExpression("2_button", "bonus", "+2")), DiceParserSystem.DICE_EVALUATOR, true, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
-        ButtonEventAdaptorMockFactory<SumCustomSetConfig, SumCustomSetStateData> factory = new ButtonEventAdaptorMockFactory<>("sum_custom_st", underTest, config, persistenceManager, true);
+                new ButtonIdLabelAndDiceExpression("2_button", "bonus", "+2")), DiceParserSystem.DICE_EVALUATOR, true, false, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
+        ButtonEventAdaptorMockFactory<SumCustomSetConfig, SumCustomSetStateDataV2> factory = new ButtonEventAdaptorMockFactory<>("sum_custom_set", underTest, config, persistenceManager, true);
 
         ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("1_button");
         underTest.handleComponentInteractEvent(click1).block();
@@ -267,15 +246,9 @@ public class SumCustomSetCommandMockTest {
         ButtonEventAdaptorMock click3 = factory.getButtonClickOnLastButtonMessage("roll");
         underTest.handleComponentInteractEvent(click3).block();
 
-        assertThat(click1.getActions()).containsExactlyInAnyOrder(
-                "editMessage: message:invokingUser: +1d6, buttonValues=1_button,2_button,roll,clear,back");
-        assertThat(click2.getActions()).containsExactlyInAnyOrder(
-                "editMessage: message:invokingUser: +1d6+2, buttonValues=1_button,2_button,roll,clear,back");
-        assertThat(click3.getActions()).containsExactlyInAnyOrder(
-                "editMessage: message:Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back",
-                "createResultMessageWithReference: EmbedOrMessageDefinition(title=+1d6+2 ⇒ 3, descriptionOrContent=[1], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED), targetChannelId: null",
-                "createMessageWithoutReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click the buttons to add dice to the set and then on Roll, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=sum_custom_set1_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=bonus, id=sum_custom_set2_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=Roll, id=sum_custom_setroll00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=true), ButtonDefinition(label=Clear, id=sum_custom_setclear00000000-0000-0000-0000-000000000000, style=DANGER, disabled=false), ButtonDefinition(label=Back, id=sum_custom_setback00000000-0000-0000-0000-000000000000, style=SECONDARY, disabled=false)])], hasImage=false, type=MESSAGE)"
-        );
+        expect.scenario("click1").toMatchSnapshot(click1.getSortedActions());
+        expect.scenario("click2").toMatchSnapshot(click2.getSortedActions());
+        expect.scenario("click3").toMatchSnapshot(click3.getSortedActions());
     }
 
     @Test
@@ -284,8 +257,8 @@ public class SumCustomSetCommandMockTest {
         underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
 
         SumCustomSetConfig config = new SumCustomSetConfig(2L, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "+1d6"),
-                new ButtonIdLabelAndDiceExpression("2_button", "bonus", "+2")), DiceParserSystem.DICE_EVALUATOR, true, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
-        ButtonEventAdaptorMockFactory<SumCustomSetConfig, SumCustomSetStateData> factory = new ButtonEventAdaptorMockFactory<>("sum_custom_st", underTest, config, persistenceManager, false);
+                new ButtonIdLabelAndDiceExpression("2_button", "bonus", "+2")), DiceParserSystem.DICE_EVALUATOR, true, false, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
+        ButtonEventAdaptorMockFactory<SumCustomSetConfig, SumCustomSetStateDataV2> factory = new ButtonEventAdaptorMockFactory<>("sum_custom_set", underTest, config, persistenceManager, false);
 
         ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("1_button");
         underTest.handleComponentInteractEvent(click1).block();
@@ -294,14 +267,9 @@ public class SumCustomSetCommandMockTest {
         ButtonEventAdaptorMock click3 = factory.getButtonClickOnLastButtonMessage("roll");
         underTest.handleComponentInteractEvent(click3).block();
 
-        assertThat(click1.getActions()).containsExactlyInAnyOrder(
-                "editMessage: message:invokingUser: +1d6, buttonValues=1_button,2_button,roll,clear,back");
-        assertThat(click2.getActions()).containsExactlyInAnyOrder(
-                "editMessage: message:invokingUser: +1d6+2, buttonValues=1_button,2_button,roll,clear,back");
-        assertThat(click3.getActions()).containsExactlyInAnyOrder(
-                "editMessage: message:Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back",
-                "createResultMessageWithReference: EmbedOrMessageDefinition(title=+1d6+2 ⇒ 3, descriptionOrContent=[1], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED), targetChannelId: 2"
-        );
+        expect.scenario("click1").toMatchSnapshot(click1.getSortedActions());
+        expect.scenario("click2").toMatchSnapshot(click2.getSortedActions());
+        expect.scenario("click3").toMatchSnapshot(click3.getSortedActions());
     }
 
     @Test
@@ -310,8 +278,8 @@ public class SumCustomSetCommandMockTest {
         underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
 
         SumCustomSetConfig config = new SumCustomSetConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "+1d6"),
-                new ButtonIdLabelAndDiceExpression("2_button", "bonus", "+2")), DiceParserSystem.DICE_EVALUATOR, true, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
-        ButtonEventAdaptorMockFactory<SumCustomSetConfig, SumCustomSetStateData> factory = new ButtonEventAdaptorMockFactory<>("sum_custom_st", underTest, config, persistenceManager, true);
+                new ButtonIdLabelAndDiceExpression("2_button", "bonus", "+2")), DiceParserSystem.DICE_EVALUATOR, true, false, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
+        ButtonEventAdaptorMockFactory<SumCustomSetConfig, SumCustomSetStateDataV2> factory = new ButtonEventAdaptorMockFactory<>("sum_custom_set", underTest, config, persistenceManager, true);
 
         ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("1_button");
         underTest.handleComponentInteractEvent(click1).block();
@@ -324,23 +292,11 @@ public class SumCustomSetCommandMockTest {
         ButtonEventAdaptorMock click5 = factory.getButtonClickOnLastButtonMessage("roll");
         underTest.handleComponentInteractEvent(click5).block();
 
-        assertThat(click1.getActions()).containsExactlyInAnyOrder(
-                "editMessage: message:invokingUser: +1d6, buttonValues=1_button,2_button,roll,clear,back");
-        assertThat(click2.getActions()).containsExactlyInAnyOrder(
-                "editMessage: message:invokingUser: +1d6+2, buttonValues=1_button,2_button,roll,clear,back");
-        assertThat(click3.getActions()).containsExactlyInAnyOrder(
-                "editMessage: message:Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back",
-                "createResultMessageWithReference: EmbedOrMessageDefinition(title=+1d6+2 ⇒ 3, descriptionOrContent=[1], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED), targetChannelId: null",
-                "createMessageWithoutReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click the buttons to add dice to the set and then on Roll, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=sum_custom_set1_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=bonus, id=sum_custom_set2_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=Roll, id=sum_custom_setroll00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=true), ButtonDefinition(label=Clear, id=sum_custom_setclear00000000-0000-0000-0000-000000000000, style=DANGER, disabled=false), ButtonDefinition(label=Back, id=sum_custom_setback00000000-0000-0000-0000-000000000000, style=SECONDARY, disabled=false)])], hasImage=false, type=MESSAGE)"
-        );
-        assertThat(click4.getActions()).containsExactlyInAnyOrder(
-                "editMessage: message:invokingUser: +1d6, buttonValues=1_button,2_button,roll,clear,back");
-        assertThat(click5.getActions()).containsExactlyInAnyOrder(
-                "editMessage: message:Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back",
-                "createResultMessageWithReference: EmbedOrMessageDefinition(title=+1d6 ⇒ 4, descriptionOrContent=[4], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED), targetChannelId: null",
-                "deleteMessageById: 1",
-                "createMessageWithoutReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click the buttons to add dice to the set and then on Roll, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=sum_custom_set1_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=bonus, id=sum_custom_set2_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=Roll, id=sum_custom_setroll00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=true), ButtonDefinition(label=Clear, id=sum_custom_setclear00000000-0000-0000-0000-000000000000, style=DANGER, disabled=false), ButtonDefinition(label=Back, id=sum_custom_setback00000000-0000-0000-0000-000000000000, style=SECONDARY, disabled=false)])], hasImage=false, type=MESSAGE)",
-                "getMessagesState: [0]");
+        expect.scenario("click1").toMatchSnapshot(click1.getSortedActions());
+        expect.scenario("click2").toMatchSnapshot(click2.getSortedActions());
+        expect.scenario("click3").toMatchSnapshot(click3.getSortedActions());
+        expect.scenario("click4").toMatchSnapshot(click4.getSortedActions());
+        expect.scenario("click5").toMatchSnapshot(click5.getSortedActions());
     }
 
     @Test
@@ -349,8 +305,8 @@ public class SumCustomSetCommandMockTest {
         underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
 
         SumCustomSetConfig config = new SumCustomSetConfig(2L, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "+1d6"),
-                new ButtonIdLabelAndDiceExpression("2_button", "bonus", "+2")), DiceParserSystem.DICE_EVALUATOR, true, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
-        ButtonEventAdaptorMockFactory<SumCustomSetConfig, SumCustomSetStateData> factory = new ButtonEventAdaptorMockFactory<>("sum_custom_st", underTest, config, persistenceManager, false);
+                new ButtonIdLabelAndDiceExpression("2_button", "bonus", "+2")), DiceParserSystem.DICE_EVALUATOR, true, false, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
+        ButtonEventAdaptorMockFactory<SumCustomSetConfig, SumCustomSetStateDataV2> factory = new ButtonEventAdaptorMockFactory<>("sum_custom_set", underTest, config, persistenceManager, false);
 
         ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("1_button");
         underTest.handleComponentInteractEvent(click1).block();
@@ -363,20 +319,11 @@ public class SumCustomSetCommandMockTest {
         ButtonEventAdaptorMock click5 = factory.getButtonClickOnLastButtonMessage("roll");
         underTest.handleComponentInteractEvent(click5).block();
 
-        assertThat(click1.getActions()).containsExactlyInAnyOrder(
-                "editMessage: message:invokingUser: +1d6, buttonValues=1_button,2_button,roll,clear,back");
-        assertThat(click2.getActions()).containsExactlyInAnyOrder(
-                "editMessage: message:invokingUser: +1d6+2, buttonValues=1_button,2_button,roll,clear,back");
-        assertThat(click3.getActions()).containsExactlyInAnyOrder(
-                "editMessage: message:Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back",
-                "createResultMessageWithReference: EmbedOrMessageDefinition(title=+1d6+2 ⇒ 3, descriptionOrContent=[1], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED), targetChannelId: 2"
-        );
-        assertThat(click4.getActions()).containsExactlyInAnyOrder(
-                "editMessage: message:invokingUser: +1d6, buttonValues=1_button,2_button,roll,clear,back");
-        assertThat(click5.getActions()).containsExactlyInAnyOrder(
-                "editMessage: message:Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back",
-                "createResultMessageWithReference: EmbedOrMessageDefinition(title=+1d6 ⇒ 4, descriptionOrContent=[4], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED), targetChannelId: 2"
-        );
+        expect.scenario("click1").toMatchSnapshot(click1.getSortedActions());
+        expect.scenario("click2").toMatchSnapshot(click2.getSortedActions());
+        expect.scenario("click3").toMatchSnapshot(click3.getSortedActions());
+        expect.scenario("click4").toMatchSnapshot(click4.getSortedActions());
+        expect.scenario("click5").toMatchSnapshot(click5.getSortedActions());
     }
 
     @Test
@@ -397,23 +344,16 @@ public class SumCustomSetCommandMockTest {
         channelConfig.handleSlashCommandEvent(slashEvent1, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"), Locale.ENGLISH).block();
 
 
-        SumCustomSetConfig config = new SumCustomSetConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Attack", "att")), DiceParserSystem.DICE_EVALUATOR, true, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
-        ButtonEventAdaptorMockFactory<SumCustomSetConfig, SumCustomSetStateData> factory = new ButtonEventAdaptorMockFactory<>("sum_custom_st", underTest, config, persistenceManager, false);
+        SumCustomSetConfig config = new SumCustomSetConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Attack", "att")), DiceParserSystem.DICE_EVALUATOR, true, false, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
+        ButtonEventAdaptorMockFactory<SumCustomSetConfig, SumCustomSetStateDataV2> factory = new ButtonEventAdaptorMockFactory<>("sum_custom_set", underTest, config, persistenceManager, false);
         ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("1_button");
 
         underTest.handleComponentInteractEvent(click1).block();
         ButtonEventAdaptorMock click2 = factory.getButtonClickOnLastButtonMessage("roll");
         underTest.handleComponentInteractEvent(click2).block();
 
-        assertThat(click1.getActions()).containsExactlyInAnyOrder(
-                "editMessage: message:invokingUser: att, buttonValues=1_button,roll,clear,back"
-        );
-        assertThat(click2.getActions()).containsExactlyInAnyOrder(
-                "editMessage: message:Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,roll,clear,back",
-                "createResultMessageWithReference: EmbedOrMessageDefinition(title=2d20+10 ⇒ 31, descriptionOrContent=[11, 10], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED), targetChannelId: null",
-                "deleteMessageById: 0",
-                "createMessageWithoutReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click the buttons to add dice to the set and then on Roll, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Attack, id=sum_custom_set1_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=Roll, id=sum_custom_setroll00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=true), ButtonDefinition(label=Clear, id=sum_custom_setclear00000000-0000-0000-0000-000000000000, style=DANGER, disabled=false), ButtonDefinition(label=Back, id=sum_custom_setback00000000-0000-0000-0000-000000000000, style=SECONDARY, disabled=false)])], hasImage=false, type=MESSAGE)"
-        );
+        expect.scenario("click1").toMatchSnapshot(click1.getSortedActions());
+        expect.scenario("click2").toMatchSnapshot(click2.getSortedActions());
     }
 
     @Test
@@ -434,22 +374,15 @@ public class SumCustomSetCommandMockTest {
         channelConfig.handleSlashCommandEvent(slashEvent1, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"), Locale.ENGLISH).block();
 
 
-        SumCustomSetConfig config = new SumCustomSetConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Attack", "att")), DiceParserSystem.DICE_EVALUATOR, true, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
-        ButtonEventAdaptorMockFactory<SumCustomSetConfig, SumCustomSetStateData> factory = new ButtonEventAdaptorMockFactory<>("sum_custom_st", underTest, config, persistenceManager, false);
+        SumCustomSetConfig config = new SumCustomSetConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Attack", "att")), DiceParserSystem.DICE_EVALUATOR, true, false, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
+        ButtonEventAdaptorMockFactory<SumCustomSetConfig, SumCustomSetStateDataV2> factory = new ButtonEventAdaptorMockFactory<>("sum_custom_set", underTest, config, persistenceManager, false);
         ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("1_button");
 
         underTest.handleComponentInteractEvent(click1).block();
         ButtonEventAdaptorMock click2 = factory.getButtonClickOnLastButtonMessage("roll");
         underTest.handleComponentInteractEvent(click2).block();
 
-        assertThat(click1.getActions()).containsExactlyInAnyOrder(
-                "editMessage: message:invokingUser: att, buttonValues=1_button,roll,clear,back"
-        );
-        assertThat(click2.getActions()).containsExactlyInAnyOrder(
-                "editMessage: message:Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,roll,clear,back",
-                "createResultMessageWithReference: EmbedOrMessageDefinition(title=2d20+10 ⇒ 31, descriptionOrContent=[11, 10], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED), targetChannelId: null",
-                "deleteMessageById: 0",
-                "createMessageWithoutReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click the buttons to add dice to the set and then on Roll, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Attack, id=sum_custom_set1_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=Roll, id=sum_custom_setroll00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=true), ButtonDefinition(label=Clear, id=sum_custom_setclear00000000-0000-0000-0000-000000000000, style=DANGER, disabled=false), ButtonDefinition(label=Back, id=sum_custom_setback00000000-0000-0000-0000-000000000000, style=SECONDARY, disabled=false)])], hasImage=false, type=MESSAGE)"
-        );
+        expect.scenario("click1").toMatchSnapshot(click1.getSortedActions());
+        expect.scenario("click2").toMatchSnapshot(click2.getSortedActions());
     }
 }

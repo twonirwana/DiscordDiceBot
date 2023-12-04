@@ -12,15 +12,15 @@ import java.util.List;
 
 @Value
 @EqualsAndHashCode(callSuper = true)
-public class SumCustomSetStateData extends StateData {
+public class SumCustomSetStateDataV2 extends StateData {
 
     @NonNull
-    List<String> diceExpressions;
+    List<ExpressionAndLabel> diceExpressions;
     String lockedForUserName;
 
     @JsonCreator
-    public SumCustomSetStateData(@JsonProperty("diceExpressions") @NonNull List<String> diceExpressions,
-                                 @JsonProperty("lockedForUserName") String lockedForUserName) {
+    public SumCustomSetStateDataV2(@JsonProperty("diceExpressions") @NonNull List<ExpressionAndLabel> diceExpressions,
+                                   @JsonProperty("lockedForUserName") String lockedForUserName) {
         this.diceExpressions = diceExpressions;
         this.lockedForUserName = lockedForUserName;
     }
@@ -31,9 +31,4 @@ public class SumCustomSetStateData extends StateData {
         return String.format("%s, %s", diceExpressions, lockedForUserName);
     }
 
-    @Value
-    public static class ExpressionAndLabel{
-        @NonNull String expression;
-        @NonNull String label;
-    }
 }

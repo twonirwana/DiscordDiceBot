@@ -30,6 +30,10 @@ public class SlashEventAdaptorMock implements SlashEventAdaptor {
         this.userId = userId;
     }
 
+    public List<String> getSortedActions() {
+        return actions.stream().sorted().toList();
+    }
+
     @Override
     public Long getGuildId() {
         return GUILD_ID;
