@@ -16,9 +16,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.EnumSource;
-import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mockito;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -27,7 +25,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -37,40 +34,6 @@ class QuickstartCommandTest {
     QuickstartCommand underTest;
     private Expect expect;
 
-    private static Stream<Arguments> generateData() {
-        return Stream.of(
-                Arguments.of(RpgSystemCommandPreset.PresetId.DND5_IMAGE),
-                Arguments.of(RpgSystemCommandPreset.PresetId.DND5),
-                Arguments.of(RpgSystemCommandPreset.PresetId.DND5_CALC),
-                Arguments.of(RpgSystemCommandPreset.PresetId.NWOD),
-                Arguments.of(RpgSystemCommandPreset.PresetId.OWOD),
-                Arguments.of(RpgSystemCommandPreset.PresetId.SHADOWRUN_IMAGE),
-                Arguments.of(RpgSystemCommandPreset.PresetId.SHADOWRUN),
-                Arguments.of(RpgSystemCommandPreset.PresetId.SAVAGE_WORLDS),
-                Arguments.of(RpgSystemCommandPreset.PresetId.FATE_IMAGE),
-                Arguments.of(RpgSystemCommandPreset.PresetId.FATE),
-                Arguments.of(RpgSystemCommandPreset.PresetId.COIN),
-                Arguments.of(RpgSystemCommandPreset.PresetId.DICE_CALCULATOR),
-                Arguments.of(RpgSystemCommandPreset.PresetId.OSR),
-                Arguments.of(RpgSystemCommandPreset.PresetId.TRAVELLER),
-                Arguments.of(RpgSystemCommandPreset.PresetId.BLADES_IN_THE_DARK),
-                Arguments.of(RpgSystemCommandPreset.PresetId.CALL_OF_CTHULHU_7ED),
-                Arguments.of(RpgSystemCommandPreset.PresetId.EXALTED_3ED),
-                Arguments.of(RpgSystemCommandPreset.PresetId.VAMPIRE_5ED),
-                Arguments.of(RpgSystemCommandPreset.PresetId.HUNTER_5ED),
-                Arguments.of(RpgSystemCommandPreset.PresetId.ONE_ROLL_ENGINE),
-                Arguments.of(RpgSystemCommandPreset.PresetId.DUNGEON_CRAWL_CLASSICS),
-                Arguments.of(RpgSystemCommandPreset.PresetId.TINY_D6),
-                Arguments.of(RpgSystemCommandPreset.PresetId.CYBERPUNK_RED),
-                Arguments.of(RpgSystemCommandPreset.PresetId.ASOIAF),
-                Arguments.of(RpgSystemCommandPreset.PresetId.CITY_OF_MIST),
-                Arguments.of(RpgSystemCommandPreset.PresetId.RISUS),
-                Arguments.of(RpgSystemCommandPreset.PresetId.KIDS_ON_BROOMS),
-                Arguments.of(RpgSystemCommandPreset.PresetId.REVE_DE_DRAGON),
-                Arguments.of(RpgSystemCommandPreset.PresetId.PUBLIC_ACCESS),
-                Arguments.of(RpgSystemCommandPreset.PresetId.PARANOIA)
-        );
-    }
 
     @BeforeEach
     void setup() {

@@ -32,7 +32,7 @@ public class SumCustomSetStateData extends StateData {
     }
 
     @Value
-    public class ExpressionAndLabel{
+    public static class ExpressionAndLabel{
         @NonNull String expression;
         @NonNull String label;
     }
