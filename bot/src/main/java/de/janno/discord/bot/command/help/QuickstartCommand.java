@@ -19,7 +19,6 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Slf4j
 public class QuickstartCommand implements SlashCommand {
@@ -68,8 +67,7 @@ public class QuickstartCommand implements SlashCommand {
             return List.of();
         }
         return Arrays.stream(RpgSystemCommandPreset.PresetId.values())
-                .filter(p -> Stream.concat(Stream.of(p.getName(userLocale)), p.getSynonymes(userLocale).stream())
-                        .anyMatch(n -> n.toLowerCase().contains(option.getFocusedOptionValue().toLowerCase())))
+                .filter(p -> matchRpgPreset(option.getFocusedOptionValue(), p, userLocale))
                 .sorted(Comparator.comparing(p -> p.getName(userLocale)))
                 .map(p -> new AutoCompleteAnswer(p.getName(userLocale), p.name()))
                 .collect(Collectors.toList());
@@ -78,6 +76,22 @@ public class QuickstartCommand implements SlashCommand {
     @Override
     public @NonNull String getCommandId() {
         return ROLL_COMMAND_ID;
+    }
+
+    private boolean matchRpgPreset(String typed, RpgSystemCommandPreset.PresetId presetId, @NonNull Locale userLocale) {
+        if (presetId.getName(userLocale).toLowerCase().contains(typed.toLowerCase())) {
+            return true;
+        }
+        if (presetId.getName(Locale.ENGLISH).toLowerCase().contains(typed.toLowerCase())) {
+            return true;
+        }
+        if (presetId.getSynonymes(userLocale).stream().anyMatch(n -> n.toLowerCase().contains(typed.toLowerCase()))) {
+            return true;
+        }
+        if (presetId.getSynonymes(Locale.ENGLISH).stream().anyMatch(n -> n.toLowerCase().contains(typed.toLowerCase()))) {
+            return true;
+        }
+        return false;
     }
 
     @Override

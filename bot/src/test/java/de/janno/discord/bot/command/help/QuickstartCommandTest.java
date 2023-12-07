@@ -132,6 +132,13 @@ class QuickstartCommandTest {
     }
 
     @Test
+    void getAutoCompleteAnswer_filterBrazil() {
+        List<AutoCompleteAnswer> res = underTest.getAutoCompleteAnswer(new AutoCompleteRequest("system", "vampire", List.of()), Locale.of("PT","br"));
+        assertThat(res.stream().map(AutoCompleteAnswer::getName)).containsExactly("Vampiro 5ed", "nWod / Crônicas das Trevas", "oWod / Sistema Storyteller");
+        assertThat(res.stream().map(AutoCompleteAnswer::getValue)).containsExactly("VAMPIRE_5ED", "NWOD", "OWOD");
+    }
+
+    @Test
     void getAutoCompleteAnswer_All() {
         List<AutoCompleteAnswer> res = underTest.getAutoCompleteAnswer(new AutoCompleteRequest("system", "", List.of()), Locale.ENGLISH);
         assertThat(res.stream().map(AutoCompleteAnswer::getName)).containsExactly("A Song of Ice and Fire",
