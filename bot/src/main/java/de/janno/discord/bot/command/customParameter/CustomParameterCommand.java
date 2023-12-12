@@ -425,7 +425,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
                 .map(State::getData)
                 .flatMap(CustomParameterStateData::getNextUnselectedParameterExpression)
                 .flatMap(s -> getParameterForParameterExpression(config, s.getParameterExpression()))
-                .orElse(config.getParameters().get(0));
+                .orElse(config.getParameters().getFirst());
         List<String> nameAndExpression = new ArrayList<>();
         if (!Strings.isNullOrEmpty(userName)) {
             nameAndExpression.add(userName + ":");
@@ -453,10 +453,10 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
                 .map(State::getData)
                 .flatMap(CustomParameterStateData::getNextUnselectedParameterExpression)
                 .map(SelectedParameter::getParameterExpression)
-                .orElse(config.getParameters().get(0).getParameterExpression());
+                .orElse(config.getParameters().getFirst().getParameterExpression());
         Parameter parameter = config.getParameters().stream()
                 .filter(p -> Objects.equals(p.getParameterExpression(), currentParameterExpression))
-                .findFirst().orElse(config.getParameters().get(0));
+                .findFirst().orElse(config.getParameters().getFirst());
         List<ButtonDefinition> buttons = parameter.getParameterOptions().stream()
                 .map(vl -> ButtonDefinition.builder()
                         .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), vl.getId(), configUUID))
@@ -530,7 +530,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
                 .map(s -> validateStateWithCustomIdAndParameter(config, s))
                 .filter(Objects::nonNull)
                 .findFirst();
-        log.info("{} in {}ms validated", config, stopwatch.elapsed(TimeUnit.MILLISECONDS));
+        log.info("{} with parameter options {} in {}ms validated", config.getBaseExpression(), config.getParameters(), stopwatch.elapsed(TimeUnit.MILLISECONDS));
         return result;
     }
 
@@ -649,11 +649,11 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
                 .toList();
     }
 
-    private boolean isNumber(String in){
-        try{
+    private boolean isNumber(String in) {
+        try {
             Long.parseLong(in);
             return true;
-        } catch (NumberFormatException e){
+        } catch (NumberFormatException e) {
             return false;
         }
     }

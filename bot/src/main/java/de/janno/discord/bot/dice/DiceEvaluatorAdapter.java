@@ -1,6 +1,5 @@
 package de.janno.discord.bot.dice;
 
-import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import de.janno.discord.bot.BotMetrics;
 import de.janno.discord.bot.I18n;
@@ -19,10 +18,8 @@ import org.jetbrains.annotations.Nullable;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Locale;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 import static de.janno.discord.bot.dice.DiceSystemAdapter.LABEL_DELIMITER;
 
@@ -148,8 +145,8 @@ public class DiceEvaluatorAdapter {
                         .expressionLabel(label)
                         .image(diceImage)
                         .warning(getWarningFromRoll(rolls, userLocale))
-                        .result(getResult(rolls.get(0), sumUp))
-                        .rollDetails(rolls.get(0).getRandomElementsString())
+                        .result(getResult(rolls.getFirst(), sumUp))
+                        .rollDetails(rolls.getFirst().getRandomElementsString())
                         .build();
             } else {
                 List<RollAnswer.RollResults> multiRollResults = rolls.stream()
@@ -177,16 +174,10 @@ public class DiceEvaluatorAdapter {
     }
 
     private String getWarningFromRoll(List<Roll> rolls, Locale userLocale) {
-        return Strings.emptyToNull(rolls.stream()
-                .map(r -> {
-                    if (r.getRandomElementsInRoll().getRandomElements().isEmpty()) {
-                        return I18n.getMessage("diceEvaluator.reply.warning.noRandomElement", userLocale);
-                    }
-                    return null;
-                })
-                .filter(Objects::nonNull)
-                .distinct()
-                .collect(Collectors.joining(", ")));
+        if (rolls.stream().allMatch(r -> r.getRandomElementsInRoll().getRandomElements().isEmpty())) {
+            return I18n.getMessage("diceEvaluator.reply.warning.noRandomElement", userLocale);
+        }
+        return null;
     }
 
 }
