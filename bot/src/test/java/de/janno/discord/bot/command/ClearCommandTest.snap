@@ -1,19 +1,19 @@
 de.janno.discord.bot.command.ClearCommandTest.getCommandDefinition=[
   {
-    "name" : "clear",
-    "description" : "Removes all button messages and saved bot data for this channel",
-    "nameLocales" : [ ],
-    "descriptionLocales" : [
+    "name": "clear",
+    "description": "Removes all button messages and saved bot data for this channel",
+    "nameLocales": [ ],
+    "descriptionLocales": [
       {
-        "locale" : "de",
-        "description" : "Entferne alle Button-Nachrichten und lösche alle dazugehörigen Daten in diesen Kanal"
+        "locale": "de",
+        "description": "Entferne alle Button-Nachrichten und lösche alle dazugehörigen Daten in diesen Kanal"
       },
       {
-        "locale" : "pt_BR",
-        "description" : "Remove todas mensagens de botões e dados salvos pelo bot nesse canal"
+        "locale": "pt_BR",
+        "description": "Remove todas mensagens de botões e dados salvos pelo bot nesse canal"
       }
     ],
-    "options" : [ ]
+    "options": [ ]
   }
 ]
 

@@ -1,47 +1,47 @@
 de.janno.discord.bot.command.directRoll.DirectRollCommandTest.getCommandDefinition=[
   {
-    "name" : "r",
-    "description" : "direct roll of dice expression, e.g. `2d6`. Configuration with `/channel_config`",
-    "nameLocales" : [ ],
-    "descriptionLocales" : [
+    "name": "r",
+    "description": "direct roll of dice expression, e.g. `2d6`. Configuration with `/channel_config`",
+    "nameLocales": [ ],
+    "descriptionLocales": [
       {
-        "locale" : "de",
-        "description" : "Direkter Wurf eines Würfelausdruckes, z.B. `2d6`. Konfiguration mit `/channel_config`"
+        "locale": "de",
+        "description": "Direkter Wurf eines Würfelausdruckes, z.B. `2d6`. Konfiguration mit `/channel_config`"
       },
       {
-        "locale" : "pt_BR",
-        "description" : "fórmula direta de rolagem de dados, ex.: `2d6`. Configure com `/channel_config`"
+        "locale": "pt_BR",
+        "description": "fórmula direta de rolagem de dados, ex.: `2d6`. Configure com `/channel_config`"
       }
     ],
-    "options" : [
+    "options": [
       {
-        "type" : "STRING",
-        "name" : "expression",
-        "nameLocales" : [
+        "type": "STRING",
+        "name": "expression",
+        "nameLocales": [
           {
-            "locale" : "de",
-            "name" : "ausdruck"
+            "locale": "de",
+            "name": "ausdruck"
           },
           {
-            "locale" : "pt_BR",
-            "name" : "formula"
+            "locale": "pt_BR",
+            "name": "formula"
           }
         ],
-        "description" : "direct roll of dice expression, e.g. `2d6`. Configuration with `/channel_config`",
-        "descriptionLocales" : [
+        "description": "direct roll of dice expression, e.g. `2d6`. Configuration with `/channel_config`",
+        "descriptionLocales": [
           {
-            "locale" : "de",
-            "description" : "Direkter Wurf eines Würfelausdruckes, z.B. `2d6`. Konfiguration mit `/channel_config`"
+            "locale": "de",
+            "description": "Direkter Wurf eines Würfelausdruckes, z.B. `2d6`. Konfiguration mit `/channel_config`"
           },
           {
-            "locale" : "pt_BR",
-            "description" : "fórmula direta de rolagem de dados, ex.: `2d6`. Configure com `/channel_config`"
+            "locale": "pt_BR",
+            "description": "fórmula direta de rolagem de dados, ex.: `2d6`. Configure com `/channel_config`"
           }
         ],
-        "required" : true,
-        "choices" : [ ],
-        "options" : [ ],
-        "autoComplete" : false
+        "required": true,
+        "choices": [ ],
+        "options": [ ],
+        "autoComplete": false
       }
     ]
   }
