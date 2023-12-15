@@ -34,7 +34,6 @@ class QuickstartCommandTest {
     QuickstartCommand underTest;
     private Expect expect;
 
-
     @BeforeEach
     void setup() {
         PersistenceManager persistenceManager = Mockito.mock(PersistenceManager.class);
@@ -133,7 +132,7 @@ class QuickstartCommandTest {
 
     @Test
     void getAutoCompleteAnswer_filterBrazil() {
-        List<AutoCompleteAnswer> res = underTest.getAutoCompleteAnswer(new AutoCompleteRequest("system", "vampire", List.of()), Locale.of("PT","br"));
+        List<AutoCompleteAnswer> res = underTest.getAutoCompleteAnswer(new AutoCompleteRequest("system", "vampire", List.of()), Locale.of("PT", "br"));
         assertThat(res.stream().map(AutoCompleteAnswer::getName)).containsExactly("Vampiro 5ed", "nWod / Crônicas das Trevas", "oWod / Sistema Storyteller");
         assertThat(res.stream().map(AutoCompleteAnswer::getValue)).containsExactly("VAMPIRE_5ED", "NWOD", "OWOD");
     }
@@ -169,6 +168,7 @@ class QuickstartCommandTest {
                 "Savage Worlds",
                 "Shadowrun",
                 "Shadowrun with Dice Images",
+                "The Expanse",
                 "Tiny D6",
                 "Traveller",
                 "Vampire 5ed",
@@ -202,6 +202,7 @@ class QuickstartCommandTest {
                 "SAVAGE_WORLDS",
                 "SHADOWRUN",
                 "SHADOWRUN_IMAGE",
+                "EXPANSE",
                 "TINY_D6",
                 "TRAVELLER",
                 "VAMPIRE_5ED",

@@ -266,6 +266,11 @@ de.janno.discord.bot.command.customDice.CustomDiceCommandTest.getCommandDefiniti
                 "nameLocales" : [ ]
               },
               {
+                "name" : "expanse",
+                "value" : "expanse",
+                "nameLocales" : [ ]
+              },
+              {
                 "name" : "polyhedral_2d",
                 "value" : "polyhedral_2d",
                 "nameLocales" : [ ]

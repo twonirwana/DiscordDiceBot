@@ -22,10 +22,9 @@ public class Expanse implements ImageProvider {
     private static final List<String> SUPPORTED_COLORS = List.of(BELT_DARK, BELT_LIGHT, EARTH_DARK, EARTH_LIGHT, MARS_DARK, MARS_LIGHT, PROTOTGEN_DARK, PROTOTGEN_LIGHT);
     private final Map<String, FileSidesDiceImageMap> color2DiceSideImageMap;
 
-
-    public D6Dotted() {
+    public Expanse() {
         this.color2DiceSideImageMap = SUPPORTED_COLORS.stream()
-                .collect(ImmutableMap.toImmutableMap(Function.identity(), c -> new FileSidesDiceImageMap("d6_" + c, List.of(6))));
+                .collect(ImmutableMap.toImmutableMap(Function.identity(), c -> new FileSidesDiceImageMap("expanse_%s/".formatted(c), List.of(6))));
     }
 
     @Override
