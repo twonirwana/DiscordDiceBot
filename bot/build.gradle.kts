@@ -37,7 +37,7 @@ dependencies {
     testCompileOnly(libs.lombok)
     testAnnotationProcessor(libs.lombok)
 
-    testImplementation("io.github.origin-energy:java-snapshot-testing-junit5:4.0.6")
+    testImplementation("io.github.origin-energy:java-snapshot-testing-junit5:4.0.7")
     testImplementation("io.github.origin-energy:java-snapshot-testing-plugin-jackson:4.0.6")
     testImplementation("io.projectreactor:reactor-test:3.6.1")
     testImplementation("org.junit.jupiter:junit-jupiter-params:5.10.1")
