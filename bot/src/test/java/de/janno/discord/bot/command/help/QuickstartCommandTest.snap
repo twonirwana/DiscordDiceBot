@@ -1,43 +1,43 @@
 de.janno.discord.bot.command.help.QuickstartCommandTest.getCommandDefinition=[
   {
-    "name" : "quickstart",
-    "description" : "Select a preconfigured dice set from a given systems",
-    "nameLocales" : [ ],
-    "descriptionLocales" : [
+    "name": "quickstart",
+    "description": "Select a preconfigured dice set from a given systems",
+    "nameLocales": [ ],
+    "descriptionLocales": [
       {
-        "locale" : "de",
-        "description" : "Wähle eine der fertigen Würfelsystem für ein gegebenes RPG"
+        "locale": "de",
+        "description": "Wähle eine der fertigen Würfelsystem für ein gegebenes RPG"
       },
       {
-        "locale" : "pt_BR",
-        "description" : "Selecione um conjunto de dados pré-configurado de alguns sistemas"
+        "locale": "pt_BR",
+        "description": "Selecione um conjunto de dados pré-configurado de alguns sistemas"
       }
     ],
-    "options" : [
+    "options": [
       {
-        "type" : "STRING",
-        "name" : "system",
-        "nameLocales" : [
+        "type": "STRING",
+        "name": "system",
+        "nameLocales": [
           {
-            "locale" : "pt_BR",
-            "name" : "sistema"
+            "locale": "pt_BR",
+            "name": "sistema"
           }
         ],
-        "description" : "Start typing to filter and see more options",
-        "descriptionLocales" : [
+        "description": "Start typing to filter and see more options",
+        "descriptionLocales": [
           {
-            "locale" : "de",
-            "description" : "Tippe um zu filtern und mehr Optionen zu sehen"
+            "locale": "de",
+            "description": "Tippe um zu filtern und mehr Optionen zu sehen"
           },
           {
-            "locale" : "pt_BR",
-            "description" : "Comece a digitar para filtar e ver mais opções"
+            "locale": "pt_BR",
+            "description": "Comece a digitar para filtar e ver mais opções"
           }
         ],
-        "required" : true,
-        "choices" : [ ],
-        "options" : [ ],
-        "autoComplete" : true
+        "required": true,
+        "choices": [ ],
+        "options": [ ],
+        "autoComplete": true
       }
     ]
   }
