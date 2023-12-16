@@ -24,7 +24,7 @@ public class Expanse implements ImageProvider {
 
     public Expanse() {
         this.color2DiceSideImageMap = SUPPORTED_COLORS.stream()
-                .collect(ImmutableMap.toImmutableMap(Function.identity(), c -> new FileSidesDiceImageMap("expanse_%s/".formatted(c), List.of(6))));
+                .collect(ImmutableMap.toImmutableMap(Function.identity(), c -> new FileSidesDiceImageMap("expanse_%s".formatted(c), List.of(6))));
     }
 
     @Override
