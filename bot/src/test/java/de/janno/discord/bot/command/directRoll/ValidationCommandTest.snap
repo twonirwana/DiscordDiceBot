@@ -1,47 +1,47 @@
 de.janno.discord.bot.command.directRoll.ValidationCommandTest.getCommandDefinition=[
   {
-    "name" : "validation",
-    "description" : "provide an expression (e.g. 2d6) and the autocomplete will show an error message if it is invalid",
-    "nameLocales" : [ ],
-    "descriptionLocales" : [
+    "name": "validation",
+    "description": "provide an expression (e.g. 2d6) and the autocomplete will show an error message if it is invalid",
+    "nameLocales": [ ],
+    "descriptionLocales": [
       {
-        "locale" : "de",
-        "description" : "Gib einen Würfelausdruck (z.B. 2d6) und das Autocomplete gibt direkt Fehlermeldungen"
+        "locale": "de",
+        "description": "Gib einen Würfelausdruck (z.B. 2d6) und das Autocomplete gibt direkt Fehlermeldungen"
       },
       {
-        "locale" : "pt_BR",
-        "description" : "forneça uma fórmula (ex.: 2d6) e o autocompletar vai mostrar uma mensagem de errose ela for inválida"
+        "locale": "pt_BR",
+        "description": "forneça uma fórmula (ex.: 2d6) e o autocompletar vai mostrar uma mensagem de errose ela for inválida"
       }
     ],
-    "options" : [
+    "options": [
       {
-        "type" : "STRING",
-        "name" : "expression",
-        "nameLocales" : [
+        "type": "STRING",
+        "name": "expression",
+        "nameLocales": [
           {
-            "locale" : "de",
-            "name" : "ausdruck"
+            "locale": "de",
+            "name": "ausdruck"
           },
           {
-            "locale" : "pt_BR",
-            "name" : "formula"
+            "locale": "pt_BR",
+            "name": "formula"
           }
         ],
-        "description" : "provide an expression (e.g. 2d6) and the autocomplete will show an error message if it is invalid",
-        "descriptionLocales" : [
+        "description": "provide an expression (e.g. 2d6) and the autocomplete will show an error message if it is invalid",
+        "descriptionLocales": [
           {
-            "locale" : "de",
-            "description" : "Gib einen Würfelausdruck (z.B. 2d6) und das Autocomplete gibt direkt Fehlermeldungen"
+            "locale": "de",
+            "description": "Gib einen Würfelausdruck (z.B. 2d6) und das Autocomplete gibt direkt Fehlermeldungen"
           },
           {
-            "locale" : "pt_BR",
-            "description" : "forneça uma fórmula (ex.: 2d6) e o autocompletar vai mostrar uma mensagem de errose ela for inválida"
+            "locale": "pt_BR",
+            "description": "forneça uma fórmula (ex.: 2d6) e o autocompletar vai mostrar uma mensagem de errose ela for inválida"
           }
         ],
-        "required" : true,
-        "choices" : [ ],
-        "options" : [ ],
-        "autoComplete" : true
+        "required": true,
+        "choices": [ ],
+        "options": [ ],
+        "autoComplete": true
       }
     ]
   }

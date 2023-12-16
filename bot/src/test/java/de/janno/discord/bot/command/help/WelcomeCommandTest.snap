@@ -1,157 +1,157 @@
 de.janno.discord.bot.command.help.WelcomeCommandTest.configSerialization=[
   {
-    "configUUID" : "00000000-0000-0000-0000-000000000000",
-    "guildId" : 1,
-    "channelId" : 2,
-    "commandId" : "welcome",
-    "configClassId" : "Config",
-    "config" : "---\nanswerTargetChannelId: 123\nanswerFormatType: \"full\"\nconfigLocale: \"de\"\ndiceStyleAndColor:\n  diceImageStyle: \"none\"\n  configuredDefaultColor: \"none\"\n"
+    "configUUID": "00000000-0000-0000-0000-000000000000",
+    "guildId": 1,
+    "channelId": 2,
+    "commandId": "welcome",
+    "configClassId": "Config",
+    "config": "---\nanswerTargetChannelId: 123\nanswerFormatType: \"full\"\nconfigLocale: \"de\"\ndiceStyleAndColor:\n  diceImageStyle: \"none\"\n  configuredDefaultColor: \"none\"\n"
   }
 ]
 
 
 de.janno.discord.bot.command.help.WelcomeCommandTest.getCommandDefinition=[
   {
-    "name" : "welcome",
-    "description" : "Displays the welcome message",
-    "nameLocales" : [ ],
-    "descriptionLocales" : [
+    "name": "welcome",
+    "description": "Displays the welcome message",
+    "nameLocales": [ ],
+    "descriptionLocales": [
       {
-        "locale" : "de",
-        "description" : "Erzeuge eine Wegkommensnachricht"
+        "locale": "de",
+        "description": "Erzeuge eine Wegkommensnachricht"
       },
       {
-        "locale" : "pt_BR",
-        "description" : "Exibe a mensagem de boas vindas"
+        "locale": "pt_BR",
+        "description": "Exibe a mensagem de boas vindas"
       }
     ],
-    "options" : [
+    "options": [
       {
-        "type" : "SUB_COMMAND",
-        "name" : "start",
-        "nameLocales" : [
+        "type": "SUB_COMMAND",
+        "name": "start",
+        "nameLocales": [
           {
-            "locale" : "pt_BR",
-            "name" : "iniciar"
+            "locale": "pt_BR",
+            "name": "iniciar"
           }
         ],
-        "description" : "Displays the welcome message",
-        "descriptionLocales" : [
+        "description": "Displays the welcome message",
+        "descriptionLocales": [
           {
-            "locale" : "de",
-            "description" : "Erzeuge eine Wegkommensnachricht"
+            "locale": "de",
+            "description": "Erzeuge eine Wegkommensnachricht"
           },
           {
-            "locale" : "pt_BR",
-            "description" : "Exibe a mensagem de boas vindas"
+            "locale": "pt_BR",
+            "description": "Exibe a mensagem de boas vindas"
           }
         ],
-        "required" : false,
-        "choices" : [ ],
-        "options" : [
+        "required": false,
+        "choices": [ ],
+        "options": [
           {
-            "type" : "STRING",
-            "name" : "language",
-            "nameLocales" : [
+            "type": "STRING",
+            "name": "language",
+            "nameLocales": [
               {
-                "locale" : "de",
-                "name" : "sprache"
+                "locale": "de",
+                "name": "sprache"
               },
               {
-                "locale" : "pt_BR",
-                "name" : "idioma"
+                "locale": "pt_BR",
+                "name": "idioma"
               }
             ],
-            "description" : "The language of the bot messages",
-            "descriptionLocales" : [
+            "description": "The language of the bot messages",
+            "descriptionLocales": [
               {
-                "locale" : "de",
-                "description" : "Die Sprach des Bots"
+                "locale": "de",
+                "description": "Die Sprach des Bots"
               },
               {
-                "locale" : "pt_BR",
-                "description" : "O idioma da mensagem do bot"
+                "locale": "pt_BR",
+                "description": "O idioma da mensagem do bot"
               }
             ],
-            "required" : false,
-            "choices" : [
+            "required": false,
+            "choices": [
               {
-                "name" : "English",
-                "value" : "en",
-                "nameLocales" : [
+                "name": "English",
+                "value": "en",
+                "nameLocales": [
                   {
-                    "locale" : "de",
-                    "choice" : "Englisch"
+                    "locale": "de",
+                    "choice": "Englisch"
                   },
                   {
-                    "locale" : "pt_BR",
-                    "choice" : "Inglês"
+                    "locale": "pt_BR",
+                    "choice": "Inglês"
                   }
                 ]
               },
               {
-                "name" : "German",
-                "value" : "de",
-                "nameLocales" : [
+                "name": "German",
+                "value": "de",
+                "nameLocales": [
                   {
-                    "locale" : "de",
-                    "choice" : "Deutsch"
+                    "locale": "de",
+                    "choice": "Deutsch"
                   },
                   {
-                    "locale" : "pt_BR",
-                    "choice" : "Alemão"
+                    "locale": "pt_BR",
+                    "choice": "Alemão"
                   }
                 ]
               },
               {
-                "name" : "Portuguese (Brazil)",
-                "value" : "pt_BR",
-                "nameLocales" : [
+                "name": "Portuguese (Brazil)",
+                "value": "pt_BR",
+                "nameLocales": [
                   {
-                    "locale" : "de",
-                    "choice" : "Brasilianisches Portugiesisch"
+                    "locale": "de",
+                    "choice": "Brasilianisches Portugiesisch"
                   },
                   {
-                    "locale" : "pt_BR",
-                    "choice" : "Português Brasileiro"
+                    "locale": "pt_BR",
+                    "choice": "Português Brasileiro"
                   }
                 ]
               }
             ],
-            "options" : [ ],
-            "autoComplete" : false
+            "options": [ ],
+            "autoComplete": false
           }
         ],
-        "autoComplete" : false
+        "autoComplete": false
       },
       {
-        "type" : "SUB_COMMAND",
-        "name" : "help",
-        "nameLocales" : [
+        "type": "SUB_COMMAND",
+        "name": "help",
+        "nameLocales": [
           {
-            "locale" : "de",
-            "name" : "hilfe"
+            "locale": "de",
+            "name": "hilfe"
           },
           {
-            "locale" : "pt_BR",
-            "name" : "ajuda"
+            "locale": "pt_BR",
+            "name": "ajuda"
           }
         ],
-        "description" : "Get help for /welcome",
-        "descriptionLocales" : [
+        "description": "Get help for /welcome",
+        "descriptionLocales": [
           {
-            "locale" : "de",
-            "description" : "Hilfe für /welcome"
+            "locale": "de",
+            "description": "Hilfe für /welcome"
           },
           {
-            "locale" : "pt_BR",
-            "description" : "Consiga ajuda para /welcome"
+            "locale": "pt_BR",
+            "description": "Consiga ajuda para /welcome"
           }
         ],
-        "required" : false,
-        "choices" : [ ],
-        "options" : [ ],
-        "autoComplete" : false
+        "required": false,
+        "choices": [ ],
+        "options": [ ],
+        "autoComplete": false
       }
     ]
   }
