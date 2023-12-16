@@ -209,8 +209,12 @@ public class RpgSystemCommandPreset {
             //val('$mod',{Modifier:-1<=>1})
             //val('$total',('$roll'+'$mod')=) if('$total'>=?10, 'Hit', '$total'<=?6, 'Miss', 'Mitigated Hit') answer_format: without_expression dice_image_style: polyhedral_alies_v2 dice_image_color: blue_and_gold
             case BLUEBEARD_BRIDE -> startPreset(
-                    new CustomParameterConfig(null, I18n.getMessage("rpg.system.command.preset.BLUEBEARD_BRIDE.expression", userLocale), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.without_expression, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v2, "blue_and_gold"), userLocale)
-                    , customParameterCommand, newConfigUUID, guildId, channelId);
+                    new CustomParameterConfig(null, I18n.getMessage("rpg.system.command.preset.BLUEBEARD_BRIDE.expression", userLocale), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.without_expression, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v2, "blue_and_gold"), userLocale),
+                    customParameterCommand, newConfigUUID, guildId, channelId);
+            case EXPANSE -> startPreset(
+                    new CustomDiceConfig(null, string2ButtonIdLabelAndDiceExpression(I18n.getMessage("rpg.system.command.preset.EXPANSE.expression", userLocale)),
+                            DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.only_dice, null, new DiceStyleAndColor(DiceImageStyle.expanse, "mars_light"), userLocale),
+                    customDiceCommand, newConfigUUID, guildId, channelId);
         };
     }
 
@@ -254,7 +258,8 @@ public class RpgSystemCommandPreset {
         PUBLIC_ACCESS,
         CANDELA_OBSCURA,
         PROWLERS_PARAGONS,
-        BLUEBEARD_BRIDE;
+        BLUEBEARD_BRIDE,
+        EXPANSE;
 
         public String getName(Locale locale) {
             return I18n.getMessage("rpg.system.command.preset.%s.name".formatted(name()), locale);

@@ -316,6 +316,11 @@ de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandTest.getCommandDefi
                 "nameLocales": [ ]
               },
               {
+                "name": "expanse",
+                "value": "expanse",
+                "nameLocales": [ ]
+              },
+              {
                 "name": "polyhedral_2d",
                 "value": "polyhedral_2d",
                 "nameLocales": [ ]

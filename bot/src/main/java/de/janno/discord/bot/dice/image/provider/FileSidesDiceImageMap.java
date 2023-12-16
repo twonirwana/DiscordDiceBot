@@ -2,6 +2,7 @@ package de.janno.discord.bot.dice.image.provider;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Resources;
+import lombok.Getter;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -11,8 +12,12 @@ import java.util.Map;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+@Getter
 public class FileSidesDiceImageMap {
 
+    /*
+     first key is the total number sides of the die and the second key is the selected side of the die
+     */
     private final Map<Integer, Map<Integer, BufferedImage>> diceImageMap;
 
     public FileSidesDiceImageMap(String folder, List<Integer> sides) {
@@ -33,10 +38,6 @@ public class FileSidesDiceImageMap {
                                 }
                             }));
                 }));
-    }
-
-    public Map<Integer, Map<Integer, BufferedImage>> getDiceImageMap() {
-        return diceImageMap;
     }
 
 }

@@ -22,6 +22,7 @@ public enum DiceImageStyle {
             "special", List.of(8, 12)))),
     fate(new FateBasic()),
     d6_dots(new D6Dotted()),
+    expanse(new Expanse()),
     polyhedral_2d(new PolyhedralSvgWithColor()),
     polyhedral_alies_v1(new PolyhedralFileImageProvider("polyhedral_alies_v1", List.of("black_and_gold"), "black_and_gold"));
 

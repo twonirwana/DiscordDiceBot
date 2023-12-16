@@ -121,16 +121,16 @@ public class ImageResultCreator {
             return null;
         }
         if (rolls.size() != 1 ||
-                rolls.get(0).getRandomElementsInRoll().getRandomElements().isEmpty() ||
-                rolls.get(0).getRandomElementsInRoll().getRandomElements().stream().mapToInt(r -> r.getRandomElements().size()).sum() > 30 ||
-                rolls.get(0).getRandomElementsInRoll().getRandomElements().stream()
+                rolls.getFirst().getRandomElementsInRoll().getRandomElements().isEmpty() ||
+                rolls.getFirst().getRandomElementsInRoll().getRandomElements().stream().mapToInt(r -> r.getRandomElements().size()).sum() > 30 ||
+                rolls.getFirst().getRandomElementsInRoll().getRandomElements().stream()
                         .flatMap(r -> r.getRandomElements().stream())
                         .anyMatch(r -> diceStyleAndColor.getImageFor(r.getMaxInc(), r.getRollElement().asInteger().orElse(null), r.getRollElement().getColor()).isEmpty())
         ) {
             return null;
         }
 
-        String name = createRollCacheName(rolls.get(0), diceStyleAndColor);
+        String name = createRollCacheName(rolls.getFirst(), diceStyleAndColor);
         String hashName = Hashing.sha256()
                 .hashString(name, StandardCharsets.UTF_8)
                 .toString();
@@ -139,7 +139,7 @@ public class ImageResultCreator {
         File imageFile = new File(filePath);
         if (!imageFile.exists()) {
             BotMetrics.incrementImageResultMetricCounter(BotMetrics.CacheTag.CACHE_MISS);
-            return createNewFileForRoll(rolls.get(0), imageFile, name, diceStyleAndColor);
+            return createNewFileForRoll(rolls.getFirst(), imageFile, name, diceStyleAndColor);
         } else {
             log.trace("Use cached file %s for %s".formatted(filePath, name));
             BotMetrics.incrementImageResultMetricCounter(BotMetrics.CacheTag.CACHE_HIT);
@@ -171,7 +171,7 @@ public class ImageResultCreator {
             builder.addAll(images.get(i));
             builder.add(separator);
         }
-        builder.addAll(images.get(images.size() - 1));
+        builder.addAll(images.getLast());
 
         final List<BufferedImage> imagesWithSeparators = builder.build();
 
