@@ -51,7 +51,7 @@ public class HiddenRollCommandMockTest {
 
         List<EmbedOrMessageDefinition> replyMessages = hiddenRollCommandEvent.getAllReplays();
         assertThat(replyMessages).hasSize(1);
-        EmbedOrMessageDefinition replayMessage = replyMessages.get(0);
+        EmbedOrMessageDefinition replayMessage = replyMessages.getFirst();
 
         ButtonEventAdaptorMock buttonEvent = new ButtonEventAdaptorMock("h", "reveal", replayMessage);
         underTest.handleComponentInteractEvent(buttonEvent).block();
@@ -81,7 +81,7 @@ public class HiddenRollCommandMockTest {
 
         List<EmbedOrMessageDefinition> replyMessages = hiddenRollCommandEvent.getAllReplays();
         assertThat(replyMessages).hasSize(1);
-        EmbedOrMessageDefinition replayMessage = replyMessages.get(0);
+        EmbedOrMessageDefinition replayMessage = replyMessages.getFirst();
 
         ButtonEventAdaptorMock buttonEvent = new ButtonEventAdaptorMock("h", "reveal", replayMessage);
         underTest.handleComponentInteractEvent(buttonEvent).block();
@@ -145,7 +145,7 @@ public class HiddenRollCommandMockTest {
 
         List<EmbedOrMessageDefinition> replyMessages = hiddenRollCommandEvent.getAllReplays();
         assertThat(replyMessages).hasSize(1);
-        EmbedOrMessageDefinition replayMessage = replyMessages.get(0);
+        EmbedOrMessageDefinition replayMessage = replyMessages.getFirst();
 
         ButtonEventAdaptorMock buttonEvent = new ButtonEventAdaptorMock("h", "reveal", replayMessage);
         underTest.handleComponentInteractEvent(buttonEvent).block();
@@ -194,7 +194,7 @@ public class HiddenRollCommandMockTest {
 
         List<EmbedOrMessageDefinition> replyMessages = hiddenRollCommandEvent.getAllReplays();
         assertThat(replyMessages).hasSize(1);
-        EmbedOrMessageDefinition replayMessage = replyMessages.get(0);
+        EmbedOrMessageDefinition replayMessage = replyMessages.getFirst();
 
         ButtonEventAdaptorMock buttonEvent = new ButtonEventAdaptorMock("h", "reveal", replayMessage);
         underTest.handleComponentInteractEvent(buttonEvent).block();
@@ -244,7 +244,7 @@ public class HiddenRollCommandMockTest {
 
         List<EmbedOrMessageDefinition> replyMessages = hiddenRollCommandEvent.getAllReplays();
         assertThat(replyMessages).hasSize(1);
-        EmbedOrMessageDefinition replayMessage = replyMessages.get(0);
+        EmbedOrMessageDefinition replayMessage = replyMessages.getFirst();
 
         ButtonEventAdaptorMock buttonEvent = new ButtonEventAdaptorMock("h", "reveal", replayMessage);
         underTest.handleComponentInteractEvent(buttonEvent).block();
@@ -292,7 +292,7 @@ public class HiddenRollCommandMockTest {
 
         List<EmbedOrMessageDefinition> replyMessages = hiddenRollCommandEvent.getAllReplays();
         assertThat(replyMessages).hasSize(1);
-        EmbedOrMessageDefinition replayMessage = replyMessages.get(0);
+        EmbedOrMessageDefinition replayMessage = replyMessages.getFirst();
 
         ButtonEventAdaptorMock buttonEvent = new ButtonEventAdaptorMock("h", "reveal", replayMessage);
         underTest.handleComponentInteractEvent(buttonEvent).block();
@@ -341,7 +341,7 @@ public class HiddenRollCommandMockTest {
 
         List<EmbedOrMessageDefinition> replyMessages = hiddenRollCommandEvent.getAllReplays();
         assertThat(replyMessages).hasSize(1);
-        EmbedOrMessageDefinition replayMessage = replyMessages.get(0);
+        EmbedOrMessageDefinition replayMessage = replyMessages.getFirst();
 
         ButtonEventAdaptorMock buttonEvent = new ButtonEventAdaptorMock("h", "reveal", replayMessage);
         underTest.handleComponentInteractEvent(buttonEvent).block();
@@ -390,7 +390,7 @@ public class HiddenRollCommandMockTest {
 
         List<EmbedOrMessageDefinition> replyMessages = hiddenRollCommandEvent.getAllReplays();
         assertThat(replyMessages).hasSize(1);
-        EmbedOrMessageDefinition replayMessage = replyMessages.get(0);
+        EmbedOrMessageDefinition replayMessage = replyMessages.getFirst();
 
         ButtonEventAdaptorMock buttonEvent = new ButtonEventAdaptorMock("h", "reveal", replayMessage);
         underTest.handleComponentInteractEvent(buttonEvent).block();
@@ -431,7 +431,7 @@ public class HiddenRollCommandMockTest {
 
         List<EmbedOrMessageDefinition> replyMessages = hiddenRollCommandEvent.getAllReplays();
         assertThat(replyMessages).hasSize(1);
-        EmbedOrMessageDefinition replayMessage = replyMessages.get(0);
+        EmbedOrMessageDefinition replayMessage = replyMessages.getFirst();
 
         ButtonEventAdaptorMock buttonEvent = new ButtonEventAdaptorMock("h", "reveal", replayMessage);
         underTest.handleComponentInteractEvent(buttonEvent).block();
@@ -472,7 +472,7 @@ public class HiddenRollCommandMockTest {
 
         List<EmbedOrMessageDefinition> replyMessages = hiddenRollCommandEvent.getAllReplays();
         assertThat(replyMessages).hasSize(1);
-        EmbedOrMessageDefinition replayMessage = replyMessages.get(0);
+        EmbedOrMessageDefinition replayMessage = replyMessages.getFirst();
 
         ButtonEventAdaptorMock buttonEvent = new ButtonEventAdaptorMock("h", "reveal", replayMessage);
         underTest.handleComponentInteractEvent(buttonEvent).block();

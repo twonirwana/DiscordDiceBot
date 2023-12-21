@@ -49,8 +49,14 @@ public class ValidationCommand extends DirectRollCommand {
         BotMetrics.incrementValidationCounter(validation.isEmpty());
         return validation
                 .map(s -> List.of(new AutoCompleteAnswer(s, option.getFocusedOptionValue())))
-                //todo sometimes to long
-                .orElse(List.of(new AutoCompleteAnswer(option.getFocusedOptionValue(), option.getFocusedOptionValue())));
+                .orElse(List.of(getValidAutoCompleteMessage(option.getFocusedOptionValue(), userLocale)));
+    }
+
+    private AutoCompleteAnswer getValidAutoCompleteMessage(@NonNull String typedExpression, @NonNull Locale userLocale){
+        if(typedExpression.length() <= 100){
+            return new AutoCompleteAnswer(typedExpression, typedExpression);
+        }
+        return new AutoCompleteAnswer(I18n.getMessage("validation.autoComplete.tooLong", userLocale), I18n.getMessage("validation.autoComplete.tooLong", userLocale));
     }
 
     @Override

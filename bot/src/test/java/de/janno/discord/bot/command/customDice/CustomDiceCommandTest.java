@@ -237,7 +237,7 @@ class CustomDiceCommandTest {
         StepVerifier.create(res).verifyComplete();
 
 
-        verify(event).checkPermissions();
+        verify(event).checkPermissions(Locale.ENGLISH);
         verify(event).getCommandString();
         verify(event).getOption(any());
         verify(event).reply(any(), anyBoolean());
@@ -306,7 +306,7 @@ class CustomDiceCommandTest {
         assertThat(res).isNotNull();
 
 
-        verify(event).checkPermissions();
+        verify(event).checkPermissions(Locale.ENGLISH);
         verify(event).getCommandString();
         verify(event, times(2)).getOption(any());
         verify(event).replyWithEmbedOrMessageDefinition(EmbedOrMessageDefinition.builder()

@@ -94,7 +94,7 @@ public class DirectRollCommand implements SlashCommand {
     public @NonNull Mono<Void> handleSlashCommandEvent(@NonNull SlashEventAdaptor event, @NonNull Supplier<UUID> uuidSupplier, @NonNull Locale userLocale) {
         Stopwatch stopwatch = Stopwatch.createStarted();
 
-        Optional<String> checkPermissions = event.checkPermissions();
+        Optional<String> checkPermissions = event.checkPermissions(userLocale);
         if (checkPermissions.isPresent()) {
             return event.reply(checkPermissions.get(), false);
         }

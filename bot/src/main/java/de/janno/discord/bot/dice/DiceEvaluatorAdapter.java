@@ -16,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.InputStream;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -53,14 +54,14 @@ public class DiceEvaluatorAdapter {
     }
 
     private static String getResult(Roll roll, boolean sumUp) {
-        if (sumUp && allElementsAreIntegers(roll) && allElementsHaveNoColor(roll)) {
-            return String.valueOf(roll.getElements().stream().flatMap(r -> r.asInteger().stream()).mapToInt(i -> i).sum());
+        if (sumUp && allElementsAreDecimal(roll) && allElementsHaveNoColor(roll)) {
+            return String.valueOf(roll.getElements().stream().flatMap(r -> r.asDecimal().stream()).reduce(BigDecimal::add).orElseThrow());
         }
         return roll.getResultString();
     }
 
-    private static boolean allElementsAreIntegers(Roll roll) {
-        return roll.getElements().stream().allMatch(r -> r.asInteger().isPresent());
+    private static boolean allElementsAreDecimal(Roll roll) {
+        return roll.getElements().stream().allMatch(r -> r.asDecimal().isPresent());
     }
 
     private static boolean allElementsHaveNoColor(Roll roll) {

@@ -82,7 +82,7 @@ class ValidationCommandTest {
         StepVerifier.create(res)
                 .verifyComplete();
 
-        verify(slashEventAdaptor).checkPermissions();
+        verify(slashEventAdaptor).checkPermissions(Locale.ENGLISH);
         verify(slashEventAdaptor).reply("/validation expression:1d6", true);
         verify(slashEventAdaptor, never()).acknowledgeAndRemoveSlash();
         verify(slashEventAdaptor).getOption("expression");
@@ -112,7 +112,7 @@ class ValidationCommandTest {
 
         assertThat(res).isNotNull();
 
-        verify(slashEventAdaptor).checkPermissions();
+        verify(slashEventAdaptor).checkPermissions(Locale.ENGLISH);
         verify(slashEventAdaptor).getOption("expression");
         verify(slashEventAdaptor, times(1)).getCommandString();
         verify(slashEventAdaptor, never()).createMessageWithoutReference(any());
@@ -146,7 +146,7 @@ class ValidationCommandTest {
 
         assertThat(res).isNotNull();
 
-        verify(slashEventAdaptor).checkPermissions();
+        verify(slashEventAdaptor).checkPermissions(Locale.ENGLISH);
         verify(slashEventAdaptor).getOption("expression");
         verify(slashEventAdaptor, times(1)).getCommandString();
         verify(slashEventAdaptor, never()).createMessageWithoutReference(any());

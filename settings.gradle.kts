@@ -18,6 +18,7 @@ dependencyResolutionManagement {
             library("logback-classic", "ch.qos.logback:logback-classic:1.4.14")
             library("log4j-to-slf4j", "org.apache.logging.log4j:log4j-to-slf4j:2.22.0")
             library("commons-lang3", "org.apache.commons:commons-lang3:3.14.0")
+            library("commons-text", "org.apache.commons:commons-text:1.11.0")
         }
     }
 }

@@ -52,7 +52,7 @@ public class SlashEventAdaptorMock implements SlashEventAdaptor {
     }
 
     @Override
-    public Optional<String> checkPermissions() {
+    public Optional<String> checkPermissions(@NonNull Locale userLocal) {
         return Optional.empty();
     }
 
