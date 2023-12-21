@@ -132,7 +132,7 @@ public class ButtonEventAdaptorMock implements ButtonEventAdaptor {
     }
 
     @Override
-    public Optional<String> checkPermissions(Long answerTargetChannelId) {
+    public Optional<String> checkPermissions(Long answerTargetChannelId, @NonNull Locale userLocale) {
         return Optional.empty();
     }
 

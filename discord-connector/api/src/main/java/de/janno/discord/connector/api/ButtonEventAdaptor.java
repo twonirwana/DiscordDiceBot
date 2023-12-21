@@ -10,6 +10,7 @@ import javax.annotation.Nullable;
 import java.time.OffsetDateTime;
 import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 public interface ButtonEventAdaptor extends DiscordAdapter {
@@ -30,7 +31,7 @@ public interface ButtonEventAdaptor extends DiscordAdapter {
 
     Requester getRequester();
 
-    Optional<String> checkPermissions(Long answerTargetChannelId);
+    Optional<String> checkPermissions(Long answerTargetChannelId, @NonNull Locale userLocale);
 
     Mono<Void> createResultMessageWithReference(EmbedOrMessageDefinition answer, Long targetChannelId);
 

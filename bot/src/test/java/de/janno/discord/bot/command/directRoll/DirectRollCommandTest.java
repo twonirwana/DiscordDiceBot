@@ -62,7 +62,7 @@ class DirectRollCommandTest {
         StepVerifier.create(res)
                 .verifyComplete();
 
-        verify(slashEventAdaptor).checkPermissions();
+        verify(slashEventAdaptor).checkPermissions(Locale.ENGLISH);
         verify(slashEventAdaptor, never()).reply(any(), anyBoolean());
         verify(slashEventAdaptor).acknowledgeAndRemoveSlash();
         verify(slashEventAdaptor).getOption("expression");
@@ -92,7 +92,7 @@ class DirectRollCommandTest {
 
         assertThat(res).isNotNull();
 
-        verify(slashEventAdaptor).checkPermissions();
+        verify(slashEventAdaptor).checkPermissions(Locale.ENGLISH);
         verify(slashEventAdaptor).getOption("expression");
         verify(slashEventAdaptor, times(1)).getCommandString();
         verify(slashEventAdaptor, never()).createMessageWithoutReference(any());
@@ -126,7 +126,7 @@ class DirectRollCommandTest {
 
         assertThat(res).isNotNull();
 
-        verify(slashEventAdaptor).checkPermissions();
+        verify(slashEventAdaptor).checkPermissions(Locale.ENGLISH);
         verify(slashEventAdaptor).getOption("expression");
         verify(slashEventAdaptor, times(1)).getCommandString();
         verify(slashEventAdaptor, never()).createMessageWithoutReference(any());

@@ -11,6 +11,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.channel.concrete.ThreadChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -31,6 +32,7 @@ import java.awt.*;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -184,18 +186,42 @@ public abstract class DiscordAdapterImpl implements DiscordAdapter {
      * @param allowLegacyPermission if this is set to true only the old set of permissions is checked, so old button messages work as created. Should be removed in the future.
      * @return Optional message with the missing permissions
      */
-    protected Optional<String> checkPermission(@NonNull MessageChannel messageChannel, @Nullable Guild guild, boolean allowLegacyPermission) {
+    protected Optional<String> checkPermission(@NonNull MessageChannel messageChannel, @Nullable Guild guild, boolean allowLegacyPermission, Locale userLocale) {
         List<String> checks = new ArrayList<>();
-        if (!messageChannel.canTalk()) {
-            checks.add("'SEND_MESSAGES'");
+        boolean missingViewChannelPermission = Optional.of(messageChannel)
+                .filter(m -> m instanceof GuildMessageChannel)
+                .map(m -> (GuildMessageChannel) m)
+                .flatMap(g -> Optional.ofNullable(guild).map(Guild::getSelfMember).map(m -> !m.hasPermission(g, Permission.VIEW_CHANNEL)))
+                .orElse(true);
+        if (missingViewChannelPermission) {
+            checks.add(I18n.getMessage("permission.VIEW_CHANNEL", userLocale));
         }
+        boolean missingSendPermission = Optional.of(messageChannel)
+                .filter(m -> m instanceof GuildMessageChannel)
+                .map(m -> (GuildMessageChannel) m)
+                .flatMap(g -> Optional.ofNullable(guild).map(Guild::getSelfMember).map(m -> !m.hasPermission(g, Permission.MESSAGE_SEND)))
+                .orElse(true);
+        if (missingSendPermission) {
+            checks.add(I18n.getMessage("permission.MESSAGE_SEND", userLocale));
+        }
+
+        if (messageChannel instanceof ThreadChannel) {
+            boolean missingThreadSendPermission = Optional.of(messageChannel)
+                    .map(m -> (ThreadChannel) m)
+                    .flatMap(g -> Optional.ofNullable(guild).map(Guild::getSelfMember).map(m -> !m.hasPermission(g, Permission.MESSAGE_SEND_IN_THREADS)))
+                    .orElse(true);
+            if (missingThreadSendPermission) {
+                checks.add(I18n.getMessage("permission.MESSAGE_SEND_IN_THREADS", userLocale));
+            }
+        }
+
         boolean missingEmbedPermission = Optional.of(messageChannel)
                 .filter(m -> m instanceof GuildMessageChannel)
                 .map(m -> (GuildMessageChannel) m)
                 .flatMap(g -> Optional.ofNullable(guild).map(Guild::getSelfMember).map(m -> !m.hasPermission(g, Permission.MESSAGE_EMBED_LINKS)))
                 .orElse(true);
         if (missingEmbedPermission) {
-            checks.add("'EMBED_LINKS'");
+            checks.add(I18n.getMessage("permission.EMBED_LINKS", userLocale));
         }
 
         if (!allowLegacyPermission) {
@@ -205,7 +231,7 @@ public abstract class DiscordAdapterImpl implements DiscordAdapter {
                     .flatMap(g -> Optional.ofNullable(guild).map(Guild::getSelfMember).map(m -> !m.hasPermission(g, Permission.MESSAGE_HISTORY)))
                     .orElse(true);
             if (missingMessageHistoryPermission) {
-                checks.add("'MESSAGE_HISTORY'");
+                checks.add(I18n.getMessage("permission.MESSAGE_HISTORY", userLocale));
             }
             boolean missingAddFilePermission = Optional.of(messageChannel)
                     .filter(m -> m instanceof GuildMessageChannel)
@@ -213,16 +239,17 @@ public abstract class DiscordAdapterImpl implements DiscordAdapter {
                     .flatMap(g -> Optional.ofNullable(guild).map(Guild::getSelfMember).map(m -> !m.hasPermission(g, Permission.MESSAGE_ATTACH_FILES)))
                     .orElse(true);
             if (missingAddFilePermission) {
-                checks.add("'ATTACH_FILES'");
+                checks.add(I18n.getMessage("permission.ATTACH_FILES", userLocale));
             }
         }
         if (checks.isEmpty()) {
             return Optional.empty();
         }
-        String result = String.format("'%s'.'%s': The bot is missing the permission: %s. It will not work correctly without it. Please check the guild and channel permissions for the bot",
+        String result = String.format("'%s'.'%s': %s",
                 Optional.ofNullable(guild).map(Guild::getName).orElse("-"),
                 messageChannel.getName(),
-                String.join(" and ", checks));
+                I18n.getMessage("permission.missing", userLocale, String.join(", ", checks))
+        );
         log.info(result);
         return Optional.of(result);
     }

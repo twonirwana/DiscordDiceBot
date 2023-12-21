@@ -16,6 +16,7 @@ import org.apache.commons.lang3.StringUtils;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -46,8 +47,8 @@ public class SlashEventAdapterImpl extends DiscordAdapterImpl implements SlashEv
     }
 
     @Override
-    public Optional<String> checkPermissions() {
-        return checkPermission(event.getMessageChannel(), event.getGuild(), false);
+    public Optional<String> checkPermissions(@NonNull Locale userLocale) {
+        return checkPermission(event.getMessageChannel(), event.getGuild(), false, userLocale);
     }
 
     @Override

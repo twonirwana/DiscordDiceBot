@@ -228,7 +228,7 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
             state = configAndState.getState();
         }
         final Long answerTargetChannelId = config.getAnswerTargetChannelId();
-        Optional<String> checkPermissions = event.checkPermissions(answerTargetChannelId);
+        Optional<String> checkPermissions = event.checkPermissions(answerTargetChannelId, event.getRequester().getUserLocal());
         if (checkPermissions.isPresent()) {
             return event.editMessage(checkPermissions.get(), null);
         }
@@ -360,7 +360,7 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
 
     @Override
     public @NonNull Mono<Void> handleSlashCommandEvent(@NonNull SlashEventAdaptor event, @NonNull Supplier<UUID> uuidSupplier, @NonNull Locale userLocale) {
-        Optional<String> checkPermissions = event.checkPermissions();
+        Optional<String> checkPermissions = event.checkPermissions(userLocale);
         if (checkPermissions.isPresent()) {
             return event.reply(checkPermissions.get(), false);
         }

@@ -16,6 +16,7 @@ dependencies {
     implementation(libs.guava)
     implementation(libs.commons.lang3)
     implementation(libs.micrometer.core)
+    implementation(libs.commons.text)
 
     compileOnly(libs.lombok)
     annotationProcessor(libs.lombok)

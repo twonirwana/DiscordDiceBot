@@ -218,7 +218,7 @@ public class JdaClient {
 
         SlashCommandRegistry.builder()
                 .addSlashCommands(commands)
-                .registerSlashCommands(shardManager.getShards().get(0), disableCommandUpdate);
+                .registerSlashCommands(shardManager.getShards().getFirst(), disableCommandUpdate);
     }
 
 

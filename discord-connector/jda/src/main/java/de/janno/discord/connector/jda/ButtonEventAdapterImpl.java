@@ -25,10 +25,7 @@ import reactor.core.publisher.ParallelFlux;
 
 import java.io.InputStream;
 import java.time.OffsetDateTime;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Supplier;
 
@@ -140,17 +137,17 @@ public class ButtonEventAdapterImpl extends DiscordAdapterImpl implements Button
     }
 
     @Override
-    public Optional<String> checkPermissions(Long answerTargetChannelId) {
-        Optional<String> primaryChannelPermissionCheck = checkPermission(event.getMessageChannel(), event.getGuild(), true);
+    public Optional<String> checkPermissions(Long answerTargetChannelId, @NonNull Locale userLocale) {
+        Optional<String> primaryChannelPermissionCheck = checkPermission(event.getMessageChannel(), event.getGuild(), true, userLocale);
         if (primaryChannelPermissionCheck.isPresent()) {
             return primaryChannelPermissionCheck;
         }
         if (answerTargetChannelId != null) {
             Optional<MessageChannel> answerChannel = Optional.ofNullable(event.getGuild()).map(g -> g.getChannelById(MessageChannel.class, answerTargetChannelId));
             if (answerChannel.isEmpty()) {
-                return Optional.of("Configured answer target channel is not a valid message channel");
+                return Optional.of(I18n.getMessage("permission.check.target.invalid", userLocale));
             }
-            return checkPermission(answerChannel.get(), event.getGuild(), true);
+            return checkPermission(answerChannel.get(), event.getGuild(), true, userLocale);
         }
         return Optional.empty();
     }
@@ -246,7 +243,7 @@ public class ButtonEventAdapterImpl extends DiscordAdapterImpl implements Button
             title = null;
         } else {
             type = EmbedOrMessageDefinition.Type.EMBED;
-            MessageEmbed embed = message.getEmbeds().get(0);
+            MessageEmbed embed = message.getEmbeds().getFirst();
             descriptionOrContent = embed.getDescription();
             title = embed.getTitle();
             if (embed.getImage() == null) {

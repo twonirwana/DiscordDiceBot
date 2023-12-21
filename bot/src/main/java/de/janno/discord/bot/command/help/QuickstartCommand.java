@@ -117,7 +117,7 @@ public class QuickstartCommand implements SlashCommand {
     public @NonNull Mono<Void> handleSlashCommandEvent(@NonNull SlashEventAdaptor event, @NonNull Supplier<UUID> uuidSupplier, @NonNull Locale userLocal) {
         Stopwatch stopwatch = Stopwatch.createStarted();
 
-        Optional<String> checkPermissions = event.checkPermissions();
+        Optional<String> checkPermissions = event.checkPermissions(userLocal);
         if (checkPermissions.isPresent()) {
             return event.reply(checkPermissions.get(), false);
         }

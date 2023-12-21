@@ -6,10 +6,11 @@ import lombok.NonNull;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 public interface SlashEventAdaptor extends DiscordAdapter {
-    Optional<String> checkPermissions();
+    Optional<String> checkPermissions(@NonNull Locale userLocale);
 
     Optional<CommandInteractionOption> getOption(@NonNull String optionName);
 
