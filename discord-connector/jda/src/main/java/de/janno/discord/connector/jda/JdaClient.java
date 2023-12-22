@@ -1,5 +1,6 @@
 package de.janno.discord.connector.jda;
 
+import com.google.common.base.Strings;
 import de.janno.discord.connector.api.*;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
 import lombok.NonNull;
@@ -26,7 +27,6 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
-import javax.security.auth.login.LoginException;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -39,11 +39,19 @@ public class JdaClient {
 
     public static final Duration START_UP_BUFFER = Duration.of(5, ChronoUnit.MINUTES);
 
-    public void start(String token,
-                      boolean disableCommandUpdate,
-                      List<SlashCommand> commands,
-                      Function<DiscordConnector.WelcomeRequest, EmbedOrMessageDefinition> welcomeMessageDefinition,
-                      Set<Long> allGuildIdsInPersistence) throws LoginException {
+    private final static Set<Integer> allActiveShardIds = new ConcurrentSkipListSet<>();
+    private final String newsGuildId;
+    private final String newsChannelId;
+
+    public JdaClient(@NonNull String token,
+                     boolean disableCommandUpdate,
+                     @NonNull List<SlashCommand> commands,
+                     @NonNull Function<DiscordConnector.WelcomeRequest, EmbedOrMessageDefinition> welcomeMessageDefinition,
+                     @NonNull Set<Long> allGuildIdsInPersistence,
+                     String newsGuildId,
+                     String newsChannelId) {
+        this.newsGuildId = newsGuildId;
+        this.newsChannelId = newsChannelId;
         LocalDateTime startTimePlusBuffer = LocalDateTime.now().plus(START_UP_BUFFER);
         Scheduler scheduler = Schedulers.boundedElastic();
         Set<Long> botInGuildIdSet = new ConcurrentSkipListSet<>();
@@ -58,6 +66,7 @@ public class JdaClient {
         JdaMetrics.registerHttpClient(okHttpClient);
         DefaultShardManagerBuilder shardManagerBuilder = DefaultShardManagerBuilder.createLight(token, Collections.emptyList())
                 .setHttpClient(okHttpClient)
+                .setEnableShutdownHook(false)
                 .addEventListeners(
                         new ListenerAdapter() {
                             @Override
@@ -113,6 +122,13 @@ public class JdaClient {
                                         .filter(id -> !botInGuildIdSet.contains(id))
                                         .count();
                                 log.info("Inactive guild count with config: {}", inactiveGuildIdCountWithConfig);
+                                int shardId = event.getJDA().getShardInfo().getShardId();
+                                allActiveShardIds.add(shardId);
+                                int totalNumberOfShards = event.getJDA().getShardInfo().getShardTotal();
+                                if (allActiveShardIds.size() == totalNumberOfShards) {
+                                    log.info("all shards ready");
+                                    sendMessageInNewsChannel(event.getJDA(), "Bot started and is ready");
+                                }
                             }
 
                             @Override
@@ -208,6 +224,7 @@ public class JdaClient {
 
                 Runtime.getRuntime().addShutdownHook(new Thread(() -> {
                     log.info("start jda %s shutdown".formatted(jda.getShardInfo().getShardString()));
+                    sendMessageInNewsChannel(jda, "Bot shutdown started");
                     shutdown(jda);
                     log.info("finished jda %s shutdown".formatted(jda.getShardInfo().getShardString()));
                 }));
@@ -219,6 +236,23 @@ public class JdaClient {
         SlashCommandRegistry.builder()
                 .addSlashCommands(commands)
                 .registerSlashCommands(shardManager.getShards().getFirst(), disableCommandUpdate);
+    }
+
+    private void sendMessageInNewsChannel(JDA jda, String message) {
+        if (Strings.isNullOrEmpty(newsGuildId)) {
+            log.warn("No GuildId for start and shutdown messages");
+        }
+        if (Strings.isNullOrEmpty(newsChannelId)) {
+            log.warn("No ChannelId for start and shutdown messages");
+        }
+
+        Optional.ofNullable(jda.getGuildById(newsGuildId))
+                .flatMap(g -> Optional.ofNullable(g.getTextChannelById(newsChannelId)))
+                .ifPresent(t -> {
+                    t.sendMessage(message).complete();
+                    log.info("Sent '%s' to '%s'.'%s'".formatted(message, t.getGuild().getName(), t.getName()));
+                });
+
     }
 
 

@@ -10,12 +10,24 @@ import java.util.Set;
 import java.util.function.Function;
 
 public class DiscordConnectorImpl implements DiscordConnector {
-    public static void createAndStart(String token, boolean disableCommandUpdate, List<SlashCommand> commands, Function<WelcomeRequest, EmbedOrMessageDefinition> welcomeMessageDefinition, Set<Long> allGuildIdsInPersistence) throws Exception {
-        new DiscordConnectorImpl().start(token, disableCommandUpdate, commands, welcomeMessageDefinition, allGuildIdsInPersistence);
+    public static void createAndStart(String token,
+                                      boolean disableCommandUpdate,
+                                      List<SlashCommand> commands,
+                                      Function<WelcomeRequest, EmbedOrMessageDefinition> welcomeMessageDefinition,
+                                      Set<Long> allGuildIdsInPersistence,
+                                      String newsGuildId,
+                                      String newsChannelId) throws Exception {
+        new DiscordConnectorImpl().start(token, disableCommandUpdate, commands, welcomeMessageDefinition, allGuildIdsInPersistence, newsGuildId, newsChannelId);
     }
 
     @Override
-    public void start(String token, boolean disableCommandUpdate, List<SlashCommand> commands, Function<WelcomeRequest, EmbedOrMessageDefinition> welcomeMessageDefinition, Set<Long> allGuildIdsInPersistence) throws Exception {
-        new JdaClient().start(token, disableCommandUpdate, commands, welcomeMessageDefinition, allGuildIdsInPersistence);
+    public void start(String token,
+                      boolean disableCommandUpdate,
+                      List<SlashCommand> commands,
+                      Function<WelcomeRequest, EmbedOrMessageDefinition> welcomeMessageDefinition,
+                      Set<Long> allGuildIdsInPersistence,
+                      String newsGuildId,
+                      String newsChannelId) throws Exception {
+        new JdaClient(token, disableCommandUpdate, commands, welcomeMessageDefinition, allGuildIdsInPersistence, newsGuildId, newsChannelId);
     }
 }

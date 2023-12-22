@@ -28,6 +28,8 @@ import de.janno.evaluator.dice.random.RandomNumberSupplier;
 import java.util.Set;
 
 public class Bot {
+    private final static String DEFAULT_ARG = "default"; //to skip this optional argument
+
     public static void main(final String[] args) throws Exception {
         final String token = args[0];
         final boolean disableCommandUpdate = Boolean.parseBoolean(args[1]);
@@ -35,24 +37,37 @@ public class Bot {
         BotMetrics.init(publishMetricsToUrl, 8080);
 
         final String h2Url;
-        if (args.length >= 4) {
+        if (args.length >= 4 && !DEFAULT_ARG.equals(args[3])) {
             h2Url = args[3];
         } else {
             h2Url = "jdbc:h2:file:./persistence/dice_config;AUTO_SERVER=TRUE;DB_CLOSE_DELAY=10";
         }
         final String h2User;
-        if (args.length >= 5) {
+        if (args.length >= 5 && !DEFAULT_ARG.equals(args[4])) {
             h2User = args[4];
         } else {
             h2User = null;
         }
         final String h2Password;
-        if (args.length >= 6) {
+        if (args.length >= 6 && !DEFAULT_ARG.equals(args[5])) {
             h2Password = args[5];
         } else {
             h2Password = null;
         }
 
+        final String newsGuildId;
+        if (args.length >= 7 && !DEFAULT_ARG.equals(args[6])) {
+            newsGuildId = args[6];
+        } else {
+            newsGuildId = null;
+        }
+
+        String newsChannelId;
+        if (args.length >= 8 && !DEFAULT_ARG.equals(args[7])) {
+            newsChannelId = args[7];
+        } else {
+            newsChannelId = null;
+        }
         PersistenceManager persistenceManager = new PersistenceManagerImpl(h2Url, h2User, h2Password);
 
         Set<Long> allGuildIdsInPersistence = persistenceManager.getAllGuildIds();
@@ -88,7 +103,9 @@ public class Bot {
                         new HelpCommand()
                 ),
                 welcomeCommand.getWelcomeMessage(),
-                allGuildIdsInPersistence);
+                allGuildIdsInPersistence,
+                newsGuildId,
+                newsChannelId);
     }
 
 }

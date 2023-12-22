@@ -12,7 +12,9 @@ public interface DiscordConnector {
                boolean disableCommandUpdate,
                List<SlashCommand> commands,
                Function<WelcomeRequest, EmbedOrMessageDefinition> welcomeMessageDefinition,
-               Set<Long> allServerIdsInPersistence) throws Exception;
+               Set<Long> allServerIdsInPersistence,
+               String newsGuildId,
+               String newsChannelId) throws Exception;
 
     record WelcomeRequest(long guildId, long channelId, Locale guildLocale) {
     }
