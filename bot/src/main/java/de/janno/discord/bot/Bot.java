@@ -57,14 +57,14 @@ public class Bot {
 
         final String newsGuildId;
         if (args.length >= 7 && !DEFAULT_ARG.equals(args[6])) {
-            newsGuildId = args[6];
+            newsGuildId = args[6].trim();
         } else {
             newsGuildId = null;
         }
 
         String newsChannelId;
         if (args.length >= 8 && !DEFAULT_ARG.equals(args[7])) {
-            newsChannelId = args[7];
+            newsChannelId = args[7].trim();
         } else {
             newsChannelId = null;
         }

@@ -43,7 +43,6 @@ public class JdaClient {
 
     public static final Duration START_UP_BUFFER = Duration.of(5, ChronoUnit.MINUTES);
 
-    private final static Set<Integer> allActiveShardIds = new ConcurrentSkipListSet<>();
     private final String newsGuildId;
     private final String newsChannelId;
 
@@ -126,13 +125,7 @@ public class JdaClient {
                                         .filter(id -> !botInGuildIdSet.contains(id))
                                         .count();
                                 log.info("Inactive guild count with config: {}", inactiveGuildIdCountWithConfig);
-                                int shardId = event.getJDA().getShardInfo().getShardId();
-                                allActiveShardIds.add(shardId);
-                                int totalNumberOfShards = event.getJDA().getShardInfo().getShardTotal();
-                                if (allActiveShardIds.size() == totalNumberOfShards) {
-                                    log.info("all shards ready");
-                                    sendMessageInNewsChannel(event.getJDA(), "Bot started and is ready");
-                                }
+                                sendMessageInNewsChannel(event.getJDA(), "Bot started and is ready");
                             }
 
                             @Override
@@ -243,16 +236,16 @@ public class JdaClient {
     }
 
     private void sendMessageInNewsChannel(JDA jda, String message) {
-        if (Strings.isNullOrEmpty(newsGuildId)) {
+        if (Strings.isNullOrEmpty(newsGuildId) && jda.getShardInfo().getShardId() == 0) {
             log.warn("No GuildId for start and shutdown messages");
         }
-        if (Strings.isNullOrEmpty(newsChannelId)) {
+        if (Strings.isNullOrEmpty(newsChannelId) && jda.getShardInfo().getShardId() == 0) {
             log.warn("No ChannelId for start and shutdown messages");
         }
 
         Optional<Guild> guild = Optional.ofNullable(jda.getGuildById(newsGuildId));
         if (guild.isEmpty()) {
-            log.warn("Could not find guild for id: " + newsGuildId);
+            return;
         }
         Optional<StandardGuildMessageChannel> newsChannel = guild.flatMap(g -> Optional.ofNullable(g.getChannelById(StandardGuildMessageChannel.class, newsChannelId)));
 
