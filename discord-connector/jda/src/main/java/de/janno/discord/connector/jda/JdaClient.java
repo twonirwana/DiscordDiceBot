@@ -6,9 +6,13 @@ import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.channel.concrete.NewsChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.StandardGuildMessageChannel;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.api.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.api.events.guild.GuildReadyEvent;
@@ -246,13 +250,38 @@ public class JdaClient {
             log.warn("No ChannelId for start and shutdown messages");
         }
 
-        Optional.ofNullable(jda.getGuildById(newsGuildId))
-                .flatMap(g -> Optional.ofNullable(g.getTextChannelById(newsChannelId)))
-                .ifPresent(t -> {
-                    t.sendMessage(message).complete();
-                    log.info("Sent '%s' to '%s'.'%s'".formatted(message, t.getGuild().getName(), t.getName()));
-                });
+        Optional<Guild> guild = Optional.ofNullable(jda.getGuildById(newsGuildId));
+        if (guild.isEmpty()) {
+            log.warn("Could not find guild for id: " + newsGuildId);
+        }
+        Optional<StandardGuildMessageChannel> newsChannel = guild.flatMap(g -> Optional.ofNullable(g.getChannelById(StandardGuildMessageChannel.class, newsChannelId)));
 
+        if (newsChannel.isEmpty()) {
+            log.warn("Could not find channel for id: " + newsChannelId);
+        }
+
+        newsChannel.ifPresent(t -> {
+            if (hasPermission(t, Permission.MESSAGE_SEND)) {
+                Message sendMessage = t.sendMessage(message).complete();
+                log.info("Sent '%s' to '%s'.'%s'".formatted(message, t.getGuild().getName(), t.getName()));
+                if (t instanceof NewsChannel) {
+                    if (hasPermission(t, Permission.MESSAGE_MANAGE)) {
+                        ((NewsChannel) t).crosspostMessageById(sendMessage.getId()).complete();
+                        log.info("Published as news");
+                    } else {
+                        log.warn("Missing manage message permission for channel id: " + newsChannelId);
+                    }
+                }
+            } else {
+                log.warn("Missing send message permission for channel id: " + newsChannelId);
+            }
+        });
+    }
+
+    private boolean hasPermission(GuildMessageChannel channel, Permission permission) {
+        return Optional.of(channel)
+                .flatMap(g -> Optional.of(g.getGuild()).map(Guild::getSelfMember).map(m -> m.hasPermission(g, permission)))
+                .orElse(false);
     }
 
 
