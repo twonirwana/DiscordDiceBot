@@ -26,7 +26,7 @@ dependencies {
     implementation("com.h2database:h2:2.2.224")
     implementation("org.apache.derby:derby:10.17.1.0")
     implementation("org.apache.derby:derbyclient:10.17.1.0")
-    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.16.0")
+    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.16.1")
     implementation("org.apache.xmlgraphics:batik:1.17")
     implementation("org.apache.xmlgraphics:batik-transcoder:1.17")
     implementation("org.apache.xmlgraphics:batik-codec:1.17")
