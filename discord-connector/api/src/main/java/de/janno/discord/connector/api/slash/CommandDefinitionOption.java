@@ -20,10 +20,10 @@ public class CommandDefinitionOption {
     Type type;
     String name;
     @Singular
-    List<CommandLocaleName> nameLocales;
+    Set<CommandLocaleName> nameLocales;
     String description;
     @Singular
-    List<CommandLocaleDescription> descriptionLocales;
+    Set<CommandLocaleDescription> descriptionLocales;
     boolean required;
     @Singular
     List<CommandDefinitionOptionChoice> choices;
@@ -33,8 +33,8 @@ public class CommandDefinitionOption {
     Long maxValue;
     boolean autoComplete;
 
-    public CommandDefinitionOption(Type type, String name, List<CommandLocaleName> nameLocales, String description,
-                                   List<CommandLocaleDescription> descriptionLocales, Boolean required, List<CommandDefinitionOptionChoice> choices,
+    public CommandDefinitionOption(Type type, String name, Set<CommandLocaleName> nameLocales, String description,
+                                   Set<CommandLocaleDescription> descriptionLocales, Boolean required, List<CommandDefinitionOptionChoice> choices,
                                    List<CommandDefinitionOption> options, Long minValue, Long maxValue, Boolean autoComplete) {
         this.type = type;
         this.name = name;

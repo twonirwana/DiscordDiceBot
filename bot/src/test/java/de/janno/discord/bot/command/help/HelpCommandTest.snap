@@ -11,6 +11,10 @@ de.janno.discord.bot.command.help.HelpCommandTest.getCommandDefinition=[
       {
         "locale": "pt_BR",
         "description": "Ajuda para os comandos e links para e mais informações"
+      },
+      {
+        "locale": "fr",
+        "description": "Aide aux commandes et liens pour plus d'informations"
       }
     ],
     "options": [ ]

@@ -9,6 +9,7 @@ import lombok.Value;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -23,13 +24,13 @@ public class CommandDefinition {
     @NonNull
     String description;
     @Singular
-    List<CommandLocaleName> nameLocales;
+    Set<CommandLocaleName> nameLocales;
     @Singular
-    List<CommandLocaleDescription> descriptionLocales;
+    Set<CommandLocaleDescription> descriptionLocales;
     @Singular
     List<CommandDefinitionOption> options;
 
-    public CommandDefinition(@NonNull String name, @NonNull String description, List<CommandLocaleName> nameLocales, List<CommandLocaleDescription> descriptionLocales, List<CommandDefinitionOption> options) {
+    public CommandDefinition(@NonNull String name, @NonNull String description, Set<CommandLocaleName> nameLocales, Set<CommandLocaleDescription> descriptionLocales, List<CommandDefinitionOption> options) {
         this.name = name;
         this.description = description;
         this.nameLocales = nameLocales;

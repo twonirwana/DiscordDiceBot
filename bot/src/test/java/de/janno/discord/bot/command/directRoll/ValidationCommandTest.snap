@@ -11,6 +11,10 @@ de.janno.discord.bot.command.directRoll.ValidationCommandTest.getCommandDefiniti
       {
         "locale": "pt_BR",
         "description": "forneça uma fórmula (ex.: 2d6) e o autocompletar vai mostrar uma mensagem de errose ela for inválida"
+      },
+      {
+        "locale": "fr",
+        "description": "L'autocomplétion affichera un message d'erreur si elle n'est pas valide."
       }
     ],
     "options": [
@@ -36,6 +40,10 @@ de.janno.discord.bot.command.directRoll.ValidationCommandTest.getCommandDefiniti
           {
             "locale": "pt_BR",
             "description": "forneça uma fórmula (ex.: 2d6) e o autocompletar vai mostrar uma mensagem de errose ela for inválida"
+          },
+          {
+            "locale": "fr",
+            "description": "L'autocomplétion affichera un message d'erreur si elle n'est pas valide."
           }
         ],
         "required": true,

@@ -11,6 +11,10 @@ de.janno.discord.bot.command.ClearCommandTest.getCommandDefinition=[
       {
         "locale": "pt_BR",
         "description": "Remove todas mensagens de botões e dados salvos pelo bot nesse canal"
+      },
+      {
+        "locale": "fr",
+        "description": "Supprime tous les messages des boutons et les données sauvegardées du bot pour ce canal."
       }
     ],
     "options": [ ]

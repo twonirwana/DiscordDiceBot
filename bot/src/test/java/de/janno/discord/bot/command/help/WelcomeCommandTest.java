@@ -354,13 +354,13 @@ class WelcomeCommandTest {
                 .map(ButtonDefinition::getLabel))
                 .containsExactly(
                         "Fate",
-                        "Fate with dice images",
-                        "D&D5e",
-                        "D&D5e with dice images",
-                        "nWoD",
-                        "oWoD",
+                        "Fate with Dice Images",
+                        "Dungeon & Dragons 5e",
+                        "Dungeon & Dragons 5e with Dice Images",
+                        "nWod / Chronicles of Darkness",
+                        "oWod / Storyteller System",
                         "Shadowrun",
-                        "Coin Toss 🪙",
+                        "Coin Toss",
                         "Dice Calculator");
 
     }

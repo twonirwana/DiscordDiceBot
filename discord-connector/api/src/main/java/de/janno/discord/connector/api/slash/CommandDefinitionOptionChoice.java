@@ -8,6 +8,7 @@ import lombok.Value;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -19,10 +20,10 @@ public class CommandDefinitionOptionChoice {
     @NonNull
     String value;
     @Singular
-    List<CommandLocaleChoice> nameLocales; //limitations are like descriptions
+    Set<CommandLocaleChoice> nameLocales; //limitations are like descriptions
     // https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-option-choice-structure
 
-    public CommandDefinitionOptionChoice(@NonNull String name, @NonNull String value, List<CommandLocaleChoice> nameLocales) {
+    public CommandDefinitionOptionChoice(@NonNull String name, @NonNull String value, Set<CommandLocaleChoice> nameLocales) {
         this.name = name;
         this.value = value;
         this.nameLocales = nameLocales;
