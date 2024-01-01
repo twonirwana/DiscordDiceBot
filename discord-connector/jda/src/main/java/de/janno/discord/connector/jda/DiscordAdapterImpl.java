@@ -69,10 +69,12 @@ public abstract class DiscordAdapterImpl implements DiscordAdapter {
                 EmbedBuilder builder = convertToEmbedMessage(messageDefinition, rollRequesterName, rollRequesterAvatar, rollRequesterId);
                 final List<FileUpload> files = applyFiles(builder, messageDefinition);
 
-                return createMonoFrom(() -> messageChannel.sendMessageEmbeds(builder.build()).setComponents(layoutComponents).setFiles(files).setSuppressedNotifications(true));
+                return createMonoFrom(() -> messageChannel.sendMessageEmbeds(builder.build()).setComponents(layoutComponents).setFiles(files).setSuppressedNotifications(true))
+                        .onErrorResume(t -> handleException("Error on creating embed message", t, false).ofType(Message.class));
             }
             case MESSAGE -> {
-                return createMonoFrom(() -> messageChannel.sendMessage(convertToMessageCreateData(messageDefinition, rollRequesterMention)).setComponents(layoutComponents).setSuppressedNotifications(true));
+                return createMonoFrom(() -> messageChannel.sendMessage(convertToMessageCreateData(messageDefinition, rollRequesterMention)).setComponents(layoutComponents).setSuppressedNotifications(true))
+                        .onErrorResume(t -> handleException("Error on creating message", t, false).ofType(Message.class));
             }
             default -> throw new IllegalStateException("Unknown type in %s".formatted(messageDefinition));
         }
@@ -139,10 +141,12 @@ public abstract class DiscordAdapterImpl implements DiscordAdapter {
             case EMBED -> {
                 EmbedBuilder builder = convertToEmbedMessage(messageDefinition, null, null, null);
                 final List<FileUpload> files = applyFiles(builder, messageDefinition);
-                return createMonoFrom(() -> event.replyEmbeds(builder.build()).setComponents(layoutComponents).setEphemeral(ephemeral).setFiles(files).setSuppressedNotifications(true));
+                return createMonoFrom(() -> event.replyEmbeds(builder.build()).setComponents(layoutComponents).setEphemeral(ephemeral).setFiles(files).setSuppressedNotifications(true))
+                        .onErrorResume(t -> handleException("Error on replay embed message", t, false).ofType(InteractionHook.class));
             }
             case MESSAGE -> {
-                return createMonoFrom(() -> event.reply(convertToMessageCreateData(messageDefinition, null)).setComponents(layoutComponents).setEphemeral(ephemeral).setSuppressedNotifications(true));
+                return createMonoFrom(() -> event.reply(convertToMessageCreateData(messageDefinition, null)).setComponents(layoutComponents).setEphemeral(ephemeral).setSuppressedNotifications(true))
+                        .onErrorResume(t -> handleException("Error on replay message", t, false).ofType(InteractionHook.class));
             }
             default -> throw new IllegalStateException("Unknown type in %s".formatted(messageDefinition));
         }
