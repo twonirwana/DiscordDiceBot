@@ -16,6 +16,6 @@ Ele pode fornecer imagens dos resultados do lançamento de dados e é possível 
 
 # Início rápido
 
-Digite `/quickstart sistema' e o bot oferecerá uma lista de conjuntos de dados prontos para jogar. Basta selecionar um sistema da lista ou continuar digitando para pesquisar e filtrar na lista.
+Digite `/quickstart sistema` e o bot oferecerá uma lista de conjuntos de dados prontos para jogar. Basta selecionar um sistema da lista ou continuar digitando para pesquisar e filtrar na lista.
 
 Muitos outros sistemas podem ser mapeados com esse bot, visite: https://github.com/twonirwana/DiscordDiceBot

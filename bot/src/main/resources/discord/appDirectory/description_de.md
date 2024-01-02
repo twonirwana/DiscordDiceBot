@@ -16,6 +16,6 @@ Er kann Bilder der Würfelergebnisse liefern und es ist möglich, kanal- oder be
 
 # Quickstart
 
-Gib `/quickstart system' ein und der Bot wird dir eine Liste von spielbereiten Würfelsets anbieten. Wähle einfach ein System aus der Liste aus oder tippe weiter, um in der Liste zu suchen und zu filtern.
+Gib `/quickstart system` ein und der Bot wird dir eine Liste von spielbereiten Würfelsets anbieten. Wähle einfach ein System aus der Liste aus oder tippe weiter, um in der Liste zu suchen und zu filtern.
 
 Viele weitere Systeme können mit diesem Bot abgebildet werden, bitte besuche: https://github.com/twonirwana/DiscordDiceBot

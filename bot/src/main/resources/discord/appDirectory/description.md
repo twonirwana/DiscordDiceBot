@@ -16,6 +16,6 @@ It can provide images of the dice roll results and it is possible to configure c
 
 # Quickstart
 
-Type `/quickstart system' and the bot will offer a list of ready to play dice sets. Simple select a system out of the list or keep typing to search and filter in the list.
+Type `/quickstart system` and the bot will offer a list of ready to play dice sets. Simple select a system out of the list or keep typing to search and filter in the list.
 
 Many more systems can be mapped with this bot, please visit: https://github.com/twonirwana/DiscordDiceBot

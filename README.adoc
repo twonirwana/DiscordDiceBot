@@ -612,7 +612,8 @@ All functions are case insensitiv.
 * Special thank to mailto:minuette@gmail.com[Myrynvalona] for the design of the dice images for `polyhedral_knots`
 * Special thank to http://scriptarium.org[scriptarium.org] for creating the dice images for `polyhedral_RdD`
 * Special thank to https://github.com/igorteuri[igorteuri] for the brazilian prologuise translation
+* Special thanks to https://github.com/Swiip[Matthieu Lux] for help with the `expance` dice images implementation and with the French translation
 * The `polyhedral_3d` dice images where adapted from https://blendswap.com/blend/16634
 * The `d6_dot` in `white` dice images are from https://game-icons.net/
 * The `d6_dot` in `black_and_gold` dice images are adapted from https://speakthesky.itch.io/typeface-dicier and the Infinite Revolution RPG
-* The `expance` dice images are from https://github.com/Foxfyre/expanse and thanks to https://github.com/Swiip[Matthieu Lux] for help with the implementation
+* The `expance` dice images are adapted from https://github.com/Foxfyre/expanse
