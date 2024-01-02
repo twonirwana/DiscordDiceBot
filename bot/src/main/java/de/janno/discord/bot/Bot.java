@@ -1,7 +1,6 @@
 package de.janno.discord.bot;
 
 
-import com.google.common.collect.ImmutableList;
 import de.janno.discord.bot.command.ClearCommand;
 import de.janno.discord.bot.command.channelConfig.ChannelConfigCommand;
 import de.janno.discord.bot.command.countSuccesses.CountSuccessesCommand;
@@ -25,6 +24,7 @@ import de.janno.discord.bot.persistance.PersistenceManagerImpl;
 import de.janno.discord.connector.DiscordConnectorImpl;
 import de.janno.evaluator.dice.random.RandomNumberSupplier;
 
+import java.util.List;
 import java.util.Set;
 
 public class Bot {
@@ -73,34 +73,37 @@ public class Bot {
         Set<Long> allGuildIdsInPersistence = persistenceManager.getAllGuildIds();
         CachingDiceEvaluator cachingDiceEvaluator = new CachingDiceEvaluator(new RandomNumberSupplier(), 1000, 10_000);
 
-        CountSuccessesCommand countSuccessesCommand = new CountSuccessesCommand(persistenceManager);
         CustomDiceCommand customDiceCommand = new CustomDiceCommand(persistenceManager, cachingDiceEvaluator);
-        FateCommand fateCommand = new FateCommand(persistenceManager);
         CustomParameterCommand customParameterCommand = new CustomParameterCommand(persistenceManager, cachingDiceEvaluator);
         SumCustomSetCommand sumCustomSetCommand = new SumCustomSetCommand(persistenceManager, cachingDiceEvaluator);
-        PoolTargetCommand poolTargetCommand = new PoolTargetCommand(persistenceManager);
         RpgSystemCommandPreset rpgSystemCommandPreset = new RpgSystemCommandPreset(persistenceManager, customParameterCommand, customDiceCommand, sumCustomSetCommand);
 
         WelcomeCommand welcomeCommand = new WelcomeCommand(persistenceManager, rpgSystemCommandPreset);
 
         DiscordConnectorImpl.createAndStart(token,
                 disableCommandUpdate,
-                ImmutableList.of(countSuccessesCommand,
-                        customDiceCommand,
-                        fateCommand,
+                List.of(customDiceCommand,
                         new DirectRollCommand(persistenceManager, cachingDiceEvaluator),
                         new HiddenDirectRollCommand(persistenceManager, cachingDiceEvaluator),
                         new ValidationCommand(persistenceManager, cachingDiceEvaluator),
                         new ChannelConfigCommand(persistenceManager),
-                        new SumDiceSetCommand(persistenceManager),
                         sumCustomSetCommand,
-                        new HoldRerollCommand(persistenceManager),
-                        poolTargetCommand,
                         customParameterCommand,
                         welcomeCommand,
                         new ClearCommand(persistenceManager),
                         new QuickstartCommand(rpgSystemCommandPreset),
                         new HelpCommand()
+                ),
+                List.of(customDiceCommand,
+                        sumCustomSetCommand,
+                        customParameterCommand,
+                        welcomeCommand,
+                        //legacy, to be removed
+                        new FateCommand(persistenceManager),
+                        new CountSuccessesCommand(persistenceManager),
+                        new SumDiceSetCommand(persistenceManager),
+                        new HoldRerollCommand(persistenceManager),
+                        new PoolTargetCommand(persistenceManager)
                 ),
                 welcomeCommand.getWelcomeMessage(),
                 allGuildIdsInPersistence,

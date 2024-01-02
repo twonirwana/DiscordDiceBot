@@ -48,7 +48,8 @@ public class JdaClient {
 
     public JdaClient(@NonNull String token,
                      boolean disableCommandUpdate,
-                     @NonNull List<SlashCommand> commands,
+                     @NonNull List<SlashCommand> slashCommands,
+                     @NonNull List<ComponentInteractEventHandler> componentInteractEventHandlers,
                      @NonNull Function<DiscordConnector.WelcomeRequest, EmbedOrMessageDefinition> welcomeMessageDefinition,
                      @NonNull Set<Long> allGuildIdsInPersistence,
                      String newsGuildId,
@@ -130,7 +131,7 @@ public class JdaClient {
 
                             @Override
                             public void onCommandAutoCompleteInteraction(@NonNull CommandAutoCompleteInteractionEvent event) {
-                                Flux.fromIterable(commands)
+                                Flux.fromIterable(slashCommands)
                                         .filter(command -> command.getCommandId().equals(event.getName()))
                                         .next()
                                         .map(command -> command.getAutoCompleteAnswer(fromEvent(event), LocaleConverter.toLocale(event.getUserLocale())))
@@ -155,7 +156,7 @@ public class JdaClient {
                             public void onSlashCommandInteraction(@NonNull SlashCommandInteractionEvent event) {
                                 log.trace("ChatInputEvent: {} from {}", event.getInteraction().getCommandId(),
                                         event.getInteraction().getUser().getName());
-                                Flux.fromIterable(commands)
+                                Flux.fromIterable(slashCommands)
                                         .filter(command -> command.getCommandId().equals(event.getName()))
                                         .next()
                                         .flatMap(command -> {
@@ -180,8 +181,7 @@ public class JdaClient {
                             @Override
                             public void onButtonInteraction(@NonNull ButtonInteractionEvent event) {
                                 log.trace("ComponentEvent: {} from {}", event.getInteraction().getComponentId(), event.getInteraction().getUser().getName());
-                                Flux.fromIterable(commands)
-                                        .ofType(ComponentInteractEventHandler.class)
+                                Flux.fromIterable(componentInteractEventHandlers)
                                         .filter(command -> command.matchingComponentCustomId(event.getInteraction().getComponentId()))
                                         .next()
                                         .flatMap(command -> {
@@ -231,7 +231,7 @@ public class JdaClient {
         });
 
         SlashCommandRegistry.builder()
-                .addSlashCommands(commands)
+                .addSlashCommands(slashCommands)
                 .registerSlashCommands(shardManager.getShards().getFirst(), disableCommandUpdate);
     }
 
