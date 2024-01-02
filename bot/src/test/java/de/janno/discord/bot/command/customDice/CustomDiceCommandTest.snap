@@ -23,6 +23,10 @@ de.janno.discord.bot.command.customDice.CustomDiceCommandTest.getCommandDefiniti
       {
         "locale": "pt_BR",
         "description": "Configure os botões de dados assim: 1d6;2d8=;1d10+10="
+      },
+      {
+        "locale": "fr",
+        "description": "Configurer les boutons de dés comme : 1d6;2d8=;1d10+10="
       }
     ],
     "options": [
@@ -33,6 +37,10 @@ de.janno.discord.bot.command.customDice.CustomDiceCommandTest.getCommandDefiniti
           {
             "locale": "pt_BR",
             "name": "iniciar"
+          },
+          {
+            "locale": "fr",
+            "name": "démarrer"
           }
         ],
         "description": "Configure dice buttons like: 1d6;2d8=;1d10+10=",
@@ -44,6 +52,10 @@ de.janno.discord.bot.command.customDice.CustomDiceCommandTest.getCommandDefiniti
           {
             "locale": "pt_BR",
             "description": "Configure os botões de dados assim: 1d6;2d8=;1d10+10="
+          },
+          {
+            "locale": "fr",
+            "description": "Configurer les boutons de dés comme : 1d6;2d8=;1d10+10="
           }
         ],
         "required": false,
@@ -56,6 +68,10 @@ de.janno.discord.bot.command.customDice.CustomDiceCommandTest.getCommandDefiniti
               {
                 "locale": "pt_BR",
                 "name": "botoes"
+              },
+              {
+                "locale": "fr",
+                "name": "boutons"
               }
             ],
             "description": "Define one or more buttons separated by `;`",
@@ -67,6 +83,10 @@ de.janno.discord.bot.command.customDice.CustomDiceCommandTest.getCommandDefiniti
               {
                 "locale": "pt_BR",
                 "description": "Defina um ou mais botões, separados por `;`"
+              },
+              {
+                "locale": "fr",
+                "description": "Définir un ou plusieurs boutons séparés par `;`"
               }
             ],
             "required": true,
@@ -85,6 +105,10 @@ de.janno.discord.bot.command.customDice.CustomDiceCommandTest.getCommandDefiniti
               {
                 "locale": "pt_BR",
                 "name": "canal_alvo"
+              },
+              {
+                "locale": "fr",
+                "name": "canal_cible"
               }
             ],
             "description": "Another channel where the answer will be given",
@@ -96,6 +120,10 @@ de.janno.discord.bot.command.customDice.CustomDiceCommandTest.getCommandDefiniti
               {
                 "locale": "pt_BR",
                 "description": "Outro canal onde o resultado será mostrado"
+              },
+              {
+                "locale": "fr",
+                "description": "Autre canal où la réponse sera donnée"
               }
             ],
             "required": false,
@@ -114,6 +142,10 @@ de.janno.discord.bot.command.customDice.CustomDiceCommandTest.getCommandDefiniti
               {
                 "locale": "pt_BR",
                 "name": "formato_resultado"
+              },
+              {
+                "locale": "fr",
+                "name": "format_de_réponse"
               }
             ],
             "description": "How the answer will be displayed",
@@ -125,6 +157,10 @@ de.janno.discord.bot.command.customDice.CustomDiceCommandTest.getCommandDefiniti
               {
                 "locale": "pt_BR",
                 "description": "Como o resultado será exibido"
+              },
+              {
+                "locale": "fr",
+                "description": "Comment la réponse sera affichée"
               }
             ],
             "required": false,
@@ -140,6 +176,10 @@ de.janno.discord.bot.command.customDice.CustomDiceCommandTest.getCommandDefiniti
                   {
                     "locale": "pt_BR",
                     "choice": "completo"
+                  },
+                  {
+                    "locale": "fr",
+                    "choice": "complet"
                   }
                 ]
               },
@@ -154,6 +194,10 @@ de.janno.discord.bot.command.customDice.CustomDiceCommandTest.getCommandDefiniti
                   {
                     "locale": "pt_BR",
                     "choice": "sem_formula"
+                  },
+                  {
+                    "locale": "fr",
+                    "choice": "sans_expression"
                   }
                 ]
               },
@@ -168,6 +212,10 @@ de.janno.discord.bot.command.customDice.CustomDiceCommandTest.getCommandDefiniti
                   {
                     "locale": "pt_BR",
                     "choice": "apenas_dados"
+                  },
+                  {
+                    "locale": "fr",
+                    "choice": "seulement_dés"
                   }
                 ]
               },
@@ -210,6 +258,10 @@ de.janno.discord.bot.command.customDice.CustomDiceCommandTest.getCommandDefiniti
               {
                 "locale": "pt_BR",
                 "name": "estilo_imagem_dados"
+              },
+              {
+                "locale": "fr",
+                "name": "style_de_l_image_des_dés"
               }
             ],
             "description": "If and in what style the dice throw should be shown as image",
@@ -221,6 +273,10 @@ de.janno.discord.bot.command.customDice.CustomDiceCommandTest.getCommandDefiniti
               {
                 "locale": "pt_BR",
                 "description": "Se os dados devem ser mostrados como imagens e em qual estilo"
+              },
+              {
+                "locale": "fr",
+                "description": "Si et dans quel style le lancer de dés doit être montré comme une image"
               }
             ],
             "required": false,
@@ -295,6 +351,10 @@ de.janno.discord.bot.command.customDice.CustomDiceCommandTest.getCommandDefiniti
               {
                 "locale": "pt_BR",
                 "name": "cor_dos_dados"
+              },
+              {
+                "locale": "fr",
+                "name": "couleur_de_l_image_du_dé"
               }
             ],
             "description": "The default color option. Can be influenced by the `col` operator",
@@ -306,6 +366,10 @@ de.janno.discord.bot.command.customDice.CustomDiceCommandTest.getCommandDefiniti
               {
                 "locale": "pt_BR",
                 "description": "A opção de cor padrão. Pode ser influenciada pelo operador `col`"
+              },
+              {
+                "locale": "fr",
+                "description": "L'option de couleur par défaut. Peut être influencée par l'opérateur `col`."
               }
             ],
             "required": false,
@@ -324,6 +388,10 @@ de.janno.discord.bot.command.customDice.CustomDiceCommandTest.getCommandDefiniti
               {
                 "locale": "pt_BR",
                 "name": "idioma"
+              },
+              {
+                "locale": "fr",
+                "name": "langue"
               }
             ],
             "description": "The language of the bot messages",
@@ -335,6 +403,10 @@ de.janno.discord.bot.command.customDice.CustomDiceCommandTest.getCommandDefiniti
               {
                 "locale": "pt_BR",
                 "description": "O idioma da mensagem do bot"
+              },
+              {
+                "locale": "fr",
+                "description": "La langue des messages du robot"
               }
             ],
             "required": false,
@@ -350,6 +422,10 @@ de.janno.discord.bot.command.customDice.CustomDiceCommandTest.getCommandDefiniti
                   {
                     "locale": "pt_BR",
                     "choice": "Inglês"
+                  },
+                  {
+                    "locale": "fr",
+                    "choice": "Anglais"
                   }
                 ]
               },
@@ -364,6 +440,10 @@ de.janno.discord.bot.command.customDice.CustomDiceCommandTest.getCommandDefiniti
                   {
                     "locale": "pt_BR",
                     "choice": "Alemão"
+                  },
+                  {
+                    "locale": "fr",
+                    "choice": "Allemand"
                   }
                 ]
               },
@@ -378,6 +458,28 @@ de.janno.discord.bot.command.customDice.CustomDiceCommandTest.getCommandDefiniti
                   {
                     "locale": "pt_BR",
                     "choice": "Português Brasileiro"
+                  },
+                  {
+                    "locale": "fr",
+                    "choice": "Portugais du Brésil"
+                  }
+                ]
+              },
+              {
+                "name": "French",
+                "value": "fr",
+                "nameLocales": [
+                  {
+                    "locale": "de",
+                    "choice": "Französisch"
+                  },
+                  {
+                    "locale": "pt_BR",
+                    "choice": "Francês"
+                  },
+                  {
+                    "locale": "fr",
+                    "choice": "Français"
                   }
                 ]
               }
@@ -399,6 +501,10 @@ de.janno.discord.bot.command.customDice.CustomDiceCommandTest.getCommandDefiniti
           {
             "locale": "pt_BR",
             "name": "ajuda"
+          },
+          {
+            "locale": "fr",
+            "name": "aide"
           }
         ],
         "description": "Get help for /custom_dice",
@@ -410,6 +516,10 @@ de.janno.discord.bot.command.customDice.CustomDiceCommandTest.getCommandDefiniti
           {
             "locale": "pt_BR",
             "description": "Consiga ajuda para /custom_dice"
+          },
+          {
+            "locale": "fr",
+            "description": "Obtenir de l'aide pour /custom_dice"
           }
         ],
         "required": false,

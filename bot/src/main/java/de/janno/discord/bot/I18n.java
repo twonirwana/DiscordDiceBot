@@ -26,7 +26,7 @@ public final class I18n {
     }
 
     public static List<Locale> getAdditionalLanguage() {
-        return List.of(Locale.GERMAN, Locale.of("pt","BR"));
+        return List.of(Locale.GERMAN, Locale.of("pt","BR"), Locale.FRENCH);
     }
 
     public static List<Locale> allSupportedLanguage() {

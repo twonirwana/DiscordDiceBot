@@ -11,6 +11,10 @@ de.janno.discord.bot.command.directRoll.HiddenRollCommandTest.getCommandDefiniti
       {
         "locale": "pt_BR",
         "description": "fórmula de rolagem de dados direta escondida, e.g. `2d6`. Configure com `/channel_config`"
+      },
+      {
+        "locale": "fr",
+        "description": "expression cachée du jet de dés direct, par exemple `2d6`. Configuration avec `/channel_config`"
       }
     ],
     "options": [
@@ -36,6 +40,10 @@ de.janno.discord.bot.command.directRoll.HiddenRollCommandTest.getCommandDefiniti
           {
             "locale": "pt_BR",
             "description": "fórmula de rolagem de dados direta escondida, e.g. `2d6`. Configure com `/channel_config`"
+          },
+          {
+            "locale": "fr",
+            "description": "expression cachée du jet de dés direct, par exemple `2d6`. Configuration avec `/channel_config`"
           }
         ],
         "required": true,

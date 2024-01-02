@@ -160,7 +160,7 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
             long newMessageId,
             @NonNull UUID configUUID,
             long channelId,
-            @NonNull ButtonEventAdaptor event){
+            @NonNull ButtonEventAdaptor event) {
         //welcome never deletes its config
         return Mono.empty();
     }
@@ -176,23 +176,19 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
                                 ImmutableList.of(
                                         ButtonDefinition.builder()
                                                 .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), ButtonIds.fate.name(), configUUID))
-                                                .label(I18n.getMessage("welcome.button.label.fate", config.getConfigLocale()))
+                                                .label(I18n.getMessage("rpg.system.command.preset.%s.name".formatted(ButtonIds.fate.name().toUpperCase()), config.getConfigLocale()))
                                                 .build(),
                                         ButtonDefinition.builder()
                                                 .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), ButtonIds.fate_image.name(), configUUID))
-                                                .label(I18n.getMessage("welcome.button.label.fateImage", config.getConfigLocale()))
+                                                .label(I18n.getMessage("rpg.system.command.preset.%s.name".formatted(ButtonIds.fate_image.name().toUpperCase()), config.getConfigLocale()))
                                                 .build(),
                                         ButtonDefinition.builder()
                                                 .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), ButtonIds.dnd5.name(), configUUID))
-                                                .label(I18n.getMessage("welcome.button.label.dnd5", config.getConfigLocale()))
+                                                .label(I18n.getMessage("rpg.system.command.preset.%s.name".formatted(ButtonIds.dnd5.name().toUpperCase()), config.getConfigLocale()))
                                                 .build(),
                                         ButtonDefinition.builder()
                                                 .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), ButtonIds.dnd5_image.name(), configUUID))
-                                                .label(I18n.getMessage("welcome.button.label.dnd5Image", config.getConfigLocale()))
-                                                .build(),
-                                        ButtonDefinition.builder()
-                                                .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), ButtonIds.nWoD.name(), configUUID))
-                                                .label(I18n.getMessage("welcome.button.label.nWoD", config.getConfigLocale()))
+                                                .label(I18n.getMessage("rpg.system.command.preset.%s.name".formatted(ButtonIds.dnd5_image.name().toUpperCase()), config.getConfigLocale()))
                                                 .build()
 
                                 )
@@ -202,20 +198,24 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
                         .buttonDefinitions(
                                 ImmutableList.of(
                                         ButtonDefinition.builder()
+                                                .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), ButtonIds.nWoD.name(), configUUID))
+                                                .label(I18n.getMessage("rpg.system.command.preset.%s.name".formatted(ButtonIds.nWoD.name().toUpperCase()), config.getConfigLocale()))
+                                                .build(),
+                                        ButtonDefinition.builder()
                                                 .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), ButtonIds.oWoD.name(), configUUID))
-                                                .label(I18n.getMessage("welcome.button.label.oWoD", config.getConfigLocale()))
+                                                .label(I18n.getMessage("rpg.system.command.preset.%s.name".formatted(ButtonIds.oWoD.name().toUpperCase()), config.getConfigLocale()))
                                                 .build(),
                                         ButtonDefinition.builder()
                                                 .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), ButtonIds.shadowrun.name(), configUUID))
-                                                .label(I18n.getMessage("welcome.button.label.shadowrun", config.getConfigLocale()))
+                                                .label(I18n.getMessage("rpg.system.command.preset.%s.name".formatted(ButtonIds.shadowrun.name().toUpperCase()), config.getConfigLocale()))
                                                 .build(),
                                         ButtonDefinition.builder()
                                                 .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), ButtonIds.coin.name(), configUUID))
-                                                .label(I18n.getMessage("welcome.button.label.coin", config.getConfigLocale()))
+                                                .label(I18n.getMessage("rpg.system.command.preset.%s.name".formatted(ButtonIds.coin.name().toUpperCase()), config.getConfigLocale()))
                                                 .build(),
                                         ButtonDefinition.builder()
                                                 .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), ButtonIds.dice_calculator.name(), configUUID))
-                                                .label(I18n.getMessage("welcome.button.label.diceCalculator", config.getConfigLocale()))
+                                                .label(I18n.getMessage("rpg.system.command.preset.%s.name".formatted(ButtonIds.dice_calculator.name().toUpperCase()), config.getConfigLocale()))
                                                 .build()
                                 )
                         )

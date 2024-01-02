@@ -11,6 +11,10 @@ de.janno.discord.bot.command.help.QuickstartCommandTest.getCommandDefinition=[
       {
         "locale": "pt_BR",
         "description": "Selecione um conjunto de dados pré-configurado de alguns sistemas"
+      },
+      {
+        "locale": "fr",
+        "description": "Sélectionner un jeu de dés préconfiguré à partir d'un système donné"
       }
     ],
     "options": [
@@ -21,6 +25,10 @@ de.janno.discord.bot.command.help.QuickstartCommandTest.getCommandDefinition=[
           {
             "locale": "pt_BR",
             "name": "sistema"
+          },
+          {
+            "locale": "fr",
+            "name": "système"
           }
         ],
         "description": "Start typing to filter and see more options",
@@ -32,6 +40,10 @@ de.janno.discord.bot.command.help.QuickstartCommandTest.getCommandDefinition=[
           {
             "locale": "pt_BR",
             "description": "Comece a digitar para filtar e ver mais opções"
+          },
+          {
+            "locale": "fr",
+            "description": "Commencez à taper pour filtrer et voir plus d'options"
           }
         ],
         "required": true,

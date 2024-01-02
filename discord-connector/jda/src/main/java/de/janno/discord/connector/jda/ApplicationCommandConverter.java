@@ -140,15 +140,15 @@ public class ApplicationCommandConverter {
         return optionData;
     }
 
-    private static Map<DiscordLocale, String> localeDescription2DiscordLocaleMap(List<CommandLocaleDescription> commandLocaleDesciptions) {
+    private static Map<DiscordLocale, String> localeDescription2DiscordLocaleMap(Collection<CommandLocaleDescription> commandLocaleDesciptions) {
         return commandLocaleDesciptions.stream().collect(Collectors.toMap(lv -> DiscordLocale.from(lv.getLocale()), CommandLocaleDescription::getDescription));
     }
 
-    private static Map<DiscordLocale, String> localeName2DiscordLocaleMap(List<CommandLocaleName> commandLocaleNames) {
+    private static Map<DiscordLocale, String> localeName2DiscordLocaleMap(Collection<CommandLocaleName> commandLocaleNames) {
         return commandLocaleNames.stream().collect(Collectors.toMap(lv -> DiscordLocale.from(lv.getLocale()), CommandLocaleName::getName));
     }
 
-    private static Map<DiscordLocale, String> localeChoice2DiscordLocaleMap(List<CommandLocaleChoice> commandLocaleChoices) {
+    private static Map<DiscordLocale, String> localeChoice2DiscordLocaleMap(Collection<CommandLocaleChoice> commandLocaleChoices) {
         return commandLocaleChoices.stream().collect(Collectors.toMap(lv -> DiscordLocale.from(lv.getLocale()), CommandLocaleChoice::getChoice));
     }
 
