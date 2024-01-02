@@ -196,14 +196,14 @@ If a message sends the answer to another channel, it will not be moved to the en
 
 == Language
 
-The bot supports multiple languages (currently English, German and Brazilian Portuguese).
+The bot supports multiple languages (currently English, German,  Brazilian Portuguese and French).
 The bot will use the discord client language for the slash command and options.
 Each button message has a language configuration and will return its answers always in the language of its configuration.
 All existing button messages are default in English.
 Button messages are per default created in the language of the discord client but that can be overwritten with the `language` option of the slash commands.
 The direct roll messages are using the language that is configured with the `channel_config` command and not the discord client language.
 The dice expressions are currently not translated.
-Contributions of additonal language and improvements are very welcome.
+Contributions of additional language and improvements are very welcome.
 
 === Quickstart
 
@@ -248,7 +248,7 @@ image:image/compact.png[image,320]
 
 ==== Minimal
 
-`minimal` shows the result as single line with only the expression (or the if available instant of the expression the label) and result, without the details like the result of each die.
+`minimal` shows the result as single line with only the expression (or if available the label instate of the expression) and result, without the details like the result of each die.
 Will not show result images, even if they are configured.
 
 image:image/minimal.png[image,320]
