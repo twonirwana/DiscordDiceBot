@@ -38,11 +38,13 @@ import java.util.*;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.function.Function;
 
+import static java.lang.Thread.sleep;
+
 @Slf4j
 public class JdaClient {
 
     public static final Duration START_UP_BUFFER = Duration.of(5, ChronoUnit.MINUTES);
-
+    private final static Set<Integer> SHARD_IDS_NOT_READY_FOR_SHUTDOWN = new ConcurrentSkipListSet<>();
     private final String newsGuildId;
     private final String newsChannelId;
 
@@ -205,7 +207,7 @@ public class JdaClient {
                         }
                 )
                 .setActivity(Activity.customStatus("Type /quickstart or /help"));
-
+        //shardManagerBuilder.setShardsTotal(2); //todo make configurable
         ShardManager shardManager = shardManagerBuilder.build();
         JdaMetrics.startGuildCountGauge(botInGuildIdSet);
 
@@ -218,21 +220,40 @@ public class JdaClient {
                 JdaMetrics.startTextChannelCacheGauge(jda);
                 JdaMetrics.startGuildCacheGauge(jda);
                 JdaMetrics.startRestLatencyGauge(jda);
-
-                Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-                    log.info("start jda %s shutdown".formatted(jda.getShardInfo().getShardString()));
-                    sendMessageInNewsChannel(jda, "Bot shutdown started");
-                    shutdown(jda);
-                    log.info("finished jda %s shutdown".formatted(jda.getShardInfo().getShardString()));
-                }));
+                SHARD_IDS_NOT_READY_FOR_SHUTDOWN.add(jda.getShardInfo().getShardId());
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
         });
 
+        Runtime.getRuntime().addShutdownHook(new Thread(() ->
+                shardManager.getShards().parallelStream().forEach(jda -> {
+                    log.info("start jda %s shutdown".formatted(jda.getShardInfo().getShardString()));
+                    sendMessageInNewsChannel(jda, "Bot shutdown started");
+                    SHARD_IDS_NOT_READY_FOR_SHUTDOWN.remove(jda.getShardInfo().getShardId());
+                    waitUntilAllShardsReadyForShutdown(jda.getShardInfo().getShardId());
+                    shutdown(jda);
+                    log.info("finished jda %s shutdown".formatted(jda.getShardInfo().getShardString()));
+                })));
+
         SlashCommandRegistry.builder()
                 .addSlashCommands(slashCommands)
                 .registerSlashCommands(shardManager.getShards().getFirst(), disableCommandUpdate);
+    }
+
+    private static void waitUntilAllShardsReadyForShutdown(int shardId) {
+        long waitTime = 0;
+        final long sleepTime = 100;
+        while (!SHARD_IDS_NOT_READY_FOR_SHUTDOWN.isEmpty() && waitTime < 10_000) {
+            try {
+                sleep(sleepTime);
+                waitTime += sleepTime;
+                log.info("shardId=%s waiting for shards=%s for %sms".formatted(shardId, SHARD_IDS_NOT_READY_FOR_SHUTDOWN, waitTime));
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        log.info("All shards are finished for shardId=%s".formatted(shardId));
     }
 
     private void sendMessageInNewsChannel(JDA jda, String message) {
@@ -245,6 +266,8 @@ public class JdaClient {
 
         Optional<Guild> guild = Optional.ofNullable(jda.getGuildById(newsGuildId));
         if (guild.isEmpty()) {
+            //the guild can be in another shard
+            log.info("No news guild for: %s in shard: %s".formatted(newsGuildId, jda.getShardInfo().getShardId()));
             return;
         }
         Optional<StandardGuildMessageChannel> newsChannel = guild.flatMap(g -> Optional.ofNullable(g.getChannelById(StandardGuildMessageChannel.class, newsChannelId)));
@@ -271,14 +294,14 @@ public class JdaClient {
         });
     }
 
-    private boolean hasPermission(GuildMessageChannel channel, Permission permission) {
+    private static boolean hasPermission(GuildMessageChannel channel, Permission permission) {
         return Optional.of(channel)
                 .flatMap(g -> Optional.of(g.getGuild()).map(Guild::getSelfMember).map(m -> m.hasPermission(g, permission)))
                 .orElse(false);
     }
 
 
-    private void shutdown(JDA jda) {
+    private static void shutdown(JDA jda) {
         // Initiating the shutdown, this closes the gateway connection and subsequently closes the requester queue
         jda.shutdown();
         try {
