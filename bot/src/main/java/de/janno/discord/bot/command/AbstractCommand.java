@@ -41,18 +41,13 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
     private static final String START_OPTION_NAME = "start";
     private static final String HELP_OPTION_NAME = "help";
 
-    private static final int MIN_MS_DELAY_BETWEEN_BUTTON_MESSAGES = 1000;
+    private static final int MIN_MS_DELAY_BETWEEN_BUTTON_MESSAGES = io.avaje.config.Config.getInt("command.minDelayBetweenButtonMessagesMs", 1000);
     private final static ConcurrentSkipListSet<Long> MESSAGE_STATE_IDS_TO_DELETE = new ConcurrentSkipListSet<>();
+    private static final Duration DELAY_MESSAGE_DATA_DELETION = Duration.ofMillis(io.avaje.config.Config.getLong("command.delayMessageDataDeletionMs", 10000));
     protected final PersistenceManager persistenceManager;
-    private Duration delayMessageDataDeletion = Duration.ofSeconds(10);
 
     protected AbstractCommand(PersistenceManager persistenceManager) {
         this.persistenceManager = persistenceManager;
-    }
-
-    @VisibleForTesting
-    public void setMessageDataDeleteDuration(Duration delayMessageDataDeletion) {
-        this.delayMessageDataDeletion = delayMessageDataDeletion;
     }
 
     protected AnswerFormatType defaultAnswerFormat() {
@@ -300,7 +295,9 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
     }
 
     private Duration calculateDelay(ButtonEventAdaptor event) {
-        long milliBetween = ChronoUnit.MILLIS.between(event.getMessageCreationTime(), OffsetDateTime.now());
+        OffsetDateTime now = OffsetDateTime.now();
+        //if for some reason the creation time is after now we set it to 0
+        long milliBetween = Math.max(ChronoUnit.MILLIS.between(event.getMessageCreationTime(), now), 0);
         if (milliBetween < MIN_MS_DELAY_BETWEEN_BUTTON_MESSAGES) {
             BotMetrics.incrementDelayCounter(getCommandId(), true);
             long delay = MIN_MS_DELAY_BETWEEN_BUTTON_MESSAGES - milliBetween;
@@ -315,14 +312,14 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
     private Mono<Void> deleteMessageDataWithDelay(long channelId, long messageId) {
         MESSAGE_STATE_IDS_TO_DELETE.add(messageId);
         return Mono.defer(() -> Mono.just(0)
-                .delayElement(delayMessageDataDeletion)
+                .delayElement(DELAY_MESSAGE_DATA_DELETION)
                 .doOnNext(v -> {
                     MESSAGE_STATE_IDS_TO_DELETE.remove(messageId);
                     persistenceManager.deleteStateForMessage(channelId, messageId);
                 }).ofType(Void.class));
     }
 
-   protected Mono<Void> deleteOldAndConcurrentMessageAndData(
+    protected Mono<Void> deleteOldAndConcurrentMessageAndData(
             long newMessageId,
             @NonNull UUID configUUID,
             long channelId,

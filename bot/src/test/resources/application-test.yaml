@@ -1,0 +1,6 @@
+metric:
+  url: localhost
+  port: 9090
+command:
+  minDelayBetweenButtonMessagesMs: 10
+  delayMessageDataDeletionMs: 10

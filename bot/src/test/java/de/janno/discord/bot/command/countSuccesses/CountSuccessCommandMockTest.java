@@ -12,7 +12,6 @@ import de.janno.discord.bot.persistance.PersistenceManagerImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.time.Duration;
 import java.util.Set;
 import java.util.UUID;
 
@@ -26,7 +25,7 @@ public class CountSuccessCommandMockTest {
     void setup() {
         persistenceManager = new PersistenceManagerImpl("jdbc:h2:mem:" + UUID.randomUUID(), null, null);
         underTest = new CountSuccessesCommand(persistenceManager, new DiceUtils(1, 1, 5, 6));
-        underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
+
     }
 
     @Test

@@ -19,6 +19,8 @@ dependencyResolutionManagement {
             library("log4j-to-slf4j", "org.apache.logging.log4j:log4j-to-slf4j:2.22.1")
             library("commons-lang3", "org.apache.commons:commons-lang3:3.14.0")
             library("commons-text", "org.apache.commons:commons-text:1.11.0")
+            library("avaje-config", "io.avaje:avaje-config:3.10")
+            library("avaje-slf4j", "io.avaje:avaje-applog-slf4j:1.0")
         }
     }
 }

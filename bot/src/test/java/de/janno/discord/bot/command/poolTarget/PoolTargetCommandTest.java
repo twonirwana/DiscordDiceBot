@@ -20,7 +20,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Mono;
 
-import java.time.Duration;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -37,7 +36,7 @@ class PoolTargetCommandTest {
     @BeforeEach
     void setup() {
         underTest = new PoolTargetCommand(persistenceManager, new DiceUtils(1, 1, 1, 2, 5, 6, 6, 6, 2, 10, 10, 2, 3, 4, 5, 6, 7, 8));
-        underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
+
 
     }
 
@@ -470,7 +469,7 @@ class PoolTargetCommandTest {
     void checkPersistence() {
         PersistenceManager persistenceManager = new PersistenceManagerImpl("jdbc:h2:mem:" + UUID.randomUUID(), null, null);
         underTest = new PoolTargetCommand(persistenceManager, mock(DiceUtils.class));
-        underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
+
         UUID configUUID = UUID.randomUUID();
         long channelId = System.currentTimeMillis();
         long messageId = System.currentTimeMillis();

@@ -1,6 +1,7 @@
 package de.janno.discord.bot;
 
 
+import com.google.common.base.Strings;
 import de.janno.discord.bot.command.ClearCommand;
 import de.janno.discord.bot.command.channelConfig.ChannelConfigCommand;
 import de.janno.discord.bot.command.countSuccesses.CountSuccessesCommand;
@@ -23,55 +24,32 @@ import de.janno.discord.bot.persistance.PersistenceManager;
 import de.janno.discord.bot.persistance.PersistenceManagerImpl;
 import de.janno.discord.connector.DiscordConnectorImpl;
 import de.janno.evaluator.dice.random.RandomNumberSupplier;
+import io.avaje.config.Config;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 import java.util.Set;
 
+@Slf4j
 public class Bot {
-    private final static String DEFAULT_ARG = "default"; //to skip this optional argument
 
     public static void main(final String[] args) throws Exception {
         final String token = args[0];
-        final boolean disableCommandUpdate = Boolean.parseBoolean(args[1]);
-        final String publishMetricsToUrl = args[2];
-        BotMetrics.init(publishMetricsToUrl, 8080);
+        if (!Strings.isNullOrEmpty(token)) {
+            log.info("using token from program argument");
+            Config.setProperty("token", token);
+        }
+        BotMetrics.init();
 
-        final String h2Url;
-        if (args.length >= 4 && !DEFAULT_ARG.equals(args[3])) {
-            h2Url = args[3];
-        } else {
-            h2Url = "jdbc:h2:file:./persistence/dice_config;AUTO_SERVER=TRUE;DB_CLOSE_DELAY=10";
-        }
-        final String h2User;
-        if (args.length >= 5 && !DEFAULT_ARG.equals(args[4])) {
-            h2User = args[4];
-        } else {
-            h2User = null;
-        }
-        final String h2Password;
-        if (args.length >= 6 && !DEFAULT_ARG.equals(args[5])) {
-            h2Password = args[5];
-        } else {
-            h2Password = null;
-        }
-
-        final String newsGuildId;
-        if (args.length >= 7 && !DEFAULT_ARG.equals(args[6])) {
-            newsGuildId = args[6].trim();
-        } else {
-            newsGuildId = null;
-        }
-
-        String newsChannelId;
-        if (args.length >= 8 && !DEFAULT_ARG.equals(args[7])) {
-            newsChannelId = args[7].trim();
-        } else {
-            newsChannelId = null;
-        }
-        PersistenceManager persistenceManager = new PersistenceManagerImpl(h2Url, h2User, h2Password);
+        final String url = Config.get("db.url", "jdbc:h2:file:./persistence/dice_config;AUTO_SERVER=TRUE;DB_CLOSE_DELAY=5");
+        final String user = Config.getNullable("db.user");
+        final String password = Config.getNullable("db.password");
+        PersistenceManager persistenceManager = new PersistenceManagerImpl(url, user, password);
 
         Set<Long> allGuildIdsInPersistence = persistenceManager.getAllGuildIds();
-        CachingDiceEvaluator cachingDiceEvaluator = new CachingDiceEvaluator(new RandomNumberSupplier(), 1000, 10_000);
+        CachingDiceEvaluator cachingDiceEvaluator = new CachingDiceEvaluator(new RandomNumberSupplier(),
+                Config.getInt("diceEvaluator.maxNumberOfDice", 1000),
+                Config.getInt("diceEvaluator.cacheSize", 10_000));
 
         CustomDiceCommand customDiceCommand = new CustomDiceCommand(persistenceManager, cachingDiceEvaluator);
         CustomParameterCommand customParameterCommand = new CustomParameterCommand(persistenceManager, cachingDiceEvaluator);
@@ -80,8 +58,7 @@ public class Bot {
 
         WelcomeCommand welcomeCommand = new WelcomeCommand(persistenceManager, rpgSystemCommandPreset);
 
-        DiscordConnectorImpl.createAndStart(token,
-                disableCommandUpdate,
+        DiscordConnectorImpl.createAndStart(
                 List.of(customDiceCommand,
                         new DirectRollCommand(persistenceManager, cachingDiceEvaluator),
                         new HiddenDirectRollCommand(persistenceManager, cachingDiceEvaluator),
@@ -106,9 +83,7 @@ public class Bot {
                         new PoolTargetCommand(persistenceManager)
                 ),
                 welcomeCommand.getWelcomeMessage(),
-                allGuildIdsInPersistence,
-                newsGuildId,
-                newsChannelId);
+                allGuildIdsInPersistence);
     }
 
 }

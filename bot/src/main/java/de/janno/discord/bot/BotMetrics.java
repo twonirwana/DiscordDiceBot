@@ -6,6 +6,7 @@ import com.sun.net.httpserver.SimpleFileServer;
 import de.janno.discord.bot.command.AnswerFormatType;
 import de.janno.discord.bot.dice.DiceParserSystem;
 import de.janno.discord.bot.dice.image.DiceStyleAndColor;
+import io.avaje.config.Config;
 import io.micrometer.core.instrument.Metrics;
 import io.micrometer.core.instrument.Tags;
 import io.micrometer.core.instrument.Timer;
@@ -56,14 +57,16 @@ public class BotMetrics {
     private final static String DELAYED_TAG = "delayed";
     private static final String ANSWER_TIMER_PREFIX = "answerTimer";
     private static final String NEW_BUTTON_TIMER_PREFIX = "newButtonTimer";
+    private static final String publishMetricsToUrl = Config.get("metric.url", "localhost");
+    private static final int publishPort = Config.getInt("metric.port", 8080);
 
-    public static void init(String publishMetricsToUrl, int port) throws IOException {
+    public static void init() throws IOException {
         if (!Strings.isNullOrEmpty(publishMetricsToUrl)) {
             PrometheusMeterRegistry prometheusRegistry = new PrometheusMeterRegistry(PrometheusConfig.DEFAULT);
             Metrics.addRegistry(prometheusRegistry);
             new UptimeMetrics().bindTo(globalRegistry);
 
-            HttpServer server = HttpServer.create(new InetSocketAddress(publishMetricsToUrl, port),
+            HttpServer server = HttpServer.create(new InetSocketAddress(publishMetricsToUrl, publishPort),
                     SimpleFileServer.OutputLevel.INFO.ordinal(),
                     "/prometheus",
                     exchange -> {
