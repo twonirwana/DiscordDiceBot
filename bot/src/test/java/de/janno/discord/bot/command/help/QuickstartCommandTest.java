@@ -172,6 +172,7 @@ class QuickstartCommandTest {
                 "Tiny D6",
                 "Traveller",
                 "Vampire 5ed",
+                "Year Zero Engine: Alien",
                 "nWod / Chronicles of Darkness",
                 "oWod / Storyteller System");
         assertThat(res.stream().map(AutoCompleteAnswer::getValue)).containsExactly("ASOIAF",
@@ -206,6 +207,7 @@ class QuickstartCommandTest {
                 "TINY_D6",
                 "TRAVELLER",
                 "VAMPIRE_5ED",
+                "ALIEN",
                 "NWOD",
                 "OWOD");
     }
