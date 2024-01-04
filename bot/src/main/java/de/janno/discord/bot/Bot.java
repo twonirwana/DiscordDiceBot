@@ -34,10 +34,12 @@ import java.util.Set;
 public class Bot {
 
     public static void main(final String[] args) throws Exception {
-        final String token = args[0];
-        if (!Strings.isNullOrEmpty(token)) {
-            log.info("using token from program argument");
-            Config.setProperty("token", token);
+        if (args != null && args.length > 0) {
+            final String token = args[0];
+            if (!Strings.isNullOrEmpty(token)) {
+                log.info("using token from program argument");
+                Config.setProperty("token", token);
+            }
         }
         BotMetrics.init();
 
