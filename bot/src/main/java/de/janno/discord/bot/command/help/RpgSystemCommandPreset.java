@@ -215,6 +215,9 @@ public class RpgSystemCommandPreset {
                     new CustomDiceConfig(null, string2ButtonIdLabelAndDiceExpression(I18n.getMessage("rpg.system.command.preset.EXPANSE.expression", userLocale)),
                             DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.only_dice, null, new DiceStyleAndColor(DiceImageStyle.expanse, "mars_light"), userLocale),
                     customDiceCommand, newConfigUUID, guildId, channelId);
+            case ALIEN -> startPreset(
+                    new CustomParameterConfig(null, I18n.getMessage("rpg.system.command.preset.ALIEN.expression", userLocale), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.without_expression, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_knots, "blue"), userLocale),
+                    customParameterCommand, newConfigUUID, guildId, channelId);
         };
     }
 
@@ -259,7 +262,8 @@ public class RpgSystemCommandPreset {
         CANDELA_OBSCURA,
         PROWLERS_PARAGONS,
         BLUEBEARD_BRIDE,
-        EXPANSE;
+        EXPANSE,
+        ALIEN;
 
         public String getName(Locale locale) {
             return I18n.getMessage("rpg.system.command.preset.%s.name".formatted(name()), locale);
