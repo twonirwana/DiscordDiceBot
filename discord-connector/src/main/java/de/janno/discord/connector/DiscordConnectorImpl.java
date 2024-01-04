@@ -12,26 +12,21 @@ import java.util.Set;
 import java.util.function.Function;
 
 public class DiscordConnectorImpl implements DiscordConnector {
-    public static void createAndStart(@NonNull String token,
-                                      boolean disableCommandUpdate,
-                                      @NonNull List<SlashCommand> slashCommands,
-                                      @NonNull List<ComponentInteractEventHandler> componentInteractEventHandlers,
-                                      @NonNull Function<WelcomeRequest, EmbedOrMessageDefinition> welcomeMessageDefinition,
-                                      @NonNull Set<Long> allGuildIdsInPersistence,
-                                      String newsGuildId,
-                                      String newsChannelId) throws Exception {
-        new DiscordConnectorImpl().start(token, disableCommandUpdate, slashCommands, componentInteractEventHandlers, welcomeMessageDefinition, allGuildIdsInPersistence, newsGuildId, newsChannelId);
+    public static void createAndStart(
+            @NonNull List<SlashCommand> slashCommands,
+            @NonNull List<ComponentInteractEventHandler> componentInteractEventHandlers,
+            @NonNull Function<WelcomeRequest, EmbedOrMessageDefinition> welcomeMessageDefinition,
+            @NonNull Set<Long> allGuildIdsInPersistence
+    ) throws Exception {
+        new DiscordConnectorImpl().start(slashCommands, componentInteractEventHandlers, welcomeMessageDefinition, allGuildIdsInPersistence);
     }
 
     @Override
-    public void start(@NonNull String token,
-                      boolean disableCommandUpdate,
-                      @NonNull List<SlashCommand> slashCommands,
+    public void start(@NonNull List<SlashCommand> slashCommands,
                       @NonNull List<ComponentInteractEventHandler> componentInteractEventHandlers,
                       @NonNull Function<WelcomeRequest, EmbedOrMessageDefinition> welcomeMessageDefinition,
-                      @NonNull Set<Long> allGuildIdsInPersistence,
-                      String newsGuildId,
-                      String newsChannelId) throws Exception {
-        new JdaClient(token, disableCommandUpdate, slashCommands, componentInteractEventHandlers, welcomeMessageDefinition, allGuildIdsInPersistence, newsGuildId, newsChannelId);
+                      @NonNull Set<Long> allGuildIdsInPersistence
+    ) throws Exception {
+        new JdaClient(slashCommands, componentInteractEventHandlers, welcomeMessageDefinition, allGuildIdsInPersistence);
     }
 }

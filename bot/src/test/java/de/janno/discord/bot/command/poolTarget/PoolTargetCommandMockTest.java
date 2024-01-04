@@ -11,7 +11,6 @@ import de.janno.discord.bot.persistance.PersistenceManagerImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.time.Duration;
 import java.util.Set;
 import java.util.UUID;
 
@@ -28,7 +27,7 @@ public class PoolTargetCommandMockTest {
     @Test
     void roll_full() {
         PoolTargetCommand underTest = new PoolTargetCommand(persistenceManager, new DiceUtils(0L));
-        underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
+
 
         PoolTargetConfig config = new PoolTargetConfig(null, 10, 15, Set.of(9, 10), Set.of(1, 2), "ask", AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"));
         ButtonEventAdaptorMockFactory<PoolTargetConfig, PoolTargetStateData> factory = new ButtonEventAdaptorMockFactory<>("pool_target", underTest, config, persistenceManager, false);
@@ -58,7 +57,7 @@ public class PoolTargetCommandMockTest {
     @Test
     void roll_compact() {
         PoolTargetCommand underTest = new PoolTargetCommand(persistenceManager, new DiceUtils(0L));
-        underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
+
 
         PoolTargetConfig config = new PoolTargetConfig(null, 10, 15, Set.of(9, 10), Set.of(1, 2), "ask", AnswerFormatType.compact, null, new DiceStyleAndColor(DiceImageStyle.none, "none"));
         ButtonEventAdaptorMockFactory<PoolTargetConfig, PoolTargetStateData> factory = new ButtonEventAdaptorMockFactory<>("pool_target", underTest, config, persistenceManager, false);
@@ -88,7 +87,7 @@ public class PoolTargetCommandMockTest {
     @Test
     void roll_minimal() {
         PoolTargetCommand underTest = new PoolTargetCommand(persistenceManager, new DiceUtils(0L));
-        underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
+
 
         PoolTargetConfig config = new PoolTargetConfig(null, 10, 15, Set.of(9, 10), Set.of(1, 2), "ask", AnswerFormatType.minimal, null, new DiceStyleAndColor(DiceImageStyle.none, "none"));
         ButtonEventAdaptorMockFactory<PoolTargetConfig, PoolTargetStateData> factory = new ButtonEventAdaptorMockFactory<>("pool_target", underTest, config, persistenceManager, false);

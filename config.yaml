@@ -1,0 +1,25 @@
+token:
+newsGuildId:
+newsChannelId:
+http.timeoutSec: 30
+shardsTotal: -1
+shardIds:
+disableCommandUpdate: false
+welcomeMessageStartTimePlusBufferSec: 300
+waitUntilAllShardsReadyForShutdown:
+  sleepTimeMs: 100
+  maxTotalWaitTimeMs: 10000
+shutdownWaitTimeSec: 10
+db:
+  url: jdbc:h2:file:./persistence/dice_config;AUTO_SERVER=TRUE;DB_CLOSE_DELAY=5
+  user:
+  password:
+metric:
+  url: localhost
+  port: 8080
+diceEvaluator:
+  maxNumberOfDice: 1000
+  cacheSize: 10000
+command:
+  minDelayBetweenButtonMessagesMs: 1000
+  delayMessageDataDeletionMs: 10000

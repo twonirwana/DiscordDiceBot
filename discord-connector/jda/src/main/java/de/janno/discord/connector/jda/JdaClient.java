@@ -3,6 +3,7 @@ package de.janno.discord.connector.jda;
 import com.google.common.base.Strings;
 import de.janno.discord.connector.api.*;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
+import io.avaje.config.Config;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.JDA;
@@ -43,26 +44,18 @@ import static java.lang.Thread.sleep;
 @Slf4j
 public class JdaClient {
 
-    public static final Duration START_UP_BUFFER = Duration.of(5, ChronoUnit.MINUTES);
     private final static Set<Integer> SHARD_IDS_NOT_READY_FOR_SHUTDOWN = new ConcurrentSkipListSet<>();
-    private final String newsGuildId;
-    private final String newsChannelId;
 
-    public JdaClient(@NonNull String token,
-                     boolean disableCommandUpdate,
-                     @NonNull List<SlashCommand> slashCommands,
+    public JdaClient(@NonNull List<SlashCommand> slashCommands,
                      @NonNull List<ComponentInteractEventHandler> componentInteractEventHandlers,
                      @NonNull Function<DiscordConnector.WelcomeRequest, EmbedOrMessageDefinition> welcomeMessageDefinition,
-                     @NonNull Set<Long> allGuildIdsInPersistence,
-                     String newsGuildId,
-                     String newsChannelId) {
-        this.newsGuildId = newsGuildId;
-        this.newsChannelId = newsChannelId;
-        LocalDateTime startTimePlusBuffer = LocalDateTime.now().plus(START_UP_BUFFER);
-        Scheduler scheduler = Schedulers.boundedElastic();
-        Set<Long> botInGuildIdSet = new ConcurrentSkipListSet<>();
-        Duration timeout = Duration.of(30, ChronoUnit.SECONDS);
-        OkHttpClient okHttpClient = IOUtil.newHttpClientBuilder()
+                     @NonNull Set<Long> allGuildIdsInPersistence) {
+
+        final LocalDateTime welcomeMessageStartTimePlusBuffer = LocalDateTime.now().plus(Duration.of(Config.getLong("welcomeMessageStartTimePlusBufferSec"), ChronoUnit.SECONDS));
+        final Scheduler scheduler = Schedulers.boundedElastic();
+        final Set<Long> botInGuildIdSet = new ConcurrentSkipListSet<>();
+        final Duration timeout = Duration.of(Config.getLong("http.timeoutSec"), ChronoUnit.SECONDS);
+        final OkHttpClient okHttpClient = IOUtil.newHttpClientBuilder()
                 .eventListener(JdaMetrics.getOkHttpEventListener())
                 .writeTimeout(timeout)
                 .readTimeout(timeout)
@@ -70,6 +63,10 @@ public class JdaClient {
                 .build();
 
         JdaMetrics.registerHttpClient(okHttpClient);
+        final String token = Config.get("token");
+        if (Strings.isNullOrEmpty(token)) {
+            throw new IllegalArgumentException("Missing discord token");
+        }
         DefaultShardManagerBuilder shardManagerBuilder = DefaultShardManagerBuilder.createLight(token, Collections.emptyList())
                 .setHttpClient(okHttpClient)
                 .setEnableShutdownHook(false)
@@ -81,7 +78,7 @@ public class JdaClient {
                                     log.info("Bot started in guild: name='{}', memberCount={}", event.getGuild().getName(),
                                             event.getGuild().getMemberCount());
                                     botInGuildIdSet.add(event.getGuild().getIdLong());
-                                    if (LocalDateTime.now().isAfter(startTimePlusBuffer)) {
+                                    if (LocalDateTime.now().isAfter(welcomeMessageStartTimePlusBuffer)) {
                                         Optional.ofNullable(event.getGuild().getSystemChannel())
                                                 .filter(GuildMessageChannel::canTalk)
                                                 .ifPresent(textChannel -> {
@@ -128,6 +125,7 @@ public class JdaClient {
                                         .filter(id -> !botInGuildIdSet.contains(id))
                                         .count();
                                 log.info("Inactive guild count with config: {}", inactiveGuildIdCountWithConfig);
+                                //todo wait until all shards are ready
                                 sendMessageInNewsChannel(event.getJDA(), "Bot started and is ready");
                             }
 
@@ -207,7 +205,13 @@ public class JdaClient {
                         }
                 )
                 .setActivity(Activity.customStatus("Type /quickstart or /help"));
-        //shardManagerBuilder.setShardsTotal(2); //todo make configurable
+        shardManagerBuilder.setShardsTotal(Config.getInt("shardsTotal", -1));
+        Config.getOptional("shardIds", null)
+                .map(s -> Arrays.stream(s.split(","))
+                        .map(String::trim)
+                        .map(Integer::parseInt)
+                        .toList())
+                .ifPresent(shardManagerBuilder::setShards);
         ShardManager shardManager = shardManagerBuilder.build();
         JdaMetrics.startGuildCountGauge(botInGuildIdSet);
 
@@ -236,6 +240,7 @@ public class JdaClient {
                     log.info("finished jda %s shutdown".formatted(jda.getShardInfo().getShardString()));
                 })));
 
+        boolean disableCommandUpdate = Config.getBool("disableCommandUpdate", false);
         SlashCommandRegistry.builder()
                 .addSlashCommands(slashCommands)
                 .registerSlashCommands(shardManager.getShards().getFirst(), disableCommandUpdate);
@@ -243,8 +248,9 @@ public class JdaClient {
 
     private static void waitUntilAllShardsReadyForShutdown(int shardId) {
         long waitTime = 0;
-        final long sleepTime = 100;
-        while (!SHARD_IDS_NOT_READY_FOR_SHUTDOWN.isEmpty() && waitTime < 10_000) {
+        final long sleepTime = Config.getInt("waitUntilAllShardsReadyForShutdown.sleepTimeMs", 100);
+        final long maxTotalWaitTime = Config.getInt("waitUntilAllShardsReadyForShutdown.maxTotalWaitTimeMs", 10_000);
+        while (!SHARD_IDS_NOT_READY_FOR_SHUTDOWN.isEmpty() && waitTime < maxTotalWaitTime) {
             try {
                 sleep(sleepTime);
                 waitTime += sleepTime;
@@ -256,12 +262,42 @@ public class JdaClient {
         log.info("All shards are finished for shardId=%s".formatted(shardId));
     }
 
-    private void sendMessageInNewsChannel(JDA jda, String message) {
-        if (Strings.isNullOrEmpty(newsGuildId) && jda.getShardInfo().getShardId() == 0) {
-            log.warn("No GuildId for start and shutdown messages");
+    private static boolean hasPermission(GuildMessageChannel channel, Permission permission) {
+        return Optional.of(channel)
+                .flatMap(g -> Optional.of(g.getGuild()).map(Guild::getSelfMember).map(m -> m.hasPermission(g, permission)))
+                .orElse(false);
+    }
+
+    private static void shutdown(JDA jda) {
+        final long shutdownWaitTimeSec = Config.getInt("shutdownWaitTimeSec", 10);
+        // Initiating the shutdown, this closes the gateway connection and subsequently closes the requester queue
+        jda.shutdown();
+        try {
+            // Allow at most 5 seconds for remaining requests to finish
+            if (!jda.awaitShutdown(Duration.ofSeconds(shutdownWaitTimeSec))) { // returns true if shutdown is graceful, false if timeout exceeded
+                log.warn("shutdown took more then 10sec");
+                jda.shutdownNow(); // Cancel all remaining requests, and stop thread-pools
+                boolean finishWithoutTimeout = jda.awaitShutdown(Duration.ofSeconds(shutdownWaitTimeSec)); // Wait until shutdown is complete (10 sec)
+                if (!finishWithoutTimeout) {
+                    log.warn("shutdown now took more then 10sec");
+                }
+            }
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
-        if (Strings.isNullOrEmpty(newsChannelId) && jda.getShardInfo().getShardId() == 0) {
+    }
+
+    private static void sendMessageInNewsChannel(JDA jda, String message) {
+        final String newsGuildId = Config.getNullable("newsGuildId");
+        final String newsChannelId = Config.getNullable("newsChannelId");
+
+        if (Strings.isNullOrEmpty(newsGuildId)) {
+            log.warn("No GuildId for start and shutdown messages");
+            return;
+        }
+        if (Strings.isNullOrEmpty(newsChannelId)) {
             log.warn("No ChannelId for start and shutdown messages");
+            return;
         }
 
         Optional<Guild> guild = Optional.ofNullable(jda.getGuildById(newsGuildId));
@@ -292,30 +328,5 @@ public class JdaClient {
                 log.warn("Missing send message permission for channel id: " + newsChannelId);
             }
         });
-    }
-
-    private static boolean hasPermission(GuildMessageChannel channel, Permission permission) {
-        return Optional.of(channel)
-                .flatMap(g -> Optional.of(g.getGuild()).map(Guild::getSelfMember).map(m -> m.hasPermission(g, permission)))
-                .orElse(false);
-    }
-
-
-    private static void shutdown(JDA jda) {
-        // Initiating the shutdown, this closes the gateway connection and subsequently closes the requester queue
-        jda.shutdown();
-        try {
-            // Allow at most 5 seconds for remaining requests to finish
-            if (!jda.awaitShutdown(Duration.ofSeconds(10))) { // returns true if shutdown is graceful, false if timeout exceeded
-                log.warn("shutdown took more then 10sec");
-                jda.shutdownNow(); // Cancel all remaining requests, and stop thread-pools
-                boolean finishWithoutTimeout = jda.awaitShutdown(Duration.ofSeconds(10)); // Wait until shutdown is complete (10 sec)
-                if (!finishWithoutTimeout) {
-                    log.warn("shutdown now took more then 10sec");
-                }
-            }
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
     }
 }

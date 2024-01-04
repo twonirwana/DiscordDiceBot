@@ -8,7 +8,6 @@ import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import lombok.NonNull;
 import org.apache.commons.lang3.NotImplementedException;
 
-import java.time.Duration;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
@@ -16,7 +15,6 @@ import java.util.UUID;
 public class TestCommand extends AbstractCommand<Config, StateData> {
     protected TestCommand(PersistenceManager persistenceManager) {
         super(persistenceManager);
-        setMessageDataDeleteDuration(Duration.ofMillis(10));
     }
 
     @Override

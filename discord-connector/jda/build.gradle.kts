@@ -17,6 +17,8 @@ dependencies {
     implementation(libs.commons.lang3)
     implementation(libs.micrometer.core)
     implementation(libs.commons.text)
+    implementation(libs.avaje.config)
+    implementation(libs.avaje.slf4j)
 
     compileOnly(libs.lombok)
     annotationProcessor(libs.lombok)

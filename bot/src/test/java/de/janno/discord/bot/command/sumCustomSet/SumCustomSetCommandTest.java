@@ -21,7 +21,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import java.time.Duration;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -59,7 +58,7 @@ class SumCustomSetCommandTest {
     void setup() {
         diceMock = mock(Dice.class);
         underTest = new SumCustomSetCommand(persistenceManager, diceMock, new CachingDiceEvaluator((minExcl, maxIncl) -> 0, 1000, 0));
-        underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
+
 
     }
 
@@ -243,7 +242,7 @@ class SumCustomSetCommandTest {
     void checkPersistence() {
         PersistenceManager persistenceManager = new PersistenceManagerImpl("jdbc:h2:mem:" + UUID.randomUUID(), null, null);
         underTest = new SumCustomSetCommand(persistenceManager, diceMock, new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 10000));
-        underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
+
         UUID configUUID = UUID.randomUUID();
         long channelId = System.currentTimeMillis();
         long messageId = System.currentTimeMillis();
@@ -465,12 +464,12 @@ class SumCustomSetCommandTest {
                 """);
         MessageDataDTO messageDataDTO = new MessageDataDTO(configUUID, 1L, 1660644934298L, 1660644934298L, "sum_custom_set",
                 "SumCustomSetStateDataV2", """
-               ---
-               diceExpressions:
-               - expression: "+2d4"
-                 label: "Bonus"
-               lockedForUserName: "testUser"
-                """);
+                ---
+                diceExpressions:
+                - expression: "+2d4"
+                  label: "Bonus"
+                lockedForUserName: "testUser"
+                 """);
 
         ConfigAndState<SumCustomSetConfig, SumCustomSetStateDataV2> configAndState = underTest.deserializeAndUpdateState(messageConfigDTO, messageDataDTO, "1_button", "testUser");
         assertThat(configAndState.getConfig()).isEqualTo(new SumCustomSetConfig(123L, List.of(

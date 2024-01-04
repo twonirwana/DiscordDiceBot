@@ -12,7 +12,6 @@ import de.janno.discord.bot.persistance.PersistenceManagerImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.time.Duration;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -28,7 +27,7 @@ public class FateCommandMockTest {
     @Test
     void roll_simple_full() {
         FateCommand underTest = new FateCommand(persistenceManager, new DiceUtils(0L));
-        underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
+
 
         FateConfig config = new FateConfig(null, "simple", AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"));
         ButtonEventAdaptorMockFactory<FateConfig, StateData> factory = new ButtonEventAdaptorMockFactory<>("fate", underTest, config, persistenceManager, false);
@@ -46,7 +45,7 @@ public class FateCommandMockTest {
     @Test
     void roll_simple_compact() {
         FateCommand underTest = new FateCommand(persistenceManager, new DiceUtils(0L));
-        underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
+
 
         FateConfig config = new FateConfig(null, "simple", AnswerFormatType.compact, null, new DiceStyleAndColor(DiceImageStyle.none, "none"));
         ButtonEventAdaptorMockFactory<FateConfig, StateData> factory = new ButtonEventAdaptorMockFactory<>("fate", underTest, config, persistenceManager, false);
@@ -64,7 +63,7 @@ public class FateCommandMockTest {
     @Test
     void roll_simple_minimal() {
         FateCommand underTest = new FateCommand(persistenceManager, new DiceUtils(0L));
-        underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
+
 
         FateConfig config = new FateConfig(null, "simple", AnswerFormatType.minimal, null, new DiceStyleAndColor(DiceImageStyle.none, "none"));
         ButtonEventAdaptorMockFactory<FateConfig, StateData> factory = new ButtonEventAdaptorMockFactory<>("fate", underTest, config, persistenceManager, false);
@@ -83,7 +82,7 @@ public class FateCommandMockTest {
     @Test
     void roll_modifier_full() {
         FateCommand underTest = new FateCommand(persistenceManager, new DiceUtils(0L));
-        underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
+
 
         FateConfig config = new FateConfig(null, "with_modifier", AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"));
         ButtonEventAdaptorMockFactory<FateConfig, StateData> factory = new ButtonEventAdaptorMockFactory<>("fate", underTest, config, persistenceManager, false);
@@ -102,7 +101,7 @@ public class FateCommandMockTest {
     @Test
     void roll_modifier_compact() {
         FateCommand underTest = new FateCommand(persistenceManager, new DiceUtils(0L));
-        underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
+
 
         FateConfig config = new FateConfig(null, "with_modifier", AnswerFormatType.compact, null, new DiceStyleAndColor(DiceImageStyle.none, "none"));
         ButtonEventAdaptorMockFactory<FateConfig, StateData> factory = new ButtonEventAdaptorMockFactory<>("fate", underTest, config, persistenceManager, false);
@@ -121,7 +120,7 @@ public class FateCommandMockTest {
     @Test
     void roll_modifier_minimal() {
         FateCommand underTest = new FateCommand(persistenceManager, new DiceUtils(0L));
-        underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
+
 
         FateConfig config = new FateConfig(null, "with_modifier", AnswerFormatType.minimal, null, new DiceStyleAndColor(DiceImageStyle.none, "none"));
         ButtonEventAdaptorMockFactory<FateConfig, StateData> factory = new ButtonEventAdaptorMockFactory<>("fate", underTest, config, persistenceManager, false);

@@ -28,7 +28,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import java.time.Duration;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -88,7 +87,7 @@ class CustomDiceCommandTest {
     void setup() {
         diceMock = mock(Dice.class);
         underTest = new CustomDiceCommand(persistenceManager, diceMock, new CachingDiceEvaluator((minExcl, maxIncl) -> 3, 10, 0));
-        underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
+
     }
 
     @Test

@@ -16,7 +16,6 @@ import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.time.Duration;
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -30,7 +29,7 @@ class CountSuccessesCommandTest {
     @BeforeEach
     void setup() {
         underTest = new CountSuccessesCommand(persistenceManager, new DiceUtils(1, 1, 1, 1, 5, 6, 6, 6));
-        underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
+
     }
 
     @Test

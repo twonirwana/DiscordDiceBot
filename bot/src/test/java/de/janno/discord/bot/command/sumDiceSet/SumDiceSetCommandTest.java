@@ -17,7 +17,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import java.time.Duration;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -99,7 +98,7 @@ class SumDiceSetCommandTest {
     @BeforeEach
     void setup() {
         underTest = new SumDiceSetCommand(mock(PersistenceManager.class), new DiceUtils(1, 1, 1, 1, 5, 6, 6, 6));
-        underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
+
 
     }
 
@@ -366,7 +365,7 @@ class SumDiceSetCommandTest {
     void checkPersistence() {
         PersistenceManager persistenceManager = new PersistenceManagerImpl("jdbc:h2:mem:" + UUID.randomUUID(), null, null);
         underTest = new SumDiceSetCommand(persistenceManager, mock(DiceUtils.class));
-        underTest.setMessageDataDeleteDuration(Duration.ofMillis(10));
+
         UUID configUUID = UUID.fromString("00000000-0000-0000-0000-000000000001");
         long channelId = System.currentTimeMillis();
         long messageId = System.currentTimeMillis();

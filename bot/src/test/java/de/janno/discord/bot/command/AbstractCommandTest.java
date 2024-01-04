@@ -76,7 +76,7 @@ class AbstractCommandTest {
     void deleteMessageAndData_deleteCache() throws InterruptedException {
         PersistenceManagerImpl messageDataDAO = new PersistenceManagerImpl("jdbc:h2:mem:" + UUID.randomUUID(), null, null);
         TestCommand underTest = new TestCommand(messageDataDAO);
-        underTest.setMessageDataDeleteDuration(Duration.ofMillis(200));
+
         ButtonEventAdaptorMock buttonEventAdaptorMock = new ButtonEventAdaptorMock("testCommand", "a", UUID.fromString("00000000-0000-0000-0000-000000000000"), new AtomicLong(), Set.of(2L));
         UUID configUUID = UUID.fromString("00000000-0000-0000-0000-000000000001");
         Flux.range(1, 9)
