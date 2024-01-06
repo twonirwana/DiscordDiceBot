@@ -33,16 +33,7 @@ de.janno.discord.bot.command.customDice.CustomDiceCommandTest.getCommandDefiniti
       {
         "type": "SUB_COMMAND",
         "name": "start",
-        "nameLocales": [
-          {
-            "locale": "pt_BR",
-            "name": "iniciar"
-          },
-          {
-            "locale": "fr",
-            "name": "démarrer"
-          }
-        ],
+        "nameLocales": [ ],
         "description": "Configure dice buttons like: 1d6;2d8=;1d10+10=",
         "descriptionLocales": [
           {
@@ -64,16 +55,7 @@ de.janno.discord.bot.command.customDice.CustomDiceCommandTest.getCommandDefiniti
           {
             "type": "STRING",
             "name": "buttons",
-            "nameLocales": [
-              {
-                "locale": "pt_BR",
-                "name": "botoes"
-              },
-              {
-                "locale": "fr",
-                "name": "boutons"
-              }
-            ],
+            "nameLocales": [ ],
             "description": "Define one or more buttons separated by `;`",
             "descriptionLocales": [
               {
@@ -97,20 +79,7 @@ de.janno.discord.bot.command.customDice.CustomDiceCommandTest.getCommandDefiniti
           {
             "type": "CHANNEL",
             "name": "target_channel",
-            "nameLocales": [
-              {
-                "locale": "de",
-                "name": "antwort_kanal"
-              },
-              {
-                "locale": "pt_BR",
-                "name": "canal_alvo"
-              },
-              {
-                "locale": "fr",
-                "name": "canal_cible"
-              }
-            ],
+            "nameLocales": [ ],
             "description": "Another channel where the answer will be given",
             "descriptionLocales": [
               {
@@ -134,20 +103,7 @@ de.janno.discord.bot.command.customDice.CustomDiceCommandTest.getCommandDefiniti
           {
             "type": "STRING",
             "name": "answer_format",
-            "nameLocales": [
-              {
-                "locale": "de",
-                "name": "antwort_format"
-              },
-              {
-                "locale": "pt_BR",
-                "name": "formato_resultado"
-              },
-              {
-                "locale": "fr",
-                "name": "format_de_réponse"
-              }
-            ],
+            "nameLocales": [ ],
             "description": "How the answer will be displayed",
             "descriptionLocales": [
               {
@@ -168,80 +124,27 @@ de.janno.discord.bot.command.customDice.CustomDiceCommandTest.getCommandDefiniti
               {
                 "name": "full",
                 "value": "full",
-                "nameLocales": [
-                  {
-                    "locale": "de",
-                    "choice": "voll"
-                  },
-                  {
-                    "locale": "pt_BR",
-                    "choice": "completo"
-                  },
-                  {
-                    "locale": "fr",
-                    "choice": "complet"
-                  }
-                ]
+                "nameLocales": [ ]
               },
               {
                 "name": "without_expression",
                 "value": "without_expression",
-                "nameLocales": [
-                  {
-                    "locale": "de",
-                    "choice": "ohne_ausdruck"
-                  },
-                  {
-                    "locale": "pt_BR",
-                    "choice": "sem_formula"
-                  },
-                  {
-                    "locale": "fr",
-                    "choice": "sans_expression"
-                  }
-                ]
+                "nameLocales": [ ]
               },
               {
                 "name": "only_dice",
                 "value": "only_dice",
-                "nameLocales": [
-                  {
-                    "locale": "de",
-                    "choice": "nur_würfel"
-                  },
-                  {
-                    "locale": "pt_BR",
-                    "choice": "apenas_dados"
-                  },
-                  {
-                    "locale": "fr",
-                    "choice": "seulement_dés"
-                  }
-                ]
+                "nameLocales": [ ]
               },
               {
                 "name": "compact",
                 "value": "compact",
-                "nameLocales": [
-                  {
-                    "locale": "de",
-                    "choice": "kompakt"
-                  },
-                  {
-                    "locale": "pt_BR",
-                    "choice": "compacto"
-                  }
-                ]
+                "nameLocales": [ ]
               },
               {
                 "name": "minimal",
                 "value": "minimal",
-                "nameLocales": [
-                  {
-                    "locale": "pt_BR",
-                    "choice": "minimo"
-                  }
-                ]
+                "nameLocales": [ ]
               }
             ],
             "options": [ ],
@@ -250,20 +153,7 @@ de.janno.discord.bot.command.customDice.CustomDiceCommandTest.getCommandDefiniti
           {
             "type": "STRING",
             "name": "dice_image_style",
-            "nameLocales": [
-              {
-                "locale": "de",
-                "name": "würfel_bild_stil"
-              },
-              {
-                "locale": "pt_BR",
-                "name": "estilo_imagem_dados"
-              },
-              {
-                "locale": "fr",
-                "name": "style_de_l_image_des_dés"
-              }
-            ],
+            "nameLocales": [ ],
             "description": "If and in what style the dice throw should be shown as image",
             "descriptionLocales": [
               {
@@ -343,20 +233,7 @@ de.janno.discord.bot.command.customDice.CustomDiceCommandTest.getCommandDefiniti
           {
             "type": "STRING",
             "name": "dice_image_color",
-            "nameLocales": [
-              {
-                "locale": "de",
-                "name": "würfel_bild_farbe"
-              },
-              {
-                "locale": "pt_BR",
-                "name": "cor_dos_dados"
-              },
-              {
-                "locale": "fr",
-                "name": "couleur_de_l_image_du_dé"
-              }
-            ],
+            "nameLocales": [ ],
             "description": "The default color option. Can be influenced by the `col` operator",
             "descriptionLocales": [
               {
@@ -380,20 +257,7 @@ de.janno.discord.bot.command.customDice.CustomDiceCommandTest.getCommandDefiniti
           {
             "type": "STRING",
             "name": "language",
-            "nameLocales": [
-              {
-                "locale": "de",
-                "name": "sprache"
-              },
-              {
-                "locale": "pt_BR",
-                "name": "idioma"
-              },
-              {
-                "locale": "fr",
-                "name": "langue"
-              }
-            ],
+            "nameLocales": [ ],
             "description": "The language of the bot messages",
             "descriptionLocales": [
               {
@@ -493,20 +357,7 @@ de.janno.discord.bot.command.customDice.CustomDiceCommandTest.getCommandDefiniti
       {
         "type": "SUB_COMMAND",
         "name": "help",
-        "nameLocales": [
-          {
-            "locale": "de",
-            "name": "hilfe"
-          },
-          {
-            "locale": "pt_BR",
-            "name": "ajuda"
-          },
-          {
-            "locale": "fr",
-            "name": "aide"
-          }
-        ],
+        "nameLocales": [ ],
         "description": "Get help for /custom_dice",
         "descriptionLocales": [
           {

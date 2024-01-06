@@ -1,5 +1,6 @@
 package de.janno.discord.bot.dice;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import de.janno.discord.bot.BotMetrics;
 import de.janno.discord.bot.I18n;
@@ -77,6 +78,9 @@ public class DiceEvaluatorAdapter {
         if (rollerOrError.isValid()) {
             return Optional.empty();
         } else {
+            if(!Strings.isNullOrEmpty(expression)){
+                BotMetrics.incrementInvalidExpression(expression);
+            }
             return Optional.of(I18n.getMessage("diceEvaluator.reply.validation.invalid", userLocale, expression, rollerOrError.getErrorMessage(), helpCommand));
         }
     }
