@@ -8,6 +8,7 @@ import de.janno.discord.connector.api.AutoCompleteAnswer;
 import de.janno.discord.connector.api.AutoCompleteRequest;
 import de.janno.discord.connector.api.SlashCommand;
 import de.janno.discord.connector.api.SlashEventAdaptor;
+import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinitionOption;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
@@ -134,10 +135,11 @@ public class QuickstartCommand implements SlashCommand {
             if (presetIdOptional.isPresent()) {
                 final RpgSystemCommandPreset.PresetId presetId = presetIdOptional.get();
                 BotMetrics.incrementSlashStartMetricCounter(getCommandId(), presetId.name());
-                RpgSystemCommandPreset.CommandAndMessageDefinition commandAndMessageDefinition = rpgSystemCommandPreset.createMessage(presetId, newConfigUUID, guildId, channelId, userLocal);
-                return Mono.defer(() -> event.createMessageWithoutReference(commandAndMessageDefinition.getMessageDefinition()))
+                EmbedOrMessageDefinition commandAndMessageDefinition = rpgSystemCommandPreset.createMessage(presetId, newConfigUUID, guildId, channelId, userLocal);
+                String commandString = rpgSystemCommandPreset.getCommandString(presetId, userLocal);
+                return Mono.defer(() -> event.createMessageWithoutReference(commandAndMessageDefinition))
                         .doOnSuccess(v -> BotMetrics.timerNewButtonMessageMetricCounter(getCommandId(), stopwatch.elapsed()))
-                        .then(event.reply("`%s`".formatted(commandAndMessageDefinition.getCommand()), false))
+                        .then(event.reply("`%s`".formatted(commandString), false))
                         .doOnSuccess(v ->
                                 log.info("{}: '{}' {}ms",
                                         event.getRequester().toLogString(),
