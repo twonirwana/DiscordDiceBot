@@ -233,8 +233,11 @@ public class JdaClient {
         Runtime.getRuntime().addShutdownHook(new Thread(() ->
                 shardManager.getShards().parallelStream().forEach(jda -> {
                     log.info("start jda %s shutdown".formatted(jda.getShardInfo().getShardString()));
-                    sendMessageInNewsChannel(jda, "Bot shutdown started");
-                    SHARD_IDS_NOT_READY_FOR_SHUTDOWN.remove(jda.getShardInfo().getShardId());
+                    try {
+                        sendMessageInNewsChannel(jda, "Bot shutdown started");
+                    } finally {
+                        SHARD_IDS_NOT_READY_FOR_SHUTDOWN.remove(jda.getShardInfo().getShardId());
+                    }
                     waitUntilAllShardsReadyForShutdown(jda.getShardInfo().getShardId());
                     shutdown(jda);
                     log.info("finished jda %s shutdown".formatted(jda.getShardInfo().getShardString()));
@@ -318,7 +321,12 @@ public class JdaClient {
                 log.info("Sent '%s' to '%s'.'%s'".formatted(message, t.getGuild().getName(), t.getName()));
                 if (t instanceof NewsChannel) {
                     if (hasPermission(t, Permission.MESSAGE_MANAGE)) {
-                        ((NewsChannel) t).crosspostMessageById(sendMessage.getId()).complete();
+                        try {
+                            Thread.sleep(3000);
+                            ((NewsChannel) t).crosspostMessageById(sendMessage.getId()).complete();
+                        } catch (Exception e) {
+                            log.error("Error while publish: {0}", e);
+                        }
                         log.info("Published as news");
                     } else {
                         log.warn("Missing manage message permission for channel id: " + newsChannelId);
