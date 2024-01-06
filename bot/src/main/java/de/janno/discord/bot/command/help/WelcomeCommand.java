@@ -23,10 +23,7 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
-import java.util.Arrays;
-import java.util.Locale;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -108,32 +105,45 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
             return Optional.empty();
         }
         UUID newConfigUUID = uuidSupplier.get();
-        log.info("Click on welcome command creation: " + state.getButtonValue());
-        return switch (ButtonIds.valueOf(state.getButtonValue())) {
-            case fate ->
-                    Optional.of(rpgSystemCommandPreset.createMessage(RpgSystemCommandPreset.PresetId.FATE, newConfigUUID, guildId, channelId, config.getConfigLocale()).getMessageDefinition());
-            case fate_image ->
-                    Optional.of(rpgSystemCommandPreset.createMessage(RpgSystemCommandPreset.PresetId.FATE_IMAGE, newConfigUUID, guildId, channelId, config.getConfigLocale()).getMessageDefinition());
-            case dnd5 ->
-                    Optional.of(rpgSystemCommandPreset.createMessage(RpgSystemCommandPreset.PresetId.DND5, newConfigUUID, guildId, channelId, config.getConfigLocale()).getMessageDefinition());
-            case dnd5_image ->
-                    Optional.of(rpgSystemCommandPreset.createMessage(RpgSystemCommandPreset.PresetId.DND5_IMAGE, newConfigUUID, guildId, channelId, config.getConfigLocale()).getMessageDefinition());
-            case nWoD ->
-                    Optional.of(rpgSystemCommandPreset.createMessage(RpgSystemCommandPreset.PresetId.NWOD, newConfigUUID, guildId, channelId, config.getConfigLocale()).getMessageDefinition());
-            case oWoD ->
-                    Optional.of(rpgSystemCommandPreset.createMessage(RpgSystemCommandPreset.PresetId.OWOD, newConfigUUID, guildId, channelId, config.getConfigLocale()).getMessageDefinition());
-            case shadowrun ->
-                    Optional.of(rpgSystemCommandPreset.createMessage(RpgSystemCommandPreset.PresetId.SHADOWRUN, newConfigUUID, guildId, channelId, config.getConfigLocale()).getMessageDefinition());
-            case coin ->
-                    Optional.of(rpgSystemCommandPreset.createMessage(RpgSystemCommandPreset.PresetId.COIN, newConfigUUID, guildId, channelId, config.getConfigLocale()).getMessageDefinition());
-            case dice_calculator ->
-                    Optional.of(rpgSystemCommandPreset.createMessage(RpgSystemCommandPreset.PresetId.DICE_CALCULATOR, newConfigUUID, guildId, channelId, config.getConfigLocale()).getMessageDefinition());
+
+        final RpgSystemCommandPreset.PresetId presetId = getPresetIdFromButton(state.getButtonValue());
+        return Optional.of(rpgSystemCommandPreset.createMessage(presetId, newConfigUUID, guildId, channelId, config.getConfigLocale()));
+
+    }
+
+    private RpgSystemCommandPreset.PresetId getPresetIdFromButton(String buttonValue) {
+        return switch (ButtonIds.valueOf(buttonValue)) {
+            case fate -> RpgSystemCommandPreset.PresetId.FATE;
+            case fate_image -> RpgSystemCommandPreset.PresetId.FATE_IMAGE;
+            case dnd5 -> RpgSystemCommandPreset.PresetId.DND5;
+            case dnd5_image -> RpgSystemCommandPreset.PresetId.DND5_IMAGE;
+            case nWoD -> RpgSystemCommandPreset.PresetId.NWOD;
+            case oWoD -> RpgSystemCommandPreset.PresetId.OWOD;
+            case shadowrun -> RpgSystemCommandPreset.PresetId.SHADOWRUN;
+            case coin -> RpgSystemCommandPreset.PresetId.COIN;
+            case dice_calculator -> RpgSystemCommandPreset.PresetId.DICE_CALCULATOR;
         };
     }
 
     @Override
     protected boolean shouldKeepExistingButtonMessage(@NonNull ButtonEventAdaptor event) {
         return true;
+    }
+
+
+    @Override
+    protected void addFurtherActions(List<Mono<Void>> actions, ButtonEventAdaptor event, Config config, State<StateData> state) {
+        RpgSystemCommandPreset.PresetId presetId = getPresetIdFromButton(state.getButtonValue());
+        String commandString = rpgSystemCommandPreset.getCommandString(presetId, event.getRequester().getUserLocal());
+        actions.add(Mono.defer(() -> event.createMessageWithoutReference(EmbedOrMessageDefinition.builder()
+                        .type(EmbedOrMessageDefinition.Type.MESSAGE)
+                        .shortedContent("`%s`".formatted(commandString))
+                        .build())).ofType(Void.class)
+                .doOnSuccess(v ->
+                        log.info("{}: Welcome Button {}",
+                                event.getRequester().toLogString(),
+                                presetId.name()
+                        )));
     }
 
     @Override

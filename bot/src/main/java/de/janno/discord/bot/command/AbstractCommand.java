@@ -288,10 +288,14 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
             //don't update the state data async or there will be racing conditions
             updateCurrentMessageStateData(configUUID, guildId, channelId, messageId, config, state);
         }
-
+        addFurtherActions(actions, event, config, state);
         return Flux.merge(1, actions.toArray(new Mono<?>[0]))
                 .parallel()
                 .then();
+    }
+
+    protected void addFurtherActions(List<Mono<Void>> actions, ButtonEventAdaptor event, C config, State<S> state){
+
     }
 
     private Duration calculateDelay(ButtonEventAdaptor event) {

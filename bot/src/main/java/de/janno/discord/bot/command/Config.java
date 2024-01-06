@@ -67,6 +67,8 @@ public class Config implements Serializable {
         if (answerTargetChannelId != null) {
             out.add(String.format("%s: <#%s>", BaseCommandOptions.TARGET_CHANNEL_OPTION_NAME, answerTargetChannelId));
         }
+        //language should be set over the client
+        //out.add(String.format("%s: %s", BaseCommandOptions.LOCALE_OPTION_NAME, configLocale));
         return String.join(" ", out);
     }
 
