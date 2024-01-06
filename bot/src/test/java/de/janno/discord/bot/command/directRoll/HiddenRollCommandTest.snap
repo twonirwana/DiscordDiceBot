@@ -21,16 +21,7 @@ de.janno.discord.bot.command.directRoll.HiddenRollCommandTest.getCommandDefiniti
       {
         "type": "STRING",
         "name": "expression",
-        "nameLocales": [
-          {
-            "locale": "de",
-            "name": "ausdruck"
-          },
-          {
-            "locale": "pt_BR",
-            "name": "formula"
-          }
-        ],
+        "nameLocales": [ ],
         "description": "hidden direct roll of dice expression, e.g. `2d6`. Configuration with `/channel_config`",
         "descriptionLocales": [
           {

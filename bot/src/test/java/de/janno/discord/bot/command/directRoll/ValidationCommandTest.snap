@@ -21,16 +21,7 @@ de.janno.discord.bot.command.directRoll.ValidationCommandTest.getCommandDefiniti
       {
         "type": "STRING",
         "name": "expression",
-        "nameLocales": [
-          {
-            "locale": "de",
-            "name": "ausdruck"
-          },
-          {
-            "locale": "pt_BR",
-            "name": "formula"
-          }
-        ],
+        "nameLocales": [ ],
         "description": "provide an expression (e.g. 2d6) and the autocomplete will show an error message if it is invalid",
         "descriptionLocales": [
           {

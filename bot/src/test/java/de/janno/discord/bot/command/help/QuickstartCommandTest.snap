@@ -21,16 +21,7 @@ de.janno.discord.bot.command.help.QuickstartCommandTest.getCommandDefinition=[
       {
         "type": "STRING",
         "name": "system",
-        "nameLocales": [
-          {
-            "locale": "pt_BR",
-            "name": "sistema"
-          },
-          {
-            "locale": "fr",
-            "name": "système"
-          }
-        ],
+        "nameLocales": [ ],
         "description": "Start typing to filter and see more options",
         "descriptionLocales": [
           {

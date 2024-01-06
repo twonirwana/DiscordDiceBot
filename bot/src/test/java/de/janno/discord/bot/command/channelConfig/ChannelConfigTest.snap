@@ -21,20 +21,7 @@ de.janno.discord.bot.command.channelConfig.ChannelConfigTest.getCommandDefinitio
       {
         "type": "SUB_COMMAND",
         "name": "save_direct_roll_config",
-        "nameLocales": [
-          {
-            "locale": "de",
-            "name": "speicher_direkt_wurf_konfig"
-          },
-          {
-            "locale": "pt_BR",
-            "name": "salvar_config_rolagem_direta"
-          },
-          {
-            "locale": "fr",
-            "name": "enregistre_la_configuration"
-          }
-        ],
+        "nameLocales": [ ],
         "description": "add or update the channel config",
         "descriptionLocales": [
           {
@@ -56,20 +43,7 @@ de.janno.discord.bot.command.channelConfig.ChannelConfigTest.getCommandDefinitio
           {
             "type": "STRING",
             "name": "answer_format",
-            "nameLocales": [
-              {
-                "locale": "de",
-                "name": "antwort_format"
-              },
-              {
-                "locale": "pt_BR",
-                "name": "formato_resultado"
-              },
-              {
-                "locale": "fr",
-                "name": "format_de_réponse"
-              }
-            ],
+            "nameLocales": [ ],
             "description": "How the answer will be displayed",
             "descriptionLocales": [
               {
@@ -90,80 +64,27 @@ de.janno.discord.bot.command.channelConfig.ChannelConfigTest.getCommandDefinitio
               {
                 "name": "full",
                 "value": "full",
-                "nameLocales": [
-                  {
-                    "locale": "de",
-                    "choice": "voll"
-                  },
-                  {
-                    "locale": "pt_BR",
-                    "choice": "completo"
-                  },
-                  {
-                    "locale": "fr",
-                    "choice": "complet"
-                  }
-                ]
+                "nameLocales": [ ]
               },
               {
                 "name": "without_expression",
                 "value": "without_expression",
-                "nameLocales": [
-                  {
-                    "locale": "de",
-                    "choice": "ohne_ausdruck"
-                  },
-                  {
-                    "locale": "pt_BR",
-                    "choice": "sem_formula"
-                  },
-                  {
-                    "locale": "fr",
-                    "choice": "sans_expression"
-                  }
-                ]
+                "nameLocales": [ ]
               },
               {
                 "name": "only_dice",
                 "value": "only_dice",
-                "nameLocales": [
-                  {
-                    "locale": "de",
-                    "choice": "nur_würfel"
-                  },
-                  {
-                    "locale": "pt_BR",
-                    "choice": "apenas_dados"
-                  },
-                  {
-                    "locale": "fr",
-                    "choice": "seulement_dés"
-                  }
-                ]
+                "nameLocales": [ ]
               },
               {
                 "name": "compact",
                 "value": "compact",
-                "nameLocales": [
-                  {
-                    "locale": "de",
-                    "choice": "kompakt"
-                  },
-                  {
-                    "locale": "pt_BR",
-                    "choice": "compacto"
-                  }
-                ]
+                "nameLocales": [ ]
               },
               {
                 "name": "minimal",
                 "value": "minimal",
-                "nameLocales": [
-                  {
-                    "locale": "pt_BR",
-                    "choice": "minimo"
-                  }
-                ]
+                "nameLocales": [ ]
               }
             ],
             "options": [ ],
@@ -172,20 +93,7 @@ de.janno.discord.bot.command.channelConfig.ChannelConfigTest.getCommandDefinitio
           {
             "type": "STRING",
             "name": "dice_image_style",
-            "nameLocales": [
-              {
-                "locale": "de",
-                "name": "würfel_bild_stil"
-              },
-              {
-                "locale": "pt_BR",
-                "name": "estilo_imagem_dados"
-              },
-              {
-                "locale": "fr",
-                "name": "style_de_l_image_des_dés"
-              }
-            ],
+            "nameLocales": [ ],
             "description": "If and in what style the dice throw should be shown as image",
             "descriptionLocales": [
               {
@@ -265,20 +173,7 @@ de.janno.discord.bot.command.channelConfig.ChannelConfigTest.getCommandDefinitio
           {
             "type": "STRING",
             "name": "dice_image_color",
-            "nameLocales": [
-              {
-                "locale": "de",
-                "name": "würfel_bild_farbe"
-              },
-              {
-                "locale": "pt_BR",
-                "name": "cor_dos_dados"
-              },
-              {
-                "locale": "fr",
-                "name": "couleur_de_l_image_du_dé"
-              }
-            ],
+            "nameLocales": [ ],
             "description": "The default color option. Can be influenced by the `col` operator",
             "descriptionLocales": [
               {
@@ -302,20 +197,7 @@ de.janno.discord.bot.command.channelConfig.ChannelConfigTest.getCommandDefinitio
           {
             "type": "BOOLEAN",
             "name": "always_sum_result",
-            "nameLocales": [
-              {
-                "locale": "de",
-                "name": "ergebnis_zusammen_zählen"
-              },
-              {
-                "locale": "pt_BR",
-                "name": "sempre_somar_resultado"
-              },
-              {
-                "locale": "fr",
-                "name": "toujours_additionner_le_résultat"
-              }
-            ],
+            "nameLocales": [ ],
             "description": "Always sum the results of the dice expressions",
             "descriptionLocales": [
               {
@@ -342,20 +224,7 @@ de.janno.discord.bot.command.channelConfig.ChannelConfigTest.getCommandDefinitio
       {
         "type": "SUB_COMMAND_GROUP",
         "name": "delete_direct_roll_config",
-        "nameLocales": [
-          {
-            "locale": "de",
-            "name": "lösch_direkt_wurf_konfig"
-          },
-          {
-            "locale": "pt_BR",
-            "name": "deletar_config_rolagem_direta"
-          },
-          {
-            "locale": "fr",
-            "name": "supprimer_la_configuration"
-          }
-        ],
+        "nameLocales": [ ],
         "description": "remove the current channel config",
         "descriptionLocales": [
           {
@@ -379,20 +248,7 @@ de.janno.discord.bot.command.channelConfig.ChannelConfigTest.getCommandDefinitio
       {
         "type": "SUB_COMMAND_GROUP",
         "name": "channel_alias",
-        "nameLocales": [
-          {
-            "locale": "de",
-            "name": "kanal_alias"
-          },
-          {
-            "locale": "pt_BR",
-            "name": "apelidos_do_canal"
-          },
-          {
-            "locale": "fr",
-            "name": "alias_de_canal"
-          }
-        ],
+        "nameLocales": [ ],
         "description": "add, list or remove channel alias",
         "descriptionLocales": [
           {
@@ -414,20 +270,7 @@ de.janno.discord.bot.command.channelConfig.ChannelConfigTest.getCommandDefinitio
           {
             "type": "SUB_COMMAND",
             "name": "save",
-            "nameLocales": [
-              {
-                "locale": "de",
-                "name": "speichern"
-              },
-              {
-                "locale": "pt_BR",
-                "name": "salvar"
-              },
-              {
-                "locale": "fr",
-                "name": "sauvegarder"
-              }
-            ],
+            "nameLocales": [ ],
             "description": "Add a new alias",
             "descriptionLocales": [
               {
@@ -449,16 +292,7 @@ de.janno.discord.bot.command.channelConfig.ChannelConfigTest.getCommandDefinitio
               {
                 "type": "STRING",
                 "name": "name",
-                "nameLocales": [
-                  {
-                    "locale": "pt_BR",
-                    "name": "nome"
-                  },
-                  {
-                    "locale": "fr",
-                    "name": "nom"
-                  }
-                ],
+                "nameLocales": [ ],
                 "description": "The name of the alias (the name in the expression will be replaced with the value)",
                 "descriptionLocales": [
                   {
@@ -482,20 +316,7 @@ de.janno.discord.bot.command.channelConfig.ChannelConfigTest.getCommandDefinitio
               {
                 "type": "STRING",
                 "name": "value",
-                "nameLocales": [
-                  {
-                    "locale": "de",
-                    "name": "wert"
-                  },
-                  {
-                    "locale": "pt_BR",
-                    "name": "valor"
-                  },
-                  {
-                    "locale": "fr",
-                    "name": "valeur"
-                  }
-                ],
+                "nameLocales": [ ],
                 "description": "The value of the alias (the name in the expression will be replaced with the value)",
                 "descriptionLocales": [
                   {
@@ -522,20 +343,7 @@ de.janno.discord.bot.command.channelConfig.ChannelConfigTest.getCommandDefinitio
           {
             "type": "SUB_COMMAND",
             "name": "delete",
-            "nameLocales": [
-              {
-                "locale": "de",
-                "name": "löschen"
-              },
-              {
-                "locale": "pt_BR",
-                "name": "deletar"
-              },
-              {
-                "locale": "fr",
-                "name": "supprimer"
-              }
-            ],
+            "nameLocales": [ ],
             "description": "Delete an alias",
             "descriptionLocales": [
               {
@@ -557,16 +365,7 @@ de.janno.discord.bot.command.channelConfig.ChannelConfigTest.getCommandDefinitio
               {
                 "type": "STRING",
                 "name": "name",
-                "nameLocales": [
-                  {
-                    "locale": "pt_BR",
-                    "name": "nome"
-                  },
-                  {
-                    "locale": "fr",
-                    "name": "nom"
-                  }
-                ],
+                "nameLocales": [ ],
                 "description": "The name of the alias to delete",
                 "descriptionLocales": [
                   {
@@ -593,16 +392,7 @@ de.janno.discord.bot.command.channelConfig.ChannelConfigTest.getCommandDefinitio
           {
             "type": "SUB_COMMAND",
             "name": "list",
-            "nameLocales": [
-              {
-                "locale": "pt_BR",
-                "name": "listar"
-              },
-              {
-                "locale": "fr",
-                "name": "liste"
-              }
-            ],
+            "nameLocales": [ ],
             "description": "List all alias",
             "descriptionLocales": [
               {
@@ -626,20 +416,7 @@ de.janno.discord.bot.command.channelConfig.ChannelConfigTest.getCommandDefinitio
           {
             "type": "SUB_COMMAND",
             "name": "multi_save",
-            "nameLocales": [
-              {
-                "locale": "de",
-                "name": "mehrfach_speichern"
-              },
-              {
-                "locale": "pt_BR",
-                "name": "salvar_muitos"
-              },
-              {
-                "locale": "fr",
-                "name": "enregistrement_multiple"
-              }
-            ],
+            "nameLocales": [ ],
             "description": "Save multiple alias",
             "descriptionLocales": [
               {
@@ -661,16 +438,7 @@ de.janno.discord.bot.command.channelConfig.ChannelConfigTest.getCommandDefinitio
               {
                 "type": "STRING",
                 "name": "aliases",
-                "nameLocales": [
-                  {
-                    "locale": "pt_BR",
-                    "name": "apelidos"
-                  },
-                  {
-                    "locale": "fr",
-                    "name": "alias"
-                  }
-                ],
+                "nameLocales": [ ],
                 "description": "Separate alias name and value by `:` and aliases by `;` e.g.: att:2d20;dmg:2d6+3=",
                 "descriptionLocales": [
                   {
@@ -700,20 +468,7 @@ de.janno.discord.bot.command.channelConfig.ChannelConfigTest.getCommandDefinitio
       {
         "type": "SUB_COMMAND_GROUP",
         "name": "user_channel_alias",
-        "nameLocales": [
-          {
-            "locale": "de",
-            "name": "benutzer_kanal_alias"
-          },
-          {
-            "locale": "pt_BR",
-            "name": "apelidos_do_usuario"
-          },
-          {
-            "locale": "fr",
-            "name": "alias_de_canal_de_l_utilisateur"
-          }
-        ],
+        "nameLocales": [ ],
         "description": "add, list or remove user channel alias",
         "descriptionLocales": [
           {
@@ -735,20 +490,7 @@ de.janno.discord.bot.command.channelConfig.ChannelConfigTest.getCommandDefinitio
           {
             "type": "SUB_COMMAND",
             "name": "save",
-            "nameLocales": [
-              {
-                "locale": "de",
-                "name": "speichern"
-              },
-              {
-                "locale": "pt_BR",
-                "name": "salvar"
-              },
-              {
-                "locale": "fr",
-                "name": "sauvegarder"
-              }
-            ],
+            "nameLocales": [ ],
             "description": "Add a new alias",
             "descriptionLocales": [
               {
@@ -770,16 +512,7 @@ de.janno.discord.bot.command.channelConfig.ChannelConfigTest.getCommandDefinitio
               {
                 "type": "STRING",
                 "name": "name",
-                "nameLocales": [
-                  {
-                    "locale": "pt_BR",
-                    "name": "nome"
-                  },
-                  {
-                    "locale": "fr",
-                    "name": "nom"
-                  }
-                ],
+                "nameLocales": [ ],
                 "description": "The name of the alias (the name in the expression will be replaced with the value)",
                 "descriptionLocales": [
                   {
@@ -803,20 +536,7 @@ de.janno.discord.bot.command.channelConfig.ChannelConfigTest.getCommandDefinitio
               {
                 "type": "STRING",
                 "name": "value",
-                "nameLocales": [
-                  {
-                    "locale": "de",
-                    "name": "wert"
-                  },
-                  {
-                    "locale": "pt_BR",
-                    "name": "valor"
-                  },
-                  {
-                    "locale": "fr",
-                    "name": "valeur"
-                  }
-                ],
+                "nameLocales": [ ],
                 "description": "The value of the alias (the name in the expression will be replaced with the value)",
                 "descriptionLocales": [
                   {
@@ -843,20 +563,7 @@ de.janno.discord.bot.command.channelConfig.ChannelConfigTest.getCommandDefinitio
           {
             "type": "SUB_COMMAND",
             "name": "delete",
-            "nameLocales": [
-              {
-                "locale": "de",
-                "name": "löschen"
-              },
-              {
-                "locale": "pt_BR",
-                "name": "deletar"
-              },
-              {
-                "locale": "fr",
-                "name": "supprimer"
-              }
-            ],
+            "nameLocales": [ ],
             "description": "Delete an alias",
             "descriptionLocales": [
               {
@@ -878,16 +585,7 @@ de.janno.discord.bot.command.channelConfig.ChannelConfigTest.getCommandDefinitio
               {
                 "type": "STRING",
                 "name": "name",
-                "nameLocales": [
-                  {
-                    "locale": "pt_BR",
-                    "name": "nome"
-                  },
-                  {
-                    "locale": "fr",
-                    "name": "nom"
-                  }
-                ],
+                "nameLocales": [ ],
                 "description": "The name of the alias to delete",
                 "descriptionLocales": [
                   {
@@ -914,16 +612,7 @@ de.janno.discord.bot.command.channelConfig.ChannelConfigTest.getCommandDefinitio
           {
             "type": "SUB_COMMAND",
             "name": "list",
-            "nameLocales": [
-              {
-                "locale": "pt_BR",
-                "name": "listar"
-              },
-              {
-                "locale": "fr",
-                "name": "liste"
-              }
-            ],
+            "nameLocales": [ ],
             "description": "List all alias",
             "descriptionLocales": [
               {
@@ -947,20 +636,7 @@ de.janno.discord.bot.command.channelConfig.ChannelConfigTest.getCommandDefinitio
           {
             "type": "SUB_COMMAND",
             "name": "multi_save",
-            "nameLocales": [
-              {
-                "locale": "de",
-                "name": "mehrfach_speichern"
-              },
-              {
-                "locale": "pt_BR",
-                "name": "salvar_muitos"
-              },
-              {
-                "locale": "fr",
-                "name": "enregistrement_multiple"
-              }
-            ],
+            "nameLocales": [ ],
             "description": "Save multiple alias",
             "descriptionLocales": [
               {
@@ -982,16 +658,7 @@ de.janno.discord.bot.command.channelConfig.ChannelConfigTest.getCommandDefinitio
               {
                 "type": "STRING",
                 "name": "aliases",
-                "nameLocales": [
-                  {
-                    "locale": "pt_BR",
-                    "name": "apelidos"
-                  },
-                  {
-                    "locale": "fr",
-                    "name": "alias"
-                  }
-                ],
+                "nameLocales": [ ],
                 "description": "Separate alias name and value by `:` and aliases by `;` e.g.: att:2d20;dmg:2d6+3=",
                 "descriptionLocales": [
                   {

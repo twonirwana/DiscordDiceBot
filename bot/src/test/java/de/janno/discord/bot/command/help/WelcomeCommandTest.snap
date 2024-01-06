@@ -33,16 +33,7 @@ de.janno.discord.bot.command.help.WelcomeCommandTest.getCommandDefinition=[
       {
         "type": "SUB_COMMAND",
         "name": "start",
-        "nameLocales": [
-          {
-            "locale": "pt_BR",
-            "name": "iniciar"
-          },
-          {
-            "locale": "fr",
-            "name": "démarrer"
-          }
-        ],
+        "nameLocales": [ ],
         "description": "Displays the welcome message",
         "descriptionLocales": [
           {
@@ -64,20 +55,7 @@ de.janno.discord.bot.command.help.WelcomeCommandTest.getCommandDefinition=[
           {
             "type": "STRING",
             "name": "language",
-            "nameLocales": [
-              {
-                "locale": "de",
-                "name": "sprache"
-              },
-              {
-                "locale": "pt_BR",
-                "name": "idioma"
-              },
-              {
-                "locale": "fr",
-                "name": "langue"
-              }
-            ],
+            "nameLocales": [ ],
             "description": "The language of the bot messages",
             "descriptionLocales": [
               {
@@ -177,20 +155,7 @@ de.janno.discord.bot.command.help.WelcomeCommandTest.getCommandDefinition=[
       {
         "type": "SUB_COMMAND",
         "name": "help",
-        "nameLocales": [
-          {
-            "locale": "de",
-            "name": "hilfe"
-          },
-          {
-            "locale": "pt_BR",
-            "name": "ajuda"
-          },
-          {
-            "locale": "fr",
-            "name": "aide"
-          }
-        ],
+        "nameLocales": [ ],
         "description": "Get help for /welcome",
         "descriptionLocales": [
           {

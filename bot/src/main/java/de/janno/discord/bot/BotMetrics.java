@@ -40,6 +40,7 @@ public class BotMetrics {
     private final static String METRIC_IMAGE_RESULT_PREFIX = "imageResult";
     private final static String METRIC_USE_IMAGE_RESULT_PREFIX = "useImageResult";
     private final static String METRIC_AUTOCOMPLETE_VALID_PREFIX = "autoCompleteValid";
+    private final static String METRIC_INVALID_PREFIX = "invalid";
     private final static String METRIC_USE_ALIAS_PREFIX = "useAlias";
     private final static String METRIC_ANSWER_FORMAT_PREFIX = "answerFormat";
     private final static String METRIC_DICE_PARSER_SYSTEM_PREFIX = "diceParserSystem";
@@ -51,6 +52,7 @@ public class BotMetrics {
     private final static String TYPE_TAG = "type";
     private final static String ALIAS_TAG = "alias";
     private final static String VALID_TAG = "valid";
+    private final static String EXPRESSION_TAG = "expression";
     private final static String ANSWER_FORMAT_TAG = "answerFormat";
     private final static String DICE_SYSTEM_TAG = "diceSystem";
     private final static String ACTION_TAG = "action";
@@ -189,6 +191,10 @@ public class BotMetrics {
 
     public static void incrementValidationCounter(boolean valid) {
         globalRegistry.counter(METRIC_PREFIX + METRIC_AUTOCOMPLETE_VALID_PREFIX, Tags.of(VALID_TAG, String.valueOf(valid))).increment();
+    }
+
+    public static void incrementInvalidExpression(@NonNull String expression) {
+        globalRegistry.counter(METRIC_PREFIX + METRIC_INVALID_PREFIX, Tags.of(EXPRESSION_TAG, expression.trim().toLowerCase())).increment();
     }
 
     public enum CacheTag {
