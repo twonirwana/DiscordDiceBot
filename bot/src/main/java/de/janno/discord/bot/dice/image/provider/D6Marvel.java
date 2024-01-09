@@ -9,22 +9,22 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 
-public class D6Dotted implements ImageProvider {
+public class D6Marvel implements ImageProvider {
 
-    public static final String WHITE = "white";
-    public static final String BLACK_AND_GOLD = "black_and_gold";
-    private static final List<String> SUPPORTED_COLORS = List.of(WHITE, BLACK_AND_GOLD);
+    public static final String BLUE = "blue";
+    public static final String RED = "red";
+    private static final List<String> SUPPORTED_COLORS = List.of(BLUE, RED);
     private final Map<String, FileSidesDiceImageMap> color2DiceSideImageMap;
 
 
-    public D6Dotted() {
+    public D6Marvel() {
         this.color2DiceSideImageMap = SUPPORTED_COLORS.stream()
-                .collect(ImmutableMap.toImmutableMap(Function.identity(), c -> new FileSidesDiceImageMap("dotted_" + c, List.of(6))));
+                .collect(ImmutableMap.toImmutableMap(Function.identity(), c -> new FileSidesDiceImageMap("marvel_" + c, List.of(6))));
     }
 
     @Override
     public @NonNull String getDefaultColor() {
-        return WHITE;
+        return BLUE;
     }
 
     @Override
@@ -50,4 +50,6 @@ public class D6Dotted implements ImageProvider {
                 .map(m -> m.get(shownDieSide))
                 .map(List::of).orElse(List.of());
     }
+
+
 }

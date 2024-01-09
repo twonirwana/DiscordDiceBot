@@ -379,6 +379,15 @@ Valid for d6 and the supported color are: `belt_dark`, `belt_light`, `earth_dark
 
 The dice image are from https://github.com/Foxfyre/expanse.
 
+==== Marvel
+
+image:image/marvel_red.png[image,600]
+image:image/marvel_blue.png[image,600]
+
+Valid for d6 and the supported color are: `red` and `blue`.
+
+The dice image are from SeaGoatGames
+
 === Custom Dice Buttons
 
 image:image/custom_dice.webp[image]
@@ -608,11 +617,12 @@ All functions are case insensitiv.
 
 == Contributors
 
-* Special thank to https://www.instagram.com/alie_in_beanland/[alieinbeanland] for the design of the dice images for `polyhedral_alies_v1` and `polyhedral_alies_v2`
-* Special thank to mailto:minuette@gmail.com[Myrynvalona] for the design of the dice images for `polyhedral_knots`
-* Special thank to http://scriptarium.org[scriptarium.org] for creating the dice images for `polyhedral_RdD`
+* Special thank to https://www.instagram.com/alie_in_beanland/[alieinbeanland] for the design of the `polyhedral_alies_v1` and `polyhedral_alies_v2` dice images
+* Special thank to mailto:minuette@gmail.com[Myrynvalona] for the design of the `polyhedral_knots` dice images
+* Special thank to http://scriptarium.org[scriptarium.org]for the design of the  `polyhedral_RdD` dice images
 * Special thank to https://github.com/igorteuri[igorteuri] for the brazilian prologuise translation
 * Special thanks to https://github.com/Swiip[Matthieu Lux] for help with the `expance` dice images implementation and with the French translation
+* Special thank to SeaGoatGames for the design of the `marvel` dice images
 * The `polyhedral_3d` dice images where adapted from https://blendswap.com/blend/16634
 * The `d6_dot` in `white` dice images are from https://game-icons.net/
 * The `d6_dot` in `black_and_gold` dice images are adapted from https://speakthesky.itch.io/typeface-dicier and the Infinite Revolution RPG
