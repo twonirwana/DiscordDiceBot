@@ -181,6 +181,12 @@ public class RpgSystemCommandPreset {
                             DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.only_dice, null, new DiceStyleAndColor(DiceImageStyle.expanse, "mars_light"), userLocale);
             case ALIEN ->
                     new CustomParameterConfig(null, I18n.getMessage("rpg.system.command.preset.ALIEN.expression", userLocale), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.without_expression, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_knots, "blue"), userLocale);
+            case HEROES_OF_CERULEA ->
+                    new CustomDiceConfig(null, string2ButtonIdLabelAndDiceExpression(I18n.getMessage("rpg.system.command.preset.HEROES_OF_CERULEA.expression", userLocale)),
+                            DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.without_expression, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_3d, DiceImageStyle.polyhedral_3d.getDefaultColor()), userLocale);
+            case MARVEL ->
+                    new CustomParameterConfig(null, I18n.getMessage("rpg.system.command.preset.MARVEL.expression", userLocale), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.without_expression, null, new DiceStyleAndColor(DiceImageStyle.d6_marvel, "blue"), userLocale);
+
         };
     }
 
@@ -254,7 +260,9 @@ public class RpgSystemCommandPreset {
         PROWLERS_PARAGONS,
         BLUEBEARD_BRIDE,
         EXPANSE,
-        ALIEN;
+        ALIEN,
+        HEROES_OF_CERULEA,
+        MARVEL;
 
         public String getName(Locale locale) {
             return I18n.getMessage("rpg.system.command.preset.%s.name".formatted(name()), locale);

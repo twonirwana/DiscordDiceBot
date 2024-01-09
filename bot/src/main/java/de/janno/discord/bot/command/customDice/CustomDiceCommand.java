@@ -113,7 +113,7 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
         String buttons = options.getStringSubOptionWithName(BUTTONS_OPTION_NAME).orElseThrow();
         int idCounter = 1;
         for (String button : buttons.split(";")) {
-            builder.add(new ButtonIdAndExpression(idCounter++ + "_button", button));
+            builder.add(new ButtonIdAndExpression(idCounter++ + "_button", button.trim()));
         }
         return builder.build();
     }

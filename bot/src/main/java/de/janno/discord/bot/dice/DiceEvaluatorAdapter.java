@@ -111,6 +111,7 @@ public class DiceEvaluatorAdapter {
         if (rollerOrError.isValid()) {
             return Optional.empty();
         } else {
+            //no invalid metric increment because this is called by each letter typed
             return Optional.of(rollerOrError.getErrorMessage());
         }
     }
