@@ -13,7 +13,7 @@ import java.util.Map;
 public class CreateStyleOverviewImageUtil {
 
     public static void main(String[] args) throws IOException {
-        String style = "d6_black_and_gold";
+        String style = "marvel_red";
         Map<Integer, List<Integer>> showDieFace = Map.of(6, List.of(1, 2, 3, 4, 5, 6));
         int singleDiceSize = 100;
         List<BufferedImage> images = showDieFace.entrySet().stream()

@@ -276,13 +276,13 @@ public class JdaClient {
         // Initiating the shutdown, this closes the gateway connection and subsequently closes the requester queue
         jda.shutdown();
         try {
-            // Allow at most 5 seconds for remaining requests to finish
+            // Allow some seconds for remaining requests to finish
             if (!jda.awaitShutdown(Duration.ofSeconds(shutdownWaitTimeSec))) { // returns true if shutdown is graceful, false if timeout exceeded
-                log.warn("shutdown took more then 10sec");
+                log.warn("shutdown took more then {}sec", shutdownWaitTimeSec);
                 jda.shutdownNow(); // Cancel all remaining requests, and stop thread-pools
                 boolean finishWithoutTimeout = jda.awaitShutdown(Duration.ofSeconds(shutdownWaitTimeSec)); // Wait until shutdown is complete (10 sec)
                 if (!finishWithoutTimeout) {
-                    log.warn("shutdown now took more then 10sec");
+                    log.warn("shutdown now took more then {}sec", shutdownWaitTimeSec);
                 }
             }
         } catch (InterruptedException e) {
