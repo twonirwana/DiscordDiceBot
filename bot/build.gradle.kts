@@ -24,7 +24,7 @@ dependencies {
     implementation(libs.commons.text)
     implementation(libs.avaje.config)
     implementation(libs.avaje.slf4j)
-    implementation("io.micrometer:micrometer-registry-prometheus:1.12.1")
+    implementation("io.micrometer:micrometer-registry-prometheus:1.12.2")
     implementation("com.h2database:h2:2.2.224")
     implementation("org.apache.derby:derby:10.17.1.0")
     implementation("org.apache.derby:derbyclient:10.17.1.0")
