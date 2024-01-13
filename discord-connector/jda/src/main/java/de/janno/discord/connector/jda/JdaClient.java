@@ -39,12 +39,8 @@ import java.util.*;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.function.Function;
 
-import static java.lang.Thread.sleep;
-
 @Slf4j
 public class JdaClient {
-
-    private final static Set<Integer> SHARD_IDS_NOT_READY_FOR_SHUTDOWN = new ConcurrentSkipListSet<>();
 
     public JdaClient(@NonNull List<SlashCommand> slashCommands,
                      @NonNull List<ComponentInteractEventHandler> componentInteractEventHandlers,
@@ -205,13 +201,16 @@ public class JdaClient {
                         }
                 )
                 .setActivity(Activity.customStatus("Type /quickstart or /help"));
-        shardManagerBuilder.setShardsTotal(Config.getInt("shardsTotal", -1));
-        Config.getOptional("shardIds", null)
-                .map(s -> Arrays.stream(s.split(","))
-                        .map(String::trim)
-                        .map(Integer::parseInt)
-                        .toList())
-                .ifPresent(shardManagerBuilder::setShards);
+        final int shardsTotal = Config.getInt("shardsTotal", -1);
+        log.info("Configured ShardTotal: {}",shardsTotal );
+        shardManagerBuilder.setShardsTotal(shardsTotal);
+        Optional<List<Integer>> shardIds = Config.getOptional("shardIds", null)
+                        .map(s -> Arrays.stream(s.split(","))
+                                .map(String::trim)
+                                .map(Integer::parseInt)
+                                .toList());
+        log.info("Configured ShardIds: {}",shardIds.orElse(List.of()));
+        shardIds.ifPresent(shardManagerBuilder::setShards);
         ShardManager shardManager = shardManagerBuilder.build();
         JdaMetrics.startGuildCountGauge(botInGuildIdSet);
 
@@ -224,45 +223,20 @@ public class JdaClient {
                 JdaMetrics.startTextChannelCacheGauge(jda);
                 JdaMetrics.startGuildCacheGauge(jda);
                 JdaMetrics.startRestLatencyGauge(jda);
-                SHARD_IDS_NOT_READY_FOR_SHUTDOWN.add(jda.getShardInfo().getShardId());
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
         });
 
-        Runtime.getRuntime().addShutdownHook(new Thread(() ->
-                shardManager.getShards().parallelStream().forEach(jda -> {
-                    log.info("start jda %s shutdown".formatted(jda.getShardInfo().getShardString()));
-                    try {
-                        sendMessageInNewsChannel(jda, "Bot shutdown started");
-                    } finally {
-                        SHARD_IDS_NOT_READY_FOR_SHUTDOWN.remove(jda.getShardInfo().getShardId());
-                    }
-                    waitUntilAllShardsReadyForShutdown(jda.getShardInfo().getShardId());
-                    shutdown(jda);
-                    log.info("finished jda %s shutdown".formatted(jda.getShardInfo().getShardString()));
-                })));
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            shardManager.getShards().forEach(jda -> sendMessageInNewsChannel(jda, "Bot shutdown started"));
+            shardManager.getShards().parallelStream().forEach(JdaClient::shutdown);
+        }));
 
         boolean disableCommandUpdate = Config.getBool("disableCommandUpdate", false);
         SlashCommandRegistry.builder()
                 .addSlashCommands(slashCommands)
                 .registerSlashCommands(shardManager.getShards().getFirst(), disableCommandUpdate);
-    }
-
-    private static void waitUntilAllShardsReadyForShutdown(int shardId) {
-        long waitTime = 0;
-        final long sleepTime = Config.getInt("waitUntilAllShardsReadyForShutdown.sleepTimeMs", 100);
-        final long maxTotalWaitTime = Config.getInt("waitUntilAllShardsReadyForShutdown.maxTotalWaitTimeMs", 10_000);
-        while (!SHARD_IDS_NOT_READY_FOR_SHUTDOWN.isEmpty() && waitTime < maxTotalWaitTime) {
-            try {
-                sleep(sleepTime);
-                waitTime += sleepTime;
-                log.info("shardId=%s waiting for shards=%s for %sms".formatted(shardId, SHARD_IDS_NOT_READY_FOR_SHUTDOWN, waitTime));
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-        }
-        log.info("All shards are finished for shardId=%s".formatted(shardId));
     }
 
     private static boolean hasPermission(GuildMessageChannel channel, Permission permission) {
@@ -272,22 +246,24 @@ public class JdaClient {
     }
 
     private static void shutdown(JDA jda) {
+        log.info("ShardId={}: start jda shutdown", jda.getShardInfo().getShardString());
         final long shutdownWaitTimeSec = Config.getInt("shutdownWaitTimeSec", 10);
         // Initiating the shutdown, this closes the gateway connection and subsequently closes the requester queue
         jda.shutdown();
         try {
             // Allow some seconds for remaining requests to finish
             if (!jda.awaitShutdown(Duration.ofSeconds(shutdownWaitTimeSec))) { // returns true if shutdown is graceful, false if timeout exceeded
-                log.warn("shutdown took more then {}sec", shutdownWaitTimeSec);
+                log.warn("ShardId={}: shutdown took more then {}sec", jda.getShardInfo().getShardString(), shutdownWaitTimeSec);
                 jda.shutdownNow(); // Cancel all remaining requests, and stop thread-pools
                 boolean finishWithoutTimeout = jda.awaitShutdown(Duration.ofSeconds(shutdownWaitTimeSec)); // Wait until shutdown is complete (10 sec)
                 if (!finishWithoutTimeout) {
-                    log.warn("shutdown now took more then {}sec", shutdownWaitTimeSec);
+                    log.warn("ShardId={}: shutdown now took more then {}sec", jda.getShardInfo().getShardString(), shutdownWaitTimeSec);
                 }
             }
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
+        log.info("ShardId={}: finished jda shutdown", jda.getShardInfo().getShardString());
     }
 
     private static void sendMessageInNewsChannel(JDA jda, String message) {
@@ -295,45 +271,45 @@ public class JdaClient {
         final String newsChannelId = Config.getNullable("newsChannelId");
 
         if (Strings.isNullOrEmpty(newsGuildId)) {
-            log.warn("No GuildId for start and shutdown messages");
+            log.warn("ShardId={}: No GuildId for start and shutdown messages", jda.getShardInfo().getShardString());
             return;
         }
         if (Strings.isNullOrEmpty(newsChannelId)) {
-            log.warn("No ChannelId for start and shutdown messages");
+            log.warn("ShardId={}: No ChannelId for start and shutdown messages", jda.getShardInfo().getShardString());
             return;
         }
 
         Optional<Guild> guild = Optional.ofNullable(jda.getGuildById(newsGuildId));
         if (guild.isEmpty()) {
             //the guild can be in another shard
-            log.info("No news guild for: %s in shard: %s".formatted(newsGuildId, jda.getShardInfo().getShardId()));
+            log.info("ShardId={}: No news guild for: {}", jda.getShardInfo().getShardString(), newsGuildId);
             return;
         }
         Optional<StandardGuildMessageChannel> newsChannel = guild.flatMap(g -> Optional.ofNullable(g.getChannelById(StandardGuildMessageChannel.class, newsChannelId)));
 
         if (newsChannel.isEmpty()) {
-            log.warn("Could not find channel for id: " + newsChannelId);
+            log.warn("ShardId={}: Could not find channel for id: {}", jda.getShardInfo().getShardString(), newsChannelId);
         }
 
         newsChannel.ifPresent(t -> {
             if (hasPermission(t, Permission.MESSAGE_SEND)) {
                 Message sendMessage = t.sendMessage(message).complete();
-                log.info("Sent '%s' to '%s'.'%s'".formatted(message, t.getGuild().getName(), t.getName()));
-                if (t instanceof NewsChannel) {
+                log.info("ShardId={}: Sent '{}' to '{}'.'{}'", jda.getShardInfo().getShardString(), message, t.getGuild().getName(), t.getName());
+                if (t instanceof NewsChannel n) {
                     if (hasPermission(t, Permission.MESSAGE_MANAGE)) {
                         try {
-                            Thread.sleep(3000);
-                            ((NewsChannel) t).crosspostMessageById(sendMessage.getId()).complete();
+                            Thread.sleep(Config.getInt("newsChannelPublishWaitMilliSec", 1000));
+                            n.crosspostMessageById(sendMessage.getId()).complete();
                         } catch (Exception e) {
                             log.error("Error while publish: {0}", e);
                         }
-                        log.info("Published as news");
+                        log.info("ShardId={}: Published as news", jda.getShardInfo().getShardString());
                     } else {
-                        log.warn("Missing manage message permission for channel id: " + newsChannelId);
+                        log.warn("ShardId={}: Missing manage message permission for channel id: {}", newsChannelId, jda.getShardInfo().getShardString());
                     }
                 }
             } else {
-                log.warn("Missing send message permission for channel id: " + newsChannelId);
+                log.warn("ShardId={}: Missing send message permission for channel id: {}", newsChannelId, newsChannelId);
             }
         });
     }

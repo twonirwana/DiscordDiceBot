@@ -1,8 +1,9 @@
 token:
 newsGuildId:
 newsChannelId:
+newsChannelPublishWaitMilliSec: 1000
 http.timeoutSec: 30
-shardsTotal: -1
+shardsTotal:
 shardIds:
 disableCommandUpdate: false
 welcomeMessageStartTimePlusBufferSec: 300

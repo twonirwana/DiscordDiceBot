@@ -209,9 +209,8 @@ public abstract class DiscordAdapterImpl implements DiscordAdapter {
             checks.add(I18n.getMessage("permission.MESSAGE_SEND", userLocale));
         }
 
-        if (messageChannel instanceof ThreadChannel) {
-            boolean missingThreadSendPermission = Optional.of(messageChannel)
-                    .map(m -> (ThreadChannel) m)
+        if (messageChannel instanceof ThreadChannel threadChannel) {
+            boolean missingThreadSendPermission = Optional.of(threadChannel)
                     .flatMap(g -> Optional.ofNullable(guild).map(Guild::getSelfMember).map(m -> !m.hasPermission(g, Permission.MESSAGE_SEND_IN_THREADS)))
                     .orElse(true);
             if (missingThreadSendPermission) {

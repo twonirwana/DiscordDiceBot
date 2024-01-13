@@ -192,12 +192,12 @@ public class RpgSystemCommandPreset {
 
     public EmbedOrMessageDefinition createMessage(PresetId presetId, UUID newConfigUUID, long guildId, long channelId, Locale userLocale) {
         Config config = createConfig(presetId, userLocale);
-        if (config instanceof CustomDiceConfig) {
-            return startPreset((CustomDiceConfig) config, customDiceCommand, newConfigUUID, guildId, channelId);
-        } else if (config instanceof SumCustomSetConfig) {
-            return startPreset((SumCustomSetConfig) config, sumCustomSetCommand, newConfigUUID, guildId, channelId);
-        } else if (config instanceof CustomParameterConfig) {
-            return startPreset((CustomParameterConfig) config, customParameterCommand, newConfigUUID, guildId, channelId);
+        if (config instanceof CustomDiceConfig customDiceConfig) {
+            return startPreset(customDiceConfig, customDiceCommand, newConfigUUID, guildId, channelId);
+        } else if (config instanceof SumCustomSetConfig sumCustomSetConfig) {
+            return startPreset(sumCustomSetConfig, sumCustomSetCommand, newConfigUUID, guildId, channelId);
+        } else if (config instanceof CustomParameterConfig customParameterConfig) {
+            return startPreset(customParameterConfig, customParameterCommand, newConfigUUID, guildId, channelId);
         }
         throw new IllegalStateException("Could not create valid config for: " + presetId);
     }
