@@ -1,4 +1,5 @@
 token:
+sendStatusMessage: true
 newsGuildId:
 newsChannelId:
 newsChannelPublishWaitMilliSec: 1000
