@@ -91,7 +91,7 @@ public final class BaseCommandOptions {
                 .findFirst();
         if (styleOptionValue.isEmpty() || !DiceImageStyle.isValidStyle(styleOptionValue.get())) {
             return List.of(new AutoCompleteAnswer(I18n.getMessage("base.option.dice_image_style.autoComplete.missingStyle.name", userLocale),
-                    I18n.getMessage("base.option.dice.dice_image_style.autoComplete.missing.style.value", userLocale)));
+                    "none"));
         }
         DiceImageStyle diceImageStyle = DiceImageStyle.valueOf(styleOptionValue.get());
         return diceImageStyle.getSupportedColors().stream()

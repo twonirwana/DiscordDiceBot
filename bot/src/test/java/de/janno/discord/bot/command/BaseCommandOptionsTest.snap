@@ -1,0 +1,922 @@
+de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption[d6_dots_de]=[
+  [
+    {
+      "name": "weiß",
+      "value": "white"
+    },
+    {
+      "name": "schwarz_und_gold",
+      "value": "black_and_gold"
+    }
+  ]
+]
+
+
+de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption[d6_dots_en]=[
+  [
+    {
+      "name": "white",
+      "value": "white"
+    },
+    {
+      "name": "black_and_gold",
+      "value": "black_and_gold"
+    }
+  ]
+]
+
+
+de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption[d6_dots_fr]=[
+  [
+    {
+      "name": "blanc",
+      "value": "white"
+    },
+    {
+      "name": "noir_et_or",
+      "value": "black_and_gold"
+    }
+  ]
+]
+
+
+de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption[d6_dots_pt_BR]=[
+  [
+    {
+      "name": "branco",
+      "value": "white"
+    },
+    {
+      "name": "preto_e_dourado",
+      "value": "black_and_gold"
+    }
+  ]
+]
+
+
+de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption[d6_marvel_de]=[
+  [
+    {
+      "name": "blau",
+      "value": "blue"
+    },
+    {
+      "name": "rot",
+      "value": "red"
+    }
+  ]
+]
+
+
+de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption[d6_marvel_en]=[
+  [
+    {
+      "name": "blue",
+      "value": "blue"
+    },
+    {
+      "name": "red",
+      "value": "red"
+    }
+  ]
+]
+
+
+de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption[d6_marvel_fr]=[
+  [
+    {
+      "name": "bleu",
+      "value": "blue"
+    },
+    {
+      "name": "rouge",
+      "value": "red"
+    }
+  ]
+]
+
+
+de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption[d6_marvel_pt_BR]=[
+  [
+    {
+      "name": "azul",
+      "value": "blue"
+    },
+    {
+      "name": "vermelho",
+      "value": "red"
+    }
+  ]
+]
+
+
+de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption[expanse_de]=[
+  [
+    {
+      "name": "gürtel_dunkel",
+      "value": "belt_dark"
+    },
+    {
+      "name": "gürtel_hell",
+      "value": "belt_light"
+    },
+    {
+      "name": "erde_dunkel",
+      "value": "earth_dark"
+    },
+    {
+      "name": "erde_hell",
+      "value": "earth_light"
+    },
+    {
+      "name": "mars_dunkel",
+      "value": "mars_dark"
+    },
+    {
+      "name": "mars_hell",
+      "value": "mars_light"
+    },
+    {
+      "name": "protogen_dunkel",
+      "value": "protogen_dark"
+    },
+    {
+      "name": "protogen_hell",
+      "value": "protogen_light"
+    }
+  ]
+]
+
+
+de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption[expanse_en]=[
+  [
+    {
+      "name": "belt_dark",
+      "value": "belt_dark"
+    },
+    {
+      "name": "belt_light",
+      "value": "belt_light"
+    },
+    {
+      "name": "earth_dark",
+      "value": "earth_dark"
+    },
+    {
+      "name": "earth_light",
+      "value": "earth_light"
+    },
+    {
+      "name": "mars_dark",
+      "value": "mars_dark"
+    },
+    {
+      "name": "mars_light",
+      "value": "mars_light"
+    },
+    {
+      "name": "protogen_dark",
+      "value": "protogen_dark"
+    },
+    {
+      "name": "protogen_light",
+      "value": "protogen_light"
+    }
+  ]
+]
+
+
+de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption[expanse_fr]=[
+  [
+    {
+      "name": "ceinture_foncée",
+      "value": "belt_dark"
+    },
+    {
+      "name": "ceinture_claire",
+      "value": "belt_light"
+    },
+    {
+      "name": "terre_sombre",
+      "value": "earth_dark"
+    },
+    {
+      "name": "terre_claire",
+      "value": "earth_light"
+    },
+    {
+      "name": "mars_sombre",
+      "value": "mars_dark"
+    },
+    {
+      "name": "mars_clair",
+      "value": "mars_light"
+    },
+    {
+      "name": "protogen_dark",
+      "value": "protogen_dark"
+    },
+    {
+      "name": "protogen_clair",
+      "value": "protogen_light"
+    }
+  ]
+]
+
+
+de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption[expanse_pt_BR]=[
+  [
+    {
+      "name": "belt_dark",
+      "value": "belt_dark"
+    },
+    {
+      "name": "belt_light",
+      "value": "belt_light"
+    },
+    {
+      "name": "earth_dark",
+      "value": "earth_dark"
+    },
+    {
+      "name": "earth_light",
+      "value": "earth_light"
+    },
+    {
+      "name": "mars_dark",
+      "value": "mars_dark"
+    },
+    {
+      "name": "mars_light",
+      "value": "mars_light"
+    },
+    {
+      "name": "protogen_dark",
+      "value": "protogen_dark"
+    },
+    {
+      "name": "protogen_light",
+      "value": "protogen_light"
+    }
+  ]
+]
+
+
+de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption[fate_de]=[
+  [
+    {
+      "name": "schwarz",
+      "value": "black"
+    }
+  ]
+]
+
+
+de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption[fate_en]=[
+  [
+    {
+      "name": "black",
+      "value": "black"
+    }
+  ]
+]
+
+
+de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption[fate_fr]=[
+  [
+    {
+      "name": "noir",
+      "value": "black"
+    }
+  ]
+]
+
+
+de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption[fate_pt_BR]=[
+  [
+    {
+      "name": "preto",
+      "value": "black"
+    }
+  ]
+]
+
+
+de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption[none_de]=[
+  [ ]
+]
+
+
+de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption[none_en]=[
+  [ ]
+]
+
+
+de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption[none_fr]=[
+  [ ]
+]
+
+
+de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption[none_pt_BR]=[
+  [ ]
+]
+
+
+de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption[polyhedral_2d_de]=[
+  [
+    {
+      "name": "weiß",
+      "value": "white"
+    },
+    {
+      "name": "grau",
+      "value": "gray"
+    },
+    {
+      "name": "schwarz",
+      "value": "black"
+    },
+    {
+      "name": "rot",
+      "value": "red"
+    },
+    {
+      "name": "pink",
+      "value": "pink"
+    },
+    {
+      "name": "orange",
+      "value": "orange"
+    },
+    {
+      "name": "gelb",
+      "value": "yellow"
+    },
+    {
+      "name": "grün",
+      "value": "green"
+    },
+    {
+      "name": "magenta",
+      "value": "magenta"
+    },
+    {
+      "name": "cyan",
+      "value": "cyan"
+    },
+    {
+      "name": "blau",
+      "value": "blue"
+    },
+    {
+      "name": "indigo",
+      "value": "indigo"
+    }
+  ]
+]
+
+
+de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption[polyhedral_2d_en]=[
+  [
+    {
+      "name": "white",
+      "value": "white"
+    },
+    {
+      "name": "gray",
+      "value": "gray"
+    },
+    {
+      "name": "black",
+      "value": "black"
+    },
+    {
+      "name": "red",
+      "value": "red"
+    },
+    {
+      "name": "pink",
+      "value": "pink"
+    },
+    {
+      "name": "orange",
+      "value": "orange"
+    },
+    {
+      "name": "yellow",
+      "value": "yellow"
+    },
+    {
+      "name": "green",
+      "value": "green"
+    },
+    {
+      "name": "magenta",
+      "value": "magenta"
+    },
+    {
+      "name": "cyan",
+      "value": "cyan"
+    },
+    {
+      "name": "blue",
+      "value": "blue"
+    },
+    {
+      "name": "indigo",
+      "value": "indigo"
+    }
+  ]
+]
+
+
+de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption[polyhedral_2d_fr]=[
+  [
+    {
+      "name": "blanc",
+      "value": "white"
+    },
+    {
+      "name": "gris",
+      "value": "gray"
+    },
+    {
+      "name": "noir",
+      "value": "black"
+    },
+    {
+      "name": "rouge",
+      "value": "red"
+    },
+    {
+      "name": "rose",
+      "value": "pink"
+    },
+    {
+      "name": "orange",
+      "value": "orange"
+    },
+    {
+      "name": "jaune",
+      "value": "yellow"
+    },
+    {
+      "name": "vert",
+      "value": "green"
+    },
+    {
+      "name": "magenta",
+      "value": "magenta"
+    },
+    {
+      "name": "cyan",
+      "value": "cyan"
+    },
+    {
+      "name": "bleu",
+      "value": "blue"
+    },
+    {
+      "name": "indigo",
+      "value": "indigo"
+    }
+  ]
+]
+
+
+de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption[polyhedral_2d_pt_BR]=[
+  [
+    {
+      "name": "branco",
+      "value": "white"
+    },
+    {
+      "name": "cinza",
+      "value": "gray"
+    },
+    {
+      "name": "preto",
+      "value": "black"
+    },
+    {
+      "name": "vermelho",
+      "value": "red"
+    },
+    {
+      "name": "rosa",
+      "value": "pink"
+    },
+    {
+      "name": "laranja",
+      "value": "orange"
+    },
+    {
+      "name": "amarelo",
+      "value": "yellow"
+    },
+    {
+      "name": "verde",
+      "value": "green"
+    },
+    {
+      "name": "magenta",
+      "value": "magenta"
+    },
+    {
+      "name": "ciano",
+      "value": "cyan"
+    },
+    {
+      "name": "azul",
+      "value": "blue"
+    },
+    {
+      "name": "azul_escuro",
+      "value": "indigo"
+    }
+  ]
+]
+
+
+de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption[polyhedral_3d_de]=[
+  [
+    {
+      "name": "rot_und_weiß",
+      "value": "red_and_white"
+    }
+  ]
+]
+
+
+de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption[polyhedral_3d_en]=[
+  [
+    {
+      "name": "red_and_white",
+      "value": "red_and_white"
+    }
+  ]
+]
+
+
+de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption[polyhedral_3d_fr]=[
+  [
+    {
+      "name": "rouge_et_blanc",
+      "value": "red_and_white"
+    }
+  ]
+]
+
+
+de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption[polyhedral_3d_pt_BR]=[
+  [
+    {
+      "name": "vermelho_e_branco",
+      "value": "red_and_white"
+    }
+  ]
+]
+
+
+de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption[polyhedral_RdD_de]=[
+  [
+    {
+      "name": "standard",
+      "value": "default"
+    },
+    {
+      "name": "spezial",
+      "value": "special"
+    }
+  ]
+]
+
+
+de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption[polyhedral_RdD_en]=[
+  [
+    {
+      "name": "default",
+      "value": "default"
+    },
+    {
+      "name": "special",
+      "value": "special"
+    }
+  ]
+]
+
+
+de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption[polyhedral_RdD_fr]=[
+  [
+    {
+      "name": "par_défaut",
+      "value": "default"
+    },
+    {
+      "name": "spécial",
+      "value": "special"
+    }
+  ]
+]
+
+
+de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption[polyhedral_RdD_pt_BR]=[
+  [
+    {
+      "name": "padrao",
+      "value": "default"
+    },
+    {
+      "name": "especial",
+      "value": "special"
+    }
+  ]
+]
+
+
+de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption[polyhedral_alies_v1_de]=[
+  [
+    {
+      "name": "schwarz_und_gold",
+      "value": "black_and_gold"
+    }
+  ]
+]
+
+
+de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption[polyhedral_alies_v1_en]=[
+  [
+    {
+      "name": "black_and_gold",
+      "value": "black_and_gold"
+    }
+  ]
+]
+
+
+de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption[polyhedral_alies_v1_fr]=[
+  [
+    {
+      "name": "noir_et_or",
+      "value": "black_and_gold"
+    }
+  ]
+]
+
+
+de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption[polyhedral_alies_v1_pt_BR]=[
+  [
+    {
+      "name": "preto_e_dourado",
+      "value": "black_and_gold"
+    }
+  ]
+]
+
+
+de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption[polyhedral_alies_v2_de]=[
+  [
+    {
+      "name": "blau_und_silber",
+      "value": "blue_and_silver"
+    },
+    {
+      "name": "schwarz_und_gold",
+      "value": "black_and_gold"
+    },
+    {
+      "name": "blau_und_gold",
+      "value": "blue_and_gold"
+    },
+    {
+      "name": "grün_und_gold",
+      "value": "green_and_gold"
+    },
+    {
+      "name": "orange_und_silber",
+      "value": "orange_and_silver"
+    },
+    {
+      "name": "rot_und_gold",
+      "value": "red_and_gold"
+    },
+    {
+      "name": "lila_und_silber",
+      "value": "purple_and_silver"
+    }
+  ]
+]
+
+
+de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption[polyhedral_alies_v2_en]=[
+  [
+    {
+      "name": "blue_and_silver",
+      "value": "blue_and_silver"
+    },
+    {
+      "name": "black_and_gold",
+      "value": "black_and_gold"
+    },
+    {
+      "name": "blue_and_gold",
+      "value": "blue_and_gold"
+    },
+    {
+      "name": "green_and_gold",
+      "value": "green_and_gold"
+    },
+    {
+      "name": "orange_and_silver",
+      "value": "orange_and_silver"
+    },
+    {
+      "name": "red_and_gold",
+      "value": "red_and_gold"
+    },
+    {
+      "name": "purple_and_silver",
+      "value": "purple_and_silver"
+    }
+  ]
+]
+
+
+de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption[polyhedral_alies_v2_fr]=[
+  [
+    {
+      "name": "bleu_et_argent",
+      "value": "blue_and_silver"
+    },
+    {
+      "name": "noir_et_or",
+      "value": "black_and_gold"
+    },
+    {
+      "name": "bleu_et_or",
+      "value": "blue_and_gold"
+    },
+    {
+      "name": "vert_et_or",
+      "value": "green_and_gold"
+    },
+    {
+      "name": "orange_et_argent",
+      "value": "orange_and_silver"
+    },
+    {
+      "name": "rouge_et_or",
+      "value": "red_and_gold"
+    },
+    {
+      "name": "violet_et_argent",
+      "value": "purple_and_silver"
+    }
+  ]
+]
+
+
+de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption[polyhedral_alies_v2_pt_BR]=[
+  [
+    {
+      "name": "azul_e_prata",
+      "value": "blue_and_silver"
+    },
+    {
+      "name": "preto_e_dourado",
+      "value": "black_and_gold"
+    },
+    {
+      "name": "azul_e_dourado",
+      "value": "blue_and_gold"
+    },
+    {
+      "name": "verde_e_dourado",
+      "value": "green_and_gold"
+    },
+    {
+      "name": "laranja_e_prata",
+      "value": "orange_and_silver"
+    },
+    {
+      "name": "vermelho_e_dourado",
+      "value": "red_and_gold"
+    },
+    {
+      "name": "roxo_e_prata",
+      "value": "purple_and_silver"
+    }
+  ]
+]
+
+
+de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption[polyhedral_knots_de]=[
+  [
+    {
+      "name": "lila_dunkel",
+      "value": "purple_dark"
+    },
+    {
+      "name": "lila_weiß",
+      "value": "purple_white"
+    },
+    {
+      "name": "blau",
+      "value": "blue"
+    }
+  ]
+]
+
+
+de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption[polyhedral_knots_en]=[
+  [
+    {
+      "name": "purple_dark",
+      "value": "purple_dark"
+    },
+    {
+      "name": "purple_white",
+      "value": "purple_white"
+    },
+    {
+      "name": "blue",
+      "value": "blue"
+    }
+  ]
+]
+
+
+de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption[polyhedral_knots_fr]=[
+  [
+    {
+      "name": "violet_foncé",
+      "value": "purple_dark"
+    },
+    {
+      "name": "violet_blanc",
+      "value": "purple_white"
+    },
+    {
+      "name": "bleu",
+      "value": "blue"
+    }
+  ]
+]
+
+
+de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption[polyhedral_knots_pt_BR]=[
+  [
+    {
+      "name": "roxo_escuro",
+      "value": "purple_dark"
+    },
+    {
+      "name": "roxo_claro",
+      "value": "purple_white"
+    },
+    {
+      "name": "azul",
+      "value": "blue"
+    }
+  ]
+]
+
+
+de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption_invalidStyle[de]=[
+  [
+    {
+      "name": "Wähle zuerst einen Würfelbilderstil",
+      "value": "none"
+    }
+  ]
+]
+
+
+de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption_invalidStyle[en]=[
+  [
+    {
+      "name": "Select the dice image style first",
+      "value": "none"
+    }
+  ]
+]
+
+
+de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption_invalidStyle[fr]=[
+  [
+    {
+      "name": "Sélectionnez d'abord le style d'image des dés",
+      "value": "none"
+    }
+  ]
+]
+
+
+de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption_invalidStyle[pt_BR]=[
+  [
+    {
+      "name": "Selecione o estilo da imagem do dado primeiro",
+      "value": "none"
+    }
+  ]
+]
