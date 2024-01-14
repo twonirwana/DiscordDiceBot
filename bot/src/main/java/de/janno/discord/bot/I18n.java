@@ -18,7 +18,13 @@ public final class I18n {
     }
 
     public static String getMessage(String key, Locale locale) {
-        return StringEscapeUtils.unescapeJava(ResourceBundle.getBundle(MESSAGES_KEY, locale).getString(key));
+        try {
+            return StringEscapeUtils.unescapeJava(ResourceBundle.getBundle(MESSAGES_KEY, locale).getString(key));
+        } catch (MissingResourceException e) {
+            log.error("Missing I18n for key: {}", key);
+            String[] split = key.split("\\.");
+            return split[split.length - 1];
+        }
     }
 
     public static String getMessage(String key, Locale locale, Object... arguments) {
@@ -26,7 +32,7 @@ public final class I18n {
     }
 
     public static List<Locale> getAdditionalLanguage() {
-        return List.of(Locale.GERMAN, Locale.of("pt","BR"), Locale.FRENCH);
+        return List.of(Locale.GERMAN, Locale.of("pt", "BR"), Locale.FRENCH);
     }
 
     public static List<Locale> allSupportedLanguage() {
@@ -70,6 +76,7 @@ public final class I18n {
                 .toList();
     }
 
-    private record LocaleString(Locale locale, String value){}
+    private record LocaleString(Locale locale, String value) {
+    }
 
 }

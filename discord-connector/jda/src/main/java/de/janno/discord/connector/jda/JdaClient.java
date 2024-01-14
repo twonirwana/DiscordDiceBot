@@ -58,6 +58,8 @@ public class JdaClient {
                 .connectTimeout(timeout)
                 .build();
 
+        Config.onChange(event -> event.modifiedKeys().forEach(k -> log.info("config change: {} -> {}", k, event.configuration().getOptional(k).orElse(""))));
+
         JdaMetrics.registerHttpClient(okHttpClient);
         final String token = Config.get("token");
         if (Strings.isNullOrEmpty(token)) {
@@ -202,14 +204,14 @@ public class JdaClient {
                 )
                 .setActivity(Activity.customStatus("Type /quickstart or /help"));
         final int shardsTotal = Config.getInt("shardsTotal", -1);
-        log.info("Configured ShardTotal: {}",shardsTotal );
+        log.info("Configured ShardTotal: {}", shardsTotal);
         shardManagerBuilder.setShardsTotal(shardsTotal);
         Optional<List<Integer>> shardIds = Config.getOptional("shardIds", null)
-                        .map(s -> Arrays.stream(s.split(","))
-                                .map(String::trim)
-                                .map(Integer::parseInt)
-                                .toList());
-        log.info("Configured ShardIds: {}",shardIds.orElse(List.of()));
+                .map(s -> Arrays.stream(s.split(","))
+                        .map(String::trim)
+                        .map(Integer::parseInt)
+                        .toList());
+        log.info("Configured ShardIds: {}", shardIds.orElse(List.of()));
         shardIds.ifPresent(shardManagerBuilder::setShards);
         ShardManager shardManager = shardManagerBuilder.build();
         JdaMetrics.startGuildCountGauge(botInGuildIdSet);
@@ -267,6 +269,9 @@ public class JdaClient {
     }
 
     private static void sendMessageInNewsChannel(JDA jda, String message) {
+        if (!Config.getBool("sendStatusMessage", true)) {
+            return;
+        }
         final String newsGuildId = Config.getNullable("newsGuildId");
         final String newsChannelId = Config.getNullable("newsChannelId");
 
@@ -298,6 +303,7 @@ public class JdaClient {
                 if (t instanceof NewsChannel n) {
                     if (hasPermission(t, Permission.MESSAGE_MANAGE)) {
                         try {
+                            //whitout the wait time the crosspost resulted often rate limit error
                             Thread.sleep(Config.getInt("newsChannelPublishWaitMilliSec", 1000));
                             n.crosspostMessageById(sendMessage.getId()).complete();
                         } catch (Exception e) {

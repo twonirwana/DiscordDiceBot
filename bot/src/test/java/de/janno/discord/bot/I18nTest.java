@@ -15,6 +15,18 @@ class I18nTest {
     }
 
     @Test
+    void testFallbackToKey() {
+        String res = I18n.getMessage("path.property.name", Locale.ENGLISH);
+        assertThat(res).isEqualTo("name");
+    }
+
+    @Test
+    void testFallbackToKeyWithoutDot() {
+        String res = I18n.getMessage("property", Locale.ENGLISH);
+        assertThat(res).isEqualTo("property");
+    }
+
+    @Test
     void testFallbackToDefault_Japan() {
         String res = I18n.getMessage("base.help.description", Locale.JAPAN);
         assertThat(res).isEqualTo("Get help for /{0}");

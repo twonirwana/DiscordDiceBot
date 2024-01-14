@@ -1,1 +1,2 @@
+config.watch.enabled: true
 load.properties: config.yaml
