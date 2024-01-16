@@ -56,6 +56,7 @@ public class CustomDiceConfig extends Config {
                     if (b.getDiceExpression().equals(b.getLabel())) {
                         return b.getDiceExpression();
                     }
+                    //todo button new line -> in buttonIdLabelAndDiceExpressions
                     return "%s@%s".formatted(b.getDiceExpression(), b.getLabel());
                 })
                 .collect(Collectors.joining(";"));

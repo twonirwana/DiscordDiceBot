@@ -4,6 +4,9 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.NonNull;
 import lombok.Value;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.Optional;
 
 @Value
 public class ButtonIdLabelAndDiceExpression {
@@ -13,22 +16,32 @@ public class ButtonIdLabelAndDiceExpression {
     String label;
     @NonNull
     String diceExpression;
+    boolean newLine;
+
+    public ButtonIdLabelAndDiceExpression(
+            @NonNull String buttonId,
+            @NonNull String label,
+            @NonNull String diceExpression) {
+        this(buttonId, label, diceExpression, false);
+    }
 
     @JsonCreator
     public ButtonIdLabelAndDiceExpression(
             @JsonProperty("buttonId") @NonNull String buttonId,
             @JsonProperty("label") @NonNull String label,
-            @JsonProperty("diceExpression") @NonNull String diceExpression) {
+            @JsonProperty("diceExpression") @NonNull String diceExpression,
+            @JsonProperty("newLine") @Nullable Boolean newLine) {
         this.buttonId = buttonId;
         this.label = label;
         this.diceExpression = diceExpression;
+        this.newLine = Optional.ofNullable(newLine).orElse(false);
     }
 
     public String toShortString() {
         if (diceExpression.equals(label)) {
             return diceExpression;
         }
-        return String.format("%s@%s", diceExpression, label);
+        return String.format("%s%s@%s", newLine ? "⏎" : "", diceExpression, label);
     }
 }
 

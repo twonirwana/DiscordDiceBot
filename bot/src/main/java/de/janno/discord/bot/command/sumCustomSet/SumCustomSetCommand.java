@@ -4,7 +4,6 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 import de.janno.discord.bot.I18n;
 import de.janno.discord.bot.command.*;
 import de.janno.discord.bot.command.channelConfig.AliasHelper;
@@ -22,7 +21,6 @@ import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinitionOption;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import lombok.NonNull;
-import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
 
@@ -41,7 +39,6 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
     private static final String CLEAR_BUTTON_ID = "clear";
     private static final String BACK_BUTTON_ID = "back";
 
-    private static final String LABEL_DELIMITER = "@";
     private static final String CONFIG_TYPE_ID = "SumCustomSetConfig";
     private static final String STATE_DATA_TYPE_ID = "SumCustomSetStateDataV2";
     private static final String STATE_DATA_TYPE_LEGACY_ID = "SumCustomSetStateData";
@@ -301,112 +298,47 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
 
     @Override
     protected @NonNull SumCustomSetConfig getConfigFromStartOptions(@NonNull CommandInteractionOption options, @NonNull Locale userLocale) {
-        final List<ButtonIdAndExpression> buttons = getButtonsFromCommandInteractionOption(options);
+        final String buttonsOptionValue = options.getStringSubOptionWithName(BUTTONS_COMMAND_OPTIONS_NAME).orElseThrow();
+        final List<ButtonIdLabelAndDiceExpression> buttons = ButtonHelper.parseString(buttonsOptionValue);
         final boolean alwaysSumResults = options.getBooleanSubOptionWithName(ALWAYS_SUM_RESULTS_COMMAND_OPTIONS_NAME).orElse(true);
         final DiceParserSystem diceParserSystem = DiceParserSystem.DICE_EVALUATOR;
         final Long answerTargetChannelId = BaseCommandOptions.getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null);
         final AnswerFormatType answerType = BaseCommandOptions.getAnswerTypeFromStartCommandOption(options).orElse(defaultAnswerFormat());
         final boolean hideExpressionInAnswer = options.getBooleanSubOptionWithName(HIDE_EXPRESSION_IN_ANSWER).orElse(true);
+        final boolean systemButtonNewLine = buttonsOptionValue.endsWith(";;"); //todo whitespace between ;
 
-        return getConfigOptionStringList(buttons, answerTargetChannelId, diceParserSystem, alwaysSumResults, answerType,
+        return new SumCustomSetConfig(answerTargetChannelId,
+                buttons,
+                diceParserSystem,
+                alwaysSumResults,
+                hideExpressionInAnswer,
+                systemButtonNewLine,
+                answerType,
+                null, new DiceStyleAndColor(
                 BaseCommandOptions.getDiceStyleOptionFromStartCommandOption(options).orElse(DiceImageStyle.polyhedral_3d),
-                BaseCommandOptions.getDiceColorOptionFromStartCommandOption(options).orElse(DiceImageStyle.polyhedral_3d.getDefaultColor()),
-                userLocale,
-                hideExpressionInAnswer
-        );
-    }
-
-    private List<ButtonIdAndExpression> getButtonsFromCommandInteractionOption(@NonNull CommandInteractionOption options) {
-        ImmutableList.Builder<ButtonIdAndExpression> builder = ImmutableList.builder();
-        String buttons = options.getStringSubOptionWithName(BUTTONS_COMMAND_OPTIONS_NAME).orElseThrow();
-        int idCounter = 1;
-        for (String button : buttons.split(";")) {
-            builder.add(new ButtonIdAndExpression(idCounter++ + "_button", button.trim()));
-        }
-        return builder.build();
-    }
-
-    private List<ComponentRowDefinition> createButtonLayout(UUID customUUID, SumCustomSetConfig config, boolean rollDisabled, Locale configLocale) {
-        List<ButtonDefinition> buttons = config.getLabelAndExpression().stream()
-                .map(d -> ButtonDefinition.builder()
-                        .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), d.getButtonId(), customUUID))
-                        .label(d.getLabel())
-                        .build())
-                .collect(Collectors.toList());
-        buttons.add(ButtonDefinition.builder()
-                .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), ROLL_BUTTON_ID, customUUID))
-                .label(I18n.getMessage("sum_custom_set.button.label.roll", configLocale))
-                .disabled(rollDisabled)
-                .style(rollDisabled ? ButtonDefinition.Style.PRIMARY : ButtonDefinition.Style.SUCCESS)
-                .build());
-        buttons.add(ButtonDefinition.builder()
-                .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), CLEAR_BUTTON_ID, customUUID))
-                .label(I18n.getMessage("sum_custom_set.button.label.clear", configLocale))
-                .style(ButtonDefinition.Style.DANGER)
-                .build());
-        buttons.add(ButtonDefinition.builder()
-                .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), BACK_BUTTON_ID, customUUID))
-                .label(I18n.getMessage("sum_custom_set.button.label.back", configLocale))
-                .style(ButtonDefinition.Style.SECONDARY)
-                .build());
-        return Lists.partition(buttons, 5).stream()
-                .map(bl -> ComponentRowDefinition.builder().buttonDefinitions(bl).build())
-                .collect(Collectors.toList());
-    }
-
-    @VisibleForTesting
-    SumCustomSetConfig getConfigOptionStringList(List<ButtonIdAndExpression> startOptions,
-                                                 Long answerTargetChannelId,
-                                                 DiceParserSystem diceParserSystem,
-                                                 boolean alwaysSumResult,
-                                                 AnswerFormatType answerFormatType,
-                                                 DiceImageStyle diceImageStyle,
-                                                 String defaultDiceColor,
-                                                 Locale userLocale,
-                                                 boolean useLabelForAnswer) {
-        return new SumCustomSetConfig(answerTargetChannelId, startOptions.stream()
-                .filter(be -> !be.getExpression().contains(BottomCustomIdUtils.CUSTOM_ID_DELIMITER))
-                .filter(be -> !be.getExpression().contains(LABEL_DELIMITER) || be.getExpression().split(LABEL_DELIMITER).length == 2)
-                .map(be -> {
-                    String label = null;
-                    String diceExpression;
-                    if (be.getExpression().contains(LABEL_DELIMITER)) {
-                        String[] split = be.getExpression().split(LABEL_DELIMITER);
-                        label = split[1].trim();
-                        diceExpression = split[0].trim();
-                    } else {
-                        diceExpression = be.getExpression().trim();
-                    }
-                    if (!diceExpression.startsWith("+") && !diceExpression.startsWith("-")
-                            && diceParserSystem == DiceParserSystem.DICEROLL_PARSER) {
-                        diceExpression = "+" + diceExpression;
-                    }
-                    if (label == null) {
-                        label = diceExpression;
-                    }
-                    return new ButtonIdLabelAndDiceExpression(be.getButtonId(), label, diceExpression);
-                })
-                .filter(s -> !s.getDiceExpression().isEmpty())
-                .filter(s -> !s.getLabel().isEmpty())
-                .filter(lv -> {
-                    if (DiceParserSystem.DICEROLL_PARSER == diceParserSystem) {
-                        return diceSystemAdapter.isValidExpression(lv.getDiceExpression(), diceParserSystem);
-                    }
-                    return true;
-                })
-                .distinct()
-                .limit(22)
-                .collect(Collectors.toList()),
-                diceParserSystem, alwaysSumResult, useLabelForAnswer, answerFormatType, null, new DiceStyleAndColor(diceImageStyle, defaultDiceColor),
+                BaseCommandOptions.getDiceColorOptionFromStartCommandOption(options).orElse(DiceImageStyle.polyhedral_3d.getDefaultColor())),
                 userLocale);
     }
 
-    @Value
-    private static class ButtonIdAndExpression {
-        @NonNull
-        String buttonId;
-        @NonNull
-        String expression;
+    private List<ComponentRowDefinition> createButtonLayout(UUID configUUID, SumCustomSetConfig config, boolean rollDisabled, Locale configLocale) {
+        return ButtonHelper.extendButtonLayout(ButtonHelper.createButtonLayout(getCommandId(), configUUID, config.getLabelAndExpression()),
+                ImmutableList.<ButtonDefinition>builder()
+                        .add(ButtonDefinition.builder()
+                                .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), ROLL_BUTTON_ID, configUUID))
+                                .label(I18n.getMessage("sum_custom_set.button.label.roll", configLocale))
+                                .disabled(rollDisabled)
+                                .style(rollDisabled ? ButtonDefinition.Style.PRIMARY : ButtonDefinition.Style.SUCCESS)
+                                .build())
+                        .add(ButtonDefinition.builder()
+                                .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), CLEAR_BUTTON_ID, configUUID))
+                                .label(I18n.getMessage("sum_custom_set.button.label.clear", configLocale))
+                                .style(ButtonDefinition.Style.DANGER)
+                                .build())
+                        .add(ButtonDefinition.builder()
+                                .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), BACK_BUTTON_ID, configUUID))
+                                .label(I18n.getMessage("sum_custom_set.button.label.back", configLocale))
+                                .style(ButtonDefinition.Style.SECONDARY)
+                                .build()).build(), config.isSystemButtonNewLine());
     }
 
 }
