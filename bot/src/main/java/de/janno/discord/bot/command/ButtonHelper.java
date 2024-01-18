@@ -1,41 +1,48 @@
 package de.janno.discord.bot.command;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
+import de.janno.discord.bot.I18n;
+import de.janno.discord.bot.dice.DiceSystemAdapter;
 import de.janno.discord.connector.api.BottomCustomIdUtils;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
-import org.apache.commons.lang3.StringUtils;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class ButtonHelper {
 
     private static final String LABEL_DELIMITER = "@";
+    private static final String BUTTON_DELIMITER = ";";
 
     public static List<ButtonIdLabelAndDiceExpression> parseString(String buttons) {
         ImmutableList.Builder<ButtonIdLabelAndDiceExpression> builder = ImmutableList.builder();
         int idCounter = 1;
         boolean newLine = false;
-        for (String button : buttons.split(";")) {
+        for (String button : buttons.split(BUTTON_DELIMITER)) {
             if (button.isBlank()) {
                 newLine = true;
             } else {
-                final String id = idCounter++ + "_button";
-                final String expression;
-                final String label;
-                if (StringUtils.countMatches(button, LABEL_DELIMITER) == 1) {
-                    String[] split = button.split(LABEL_DELIMITER);
-                    label = split[1].trim();
-                    expression = split[0].trim();
+                if (button.contains(LABEL_DELIMITER)) {
+                    if (button.split(LABEL_DELIMITER).length == 2) {
+                        String[] split = button.split(LABEL_DELIMITER);
+                        final String label = split[1].trim();
+                        final String expression = split[0].trim();
+                        if (!Strings.isNullOrEmpty(expression) && !Strings.isNullOrEmpty(label)) {
+                            builder.add(new ButtonIdLabelAndDiceExpression(idCounter++ + "_button", label, expression, newLine));
+                            newLine = false;
+                        }
+                    }
                 } else {
-                    label = button.trim();
-                    expression = button.trim();
+                    final String label = button.trim();
+                    final String expression = button.trim();
+                    if (!Strings.isNullOrEmpty(expression) && !Strings.isNullOrEmpty(label)) {
+                        builder.add(new ButtonIdLabelAndDiceExpression(idCounter++ + "_button", label, expression, newLine));
+                        newLine = false;
+                    }
                 }
-                builder.add(new ButtonIdLabelAndDiceExpression(id, label, expression, newLine));
-                newLine = false;
+
             }
         }
         return builder.build();
@@ -66,7 +73,7 @@ public class ButtonHelper {
                 .map(r -> (List<ButtonDefinition>) new ArrayList<>(r.getButtonDefinitions()))
                 .collect(Collectors.toList());
         List<ButtonDefinition> currentRow;
-        if (rows.size() == 5 || newLine) {
+        if (rows.isEmpty() || newLine) {
             currentRow = new ArrayList<>();
             rows.add(currentRow);
         } else {
@@ -83,5 +90,49 @@ public class ButtonHelper {
         return rows.stream()
                 .map(r -> ComponentRowDefinition.builder().buttonDefinitions(r).build())
                 .toList();
+    }
+
+    public static Optional<String> valdiate(String buttons, Locale userLocale) {
+        List<List<String>> rows = new ArrayList<>();
+        List<String> currentRow = new ArrayList<>();
+        rows.add(currentRow);
+        String[] buttonsSplit = buttons.split(BUTTON_DELIMITER);
+        if (buttonsSplit.length == 1) {
+            if (buttonsSplit[0].isBlank()) {
+                return Optional.of(I18n.getMessage("buttons.validation.noButtons", userLocale));
+            }
+        }
+        for (String button : buttonsSplit) {
+            if (currentRow.size() == 5 || button.isBlank()) {
+                currentRow = new ArrayList<>();
+                rows.add(currentRow);
+            }
+            if (!button.isBlank()) {
+                currentRow.add(button);
+            }
+        }
+
+        for (String button : rows.stream().flatMap(Collection::stream).toList()) {
+            Optional<String> validateLabel = DiceSystemAdapter.validateLabel(button, userLocale);
+            if (validateLabel.isPresent()) {
+                return validateLabel;
+            }
+        }
+
+        if (rows.size() > 5) {
+            return Optional.of(I18n.getMessage("buttons.validation.toMany", userLocale));
+        }
+
+        for (List<String> row : rows) {
+            if (row.size() > 5) {
+                return Optional.of(I18n.getMessage("buttons.validation.toMany", userLocale));
+            }
+            if (row.isEmpty()) {
+                return Optional.of(I18n.getMessage("buttons.validation.emptyRow", userLocale));
+            }
+        }
+
+
+        return Optional.empty();
     }
 }

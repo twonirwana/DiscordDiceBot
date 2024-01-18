@@ -54,10 +54,9 @@ public class CustomDiceConfig extends Config {
         String buttons = buttonIdLabelAndDiceExpressions.stream()
                 .map(b -> {
                     if (b.getDiceExpression().equals(b.getLabel())) {
-                        return b.getDiceExpression();
+                        return "%s%s".formatted(b.isNewLine() ? ";" : "", b.getDiceExpression());
                     }
-                    //todo button new line -> in buttonIdLabelAndDiceExpressions
-                    return "%s@%s".formatted(b.getDiceExpression(), b.getLabel());
+                    return "%s%s@%s".formatted(b.isNewLine() ? ";" : "", b.getDiceExpression(), b.getLabel());
                 })
                 .collect(Collectors.joining(";"));
         return "%s: %s %s".formatted(CustomDiceCommand.BUTTONS_OPTION_NAME, String.join(" ", buttons), super.toCommandOptionsString());

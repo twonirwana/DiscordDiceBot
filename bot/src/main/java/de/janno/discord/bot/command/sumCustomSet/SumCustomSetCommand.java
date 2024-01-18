@@ -25,6 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 
@@ -42,6 +43,7 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
     private static final String CONFIG_TYPE_ID = "SumCustomSetConfig";
     private static final String STATE_DATA_TYPE_ID = "SumCustomSetStateDataV2";
     private static final String STATE_DATA_TYPE_LEGACY_ID = "SumCustomSetStateData";
+    private final static Pattern ENDS_WITH_DOUBLE_SEMICOLUMN_PATTERN = Pattern.compile(".*;\\s*;\\s*$");
     private final DiceSystemAdapter diceSystemAdapter;
 
     public SumCustomSetCommand(PersistenceManager persistenceManager, CachingDiceEvaluator cachingDiceEvaluator) {
@@ -242,6 +244,10 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
         }
     }
 
+    @Override
+    protected @NonNull Optional<String> getStartOptionsValidationMessage(@NonNull CommandInteractionOption options, long channelId, long userId, @NonNull Locale userLocale) {
+        return ButtonHelper.valdiate(options.getStringSubOptionWithName(BUTTONS_COMMAND_OPTIONS_NAME).orElseThrow(), userLocale);
+    }
 
     private State<SumCustomSetStateDataV2> updateStateWithButtonValue(@NonNull final String buttonValue,
                                                                       @NonNull final List<ExpressionAndLabel> currentExpressions,
@@ -305,7 +311,7 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
         final Long answerTargetChannelId = BaseCommandOptions.getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null);
         final AnswerFormatType answerType = BaseCommandOptions.getAnswerTypeFromStartCommandOption(options).orElse(defaultAnswerFormat());
         final boolean hideExpressionInAnswer = options.getBooleanSubOptionWithName(HIDE_EXPRESSION_IN_ANSWER).orElse(true);
-        final boolean systemButtonNewLine = buttonsOptionValue.endsWith(";;"); //todo whitespace between ;
+        final boolean systemButtonNewLine = ENDS_WITH_DOUBLE_SEMICOLUMN_PATTERN.matcher(buttonsOptionValue).matches();
 
         return new SumCustomSetConfig(answerTargetChannelId,
                 buttons,

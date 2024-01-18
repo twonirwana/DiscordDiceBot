@@ -13,7 +13,6 @@ import de.janno.discord.bot.persistance.Mapper;
 import de.janno.discord.bot.persistance.MessageConfigDTO;
 import de.janno.discord.bot.persistance.MessageDataDTO;
 import de.janno.discord.bot.persistance.PersistenceManager;
-import de.janno.discord.connector.api.BottomCustomIdUtils;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinitionOption;
@@ -92,12 +91,15 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
 
     @Override
     protected @NonNull Optional<String> getStartOptionsValidationMessage(@NonNull CommandInteractionOption options, long channelId, long userId, @NonNull Locale userLocale) {
+        Optional<String> validateLayout = ButtonHelper.valdiate(options.getStringSubOptionWithName(BUTTONS_OPTION_NAME).orElseThrow(), userLocale);
+        if (validateLayout.isPresent()) {
+            return validateLayout;
+        }
         List<String> diceExpressionWithOptionalLabel = getButtonsFromCommandOption(options).stream()
                 .map(ButtonIdLabelAndDiceExpression::getDiceExpression)
                 .map(e -> AliasHelper.getAndApplyAliaseToExpression(channelId, userId, persistenceManager, e))
                 .distinct()
                 .collect(Collectors.toList());
-        //todo validate number of lines and buttons of line
 
         DiceParserSystem diceParserSystem = DiceParserSystem.DICE_EVALUATOR;
         return diceSystemAdapter.validateListOfExpressions(diceExpressionWithOptionalLabel, "/%s %s".formatted(I18n.getMessage("custom_dice.name", userLocale),

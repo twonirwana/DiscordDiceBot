@@ -69,23 +69,24 @@ public class SumCustomSetConfig extends Config {
         String buttons = labelAndExpression.stream()
                 .map(ButtonIdLabelAndDiceExpression::toShortString)
                 .collect(Collectors.joining(", "));
-        //todo system button new line
         String statusAndAnswerType = hideExpressionInStatusAndAnswer ? "labelAnswer" : "expressionAnswer";
-        return "[%s, %s, %s, %s, %s, %s, %s]".formatted(buttons, getTargetChannelShortString(), diceParserSystem, alwaysSumResult, getAnswerFormatType(), getDiceStyleAndColor(), statusAndAnswerType);
+        String systemButtonNewLineString = systemButtonNewLine ? "newSystemButtonLine" : "sameSystemButtonLine";
+        return "[%s, %s, %s, %s, %s, %s, %s, %s]".formatted(buttons, getTargetChannelShortString(), diceParserSystem, alwaysSumResult, getAnswerFormatType(), getDiceStyleAndColor(), statusAndAnswerType, systemButtonNewLineString);
     }
 
     @Override
     public String toCommandOptionsString() {
         String buttons = labelAndExpression.stream()
-                //todo button new line
-                //todo system button new line
                 .map(b -> {
                     if (b.getDiceExpression().equals(b.getLabel())) {
-                        return b.getDiceExpression();
+                        return "%s%s".formatted(b.isNewLine() ? ";" : "", b.getDiceExpression());
                     }
-                    return "%s@%s".formatted(b.getDiceExpression(), b.getLabel());
+                    return "%s%s@%s".formatted(b.isNewLine() ? ";" : "", b.getDiceExpression(), b.getLabel());
                 })
-                .collect(Collectors.joining(";"));
+                .collect(Collectors.joining(";;"));
+        if (systemButtonNewLine) {
+            buttons += ";";
+        }
         return "%s: %s %s: %s %s: %s %s".formatted(SumCustomSetCommand.BUTTONS_COMMAND_OPTIONS_NAME, String.join(" ", buttons),
                 SumCustomSetCommand.ALWAYS_SUM_RESULTS_COMMAND_OPTIONS_NAME, alwaysSumResult,
                 SumCustomSetCommand.HIDE_EXPRESSION_IN_ANSWER, hideExpressionInStatusAndAnswer,

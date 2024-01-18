@@ -7,6 +7,7 @@ import de.janno.discord.bot.command.RollAnswer;
 import de.janno.discord.bot.dice.image.DiceStyleAndColor;
 import de.janno.discord.connector.api.BottomCustomIdUtils;
 import lombok.NonNull;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -39,6 +40,9 @@ public class DiceSystemAdapter {
 
         if (expressionWithOptionalLabel.contains(LABEL_DELIMITER)) {
             String[] split = expressionWithOptionalLabel.split(LABEL_DELIMITER);
+            if(StringUtils.countMatches(expressionWithOptionalLabel, LABEL_DELIMITER) > 1){
+                return Optional.of(I18n.getMessage("diceEvaluator.reply.validation.toManyAt", userLocale, expressionWithOptionalLabel));
+            }
             if (split.length != 2) {
                 return Optional.of(I18n.getMessage("diceEvaluator.reply.validation.toManyAt", userLocale, expressionWithOptionalLabel));
             }

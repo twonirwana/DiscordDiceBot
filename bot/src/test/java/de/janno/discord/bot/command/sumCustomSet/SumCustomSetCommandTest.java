@@ -2,6 +2,7 @@ package de.janno.discord.bot.command.sumCustomSet;
 
 import au.com.origin.snapshots.Expect;
 import au.com.origin.snapshots.junit5.SnapshotExtension;
+import de.janno.discord.bot.ResultImage;
 import de.janno.discord.bot.command.*;
 import de.janno.discord.bot.dice.CachingDiceEvaluator;
 import de.janno.discord.bot.dice.Dice;
@@ -184,6 +185,24 @@ class SumCustomSetCommandTest {
     }
 
     @Test
+    void getConfigValuesFromStartOptionsSystemButtonsLineBreak() {
+        CommandInteractionOption option = CommandInteractionOption.builder()
+                .name("start")
+                .option(CommandInteractionOption.builder()
+                        .name("buttons")
+                        .stringValue("1d6@Label;2d4;;")
+                        .build())
+                .build();
+
+        SumCustomSetConfig res = underTest.getConfigFromStartOptions(option, Locale.ENGLISH);
+
+        assertThat(res).isEqualTo(new SumCustomSetConfig(null, List.of(
+                new ButtonIdLabelAndDiceExpression("1_button", "Label", "1d6"),
+                new ButtonIdLabelAndDiceExpression("2_button", "2d4", "2d4")
+        ), DiceParserSystem.DICE_EVALUATOR, true, true, true, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_3d, "red_and_white"), Locale.ENGLISH));
+    }
+
+    @Test
     void rollDice_1d6plus10() {
 
 
@@ -239,6 +258,218 @@ class SumCustomSetCommandTest {
     }
 
     @Test
+    void getButtonLayout25Buttons() {
+        List<ComponentRowDefinition> res = underTest.createNewButtonMessage(UUID.fromString("00000000-0000-0000-0000-000000000000"),
+                new SumCustomSetConfig(null, ButtonHelper.parseString("+1d4;+1d6;+1d7;+1d8;+1d10;+1d12;+1d14;+1d16;+1d20;+1d24;+1d16;+1d30;+1d100;+1;+2;+3;+4;+5;-1;-2;-3;-4"), DiceParserSystem.DICE_EVALUATOR, true, true, AnswerFormatType.without_expression, ResultImage.none, null, Locale.ENGLISH)
+        ).getComponentRowDefinitions();
+
+        assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel))
+                .containsExactly("+1d4",
+                        "+1d6",
+                        "+1d7",
+                        "+1d8",
+                        "+1d10",
+                        "+1d12",
+                        "+1d14",
+                        "+1d16",
+                        "+1d20",
+                        "+1d24",
+                        "+1d16",
+                        "+1d30",
+                        "+1d100",
+                        "+1",
+                        "+2",
+                        "+3",
+                        "+4",
+                        "+5",
+                        "-1",
+                        "-2",
+                        "-3",
+                        "-4",
+                        "Roll",
+                        "Clear",
+                        "Back");
+        assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getId))
+                .containsExactly("sum_custom_set1_button00000000-0000-0000-0000-000000000000",
+                        "sum_custom_set2_button00000000-0000-0000-0000-000000000000",
+                        "sum_custom_set3_button00000000-0000-0000-0000-000000000000",
+                        "sum_custom_set4_button00000000-0000-0000-0000-000000000000",
+                        "sum_custom_set5_button00000000-0000-0000-0000-000000000000",
+                        "sum_custom_set6_button00000000-0000-0000-0000-000000000000",
+                        "sum_custom_set7_button00000000-0000-0000-0000-000000000000",
+                        "sum_custom_set8_button00000000-0000-0000-0000-000000000000",
+                        "sum_custom_set9_button00000000-0000-0000-0000-000000000000",
+                        "sum_custom_set10_button00000000-0000-0000-0000-000000000000",
+                        "sum_custom_set11_button00000000-0000-0000-0000-000000000000",
+                        "sum_custom_set12_button00000000-0000-0000-0000-000000000000",
+                        "sum_custom_set13_button00000000-0000-0000-0000-000000000000",
+                        "sum_custom_set14_button00000000-0000-0000-0000-000000000000",
+                        "sum_custom_set15_button00000000-0000-0000-0000-000000000000",
+                        "sum_custom_set16_button00000000-0000-0000-0000-000000000000",
+                        "sum_custom_set17_button00000000-0000-0000-0000-000000000000",
+                        "sum_custom_set18_button00000000-0000-0000-0000-000000000000",
+                        "sum_custom_set19_button00000000-0000-0000-0000-000000000000",
+                        "sum_custom_set20_button00000000-0000-0000-0000-000000000000",
+                        "sum_custom_set21_button00000000-0000-0000-0000-000000000000",
+                        "sum_custom_set22_button00000000-0000-0000-0000-000000000000",
+                        "sum_custom_setroll00000000-0000-0000-0000-000000000000",
+                        "sum_custom_setclear00000000-0000-0000-0000-000000000000",
+                        "sum_custom_setback00000000-0000-0000-0000-000000000000");
+    }
+
+    @Test
+    void getButtonLayoutLineBreakWithSystemLineBreak() {
+        List<ComponentRowDefinition> res = underTest.createNewButtonMessage(UUID.fromString("00000000-0000-0000-0000-000000000000"),
+                new SumCustomSetConfig(null, ButtonHelper.parseString("+1d4;+1d6;+1d7;+1d8;+1d10;+1d12;+1d14;+1d16;+1d20;;+1;+2;+3;+4;+5;-1;-2;-3;-4;;"), DiceParserSystem.DICE_EVALUATOR, true, true, true, AnswerFormatType.without_expression, ResultImage.none, null, Locale.ENGLISH)
+        ).getComponentRowDefinitions();
+
+        assertThat(res).hasSize(5);
+        assertThat(res.get(0).getButtonDefinitions().stream().map(ButtonDefinition::getLabel)).containsExactly("+1d4",
+                "+1d6",
+                "+1d7",
+                "+1d8",
+                "+1d10");
+        assertThat(res.get(1).getButtonDefinitions().stream().map(ButtonDefinition::getLabel)).containsExactly("+1d12",
+                "+1d14",
+                "+1d16",
+                "+1d20");
+
+        assertThat(res.get(2).getButtonDefinitions().stream().map(ButtonDefinition::getLabel)).containsExactly("+1",
+                "+2",
+                "+3",
+                "+4",
+                "+5");
+
+        assertThat(res.get(3).getButtonDefinitions().stream().map(ButtonDefinition::getLabel)).containsExactly("-1",
+                "-2",
+                "-3",
+                "-4");
+
+        assertThat(res.get(4).getButtonDefinitions().stream().map(ButtonDefinition::getLabel)).containsExactly("Roll",
+                "Clear",
+                "Back");
+
+        assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getId))
+                .containsExactly("sum_custom_set1_button00000000-0000-0000-0000-000000000000",
+                        "sum_custom_set2_button00000000-0000-0000-0000-000000000000",
+                        "sum_custom_set3_button00000000-0000-0000-0000-000000000000",
+                        "sum_custom_set4_button00000000-0000-0000-0000-000000000000",
+                        "sum_custom_set5_button00000000-0000-0000-0000-000000000000",
+                        "sum_custom_set6_button00000000-0000-0000-0000-000000000000",
+                        "sum_custom_set7_button00000000-0000-0000-0000-000000000000",
+                        "sum_custom_set8_button00000000-0000-0000-0000-000000000000",
+                        "sum_custom_set9_button00000000-0000-0000-0000-000000000000",
+                        "sum_custom_set10_button00000000-0000-0000-0000-000000000000",
+                        "sum_custom_set11_button00000000-0000-0000-0000-000000000000",
+                        "sum_custom_set12_button00000000-0000-0000-0000-000000000000",
+                        "sum_custom_set13_button00000000-0000-0000-0000-000000000000",
+                        "sum_custom_set14_button00000000-0000-0000-0000-000000000000",
+                        "sum_custom_set15_button00000000-0000-0000-0000-000000000000",
+                        "sum_custom_set16_button00000000-0000-0000-0000-000000000000",
+                        "sum_custom_set17_button00000000-0000-0000-0000-000000000000",
+                        "sum_custom_set18_button00000000-0000-0000-0000-000000000000",
+                        "sum_custom_setroll00000000-0000-0000-0000-000000000000",
+                        "sum_custom_setclear00000000-0000-0000-0000-000000000000",
+                        "sum_custom_setback00000000-0000-0000-0000-000000000000");
+    }
+
+    @Test
+    void getButtonLayoutLineBreakWithoutSystemLineBreak() {
+        List<ComponentRowDefinition> res = underTest.createNewButtonMessage(UUID.fromString("00000000-0000-0000-0000-000000000000"),
+                new SumCustomSetConfig(null, ButtonHelper.parseString("+1d4;+1d6;+1d7;+1d8;+1d10;+1d12;+1d14;+1d16;+1d20;;+1;+2;+3;+4;+5;-1;-2;-3;-4;;"), DiceParserSystem.DICE_EVALUATOR, true, true, false, AnswerFormatType.without_expression, ResultImage.none, null, Locale.ENGLISH)
+        ).getComponentRowDefinitions();
+
+        assertThat(res).hasSize(5);
+        assertThat(res.get(0).getButtonDefinitions().stream().map(ButtonDefinition::getLabel)).containsExactly("+1d4",
+                "+1d6",
+                "+1d7",
+                "+1d8",
+                "+1d10");
+        assertThat(res.get(1).getButtonDefinitions().stream().map(ButtonDefinition::getLabel)).containsExactly("+1d12",
+                "+1d14",
+                "+1d16",
+                "+1d20");
+
+        assertThat(res.get(2).getButtonDefinitions().stream().map(ButtonDefinition::getLabel)).containsExactly("+1",
+                "+2",
+                "+3",
+                "+4",
+                "+5");
+
+        assertThat(res.get(3).getButtonDefinitions().stream().map(ButtonDefinition::getLabel)).containsExactly("-1",
+                "-2",
+                "-3",
+                "-4",
+                "Roll");
+
+        assertThat(res.get(4).getButtonDefinitions().stream().map(ButtonDefinition::getLabel)).containsExactly(
+                "Clear",
+                "Back");
+
+        assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getId))
+                .containsExactly("sum_custom_set1_button00000000-0000-0000-0000-000000000000",
+                        "sum_custom_set2_button00000000-0000-0000-0000-000000000000",
+                        "sum_custom_set3_button00000000-0000-0000-0000-000000000000",
+                        "sum_custom_set4_button00000000-0000-0000-0000-000000000000",
+                        "sum_custom_set5_button00000000-0000-0000-0000-000000000000",
+                        "sum_custom_set6_button00000000-0000-0000-0000-000000000000",
+                        "sum_custom_set7_button00000000-0000-0000-0000-000000000000",
+                        "sum_custom_set8_button00000000-0000-0000-0000-000000000000",
+                        "sum_custom_set9_button00000000-0000-0000-0000-000000000000",
+                        "sum_custom_set10_button00000000-0000-0000-0000-000000000000",
+                        "sum_custom_set11_button00000000-0000-0000-0000-000000000000",
+                        "sum_custom_set12_button00000000-0000-0000-0000-000000000000",
+                        "sum_custom_set13_button00000000-0000-0000-0000-000000000000",
+                        "sum_custom_set14_button00000000-0000-0000-0000-000000000000",
+                        "sum_custom_set15_button00000000-0000-0000-0000-000000000000",
+                        "sum_custom_set16_button00000000-0000-0000-0000-000000000000",
+                        "sum_custom_set17_button00000000-0000-0000-0000-000000000000",
+                        "sum_custom_set18_button00000000-0000-0000-0000-000000000000",
+                        "sum_custom_setroll00000000-0000-0000-0000-000000000000",
+                        "sum_custom_setclear00000000-0000-0000-0000-000000000000",
+                        "sum_custom_setback00000000-0000-0000-0000-000000000000");
+    }
+
+    @Test
+    void getStartOptionsValidationMessage_valid() {
+        CommandInteractionOption option = CommandInteractionOption.builder()
+                .name("start")
+                .option(CommandInteractionOption.builder()
+                        .name("buttons")
+                        .stringValue("1d6@Label;2d4")
+                        .build())
+                .build();
+
+        Optional<String> res = underTest.getStartOptionsValidationMessage(option, 0L, 0L, Locale.ENGLISH);
+
+        assertThat(res).isEmpty();
+    }
+
+    @Test
+    void getStartOptionsValidationMessage_invalidLayout() {
+        CommandInteractionOption option = CommandInteractionOption.builder()
+                .name("start")
+                .option(CommandInteractionOption.builder()
+                        .name("buttons")
+                        .stringValue("1d6@Label;;;2d6")
+                        .build())
+                .build();
+
+        Optional<String> res = underTest.getStartOptionsValidationMessage(option, 0L, 0L, Locale.ENGLISH);
+        assertThat(res).contains("Empty rows is not allowed");
+    }
+
+    @Test
+    public void testToCommandString() {
+        SumCustomSetConfig config = new SumCustomSetConfig(123L, List.of(
+                new ButtonIdLabelAndDiceExpression("1_button", "Label", "+1d6", false),
+                new ButtonIdLabelAndDiceExpression("2_button", "+2d4", "+2d4", true)
+        ), DiceParserSystem.DICE_EVALUATOR, true, true, true, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v2, "blue_and_silver"), Locale.GERMAN);
+
+        assertThat(config.toCommandOptionsString()).isEqualTo("buttons: +1d6@Label;;+2d4;; always_sum_result: true hide_expression_in_answer: true answer_format: full dice_image_style: polyhedral_alies_v2 dice_image_color: blue_and_silver target_channel: <#123>");
+    }
+
+    @Test
     void checkPersistence() {
         PersistenceManager persistenceManager = new PersistenceManagerImpl("jdbc:h2:mem:" + UUID.randomUUID(), null, null);
         underTest = new SumCustomSetCommand(persistenceManager, diceMock, new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 10000));
@@ -247,9 +478,9 @@ class SumCustomSetCommandTest {
         long channelId = System.currentTimeMillis();
         long messageId = System.currentTimeMillis();
         SumCustomSetConfig config = new SumCustomSetConfig(123L, List.of(
-                new ButtonIdLabelAndDiceExpression("1_button", "Label", "+1d6"),
-                new ButtonIdLabelAndDiceExpression("2_button", "+2d4", "+2d4")
-        ), DiceParserSystem.DICE_EVALUATOR, true, true, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
+                new ButtonIdLabelAndDiceExpression("1_button", "Label", "+1d6", false),
+                new ButtonIdLabelAndDiceExpression("2_button", "+2d4", "+2d4", true)
+        ), DiceParserSystem.DICE_EVALUATOR, true, true, true, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
         Optional<MessageConfigDTO> toSave = underTest.createMessageConfig(configUUID, 1L, channelId, config);
         assertThat(toSave).isPresent();
 
@@ -441,7 +672,7 @@ class SumCustomSetCommandTest {
     }
 
     @Test
-    void deserialization() {
+    void deserialization_legacy6() {
         UUID configUUID = UUID.randomUUID();
         MessageConfigDTO messageConfigDTO = new MessageConfigDTO(configUUID, 1L, 1660644934298L, "sum_custom_set", "SumCustomSetConfig", """
                 ---
@@ -481,12 +712,55 @@ class SumCustomSetCommandTest {
     }
 
     @Test
+    void deserialization() {
+        UUID configUUID = UUID.randomUUID();
+        MessageConfigDTO messageConfigDTO = new MessageConfigDTO(configUUID, 1L, 1660644934298L, "sum_custom_set", "SumCustomSetConfig", """
+                ---
+                answerTargetChannelId: 123
+                labelAndExpression:
+                - buttonId: "1_button"
+                  label: "+1d6"
+                  diceExpression: "+1d6"
+                  newLine: false
+                - buttonId: "2_button"
+                  label: "Bonus"
+                  diceExpression: "+2d4"
+                  newLine: true
+                diceParserSystem: "DICE_EVALUATOR"
+                alwaysSumResult: true
+                hideExpressionInStatusAndAnswer: true
+                systemButtonNewLine: true
+                answerFormatType: "full"
+                configLocale: "de"
+                diceStyleAndColor:
+                  diceImageStyle: "polyhedral_alies_v2"
+                  configuredDefaultColor: "blue_and_silver"
+                """);
+        MessageDataDTO messageDataDTO = new MessageDataDTO(configUUID, 1L, 1660644934298L, 1660644934298L, "sum_custom_set",
+                "SumCustomSetStateDataV2", """
+                ---
+                diceExpressions:
+                - expression: "+2d4"
+                  label: "Bonus"
+                lockedForUserName: "testUser"
+                 """);
+
+        ConfigAndState<SumCustomSetConfig, SumCustomSetStateDataV2> configAndState = underTest.deserializeAndUpdateState(messageConfigDTO, messageDataDTO, "1_button", "testUser");
+        assertThat(configAndState.getConfig()).isEqualTo(new SumCustomSetConfig(123L, List.of(
+                new ButtonIdLabelAndDiceExpression("1_button", "+1d6", "+1d6", false),
+                new ButtonIdLabelAndDiceExpression("2_button", "Bonus", "+2d4", true)
+        ), DiceParserSystem.DICE_EVALUATOR, true, true, true, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v2, "blue_and_silver"), Locale.GERMAN));
+        assertThat(configAndState.getConfigUUID()).isEqualTo(configUUID);
+        assertThat(configAndState.getState().getData()).isEqualTo(new SumCustomSetStateDataV2(List.of(new ExpressionAndLabel("+2d4", "Bonus"), new ExpressionAndLabel("+1d6", "+1d6")), "testUser"));
+    }
+
+    @Test
     void configSerialization() {
         UUID configUUID = UUID.fromString("00000000-0000-0000-0000-000000000000");
         SumCustomSetConfig config = new SumCustomSetConfig(123L, List.of(
-                new ButtonIdLabelAndDiceExpression("1_button", "Label", "+1d6"),
-                new ButtonIdLabelAndDiceExpression("2_button", "+2d4", "+2d4")
-        ), DiceParserSystem.DICE_EVALUATOR, true, true, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v2, "blue_and_silver"), Locale.GERMAN);
+                new ButtonIdLabelAndDiceExpression("1_button", "Label", "+1d6", false),
+                new ButtonIdLabelAndDiceExpression("2_button", "+2d4", "+2d4", true)
+        ), DiceParserSystem.DICE_EVALUATOR, true, true, true, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v2, "blue_and_silver"), Locale.GERMAN);
         Optional<MessageConfigDTO> toSave = underTest.createMessageConfig(configUUID, 1L, 2L, config);
         assertThat(toSave).isPresent();
 
