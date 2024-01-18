@@ -83,9 +83,9 @@ public class SumCustomSetConfig extends Config {
                     }
                     return "%s%s@%s".formatted(b.isNewLine() ? ";" : "", b.getDiceExpression(), b.getLabel());
                 })
-                .collect(Collectors.joining(";;"));
+                .collect(Collectors.joining(";"));
         if (systemButtonNewLine) {
-            buttons += ";";
+            buttons += ";;";
         }
         return "%s: %s %s: %s %s: %s %s".formatted(SumCustomSetCommand.BUTTONS_COMMAND_OPTIONS_NAME, String.join(" ", buttons),
                 SumCustomSetCommand.ALWAYS_SUM_RESULTS_COMMAND_OPTIONS_NAME, alwaysSumResult,
