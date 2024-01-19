@@ -29,20 +29,8 @@ public class SumCustomSetConfig extends Config {
     private final boolean alwaysSumResult;
     private final boolean hideExpressionInStatusAndAnswer;
     private final boolean systemButtonNewLine;
-
-    public SumCustomSetConfig(Long answerTargetChannelId,
-                              @NonNull List<ButtonIdLabelAndDiceExpression> labelAndExpression,
-                              DiceParserSystem diceParserSystem,
-                              Boolean alwaysSumResult,
-                              Boolean hideExpressionInStatusAndAnswer,
-                              AnswerFormatType answerFormatType,
-                              ResultImage resultImage,
-                              DiceStyleAndColor diceStyleAndColor,
-                              Locale configLocale
-    ) {
-        this(answerTargetChannelId, labelAndExpression, diceParserSystem, alwaysSumResult, hideExpressionInStatusAndAnswer, false, answerFormatType, resultImage, diceStyleAndColor, configLocale);
-    }
-
+    private final String prefix;
+    private final String postfix;
 
     @JsonCreator
     public SumCustomSetConfig(@JsonProperty("answerTargetChannelId") Long answerTargetChannelId,
@@ -51,6 +39,8 @@ public class SumCustomSetConfig extends Config {
                               @JsonProperty("alwaysSumResult") Boolean alwaysSumResult,
                               @JsonProperty("hideExpressionInStatusAndAnswer") Boolean hideExpressionInStatusAndAnswer,
                               @JsonProperty("systemButtonNewLine") Boolean systemButtonNewLine,
+                              @JsonProperty("prefix") String prefix,
+                              @JsonProperty("postfix") String postfix,
                               @JsonProperty("answerFormatType") AnswerFormatType answerFormatType,
                               @JsonProperty("resultImage") ResultImage resultImage,
                               @JsonProperty("diceImageStyle") DiceStyleAndColor diceStyleAndColor,
@@ -62,6 +52,8 @@ public class SumCustomSetConfig extends Config {
         this.alwaysSumResult = alwaysSumResult == null || alwaysSumResult;
         this.hideExpressionInStatusAndAnswer = Optional.ofNullable(hideExpressionInStatusAndAnswer).orElse(false);
         this.systemButtonNewLine = Optional.ofNullable(systemButtonNewLine).orElse(false);
+        this.postfix = postfix;
+        this.prefix = prefix;
     }
 
     @Override
@@ -71,7 +63,16 @@ public class SumCustomSetConfig extends Config {
                 .collect(Collectors.joining(", "));
         String statusAndAnswerType = hideExpressionInStatusAndAnswer ? "labelAnswer" : "expressionAnswer";
         String systemButtonNewLineString = systemButtonNewLine ? "newSystemButtonLine" : "sameSystemButtonLine";
-        return "[%s, %s, %s, %s, %s, %s, %s, %s]".formatted(buttons, getTargetChannelShortString(), diceParserSystem, alwaysSumResult, getAnswerFormatType(), getDiceStyleAndColor(), statusAndAnswerType, systemButtonNewLineString);
+        return "[%s, %s, %s, %s, %s, %s, %s, %s, %s, %s]".formatted(buttons,
+                getTargetChannelShortString(),
+                diceParserSystem,
+                alwaysSumResult,
+                getAnswerFormatType(),
+                getDiceStyleAndColor(),
+                statusAndAnswerType,
+                systemButtonNewLineString,
+                Optional.ofNullable(prefix).orElse("-"),
+                Optional.ofNullable(postfix).orElse("-"));
     }
 
     @Override
@@ -87,9 +88,11 @@ public class SumCustomSetConfig extends Config {
         if (systemButtonNewLine) {
             buttons += ";;";
         }
-        return "%s: %s %s: %s %s: %s %s".formatted(SumCustomSetCommand.BUTTONS_COMMAND_OPTIONS_NAME, String.join(" ", buttons),
+        return "%s: %s %s: %s %s: %s %s%s%s".formatted(SumCustomSetCommand.BUTTONS_COMMAND_OPTIONS_NAME, String.join(" ", buttons),
                 SumCustomSetCommand.ALWAYS_SUM_RESULTS_COMMAND_OPTIONS_NAME, alwaysSumResult,
-                SumCustomSetCommand.HIDE_EXPRESSION_IN_ANSWER, hideExpressionInStatusAndAnswer,
+                SumCustomSetCommand.HIDE_EXPRESSION_IN_ANSWER_OPTIONS_NAME, hideExpressionInStatusAndAnswer,
+                Optional.ofNullable(prefix).map(p -> "%s: %s ".formatted(SumCustomSetCommand.PREFIX_OPTIONS_NAME, p)).orElse(""),
+                Optional.ofNullable(postfix).map(p -> "%s: %s ".formatted(SumCustomSetCommand.POSTFIX_OPTIONS_NAME, p)).orElse(""),
                 super.toCommandOptionsString());
     }
 }

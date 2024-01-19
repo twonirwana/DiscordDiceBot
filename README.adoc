@@ -187,6 +187,15 @@ or
 
 `/custom_dice start buttons: 2d6 col 'mars_dark' + 1d6 col 'mars_light'@MCRN;2d6 col 'earth_dark' + 1d6 col 'earth_light'@UN;2d6 col 'belt_dark' + 1d6 col 'belt_light'@OPA answer_format: only_dice dice_image_style: expanse`
 
+[discrete]
+=== Powered by the Apocalypse ===
+
+`/quickstart system:Powered by the Apocalypse`
+
+or
+
+`/custom_dice buttons: val('$roll',2d6=) if('$roll'>=?10, 'Total Success', '$roll'<=?6, 'Miss', 'Partial Success')@Move;;val('$roll',2d6+1=) if('$roll'>=?10, 'Total Success', '$roll'<=?6, 'Miss', 'Partial Success')@Move +1;val('$roll',2d6+2=) if('$roll'>=?10, 'Total Success', '$roll'<=?6, 'Miss', 'Partial Success')@Move +2;val('$roll',2d6+3=) if('$roll'>=?10, 'Total Success', '$roll'<=?6, 'Miss', 'Partial Success')@Move +3;val('$roll',2d6+4=) if('$roll'>=?10, 'Total Success', '$roll'<=?6, 'Miss', 'Partial Success')@Move +4;val('$roll',2d6+5=) if('$roll'>=?10, 'Total Success', '$roll'<=?6, 'Miss', 'Partial Success')@Move +5;;val('$roll',2d6-1=) if('$roll'>=?10, 'Total Success', '$roll'<=?6, 'Miss', 'Partial Success')@Move -1;val('$roll',2d6-2=) if('$roll'>=?10, 'Total Success', '$roll'<=?6, 'Miss', 'Partial Success')@Move -2;val('$roll',2d6-3=) if('$roll'>=?10, 'Total Success', '$roll'<=?6, 'Miss', 'Partial Success')@Move -3;val('$roll',2d6-4=) if('$roll'>=?10, 'Total Success', '$roll'<=?6, 'Miss', 'Partial Success')@Move -4;val('$roll',2d6-5=) if('$roll'>=?10, 'Total Success', '$roll'<=?6, 'Miss', 'Partial Success')@Move -5;;d4;d6;d8;d10;d12;d20 answer_format: without_expression dice_image_style: polyhedral_RdD dice_image_color: default`
+
 == Commands
 
 All button configurations can be used with the `target_channel` option.
@@ -451,6 +460,10 @@ If the option `always_sum_result` is `true` (the default) then the result of the
 
 If the option `hide_expression` is `true` (the default) then the result and the message with the current expression will show the label of the buttons and the expression only if the button has now specific label.
 If it is set to `false` then it will show always the expression.
+
+The optional option `prefix` and `postfix` will always add before/after the expression before it is rolled.
+For example for the command `/sum_custom_set start buttons: +1d6;+2d6;+3d6 prefix: ( postfix: )k2` the following buttons are presst: `+2d6`,`+3d6` and `Roll` then the expression `(+2d6+3d6)k2` will be generated and rolled.
+If the combination of pressed button, the prefix and postfix is not a valid expression then the `Roll` button is disabled.
 
 This command can also use alias (see the `channel_config` command).
 The substitution of the alias name with its value happen upon pressing the `Roll` button.
