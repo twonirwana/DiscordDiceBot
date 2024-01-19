@@ -5,7 +5,7 @@ de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandTest.configSerializ
     "channelId": 2,
     "commandId": "sum_custom_set",
     "configClassId": "SumCustomSetConfig",
-    "config": "---\nanswerTargetChannelId: 123\nlabelAndExpression:\n- buttonId: \"1_button\"\n  label: \"Label\"\n  diceExpression: \"+1d6\"\n  newLine: false\n- buttonId: \"2_button\"\n  label: \"+2d4\"\n  diceExpression: \"+2d4\"\n  newLine: true\ndiceParserSystem: \"DICE_EVALUATOR\"\nalwaysSumResult: true\nhideExpressionInStatusAndAnswer: true\nsystemButtonNewLine: true\nanswerFormatType: \"full\"\nconfigLocale: \"de\"\ndiceStyleAndColor:\n  diceImageStyle: \"polyhedral_alies_v2\"\n  configuredDefaultColor: \"blue_and_silver\"\n"
+    "config": "---\nanswerTargetChannelId: 123\nlabelAndExpression:\n- buttonId: \"1_button\"\n  label: \"Label\"\n  diceExpression: \"+1d6\"\n  newLine: false\n- buttonId: \"2_button\"\n  label: \"+2d4\"\n  diceExpression: \"+2d4\"\n  newLine: true\ndiceParserSystem: \"DICE_EVALUATOR\"\nalwaysSumResult: true\nhideExpressionInStatusAndAnswer: true\nsystemButtonNewLine: true\nprefix: \"groupC(\"\npostfix: \")\"\nanswerFormatType: \"full\"\nconfigLocale: \"de\"\ndiceStyleAndColor:\n  diceImageStyle: \"polyhedral_alies_v2\"\n  configuredDefaultColor: \"blue_and_silver\"\n"
   }
 ]
 
@@ -111,8 +111,60 @@ de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandTest.getCommandDefi
                 "description": "Verwende die Beschriftung der Buttons und nicht den Würfelausdruck für die Antwort"
               },
               {
+                "locale": "pt_BR",
+                "description": "Mostre o rótulo dos botões e não a expressão de dados para a resposta"
+              },
+              {
                 "locale": "fr",
                 "description": "Afficher le libellé des boutons et non l'expression de dés pour la réponse"
+              }
+            ],
+            "required": false,
+            "choices": [ ],
+            "options": [ ],
+            "autoComplete": false
+          },
+          {
+            "type": "STRING",
+            "name": "prefix",
+            "nameLocales": [ ],
+            "description": "An expression part that is always added in front",
+            "descriptionLocales": [
+              {
+                "locale": "de",
+                "description": "Ein Ausdruck der immer vorne hinzugefügt wird"
+              },
+              {
+                "locale": "pt_BR",
+                "description": "Uma expressão que é sempre adicionada na frente"
+              },
+              {
+                "locale": "fr",
+                "description": "Une expression qui est toujours ajoutée au début"
+              }
+            ],
+            "required": false,
+            "choices": [ ],
+            "options": [ ],
+            "autoComplete": false
+          },
+          {
+            "type": "STRING",
+            "name": "postfix",
+            "nameLocales": [ ],
+            "description": "An expression part that is always added in at the end",
+            "descriptionLocales": [
+              {
+                "locale": "de",
+                "description": "Ein Ausdruck der immer hinten hinzugefügt wird"
+              },
+              {
+                "locale": "pt_BR",
+                "description": "Uma expressão que é sempre adicionada no final"
+              },
+              {
+                "locale": "fr",
+                "description": "Une expression qui est toujours ajoutée à la fin"
               }
             ],
             "required": false,

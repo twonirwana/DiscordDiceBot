@@ -33,7 +33,9 @@ import java.util.stream.Collectors;
 public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, SumCustomSetStateDataV2> {
     static final String BUTTONS_COMMAND_OPTIONS_NAME = "buttons";
     static final String ALWAYS_SUM_RESULTS_COMMAND_OPTIONS_NAME = "always_sum_result";
-    static final String HIDE_EXPRESSION_IN_ANSWER = "hide_expression_in_answer";
+    static final String HIDE_EXPRESSION_IN_ANSWER_OPTIONS_NAME = "hide_expression_in_answer";
+    static final String PREFIX_OPTIONS_NAME = "prefix";
+    static final String POSTFIX_OPTIONS_NAME = "postfix";
     private static final String COMMAND_NAME = "sum_custom_set";
     private static final String ROLL_BUTTON_ID = "roll";
     private static final String NO_ACTION = "no action";
@@ -142,26 +144,42 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
     protected @NonNull List<CommandDefinitionOption> getStartOptions() {
         return List.of(CommandDefinitionOption.builder()
                         .name(BUTTONS_COMMAND_OPTIONS_NAME)
-                        .nameLocales(I18n.allNoneEnglishMessagesNames("sum_dice_set.option.buttons.name"))
-                        .description(I18n.getMessage("sum_dice_set.option.buttons.description", Locale.ENGLISH))
-                        .descriptionLocales(I18n.allNoneEnglishMessagesDescriptions("sum_dice_set.option.buttons.description"))
+                        .nameLocales(I18n.allNoneEnglishMessagesNames("sum_custom_set.option.buttons.name"))
+                        .description(I18n.getMessage("sum_custom_set.option.buttons.description", Locale.ENGLISH))
+                        .descriptionLocales(I18n.allNoneEnglishMessagesDescriptions("sum_custom_set.option.buttons.description"))
                         .type(CommandDefinitionOption.Type.STRING)
                         .required(true)
                         .build(),
                 CommandDefinitionOption.builder()
                         .name(ALWAYS_SUM_RESULTS_COMMAND_OPTIONS_NAME)
-                        .nameLocales(I18n.allNoneEnglishMessagesNames("sum_dice_set.option.alwaysSum.name"))
-                        .description(I18n.getMessage("sum_dice_set.option.alwaysSum.description", Locale.ENGLISH))
-                        .descriptionLocales(I18n.allNoneEnglishMessagesDescriptions("sum_dice_set.option.alwaysSum.description"))
+                        .nameLocales(I18n.allNoneEnglishMessagesNames("sum_custom_set.option.alwaysSum.name"))
+                        .description(I18n.getMessage("sum_custom_set.option.alwaysSum.description", Locale.ENGLISH))
+                        .descriptionLocales(I18n.allNoneEnglishMessagesDescriptions("sum_custom_set.option.alwaysSum.description"))
                         .type(CommandDefinitionOption.Type.BOOLEAN)
                         .required(false)
                         .build(),
                 CommandDefinitionOption.builder()
-                        .name(HIDE_EXPRESSION_IN_ANSWER)
-                        .nameLocales(I18n.allNoneEnglishMessagesNames("sum_dice_set.option.hideExpression.name"))
-                        .description(I18n.getMessage("sum_dice_set.option.hiddeExpression.description", Locale.ENGLISH))
-                        .descriptionLocales(I18n.allNoneEnglishMessagesDescriptions("sum_dice_set.option.hiddeExpression.description"))
+                        .name(HIDE_EXPRESSION_IN_ANSWER_OPTIONS_NAME)
+                        .nameLocales(I18n.allNoneEnglishMessagesNames("sum_custom_set.option.hideExpression.name"))
+                        .description(I18n.getMessage("sum_custom_set.option.hiddeExpression.description", Locale.ENGLISH))
+                        .descriptionLocales(I18n.allNoneEnglishMessagesDescriptions("sum_custom_set.option.hiddeExpression.description"))
                         .type(CommandDefinitionOption.Type.BOOLEAN)
+                        .required(false)
+                        .build(),
+                CommandDefinitionOption.builder()
+                        .name(PREFIX_OPTIONS_NAME)
+                        .nameLocales(I18n.allNoneEnglishMessagesNames("sum_custom_set.option.prefix.name"))
+                        .description(I18n.getMessage("sum_custom_set.option.prefix.description", Locale.ENGLISH))
+                        .descriptionLocales(I18n.allNoneEnglishMessagesDescriptions("sum_custom_set.option.prefix.description"))
+                        .type(CommandDefinitionOption.Type.STRING)
+                        .required(false)
+                        .build(),
+                CommandDefinitionOption.builder()
+                        .name(POSTFIX_OPTIONS_NAME)
+                        .nameLocales(I18n.allNoneEnglishMessagesNames("sum_custom_set.option.postfix.name"))
+                        .description(I18n.getMessage("sum_custom_set.option.postfix.description", Locale.ENGLISH))
+                        .descriptionLocales(I18n.allNoneEnglishMessagesDescriptions("sum_custom_set.option.postfix.description"))
+                        .type(CommandDefinitionOption.Type.STRING)
                         .required(false)
                         .build()
         );
@@ -177,7 +195,7 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
             return Optional.empty();
         }
         String label = combineLabel(state.getData().getDiceExpressions(), config);
-        String newExpression = AliasHelper.getAndApplyAliaseToExpression(channelId, userId, persistenceManager, combineExpressions(state.getData().getDiceExpressions()));
+        String newExpression = AliasHelper.getAndApplyAliaseToExpression(channelId, userId, persistenceManager, combineExpressions(state.getData().getDiceExpressions(), config.getPrefix(), config.getPostfix()));
 
         return Optional.of(diceSystemAdapter.answerRollWithGivenLabel(newExpression,
                 label,
@@ -217,7 +235,7 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
         if (state.getData() == null) {
             return Optional.empty();
         }
-        String expression = AliasHelper.getAndApplyAliaseToExpression(channelId, userId, persistenceManager, combineExpressions(state.getData().getDiceExpressions()));
+        String expression = AliasHelper.getAndApplyAliaseToExpression(channelId, userId, persistenceManager, combineExpressions(state.getData().getDiceExpressions(), config.getPrefix(), config.getPostfix()));
 
         return Optional.of(createButtonLayout(customUuid, config, !diceSystemAdapter.isValidExpression(expression, config.getDiceParserSystem()), config.getConfigLocale()));
     }
@@ -287,10 +305,15 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
         return new State<>(buttonValue, new SumCustomSetStateDataV2(expressionWithNewValue, invokingUserName));
     }
 
-    private String combineExpressions(List<ExpressionAndLabel> expressions) {
-        return expressions.stream()
+    private String combineExpressions(List<ExpressionAndLabel> expressions, String prefix, String postfix) {
+        String combinedExpression = expressions.stream()
                 .map(ExpressionAndLabel::getExpression)
                 .collect(Collectors.joining(""));
+        return "%s%s%s".formatted(
+                Optional.ofNullable(prefix).orElse(""),
+                combinedExpression,
+                Optional.ofNullable(postfix).orElse("")
+        );
     }
 
     private String combineLabel(List<ExpressionAndLabel> expressions, SumCustomSetConfig config) {
@@ -299,7 +322,7 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
                     .map(ExpressionAndLabel::getLabel)
                     .collect(Collectors.joining(" "));
         }
-        return combineExpressions(expressions);
+        return combineExpressions(expressions, config.getPrefix(), config.getPostfix());
     }
 
     @Override
@@ -310,15 +333,18 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
         final DiceParserSystem diceParserSystem = DiceParserSystem.DICE_EVALUATOR;
         final Long answerTargetChannelId = BaseCommandOptions.getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null);
         final AnswerFormatType answerType = BaseCommandOptions.getAnswerTypeFromStartCommandOption(options).orElse(defaultAnswerFormat());
-        final boolean hideExpressionInAnswer = options.getBooleanSubOptionWithName(HIDE_EXPRESSION_IN_ANSWER).orElse(true);
+        final boolean hideExpressionInAnswer = options.getBooleanSubOptionWithName(HIDE_EXPRESSION_IN_ANSWER_OPTIONS_NAME).orElse(true);
         final boolean systemButtonNewLine = ENDS_WITH_DOUBLE_SEMICOLUMN_PATTERN.matcher(buttonsOptionValue).matches();
-
+        final String prefix = options.getStringSubOptionWithName(PREFIX_OPTIONS_NAME).orElse(null);
+        final String postfix = options.getStringSubOptionWithName(POSTFIX_OPTIONS_NAME).orElse(null);
         return new SumCustomSetConfig(answerTargetChannelId,
                 buttons,
                 diceParserSystem,
                 alwaysSumResults,
                 hideExpressionInAnswer,
                 systemButtonNewLine,
+                prefix,
+                postfix,
                 answerType,
                 null, new DiceStyleAndColor(
                 BaseCommandOptions.getDiceStyleOptionFromStartCommandOption(options).orElse(DiceImageStyle.polyhedral_3d),
