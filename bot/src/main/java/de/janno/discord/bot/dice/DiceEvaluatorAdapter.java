@@ -55,7 +55,7 @@ public class DiceEvaluatorAdapter {
     }
 
     private static String getResult(Roll roll, boolean sumUp) {
-        if (sumUp && allElementsAreDecimal(roll) && allElementsHaveNoColor(roll)) {
+        if (sumUp && allElementsAreDecimal(roll) && allElementsHaveNoTag(roll)) {
             return roll.getElements().stream().flatMap(r -> r.asDecimal().stream()).reduce(BigDecimal::add).map(BigDecimal::toString).orElse(roll.getResultString());
         }
         return roll.getResultString();
@@ -65,8 +65,8 @@ public class DiceEvaluatorAdapter {
         return roll.getElements().stream().allMatch(r -> r.asDecimal().isPresent());
     }
 
-    private static boolean allElementsHaveNoColor(Roll roll) {
-        return roll.getElements().stream().allMatch(r -> RollElement.NO_COLOR.equals(r.getColor()));
+    private static boolean allElementsHaveNoTag(Roll roll) {
+        return roll.getElements().stream().allMatch(r -> RollElement.NO_TAG.equals(r.getTag()));
     }
 
     public static String getHelp() {

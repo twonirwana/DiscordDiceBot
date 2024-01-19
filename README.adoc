@@ -187,6 +187,15 @@ or
 
 `/custom_dice start buttons: 2d6 col 'mars_dark' + 1d6 col 'mars_light'@MCRN;2d6 col 'earth_dark' + 1d6 col 'earth_light'@UN;2d6 col 'belt_dark' + 1d6 col 'belt_light'@OPA answer_format: only_dice dice_image_style: expanse`
 
+[discrete]
+=== Powered by the Apocalypse ===
+
+`/quickstart system:Powered by the Apocalypse`
+
+or
+
+`/custom_dice buttons: val('$roll',2d6=) if('$roll'>=?10, 'Total Success', '$roll'<=?6, 'Miss', 'Partial Success')@Move;;val('$roll',2d6+1=) if('$roll'>=?10, 'Total Success', '$roll'<=?6, 'Miss', 'Partial Success')@Move +1;val('$roll',2d6+2=) if('$roll'>=?10, 'Total Success', '$roll'<=?6, 'Miss', 'Partial Success')@Move +2;val('$roll',2d6+3=) if('$roll'>=?10, 'Total Success', '$roll'<=?6, 'Miss', 'Partial Success')@Move +3;val('$roll',2d6+4=) if('$roll'>=?10, 'Total Success', '$roll'<=?6, 'Miss', 'Partial Success')@Move +4;val('$roll',2d6+5=) if('$roll'>=?10, 'Total Success', '$roll'<=?6, 'Miss', 'Partial Success')@Move +5;;val('$roll',2d6-1=) if('$roll'>=?10, 'Total Success', '$roll'<=?6, 'Miss', 'Partial Success')@Move -1;val('$roll',2d6-2=) if('$roll'>=?10, 'Total Success', '$roll'<=?6, 'Miss', 'Partial Success')@Move -2;val('$roll',2d6-3=) if('$roll'>=?10, 'Total Success', '$roll'<=?6, 'Miss', 'Partial Success')@Move -3;val('$roll',2d6-4=) if('$roll'>=?10, 'Total Success', '$roll'<=?6, 'Miss', 'Partial Success')@Move -4;val('$roll',2d6-5=) if('$roll'>=?10, 'Total Success', '$roll'<=?6, 'Miss', 'Partial Success')@Move -5;;d4;d6;d8;d10;d12;d20 answer_format: without_expression dice_image_style: polyhedral_RdD dice_image_color: default`
+
 == Commands
 
 All button configurations can be used with the `target_channel` option.

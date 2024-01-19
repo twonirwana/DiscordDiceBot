@@ -113,21 +113,25 @@ class QuickstartCommandTest {
         List<AutoCompleteAnswer> res = underTest.getAutoCompleteAnswer(new AutoCompleteRequest("system", "du", List.of()), Locale.ENGLISH);
         assertThat(res.stream().map(AutoCompleteAnswer::getName)).containsExactly("Dungeon & Dragons 5e",
                 "Dungeon & Dragons 5e Calculator",
+                "Dungeon & Dragons 5e Calculator 2",
                 "Dungeon & Dragons 5e with Dice Images",
-                "Dungeon Crawl Classics");
-        assertThat(res.stream().map(AutoCompleteAnswer::getValue)).containsExactly("DND5", "DND5_CALC", "DND5_IMAGE", "DUNGEON_CRAWL_CLASSICS");
+                "Dungeon Crawl Classics",
+                "Powered by the Apocalypse");
+        assertThat(res.stream().map(AutoCompleteAnswer::getValue)).containsExactly("DND5", "DND5_CALC", "DND5_CALC2", "DND5_IMAGE", "DUNGEON_CRAWL_CLASSICS", "PBTA");
     }
 
     @Test
     void getAutoCompleteAnswer_filterGerman() {
         List<AutoCompleteAnswer> res = underTest.getAutoCompleteAnswer(new AutoCompleteRequest("system", "du", List.of()), Locale.GERMAN);
         assertThat(res.stream().map(AutoCompleteAnswer::getName)).containsExactly("Dungeon & Dragons 5e",
+                "Dungeon & Dragons 5e Calculator 2",
                 "Dungeon & Dragons 5e Kalkulator",
                 "Dungeon & Dragons 5e mit Würfelbildern",
                 "Dungeon Crawl Classics",
+                "Powered by the Apocalypse",
                 "nWod / Chronicles of Darkness",
                 "oWod / Storyteller System");
-        assertThat(res.stream().map(AutoCompleteAnswer::getValue)).containsExactly("DND5", "DND5_CALC", "DND5_IMAGE", "DUNGEON_CRAWL_CLASSICS", "NWOD", "OWOD");
+        assertThat(res.stream().map(AutoCompleteAnswer::getValue)).containsExactly("DND5", "DND5_CALC2", "DND5_CALC",  "DND5_IMAGE", "DUNGEON_CRAWL_CLASSICS", "PBTA", "NWOD", "OWOD");
     }
 
     @Test
@@ -151,6 +155,7 @@ class QuickstartCommandTest {
                 "Dice Calculator",
                 "Dungeon & Dragons 5e",
                 "Dungeon & Dragons 5e Calculator",
+                "Dungeon & Dragons 5e Calculator 2",
                 "Dungeon & Dragons 5e with Dice Images",
                 "Dungeon Crawl Classics",
                 "Exalted 3ed",
@@ -162,6 +167,7 @@ class QuickstartCommandTest {
                 "OSR",
                 "One-Roll Engine",
                 "Paranoia: Red Clearance Edition",
+                "Powered by the Apocalypse",
                 "Prowlers & Paragons Ultimate Edition",
                 "Public Access",
                 "Risus The Anything RPG \"Evens Up\"",
@@ -188,6 +194,7 @@ class QuickstartCommandTest {
                 "DICE_CALCULATOR",
                 "DND5",
                 "DND5_CALC",
+                "DND5_CALC2",
                 "DND5_IMAGE",
                 "DUNGEON_CRAWL_CLASSICS",
                 "EXALTED_3ED",
@@ -199,6 +206,7 @@ class QuickstartCommandTest {
                 "OSR",
                 "ONE_ROLL_ENGINE",
                 "PARANOIA",
+                "PBTA",
                 "PROWLERS_PARAGONS",
                 "PUBLIC_ACCESS",
                 "RISUS",

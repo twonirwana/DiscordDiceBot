@@ -170,7 +170,11 @@ public class RpgSystemCommandPreset {
                             DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.without_expression, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_3d, DiceImageStyle.polyhedral_3d.getDefaultColor()), userLocale);
             case MARVEL ->
                     new CustomParameterConfig(null, I18n.getMessage("rpg.system.command.preset.MARVEL.expression", userLocale), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.without_expression, null, new DiceStyleAndColor(DiceImageStyle.d6_marvel, "blue"), userLocale);
-
+            case DND5_CALC2 ->
+                    new SumCustomSetConfig(null, ButtonHelper.parseString(I18n.getMessage("rpg.system.command.preset.DND5_CALC2.expression", userLocale)), DiceParserSystem.DICE_EVALUATOR, true, true, false, null, null, AnswerFormatType.without_expression, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v2, "blue_and_silver"), userLocale);
+            case PBTA ->
+                    new CustomDiceConfig(null, ButtonHelper.parseString(I18n.getMessage("rpg.system.command.preset.PBTA.expression", userLocale)),
+                            DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.without_expression, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_RdD, DiceImageStyle.polyhedral_RdD.getDefaultColor()), userLocale);
         };
     }
 
@@ -246,7 +250,9 @@ public class RpgSystemCommandPreset {
         EXPANSE,
         ALIEN,
         HEROES_OF_CERULEA,
-        MARVEL;
+        MARVEL,
+        DND5_CALC2,
+        PBTA;
 
         public String getName(Locale locale) {
             return I18n.getMessage("rpg.system.command.preset.%s.name".formatted(name()), locale);
