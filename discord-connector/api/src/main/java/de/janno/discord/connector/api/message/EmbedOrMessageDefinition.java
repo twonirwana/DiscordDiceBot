@@ -42,21 +42,20 @@ public class EmbedOrMessageDefinition {
             Preconditions.checkArgument(title == null || title.length() <= 256, "Title %s is to long", title);
             Preconditions.checkArgument(descriptionOrContent == null || descriptionOrContent.length() <= 4096, "Description %s is to long", title);
             Preconditions.checkArgument(fields.size() <= 25, "Too many fields in {}, max is 25", fields);
-            Preconditions.checkArgument(componentRowDefinitions.size() <= 5, "Too many component rows in %s, max is 5", componentRowDefinitions);
-            List<String> duplicatedComponentKeys = componentRowDefinitions.stream().flatMap(r -> r.getButtonDefinitions().stream())
-                    .collect(Collectors.groupingBy(ButtonDefinition::getId, Collectors.counting()))
-                    .entrySet().stream()
-                    .filter(e -> e.getValue() > 1)
-                    .map(Map.Entry::getKey)
-                    .toList();
-            Preconditions.checkArgument(duplicatedComponentKeys.isEmpty(), "The following componentKeys are not unique: {}", duplicatedComponentKeys);
         } else {
             Preconditions.checkArgument(title == null, "Message have no title");
             Preconditions.checkArgument(descriptionOrContent == null || descriptionOrContent.length() <= 2000, "Content %s is to long", title);
             Preconditions.checkArgument(fields.isEmpty(), "Message have no Fields");
             Preconditions.checkArgument(image == null, "Message have no image");
-            Preconditions.checkArgument(componentRowDefinitions.size() <= 5, "Too many component rows in %s, max is 5", componentRowDefinitions);
         }
+        Preconditions.checkArgument(componentRowDefinitions.size() <= 5, "Too many component rows in %s, max is 5", componentRowDefinitions);
+        List<String> duplicatedComponentKeys = componentRowDefinitions.stream().flatMap(r -> r.getButtonDefinitions().stream())
+                .collect(Collectors.groupingBy(ButtonDefinition::getId, Collectors.counting()))
+                .entrySet().stream()
+                .filter(e -> e.getValue() > 1)
+                .map(Map.Entry::getKey)
+                .toList();
+        Preconditions.checkArgument(duplicatedComponentKeys.isEmpty(), "The following componentKeys are not unique: %s in %s", duplicatedComponentKeys, componentRowDefinitions);
     }
 
     @Override

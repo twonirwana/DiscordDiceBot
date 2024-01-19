@@ -394,6 +394,8 @@ image:image/custom_dice.webp[image]
 
 Use the slash command: `custom_dice start` and add up to 25 custom buttons, each with its own dice expression (see the section <<Dice Expression Notation>>).
 The expressions for the buttons are seperated by `;`.
+Using `;;` will create a row break and put the button after `;;` in a new row.
+Discord allows a maximum of 5 rows with each 5 buttons.
 For example `/custom_dice start buttons:3d6@Attack;10d10;3d20` will produce three buttons, one with `3d6` (and the label Attack), one with `10d10` and one with `3d20`.
 Clicking on a button provides the results of the button dice expression.
 
@@ -438,7 +440,11 @@ The first user that clicks on a button add his name to the message and only this
 Every user can still use the `Clear` button.
 Clicking on the `Roll` button will roll the dice the message and copy a clear button message to the end.
 The `Roll` can only be clicked if the expression is valid. `Back` will undo the last addition and `Clear` reset all.
+
 The buttons can be created with the dice notation, see the section <<Dice Expression Notation>> and are seperated by `;`.
+Using `;;` will create a row break and put the button after `;;` in a new row.
+If the buttons expression ends with `;;` then the three system buttons (Roll, Clear and Back) will be in a new row.
+Discord allows a maximum of 5 rows with each 5 buttons.
 The text after an optional `@` will be used as label for the button.
 
 If the option `always_sum_result` is `true` (the default) then the result of the dice will be added together, the equivalent of adding `=` at the end of the expression.

@@ -3,8 +3,6 @@ package de.janno.discord.bot.command.customDice;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 import de.janno.discord.bot.I18n;
 import de.janno.discord.bot.command.*;
 import de.janno.discord.bot.command.channelConfig.AliasHelper;
@@ -15,14 +13,11 @@ import de.janno.discord.bot.persistance.Mapper;
 import de.janno.discord.bot.persistance.MessageConfigDTO;
 import de.janno.discord.bot.persistance.MessageDataDTO;
 import de.janno.discord.bot.persistance.PersistenceManager;
-import de.janno.discord.connector.api.BottomCustomIdUtils;
-import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinitionOption;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import lombok.NonNull;
-import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
@@ -36,7 +31,6 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
 
     static final String BUTTONS_OPTION_NAME = "buttons";
     private static final String COMMAND_NAME = "custom_dice";
-    private static final String LABEL_DELIMITER = "@";
     private static final String CONFIG_TYPE_ID = "CustomDiceConfig";
     private final DiceSystemAdapter diceSystemAdapter;
 
@@ -97,25 +91,25 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
 
     @Override
     protected @NonNull Optional<String> getStartOptionsValidationMessage(@NonNull CommandInteractionOption options, long channelId, long userId, @NonNull Locale userLocale) {
+        Optional<String> validateLayout = ButtonHelper.valdiate(options.getStringSubOptionWithName(BUTTONS_OPTION_NAME).orElseThrow(), userLocale);
+        if (validateLayout.isPresent()) {
+            return validateLayout;
+        }
         List<String> diceExpressionWithOptionalLabel = getButtonsFromCommandOption(options).stream()
-                .map(ButtonIdAndExpression::getExpression)
+                .map(ButtonIdLabelAndDiceExpression::getDiceExpression)
                 .map(e -> AliasHelper.getAndApplyAliaseToExpression(channelId, userId, persistenceManager, e))
                 .distinct()
                 .collect(Collectors.toList());
+
         DiceParserSystem diceParserSystem = DiceParserSystem.DICE_EVALUATOR;
         return diceSystemAdapter.validateListOfExpressions(diceExpressionWithOptionalLabel, "/%s %s".formatted(I18n.getMessage("custom_dice.name", userLocale),
                 I18n.getMessage("base.option.help", userLocale)), diceParserSystem, userLocale);
 
     }
 
-    private List<ButtonIdAndExpression> getButtonsFromCommandOption(@NonNull CommandInteractionOption options) {
-        ImmutableList.Builder<ButtonIdAndExpression> builder = ImmutableList.builder();
+    private List<ButtonIdLabelAndDiceExpression> getButtonsFromCommandOption(@NonNull CommandInteractionOption options) {
         String buttons = options.getStringSubOptionWithName(BUTTONS_OPTION_NAME).orElseThrow();
-        int idCounter = 1;
-        for (String button : buttons.split(";")) {
-            builder.add(new ButtonIdAndExpression(idCounter++ + "_button", button.trim()));
-        }
-        return builder.build();
+        return ButtonHelper.parseString(buttons);
     }
 
     protected @NonNull CustomDiceConfig getConfigFromStartOptions(@NonNull CommandInteractionOption options, @NonNull Locale userLocale) {
@@ -129,28 +123,14 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
     }
 
     @VisibleForTesting
-    CustomDiceConfig getConfigOptionStringList(List<ButtonIdAndExpression> startOptions,
+    CustomDiceConfig getConfigOptionStringList(List<ButtonIdLabelAndDiceExpression> buttons,
                                                Long channelId,
                                                AnswerFormatType answerFormatType,
                                                DiceImageStyle diceImageStyle,
                                                String defaultDiceColor,
                                                @NonNull Locale userLocale) {
-        return new CustomDiceConfig(channelId, startOptions.stream()
-                .filter(be -> !be.getExpression().contains(BottomCustomIdUtils.CUSTOM_ID_DELIMITER))
-                .filter(be -> !be.getExpression().contains(LABEL_DELIMITER) || be.getExpression().split(LABEL_DELIMITER).length == 2)
-                .map(be -> {
-                    if (be.getExpression().contains(LABEL_DELIMITER)) {
-                        String[] split = be.getExpression().split(LABEL_DELIMITER);
-                        return new ButtonIdLabelAndDiceExpression(be.getButtonId(), split[1].trim(), split[0].trim());
-                    }
-                    return new ButtonIdLabelAndDiceExpression(be.getButtonId(), be.getExpression().trim(), be.getExpression().trim());
-                })
-                .filter(s -> !s.getDiceExpression().isEmpty())
-                .filter(s -> !s.getLabel().isEmpty())
-                .filter(s -> s.getDiceExpression().length() <= 2000) //limit of the discord message content
-                .distinct()
-                .limit(25)
-                .collect(Collectors.toList()),
+        return new CustomDiceConfig(channelId,
+                buttons,
                 DiceParserSystem.DICE_EVALUATOR,
                 answerFormatType,
                 null,
@@ -200,15 +180,7 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
     }
 
     private List<ComponentRowDefinition> createButtonLayout(UUID configUUID, CustomDiceConfig config) {
-        List<ButtonDefinition> buttons = config.getButtonIdLabelAndDiceExpressions().stream()
-                .map(d -> ButtonDefinition.builder()
-                        .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), d.getButtonId(), configUUID))
-                        .label(d.getLabel())
-                        .build())
-                .collect(Collectors.toList());
-        return Lists.partition(buttons, 5).stream()
-                .map(bl -> ComponentRowDefinition.builder().buttonDefinitions(bl).build())
-                .collect(Collectors.toList());
+        return ButtonHelper.createButtonLayout(getCommandId(), configUUID, config.getButtonIdLabelAndDiceExpressions());
     }
 
     @Override
@@ -232,11 +204,4 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
                 .collect(Collectors.joining(", "))));
     }
 
-    @Value
-    static class ButtonIdAndExpression {
-        @NonNull
-        String buttonId;
-        @NonNull
-        String expression;
-    }
 }
