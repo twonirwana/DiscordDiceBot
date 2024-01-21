@@ -47,7 +47,7 @@ Some example for commands, many more systems can be mapped, please see in the de
 
 or
 
-`/custom_dice buttons: 1d4;1d6;1d8;1d10;1d12;1d20;1d100;2d20k1@D20 Advantage;2d20L1@D20 Disadvantage;2d4=@2d4;2d6=@2d6;2d8=@2d8;2d10=@2d10;2d12=@2d12;2d20=@2d20 answer_format: without_expression dice_image_style: polyhedral_RdD dice_image_color: default`
+`/custom_dice start buttons: 2d20k1@D20 Advantage;2d20L1@D20 Disadvantage;D20;;1d4;1d6;1d8;1d10;1d12;1d100;2d4=@2d4;2d6=@2d6;2d8=@2d8;2d10=@2d10;2d12=@2d12;2d20=@2d20 answer_format: without_expression dice_image_style: polyhedral_RdD dice_image_color: default`
 
 [discrete]
 === OSR
@@ -65,7 +65,7 @@ or
 
 or
 
-`/custom_dice expression: 4d[-1,0,1]+{Modifier:-4\<\=>10}= answer_format: without_expression dice_image_style: fate dice_image_color: black`
+`/custom_parameter start expression: 4d[-1,0,1]+{Modifier:-4\<\=>10}= answer_format: without_expression dice_image_style: fate dice_image_color: black`
 
 [discrete]
 === World of Darkness
@@ -158,7 +158,7 @@ or
 
 or
 
-`/custom_dice expression: val('$r',{regular dice:1\<\=>16}d10 col 'blue') val('$h',{hunger dice:0\<\=>5}d10  col 'purple_dark') val('$s',('$r'+'$h')>=6c) val('$rt','$r'==10c) val('$ht','$h'==10c) val('$ho','$h'==1c) val('$2s',((('$rt'+'$ht'=))/2)*2) val('$ts',('$s'+'$2s'=)) concat('successes: ', '$ts', ifE('$ts',0,ifG('$ho',1,' bestial failure' , ''),''), ifE('$rt' mod 2, 1, ifE('$ht' mod 2, 1, ' messy critical', ''), '')) answer_format: without_expression dice_image_style: polyhedral_knots dice_image_color: blue`
+`/custom_parameter start expression: val('$r',{regular dice:1\<\=>16}d10 col 'blue') val('$h',{hunger dice:0\<\=>5}d10  col 'purple_dark') val('$s',('$r'+'$h')>=6c) val('$rt','$r'==10c) val('$ht','$h'==10c) val('$ho','$h'==1c) val('$2s',((('$rt'+'$ht'=))/2)*2) val('$ts',('$s'+'$2s'=)) concat('successes: ', '$ts', ifE('$ts',0,ifG('$ho',1,' bestial failure' , ''),''), ifE('$rt' mod 2, 1, ifE('$ht' mod 2, 1, ' messy critical', ''), '')) answer_format: without_expression dice_image_style: polyhedral_knots dice_image_color: blue`
 
 [discrete]
 === One-Roll Engine ===
@@ -167,7 +167,7 @@ or
 
 or
 
-`/custom_parameter start expression: groupc({Number of Dice:1\<\=>10}d10+({Number of Extra Die:0@0/10@1/2r10@2/3r10@3/4r10@4})>={Difficulty:1\<\=>10})`
+`/custom_parameter start expression: groupC({Number of Dice:1\<\=>10}d10+({Number of Extra Die:0@0/10@1/2r10@2/3r10@3/4r10@4})>={Difficulty:1\<\=>10})`
 
 [discrete]
 === Rêve de Dragon ===

@@ -190,26 +190,27 @@ public class RpgSystemCommandPreset {
         throw new IllegalStateException("Could not create valid config for: " + presetId);
     }
 
-    private AbstractCommand<?, ?> getCommandForConfig(Config config) {
+    private static String getCommandIdForConfig(Config config) {
         if (config instanceof CustomDiceConfig) {
-            return customDiceCommand;
+            return CustomDiceCommand.COMMAND_NAME;
         } else if (config instanceof SumCustomSetConfig) {
-            return sumCustomSetCommand;
+            return SumCustomSetCommand.COMMAND_NAME;
         } else if (config instanceof CustomParameterConfig) {
-            return customParameterCommand;
+            return CustomParameterCommand.COMMAND_NAME;
         }
-        throw new IllegalStateException("Could not find command for config: " + config);
+        throw new IllegalStateException("Could not find command id for config: " + config);
     }
+
 
     private <C extends Config> EmbedOrMessageDefinition startPreset(C config, AbstractCommand<C, ?> command, UUID newConfigUUID, long guildId, long channelId) {
         command.createMessageConfig(newConfigUUID, guildId, channelId, config).ifPresent(persistenceManager::saveMessageConfig);
         return command.createNewButtonMessage(newConfigUUID, config);
     }
 
-    public String getCommandString(PresetId presetId, Locale locale) {
+    public static String getCommandString(PresetId presetId, Locale locale) {
         Config config = createConfig(presetId, locale);
-        AbstractCommand<?, ?> command = getCommandForConfig(config);
-        return "/%s %s".formatted(command.getCommandId(), config.toCommandOptionsString());
+        String commandId = getCommandIdForConfig(config);
+        return "/%s start %s".formatted(commandId, config.toCommandOptionsString());
     }
 
     @AllArgsConstructor

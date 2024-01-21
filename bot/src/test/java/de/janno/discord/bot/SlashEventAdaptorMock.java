@@ -1,7 +1,9 @@
 package de.janno.discord.bot;
 
+import de.janno.discord.connector.api.ButtonEventAdaptor;
 import de.janno.discord.connector.api.Requester;
 import de.janno.discord.connector.api.SlashEventAdaptor;
+import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import lombok.Getter;
@@ -20,6 +22,9 @@ public class SlashEventAdaptorMock implements SlashEventAdaptor {
     @Getter
     private final List<EmbedOrMessageDefinition> allReplays = new ArrayList<>();
     private final long userId;
+
+    @Getter
+    private Optional<ButtonEventAdaptorMock> firstButtonEventMockOfLastButtonMessage = Optional.empty();
 
     public SlashEventAdaptorMock(List<CommandInteractionOption> commandInteractionOptions) {
         this(commandInteractionOptions, 0L);
@@ -80,7 +85,14 @@ public class SlashEventAdaptorMock implements SlashEventAdaptor {
     @Override
     public @NonNull Mono<Long> createMessageWithoutReference(@NonNull EmbedOrMessageDefinition messageDefinition) {
         actions.add(String.format("createMessageWithoutReference: %s", messageDefinition));
-        return Mono.just(1L);
+        long messageId = 1L;
+        messageDefinition.getComponentRowDefinitions().stream()
+                .flatMap(s -> s.getButtonDefinitions().stream())
+                .map(ButtonDefinition::getId)
+                .findFirst().ifPresent(id ->
+                        firstButtonEventMockOfLastButtonMessage = Optional.of(new ButtonEventAdaptorMock(id, messageId))
+                );
+        return Mono.just(messageId);
     }
 
     @Override

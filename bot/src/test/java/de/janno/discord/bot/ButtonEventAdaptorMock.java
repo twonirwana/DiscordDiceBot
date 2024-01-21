@@ -34,10 +34,6 @@ public class ButtonEventAdaptorMock implements ButtonEventAdaptor {
     private final String invokingUser;
     private final EmbedOrMessageDefinition eventMessage;
 
-    public List<String> getSortedActions(){
-        return actions.stream().sorted().toList();
-    }
-
     public ButtonEventAdaptorMock(String commandId, String buttonValue, UUID configUUID, AtomicLong messageIdCounter, Set<Long> pinnedMessageIds) {
         this(commandId, buttonValue, configUUID, messageIdCounter, pinnedMessageIds, "invokingUser");
     }
@@ -70,6 +66,15 @@ public class ButtonEventAdaptorMock implements ButtonEventAdaptor {
         this.eventMessage = null;
     }
 
+    public ButtonEventAdaptorMock(String customId, long messageId) {
+        this.customId = customId;
+        this.massageId = messageId;
+        this.messageIdCounter = new AtomicLong();
+        this.pinnedMessageIds = Set.of();
+        this.invokingUser = "invokingUser";
+        this.eventMessage = null;
+    }
+
     public ButtonEventAdaptorMock(String legacyId) {
         this.customId = legacyId;
         this.massageId = 0;
@@ -77,6 +82,10 @@ public class ButtonEventAdaptorMock implements ButtonEventAdaptor {
         this.pinnedMessageIds = Set.of();
         this.invokingUser = "invokingUser";
         this.eventMessage = null;
+    }
+
+    public List<String> getSortedActions() {
+        return actions.stream().sorted().toList();
     }
 
     @Override
