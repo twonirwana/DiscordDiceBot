@@ -175,6 +175,12 @@ public class RpgSystemCommandPreset {
             case PBTA ->
                     new CustomDiceConfig(null, ButtonHelper.parseString(I18n.getMessage("rpg.system.command.preset.PBTA.expression", userLocale)),
                             DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.without_expression, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_RdD, DiceImageStyle.polyhedral_RdD.getDefaultColor()), userLocale);
+            case THE_ONE_RING ->
+                    new CustomParameterConfig(null, I18n.getMessage("rpg.system.command.preset.THE_ONE_RING.expression", userLocale), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.without_expression, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_RdD, DiceImageStyle.polyhedral_RdD.getDefaultColor()), userLocale);
+            case EZD6 ->
+                    new CustomDiceConfig(null, ButtonHelper.parseString(I18n.getMessage("rpg.system.command.preset.EZD6.expression", userLocale)),
+                            DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.without_expression, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_RdD, DiceImageStyle.polyhedral_RdD.getDefaultColor()), userLocale);
+
         };
     }
 
@@ -253,7 +259,9 @@ public class RpgSystemCommandPreset {
         HEROES_OF_CERULEA,
         MARVEL,
         DND5_CALC2,
-        PBTA;
+        PBTA,
+        THE_ONE_RING,
+        EZD6;
 
         public String getName(Locale locale) {
             return I18n.getMessage("rpg.system.command.preset.%s.name".formatted(name()), locale);

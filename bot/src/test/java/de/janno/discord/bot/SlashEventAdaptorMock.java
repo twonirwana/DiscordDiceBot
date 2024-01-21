@@ -1,6 +1,5 @@
 package de.janno.discord.bot;
 
-import de.janno.discord.connector.api.ButtonEventAdaptor;
 import de.janno.discord.connector.api.Requester;
 import de.janno.discord.connector.api.SlashEventAdaptor;
 import de.janno.discord.connector.api.message.ButtonDefinition;
@@ -22,6 +21,7 @@ public class SlashEventAdaptorMock implements SlashEventAdaptor {
     @Getter
     private final List<EmbedOrMessageDefinition> allReplays = new ArrayList<>();
     private final long userId;
+    private final Locale userLocale;
 
     @Getter
     private Optional<ButtonEventAdaptorMock> firstButtonEventMockOfLastButtonMessage = Optional.empty();
@@ -30,9 +30,18 @@ public class SlashEventAdaptorMock implements SlashEventAdaptor {
         this(commandInteractionOptions, 0L);
     }
 
+    public SlashEventAdaptorMock(List<CommandInteractionOption> commandInteractionOptions, Locale userLocale) {
+        this(commandInteractionOptions, 0L, userLocale);
+    }
+
     public SlashEventAdaptorMock(List<CommandInteractionOption> commandInteractionOptions, long userId) {
+        this(commandInteractionOptions, userId, Locale.ENGLISH);
+    }
+
+    public SlashEventAdaptorMock(List<CommandInteractionOption> commandInteractionOptions, long userId, Locale userLocale) {
         this.commandInteractionOptions = commandInteractionOptions;
         this.userId = userId;
+        this.userLocale = userLocale;
     }
 
     public List<String> getSortedActions() {
@@ -107,7 +116,7 @@ public class SlashEventAdaptorMock implements SlashEventAdaptor {
 
     @Override
     public Requester getRequester() {
-        return new Requester("invokingUser", "channelName", "guildName", "[0 / 1]", Locale.ENGLISH);
+        return new Requester("invokingUser", "channelName", "guildName", "[0 / 1]", userLocale);
     }
 
     @Override
