@@ -248,12 +248,12 @@ public abstract class DiscordAdapterImpl implements DiscordAdapter {
         if (checks.isEmpty()) {
             return Optional.empty();
         }
-        String result = String.format("'%s'.'%s': %s",
+        String result = I18n.getMessage("permission.missing", userLocale, String.join(", ", checks));
+
+        log.info(String.format("'%s'.'%s': %s",
                 Optional.ofNullable(guild).map(Guild::getName).orElse("-"),
                 messageChannel.getName(),
-                I18n.getMessage("permission.missing", userLocale, String.join(", ", checks))
-        );
-        log.info(result);
+                result));
         return Optional.of(result);
     }
 

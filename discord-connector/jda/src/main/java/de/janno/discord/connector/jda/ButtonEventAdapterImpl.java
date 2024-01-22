@@ -12,6 +12,7 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.exceptions.ErrorResponseException;
@@ -126,7 +127,7 @@ public class ButtonEventAdapterImpl extends DiscordAdapterImpl implements Button
     public Mono<Void> createResultMessageWithReference(EmbedOrMessageDefinition answer, Long targetChannelId) {
         MessageChannel targetChannel = Optional.ofNullable(targetChannelId)
                 .flatMap(id -> Optional.ofNullable(event.getGuild())
-                        .map(g -> g.getChannelById(MessageChannel.class, targetChannelId)))
+                        .map(g -> (MessageChannel) g.getChannelById(GuildMessageChannel.class, id)))
                 .orElse(event.getInteraction().getMessageChannel());
         return createMessageWithReference(targetChannel,
                 answer, invokingGuildMemberName, event.getUser().getAsMention(),
@@ -143,7 +144,7 @@ public class ButtonEventAdapterImpl extends DiscordAdapterImpl implements Button
             return primaryChannelPermissionCheck;
         }
         if (answerTargetChannelId != null) {
-            Optional<MessageChannel> answerChannel = Optional.ofNullable(event.getGuild()).map(g -> g.getChannelById(MessageChannel.class, answerTargetChannelId));
+            Optional<MessageChannel> answerChannel = Optional.ofNullable(event.getGuild()).map(g -> g.getChannelById(GuildMessageChannel.class, answerTargetChannelId));
             if (answerChannel.isEmpty()) {
                 return Optional.of(I18n.getMessage("permission.check.target.invalid", userLocale));
             }
