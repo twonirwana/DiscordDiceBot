@@ -110,8 +110,6 @@ public class CustomDiceCommandMockTest {
                 "deleteMessageById: 0",
                 "createMessageWithoutReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click on a button to roll the dice, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=custom_dice1_button00000000-0000-0000-0000-000000000001, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE)"
         );
-        System.out.println(persistenceManager.getMessageConfig(configUUID));
-        System.out.println(persistenceManager.getMessageData(CHANNEL_ID, messageIdCounter.get()));
         assertThat(persistenceManager.getMessageConfig(configUUID)).isPresent();
         assertThat(persistenceManager.getMessageData(CHANNEL_ID, messageIdCounter.get())).isPresent();
     }

@@ -31,12 +31,12 @@ import java.util.stream.Collectors;
 
 @Slf4j
 public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, SumCustomSetStateDataV2> {
+    public static final String COMMAND_NAME = "sum_custom_set";
     static final String BUTTONS_COMMAND_OPTIONS_NAME = "buttons";
     static final String ALWAYS_SUM_RESULTS_COMMAND_OPTIONS_NAME = "always_sum_result";
     static final String HIDE_EXPRESSION_IN_ANSWER_OPTIONS_NAME = "hide_expression_in_answer";
     static final String PREFIX_OPTIONS_NAME = "prefix";
     static final String POSTFIX_OPTIONS_NAME = "postfix";
-    private static final String COMMAND_NAME = "sum_custom_set";
     private static final String ROLL_BUTTON_ID = "roll";
     private static final String NO_ACTION = "no action";
     private static final String CLEAR_BUTTON_ID = "clear";

@@ -114,15 +114,15 @@ class WelcomeCommandTest {
                 .flatMap(Collection::stream)
                 .flatMap(s -> s.getButtonDefinitions().stream())
                 .map(ButtonDefinition::getLabel))
-                .containsExactly("1d4",
+                .containsExactly("D20",
+                        "D20 Advantage",
+                        "D20 Disadvantage",
+                        "1d4",
                         "1d6",
                         "1d8",
                         "1d10",
                         "1d12",
-                        "1d20",
                         "1d100",
-                        "D20 Advantage",
-                        "D20 Disadvantage",
                         "2d4",
                         "2d6",
                         "2d8",

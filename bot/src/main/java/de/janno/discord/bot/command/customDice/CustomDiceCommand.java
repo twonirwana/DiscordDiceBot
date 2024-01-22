@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateData> {
 
     static final String BUTTONS_OPTION_NAME = "buttons";
-    private static final String COMMAND_NAME = "custom_dice";
+    public static final String COMMAND_NAME = "custom_dice";
     private static final String CONFIG_TYPE_ID = "CustomDiceConfig";
     private final DiceSystemAdapter diceSystemAdapter;
 

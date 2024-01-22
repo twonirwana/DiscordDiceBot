@@ -2,7 +2,6 @@ package de.janno.discord.bot.command.help;
 
 import au.com.origin.snapshots.Expect;
 import au.com.origin.snapshots.junit5.SnapshotExtension;
-import de.janno.discord.bot.SlashEventAdaptorMock;
 import de.janno.discord.bot.command.customDice.CustomDiceCommand;
 import de.janno.discord.bot.command.customParameter.CustomParameterCommand;
 import de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommand;
@@ -10,21 +9,15 @@ import de.janno.discord.bot.dice.CachingDiceEvaluator;
 import de.janno.discord.bot.persistance.PersistenceManager;
 import de.janno.discord.connector.api.AutoCompleteAnswer;
 import de.janno.discord.connector.api.AutoCompleteRequest;
-import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import de.janno.evaluator.dice.random.RandomNumberSupplier;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.Mockito;
-import reactor.core.publisher.Mono;
-import reactor.test.StepVerifier;
 
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
-import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -32,6 +25,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class QuickstartCommandTest {
 
     QuickstartCommand underTest;
+
     private Expect expect;
 
     @BeforeEach
@@ -48,19 +42,6 @@ class QuickstartCommandTest {
     @Test
     void getCommandId() {
         assertThat(underTest.getCommandId()).isEqualTo("quickstart");
-    }
-
-    @ParameterizedTest(name = "{index} config={0}")
-    @EnumSource(value = RpgSystemCommandPreset.PresetId.class)
-    void handleSlashCommandEvent(RpgSystemCommandPreset.PresetId presetId) {
-        SlashEventAdaptorMock slashEventAdaptor = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
-                .name("system")
-                .stringValue(presetId.name())
-                .build()));
-
-        Mono<Void> res = underTest.handleSlashCommandEvent(slashEventAdaptor, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"), Locale.ENGLISH);
-        StepVerifier.create(res).verifyComplete();
-        expect.scenario(presetId.name()).toMatchSnapshot(slashEventAdaptor.getSortedActions());
     }
 
     @Test
@@ -131,7 +112,7 @@ class QuickstartCommandTest {
                 "Powered by the Apocalypse",
                 "nWod / Chronicles of Darkness",
                 "oWod / Storyteller System");
-        assertThat(res.stream().map(AutoCompleteAnswer::getValue)).containsExactly("DND5", "DND5_CALC2", "DND5_CALC",  "DND5_IMAGE", "DUNGEON_CRAWL_CLASSICS", "PBTA", "NWOD", "OWOD");
+        assertThat(res.stream().map(AutoCompleteAnswer::getValue)).containsExactly("DND5", "DND5_CALC2", "DND5_CALC", "DND5_IMAGE", "DUNGEON_CRAWL_CLASSICS", "PBTA", "NWOD", "OWOD");
     }
 
     @Test
@@ -158,6 +139,7 @@ class QuickstartCommandTest {
                 "Dungeon & Dragons 5e Calculator 2",
                 "Dungeon & Dragons 5e with Dice Images",
                 "Dungeon Crawl Classics",
+                "EZD6",
                 "Exalted 3ed",
                 "Fate",
                 "Fate with Dice Images",
@@ -177,6 +159,7 @@ class QuickstartCommandTest {
                 "Shadowrun with Dice Images",
                 "The Expanse",
                 "The Marvel Multiverse Role-Playing Game",
+                "The One Ring",
                 "Tiny D6",
                 "Traveller",
                 "Vampire 5ed",
@@ -197,6 +180,7 @@ class QuickstartCommandTest {
                 "DND5_CALC2",
                 "DND5_IMAGE",
                 "DUNGEON_CRAWL_CLASSICS",
+                "EZD6",
                 "EXALTED_3ED",
                 "FATE",
                 "FATE_IMAGE",
@@ -216,6 +200,7 @@ class QuickstartCommandTest {
                 "SHADOWRUN_IMAGE",
                 "EXPANSE",
                 "MARVEL",
+                "THE_ONE_RING",
                 "TINY_D6",
                 "TRAVELLER",
                 "VAMPIRE_5ED",

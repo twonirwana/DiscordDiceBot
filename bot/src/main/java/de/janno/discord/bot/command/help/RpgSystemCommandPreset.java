@@ -175,6 +175,12 @@ public class RpgSystemCommandPreset {
             case PBTA ->
                     new CustomDiceConfig(null, ButtonHelper.parseString(I18n.getMessage("rpg.system.command.preset.PBTA.expression", userLocale)),
                             DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.without_expression, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_RdD, DiceImageStyle.polyhedral_RdD.getDefaultColor()), userLocale);
+            case THE_ONE_RING ->
+                    new CustomParameterConfig(null, I18n.getMessage("rpg.system.command.preset.THE_ONE_RING.expression", userLocale), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.without_expression, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_RdD, DiceImageStyle.polyhedral_RdD.getDefaultColor()), userLocale);
+            case EZD6 ->
+                    new CustomDiceConfig(null, ButtonHelper.parseString(I18n.getMessage("rpg.system.command.preset.EZD6.expression", userLocale)),
+                            DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.without_expression, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_RdD, DiceImageStyle.polyhedral_RdD.getDefaultColor()), userLocale);
+
         };
     }
 
@@ -190,26 +196,27 @@ public class RpgSystemCommandPreset {
         throw new IllegalStateException("Could not create valid config for: " + presetId);
     }
 
-    private AbstractCommand<?, ?> getCommandForConfig(Config config) {
+    private static String getCommandIdForConfig(Config config) {
         if (config instanceof CustomDiceConfig) {
-            return customDiceCommand;
+            return CustomDiceCommand.COMMAND_NAME;
         } else if (config instanceof SumCustomSetConfig) {
-            return sumCustomSetCommand;
+            return SumCustomSetCommand.COMMAND_NAME;
         } else if (config instanceof CustomParameterConfig) {
-            return customParameterCommand;
+            return CustomParameterCommand.COMMAND_NAME;
         }
-        throw new IllegalStateException("Could not find command for config: " + config);
+        throw new IllegalStateException("Could not find command id for config: " + config);
     }
+
 
     private <C extends Config> EmbedOrMessageDefinition startPreset(C config, AbstractCommand<C, ?> command, UUID newConfigUUID, long guildId, long channelId) {
         command.createMessageConfig(newConfigUUID, guildId, channelId, config).ifPresent(persistenceManager::saveMessageConfig);
         return command.createNewButtonMessage(newConfigUUID, config);
     }
 
-    public String getCommandString(PresetId presetId, Locale locale) {
+    public static String getCommandString(PresetId presetId, Locale locale) {
         Config config = createConfig(presetId, locale);
-        AbstractCommand<?, ?> command = getCommandForConfig(config);
-        return "/%s %s".formatted(command.getCommandId(), config.toCommandOptionsString());
+        String commandId = getCommandIdForConfig(config);
+        return "/%s start %s".formatted(commandId, config.toCommandOptionsString());
     }
 
     @AllArgsConstructor
@@ -252,7 +259,9 @@ public class RpgSystemCommandPreset {
         HEROES_OF_CERULEA,
         MARVEL,
         DND5_CALC2,
-        PBTA;
+        PBTA,
+        THE_ONE_RING,
+        EZD6;
 
         public String getName(Locale locale) {
             return I18n.getMessage("rpg.system.command.preset.%s.name".formatted(name()), locale);
