@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
@@ -125,7 +126,7 @@ public class SlashEventAdapterImpl extends DiscordAdapterImpl implements SlashEv
     @Override
     public boolean isValidAnswerChannel(long channelId) {
         return Optional.ofNullable(event.getGuild())
-                .map(g -> g.getChannelById(MessageChannel.class, channelId))
+                .map(g -> (MessageChannel) g.getChannelById(GuildMessageChannel.class, channelId))
                 .isPresent();
     }
 
