@@ -20,7 +20,7 @@ do usuário.
 
 # Início rápido
 
-Digite `/quickstart sistema` e o bot oferecerá uma lista de conjuntos de dados prontos para jogar. Basta selecionar um
+Digite `/quickstart system` e o bot oferecerá uma lista de conjuntos de dados prontos para jogar. Basta selecionar um
 sistema da lista ou continuar digitando para pesquisar e filtrar na lista.
 Alguns dos sistemas prontos para uso são:
 

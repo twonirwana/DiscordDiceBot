@@ -20,7 +20,7 @@ ou à l'utilisateur.
 
 # Démarrage rapide
 
-Tapez `/quickstart système` et le bot vous proposera une liste de jeux de dés prêts à jouer. Sélectionnez simplement un
+Tapez `/quickstart system` et le bot vous proposera une liste de jeux de dés prêts à jouer. Sélectionnez simplement un
 système dans la liste ou continuez à taper pour chercher et filtrer dans la liste.
 Voici quelques-uns des systèmes prêts à l'emploi :
 
