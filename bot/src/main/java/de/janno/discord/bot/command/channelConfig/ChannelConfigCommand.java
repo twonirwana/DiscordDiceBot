@@ -18,6 +18,7 @@ import de.janno.discord.connector.api.SlashCommand;
 import de.janno.discord.connector.api.SlashEventAdaptor;
 import de.janno.discord.connector.api.slash.CommandDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinitionOption;
+import de.janno.discord.connector.api.slash.CommandDefinitionOptionChoice;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -38,8 +39,10 @@ public class ChannelConfigCommand implements SlashCommand {
     private static final String COMMAND_ID = "channel_config";
     private static final String SAVE_DIRECT_ROLL_CONFIG_OPTION_NAME = "save_direct_roll_config";
     private static final String DELETE_DIRECT_ROLL_CONFIG_OPTION_NAME = "delete_direct_roll_config";
-    private static final String CHANNEL_ALIAS_OPTION_NAME = "channel_alias";
-    private static final String USER_CHANNEL_ALIAS_OPTION_NAME = "user_channel_alias";
+    private static final String ALIAS_OPTION_NAME = "alias";
+    private static final String SCOPE_OPTION_NAME = "scope";
+    private static final String SCOPE_OPTION_CHOICE_USER_CHANNEL_NAME = "current_user_in_this_channel";
+    private static final String SCOPE_OPTION_CHOICE_CHANNEL_NAME = "all_users_in_this_channel";
     private static final String SAVE_ALIAS_OPTION_NAME = "save";
     private static final String SAVE_MULTI_ALIAS_OPTION_NAME = "multi_save";
     private static final String ALIAS_NAME_OPTION_NAME = "name";
@@ -47,6 +50,26 @@ public class ChannelConfigCommand implements SlashCommand {
     private static final String ALIAS_VALUE_OPTION_NAME = "value";
     private static final String LIST_ALIAS_OPTION_NAME = "list";
     private static final String DELETE_ALIAS_OPTION_NAME = "delete";
+
+    private static final CommandDefinitionOption SCOPE_OPTION = CommandDefinitionOption.builder()
+            .type(CommandDefinitionOption.Type.STRING)
+            .name(SCOPE_OPTION_NAME)
+            .nameLocales(I18n.allNoneEnglishMessagesNames("channel_config.option.scope.name"))
+            .description(I18n.getMessage("channel_config.option.scope.description", Locale.ENGLISH))
+            .descriptionLocales(I18n.allNoneEnglishMessagesDescriptions("channel_config.option.scope.description"))
+            .required(true)
+            .choice(CommandDefinitionOptionChoice.builder()
+                    .name(I18n.getMessage("channel_config.option.scope.choice.channel.name", Locale.ENGLISH))
+                    .nameLocales(I18n.allNoneEnglishMessagesChoices("channel_config.option.scope.choice.channel.name"))
+                    .value(SCOPE_OPTION_CHOICE_CHANNEL_NAME)
+                    .build())
+            .choice(CommandDefinitionOptionChoice.builder()
+                    .name(I18n.getMessage("channel_config.option.scope.choice.userChannel.name", Locale.ENGLISH))
+                    .nameLocales(I18n.allNoneEnglishMessagesChoices("channel_config.option.scope.choice.userChannel.name"))
+                    .value(SCOPE_OPTION_CHOICE_USER_CHANNEL_NAME)
+                    .build())
+            .build();
+
     private static final CommandDefinitionOption SAVE_ALIAS_OPTION = CommandDefinitionOption.builder()
             .type(CommandDefinitionOption.Type.SUB_COMMAND)
             .name(SAVE_ALIAS_OPTION_NAME)
@@ -69,6 +92,7 @@ public class ChannelConfigCommand implements SlashCommand {
                     .descriptionLocales(I18n.allNoneEnglishMessagesDescriptions("channel_config.option.value.description"))
                     .required(true)
                     .build())
+            .option(SCOPE_OPTION)
             .build();
     private static final CommandDefinitionOption MULTI_SAVE_ALIAS_OPTION = CommandDefinitionOption.builder()
             .type(CommandDefinitionOption.Type.SUB_COMMAND)
@@ -84,6 +108,7 @@ public class ChannelConfigCommand implements SlashCommand {
                     .descriptionLocales(I18n.allNoneEnglishMessagesDescriptions("channel_config.option.aliases.description"))
                     .required(true)
                     .build())
+            .option(SCOPE_OPTION)
             .build();
     private static final CommandDefinitionOption DELETE_ALIAS_OPTION = CommandDefinitionOption.builder()
             .type(CommandDefinitionOption.Type.SUB_COMMAND)
@@ -99,6 +124,7 @@ public class ChannelConfigCommand implements SlashCommand {
                     .descriptionLocales(I18n.allNoneEnglishMessagesDescriptions("channel_config.option.delete.aliasName.description"))
                     .required(true)
                     .build())
+            .option(SCOPE_OPTION)
             .build();
     private static final CommandDefinitionOption LIST_ALIAS_OPTION = CommandDefinitionOption.builder()
             .type(CommandDefinitionOption.Type.SUB_COMMAND)
@@ -106,7 +132,9 @@ public class ChannelConfigCommand implements SlashCommand {
             .nameLocales(I18n.allNoneEnglishMessagesNames("channel_config.option.list.name"))
             .description(I18n.getMessage("channel_config.option.list.description", Locale.ENGLISH))
             .descriptionLocales(I18n.allNoneEnglishMessagesDescriptions("channel_config.option.list.description"))
+            .option(SCOPE_OPTION)
             .build();
+
     private final PersistenceManager persistenceManager;
 
     public ChannelConfigCommand(PersistenceManager persistenceManager) {
@@ -151,21 +179,10 @@ public class ChannelConfigCommand implements SlashCommand {
                         .type(CommandDefinitionOption.Type.SUB_COMMAND_GROUP)
                         .build())
                 .option(CommandDefinitionOption.builder()
-                        .name(CHANNEL_ALIAS_OPTION_NAME)
-                        .nameLocales(I18n.allNoneEnglishMessagesNames("channel_config.option.channel_alias.name"))
-                        .description(I18n.getMessage("channel_config.option.channel_alias.description", Locale.ENGLISH))
-                        .descriptionLocales(I18n.allNoneEnglishMessagesDescriptions("channel_config.option.channel_alias.description"))
-                        .type(CommandDefinitionOption.Type.SUB_COMMAND_GROUP)
-                        .option(SAVE_ALIAS_OPTION)
-                        .option(DELETE_ALIAS_OPTION)
-                        .option(LIST_ALIAS_OPTION)
-                        .option(MULTI_SAVE_ALIAS_OPTION)
-                        .build())
-                .option(CommandDefinitionOption.builder()
-                        .name(USER_CHANNEL_ALIAS_OPTION_NAME)
-                        .nameLocales(I18n.allNoneEnglishMessagesNames("channel_config.option.user_channel_alias.name"))
-                        .description(I18n.getMessage("channel_config.option.user_channel_alias.description", Locale.ENGLISH))
-                        .descriptionLocales(I18n.allNoneEnglishMessagesDescriptions("channel_config.option.user_channel_alias.description"))
+                        .name(ALIAS_OPTION_NAME)
+                        .nameLocales(I18n.allNoneEnglishMessagesNames("channel_config.option.alias.name"))
+                        .description(I18n.getMessage("channel_config.option.alias.description", Locale.ENGLISH))
+                        .descriptionLocales(I18n.allNoneEnglishMessagesDescriptions("channel_config.option.alias.description"))
                         .type(CommandDefinitionOption.Type.SUB_COMMAND_GROUP)
                         .option(SAVE_ALIAS_OPTION)
                         .option(DELETE_ALIAS_OPTION)
@@ -225,11 +242,13 @@ public class ChannelConfigCommand implements SlashCommand {
                 return event.reply(I18n.getMessage("channel_config.deleted.reply", userLocal, event.getCommandString()), false);
             });
         }
-        if (event.getOption(CHANNEL_ALIAS_OPTION_NAME).isPresent()) {
-            return handelChannelEvent(event, null, uuidSupplier, userLocal);
-        }
-        if (event.getOption(USER_CHANNEL_ALIAS_OPTION_NAME).isPresent()) {
-            return handelChannelEvent(event, event.getUserId(), uuidSupplier, userLocal);
+        if (event.getOption(ALIAS_OPTION_NAME).isPresent()) {
+            CommandInteractionOption aliasOption = event.getOption(ALIAS_OPTION_NAME).get();
+            if (SCOPE_OPTION_CHOICE_USER_CHANNEL_NAME.equals(aliasOption.getStringSubOptionWithName(SCOPE_OPTION_NAME).orElse(null))) {
+                return handelChannelEvent(event, event.getUserId(), uuidSupplier, userLocal);
+            } else if (SCOPE_OPTION_CHOICE_CHANNEL_NAME.equals(aliasOption.getStringSubOptionWithName(SCOPE_OPTION_NAME).orElse(null))) {
+                return handelChannelEvent(event, null, uuidSupplier, userLocal);
+            }
         }
         log.error("unknown option for slash event: {} ", event.getOptions());
         return event.reply(I18n.getMessage("channel_config.unknown.reply", userLocal), false);
