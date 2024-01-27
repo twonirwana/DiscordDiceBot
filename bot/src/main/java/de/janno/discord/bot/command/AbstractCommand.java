@@ -26,7 +26,6 @@ import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
-import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -42,8 +41,6 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
     private static final String HELP_OPTION_NAME = "help";
 
     private static final int MIN_MS_DELAY_BETWEEN_BUTTON_MESSAGES = io.avaje.config.Config.getInt("command.minDelayBetweenButtonMessagesMs", 1000);
-    private final static ConcurrentSkipListSet<Long> MESSAGE_STATE_IDS_TO_DELETE = new ConcurrentSkipListSet<>();
-    private static final Duration DELAY_MESSAGE_DATA_DELETION = Duration.ofMillis(io.avaje.config.Config.getLong("command.delayMessageDataDeletionMs", 10000));
     protected final PersistenceManager persistenceManager;
 
     protected AbstractCommand(PersistenceManager persistenceManager) {
@@ -272,7 +269,7 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
         if (newButtonMessage.isPresent() && answerTargetChannelId == null) {
             actions.add(Mono.defer(() -> event.createMessageWithoutReference(newButtonMessage.get()))
                     .doOnNext(newMessageId -> createEmptyMessageData(configUUID, guildId, channelId, newMessageId))
-                    .flatMap(newMessageId -> deleteOldAndConcurrentMessageAndData(newMessageId, configUUID, channelId, event))
+                    .flatMap(newMessageId -> MessageDeletionHelper.deleteOldMessageAndData(persistenceManager, newMessageId, event.getMessageId(), configUUID, channelId, event))
                     .delaySubscription(calculateDelay(event))
                     .doOnSuccess(v -> BotMetrics.timerNewButtonMessageMetricCounter(getCommandId(), stopwatch.elapsed()))
                     .then());
@@ -283,7 +280,7 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
 
         if (deleteCurrentButtonMessage) {
             actions.add(Mono.defer(() -> event.deleteMessageById(messageId)
-                    .then(deleteMessageDataWithDelay(channelId, messageId))));
+                    .then(MessageDeletionHelper.deleteMessageDataWithDelay(persistenceManager, channelId, messageId))));
         } else {
             //don't update the state data async or there will be racing conditions
             updateCurrentMessageStateData(configUUID, guildId, channelId, messageId, config, state);
@@ -294,7 +291,7 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
                 .then();
     }
 
-    protected void addFurtherActions(List<Mono<Void>> actions, ButtonEventAdaptor event, C config, State<S> state){
+    protected void addFurtherActions(List<Mono<Void>> actions, ButtonEventAdaptor event, C config, State<S> state) {
 
     }
 
@@ -311,52 +308,6 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
         }
         BotMetrics.incrementDelayCounter(getCommandId(), false);
         return Duration.ZERO;
-    }
-
-    private Mono<Void> deleteMessageDataWithDelay(long channelId, long messageId) {
-        MESSAGE_STATE_IDS_TO_DELETE.add(messageId);
-        return Mono.defer(() -> Mono.just(0)
-                .delayElement(DELAY_MESSAGE_DATA_DELETION)
-                .doOnNext(v -> {
-                    MESSAGE_STATE_IDS_TO_DELETE.remove(messageId);
-                    persistenceManager.deleteStateForMessage(channelId, messageId);
-                }).ofType(Void.class));
-    }
-
-    protected Mono<Void> deleteOldAndConcurrentMessageAndData(
-            long newMessageId,
-            @NonNull UUID configUUID,
-            long channelId,
-            @NonNull ButtonEventAdaptor event) {
-
-        Set<Long> ids = persistenceManager.getAllMessageIdsForConfig(configUUID).stream()
-                //this will already delete directly
-                .filter(id -> id != event.getMessageId())
-                //we don't want to delete the new message
-                .filter(id -> id != newMessageId)
-                //we don't want to check the state of messages where the data is already scheduled to be deleted
-                .filter(id -> !MESSAGE_STATE_IDS_TO_DELETE.contains(id))
-                .collect(Collectors.toSet());
-
-        if (ids.size() > 5) { //there should be not many old message data
-            log.warn(String.format("ConfigUUID %s had %d to many messageData persisted", configUUID, ids.size()));
-        }
-
-        if (ids.isEmpty()) {
-            return Mono.empty();
-        }
-
-        return event.getMessagesState(ids)
-                .flatMap(ms -> {
-                    if (ms.isCanBeDeleted() && !ms.isPinned() && ms.isExists() && ms.getCreationTime() != null) {
-                        return event.deleteMessageById(ms.getMessageId())
-                                .then(deleteMessageDataWithDelay(channelId, ms.getMessageId()));
-                    } else if (!ms.isExists()) {
-                        return deleteMessageDataWithDelay(channelId, ms.getMessageId());
-                    } else {
-                        return Mono.empty();
-                    }
-                }).then();
     }
 
     @Override

@@ -58,6 +58,11 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
         this.diceSystemAdapter = new DiceSystemAdapter(cachingDiceEvaluator, dice);
     }
 
+    public static SumCustomSetConfig deserializeConfig(MessageConfigDTO messageConfigDTO) {
+        Preconditions.checkArgument(CONFIG_TYPE_ID.equals(messageConfigDTO.getConfigClassId()), "Unknown configClassId: %s", messageConfigDTO.getConfigClassId());
+        return Mapper.deserializeObject(messageConfigDTO.getConfig(), SumCustomSetConfig.class);
+    }
+
     @Override
     protected ConfigAndState<SumCustomSetConfig, SumCustomSetStateDataV2> getMessageDataAndUpdateWithButtonValue(@NonNull MessageConfigDTO messageConfigDTO,
                                                                                                                  @NonNull MessageDataDTO messageDataDTO,
@@ -111,7 +116,7 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
         }
 
 
-        final SumCustomSetConfig loadedConfig = Mapper.deserializeObject(messageConfigDTO.getConfig(), SumCustomSetConfig.class);
+        final SumCustomSetConfig loadedConfig = deserializeConfig(messageConfigDTO);
         final State<SumCustomSetStateDataV2> updatedState = updateStateWithButtonValue(buttonValue,
                 Optional.ofNullable(loadedStateData).map(SumCustomSetStateDataV2::getDiceExpressions).orElse(ImmutableList.of()),
                 invokingUserName,

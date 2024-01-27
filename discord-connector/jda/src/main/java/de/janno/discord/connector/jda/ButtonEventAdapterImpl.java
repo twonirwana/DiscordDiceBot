@@ -15,22 +15,20 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
-import net.dv8tion.jda.api.exceptions.ErrorResponseException;
-import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.utils.AttachmentProxy;
 import org.apache.commons.lang3.StringUtils;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.ParallelFlux;
 
 import java.io.InputStream;
 import java.time.OffsetDateTime;
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Supplier;
-
-import static net.dv8tion.jda.api.requests.ErrorResponse.*;
 
 @Slf4j
 public class ButtonEventAdapterImpl extends DiscordAdapterImpl implements ButtonEventAdaptor {
@@ -172,37 +170,7 @@ public class ButtonEventAdapterImpl extends DiscordAdapterImpl implements Button
 
     @Override
     public @NonNull ParallelFlux<MessageState> getMessagesState(@NonNull Collection<Long> messageIds) {
-        return Flux.fromIterable(messageIds)
-                .parallel()
-                .flatMap(id -> {
-                    //small optimization to avoid unnecessary requests
-                    if (id.equals(messageId)) {
-                        return Mono.just(new MessageState(id, isPinned, true, true, getMessageCreationTime()));
-                    }
-                    try {
-                        return Mono.fromFuture(event.getMessageChannel().retrieveMessageById(id)
-                                .submit().handle((m, t) -> {
-                                    if (m != null) {
-                                        return new MessageState(m.getIdLong(), m.isPinned(), true, m.getType().canDelete(), m.getTimeCreated());
-                                    }
-                                    if (t != null) {
-                                        if (t instanceof ErrorResponseException errorResponseException) {
-                                            if (Set.of(MISSING_ACCESS, MISSING_PERMISSIONS, UNKNOWN_MESSAGE, UNKNOWN_CHANNEL).contains(errorResponseException.getErrorResponse())) {
-                                                return new MessageState(id, false, false, false, null);
-                                            }
-                                        }
-                                        throw new RuntimeException(t);
-                                    }
-                                    throw new IllegalStateException("Message and throwable are null");
-                                }));
-                    } catch (Exception e) {
-                        //for some reason it is thrown outside the handle method, and we need to catch it here
-                        if (e instanceof InsufficientPermissionException) {
-                            return Mono.just(new MessageState(id, false, false, false, null));
-                        }
-                        return Mono.error(e);
-                    }
-                });
+        return getMessagesState(event.getMessageChannel(), messageIds);
     }
 
     @Override

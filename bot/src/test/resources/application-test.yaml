@@ -4,3 +4,4 @@ metric:
 command:
   minDelayBetweenButtonMessagesMs: 10
   delayMessageDataDeletionMs: 10
+  call.delayMs: 0
