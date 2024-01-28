@@ -1,5 +1,6 @@
 package de.janno.discord.connector.jda;
 
+import de.janno.discord.connector.api.MessageState;
 import de.janno.discord.connector.api.Requester;
 import de.janno.discord.connector.api.SlashEventAdaptor;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
@@ -15,7 +16,9 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.interactions.InteractionHook;
 import org.apache.commons.lang3.StringUtils;
 import reactor.core.publisher.Mono;
+import reactor.core.publisher.ParallelFlux;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -152,5 +155,10 @@ public class SlashEventAdapterImpl extends DiscordAdapterImpl implements SlashEv
     @Override
     protected @NonNull String getGuildAndChannelName() {
         return requester.toLogString();
+    }
+
+    @Override
+    public @NonNull ParallelFlux<MessageState> getMessagesState(@NonNull Collection<Long> messageIds) {
+        return getMessagesState(event.getMessageChannel(), messageIds);
     }
 }

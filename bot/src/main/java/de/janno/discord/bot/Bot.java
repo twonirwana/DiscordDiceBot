@@ -2,6 +2,7 @@ package de.janno.discord.bot;
 
 
 import com.google.common.base.Strings;
+import de.janno.discord.bot.command.FetchCommand;
 import de.janno.discord.bot.command.ClearCommand;
 import de.janno.discord.bot.command.channelConfig.ChannelConfigCommand;
 import de.janno.discord.bot.command.countSuccesses.CountSuccessesCommand;
@@ -71,7 +72,8 @@ public class Bot {
                         welcomeCommand,
                         new ClearCommand(persistenceManager),
                         new QuickstartCommand(rpgSystemCommandPreset),
-                        new HelpCommand()
+                        new HelpCommand(),
+                        new FetchCommand(persistenceManager, customParameterCommand, customDiceCommand, sumCustomSetCommand)
                 ),
                 List.of(customDiceCommand,
                         sumCustomSetCommand,

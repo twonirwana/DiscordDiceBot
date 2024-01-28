@@ -228,6 +228,11 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
         return 15;
     }
 
+    public static CustomParameterConfig deserializeConfig(MessageConfigDTO messageConfigDTO) {
+        Preconditions.checkArgument(CONFIG_TYPE_ID.equals(messageConfigDTO.getConfigClassId()), "Unknown configClassId: %s", messageConfigDTO.getConfigClassId());
+        return Mapper.deserializeObject(messageConfigDTO.getConfig(), CustomParameterConfig.class);
+    }
+
     @Override
     protected @NonNull EmbedOrMessageDefinition getHelpMessage(Locale userLocale) {
         return EmbedOrMessageDefinition.builder()
@@ -366,7 +371,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
                 .map(sd -> Mapper.deserializeObject(sd, CustomParameterStateData.class))
                 .orElse(null);
 
-        final CustomParameterConfig loadedConfig = Mapper.deserializeObject(messageConfigDTO.getConfig(), CustomParameterConfig.class);
+        final CustomParameterConfig loadedConfig = deserializeConfig(messageConfigDTO);
         final CustomParameterStateData updatedStateData = updateState(
                 Optional.ofNullable(loadedStateData).map(CustomParameterStateData::getSelectedParameterValues).orElse(null),
                 loadedConfig,

@@ -38,7 +38,10 @@ toc::[]
 
 == Quickstart
 
-The bot has list a ready to play list of presets for many RPG systems. Simple select a system out of the list or keep typing to search and filter in the list. All these presets are realised with the user available commands and dice expression and can be adapted and extended. Please let me know if you have a good new preset or an improved version for an existing preset.
+The bot has list a ready to play list of presets for many RPG systems.
+Simple select a system out of the list or keep typing to search and filter in the list.
+All these presets are realised with the user available commands and dice expression and can be adapted and extended.
+Please let me know if you have a good new preset or an improved version for an existing preset.
 
 [cols="1,1"]
 |===
@@ -94,7 +97,7 @@ If a message sends the answer to another channel, it will not be moved to the en
 
 === Language
 
-The bot supports multiple languages (currently English, German,  Brazilian Portuguese and French).
+The bot supports multiple languages (currently English, German, Brazilian Portuguese and French).
 The bot will use the discord client language for the slash command and options.
 Each button message has a language configuration and will return its answers always in the language of its configuration.
 All existing button messages are default in English.
@@ -301,6 +304,7 @@ This will provide a button called `Attack` which rolls with a personalized modif
 ==== Examples
 
 ===== Dungeon & Dragons 5e with Dice Images
+
 `/custom_dice start buttons: 2d20k1@D20 Advantage;2d20L1@D20 Disadvantage;D20;;1d4;1d6;1d8;1d10;1d12;1d100;2d4=@2d4;2d6=@2d6;2d8=@2d8;2d10=@2d10;2d12=@2d12;2d20=@2d20 answer_format: without_expression dice_image_style: polyhedral_RdD dice_image_color: default`
 
 ===== Powered by the Apocalypse
@@ -337,8 +341,8 @@ The command uses the `without_expression` as default answer format.
 ==== Examples
 
 ===== Vampire 5ed
-`/custom_parameter start expression: val('$r',{regular dice:1\<\=>16}d10 col 'blue') val('$h',{hunger dice:0\<\=>5}d10  col 'purple_dark') val('$s',('$r' + '$h')>=6c) val('$rt','$r'==10c) val('$ht','$h'==10c) val('$ho','$h'==1c) val('$2s',( ( ('$rt' + '$ht'=) ) /2)*2) val('$ts',('$s' + '$2s'=)) concat('successes: ', '$ts', ifE('$ts',0,ifG('$ho',1,' bestial failure' , ''),''), ifE('$rt' mod 2, 1, ifE('$ht' mod 2, 1, ' messy critical', ''), '')) answer_format: without_expression dice_image_style: polyhedral_knots dice_image_color: blue`
 
+`/custom_parameter start expression: val('$r',{regular dice:1\<\=>16}d10 col 'blue') val('$h',{hunger dice:0\<\=>5}d10  col 'purple_dark') val('$s',('$r' + '$h')>=6c) val('$rt','$r'==10c) val('$ht','$h'==10c) val('$ho','$h'==1c) val('$2s',( ( ('$rt' + '$ht'=) ) /2)*2) val('$ts',('$s' + '$2s'=)) concat('successes: ', '$ts', ifE('$ts',0,ifG('$ho',1,' bestial failure' , ''),''), ifE('$rt' mod 2, 1, ifE('$ht' mod 2, 1, ' messy critical', ''), '')) answer_format: without_expression dice_image_style: polyhedral_knots dice_image_color: blue`
 
 =====  nWod / Chronicles of Darkness
 
@@ -462,6 +466,12 @@ For example: `/channel_config channel_alias multi_save aliases: att:2d20;dmg:2d6
 ** `dmg` with `2d6+4=`
 * `delete` removes an alias by its name
 * `list` provides a list of all alias
+
+=== Fetch Command
+
+The command moves the last existing button message to the bottom of the channel.
+The message must be at least 1min old.
+The state of the button message will be lost and reset as if new created.
 
 === Clear Command
 

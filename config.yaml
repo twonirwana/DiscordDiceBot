@@ -25,3 +25,4 @@ diceEvaluator:
 command:
   minDelayBetweenButtonMessagesMs: 1000
   delayMessageDataDeletionMs: 10000
+  fetch.delayMs: 60000

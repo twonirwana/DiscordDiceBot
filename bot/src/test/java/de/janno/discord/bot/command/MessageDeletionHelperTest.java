@@ -18,13 +18,11 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class AbstractCommandTest {
-
+class MessageDeletionHelperTest {
 
     @Test
     void deleteMessageAndData_notExist() {
-        PersistenceManagerImpl messageDataDAO = new PersistenceManagerImpl("jdbc:h2:mem:" + UUID.randomUUID(), null, null);
-        TestCommand underTest = new TestCommand(messageDataDAO);
+        PersistenceManagerImpl persistenceManager = new PersistenceManagerImpl("jdbc:h2:mem:" + UUID.randomUUID(), null, null);
         ButtonEventAdaptorMock buttonEventAdaptorMock = new ButtonEventAdaptorMock("testCommand", "a", UUID.fromString("00000000-0000-0000-0000-000000000000"), new AtomicLong(), Set.of(2L)) {
             @Override
             public @NonNull ParallelFlux<MessageState> getMessagesState(@NonNull Collection<Long> messageIds) {
@@ -36,31 +34,29 @@ class AbstractCommandTest {
         Flux.range(1, 9)
                 .map(i -> new MessageDataDTO(configUUID, 1L, 1L, i, "testCommand", "testConfigClass", "configClass"))
                 .delayElements(Duration.ofMillis(10))
-                .doOnNext(messageDataDAO::saveMessageData)
+                .doOnNext(persistenceManager::saveMessageData)
                 .blockLast();
 
-        underTest.deleteOldAndConcurrentMessageAndData(1L, configUUID, 1L, buttonEventAdaptorMock).block();
+        MessageDeletionHelper.deleteOldMessageAndData(persistenceManager, 1L, 0L, configUUID, 1L, buttonEventAdaptorMock).block();
 
-        assertThat(messageDataDAO.getAllMessageIdsForConfig(configUUID)).containsExactly(1L);
+        assertThat(persistenceManager.getAllMessageIdsForConfig(configUUID)).containsExactly(1L);
         assertThat(buttonEventAdaptorMock.getActions()).containsExactly();
     }
 
     @Test
     void deleteMessageAndData() {
-        PersistenceManagerImpl messageDataDAO = new PersistenceManagerImpl("jdbc:h2:mem:" + UUID.randomUUID(), null, null);
-        TestCommand underTest = new TestCommand(messageDataDAO);
+        PersistenceManagerImpl persistenceManager = new PersistenceManagerImpl("jdbc:h2:mem:" + UUID.randomUUID(), null, null);
         ButtonEventAdaptorMock buttonEventAdaptorMock = new ButtonEventAdaptorMock("testCommand", "a", UUID.fromString("00000000-0000-0000-0000-000000000000"), new AtomicLong(), Set.of(2L));
         UUID configUUID = UUID.fromString("00000000-0000-0000-0000-000000000001");
         Flux.range(1, 9)
                 .map(i -> new MessageDataDTO(configUUID, 1L, 1L, i, "testCommand", "testConfigClass", "configClass"))
                 .delayElements(Duration.ofMillis(10))
-                .doOnNext(messageDataDAO::saveMessageData)
+                .doOnNext(persistenceManager::saveMessageData)
                 .blockLast();
 
+        MessageDeletionHelper.deleteOldMessageAndData(persistenceManager, 6L, 0L, configUUID, 1L, buttonEventAdaptorMock).block();
 
-        underTest.deleteOldAndConcurrentMessageAndData(6L, configUUID, 1L, buttonEventAdaptorMock).block();
-
-        assertThat(messageDataDAO.getAllMessageIdsForConfig(configUUID)).containsExactlyInAnyOrder(2L, 6L);
+        assertThat(persistenceManager.getAllMessageIdsForConfig(configUUID)).containsExactlyInAnyOrder(2L, 6L);
         assertThat(buttonEventAdaptorMock.getActions()).containsExactlyInAnyOrder(
                 "getMessagesState: [1, 2, 3, 4, 5, 7, 8, 9]",
                 "deleteMessageById: 1",
@@ -74,23 +70,22 @@ class AbstractCommandTest {
 
     @Test
     void deleteMessageAndData_deleteCache() throws InterruptedException {
-        PersistenceManagerImpl messageDataDAO = new PersistenceManagerImpl("jdbc:h2:mem:" + UUID.randomUUID(), null, null);
-        TestCommand underTest = new TestCommand(messageDataDAO);
+        PersistenceManagerImpl persistenceManager = new PersistenceManagerImpl("jdbc:h2:mem:" + UUID.randomUUID(), null, null);
 
         ButtonEventAdaptorMock buttonEventAdaptorMock = new ButtonEventAdaptorMock("testCommand", "a", UUID.fromString("00000000-0000-0000-0000-000000000000"), new AtomicLong(), Set.of(2L));
         UUID configUUID = UUID.fromString("00000000-0000-0000-0000-000000000001");
         Flux.range(1, 9)
                 .map(i -> new MessageDataDTO(configUUID, 1L, 1L, i, "testCommand", "testConfigClass", "configClass"))
                 .delayElements(Duration.ofMillis(10))
-                .doOnNext(messageDataDAO::saveMessageData)
+                .doOnNext(persistenceManager::saveMessageData)
                 .blockLast();
 
-        underTest.deleteOldAndConcurrentMessageAndData(6L, configUUID, 1L, buttonEventAdaptorMock).subscribe();
+        MessageDeletionHelper.deleteOldMessageAndData(persistenceManager, 6L, 0L, configUUID, 1L, buttonEventAdaptorMock).subscribe();
         Thread.sleep(100);
-        underTest.deleteOldAndConcurrentMessageAndData(6L, configUUID, 1L, buttonEventAdaptorMock).block();
+        MessageDeletionHelper.deleteOldMessageAndData(persistenceManager, 6L, 0L, configUUID, 1L, buttonEventAdaptorMock).block();
         Thread.sleep(200);
 
-        assertThat(messageDataDAO.getAllMessageIdsForConfig(configUUID)).containsExactlyInAnyOrder(2L, 6L);
+        assertThat(persistenceManager.getAllMessageIdsForConfig(configUUID)).containsExactlyInAnyOrder(2L, 6L);
         assertThat(buttonEventAdaptorMock.getActions()).containsExactlyInAnyOrder(
                 "getMessagesState: [1, 2, 3, 4, 5, 7, 8, 9]",
                 "getMessagesState: [2]",

@@ -4,6 +4,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import de.janno.discord.connector.api.DiscordAdapter;
+import de.janno.discord.connector.api.MessageState;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -26,16 +27,18 @@ import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Nullable;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.publisher.ParallelFlux;
 
 import java.awt.*;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+
+import static net.dv8tion.jda.api.requests.ErrorResponse.*;
 
 @Slf4j
 public abstract class DiscordAdapterImpl implements DiscordAdapter {
@@ -266,4 +269,34 @@ public abstract class DiscordAdapterImpl implements DiscordAdapter {
     protected abstract @NonNull MessageChannel getMessageChannel();
 
     protected abstract @NonNull String getGuildAndChannelName();
+
+    protected @NonNull ParallelFlux<MessageState> getMessagesState(@NonNull MessageChannel messageChannel, @NonNull Collection<Long> messageIds) {
+        return Flux.fromIterable(messageIds)
+                .parallel()
+                .flatMap(id -> {
+                    try {
+                        return Mono.fromFuture(messageChannel.retrieveMessageById(id)
+                                .submit().handle((m, t) -> {
+                                    if (m != null) {
+                                        return new MessageState(m.getIdLong(), m.isPinned(), true, m.getType().canDelete(), m.getTimeCreated());
+                                    }
+                                    if (t != null) {
+                                        if (t instanceof ErrorResponseException errorResponseException) {
+                                            if (Set.of(MISSING_ACCESS, MISSING_PERMISSIONS, UNKNOWN_MESSAGE, UNKNOWN_CHANNEL).contains(errorResponseException.getErrorResponse())) {
+                                                return new MessageState(id, false, false, false, null);
+                                            }
+                                        }
+                                        throw new RuntimeException(t);
+                                    }
+                                    throw new IllegalStateException("Message and throwable are null");
+                                }));
+                    } catch (Exception e) {
+                        //for some reason it is thrown outside the handle method, and we need to catch it here
+                        if (e instanceof InsufficientPermissionException) {
+                            return Mono.just(new MessageState(id, false, false, false, null));
+                        }
+                        return Mono.error(e);
+                    }
+                });
+    }
 }
