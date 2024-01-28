@@ -28,7 +28,7 @@ import java.util.function.Supplier;
 
 @Slf4j
 @RequiredArgsConstructor
-public class CallCommand implements SlashCommand {
+public class FetchCommand implements SlashCommand {
 
     private final PersistenceManager persistenceManager;
     private final CustomParameterCommand customParameterCommand;
@@ -37,28 +37,28 @@ public class CallCommand implements SlashCommand {
 
     @Override
     public @NonNull String getCommandId() {
-        return "call";
+        return "fetch";
     }
 
     @Override
     public @NonNull CommandDefinition getCommandDefinition() {
         return CommandDefinition.builder()
                 .name(getCommandId())
-                .nameLocales(I18n.allNoneEnglishMessagesNames("call.name"))
-                .description(I18n.getMessage("call.description", Locale.ENGLISH))
-                .descriptionLocales(I18n.allNoneEnglishMessagesDescriptions("call.description"))
+                .nameLocales(I18n.allNoneEnglishMessagesNames("fetch.name"))
+                .description(I18n.getMessage("fetch.description", Locale.ENGLISH))
+                .descriptionLocales(I18n.allNoneEnglishMessagesDescriptions("fetch.description"))
                 .build();
     }
 
     @Override
     public @NonNull Mono<Void> handleSlashCommandEvent(@NonNull SlashEventAdaptor event, @NonNull Supplier<UUID> uuidSupplier, @NonNull Locale userLocal) {
         BotMetrics.incrementSlashStartMetricCounter(getCommandId(), "[]");
-        long callDelayMs = io.avaje.config.Config.getLong("command.call.delayMs", 60_000);
+        long fetchDelayMs = io.avaje.config.Config.getLong("command.fetch.delayMs", 60_000);
         Long oldestMessageIdWaitingToDeleted = MessageDeletionHelper.getMessageWaitingToBeDeleted(event.getChannelId()).stream()
                 .min(Comparator.comparing(Function.identity()))
                 .orElse(null);
         Optional<MessageConfigDTO> messageConfigDTOOptional = persistenceManager.getLastMessageDataInChannel(event.getChannelId(),
-                LocalDateTime.now().minus(callDelayMs, ChronoUnit.MILLIS),
+                LocalDateTime.now().minus(fetchDelayMs, ChronoUnit.MILLIS),
                 oldestMessageIdWaitingToDeleted);
         if (messageConfigDTOOptional.isPresent()) {
             final MessageConfigDTO messageConfigDTO = messageConfigDTOOptional.get();
@@ -74,7 +74,7 @@ public class CallCommand implements SlashCommand {
                 return moveButtonMessage(config, sumCustomSetCommand, configUUID, event);
             }
         }
-        return event.reply(I18n.getMessage("call.no.message.found", userLocal), true);
+        return event.reply(I18n.getMessage("fetch.no.message.found", userLocal), true);
     }
 
     private <C extends Config> Mono<Void> moveButtonMessage(C config, AbstractCommand<C, ?> command, UUID configUUID, SlashEventAdaptor event) {

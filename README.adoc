@@ -467,9 +467,9 @@ For example: `/channel_config channel_alias multi_save aliases: att:2d20;dmg:2d6
 * `delete` removes an alias by its name
 * `list` provides a list of all alias
 
-=== Call Command
+=== Fetch Command
 
-The call command moves the last button message to the bottom of the channel.
+The command moves the last existing button message to the bottom of the channel.
 The message must be at least 1min old.
 The state of the button message will be lost and reset as if new created.
 
