@@ -25,7 +25,7 @@ jobs:
       with:
         java-version: '21'
         distribution: 'temurin'
-    - uses: gradle/gradle-build-action@v2
+    - uses: gradle/gradle-build-action@v3
       with:
         gradle-version: current
         arguments: test
@@ -34,7 +34,7 @@ jobs:
       if: always() # always run even if the previous step fails
       with:
         report_paths: '**/build/test-results/test/TEST-*.xml'
-    - uses: gradle/gradle-build-action@v2
+    - uses: gradle/gradle-build-action@v3
       with:
         gradle-version: current
         arguments: testCodeCoverageReport
