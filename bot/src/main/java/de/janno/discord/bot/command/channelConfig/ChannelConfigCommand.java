@@ -22,7 +22,6 @@ import de.janno.discord.connector.api.slash.CommandDefinitionOptionChoice;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Nullable;
 import reactor.core.publisher.Mono;
 
@@ -59,13 +58,13 @@ public class ChannelConfigCommand implements SlashCommand {
             .descriptionLocales(I18n.allNoneEnglishMessagesDescriptions("channel_config.option.scope.description"))
             .required(true)
             .choice(CommandDefinitionOptionChoice.builder()
-                    .name(I18n.getMessage("channel_config.option.scope.choice.channel.name", Locale.ENGLISH))
-                    .nameLocales(I18n.allNoneEnglishMessagesChoices("channel_config.option.scope.choice.channel.name"))
+                    //no locale to have copy and pasteable commands
+                    .name(SCOPE_OPTION_CHOICE_CHANNEL_NAME)
                     .value(SCOPE_OPTION_CHOICE_CHANNEL_NAME)
                     .build())
             .choice(CommandDefinitionOptionChoice.builder()
-                    .name(I18n.getMessage("channel_config.option.scope.choice.userChannel.name", Locale.ENGLISH))
-                    .nameLocales(I18n.allNoneEnglishMessagesChoices("channel_config.option.scope.choice.userChannel.name"))
+                    //no locale to have copy and pasteable commands
+                    .name(SCOPE_OPTION_CHOICE_USER_CHANNEL_NAME)
                     .value(SCOPE_OPTION_CHOICE_USER_CHANNEL_NAME)
                     .build())
             .build();
@@ -134,7 +133,7 @@ public class ChannelConfigCommand implements SlashCommand {
             .descriptionLocales(I18n.allNoneEnglishMessagesDescriptions("channel_config.option.list.description"))
             .option(SCOPE_OPTION)
             .build();
-
+    private final static String NAME_VALUE_DELIMITER = ":";
     private final PersistenceManager persistenceManager;
 
     public ChannelConfigCommand(PersistenceManager persistenceManager) {
@@ -249,6 +248,7 @@ public class ChannelConfigCommand implements SlashCommand {
             } else if (SCOPE_OPTION_CHOICE_CHANNEL_NAME.equals(aliasOption.getStringSubOptionWithName(SCOPE_OPTION_NAME).orElse(null))) {
                 return handelChannelEvent(event, null, uuidSupplier, userLocal);
             }
+            log.error("missing scope in slash event: {}", event.getOptions());
         }
         log.error("unknown option for slash event: {} ", event.getOptions());
         return event.reply(I18n.getMessage("channel_config.unknown.reply", userLocal), false);
@@ -296,14 +296,14 @@ public class ChannelConfigCommand implements SlashCommand {
                 return event.reply(I18n.getMessage("channel_config.noNameValue.reply", userLocale, event.getCommandString()), true);
             }
             List<String> missingNameValue = nameValuePair.stream()
-                    .filter(s -> StringUtils.countMatches(s, ":") != 1)
+                    .filter(s -> s.split(NAME_VALUE_DELIMITER).length != 2)
                     .toList();
             if (!missingNameValue.isEmpty()) {
-                return event.reply(I18n.getMessage("channel_config.missingSeparator.reply", userLocale, event.getCommandString(), missingNameValue), true);
+                return event.reply(I18n.getMessage("channel_config.missingSeparator.reply", userLocale, event.getCommandString(), String.join(";", missingNameValue)), true);
             }
             List<Alias> aliases = nameValuePair.stream()
                     .map(s -> {
-                        String[] split = s.split(":");
+                        String[] split = s.split(NAME_VALUE_DELIMITER);
                         return new Alias(split[0], split[1]);
                     })
                     .toList();

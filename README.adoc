@@ -448,20 +448,24 @@ It is possible to configure alias in a channel.
 Alias can be used with direct roll and custom dice.
 If a custom dice button is created that should use an alias, the alias musst exist before the button is created.
 
-For example `/channel_config user_channel_alias save name: att value: (2d20k1)+10+1d4` creates an attack alias for the user.
+For example `/channel_config alias save name: att value: (2d20k1)+10+1d4 scope: current_user_in_this_channel` creates an attack alias for the user.
 Each time the user uses the slash command `/r expression: att`, the `att` will automatically replaced with `(2d20k1)+10+1d4`
 
 An alias has a name and a value and will replace each occurrence in the dice expression of its name with its value.
-There are two types of alias, channel alias and user channel alias.
-A channel alias will be applied to each roll in a channel, for every user.
-The user channel alias will only apply to for the user who created the alias in the channel.
-The user channel alias will be applied first.
-Three are four commands for each type.
+
+There are two scopes of alias:
+
+*  `all_users_in_this_channel`: It will be applied to each roll in a channel, for every user.
+* `current_user_in_this_channel`: It  will only apply to for the user who created the alias in the channel.
+
+The user specific alias will be applied first.
+
+There are four commands for each scope.
 
 * `save` creates or overwrites an alias
 * `multi_save` creates or overwrites multiple alias.
 Alias are seperated by `;` and the name and the value are seperated by `:`.
-For example: `/channel_config channel_alias multi_save aliases: att:2d20;dmg:2d6+4=` saves two alias:
+For example: `/channel_config alias multi_save aliases: att:2d20;dmg:2d6+4= scope: current_user_in_this_channel` saves two alias:
 ** `att` with `2d20`
 ** `dmg` with `2d6+4=`
 * `delete` removes an alias by its name
