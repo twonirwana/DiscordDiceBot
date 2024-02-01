@@ -23,7 +23,7 @@ public class ButtonDefinition {
     ButtonDefinition(@NonNull String label, @NonNull String id, Style style, boolean disabled) {
         //https://discord.com/developers/docs/interactions/message-components#button-object
         Preconditions.checkArgument(id.length() <= 100, String.format("ID '%s' is to long", id));
-        this.label = StringUtils.abbreviate(label, 80);
+        this.label = StringUtils.abbreviate(label.replace("\n", " "), 80);
         this.id = id;
         this.style = Objects.requireNonNullElse(style, Style.PRIMARY);
         this.disabled = disabled;

@@ -7,6 +7,8 @@ import de.janno.discord.bot.dice.DiceSystemAdapter;
 import de.janno.discord.connector.api.BottomCustomIdUtils;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.StringEscapeUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -17,6 +19,7 @@ public class ButtonHelper {
     private static final String BUTTON_DELIMITER = ";";
 
     public static List<ButtonIdLabelAndDiceExpression> parseString(String buttons) {
+        buttons = buttons.replace("\\n", "\n");
         ImmutableList.Builder<ButtonIdLabelAndDiceExpression> builder = ImmutableList.builder();
         int idCounter = 1;
         boolean newLine = false;
@@ -27,7 +30,7 @@ public class ButtonHelper {
                 if (button.contains(LABEL_DELIMITER)) {
                     if (button.split(LABEL_DELIMITER).length == 2) {
                         String[] split = button.split(LABEL_DELIMITER);
-                        final String label = split[1].trim();
+                        final String label = split[1].trim().replace("\n", " ");
                         final String expression = split[0].trim();
                         if (!Strings.isNullOrEmpty(expression) && !Strings.isNullOrEmpty(label)) {
                             builder.add(new ButtonIdLabelAndDiceExpression(idCounter++ + "_button", label, expression, newLine));
@@ -35,7 +38,7 @@ public class ButtonHelper {
                         }
                     }
                 } else {
-                    final String label = button.trim();
+                    final String label = button.trim().replace("\n", " ");
                     final String expression = button.trim();
                     if (!Strings.isNullOrEmpty(expression) && !Strings.isNullOrEmpty(label)) {
                         builder.add(new ButtonIdLabelAndDiceExpression(idCounter++ + "_button", label, expression, newLine));

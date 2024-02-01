@@ -117,17 +117,17 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
                         List<Parameter.ParameterOption> parameters = getParameterForParameterExpression(config, sp.getParameterExpression())
                                 .map(Parameter::getParameterOptions).orElse(List.of());
                         Optional<Parameter.ParameterOption> selectedParameterOption = parameters.stream()
-                                .filter(vl -> vl.getId().equals(buttonValue))
+                                .filter(vl -> vl.id().equals(buttonValue))
                                 .findFirst();
                         //fallback for legacy buttons, which use the value and not the index as button id
                         //This can be false if the old value matches an indexId, e.g. is something like id2
                         if (selectedParameterOption.isEmpty()) {
                             selectedParameterOption = parameters.stream()
-                                    .filter(vl -> vl.getValue().equals(buttonValue))
+                                    .filter(vl -> vl.value().equals(buttonValue))
                                     .findFirst();
                         }
                         Parameter.ParameterOption selectedParameter = selectedParameterOption.orElseThrow(() -> new RuntimeException("Found no parameter in for value %s in %s".formatted(buttonValue, parameters)));
-                        return new SelectedParameter(sp.getParameterExpression(), sp.getName(), selectedParameter.getValue(), selectedParameter.getLabel());
+                        return new SelectedParameter(sp.getParameterExpression(), sp.getName(), selectedParameter.value(), selectedParameter.label());
                     }
                     return sp.copy();
                 }).collect(ImmutableList.toImmutableList());
@@ -307,7 +307,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
 
     @Override
     protected @NonNull CustomParameterConfig getConfigFromStartOptions(@NonNull CommandInteractionOption options, @NonNull Locale userLocale) {
-        String baseExpression = options.getStringSubOptionWithName(EXPRESSION_OPTION_NAME).orElse("").trim();
+        String baseExpression = options.getStringSubOptionWithName(EXPRESSION_OPTION_NAME).orElse("").trim().replace("\\n", "\n");
         Long answerTargetChannelId = BaseCommandOptions.getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null);
         AnswerFormatType answerType = BaseCommandOptions.getAnswerTypeFromStartCommandOption(options).orElse(defaultAnswerFormat());
         return new CustomParameterConfig(answerTargetChannelId,
@@ -463,8 +463,8 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
                 .findFirst().orElse(config.getParameters().getFirst());
         List<ButtonDefinition> buttons = parameter.getParameterOptions().stream()
                 .map(vl -> ButtonDefinition.builder()
-                        .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), vl.getId(), configUUID))
-                        .label(vl.getLabel())
+                        .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), vl.id(), configUUID))
+                        .label(vl.label())
                         .build())
                 .collect(Collectors.toList());
         boolean hasSelectedParameter = hasAnySelectedValues(state);
@@ -578,7 +578,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     List<ButtonLabelAndId> getButtons(CustomParameterConfig config, String parameterExpression) {
         return getParameterForParameterExpression(config, parameterExpression)
                 .map(Parameter::getParameterOptions).orElse(List.of()).stream()
-                .map(vl -> new ButtonLabelAndId(vl.getLabel(), vl.getId()))
+                .map(vl -> new ButtonLabelAndId(vl.label(), vl.id()))
                 .toList();
     }
 
@@ -624,8 +624,8 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
 
     private Optional<String> getValueFromId(ButtonLabelAndId buttonLabelAndId, List<Parameter.ParameterOption> parameterOptions) {
         return parameterOptions.stream()
-                .filter(po -> Objects.equals(buttonLabelAndId.getId(), po.getId()))
-                .map(Parameter.ParameterOption::getValue)
+                .filter(po -> Objects.equals(buttonLabelAndId.getId(), po.id()))
+                .map(Parameter.ParameterOption::value)
                 .findFirst();
     }
 

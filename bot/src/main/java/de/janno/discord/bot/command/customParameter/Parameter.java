@@ -1,26 +1,36 @@
 package de.janno.discord.bot.command.customParameter;
 
+import lombok.NonNull;
 import lombok.Value;
 
 import java.util.List;
 
 @Value
 public class Parameter {
+
     //parameter with {} and range
-    String parameterExpression;
-    String name;
-    List<ParameterOption> parameterOptions;
+    @NonNull String parameterExpression;
+    @NonNull String name;
+    @NonNull List<ParameterOption> parameterOptions;
+
+    public Parameter(@NonNull String parameterExpression, @NonNull String name, @NonNull List<ParameterOption> parameterOptions) {
+        this.parameterExpression = parameterExpression;
+        this.name = name.replace("\n", " ");
+        this.parameterOptions = parameterOptions;
+    }
 
     @Override
     public String toString() {
         return "%s of %s".formatted(name, parameterOptions);
     }
 
-    @Value
-    public static class ParameterOption {
-        String value;
-        String label;
-        String id;
+    public record ParameterOption(@NonNull String value, @NonNull String label, @NonNull String id) {
+
+        public ParameterOption(@NonNull String value, @NonNull String label, @NonNull String id) {
+            this.value = value;
+            this.label = label.replace("\n", " ");
+            this.id = id;
+        }
 
         @Override
         public String toString() {

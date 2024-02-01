@@ -73,6 +73,13 @@ class ButtonHelperTest {
 
         assertThat(res.stream().map(ButtonIdLabelAndDiceExpression::getDiceExpression)).containsExactly("+1d4", "1d6");
     }
+    @Test
+    public void testParseStringMultiLineLiteral() {
+        List<ButtonIdLabelAndDiceExpression> res = ButtonHelper.parseString("d[a\\nb\\nc,\\nd,e\\n];1d20@\\nAttack\\nDown\\n;3d10,3d10,3d10");
+
+        assertThat(res.stream().map(ButtonIdLabelAndDiceExpression::getDiceExpression)).containsExactly("d[a\nb\nc,\nd,e\n]", "1d20", "3d10,3d10,3d10");
+        assertThat(res.stream().map(ButtonIdLabelAndDiceExpression::getLabel)).containsExactly("d[a b c, d,e ]", "Attack Down", "3d10,3d10,3d10");
+    }
 
     @Test
     public void createButtonLayout() {
