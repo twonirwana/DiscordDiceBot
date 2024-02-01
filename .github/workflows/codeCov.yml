@@ -39,6 +39,8 @@ jobs:
         gradle-version: current
         arguments: testCodeCoverageReport
     - uses: codecov/codecov-action@v4
+      env:
+        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
       with:
         fail_ci_if_error: true
         verbose: true # optional (default = false)
