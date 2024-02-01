@@ -29,8 +29,8 @@ import java.util.stream.Collectors;
 @Slf4j
 public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateData> {
 
-    static final String BUTTONS_OPTION_NAME = "buttons";
     public static final String COMMAND_NAME = "custom_dice";
+    static final String BUTTONS_OPTION_NAME = "buttons";
     private static final String CONFIG_TYPE_ID = "CustomDiceConfig";
     private final DiceSystemAdapter diceSystemAdapter;
 
@@ -44,6 +44,11 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
         this.diceSystemAdapter = new DiceSystemAdapter(cachingDiceEvaluator, dice);
     }
 
+    public static CustomDiceConfig deserializeConfig(@NonNull MessageConfigDTO messageConfigDTO) {
+        Preconditions.checkArgument(CONFIG_TYPE_ID.equals(messageConfigDTO.getConfigClassId()), "Unknown configClassId: %s", messageConfigDTO.getConfigClassId());
+        return Mapper.deserializeObject(messageConfigDTO.getConfig(), CustomDiceConfig.class);
+    }
+
     @Override
     protected ConfigAndState<CustomDiceConfig, StateData> getMessageDataAndUpdateWithButtonValue(@NonNull MessageConfigDTO messageConfigDTO,
                                                                                                  @NonNull MessageDataDTO messageDataDTO,
@@ -52,12 +57,10 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
         return deserializeAndUpdateState(messageConfigDTO, buttonValue);
     }
 
-
     @VisibleForTesting
     ConfigAndState<CustomDiceConfig, StateData> deserializeAndUpdateState(@NonNull MessageConfigDTO messageConfigDTO, @NonNull String buttonValue) {
-        Preconditions.checkArgument(CONFIG_TYPE_ID.equals(messageConfigDTO.getConfigClassId()), "Unknown configClassId: %s", messageConfigDTO.getConfigClassId());
         return new ConfigAndState<>(messageConfigDTO.getConfigUUID(),
-                Mapper.deserializeObject(messageConfigDTO.getConfig(), CustomDiceConfig.class),
+                deserializeConfig(messageConfigDTO),
                 new State<>(buttonValue, StateData.empty()));
     }
 

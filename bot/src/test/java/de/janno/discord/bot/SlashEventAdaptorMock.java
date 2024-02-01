@@ -1,5 +1,6 @@
 package de.janno.discord.bot;
 
+import de.janno.discord.connector.api.MessageState;
 import de.janno.discord.connector.api.Requester;
 import de.janno.discord.connector.api.SlashEventAdaptor;
 import de.janno.discord.connector.api.message.ButtonDefinition;
@@ -7,8 +8,11 @@ import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import lombok.Getter;
 import lombok.NonNull;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.publisher.ParallelFlux;
 
+import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.stream.Stream;
 
@@ -139,5 +143,11 @@ public class SlashEventAdaptorMock implements SlashEventAdaptor {
     @Override
     public long getUserId() {
         return userId;
+    }
+
+    @Override
+    public @NonNull ParallelFlux<MessageState> getMessagesState(@NonNull Collection<Long> messageIds) {
+        actions.add(String.format("getMessagesState: %s", messageIds));
+        return Flux.fromIterable(messageIds).parallel().map(id -> new MessageState(id, false, true, true, OffsetDateTime.now().minusSeconds(id * 5)));
     }
 }

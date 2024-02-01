@@ -408,4 +408,38 @@ public class PersistenceManagerImpl implements PersistenceManager {
         BotMetrics.databaseTimer("deleteUserChannelConfig", stopwatch.elapsed());
     }
 
+    @Override
+    public Optional<MessageConfigDTO> getLastMessageDataInChannel(long channelId, LocalDateTime since, @Nullable Long alreadyDeletedMessageId) {
+        Stopwatch stopwatch = Stopwatch.createStarted();
+        try (Connection con = databaseConnector.getConnection()) {
+            try (PreparedStatement preparedStatement =
+                         con.prepareStatement(
+                                 """
+                                         SELECT MC.CONFIG_ID, MC.CHANNEL_ID, MC.GUILD_ID, MC.COMMAND_ID, MC.CONFIG_CLASS_ID, MC.CONFIG
+                                         FROM MESSAGE_CONFIG MC
+                                                  join MESSAGE_DATA MD on mc.CONFIG_ID = md.CONFIG_ID
+                                         WHERE MD.CHANNEL_ID = ?
+                                         AND MD.CREATION_DATE < ?
+                                         AND MD.MESSAGE_ID < ?
+                                         order by MD.CREATION_DATE desc
+                                              """
+                         )) {
+                preparedStatement.setLong(1, channelId);
+                preparedStatement.setTimestamp(2, Timestamp.valueOf(since));
+                preparedStatement.setLong(3, Optional.ofNullable(alreadyDeletedMessageId).orElse(Long.MAX_VALUE));
+                preparedStatement.setMaxRows(1);
+                ResultSet resultSet = preparedStatement.executeQuery();
+                MessageConfigDTO messageConfigDTO = transformResultSet2MessageConfigDTO(resultSet);
+
+                BotMetrics.databaseTimer("getLastMessageDataInChannel", stopwatch.elapsed());
+
+                if (messageConfigDTO == null) {
+                    return Optional.empty();
+                }
+                return Optional.of(messageConfigDTO);
+            }
+        } catch (Exception e) {
+            throw new IllegalStateException(e);
+        }
+    }
 }
