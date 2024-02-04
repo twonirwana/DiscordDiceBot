@@ -43,6 +43,7 @@ public class Bot {
             }
         }
         BotMetrics.init();
+        Config.onChange(event -> event.modifiedKeys().forEach(k -> log.info("config change: {} -> {}", k, event.configuration().getOptional(k).orElse(""))));
 
         final String url = Config.get("db.url", "jdbc:h2:file:./persistence/dice_config;AUTO_SERVER=TRUE;DB_CLOSE_DELAY=5");
         final String user = Config.getNullable("db.user");

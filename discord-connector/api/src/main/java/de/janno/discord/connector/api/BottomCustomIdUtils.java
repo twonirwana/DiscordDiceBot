@@ -1,7 +1,6 @@
 package de.janno.discord.connector.api;
 
 import lombok.NonNull;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -28,23 +27,23 @@ public final class BottomCustomIdUtils {
     }
 
     public static @NonNull String getButtonValueFromCustomId(@NonNull String customId) {
-        if (StringUtils.countMatches(customId, CUSTOM_ID_DELIMITER) >= 1) {
+        if (customId.split(CUSTOM_ID_DELIMITER).length >= 2) {
             return customId.split(CUSTOM_ID_DELIMITER)[BUTTON_VALUE_INDEX];
         }
         throw new IllegalStateException("'%s' contains not the correct number of delimiter".formatted(customId));
     }
 
     public static @NonNull String getCommandNameFromCustomId(@NonNull String customId) {
-        if (StringUtils.countMatches(customId, CUSTOM_ID_DELIMITER) >= 1) {
+        if (customId.split(CUSTOM_ID_DELIMITER).length >= 2) {
             return customId.split(CUSTOM_ID_DELIMITER)[COMMAND_NAME_INDEX];
         }
         throw new IllegalStateException("'%s' contains not the correct number of delimiter".formatted(customId));
     }
 
     public static @NonNull Optional<UUID> getConfigUUIDFromCustomId(@NonNull String customId) {
-        if (StringUtils.countMatches(customId, CUSTOM_ID_DELIMITER) == 1) {
+        if (customId.split(CUSTOM_ID_DELIMITER).length == 2) {
             return Optional.empty();
-        } else if (StringUtils.countMatches(customId, CUSTOM_ID_DELIMITER) >= 2) {
+        } else if (customId.split(CUSTOM_ID_DELIMITER).length >= 3) {
             return Optional.of(UUID.fromString(customId.split(CUSTOM_ID_DELIMITER)[CONFIG_UUID_INDEX]));
         }
         throw new IllegalStateException("'%s' contains not the correct number of delimiter".formatted(customId));

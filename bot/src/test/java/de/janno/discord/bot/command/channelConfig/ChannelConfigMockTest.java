@@ -78,37 +78,41 @@ public class ChannelConfigMockTest {
         ChannelConfigCommand channelConfig = new ChannelConfigCommand(persistenceManager);
 
         SlashEventAdaptorMock slashEvent1 = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
-                .name("channel_alias")
+                .name("alias")
                 .option(CommandInteractionOption.builder()
                         .name("save")
                         .option(CommandInteractionOption.builder().name("name").stringValue("att").build())
                         .option(CommandInteractionOption.builder().name("value").stringValue("2d20+10").build())
                         .build())
+                .option(CommandInteractionOption.builder().name("scope").stringValue("all_users_in_this_channel").build())
                 .build()));
         channelConfig.handleSlashCommandEvent(slashEvent1, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"), Locale.ENGLISH).block();
 
         SlashEventAdaptorMock slashEvent2 = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
-                .name("channel_alias")
+                .name("alias")
                 .option(CommandInteractionOption.builder()
                         .name("list")
                         .build())
+                .option(CommandInteractionOption.builder().name("scope").stringValue("all_users_in_this_channel").build())
                 .build()));
         channelConfig.handleSlashCommandEvent(slashEvent2, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"), Locale.ENGLISH).block();
 
         SlashEventAdaptorMock slashEvent3 = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
-                .name("channel_alias")
+                .name("alias")
                 .option(CommandInteractionOption.builder()
                         .name("delete")
                         .option(CommandInteractionOption.builder().name("name").stringValue("att").build())
                         .build())
+                .option(CommandInteractionOption.builder().name("scope").stringValue("all_users_in_this_channel").build())
                 .build()));
         channelConfig.handleSlashCommandEvent(slashEvent3, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"), Locale.ENGLISH).block();
 
         SlashEventAdaptorMock slashEvent4 = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
-                .name("channel_alias")
+                .name("alias")
                 .option(CommandInteractionOption.builder()
                         .name("list")
                         .build())
+                .option(CommandInteractionOption.builder().name("scope").stringValue("all_users_in_this_channel").build())
                 .build()));
         channelConfig.handleSlashCommandEvent(slashEvent4, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"), Locale.ENGLISH).block();
 
@@ -123,37 +127,41 @@ public class ChannelConfigMockTest {
         ChannelConfigCommand channelConfig = new ChannelConfigCommand(persistenceManager);
 
         SlashEventAdaptorMock slashEvent1 = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
-                .name("user_channel_alias")
+                .name("alias")
                 .option(CommandInteractionOption.builder()
                         .name("save")
                         .option(CommandInteractionOption.builder().name("name").stringValue("att").build())
                         .option(CommandInteractionOption.builder().name("value").stringValue("2d20+10").build())
                         .build())
+                .option(CommandInteractionOption.builder().name("scope").stringValue("current_user_in_this_channel").build())
                 .build()));
         channelConfig.handleSlashCommandEvent(slashEvent1, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"), Locale.ENGLISH).block();
 
         SlashEventAdaptorMock slashEvent2 = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
-                .name("user_channel_alias")
+                .name("alias")
                 .option(CommandInteractionOption.builder()
                         .name("list")
                         .build())
+                .option(CommandInteractionOption.builder().name("scope").stringValue("current_user_in_this_channel").build())
                 .build()));
         channelConfig.handleSlashCommandEvent(slashEvent2, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"), Locale.ENGLISH).block();
 
         SlashEventAdaptorMock slashEvent3 = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
-                .name("user_channel_alias")
+                .name("alias")
                 .option(CommandInteractionOption.builder()
                         .name("delete")
                         .option(CommandInteractionOption.builder().name("name").stringValue("att").build())
                         .build())
+                .option(CommandInteractionOption.builder().name("scope").stringValue("current_user_in_this_channel").build())
                 .build()));
         channelConfig.handleSlashCommandEvent(slashEvent3, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"), Locale.ENGLISH).block();
 
         SlashEventAdaptorMock slashEvent4 = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
-                .name("user_channel_alias")
+                .name("alias")
                 .option(CommandInteractionOption.builder()
                         .name("list")
                         .build())
+                .option(CommandInteractionOption.builder().name("scope").stringValue("current_user_in_this_channel").build())
                 .build()));
         channelConfig.handleSlashCommandEvent(slashEvent4, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"), Locale.ENGLISH).block();
 
@@ -168,38 +176,42 @@ public class ChannelConfigMockTest {
         ChannelConfigCommand channelConfig = new ChannelConfigCommand(persistenceManager);
 
         SlashEventAdaptorMock slashEvent1 = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
-                .name("user_channel_alias")
+                .name("alias")
                 .option(CommandInteractionOption.builder()
                         .name("save")
                         .option(CommandInteractionOption.builder().name("name").stringValue("att").build())
                         .option(CommandInteractionOption.builder().name("value").stringValue("2d20+10").build())
                         .build())
+                .option(CommandInteractionOption.builder().name("scope").stringValue("current_user_in_this_channel").build())
                 .build()), 1L);
         channelConfig.handleSlashCommandEvent(slashEvent1, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"), Locale.ENGLISH).block();
 
         SlashEventAdaptorMock slashEvent2 = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
-                .name("user_channel_alias")
+                .name("alias")
                 .option(CommandInteractionOption.builder()
                         .name("save")
                         .option(CommandInteractionOption.builder().name("name").stringValue("att").build())
                         .option(CommandInteractionOption.builder().name("value").stringValue("2d20+1").build())
                         .build())
+                .option(CommandInteractionOption.builder().name("scope").stringValue("current_user_in_this_channel").build())
                 .build()), 2L);
         channelConfig.handleSlashCommandEvent(slashEvent2, () -> UUID.fromString("00000000-0000-0000-0000-000000000001"), Locale.ENGLISH).block();
 
         SlashEventAdaptorMock slashEvent3 = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
-                .name("user_channel_alias")
+                .name("alias")
                 .option(CommandInteractionOption.builder()
                         .name("list")
                         .build())
+                .option(CommandInteractionOption.builder().name("scope").stringValue("current_user_in_this_channel").build())
                 .build()), 1L);
         channelConfig.handleSlashCommandEvent(slashEvent3, () -> UUID.fromString("00000000-0000-0000-0000-000000000002"), Locale.ENGLISH).block();
 
         SlashEventAdaptorMock slashEvent4 = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
-                .name("user_channel_alias")
+                .name("alias")
                 .option(CommandInteractionOption.builder()
                         .name("list")
                         .build())
+                .option(CommandInteractionOption.builder().name("scope").stringValue("current_user_in_this_channel").build())
                 .build()), 2L);
         channelConfig.handleSlashCommandEvent(slashEvent4, () -> UUID.fromString("00000000-0000-0000-0000-000000000003"), Locale.ENGLISH).block();
 
@@ -214,7 +226,7 @@ public class ChannelConfigMockTest {
         ChannelConfigCommand channelConfig = new ChannelConfigCommand(persistenceManager);
 
         SlashEventAdaptorMock slashEvent1 = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
-                .name("channel_alias")
+                .name("alias")
                 .option(CommandInteractionOption.builder()
                         .name("multi_save")
                         .option(CommandInteractionOption.builder()
@@ -222,14 +234,16 @@ public class ChannelConfigMockTest {
                                 .stringValue("att:2d20;dmg:2d6+3=")
                                 .build())
                         .build())
+                .option(CommandInteractionOption.builder().name("scope").stringValue("all_users_in_this_channel").build())
                 .build()));
         channelConfig.handleSlashCommandEvent(slashEvent1, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"), Locale.ENGLISH).block();
 
         SlashEventAdaptorMock slashEvent2 = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
-                .name("channel_alias")
+                .name("alias")
                 .option(CommandInteractionOption.builder()
                         .name("list")
                         .build())
+                .option(CommandInteractionOption.builder().name("scope").stringValue("all_users_in_this_channel").build())
                 .build()));
         channelConfig.handleSlashCommandEvent(slashEvent2, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"), Locale.ENGLISH).block();
 
@@ -239,11 +253,32 @@ public class ChannelConfigMockTest {
     }
 
     @Test
+    void channelAlias_multiCreateList_wrongFormat() {
+        ChannelConfigCommand channelConfig = new ChannelConfigCommand(persistenceManager);
+
+        SlashEventAdaptorMock slashEvent1 = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
+                .name("alias")
+                .option(CommandInteractionOption.builder()
+                        .name("multi_save")
+                        .option(CommandInteractionOption.builder()
+                                .name("aliases")
+                                .stringValue("att:2d20;dmg:")
+                                .build())
+                        .build())
+                .option(CommandInteractionOption.builder().name("scope").stringValue("all_users_in_this_channel").build())
+                .build()));
+        channelConfig.handleSlashCommandEvent(slashEvent1, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"), Locale.ENGLISH).block();
+
+        assertThat(slashEvent1.getActions()).containsExactlyInAnyOrder("reply: `commandString`\nWrong format in `dmg:`, it must be `name:value`");
+    }
+
+
+    @Test
     void channelUserAlias_multiCreateList() {
         ChannelConfigCommand channelConfig = new ChannelConfigCommand(persistenceManager);
 
         SlashEventAdaptorMock slashEvent1 = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
-                .name("user_channel_alias")
+                .name("alias")
                 .option(CommandInteractionOption.builder()
                         .name("multi_save")
                         .option(CommandInteractionOption.builder()
@@ -251,14 +286,16 @@ public class ChannelConfigMockTest {
                                 .stringValue("att:2d20;dmg:2d6+3=")
                                 .build())
                         .build())
+                .option(CommandInteractionOption.builder().name("scope").stringValue("current_user_in_this_channel").build())
                 .build()));
         channelConfig.handleSlashCommandEvent(slashEvent1, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"), Locale.ENGLISH).block();
 
         SlashEventAdaptorMock slashEvent2 = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
-                .name("user_channel_alias")
+                .name("alias")
                 .option(CommandInteractionOption.builder()
                         .name("list")
                         .build())
+                .option(CommandInteractionOption.builder().name("scope").stringValue("current_user_in_this_channel").build())
                 .build()));
         channelConfig.handleSlashCommandEvent(slashEvent2, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"), Locale.ENGLISH).block();
 

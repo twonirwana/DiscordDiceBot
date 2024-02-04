@@ -252,23 +252,10 @@ de.janno.discord.bot.command.channelConfig.ChannelConfigTest.getCommandDefinitio
       },
       {
         "type": "SUB_COMMAND_GROUP",
-        "name": "channel_alias",
+        "name": "alias",
         "nameLocales": [ ],
-        "description": "add, list or remove channel alias",
-        "descriptionLocales": [
-          {
-            "locale": "de",
-            "description": "Kanalkonfig hinzufügen, auflisten und löschen"
-          },
-          {
-            "locale": "pt_BR",
-            "description": "adiciona, lista ou remove os apelidos do canal"
-          },
-          {
-            "locale": "fr",
-            "description": "ajouter, lister ou supprimer un alias de canal"
-          }
-        ],
+        "description": "add, list or remove alias",
+        "descriptionLocales": [ ],
         "required": false,
         "choices": [ ],
         "options": [
@@ -341,224 +328,26 @@ de.janno.discord.bot.command.channelConfig.ChannelConfigTest.getCommandDefinitio
                 "choices": [ ],
                 "options": [ ],
                 "autoComplete": false
-              }
-            ],
-            "autoComplete": false
-          },
-          {
-            "type": "SUB_COMMAND",
-            "name": "delete",
-            "nameLocales": [ ],
-            "description": "Delete an alias",
-            "descriptionLocales": [
-              {
-                "locale": "de",
-                "description": "Lösche einen Alias"
-              },
-              {
-                "locale": "pt_BR",
-                "description": "Apagar um apelido"
-              },
-              {
-                "locale": "fr",
-                "description": "Supprimer un alias"
-              }
-            ],
-            "required": false,
-            "choices": [ ],
-            "options": [
-              {
-                "type": "STRING",
-                "name": "name",
-                "nameLocales": [ ],
-                "description": "The name of the alias to delete",
-                "descriptionLocales": [
-                  {
-                    "locale": "de",
-                    "description": "Der Name des Alias zum Löschen"
-                  },
-                  {
-                    "locale": "pt_BR",
-                    "description": "O nome do apelido para apagar"
-                  },
-                  {
-                    "locale": "fr",
-                    "description": "Le nom de l'alias à supprimer"
-                  }
-                ],
-                "required": true,
-                "choices": [ ],
-                "options": [ ],
-                "autoComplete": false
-              }
-            ],
-            "autoComplete": false
-          },
-          {
-            "type": "SUB_COMMAND",
-            "name": "list",
-            "nameLocales": [ ],
-            "description": "List all alias",
-            "descriptionLocales": [
-              {
-                "locale": "de",
-                "description": "Liste aller Alias"
-              },
-              {
-                "locale": "pt_BR",
-                "description": "Listar todos os apelidos"
-              },
-              {
-                "locale": "fr",
-                "description": "Lister tous les alias"
-              }
-            ],
-            "required": false,
-            "choices": [ ],
-            "options": [ ],
-            "autoComplete": false
-          },
-          {
-            "type": "SUB_COMMAND",
-            "name": "multi_save",
-            "nameLocales": [ ],
-            "description": "Save multiple alias",
-            "descriptionLocales": [
-              {
-                "locale": "de",
-                "description": "Speichere mehrere Alias auf einmal"
-              },
-              {
-                "locale": "pt_BR",
-                "description": "Salvar multiplos apelidos"
-              },
-              {
-                "locale": "fr",
-                "description": "Enregistrer plusieurs alias"
-              }
-            ],
-            "required": false,
-            "choices": [ ],
-            "options": [
-              {
-                "type": "STRING",
-                "name": "aliases",
-                "nameLocales": [ ],
-                "description": "Separate alias name and value by `:` and aliases by `;` e.g.: att:2d20;dmg:2d6+3=",
-                "descriptionLocales": [
-                  {
-                    "locale": "de",
-                    "description": "Separiere Name und Wert mit `:` und Aliases mit `;` z.B.: Angriff:2d20;Schaden:2d6+3="
-                  },
-                  {
-                    "locale": "pt_BR",
-                    "description": "Separe o nome do apelido e o valor com `:` e os apelidos com `;` ex.: atq:2d20;dano:2d6+3="
-                  },
-                  {
-                    "locale": "fr",
-                    "description": "Séparez le nom et la valeur de l'alias par `:` et les alias par `;` ex : att:2d20;dmg:2d6+3="
-                  }
-                ],
-                "required": true,
-                "choices": [ ],
-                "options": [ ],
-                "autoComplete": false
-              }
-            ],
-            "autoComplete": false
-          }
-        ],
-        "autoComplete": false
-      },
-      {
-        "type": "SUB_COMMAND_GROUP",
-        "name": "user_channel_alias",
-        "nameLocales": [ ],
-        "description": "add, list or remove user channel alias",
-        "descriptionLocales": [
-          {
-            "locale": "de",
-            "description": "Benutzer-Kanalkonfig hinzufügen, auflisten und löschen"
-          },
-          {
-            "locale": "pt_BR",
-            "description": "adiciona, lista ou remove os apelidos do canal do usuário"
-          },
-          {
-            "locale": "fr",
-            "description": "ajouter, lister ou supprimer l'alias d'un canal utilisateur"
-          }
-        ],
-        "required": false,
-        "choices": [ ],
-        "options": [
-          {
-            "type": "SUB_COMMAND",
-            "name": "save",
-            "nameLocales": [ ],
-            "description": "Add a new alias",
-            "descriptionLocales": [
-              {
-                "locale": "de",
-                "description": "Füge einen neuen Alias hinzu"
-              },
-              {
-                "locale": "pt_BR",
-                "description": "Adicionar um novo apelido"
-              },
-              {
-                "locale": "fr",
-                "description": "Ajouter un nouvel alias"
-              }
-            ],
-            "required": false,
-            "choices": [ ],
-            "options": [
-              {
-                "type": "STRING",
-                "name": "name",
-                "nameLocales": [ ],
-                "description": "The name of the alias (the name in the expression will be replaced with the value)",
-                "descriptionLocales": [
-                  {
-                    "locale": "de",
-                    "description": "Der Name des Alias (der Name in den Würfelausdruck wirt mit dem Wert ersetzt)"
-                  },
-                  {
-                    "locale": "pt_BR",
-                    "description": "O nome do apelido (o nome da fórmula vai ser substituído com esse valor)"
-                  },
-                  {
-                    "locale": "fr",
-                    "description": "Le nom de l'alias (le nom dans l'expression sera remplacé par la valeur)"
-                  }
-                ],
-                "required": true,
-                "choices": [ ],
-                "options": [ ],
-                "autoComplete": false
               },
               {
                 "type": "STRING",
-                "name": "value",
+                "name": "scope",
                 "nameLocales": [ ],
-                "description": "The value of the alias (the name in the expression will be replaced with the value)",
-                "descriptionLocales": [
+                "description": "scope of the alias, if applies only to one user or more",
+                "descriptionLocales": [ ],
+                "required": true,
+                "choices": [
                   {
-                    "locale": "de",
-                    "description": "Der Wert des Alias (der Name in den Würfelausdruck wirt mit dem Wert ersetzt)"
+                    "name": "all_users_in_this_channel",
+                    "value": "all_users_in_this_channel",
+                    "nameLocales": [ ]
                   },
                   {
-                    "locale": "pt_BR",
-                    "description": "O valor do apelido (o nome pelo qual a expressão vai ser substituída com o valor)"
-                  },
-                  {
-                    "locale": "fr",
-                    "description": "La valeur de l'alias (le nom dans l'expression sera remplacé par la valeur)"
+                    "name": "current_user_in_this_channel",
+                    "value": "current_user_in_this_channel",
+                    "nameLocales": [ ]
                   }
                 ],
-                "required": true,
-                "choices": [ ],
                 "options": [ ],
                 "autoComplete": false
               }
@@ -610,6 +399,28 @@ de.janno.discord.bot.command.channelConfig.ChannelConfigTest.getCommandDefinitio
                 "choices": [ ],
                 "options": [ ],
                 "autoComplete": false
+              },
+              {
+                "type": "STRING",
+                "name": "scope",
+                "nameLocales": [ ],
+                "description": "scope of the alias, if applies only to one user or more",
+                "descriptionLocales": [ ],
+                "required": true,
+                "choices": [
+                  {
+                    "name": "all_users_in_this_channel",
+                    "value": "all_users_in_this_channel",
+                    "nameLocales": [ ]
+                  },
+                  {
+                    "name": "current_user_in_this_channel",
+                    "value": "current_user_in_this_channel",
+                    "nameLocales": [ ]
+                  }
+                ],
+                "options": [ ],
+                "autoComplete": false
               }
             ],
             "autoComplete": false
@@ -635,7 +446,30 @@ de.janno.discord.bot.command.channelConfig.ChannelConfigTest.getCommandDefinitio
             ],
             "required": false,
             "choices": [ ],
-            "options": [ ],
+            "options": [
+              {
+                "type": "STRING",
+                "name": "scope",
+                "nameLocales": [ ],
+                "description": "scope of the alias, if applies only to one user or more",
+                "descriptionLocales": [ ],
+                "required": true,
+                "choices": [
+                  {
+                    "name": "all_users_in_this_channel",
+                    "value": "all_users_in_this_channel",
+                    "nameLocales": [ ]
+                  },
+                  {
+                    "name": "current_user_in_this_channel",
+                    "value": "current_user_in_this_channel",
+                    "nameLocales": [ ]
+                  }
+                ],
+                "options": [ ],
+                "autoComplete": false
+              }
+            ],
             "autoComplete": false
           },
           {
@@ -681,6 +515,28 @@ de.janno.discord.bot.command.channelConfig.ChannelConfigTest.getCommandDefinitio
                 ],
                 "required": true,
                 "choices": [ ],
+                "options": [ ],
+                "autoComplete": false
+              },
+              {
+                "type": "STRING",
+                "name": "scope",
+                "nameLocales": [ ],
+                "description": "scope of the alias, if applies only to one user or more",
+                "descriptionLocales": [ ],
+                "required": true,
+                "choices": [
+                  {
+                    "name": "all_users_in_this_channel",
+                    "value": "all_users_in_this_channel",
+                    "nameLocales": [ ]
+                  },
+                  {
+                    "name": "current_user_in_this_channel",
+                    "value": "current_user_in_this_channel",
+                    "nameLocales": [ ]
+                  }
+                ],
                 "options": [ ],
                 "autoComplete": false
               }

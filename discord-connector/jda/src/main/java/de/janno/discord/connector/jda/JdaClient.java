@@ -58,8 +58,6 @@ public class JdaClient {
                 .connectTimeout(timeout)
                 .build();
 
-        Config.onChange(event -> event.modifiedKeys().forEach(k -> log.info("config change: {} -> {}", k, event.configuration().getOptional(k).orElse(""))));
-
         JdaMetrics.registerHttpClient(okHttpClient);
         final String token = Config.get("token");
         if (Strings.isNullOrEmpty(token)) {
