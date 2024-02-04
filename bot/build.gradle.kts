@@ -32,6 +32,7 @@ dependencies {
     implementation("org.apache.xmlgraphics:batik:1.17")
     implementation("org.apache.xmlgraphics:batik-transcoder:1.17")
     implementation("org.apache.xmlgraphics:batik-codec:1.17")
+    implementation("net.fellbaum:jemoji:1.3.4")
 
     testImplementation(libs.junit.jupiter.api)
     testRuntimeOnly(libs.junit.jupiter.engine)

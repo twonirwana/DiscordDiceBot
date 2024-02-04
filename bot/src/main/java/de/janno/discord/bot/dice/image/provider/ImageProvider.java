@@ -8,7 +8,11 @@ import java.util.List;
 
 public interface ImageProvider {
 
-    @NonNull List<BufferedImage> getImageFor(Integer totalDieSides, Integer shownDieSide, @Nullable String color);
+    @NonNull List<BufferedImage> getImageFor(int totalDieSides, int shownDieSide, @Nullable String color);
+
+    default @NonNull List<BufferedImage> getImageForString(int totalDieSides, @NonNull String diceValue, @Nullable String color) {
+        return List.of();
+    }
 
     @NonNull String getDefaultColor();
 
