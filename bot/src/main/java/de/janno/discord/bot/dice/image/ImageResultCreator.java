@@ -122,11 +122,7 @@ public class ImageResultCreator {
         }
         if (rolls.size() != 1 ||
                 rolls.getFirst().getRandomElementsInRoll().getRandomElements().isEmpty() ||
-                rolls.getFirst().getRandomElementsInRoll().getRandomElements().stream().mapToInt(r -> r.getRandomElements().size()).sum() > 30 ||
-                rolls.getFirst().getRandomElementsInRoll().getRandomElements().stream()
-                        .flatMap(r -> r.getRandomElements().stream())
-                        .anyMatch(r -> diceStyleAndColor.getImageFor(r.getMaxInc(), r.getRollElement().asInteger().orElse(null), r.getRollElement().getColor()).isEmpty())
-        ) {
+                rolls.getFirst().getRandomElementsInRoll().getRandomElements().stream().mapToInt(r -> r.getRandomElements().size()).sum() > 30) {
             return null;
         }
 
@@ -137,9 +133,13 @@ public class ImageResultCreator {
 
         String filePath = "%s/%s/%s.png".formatted(CACHE_FOLDER, diceStyleAndColor.toString(), hashName);
         File imageFile = new File(filePath);
+
         if (!imageFile.exists()) {
-            BotMetrics.incrementImageResultMetricCounter(BotMetrics.CacheTag.CACHE_MISS);
-            return createNewFileForRoll(rolls.getFirst(), imageFile, name, diceStyleAndColor);
+            Supplier<? extends InputStream> result = createNewFileForRoll(rolls.getFirst(), imageFile, name, diceStyleAndColor);
+            if (result != null) {
+                BotMetrics.incrementImageResultMetricCounter(BotMetrics.CacheTag.CACHE_MISS);
+            }
+            return result;
         } else {
             log.trace("Use cached file %s for %s".formatted(filePath, name));
             BotMetrics.incrementImageResultMetricCounter(BotMetrics.CacheTag.CACHE_HIT);
@@ -152,16 +152,22 @@ public class ImageResultCreator {
         }
     }
 
-    private Supplier<? extends InputStream> createNewFileForRoll(Roll roll, File file, String name, DiceStyleAndColor diceStyleAndColor) {
+    private @Nullable Supplier<? extends InputStream> createNewFileForRoll(Roll roll, File file, String name, DiceStyleAndColor diceStyleAndColor) {
         Stopwatch stopwatch = Stopwatch.createStarted();
 
         final List<List<BufferedImage>> images = roll.getRandomElementsInRoll().getRandomElements().stream()
                 .map(r -> r.getRandomElements().stream()
-                        .flatMap(re -> diceStyleAndColor.getImageFor(re.getMaxInc(), re.getRollElement().asInteger().orElse(null), re.getRollElement().getColor()).stream())
+                        .flatMap(re -> diceStyleAndColor.getImageFor(re).stream())
                         .toList()
                 )
                 .filter(l -> !l.isEmpty())
                 .toList();
+
+        //we check it only now, so we need to draw images only once if there is no cache
+        if (images.isEmpty() || images.stream().anyMatch(List::isEmpty)) {
+            return null;
+        }
+
         final int maxImageHight = images.stream().flatMap(Collection::stream)
                 .mapToInt(BufferedImage::getHeight).max().orElse(0);
 

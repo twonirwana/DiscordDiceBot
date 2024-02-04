@@ -201,7 +201,14 @@ The by `black_and_gold` was adapted from https://speakthesky.itch.io/typeface-di
 
 image:image/draw_color.png[image,600]
 
-Valid for d4, d6, d10, d8, d12, d20, d100 and the supported colors are: `white`, `gray`, `black`, `red`, `pink`, `orange`, `yellow`, `green`, `magenta`, `cyan`, `blue` and `indigo`.
+Valid for d2, d4, d6, d10, d8, d12, d20, d100 and the supported colors are: `white`, `gray`, `black`, `red`, `pink`, `orange`, `yellow`, `green`, `magenta`, `cyan`, `blue` and `indigo`.
+
+It `polyhedral_2d` also works with custom dice and emojis.
+With the limitation that it will only create images if for one or two regular characters or for one emoji.
+
+image:image/draw_color_custom.png[image,600]
+
+A visual coin throw example is: `/custom_dice start buttons: d[👍/👎]@Coin answer_format: only_dice dice_image_style: polyhedral_2d dice_image_color: gray`
 
 ==== polyhedral_alies_v1
 

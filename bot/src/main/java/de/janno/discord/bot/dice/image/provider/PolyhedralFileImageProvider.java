@@ -41,10 +41,7 @@ public class PolyhedralFileImageProvider implements ImageProvider {
     }
 
     @Override
-    public @NonNull List<BufferedImage> getImageFor(Integer totalDieSides, Integer shownDieSide, String color) {
-        if (totalDieSides == null || shownDieSide == null) {
-            return List.of();
-        }
+    public @NonNull List<BufferedImage> getImageFor(int totalDieSides, int shownDieSide, String color) {
 
         final String validatedColor;
         if (color == null || !getSupportedColors().contains(color)) {

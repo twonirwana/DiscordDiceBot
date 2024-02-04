@@ -35,6 +35,7 @@
             id="path307"/>
     <text><tspan
      id="tspan5231"
-     style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:700px;font-family:'Noto Mono';font-variant-ligatures:no-common-ligatures discretionary-ligatures;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#000000;fill-opacity:1;stroke:#ffffff;stroke-width:10;stroke-linejoin:bevel;stroke-dasharray:none;stroke-opacity:1;stroke-linecap:butt"
-     x="300"
-     y="700">NUMBER</tspan></text></svg>
+     style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:700px;font-family:'Noto Mono';font-variant-ligatures:no-common-ligatures discretionary-ligatures;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#000000;fill-opacity:1;stroke:#ffffff;stroke-width:10;stroke-linejoin:bevel;stroke-dasharray:none;stroke-opacity:1;stroke-linecap:butt"
+      x="500" y="755" dominant-baseline="middle" text-anchor="middle"
+    >DICE_VALUE</tspan></text></svg>
+

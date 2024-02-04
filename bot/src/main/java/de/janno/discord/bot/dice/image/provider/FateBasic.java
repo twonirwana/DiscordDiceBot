@@ -2,6 +2,7 @@ package de.janno.discord.bot.dice.image.provider;
 
 import com.google.common.io.Resources;
 import lombok.NonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -36,18 +37,20 @@ public class FateBasic implements ImageProvider {
     }
 
     @Override
-    public @NonNull List<BufferedImage> getImageFor(Integer totalDieSides, Integer shownDieSide, String color) {
-        if (shownDieSide == null) {
-            return List.of();
-        }
-        switch (shownDieSide) {
-            case -1 -> {
+    public @NonNull List<BufferedImage> getImageFor(int totalDieSides, int shownDieSide, String color) {
+        return getImageForString(totalDieSides, String.valueOf(shownDieSide), color);
+    }
+
+    @Override
+    public @NonNull List<BufferedImage> getImageForString(int totalDieSides, @NonNull String diceValue, @Nullable String color) {
+        switch (diceValue) {
+            case "-1" -> {
                 return List.of(MINUS);
             }
-            case 0 -> {
+            case "0" -> {
                 return List.of(BLANK);
             }
-            case 1 -> {
+            case "1" -> {
                 return List.of(PLUS);
             }
         }

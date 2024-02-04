@@ -20,6 +20,6 @@ public class State<T extends StateData> {
         String persistedStateValues = Optional.ofNullable(data)
                 .map(d -> data.getShortStringValues())
                 .orElse("");
-        return String.format("[%s]", persistedStateValues).replace("/n", " ");
+        return String.format("[%s]", persistedStateValues).replace("\n", " ");
     }
 }
