@@ -49,8 +49,10 @@ public class AliasHelper {
         }
 
         for (Alias alias : channelAlias) {
-            BotMetrics.incrementAliasUseMetricCounter("channel", alias.toString());
-            expressionWithOptionalLabelsAndAppliedAliases = expressionWithOptionalLabelsAndAppliedAliases.replace(alias.getName(), alias.getValue());
+            if (expressionWithOptionalLabelsAndAppliedAliases.contains(alias.getName())) {
+                BotMetrics.incrementAliasUseMetricCounter("channel", alias.toString());
+                expressionWithOptionalLabelsAndAppliedAliases = expressionWithOptionalLabelsAndAppliedAliases.replace(alias.getName(), alias.getValue());
+            }
         }
 
 
