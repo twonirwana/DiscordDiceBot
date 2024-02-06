@@ -91,7 +91,7 @@ class QuickstartCommandTest {
 
     @Test
     void getAutoCompleteAnswer_filter() {
-        List<AutoCompleteAnswer> res = underTest.getAutoCompleteAnswer(new AutoCompleteRequest("system", "du", List.of()), Locale.ENGLISH);
+        List<AutoCompleteAnswer> res = underTest.getAutoCompleteAnswer(new AutoCompleteRequest("system", "du", List.of()), Locale.ENGLISH, 1L,1L);
         assertThat(res.stream().map(AutoCompleteAnswer::getName)).containsExactly("Dungeon & Dragons 5e",
                 "Dungeon & Dragons 5e Calculator",
                 "Dungeon & Dragons 5e Calculator 2",
@@ -103,7 +103,7 @@ class QuickstartCommandTest {
 
     @Test
     void getAutoCompleteAnswer_filterGerman() {
-        List<AutoCompleteAnswer> res = underTest.getAutoCompleteAnswer(new AutoCompleteRequest("system", "du", List.of()), Locale.GERMAN);
+        List<AutoCompleteAnswer> res = underTest.getAutoCompleteAnswer(new AutoCompleteRequest("system", "du", List.of()), Locale.GERMAN, 1L,1L);
         assertThat(res.stream().map(AutoCompleteAnswer::getName)).containsExactly("Dungeon & Dragons 5e",
                 "Dungeon & Dragons 5e Calculator 2",
                 "Dungeon & Dragons 5e Kalkulator",
@@ -117,14 +117,14 @@ class QuickstartCommandTest {
 
     @Test
     void getAutoCompleteAnswer_filterBrazil() {
-        List<AutoCompleteAnswer> res = underTest.getAutoCompleteAnswer(new AutoCompleteRequest("system", "vampire", List.of()), Locale.of("PT", "br"));
+        List<AutoCompleteAnswer> res = underTest.getAutoCompleteAnswer(new AutoCompleteRequest("system", "vampire", List.of()), Locale.of("PT", "br"), 1L,1L);
         assertThat(res.stream().map(AutoCompleteAnswer::getName)).containsExactly("Vampiro 5ed", "nWod / Crônicas das Trevas", "oWod / Sistema Storyteller");
         assertThat(res.stream().map(AutoCompleteAnswer::getValue)).containsExactly("VAMPIRE_5ED", "NWOD", "OWOD");
     }
 
     @Test
     void getAutoCompleteAnswer_All() {
-        List<AutoCompleteAnswer> res = underTest.getAutoCompleteAnswer(new AutoCompleteRequest("system", "", List.of()), Locale.ENGLISH);
+        List<AutoCompleteAnswer> res = underTest.getAutoCompleteAnswer(new AutoCompleteRequest("system", "", List.of()), Locale.ENGLISH, 1L,1L);
         assertThat(res.stream().map(AutoCompleteAnswer::getName)).containsExactly("A Song of Ice and Fire",
                 "Blades in the Dark",
                 "Bluebeard's Bride",

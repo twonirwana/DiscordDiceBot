@@ -44,14 +44,20 @@ import static de.janno.discord.bot.command.channelConfig.ChannelConfigCommand.DI
 public class DirectRollCommand implements SlashCommand {
 
     public static final String ROLL_COMMAND_ID = "r";
-    protected static final String EXPRESSION_OPTION_NAME = "expression";
     private static final String HELP = "help";
+    protected final String expressionOptionName;
+    protected final PersistenceManager persistenceManager;
     private final DiceEvaluatorAdapter diceEvaluatorAdapter;
-    private final PersistenceManager persistenceManager;
 
     public DirectRollCommand(PersistenceManager persistenceManager, CachingDiceEvaluator cachingDiceEvaluator) {
+        this(persistenceManager, cachingDiceEvaluator, "expression");
+    }
+
+
+    public DirectRollCommand(PersistenceManager persistenceManager, CachingDiceEvaluator cachingDiceEvaluator, String expressionOptionName) {
         this.diceEvaluatorAdapter = new DiceEvaluatorAdapter(cachingDiceEvaluator);
         this.persistenceManager = persistenceManager;
+        this.expressionOptionName = expressionOptionName;
     }
 
     @Override
@@ -67,7 +73,7 @@ public class DirectRollCommand implements SlashCommand {
                 .description(I18n.getMessage("r.description", Locale.ENGLISH))
                 .descriptionLocales(I18n.allNoneEnglishMessagesDescriptions("r.description"))
                 .option(CommandDefinitionOption.builder()
-                        .name(EXPRESSION_OPTION_NAME)
+                        .name(expressionOptionName)
                         .nameLocales(I18n.allNoneEnglishMessagesNames("r.expression.name"))
                         .description(I18n.getMessage("r.description", Locale.ENGLISH))
                         .descriptionLocales(I18n.allNoneEnglishMessagesDescriptions("r.description"))
@@ -101,19 +107,14 @@ public class DirectRollCommand implements SlashCommand {
 
         final String commandString = event.getCommandString();
 
-        Optional<CommandInteractionOption> expressionOptional = event.getOption(EXPRESSION_OPTION_NAME);
+        Optional<CommandInteractionOption> expressionOptional = event.getOption(expressionOptionName);
         if (expressionOptional.isPresent()) {
             final String commandParameter = expressionOptional
                     .map(CommandInteractionOption::getStringValue)
                     .orElseThrow();
             if (commandParameter.equals(HELP)) {
                 BotMetrics.incrementSlashHelpMetricCounter(getCommandId());
-                return event.replyWithEmbedOrMessageDefinition(EmbedOrMessageDefinition.builder()
-                        .descriptionOrContent(I18n.getMessage("r.help.message", userLocale, I18n.getMessage(getCommandId() + ".name", userLocale)) + "\n" + DiceEvaluatorAdapter.getHelp())
-                        .field(new EmbedOrMessageDefinition.Field(I18n.getMessage("help.example.field.name", userLocale), I18n.getMessage("r.help.example.value", userLocale, I18n.getMessage(getCommandId() + ".name", userLocale)), false))
-                        .field(new EmbedOrMessageDefinition.Field(I18n.getMessage("help.documentation.field.name", userLocale), I18n.getMessage("help.documentation.field.value", userLocale), false))
-                        .field(new EmbedOrMessageDefinition.Field(I18n.getMessage("help.discord.server.field.name", userLocale), I18n.getMessage("help.discord.server.field.value", userLocale), false))
-                        .build(), true);
+                return event.replyWithEmbedOrMessageDefinition(getHelpMessage(userLocale), true);
             }
 
             final String expressionWithOptionalLabelsAndAppliedAliases = AliasHelper.getAndApplyAliaseToExpression(event.getChannelId(), event.getUserId(), persistenceManager, commandParameter);
@@ -137,6 +138,15 @@ public class DirectRollCommand implements SlashCommand {
         }
 
         return Mono.empty();
+    }
+
+    protected EmbedOrMessageDefinition getHelpMessage(Locale userLocale) {
+        return EmbedOrMessageDefinition.builder()
+                .descriptionOrContent(I18n.getMessage("r.help.message",  userLocale) + "\n" + DiceEvaluatorAdapter.getHelp())
+                .field(new EmbedOrMessageDefinition.Field(I18n.getMessage("help.example.field.name", userLocale), I18n.getMessage("r.help.example.value", userLocale), false))
+                .field(new EmbedOrMessageDefinition.Field(I18n.getMessage("help.documentation.field.name", userLocale), I18n.getMessage("help.documentation.field.value", userLocale), false))
+                .field(new EmbedOrMessageDefinition.Field(I18n.getMessage("help.discord.server.field.name", userLocale), I18n.getMessage("help.discord.server.field.value", userLocale), false))
+                .build();
     }
 
     protected @NonNull Mono<Void> createResponse(@NonNull SlashEventAdaptor event,

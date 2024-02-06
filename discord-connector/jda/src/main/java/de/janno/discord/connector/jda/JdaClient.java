@@ -130,7 +130,7 @@ public class JdaClient {
                                 Flux.fromIterable(slashCommands)
                                         .filter(command -> command.getCommandId().equals(event.getName()))
                                         .next()
-                                        .map(command -> command.getAutoCompleteAnswer(fromEvent(event), LocaleConverter.toLocale(event.getUserLocale())))
+                                        .map(command -> command.getAutoCompleteAnswer(fromEvent(event), LocaleConverter.toLocale(event.getUserLocale()), event.getChannel().getIdLong(), event.getUser().getIdLong()))
                                         .flatMap(a -> Mono.fromFuture(event.replyChoices(a.stream()
                                                 .map(c -> new Command.Choice(c.getName(), c.getValue()))
                                                 .limit(25)

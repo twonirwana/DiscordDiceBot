@@ -12,6 +12,7 @@ import de.janno.discord.bot.persistance.PersistenceManager;
 import de.janno.discord.connector.api.AutoCompleteAnswer;
 import de.janno.discord.connector.api.AutoCompleteRequest;
 import de.janno.discord.connector.api.SlashEventAdaptor;
+import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinitionOption;
 import lombok.NonNull;
@@ -38,8 +39,8 @@ public class ValidationCommand extends DirectRollCommand {
     }
 
     @Override
-    public @NonNull List<AutoCompleteAnswer> getAutoCompleteAnswer(@NonNull AutoCompleteRequest option, @NonNull Locale userLocale) {
-        if (!EXPRESSION_OPTION_NAME.equals(option.getFocusedOptionName())) {
+    public @NonNull List<AutoCompleteAnswer> getAutoCompleteAnswer(@NonNull AutoCompleteRequest option, @NonNull Locale userLocale, long channelId, long userId) {
+        if (!expressionOptionName.equals(option.getFocusedOptionName())) {
             return List.of();
         }
         if (Strings.isNullOrEmpty(option.getFocusedOptionValue())) {
@@ -52,11 +53,11 @@ public class ValidationCommand extends DirectRollCommand {
                 .orElse(List.of(getValidAutoCompleteMessage(option.getFocusedOptionValue(), userLocale)));
     }
 
-    private AutoCompleteAnswer getValidAutoCompleteMessage(@NonNull String typedExpression, @NonNull Locale userLocale){
-        if(typedExpression.length() <= 100){
+    private AutoCompleteAnswer getValidAutoCompleteMessage(@NonNull String typedExpression, @NonNull Locale userLocale) {
+        if (typedExpression.length() <= 100) {
             return new AutoCompleteAnswer(typedExpression, typedExpression);
         }
-        return new AutoCompleteAnswer(I18n.getMessage("validation.autoComplete.tooLong", userLocale), I18n.getMessage("validation.autoComplete.tooLong", userLocale));
+        return new AutoCompleteAnswer(I18n.getMessage("validation.autoComplete.tooLong", userLocale), "'" + I18n.getMessage("validation.autoComplete.tooLong", userLocale) + "'");
     }
 
     @Override
@@ -72,8 +73,8 @@ public class ValidationCommand extends DirectRollCommand {
                 .description(I18n.getMessage("validation.description", Locale.ENGLISH))
                 .descriptionLocales(I18n.allNoneEnglishMessagesDescriptions("validation.description"))
                 .option(CommandDefinitionOption.builder()
-                        .name(EXPRESSION_OPTION_NAME)
-                        .nameLocales(I18n.allNoneEnglishMessagesNames("r.expression.name"))
+                        .name(expressionOptionName)
+                        .nameLocales(I18n.allNoneEnglishMessagesNames("validation.expression.name"))
                         .description(I18n.getMessage("validation.description", Locale.ENGLISH))
                         .descriptionLocales(I18n.allNoneEnglishMessagesDescriptions("validation.description"))
                         .required(true)
@@ -104,5 +105,14 @@ public class ValidationCommand extends DirectRollCommand {
                                         )))
                 )
                 .parallel().then();
+    }
+
+    protected EmbedOrMessageDefinition getHelpMessage(Locale userLocale) {
+        return EmbedOrMessageDefinition.builder()
+                .descriptionOrContent(I18n.getMessage("validation.help.message", userLocale) + "\n" + DiceEvaluatorAdapter.getHelp())
+                .field(new EmbedOrMessageDefinition.Field(I18n.getMessage("help.example.field.name", userLocale), I18n.getMessage("validation.help.example.value", userLocale), false))
+                .field(new EmbedOrMessageDefinition.Field(I18n.getMessage("help.documentation.field.name", userLocale), I18n.getMessage("help.documentation.field.value", userLocale), false))
+                .field(new EmbedOrMessageDefinition.Field(I18n.getMessage("help.discord.server.field.name", userLocale), I18n.getMessage("help.discord.server.field.value", userLocale), false))
+                .build();
     }
 }

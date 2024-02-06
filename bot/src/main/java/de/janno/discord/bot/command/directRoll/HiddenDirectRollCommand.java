@@ -5,6 +5,7 @@ import de.janno.discord.bot.I18n;
 import de.janno.discord.bot.command.RollAnswer;
 import de.janno.discord.bot.command.RollAnswerConverter;
 import de.janno.discord.bot.dice.CachingDiceEvaluator;
+import de.janno.discord.bot.dice.DiceEvaluatorAdapter;
 import de.janno.discord.bot.persistance.PersistenceManager;
 import de.janno.discord.connector.api.BottomCustomIdUtils;
 import de.janno.discord.connector.api.ButtonEventAdaptor;
@@ -48,7 +49,7 @@ public class HiddenDirectRollCommand extends DirectRollCommand implements Compon
                 .description(I18n.getMessage("h.description", Locale.ENGLISH))
                 .descriptionLocales(I18n.allNoneEnglishMessagesDescriptions("h.description"))
                 .option(CommandDefinitionOption.builder()
-                        .name(EXPRESSION_OPTION_NAME)
+                        .name(expressionOptionName)
                         .nameLocales(I18n.allNoneEnglishMessagesNames("r.expression.name"))
                         .description(I18n.getMessage("h.description", Locale.ENGLISH))
                         .descriptionLocales(I18n.allNoneEnglishMessagesDescriptions("h.description"))
@@ -112,5 +113,14 @@ public class HiddenDirectRollCommand extends DirectRollCommand implements Compon
     @Override
     public boolean matchingComponentCustomId(String buttonCustomId) {
         return Objects.equals(getCommandId(), BottomCustomIdUtils.getCommandNameFromCustomId(buttonCustomId));
+    }
+
+    protected EmbedOrMessageDefinition getHelpMessage(Locale userLocale) {
+        return EmbedOrMessageDefinition.builder()
+                .descriptionOrContent(I18n.getMessage("h.help.message", userLocale) + "\n" + DiceEvaluatorAdapter.getHelp())
+                .field(new EmbedOrMessageDefinition.Field(I18n.getMessage("help.example.field.name", userLocale), I18n.getMessage("h.help.example.value", userLocale), false))
+                .field(new EmbedOrMessageDefinition.Field(I18n.getMessage("help.documentation.field.name", userLocale), I18n.getMessage("help.documentation.field.value", userLocale), false))
+                .field(new EmbedOrMessageDefinition.Field(I18n.getMessage("help.discord.server.field.name", userLocale), I18n.getMessage("help.discord.server.field.value", userLocale), false))
+                .build();
     }
 }

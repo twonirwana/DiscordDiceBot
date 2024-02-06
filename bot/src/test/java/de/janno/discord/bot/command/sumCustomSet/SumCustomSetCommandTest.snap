@@ -459,19 +459,19 @@ de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandTest.getCommandDefi
         "type": "SUB_COMMAND",
         "name": "help",
         "nameLocales": [ ],
-        "description": "Get help for /sum_custom_set",
+        "description": "Get help for `/sum_custom_set`",
         "descriptionLocales": [
           {
             "locale": "de",
-            "description": "Hilfe für /sum_custom_set"
+            "description": "Hilfe für `/sum_custom_set`"
           },
           {
             "locale": "pt_BR",
-            "description": "Consiga ajuda para /sum_custom_set"
+            "description": "Consiga ajuda para `/sum_custom_set`"
           },
           {
             "locale": "fr",
-            "description": "Obtenir de l'aide pour /sum_custom_set"
+            "description": "Obtenir de l'aide pour `/sum_custom_set`"
           }
         ],
         "required": false,

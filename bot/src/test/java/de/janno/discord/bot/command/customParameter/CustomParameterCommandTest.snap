@@ -363,19 +363,19 @@ de.janno.discord.bot.command.customParameter.CustomParameterCommandTest.getComma
         "type": "SUB_COMMAND",
         "name": "help",
         "nameLocales": [ ],
-        "description": "Get help for /custom_parameter",
+        "description": "Get help for `/custom_parameter`",
         "descriptionLocales": [
           {
             "locale": "de",
-            "description": "Hilfe für /custom_parameter"
+            "description": "Hilfe für `/custom_parameter`"
           },
           {
             "locale": "pt_BR",
-            "description": "Consiga ajuda para /custom_parameter"
+            "description": "Consiga ajuda para `/custom_parameter`"
           },
           {
             "locale": "fr",
-            "description": "Obtenir de l'aide pour /custom_parameter"
+            "description": "Obtenir de l'aide pour `/custom_parameter`"
           }
         ],
         "required": false,
