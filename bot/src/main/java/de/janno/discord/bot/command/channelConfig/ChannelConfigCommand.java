@@ -192,7 +192,7 @@ public class ChannelConfigCommand implements SlashCommand {
     }
 
     @Override
-    public @NonNull List<AutoCompleteAnswer> getAutoCompleteAnswer(@NonNull AutoCompleteRequest autoCompleteRequest, @NonNull Locale userLocale) {
+    public @NonNull List<AutoCompleteAnswer> getAutoCompleteAnswer(@NonNull AutoCompleteRequest autoCompleteRequest, @NonNull Locale userLocale, long channelId, long userId) {
         return BaseCommandOptions.autoCompleteColorOption(autoCompleteRequest, userLocale);
     }
 

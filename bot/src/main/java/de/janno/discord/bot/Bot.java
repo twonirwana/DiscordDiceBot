@@ -8,6 +8,7 @@ import de.janno.discord.bot.command.channelConfig.ChannelConfigCommand;
 import de.janno.discord.bot.command.countSuccesses.CountSuccessesCommand;
 import de.janno.discord.bot.command.customDice.CustomDiceCommand;
 import de.janno.discord.bot.command.customParameter.CustomParameterCommand;
+import de.janno.discord.bot.command.directRoll.AliasRollCommand;
 import de.janno.discord.bot.command.directRoll.DirectRollCommand;
 import de.janno.discord.bot.command.directRoll.HiddenDirectRollCommand;
 import de.janno.discord.bot.command.directRoll.ValidationCommand;
@@ -65,6 +66,7 @@ public class Bot {
         DiscordConnectorImpl.createAndStart(
                 List.of(customDiceCommand,
                         new DirectRollCommand(persistenceManager, cachingDiceEvaluator),
+                        new AliasRollCommand(persistenceManager, cachingDiceEvaluator),
                         new HiddenDirectRollCommand(persistenceManager, cachingDiceEvaluator),
                         new ValidationCommand(persistenceManager, cachingDiceEvaluator),
                         new ChannelConfigCommand(persistenceManager),

@@ -63,7 +63,7 @@ public class QuickstartCommand implements SlashCommand {
     }
 
     @Override
-    public @NonNull List<AutoCompleteAnswer> getAutoCompleteAnswer(@NonNull AutoCompleteRequest option, @NonNull Locale userLocale) {
+    public @NonNull List<AutoCompleteAnswer> getAutoCompleteAnswer(@NonNull AutoCompleteRequest option, @NonNull Locale userLocale, long channelId, long userId) {
         if (!SYSTEM_OPTION_NAME.equals(option.getFocusedOptionName())) {
             return List.of();
         }

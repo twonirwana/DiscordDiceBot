@@ -421,6 +421,10 @@ For example `/r expression:3d6` will simply roll 3d6 and post the result without
 The result of the dice will be summed up per default.
 The output can be configured with the `channel_config` command.
 
+==== Alias Roll
+
+Alias Roll, used with the command `/a`, is variant of the direct roll which shows the list of available alias in the autocomplete. It is still possible roll normal dice expression or extend the alias. For example if there is an alias with the name `attack` it is possible to roll `attack +5`. Alias can be added and removed with the <<Channel Config>> command.
+
 === Hidden Direct Roll
 
 image:image/hiddenDircetRoll.webp[image]
