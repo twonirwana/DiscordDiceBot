@@ -421,9 +421,13 @@ For example `/r expression:3d6` will simply roll 3d6 and post the result without
 The result of the dice will be summed up per default.
 The output can be configured with the `channel_config` command.
 
-==== Alias Roll
+=== Alias Roll
 
-Alias Roll, used with the command `/a`, is variant of the direct roll which shows the list of available alias in the autocomplete. It is still possible roll normal dice expression or extend the alias. For example if there is an alias with the name `attack` it is possible to roll `attack +5`. Alias can be added and removed with the <<Channel Config>> command.
+Alias Roll, used with the command `/a`, is variant of the direct roll which shows the list of available alias in the autocomplete.
+For example if you use first `/channel_config alias save name: heavy_orc_attack value: 1d20+6=@Heavy Orc Attack scope: current_user_in_this_channel` and then `/a alias_or_expression: ` , then `heavy_orc_attack` will be in the autocomplete of the command.
+It is still possible roll normal dice expression or extend the alias.
+For example it is possible to enter attack `heavy_orc_attack +5`.
+Alias can be added and removed with the `/channel_config alias` command.
 
 === Hidden Direct Roll
 
@@ -466,8 +470,8 @@ An alias has a name and a value and will replace each occurrence in the dice exp
 
 There are two scopes of alias:
 
-*  `all_users_in_this_channel`: It will be applied to each roll in a channel, for every user.
-* `current_user_in_this_channel`: It  will only apply to for the user who created the alias in the channel.
+* `all_users_in_this_channel`: It will be applied to each roll in a channel, for every user.
+* `current_user_in_this_channel`: It will only apply to for the user who created the alias in the channel.
 
 The user specific alias will be applied first.
 
