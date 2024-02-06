@@ -94,7 +94,7 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
 
     @Override
     protected @NonNull Optional<String> getStartOptionsValidationMessage(@NonNull CommandInteractionOption options, long channelId, long userId, @NonNull Locale userLocale) {
-        Optional<String> validateLayout = ButtonHelper.valdiate(options.getStringSubOptionWithName(BUTTONS_OPTION_NAME).orElseThrow(), userLocale);
+        Optional<String> validateLayout = ButtonHelper.valdiate(options.getStringSubOptionWithName(BUTTONS_OPTION_NAME).orElseThrow(), userLocale, List.of(), false);
         if (validateLayout.isPresent()) {
             return validateLayout;
         }

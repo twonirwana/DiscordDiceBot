@@ -218,7 +218,7 @@ class SumCustomSetCommandTest {
                 new ButtonIdLabelAndDiceExpression("2_button", "2d10", "+2d10", true)
         ), DiceParserSystem.DICE_EVALUATOR, true, true, true, "groupC(", ")", AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.GERMAN);
 
-        EmbedOrMessageDefinition res = RollAnswerConverter.toEmbedOrMessageDefinition(underTest.getAnswer(config, new State<>("roll", new SumCustomSetStateDataV2(List.of(new ExpressionAndLabel("+5d6", "5d6"),new ExpressionAndLabel("+2d10", "2d10")), "user1")), 0L, 0L)
+        EmbedOrMessageDefinition res = RollAnswerConverter.toEmbedOrMessageDefinition(underTest.getAnswer(config, new State<>("roll", new SumCustomSetStateDataV2(List.of(new ExpressionAndLabel("+5d6", "5d6"), new ExpressionAndLabel("+2d10", "2d10")), "user1")), 0L, 0L)
                 .orElseThrow());
 
         assertThat(res.getFields()).hasSize(0);
@@ -470,6 +470,38 @@ class SumCustomSetCommandTest {
         Optional<String> res = underTest.getStartOptionsValidationMessage(option, 0L, 0L, Locale.ENGLISH);
         assertThat(res).contains("Empty rows is not allowed");
     }
+
+    @Test
+    void getStartOptionsValidationMessage_toManyButtons() {
+        CommandInteractionOption option = CommandInteractionOption.builder()
+                .name("start")
+                .option(CommandInteractionOption.builder()
+                        .name("buttons")
+                        .stringValue("R" +
+                                "a;b;c;d; -4@-4; -3@-3; -2@-2; -1@-1;+0@0;+1@1;+2@2;+3@3;+4@4;+5@5;+6@6; 1d12; 1d6; 1d12@1D12; 2d12@2D12; 3d12@3D12; 4d12@4D12;1d4@1D4;1d6@1D6;")
+                        .build())
+                .build();
+
+        Optional<String> res = underTest.getStartOptionsValidationMessage(option, 0L, 0L, Locale.ENGLISH);
+        assertThat(res).contains("The maximum are 5 rows with each 5 buttons");
+    }
+
+    @Test
+    void getStartOptionsValidationMessage_toManyRows() {
+        CommandInteractionOption option = CommandInteractionOption.builder()
+                .name("start")
+                .option(CommandInteractionOption.builder()
+                        .name("buttons")
+                        .stringValue("R" +
+                                "a;;b;;c;;d;;e;;")
+                        .build())
+                .build();
+
+        Optional<String> res = underTest.getStartOptionsValidationMessage(option, 0L, 0L, Locale.ENGLISH);
+        assertThat(res).contains("The maximum are 5 rows with each 5 buttons");
+    }
+
+
 
     @Test
     public void testToCommandString() {
