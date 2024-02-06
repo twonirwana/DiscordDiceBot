@@ -80,7 +80,7 @@ class ButtonHelperTest {
                 new ButtonIdLabelAndDiceExpression("2", "2", "2", false)));
 
         assertThat(res).hasSize(1);
-        assertThat(res.get(0).getButtonDefinitions()).containsExactly(ButtonDefinition.builder().id("id\u001E1\u001E00000000-0000-0000-0000-000000000000").label("1").disabled(false).style(ButtonDefinition.Style.PRIMARY).build(),
+        assertThat(res.getFirst().getButtonDefinitions()).containsExactly(ButtonDefinition.builder().id("id\u001E1\u001E00000000-0000-0000-0000-000000000000").label("1").disabled(false).style(ButtonDefinition.Style.PRIMARY).build(),
                 ButtonDefinition.builder().id("id\u001E2\u001E00000000-0000-0000-0000-000000000000").label("2").disabled(false).style(ButtonDefinition.Style.PRIMARY).build()
         );
     }
@@ -103,7 +103,7 @@ class ButtonHelperTest {
                 List.of(ButtonDefinition.builder().id("id\u001E2\u001E00000000-0000-0000-0000-000000000000").label("2").build()), false);
 
         assertThat(res).hasSize(1);
-        assertThat(res.get(0).getButtonDefinitions()).containsExactly(
+        assertThat(res.getFirst().getButtonDefinitions()).containsExactly(
                 ButtonDefinition.builder().id("id\u001E1\u001E00000000-0000-0000-0000-000000000000").label("1").disabled(false).style(ButtonDefinition.Style.PRIMARY).build(),
                 ButtonDefinition.builder().id("id\u001E2\u001E00000000-0000-0000-0000-000000000000").label("2").disabled(false).style(ButtonDefinition.Style.PRIMARY).build());
     }
@@ -152,7 +152,7 @@ class ButtonHelperTest {
     @ParameterizedTest(name = "{index} buttons={0} -> {1}")
     @MethodSource("generateValidationData")
     void testValidation(String buttons, Optional<String> expected) {
-        Optional<String> res = ButtonHelper.valdiate(buttons, Locale.ENGLISH);
+        Optional<String> res = ButtonHelper.valdiate(buttons, Locale.ENGLISH, List.of(), false);
         assertThat(res).isEqualTo(expected);
     }
 
