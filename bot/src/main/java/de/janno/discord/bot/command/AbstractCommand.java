@@ -325,11 +325,11 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
 
             Optional<Long> answerTargetChannelId = BaseCommandOptions.getAnswerTargetChannelIdFromStartCommandOption(options);
             if (answerTargetChannelId.isPresent() && answerTargetChannelId.get().equals(event.getChannelId())) {
-                log.info("{}:same answer channel for {}", event.getRequester().toLogString(), commandString);
+                log.info("{}:same answer channel for {}", event.getRequester().toLogString(), commandString.replace("\n", " "));
                 return event.reply(I18n.getMessage("base.reply.targetChannel.same", userLocale), true);
             }
             if (answerTargetChannelId.isPresent() && !event.isValidAnswerChannel(answerTargetChannelId.get())) {
-                log.info("{}: Invalid answer target channel for {}", event.getRequester().toLogString(), commandString);
+                log.info("{}: Invalid answer target channel for {}", event.getRequester().toLogString(), commandString.replace("\n", " "));
                 return event.reply(I18n.getMessage("base.reply.targetChannel.invalid", userLocale), true);
             }
             final Locale userOrConfigLocale = BaseCommandOptions.getLocaleOptionFromStartCommandOption(options)
@@ -338,7 +338,7 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
             if (validationMessage.isPresent()) {
                 log.info("{}: Validation message: {} for {}", event.getRequester().toLogString(),
                         validationMessage.get(),
-                        commandString);
+                        commandString.replace("\n", " "));
                 //todo i18n?
                 return event.reply(String.format("%s\n%s", commandString, validationMessage.get()), true);
             }
@@ -350,7 +350,7 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
             final long guildId = event.getGuildId();
             log.info("{}: '{}'",
                     event.getRequester().toLogString(),
-                    commandString.replace("`", ""));
+                    commandString.replace("`", "").replace("\n", " "));
             String replayMessage = Stream.of(commandString, getConfigWarnMessage(config, userLocale).orElse(null))
                     .filter(s -> !Strings.isNullOrEmpty(s))
                     .collect(Collectors.joining(" "));
