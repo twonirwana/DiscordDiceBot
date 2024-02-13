@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.time.Duration;
 import java.util.Locale;
 import java.util.UUID;
 import java.util.function.Supplier;
@@ -47,7 +48,12 @@ public class ClearCommand implements SlashCommand {
                 .then(Mono.just(persistenceManager.deleteMessageDataForChannel(event.getChannelId()))
                         .flux()
                         .flatMap(Flux::fromIterable)
+                        .delayElements(Duration.ofMillis(io.avaje.config.Config.getLong("command.clear.messageDeleteDelay", 1000)))
                         .flatMap(event::deleteMessageById)
-                        .then());
+                        .then())
+                .doOnSuccess(v -> {
+                    persistenceManager.deleteAllChannelConfig(event.getChannelId());
+                    persistenceManager.deleteAllMessageConfigForChannel(event.getChannelId());
+                });
     }
 }

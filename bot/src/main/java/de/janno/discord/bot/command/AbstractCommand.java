@@ -40,7 +40,6 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
     private static final String START_OPTION_NAME = "start";
     private static final String HELP_OPTION_NAME = "help";
 
-    private static final int MIN_MS_DELAY_BETWEEN_BUTTON_MESSAGES = io.avaje.config.Config.getInt("command.minDelayBetweenButtonMessagesMs", 1000);
     protected final PersistenceManager persistenceManager;
 
     protected AbstractCommand(PersistenceManager persistenceManager) {
@@ -299,9 +298,10 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
         OffsetDateTime now = OffsetDateTime.now();
         //if for some reason the creation time is after now we set it to 0
         long milliBetween = Math.max(ChronoUnit.MILLIS.between(event.getMessageCreationTime(), now), 0);
-        if (milliBetween < MIN_MS_DELAY_BETWEEN_BUTTON_MESSAGES) {
+        final int delayBetweenButtonMessages = io.avaje.config.Config.getInt("command.minDelayBetweenButtonMessagesMs", 1000);
+        if (milliBetween < delayBetweenButtonMessages) {
             BotMetrics.incrementDelayCounter(getCommandId(), true);
-            long delay = MIN_MS_DELAY_BETWEEN_BUTTON_MESSAGES - milliBetween;
+            long delay = delayBetweenButtonMessages - milliBetween;
             BotMetrics.delayTimer(getCommandId(), Duration.ofMillis(delay));
             log.info("{}: Delaying button message creation for {}ms", event.getRequester().toLogString(), delay);
             return Duration.ofMillis(delay);
