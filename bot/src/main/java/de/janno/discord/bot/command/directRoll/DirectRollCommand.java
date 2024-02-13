@@ -127,8 +127,7 @@ public class DirectRollCommand implements SlashCommand {
             if (expressionValidationMessage.isPresent()) {
                 return replyValidationMessage(event, expressionValidationMessage.get(), commandString);
             }
-
-            BotMetrics.incrementSlashStartMetricCounter(getCommandId(), diceExpression);
+            BotMetrics.incrementSlashStartMetricCounter(getCommandId(), "[%s, %s]".formatted(diceExpression, commandParameter));
             DirectRollConfig config = getDirectRollConfig(event.getChannelId());
             BotMetrics.incrementAnswerFormatCounter(config.getAnswerFormatType(), getCommandId());
 
@@ -142,7 +141,7 @@ public class DirectRollCommand implements SlashCommand {
 
     protected EmbedOrMessageDefinition getHelpMessage(Locale userLocale) {
         return EmbedOrMessageDefinition.builder()
-                .descriptionOrContent(I18n.getMessage("r.help.message",  userLocale) + "\n" + DiceEvaluatorAdapter.getHelp())
+                .descriptionOrContent(I18n.getMessage("r.help.message", userLocale) + "\n" + DiceEvaluatorAdapter.getHelp())
                 .field(new EmbedOrMessageDefinition.Field(I18n.getMessage("help.example.field.name", userLocale), I18n.getMessage("r.help.example.value", userLocale), false))
                 .field(new EmbedOrMessageDefinition.Field(I18n.getMessage("help.documentation.field.name", userLocale), I18n.getMessage("help.documentation.field.value", userLocale), false))
                 .field(new EmbedOrMessageDefinition.Field(I18n.getMessage("help.discord.server.field.name", userLocale), I18n.getMessage("help.discord.server.field.value", userLocale), false))
