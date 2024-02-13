@@ -17,6 +17,7 @@ import de.janno.discord.bot.dice.image.DiceStyleAndColor;
 import de.janno.discord.bot.persistance.PersistenceManager;
 import de.janno.discord.bot.persistance.PersistenceManagerImpl;
 import de.janno.evaluator.dice.random.RandomNumberSupplier;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -49,6 +50,12 @@ class FetchCommandMockTest {
         sumCustomSetCommand = new SumCustomSetCommand(persistenceManager, cachingDiceEvaluator);
         underTest = new FetchCommand(persistenceManager, customParameterCommand, customDiceCommand, sumCustomSetCommand);
         fetchEvent = new SlashEventAdaptorMock(List.of());
+    }
+
+    @AfterEach
+    void cleanup(){
+        io.avaje.config.Config.setProperty("command.delayMessageDataDeletionMs", "10");
+        io.avaje.config.Config.setProperty("command.fetch.delayMs", "0");
     }
 
 

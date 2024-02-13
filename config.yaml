@@ -8,9 +8,6 @@ shardsTotal:
 shardIds:
 disableCommandUpdate: false
 welcomeMessageStartTimePlusBufferSec: 300
-waitUntilAllShardsReadyForShutdown:
-  sleepTimeMs: 100
-  maxTotalWaitTimeMs: 10000
 shutdownWaitTimeSec: 10
 db:
   url: jdbc:h2:file:./persistence/dice_config;AUTO_SERVER=TRUE;DB_CLOSE_DELAY=5
@@ -26,3 +23,4 @@ command:
   minDelayBetweenButtonMessagesMs: 1000
   delayMessageDataDeletionMs: 10000
   fetch.delayMs: 60000
+  clear.messageDeleteDelay: 1000
