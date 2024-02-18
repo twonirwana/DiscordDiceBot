@@ -19,7 +19,6 @@ import java.util.stream.Collectors;
 public class MessageDeletionHelper {
 
     private final static ConcurrentSkipListSet<MessageIdAndChannelId> MESSAGE_STATE_IDS_TO_DELETE = new ConcurrentSkipListSet<>();
-    private final static Duration DELAY_MESSAGE_DATA_DELETION = Duration.ofMillis(io.avaje.config.Config.getLong("command.delayMessageDataDeletionMs", 10000));
 
     public static Mono<Void> deleteOldMessageAndData(
             PersistenceManager persistenceManager,
@@ -62,8 +61,9 @@ public class MessageDeletionHelper {
     public static Mono<Void> deleteMessageDataWithDelay(PersistenceManager persistenceManager, long channelId, long messageId) {
         MessageIdAndChannelId messageIdAndChannelId = new MessageIdAndChannelId(messageId, channelId);
         MESSAGE_STATE_IDS_TO_DELETE.add(messageIdAndChannelId);
+        final Duration delay = Duration.ofMillis(io.avaje.config.Config.getLong("command.delayMessageDataDeletionMs", 10000));
         return Mono.defer(() -> Mono.just(messageIdAndChannelId)
-                .delayElement(DELAY_MESSAGE_DATA_DELETION)
+                .delayElement(delay)
                 //add throttle?
                 .doOnNext(mc -> {
                     MESSAGE_STATE_IDS_TO_DELETE.remove(mc);

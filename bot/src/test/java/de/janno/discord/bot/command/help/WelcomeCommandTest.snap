@@ -156,19 +156,19 @@ de.janno.discord.bot.command.help.WelcomeCommandTest.getCommandDefinition=[
         "type": "SUB_COMMAND",
         "name": "help",
         "nameLocales": [ ],
-        "description": "Get help for /welcome",
+        "description": "Get help for `/welcome`",
         "descriptionLocales": [
           {
             "locale": "de",
-            "description": "Hilfe für /welcome"
+            "description": "Hilfe für `/welcome`"
           },
           {
             "locale": "pt_BR",
-            "description": "Consiga ajuda para /welcome"
+            "description": "Consiga ajuda para `/welcome`"
           },
           {
             "locale": "fr",
-            "description": "Obtenir de l'aide pour /welcome"
+            "description": "Obtenir de l'aide pour `/welcome`"
           }
         ],
         "required": false,

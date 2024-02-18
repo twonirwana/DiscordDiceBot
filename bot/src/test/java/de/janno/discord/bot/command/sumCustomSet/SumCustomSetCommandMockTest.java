@@ -333,12 +333,13 @@ public class SumCustomSetCommandMockTest {
         ChannelConfigCommand channelConfig = new ChannelConfigCommand(persistenceManager);
 
         SlashEventAdaptorMock slashEvent1 = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
-                .name("channel_alias")
+                .name("alias")
                 .option(CommandInteractionOption.builder()
                         .name("save")
                         .option(CommandInteractionOption.builder().name("name").stringValue("att").build())
                         .option(CommandInteractionOption.builder().name("value").stringValue("2d20+10").build())
                         .build())
+                .option(CommandInteractionOption.builder().name("scope").stringValue("all_users_in_this_channel").build())
                 .build()));
         channelConfig.handleSlashCommandEvent(slashEvent1, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"), Locale.ENGLISH).block();
 
@@ -363,12 +364,13 @@ public class SumCustomSetCommandMockTest {
         ChannelConfigCommand channelConfig = new ChannelConfigCommand(persistenceManager);
 
         SlashEventAdaptorMock slashEvent1 = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
-                .name("user_channel_alias")
+                .name("alias")
                 .option(CommandInteractionOption.builder()
                         .name("save")
                         .option(CommandInteractionOption.builder().name("name").stringValue("att").build())
                         .option(CommandInteractionOption.builder().name("value").stringValue("2d20+10").build())
                         .build())
+                .option(CommandInteractionOption.builder().name("scope").stringValue("current_user_in_this_channel").build())
                 .build()));
         channelConfig.handleSlashCommandEvent(slashEvent1, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"), Locale.ENGLISH).block();
 

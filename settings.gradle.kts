@@ -9,17 +9,17 @@ dependencyResolutionManagement {
     versionCatalogs {
         create("libs") {
             library("lombok", "org.projectlombok:lombok:1.18.30")
-            library("micrometer-core", "io.micrometer:micrometer-core:1.12.2")
+            library("micrometer-core", "io.micrometer:micrometer-core:1.12.3")
             library("reactor-core", "io.projectreactor:reactor-core:3.6.2")
             library("guava", "com.google.guava:guava:33.0.0-jre")
-            library("junit-jupiter-api", "org.junit.jupiter:junit-jupiter-api:5.10.1")
-            library("junit-jupiter-engine", "org.junit.jupiter:junit-jupiter-engine:5.10.1")
-            library("assertj-core", "org.assertj:assertj-core:3.25.2")
+            library("junit-jupiter-api", "org.junit.jupiter:junit-jupiter-api:5.10.2")
+            library("junit-jupiter-engine", "org.junit.jupiter:junit-jupiter-engine:5.10.2")
+            library("assertj-core", "org.assertj:assertj-core:3.25.3")
             library("logback-classic", "ch.qos.logback:logback-classic:1.4.14")
             library("log4j-to-slf4j", "org.apache.logging.log4j:log4j-to-slf4j:2.22.1")
             library("commons-lang3", "org.apache.commons:commons-lang3:3.14.0")
             library("commons-text", "org.apache.commons:commons-text:1.11.0")
-            library("avaje-config", "io.avaje:avaje-config:3.10")
+            library("avaje-config", "io.avaje:avaje-config:3.11")
             library("avaje-slf4j", "io.avaje:avaje-applog-slf4j:1.0")
         }
     }

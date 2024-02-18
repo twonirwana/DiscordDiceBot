@@ -8,6 +8,7 @@ import de.janno.evaluator.dice.ExpressionException;
 import de.janno.evaluator.dice.Roll;
 import de.janno.evaluator.dice.random.GivenNumberSupplier;
 import org.apache.commons.io.FileUtils;
+import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -28,7 +29,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 class ImageResultCreatorTest {
     private final ImageResultCreator underTest = new ImageResultCreator();
 
-    private static String getDataHash(Supplier<? extends InputStream> data) throws IOException {
+    private static String getDataHash(@Nullable Supplier<? extends InputStream> data) throws IOException {
+        if(data == null){
+            return null;
+        }
+        //FileUtils.copyInputStreamToFile(data.get(), new File("test2.png"));
         return Hashing.sha256()
                 .hashBytes(ByteStreams.toByteArray(data.get()))
                 .toString();
@@ -57,7 +62,7 @@ class ImageResultCreatorTest {
                 Arguments.of(DiceImageStyle.polyhedral_alies_v2, List.of(4, 6, 8, 10, 12, 20, 100)),
                 Arguments.of(DiceImageStyle.polyhedral_3d, List.of(4, 6, 8, 10, 12, 20, 100)),
                 //creating all color versions of this takes to long (~90s)
-                //Arguments.of(DiceImageStyle.polyhedral_2d, List.of(4, 6, 8, 10, 12, 20, 100)),
+                //Arguments.of(DiceImageStyle.polyhedral_2d, List.of(2, 4, 6, 8, 10, 12, 20, 100)),
                 Arguments.of(DiceImageStyle.polyhedral_knots, List.of(4, 6, 8, 10, 12, 20, 100)),
                 Arguments.of(DiceImageStyle.fate, List.of(-1, 0, 1)),
                 Arguments.of(DiceImageStyle.d6_dots, List.of(6)),
@@ -475,14 +480,52 @@ class ImageResultCreatorTest {
     }
 
     @Test
-    void getImageForRoll_polyhedralDrawColor() throws ExpressionException {
-        List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(4, 6, 8, 10, 12, 20, 99), 1000).evaluate("color(1d4,'gray') + color(1d6,'black') + color(1d8,'white') + color(1d10,'red') + color(1d12,'blue') + color(1d20,'green') + color(1d100,'orange')");
+    void getImageForRoll_polyhedralDrawColor() throws ExpressionException, IOException {
+        List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(2, 4, 6, 8, 10, 12, 20, 99), 1000)
+                .evaluate("color(1d2,'indigo')  +color(1d4,'gray') + color(1d6,'black') + color(1d8,'white') + color(1d10,'red') + color(1d12,'blue') + color(1d20,'green') + color(1d100,'orange')");
 
         Supplier<? extends InputStream> res = underTest.getImageForRoll(rolls, new DiceStyleAndColor(DiceImageStyle.polyhedral_2d, DiceImageStyle.polyhedral_2d.getDefaultColor()));
 
         assertThat(res).isNotNull();
+
         //hash is different in the GitHub build task, maybe the fonts
-        //assertThat(getFileHash(res)).isEqualTo("95e4da4728bbbb27416801a6be380a7ac886ec254da2a9f28e9117c948e08c76");
+        //assertThat(getDataHash(res)).isEqualTo("5699c6165fcba298ed003346317d42434b8bfb35cc0f80e3f821a0e9963ed967");
+    }
+
+    @Test
+    void getImageForRoll_polyhedralDrawColorCustom() throws ExpressionException, IOException {
+        List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(2, 2, 6, 8, 10, 12, 20, 1, 1, 1), 1000)
+                .evaluate("color(d[\uD83D/\uD83D\uDC41],'indigo')" +
+                                "+ color(1d[-1/-2/-3/+1/+2/+3],'gray') " +
+                                "+ color(1d[0/10/20/30/40/50/60/70],'black') " +
+                                "+ color(1d[a/b/c/d/e/f/g/+],'white') " +
+                                "+ color(1d[aa/bb/cc/dd/ee/ff/gg/hh/ii/up],'red') " +
+                                "+ color(1d[A/B/C/D/E/F/G/H/I/J/K/X],'blue') " +
+                                "+ color(1d[AA/BB/CC/DD/EE/FF/GG/HH/II/JJ/AA/BB/CC/DD/EE/FF/GG/HH/II/AA],'green') " +
+                                "+ color(1d[⚔/-2/-3/+1/+2/+3],'cyan') " +
+                                "+ color(1d[\uD83D\uDDE1/-2/-3/+1/+2/+3],'orange') " +
+                                "+ color(1d[\uD83D\uDC4D/-2/-3/+1/+2/+3],'yellow') "
+                        //       + "+ color(1d2,'indigo')  +color(1d4,'gray') + color(1d6,'black') + color(1d8,'white') + color(1d10,'red') + color(1d12,'blue') + color(1d20,'green') + color(1d100,'orange')"
+                );
+
+        Supplier<? extends InputStream> res = underTest.getImageForRoll(rolls, new DiceStyleAndColor(DiceImageStyle.polyhedral_2d, DiceImageStyle.polyhedral_2d.getDefaultColor()));
+
+        assertThat(res).isNotNull();
+
+        //hash is different in the GitHub build task, maybe the fonts
+        //assertThat(getDataHash(res)).isEqualTo("1f9f17eea89318e58a743310d039551d59b51e5b47ad30cd8dcee0311d2ff5e4");
+    }
+
+    @Test
+    void getImageForRoll_polyhedralDrawUtf16Emoji() throws ExpressionException, IOException {
+        DiceEvaluator evaluator = new DiceEvaluator(new GivenNumberSupplier(1, 2), 1000);
+        List<Roll> roll1 = evaluator.evaluate("color(d[\uD83D\uDDE1/\uD83D\uDC4D],'cyan') ");
+        List<Roll> roll2 = evaluator.evaluate("color(d[\uD83D\uDDE1/\uD83D\uDC4D],'cyan') ");
+        String image1Hash = getDataHash(underTest.getImageForRoll(roll1, new DiceStyleAndColor(DiceImageStyle.polyhedral_2d, DiceImageStyle.polyhedral_2d.getDefaultColor())));
+        String image2Hash = getDataHash(underTest.getImageForRoll(roll2, new DiceStyleAndColor(DiceImageStyle.polyhedral_2d, DiceImageStyle.polyhedral_2d.getDefaultColor())));
+        assertThat(roll1).isNotEqualTo(roll2);
+        assertThat(image1Hash).isNotEqualTo(image2Hash);
+
     }
 
     @Test

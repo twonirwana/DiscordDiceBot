@@ -58,8 +58,6 @@ public class JdaClient {
                 .connectTimeout(timeout)
                 .build();
 
-        Config.onChange(event -> event.modifiedKeys().forEach(k -> log.info("config change: {} -> {}", k, event.configuration().getOptional(k).orElse(""))));
-
         JdaMetrics.registerHttpClient(okHttpClient);
         final String token = Config.get("token");
         if (Strings.isNullOrEmpty(token)) {
@@ -132,7 +130,7 @@ public class JdaClient {
                                 Flux.fromIterable(slashCommands)
                                         .filter(command -> command.getCommandId().equals(event.getName()))
                                         .next()
-                                        .map(command -> command.getAutoCompleteAnswer(fromEvent(event), LocaleConverter.toLocale(event.getUserLocale())))
+                                        .map(command -> command.getAutoCompleteAnswer(fromEvent(event), LocaleConverter.toLocale(event.getUserLocale()), event.getChannel().getIdLong(), event.getUser().getIdLong()))
                                         .flatMap(a -> Mono.fromFuture(event.replyChoices(a.stream()
                                                 .map(c -> new Command.Choice(c.getName(), c.getValue()))
                                                 .limit(25)

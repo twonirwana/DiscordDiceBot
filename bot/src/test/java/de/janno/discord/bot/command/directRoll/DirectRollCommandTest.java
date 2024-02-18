@@ -2,6 +2,7 @@ package de.janno.discord.bot.command.directRoll;
 
 import au.com.origin.snapshots.Expect;
 import au.com.origin.snapshots.junit5.SnapshotExtension;
+import de.janno.discord.bot.I18n;
 import de.janno.discord.bot.command.AnswerFormatType;
 import de.janno.discord.bot.command.channelConfig.DirectRollConfig;
 import de.janno.discord.bot.dice.CachingDiceEvaluator;
@@ -17,6 +18,9 @@ import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentMatchers;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -25,6 +29,7 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -34,9 +39,20 @@ class DirectRollCommandTest {
     DirectRollCommand underTest;
     private Expect expect;
 
+    static Stream<Arguments> generateAllLocaleData() {
+        return I18n.allSupportedLanguage().stream()
+                .map(Arguments::of);
+    }
+
     @BeforeEach
     void setup() {
         underTest = new DirectRollCommand(mock(PersistenceManager.class), new CachingDiceEvaluator((minExcl, maxIncl) -> 1, 1000, 0));
+    }
+
+    @ParameterizedTest(name = "{index} locale={0}")
+    @MethodSource("generateAllLocaleData")
+    void testHelp(Locale userLocale) {
+        expect.scenario(userLocale.toString()).toMatchSnapshot(underTest.getHelpMessage(userLocale));
     }
 
     @Test
@@ -134,10 +150,10 @@ class DirectRollCommandTest {
         verify(slashEventAdaptor, never()).createResultMessageWithReference(any());
         verify(slashEventAdaptor, never()).deleteMessageById(anyLong());
         verify(slashEventAdaptor).replyWithEmbedOrMessageDefinition(EmbedOrMessageDefinition.builder()
-                .descriptionOrContent("Type /r and a dice expression, configuration with /channel_config\n" + DiceEvaluatorAdapter.getHelp())
-                .field(new EmbedOrMessageDefinition.Field("Example", "`/r expression:1d6`", false))
+                .descriptionOrContent("Type `/r` and a dice expression. The output type, dice images etc. can be configuration with `/channel_config save_direct_roll_config`\n" + DiceEvaluatorAdapter.getHelp())
+                .field(new EmbedOrMessageDefinition.Field("Example", "`/r expression: 1d6`", false))
                 .field(new EmbedOrMessageDefinition.Field("Full documentation", "https://github.com/twonirwana/DiscordDiceBot", false))
-                .field(new EmbedOrMessageDefinition.Field("Discord Server for Help and News", "https://discord.gg/e43BsqKpFr", false))
+                .field(new EmbedOrMessageDefinition.Field("Discord Server for News, Help and Feature Requests", "https://discord.gg/e43BsqKpFr", false))
                 .build(), true);
 
         verify(slashEventAdaptor, never()).getChannelId();

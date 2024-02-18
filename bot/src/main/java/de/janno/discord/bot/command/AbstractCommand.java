@@ -40,7 +40,6 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
     private static final String START_OPTION_NAME = "start";
     private static final String HELP_OPTION_NAME = "help";
 
-    private static final int MIN_MS_DELAY_BETWEEN_BUTTON_MESSAGES = io.avaje.config.Config.getInt("command.minDelayBetweenButtonMessagesMs", 1000);
     protected final PersistenceManager persistenceManager;
 
     protected AbstractCommand(PersistenceManager persistenceManager) {
@@ -122,7 +121,7 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
     }
 
     @Override
-    public @NonNull List<AutoCompleteAnswer> getAutoCompleteAnswer(@NonNull AutoCompleteRequest autoCompleteRequest, @NonNull Locale userLocale) {
+    public @NonNull List<AutoCompleteAnswer> getAutoCompleteAnswer(@NonNull AutoCompleteRequest autoCompleteRequest, @NonNull Locale userLocale, long channelId, long userId) {
         return BaseCommandOptions.autoCompleteColorOption(autoCompleteRequest, userLocale);
     }
 
@@ -299,9 +298,10 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
         OffsetDateTime now = OffsetDateTime.now();
         //if for some reason the creation time is after now we set it to 0
         long milliBetween = Math.max(ChronoUnit.MILLIS.between(event.getMessageCreationTime(), now), 0);
-        if (milliBetween < MIN_MS_DELAY_BETWEEN_BUTTON_MESSAGES) {
+        final int delayBetweenButtonMessages = io.avaje.config.Config.getInt("command.minDelayBetweenButtonMessagesMs", 1000);
+        if (milliBetween < delayBetweenButtonMessages) {
             BotMetrics.incrementDelayCounter(getCommandId(), true);
-            long delay = MIN_MS_DELAY_BETWEEN_BUTTON_MESSAGES - milliBetween;
+            long delay = delayBetweenButtonMessages - milliBetween;
             BotMetrics.delayTimer(getCommandId(), Duration.ofMillis(delay));
             log.info("{}: Delaying button message creation for {}ms", event.getRequester().toLogString(), delay);
             return Duration.ofMillis(delay);
@@ -325,11 +325,11 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
 
             Optional<Long> answerTargetChannelId = BaseCommandOptions.getAnswerTargetChannelIdFromStartCommandOption(options);
             if (answerTargetChannelId.isPresent() && answerTargetChannelId.get().equals(event.getChannelId())) {
-                log.info("{}:same answer channel for {}", event.getRequester().toLogString(), commandString);
+                log.info("{}:same answer channel for {}", event.getRequester().toLogString(), commandString.replace("\n", " "));
                 return event.reply(I18n.getMessage("base.reply.targetChannel.same", userLocale), true);
             }
             if (answerTargetChannelId.isPresent() && !event.isValidAnswerChannel(answerTargetChannelId.get())) {
-                log.info("{}: Invalid answer target channel for {}", event.getRequester().toLogString(), commandString);
+                log.info("{}: Invalid answer target channel for {}", event.getRequester().toLogString(), commandString.replace("\n", " "));
                 return event.reply(I18n.getMessage("base.reply.targetChannel.invalid", userLocale), true);
             }
             final Locale userOrConfigLocale = BaseCommandOptions.getLocaleOptionFromStartCommandOption(options)
@@ -338,7 +338,7 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
             if (validationMessage.isPresent()) {
                 log.info("{}: Validation message: {} for {}", event.getRequester().toLogString(),
                         validationMessage.get().replace("\n"," "),
-                        commandString);
+                        commandString.replace("\n", " "));
                 //todo i18n?
                 return event.reply(String.format("%s\n%s", commandString, validationMessage.get()), true);
             }
@@ -350,7 +350,7 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
             final long guildId = event.getGuildId();
             log.info("{}: '{}'",
                     event.getRequester().toLogString(),
-                    commandString.replace("`", ""));
+                    commandString.replace("`", "").replace("\n", " "));
             String replayMessage = Stream.of(commandString, getConfigWarnMessage(config, userLocale).orElse(null))
                     .filter(s -> !Strings.isNullOrEmpty(s))
                     .collect(Collectors.joining(" "));

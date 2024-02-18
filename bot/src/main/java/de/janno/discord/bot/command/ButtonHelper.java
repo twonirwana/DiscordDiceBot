@@ -2,6 +2,7 @@ package de.janno.discord.bot.command;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import de.janno.discord.bot.I18n;
 import de.janno.discord.bot.dice.DiceSystemAdapter;
 import de.janno.discord.connector.api.BottomCustomIdUtils;
@@ -95,7 +96,8 @@ public class ButtonHelper {
                 .toList();
     }
 
-    public static Optional<String> valdiate(String buttons, Locale userLocale) {
+
+    public static Optional<String> valdiate(String buttons, Locale userLocale, List<String> extraButtonIds, boolean extraLine) {
         List<List<String>> rows = new ArrayList<>();
         List<String> currentRow = new ArrayList<>();
         rows.add(currentRow);
@@ -119,6 +121,19 @@ public class ButtonHelper {
             Optional<String> validateLabel = DiceSystemAdapter.validateLabel(button, userLocale);
             if (validateLabel.isPresent()) {
                 return validateLabel;
+            }
+        }
+        if (extraLine && !extraButtonIds.isEmpty()) {
+            rows.addAll(Lists.partition(extraButtonIds, 5));
+        } else if (!extraButtonIds.isEmpty()) {
+            for (String button : extraButtonIds) {
+                if (currentRow.size() == 5 || button.isBlank()) {
+                    currentRow = new ArrayList<>();
+                    rows.add(currentRow);
+                }
+                if (!button.isBlank()) {
+                    currentRow.add(button);
+                }
             }
         }
 

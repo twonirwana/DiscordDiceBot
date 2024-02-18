@@ -78,9 +78,9 @@ public class DirectRollCommandMockTest {
 
 
         assertThat(slashEvent.getActions()).containsExactlyInAnyOrder(
-                "replyWithEmbedOrMessageDefinition: EmbedOrMessageDefinition(title=null, descriptionOrContent=Type /r and a dice expression, configuration with /channel_config\n" +
+                "replyWithEmbedOrMessageDefinition: EmbedOrMessageDefinition(title=null, descriptionOrContent=Type `/r` and a dice expression. The output type, dice images etc. can be configuration with `/channel_config save_direct_roll_config`\n" +
                         DiceEvaluatorAdapter.getHelp() +
-                        ", fields=[EmbedOrMessageDefinition.Field(name=Example, value=`/r expression:1d6`, inline=false), EmbedOrMessageDefinition.Field(name=Full documentation, value=https://github.com/twonirwana/DiscordDiceBot, inline=false), EmbedOrMessageDefinition.Field(name=Discord Server for Help and News, value=https://discord.gg/e43BsqKpFr, inline=false)], componentRowDefinitions=[], hasImage=false, type=EMBED)");
+                        ", fields=[EmbedOrMessageDefinition.Field(name=Example, value=`/r expression: 1d6`, inline=false), EmbedOrMessageDefinition.Field(name=Full documentation, value=https://github.com/twonirwana/DiscordDiceBot, inline=false), EmbedOrMessageDefinition.Field(name=Discord Server for News, Help and Feature Requests, value=https://discord.gg/e43BsqKpFr, inline=false)], componentRowDefinitions=[], hasImage=false, type=EMBED)");
     }
 
     @Test
@@ -299,12 +299,13 @@ public class DirectRollCommandMockTest {
         ChannelConfigCommand channelConfig = new ChannelConfigCommand(persistenceManager);
 
         SlashEventAdaptorMock slashEvent1 = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
-                .name("channel_alias")
+                .name("alias")
                 .option(CommandInteractionOption.builder()
                         .name("save")
                         .option(CommandInteractionOption.builder().name("name").stringValue("att").build())
                         .option(CommandInteractionOption.builder().name("value").stringValue("2d20+10").build())
                         .build())
+                .option(CommandInteractionOption.builder().name("scope").stringValue("all_users_in_this_channel").build())
                 .build()));
         channelConfig.handleSlashCommandEvent(slashEvent1, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"), Locale.ENGLISH).block();
 
@@ -326,12 +327,13 @@ public class DirectRollCommandMockTest {
         ChannelConfigCommand channelConfig = new ChannelConfigCommand(persistenceManager);
 
         SlashEventAdaptorMock slashEvent1 = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
-                .name("user_channel_alias")
+                .name("alias")
                 .option(CommandInteractionOption.builder()
                         .name("save")
                         .option(CommandInteractionOption.builder().name("name").stringValue("att").build())
                         .option(CommandInteractionOption.builder().name("value").stringValue("2d20+10").build())
                         .build())
+                .option(CommandInteractionOption.builder().name("scope").stringValue("current_user_in_this_channel").build())
                 .build()));
         channelConfig.handleSlashCommandEvent(slashEvent1, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"), Locale.ENGLISH).block();
 

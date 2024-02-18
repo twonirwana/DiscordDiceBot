@@ -363,19 +363,19 @@ de.janno.discord.bot.command.customDice.CustomDiceCommandTest.getCommandDefiniti
         "type": "SUB_COMMAND",
         "name": "help",
         "nameLocales": [ ],
-        "description": "Get help for /custom_dice",
+        "description": "Get help for `/custom_dice`",
         "descriptionLocales": [
           {
             "locale": "de",
-            "description": "Hilfe für /custom_dice"
+            "description": "Hilfe für `/custom_dice`"
           },
           {
             "locale": "pt_BR",
-            "description": "Consiga ajuda para /custom_dice"
+            "description": "Consiga ajuda para `/custom_dice`"
           },
           {
             "locale": "fr",
-            "description": "Obtenir de l'aide pour /custom_dice"
+            "description": "Obtenir de l'aide pour `/custom_dice`"
           }
         ],
         "required": false,

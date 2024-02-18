@@ -2,7 +2,7 @@
 :toc: macro
 
 https://www.gnu.org/licenses/agpl-3.0[image:https://img.shields.io/badge/License-AGPL_v3-blue.svg[License: AGPL v3]] https://codecov.io/gh/twonirwana/DiscordDiceBot[image:https://codecov.io/gh/twonirwana/DiscordDiceBot/branch/main/graph/badge.svg?token=OLH7L312D7[codecov]]
-image:https://img.shields.io/github/actions/workflow/status/twonirwana/DiscordDiceBot/gradle.yml?branch=main[GitHub Workflow Status]
+image:https://img.shields.io/github/actions/workflow/status/twonirwana/DiscordDiceBot/codeCov.yml?branch=main[GitHub Workflow Status]
 image:https://img.shields.io/discord/898657305883725834[link="https://discord.gg/e43BsqKpFr"]
 image:https://dcbadge.vercel.app/api/shield/812381127943782502?bot=true&style=flat&theme=clean-inverted[link="https://discord.com/api/oauth2/authorize?client_id=812381127943782502&permissions=274878023680&scope=applications.commands%20bot"]
 
@@ -201,7 +201,14 @@ The by `black_and_gold` was adapted from https://speakthesky.itch.io/typeface-di
 
 image:image/draw_color.png[image,600]
 
-Valid for d4, d6, d10, d8, d12, d20, d100 and the supported colors are: `white`, `gray`, `black`, `red`, `pink`, `orange`, `yellow`, `green`, `magenta`, `cyan`, `blue` and `indigo`.
+Valid for d2, d4, d6, d10, d8, d12, d20, d100 and the supported colors are: `white`, `gray`, `black`, `red`, `pink`, `orange`, `yellow`, `green`, `magenta`, `cyan`, `blue` and `indigo`.
+
+It `polyhedral_2d` also works with custom dice and emojis.
+With the limitation that it will only create images if for one or two regular characters or for one emoji.
+
+image:image/draw_color_custom.png[image,600]
+
+A visual coin throw example is: `/custom_dice start buttons: d[👍/👎]@Coin answer_format: only_dice dice_image_style: polyhedral_2d dice_image_color: gray`
 
 ==== polyhedral_alies_v1
 
@@ -414,6 +421,13 @@ For example `/r expression:3d6` will simply roll 3d6 and post the result without
 The result of the dice will be summed up per default.
 The output can be configured with the `channel_config` command.
 
+=== Alias Roll
+
+Alias Roll, used with the command `/a`, is variant of the direct roll which shows the list of available alias in the autocomplete.
+For example if you use first `/channel_config alias save name: heavy_orc_attack value: 1d20+6=@Heavy Orc Attack scope: current_user_in_this_channel` and then `/a alias_or_expression: `, then `heavy_orc_attack` will be in the autocomplete of the command.
+It is still possible roll normal dice expression or extend the alias.
+Alias can be added and removed with the `/channel_config alias` command.
+
 === Hidden Direct Roll
 
 image:image/hiddenDircetRoll.webp[image]
@@ -448,20 +462,24 @@ It is possible to configure alias in a channel.
 Alias can be used with direct roll and custom dice.
 If a custom dice button is created that should use an alias, the alias musst exist before the button is created.
 
-For example `/channel_config user_channel_alias save name: att value: (2d20k1)+10+1d4` creates an attack alias for the user.
+For example `/channel_config alias save name: att value: (2d20k1)+10+1d4 scope: current_user_in_this_channel` creates an attack alias for the user.
 Each time the user uses the slash command `/r expression: att`, the `att` will automatically replaced with `(2d20k1)+10+1d4`
 
 An alias has a name and a value and will replace each occurrence in the dice expression of its name with its value.
-There are two types of alias, channel alias and user channel alias.
-A channel alias will be applied to each roll in a channel, for every user.
-The user channel alias will only apply to for the user who created the alias in the channel.
-The user channel alias will be applied first.
-Three are four commands for each type.
+
+There are two scopes of alias:
+
+* `all_users_in_this_channel`: It will be applied to each roll in a channel, for every user.
+* `current_user_in_this_channel`: It will only apply to for the user who created the alias in the channel.
+
+The user specific alias will be applied first.
+
+There are four commands for each scope.
 
 * `save` creates or overwrites an alias
 * `multi_save` creates or overwrites multiple alias.
 Alias are seperated by `;` and the name and the value are seperated by `:`.
-For example: `/channel_config channel_alias multi_save aliases: att:2d20;dmg:2d6+4=` saves two alias:
+For example: `/channel_config alias multi_save aliases: att:2d20;dmg:2d6+4= scope: current_user_in_this_channel` saves two alias:
 ** `att` with `2d20`
 ** `dmg` with `2d6+4=`
 * `delete` removes an alias by its name

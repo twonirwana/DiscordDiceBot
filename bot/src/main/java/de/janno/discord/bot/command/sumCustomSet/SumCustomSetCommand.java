@@ -269,7 +269,8 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
 
     @Override
     protected @NonNull Optional<String> getStartOptionsValidationMessage(@NonNull CommandInteractionOption options, long channelId, long userId, @NonNull Locale userLocale) {
-        return ButtonHelper.valdiate(options.getStringSubOptionWithName(BUTTONS_COMMAND_OPTIONS_NAME).orElseThrow(), userLocale);
+        String buttons = options.getStringSubOptionWithName(BUTTONS_COMMAND_OPTIONS_NAME).orElseThrow();
+        return ButtonHelper.valdiate(buttons, userLocale, List.of("clear", "back", "roll"), ENDS_WITH_DOUBLE_SEMICOLUMN_PATTERN.matcher(buttons).matches());
     }
 
     private State<SumCustomSetStateDataV2> updateStateWithButtonValue(@NonNull final String buttonValue,

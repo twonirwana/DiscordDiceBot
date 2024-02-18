@@ -88,6 +88,20 @@ public class PersistenceManagerImpl implements PersistenceManager {
         }
     }
 
+    @Override
+    public void deleteAllMessageConfigForChannel(long channelId) {
+        Stopwatch stopwatch = Stopwatch.createStarted();
+        try (Connection con = databaseConnector.getConnection()) {
+            try (PreparedStatement preparedStatement = con.prepareStatement("DELETE FROM MESSAGE_CONFIG WHERE CHANNEL_ID = ?")) {
+                preparedStatement.setLong(1, channelId);
+                preparedStatement.execute();
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        BotMetrics.databaseTimer("deleteAllMessageConfigForChannel", stopwatch.elapsed());
+    }
+
     private MessageConfigDTO transformResultSet2MessageConfigDTO(ResultSet resultSet) throws SQLException {
         if (resultSet.next()) {
             return new MessageConfigDTO(
@@ -406,6 +420,21 @@ public class PersistenceManagerImpl implements PersistenceManager {
             throw new RuntimeException(e);
         }
         BotMetrics.databaseTimer("deleteUserChannelConfig", stopwatch.elapsed());
+    }
+
+    @Override
+    public void deleteAllChannelConfig(long channelId) {
+        Stopwatch stopwatch = Stopwatch.createStarted();
+        try (Connection con = databaseConnector.getConnection()) {
+
+            try (PreparedStatement preparedStatement = con.prepareStatement("DELETE FROM CHANNEL_CONFIG WHERE CHANNEL_ID = ?")) {
+                preparedStatement.setLong(1, channelId);
+                preparedStatement.execute();
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        BotMetrics.databaseTimer("deleteAllChannelConfig", stopwatch.elapsed());
     }
 
     @Override

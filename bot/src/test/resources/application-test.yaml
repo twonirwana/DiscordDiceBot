@@ -5,3 +5,4 @@ command:
   minDelayBetweenButtonMessagesMs: 10
   delayMessageDataDeletionMs: 10
   fetch.delayMs: 0
+  clear.messageDeleteDelay: 10

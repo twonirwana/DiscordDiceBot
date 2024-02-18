@@ -12,6 +12,8 @@ public interface PersistenceManager {
 
     @NonNull Optional<MessageConfigDTO> getMessageConfig(@NonNull UUID configUUID);
 
+    void deleteAllMessageConfigForChannel(long channelId);
+
     @NonNull Optional<MessageConfigDTO> getConfigFromMessage(long channelId, long messageId);
 
     void saveMessageConfig(@NonNull MessageConfigDTO messageConfigDTO);
@@ -37,6 +39,8 @@ public interface PersistenceManager {
     void deleteChannelConfig(long channelId, String configClassId);
 
     void deleteUserChannelConfig(long channelId, long userId, String configClassId);
+
+    void deleteAllChannelConfig(long channelId);
 
     Optional<MessageConfigDTO> getLastMessageDataInChannel(long channelId, LocalDateTime since, @Nullable Long alreadyDeletedMessageId);
 }
