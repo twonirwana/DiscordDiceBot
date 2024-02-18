@@ -228,6 +228,11 @@ de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandTest.getCommandDefi
                 "nameLocales": [ ]
               },
               {
+                "name": "only_result",
+                "value": "only_result",
+                "nameLocales": [ ]
+              },
+              {
                 "name": "only_dice",
                 "value": "only_dice",
                 "nameLocales": [ ]

@@ -117,7 +117,9 @@ public class DirectRollCommand implements SlashCommand {
                 return event.replyWithEmbedOrMessageDefinition(getHelpMessage(userLocale), true);
             }
 
-            final String expressionWithOptionalLabelsAndAppliedAliases = AliasHelper.getAndApplyAliaseToExpression(event.getChannelId(), event.getUserId(), persistenceManager, commandParameter);
+            final String expressionWithMultiLine = commandParameter.replace("\\n", "\n");
+
+            final String expressionWithOptionalLabelsAndAppliedAliases = AliasHelper.getAndApplyAliaseToExpression(event.getChannelId(), event.getUserId(), persistenceManager, expressionWithMultiLine);
             Optional<String> labelValidationMessage = DiceSystemAdapter.validateLabel(expressionWithOptionalLabelsAndAppliedAliases, userLocale);
             if (labelValidationMessage.isPresent()) {
                 return replyValidationMessage(event, labelValidationMessage.get(), commandString);
@@ -127,7 +129,7 @@ public class DirectRollCommand implements SlashCommand {
             if (expressionValidationMessage.isPresent()) {
                 return replyValidationMessage(event, expressionValidationMessage.get(), commandString);
             }
-            BotMetrics.incrementSlashStartMetricCounter(getCommandId(), "[%s, %s]".formatted(diceExpression, commandParameter));
+            BotMetrics.incrementSlashStartMetricCounter(getCommandId(), "[%s, %s]".formatted(diceExpression, expressionWithMultiLine.replace("\n", " ")));
             DirectRollConfig config = getDirectRollConfig(event.getChannelId());
             BotMetrics.incrementAnswerFormatCounter(config.getAnswerFormatType(), getCommandId());
 

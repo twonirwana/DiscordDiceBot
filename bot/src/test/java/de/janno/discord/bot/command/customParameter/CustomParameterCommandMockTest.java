@@ -2,6 +2,7 @@ package de.janno.discord.bot.command.customParameter;
 
 import de.janno.discord.bot.ButtonEventAdaptorMock;
 import de.janno.discord.bot.ButtonEventAdaptorMockFactory;
+import de.janno.discord.bot.SlashEventAdaptorMock;
 import de.janno.discord.bot.command.AnswerFormatType;
 import de.janno.discord.bot.dice.CachingDiceEvaluator;
 import de.janno.discord.bot.dice.DiceParser;
@@ -10,11 +11,14 @@ import de.janno.discord.bot.dice.image.DiceImageStyle;
 import de.janno.discord.bot.dice.image.DiceStyleAndColor;
 import de.janno.discord.bot.persistance.PersistenceManager;
 import de.janno.discord.bot.persistance.PersistenceManagerImpl;
+import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import de.janno.evaluator.dice.random.RandomNumberSupplier;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -48,6 +52,43 @@ public class CustomParameterCommandMockTest {
                 "createResultMessageWithReference: EmbedOrMessageDefinition(title=4d6 ⇒ 1, 1, 6, 3, descriptionOrContent=[1, 1, 6, 3], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED), targetChannelId: null",
                 "deleteMessageById: 0",
                 "createMessageWithoutReference: EmbedOrMessageDefinition(title=null, descriptionOrContent={numberOfDice}d{sides}\nPlease select value for **numberOfDice**, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=1, id=custom_parameterid100000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=2, id=custom_parameterid200000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=3, id=custom_parameterid300000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=4, id=custom_parameterid400000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=5, id=custom_parameterid500000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)]), ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=6, id=custom_parameterid600000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=7, id=custom_parameterid700000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=8, id=custom_parameterid800000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=9, id=custom_parameterid900000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=10, id=custom_parameterid1000000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE)"
+        );
+    }
+
+    @Test
+    void slash_start_multiLine() {
+        CustomParameterCommand underTest = new CustomParameterCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
+
+        SlashEventAdaptorMock slashEvent = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
+                .name("start")
+                .option(CommandInteractionOption.builder()
+                        .name("expression")
+                        .stringValue("d[a\\nb\\nc,\\nd,e\\n]+{bonus:0@None/3@Small\\nBonus/5@\\nBig\\nBonus\\n}")
+                        .build())
+                .build()));
+        underTest.handleSlashCommandEvent(slashEvent, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"), Locale.ENGLISH).block();
+
+        assertThat(slashEvent.getActions()).containsExactlyInAnyOrder(
+                "reply: commandString",
+                "createMessageWithoutReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=Please select value for **bonus:0@None/3@Small Bonus/5@ Big Bonus **, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=None, id=custom_parameterid100000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=Small Bonus, id=custom_parameterid200000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label= Big Bonus , id=custom_parameterid300000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE)"
+        );
+
+        Optional<ButtonEventAdaptorMock> buttonEventAdaptorMock = slashEvent.getFirstButtonEventMockOfLastButtonMessage();
+        assertThat(buttonEventAdaptorMock).isPresent();
+        underTest.handleComponentInteractEvent(buttonEventAdaptorMock.get()).block();
+        assertThat(buttonEventAdaptorMock.get().getActions()).containsExactlyInAnyOrder(
+                "editMessage: message:processing ..., buttonValues=",
+                """
+                        createResultMessageWithReference: EmbedOrMessageDefinition(title=None/3@Small
+                        Bonus/5@
+                        Big
+                        Bonus ⇒ a
+                        b
+                        c, 0, descriptionOrContent=[a
+                        b
+                        c], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED), targetChannelId: null""",
+                "deleteMessageById: 1",
+                "createMessageWithoutReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=Please select value for **bonus:0@None/3@Small Bonus/5@ Big Bonus **, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=None, id=custom_parameterid100000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=Small Bonus, id=custom_parameterid200000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label= Big Bonus , id=custom_parameterid300000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE)"
         );
     }
 

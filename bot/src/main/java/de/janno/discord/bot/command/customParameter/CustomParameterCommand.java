@@ -46,17 +46,17 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     public static final String COMMAND_NAME = "custom_parameter";
     static final String EXPRESSION_OPTION_NAME = "expression";
     private static final String CLEAR_BUTTON_ID = "clear";
-    private final static Pattern PARAMETER_VARIABLE_PATTERN = Pattern.compile("\\Q{\\E.*?\\Q}\\E");
+    private final static Pattern PARAMETER_VARIABLE_PATTERN = Pattern.compile("\\Q{\\E.*?\\Q}\\E", Pattern.MULTILINE | Pattern.DOTALL);
     private static final String SELECTED_PARAMETER_DELIMITER = "\t";
     private static final String RANGE_DELIMITER = ":";
     private final static String RANGE_REPLACE_REGEX = RANGE_DELIMITER + ".+?(?=\\Q}\\E)";
     private final static Pattern BUTTON_RANGE_PATTERN = Pattern.compile(RANGE_DELIMITER + "(-?\\d+)<=>(-?\\d+)");
     private final static String BUTTON_VALUE_DELIMITER = "/";
-    private final static Pattern BUTTON_VALUE_PATTERN = Pattern.compile(RANGE_DELIMITER + "(.+" + BUTTON_VALUE_DELIMITER + ".+)}");
+    private final static Pattern BUTTON_VALUE_PATTERN = Pattern.compile(RANGE_DELIMITER + "(.+" + BUTTON_VALUE_DELIMITER + ".+)}", Pattern.MULTILINE | Pattern.DOTALL);
     private static final String STATE_DATA_TYPE_ID = "CustomParameterStateDataV2";
     private static final String STATE_DATA_TYPE_ID_LEGACY = "CustomParameterStateData";
     private static final String CONFIG_TYPE_ID = "CustomParameterConfig";
-    private final static Pattern LABEL_MATCHER = Pattern.compile("@[^}]+$");
+    private final static Pattern LABEL_MATCHER = Pattern.compile("@[^}]+$", Pattern.MULTILINE | Pattern.DOTALL);
     private final DiceSystemAdapter diceSystemAdapter;
 
     public CustomParameterCommand(PersistenceManager persistenceManager, CachingDiceEvaluator cachingDiceEvaluator) {
@@ -503,7 +503,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
         if (variableCount > 4) {
             return Optional.of(I18n.getMessage("custom_parameter.validation.variable.count.max.four", userLocale));
         }
-        if (Pattern.compile("(\\Q{\\E(?)\\Q{\\E(?)(.*)(?)\\Q}\\E(?)\\Q}\\E)").matcher(baseExpression).find()) {
+        if (Pattern.compile("(\\Q{\\E(?)\\Q{\\E(?)(.*)(?)\\Q}\\E(?)\\Q}\\E)", Pattern.MULTILINE | Pattern.DOTALL).matcher(baseExpression).find()) {
             return Optional.of(I18n.getMessage("custom_parameter.validation.nested.brackets", userLocale));
         }
         if (StringUtils.countMatches(baseExpression, "{") != StringUtils.countMatches(baseExpression, "}")) {

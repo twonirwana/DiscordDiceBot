@@ -108,9 +108,16 @@ Contributions of additional language and improvements are very welcome.
 
 === Answer Format
 
+It is possible to create line breaks in expression results (not in the button labels). For adding a line break add `\n` in the text.
+
+For example `/custom_dice start buttons: '\n  Attack: ' _ 1d20 + 10= _ '\n  Damage: ' _ 2d6+3= @Attack&Damage answer_format: without_expression` produces the following result:
+
+image:image/multiLineResult.png[image,320]
+
+
 All commands have an `answer_format` option that determines how the answer of a dice roll is shown.
 In the case of the direct roll command `r` the `answer_format` can be configured for the current channel with the `channel_config` command.
-There are the following options: `full`,`without_expression`, `compact` and `minimal`.
+There are the following options: `full`, `without_expression`, `only_result`, `only_dice`, `compact` and `minimal`.
 
 ==== Full
 
@@ -126,6 +133,14 @@ This is useful if the expression is very long and it is recommended to add a lab
 Will show result images, if they are configured.
 
 image:image/without_expression.png[image,320]
+
+==== Only Result
+
+`only_result` shows only the calculated result and if configured the dice images.
+The expression, static modifier and the dice results as text will not be shown.
+This option is useful for buttons that only produce a text or emoji
+
+image:image/only_result.png[image,320]
 
 ==== Only Dice
 
@@ -150,7 +165,8 @@ image:image/minimal.png[image,320]
 
 === Dice Images
 
-The `custom_dice`, `sum_custom_dice` and `custom_parameter` commands have a `dice_image_style` and a `dice_image_color` option that can be configured to add an image of the rolled dice.
+All commands have a `dice_image_style` and a `dice_image_color` option that can be configured to add an image of the rolled dice.
+To configure dice images for the direct roll, use the `/channel_config save_direct_roll_config` command.
 The color of specific dice can be overwritten, with valid colors for the style, in the expression.
 For example:
 
