@@ -20,6 +20,6 @@ public class Alias {
 
     @Override
     public String toString() {
-        return "%s->%s".formatted(name, value);
+        return "%s->%s".formatted(name, value).replace("\n", " ");
     }
 }

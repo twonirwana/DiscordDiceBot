@@ -15,26 +15,19 @@ public class Parameter {
 
     public Parameter(@NonNull String parameterExpression, @NonNull String name, @NonNull List<ParameterOption> parameterOptions) {
         this.parameterExpression = parameterExpression;
-        this.name = name.replace("\n", " ");
+        this.name = name;
         this.parameterOptions = parameterOptions;
     }
 
     @Override
     public String toString() {
-        return "%s of %s".formatted(name, parameterOptions);
+        return "%s of %s".formatted(name, parameterOptions).replace("\n", " ");
     }
 
     public record ParameterOption(@NonNull String value, @NonNull String label, @NonNull String id) {
-
-        public ParameterOption(@NonNull String value, @NonNull String label, @NonNull String id) {
-            this.value = value;
-            this.label = label.replace("\n", " ");
-            this.id = id;
-        }
-
         @Override
         public String toString() {
-            return "%s@%s".formatted(value, label);
+            return "%s@%s".formatted(value, label).replace("\n", " ");
         }
     }
 }

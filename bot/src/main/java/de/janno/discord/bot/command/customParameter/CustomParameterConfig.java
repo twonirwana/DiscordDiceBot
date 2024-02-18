@@ -44,11 +44,11 @@ public class CustomParameterConfig extends Config {
 
     @Override
     public String toShortString() {
-        return "[%s, %s, %s, %s, %s]".formatted(baseExpression, getTargetChannelShortString(), diceParserSystem, getAnswerFormatType(), getDiceStyleAndColor());
+        return "[%s, %s, %s, %s, %s]".formatted(baseExpression.replace("\n", " "), getTargetChannelShortString(), diceParserSystem, getAnswerFormatType(), getDiceStyleAndColor());
     }
 
     @Override
     public String toCommandOptionsString() {
-        return "%s: %s %s".formatted(CustomParameterCommand.EXPRESSION_OPTION_NAME, baseExpression, super.toCommandOptionsString());
+        return "%s: %s %s".formatted(CustomParameterCommand.EXPRESSION_OPTION_NAME, baseExpression.replace("\n", "\\n"), super.toCommandOptionsString());
     }
 }

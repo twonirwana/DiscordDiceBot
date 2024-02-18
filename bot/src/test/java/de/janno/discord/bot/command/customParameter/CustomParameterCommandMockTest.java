@@ -70,7 +70,7 @@ public class CustomParameterCommandMockTest {
 
         assertThat(slashEvent.getActions()).containsExactlyInAnyOrder(
                 "reply: commandString",
-                "createMessageWithoutReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=Please select value for **bonus:0@None/3@Small Bonus/5@ Big Bonus **, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=None, id=custom_parameterid100000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=Small Bonus, id=custom_parameterid200000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label= Big Bonus , id=custom_parameterid300000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE)"
+                "createMessageWithoutReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=Please select value for **bonus**, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=None, id=custom_parameterid100000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=Small Bonus, id=custom_parameterid200000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label= Big Bonus , id=custom_parameterid300000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE)"
         );
 
         Optional<ButtonEventAdaptorMock> buttonEventAdaptorMock = slashEvent.getFirstButtonEventMockOfLastButtonMessage();
@@ -79,16 +79,13 @@ public class CustomParameterCommandMockTest {
         assertThat(buttonEventAdaptorMock.get().getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:processing ..., buttonValues=",
                 """
-                        createResultMessageWithReference: EmbedOrMessageDefinition(title=None/3@Small
-                        Bonus/5@
-                        Big
-                        Bonus ⇒ a
+                        createResultMessageWithReference: EmbedOrMessageDefinition(title=bonus: None ⇒ a
                         b
                         c, 0, descriptionOrContent=[a
                         b
                         c], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED), targetChannelId: null""",
                 "deleteMessageById: 1",
-                "createMessageWithoutReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=Please select value for **bonus:0@None/3@Small Bonus/5@ Big Bonus **, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=None, id=custom_parameterid100000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=Small Bonus, id=custom_parameterid200000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label= Big Bonus , id=custom_parameterid300000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE)"
+                "createMessageWithoutReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=Please select value for **bonus**, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=None, id=custom_parameterid100000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=Small Bonus, id=custom_parameterid200000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label= Big Bonus , id=custom_parameterid300000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE)"
         );
     }
 

@@ -58,7 +58,7 @@ public class CustomDiceConfig extends Config {
                     }
                     return "%s%s@%s".formatted(b.isNewLine() ? ";" : "", b.getDiceExpression(), b.getLabel());
                 })
-                .collect(Collectors.joining(";"));
+                .collect(Collectors.joining(";")).replace("\n", "\\n");
         return "%s: %s %s".formatted(CustomDiceCommand.BUTTONS_OPTION_NAME, String.join(" ", buttons), super.toCommandOptionsString());
     }
 }
