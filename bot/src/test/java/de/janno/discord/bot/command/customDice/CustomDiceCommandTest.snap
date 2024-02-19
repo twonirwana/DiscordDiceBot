@@ -132,6 +132,11 @@ de.janno.discord.bot.command.customDice.CustomDiceCommandTest.getCommandDefiniti
                 "nameLocales": [ ]
               },
               {
+                "name": "only_result",
+                "value": "only_result",
+                "nameLocales": [ ]
+              },
+              {
                 "name": "only_dice",
                 "value": "only_dice",
                 "nameLocales": [ ]

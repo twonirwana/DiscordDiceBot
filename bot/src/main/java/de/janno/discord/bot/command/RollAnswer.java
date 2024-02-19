@@ -39,10 +39,12 @@ public class RollAnswer {
                         .map(RollResults::toShortString)
                         .toList().toString())
                 .orElse(null);
+
         return String.format("%s=%s", expression,
                         Joiner.on(",").skipNulls().join(result, rollDetails, errorMessage, warning, fieldStringList))
                 .replace("\n", " ");
     }
+
 
 
     @Value

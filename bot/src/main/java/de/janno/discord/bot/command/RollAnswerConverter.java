@@ -90,6 +90,25 @@ public class RollAnswerConverter {
                             .build();
                 }
             }
+            case only_result -> {
+                if (rollAnswer.getMultiRollResults() != null) {
+                    yield EmbedOrMessageDefinition.builder()
+                            .shortedTitle(Optional.ofNullable(rollAnswer.getExpressionLabel()).orElse("Roll"))
+                            .shortedContent(String.valueOf(rollAnswer.getMultiRollResults().stream()
+                                    .map(RollAnswer.RollResults::getResult)
+                                            .map("**%s**"::formatted)
+                                    .collect(Collectors.joining("\n"))))
+                            .type(EmbedOrMessageDefinition.Type.EMBED)
+                            .build();
+
+                } else {
+                    yield EmbedOrMessageDefinition.builder()
+                            .shortedTitle("%s ⇒ %s".formatted(Optional.ofNullable(rollAnswer.getExpressionLabel()).orElse("Roll"), rollAnswer.getResult()))
+                            .type(EmbedOrMessageDefinition.Type.EMBED)
+                            .image(rollAnswer.getImage())
+                            .build();
+                }
+            }
             case only_dice -> {
                 if (rollAnswer.getMultiRollResults() != null) {
                     yield EmbedOrMessageDefinition.builder()

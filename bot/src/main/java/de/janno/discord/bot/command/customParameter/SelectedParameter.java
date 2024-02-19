@@ -36,7 +36,7 @@ public class SelectedParameter {
     @JsonIgnore
     public String getShortString() {
         return String.format("%s=%s", parameterExpression,
-                (Optional.ofNullable(labelOfSelectedValue).orElse("")));
+                (Optional.ofNullable(labelOfSelectedValue).orElse(""))).replace("\n", " ");
     }
 
     @JsonIgnore

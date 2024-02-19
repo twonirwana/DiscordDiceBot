@@ -71,7 +71,7 @@ public class RpgSystemCommandPreset {
             case SHADOWRUN_IMAGE ->
                     new CustomParameterConfig(null, I18n.getMessage("rpg.system.command.preset.SHADOWRUN_IMAGE.expression", userLocale), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.without_expression, null, new DiceStyleAndColor(DiceImageStyle.d6_dots, D6Dotted.BLACK_AND_GOLD), userLocale);
             case COIN ->
-                    new CustomDiceConfig(null, ButtonHelper.parseString(I18n.getMessage("rpg.system.command.preset.COIN.expression", userLocale)), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.without_expression, null, new DiceStyleAndColor(DiceImageStyle.none, DiceImageStyle.none.getDefaultColor()), userLocale);
+                    new CustomDiceConfig(null, ButtonHelper.parseString(I18n.getMessage("rpg.system.command.preset.COIN.expression", userLocale)), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.only_result, null, new DiceStyleAndColor(DiceImageStyle.none, DiceImageStyle.none.getDefaultColor()), userLocale);
             //sum_custom_set start buttons: 7;8;9;+;-;4;5;6;d;k;1;2;3;0;l always_sum_result: true
             case DICE_CALCULATOR ->
                     new SumCustomSetConfig(null, ButtonHelper.parseString(I18n.getMessage("rpg.system.command.preset.DICE_CALCULATOR.expression", userLocale)),

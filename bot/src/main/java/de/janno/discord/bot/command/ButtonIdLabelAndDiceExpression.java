@@ -39,9 +39,9 @@ public class ButtonIdLabelAndDiceExpression {
 
     public String toShortString() {
         if (diceExpression.equals(label)) {
-            return diceExpression;
+            return diceExpression.replace("\n", " ");
         }
-        return String.format("%s%s@%s", newLine ? "⏎" : "", diceExpression, label);
+        return String.format("%s%s@%s", newLine ? "⏎" : "", diceExpression, label).replace("\n", " ");
     }
 }
 

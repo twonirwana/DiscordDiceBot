@@ -337,7 +337,7 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
             Optional<String> validationMessage = getStartOptionsValidationMessage(options, event.getChannelId(), event.getUserId(), userOrConfigLocale);
             if (validationMessage.isPresent()) {
                 log.info("{}: Validation message: {} for {}", event.getRequester().toLogString(),
-                        validationMessage.get(),
+                        validationMessage.get().replace("\n"," "),
                         commandString.replace("\n", " "));
                 //todo i18n?
                 return event.reply(String.format("%s\n%s", commandString, validationMessage.get()), true);

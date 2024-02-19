@@ -245,7 +245,7 @@ de.janno.discord.bot.command.help.QuickstartCommandMockTest.config2CommandString
 de.janno.discord.bot.command.help.QuickstartCommandMockTest.config2CommandString_slashCommand_firstButton[firstButtonEvent:COIN_de]=[
   [
     "createMessageWithoutReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=Klick auf einen Button um zu würfeln, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Münzwurf 🪙, id=custom_dice\u001E1_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE)",
-    "createResultMessageWithReference: EmbedOrMessageDefinition(title=Münzwurf 🪙 ⇒ Kopf 😀, descriptionOrContent=[Kopf 😀], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED), targetChannelId: null",
+    "createResultMessageWithReference: EmbedOrMessageDefinition(title=Münzwurf 🪙 ⇒ Kopf 😀, descriptionOrContent=null, fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED), targetChannelId: null",
     "deleteMessageById: 1",
     "editMessage: message:Verarbeite ..., buttonValues="
   ]
@@ -255,7 +255,7 @@ de.janno.discord.bot.command.help.QuickstartCommandMockTest.config2CommandString
 de.janno.discord.bot.command.help.QuickstartCommandMockTest.config2CommandString_slashCommand_firstButton[firstButtonEvent:COIN_en]=[
   [
     "createMessageWithoutReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click on a button to roll the dice, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Coin Toss 🪙, id=custom_dice\u001E1_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE)",
-    "createResultMessageWithReference: EmbedOrMessageDefinition(title=Coin Toss 🪙 ⇒ Head 😀, descriptionOrContent=[Head 😀], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED), targetChannelId: null",
+    "createResultMessageWithReference: EmbedOrMessageDefinition(title=Coin Toss 🪙 ⇒ Head 😀, descriptionOrContent=null, fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED), targetChannelId: null",
     "deleteMessageById: 1",
     "editMessage: message:processing ..., buttonValues="
   ]
@@ -265,7 +265,7 @@ de.janno.discord.bot.command.help.QuickstartCommandMockTest.config2CommandString
 de.janno.discord.bot.command.help.QuickstartCommandMockTest.config2CommandString_slashCommand_firstButton[firstButtonEvent:COIN_fr]=[
   [
     "createMessageWithoutReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=Cliquez sur un bouton pour lancer les dés, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Pile ou face 🪙, id=custom_dice\u001E1_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE)",
-    "createResultMessageWithReference: EmbedOrMessageDefinition(title=Pile ou face 🪙 ⇒ Face 😀, descriptionOrContent=[Face 😀], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED), targetChannelId: null",
+    "createResultMessageWithReference: EmbedOrMessageDefinition(title=Pile ou face 🪙 ⇒ Face 😀, descriptionOrContent=null, fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED), targetChannelId: null",
     "deleteMessageById: 1",
     "editMessage: message:traitement ..., buttonValues="
   ]
@@ -275,7 +275,7 @@ de.janno.discord.bot.command.help.QuickstartCommandMockTest.config2CommandString
 de.janno.discord.bot.command.help.QuickstartCommandMockTest.config2CommandString_slashCommand_firstButton[firstButtonEvent:COIN_pt_BR]=[
   [
     "createMessageWithoutReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=Clique em um botão para rolar os dados, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Cara ou Coroa 🪙, id=custom_dice\u001E1_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE)",
-    "createResultMessageWithReference: EmbedOrMessageDefinition(title=Cara ou Coroa 🪙 ⇒ Cara 😀, descriptionOrContent=[Cara 😀], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED), targetChannelId: null",
+    "createResultMessageWithReference: EmbedOrMessageDefinition(title=Cara ou Coroa 🪙 ⇒ Cara 😀, descriptionOrContent=null, fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED), targetChannelId: null",
     "deleteMessageById: 1",
     "editMessage: message:processando ..., buttonValues="
   ]
@@ -2985,7 +2985,7 @@ de.janno.discord.bot.command.help.QuickstartCommandMockTest.handleSlashCommandEv
 de.janno.discord.bot.command.help.QuickstartCommandMockTest.handleSlashCommandEvent[COIN_de]=[
   [
     "createMessageWithoutReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=Klick auf einen Button um zu würfeln, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Münzwurf 🪙, id=custom_dice\u001E1_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE)",
-    "reply: `/custom_dice start buttons: 1d[Kopf 😀/Zahl 🦅]@Münzwurf 🪙 answer_format: without_expression dice_image_style: none dice_image_color: none`"
+    "reply: `/custom_dice start buttons: 1d[Kopf 😀/Zahl 🦅]@Münzwurf 🪙 answer_format: only_result dice_image_style: none dice_image_color: none`"
   ]
 ]
 
@@ -2993,7 +2993,7 @@ de.janno.discord.bot.command.help.QuickstartCommandMockTest.handleSlashCommandEv
 de.janno.discord.bot.command.help.QuickstartCommandMockTest.handleSlashCommandEvent[COIN_en]=[
   [
     "createMessageWithoutReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click on a button to roll the dice, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Coin Toss 🪙, id=custom_dice\u001E1_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE)",
-    "reply: `/custom_dice start buttons: 1d[Head 😀/Tail 🦅]@Coin Toss 🪙 answer_format: without_expression dice_image_style: none dice_image_color: none`"
+    "reply: `/custom_dice start buttons: 1d[Head 😀/Tail 🦅]@Coin Toss 🪙 answer_format: only_result dice_image_style: none dice_image_color: none`"
   ]
 ]
 
@@ -3001,7 +3001,7 @@ de.janno.discord.bot.command.help.QuickstartCommandMockTest.handleSlashCommandEv
 de.janno.discord.bot.command.help.QuickstartCommandMockTest.handleSlashCommandEvent[COIN_fr]=[
   [
     "createMessageWithoutReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=Cliquez sur un bouton pour lancer les dés, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Pile ou face 🪙, id=custom_dice\u001E1_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE)",
-    "reply: `/custom_dice start buttons: 1d[Face 😀/Pile 1️⃣]@Pile ou face 🪙 answer_format: without_expression dice_image_style: none dice_image_color: none`"
+    "reply: `/custom_dice start buttons: 1d[Face 😀/Pile 1️⃣]@Pile ou face 🪙 answer_format: only_result dice_image_style: none dice_image_color: none`"
   ]
 ]
 
@@ -3009,7 +3009,7 @@ de.janno.discord.bot.command.help.QuickstartCommandMockTest.handleSlashCommandEv
 de.janno.discord.bot.command.help.QuickstartCommandMockTest.handleSlashCommandEvent[COIN_pt_BR]=[
   [
     "createMessageWithoutReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=Clique em um botão para rolar os dados, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Cara ou Coroa 🪙, id=custom_dice\u001E1_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE)",
-    "reply: `/custom_dice start buttons: 1d[Cara 😀/Coroa ♛]@Cara ou Coroa 🪙 answer_format: without_expression dice_image_style: none dice_image_color: none`"
+    "reply: `/custom_dice start buttons: 1d[Cara 😀/Coroa ♛]@Cara ou Coroa 🪙 answer_format: only_result dice_image_style: none dice_image_color: none`"
   ]
 ]
 

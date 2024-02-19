@@ -88,7 +88,7 @@ public class SumCustomSetConfig extends Config {
         if (systemButtonNewLine) {
             buttons += ";;";
         }
-        return "%s: %s %s: %s %s: %s %s%s%s".formatted(SumCustomSetCommand.BUTTONS_COMMAND_OPTIONS_NAME, String.join(" ", buttons),
+        return "%s: %s %s: %s %s: %s %s%s%s".formatted(SumCustomSetCommand.BUTTONS_COMMAND_OPTIONS_NAME, String.join(" ", buttons).replace("\n", "\\n"),
                 SumCustomSetCommand.ALWAYS_SUM_RESULTS_COMMAND_OPTIONS_NAME, alwaysSumResult,
                 SumCustomSetCommand.HIDE_EXPRESSION_IN_ANSWER_OPTIONS_NAME, hideExpressionInStatusAndAnswer,
                 Optional.ofNullable(prefix).map(p -> "%s: %s ".formatted(SumCustomSetCommand.PREFIX_OPTIONS_NAME, p)).orElse(""),

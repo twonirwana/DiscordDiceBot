@@ -60,6 +60,9 @@ public class FetchCommand implements SlashCommand {
         Optional<MessageConfigDTO> messageConfigDTOOptional = persistenceManager.getLastMessageDataInChannel(event.getChannelId(),
                 LocalDateTime.now().minus(fetchDelayMs, ChronoUnit.MILLIS),
                 oldestMessageIdWaitingToDeleted);
+        log.info("{}: Fetch - {}",
+                event.getRequester().toLogString(),
+                messageConfigDTOOptional.map(m -> "found " + m.getCommandId()).orElse("not found"));
         if (messageConfigDTOOptional.isPresent()) {
             final MessageConfigDTO messageConfigDTO = messageConfigDTOOptional.get();
             final UUID configUUID = messageConfigDTO.getConfigUUID();

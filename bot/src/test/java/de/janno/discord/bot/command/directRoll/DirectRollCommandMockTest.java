@@ -49,6 +49,34 @@ public class DirectRollCommandMockTest {
     }
 
     @Test
+    void roll_multiLine() {
+        DirectRollCommand directRollCommand = new DirectRollCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
+
+        SlashEventAdaptorMock slashEvent = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
+                .name("expression")
+                .stringValue("d[a\\nb\\nc,\\nd,e\\n]@\\nAttack\\nDown\\n")
+                .build()));
+        directRollCommand.handleSlashCommandEvent(slashEvent, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"), Locale.ENGLISH).block();
+
+
+        assertThat(slashEvent.getActions()).containsExactlyInAnyOrder(
+                "acknowledgeAndRemoveSlash",
+                """
+                        createResultMessageWithReference: EmbedOrMessageDefinition(title=
+                        Attack
+                        Down
+                         ⇒ a
+                        b
+                        c, descriptionOrContent=d[a
+                        b
+                        c,
+                        d,e
+                        ]: [a
+                        b
+                        c], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED)""");
+    }
+
+    @Test
     void roll_warn() {
         DirectRollCommand directRollCommand = new DirectRollCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
 

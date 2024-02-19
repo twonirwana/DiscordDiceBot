@@ -46,17 +46,17 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     public static final String COMMAND_NAME = "custom_parameter";
     static final String EXPRESSION_OPTION_NAME = "expression";
     private static final String CLEAR_BUTTON_ID = "clear";
-    private final static Pattern PARAMETER_VARIABLE_PATTERN = Pattern.compile("\\Q{\\E.*?\\Q}\\E");
+    private final static Pattern PARAMETER_VARIABLE_PATTERN = Pattern.compile("\\Q{\\E.*?\\Q}\\E", Pattern.DOTALL);
     private static final String SELECTED_PARAMETER_DELIMITER = "\t";
     private static final String RANGE_DELIMITER = ":";
     private final static String RANGE_REPLACE_REGEX = RANGE_DELIMITER + ".+?(?=\\Q}\\E)";
     private final static Pattern BUTTON_RANGE_PATTERN = Pattern.compile(RANGE_DELIMITER + "(-?\\d+)<=>(-?\\d+)");
     private final static String BUTTON_VALUE_DELIMITER = "/";
-    private final static Pattern BUTTON_VALUE_PATTERN = Pattern.compile(RANGE_DELIMITER + "(.+" + BUTTON_VALUE_DELIMITER + ".+)}");
+    private final static Pattern BUTTON_VALUE_PATTERN = Pattern.compile(RANGE_DELIMITER + "(.+" + BUTTON_VALUE_DELIMITER + ".+)}", Pattern.DOTALL);
     private static final String STATE_DATA_TYPE_ID = "CustomParameterStateDataV2";
     private static final String STATE_DATA_TYPE_ID_LEGACY = "CustomParameterStateData";
     private static final String CONFIG_TYPE_ID = "CustomParameterConfig";
-    private final static Pattern LABEL_MATCHER = Pattern.compile("@[^}]+$");
+    private final static Pattern LABEL_MATCHER = Pattern.compile("@[^}]+$", Pattern.DOTALL);
     private final DiceSystemAdapter diceSystemAdapter;
 
     public CustomParameterCommand(PersistenceManager persistenceManager, CachingDiceEvaluator cachingDiceEvaluator) {
@@ -78,7 +78,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     }
 
     private static String removeRange(String expression) {
-        return expression.replaceAll(RANGE_REPLACE_REGEX, "");
+        return Pattern.compile(RANGE_REPLACE_REGEX, Pattern.DOTALL).matcher(expression).replaceAll("");
     }
 
 
@@ -117,17 +117,17 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
                         List<Parameter.ParameterOption> parameters = getParameterForParameterExpression(config, sp.getParameterExpression())
                                 .map(Parameter::getParameterOptions).orElse(List.of());
                         Optional<Parameter.ParameterOption> selectedParameterOption = parameters.stream()
-                                .filter(vl -> vl.getId().equals(buttonValue))
+                                .filter(vl -> vl.id().equals(buttonValue))
                                 .findFirst();
                         //fallback for legacy buttons, which use the value and not the index as button id
                         //This can be false if the old value matches an indexId, e.g. is something like id2
                         if (selectedParameterOption.isEmpty()) {
                             selectedParameterOption = parameters.stream()
-                                    .filter(vl -> vl.getValue().equals(buttonValue))
+                                    .filter(vl -> vl.value().equals(buttonValue))
                                     .findFirst();
                         }
                         Parameter.ParameterOption selectedParameter = selectedParameterOption.orElseThrow(() -> new RuntimeException("Found no parameter in for value %s in %s".formatted(buttonValue, parameters)));
-                        return new SelectedParameter(sp.getParameterExpression(), sp.getName(), selectedParameter.getValue(), selectedParameter.getLabel());
+                        return new SelectedParameter(sp.getParameterExpression(), sp.getName(), selectedParameter.value(), selectedParameter.label());
                     }
                     return sp.copy();
                 }).collect(ImmutableList.toImmutableList());
@@ -307,7 +307,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
 
     @Override
     protected @NonNull CustomParameterConfig getConfigFromStartOptions(@NonNull CommandInteractionOption options, @NonNull Locale userLocale) {
-        String baseExpression = options.getStringSubOptionWithName(EXPRESSION_OPTION_NAME).orElse("").trim();
+        String baseExpression = options.getStringSubOptionWithName(EXPRESSION_OPTION_NAME).orElse("").trim().replace("\\n", "\n");
         Long answerTargetChannelId = BaseCommandOptions.getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null);
         AnswerFormatType answerType = BaseCommandOptions.getAnswerTypeFromStartCommandOption(options).orElse(defaultAnswerFormat());
         return new CustomParameterConfig(answerTargetChannelId,
@@ -463,8 +463,8 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
                 .findFirst().orElse(config.getParameters().getFirst());
         List<ButtonDefinition> buttons = parameter.getParameterOptions().stream()
                 .map(vl -> ButtonDefinition.builder()
-                        .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), vl.getId(), configUUID))
-                        .label(vl.getLabel())
+                        .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), vl.id(), configUUID))
+                        .label(vl.label())
                         .build())
                 .collect(Collectors.toList());
         boolean hasSelectedParameter = hasAnySelectedValues(state);
@@ -503,7 +503,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
         if (variableCount > 4) {
             return Optional.of(I18n.getMessage("custom_parameter.validation.variable.count.max.four", userLocale));
         }
-        if (Pattern.compile("(\\Q{\\E(?)\\Q{\\E(?)(.*)(?)\\Q}\\E(?)\\Q}\\E)").matcher(baseExpression).find()) {
+        if (Pattern.compile("(\\Q{\\E(?)\\Q{\\E(?)(.*)(?)\\Q}\\E(?)\\Q}\\E)", Pattern.DOTALL).matcher(baseExpression).find()) {
             return Optional.of(I18n.getMessage("custom_parameter.validation.nested.brackets", userLocale));
         }
         if (StringUtils.countMatches(baseExpression, "{") != StringUtils.countMatches(baseExpression, "}")) {
@@ -534,7 +534,10 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
                 .map(s -> validateStateWithCustomIdAndParameter(config, s))
                 .filter(Objects::nonNull)
                 .findFirst();
-        log.info("{} with parameter options {} in {}ms validated", config.getBaseExpression(), config.getParameters(), stopwatch.elapsed(TimeUnit.MILLISECONDS));
+        log.info("{} with parameter options {} in {}ms validated",
+                config.getBaseExpression().replace("\n", " "),
+                config.getParameters(),
+                stopwatch.elapsed(TimeUnit.MILLISECONDS));
         return result;
     }
 
@@ -578,7 +581,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     List<ButtonLabelAndId> getButtons(CustomParameterConfig config, String parameterExpression) {
         return getParameterForParameterExpression(config, parameterExpression)
                 .map(Parameter::getParameterOptions).orElse(List.of()).stream()
-                .map(vl -> new ButtonLabelAndId(vl.getLabel(), vl.getId()))
+                .map(vl -> new ButtonLabelAndId(vl.label(), vl.id()))
                 .toList();
     }
 
@@ -624,8 +627,8 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
 
     private Optional<String> getValueFromId(ButtonLabelAndId buttonLabelAndId, List<Parameter.ParameterOption> parameterOptions) {
         return parameterOptions.stream()
-                .filter(po -> Objects.equals(buttonLabelAndId.getId(), po.getId()))
-                .map(Parameter.ParameterOption::getValue)
+                .filter(po -> Objects.equals(buttonLabelAndId.getId(), po.id()))
+                .map(Parameter.ParameterOption::value)
                 .findFirst();
     }
 
