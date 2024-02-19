@@ -541,7 +541,7 @@ Operators with a higher precedence are evaluated first.
 Brackets can be used to change the order of evaluation.
 For example `1d4+3d6` is the appending of roll of 1d4 and 3d6, but `(1d4+3=)d6)` gets first the sum of the roll of 1d4 and 3 and then rolls this number of d6.
 
-The number of dice is limited to 1000 and every number approve 10 digits or with more than 10 digit after the decimal dot result in an error.
+The number of dice is limited to 1000 and every number approve 9 digits or with more than 9 digit after the decimal dot result in an error.
 
 Boolean values will be represented by `'true'` and `'false'`.
 
