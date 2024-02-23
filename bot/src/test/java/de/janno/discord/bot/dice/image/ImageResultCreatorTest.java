@@ -30,7 +30,7 @@ class ImageResultCreatorTest {
     private final ImageResultCreator underTest = new ImageResultCreator();
 
     private static String getDataHash(@Nullable Supplier<? extends InputStream> data) throws IOException {
-        if(data == null){
+        if (data == null) {
             return null;
         }
         //FileUtils.copyInputStreamToFile(data.get(), new File("test2.png"));
@@ -480,7 +480,7 @@ class ImageResultCreatorTest {
     }
 
     @Test
-    void getImageForRoll_polyhedralDrawColor() throws ExpressionException, IOException {
+    void getImageForRoll_polyhedralDrawColor() throws ExpressionException {
         List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(2, 4, 6, 8, 10, 12, 20, 99), 1000)
                 .evaluate("color(1d2,'indigo')  +color(1d4,'gray') + color(1d6,'black') + color(1d8,'white') + color(1d10,'red') + color(1d12,'blue') + color(1d20,'green') + color(1d100,'orange')");
 
@@ -493,7 +493,7 @@ class ImageResultCreatorTest {
     }
 
     @Test
-    void getImageForRoll_polyhedralDrawColorCustom() throws ExpressionException, IOException {
+    void getImageForRoll_polyhedralDrawColorCustom() throws ExpressionException {
         List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(2, 2, 6, 8, 10, 12, 20, 1, 1, 1), 1000)
                 .evaluate("color(d[\uD83D/\uD83D\uDC41],'indigo')" +
                                 "+ color(1d[-1/-2/-3/+1/+2/+3],'gray') " +
@@ -575,6 +575,26 @@ class ImageResultCreatorTest {
 
         assertThat(res).isNotNull();
         assertThat(getDataHash(res)).isEqualTo("bef02d399cfabbb7c5396af3d555206e07287deba7a281fca90e501f489f7279");
+    }
+
+
+    @Test
+    void getImageForRoll_none_3dRedWhite() throws ExpressionException {
+        List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(1), 1000).evaluate("1d6 col 'none'");
+
+        Supplier<? extends InputStream> res = underTest.getImageForRoll(rolls, new DiceStyleAndColor(DiceImageStyle.polyhedral_3d, "red_and_white"));
+
+        assertThat(res).isNull();
+    }
+
+    @Test
+    void getImageForRoll_noneAndVisible_3dRedWhite() throws ExpressionException, IOException {
+        List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(1, 2), 1000).evaluate("1d6 col 'none' + 1d6");
+
+        Supplier<? extends InputStream> res = underTest.getImageForRoll(rolls, new DiceStyleAndColor(DiceImageStyle.polyhedral_3d, "red_and_white"));
+
+        assertThat(res).isNotNull();
+        assertThat(getDataHash(res)).isEqualTo("beb6e26993ee00f8c4fe5e9fd8f4f39cf0450626bbb25a020d18c22717808fe5");
     }
 
     @Test
