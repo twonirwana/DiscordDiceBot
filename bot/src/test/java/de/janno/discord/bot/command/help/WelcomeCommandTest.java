@@ -322,8 +322,8 @@ class WelcomeCommandTest {
                         "d20",
                         "k",
                         "l",
-                        "adv",
-                        "dis",
+                        "ADV",
+                        "DIS",
                         "Roll",
                         "Clear",
                         "Back");
