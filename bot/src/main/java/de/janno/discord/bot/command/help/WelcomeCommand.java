@@ -157,7 +157,7 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
             UUID configUUID = uuidSupplier.get();
             final Optional<MessageConfigDTO> newMessageConfig = createMessageConfig(configUUID, request.guildId(), request.channelId(), config);
             newMessageConfig.ifPresent(persistenceManager::saveMessageConfig);
-            return createNewButtonMessage(configUUID, config);
+            return createNewButtonMessage(configUUID, config, request.channelId());
         };
     }
 
@@ -177,7 +177,7 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
 
 
     @Override
-    public @NonNull EmbedOrMessageDefinition createNewButtonMessage(@NonNull UUID configUUID, @NonNull Config config) {
+    public @NonNull EmbedOrMessageDefinition createNewButtonMessage(@NonNull UUID configUUID, @NonNull Config config, long channelId) {
         return EmbedOrMessageDefinition.builder()
                 .type(EmbedOrMessageDefinition.Type.MESSAGE)
                 .descriptionOrContent(I18n.getMessage("welcome.message", config.getConfigLocale()))

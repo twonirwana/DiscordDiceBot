@@ -85,6 +85,58 @@ public class SumCustomSetCommandMockTest {
     }
 
     @Test
+    void directRoll() {
+        SumCustomSetCommand underTest = new SumCustomSetCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 10000));
+
+
+        SumCustomSetConfig config = new SumCustomSetConfig(null, ImmutableList.of(
+                new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "+1d6", false, true),
+                new ButtonIdLabelAndDiceExpression("2_button", "bonus", "+2", true, false)), DiceParserSystem.DICE_EVALUATOR, true, true, false, null, null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
+        ButtonEventAdaptorMockFactory<SumCustomSetConfig, SumCustomSetStateDataV2> factory = new ButtonEventAdaptorMockFactory<>("sum_custom_set", underTest, config, persistenceManager, false);
+
+        ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("2_button");
+        underTest.handleComponentInteractEvent(click1).block();
+        ButtonEventAdaptorMock click2 = factory.getButtonClickOnLastButtonMessage("1_button");
+        underTest.handleComponentInteractEvent(click2).block();
+
+
+        expect.scenario("click1").toMatchSnapshot(click1.getSortedActions());
+        expect.scenario("click2").toMatchSnapshot(click2.getSortedActions());
+    }
+
+    @Test
+    void roll_disabled() {
+        SumCustomSetCommand underTest = new SumCustomSetCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 10000));
+
+
+        SumCustomSetConfig config = new SumCustomSetConfig(null, ImmutableList.of(
+                new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "+1d6", false, true),
+                new ButtonIdLabelAndDiceExpression("2_button", "bonus", "2+", true, false)), DiceParserSystem.DICE_EVALUATOR, true, true, false, null, null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
+        ButtonEventAdaptorMockFactory<SumCustomSetConfig, SumCustomSetStateDataV2> factory = new ButtonEventAdaptorMockFactory<>("sum_custom_set", underTest, config, persistenceManager, false);
+
+        ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("2_button");
+        underTest.handleComponentInteractEvent(click1).block();
+
+        expect.scenario("click1").toMatchSnapshot(click1.getSortedActions());
+    }
+
+    @Test
+    void directRoll_disabled() {
+        SumCustomSetCommand underTest = new SumCustomSetCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 10000));
+
+
+        SumCustomSetConfig config = new SumCustomSetConfig(null, ImmutableList.of(
+                new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "*1d6", false, true),
+                new ButtonIdLabelAndDiceExpression("2_button", "bonus", "2*", true, false)), DiceParserSystem.DICE_EVALUATOR, true, true, false, null, null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
+        ButtonEventAdaptorMockFactory<SumCustomSetConfig, SumCustomSetStateDataV2> factory = new ButtonEventAdaptorMockFactory<>("sum_custom_set", underTest, config, persistenceManager, false);
+
+        ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("2_button");
+        underTest.handleComponentInteractEvent(click1).block();
+
+        expect.scenario("click1").toMatchSnapshot(click1.getSortedActions());
+    }
+
+    @Test
     void slash_start_multiLine() {
         SumCustomSetCommand underTest = new SumCustomSetCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
 
@@ -99,7 +151,7 @@ public class SumCustomSetCommandMockTest {
 
         assertThat(slashEvent.getActions()).containsExactlyInAnyOrder(
                 "reply: commandString",
-                "createMessageWithoutReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click the buttons to add dice to the set and then on Roll, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=d[a b c, d,e ], id=sum_custom_set1_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=Attack Down, id=sum_custom_set2_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=3d10,3d10,3d10, id=sum_custom_set3_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=Roll, id=sum_custom_setroll00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=true), ButtonDefinition(label=Clear, id=sum_custom_setclear00000000-0000-0000-0000-000000000000, style=DANGER, disabled=false)]), ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Back, id=sum_custom_setback00000000-0000-0000-0000-000000000000, style=SECONDARY, disabled=false)])], hasImage=false, type=MESSAGE)"
+                "createMessageWithoutReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click the buttons to add dice to the set and then on Roll, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=d[a b c, d,e ], id=sum_custom_set1_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=Attack Down, id=sum_custom_set2_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=3d10,3d10,3d10, id=sum_custom_set3_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=Roll, id=sum_custom_setroll00000000-0000-0000-0000-000000000000, style=SUCCESS, disabled=true), ButtonDefinition(label=Clear, id=sum_custom_setclear00000000-0000-0000-0000-000000000000, style=DANGER, disabled=false)]), ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Back, id=sum_custom_setback00000000-0000-0000-0000-000000000000, style=SECONDARY, disabled=false)])], hasImage=false, type=MESSAGE)"
         );
 
         Optional<ButtonEventAdaptorMock> buttonEventAdaptorMock = slashEvent.getFirstButtonEventMockOfLastButtonMessage();

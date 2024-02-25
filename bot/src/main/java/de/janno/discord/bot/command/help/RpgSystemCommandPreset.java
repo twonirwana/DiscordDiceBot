@@ -210,7 +210,7 @@ public class RpgSystemCommandPreset {
 
     private <C extends Config> EmbedOrMessageDefinition startPreset(C config, AbstractCommand<C, ?> command, UUID newConfigUUID, long guildId, long channelId) {
         command.createMessageConfig(newConfigUUID, guildId, channelId, config).ifPresent(persistenceManager::saveMessageConfig);
-        return command.createNewButtonMessage(newConfigUUID, config);
+        return command.createNewButtonMessage(newConfigUUID, config, channelId);
     }
 
     public static String getCommandString(PresetId presetId, Locale locale) {

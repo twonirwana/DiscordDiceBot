@@ -41,7 +41,7 @@ class CountSuccessesCommandTest {
     @Test
     void getButtonMessage_noGlitch() {
         CountSuccessesConfig config = new CountSuccessesConfig(null, 6, 6, "no_glitch", 15, 1, Set.of(), Set.of(), AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"));
-        assertThat(underTest.createNewButtonMessage(UUID.randomUUID(), config).getDescriptionOrContent()).isEqualTo("Click to roll the dice against 6");
+        assertThat(underTest.createNewButtonMessage(UUID.randomUUID(), config, 1).getDescriptionOrContent()).isEqualTo("Click to roll the dice against 6");
     }
 
 
@@ -49,21 +49,21 @@ class CountSuccessesCommandTest {
     void getButtonMessage_halfDiceOne() {
         CountSuccessesConfig config = new CountSuccessesConfig(null, 6, 6, "half_dice_one", 15, 1, Set.of(), Set.of(), AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"));
 
-        assertThat(underTest.createNewButtonMessage(UUID.randomUUID(), config).getDescriptionOrContent()).isEqualTo("Click to roll the dice against 6 and check for more then half of dice 1s");
+        assertThat(underTest.createNewButtonMessage(UUID.randomUUID(), config, 1).getDescriptionOrContent()).isEqualTo("Click to roll the dice against 6 and check for more then half of dice 1s");
     }
 
     @Test
     void getButtonMessage_countOnes() {
         CountSuccessesConfig config = new CountSuccessesConfig(null, 6, 6, "count_ones", 15, 1, Set.of(), Set.of(), AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"));
 
-        assertThat(underTest.createNewButtonMessage(UUID.randomUUID(), config).getDescriptionOrContent()).isEqualTo("Click to roll the dice against 6 and count the 1s");
+        assertThat(underTest.createNewButtonMessage(UUID.randomUUID(), config, 1).getDescriptionOrContent()).isEqualTo("Click to roll the dice against 6 and count the 1s");
     }
 
     @Test
     void getButtonMessage_subtractOnes() {
         CountSuccessesConfig config = new CountSuccessesConfig(null, 6, 6, "subtract_ones", 15, 1, Set.of(), Set.of(), AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"));
 
-        assertThat(underTest.createNewButtonMessage(UUID.randomUUID(), config).getDescriptionOrContent()).isEqualTo("Click to roll the dice against 6 minus 1s");
+        assertThat(underTest.createNewButtonMessage(UUID.randomUUID(), config, 1).getDescriptionOrContent()).isEqualTo("Click to roll the dice against 6 minus 1s");
     }
 
     @Test
@@ -212,7 +212,7 @@ class CountSuccessesCommandTest {
     void getButtonLayout() {
         UUID uuid = UUID.fromString("00000000-0000-0000-0000-000000000000");
 
-        List<ComponentRowDefinition> res = underTest.createNewButtonMessage(uuid, new CountSuccessesConfig(null, 6, 6, "count_ones", 15, 1, Set.of(), Set.of(), AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"))).
+        List<ComponentRowDefinition> res = underTest.createNewButtonMessage(uuid, new CountSuccessesConfig(null, 6, 6, "count_ones", 15, 1, Set.of(), Set.of(), AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none")), 1L).
                 getComponentRowDefinitions();
 
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel))

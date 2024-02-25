@@ -94,7 +94,7 @@ class CustomDiceCommandTest {
 
     @Test
     void getButtonMessage() {
-        String res = underTest.createNewButtonMessage(UUID.randomUUID(), new CustomDiceConfig(null, ImmutableList.of(), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH)).getDescriptionOrContent();
+        String res = underTest.createNewButtonMessage(UUID.randomUUID(), new CustomDiceConfig(null, ImmutableList.of(), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH), 1L).getDescriptionOrContent();
 
         assertThat(res).isEqualTo("Click on a button to roll the dice");
     }
@@ -197,7 +197,7 @@ class CustomDiceCommandTest {
 
     @Test
     void getButtonLayout() {
-        List<ComponentRowDefinition> res = underTest.createNewButtonMessage(UUID.fromString("00000000-0000-0000-0000-000000000000"), new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "2d6", "2d6"), new ButtonIdLabelAndDiceExpression("2_button", "Attack", "1d20")), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH))
+        List<ComponentRowDefinition> res = underTest.createNewButtonMessage(UUID.fromString("00000000-0000-0000-0000-000000000000"), new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "2d6", "2d6"), new ButtonIdLabelAndDiceExpression("2_button", "Attack", "1d20")), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH), 1L)
                 .getComponentRowDefinitions();
 
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel)).containsExactly("2d6", "Attack");
@@ -337,10 +337,10 @@ class CustomDiceCommandTest {
     }
 
     @Test
-    public void testToCommandString(){
+    public void testToCommandString() {
         CustomDiceConfig config = new CustomDiceConfig(123L, ImmutableList.of(
-                new ButtonIdLabelAndDiceExpression("1_button", "Label", "+1d6", false),
-                new ButtonIdLabelAndDiceExpression("2_button", "+2d4", "+2d4", true)), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.compact, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v2, "blue_and_silver"), Locale.GERMAN);
+                new ButtonIdLabelAndDiceExpression("1_button", "Label", "+1d6", false, false),
+                new ButtonIdLabelAndDiceExpression("2_button", "+2d4", "+2d4", true, false)), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.compact, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v2, "blue_and_silver"), Locale.GERMAN);
 
         assertThat(config.toCommandOptionsString()).isEqualTo("buttons: +1d6@Label;;+2d4 answer_format: compact dice_image_style: polyhedral_alies_v2 dice_image_color: blue_and_silver target_channel: <#123>");
     }
@@ -527,7 +527,7 @@ class CustomDiceCommandTest {
     }
 
     @Test
-    void deserialization() {
+    void deserialization_legacy7() {
         UUID configUUID = UUID.randomUUID();
         MessageConfigDTO savedData = new MessageConfigDTO(configUUID, 1L, 1660644934298L, "custom_dice", "CustomDiceConfig", """
                 ---
@@ -552,8 +552,42 @@ class CustomDiceCommandTest {
 
         ConfigAndState<CustomDiceConfig, StateData> configAndState = underTest.deserializeAndUpdateState(savedData, "3");
         assertThat(configAndState.getConfig()).isEqualTo(new CustomDiceConfig(123L, ImmutableList.of(
-                new ButtonIdLabelAndDiceExpression("1_button", "Label", "+1d6", false),
-                new ButtonIdLabelAndDiceExpression("2_button", "+2d4", "+2d4", true)), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.compact, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v2, "blue_and_silver"), Locale.GERMAN));
+                new ButtonIdLabelAndDiceExpression("1_button", "Label", "+1d6", false, false),
+                new ButtonIdLabelAndDiceExpression("2_button", "+2d4", "+2d4", true, false)), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.compact, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v2, "blue_and_silver"), Locale.GERMAN));
+        assertThat(configAndState.getConfigUUID()).isEqualTo(configUUID);
+        assertThat(configAndState.getState().getData()).isEqualTo(StateData.empty());
+    }
+
+    @Test
+    void deserialization() {
+        UUID configUUID = UUID.randomUUID();
+        MessageConfigDTO savedData = new MessageConfigDTO(configUUID, 1L, 1660644934298L, "custom_dice", "CustomDiceConfig", """
+                ---
+                answerTargetChannelId: 123
+                configLocale: "de"
+                buttonIdLabelAndDiceExpressions:
+                - buttonId: "1_button"
+                  label: "Label"
+                  diceExpression: "+1d6"
+                  newLine: false
+                  directRoll: false
+                - buttonId: "2_button"
+                  label: "+2d4"
+                  diceExpression: "+2d4"
+                  newLine: true
+                  directRoll: false
+                diceParserSystem: "DICE_EVALUATOR"
+                answerFormatType: compact
+                diceStyleAndColor:
+                  diceImageStyle: "polyhedral_alies_v2"
+                  configuredDefaultColor: "blue_and_silver"
+                """);
+
+
+        ConfigAndState<CustomDiceConfig, StateData> configAndState = underTest.deserializeAndUpdateState(savedData, "3");
+        assertThat(configAndState.getConfig()).isEqualTo(new CustomDiceConfig(123L, ImmutableList.of(
+                new ButtonIdLabelAndDiceExpression("1_button", "Label", "+1d6", false, false),
+                new ButtonIdLabelAndDiceExpression("2_button", "+2d4", "+2d4", true, false)), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.compact, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v2, "blue_and_silver"), Locale.GERMAN));
         assertThat(configAndState.getConfigUUID()).isEqualTo(configUUID);
         assertThat(configAndState.getState().getData()).isEqualTo(StateData.empty());
     }
@@ -562,8 +596,8 @@ class CustomDiceCommandTest {
     void configSerialization() {
         UUID configUUID = UUID.fromString("00000000-0000-0000-0000-000000000000");
         CustomDiceConfig config = new CustomDiceConfig(123L, ImmutableList.of(
-                new ButtonIdLabelAndDiceExpression("1_button", "Label", "+1d6", false),
-                new ButtonIdLabelAndDiceExpression("2_button", "+2d4", "+2d4", true)), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.compact, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v2, "blue_and_silver"), Locale.GERMAN);
+                new ButtonIdLabelAndDiceExpression("1_button", "Label", "+1d6", false, false),
+                new ButtonIdLabelAndDiceExpression("2_button", "+2d4", "+2d4", true, false)), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.compact, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v2, "blue_and_silver"), Locale.GERMAN);
         Optional<MessageConfigDTO> toSave = underTest.createMessageConfig(configUUID, 1L, 2L, config);
         assertThat(toSave).isPresent();
 

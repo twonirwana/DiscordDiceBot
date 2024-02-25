@@ -24,7 +24,7 @@ public class Parameter {
         return "%s of %s".formatted(name, parameterOptions).replace("\n", " ");
     }
 
-    public record ParameterOption(@NonNull String value, @NonNull String label, @NonNull String id) {
+    public record ParameterOption(@NonNull String value, @NonNull String label, @NonNull String id, boolean directRoll) {
         @Override
         public String toString() {
             return "%s@%s".formatted(value, label).replace("\n", " ");

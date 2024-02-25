@@ -41,7 +41,7 @@ public class CustomParameterStateData extends StateData {
     @JsonIgnore
     public Optional<SelectedParameter> getNextUnselectedParameterExpression() {
         return selectedParameterValues.stream()
-                .filter(sp -> sp.getSelectedValue() == null)
+                .filter(sp -> !sp.isFinished())
                 .findFirst();
     }
 }

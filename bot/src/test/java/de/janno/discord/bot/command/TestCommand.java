@@ -44,7 +44,7 @@ public class TestCommand extends AbstractCommand<Config, StateData> {
     }
 
     @Override
-    public @NonNull EmbedOrMessageDefinition createNewButtonMessage(@NonNull UUID configId, @NonNull Config config) {
+    public @NonNull EmbedOrMessageDefinition createNewButtonMessage(@NonNull UUID configId, @NonNull Config config, long channelId) {
         throw new NotImplementedException("Not implemented");
     }
 

@@ -83,8 +83,8 @@ class ButtonHelperTest {
 
     @Test
     public void createButtonLayout() {
-        List<ComponentRowDefinition> res = ButtonHelper.createButtonLayout("id", UUID.fromString("00000000-0000-0000-0000-000000000000"), List.of(new ButtonIdLabelAndDiceExpression("1", "1", "1", false),
-                new ButtonIdLabelAndDiceExpression("2", "2", "2", false)));
+        List<ComponentRowDefinition> res = ButtonHelper.createButtonLayout("id", UUID.fromString("00000000-0000-0000-0000-000000000000"), List.of(new ButtonIdLabelAndDiceExpression("1", "1", "1", false, false),
+                new ButtonIdLabelAndDiceExpression("2", "2", "2", false, false)));
 
         assertThat(res).hasSize(1);
         assertThat(res.getFirst().getButtonDefinitions()).containsExactly(ButtonDefinition.builder().id("id\u001E1\u001E00000000-0000-0000-0000-000000000000").label("1").disabled(false).style(ButtonDefinition.Style.PRIMARY).build(),
@@ -94,8 +94,8 @@ class ButtonHelperTest {
 
     @Test
     public void createButtonLayoutLinebreak() {
-        List<ComponentRowDefinition> res = ButtonHelper.createButtonLayout("id", UUID.fromString("00000000-0000-0000-0000-000000000000"), List.of(new ButtonIdLabelAndDiceExpression("1", "1", "1", false),
-                new ButtonIdLabelAndDiceExpression("2", "2", "2", true)));
+        List<ComponentRowDefinition> res = ButtonHelper.createButtonLayout("id", UUID.fromString("00000000-0000-0000-0000-000000000000"), List.of(new ButtonIdLabelAndDiceExpression("1", "1", "1", false, false),
+                new ButtonIdLabelAndDiceExpression("2", "2", "2", true, false)));
 
         assertThat(res).hasSize(2);
         assertThat(res.get(0).getButtonDefinitions()).containsExactly(ButtonDefinition.builder().id("id\u001E1\u001E00000000-0000-0000-0000-000000000000").label("1").disabled(false).style(ButtonDefinition.Style.PRIMARY).build());
