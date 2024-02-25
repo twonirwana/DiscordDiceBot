@@ -287,6 +287,13 @@ class WelcomeCommandTest {
                         "sum_custom_set13_button00000000-0000-0000-0000-000000000000",
                         "sum_custom_set14_button00000000-0000-0000-0000-000000000000",
                         "sum_custom_set15_button00000000-0000-0000-0000-000000000000",
+                        "sum_custom_set16_button00000000-0000-0000-0000-000000000000",
+                        "sum_custom_set17_button00000000-0000-0000-0000-000000000000",
+                        "sum_custom_set18_button00000000-0000-0000-0000-000000000000",
+                        "sum_custom_set19_button00000000-0000-0000-0000-000000000000",
+                        "sum_custom_set20_button00000000-0000-0000-0000-000000000000",
+                        "sum_custom_set21_button00000000-0000-0000-0000-000000000000",
+                        "sum_custom_set22_button00000000-0000-0000-0000-000000000000",
                         "sum_custom_setroll00000000-0000-0000-0000-000000000000",
                         "sum_custom_setclear00000000-0000-0000-0000-000000000000",
                         "sum_custom_setback00000000-0000-0000-0000-000000000000");
@@ -303,13 +310,20 @@ class WelcomeCommandTest {
                         "4",
                         "5",
                         "6",
-                        "d",
-                        "k",
+                        "(",
+                        ")",
                         "1",
                         "2",
                         "3",
+                        "d",
+                        "r",
                         "0",
+                        "00",
+                        "d20",
+                        "k",
                         "l",
+                        "adv",
+                        "dis",
                         "Roll",
                         "Clear",
                         "Back");
