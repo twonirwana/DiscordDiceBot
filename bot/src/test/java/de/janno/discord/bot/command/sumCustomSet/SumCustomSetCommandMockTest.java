@@ -162,6 +162,35 @@ public class SumCustomSetCommandMockTest {
         );
     }
 
+    @Test
+    void slash_start_directRoll() {
+        SumCustomSetCommand underTest = new SumCustomSetCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
+
+        SlashEventAdaptorMock slashEvent = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
+                .name("start")
+                .option(CommandInteractionOption.builder()
+                        .name("buttons")
+                        .stringValue("+1d10@!d10;+1@!;+3;+d6@d6")
+                        .build())
+                .build()));
+        underTest.handleSlashCommandEvent(slashEvent, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"), Locale.ENGLISH).block();
+
+        assertThat(slashEvent.getActions()).containsExactlyInAnyOrder(
+                "reply: commandString",
+                "createMessageWithoutReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click the buttons to add dice to the set and then on Roll, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=d10, id=sum_custom_set1_button00000000-0000-0000-0000-000000000000, style=SUCCESS, disabled=false), ButtonDefinition(label=!, id=sum_custom_set2_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=+3, id=sum_custom_set3_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=d6, id=sum_custom_set4_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=Roll, id=sum_custom_setroll00000000-0000-0000-0000-000000000000, style=SUCCESS, disabled=true)]), ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Clear, id=sum_custom_setclear00000000-0000-0000-0000-000000000000, style=DANGER, disabled=false), ButtonDefinition(label=Back, id=sum_custom_setback00000000-0000-0000-0000-000000000000, style=SECONDARY, disabled=false)])], hasImage=false, type=MESSAGE)"
+        );
+
+        Optional<ButtonEventAdaptorMock> buttonEventAdaptorMock = slashEvent.getFirstButtonEventMockOfLastButtonMessage();
+        assertThat(buttonEventAdaptorMock).isPresent();
+        underTest.handleComponentInteractEvent(buttonEventAdaptorMock.get()).block();
+        assertThat(buttonEventAdaptorMock.get().getActions()).containsExactlyInAnyOrder(
+                "editMessage: message:Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,3_button,4_button,roll,clear,back",
+                "createResultMessageWithReference: EmbedOrMessageDefinition(title=d10 ⇒ 5, descriptionOrContent=+1d10, fields=[], componentRowDefinitions=[], hasImage=true, type=EMBED), targetChannelId: null",
+                "deleteMessageById: 1",
+                "createMessageWithoutReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click the buttons to add dice to the set and then on Roll, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=d10, id=sum_custom_set1_button00000000-0000-0000-0000-000000000000, style=SUCCESS, disabled=false), ButtonDefinition(label=!, id=sum_custom_set2_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=+3, id=sum_custom_set3_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=d6, id=sum_custom_set4_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=Roll, id=sum_custom_setroll00000000-0000-0000-0000-000000000000, style=SUCCESS, disabled=true)]), ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Clear, id=sum_custom_setclear00000000-0000-0000-0000-000000000000, style=DANGER, disabled=false), ButtonDefinition(label=Back, id=sum_custom_setback00000000-0000-0000-0000-000000000000, style=SECONDARY, disabled=false)])], hasImage=false, type=MESSAGE)"
+        );
+    }
+
 
     @Test
     void roll_fullGerman() {

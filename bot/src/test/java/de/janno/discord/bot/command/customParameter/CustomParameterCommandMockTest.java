@@ -142,6 +142,35 @@ public class CustomParameterCommandMockTest {
     }
 
     @Test
+    void slash_start_directRoll() {
+        CustomParameterCommand underTest = new CustomParameterCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator((min, max) -> max, 1000, 0));
+
+        SlashEventAdaptorMock slashEvent = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
+                .name("start")
+                .option(CommandInteractionOption.builder()
+                        .name("expression")
+                        .stringValue("{n:1d20@!d20/1d6/2d8}+{b:1<=>5}=")
+                        .build())
+                .build()));
+        underTest.handleSlashCommandEvent(slashEvent, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"), Locale.ENGLISH).block();
+
+        assertThat(slashEvent.getActions()).containsExactlyInAnyOrder(
+                "reply: commandString",
+                "createMessageWithoutReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=Please select value for **n**, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=d20, id=custom_parameterid100000000-0000-0000-0000-000000000000, style=SUCCESS, disabled=false), ButtonDefinition(label=1d6, id=custom_parameterid200000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=2d8, id=custom_parameterid300000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE)"
+        );
+
+        Optional<ButtonEventAdaptorMock> buttonEventAdaptorMock = slashEvent.getFirstButtonEventMockOfLastButtonMessage();
+        assertThat(buttonEventAdaptorMock).isPresent();
+        underTest.handleComponentInteractEvent(buttonEventAdaptorMock.get()).block();
+        assertThat(buttonEventAdaptorMock.get().getActions()).containsExactlyInAnyOrder(
+                "editMessage: message:processing ..., buttonValues=",
+                "createResultMessageWithReference: EmbedOrMessageDefinition(title=n: d20 ⇒ 20, descriptionOrContent=, fields=[], componentRowDefinitions=[], hasImage=true, type=EMBED), targetChannelId: null",
+                "deleteMessageById: 1",
+                "createMessageWithoutReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=Please select value for **n**, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=d20, id=custom_parameterid100000000-0000-0000-0000-000000000000, style=SUCCESS, disabled=false), ButtonDefinition(label=1d6, id=custom_parameterid200000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=2d8, id=custom_parameterid300000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE)"
+        );
+    }
+
+    @Test
     void roll_fullGerman() {
         CustomParameterCommand underTest = new CustomParameterCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
 
