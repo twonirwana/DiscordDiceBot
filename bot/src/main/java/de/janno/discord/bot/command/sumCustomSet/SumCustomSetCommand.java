@@ -259,7 +259,7 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
                             "",
                             "",
                             config.getLabelAndExpression());
-                    List<ExpressionAndLabel> diceExpression = Optional.ofNullable(updatedState).map(State::getData).map(SumCustomSetStateDataV2::getDiceExpressions).orElse(List.of());
+                    List<ExpressionAndLabel> diceExpression = Optional.of(updatedState).map(State::getData).map(SumCustomSetStateDataV2::getDiceExpressions).orElse(List.of());
                     String expressionAfterSelection = AliasHelper.getAndApplyAliaseToExpression(channelId, userId, persistenceManager, combineExpressions(diceExpression, config.getPrefix(), config.getPostfix()));
                     return !diceSystemAdapter.isValidExpression(expressionAfterSelection, config.getDiceParserSystem());
                 })

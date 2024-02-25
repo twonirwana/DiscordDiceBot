@@ -19,15 +19,6 @@ public class ButtonIdLabelAndDiceExpression {
     boolean newLine;
     boolean directRoll;
 
-
-    //todo remove
-    public ButtonIdLabelAndDiceExpression(
-            @NonNull String buttonId,
-            @NonNull String label,
-            @NonNull String diceExpression) {
-        this(buttonId, label, diceExpression, false, false);
-    }
-
     @JsonCreator
     public ButtonIdLabelAndDiceExpression(
             @JsonProperty("buttonId") @NonNull String buttonId,

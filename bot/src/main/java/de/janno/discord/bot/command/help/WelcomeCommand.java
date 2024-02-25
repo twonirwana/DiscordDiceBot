@@ -134,7 +134,7 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
     @Override
     protected void addFurtherActions(List<Mono<Void>> actions, ButtonEventAdaptor event, Config config, State<StateData> state) {
         RpgSystemCommandPreset.PresetId presetId = getPresetIdFromButton(state.getButtonValue());
-        String commandString = rpgSystemCommandPreset.getCommandString(presetId, event.getRequester().getUserLocal());
+        String commandString = RpgSystemCommandPreset.getCommandString(presetId, event.getRequester().getUserLocal());
         actions.add(Mono.defer(() -> event.createMessageWithoutReference(EmbedOrMessageDefinition.builder()
                         .type(EmbedOrMessageDefinition.Type.MESSAGE)
                         .shortedContent("`%s`".formatted(commandString))
@@ -165,16 +165,6 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
     protected Optional<ConfigAndState<Config, StateData>> createNewConfigAndStateIfMissing(String buttonValue) {
         return Optional.of(new ConfigAndState<>(uuidSupplier.get(), new Config(null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, DiceImageStyle.none.getDefaultColor()), Locale.ENGLISH), new State<>(buttonValue, StateData.empty())));
     }
-
-    protected Mono<Void> deleteOldAndConcurrentMessageAndData(
-            long newMessageId,
-            @NonNull UUID configUUID,
-            long channelId,
-            @NonNull ButtonEventAdaptor event) {
-        //welcome never deletes its config
-        return Mono.empty();
-    }
-
 
     @Override
     public @NonNull EmbedOrMessageDefinition createNewButtonMessage(@NonNull UUID configUUID, @NonNull Config config, long channelId) {
