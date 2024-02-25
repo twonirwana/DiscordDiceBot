@@ -155,7 +155,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
         List<SelectedParameter> selectedParameters = Optional.ofNullable(state.getData()).map(CustomParameterStateData::getSelectedParameterValues).orElse(ImmutableList.of());
         for (SelectedParameter selectedParameter : selectedParameters) {
             if (selectedParameter.isFinished()) {
-                filledExpression = filledExpression.replace(selectedParameter.getParameterExpression(), Optional.ofNullable(selectedParameter.getSelectedValue()).orElse(""));
+                filledExpression = filledExpression.replace(selectedParameter.getParameterExpression(), Optional.ofNullable(selectedParameter.getSelectedValue()).orElse("''"));
             }
         }
         return filledExpression;
@@ -600,7 +600,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     List<ButtonLabelAndId> getButtons(CustomParameterConfig config, String parameterExpression) {
         return getParameterForParameterExpression(config, parameterExpression)
                 .map(Parameter::getParameterOptions).orElse(List.of()).stream()
-                .map(vl -> new ButtonLabelAndId(vl.label(), vl.id()))
+                .map(vl -> new ButtonLabelAndId(vl.label(), vl.id(), vl.directRoll()))
                 .toList();
     }
 
@@ -636,7 +636,8 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
                         getMaxNumeric(withValue).stream(),
                         getMinNumeric(withValue).stream(),
                         getZero(withValue).stream(),
-                        allNoneNumeric(withValue).stream()
+                        allNoneNumeric(withValue).stream(),
+                        getDirectRolls(withValue).stream()
                 )
                 .flatMap(Function.identity())
                 .map(ButtonLabelIdAndValue::getButtonLabelAndId)
@@ -649,6 +650,12 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
                 .filter(po -> Objects.equals(buttonLabelAndId.getId(), po.id()))
                 .map(Parameter.ParameterOption::value)
                 .findFirst();
+    }
+
+    private List<ButtonLabelIdAndValue> getDirectRolls(List<ButtonLabelIdAndValue> in) {
+        return in.stream()
+                .filter(bv -> bv.getButtonLabelAndId().isDirectRoll())
+                .toList();
     }
 
     private Optional<ButtonLabelIdAndValue> getMaxNumeric(List<ButtonLabelIdAndValue> in) {
@@ -694,6 +701,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     static class ButtonLabelAndId {
         @NonNull String label;
         @NonNull String id;
+        boolean directRoll;
     }
 
     @Value
