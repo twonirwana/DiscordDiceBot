@@ -108,12 +108,12 @@ Contributions of additional language and improvements are very welcome.
 
 === Answer Format
 
-It is possible to create line breaks in expression results (not in the button labels). For adding a line break add `\n` in the text.
+It is possible to create line breaks in expression results (not in the button labels).
+For adding a line break add `\n` in the text.
 
 For example `/custom_dice start buttons: '\n  Attack: ' _ 1d20 + 10= _ '\n  Damage: ' _ 2d6+3= @Attack&Damage answer_format: without_expression` produces the following result:
 
 image:image/multiLineResult.png[image,320]
-
 
 All commands have an `answer_format` option that determines how the answer of a dice roll is shown.
 In the case of the direct roll command `r` the `answer_format` can be configured for the current channel with the `channel_config` command.
@@ -179,9 +179,10 @@ image:image/colorRoll.png[image,320]
 For the direct rolls it can be configured with the `channel_config` command.
 The images will only be shown if the following conditions are met:
 
-* The `answer_format` is set to `full` or `without_expression`
+* The `answer_format` is set to `full`, `only_dice`, `only_result` or `without_expression`
 * No set of dice with more than 30 dice
 * No multi line result
+* If the color of the dice is not `none`
 
 There are the following options:
 
@@ -354,6 +355,13 @@ The maximum are 23 buttons.
 It is possible to add an optional label to each value in the format `value@label`.
 For example `{bonus:0@None/3@Small Bonus/5@Big Bonus}` will show on the buttons 'None', 'Small Bonus' and 'Big Bonus' but apply the values 0, 3 or 5 to the expression
 
+If the label of a parameter option starts with a `!` e.g. `{sides:1d6@default/2d6@bonus/d20@!direct}` then the button is as a green direct roll button.
+This means that if it is clicked then all following parameter will skipped and in the expression replaced with `''`.
+
+For example:
+`/custom_parameter start expression: {n}d{s:4/6/10/20@!20}+{modi:+1/+2/+3}=` let you select first the number of die, then the type of dice and then a modification.
+But if you select `20` it will skip the modification selection and directly roll the selected number of d20.
+
 An expression can have up to 4 parameter.
 The user can click on the buttons to fill all open parameter of the expression.
 If all parameter are selected then the expression will be rolled.
@@ -400,6 +408,10 @@ Using `;;` will create a row break and put the button after `;;` in a new row.
 If the buttons expression ends with `;;` then the three system buttons (Roll, Clear and Back) will be in a new row.
 Discord allows a maximum of 5 rows with each 5 buttons.
 The text after an optional `@` will be used as label for the button.
+
+If the label starts with a `!` e.g. `d20@!d20` then the button is as a green direct roll button.
+This means that if it is clicked then its value will be added to the expression and the roll is directly triggered and it not necessary to click additionally on the `Roll` button.
+Direct roll buttons are only enabled if the resulting expression is valid.
 
 If the option `always_sum_result` is `true` (the default) then the result of the dice will be added together, the equivalent of adding `=` at the end of the expression.
 

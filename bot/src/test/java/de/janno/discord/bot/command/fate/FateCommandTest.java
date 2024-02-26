@@ -38,7 +38,7 @@ class FateCommandTest {
 
     @Test
     void getButtonMessage_modifier() {
-        String res = underTest.createNewButtonMessage(UUID.fromString("00000000-0000-0000-0000-000000000000"), new FateConfig(null, "with_modifier", AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none")))
+        String res = underTest.createNewButtonMessage(UUID.fromString("00000000-0000-0000-0000-000000000000"), new FateConfig(null, "with_modifier", AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none")), 1L)
                 .getDescriptionOrContent();
 
         assertThat(res).isEqualTo("Click a button to roll four fate dice and add the value of the button");
@@ -46,7 +46,7 @@ class FateCommandTest {
 
     @Test
     void getButtonMessage_simple() {
-        String res = underTest.createNewButtonMessage(UUID.fromString("00000000-0000-0000-0000-000000000000"), new FateConfig(null, "simple", AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none")))
+        String res = underTest.createNewButtonMessage(UUID.fromString("00000000-0000-0000-0000-000000000000"), new FateConfig(null, "simple", AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none")), 1L)
                 .getDescriptionOrContent();
 
         assertThat(res).isEqualTo("Click a button to roll four fate dice");
@@ -147,7 +147,7 @@ class FateCommandTest {
 
     @Test
     void getButtonLayout_simple() {
-        List<ComponentRowDefinition> res = underTest.createNewButtonMessage(UUID.fromString("00000000-0000-0000-0000-000000000000"), new FateConfig(null, "simple", AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none")))
+        List<ComponentRowDefinition> res = underTest.createNewButtonMessage(UUID.fromString("00000000-0000-0000-0000-000000000000"), new FateConfig(null, "simple", AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none")), 1L)
                 .getComponentRowDefinitions();
 
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel)).containsExactly("Roll 4dF");
@@ -181,7 +181,7 @@ class FateCommandTest {
 
     @Test
     void getButtonLayout_modifier() {
-        List<ComponentRowDefinition> res = underTest.createNewButtonMessage(UUID.fromString("00000000-0000-0000-0000-000000000000"), new FateConfig(null, "with_modifier", AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"))).getComponentRowDefinitions();
+        List<ComponentRowDefinition> res = underTest.createNewButtonMessage(UUID.fromString("00000000-0000-0000-0000-000000000000"), new FateConfig(null, "with_modifier", AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none")), 1L).getComponentRowDefinitions();
 
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel)).containsExactly("-4", "-3", "-2", "-1", "0", "+1", "+2", "+3", "+4", "+5", "+6", "+7", "+8", "+9", "+10");
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getId))

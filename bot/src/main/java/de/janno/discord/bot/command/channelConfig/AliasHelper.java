@@ -7,6 +7,7 @@ import de.janno.discord.bot.persistance.ChannelConfigDTO;
 import de.janno.discord.bot.persistance.Mapper;
 import de.janno.discord.bot.persistance.PersistenceManager;
 import lombok.NonNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -59,9 +60,14 @@ public class AliasHelper {
         return expressionWithOptionalLabelsAndAppliedAliases;
     }
 
-    public static String getAndApplyAliaseToExpression(long channelId, long userId, PersistenceManager persistenceManager, final String expressionWithOptionalLabel) {
+    public static String getAndApplyAliaseToExpression(long channelId, @Nullable Long userId, PersistenceManager persistenceManager, final String expressionWithOptionalLabel) {
         final List<Alias> channelAlias = getChannelAlias(channelId, persistenceManager);
-        final List<Alias> userChannelAlias = getUserChannelAlias(channelId, userId, persistenceManager);
+        final List<Alias> userChannelAlias;
+        if (userId == null) {
+            userChannelAlias = List.of();
+        } else {
+            userChannelAlias = getUserChannelAlias(channelId, userId, persistenceManager);
+        }
         return applyAliaseToExpression(channelAlias, userChannelAlias, expressionWithOptionalLabel);
     }
 }

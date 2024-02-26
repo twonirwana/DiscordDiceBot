@@ -17,31 +17,27 @@ public class ButtonIdLabelAndDiceExpression {
     @NonNull
     String diceExpression;
     boolean newLine;
-
-    public ButtonIdLabelAndDiceExpression(
-            @NonNull String buttonId,
-            @NonNull String label,
-            @NonNull String diceExpression) {
-        this(buttonId, label, diceExpression, false);
-    }
+    boolean directRoll;
 
     @JsonCreator
     public ButtonIdLabelAndDiceExpression(
             @JsonProperty("buttonId") @NonNull String buttonId,
             @JsonProperty("label") @NonNull String label,
             @JsonProperty("diceExpression") @NonNull String diceExpression,
-            @JsonProperty("newLine") @Nullable Boolean newLine) {
+            @JsonProperty("newLine") @Nullable Boolean newLine,
+            @JsonProperty("directRoll") @Nullable Boolean directRoll) {
         this.buttonId = buttonId;
         this.label = label;
         this.diceExpression = diceExpression;
         this.newLine = Optional.ofNullable(newLine).orElse(false);
+        this.directRoll = Optional.ofNullable(directRoll).orElse(false);
     }
 
     public String toShortString() {
         if (diceExpression.equals(label)) {
             return diceExpression.replace("\n", " ");
         }
-        return String.format("%s%s@%s", newLine ? "⏎" : "", diceExpression, label).replace("\n", " ");
+        return String.format("%s%s@%s%s", newLine ? "⏎" : "", diceExpression, directRoll ? "!" : "", label).replace("\n", " ");
     }
 }
 

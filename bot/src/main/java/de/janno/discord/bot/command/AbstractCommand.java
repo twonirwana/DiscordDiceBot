@@ -232,9 +232,9 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
         Optional<List<ComponentRowDefinition>> editMessageComponents;
         if (keepExistingButtonMessage || answerTargetChannelId != null) {
             //if the old button is pined or the result is copied to another channel, the old message will be edited or reset to the slash default
-            editMessage = getCurrentMessageContentChange(config, state).orElse(createNewButtonMessage(configUUID, config).getDescriptionOrContent());
+            editMessage = getCurrentMessageContentChange(config, state).orElse(createNewButtonMessage(configUUID, config, channelId).getDescriptionOrContent());
             editMessageComponents = Optional.of(getCurrentMessageComponentChange(configUUID, config, state, channelId, userId)
-                    .orElse(createNewButtonMessage(configUUID, config).getComponentRowDefinitions()));
+                    .orElse(createNewButtonMessage(configUUID, config, channelId).getComponentRowDefinitions()));
         } else {
             //edit the current message if the command changes it or mark it as processing
             editMessage = getCurrentMessageContentChange(config, state).orElse(I18n.getMessage("base.edit.processing", config.getConfigLocale()));
@@ -359,7 +359,7 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
                     .then(Mono.defer(() -> {
                         final Optional<MessageConfigDTO> newMessageConfig = createMessageConfig(configUUID, guildId, channelId, config);
                         newMessageConfig.ifPresent(persistenceManager::saveMessageConfig);
-                        return event.createMessageWithoutReference(createNewButtonMessage(configUUID, config))
+                        return event.createMessageWithoutReference(createNewButtonMessage(configUUID, config, channelId))
                                 .doOnNext(messageId -> createEmptyMessageData(configUUID, guildId, channelId, messageId))
                                 .then();
                     }));
@@ -403,7 +403,7 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
     /**
      * The new button message, after a slash event
      */
-    public abstract @NonNull EmbedOrMessageDefinition createNewButtonMessage(@NonNull UUID configId, @NonNull C config);
+    public abstract @NonNull EmbedOrMessageDefinition createNewButtonMessage(@NonNull UUID configId, @NonNull C config, long channelId);
 
     protected @NonNull Optional<String> getStartOptionsValidationMessage(@NonNull CommandInteractionOption options, long channelId, long userId, @NonNull Locale userLocale) {
         //standard is no validation

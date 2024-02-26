@@ -8,8 +8,6 @@ import de.janno.discord.bot.dice.DiceSystemAdapter;
 import de.janno.discord.connector.api.BottomCustomIdUtils;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.text.StringEscapeUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -34,7 +32,17 @@ public class ButtonHelper {
                         final String label = split[1].trim().replace("\n", " ");
                         final String expression = split[0].trim();
                         if (!Strings.isNullOrEmpty(expression) && !Strings.isNullOrEmpty(label)) {
-                            builder.add(new ButtonIdLabelAndDiceExpression(idCounter++ + "_button", label, expression, newLine));
+                            final boolean directRoll;
+                            final String cleanLable;
+                            if (label.startsWith("!") && label.length() > 1) {
+                                directRoll = true;
+                                cleanLable = label.substring(1);
+                            } else {
+                                cleanLable = label;
+                                directRoll = false;
+                            }
+
+                            builder.add(new ButtonIdLabelAndDiceExpression(idCounter++ + "_button", cleanLable, expression, newLine, directRoll));
                             newLine = false;
                         }
                     }
@@ -42,7 +50,7 @@ public class ButtonHelper {
                     final String label = button.trim().replace("\n", " ");
                     final String expression = button.trim();
                     if (!Strings.isNullOrEmpty(expression) && !Strings.isNullOrEmpty(label)) {
-                        builder.add(new ButtonIdLabelAndDiceExpression(idCounter++ + "_button", label, expression, newLine));
+                        builder.add(new ButtonIdLabelAndDiceExpression(idCounter++ + "_button", label, expression, newLine, false));
                         newLine = false;
                     }
                 }
@@ -52,7 +60,7 @@ public class ButtonHelper {
         return builder.build();
     }
 
-    public static List<ComponentRowDefinition> createButtonLayout(String commandId, UUID configUUID, List<ButtonIdLabelAndDiceExpression> buttons) {
+    public static List<ComponentRowDefinition> createButtonLayout(String commandId, UUID configUUID, List<ButtonIdLabelAndDiceExpression> buttons, Set<String> disabledButtonIds) {
         final List<ComponentRowDefinition> rows = new ArrayList<>();
         List<ButtonDefinition> currentRow = new ArrayList<>();
         for (ButtonIdLabelAndDiceExpression button : buttons) {
@@ -63,6 +71,8 @@ public class ButtonHelper {
             currentRow.add(ButtonDefinition.builder()
                     .id(BottomCustomIdUtils.createButtonCustomId(commandId, button.getButtonId(), configUUID))
                     .label(button.getLabel())
+                    .style(button.isDirectRoll() ? ButtonDefinition.Style.SUCCESS : ButtonDefinition.Style.PRIMARY)
+                    .disabled(disabledButtonIds.contains(button.getButtonId()))
                     .build());
         }
         if (!currentRow.isEmpty()) {
@@ -70,6 +80,10 @@ public class ButtonHelper {
         }
 
         return rows;
+    }
+
+    public static List<ComponentRowDefinition> createButtonLayout(String commandId, UUID configUUID, List<ButtonIdLabelAndDiceExpression> buttons) {
+        return createButtonLayout(commandId, configUUID, buttons, Set.of());
     }
 
     public static List<ComponentRowDefinition> extendButtonLayout(List<ComponentRowDefinition> current, List<ButtonDefinition> additionalButtonDefinitions, boolean newLine) {
