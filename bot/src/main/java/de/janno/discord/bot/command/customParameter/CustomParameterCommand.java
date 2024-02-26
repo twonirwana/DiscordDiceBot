@@ -30,6 +30,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.regex.Matcher;
@@ -41,12 +42,11 @@ import java.util.stream.Stream;
 @Slf4j
 public class CustomParameterCommand extends AbstractCommand<CustomParameterConfig, CustomParameterStateData> {
 
-    //todo button label, pagination for buttons
-
     public static final String COMMAND_NAME = "custom_parameter";
     static final String EXPRESSION_OPTION_NAME = "expression";
     private static final String CLEAR_BUTTON_ID = "clear";
     private final static Pattern PARAMETER_VARIABLE_PATTERN = Pattern.compile("\\Q{\\E.*?\\Q}\\E", Pattern.DOTALL);
+    private final static Pattern PARAMETER_EMPTY_PATTERN = Pattern.compile("\\{\\s*\\}", Pattern.DOTALL);
     private static final String SELECTED_PARAMETER_DELIMITER = "\t";
     private static final String RANGE_DELIMITER = ":";
     private final static String RANGE_REPLACE_REGEX = RANGE_DELIMITER + ".+?(?=\\Q}\\E)";
@@ -96,22 +96,25 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
                                                         @NonNull String invokingUser) {
         final String shouldBeLockedForUser;
         List<SelectedParameter> currentOrNewSelectedParameter = Optional.ofNullable(currentlySelectedParameterList).orElse(config.getParameters().stream()
-                .map(p -> new SelectedParameter(p.getParameterExpression(), p.getName(), null, null))
+                .map(p -> new SelectedParameter(p.getParameterExpression(), p.getName(), null, null, false))
                 .toList());
         Optional<String> currentParameterExpression = currentOrNewSelectedParameter.stream()
-                .filter(sp -> sp.getSelectedValue() == null)
+                .filter(sp -> !sp.isFinished())
                 .map(SelectedParameter::getParameterExpression)
                 .findFirst();
         if (CLEAR_BUTTON_ID.equals(buttonValue) || currentParameterExpression.isEmpty()) {
             ImmutableList<SelectedParameter> newSelectedParameterList = config.getParameters().stream()
-                    .map(sp -> new SelectedParameter(sp.getParameterExpression(), sp.getName(), null, null)).collect(ImmutableList.toImmutableList());
+                    .map(sp -> new SelectedParameter(sp.getParameterExpression(), sp.getName(), null, null, false)).collect(ImmutableList.toImmutableList());
             return new CustomParameterStateData(newSelectedParameterList, null);
         } else {
             shouldBeLockedForUser = Optional.ofNullable(currentlyLockedForUser).orElse(invokingUser);
         }
-
+        final AtomicBoolean directRoll = new AtomicBoolean(false);
         ImmutableList<SelectedParameter> newSelectedParameterList = currentOrNewSelectedParameter.stream()
                 .map(sp -> {
+                    if (directRoll.get()) {
+                        return new SelectedParameter(sp.getParameterExpression(), sp.getName(), null, null, true);
+                    }
                     if (Objects.equals(sp.getParameterExpression(), currentParameterExpression.get()) &&
                             (currentlyLockedForUser == null || Objects.equals(currentlyLockedForUser, invokingUser))) {
                         List<Parameter.ParameterOption> parameters = getParameterForParameterExpression(config, sp.getParameterExpression())
@@ -127,7 +130,10 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
                                     .findFirst();
                         }
                         Parameter.ParameterOption selectedParameter = selectedParameterOption.orElseThrow(() -> new RuntimeException("Found no parameter in for value %s in %s".formatted(buttonValue, parameters)));
-                        return new SelectedParameter(sp.getParameterExpression(), sp.getName(), selectedParameter.value(), selectedParameter.label());
+                        if (selectedParameter.directRoll()) {
+                            directRoll.set(true);
+                        }
+                        return new SelectedParameter(sp.getParameterExpression(), sp.getName(), selectedParameter.value(), selectedParameter.label(), true);
                     }
                     return sp.copy();
                 }).collect(ImmutableList.toImmutableList());
@@ -148,8 +154,8 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
         String filledExpression = config.getBaseExpression();
         List<SelectedParameter> selectedParameters = Optional.ofNullable(state.getData()).map(CustomParameterStateData::getSelectedParameterValues).orElse(ImmutableList.of());
         for (SelectedParameter selectedParameter : selectedParameters) {
-            if (selectedParameter.getSelectedValue() != null) {
-                filledExpression = filledExpression.replace(selectedParameter.getParameterExpression(), selectedParameter.getSelectedValue());
+            if (selectedParameter.isFinished()) {
+                filledExpression = filledExpression.replace(selectedParameter.getParameterExpression(), Optional.ofNullable(selectedParameter.getSelectedValue()).orElse("''"));
             }
         }
         return filledExpression;
@@ -176,7 +182,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
                 AtomicInteger counter = new AtomicInteger(1);
                 builder.add(new Parameter(parameterExpression, name, IntStream.range(min, max + 1)
                         .mapToObj(String::valueOf)
-                        .map(s -> new Parameter.ParameterOption(s, s, createParameterOptionIdFromIndex(counter.getAndIncrement())))
+                        .map(s -> new Parameter.ParameterOption(s, s, createParameterOptionIdFromIndex(counter.getAndIncrement()), false))
                         .toList()));
             } else if (valueMatcher.find()) {
                 String buttonValueExpression = valueMatcher.group(1);
@@ -186,17 +192,28 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
                         .map(s -> {
                             if (s.contains(DiceSystemAdapter.LABEL_DELIMITER)) {
                                 String[] split = s.split(DiceSystemAdapter.LABEL_DELIMITER);
-                                if (split.length == 2 && !Strings.isNullOrEmpty(split[0]) && !Strings.isNullOrEmpty(split[1])) {
-                                    return new Parameter.ParameterOption(split[0], split[1], createParameterOptionIdFromIndex(counter.getAndIncrement()));
+                                final String parameterOptionExpression = split[0];
+                                final String label = split[1];
+                                final boolean directRoll;
+                                final String cleanLable;
+                                if (label.startsWith("!") && label.length() > 1) {
+                                    directRoll = true;
+                                    cleanLable = label.substring(1);
+                                } else {
+                                    cleanLable = label;
+                                    directRoll = false;
+                                }
+                                if (split.length == 2 && !Strings.isNullOrEmpty(parameterOptionExpression) && !Strings.isNullOrEmpty(split[1])) {
+                                    return new Parameter.ParameterOption(parameterOptionExpression, cleanLable, createParameterOptionIdFromIndex(counter.getAndIncrement()), directRoll);
                                 }
                             }
-                            return new Parameter.ParameterOption(s, s, createParameterOptionIdFromIndex(counter.getAndIncrement()));
+                            return new Parameter.ParameterOption(s, s, createParameterOptionIdFromIndex(counter.getAndIncrement()), false);
                         })
                         .toList()));
             } else {
                 builder.add(new Parameter(parameterExpression, name, IntStream.range(1, 16)
                         .boxed()
-                        .map(s -> new Parameter.ParameterOption(String.valueOf(s), String.valueOf(s), createParameterOptionIdFromIndex(s)))
+                        .map(s -> new Parameter.ParameterOption(String.valueOf(s), String.valueOf(s), createParameterOptionIdFromIndex(s), false))
                         .toList()));
             }
         }
@@ -298,6 +315,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
                 label = null;
             } else {
                 label = Optional.ofNullable(state.getData()).map(CustomParameterStateData::getSelectedParameterValues).orElse(List.of()).stream()
+                        .filter(sp -> sp.getSelectedValue() != null)
                         .map(sp -> "%s: %s".formatted(sp.getName(), sp.getLabelOfSelectedValue()))
                         .collect(Collectors.joining(", "));
             }
@@ -328,7 +346,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     }
 
     @Override
-    public @NonNull EmbedOrMessageDefinition createNewButtonMessage(@NonNull UUID configUUID, @NonNull CustomParameterConfig config) {
+    public @NonNull EmbedOrMessageDefinition createNewButtonMessage(@NonNull UUID configUUID, @NonNull CustomParameterConfig config, long channelId) {
         return EmbedOrMessageDefinition.builder()
                 .type(EmbedOrMessageDefinition.Type.MESSAGE)
                 .descriptionOrContent(formatMessageContent(config, null, null))
@@ -464,6 +482,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
         List<ButtonDefinition> buttons = parameter.getParameterOptions().stream()
                 .map(vl -> ButtonDefinition.builder()
                         .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), vl.id(), configUUID))
+                        .style(vl.directRoll() ? ButtonDefinition.Style.SUCCESS : ButtonDefinition.Style.PRIMARY)
                         .label(vl.label())
                         .build())
                 .collect(Collectors.toList());
@@ -476,7 +495,8 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
                     .build());
         }
         return Lists.partition(buttons, 5).stream()
-                .map(bl -> ComponentRowDefinition.builder().buttonDefinitions(bl).build())
+                .map(bl -> ComponentRowDefinition.builder().buttonDefinitions(bl)
+                        .build())
                 .collect(Collectors.toList());
     }
 
@@ -485,7 +505,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
                 .map(State::getData)
                 .map(CustomParameterStateData::getSelectedParameterValues)
                 .orElse(List.of()).stream()
-                .anyMatch(sp -> sp.getSelectedValue() != null);
+                .anyMatch(SelectedParameter::isFinished);
     }
 
     @Override
@@ -509,8 +529,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
         if (StringUtils.countMatches(baseExpression, "{") != StringUtils.countMatches(baseExpression, "}")) {
             return Optional.of(I18n.getMessage("custom_parameter.validation.unclosed.bracket", userLocale));
         }
-        //todo check for brackets with whitespace
-        if (baseExpression.contains("{}")) {
+        if (PARAMETER_EMPTY_PATTERN.matcher(baseExpression).find()) {
             return Optional.of(I18n.getMessage("custom_parameter.validation.empty.brackets", userLocale));
         }
         if (baseExpression.contains(BottomCustomIdUtils.CUSTOM_ID_DELIMITER)) {
@@ -581,7 +600,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     List<ButtonLabelAndId> getButtons(CustomParameterConfig config, String parameterExpression) {
         return getParameterForParameterExpression(config, parameterExpression)
                 .map(Parameter::getParameterOptions).orElse(List.of()).stream()
-                .map(vl -> new ButtonLabelAndId(vl.label(), vl.id()))
+                .map(vl -> new ButtonLabelAndId(vl.label(), vl.id(), vl.directRoll()))
                 .toList();
     }
 
@@ -617,7 +636,8 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
                         getMaxNumeric(withValue).stream(),
                         getMinNumeric(withValue).stream(),
                         getZero(withValue).stream(),
-                        allNoneNumeric(withValue).stream()
+                        allNoneNumeric(withValue).stream(),
+                        getDirectRolls(withValue).stream()
                 )
                 .flatMap(Function.identity())
                 .map(ButtonLabelIdAndValue::getButtonLabelAndId)
@@ -630,6 +650,12 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
                 .filter(po -> Objects.equals(buttonLabelAndId.getId(), po.id()))
                 .map(Parameter.ParameterOption::value)
                 .findFirst();
+    }
+
+    private List<ButtonLabelIdAndValue> getDirectRolls(List<ButtonLabelIdAndValue> in) {
+        return in.stream()
+                .filter(bv -> bv.getButtonLabelAndId().isDirectRoll())
+                .toList();
     }
 
     private Optional<ButtonLabelIdAndValue> getMaxNumeric(List<ButtonLabelIdAndValue> in) {
@@ -675,6 +701,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     static class ButtonLabelAndId {
         @NonNull String label;
         @NonNull String id;
+        boolean directRoll;
     }
 
     @Value

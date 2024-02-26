@@ -223,7 +223,7 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesConfig,
 
     @Override
     protected @NonNull Optional<EmbedOrMessageDefinition> createNewButtonMessageWithState(@NonNull UUID configUUID, @NonNull CountSuccessesConfig config, @NonNull State<StateData> state, long guildId, long channelId) {
-        return Optional.of(createNewButtonMessage(configUUID, config));
+        return Optional.of(createNewButtonMessage(configUUID, config, channelId));
     }
 
     private String getRerollDescription(CountSuccessesConfig config) {
@@ -235,7 +235,7 @@ public class CountSuccessesCommand extends AbstractCommand<CountSuccessesConfig,
     }
 
     @Override
-    public @NonNull EmbedOrMessageDefinition createNewButtonMessage(@NonNull UUID configUUID, @NonNull CountSuccessesConfig config) {
+    public @NonNull EmbedOrMessageDefinition createNewButtonMessage(@NonNull UUID configUUID, @NonNull CountSuccessesConfig config, long channelId) {
 
         return EmbedOrMessageDefinition.builder()
                 .type(EmbedOrMessageDefinition.Type.MESSAGE)

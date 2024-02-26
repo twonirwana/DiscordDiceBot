@@ -170,11 +170,11 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
                                                                                           @NonNull State<StateData> state,
                                                                                           long guildId,
                                                                                           long channelId) {
-        return Optional.of(createNewButtonMessage(configUUID, config));
+        return Optional.of(createNewButtonMessage(configUUID, config, channelId));
     }
 
     @Override
-    public @NonNull EmbedOrMessageDefinition createNewButtonMessage(@NonNull UUID configUUID, @NonNull CustomDiceConfig config) {
+    public @NonNull EmbedOrMessageDefinition createNewButtonMessage(@NonNull UUID configUUID, @NonNull CustomDiceConfig config, long channelId) {
         return EmbedOrMessageDefinition.builder()
                 .type(EmbedOrMessageDefinition.Type.MESSAGE)
                 .descriptionOrContent(I18n.getMessage("custom_dice.buttonMessage.message", config.getConfigLocale()))

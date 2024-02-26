@@ -166,11 +166,11 @@ public class FateCommand extends AbstractCommand<FateConfig, StateData> {
 
     @Override
     protected @NonNull Optional<EmbedOrMessageDefinition> createNewButtonMessageWithState(@NonNull UUID configUUID, @NonNull FateConfig config, @NonNull State<StateData> state, long guildId, long channelId) {
-        return Optional.of(createNewButtonMessage(configUUID, config));
+        return Optional.of(createNewButtonMessage(configUUID, config, channelId));
     }
 
     @Override
-    public @NonNull EmbedOrMessageDefinition createNewButtonMessage(@NonNull UUID configUUID, @NonNull FateConfig config) {
+    public @NonNull EmbedOrMessageDefinition createNewButtonMessage(@NonNull UUID configUUID, @NonNull FateConfig config, long channelId) {
         return EmbedOrMessageDefinition.builder()
                 .type(EmbedOrMessageDefinition.Type.MESSAGE)
                 .descriptionOrContent(createButtonMessage(config))

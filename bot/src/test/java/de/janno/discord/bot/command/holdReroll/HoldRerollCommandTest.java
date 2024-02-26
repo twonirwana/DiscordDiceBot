@@ -172,7 +172,7 @@ class HoldRerollCommandTest {
                         6,
                         ImmutableSet.of(2, 3, 4),
                         ImmutableSet.of(5, 6),
-                        ImmutableSet.of(1), AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none")))
+                        ImmutableSet.of(1), AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none")), 1L)
                 .getDescriptionOrContent();
 
         assertThat(res).isEqualTo("Click on the buttons to roll dice. Reroll set: [2, 3, 4], Success Set: [5, 6] and Failure Set: [1]");
@@ -315,7 +315,7 @@ class HoldRerollCommandTest {
                         6,
                         ImmutableSet.of(2, 3, 4),
                         ImmutableSet.of(5, 6),
-                        ImmutableSet.of(1), AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none")))
+                        ImmutableSet.of(1), AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none")), 1L)
                 .getComponentRowDefinitions();
 
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel))

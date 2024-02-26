@@ -112,12 +112,12 @@ class FetchCommandMockTest {
         io.avaje.config.Config.setProperty("command.delayMessageDataDeletionMs", "1000");
         io.avaje.config.Config.setProperty("command.fetch.delayMs", "0");
 
-        CustomDiceConfig otherConfig = new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "att", "2d20")), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
+        CustomDiceConfig otherConfig = new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "att", "2d20", false, false)), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
         customDiceCommand.createMessageConfig(uuid1, fetchEvent.getGuildId(), fetchEvent.getChannelId(), otherConfig)
                 .ifPresent(m -> persistenceManager.saveMessageConfig(m));
         customDiceCommand.createEmptyMessageData(uuid1, fetchEvent.getGuildId(), fetchEvent.getChannelId(), -3L);
 
-        CustomDiceConfig config = new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "1d6")), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
+        CustomDiceConfig config = new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "1d6", false, false)), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
         customDiceCommand.createMessageConfig(uuid0, fetchEvent.getGuildId(), fetchEvent.getChannelId(), config)
                 .ifPresent(m -> persistenceManager.saveMessageConfig(m));
         customDiceCommand.createEmptyMessageData(uuid0, fetchEvent.getGuildId(), fetchEvent.getChannelId(), -2L);
@@ -133,12 +133,12 @@ class FetchCommandMockTest {
     @Test
     void fetchOldCustomDiceMessageNotOldEnough() throws InterruptedException {
         io.avaje.config.Config.setProperty("command.fetch.delayMs", "6000000");
-        CustomDiceConfig otherConfig = new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "att", "2d20")), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
+        CustomDiceConfig otherConfig = new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "att", "2d20", false, false)), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
         customDiceCommand.createMessageConfig(uuid1, fetchEvent.getGuildId(), fetchEvent.getChannelId(), otherConfig)
                 .ifPresent(m -> persistenceManager.saveMessageConfig(m));
         customDiceCommand.createEmptyMessageData(uuid1, fetchEvent.getGuildId(), fetchEvent.getChannelId(), -3L);
 
-        CustomDiceConfig config = new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "1d6")), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
+        CustomDiceConfig config = new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "1d6", false, false)), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
         customDiceCommand.createMessageConfig(uuid0, fetchEvent.getGuildId(), fetchEvent.getChannelId(), config)
                 .ifPresent(m -> persistenceManager.saveMessageConfig(m));
         customDiceCommand.createEmptyMessageData(uuid0, fetchEvent.getGuildId(), fetchEvent.getChannelId(), -2L);
@@ -157,14 +157,14 @@ class FetchCommandMockTest {
         io.avaje.config.Config.setProperty("command.delayMessageDataDeletionMs", "1000");
         io.avaje.config.Config.setProperty("command.fetch.delayMs", "0");
 
-        SumCustomSetConfig otherConfig = new SumCustomSetConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Att", "+2d20"),
-                new ButtonIdLabelAndDiceExpression("2_button", "bonus", "+5")), DiceParserSystem.DICE_EVALUATOR, true, true, false, null, null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
+        SumCustomSetConfig otherConfig = new SumCustomSetConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Att", "+2d20", false, false),
+                new ButtonIdLabelAndDiceExpression("2_button", "bonus", "+5", false, false)), DiceParserSystem.DICE_EVALUATOR, true, true, false, null, null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
         sumCustomSetCommand.createMessageConfig(uuid1, fetchEvent.getGuildId(), fetchEvent.getChannelId(), otherConfig)
                 .ifPresent(m -> persistenceManager.saveMessageConfig(m));
         sumCustomSetCommand.createEmptyMessageData(uuid1, fetchEvent.getGuildId(), fetchEvent.getChannelId(), -3L);
 
-        SumCustomSetConfig config = new SumCustomSetConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "+1d6"),
-                new ButtonIdLabelAndDiceExpression("2_button", "bonus", "+2")), DiceParserSystem.DICE_EVALUATOR, true, true, false, null, null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
+        SumCustomSetConfig config = new SumCustomSetConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "+1d6", false, false),
+                new ButtonIdLabelAndDiceExpression("2_button", "bonus", "+2", false, false)), DiceParserSystem.DICE_EVALUATOR, true, true, false, null, null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
         sumCustomSetCommand.createMessageConfig(uuid0, fetchEvent.getGuildId(), fetchEvent.getChannelId(), config)
                 .ifPresent(m -> persistenceManager.saveMessageConfig(m));
         customDiceCommand.createEmptyMessageData(uuid0, fetchEvent.getGuildId(), fetchEvent.getChannelId(), -2L);

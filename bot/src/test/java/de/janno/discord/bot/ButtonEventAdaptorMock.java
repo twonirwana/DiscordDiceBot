@@ -4,7 +4,6 @@ import de.janno.discord.connector.api.BottomCustomIdUtils;
 import de.janno.discord.connector.api.ButtonEventAdaptor;
 import de.janno.discord.connector.api.MessageState;
 import de.janno.discord.connector.api.Requester;
-import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
 import lombok.Getter;
@@ -123,8 +122,7 @@ public class ButtonEventAdaptorMock implements ButtonEventAdaptor {
         actions.add(String.format("editMessage: message:%s, buttonValues=%s", message, Optional.ofNullable(componentRowDefinitions).stream()
                 .flatMap(Collection::stream)
                 .flatMap(r -> r.getButtonDefinitions().stream())
-                .map(ButtonDefinition::getId)
-                .map(BottomCustomIdUtils::getButtonValueFromCustomId)
+                .map(bd -> BottomCustomIdUtils.getButtonValueFromCustomId(bd.getId()) + (bd.isDisabled() ? "!" : ""))
                 .collect(Collectors.joining(","))));
         return Mono.just("").then();
     }

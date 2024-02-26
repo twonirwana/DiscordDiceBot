@@ -10,6 +10,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import java.util.Optional;
 
 @Value
+//a parameter with and with its value
 public class SelectedParameter {
     @NonNull
     //parameter with {} and range
@@ -20,16 +21,19 @@ public class SelectedParameter {
     String selectedValue;
     @Nullable
     String labelOfSelectedValue;
+    boolean finished;
 
     @JsonCreator
     public SelectedParameter(@JsonProperty("parameterExpression") @NonNull String parameterExpression,
                              @JsonProperty("name") @NonNull String name,
                              @JsonProperty("selectedValue") @Nullable String selectedValue,
-                             @JsonProperty("labelOfSelectedValue") @Nullable String labelOfSelectedValue) {
+                             @JsonProperty("labelOfSelectedValue") @Nullable String labelOfSelectedValue,
+                             @JsonProperty("finished") @Nullable Boolean finished) {
         this.parameterExpression = parameterExpression;
         this.name = name;
         this.selectedValue = selectedValue;
         this.labelOfSelectedValue = labelOfSelectedValue;
+        this.finished = Optional.ofNullable(finished).orElse(selectedValue != null);
     }
 
 
@@ -41,6 +45,6 @@ public class SelectedParameter {
 
     @JsonIgnore
     public SelectedParameter copy() {
-        return new SelectedParameter(parameterExpression, name, selectedValue, labelOfSelectedValue);
+        return new SelectedParameter(parameterExpression, name, selectedValue, labelOfSelectedValue, finished);
     }
 }
