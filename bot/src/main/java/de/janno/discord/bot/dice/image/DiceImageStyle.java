@@ -1,5 +1,6 @@
 package de.janno.discord.bot.dice.image;
 
+import com.google.common.collect.ImmutableList;
 import de.janno.discord.bot.I18n;
 import de.janno.discord.bot.dice.image.provider.*;
 
@@ -27,6 +28,7 @@ public enum DiceImageStyle {
     polyhedral_2d(new PolyhedralSvgWithColor()),
     polyhedral_alies_v1(new PolyhedralFileImageProvider("polyhedral_alies_v1", List.of("black_and_gold"), "black_and_gold"));
 
+    public static final String NONE_DICE_COLOR = "none";
     private final ImageProvider imageProvider;
 
     DiceImageStyle(ImageProvider imageProvider) {
@@ -50,7 +52,10 @@ public enum DiceImageStyle {
     }
 
     public List<String> getSupportedColors() {
-        return imageProvider.getSupportedColors();
+        return ImmutableList.<String>builder()
+                .addAll(imageProvider.getSupportedColors())
+                .add(NONE_DICE_COLOR)
+                .build();
     }
 
     public String getLocalizedColorName(String colorName, Locale locale) {

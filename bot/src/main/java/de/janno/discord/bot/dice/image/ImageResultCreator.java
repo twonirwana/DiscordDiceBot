@@ -157,6 +157,7 @@ public class ImageResultCreator {
 
         final List<List<BufferedImage>> images = roll.getRandomElementsInRoll().getRandomElements().stream()
                 .map(r -> r.getRandomElements().stream()
+                        .filter(re -> !DiceImageStyle.NONE_DICE_COLOR.equals(re.getRollElement().getColor()))
                         .flatMap(re -> diceStyleAndColor.getImageFor(re).stream())
                         .toList()
                 )

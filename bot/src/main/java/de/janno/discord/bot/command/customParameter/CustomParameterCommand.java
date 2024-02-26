@@ -491,7 +491,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     @Override
     protected @NonNull Optional<String> getStartOptionsValidationMessage(@NonNull CommandInteractionOption options, long channelId, long userId, @NonNull Locale userLocale) {
         String baseExpression = options.getStringSubOptionWithName(EXPRESSION_OPTION_NAME).orElse("");
-        log.info("Start validating: {}", baseExpression);
+        log.info("Start validating: {}", baseExpression.replace("\n", " "));
         int variableCount = 0;
         Matcher variableMatcher = PARAMETER_VARIABLE_PATTERN.matcher(baseExpression);
         while (variableMatcher.find()) {
