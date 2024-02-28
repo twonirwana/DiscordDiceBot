@@ -218,7 +218,7 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
         return EmbedOrMessageDefinition.builder()
                 .descriptionOrContent(I18n.getMessage("sum_custom_set.buttonMessage.empty", config.getConfigLocale()))
                 .type(EmbedOrMessageDefinition.Type.MESSAGE)
-                .componentRowDefinitions(createButtonLayout(configUUID, config, true, disabledIds, config.getConfigLocale()))
+                .componentRowDefinitions(createButtonLayout(configUUID, config, true, true, disabledIds, config.getConfigLocale()))
                 .build();
     }
 
@@ -228,12 +228,11 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
                 .map(SumCustomSetStateDataV2::getDiceExpressions)
                 .map(List::isEmpty)
                 .orElse(false)) {
-            Set<String> disabledIds = getDisabledButtonIds(config, state, channelId, null);
-
+            Set<String> disabledIds = getDisabledButtonIds(config, null, channelId, null);
             return Optional.of(EmbedOrMessageDefinition.builder()
                     .descriptionOrContent(I18n.getMessage("sum_custom_set.buttonMessage.empty", config.getConfigLocale()))
                     .type(EmbedOrMessageDefinition.Type.MESSAGE)
-                    .componentRowDefinitions(createButtonLayout(customUuid, config, true, disabledIds, config.getConfigLocale()))
+                    .componentRowDefinitions(createButtonLayout(customUuid, config, true, true, disabledIds, config.getConfigLocale()))
                     .build());
         }
         return Optional.empty();
@@ -245,9 +244,12 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
             return Optional.empty();
         }
         String expression = AliasHelper.getAndApplyAliaseToExpression(channelId, userId, persistenceManager, combineExpressions(state.getData().getDiceExpressions(), config.getPrefix(), config.getPostfix()));
-
+        boolean expressionIsEmpty = Optional.of(state.getData())
+                .map(SumCustomSetStateDataV2::getDiceExpressions)
+                .map(List::isEmpty)
+                .orElse(true);
         Set<String> disabledIds = getDisabledButtonIds(config, state, channelId, userId);
-        return Optional.of(createButtonLayout(customUuid, config, !diceSystemAdapter.isValidExpression(expression, config.getDiceParserSystem()), disabledIds, config.getConfigLocale()));
+        return Optional.of(createButtonLayout(customUuid, config, !diceSystemAdapter.isValidExpression(expression, config.getDiceParserSystem()), expressionIsEmpty, disabledIds, config.getConfigLocale()));
     }
 
     private Set<String> getDisabledButtonIds(@NonNull SumCustomSetConfig config, @Nullable State<SumCustomSetStateDataV2> state, long channelId, @Nullable Long userId) {
@@ -383,7 +385,7 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
                 userLocale);
     }
 
-    private List<ComponentRowDefinition> createButtonLayout(UUID configUUID, SumCustomSetConfig config, boolean rollDisabled, Set<String> disableButtonIds, Locale configLocale) {
+    private List<ComponentRowDefinition> createButtonLayout(UUID configUUID, SumCustomSetConfig config, boolean rollDisabled, boolean backDisabled, Set<String> disableButtonIds, Locale configLocale) {
         return ButtonHelper.extendButtonLayout(ButtonHelper.createButtonLayout(getCommandId(), configUUID, config.getLabelAndExpression(), disableButtonIds),
                 ImmutableList.<ButtonDefinition>builder()
                         .add(ButtonDefinition.builder()
@@ -401,6 +403,7 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
                                 .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), BACK_BUTTON_ID, configUUID))
                                 .label(I18n.getMessage("sum_custom_set.button.label.back", configLocale))
                                 .style(ButtonDefinition.Style.SECONDARY)
+                                .disabled(backDisabled)
                                 .build()).build(), config.isSystemButtonNewLine());
     }
 

@@ -76,9 +76,8 @@ class SumCustomSetCommandTest {
 
     @Test
     void getButtonMessageWithState_roll() {
-        String res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), defaultConfig, new State<>("roll", new SumCustomSetStateDataV2(List.of(new ExpressionAndLabel("1d6", "1d6")), "user1")), 1L, 2L)
-                .orElseThrow().getDescriptionOrContent();
-        assertThat(res).isEqualTo("Click the buttons to add dice to the set and then on Roll");
+        EmbedOrMessageDefinition res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), defaultConfig, new State<>("roll", new SumCustomSetStateDataV2(List.of(new ExpressionAndLabel("1d6", "1d6")), "user1")), 1L, 2L).orElseThrow();
+        expect.toMatchSnapshot(res);
     }
 
     @Test
@@ -104,15 +103,14 @@ class SumCustomSetCommandTest {
 
     @Test
     void getButtonMessage() {
-        String res = underTest.createNewButtonMessage(UUID.fromString("00000000-0000-0000-0000-000000000000"), defaultConfig, 1L).getDescriptionOrContent();
-        assertThat(res).isEqualTo("Click the buttons to add dice to the set and then on Roll");
+        EmbedOrMessageDefinition res = underTest.createNewButtonMessage(UUID.fromString("00000000-0000-0000-0000-000000000000"), defaultConfig, 1L);
+        expect.toMatchSnapshot(res);
     }
 
     @Test
     void createNewButtonMessageWithState() {
-        String res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), defaultConfig, new State<>("roll", new SumCustomSetStateDataV2(List.of(new ExpressionAndLabel("1d6", "1d6")), "user1")), 1L, 2L)
-                .orElseThrow().getDescriptionOrContent();
-        assertThat(res).isEqualTo("Click the buttons to add dice to the set and then on Roll");
+        EmbedOrMessageDefinition res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), defaultConfig, new State<>("roll", new SumCustomSetStateDataV2(List.of(new ExpressionAndLabel("1d6", "1d6")), "user1")), 1L, 2L).orElseThrow();
+        expect.toMatchSnapshot(res);
     }
 
     @Test
@@ -282,7 +280,7 @@ class SumCustomSetCommandTest {
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel))
                 .containsExactly("1d6", "3d6", "4*", "Roll", "Clear", "Back");
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::isDisabled))
-                .containsExactly(false, false, true, true, false, false);
+                .containsExactly(false, false, true, true, false, true);
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getId))
                 .containsExactly("sum_custom_set1_button00000000-0000-0000-0000-000000000000",
                         "sum_custom_set2_button00000000-0000-0000-0000-000000000000",
