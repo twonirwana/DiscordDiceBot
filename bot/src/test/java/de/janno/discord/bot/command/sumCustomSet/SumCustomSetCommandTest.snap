@@ -10,6 +10,189 @@ de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandTest.configSerializ
 ]
 
 
+de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandTest.createNewButtonMessageWithState=[
+  {
+    "descriptionOrContent": "Click the buttons to add dice to the set and then on Roll",
+    "fields": [ ],
+    "componentRowDefinitions": [
+      {
+        "buttonDefinitions": [
+          {
+            "label": "1d6",
+            "id": "sum_custom_set\u001E1_button\u001E00000000-0000-0000-0000-000000000000",
+            "style": "PRIMARY",
+            "disabled": false
+          },
+          {
+            "label": "3d6",
+            "id": "sum_custom_set\u001E2_button\u001E00000000-0000-0000-0000-000000000000",
+            "style": "PRIMARY",
+            "disabled": false
+          },
+          {
+            "label": "4",
+            "id": "sum_custom_set\u001E3_button\u001E00000000-0000-0000-0000-000000000000",
+            "style": "PRIMARY",
+            "disabled": false
+          },
+          {
+            "label": "2d10min10",
+            "id": "sum_custom_set\u001E4_button\u001E00000000-0000-0000-0000-000000000000",
+            "style": "PRIMARY",
+            "disabled": false
+          },
+          {
+            "label": "Roll",
+            "id": "sum_custom_set\u001Eroll\u001E00000000-0000-0000-0000-000000000000",
+            "style": "SUCCESS",
+            "disabled": true
+          }
+        ]
+      },
+      {
+        "buttonDefinitions": [
+          {
+            "label": "Clear",
+            "id": "sum_custom_set\u001Eclear\u001E00000000-0000-0000-0000-000000000000",
+            "style": "DANGER",
+            "disabled": false
+          },
+          {
+            "label": "Back",
+            "id": "sum_custom_set\u001Eback\u001E00000000-0000-0000-0000-000000000000",
+            "style": "SECONDARY",
+            "disabled": true
+          }
+        ]
+      }
+    ],
+    "type": "MESSAGE"
+  }
+]
+
+
+de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandTest.getButtonMessage=[
+  {
+    "descriptionOrContent": "Click the buttons to add dice to the set and then on Roll",
+    "fields": [ ],
+    "componentRowDefinitions": [
+      {
+        "buttonDefinitions": [
+          {
+            "label": "1d6",
+            "id": "sum_custom_set\u001E1_button\u001E00000000-0000-0000-0000-000000000000",
+            "style": "PRIMARY",
+            "disabled": false
+          },
+          {
+            "label": "3d6",
+            "id": "sum_custom_set\u001E2_button\u001E00000000-0000-0000-0000-000000000000",
+            "style": "PRIMARY",
+            "disabled": false
+          },
+          {
+            "label": "4",
+            "id": "sum_custom_set\u001E3_button\u001E00000000-0000-0000-0000-000000000000",
+            "style": "PRIMARY",
+            "disabled": false
+          },
+          {
+            "label": "2d10min10",
+            "id": "sum_custom_set\u001E4_button\u001E00000000-0000-0000-0000-000000000000",
+            "style": "PRIMARY",
+            "disabled": false
+          },
+          {
+            "label": "Roll",
+            "id": "sum_custom_set\u001Eroll\u001E00000000-0000-0000-0000-000000000000",
+            "style": "SUCCESS",
+            "disabled": true
+          }
+        ]
+      },
+      {
+        "buttonDefinitions": [
+          {
+            "label": "Clear",
+            "id": "sum_custom_set\u001Eclear\u001E00000000-0000-0000-0000-000000000000",
+            "style": "DANGER",
+            "disabled": false
+          },
+          {
+            "label": "Back",
+            "id": "sum_custom_set\u001Eback\u001E00000000-0000-0000-0000-000000000000",
+            "style": "SECONDARY",
+            "disabled": true
+          }
+        ]
+      }
+    ],
+    "type": "MESSAGE"
+  }
+]
+
+
+de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandTest.getButtonMessageWithState_roll=[
+  {
+    "descriptionOrContent": "Click the buttons to add dice to the set and then on Roll",
+    "fields": [ ],
+    "componentRowDefinitions": [
+      {
+        "buttonDefinitions": [
+          {
+            "label": "1d6",
+            "id": "sum_custom_set\u001E1_button\u001E00000000-0000-0000-0000-000000000000",
+            "style": "PRIMARY",
+            "disabled": false
+          },
+          {
+            "label": "3d6",
+            "id": "sum_custom_set\u001E2_button\u001E00000000-0000-0000-0000-000000000000",
+            "style": "PRIMARY",
+            "disabled": false
+          },
+          {
+            "label": "4",
+            "id": "sum_custom_set\u001E3_button\u001E00000000-0000-0000-0000-000000000000",
+            "style": "PRIMARY",
+            "disabled": false
+          },
+          {
+            "label": "2d10min10",
+            "id": "sum_custom_set\u001E4_button\u001E00000000-0000-0000-0000-000000000000",
+            "style": "PRIMARY",
+            "disabled": false
+          },
+          {
+            "label": "Roll",
+            "id": "sum_custom_set\u001Eroll\u001E00000000-0000-0000-0000-000000000000",
+            "style": "SUCCESS",
+            "disabled": true
+          }
+        ]
+      },
+      {
+        "buttonDefinitions": [
+          {
+            "label": "Clear",
+            "id": "sum_custom_set\u001Eclear\u001E00000000-0000-0000-0000-000000000000",
+            "style": "DANGER",
+            "disabled": false
+          },
+          {
+            "label": "Back",
+            "id": "sum_custom_set\u001Eback\u001E00000000-0000-0000-0000-000000000000",
+            "style": "SECONDARY",
+            "disabled": true
+          }
+        ]
+      }
+    ],
+    "type": "MESSAGE"
+  }
+]
+
+
 de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandTest.getCommandDefinition=[
   {
     "name": "sum_custom_set",
