@@ -1,6 +1,7 @@
 package de.janno.discord.connector.api.message;
 
 import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.Value;
@@ -15,7 +16,7 @@ public class ButtonDefinition {
     String label;
     @NonNull
     String id;
-
+    @NonNull
     ButtonDefinition.Style style;
 
     boolean disabled;
@@ -23,6 +24,8 @@ public class ButtonDefinition {
     ButtonDefinition(@NonNull String label, @NonNull String id, Style style, boolean disabled) {
         //https://discord.com/developers/docs/interactions/message-components#button-object
         Preconditions.checkArgument(id.length() <= 100, String.format("ID '%s' is to long", id));
+        Preconditions.checkArgument(!Strings.isNullOrEmpty(label), "label is empty");
+        Preconditions.checkArgument(!Strings.isNullOrEmpty(id), "id is empty");
         this.label = StringUtils.abbreviate(label.replace("\n", " "), 80);
         this.id = id;
         this.style = Objects.requireNonNullElse(style, Style.PRIMARY);
