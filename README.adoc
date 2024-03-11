@@ -446,6 +446,12 @@ image:image/direct_roll.webp[image]
 
 With the command `/r` it is possible to directly call the dice expression (see <<Dice Expression Notation>>) without the usage of buttons.
 For example `/r expression:3d6` will simply roll 3d6 and post the result without showing any buttons.
+It is possible to give the roll a label by adding it with a `@`.
+
+For example `/r expression:d20+10@Alriks Attack` will result in:
+
+image:image/directRoll_label.png[image]
+
 The result of the dice will be summed up per default.
 The output can be configured with the `channel_config` command.
 
