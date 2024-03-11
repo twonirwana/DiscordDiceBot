@@ -150,8 +150,8 @@ class DirectRollCommandTest {
         verify(slashEventAdaptor, never()).createResultMessageWithReference(any());
         verify(slashEventAdaptor, never()).deleteMessageById(anyLong());
         verify(slashEventAdaptor).replyWithEmbedOrMessageDefinition(EmbedOrMessageDefinition.builder()
-                .descriptionOrContent("Type `/r` and a dice expression. The output type, dice images etc. can be configuration with `/channel_config save_direct_roll_config`\n" + DiceEvaluatorAdapter.getHelp())
-                .field(new EmbedOrMessageDefinition.Field("Example", "`/r expression: 1d6`", false))
+                .descriptionOrContent("Type `/r` and a dice expression. It is possible to give the roll a label by adding it with a `@`. The output type, dice images etc. can be configuration with `/channel_config save_direct_roll_config`\n" + DiceEvaluatorAdapter.getHelp())
+                .field(new EmbedOrMessageDefinition.Field("Example", "`/r expression: 1d6@Damage`", false))
                 .field(new EmbedOrMessageDefinition.Field("Full documentation", "https://github.com/twonirwana/DiscordDiceBot", false))
                 .field(new EmbedOrMessageDefinition.Field("Discord Server for News, Help and Feature Requests", "https://discord.gg/e43BsqKpFr", false))
                 .build(), true);

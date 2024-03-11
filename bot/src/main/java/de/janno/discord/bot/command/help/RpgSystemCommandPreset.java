@@ -87,10 +87,13 @@ public class RpgSystemCommandPreset {
             //custom_parameter start expression: (d!!{Dice:4@D4/6@D6/8@D8/12@D12/20@D20} + {Type: 0@Regular/1d!!6@Wildcard})k1
             case SAVAGE_WORLDS ->
                     new CustomParameterConfig(null, I18n.getMessage("rpg.system.command.preset.SAVAGE_WORLDS.expression", userLocale), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.without_expression, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_3d, DiceImageStyle.polyhedral_3d.getDefaultColor()), userLocale);
-            // custom_dice start buttons: ifE(2d[0/0/0/1/1/3]l1,3,'Success',1,'Partial','Failure')@Zero;ifE(1d[0/0/0/1/1/3],3,'Success',1,'Partial','Failure')@1d6;ifG(2d[0/0/0/1/1/3]k2=,5,'Critical',2,'Success',0,'Partial','Failure')@2d6;ifG(3d[0/0/0/1/1/3]k2=,5,'Critical',2,'Success',0,'Partial','Failure')@3d6;ifG(4d[0/0/0/1/1/3]k2=,5,'Critical',2,'Success',0,'Partial','Failure')@4d6;ifG(5d[0/0/0/1/1/3]k2=,5,'Critical',2,'Success',0,'Partial','Failure')@5d6;ifG(6d[0/0/0/1/1/3]k2=,5,'Critical',2,'Success',0,'Partial','Failure')@6d6;ifG(7d[0/0/0/1/1/3]k2=,5,'Critical',2,'Success',0,'Partial','Failure')@7d6
-            case BLADES_IN_THE_DARK -> new CustomDiceConfig(null,
-                    ButtonHelper.parseString(I18n.getMessage("rpg.system.command.preset.BLADES_IN_THE_DARK.expression", userLocale)),
-                    DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.without_expression, null, new DiceStyleAndColor(DiceImageStyle.none, DiceImageStyle.none.getDefaultColor()), userLocale);
+            // val('$diceRoll',{Number of Dice:2d6L1@No Dice/1d6@1 Dice/2d6@2 Dice/3d6@3 Dice/4d6@4 Dice/5d6@5 Dice/6d6@6 Dice/7d6@7 Dice}) val('$sixes','$diceRoll'==6c) val('$partials','$diceRoll'>3<6c)  if('$sixes'>?1,'Critical Success - You do it with increased effect.', '$sixes'=?1,'Success - You do it.','$partials' >? 0,'Partial Success - You do it but suffer severe harm, a serious complication or have reduced effect.','Failure - You suffer severe harm, a serious complication occurs, or you lose this opportunity for action.'
+            case BLADES_IN_THE_DARK ->
+                    new CustomParameterConfig(null, I18n.getMessage("rpg.system.command.preset.BLADES_IN_THE_DARK.expression", userLocale),
+                            DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.without_expression, null, new DiceStyleAndColor(DiceImageStyle.none, DiceImageStyle.none.getDefaultColor()), userLocale);
+            case BLADES_IN_THE_DARK_IMAGE ->
+                    new CustomParameterConfig(null, I18n.getMessage("rpg.system.command.preset.BLADES_IN_THE_DARK.expression", userLocale),
+                            DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.without_expression, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_RdD, DiceImageStyle.polyhedral_RdD.getDefaultColor()), userLocale);
             //7th Edition Call of Cthulhu: custom_dice start buttons:  1d100; 2d100L1@1d100 Advantage; 2d100K1@1d100 Penalty; 1d3; 1d4; 1d6; 1d8; 1d10; 1d12; 1d20; 3d6
             case CALL_OF_CTHULHU_7ED ->
                     new CustomDiceConfig(null, ButtonHelper.parseString(I18n.getMessage("rpg.system.command.preset.CALL_OF_CTHULHU_7ED.expression", userLocale)),
@@ -180,8 +183,28 @@ public class RpgSystemCommandPreset {
             case EZD6 ->
                     new CustomDiceConfig(null, ButtonHelper.parseString(I18n.getMessage("rpg.system.command.preset.EZD6.expression", userLocale)),
                             DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.without_expression, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_RdD, DiceImageStyle.polyhedral_RdD.getDefaultColor()), userLocale);
-
+            // RebellionUnplugged. /custom_dice start buttons: 3d6l2=@Ability1;val('$3',3d6),(('$3'l1=) + ('$3'k1=))=@Ability2;3d6k2=@Ability3;3d6=@Ability4 answer_format: without_expression dice_image_style: d6_dots dice_image_color: black_and_gold
+            case REBELLION_UNPLUGGED ->
+                    new CustomDiceConfig(null, ButtonHelper.parseString(I18n.getMessage("rpg.system.command.preset.REBELLION_UNPLUGGED.expression", userLocale)),
+                            DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.without_expression, null, new DiceStyleAndColor(DiceImageStyle.d6_dots, D6Dotted.BLACK_AND_GOLD), userLocale);
         };
+    }
+
+    private static String getCommandIdForConfig(Config config) {
+        if (config instanceof CustomDiceConfig) {
+            return CustomDiceCommand.COMMAND_NAME;
+        } else if (config instanceof SumCustomSetConfig) {
+            return SumCustomSetCommand.COMMAND_NAME;
+        } else if (config instanceof CustomParameterConfig) {
+            return CustomParameterCommand.COMMAND_NAME;
+        }
+        throw new IllegalStateException("Could not find command id for config: " + config);
+    }
+
+    public static String getCommandString(PresetId presetId, Locale locale) {
+        Config config = createConfig(presetId, locale);
+        String commandId = getCommandIdForConfig(config);
+        return "/%s start %s".formatted(commandId, config.toCommandOptionsString());
     }
 
     public EmbedOrMessageDefinition createMessage(PresetId presetId, UUID newConfigUUID, long guildId, long channelId, Locale userLocale) {
@@ -196,27 +219,9 @@ public class RpgSystemCommandPreset {
         throw new IllegalStateException("Could not create valid config for: " + presetId);
     }
 
-    private static String getCommandIdForConfig(Config config) {
-        if (config instanceof CustomDiceConfig) {
-            return CustomDiceCommand.COMMAND_NAME;
-        } else if (config instanceof SumCustomSetConfig) {
-            return SumCustomSetCommand.COMMAND_NAME;
-        } else if (config instanceof CustomParameterConfig) {
-            return CustomParameterCommand.COMMAND_NAME;
-        }
-        throw new IllegalStateException("Could not find command id for config: " + config);
-    }
-
-
     private <C extends Config> EmbedOrMessageDefinition startPreset(C config, AbstractCommand<C, ?> command, UUID newConfigUUID, long guildId, long channelId) {
         command.createMessageConfig(newConfigUUID, guildId, channelId, config).ifPresent(persistenceManager::saveMessageConfig);
         return command.createNewButtonMessage(newConfigUUID, config, channelId);
-    }
-
-    public static String getCommandString(PresetId presetId, Locale locale) {
-        Config config = createConfig(presetId, locale);
-        String commandId = getCommandIdForConfig(config);
-        return "/%s start %s".formatted(commandId, config.toCommandOptionsString());
     }
 
     @AllArgsConstructor
@@ -236,6 +241,7 @@ public class RpgSystemCommandPreset {
         OSR,
         TRAVELLER,
         BLADES_IN_THE_DARK,
+        BLADES_IN_THE_DARK_IMAGE,
         CALL_OF_CTHULHU_7ED,
         EXALTED_3ED,
         VAMPIRE_5ED,
@@ -261,7 +267,8 @@ public class RpgSystemCommandPreset {
         DND5_CALC2,
         PBTA,
         THE_ONE_RING,
-        EZD6;
+        EZD6,
+        REBELLION_UNPLUGGED;
 
         public String getName(Locale locale) {
             return I18n.getMessage("rpg.system.command.preset.%s.name".formatted(name()), locale);

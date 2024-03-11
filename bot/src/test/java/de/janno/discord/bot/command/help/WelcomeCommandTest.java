@@ -367,13 +367,13 @@ class WelcomeCommandTest {
                 .flatMap(s -> s.getButtonDefinitions().stream())
                 .map(ButtonDefinition::getLabel))
                 .containsExactly(
+                        "Fate without Dice Images",
                         "Fate",
-                        "Fate with Dice Images",
+                        "Dungeon & Dragons 5e without Dice Images",
                         "Dungeon & Dragons 5e",
-                        "Dungeon & Dragons 5e with Dice Images",
                         "nWod / Chronicles of Darkness",
                         "oWod / Storyteller System",
-                        "Shadowrun",
+                        "Shadowrun without Dice Images",
                         "Coin Toss",
                         "Dice Calculator");
 

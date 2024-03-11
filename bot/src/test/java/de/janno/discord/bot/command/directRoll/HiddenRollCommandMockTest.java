@@ -108,7 +108,7 @@ public class HiddenRollCommandMockTest {
         assertThat(hiddenRollCommandEvent.getActions()).containsExactlyInAnyOrder(
                 "replyWithEmbedOrMessageDefinition: EmbedOrMessageDefinition(title=null, descriptionOrContent=Type `/h` and a dice expression. The result will only be shown the roller and they can make it visible to all later. The output type, dice images etc. can be configuration with `/channel_config save_direct_roll_config`\n"
                         + DiceEvaluatorAdapter.getHelp() +
-                        ", fields=[EmbedOrMessageDefinition.Field(name=Example, value=`/h expression: 1d6`, inline=false), EmbedOrMessageDefinition.Field(name=Full documentation, value=https://github.com/twonirwana/DiscordDiceBot, inline=false), EmbedOrMessageDefinition.Field(name=Discord Server for News, Help and Feature Requests, value=https://discord.gg/e43BsqKpFr, inline=false)], componentRowDefinitions=[], hasImage=false, type=EMBED)"
+                        ", fields=[EmbedOrMessageDefinition.Field(name=Example, value=`/h expression: 1d6@Damage`, inline=false), EmbedOrMessageDefinition.Field(name=Full documentation, value=https://github.com/twonirwana/DiscordDiceBot, inline=false), EmbedOrMessageDefinition.Field(name=Discord Server for News, Help and Feature Requests, value=https://discord.gg/e43BsqKpFr, inline=false)], componentRowDefinitions=[], hasImage=false, type=EMBED)"
         );
     }
 

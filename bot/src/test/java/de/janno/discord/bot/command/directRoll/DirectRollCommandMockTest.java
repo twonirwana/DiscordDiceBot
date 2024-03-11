@@ -106,9 +106,9 @@ public class DirectRollCommandMockTest {
 
 
         assertThat(slashEvent.getActions()).containsExactlyInAnyOrder(
-                "replyWithEmbedOrMessageDefinition: EmbedOrMessageDefinition(title=null, descriptionOrContent=Type `/r` and a dice expression. The output type, dice images etc. can be configuration with `/channel_config save_direct_roll_config`\n" +
+                "replyWithEmbedOrMessageDefinition: EmbedOrMessageDefinition(title=null, descriptionOrContent=Type `/r` and a dice expression. It is possible to give the roll a label by adding it with a `@`. The output type, dice images etc. can be configuration with `/channel_config save_direct_roll_config`\n" +
                         DiceEvaluatorAdapter.getHelp() +
-                        ", fields=[EmbedOrMessageDefinition.Field(name=Example, value=`/r expression: 1d6`, inline=false), EmbedOrMessageDefinition.Field(name=Full documentation, value=https://github.com/twonirwana/DiscordDiceBot, inline=false), EmbedOrMessageDefinition.Field(name=Discord Server for News, Help and Feature Requests, value=https://discord.gg/e43BsqKpFr, inline=false)], componentRowDefinitions=[], hasImage=false, type=EMBED)");
+                        ", fields=[EmbedOrMessageDefinition.Field(name=Example, value=`/r expression: 1d6@Damage`, inline=false), EmbedOrMessageDefinition.Field(name=Full documentation, value=https://github.com/twonirwana/DiscordDiceBot, inline=false), EmbedOrMessageDefinition.Field(name=Discord Server for News, Help and Feature Requests, value=https://discord.gg/e43BsqKpFr, inline=false)], componentRowDefinitions=[], hasImage=false, type=EMBED)");
     }
 
     @Test
