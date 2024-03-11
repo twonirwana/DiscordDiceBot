@@ -337,9 +337,13 @@ This will provide a button called `Attack` which rolls with a personalized modif
 
 `/custom_dice start buttons: val('$roll',2d6=) if('$roll'>=?10, 'Total Success', '$roll'\<=?6, 'Miss', 'Partial Success')@Move;;val('$roll',2d6+1=) if('$roll'>=?10, 'Total Success', '$roll'\<=?6, 'Miss', 'Partial Success')@Move +1;val('$roll',2d6+2=) if('$roll'>=?10, 'Total Success', '$roll'\<=?6, 'Miss', 'Partial Success')@Move +2;val('$roll',2d6+3=) if('$roll'>=?10, 'Total Success', '$roll'\<=?6, 'Miss', 'Partial Success')@Move +3;val('$roll',2d6+4=) if('$roll'>=?10, 'Total Success', '$roll'\<=?6, 'Miss', 'Partial Success')@Move +4;val('$roll',2d6+5=) if('$roll'>=?10, 'Total Success', '$roll'\<=?6, 'Miss', 'Partial Success')@Move +5;;val('$roll',2d6-1=) if('$roll'>=?10, 'Total Success', '$roll'\<=?6, 'Miss', 'Partial Success')@Move -1;val('$roll',2d6-2=) if('$roll'>=?10, 'Total Success', '$roll'\<=?6, 'Miss', 'Partial Success')@Move -2;val('$roll',2d6-3=) if('$roll'>=?10, 'Total Success', '$roll'\<=?6, 'Miss', 'Partial Success')@Move -3;val('$roll',2d6-4=) if('$roll'>=?10, 'Total Success', '$roll'\<=?6, 'Miss', 'Partial Success')@Move -4;val('$roll',2d6-5=) if('$roll'>=?10, 'Total Success', '$roll'\<=?6, 'Miss', 'Partial Success')@Move -5;;d4;d6;d8;d10;d12;d20 answer_format: without_expression dice_image_style: polyhedral_RdD dice_image_color: default`
 
-===== Blades in the Dark
+===== Call of Cthulhu 7th Edition
 
-`/custom_dice start buttons: ifE(2d[0/0/0/1/1/3]l1,3,'Success',1,'Partial','Failure')@Zero;ifE(1d[0/0/0/1/1/3],3,'Success',1,'Partial','Failure')@1d6;ifG(2d[0/0/0/1/1/3]k2=,5,'Critical',2,'Success',0,'Partial','Failure')@2d6;ifG(3d[0/0/0/1/1/3]k2=,5,'Critical',2,'Success',0,'Partial','Failure')@3d6;ifG(4d[0/0/0/1/1/3]k2=,5,'Critical',2,'Success',0,'Partial','Failure')@4d6;ifG(5d[0/0/0/1/1/3]k2=,5,'Critical',2,'Success',0,'Partial','Failure')@5d6;ifG(6d[0/0/0/1/1/3]k2=,5,'Critical',2,'Success',0,'Partial','Failure')@6d6;ifG(7d[0/0/0/1/1/3]k2=,5,'Critical',2,'Success',0,'Partial','Failure')@7d6`
+`/custom_dice start buttons: 1d100; 2d100L1@1d100 Advantage; 2d100K1@1d100 Penalty; 1d3; 1d4; 1d6; 1d8; 1d10; 1d12; 1d20; 3d6`
+
+===== OSR
+
+`/custom_dice start buttons:1d20@D20;1d6@D6;2d6@2D6;1d4@D4;1d8@D8;6x3d6=@Stats;(3d6=)*10@Gold;1d100@D100;1d10@D10;1d12@D12`
 
 === Custom Parameter
 
