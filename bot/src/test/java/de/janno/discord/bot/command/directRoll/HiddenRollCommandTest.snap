@@ -58,7 +58,7 @@ de.janno.discord.bot.command.directRoll.HiddenRollCommandTest.testHelp[de]=[
     "fields": [
       {
         "name": "Beispiel",
-        "value": "`/h expression: 1d6`",
+        "value": "`/h expression: 1d6@Damage`",
         "inline": false
       },
       {
@@ -84,7 +84,7 @@ de.janno.discord.bot.command.directRoll.HiddenRollCommandTest.testHelp[en]=[
     "fields": [
       {
         "name": "Example",
-        "value": "`/h expression: 1d6`",
+        "value": "`/h expression: 1d6@Damage`",
         "inline": false
       },
       {
@@ -110,7 +110,7 @@ de.janno.discord.bot.command.directRoll.HiddenRollCommandTest.testHelp[fr]=[
     "fields": [
       {
         "name": "Exemple",
-        "value": "`/h expression: 1d6`",
+        "value": "`/h expression: 1d6@Damage`",
         "inline": false
       },
       {
@@ -136,7 +136,7 @@ de.janno.discord.bot.command.directRoll.HiddenRollCommandTest.testHelp[pt_BR]=[
     "fields": [
       {
         "name": "Exemplo",
-        "value": "`/h expression: 1d6`",
+        "value": "`/h expression: 1d6@Damage`",
         "inline": false
       },
       {

@@ -47,6 +47,7 @@ Please let me know if you have a good new preset or an improved version for an e
 |===
 |`A Song of Ice and Fire`
 |`Blades in the Dark`
+|`Blades in the Dark without Dice Images`
 |`Bluebeard's Bride`
 |`Call of Cthulhu 7th Edition`
 |`Candela Obscura`
@@ -57,12 +58,12 @@ Please let me know if you have a good new preset or an improved version for an e
 |`Dungeon & Dragons 5e`
 |`Dungeon & Dragons 5e Calculator`
 |`Dungeon & Dragons 5e Calculator 2`
-|`Dungeon & Dragons 5e with Dice Images`
+|`Dungeon & Dragons 5e without Dice Images`
 |`Dungeon Crawl Classics`
 |`EZD6`
 |`Exalted 3ed`
 |`Fate`
-|`Fate with Dice Images`
+|`Fate without Dice Images`
 |`Heroes of Cerulea`
 |`Hunter 5ed`
 |`Kids on Brooms`
@@ -72,11 +73,12 @@ Please let me know if you have a good new preset or an improved version for an e
 |`Powered by the Apocalypse`
 |`Prowlers & Paragons Ultimate Edition`
 |`Public Access`
+|`Rebellion Unplugged`
 |`Risus The Anything RPG "Evens Up"`
 |`Rêve de Dragon`
 |`Savage Worlds`
 |`Shadowrun`
-|`Shadowrun with Dice Images`
+|`Shadowrun without Dice Images`
 |`The Expanse`
 |`The Marvel Multiverse Role-Playing Game`
 |`The One Ring`
