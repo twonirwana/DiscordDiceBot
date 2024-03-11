@@ -26,5 +26,7 @@ Einige der spielfertigen Systeme sind:
 
 `A Song of Ice and Fire`,`Blades in the Dark`,`Bluebeard's Bride`,`Call of Cthulhu 7th Edition`,`Candela Obscura`,`City of Mist`,`Coin Toss`,`Cyberpunk Red`,`Dice Calculator`,`Dungeon & Dragons 5e`,`Dungeon & Dragons 5e Calculator`,`Dungeon & Dragons 5e Calculator 2`,`Dungeon & Dragons 5e with Dice Images`,`Dungeon Crawl Classics`,`EZD6`,`Exalted 3ed`,`Fate`,`Fate with Dice Images`,`Heroes of Cerulea`,`Hunter 5ed`,`Kids on Brooms`,`OSR`,`One-Roll Engine`,`Paranoia: Red Clearance Edition`,`Powered by the Apocalypse`,`Prowlers & Paragons Ultimate Edition`,`Public Access`,`Risus The Anything RPG "Evens Up"`,`Rêve de Dragon`,`Savage Worlds`,`Shadowrun`,`Shadowrun with Dice Images`,`The Expanse`,`The Marvel Multiverse Role-Playing Game`,`The One Ring`,`Tiny D6`,`Traveller`,`Vampire 5ed`,`Year Zero Engine: Alien`,`nWod / Chronicles of Darkness`,`oWod / Storyteller System`
 
-Viele weitere Systeme können mit diesem Bot abgebildet werden, bitte
-besuche: https://github.com/twonirwana/DiscordDiceBot
+# Benutzerdefinierte Würfel-Buttons
+
+Du kannst deine eigenen Würfelknöpfe erstellen. Fast alle RPG-Systeme können mit diesem Bot abgebildet werden, bitte
+siehe dafür: https://github.com/twonirwana/DiscordDiceBot
