@@ -585,7 +585,7 @@ All operators are case insensitiv.
 | Concat |`<expression>_<expression>` |`d20_'dmg''` | Combines the result of both expression into on single element |2 |left |one or more elements | one or more elements
 |Or |`<boolean>\|\|<boolean>` |`d6=?5 \|\| d6=?6` | Boolean or operation of the two boolean values | 3 |left | boolean value | boolean value
 |And |`<boolean>&&<boolean>` |`d6=?5 && d6=?6` | Boolean and operation of the two boolean values | 4 |left | boolean value | boolean value
-|And |`!<boolean>` |`!d6=?5` | Negates the boolean value right from it | 5 |right |  | boolean value
+|Not |`!<boolean>` |`!d6=?5` | Negates the boolean value right from it | 5 |right |  | boolean value
 |Equal |`<left> =? <right>` |`d6=?5` | Compare the left and the right and returns true if equal and false otherwise | 6 |left |one or more elements  | one or more elements
 |Lesser |`<left> <? <right>` |`d6<?5` | Compare the left and the right and returns true if `<left>` is lesser than `<right>` otherwise false | 7 |left |a single number | a single number
 |Lesser Equal |`<left> \<=? <right>` |`d6\<=?5` | Compare the left and the right and returns true if `<left>` is lesser or equal then `<right>` otherwise false | 8 |left |a single number | a single number
