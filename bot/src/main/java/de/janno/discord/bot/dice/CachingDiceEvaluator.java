@@ -30,7 +30,7 @@ public class CachingDiceEvaluator {
                     @Override
                     public @NonNull RollerOrError load(@NonNull String expression) {
                         try {
-                            log.debug("create roller for: {}", expression.replace("\n"," "));
+                            log.trace("create roller for: {}", expression.replace("\n"," "));
                             Roller roller = diceEvaluator.buildRollSupplier(expression);
                             roller.roll();
                             return new RollerOrError(expression, roller, true, null);

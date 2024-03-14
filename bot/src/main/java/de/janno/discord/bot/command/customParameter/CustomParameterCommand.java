@@ -514,7 +514,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     @Override
     protected @NonNull Optional<String> getStartOptionsValidationMessage(@NonNull CommandInteractionOption options, long channelId, long userId, @NonNull Locale userLocale) {
         String baseExpression = options.getStringSubOptionWithName(EXPRESSION_OPTION_NAME).orElse("");
-        log.info("Start validating: {}", baseExpression.replace("\n", " "));
+        log.trace("Start validating: {}", baseExpression.replace("\n", " "));
         int variableCount = 0;
         Matcher variableMatcher = PARAMETER_VARIABLE_PATTERN.matcher(baseExpression);
         while (variableMatcher.find()) {
@@ -559,7 +559,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
                 .map(s -> validateStateWithCustomIdAndParameter(config, s))
                 .filter(Objects::nonNull)
                 .findFirst();
-        log.info("{} with parameter options {} in {}ms validated",
+        log.debug("{} with parameter options {} in {}ms validated",
                 config.getBaseExpression().replace("\n", " "),
                 config.getParameters(),
                 stopwatch.elapsed(TimeUnit.MILLISECONDS));
