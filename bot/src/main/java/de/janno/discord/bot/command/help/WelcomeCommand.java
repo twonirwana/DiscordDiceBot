@@ -113,13 +113,12 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
 
     private RpgSystemCommandPreset.PresetId getPresetIdFromButton(String buttonValue) {
         return switch (ButtonIds.valueOf(buttonValue)) {
-            case fate -> RpgSystemCommandPreset.PresetId.FATE;
             case fate_image -> RpgSystemCommandPreset.PresetId.FATE_IMAGE;
             case dnd5 -> RpgSystemCommandPreset.PresetId.DND5;
             case dnd5_image -> RpgSystemCommandPreset.PresetId.DND5_IMAGE;
             case nWoD -> RpgSystemCommandPreset.PresetId.NWOD;
             case oWoD -> RpgSystemCommandPreset.PresetId.OWOD;
-            case shadowrun -> RpgSystemCommandPreset.PresetId.SHADOWRUN;
+            case shadowrun -> RpgSystemCommandPreset.PresetId.SHADOWRUN_IMAGE;
             case coin -> RpgSystemCommandPreset.PresetId.COIN;
             case dice_calculator -> RpgSystemCommandPreset.PresetId.DICE_CALCULATOR;
         };
@@ -133,17 +132,23 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
 
     @Override
     protected void addFurtherActions(List<Mono<Void>> actions, ButtonEventAdaptor event, Config config, State<StateData> state) {
-        RpgSystemCommandPreset.PresetId presetId = getPresetIdFromButton(state.getButtonValue());
-        String commandString = RpgSystemCommandPreset.getCommandString(presetId, event.getRequester().getUserLocal());
-        actions.add(Mono.defer(() -> event.createMessageWithoutReference(EmbedOrMessageDefinition.builder()
-                        .type(EmbedOrMessageDefinition.Type.MESSAGE)
-                        .shortedContent("`%s`".formatted(commandString))
-                        .build())).ofType(Void.class)
-                .doOnSuccess(v ->
-                        log.info("{}: Welcome Button {}",
-                                event.getRequester().toLogString(),
-                                presetId.name()
-                        )));
+        if (ButtonIds.isInvalid(state.getButtonValue())) {
+            log.warn("{}: Unknown welcome button id: {}",
+                    event.getRequester().toLogString(),
+                    state.getButtonValue());
+        } else {
+            RpgSystemCommandPreset.PresetId presetId = getPresetIdFromButton(state.getButtonValue());
+            String commandString = RpgSystemCommandPreset.getCommandString(presetId, event.getRequester().getUserLocal());
+            actions.add(Mono.defer(() -> event.createMessageWithoutReference(EmbedOrMessageDefinition.builder()
+                            .type(EmbedOrMessageDefinition.Type.MESSAGE)
+                            .shortedContent("`%s`".formatted(commandString))
+                            .build())).ofType(Void.class)
+                    .doOnSuccess(v ->
+                            log.info("{}: Welcome Button {}",
+                                    event.getRequester().toLogString(),
+                                    presetId.name()
+                            )));
+        }
     }
 
     @Override
@@ -175,20 +180,20 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
                         .buttonDefinitions(
                                 ImmutableList.of(
                                         ButtonDefinition.builder()
-                                                .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), ButtonIds.fate.name(), configUUID))
-                                                .label(I18n.getMessage("rpg.system.command.preset.%s.name".formatted(ButtonIds.fate.name().toUpperCase()), config.getConfigLocale()))
-                                                .build(),
-                                        ButtonDefinition.builder()
-                                                .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), ButtonIds.fate_image.name(), configUUID))
-                                                .label(I18n.getMessage("rpg.system.command.preset.%s.name".formatted(ButtonIds.fate_image.name().toUpperCase()), config.getConfigLocale()))
+                                                .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), ButtonIds.dnd5_image.name(), configUUID))
+                                                .label(I18n.getMessage("rpg.system.command.preset.%s.name".formatted(getPresetIdFromButton(ButtonIds.dnd5_image.name())), config.getConfigLocale()))
                                                 .build(),
                                         ButtonDefinition.builder()
                                                 .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), ButtonIds.dnd5.name(), configUUID))
-                                                .label(I18n.getMessage("rpg.system.command.preset.%s.name".formatted(ButtonIds.dnd5.name().toUpperCase()), config.getConfigLocale()))
+                                                .label(I18n.getMessage("rpg.system.command.preset.%s.name".formatted(getPresetIdFromButton(ButtonIds.dnd5.name())), config.getConfigLocale()))
                                                 .build(),
                                         ButtonDefinition.builder()
-                                                .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), ButtonIds.dnd5_image.name(), configUUID))
-                                                .label(I18n.getMessage("rpg.system.command.preset.%s.name".formatted(ButtonIds.dnd5_image.name().toUpperCase()), config.getConfigLocale()))
+                                                .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), ButtonIds.fate_image.name(), configUUID))
+                                                .label(I18n.getMessage("rpg.system.command.preset.%s.name".formatted(getPresetIdFromButton(ButtonIds.fate_image.name())), config.getConfigLocale()))
+                                                .build(),
+                                        ButtonDefinition.builder()
+                                                .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), ButtonIds.coin.name(), configUUID))
+                                                .label(I18n.getMessage("rpg.system.command.preset.%s.name".formatted(getPresetIdFromButton(ButtonIds.coin.name())), config.getConfigLocale()))
                                                 .build()
 
                                 )
@@ -199,23 +204,19 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
                                 ImmutableList.of(
                                         ButtonDefinition.builder()
                                                 .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), ButtonIds.nWoD.name(), configUUID))
-                                                .label(I18n.getMessage("rpg.system.command.preset.%s.name".formatted(ButtonIds.nWoD.name().toUpperCase()), config.getConfigLocale()))
+                                                .label(I18n.getMessage("rpg.system.command.preset.%s.name".formatted(getPresetIdFromButton(ButtonIds.nWoD.name())), config.getConfigLocale()))
                                                 .build(),
                                         ButtonDefinition.builder()
                                                 .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), ButtonIds.oWoD.name(), configUUID))
-                                                .label(I18n.getMessage("rpg.system.command.preset.%s.name".formatted(ButtonIds.oWoD.name().toUpperCase()), config.getConfigLocale()))
+                                                .label(I18n.getMessage("rpg.system.command.preset.%s.name".formatted(getPresetIdFromButton(ButtonIds.oWoD.name())), config.getConfigLocale()))
                                                 .build(),
                                         ButtonDefinition.builder()
                                                 .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), ButtonIds.shadowrun.name(), configUUID))
-                                                .label(I18n.getMessage("rpg.system.command.preset.%s.name".formatted(ButtonIds.shadowrun.name().toUpperCase()), config.getConfigLocale()))
-                                                .build(),
-                                        ButtonDefinition.builder()
-                                                .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), ButtonIds.coin.name(), configUUID))
-                                                .label(I18n.getMessage("rpg.system.command.preset.%s.name".formatted(ButtonIds.coin.name().toUpperCase()), config.getConfigLocale()))
+                                                .label(I18n.getMessage("rpg.system.command.preset.%s.name".formatted(getPresetIdFromButton(ButtonIds.shadowrun.name())), config.getConfigLocale()))
                                                 .build(),
                                         ButtonDefinition.builder()
                                                 .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), ButtonIds.dice_calculator.name(), configUUID))
-                                                .label(I18n.getMessage("rpg.system.command.preset.%s.name".formatted(ButtonIds.dice_calculator.name().toUpperCase()), config.getConfigLocale()))
+                                                .label(I18n.getMessage("rpg.system.command.preset.%s.name".formatted(getPresetIdFromButton(ButtonIds.dice_calculator.name())), config.getConfigLocale()))
                                                 .build()
                                 )
                         )
@@ -229,7 +230,6 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
     }
 
     private enum ButtonIds {
-        fate,
         fate_image,
         dnd5,
         dnd5_image,

@@ -94,6 +94,9 @@ public class RpgSystemCommandPreset {
             case BLADES_IN_THE_DARK_IMAGE ->
                     new CustomParameterConfig(null, I18n.getMessage("rpg.system.command.preset.BLADES_IN_THE_DARK.expression", userLocale),
                             DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.without_expression, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_RdD, DiceImageStyle.polyhedral_RdD.getDefaultColor()), userLocale);
+            case BLADES_IN_THE_DARK_DETAIL ->
+                    new CustomParameterConfig(null, I18n.getMessage("rpg.system.command.preset.BLADES_IN_THE_DARK_DETAIL.expression", userLocale),
+                            DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.without_expression, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_RdD, DiceImageStyle.polyhedral_RdD.getDefaultColor()), userLocale);
             //7th Edition Call of Cthulhu: custom_dice start buttons:  1d100; 2d100L1@1d100 Advantage; 2d100K1@1d100 Penalty; 1d3; 1d4; 1d6; 1d8; 1d10; 1d12; 1d20; 3d6
             case CALL_OF_CTHULHU_7ED ->
                     new CustomDiceConfig(null, ButtonHelper.parseString(I18n.getMessage("rpg.system.command.preset.CALL_OF_CTHULHU_7ED.expression", userLocale)),
@@ -242,6 +245,7 @@ public class RpgSystemCommandPreset {
         TRAVELLER,
         BLADES_IN_THE_DARK,
         BLADES_IN_THE_DARK_IMAGE,
+        BLADES_IN_THE_DARK_DETAIL,
         CALL_OF_CTHULHU_7ED,
         EXALTED_3ED,
         VAMPIRE_5ED,

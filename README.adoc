@@ -47,6 +47,7 @@ Please let me know if you have a good new preset or an improved version for an e
 |===
 |`A Song of Ice and Fire`
 |`Blades in the Dark`
+|`Blades in the Dark - Detail`
 |`Blades in the Dark without Dice Images`
 |`Bluebeard's Bride`
 |`Call of Cthulhu 7th Edition`

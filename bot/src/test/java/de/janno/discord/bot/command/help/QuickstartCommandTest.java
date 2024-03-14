@@ -151,6 +151,7 @@ class QuickstartCommandTest {
             a.assertThat(res.stream().map(AutoCompleteAnswer::getName)).containsExactly(
                     "A Song of Ice and Fire",
                     "Blades in the Dark",
+                    "Blades in the Dark - Detail",
                     "Blades in the Dark without Dice Images",
                     "Bluebeard's Bride",
                     "Call of Cthulhu 7th Edition",
@@ -195,6 +196,7 @@ class QuickstartCommandTest {
             a.assertThat(res.stream().map(AutoCompleteAnswer::getValue)).containsExactly(
                     "ASOIAF",
                     "BLADES_IN_THE_DARK_IMAGE",
+                    "BLADES_IN_THE_DARK_DETAIL",
                     "BLADES_IN_THE_DARK",
                     "BLUEBEARD_BRIDE",
                     "CALL_OF_CTHULHU_7ED",
