@@ -51,7 +51,7 @@ class WelcomeCommandTest {
     @Test
     public void getButtonMessageWithState_legacyKey() {
         Optional<EmbedOrMessageDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"),
-                new Config(null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH), new State<>("fate", StateData.empty()), 1L, 2L);
+                new Config(null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH), new State<>("invalidId", StateData.empty()), 1L, 2L);
         assertThat(res).isEmpty();
     }
 
@@ -325,14 +325,14 @@ class WelcomeCommandTest {
                 .flatMap(s -> s.getButtonDefinitions().stream())
                 .map(ButtonDefinition::getId))
                 .containsExactly(
-                        "welcomednd5_image00000000-0000-0000-0000-000000000000",
-                        "welcomednd500000000-0000-0000-0000-000000000000",
-                        "welcomefate_image00000000-0000-0000-0000-000000000000",
-                        "welcomecoin00000000-0000-0000-0000-000000000000",
-                        "welcomenWoD00000000-0000-0000-0000-000000000000",
-                        "welcomeoWoD00000000-0000-0000-0000-000000000000",
-                        "welcomeshadowrun00000000-0000-0000-0000-000000000000",
-                        "welcomedice_calculator00000000-0000-0000-0000-000000000000");
+                        "welcomeDND5_IMAGE00000000-0000-0000-0000-000000000000",
+                        "welcomeDND500000000-0000-0000-0000-000000000000",
+                        "welcomeFATE_IMAGE00000000-0000-0000-0000-000000000000",
+                        "welcomeCOIN00000000-0000-0000-0000-000000000000",
+                        "welcomeNWOD00000000-0000-0000-0000-000000000000",
+                        "welcomeOWOD00000000-0000-0000-0000-000000000000",
+                        "welcomeSHADOWRUN_IMAGE00000000-0000-0000-0000-000000000000",
+                        "welcomeDICE_CALCULATOR00000000-0000-0000-0000-000000000000");
         assertThat(res.getComponentRowDefinitions()
                 .stream()
                 .flatMap(s -> s.getButtonDefinitions().stream())

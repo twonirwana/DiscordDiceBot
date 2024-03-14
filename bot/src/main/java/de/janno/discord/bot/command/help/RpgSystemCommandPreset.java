@@ -20,6 +20,7 @@ import de.janno.discord.bot.persistance.PersistenceManager;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
 import lombok.AllArgsConstructor;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
@@ -287,6 +288,10 @@ public class RpgSystemCommandPreset {
                 return List.of(aliasString.split(";"));
             }
             return List.of(aliasString);
+        }
+
+        public static boolean isValid(String in) {
+            return Arrays.stream(PresetId.values()).anyMatch(s -> s.name().equals(in));
         }
     }
 }
