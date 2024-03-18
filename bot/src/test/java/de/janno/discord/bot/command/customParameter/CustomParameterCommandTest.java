@@ -111,7 +111,7 @@ class CustomParameterCommandTest {
 
     @BeforeEach
     void setup() {
-        underTest = new CustomParameterCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
+        underTest = new CustomParameterCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0, 10_000, true));
 
     }
 
@@ -161,7 +161,7 @@ class CustomParameterCommandTest {
     @ParameterizedTest(name = "{index} config={0} -> {1}")
     @MethodSource("generateValidationData")
     void validate(String slashExpression, String expectedResult) {
-        underTest = new CustomParameterCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator((minExcl, maxIncl) -> maxIncl, 1000, 0));
+        underTest = new CustomParameterCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator((minExcl, maxIncl) -> maxIncl, 1000, 0, 10_000, true));
 
         Optional<String> res = underTest.getStartOptionsValidationMessage(CommandInteractionOption.builder()
                 .name("start")
@@ -248,7 +248,7 @@ class CustomParameterCommandTest {
     @Test
     void checkPersistence() {
         PersistenceManager persistenceManager = new PersistenceManagerImpl("jdbc:h2:mem:" + UUID.randomUUID(), null, null);
-        underTest = new CustomParameterCommand(persistenceManager, mock(Dice.class), new CachingDiceEvaluator((minExcl, maxIncl) -> 0, 10, 0));
+        underTest = new CustomParameterCommand(persistenceManager, mock(Dice.class), new CachingDiceEvaluator((minExcl, maxIncl) -> 0, 10, 10_000, 10000, true));
 
         UUID configUUID = UUID.randomUUID();
         long channelId = System.currentTimeMillis();

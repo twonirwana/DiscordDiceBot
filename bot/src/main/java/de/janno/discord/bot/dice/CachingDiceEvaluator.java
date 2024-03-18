@@ -21,8 +21,8 @@ public class CachingDiceEvaluator {
     private final LoadingCache<String, RollerOrError> diceRollerCache;
     private final DiceEvaluator diceEvaluator;
 
-    public CachingDiceEvaluator(NumberSupplier numberSupplier, int maxNumberOfDice, int cacheSize) {
-        diceEvaluator = new DiceEvaluator(numberSupplier, maxNumberOfDice);
+    public CachingDiceEvaluator(NumberSupplier numberSupplier, int maxNumberOfDice, int cacheSize, int maxNumberOfElements, boolean keepChildrenRolls) {
+        diceEvaluator = new DiceEvaluator(numberSupplier, maxNumberOfDice, maxNumberOfElements, keepChildrenRolls);
         diceRollerCache = CacheBuilder.newBuilder()
                 .maximumSize(cacheSize)
                 .recordStats()

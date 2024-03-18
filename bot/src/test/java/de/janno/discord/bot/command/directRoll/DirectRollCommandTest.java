@@ -46,7 +46,7 @@ class DirectRollCommandTest {
 
     @BeforeEach
     void setup() {
-        underTest = new DirectRollCommand(mock(PersistenceManager.class), new CachingDiceEvaluator((minExcl, maxIncl) -> 1, 1000, 0));
+        underTest = new DirectRollCommand(mock(PersistenceManager.class), new CachingDiceEvaluator((minExcl, maxIncl) -> 1, 1000, 0, 10_000, true));
     }
 
     @ParameterizedTest(name = "{index} locale={0}")
