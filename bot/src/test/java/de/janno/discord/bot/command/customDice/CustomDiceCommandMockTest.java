@@ -62,7 +62,7 @@ public class CustomDiceCommandMockTest {
 
     @Test
     void legacy_id() {
-        CustomDiceCommand underTest = new CustomDiceCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
+        CustomDiceCommand underTest = new CustomDiceCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0, 10_000, true));
         ButtonEventAdaptorMock buttonEvent = new ButtonEventAdaptorMock("custom_dice\u00001d6\u0000");
 
         underTest.handleComponentInteractEvent(buttonEvent).block();
@@ -75,7 +75,7 @@ public class CustomDiceCommandMockTest {
     void without_configUUID_existingLegacyData() {
         String url = "jdbc:h2:mem:" + UUID.randomUUID();
         persistenceManager = new PersistenceManagerImpl(url, null, null);
-        CustomDiceCommand underTest = new CustomDiceCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
+        CustomDiceCommand underTest = new CustomDiceCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0, 10_000, true));
 
         JdbcConnectionPool connectionPool = JdbcConnectionPool.create(url, null, null);
         UUID configUUID = UUID.fromString("00000000-0000-0000-0000-000000000001");
@@ -118,7 +118,7 @@ public class CustomDiceCommandMockTest {
 
     @Test
     void without_configUUID_missingData() {
-        CustomDiceCommand underTest = new CustomDiceCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
+        CustomDiceCommand underTest = new CustomDiceCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0, 10_000, true));
         ButtonEventAdaptorMock buttonEvent = new ButtonEventAdaptorMock("custom_dice", "1_button", new AtomicLong(0));
         UUID configUUID = UUID.fromString("00000000-0000-0000-0000-000000000001");
         CustomDiceConfig config = new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "1d6", false, false)), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
@@ -133,7 +133,7 @@ public class CustomDiceCommandMockTest {
 
     @Test
     void roll_diceEvaluator_full() {
-        CustomDiceCommand underTest = new CustomDiceCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
+        CustomDiceCommand underTest = new CustomDiceCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0, 10_000, true));
         CustomDiceConfig config = new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "1d6", false, false)), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
         ButtonEventAdaptorMockFactory<CustomDiceConfig, StateData> factory = new ButtonEventAdaptorMockFactory<>("custom_dice", underTest, config, persistenceManager, false);
         ButtonEventAdaptorMock buttonEvent = factory.getButtonClickOnLastButtonMessage("1_button");
@@ -150,7 +150,7 @@ public class CustomDiceCommandMockTest {
 
     @Test
     void roll_diceEvaluator_full_german() {
-        CustomDiceCommand underTest = new CustomDiceCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
+        CustomDiceCommand underTest = new CustomDiceCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0, 10_000, true));
         CustomDiceConfig config = new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "1d6", false, false)), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.GERMAN);
         ButtonEventAdaptorMockFactory<CustomDiceConfig, StateData> factory = new ButtonEventAdaptorMockFactory<>("custom_dice", underTest, config, persistenceManager, false);
         ButtonEventAdaptorMock buttonEvent = factory.getButtonClickOnLastButtonMessage("1_button");
@@ -167,7 +167,7 @@ public class CustomDiceCommandMockTest {
 
     @Test
     void roll_diceEvaluator_full_ptBR() {
-        CustomDiceCommand underTest = new CustomDiceCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
+        CustomDiceCommand underTest = new CustomDiceCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0, 10_000, true));
         CustomDiceConfig config = new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "1d6", false, false)), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.of("pt", "BR"));
         ButtonEventAdaptorMockFactory<CustomDiceConfig, StateData> factory = new ButtonEventAdaptorMockFactory<>("custom_dice", underTest, config, persistenceManager, false);
         ButtonEventAdaptorMock buttonEvent = factory.getButtonClickOnLastButtonMessage("1_button");
@@ -184,7 +184,7 @@ public class CustomDiceCommandMockTest {
 
     @Test
     void roll_diceEvaluator_full_with_images() {
-        CustomDiceCommand underTest = new CustomDiceCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
+        CustomDiceCommand underTest = new CustomDiceCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0, 10_000, true));
         CustomDiceConfig config = new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "1d6", false, false)), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v1, "black_and_gold"), Locale.ENGLISH);
         ButtonEventAdaptorMockFactory<CustomDiceConfig, StateData> factory = new ButtonEventAdaptorMockFactory<>("custom_dice", underTest, config, persistenceManager, false);
         ButtonEventAdaptorMock buttonEvent = factory.getButtonClickOnLastButtonMessage("1_button");
@@ -201,7 +201,7 @@ public class CustomDiceCommandMockTest {
 
     @Test
     void roll_diceEvaluator_onlyResult_with_images() {
-        CustomDiceCommand underTest = new CustomDiceCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
+        CustomDiceCommand underTest = new CustomDiceCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0, 10_000, true));
         CustomDiceConfig config = new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "1d6", false, false)), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.only_result, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v1, "black_and_gold"), Locale.ENGLISH);
         ButtonEventAdaptorMockFactory<CustomDiceConfig, StateData> factory = new ButtonEventAdaptorMockFactory<>("custom_dice", underTest, config, persistenceManager, false);
         ButtonEventAdaptorMock buttonEvent = factory.getButtonClickOnLastButtonMessage("1_button");
@@ -218,7 +218,7 @@ public class CustomDiceCommandMockTest {
 
     @Test
     void roll_diceEvaluator_onlyResult_multiResult() {
-        CustomDiceCommand underTest = new CustomDiceCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
+        CustomDiceCommand underTest = new CustomDiceCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0, 10_000, true));
         CustomDiceConfig config = new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "1d6,2d6,3d6", false, false)), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.only_result, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v1, "black_and_gold"), Locale.ENGLISH);
         ButtonEventAdaptorMockFactory<CustomDiceConfig, StateData> factory = new ButtonEventAdaptorMockFactory<>("custom_dice", underTest, config, persistenceManager, false);
         ButtonEventAdaptorMock buttonEvent = factory.getButtonClickOnLastButtonMessage("1_button");
@@ -239,7 +239,7 @@ public class CustomDiceCommandMockTest {
 
     @Test
     void roll_diceEvaluator_onlyResult_without_images() {
-        CustomDiceCommand underTest = new CustomDiceCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
+        CustomDiceCommand underTest = new CustomDiceCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0, 10_000, true));
         CustomDiceConfig config = new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "1d6", false, false)), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.only_result, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
         ButtonEventAdaptorMockFactory<CustomDiceConfig, StateData> factory = new ButtonEventAdaptorMockFactory<>("custom_dice", underTest, config, persistenceManager, false);
         ButtonEventAdaptorMock buttonEvent = factory.getButtonClickOnLastButtonMessage("1_button");
@@ -256,7 +256,7 @@ public class CustomDiceCommandMockTest {
 
     @Test
     void roll_diceEvaluator_full_with_images_d100() {
-        CustomDiceCommand underTest = new CustomDiceCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
+        CustomDiceCommand underTest = new CustomDiceCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0, 10_000, true));
 
 
         CustomDiceConfig config = new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "1d100", false, false)), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v1, "black_and_gold"), Locale.ENGLISH);
@@ -275,7 +275,7 @@ public class CustomDiceCommandMockTest {
 
     @Test
     void roll_diceParser_full() {
-        CustomDiceCommand underTest = new CustomDiceCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
+        CustomDiceCommand underTest = new CustomDiceCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0, 10_000, true));
 
         CustomDiceConfig config = new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "1", false, false)), DiceParserSystem.DICEROLL_PARSER, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
         ButtonEventAdaptorMockFactory<CustomDiceConfig, StateData> factory = new ButtonEventAdaptorMockFactory<>("custom_dice", underTest, config, persistenceManager, false);
@@ -293,7 +293,7 @@ public class CustomDiceCommandMockTest {
 
     @Test
     void roll_diceEvaluator_compact() {
-        CustomDiceCommand underTest = new CustomDiceCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
+        CustomDiceCommand underTest = new CustomDiceCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0, 10_000, true));
 
         CustomDiceConfig config = new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "1d6", false, false)), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.compact, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
         ButtonEventAdaptorMockFactory<CustomDiceConfig, StateData> factory = new ButtonEventAdaptorMockFactory<>("custom_dice", underTest, config, persistenceManager, false);
@@ -311,7 +311,7 @@ public class CustomDiceCommandMockTest {
 
     @Test
     void roll_diceEvaluator_minimal() {
-        CustomDiceCommand underTest = new CustomDiceCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
+        CustomDiceCommand underTest = new CustomDiceCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0, 10_000, true));
 
         CustomDiceConfig config = new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "1d6", false, false)), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.minimal, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
         ButtonEventAdaptorMockFactory<CustomDiceConfig, StateData> factory = new ButtonEventAdaptorMockFactory<>("custom_dice", underTest, config, persistenceManager, false);
@@ -329,7 +329,7 @@ public class CustomDiceCommandMockTest {
 
     @Test
     void roll_pinned() {
-        CustomDiceCommand underTest = new CustomDiceCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
+        CustomDiceCommand underTest = new CustomDiceCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0, 10_000, true));
 
         CustomDiceConfig config = new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "1d6", false, false)), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
         ButtonEventAdaptorMockFactory<CustomDiceConfig, StateData> factory = new ButtonEventAdaptorMockFactory<>("custom_dice", underTest, config, persistenceManager, true);
@@ -346,7 +346,7 @@ public class CustomDiceCommandMockTest {
 
     @Test
     void roll_pinnedTwice() {
-        CustomDiceCommand underTest = new CustomDiceCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
+        CustomDiceCommand underTest = new CustomDiceCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0, 10_000, true));
 
         CustomDiceConfig config = new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "1d6", false, false)), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
         ButtonEventAdaptorMockFactory<CustomDiceConfig, StateData> factory = new ButtonEventAdaptorMockFactory<>("custom_dice", underTest, config, persistenceManager, true);
@@ -372,7 +372,7 @@ public class CustomDiceCommandMockTest {
 
     @Test
     void slash_start() {
-        CustomDiceCommand underTest = new CustomDiceCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
+        CustomDiceCommand underTest = new CustomDiceCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0, 10_000, true));
 
         SlashEventAdaptorMock slashEvent = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
                 .name("start")
@@ -390,7 +390,7 @@ public class CustomDiceCommandMockTest {
 
     @Test
     void slash_start_multiLine() {
-        CustomDiceCommand underTest = new CustomDiceCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
+        CustomDiceCommand underTest = new CustomDiceCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0, 10_000, true));
 
         SlashEventAdaptorMock slashEvent = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
                 .name("start")
@@ -424,7 +424,7 @@ public class CustomDiceCommandMockTest {
 
     @Test
     void slash_start_warn() {
-        CustomDiceCommand underTest = new CustomDiceCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
+        CustomDiceCommand underTest = new CustomDiceCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0, 10_000, true));
 
         SlashEventAdaptorMock slashEvent = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
                 .name("start")
@@ -442,7 +442,7 @@ public class CustomDiceCommandMockTest {
 
     @Test
     void slash_targetChannelTheSame_error() {
-        CustomDiceCommand underTest = new CustomDiceCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
+        CustomDiceCommand underTest = new CustomDiceCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0, 10_000, true));
 
         SlashEventAdaptorMock slashEvent = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
                 .name("start")
@@ -462,7 +462,7 @@ public class CustomDiceCommandMockTest {
 
     @Test
     void roll_answerChannel() {
-        CustomDiceCommand underTest = new CustomDiceCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
+        CustomDiceCommand underTest = new CustomDiceCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0, 10_000, true));
 
         CustomDiceConfig config = new CustomDiceConfig(2L, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "1d6", false, false)), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
         ButtonEventAdaptorMockFactory<CustomDiceConfig, StateData> factory = new ButtonEventAdaptorMockFactory<>("custom_dice", underTest, config, persistenceManager, false);
@@ -478,7 +478,7 @@ public class CustomDiceCommandMockTest {
 
     @Test
     void roll_answerChannelTwice() {
-        CachingDiceEvaluator cachingDiceEvaluator = new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 100);
+        CachingDiceEvaluator cachingDiceEvaluator = new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 100, 10_000, true);
         CustomDiceCommand underTest = new CustomDiceCommand(persistenceManager, new DiceParser(), cachingDiceEvaluator);
 
         CustomDiceConfig config = new CustomDiceConfig(2L, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "1d6", false, false)), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
@@ -502,7 +502,7 @@ public class CustomDiceCommandMockTest {
 
     @Test
     void channelAlias() {
-        CachingDiceEvaluator cachingDiceEvaluator = new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 100);
+        CachingDiceEvaluator cachingDiceEvaluator = new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 100, 10_000, true);
         CustomDiceCommand underTest = new CustomDiceCommand(persistenceManager, new DiceParser(), cachingDiceEvaluator);
         ChannelConfigCommand channelConfig = new ChannelConfigCommand(persistenceManager);
 
@@ -532,7 +532,7 @@ public class CustomDiceCommandMockTest {
 
     @Test
     void userChannelAlias() {
-        CachingDiceEvaluator cachingDiceEvaluator = new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 100);
+        CachingDiceEvaluator cachingDiceEvaluator = new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 100, 10_000, true);
         CustomDiceCommand underTest = new CustomDiceCommand(persistenceManager, new DiceParser(), cachingDiceEvaluator);
         ChannelConfigCommand channelConfig = new ChannelConfigCommand(persistenceManager);
 

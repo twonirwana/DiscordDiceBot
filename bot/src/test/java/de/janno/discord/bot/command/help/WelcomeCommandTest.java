@@ -40,7 +40,7 @@ class WelcomeCommandTest {
     @BeforeEach
     void setup() {
         PersistenceManager persistenceManager = Mockito.mock(PersistenceManager.class);
-        CachingDiceEvaluator cachingDiceEvaluator = new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0);
+        CachingDiceEvaluator cachingDiceEvaluator = new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0, 10_000, true);
         CustomDiceCommand customDiceCommand = new CustomDiceCommand(persistenceManager, cachingDiceEvaluator);
         CustomParameterCommand customParameterCommand = new CustomParameterCommand(persistenceManager, cachingDiceEvaluator);
         SumCustomSetCommand sumCustomSetCommand = new SumCustomSetCommand(persistenceManager, cachingDiceEvaluator);
@@ -49,38 +49,10 @@ class WelcomeCommandTest {
     }
 
     @Test
-    public void getButtonMessageWithState_fate() {
+    public void getButtonMessageWithState_legacyKey() {
         Optional<EmbedOrMessageDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"),
-                new Config(null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH), new State<>("fate", StateData.empty()), 1L, 2L);
-        assertThat(res.map(EmbedOrMessageDefinition::getDescriptionOrContent))
-                .contains("Please select value for **Modifier**");
-        assertThat(res.map(EmbedOrMessageDefinition::getComponentRowDefinitions)
-                .stream()
-                .flatMap(Collection::stream)
-                .flatMap(s -> s.getButtonDefinitions().stream())
-                .map(ButtonDefinition::getId))
-                .containsExactly("custom_parameterid100000000-0000-0000-0000-000000000000",
-                        "custom_parameterid200000000-0000-0000-0000-000000000000",
-                        "custom_parameterid300000000-0000-0000-0000-000000000000",
-                        "custom_parameterid400000000-0000-0000-0000-000000000000",
-                        "custom_parameterid500000000-0000-0000-0000-000000000000",
-                        "custom_parameterid600000000-0000-0000-0000-000000000000",
-                        "custom_parameterid700000000-0000-0000-0000-000000000000",
-                        "custom_parameterid800000000-0000-0000-0000-000000000000",
-                        "custom_parameterid900000000-0000-0000-0000-000000000000",
-                        "custom_parameterid1000000000-0000-0000-0000-000000000000",
-                        "custom_parameterid1100000000-0000-0000-0000-000000000000",
-                        "custom_parameterid1200000000-0000-0000-0000-000000000000",
-                        "custom_parameterid1300000000-0000-0000-0000-000000000000",
-                        "custom_parameterid1400000000-0000-0000-0000-000000000000",
-                        "custom_parameterid1500000000-0000-0000-0000-000000000000");
-        assertThat(res.map(EmbedOrMessageDefinition::getComponentRowDefinitions)
-                .stream()
-                .flatMap(Collection::stream)
-                .flatMap(s -> s.getButtonDefinitions().stream())
-                .map(ButtonDefinition::getLabel))
-                .containsExactly("-4", "-3", "-2", "-1", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10");
-
+                new Config(null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH), new State<>("invalidId", StateData.empty()), 1L, 2L);
+        assertThat(res).isEmpty();
     }
 
     @Test
@@ -353,35 +325,32 @@ class WelcomeCommandTest {
                 .flatMap(s -> s.getButtonDefinitions().stream())
                 .map(ButtonDefinition::getId))
                 .containsExactly(
-                        "welcomefate00000000-0000-0000-0000-000000000000",
-                        "welcomefate_image00000000-0000-0000-0000-000000000000",
-                        "welcomednd500000000-0000-0000-0000-000000000000",
-                        "welcomednd5_image00000000-0000-0000-0000-000000000000",
-                        "welcomenWoD00000000-0000-0000-0000-000000000000",
-                        "welcomeoWoD00000000-0000-0000-0000-000000000000",
-                        "welcomeshadowrun00000000-0000-0000-0000-000000000000",
-                        "welcomecoin00000000-0000-0000-0000-000000000000",
-                        "welcomedice_calculator00000000-0000-0000-0000-000000000000");
+                        "welcomeDND5_IMAGE00000000-0000-0000-0000-000000000000",
+                        "welcomeDND500000000-0000-0000-0000-000000000000",
+                        "welcomeFATE_IMAGE00000000-0000-0000-0000-000000000000",
+                        "welcomeCOIN00000000-0000-0000-0000-000000000000",
+                        "welcomeNWOD00000000-0000-0000-0000-000000000000",
+                        "welcomeOWOD00000000-0000-0000-0000-000000000000",
+                        "welcomeSHADOWRUN_IMAGE00000000-0000-0000-0000-000000000000",
+                        "welcomeDICE_CALCULATOR00000000-0000-0000-0000-000000000000");
         assertThat(res.getComponentRowDefinitions()
                 .stream()
                 .flatMap(s -> s.getButtonDefinitions().stream())
                 .map(ButtonDefinition::getLabel))
                 .containsExactly(
-                        "Fate without Dice Images",
-                        "Fate",
-                        "Dungeon & Dragons 5e without Dice Images",
                         "Dungeon & Dragons 5e",
+                        "Dungeon & Dragons 5e without Dice Images",
+                        "Fate",
+                        "Coin Toss",
                         "nWod / Chronicles of Darkness",
                         "oWod / Storyteller System",
-                        "Shadowrun without Dice Images",
-                        "Coin Toss",
+                        "Shadowrun",
                         "Dice Calculator");
 
     }
 
     @ParameterizedTest
     @CsvSource({
-            "fate",
             "fate_image",
             "dnd5",
             "dnd5_image",

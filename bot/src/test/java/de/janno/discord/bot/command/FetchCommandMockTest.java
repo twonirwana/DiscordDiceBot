@@ -44,7 +44,7 @@ class FetchCommandMockTest {
     @BeforeEach
     void setup() {
         persistenceManager = new PersistenceManagerImpl("jdbc:h2:mem:" + UUID.randomUUID(), null, null);
-        CachingDiceEvaluator cachingDiceEvaluator = new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0);
+        CachingDiceEvaluator cachingDiceEvaluator = new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0, 10_000, true);
         customDiceCommand = new CustomDiceCommand(persistenceManager, cachingDiceEvaluator);
         customParameterCommand = new CustomParameterCommand(persistenceManager, cachingDiceEvaluator);
         sumCustomSetCommand = new SumCustomSetCommand(persistenceManager, cachingDiceEvaluator);

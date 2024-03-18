@@ -20,6 +20,7 @@ import de.janno.discord.bot.persistance.PersistenceManager;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
 import lombok.AllArgsConstructor;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
@@ -93,6 +94,9 @@ public class RpgSystemCommandPreset {
                             DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.without_expression, null, new DiceStyleAndColor(DiceImageStyle.none, DiceImageStyle.none.getDefaultColor()), userLocale);
             case BLADES_IN_THE_DARK_IMAGE ->
                     new CustomParameterConfig(null, I18n.getMessage("rpg.system.command.preset.BLADES_IN_THE_DARK.expression", userLocale),
+                            DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.without_expression, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_RdD, DiceImageStyle.polyhedral_RdD.getDefaultColor()), userLocale);
+            case BLADES_IN_THE_DARK_DETAIL ->
+                    new CustomParameterConfig(null, I18n.getMessage("rpg.system.command.preset.BLADES_IN_THE_DARK_DETAIL.expression", userLocale),
                             DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.without_expression, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_RdD, DiceImageStyle.polyhedral_RdD.getDefaultColor()), userLocale);
             //7th Edition Call of Cthulhu: custom_dice start buttons:  1d100; 2d100L1@1d100 Advantage; 2d100K1@1d100 Penalty; 1d3; 1d4; 1d6; 1d8; 1d10; 1d12; 1d20; 3d6
             case CALL_OF_CTHULHU_7ED ->
@@ -242,6 +246,7 @@ public class RpgSystemCommandPreset {
         TRAVELLER,
         BLADES_IN_THE_DARK,
         BLADES_IN_THE_DARK_IMAGE,
+        BLADES_IN_THE_DARK_DETAIL,
         CALL_OF_CTHULHU_7ED,
         EXALTED_3ED,
         VAMPIRE_5ED,
@@ -283,6 +288,10 @@ public class RpgSystemCommandPreset {
                 return List.of(aliasString.split(";"));
             }
             return List.of(aliasString);
+        }
+
+        public static boolean isValid(String in) {
+            return Arrays.stream(PresetId.values()).anyMatch(s -> s.name().equals(in));
         }
     }
 }

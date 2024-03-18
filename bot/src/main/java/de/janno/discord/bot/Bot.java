@@ -2,8 +2,8 @@ package de.janno.discord.bot;
 
 
 import com.google.common.base.Strings;
-import de.janno.discord.bot.command.FetchCommand;
 import de.janno.discord.bot.command.ClearCommand;
+import de.janno.discord.bot.command.FetchCommand;
 import de.janno.discord.bot.command.channelConfig.ChannelConfigCommand;
 import de.janno.discord.bot.command.countSuccesses.CountSuccessesCommand;
 import de.janno.discord.bot.command.customDice.CustomDiceCommand;
@@ -54,7 +54,10 @@ public class Bot {
         Set<Long> allGuildIdsInPersistence = persistenceManager.getAllGuildIds();
         CachingDiceEvaluator cachingDiceEvaluator = new CachingDiceEvaluator(new RandomNumberSupplier(),
                 Config.getInt("diceEvaluator.maxNumberOfDice", 1000),
-                Config.getInt("diceEvaluator.cacheSize", 10_000));
+                Config.getInt("diceEvaluator.cacheSize", 10_000),
+                Config.getInt("diceEvaluator.maxNumberOfElements", 10_000),
+                Config.getBool("diceEvaluator.keepChildrenRolls", false)
+        );
 
         CustomDiceCommand customDiceCommand = new CustomDiceCommand(persistenceManager, cachingDiceEvaluator);
         CustomParameterCommand customParameterCommand = new CustomParameterCommand(persistenceManager, cachingDiceEvaluator);

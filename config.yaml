@@ -19,6 +19,8 @@ metric:
 diceEvaluator:
   maxNumberOfDice: 1000
   cacheSize: 10000
+  maxNumberOfElements: 10000
+  keepChildrenRolls: true
 command:
   minDelayBetweenButtonMessagesMs: 1000
   delayMessageDataDeletionMs: 10000

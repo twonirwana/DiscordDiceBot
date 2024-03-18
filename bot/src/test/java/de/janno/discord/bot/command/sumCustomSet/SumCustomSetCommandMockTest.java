@@ -42,7 +42,7 @@ public class SumCustomSetCommandMockTest {
 
     @Test
     void roll_fullExpression() {
-        SumCustomSetCommand underTest = new SumCustomSetCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 10000));
+        SumCustomSetCommand underTest = new SumCustomSetCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 10000, 10000, true));
 
 
         SumCustomSetConfig config = new SumCustomSetConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "+1d6", false, false),
@@ -64,7 +64,7 @@ public class SumCustomSetCommandMockTest {
 
     @Test
     void roll_full() {
-        SumCustomSetCommand underTest = new SumCustomSetCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 10000));
+        SumCustomSetCommand underTest = new SumCustomSetCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 10000, 10000, true));
 
 
         SumCustomSetConfig config = new SumCustomSetConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "+1d6", false, false),
@@ -86,7 +86,7 @@ public class SumCustomSetCommandMockTest {
 
     @Test
     void directRoll() {
-        SumCustomSetCommand underTest = new SumCustomSetCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 10000));
+        SumCustomSetCommand underTest = new SumCustomSetCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 10000, 10000, true));
 
 
         SumCustomSetConfig config = new SumCustomSetConfig(null, ImmutableList.of(
@@ -106,7 +106,7 @@ public class SumCustomSetCommandMockTest {
 
     @Test
     void roll_disabled() {
-        SumCustomSetCommand underTest = new SumCustomSetCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 10000));
+        SumCustomSetCommand underTest = new SumCustomSetCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 10000, 10000, true));
 
 
         SumCustomSetConfig config = new SumCustomSetConfig(null, ImmutableList.of(
@@ -122,7 +122,7 @@ public class SumCustomSetCommandMockTest {
 
     @Test
     void directRoll_disabled() {
-        SumCustomSetCommand underTest = new SumCustomSetCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 10000));
+        SumCustomSetCommand underTest = new SumCustomSetCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 10000, 10000, true));
 
 
         SumCustomSetConfig config = new SumCustomSetConfig(null, ImmutableList.of(
@@ -138,7 +138,7 @@ public class SumCustomSetCommandMockTest {
 
     @Test
     void slash_start_multiLine() {
-        SumCustomSetCommand underTest = new SumCustomSetCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
+        SumCustomSetCommand underTest = new SumCustomSetCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0, 10_000, true));
 
         SlashEventAdaptorMock slashEvent = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
                 .name("start")
@@ -164,7 +164,7 @@ public class SumCustomSetCommandMockTest {
 
     @Test
     void slash_start_directRoll() {
-        SumCustomSetCommand underTest = new SumCustomSetCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0));
+        SumCustomSetCommand underTest = new SumCustomSetCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0, 10_000, true));
 
         SlashEventAdaptorMock slashEvent = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
                 .name("start")
@@ -194,7 +194,7 @@ public class SumCustomSetCommandMockTest {
 
     @Test
     void roll_fullGerman() {
-        SumCustomSetCommand underTest = new SumCustomSetCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 10000));
+        SumCustomSetCommand underTest = new SumCustomSetCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 10000, 10000, true));
 
 
         SumCustomSetConfig config = new SumCustomSetConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "+1d6", false, false),
@@ -215,7 +215,7 @@ public class SumCustomSetCommandMockTest {
 
     @Test
     void roll_full_ptBR() {
-        SumCustomSetCommand underTest = new SumCustomSetCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 10000));
+        SumCustomSetCommand underTest = new SumCustomSetCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 10000, 10000, true));
 
 
         SumCustomSetConfig config = new SumCustomSetConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "+1d6", false, false),
@@ -236,7 +236,7 @@ public class SumCustomSetCommandMockTest {
 
     @Test
     void roll_compact() {
-        SumCustomSetCommand underTest = new SumCustomSetCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 10000));
+        SumCustomSetCommand underTest = new SumCustomSetCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 10000, 10000, true));
 
 
         SumCustomSetConfig config = new SumCustomSetConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "+1d6", false, false),
@@ -257,7 +257,7 @@ public class SumCustomSetCommandMockTest {
 
     @Test
     void roll_minimal() {
-        SumCustomSetCommand underTest = new SumCustomSetCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 10000));
+        SumCustomSetCommand underTest = new SumCustomSetCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 10000, 10000, true));
 
 
         SumCustomSetConfig config = new SumCustomSetConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "+1d6", false, false),
@@ -278,7 +278,7 @@ public class SumCustomSetCommandMockTest {
 
     @Test
     void roll_locked() {
-        SumCustomSetCommand underTest = new SumCustomSetCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 10000));
+        SumCustomSetCommand underTest = new SumCustomSetCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 10000, 10000, true));
 
 
         SumCustomSetConfig config = new SumCustomSetConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "+1d6", false, false),
@@ -302,7 +302,7 @@ public class SumCustomSetCommandMockTest {
 
     @Test
     void clear() {
-        SumCustomSetCommand underTest = new SumCustomSetCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 10000));
+        SumCustomSetCommand underTest = new SumCustomSetCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 10000, 10000, true));
 
 
         SumCustomSetConfig config = new SumCustomSetConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "+1d6", false, false),
@@ -320,7 +320,7 @@ public class SumCustomSetCommandMockTest {
 
     @Test
     void backBack() {
-        SumCustomSetCommand underTest = new SumCustomSetCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 10000));
+        SumCustomSetCommand underTest = new SumCustomSetCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 10000, 10000, true));
 
 
         SumCustomSetConfig config = new SumCustomSetConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "+1d6", false, false),
@@ -341,7 +341,7 @@ public class SumCustomSetCommandMockTest {
 
     @Test
     void roll_pinned() {
-        SumCustomSetCommand underTest = new SumCustomSetCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 10000));
+        SumCustomSetCommand underTest = new SumCustomSetCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 10000, 10000, true));
 
 
         SumCustomSetConfig config = new SumCustomSetConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "+1d6", false, false),
@@ -362,7 +362,7 @@ public class SumCustomSetCommandMockTest {
 
     @Test
     void roll_answerChannel() {
-        SumCustomSetCommand underTest = new SumCustomSetCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 10000));
+        SumCustomSetCommand underTest = new SumCustomSetCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 10000, 10000, true));
 
 
         SumCustomSetConfig config = new SumCustomSetConfig(2L, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "+1d6", false, false),
@@ -383,7 +383,7 @@ public class SumCustomSetCommandMockTest {
 
     @Test
     void roll_pinnedTwice() {
-        SumCustomSetCommand underTest = new SumCustomSetCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 10000));
+        SumCustomSetCommand underTest = new SumCustomSetCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 10000, 10000, true));
 
 
         SumCustomSetConfig config = new SumCustomSetConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "+1d6", false, false),
@@ -410,7 +410,7 @@ public class SumCustomSetCommandMockTest {
 
     @Test
     void roll_answerChannelTwice() {
-        SumCustomSetCommand underTest = new SumCustomSetCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 10000));
+        SumCustomSetCommand underTest = new SumCustomSetCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 10000, 10000, true));
 
 
         SumCustomSetConfig config = new SumCustomSetConfig(2L, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "+1d6", false, false),
@@ -437,7 +437,7 @@ public class SumCustomSetCommandMockTest {
 
     @Test
     void channelAlias() {
-        SumCustomSetCommand underTest = new SumCustomSetCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 10000));
+        SumCustomSetCommand underTest = new SumCustomSetCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 10000, 10000, true));
 
 
         ChannelConfigCommand channelConfig = new ChannelConfigCommand(persistenceManager);
@@ -468,7 +468,7 @@ public class SumCustomSetCommandMockTest {
 
     @Test
     void userChannelAlias() {
-        SumCustomSetCommand underTest = new SumCustomSetCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 10000));
+        SumCustomSetCommand underTest = new SumCustomSetCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 10000, 10000, true));
 
 
         ChannelConfigCommand channelConfig = new ChannelConfigCommand(persistenceManager);

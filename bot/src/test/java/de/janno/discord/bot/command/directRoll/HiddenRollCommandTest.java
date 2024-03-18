@@ -30,7 +30,7 @@ public class HiddenRollCommandTest {
 
     @BeforeEach
     void setup() {
-        underTest = new HiddenDirectRollCommand(mock(PersistenceManager.class), new CachingDiceEvaluator((minExcl, maxIncl) -> 1, 1000, 0));
+        underTest = new HiddenDirectRollCommand(mock(PersistenceManager.class), new CachingDiceEvaluator((minExcl, maxIncl) -> 1, 1000, 0, 10_000, true));
     }
 
     @ParameterizedTest(name = "{index} locale={0}")

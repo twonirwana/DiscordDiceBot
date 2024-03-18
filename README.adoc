@@ -47,6 +47,7 @@ Please let me know if you have a good new preset or an improved version for an e
 |===
 |`A Song of Ice and Fire`
 |`Blades in the Dark`
+|`Blades in the Dark - Detail`
 |`Blades in the Dark without Dice Images`
 |`Bluebeard's Bride`
 |`Call of Cthulhu 7th Edition`
@@ -581,7 +582,7 @@ All operators are case insensitiv.
 |===
 |Name |Notation |Example |Description |Precedent |Associativity |Left parameter |Right parameter
 |Repeat |`<number>x<expression>` |`3x2d6` |Repeats the expression separately a number of times given in <number>. This should be used outside other expressions and will not work inside most expressions |0 |left |a single integer number between 1-10 | a expression
-|List Repeat |`<number>r<expression>` |`3r(2d6=)` |Repeats the expression a number of times given in <number> and combines the results in one list. |1 |left |a single integer number between 0-10 | a expression
+|List Repeat |`<number>r<expression>` |`3r(2d6=)` |Repeats the expression a number of times given in <number> and combines the results in one list. |1 |left |a single integer number between 0-20 | a expression
 | Concat |`<expression>_<expression>` |`d20_'dmg''` | Combines the result of both expression into on single element |2 |left |one or more elements | one or more elements
 |Or |`<boolean>\|\|<boolean>` |`d6=?5 \|\| d6=?6` | Boolean or operation of the two boolean values | 3 |left | boolean value | boolean value
 |And |`<boolean>&&<boolean>` |`d6=?5 && d6=?6` | Boolean and operation of the two boolean values | 4 |left | boolean value | boolean value
@@ -596,7 +597,7 @@ All operators are case insensitiv.
 |Modulo |`<left> mod <right>` |`d6 mod 2` | returns the remainder of the division |13 |left |a single integer number |a single non zero integer number
 |Multiply |`<left> * <right>` |`2 * 6` |Multiplies the right number with the left number |14|left |a single number |a single number
 |Divide |`<left> / <right>` |`4 / 2` |Divides the right number with the left number and rounds down to the next full number |15 |left |a single integer number |a single integer number
-|Decimal Divide |`<left> // <right>` |`4 / 2` |Divides the right number with the left number and provides a decimal number with up to 5 decimal digital |16 |left |a single number |a single number
+|Decimal Divide |`<left> // <right>` |`4 // 3` |Divides the right number with the left number and provides a decimal number with up to 5 decimal digital |16 |left |a single number |a single number
 |Count |`<list> c` |`3d6>3c` |Counts the number of elements in a list |17 |left |a list |-
 |Greater Then Filter |`<list> > <number>` |`3d6>3` |Keeps only the elements of the left list that are bigger as the right number. Applies only to elements with the same tag. |18 |left |one or more numbers |a single number
 |Lesser Then Filter |`<list> < <number>` |`3d6<3` |Keeps only the elements of the left list that are lesser as the right number. Applies only to elements with the same tag. |19 |left |one or more numbers |a single number
@@ -627,7 +628,8 @@ All functions are case insensitiv.
 |sort asc |`asc(<expression1>, <expression2> ...)` |`asc(4d6)` |sorts all elements ascending of one or more inner expressions. Text is compared alphabetically
 |sort desc |`desc(<expression1>, <expression2> ...)` |`desc(4d6)` |sorts all elements descending of one or more inner expressions. Text is compared alphabetically
 |cancel |`cancel(<expression>, <listA>, <listB>)` |`cancel(8d10, 10, 1)` |the elements of listA and listB (can also be single elements) cancel each other and remove each other from the result.
-|replace |`replace(<expression>, <find>, <replace> ...)` |`replace(8d10, [9/10], 'bonus')` | each element in `<expression>` that matches on of the elements in `<find>` will be replaced with the elements in `<replace>`. `<replace>` can be an empty list `[]` or literal `''` and thereby removing the found elements. It is possible to add multiple <find>/<replace> pairs to replace different elements in one replace.
+|replace |`replace(<expression>, <find>, <replace> ...)` |`replace(8d10, [9/10], 'bonus')` | each element in `<expression>` that matches on of the elements in `<find>` will be replaced with the elements in `<replace>`. `<replace>` can be an empty list `[]` or literal `''` and thereby removing the found elements. It is possible to add multiple <find>/<replace> pairs to replace different elements in one replace. If the <replace> expression contains dice then they will only be rolled on a matching find element and for each matching element again.
+|explode |`exp(<roll>,<rerollOnList>,<numberOfRerolls>` |`exp(d[1/2/3],[2/3])` or `exp(d[1/2/3],[2/3], 2)` | Rerolls the `<roll>` expression if any of its result elements are in the elements of `<rerollOnList>` and returns the original result  and all reroll results. If `<roll>` contain more then one die then all are rerolled, even if only on result of one die matches the reroll list. `<numberOfRerolls>` define the maximum number of rerolls bevor the function stops with rerolls and returns the current result. `<numberOfRerolls>` must be a number between 0 and 100. If `<numberOfRerolls>` is not provided as argument then 100 will be used.
 |if |`if(<boolean>,<true>,<false>)` |`if(1d6=?6,'six','not six')` or `if(1d6=?6,'six')` or `val('$r',1d6), if('$r'=?1,'one','$r'=?2,'two','else') |if `<boolean>` equal true then return the `<true>` expression or else the `<false>` expression. The `<false>` expression is optional, if it is missing and `<boolean>` is `false` then the result empty. It is possible to add more than `<boolean>,<true>` pair in the function, the result will be the `<true>` of the first true `<boolean>`, coming from left. All <boolean> must be non-empty and contain only on element (therefor can't contain only `val`). `val` are will only set in the first <true>. Use the following structure to use `if` to set different value in a `val`: `if(1d6>?4, val('$a',10), val('$a',-10))`, this will set '$a' to 10 if the 1d6 roll is bigger than 4 and to -10 otherwise.
 |group count |`groupC(<expression1>, <expression2> ...)` |`groupC(20d6)` | counts all elements of with the same value and provides the results as list in the format of `<count>x<value>`
 |concatenate  |`concat(<expression1>, <expression2> ...)` |`concat('Attack: ', 2d20, ' Damage:', 3d6+5=)` | Joining all expressions together to a single result.
