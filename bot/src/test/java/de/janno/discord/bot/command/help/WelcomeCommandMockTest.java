@@ -42,7 +42,7 @@ public class WelcomeCommandMockTest {
                 .build()));
         underTest.handleSlashCommandEvent(slashEvent, () -> UUID.fromString("00000000-0000-0000-0000-000000000001"), Locale.ENGLISH).block();
 
-        expect.scenario("slash").toMatchSnapshot(Set.copyOf(slashEvent.getActions()));
+        expect.scenario("slash").toMatchSnapshot(Set.copyOf(slashEvent.getSortedActions()));
 
         Optional<ButtonEventAdaptorMock> buttonEvent = slashEvent.getFirstButtonEventMockOfLastButtonMessage();
         assertThat(buttonEvent).isPresent();
@@ -59,7 +59,7 @@ public class WelcomeCommandMockTest {
                 .build()));
         underTest.handleSlashCommandEvent(slashEvent, () -> UUID.fromString("00000000-0000-0000-0000-000000000001"), Locale.ENGLISH).block();
 
-        expect.scenario("slash").toMatchSnapshot(Set.copyOf(slashEvent.getActions()));
+        expect.scenario("slash").toMatchSnapshot(Set.copyOf(slashEvent.getSortedActions()));
 
         ButtonEventAdaptorMock buttonEvent = new ButtonEventAdaptorMock("welcome", "dnd5_image", new AtomicLong(0));
         underTest.handleComponentInteractEvent(buttonEvent).block();
@@ -75,7 +75,7 @@ public class WelcomeCommandMockTest {
                 .build()));
         underTest.handleSlashCommandEvent(slashEvent, () -> UUID.fromString("00000000-0000-0000-0000-000000000001"), Locale.ENGLISH).block();
 
-        expect.scenario("slash").toMatchSnapshot(Set.copyOf(slashEvent.getActions()));
+        expect.scenario("slash").toMatchSnapshot(Set.copyOf(slashEvent.getSortedActions()));
 
         ButtonEventAdaptorMock buttonEvent = new ButtonEventAdaptorMock("welcome", "invalidId", new AtomicLong(0));
         underTest.handleComponentInteractEvent(buttonEvent).block();
