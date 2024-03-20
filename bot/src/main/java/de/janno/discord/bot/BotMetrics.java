@@ -41,6 +41,7 @@ public class BotMetrics {
     private final static String METRIC_USE_IMAGE_RESULT_PREFIX = "useImageResult";
     private final static String METRIC_AUTOCOMPLETE_VALID_PREFIX = "autoCompleteValid";
     private final static String METRIC_INVALID_PREFIX = "invalid";
+    private final static String METRIC_GUILD_NULL_PREFIX = "guildNull";
     private final static String METRIC_USE_ALIAS_PREFIX = "useAlias";
     private final static String METRIC_ANSWER_FORMAT_PREFIX = "answerFormat";
     private final static String METRIC_DICE_PARSER_SYSTEM_PREFIX = "diceParserSystem";
@@ -195,6 +196,11 @@ public class BotMetrics {
 
     public static void incrementInvalidExpression(@NonNull String expression) {
         globalRegistry.counter(METRIC_PREFIX + METRIC_INVALID_PREFIX, Tags.of(EXPRESSION_TAG, expression.trim().toLowerCase())).increment();
+    }
+
+    public static void outsideGuildCounter(String type) {
+        globalRegistry.counter(METRIC_PREFIX + METRIC_GUILD_NULL_PREFIX, Tags.of(TYPE_TAG, type)).increment();
+
     }
 
     public enum CacheTag {

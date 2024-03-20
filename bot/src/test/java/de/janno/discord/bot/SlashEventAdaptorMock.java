@@ -18,7 +18,7 @@ import java.util.stream.Stream;
 
 public class SlashEventAdaptorMock implements SlashEventAdaptor {
     public static final long CHANNEL_ID = 1L;
-    public static final long GUILD_ID = 1L;
+    public static final Long GUILD_ID = null;
     public final List<CommandInteractionOption> commandInteractionOptions;
     @Getter
     private final List<String> actions = new ArrayList<>();

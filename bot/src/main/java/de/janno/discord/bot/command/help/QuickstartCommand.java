@@ -124,7 +124,7 @@ public class QuickstartCommand implements SlashCommand {
         }
 
         final UUID newConfigUUID = uuidSupplier.get();
-        final long guildId = event.getGuildId();
+        final Long guildId = event.getGuildId();
         final long channelId = event.getChannelId();
         Optional<CommandInteractionOption> expressionOptional = event.getOption(SYSTEM_OPTION_NAME);
         if (expressionOptional.isPresent()) {

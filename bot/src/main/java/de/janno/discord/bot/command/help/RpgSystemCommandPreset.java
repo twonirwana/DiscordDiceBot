@@ -19,6 +19,7 @@ import de.janno.discord.bot.dice.image.provider.D6Dotted;
 import de.janno.discord.bot.persistance.PersistenceManager;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
 import lombok.AllArgsConstructor;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.List;
@@ -211,7 +212,7 @@ public class RpgSystemCommandPreset {
         return "/%s start %s".formatted(commandId, config.toCommandOptionsString());
     }
 
-    public EmbedOrMessageDefinition createMessage(PresetId presetId, UUID newConfigUUID, long guildId, long channelId, Locale userLocale) {
+    public EmbedOrMessageDefinition createMessage(PresetId presetId, UUID newConfigUUID, @Nullable Long guildId, long channelId, Locale userLocale) {
         Config config = createConfig(presetId, userLocale);
         if (config instanceof CustomDiceConfig customDiceConfig) {
             return startPreset(customDiceConfig, customDiceCommand, newConfigUUID, guildId, channelId);
@@ -223,7 +224,7 @@ public class RpgSystemCommandPreset {
         throw new IllegalStateException("Could not create valid config for: " + presetId);
     }
 
-    private <C extends Config> EmbedOrMessageDefinition startPreset(C config, AbstractCommand<C, ?> command, UUID newConfigUUID, long guildId, long channelId) {
+    private <C extends Config> EmbedOrMessageDefinition startPreset(C config, AbstractCommand<C, ?> command, UUID newConfigUUID, @Nullable Long guildId, long channelId) {
         command.createMessageConfig(newConfigUUID, guildId, channelId, config).ifPresent(persistenceManager::saveMessageConfig);
         return command.createNewButtonMessage(newConfigUUID, config, channelId);
     }

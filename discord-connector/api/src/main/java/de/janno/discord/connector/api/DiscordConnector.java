@@ -2,6 +2,7 @@ package de.janno.discord.connector.api;
 
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
 import lombok.NonNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Locale;
@@ -14,7 +15,7 @@ public interface DiscordConnector {
                @NonNull Function<WelcomeRequest, EmbedOrMessageDefinition> welcomeMessageDefinition,
                @NonNull Set<Long> allServerIdsInPersistence) throws Exception;
 
-    record WelcomeRequest(long guildId, long channelId, Locale guildLocale) {
+    record WelcomeRequest(@Nullable Long guildId, long channelId, Locale guildLocale) {
     }
 
 }
