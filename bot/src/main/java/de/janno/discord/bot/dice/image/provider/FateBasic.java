@@ -2,7 +2,7 @@ package de.janno.discord.bot.dice.image.provider;
 
 import com.google.common.io.Resources;
 import lombok.NonNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;

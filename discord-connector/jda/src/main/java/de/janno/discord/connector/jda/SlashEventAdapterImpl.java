@@ -15,6 +15,7 @@ import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.Nullable;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.ParallelFlux;
 
@@ -34,6 +35,7 @@ public class SlashEventAdapterImpl extends DiscordAdapterImpl implements SlashEv
     private final long channelId;
     @NonNull
     private final String commandString;
+    @Nullable
     private final Long guildId;
 
     public SlashEventAdapterImpl(@NonNull SlashCommandInteractionEvent event, @NonNull Requester requester) {
@@ -45,6 +47,7 @@ public class SlashEventAdapterImpl extends DiscordAdapterImpl implements SlashEv
 
     }
 
+    @Nullable
     @Override
     public Long getGuildId() {
         return guildId;
@@ -103,7 +106,7 @@ public class SlashEventAdapterImpl extends DiscordAdapterImpl implements SlashEv
         return createMessageWithReference(event.getMessageChannel(),
                 answer,
                 Optional.ofNullable(event.getMember()).map(Member::getEffectiveName).orElse(event.getUser().getName()),
-                event.getMember().getAsMention(),
+                Optional.ofNullable(event.getMember()).map(Member::getAsMention).orElse(event.getUser().getAsMention()),
                 Optional.ofNullable(event.getMember()).map(Member::getEffectiveAvatarUrl).orElse(event.getUser().getEffectiveAvatarUrl()),
                 event.getUser().getId())
                 .onErrorResume(t -> handleException("Error on creating answer message", t, false).ofType(Message.class))

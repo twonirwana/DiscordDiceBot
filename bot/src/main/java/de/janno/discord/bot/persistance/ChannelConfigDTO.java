@@ -3,6 +3,7 @@ package de.janno.discord.bot.persistance;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import lombok.Value;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 
@@ -12,6 +13,7 @@ public class ChannelConfigDTO {
 
     @NonNull
     UUID configUUID;
+    @Nullable
     Long guildId;
     long channelId;
     Long userId;

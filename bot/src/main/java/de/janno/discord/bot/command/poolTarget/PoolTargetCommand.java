@@ -23,6 +23,7 @@ import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -109,12 +110,12 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTar
     }
 
     @Override
-    public Optional<MessageConfigDTO> createMessageConfig(@NonNull UUID configUUID, long guildId, long channelId, @NonNull PoolTargetConfig config) {
+    public Optional<MessageConfigDTO> createMessageConfig(@NonNull UUID configUUID, @Nullable Long guildId, long channelId, @NonNull PoolTargetConfig config) {
         return Optional.of(new MessageConfigDTO(configUUID, guildId, channelId, getCommandId(), CONFIG_TYPE_ID, Mapper.serializedObject(config)));
     }
 
     @Override
-    protected void updateCurrentMessageStateData(UUID configUUID, long guildId, long channelId, long messageId, @NonNull PoolTargetConfig config, @NonNull State<PoolTargetStateData> state) {
+    protected void updateCurrentMessageStateData(UUID configUUID, @Nullable Long guildId, long channelId, long messageId, @NonNull PoolTargetConfig config, @NonNull State<PoolTargetStateData> state) {
         Optional<PoolTargetStateData> stateData = Optional.ofNullable(state.getData());
         if (stateData.map(PoolTargetStateData::getDicePool).isPresent() &&
                 stateData.map(PoolTargetStateData::getTargetNumber).isPresent() &&
@@ -325,7 +326,7 @@ public class PoolTargetCommand extends AbstractCommand<PoolTargetConfig, PoolTar
     }
 
     @Override
-    protected @NonNull Optional<EmbedOrMessageDefinition> createNewButtonMessageWithState(@NonNull UUID configUUID, @NonNull PoolTargetConfig config, @NonNull State<PoolTargetStateData> state, long guildId, long channelId) {
+    protected @NonNull Optional<EmbedOrMessageDefinition> createNewButtonMessageWithState(@NonNull UUID configUUID, @NonNull PoolTargetConfig config, @NonNull State<PoolTargetStateData> state, @Nullable Long guildId, long channelId) {
         if (Optional.ofNullable(state.getData()).map(PoolTargetStateData::getDicePool).orElse(null) != null && state.getData().getTargetNumber() != null && state.getData().getDoReroll() != null) {
             return Optional.of(EmbedOrMessageDefinition.builder()
                     .type(EmbedOrMessageDefinition.Type.MESSAGE)

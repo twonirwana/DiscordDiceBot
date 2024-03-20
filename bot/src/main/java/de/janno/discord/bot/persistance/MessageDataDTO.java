@@ -17,7 +17,7 @@ public class MessageDataDTO {
 
     @NonNull
     UUID configUUID;
-    Long guildId;
+    @Nullable Long guildId;
     long channelId;
     long messageId;
     @NonNull

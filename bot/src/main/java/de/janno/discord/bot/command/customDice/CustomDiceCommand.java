@@ -19,6 +19,7 @@ import de.janno.discord.connector.api.slash.CommandDefinitionOption;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Locale;
@@ -65,7 +66,7 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
     }
 
     @Override
-    public Optional<MessageConfigDTO> createMessageConfig(@NonNull UUID configUUID, long guildId, long channelId, @NonNull CustomDiceConfig config) {
+    public Optional<MessageConfigDTO> createMessageConfig(@NonNull UUID configUUID, @Nullable Long guildId, long channelId, @NonNull CustomDiceConfig config) {
         return Optional.of(new MessageConfigDTO(configUUID, guildId, channelId, getCommandId(), CONFIG_TYPE_ID, Mapper.serializedObject(config)));
     }
 
@@ -168,7 +169,7 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
     protected @NonNull Optional<EmbedOrMessageDefinition> createNewButtonMessageWithState(@NonNull UUID configUUID,
                                                                                           @NonNull CustomDiceConfig config,
                                                                                           @NonNull State<StateData> state,
-                                                                                          long guildId,
+                                                                                          @Nullable Long guildId,
                                                                                           long channelId) {
         return Optional.of(createNewButtonMessage(configUUID, config, channelId));
     }

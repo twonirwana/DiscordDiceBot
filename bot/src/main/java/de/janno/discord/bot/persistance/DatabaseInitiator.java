@@ -35,6 +35,7 @@ public class DatabaseInitiator {
             .add("3_channelConfigUser.sql")
             .add("4_aliasCommandIdCleanUp.sql")
             .add("5_channelConfigFix.sql")
+            .add("6_configGuildNull.sql")
             .build();
     private final static String BACKUP_FILE_NAME = "backup.zip";
     private static final DateTimeFormatter DATE_TIME_FORMATTER = new DateTimeFormatterBuilder()

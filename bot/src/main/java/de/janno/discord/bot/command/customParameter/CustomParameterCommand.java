@@ -406,12 +406,12 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     }
 
     @Override
-    public Optional<MessageConfigDTO> createMessageConfig(@NonNull UUID configUUID, long guildId, long channelId, @NonNull CustomParameterConfig config) {
+    public Optional<MessageConfigDTO> createMessageConfig(@NonNull UUID configUUID, @Nullable Long guildId, long channelId, @NonNull CustomParameterConfig config) {
         return Optional.of(new MessageConfigDTO(configUUID, guildId, channelId, getCommandId(), CONFIG_TYPE_ID, Mapper.serializedObject(config)));
     }
 
     @Override
-    protected void updateCurrentMessageStateData(UUID configUUID, long guildId, long channelId, long messageId, @NonNull CustomParameterConfig config, @NonNull State<CustomParameterStateData> state) {
+    protected void updateCurrentMessageStateData(UUID configUUID, @Nullable Long guildId, long channelId, long messageId, @NonNull CustomParameterConfig config, @NonNull State<CustomParameterStateData> state) {
         if (!hasMissingParameter(state)) {
             persistenceManager.deleteStateForMessage(channelId, messageId);
             //message data so we knew the button message exists
@@ -434,7 +434,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     }
 
     @Override
-    protected @NonNull Optional<EmbedOrMessageDefinition> createNewButtonMessageWithState(@NonNull UUID configUUID, @NonNull CustomParameterConfig config, @NonNull State<CustomParameterStateData> state, long guildId, long channelId) {
+    protected @NonNull Optional<EmbedOrMessageDefinition> createNewButtonMessageWithState(@NonNull UUID configUUID, @NonNull CustomParameterConfig config, @NonNull State<CustomParameterStateData> state, @Nullable Long guildId, long channelId) {
         if (!hasMissingParameter(state)) {
             return Optional.of(EmbedOrMessageDefinition.builder()
                     .type(EmbedOrMessageDefinition.Type.MESSAGE)

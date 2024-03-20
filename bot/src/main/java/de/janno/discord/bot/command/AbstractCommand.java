@@ -141,7 +141,7 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
         return persistenceManager.getConfigFromMessage(channelId, messageId);
     }
 
-    private @NonNull MessageDataDTO getMessageDataDTOOrCreateNew(@NonNull UUID configId, long guildId, long channelId, long messageId) {
+    private @NonNull MessageDataDTO getMessageDataDTOOrCreateNew(@NonNull UUID configId, @Nullable Long guildId, long channelId, long messageId) {
         Optional<MessageDataDTO> loadedData = persistenceManager.getMessageData(channelId, messageId);
         //if the messageData is missing we need to create a new one so we know the message exists and we can remove it later, even on concurrent actions
         return loadedData.orElseGet(() -> createEmptyMessageData(configId, guildId, channelId, messageId));
@@ -152,7 +152,7 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
      */
     @VisibleForTesting
     public MessageDataDTO createEmptyMessageData(@NonNull UUID configUUID,
-                                                 long guildId,
+                                                 @Nullable Long guildId,
                                                  long channelId,
                                                  long messageId) {
         MessageDataDTO messageDataDTO = new MessageDataDTO(configUUID, guildId, channelId, messageId, getCommandId(), Mapper.NO_PERSISTED_STATE, null);
@@ -164,14 +164,14 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
 
     //visible for welcome command
     public abstract Optional<MessageConfigDTO> createMessageConfig(@NonNull UUID configUUID,
-                                                                   long guildId,
+                                                                   @Nullable Long guildId,
                                                                    long channelId,
                                                                    @NonNull C config);
 
     /**
      * update the saved state if the current button message is not deleted. StateData need to be set to null if the there is a answer message
      */
-    protected void updateCurrentMessageStateData(UUID configUUID, long guildId, long channelId, long messageId, @NonNull C config, @NonNull State<S> state) {
+    protected void updateCurrentMessageStateData(UUID configUUID, @Nullable Long guildId, long channelId, long messageId, @NonNull C config, @NonNull State<S> state) {
     }
 
     /**
@@ -187,7 +187,10 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
         final long messageId = event.getMessageId();
         final long channelId = event.getChannelId();
         final long userId = event.getUserId();
-        final long guildId = event.getGuildId();
+        final Long guildId = event.getGuildId();
+        if (guildId == null) {
+            BotMetrics.outsideGuildCounter("button");
+        }
         final boolean isLegacyMessage = BottomCustomIdUtils.isLegacyCustomId(event.getCustomId());
         final C config;
         final State<S> state;
@@ -337,7 +340,7 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
             Optional<String> validationMessage = getStartOptionsValidationMessage(options, event.getChannelId(), event.getUserId(), userOrConfigLocale);
             if (validationMessage.isPresent()) {
                 log.info("{}: Validation message: {} for {}", event.getRequester().toLogString(),
-                        validationMessage.get().replace("\n"," "),
+                        validationMessage.get().replace("\n", " "),
                         commandString.replace("\n", " "));
                 //todo i18n?
                 return event.reply(String.format("%s\n%s", commandString, validationMessage.get()), true);
@@ -347,7 +350,10 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
             BotMetrics.incrementSlashStartMetricCounter(getCommandId(), config.toShortString());
 
             final long channelId = event.getChannelId();
-            final long guildId = event.getGuildId();
+            final Long guildId = event.getGuildId();
+            if (guildId == null) {
+                BotMetrics.outsideGuildCounter("slash");
+            }
             log.info("{}: '{}'",
                     event.getRequester().toLogString(),
                     commandString.replace("`", "").replace("\n", " "));
@@ -395,7 +401,7 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
     protected abstract @NonNull Optional<EmbedOrMessageDefinition> createNewButtonMessageWithState(@NonNull UUID configId,
                                                                                                    @NonNull C config,
                                                                                                    @NonNull State<S> state,
-                                                                                                   long guildId,
+                                                                                                   @Nullable Long guildId,
                                                                                                    long channelId);
 
     protected abstract @NonNull Optional<RollAnswer> getAnswer(C config, State<S> state, long channelId, long userId);

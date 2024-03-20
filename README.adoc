@@ -11,7 +11,7 @@ The bot needs to be configured with a slash command in a channel and then provid
 Upon clicking on a button the bot will roll the stored dice expression for the button, post the result and move the message with the buttons to the bottom of the channel.
 If the message is pined, then it will only be copied and not moved.
 This allows user to roll dice without typing commands and thereby improves usability, especially for touchscreen users.
-The bot supports Discord thread (the button message must be added after the thread creation), forum, Text in Voice, and it is possible to send the answer in a different channel.
+The bot supports Discord thread (the button message must be added after the thread creation), forum, Text in Voice, direct messages, and it is possible to send the answer in a different channel.
 It can provide images of the dice roll results and it is possible to configure channel or user specific aliases.
 
 image:image/example.webp[image]

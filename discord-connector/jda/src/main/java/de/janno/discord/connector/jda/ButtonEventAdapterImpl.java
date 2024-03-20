@@ -18,6 +18,7 @@ import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.utils.AttachmentProxy;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.Nullable;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.ParallelFlux;
 
@@ -38,6 +39,7 @@ public class ButtonEventAdapterImpl extends DiscordAdapterImpl implements Button
     private final String customId;
     private final long messageId;
     private final long channelId;
+    @Nullable
     private final Long guildId;
     private final long userId;
     private final boolean isPinned;
@@ -64,6 +66,7 @@ public class ButtonEventAdapterImpl extends DiscordAdapterImpl implements Button
         return userId;
     }
 
+    @Nullable
     @Override
     public Long getGuildId() {
         return guildId;

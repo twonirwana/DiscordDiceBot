@@ -361,7 +361,7 @@ public class ChannelConfigCommand implements SlashCommand {
         }
     }
 
-    private void saveAlias(long channelId, long guildId, Long userId, @NonNull List<Alias> aliasList, @NonNull Supplier<UUID> uuidSupplier) {
+    private void saveAlias(long channelId, @Nullable Long guildId, Long userId, @NonNull List<Alias> aliasList, @NonNull Supplier<UUID> uuidSupplier) {
         persistenceManager.saveChannelConfig(new ChannelConfigDTO(uuidSupplier.get(),
                 guildId,
                 channelId,

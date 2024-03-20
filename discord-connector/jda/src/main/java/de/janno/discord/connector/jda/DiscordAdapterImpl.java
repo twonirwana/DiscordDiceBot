@@ -194,11 +194,15 @@ public abstract class DiscordAdapterImpl implements DiscordAdapter {
      * @return Optional message with the missing permissions
      */
     protected Optional<String> checkPermission(@NonNull MessageChannel messageChannel, @Nullable Guild guild, boolean allowLegacyPermission, Locale userLocale) {
+        if(guild == null){
+            //Permissions are only in guild context available
+            return Optional.empty();
+        }
         List<String> checks = new ArrayList<>();
         boolean missingViewChannelPermission = Optional.of(messageChannel)
                 .filter(m -> m instanceof GuildMessageChannel)
                 .map(m -> (GuildMessageChannel) m)
-                .flatMap(g -> Optional.ofNullable(guild).map(Guild::getSelfMember).map(m -> !m.hasPermission(g, Permission.VIEW_CHANNEL)))
+                .flatMap(g -> Optional.of(guild).map(Guild::getSelfMember).map(m -> !m.hasPermission(g, Permission.VIEW_CHANNEL)))
                 .orElse(true);
         if (missingViewChannelPermission) {
             checks.add(I18n.getMessage("permission.VIEW_CHANNEL", userLocale));
@@ -206,7 +210,7 @@ public abstract class DiscordAdapterImpl implements DiscordAdapter {
         boolean missingSendPermission = Optional.of(messageChannel)
                 .filter(m -> m instanceof GuildMessageChannel)
                 .map(m -> (GuildMessageChannel) m)
-                .flatMap(g -> Optional.ofNullable(guild).map(Guild::getSelfMember).map(m -> !m.hasPermission(g, Permission.MESSAGE_SEND)))
+                .flatMap(g -> Optional.of(guild).map(Guild::getSelfMember).map(m -> !m.hasPermission(g, Permission.MESSAGE_SEND)))
                 .orElse(true);
         if (missingSendPermission) {
             checks.add(I18n.getMessage("permission.MESSAGE_SEND", userLocale));
@@ -214,7 +218,7 @@ public abstract class DiscordAdapterImpl implements DiscordAdapter {
 
         if (messageChannel instanceof ThreadChannel threadChannel) {
             boolean missingThreadSendPermission = Optional.of(threadChannel)
-                    .flatMap(g -> Optional.ofNullable(guild).map(Guild::getSelfMember).map(m -> !m.hasPermission(g, Permission.MESSAGE_SEND_IN_THREADS)))
+                    .flatMap(g -> Optional.of(guild).map(Guild::getSelfMember).map(m -> !m.hasPermission(g, Permission.MESSAGE_SEND_IN_THREADS)))
                     .orElse(true);
             if (missingThreadSendPermission) {
                 checks.add(I18n.getMessage("permission.MESSAGE_SEND_IN_THREADS", userLocale));
@@ -224,7 +228,7 @@ public abstract class DiscordAdapterImpl implements DiscordAdapter {
         boolean missingEmbedPermission = Optional.of(messageChannel)
                 .filter(m -> m instanceof GuildMessageChannel)
                 .map(m -> (GuildMessageChannel) m)
-                .flatMap(g -> Optional.ofNullable(guild).map(Guild::getSelfMember).map(m -> !m.hasPermission(g, Permission.MESSAGE_EMBED_LINKS)))
+                .flatMap(g -> Optional.of(guild).map(Guild::getSelfMember).map(m -> !m.hasPermission(g, Permission.MESSAGE_EMBED_LINKS)))
                 .orElse(true);
         if (missingEmbedPermission) {
             checks.add(I18n.getMessage("permission.EMBED_LINKS", userLocale));
@@ -234,7 +238,7 @@ public abstract class DiscordAdapterImpl implements DiscordAdapter {
             boolean missingMessageHistoryPermission = Optional.of(messageChannel)
                     .filter(m -> m instanceof GuildMessageChannel)
                     .map(m -> (GuildMessageChannel) m)
-                    .flatMap(g -> Optional.ofNullable(guild).map(Guild::getSelfMember).map(m -> !m.hasPermission(g, Permission.MESSAGE_HISTORY)))
+                    .flatMap(g -> Optional.of(guild).map(Guild::getSelfMember).map(m -> !m.hasPermission(g, Permission.MESSAGE_HISTORY)))
                     .orElse(true);
             if (missingMessageHistoryPermission) {
                 checks.add(I18n.getMessage("permission.MESSAGE_HISTORY", userLocale));
@@ -242,7 +246,7 @@ public abstract class DiscordAdapterImpl implements DiscordAdapter {
             boolean missingAddFilePermission = Optional.of(messageChannel)
                     .filter(m -> m instanceof GuildMessageChannel)
                     .map(m -> (GuildMessageChannel) m)
-                    .flatMap(g -> Optional.ofNullable(guild).map(Guild::getSelfMember).map(m -> !m.hasPermission(g, Permission.MESSAGE_ATTACH_FILES)))
+                    .flatMap(g -> Optional.of(guild).map(Guild::getSelfMember).map(m -> !m.hasPermission(g, Permission.MESSAGE_ATTACH_FILES)))
                     .orElse(true);
             if (missingAddFilePermission) {
                 checks.add(I18n.getMessage("permission.ATTACH_FILES", userLocale));
@@ -254,7 +258,7 @@ public abstract class DiscordAdapterImpl implements DiscordAdapter {
         String result = I18n.getMessage("permission.missing", userLocale, String.join(", ", checks));
 
         log.info(String.format("'%s'.'%s': %s",
-                Optional.ofNullable(guild).map(Guild::getName).orElse("-"),
+                Optional.of(guild).map(Guild::getName).orElse("-"),
                 messageChannel.getName(),
                 result));
         return Optional.of(result);

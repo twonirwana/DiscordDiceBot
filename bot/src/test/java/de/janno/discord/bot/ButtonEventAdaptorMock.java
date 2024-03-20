@@ -23,7 +23,7 @@ import static de.janno.discord.connector.api.BottomCustomIdUtils.CUSTOM_ID_DELIM
 public class ButtonEventAdaptorMock implements ButtonEventAdaptor {
 
     public static final long CHANNEL_ID = 1L;
-    public static final long GUILD_ID = 1L;
+    public static final Long GUILD_ID = null;
     private final String customId;
     private final long massageId;
     private final AtomicLong messageIdCounter;
@@ -84,7 +84,7 @@ public class ButtonEventAdaptorMock implements ButtonEventAdaptor {
     }
 
     public List<String> getSortedActions() {
-        return actions.stream().sorted().toList();
+        return actions.stream().sorted(String::compareTo).toList();
     }
 
     @Override
