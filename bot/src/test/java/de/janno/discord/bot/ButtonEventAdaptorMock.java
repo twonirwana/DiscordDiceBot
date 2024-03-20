@@ -84,7 +84,7 @@ public class ButtonEventAdaptorMock implements ButtonEventAdaptor {
     }
 
     public List<String> getSortedActions() {
-        return actions.stream().sorted().toList();
+        return actions.stream().sorted(String::compareTo).toList();
     }
 
     @Override
