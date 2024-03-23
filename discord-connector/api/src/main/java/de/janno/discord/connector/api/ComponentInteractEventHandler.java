@@ -8,4 +8,6 @@ public interface ComponentInteractEventHandler {
     Mono<Void> handleComponentInteractEvent(@NonNull ButtonEventAdaptor event);
 
     boolean matchingComponentCustomId(String buttonCustomId);
+
+    @NonNull String getCommandId();
 }
