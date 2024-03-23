@@ -63,14 +63,14 @@ public class Bot {
         CustomParameterCommand customParameterCommand = new CustomParameterCommand(persistenceManager, cachingDiceEvaluator);
         SumCustomSetCommand sumCustomSetCommand = new SumCustomSetCommand(persistenceManager, cachingDiceEvaluator);
         RpgSystemCommandPreset rpgSystemCommandPreset = new RpgSystemCommandPreset(persistenceManager, customParameterCommand, customDiceCommand, sumCustomSetCommand);
-
         WelcomeCommand welcomeCommand = new WelcomeCommand(persistenceManager, rpgSystemCommandPreset);
+        HiddenDirectRollCommand hiddenDirectRollCommand = new HiddenDirectRollCommand(persistenceManager, cachingDiceEvaluator);
 
         DiscordConnectorImpl.createAndStart(
                 List.of(customDiceCommand,
                         new DirectRollCommand(persistenceManager, cachingDiceEvaluator),
                         new AliasRollCommand(persistenceManager, cachingDiceEvaluator),
-                        new HiddenDirectRollCommand(persistenceManager, cachingDiceEvaluator),
+                        hiddenDirectRollCommand,
                         new ValidationCommand(persistenceManager, cachingDiceEvaluator),
                         new ChannelConfigCommand(persistenceManager),
                         sumCustomSetCommand,
@@ -85,6 +85,7 @@ public class Bot {
                         sumCustomSetCommand,
                         customParameterCommand,
                         welcomeCommand,
+                        hiddenDirectRollCommand,
                         //legacy, to be removed
                         new FateCommand(persistenceManager),
                         new CountSuccessesCommand(persistenceManager),

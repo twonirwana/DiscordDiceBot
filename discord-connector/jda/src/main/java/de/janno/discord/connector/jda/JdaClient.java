@@ -152,51 +152,65 @@ public class JdaClient {
                             public void onSlashCommandInteraction(@NonNull SlashCommandInteractionEvent event) {
                                 log.trace("ChatInputEvent: {} from {}", event.getInteraction().getCommandId(),
                                         event.getInteraction().getUser().getName());
-                                Flux.fromIterable(slashCommands)
+                                List<SlashCommand> matchingHandler = slashCommands.stream()
                                         .filter(command -> command.getCommandId().equals(event.getName()))
-                                        .next()
-                                        .flatMap(command -> {
-                                            Locale userLocale = LocaleConverter.toLocale(event.getInteraction().getUserLocale());
-                                            JdaMetrics.userLocalInteraction(userLocale);
-                                            return command.handleSlashCommandEvent(new SlashEventAdapterImpl(event,
-                                                    new Requester(event.getInteraction().getUser().getName(),
-                                                            event.getChannel().getName(),
-                                                            Optional.ofNullable(event.getGuild()).map(Guild::getName).orElse(""),
-                                                            event.getJDA().getShardInfo().getShardString(),
-                                                            userLocale)
-                                            ), UUID::randomUUID, LocaleConverter.toLocale(event.getUserLocale()));
-                                        })
-                                        .onErrorResume(e -> {
-                                            log.error("SlashCommandEvent Exception: ", e);
-                                            return Mono.empty();
-                                        })
-                                        .subscribeOn(scheduler)
-                                        .subscribe();
+                                        .toList();
+
+                                Locale userLocale = LocaleConverter.toLocale(event.getInteraction().getUserLocale());
+
+                                Requester requester = new Requester(event.getInteraction().getUser().getName(),
+                                        event.getChannel().getName(),
+                                        Optional.ofNullable(event.getInteraction().getGuild()).map(Guild::getName).orElse(""),
+                                        event.getJDA().getShardInfo().getShardString(),
+                                        userLocale);
+                                if (matchingHandler.size() != 1) {
+                                    log.error("{}: Invalid handler for {} -> {}", requester, event.getInteraction().getCommandId(), matchingHandler.stream().map(SlashCommand::getCommandId).toList());
+                                } else {
+                                    Mono.just(matchingHandler.getFirst())
+                                            .flatMap(command -> {
+
+                                                JdaMetrics.userLocalInteraction(userLocale);
+                                                return command.handleSlashCommandEvent(new SlashEventAdapterImpl(event,
+                                                        requester
+                                                ), UUID::randomUUID, LocaleConverter.toLocale(event.getUserLocale()));
+                                            })
+                                            .onErrorResume(e -> {
+                                                log.error("SlashCommandEvent Exception: ", e);
+                                                return Mono.empty();
+                                            })
+                                            .subscribeOn(scheduler)
+                                            .subscribe();
+                                }
                             }
 
                             @Override
                             public void onButtonInteraction(@NonNull ButtonInteractionEvent event) {
                                 log.trace("ComponentEvent: {} from {}", event.getInteraction().getComponentId(), event.getInteraction().getUser().getName());
-                                Flux.fromIterable(componentInteractEventHandlers)
+                                List<ComponentInteractEventHandler> matchingHandler = componentInteractEventHandlers.stream()
                                         .filter(command -> command.matchingComponentCustomId(event.getInteraction().getComponentId()))
-                                        .next()
-                                        .flatMap(command -> {
-                                            Locale userLocale = LocaleConverter.toLocale(event.getInteraction().getUserLocale());
-                                            JdaMetrics.userLocalInteraction(userLocale);
-                                            return command.handleComponentInteractEvent(new ButtonEventAdapterImpl(event,
-                                                    new Requester(event.getInteraction().getUser().getName(),
-                                                            event.getChannel().getName(),
-                                                            Optional.ofNullable(event.getInteraction().getGuild()).map(Guild::getName).orElse(""),
-                                                            event.getJDA().getShardInfo().getShardString(),
-                                                            userLocale
-                                                    )));
-                                        })
-                                        .onErrorResume(e -> {
-                                            log.error("ButtonInteractEvent Exception: ", e);
-                                            return Mono.empty();
-                                        })
-                                        .subscribeOn(scheduler)
-                                        .subscribe();
+                                        .toList();
+                                Locale userLocale = LocaleConverter.toLocale(event.getInteraction().getUserLocale());
+
+                                Requester requester = new Requester(event.getInteraction().getUser().getName(),
+                                        event.getChannel().getName(),
+                                        Optional.ofNullable(event.getInteraction().getGuild()).map(Guild::getName).orElse(""),
+                                        event.getJDA().getShardInfo().getShardString(),
+                                        userLocale);
+                                if (matchingHandler.size() != 1) {
+                                    log.error("{}: Invalid handler for {} -> {}", requester, event.getInteraction().getComponentId(), matchingHandler.stream().map(ComponentInteractEventHandler::getCommandId).toList());
+                                } else {
+                                    Mono.just(matchingHandler.getFirst())
+                                            .flatMap(command -> {
+                                                JdaMetrics.userLocalInteraction(userLocale);
+                                                return command.handleComponentInteractEvent(new ButtonEventAdapterImpl(event, requester));
+                                            })
+                                            .onErrorResume(e -> {
+                                                log.error("ButtonInteractEvent Exception: ", e);
+                                                return Mono.empty();
+                                            })
+                                            .subscribeOn(scheduler)
+                                            .subscribe();
+                                }
                             }
                         }
                 )
