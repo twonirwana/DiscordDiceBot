@@ -27,7 +27,6 @@ import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder;
 import net.dv8tion.jda.api.sharding.ShardManager;
 import net.dv8tion.jda.internal.utils.IOUtil;
 import okhttp3.OkHttpClient;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
@@ -127,16 +126,29 @@ public class JdaClient {
 
                             @Override
                             public void onCommandAutoCompleteInteraction(@NonNull CommandAutoCompleteInteractionEvent event) {
-                                Flux.fromIterable(slashCommands)
+                                List<SlashCommand> matchingHandler = slashCommands.stream()
                                         .filter(command -> command.getCommandId().equals(event.getName()))
-                                        .next()
-                                        .map(command -> command.getAutoCompleteAnswer(fromEvent(event), LocaleConverter.toLocale(event.getUserLocale()), event.getChannel().getIdLong(), event.getUser().getIdLong()))
-                                        .flatMap(a -> Mono.fromFuture(event.replyChoices(a.stream()
-                                                .map(c -> new Command.Choice(c.getName(), c.getValue()))
-                                                .limit(25)
-                                                .toList()).submit()))
-                                        .subscribeOn(scheduler)
-                                        .subscribe();
+                                        .toList();
+
+                                Locale userLocale = LocaleConverter.toLocale(event.getInteraction().getUserLocale());
+
+                                Requester requester = new Requester(event.getInteraction().getUser().getName(),
+                                        event.getChannel().getName(),
+                                        Optional.ofNullable(event.getInteraction().getGuild()).map(Guild::getName).orElse(""),
+                                        event.getJDA().getShardInfo().getShardString(),
+                                        userLocale);
+                                if (matchingHandler.size() != 1) {
+                                    log.error("{}: Invalid handler for {} -> {}", requester, event.getInteraction().getCommandId(), matchingHandler.stream().map(SlashCommand::getCommandId).toList());
+                                } else {
+                                    Mono.just(matchingHandler.getFirst())
+                                            .map(command -> command.getAutoCompleteAnswer(fromEvent(event), LocaleConverter.toLocale(event.getUserLocale()), event.getChannel().getIdLong(), event.getUser().getIdLong()))
+                                            .flatMap(a -> Mono.fromFuture(event.replyChoices(a.stream()
+                                                    .map(c -> new Command.Choice(c.getName(), c.getValue()))
+                                                    .limit(25)
+                                                    .toList()).submit()))
+                                            .subscribeOn(scheduler)
+                                            .subscribe();
+                                }
                             }
 
                             private AutoCompleteRequest fromEvent(CommandAutoCompleteInteractionEvent event) {
@@ -168,7 +180,6 @@ public class JdaClient {
                                 } else {
                                     Mono.just(matchingHandler.getFirst())
                                             .flatMap(command -> {
-
                                                 JdaMetrics.userLocalInteraction(userLocale);
                                                 return command.handleSlashCommandEvent(new SlashEventAdapterImpl(event,
                                                         requester
@@ -315,7 +326,7 @@ public class JdaClient {
                 if (t instanceof NewsChannel n) {
                     if (hasPermission(t, Permission.MESSAGE_MANAGE)) {
                         try {
-                            //whitout the wait time the crosspost resulted often rate limit error
+                            //without the wait time the crosspost resulted often rate limit error
                             Thread.sleep(Config.getInt("newsChannelPublishWaitMilliSec", 1000));
                             n.crosspostMessageById(sendMessage.getId()).complete();
                         } catch (Exception e) {

@@ -67,8 +67,10 @@ Please let me know if you have a good new preset or an improved version for an e
 |`Fate without Dice Images`
 |`Heroes of Cerulea`
 |`Hunter 5ed`
+|`Ironsworn`
 |`Kids on Brooms`
 |`OSR`
+|`Oathsworn`
 |`One-Roll Engine`
 |`Paranoia: Red Clearance Edition`
 |`Powered by the Apocalypse`
@@ -80,6 +82,7 @@ Please let me know if you have a good new preset or an improved version for an e
 |`Savage Worlds`
 |`Shadowrun`
 |`Shadowrun without Dice Images`
+|`Star Wars - West End Games D6 Rules, 2nd Edition REUP`
 |`The Expanse`
 |`The Marvel Multiverse Role-Playing Game`
 |`The One Ring`
@@ -89,6 +92,7 @@ Please let me know if you have a good new preset or an improved version for an e
 |`Year Zero Engine: Alien`
 |`nWod / Chronicles of Darkness`
 |`oWod / Storyteller System`
+|
 |===
 
 == Commands
