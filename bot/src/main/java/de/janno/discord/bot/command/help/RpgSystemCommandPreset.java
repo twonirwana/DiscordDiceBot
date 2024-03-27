@@ -192,6 +192,19 @@ public class RpgSystemCommandPreset {
             case REBELLION_UNPLUGGED ->
                     new CustomDiceConfig(null, ButtonHelper.parseString(I18n.getMessage("rpg.system.command.preset.REBELLION_UNPLUGGED.expression", userLocale)),
                             DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.without_expression, null, new DiceStyleAndColor(DiceImageStyle.d6_dots, D6Dotted.BLACK_AND_GOLD), userLocale);
+            //"Star Wars - West End Games D6 Rules, 2nd Edition REUP".
+            ///custom_parameter start expression: val('$dt', {Skill dice:1<=>15}) val('$d', ('$dt'-1=)d6 col'blue') val('$ed',1d!6) val('$b', {+:0<=>2}) if('$ed'=?1, 'Complication! '_'$d'-('$d'k1)+'$b'=_' or '_'$d'+'$ed'+'$b'=, '$d'+'$ed'+'$b'=) dice_image_style: polyhedral_2d
+            case STAR_WARS_D6 ->
+                    new CustomParameterConfig(null, I18n.getMessage("rpg.system.command.preset.STAR_WARS_D6.expression", userLocale),
+                            DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.without_expression, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_2d, DiceImageStyle.polyhedral_2d.getDefaultColor()), userLocale);
+            ///sum_custom_set start buttons: +(replace(exp(1d[0,0,1,1,2,2*] col 'white','2*'),'2*',2)=) @White;+(replace(exp(1d[0,0,1,2,3,3*] col 'yellow','3*'),'3*',3)=)@Yellow;+(replace(exp(1d[0,0,2,3,3,4*] col 'red', '4*'),'4*',4)=)@Red;+(replace(exp(1d[0,0,3,3,4,5*] col 'black', '5*'),'5*',5)=)@Black prefix: val('dice', postfix: ) if('dice'==0c>=?2,'dice'= _ ' Miss for Player', 'dice'=) answer_format: without_expression dice_image_style: polyhedral_2d
+            case OATHSWORN ->
+                    new SumCustomSetConfig(null, ButtonHelper.parseString(I18n.getMessage("rpg.system.command.preset.OATHSWORN.expression", userLocale)), DiceParserSystem.DICE_EVALUATOR, false, true, true,
+                            "val('dice',", ") if('dice'==0c>=?2,'dice'= _ ' Miss for Player', 'dice'=)", AnswerFormatType.without_expression, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_2d, DiceImageStyle.polyhedral_2d.getDefaultColor()), userLocale);
+            ///custom_parameter start expression:  if((2d10<(1d6+1=))c=?0,'failure',(2d10<(1d6+1=))c=?1, 'mixed results', 'total success')
+            case IRONSWORN ->
+                    new CustomParameterConfig(null, I18n.getMessage("rpg.system.command.preset.IRONSWORN.expression", userLocale), DiceParserSystem.DICE_EVALUATOR, AnswerFormatType.without_expression, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_RdD, DiceImageStyle.polyhedral_RdD.getDefaultColor()), userLocale);
+
         };
     }
 
@@ -274,7 +287,14 @@ public class RpgSystemCommandPreset {
         PBTA,
         THE_ONE_RING,
         EZD6,
-        REBELLION_UNPLUGGED;
+        REBELLION_UNPLUGGED,
+        STAR_WARS_D6,
+        OATHSWORN,
+        IRONSWORN;
+
+        public static boolean isValid(String in) {
+            return Arrays.stream(PresetId.values()).anyMatch(s -> s.name().equals(in));
+        }
 
         public String getName(Locale locale) {
             return I18n.getMessage("rpg.system.command.preset.%s.name".formatted(name()), locale);
@@ -289,10 +309,6 @@ public class RpgSystemCommandPreset {
                 return List.of(aliasString.split(";"));
             }
             return List.of(aliasString);
-        }
-
-        public static boolean isValid(String in) {
-            return Arrays.stream(PresetId.values()).anyMatch(s -> s.name().equals(in));
         }
     }
 }
