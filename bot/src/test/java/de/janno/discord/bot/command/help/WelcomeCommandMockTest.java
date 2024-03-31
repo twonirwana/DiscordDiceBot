@@ -17,7 +17,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import java.util.*;
+import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -42,7 +45,7 @@ public class WelcomeCommandMockTest {
                 .build()));
         underTest.handleSlashCommandEvent(slashEvent, () -> UUID.fromString("00000000-0000-0000-0000-000000000001"), Locale.ENGLISH).block();
 
-        expect.scenario("slash").toMatchSnapshot(Set.copyOf(slashEvent.getSortedActions()));
+        expect.scenario("slash").toMatchSnapshot(slashEvent.getSortedActions());
 
         Optional<ButtonEventAdaptorMock> buttonEvent = slashEvent.getFirstButtonEventMockOfLastButtonMessage();
         assertThat(buttonEvent).isPresent();
@@ -59,7 +62,7 @@ public class WelcomeCommandMockTest {
                 .build()));
         underTest.handleSlashCommandEvent(slashEvent, () -> UUID.fromString("00000000-0000-0000-0000-000000000001"), Locale.ENGLISH).block();
 
-        expect.scenario("slash").toMatchSnapshot(Set.copyOf(slashEvent.getSortedActions()));
+        expect.scenario("slash").toMatchSnapshot(slashEvent.getSortedActions());
 
         ButtonEventAdaptorMock buttonEvent = new ButtonEventAdaptorMock("welcome", "dnd5_image", new AtomicLong(0));
         underTest.handleComponentInteractEvent(buttonEvent).block();
@@ -75,7 +78,7 @@ public class WelcomeCommandMockTest {
                 .build()));
         underTest.handleSlashCommandEvent(slashEvent, () -> UUID.fromString("00000000-0000-0000-0000-000000000001"), Locale.ENGLISH).block();
 
-        expect.scenario("slash").toMatchSnapshot(Set.copyOf(slashEvent.getSortedActions()));
+        expect.scenario("slash").toMatchSnapshot(slashEvent.getSortedActions());
 
         ButtonEventAdaptorMock buttonEvent = new ButtonEventAdaptorMock("welcome", "invalidId", new AtomicLong(0));
         underTest.handleComponentInteractEvent(buttonEvent).block();
