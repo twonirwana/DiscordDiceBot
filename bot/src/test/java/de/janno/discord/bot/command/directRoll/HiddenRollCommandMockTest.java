@@ -36,7 +36,7 @@ public class HiddenRollCommandMockTest {
 
     @Test
     void roll_default() {
-        HiddenDirectRollCommand underTest = new HiddenDirectRollCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0, 10_000, true));
+        HiddenDirectRollCommand underTest = new HiddenDirectRollCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0)));
 
         SlashEventAdaptorMock hiddenRollCommandEvent = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
                 .name("expression")
@@ -65,7 +65,7 @@ public class HiddenRollCommandMockTest {
 
     @Test
     void roll_NoWarn() {
-        HiddenDirectRollCommand underTest = new HiddenDirectRollCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0, 10_000, true));
+        HiddenDirectRollCommand underTest = new HiddenDirectRollCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0)));
 
         SlashEventAdaptorMock hiddenRollCommandEvent = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
                 .name("expression")
@@ -96,7 +96,7 @@ public class HiddenRollCommandMockTest {
 
     @Test
     void help() {
-        HiddenDirectRollCommand underTest = new HiddenDirectRollCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0, 10_000, true));
+        HiddenDirectRollCommand underTest = new HiddenDirectRollCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0)));
 
         SlashEventAdaptorMock hiddenRollCommandEvent = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
                 .name("expression")
@@ -114,7 +114,7 @@ public class HiddenRollCommandMockTest {
 
     @Test
     void invalidExpression() {
-        HiddenDirectRollCommand underTest = new HiddenDirectRollCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0, 10_000, true));
+        HiddenDirectRollCommand underTest = new HiddenDirectRollCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0)));
 
         SlashEventAdaptorMock hiddenRollCommandEvent = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
                 .name("expression")
@@ -130,7 +130,7 @@ public class HiddenRollCommandMockTest {
 
     @Test
     void roll_default_withLabel() {
-        HiddenDirectRollCommand underTest = new HiddenDirectRollCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0, 10_000, true));
+        HiddenDirectRollCommand underTest = new HiddenDirectRollCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0)));
 
         SlashEventAdaptorMock hiddenRollCommandEvent = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
                 .name("expression")
@@ -160,7 +160,7 @@ public class HiddenRollCommandMockTest {
 
     @Test
     void roll_config_full_imageNone() {
-        HiddenDirectRollCommand underTest = new HiddenDirectRollCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0, 10_000, true));
+        HiddenDirectRollCommand underTest = new HiddenDirectRollCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0)));
         ChannelConfigCommand channelConfig = new ChannelConfigCommand(persistenceManager);
 
         SlashEventAdaptorMock configCommandEvent = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
@@ -210,7 +210,7 @@ public class HiddenRollCommandMockTest {
 
     @Test
     void roll_config_withoutExpression() {
-        HiddenDirectRollCommand underTest = new HiddenDirectRollCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0, 10_000, true));
+        HiddenDirectRollCommand underTest = new HiddenDirectRollCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0)));
         ChannelConfigCommand channelConfig = new ChannelConfigCommand(persistenceManager);
 
         SlashEventAdaptorMock configCommandEvent = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
@@ -259,7 +259,7 @@ public class HiddenRollCommandMockTest {
 
     @Test
     void roll_config_withoutExpression_withLabel() {
-        HiddenDirectRollCommand underTest = new HiddenDirectRollCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0, 10_000, true));
+        HiddenDirectRollCommand underTest = new HiddenDirectRollCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0)));
         ChannelConfigCommand channelConfig = new ChannelConfigCommand(persistenceManager);
 
         SlashEventAdaptorMock configCommandEvent = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
@@ -307,7 +307,7 @@ public class HiddenRollCommandMockTest {
 
     @Test
     void roll_config_compact() {
-        HiddenDirectRollCommand underTest = new HiddenDirectRollCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0, 10_000, true));
+        HiddenDirectRollCommand underTest = new HiddenDirectRollCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0)));
         ChannelConfigCommand channelConfig = new ChannelConfigCommand(persistenceManager);
 
         SlashEventAdaptorMock configCommandEvent = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
@@ -356,7 +356,7 @@ public class HiddenRollCommandMockTest {
 
     @Test
     void roll_config_minimal() {
-        HiddenDirectRollCommand underTest = new HiddenDirectRollCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0, 10_000, true));
+        HiddenDirectRollCommand underTest = new HiddenDirectRollCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0)));
         ChannelConfigCommand channelConfig = new ChannelConfigCommand(persistenceManager);
 
         SlashEventAdaptorMock configCommandEvent = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
@@ -405,7 +405,7 @@ public class HiddenRollCommandMockTest {
 
     @Test
     void channelAlias() {
-        HiddenDirectRollCommand underTest = new HiddenDirectRollCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0, 10_000, true));
+        HiddenDirectRollCommand underTest = new HiddenDirectRollCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0)));
         ChannelConfigCommand channelConfig = new ChannelConfigCommand(persistenceManager);
 
         SlashEventAdaptorMock configCommandEvent = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
@@ -447,7 +447,7 @@ public class HiddenRollCommandMockTest {
 
     @Test
     void userChannelAlias() {
-        HiddenDirectRollCommand underTest = new HiddenDirectRollCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0, 10_000, true));
+        HiddenDirectRollCommand underTest = new HiddenDirectRollCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0)));
         ChannelConfigCommand channelConfig = new ChannelConfigCommand(persistenceManager);
 
         SlashEventAdaptorMock configCommandEvent = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()

@@ -58,7 +58,7 @@ class SumCustomSetCommandTest {
     @BeforeEach
     void setup() {
         diceMock = mock(Dice.class);
-        underTest = new SumCustomSetCommand(persistenceManager, diceMock, new CachingDiceEvaluator((minExcl, maxIncl) -> 0, 1000, 0, 10_000, true));
+        underTest = new SumCustomSetCommand(persistenceManager, diceMock, new CachingDiceEvaluator((minExcl, maxIncl) -> 0));
     }
 
     @ParameterizedTest(name = "{index} config={0}, buttonId={1} -> {2}")
@@ -210,7 +210,7 @@ class SumCustomSetCommandTest {
 
     @Test
     void rollDice_PrePostfix() {
-        underTest = new SumCustomSetCommand(persistenceManager, diceMock, new CachingDiceEvaluator((minExcl, maxIncl) -> maxIncl, 1000, 0, 10_000, true));
+        underTest = new SumCustomSetCommand(persistenceManager, diceMock, new CachingDiceEvaluator((minExcl, maxIncl) -> maxIncl));
         SumCustomSetConfig config = new SumCustomSetConfig(123L, List.of(
                 new ButtonIdLabelAndDiceExpression("1_button", "5d6", "+5d6", false, false),
                 new ButtonIdLabelAndDiceExpression("2_button", "2d10", "+2d10", true, false)
@@ -536,7 +536,7 @@ class SumCustomSetCommandTest {
     @Test
     void checkPersistence() {
         PersistenceManager persistenceManager = new PersistenceManagerImpl("jdbc:h2:mem:" + UUID.randomUUID(), null, null);
-        underTest = new SumCustomSetCommand(persistenceManager, diceMock, new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 10000, 10_000, true));
+        underTest = new SumCustomSetCommand(persistenceManager, diceMock, new CachingDiceEvaluator(new RandomNumberSupplier(0)));
 
         UUID configUUID = UUID.randomUUID();
         long channelId = System.currentTimeMillis();

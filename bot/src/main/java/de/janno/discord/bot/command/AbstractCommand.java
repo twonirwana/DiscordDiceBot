@@ -249,7 +249,7 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
 
         Optional<RollAnswer> answer = getAnswer(config, state, channelId, userId);
         if (answer.isPresent()) {
-            BotMetrics.incrementButtonMetricCounter(getCommandId(), config.toShortString());
+            BotMetrics.incrementButtonMetricCounter(getCommandId());
             BotMetrics.incrementAnswerFormatCounter(config.getAnswerFormatType(), getCommandId());
 
             actions.add(Mono.defer(() -> event.createResultMessageWithReference(RollAnswerConverter.toEmbedOrMessageDefinition(answer.get()), answerTargetChannelId)
@@ -347,7 +347,7 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
             }
             final C config = getConfigFromStartOptions(options, userOrConfigLocale);
             final UUID configUUID = uuidSupplier.get();
-            BotMetrics.incrementSlashStartMetricCounter(getCommandId(), config.toShortString());
+            BotMetrics.incrementSlashStartMetricCounter(getCommandId());
 
             final long channelId = event.getChannelId();
             final Long guildId = event.getGuildId();

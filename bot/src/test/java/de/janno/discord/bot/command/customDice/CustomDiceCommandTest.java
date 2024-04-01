@@ -81,7 +81,7 @@ class CustomDiceCommandTest {
     @BeforeEach
     void setup() {
         diceMock = mock(Dice.class);
-        underTest = new CustomDiceCommand(persistenceManager, diceMock, new CachingDiceEvaluator((minExcl, maxIncl) -> 3, 10, 0, 10_000, true));
+        underTest = new CustomDiceCommand(persistenceManager, diceMock, new CachingDiceEvaluator((minExcl, maxIncl) -> 3));
 
     }
 

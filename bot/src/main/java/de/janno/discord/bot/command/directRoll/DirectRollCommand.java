@@ -129,7 +129,7 @@ public class DirectRollCommand implements SlashCommand {
             if (expressionValidationMessage.isPresent()) {
                 return replyValidationMessage(event, expressionValidationMessage.get(), commandString);
             }
-            BotMetrics.incrementSlashStartMetricCounter(getCommandId(), "[%s, %s]".formatted(diceExpression, expressionWithMultiLine.replace("\n", " ")));
+            BotMetrics.incrementSlashStartMetricCounter(getCommandId());
             DirectRollConfig config = getDirectRollConfig(event.getChannelId());
             BotMetrics.incrementAnswerFormatCounter(config.getAnswerFormatType(), getCommandId());
 

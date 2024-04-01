@@ -52,12 +52,7 @@ public class Bot {
         PersistenceManager persistenceManager = new PersistenceManagerImpl(url, user, password);
 
         Set<Long> allGuildIdsInPersistence = persistenceManager.getAllGuildIds();
-        CachingDiceEvaluator cachingDiceEvaluator = new CachingDiceEvaluator(new RandomNumberSupplier(),
-                Config.getInt("diceEvaluator.maxNumberOfDice", 1000),
-                Config.getInt("diceEvaluator.cacheSize", 10_000),
-                Config.getInt("diceEvaluator.maxNumberOfElements", 10_000),
-                Config.getBool("diceEvaluator.keepChildrenRolls", false)
-        );
+        CachingDiceEvaluator cachingDiceEvaluator = new CachingDiceEvaluator(new RandomNumberSupplier());
 
         CustomDiceCommand customDiceCommand = new CustomDiceCommand(persistenceManager, cachingDiceEvaluator);
         CustomParameterCommand customParameterCommand = new CustomParameterCommand(persistenceManager, cachingDiceEvaluator);

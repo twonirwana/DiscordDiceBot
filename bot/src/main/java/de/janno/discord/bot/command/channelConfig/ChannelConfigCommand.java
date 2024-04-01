@@ -211,7 +211,7 @@ public class ChannelConfigCommand implements SlashCommand {
             final Locale userOrConfigLocale = BaseCommandOptions.getLocaleOptionFromStartCommandOption(saveAction)
                     .orElse(event.getRequester().getUserLocal());
             DirectRollConfig config = new DirectRollConfig(null, alwaysSumResults, answerType, null, new DiceStyleAndColor(diceImageStyle, defaultDiceColor), userOrConfigLocale);
-            BotMetrics.incrementSlashStartMetricCounter(getCommandId(), config.toShortString());
+            BotMetrics.incrementSlashStartMetricCounter(getCommandId() + "_rollConfigSave");
             return Mono.defer(() -> {
                 persistenceManager.deleteChannelConfig(event.getChannelId(), DIRECT_ROLL_CONFIG_TYPE_ID);
                 persistenceManager.saveChannelConfig(new ChannelConfigDTO(uuidSupplier.get(),
@@ -231,7 +231,7 @@ public class ChannelConfigCommand implements SlashCommand {
             });
         }
         if (event.getOption(DELETE_DIRECT_ROLL_CONFIG_OPTION_NAME).isPresent()) {
-            BotMetrics.incrementSlashStartMetricCounter(getCommandId(), "delete");
+            BotMetrics.incrementSlashStartMetricCounter(getCommandId() + "_rollConfigDelete");
             return Mono.defer(() -> {
                 log.info("{}: '{}'",
                         event.getRequester().toLogString(),
@@ -269,9 +269,9 @@ public class ChannelConfigCommand implements SlashCommand {
     }
 
     private Mono<Void> handelChannelEvent(@NonNull SlashEventAdaptor event, @Nullable Long userId, @NonNull Supplier<UUID> uuidSupplier, @NonNull Locale userLocale) {
-        String type = userId == null ? "channel_alias" : "user_channel_alias";
         if (event.getOption(SAVE_ALIAS_OPTION_NAME).isPresent()) {
-            BotMetrics.incrementSlashStartMetricCounter(getCommandId(), type + ", save");
+            String type = userId == null ? "channelAliasSave" : "user_channelAliasSave";
+            BotMetrics.incrementSlashStartMetricCounter(getCommandId() + "_" + type);
             CommandInteractionOption commandInteractionOption = event.getOption(SAVE_ALIAS_OPTION_NAME).get();
             String name = commandInteractionOption.getStringSubOptionWithName(ALIAS_NAME_OPTION_NAME).orElseThrow();
             String value = commandInteractionOption.getStringSubOptionWithName(ALIAS_VALUE_OPTION_NAME).orElseThrow();
@@ -286,7 +286,7 @@ public class ChannelConfigCommand implements SlashCommand {
 
             return event.reply(I18n.getMessage("channel_config.savedAlias.reply", userLocale, event.getCommandString()), userId != null);
         } else if (event.getOption(SAVE_MULTI_ALIAS_OPTION_NAME).isPresent()) {
-            BotMetrics.incrementSlashStartMetricCounter(getCommandId(), type + ", multi save");
+            BotMetrics.incrementSlashStartMetricCounter(getCommandId() + "_aliasMultiSave");
             CommandInteractionOption commandInteractionOption = event.getOption(SAVE_MULTI_ALIAS_OPTION_NAME).get();
             String aliasesString = commandInteractionOption.getStringSubOptionWithName(ALIASES_OPTION_NAME).orElseThrow();
             List<String> nameValuePair = Arrays.stream(aliasesString.split(";"))
@@ -319,7 +319,7 @@ public class ChannelConfigCommand implements SlashCommand {
             CommandInteractionOption commandInteractionOption = event.getOption(DELETE_ALIAS_OPTION_NAME).get();
             String name = commandInteractionOption.getStringSubOptionWithName(ALIAS_NAME_OPTION_NAME).orElseThrow();
 
-            BotMetrics.incrementSlashStartMetricCounter(getCommandId(), type + ", delete");
+            BotMetrics.incrementSlashStartMetricCounter(getCommandId() + "_aliasDelete");
             final List<Alias> existingAlias = loadAlias(event.getChannelId(), userId);
 
             List<Alias> newAliasList = existingAlias.stream()
@@ -336,7 +336,7 @@ public class ChannelConfigCommand implements SlashCommand {
         } else if (event.getOption(LIST_ALIAS_OPTION_NAME).isPresent()) {
             final List<Alias> existingAlias = loadAlias(event.getChannelId(), userId);
 
-            BotMetrics.incrementSlashStartMetricCounter(getCommandId(), type + ", list");
+            BotMetrics.incrementSlashStartMetricCounter(getCommandId() + "_aliasList");
 
             String aliasList = existingAlias.stream().map(Objects::toString).collect(Collectors.joining("\n"));
             return event.reply(I18n.getMessage("channel_config.listAlias.reply", userLocale, event.getCommandString(), aliasList), userId != null);

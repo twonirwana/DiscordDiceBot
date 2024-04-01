@@ -8,3 +8,4 @@ command:
   clear.messageDeleteDelay: 10
 diceEvaluator:
   keepChildrenRolls: true
+  cacheSize: 0

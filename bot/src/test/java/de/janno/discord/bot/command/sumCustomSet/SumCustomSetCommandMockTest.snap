@@ -22,7 +22,7 @@ de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandMockTest.channelAli
 de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandMockTest.channelAlias[click2]=[
   [
     "createMessageWithoutReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click the buttons to add dice to the set and then on Roll, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Attack, id=sum_custom_set\u001E1_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=Roll, id=sum_custom_set\u001Eroll\u001E00000000-0000-0000-0000-000000000000, style=SUCCESS, disabled=true), ButtonDefinition(label=Clear, id=sum_custom_set\u001Eclear\u001E00000000-0000-0000-0000-000000000000, style=DANGER, disabled=false), ButtonDefinition(label=Back, id=sum_custom_set\u001Eback\u001E00000000-0000-0000-0000-000000000000, style=SECONDARY, disabled=true)])], hasImage=false, type=MESSAGE)",
-    "createResultMessageWithReference: EmbedOrMessageDefinition(title=att ⇒ 31, descriptionOrContent=2d20+10: [11, 10], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED), targetChannelId: null",
+    "createResultMessageWithReference: EmbedOrMessageDefinition(title=att ⇒ 39, descriptionOrContent=2d20+10: [20, 9], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED), targetChannelId: null",
     "deleteMessageById: 0",
     "editMessage: message:Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,roll,clear,back"
   ]
@@ -53,7 +53,7 @@ de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandMockTest.directRoll
 de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandMockTest.directRoll[click2]=[
   [
     "createMessageWithoutReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click the buttons to add dice to the set and then on Roll, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=sum_custom_set\u001E1_button\u001E00000000-0000-0000-0000-000000000000, style=SUCCESS, disabled=false)]), ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=bonus, id=sum_custom_set\u001E2_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=Roll, id=sum_custom_set\u001Eroll\u001E00000000-0000-0000-0000-000000000000, style=SUCCESS, disabled=true), ButtonDefinition(label=Clear, id=sum_custom_set\u001Eclear\u001E00000000-0000-0000-0000-000000000000, style=DANGER, disabled=false), ButtonDefinition(label=Back, id=sum_custom_set\u001Eback\u001E00000000-0000-0000-0000-000000000000, style=SECONDARY, disabled=true)])], hasImage=false, type=MESSAGE)",
-    "createResultMessageWithReference: EmbedOrMessageDefinition(title=bonus Dmg ⇒ 6, descriptionOrContent=+2+1d6: [4], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED), targetChannelId: null",
+    "createResultMessageWithReference: EmbedOrMessageDefinition(title=bonus Dmg ⇒ 3, descriptionOrContent=+2+1d6: [1], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED), targetChannelId: null",
     "deleteMessageById: 0",
     "editMessage: message:Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back"
   ]
@@ -98,7 +98,7 @@ de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandMockTest.roll_answe
 
 de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandMockTest.roll_answerChannelTwice[click5]=[
   [
-    "createResultMessageWithReference: EmbedOrMessageDefinition(title=+1d6 ⇒ 4, descriptionOrContent=+1d6: [4], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED), targetChannelId: 2",
+    "createResultMessageWithReference: EmbedOrMessageDefinition(title=+1d6 ⇒ 2, descriptionOrContent=+1d6: [2], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED), targetChannelId: 2",
     "editMessage: message:Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back"
   ]
 ]
@@ -341,7 +341,7 @@ de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandMockTest.roll_pinne
 de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandMockTest.roll_pinnedTwice[click5]=[
   [
     "createMessageWithoutReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click the buttons to add dice to the set and then on Roll, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=sum_custom_set\u001E1_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=bonus, id=sum_custom_set\u001E2_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=Roll, id=sum_custom_set\u001Eroll\u001E00000000-0000-0000-0000-000000000000, style=SUCCESS, disabled=true), ButtonDefinition(label=Clear, id=sum_custom_set\u001Eclear\u001E00000000-0000-0000-0000-000000000000, style=DANGER, disabled=false), ButtonDefinition(label=Back, id=sum_custom_set\u001Eback\u001E00000000-0000-0000-0000-000000000000, style=SECONDARY, disabled=true)])], hasImage=false, type=MESSAGE)",
-    "createResultMessageWithReference: EmbedOrMessageDefinition(title=+1d6 ⇒ 4, descriptionOrContent=+1d6: [4], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED), targetChannelId: null",
+    "createResultMessageWithReference: EmbedOrMessageDefinition(title=+1d6 ⇒ 2, descriptionOrContent=+1d6: [2], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED), targetChannelId: null",
     "deleteMessageById: 1",
     "editMessage: message:Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back",
     "getMessagesState: [0]"
@@ -382,7 +382,7 @@ de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandMockTest.userChanne
 de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandMockTest.userChannelAlias[click2]=[
   [
     "createMessageWithoutReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click the buttons to add dice to the set and then on Roll, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Attack, id=sum_custom_set\u001E1_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=Roll, id=sum_custom_set\u001Eroll\u001E00000000-0000-0000-0000-000000000000, style=SUCCESS, disabled=true), ButtonDefinition(label=Clear, id=sum_custom_set\u001Eclear\u001E00000000-0000-0000-0000-000000000000, style=DANGER, disabled=false), ButtonDefinition(label=Back, id=sum_custom_set\u001Eback\u001E00000000-0000-0000-0000-000000000000, style=SECONDARY, disabled=true)])], hasImage=false, type=MESSAGE)",
-    "createResultMessageWithReference: EmbedOrMessageDefinition(title=att ⇒ 31, descriptionOrContent=2d20+10: [11, 10], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED), targetChannelId: null",
+    "createResultMessageWithReference: EmbedOrMessageDefinition(title=att ⇒ 39, descriptionOrContent=2d20+10: [20, 9], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED), targetChannelId: null",
     "deleteMessageById: 0",
     "editMessage: message:Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,roll,clear,back"
   ]

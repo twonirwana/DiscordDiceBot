@@ -45,7 +45,7 @@ class ValidationCommandTest {
 
     @BeforeEach
     void setup() {
-        underTest = new ValidationCommand(mock(PersistenceManager.class), new CachingDiceEvaluator((minExcl, maxIncl) -> 1, 1000, 0, 10_000, true));
+        underTest = new ValidationCommand(mock(PersistenceManager.class), new CachingDiceEvaluator((minExcl, maxIncl) -> 1));
     }
 
     @ParameterizedTest(name = "{index} locale={0}")

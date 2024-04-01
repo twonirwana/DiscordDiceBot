@@ -103,7 +103,7 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
                                                                                           @NonNull State<StateData> state,
                                                                                           @Nullable Long guildId,
                                                                                           long channelId) {
-        BotMetrics.incrementButtonMetricCounter(COMMAND_NAME, "[" + state.getButtonValue() + "]");
+        BotMetrics.incrementButtonMetricCounter(COMMAND_NAME);
         UUID newConfigUUID = uuidSupplier.get();
 
         final Optional<RpgSystemCommandPreset.PresetId> presetId = getPresetIdFromButton(state.getButtonValue());
