@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 
 public enum DiceImageStyle {
     none(new NoneProvider()),
-    polyhedral_3d(new PolyhedralFileImageProvider("polyhedral_3d", List.of("red_and_white"), "red_and_white")),
+    polyhedral_3d(new PolyhedralFileImageProvider("polyhedral_3d", List.of("red_and_white", "blue_and_white", "green_and_white", "grey_and_white", "orange_and_white", "purple_and_white", "yellow_and_white"), "red_and_white")),
     polyhedral_alies_v2(new PolyhedralFileImageProvider(
             "polyhedral_alies_v2",
             List.of("blue_and_silver", "black_and_gold", "blue_and_gold", "green_and_gold", "orange_and_silver", "red_and_gold", "purple_and_silver"),
