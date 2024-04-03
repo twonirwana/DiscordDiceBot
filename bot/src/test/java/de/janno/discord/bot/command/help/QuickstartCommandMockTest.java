@@ -72,7 +72,7 @@ public class QuickstartCommandMockTest {
     @MethodSource("generateRpgSystemLocaleData")
     void handleSlashCommandEvent(RpgSystemCommandPreset.PresetId presetId, Locale userLocale) {
         PersistenceManager persistenceManager = new PersistenceManagerImpl("jdbc:h2:mem:" + UUID.randomUUID(), null, null);
-        CachingDiceEvaluator cachingDiceEvaluator = new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0, 10_000, true);
+        CachingDiceEvaluator cachingDiceEvaluator = new CachingDiceEvaluator(new RandomNumberSupplier(0));
         CustomDiceCommand customDiceCommand = new CustomDiceCommand(persistenceManager, cachingDiceEvaluator);
         CustomParameterCommand customParameterCommand = new CustomParameterCommand(persistenceManager, cachingDiceEvaluator);
         SumCustomSetCommand sumCustomSetCommand = new SumCustomSetCommand(persistenceManager, cachingDiceEvaluator);
@@ -94,7 +94,7 @@ public class QuickstartCommandMockTest {
     @MethodSource("generateRpgSystemLocaleData")
     void config2CommandString_slashCommand_firstButton(RpgSystemCommandPreset.PresetId presetId, Locale userLocale) {
         PersistenceManager persistenceManager = new PersistenceManagerImpl("jdbc:h2:mem:" + UUID.randomUUID(), null, null);
-        CachingDiceEvaluator cachingDiceEvaluator = new CachingDiceEvaluator((minExcl, maxIncl) -> minExcl + 1, 1000, 0, 10_000, true);
+        CachingDiceEvaluator cachingDiceEvaluator = new CachingDiceEvaluator((minExcl, maxIncl) -> minExcl + 1);
         CustomDiceCommand customDiceCommand = new CustomDiceCommand(persistenceManager, cachingDiceEvaluator);
         CustomParameterCommand customParameterCommand = new CustomParameterCommand(persistenceManager, cachingDiceEvaluator);
         SumCustomSetCommand sumCustomSetCommand = new SumCustomSetCommand(persistenceManager, cachingDiceEvaluator);

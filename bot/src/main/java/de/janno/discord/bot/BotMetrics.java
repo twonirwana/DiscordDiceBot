@@ -37,6 +37,7 @@ public class BotMetrics {
     private final static String METRIC_UUID_BUTTON_PREFIX = "uuidButtonEvent";
     private final static String METRIC_SLASH_PREFIX = "slashEvent";
     private final static String METRIC_SLASH_HELP_PREFIX = "slashHelpEvent";
+    private final static String METRIC_PRESET_PREFIX = "preset";
     private final static String METRIC_IMAGE_RESULT_PREFIX = "imageResult";
     private final static String METRIC_USE_IMAGE_RESULT_PREFIX = "useImageResult";
     private final static String METRIC_AUTOCOMPLETE_VALID_PREFIX = "autoCompleteValid";
@@ -45,7 +46,6 @@ public class BotMetrics {
     private final static String METRIC_USE_ALIAS_PREFIX = "useAlias";
     private final static String METRIC_ANSWER_FORMAT_PREFIX = "answerFormat";
     private final static String METRIC_DICE_PARSER_SYSTEM_PREFIX = "diceParserSystem";
-    private final static String CONFIG_TAG = "config";
     private final static String COMMAND_TAG = "command";
     private final static String UUID_USAGE_TAG = "uuidUsage";
     private final static String CACHE_TAG = "cache";
@@ -97,8 +97,8 @@ public class BotMetrics {
     }
 
 
-    public static void incrementButtonMetricCounter(@NonNull String commandName, @NonNull String configString) {
-        globalRegistry.counter(METRIC_PREFIX + METRIC_BUTTON_PREFIX, Tags.of(COMMAND_TAG, commandName, CONFIG_TAG, configString)).increment();
+    public static void incrementButtonMetricCounter(@NonNull String commandName) {
+        globalRegistry.counter(METRIC_PREFIX + METRIC_BUTTON_PREFIX, Tags.of(COMMAND_TAG, commandName)).increment();
     }
 
     public static void incrementLegacyButtonMetricCounter(@NonNull String commandName) {
@@ -109,12 +109,16 @@ public class BotMetrics {
         globalRegistry.counter(METRIC_PREFIX + METRIC_UUID_BUTTON_PREFIX, Tags.of(COMMAND_TAG, commandName, UUID_USAGE_TAG, String.valueOf(hasUUIDinCustomId))).increment();
     }
 
-    public static void incrementSlashStartMetricCounter(@NonNull String commandName, @NonNull String configString) {
-        globalRegistry.counter(METRIC_PREFIX + METRIC_SLASH_PREFIX, Tags.of(COMMAND_TAG, commandName, CONFIG_TAG, configString)).increment();
+    public static void incrementSlashStartMetricCounter(@NonNull String commandName) {
+        globalRegistry.counter(METRIC_PREFIX + METRIC_SLASH_PREFIX, Tags.of(COMMAND_TAG, commandName)).increment();
     }
 
     public static void incrementSlashHelpMetricCounter(@NonNull String commandName) {
         globalRegistry.counter(METRIC_PREFIX + METRIC_SLASH_HELP_PREFIX, Tags.of(COMMAND_TAG, commandName)).increment();
+    }
+
+    public static void incrementPresetMetricCounter(@NonNull String presetName) {
+        globalRegistry.counter(METRIC_PREFIX + METRIC_PRESET_PREFIX, Tags.of(TYPE_TAG, presetName)).increment();
     }
 
     public static void incrementDiceParserSystemCounter(@NonNull DiceParserSystem diceParserSystem) {

@@ -50,7 +50,7 @@ public class AliasRollCommandTest {
             FileUtils.cleanDirectory(cacheDirectory);
         }
         persistenceManager = new PersistenceManagerImpl("jdbc:h2:mem:" + UUID.randomUUID(), null, null);
-        underTest = new AliasRollCommand(persistenceManager, new CachingDiceEvaluator((minExcl, maxIncl) -> 1, 1000, 0, 10_000, true));
+        underTest = new AliasRollCommand(persistenceManager, new CachingDiceEvaluator((minExcl, maxIncl) -> 1));
     }
 
     @ParameterizedTest(name = "{index} locale={0}")

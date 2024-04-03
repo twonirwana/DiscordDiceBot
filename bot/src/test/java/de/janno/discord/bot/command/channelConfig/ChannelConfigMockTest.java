@@ -35,7 +35,7 @@ public class ChannelConfigMockTest {
 
     @Test
     void saveConfigDelete_default() {
-        DirectRollCommand directRollCommand = new DirectRollCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0), 1000, 0, 10_000, true));
+        DirectRollCommand directRollCommand = new DirectRollCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0)));
         ChannelConfigCommand channelConfig = new ChannelConfigCommand(persistenceManager);
 
         SlashEventAdaptorMock slashEvent1 = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()

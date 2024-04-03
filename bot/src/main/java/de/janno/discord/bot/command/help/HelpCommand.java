@@ -33,7 +33,7 @@ public class HelpCommand implements SlashCommand {
 
     @Override
     public @NonNull Mono<Void> handleSlashCommandEvent(@NonNull SlashEventAdaptor event, @NonNull Supplier<UUID> uuidSupplier, @NonNull Locale userLocale) {
-        BotMetrics.incrementSlashStartMetricCounter(getCommandId(), "[]");
+        BotMetrics.incrementSlashStartMetricCounter(getCommandId());
         return event.replyWithEmbedOrMessageDefinition(EmbedOrMessageDefinition.builder()
                 .field(new EmbedOrMessageDefinition.Field(I18n.getMessage("help.quickstart.field.name", userLocale), I18n.getMessage("help.quickstart.field.value", userLocale), false))
                 .field(new EmbedOrMessageDefinition.Field(I18n.getMessage("help.command.field.name", userLocale), I18n.getMessage("help.command.field.value", userLocale), false))

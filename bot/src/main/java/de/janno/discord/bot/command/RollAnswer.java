@@ -4,6 +4,7 @@ import com.google.common.base.Joiner;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.Value;
+import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.InputStream;
@@ -41,11 +42,9 @@ public class RollAnswer {
                 .orElse(null);
 
         return String.format("%s=%s", expression,
-                        Joiner.on(",").skipNulls().join(result, rollDetails, errorMessage, warning, fieldStringList))
+                        Joiner.on(",").skipNulls().join(result, StringUtils.abbreviate(rollDetails, 100), errorMessage, warning, fieldStringList))
                 .replace("\n", " ");
     }
-
-
 
     @Value
     public static class RollResults {

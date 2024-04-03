@@ -103,7 +103,7 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
                                                                                           @NonNull State<StateData> state,
                                                                                           @Nullable Long guildId,
                                                                                           long channelId) {
-        BotMetrics.incrementButtonMetricCounter(COMMAND_NAME, "[" + state.getButtonValue() + "]");
+        BotMetrics.incrementButtonMetricCounter(COMMAND_NAME);
         UUID newConfigUUID = uuidSupplier.get();
 
         final Optional<RpgSystemCommandPreset.PresetId> presetId = getPresetIdFromButton(state.getButtonValue());
@@ -146,6 +146,7 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
                     event.getRequester().toLogString(),
                     state.getButtonValue());
         } else {
+            BotMetrics.incrementPresetMetricCounter(presetId.get().name());
             String commandString = RpgSystemCommandPreset.getCommandString(presetId.get(), event.getRequester().getUserLocal());
             actions.add(Mono.defer(() -> event.createMessageWithoutReference(EmbedOrMessageDefinition.builder()
                             .type(EmbedOrMessageDefinition.Type.MESSAGE)

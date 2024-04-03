@@ -42,7 +42,7 @@ public class ClearCommand implements SlashCommand {
 
     @Override
     public @NonNull Mono<Void> handleSlashCommandEvent(@NonNull SlashEventAdaptor event, @NonNull Supplier<UUID> uuidSupplier, @NonNull Locale userLocal) {
-        BotMetrics.incrementSlashStartMetricCounter(getCommandId(), "[]");
+        BotMetrics.incrementSlashStartMetricCounter(getCommandId());
 
         return event.reply(I18n.getMessage("clear.reply", userLocal), false)
                 .then(Mono.just(persistenceManager.deleteMessageDataForChannel(event.getChannelId()))

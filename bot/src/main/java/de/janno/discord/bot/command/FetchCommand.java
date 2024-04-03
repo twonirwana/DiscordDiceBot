@@ -52,7 +52,7 @@ public class FetchCommand implements SlashCommand {
 
     @Override
     public @NonNull Mono<Void> handleSlashCommandEvent(@NonNull SlashEventAdaptor event, @NonNull Supplier<UUID> uuidSupplier, @NonNull Locale userLocal) {
-        BotMetrics.incrementSlashStartMetricCounter(getCommandId(), "[]");
+        BotMetrics.incrementSlashStartMetricCounter(getCommandId());
         long fetchDelayMs = io.avaje.config.Config.getLong("command.fetch.delayMs", 60_000);
         Long oldestMessageIdWaitingToDeleted = MessageDeletionHelper.getMessageWaitingToBeDeleted(event.getChannelId()).stream()
                 .min(Comparator.comparing(Function.identity()))
