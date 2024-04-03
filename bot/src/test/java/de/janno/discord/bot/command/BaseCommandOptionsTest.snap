@@ -645,6 +645,30 @@ de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption[poly
       "value": "red_and_white"
     },
     {
+      "name": "blau_und_weiß",
+      "value": "blue_and_white"
+    },
+    {
+      "name": "grün_und_weiß",
+      "value": "green_and_white"
+    },
+    {
+      "name": "grau_und_weiß",
+      "value": "grey_and_white"
+    },
+    {
+      "name": "orange_und_weiß",
+      "value": "orange_and_white"
+    },
+    {
+      "name": "lila_und_weiß",
+      "value": "purple_and_white"
+    },
+    {
+      "name": "gelb_und_weiß",
+      "value": "yellow_and_white"
+    },
+    {
       "name": "none",
       "value": "none"
     }
@@ -657,6 +681,30 @@ de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption[poly
     {
       "name": "red_and_white",
       "value": "red_and_white"
+    },
+    {
+      "name": "blue_and_white",
+      "value": "blue_and_white"
+    },
+    {
+      "name": "green_and_white",
+      "value": "green_and_white"
+    },
+    {
+      "name": "grey_and_white",
+      "value": "grey_and_white"
+    },
+    {
+      "name": "orange_and_white",
+      "value": "orange_and_white"
+    },
+    {
+      "name": "purple_and_white",
+      "value": "purple_and_white"
+    },
+    {
+      "name": "yellow_and_white",
+      "value": "yellow_and_white"
     },
     {
       "name": "none",
@@ -673,6 +721,30 @@ de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption[poly
       "value": "red_and_white"
     },
     {
+      "name": "bleu_et_blanc",
+      "value": "blue_and_white"
+    },
+    {
+      "name": "vert_et_blanc",
+      "value": "green_and_white"
+    },
+    {
+      "name": "gris_et_blanc",
+      "value": "grey_and_white"
+    },
+    {
+      "name": "orange_et_blanc",
+      "value": "orange_and_white"
+    },
+    {
+      "name": "violet_et_blanc",
+      "value": "purple_and_white"
+    },
+    {
+      "name": "jaune_et_blanc",
+      "value": "yellow_and_white"
+    },
+    {
       "name": "none",
       "value": "none"
     }
@@ -685,6 +757,30 @@ de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption[poly
     {
       "name": "vermelho_e_branco",
       "value": "red_and_white"
+    },
+    {
+      "name": "azul_e_branco",
+      "value": "blue_and_white"
+    },
+    {
+      "name": "verde_e_branco",
+      "value": "green_and_white"
+    },
+    {
+      "name": "cinza_e_branco",
+      "value": "grey_and_white"
+    },
+    {
+      "name": "laranja_e_branco",
+      "value": "orange_and_white"
+    },
+    {
+      "name": "roxo_e_branco",
+      "value": "purple_and_white"
+    },
+    {
+      "name": "amarelo_e_branco",
+      "value": "yellow_and_white"
     },
     {
       "name": "none",
