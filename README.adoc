@@ -199,9 +199,15 @@ No image will be shown.
 
 ==== polyhedral_3d
 
-image:image/3d_red_and_white.png[image,600]
+image:image/polyhedral_3d_red_and_white.png[image,600]
+image:image/polyhedral_3d_blue_and_white.png[image,600]
+image:image/polyhedral_3d_green_and_white.png[image,600]
+image:image/polyhedral_3d_grey_and_white.png[image,600]
+image:image/polyhedral_3d_orange_and_white.png[image,600]
+image:image/polyhedral_3d_purple_and_white.png[image,600]
+image:image/polyhedral_3d_yellow_and_white.png[image,600]
 
-Valid for d4, d6, d10, d8, d12, d20, d100 and the only supported color is: `red_and_white`
+Valid for d4, d6, d10, d8, d12, d20, d100 and the supported colors are: `red_and_white`, `blue_and_white`,`green_and_white`, `grey_and_white`, `orange_and_white`, `purple_and_white`, `yellow_and_white`.
 
 ==== fate
 
