@@ -134,6 +134,7 @@ public class QuickstartCommand implements SlashCommand {
             final Optional<RpgSystemCommandPreset.PresetId> presetIdOptional = getPresetId(systemId, userLocal);
             if (presetIdOptional.isPresent()) {
                 final RpgSystemCommandPreset.PresetId presetId = presetIdOptional.get();
+                BotMetrics.incrementPresetMetricCounter(presetId.name());
                 BotMetrics.incrementSlashStartMetricCounter(getCommandId());
                 EmbedOrMessageDefinition commandAndMessageDefinition = rpgSystemCommandPreset.createMessage(presetId, newConfigUUID, guildId, channelId, userLocal);
                 String commandString = RpgSystemCommandPreset.getCommandString(presetId, userLocal);

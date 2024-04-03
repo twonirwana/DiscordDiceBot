@@ -37,6 +37,7 @@ public class BotMetrics {
     private final static String METRIC_UUID_BUTTON_PREFIX = "uuidButtonEvent";
     private final static String METRIC_SLASH_PREFIX = "slashEvent";
     private final static String METRIC_SLASH_HELP_PREFIX = "slashHelpEvent";
+    private final static String METRIC_PRESET_PREFIX = "preset";
     private final static String METRIC_IMAGE_RESULT_PREFIX = "imageResult";
     private final static String METRIC_USE_IMAGE_RESULT_PREFIX = "useImageResult";
     private final static String METRIC_AUTOCOMPLETE_VALID_PREFIX = "autoCompleteValid";
@@ -114,6 +115,10 @@ public class BotMetrics {
 
     public static void incrementSlashHelpMetricCounter(@NonNull String commandName) {
         globalRegistry.counter(METRIC_PREFIX + METRIC_SLASH_HELP_PREFIX, Tags.of(COMMAND_TAG, commandName)).increment();
+    }
+
+    public static void incrementPresetMetricCounter(@NonNull String presetName) {
+        globalRegistry.counter(METRIC_PREFIX + METRIC_PRESET_PREFIX, Tags.of(TYPE_TAG, presetName)).increment();
     }
 
     public static void incrementDiceParserSystemCounter(@NonNull DiceParserSystem diceParserSystem) {
