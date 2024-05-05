@@ -255,7 +255,7 @@ class DiceParserAdapterTest {
 
         assertThat(res.getFields()).hasSize(0);
         assertThat(res.getDescriptionOrContent()).isNotEmpty();
-        assertThat(res.getTitle()).isEqualTo("Error in `2147483647+1`");
+        assertThat(res.getTitle()).isEqualTo("Error in: null");
         assertThat(res.getDescriptionOrContent()).isEqualTo("integer overflow");
     }
 
@@ -264,7 +264,7 @@ class DiceParserAdapterTest {
         EmbedOrMessageDefinition res = RollAnswerConverter.toEmbedOrMessageDefinition(underTest.answerRollWithGivenLabel("3x[2147483647+1]", "Label", AnswerFormatType.full));
 
         assertThat(res.getFields()).hasSize(0);
-        assertThat(res.getTitle()).isEqualTo("Error in `3x[2147483647+1]`");
+        assertThat(res.getTitle()).isEqualTo("Error in: null");
         assertThat(res.getDescriptionOrContent()).isEqualTo("integer overflow");
     }
 

@@ -125,7 +125,7 @@ public class HiddenRollCommandMockTest {
 
         assertThat(hiddenRollCommandEvent.getActions()).containsExactlyInAnyOrder(
                 "reply: commandString\n" +
-                        "The following expression is invalid: `d`. The error is: Operator d has right associativity but the right value was: empty. Use `/r expression:help` to get more information on how to use the command.");
+                        "The following expression is invalid: __d__. The error is: Operator d has right associativity but the right value was: empty. Use `/r expression:help` to get more information on how to use the command.");
     }
 
     @Test

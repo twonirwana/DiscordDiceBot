@@ -176,7 +176,7 @@ public class DirectRollCommand implements SlashCommand {
     private Mono<Void> replyValidationMessage(@NonNull SlashEventAdaptor event, @NonNull String validationMessage, @NonNull String commandString) {
         log.info("{} Validation message: {} for {}", event.getRequester().toLogString(),
                 validationMessage,
-                commandString);
+                commandString.replace("\n", ""));
         return event.reply(String.format("%s\n%s", commandString, validationMessage), true);
     }
 

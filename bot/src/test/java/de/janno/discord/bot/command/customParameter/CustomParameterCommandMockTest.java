@@ -143,7 +143,9 @@ public class CustomParameterCommandMockTest {
 
     @Test
     void slash_start_directRoll() {
-        CustomParameterCommand underTest = new CustomParameterCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator((min, max) -> max));
+        CustomParameterCommand underTest = new CustomParameterCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(
+                (min, max) -> max)
+        );
 
         SlashEventAdaptorMock slashEvent = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
                 .name("start")

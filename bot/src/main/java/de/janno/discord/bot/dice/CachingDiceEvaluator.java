@@ -14,6 +14,8 @@ import io.micrometer.core.instrument.Tags;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.function.BiFunction;
+
 import static io.micrometer.core.instrument.Metrics.globalRegistry;
 
 @Slf4j
@@ -22,6 +24,11 @@ public class CachingDiceEvaluator {
     private final NumberSupplier numberSupplier;
     private LoadingCache<String, RollerOrError> diceRollerCache;
     private DiceEvaluator diceEvaluator;
+
+    //todo remove
+    public CachingDiceEvaluator(BiFunction<Integer, Integer, Integer> numberSupplier) {
+        this((minExcl, maxIncl, dieId) -> numberSupplier.apply(minExcl, maxIncl));
+    }
 
     public CachingDiceEvaluator(NumberSupplier numberSupplier) {
         this.numberSupplier = numberSupplier;
@@ -64,8 +71,10 @@ public class CachingDiceEvaluator {
                             Roller roller = diceEvaluator.buildRollSupplier(expression);
                             roller.roll();
                             return new RollerOrError(expression, roller, true, null);
-                        } catch (ExpressionException | ArithmeticException e) {
-                            return new RollerOrError(expression, null, false, e.getMessage());
+                        } catch (ExpressionException e) {
+                            String errorLocation = DiceEvaluatorAdapter.getErrorLocationString(expression, e.getExpressionPosition());
+                            //todo full expression or errorLocation
+                            return new RollerOrError(errorLocation, null, false, e.getMessage());
                         }
                     }
                 });

@@ -22,7 +22,7 @@ public class RollAnswerConverter {
         if (rollAnswer.getErrorMessage() != null) {
             if (type == EmbedOrMessageDefinition.Type.EMBED) {
                 return EmbedOrMessageDefinition.builder()
-                        .shortedTitle("Error in `%s`".formatted(rollAnswer.getExpression()))
+                        .shortedTitle("Error in: %s".formatted(rollAnswer.getErrorLocation()))
                         .shortedDescription(rollAnswer.getErrorMessage())
                         .type(type)
                         .build();

@@ -26,8 +26,9 @@ class RollAnswerConverterTest {
                 Arguments.of(RollAnswer.builder()
                         .answerFormatType(AnswerFormatType.full)
                         .expression("2d6=")
+                        .errorLocation("__d__")
                         .errorMessage("error")
-                        .build(), "Error in `2d6=`", "error", EmbedOrMessageDefinition.Type.EMBED, ImmutableList.of(), false),
+                        .build(), "Error in __d__", "error", EmbedOrMessageDefinition.Type.EMBED, ImmutableList.of(), false),
                 Arguments.of(RollAnswer.builder()
                         .answerFormatType(AnswerFormatType.full)
                         .expression("2d6=")
@@ -76,8 +77,9 @@ class RollAnswerConverterTest {
                 Arguments.of(RollAnswer.builder()
                         .answerFormatType(AnswerFormatType.without_expression)
                         .expression("2d6=")
+                        .errorLocation("__d__")
                         .errorMessage("error")
-                        .build(), "Error in `2d6=`", "error", EmbedOrMessageDefinition.Type.EMBED, ImmutableList.of(), false),
+                        .build(), "Error in __d__", "error", EmbedOrMessageDefinition.Type.EMBED, ImmutableList.of(), false),
                 Arguments.of(RollAnswer.builder()
                         .answerFormatType(AnswerFormatType.without_expression)
                         .expression("2d6=")
@@ -127,7 +129,8 @@ class RollAnswerConverterTest {
                         .answerFormatType(AnswerFormatType.only_dice)
                         .expression("2d6=")
                         .errorMessage("error")
-                        .build(), "Error in `2d6=`", "error", EmbedOrMessageDefinition.Type.EMBED, ImmutableList.of(), false),
+                        .errorLocation("__d__")
+                        .build(), "Error in __d__", "error", EmbedOrMessageDefinition.Type.EMBED, ImmutableList.of(), false),
                 Arguments.of(RollAnswer.builder()
                         .answerFormatType(AnswerFormatType.only_dice)
                         .expression("2d6=")

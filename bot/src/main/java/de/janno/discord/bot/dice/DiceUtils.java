@@ -2,6 +2,7 @@ package de.janno.discord.bot.dice;
 
 
 import com.google.common.collect.ImmutableList;
+import de.janno.evaluator.dice.DieId;
 import de.janno.evaluator.dice.ExpressionException;
 import de.janno.evaluator.dice.random.GivenNumberSupplier;
 import de.janno.evaluator.dice.random.NumberSupplier;
@@ -15,6 +16,8 @@ import java.util.stream.IntStream;
 public class DiceUtils {
     public static final String MINUS = "−";
     private final NumberSupplier numberSupplier;
+
+    private final DieId EMPTY_DIE_ID = DieId.of(0, "", 0, 0, 0);
 
     public DiceUtils() {
         numberSupplier = new RandomNumberSupplier();
@@ -58,7 +61,7 @@ public class DiceUtils {
 
     public int rollDice(int diceSides) {
         try {
-            return numberSupplier.get(0, diceSides);
+            return numberSupplier.get(0, diceSides, EMPTY_DIE_ID);
         } catch (ExpressionException e) {
             throw new RuntimeException(e);
         }

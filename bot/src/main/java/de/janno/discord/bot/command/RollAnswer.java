@@ -28,6 +28,8 @@ public class RollAnswer {
     @Nullable
     String errorMessage;
     @Nullable
+    String errorLocation;
+    @Nullable
     List<RollResults> multiRollResults;
     @Nullable
     Supplier<? extends InputStream> image;

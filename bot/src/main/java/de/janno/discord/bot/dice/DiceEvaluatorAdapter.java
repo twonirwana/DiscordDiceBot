@@ -8,10 +8,7 @@ import de.janno.discord.bot.command.AnswerFormatType;
 import de.janno.discord.bot.command.RollAnswer;
 import de.janno.discord.bot.dice.image.DiceStyleAndColor;
 import de.janno.discord.bot.dice.image.ImageResultCreator;
-import de.janno.evaluator.dice.DiceEvaluator;
-import de.janno.evaluator.dice.ExpressionException;
-import de.janno.evaluator.dice.Roll;
-import de.janno.evaluator.dice.RollElement;
+import de.janno.evaluator.dice.*;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
@@ -22,6 +19,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import static de.janno.discord.bot.dice.DiceSystemAdapter.LABEL_DELIMITER;
 
@@ -73,18 +71,33 @@ public class DiceEvaluatorAdapter {
         return "```\n" + DiceEvaluator.getHelpText() + "\n```";
     }
 
+    public static String getErrorLocationString(String expression, ExpressionPosition expressionPosition) {
+        final int contextSize = 6;
+        expression = expression.trim();
+        int location = expressionPosition.getStartInc();
+        String errorValue = expressionPosition.getValue();
+        int leftContextStart = Math.max(location - contextSize, 0);
+        int rightContextEnd = Math.min(location + errorValue.length() + contextSize, expression.length());
+        String left = expression.substring(leftContextStart, location);
+        String right = expression.substring(location + errorValue.length(), rightContextEnd);
+        return String.format("%s__%s__%s",
+                left.isBlank() ? "" : ("`" + left + "`"),
+                errorValue,
+                right.isBlank() ? "" : ("`" + right + "`")
+        );
+    }
+
     public Optional<String> validateDiceExpression(String expression, String helpCommand, @NonNull Locale userLocale) {
         RollerOrError rollerOrError = cachingDiceEvaluator.get(expression);
         if (rollerOrError.isValid()) {
             return Optional.empty();
         } else {
-            if(!Strings.isNullOrEmpty(expression)){
+            if (!Strings.isNullOrEmpty(expression)) {
                 BotMetrics.incrementInvalidExpression(expression);
             }
-            return Optional.of(I18n.getMessage("diceEvaluator.reply.validation.invalid", userLocale, expression, rollerOrError.getErrorMessage(), helpCommand));
+            return Optional.of(I18n.getMessage("diceEvaluator.reply.validation.invalid", userLocale, rollerOrError.getExpression(), rollerOrError.getErrorMessage(), helpCommand));
         }
     }
-
 
     public Optional<String> shortValidateDiceExpressionWitOptionalLabel(@NonNull String expressionWithOptionalLabel, @NonNull Locale userLocale) {
         String label;
@@ -107,11 +120,13 @@ public class DiceEvaluatorAdapter {
         if (diceExpression.isBlank()) {
             return Optional.of(I18n.getMessage("diceEvaluator.reply.validation.blankExpression", userLocale, expressionWithOptionalLabel));
         }
-        RollerOrError rollerOrError = cachingDiceEvaluator.get(expressionWithOptionalLabel);
+        RollerOrError rollerOrError = cachingDiceEvaluator.get(diceExpression);
         if (rollerOrError.isValid()) {
             return Optional.empty();
         } else {
             //no invalid metric increment because this is called by each letter typed
+
+            //todo maybe add the rollerOrError.getExpression to geht a better errorLocation
             return Optional.of(rollerOrError.getErrorMessage());
         }
     }
@@ -133,11 +148,11 @@ public class DiceEvaluatorAdapter {
 
             final List<Roll> rolls;
             if (rollerOrError.getRoller() != null) {
-                rolls = rollerOrError.getRoller().roll();
+                rolls = rollerOrError.getRoller().roll().getRolls();
             } else {
                 return RollAnswer.builder()
                         .answerFormatType(answerFormatType)
-                        .expression(expression)
+                        .expression(rollerOrError.getErrorMessage())
                         .errorMessage(rollerOrError.getErrorMessage())
                         .build();
             }
@@ -152,11 +167,11 @@ public class DiceEvaluatorAdapter {
                         .image(diceImage)
                         .warning(getWarningFromRoll(rolls, userLocale))
                         .result(getResult(rolls.getFirst(), sumUp))
-                        .rollDetails(rolls.getFirst().getRandomElementsString())
+                        .rollDetails(getRandomElementsString(rolls.getFirst().getRandomElementsInRoll()))
                         .build();
             } else {
                 List<RollAnswer.RollResults> multiRollResults = rolls.stream()
-                        .map(r -> new RollAnswer.RollResults(r.getExpression(), getResult(r, sumUp), r.getRandomElementsString()))
+                        .map(r -> new RollAnswer.RollResults(r.getExpression(), getResult(r, sumUp), getRandomElementsString(r.getRandomElementsInRoll())))
                         .collect(ImmutableList.toImmutableList());
                 return RollAnswer.builder()
                         .answerFormatType(answerFormatType)
@@ -166,11 +181,12 @@ public class DiceEvaluatorAdapter {
                         .multiRollResults(multiRollResults)
                         .build();
             }
-        } catch (ExpressionException | ArithmeticException e) {
+        } catch (ExpressionException e) {
             return RollAnswer.builder()
                     .answerFormatType(answerFormatType)
                     .expression(expression)
                     .errorMessage(e.getMessage())
+                    .errorLocation(getErrorLocationString(expression, e.getExpressionPosition()))
                     .build();
         }
     }
@@ -180,10 +196,17 @@ public class DiceEvaluatorAdapter {
     }
 
     private String getWarningFromRoll(List<Roll> rolls, Locale userLocale) {
-        if (rolls.stream().allMatch(r -> r.getRandomElementsInRoll().getRandomElements().isEmpty())) {
+        if (rolls.stream().allMatch(r -> r.getRandomElementsInRoll().isEmpty())) {
             return I18n.getMessage("diceEvaluator.reply.warning.noRandomElement", userLocale);
         }
         return null;
+    }
+
+    private String getRandomElementsString(ImmutableList<ImmutableList<RandomElement>> randomElementsInRoll) {
+        if (randomElementsInRoll.size() == 1) {
+            return randomElementsInRoll.getFirst().stream().map(r -> r.getRollElement().toStringWithColorAndTag()).toList().toString();
+        }
+        return randomElementsInRoll.stream().map(l -> l.stream().map(r -> r.getRollElement().toStringWithColorAndTag()).toList().toString()).collect(Collectors.joining(" "));
     }
 
 }
