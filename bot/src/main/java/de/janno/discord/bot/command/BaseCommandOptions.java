@@ -1,5 +1,6 @@
 package de.janno.discord.bot.command;
 
+import de.janno.discord.bot.AnswerInteractionType;
 import de.janno.discord.bot.I18n;
 import de.janno.discord.bot.dice.image.DiceImageStyle;
 import de.janno.discord.connector.api.AutoCompleteAnswer;
@@ -72,6 +73,27 @@ public final class BaseCommandOptions {
                             .build())
                     .collect(Collectors.toList()))
             .build();
+    public static final String ANSWER_INTERACTION_OPTION_NAME = "answer_interaction";
+    public static final CommandDefinitionOption ANSWER_INTERACTION_COMMAND_OPTION = CommandDefinitionOption.builder()
+            .name(ANSWER_INTERACTION_OPTION_NAME)
+            .nameLocales(I18n.allNoneEnglishMessagesNames("base.option.answer_interaction.name"))
+            .description(I18n.getMessage("base.option.answer_interaction.description", Locale.ENGLISH))
+            .descriptionLocales(I18n.allNoneEnglishMessagesDescriptions("base.option.answer_interaction.description"))
+            .type(CommandDefinitionOption.Type.STRING)
+            .choices(Arrays.stream(AnswerInteractionType.values())
+                    .map(answerInteractionType -> CommandDefinitionOptionChoice.builder()
+                            .name(answerInteractionType.name())
+                            .nameLocales(I18n.allNoneEnglishMessagesChoices("base.option.answer_interaction.%s.name".formatted(answerInteractionType.name())))
+                            .value(answerInteractionType.name())
+                            .build())
+                    .collect(Collectors.toList()))
+            .build();
+    public static AnswerInteractionType getAnswerInteractionFromStartCommandOption(@NonNull CommandInteractionOption options) {
+        return options.getStringSubOptionWithName(ANSWER_INTERACTION_OPTION_NAME)
+                .map(AnswerInteractionType::valueOf)
+                .orElse(AnswerInteractionType.NONE);
+    }
+
     public static final String TARGET_CHANNEL_OPTION_NAME = "target_channel";
     public static final CommandDefinitionOption ANSWER_TARGET_CHANNEL_COMMAND_OPTION = CommandDefinitionOption.builder()
             .name(TARGET_CHANNEL_OPTION_NAME)

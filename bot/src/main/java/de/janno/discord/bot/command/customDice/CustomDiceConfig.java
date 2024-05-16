@@ -2,6 +2,7 @@ package de.janno.discord.bot.command.customDice;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import de.janno.discord.bot.AnswerInteractionType;
 import de.janno.discord.bot.ResultImage;
 import de.janno.discord.bot.command.AnswerFormatType;
 import de.janno.discord.bot.command.ButtonIdLabelAndDiceExpression;
@@ -34,7 +35,8 @@ public class CustomDiceConfig extends Config {
                             @JsonProperty("answerFormatType") AnswerFormatType answerFormatType,
                             @JsonProperty("resultImage") ResultImage resultImage,
                             @JsonProperty("diceImageStyle") DiceStyleAndColor diceStyleAndColor,
-                            @JsonProperty("configLocale") Locale configLocale) {
+                            @JsonProperty("configLocale") Locale configLocale
+                         ) {
         super(answerTargetChannelId, answerFormatType, resultImage, diceStyleAndColor, configLocale);
         this.buttonIdLabelAndDiceExpressions = buttonIdLabelAndDiceExpressions;
         this.diceParserSystem = Optional.ofNullable(diceParserSystem).orElse(DiceParserSystem.DICEROLL_PARSER);

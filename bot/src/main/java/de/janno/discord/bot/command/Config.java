@@ -41,7 +41,8 @@ public class Config implements Serializable {
                   @JsonProperty("answerFormatType") AnswerFormatType answerFormatType,
                   @JsonProperty("resultImage") ResultImage resultImage,
                   @JsonProperty("diceImageStyle") DiceStyleAndColor diceStyleAndColor,
-                  @JsonProperty("configLocale") Locale configLocale) {
+                  @JsonProperty("configLocale") Locale configLocale
+    ) {
         this.answerTargetChannelId = answerTargetChannelId;
         this.answerFormatType = Optional.ofNullable(answerFormatType).orElse(AnswerFormatType.full);
 
