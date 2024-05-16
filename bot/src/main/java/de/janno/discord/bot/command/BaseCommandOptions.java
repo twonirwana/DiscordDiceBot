@@ -88,12 +88,6 @@ public final class BaseCommandOptions {
                             .build())
                     .collect(Collectors.toList()))
             .build();
-    public static AnswerInteractionType getAnswerInteractionFromStartCommandOption(@NonNull CommandInteractionOption options) {
-        return options.getStringSubOptionWithName(ANSWER_INTERACTION_OPTION_NAME)
-                .map(AnswerInteractionType::valueOf)
-                .orElse(AnswerInteractionType.NONE);
-    }
-
     public static final String TARGET_CHANNEL_OPTION_NAME = "target_channel";
     public static final CommandDefinitionOption ANSWER_TARGET_CHANNEL_COMMAND_OPTION = CommandDefinitionOption.builder()
             .name(TARGET_CHANNEL_OPTION_NAME)
@@ -102,6 +96,12 @@ public final class BaseCommandOptions {
             .descriptionLocales(I18n.allNoneEnglishMessagesDescriptions("base.option.target_channel.description"))
             .type(CommandDefinitionOption.Type.CHANNEL)
             .build();
+
+    public static AnswerInteractionType getAnswerInteractionFromStartCommandOption(@NonNull CommandInteractionOption options) {
+        return options.getStringSubOptionWithName(ANSWER_INTERACTION_OPTION_NAME)
+                .map(AnswerInteractionType::valueOf)
+                .orElse(AnswerInteractionType.NONE);
+    }
 
     public static List<AutoCompleteAnswer> autoCompleteColorOption(AutoCompleteRequest autoCompleteRequest, Locale userLocale) {
         if (!DICE_IMAGE_COLOR_OPTION_NAME.equals(autoCompleteRequest.getFocusedOptionName())) {
