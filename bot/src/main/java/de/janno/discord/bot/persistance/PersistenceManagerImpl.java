@@ -455,7 +455,7 @@ public class PersistenceManagerImpl implements PersistenceManager {
                                          AND MD.CREATION_DATE < ?
                                          AND MD.MESSAGE_ID < ?
                                          order by MD.CREATION_DATE desc
-                                              """
+                                         """
                          )) {
                 preparedStatement.setLong(1, channelId);
                 preparedStatement.setTimestamp(2, Timestamp.valueOf(since));

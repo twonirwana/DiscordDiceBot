@@ -760,7 +760,7 @@ class SumCustomSetCommandTest {
                 - expression: "+2d4"
                   label: "Bonus"
                 lockedForUserName: "testUser"
-                 """);
+                """);
 
         ConfigAndState<SumCustomSetConfig, SumCustomSetStateDataV2> configAndState = underTest.deserializeAndUpdateState(messageConfigDTO, messageDataDTO, "1_button", "testUser");
         assertThat(configAndState.getConfig()).isEqualTo(new SumCustomSetConfig(123L, List.of(
@@ -803,7 +803,7 @@ class SumCustomSetCommandTest {
                 - expression: "+2d4"
                   label: "Bonus"
                 lockedForUserName: "testUser"
-                 """);
+                """);
 
         ConfigAndState<SumCustomSetConfig, SumCustomSetStateDataV2> configAndState = underTest.deserializeAndUpdateState(messageConfigDTO, messageDataDTO, "1_button", "testUser");
         assertThat(configAndState.getConfig()).isEqualTo(new SumCustomSetConfig(123L, List.of(
@@ -850,7 +850,7 @@ class SumCustomSetCommandTest {
                 - expression: "+2d4"
                   label: "Bonus"
                 lockedForUserName: "testUser"
-                 """);
+                """);
 
         ConfigAndState<SumCustomSetConfig, SumCustomSetStateDataV2> configAndState = underTest.deserializeAndUpdateState(messageConfigDTO, messageDataDTO, "1_button", "testUser");
         assertThat(configAndState.getConfig()).isEqualTo(new SumCustomSetConfig(123L, List.of(
@@ -895,7 +895,7 @@ class SumCustomSetCommandTest {
                 - expression: "+2d4"
                   label: "Bonus"
                 lockedForUserName: "testUser"
-                 """);
+                """);
 
         ConfigAndState<SumCustomSetConfig, SumCustomSetStateDataV2> configAndState = underTest.deserializeAndUpdateState(messageConfigDTO, messageDataDTO, "1_button", "testUser");
         assertThat(configAndState.getConfig()).isEqualTo(new SumCustomSetConfig(123L, List.of(

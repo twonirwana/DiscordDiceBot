@@ -11,7 +11,6 @@ import de.janno.discord.bot.command.customParameter.CustomParameterConfig;
 import de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommand;
 import de.janno.discord.bot.command.sumCustomSet.SumCustomSetConfig;
 import de.janno.discord.bot.dice.CachingDiceEvaluator;
-import de.janno.discord.bot.dice.DiceParserSystem;
 import de.janno.discord.bot.dice.image.DiceImageStyle;
 import de.janno.discord.bot.dice.image.DiceStyleAndColor;
 import de.janno.discord.bot.persistance.PersistenceManager;
@@ -53,7 +52,7 @@ class FetchCommandMockTest {
     }
 
     @AfterEach
-    void cleanup(){
+    void cleanup() {
         io.avaje.config.Config.setProperty("command.delayMessageDataDeletionMs", "10");
         io.avaje.config.Config.setProperty("command.fetch.delayMs", "0");
     }
@@ -121,7 +120,7 @@ class FetchCommandMockTest {
         customDiceCommand.createMessageConfig(uuid0, fetchEvent.getGuildId(), fetchEvent.getChannelId(), config)
                 .ifPresent(m -> persistenceManager.saveMessageConfig(m));
         customDiceCommand.createEmptyMessageData(uuid0, fetchEvent.getGuildId(), fetchEvent.getChannelId(), -2L);
-        MessageDeletionHelper.deleteMessageDataWithDelay(persistenceManager,fetchEvent.getChannelId(),-2).subscribe();
+        MessageDeletionHelper.deleteMessageDataWithDelay(persistenceManager, fetchEvent.getChannelId(), -2).subscribe();
 
         customDiceCommand.createEmptyMessageData(uuid0, fetchEvent.getGuildId(), fetchEvent.getChannelId(), -1L);
         Thread.sleep(100);
@@ -142,7 +141,7 @@ class FetchCommandMockTest {
         customDiceCommand.createMessageConfig(uuid0, fetchEvent.getGuildId(), fetchEvent.getChannelId(), config)
                 .ifPresent(m -> persistenceManager.saveMessageConfig(m));
         customDiceCommand.createEmptyMessageData(uuid0, fetchEvent.getGuildId(), fetchEvent.getChannelId(), -2L);
-        MessageDeletionHelper.deleteMessageDataWithDelay(persistenceManager,fetchEvent.getChannelId(),-2).subscribe();
+        MessageDeletionHelper.deleteMessageDataWithDelay(persistenceManager, fetchEvent.getChannelId(), -2).subscribe();
 
         customDiceCommand.createEmptyMessageData(uuid0, fetchEvent.getGuildId(), fetchEvent.getChannelId(), -1L);
 
@@ -168,7 +167,7 @@ class FetchCommandMockTest {
         sumCustomSetCommand.createMessageConfig(uuid0, fetchEvent.getGuildId(), fetchEvent.getChannelId(), config)
                 .ifPresent(m -> persistenceManager.saveMessageConfig(m));
         customDiceCommand.createEmptyMessageData(uuid0, fetchEvent.getGuildId(), fetchEvent.getChannelId(), -2L);
-        MessageDeletionHelper.deleteMessageDataWithDelay(persistenceManager,fetchEvent.getChannelId(),-2).subscribe();
+        MessageDeletionHelper.deleteMessageDataWithDelay(persistenceManager, fetchEvent.getChannelId(), -2).subscribe();
 
         sumCustomSetCommand.createEmptyMessageData(uuid0, fetchEvent.getGuildId(), fetchEvent.getChannelId(), -1L);
 
@@ -192,7 +191,7 @@ class FetchCommandMockTest {
         customParameterCommand.createMessageConfig(uuid0, fetchEvent.getGuildId(), fetchEvent.getChannelId(), config)
                 .ifPresent(m -> persistenceManager.saveMessageConfig(m));
         customParameterCommand.createEmptyMessageData(uuid0, fetchEvent.getGuildId(), fetchEvent.getChannelId(), -2L);
-        MessageDeletionHelper.deleteMessageDataWithDelay(persistenceManager,fetchEvent.getChannelId(),-2).subscribe();
+        MessageDeletionHelper.deleteMessageDataWithDelay(persistenceManager, fetchEvent.getChannelId(), -2).subscribe();
 
         customParameterCommand.createEmptyMessageData(uuid0, fetchEvent.getGuildId(), fetchEvent.getChannelId(), -1L);
 

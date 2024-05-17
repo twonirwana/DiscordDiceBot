@@ -6,7 +6,6 @@ import com.google.common.collect.ImmutableList;
 import de.janno.discord.bot.command.AnswerFormatType;
 import de.janno.discord.bot.command.ConfigAndState;
 import de.janno.discord.bot.dice.CachingDiceEvaluator;
-import de.janno.discord.bot.dice.DiceParserSystem;
 import de.janno.discord.bot.dice.image.DiceImageStyle;
 import de.janno.discord.bot.dice.image.DiceStyleAndColor;
 import de.janno.discord.bot.persistance.*;
@@ -109,7 +108,7 @@ class CustomParameterCommandTest {
 
     @BeforeEach
     void setup() {
-        underTest = new CustomParameterCommand(persistenceManager,  new CachingDiceEvaluator(new RandomNumberSupplier(0)));
+        underTest = new CustomParameterCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0)));
 
     }
 
@@ -159,7 +158,7 @@ class CustomParameterCommandTest {
     @ParameterizedTest(name = "{index} config={0} -> {1}")
     @MethodSource("generateValidationData")
     void validate(String slashExpression, String expectedResult) {
-        underTest = new CustomParameterCommand(persistenceManager,  new CachingDiceEvaluator((minExcl, maxIncl) -> maxIncl));
+        underTest = new CustomParameterCommand(persistenceManager, new CachingDiceEvaluator((minExcl, maxIncl) -> maxIncl));
 
         Optional<String> res = underTest.getStartOptionsValidationMessage(CommandInteractionOption.builder()
                 .name("start")
