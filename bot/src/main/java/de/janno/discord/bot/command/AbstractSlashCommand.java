@@ -19,7 +19,7 @@ import de.janno.discord.connector.api.slash.CommandDefinitionOption;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nullable;
 import reactor.core.publisher.Mono;
 
 import java.util.*;

@@ -31,14 +31,14 @@ public class CustomParameterConfig extends Config {
     public CustomParameterConfig(
             @JsonProperty("answerTargetChannelId") Long answerTargetChannelId,
             @JsonProperty("baseExpression") @NonNull String baseExpression,
-            @JsonProperty("diceParserSystem") DiceParserSystem diceParserSystem,
             @JsonProperty("answerFormatType") AnswerFormatType answerFormatType,
             @JsonProperty("resultImage") ResultImage resultImage,
             @JsonProperty("diceImageStyle") DiceStyleAndColor diceStyleAndColor,
             @JsonProperty("configLocale") Locale configLocale) {
         super(answerTargetChannelId, answerFormatType, resultImage, diceStyleAndColor, configLocale);
         this.baseExpression = baseExpression;
-        this.diceParserSystem = diceParserSystem == null ? DiceParserSystem.DICEROLL_PARSER : diceParserSystem;
+        //todo handle legacy config
+        this.diceParserSystem = DiceParserSystem.DICE_EVALUATOR;
         this.parameters = CustomParameterCommand.createParameterListFromBaseExpression(baseExpression);
     }
 

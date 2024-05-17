@@ -30,7 +30,6 @@ public class CustomDiceConfig extends Config {
     @JsonCreator
     public CustomDiceConfig(@JsonProperty("answerTargetChannelId") Long answerTargetChannelId,
                             @JsonProperty("buttonIdLabelAndDiceExpressions") @NonNull List<ButtonIdLabelAndDiceExpression> buttonIdLabelAndDiceExpressions,
-                            @JsonProperty("diceParserSystem") DiceParserSystem diceParserSystem,
                             @JsonProperty("answerFormatType") AnswerFormatType answerFormatType,
                             @JsonProperty("resultImage") ResultImage resultImage,
                             @JsonProperty("diceImageStyle") DiceStyleAndColor diceStyleAndColor,
@@ -38,7 +37,8 @@ public class CustomDiceConfig extends Config {
     ) {
         super(answerTargetChannelId, answerFormatType, resultImage, diceStyleAndColor, configLocale);
         this.buttonIdLabelAndDiceExpressions = buttonIdLabelAndDiceExpressions;
-        this.diceParserSystem = Optional.ofNullable(diceParserSystem).orElse(DiceParserSystem.DICEROLL_PARSER);
+        //todo handle legacy config
+        this.diceParserSystem = DiceParserSystem.DICE_EVALUATOR;
     }
 
     @Override

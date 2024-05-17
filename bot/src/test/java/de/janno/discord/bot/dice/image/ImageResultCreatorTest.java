@@ -8,7 +8,7 @@ import de.janno.evaluator.dice.ExpressionException;
 import de.janno.evaluator.dice.Roll;
 import de.janno.evaluator.dice.random.GivenNumberSupplier;
 import org.apache.commons.io.FileUtils;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nullable;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;

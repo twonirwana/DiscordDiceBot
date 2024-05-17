@@ -7,7 +7,9 @@ import com.google.common.collect.ImmutableList;
 import de.janno.discord.bot.I18n;
 import de.janno.discord.bot.command.*;
 import de.janno.discord.bot.command.channelConfig.AliasHelper;
-import de.janno.discord.bot.dice.*;
+import de.janno.discord.bot.dice.CachingDiceEvaluator;
+import de.janno.discord.bot.dice.DiceEvaluatorAdapter;
+import de.janno.discord.bot.dice.DiceSystemAdapter;
 import de.janno.discord.bot.dice.image.DiceImageStyle;
 import de.janno.discord.bot.dice.image.DiceStyleAndColor;
 import de.janno.discord.bot.persistance.Mapper;
@@ -22,8 +24,8 @@ import de.janno.discord.connector.api.slash.CommandDefinitionOption;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.Nullable;
 
+import javax.annotation.Nullable;
 import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -48,14 +50,10 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
     private final static Pattern ENDS_WITH_DOUBLE_SEMICOLUMN_PATTERN = Pattern.compile(".*;\\s*;\\s*$", Pattern.DOTALL);
     private final DiceSystemAdapter diceSystemAdapter;
 
-    public SumCustomSetCommand(PersistenceManager persistenceManager, CachingDiceEvaluator cachingDiceEvaluator) {
-        this(persistenceManager, new DiceParser(), cachingDiceEvaluator);
-    }
 
-    @VisibleForTesting
-    public SumCustomSetCommand(PersistenceManager persistenceManager, Dice dice, CachingDiceEvaluator cachingDiceEvaluator) {
+    public SumCustomSetCommand(PersistenceManager persistenceManager, CachingDiceEvaluator cachingDiceEvaluator) {
         super(persistenceManager);
-        this.diceSystemAdapter = new DiceSystemAdapter(cachingDiceEvaluator, dice);
+        this.diceSystemAdapter = new DiceSystemAdapter(cachingDiceEvaluator);
     }
 
     public static SumCustomSetConfig deserializeConfig(MessageConfigDTO messageConfigDTO) {
@@ -363,7 +361,6 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
         final String buttonsOptionValue = options.getStringSubOptionWithName(BUTTONS_COMMAND_OPTIONS_NAME).orElseThrow();
         final List<ButtonIdLabelAndDiceExpression> buttons = ButtonHelper.parseString(buttonsOptionValue);
         final boolean alwaysSumResults = options.getBooleanSubOptionWithName(ALWAYS_SUM_RESULTS_COMMAND_OPTIONS_NAME).orElse(true);
-        final DiceParserSystem diceParserSystem = DiceParserSystem.DICE_EVALUATOR;
         final Long answerTargetChannelId = BaseCommandOptions.getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null);
         final AnswerFormatType answerType = BaseCommandOptions.getAnswerTypeFromStartCommandOption(options).orElse(defaultAnswerFormat());
         final boolean hideExpressionInAnswer = options.getBooleanSubOptionWithName(HIDE_EXPRESSION_IN_ANSWER_OPTIONS_NAME).orElse(true);
@@ -372,7 +369,6 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
         final String postfix = options.getStringSubOptionWithName(POSTFIX_OPTIONS_NAME).orElse(null);
         return new SumCustomSetConfig(answerTargetChannelId,
                 buttons,
-                diceParserSystem,
                 alwaysSumResults,
                 hideExpressionInAnswer,
                 systemButtonNewLine,

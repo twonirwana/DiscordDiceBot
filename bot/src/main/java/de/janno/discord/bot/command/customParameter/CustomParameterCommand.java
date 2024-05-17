@@ -8,7 +8,9 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import de.janno.discord.bot.I18n;
 import de.janno.discord.bot.command.*;
-import de.janno.discord.bot.dice.*;
+import de.janno.discord.bot.dice.CachingDiceEvaluator;
+import de.janno.discord.bot.dice.DiceEvaluatorAdapter;
+import de.janno.discord.bot.dice.DiceSystemAdapter;
 import de.janno.discord.bot.dice.image.DiceImageStyle;
 import de.janno.discord.bot.dice.image.DiceStyleAndColor;
 import de.janno.discord.bot.persistance.Mapper;
@@ -25,9 +27,8 @@ import lombok.NonNull;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
+import javax.annotation.Nullable;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -54,21 +55,17 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     private final static Pattern BUTTON_RANGE_PATTERN = Pattern.compile(RANGE_DELIMITER + "(-?\\d+)<=>(-?\\d+)");
     private final static String BUTTON_VALUE_DELIMITER = "/";
     private final static Pattern BUTTON_VALUE_PATTERN = Pattern.compile(RANGE_DELIMITER + "(.+" + BUTTON_VALUE_DELIMITER + ".+)}", Pattern.DOTALL);
-    private final static Pattern PARAMETER_OPTION_EMPTY_PATTERN = Pattern.compile(RANGE_DELIMITER + ".*" + BUTTON_VALUE_DELIMITER + "\\s*" + BUTTON_VALUE_DELIMITER +  ".*}", Pattern.DOTALL);
+    private final static Pattern PARAMETER_OPTION_EMPTY_PATTERN = Pattern.compile(RANGE_DELIMITER + ".*" + BUTTON_VALUE_DELIMITER + "\\s*" + BUTTON_VALUE_DELIMITER + ".*}", Pattern.DOTALL);
     private static final String STATE_DATA_TYPE_ID = "CustomParameterStateDataV2";
     private static final String STATE_DATA_TYPE_ID_LEGACY = "CustomParameterStateData";
     private static final String CONFIG_TYPE_ID = "CustomParameterConfig";
     private final static Pattern LABEL_MATCHER = Pattern.compile("@[^}]+$", Pattern.DOTALL);
     private final DiceSystemAdapter diceSystemAdapter;
 
-    public CustomParameterCommand(PersistenceManager persistenceManager, CachingDiceEvaluator cachingDiceEvaluator) {
-        this(persistenceManager, new DiceParser(), cachingDiceEvaluator);
-    }
-
     @VisibleForTesting
-    public CustomParameterCommand(PersistenceManager persistenceManager, Dice dice, CachingDiceEvaluator cachingDiceEvaluator) {
+    public CustomParameterCommand(PersistenceManager persistenceManager, CachingDiceEvaluator cachingDiceEvaluator) {
         super(persistenceManager);
-        this.diceSystemAdapter = new DiceSystemAdapter(cachingDiceEvaluator, dice);
+        this.diceSystemAdapter = new DiceSystemAdapter(cachingDiceEvaluator);
     }
 
     private static @NonNull String getNextParameterExpression(@NonNull String expression) {
@@ -333,7 +330,6 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
         AnswerFormatType answerType = BaseCommandOptions.getAnswerTypeFromStartCommandOption(options).orElse(defaultAnswerFormat());
         return new CustomParameterConfig(answerTargetChannelId,
                 baseExpression,
-                DiceParserSystem.DICE_EVALUATOR,
                 answerType,
                 null,
                 new DiceStyleAndColor(
@@ -699,14 +695,18 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
 
     @Value
     static class ButtonLabelIdAndValue {
-        @NonNull String value;
-        @NonNull CustomParameterCommand.ButtonLabelAndId buttonLabelAndId;
+        @NonNull
+        String value;
+        @NonNull
+        CustomParameterCommand.ButtonLabelAndId buttonLabelAndId;
     }
 
     @Value
     static class ButtonLabelAndId {
-        @NonNull String label;
-        @NonNull String id;
+        @NonNull
+        String label;
+        @NonNull
+        String id;
         boolean directRoll;
     }
 
@@ -716,7 +716,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
         String customId;
         @NonNull
         State<CustomParameterStateData> state;
-        @NotNull
+        @NonNull
         List<ButtonLabelAndId> buttonIdLabelAndDiceExpressions;
     }
 

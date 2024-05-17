@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.NonNull;
 import lombok.Value;
-import org.jetbrains.annotations.NotNull;
 
 @Value
 public class Alias {
@@ -13,7 +12,7 @@ public class Alias {
     @NonNull String value;
 
     @JsonCreator
-    public Alias(@NotNull @JsonProperty("name") String name, @NotNull @JsonProperty("value") String value) {
+    public Alias(@NonNull @JsonProperty("name") String name, @NonNull @JsonProperty("value") String value) {
         this.name = name;
         this.value = value;
     }

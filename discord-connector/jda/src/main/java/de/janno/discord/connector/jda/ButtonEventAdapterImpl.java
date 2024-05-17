@@ -18,7 +18,7 @@ import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.utils.AttachmentProxy;
 import org.apache.commons.lang3.StringUtils;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nullable;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.ParallelFlux;
 

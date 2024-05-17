@@ -1,7 +1,7 @@
 package de.janno.discord.bot.persistance;
 
 import lombok.NonNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nullable;
 
 import java.time.LocalDateTime;
 import java.util.Optional;

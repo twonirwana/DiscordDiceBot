@@ -8,9 +8,8 @@ import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.Tag;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
+import javax.annotation.Nullable;
 import javax.sql.DataSource;
 import java.sql.*;
 import java.time.LocalDateTime;
@@ -306,7 +305,7 @@ public class PersistenceManagerImpl implements PersistenceManager {
     }
 
     @Override
-    public @NonNull Optional<ChannelConfigDTO> getChannelConfig(long channelId, @NotNull String configClassId) {
+    public @NonNull Optional<ChannelConfigDTO> getChannelConfig(long channelId, @NonNull String configClassId) {
         Stopwatch stopwatch = Stopwatch.createStarted();
 
         try (Connection con = databaseConnector.getConnection()) {
@@ -329,7 +328,7 @@ public class PersistenceManagerImpl implements PersistenceManager {
     }
 
     @Override
-    public @NonNull Optional<ChannelConfigDTO> getUserChannelConfig(long channelId, long userId, @NotNull String configClassId) {
+    public @NonNull Optional<ChannelConfigDTO> getUserChannelConfig(long channelId, long userId, @NonNull String configClassId) {
         Stopwatch stopwatch = Stopwatch.createStarted();
         Preconditions.checkArgument(!Objects.equals(userId, USER_ID_NULL_PLACEHOLDER), "The userId is not to be allowed to be %d".formatted(USER_ID_NULL_PLACEHOLDER));
 

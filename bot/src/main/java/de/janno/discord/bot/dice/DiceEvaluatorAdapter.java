@@ -11,7 +11,7 @@ import de.janno.discord.bot.dice.image.ImageResultCreator;
 import de.janno.evaluator.dice.*;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nullable;
 
 import java.io.InputStream;
 import java.math.BigDecimal;

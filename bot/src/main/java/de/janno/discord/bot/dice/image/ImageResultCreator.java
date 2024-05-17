@@ -14,7 +14,7 @@ import de.janno.evaluator.dice.RollElement;
 import io.micrometer.core.instrument.Gauge;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nullable;
 
 import javax.imageio.ImageIO;
 import java.awt.*;

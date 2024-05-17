@@ -7,7 +7,7 @@ import de.janno.discord.bot.command.StateData;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.Value;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nullable;
 
 import java.util.List;
 import java.util.Optional;

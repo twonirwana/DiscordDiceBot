@@ -10,8 +10,6 @@ import de.janno.discord.bot.command.AnswerFormatType;
 import de.janno.discord.bot.command.ButtonIdLabelAndDiceExpression;
 import de.janno.discord.bot.command.channelConfig.ChannelConfigCommand;
 import de.janno.discord.bot.dice.CachingDiceEvaluator;
-import de.janno.discord.bot.dice.DiceParser;
-import de.janno.discord.bot.dice.DiceParserSystem;
 import de.janno.discord.bot.dice.image.DiceImageStyle;
 import de.janno.discord.bot.dice.image.DiceStyleAndColor;
 import de.janno.discord.bot.persistance.PersistenceManager;
@@ -42,11 +40,11 @@ public class SumCustomSetCommandMockTest {
 
     @Test
     void roll_fullExpression() {
-        SumCustomSetCommand underTest = new SumCustomSetCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0)));
+        SumCustomSetCommand underTest = new SumCustomSetCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0)));
 
 
         SumCustomSetConfig config = new SumCustomSetConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "+1d6", false, false),
-                new ButtonIdLabelAndDiceExpression("2_button", "bonus", "+2", false, false)), DiceParserSystem.DICE_EVALUATOR, true, false, false, null, null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
+                new ButtonIdLabelAndDiceExpression("2_button", "bonus", "+2", false, false)), true, false, false, null, null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
         ButtonEventAdaptorMockFactory<SumCustomSetConfig, SumCustomSetStateDataV2> factory = new ButtonEventAdaptorMockFactory<>("sum_custom_set", underTest, config, persistenceManager, false);
 
         ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("1_button");
@@ -64,11 +62,11 @@ public class SumCustomSetCommandMockTest {
 
     @Test
     void roll_full() {
-        SumCustomSetCommand underTest = new SumCustomSetCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0)));
+        SumCustomSetCommand underTest = new SumCustomSetCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0)));
 
 
         SumCustomSetConfig config = new SumCustomSetConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "+1d6", false, false),
-                new ButtonIdLabelAndDiceExpression("2_button", "bonus", "+2", false, false)), DiceParserSystem.DICE_EVALUATOR, true, true, false, null, null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
+                new ButtonIdLabelAndDiceExpression("2_button", "bonus", "+2", false, false)), true, true, false, null, null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
         ButtonEventAdaptorMockFactory<SumCustomSetConfig, SumCustomSetStateDataV2> factory = new ButtonEventAdaptorMockFactory<>("sum_custom_set", underTest, config, persistenceManager, false);
 
         ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("1_button");
@@ -86,12 +84,12 @@ public class SumCustomSetCommandMockTest {
 
     @Test
     void directRoll() {
-        SumCustomSetCommand underTest = new SumCustomSetCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0)));
+        SumCustomSetCommand underTest = new SumCustomSetCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0)));
 
 
         SumCustomSetConfig config = new SumCustomSetConfig(null, ImmutableList.of(
                 new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "+1d6", false, true),
-                new ButtonIdLabelAndDiceExpression("2_button", "bonus", "+2", true, false)), DiceParserSystem.DICE_EVALUATOR, true, true, false, null, null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
+                new ButtonIdLabelAndDiceExpression("2_button", "bonus", "+2", true, false)), true, true, false, null, null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
         ButtonEventAdaptorMockFactory<SumCustomSetConfig, SumCustomSetStateDataV2> factory = new ButtonEventAdaptorMockFactory<>("sum_custom_set", underTest, config, persistenceManager, false);
 
         ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("2_button");
@@ -106,12 +104,12 @@ public class SumCustomSetCommandMockTest {
 
     @Test
     void roll_disabled() {
-        SumCustomSetCommand underTest = new SumCustomSetCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0)));
+        SumCustomSetCommand underTest = new SumCustomSetCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0)));
 
 
         SumCustomSetConfig config = new SumCustomSetConfig(null, ImmutableList.of(
                 new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "+1d6", false, true),
-                new ButtonIdLabelAndDiceExpression("2_button", "bonus", "2+", true, false)), DiceParserSystem.DICE_EVALUATOR, true, true, false, null, null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
+                new ButtonIdLabelAndDiceExpression("2_button", "bonus", "2+", true, false)), true, true, false, null, null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
         ButtonEventAdaptorMockFactory<SumCustomSetConfig, SumCustomSetStateDataV2> factory = new ButtonEventAdaptorMockFactory<>("sum_custom_set", underTest, config, persistenceManager, false);
 
         ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("2_button");
@@ -122,12 +120,12 @@ public class SumCustomSetCommandMockTest {
 
     @Test
     void directRoll_disabled() {
-        SumCustomSetCommand underTest = new SumCustomSetCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0)));
+        SumCustomSetCommand underTest = new SumCustomSetCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0)));
 
 
         SumCustomSetConfig config = new SumCustomSetConfig(null, ImmutableList.of(
                 new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "*1d6", false, true),
-                new ButtonIdLabelAndDiceExpression("2_button", "bonus", "2*", true, false)), DiceParserSystem.DICE_EVALUATOR, true, true, false, null, null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
+                new ButtonIdLabelAndDiceExpression("2_button", "bonus", "2*", true, false)), true, true, false, null, null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
         ButtonEventAdaptorMockFactory<SumCustomSetConfig, SumCustomSetStateDataV2> factory = new ButtonEventAdaptorMockFactory<>("sum_custom_set", underTest, config, persistenceManager, false);
 
         ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("2_button");
@@ -138,7 +136,7 @@ public class SumCustomSetCommandMockTest {
 
     @Test
     void slash_start_multiLine() {
-        SumCustomSetCommand underTest = new SumCustomSetCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0)));
+        SumCustomSetCommand underTest = new SumCustomSetCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0)));
 
         SlashEventAdaptorMock slashEvent = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
                 .name("start")
@@ -164,7 +162,7 @@ public class SumCustomSetCommandMockTest {
 
     @Test
     void slash_start_directRoll() {
-        SumCustomSetCommand underTest = new SumCustomSetCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0)));
+        SumCustomSetCommand underTest = new SumCustomSetCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0)));
 
         SlashEventAdaptorMock slashEvent = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
                 .name("start")
@@ -194,11 +192,11 @@ public class SumCustomSetCommandMockTest {
 
     @Test
     void roll_fullGerman() {
-        SumCustomSetCommand underTest = new SumCustomSetCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0)));
+        SumCustomSetCommand underTest = new SumCustomSetCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0)));
 
 
         SumCustomSetConfig config = new SumCustomSetConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "+1d6", false, false),
-                new ButtonIdLabelAndDiceExpression("2_button", "bonus", "+2", false, false)), DiceParserSystem.DICE_EVALUATOR, true, false, false, null, null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.GERMAN);
+                new ButtonIdLabelAndDiceExpression("2_button", "bonus", "+2", false, false)), true, false, false, null, null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.GERMAN);
         ButtonEventAdaptorMockFactory<SumCustomSetConfig, SumCustomSetStateDataV2> factory = new ButtonEventAdaptorMockFactory<>("sum_custom_set", underTest, config, persistenceManager, false);
 
         ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("1_button");
@@ -215,11 +213,11 @@ public class SumCustomSetCommandMockTest {
 
     @Test
     void roll_full_ptBR() {
-        SumCustomSetCommand underTest = new SumCustomSetCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0)));
+        SumCustomSetCommand underTest = new SumCustomSetCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0)));
 
 
         SumCustomSetConfig config = new SumCustomSetConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "+1d6", false, false),
-                new ButtonIdLabelAndDiceExpression("2_button", "bonus", "+2", false, false)), DiceParserSystem.DICE_EVALUATOR, true, false, false, null, null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.of("pt", "BR"));
+                new ButtonIdLabelAndDiceExpression("2_button", "bonus", "+2", false, false)), true, false, false, null, null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.of("pt", "BR"));
         ButtonEventAdaptorMockFactory<SumCustomSetConfig, SumCustomSetStateDataV2> factory = new ButtonEventAdaptorMockFactory<>("sum_custom_set", underTest, config, persistenceManager, false);
 
         ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("1_button");
@@ -236,11 +234,11 @@ public class SumCustomSetCommandMockTest {
 
     @Test
     void roll_compact() {
-        SumCustomSetCommand underTest = new SumCustomSetCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0)));
+        SumCustomSetCommand underTest = new SumCustomSetCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0)));
 
 
         SumCustomSetConfig config = new SumCustomSetConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "+1d6", false, false),
-                new ButtonIdLabelAndDiceExpression("2_button", "bonus", "+2", false, false)), DiceParserSystem.DICE_EVALUATOR, true, false, false, null, null, AnswerFormatType.compact, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
+                new ButtonIdLabelAndDiceExpression("2_button", "bonus", "+2", false, false)), true, false, false, null, null, AnswerFormatType.compact, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
         ButtonEventAdaptorMockFactory<SumCustomSetConfig, SumCustomSetStateDataV2> factory = new ButtonEventAdaptorMockFactory<>("sum_custom_set", underTest, config, persistenceManager, false);
 
         ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("1_button");
@@ -257,11 +255,11 @@ public class SumCustomSetCommandMockTest {
 
     @Test
     void roll_minimal() {
-        SumCustomSetCommand underTest = new SumCustomSetCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0)));
+        SumCustomSetCommand underTest = new SumCustomSetCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0)));
 
 
         SumCustomSetConfig config = new SumCustomSetConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "+1d6", false, false),
-                new ButtonIdLabelAndDiceExpression("2_button", "bonus", "+2", false, false)), DiceParserSystem.DICE_EVALUATOR, true, false, false, null, null, AnswerFormatType.minimal, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
+                new ButtonIdLabelAndDiceExpression("2_button", "bonus", "+2", false, false)), true, false, false, null, null, AnswerFormatType.minimal, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
         ButtonEventAdaptorMockFactory<SumCustomSetConfig, SumCustomSetStateDataV2> factory = new ButtonEventAdaptorMockFactory<>("sum_custom_set", underTest, config, persistenceManager, false);
 
         ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("1_button");
@@ -278,11 +276,11 @@ public class SumCustomSetCommandMockTest {
 
     @Test
     void roll_locked() {
-        SumCustomSetCommand underTest = new SumCustomSetCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0)));
+        SumCustomSetCommand underTest = new SumCustomSetCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0)));
 
 
         SumCustomSetConfig config = new SumCustomSetConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "+1d6", false, false),
-                new ButtonIdLabelAndDiceExpression("2_button", "bonus", "+2", false, false)), DiceParserSystem.DICE_EVALUATOR, true, false, false, null, null, AnswerFormatType.minimal, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
+                new ButtonIdLabelAndDiceExpression("2_button", "bonus", "+2", false, false)), true, false, false, null, null, AnswerFormatType.minimal, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
         ButtonEventAdaptorMockFactory<SumCustomSetConfig, SumCustomSetStateDataV2> factory = new ButtonEventAdaptorMockFactory<>("sum_custom_set", underTest, config, persistenceManager, false);
 
         ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("1_button");
@@ -302,11 +300,11 @@ public class SumCustomSetCommandMockTest {
 
     @Test
     void clear() {
-        SumCustomSetCommand underTest = new SumCustomSetCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0)));
+        SumCustomSetCommand underTest = new SumCustomSetCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0)));
 
 
         SumCustomSetConfig config = new SumCustomSetConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "+1d6", false, false),
-                new ButtonIdLabelAndDiceExpression("2_button", "bonus", "+2", false, false)), DiceParserSystem.DICE_EVALUATOR, true, false, false, null, null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
+                new ButtonIdLabelAndDiceExpression("2_button", "bonus", "+2", false, false)), true, false, false, null, null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
         ButtonEventAdaptorMockFactory<SumCustomSetConfig, SumCustomSetStateDataV2> factory = new ButtonEventAdaptorMockFactory<>("sum_custom_set", underTest, config, persistenceManager, false);
 
         ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("1_button");
@@ -320,11 +318,11 @@ public class SumCustomSetCommandMockTest {
 
     @Test
     void backBack() {
-        SumCustomSetCommand underTest = new SumCustomSetCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0)));
+        SumCustomSetCommand underTest = new SumCustomSetCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0)));
 
 
         SumCustomSetConfig config = new SumCustomSetConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "+1d6", false, false),
-                new ButtonIdLabelAndDiceExpression("2_button", "bonus", "+2", false, false)), DiceParserSystem.DICE_EVALUATOR, true, false, false, null, null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
+                new ButtonIdLabelAndDiceExpression("2_button", "bonus", "+2", false, false)), true, false, false, null, null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
         ButtonEventAdaptorMockFactory<SumCustomSetConfig, SumCustomSetStateDataV2> factory = new ButtonEventAdaptorMockFactory<>("sum_custom_set", underTest, config, persistenceManager, false);
 
         ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("1_button");
@@ -341,11 +339,11 @@ public class SumCustomSetCommandMockTest {
 
     @Test
     void roll_pinned() {
-        SumCustomSetCommand underTest = new SumCustomSetCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0)));
+        SumCustomSetCommand underTest = new SumCustomSetCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0)));
 
 
         SumCustomSetConfig config = new SumCustomSetConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "+1d6", false, false),
-                new ButtonIdLabelAndDiceExpression("2_button", "bonus", "+2", false, false)), DiceParserSystem.DICE_EVALUATOR, true, false, false, null, null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
+                new ButtonIdLabelAndDiceExpression("2_button", "bonus", "+2", false, false)), true, false, false, null, null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
         ButtonEventAdaptorMockFactory<SumCustomSetConfig, SumCustomSetStateDataV2> factory = new ButtonEventAdaptorMockFactory<>("sum_custom_set", underTest, config, persistenceManager, true);
 
         ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("1_button");
@@ -362,11 +360,11 @@ public class SumCustomSetCommandMockTest {
 
     @Test
     void roll_answerChannel() {
-        SumCustomSetCommand underTest = new SumCustomSetCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0)));
+        SumCustomSetCommand underTest = new SumCustomSetCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0)));
 
 
         SumCustomSetConfig config = new SumCustomSetConfig(2L, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "+1d6", false, false),
-                new ButtonIdLabelAndDiceExpression("2_button", "bonus", "+2", false, false)), DiceParserSystem.DICE_EVALUATOR, true, false, false, null, null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
+                new ButtonIdLabelAndDiceExpression("2_button", "bonus", "+2", false, false)), true, false, false, null, null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
         ButtonEventAdaptorMockFactory<SumCustomSetConfig, SumCustomSetStateDataV2> factory = new ButtonEventAdaptorMockFactory<>("sum_custom_set", underTest, config, persistenceManager, false);
 
         ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("1_button");
@@ -383,11 +381,11 @@ public class SumCustomSetCommandMockTest {
 
     @Test
     void roll_pinnedTwice() {
-        SumCustomSetCommand underTest = new SumCustomSetCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0)));
+        SumCustomSetCommand underTest = new SumCustomSetCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0)));
 
 
         SumCustomSetConfig config = new SumCustomSetConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "+1d6", false, false),
-                new ButtonIdLabelAndDiceExpression("2_button", "bonus", "+2", false, false)), DiceParserSystem.DICE_EVALUATOR, true, false, false, null, null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
+                new ButtonIdLabelAndDiceExpression("2_button", "bonus", "+2", false, false)), true, false, false, null, null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
         ButtonEventAdaptorMockFactory<SumCustomSetConfig, SumCustomSetStateDataV2> factory = new ButtonEventAdaptorMockFactory<>("sum_custom_set", underTest, config, persistenceManager, true);
 
         ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("1_button");
@@ -410,11 +408,11 @@ public class SumCustomSetCommandMockTest {
 
     @Test
     void roll_answerChannelTwice() {
-        SumCustomSetCommand underTest = new SumCustomSetCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0)));
+        SumCustomSetCommand underTest = new SumCustomSetCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0)));
 
 
         SumCustomSetConfig config = new SumCustomSetConfig(2L, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "+1d6", false, false),
-                new ButtonIdLabelAndDiceExpression("2_button", "bonus", "+2", false, false)), DiceParserSystem.DICE_EVALUATOR, true, false, false, null, null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
+                new ButtonIdLabelAndDiceExpression("2_button", "bonus", "+2", false, false)), true, false, false, null, null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
         ButtonEventAdaptorMockFactory<SumCustomSetConfig, SumCustomSetStateDataV2> factory = new ButtonEventAdaptorMockFactory<>("sum_custom_set", underTest, config, persistenceManager, false);
 
         ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("1_button");
@@ -437,7 +435,7 @@ public class SumCustomSetCommandMockTest {
 
     @Test
     void channelAlias() {
-        SumCustomSetCommand underTest = new SumCustomSetCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0)));
+        SumCustomSetCommand underTest = new SumCustomSetCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0)));
 
 
         ChannelConfigCommand channelConfig = new ChannelConfigCommand(persistenceManager);
@@ -454,7 +452,7 @@ public class SumCustomSetCommandMockTest {
         channelConfig.handleSlashCommandEvent(slashEvent1, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"), Locale.ENGLISH).block();
 
 
-        SumCustomSetConfig config = new SumCustomSetConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Attack", "att", false, false)), DiceParserSystem.DICE_EVALUATOR, true, false, false, null, null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
+        SumCustomSetConfig config = new SumCustomSetConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Attack", "att", false, false)), true, false, false, null, null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
         ButtonEventAdaptorMockFactory<SumCustomSetConfig, SumCustomSetStateDataV2> factory = new ButtonEventAdaptorMockFactory<>("sum_custom_set", underTest, config, persistenceManager, false);
         ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("1_button");
 
@@ -468,7 +466,7 @@ public class SumCustomSetCommandMockTest {
 
     @Test
     void userChannelAlias() {
-        SumCustomSetCommand underTest = new SumCustomSetCommand(persistenceManager, new DiceParser(), new CachingDiceEvaluator(new RandomNumberSupplier(0)));
+        SumCustomSetCommand underTest = new SumCustomSetCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0)));
 
 
         ChannelConfigCommand channelConfig = new ChannelConfigCommand(persistenceManager);
@@ -485,7 +483,7 @@ public class SumCustomSetCommandMockTest {
         channelConfig.handleSlashCommandEvent(slashEvent1, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"), Locale.ENGLISH).block();
 
 
-        SumCustomSetConfig config = new SumCustomSetConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Attack", "att", false, false)), DiceParserSystem.DICE_EVALUATOR, true, false, false, null, null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
+        SumCustomSetConfig config = new SumCustomSetConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Attack", "att", false, false)), true, false, false, null, null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
         ButtonEventAdaptorMockFactory<SumCustomSetConfig, SumCustomSetStateDataV2> factory = new ButtonEventAdaptorMockFactory<>("sum_custom_set", underTest, config, persistenceManager, false);
         ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("1_button");
 

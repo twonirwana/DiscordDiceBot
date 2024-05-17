@@ -18,11 +18,9 @@ public class DiceSystemAdapter {
 
     public final static String LABEL_DELIMITER = "@";
     private final DiceEvaluatorAdapter diceEvaluatorAdapter;
-    private final DiceParserAdapter parserHelper;
 
-    public DiceSystemAdapter(CachingDiceEvaluator cachingDiceEvaluator, Dice dice) {
+    public DiceSystemAdapter(CachingDiceEvaluator cachingDiceEvaluator) {
         this.diceEvaluatorAdapter = new DiceEvaluatorAdapter(cachingDiceEvaluator);
-        this.parserHelper = new DiceParserAdapter(dice);
     }
 
     public static @NonNull String getExpressionFromExpressionWithOptionalLabel(String expressionWithOptionalLabel) {
@@ -40,7 +38,7 @@ public class DiceSystemAdapter {
 
         if (expressionWithOptionalLabel.contains(LABEL_DELIMITER)) {
             String[] split = expressionWithOptionalLabel.split(LABEL_DELIMITER);
-            if(StringUtils.countMatches(expressionWithOptionalLabel, LABEL_DELIMITER) > 1){
+            if (StringUtils.countMatches(expressionWithOptionalLabel, LABEL_DELIMITER) > 1) {
                 return Optional.of(I18n.getMessage("diceEvaluator.reply.validation.toManyAt", userLocale, expressionWithOptionalLabel));
             }
             if (split.length != 2) {
@@ -63,11 +61,7 @@ public class DiceSystemAdapter {
 
     public RollAnswer answerRollWithGivenLabel(String expression, @Nullable String label, boolean sumUp, DiceParserSystem system, AnswerFormatType answerFormatType, DiceStyleAndColor diceStyleAndColor, Locale userLocale) {
         BotMetrics.incrementDiceParserSystemCounter(system);
-        return switch (system) {
-            case DICE_EVALUATOR ->
-                    diceEvaluatorAdapter.answerRollWithGivenLabel(expression, label, sumUp, answerFormatType, diceStyleAndColor, userLocale);
-            case DICEROLL_PARSER -> parserHelper.answerRollWithGivenLabel(expression, label, answerFormatType);
-        };
+        return diceEvaluatorAdapter.answerRollWithGivenLabel(expression, label, sumUp, answerFormatType, diceStyleAndColor, userLocale);
     }
 
     public Optional<String> validateListOfExpressions(List<String> expressions, String helpCommand, DiceParserSystem system, @NonNull Locale userLocale) {
@@ -93,17 +87,12 @@ public class DiceSystemAdapter {
             return validateLabel;
         }
         String diceExpression = DiceSystemAdapter.getExpressionFromExpressionWithOptionalLabel(expressionWithOptionalLabel);
-        return switch (system) {
-            case DICE_EVALUATOR -> diceEvaluatorAdapter.validateDiceExpression(diceExpression, helpCommand, userLocale);
-            case DICEROLL_PARSER -> parserHelper.validateDiceExpression(diceExpression);
-        };
+        return diceEvaluatorAdapter.validateDiceExpression(diceExpression, helpCommand, userLocale);
+
     }
 
     public boolean isValidExpression(String input, DiceParserSystem system) {
-        return switch (system) {
-            case DICE_EVALUATOR -> diceEvaluatorAdapter.validExpression(input);
-            case DICEROLL_PARSER -> parserHelper.validExpression(input);
-        };
+        return diceEvaluatorAdapter.validExpression(input);
     }
 
 }

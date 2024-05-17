@@ -2,7 +2,7 @@ package de.janno.discord.connector.api;
 
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
 import lombok.NonNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nullable;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.ParallelFlux;
 

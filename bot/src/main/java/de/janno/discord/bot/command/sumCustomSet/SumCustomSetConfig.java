@@ -35,7 +35,6 @@ public class SumCustomSetConfig extends Config {
     @JsonCreator
     public SumCustomSetConfig(@JsonProperty("answerTargetChannelId") Long answerTargetChannelId,
                               @JsonProperty("labelAndExpression") @NonNull List<ButtonIdLabelAndDiceExpression> labelAndExpression,
-                              @JsonProperty("diceParserSystem") DiceParserSystem diceParserSystem,
                               @JsonProperty("alwaysSumResult") Boolean alwaysSumResult,
                               @JsonProperty("hideExpressionInStatusAndAnswer") Boolean hideExpressionInStatusAndAnswer,
                               @JsonProperty("systemButtonNewLine") Boolean systemButtonNewLine,
@@ -48,7 +47,8 @@ public class SumCustomSetConfig extends Config {
     ) {
         super(answerTargetChannelId, answerFormatType, resultImage, diceStyleAndColor, configLocale);
         this.labelAndExpression = labelAndExpression;
-        this.diceParserSystem = diceParserSystem == null ? DiceParserSystem.DICEROLL_PARSER : diceParserSystem;
+        //todo handle legacy config
+        this.diceParserSystem = DiceParserSystem.DICE_EVALUATOR;
         this.alwaysSumResult = alwaysSumResult == null || alwaysSumResult;
         this.hideExpressionInStatusAndAnswer = Optional.ofNullable(hideExpressionInStatusAndAnswer).orElse(false);
         this.systemButtonNewLine = Optional.ofNullable(systemButtonNewLine).orElse(false);

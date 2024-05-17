@@ -4,7 +4,7 @@ import de.janno.discord.bot.persistance.PersistenceManager;
 import de.janno.discord.connector.api.DiscordAdapter;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nullable;
 import reactor.core.publisher.Mono;
 
 import java.time.Duration;

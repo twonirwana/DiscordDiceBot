@@ -6,7 +6,10 @@ import com.google.common.base.Strings;
 import de.janno.discord.bot.I18n;
 import de.janno.discord.bot.command.*;
 import de.janno.discord.bot.command.channelConfig.AliasHelper;
-import de.janno.discord.bot.dice.*;
+import de.janno.discord.bot.dice.CachingDiceEvaluator;
+import de.janno.discord.bot.dice.DiceEvaluatorAdapter;
+import de.janno.discord.bot.dice.DiceParserSystem;
+import de.janno.discord.bot.dice.DiceSystemAdapter;
 import de.janno.discord.bot.dice.image.DiceImageStyle;
 import de.janno.discord.bot.dice.image.DiceStyleAndColor;
 import de.janno.discord.bot.persistance.Mapper;
@@ -19,8 +22,8 @@ import de.janno.discord.connector.api.slash.CommandDefinitionOption;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.Nullable;
 
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -36,13 +39,8 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
     private final DiceSystemAdapter diceSystemAdapter;
 
     public CustomDiceCommand(PersistenceManager persistenceManager, CachingDiceEvaluator cachingDiceEvaluator) {
-        this(persistenceManager, new DiceParser(), cachingDiceEvaluator);
-    }
-
-    @VisibleForTesting
-    public CustomDiceCommand(PersistenceManager persistenceManager, Dice dice, CachingDiceEvaluator cachingDiceEvaluator) {
         super(persistenceManager);
-        this.diceSystemAdapter = new DiceSystemAdapter(cachingDiceEvaluator, dice);
+        this.diceSystemAdapter = new DiceSystemAdapter(cachingDiceEvaluator);
     }
 
     public static CustomDiceConfig deserializeConfig(@NonNull MessageConfigDTO messageConfigDTO) {
@@ -135,7 +133,6 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
                                                @NonNull Locale userLocale) {
         return new CustomDiceConfig(channelId,
                 buttons,
-                DiceParserSystem.DICE_EVALUATOR,
                 answerFormatType,
                 null,
                 new DiceStyleAndColor(diceImageStyle, defaultDiceColor),
