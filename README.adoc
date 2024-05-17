@@ -4,7 +4,7 @@
 https://www.gnu.org/licenses/agpl-3.0[image:https://img.shields.io/badge/License-AGPL_v3-blue.svg[License: AGPL v3]] https://codecov.io/gh/twonirwana/DiscordDiceBot[image:https://codecov.io/gh/twonirwana/DiscordDiceBot/branch/main/graph/badge.svg?token=OLH7L312D7[codecov]]
 image:https://img.shields.io/github/actions/workflow/status/twonirwana/DiscordDiceBot/codeCov.yml?branch=main[GitHub Workflow Status]
 image:https://img.shields.io/discord/898657305883725834[link="https://discord.gg/e43BsqKpFr"]
-image:https://dcbadge.vercel.app/api/shield/812381127943782502?bot=true&style=flat&theme=clean-inverted[link="https://discord.com/api/oauth2/authorize?client_id=812381127943782502&permissions=274878023680&scope=applications.commands%20bot"]
+image:https://dcbadge.limes.pink/api/shield/812381127943782502?bot=true&style=flat&theme=clean-inverted[link="https://discord.com/api/oauth2/authorize?client_id=812381127943782502&permissions=274878023680&scope=applications.commands%20bot"]
 
 This bot is for rolling dice in discord.
 The bot needs to be configured with a slash command in a channel and then provides a message with buttons.
