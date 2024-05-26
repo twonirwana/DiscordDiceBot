@@ -22,7 +22,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.Locale;
-import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
@@ -109,7 +108,6 @@ public class HiddenDirectRollCommand extends DirectRollCommand implements Compon
                 .parallel()
                 .then();
     }
-
 
 
     protected EmbedOrMessageDefinition getHelpMessage(Locale userLocale) {

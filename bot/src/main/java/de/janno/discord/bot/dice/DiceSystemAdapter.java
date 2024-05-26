@@ -73,7 +73,7 @@ public class DiceSystemAdapter {
             if (startOptionString.contains(BottomCustomIdUtils.CUSTOM_ID_DELIMITER)) {
                 return Optional.of(I18n.getMessage("diceEvaluator.reply.validation.invalidCharacter", userLocale, startOptionString));
             }
-            Optional<String> diceParserValidation = validateDiceExpressionWitOptionalLabel(startOptionString, helpCommand, system, userLocale);
+            Optional<String> diceParserValidation = validateDiceExpressionWitOptionalLabel(startOptionString, helpCommand, userLocale);
             if (diceParserValidation.isPresent()) {
                 return diceParserValidation;
             }
@@ -82,7 +82,7 @@ public class DiceSystemAdapter {
         return Optional.empty();
     }
 
-    public Optional<String> validateDiceExpressionWitOptionalLabel(@NonNull String expressionWithOptionalLabel, String helpCommand, DiceSystem system, @NonNull Locale userLocale) {
+    public Optional<String> validateDiceExpressionWitOptionalLabel(@NonNull String expressionWithOptionalLabel, String helpCommand, @NonNull Locale userLocale) {
         Optional<String> validateLabel = validateLabel(expressionWithOptionalLabel, userLocale);
         if (validateLabel.isPresent()) {
             return validateLabel;
@@ -92,7 +92,7 @@ public class DiceSystemAdapter {
 
     }
 
-    public boolean isValidExpression(String input, DiceSystem system) {
+    public boolean isValidExpression(String input) {
         return diceEvaluatorAdapter.validExpression(input);
     }
 

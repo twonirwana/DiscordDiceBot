@@ -1,7 +1,6 @@
 package de.janno.discord.bot.command;
 
 import com.google.common.base.Joiner;
-import de.janno.discord.bot.AnswerInteractionType;
 import de.janno.discord.bot.command.reroll.DieIdAndValue;
 import lombok.Builder;
 import lombok.NonNull;

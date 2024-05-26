@@ -116,12 +116,6 @@ public abstract class AbstractSlashCommand<C extends Config, S extends StateData
         return BaseCommandOptions.autoCompleteColorOption(autoCompleteRequest, userLocale);
     }
 
-    private @NonNull MessageDataDTO getMessageDataDTOOrCreateNew(@NonNull UUID configId, @Nullable Long guildId, long channelId, long messageId) {
-        Optional<MessageDataDTO> loadedData = persistenceManager.getMessageData(channelId, messageId);
-        //if the messageData is missing we need to create a new one so we know the message exists and we can remove it later, even on concurrent actions
-        return loadedData.orElseGet(() -> createEmptyMessageData(configId, guildId, channelId, messageId));
-    }
-
     /**
      * On the creation of a message an empty state need to be saved so we know the message exists and we can remove it later, even on concurrent actions
      */

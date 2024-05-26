@@ -570,7 +570,6 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
             String expressionWithoutSuffixLabel = removeSuffixLabelFromExpression(expression, label);
             Optional<String> validationMessage = diceSystemAdapter.validateDiceExpressionWitOptionalLabel(expressionWithoutSuffixLabel,
                     "/%s %s".formatted(I18n.getMessage("custom_parameter.name", config.getConfigLocale()), I18n.getMessage("base.option.help", config.getConfigLocale())),
-                    config.getDiceSystem(),
                     config.getConfigLocale());
             if (validationMessage.isPresent()) {
                 return validationMessage.get();

@@ -247,7 +247,7 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
                 .map(List::isEmpty)
                 .orElse(true);
         Set<String> disabledIds = getDisabledButtonIds(config, state, channelId, userId);
-        return Optional.of(createButtonLayout(customUuid, config, !diceSystemAdapter.isValidExpression(expression, config.getDiceSystem()), expressionIsEmpty, disabledIds, config.getConfigLocale()));
+        return Optional.of(createButtonLayout(customUuid, config, !diceSystemAdapter.isValidExpression(expression), expressionIsEmpty, disabledIds, config.getConfigLocale()));
     }
 
     private Set<String> getDisabledButtonIds(@NonNull SumCustomSetConfig config, @Nullable State<SumCustomSetStateDataV2> state, long channelId, @Nullable Long userId) {
@@ -261,7 +261,7 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
                             config.getLabelAndExpression());
                     List<ExpressionAndLabel> diceExpression = Optional.of(updatedState).map(State::getData).map(SumCustomSetStateDataV2::getDiceExpressions).orElse(List.of());
                     String expressionAfterSelection = AliasHelper.getAndApplyAliaseToExpression(channelId, userId, persistenceManager, combineExpressions(diceExpression, config.getPrefix(), config.getPostfix()));
-                    return !diceSystemAdapter.isValidExpression(expressionAfterSelection, config.getDiceSystem());
+                    return !diceSystemAdapter.isValidExpression(expressionAfterSelection);
                 })
                 .map(ButtonIdLabelAndDiceExpression::getButtonId)
                 .collect(Collectors.toSet());

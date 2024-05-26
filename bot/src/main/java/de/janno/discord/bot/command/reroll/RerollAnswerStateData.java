@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import de.janno.discord.bot.command.DieIdDb;
 import de.janno.discord.bot.command.StateData;
-import de.janno.evaluator.dice.DieId;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.Value;
