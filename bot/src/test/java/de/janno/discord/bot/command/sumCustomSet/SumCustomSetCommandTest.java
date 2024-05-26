@@ -2,6 +2,7 @@ package de.janno.discord.bot.command.sumCustomSet;
 
 import au.com.origin.snapshots.Expect;
 import au.com.origin.snapshots.junit5.SnapshotExtension;
+import de.janno.discord.bot.AnswerInteractionType;
 import de.janno.discord.bot.ResultImage;
 import de.janno.discord.bot.command.*;
 import de.janno.discord.bot.dice.CachingDiceEvaluator;
@@ -39,7 +40,7 @@ class SumCustomSetCommandTest {
             new ButtonIdLabelAndDiceExpression("2_button", "3d6", "add 3d6", false, false),
             new ButtonIdLabelAndDiceExpression("3_button", "4", "4", false, false),
             new ButtonIdLabelAndDiceExpression("4_button", "2d10min10", "min10", false, false)
-    ), true, true, false, null, null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
+    ), true, true, false, null, null, AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
 
     private Expect expect;
 
@@ -99,12 +100,12 @@ class SumCustomSetCommandTest {
 
     @Test
     void getButtonMessage() {
-        EmbedOrMessageDefinition res = underTest.createNewButtonMessage(UUID.fromString("00000000-0000-0000-0000-000000000000"), defaultConfig, 1L);
+        EmbedOrMessageDefinition res = underTest.createSlashResponseMessage(UUID.fromString("00000000-0000-0000-0000-000000000000"), defaultConfig, 1L);
         expect.toMatchSnapshot(res);
     }
 
     @Test
-    void createNewButtonMessageWithState() {
+    void createSlashResponseMessageWithState() {
         EmbedOrMessageDefinition res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), defaultConfig, new State<>("roll", new SumCustomSetStateDataV2(List.of(new ExpressionAndLabel("1d6", "1d6")), "user1")), 1L, 2L).orElseThrow();
         expect.toMatchSnapshot(res);
     }
@@ -173,7 +174,7 @@ class SumCustomSetCommandTest {
         assertThat(res).isEqualTo(new SumCustomSetConfig(null, List.of(
                 new ButtonIdLabelAndDiceExpression("1_button", "Label", "1d6", false, false),
                 new ButtonIdLabelAndDiceExpression("2_button", "2d4", "2d4", false, false)
-        ), true, true, false, null, null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_3d, "red_and_white"), Locale.ENGLISH));
+        ), true, true, false, null, null, AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_3d, "red_and_white"), Locale.ENGLISH));
     }
 
     @Test
@@ -191,7 +192,7 @@ class SumCustomSetCommandTest {
         assertThat(res).isEqualTo(new SumCustomSetConfig(null, List.of(
                 new ButtonIdLabelAndDiceExpression("1_button", "Label", "1d6", false, false),
                 new ButtonIdLabelAndDiceExpression("2_button", "2d4", "2d4", false, false)
-        ), true, true, true, null, null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_3d, "red_and_white"), Locale.ENGLISH));
+        ), true, true, true, null, null, AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_3d, "red_and_white"), Locale.ENGLISH));
     }
 
     @Test
@@ -210,7 +211,7 @@ class SumCustomSetCommandTest {
         SumCustomSetConfig config = new SumCustomSetConfig(123L, List.of(
                 new ButtonIdLabelAndDiceExpression("1_button", "5d6", "+5d6", false, false),
                 new ButtonIdLabelAndDiceExpression("2_button", "2d10", "+2d10", true, false)
-        ), true, true, true, "groupC(", ")", AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.GERMAN);
+        ), true, true, true, "groupC(", ")", AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.GERMAN);
 
         EmbedOrMessageDefinition res = RollAnswerConverter.toEmbedOrMessageDefinition(underTest.getAnswer(config, new State<>("roll", new SumCustomSetStateDataV2(List.of(new ExpressionAndLabel("+5d6", "5d6"), new ExpressionAndLabel("+2d10", "2d10")), "user1")), 0L, 0L)
                 .orElseThrow());
@@ -249,7 +250,7 @@ class SumCustomSetCommandTest {
 
     @Test
     void getButtonLayout() {
-        List<ComponentRowDefinition> res = underTest.createNewButtonMessage(UUID.fromString("00000000-0000-0000-0000-000000000000"), defaultConfig, 1L).getComponentRowDefinitions();
+        List<ComponentRowDefinition> res = underTest.createSlashResponseMessage(UUID.fromString("00000000-0000-0000-0000-000000000000"), defaultConfig, 1L).getComponentRowDefinitions();
 
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel))
                 .containsExactly("1d6", "3d6", "4", "2d10min10", "Roll", "Clear", "Back");
@@ -269,9 +270,9 @@ class SumCustomSetCommandTest {
                 new ButtonIdLabelAndDiceExpression("1_button", "1d6", "1d6", false, true),
                 new ButtonIdLabelAndDiceExpression("2_button", "3d6", "add 3d6", false, false),
                 new ButtonIdLabelAndDiceExpression("3_button", "4*", "4*", false, true)
-        ), true, true, false, null, null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
+        ), true, true, false, null, null, AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
 
-        List<ComponentRowDefinition> res = underTest.createNewButtonMessage(UUID.fromString("00000000-0000-0000-0000-000000000000"), defaultConfig, 1L).getComponentRowDefinitions();
+        List<ComponentRowDefinition> res = underTest.createSlashResponseMessage(UUID.fromString("00000000-0000-0000-0000-000000000000"), defaultConfig, 1L).getComponentRowDefinitions();
 
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel))
                 .containsExactly("1d6", "3d6", "4*", "Roll", "Clear", "Back");
@@ -288,8 +289,8 @@ class SumCustomSetCommandTest {
 
     @Test
     void getButtonLayout25Buttons() {
-        List<ComponentRowDefinition> res = underTest.createNewButtonMessage(UUID.fromString("00000000-0000-0000-0000-000000000000"),
-                new SumCustomSetConfig(null, ButtonHelper.parseString("+1d4;+1d6;+1d7;+1d8;+1d10;+1d12;+1d14;+1d16;+1d20;+1d24;+1d16;+1d30;+1d100;+1;+2;+3;+4;+5;-1;-2;-3;-4"), true, true, false, null, null, AnswerFormatType.without_expression, ResultImage.none, null, Locale.ENGLISH), 1L
+        List<ComponentRowDefinition> res = underTest.createSlashResponseMessage(UUID.fromString("00000000-0000-0000-0000-000000000000"),
+                new SumCustomSetConfig(null, ButtonHelper.parseString("+1d4;+1d6;+1d7;+1d8;+1d10;+1d12;+1d14;+1d16;+1d20;+1d24;+1d16;+1d30;+1d100;+1;+2;+3;+4;+5;-1;-2;-3;-4"), true, true, false, null, null, AnswerFormatType.without_expression, AnswerInteractionType.none, ResultImage.none, null, Locale.ENGLISH), 1L
         ).getComponentRowDefinitions();
 
         assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel))
@@ -348,8 +349,8 @@ class SumCustomSetCommandTest {
 
     @Test
     void getButtonLayoutLineBreakWithSystemLineBreak() {
-        List<ComponentRowDefinition> res = underTest.createNewButtonMessage(UUID.fromString("00000000-0000-0000-0000-000000000000"),
-                new SumCustomSetConfig(null, ButtonHelper.parseString("+1d4;+1d6;+1d7;+1d8;+1d10;+1d12;+1d14;+1d16;+1d20;;+1;+2;+3;+4;+5;-1;-2;-3;-4;;"), true, true, true, null, null, AnswerFormatType.without_expression, ResultImage.none, null, Locale.ENGLISH), 1L
+        List<ComponentRowDefinition> res = underTest.createSlashResponseMessage(UUID.fromString("00000000-0000-0000-0000-000000000000"),
+                new SumCustomSetConfig(null, ButtonHelper.parseString("+1d4;+1d6;+1d7;+1d8;+1d10;+1d12;+1d14;+1d16;+1d20;;+1;+2;+3;+4;+5;-1;-2;-3;-4;;"), true, true, true, null, null, AnswerFormatType.without_expression, AnswerInteractionType.none, ResultImage.none, null, Locale.ENGLISH), 1L
         ).getComponentRowDefinitions();
 
         assertThat(res).hasSize(5);
@@ -404,8 +405,8 @@ class SumCustomSetCommandTest {
 
     @Test
     void getButtonLayoutLineBreakWithoutSystemLineBreak() {
-        List<ComponentRowDefinition> res = underTest.createNewButtonMessage(UUID.fromString("00000000-0000-0000-0000-000000000000"),
-                new SumCustomSetConfig(null, ButtonHelper.parseString("+1d4;+1d6;+1d7;+1d8;+1d10;+1d12;+1d14;+1d16;+1d20;;+1;+2;+3;+4;+5;-1;-2;-3;-4;;"), true, true, false, null, null, AnswerFormatType.without_expression, ResultImage.none, null, Locale.ENGLISH), 1L
+        List<ComponentRowDefinition> res = underTest.createSlashResponseMessage(UUID.fromString("00000000-0000-0000-0000-000000000000"),
+                new SumCustomSetConfig(null, ButtonHelper.parseString("+1d4;+1d6;+1d7;+1d8;+1d10;+1d12;+1d14;+1d16;+1d20;;+1;+2;+3;+4;+5;-1;-2;-3;-4;;"), true, true, false, null, null, AnswerFormatType.without_expression, AnswerInteractionType.none, ResultImage.none, null, Locale.ENGLISH), 1L
         ).getComponentRowDefinitions();
 
         assertThat(res).hasSize(5);
@@ -524,9 +525,9 @@ class SumCustomSetCommandTest {
         SumCustomSetConfig config = new SumCustomSetConfig(123L, List.of(
                 new ButtonIdLabelAndDiceExpression("1_button", "Label", "+1d6", false, false),
                 new ButtonIdLabelAndDiceExpression("2_button", "+2d4", "+2d4", true, false)
-        ), true, true, true, null, null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v2, "blue_and_silver"), Locale.GERMAN);
+        ), true, true, true, null, null, AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v2, "blue_and_silver"), Locale.GERMAN);
 
-        assertThat(config.toCommandOptionsString()).isEqualTo("buttons: +1d6@Label;;+2d4;; always_sum_result: true hide_expression_in_answer: true answer_format: full dice_image_style: polyhedral_alies_v2 dice_image_color: blue_and_silver target_channel: <#123>");
+        assertThat(config.toCommandOptionsString()).isEqualTo("buttons: +1d6@Label;;+2d4;; always_sum_result: true hide_expression_in_answer: true answer_format: full answer_interaction: none dice_image_style: polyhedral_alies_v2 dice_image_color: blue_and_silver target_channel: <#123>");
     }
 
     @Test
@@ -540,7 +541,7 @@ class SumCustomSetCommandTest {
         SumCustomSetConfig config = new SumCustomSetConfig(123L, List.of(
                 new ButtonIdLabelAndDiceExpression("1_button", "Label", "+1d6", false, false),
                 new ButtonIdLabelAndDiceExpression("2_button", "+2d4", "+2d4", true, false)
-        ), true, true, true, null, null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
+        ), true, true, true, null, null, AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
         Optional<MessageConfigDTO> toSave = underTest.createMessageConfig(configUUID, 1L, channelId, config);
         assertThat(toSave).isPresent();
 
@@ -583,7 +584,7 @@ class SumCustomSetCommandTest {
         assertThat(configAndState.getConfig()).isEqualTo(new SumCustomSetConfig(123L, List.of(
                 new ButtonIdLabelAndDiceExpression("1_button", "Label", "+1d6", false, false),
                 new ButtonIdLabelAndDiceExpression("2_button", "+2d4", "+2d4", false, false)
-        ), true, false, false, null, null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH));
+        ), true, false, false, null, null, AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH));
         assertThat(configAndState.getConfigUUID()).isEqualTo(configUUID);
         assertThat(configAndState.getState().getData()).isEqualTo(new SumCustomSetStateDataV2(List.of(new ExpressionAndLabel("2d4", "2d4"), new ExpressionAndLabel("+1d6", "Label")), "testUser"));
     }
@@ -602,7 +603,7 @@ class SumCustomSetCommandTest {
                 - buttonId: "2_button"
                   label: "+2d4"
                   diceExpression: "+2d4"
-                diceParserSystem: "DICE_EVALUATOR"
+                diceSystem: "DICE_EVALUATOR"
                 alwaysSumResult: true
                 """);
         MessageDataDTO messageDataDTO = new MessageDataDTO(configUUID, 1L, 1660644934298L, 1660644934298L, "sum_custom_set",
@@ -617,7 +618,7 @@ class SumCustomSetCommandTest {
         assertThat(configAndState.getConfig()).isEqualTo(new SumCustomSetConfig(123L, List.of(
                 new ButtonIdLabelAndDiceExpression("1_button", "Label", "+1d6", false, false),
                 new ButtonIdLabelAndDiceExpression("2_button", "+2d4", "+2d4", false, false)
-        ), true, false, false, null, null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH));
+        ), true, false, false, null, null, AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH));
         assertThat(configAndState.getConfigUUID()).isEqualTo(configUUID);
         assertThat(configAndState.getState().getData()).isEqualTo(new SumCustomSetStateDataV2(List.of(new ExpressionAndLabel("2d4", "2d4"), new ExpressionAndLabel("+1d6", "Label")), "testUser"));
     }
@@ -635,7 +636,7 @@ class SumCustomSetCommandTest {
                 - buttonId: "2_button"
                   label: "+2d4"
                   diceExpression: "+2d4"
-                diceParserSystem: "DICE_EVALUATOR"
+                diceSystem: "DICE_EVALUATOR"
                 alwaysSumResult: true
                 answerFormatType: compact
                 """);
@@ -651,7 +652,7 @@ class SumCustomSetCommandTest {
         assertThat(configAndState.getConfig()).isEqualTo(new SumCustomSetConfig(123L, List.of(
                 new ButtonIdLabelAndDiceExpression("1_button", "Label", "+1d6", false, false),
                 new ButtonIdLabelAndDiceExpression("2_button", "+2d4", "+2d4", false, false)
-        ), true, false, false, null, null, AnswerFormatType.compact, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH));
+        ), true, false, false, null, null, AnswerFormatType.compact, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH));
         assertThat(configAndState.getConfigUUID()).isEqualTo(configUUID);
         assertThat(configAndState.getState().getData()).isEqualTo(new SumCustomSetStateDataV2(List.of(new ExpressionAndLabel("2d4", "2d4"), new ExpressionAndLabel("+1d6", "Label")), "testUser"));
     }
@@ -669,7 +670,7 @@ class SumCustomSetCommandTest {
                 - buttonId: "2_button"
                   label: "+2d4"
                   diceExpression: "+2d4"
-                diceParserSystem: "DICE_EVALUATOR"
+                diceSystem: "DICE_EVALUATOR"
                 alwaysSumResult: true
                 answerFormatType: full
                 diceStyleAndColor:
@@ -688,7 +689,7 @@ class SumCustomSetCommandTest {
         assertThat(configAndState.getConfig()).isEqualTo(new SumCustomSetConfig(123L, List.of(
                 new ButtonIdLabelAndDiceExpression("1_button", "Label", "+1d6", false, false),
                 new ButtonIdLabelAndDiceExpression("2_button", "+2d4", "+2d4", false, false)
-        ), true, false, false, null, null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v2, "blue_and_silver"), Locale.ENGLISH));
+        ), true, false, false, null, null, AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v2, "blue_and_silver"), Locale.ENGLISH));
         assertThat(configAndState.getConfigUUID()).isEqualTo(configUUID);
         assertThat(configAndState.getState().getData()).isEqualTo(new SumCustomSetStateDataV2(List.of(new ExpressionAndLabel("2d4", "2d4"), new ExpressionAndLabel("+1d6", "Label")), "testUser"));
     }
@@ -706,7 +707,7 @@ class SumCustomSetCommandTest {
                 - buttonId: "2_button"
                   label: "+2d4"
                   diceExpression: "+2d4"
-                diceParserSystem: "DICE_EVALUATOR"
+                diceSystem: "DICE_EVALUATOR"
                 alwaysSumResult: true
                 configLocale: "de"
                 answerFormatType: full
@@ -726,7 +727,7 @@ class SumCustomSetCommandTest {
         assertThat(configAndState.getConfig()).isEqualTo(new SumCustomSetConfig(123L, List.of(
                 new ButtonIdLabelAndDiceExpression("1_button", "Label", "+1d6", false, false),
                 new ButtonIdLabelAndDiceExpression("2_button", "+2d4", "+2d4", false, false)
-        ), true, false, false, null, null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v2, "blue_and_silver"), Locale.GERMAN));
+        ), true, false, false, null, null, AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v2, "blue_and_silver"), Locale.GERMAN));
         assertThat(configAndState.getConfigUUID()).isEqualTo(configUUID);
         assertThat(configAndState.getState().getData()).isEqualTo(new SumCustomSetStateDataV2(List.of(new ExpressionAndLabel("2d4", "2d4"), new ExpressionAndLabel("+1d6", "Label")), "testUser"));
     }
@@ -744,7 +745,7 @@ class SumCustomSetCommandTest {
                 - buttonId: "2_button"
                   label: "Bonus"
                   diceExpression: "+2d4"
-                diceParserSystem: "DICE_EVALUATOR"
+                diceSystem: "DICE_EVALUATOR"
                 alwaysSumResult: true
                 hideExpressionInStatusAndAnswer: true
                 answerFormatType: "full"
@@ -766,7 +767,7 @@ class SumCustomSetCommandTest {
         assertThat(configAndState.getConfig()).isEqualTo(new SumCustomSetConfig(123L, List.of(
                 new ButtonIdLabelAndDiceExpression("1_button", "+1d6", "+1d6", false, false),
                 new ButtonIdLabelAndDiceExpression("2_button", "Bonus", "+2d4", false, false)
-        ), true, true, false, null, null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v2, "blue_and_silver"), Locale.GERMAN));
+        ), true, true, false, null, null, AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v2, "blue_and_silver"), Locale.GERMAN));
         assertThat(configAndState.getConfigUUID()).isEqualTo(configUUID);
         assertThat(configAndState.getState().getData()).isEqualTo(new SumCustomSetStateDataV2(List.of(new ExpressionAndLabel("+2d4", "Bonus"), new ExpressionAndLabel("+1d6", "+1d6")), "testUser"));
     }
@@ -786,7 +787,7 @@ class SumCustomSetCommandTest {
                   label: "Bonus"
                   diceExpression: "+2d4"
                   newLine: true
-                diceParserSystem: "DICE_EVALUATOR"
+                diceSystem: "DICE_EVALUATOR"
                 alwaysSumResult: true
                 hideExpressionInStatusAndAnswer: true
                 systemButtonNewLine: true
@@ -809,7 +810,7 @@ class SumCustomSetCommandTest {
         assertThat(configAndState.getConfig()).isEqualTo(new SumCustomSetConfig(123L, List.of(
                 new ButtonIdLabelAndDiceExpression("1_button", "+1d6", "+1d6", false, false),
                 new ButtonIdLabelAndDiceExpression("2_button", "Bonus", "+2d4", true, false)
-        ), true, true, true, null, null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v2, "blue_and_silver"), Locale.GERMAN));
+        ), true, true, true, null, null, AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v2, "blue_and_silver"), Locale.GERMAN));
         assertThat(configAndState.getConfigUUID()).isEqualTo(configUUID);
         assertThat(configAndState.getState().getData()).isEqualTo(new SumCustomSetStateDataV2(List.of(new ExpressionAndLabel("+2d4", "Bonus"), new ExpressionAndLabel("+1d6", "+1d6")), "testUser"));
     }
@@ -831,7 +832,7 @@ class SumCustomSetCommandTest {
                   diceExpression: "+2d4"
                   newLine: true
                   directRoll: false
-                diceParserSystem: "DICE_EVALUATOR"
+                diceSystem: "DICE_EVALUATOR"
                 alwaysSumResult: true
                 hideExpressionInStatusAndAnswer: true
                 systemButtonNewLine: true
@@ -856,7 +857,7 @@ class SumCustomSetCommandTest {
         assertThat(configAndState.getConfig()).isEqualTo(new SumCustomSetConfig(123L, List.of(
                 new ButtonIdLabelAndDiceExpression("1_button", "+1d6", "+1d6", false, true),
                 new ButtonIdLabelAndDiceExpression("2_button", "Bonus", "+2d4", true, false)
-        ), true, true, true, "groupC(", ")", AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v2, "blue_and_silver"), Locale.GERMAN));
+        ), true, true, true, "groupC(", ")", AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v2, "blue_and_silver"), Locale.GERMAN));
         assertThat(configAndState.getConfigUUID()).isEqualTo(configUUID);
         assertThat(configAndState.getState().getData()).isEqualTo(new SumCustomSetStateDataV2(List.of(new ExpressionAndLabel("+2d4", "Bonus"), new ExpressionAndLabel("+1d6", "+1d6")), "testUser"));
     }
@@ -876,7 +877,7 @@ class SumCustomSetCommandTest {
                   label: "Bonus"
                   diceExpression: "+2d4"
                   newLine: true
-                diceParserSystem: "DICE_EVALUATOR"
+                diceSystem: "DICE_EVALUATOR"
                 alwaysSumResult: true
                 hideExpressionInStatusAndAnswer: true
                 systemButtonNewLine: true
@@ -901,7 +902,7 @@ class SumCustomSetCommandTest {
         assertThat(configAndState.getConfig()).isEqualTo(new SumCustomSetConfig(123L, List.of(
                 new ButtonIdLabelAndDiceExpression("1_button", "+1d6", "+1d6", false, false),
                 new ButtonIdLabelAndDiceExpression("2_button", "Bonus", "+2d4", true, false)
-        ), true, true, true, "groupC(", ")", AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v2, "blue_and_silver"), Locale.GERMAN));
+        ), true, true, true, "groupC(", ")", AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v2, "blue_and_silver"), Locale.GERMAN));
         assertThat(configAndState.getConfigUUID()).isEqualTo(configUUID);
         assertThat(configAndState.getState().getData()).isEqualTo(new SumCustomSetStateDataV2(List.of(new ExpressionAndLabel("+2d4", "Bonus"), new ExpressionAndLabel("+1d6", "+1d6")), "testUser"));
     }
@@ -912,7 +913,7 @@ class SumCustomSetCommandTest {
         SumCustomSetConfig config = new SumCustomSetConfig(123L, List.of(
                 new ButtonIdLabelAndDiceExpression("1_button", "Label", "+1d6", false, false),
                 new ButtonIdLabelAndDiceExpression("2_button", "+2d4", "+2d4", true, false)
-        ), true, true, true, "groupC(", ")", AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v2, "blue_and_silver"), Locale.GERMAN);
+        ), true, true, true, "groupC(", ")", AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v2, "blue_and_silver"), Locale.GERMAN);
         Optional<MessageConfigDTO> toSave = underTest.createMessageConfig(configUUID, 1L, 2L, config);
         assertThat(toSave).isPresent();
 

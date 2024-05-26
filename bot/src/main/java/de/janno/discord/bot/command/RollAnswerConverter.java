@@ -17,7 +17,7 @@ public class RollAnswerConverter {
         return EMBED_ANSWER_TYPES.contains(answerFormatType) ? EmbedOrMessageDefinition.Type.EMBED : EmbedOrMessageDefinition.Type.MESSAGE;
     }
 
-    static public EmbedOrMessageDefinition toEmbedOrMessageDefinition(RollAnswer rollAnswer) {
+    public static EmbedOrMessageDefinition toEmbedOrMessageDefinition(RollAnswer rollAnswer) {
         final EmbedOrMessageDefinition.Type type = getMessageType(rollAnswer.getAnswerFormatType());
         if (rollAnswer.getErrorMessage() != null) {
             if (type == EmbedOrMessageDefinition.Type.EMBED) {
@@ -96,7 +96,7 @@ public class RollAnswerConverter {
                             .shortedTitle(Optional.ofNullable(rollAnswer.getExpressionLabel()).orElse("Roll"))
                             .shortedContent(String.valueOf(rollAnswer.getMultiRollResults().stream()
                                     .map(RollAnswer.RollResults::getResult)
-                                            .map("**%s**"::formatted)
+                                    .map("**%s**"::formatted)
                                     .collect(Collectors.joining("\n"))))
                             .type(EmbedOrMessageDefinition.Type.EMBED)
                             .build();

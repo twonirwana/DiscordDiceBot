@@ -4,6 +4,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Stopwatch;
 import com.google.common.base.Strings;
+import de.janno.discord.bot.AnswerInteractionType;
 import de.janno.discord.bot.BotMetrics;
 import de.janno.discord.bot.I18n;
 import de.janno.discord.bot.command.AnswerFormatType;
@@ -87,7 +88,7 @@ public class DirectRollCommand implements SlashCommand {
         return persistenceManager.getChannelConfig(channelId, DIRECT_ROLL_CONFIG_TYPE_ID)
                 .map(this::deserializeConfig)
                 //default direct roll config is english
-                .orElse(new DirectRollConfig(null, true, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_3d, DiceImageStyle.polyhedral_3d.getDefaultColor()), Locale.ENGLISH));
+                .orElse(new DirectRollConfig(null, true, AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_3d, DiceImageStyle.polyhedral_3d.getDefaultColor()), Locale.ENGLISH));
     }
 
     @VisibleForTesting

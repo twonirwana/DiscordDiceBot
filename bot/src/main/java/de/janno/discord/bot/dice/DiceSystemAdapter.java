@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 
+//todo combine with diceEvaluatorAdapter
 public class DiceSystemAdapter {
 
     public final static String LABEL_DELIMITER = "@";
@@ -59,12 +60,12 @@ public class DiceSystemAdapter {
         return Optional.empty();
     }
 
-    public RollAnswer answerRollWithGivenLabel(String expression, @Nullable String label, boolean sumUp, DiceParserSystem system, AnswerFormatType answerFormatType, DiceStyleAndColor diceStyleAndColor, Locale userLocale) {
+    public RollAnswer answerRollWithGivenLabel(String expression, @Nullable String label, boolean sumUp, DiceSystem system, AnswerFormatType answerFormatType, DiceStyleAndColor diceStyleAndColor, Locale userLocale) {
         BotMetrics.incrementDiceParserSystemCounter(system);
         return diceEvaluatorAdapter.answerRollWithGivenLabel(expression, label, sumUp, answerFormatType, diceStyleAndColor, userLocale);
     }
 
-    public Optional<String> validateListOfExpressions(List<String> expressions, String helpCommand, DiceParserSystem system, @NonNull Locale userLocale) {
+    public Optional<String> validateListOfExpressions(List<String> expressions, String helpCommand, DiceSystem system, @NonNull Locale userLocale) {
         if (expressions.isEmpty()) {
             return Optional.of(I18n.getMessage("diceEvaluator.reply.validation.missingExpression", userLocale, helpCommand));
         }
@@ -81,7 +82,7 @@ public class DiceSystemAdapter {
         return Optional.empty();
     }
 
-    public Optional<String> validateDiceExpressionWitOptionalLabel(@NonNull String expressionWithOptionalLabel, String helpCommand, DiceParserSystem system, @NonNull Locale userLocale) {
+    public Optional<String> validateDiceExpressionWitOptionalLabel(@NonNull String expressionWithOptionalLabel, String helpCommand, DiceSystem system, @NonNull Locale userLocale) {
         Optional<String> validateLabel = validateLabel(expressionWithOptionalLabel, userLocale);
         if (validateLabel.isPresent()) {
             return validateLabel;
@@ -91,7 +92,7 @@ public class DiceSystemAdapter {
 
     }
 
-    public boolean isValidExpression(String input, DiceParserSystem system) {
+    public boolean isValidExpression(String input, DiceSystem system) {
         return diceEvaluatorAdapter.validExpression(input);
     }
 

@@ -5,7 +5,7 @@ de.janno.discord.bot.command.customParameter.CustomParameterCommandTest.configSe
     "channelId": 2,
     "commandId": "custom_parameter",
     "configClassId": "CustomParameterConfig",
-    "config": "---\nanswerTargetChannelId: 123\nbaseExpression: \"{n}d{s}\"\nanswerFormatType: \"full\"\nconfigLocale: \"de\"\ndiceStyleAndColor:\n  diceImageStyle: \"polyhedral_alies_v2\"\n  configuredDefaultColor: \"blue_and_silver\"\ndiceParserSystem: \"DICE_EVALUATOR\"\n"
+    "config": "---\nanswerTargetChannelId: 123\nbaseExpression: \"{n}d{s}\"\nanswerFormatType: \"full\"\nanswerInteractionType: \"none\"\nconfigLocale: \"de\"\ndiceStyleAndColor:\n  diceImageStyle: \"polyhedral_alies_v2\"\n  configuredDefaultColor: \"blue_and_silver\"\ndiceParserSystem: \"DICE_EVALUATOR\"\n"
   }
 ]
 
@@ -356,6 +356,33 @@ de.janno.discord.bot.command.customParameter.CustomParameterCommandTest.getComma
                     "choice": "Français"
                   }
                 ]
+              }
+            ],
+            "options": [ ],
+            "autoComplete": false
+          },
+          {
+            "type": "STRING",
+            "name": "answer_interaction",
+            "nameLocales": [ ],
+            "description": "description",
+            "descriptionLocales": [ ],
+            "required": false,
+            "choices": [
+              {
+                "name": "none",
+                "value": "none",
+                "nameLocales": [ ]
+              },
+              {
+                "name": "hidden",
+                "value": "hidden",
+                "nameLocales": [ ]
+              },
+              {
+                "name": "reroll",
+                "value": "reroll",
+                "nameLocales": [ ]
               }
             ],
             "options": [ ],

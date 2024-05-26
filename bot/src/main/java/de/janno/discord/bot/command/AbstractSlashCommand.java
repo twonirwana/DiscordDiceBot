@@ -1,10 +1,10 @@
 package de.janno.discord.bot.command;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import de.janno.discord.bot.BotMetrics;
 import de.janno.discord.bot.I18n;
+import de.janno.discord.bot.command.reroll.Config;
 import de.janno.discord.bot.persistance.Mapper;
 import de.janno.discord.bot.persistance.MessageConfigDTO;
 import de.janno.discord.bot.persistance.MessageDataDTO;
@@ -59,7 +59,7 @@ public abstract class AbstractSlashCommand<C extends Config, S extends StateData
             baseOptions.add(LOCALE_COMMAND_OPTION);
         }
         //todo maybe optional
-        //  baseOptions.add(ANSWER_INTERACTION_COMMAND_OPTION);
+        baseOptions.add(ANSWER_INTERACTION_COMMAND_OPTION);
 
         return CommandDefinition.builder()
                 .name(getCommandId())
@@ -125,8 +125,7 @@ public abstract class AbstractSlashCommand<C extends Config, S extends StateData
     /**
      * On the creation of a message an empty state need to be saved so we know the message exists and we can remove it later, even on concurrent actions
      */
-    @VisibleForTesting
-    public MessageDataDTO createEmptyMessageData(@NonNull UUID configUUID,
+    protected MessageDataDTO createEmptyMessageData(@NonNull UUID configUUID,
                                                  @Nullable Long guildId,
                                                  long channelId,
                                                  long messageId) {
@@ -190,7 +189,7 @@ public abstract class AbstractSlashCommand<C extends Config, S extends StateData
                     .then(Mono.defer(() -> {
                         final Optional<MessageConfigDTO> newMessageConfig = createMessageConfig(configUUID, guildId, channelId, config);
                         newMessageConfig.ifPresent(persistenceManager::saveMessageConfig);
-                        return event.createMessageWithoutReference(createNewButtonMessage(configUUID, config, channelId))
+                        return event.createMessageWithoutReference(createSlashResponseMessage(configUUID, config, channelId))
                                 .doOnNext(messageId -> createEmptyMessageData(configUUID, guildId, channelId, messageId))
                                 .then();
                     }));
@@ -219,7 +218,7 @@ public abstract class AbstractSlashCommand<C extends Config, S extends StateData
                                                                    long channelId,
                                                                    @NonNull C config);
 
-    public abstract @NonNull EmbedOrMessageDefinition createNewButtonMessage(@NonNull UUID configId, @NonNull C config, long channelId);
+    public abstract @NonNull EmbedOrMessageDefinition createSlashResponseMessage(@NonNull UUID configId, @NonNull C config, long channelId);
 
 
     protected abstract @NonNull EmbedOrMessageDefinition getHelpMessage(Locale userLocale);

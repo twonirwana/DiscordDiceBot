@@ -2,6 +2,7 @@ package de.janno.discord.bot.command.directRoll;
 
 import au.com.origin.snapshots.Expect;
 import au.com.origin.snapshots.junit5.SnapshotExtension;
+import de.janno.discord.bot.AnswerInteractionType;
 import de.janno.discord.bot.I18n;
 import de.janno.discord.bot.command.AnswerFormatType;
 import de.janno.discord.bot.command.channelConfig.DirectRollConfig;
@@ -183,7 +184,7 @@ class DirectRollCommandTest {
 
 
         DirectRollConfig res = underTest.deserializeConfig(savedData);
-        assertThat(res).isEqualTo(new DirectRollConfig(null, false, AnswerFormatType.without_expression, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_3d, "red_and_white"), Locale.ENGLISH));
+        assertThat(res).isEqualTo(new DirectRollConfig(null, false, AnswerFormatType.without_expression, AnswerInteractionType.none,  null, new DiceStyleAndColor(DiceImageStyle.polyhedral_3d, "red_and_white"), Locale.ENGLISH));
     }
 
     @Test
@@ -202,7 +203,7 @@ class DirectRollCommandTest {
 
 
         DirectRollConfig res = underTest.deserializeConfig(savedData);
-        assertThat(res).isEqualTo(new DirectRollConfig(null, false, AnswerFormatType.without_expression, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v2, "blue_and_silver"), Locale.ENGLISH));
+        assertThat(res).isEqualTo(new DirectRollConfig(null, false, AnswerFormatType.without_expression, AnswerInteractionType.none,  null, new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v2, "blue_and_silver"), Locale.ENGLISH));
     }
 
     @Test
@@ -222,7 +223,7 @@ class DirectRollCommandTest {
 
 
         DirectRollConfig res = underTest.deserializeConfig(savedData);
-        assertThat(res).isEqualTo(new DirectRollConfig(null, false, AnswerFormatType.without_expression, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v2, "blue_and_silver"), Locale.GERMAN));
+        assertThat(res).isEqualTo(new DirectRollConfig(null, false, AnswerFormatType.without_expression, AnswerInteractionType.none,  null, new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v2, "blue_and_silver"), Locale.GERMAN));
     }
 
 }

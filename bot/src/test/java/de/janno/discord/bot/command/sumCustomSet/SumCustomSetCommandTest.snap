@@ -5,12 +5,12 @@ de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandTest.configSerializ
     "channelId": 2,
     "commandId": "sum_custom_set",
     "configClassId": "SumCustomSetConfig",
-    "config": "---\nanswerTargetChannelId: 123\nlabelAndExpression:\n- buttonId: \"1_button\"\n  label: \"Label\"\n  diceExpression: \"+1d6\"\n  newLine: false\n  directRoll: false\n- buttonId: \"2_button\"\n  label: \"+2d4\"\n  diceExpression: \"+2d4\"\n  newLine: true\n  directRoll: false\nalwaysSumResult: true\nhideExpressionInStatusAndAnswer: true\nsystemButtonNewLine: true\nprefix: \"groupC(\"\npostfix: \")\"\nanswerFormatType: \"full\"\nconfigLocale: \"de\"\ndiceStyleAndColor:\n  diceImageStyle: \"polyhedral_alies_v2\"\n  configuredDefaultColor: \"blue_and_silver\"\ndiceParserSystem: \"DICE_EVALUATOR\"\n"
+    "config": "---\nanswerTargetChannelId: 123\nlabelAndExpression:\n- buttonId: \"1_button\"\n  label: \"Label\"\n  diceExpression: \"+1d6\"\n  newLine: false\n  directRoll: false\n- buttonId: \"2_button\"\n  label: \"+2d4\"\n  diceExpression: \"+2d4\"\n  newLine: true\n  directRoll: false\nalwaysSumResult: true\nhideExpressionInStatusAndAnswer: true\nsystemButtonNewLine: true\nprefix: \"groupC(\"\npostfix: \")\"\nanswerFormatType: \"full\"\nanswerInteractionType: \"none\"\nconfigLocale: \"de\"\ndiceStyleAndColor:\n  diceImageStyle: \"polyhedral_alies_v2\"\n  configuredDefaultColor: \"blue_and_silver\"\ndiceParserSystem: \"DICE_EVALUATOR\"\n"
   }
 ]
 
 
-de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandTest.createNewButtonMessageWithState=[
+de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandTest.createSlashResponseMessageWithState=[
   {
     "descriptionOrContent": "Click the buttons to add dice to the set and then on Roll",
     "fields": [ ],
@@ -635,6 +635,33 @@ de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandTest.getCommandDefi
                     "choice": "Français"
                   }
                 ]
+              }
+            ],
+            "options": [ ],
+            "autoComplete": false
+          },
+          {
+            "type": "STRING",
+            "name": "answer_interaction",
+            "nameLocales": [ ],
+            "description": "description",
+            "descriptionLocales": [ ],
+            "required": false,
+            "choices": [
+              {
+                "name": "none",
+                "value": "none",
+                "nameLocales": [ ]
+              },
+              {
+                "name": "hidden",
+                "value": "hidden",
+                "nameLocales": [ ]
+              },
+              {
+                "name": "reroll",
+                "value": "reroll",
+                "nameLocales": [ ]
               }
             ],
             "options": [ ],

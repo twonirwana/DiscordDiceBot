@@ -5,16 +5,19 @@ import com.google.common.collect.ImmutableList;
 import de.janno.discord.bot.BotMetrics;
 import de.janno.discord.bot.I18n;
 import de.janno.discord.bot.command.AnswerFormatType;
+import de.janno.discord.bot.command.DieIdDb;
 import de.janno.discord.bot.command.RollAnswer;
+import de.janno.discord.bot.command.reroll.DieIdAndValue;
 import de.janno.discord.bot.dice.image.DiceStyleAndColor;
 import de.janno.discord.bot.dice.image.ImageResultCreator;
 import de.janno.evaluator.dice.*;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import javax.annotation.Nullable;
 
+import javax.annotation.Nullable;
 import java.io.InputStream;
 import java.math.BigDecimal;
+import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -27,10 +30,10 @@ import static de.janno.discord.bot.dice.DiceSystemAdapter.LABEL_DELIMITER;
 public class DiceEvaluatorAdapter {
 
     private final static ImageResultCreator IMAGE_RESULT_CREATOR = new ImageResultCreator();
-    private final CachingDiceEvaluator cachingDiceEvaluator;
+    private final ErrorCatchingDiceEvaluator diceEvaluator;
 
-    public DiceEvaluatorAdapter(CachingDiceEvaluator cachingDiceEvaluator) {
-        this.cachingDiceEvaluator = cachingDiceEvaluator;
+    public DiceEvaluatorAdapter(ErrorCatchingDiceEvaluator diceEvaluator) {
+        this.diceEvaluator = diceEvaluator;
     }
 
     private static @NonNull String getExpressionFromExpressionWithOptionalLabel(String expressionWithOptionalLabel, String labelDelimiter) {
@@ -87,8 +90,16 @@ public class DiceEvaluatorAdapter {
         );
     }
 
+    private static List<DieIdAndValue> getDieIdAndValue(List<Roll> rolls) {
+        return rolls.stream()
+                .flatMap(r -> r.getRandomElementsInRoll().stream())
+                .flatMap(Collection::stream)
+                .map(r -> new DieIdAndValue(DieIdDb.fromDieId(r.getDieId()), r.getRollElement().getValue()))
+                .toList();
+    }
+
     public Optional<String> validateDiceExpression(String expression, String helpCommand, @NonNull Locale userLocale) {
-        RollerOrError rollerOrError = cachingDiceEvaluator.get(expression);
+        RollerOrError rollerOrError = diceEvaluator.get(expression);
         if (rollerOrError.isValid()) {
             return Optional.empty();
         } else {
@@ -120,7 +131,7 @@ public class DiceEvaluatorAdapter {
         if (diceExpression.isBlank()) {
             return Optional.of(I18n.getMessage("diceEvaluator.reply.validation.blankExpression", userLocale, expressionWithOptionalLabel));
         }
-        RollerOrError rollerOrError = cachingDiceEvaluator.get(diceExpression);
+        RollerOrError rollerOrError = diceEvaluator.get(diceExpression);
         if (rollerOrError.isValid()) {
             return Optional.empty();
         } else {
@@ -131,6 +142,7 @@ public class DiceEvaluatorAdapter {
         }
     }
 
+    //todo remove labelDelimiter
     public RollAnswer answerRollWithOptionalLabelInExpression(String expression, String labelDelimiter, boolean sumUp, AnswerFormatType answerFormatType, DiceStyleAndColor diceStyleAndColor, Locale userLocale) {
         String diceExpression = getExpressionFromExpressionWithOptionalLabel(expression, labelDelimiter);
         String label = getLabelFromExpressionWithOptionalLabel(expression, labelDelimiter).orElse(null);
@@ -144,7 +156,7 @@ public class DiceEvaluatorAdapter {
                                                DiceStyleAndColor styleAndColor,
                                                @NonNull Locale userLocale) {
         try {
-            final RollerOrError rollerOrError = cachingDiceEvaluator.get(expression);
+            final RollerOrError rollerOrError = diceEvaluator.get(expression);
 
             final List<Roll> rolls;
             if (rollerOrError.getRoller() != null) {
@@ -168,6 +180,7 @@ public class DiceEvaluatorAdapter {
                         .warning(getWarningFromRoll(rolls, userLocale))
                         .result(getResult(rolls.getFirst(), sumUp))
                         .rollDetails(getRandomElementsString(rolls.getFirst().getRandomElementsInRoll()))
+                        .dieIdAndValues(getDieIdAndValue(rolls))
                         .build();
             } else {
                 List<RollAnswer.RollResults> multiRollResults = rolls.stream()
@@ -179,6 +192,7 @@ public class DiceEvaluatorAdapter {
                         .expressionLabel(label)
                         .warning(getWarningFromRoll(rolls, userLocale))
                         .multiRollResults(multiRollResults)
+                        .dieIdAndValues(getDieIdAndValue(rolls))
                         .build();
             }
         } catch (ExpressionException e) {
@@ -192,7 +206,7 @@ public class DiceEvaluatorAdapter {
     }
 
     public boolean validExpression(String expression) {
-        return cachingDiceEvaluator.get(expression).isValid();
+        return diceEvaluator.get(expression).isValid();
     }
 
     private String getWarningFromRoll(List<Roll> rolls, Locale userLocale) {

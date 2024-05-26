@@ -1,5 +1,5 @@
 package de.janno.discord.bot.dice;
 
-public enum DiceParserSystem {
+public enum DiceSystem {
     DICE_EVALUATOR
 }

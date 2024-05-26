@@ -2,6 +2,7 @@ package de.janno.discord.bot.command;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
+import de.janno.discord.bot.command.reroll.Config;
 import de.janno.discord.bot.persistance.Mapper;
 import de.janno.discord.bot.persistance.MessageConfigDTO;
 import de.janno.discord.bot.persistance.MessageDataDTO;
@@ -14,9 +15,9 @@ import de.janno.discord.connector.api.slash.CommandDefinitionOption;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import javax.annotation.Nullable;
 import reactor.core.publisher.Mono;
 
+import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Supplier;
 
@@ -43,7 +44,7 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
 
             @Override
             public @NonNull EmbedOrMessageDefinition createNewButtonMessage(@NonNull UUID configId, @NonNull C config, long channelId) {
-                return AbstractCommand.this.createNewButtonMessage(configId, config, channelId);
+                return AbstractCommand.this.createSlashResponseMessage(configId, config, channelId);
             }
 
             @Override
@@ -104,8 +105,8 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
             }
 
             @Override
-            public @NonNull EmbedOrMessageDefinition createNewButtonMessage(@NonNull UUID configId, @NonNull C config, long channelId) {
-                return AbstractCommand.this.createNewButtonMessage(configId, config, channelId);
+            public @NonNull EmbedOrMessageDefinition createSlashResponseMessage(@NonNull UUID configId, @NonNull C config, long channelId) {
+                return AbstractCommand.this.createSlashResponseMessage(configId, config, channelId);
             }
 
             @Override
@@ -170,10 +171,6 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
         };
     }
 
-    @Override
-    public boolean matchingComponentCustomId(String buttonCustomId) {
-        return componentInteractEventHandler.matchingComponentCustomId(buttonCustomId);
-    }
 
     protected AnswerFormatType defaultAnswerFormat() {
         return AnswerFormatType.full;
@@ -224,6 +221,7 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
      * On the creation of a message an empty state need to be saved so we know the message exists and we can remove it later, even on concurrent actions
      */
     @VisibleForTesting
+    //todo remove?
     public MessageDataDTO createEmptyMessageData(@NonNull UUID configUUID,
                                                  @Nullable Long guildId,
                                                  long channelId,
@@ -300,7 +298,7 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
     /**
      * The new button message, after a slash event
      */
-    public abstract @NonNull EmbedOrMessageDefinition createNewButtonMessage(@NonNull UUID configId, @NonNull C config, long channelId);
+    public abstract @NonNull EmbedOrMessageDefinition createSlashResponseMessage(@NonNull UUID configId, @NonNull C config, long channelId);
 
     protected @NonNull Optional<String> getStartOptionsValidationMessage(@NonNull CommandInteractionOption options, long channelId, long userId, @NonNull Locale userLocale) {
         //standard is no validation

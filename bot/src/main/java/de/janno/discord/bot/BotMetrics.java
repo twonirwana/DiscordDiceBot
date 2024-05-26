@@ -4,7 +4,7 @@ import com.google.common.base.Strings;
 import com.sun.net.httpserver.HttpServer;
 import com.sun.net.httpserver.SimpleFileServer;
 import de.janno.discord.bot.command.AnswerFormatType;
-import de.janno.discord.bot.dice.DiceParserSystem;
+import de.janno.discord.bot.dice.DiceSystem;
 import de.janno.discord.bot.dice.image.DiceStyleAndColor;
 import io.avaje.config.Config;
 import io.micrometer.core.instrument.Metrics;
@@ -66,8 +66,8 @@ public class BotMetrics {
     public static void init() throws IOException {
         if (!Strings.isNullOrEmpty(publishMetricsToUrl)) {
             PrometheusMeterRegistry prometheusRegistry = new PrometheusMeterRegistry(PrometheusConfig.DEFAULT);
+            prometheusRegistry.config().commonTags("application", "DiscordDiceBot");
             Metrics.addRegistry(prometheusRegistry);
-            new UptimeMetrics().bindTo(globalRegistry);
 
             HttpServer server = HttpServer.create(new InetSocketAddress(publishMetricsToUrl, publishPort),
                     SimpleFileServer.OutputLevel.INFO.ordinal(),
@@ -84,7 +84,8 @@ public class BotMetrics {
 
             server.start();
 
-            prometheusRegistry.config().commonTags("application", "DiscordDiceBot");
+            new UptimeMetrics().bindTo(globalRegistry);
+            new JvmInfoMetrics().bindTo(globalRegistry);
             new JvmMemoryMetrics().bindTo(globalRegistry);
             new JvmGcMetrics().bindTo(globalRegistry);
             new ProcessorMetrics().bindTo(globalRegistry);
@@ -92,7 +93,7 @@ public class BotMetrics {
             new LogbackMetrics().bindTo(globalRegistry);
             new ClassLoaderMetrics().bindTo(globalRegistry);
             new JvmHeapPressureMetrics().bindTo(globalRegistry);
-            new JvmInfoMetrics().bindTo(globalRegistry);
+            new ProcessorMetrics().bindTo(globalRegistry);
         }
     }
 
@@ -121,8 +122,8 @@ public class BotMetrics {
         globalRegistry.counter(METRIC_PREFIX + METRIC_PRESET_PREFIX, Tags.of(TYPE_TAG, presetName)).increment();
     }
 
-    public static void incrementDiceParserSystemCounter(@NonNull DiceParserSystem diceParserSystem) {
-        globalRegistry.counter(METRIC_PREFIX + METRIC_DICE_PARSER_SYSTEM_PREFIX, Tags.of(DICE_SYSTEM_TAG, diceParserSystem.name())).increment();
+    public static void incrementDiceParserSystemCounter(@NonNull DiceSystem diceSystem) {
+        globalRegistry.counter(METRIC_PREFIX + METRIC_DICE_PARSER_SYSTEM_PREFIX, Tags.of(DICE_SYSTEM_TAG, diceSystem.name())).increment();
     }
 
     public static void incrementAnswerFormatCounter(@NonNull AnswerFormatType answerFormatType, @NonNull String commandName) {

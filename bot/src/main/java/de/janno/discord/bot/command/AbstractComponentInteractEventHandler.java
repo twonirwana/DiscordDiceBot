@@ -2,8 +2,13 @@ package de.janno.discord.bot.command;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Stopwatch;
+import de.janno.discord.bot.AnswerInteractionType;
 import de.janno.discord.bot.BotMetrics;
 import de.janno.discord.bot.I18n;
+import de.janno.discord.bot.command.hidden.HiddenAnswerHandler;
+import de.janno.discord.bot.command.reroll.Config;
+import de.janno.discord.bot.command.reroll.RerollAnswerConfig;
+import de.janno.discord.bot.command.reroll.RerollAnswerHandler;
 import de.janno.discord.bot.persistance.Mapper;
 import de.janno.discord.bot.persistance.MessageConfigDTO;
 import de.janno.discord.bot.persistance.MessageDataDTO;
@@ -15,14 +20,17 @@ import de.janno.discord.connector.api.message.ComponentRowDefinition;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import javax.annotation.Nullable;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import javax.annotation.Nullable;
 import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import static de.janno.discord.connector.api.BottomCustomIdUtils.CUSTOM_ID_DELIMITER;
@@ -46,36 +54,29 @@ public abstract class AbstractComponentInteractEventHandler<C extends Config, S 
         if (guildId == null) {
             BotMetrics.outsideGuildCounter("button");
         }
-        final boolean isLegacyMessage = BottomCustomIdUtils.isLegacyCustomId(event.getCustomId());
-        final C config;
-        final State<S> state;
-        final UUID configUUID;
-        if (isLegacyMessage) {
-            BotMetrics.incrementLegacyButtonMetricCounter(getCommandId());
-            log.info("{}: Legacy id {}", event.getRequester().toLogString(), event.getCustomId());
-            return event.reply(I18n.getMessage("base.reply.legacyButtonId", event.getRequester().getUserLocal()), false);
-        } else {
-            final String buttonValue = BottomCustomIdUtils.getButtonValueFromCustomId(event.getCustomId());
-            final Optional<UUID> configUUIDFromCustomID = BottomCustomIdUtils.getConfigUUIDFromCustomId(event.getCustomId());
-            BotMetrics.incrementButtonUUIDUsageMetricCounter(getCommandId(), configUUIDFromCustomID.isPresent());
-            final Optional<MessageConfigDTO> messageConfigDTO = getMessageConfigDTO(configUUIDFromCustomID.orElse(null), channelId, messageId);
-            final Optional<ConfigAndState<C, S>> fallbackConfigAndState = createNewConfigAndStateIfMissing(buttonValue);
-            if (messageConfigDTO.isEmpty() && fallbackConfigAndState.isEmpty()) {
-                log.warn("{}: Missing messageData for channelId: {}, messageId: {} and commandName: {} ", event.getRequester().toLogString(), channelId, messageId, getCommandId());
-                return event.reply(I18n.getMessage("base.reply.missingConfig", event.getRequester().getUserLocal(), I18n.getMessage(getCommandId() + ".name", event.getRequester().getUserLocal())), false);
-            }
-            final ConfigAndState<C, S> configAndState;
-            if (messageConfigDTO.isEmpty() && fallbackConfigAndState.isPresent()) {
-                configAndState = fallbackConfigAndState.get();
-                configUUID = configAndState.getConfigUUID();
-            } else {
-                configUUID = messageConfigDTO.get().getConfigUUID();
-                final MessageDataDTO messageDataDTO = getMessageDataDTOOrCreateNew(configUUID, guildId, channelId, messageId);
-                configAndState = getMessageDataAndUpdateWithButtonValue(messageConfigDTO.get(), messageDataDTO, buttonValue, event.getInvokingGuildMemberName());
-            }
-            config = configAndState.getConfig();
-            state = configAndState.getState();
+
+        final String buttonValue = BottomCustomIdUtils.getButtonValueFromCustomId(event.getCustomId());
+        final Optional<UUID> configUUIDFromCustomID = BottomCustomIdUtils.getConfigUUIDFromCustomId(event.getCustomId());
+        BotMetrics.incrementButtonUUIDUsageMetricCounter(getCommandId(), configUUIDFromCustomID.isPresent());
+        final Optional<MessageConfigDTO> messageConfigDTO = getMessageConfigDTO(configUUIDFromCustomID.orElse(null), channelId, messageId);
+        final Optional<ConfigAndState<C, S>> fallbackConfigAndState = createNewConfigAndStateIfMissing(buttonValue);
+        if (messageConfigDTO.isEmpty() && fallbackConfigAndState.isEmpty()) {
+            log.warn("{}: Missing messageData for channelId: {}, messageId: {} and commandName: {} ", event.getRequester().toLogString(), channelId, messageId, getCommandId());
+            return event.reply(I18n.getMessage("base.reply.missingConfig", event.getRequester().getUserLocal(), I18n.getMessage(getCommandId() + ".name", event.getRequester().getUserLocal())), false);
         }
+        final ConfigAndState<C, S> configAndState;
+        final UUID configUUID;
+        if (messageConfigDTO.isEmpty() && fallbackConfigAndState.isPresent()) {
+            configAndState = fallbackConfigAndState.get();
+            configUUID = configAndState.getConfigUUID();
+        } else {
+            configUUID = messageConfigDTO.get().getConfigUUID();
+            final MessageDataDTO messageDataDTO = getMessageDataDTOOrCreateNew(configUUID, guildId, channelId, messageId);
+            configAndState = getMessageDataAndUpdateWithButtonValue(messageConfigDTO.get(), messageDataDTO, buttonValue, event.getInvokingGuildMemberName());
+        }
+        final C config = configAndState.getConfig();
+        final State<S> state = configAndState.getState();
+
         final Long answerTargetChannelId = config.getAnswerTargetChannelId();
         Optional<String> checkPermissions = event.checkPermissions(answerTargetChannelId, event.getRequester().getUserLocal());
         if (checkPermissions.isPresent()) {
@@ -102,12 +103,29 @@ public abstract class AbstractComponentInteractEventHandler<C extends Config, S 
         //Todo Remove buttons on set to "processing ..."?
         actions.add(Mono.defer(() -> event.editMessage(editMessage, editMessageComponents.orElse(null))));
 
+        //todo make getAnswer a genereal EmbedOrMessage
         Optional<RollAnswer> answer = getAnswer(config, state, channelId, userId);
         if (answer.isPresent()) {
             BotMetrics.incrementButtonMetricCounter(getCommandId());
             BotMetrics.incrementAnswerFormatCounter(config.getAnswerFormatType(), getCommandId());
-
-            actions.add(Mono.defer(() -> event.createResultMessageWithReference(RollAnswerConverter.toEmbedOrMessageDefinition(answer.get()), answerTargetChannelId)
+            EmbedOrMessageDefinition baseAnswer = RollAnswerConverter.toEmbedOrMessageDefinition(answer.get());
+            final EmbedOrMessageDefinition answerMessage;
+            if (config.getAnswerInteractionType() == AnswerInteractionType.reroll &&
+                    baseAnswer.getType() == EmbedOrMessageDefinition.Type.EMBED &&
+                    baseAnswer.getComponentRowDefinitions().isEmpty()) {
+                //todo add supplier for tests
+                //todo move all into one one methode in RerollAnswerHander?
+                UUID rerollConfigId = UUID.randomUUID();
+                RerollAnswerConfig rerollAnswerConfig = RerollAnswerHandler.createNewRerollAnswerConfig(config, answer.get().getExpression(), answer.get().getDieIdAndValues(), 0);
+                RerollAnswerHandler.createMessageConfig(rerollConfigId, guildId, channelId, rerollAnswerConfig).ifPresent(persistenceManager::saveMessageConfig);
+                answerMessage = RerollAnswerHandler.applyToAnswer(baseAnswer, answer.get().getDieIdAndValues(), config.getConfigLocale(), rerollConfigId);
+            } else if (config.getAnswerInteractionType() == AnswerInteractionType.hidden) {
+                //todo answer ephemeral
+                answerMessage = HiddenAnswerHandler.applyToAnswer(baseAnswer, config.getConfigLocale());
+            } else {
+                answerMessage = baseAnswer;
+            }
+            actions.add(Mono.defer(() -> event.createResultMessageWithReference(answerMessage, answerTargetChannelId)
                     .doOnSuccess(v -> {
                         BotMetrics.timerAnswerMetricCounter(getCommandId(), stopwatch.elapsed());
                         log.info("{}: '{}'={} -> {} in {}ms",
@@ -190,8 +208,10 @@ public abstract class AbstractComponentInteractEventHandler<C extends Config, S 
         return Optional.empty();
     }
 
+    //todo combine with createNewButtonMessageWithState?
+
     /**
-     * The new button message, after a slash event
+     * for pined Messages
      */
     public abstract @NonNull EmbedOrMessageDefinition createNewButtonMessage(@NonNull UUID configId, @NonNull C config, long channelId);
 
@@ -245,13 +265,5 @@ public abstract class AbstractComponentInteractEventHandler<C extends Config, S 
 
     protected void addFurtherActions(List<Mono<Void>> actions, ButtonEventAdaptor event, C config, State<S> state) {
 
-    }
-
-    @Override
-    public final boolean matchingComponentCustomId(@NonNull String buttonCustomId) {
-        if (BottomCustomIdUtils.isLegacyCustomId(buttonCustomId)) {
-            return BottomCustomIdUtils.matchesLegacyCustomId(buttonCustomId, getCommandId());
-        }
-        return Objects.equals(getCommandId(), BottomCustomIdUtils.getCommandNameFromCustomId(buttonCustomId));
     }
 }

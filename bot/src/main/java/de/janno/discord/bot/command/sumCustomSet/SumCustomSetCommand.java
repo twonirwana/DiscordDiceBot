@@ -203,14 +203,14 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
         return Optional.of(diceSystemAdapter.answerRollWithGivenLabel(newExpression,
                 label,
                 config.isAlwaysSumResult(),
-                config.getDiceParserSystem(),
+                config.getDiceSystem(),
                 config.getAnswerFormatType(),
                 config.getDiceStyleAndColor(),
                 config.getConfigLocale()));
     }
 
     @Override
-    public @NonNull EmbedOrMessageDefinition createNewButtonMessage(@NonNull UUID configUUID, @NonNull SumCustomSetConfig config, long channelId) {
+    public @NonNull EmbedOrMessageDefinition createSlashResponseMessage(@NonNull UUID configUUID, @NonNull SumCustomSetConfig config, long channelId) {
         Set<String> disabledIds = getDisabledButtonIds(config, null, channelId, null);
 
         return EmbedOrMessageDefinition.builder()
@@ -247,7 +247,7 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
                 .map(List::isEmpty)
                 .orElse(true);
         Set<String> disabledIds = getDisabledButtonIds(config, state, channelId, userId);
-        return Optional.of(createButtonLayout(customUuid, config, !diceSystemAdapter.isValidExpression(expression, config.getDiceParserSystem()), expressionIsEmpty, disabledIds, config.getConfigLocale()));
+        return Optional.of(createButtonLayout(customUuid, config, !diceSystemAdapter.isValidExpression(expression, config.getDiceSystem()), expressionIsEmpty, disabledIds, config.getConfigLocale()));
     }
 
     private Set<String> getDisabledButtonIds(@NonNull SumCustomSetConfig config, @Nullable State<SumCustomSetStateDataV2> state, long channelId, @Nullable Long userId) {
@@ -261,7 +261,7 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
                             config.getLabelAndExpression());
                     List<ExpressionAndLabel> diceExpression = Optional.of(updatedState).map(State::getData).map(SumCustomSetStateDataV2::getDiceExpressions).orElse(List.of());
                     String expressionAfterSelection = AliasHelper.getAndApplyAliaseToExpression(channelId, userId, persistenceManager, combineExpressions(diceExpression, config.getPrefix(), config.getPostfix()));
-                    return !diceSystemAdapter.isValidExpression(expressionAfterSelection, config.getDiceParserSystem());
+                    return !diceSystemAdapter.isValidExpression(expressionAfterSelection, config.getDiceSystem());
                 })
                 .map(ButtonIdLabelAndDiceExpression::getButtonId)
                 .collect(Collectors.toSet());
@@ -295,6 +295,7 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
         return ButtonHelper.valdiate(buttons, userLocale, List.of("clear", "back", "roll"), ENDS_WITH_DOUBLE_SEMICOLUMN_PATTERN.matcher(buttons).matches());
     }
 
+    //todo buttonId or buttonValue
     private State<SumCustomSetStateDataV2> updateStateWithButtonId(@NonNull final String buttonId,
                                                                    @NonNull final List<ExpressionAndLabel> currentExpressions,
                                                                    @NonNull final String invokingUserName,
@@ -375,6 +376,7 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
                 prefix,
                 postfix,
                 answerType,
+                BaseCommandOptions.getAnswerInteractionFromStartCommandOption(options),
                 null, new DiceStyleAndColor(
                 BaseCommandOptions.getDiceStyleOptionFromStartCommandOption(options).orElse(DiceImageStyle.polyhedral_3d),
                 BaseCommandOptions.getDiceColorOptionFromStartCommandOption(options).orElse(DiceImageStyle.polyhedral_3d.getDefaultColor())),

@@ -22,10 +22,6 @@ public final class BottomCustomIdUtils {
         return commandId + CUSTOM_ID_DELIMITER + buttonValue;
     }
 
-    public static boolean isLegacyCustomId(@NonNull String customId) {
-        return !customId.contains(CUSTOM_ID_DELIMITER);
-    }
-
     public static @NonNull String getButtonValueFromCustomId(@NonNull String customId) {
         if (customId.split(CUSTOM_ID_DELIMITER).length >= 2) {
             return customId.split(CUSTOM_ID_DELIMITER)[BUTTON_VALUE_INDEX];
@@ -49,11 +45,5 @@ public final class BottomCustomIdUtils {
         throw new IllegalStateException("'%s' contains not the correct number of delimiter".formatted(customId));
     }
 
-    /**
-     * will be removed when almost all users have switched to the persisted button id
-     */
-    public static boolean matchesLegacyCustomId(@NonNull String customId, @NonNull String commandId) {
-        return customId.matches("^" + commandId + LEGACY_CONFIG_SPLIT_DELIMITER_REGEX + ".*");
-    }
 
 }

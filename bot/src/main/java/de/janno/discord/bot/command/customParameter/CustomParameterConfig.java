@@ -2,10 +2,11 @@ package de.janno.discord.bot.command.customParameter;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import de.janno.discord.bot.AnswerInteractionType;
 import de.janno.discord.bot.ResultImage;
 import de.janno.discord.bot.command.AnswerFormatType;
-import de.janno.discord.bot.command.Config;
-import de.janno.discord.bot.dice.DiceParserSystem;
+import de.janno.discord.bot.command.reroll.Config;
+import de.janno.discord.bot.dice.DiceSystem;
 import de.janno.discord.bot.dice.image.DiceStyleAndColor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -22,7 +23,7 @@ public class CustomParameterConfig extends Config {
     @NonNull
     private final String baseExpression;
     @NonNull
-    private final DiceParserSystem diceParserSystem;
+    private final DiceSystem diceSystem;
 
     @NonNull
     @JsonIgnore
@@ -32,19 +33,20 @@ public class CustomParameterConfig extends Config {
             @JsonProperty("answerTargetChannelId") Long answerTargetChannelId,
             @JsonProperty("baseExpression") @NonNull String baseExpression,
             @JsonProperty("answerFormatType") AnswerFormatType answerFormatType,
+            @JsonProperty("answerInteractionType") AnswerInteractionType answerInteractionType,
             @JsonProperty("resultImage") ResultImage resultImage,
             @JsonProperty("diceImageStyle") DiceStyleAndColor diceStyleAndColor,
             @JsonProperty("configLocale") Locale configLocale) {
-        super(answerTargetChannelId, answerFormatType, resultImage, diceStyleAndColor, configLocale);
+        super(answerTargetChannelId, answerFormatType, answerInteractionType, resultImage, diceStyleAndColor, configLocale);
         this.baseExpression = baseExpression;
         //todo handle legacy config
-        this.diceParserSystem = DiceParserSystem.DICE_EVALUATOR;
+        this.diceSystem = DiceSystem.DICE_EVALUATOR;
         this.parameters = CustomParameterCommand.createParameterListFromBaseExpression(baseExpression);
     }
 
     @Override
     public String toShortString() {
-        return "[%s, %s, %s, %s, %s]".formatted(baseExpression.replace("\n", " "), getTargetChannelShortString(), diceParserSystem, getAnswerFormatType(), getDiceStyleAndColor());
+        return "[%s, %s, %s, %s, %s]".formatted(baseExpression.replace("\n", " "), getTargetChannelShortString(), diceSystem, getAnswerFormatType(), getDiceStyleAndColor());
     }
 
     @Override

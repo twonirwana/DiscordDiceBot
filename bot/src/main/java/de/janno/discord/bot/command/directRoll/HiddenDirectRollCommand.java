@@ -110,10 +110,7 @@ public class HiddenDirectRollCommand extends DirectRollCommand implements Compon
                 .then();
     }
 
-    @Override
-    public boolean matchingComponentCustomId(String buttonCustomId) {
-        return Objects.equals(getCommandId(), BottomCustomIdUtils.getCommandNameFromCustomId(buttonCustomId));
-    }
+
 
     protected EmbedOrMessageDefinition getHelpMessage(Locale userLocale) {
         return EmbedOrMessageDefinition.builder()

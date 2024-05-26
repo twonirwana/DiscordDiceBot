@@ -5,7 +5,7 @@ de.janno.discord.bot.command.help.WelcomeCommandTest.configSerialization=[
     "channelId": 2,
     "commandId": "welcome",
     "configClassId": "Config",
-    "config": "---\nanswerTargetChannelId: 123\nanswerFormatType: \"full\"\nconfigLocale: \"de\"\ndiceStyleAndColor:\n  diceImageStyle: \"none\"\n  configuredDefaultColor: \"none\"\n"
+    "config": "---\nanswerTargetChannelId: 123\nanswerFormatType: \"full\"\nanswerInteractionType: \"none\"\nconfigLocale: \"de\"\ndiceStyleAndColor:\n  diceImageStyle: \"none\"\n  configuredDefaultColor: \"none\"\n"
   }
 ]
 
@@ -144,6 +144,33 @@ de.janno.discord.bot.command.help.WelcomeCommandTest.getCommandDefinition=[
                     "choice": "Français"
                   }
                 ]
+              }
+            ],
+            "options": [ ],
+            "autoComplete": false
+          },
+          {
+            "type": "STRING",
+            "name": "answer_interaction",
+            "nameLocales": [ ],
+            "description": "description",
+            "descriptionLocales": [ ],
+            "required": false,
+            "choices": [
+              {
+                "name": "none",
+                "value": "none",
+                "nameLocales": [ ]
+              },
+              {
+                "name": "hidden",
+                "value": "hidden",
+                "nameLocales": [ ]
+              },
+              {
+                "name": "reroll",
+                "value": "reroll",
+                "nameLocales": [ ]
               }
             ],
             "options": [ ],

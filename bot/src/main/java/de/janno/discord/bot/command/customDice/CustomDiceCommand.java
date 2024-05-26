@@ -3,12 +3,13 @@ package de.janno.discord.bot.command.customDice;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
+import de.janno.discord.bot.AnswerInteractionType;
 import de.janno.discord.bot.I18n;
 import de.janno.discord.bot.command.*;
 import de.janno.discord.bot.command.channelConfig.AliasHelper;
 import de.janno.discord.bot.dice.CachingDiceEvaluator;
 import de.janno.discord.bot.dice.DiceEvaluatorAdapter;
-import de.janno.discord.bot.dice.DiceParserSystem;
+import de.janno.discord.bot.dice.DiceSystem;
 import de.janno.discord.bot.dice.DiceSystemAdapter;
 import de.janno.discord.bot.dice.image.DiceImageStyle;
 import de.janno.discord.bot.dice.image.DiceStyleAndColor;
@@ -103,9 +104,9 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
                 .distinct()
                 .collect(Collectors.toList());
 
-        DiceParserSystem diceParserSystem = DiceParserSystem.DICE_EVALUATOR;
+        DiceSystem diceSystem = DiceSystem.DICE_EVALUATOR;
         return diceSystemAdapter.validateListOfExpressions(diceExpressionWithOptionalLabel, "/%s %s".formatted(I18n.getMessage("custom_dice.name", userLocale),
-                I18n.getMessage("base.option.help", userLocale)), diceParserSystem, userLocale);
+                I18n.getMessage("base.option.help", userLocale)), diceSystem, userLocale);
 
     }
 
@@ -118,6 +119,7 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
         return getConfigOptionStringList(getButtonsFromCommandOption(options),
                 BaseCommandOptions.getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null),
                 BaseCommandOptions.getAnswerTypeFromStartCommandOption(options).orElse(defaultAnswerFormat()),
+                BaseCommandOptions.getAnswerInteractionFromStartCommandOption(options),
                 BaseCommandOptions.getDiceStyleOptionFromStartCommandOption(options).orElse(DiceImageStyle.polyhedral_3d),
                 BaseCommandOptions.getDiceColorOptionFromStartCommandOption(options).orElse(DiceImageStyle.polyhedral_3d.getDefaultColor()),
                 userLocale
@@ -128,12 +130,14 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
     CustomDiceConfig getConfigOptionStringList(List<ButtonIdLabelAndDiceExpression> buttons,
                                                Long channelId,
                                                AnswerFormatType answerFormatType,
+                                               AnswerInteractionType answerInteractionType,
                                                DiceImageStyle diceImageStyle,
                                                String defaultDiceColor,
                                                @NonNull Locale userLocale) {
         return new CustomDiceConfig(channelId,
                 buttons,
                 answerFormatType,
+                answerInteractionType,
                 null,
                 new DiceStyleAndColor(diceImageStyle, defaultDiceColor),
                 userLocale
@@ -156,7 +160,7 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
         return Optional.of(diceSystemAdapter.answerRollWithGivenLabel(expression,
                 label,
                 false,
-                config.getDiceParserSystem(),
+                config.getDiceSystem(),
                 config.getAnswerFormatType(),
                 config.getDiceStyleAndColor(),
                 config.getConfigLocale()));
@@ -168,11 +172,11 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
                                                                                           @NonNull State<StateData> state,
                                                                                           @Nullable Long guildId,
                                                                                           long channelId) {
-        return Optional.of(createNewButtonMessage(configUUID, config, channelId));
+        return Optional.of(createSlashResponseMessage(configUUID, config, channelId));
     }
 
     @Override
-    public @NonNull EmbedOrMessageDefinition createNewButtonMessage(@NonNull UUID configUUID, @NonNull CustomDiceConfig config, long channelId) {
+    public @NonNull EmbedOrMessageDefinition createSlashResponseMessage(@NonNull UUID configUUID, @NonNull CustomDiceConfig config, long channelId) {
         return EmbedOrMessageDefinition.builder()
                 .type(EmbedOrMessageDefinition.Type.MESSAGE)
                 .descriptionOrContent(I18n.getMessage("custom_dice.buttonMessage.message", config.getConfigLocale()))
@@ -193,7 +197,7 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
     protected @NonNull Optional<String> getConfigWarnMessage(CustomDiceConfig config, Locale userLocale) {
         return Optional.ofNullable(Strings.emptyToNull(config.getButtonIdLabelAndDiceExpressions().stream()
                 .map(b -> {
-                    String warning = diceSystemAdapter.answerRollWithGivenLabel(b.getDiceExpression(), null, false, DiceParserSystem.DICE_EVALUATOR, config.getAnswerFormatType(),
+                    String warning = diceSystemAdapter.answerRollWithGivenLabel(b.getDiceExpression(), null, false, DiceSystem.DICE_EVALUATOR, config.getAnswerFormatType(),
                             config.getDiceStyleAndColor(), userLocale).getWarning();
                     if (!Strings.isNullOrEmpty(warning)) {
                         return "`%s`: %s".formatted(b.getDiceExpression(), warning);

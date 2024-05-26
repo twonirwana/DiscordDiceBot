@@ -100,7 +100,7 @@ public final class BaseCommandOptions {
     public static AnswerInteractionType getAnswerInteractionFromStartCommandOption(@NonNull CommandInteractionOption options) {
         return options.getStringSubOptionWithName(ANSWER_INTERACTION_OPTION_NAME)
                 .map(AnswerInteractionType::valueOf)
-                .orElse(AnswerInteractionType.NONE);
+                .orElse(AnswerInteractionType.none);
     }
 
     public static List<AutoCompleteAnswer> autoCompleteColorOption(AutoCompleteRequest autoCompleteRequest, Locale userLocale) {

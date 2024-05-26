@@ -15,6 +15,8 @@ import de.janno.discord.bot.command.help.HelpCommand;
 import de.janno.discord.bot.command.help.QuickstartCommand;
 import de.janno.discord.bot.command.help.RpgSystemCommandPreset;
 import de.janno.discord.bot.command.help.WelcomeCommand;
+import de.janno.discord.bot.command.hidden.HiddenAnswerHandler;
+import de.janno.discord.bot.command.reroll.RerollAnswerHandler;
 import de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommand;
 import de.janno.discord.bot.dice.CachingDiceEvaluator;
 import de.janno.discord.bot.persistance.PersistenceManager;
@@ -55,7 +57,8 @@ public class Bot {
         RpgSystemCommandPreset rpgSystemCommandPreset = new RpgSystemCommandPreset(persistenceManager, customParameterCommand, customDiceCommand, sumCustomSetCommand);
         WelcomeCommand welcomeCommand = new WelcomeCommand(persistenceManager, rpgSystemCommandPreset);
         HiddenDirectRollCommand hiddenDirectRollCommand = new HiddenDirectRollCommand(persistenceManager, cachingDiceEvaluator);
-
+        RerollAnswerHandler rerollAnswerHandler = new RerollAnswerHandler(persistenceManager);
+        HiddenAnswerHandler hiddenAnswerHandler = new HiddenAnswerHandler();
         DiscordConnectorImpl.createAndStart(
                 List.of(customDiceCommand,
                         new DirectRollCommand(persistenceManager, cachingDiceEvaluator),
@@ -75,7 +78,9 @@ public class Bot {
                         sumCustomSetCommand,
                         customParameterCommand,
                         welcomeCommand,
-                        hiddenDirectRollCommand
+                        hiddenDirectRollCommand,
+                        rerollAnswerHandler,
+                        hiddenAnswerHandler
                 ),
                 //todo handle legacy events
                 welcomeCommand.getWelcomeMessage(),

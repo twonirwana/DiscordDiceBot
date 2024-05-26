@@ -1,8 +1,11 @@
-package de.janno.discord.bot.command;
+package de.janno.discord.bot.command.reroll;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import de.janno.discord.bot.AnswerInteractionType;
 import de.janno.discord.bot.ResultImage;
+import de.janno.discord.bot.command.AnswerFormatType;
+import de.janno.discord.bot.command.BaseCommandOptions;
 import de.janno.discord.bot.dice.image.DiceImageStyle;
 import de.janno.discord.bot.dice.image.DiceStyleAndColor;
 import de.janno.discord.bot.dice.image.LegacyImageConfigHelper;
@@ -29,6 +32,8 @@ public class Config implements Serializable {
 
     @NonNull
     private final AnswerFormatType answerFormatType;
+    @NonNull
+    private final AnswerInteractionType answerInteractionType;
 
     @NonNull
     private final DiceStyleAndColor diceStyleAndColor;
@@ -39,12 +44,14 @@ public class Config implements Serializable {
     @JsonCreator
     public Config(@JsonProperty("answerTargetChannelId") Long answerTargetChannelId,
                   @JsonProperty("answerFormatType") AnswerFormatType answerFormatType,
+                  @JsonProperty("answerInteractionType") AnswerInteractionType answerInteractionType,
                   @JsonProperty("resultImage") ResultImage resultImage,
                   @JsonProperty("diceImageStyle") DiceStyleAndColor diceStyleAndColor,
                   @JsonProperty("configLocale") Locale configLocale
     ) {
         this.answerTargetChannelId = answerTargetChannelId;
         this.answerFormatType = Optional.ofNullable(answerFormatType).orElse(AnswerFormatType.full);
+        this.answerInteractionType = Optional.ofNullable(answerInteractionType).orElse(AnswerInteractionType.none);
 
         if (resultImage != null) {
             this.diceStyleAndColor = LegacyImageConfigHelper.getStyleAndColor(resultImage);
@@ -57,12 +64,13 @@ public class Config implements Serializable {
     }
 
     public String toShortString() {
-        return String.format("[%s, %s, %s]", getTargetChannelShortString(), answerFormatType, diceStyleAndColor);
+        return String.format("[%s, %s, %s, %s]", getTargetChannelShortString(), answerFormatType, answerInteractionType, diceStyleAndColor);
     }
 
     public String toCommandOptionsString() {
         List<String> out = new ArrayList<>();
         out.add(String.format("%s: %s", BaseCommandOptions.ANSWER_FORMAT_OPTION_NAME, answerFormatType));
+        out.add(String.format("%s: %s", BaseCommandOptions.ANSWER_INTERACTION_OPTION_NAME, answerInteractionType));
         out.add(String.format("%s: %s", BaseCommandOptions.DICE_IMAGE_STYLE_OPTION_NAME, diceStyleAndColor.getDiceImageStyle()));
         out.add(String.format("%s: %s", BaseCommandOptions.DICE_IMAGE_COLOR_OPTION_NAME, diceStyleAndColor.getConfiguredDefaultColor()));
         if (answerTargetChannelId != null) {

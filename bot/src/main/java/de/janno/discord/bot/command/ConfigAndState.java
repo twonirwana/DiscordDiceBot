@@ -1,5 +1,6 @@
 package de.janno.discord.bot.command;
 
+import de.janno.discord.bot.command.reroll.Config;
 import lombok.NonNull;
 import lombok.Value;
 

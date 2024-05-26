@@ -287,7 +287,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
             return Optional.of(diceSystemAdapter.answerRollWithGivenLabel(expressionWithoutSuffixLabel,
                     label,
                     false,
-                    config.getDiceParserSystem(),
+                    config.getDiceSystem(),
                     config.getAnswerFormatType(),
                     config.getDiceStyleAndColor(),
                     config.getConfigLocale()));
@@ -331,6 +331,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
         return new CustomParameterConfig(answerTargetChannelId,
                 baseExpression,
                 answerType,
+                BaseCommandOptions.getAnswerInteractionFromStartCommandOption(options),
                 null,
                 new DiceStyleAndColor(
                         BaseCommandOptions.getDiceStyleOptionFromStartCommandOption(options).orElse(DiceImageStyle.polyhedral_3d),
@@ -345,7 +346,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     }
 
     @Override
-    public @NonNull EmbedOrMessageDefinition createNewButtonMessage(@NonNull UUID configUUID, @NonNull CustomParameterConfig config, long channelId) {
+    public @NonNull EmbedOrMessageDefinition createSlashResponseMessage(@NonNull UUID configUUID, @NonNull CustomParameterConfig config, long channelId) {
         return EmbedOrMessageDefinition.builder()
                 .type(EmbedOrMessageDefinition.Type.MESSAGE)
                 .descriptionOrContent(formatMessageContent(config, null, null))
@@ -569,7 +570,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
             String expressionWithoutSuffixLabel = removeSuffixLabelFromExpression(expression, label);
             Optional<String> validationMessage = diceSystemAdapter.validateDiceExpressionWitOptionalLabel(expressionWithoutSuffixLabel,
                     "/%s %s".formatted(I18n.getMessage("custom_parameter.name", config.getConfigLocale()), I18n.getMessage("base.option.help", config.getConfigLocale())),
-                    config.getDiceParserSystem(),
+                    config.getDiceSystem(),
                     config.getConfigLocale());
             if (validationMessage.isPresent()) {
                 return validationMessage.get();
