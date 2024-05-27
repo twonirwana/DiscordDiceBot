@@ -249,28 +249,49 @@ This set was designed and contributed by https://www.instagram.com/alie_in_beanl
 
 ==== polyhedral_alies_v2
 
-Valid for d4, d6, d10, d8, d12, d20, d100 and supported colors are: `black_and_gold`, `blue_and_silver`, `blue_and_gold`, `green_and_gold`, `orange_and_silver`, `red_and_gold`, `purple_and_silver`
+Valid for d4, d6, d10, d8, d12, d20, d100 and supported colors are: `black_and_gold`, `blue_and_silver`, `blue_and_gold`, `green_and_gold`, `orange_and_silver`, `red_and_gold`, `purple_and_silver`, `black_and_red`, `rainbow`, `black_and_silver`, `pink_and_silver`, `yellow_and_brown`, `purple_and_black`, `blue_and_black`
 
 .black_and_gold
-image:image/polyhedral_black_and_gold_v2.png[image,600]
+image:image/polyhedral_alies_v2_black_and_gold.png[image,600]
 
 .blue_and_silver
-image:image/blue_and_silver.png[image,600]
+image:image/polyhedral_alies_v2_blue_and_silver.png[image,600]
 
 .green_and_gold
-image:image/green_and_gold.png[image,600]
+image:image/polyhedral_alies_v2_green_and_gold.png[image,600]
 
 .red_and_gold
-image:image/red_and_gold.png[image,600]
+image:image/polyhedral_alies_v2_red_and_gold.png[image,600]
 
 .blue_and_gold
-image:image/polyhedral_blue_and_gold.png[image,600]
+image:image/polyhedral_alies_v2_blue_and_gold.png[image,600]
 
 .orange_and_silver
-image:image/polyhedral_orange_and_silver.png[image,600]
+image:image/polyhedral_alies_v2_orange_and_silver.png[image,600]
 
 .purple_and_silver
-image:image/polyhedral_purple_and_silver.png[image,600]
+image:image/polyhedral_alies_v2_purple_and_silver.png[image,600]
+
+.black_and_red
+image:image/polyhedral_alies_v2_black_and_red.png[image,600]
+
+.rainbow
+image:image/polyhedral_alies_v2_rainbow.png[image,600]
+
+.black_and_silver
+image:image/polyhedral_alies_v2_black_and_silver.png[image,600]
+
+.pink_and_silver
+image:image/polyhedral_alies_v2_pink_and_silver.png[image,600]
+
+.yellow_and_brown
+image:image/polyhedral_alies_v2_yellow_and_brown.png[image,600]
+
+.purple_and_black
+image:image/polyhedral_alies_v2_purple_and_black.png[image,600]
+
+.blue_and_black
+image:image/polyhedral_alies_v2_blue_and_black.png[image,600]
 
 This set was designed and contributed by https://www.instagram.com/alie_in_beanland/[alieinbeanland].
 

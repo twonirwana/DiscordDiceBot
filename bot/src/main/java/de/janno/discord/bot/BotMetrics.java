@@ -66,8 +66,8 @@ public class BotMetrics {
     public static void init() throws IOException {
         if (!Strings.isNullOrEmpty(publishMetricsToUrl)) {
             PrometheusMeterRegistry prometheusRegistry = new PrometheusMeterRegistry(PrometheusConfig.DEFAULT);
+            prometheusRegistry.config().commonTags("application", "DiscordDiceBot");
             Metrics.addRegistry(prometheusRegistry);
-            new UptimeMetrics().bindTo(globalRegistry);
 
             HttpServer server = HttpServer.create(new InetSocketAddress(publishMetricsToUrl, publishPort),
                     SimpleFileServer.OutputLevel.INFO.ordinal(),
@@ -84,7 +84,7 @@ public class BotMetrics {
 
             server.start();
 
-            prometheusRegistry.config().commonTags("application", "DiscordDiceBot");
+            new UptimeMetrics().bindTo(globalRegistry);
             new JvmMemoryMetrics().bindTo(globalRegistry);
             new JvmGcMetrics().bindTo(globalRegistry);
             new ProcessorMetrics().bindTo(globalRegistry);
