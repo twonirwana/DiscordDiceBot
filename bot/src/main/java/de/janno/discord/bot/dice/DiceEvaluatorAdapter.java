@@ -94,7 +94,14 @@ public class DiceEvaluatorAdapter {
         return rolls.stream()
                 .flatMap(r -> r.getRandomElementsInRoll().stream())
                 .flatMap(Collection::stream)
-                .map(r -> new DieIdAndValue(DieIdDb.fromDieId(r.getDieId()), r.getRollElement().getValue()))
+                .map(r -> new DieIdAndValue(DieIdDb.fromDieId(
+                        r.getDieId()),
+                        r.getRollElement().getValue(),
+                        //todo use selectedIndex with next diceEvaluator releasse
+                        Optional.ofNullable(r.getRandomSelectedFrom())
+                                .map(l -> l.indexOf(r.getRollElement().getValue()) + 1)
+                                .orElse(null)
+                ))
                 .toList();
     }
 

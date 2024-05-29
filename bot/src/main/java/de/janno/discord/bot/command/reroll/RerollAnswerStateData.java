@@ -17,13 +17,10 @@ public class RerollAnswerStateData extends StateData {
 
     @NonNull
     List<DieIdDb> rerollDice;
-    String lockedForUserName;
 
     @JsonCreator
-    public RerollAnswerStateData(@JsonProperty("rerollDice") @NonNull List<DieIdDb> rerollDice,
-                                 @JsonProperty("lockedForUserName") String lockedForUserName) {
+    public RerollAnswerStateData(@JsonProperty("rerollDice") @NonNull List<DieIdDb> rerollDice) {
         this.rerollDice = rerollDice;
-        this.lockedForUserName = lockedForUserName;
     }
 
     @Override

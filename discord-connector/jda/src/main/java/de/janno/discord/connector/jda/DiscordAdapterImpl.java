@@ -26,11 +26,11 @@ import net.dv8tion.jda.api.utils.FileUpload;
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import org.apache.commons.lang3.StringUtils;
-import javax.annotation.Nullable;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.ParallelFlux;
 
+import javax.annotation.Nullable;
 import java.awt.*;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -194,7 +194,7 @@ public abstract class DiscordAdapterImpl implements DiscordAdapter {
      * @return Optional message with the missing permissions
      */
     protected Optional<String> checkPermission(@NonNull MessageChannel messageChannel, @Nullable Guild guild, boolean allowLegacyPermission, Locale userLocale) {
-        if(guild == null){
+        if (guild == null) {
             //Permissions are only in guild context available
             return Optional.empty();
         }

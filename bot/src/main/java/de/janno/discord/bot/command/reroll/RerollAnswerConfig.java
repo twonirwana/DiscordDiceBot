@@ -10,6 +10,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.ToString;
+import org.apache.commons.lang3.NotImplementedException;
 
 import java.util.List;
 import java.util.Locale;
@@ -23,6 +24,8 @@ public class RerollAnswerConfig extends Config {
     @NonNull
     private final List<DieIdAndValue> dieIdAndValues;
     private final int rerollCount;
+    @NonNull
+    private final String owner;
 
     @JsonCreator
     public RerollAnswerConfig(@JsonProperty("answerTargetChannelId") Long answerTargetChannelId,
@@ -33,24 +36,24 @@ public class RerollAnswerConfig extends Config {
                               @JsonProperty("answerInteractionType") AnswerInteractionType answerInteractionType,
                               @JsonProperty("expression") @NonNull String expression,
                               @JsonProperty("dieIdAndValues") @NonNull List<DieIdAndValue> dieIdAndValues,
-                              @JsonProperty("rerollCount") int rerollCount
+                              @JsonProperty("rerollCount") int rerollCount,
+                              @JsonProperty("owner") String owner
     ) {
         super(answerTargetChannelId, answerFormatType, answerInteractionType, resultImage, diceStyleAndColor, configLocale);
         this.expression = expression;
         this.dieIdAndValues = dieIdAndValues;
         this.rerollCount = rerollCount;
+        this.owner = owner;
     }
 
     @Override
     public String toShortString() {
-        //todo
-        return "";
+        return "[%s, %s, %s, %s, %s]".formatted(expression, dieIdAndValues, rerollCount, getAnswerFormatType(), getDiceStyleAndColor());
     }
 
     @Override
     public String toCommandOptionsString() {
-        //todo
-        return "";
+        throw new NotImplementedException();
     }
 
 }
