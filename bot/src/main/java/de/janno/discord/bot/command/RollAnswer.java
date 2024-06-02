@@ -4,6 +4,7 @@ import com.google.common.base.Joiner;
 import de.janno.discord.bot.command.reroll.DieIdAndValue;
 import lombok.Builder;
 import lombok.NonNull;
+import lombok.Singular;
 import lombok.Value;
 import org.apache.commons.lang3.StringUtils;
 
@@ -37,6 +38,8 @@ public class RollAnswer {
     @Nullable
     String warning;
     @NonNull
+    @Singular
+    //todo change to random element?
     List<DieIdAndValue> dieIdAndValues;
 
     public String toShortString() {

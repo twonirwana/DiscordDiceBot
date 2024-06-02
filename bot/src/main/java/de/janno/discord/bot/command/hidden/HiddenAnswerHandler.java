@@ -25,7 +25,6 @@ public class HiddenAnswerHandler implements ComponentInteractEventHandler {
 
     public static EmbedOrMessageDefinition applyToAnswer(EmbedOrMessageDefinition input, Locale locale) {
 
-        //todo finish button?
         return input.toBuilder()
                 .componentRowDefinition(ComponentRowDefinition.builder()
                         .buttonDefinition(ButtonDefinition.builder()

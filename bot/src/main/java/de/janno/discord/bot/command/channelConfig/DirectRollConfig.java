@@ -1,6 +1,7 @@
 package de.janno.discord.bot.command.channelConfig;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import de.janno.discord.bot.AnswerInteractionType;
 import de.janno.discord.bot.ResultImage;
@@ -41,5 +42,11 @@ public class DirectRollConfig extends Config {
     @Override
     public String toCommandOptionsString() {
         return "%s: %s %s".formatted(ChannelConfigCommand.ALWAYS_SUM_RESULTS_OPTION_NAME, alwaysSumResult, super.toCommandOptionsString());
+    }
+
+    @JsonIgnore
+    @Override
+    public boolean alwaysSumResultUp() {
+        return alwaysSumResult;
     }
 }

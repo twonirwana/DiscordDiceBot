@@ -8,10 +8,12 @@ import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.Tag;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import reactor.core.publisher.Mono;
 
 import javax.annotation.Nullable;
 import javax.sql.DataSource;
 import java.sql.*;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.Optional;
@@ -439,6 +441,22 @@ public class PersistenceManagerImpl implements PersistenceManager {
             throw new RuntimeException(e);
         }
         BotMetrics.databaseTimer("deleteAllChannelConfig", stopwatch.elapsed());
+    }
+
+
+    @Override
+    public void deleteMessageConfig(UUID configUUID) {
+        Stopwatch stopwatch = Stopwatch.createStarted();
+        try (Connection con = databaseConnector.getConnection()) {
+
+            try (PreparedStatement preparedStatement = con.prepareStatement("DELETE FROM MESSAGE_CONFIG MC WHERE MC.CONFIG_ID = ?")) {
+                preparedStatement.setObject(1, configUUID);
+                preparedStatement.execute();
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        BotMetrics.databaseTimer("deleteMessageConfig", stopwatch.elapsed());
     }
 
     @Override

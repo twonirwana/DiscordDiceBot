@@ -55,11 +55,11 @@ public abstract class AbstractSlashCommand<C extends Config, S extends StateData
             baseOptions.add(DICE_IMAGE_STYLE_COMMAND_OPTION);
             baseOptions.add(DICE_IMAGE_COLOR_COMMAND_OPTION);
         }
-        if (supportsLocale()) {
-            baseOptions.add(LOCALE_COMMAND_OPTION);
+        baseOptions.add(LOCALE_COMMAND_OPTION);
+
+        if (supportsAnswerInteraction()) {
+            baseOptions.add(ANSWER_INTERACTION_COMMAND_OPTION);
         }
-        //todo maybe optional
-        baseOptions.add(ANSWER_INTERACTION_COMMAND_OPTION);
 
         return CommandDefinition.builder()
                 .name(getCommandId())
@@ -98,7 +98,7 @@ public abstract class AbstractSlashCommand<C extends Config, S extends StateData
         return true;
     }
 
-    protected boolean supportsLocale() {
+    protected boolean supportsAnswerInteraction() {
         return true;
     }
 

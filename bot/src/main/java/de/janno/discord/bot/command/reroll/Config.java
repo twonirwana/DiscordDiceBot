@@ -1,6 +1,7 @@
 package de.janno.discord.bot.command.reroll;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import de.janno.discord.bot.AnswerInteractionType;
 import de.janno.discord.bot.ResultImage;
@@ -83,6 +84,11 @@ public class Config implements Serializable {
 
     protected String getTargetChannelShortString() {
         return answerTargetChannelId == null ? "local" : "target";
+    }
+
+    @JsonIgnore
+    public boolean alwaysSumResultUp(){
+        return false;
     }
 
 }

@@ -1,6 +1,7 @@
 package de.janno.discord.bot.command.reroll;
 
 import com.google.common.base.Preconditions;
+import com.google.common.base.Supplier;
 import de.janno.discord.bot.AnswerInteractionType;
 import de.janno.discord.bot.I18n;
 import de.janno.discord.bot.command.*;
@@ -19,8 +20,10 @@ import de.janno.evaluator.dice.DieId;
 import de.janno.evaluator.dice.random.GivenDiceNumberSupplier;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import reactor.core.publisher.Mono;
 
 import javax.annotation.Nullable;
+import java.time.Duration;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -32,13 +35,19 @@ public class RerollAnswerHandler extends AbstractComponentInteractEventHandler<R
     private static final String FINISH_BUTTON_ID = "finish";
     private static final String COMMAND_ID = "reroll_answer";
     private final PersistenceManager persistenceManager;
+    private final Supplier<UUID> uuidSupplier;
 
-    public RerollAnswerHandler(PersistenceManager persistenceManager) {
+    public RerollAnswerHandler(PersistenceManager persistenceManager, Supplier<UUID> uuidSupplier) {
         super(persistenceManager);
         this.persistenceManager = persistenceManager;
+        this.uuidSupplier = uuidSupplier;
     }
 
-    public static EmbedOrMessageDefinition applyToAnswer(EmbedOrMessageDefinition input, List<DieIdAndValue> dieIdAndValues, Locale locale, UUID configUUID) {
+    public RerollAnswerHandler(PersistenceManager persistenceManager) {
+        this(persistenceManager, UUID::randomUUID);
+    }
+
+    private static EmbedOrMessageDefinition applyToAnswer(EmbedOrMessageDefinition input, List<DieIdAndValue> dieIdAndValues, Locale locale, UUID configUUID) {
         List<ComponentRowDefinition> buttons = createButtons(dieIdAndValues, Set.of(), locale, configUUID);
         return input.toBuilder()
                 .componentRowDefinitions(buttons)
@@ -48,38 +57,61 @@ public class RerollAnswerHandler extends AbstractComponentInteractEventHandler<R
     private static List<ComponentRowDefinition> createButtons(List<DieIdAndValue> dieIdAndValues, Set<DieId> selectedDieIds, Locale locale, UUID configUUID) {
 
         List<ButtonIdLabelAndDiceExpression> buttonIdLabelAndDiceExpressions = dieIdAndValues.stream()
-                //todo better solution?
                 .limit(20)
-                //todo better style selection
-                .map(dv -> new ButtonIdLabelAndDiceExpression(dv.getDieIdDb().toDieId().toString(), dv.getValue(), dv.getDieIdDb().toDieId().toString(), false, selectedDieIds.contains(dv.getDieIdDb().toDieId())))
+                //todo add die type to label
+                .map(dv -> new ButtonIdLabelAndDiceExpression(dv.getDieIdDb().toDieId().toString(), dv.getValue(), dv.getDieIdDb().toDieId().toString(), false, false))
                 .toList();
 
-        return ButtonHelper.extendButtonLayout(ButtonHelper.createButtonLayout(COMMAND_ID, configUUID, buttonIdLabelAndDiceExpressions, Set.of()),
+        Set<String> selectedDieIdsAsString = selectedDieIds.stream().map(Objects::toString).collect(Collectors.toSet());
+
+        return ButtonHelper.extendButtonLayout(ButtonHelper.createButtonLayoutDetail(COMMAND_ID, configUUID, buttonIdLabelAndDiceExpressions.stream()
+                        .map(b -> new ButtonHelper.ButtonIdLabelAndDiceExpressionExtension(b, false, selectedDieIdsAsString.contains(b.getButtonId()) ? ButtonDefinition.Style.SECONDARY : ButtonDefinition.Style.PRIMARY))
+                        .toList()),
                 List.of(ButtonDefinition.builder()
                                 .id(BottomCustomIdUtils.createButtonCustomId(COMMAND_ID, ROLL_BUTTON_ID, configUUID))
-                                //todo locale
                                 .label(I18n.getMessage("reroll.button.label.roll", locale))
                                 .style(ButtonDefinition.Style.SUCCESS)
                                 .build(),
                         ButtonDefinition.builder()
                                 .id(BottomCustomIdUtils.createButtonCustomId(COMMAND_ID, FINISH_BUTTON_ID, configUUID))
-                                //todo locale
                                 .label(I18n.getMessage("reroll.button.label.finish", locale))
-                                .style(ButtonDefinition.Style.SUCCESS)
+                                .style(ButtonDefinition.Style.DANGER)
                                 .build()), true);
     }
 
-    public static RerollAnswerConfig createNewRerollAnswerConfig(Config parentConfig, String expression, List<DieIdAndValue> dieIdAndValues, int rerollCount, String owner) {
+    public static EmbedOrMessageDefinition createConfigAndApplyToAnswer(Config config,
+                                                                        RollAnswer answer,
+                                                                        EmbedOrMessageDefinition baseAnswer,
+                                                                        String invokingUserName,
+                                                                        Long guildId,
+                                                                        long channelId,
+                                                                        PersistenceManager persistenceManager) {
+        //todo add supplier for tests
+        UUID rerollConfigId = UUID.randomUUID();
+        RerollAnswerConfig rerollAnswerConfig = RerollAnswerHandler.createNewRerollAnswerConfig(config,
+                answer.getExpression(),
+                answer.getExpressionLabel(),
+                answer.getDieIdAndValues(),
+                0,
+                invokingUserName);
+        RerollAnswerHandler.createMessageConfig(rerollConfigId, guildId, channelId, rerollAnswerConfig).ifPresent(persistenceManager::saveMessageConfig);
+        return RerollAnswerHandler.applyToAnswer(baseAnswer, answer.getDieIdAndValues(), config.getConfigLocale(), rerollConfigId);
+    }
+
+    private static RerollAnswerConfig createNewRerollAnswerConfig(Config parentConfig, String expression, String label, List<DieIdAndValue> dieIdAndValues, int rerollCount, String owner) {
+
         return new RerollAnswerConfig(null,
                 parentConfig.getAnswerFormatType(),
-                null,
+                null, //legacy
                 parentConfig.getDiceStyleAndColor(),
                 parentConfig.getConfigLocale(),
                 AnswerInteractionType.reroll,
                 expression,
                 dieIdAndValues,
                 rerollCount,
-                owner);
+                owner,
+                parentConfig.alwaysSumResultUp(),
+                label);
     }
 
     public static Optional<MessageConfigDTO> createMessageConfig(@NonNull UUID configUUID, @Nullable Long guildId, long channelId, @NonNull RerollAnswerConfig config) {
@@ -110,6 +142,7 @@ public class RerollAnswerHandler extends AbstractComponentInteractEventHandler<R
         final RerollAnswerConfig loadedConfig = Mapper.deserializeObject(messageConfigDTO.getConfig(), RerollAnswerConfig.class);
         if (!loadedConfig.getOwner().equals(invokingUserName)) {
             //unmodified state if the user is not the owner
+            //todo test if works
             return new ConfigAndState<>(messageConfigDTO.getConfigUUID(), loadedConfig, new State<>(buttonValue, Optional.ofNullable(loadedStateData).orElse(new RerollAnswerStateData(new ArrayList<>()))));
         }
 
@@ -123,7 +156,6 @@ public class RerollAnswerHandler extends AbstractComponentInteractEventHandler<R
     private State<RerollAnswerStateData> updateStateWithButtonValue(@NonNull final String buttonValue,
                                                                     final List<DieId> currentlySelectedIds,
                                                                     @NonNull final List<DieId> allIds) {
-        //todo user lock, only the orignial user can edit
         if (ROLL_BUTTON_ID.equals(buttonValue)) {
             return new State<>(buttonValue, new RerollAnswerStateData(currentlySelectedIds.stream()
                     .map(DieIdDb::fromDieId)
@@ -157,11 +189,19 @@ public class RerollAnswerHandler extends AbstractComponentInteractEventHandler<R
     protected void updateCurrentMessageStateData(UUID configUUID, @Nullable Long guildId, long channelId, long messageId, @NonNull RerollAnswerConfig config, @NonNull State<RerollAnswerStateData> state) {
         if (Set.of(ROLL_BUTTON_ID, FINISH_BUTTON_ID).contains(state.getButtonValue())) {
             persistenceManager.deleteStateForMessage(channelId, messageId);
-            //todo delete config with delay
+            //todo central elastic scheduler
+            deleteMessageConfigWithDelay(configUUID).subscribe();
         } else if (state.getData() != null) {
             persistenceManager.deleteStateForMessage(channelId, messageId);
             persistenceManager.saveMessageData(new MessageDataDTO(configUUID, guildId, channelId, messageId, getCommandId(), STATE_DATA_TYPE_ID, Mapper.serializedObject(state.getData())));
         }
+    }
+
+    public Mono<Void> deleteMessageConfigWithDelay(UUID configUUID) {
+        final Duration delay = Duration.ofMillis(io.avaje.config.Config.getLong("command.delayMessageDataDeletionMs", 10000));
+        return Mono.defer(() -> Mono.just(configUUID)
+                .delayElement(delay)
+                .doOnNext(persistenceManager::deleteMessageConfig).ofType(Void.class));
     }
 
     @Override
@@ -176,7 +216,6 @@ public class RerollAnswerHandler extends AbstractComponentInteractEventHandler<R
 //todo never needed?
         return EmbedOrMessageDefinition.builder()
                 .type(EmbedOrMessageDefinition.Type.EMBED)
-                //todo I18n
                 .title(config.getRerollCount() + ": " + config.getExpression())
                 .componentRowDefinitions(createButtonLayout(configUUID, config, null))
                 .build();
@@ -195,14 +234,11 @@ public class RerollAnswerHandler extends AbstractComponentInteractEventHandler<R
                     .collect(Collectors.toMap(DieIdDb::toDieId, d -> dieIdValueMap.get(d.toDieId())));
             DiceEvaluatorAdapter evaluatorAdapter = new DiceEvaluatorAdapter(new NoCachDiceEvaluator(new GivenDiceNumberSupplier(givenDiceNumberMap)));
 
-            //todo label and sum up
-            RollAnswer rollAnswer = evaluatorAdapter.answerRollWithGivenLabel(config.getExpression(), null, false, config.getAnswerFormatType(), config.getDiceStyleAndColor(), config.getConfigLocale());
+            RollAnswer rollAnswer = evaluatorAdapter.answerRollWithGivenLabel(config.getExpression(), config.getLabel(), config.isAlwaysSumUp(), config.getAnswerFormatType(), config.getDiceStyleAndColor(), config.getConfigLocale());
 
+            RerollAnswerConfig rerollAnswerConfig = createNewRerollAnswerConfig(config, config.getExpression(), config.getLabel(), rollAnswer.getDieIdAndValues(), config.getRerollCount() + 1, config.getOwner());
 
-            RerollAnswerConfig rerollAnswerConfig = createNewRerollAnswerConfig(config, config.getExpression(), rollAnswer.getDieIdAndValues(), config.getRerollCount() + 1, config.getOwner());
-
-            //todo supplier
-            UUID newMessageUUID = UUID.randomUUID();
+            UUID newMessageUUID = uuidSupplier.get();
             RerollAnswerHandler.createMessageConfig(newMessageUUID, guildId, channelId, rerollAnswerConfig).ifPresent(persistenceManager::saveMessageConfig);
 
             EmbedOrMessageDefinition newMessage = RerollAnswerHandler.applyToAnswer(RollAnswerConverter.toEmbedOrMessageDefinition(rollAnswer), rollAnswer.getDieIdAndValues(), config.getConfigLocale(), newMessageUUID);

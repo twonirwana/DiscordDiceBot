@@ -6,7 +6,6 @@ import de.janno.discord.bot.AnswerInteractionType;
 import de.janno.discord.bot.BotMetrics;
 import de.janno.discord.bot.I18n;
 import de.janno.discord.bot.command.reroll.Config;
-import de.janno.discord.bot.command.reroll.RerollAnswerConfig;
 import de.janno.discord.bot.command.reroll.RerollAnswerHandler;
 import de.janno.discord.bot.persistance.Mapper;
 import de.janno.discord.bot.persistance.MessageConfigDTO;
@@ -112,16 +111,10 @@ public abstract class AbstractComponentInteractEventHandler<C extends Config, S 
             if (config.getAnswerInteractionType() == AnswerInteractionType.reroll &&
                     baseAnswer.getType() == EmbedOrMessageDefinition.Type.EMBED &&
                     baseAnswer.getComponentRowDefinitions().isEmpty()) {
-                //todo add supplier for tests
-                //todo move all into one one methode in RerollAnswerHander?
-                UUID rerollConfigId = UUID.randomUUID();
-                RerollAnswerConfig rerollAnswerConfig = RerollAnswerHandler.createNewRerollAnswerConfig(config, answer.get().getExpression(), answer.get().getDieIdAndValues(), 0, event.getInvokingGuildMemberName());
-                RerollAnswerHandler.createMessageConfig(rerollConfigId, guildId, channelId, rerollAnswerConfig).ifPresent(persistenceManager::saveMessageConfig);
-                answerMessage = RerollAnswerHandler.applyToAnswer(baseAnswer, answer.get().getDieIdAndValues(), config.getConfigLocale(), rerollConfigId);
+                answerMessage = RerollAnswerHandler.createConfigAndApplyToAnswer(config, answer.get(), baseAnswer, event.getInvokingGuildMemberName(), guildId, channelId, persistenceManager);
        /*     } else if (config.getAnswerInteractionType() == AnswerInteractionType.hidden) {
-                //todo answer ephemeral, only possile with replay
+                //todo answer ephemeral, only possile with reply
                 answerMessage = HiddenAnswerHandler.applyToAnswer(baseAnswer, config.getConfigLocale());*/
-
             } else {
                 answerMessage = baseAnswer;
             }

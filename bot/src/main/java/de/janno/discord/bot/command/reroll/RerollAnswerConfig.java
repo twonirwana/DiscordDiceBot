@@ -12,6 +12,7 @@ import lombok.NonNull;
 import lombok.ToString;
 import org.apache.commons.lang3.NotImplementedException;
 
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Locale;
 
@@ -26,6 +27,9 @@ public class RerollAnswerConfig extends Config {
     private final int rerollCount;
     @NonNull
     private final String owner;
+    private final boolean alwaysSumUp;
+    @Nullable
+    private final String label;
 
     @JsonCreator
     public RerollAnswerConfig(@JsonProperty("answerTargetChannelId") Long answerTargetChannelId,
@@ -37,13 +41,17 @@ public class RerollAnswerConfig extends Config {
                               @JsonProperty("expression") @NonNull String expression,
                               @JsonProperty("dieIdAndValues") @NonNull List<DieIdAndValue> dieIdAndValues,
                               @JsonProperty("rerollCount") int rerollCount,
-                              @JsonProperty("owner") String owner
+                              @JsonProperty("owner") String owner,
+                              @JsonProperty("alwaysSumUp") boolean alwaysSumUp,
+                              @JsonProperty("label") String label
     ) {
         super(answerTargetChannelId, answerFormatType, answerInteractionType, resultImage, diceStyleAndColor, configLocale);
         this.expression = expression;
         this.dieIdAndValues = dieIdAndValues;
         this.rerollCount = rerollCount;
         this.owner = owner;
+        this.alwaysSumUp = alwaysSumUp;
+        this.label = label;
     }
 
     @Override
@@ -56,4 +64,8 @@ public class RerollAnswerConfig extends Config {
         throw new NotImplementedException();
     }
 
+    @Override
+    public boolean alwaysSumResultUp() {
+        return alwaysSumUp;
+    }
 }

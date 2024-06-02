@@ -1,6 +1,7 @@
 package de.janno.discord.bot.command.sumCustomSet;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import de.janno.discord.bot.AnswerInteractionType;
 import de.janno.discord.bot.ResultImage;
@@ -96,5 +97,11 @@ public class SumCustomSetConfig extends Config {
                 Optional.ofNullable(prefix).map(p -> "%s: %s ".formatted(SumCustomSetCommand.PREFIX_OPTIONS_NAME, p)).orElse(""),
                 Optional.ofNullable(postfix).map(p -> "%s: %s ".formatted(SumCustomSetCommand.POSTFIX_OPTIONS_NAME, p)).orElse(""),
                 super.toCommandOptionsString());
+    }
+
+    @JsonIgnore
+    @Override
+    public boolean alwaysSumResultUp() {
+        return alwaysSumResult;
     }
 }

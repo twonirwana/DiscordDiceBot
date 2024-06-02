@@ -115,7 +115,7 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
 
 
         final SumCustomSetConfig loadedConfig = deserializeConfig(messageConfigDTO);
-        final State<SumCustomSetStateDataV2> updatedState = updateStateWithButtonId(buttonValue,
+        final State<SumCustomSetStateDataV2> updatedState = updateStateWithButtonValue(buttonValue,
                 Optional.ofNullable(loadedStateData).map(SumCustomSetStateDataV2::getDiceExpressions).orElse(ImmutableList.of()),
                 invokingUserName,
                 Optional.ofNullable(loadedStateData).map(SumCustomSetStateDataV2::getLockedForUserName).orElse(""),
@@ -254,7 +254,7 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
         return config.getLabelAndExpression().stream()
                 .filter(ButtonIdLabelAndDiceExpression::isDirectRoll)
                 .filter(b -> {
-                    final State<SumCustomSetStateDataV2> updatedState = updateStateWithButtonId(b.getButtonId(),
+                    final State<SumCustomSetStateDataV2> updatedState = updateStateWithButtonValue(b.getButtonId(),
                             Optional.ofNullable(state).map(State::getData).map(SumCustomSetStateDataV2::getDiceExpressions).orElse(List.of()),
                             "",
                             "",
@@ -295,32 +295,31 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
         return ButtonHelper.valdiate(buttons, userLocale, List.of("clear", "back", "roll"), ENDS_WITH_DOUBLE_SEMICOLUMN_PATTERN.matcher(buttons).matches());
     }
 
-    //todo buttonId or buttonValue
-    private State<SumCustomSetStateDataV2> updateStateWithButtonId(@NonNull final String buttonId,
-                                                                   @NonNull final List<ExpressionAndLabel> currentExpressions,
-                                                                   @NonNull final String invokingUserName,
-                                                                   @Nullable final String lockedToUser,
-                                                                   @NonNull final List<ButtonIdLabelAndDiceExpression> buttonIdLabelAndDiceExpressions) {
-        if (CLEAR_BUTTON_ID.equals(buttonId)) {
-            return new State<>(buttonId, new SumCustomSetStateDataV2(ImmutableList.of(), null));
+    private State<SumCustomSetStateDataV2> updateStateWithButtonValue(@NonNull final String buttonValue,
+                                                                      @NonNull final List<ExpressionAndLabel> currentExpressions,
+                                                                      @NonNull final String invokingUserName,
+                                                                      @Nullable final String lockedToUser,
+                                                                      @NonNull final List<ButtonIdLabelAndDiceExpression> buttonIdLabelAndDiceExpressions) {
+        if (CLEAR_BUTTON_ID.equals(buttonValue)) {
+            return new State<>(buttonValue, new SumCustomSetStateDataV2(ImmutableList.of(), null));
         }
         if (!Strings.isNullOrEmpty(lockedToUser) && !lockedToUser.equals(invokingUserName)) {
             return new State<>(NO_ACTION, new SumCustomSetStateDataV2(currentExpressions, lockedToUser));
         }
-        if (BACK_BUTTON_ID.equals(buttonId)) {
+        if (BACK_BUTTON_ID.equals(buttonValue)) {
             final List<ExpressionAndLabel> newExpressionList;
             if (currentExpressions.isEmpty()) {
                 newExpressionList = ImmutableList.of();
             } else {
                 newExpressionList = ImmutableList.copyOf(currentExpressions.subList(0, currentExpressions.size() - 1));
             }
-            return new State<>(buttonId, new SumCustomSetStateDataV2(newExpressionList, newExpressionList.isEmpty() ? null : lockedToUser));
+            return new State<>(buttonValue, new SumCustomSetStateDataV2(newExpressionList, newExpressionList.isEmpty() ? null : lockedToUser));
         }
-        if (ROLL_BUTTON_ID.equals(buttonId)) {
-            return new State<>(buttonId, new SumCustomSetStateDataV2(currentExpressions, lockedToUser));
+        if (ROLL_BUTTON_ID.equals(buttonValue)) {
+            return new State<>(buttonValue, new SumCustomSetStateDataV2(currentExpressions, lockedToUser));
         }
         final Optional<ButtonIdLabelAndDiceExpression> selectedButton = buttonIdLabelAndDiceExpressions.stream()
-                .filter(bld -> bld.getButtonId().equals(buttonId))
+                .filter(bld -> bld.getButtonId().equals(buttonValue))
                 .findFirst();
 
         final Optional<ExpressionAndLabel> addExpression = selectedButton
@@ -334,7 +333,7 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
                 .add(addExpression.get())
                 .build();
 
-        return new State<>(directRoll ? ROLL_BUTTON_ID : buttonId, new SumCustomSetStateDataV2(expressionWithNewValue, invokingUserName));
+        return new State<>(directRoll ? ROLL_BUTTON_ID : buttonValue, new SumCustomSetStateDataV2(expressionWithNewValue, invokingUserName));
     }
 
     private String combineExpressions(List<ExpressionAndLabel> expressions, String prefix, String postfix) {
@@ -384,7 +383,8 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
     }
 
     private List<ComponentRowDefinition> createButtonLayout(UUID configUUID, SumCustomSetConfig config, boolean rollDisabled, boolean backDisabled, Set<String> disableButtonIds, Locale configLocale) {
-        return ButtonHelper.extendButtonLayout(ButtonHelper.createButtonLayout(getCommandId(), configUUID, config.getLabelAndExpression(), disableButtonIds),
+        return ButtonHelper.extendButtonLayout(ButtonHelper.createButtonLayoutDetail(getCommandId(), configUUID, config.getLabelAndExpression().stream()
+                        .map(b -> new ButtonHelper.ButtonIdLabelAndDiceExpressionExtension(b, disableButtonIds.contains(b.getButtonId()), null)).toList()),
                 ImmutableList.<ButtonDefinition>builder()
                         .add(ButtonDefinition.builder()
                                 .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), ROLL_BUTTON_ID, configUUID))

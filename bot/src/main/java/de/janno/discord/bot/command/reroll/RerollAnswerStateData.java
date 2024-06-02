@@ -26,8 +26,7 @@ public class RerollAnswerStateData extends StateData {
     @Override
     @JsonIgnore
     public String getShortStringValues() {
-        //todo
-        return "";
+        return rerollDice.toString();
     }
 
 }

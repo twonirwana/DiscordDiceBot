@@ -130,8 +130,8 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
             }
 
             @Override
-            protected boolean supportsLocale() {
-                return AbstractCommand.this.supportsLocale();
+            protected boolean supportsAnswerInteraction() {
+                return AbstractCommand.this.supportsAnswerInteraction();
             }
 
             @Override
@@ -190,11 +190,11 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
         return true;
     }
 
-    protected boolean supportsLocale() {
+    protected boolean supportsTargetChannel() {
         return true;
     }
 
-    protected boolean supportsTargetChannel() {
+    protected boolean supportsAnswerInteraction(){
         return true;
     }
 

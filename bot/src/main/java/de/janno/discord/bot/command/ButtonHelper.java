@@ -9,6 +9,7 @@ import de.janno.discord.connector.api.BottomCustomIdUtils;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
 
+import javax.annotation.Nullable;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -60,19 +61,30 @@ public class ButtonHelper {
         return builder.build();
     }
 
-    public static List<ComponentRowDefinition> createButtonLayout(String commandId, UUID configUUID, List<ButtonIdLabelAndDiceExpression> buttons, Set<String> disabledButtonIds) {
+    public record ButtonIdLabelAndDiceExpressionExtension(ButtonIdLabelAndDiceExpression buttonIdLabelAndDiceExpression,
+                                                          boolean disabled, @Nullable ButtonDefinition.Style style) {
+    }
+
+
+    public static List<ComponentRowDefinition> createButtonLayoutDetail(String commandId, UUID configUUID, List<ButtonIdLabelAndDiceExpressionExtension> buttons) {
         final List<ComponentRowDefinition> rows = new ArrayList<>();
         List<ButtonDefinition> currentRow = new ArrayList<>();
-        for (ButtonIdLabelAndDiceExpression button : buttons) {
-            if (currentRow.size() == 5 || (button.isNewLine() && !currentRow.isEmpty())) {
+        for (ButtonIdLabelAndDiceExpressionExtension button : buttons) {
+            if (currentRow.size() == 5 || (button.buttonIdLabelAndDiceExpression.isNewLine() && !currentRow.isEmpty())) {
                 rows.add(ComponentRowDefinition.builder().buttonDefinitions(currentRow).build());
                 currentRow = new ArrayList<>();
             }
+            final ButtonDefinition.Style style;
+            if (button.style != null) {
+                style = button.style;
+            } else {
+                style = button.buttonIdLabelAndDiceExpression.isDirectRoll() ? ButtonDefinition.Style.SUCCESS : ButtonDefinition.Style.PRIMARY;
+            }
             currentRow.add(ButtonDefinition.builder()
-                    .id(BottomCustomIdUtils.createButtonCustomId(commandId, button.getButtonId(), configUUID))
-                    .label(button.getLabel())
-                    .style(button.isDirectRoll() ? ButtonDefinition.Style.SUCCESS : ButtonDefinition.Style.PRIMARY)
-                    .disabled(disabledButtonIds.contains(button.getButtonId()))
+                    .id(BottomCustomIdUtils.createButtonCustomId(commandId, button.buttonIdLabelAndDiceExpression.getButtonId(), configUUID))
+                    .label(button.buttonIdLabelAndDiceExpression.getLabel())
+                    .style(style)
+                    .disabled(button.disabled)
                     .build());
         }
         if (!currentRow.isEmpty()) {
@@ -83,7 +95,7 @@ public class ButtonHelper {
     }
 
     public static List<ComponentRowDefinition> createButtonLayout(String commandId, UUID configUUID, List<ButtonIdLabelAndDiceExpression> buttons) {
-        return createButtonLayout(commandId, configUUID, buttons, Set.of());
+        return createButtonLayoutDetail(commandId, configUUID, buttons.stream().map(b -> new ButtonIdLabelAndDiceExpressionExtension(b, false, null)).toList());
     }
 
     public static List<ComponentRowDefinition> extendButtonLayout(List<ComponentRowDefinition> current, List<ButtonDefinition> additionalButtonDefinitions, boolean newLine) {

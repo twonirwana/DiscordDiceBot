@@ -82,6 +82,11 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
     }
 
     @Override
+    protected boolean supportsAnswerInteraction() {
+        return false;
+    }
+
+    @Override
     public Optional<MessageConfigDTO> createMessageConfig(@NonNull UUID configUUID, @Nullable Long guildId, long channelId, @NonNull Config config) {
         return Optional.of(new MessageConfigDTO(configUUID, guildId, channelId, getCommandId(), CONFIG_TYPE_ID, Mapper.serializedObject(config)));
     }
