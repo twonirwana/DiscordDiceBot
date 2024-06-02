@@ -381,7 +381,7 @@ class WelcomeCommandTest {
     public void matchingComponentCustomId() {
         boolean res = underTest.matchingComponentCustomId("welcome,fate");
 
-        assertThat(res).isTrue();
+        assertThat(res).isFalse();
     }
 
     @Test

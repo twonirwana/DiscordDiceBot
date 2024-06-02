@@ -1,7 +1,9 @@
 package de.janno.discord.connector.api;
 
+import com.google.common.base.Strings;
 import lombok.NonNull;
 
+import java.util.Arrays;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -13,6 +15,10 @@ public final class BottomCustomIdUtils {
     private static final int COMMAND_NAME_INDEX = 0;
     private static final int BUTTON_VALUE_INDEX = 1;
     private static final int CONFIG_UUID_INDEX = 2;
+
+    public static boolean isLegacyCustomId(@NonNull String customId) {
+        return !customId.contains(CUSTOM_ID_DELIMITER);
+    }
 
     static public @NonNull String createButtonCustomId(@NonNull String commandId, @NonNull String buttonValue, @NonNull UUID configUUID) {
         return commandId + CUSTOM_ID_DELIMITER + buttonValue + CUSTOM_ID_DELIMITER + configUUID;
@@ -45,5 +51,15 @@ public final class BottomCustomIdUtils {
         throw new IllegalStateException("'%s' contains not the correct number of delimiter".formatted(customId));
     }
 
+    public static boolean isValidCustomId(String customId) {
+        if (Strings.isNullOrEmpty(customId)) {
+            return false;
+        }
+        String[] splits = customId.split(CUSTOM_ID_DELIMITER);
+        long idElementCount = Arrays.stream(splits)
+                .filter(s -> !Strings.isNullOrEmpty(s))
+                .count();
+        return idElementCount == 2 || idElementCount == 3;
 
+    }
 }

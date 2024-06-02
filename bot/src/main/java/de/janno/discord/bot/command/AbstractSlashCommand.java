@@ -41,7 +41,6 @@ public abstract class AbstractSlashCommand<C extends Config, S extends StateData
         this.persistenceManager = persistenceManager;
     }
 
-
     @Override
     public final @NonNull CommandDefinition getCommandDefinition() {
         List<CommandDefinitionOption> baseOptions = new ArrayList<>();

@@ -95,7 +95,7 @@ class CustomDiceCommandTest {
 
     @Test
     void matchingComponentCustomId_match_legacy() {
-        assertThat(underTest.matchingComponentCustomId("custom_dice\u00001;2")).isTrue();
+        assertThat(underTest.matchingComponentCustomId("custom_dice\u00001;2")).isFalse();
     }
 
     @Test

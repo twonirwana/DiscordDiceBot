@@ -52,7 +52,12 @@ public abstract class AbstractComponentInteractEventHandler<C extends Config, S 
         if (guildId == null) {
             BotMetrics.outsideGuildCounter("button");
         }
-
+        final boolean isLegacyMessage = BottomCustomIdUtils.isLegacyCustomId(event.getCustomId());
+        if (isLegacyMessage) {
+            BotMetrics.incrementLegacyButtonMetricCounter(getCommandId());
+            log.info("{}: Legacy id {}", event.getRequester().toLogString(), event.getCustomId());
+            return event.reply(I18n.getMessage("base.reply.legacyButtonId", event.getRequester().getUserLocal()), false);
+        }
         final String buttonValue = BottomCustomIdUtils.getButtonValueFromCustomId(event.getCustomId());
         final Optional<UUID> configUUIDFromCustomID = BottomCustomIdUtils.getConfigUUIDFromCustomId(event.getCustomId());
         BotMetrics.incrementButtonUUIDUsageMetricCounter(getCommandId(), configUUIDFromCustomID.isPresent());
@@ -89,9 +94,11 @@ public abstract class AbstractComponentInteractEventHandler<C extends Config, S 
         Optional<List<ComponentRowDefinition>> editMessageComponents;
         if (keepExistingButtonMessage || answerTargetChannelId != null) {
             //if the old button is pined or the result is copied to another channel, the old message will be edited or reset to the slash default
-            editMessage = getCurrentMessageContentChange(config, state).orElse(createNewButtonMessage(configUUID, config, channelId).getDescriptionOrContent());
+            editMessage = getCurrentMessageContentChange(config, state).orElse(createNewButtonMessageWithState(configUUID, config, null, guildId, channelId)
+                    .map(EmbedOrMessageDefinition::getDescriptionOrContent).orElse("")); //todo empty correct?
             editMessageComponents = Optional.of(getCurrentMessageComponentChange(configUUID, config, state, channelId, userId)
-                    .orElse(createNewButtonMessage(configUUID, config, channelId).getComponentRowDefinitions()));
+                    .orElse(createNewButtonMessageWithState(configUUID, config, null, guildId, channelId)
+                            .map(EmbedOrMessageDefinition::getComponentRowDefinitions).orElse(List.of())));
         } else {
             //edit the current message if the command changes it or mark it as processing
             editMessage = getCurrentMessageContentChange(config, state).orElse(I18n.getMessage("base.edit.processing", config.getConfigLocale()));
@@ -201,19 +208,12 @@ public abstract class AbstractComponentInteractEventHandler<C extends Config, S 
         return Optional.empty();
     }
 
-    //todo combine with createNewButtonMessageWithState?
-
     /**
-     * for pined Messages
-     */
-    public abstract @NonNull EmbedOrMessageDefinition createNewButtonMessage(@NonNull UUID configId, @NonNull C config, long channelId);
-
-    /**
-     * The new button message, after a button event
+     * The new button message, after a button event. The state can be null if the origin message was pinned
      */
     protected abstract @NonNull Optional<EmbedOrMessageDefinition> createNewButtonMessageWithState(@NonNull UUID configId,
                                                                                                    @NonNull C config,
-                                                                                                   @NonNull State<S> state,
+                                                                                                   @Nullable State<S> state,
                                                                                                    @Nullable Long guildId,
                                                                                                    long channelId);
 

@@ -107,9 +107,13 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
     @Override
     protected @NonNull Optional<EmbedOrMessageDefinition> createNewButtonMessageWithState(@NonNull UUID configUUID,
                                                                                           @NonNull Config config,
-                                                                                          @NonNull State<StateData> state,
+                                                                                          @Nullable State<StateData> state,
                                                                                           @Nullable Long guildId,
                                                                                           long channelId) {
+        if (state == null) {
+            return Optional.of(createSlashResponseMessage(configUUID, config, channelId));
+        }
+
         BotMetrics.incrementButtonMetricCounter(COMMAND_NAME);
         UUID newConfigUUID = uuidSupplier.get();
 

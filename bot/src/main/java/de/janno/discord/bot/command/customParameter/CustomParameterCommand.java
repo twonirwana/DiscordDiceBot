@@ -431,7 +431,11 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     }
 
     @Override
-    protected @NonNull Optional<EmbedOrMessageDefinition> createNewButtonMessageWithState(@NonNull UUID configUUID, @NonNull CustomParameterConfig config, @NonNull State<CustomParameterStateData> state, @Nullable Long guildId, long channelId) {
+    protected @NonNull Optional<EmbedOrMessageDefinition> createNewButtonMessageWithState(@NonNull UUID configUUID, @NonNull CustomParameterConfig config, @Nullable State<CustomParameterStateData> state, @Nullable Long guildId, long channelId) {
+        if (state == null) {
+            return Optional.of(createSlashResponseMessage(configUUID, config, channelId));
+        }
+
         if (!hasMissingParameter(state)) {
             return Optional.of(EmbedOrMessageDefinition.builder()
                     .type(EmbedOrMessageDefinition.Type.MESSAGE)

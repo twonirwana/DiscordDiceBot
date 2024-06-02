@@ -28,6 +28,21 @@ class BottomCustomIdUtilsTest {
         assertThat(res).isEqualTo("testCommand\u001EtestValue\u001E" + uuid);
     }
 
+    @Test
+    void isLegacyCustomId_v1_true() {
+        assertThat(BottomCustomIdUtils.isLegacyCustomId("a,b")).isTrue();
+    }
+
+    @Test
+    void isLegacyCustomId_v2_true() {
+        assertThat(BottomCustomIdUtils.isLegacyCustomId("a\u0000b")).isTrue();
+    }
+
+    @Test
+    void isLegacyCustomId_false() {
+        assertThat(BottomCustomIdUtils.isLegacyCustomId("a\u001eb")).isFalse();
+
+    }
 
     @Test
     void getButtonValueFromCustomId() {

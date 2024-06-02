@@ -43,12 +43,7 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
             }
 
             @Override
-            public @NonNull EmbedOrMessageDefinition createNewButtonMessage(@NonNull UUID configId, @NonNull C config, long channelId) {
-                return AbstractCommand.this.createSlashResponseMessage(configId, config, channelId);
-            }
-
-            @Override
-            protected @NonNull Optional<EmbedOrMessageDefinition> createNewButtonMessageWithState(@NonNull UUID configId, @NonNull C config, @NonNull State<S> state, @Nullable Long guildId, long channelId) {
+            protected @NonNull Optional<EmbedOrMessageDefinition> createNewButtonMessageWithState(@NonNull UUID configId, @NonNull C config, @Nullable State<S> state, @Nullable Long guildId, long channelId) {
                 return AbstractCommand.this.createNewButtonMessageWithState(configId, config, state, guildId, channelId);
             }
 
@@ -289,7 +284,7 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
      */
     protected abstract @NonNull Optional<EmbedOrMessageDefinition> createNewButtonMessageWithState(@NonNull UUID configId,
                                                                                                    @NonNull C config,
-                                                                                                   @NonNull State<S> state,
+                                                                                                   @Nullable State<S> state,
                                                                                                    @Nullable Long guildId,
                                                                                                    long channelId);
 

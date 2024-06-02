@@ -169,7 +169,7 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
     @Override
     protected @NonNull Optional<EmbedOrMessageDefinition> createNewButtonMessageWithState(@NonNull UUID configUUID,
                                                                                           @NonNull CustomDiceConfig config,
-                                                                                          @NonNull State<StateData> state,
+                                                                                          @Nullable State<StateData> state,
                                                                                           @Nullable Long guildId,
                                                                                           long channelId) {
         return Optional.of(createSlashResponseMessage(configUUID, config, channelId));

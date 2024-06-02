@@ -117,7 +117,7 @@ class SumCustomSetCommandTest {
 
     @Test
     void matchingComponentCustomId_match_legacy() {
-        assertThat(underTest.matchingComponentCustomId("sum_custom_set\u0000x")).isTrue();
+        assertThat(underTest.matchingComponentCustomId("sum_custom_set\u0000x")).isFalse();
     }
 
     @Test

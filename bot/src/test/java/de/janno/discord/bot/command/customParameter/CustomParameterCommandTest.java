@@ -187,7 +187,7 @@ class CustomParameterCommandTest {
 
     @Test
     void matchingComponentCustomId_match_legacy() {
-        assertThat(underTest.matchingComponentCustomId("custom_parameter\u0000{n}d6\u0000\u0000")).isTrue();
+        assertThat(underTest.matchingComponentCustomId("custom_parameter\u0000{n}d6\u0000\u0000")).isFalse();
     }
 
     @Test

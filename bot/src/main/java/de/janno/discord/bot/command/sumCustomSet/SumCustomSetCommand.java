@@ -221,7 +221,14 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
     }
 
     @Override
-    protected @NonNull Optional<EmbedOrMessageDefinition> createNewButtonMessageWithState(@NonNull UUID customUuid, @NonNull SumCustomSetConfig config, @NonNull State<SumCustomSetStateDataV2> state, @Nullable Long guildId, long channelId) {
+    protected @NonNull Optional<EmbedOrMessageDefinition> createNewButtonMessageWithState(@NonNull UUID customUuid,
+                                                                                          @NonNull SumCustomSetConfig config,
+                                                                                          @Nullable State<SumCustomSetStateDataV2> state,
+                                                                                          @Nullable Long guildId,
+                                                                                          long channelId) {
+        if (state == null) {
+            return Optional.of(createSlashResponseMessage(customUuid, config, channelId));
+        }
         if (ROLL_BUTTON_ID.equals(state.getButtonValue()) && !Optional.ofNullable(state.getData())
                 .map(SumCustomSetStateDataV2::getDiceExpressions)
                 .map(List::isEmpty)

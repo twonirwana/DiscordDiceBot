@@ -4,6 +4,7 @@ package de.janno.discord.bot;
 import com.google.common.base.Strings;
 import de.janno.discord.bot.command.ClearCommand;
 import de.janno.discord.bot.command.FetchCommand;
+import de.janno.discord.bot.command.LegacyIdHandler;
 import de.janno.discord.bot.command.channelConfig.ChannelConfigCommand;
 import de.janno.discord.bot.command.customDice.CustomDiceCommand;
 import de.janno.discord.bot.command.customParameter.CustomParameterCommand;
@@ -80,9 +81,9 @@ public class Bot {
                         welcomeCommand,
                         hiddenDirectRollCommand,
                         rerollAnswerHandler,
-                        hiddenAnswerHandler
+                        hiddenAnswerHandler,
+                        new LegacyIdHandler()
                 ),
-                //todo handle legacy events
                 welcomeCommand.getWelcomeMessage(),
                 allGuildIdsInPersistence);
     }
