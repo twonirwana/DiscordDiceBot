@@ -46,6 +46,7 @@ public class BotMetrics {
     private final static String METRIC_USE_ALIAS_PREFIX = "useAlias";
     private final static String METRIC_ANSWER_FORMAT_PREFIX = "answerFormat";
     private final static String METRIC_DICE_PARSER_SYSTEM_PREFIX = "diceParserSystem";
+    private final static String METRIC_PINNED_BUTTON_EVENT_PREFIX = "pinnedButtonEvent";
     private final static String COMMAND_TAG = "command";
     private final static String UUID_USAGE_TAG = "uuidUsage";
     private final static String CACHE_TAG = "cache";
@@ -206,6 +207,10 @@ public class BotMetrics {
     public static void outsideGuildCounter(String type) {
         globalRegistry.counter(METRIC_PREFIX + METRIC_GUILD_NULL_PREFIX, Tags.of(TYPE_TAG, type)).increment();
 
+    }
+
+    public static void incrementPinnedButtonMetricCounter() {
+        globalRegistry.counter(METRIC_PREFIX + METRIC_PINNED_BUTTON_EVENT_PREFIX).increment();
     }
 
     public enum CacheTag {

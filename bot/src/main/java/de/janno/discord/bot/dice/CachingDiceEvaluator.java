@@ -25,7 +25,6 @@ public class CachingDiceEvaluator implements ErrorCatchingDiceEvaluator {
     private LoadingCache<String, RollerOrError> diceRollerCache;
     private DiceEvaluator diceEvaluator;
 
-    //todo remove?
     @VisibleForTesting
     public CachingDiceEvaluator(BiFunction<Integer, Integer, Integer> numberSupplier) {
         this((minExcl, maxIncl, dieId) -> numberSupplier.apply(minExcl, maxIncl));

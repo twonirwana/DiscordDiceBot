@@ -23,7 +23,7 @@ public class RerollAnswerConfig extends Config {
     @NonNull
     private final String expression;
     @NonNull
-    private final List<DieIdAndValue> dieIdAndValues;
+    private final List<DieIdTypeAndValue> dieIdTypeAndValues;
     private final int rerollCount;
     @NonNull
     private final String owner;
@@ -39,7 +39,7 @@ public class RerollAnswerConfig extends Config {
                               @JsonProperty("configLocale") Locale configLocale,
                               @JsonProperty("answerInteractionType") AnswerInteractionType answerInteractionType,
                               @JsonProperty("expression") @NonNull String expression,
-                              @JsonProperty("dieIdAndValues") @NonNull List<DieIdAndValue> dieIdAndValues,
+                              @JsonProperty("dieIdAndValues") @NonNull List<DieIdTypeAndValue> dieIdTypeAndValues,
                               @JsonProperty("rerollCount") int rerollCount,
                               @JsonProperty("owner") String owner,
                               @JsonProperty("alwaysSumUp") boolean alwaysSumUp,
@@ -47,7 +47,7 @@ public class RerollAnswerConfig extends Config {
     ) {
         super(answerTargetChannelId, answerFormatType, answerInteractionType, resultImage, diceStyleAndColor, configLocale);
         this.expression = expression;
-        this.dieIdAndValues = dieIdAndValues;
+        this.dieIdTypeAndValues = dieIdTypeAndValues;
         this.rerollCount = rerollCount;
         this.owner = owner;
         this.alwaysSumUp = alwaysSumUp;
@@ -56,7 +56,7 @@ public class RerollAnswerConfig extends Config {
 
     @Override
     public String toShortString() {
-        return "[%s, %s, %s, %s, %s]".formatted(expression, dieIdAndValues, rerollCount, getAnswerFormatType(), getDiceStyleAndColor());
+        return "[%s, %s, %s, %s, %s]".formatted(expression, dieIdTypeAndValues, rerollCount, getAnswerFormatType(), getDiceStyleAndColor());
     }
 
     @Override

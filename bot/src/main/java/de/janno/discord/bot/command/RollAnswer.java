@@ -1,7 +1,7 @@
 package de.janno.discord.bot.command;
 
 import com.google.common.base.Joiner;
-import de.janno.discord.bot.command.reroll.DieIdAndValue;
+import de.janno.discord.bot.command.reroll.DieIdTypeAndValue;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.Singular;
@@ -39,8 +39,7 @@ public class RollAnswer {
     String warning;
     @NonNull
     @Singular
-    //todo change to random element?
-    List<DieIdAndValue> dieIdAndValues;
+    List<DieIdTypeAndValue> dieIdTypeAndValues;
 
     public String toShortString() {
         String fieldStringList = Optional.ofNullable(multiRollResults)

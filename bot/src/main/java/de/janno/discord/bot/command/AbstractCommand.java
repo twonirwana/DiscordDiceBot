@@ -43,7 +43,7 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
             }
 
             @Override
-            protected @NonNull Optional<EmbedOrMessageDefinition> createNewButtonMessageWithState(@NonNull UUID configId, @NonNull C config, @Nullable State<S> state, @Nullable Long guildId, long channelId) {
+            protected @NonNull Optional<EmbedOrMessageDefinition> createNewButtonMessage(@NonNull UUID configId, @NonNull C config, @Nullable State<S> state, @Nullable Long guildId, long channelId) {
                 return AbstractCommand.this.createNewButtonMessageWithState(configId, config, state, guildId, channelId);
             }
 

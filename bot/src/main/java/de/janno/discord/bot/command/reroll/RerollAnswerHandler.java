@@ -20,6 +20,7 @@ import de.janno.evaluator.dice.DieId;
 import de.janno.evaluator.dice.random.GivenDiceNumberSupplier;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import reactor.core.publisher.Mono;
 
 import javax.annotation.Nullable;
@@ -47,25 +48,32 @@ public class RerollAnswerHandler extends AbstractComponentInteractEventHandler<R
         this(persistenceManager, UUID::randomUUID);
     }
 
-    private static EmbedOrMessageDefinition applyToAnswer(EmbedOrMessageDefinition input, List<DieIdAndValue> dieIdAndValues, Locale locale, UUID configUUID) {
-        List<ComponentRowDefinition> buttons = createButtons(dieIdAndValues, Set.of(), locale, configUUID);
+    private static EmbedOrMessageDefinition applyToAnswer(EmbedOrMessageDefinition input, List<DieIdTypeAndValue> dieIdTypeAndValues, Locale locale, UUID configUUID) {
+        List<ComponentRowDefinition> buttons = createButtons(dieIdTypeAndValues, Set.of(), locale, configUUID);
         return input.toBuilder()
                 .componentRowDefinitions(buttons)
                 .build();
     }
 
-    private static List<ComponentRowDefinition> createButtons(List<DieIdAndValue> dieIdAndValues, Set<DieId> selectedDieIds, Locale locale, UUID configUUID) {
+    private static String getDiceTypeLabel(DieIdTypeAndValue dieIdTypeAndValue) {
+        if (dieIdTypeAndValue.getSelectedFrom() != null) {
+            return StringUtils.abbreviate("d[" + String.join("/", dieIdTypeAndValue.getSelectedFrom()) + "]", 10);
+        }
+        return "d" + dieIdTypeAndValue.getDiceSides();
+    }
 
-        List<ButtonIdLabelAndDiceExpression> buttonIdLabelAndDiceExpressions = dieIdAndValues.stream()
+    private static List<ComponentRowDefinition> createButtons(List<DieIdTypeAndValue> dieIdTypeAndValues, Set<DieId> selectedDieIds, Locale locale, UUID configUUID) {
+
+        List<ButtonIdLabelAndDiceExpression> buttonIdLabelAndDiceExpressions = dieIdTypeAndValues.stream()
                 .limit(20)
-                //todo add die type to label
-                .map(dv -> new ButtonIdLabelAndDiceExpression(dv.getDieIdDb().toDieId().toString(), dv.getValue(), dv.getDieIdDb().toDieId().toString(), false, false))
+                //todo better symbol for element of
+                .map(dv -> new ButtonIdLabelAndDiceExpression(dv.getDieIdDb().toDieId().toString(), dv.getValue() + " - " + getDiceTypeLabel(dv), dv.getDieIdDb().toDieId().toString(), false, false))
                 .toList();
 
         Set<String> selectedDieIdsAsString = selectedDieIds.stream().map(Objects::toString).collect(Collectors.toSet());
 
         return ButtonHelper.extendButtonLayout(ButtonHelper.createButtonLayoutDetail(COMMAND_ID, configUUID, buttonIdLabelAndDiceExpressions.stream()
-                        .map(b -> new ButtonHelper.ButtonIdLabelAndDiceExpressionExtension(b, false, selectedDieIdsAsString.contains(b.getButtonId()) ? ButtonDefinition.Style.SECONDARY : ButtonDefinition.Style.PRIMARY))
+                        .map(b -> new ButtonHelper.ButtonIdLabelAndDiceExpressionExtension(b, false, selectedDieIdsAsString.contains(b.getButtonId()) ? ButtonDefinition.Style.PRIMARY : ButtonDefinition.Style.SECONDARY))
                         .toList()),
                 List.of(ButtonDefinition.builder()
                                 .id(BottomCustomIdUtils.createButtonCustomId(COMMAND_ID, ROLL_BUTTON_ID, configUUID))
@@ -91,14 +99,14 @@ public class RerollAnswerHandler extends AbstractComponentInteractEventHandler<R
         RerollAnswerConfig rerollAnswerConfig = RerollAnswerHandler.createNewRerollAnswerConfig(config,
                 answer.getExpression(),
                 answer.getExpressionLabel(),
-                answer.getDieIdAndValues(),
+                answer.getDieIdTypeAndValues(),
                 0,
                 invokingUserName);
         RerollAnswerHandler.createMessageConfig(rerollConfigId, guildId, channelId, rerollAnswerConfig).ifPresent(persistenceManager::saveMessageConfig);
-        return RerollAnswerHandler.applyToAnswer(baseAnswer, answer.getDieIdAndValues(), config.getConfigLocale(), rerollConfigId);
+        return RerollAnswerHandler.applyToAnswer(baseAnswer, answer.getDieIdTypeAndValues(), config.getConfigLocale(), rerollConfigId);
     }
 
-    private static RerollAnswerConfig createNewRerollAnswerConfig(Config parentConfig, String expression, String label, List<DieIdAndValue> dieIdAndValues, int rerollCount, String owner) {
+    private static RerollAnswerConfig createNewRerollAnswerConfig(Config parentConfig, String expression, String label, List<DieIdTypeAndValue> dieIdTypeAndValues, int rerollCount, String owner) {
 
         return new RerollAnswerConfig(null,
                 parentConfig.getAnswerFormatType(),
@@ -107,7 +115,7 @@ public class RerollAnswerHandler extends AbstractComponentInteractEventHandler<R
                 parentConfig.getConfigLocale(),
                 AnswerInteractionType.reroll,
                 expression,
-                dieIdAndValues,
+                dieIdTypeAndValues,
                 rerollCount,
                 owner,
                 parentConfig.alwaysSumResultUp(),
@@ -143,19 +151,22 @@ public class RerollAnswerHandler extends AbstractComponentInteractEventHandler<R
         if (!loadedConfig.getOwner().equals(invokingUserName)) {
             //unmodified state if the user is not the owner
             //todo test if works
-            return new ConfigAndState<>(messageConfigDTO.getConfigUUID(), loadedConfig, new State<>(buttonValue, Optional.ofNullable(loadedStateData).orElse(new RerollAnswerStateData(new ArrayList<>()))));
+            return new ConfigAndState<>(messageConfigDTO.getConfigUUID(), loadedConfig, new State<>(buttonValue, Optional.ofNullable(loadedStateData)
+                    .orElse(new RerollAnswerStateData(new ArrayList<>()))));
         }
 
         final State<RerollAnswerStateData> updatedState = updateStateWithButtonValue(buttonValue,
                 Optional.ofNullable(loadedStateData).map(RerollAnswerStateData::getRerollDice).stream().flatMap(Collection::stream).map(DieIdDb::toDieId).toList(),
-                loadedConfig.getDieIdAndValues().stream().map(DieIdAndValue::getDieIdDb).map(DieIdDb::toDieId).toList());
+                loadedConfig.getDieIdTypeAndValues().stream().map(DieIdTypeAndValue::getDieIdDb).map(DieIdDb::toDieId).toList(),
+                messageConfigDTO.getConfigUUID());
         return new ConfigAndState<>(messageConfigDTO.getConfigUUID(), loadedConfig, updatedState);
     }
 
 
     private State<RerollAnswerStateData> updateStateWithButtonValue(@NonNull final String buttonValue,
                                                                     final List<DieId> currentlySelectedIds,
-                                                                    @NonNull final List<DieId> allIds) {
+                                                                    @NonNull final List<DieId> allIds,
+                                                                    @NonNull UUID configUUID) {
         if (ROLL_BUTTON_ID.equals(buttonValue)) {
             return new State<>(buttonValue, new RerollAnswerStateData(currentlySelectedIds.stream()
                     .map(DieIdDb::fromDieId)
@@ -171,8 +182,7 @@ public class RerollAnswerHandler extends AbstractComponentInteractEventHandler<R
                 .toList();
 
         if (matchingDieIds.size() != 1) {
-            //todo log with config
-            throw new IllegalStateException("Missing dieId %s in %s".formatted(buttonValue, allIds));
+            throw new IllegalStateException("Missing dieId %s in %s in configUUID %s".formatted(buttonValue, allIds, configUUID));
         }
 
         DieId clickedDieId = matchingDieIds.getFirst();
@@ -212,36 +222,32 @@ public class RerollAnswerHandler extends AbstractComponentInteractEventHandler<R
         return Optional.of(createButtonLayout(configUUID, config, state.getData()));
     }
 
-    public @NonNull EmbedOrMessageDefinition createNewButtonMessage(@NonNull UUID configUUID, @NonNull RerollAnswerConfig config, long channelId) {
-//todo never needed?
-        return EmbedOrMessageDefinition.builder()
-                .type(EmbedOrMessageDefinition.Type.EMBED)
-                .title(config.getRerollCount() + ": " + config.getExpression())
-                .componentRowDefinitions(createButtonLayout(configUUID, config, null))
-                .build();
-    }
-
     @Override
-    protected @NonNull Optional<EmbedOrMessageDefinition> createNewButtonMessageWithState(@NonNull UUID configId,
-                                                                                          @NonNull RerollAnswerConfig config,
-                                                                                          @NonNull State<RerollAnswerStateData> state,
-                                                                                          @Nullable Long guildId,
-                                                                                          long channelId) {
+    protected @NonNull Optional<EmbedOrMessageDefinition> createNewButtonMessage(@NonNull UUID configId,
+                                                                                 @NonNull RerollAnswerConfig config,
+                                                                                 @Nullable State<RerollAnswerStateData> state,
+                                                                                 @Nullable Long guildId,
+                                                                                 long channelId) {
+        if (state == null) {
+            return Optional.empty();
+        }
         if (ROLL_BUTTON_ID.equals(state.getButtonValue())) {
-            Map<DieId, Integer> dieIdValueMap = config.getDieIdAndValues().stream()
-                    .collect(Collectors.toMap(dv -> dv.getDieIdDb().toDieId(), DieIdAndValue::getDiceNumberOrCustomDieSideIndex));
-            Map<DieId, Integer> givenDiceNumberMap = Optional.ofNullable(state.getData()).map(RerollAnswerStateData::getRerollDice).orElse(List.of()).stream()
-                    .collect(Collectors.toMap(DieIdDb::toDieId, d -> dieIdValueMap.get(d.toDieId())));
+
+            Set<DieIdDb> rerollDieIds = new HashSet<>(Optional.ofNullable(state.getData()).map(RerollAnswerStateData::getRerollDice).orElse(List.of()));
+
+            Map<DieId, Integer> givenDiceNumberMap = config.getDieIdTypeAndValues().stream()
+                    .filter(dv -> !rerollDieIds.contains(dv.getDieIdDb()))
+                    .collect(Collectors.toMap(dv -> dv.getDieIdDb().toDieId(), DieIdTypeAndValue::getDiceNumberOrCustomDieSideIndex));
             DiceEvaluatorAdapter evaluatorAdapter = new DiceEvaluatorAdapter(new NoCachDiceEvaluator(new GivenDiceNumberSupplier(givenDiceNumberMap)));
 
             RollAnswer rollAnswer = evaluatorAdapter.answerRollWithGivenLabel(config.getExpression(), config.getLabel(), config.isAlwaysSumUp(), config.getAnswerFormatType(), config.getDiceStyleAndColor(), config.getConfigLocale());
 
-            RerollAnswerConfig rerollAnswerConfig = createNewRerollAnswerConfig(config, config.getExpression(), config.getLabel(), rollAnswer.getDieIdAndValues(), config.getRerollCount() + 1, config.getOwner());
+            RerollAnswerConfig rerollAnswerConfig = createNewRerollAnswerConfig(config, config.getExpression(), config.getLabel(), rollAnswer.getDieIdTypeAndValues(), config.getRerollCount() + 1, config.getOwner());
 
             UUID newMessageUUID = uuidSupplier.get();
             RerollAnswerHandler.createMessageConfig(newMessageUUID, guildId, channelId, rerollAnswerConfig).ifPresent(persistenceManager::saveMessageConfig);
 
-            EmbedOrMessageDefinition newMessage = RerollAnswerHandler.applyToAnswer(RollAnswerConverter.toEmbedOrMessageDefinition(rollAnswer), rollAnswer.getDieIdAndValues(), config.getConfigLocale(), newMessageUUID);
+            EmbedOrMessageDefinition newMessage = RerollAnswerHandler.applyToAnswer(RollAnswerConverter.toEmbedOrMessageDefinition(rollAnswer), rollAnswer.getDieIdTypeAndValues(), config.getConfigLocale(), newMessageUUID);
             //todo log message
             //todo metric
             newMessage = newMessage.toBuilder()
@@ -269,7 +275,7 @@ public class RerollAnswerHandler extends AbstractComponentInteractEventHandler<R
                 .map(DieIdDb::toDieId)
                 .collect(Collectors.toSet());
 
-        return createButtons(config.getDieIdAndValues(), alreadySelectedButtons, config.getConfigLocale(), configUUID);
+        return createButtons(config.getDieIdTypeAndValues(), alreadySelectedButtons, config.getConfigLocale(), configUUID);
     }
 
     @Override

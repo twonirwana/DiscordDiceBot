@@ -93,11 +93,14 @@ public abstract class AbstractComponentInteractEventHandler<C extends Config, S 
         String editMessage;
         Optional<List<ComponentRowDefinition>> editMessageComponents;
         if (keepExistingButtonMessage || answerTargetChannelId != null) {
+            if(event.isPinned()){
+                BotMetrics.incrementPinnedButtonMetricCounter();
+            }
             //if the old button is pined or the result is copied to another channel, the old message will be edited or reset to the slash default
-            editMessage = getCurrentMessageContentChange(config, state).orElse(createNewButtonMessageWithState(configUUID, config, null, guildId, channelId)
+            editMessage = getCurrentMessageContentChange(config, state).orElse(createNewButtonMessage(configUUID, config, null, guildId, channelId)
                     .map(EmbedOrMessageDefinition::getDescriptionOrContent).orElse("")); //todo empty correct?
             editMessageComponents = Optional.of(getCurrentMessageComponentChange(configUUID, config, state, channelId, userId)
-                    .orElse(createNewButtonMessageWithState(configUUID, config, null, guildId, channelId)
+                    .orElse(createNewButtonMessage(configUUID, config, null, guildId, channelId)
                             .map(EmbedOrMessageDefinition::getComponentRowDefinitions).orElse(List.of())));
         } else {
             //edit the current message if the command changes it or mark it as processing
@@ -138,7 +141,7 @@ public abstract class AbstractComponentInteractEventHandler<C extends Config, S 
                     })));
 
         }
-        Optional<EmbedOrMessageDefinition> newButtonMessage = createNewButtonMessageWithState(configUUID, config, state, guildId, channelId);
+        Optional<EmbedOrMessageDefinition> newButtonMessage = createNewButtonMessage(configUUID, config, state, guildId, channelId);
 
         final boolean deleteCurrentButtonMessage;
         if (newButtonMessage.isPresent() && answerTargetChannelId == null) {
@@ -211,11 +214,11 @@ public abstract class AbstractComponentInteractEventHandler<C extends Config, S 
     /**
      * The new button message, after a button event. The state can be null if the origin message was pinned
      */
-    protected abstract @NonNull Optional<EmbedOrMessageDefinition> createNewButtonMessageWithState(@NonNull UUID configId,
-                                                                                                   @NonNull C config,
-                                                                                                   @Nullable State<S> state,
-                                                                                                   @Nullable Long guildId,
-                                                                                                   long channelId);
+    protected abstract @NonNull Optional<EmbedOrMessageDefinition> createNewButtonMessage(@NonNull UUID configId,
+                                                                                          @NonNull C config,
+                                                                                          @Nullable State<S> state,
+                                                                                          @Nullable Long guildId,
+                                                                                          long channelId);
 
     /**
      * On the creation of a message an empty state need to be saved so we know the message exists and we can remove it later, even on concurrent actions

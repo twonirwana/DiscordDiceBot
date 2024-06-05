@@ -134,7 +134,7 @@ public class DirectRollCommand implements SlashCommand {
             DirectRollConfig config = getDirectRollConfig(event.getChannelId());
             BotMetrics.incrementAnswerFormatCounter(config.getAnswerFormatType(), getCommandId());
 
-            RollAnswer answer = diceEvaluatorAdapter.answerRollWithOptionalLabelInExpression(expressionWithOptionalLabelsAndAppliedAliases, DiceSystemAdapter.LABEL_DELIMITER, config.isAlwaysSumResult(), config.getAnswerFormatType(), config.getDiceStyleAndColor(), userLocale);
+            RollAnswer answer = diceEvaluatorAdapter.answerRollWithOptionalLabelInExpression(expressionWithOptionalLabelsAndAppliedAliases,  config.isAlwaysSumResult(), config.getAnswerFormatType(), config.getDiceStyleAndColor(), userLocale);
             return createResponse(event, commandString, diceExpression, answer, stopwatch, userLocale);
 
         }

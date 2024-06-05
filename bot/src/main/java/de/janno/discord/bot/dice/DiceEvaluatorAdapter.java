@@ -7,7 +7,7 @@ import de.janno.discord.bot.I18n;
 import de.janno.discord.bot.command.AnswerFormatType;
 import de.janno.discord.bot.command.DieIdDb;
 import de.janno.discord.bot.command.RollAnswer;
-import de.janno.discord.bot.command.reroll.DieIdAndValue;
+import de.janno.discord.bot.command.reroll.DieIdTypeAndValue;
 import de.janno.discord.bot.dice.image.DiceStyleAndColor;
 import de.janno.discord.bot.dice.image.ImageResultCreator;
 import de.janno.evaluator.dice.*;
@@ -90,17 +90,19 @@ public class DiceEvaluatorAdapter {
         );
     }
 
-    private static List<DieIdAndValue> getDieIdAndValue(List<Roll> rolls) {
+    private static List<DieIdTypeAndValue> getDieIdAndValue(List<Roll> rolls) {
         return rolls.stream()
                 .flatMap(r -> r.getRandomElementsInRoll().stream())
                 .flatMap(Collection::stream)
-                .map(r -> new DieIdAndValue(DieIdDb.fromDieId(
+                .map(r -> new DieIdTypeAndValue(DieIdDb.fromDieId(
                         r.getDieId()),
                         r.getRollElement().getValue(),
                         //todo use selectedIndex with next diceEvaluator releasse
                         Optional.ofNullable(r.getRandomSelectedFrom())
                                 .map(l -> l.indexOf(r.getRollElement().getValue()) + 1)
-                                .orElse(null)
+                                .orElse(null),
+                        r.getMaxInc(),
+                        r.getRandomSelectedFrom()
                 ))
                 .toList();
     }
@@ -149,10 +151,9 @@ public class DiceEvaluatorAdapter {
         }
     }
 
-    //todo remove labelDelimiter
-    public RollAnswer answerRollWithOptionalLabelInExpression(String expression, String labelDelimiter, boolean sumUp, AnswerFormatType answerFormatType, DiceStyleAndColor diceStyleAndColor, Locale userLocale) {
-        String diceExpression = getExpressionFromExpressionWithOptionalLabel(expression, labelDelimiter);
-        String label = getLabelFromExpressionWithOptionalLabel(expression, labelDelimiter).orElse(null);
+    public RollAnswer answerRollWithOptionalLabelInExpression(String expression, boolean sumUp, AnswerFormatType answerFormatType, DiceStyleAndColor diceStyleAndColor, Locale userLocale) {
+        String diceExpression = getExpressionFromExpressionWithOptionalLabel(expression, DiceSystemAdapter.LABEL_DELIMITER);
+        String label = getLabelFromExpressionWithOptionalLabel(expression, DiceSystemAdapter.LABEL_DELIMITER).orElse(null);
         return answerRollWithGivenLabel(diceExpression, label, sumUp, answerFormatType, diceStyleAndColor, userLocale);
     }
 
@@ -187,7 +188,7 @@ public class DiceEvaluatorAdapter {
                         .warning(getWarningFromRoll(rolls, userLocale))
                         .result(getResult(rolls.getFirst(), sumUp))
                         .rollDetails(getRandomElementsString(rolls.getFirst().getRandomElementsInRoll()))
-                        .dieIdAndValues(getDieIdAndValue(rolls))
+                        .dieIdTypeAndValues(getDieIdAndValue(rolls))
                         .build();
             } else {
                 List<RollAnswer.RollResults> multiRollResults = rolls.stream()
@@ -199,7 +200,7 @@ public class DiceEvaluatorAdapter {
                         .expressionLabel(label)
                         .warning(getWarningFromRoll(rolls, userLocale))
                         .multiRollResults(multiRollResults)
-                        .dieIdAndValues(getDieIdAndValue(rolls))
+                        .dieIdTypeAndValues(getDieIdAndValue(rolls))
                         .build();
             }
         } catch (ExpressionException e) {

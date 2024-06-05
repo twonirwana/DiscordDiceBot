@@ -11,12 +11,12 @@ import lombok.ToString;
 
 import javax.annotation.Nullable;
 import java.io.Serializable;
-import java.util.Optional;
+import java.util.List;
 
 @EqualsAndHashCode
 @Getter
 @ToString
-public class DieIdAndValue implements Serializable {
+public class DieIdTypeAndValue implements Serializable {
     @NonNull
     private final DieIdDb dieIdDb;
     @NonNull
@@ -32,10 +32,18 @@ public class DieIdAndValue implements Serializable {
     @Nullable
     private final Integer numericDiceValue;
 
+    @Nullable
+    private final Integer diceSides;
+
+    @Nullable
+    private final List<String> selectedFrom;
+
     @JsonCreator
-    public DieIdAndValue(@JsonProperty("dieIdDb") @NonNull DieIdDb dieIdDb,
-                         @JsonProperty("value") @NonNull String value,
-                         @JsonProperty("customDieIndex") @Nullable Integer customDieIndex) {
+    public DieIdTypeAndValue(@JsonProperty("dieIdDb") @NonNull DieIdDb dieIdDb,
+                             @JsonProperty("value") @NonNull String value,
+                             @JsonProperty("customDieIndex") @Nullable Integer customDieIndex,
+                             @JsonProperty("diceSides") @Nullable Integer diceSides,
+                             @JsonProperty("selectedFrom") @Nullable List<String> selectedFrom) {
         this.dieIdDb = dieIdDb;
         this.value = value;
         this.customDieIndex = customDieIndex;
@@ -44,12 +52,21 @@ public class DieIdAndValue implements Serializable {
         } else {
             numericDiceValue = null;
         }
-
+        this.diceSides = diceSides;
+        this.selectedFrom = selectedFrom;
+        if (diceSides == null && selectedFrom == null) {
+            throw new IllegalArgumentException("DiceSides and SelectedFrom are both null");
+        }
     }
 
     @JsonIgnore
     public int getDiceNumberOrCustomDieSideIndex() {
-        return Optional.ofNullable(customDieIndex)
-                .orElse(numericDiceValue);
+        if (customDieIndex != null) {
+            return customDieIndex;
+        }
+        if (numericDiceValue != null) {
+            return numericDiceValue;
+        }
+        throw new IllegalStateException("Invalid state: " + this);
     }
 }
