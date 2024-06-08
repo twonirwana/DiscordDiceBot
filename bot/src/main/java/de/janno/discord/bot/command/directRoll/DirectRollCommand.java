@@ -14,7 +14,6 @@ import de.janno.discord.bot.command.channelConfig.AliasHelper;
 import de.janno.discord.bot.command.channelConfig.DirectRollConfig;
 import de.janno.discord.bot.dice.CachingDiceEvaluator;
 import de.janno.discord.bot.dice.DiceEvaluatorAdapter;
-import de.janno.discord.bot.dice.DiceSystemAdapter;
 import de.janno.discord.bot.dice.image.DiceImageStyle;
 import de.janno.discord.bot.dice.image.DiceStyleAndColor;
 import de.janno.discord.bot.persistance.ChannelConfigDTO;
@@ -121,11 +120,11 @@ public class DirectRollCommand implements SlashCommand {
             final String expressionWithMultiLine = commandParameter.replace("\\n", "\n");
 
             final String expressionWithOptionalLabelsAndAppliedAliases = AliasHelper.getAndApplyAliaseToExpression(event.getChannelId(), event.getUserId(), persistenceManager, expressionWithMultiLine);
-            Optional<String> labelValidationMessage = DiceSystemAdapter.validateLabel(expressionWithOptionalLabelsAndAppliedAliases, userLocale);
+            Optional<String> labelValidationMessage = DiceEvaluatorAdapter.validateLabel(expressionWithOptionalLabelsAndAppliedAliases, userLocale);
             if (labelValidationMessage.isPresent()) {
                 return replyValidationMessage(event, labelValidationMessage.get(), commandString);
             }
-            String diceExpression = DiceSystemAdapter.getExpressionFromExpressionWithOptionalLabel(expressionWithOptionalLabelsAndAppliedAliases);
+            String diceExpression = DiceEvaluatorAdapter.getExpressionFromExpressionWithOptionalLabel(expressionWithOptionalLabelsAndAppliedAliases);
             Optional<String> expressionValidationMessage = diceEvaluatorAdapter.validateDiceExpression(diceExpression, "`/r expression:help`", userLocale);
             if (expressionValidationMessage.isPresent()) {
                 return replyValidationMessage(event, expressionValidationMessage.get(), commandString);
@@ -134,7 +133,7 @@ public class DirectRollCommand implements SlashCommand {
             DirectRollConfig config = getDirectRollConfig(event.getChannelId());
             BotMetrics.incrementAnswerFormatCounter(config.getAnswerFormatType(), getCommandId());
 
-            RollAnswer answer = diceEvaluatorAdapter.answerRollWithOptionalLabelInExpression(expressionWithOptionalLabelsAndAppliedAliases,  config.isAlwaysSumResult(), config.getAnswerFormatType(), config.getDiceStyleAndColor(), userLocale);
+            RollAnswer answer = diceEvaluatorAdapter.answerRollWithOptionalLabelInExpression(expressionWithOptionalLabelsAndAppliedAliases, config.isAlwaysSumResult(), config.getAnswerFormatType(), config.getDiceStyleAndColor(), userLocale);
             return createResponse(event, commandString, diceExpression, answer, stopwatch, userLocale);
 
         }

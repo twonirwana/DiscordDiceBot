@@ -4,7 +4,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import de.janno.discord.bot.I18n;
-import de.janno.discord.bot.dice.DiceSystemAdapter;
+import de.janno.discord.bot.dice.DiceEvaluatorAdapter;
 import de.janno.discord.connector.api.BottomCustomIdUtils;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
@@ -144,7 +144,7 @@ public class ButtonHelper {
         }
 
         for (String button : rows.stream().flatMap(Collection::stream).toList()) {
-            Optional<String> validateLabel = DiceSystemAdapter.validateLabel(button, userLocale);
+            Optional<String> validateLabel = DiceEvaluatorAdapter.validateLabel(button, userLocale);
             if (validateLabel.isPresent()) {
                 return validateLabel;
             }

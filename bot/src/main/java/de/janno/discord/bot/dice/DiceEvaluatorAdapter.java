@@ -10,10 +10,11 @@ import de.janno.discord.bot.command.RollAnswer;
 import de.janno.discord.bot.command.reroll.DieIdTypeAndValue;
 import de.janno.discord.bot.dice.image.DiceStyleAndColor;
 import de.janno.discord.bot.dice.image.ImageResultCreator;
+import de.janno.discord.connector.api.BottomCustomIdUtils;
 import de.janno.evaluator.dice.*;
 import io.avaje.config.Config;
 import lombok.NonNull;
-import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Nullable;
 import java.io.InputStream;
@@ -25,30 +26,56 @@ import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import static de.janno.discord.bot.dice.DiceSystemAdapter.LABEL_DELIMITER;
-
-@Slf4j
 public class DiceEvaluatorAdapter {
 
+    public final static String LABEL_DELIMITER = "@";
     private final static ImageResultCreator IMAGE_RESULT_CREATOR = new ImageResultCreator();
     private final ErrorCatchingDiceEvaluator diceEvaluator;
 
-    public DiceEvaluatorAdapter(ErrorCatchingDiceEvaluator diceEvaluator) {
-        this.diceEvaluator = diceEvaluator;
+    public DiceEvaluatorAdapter(ErrorCatchingDiceEvaluator cachingDiceEvaluator) {
+        this.diceEvaluator = cachingDiceEvaluator;
     }
 
-    private static @NonNull String getExpressionFromExpressionWithOptionalLabel(String expressionWithOptionalLabel, String labelDelimiter) {
-        if (expressionWithOptionalLabel.contains(labelDelimiter)) {
-            int firstDelimiter = expressionWithOptionalLabel.indexOf(labelDelimiter);
+    public static @NonNull String getExpressionFromExpressionWithOptionalLabel(String expressionWithOptionalLabel) {
+        if (expressionWithOptionalLabel.contains(LABEL_DELIMITER)) {
+            int firstDelimiter = expressionWithOptionalLabel.indexOf(LABEL_DELIMITER);
             return expressionWithOptionalLabel.substring(0, firstDelimiter);
         }
         return expressionWithOptionalLabel;
     }
 
-    private static Optional<String> getLabelFromExpressionWithOptionalLabel(String expressionWithOptionalLabel, String labelDelimiter) {
-        if (expressionWithOptionalLabel.contains(labelDelimiter)) {
-            int firstDelimiter = expressionWithOptionalLabel.indexOf(labelDelimiter);
-            String label = expressionWithOptionalLabel.substring(firstDelimiter + labelDelimiter.length());
+    public static Optional<String> validateLabel(@NonNull String expressionWithOptionalLabel, @NonNull Locale userLocale) {
+        String label;
+        String diceExpression;
+
+        if (expressionWithOptionalLabel.contains(LABEL_DELIMITER)) {
+            String[] split = expressionWithOptionalLabel.split(LABEL_DELIMITER);
+            if (StringUtils.countMatches(expressionWithOptionalLabel, LABEL_DELIMITER) > 1) {
+                return Optional.of(I18n.getMessage("diceEvaluator.reply.validation.toManyAt", userLocale, expressionWithOptionalLabel));
+            }
+            if (split.length != 2) {
+                return Optional.of(I18n.getMessage("diceEvaluator.reply.validation.toManyAt", userLocale, expressionWithOptionalLabel));
+            }
+            label = split[1].trim();
+            diceExpression = split[0].trim();
+        } else {
+            label = expressionWithOptionalLabel;
+            diceExpression = expressionWithOptionalLabel;
+        }
+        if (label.isBlank()) {
+            return Optional.of(I18n.getMessage("diceEvaluator.reply.validation.blankLabel", userLocale, expressionWithOptionalLabel));
+        }
+        if (diceExpression.isBlank()) {
+            return Optional.of(I18n.getMessage("diceEvaluator.reply.validation.blankExpression", userLocale, expressionWithOptionalLabel));
+        }
+        return Optional.empty();
+    }
+
+
+    private static Optional<String> getLabelFromExpressionWithOptionalLabel(String expressionWithOptionalLabel) {
+        if (expressionWithOptionalLabel.contains(LABEL_DELIMITER)) {
+            int firstDelimiter = expressionWithOptionalLabel.indexOf(LABEL_DELIMITER);
+            String label = expressionWithOptionalLabel.substring(firstDelimiter + LABEL_DELIMITER.length());
             if (!label.isEmpty()) {
                 return Optional.of(label);
             }
@@ -108,6 +135,34 @@ public class DiceEvaluatorAdapter {
                 .toList();
     }
 
+
+    public Optional<String> validateListOfExpressions(List<String> expressions, String helpCommand, @NonNull Locale userLocale) {
+        if (expressions.isEmpty()) {
+            return Optional.of(I18n.getMessage("diceEvaluator.reply.validation.missingExpression", userLocale, helpCommand));
+        }
+        for (String startOptionString : expressions) {
+            if (startOptionString.contains(BottomCustomIdUtils.CUSTOM_ID_DELIMITER)) {
+                return Optional.of(I18n.getMessage("diceEvaluator.reply.validation.invalidCharacter", userLocale, startOptionString));
+            }
+            Optional<String> diceParserValidation = validateDiceExpressionWitOptionalLabel(startOptionString, helpCommand, userLocale);
+            if (diceParserValidation.isPresent()) {
+                return diceParserValidation;
+            }
+        }
+
+        return Optional.empty();
+    }
+
+    public Optional<String> validateDiceExpressionWitOptionalLabel(@NonNull String expressionWithOptionalLabel, String helpCommand, @NonNull Locale userLocale) {
+        Optional<String> validateLabel = validateLabel(expressionWithOptionalLabel, userLocale);
+        if (validateLabel.isPresent()) {
+            return validateLabel;
+        }
+        String diceExpression = DiceEvaluatorAdapter.getExpressionFromExpressionWithOptionalLabel(expressionWithOptionalLabel);
+        return validateDiceExpression(diceExpression, helpCommand, userLocale);
+
+    }
+
     public Optional<String> validateDiceExpression(String expression, String helpCommand, @NonNull Locale userLocale) {
         RollerOrError rollerOrError = diceEvaluator.get(expression);
         if (rollerOrError.isValid()) {
@@ -152,8 +207,8 @@ public class DiceEvaluatorAdapter {
     }
 
     public RollAnswer answerRollWithOptionalLabelInExpression(String expression, boolean sumUp, AnswerFormatType answerFormatType, DiceStyleAndColor diceStyleAndColor, Locale userLocale) {
-        String diceExpression = getExpressionFromExpressionWithOptionalLabel(expression, DiceSystemAdapter.LABEL_DELIMITER);
-        String label = getLabelFromExpressionWithOptionalLabel(expression, DiceSystemAdapter.LABEL_DELIMITER).orElse(null);
+        String diceExpression = getExpressionFromExpressionWithOptionalLabel(expression);
+        String label = getLabelFromExpressionWithOptionalLabel(expression).orElse(null);
         return answerRollWithGivenLabel(diceExpression, label, sumUp, answerFormatType, diceStyleAndColor, userLocale);
     }
 
@@ -213,7 +268,7 @@ public class DiceEvaluatorAdapter {
         }
     }
 
-    public boolean validExpression(String expression) {
+    public boolean isValidExpression(String expression) {
         return diceEvaluator.get(expression).isValid();
     }
 

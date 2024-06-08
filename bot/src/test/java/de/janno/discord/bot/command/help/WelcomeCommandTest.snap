@@ -148,33 +148,6 @@ de.janno.discord.bot.command.help.WelcomeCommandTest.getCommandDefinition=[
             ],
             "options": [ ],
             "autoComplete": false
-          },
-          {
-            "type": "STRING",
-            "name": "answer_interaction",
-            "nameLocales": [ ],
-            "description": "description",
-            "descriptionLocales": [ ],
-            "required": false,
-            "choices": [
-              {
-                "name": "none",
-                "value": "none",
-                "nameLocales": [ ]
-              },
-              {
-                "name": "hidden",
-                "value": "hidden",
-                "nameLocales": [ ]
-              },
-              {
-                "name": "reroll",
-                "value": "reroll",
-                "nameLocales": [ ]
-              }
-            ],
-            "options": [ ],
-            "autoComplete": false
           }
         ],
         "autoComplete": false

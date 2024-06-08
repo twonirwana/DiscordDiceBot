@@ -5,7 +5,7 @@ de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandTest.configSerializ
     "channelId": 2,
     "commandId": "sum_custom_set",
     "configClassId": "SumCustomSetConfig",
-    "config": "---\nanswerTargetChannelId: 123\nlabelAndExpression:\n- buttonId: \"1_button\"\n  label: \"Label\"\n  diceExpression: \"+1d6\"\n  newLine: false\n  directRoll: false\n- buttonId: \"2_button\"\n  label: \"+2d4\"\n  diceExpression: \"+2d4\"\n  newLine: true\n  directRoll: false\nalwaysSumResult: true\nhideExpressionInStatusAndAnswer: true\nsystemButtonNewLine: true\nprefix: \"groupC(\"\npostfix: \")\"\nanswerFormatType: \"full\"\nanswerInteractionType: \"none\"\nconfigLocale: \"de\"\ndiceStyleAndColor:\n  diceImageStyle: \"polyhedral_alies_v2\"\n  configuredDefaultColor: \"blue_and_silver\"\ndiceParserSystem: \"DICE_EVALUATOR\"\n"
+    "config": "---\nanswerTargetChannelId: 123\nlabelAndExpression:\n- buttonId: \"1_button\"\n  label: \"Label\"\n  diceExpression: \"+1d6\"\n  newLine: false\n  directRoll: false\n- buttonId: \"2_button\"\n  label: \"+2d4\"\n  diceExpression: \"+2d4\"\n  newLine: true\n  directRoll: false\nalwaysSumResult: true\nhideExpressionInStatusAndAnswer: true\nsystemButtonNewLine: true\nprefix: \"groupC(\"\npostfix: \")\"\nanswerFormatType: \"full\"\nanswerInteractionType: \"none\"\nconfigLocale: \"de\"\ndiceStyleAndColor:\n  diceImageStyle: \"polyhedral_alies_v2\"\n  configuredDefaultColor: \"blue_and_silver\"\n"
   }
 ]
 
@@ -644,18 +644,13 @@ de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandTest.getCommandDefi
             "type": "STRING",
             "name": "answer_interaction",
             "nameLocales": [ ],
-            "description": "description",
+            "description": "If the answer provides interaction options like rerolls",
             "descriptionLocales": [ ],
             "required": false,
             "choices": [
               {
                 "name": "none",
                 "value": "none",
-                "nameLocales": [ ]
-              },
-              {
-                "name": "hidden",
-                "value": "hidden",
                 "nameLocales": [ ]
               },
               {

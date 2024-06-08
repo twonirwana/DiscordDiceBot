@@ -9,7 +9,6 @@ import de.janno.discord.bot.command.*;
 import de.janno.discord.bot.command.channelConfig.AliasHelper;
 import de.janno.discord.bot.dice.CachingDiceEvaluator;
 import de.janno.discord.bot.dice.DiceEvaluatorAdapter;
-import de.janno.discord.bot.dice.DiceSystemAdapter;
 import de.janno.discord.bot.dice.image.DiceImageStyle;
 import de.janno.discord.bot.dice.image.DiceStyleAndColor;
 import de.janno.discord.bot.persistance.Mapper;
@@ -36,11 +35,11 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
     public static final String COMMAND_NAME = "custom_dice";
     static final String BUTTONS_OPTION_NAME = "buttons";
     private static final String CONFIG_TYPE_ID = "CustomDiceConfig";
-    private final DiceSystemAdapter diceSystemAdapter;
+    private final DiceEvaluatorAdapter diceEvaluatorAdapter;
 
     public CustomDiceCommand(PersistenceManager persistenceManager, CachingDiceEvaluator cachingDiceEvaluator) {
         super(persistenceManager);
-        this.diceSystemAdapter = new DiceSystemAdapter(cachingDiceEvaluator);
+        this.diceEvaluatorAdapter = new DiceEvaluatorAdapter(cachingDiceEvaluator);
     }
 
     public static CustomDiceConfig deserializeConfig(@NonNull MessageConfigDTO messageConfigDTO) {
@@ -103,7 +102,7 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
                 .distinct()
                 .collect(Collectors.toList());
 
-        return diceSystemAdapter.validateListOfExpressions(diceExpressionWithOptionalLabel, "/%s %s".formatted(I18n.getMessage("custom_dice.name", userLocale),
+        return diceEvaluatorAdapter.validateListOfExpressions(diceExpressionWithOptionalLabel, "/%s %s".formatted(I18n.getMessage("custom_dice.name", userLocale),
                 I18n.getMessage("base.option.help", userLocale)), userLocale);
     }
 
@@ -154,7 +153,7 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
         //add the label only if it is different from the expression
         final String label = selectedButton.get().getDiceExpression().equals(selectedButton.get().getLabel()) ? null : selectedButton.get().getLabel();
         final String expression = AliasHelper.getAndApplyAliaseToExpression(channelId, userId, persistenceManager, selectedButton.get().getDiceExpression());
-        return Optional.of(diceSystemAdapter.answerRollWithGivenLabel(expression,
+        return Optional.of(diceEvaluatorAdapter.answerRollWithGivenLabel(expression,
                 label,
                 false,
                 config.getAnswerFormatType(),
@@ -193,7 +192,7 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
     protected @NonNull Optional<String> getConfigWarnMessage(CustomDiceConfig config, Locale userLocale) {
         return Optional.ofNullable(Strings.emptyToNull(config.getButtonIdLabelAndDiceExpressions().stream()
                 .map(b -> {
-                    String warning = diceSystemAdapter.answerRollWithGivenLabel(b.getDiceExpression(), null, false, config.getAnswerFormatType(),
+                    String warning = diceEvaluatorAdapter.answerRollWithGivenLabel(b.getDiceExpression(), null, false, config.getAnswerFormatType(),
                             config.getDiceStyleAndColor(), userLocale).getWarning();
                     if (!Strings.isNullOrEmpty(warning)) {
                         return "`%s`: %s".formatted(b.getDiceExpression(), warning);

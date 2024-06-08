@@ -10,7 +10,6 @@ import de.janno.discord.bot.I18n;
 import de.janno.discord.bot.command.*;
 import de.janno.discord.bot.dice.CachingDiceEvaluator;
 import de.janno.discord.bot.dice.DiceEvaluatorAdapter;
-import de.janno.discord.bot.dice.DiceSystemAdapter;
 import de.janno.discord.bot.dice.image.DiceImageStyle;
 import de.janno.discord.bot.dice.image.DiceStyleAndColor;
 import de.janno.discord.bot.persistance.Mapper;
@@ -60,12 +59,12 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     private static final String STATE_DATA_TYPE_ID_LEGACY = "CustomParameterStateData";
     private static final String CONFIG_TYPE_ID = "CustomParameterConfig";
     private final static Pattern LABEL_MATCHER = Pattern.compile("@[^}]+$", Pattern.DOTALL);
-    private final DiceSystemAdapter diceSystemAdapter;
+    private final DiceEvaluatorAdapter diceEvaluatorAdapter;
 
     @VisibleForTesting
     public CustomParameterCommand(PersistenceManager persistenceManager, CachingDiceEvaluator cachingDiceEvaluator) {
         super(persistenceManager);
-        this.diceSystemAdapter = new DiceSystemAdapter(cachingDiceEvaluator);
+        this.diceEvaluatorAdapter = new DiceEvaluatorAdapter(cachingDiceEvaluator);
     }
 
     private static @NonNull String getNextParameterExpression(@NonNull String expression) {
@@ -190,8 +189,8 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
                         .limit(23)
                         .filter(s -> !Strings.isNullOrEmpty(s))
                         .map(s -> {
-                            if (s.contains(DiceSystemAdapter.LABEL_DELIMITER)) {
-                                String[] split = s.split(DiceSystemAdapter.LABEL_DELIMITER);
+                            if (s.contains(DiceEvaluatorAdapter.LABEL_DELIMITER)) {
+                                String[] split = s.split(DiceEvaluatorAdapter.LABEL_DELIMITER);
                                 final String parameterOptionExpression = split[0];
                                 final String label = split[1];
                                 final boolean directRoll;
@@ -284,7 +283,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
             String expression = getFilledExpression(config, state);
             String label = getLabel(config, state);
             String expressionWithoutSuffixLabel = removeSuffixLabelFromExpression(expression, label);
-            return Optional.of(diceSystemAdapter.answerRollWithGivenLabel(expressionWithoutSuffixLabel,
+            return Optional.of(diceEvaluatorAdapter.answerRollWithGivenLabel(expressionWithoutSuffixLabel,
                     label,
                     false,
                     config.getAnswerFormatType(),
@@ -571,7 +570,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
             String expression = getFilledExpression(config, aState.getState());
             String label = getLabel(config, aState.getState());
             String expressionWithoutSuffixLabel = removeSuffixLabelFromExpression(expression, label);
-            Optional<String> validationMessage = diceSystemAdapter.validateDiceExpressionWitOptionalLabel(expressionWithoutSuffixLabel,
+            Optional<String> validationMessage = diceEvaluatorAdapter.validateDiceExpressionWitOptionalLabel(expressionWithoutSuffixLabel,
                     "/%s %s".formatted(I18n.getMessage("custom_parameter.name", config.getConfigLocale()), I18n.getMessage("base.option.help", config.getConfigLocale())),
                     config.getConfigLocale());
             if (validationMessage.isPresent()) {

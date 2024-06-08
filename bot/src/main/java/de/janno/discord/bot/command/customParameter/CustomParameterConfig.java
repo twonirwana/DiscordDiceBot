@@ -1,6 +1,7 @@
 package de.janno.discord.bot.command.customParameter;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import de.janno.discord.bot.AnswerInteractionType;
 import de.janno.discord.bot.ResultImage;
@@ -18,6 +19,7 @@ import java.util.Locale;
 @EqualsAndHashCode(callSuper = true)
 @Getter
 @ToString(callSuper = true)
+@JsonIgnoreProperties(ignoreUnknown = true) //ignore legacy diceSystem field
 public class CustomParameterConfig extends Config {
     @NonNull
     private final String baseExpression;

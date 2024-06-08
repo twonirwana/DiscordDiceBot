@@ -9,7 +9,6 @@ import de.janno.discord.bot.command.*;
 import de.janno.discord.bot.command.channelConfig.AliasHelper;
 import de.janno.discord.bot.dice.CachingDiceEvaluator;
 import de.janno.discord.bot.dice.DiceEvaluatorAdapter;
-import de.janno.discord.bot.dice.DiceSystemAdapter;
 import de.janno.discord.bot.dice.image.DiceImageStyle;
 import de.janno.discord.bot.dice.image.DiceStyleAndColor;
 import de.janno.discord.bot.persistance.Mapper;
@@ -48,12 +47,12 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
     private static final String STATE_DATA_TYPE_ID = "SumCustomSetStateDataV2";
     private static final String STATE_DATA_TYPE_LEGACY_ID = "SumCustomSetStateData";
     private final static Pattern ENDS_WITH_DOUBLE_SEMICOLUMN_PATTERN = Pattern.compile(".*;\\s*;\\s*$", Pattern.DOTALL);
-    private final DiceSystemAdapter diceSystemAdapter;
+    private final DiceEvaluatorAdapter diceEvaluatorAdapter;
 
 
     public SumCustomSetCommand(PersistenceManager persistenceManager, CachingDiceEvaluator cachingDiceEvaluator) {
         super(persistenceManager);
-        this.diceSystemAdapter = new DiceSystemAdapter(cachingDiceEvaluator);
+        this.diceEvaluatorAdapter = new DiceEvaluatorAdapter(cachingDiceEvaluator);
     }
 
     public static SumCustomSetConfig deserializeConfig(MessageConfigDTO messageConfigDTO) {
@@ -200,7 +199,7 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
         String label = combineLabel(state.getData().getDiceExpressions(), config);
         String newExpression = AliasHelper.getAndApplyAliaseToExpression(channelId, userId, persistenceManager, combineExpressions(state.getData().getDiceExpressions(), config.getPrefix(), config.getPostfix()));
 
-        return Optional.of(diceSystemAdapter.answerRollWithGivenLabel(newExpression,
+        return Optional.of(diceEvaluatorAdapter.answerRollWithGivenLabel(newExpression,
                 label,
                 config.isAlwaysSumResult(),
                 config.getAnswerFormatType(),
@@ -253,7 +252,7 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
                 .map(List::isEmpty)
                 .orElse(true);
         Set<String> disabledIds = getDisabledButtonIds(config, state, channelId, userId);
-        return Optional.of(createButtonLayout(customUuid, config, !diceSystemAdapter.isValidExpression(expression), expressionIsEmpty, disabledIds, config.getConfigLocale()));
+        return Optional.of(createButtonLayout(customUuid, config, !diceEvaluatorAdapter.isValidExpression(expression), expressionIsEmpty, disabledIds, config.getConfigLocale()));
     }
 
     private Set<String> getDisabledButtonIds(@NonNull SumCustomSetConfig config, @Nullable State<SumCustomSetStateDataV2> state, long channelId, @Nullable Long userId) {
@@ -267,7 +266,7 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
                             config.getLabelAndExpression());
                     List<ExpressionAndLabel> diceExpression = Optional.of(updatedState).map(State::getData).map(SumCustomSetStateDataV2::getDiceExpressions).orElse(List.of());
                     String expressionAfterSelection = AliasHelper.getAndApplyAliaseToExpression(channelId, userId, persistenceManager, combineExpressions(diceExpression, config.getPrefix(), config.getPostfix()));
-                    return !diceSystemAdapter.isValidExpression(expressionAfterSelection);
+                    return !diceEvaluatorAdapter.isValidExpression(expressionAfterSelection);
                 })
                 .map(ButtonIdLabelAndDiceExpression::getButtonId)
                 .collect(Collectors.toSet());
