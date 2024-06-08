@@ -4,7 +4,6 @@ import com.google.common.base.Strings;
 import com.sun.net.httpserver.HttpServer;
 import com.sun.net.httpserver.SimpleFileServer;
 import de.janno.discord.bot.command.AnswerFormatType;
-import de.janno.discord.bot.dice.DiceSystem;
 import de.janno.discord.bot.dice.image.DiceStyleAndColor;
 import io.avaje.config.Config;
 import io.micrometer.core.instrument.Metrics;
@@ -34,6 +33,7 @@ public class BotMetrics {
     private final static String METRIC_IMAGE_CREATION_DURATION_PREFIX = "imageCreationDuration";
     private final static String METRIC_IS_DELAYED_PREFIX = "answerIsDelayed";
     private final static String METRIC_LEGACY_BUTTON_PREFIX = "legacyButtonEvent";
+    private final static String METRIC_LEGACY_COMMAND_BUTTON_PREFIX = "legacyCommandButtonEvent";
     private final static String METRIC_UUID_BUTTON_PREFIX = "uuidButtonEvent";
     private final static String METRIC_SLASH_PREFIX = "slashEvent";
     private final static String METRIC_SLASH_HELP_PREFIX = "slashHelpEvent";
@@ -107,6 +107,10 @@ public class BotMetrics {
         globalRegistry.counter(METRIC_PREFIX + METRIC_LEGACY_BUTTON_PREFIX, Tags.of(COMMAND_TAG, commandName)).increment();
     }
 
+    public static void incrementLegacyCommandButtonMetricCounter(@NonNull String commandName) {
+        globalRegistry.counter(METRIC_PREFIX + METRIC_LEGACY_COMMAND_BUTTON_PREFIX, Tags.of(COMMAND_TAG, commandName)).increment();
+    }
+
     public static void incrementButtonUUIDUsageMetricCounter(@NonNull String commandName, boolean hasUUIDinCustomId) {
         globalRegistry.counter(METRIC_PREFIX + METRIC_UUID_BUTTON_PREFIX, Tags.of(COMMAND_TAG, commandName, UUID_USAGE_TAG, String.valueOf(hasUUIDinCustomId))).increment();
     }
@@ -121,10 +125,6 @@ public class BotMetrics {
 
     public static void incrementPresetMetricCounter(@NonNull String presetName) {
         globalRegistry.counter(METRIC_PREFIX + METRIC_PRESET_PREFIX, Tags.of(TYPE_TAG, presetName)).increment();
-    }
-
-    public static void incrementDiceParserSystemCounter(@NonNull DiceSystem diceSystem) {
-        globalRegistry.counter(METRIC_PREFIX + METRIC_DICE_PARSER_SYSTEM_PREFIX, Tags.of(DICE_SYSTEM_TAG, diceSystem.name())).increment();
     }
 
     public static void incrementAnswerFormatCounter(@NonNull AnswerFormatType answerFormatType, @NonNull String commandName) {

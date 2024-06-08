@@ -2,10 +2,10 @@ package de.janno.discord.bot.command;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
+import de.janno.discord.bot.BaseCommandUtils;
 import de.janno.discord.bot.BotMetrics;
 import de.janno.discord.bot.I18n;
 import de.janno.discord.bot.command.reroll.Config;
-import de.janno.discord.bot.persistance.Mapper;
 import de.janno.discord.bot.persistance.MessageConfigDTO;
 import de.janno.discord.bot.persistance.MessageDataDTO;
 import de.janno.discord.bot.persistance.PersistenceManager;
@@ -19,9 +19,9 @@ import de.janno.discord.connector.api.slash.CommandDefinitionOption;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import javax.annotation.Nullable;
 import reactor.core.publisher.Mono;
 
+import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -119,14 +119,10 @@ public abstract class AbstractSlashCommand<C extends Config, S extends StateData
      * On the creation of a message an empty state need to be saved so we know the message exists and we can remove it later, even on concurrent actions
      */
     protected MessageDataDTO createEmptyMessageData(@NonNull UUID configUUID,
-                                                 @Nullable Long guildId,
-                                                 long channelId,
-                                                 long messageId) {
-        MessageDataDTO messageDataDTO = new MessageDataDTO(configUUID, guildId, channelId, messageId, getCommandId(), Mapper.NO_PERSISTED_STATE, null);
-        //should not be needed but sometimes there is a retry ect and then there is already a state
-        persistenceManager.deleteStateForMessage(channelId, messageId);
-        persistenceManager.saveMessageData(messageDataDTO);
-        return messageDataDTO;
+                                                    @Nullable Long guildId,
+                                                    long channelId,
+                                                    long messageId) {
+        return BaseCommandUtils.createEmptyMessageData(configUUID, guildId, channelId, messageId, getCommandId(), persistenceManager);
     }
 
 

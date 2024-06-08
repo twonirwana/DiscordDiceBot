@@ -6,11 +6,11 @@ import de.janno.evaluator.dice.Roller;
 import de.janno.evaluator.dice.random.NumberSupplier;
 import io.avaje.config.Config;
 
-public class NoCachDiceEvaluator implements ErrorCatchingDiceEvaluator {
+public class NoCacheDiceEvaluator implements ErrorCatchingDiceEvaluator {
 
     private final DiceEvaluator diceEvaluator;
 
-    public NoCachDiceEvaluator(NumberSupplier numberSupplier) {
+    public NoCacheDiceEvaluator(NumberSupplier numberSupplier) {
         diceEvaluator = new DiceEvaluator(numberSupplier, Config.getInt("diceEvaluator.maxNumberOfDice", 1000),
                 Config.getInt("diceEvaluator.maxNumberOfElements", 10_000),
                 Config.getBool("diceEvaluator.keepChildrenRolls", false));
@@ -22,11 +22,10 @@ public class NoCachDiceEvaluator implements ErrorCatchingDiceEvaluator {
             Roller roller = diceEvaluator.buildRollSupplier(expression);
             // todo make stable, GivenDiceNumberSupplier removes the number after each roll
             // roller.roll();
-            return new RollerOrError(expression, roller, true, null);
+            return new RollerOrError(expression, roller, true, null, null);
         } catch (ExpressionException e) {
             String errorLocation = DiceEvaluatorAdapter.getErrorLocationString(expression, e.getExpressionPosition());
-            //todo full expression or errorLocation
-            return new RollerOrError(errorLocation, null, false, e.getMessage());
+            return new RollerOrError(expression, null, false, e.getMessage(), errorLocation);
         }
     }
 }

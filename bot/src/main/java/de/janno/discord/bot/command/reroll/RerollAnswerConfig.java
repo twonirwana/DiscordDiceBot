@@ -13,6 +13,7 @@ import lombok.ToString;
 import org.apache.commons.lang3.NotImplementedException;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -39,7 +40,7 @@ public class RerollAnswerConfig extends Config {
                               @JsonProperty("configLocale") Locale configLocale,
                               @JsonProperty("answerInteractionType") AnswerInteractionType answerInteractionType,
                               @JsonProperty("expression") @NonNull String expression,
-                              @JsonProperty("dieIdAndValues") @NonNull List<DieIdTypeAndValue> dieIdTypeAndValues,
+                              @JsonProperty("dieIdTypeAndValues") @NonNull List<DieIdTypeAndValue> dieIdTypeAndValues,
                               @JsonProperty("rerollCount") int rerollCount,
                               @JsonProperty("owner") String owner,
                               @JsonProperty("alwaysSumUp") boolean alwaysSumUp,

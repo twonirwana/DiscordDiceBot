@@ -1,5 +1,6 @@
 package de.janno.discord.bot.command;
 
+import de.janno.discord.bot.BotMetrics;
 import de.janno.discord.bot.I18n;
 import de.janno.discord.connector.api.BottomCustomIdUtils;
 import de.janno.discord.connector.api.ButtonEventAdaptor;
@@ -22,7 +23,8 @@ public class LegacyIdHandler implements ComponentInteractEventHandler {
 
     @Override
     public Mono<Void> handleComponentInteractEvent(@NonNull ButtonEventAdaptor event) {
-        //todo metric
+        String buttonCommandId = BottomCustomIdUtils.getCommandNameFromCustomId(event.getCustomId());
+        BotMetrics.incrementLegacyCommandButtonMetricCounter(buttonCommandId);
         //todo test
         return event.reply(I18n.getMessage("legacy.message", event.getRequester().getUserLocal()), false);
     }

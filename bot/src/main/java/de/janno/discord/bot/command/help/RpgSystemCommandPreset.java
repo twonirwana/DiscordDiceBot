@@ -77,7 +77,7 @@ public class RpgSystemCommandPreset {
             //sum_custom_set start buttons: 7;8;9;+;-;4;5;6;d;k;1;2;3;0;l always_sum_result: true
             case DICE_CALCULATOR ->
                     new SumCustomSetConfig(null, ButtonHelper.parseString(I18n.getMessage("rpg.system.command.preset.DICE_CALCULATOR.expression", userLocale)),
-                            true, false, false, null, null, AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_3d, DiceImageStyle.polyhedral_3d.getDefaultColor()), userLocale);
+                            true, false, false, null, null, AnswerFormatType.without_expression, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_3d, DiceImageStyle.polyhedral_3d.getDefaultColor()), userLocale);
             //1d20@D20;1d6@D6;2d6@2D6;1d4@D4;1d8@D8;6x3d6=@Stats;(3d6=)*10@Gold;1d100@D100;1d10@D10;1d12@D12
             case OSR -> new CustomDiceConfig(null,
                     ButtonHelper.parseString(I18n.getMessage("rpg.system.command.preset.OSR.expression", userLocale)),

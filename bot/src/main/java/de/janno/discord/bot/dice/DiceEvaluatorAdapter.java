@@ -11,6 +11,7 @@ import de.janno.discord.bot.command.reroll.DieIdTypeAndValue;
 import de.janno.discord.bot.dice.image.DiceStyleAndColor;
 import de.janno.discord.bot.dice.image.ImageResultCreator;
 import de.janno.evaluator.dice.*;
+import io.avaje.config.Config;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
@@ -75,7 +76,7 @@ public class DiceEvaluatorAdapter {
     }
 
     public static String getErrorLocationString(String expression, ExpressionPosition expressionPosition) {
-        final int contextSize = 6;
+        final int contextSize = Config.getInt("diceEvaluator.errorContextSize", 6);
         expression = expression.trim();
         int location = expressionPosition.getStartInc();
         String errorValue = expressionPosition.getValue();
@@ -115,7 +116,7 @@ public class DiceEvaluatorAdapter {
             if (!Strings.isNullOrEmpty(expression)) {
                 BotMetrics.incrementInvalidExpression(expression);
             }
-            return Optional.of(I18n.getMessage("diceEvaluator.reply.validation.invalid", userLocale, rollerOrError.getExpression(), rollerOrError.getErrorMessage(), helpCommand));
+            return Optional.of(I18n.getMessage("diceEvaluator.reply.validation.invalid", userLocale, rollerOrError.getErrorExpressionContext(), rollerOrError.getErrorMessage(), helpCommand));
         }
     }
 
@@ -145,8 +146,7 @@ public class DiceEvaluatorAdapter {
             return Optional.empty();
         } else {
             //no invalid metric increment because this is called by each letter typed
-
-            //todo maybe add the rollerOrError.getExpression to geht a better errorLocation
+            //not enough space to add the error location, which is easy to see for the user because it should be the last input
             return Optional.of(rollerOrError.getErrorMessage());
         }
     }
@@ -172,7 +172,7 @@ public class DiceEvaluatorAdapter {
             } else {
                 return RollAnswer.builder()
                         .answerFormatType(answerFormatType)
-                        .expression(rollerOrError.getErrorMessage())
+                        .expression(rollerOrError.getExpression())
                         .errorMessage(rollerOrError.getErrorMessage())
                         .build();
             }

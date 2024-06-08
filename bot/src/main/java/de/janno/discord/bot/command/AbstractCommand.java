@@ -2,6 +2,7 @@ package de.janno.discord.bot.command;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
+import de.janno.discord.bot.BaseCommandUtils;
 import de.janno.discord.bot.command.reroll.Config;
 import de.janno.discord.bot.persistance.Mapper;
 import de.janno.discord.bot.persistance.MessageConfigDTO;
@@ -82,11 +83,6 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
                 return AbstractCommand.this.getCurrentMessageContentChange(config, state);
             }
 
-            @Override
-            public MessageDataDTO createEmptyMessageData(@NonNull UUID configUUID, @Nullable Long guildId, long channelId, long messageId) {
-                return AbstractCommand.this.createEmptyMessageData(configUUID, guildId, channelId, messageId);
-            }
-
         };
         slashCommand = new AbstractSlashCommand<>(persistenceManager) {
             @Override
@@ -155,11 +151,6 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
             }
 
             @Override
-            public MessageDataDTO createEmptyMessageData(@NonNull UUID configUUID, @Nullable Long guildId, long channelId, long messageId) {
-                return AbstractCommand.this.createEmptyMessageData(configUUID, guildId, channelId, messageId);
-            }
-
-            @Override
             protected @NonNull Optional<String> getStartOptionsValidationMessage(@NonNull CommandInteractionOption options, long channelId, long userId, @NonNull Locale userLocale) {
                 return AbstractCommand.this.getStartOptionsValidationMessage(options, channelId, userId, userLocale);
             }
@@ -216,16 +207,11 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
      * On the creation of a message an empty state need to be saved so we know the message exists and we can remove it later, even on concurrent actions
      */
     @VisibleForTesting
-    //todo remove?
     public MessageDataDTO createEmptyMessageData(@NonNull UUID configUUID,
                                                  @Nullable Long guildId,
                                                  long channelId,
                                                  long messageId) {
-        MessageDataDTO messageDataDTO = new MessageDataDTO(configUUID, guildId, channelId, messageId, getCommandId(), Mapper.NO_PERSISTED_STATE, null);
-        //should not be needed but sometimes there is a retry ect and then there is already a state
-        persistenceManager.deleteStateForMessage(channelId, messageId);
-        persistenceManager.saveMessageData(messageDataDTO);
-        return messageDataDTO;
+       return BaseCommandUtils.createEmptyMessageData(configUUID, guildId, channelId, messageId, getCommandId(), persistenceManager);
     }
 
     //visible for welcome command

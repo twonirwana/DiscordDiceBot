@@ -3,11 +3,11 @@ package de.janno.discord.bot.command;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Stopwatch;
 import de.janno.discord.bot.AnswerInteractionType;
+import de.janno.discord.bot.BaseCommandUtils;
 import de.janno.discord.bot.BotMetrics;
 import de.janno.discord.bot.I18n;
 import de.janno.discord.bot.command.reroll.Config;
 import de.janno.discord.bot.command.reroll.RerollAnswerHandler;
-import de.janno.discord.bot.persistance.Mapper;
 import de.janno.discord.bot.persistance.MessageConfigDTO;
 import de.janno.discord.bot.persistance.MessageDataDTO;
 import de.janno.discord.bot.persistance.PersistenceManager;
@@ -93,7 +93,7 @@ public abstract class AbstractComponentInteractEventHandler<C extends Config, S 
         String editMessage;
         Optional<List<ComponentRowDefinition>> editMessageComponents;
         if (keepExistingButtonMessage || answerTargetChannelId != null) {
-            if(event.isPinned()){
+            if (event.isPinned()) {
                 BotMetrics.incrementPinnedButtonMetricCounter();
             }
             //if the old button is pined or the result is copied to another channel, the old message will be edited or reset to the slash default
@@ -149,7 +149,17 @@ public abstract class AbstractComponentInteractEventHandler<C extends Config, S 
                     .doOnNext(newMessageId -> createEmptyMessageData(configUUID, guildId, channelId, newMessageId))
                     .flatMap(newMessageId -> MessageDeletionHelper.deleteOldMessageAndData(persistenceManager, newMessageId, event.getMessageId(), configUUID, channelId, event))
                     .delaySubscription(calculateDelay(event))
-                    .doOnSuccess(v -> BotMetrics.timerNewButtonMessageMetricCounter(getCommandId(), stopwatch.elapsed()))
+                    .doOnSuccess(v -> {
+                        BotMetrics.timerNewButtonMessageMetricCounter(getCommandId(), stopwatch.elapsed());
+                        if (answer.isEmpty()) {
+                            log.info("{}: '{}'={} in {}ms",
+                                    event.getRequester().toLogString(),
+                                    event.getCustomId().replace(CUSTOM_ID_DELIMITER, ":"),
+                                    state.toShortString(),
+                                    stopwatch.elapsed(TimeUnit.MILLISECONDS)
+                            );
+                        }
+                    })
                     .then());
             deleteCurrentButtonMessage = !keepExistingButtonMessage;
         } else {
@@ -178,6 +188,13 @@ public abstract class AbstractComponentInteractEventHandler<C extends Config, S 
 
     protected Optional<List<ComponentRowDefinition>> getCurrentMessageComponentChange(UUID configUUID, C config, State<S> state, long channelId, long userId) {
         return Optional.empty();
+    }
+
+    /**
+     * If the creation of a new button message should be logged, normaly part of an answer but for rerolls relevant
+     */
+    protected boolean logNewButtonMessage() {
+        return false;
     }
 
     /**
@@ -228,11 +245,7 @@ public abstract class AbstractComponentInteractEventHandler<C extends Config, S 
                                                  @Nullable Long guildId,
                                                  long channelId,
                                                  long messageId) {
-        MessageDataDTO messageDataDTO = new MessageDataDTO(configUUID, guildId, channelId, messageId, getCommandId(), Mapper.NO_PERSISTED_STATE, null);
-        //should not be needed but sometimes there is a retry ect and then there is already a state
-        persistenceManager.deleteStateForMessage(channelId, messageId);
-        persistenceManager.saveMessageData(messageDataDTO);
-        return messageDataDTO;
+        return BaseCommandUtils.createEmptyMessageData(configUUID, guildId, channelId, messageId, getCommandId(), persistenceManager);
     }
 
     protected abstract @NonNull Optional<RollAnswer> getAnswer(C config, State<S> state, long channelId, long userId);

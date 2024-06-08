@@ -203,7 +203,6 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
         return Optional.of(diceSystemAdapter.answerRollWithGivenLabel(newExpression,
                 label,
                 config.isAlwaysSumResult(),
-                config.getDiceSystem(),
                 config.getAnswerFormatType(),
                 config.getDiceStyleAndColor(),
                 config.getConfigLocale()));

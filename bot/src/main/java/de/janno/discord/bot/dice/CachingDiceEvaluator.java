@@ -70,11 +70,10 @@ public class CachingDiceEvaluator implements ErrorCatchingDiceEvaluator {
                             log.trace("create roller for: {}", expression.replace("\n", " "));
                             Roller roller = diceEvaluator.buildRollSupplier(expression);
                             roller.roll();
-                            return new RollerOrError(expression, roller, true, null);
+                            return new RollerOrError(expression, roller, true, null, null);
                         } catch (ExpressionException e) {
                             String errorLocation = DiceEvaluatorAdapter.getErrorLocationString(expression, e.getExpressionPosition());
-                            //todo full expression or errorLocation
-                            return new RollerOrError(errorLocation, null, false, e.getMessage());
+                            return new RollerOrError(expression, null, false, e.getMessage(), errorLocation);
                         }
                     }
                 });

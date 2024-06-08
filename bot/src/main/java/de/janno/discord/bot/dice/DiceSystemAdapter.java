@@ -1,6 +1,5 @@
 package de.janno.discord.bot.dice;
 
-import de.janno.discord.bot.BotMetrics;
 import de.janno.discord.bot.I18n;
 import de.janno.discord.bot.command.AnswerFormatType;
 import de.janno.discord.bot.command.RollAnswer;
@@ -33,7 +32,6 @@ public class DiceSystemAdapter {
     }
 
     public static Optional<String> validateLabel(@NonNull String expressionWithOptionalLabel, @NonNull Locale userLocale) {
-        //todo remove duplicate
         String label;
         String diceExpression;
 
@@ -60,12 +58,11 @@ public class DiceSystemAdapter {
         return Optional.empty();
     }
 
-    public RollAnswer answerRollWithGivenLabel(String expression, @Nullable String label, boolean sumUp, DiceSystem system, AnswerFormatType answerFormatType, DiceStyleAndColor diceStyleAndColor, Locale userLocale) {
-        BotMetrics.incrementDiceParserSystemCounter(system);
+    public RollAnswer answerRollWithGivenLabel(String expression, @Nullable String label, boolean sumUp, AnswerFormatType answerFormatType, DiceStyleAndColor diceStyleAndColor, Locale userLocale) {
         return diceEvaluatorAdapter.answerRollWithGivenLabel(expression, label, sumUp, answerFormatType, diceStyleAndColor, userLocale);
     }
 
-    public Optional<String> validateListOfExpressions(List<String> expressions, String helpCommand, DiceSystem system, @NonNull Locale userLocale) {
+    public Optional<String> validateListOfExpressions(List<String> expressions, String helpCommand, @NonNull Locale userLocale) {
         if (expressions.isEmpty()) {
             return Optional.of(I18n.getMessage("diceEvaluator.reply.validation.missingExpression", userLocale, helpCommand));
         }

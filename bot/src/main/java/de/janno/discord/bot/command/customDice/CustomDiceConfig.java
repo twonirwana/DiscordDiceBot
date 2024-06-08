@@ -7,7 +7,6 @@ import de.janno.discord.bot.ResultImage;
 import de.janno.discord.bot.command.AnswerFormatType;
 import de.janno.discord.bot.command.ButtonIdLabelAndDiceExpression;
 import de.janno.discord.bot.command.reroll.Config;
-import de.janno.discord.bot.dice.DiceSystem;
 import de.janno.discord.bot.dice.image.DiceStyleAndColor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -24,8 +23,6 @@ import java.util.stream.Collectors;
 public class CustomDiceConfig extends Config {
     @NonNull
     private final List<ButtonIdLabelAndDiceExpression> buttonIdLabelAndDiceExpressions;
-    @NonNull
-    private final DiceSystem diceSystem;
 
     @JsonCreator
     public CustomDiceConfig(@JsonProperty("answerTargetChannelId") Long answerTargetChannelId,
@@ -38,8 +35,6 @@ public class CustomDiceConfig extends Config {
     ) {
         super(answerTargetChannelId, answerFormatType, answerInteractionType, resultImage, diceStyleAndColor, configLocale);
         this.buttonIdLabelAndDiceExpressions = buttonIdLabelAndDiceExpressions;
-        //todo handle legacy config
-        this.diceSystem = DiceSystem.DICE_EVALUATOR;
     }
 
     @Override
@@ -47,7 +42,7 @@ public class CustomDiceConfig extends Config {
         String buttons = buttonIdLabelAndDiceExpressions.stream()
                 .map(ButtonIdLabelAndDiceExpression::toShortString)
                 .collect(Collectors.joining(", "));
-        return "[%s, %s, %s, %s, %s]".formatted(buttons, getTargetChannelShortString(), diceSystem, getAnswerFormatType(), getDiceStyleAndColor());
+        return "[%s, %s, %s, %s]".formatted(buttons, getTargetChannelShortString(), getAnswerFormatType(), getDiceStyleAndColor());
     }
 
 

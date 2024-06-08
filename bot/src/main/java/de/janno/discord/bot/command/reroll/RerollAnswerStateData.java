@@ -26,7 +26,7 @@ public class RerollAnswerStateData extends StateData {
     @Override
     @JsonIgnore
     public String getShortStringValues() {
-        return rerollDice.toString();
+        return rerollDice.stream().map(DieIdDb::toDieId).toList().toString();
     }
 
 }

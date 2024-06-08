@@ -287,7 +287,6 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
             return Optional.of(diceSystemAdapter.answerRollWithGivenLabel(expressionWithoutSuffixLabel,
                     label,
                     false,
-                    config.getDiceSystem(),
                     config.getAnswerFormatType(),
                     config.getDiceStyleAndColor(),
                     config.getConfigLocale()));

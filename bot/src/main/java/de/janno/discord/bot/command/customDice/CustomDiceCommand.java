@@ -9,7 +9,6 @@ import de.janno.discord.bot.command.*;
 import de.janno.discord.bot.command.channelConfig.AliasHelper;
 import de.janno.discord.bot.dice.CachingDiceEvaluator;
 import de.janno.discord.bot.dice.DiceEvaluatorAdapter;
-import de.janno.discord.bot.dice.DiceSystem;
 import de.janno.discord.bot.dice.DiceSystemAdapter;
 import de.janno.discord.bot.dice.image.DiceImageStyle;
 import de.janno.discord.bot.dice.image.DiceStyleAndColor;
@@ -104,10 +103,8 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
                 .distinct()
                 .collect(Collectors.toList());
 
-        DiceSystem diceSystem = DiceSystem.DICE_EVALUATOR;
         return diceSystemAdapter.validateListOfExpressions(diceExpressionWithOptionalLabel, "/%s %s".formatted(I18n.getMessage("custom_dice.name", userLocale),
-                I18n.getMessage("base.option.help", userLocale)), diceSystem, userLocale);
-
+                I18n.getMessage("base.option.help", userLocale)), userLocale);
     }
 
     private List<ButtonIdLabelAndDiceExpression> getButtonsFromCommandOption(@NonNull CommandInteractionOption options) {
@@ -160,7 +157,6 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
         return Optional.of(diceSystemAdapter.answerRollWithGivenLabel(expression,
                 label,
                 false,
-                config.getDiceSystem(),
                 config.getAnswerFormatType(),
                 config.getDiceStyleAndColor(),
                 config.getConfigLocale()));
@@ -197,7 +193,7 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
     protected @NonNull Optional<String> getConfigWarnMessage(CustomDiceConfig config, Locale userLocale) {
         return Optional.ofNullable(Strings.emptyToNull(config.getButtonIdLabelAndDiceExpressions().stream()
                 .map(b -> {
-                    String warning = diceSystemAdapter.answerRollWithGivenLabel(b.getDiceExpression(), null, false, DiceSystem.DICE_EVALUATOR, config.getAnswerFormatType(),
+                    String warning = diceSystemAdapter.answerRollWithGivenLabel(b.getDiceExpression(), null, false, config.getAnswerFormatType(),
                             config.getDiceStyleAndColor(), userLocale).getWarning();
                     if (!Strings.isNullOrEmpty(warning)) {
                         return "`%s`: %s".formatted(b.getDiceExpression(), warning);

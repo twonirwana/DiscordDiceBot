@@ -6,7 +6,6 @@ import de.janno.discord.bot.AnswerInteractionType;
 import de.janno.discord.bot.ResultImage;
 import de.janno.discord.bot.command.AnswerFormatType;
 import de.janno.discord.bot.command.reroll.Config;
-import de.janno.discord.bot.dice.DiceSystem;
 import de.janno.discord.bot.dice.image.DiceStyleAndColor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -22,8 +21,6 @@ import java.util.Locale;
 public class CustomParameterConfig extends Config {
     @NonNull
     private final String baseExpression;
-    @NonNull
-    private final DiceSystem diceSystem;
 
     @NonNull
     @JsonIgnore
@@ -39,14 +36,12 @@ public class CustomParameterConfig extends Config {
             @JsonProperty("configLocale") Locale configLocale) {
         super(answerTargetChannelId, answerFormatType, answerInteractionType, resultImage, diceStyleAndColor, configLocale);
         this.baseExpression = baseExpression;
-        //todo handle legacy config
-        this.diceSystem = DiceSystem.DICE_EVALUATOR;
         this.parameters = CustomParameterCommand.createParameterListFromBaseExpression(baseExpression);
     }
 
     @Override
     public String toShortString() {
-        return "[%s, %s, %s, %s, %s]".formatted(baseExpression.replace("\n", " "), getTargetChannelShortString(), diceSystem, getAnswerFormatType(), getDiceStyleAndColor());
+        return "[%s, %s, %s, %s]".formatted(baseExpression.replace("\n", " "), getTargetChannelShortString(), getAnswerFormatType(), getDiceStyleAndColor());
     }
 
     @Override

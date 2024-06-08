@@ -8,7 +8,6 @@ import de.janno.discord.bot.ResultImage;
 import de.janno.discord.bot.command.AnswerFormatType;
 import de.janno.discord.bot.command.ButtonIdLabelAndDiceExpression;
 import de.janno.discord.bot.command.reroll.Config;
-import de.janno.discord.bot.dice.DiceSystem;
 import de.janno.discord.bot.dice.image.DiceStyleAndColor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -26,8 +25,6 @@ import java.util.stream.Collectors;
 public class SumCustomSetConfig extends Config {
     @NonNull
     private final List<ButtonIdLabelAndDiceExpression> labelAndExpression;
-    @NonNull
-    private final DiceSystem diceSystem;
     private final boolean alwaysSumResult;
     private final boolean hideExpressionInStatusAndAnswer;
     private final boolean systemButtonNewLine;
@@ -50,8 +47,6 @@ public class SumCustomSetConfig extends Config {
     ) {
         super(answerTargetChannelId, answerFormatType, answerInteractionType, resultImage, diceStyleAndColor, configLocale);
         this.labelAndExpression = labelAndExpression;
-        //todo handle legacy config
-        this.diceSystem = DiceSystem.DICE_EVALUATOR;
         this.alwaysSumResult = alwaysSumResult == null || alwaysSumResult;
         this.hideExpressionInStatusAndAnswer = Optional.ofNullable(hideExpressionInStatusAndAnswer).orElse(false);
         this.systemButtonNewLine = Optional.ofNullable(systemButtonNewLine).orElse(false);
@@ -66,9 +61,8 @@ public class SumCustomSetConfig extends Config {
                 .collect(Collectors.joining(", "));
         String statusAndAnswerType = hideExpressionInStatusAndAnswer ? "labelAnswer" : "expressionAnswer";
         String systemButtonNewLineString = systemButtonNewLine ? "newSystemButtonLine" : "sameSystemButtonLine";
-        return "[%s, %s, %s, %s, %s, %s, %s, %s, %s, %s]".formatted(buttons,
+        return "[%s, %s, %s, %s, %s, %s, %s, %s, %s]".formatted(buttons,
                 getTargetChannelShortString(),
-                diceSystem,
                 alwaysSumResult,
                 getAnswerFormatType(),
                 getDiceStyleAndColor(),
