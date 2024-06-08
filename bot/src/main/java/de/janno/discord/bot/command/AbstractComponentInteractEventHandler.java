@@ -191,13 +191,6 @@ public abstract class AbstractComponentInteractEventHandler<C extends Config, S 
     }
 
     /**
-     * If the creation of a new button message should be logged, normaly part of an answer but for rerolls relevant
-     */
-    protected boolean logNewButtonMessage() {
-        return false;
-    }
-
-    /**
      * Creates a config and state if there is no saved config for a button event
      */
     protected Optional<ConfigAndState<C, S>> createNewConfigAndStateIfMissing(String buttonValue) {

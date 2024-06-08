@@ -4,7 +4,6 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import de.janno.discord.bot.BaseCommandUtils;
 import de.janno.discord.bot.command.reroll.Config;
-import de.janno.discord.bot.persistance.Mapper;
 import de.janno.discord.bot.persistance.MessageConfigDTO;
 import de.janno.discord.bot.persistance.MessageDataDTO;
 import de.janno.discord.bot.persistance.PersistenceManager;
@@ -180,7 +179,7 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
         return true;
     }
 
-    protected boolean supportsAnswerInteraction(){
+    protected boolean supportsAnswerInteraction() {
         return true;
     }
 
@@ -211,7 +210,7 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
                                                  @Nullable Long guildId,
                                                  long channelId,
                                                  long messageId) {
-       return BaseCommandUtils.createEmptyMessageData(configUUID, guildId, channelId, messageId, getCommandId(), persistenceManager);
+        return BaseCommandUtils.createEmptyMessageData(configUUID, guildId, channelId, messageId, getCommandId(), persistenceManager);
     }
 
     //visible for welcome command
