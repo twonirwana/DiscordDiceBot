@@ -5,8 +5,8 @@ import com.google.common.base.Supplier;
 import de.janno.discord.bot.AnswerInteractionType;
 import de.janno.discord.bot.I18n;
 import de.janno.discord.bot.command.*;
+import de.janno.discord.bot.dice.CachingDiceEvaluator;
 import de.janno.discord.bot.dice.DiceEvaluatorAdapter;
-import de.janno.discord.bot.dice.NoCacheDiceEvaluator;
 import de.janno.discord.bot.persistance.Mapper;
 import de.janno.discord.bot.persistance.MessageConfigDTO;
 import de.janno.discord.bot.persistance.MessageDataDTO;
@@ -16,8 +16,8 @@ import de.janno.discord.connector.api.ButtonEventAdaptor;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
+import de.janno.evaluator.dice.DiceIdAndValue;
 import de.janno.evaluator.dice.DieId;
-import de.janno.evaluator.dice.random.GivenDiceNumberSupplier;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -39,15 +39,18 @@ public class RerollAnswerHandler extends AbstractComponentInteractEventHandler<R
     private static final String COMMAND_ID = "reroll_answer";
     private final PersistenceManager persistenceManager;
     private final Supplier<UUID> uuidSupplier;
+    private final DiceEvaluatorAdapter diceEvaluatorAdapter;
 
-    public RerollAnswerHandler(PersistenceManager persistenceManager, Supplier<UUID> uuidSupplier) {
+    public RerollAnswerHandler(PersistenceManager persistenceManager, Supplier<UUID> uuidSupplier, CachingDiceEvaluator cachingDiceEvaluator) {
         super(persistenceManager);
         this.persistenceManager = persistenceManager;
         this.uuidSupplier = uuidSupplier;
+        this.diceEvaluatorAdapter = new DiceEvaluatorAdapter(cachingDiceEvaluator);
+
     }
 
-    public RerollAnswerHandler(PersistenceManager persistenceManager) {
-        this(persistenceManager, UUID::randomUUID);
+    public RerollAnswerHandler(PersistenceManager persistenceManager, CachingDiceEvaluator cachingDiceEvaluator) {
+        this(persistenceManager, UUID::randomUUID, cachingDiceEvaluator);
     }
 
     private static EmbedOrMessageDefinition applyToAnswer(EmbedOrMessageDefinition input, List<DieIdTypeAndValue> dieIdTypeAndValues, Locale locale, UUID configUUID) {
@@ -237,12 +240,18 @@ public class RerollAnswerHandler extends AbstractComponentInteractEventHandler<R
 
             Set<DieIdDb> rerollDieIds = new HashSet<>(Optional.ofNullable(state.getData()).map(RerollAnswerStateData::getRerollDice).orElse(List.of()));
 
-            Map<DieId, Integer> givenDiceNumberMap = config.getDieIdTypeAndValues().stream()
+            List<DiceIdAndValue> givenDiceNumberMap = config.getDieIdTypeAndValues().stream()
                     .filter(dv -> !rerollDieIds.contains(dv.getDieIdDb()))
-                    .collect(Collectors.toMap(dv -> dv.getDieIdDb().toDieId(), DieIdTypeAndValue::getDiceNumberOrCustomDieSideIndex));
-            DiceEvaluatorAdapter evaluatorAdapter = new DiceEvaluatorAdapter(new NoCacheDiceEvaluator(new GivenDiceNumberSupplier(givenDiceNumberMap)));
+                    .map(DieIdTypeAndValue::toDiceIdAndValue)
+                    .toList();
 
-            RollAnswer rollAnswer = evaluatorAdapter.answerRollWithGivenLabel(config.getExpression(), config.getLabel(), config.isAlwaysSumUp(), config.getAnswerFormatType(), config.getDiceStyleAndColor(), config.getConfigLocale());
+            RollAnswer rollAnswer = diceEvaluatorAdapter.answerRollWithGivenLabel(config.getExpression(),
+                    config.getLabel(),
+                    config.isAlwaysSumUp(),
+                    config.getAnswerFormatType(),
+                    config.getDiceStyleAndColor(),
+                    config.getConfigLocale(),
+                    givenDiceNumberMap);
 
             RerollAnswerConfig rerollAnswerConfig = createNewRerollAnswerConfig(config, config.getExpression(), config.getLabel(), rollAnswer.getDieIdTypeAndValues(), config.getRerollCount() + 1, config.getOwner());
 

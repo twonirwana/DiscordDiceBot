@@ -30,7 +30,7 @@ import java.util.stream.Stream;
 import static de.janno.discord.bot.command.BaseCommandOptions.*;
 
 @Slf4j
-public abstract class AbstractSlashCommand<C extends Config, S extends StateData> implements SlashCommand {
+public abstract class AbstractSlashCommand<C extends Config> implements SlashCommand {
 
     private static final String START_OPTION_NAME = "start";
     private static final String HELP_OPTION_NAME = "help";

@@ -19,7 +19,7 @@ import java.util.function.BiFunction;
 import static io.micrometer.core.instrument.Metrics.globalRegistry;
 
 @Slf4j
-public class CachingDiceEvaluator implements ErrorCatchingDiceEvaluator {
+public class CachingDiceEvaluator{
 
     private final NumberSupplier numberSupplier;
     private LoadingCache<String, RollerOrError> diceRollerCache;

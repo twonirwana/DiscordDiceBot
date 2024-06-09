@@ -12,6 +12,7 @@ import de.janno.discord.bot.dice.image.DiceStyleAndColor;
 import de.janno.discord.bot.dice.image.ImageResultCreator;
 import de.janno.discord.connector.api.BottomCustomIdUtils;
 import de.janno.evaluator.dice.*;
+import de.janno.evaluator.dice.random.GivenDiceNumberSupplier;
 import io.avaje.config.Config;
 import lombok.NonNull;
 import org.apache.commons.lang3.StringUtils;
@@ -30,9 +31,9 @@ public class DiceEvaluatorAdapter {
 
     public final static String LABEL_DELIMITER = "@";
     private final static ImageResultCreator IMAGE_RESULT_CREATOR = new ImageResultCreator();
-    private final ErrorCatchingDiceEvaluator diceEvaluator;
+    private final CachingDiceEvaluator diceEvaluator;
 
-    public DiceEvaluatorAdapter(ErrorCatchingDiceEvaluator cachingDiceEvaluator) {
+    public DiceEvaluatorAdapter(CachingDiceEvaluator cachingDiceEvaluator) {
         this.diceEvaluator = cachingDiceEvaluator;
     }
 
@@ -125,10 +126,7 @@ public class DiceEvaluatorAdapter {
                 .map(r -> new DieIdTypeAndValue(DieIdDb.fromDieId(
                         r.getDieId()),
                         r.getRollElement().getValue(),
-                        //todo use selectedIndex with next diceEvaluator releasse
-                        Optional.ofNullable(r.getRandomSelectedFrom())
-                                .map(l -> l.indexOf(r.getRollElement().getValue()) + 1)
-                                .orElse(null),
+                        r.getNumberSupplierValue(),
                         r.getMaxInc(),
                         r.getRandomSelectedFrom()
                 ))
@@ -218,12 +216,28 @@ public class DiceEvaluatorAdapter {
                                                AnswerFormatType answerFormatType,
                                                DiceStyleAndColor styleAndColor,
                                                @NonNull Locale userLocale) {
+        return answerRollWithGivenLabel(expression, label, sumUp, answerFormatType, styleAndColor, userLocale, List.of());
+
+    }
+
+    public RollAnswer answerRollWithGivenLabel(String expression,
+                                               @Nullable String label,
+                                               boolean sumUp,
+                                               AnswerFormatType answerFormatType,
+                                               DiceStyleAndColor styleAndColor,
+                                               @NonNull Locale userLocale,
+                                               List<DiceIdAndValue> dieAndValues) {
         try {
             final RollerOrError rollerOrError = diceEvaluator.get(expression);
 
             final List<Roll> rolls;
             if (rollerOrError.getRoller() != null) {
-                rolls = rollerOrError.getRoller().roll().getRolls();
+                if (dieAndValues.isEmpty()) {
+                    rolls = rollerOrError.getRoller().roll().getRolls();
+                } else {
+                    GivenDiceNumberSupplier givenDiceNumberSupplier = new GivenDiceNumberSupplier(dieAndValues);
+                    rolls = rollerOrError.getRoller().roll(givenDiceNumberSupplier).getRolls();
+                }
             } else {
                 return RollAnswer.builder()
                         .answerFormatType(answerFormatType)

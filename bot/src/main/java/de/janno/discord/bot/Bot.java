@@ -58,7 +58,7 @@ public class Bot {
         RpgSystemCommandPreset rpgSystemCommandPreset = new RpgSystemCommandPreset(persistenceManager, customParameterCommand, customDiceCommand, sumCustomSetCommand);
         WelcomeCommand welcomeCommand = new WelcomeCommand(persistenceManager, rpgSystemCommandPreset);
         HiddenDirectRollCommand hiddenDirectRollCommand = new HiddenDirectRollCommand(persistenceManager, cachingDiceEvaluator);
-        RerollAnswerHandler rerollAnswerHandler = new RerollAnswerHandler(persistenceManager);
+        RerollAnswerHandler rerollAnswerHandler = new RerollAnswerHandler(persistenceManager, cachingDiceEvaluator);
         HiddenAnswerHandler hiddenAnswerHandler = new HiddenAnswerHandler();
         DiscordConnectorImpl.createAndStart(
                 List.of(customDiceCommand,

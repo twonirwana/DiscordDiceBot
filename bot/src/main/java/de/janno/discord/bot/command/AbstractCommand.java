@@ -26,7 +26,7 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
 
     protected final PersistenceManager persistenceManager;
     private final AbstractComponentInteractEventHandler<C, S> componentInteractEventHandler;
-    private final AbstractSlashCommand<C, S> slashCommand;
+    private final AbstractSlashCommand<C> slashCommand;
 
     protected AbstractCommand(PersistenceManager persistenceManager) {
         this.persistenceManager = persistenceManager;

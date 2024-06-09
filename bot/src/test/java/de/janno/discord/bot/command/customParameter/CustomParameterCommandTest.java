@@ -68,7 +68,7 @@ class CustomParameterCommandTest {
                 Arguments.of("1d6", "The expression needs at least one parameter expression like `{name}`"),
                 Arguments.of("{a1}{a2}{a3}{a4}{a6}", "The expression is allowed a maximum of 4 variables"),
                 Arguments.of("{number:3<=>6}d{sides:6/10/12}", null),
-                Arguments.of("{number}{a:a/c/b/d/d}{sides:3<=>6}", "The following expression is invalid: `15`__a6__. The error is: No matching operator for 'a6', non-functional text and value names must to be surrounded by '' or []. Use /custom_parameter help to get more information on how to use the command."),
+                Arguments.of("{number}{a:a/c/b/d/d}{sides:3<=>6}", "The following expression is invalid: `15`__a__`6`. The error is: No matching operator for 'a', non-functional text and value names must to be surrounded by '' or []. Use /custom_parameter help to get more information on how to use the command."),
                 Arguments.of("{number}d{sides:3/4/'ab'}", null),
                 Arguments.of("{number}d{sides:3/4/'ab'}@roll", null),
                 Arguments.of("{würfel:1d6@1W6/2d6@2W6/3d6@3W6/4d6@4W6//1d20@!1d20/3d20@!3d20}+{modi:1<=>21}=", "A parameter option must not be empty"),
