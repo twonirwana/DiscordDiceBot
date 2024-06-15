@@ -32,6 +32,10 @@ public class ButtonEventAdaptorMock implements ButtonEventAdaptor {
     private final Set<Long> pinnedMessageIds;
     private final String invokingUser;
     private final EmbedOrMessageDefinition eventMessage;
+    @Getter
+    private EmbedOrMessageDefinition answerMessage;
+    @Getter
+    private EmbedOrMessageDefinition newButtonMessage;
 
     public ButtonEventAdaptorMock(String commandId, String buttonValue, UUID configUUID, AtomicLong messageIdCounter, Set<Long> pinnedMessageIds) {
         this(commandId, buttonValue, configUUID, messageIdCounter, pinnedMessageIds, "invokingUser");
@@ -130,6 +134,7 @@ public class ButtonEventAdaptorMock implements ButtonEventAdaptor {
     @Override
     public @NonNull Mono<Long> createMessageWithoutReference(@NonNull EmbedOrMessageDefinition messageDefinition) {
         actions.add(String.format("createMessageWithoutReference: %s", messageDefinition));
+        this.newButtonMessage = messageDefinition;
         return Mono.just(messageIdCounter.incrementAndGet());
     }
 
@@ -146,6 +151,7 @@ public class ButtonEventAdaptorMock implements ButtonEventAdaptor {
     @Override
     public Mono<Void> createResultMessageWithReference(EmbedOrMessageDefinition answer, Long targetChannelId) {
         actions.add(String.format("createResultMessageWithReference: %s, targetChannelId: %s", answer, targetChannelId));
+        answerMessage = answer;
         return Mono.just("").then();
     }
 

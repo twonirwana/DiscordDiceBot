@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -38,7 +39,12 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
     private final DiceEvaluatorAdapter diceEvaluatorAdapter;
 
     public CustomDiceCommand(PersistenceManager persistenceManager, CachingDiceEvaluator cachingDiceEvaluator) {
-        super(persistenceManager);
+        this(persistenceManager, cachingDiceEvaluator, UUID::randomUUID);
+    }
+
+    @VisibleForTesting
+    public CustomDiceCommand(PersistenceManager persistenceManager, CachingDiceEvaluator cachingDiceEvaluator, Supplier<UUID> uuidSupplier) {
+        super(persistenceManager, uuidSupplier);
         this.diceEvaluatorAdapter = new DiceEvaluatorAdapter(cachingDiceEvaluator);
     }
 

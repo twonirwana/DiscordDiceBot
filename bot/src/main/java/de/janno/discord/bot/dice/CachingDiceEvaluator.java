@@ -5,8 +5,10 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import de.janno.evaluator.dice.DiceEvaluator;
+import de.janno.evaluator.dice.DiceIdAndValue;
 import de.janno.evaluator.dice.ExpressionException;
 import de.janno.evaluator.dice.Roller;
+import de.janno.evaluator.dice.random.GivenDiceNumberSupplier;
 import de.janno.evaluator.dice.random.NumberSupplier;
 import io.avaje.config.Config;
 import io.micrometer.core.instrument.Gauge;
@@ -14,12 +16,13 @@ import io.micrometer.core.instrument.Tags;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.List;
 import java.util.function.BiFunction;
 
 import static io.micrometer.core.instrument.Metrics.globalRegistry;
 
 @Slf4j
-public class CachingDiceEvaluator{
+public class CachingDiceEvaluator {
 
     private final NumberSupplier numberSupplier;
     private LoadingCache<String, RollerOrError> diceRollerCache;
@@ -51,6 +54,10 @@ public class CachingDiceEvaluator{
         Gauge.builder("diceEvaluator.cache", () -> diceRollerCache.stats().missCount()).tags(Tags.of("stats", "miss")).register(globalRegistry);
         Gauge.builder("diceEvaluator.cache", () -> diceRollerCache.stats().totalLoadTime()).tags(Tags.of("stats", "totalLoadTime")).register(globalRegistry);
         Gauge.builder("diceEvaluator.cache", () -> diceRollerCache.stats().averageLoadPenalty()).tags(Tags.of("stats", "averageLoadTime")).register(globalRegistry);
+    }
+
+    public GivenDiceNumberSupplier getGivenDiceNumberSuppler(List<DiceIdAndValue> givenDiceNumberMap) {
+        return new GivenDiceNumberSupplier(numberSupplier, givenDiceNumberMap);
     }
 
     private DiceEvaluator createDiceEvaluator() {

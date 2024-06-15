@@ -28,9 +28,9 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
     private final AbstractComponentInteractEventHandler<C, S> componentInteractEventHandler;
     private final AbstractSlashCommand<C> slashCommand;
 
-    protected AbstractCommand(PersistenceManager persistenceManager) {
+    protected AbstractCommand(PersistenceManager persistenceManager, Supplier<UUID> uuidSupplier) {
         this.persistenceManager = persistenceManager;
-        componentInteractEventHandler = new AbstractComponentInteractEventHandler<>(persistenceManager) {
+        componentInteractEventHandler = new AbstractComponentInteractEventHandler<>(persistenceManager, uuidSupplier) {
 
             @Override
             public @NonNull String getCommandId() {

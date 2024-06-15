@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 
 import static de.janno.discord.connector.api.BottomCustomIdUtils.CUSTOM_ID_DELIMITER;
 
@@ -37,9 +38,12 @@ import static de.janno.discord.connector.api.BottomCustomIdUtils.CUSTOM_ID_DELIM
 public abstract class AbstractComponentInteractEventHandler<C extends Config, S extends StateData> implements ComponentInteractEventHandler {
 
     protected final PersistenceManager persistenceManager;
+    protected final Supplier<UUID> uuidSupplier;
 
-    protected AbstractComponentInteractEventHandler(PersistenceManager persistenceManager) {
+
+    protected AbstractComponentInteractEventHandler(PersistenceManager persistenceManager, Supplier<UUID> uuidSupplier) {
         this.persistenceManager = persistenceManager;
+        this.uuidSupplier = uuidSupplier;
     }
 
     @Override
@@ -121,7 +125,7 @@ public abstract class AbstractComponentInteractEventHandler<C extends Config, S 
             if (config.getAnswerInteractionType() == AnswerInteractionType.reroll &&
                     baseAnswer.getType() == EmbedOrMessageDefinition.Type.EMBED &&
                     baseAnswer.getComponentRowDefinitions().isEmpty()) {
-                answerMessage = RerollAnswerHandler.createConfigAndApplyToAnswer(config, answer.get(), baseAnswer, event.getInvokingGuildMemberName(), guildId, channelId, persistenceManager);
+                answerMessage = RerollAnswerHandler.createConfigAndApplyToAnswer(config, answer.get(), baseAnswer, event.getInvokingGuildMemberName(), guildId, channelId, persistenceManager, uuidSupplier.get());
        /*     } else if (config.getAnswerInteractionType() == AnswerInteractionType.hidden) {
                 //todo answer ephemeral, only possile with reply
                 answerMessage = HiddenAnswerHandler.applyToAnswer(baseAnswer, config.getConfigLocale());*/

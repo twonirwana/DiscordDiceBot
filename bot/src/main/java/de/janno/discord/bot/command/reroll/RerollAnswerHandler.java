@@ -1,7 +1,6 @@
 package de.janno.discord.bot.command.reroll;
 
 import com.google.common.base.Preconditions;
-import com.google.common.base.Supplier;
 import de.janno.discord.bot.AnswerInteractionType;
 import de.janno.discord.bot.I18n;
 import de.janno.discord.bot.command.*;
@@ -27,6 +26,7 @@ import reactor.core.scheduler.Schedulers;
 import javax.annotation.Nullable;
 import java.time.Duration;
 import java.util.*;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -38,19 +38,17 @@ public class RerollAnswerHandler extends AbstractComponentInteractEventHandler<R
     private static final String FINISH_BUTTON_ID = "finish";
     private static final String COMMAND_ID = "reroll_answer";
     private final PersistenceManager persistenceManager;
-    private final Supplier<UUID> uuidSupplier;
     private final DiceEvaluatorAdapter diceEvaluatorAdapter;
 
-    public RerollAnswerHandler(PersistenceManager persistenceManager, Supplier<UUID> uuidSupplier, CachingDiceEvaluator cachingDiceEvaluator) {
-        super(persistenceManager);
+    public RerollAnswerHandler(PersistenceManager persistenceManager, CachingDiceEvaluator cachingDiceEvaluator, Supplier<UUID> uuidSupplier) {
+        super(persistenceManager, uuidSupplier);
         this.persistenceManager = persistenceManager;
-        this.uuidSupplier = uuidSupplier;
         this.diceEvaluatorAdapter = new DiceEvaluatorAdapter(cachingDiceEvaluator);
 
     }
 
     public RerollAnswerHandler(PersistenceManager persistenceManager, CachingDiceEvaluator cachingDiceEvaluator) {
-        this(persistenceManager, UUID::randomUUID, cachingDiceEvaluator);
+        this(persistenceManager, cachingDiceEvaluator, UUID::randomUUID);
     }
 
     private static EmbedOrMessageDefinition applyToAnswer(EmbedOrMessageDefinition input, List<DieIdTypeAndValue> dieIdTypeAndValues, Locale locale, UUID configUUID) {
@@ -98,9 +96,8 @@ public class RerollAnswerHandler extends AbstractComponentInteractEventHandler<R
                                                                         String invokingUserName,
                                                                         Long guildId,
                                                                         long channelId,
-                                                                        PersistenceManager persistenceManager) {
-        //todo add supplier for tests
-        UUID rerollConfigId = UUID.randomUUID();
+                                                                        PersistenceManager persistenceManager,
+                                                                        UUID rerollConfigId) {
         RerollAnswerConfig rerollAnswerConfig = RerollAnswerHandler.createNewRerollAnswerConfig(config,
                 answer.getExpression(),
                 answer.getExpressionLabel(),
@@ -258,6 +255,7 @@ public class RerollAnswerHandler extends AbstractComponentInteractEventHandler<R
             UUID newMessageUUID = uuidSupplier.get();
             RerollAnswerHandler.createMessageConfig(newMessageUUID, guildId, channelId, rerollAnswerConfig).ifPresent(persistenceManager::saveMessageConfig);
 
+            //todo user reference
             EmbedOrMessageDefinition newMessage = RerollAnswerHandler.applyToAnswer(RollAnswerConverter.toEmbedOrMessageDefinition(rollAnswer), rollAnswer.getDieIdTypeAndValues(), config.getConfigLocale(), newMessageUUID);
             newMessage = newMessage.toBuilder()
                     .title(config.getRerollCount() + ": " + newMessage.getTitle())

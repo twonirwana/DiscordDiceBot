@@ -46,7 +46,7 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
 
     @VisibleForTesting
     public WelcomeCommand(PersistenceManager persistenceManager, RpgSystemCommandPreset rpgSystemCommandPreset, Supplier<UUID> uuidSupplier) {
-        super(persistenceManager);
+        super(persistenceManager, uuidSupplier);
         this.uuidSupplier = uuidSupplier;
         this.rpgSystemCommandPreset = rpgSystemCommandPreset;
     }

@@ -235,7 +235,7 @@ public class DiceEvaluatorAdapter {
                 if (dieAndValues.isEmpty()) {
                     rolls = rollerOrError.getRoller().roll().getRolls();
                 } else {
-                    GivenDiceNumberSupplier givenDiceNumberSupplier = new GivenDiceNumberSupplier(dieAndValues);
+                    GivenDiceNumberSupplier givenDiceNumberSupplier = diceEvaluator.getGivenDiceNumberSuppler(dieAndValues);
                     rolls = rollerOrError.getRoller().roll(givenDiceNumberSupplier).getRolls();
                 }
             } else {
