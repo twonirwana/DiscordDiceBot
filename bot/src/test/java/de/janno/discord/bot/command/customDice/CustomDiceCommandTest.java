@@ -132,7 +132,7 @@ class CustomDiceCommandTest {
                 new EmbedOrMessageDefinition.Field("1d6 ⇒ 3", "[3]", false),
                 new EmbedOrMessageDefinition.Field("1d6 ⇒ 3", "[3]", false),
                 new EmbedOrMessageDefinition.Field("1d6 ⇒ 3", "[3]", false)
-        ), null, List.of(), EmbedOrMessageDefinition.Type.EMBED));
+        ), null, List.of(), EmbedOrMessageDefinition.Type.EMBED, false, null));
     }
 
     @Test
@@ -150,7 +150,7 @@ class CustomDiceCommandTest {
         EmbedOrMessageDefinition res = RollAnswerConverter.toEmbedOrMessageDefinition(underTest.getAnswer(new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Label", "1d6,1d6,1d6", false, false)), AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH), new State<>("1_button", StateData.empty()), 0, 0)
                 .orElseThrow());
 
-        assertThat(res).isEqualTo(new EmbedOrMessageDefinition("Label", null, ImmutableList.of(new EmbedOrMessageDefinition.Field("1d6 ⇒ 3", "[3]", false), new EmbedOrMessageDefinition.Field("1d6 ⇒ 3", "[3]", false), new EmbedOrMessageDefinition.Field("1d6 ⇒ 3", "[3]", false)), null, List.of(), EmbedOrMessageDefinition.Type.EMBED));
+        assertThat(res).isEqualTo(new EmbedOrMessageDefinition("Label", null, ImmutableList.of(new EmbedOrMessageDefinition.Field("1d6 ⇒ 3", "[3]", false), new EmbedOrMessageDefinition.Field("1d6 ⇒ 3", "[3]", false), new EmbedOrMessageDefinition.Field("1d6 ⇒ 3", "[3]", false)), null, List.of(), EmbedOrMessageDefinition.Type.EMBED, false, null));
     }
 
     @Test
@@ -201,7 +201,7 @@ class CustomDiceCommandTest {
                         .build())
                 .build()));
 
-        when(event.createMessageWithoutReference(any())).thenReturn(Mono.just(2L));
+        when(event.sendMessage(any())).thenReturn(Mono.just(2L));
         when(event.deleteMessageById(anyLong())).thenReturn(Mono.empty());
         when(event.getRequester()).thenReturn(new Requester("user", "channel", "guild", "[0 / 1]", Locale.ENGLISH));
         when(event.reply(any(), anyBoolean())).thenReturn(Mono.just(mock(Void.class)));
@@ -214,7 +214,7 @@ class CustomDiceCommandTest {
         verify(event).getCommandString();
         verify(event).getOption(any());
         verify(event).reply(any(), anyBoolean());
-        verify(event).createMessageWithoutReference(EmbedOrMessageDefinition.builder()
+        verify(event).sendMessage(EmbedOrMessageDefinition.builder()
                 .type(EmbedOrMessageDefinition.Type.MESSAGE)
                 .descriptionOrContent("Click on a button to roll the dice")
                 .componentRowDefinitions(ImmutableList.of(ComponentRowDefinition.builder()

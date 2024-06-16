@@ -25,6 +25,7 @@ public class RollAnswerConverter {
                         .shortedTitle("Error in: %s".formatted(rollAnswer.getErrorLocation()))
                         .shortedDescription(rollAnswer.getErrorMessage())
                         .type(type)
+                        .userReference(true)
                         .build();
             }
 

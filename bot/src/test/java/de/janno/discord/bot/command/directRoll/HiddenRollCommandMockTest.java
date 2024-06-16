@@ -45,8 +45,8 @@ public class HiddenRollCommandMockTest {
         underTest.handleSlashCommandEvent(hiddenRollCommandEvent, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"), Locale.ENGLISH).block();
 
         assertThat(hiddenRollCommandEvent.getActions()).containsExactlyInAnyOrder(
-                "replyWithEmbedOrMessageDefinition: EmbedOrMessageDefinition(title=1d6 ⇒ 1, descriptionOrContent=, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Reveal, id=hreveal, style=PRIMARY, disabled=false)])], hasImage=true, type=EMBED)",
-                "createResultMessageWithReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=Made a hidden roll, fields=[], componentRowDefinitions=[], hasImage=false, type=MESSAGE)"
+                "replyWithEmbedOrMessageDefinition: EmbedOrMessageDefinition(title=1d6 ⇒ 1, descriptionOrContent=, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Reveal, id=hreveal, style=PRIMARY, disabled=false)])], hasImage=true, type=EMBED, userReference=false, sendToOtherChannelId=null)",
+                "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Made a hidden roll, fields=[], componentRowDefinitions=[], hasImage=false, type=MESSAGE, userReference=true, sendToOtherChannelId=null)"
         );
 
         List<EmbedOrMessageDefinition> replyMessages = hiddenRollCommandEvent.getAllReplays();
@@ -59,7 +59,7 @@ public class HiddenRollCommandMockTest {
         assertThat(buttonEvent.getActions()).containsExactlyInAnyOrder(
                 "acknowledgeAndRemoveButtons",
                 "getMessageDefinitionOfEventMessageWithoutButtons",
-                "createResultMessageWithReference: EmbedOrMessageDefinition(title=1d6 ⇒ 1, descriptionOrContent=, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Reveal, id=hreveal, style=PRIMARY, disabled=false)])], hasImage=true, type=EMBED), targetChannelId: null"
+                "sendMessage: EmbedOrMessageDefinition(title=1d6 ⇒ 1, descriptionOrContent=, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Reveal, id=hreveal, style=PRIMARY, disabled=false)])], hasImage=true, type=EMBED, userReference=true, sendToOtherChannelId=null)"
         );
     }
 
@@ -75,8 +75,8 @@ public class HiddenRollCommandMockTest {
 
 
         assertThat(hiddenRollCommandEvent.getActions()).containsExactlyInAnyOrder(
-                "replyWithEmbedOrMessageDefinition: EmbedOrMessageDefinition(title=20 ⇒ 20, descriptionOrContent=, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Reveal, id=hreveal, style=PRIMARY, disabled=false)])], hasImage=false, type=EMBED)",
-                "createResultMessageWithReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=Made a hidden roll, fields=[], componentRowDefinitions=[], hasImage=false, type=MESSAGE)"
+                "replyWithEmbedOrMessageDefinition: EmbedOrMessageDefinition(title=20 ⇒ 20, descriptionOrContent=, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Reveal, id=hreveal, style=PRIMARY, disabled=false)])], hasImage=false, type=EMBED, userReference=false, sendToOtherChannelId=null)",
+                "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Made a hidden roll, fields=[], componentRowDefinitions=[], hasImage=false, type=MESSAGE, userReference=true, sendToOtherChannelId=null)"
         );
 
         List<EmbedOrMessageDefinition> replyMessages = hiddenRollCommandEvent.getAllReplays();
@@ -89,7 +89,7 @@ public class HiddenRollCommandMockTest {
         assertThat(buttonEvent.getActions()).containsExactlyInAnyOrder(
                 "acknowledgeAndRemoveButtons",
                 "getMessageDefinitionOfEventMessageWithoutButtons",
-                "createResultMessageWithReference: EmbedOrMessageDefinition(title=20 ⇒ 20, descriptionOrContent=, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Reveal, id=hreveal, style=PRIMARY, disabled=false)])], hasImage=false, type=EMBED), targetChannelId: null"
+                "sendMessage: EmbedOrMessageDefinition(title=20 ⇒ 20, descriptionOrContent=, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Reveal, id=hreveal, style=PRIMARY, disabled=false)])], hasImage=false, type=EMBED, userReference=true, sendToOtherChannelId=null)"
         );
     }
 
@@ -108,7 +108,7 @@ public class HiddenRollCommandMockTest {
         assertThat(hiddenRollCommandEvent.getActions()).containsExactlyInAnyOrder(
                 "replyWithEmbedOrMessageDefinition: EmbedOrMessageDefinition(title=null, descriptionOrContent=Type `/h` and a dice expression. The result will only be shown the roller and they can make it visible to all later. The output type, dice images etc. can be configuration with `/channel_config save_direct_roll_config`\n"
                         + DiceEvaluatorAdapter.getHelp() +
-                        ", fields=[EmbedOrMessageDefinition.Field(name=Example, value=`/h expression: 1d6@Damage`, inline=false), EmbedOrMessageDefinition.Field(name=Full documentation, value=https://github.com/twonirwana/DiscordDiceBot, inline=false), EmbedOrMessageDefinition.Field(name=Discord Server for News, Help and Feature Requests, value=https://discord.gg/e43BsqKpFr, inline=false)], componentRowDefinitions=[], hasImage=false, type=EMBED)"
+                        ", fields=[EmbedOrMessageDefinition.Field(name=Example, value=`/h expression: 1d6@Damage`, inline=false), EmbedOrMessageDefinition.Field(name=Full documentation, value=https://github.com/twonirwana/DiscordDiceBot, inline=false), EmbedOrMessageDefinition.Field(name=Discord Server for News, Help and Feature Requests, value=https://discord.gg/e43BsqKpFr, inline=false)], componentRowDefinitions=[], hasImage=false, type=EMBED, userReference=false, sendToOtherChannelId=null)"
         );
     }
 
@@ -140,8 +140,8 @@ public class HiddenRollCommandMockTest {
 
 
         assertThat(hiddenRollCommandEvent.getActions()).containsExactlyInAnyOrder(
-                "replyWithEmbedOrMessageDefinition: EmbedOrMessageDefinition(title=test ⇒ 1, descriptionOrContent=1d6, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Reveal, id=hreveal, style=PRIMARY, disabled=false)])], hasImage=true, type=EMBED)",
-                "createResultMessageWithReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=Made a hidden roll, fields=[], componentRowDefinitions=[], hasImage=false, type=MESSAGE)"
+                "replyWithEmbedOrMessageDefinition: EmbedOrMessageDefinition(title=test ⇒ 1, descriptionOrContent=1d6, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Reveal, id=hreveal, style=PRIMARY, disabled=false)])], hasImage=true, type=EMBED, userReference=false, sendToOtherChannelId=null)",
+                "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Made a hidden roll, fields=[], componentRowDefinitions=[], hasImage=false, type=MESSAGE, userReference=true, sendToOtherChannelId=null)"
         );
 
         List<EmbedOrMessageDefinition> replyMessages = hiddenRollCommandEvent.getAllReplays();
@@ -154,7 +154,7 @@ public class HiddenRollCommandMockTest {
         assertThat(buttonEvent.getActions()).containsExactlyInAnyOrder(
                 "acknowledgeAndRemoveButtons",
                 "getMessageDefinitionOfEventMessageWithoutButtons",
-                "createResultMessageWithReference: EmbedOrMessageDefinition(title=test ⇒ 1, descriptionOrContent=1d6, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Reveal, id=hreveal, style=PRIMARY, disabled=false)])], hasImage=true, type=EMBED), targetChannelId: null"
+                "sendMessage: EmbedOrMessageDefinition(title=test ⇒ 1, descriptionOrContent=1d6, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Reveal, id=hreveal, style=PRIMARY, disabled=false)])], hasImage=true, type=EMBED, userReference=true, sendToOtherChannelId=null)"
         );
     }
 
@@ -189,8 +189,8 @@ public class HiddenRollCommandMockTest {
 
         assertThat(configCommandEvent.getActions()).containsExactlyInAnyOrder("reply: `commandString`\nSaved direct roll channel config");
         assertThat(hiddenRollCommandEvent.getActions()).containsExactlyInAnyOrder(
-                "replyWithEmbedOrMessageDefinition: EmbedOrMessageDefinition(title=Roll ⇒ 1, descriptionOrContent=[1], fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Reveal, id=hreveal, style=PRIMARY, disabled=false)])], hasImage=false, type=EMBED)",
-                "createResultMessageWithReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=Made a hidden roll, fields=[], componentRowDefinitions=[], hasImage=false, type=MESSAGE)"
+                "replyWithEmbedOrMessageDefinition: EmbedOrMessageDefinition(title=Roll ⇒ 1, descriptionOrContent=[1], fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Reveal, id=hreveal, style=PRIMARY, disabled=false)])], hasImage=false, type=EMBED, userReference=false, sendToOtherChannelId=null)",
+                "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Made a hidden roll, fields=[], componentRowDefinitions=[], hasImage=false, type=MESSAGE, userReference=true, sendToOtherChannelId=null)"
         );
 
         List<EmbedOrMessageDefinition> replyMessages = hiddenRollCommandEvent.getAllReplays();
@@ -203,7 +203,7 @@ public class HiddenRollCommandMockTest {
         assertThat(buttonEvent.getActions()).containsExactlyInAnyOrder(
                 "acknowledgeAndRemoveButtons",
                 "getMessageDefinitionOfEventMessageWithoutButtons",
-                "createResultMessageWithReference: EmbedOrMessageDefinition(title=Roll ⇒ 1, descriptionOrContent=[1], fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Reveal, id=hreveal, style=PRIMARY, disabled=false)])], hasImage=false, type=EMBED), targetChannelId: null"
+                "sendMessage: EmbedOrMessageDefinition(title=Roll ⇒ 1, descriptionOrContent=[1], fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Reveal, id=hreveal, style=PRIMARY, disabled=false)])], hasImage=false, type=EMBED, userReference=true, sendToOtherChannelId=null)"
 
         );
     }
@@ -239,8 +239,8 @@ public class HiddenRollCommandMockTest {
 
         assertThat(configCommandEvent.getActions()).containsExactlyInAnyOrder("reply: `commandString`\nSaved direct roll channel config");
         assertThat(hiddenRollCommandEvent.getActions()).containsExactlyInAnyOrder(
-                "replyWithEmbedOrMessageDefinition: EmbedOrMessageDefinition(title=Roll ⇒ 1, descriptionOrContent=, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Reveal, id=hreveal, style=PRIMARY, disabled=false)])], hasImage=true, type=EMBED)",
-                "createResultMessageWithReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=Made a hidden roll, fields=[], componentRowDefinitions=[], hasImage=false, type=MESSAGE)"
+                "replyWithEmbedOrMessageDefinition: EmbedOrMessageDefinition(title=Roll ⇒ 1, descriptionOrContent=, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Reveal, id=hreveal, style=PRIMARY, disabled=false)])], hasImage=true, type=EMBED, userReference=false, sendToOtherChannelId=null)",
+                "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Made a hidden roll, fields=[], componentRowDefinitions=[], hasImage=false, type=MESSAGE, userReference=true, sendToOtherChannelId=null)"
         );
 
         List<EmbedOrMessageDefinition> replyMessages = hiddenRollCommandEvent.getAllReplays();
@@ -253,7 +253,7 @@ public class HiddenRollCommandMockTest {
         assertThat(buttonEvent.getActions()).containsExactlyInAnyOrder(
                 "acknowledgeAndRemoveButtons",
                 "getMessageDefinitionOfEventMessageWithoutButtons",
-                "createResultMessageWithReference: EmbedOrMessageDefinition(title=Roll ⇒ 1, descriptionOrContent=, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Reveal, id=hreveal, style=PRIMARY, disabled=false)])], hasImage=true, type=EMBED), targetChannelId: null"
+                "sendMessage: EmbedOrMessageDefinition(title=Roll ⇒ 1, descriptionOrContent=, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Reveal, id=hreveal, style=PRIMARY, disabled=false)])], hasImage=true, type=EMBED, userReference=true, sendToOtherChannelId=null)"
         );
     }
 
@@ -288,8 +288,8 @@ public class HiddenRollCommandMockTest {
 
         assertThat(configCommandEvent.getActions()).containsExactlyInAnyOrder("reply: `commandString`\nSaved direct roll channel config");
         assertThat(hiddenRollCommandEvent.getActions()).containsExactlyInAnyOrder(
-                "replyWithEmbedOrMessageDefinition: EmbedOrMessageDefinition(title=test ⇒ 1, descriptionOrContent=, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Reveal, id=hreveal, style=PRIMARY, disabled=false)])], hasImage=true, type=EMBED)",
-                "createResultMessageWithReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=Made a hidden roll, fields=[], componentRowDefinitions=[], hasImage=false, type=MESSAGE)");
+                "replyWithEmbedOrMessageDefinition: EmbedOrMessageDefinition(title=test ⇒ 1, descriptionOrContent=, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Reveal, id=hreveal, style=PRIMARY, disabled=false)])], hasImage=true, type=EMBED, userReference=false, sendToOtherChannelId=null)",
+                "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Made a hidden roll, fields=[], componentRowDefinitions=[], hasImage=false, type=MESSAGE, userReference=true, sendToOtherChannelId=null)");
 
         List<EmbedOrMessageDefinition> replyMessages = hiddenRollCommandEvent.getAllReplays();
         assertThat(replyMessages).hasSize(1);
@@ -301,7 +301,7 @@ public class HiddenRollCommandMockTest {
         assertThat(buttonEvent.getActions()).containsExactlyInAnyOrder(
                 "acknowledgeAndRemoveButtons",
                 "getMessageDefinitionOfEventMessageWithoutButtons",
-                "createResultMessageWithReference: EmbedOrMessageDefinition(title=test ⇒ 1, descriptionOrContent=, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Reveal, id=hreveal, style=PRIMARY, disabled=false)])], hasImage=true, type=EMBED), targetChannelId: null"
+                "sendMessage: EmbedOrMessageDefinition(title=test ⇒ 1, descriptionOrContent=, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Reveal, id=hreveal, style=PRIMARY, disabled=false)])], hasImage=true, type=EMBED, userReference=true, sendToOtherChannelId=null)"
         );
     }
 
@@ -336,8 +336,8 @@ public class HiddenRollCommandMockTest {
 
         assertThat(configCommandEvent.getActions()).containsExactlyInAnyOrder("reply: `commandString`\nSaved direct roll channel config");
         assertThat(hiddenRollCommandEvent.getActions()).containsExactlyInAnyOrder(
-                "replyWithEmbedOrMessageDefinition: EmbedOrMessageDefinition(title=null, descriptionOrContent=__**1d6 ⇒ 1**__  [1], fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Reveal, id=hreveal, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE)",
-                "createResultMessageWithReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=Made a hidden roll, fields=[], componentRowDefinitions=[], hasImage=false, type=MESSAGE)"
+                "replyWithEmbedOrMessageDefinition: EmbedOrMessageDefinition(title=null, descriptionOrContent=__**1d6 ⇒ 1**__  [1], fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Reveal, id=hreveal, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)",
+                "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Made a hidden roll, fields=[], componentRowDefinitions=[], hasImage=false, type=MESSAGE, userReference=true, sendToOtherChannelId=null)"
         );
 
         List<EmbedOrMessageDefinition> replyMessages = hiddenRollCommandEvent.getAllReplays();
@@ -350,7 +350,7 @@ public class HiddenRollCommandMockTest {
         assertThat(buttonEvent.getActions()).containsExactlyInAnyOrder(
                 "acknowledgeAndRemoveButtons",
                 "getMessageDefinitionOfEventMessageWithoutButtons",
-                "createResultMessageWithReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=__**1d6 ⇒ 1**__  [1], fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Reveal, id=hreveal, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE), targetChannelId: null"
+                "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=__**1d6 ⇒ 1**__  [1], fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Reveal, id=hreveal, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE, userReference=true, sendToOtherChannelId=null)"
         );
     }
 
@@ -385,8 +385,8 @@ public class HiddenRollCommandMockTest {
 
         assertThat(configCommandEvent.getActions()).containsExactlyInAnyOrder("reply: `commandString`\nSaved direct roll channel config");
         assertThat(hiddenRollCommandEvent.getActions()).containsExactlyInAnyOrder(
-                "replyWithEmbedOrMessageDefinition: EmbedOrMessageDefinition(title=null, descriptionOrContent=1d6 ⇒ 1, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Reveal, id=hreveal, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE)",
-                "createResultMessageWithReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=Made a hidden roll, fields=[], componentRowDefinitions=[], hasImage=false, type=MESSAGE)"
+                "replyWithEmbedOrMessageDefinition: EmbedOrMessageDefinition(title=null, descriptionOrContent=1d6 ⇒ 1, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Reveal, id=hreveal, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)",
+                "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Made a hidden roll, fields=[], componentRowDefinitions=[], hasImage=false, type=MESSAGE, userReference=true, sendToOtherChannelId=null)"
         );
 
         List<EmbedOrMessageDefinition> replyMessages = hiddenRollCommandEvent.getAllReplays();
@@ -399,7 +399,7 @@ public class HiddenRollCommandMockTest {
         assertThat(buttonEvent.getActions()).containsExactlyInAnyOrder(
                 "acknowledgeAndRemoveButtons",
                 "getMessageDefinitionOfEventMessageWithoutButtons",
-                "createResultMessageWithReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=1d6 ⇒ 1, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Reveal, id=hreveal, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE), targetChannelId: null"
+                "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=1d6 ⇒ 1, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Reveal, id=hreveal, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE, userReference=true, sendToOtherChannelId=null)"
         );
     }
 
@@ -428,8 +428,8 @@ public class HiddenRollCommandMockTest {
 
         assertThat(configCommandEvent.getActions()).containsExactlyInAnyOrder("reply: `commandString`\nSaved new alias");
         assertThat(hiddenRollCommandEvent.getActions()).containsExactlyInAnyOrder(
-                "replyWithEmbedOrMessageDefinition: EmbedOrMessageDefinition(title=2d20+10 ⇒ 36, descriptionOrContent=, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Reveal, id=hreveal, style=PRIMARY, disabled=false)])], hasImage=true, type=EMBED)",
-                "createResultMessageWithReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=Made a hidden roll, fields=[], componentRowDefinitions=[], hasImage=false, type=MESSAGE)");
+                "replyWithEmbedOrMessageDefinition: EmbedOrMessageDefinition(title=2d20+10 ⇒ 36, descriptionOrContent=, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Reveal, id=hreveal, style=PRIMARY, disabled=false)])], hasImage=true, type=EMBED, userReference=false, sendToOtherChannelId=null)",
+                "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Made a hidden roll, fields=[], componentRowDefinitions=[], hasImage=false, type=MESSAGE, userReference=true, sendToOtherChannelId=null)");
 
         List<EmbedOrMessageDefinition> replyMessages = hiddenRollCommandEvent.getAllReplays();
         assertThat(replyMessages).hasSize(1);
@@ -441,7 +441,7 @@ public class HiddenRollCommandMockTest {
         assertThat(buttonEvent.getActions()).containsExactlyInAnyOrder(
                 "acknowledgeAndRemoveButtons",
                 "getMessageDefinitionOfEventMessageWithoutButtons",
-                "createResultMessageWithReference: EmbedOrMessageDefinition(title=2d20+10 ⇒ 36, descriptionOrContent=, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Reveal, id=hreveal, style=PRIMARY, disabled=false)])], hasImage=true, type=EMBED), targetChannelId: null"
+                "sendMessage: EmbedOrMessageDefinition(title=2d20+10 ⇒ 36, descriptionOrContent=, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Reveal, id=hreveal, style=PRIMARY, disabled=false)])], hasImage=true, type=EMBED, userReference=true, sendToOtherChannelId=null)"
         );
     }
 
@@ -470,8 +470,8 @@ public class HiddenRollCommandMockTest {
 
         assertThat(configCommandEvent.getActions()).containsExactlyInAnyOrder("reply: `commandString`\nSaved new alias");
         assertThat(hiddenRollCommandEvent.getActions()).containsExactlyInAnyOrder(
-                "replyWithEmbedOrMessageDefinition: EmbedOrMessageDefinition(title=2d20+10 ⇒ 36, descriptionOrContent=, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Reveal, id=hreveal, style=PRIMARY, disabled=false)])], hasImage=true, type=EMBED)",
-                "createResultMessageWithReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=Made a hidden roll, fields=[], componentRowDefinitions=[], hasImage=false, type=MESSAGE)");
+                "replyWithEmbedOrMessageDefinition: EmbedOrMessageDefinition(title=2d20+10 ⇒ 36, descriptionOrContent=, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Reveal, id=hreveal, style=PRIMARY, disabled=false)])], hasImage=true, type=EMBED, userReference=false, sendToOtherChannelId=null)",
+                "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Made a hidden roll, fields=[], componentRowDefinitions=[], hasImage=false, type=MESSAGE, userReference=true, sendToOtherChannelId=null)");
 
         List<EmbedOrMessageDefinition> replyMessages = hiddenRollCommandEvent.getAllReplays();
         assertThat(replyMessages).hasSize(1);
@@ -483,7 +483,7 @@ public class HiddenRollCommandMockTest {
         assertThat(buttonEvent.getActions()).containsExactlyInAnyOrder(
                 "acknowledgeAndRemoveButtons",
                 "getMessageDefinitionOfEventMessageWithoutButtons",
-                "createResultMessageWithReference: EmbedOrMessageDefinition(title=2d20+10 ⇒ 36, descriptionOrContent=, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Reveal, id=hreveal, style=PRIMARY, disabled=false)])], hasImage=true, type=EMBED), targetChannelId: null"
+                "sendMessage: EmbedOrMessageDefinition(title=2d20+10 ⇒ 36, descriptionOrContent=, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Reveal, id=hreveal, style=PRIMARY, disabled=false)])], hasImage=true, type=EMBED, userReference=true, sendToOtherChannelId=null)"
 
         );
     }

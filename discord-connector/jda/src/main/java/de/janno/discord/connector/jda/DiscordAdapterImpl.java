@@ -59,7 +59,7 @@ public abstract class DiscordAdapterImpl implements DiscordAdapter {
         }
     }
 
-    protected Mono<Message> createMessageWithReference(
+    protected Mono<Message> sendMessageWithOptionalReference(
             @NonNull MessageChannel messageChannel,
             @NonNull EmbedOrMessageDefinition messageDefinition,
             @Nullable String rollRequesterName,
@@ -73,11 +73,11 @@ public abstract class DiscordAdapterImpl implements DiscordAdapter {
                 final List<FileUpload> files = applyFiles(builder, messageDefinition);
 
                 return createMonoFrom(() -> messageChannel.sendMessageEmbeds(builder.build()).setComponents(layoutComponents).setFiles(files).setSuppressedNotifications(true))
-                        .onErrorResume(t -> handleException("Error on creating embed message", t, false).ofType(Message.class));
+                        .onErrorResume(t -> handleException("Error on sending embed message", t, false).ofType(Message.class));
             }
             case MESSAGE -> {
                 return createMonoFrom(() -> messageChannel.sendMessage(convertToMessageCreateData(messageDefinition, rollRequesterMention)).setComponents(layoutComponents).setSuppressedNotifications(true))
-                        .onErrorResume(t -> handleException("Error on creating message", t, false).ofType(Message.class));
+                        .onErrorResume(t -> handleException("Error on sending message", t, false).ofType(Message.class));
             }
             default -> throw new IllegalStateException("Unknown type in %s".formatted(messageDefinition));
         }
@@ -161,11 +161,6 @@ public abstract class DiscordAdapterImpl implements DiscordAdapter {
             return List.of(FileUpload.fromStreamSupplier("image.png", messageDefinition.getImage()));
         }
         return List.of();
-    }
-
-    protected Mono<Message> createMessageWithoutReference(@NonNull MessageChannel channel,
-                                                          @NonNull EmbedOrMessageDefinition messageDefinition) {
-        return createMessageWithReference(channel, messageDefinition, null, null, null, null);
     }
 
     protected Mono<Void> handleException(@NonNull String errorMessage,

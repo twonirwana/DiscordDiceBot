@@ -67,7 +67,7 @@ public class RerollCommandMockTest {
 
         expect.scenario("roll").toMatchSnapshot(buttonEvent.getSortedActions());
 
-        EmbedOrMessageDefinition answer = buttonEvent.getAnswerMessage();
+        EmbedOrMessageDefinition answer = buttonEvent.getSendMessages().getFirst();
 
         String dieIdButton = answer.getComponentRowDefinitions().getFirst().getButtonDefinitions().getFirst().getId();
         ButtonEventAdaptorMock answerButtonMessage1 = new ButtonEventAdaptorMock(dieIdButton, 2);
@@ -92,7 +92,7 @@ public class RerollCommandMockTest {
         rerollAnswerHandler.handleComponentInteractEvent(answerButtonMessage5).block();
         expect.scenario("reroll").toMatchSnapshot(answerButtonMessage5.getSortedActions());
 
-        String finishIdButton = answerButtonMessage5.getNewButtonMessage().getComponentRowDefinitions().getLast().getButtonDefinitions().getLast().getId();
+        String finishIdButton = answerButtonMessage5.getSendMessages().getFirst().getComponentRowDefinitions().getLast().getButtonDefinitions().getLast().getId();
         ButtonEventAdaptorMock answerButtonMessage6 = new ButtonEventAdaptorMock(finishIdButton, 2);
         rerollAnswerHandler.handleComponentInteractEvent(answerButtonMessage6).block();
         expect.scenario("finish").toMatchSnapshot(answerButtonMessage6.getSortedActions());

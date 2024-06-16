@@ -132,7 +132,7 @@ public abstract class AbstractComponentInteractEventHandler<C extends Config, S 
             } else {
                 answerMessage = baseAnswer;
             }
-            actions.add(Mono.defer(() -> event.createResultMessageWithReference(answerMessage, answerTargetChannelId)
+            actions.add(Mono.defer(() -> event.sendMessage(answerMessage.toBuilder().sendToOtherChannelId(answerTargetChannelId).build()).then()
                     .doOnSuccess(v -> {
                         BotMetrics.timerAnswerMetricCounter(getCommandId(), stopwatch.elapsed());
                         log.info("{}: '{}'={} -> {} in {}ms",
@@ -149,7 +149,7 @@ public abstract class AbstractComponentInteractEventHandler<C extends Config, S 
 
         final boolean deleteCurrentButtonMessage;
         if (newButtonMessage.isPresent() && answerTargetChannelId == null) {
-            actions.add(Mono.defer(() -> event.createMessageWithoutReference(newButtonMessage.get()))
+            actions.add(Mono.defer(() -> event.sendMessage(newButtonMessage.get()))
                     .doOnNext(newMessageId -> createEmptyMessageData(configUUID, guildId, channelId, newMessageId))
                     .flatMap(newMessageId -> MessageDeletionHelper.deleteOldMessageAndData(persistenceManager, newMessageId, event.getMessageId(), configUUID, channelId, event))
                     .delaySubscription(calculateDelay(event))

@@ -30,14 +30,25 @@ public class EmbedOrMessageDefinition {
     @NonNull
     List<ComponentRowDefinition> componentRowDefinitions;
     Type type;
+    boolean userReference;
+    Long sendToOtherChannelId;
 
-    public EmbedOrMessageDefinition(String title, String descriptionOrContent, @NonNull List<Field> fields, Supplier<? extends InputStream> image, @NonNull List<ComponentRowDefinition> componentRowDefinitions, Type type) {
+    public EmbedOrMessageDefinition(String title,
+                                    String descriptionOrContent,
+                                    @NonNull List<Field> fields,
+                                    Supplier<? extends InputStream> image,
+                                    @NonNull List<ComponentRowDefinition> componentRowDefinitions,
+                                    Type type,
+                                    Boolean userReference,
+                                    Long sendToOtherChannelId) {
         this.title = title;
         this.descriptionOrContent = descriptionOrContent;
         this.fields = fields;
         this.image = image;
         this.componentRowDefinitions = componentRowDefinitions;
         this.type = Optional.ofNullable(type).orElse(Type.EMBED);
+        this.userReference = Optional.ofNullable(userReference).orElse(false);
+        this.sendToOtherChannelId = sendToOtherChannelId;
         if (this.type == Type.EMBED) {
             Preconditions.checkArgument(title == null || title.length() <= 256, "Title %s is to long", title);
             Preconditions.checkArgument(descriptionOrContent == null || descriptionOrContent.length() <= 4096, "Description %s is to long", title);
@@ -67,6 +78,8 @@ public class EmbedOrMessageDefinition {
                 ", componentRowDefinitions=" + componentRowDefinitions +
                 ", hasImage=" + (image != null) +
                 ", type=" + type +
+                ", userReference=" + userReference +
+                ", sendToOtherChannelId=" + sendToOtherChannelId +
                 ')';
     }
 

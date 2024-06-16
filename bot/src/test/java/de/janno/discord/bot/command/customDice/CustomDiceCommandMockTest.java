@@ -108,9 +108,9 @@ public class CustomDiceCommandMockTest {
 
         assertThat(buttonEvent.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:processing ..., buttonValues=",
-                "createResultMessageWithReference: EmbedOrMessageDefinition(title=Dmg ⇒ 3, descriptionOrContent=1d6: [3], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED), targetChannelId: null",
+                "sendMessage: EmbedOrMessageDefinition(title=Dmg ⇒ 3, descriptionOrContent=1d6: [3], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED, userReference=false, sendToOtherChannelId=null)",
                 "deleteMessageById: 0",
-                "createMessageWithoutReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click on a button to roll the dice, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=custom_dice1_button00000000-0000-0000-0000-000000000001, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE)"
+                "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click on a button to roll the dice, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=custom_dice1_button00000000-0000-0000-0000-000000000001, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
         );
         assertThat(persistenceManager.getMessageConfig(configUUID)).isPresent();
         assertThat(persistenceManager.getMessageData(CHANNEL_ID, messageIdCounter.get())).isPresent();
@@ -143,9 +143,9 @@ public class CustomDiceCommandMockTest {
 
         assertThat(buttonEvent.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:processing ..., buttonValues=",
-                "createResultMessageWithReference: EmbedOrMessageDefinition(title=Dmg ⇒ 3, descriptionOrContent=1d6: [3], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED), targetChannelId: null",
+                "sendMessage: EmbedOrMessageDefinition(title=Dmg ⇒ 3, descriptionOrContent=1d6: [3], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED, userReference=false, sendToOtherChannelId=null)",
                 "deleteMessageById: 0",
-                "createMessageWithoutReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click on a button to roll the dice, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=custom_dice1_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE)"
+                "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click on a button to roll the dice, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=custom_dice1_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
         );
     }
 
@@ -160,9 +160,9 @@ public class CustomDiceCommandMockTest {
 
         assertThat(buttonEvent.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:Verarbeite ..., buttonValues=",
-                "createResultMessageWithReference: EmbedOrMessageDefinition(title=Dmg ⇒ 3, descriptionOrContent=1d6: [3], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED), targetChannelId: null",
+                "sendMessage: EmbedOrMessageDefinition(title=Dmg ⇒ 3, descriptionOrContent=1d6: [3], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED, userReference=false, sendToOtherChannelId=null)",
                 "deleteMessageById: 0",
-                "createMessageWithoutReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=Klick auf einen Button um zu würfeln, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=custom_dice1_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE)"
+                "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Klick auf einen Button um zu würfeln, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=custom_dice1_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
         );
     }
 
@@ -177,9 +177,9 @@ public class CustomDiceCommandMockTest {
 
         assertThat(buttonEvent.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:processando ..., buttonValues=",
-                "createResultMessageWithReference: EmbedOrMessageDefinition(title=Dmg ⇒ 3, descriptionOrContent=1d6: [3], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED), targetChannelId: null",
+                "sendMessage: EmbedOrMessageDefinition(title=Dmg ⇒ 3, descriptionOrContent=1d6: [3], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED, userReference=false, sendToOtherChannelId=null)",
                 "deleteMessageById: 0",
-                "createMessageWithoutReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=Clique em um botão para rolar os dados, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=custom_dice1_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE)"
+                "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Clique em um botão para rolar os dados, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=custom_dice1_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
         );
     }
 
@@ -194,9 +194,9 @@ public class CustomDiceCommandMockTest {
 
         assertThat(buttonEvent.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:processing ..., buttonValues=",
-                "createResultMessageWithReference: EmbedOrMessageDefinition(title=Dmg ⇒ 3, descriptionOrContent=1d6, fields=[], componentRowDefinitions=[], hasImage=true, type=EMBED), targetChannelId: null",
+                "sendMessage: EmbedOrMessageDefinition(title=Dmg ⇒ 3, descriptionOrContent=1d6, fields=[], componentRowDefinitions=[], hasImage=true, type=EMBED, userReference=false, sendToOtherChannelId=null)",
                 "deleteMessageById: 0",
-                "createMessageWithoutReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click on a button to roll the dice, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=custom_dice1_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE)"
+                "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click on a button to roll the dice, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=custom_dice1_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
         );
     }
 
@@ -211,9 +211,9 @@ public class CustomDiceCommandMockTest {
 
         assertThat(buttonEvent.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:processing ..., buttonValues=",
-                "createResultMessageWithReference: EmbedOrMessageDefinition(title=Dmg ⇒ 3, descriptionOrContent=null, fields=[], componentRowDefinitions=[], hasImage=true, type=EMBED), targetChannelId: null",
+                "sendMessage: EmbedOrMessageDefinition(title=Dmg ⇒ 3, descriptionOrContent=null, fields=[], componentRowDefinitions=[], hasImage=true, type=EMBED, userReference=false, sendToOtherChannelId=null)",
                 "deleteMessageById: 0",
-                "createMessageWithoutReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click on a button to roll the dice, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=custom_dice1_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE)"
+                "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click on a button to roll the dice, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=custom_dice1_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
         );
     }
 
@@ -229,11 +229,11 @@ public class CustomDiceCommandMockTest {
         assertThat(buttonEvent.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:processing ..., buttonValues=",
                 """
-                        createResultMessageWithReference: EmbedOrMessageDefinition(title=Dmg, descriptionOrContent=**6**
+                        sendMessage: EmbedOrMessageDefinition(title=Dmg, descriptionOrContent=**6**
                         **3, 2**
-                        **3, 6, 3**, fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED), targetChannelId: null""",
+                        **3, 6, 3**, fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED, userReference=false, sendToOtherChannelId=null)""",
                 "deleteMessageById: 0",
-                "createMessageWithoutReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click on a button to roll the dice, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=custom_dice1_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE)"
+                "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click on a button to roll the dice, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=custom_dice1_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
         );
     }
 
@@ -249,9 +249,9 @@ public class CustomDiceCommandMockTest {
 
         assertThat(buttonEvent.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:processing ..., buttonValues=",
-                "createResultMessageWithReference: EmbedOrMessageDefinition(title=Dmg ⇒ 3, descriptionOrContent=null, fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED), targetChannelId: null",
+                "sendMessage: EmbedOrMessageDefinition(title=Dmg ⇒ 3, descriptionOrContent=null, fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED, userReference=false, sendToOtherChannelId=null)",
                 "deleteMessageById: 0",
-                "createMessageWithoutReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click on a button to roll the dice, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=custom_dice1_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE)"
+                "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click on a button to roll the dice, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=custom_dice1_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
         );
     }
 
@@ -268,9 +268,9 @@ public class CustomDiceCommandMockTest {
 
         assertThat(buttonEvent.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:processing ..., buttonValues=",
-                "createResultMessageWithReference: EmbedOrMessageDefinition(title=Dmg ⇒ 73, descriptionOrContent=1d100, fields=[], componentRowDefinitions=[], hasImage=true, type=EMBED), targetChannelId: null",
+                "sendMessage: EmbedOrMessageDefinition(title=Dmg ⇒ 73, descriptionOrContent=1d100, fields=[], componentRowDefinitions=[], hasImage=true, type=EMBED, userReference=false, sendToOtherChannelId=null)",
                 "deleteMessageById: 0",
-                "createMessageWithoutReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click on a button to roll the dice, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=custom_dice1_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE)"
+                "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click on a button to roll the dice, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=custom_dice1_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
         );
     }
 
@@ -286,9 +286,9 @@ public class CustomDiceCommandMockTest {
 
         assertThat(buttonEvent.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:processing ..., buttonValues=",
-                "createResultMessageWithReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=__**Dmg ⇒ 3**__  1d6: [3], fields=[], componentRowDefinitions=[], hasImage=false, type=MESSAGE), targetChannelId: null",
+                "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=__**Dmg ⇒ 3**__  1d6: [3], fields=[], componentRowDefinitions=[], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)",
                 "deleteMessageById: 0",
-                "createMessageWithoutReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click on a button to roll the dice, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=custom_dice1_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE)"
+                "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click on a button to roll the dice, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=custom_dice1_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
         );
     }
 
@@ -304,9 +304,9 @@ public class CustomDiceCommandMockTest {
 
         assertThat(buttonEvent.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:processing ..., buttonValues=",
-                "createResultMessageWithReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=Dmg ⇒ 3, fields=[], componentRowDefinitions=[], hasImage=false, type=MESSAGE), targetChannelId: null",
+                "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Dmg ⇒ 3, fields=[], componentRowDefinitions=[], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)",
                 "deleteMessageById: 0",
-                "createMessageWithoutReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click on a button to roll the dice, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=custom_dice1_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE)"
+                "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click on a button to roll the dice, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=custom_dice1_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
         );
     }
 
@@ -322,8 +322,8 @@ public class CustomDiceCommandMockTest {
 
         assertThat(buttonEvent.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:Click on a button to roll the dice, buttonValues=1_button",
-                "createResultMessageWithReference: EmbedOrMessageDefinition(title=Dmg ⇒ 3, descriptionOrContent=1d6: [3], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED), targetChannelId: null",
-                "createMessageWithoutReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click on a button to roll the dice, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=custom_dice1_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE)"
+                "sendMessage: EmbedOrMessageDefinition(title=Dmg ⇒ 3, descriptionOrContent=1d6: [3], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED, userReference=false, sendToOtherChannelId=null)",
+                "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click on a button to roll the dice, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=custom_dice1_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
         );
     }
 
@@ -341,15 +341,15 @@ public class CustomDiceCommandMockTest {
 
         assertThat(buttonEvent1.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:Click on a button to roll the dice, buttonValues=1_button",
-                "createResultMessageWithReference: EmbedOrMessageDefinition(title=Dmg ⇒ 3, descriptionOrContent=1d6: [3], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED), targetChannelId: null",
-                "createMessageWithoutReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click on a button to roll the dice, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=custom_dice1_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE)"
+                "sendMessage: EmbedOrMessageDefinition(title=Dmg ⇒ 3, descriptionOrContent=1d6: [3], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED, userReference=false, sendToOtherChannelId=null)",
+                "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click on a button to roll the dice, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=custom_dice1_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
         );
 
         assertThat(buttonEvent2.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:processing ..., buttonValues=",
-                "createResultMessageWithReference: EmbedOrMessageDefinition(title=Dmg ⇒ 4, descriptionOrContent=1d6: [4], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED), targetChannelId: null",
-                "deleteMessageById: 1",
-                "createMessageWithoutReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click on a button to roll the dice, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=custom_dice1_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE)",
+                "sendMessage: EmbedOrMessageDefinition(title=Dmg ⇒ 4, descriptionOrContent=1d6: [4], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED, userReference=false, sendToOtherChannelId=null)",
+                "deleteMessageById: 2",
+                "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click on a button to roll the dice, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=custom_dice1_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)",
                 "getMessagesState: [0]");
     }
 
@@ -368,7 +368,7 @@ public class CustomDiceCommandMockTest {
 
         assertThat(slashEvent.getActions()).containsExactlyInAnyOrder(
                 "reply: commandString",
-                "createMessageWithoutReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click on a button to roll the dice, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=1d6, id=custom_dice1_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=Attack, id=custom_dice2_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=3d10,3d10,3d10, id=custom_dice3_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE)");
+                "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click on a button to roll the dice, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=1d6, id=custom_dice1_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=Attack, id=custom_dice2_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=3d10,3d10,3d10, id=custom_dice3_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)");
     }
 
     @Test
@@ -386,7 +386,7 @@ public class CustomDiceCommandMockTest {
 
         assertThat(slashEvent.getActions()).containsExactlyInAnyOrder(
                 "reply: commandString",
-                "createMessageWithoutReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click on a button to roll the dice, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=d[a b c, d,e ], id=custom_dice1_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=Attack Down, id=custom_dice2_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=3d10,3d10,3d10, id=custom_dice3_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE)"
+                "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click on a button to roll the dice, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=d[a b c, d,e ], id=custom_dice1_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=Attack Down, id=custom_dice2_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=3d10,3d10,3d10, id=custom_dice3_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
         );
 
         Optional<ButtonEventAdaptorMock> buttonEventAdaptorMock = slashEvent.getFirstButtonEventMockOfLastButtonMessage();
@@ -395,13 +395,13 @@ public class CustomDiceCommandMockTest {
         assertThat(buttonEventAdaptorMock.get().getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:processing ..., buttonValues=",
                 """
-                        createResultMessageWithReference: EmbedOrMessageDefinition(title=d[a b c, d,e ] ⇒ e, descriptionOrContent=d[a
+                        sendMessage: EmbedOrMessageDefinition(title=d[a b c, d,e ] ⇒ e, descriptionOrContent=d[a
                         b
                         c,
                         d,e
-                        ]: [e], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED), targetChannelId: null""",
+                        ]: [e], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED, userReference=false, sendToOtherChannelId=null)""",
                 "deleteMessageById: 1",
-                "createMessageWithoutReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click on a button to roll the dice, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=d[a b c, d,e ], id=custom_dice1_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=Attack Down, id=custom_dice2_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=3d10,3d10,3d10, id=custom_dice3_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE)"
+                "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click on a button to roll the dice, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=d[a b c, d,e ], id=custom_dice1_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=Attack Down, id=custom_dice2_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=3d10,3d10,3d10, id=custom_dice3_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
         );
     }
 
@@ -420,7 +420,7 @@ public class CustomDiceCommandMockTest {
 
         assertThat(slashEvent.getActions()).containsExactlyInAnyOrder(
                 "reply: commandString `3`: did not contain any random element, try for Example `d20` to roll a 20 sided die, `'a'`: did not contain any random element, try for Example `d20` to roll a 20 sided die",
-                "createMessageWithoutReference: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click on a button to roll the dice, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=1d6, id=custom_dice1_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=Attack, id=custom_dice2_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=3d10,3d10,3d10, id=custom_dice3_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=3, id=custom_dice4_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label='a', id=custom_dice5_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE)");
+                "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click on a button to roll the dice, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=1d6, id=custom_dice1_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=Attack, id=custom_dice2_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=3d10,3d10,3d10, id=custom_dice3_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=3, id=custom_dice4_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label='a', id=custom_dice5_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)");
     }
 
     @Test
@@ -455,7 +455,7 @@ public class CustomDiceCommandMockTest {
 
         assertThat(buttonEvent.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:Click on a button to roll the dice, buttonValues=1_button",
-                "createResultMessageWithReference: EmbedOrMessageDefinition(title=Dmg ⇒ 3, descriptionOrContent=1d6: [3], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED), targetChannelId: 2"
+                "sendMessage: EmbedOrMessageDefinition(title=Dmg ⇒ 3, descriptionOrContent=1d6: [3], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED, userReference=false, sendToOtherChannelId=2)"
         );
     }
 
@@ -476,11 +476,11 @@ public class CustomDiceCommandMockTest {
         assertThat(cachingDiceEvaluator.getCacheSize()).isEqualTo(1);
         assertThat(buttonEvent1.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:Click on a button to roll the dice, buttonValues=1_button",
-                "createResultMessageWithReference: EmbedOrMessageDefinition(title=Dmg ⇒ 3, descriptionOrContent=1d6: [3], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED), targetChannelId: 2"
+                "sendMessage: EmbedOrMessageDefinition(title=Dmg ⇒ 3, descriptionOrContent=1d6: [3], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED, userReference=false, sendToOtherChannelId=2)"
         );
         assertThat(buttonEvent2.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:Click on a button to roll the dice, buttonValues=1_button",
-                "createResultMessageWithReference: EmbedOrMessageDefinition(title=Dmg ⇒ 1, descriptionOrContent=1d6: [1], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED), targetChannelId: 2"
+                "sendMessage: EmbedOrMessageDefinition(title=Dmg ⇒ 1, descriptionOrContent=1d6: [1], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED, userReference=false, sendToOtherChannelId=2)"
         );
     }
 
@@ -510,7 +510,7 @@ public class CustomDiceCommandMockTest {
 
         assertThat(buttonEvent.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:Click on a button to roll the dice, buttonValues=1_button",
-                "createResultMessageWithReference: EmbedOrMessageDefinition(title=Dmg ⇒ 11, 10, 10, descriptionOrContent=2d20+10: [11, 10], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED), targetChannelId: 2"
+                "sendMessage: EmbedOrMessageDefinition(title=Dmg ⇒ 11, 10, 10, descriptionOrContent=2d20+10: [11, 10], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED, userReference=false, sendToOtherChannelId=2)"
         );
     }
 
@@ -540,7 +540,7 @@ public class CustomDiceCommandMockTest {
 
         assertThat(buttonEvent.getActions()).containsExactlyInAnyOrder(
                 "editMessage: message:Click on a button to roll the dice, buttonValues=1_button",
-                "createResultMessageWithReference: EmbedOrMessageDefinition(title=Dmg ⇒ 11, 10, 10, descriptionOrContent=2d20+10: [11, 10], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED), targetChannelId: 2"
+                "sendMessage: EmbedOrMessageDefinition(title=Dmg ⇒ 11, 10, 10, descriptionOrContent=2d20+10: [11, 10], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED, userReference=false, sendToOtherChannelId=2)"
         );
     }
 }

@@ -8,11 +8,11 @@ import de.janno.discord.connector.api.message.ComponentRowDefinition;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
 import lombok.Getter;
 import lombok.NonNull;
-import javax.annotation.Nullable;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.ParallelFlux;
 
+import javax.annotation.Nullable;
 import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
@@ -33,9 +33,7 @@ public class ButtonEventAdaptorMock implements ButtonEventAdaptor {
     private final String invokingUser;
     private final EmbedOrMessageDefinition eventMessage;
     @Getter
-    private EmbedOrMessageDefinition answerMessage;
-    @Getter
-    private EmbedOrMessageDefinition newButtonMessage;
+    private final List<EmbedOrMessageDefinition> sendMessages = new ArrayList<>();
 
     public ButtonEventAdaptorMock(String commandId, String buttonValue, UUID configUUID, AtomicLong messageIdCounter, Set<Long> pinnedMessageIds) {
         this(commandId, buttonValue, configUUID, messageIdCounter, pinnedMessageIds, "invokingUser");
@@ -132,9 +130,9 @@ public class ButtonEventAdaptorMock implements ButtonEventAdaptor {
     }
 
     @Override
-    public @NonNull Mono<Long> createMessageWithoutReference(@NonNull EmbedOrMessageDefinition messageDefinition) {
-        actions.add(String.format("createMessageWithoutReference: %s", messageDefinition));
-        this.newButtonMessage = messageDefinition;
+    public @NonNull Mono<Long> sendMessage(@NonNull EmbedOrMessageDefinition messageDefinition) {
+        actions.add(String.format("sendMessage: %s", messageDefinition));
+        sendMessages.add(messageDefinition);
         return Mono.just(messageIdCounter.incrementAndGet());
     }
 
@@ -146,13 +144,6 @@ public class ButtonEventAdaptorMock implements ButtonEventAdaptor {
     @Override
     public Optional<String> checkPermissions(Long answerTargetChannelId, @NonNull Locale userLocale) {
         return Optional.empty();
-    }
-
-    @Override
-    public Mono<Void> createResultMessageWithReference(EmbedOrMessageDefinition answer, Long targetChannelId) {
-        actions.add(String.format("createResultMessageWithReference: %s, targetChannelId: %s", answer, targetChannelId));
-        answerMessage = answer;
-        return Mono.just("").then();
     }
 
     @Override

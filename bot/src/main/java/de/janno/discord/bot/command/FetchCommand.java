@@ -84,7 +84,7 @@ public class FetchCommand implements SlashCommand {
     private <C extends Config> Mono<Void> moveButtonMessage(C config, AbstractCommand<C, ?> command, UUID configUUID, SlashEventAdaptor event) {
         EmbedOrMessageDefinition buttonMessage = command.createSlashResponseMessage(configUUID, config, event.getChannelId());
         List<Mono<Void>> actions = List.of(Mono.defer(event::acknowledgeAndRemoveSlash),
-                Mono.defer(() -> event.createMessageWithoutReference(buttonMessage)
+                Mono.defer(() -> event.sendMessage(buttonMessage)
                                 .doOnNext(messageId -> command.createEmptyMessageData(configUUID, event.getGuildId(), event.getChannelId(), messageId)))
                         .flatMap(newMessageId -> MessageDeletionHelper.deleteOldMessageAndData(persistenceManager, newMessageId, null, configUUID, event.getChannelId(), event))
                         .then());

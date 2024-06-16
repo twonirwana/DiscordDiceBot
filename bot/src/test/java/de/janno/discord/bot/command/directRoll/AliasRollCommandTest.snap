@@ -73,7 +73,8 @@ de.janno.discord.bot.command.directRoll.AliasRollCommandTest.testHelp[de]=[
       }
     ],
     "componentRowDefinitions": [ ],
-    "type": "EMBED"
+    "type": "EMBED",
+    "userReference": false
   }
 ]
 
@@ -104,7 +105,8 @@ de.janno.discord.bot.command.directRoll.AliasRollCommandTest.testHelp[en]=[
       }
     ],
     "componentRowDefinitions": [ ],
-    "type": "EMBED"
+    "type": "EMBED",
+    "userReference": false
   }
 ]
 
@@ -135,7 +137,8 @@ de.janno.discord.bot.command.directRoll.AliasRollCommandTest.testHelp[fr]=[
       }
     ],
     "componentRowDefinitions": [ ],
-    "type": "EMBED"
+    "type": "EMBED",
+    "userReference": false
   }
 ]
 
@@ -166,6 +169,7 @@ de.janno.discord.bot.command.directRoll.AliasRollCommandTest.testHelp[pt_BR]=[
       }
     ],
     "componentRowDefinitions": [ ],
-    "type": "EMBED"
+    "type": "EMBED",
+    "userReference": false
   }
 ]

@@ -159,7 +159,7 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
         } else {
             BotMetrics.incrementPresetMetricCounter(presetId.get().name());
             String commandString = RpgSystemCommandPreset.getCommandString(presetId.get(), event.getRequester().getUserLocal());
-            actions.add(Mono.defer(() -> event.createMessageWithoutReference(EmbedOrMessageDefinition.builder()
+            actions.add(Mono.defer(() -> event.sendMessage(EmbedOrMessageDefinition.builder()
                             .type(EmbedOrMessageDefinition.Type.MESSAGE)
                             .shortedContent("`%s`".formatted(commandString))
                             .build())).ofType(Void.class)

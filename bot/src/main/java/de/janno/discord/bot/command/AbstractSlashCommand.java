@@ -178,7 +178,7 @@ public abstract class AbstractSlashCommand<C extends Config> implements SlashCom
                     .then(Mono.defer(() -> {
                         final Optional<MessageConfigDTO> newMessageConfig = createMessageConfig(configUUID, guildId, channelId, config);
                         newMessageConfig.ifPresent(persistenceManager::saveMessageConfig);
-                        return event.createMessageWithoutReference(createSlashResponseMessage(configUUID, config, channelId))
+                        return event.sendMessage(createSlashResponseMessage(configUUID, config, channelId))
                                 .doOnNext(messageId -> createEmptyMessageData(configUUID, guildId, channelId, messageId))
                                 .then();
                     }));

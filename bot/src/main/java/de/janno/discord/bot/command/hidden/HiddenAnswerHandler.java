@@ -44,7 +44,10 @@ public class HiddenAnswerHandler implements ComponentInteractEventHandler {
         //only one button so we don't check the button id
         return Flux.merge(1,
                         event.acknowledgeAndRemoveButtons(), //ephemeral message cant be deleted
-                        event.createResultMessageWithReference(event.getMessageDefinitionOfEventMessageWithoutButtons(), null)
+                        event.sendMessage(event.getMessageDefinitionOfEventMessageWithoutButtons()
+                                        .toBuilder()
+                                        .userReference(true)
+                                        .build())
                                 .doOnSuccess(v ->
                                         log.info("{}:-> {} in {}ms",
                                                 event.getRequester().toLogString(),

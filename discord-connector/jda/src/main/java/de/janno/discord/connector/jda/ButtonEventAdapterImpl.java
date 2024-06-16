@@ -18,10 +18,10 @@ import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.utils.AttachmentProxy;
 import org.apache.commons.lang3.StringUtils;
-import javax.annotation.Nullable;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.ParallelFlux;
 
+import javax.annotation.Nullable;
 import java.io.InputStream;
 import java.time.OffsetDateTime;
 import java.util.Collection;
@@ -118,24 +118,20 @@ public class ButtonEventAdapterImpl extends DiscordAdapterImpl implements Button
     }
 
     @Override
-    public @NonNull Mono<Long> createMessageWithoutReference(@NonNull EmbedOrMessageDefinition messageDefinition) {
-        return createMessageWithoutReference(event.getMessageChannel(), messageDefinition)
-                .onErrorResume(t -> handleException("Error on creating button message", t, false).ofType(Message.class))
-                .map(Message::getIdLong);
-    }
-
-    @Override
-    public Mono<Void> createResultMessageWithReference(EmbedOrMessageDefinition answer, Long targetChannelId) {
-        MessageChannel targetChannel = Optional.ofNullable(targetChannelId)
+    public @NonNull Mono<Long> sendMessage(@NonNull EmbedOrMessageDefinition messageDefinition) {
+        MessageChannel targetChannel = Optional.ofNullable(messageDefinition.getSendToOtherChannelId())
                 .flatMap(id -> Optional.ofNullable(event.getGuild())
                         .map(g -> (MessageChannel) g.getChannelById(GuildMessageChannel.class, id)))
                 .orElse(event.getInteraction().getMessageChannel());
-        return createMessageWithReference(targetChannel,
-                answer, invokingGuildMemberName, event.getUser().getAsMention(),
-                Optional.ofNullable(event.getMember()).map(Member::getEffectiveAvatarUrl).orElse(event.getUser().getEffectiveAvatarUrl()),
-                event.getUser().getId())
-                .onErrorResume(t -> handleException("Error on creating answer message", t, false).ofType(Message.class))
-                .ofType(Void.class);
+
+        return sendMessageWithOptionalReference(targetChannel,
+                messageDefinition,
+                messageDefinition.isUserReference() ? invokingGuildMemberName : null,
+                messageDefinition.isUserReference() ? event.getUser().getAsMention() : null,
+                messageDefinition.isUserReference() ? Optional.ofNullable(event.getMember()).map(Member::getEffectiveAvatarUrl).orElse(event.getUser().getEffectiveAvatarUrl()) : null,
+                messageDefinition.isUserReference() ? event.getUser().getId() : null)
+                .onErrorResume(t -> handleException("Error on sending message", t, false).ofType(Message.class))
+                .map(Message::getIdLong);
     }
 
     @Override

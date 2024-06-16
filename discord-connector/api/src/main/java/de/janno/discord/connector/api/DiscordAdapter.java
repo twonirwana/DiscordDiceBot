@@ -19,7 +19,7 @@ public interface DiscordAdapter {
 
     @NonNull Mono<Void> deleteMessageById(long messageId);
 
-    @NonNull Mono<Long> createMessageWithoutReference(@NonNull EmbedOrMessageDefinition messageDefinition);
+    @NonNull Mono<Long> sendMessage(@NonNull EmbedOrMessageDefinition messageDefinition);
 
     @NonNull ParallelFlux<MessageState> getMessagesState(@NonNull Collection<Long> messageIds);
 
