@@ -1,0 +1,33 @@
+de.janno.discord.bot.command.LegacyIdHandlerMockTest.handleId[count_successes]=[
+  [
+    "reply: Command is not supported anymore. Please create a new button message with the current commands."
+  ]
+]
+
+
+de.janno.discord.bot.command.LegacyIdHandlerMockTest.handleId[fate]=[
+  [
+    "reply: Command is not supported anymore. Please create a new button message with the current commands."
+  ]
+]
+
+
+de.janno.discord.bot.command.LegacyIdHandlerMockTest.handleId[hold_reroll]=[
+  [
+    "reply: Command is not supported anymore. Please create a new button message with the current commands."
+  ]
+]
+
+
+de.janno.discord.bot.command.LegacyIdHandlerMockTest.handleId[pool_target]=[
+  [
+    "reply: Command is not supported anymore. Please create a new button message with the current commands."
+  ]
+]
+
+
+de.janno.discord.bot.command.LegacyIdHandlerMockTest.handleId[sum_dice_set]=[
+  [
+    "reply: Command is not supported anymore. Please create a new button message with the current commands."
+  ]
+]

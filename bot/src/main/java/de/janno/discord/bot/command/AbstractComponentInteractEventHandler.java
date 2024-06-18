@@ -115,7 +115,7 @@ public abstract class AbstractComponentInteractEventHandler<C extends Config, S 
         //Todo Remove buttons on set to "processing ..."?
         actions.add(Mono.defer(() -> event.editMessage(editMessage, editMessageComponents.orElse(null))));
 
-        //todo make getAnswer a genereal EmbedOrMessage
+        //todo make getAnswer a general EmbedOrMessage
         Optional<RollAnswer> answer = getAnswer(config, state, channelId, userId);
         if (answer.isPresent()) {
             BotMetrics.incrementButtonMetricCounter(getCommandId());
@@ -126,9 +126,6 @@ public abstract class AbstractComponentInteractEventHandler<C extends Config, S 
                     baseAnswer.getType() == EmbedOrMessageDefinition.Type.EMBED &&
                     baseAnswer.getComponentRowDefinitions().isEmpty()) {
                 answerMessage = RerollAnswerHandler.createConfigAndApplyToAnswer(config, answer.get(), baseAnswer, event.getInvokingGuildMemberName(), guildId, channelId, persistenceManager, uuidSupplier.get());
-       /*     } else if (config.getAnswerInteractionType() == AnswerInteractionType.hidden) {
-                //todo answer ephemeral, only possile with reply
-                answerMessage = HiddenAnswerHandler.applyToAnswer(baseAnswer, config.getConfigLocale());*/
             } else {
                 answerMessage = baseAnswer;
             }

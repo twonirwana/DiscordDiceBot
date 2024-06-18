@@ -32,7 +32,7 @@ import java.util.Locale;
 import java.util.UUID;
 
 @ExtendWith(SnapshotExtension.class)
-public class RerollCommandMockTest {
+public class RerollAnswerHandlerMockTest {
     PersistenceManager persistenceManager;
     private Expect expect;
 

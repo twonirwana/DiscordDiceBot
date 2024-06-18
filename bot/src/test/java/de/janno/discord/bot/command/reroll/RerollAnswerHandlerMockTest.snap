@@ -1,11 +1,11 @@
-de.janno.discord.bot.command.reroll.RerollCommandMockTest.customDice_reroll[finish]=[
+de.janno.discord.bot.command.reroll.RerollAnswerHandlerMockTest.customDice_reroll[finish]=[
   [
     "editMessage: message:, buttonValues="
   ]
 ]
 
 
-de.janno.discord.bot.command.reroll.RerollCommandMockTest.customDice_reroll[reroll]=[
+de.janno.discord.bot.command.reroll.RerollAnswerHandlerMockTest.customDice_reroll[reroll]=[
   [
     "editMessage: message:, buttonValues=",
     "sendMessage: EmbedOrMessageDefinition(title=0: Dmg ⇒ 1, 4, 4, 1, 2, 4, 1, 4, 1, 2, d, b, d, descriptionOrContent=3d6+5d!4+3d[a/b/c/d]: [1, 4, 4] [1, 2, 4, 1, 4, 1, 2] [d, b, d], fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=1 ∈ d6, id=reroll_answer\u001E1de0i0r0\u001E5bf2071a-bc5d-37ff-8240-7e5ab439d655, style=SECONDARY, disabled=false), ButtonDefinition(label=4 ∈ d6, id=reroll_answer\u001E1de0i1r0\u001E5bf2071a-bc5d-37ff-8240-7e5ab439d655, style=SECONDARY, disabled=false), ButtonDefinition(label=4 ∈ d6, id=reroll_answer\u001E1de0i2r0\u001E5bf2071a-bc5d-37ff-8240-7e5ab439d655, style=SECONDARY, disabled=false), ButtonDefinition(label=1 ∈ d4, id=reroll_answer\u001E5d!e0i0r0\u001E5bf2071a-bc5d-37ff-8240-7e5ab439d655, style=SECONDARY, disabled=false), ButtonDefinition(label=2 ∈ d4, id=reroll_answer\u001E5d!e0i1r0\u001E5bf2071a-bc5d-37ff-8240-7e5ab439d655, style=SECONDARY, disabled=false)]), ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=4 ∈ d4, id=reroll_answer\u001E5d!e0i2r0\u001E5bf2071a-bc5d-37ff-8240-7e5ab439d655, style=SECONDARY, disabled=false), ButtonDefinition(label=1 ∈ d4, id=reroll_answer\u001E5d!e0i2r1\u001E5bf2071a-bc5d-37ff-8240-7e5ab439d655, style=SECONDARY, disabled=false), ButtonDefinition(label=4 ∈ d4, id=reroll_answer\u001E5d!e0i3r0\u001E5bf2071a-bc5d-37ff-8240-7e5ab439d655, style=SECONDARY, disabled=false), ButtonDefinition(label=1 ∈ d4, id=reroll_answer\u001E5d!e0i3r1\u001E5bf2071a-bc5d-37ff-8240-7e5ab439d655, style=SECONDARY, disabled=false), ButtonDefinition(label=2 ∈ d4, id=reroll_answer\u001E5d!e0i4r0\u001E5bf2071a-bc5d-37ff-8240-7e5ab439d655, style=SECONDARY, disabled=false)]), ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=d ∈ d[a/b/c/d], id=reroll_answer\u001E10de0i0r0\u001E5bf2071a-bc5d-37ff-8240-7e5ab439d655, style=SECONDARY, disabled=false), ButtonDefinition(label=b ∈ d[a/b/c/d], id=reroll_answer\u001E10de0i1r0\u001E5bf2071a-bc5d-37ff-8240-7e5ab439d655, style=SECONDARY, disabled=false), ButtonDefinition(label=d ∈ d[a/b/c/d], id=reroll_answer\u001E10de0i2r0\u001E5bf2071a-bc5d-37ff-8240-7e5ab439d655, style=SECONDARY, disabled=false)]), ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Roll, id=reroll_answer\u001Eroll\u001E5bf2071a-bc5d-37ff-8240-7e5ab439d655, style=SUCCESS, disabled=true), ButtonDefinition(label=Finish, id=reroll_answer\u001Efinish\u001E5bf2071a-bc5d-37ff-8240-7e5ab439d655, style=DANGER, disabled=false)])], hasImage=false, type=EMBED, userReference=false, sendToOtherChannelId=null)"
@@ -13,14 +13,14 @@ de.janno.discord.bot.command.reroll.RerollCommandMockTest.customDice_reroll[rero
 ]
 
 
-de.janno.discord.bot.command.reroll.RerollCommandMockTest.customDice_reroll[reselect]=[
+de.janno.discord.bot.command.reroll.RerollAnswerHandlerMockTest.customDice_reroll[reselect]=[
   [
     "editMessage: message:, buttonValues=1de0i0r0,1de0i1r0,1de0i2r0,5d!e0i0r0,5d!e0i1r0,5d!e0i2r0,5d!e0i2r1,5d!e0i3r0,5d!e0i3r1,5d!e0i4r0,10de0i0r0,10de0i1r0,10de0i2r0,roll,finish"
   ]
 ]
 
 
-de.janno.discord.bot.command.reroll.RerollCommandMockTest.customDice_reroll[roll]=[
+de.janno.discord.bot.command.reroll.RerollAnswerHandlerMockTest.customDice_reroll[roll]=[
   [
     "deleteMessageById: 0",
     "editMessage: message:processing ..., buttonValues=",
@@ -30,21 +30,21 @@ de.janno.discord.bot.command.reroll.RerollCommandMockTest.customDice_reroll[roll
 ]
 
 
-de.janno.discord.bot.command.reroll.RerollCommandMockTest.customDice_reroll[secondSelect]=[
+de.janno.discord.bot.command.reroll.RerollAnswerHandlerMockTest.customDice_reroll[secondSelect]=[
   [
     "editMessage: message:, buttonValues=1de0i0r0,1de0i1r0,1de0i2r0,5d!e0i0r0,5d!e0i1r0,5d!e0i2r0,5d!e0i2r1,5d!e0i3r0,5d!e0i3r1,5d!e0i4r0,10de0i0r0,10de0i1r0,10de0i2r0,roll,finish"
   ]
 ]
 
 
-de.janno.discord.bot.command.reroll.RerollCommandMockTest.customDice_reroll[select]=[
+de.janno.discord.bot.command.reroll.RerollAnswerHandlerMockTest.customDice_reroll[select]=[
   [
     "editMessage: message:, buttonValues=1de0i0r0,1de0i1r0,1de0i2r0,5d!e0i0r0,5d!e0i1r0,5d!e0i2r0,5d!e0i2r1,5d!e0i3r0,5d!e0i3r1,5d!e0i4r0,10de0i0r0,10de0i1r0,10de0i2r0,roll,finish"
   ]
 ]
 
 
-de.janno.discord.bot.command.reroll.RerollCommandMockTest.customDice_reroll[unselect]=[
+de.janno.discord.bot.command.reroll.RerollAnswerHandlerMockTest.customDice_reroll[unselect]=[
   [
     "editMessage: message:, buttonValues=1de0i0r0,1de0i1r0,1de0i2r0,5d!e0i0r0,5d!e0i1r0,5d!e0i2r0,5d!e0i2r1,5d!e0i3r0,5d!e0i3r1,5d!e0i4r0,10de0i0r0,10de0i1r0,10de0i2r0,roll,finish"
   ]

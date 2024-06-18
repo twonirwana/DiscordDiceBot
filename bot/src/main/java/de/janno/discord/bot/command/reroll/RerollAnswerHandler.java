@@ -104,7 +104,7 @@ public class RerollAnswerHandler extends AbstractComponentInteractEventHandler<R
                 answer.getDieIdTypeAndValues(),
                 0,
                 invokingUserName);
-        RerollAnswerHandler.createMessageConfig(rerollConfigId, guildId, channelId, rerollAnswerConfig).ifPresent(persistenceManager::saveMessageConfig);
+        createMessageConfig(rerollConfigId, guildId, channelId, rerollAnswerConfig).ifPresent(persistenceManager::saveMessageConfig);
         return RerollAnswerHandler.applyToAnswer(baseAnswer, answer.getDieIdTypeAndValues(), config.getConfigLocale(), rerollConfigId);
     }
 
@@ -253,7 +253,7 @@ public class RerollAnswerHandler extends AbstractComponentInteractEventHandler<R
             RerollAnswerConfig rerollAnswerConfig = createNewRerollAnswerConfig(config, config.getExpression(), config.getLabel(), rollAnswer.getDieIdTypeAndValues(), config.getRerollCount() + 1, config.getOwner());
 
             UUID newMessageUUID = uuidSupplier.get();
-            RerollAnswerHandler.createMessageConfig(newMessageUUID, guildId, channelId, rerollAnswerConfig).ifPresent(persistenceManager::saveMessageConfig);
+            createMessageConfig(newMessageUUID, guildId, channelId, rerollAnswerConfig).ifPresent(persistenceManager::saveMessageConfig);
 
             //todo user reference
             EmbedOrMessageDefinition newMessage = RerollAnswerHandler.applyToAnswer(RollAnswerConverter.toEmbedOrMessageDefinition(rollAnswer), rollAnswer.getDieIdTypeAndValues(), config.getConfigLocale(), newMessageUUID);
