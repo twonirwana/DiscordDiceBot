@@ -102,7 +102,7 @@ public class RerollAnswerHandler extends AbstractComponentInteractEventHandler<R
                 answer.getExpression(),
                 answer.getExpressionLabel(),
                 answer.getDieIdTypeAndValues(),
-                0,
+                1,
                 invokingUserName);
         createMessageConfig(rerollConfigId, guildId, channelId, rerollAnswerConfig).ifPresent(persistenceManager::saveMessageConfig);
         return RerollAnswerHandler.applyToAnswer(baseAnswer, answer.getDieIdTypeAndValues(), config.getConfigLocale(), rerollConfigId);

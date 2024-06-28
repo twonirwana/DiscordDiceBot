@@ -447,7 +447,7 @@ public class PersistenceManagerImpl implements PersistenceManager {
         Stopwatch stopwatch = Stopwatch.createStarted();
         try (Connection con = databaseConnector.getConnection()) {
 
-            try (PreparedStatement preparedStatement = con.prepareStatement("DELETE FROM MESSAGE_CONFIG MC WHERE MC.CONFIG_ID = ?")) {
+            try (PreparedStatement preparedStatement = con.prepareStatement("DELETE FROM MESSAGE_CONFIG WHERE CONFIG_ID = ?")) {
                 preparedStatement.setObject(1, configUUID);
                 preparedStatement.execute();
             }

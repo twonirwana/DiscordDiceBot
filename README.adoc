@@ -350,8 +350,14 @@ Default is `none`.
 
 ==== reroll
 
-The `reroll` option allows the user that did the roll to reroll some or all of the dice.
-Other user can't reroll.
+The `reroll` option allows the user of the original roll to reroll some or all of the dice.
+The user can select up to 20 dice for reroll and reroll them.
+All not selected dice keep there result.
+This supports all dice expression functionality.
+If for example an exploded die is rerolled then it will also remove the exploded results.
+The reroll can be done multiple times, until the 'Finish' button is used.
+
+image:image/reroll.webp[image,600]
 
 == Commands
 
