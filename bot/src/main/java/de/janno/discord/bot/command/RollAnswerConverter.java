@@ -32,6 +32,7 @@ public class RollAnswerConverter {
             return EmbedOrMessageDefinition.builder()
                     .shortedDescription(rollAnswer.getErrorMessage())
                     .type(type)
+                    .userReference(true)
                     .build();
         }
 
@@ -48,6 +49,7 @@ public class RollAnswerConverter {
                                             false))
                                     .collect(ImmutableList.toImmutableList()))
                             .type(EmbedOrMessageDefinition.Type.EMBED)
+                            .userReference(true)
                             .build();
 
                 } else {
@@ -62,6 +64,7 @@ public class RollAnswerConverter {
                             .shortedTitle("%s ⇒ %s".formatted(Optional.ofNullable(rollAnswer.getExpressionLabel()).orElse(rollAnswer.getExpression()), rollAnswer.getResult()))
                             .shortedDescription(description)
                             .image(rollAnswer.getImage())
+                            .userReference(true)
                             .type(EmbedOrMessageDefinition.Type.EMBED)
                             .build();
                 }
@@ -78,6 +81,7 @@ public class RollAnswerConverter {
                                             false))
                                     .collect(ImmutableList.toImmutableList()))
                             .type(EmbedOrMessageDefinition.Type.EMBED)
+                            .userReference(true)
                             .build();
 
                 } else {
@@ -88,6 +92,7 @@ public class RollAnswerConverter {
                             .shortedDescription(description)
                             .type(EmbedOrMessageDefinition.Type.EMBED)
                             .image(rollAnswer.getImage())
+                            .userReference(true)
                             .build();
                 }
             }
@@ -100,6 +105,7 @@ public class RollAnswerConverter {
                                     .map("**%s**"::formatted)
                                     .collect(Collectors.joining("\n"))))
                             .type(EmbedOrMessageDefinition.Type.EMBED)
+                            .userReference(true)
                             .build();
 
                 } else {
@@ -107,6 +113,7 @@ public class RollAnswerConverter {
                             .shortedTitle("%s ⇒ %s".formatted(Optional.ofNullable(rollAnswer.getExpressionLabel()).orElse("Roll"), rollAnswer.getResult()))
                             .type(EmbedOrMessageDefinition.Type.EMBED)
                             .image(rollAnswer.getImage())
+                            .userReference(true)
                             .build();
                 }
             }
@@ -117,6 +124,7 @@ public class RollAnswerConverter {
                                     .map(RollAnswer.RollResults::getRollDetails)
                                     .collect(Collectors.joining("\n")))
                             .type(EmbedOrMessageDefinition.Type.EMBED)
+                            .userReference(true)
                             .build();
                 } else {
                     final String diceDetailsString = rollAnswer.getImage() != null ? null : rollAnswer.getRollDetails();
@@ -125,6 +133,7 @@ public class RollAnswerConverter {
                             .shortedDescription(description)
                             .type(EmbedOrMessageDefinition.Type.EMBED)
                             .image(rollAnswer.getImage())
+                            .userReference(true)
                             .build();
                 }
             }
@@ -157,6 +166,7 @@ public class RollAnswerConverter {
                 yield EmbedOrMessageDefinition.builder()
                         .shortedContent(description)
                         .type(EmbedOrMessageDefinition.Type.MESSAGE)
+                        .userReference(true)
                         .build();
             }
             case minimal -> {
@@ -176,6 +186,7 @@ public class RollAnswerConverter {
                 yield EmbedOrMessageDefinition.builder()
                         .shortedContent(description)
                         .type(EmbedOrMessageDefinition.Type.MESSAGE)
+                        .userReference(true)
                         .build();
             }
         };

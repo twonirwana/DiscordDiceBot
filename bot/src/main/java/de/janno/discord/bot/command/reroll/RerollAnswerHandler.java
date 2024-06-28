@@ -255,7 +255,6 @@ public class RerollAnswerHandler extends AbstractComponentInteractEventHandler<R
             UUID newMessageUUID = uuidSupplier.get();
             createMessageConfig(newMessageUUID, guildId, channelId, rerollAnswerConfig).ifPresent(persistenceManager::saveMessageConfig);
 
-            //todo user reference
             EmbedOrMessageDefinition newMessage = RerollAnswerHandler.applyToAnswer(RollAnswerConverter.toEmbedOrMessageDefinition(rollAnswer), rollAnswer.getDieIdTypeAndValues(), config.getConfigLocale(), newMessageUUID);
             newMessage = newMessage.toBuilder()
                     .title(config.getRerollCount() + ": " + newMessage.getTitle())

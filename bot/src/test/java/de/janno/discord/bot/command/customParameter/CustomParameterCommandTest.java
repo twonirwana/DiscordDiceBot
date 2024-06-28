@@ -302,7 +302,7 @@ class CustomParameterCommandTest {
                 ---
                 answerTargetChannelId: 123
                 baseExpression: "{n}d{s}"
-                diceSystem: "DICE_EVALUATOR"
+                diceParserSystem: "DICE_EVALUATOR"
                 """);
         MessageDataDTO messageDataDTO = new MessageDataDTO(configUUID, 1L, 1660644934298L, 1660644934298L, "custom_parameter",
                 "CustomParameterStateData", """
@@ -327,7 +327,7 @@ class CustomParameterCommandTest {
                 ---
                 answerTargetChannelId: 123
                 baseExpression: "{n}d{s}"
-                diceSystem: "DICE_EVALUATOR"
+                diceParserSystem: "DICE_EVALUATOR"
                 answerFormatType: compact
                 """);
         MessageDataDTO messageDataDTO = new MessageDataDTO(configUUID, 1L, 1660644934298L, 1660644934298L, "custom_parameter",
@@ -353,7 +353,7 @@ class CustomParameterCommandTest {
                 ---
                 answerTargetChannelId: 123
                 baseExpression: "{n}d{s}"
-                diceSystem: "DICE_EVALUATOR"
+                diceParserSystem: "DICE_EVALUATOR"
                 answerFormatType: compact
                 """);
         MessageDataDTO messageDataDTO = new MessageDataDTO(configUUID, 1L, 1660644934298L, 1660644934298L, "custom_parameter",
@@ -386,7 +386,7 @@ class CustomParameterCommandTest {
                 ---
                 answerTargetChannelId: 123
                 baseExpression: "{n}d{s}"
-                diceSystem: "DICE_EVALUATOR"
+                diceParserSystem: "DICE_EVALUATOR"
                 answerFormatType: full
                 diceStyleAndColor:
                     diceImageStyle: "polyhedral_alies_v2"
@@ -422,7 +422,7 @@ class CustomParameterCommandTest {
                 ---
                 answerTargetChannelId: 123
                 baseExpression: "{n}d{s}"
-                diceSystem: "DICE_EVALUATOR"
+                diceParserSystem: "DICE_EVALUATOR"
                 answerFormatType: full
                 configLocale: "de"
                 diceStyleAndColor:
@@ -461,7 +461,7 @@ class CustomParameterCommandTest {
                 ---
                 answerTargetChannelId: 123
                 baseExpression: "{n}d{s}"
-                diceSystem: "DICE_EVALUATOR"
+                diceParserSystem: "DICE_EVALUATOR"
                 answerFormatType: full
                 configLocale: "de"
                 diceStyleAndColor:

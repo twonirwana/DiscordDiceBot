@@ -603,7 +603,7 @@ class SumCustomSetCommandTest {
                 - buttonId: "2_button"
                   label: "+2d4"
                   diceExpression: "+2d4"
-                diceSystem: "DICE_EVALUATOR"
+                diceParserSystem: "DICE_EVALUATOR"
                 alwaysSumResult: true
                 """);
         MessageDataDTO messageDataDTO = new MessageDataDTO(configUUID, 1L, 1660644934298L, 1660644934298L, "sum_custom_set",
@@ -636,7 +636,7 @@ class SumCustomSetCommandTest {
                 - buttonId: "2_button"
                   label: "+2d4"
                   diceExpression: "+2d4"
-                diceSystem: "DICE_EVALUATOR"
+                diceParserSystem: "DICE_EVALUATOR"
                 alwaysSumResult: true
                 answerFormatType: compact
                 """);
@@ -670,7 +670,7 @@ class SumCustomSetCommandTest {
                 - buttonId: "2_button"
                   label: "+2d4"
                   diceExpression: "+2d4"
-                diceSystem: "DICE_EVALUATOR"
+                diceParserSystem: "DICE_EVALUATOR"
                 alwaysSumResult: true
                 answerFormatType: full
                 diceStyleAndColor:
@@ -707,7 +707,7 @@ class SumCustomSetCommandTest {
                 - buttonId: "2_button"
                   label: "+2d4"
                   diceExpression: "+2d4"
-                diceSystem: "DICE_EVALUATOR"
+                diceParserSystem: "DICE_EVALUATOR"
                 alwaysSumResult: true
                 configLocale: "de"
                 answerFormatType: full
@@ -745,7 +745,7 @@ class SumCustomSetCommandTest {
                 - buttonId: "2_button"
                   label: "Bonus"
                   diceExpression: "+2d4"
-                diceSystem: "DICE_EVALUATOR"
+                diceParserSystem: "DICE_EVALUATOR"
                 alwaysSumResult: true
                 hideExpressionInStatusAndAnswer: true
                 answerFormatType: "full"
@@ -787,7 +787,7 @@ class SumCustomSetCommandTest {
                   label: "Bonus"
                   diceExpression: "+2d4"
                   newLine: true
-                diceSystem: "DICE_EVALUATOR"
+                diceParserSystem: "DICE_EVALUATOR"
                 alwaysSumResult: true
                 hideExpressionInStatusAndAnswer: true
                 systemButtonNewLine: true
@@ -832,7 +832,7 @@ class SumCustomSetCommandTest {
                   diceExpression: "+2d4"
                   newLine: true
                   directRoll: false
-                diceSystem: "DICE_EVALUATOR"
+                diceParserSystem: "DICE_EVALUATOR"
                 alwaysSumResult: true
                 hideExpressionInStatusAndAnswer: true
                 systemButtonNewLine: true
@@ -877,7 +877,7 @@ class SumCustomSetCommandTest {
                   label: "Bonus"
                   diceExpression: "+2d4"
                   newLine: true
-                diceSystem: "DICE_EVALUATOR"
+                diceParserSystem: "DICE_EVALUATOR"
                 alwaysSumResult: true
                 hideExpressionInStatusAndAnswer: true
                 systemButtonNewLine: true

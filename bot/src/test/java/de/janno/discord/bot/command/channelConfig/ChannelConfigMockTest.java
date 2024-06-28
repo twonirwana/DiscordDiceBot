@@ -70,7 +70,7 @@ public class ChannelConfigMockTest {
         assertThat(slashEvent2.getActions()).containsExactlyInAnyOrder("reply: `commandString`\nDeleted direct roll channel config");
         assertThat(slashEvent3.getActions()).containsExactlyInAnyOrder(
                 "acknowledgeAndRemoveSlash",
-                "sendMessage: EmbedOrMessageDefinition(title=1d6 ⇒ 1, descriptionOrContent=, fields=[], componentRowDefinitions=[], hasImage=true, type=EMBED, userReference=false, sendToOtherChannelId=null)");
+                "sendMessage: EmbedOrMessageDefinition(title=1d6 ⇒ 1, descriptionOrContent=, fields=[], componentRowDefinitions=[], hasImage=true, type=EMBED, userReference=true, sendToOtherChannelId=null)");
     }
 
     @Test

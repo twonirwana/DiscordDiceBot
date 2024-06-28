@@ -25,7 +25,6 @@ public class LegacyIdHandler implements ComponentInteractEventHandler {
     public Mono<Void> handleComponentInteractEvent(@NonNull ButtonEventAdaptor event) {
         String buttonCommandId = BottomCustomIdUtils.getCommandNameFromCustomId(event.getCustomId());
         BotMetrics.incrementLegacyCommandButtonMetricCounter(buttonCommandId);
-        //todo test
         return event.reply(I18n.getMessage("legacy.message", event.getRequester().getUserLocal()), false);
     }
 

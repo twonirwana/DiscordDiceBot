@@ -8,12 +8,10 @@ import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.Tag;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import reactor.core.publisher.Mono;
 
 import javax.annotation.Nullable;
 import javax.sql.DataSource;
 import java.sql.*;
-import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.Optional;

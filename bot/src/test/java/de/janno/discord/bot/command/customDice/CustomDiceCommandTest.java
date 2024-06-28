@@ -132,7 +132,7 @@ class CustomDiceCommandTest {
                 new EmbedOrMessageDefinition.Field("1d6 ⇒ 3", "[3]", false),
                 new EmbedOrMessageDefinition.Field("1d6 ⇒ 3", "[3]", false),
                 new EmbedOrMessageDefinition.Field("1d6 ⇒ 3", "[3]", false)
-        ), null, List.of(), EmbedOrMessageDefinition.Type.EMBED, false, null));
+        ), null, List.of(), EmbedOrMessageDefinition.Type.EMBED, true, null));
     }
 
     @Test
@@ -150,7 +150,7 @@ class CustomDiceCommandTest {
         EmbedOrMessageDefinition res = RollAnswerConverter.toEmbedOrMessageDefinition(underTest.getAnswer(new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Label", "1d6,1d6,1d6", false, false)), AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH), new State<>("1_button", StateData.empty()), 0, 0)
                 .orElseThrow());
 
-        assertThat(res).isEqualTo(new EmbedOrMessageDefinition("Label", null, ImmutableList.of(new EmbedOrMessageDefinition.Field("1d6 ⇒ 3", "[3]", false), new EmbedOrMessageDefinition.Field("1d6 ⇒ 3", "[3]", false), new EmbedOrMessageDefinition.Field("1d6 ⇒ 3", "[3]", false)), null, List.of(), EmbedOrMessageDefinition.Type.EMBED, false, null));
+        assertThat(res).isEqualTo(new EmbedOrMessageDefinition("Label", null, ImmutableList.of(new EmbedOrMessageDefinition.Field("1d6 ⇒ 3", "[3]", false), new EmbedOrMessageDefinition.Field("1d6 ⇒ 3", "[3]", false), new EmbedOrMessageDefinition.Field("1d6 ⇒ 3", "[3]", false)), null, List.of(), EmbedOrMessageDefinition.Type.EMBED, true, null));
     }
 
     @Test
@@ -361,7 +361,6 @@ class CustomDiceCommandTest {
 
 
         ConfigAndState<CustomDiceConfig, StateData> configAndState = underTest.deserializeAndUpdateState(savedData, "3");
-        //todo what should happen?
         assertThat(configAndState.getConfig()).isEqualTo(new CustomDiceConfig(123L, ImmutableList.of(
                 new ButtonIdLabelAndDiceExpression("1_button", "Label", "+1d6", false, false),
                 new ButtonIdLabelAndDiceExpression("2_button", "+2d4", "+2d4", false, false)), AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH));
@@ -369,6 +368,30 @@ class CustomDiceCommandTest {
         assertThat(configAndState.getState().getData()).isEqualTo(StateData.empty());
     }
 
+    @Test
+    void deserialization_legacy_parser() {
+        UUID configUUID = UUID.randomUUID();
+        MessageConfigDTO savedData = new MessageConfigDTO(configUUID, 1L, 1660644934298L, "custom_dice", "CustomDiceConfig", """
+                ---
+                answerTargetChannelId: 123
+                buttonIdLabelAndDiceExpressions:
+                - buttonId: "1_button"
+                  label: "Label"
+                  diceExpression: "+1d6"
+                - buttonId: "2_button"
+                  label: "+2d4"
+                  diceExpression: "+2d4"
+                diceParserSystem: "DICEROLL_PARSER"
+                """);
+
+
+        ConfigAndState<CustomDiceConfig, StateData> configAndState = underTest.deserializeAndUpdateState(savedData, "3");
+        assertThat(configAndState.getConfig()).isEqualTo(new CustomDiceConfig(123L, ImmutableList.of(
+                new ButtonIdLabelAndDiceExpression("1_button", "Label", "+1d6", false, false),
+                new ButtonIdLabelAndDiceExpression("2_button", "+2d4", "+2d4", false, false)), AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH));
+        assertThat(configAndState.getConfigUUID()).isEqualTo(configUUID);
+        assertThat(configAndState.getState().getData()).isEqualTo(StateData.empty());
+    }
     @Test
     void deserialization_legacy2() {
         UUID configUUID = UUID.randomUUID();
@@ -382,7 +405,7 @@ class CustomDiceCommandTest {
                 - buttonId: "2_button"
                   label: "+2d4"
                   diceExpression: "+2d4"
-                diceSystem: "DICE_EVALUATOR"
+                diceParserSystem: "DICE_EVALUATOR"
                 """);
 
 
@@ -407,7 +430,7 @@ class CustomDiceCommandTest {
                 - buttonId: "2_button"
                   label: "+2d4"
                   diceExpression: "+2d4"
-                diceSystem: "DICE_EVALUATOR"
+                diceParserSystem: "DICE_EVALUATOR"
                 answerFormatType: compact
                 """);
 
@@ -433,7 +456,7 @@ class CustomDiceCommandTest {
                 - buttonId: "2_button"
                   label: "+2d4"
                   diceExpression: "+2d4"
-                diceSystem: "DICE_EVALUATOR"
+                diceParserSystem: "DICE_EVALUATOR"
                 answerFormatType: compact
                 resultImage: none
                 """);
@@ -460,7 +483,7 @@ class CustomDiceCommandTest {
                 - buttonId: "2_button"
                   label: "+2d4"
                   diceExpression: "+2d4"
-                diceSystem: "DICE_EVALUATOR"
+                diceParserSystem: "DICE_EVALUATOR"
                 answerFormatType: compact
                 diceStyleAndColor:
                   diceImageStyle: "polyhedral_alies_v2"
@@ -490,7 +513,7 @@ class CustomDiceCommandTest {
                 - buttonId: "2_button"
                   label: "+2d4"
                   diceExpression: "+2d4"
-                diceSystem: "DICE_EVALUATOR"
+                diceParserSystem: "DICE_EVALUATOR"
                 answerFormatType: compact
                 diceStyleAndColor:
                   diceImageStyle: "polyhedral_alies_v2"
@@ -522,7 +545,7 @@ class CustomDiceCommandTest {
                   label: "+2d4"
                   diceExpression: "+2d4"
                   newLine: true
-                diceSystem: "DICE_EVALUATOR"
+                diceParserSystem: "DICE_EVALUATOR"
                 answerFormatType: compact
                 diceStyleAndColor:
                   diceImageStyle: "polyhedral_alies_v2"
@@ -556,7 +579,7 @@ class CustomDiceCommandTest {
                   diceExpression: "+2d4"
                   newLine: true
                   directRoll: false
-                diceSystem: "DICE_EVALUATOR"
+                diceParserSystem: "DICE_EVALUATOR"
                 answerFormatType: compact
                 diceStyleAndColor:
                   diceImageStyle: "polyhedral_alies_v2"

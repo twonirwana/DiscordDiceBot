@@ -45,7 +45,7 @@ public class DirectRollCommandMockTest {
 
         assertThat(slashEvent.getActions()).containsExactlyInAnyOrder(
                 "acknowledgeAndRemoveSlash",
-                "sendMessage: EmbedOrMessageDefinition(title=1d6 ⇒ 1, descriptionOrContent=, fields=[], componentRowDefinitions=[], hasImage=true, type=EMBED, userReference=false, sendToOtherChannelId=null)");
+                "sendMessage: EmbedOrMessageDefinition(title=1d6 ⇒ 1, descriptionOrContent=, fields=[], componentRowDefinitions=[], hasImage=true, type=EMBED, userReference=true, sendToOtherChannelId=null)");
     }
 
     @Test
@@ -73,7 +73,7 @@ public class DirectRollCommandMockTest {
                         d,e
                         ]: [a
                         b
-                        c], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED, userReference=false, sendToOtherChannelId=null)""");
+                        c], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED, userReference=true, sendToOtherChannelId=null)""");
     }
 
     @Test
@@ -89,7 +89,7 @@ public class DirectRollCommandMockTest {
 
         assertThat(slashEvent.getActions()).containsExactlyInAnyOrder(
                 "reply: commandString did not contain any random element, try for Example `d20` to roll a 20 sided die",
-                "sendMessage: EmbedOrMessageDefinition(title=20 ⇒ 20, descriptionOrContent=, fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED, userReference=false, sendToOtherChannelId=null)"
+                "sendMessage: EmbedOrMessageDefinition(title=20 ⇒ 20, descriptionOrContent=, fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED, userReference=true, sendToOtherChannelId=null)"
         );
     }
 
@@ -140,7 +140,7 @@ public class DirectRollCommandMockTest {
 
         assertThat(slashEvent.getActions()).containsExactlyInAnyOrder(
                 "acknowledgeAndRemoveSlash",
-                "sendMessage: EmbedOrMessageDefinition(title=test ⇒ 1, descriptionOrContent=1d6, fields=[], componentRowDefinitions=[], hasImage=true, type=EMBED, userReference=false, sendToOtherChannelId=null)"
+                "sendMessage: EmbedOrMessageDefinition(title=test ⇒ 1, descriptionOrContent=1d6, fields=[], componentRowDefinitions=[], hasImage=true, type=EMBED, userReference=true, sendToOtherChannelId=null)"
         );
     }
 
@@ -175,7 +175,7 @@ public class DirectRollCommandMockTest {
 
         assertThat(slashEvent1.getActions()).containsExactlyInAnyOrder("reply: `commandString`\nSaved direct roll channel config");
         assertThat(slashEvent2.getActions()).containsExactlyInAnyOrder("acknowledgeAndRemoveSlash",
-                "sendMessage: EmbedOrMessageDefinition(title=Roll ⇒ 1, descriptionOrContent=[1], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED, userReference=false, sendToOtherChannelId=null)"
+                "sendMessage: EmbedOrMessageDefinition(title=Roll ⇒ 1, descriptionOrContent=[1], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED, userReference=true, sendToOtherChannelId=null)"
         );
     }
 
@@ -211,7 +211,7 @@ public class DirectRollCommandMockTest {
         assertThat(slashEvent1.getActions()).containsExactlyInAnyOrder("reply: `commandString`\nSaved direct roll channel config");
         assertThat(slashEvent2.getActions()).containsExactlyInAnyOrder(
                 "acknowledgeAndRemoveSlash",
-                "sendMessage: EmbedOrMessageDefinition(title=Roll ⇒ 1, descriptionOrContent=, fields=[], componentRowDefinitions=[], hasImage=true, type=EMBED, userReference=false, sendToOtherChannelId=null)");
+                "sendMessage: EmbedOrMessageDefinition(title=Roll ⇒ 1, descriptionOrContent=, fields=[], componentRowDefinitions=[], hasImage=true, type=EMBED, userReference=true, sendToOtherChannelId=null)");
     }
 
     @Test
@@ -246,7 +246,7 @@ public class DirectRollCommandMockTest {
         assertThat(slashEvent1.getActions()).containsExactlyInAnyOrder("reply: `commandString`\nSaved direct roll channel config");
         assertThat(slashEvent2.getActions()).containsExactlyInAnyOrder(
                 "acknowledgeAndRemoveSlash",
-                "sendMessage: EmbedOrMessageDefinition(title=test ⇒ 1, descriptionOrContent=, fields=[], componentRowDefinitions=[], hasImage=true, type=EMBED, userReference=false, sendToOtherChannelId=null)");
+                "sendMessage: EmbedOrMessageDefinition(title=test ⇒ 1, descriptionOrContent=, fields=[], componentRowDefinitions=[], hasImage=true, type=EMBED, userReference=true, sendToOtherChannelId=null)");
     }
 
     @Test
@@ -281,7 +281,7 @@ public class DirectRollCommandMockTest {
         assertThat(slashEvent1.getActions()).containsExactlyInAnyOrder("reply: `commandString`\nSaved direct roll channel config");
         assertThat(slashEvent2.getActions()).containsExactlyInAnyOrder(
                 "acknowledgeAndRemoveSlash",
-                "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=__**1d6 ⇒ 1**__  [1], fields=[], componentRowDefinitions=[], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
+                "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=__**1d6 ⇒ 1**__  [1], fields=[], componentRowDefinitions=[], hasImage=false, type=MESSAGE, userReference=true, sendToOtherChannelId=null)"
         );
     }
 
@@ -317,7 +317,7 @@ public class DirectRollCommandMockTest {
         assertThat(slashEvent1.getActions()).containsExactlyInAnyOrder("reply: `commandString`\nSaved direct roll channel config");
         assertThat(slashEvent2.getActions()).containsExactlyInAnyOrder(
                 "acknowledgeAndRemoveSlash",
-                "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=1d6 ⇒ 1, fields=[], componentRowDefinitions=[], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
+                "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=1d6 ⇒ 1, fields=[], componentRowDefinitions=[], hasImage=false, type=MESSAGE, userReference=true, sendToOtherChannelId=null)"
         );
     }
 
@@ -346,7 +346,7 @@ public class DirectRollCommandMockTest {
 
         assertThat(slashEvent1.getActions()).containsExactlyInAnyOrder("reply: `commandString`\nSaved new alias");
         assertThat(slashEvent2.getActions()).containsExactlyInAnyOrder("acknowledgeAndRemoveSlash",
-                "sendMessage: EmbedOrMessageDefinition(title=2d20+10 ⇒ 36, descriptionOrContent=, fields=[], componentRowDefinitions=[], hasImage=true, type=EMBED, userReference=false, sendToOtherChannelId=null)");
+                "sendMessage: EmbedOrMessageDefinition(title=2d20+10 ⇒ 36, descriptionOrContent=, fields=[], componentRowDefinitions=[], hasImage=true, type=EMBED, userReference=true, sendToOtherChannelId=null)");
     }
 
     @Test
@@ -374,7 +374,7 @@ public class DirectRollCommandMockTest {
 
         assertThat(slashEvent1.getActions()).containsExactlyInAnyOrder("reply: `commandString`\nSaved new alias");
         assertThat(slashEvent2.getActions()).containsExactlyInAnyOrder("acknowledgeAndRemoveSlash",
-                "sendMessage: EmbedOrMessageDefinition(title=2d20+10 ⇒ 36, descriptionOrContent=, fields=[], componentRowDefinitions=[], hasImage=true, type=EMBED, userReference=false, sendToOtherChannelId=null)");
+                "sendMessage: EmbedOrMessageDefinition(title=2d20+10 ⇒ 36, descriptionOrContent=, fields=[], componentRowDefinitions=[], hasImage=true, type=EMBED, userReference=true, sendToOtherChannelId=null)");
     }
 
 
