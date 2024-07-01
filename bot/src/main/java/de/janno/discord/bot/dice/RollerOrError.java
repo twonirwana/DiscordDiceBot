@@ -11,4 +11,5 @@ public class RollerOrError {
     Roller roller;
     boolean valid;
     String errorMessage;
+    String errorExpressionContext;
 }

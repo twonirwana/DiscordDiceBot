@@ -8,7 +8,7 @@ import de.janno.evaluator.dice.ExpressionException;
 import de.janno.evaluator.dice.Roll;
 import de.janno.evaluator.dice.random.GivenNumberSupplier;
 import org.apache.commons.io.FileUtils;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nullable;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -98,7 +98,7 @@ class ImageResultCreatorTest {
 
     @Test
     void getImageForRoll_ResultImageNone() throws ExpressionException {
-        List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(100), 1000, 10_000, true).evaluate("1d6");
+        List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(100), 1000, 10_000, true).evaluate("1d6").getRolls();
 
         Supplier<? extends InputStream> res = underTest.getImageForRoll(rolls, new DiceStyleAndColor(DiceImageStyle.none, "none"));
 
@@ -107,7 +107,7 @@ class ImageResultCreatorTest {
 
     @Test
     void createRollCacheNameTest_blackGold() throws ExpressionException {
-        List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6), 1000, 10_000, true).evaluate("6d6+1d6+3d6");
+        List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6), 1000, 10_000, true).evaluate("6d6+1d6+3d6").getRolls();
 
         String res = underTest.createRollCacheName(rolls.getFirst(), new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v1, "black_and_gold"));
 
@@ -116,7 +116,7 @@ class ImageResultCreatorTest {
 
     @Test
     void createRollCacheNameTest_multiColor() throws ExpressionException {
-        List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(4, 6, 8, 10, 12, 20, 99), 1000, 10_000, true).evaluate("color(1d4,'gray') + color(1d6,'black') + color(1d8,'white') + color(1d10,'red') + color(1d12,'blue') + color(1d20,'green') + color(1d100,'orange')");
+        List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(4, 6, 8, 10, 12, 20, 99), 1000, 10_000, true).evaluate("color(1d4,'gray') + color(1d6,'black') + color(1d8,'white') + color(1d10,'red') + color(1d12,'blue') + color(1d20,'green') + color(1d100,'orange')").getRolls();
 
         String res = underTest.createRollCacheName(rolls.getFirst(), new DiceStyleAndColor(DiceImageStyle.polyhedral_2d, "red"));
 
@@ -125,7 +125,7 @@ class ImageResultCreatorTest {
 
     @Test
     void createRollCacheNameTest_multiCol() throws ExpressionException {
-        List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(4, 6, 8, 10, 12, 20, 99), 1000, 10_000, true).evaluate("1d4 col 'gray' + 1d6 col 'black' + 1d8 col 'white' + 1d10 col 'red' + 1d12 col 'blue' + 1d20 col 'green' + 1d100 col 'orange'");
+        List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(4, 6, 8, 10, 12, 20, 99), 1000, 10_000, true).evaluate("1d4 col 'gray' + 1d6 col 'black' + 1d8 col 'white' + 1d10 col 'red' + 1d12 col 'blue' + 1d20 col 'green' + 1d100 col 'orange'").getRolls();
 
         String res = underTest.createRollCacheName(rolls.getFirst(), new DiceStyleAndColor(DiceImageStyle.polyhedral_2d, "red"));
 
@@ -134,7 +134,7 @@ class ImageResultCreatorTest {
 
     @Test
     void createRollCacheNameTest_fateBlack() throws ExpressionException {
-        List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(1, 2, 3, 1), 1000, 10_000, true).evaluate("4d[-1,0,1]");
+        List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(1, 2, 3, 1), 1000, 10_000, true).evaluate("4d[-1,0,1]").getRolls();
 
         String res = underTest.createRollCacheName(rolls.getFirst(), new DiceStyleAndColor(DiceImageStyle.fate, "black"));
 
@@ -143,7 +143,7 @@ class ImageResultCreatorTest {
 
     @Test
     void createRollCacheNameTest_explode() throws ExpressionException {
-        List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(6, 6, 5, 5, 4, 3), 1000, 10_000, true).evaluate("3d!6");
+        List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(6, 6, 5, 5, 4, 3), 1000, 10_000, true).evaluate("3d!6").getRolls();
 
         String res = underTest.createRollCacheName(rolls.getFirst(), new DiceStyleAndColor(DiceImageStyle.polyhedral_3d, "red_and_white"));
 
@@ -152,7 +152,7 @@ class ImageResultCreatorTest {
 
     @Test
     void createRollCacheNameTest_explodeAdd() throws ExpressionException {
-        List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(6, 6, 5, 5, 4, 3), 1000, 10_000, true).evaluate("3d!!6");
+        List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(6, 6, 5, 5, 4, 3), 1000, 10_000, true).evaluate("3d!!6").getRolls();
 
         String res = underTest.createRollCacheName(rolls.getFirst(), new DiceStyleAndColor(DiceImageStyle.polyhedral_3d, "red_and_white"));
 
@@ -161,7 +161,7 @@ class ImageResultCreatorTest {
 
     @Test
     void getImageForRoll_explode() throws ExpressionException, IOException {
-        List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(6, 6, 5, 5, 4, 3), 1000, 10_000, true).evaluate("3d!6");
+        List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(6, 6, 5, 5, 4, 3), 1000, 10_000, true).evaluate("3d!6").getRolls();
 
         Supplier<? extends InputStream> res = underTest.getImageForRoll(rolls, new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v1, "black_and_gold"));
 
@@ -171,7 +171,7 @@ class ImageResultCreatorTest {
 
     @Test
     void getImageForRoll_explodeAdd() throws ExpressionException, IOException {
-        List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(6, 6, 5, 5, 4, 3), 1000, 10_000, true).evaluate("3d!!6");
+        List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(6, 6, 5, 5, 4, 3), 1000, 10_000, true).evaluate("3d!!6").getRolls();
 
         Supplier<? extends InputStream> res = underTest.getImageForRoll(rolls, new DiceStyleAndColor(DiceImageStyle.polyhedral_3d, "red_and_white"));
 
@@ -181,7 +181,7 @@ class ImageResultCreatorTest {
 
     @Test
     void getImageForRoll_blackGold() throws ExpressionException, IOException {
-        List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6), 1000, 10_000, true).evaluate("6d6+1d6+3d6");
+        List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6), 1000, 10_000, true).evaluate("6d6+1d6+3d6").getRolls();
 
         Supplier<? extends InputStream> res = underTest.getImageForRoll(rolls, new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v1, "black_and_gold"));
 
@@ -191,7 +191,7 @@ class ImageResultCreatorTest {
 
     @Test
     void getImageForRoll_noDie_blackGold() throws ExpressionException {
-        List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(), 1000, 10_000, true).evaluate("5");
+        List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(), 1000, 10_000, true).evaluate("5").getRolls();
 
         Supplier<? extends InputStream> res = underTest.getImageForRoll(rolls, new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v1, "black_and_gold"));
 
@@ -200,7 +200,7 @@ class ImageResultCreatorTest {
 
     @Test
     void getImageForRoll_D7_blackGold() throws ExpressionException {
-        List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(100), 1000, 10_000, true).evaluate("1d7");
+        List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(100), 1000, 10_000, true).evaluate("1d7").getRolls();
 
         Supplier<? extends InputStream> res = underTest.getImageForRoll(rolls, new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v1, "black_and_gold"));
 
@@ -209,7 +209,7 @@ class ImageResultCreatorTest {
 
     @Test
     void getImageForRoll_D100_00_blackGold() throws ExpressionException, IOException {
-        List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(100), 1000, 10_000, true).evaluate("1d100");
+        List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(100), 1000, 10_000, true).evaluate("1d100").getRolls();
 
         Supplier<? extends InputStream> res = underTest.getImageForRoll(rolls, new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v1, "black_and_gold"));
 
@@ -219,7 +219,7 @@ class ImageResultCreatorTest {
 
     @Test
     void getImageForRoll_D100_01_blackGold() throws ExpressionException, IOException {
-        List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(1), 1000, 10_000, true).evaluate("1d100");
+        List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(1), 1000, 10_000, true).evaluate("1d100").getRolls();
 
         Supplier<? extends InputStream> res = underTest.getImageForRoll(rolls, new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v1, "black_and_gold"));
 
@@ -229,7 +229,7 @@ class ImageResultCreatorTest {
 
     @Test
     void getImageForRoll_D100_99_blackGold() throws ExpressionException, IOException {
-        List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(99), 1000, 10_000, true).evaluate("1d100");
+        List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(99), 1000, 10_000, true).evaluate("1d100").getRolls();
 
         Supplier<? extends InputStream> res = underTest.getImageForRoll(rolls, new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v1, "black_and_gold"));
 
@@ -239,7 +239,7 @@ class ImageResultCreatorTest {
 
     @Test
     void getImageForRoll_cache() throws ExpressionException, IOException, InterruptedException {
-        List<Roll> rolls1 = new DiceEvaluator(new GivenNumberSupplier(1), 1000, 10_000, true).evaluate("1d6");
+        List<Roll> rolls1 = new DiceEvaluator(new GivenNumberSupplier(1), 1000, 10_000, true).evaluate("1d6").getRolls();
         Supplier<? extends InputStream> res1 = underTest.getImageForRoll(rolls1, new DiceStyleAndColor(DiceImageStyle.polyhedral_3d, "red_and_white"));
         assertThat(res1).isNotNull();
 
@@ -250,7 +250,7 @@ class ImageResultCreatorTest {
 
         Thread.sleep(100);
 
-        List<Roll> rolls2 = new DiceEvaluator(new GivenNumberSupplier(1), 1000, 10_000, true).evaluate("1d6");
+        List<Roll> rolls2 = new DiceEvaluator(new GivenNumberSupplier(1), 1000, 10_000, true).evaluate("1d6").getRolls();
         Supplier<? extends InputStream> cachedRes1 = underTest.getImageForRoll(rolls2, new DiceStyleAndColor(DiceImageStyle.polyhedral_3d, "red_and_white"));
         assertThat(cachedRes1).isNotNull();
 
@@ -261,7 +261,7 @@ class ImageResultCreatorTest {
 
         Thread.sleep(100);
 
-        List<Roll> rolls3 = new DiceEvaluator(new GivenNumberSupplier(2), 1000, 10_000, true).evaluate("1d6");
+        List<Roll> rolls3 = new DiceEvaluator(new GivenNumberSupplier(2), 1000, 10_000, true).evaluate("1d6").getRolls();
         Supplier<? extends InputStream> res2 = underTest.getImageForRoll(rolls3, new DiceStyleAndColor(DiceImageStyle.polyhedral_3d, "red_and_white"));
         assertThat(res2).isNotNull();
 
@@ -274,14 +274,14 @@ class ImageResultCreatorTest {
 
     @Test
     void getImageForRoll_noCacheForLargeDiceSets() throws ExpressionException, IOException {
-        List<Roll> rolls1 = new DiceEvaluator(new GivenNumberSupplier(1), 1000, 10_000, true).evaluate("7d10");
+        List<Roll> rolls1 = new DiceEvaluator(new GivenNumberSupplier(1), 1000, 10_000, true).evaluate("7d10").getRolls();
         Supplier<? extends InputStream> res1 = underTest.getImageForRoll(rolls1, new DiceStyleAndColor(DiceImageStyle.polyhedral_3d, "red_and_white"));
         assertThat(res1).isNotNull();
         File cacheFolder = new File("imageCache/");
         assertThat(cacheFolder).isEmptyDirectory();
         assertThat(getDataHash(res1)).isEqualTo("c6ea9275d2ab8391ff4978a4fd8e3f36fa0ef0ab4dc6fa85074a175e2bd307b0");
 
-        List<Roll> rolls2 = new DiceEvaluator(new GivenNumberSupplier(1), 1000, 10_000, true).evaluate("7d10");
+        List<Roll> rolls2 = new DiceEvaluator(new GivenNumberSupplier(1), 1000, 10_000, true).evaluate("7d10").getRolls();
         Supplier<? extends InputStream> res2 = underTest.getImageForRoll(rolls2, new DiceStyleAndColor(DiceImageStyle.polyhedral_3d, "red_and_white"));
 
         assertThat(cacheFolder).isEmptyDirectory();
@@ -291,7 +291,7 @@ class ImageResultCreatorTest {
 
     @Test
     void getImageForCustomRoll_cache() throws ExpressionException, IOException, InterruptedException {
-        List<Roll> rolls1 = new DiceEvaluator(new GivenNumberSupplier(1), 1000, 10_000, true).evaluate("1d[-1,0,1]");
+        List<Roll> rolls1 = new DiceEvaluator(new GivenNumberSupplier(1), 1000, 10_000, true).evaluate("1d[-1,0,1]").getRolls();
         Supplier<? extends InputStream> res1 = underTest.getImageForRoll(rolls1, new DiceStyleAndColor(DiceImageStyle.fate, "black"));
         assertThat(res1).isNotNull();
 
@@ -302,7 +302,7 @@ class ImageResultCreatorTest {
 
         Thread.sleep(100);
 
-        List<Roll> rolls2 = new DiceEvaluator(new GivenNumberSupplier(1), 1000, 10_000, true).evaluate("1d[-1,0,1]");
+        List<Roll> rolls2 = new DiceEvaluator(new GivenNumberSupplier(1), 1000, 10_000, true).evaluate("1d[-1,0,1]").getRolls();
         Supplier<? extends InputStream> cachedRes1 = underTest.getImageForRoll(rolls2, new DiceStyleAndColor(DiceImageStyle.fate, "black"));
         assertThat(cachedRes1).isNotNull();
 
@@ -313,7 +313,7 @@ class ImageResultCreatorTest {
 
         Thread.sleep(100);
 
-        List<Roll> rolls3 = new DiceEvaluator(new GivenNumberSupplier(2), 1000, 10_000, true).evaluate("1d[-1,0,1]");
+        List<Roll> rolls3 = new DiceEvaluator(new GivenNumberSupplier(2), 1000, 10_000, true).evaluate("1d[-1,0,1]").getRolls();
         Supplier<? extends InputStream> res2 = underTest.getImageForRoll(rolls3, new DiceStyleAndColor(DiceImageStyle.fate, "black"));
         assertThat(res2).isNotNull();
 
@@ -326,14 +326,14 @@ class ImageResultCreatorTest {
 
     @Test
     void getImageForCustomRoll_noCacheForLargeDiceSets() throws ExpressionException, IOException {
-        List<Roll> rolls1 = new DiceEvaluator(new GivenNumberSupplier(1), 1000, 10_000, true).evaluate("7d[-1,0,1]");
+        List<Roll> rolls1 = new DiceEvaluator(new GivenNumberSupplier(1), 1000, 10_000, true).evaluate("7d[-1,0,1]").getRolls();
         Supplier<? extends InputStream> res1 = underTest.getImageForRoll(rolls1, new DiceStyleAndColor(DiceImageStyle.fate, "black"));
         assertThat(res1).isNotNull();
         File cacheFolder = new File("imageCache/");
         assertThat(cacheFolder).isEmptyDirectory();
         assertThat(getDataHash(res1)).isEqualTo("b3929fb41bad88f279554cb27e729c05ca783f03134ffe531f6bd3c3cb315d5a");
 
-        List<Roll> rolls2 = new DiceEvaluator(new GivenNumberSupplier(1), 1000, 10_000, true).evaluate("7d[-1,0,1]");
+        List<Roll> rolls2 = new DiceEvaluator(new GivenNumberSupplier(1), 1000, 10_000, true).evaluate("7d[-1,0,1]").getRolls();
         Supplier<? extends InputStream> res2 = underTest.getImageForRoll(rolls2, new DiceStyleAndColor(DiceImageStyle.fate, "black"));
 
         assertThat(cacheFolder).isEmptyDirectory();
@@ -343,7 +343,7 @@ class ImageResultCreatorTest {
 
     @Test
     void createRollCacheNameTest_3dRedWhite() throws ExpressionException {
-        List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6), 1000, 10_000, true).evaluate("6d6+1d6+3d6");
+        List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6), 1000, 10_000, true).evaluate("6d6+1d6+3d6").getRolls();
 
         String res = underTest.createRollCacheName(rolls.getFirst(), new DiceStyleAndColor(DiceImageStyle.polyhedral_3d, "red_and_white"));
 
@@ -352,7 +352,7 @@ class ImageResultCreatorTest {
 
     @Test
     void getImageForRoll_3dRedWhite() throws ExpressionException, IOException {
-        List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6), 1000, 10_000, true).evaluate("6d6+1d6+3d6");
+        List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6), 1000, 10_000, true).evaluate("6d6+1d6+3d6").getRolls();
 
         Supplier<? extends InputStream> res = underTest.getImageForRoll(rolls, new DiceStyleAndColor(DiceImageStyle.polyhedral_3d, "red_and_white"));
 
@@ -362,7 +362,7 @@ class ImageResultCreatorTest {
 
     @Test
     void getImageForRoll_d6DotsWhite() throws ExpressionException, IOException {
-        List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(1, 2, 3, 4, 5, 6), 1000, 10_000, true).evaluate("6d6");
+        List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(1, 2, 3, 4, 5, 6), 1000, 10_000, true).evaluate("6d6").getRolls();
 
         Supplier<? extends InputStream> res = underTest.getImageForRoll(rolls, new DiceStyleAndColor(DiceImageStyle.d6_dots, "white"));
 
@@ -372,7 +372,7 @@ class ImageResultCreatorTest {
 
     @Test
     void getImageForRoll_d6DotsBlackAndGold() throws ExpressionException, IOException {
-        List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(1, 2, 3, 4, 5, 6), 1000, 10_000, true).evaluate("6d6");
+        List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(1, 2, 3, 4, 5, 6), 1000, 10_000, true).evaluate("6d6").getRolls();
 
         Supplier<? extends InputStream> res = underTest.getImageForRoll(rolls, new DiceStyleAndColor(DiceImageStyle.d6_dots, "black_and_gold"));
 
@@ -383,7 +383,7 @@ class ImageResultCreatorTest {
 
     @Test
     void getImageForRoll_noDie_3dRedWhite() throws ExpressionException {
-        List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(), 1000, 10_000, true).evaluate("5");
+        List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(), 1000, 10_000, true).evaluate("5").getRolls();
 
         Supplier<? extends InputStream> res = underTest.getImageForRoll(rolls, new DiceStyleAndColor(DiceImageStyle.polyhedral_3d, "red_and_white"));
 
@@ -392,7 +392,7 @@ class ImageResultCreatorTest {
 
     @Test
     void getImageForRoll_D7_3dRedWhite() throws ExpressionException {
-        List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(100), 1000, 10_000, true).evaluate("1d7");
+        List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(100), 1000, 10_000, true).evaluate("1d7").getRolls();
 
         Supplier<? extends InputStream> res = underTest.getImageForRoll(rolls, new DiceStyleAndColor(DiceImageStyle.polyhedral_3d, "red_and_white"));
 
@@ -401,7 +401,7 @@ class ImageResultCreatorTest {
 
     @Test
     void getImageForRoll_D100_00_3dRedWhite() throws ExpressionException, IOException {
-        List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(100), 1000, 10_000, true).evaluate("1d100");
+        List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(100), 1000, 10_000, true).evaluate("1d100").getRolls();
 
         Supplier<? extends InputStream> res = underTest.getImageForRoll(rolls, new DiceStyleAndColor(DiceImageStyle.polyhedral_3d, "red_and_white"));
 
@@ -411,7 +411,7 @@ class ImageResultCreatorTest {
 
     @Test
     void getImageForRoll_D100_01_3dRedWhite() throws ExpressionException, IOException {
-        List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(1), 1000, 10_000, true).evaluate("1d100");
+        List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(1), 1000, 10_000, true).evaluate("1d100").getRolls();
 
         Supplier<? extends InputStream> res = underTest.getImageForRoll(rolls, new DiceStyleAndColor(DiceImageStyle.polyhedral_3d, "red_and_white"));
 
@@ -421,7 +421,7 @@ class ImageResultCreatorTest {
 
     @Test
     void getImageForRoll_D100_99_3dRedWhite() throws ExpressionException, IOException {
-        List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(99), 1000, 10_000, true).evaluate("1d100");
+        List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(99), 1000, 10_000, true).evaluate("1d100").getRolls();
 
         Supplier<? extends InputStream> res = underTest.getImageForRoll(rolls, new DiceStyleAndColor(DiceImageStyle.polyhedral_3d, "red_and_white"));
 
@@ -435,12 +435,12 @@ class ImageResultCreatorTest {
         ImageResultCreator underTestWithoutCache = new ImageResultCreator(-1);
         for (int d : sides) {
             for (int s = 1; s <= d; s++) {
-                List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(s), 1000, 10_000, true).evaluate("1d%d".formatted(d));
+                List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(s), 1000, 10_000, true).evaluate("1d%d".formatted(d)).getRolls();
                 Supplier<? extends InputStream> res = underTestWithoutCache.getImageForRoll(rolls, LegacyImageConfigHelper.getStyleAndColor(resultImage));
                 assertThat(res).isNotNull();
             }
         }
-        List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(1), 1000, 10_000, true).evaluate("1d[abc/cde]");
+        List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(1), 1000, 10_000, true).evaluate("1d[abc/cde]").getRolls();
         Supplier<? extends InputStream> res = underTest.getImageForRoll(rolls, LegacyImageConfigHelper.getStyleAndColor(resultImage));
         assertThat(res).isNull();
     }
@@ -451,7 +451,7 @@ class ImageResultCreatorTest {
         ImageResultCreator underTestWithoutCache = new ImageResultCreator(-1);
         for (int d : sides) {
             for (int s = 1; s <= d; s++) {
-                List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(s), 1000, 10_000, true).evaluate("1d%d".formatted(d));
+                List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(s), 1000, 10_000, true).evaluate("1d%d".formatted(d)).getRolls();
                 for (String color : diceImageStyle.getSupportedColors()) {
                     Supplier<? extends InputStream> res = underTestWithoutCache.getImageForRoll(rolls, new DiceStyleAndColor(diceImageStyle, color));
                     assertThat(res).isNotNull();
@@ -459,7 +459,7 @@ class ImageResultCreatorTest {
                 }
             }
         }
-        List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(1), 1000, 10_000, true).evaluate("1d[abc/cde]");
+        List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(1), 1000, 10_000, true).evaluate("1d[abc/cde]").getRolls();
         Supplier<? extends InputStream> res = underTest.getImageForRoll(rolls, new DiceStyleAndColor(diceImageStyle, "notAColor"));
         assertThat(res).isNull();
     }
@@ -469,12 +469,12 @@ class ImageResultCreatorTest {
     void testPolyhedralResultImagePerColor(DiceImageStyle diceImageStyle, List<Integer> sides, String color) throws ExpressionException {
         for (int d : sides) {
             for (int s = 1; s <= d; s++) {
-                List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(s), 1000, 10_000, true).evaluate("1d%d".formatted(d));
+                List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(s), 1000, 10_000, true).evaluate("1d%d".formatted(d)).getRolls();
                 Supplier<? extends InputStream> res = underTest.getImageForRoll(rolls, new DiceStyleAndColor(diceImageStyle, color));
                 assertThat(res).isNotNull();
             }
         }
-        List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(1), 1000, 10_000, true).evaluate("1d[abc/cde]");
+        List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(1), 1000, 10_000, true).evaluate("1d[abc/cde]").getRolls();
         Supplier<? extends InputStream> res = underTest.getImageForRoll(rolls, new DiceStyleAndColor(diceImageStyle, "notAColor"));
         assertThat(res).isNull();
     }
@@ -482,7 +482,7 @@ class ImageResultCreatorTest {
     @Test
     void getImageForRoll_polyhedralDrawColor() throws ExpressionException {
         List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(2, 4, 6, 8, 10, 12, 20, 99), 1000, 10000, true)
-                .evaluate("color(1d2,'indigo')  +color(1d4,'gray') + color(1d6,'black') + color(1d8,'white') + color(1d10,'red') + color(1d12,'blue') + color(1d20,'green') + color(1d100,'orange')");
+                .evaluate("color(1d2,'indigo')  +color(1d4,'gray') + color(1d6,'black') + color(1d8,'white') + color(1d10,'red') + color(1d12,'blue') + color(1d20,'green') + color(1d100,'orange')").getRolls();
 
         Supplier<? extends InputStream> res = underTest.getImageForRoll(rolls, new DiceStyleAndColor(DiceImageStyle.polyhedral_2d, DiceImageStyle.polyhedral_2d.getDefaultColor()));
 
@@ -506,7 +506,7 @@ class ImageResultCreatorTest {
                                 "+ color(1d[\uD83D\uDDE1/-2/-3/+1/+2/+3],'orange') " +
                                 "+ color(1d[\uD83D\uDC4D/-2/-3/+1/+2/+3],'yellow') "
                         //       + "+ color(1d2,'indigo')  +color(1d4,'gray') + color(1d6,'black') + color(1d8,'white') + color(1d10,'red') + color(1d12,'blue') + color(1d20,'green') + color(1d100,'orange')"
-                );
+                ).getRolls();
 
         Supplier<? extends InputStream> res = underTest.getImageForRoll(rolls, new DiceStyleAndColor(DiceImageStyle.polyhedral_2d, DiceImageStyle.polyhedral_2d.getDefaultColor()));
 
@@ -519,8 +519,8 @@ class ImageResultCreatorTest {
     @Test
     void getImageForRoll_polyhedralDrawUtf16Emoji() throws ExpressionException, IOException {
         DiceEvaluator evaluator = new DiceEvaluator(new GivenNumberSupplier(1, 2), 1000, 10000, true);
-        List<Roll> roll1 = evaluator.evaluate("color(d[\uD83D\uDDE1/\uD83D\uDC4D],'cyan') ");
-        List<Roll> roll2 = evaluator.evaluate("color(d[\uD83D\uDDE1/\uD83D\uDC4D],'cyan') ");
+        List<Roll> roll1 = evaluator.evaluate("color(d[\uD83D\uDDE1/\uD83D\uDC4D],'cyan') ").getRolls();
+        List<Roll> roll2 = evaluator.evaluate("color(d[\uD83D\uDDE1/\uD83D\uDC4D],'cyan') ").getRolls();
         String image1Hash = getDataHash(underTest.getImageForRoll(roll1, new DiceStyleAndColor(DiceImageStyle.polyhedral_2d, DiceImageStyle.polyhedral_2d.getDefaultColor())));
         String image2Hash = getDataHash(underTest.getImageForRoll(roll2, new DiceStyleAndColor(DiceImageStyle.polyhedral_2d, DiceImageStyle.polyhedral_2d.getDefaultColor())));
         assertThat(roll1).isNotEqualTo(roll2);
@@ -530,7 +530,7 @@ class ImageResultCreatorTest {
 
     @Test
     void getImageForRoll_polyhedral_RdD() throws ExpressionException, IOException {
-        List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(4, 6, 7, 8, 10, 12, 20, 99, 8, 12), 1000, 10_000, true).evaluate("1d4 + 1d6 + 1d7 + 1d8 + 1d10 +1d12 + 1d20 + 1d100  + 1d8 col 'special' + 1d12 col 'special'");
+        List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(4, 6, 7, 8, 10, 12, 20, 99, 8, 12), 1000, 10_000, true).evaluate("1d4 + 1d6 + 1d7 + 1d8 + 1d10 +1d12 + 1d20 + 1d100  + 1d8 col 'special' + 1d12 col 'special'").getRolls();
 
         Supplier<? extends InputStream> res = underTest.getImageForRoll(rolls, new DiceStyleAndColor(DiceImageStyle.polyhedral_RdD, DiceImageStyle.polyhedral_RdD.getDefaultColor()));
 
@@ -540,7 +540,7 @@ class ImageResultCreatorTest {
 
     @Test
     void getImageForRoll_polyhedral_RdD_specialColor() throws ExpressionException {
-        List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(99), 1000, 10_000, true).evaluate("1d100");
+        List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(99), 1000, 10_000, true).evaluate("1d100").getRolls();
 
         Supplier<? extends InputStream> res = underTest.getImageForRoll(rolls, new DiceStyleAndColor(DiceImageStyle.polyhedral_RdD, "special"));
 
@@ -549,7 +549,7 @@ class ImageResultCreatorTest {
 
     @Test
     void getImageForRoll_Expanse() throws ExpressionException, IOException {
-        List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(1, 2, 3, 4, 5, 6), 1000, 10_000, true).evaluate("6d6");
+        List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(1, 2, 3, 4, 5, 6), 1000, 10_000, true).evaluate("6d6").getRolls();
 
         Supplier<? extends InputStream> res = underTest.getImageForRoll(rolls, new DiceStyleAndColor(DiceImageStyle.expanse, DiceImageStyle.expanse.getDefaultColor()));
 
@@ -559,7 +559,7 @@ class ImageResultCreatorTest {
 
     @Test
     void getImageForRoll_marvelBlue() throws ExpressionException, IOException {
-        List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(1, 2, 3, 4, 5, 6), 1000, 10_000, true).evaluate("6d6");
+        List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(1, 2, 3, 4, 5, 6), 1000, 10_000, true).evaluate("6d6").getRolls();
 
         Supplier<? extends InputStream> res = underTest.getImageForRoll(rolls, new DiceStyleAndColor(DiceImageStyle.d6_marvel, "blue"));
 
@@ -569,7 +569,7 @@ class ImageResultCreatorTest {
 
     @Test
     void getImageForRoll_marvelRed() throws ExpressionException, IOException {
-        List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(1, 2, 3, 4, 5, 6), 1000, 10_000, true).evaluate("6d6");
+        List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(1, 2, 3, 4, 5, 6), 1000, 10_000, true).evaluate("6d6").getRolls();
 
         Supplier<? extends InputStream> res = underTest.getImageForRoll(rolls, new DiceStyleAndColor(DiceImageStyle.d6_marvel, "red"));
 
@@ -580,7 +580,7 @@ class ImageResultCreatorTest {
 
     @Test
     void getImageForRoll_none_3dRedWhite() throws ExpressionException {
-        List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(1), 1000, 10_000, true).evaluate("1d6 col 'none'");
+        List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(1), 1000, 10_000, true).evaluate("1d6 col 'none'").getRolls();
 
         Supplier<? extends InputStream> res = underTest.getImageForRoll(rolls, new DiceStyleAndColor(DiceImageStyle.polyhedral_3d, "red_and_white"));
 
@@ -589,7 +589,7 @@ class ImageResultCreatorTest {
 
     @Test
     void getImageForRoll_noneAndVisible_3dRedWhite() throws ExpressionException, IOException {
-        List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(1, 2), 1000, 10_000, true).evaluate("1d6 col 'none' + 1d6");
+        List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(1, 2), 1000, 10_000, true).evaluate("1d6 col 'none' + 1d6").getRolls();
 
         Supplier<? extends InputStream> res = underTest.getImageForRoll(rolls, new DiceStyleAndColor(DiceImageStyle.polyhedral_3d, "red_and_white"));
 
@@ -600,7 +600,7 @@ class ImageResultCreatorTest {
     @Test
     @Disabled
     void debug() throws ExpressionException, IOException {
-        List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(4, 1, 2, 3, 4, 5, 6, 7, 8, 10, 12, 20, 99, 8, 12), 1000, 10_000, true).evaluate("1d4 + 6d6 + 1d7 + 1d8 + 1d10 +1d12 + 1d20 + 1d100  + 1d8 col 'special' + 1d12 col 'special'");
+        List<Roll> rolls = new DiceEvaluator(new GivenNumberSupplier(4, 1, 2, 3, 4, 5, 6, 7, 8, 10, 12, 20, 99, 8, 12), 1000, 10_000, true).evaluate("1d4 + 6d6 + 1d7 + 1d8 + 1d10 +1d12 + 1d20 + 1d100  + 1d8 col 'special' + 1d12 col 'special'").getRolls();
 
         Supplier<? extends InputStream> res = underTest.getImageForRoll(rolls, new DiceStyleAndColor(DiceImageStyle.polyhedral_RdD, DiceImageStyle.polyhedral_RdD.getDefaultColor()));
 

@@ -1,12 +1,13 @@
 package de.janno.discord.bot.command.customDice;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import de.janno.discord.bot.AnswerInteractionType;
 import de.janno.discord.bot.ResultImage;
 import de.janno.discord.bot.command.AnswerFormatType;
 import de.janno.discord.bot.command.ButtonIdLabelAndDiceExpression;
-import de.janno.discord.bot.command.Config;
-import de.janno.discord.bot.dice.DiceParserSystem;
+import de.janno.discord.bot.command.reroll.Config;
 import de.janno.discord.bot.dice.image.DiceStyleAndColor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -15,29 +16,27 @@ import lombok.ToString;
 
 import java.util.List;
 import java.util.Locale;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @EqualsAndHashCode(callSuper = true)
 @Getter
 @ToString(callSuper = true)
+@JsonIgnoreProperties(ignoreUnknown = true) //ignore legacy diceSystem field
 public class CustomDiceConfig extends Config {
     @NonNull
     private final List<ButtonIdLabelAndDiceExpression> buttonIdLabelAndDiceExpressions;
-    @NonNull
-    private final DiceParserSystem diceParserSystem;
 
     @JsonCreator
     public CustomDiceConfig(@JsonProperty("answerTargetChannelId") Long answerTargetChannelId,
                             @JsonProperty("buttonIdLabelAndDiceExpressions") @NonNull List<ButtonIdLabelAndDiceExpression> buttonIdLabelAndDiceExpressions,
-                            @JsonProperty("diceParserSystem") DiceParserSystem diceParserSystem,
                             @JsonProperty("answerFormatType") AnswerFormatType answerFormatType,
+                            @JsonProperty("answerInteractionType") AnswerInteractionType answerInteractionType,
                             @JsonProperty("resultImage") ResultImage resultImage,
                             @JsonProperty("diceImageStyle") DiceStyleAndColor diceStyleAndColor,
-                            @JsonProperty("configLocale") Locale configLocale) {
-        super(answerTargetChannelId, answerFormatType, resultImage, diceStyleAndColor, configLocale);
+                            @JsonProperty("configLocale") Locale configLocale
+    ) {
+        super(answerTargetChannelId, answerFormatType, answerInteractionType, resultImage, diceStyleAndColor, configLocale);
         this.buttonIdLabelAndDiceExpressions = buttonIdLabelAndDiceExpressions;
-        this.diceParserSystem = Optional.ofNullable(diceParserSystem).orElse(DiceParserSystem.DICEROLL_PARSER);
     }
 
     @Override
@@ -45,7 +44,7 @@ public class CustomDiceConfig extends Config {
         String buttons = buttonIdLabelAndDiceExpressions.stream()
                 .map(ButtonIdLabelAndDiceExpression::toShortString)
                 .collect(Collectors.joining(", "));
-        return "[%s, %s, %s, %s, %s]".formatted(buttons, getTargetChannelShortString(), diceParserSystem, getAnswerFormatType(), getDiceStyleAndColor());
+        return "[%s, %s, %s, %s]".formatted(buttons, getTargetChannelShortString(), getAnswerFormatType(), getDiceStyleAndColor());
     }
 
 

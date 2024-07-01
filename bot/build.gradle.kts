@@ -5,13 +5,11 @@ plugins {
 
 repositories {
     mavenCentral()
-    maven { setUrl("https://jitpack.io") }
 }
 
 dependencies {
     implementation(project(":discord-connector"))
-    implementation("com.github.twonirwana:dice-parser:0.7.1")
-    implementation("io.github.twonirwana:dice-evaluator:v0.7.0")
+    implementation("io.github.twonirwana:dice-evaluator:v0.8.1")
 
     implementation(libs.log4j.to.slf4j)
     implementation(libs.reactor.core)

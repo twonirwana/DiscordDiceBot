@@ -2,6 +2,7 @@ package de.janno.discord.bot.command.channelConfig;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
+import de.janno.discord.bot.AnswerInteractionType;
 import de.janno.discord.bot.BotMetrics;
 import de.janno.discord.bot.I18n;
 import de.janno.discord.bot.command.AnswerFormatType;
@@ -22,9 +23,9 @@ import de.janno.discord.connector.api.slash.CommandDefinitionOptionChoice;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.Nullable;
 import reactor.core.publisher.Mono;
 
+import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -205,12 +206,13 @@ public class ChannelConfigCommand implements SlashCommand {
         if (event.getOption(SAVE_DIRECT_ROLL_CONFIG_OPTION_NAME).isPresent()) {
             CommandInteractionOption saveAction = event.getOption(SAVE_DIRECT_ROLL_CONFIG_OPTION_NAME).get();
             boolean alwaysSumResults = saveAction.getBooleanSubOptionWithName(ALWAYS_SUM_RESULTS_OPTION_NAME).orElse(true);
-            AnswerFormatType answerType = BaseCommandOptions.getAnswerTypeFromStartCommandOption(saveAction).orElse(AnswerFormatType.full);
+            AnswerFormatType answerFormatType = BaseCommandOptions.getAnswerTypeFromStartCommandOption(saveAction).orElse(AnswerFormatType.full);
+            AnswerInteractionType answerInteractionType = BaseCommandOptions.getAnswerInteractionFromStartCommandOption(saveAction);
             DiceImageStyle diceImageStyle = BaseCommandOptions.getDiceStyleOptionFromStartCommandOption(saveAction).orElse(DiceImageStyle.polyhedral_3d);
             String defaultDiceColor = BaseCommandOptions.getDiceColorOptionFromStartCommandOption(saveAction).orElse(DiceImageStyle.polyhedral_3d.getDefaultColor());
             final Locale userOrConfigLocale = BaseCommandOptions.getLocaleOptionFromStartCommandOption(saveAction)
                     .orElse(event.getRequester().getUserLocal());
-            DirectRollConfig config = new DirectRollConfig(null, alwaysSumResults, answerType, null, new DiceStyleAndColor(diceImageStyle, defaultDiceColor), userOrConfigLocale);
+            DirectRollConfig config = new DirectRollConfig(null, alwaysSumResults, answerFormatType, answerInteractionType, null, new DiceStyleAndColor(diceImageStyle, defaultDiceColor), userOrConfigLocale);
             BotMetrics.incrementSlashStartMetricCounter(getCommandId() + "_rollConfigSave");
             return Mono.defer(() -> {
                 persistenceManager.deleteChannelConfig(event.getChannelId(), DIRECT_ROLL_CONFIG_TYPE_ID);

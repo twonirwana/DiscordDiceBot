@@ -96,8 +96,8 @@ public class SlashEventAdaptorMock implements SlashEventAdaptor {
     }
 
     @Override
-    public @NonNull Mono<Long> createMessageWithoutReference(@NonNull EmbedOrMessageDefinition messageDefinition) {
-        actions.add(String.format("createMessageWithoutReference: %s", messageDefinition));
+    public @NonNull Mono<Long> sendMessage(@NonNull EmbedOrMessageDefinition messageDefinition) {
+        actions.add(String.format("sendMessage: %s", messageDefinition));
         long messageId = 1L;
         messageDefinition.getComponentRowDefinitions().stream()
                 .flatMap(s -> s.getButtonDefinitions().stream())
@@ -121,12 +121,6 @@ public class SlashEventAdaptorMock implements SlashEventAdaptor {
     @Override
     public Requester getRequester() {
         return new Requester("invokingUser", "channelName", "guildName", "[0 / 1]", userLocale);
-    }
-
-    @Override
-    public Mono<Long> createResultMessageWithReference(EmbedOrMessageDefinition answer) {
-        actions.add(String.format("createResultMessageWithReference: %s", answer));
-        return Mono.just(1L);
     }
 
     @Override

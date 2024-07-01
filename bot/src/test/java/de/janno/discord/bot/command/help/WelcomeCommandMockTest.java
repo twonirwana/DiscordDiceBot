@@ -12,7 +12,6 @@ import de.janno.discord.bot.persistance.PersistenceManager;
 import de.janno.discord.bot.persistance.PersistenceManagerImpl;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import de.janno.evaluator.dice.random.RandomNumberSupplier;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -85,7 +84,7 @@ public class WelcomeCommandMockTest {
         expect.scenario("button").toMatchSnapshot(buttonEvent.getSortedActions());
     }
 
-    @NotNull
+
     private WelcomeCommand getWelcomeCommand() {
         CachingDiceEvaluator cachingDiceEvaluator = new CachingDiceEvaluator(new RandomNumberSupplier(0));
 

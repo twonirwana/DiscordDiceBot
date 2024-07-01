@@ -26,11 +26,11 @@ import net.dv8tion.jda.api.utils.FileUpload;
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import org.apache.commons.lang3.StringUtils;
-import org.jetbrains.annotations.Nullable;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.ParallelFlux;
 
+import javax.annotation.Nullable;
 import java.awt.*;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -59,7 +59,7 @@ public abstract class DiscordAdapterImpl implements DiscordAdapter {
         }
     }
 
-    protected Mono<Message> createMessageWithReference(
+    protected Mono<Message> sendMessageWithOptionalReference(
             @NonNull MessageChannel messageChannel,
             @NonNull EmbedOrMessageDefinition messageDefinition,
             @Nullable String rollRequesterName,
@@ -73,11 +73,11 @@ public abstract class DiscordAdapterImpl implements DiscordAdapter {
                 final List<FileUpload> files = applyFiles(builder, messageDefinition);
 
                 return createMonoFrom(() -> messageChannel.sendMessageEmbeds(builder.build()).setComponents(layoutComponents).setFiles(files).setSuppressedNotifications(true))
-                        .onErrorResume(t -> handleException("Error on creating embed message", t, false).ofType(Message.class));
+                        .onErrorResume(t -> handleException("Error on sending embed message", t, false).ofType(Message.class));
             }
             case MESSAGE -> {
                 return createMonoFrom(() -> messageChannel.sendMessage(convertToMessageCreateData(messageDefinition, rollRequesterMention)).setComponents(layoutComponents).setSuppressedNotifications(true))
-                        .onErrorResume(t -> handleException("Error on creating message", t, false).ofType(Message.class));
+                        .onErrorResume(t -> handleException("Error on sending message", t, false).ofType(Message.class));
             }
             default -> throw new IllegalStateException("Unknown type in %s".formatted(messageDefinition));
         }
@@ -163,14 +163,10 @@ public abstract class DiscordAdapterImpl implements DiscordAdapter {
         return List.of();
     }
 
-    protected Mono<Message> createMessageWithoutReference(@NonNull MessageChannel channel,
-                                                          @NonNull EmbedOrMessageDefinition messageDefinition) {
-        return createMessageWithReference(channel, messageDefinition, null, null, null, null);
-    }
-
     protected Mono<Void> handleException(@NonNull String errorMessage,
                                          @NonNull Throwable throwable,
                                          boolean ignoreNotFound) {
+        //todo log config
         switch (throwable) {
             case InsufficientPermissionException ignored -> {
                 log.info(String.format("%s: Missing permissions: %s - %s", getGuildAndChannelName(), errorMessage, throwable.getMessage()));
@@ -194,7 +190,7 @@ public abstract class DiscordAdapterImpl implements DiscordAdapter {
      * @return Optional message with the missing permissions
      */
     protected Optional<String> checkPermission(@NonNull MessageChannel messageChannel, @Nullable Guild guild, boolean allowLegacyPermission, Locale userLocale) {
-        if(guild == null){
+        if (guild == null) {
             //Permissions are only in guild context available
             return Optional.empty();
         }

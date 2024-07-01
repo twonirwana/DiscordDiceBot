@@ -5,7 +5,7 @@ de.janno.discord.bot.command.help.WelcomeCommandTest.configSerialization=[
     "channelId": 2,
     "commandId": "welcome",
     "configClassId": "Config",
-    "config": "---\nanswerTargetChannelId: 123\nanswerFormatType: \"full\"\nconfigLocale: \"de\"\ndiceStyleAndColor:\n  diceImageStyle: \"none\"\n  configuredDefaultColor: \"none\"\n"
+    "config": "---\nanswerTargetChannelId: 123\nanswerFormatType: \"full\"\nanswerInteractionType: \"none\"\nconfigLocale: \"de\"\ndiceStyleAndColor:\n  diceImageStyle: \"none\"\n  configuredDefaultColor: \"none\"\n"
   }
 ]
 

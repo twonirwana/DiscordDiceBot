@@ -2,9 +2,11 @@ package de.janno.discord.bot.command.help;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
+import de.janno.discord.bot.AnswerInteractionType;
 import de.janno.discord.bot.BotMetrics;
 import de.janno.discord.bot.I18n;
 import de.janno.discord.bot.command.*;
+import de.janno.discord.bot.command.reroll.Config;
 import de.janno.discord.bot.dice.image.DiceImageStyle;
 import de.janno.discord.bot.dice.image.DiceStyleAndColor;
 import de.janno.discord.bot.persistance.Mapper;
@@ -20,9 +22,9 @@ import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.Nullable;
 import reactor.core.publisher.Mono;
 
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -44,7 +46,7 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
 
     @VisibleForTesting
     public WelcomeCommand(PersistenceManager persistenceManager, RpgSystemCommandPreset rpgSystemCommandPreset, Supplier<UUID> uuidSupplier) {
-        super(persistenceManager);
+        super(persistenceManager, uuidSupplier);
         this.uuidSupplier = uuidSupplier;
         this.rpgSystemCommandPreset = rpgSystemCommandPreset;
     }
@@ -80,6 +82,11 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
     }
 
     @Override
+    protected boolean supportsAnswerInteraction() {
+        return false;
+    }
+
+    @Override
     public Optional<MessageConfigDTO> createMessageConfig(@NonNull UUID configUUID, @Nullable Long guildId, long channelId, @NonNull Config config) {
         return Optional.of(new MessageConfigDTO(configUUID, guildId, channelId, getCommandId(), CONFIG_TYPE_ID, Mapper.serializedObject(config)));
     }
@@ -100,9 +107,13 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
     @Override
     protected @NonNull Optional<EmbedOrMessageDefinition> createNewButtonMessageWithState(@NonNull UUID configUUID,
                                                                                           @NonNull Config config,
-                                                                                          @NonNull State<StateData> state,
+                                                                                          @Nullable State<StateData> state,
                                                                                           @Nullable Long guildId,
                                                                                           long channelId) {
+        if (state == null) {
+            return Optional.of(createSlashResponseMessage(configUUID, config, channelId));
+        }
+
         BotMetrics.incrementButtonMetricCounter(COMMAND_NAME);
         UUID newConfigUUID = uuidSupplier.get();
 
@@ -148,7 +159,7 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
         } else {
             BotMetrics.incrementPresetMetricCounter(presetId.get().name());
             String commandString = RpgSystemCommandPreset.getCommandString(presetId.get(), event.getRequester().getUserLocal());
-            actions.add(Mono.defer(() -> event.createMessageWithoutReference(EmbedOrMessageDefinition.builder()
+            actions.add(Mono.defer(() -> event.sendMessage(EmbedOrMessageDefinition.builder()
                             .type(EmbedOrMessageDefinition.Type.MESSAGE)
                             .shortedContent("`%s`".formatted(commandString))
                             .build())).ofType(Void.class)
@@ -167,21 +178,21 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
 
     public Function<DiscordConnector.WelcomeRequest, EmbedOrMessageDefinition> getWelcomeMessage() {
         return request -> {
-            Config config = new Config(null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, DiceImageStyle.none.getDefaultColor()), request.guildLocale());
+            Config config = new Config(null, AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, DiceImageStyle.none.getDefaultColor()), request.guildLocale());
             UUID configUUID = uuidSupplier.get();
             final Optional<MessageConfigDTO> newMessageConfig = createMessageConfig(configUUID, request.guildId(), request.channelId(), config);
             newMessageConfig.ifPresent(persistenceManager::saveMessageConfig);
-            return createNewButtonMessage(configUUID, config, request.channelId());
+            return createSlashResponseMessage(configUUID, config, request.channelId());
         };
     }
 
     @Override
     protected Optional<ConfigAndState<Config, StateData>> createNewConfigAndStateIfMissing(String buttonValue) {
-        return Optional.of(new ConfigAndState<>(uuidSupplier.get(), new Config(null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, DiceImageStyle.none.getDefaultColor()), Locale.ENGLISH), new State<>(buttonValue, StateData.empty())));
+        return Optional.of(new ConfigAndState<>(uuidSupplier.get(), new Config(null, AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, DiceImageStyle.none.getDefaultColor()), Locale.ENGLISH), new State<>(buttonValue, StateData.empty())));
     }
 
     @Override
-    public @NonNull EmbedOrMessageDefinition createNewButtonMessage(@NonNull UUID configUUID, @NonNull Config config, long channelId) {
+    public @NonNull EmbedOrMessageDefinition createSlashResponseMessage(@NonNull UUID configUUID, @NonNull Config config, long channelId) {
         return EmbedOrMessageDefinition.builder()
                 .type(EmbedOrMessageDefinition.Type.MESSAGE)
                 .descriptionOrContent(I18n.getMessage("welcome.message", config.getConfigLocale()))
@@ -217,7 +228,7 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
 
     @Override
     protected @NonNull Config getConfigFromStartOptions(@NonNull CommandInteractionOption options, @NonNull Locale userLocale) {
-        return new Config(null, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, DiceImageStyle.none.getDefaultColor()), userLocale);
+        return new Config(null, AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, DiceImageStyle.none.getDefaultColor()), userLocale);
     }
 
 }

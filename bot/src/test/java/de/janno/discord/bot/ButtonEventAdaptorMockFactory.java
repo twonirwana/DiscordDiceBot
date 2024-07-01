@@ -2,7 +2,7 @@ package de.janno.discord.bot;
 
 import com.google.common.collect.Sets;
 import de.janno.discord.bot.command.AbstractCommand;
-import de.janno.discord.bot.command.Config;
+import de.janno.discord.bot.command.reroll.Config;
 import de.janno.discord.bot.command.StateData;
 import de.janno.discord.bot.persistance.PersistenceManager;
 

@@ -60,6 +60,7 @@ class ClearCommandTest {
         long otherChannelId = 2;
         long guildId = 1;
         long messageId = 1;
+        long otherMessageId = 2;
         String configClassId = "configClassId";
         persistenceManager = new PersistenceManagerImpl("jdbc:h2:mem:" + UUID.randomUUID(), null, null);
         underTest = new ClearCommand(persistenceManager);
@@ -70,7 +71,7 @@ class ClearCommandTest {
         persistenceManager.saveMessageConfig(new MessageConfigDTO(config2UUID, guildId, otherChannelId, "commandId", "configClass", "config"));
 
         persistenceManager.saveMessageData(new MessageDataDTO(configUUID, guildId, channelId, messageId, "commandId", "stateDataClassId", "stateData"));
-        persistenceManager.saveMessageData(new MessageDataDTO(config2UUID, guildId, otherChannelId, messageId, "commandId", "stateDataClassId", "stateData"));
+        persistenceManager.saveMessageData(new MessageDataDTO(config2UUID, guildId, otherChannelId, otherMessageId, "commandId", "stateDataClassId", "stateData"));
 
         persistenceManager.saveChannelConfig(new ChannelConfigDTO(UUID.randomUUID(), guildId, channelId, null, "commandId", configClassId, "config"));
         persistenceManager.saveChannelConfig(new ChannelConfigDTO(UUID.randomUUID(), guildId, otherChannelId, null, "commandId", configClassId, "config"));
@@ -83,7 +84,7 @@ class ClearCommandTest {
         assertThat(persistenceManager.getMessageConfig(config2UUID)).isPresent();
 
         assertThat(persistenceManager.getMessageData(channelId, messageId)).isEmpty();
-        assertThat(persistenceManager.getMessageData(otherChannelId, messageId)).isPresent();
+        assertThat(persistenceManager.getMessageData(otherChannelId, otherMessageId)).isPresent();
 
         assertThat(persistenceManager.getChannelConfig(channelId, configClassId)).isEmpty();
         assertThat(persistenceManager.getChannelConfig(otherChannelId, configClassId)).isPresent();

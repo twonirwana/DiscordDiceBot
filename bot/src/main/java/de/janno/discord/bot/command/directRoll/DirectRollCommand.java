@@ -4,6 +4,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Stopwatch;
 import com.google.common.base.Strings;
+import de.janno.discord.bot.AnswerInteractionType;
 import de.janno.discord.bot.BotMetrics;
 import de.janno.discord.bot.I18n;
 import de.janno.discord.bot.command.AnswerFormatType;
@@ -13,7 +14,6 @@ import de.janno.discord.bot.command.channelConfig.AliasHelper;
 import de.janno.discord.bot.command.channelConfig.DirectRollConfig;
 import de.janno.discord.bot.dice.CachingDiceEvaluator;
 import de.janno.discord.bot.dice.DiceEvaluatorAdapter;
-import de.janno.discord.bot.dice.DiceSystemAdapter;
 import de.janno.discord.bot.dice.image.DiceImageStyle;
 import de.janno.discord.bot.dice.image.DiceStyleAndColor;
 import de.janno.discord.bot.persistance.ChannelConfigDTO;
@@ -87,7 +87,7 @@ public class DirectRollCommand implements SlashCommand {
         return persistenceManager.getChannelConfig(channelId, DIRECT_ROLL_CONFIG_TYPE_ID)
                 .map(this::deserializeConfig)
                 //default direct roll config is english
-                .orElse(new DirectRollConfig(null, true, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_3d, DiceImageStyle.polyhedral_3d.getDefaultColor()), Locale.ENGLISH));
+                .orElse(new DirectRollConfig(null, true, AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_3d, DiceImageStyle.polyhedral_3d.getDefaultColor()), Locale.ENGLISH));
     }
 
     @VisibleForTesting
@@ -120,11 +120,11 @@ public class DirectRollCommand implements SlashCommand {
             final String expressionWithMultiLine = commandParameter.replace("\\n", "\n");
 
             final String expressionWithOptionalLabelsAndAppliedAliases = AliasHelper.getAndApplyAliaseToExpression(event.getChannelId(), event.getUserId(), persistenceManager, expressionWithMultiLine);
-            Optional<String> labelValidationMessage = DiceSystemAdapter.validateLabel(expressionWithOptionalLabelsAndAppliedAliases, userLocale);
+            Optional<String> labelValidationMessage = DiceEvaluatorAdapter.validateLabel(expressionWithOptionalLabelsAndAppliedAliases, userLocale);
             if (labelValidationMessage.isPresent()) {
                 return replyValidationMessage(event, labelValidationMessage.get(), commandString);
             }
-            String diceExpression = DiceSystemAdapter.getExpressionFromExpressionWithOptionalLabel(expressionWithOptionalLabelsAndAppliedAliases);
+            String diceExpression = DiceEvaluatorAdapter.getExpressionFromExpressionWithOptionalLabel(expressionWithOptionalLabelsAndAppliedAliases);
             Optional<String> expressionValidationMessage = diceEvaluatorAdapter.validateDiceExpression(diceExpression, "`/r expression:help`", userLocale);
             if (expressionValidationMessage.isPresent()) {
                 return replyValidationMessage(event, expressionValidationMessage.get(), commandString);
@@ -133,7 +133,7 @@ public class DirectRollCommand implements SlashCommand {
             DirectRollConfig config = getDirectRollConfig(event.getChannelId());
             BotMetrics.incrementAnswerFormatCounter(config.getAnswerFormatType(), getCommandId());
 
-            RollAnswer answer = diceEvaluatorAdapter.answerRollWithOptionalLabelInExpression(expressionWithOptionalLabelsAndAppliedAliases, DiceSystemAdapter.LABEL_DELIMITER, config.isAlwaysSumResult(), config.getAnswerFormatType(), config.getDiceStyleAndColor(), userLocale);
+            RollAnswer answer = diceEvaluatorAdapter.answerRollWithOptionalLabelInExpression(expressionWithOptionalLabelsAndAppliedAliases, config.isAlwaysSumResult(), config.getAnswerFormatType(), config.getDiceStyleAndColor(), userLocale);
             return createResponse(event, commandString, diceExpression, answer, stopwatch, userLocale);
 
         }
@@ -160,7 +160,7 @@ public class DirectRollCommand implements SlashCommand {
                 .filter(s -> !Strings.isNullOrEmpty(s))
                 .collect(Collectors.joining(" "));
         return Flux.merge(Strings.isNullOrEmpty(answer.getWarning()) ? Mono.defer(event::acknowledgeAndRemoveSlash) : event.reply(replayMessage, true),
-                        Mono.defer(() -> event.createResultMessageWithReference(RollAnswerConverter.toEmbedOrMessageDefinition(answer))
+                        Mono.defer(() -> event.sendMessage(RollAnswerConverter.toEmbedOrMessageDefinition(answer))
                                 .doOnSuccess(v ->
                                         log.info("{}: '{}'={} -> {} in {}ms",
                                                 event.getRequester().toLogString(),
@@ -176,7 +176,7 @@ public class DirectRollCommand implements SlashCommand {
     private Mono<Void> replyValidationMessage(@NonNull SlashEventAdaptor event, @NonNull String validationMessage, @NonNull String commandString) {
         log.info("{} Validation message: {} for {}", event.getRequester().toLogString(),
                 validationMessage,
-                commandString);
+                commandString.replace("\n", ""));
         return event.reply(String.format("%s\n%s", commandString, validationMessage), true);
     }
 

@@ -13,7 +13,7 @@ import org.apache.batik.transcoder.TranscoderInput;
 import org.apache.batik.transcoder.TranscoderOutput;
 import org.apache.batik.transcoder.image.PNGTranscoder;
 import org.apache.commons.io.IOUtils;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nullable;
 
 import javax.imageio.ImageIO;
 import java.awt.*;

@@ -1,32 +1,32 @@
-package de.janno.discord.bot.command.sumDiceSet;
+package de.janno.discord.bot.command.reroll;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import de.janno.discord.bot.command.DieIdDb;
 import de.janno.discord.bot.command.StateData;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.Value;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Value
 @EqualsAndHashCode(callSuper = true)
-public class SumDiceSetStateData extends StateData {
+public class RerollAnswerStateData extends StateData {
 
     @NonNull
-    List<DiceKeyAndValue> diceSet;
+    List<DieIdDb> rerollDice;
 
     @JsonCreator
-    public SumDiceSetStateData(@NonNull @JsonProperty("diceSet") List<DiceKeyAndValue> diceSet) {
-        this.diceSet = diceSet;
+    public RerollAnswerStateData(@JsonProperty("rerollDice") @NonNull List<DieIdDb> rerollDice) {
+        this.rerollDice = rerollDice;
     }
 
     @Override
     @JsonIgnore
     public String getShortStringValues() {
-        return "[" + diceSet.stream().map(DiceKeyAndValue::getShortStringValues).collect(Collectors.joining(", ")) + "]";
+        return rerollDice.stream().map(DieIdDb::toDieId).toList().toString();
     }
 
 }

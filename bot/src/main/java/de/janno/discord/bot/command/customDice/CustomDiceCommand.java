@@ -3,10 +3,12 @@ package de.janno.discord.bot.command.customDice;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
+import de.janno.discord.bot.AnswerInteractionType;
 import de.janno.discord.bot.I18n;
 import de.janno.discord.bot.command.*;
 import de.janno.discord.bot.command.channelConfig.AliasHelper;
-import de.janno.discord.bot.dice.*;
+import de.janno.discord.bot.dice.CachingDiceEvaluator;
+import de.janno.discord.bot.dice.DiceEvaluatorAdapter;
 import de.janno.discord.bot.dice.image.DiceImageStyle;
 import de.janno.discord.bot.dice.image.DiceStyleAndColor;
 import de.janno.discord.bot.persistance.Mapper;
@@ -19,12 +21,13 @@ import de.janno.discord.connector.api.slash.CommandDefinitionOption;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.Nullable;
 
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -33,16 +36,16 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
     public static final String COMMAND_NAME = "custom_dice";
     static final String BUTTONS_OPTION_NAME = "buttons";
     private static final String CONFIG_TYPE_ID = "CustomDiceConfig";
-    private final DiceSystemAdapter diceSystemAdapter;
+    private final DiceEvaluatorAdapter diceEvaluatorAdapter;
 
     public CustomDiceCommand(PersistenceManager persistenceManager, CachingDiceEvaluator cachingDiceEvaluator) {
-        this(persistenceManager, new DiceParser(), cachingDiceEvaluator);
+        this(persistenceManager, cachingDiceEvaluator, UUID::randomUUID);
     }
 
     @VisibleForTesting
-    public CustomDiceCommand(PersistenceManager persistenceManager, Dice dice, CachingDiceEvaluator cachingDiceEvaluator) {
-        super(persistenceManager);
-        this.diceSystemAdapter = new DiceSystemAdapter(cachingDiceEvaluator, dice);
+    public CustomDiceCommand(PersistenceManager persistenceManager, CachingDiceEvaluator cachingDiceEvaluator, Supplier<UUID> uuidSupplier) {
+        super(persistenceManager, uuidSupplier);
+        this.diceEvaluatorAdapter = new DiceEvaluatorAdapter(cachingDiceEvaluator);
     }
 
     public static CustomDiceConfig deserializeConfig(@NonNull MessageConfigDTO messageConfigDTO) {
@@ -105,10 +108,8 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
                 .distinct()
                 .collect(Collectors.toList());
 
-        DiceParserSystem diceParserSystem = DiceParserSystem.DICE_EVALUATOR;
-        return diceSystemAdapter.validateListOfExpressions(diceExpressionWithOptionalLabel, "/%s %s".formatted(I18n.getMessage("custom_dice.name", userLocale),
-                I18n.getMessage("base.option.help", userLocale)), diceParserSystem, userLocale);
-
+        return diceEvaluatorAdapter.validateListOfExpressions(diceExpressionWithOptionalLabel, "/%s %s".formatted(I18n.getMessage("custom_dice.name", userLocale),
+                I18n.getMessage("base.option.help", userLocale)), userLocale);
     }
 
     private List<ButtonIdLabelAndDiceExpression> getButtonsFromCommandOption(@NonNull CommandInteractionOption options) {
@@ -120,6 +121,7 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
         return getConfigOptionStringList(getButtonsFromCommandOption(options),
                 BaseCommandOptions.getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null),
                 BaseCommandOptions.getAnswerTypeFromStartCommandOption(options).orElse(defaultAnswerFormat()),
+                BaseCommandOptions.getAnswerInteractionFromStartCommandOption(options),
                 BaseCommandOptions.getDiceStyleOptionFromStartCommandOption(options).orElse(DiceImageStyle.polyhedral_3d),
                 BaseCommandOptions.getDiceColorOptionFromStartCommandOption(options).orElse(DiceImageStyle.polyhedral_3d.getDefaultColor()),
                 userLocale
@@ -130,13 +132,14 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
     CustomDiceConfig getConfigOptionStringList(List<ButtonIdLabelAndDiceExpression> buttons,
                                                Long channelId,
                                                AnswerFormatType answerFormatType,
+                                               AnswerInteractionType answerInteractionType,
                                                DiceImageStyle diceImageStyle,
                                                String defaultDiceColor,
                                                @NonNull Locale userLocale) {
         return new CustomDiceConfig(channelId,
                 buttons,
-                DiceParserSystem.DICE_EVALUATOR,
                 answerFormatType,
+                answerInteractionType,
                 null,
                 new DiceStyleAndColor(diceImageStyle, defaultDiceColor),
                 userLocale
@@ -156,10 +159,9 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
         //add the label only if it is different from the expression
         final String label = selectedButton.get().getDiceExpression().equals(selectedButton.get().getLabel()) ? null : selectedButton.get().getLabel();
         final String expression = AliasHelper.getAndApplyAliaseToExpression(channelId, userId, persistenceManager, selectedButton.get().getDiceExpression());
-        return Optional.of(diceSystemAdapter.answerRollWithGivenLabel(expression,
+        return Optional.of(diceEvaluatorAdapter.answerRollWithGivenLabel(expression,
                 label,
                 false,
-                config.getDiceParserSystem(),
                 config.getAnswerFormatType(),
                 config.getDiceStyleAndColor(),
                 config.getConfigLocale()));
@@ -168,14 +170,14 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
     @Override
     protected @NonNull Optional<EmbedOrMessageDefinition> createNewButtonMessageWithState(@NonNull UUID configUUID,
                                                                                           @NonNull CustomDiceConfig config,
-                                                                                          @NonNull State<StateData> state,
+                                                                                          @Nullable State<StateData> state,
                                                                                           @Nullable Long guildId,
                                                                                           long channelId) {
-        return Optional.of(createNewButtonMessage(configUUID, config, channelId));
+        return Optional.of(createSlashResponseMessage(configUUID, config, channelId));
     }
 
     @Override
-    public @NonNull EmbedOrMessageDefinition createNewButtonMessage(@NonNull UUID configUUID, @NonNull CustomDiceConfig config, long channelId) {
+    public @NonNull EmbedOrMessageDefinition createSlashResponseMessage(@NonNull UUID configUUID, @NonNull CustomDiceConfig config, long channelId) {
         return EmbedOrMessageDefinition.builder()
                 .type(EmbedOrMessageDefinition.Type.MESSAGE)
                 .descriptionOrContent(I18n.getMessage("custom_dice.buttonMessage.message", config.getConfigLocale()))
@@ -196,7 +198,7 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
     protected @NonNull Optional<String> getConfigWarnMessage(CustomDiceConfig config, Locale userLocale) {
         return Optional.ofNullable(Strings.emptyToNull(config.getButtonIdLabelAndDiceExpressions().stream()
                 .map(b -> {
-                    String warning = diceSystemAdapter.answerRollWithGivenLabel(b.getDiceExpression(), null, false, DiceParserSystem.DICE_EVALUATOR, config.getAnswerFormatType(),
+                    String warning = diceEvaluatorAdapter.answerRollWithGivenLabel(b.getDiceExpression(), null, false, config.getAnswerFormatType(),
                             config.getDiceStyleAndColor(), userLocale).getWarning();
                     if (!Strings.isNullOrEmpty(warning)) {
                         return "`%s`: %s".formatted(b.getDiceExpression(), warning);

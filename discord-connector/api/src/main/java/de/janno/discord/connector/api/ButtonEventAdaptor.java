@@ -31,9 +31,8 @@ public interface ButtonEventAdaptor extends DiscordAdapter {
 
     Optional<String> checkPermissions(Long answerTargetChannelId, @NonNull Locale userLocale);
 
-    Mono<Void> createResultMessageWithReference(EmbedOrMessageDefinition answer, Long targetChannelId);
-
-    @NonNull OffsetDateTime getMessageCreationTime();
+    @NonNull
+    OffsetDateTime getMessageCreationTime();
 
     /**
      * acknowledge the event and remove all buttons form the message where the button was clicked

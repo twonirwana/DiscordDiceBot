@@ -5,8 +5,8 @@ import com.google.common.base.Strings;
 import de.janno.evaluator.dice.RandomElement;
 import lombok.NonNull;
 import lombok.Value;
-import org.jetbrains.annotations.Nullable;
 
+import javax.annotation.Nullable;
 import java.awt.image.BufferedImage;
 import java.util.List;
 import java.util.Optional;

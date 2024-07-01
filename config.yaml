@@ -21,6 +21,7 @@ diceEvaluator:
   cacheSize: 10000
   maxNumberOfElements: 10000
   keepChildrenRolls: false
+  errorContextSize: 6
 command:
   minDelayBetweenButtonMessagesMs: 1000
   delayMessageDataDeletionMs: 10000

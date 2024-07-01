@@ -95,12 +95,7 @@ Please let me know if you have a good new preset or an improved version for an e
 |
 |===
 
-== Commands
-
-All button configurations can be used with the `target_channel` option.
-If this option is used then the answer of a roll will be posted in the provided channel.
-The target channel must be a text channel and need the bot need the usual permissions.
-If a message sends the answer to another channel, it will not be moved to the end of its own channel.
+== Options
 
 === Language
 
@@ -112,6 +107,13 @@ Button messages are per default created in the language of the discord client bu
 The direct roll messages are using the language that is configured with the `channel_config` command and not the discord client language.
 The dice expressions are currently not translated.
 Contributions of additional language and improvements are very welcome.
+
+=== Target Channel
+
+All button configurations can be used with the `target_channel` option.
+If this option is used then the answer of a roll will be posted in the provided channel.
+The target channel must be a text channel and need the bot need the usual permissions.
+If a message sends the answer to another channel, it will not be moved to the end of its own channel.
 
 === Answer Format
 
@@ -341,7 +343,25 @@ Valid for d6 and the supported color are: `red` and `blue`.
 
 The dice image are from SeaGoatGames
 
-=== Custom Dice Buttons
+=== Answer Interaction
+
+Answer interaction option allow to change/interact with the result of a roll.
+Default is `none`.
+
+==== reroll
+
+The `reroll` option allows the user of the original roll to reroll some or all of the dice.
+The user can select up to 20 dice for reroll and reroll them.
+All not selected dice keep there result.
+This supports all dice expression functionality.
+If for example an exploded die is rerolled then it will also remove the exploded results.
+The reroll can be done multiple times, until the 'Finish' button is used.
+
+image:image/reroll.webp[image,600]
+
+== Commands
+
+=== Custom Dice
 
 image:image/custom_dice.webp[image]
 
@@ -557,17 +577,17 @@ For example: `/channel_config alias multi_save aliases: att:2d20;dmg:2d6+4= scop
 * `delete` removes an alias by its name
 * `list` provides a list of all alias
 
-=== Fetch Command
+=== Fetch
 
 The command moves the last existing button message to the bottom of the channel.
 The message must be at least 1min old.
 The state of the button message will be lost and reset as if new created.
 
-=== Clear Command
+=== Clear
 
 The clear command removes all button configuration in a channel from the bot and deletes the button messages.
 
-=== Validation Command
+=== Validation
 
 This command can be used to develop new expressions and get a fast feedback if the expression has the correct syntax.
 Upon typing the autocomplete will be open and show the typed expression if it has a valid syntax and can be executed.

@@ -15,10 +15,10 @@ import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 import org.apache.commons.lang3.StringUtils;
-import org.jetbrains.annotations.Nullable;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.ParallelFlux;
 
+import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
@@ -37,6 +37,8 @@ public class SlashEventAdapterImpl extends DiscordAdapterImpl implements SlashEv
     private final String commandString;
     @Nullable
     private final Long guildId;
+    @NonNull
+    private final String invokingGuildMemberName;
 
     public SlashEventAdapterImpl(@NonNull SlashCommandInteractionEvent event, @NonNull Requester requester) {
         this.event = event;
@@ -44,6 +46,7 @@ public class SlashEventAdapterImpl extends DiscordAdapterImpl implements SlashEv
         this.channelId = event.getChannel().getIdLong();
         this.commandString = String.format("`%s`", event.getCommandString());
         this.guildId = Optional.ofNullable(event.getGuild()).map(Guild::getIdLong).orElse(null);
+        this.invokingGuildMemberName = Optional.ofNullable(event.getMember()).map(Member::getEffectiveName).orElse(event.getUser().getName());
 
     }
 
@@ -95,22 +98,19 @@ public class SlashEventAdapterImpl extends DiscordAdapterImpl implements SlashEv
 
 
     @Override
-    public @NonNull Mono<Long> createMessageWithoutReference(@NonNull EmbedOrMessageDefinition messageDefinition) {
-        return createMessageWithoutReference(event.getMessageChannel(), messageDefinition)
-                .onErrorResume(t -> handleException("Error on creating button message", t, false).ofType(Message.class))
+    public @NonNull Mono<Long> sendMessage(@NonNull EmbedOrMessageDefinition messageDefinition) {
+        MessageChannel targetChannel = Optional.ofNullable(messageDefinition.getSendToOtherChannelId())
+                .flatMap(id -> Optional.ofNullable(event.getGuild())
+                        .map(g -> (MessageChannel) g.getChannelById(GuildMessageChannel.class, id)))
+                .orElse(event.getInteraction().getMessageChannel());
+        return sendMessageWithOptionalReference(targetChannel,
+                messageDefinition,
+                messageDefinition.isUserReference() ? invokingGuildMemberName : null,
+                messageDefinition.isUserReference() ? event.getUser().getAsMention() : null,
+                messageDefinition.isUserReference() ? Optional.ofNullable(event.getMember()).map(Member::getEffectiveAvatarUrl).orElse(event.getUser().getEffectiveAvatarUrl()) : null,
+                messageDefinition.isUserReference() ? event.getUser().getId() : null)
+                .onErrorResume(t -> handleException("Error on sending message", t, false).ofType(Message.class))
                 .map(Message::getIdLong);
-    }
-
-    @Override
-    public Mono<Long> createResultMessageWithReference(EmbedOrMessageDefinition answer) {
-        return createMessageWithReference(event.getMessageChannel(),
-                answer,
-                Optional.ofNullable(event.getMember()).map(Member::getEffectiveName).orElse(event.getUser().getName()),
-                Optional.ofNullable(event.getMember()).map(Member::getAsMention).orElse(event.getUser().getAsMention()),
-                Optional.ofNullable(event.getMember()).map(Member::getEffectiveAvatarUrl).orElse(event.getUser().getEffectiveAvatarUrl()),
-                event.getUser().getId())
-                .onErrorResume(t -> handleException("Error on creating answer message", t, false).ofType(Message.class))
-                .ofType(Long.class);
     }
 
     @Override

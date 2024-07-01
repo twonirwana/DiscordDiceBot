@@ -128,7 +128,7 @@ public class QuickstartCommandMockTest {
         }
 
         StepVerifier.create(slashRes).verifyComplete();
-        assertThat(slashEventAdaptor.getSortedActions().stream()).anyMatch(s -> s.startsWith("createMessageWithoutReference")); //at least on button Message needs to be crated
+        assertThat(slashEventAdaptor.getSortedActions().stream()).anyMatch(s -> s.startsWith("sendMessage")); //at least on button Message needs to be crated
 
         expect.scenario("slashCommand:" + presetId.name() + "_" + userLocale).toMatchSnapshot(slashEventAdaptor.getSortedActions());
 

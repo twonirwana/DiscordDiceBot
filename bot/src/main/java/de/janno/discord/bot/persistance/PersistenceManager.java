@@ -1,7 +1,7 @@
 package de.janno.discord.bot.persistance;
 
 import lombok.NonNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nullable;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -43,4 +43,6 @@ public interface PersistenceManager {
     void deleteAllChannelConfig(long channelId);
 
     Optional<MessageConfigDTO> getLastMessageDataInChannel(long channelId, LocalDateTime since, @Nullable Long alreadyDeletedMessageId);
+
+    void deleteMessageConfig(UUID configUUID);
 }

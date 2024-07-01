@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableSet;
 import io.micrometer.core.instrument.binder.db.DatabaseTableMetrics;
 import lombok.NonNull;
 import org.h2.jdbcx.JdbcConnectionPool;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nullable;
 
 import javax.sql.DataSource;
 import java.sql.Connection;

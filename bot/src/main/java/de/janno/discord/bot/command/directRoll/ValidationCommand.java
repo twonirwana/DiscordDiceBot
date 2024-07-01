@@ -94,7 +94,7 @@ public class ValidationCommand extends DirectRollCommand {
                 .filter(s -> !Strings.isNullOrEmpty(s))
                 .collect(Collectors.joining(" "));
         return Flux.merge(event.reply(replayMessage, true),
-                        Mono.defer(() -> event.createResultMessageWithReference(RollAnswerConverter.toEmbedOrMessageDefinition(answer))
+                        Mono.defer(() -> event.sendMessage(RollAnswerConverter.toEmbedOrMessageDefinition(answer))
                                 .doOnSuccess(v ->
                                         log.info("{}: '{}'={} -> {} in {}ms",
                                                 event.getRequester().toLogString(),

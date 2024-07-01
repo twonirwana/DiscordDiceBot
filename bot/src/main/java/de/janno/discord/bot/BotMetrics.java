@@ -4,7 +4,6 @@ import com.google.common.base.Strings;
 import com.sun.net.httpserver.HttpServer;
 import com.sun.net.httpserver.SimpleFileServer;
 import de.janno.discord.bot.command.AnswerFormatType;
-import de.janno.discord.bot.dice.DiceParserSystem;
 import de.janno.discord.bot.dice.image.DiceStyleAndColor;
 import io.avaje.config.Config;
 import io.micrometer.core.instrument.Metrics;
@@ -34,6 +33,7 @@ public class BotMetrics {
     private final static String METRIC_IMAGE_CREATION_DURATION_PREFIX = "imageCreationDuration";
     private final static String METRIC_IS_DELAYED_PREFIX = "answerIsDelayed";
     private final static String METRIC_LEGACY_BUTTON_PREFIX = "legacyButtonEvent";
+    private final static String METRIC_LEGACY_COMMAND_BUTTON_PREFIX = "legacyCommandButtonEvent";
     private final static String METRIC_UUID_BUTTON_PREFIX = "uuidButtonEvent";
     private final static String METRIC_SLASH_PREFIX = "slashEvent";
     private final static String METRIC_SLASH_HELP_PREFIX = "slashHelpEvent";
@@ -46,6 +46,7 @@ public class BotMetrics {
     private final static String METRIC_USE_ALIAS_PREFIX = "useAlias";
     private final static String METRIC_ANSWER_FORMAT_PREFIX = "answerFormat";
     private final static String METRIC_DICE_PARSER_SYSTEM_PREFIX = "diceParserSystem";
+    private final static String METRIC_PINNED_BUTTON_EVENT_PREFIX = "pinnedButtonEvent";
     private final static String COMMAND_TAG = "command";
     private final static String UUID_USAGE_TAG = "uuidUsage";
     private final static String CACHE_TAG = "cache";
@@ -85,6 +86,7 @@ public class BotMetrics {
             server.start();
 
             new UptimeMetrics().bindTo(globalRegistry);
+            new JvmInfoMetrics().bindTo(globalRegistry);
             new JvmMemoryMetrics().bindTo(globalRegistry);
             new JvmGcMetrics().bindTo(globalRegistry);
             new ProcessorMetrics().bindTo(globalRegistry);
@@ -92,7 +94,7 @@ public class BotMetrics {
             new LogbackMetrics().bindTo(globalRegistry);
             new ClassLoaderMetrics().bindTo(globalRegistry);
             new JvmHeapPressureMetrics().bindTo(globalRegistry);
-            new JvmInfoMetrics().bindTo(globalRegistry);
+            new ProcessorMetrics().bindTo(globalRegistry);
         }
     }
 
@@ -103,6 +105,10 @@ public class BotMetrics {
 
     public static void incrementLegacyButtonMetricCounter(@NonNull String commandName) {
         globalRegistry.counter(METRIC_PREFIX + METRIC_LEGACY_BUTTON_PREFIX, Tags.of(COMMAND_TAG, commandName)).increment();
+    }
+
+    public static void incrementLegacyCommandButtonMetricCounter(@NonNull String commandName) {
+        globalRegistry.counter(METRIC_PREFIX + METRIC_LEGACY_COMMAND_BUTTON_PREFIX, Tags.of(COMMAND_TAG, commandName)).increment();
     }
 
     public static void incrementButtonUUIDUsageMetricCounter(@NonNull String commandName, boolean hasUUIDinCustomId) {
@@ -119,10 +125,6 @@ public class BotMetrics {
 
     public static void incrementPresetMetricCounter(@NonNull String presetName) {
         globalRegistry.counter(METRIC_PREFIX + METRIC_PRESET_PREFIX, Tags.of(TYPE_TAG, presetName)).increment();
-    }
-
-    public static void incrementDiceParserSystemCounter(@NonNull DiceParserSystem diceParserSystem) {
-        globalRegistry.counter(METRIC_PREFIX + METRIC_DICE_PARSER_SYSTEM_PREFIX, Tags.of(DICE_SYSTEM_TAG, diceParserSystem.name())).increment();
     }
 
     public static void incrementAnswerFormatCounter(@NonNull AnswerFormatType answerFormatType, @NonNull String commandName) {
@@ -205,6 +207,10 @@ public class BotMetrics {
     public static void outsideGuildCounter(String type) {
         globalRegistry.counter(METRIC_PREFIX + METRIC_GUILD_NULL_PREFIX, Tags.of(TYPE_TAG, type)).increment();
 
+    }
+
+    public static void incrementPinnedButtonMetricCounter() {
+        globalRegistry.counter(METRIC_PREFIX + METRIC_PINNED_BUTTON_EVENT_PREFIX).increment();
     }
 
     public enum CacheTag {

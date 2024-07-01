@@ -4,23 +4,20 @@ package de.janno.discord.bot;
 import com.google.common.base.Strings;
 import de.janno.discord.bot.command.ClearCommand;
 import de.janno.discord.bot.command.FetchCommand;
+import de.janno.discord.bot.command.LegacyIdHandler;
 import de.janno.discord.bot.command.channelConfig.ChannelConfigCommand;
-import de.janno.discord.bot.command.countSuccesses.CountSuccessesCommand;
 import de.janno.discord.bot.command.customDice.CustomDiceCommand;
 import de.janno.discord.bot.command.customParameter.CustomParameterCommand;
 import de.janno.discord.bot.command.directRoll.AliasRollCommand;
 import de.janno.discord.bot.command.directRoll.DirectRollCommand;
 import de.janno.discord.bot.command.directRoll.HiddenDirectRollCommand;
 import de.janno.discord.bot.command.directRoll.ValidationCommand;
-import de.janno.discord.bot.command.fate.FateCommand;
 import de.janno.discord.bot.command.help.HelpCommand;
 import de.janno.discord.bot.command.help.QuickstartCommand;
 import de.janno.discord.bot.command.help.RpgSystemCommandPreset;
 import de.janno.discord.bot.command.help.WelcomeCommand;
-import de.janno.discord.bot.command.holdReroll.HoldRerollCommand;
-import de.janno.discord.bot.command.poolTarget.PoolTargetCommand;
+import de.janno.discord.bot.command.reroll.RerollAnswerHandler;
 import de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommand;
-import de.janno.discord.bot.command.sumDiceSet.SumDiceSetCommand;
 import de.janno.discord.bot.dice.CachingDiceEvaluator;
 import de.janno.discord.bot.persistance.PersistenceManager;
 import de.janno.discord.bot.persistance.PersistenceManagerImpl;
@@ -60,7 +57,7 @@ public class Bot {
         RpgSystemCommandPreset rpgSystemCommandPreset = new RpgSystemCommandPreset(persistenceManager, customParameterCommand, customDiceCommand, sumCustomSetCommand);
         WelcomeCommand welcomeCommand = new WelcomeCommand(persistenceManager, rpgSystemCommandPreset);
         HiddenDirectRollCommand hiddenDirectRollCommand = new HiddenDirectRollCommand(persistenceManager, cachingDiceEvaluator);
-
+        RerollAnswerHandler rerollAnswerHandler = new RerollAnswerHandler(persistenceManager, cachingDiceEvaluator);
         DiscordConnectorImpl.createAndStart(
                 List.of(customDiceCommand,
                         new DirectRollCommand(persistenceManager, cachingDiceEvaluator),
@@ -81,12 +78,8 @@ public class Bot {
                         customParameterCommand,
                         welcomeCommand,
                         hiddenDirectRollCommand,
-                        //legacy, to be removed
-                        new FateCommand(persistenceManager),
-                        new CountSuccessesCommand(persistenceManager),
-                        new SumDiceSetCommand(persistenceManager),
-                        new HoldRerollCommand(persistenceManager),
-                        new PoolTargetCommand(persistenceManager)
+                        rerollAnswerHandler,
+                        new LegacyIdHandler()
                 ),
                 welcomeCommand.getWelcomeMessage(),
                 allGuildIdsInPersistence);

@@ -8,9 +8,8 @@ import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.Tag;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
+import javax.annotation.Nullable;
 import javax.sql.DataSource;
 import java.sql.*;
 import java.time.LocalDateTime;
@@ -38,6 +37,11 @@ public class PersistenceManagerImpl implements PersistenceManager {
         queryGauge("db.guild-null.count", "select count (distinct CHANNEL_ID) from MESSAGE_DATA where GUILD_ID is null;", databaseConnector.getDataSource(), Set.of());
         queryGauge("db.messageDataWithConfig.count", "SELECT COUNT(*) FROM (SELECT DISTINCT CHANNEL_ID, MESSAGE_ID FROM MESSAGE_DATA WHERE CONFIG_CLASS_ID IS NOT NULL);", databaseConnector.getDataSource(), Set.of());
         queryGauge("db.guild-30d.active", "select count (distinct GUILD_ID) from MESSAGE_DATA where (CURRENT_TIMESTAMP - CREATION_DATE) <= interval '43200' MINUTE;", databaseConnector.getDataSource(), Set.of());
+        queryGauge("db.guild-7d.active", "select count (distinct GUILD_ID) from MESSAGE_DATA where (CURRENT_TIMESTAMP - CREATION_DATE) <= interval '10080' MINUTE;", databaseConnector.getDataSource(), Set.of());
+        queryGauge("db.guild-1d.active", "select count (distinct GUILD_ID) from MESSAGE_DATA where (CURRENT_TIMESTAMP - CREATION_DATE) <= interval '1440' MINUTE;", databaseConnector.getDataSource(), Set.of());
+        queryGauge("db.messageData-30d.active", "select count MESSAGE_ID from MESSAGE_DATA where (CURRENT_TIMESTAMP - CREATION_DATE) <= interval '43200' MINUTE;", databaseConnector.getDataSource(), Set.of());
+        queryGauge("db.messageData-7d.active", "select count MESSAGE_ID from MESSAGE_DATA where (CURRENT_TIMESTAMP - CREATION_DATE) <= interval '10080' MINUTE;", databaseConnector.getDataSource(), Set.of());
+        queryGauge("db.messageData-1d.active", "select count MESSAGE_ID from MESSAGE_DATA where (CURRENT_TIMESTAMP - CREATION_DATE) <= interval '1440' MINUTE;", databaseConnector.getDataSource(), Set.of());
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             log.info("start db shutdown");
@@ -301,7 +305,7 @@ public class PersistenceManagerImpl implements PersistenceManager {
     }
 
     @Override
-    public @NonNull Optional<ChannelConfigDTO> getChannelConfig(long channelId, @NotNull String configClassId) {
+    public @NonNull Optional<ChannelConfigDTO> getChannelConfig(long channelId, @NonNull String configClassId) {
         Stopwatch stopwatch = Stopwatch.createStarted();
 
         try (Connection con = databaseConnector.getConnection()) {
@@ -324,7 +328,7 @@ public class PersistenceManagerImpl implements PersistenceManager {
     }
 
     @Override
-    public @NonNull Optional<ChannelConfigDTO> getUserChannelConfig(long channelId, long userId, @NotNull String configClassId) {
+    public @NonNull Optional<ChannelConfigDTO> getUserChannelConfig(long channelId, long userId, @NonNull String configClassId) {
         Stopwatch stopwatch = Stopwatch.createStarted();
         Preconditions.checkArgument(!Objects.equals(userId, USER_ID_NULL_PLACEHOLDER), "The userId is not to be allowed to be %d".formatted(USER_ID_NULL_PLACEHOLDER));
 
@@ -437,6 +441,22 @@ public class PersistenceManagerImpl implements PersistenceManager {
         BotMetrics.databaseTimer("deleteAllChannelConfig", stopwatch.elapsed());
     }
 
+
+    @Override
+    public void deleteMessageConfig(UUID configUUID) {
+        Stopwatch stopwatch = Stopwatch.createStarted();
+        try (Connection con = databaseConnector.getConnection()) {
+
+            try (PreparedStatement preparedStatement = con.prepareStatement("DELETE FROM MESSAGE_CONFIG WHERE CONFIG_ID = ?")) {
+                preparedStatement.setObject(1, configUUID);
+                preparedStatement.execute();
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        BotMetrics.databaseTimer("deleteMessageConfig", stopwatch.elapsed());
+    }
+
     @Override
     public Optional<MessageConfigDTO> getLastMessageDataInChannel(long channelId, LocalDateTime since, @Nullable Long alreadyDeletedMessageId) {
         Stopwatch stopwatch = Stopwatch.createStarted();
@@ -451,7 +471,7 @@ public class PersistenceManagerImpl implements PersistenceManager {
                                          AND MD.CREATION_DATE < ?
                                          AND MD.MESSAGE_ID < ?
                                          order by MD.CREATION_DATE desc
-                                              """
+                                         """
                          )) {
                 preparedStatement.setLong(1, channelId);
                 preparedStatement.setTimestamp(2, Timestamp.valueOf(since));

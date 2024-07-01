@@ -3,6 +3,7 @@ package de.janno.discord.connector.api;
 import lombok.Value;
 
 import java.util.Locale;
+import java.util.Optional;
 
 @Value
 public class Requester {
@@ -14,6 +15,9 @@ public class Requester {
 
 
     public String toLogString() {
-        return String.format("'%s'.'%s'", guildName, channelName);
+        return Optional.ofNullable(guildName)
+                .or(() -> Optional.ofNullable(channelName))
+                .or(() -> Optional.ofNullable(userName))
+                .orElse("");
     }
 }

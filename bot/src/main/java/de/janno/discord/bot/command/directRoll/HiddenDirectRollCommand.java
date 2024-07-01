@@ -22,7 +22,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.Locale;
-import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
@@ -83,8 +82,9 @@ public class HiddenDirectRollCommand extends DirectRollCommand implements Compon
                                                 answer.toShortString(),
                                                 stopwatch.elapsed(TimeUnit.MILLISECONDS)
                                         )),
-                        event.createResultMessageWithReference(EmbedOrMessageDefinition.builder()
+                        event.sendMessage(EmbedOrMessageDefinition.builder()
                                 .type(EmbedOrMessageDefinition.Type.MESSAGE)
+                                .userReference(true)
                                 .descriptionOrContent(I18n.getMessage("h.madeHiddenRoll.message", userLocale))
                                 .build()))
                 .parallel()
@@ -98,7 +98,10 @@ public class HiddenDirectRollCommand extends DirectRollCommand implements Compon
         //only one button so we don't check the button id
         return Flux.merge(1,
                         event.acknowledgeAndRemoveButtons(), //ephemeral message cant be deleted
-                        event.createResultMessageWithReference(event.getMessageDefinitionOfEventMessageWithoutButtons(), null)
+                        event.sendMessage(event.getMessageDefinitionOfEventMessageWithoutButtons()
+                                        .toBuilder()
+                                        .userReference(true)
+                                        .build())
                                 .doOnSuccess(v ->
                                         log.info("{}:-> {} in {}ms",
                                                 event.getRequester().toLogString(),
@@ -110,10 +113,6 @@ public class HiddenDirectRollCommand extends DirectRollCommand implements Compon
                 .then();
     }
 
-    @Override
-    public boolean matchingComponentCustomId(String buttonCustomId) {
-        return Objects.equals(getCommandId(), BottomCustomIdUtils.getCommandNameFromCustomId(buttonCustomId));
-    }
 
     protected EmbedOrMessageDefinition getHelpMessage(Locale userLocale) {
         return EmbedOrMessageDefinition.builder()

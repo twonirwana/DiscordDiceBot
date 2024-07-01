@@ -3,7 +3,7 @@ package de.janno.discord.bot.persistance;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import lombok.Value;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nullable;
 
 import java.util.UUID;
 

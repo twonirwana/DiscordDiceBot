@@ -197,6 +197,9 @@ public class JdaClient {
                             @Override
                             public void onButtonInteraction(@NonNull ButtonInteractionEvent event) {
                                 log.trace("ComponentEvent: {} from {}", event.getInteraction().getComponentId(), event.getInteraction().getUser().getName());
+                                if (!BottomCustomIdUtils.isValidCustomId(event.getInteraction().getComponentId())) {
+                                    log.warn("Custom id {} is not a valid custom id.", event.getInteraction().getComponentId());
+                                }
                                 List<ComponentInteractEventHandler> matchingHandler = componentInteractEventHandlers.stream()
                                         .filter(command -> command.matchingComponentCustomId(event.getInteraction().getComponentId()))
                                         .toList();

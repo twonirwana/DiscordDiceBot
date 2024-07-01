@@ -2,7 +2,7 @@ package de.janno.discord.bot.command;
 
 import lombok.NonNull;
 import lombok.Value;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nullable;
 
 import java.util.Optional;
 

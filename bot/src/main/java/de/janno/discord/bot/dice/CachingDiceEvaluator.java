@@ -5,14 +5,19 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import de.janno.evaluator.dice.DiceEvaluator;
+import de.janno.evaluator.dice.DiceIdAndValue;
 import de.janno.evaluator.dice.ExpressionException;
 import de.janno.evaluator.dice.Roller;
+import de.janno.evaluator.dice.random.GivenDiceNumberSupplier;
 import de.janno.evaluator.dice.random.NumberSupplier;
 import io.avaje.config.Config;
 import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.Tags;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.List;
+import java.util.function.BiFunction;
 
 import static io.micrometer.core.instrument.Metrics.globalRegistry;
 
@@ -22,6 +27,11 @@ public class CachingDiceEvaluator {
     private final NumberSupplier numberSupplier;
     private LoadingCache<String, RollerOrError> diceRollerCache;
     private DiceEvaluator diceEvaluator;
+
+    @VisibleForTesting
+    public CachingDiceEvaluator(BiFunction<Integer, Integer, Integer> numberSupplier) {
+        this((minExcl, maxIncl, dieId) -> numberSupplier.apply(minExcl, maxIncl));
+    }
 
     public CachingDiceEvaluator(NumberSupplier numberSupplier) {
         this.numberSupplier = numberSupplier;
@@ -46,6 +56,10 @@ public class CachingDiceEvaluator {
         Gauge.builder("diceEvaluator.cache", () -> diceRollerCache.stats().averageLoadPenalty()).tags(Tags.of("stats", "averageLoadTime")).register(globalRegistry);
     }
 
+    public GivenDiceNumberSupplier getGivenDiceNumberSuppler(List<DiceIdAndValue> givenDiceNumberMap) {
+        return new GivenDiceNumberSupplier(numberSupplier, givenDiceNumberMap);
+    }
+
     private DiceEvaluator createDiceEvaluator() {
         return new DiceEvaluator(numberSupplier, Config.getInt("diceEvaluator.maxNumberOfDice", 1000),
                 Config.getInt("diceEvaluator.maxNumberOfElements", 10_000),
@@ -63,9 +77,10 @@ public class CachingDiceEvaluator {
                             log.trace("create roller for: {}", expression.replace("\n", " "));
                             Roller roller = diceEvaluator.buildRollSupplier(expression);
                             roller.roll();
-                            return new RollerOrError(expression, roller, true, null);
-                        } catch (ExpressionException | ArithmeticException e) {
-                            return new RollerOrError(expression, null, false, e.getMessage());
+                            return new RollerOrError(expression, roller, true, null, null);
+                        } catch (ExpressionException e) {
+                            String errorLocation = DiceEvaluatorAdapter.getErrorLocationString(expression, e.getExpressionPosition());
+                            return new RollerOrError(expression, null, false, e.getMessage(), errorLocation);
                         }
                     }
                 });

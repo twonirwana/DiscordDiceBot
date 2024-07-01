@@ -8,7 +8,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import de.janno.discord.bot.I18n;
 import de.janno.discord.bot.command.*;
-import de.janno.discord.bot.dice.*;
+import de.janno.discord.bot.dice.CachingDiceEvaluator;
+import de.janno.discord.bot.dice.DiceEvaluatorAdapter;
 import de.janno.discord.bot.dice.image.DiceImageStyle;
 import de.janno.discord.bot.dice.image.DiceStyleAndColor;
 import de.janno.discord.bot.persistance.Mapper;
@@ -25,14 +26,14 @@ import lombok.NonNull;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
+import javax.annotation.Nullable;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -54,21 +55,21 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     private final static Pattern BUTTON_RANGE_PATTERN = Pattern.compile(RANGE_DELIMITER + "(-?\\d+)<=>(-?\\d+)");
     private final static String BUTTON_VALUE_DELIMITER = "/";
     private final static Pattern BUTTON_VALUE_PATTERN = Pattern.compile(RANGE_DELIMITER + "(.+" + BUTTON_VALUE_DELIMITER + ".+)}", Pattern.DOTALL);
-    private final static Pattern PARAMETER_OPTION_EMPTY_PATTERN = Pattern.compile(RANGE_DELIMITER + ".*" + BUTTON_VALUE_DELIMITER + "\\s*" + BUTTON_VALUE_DELIMITER +  ".*}", Pattern.DOTALL);
+    private final static Pattern PARAMETER_OPTION_EMPTY_PATTERN = Pattern.compile(RANGE_DELIMITER + ".*" + BUTTON_VALUE_DELIMITER + "\\s*" + BUTTON_VALUE_DELIMITER + ".*}", Pattern.DOTALL);
     private static final String STATE_DATA_TYPE_ID = "CustomParameterStateDataV2";
     private static final String STATE_DATA_TYPE_ID_LEGACY = "CustomParameterStateData";
     private static final String CONFIG_TYPE_ID = "CustomParameterConfig";
     private final static Pattern LABEL_MATCHER = Pattern.compile("@[^}]+$", Pattern.DOTALL);
-    private final DiceSystemAdapter diceSystemAdapter;
+    private final DiceEvaluatorAdapter diceEvaluatorAdapter;
 
     public CustomParameterCommand(PersistenceManager persistenceManager, CachingDiceEvaluator cachingDiceEvaluator) {
-        this(persistenceManager, new DiceParser(), cachingDiceEvaluator);
+        this(persistenceManager, cachingDiceEvaluator, UUID::randomUUID);
     }
 
     @VisibleForTesting
-    public CustomParameterCommand(PersistenceManager persistenceManager, Dice dice, CachingDiceEvaluator cachingDiceEvaluator) {
-        super(persistenceManager);
-        this.diceSystemAdapter = new DiceSystemAdapter(cachingDiceEvaluator, dice);
+    public CustomParameterCommand(PersistenceManager persistenceManager, CachingDiceEvaluator cachingDiceEvaluator, Supplier<UUID> uuidSupplier) {
+        super(persistenceManager, uuidSupplier);
+        this.diceEvaluatorAdapter = new DiceEvaluatorAdapter(cachingDiceEvaluator);
     }
 
     private static @NonNull String getNextParameterExpression(@NonNull String expression) {
@@ -193,8 +194,8 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
                         .limit(23)
                         .filter(s -> !Strings.isNullOrEmpty(s))
                         .map(s -> {
-                            if (s.contains(DiceSystemAdapter.LABEL_DELIMITER)) {
-                                String[] split = s.split(DiceSystemAdapter.LABEL_DELIMITER);
+                            if (s.contains(DiceEvaluatorAdapter.LABEL_DELIMITER)) {
+                                String[] split = s.split(DiceEvaluatorAdapter.LABEL_DELIMITER);
                                 final String parameterOptionExpression = split[0];
                                 final String label = split[1];
                                 final boolean directRoll;
@@ -287,10 +288,9 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
             String expression = getFilledExpression(config, state);
             String label = getLabel(config, state);
             String expressionWithoutSuffixLabel = removeSuffixLabelFromExpression(expression, label);
-            return Optional.of(diceSystemAdapter.answerRollWithGivenLabel(expressionWithoutSuffixLabel,
+            return Optional.of(diceEvaluatorAdapter.answerRollWithGivenLabel(expressionWithoutSuffixLabel,
                     label,
                     false,
-                    config.getDiceParserSystem(),
                     config.getAnswerFormatType(),
                     config.getDiceStyleAndColor(),
                     config.getConfigLocale()));
@@ -333,8 +333,8 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
         AnswerFormatType answerType = BaseCommandOptions.getAnswerTypeFromStartCommandOption(options).orElse(defaultAnswerFormat());
         return new CustomParameterConfig(answerTargetChannelId,
                 baseExpression,
-                DiceParserSystem.DICE_EVALUATOR,
                 answerType,
+                BaseCommandOptions.getAnswerInteractionFromStartCommandOption(options),
                 null,
                 new DiceStyleAndColor(
                         BaseCommandOptions.getDiceStyleOptionFromStartCommandOption(options).orElse(DiceImageStyle.polyhedral_3d),
@@ -349,7 +349,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     }
 
     @Override
-    public @NonNull EmbedOrMessageDefinition createNewButtonMessage(@NonNull UUID configUUID, @NonNull CustomParameterConfig config, long channelId) {
+    public @NonNull EmbedOrMessageDefinition createSlashResponseMessage(@NonNull UUID configUUID, @NonNull CustomParameterConfig config, long channelId) {
         return EmbedOrMessageDefinition.builder()
                 .type(EmbedOrMessageDefinition.Type.MESSAGE)
                 .descriptionOrContent(formatMessageContent(config, null, null))
@@ -434,7 +434,11 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     }
 
     @Override
-    protected @NonNull Optional<EmbedOrMessageDefinition> createNewButtonMessageWithState(@NonNull UUID configUUID, @NonNull CustomParameterConfig config, @NonNull State<CustomParameterStateData> state, @Nullable Long guildId, long channelId) {
+    protected @NonNull Optional<EmbedOrMessageDefinition> createNewButtonMessageWithState(@NonNull UUID configUUID, @NonNull CustomParameterConfig config, @Nullable State<CustomParameterStateData> state, @Nullable Long guildId, long channelId) {
+        if (state == null) {
+            return Optional.of(createSlashResponseMessage(configUUID, config, channelId));
+        }
+
         if (!hasMissingParameter(state)) {
             return Optional.of(EmbedOrMessageDefinition.builder()
                     .type(EmbedOrMessageDefinition.Type.MESSAGE)
@@ -571,9 +575,8 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
             String expression = getFilledExpression(config, aState.getState());
             String label = getLabel(config, aState.getState());
             String expressionWithoutSuffixLabel = removeSuffixLabelFromExpression(expression, label);
-            Optional<String> validationMessage = diceSystemAdapter.validateDiceExpressionWitOptionalLabel(expressionWithoutSuffixLabel,
+            Optional<String> validationMessage = diceEvaluatorAdapter.validateDiceExpressionWitOptionalLabel(expressionWithoutSuffixLabel,
                     "/%s %s".formatted(I18n.getMessage("custom_parameter.name", config.getConfigLocale()), I18n.getMessage("base.option.help", config.getConfigLocale())),
-                    config.getDiceParserSystem(),
                     config.getConfigLocale());
             if (validationMessage.isPresent()) {
                 return validationMessage.get();
@@ -699,14 +702,18 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
 
     @Value
     static class ButtonLabelIdAndValue {
-        @NonNull String value;
-        @NonNull CustomParameterCommand.ButtonLabelAndId buttonLabelAndId;
+        @NonNull
+        String value;
+        @NonNull
+        CustomParameterCommand.ButtonLabelAndId buttonLabelAndId;
     }
 
     @Value
     static class ButtonLabelAndId {
-        @NonNull String label;
-        @NonNull String id;
+        @NonNull
+        String label;
+        @NonNull
+        String id;
         boolean directRoll;
     }
 
@@ -716,7 +723,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
         String customId;
         @NonNull
         State<CustomParameterStateData> state;
-        @NotNull
+        @NonNull
         List<ButtonLabelAndId> buttonIdLabelAndDiceExpressions;
     }
 

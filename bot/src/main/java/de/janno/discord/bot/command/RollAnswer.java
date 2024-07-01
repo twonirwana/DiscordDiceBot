@@ -1,12 +1,14 @@
 package de.janno.discord.bot.command;
 
 import com.google.common.base.Joiner;
+import de.janno.discord.bot.command.reroll.DieIdTypeAndValue;
 import lombok.Builder;
 import lombok.NonNull;
+import lombok.Singular;
 import lombok.Value;
 import org.apache.commons.lang3.StringUtils;
-import org.jetbrains.annotations.Nullable;
 
+import javax.annotation.Nullable;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Optional;
@@ -28,11 +30,16 @@ public class RollAnswer {
     @Nullable
     String errorMessage;
     @Nullable
+    String errorLocation;
+    @Nullable
     List<RollResults> multiRollResults;
     @Nullable
     Supplier<? extends InputStream> image;
     @Nullable
     String warning;
+    @NonNull
+    @Singular
+    List<DieIdTypeAndValue> dieIdTypeAndValues;
 
     public String toShortString() {
         String fieldStringList = Optional.ofNullable(multiRollResults)

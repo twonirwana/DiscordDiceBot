@@ -6,6 +6,7 @@ import de.janno.discord.bot.command.customDice.CustomDiceCommand;
 import de.janno.discord.bot.command.customDice.CustomDiceConfig;
 import de.janno.discord.bot.command.customParameter.CustomParameterCommand;
 import de.janno.discord.bot.command.customParameter.CustomParameterConfig;
+import de.janno.discord.bot.command.reroll.Config;
 import de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommand;
 import de.janno.discord.bot.command.sumCustomSet.SumCustomSetConfig;
 import de.janno.discord.bot.persistance.MessageConfigDTO;
@@ -81,9 +82,9 @@ public class FetchCommand implements SlashCommand {
     }
 
     private <C extends Config> Mono<Void> moveButtonMessage(C config, AbstractCommand<C, ?> command, UUID configUUID, SlashEventAdaptor event) {
-        EmbedOrMessageDefinition buttonMessage = command.createNewButtonMessage(configUUID, config, event.getChannelId());
+        EmbedOrMessageDefinition buttonMessage = command.createSlashResponseMessage(configUUID, config, event.getChannelId());
         List<Mono<Void>> actions = List.of(Mono.defer(event::acknowledgeAndRemoveSlash),
-                Mono.defer(() -> event.createMessageWithoutReference(buttonMessage)
+                Mono.defer(() -> event.sendMessage(buttonMessage)
                                 .doOnNext(messageId -> command.createEmptyMessageData(configUUID, event.getGuildId(), event.getChannelId(), messageId)))
                         .flatMap(newMessageId -> MessageDeletionHelper.deleteOldMessageAndData(persistenceManager, newMessageId, null, configUUID, event.getChannelId(), event))
                         .then());

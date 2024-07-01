@@ -2,6 +2,7 @@ package de.janno.discord.bot.command.directRoll;
 
 import au.com.origin.snapshots.Expect;
 import au.com.origin.snapshots.junit5.SnapshotExtension;
+import de.janno.discord.bot.AnswerInteractionType;
 import de.janno.discord.bot.I18n;
 import de.janno.discord.bot.command.AnswerFormatType;
 import de.janno.discord.bot.command.channelConfig.DirectRollConfig;
@@ -23,11 +24,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.mockito.ArgumentMatchers;
 import reactor.core.publisher.Mono;
-import reactor.test.StepVerifier;
 
-import java.util.*;
+import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -76,42 +78,6 @@ class ValidationCommandTest {
     }
 
     @Test
-    void handleComponentInteractEvent() {
-        SlashEventAdaptor slashEventAdaptor = mock(SlashEventAdaptor.class);
-
-        CommandInteractionOption interactionOption = CommandInteractionOption.builder()
-                .name("expression")
-                .stringValue("1d6@Test Label")
-                .build();
-        when(slashEventAdaptor.getOption(any())).thenReturn(Optional.of(interactionOption));
-        when(slashEventAdaptor.getChannelId()).thenReturn(1L);
-        when(slashEventAdaptor.createResultMessageWithReference(any())).thenReturn(Mono.just(0L));
-        when(slashEventAdaptor.deleteMessageById(anyLong())).thenReturn(Mono.empty());
-        when(slashEventAdaptor.reply(any(), anyBoolean())).thenReturn(Mono.just(mock(Void.class)));
-        when(slashEventAdaptor.getCommandString()).thenReturn("/validation expression:1d6");
-        when(slashEventAdaptor.getRequester()).thenReturn(new Requester("user", "channel", "guild", "[0 / 1]", Locale.ENGLISH));
-
-
-        Mono<Void> res = underTest.handleSlashCommandEvent(slashEventAdaptor, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"), Locale.ENGLISH);
-
-
-        StepVerifier.create(res)
-                .verifyComplete();
-
-        verify(slashEventAdaptor).checkPermissions(Locale.ENGLISH);
-        verify(slashEventAdaptor).reply("/validation expression:1d6", true);
-        verify(slashEventAdaptor, never()).acknowledgeAndRemoveSlash();
-        verify(slashEventAdaptor).getOption("expression");
-        verify(slashEventAdaptor).getCommandString();
-        verify(slashEventAdaptor, never()).createMessageWithoutReference(any());
-        verify(slashEventAdaptor, never()).deleteMessageById(anyLong());
-        verify(slashEventAdaptor, never()).replyWithEmbedOrMessageDefinition(any(), anyBoolean());
-        verify(slashEventAdaptor).createResultMessageWithReference(ArgumentMatchers.argThat(argument -> Objects.equals(argument.toString(), "EmbedOrMessageDefinition(title=Test Label ⇒ 1, descriptionOrContent=1d6, fields=[], componentRowDefinitions=[], hasImage=true, type=EMBED)")));
-
-        verify(slashEventAdaptor, times(2)).getChannelId();
-    }
-
-    @Test
     void handleComponentInteractEvent_validationFailed() {
         SlashEventAdaptor slashEventAdaptor = mock(SlashEventAdaptor.class);
 
@@ -131,13 +97,13 @@ class ValidationCommandTest {
         verify(slashEventAdaptor).checkPermissions(Locale.ENGLISH);
         verify(slashEventAdaptor).getOption("expression");
         verify(slashEventAdaptor, times(1)).getCommandString();
-        verify(slashEventAdaptor, never()).createMessageWithoutReference(any());
+        verify(slashEventAdaptor, never()).sendMessage(any());
         verify(slashEventAdaptor, never()).deleteMessageById(anyLong());
         verify(slashEventAdaptor, never()).replyWithEmbedOrMessageDefinition(any(), anyBoolean());
-        verify(slashEventAdaptor, never()).createResultMessageWithReference(any());
+        verify(slashEventAdaptor, never()).sendMessage(any());
         verify(slashEventAdaptor, never()).deleteMessageById(anyLong());
         verify(slashEventAdaptor).reply("/r expression:asdfasdf\n" +
-                "The following expression is invalid: `asdfasdf`. The error is: No matching operator for 'asdfasdf', non-functional text and value names must to be surrounded by '' or []. Use `/r expression:help` to get more information on how to use the command.", true);
+                "The following expression is invalid: __as__`dfasdf`. The error is: No matching operator for 'as', non-functional text and value names must to be surrounded by '' or []. Use `/r expression:help` to get more information on how to use the command.", true);
 
         verify(slashEventAdaptor, times(1)).getChannelId();
     }
@@ -165,9 +131,9 @@ class ValidationCommandTest {
         verify(slashEventAdaptor).checkPermissions(Locale.ENGLISH);
         verify(slashEventAdaptor).getOption("expression");
         verify(slashEventAdaptor, times(1)).getCommandString();
-        verify(slashEventAdaptor, never()).createMessageWithoutReference(any());
+        verify(slashEventAdaptor, never()).sendMessage(any());
         verify(slashEventAdaptor, never()).deleteMessageById(anyLong());
-        verify(slashEventAdaptor, never()).createResultMessageWithReference(any());
+        verify(slashEventAdaptor, never()).sendMessage(any());
         verify(slashEventAdaptor, never()).deleteMessageById(anyLong());
         verify(slashEventAdaptor).replyWithEmbedOrMessageDefinition(EmbedOrMessageDefinition.builder()
                 .descriptionOrContent("Type `/validation` and a dice expression, the autocomplete will show if there are errors in the expression.\n" + DiceEvaluatorAdapter.getHelp())
@@ -204,7 +170,7 @@ class ValidationCommandTest {
 
 
         DirectRollConfig res = underTest.deserializeConfig(savedData);
-        assertThat(res).isEqualTo(new DirectRollConfig(null, false, AnswerFormatType.without_expression, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_3d, "red_and_white"), Locale.ENGLISH));
+        assertThat(res).isEqualTo(new DirectRollConfig(null, false, AnswerFormatType.without_expression, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_3d, "red_and_white"), Locale.ENGLISH));
 
     }
 
@@ -225,7 +191,7 @@ class ValidationCommandTest {
 
 
         DirectRollConfig res = underTest.deserializeConfig(savedData);
-        assertThat(res).isEqualTo(new DirectRollConfig(null, false, AnswerFormatType.without_expression, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v2, "blue_and_silver"), Locale.GERMAN));
+        assertThat(res).isEqualTo(new DirectRollConfig(null, false, AnswerFormatType.without_expression, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v2, "blue_and_silver"), Locale.GERMAN));
     }
 
 }
