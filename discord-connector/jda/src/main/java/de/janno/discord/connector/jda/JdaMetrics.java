@@ -75,14 +75,14 @@ public class JdaMetrics {
     }
 
     public static void userLocalInteraction(Locale locale) {
-        globalRegistry.counter(METRIC_PREFIX + USER_LOCALE, Tags.of("locale", locale.toString(), "language", locale.getLanguage(), "country", locale.getCountry(), "displayCountry", locale.getDisplayCountry(), "cCountry", lastToCharacters(locale.toString()))).increment();
+        globalRegistry.counter(METRIC_PREFIX + USER_LOCALE, Tags.of("locale", locale.toString(), "language", locale.getLanguage(), "country", locale.getCountry(), "displayCountry", locale.getDisplayCountry(), "cCountry", lastTwoCharacters(locale.toString()))).increment();
     }
 
     public static EventListener getOkHttpEventListener() {
         return OkHttpMetricsEventListener.builder(globalRegistry, "okHttpEvents").build();
     }
 
-    private static String lastToCharacters(String in) {
+    private static String lastTwoCharacters(String in) {
         if (in == null) {
             return null;
         }

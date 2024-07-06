@@ -190,7 +190,6 @@ The images will only be shown if the following conditions are met:
 
 * The `answer_format` is set to `full`, `only_dice`, `only_result` or `without_expression`
 * No set of dice with more than 30 dice
-* No multi line result
 * If the color of the dice is not `none`
 
 There are the following options:

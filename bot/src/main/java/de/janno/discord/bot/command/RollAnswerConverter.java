@@ -49,6 +49,7 @@ public class RollAnswerConverter {
                                             false))
                                     .collect(ImmutableList.toImmutableList()))
                             .type(EmbedOrMessageDefinition.Type.EMBED)
+                            .image(rollAnswer.getImage())
                             .userReference(true)
                             .build();
 
@@ -81,6 +82,7 @@ public class RollAnswerConverter {
                                             false))
                                     .collect(ImmutableList.toImmutableList()))
                             .type(EmbedOrMessageDefinition.Type.EMBED)
+                            .image(rollAnswer.getImage())
                             .userReference(true)
                             .build();
 
@@ -105,6 +107,7 @@ public class RollAnswerConverter {
                                     .map("**%s**"::formatted)
                                     .collect(Collectors.joining("\n"))))
                             .type(EmbedOrMessageDefinition.Type.EMBED)
+                            .image(rollAnswer.getImage())
                             .userReference(true)
                             .build();
 
@@ -119,11 +122,14 @@ public class RollAnswerConverter {
             }
             case only_dice -> {
                 if (rollAnswer.getMultiRollResults() != null) {
+                    final String diceDetailsString = rollAnswer.getImage() != null ? null : rollAnswer.getMultiRollResults().stream()
+                            .map(RollAnswer.RollResults::getRollDetails)
+                            .collect(Collectors.joining("\n"));
+                    final String description = Optional.ofNullable(diceDetailsString).orElse("");
                     yield EmbedOrMessageDefinition.builder()
-                            .shortedDescription(rollAnswer.getMultiRollResults().stream()
-                                    .map(RollAnswer.RollResults::getRollDetails)
-                                    .collect(Collectors.joining("\n")))
+                            .shortedDescription(description)
                             .type(EmbedOrMessageDefinition.Type.EMBED)
+                            .image(rollAnswer.getImage())
                             .userReference(true)
                             .build();
                 } else {

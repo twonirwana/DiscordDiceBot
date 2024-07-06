@@ -20,10 +20,7 @@ import org.apache.commons.lang3.StringUtils;
 import javax.annotation.Nullable;
 import java.io.InputStream;
 import java.math.BigDecimal;
-import java.util.Collection;
-import java.util.List;
-import java.util.Locale;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -119,10 +116,8 @@ public class DiceEvaluatorAdapter {
         );
     }
 
-    private static List<DieIdTypeAndValue> getDieIdAndValue(List<Roll> rolls) {
-        return rolls.stream()
-                .flatMap(r -> r.getRandomElementsInRoll().stream())
-                .flatMap(Collection::stream)
+    private static List<DieIdTypeAndValue> getDieIdAndValue(RollResult rollResult) {
+        return rollResult.getAllRandomElements().stream()
                 .map(r -> new DieIdTypeAndValue(DieIdDb.fromDieId(
                         r.getDieId()),
                         r.getRollElement().getValue(),
@@ -226,17 +221,17 @@ public class DiceEvaluatorAdapter {
                                                AnswerFormatType answerFormatType,
                                                DiceStyleAndColor styleAndColor,
                                                @NonNull Locale userLocale,
-                                               List<DiceIdAndValue> dieAndValues) {
+                                               List<DieIdAndValue> dieAndValues) {
         try {
             final RollerOrError rollerOrError = diceEvaluator.get(expression);
 
-            final List<Roll> rolls;
+            final RollResult rollResult;
             if (rollerOrError.getRoller() != null) {
                 if (dieAndValues.isEmpty()) {
-                    rolls = rollerOrError.getRoller().roll().getRolls();
+                    rollResult = rollerOrError.getRoller().roll();
                 } else {
                     GivenDiceNumberSupplier givenDiceNumberSupplier = diceEvaluator.getGivenDiceNumberSuppler(dieAndValues);
-                    rolls = rollerOrError.getRoller().roll(givenDiceNumberSupplier).getRolls();
+                    rollResult = rollerOrError.getRoller().roll(givenDiceNumberSupplier);
                 }
             } else {
                 return RollAnswer.builder()
@@ -247,29 +242,30 @@ public class DiceEvaluatorAdapter {
             }
 
             BotMetrics.incrementUseImageResultMetricCounter(styleAndColor);
-            Supplier<? extends InputStream> diceImage = IMAGE_RESULT_CREATOR.getImageForRoll(rolls, styleAndColor);
-            if (rolls.size() == 1) {
+            Supplier<? extends InputStream> diceImage = IMAGE_RESULT_CREATOR.getImageForRoll(rollResult, styleAndColor);
+            if (rollResult.getRolls().size() == 1) {
                 return RollAnswer.builder()
                         .answerFormatType(answerFormatType)
                         .expression(expression)
                         .expressionLabel(label)
                         .image(diceImage)
-                        .warning(getWarningFromRoll(rolls, userLocale))
-                        .result(getResult(rolls.getFirst(), sumUp))
-                        .rollDetails(getRandomElementsString(rolls.getFirst().getRandomElementsInRoll()))
-                        .dieIdTypeAndValues(getDieIdAndValue(rolls))
+                        .warning(getWarningFromRoll(rollResult.getRolls(), userLocale))
+                        .result(getResult(rollResult.getRolls().getFirst(), sumUp))
+                        .rollDetails(getRandomElementsString(rollResult.getGroupedRandomElements()))
+                        .dieIdTypeAndValues(getDieIdAndValue(rollResult))
                         .build();
             } else {
-                List<RollAnswer.RollResults> multiRollResults = rolls.stream()
-                        .map(r -> new RollAnswer.RollResults(r.getExpression(), getResult(r, sumUp), getRandomElementsString(r.getRandomElementsInRoll())))
+                List<RollAnswer.RollResults> multiRollResults = rollResult.getRolls().stream()
+                        .map(r -> new RollAnswer.RollResults(r.getExpression(), getResult(r, sumUp), getRandomElementsStringUngrouped(r.getRandomElementsInRoll())))
                         .collect(ImmutableList.toImmutableList());
                 return RollAnswer.builder()
                         .answerFormatType(answerFormatType)
                         .expression(expression)
+                        .image(diceImage)
                         .expressionLabel(label)
-                        .warning(getWarningFromRoll(rolls, userLocale))
+                        .warning(getWarningFromRoll(rollResult.getRolls(), userLocale))
                         .multiRollResults(multiRollResults)
-                        .dieIdTypeAndValues(getDieIdAndValue(rolls))
+                        .dieIdTypeAndValues(getDieIdAndValue(rollResult))
                         .build();
             }
         } catch (ExpressionException e) {
@@ -298,6 +294,27 @@ public class DiceEvaluatorAdapter {
             return randomElementsInRoll.getFirst().stream().map(r -> r.getRollElement().toStringWithColorAndTag()).toList().toString();
         }
         return randomElementsInRoll.stream().map(l -> l.stream().map(r -> r.getRollElement().toStringWithColorAndTag()).toList().toString()).collect(Collectors.joining(" "));
+    }
+
+    //todo remove with next lib update
+    private String getRandomElementsStringUngrouped(ImmutableList<RandomElement> randomElementsInRoll) {
+        return getRandomElementsString(getGroupedRandomElements(randomElementsInRoll));
+    }
+
+    private ImmutableList<ImmutableList<RandomElement>> getGroupedRandomElements(ImmutableList<RandomElement> randomElementsInRoll) {
+        List<RollId> rollIds = randomElementsInRoll.stream()
+                .map(RandomElement::getDieId)
+                .map(DieId::getRollId)
+                .distinct()
+                .sorted()
+                .toList();
+
+        Map<RollId, List<RandomElement>> rollIdListMap = randomElementsInRoll.stream()
+                .collect(Collectors.groupingBy(r -> r.getDieId().getRollId()));
+
+        return rollIds.stream()
+                .map(rid -> rollIdListMap.get(rid).stream().sorted(Comparator.comparing(RandomElement::getDieId)).collect(ImmutableList.toImmutableList()))
+                .collect(ImmutableList.toImmutableList());
     }
 
 }

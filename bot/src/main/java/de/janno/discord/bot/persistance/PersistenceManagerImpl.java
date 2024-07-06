@@ -39,9 +39,9 @@ public class PersistenceManagerImpl implements PersistenceManager {
         queryGauge("db.guild-30d.active", "select count (distinct GUILD_ID) from MESSAGE_DATA where (CURRENT_TIMESTAMP - CREATION_DATE) <= interval '43200' MINUTE;", databaseConnector.getDataSource(), Set.of());
         queryGauge("db.guild-7d.active", "select count (distinct GUILD_ID) from MESSAGE_DATA where (CURRENT_TIMESTAMP - CREATION_DATE) <= interval '10080' MINUTE;", databaseConnector.getDataSource(), Set.of());
         queryGauge("db.guild-1d.active", "select count (distinct GUILD_ID) from MESSAGE_DATA where (CURRENT_TIMESTAMP - CREATION_DATE) <= interval '1440' MINUTE;", databaseConnector.getDataSource(), Set.of());
-        queryGauge("db.messageData-30d.active", "select count MESSAGE_ID from MESSAGE_DATA where (CURRENT_TIMESTAMP - CREATION_DATE) <= interval '43200' MINUTE;", databaseConnector.getDataSource(), Set.of());
-        queryGauge("db.messageData-7d.active", "select count MESSAGE_ID from MESSAGE_DATA where (CURRENT_TIMESTAMP - CREATION_DATE) <= interval '10080' MINUTE;", databaseConnector.getDataSource(), Set.of());
-        queryGauge("db.messageData-1d.active", "select count MESSAGE_ID from MESSAGE_DATA where (CURRENT_TIMESTAMP - CREATION_DATE) <= interval '1440' MINUTE;", databaseConnector.getDataSource(), Set.of());
+        queryGauge("db.messageData-30d.active", "select count (MESSAGE_ID) from MESSAGE_DATA where (CURRENT_TIMESTAMP - CREATION_DATE) <= interval '43200' MINUTE;", databaseConnector.getDataSource(), Set.of());
+        queryGauge("db.messageData-7d.active", "select count (MESSAGE_ID) from MESSAGE_DATA where (CURRENT_TIMESTAMP - CREATION_DATE) <= interval '10080' MINUTE;", databaseConnector.getDataSource(), Set.of());
+        queryGauge("db.messageData-1d.active", "select count (MESSAGE_ID) from MESSAGE_DATA where (CURRENT_TIMESTAMP - CREATION_DATE) <= interval '1440' MINUTE;", databaseConnector.getDataSource(), Set.of());
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             log.info("start db shutdown");
