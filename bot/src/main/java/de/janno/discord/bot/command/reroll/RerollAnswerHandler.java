@@ -15,8 +15,8 @@ import de.janno.discord.connector.api.ButtonEventAdaptor;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
-import de.janno.evaluator.dice.DiceIdAndValue;
 import de.janno.evaluator.dice.DieId;
+import de.janno.evaluator.dice.DieIdAndValue;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -237,9 +237,9 @@ public class RerollAnswerHandler extends AbstractComponentInteractEventHandler<R
 
             Set<DieIdDb> rerollDieIds = new HashSet<>(Optional.ofNullable(state.getData()).map(RerollAnswerStateData::getRerollDice).orElse(List.of()));
 
-            List<DiceIdAndValue> givenDiceNumberMap = config.getDieIdTypeAndValues().stream()
+            List<DieIdAndValue> givenDiceNumberMap = config.getDieIdTypeAndValues().stream()
                     .filter(dv -> !rerollDieIds.contains(dv.getDieIdDb()))
-                    .map(DieIdTypeAndValue::toDiceIdAndValue)
+                    .map(DieIdTypeAndValue::toDieIdAndValue)
                     .toList();
 
             RollAnswer rollAnswer = diceEvaluatorAdapter.answerRollWithGivenLabel(config.getExpression(),

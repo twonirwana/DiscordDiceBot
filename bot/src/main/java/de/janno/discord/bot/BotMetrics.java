@@ -45,7 +45,6 @@ public class BotMetrics {
     private final static String METRIC_GUILD_NULL_PREFIX = "guildNull";
     private final static String METRIC_USE_ALIAS_PREFIX = "useAlias";
     private final static String METRIC_ANSWER_FORMAT_PREFIX = "answerFormat";
-    private final static String METRIC_DICE_PARSER_SYSTEM_PREFIX = "diceParserSystem";
     private final static String METRIC_PINNED_BUTTON_EVENT_PREFIX = "pinnedButtonEvent";
     private final static String COMMAND_TAG = "command";
     private final static String UUID_USAGE_TAG = "uuidUsage";
@@ -56,7 +55,6 @@ public class BotMetrics {
     private final static String VALID_TAG = "valid";
     private final static String EXPRESSION_TAG = "expression";
     private final static String ANSWER_FORMAT_TAG = "answerFormat";
-    private final static String DICE_SYSTEM_TAG = "diceSystem";
     private final static String ACTION_TAG = "action";
     private final static String DELAYED_TAG = "delayed";
     private static final String ANSWER_TIMER_PREFIX = "answerTimer";
@@ -94,7 +92,6 @@ public class BotMetrics {
             new LogbackMetrics().bindTo(globalRegistry);
             new ClassLoaderMetrics().bindTo(globalRegistry);
             new JvmHeapPressureMetrics().bindTo(globalRegistry);
-            new ProcessorMetrics().bindTo(globalRegistry);
         }
     }
 

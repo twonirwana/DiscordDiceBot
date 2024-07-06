@@ -118,7 +118,6 @@ public abstract class AbstractComponentInteractEventHandler<C extends Config, S 
         //todo make getAnswer a general EmbedOrMessage
         Optional<RollAnswer> answer = getAnswer(config, state, channelId, userId);
         if (answer.isPresent()) {
-            BotMetrics.incrementButtonMetricCounter(getCommandId());
             BotMetrics.incrementAnswerFormatCounter(config.getAnswerFormatType(), getCommandId());
             EmbedOrMessageDefinition baseAnswer = RollAnswerConverter.toEmbedOrMessageDefinition(answer.get());
             final EmbedOrMessageDefinition answerMessage;
@@ -143,6 +142,9 @@ public abstract class AbstractComponentInteractEventHandler<C extends Config, S 
 
         }
         Optional<EmbedOrMessageDefinition> newButtonMessage = createNewButtonMessage(configUUID, config, state, guildId, channelId);
+        if(answer.isPresent() || newButtonMessage.isPresent()){
+            BotMetrics.incrementButtonMetricCounter(getCommandId());
+        }
 
         final boolean deleteCurrentButtonMessage;
         if (newButtonMessage.isPresent() && answerTargetChannelId == null) {

@@ -9,13 +9,13 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.hash.Hashing;
 import de.janno.discord.bot.BotMetrics;
 import de.janno.evaluator.dice.RandomElement;
-import de.janno.evaluator.dice.Roll;
 import de.janno.evaluator.dice.RollElement;
+import de.janno.evaluator.dice.RollResult;
 import io.micrometer.core.instrument.Gauge;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import javax.annotation.Nullable;
 
+import javax.annotation.Nullable;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -26,7 +26,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
-import java.util.AbstractCollection;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -102,8 +101,8 @@ public class ImageResultCreator {
     }
 
     @VisibleForTesting
-    String createRollCacheName(Roll roll, DiceStyleAndColor diceStyleAndColor) {
-        return "%s@%s".formatted(diceStyleAndColor.toString(), roll.getRandomElementsInRoll().stream()
+    String createRollCacheName(RollResult rollResult, DiceStyleAndColor diceStyleAndColor) {
+        return "%s@%s".formatted(diceStyleAndColor.toString(), rollResult.getGroupedRandomElements().stream()
                 .map(r -> r.stream()
                         .map(re -> {
                             if (RollElement.NO_COLOR.equals(re.getRollElement().getColor())) {
@@ -128,17 +127,15 @@ public class ImageResultCreator {
 
     }
 
-    public @Nullable Supplier<? extends InputStream> getImageForRoll(@NonNull List<Roll> rolls, @Nullable DiceStyleAndColor diceStyleAndColor) {
+    public @Nullable Supplier<? extends InputStream> getImageForRoll(@NonNull RollResult rollResult, @Nullable DiceStyleAndColor diceStyleAndColor) {
         if (diceStyleAndColor == null) {
             return null;
         }
-        if (rolls.size() != 1 ||
-                rolls.getFirst().getRandomElementsInRoll().isEmpty() ||
-                rolls.getFirst().getRandomElementsInRoll().stream().mapToInt(AbstractCollection::size).sum() > 30) {
+        if (rollResult.getAllRandomElements().isEmpty() || rollResult.getAllRandomElements().size() > 30) {
             return null;
         }
 
-        String name = createRollCacheName(rolls.getFirst(), diceStyleAndColor);
+        String name = createRollCacheName(rollResult, diceStyleAndColor);
         String hashName = Hashing.sha256()
                 .hashString(name, StandardCharsets.UTF_8)
                 .toString();
@@ -147,7 +144,7 @@ public class ImageResultCreator {
         File imageFile = new File(filePath);
 
         if (!imageFile.exists()) {
-            Supplier<? extends InputStream> result = createNewFileForRoll(rolls.getFirst(), imageFile, name, diceStyleAndColor);
+            Supplier<? extends InputStream> result = createNewFileForRoll(rollResult, imageFile, name, diceStyleAndColor);
             if (result != null) {
                 BotMetrics.incrementImageResultMetricCounter(BotMetrics.CacheTag.CACHE_MISS);
             }
@@ -164,10 +161,10 @@ public class ImageResultCreator {
         }
     }
 
-    private @Nullable Supplier<? extends InputStream> createNewFileForRoll(Roll roll, File file, String name, DiceStyleAndColor diceStyleAndColor) {
+    private @Nullable Supplier<? extends InputStream> createNewFileForRoll(RollResult rollResult, File file, String name, DiceStyleAndColor diceStyleAndColor) {
         Stopwatch stopwatch = Stopwatch.createStarted();
 
-        final List<List<BufferedImage>> images = roll.getRandomElementsInRoll().stream()
+        final List<List<BufferedImage>> images = rollResult.getGroupedRandomElements().stream()
                 .map(r -> r.stream()
                         .filter(re -> !DiceImageStyle.NONE_DICE_COLOR.equals(re.getRollElement().getColor()))
                         .flatMap(re -> diceStyleAndColor.getImageFor(re).stream())
@@ -219,7 +216,7 @@ public class ImageResultCreator {
 
         g.dispose();
         final String indexPath = "%s/%s/%s".formatted(CACHE_FOLDER, diceStyleAndColor.toString(), CACHE_INDEX_FILE);
-        BigInteger combinations = roll.getRandomElementsInRoll()
+        BigInteger combinations = rollResult.getGroupedRandomElements()
                 .stream().flatMap(Collection::stream)
                 .map(r -> {
                             if (r.getMaxInc() != null && r.getMinInc() != null) {
@@ -227,7 +224,7 @@ public class ImageResultCreator {
                             } else if (r.getRandomSelectedFrom() != null) {
                                 return r.getRandomSelectedFrom().size();
                             } else {
-                                throw new IllegalStateException("The roll %s should not used to crate images".formatted(roll));
+                                throw new IllegalStateException("The roll %s should not used to crate images".formatted(rollResult));
                             }
                         }
                 )

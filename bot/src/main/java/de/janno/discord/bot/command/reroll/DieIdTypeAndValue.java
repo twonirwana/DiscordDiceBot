@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import de.janno.discord.bot.command.DieIdDb;
-import de.janno.evaluator.dice.DiceIdAndValue;
+import de.janno.evaluator.dice.DieIdAndValue;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
@@ -45,7 +45,7 @@ public class DieIdTypeAndValue implements Serializable {
     }
 
     @JsonIgnore
-    public DiceIdAndValue toDiceIdAndValue() {
-        return DiceIdAndValue.of(dieIdDb.toDieId(), numberSupplierValue);
+    public DieIdAndValue toDieIdAndValue() {
+        return DieIdAndValue.of(dieIdDb.toDieId(), numberSupplierValue);
     }
 }

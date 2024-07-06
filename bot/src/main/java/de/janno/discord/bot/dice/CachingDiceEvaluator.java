@@ -5,7 +5,7 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import de.janno.evaluator.dice.DiceEvaluator;
-import de.janno.evaluator.dice.DiceIdAndValue;
+import de.janno.evaluator.dice.DieIdAndValue;
 import de.janno.evaluator.dice.ExpressionException;
 import de.janno.evaluator.dice.Roller;
 import de.janno.evaluator.dice.random.GivenDiceNumberSupplier;
@@ -56,7 +56,7 @@ public class CachingDiceEvaluator {
         Gauge.builder("diceEvaluator.cache", () -> diceRollerCache.stats().averageLoadPenalty()).tags(Tags.of("stats", "averageLoadTime")).register(globalRegistry);
     }
 
-    public GivenDiceNumberSupplier getGivenDiceNumberSuppler(List<DiceIdAndValue> givenDiceNumberMap) {
+    public GivenDiceNumberSupplier getGivenDiceNumberSuppler(List<DieIdAndValue> givenDiceNumberMap) {
         return new GivenDiceNumberSupplier(numberSupplier, givenDiceNumberMap);
     }
 
