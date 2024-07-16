@@ -83,6 +83,7 @@ public abstract class DiscordAdapterImpl implements DiscordAdapter {
         }
     }
 
+
     private MessageCreateData convertToMessageCreateData(@NonNull EmbedOrMessageDefinition messageDefinition,
                                                          @Nullable String rollRequesterMention) {
         Preconditions.checkArgument(messageDefinition.getType() == EmbedOrMessageDefinition.Type.MESSAGE);
@@ -169,16 +170,23 @@ public abstract class DiscordAdapterImpl implements DiscordAdapter {
         //todo log config
         switch (throwable) {
             case InsufficientPermissionException ignored -> {
-                log.info(String.format("%s: Missing permissions: %s - %s", getGuildAndChannelName(), errorMessage, throwable.getMessage()));
+                log.info("{}: Missing permissions: {} - {}", getGuildAndChannelName(), errorMessage, throwable.getMessage());
                 return Mono.empty();
             }
             case ErrorResponseException ignored when ((ErrorResponseException) throwable).getErrorResponse() == ErrorResponse.MISSING_PERMISSIONS -> {
-                log.info(String.format("%s: Missing permissions: %s - %s", getGuildAndChannelName(), errorMessage, throwable.getMessage()));
+                log.info("{}: Missing permissions: {} - {}", getGuildAndChannelName(), errorMessage, throwable.getMessage());
+                return Mono.empty();
+            }
+            //we can check if the emoji exists, so the error is simply cached
+            case ErrorResponseException ignored when ((ErrorResponseException) throwable).getSchemaErrors().stream()
+                    .flatMap(se -> se.getErrors().stream())
+                    .anyMatch(e -> "BUTTON_COMPONENT_INVALID_EMOJI".equals(e.getCode())) -> {
+                log.info("{}: Invalid emoji: {}", getGuildAndChannelName(), errorMessage);
                 return Mono.empty();
             }
             case ErrorResponseException ignored when ((ErrorResponseException) throwable).getErrorResponse().getCode() < 20000 && ignoreNotFound ->
-                    log.trace(String.format("%s: Not found: %s", getGuildAndChannelName(), errorMessage));
-            default -> log.error("%s: %s".formatted(getGuildAndChannelName(), errorMessage), throwable);
+                    log.trace("{}: Not found: {}", getGuildAndChannelName(), errorMessage);
+            default -> log.error("{}: {}", getGuildAndChannelName(), errorMessage, throwable);
         }
         return Mono.empty();
     }

@@ -7,7 +7,9 @@ import lombok.NonNull;
 import lombok.Value;
 import org.apache.commons.lang3.StringUtils;
 
+import javax.annotation.Nullable;
 import java.util.Objects;
+import java.util.Optional;
 
 @Value
 @Builder
@@ -18,18 +20,21 @@ public class ButtonDefinition {
     String id;
     @NonNull
     ButtonDefinition.Style style;
-
     boolean disabled;
+    @Nullable
+    String emoji;
 
-    ButtonDefinition(@NonNull String label, @NonNull String id, Style style, boolean disabled) {
+    ButtonDefinition(@NonNull String label, @NonNull String id, Style style, boolean disabled, @Nullable String emoji) {
         //https://discord.com/developers/docs/interactions/message-components#button-object
         Preconditions.checkArgument(id.length() <= 100, String.format("ID '%s' is to long", id));
-        Preconditions.checkArgument(!Strings.isNullOrEmpty(label), "label is empty");
+        Preconditions.checkArgument(StringUtils.isNoneBlank(label) || emoji != null, "label and emoji is empty");
         Preconditions.checkArgument(!Strings.isNullOrEmpty(id), "id is empty");
-        this.label = StringUtils.abbreviate(label.replace("\n", " "), 80);
+        this.label = Optional.of(label).map(s -> StringUtils.abbreviate(s.replace("\n", " "), 80)).orElse(null);
         this.id = id;
         this.style = Objects.requireNonNullElse(style, Style.PRIMARY);
         this.disabled = disabled;
+        //todo validate format?
+        this.emoji = emoji;
     }
 
     public enum Style {

@@ -73,6 +73,35 @@ class ButtonHelperTest {
 
         assertThat(res.stream().map(ButtonIdLabelAndDiceExpression::getDiceExpression)).containsExactly("+1d4", "1d6");
     }
+
+    @Test
+    public void testParseString_unicodeEmoji() {
+        List<ButtonIdLabelAndDiceExpression> res = ButtonHelper.parseString("1d4@\uD83E\uDE99");
+
+        assertThat(res.stream()).containsExactly(new ButtonIdLabelAndDiceExpression("1_button", "", "1d4", false, false, "\uD83E\uDE99"));
+    }
+
+    @Test
+    public void testParseString_unicodeEmojiLabel() {
+        List<ButtonIdLabelAndDiceExpression> res = ButtonHelper.parseString("1d4@\uD83E\uDE99Test");
+
+        assertThat(res.stream()).containsExactly(new ButtonIdLabelAndDiceExpression("1_button", "Test", "1d4", false, false, "\uD83E\uDE99"));
+    }
+
+    @Test
+    public void testParseString_discordEmoji() {
+        List<ButtonIdLabelAndDiceExpression> res = ButtonHelper.parseString("1d4@<:d4s4:1122332617718534163>");
+
+        assertThat(res.stream()).containsExactly(new ButtonIdLabelAndDiceExpression("1_button", "", "1d4", false, false, "<:d4s4:1122332617718534163>"));
+    }
+
+    @Test
+    public void testParseString_discordEmojiLabel() {
+        List<ButtonIdLabelAndDiceExpression> res = ButtonHelper.parseString("1d4@<:d4s4:1122332617718534163>Test");
+
+        assertThat(res.stream()).containsExactly(new ButtonIdLabelAndDiceExpression("1_button", "Test", "1d4", false, false, "<:d4s4:1122332617718534163>"));
+    }
+
     @Test
     public void testParseStringMultiLineLiteral() {
         List<ButtonIdLabelAndDiceExpression> res = ButtonHelper.parseString("d[a\\nb\\nc,\\nd,e\\n];1d20@\\nAttack\\nDown\\n;3d10,3d10,3d10");
@@ -83,8 +112,8 @@ class ButtonHelperTest {
 
     @Test
     public void createButtonLayout() {
-        List<ComponentRowDefinition> res = ButtonHelper.createButtonLayout("id", UUID.fromString("00000000-0000-0000-0000-000000000000"), List.of(new ButtonIdLabelAndDiceExpression("1", "1", "1", false, false),
-                new ButtonIdLabelAndDiceExpression("2", "2", "2", false, false)));
+        List<ComponentRowDefinition> res = ButtonHelper.createButtonLayout("id", UUID.fromString("00000000-0000-0000-0000-000000000000"), List.of(new ButtonIdLabelAndDiceExpression("1", "1", "1", false, false, null),
+                new ButtonIdLabelAndDiceExpression("2", "2", "2", false, false, null)));
 
         assertThat(res).hasSize(1);
         assertThat(res.getFirst().getButtonDefinitions()).containsExactly(ButtonDefinition.builder().id("id\u001E1\u001E00000000-0000-0000-0000-000000000000").label("1").disabled(false).style(ButtonDefinition.Style.PRIMARY).build(),
@@ -94,8 +123,8 @@ class ButtonHelperTest {
 
     @Test
     public void createButtonLayoutLinebreak() {
-        List<ComponentRowDefinition> res = ButtonHelper.createButtonLayout("id", UUID.fromString("00000000-0000-0000-0000-000000000000"), List.of(new ButtonIdLabelAndDiceExpression("1", "1", "1", false, false),
-                new ButtonIdLabelAndDiceExpression("2", "2", "2", true, false)));
+        List<ComponentRowDefinition> res = ButtonHelper.createButtonLayout("id", UUID.fromString("00000000-0000-0000-0000-000000000000"), List.of(new ButtonIdLabelAndDiceExpression("1", "1", "1", false, false, null),
+                new ButtonIdLabelAndDiceExpression("2", "2", "2", true, false, null)));
 
         assertThat(res).hasSize(2);
         assertThat(res.get(0).getButtonDefinitions()).containsExactly(ButtonDefinition.builder().id("id\u001E1\u001E00000000-0000-0000-0000-000000000000").label("1").disabled(false).style(ButtonDefinition.Style.PRIMARY).build());

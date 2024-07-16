@@ -8,15 +8,21 @@ import de.janno.discord.bot.dice.DiceEvaluatorAdapter;
 import de.janno.discord.connector.api.BottomCustomIdUtils;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
+import net.fellbaum.jemoji.Emoji;
+import net.fellbaum.jemoji.EmojiManager;
 
 import javax.annotation.Nullable;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class ButtonHelper {
 
     private static final String LABEL_DELIMITER = "@";
     private static final String BUTTON_DELIMITER = ";";
+    private static final String EMOJI_REGEX = "^<a?:([a-zA-Z0-9_]+):([0-9]+)>";
+    private static final Pattern EMOJI_PATTERN = Pattern.compile(EMOJI_REGEX);
 
     public static List<ButtonIdLabelAndDiceExpression> parseString(String buttons) {
         buttons = buttons.replace("\\n", "\n");
@@ -34,7 +40,7 @@ public class ButtonHelper {
                         final String expression = split[0].trim();
                         if (!Strings.isNullOrEmpty(expression) && !Strings.isNullOrEmpty(label)) {
                             final boolean directRoll;
-                            final String cleanLable;
+                            String cleanLable;
                             if (label.startsWith("!") && label.length() > 1) {
                                 directRoll = true;
                                 cleanLable = label.substring(1);
@@ -42,8 +48,24 @@ public class ButtonHelper {
                                 cleanLable = label;
                                 directRoll = false;
                             }
+                            String emoji;
+                            Matcher emojiMatcher = EMOJI_PATTERN.matcher(cleanLable);
+                            //unicode emoji
+                            if (EmojiManager.containsEmoji(cleanLable)
+                                    && cleanLable.startsWith(EmojiManager.extractEmojisInOrder(cleanLable).getFirst().getEmoji())) {
+                                Emoji firstEmoji = EmojiManager.extractEmojisInOrder(cleanLable).getFirst();
+                                emoji = firstEmoji.getEmoji();
+                                cleanLable = label.substring(emoji.length());
 
-                            builder.add(new ButtonIdLabelAndDiceExpression(idCounter++ + "_button", cleanLable, expression, newLine, directRoll));
+                            //discord emoji
+                            } else if (emojiMatcher.find()) {
+                                emoji = emojiMatcher.group();
+                                //can produce an empty String
+                                cleanLable = label.substring(emoji.length());
+                            } else {
+                                emoji = null;
+                            }
+                            builder.add(new ButtonIdLabelAndDiceExpression(idCounter++ + "_button", cleanLable, expression, newLine, directRoll, emoji));
                             newLine = false;
                         }
                     }
@@ -51,7 +73,7 @@ public class ButtonHelper {
                     final String label = button.trim().replace("\n", " ");
                     final String expression = button.trim();
                     if (!Strings.isNullOrEmpty(expression) && !Strings.isNullOrEmpty(label)) {
-                        builder.add(new ButtonIdLabelAndDiceExpression(idCounter++ + "_button", label, expression, newLine, false));
+                        builder.add(new ButtonIdLabelAndDiceExpression(idCounter++ + "_button", label, expression, newLine, false, null));
                         newLine = false;
                     }
                 }
@@ -60,11 +82,6 @@ public class ButtonHelper {
         }
         return builder.build();
     }
-
-    public record ButtonIdLabelAndDiceExpressionExtension(ButtonIdLabelAndDiceExpression buttonIdLabelAndDiceExpression,
-                                                          boolean disabled, @Nullable ButtonDefinition.Style style) {
-    }
-
 
     public static List<ComponentRowDefinition> createButtonLayoutDetail(String commandId, UUID configUUID, List<ButtonIdLabelAndDiceExpressionExtension> buttons) {
         final List<ComponentRowDefinition> rows = new ArrayList<>();
@@ -85,6 +102,7 @@ public class ButtonHelper {
                     .label(button.buttonIdLabelAndDiceExpression.getLabel())
                     .style(style)
                     .disabled(button.disabled)
+                    .emoji(button.buttonIdLabelAndDiceExpression.getEmoji())
                     .build());
         }
         if (!currentRow.isEmpty()) {
@@ -121,7 +139,6 @@ public class ButtonHelper {
                 .map(r -> ComponentRowDefinition.builder().buttonDefinitions(r).build())
                 .toList();
     }
-
 
     public static Optional<String> valdiate(String buttons, Locale userLocale, List<String> extraButtonIds, boolean extraLine) {
         List<List<String>> rows = new ArrayList<>();
@@ -178,5 +195,9 @@ public class ButtonHelper {
 
 
         return Optional.empty();
+    }
+
+    public record ButtonIdLabelAndDiceExpressionExtension(ButtonIdLabelAndDiceExpression buttonIdLabelAndDiceExpression,
+                                                          boolean disabled, @Nullable ButtonDefinition.Style style) {
     }
 }

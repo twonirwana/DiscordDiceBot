@@ -1,9 +1,10 @@
 package de.janno.discord.bot.command.directRoll;
 
+import au.com.origin.snapshots.Expect;
+import au.com.origin.snapshots.junit5.SnapshotExtension;
 import de.janno.discord.bot.SlashEventAdaptorMock;
 import de.janno.discord.bot.command.channelConfig.ChannelConfigCommand;
 import de.janno.discord.bot.dice.CachingDiceEvaluator;
-import de.janno.discord.bot.dice.DiceEvaluatorAdapter;
 import de.janno.discord.bot.persistance.PersistenceManager;
 import de.janno.discord.bot.persistance.PersistenceManagerImpl;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
@@ -11,6 +12,7 @@ import de.janno.evaluator.dice.random.RandomNumberSupplier;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.io.File;
 import java.io.IOException;
@@ -18,15 +20,16 @@ import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 
-import static org.assertj.core.api.Assertions.assertThat;
+@ExtendWith(SnapshotExtension.class)
 
 public class DirectRollCommandMockTest {
     PersistenceManager persistenceManager;
+    private Expect expect;
 
     @BeforeEach
     void setup() throws IOException {
         File cacheDirectory = new File("imageCache/");
-        if(cacheDirectory.exists()){
+        if (cacheDirectory.exists()) {
             FileUtils.cleanDirectory(cacheDirectory);
         }
         persistenceManager = new PersistenceManagerImpl("jdbc:h2:mem:" + UUID.randomUUID(), null, null);
@@ -43,9 +46,7 @@ public class DirectRollCommandMockTest {
         directRollCommand.handleSlashCommandEvent(slashEvent, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"), Locale.ENGLISH).block();
 
 
-        assertThat(slashEvent.getActions()).containsExactlyInAnyOrder(
-                "acknowledgeAndRemoveSlash",
-                "sendMessage: EmbedOrMessageDefinition(title=1d6 ⇒ 1, descriptionOrContent=, fields=[], componentRowDefinitions=[], hasImage=true, type=EMBED, userReference=true, sendToOtherChannelId=null)");
+        expect.toMatchSnapshot(slashEvent.getSortedActions());
     }
 
     @Test
@@ -59,21 +60,7 @@ public class DirectRollCommandMockTest {
         directRollCommand.handleSlashCommandEvent(slashEvent, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"), Locale.ENGLISH).block();
 
 
-        assertThat(slashEvent.getActions()).containsExactlyInAnyOrder(
-                "acknowledgeAndRemoveSlash",
-                """
-                        sendMessage: EmbedOrMessageDefinition(title=
-                        Attack
-                        Down
-                         ⇒ a
-                        b
-                        c, descriptionOrContent=d[a
-                        b
-                        c,
-                        d,e
-                        ]: [a
-                        b
-                        c], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED, userReference=true, sendToOtherChannelId=null)""");
+        expect.toMatchSnapshot(slashEvent.getSortedActions());
     }
 
     @Test
@@ -87,10 +74,7 @@ public class DirectRollCommandMockTest {
         directRollCommand.handleSlashCommandEvent(slashEvent, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"), Locale.ENGLISH).block();
 
 
-        assertThat(slashEvent.getActions()).containsExactlyInAnyOrder(
-                "reply: commandString did not contain any random element, try for Example `d20` to roll a 20 sided die",
-                "sendMessage: EmbedOrMessageDefinition(title=20 ⇒ 20, descriptionOrContent=, fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED, userReference=true, sendToOtherChannelId=null)"
-        );
+        expect.toMatchSnapshot(slashEvent.getSortedActions());
     }
 
 
@@ -105,10 +89,7 @@ public class DirectRollCommandMockTest {
         directRollCommand.handleSlashCommandEvent(slashEvent, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"), Locale.ENGLISH).block();
 
 
-        assertThat(slashEvent.getActions()).containsExactlyInAnyOrder(
-                "replyWithEmbedOrMessageDefinition: EmbedOrMessageDefinition(title=null, descriptionOrContent=Type `/r` and a dice expression. It is possible to give the roll a label by adding it with a `@`. The output type, dice images etc. can be configuration with `/channel_config save_direct_roll_config`\n" +
-                        DiceEvaluatorAdapter.getHelp() +
-                        ", fields=[EmbedOrMessageDefinition.Field(name=Example, value=`/r expression: 1d6@Damage`, inline=false), EmbedOrMessageDefinition.Field(name=Full documentation, value=https://github.com/twonirwana/DiscordDiceBot, inline=false), EmbedOrMessageDefinition.Field(name=Discord Server for News, Help and Feature Requests, value=https://discord.gg/e43BsqKpFr, inline=false)], componentRowDefinitions=[], hasImage=false, type=EMBED, userReference=false, sendToOtherChannelId=null)");
+        expect.toMatchSnapshot(slashEvent.getSortedActions());
     }
 
     @Test
@@ -122,9 +103,7 @@ public class DirectRollCommandMockTest {
         directRollCommand.handleSlashCommandEvent(slashEvent, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"), Locale.ENGLISH).block();
 
 
-        assertThat(slashEvent.getActions()).containsExactlyInAnyOrder(
-                "reply: commandString\n" +
-                        "The following expression is invalid: __d__. The error is: Operator d has right associativity but the right value was: empty. Use `/r expression:help` to get more information on how to use the command.");
+        expect.toMatchSnapshot(slashEvent.getSortedActions());
     }
 
     @Test
@@ -138,10 +117,7 @@ public class DirectRollCommandMockTest {
         directRollCommand.handleSlashCommandEvent(slashEvent, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"), Locale.ENGLISH).block();
 
 
-        assertThat(slashEvent.getActions()).containsExactlyInAnyOrder(
-                "acknowledgeAndRemoveSlash",
-                "sendMessage: EmbedOrMessageDefinition(title=test ⇒ 1, descriptionOrContent=1d6, fields=[], componentRowDefinitions=[], hasImage=true, type=EMBED, userReference=true, sendToOtherChannelId=null)"
-        );
+        expect.toMatchSnapshot(slashEvent.getSortedActions());
     }
 
     @Test
@@ -173,10 +149,8 @@ public class DirectRollCommandMockTest {
                 .build()));
         directRollCommand.handleSlashCommandEvent(slashEvent2, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"), Locale.ENGLISH).block();
 
-        assertThat(slashEvent1.getActions()).containsExactlyInAnyOrder("reply: `commandString`\nSaved direct roll channel config");
-        assertThat(slashEvent2.getActions()).containsExactlyInAnyOrder("acknowledgeAndRemoveSlash",
-                "sendMessage: EmbedOrMessageDefinition(title=Roll ⇒ 1, descriptionOrContent=[1], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED, userReference=true, sendToOtherChannelId=null)"
-        );
+        expect.scenario("event1").toMatchSnapshot(slashEvent1.getSortedActions());
+        expect.scenario("event2").toMatchSnapshot(slashEvent2.getSortedActions());
     }
 
     @Test
@@ -208,10 +182,8 @@ public class DirectRollCommandMockTest {
                 .build()));
         directRollCommand.handleSlashCommandEvent(slashEvent2, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"), Locale.ENGLISH).block();
 
-        assertThat(slashEvent1.getActions()).containsExactlyInAnyOrder("reply: `commandString`\nSaved direct roll channel config");
-        assertThat(slashEvent2.getActions()).containsExactlyInAnyOrder(
-                "acknowledgeAndRemoveSlash",
-                "sendMessage: EmbedOrMessageDefinition(title=Roll ⇒ 1, descriptionOrContent=, fields=[], componentRowDefinitions=[], hasImage=true, type=EMBED, userReference=true, sendToOtherChannelId=null)");
+        expect.scenario("event1").toMatchSnapshot(slashEvent1.getSortedActions());
+        expect.scenario("event2").toMatchSnapshot(slashEvent2.getSortedActions());
     }
 
     @Test
@@ -243,10 +215,8 @@ public class DirectRollCommandMockTest {
                 .build()));
         directRollCommand.handleSlashCommandEvent(slashEvent2, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"), Locale.ENGLISH).block();
 
-        assertThat(slashEvent1.getActions()).containsExactlyInAnyOrder("reply: `commandString`\nSaved direct roll channel config");
-        assertThat(slashEvent2.getActions()).containsExactlyInAnyOrder(
-                "acknowledgeAndRemoveSlash",
-                "sendMessage: EmbedOrMessageDefinition(title=test ⇒ 1, descriptionOrContent=, fields=[], componentRowDefinitions=[], hasImage=true, type=EMBED, userReference=true, sendToOtherChannelId=null)");
+        expect.scenario("event1").toMatchSnapshot(slashEvent1.getSortedActions());
+        expect.scenario("event2").toMatchSnapshot(slashEvent2.getSortedActions());
     }
 
     @Test
@@ -278,11 +248,8 @@ public class DirectRollCommandMockTest {
                 .build()));
         directRollCommand.handleSlashCommandEvent(slashEvent2, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"), Locale.ENGLISH).block();
 
-        assertThat(slashEvent1.getActions()).containsExactlyInAnyOrder("reply: `commandString`\nSaved direct roll channel config");
-        assertThat(slashEvent2.getActions()).containsExactlyInAnyOrder(
-                "acknowledgeAndRemoveSlash",
-                "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=__**1d6 ⇒ 1**__  [1], fields=[], componentRowDefinitions=[], hasImage=false, type=MESSAGE, userReference=true, sendToOtherChannelId=null)"
-        );
+        expect.scenario("event1").toMatchSnapshot(slashEvent1.getSortedActions());
+        expect.scenario("event2").toMatchSnapshot(slashEvent2.getSortedActions());
     }
 
     @Test
@@ -314,11 +281,8 @@ public class DirectRollCommandMockTest {
                 .build()));
         directRollCommand.handleSlashCommandEvent(slashEvent2, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"), Locale.ENGLISH).block();
 
-        assertThat(slashEvent1.getActions()).containsExactlyInAnyOrder("reply: `commandString`\nSaved direct roll channel config");
-        assertThat(slashEvent2.getActions()).containsExactlyInAnyOrder(
-                "acknowledgeAndRemoveSlash",
-                "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=1d6 ⇒ 1, fields=[], componentRowDefinitions=[], hasImage=false, type=MESSAGE, userReference=true, sendToOtherChannelId=null)"
-        );
+        expect.scenario("event1").toMatchSnapshot(slashEvent1.getSortedActions());
+        expect.scenario("event2").toMatchSnapshot(slashEvent2.getSortedActions());
     }
 
     @Test
@@ -344,9 +308,8 @@ public class DirectRollCommandMockTest {
                 .build()));
         directRollCommand.handleSlashCommandEvent(slashEvent2, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"), Locale.ENGLISH).block();
 
-        assertThat(slashEvent1.getActions()).containsExactlyInAnyOrder("reply: `commandString`\nSaved new alias");
-        assertThat(slashEvent2.getActions()).containsExactlyInAnyOrder("acknowledgeAndRemoveSlash",
-                "sendMessage: EmbedOrMessageDefinition(title=2d20+10 ⇒ 36, descriptionOrContent=, fields=[], componentRowDefinitions=[], hasImage=true, type=EMBED, userReference=true, sendToOtherChannelId=null)");
+        expect.scenario("event1").toMatchSnapshot(slashEvent1.getSortedActions());
+        expect.scenario("event2").toMatchSnapshot(slashEvent2.getSortedActions());
     }
 
     @Test
@@ -372,9 +335,8 @@ public class DirectRollCommandMockTest {
                 .build()));
         directRollCommand.handleSlashCommandEvent(slashEvent2, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"), Locale.ENGLISH).block();
 
-        assertThat(slashEvent1.getActions()).containsExactlyInAnyOrder("reply: `commandString`\nSaved new alias");
-        assertThat(slashEvent2.getActions()).containsExactlyInAnyOrder("acknowledgeAndRemoveSlash",
-                "sendMessage: EmbedOrMessageDefinition(title=2d20+10 ⇒ 36, descriptionOrContent=, fields=[], componentRowDefinitions=[], hasImage=true, type=EMBED, userReference=true, sendToOtherChannelId=null)");
+        expect.scenario("event1").toMatchSnapshot(slashEvent1.getSortedActions());
+        expect.scenario("event2").toMatchSnapshot(slashEvent2.getSortedActions());
     }
 
 
