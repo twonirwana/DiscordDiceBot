@@ -1,0 +1,32 @@
+de.janno.discord.bot.command.customParameter.CustomParameterCommandMockTest.channelAlias[click1]=[
+  [
+    "editMessage: message:invokingUser: 4d{sides}+att\nPlease select value for **sides**, buttonValues=id1,id2,id3,id4,id5,id6,id7,id8,clear"
+  ]
+]
+
+
+de.janno.discord.bot.command.customParameter.CustomParameterCommandMockTest.channelAlias[click2]=[
+  [
+    "deleteMessageById: 0",
+    "editMessage: message:processing ..., buttonValues=",
+    "sendMessage: EmbedOrMessageDefinition(title=4d6+2d20+10 ⇒ 6, 3, 2, 3, 6, 13, 10, descriptionOrContent=[6, 3, 2, 3] [6, 13], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED, userReference=true, sendToOtherChannelId=null)",
+    "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent={numberOfDice}d{sides}+att\nPlease select value for **numberOfDice**, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=1, id=custom_parameter\u001Eid1\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=2, id=custom_parameter\u001Eid2\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=3, id=custom_parameter\u001Eid3\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=4, id=custom_parameter\u001Eid4\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=5, id=custom_parameter\u001Eid5\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)]), ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=6, id=custom_parameter\u001Eid6\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=7, id=custom_parameter\u001Eid7\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=8, id=custom_parameter\u001Eid8\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=9, id=custom_parameter\u001Eid9\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=10, id=custom_parameter\u001Eid10\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
+  ]
+]
+
+
+de.janno.discord.bot.command.customParameter.CustomParameterCommandMockTest.userChannelAlias[click1]=[
+  [
+    "editMessage: message:invokingUser: 4d{sides}+att\nPlease select value for **sides**, buttonValues=id1,id2,id3,id4,id5,id6,id7,id8,clear"
+  ]
+]
+
+
+de.janno.discord.bot.command.customParameter.CustomParameterCommandMockTest.userChannelAlias[click2]=[
+  [
+    "deleteMessageById: 0",
+    "editMessage: message:processing ..., buttonValues=",
+    "sendMessage: EmbedOrMessageDefinition(title=4d6+2d20+10 ⇒ 6, 3, 2, 3, 6, 13, 10, descriptionOrContent=[6, 3, 2, 3] [6, 13], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED, userReference=true, sendToOtherChannelId=null)",
+    "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent={numberOfDice}d{sides}+att\nPlease select value for **numberOfDice**, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=1, id=custom_parameter\u001Eid1\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=2, id=custom_parameter\u001Eid2\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=3, id=custom_parameter\u001Eid3\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=4, id=custom_parameter\u001Eid4\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=5, id=custom_parameter\u001Eid5\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)]), ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=6, id=custom_parameter\u001Eid6\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=7, id=custom_parameter\u001Eid7\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=8, id=custom_parameter\u001Eid8\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=9, id=custom_parameter\u001Eid9\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=10, id=custom_parameter\u001Eid10\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
+  ]
+]
