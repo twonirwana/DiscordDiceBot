@@ -30,7 +30,7 @@ public class ButtonDefinition {
     ButtonDefinition(@NonNull String label, @NonNull String id, Style style, boolean disabled, @Nullable String emoji) {
         //https://discord.com/developers/docs/interactions/message-components#button-object
         Preconditions.checkArgument(id.length() <= 100, String.format("ID '%s' is to long", id));
-        Preconditions.checkArgument(StringUtils.isNoneBlank(label) || emoji != null, "label and emoji is empty");
+        Preconditions.checkArgument(StringUtils.isNoneBlank(label) || emoji != null, "label and emoji are empty");
         Preconditions.checkArgument(!Strings.isNullOrEmpty(id), "id is empty");
         Preconditions.checkArgument(emoji == null || isEmoji(emoji), "invalid emoji: " + emoji);
         this.label = Optional.of(label).map(s -> StringUtils.abbreviate(s.replace("\n", " "), 80)).orElse(null);
