@@ -358,6 +358,15 @@ The reroll can be done multiple times, until the 'Finish' button is used.
 
 image:image/reroll.webp[image,600]
 
+=== Emoji Button
+
+image:image/custom_emoji_button.png[image,600]
+
+If a command creates a button with a label (usualy the text after the `@`) then it is possible to give the button an emoji.
+It musst be a single emoji at the start of the label.
+It can be a unicode emoji or a custom discord emoji (provided with emoji button, on the right side of the message input).
+Commands with invalid emojis will fail and simply produce no button message.
+
 == Commands
 
 === Custom Dice
@@ -698,3 +707,4 @@ All functions are case insensitiv.
 * The `d6_dot` in `white` dice images are from https://game-icons.net/
 * The `d6_dot` in `black_and_gold` dice images are adapted from https://speakthesky.itch.io/typeface-dicier and the Infinite Revolution RPG
 * The `expance` dice images are adapted from https://github.com/Foxfyre/expanse
+* Icons from https://game-icons.net/ under https://creativecommons.org/licenses/by/3.0/[CC BY 3.0]

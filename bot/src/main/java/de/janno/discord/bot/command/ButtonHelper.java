@@ -3,6 +3,7 @@ package de.janno.discord.bot.command;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import de.janno.discord.bot.BotEmojiUtil;
 import de.janno.discord.bot.I18n;
 import de.janno.discord.bot.dice.DiceEvaluatorAdapter;
 import de.janno.discord.connector.api.BottomCustomIdUtils;
@@ -21,8 +22,7 @@ public class ButtonHelper {
 
     private static final String LABEL_DELIMITER = "@";
     private static final String BUTTON_DELIMITER = ";";
-    private static final String EMOJI_REGEX = "^<a?:([a-zA-Z0-9_]+):([0-9]+)>";
-    private static final Pattern EMOJI_PATTERN = Pattern.compile(EMOJI_REGEX);
+
 
     public static List<ButtonIdLabelAndDiceExpression> parseString(String buttons) {
         buttons = buttons.replace("\\n", "\n");
@@ -40,32 +40,16 @@ public class ButtonHelper {
                         final String expression = split[0].trim();
                         if (!Strings.isNullOrEmpty(expression) && !Strings.isNullOrEmpty(label)) {
                             final boolean directRoll;
-                            String cleanLable;
+                            String cleanLabel;
                             if (label.startsWith("!") && label.length() > 1) {
                                 directRoll = true;
-                                cleanLable = label.substring(1);
+                                cleanLabel = label.substring(1);
                             } else {
-                                cleanLable = label;
+                                cleanLabel = label;
                                 directRoll = false;
                             }
-                            String emoji;
-                            Matcher emojiMatcher = EMOJI_PATTERN.matcher(cleanLable);
-                            //unicode emoji
-                            if (EmojiManager.containsEmoji(cleanLable)
-                                    && cleanLable.startsWith(EmojiManager.extractEmojisInOrder(cleanLable).getFirst().getEmoji())) {
-                                Emoji firstEmoji = EmojiManager.extractEmojisInOrder(cleanLable).getFirst();
-                                emoji = firstEmoji.getEmoji();
-                                cleanLable = label.substring(emoji.length());
-
-                            //discord emoji
-                            } else if (emojiMatcher.find()) {
-                                emoji = emojiMatcher.group();
-                                //can produce an empty String
-                                cleanLable = label.substring(emoji.length());
-                            } else {
-                                emoji = null;
-                            }
-                            builder.add(new ButtonIdLabelAndDiceExpression(idCounter++ + "_button", cleanLable, expression, newLine, directRoll, emoji));
+                            BotEmojiUtil.LabelAndEmoji labelAndEmoji = BotEmojiUtil.splitLabel(cleanLabel);
+                            builder.add(new ButtonIdLabelAndDiceExpression(idCounter++ + "_button", labelAndEmoji.labelWithoutLeadingEmoji(), expression, newLine, directRoll, labelAndEmoji.emoji()));
                             newLine = false;
                         }
                     }

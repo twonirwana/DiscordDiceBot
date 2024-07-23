@@ -38,7 +38,10 @@ public class MessageComponentConverter {
         return rows.stream()
                 .map(c -> ActionRow.of(c.getButtonDefinitions().stream()
                         .map(b -> new ButtonImpl(b.getId(), b.getLabel(), ButtonStyle.fromKey(b.getStyle().getValue()), b.isDisabled(),
-                                Optional.ofNullable(b.getEmoji()).map(Emoji::fromFormatted).orElse(null)))
+                                Optional.ofNullable(b.getEmoji())
+                                        .map(String::trim)
+                                        .map(Strings::emptyToNull)
+                                        .map(Emoji::fromFormatted).orElse(null)))
                         .toList())
                 ).toArray(LayoutComponent[]::new);
     }

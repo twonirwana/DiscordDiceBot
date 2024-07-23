@@ -6,6 +6,7 @@ import com.google.common.base.Stopwatch;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import de.janno.discord.bot.BotEmojiUtil;
 import de.janno.discord.bot.I18n;
 import de.janno.discord.bot.command.*;
 import de.janno.discord.bot.dice.CachingDiceEvaluator;
@@ -487,17 +488,22 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
                 .filter(p -> Objects.equals(p.getParameterExpression(), currentParameterExpression))
                 .findFirst().orElse(config.getParameters().getFirst());
         List<ButtonDefinition> buttons = parameter.getParameterOptions().stream()
-                .map(vl -> ButtonDefinition.builder()
-                        .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), vl.id(), configUUID))
-                        .style(vl.directRoll() ? ButtonDefinition.Style.SUCCESS : ButtonDefinition.Style.PRIMARY)
-                        .label(vl.label())
-                        .build())
+                .map(vl -> {
+                    BotEmojiUtil.LabelAndEmoji labelAndEmoji = BotEmojiUtil.splitLabel(vl.label());
+                    return ButtonDefinition.builder()
+                            .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), vl.id(), configUUID))
+                            .style(vl.directRoll() ? ButtonDefinition.Style.SUCCESS : ButtonDefinition.Style.PRIMARY)
+                            .label(labelAndEmoji.labelWithoutLeadingEmoji())
+                            .emoji(labelAndEmoji.emoji())
+                            .build();
+                })
                 .collect(Collectors.toList());
         boolean hasSelectedParameter = hasAnySelectedValues(state);
         if (hasSelectedParameter) {
             buttons.add(ButtonDefinition.builder()
                     .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), CLEAR_BUTTON_ID, configUUID))
                     .label(I18n.getMessage("custom_parameter.button.label.clear", config.getConfigLocale()))
+                    .emoji(BotEmojiUtil.toDiscordString(BotEmojiUtil.EmojiKey.CANCEL_EMOJI_KEY))
                     .style(ButtonDefinition.Style.DANGER)
                     .build());
         }
