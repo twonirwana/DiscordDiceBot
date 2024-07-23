@@ -9,13 +9,9 @@ import de.janno.discord.bot.dice.DiceEvaluatorAdapter;
 import de.janno.discord.connector.api.BottomCustomIdUtils;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
-import net.fellbaum.jemoji.Emoji;
-import net.fellbaum.jemoji.EmojiManager;
 
 import javax.annotation.Nullable;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class ButtonHelper {
