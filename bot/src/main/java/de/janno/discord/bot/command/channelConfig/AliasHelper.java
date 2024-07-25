@@ -56,7 +56,6 @@ public class AliasHelper {
             }
         }
 
-
         return expressionWithOptionalLabelsAndAppliedAliases;
     }
 

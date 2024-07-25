@@ -1,0 +1,28 @@
+de.janno.discord.bot.command.channelConfig.ChannelConfigMockTest.autoCompleteMatchingChannelAliasScope=[
+  [
+    {
+      "name": "att->2d20+10",
+      "value": "att"
+    }
+  ]
+]
+
+
+de.janno.discord.bot.command.channelConfig.ChannelConfigMockTest.autoCompleteMatchingUserAliasScope=[
+  [
+    {
+      "name": "att->2d20+10",
+      "value": "att"
+    }
+  ]
+]
+
+
+de.janno.discord.bot.command.channelConfig.ChannelConfigMockTest.autoCompleteNoScope=[
+  [
+    {
+      "name": "Select the alias scope first",
+      "value": ""
+    }
+  ]
+]

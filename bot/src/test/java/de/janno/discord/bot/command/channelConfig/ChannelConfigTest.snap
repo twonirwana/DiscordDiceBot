@@ -383,6 +383,28 @@ de.janno.discord.bot.command.channelConfig.ChannelConfigTest.getCommandDefinitio
             "options": [
               {
                 "type": "STRING",
+                "name": "scope",
+                "nameLocales": [ ],
+                "description": "scope of the alias, if applies only to one user or more",
+                "descriptionLocales": [ ],
+                "required": true,
+                "choices": [
+                  {
+                    "name": "all_users_in_this_channel",
+                    "value": "all_users_in_this_channel",
+                    "nameLocales": [ ]
+                  },
+                  {
+                    "name": "current_user_in_this_channel",
+                    "value": "current_user_in_this_channel",
+                    "nameLocales": [ ]
+                  }
+                ],
+                "options": [ ],
+                "autoComplete": false
+              },
+              {
+                "type": "STRING",
                 "name": "name",
                 "nameLocales": [ ],
                 "description": "The name of the alias to delete",
@@ -403,29 +425,7 @@ de.janno.discord.bot.command.channelConfig.ChannelConfigTest.getCommandDefinitio
                 "required": true,
                 "choices": [ ],
                 "options": [ ],
-                "autoComplete": false
-              },
-              {
-                "type": "STRING",
-                "name": "scope",
-                "nameLocales": [ ],
-                "description": "scope of the alias, if applies only to one user or more",
-                "descriptionLocales": [ ],
-                "required": true,
-                "choices": [
-                  {
-                    "name": "all_users_in_this_channel",
-                    "value": "all_users_in_this_channel",
-                    "nameLocales": [ ]
-                  },
-                  {
-                    "name": "current_user_in_this_channel",
-                    "value": "current_user_in_this_channel",
-                    "nameLocales": [ ]
-                  }
-                ],
-                "options": [ ],
-                "autoComplete": false
+                "autoComplete": true
               }
             ],
             "autoComplete": false
