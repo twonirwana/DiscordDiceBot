@@ -122,7 +122,7 @@ class WelcomeCommandTest {
                 .flatMap(Collection::stream)
                 .flatMap(s -> s.getButtonDefinitions().stream())
                 .map(ButtonDefinition::getLabel))
-                .containsExactly("Coin Toss \uD83E\uDE99");
+                .containsExactly("Coin Toss");
     }
 
     @Test

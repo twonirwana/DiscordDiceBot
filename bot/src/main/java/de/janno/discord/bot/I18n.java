@@ -19,7 +19,7 @@ public final class I18n {
 
     public static String getMessage(String key, Locale locale) {
         try {
-            return StringEscapeUtils.unescapeJava(ResourceBundle.getBundle(MESSAGES_KEY, locale).getString(key));
+            return StringEscapeUtils.unescapeJava(BotEmojiUtil.replaceEmojiKeyWithEmoji(ResourceBundle.getBundle(MESSAGES_KEY, locale).getString(key)));
         } catch (MissingResourceException e) {
             log.error("Missing I18n for key: {}", key);
             String[] split = key.split("\\.");

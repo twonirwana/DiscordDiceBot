@@ -26,8 +26,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 
-import static shadow.org.assertj.core.api.Assertions.assertThat;
-
 @ExtendWith(SnapshotExtension.class)
 class FetchCommandMockTest {
 
@@ -74,36 +72,28 @@ class FetchCommandMockTest {
     void noOldMessage() {
         underTest.handleSlashCommandEvent(fetchEvent, () -> uuid0, Locale.ENGLISH).block();
 
-        assertThat(fetchEvent.getActions()).containsExactlyInAnyOrder(
-                "reply: No old button message in this channel found"
-        );
+        expect.toMatchSnapshot(fetchEvent.getSortedActions());
     }
 
     @Test
     void noOldMessage_fr() {
         underTest.handleSlashCommandEvent(fetchEvent, () -> uuid0, Locale.FRENCH).block();
 
-        assertThat(fetchEvent.getActions()).containsExactlyInAnyOrder(
-                "reply: Aucun ancien message de bouton trouvé"
-        );
+        expect.toMatchSnapshot(fetchEvent.getSortedActions());
     }
 
     @Test
     void noOldMessage_pt_BR() {
         underTest.handleSlashCommandEvent(fetchEvent, () -> uuid0, Locale.of("pt", "BR")).block();
 
-        assertThat(fetchEvent.getActions()).containsExactlyInAnyOrder(
-                "reply: Nenhuma mensagem antiga do botão foi encontrada"
-        );
+        expect.toMatchSnapshot(fetchEvent.getSortedActions());
     }
 
     @Test
     void noOldMessage_de() {
         underTest.handleSlashCommandEvent(fetchEvent, () -> uuid0, Locale.GERMAN).block();
 
-        assertThat(fetchEvent.getActions()).containsExactlyInAnyOrder(
-                "reply: Es wurde keine alte Würfel-Nachricht im diesen Kanal gefunden"
-        );
+        expect.toMatchSnapshot(fetchEvent.getSortedActions());
     }
 
 
@@ -112,12 +102,12 @@ class FetchCommandMockTest {
         io.avaje.config.Config.setProperty("command.delayMessageDataDeletionMs", "1000");
         io.avaje.config.Config.setProperty("command.fetch.delayMs", "0");
 
-        CustomDiceConfig otherConfig = new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "att", "2d20", false, false)), AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
+        CustomDiceConfig otherConfig = new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "att", "2d20", false, false, null)), AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
         customDiceCommand.createMessageConfig(uuid1, fetchEvent.getGuildId(), fetchEvent.getChannelId(), otherConfig)
                 .ifPresent(m -> persistenceManager.saveMessageConfig(m));
         customDiceCommand.createEmptyMessageData(uuid1, fetchEvent.getGuildId(), fetchEvent.getChannelId(), -3L);
 
-        CustomDiceConfig config = new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "1d6", false, false)), AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
+        CustomDiceConfig config = new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "1d6", false, false, null)), AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
         customDiceCommand.createMessageConfig(uuid0, fetchEvent.getGuildId(), fetchEvent.getChannelId(), config)
                 .ifPresent(m -> persistenceManager.saveMessageConfig(m));
         customDiceCommand.createEmptyMessageData(uuid0, fetchEvent.getGuildId(), fetchEvent.getChannelId(), -2L);
@@ -133,12 +123,12 @@ class FetchCommandMockTest {
     @Test
     void fetchOldCustomDiceMessageNotOldEnough() throws InterruptedException {
         io.avaje.config.Config.setProperty("command.fetch.delayMs", "6000000");
-        CustomDiceConfig otherConfig = new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "att", "2d20", false, false)), AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
+        CustomDiceConfig otherConfig = new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "att", "2d20", false, false, null)), AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
         customDiceCommand.createMessageConfig(uuid1, fetchEvent.getGuildId(), fetchEvent.getChannelId(), otherConfig)
                 .ifPresent(m -> persistenceManager.saveMessageConfig(m));
         customDiceCommand.createEmptyMessageData(uuid1, fetchEvent.getGuildId(), fetchEvent.getChannelId(), -3L);
 
-        CustomDiceConfig config = new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "1d6", false, false)), AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
+        CustomDiceConfig config = new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "1d6", false, false, null)), AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
         customDiceCommand.createMessageConfig(uuid0, fetchEvent.getGuildId(), fetchEvent.getChannelId(), config)
                 .ifPresent(m -> persistenceManager.saveMessageConfig(m));
         customDiceCommand.createEmptyMessageData(uuid0, fetchEvent.getGuildId(), fetchEvent.getChannelId(), -2L);
@@ -157,14 +147,14 @@ class FetchCommandMockTest {
         io.avaje.config.Config.setProperty("command.delayMessageDataDeletionMs", "1000");
         io.avaje.config.Config.setProperty("command.fetch.delayMs", "0");
 
-        SumCustomSetConfig otherConfig = new SumCustomSetConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Att", "+2d20", false, false),
-                new ButtonIdLabelAndDiceExpression("2_button", "bonus", "+5", false, false)), true, true, false, null, null, AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
+        SumCustomSetConfig otherConfig = new SumCustomSetConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Att", "+2d20", false, false, null),
+                new ButtonIdLabelAndDiceExpression("2_button", "bonus", "+5", false, false, null)), true, true, false, null, null, AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
         sumCustomSetCommand.createMessageConfig(uuid1, fetchEvent.getGuildId(), fetchEvent.getChannelId(), otherConfig)
                 .ifPresent(m -> persistenceManager.saveMessageConfig(m));
         sumCustomSetCommand.createEmptyMessageData(uuid1, fetchEvent.getGuildId(), fetchEvent.getChannelId(), -3L);
 
-        SumCustomSetConfig config = new SumCustomSetConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "+1d6", false, false),
-                new ButtonIdLabelAndDiceExpression("2_button", "bonus", "+2", false, false)), true, true, false, null, null, AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
+        SumCustomSetConfig config = new SumCustomSetConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "+1d6", false, false, null),
+                new ButtonIdLabelAndDiceExpression("2_button", "bonus", "+2", false, false, null)), true, true, false, null, null, AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
         sumCustomSetCommand.createMessageConfig(uuid0, fetchEvent.getGuildId(), fetchEvent.getChannelId(), config)
                 .ifPresent(m -> persistenceManager.saveMessageConfig(m));
         customDiceCommand.createEmptyMessageData(uuid0, fetchEvent.getGuildId(), fetchEvent.getChannelId(), -2L);

@@ -1,0 +1,27 @@
+de.janno.discord.bot.command.MessageDeletionHelperTest.deleteMessageAndData=[
+  [
+    "deleteMessageById: 1",
+    "deleteMessageById: 3",
+    "deleteMessageById: 4",
+    "deleteMessageById: 5",
+    "deleteMessageById: 7",
+    "deleteMessageById: 8",
+    "deleteMessageById: 9",
+    "getMessagesState: [1, 2, 3, 4, 5, 7, 8, 9]"
+  ]
+]
+
+
+de.janno.discord.bot.command.MessageDeletionHelperTest.deleteMessageAndData_deleteCache=[
+  [
+    "deleteMessageById: 1",
+    "deleteMessageById: 3",
+    "deleteMessageById: 4",
+    "deleteMessageById: 5",
+    "deleteMessageById: 7",
+    "deleteMessageById: 8",
+    "deleteMessageById: 9",
+    "getMessagesState: [1, 2, 3, 4, 5, 7, 8, 9]",
+    "getMessagesState: [2]"
+  ]
+]

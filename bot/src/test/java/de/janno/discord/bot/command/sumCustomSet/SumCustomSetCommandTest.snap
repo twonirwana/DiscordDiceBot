@@ -5,7 +5,7 @@ de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandTest.configSerializ
     "channelId": 2,
     "commandId": "sum_custom_set",
     "configClassId": "SumCustomSetConfig",
-    "config": "---\nanswerTargetChannelId: 123\nlabelAndExpression:\n- buttonId: \"1_button\"\n  label: \"Label\"\n  diceExpression: \"+1d6\"\n  newLine: false\n  directRoll: false\n- buttonId: \"2_button\"\n  label: \"+2d4\"\n  diceExpression: \"+2d4\"\n  newLine: true\n  directRoll: false\nalwaysSumResult: true\nhideExpressionInStatusAndAnswer: true\nsystemButtonNewLine: true\nprefix: \"groupC(\"\npostfix: \")\"\nanswerFormatType: \"full\"\nanswerInteractionType: \"none\"\nconfigLocale: \"de\"\ndiceStyleAndColor:\n  diceImageStyle: \"polyhedral_alies_v2\"\n  configuredDefaultColor: \"blue_and_silver\"\n"
+    "config": "---\nanswerTargetChannelId: 123\nlabelAndExpression:\n- buttonId: \"1_button\"\n  label: \"Label\"\n  diceExpression: \"+1d6\"\n  newLine: false\n  directRoll: false\n  emoji: null\n- buttonId: \"2_button\"\n  label: \"+2d4\"\n  diceExpression: \"+2d4\"\n  newLine: true\n  directRoll: false\n  emoji: \"🪙\"\nalwaysSumResult: true\nhideExpressionInStatusAndAnswer: true\nsystemButtonNewLine: true\nprefix: \"groupC(\"\npostfix: \")\"\nanswerFormatType: \"full\"\nanswerInteractionType: \"none\"\nconfigLocale: \"de\"\ndiceStyleAndColor:\n  diceImageStyle: \"polyhedral_alies_v2\"\n  configuredDefaultColor: \"blue_and_silver\"\n"
   }
 ]
 
@@ -45,7 +45,8 @@ de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandTest.createSlashRes
             "label": "Roll",
             "id": "sum_custom_set\u001Eroll\u001E00000000-0000-0000-0000-000000000000",
             "style": "SUCCESS",
-            "disabled": true
+            "disabled": true,
+            "emoji": "<:rollingdices:1>"
           }
         ]
       },
@@ -55,13 +56,15 @@ de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandTest.createSlashRes
             "label": "Clear",
             "id": "sum_custom_set\u001Eclear\u001E00000000-0000-0000-0000-000000000000",
             "style": "DANGER",
-            "disabled": false
+            "disabled": false,
+            "emoji": "<:cancel:1>"
           },
           {
             "label": "Back",
             "id": "sum_custom_set\u001Eback\u001E00000000-0000-0000-0000-000000000000",
             "style": "SECONDARY",
-            "disabled": true
+            "disabled": true,
+            "emoji": "<:anticlockwiserotation:1>"
           }
         ]
       }
@@ -107,7 +110,8 @@ de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandTest.getButtonMessa
             "label": "Roll",
             "id": "sum_custom_set\u001Eroll\u001E00000000-0000-0000-0000-000000000000",
             "style": "SUCCESS",
-            "disabled": true
+            "disabled": true,
+            "emoji": "<:rollingdices:1>"
           }
         ]
       },
@@ -117,13 +121,15 @@ de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandTest.getButtonMessa
             "label": "Clear",
             "id": "sum_custom_set\u001Eclear\u001E00000000-0000-0000-0000-000000000000",
             "style": "DANGER",
-            "disabled": false
+            "disabled": false,
+            "emoji": "<:cancel:1>"
           },
           {
             "label": "Back",
             "id": "sum_custom_set\u001Eback\u001E00000000-0000-0000-0000-000000000000",
             "style": "SECONDARY",
-            "disabled": true
+            "disabled": true,
+            "emoji": "<:anticlockwiserotation:1>"
           }
         ]
       }
@@ -169,7 +175,8 @@ de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandTest.getButtonMessa
             "label": "Roll",
             "id": "sum_custom_set\u001Eroll\u001E00000000-0000-0000-0000-000000000000",
             "style": "SUCCESS",
-            "disabled": true
+            "disabled": true,
+            "emoji": "<:rollingdices:1>"
           }
         ]
       },
@@ -179,13 +186,15 @@ de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandTest.getButtonMessa
             "label": "Clear",
             "id": "sum_custom_set\u001Eclear\u001E00000000-0000-0000-0000-000000000000",
             "style": "DANGER",
-            "disabled": false
+            "disabled": false,
+            "emoji": "<:cancel:1>"
           },
           {
             "label": "Back",
             "id": "sum_custom_set\u001Eback\u001E00000000-0000-0000-0000-000000000000",
             "style": "SECONDARY",
-            "disabled": true
+            "disabled": true,
+            "emoji": "<:anticlockwiserotation:1>"
           }
         ]
       }

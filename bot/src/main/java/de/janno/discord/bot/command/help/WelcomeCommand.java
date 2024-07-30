@@ -3,6 +3,7 @@ package de.janno.discord.bot.command.help;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import de.janno.discord.bot.AnswerInteractionType;
+import de.janno.discord.bot.BotEmojiUtil;
 import de.janno.discord.bot.BotMetrics;
 import de.janno.discord.bot.I18n;
 import de.janno.discord.bot.command.*;
@@ -199,30 +200,31 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
                 .componentRowDefinition(ComponentRowDefinition.builder()
                         .buttonDefinitions(
                                 List.of(
-                                        createButtonDefinition(RpgSystemCommandPreset.PresetId.DND5_IMAGE, configUUID, config.getConfigLocale()),
-                                        createButtonDefinition(RpgSystemCommandPreset.PresetId.DND5, configUUID, config.getConfigLocale()),
-                                        createButtonDefinition(RpgSystemCommandPreset.PresetId.FATE_IMAGE, configUUID, config.getConfigLocale()),
-                                        createButtonDefinition(RpgSystemCommandPreset.PresetId.COIN, configUUID, config.getConfigLocale())
+                                        createButtonDefinition(RpgSystemCommandPreset.PresetId.DND5_IMAGE, configUUID, config.getConfigLocale(), BotEmojiUtil.EmojiKey.D20S20_RDD_EMOJI_KEY),
+                                        createButtonDefinition(RpgSystemCommandPreset.PresetId.DND5, configUUID, config.getConfigLocale(), null),
+                                        createButtonDefinition(RpgSystemCommandPreset.PresetId.FATE_IMAGE, configUUID, config.getConfigLocale(), BotEmojiUtil.EmojiKey.FATE_EMOJI_KEY),
+                                        createButtonDefinition(RpgSystemCommandPreset.PresetId.COIN, configUUID, config.getConfigLocale(), BotEmojiUtil.EmojiKey.COIN_EMOJI_KEY)
                                 )
                         )
                         .build())
                 .componentRowDefinition(ComponentRowDefinition.builder()
                         .buttonDefinitions(
                                 List.of(
-                                        createButtonDefinition(RpgSystemCommandPreset.PresetId.NWOD, configUUID, config.getConfigLocale()),
-                                        createButtonDefinition(RpgSystemCommandPreset.PresetId.OWOD, configUUID, config.getConfigLocale()),
-                                        createButtonDefinition(RpgSystemCommandPreset.PresetId.SHADOWRUN_IMAGE, configUUID, config.getConfigLocale()),
-                                        createButtonDefinition(RpgSystemCommandPreset.PresetId.DICE_CALCULATOR, configUUID, config.getConfigLocale())
+                                        createButtonDefinition(RpgSystemCommandPreset.PresetId.NWOD, configUUID, config.getConfigLocale(), BotEmojiUtil.EmojiKey.D10S10_BLUE_EMOJI_KEY),
+                                        createButtonDefinition(RpgSystemCommandPreset.PresetId.OWOD, configUUID, config.getConfigLocale(), BotEmojiUtil.EmojiKey.D10S10_RED_EMOJI_KEY),
+                                        createButtonDefinition(RpgSystemCommandPreset.PresetId.SHADOWRUN_IMAGE, configUUID, config.getConfigLocale(), BotEmojiUtil.EmojiKey.D6S6_RDD_EMOJI_KEY),
+                                        createButtonDefinition(RpgSystemCommandPreset.PresetId.DICE_CALCULATOR, configUUID, config.getConfigLocale(), BotEmojiUtil.EmojiKey.CALCULATOR_EMOJI_KEY)
                                 )
                         )
                         .build())
                 .build();
     }
 
-    private ButtonDefinition createButtonDefinition(RpgSystemCommandPreset.PresetId presetId, UUID configUUID, Locale userLocal) {
+    private ButtonDefinition createButtonDefinition(RpgSystemCommandPreset.PresetId presetId, UUID configUUID, Locale userLocal, BotEmojiUtil.EmojiKey emojiKey) {
         return ButtonDefinition.builder()
                 .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), presetId.name(), configUUID))
                 .label(I18n.getMessage("rpg.system.command.preset.%s.name".formatted(presetId), userLocal))
+                .emoji(BotEmojiUtil.toDiscordString(emojiKey))
                 .build();
     }
 

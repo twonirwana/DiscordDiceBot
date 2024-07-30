@@ -1,11 +1,14 @@
 package de.janno.discord.bot.command;
 
+import au.com.origin.snapshots.Expect;
+import au.com.origin.snapshots.junit5.SnapshotExtension;
 import de.janno.discord.bot.ButtonEventAdaptorMock;
 import de.janno.discord.bot.persistance.MessageDataDTO;
 import de.janno.discord.bot.persistance.PersistenceManagerImpl;
 import de.janno.discord.connector.api.MessageState;
 import lombok.NonNull;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.ParallelFlux;
 
@@ -18,7 +21,9 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@ExtendWith(SnapshotExtension.class)
 class MessageDeletionHelperTest {
+    private Expect expect;
 
     @Test
     void deleteMessageAndData_notExist() {
@@ -57,15 +62,7 @@ class MessageDeletionHelperTest {
         MessageDeletionHelper.deleteOldMessageAndData(persistenceManager, 6L, 0L, configUUID, 1L, buttonEventAdaptorMock).block();
 
         assertThat(persistenceManager.getAllMessageIdsForConfig(configUUID)).containsExactlyInAnyOrder(2L, 6L);
-        assertThat(buttonEventAdaptorMock.getActions()).containsExactlyInAnyOrder(
-                "getMessagesState: [1, 2, 3, 4, 5, 7, 8, 9]",
-                "deleteMessageById: 1",
-                "deleteMessageById: 3",
-                "deleteMessageById: 4",
-                "deleteMessageById: 5",
-                "deleteMessageById: 7",
-                "deleteMessageById: 8",
-                "deleteMessageById: 9");
+        expect.toMatchSnapshot(buttonEventAdaptorMock.getSortedActions());
     }
 
     @Test
@@ -86,15 +83,6 @@ class MessageDeletionHelperTest {
         Thread.sleep(200);
 
         assertThat(persistenceManager.getAllMessageIdsForConfig(configUUID)).containsExactlyInAnyOrder(2L, 6L);
-        assertThat(buttonEventAdaptorMock.getActions()).containsExactlyInAnyOrder(
-                "getMessagesState: [1, 2, 3, 4, 5, 7, 8, 9]",
-                "getMessagesState: [2]",
-                "deleteMessageById: 1",
-                "deleteMessageById: 3",
-                "deleteMessageById: 4",
-                "deleteMessageById: 5",
-                "deleteMessageById: 7",
-                "deleteMessageById: 8",
-                "deleteMessageById: 9");
+        expect.toMatchSnapshot(buttonEventAdaptorMock.getSortedActions());
     }
 }

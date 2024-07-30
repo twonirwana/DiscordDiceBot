@@ -69,7 +69,7 @@ public class RerollAnswerHandler extends AbstractComponentInteractEventHandler<R
 
         List<ButtonIdLabelAndDiceExpression> buttonIdLabelAndDiceExpressions = dieIdTypeAndValues.stream()
                 .limit(20)
-                .map(dv -> new ButtonIdLabelAndDiceExpression(dv.getDieIdDb().toDieId().toString(), dv.getValue() + " ∈ " + getDiceTypeLabel(dv), dv.getDieIdDb().toDieId().toString(), false, false))
+                .map(dv -> new ButtonIdLabelAndDiceExpression(dv.getDieIdDb().toDieId().toString(), dv.getValue() + " ∈ " + getDiceTypeLabel(dv), dv.getDieIdDb().toDieId().toString(), false, false, null))
                 .toList();
 
         Set<String> selectedDieIdsAsString = selectedDieIds.stream().map(Objects::toString).collect(Collectors.toSet());

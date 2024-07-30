@@ -3,6 +3,7 @@ package de.janno.discord.bot.command;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import de.janno.discord.bot.BotEmojiUtil;
 import de.janno.discord.bot.I18n;
 import de.janno.discord.bot.dice.DiceEvaluatorAdapter;
 import de.janno.discord.connector.api.BottomCustomIdUtils;
@@ -17,6 +18,7 @@ public class ButtonHelper {
 
     private static final String LABEL_DELIMITER = "@";
     private static final String BUTTON_DELIMITER = ";";
+
 
     public static List<ButtonIdLabelAndDiceExpression> parseString(String buttons) {
         buttons = buttons.replace("\\n", "\n");
@@ -34,16 +36,16 @@ public class ButtonHelper {
                         final String expression = split[0].trim();
                         if (!Strings.isNullOrEmpty(expression) && !Strings.isNullOrEmpty(label)) {
                             final boolean directRoll;
-                            final String cleanLable;
+                            String cleanLabel;
                             if (label.startsWith("!") && label.length() > 1) {
                                 directRoll = true;
-                                cleanLable = label.substring(1);
+                                cleanLabel = label.substring(1);
                             } else {
-                                cleanLable = label;
+                                cleanLabel = label;
                                 directRoll = false;
                             }
-
-                            builder.add(new ButtonIdLabelAndDiceExpression(idCounter++ + "_button", cleanLable, expression, newLine, directRoll));
+                            BotEmojiUtil.LabelAndEmoji labelAndEmoji = BotEmojiUtil.splitLabel(cleanLabel);
+                            builder.add(new ButtonIdLabelAndDiceExpression(idCounter++ + "_button", labelAndEmoji.labelWithoutLeadingEmoji(), expression, newLine, directRoll, labelAndEmoji.emoji()));
                             newLine = false;
                         }
                     }
@@ -51,7 +53,7 @@ public class ButtonHelper {
                     final String label = button.trim().replace("\n", " ");
                     final String expression = button.trim();
                     if (!Strings.isNullOrEmpty(expression) && !Strings.isNullOrEmpty(label)) {
-                        builder.add(new ButtonIdLabelAndDiceExpression(idCounter++ + "_button", label, expression, newLine, false));
+                        builder.add(new ButtonIdLabelAndDiceExpression(idCounter++ + "_button", label, expression, newLine, false, null));
                         newLine = false;
                     }
                 }
@@ -60,11 +62,6 @@ public class ButtonHelper {
         }
         return builder.build();
     }
-
-    public record ButtonIdLabelAndDiceExpressionExtension(ButtonIdLabelAndDiceExpression buttonIdLabelAndDiceExpression,
-                                                          boolean disabled, @Nullable ButtonDefinition.Style style) {
-    }
-
 
     public static List<ComponentRowDefinition> createButtonLayoutDetail(String commandId, UUID configUUID, List<ButtonIdLabelAndDiceExpressionExtension> buttons) {
         final List<ComponentRowDefinition> rows = new ArrayList<>();
@@ -85,6 +82,7 @@ public class ButtonHelper {
                     .label(button.buttonIdLabelAndDiceExpression.getLabel())
                     .style(style)
                     .disabled(button.disabled)
+                    .emoji(button.buttonIdLabelAndDiceExpression.getEmoji())
                     .build());
         }
         if (!currentRow.isEmpty()) {
@@ -121,7 +119,6 @@ public class ButtonHelper {
                 .map(r -> ComponentRowDefinition.builder().buttonDefinitions(r).build())
                 .toList();
     }
-
 
     public static Optional<String> valdiate(String buttons, Locale userLocale, List<String> extraButtonIds, boolean extraLine) {
         List<List<String>> rows = new ArrayList<>();
@@ -178,5 +175,9 @@ public class ButtonHelper {
 
 
         return Optional.empty();
+    }
+
+    public record ButtonIdLabelAndDiceExpressionExtension(ButtonIdLabelAndDiceExpression buttonIdLabelAndDiceExpression,
+                                                          boolean disabled, @Nullable ButtonDefinition.Style style) {
     }
 }

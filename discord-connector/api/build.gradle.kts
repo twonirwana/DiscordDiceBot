@@ -10,6 +10,7 @@ dependencies {
     implementation(libs.reactor.core)
     implementation(libs.guava)
     implementation(libs.commons.lang3)
+    implementation(libs.emoji)
     implementation("org.jetbrains:annotations:24.1.0")
 
     compileOnly(libs.lombok)

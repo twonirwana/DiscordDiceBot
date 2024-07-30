@@ -16,6 +16,7 @@ import lombok.ToString;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @EqualsAndHashCode(callSuper = true)
@@ -55,7 +56,7 @@ public class CustomDiceConfig extends Config {
                     if (b.getDiceExpression().equals(b.getLabel())) {
                         return "%s%s".formatted(b.isNewLine() ? ";" : "", b.getDiceExpression());
                     }
-                    return "%s%s@%s".formatted(b.isNewLine() ? ";" : "", b.getDiceExpression(), b.getLabel());
+                    return "%s%s@%s%s".formatted(b.isNewLine() ? ";" : "", b.getDiceExpression(), Optional.ofNullable(b.getEmoji()).orElse(""), b.getLabel());
                 })
                 .collect(Collectors.joining(";")).replace("\n", "\\n");
         return "%s: %s %s".formatted(CustomDiceCommand.BUTTONS_OPTION_NAME, String.join(" ", buttons), super.toCommandOptionsString());
