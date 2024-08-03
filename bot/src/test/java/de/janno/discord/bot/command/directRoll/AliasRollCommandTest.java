@@ -35,7 +35,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class AliasRollCommandTest {
     private PersistenceManager persistenceManager;
-    private Expect expect;
+    Expect expect;
     private AliasRollCommand underTest;
 
     static Stream<Arguments> generateAllLocaleData() {

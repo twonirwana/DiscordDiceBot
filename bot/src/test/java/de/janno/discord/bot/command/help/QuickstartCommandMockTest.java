@@ -32,7 +32,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @ExtendWith(SnapshotExtension.class)
 public class QuickstartCommandMockTest {
 
-    private Expect expect;
+    Expect expect;
 
     static Stream<Arguments> generateRpgSystemLocaleData() {
         return Arrays.stream(RpgSystemCommandPreset.PresetId.values())

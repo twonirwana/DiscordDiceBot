@@ -35,7 +35,7 @@ public class Alias {
 
     @Override
     public String toString() {
-        return "%s->%s".formatted(name, value).replace("\n", " ");
+        return "%s%s%s".formatted(name, type == Type.Replace ? "->" : "=>", value).replace("\n", " ");
     }
 
     @JsonIgnore

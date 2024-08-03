@@ -7,12 +7,14 @@ import de.janno.discord.bot.persistance.ChannelConfigDTO;
 import de.janno.discord.bot.persistance.Mapper;
 import de.janno.discord.bot.persistance.PersistenceManager;
 import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@Slf4j
 public class AliasHelper {
     public static final String CHANNEL_ALIAS_CONFIG_TYPE_ID = "AliasConfig";
     public static final String USER_ALIAS_CONFIG_TYPE_ID = "UserAliasConfig";
@@ -64,7 +66,13 @@ public class AliasHelper {
 
                 if (matcher.find()) {
                     BotMetrics.incrementAliasUseMetricCounter(scope, Alias.Type.Regex, alias.toString());
-                    return matcher.replaceAll(alias.getValue());
+                    try {
+                        return matcher.replaceAll(alias.getValue());
+                    } catch (IndexOutOfBoundsException | IllegalArgumentException e) {
+                        log.info("regex error with alias:{}, input:{}", alias.getName(), input, e);
+                        //invalid group count or named group in the replacement
+                        return input;
+                    }
                 } else {
                     return input; // No match found, return the original string
                 }

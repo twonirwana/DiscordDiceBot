@@ -28,7 +28,7 @@ class QuickstartCommandTest {
 
     QuickstartCommand underTest;
 
-    private Expect expect;
+    Expect expect;
 
     @BeforeEach
     void setup() {

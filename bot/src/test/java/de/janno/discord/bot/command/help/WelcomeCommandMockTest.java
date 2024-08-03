@@ -29,7 +29,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class WelcomeCommandMockTest {
 
     PersistenceManager persistenceManager;
-    private Expect expect;
+    Expect expect;
 
     @BeforeEach
     void setup() {

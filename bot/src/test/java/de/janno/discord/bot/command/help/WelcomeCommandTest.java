@@ -37,7 +37,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class WelcomeCommandTest {
 
     WelcomeCommand underTest;
-    private Expect expect;
+    Expect expect;
 
     @BeforeEach
     void setup() {

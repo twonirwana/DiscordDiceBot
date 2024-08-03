@@ -24,7 +24,7 @@ import java.util.UUID;
 public class ChannelConfigMockTest {
 
     PersistenceManager persistenceManager;
-    private Expect expect;
+    Expect expect;
 
     @BeforeEach
     void setup() throws IOException {
