@@ -5,7 +5,6 @@ import com.google.common.collect.ImmutableList;
 import de.janno.discord.bot.BaseCommandUtils;
 import de.janno.discord.bot.BotMetrics;
 import de.janno.discord.bot.I18n;
-import de.janno.discord.bot.command.reroll.Config;
 import de.janno.discord.bot.persistance.MessageConfigDTO;
 import de.janno.discord.bot.persistance.MessageDataDTO;
 import de.janno.discord.bot.persistance.PersistenceManager;
@@ -30,7 +29,7 @@ import java.util.stream.Stream;
 import static de.janno.discord.bot.command.BaseCommandOptions.*;
 
 @Slf4j
-public abstract class AbstractSlashCommand<C extends Config> implements SlashCommand {
+public abstract class AbstractSlashCommand<C extends RollConfig> implements SlashCommand {
 
     private static final String START_OPTION_NAME = "start";
     private static final String HELP_OPTION_NAME = "help";

@@ -37,12 +37,13 @@ public class AliasRollCommand extends DirectRollCommand {
         List<Alias> userAlias = AliasHelper.getUserChannelAlias(channelId, userId, persistenceManager);
 
         Map<String, Alias> combinedAlias = channelAlias.stream().collect(Collectors.toMap(Alias::getName, Function.identity()));
-        userAlias.forEach(a -> combinedAlias.put(a.getName(), a)); //user alias overwrite channel alias
+        userAlias.forEach(a -> combinedAlias.put(a.getName(), a)); //user alias overwrite channel alias, they have higher priority
         if (combinedAlias.isEmpty() && Strings.isNullOrEmpty(option.getFocusedOptionValue())) {
             return List.of(new AutoCompleteAnswer(I18n.getMessage("a.autoComplete.missingAlias", userLocale), "help"));
         }
         List<AutoCompleteAnswer> filteredAlias = combinedAlias.values().stream()
-                .filter(p -> Strings.isNullOrEmpty(option.getFocusedOptionValue()) || p.getName().toLowerCase().contains(option.getFocusedOptionValue().toLowerCase()))
+                .filter(p -> Strings.isNullOrEmpty(option.getFocusedOptionValue()) ||
+                        (p.getType() == Alias.Type.Replace && p.getName().toLowerCase().contains(option.getFocusedOptionValue().toLowerCase())))
                 .sorted(Comparator.comparing(Alias::getName))
                 .map(p -> new AutoCompleteAnswer(p.getName(), p.getName()))
                 .collect(Collectors.toList());

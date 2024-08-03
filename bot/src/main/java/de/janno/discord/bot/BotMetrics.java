@@ -4,6 +4,7 @@ import com.google.common.base.Strings;
 import com.sun.net.httpserver.HttpServer;
 import com.sun.net.httpserver.SimpleFileServer;
 import de.janno.discord.bot.command.AnswerFormatType;
+import de.janno.discord.bot.command.channelConfig.Alias;
 import de.janno.discord.bot.dice.image.DiceStyleAndColor;
 import io.avaje.config.Config;
 import io.micrometer.core.instrument.Metrics;
@@ -51,6 +52,7 @@ public class BotMetrics {
     private final static String CACHE_TAG = "cache";
     private final static String IMAGE_RESULT_TAG = "imageResult";
     private final static String TYPE_TAG = "type";
+    private final static String SCOPE_TAG = "scope";
     private final static String ALIAS_TAG = "alias";
     private final static String VALID_TAG = "valid";
     private final static String EXPRESSION_TAG = "expression";
@@ -140,8 +142,8 @@ public class BotMetrics {
         globalRegistry.counter(METRIC_PREFIX + METRIC_USE_IMAGE_RESULT_PREFIX, Tags.of(IMAGE_RESULT_TAG, resultImage.toString())).increment();
     }
 
-    public static void incrementAliasUseMetricCounter(@NonNull String type, @NonNull String alias) {
-        globalRegistry.counter(METRIC_PREFIX + METRIC_USE_ALIAS_PREFIX, Tags.of(TYPE_TAG, type, ALIAS_TAG, alias)).increment();
+    public static void incrementAliasUseMetricCounter(@NonNull String scope, @NonNull Alias.Type type, @NonNull String alias) {
+        globalRegistry.counter(METRIC_PREFIX + METRIC_USE_ALIAS_PREFIX, Tags.of(TYPE_TAG, type.name(), ALIAS_TAG, alias, SCOPE_TAG, scope)).increment();
     }
 
 

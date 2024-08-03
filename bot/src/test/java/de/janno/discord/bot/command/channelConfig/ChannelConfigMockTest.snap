@@ -1,0 +1,193 @@
+userChannelAlias_createCreateDeleteAllde.janno.discord.bot.command.channelConfig.ChannelConfigMockTest.channelAlias_createCreateDeleteAll[slashEvent1]=[
+  [
+    "reply: `commandString`\nSaved new alias",
+    "reply: `commandString`\nSaved new alias"
+  ]
+]
+
+
+de.janno.discord.bot.command.channelConfig.ChannelConfigMockTest.channelAlias_createCreateDeleteAll[slashEvent2]=[
+  [ ]
+]
+
+
+de.janno.discord.bot.command.channelConfig.ChannelConfigMockTest.channelAlias_createCreateDeleteAll[slashEvent3]=[
+  [
+    "reply: `commandString`\nDeleted alias"
+  ]
+]
+
+
+de.janno.discord.bot.command.channelConfig.ChannelConfigMockTest.channelAlias_createCreateDeleteAll[slashEvent4]=[
+  [
+    "reply: `commandString`\nExisting alias:\n"
+  ]
+]
+
+
+de.janno.discord.bot.command.channelConfig.ChannelConfigMockTest.channelAlias_createListDelete[slashEvent1]=[
+  [
+    "reply: `commandString`\nSaved new alias"
+  ]
+]
+
+
+de.janno.discord.bot.command.channelConfig.ChannelConfigMockTest.channelAlias_createListDelete[slashEvent2]=[
+  [
+    "reply: `commandString`\nExisting alias:\n`att` -> `2d20+10`"
+  ]
+]
+
+
+de.janno.discord.bot.command.channelConfig.ChannelConfigMockTest.channelAlias_createListDelete[slashEvent3]=[
+  [
+    "reply: `commandString`\nDeleted alias"
+  ]
+]
+
+
+de.janno.discord.bot.command.channelConfig.ChannelConfigMockTest.channelAlias_createListDelete[slashEvent4]=[
+  [
+    "reply: `commandString`\nExisting alias:\n"
+  ]
+]
+
+
+de.janno.discord.bot.command.channelConfig.ChannelConfigMockTest.channelAlias_multiCreateList[slashEvent1]=[
+  [
+    "reply: `commandString`\nSaved new alias"
+  ]
+]
+
+
+de.janno.discord.bot.command.channelConfig.ChannelConfigMockTest.channelAlias_multiCreateList[slashEvent2]=[
+  [
+    "reply: `commandString`\nExisting alias:\n`att` -> `2d20`\n`dmg` -> `2d6+3=`"
+  ]
+]
+
+
+de.janno.discord.bot.command.channelConfig.ChannelConfigMockTest.channelAlias_multiCreateList_wrongFormat=[
+  [
+    "reply: `commandString`\nWrong format in `dmg:`, it must be `name:value`"
+  ]
+]
+
+
+de.janno.discord.bot.command.channelConfig.ChannelConfigMockTest.channelUserAlias_multiCreateList[slashEvent1]=[
+  [
+    "reply: `commandString`\nSaved new alias"
+  ]
+]
+
+
+de.janno.discord.bot.command.channelConfig.ChannelConfigMockTest.channelUserAlias_multiCreateList[slashEvent2]=[
+  [
+    "reply: `commandString`\nExisting alias:\n`att` -> `2d20`\n`dmg` -> `2d6+3=`"
+  ]
+]
+
+
+de.janno.discord.bot.command.channelConfig.ChannelConfigMockTest.saveConfigDelete_default[slashEvent1]=[
+  [
+    "reply: `commandString`\nSaved direct roll channel config"
+  ]
+]
+
+
+de.janno.discord.bot.command.channelConfig.ChannelConfigMockTest.saveConfigDelete_default[slashEvent2]=[
+  [
+    "reply: `commandString`\nDeleted direct roll channel config"
+  ]
+]
+
+
+de.janno.discord.bot.command.channelConfig.ChannelConfigMockTest.saveConfigDelete_default[slashEvent3]=[
+  [
+    "acknowledgeAndRemoveSlash",
+    "sendMessage: EmbedOrMessageDefinition(title=1d6 ⇒ 1, descriptionOrContent=, fields=[], componentRowDefinitions=[], hasImage=true, type=EMBED, userReference=true, sendToOtherChannelId=null)"
+  ]
+]
+
+
+de.janno.discord.bot.command.channelConfig.ChannelConfigMockTest.userChannelAlias_2UserCreateAlias[slashEvent1]=[
+  [
+    "reply: `commandString`\nSaved new alias"
+  ]
+]
+
+
+de.janno.discord.bot.command.channelConfig.ChannelConfigMockTest.userChannelAlias_2UserCreateAlias[slashEvent2]=[
+  [
+    "reply: `commandString`\nSaved new alias"
+  ]
+]
+
+
+de.janno.discord.bot.command.channelConfig.ChannelConfigMockTest.userChannelAlias_2UserCreateAlias[slashEvent3]=[
+  [
+    "reply: `commandString`\nExisting alias:\n`att` -> `2d20+10`"
+  ]
+]
+
+
+de.janno.discord.bot.command.channelConfig.ChannelConfigMockTest.userChannelAlias_2UserCreateAlias[slashEvent4]=[
+  [
+    "reply: `commandString`\nExisting alias:\n`att` -> `2d20+1`"
+  ]
+]
+
+
+de.janno.discord.bot.command.channelConfig.ChannelConfigMockTest.userChannelAlias_createCreateDeleteAll[slashEvent1]=[
+  [
+    "reply: `commandString`\nSaved new alias",
+    "reply: `commandString`\nSaved new alias"
+  ]
+]
+
+
+de.janno.discord.bot.command.channelConfig.ChannelConfigMockTest.userChannelAlias_createCreateDeleteAll[slashEvent2]=[
+  [ ]
+]
+
+
+de.janno.discord.bot.command.channelConfig.ChannelConfigMockTest.userChannelAlias_createCreateDeleteAll[slashEvent3]=[
+  [
+    "reply: `commandString`\nDeleted alias"
+  ]
+]
+
+
+de.janno.discord.bot.command.channelConfig.ChannelConfigMockTest.userChannelAlias_createCreateDeleteAll[slashEvent4]=[
+  [
+    "reply: `commandString`\nExisting alias:\n"
+  ]
+]
+
+
+de.janno.discord.bot.command.channelConfig.ChannelConfigMockTest.userChannelAlias_createListDelete[slashEvent1]=[
+  [
+    "reply: `commandString`\nSaved new alias"
+  ]
+]
+
+
+de.janno.discord.bot.command.channelConfig.ChannelConfigMockTest.userChannelAlias_createListDelete[slashEvent2]=[
+  [
+    "reply: `commandString`\nExisting alias:\n`att` -> `2d20+10`"
+  ]
+]
+
+
+de.janno.discord.bot.command.channelConfig.ChannelConfigMockTest.userChannelAlias_createListDelete[slashEvent3]=[
+  [
+    "reply: `commandString`\nDeleted alias"
+  ]
+]
+
+
+de.janno.discord.bot.command.channelConfig.ChannelConfigMockTest.userChannelAlias_createListDelete[slashEvent4]=[
+  [
+    "reply: `commandString`\nExisting alias:\n"
+  ]
+]

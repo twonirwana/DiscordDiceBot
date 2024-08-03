@@ -2,6 +2,7 @@ package de.janno.discord.bot.command.help;
 
 import au.com.origin.snapshots.Expect;
 import au.com.origin.snapshots.junit5.SnapshotExtension;
+import de.janno.discord.bot.command.channelConfig.ChannelConfigCommand;
 import de.janno.discord.bot.command.customDice.CustomDiceCommand;
 import de.janno.discord.bot.command.customParameter.CustomParameterCommand;
 import de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommand;
@@ -36,7 +37,8 @@ class QuickstartCommandTest {
         CustomDiceCommand customDiceCommand = new CustomDiceCommand(persistenceManager, cachingDiceEvaluator);
         CustomParameterCommand customParameterCommand = new CustomParameterCommand(persistenceManager, cachingDiceEvaluator);
         SumCustomSetCommand sumCustomSetCommand = new SumCustomSetCommand(persistenceManager, cachingDiceEvaluator);
-        RpgSystemCommandPreset rpgSystemCommandPreset = new RpgSystemCommandPreset(persistenceManager, customParameterCommand, customDiceCommand, sumCustomSetCommand);
+        ChannelConfigCommand channelConfigCommand = new ChannelConfigCommand(persistenceManager);
+        RpgSystemCommandPreset rpgSystemCommandPreset = new RpgSystemCommandPreset(persistenceManager, customParameterCommand, customDiceCommand, sumCustomSetCommand, channelConfigCommand);
         underTest = new QuickstartCommand(rpgSystemCommandPreset);
     }
 
@@ -168,6 +170,7 @@ class QuickstartCommandTest {
                     "EZD6",
                     "Exalted 3ed",
                     "Fate",
+                    "Fate Alias",
                     "Fate without Dice Images",
                     "Heroes of Cerulea",
                     "Hunter 5ed",
@@ -216,6 +219,7 @@ class QuickstartCommandTest {
                     "EZD6",
                     "EXALTED_3ED",
                     "FATE_IMAGE",
+                    "FATE_ALIAS",
                     "FATE",
                     "HEROES_OF_CERULEA",
                     "HUNTER_5ED",

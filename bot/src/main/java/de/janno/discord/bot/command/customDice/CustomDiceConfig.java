@@ -7,7 +7,7 @@ import de.janno.discord.bot.AnswerInteractionType;
 import de.janno.discord.bot.ResultImage;
 import de.janno.discord.bot.command.AnswerFormatType;
 import de.janno.discord.bot.command.ButtonIdLabelAndDiceExpression;
-import de.janno.discord.bot.command.reroll.Config;
+import de.janno.discord.bot.command.RollConfig;
 import de.janno.discord.bot.dice.image.DiceStyleAndColor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 @Getter
 @ToString(callSuper = true)
 @JsonIgnoreProperties(ignoreUnknown = true) //ignore legacy diceSystem field
-public class CustomDiceConfig extends Config {
+public class CustomDiceConfig extends RollConfig {
     @NonNull
     private final List<ButtonIdLabelAndDiceExpression> buttonIdLabelAndDiceExpressions;
 

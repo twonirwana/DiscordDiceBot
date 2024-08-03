@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import de.janno.discord.bot.AnswerInteractionType;
 import de.janno.discord.bot.ResultImage;
 import de.janno.discord.bot.command.AnswerFormatType;
+import de.janno.discord.bot.command.RollConfig;
 import de.janno.discord.bot.dice.image.DiceStyleAndColor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -19,7 +20,7 @@ import java.util.Locale;
 @EqualsAndHashCode(callSuper = true)
 @Getter
 @ToString(callSuper = true)
-public class RerollAnswerConfig extends Config {
+public class RerollAnswerConfig extends RollConfig {
     @NonNull
     private final String expression;
     @NonNull

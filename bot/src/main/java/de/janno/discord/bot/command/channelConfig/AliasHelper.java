@@ -7,9 +7,11 @@ import de.janno.discord.bot.persistance.ChannelConfigDTO;
 import de.janno.discord.bot.persistance.Mapper;
 import de.janno.discord.bot.persistance.PersistenceManager;
 import lombok.NonNull;
-import javax.annotation.Nullable;
 
+import javax.annotation.Nullable;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class AliasHelper {
     public static final String CHANNEL_ALIAS_CONFIG_TYPE_ID = "AliasConfig";
@@ -41,23 +43,43 @@ public class AliasHelper {
         }
         String expressionWithOptionalLabelsAndAppliedAliases = expressionWithOptionalLabel;
 
-        //specific before general
+        //specific before general, because the user specific have the higher priority and by applying it stop the application of the general alias
         for (Alias alias : userAlias) {
-            if (expressionWithOptionalLabelsAndAppliedAliases.contains(alias.getName())) {
-                BotMetrics.incrementAliasUseMetricCounter("userChannel", alias.toString());
-                expressionWithOptionalLabelsAndAppliedAliases = expressionWithOptionalLabelsAndAppliedAliases.replace(alias.getName(), alias.getValue());
-            }
+            expressionWithOptionalLabelsAndAppliedAliases = applyAliasIfMatch(alias, expressionWithOptionalLabelsAndAppliedAliases, "userChannel");
         }
 
         for (Alias alias : channelAlias) {
-            if (expressionWithOptionalLabelsAndAppliedAliases.contains(alias.getName())) {
-                BotMetrics.incrementAliasUseMetricCounter("channel", alias.toString());
-                expressionWithOptionalLabelsAndAppliedAliases = expressionWithOptionalLabelsAndAppliedAliases.replace(alias.getName(), alias.getValue());
-            }
+            expressionWithOptionalLabelsAndAppliedAliases = applyAliasIfMatch(alias, expressionWithOptionalLabelsAndAppliedAliases, "channel");
         }
 
 
         return expressionWithOptionalLabelsAndAppliedAliases;
+    }
+
+    private static String applyAliasIfMatch(Alias alias, String input, String scope) {
+        switch (alias.getType()) {
+            case Regex -> {
+                Pattern pattern = Pattern.compile(alias.getName());
+                Matcher matcher = pattern.matcher(input);
+
+                if (matcher.find()) {
+                    BotMetrics.incrementAliasUseMetricCounter(scope, Alias.Type.Regex, alias.toString());
+                    return matcher.replaceAll(alias.getValue());
+                } else {
+                    return input; // No match found, return the original string
+                }
+            }
+            case Replace -> {
+                if (input.contains(alias.getName())) {
+                    BotMetrics.incrementAliasUseMetricCounter(scope, Alias.Type.Replace, alias.toString());
+                    return input.replace(alias.getName(), alias.getValue());
+                } else {
+                    return input;
+                }
+            }
+        }
+        throw new RuntimeException("Unknown alias: " + alias.getName());
+
     }
 
     public static String getAndApplyAliaseToExpression(long channelId, @Nullable Long userId, PersistenceManager persistenceManager, final String expressionWithOptionalLabel) {

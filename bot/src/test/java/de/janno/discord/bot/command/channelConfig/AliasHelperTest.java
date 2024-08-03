@@ -17,17 +17,17 @@ public class AliasHelperTest {
 
     static Stream<Arguments> generateAliasData() {
         return Stream.of(
-                Arguments.of(List.of(new Alias("base", "1d20")), List.of(new Alias("bonus", "20")), "base+bonus", "1d20+20"),
-                Arguments.of(List.of(new Alias("Attack", "1d20")), List.of(new Alias("att", "Attack")), "att@roll", "1d20@roll"),
-                Arguments.of(List.of(new Alias("att", "Attack"), new Alias("Attack", "2d20")), List.of(), "att@roll", "2d20@roll"),
-                Arguments.of(List.of(new Alias("1d20", "1d20+1d20")), List.of(), "1d20@roll", "1d20+1d20@roll"),
-                Arguments.of(List.of(new Alias("att", "1d20"), new Alias("att", "2d20")), List.of(), "att@roll", "1d20@roll"),
-                Arguments.of(List.of(), List.of(new Alias("att", "1d20"), new Alias("att", "2d20")), "att@roll", "1d20@roll"),
-                Arguments.of(List.of(new Alias("att", "1d20")), List.of(new Alias("att", "2d20")), "att@roll", "2d20@roll"),
-                Arguments.of(List.of(new Alias("att", "1d20")), List.of(), "att@roll", "1d20@roll"),
-                Arguments.of(List.of(), List.of(new Alias("att", "1d20")), "att@roll", "1d20@roll"),
-                Arguments.of(List.of(new Alias("att", "1d20")), List.of(), "1d6@roll", "1d6@roll"),
-                Arguments.of(List.of(), List.of(new Alias("att", "1d20")), "1d6@roll", "1d6@roll"),
+                Arguments.of(List.of(new Alias("base", "1d20", Alias.Type.Replace)), List.of(new Alias("bonus", "20", Alias.Type.Replace)), "base+bonus", "1d20+20"),
+                Arguments.of(List.of(new Alias("Attack", "1d20", Alias.Type.Replace)), List.of(new Alias("att", "Attack", Alias.Type.Replace)), "att@roll", "1d20@roll"),
+                Arguments.of(List.of(new Alias("att", "Attack", Alias.Type.Replace), new Alias("Attack", "2d20", Alias.Type.Replace)), List.of(), "att@roll", "2d20@roll"),
+                Arguments.of(List.of(new Alias("1d20", "1d20+1d20", Alias.Type.Replace)), List.of(), "1d20@roll", "1d20+1d20@roll"),
+                Arguments.of(List.of(new Alias("att", "1d20", Alias.Type.Replace), new Alias("att", "2d20", Alias.Type.Replace)), List.of(), "att@roll", "1d20@roll"),
+                Arguments.of(List.of(), List.of(new Alias("att", "1d20", Alias.Type.Replace), new Alias("att", "2d20", Alias.Type.Replace)), "att@roll", "1d20@roll"),
+                Arguments.of(List.of(new Alias("att", "1d20", Alias.Type.Replace)), List.of(new Alias("att", "2d20", Alias.Type.Replace)), "att@roll", "2d20@roll"),
+                Arguments.of(List.of(new Alias("att", "1d20", Alias.Type.Replace)), List.of(), "att@roll", "1d20@roll"),
+                Arguments.of(List.of(), List.of(new Alias("att", "1d20", Alias.Type.Replace)), "att@roll", "1d20@roll"),
+                Arguments.of(List.of(new Alias("att", "1d20", Alias.Type.Replace)), List.of(), "1d6@roll", "1d6@roll"),
+                Arguments.of(List.of(), List.of(new Alias("att", "1d20", Alias.Type.Replace)), "1d6@roll", "1d6@roll"),
                 Arguments.of(List.of(), List.of(), "1d6@roll", "1d6@roll")
         );
     }
@@ -56,7 +56,7 @@ public class AliasHelperTest {
         ChannelConfigDTO savedData = new ChannelConfigDTO(UUID.fromString("00000000-0000-0000-0000-000000000000"), 1L, 2L, null, "r", "AliasConfig", aliasString);
 
         AliasConfig res = AliasHelper.deserializeAliasConfig(savedData);
-        assertThat(res).isEqualTo(new AliasConfig(List.of(new Alias("att", "d20+5"), new Alias("par", "d20+3"), new Alias("dmg", "3d6+4"))));
+        assertThat(res).isEqualTo(new AliasConfig(List.of(new Alias("att", "d20+5", Alias.Type.Replace), new Alias("par", "d20+3", Alias.Type.Replace), new Alias("dmg", "3d6+4", Alias.Type.Replace))));
 
     }
 }

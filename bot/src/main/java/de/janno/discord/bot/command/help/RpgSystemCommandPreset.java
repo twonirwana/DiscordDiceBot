@@ -3,10 +3,9 @@ package de.janno.discord.bot.command.help;
 import com.google.common.base.Strings;
 import de.janno.discord.bot.AnswerInteractionType;
 import de.janno.discord.bot.I18n;
-import de.janno.discord.bot.command.AbstractCommand;
-import de.janno.discord.bot.command.AnswerFormatType;
-import de.janno.discord.bot.command.ButtonHelper;
-import de.janno.discord.bot.command.reroll.Config;
+import de.janno.discord.bot.command.*;
+import de.janno.discord.bot.command.channelConfig.AliasConfig;
+import de.janno.discord.bot.command.channelConfig.ChannelConfigCommand;
 import de.janno.discord.bot.command.customDice.CustomDiceCommand;
 import de.janno.discord.bot.command.customDice.CustomDiceConfig;
 import de.janno.discord.bot.command.customParameter.CustomParameterCommand;
@@ -19,14 +18,12 @@ import de.janno.discord.bot.dice.image.provider.D6Dotted;
 import de.janno.discord.bot.persistance.PersistenceManager;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
 import javax.annotation.Nullable;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
-import java.util.UUID;
+import java.util.*;
 
-
+@RequiredArgsConstructor
 public class RpgSystemCommandPreset {
 
 
@@ -34,16 +31,7 @@ public class RpgSystemCommandPreset {
     private final CustomParameterCommand customParameterCommand;
     private final CustomDiceCommand customDiceCommand;
     private final SumCustomSetCommand sumCustomSetCommand;
-
-    public RpgSystemCommandPreset(PersistenceManager persistenceManager,
-                                  CustomParameterCommand customParameterCommand,
-                                  CustomDiceCommand customDiceCommand,
-                                  SumCustomSetCommand sumCustomSetCommand) {
-        this.persistenceManager = persistenceManager;
-        this.customParameterCommand = customParameterCommand;
-        this.customDiceCommand = customDiceCommand;
-        this.sumCustomSetCommand = sumCustomSetCommand;
-    }
+    private final ChannelConfigCommand channelConfigCommand;
 
 
     public static Config createConfig(PresetId presetId, Locale userLocale) {
@@ -204,43 +192,61 @@ public class RpgSystemCommandPreset {
             ///custom_parameter start expression:  if((2d10<(1d6+1=))c=?0,'failure',(2d10<(1d6+1=))c=?1, 'mixed results', 'total success')
             case IRONSWORN ->
                     new CustomParameterConfig(null, I18n.getMessage("rpg.system.command.preset.IRONSWORN.expression", userLocale), AnswerFormatType.without_expression, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_RdD, DiceImageStyle.polyhedral_RdD.getDefaultColor()), userLocale);
-
+            case FATE_ALIAS ->
+                    new AliasConfig(ChannelConfigCommand.parseStringToMultiAliasList(I18n.getMessage("rpg.system.command.preset.FATE_ALIAS.expression", userLocale)));
         };
     }
 
     private static String getCommandIdForConfig(Config config) {
-        if (config instanceof CustomDiceConfig) {
-            return CustomDiceCommand.COMMAND_NAME;
-        } else if (config instanceof SumCustomSetConfig) {
-            return SumCustomSetCommand.COMMAND_NAME;
-        } else if (config instanceof CustomParameterConfig) {
-            return CustomParameterCommand.COMMAND_NAME;
+        switch (config) {
+            case CustomDiceConfig ignored -> {
+                return CustomDiceCommand.COMMAND_NAME;
+            }
+            case SumCustomSetConfig ignored -> {
+                return SumCustomSetCommand.COMMAND_NAME;
+            }
+            case CustomParameterConfig ignored -> {
+                return CustomParameterCommand.COMMAND_NAME;
+            }
+            case AliasConfig ignored -> {
+                return ChannelConfigCommand.COMMAND_NAME;
+            }
+            default -> throw new IllegalStateException("Could not find command id for config: " + config);
         }
-        throw new IllegalStateException("Could not find command id for config: " + config);
+
     }
 
     public static String getCommandString(PresetId presetId, Locale locale) {
         Config config = createConfig(presetId, locale);
+        if (config instanceof AliasConfig) {
+            return "/channel_config alias multi_save aliases:%s scope:all_users_in_this_channel".formatted(config.toCommandOptionsString());
+        }
         String commandId = getCommandIdForConfig(config);
         return "/%s start %s".formatted(commandId, config.toCommandOptionsString());
     }
 
-    public EmbedOrMessageDefinition createMessage(PresetId presetId, UUID newConfigUUID, @Nullable Long guildId, long channelId, Locale userLocale) {
+    public Optional<EmbedOrMessageDefinition> createMessage(PresetId presetId, UUID newConfigUUID, @Nullable Long guildId, long channelId, Locale userLocale) {
         Config config = createConfig(presetId, userLocale);
         return switch (config) {
             case CustomDiceConfig customDiceConfig ->
-                    startPreset(customDiceConfig, customDiceCommand, newConfigUUID, guildId, channelId);
+                    startMessagePreset(customDiceConfig, customDiceCommand, newConfigUUID, guildId, channelId);
             case SumCustomSetConfig sumCustomSetConfig ->
-                    startPreset(sumCustomSetConfig, sumCustomSetCommand, newConfigUUID, guildId, channelId);
+                    startMessagePreset(sumCustomSetConfig, sumCustomSetCommand, newConfigUUID, guildId, channelId);
             case CustomParameterConfig customParameterConfig ->
-                    startPreset(customParameterConfig, customParameterCommand, newConfigUUID, guildId, channelId);
+                    startMessagePreset(customParameterConfig, customParameterCommand, newConfigUUID, guildId, channelId);
+            case AliasConfig aliasConfig -> saveAlias(aliasConfig, newConfigUUID, guildId, channelId);
             default -> throw new IllegalStateException("Could not create valid config for: " + presetId);
         };
     }
 
-    private <C extends Config> EmbedOrMessageDefinition startPreset(C config, AbstractCommand<C, ?> command, UUID newConfigUUID, @Nullable Long guildId, long channelId) {
+    private <C extends RollConfig> Optional<EmbedOrMessageDefinition> startMessagePreset(C config, AbstractCommand<C, ?> command, UUID newConfigUUID, @Nullable Long guildId, long channelId) {
         command.createMessageConfig(newConfigUUID, guildId, channelId, config).ifPresent(persistenceManager::saveMessageConfig);
-        return command.createSlashResponseMessage(newConfigUUID, config, channelId);
+        return Optional.of(command.createSlashResponseMessage(newConfigUUID, config, channelId));
+    }
+
+    private Optional<EmbedOrMessageDefinition> saveAlias(AliasConfig config, UUID newConfigUUID, @Nullable Long guildId, long channelId) {
+        channelConfigCommand.saveAliasesConfig(config.getAliasList(), channelId, guildId, null, () -> newConfigUUID);
+        return Optional.empty();
     }
 
     @AllArgsConstructor
@@ -255,6 +261,7 @@ public class RpgSystemCommandPreset {
         SAVAGE_WORLDS,
         FATE_IMAGE,
         FATE,
+        FATE_ALIAS,
         COIN,
         DICE_CALCULATOR,
         OSR,

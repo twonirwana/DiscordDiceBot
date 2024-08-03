@@ -166,7 +166,6 @@ public abstract class DiscordAdapterImpl implements DiscordAdapter {
     protected Mono<Void> handleException(@NonNull String errorMessage,
                                          @NonNull Throwable throwable,
                                          boolean ignoreNotFound) {
-        //todo log config
         switch (throwable) {
             case InsufficientPermissionException ignored -> {
                 log.info(String.format("%s: Missing permissions: %s - %s", getGuildAndChannelName(), errorMessage, throwable.getMessage()));

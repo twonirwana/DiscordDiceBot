@@ -5,13 +5,15 @@ import au.com.origin.snapshots.junit5.SnapshotExtension;
 import de.janno.discord.bot.ButtonEventAdaptorMock;
 import de.janno.discord.bot.I18n;
 import de.janno.discord.bot.SlashEventAdaptorMock;
-import de.janno.discord.bot.command.AbstractCommand;
+import de.janno.discord.bot.command.channelConfig.AliasHelper;
+import de.janno.discord.bot.command.channelConfig.ChannelConfigCommand;
 import de.janno.discord.bot.command.customDice.CustomDiceCommand;
 import de.janno.discord.bot.command.customParameter.CustomParameterCommand;
 import de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommand;
 import de.janno.discord.bot.dice.CachingDiceEvaluator;
 import de.janno.discord.bot.persistance.PersistenceManager;
 import de.janno.discord.bot.persistance.PersistenceManagerImpl;
+import de.janno.discord.connector.api.SlashCommand;
 import de.janno.discord.connector.api.slash.CommandDefinitionOption;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import de.janno.evaluator.dice.random.RandomNumberSupplier;
@@ -38,7 +40,7 @@ public class QuickstartCommandMockTest {
                         .map(l -> Arguments.of(d, l)));
     }
 
-    private static List<CommandInteractionOption> getOptionsFromString(String commandStringOptions, AbstractCommand<?, ?> command) {
+    private static List<CommandInteractionOption> getOptionsFromString(String commandStringOptions, SlashCommand command) {
         commandStringOptions = commandStringOptions.trim();
         List<String> commandStartOptions = command.getCommandDefinition().getOptions().stream()
                 .filter(o -> o.getName().equals("start"))
@@ -76,7 +78,8 @@ public class QuickstartCommandMockTest {
         CustomDiceCommand customDiceCommand = new CustomDiceCommand(persistenceManager, cachingDiceEvaluator);
         CustomParameterCommand customParameterCommand = new CustomParameterCommand(persistenceManager, cachingDiceEvaluator);
         SumCustomSetCommand sumCustomSetCommand = new SumCustomSetCommand(persistenceManager, cachingDiceEvaluator);
-        RpgSystemCommandPreset rpgSystemCommandPreset = new RpgSystemCommandPreset(persistenceManager, customParameterCommand, customDiceCommand, sumCustomSetCommand);
+        ChannelConfigCommand channelConfigCommand = new ChannelConfigCommand(persistenceManager);
+        RpgSystemCommandPreset rpgSystemCommandPreset = new RpgSystemCommandPreset(persistenceManager, customParameterCommand, customDiceCommand, sumCustomSetCommand, channelConfigCommand);
         QuickstartCommand underTest = new QuickstartCommand(rpgSystemCommandPreset);
 
         SlashEventAdaptorMock slashEventAdaptor = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
@@ -88,6 +91,7 @@ public class QuickstartCommandMockTest {
         StepVerifier.create(res).verifyComplete();
 
         expect.scenario(presetId.name() + "_" + userLocale).toMatchSnapshot(slashEventAdaptor.getSortedActions());
+        expect.scenario(presetId.name() + "_alias_" + userLocale).toMatchSnapshot(AliasHelper.getChannelAlias(SlashEventAdaptorMock.CHANNEL_ID, persistenceManager));
     }
 
     @ParameterizedTest(name = "{index} config={0}, locale={1}")
@@ -98,6 +102,7 @@ public class QuickstartCommandMockTest {
         CustomDiceCommand customDiceCommand = new CustomDiceCommand(persistenceManager, cachingDiceEvaluator);
         CustomParameterCommand customParameterCommand = new CustomParameterCommand(persistenceManager, cachingDiceEvaluator);
         SumCustomSetCommand sumCustomSetCommand = new SumCustomSetCommand(persistenceManager, cachingDiceEvaluator);
+        ChannelConfigCommand channelConfigCommand = new ChannelConfigCommand(persistenceManager);
 
         String command = RpgSystemCommandPreset.getCommandString(presetId, userLocale);
         SlashEventAdaptorMock slashEventAdaptor;
@@ -123,30 +128,55 @@ public class QuickstartCommandMockTest {
                     .options(getOptionsFromString(commandOptions, sumCustomSetCommand))
                     .build()), userLocale);
             slashRes = sumCustomSetCommand.handleSlashCommandEvent(slashEventAdaptor, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"), userLocale);
+        } else if (command.startsWith("/channel_config alias multi_save aliases")) {
+            String aliases = command.substring(41, command.indexOf("scope:") - 1);
+            slashEventAdaptor = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
+                    .name("alias")
+                    .option(CommandInteractionOption.builder()
+                            .name("multi_save")
+                            .option(CommandInteractionOption.builder()
+                                    .name("aliases")
+                                    .stringValue(aliases)
+                                    .build())
+                            .build())
+                    .option(CommandInteractionOption.builder()
+                            .name("scope")
+                            .stringValue("all_users_in_this_channel")
+                            .build())
+                    .build()), userLocale);
+            slashRes = channelConfigCommand.handleSlashCommandEvent(slashEventAdaptor, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"), userLocale);
         } else {
             throw new IllegalStateException("Unknown command for " + presetId);
         }
 
         StepVerifier.create(slashRes).verifyComplete();
-        assertThat(slashEventAdaptor.getSortedActions().stream()).anyMatch(s -> s.startsWith("sendMessage")); //at least on button Message needs to be crated
 
         expect.scenario("slashCommand:" + presetId.name() + "_" + userLocale).toMatchSnapshot(slashEventAdaptor.getSortedActions());
 
         Optional<ButtonEventAdaptorMock> buttonEventAdaptorMock = slashEventAdaptor.getFirstButtonEventMockOfLastButtonMessage();
-        assertThat(buttonEventAdaptorMock).isPresent();
 
         Mono<Void> buttonRes;
         if (command.startsWith("/custom_dice start")) {
+            assertThat(buttonEventAdaptorMock).isPresent();
             buttonRes = customDiceCommand.handleComponentInteractEvent(buttonEventAdaptorMock.get());
+            StepVerifier.create(buttonRes).verifyComplete();
+            expect.scenario("firstButtonEvent:" + presetId.name() + "_" + userLocale).toMatchSnapshot(buttonEventAdaptorMock.get().getSortedActions());
         } else if (command.startsWith("/custom_parameter start")) {
+            assertThat(buttonEventAdaptorMock).isPresent();
             buttonRes = customParameterCommand.handleComponentInteractEvent(buttonEventAdaptorMock.get());
+            StepVerifier.create(buttonRes).verifyComplete();
+            expect.scenario("firstButtonEvent:" + presetId.name() + "_" + userLocale).toMatchSnapshot(buttonEventAdaptorMock.get().getSortedActions());
         } else if (command.startsWith("/sum_custom_set start")) {
+            assertThat(buttonEventAdaptorMock).isPresent();
             buttonRes = sumCustomSetCommand.handleComponentInteractEvent(buttonEventAdaptorMock.get());
+            StepVerifier.create(buttonRes).verifyComplete();
+            expect.scenario("firstButtonEvent:" + presetId.name() + "_" + userLocale).toMatchSnapshot(buttonEventAdaptorMock.get().getSortedActions());
+        } else if (command.startsWith("/channel_config alias multi_save")) {
+            assertThat(buttonEventAdaptorMock).isEmpty();
+            expect.scenario("alias:" + presetId.name() + "_" + userLocale).toMatchSnapshot(AliasHelper.getChannelAlias(SlashEventAdaptorMock.CHANNEL_ID, persistenceManager));
         } else {
             throw new IllegalStateException("Unknown command for " + presetId);
         }
-        StepVerifier.create(buttonRes).verifyComplete();
-        expect.scenario("firstButtonEvent:" + presetId.name() + "_" + userLocale).toMatchSnapshot(buttonEventAdaptorMock.get().getSortedActions());
 
 
     }

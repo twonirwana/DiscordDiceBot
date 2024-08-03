@@ -4,9 +4,9 @@ import au.com.origin.snapshots.Expect;
 import au.com.origin.snapshots.junit5.SnapshotExtension;
 import de.janno.discord.bot.AnswerInteractionType;
 import de.janno.discord.bot.command.*;
+import de.janno.discord.bot.command.channelConfig.ChannelConfigCommand;
 import de.janno.discord.bot.command.customDice.CustomDiceCommand;
 import de.janno.discord.bot.command.customParameter.CustomParameterCommand;
-import de.janno.discord.bot.command.reroll.Config;
 import de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommand;
 import de.janno.discord.bot.dice.CachingDiceEvaluator;
 import de.janno.discord.bot.dice.image.DiceImageStyle;
@@ -46,21 +46,22 @@ class WelcomeCommandTest {
         CustomDiceCommand customDiceCommand = new CustomDiceCommand(persistenceManager, cachingDiceEvaluator);
         CustomParameterCommand customParameterCommand = new CustomParameterCommand(persistenceManager, cachingDiceEvaluator);
         SumCustomSetCommand sumCustomSetCommand = new SumCustomSetCommand(persistenceManager, cachingDiceEvaluator);
-        RpgSystemCommandPreset rpgSystemCommandPreset = new RpgSystemCommandPreset(persistenceManager, customParameterCommand, customDiceCommand, sumCustomSetCommand);
+        ChannelConfigCommand channelConfigCommand = new ChannelConfigCommand(persistenceManager);
+        RpgSystemCommandPreset rpgSystemCommandPreset = new RpgSystemCommandPreset(persistenceManager, customParameterCommand, customDiceCommand, sumCustomSetCommand, channelConfigCommand);
         underTest = new WelcomeCommand(persistenceManager, rpgSystemCommandPreset, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"));
     }
 
     @Test
     public void getButtonMessageWithState_legacyKey() {
         Optional<EmbedOrMessageDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"),
-                new Config(null, AnswerFormatType.full, AnswerInteractionType.none,  null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH), new State<>("invalidId", StateData.empty()), 1L, 2L);
+                new RollConfig(null, AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH), new State<>("invalidId", StateData.empty()), 1L, 2L);
         assertThat(res).isEmpty();
     }
 
     @Test
     public void getButtonMessageWithState_dnd5() {
         Optional<EmbedOrMessageDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"),
-                new Config(null, AnswerFormatType.full, AnswerInteractionType.none,  null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH), new State<>("dnd5", StateData.empty()), 1L, 2L);
+                new RollConfig(null, AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH), new State<>("dnd5", StateData.empty()), 1L, 2L);
         assertThat(res.map(EmbedOrMessageDefinition::getDescriptionOrContent))
                 .contains("Click on a button to roll the dice");
         assertThat(res.map(EmbedOrMessageDefinition::getComponentRowDefinitions)
@@ -108,7 +109,7 @@ class WelcomeCommandTest {
     @Test
     public void getButtonMessageWithState_coin() {
         Optional<EmbedOrMessageDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"),
-                new Config(null, AnswerFormatType.full, AnswerInteractionType.none,  null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH), new State<>("coin", StateData.empty()), 1L, 2L);
+                new RollConfig(null, AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH), new State<>("coin", StateData.empty()), 1L, 2L);
         assertThat(res.map(EmbedOrMessageDefinition::getDescriptionOrContent))
                 .contains("Click on a button to roll the dice");
         assertThat(res.map(EmbedOrMessageDefinition::getComponentRowDefinitions)
@@ -128,7 +129,7 @@ class WelcomeCommandTest {
     @Test
     public void getButtonMessageWithState_nWoD() {
         Optional<EmbedOrMessageDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"),
-                new Config(null, AnswerFormatType.full, AnswerInteractionType.none,  null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH), new State<>("nWoD", StateData.empty()), 1L, 2L);
+                new RollConfig(null, AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH), new State<>("nWoD", StateData.empty()), 1L, 2L);
 
         assertThat(res.map(EmbedOrMessageDefinition::getDescriptionOrContent))
                 .contains("Please select value for **Number of Dice**");
@@ -163,7 +164,7 @@ class WelcomeCommandTest {
     @Test
     public void getButtonMessageWithState_oWoD() {
         Optional<EmbedOrMessageDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"),
-                new Config(null, AnswerFormatType.full, AnswerInteractionType.none,  null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH), new State<>("oWoD", StateData.empty()), 1L, 2L);
+                new RollConfig(null, AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH), new State<>("oWoD", StateData.empty()), 1L, 2L);
         assertThat(res.map(EmbedOrMessageDefinition::getDescriptionOrContent))
                 .contains("Please select value for **Number of Dice**");
         assertThat(res.map(EmbedOrMessageDefinition::getComponentRowDefinitions)
@@ -199,7 +200,7 @@ class WelcomeCommandTest {
     @Test
     public void getButtonMessageWithState_Shadowrun() {
         Optional<EmbedOrMessageDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"),
-                new Config(null, AnswerFormatType.full, AnswerInteractionType.none,  null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH), new State<>("shadowrun", StateData.empty()), 1L, 2L);
+                new RollConfig(null, AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH), new State<>("shadowrun", StateData.empty()), 1L, 2L);
         assertThat(res.map(EmbedOrMessageDefinition::getDescriptionOrContent))
                 .contains("Please select value for **number of dice**");
         assertThat(res.map(EmbedOrMessageDefinition::getComponentRowDefinitions)
@@ -238,7 +239,7 @@ class WelcomeCommandTest {
 
     @Test
     public void getButtonMessageWithState_diceCalculator() {
-        Optional<EmbedOrMessageDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), new Config(null, AnswerFormatType.full, AnswerInteractionType.none,  null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH), new State<>("dice_calculator", StateData.empty()), 1L, 2L);
+        Optional<EmbedOrMessageDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), new RollConfig(null, AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH), new State<>("dice_calculator", StateData.empty()), 1L, 2L);
         assertThat(res.map(EmbedOrMessageDefinition::getDescriptionOrContent))
                 .contains("Click the buttons to add dice to the set and then on Roll");
         assertThat(res.map(EmbedOrMessageDefinition::getComponentRowDefinitions)
@@ -307,7 +308,7 @@ class WelcomeCommandTest {
     @Test
     public void getButtonMessageWithState_other() {
         Optional<EmbedOrMessageDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"),
-                new Config(null, AnswerFormatType.full, AnswerInteractionType.none,  null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH), new State<>("-", StateData.empty()), 1L, 2L);
+                new RollConfig(null, AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH), new State<>("-", StateData.empty()), 1L, 2L);
         assertThat(res)
                 .isEmpty();
 
@@ -363,7 +364,7 @@ class WelcomeCommandTest {
             "dice_calculator"
     })
     void createMessageDataForNewMessage(String buttonValue) {
-        Optional<EmbedOrMessageDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), new Config(null, AnswerFormatType.full, AnswerInteractionType.none,  null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH), new State<>(buttonValue, StateData.empty()), 1L, 2L);
+        Optional<EmbedOrMessageDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), new RollConfig(null, AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH), new State<>(buttonValue, StateData.empty()), 1L, 2L);
         assertThat(res).isPresent();
     }
 
@@ -415,7 +416,7 @@ class WelcomeCommandTest {
     void checkPersistence() {
         PersistenceManager persistenceManager = new PersistenceManagerImpl("jdbc:h2:mem:" + UUID.randomUUID(), null, null);
         UUID configUUID = UUID.fromString("00000000-0000-0000-0000-000000000000");
-        Config config = new Config(123L, AnswerFormatType.full, AnswerInteractionType.none,  null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.GERMAN);
+        RollConfig config = new RollConfig(123L, AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.GERMAN);
         Optional<MessageConfigDTO> toSave = underTest.createMessageConfig(configUUID, 1L, 2L, config);
         assertThat(toSave).isPresent();
 
@@ -423,7 +424,7 @@ class WelcomeCommandTest {
         MessageConfigDTO loaded = persistenceManager.getMessageConfig(configUUID).orElseThrow();
 
         assertThat(toSave.get()).isEqualTo(loaded);
-        ConfigAndState<Config, StateData> configAndState = underTest.deserializeAndUpdateState(loaded, "3");
+        ConfigAndState<RollConfig, StateData> configAndState = underTest.deserializeAndUpdateState(loaded, "3");
 
         assertThat(configAndState.getConfig()).isEqualTo(config);
         assertThat(configAndState.getConfigUUID()).isEqualTo(configUUID);
@@ -444,16 +445,16 @@ class WelcomeCommandTest {
                 """);
 
 
-        ConfigAndState<Config, StateData> configAndState = underTest.deserializeAndUpdateState(savedData, "3");
-        assertThat(configAndState.getConfig()).isEqualTo(new Config(123L, AnswerFormatType.full, AnswerInteractionType.none,  null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.GERMAN));
+        ConfigAndState<RollConfig, StateData> configAndState = underTest.deserializeAndUpdateState(savedData, "3");
+        assertThat(configAndState.getConfig()).isEqualTo(new RollConfig(123L, AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.GERMAN));
         assertThat(configAndState.getConfigUUID()).isEqualTo(configUUID);
         assertThat(configAndState.getState().getData()).isEqualTo(StateData.empty());
     }
 
     @Test
-    void configSerialization(){
+    void configSerialization() {
         UUID configUUID = UUID.fromString("00000000-0000-0000-0000-000000000000");
-        Config config = new Config(123L, AnswerFormatType.full, AnswerInteractionType.none,  null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.GERMAN);
+        RollConfig config = new RollConfig(123L, AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.GERMAN);
         Optional<MessageConfigDTO> toSave = underTest.createMessageConfig(configUUID, 1L, 2L, config);
         assertThat(toSave).isPresent();
 
