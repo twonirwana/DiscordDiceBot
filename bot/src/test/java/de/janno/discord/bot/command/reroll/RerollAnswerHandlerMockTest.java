@@ -34,7 +34,7 @@ import java.util.UUID;
 @ExtendWith(SnapshotExtension.class)
 public class RerollAnswerHandlerMockTest {
     PersistenceManager persistenceManager;
-    private Expect expect;
+    Expect expect;
 
     @BeforeEach
     void setup() throws IOException {

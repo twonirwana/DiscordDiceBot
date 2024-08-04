@@ -330,7 +330,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     protected @NonNull CustomParameterConfig getConfigFromStartOptions(@NonNull CommandInteractionOption options, @NonNull Locale userLocale) {
         String baseExpression = options.getStringSubOptionWithName(EXPRESSION_OPTION_NAME).orElse("").trim().replace("\\n", "\n");
         Long answerTargetChannelId = BaseCommandOptions.getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null);
-        AnswerFormatType answerType = BaseCommandOptions.getAnswerTypeFromStartCommandOption(options).orElse(defaultAnswerFormat());
+        AnswerFormatType answerType = BaseCommandOptions.getAnswerTypeFromStartCommandOption(options).orElse(AnswerFormatType.without_expression);
         return new CustomParameterConfig(answerTargetChannelId,
                 baseExpression,
                 answerType,
@@ -341,11 +341,6 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
                         BaseCommandOptions.getDiceColorOptionFromStartCommandOption(options).orElse(DiceImageStyle.polyhedral_3d.getDefaultColor())),
                 userLocale
         );
-    }
-
-    @Override
-    protected AnswerFormatType defaultAnswerFormat() {
-        return AnswerFormatType.without_expression;
     }
 
     @Override

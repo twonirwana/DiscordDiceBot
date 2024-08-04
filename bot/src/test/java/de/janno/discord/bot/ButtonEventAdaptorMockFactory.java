@@ -2,7 +2,7 @@ package de.janno.discord.bot;
 
 import com.google.common.collect.Sets;
 import de.janno.discord.bot.command.AbstractCommand;
-import de.janno.discord.bot.command.reroll.Config;
+import de.janno.discord.bot.command.RollConfig;
 import de.janno.discord.bot.command.StateData;
 import de.janno.discord.bot.persistance.PersistenceManager;
 
@@ -14,7 +14,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import static de.janno.discord.bot.ButtonEventAdaptorMock.CHANNEL_ID;
 import static de.janno.discord.bot.ButtonEventAdaptorMock.GUILD_ID;
 
-public class ButtonEventAdaptorMockFactory<C extends Config, S extends StateData> {
+public class ButtonEventAdaptorMockFactory<C extends RollConfig, S extends StateData> {
     private final String commandId;
     private final AtomicLong messageIdCounter;
     private final Set<Long> pinnedMessageIds;

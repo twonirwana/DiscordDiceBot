@@ -3,9 +3,9 @@ package de.janno.discord.bot.command.help;
 import com.google.common.base.Strings;
 import de.janno.discord.bot.AnswerInteractionType;
 import de.janno.discord.bot.I18n;
-import de.janno.discord.bot.command.AbstractCommand;
-import de.janno.discord.bot.command.AnswerFormatType;
-import de.janno.discord.bot.command.ButtonHelper;
+import de.janno.discord.bot.command.*;
+import de.janno.discord.bot.command.channelConfig.AliasConfig;
+import de.janno.discord.bot.command.channelConfig.ChannelConfigCommand;
 import de.janno.discord.bot.command.customDice.CustomDiceCommand;
 import de.janno.discord.bot.command.customDice.CustomDiceConfig;
 import de.janno.discord.bot.command.customParameter.CustomParameterCommand;
@@ -20,14 +20,12 @@ import de.janno.discord.bot.dice.image.provider.PolyhedralSvgWithColor;
 import de.janno.discord.bot.persistance.PersistenceManager;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
 import javax.annotation.Nullable;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
-import java.util.UUID;
+import java.util.*;
 
-
+@RequiredArgsConstructor
 public class RpgSystemCommandPreset {
 
 
@@ -35,16 +33,7 @@ public class RpgSystemCommandPreset {
     private final CustomParameterCommand customParameterCommand;
     private final CustomDiceCommand customDiceCommand;
     private final SumCustomSetCommand sumCustomSetCommand;
-
-    public RpgSystemCommandPreset(PersistenceManager persistenceManager,
-                                  CustomParameterCommand customParameterCommand,
-                                  CustomDiceCommand customDiceCommand,
-                                  SumCustomSetCommand sumCustomSetCommand) {
-        this.persistenceManager = persistenceManager;
-        this.customParameterCommand = customParameterCommand;
-        this.customDiceCommand = customDiceCommand;
-        this.sumCustomSetCommand = sumCustomSetCommand;
-    }
+    private final ChannelConfigCommand channelConfigCommand;
 
 
     public static Config createConfig(PresetId presetId, Locale userLocale) {
@@ -224,61 +213,106 @@ public class RpgSystemCommandPreset {
                     new CustomParameterConfig(null, I18n.getMessage("rpg.system.command.preset.FORBIDDEN_LANDS.expression", userLocale),
                             AnswerFormatType.without_expression, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v2, DiceImageStyle.polyhedral_alies_v2.getDefaultColor()), userLocale);
 
+            //4dF:val('$r', 4d[＋,▢,−]) _ '['_ '$r' _ '] = ' _ replace('$r' ,'＋',1,'▢',0,'−',-1)=@4dF
+            case FATE_ALIAS ->
+                    new AliasConfig(ChannelConfigCommand.parseStringToMultiAliasList(I18n.getMessage("rpg.system.command.preset.FATE_ALIAS.expression", userLocale)));
+            //d20:d20;adv:2d20k1@Advantage;dis:2d20L1@Disadvantage
+            case DND5_ALIAS ->
+                    new AliasConfig(ChannelConfigCommand.parseStringToMultiAliasList(I18n.getMessage("rpg.system.command.preset.DND5_ALIAS.expression", userLocale)));
+            //w:d!10>=8c
+            case NWOD_ALIAS ->
+                    new AliasConfig(ChannelConfigCommand.parseStringToMultiAliasList(I18n.getMessage("rpg.system.command.preset.NWOD_ALIAS.expression", userLocale)));
+            //(?<numberOfDice>\\d+)r(?<target>\\d+)::val('roll',${numberOfDice}d10) ('roll'>=${target}c)-('roll'==1c)=@:${numberOfDice}d10 vs ${target};(?<numberOfDice>\\d+)re(?<target>\\d+)::val('roll',${numberOfDice}d!10) ('roll'>=${target}c)-('roll'==1c)=@:${numberOfDice}d10 vs ${target} with reroll on 10
+            case OWOD_ALIAS ->
+                    new AliasConfig(ChannelConfigCommand.parseStringToMultiAliasList(I18n.getMessage("rpg.system.command.preset.OWOD_ALIAS.expression", userLocale)));
+            //(?<numberOfDice>\\d+)sr::val('roll',${numberOfDice}d6) concat('roll'>4c, if('roll'==1c >? 'roll'c/2,' - Glitch!'))@${numberOfDice}d6
+            case SHADOWRUN_ALIAS ->
+                    new AliasConfig(ChannelConfigCommand.parseStringToMultiAliasList(I18n.getMessage("rpg.system.command.preset.SHADOWRUN_ALIAS.expression", userLocale)));
+            //r:d!!;sw(?<sides>\\\\d+)::1d!!${sides} + 1d!!6 k1@d${sides} Wildcard
+            case SAVAGE_WORLDS_ALIAS ->
+                    new AliasConfig(ChannelConfigCommand.parseStringToMultiAliasList(I18n.getMessage("rpg.system.command.preset.SAVAGE_WORLDS_ALIAS.expression", userLocale)));
+            // (?<numberOfDice>\\\\d+)b::val('diceRoll', if(${numberOfDice}=?0,2d6L1, ${numberOfDice}d6)) val('sixes','diceRoll'==6c) val('partials','diceRoll'>3<6c) if('sixes'>?1,'Critical Success - You do it with increased effect.', 'sixes'=?1,'Success - You do it.','partials' >? 0,'Partial Success - You do it but suffer severe harm, a serious complication or have reduced effect.','Failure - You suffer severe harm, a serious complication occurs, or you lose this opportunity for action.')@${numberOfDice} Dice
+            case BLADES_IN_THE_DARK_ALIAS ->
+                    new AliasConfig(ChannelConfigCommand.parseStringToMultiAliasList(I18n.getMessage("rpg.system.command.preset.BLADES_IN_THE_DARK_ALIAS.expression", userLocale)));
         };
     }
 
     private static String getCommandIdForConfig(Config config) {
-        if (config instanceof CustomDiceConfig) {
-            return CustomDiceCommand.COMMAND_NAME;
-        } else if (config instanceof SumCustomSetConfig) {
-            return SumCustomSetCommand.COMMAND_NAME;
-        } else if (config instanceof CustomParameterConfig) {
-            return CustomParameterCommand.COMMAND_NAME;
+        switch (config) {
+            case CustomDiceConfig ignored -> {
+                return CustomDiceCommand.COMMAND_NAME;
+            }
+            case SumCustomSetConfig ignored -> {
+                return SumCustomSetCommand.COMMAND_NAME;
+            }
+            case CustomParameterConfig ignored -> {
+                return CustomParameterCommand.COMMAND_NAME;
+            }
+            case AliasConfig ignored -> {
+                return ChannelConfigCommand.COMMAND_NAME;
+            }
+            default -> throw new IllegalStateException("Could not find command id for config: " + config);
         }
-        throw new IllegalStateException("Could not find command id for config: " + config);
+
     }
 
     public static String getCommandString(PresetId presetId, Locale locale) {
         Config config = createConfig(presetId, locale);
+        if (config instanceof AliasConfig) {
+            return "/channel_config alias multi_save aliases:%s scope:all_users_in_this_channel".formatted(config.toCommandOptionsString());
+        }
         String commandId = getCommandIdForConfig(config);
         return "/%s start %s".formatted(commandId, config.toCommandOptionsString());
     }
 
-    public EmbedOrMessageDefinition createMessage(PresetId presetId, UUID newConfigUUID, @Nullable Long guildId, long channelId, Locale userLocale) {
+    public Optional<EmbedOrMessageDefinition> createMessage(PresetId presetId, UUID newConfigUUID, @Nullable Long guildId, long channelId, Locale userLocale) {
         Config config = createConfig(presetId, userLocale);
         return switch (config) {
             case CustomDiceConfig customDiceConfig ->
-                    startPreset(customDiceConfig, customDiceCommand, newConfigUUID, guildId, channelId);
+                    startMessagePreset(customDiceConfig, customDiceCommand, newConfigUUID, guildId, channelId);
             case SumCustomSetConfig sumCustomSetConfig ->
-                    startPreset(sumCustomSetConfig, sumCustomSetCommand, newConfigUUID, guildId, channelId);
+                    startMessagePreset(sumCustomSetConfig, sumCustomSetCommand, newConfigUUID, guildId, channelId);
             case CustomParameterConfig customParameterConfig ->
-                    startPreset(customParameterConfig, customParameterCommand, newConfigUUID, guildId, channelId);
+                    startMessagePreset(customParameterConfig, customParameterCommand, newConfigUUID, guildId, channelId);
+            case AliasConfig aliasConfig -> saveAlias(aliasConfig, newConfigUUID, guildId, channelId);
             default -> throw new IllegalStateException("Could not create valid config for: " + presetId);
         };
     }
 
-    private <C extends Config> EmbedOrMessageDefinition startPreset(C config, AbstractCommand<C, ?> command, UUID newConfigUUID, @Nullable Long guildId, long channelId) {
+    private <C extends RollConfig> Optional<EmbedOrMessageDefinition> startMessagePreset(C config, AbstractCommand<C, ?> command, UUID newConfigUUID, @Nullable Long guildId, long channelId) {
         command.createMessageConfig(newConfigUUID, guildId, channelId, config).ifPresent(persistenceManager::saveMessageConfig);
-        return command.createSlashResponseMessage(newConfigUUID, config, channelId);
+        return Optional.of(command.createSlashResponseMessage(newConfigUUID, config, channelId));
+    }
+
+    private Optional<EmbedOrMessageDefinition> saveAlias(AliasConfig config, UUID newConfigUUID, @Nullable Long guildId, long channelId) {
+        channelConfigCommand.saveAliasesConfig(config.getAliasList(), channelId, guildId, null, () -> newConfigUUID);
+        return Optional.empty();
     }
 
     @AllArgsConstructor
     public enum PresetId {
         DND5_IMAGE,
         DND5,
+        DND5_ALIAS,
         DND5_CALC,
         NWOD,
         OWOD,
+        NWOD_ALIAS,
+        OWOD_ALIAS,
         SHADOWRUN,
         SHADOWRUN_IMAGE,
+        SHADOWRUN_ALIAS,
         SAVAGE_WORLDS,
+        SAVAGE_WORLDS_ALIAS,
         FATE_IMAGE,
         FATE,
+        FATE_ALIAS,
         COIN,
         DICE_CALCULATOR,
         OSR,
         TRAVELLER,
         BLADES_IN_THE_DARK,
+        BLADES_IN_THE_DARK_ALIAS,
         BLADES_IN_THE_DARK_IMAGE,
         BLADES_IN_THE_DARK_DETAIL,
         CALL_OF_CTHULHU_7ED,

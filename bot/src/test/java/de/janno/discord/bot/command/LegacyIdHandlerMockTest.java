@@ -19,7 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SnapshotExtension.class)
 public class LegacyIdHandlerMockTest {
-    private Expect expect;
+    Expect expect;
 
     @BeforeEach
     void setup() throws IOException {

@@ -42,7 +42,7 @@ class SumCustomSetCommandTest {
             new ButtonIdLabelAndDiceExpression("4_button", "2d10min10", "min10", false, false)
     ), true, true, false, null, null, AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
 
-    private Expect expect;
+    Expect expect;
 
     static Stream<Arguments> generateGetEditButtonMessageData() {
         return Stream.of(

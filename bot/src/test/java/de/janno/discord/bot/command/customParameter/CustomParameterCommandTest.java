@@ -35,7 +35,7 @@ class CustomParameterCommandTest {
 
     CustomParameterCommand underTest;
     PersistenceManager persistenceManager = mock(PersistenceManager.class);
-    private Expect expect;
+    Expect expect;
 
     private static Stream<Arguments> generateParameterExpression2ButtonValuesData() {
         return Stream.of(

@@ -2,6 +2,7 @@ package de.janno.discord.bot.command.help;
 
 import au.com.origin.snapshots.Expect;
 import au.com.origin.snapshots.junit5.SnapshotExtension;
+import de.janno.discord.bot.command.channelConfig.ChannelConfigCommand;
 import de.janno.discord.bot.command.customDice.CustomDiceCommand;
 import de.janno.discord.bot.command.customParameter.CustomParameterCommand;
 import de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommand;
@@ -27,7 +28,7 @@ class QuickstartCommandTest {
 
     QuickstartCommand underTest;
 
-    private Expect expect;
+    Expect expect;
 
     @BeforeEach
     void setup() {
@@ -36,7 +37,8 @@ class QuickstartCommandTest {
         CustomDiceCommand customDiceCommand = new CustomDiceCommand(persistenceManager, cachingDiceEvaluator);
         CustomParameterCommand customParameterCommand = new CustomParameterCommand(persistenceManager, cachingDiceEvaluator);
         SumCustomSetCommand sumCustomSetCommand = new SumCustomSetCommand(persistenceManager, cachingDiceEvaluator);
-        RpgSystemCommandPreset rpgSystemCommandPreset = new RpgSystemCommandPreset(persistenceManager, customParameterCommand, customDiceCommand, sumCustomSetCommand);
+        ChannelConfigCommand channelConfigCommand = new ChannelConfigCommand(persistenceManager);
+        RpgSystemCommandPreset rpgSystemCommandPreset = new RpgSystemCommandPreset(persistenceManager, customParameterCommand, customDiceCommand, sumCustomSetCommand, channelConfigCommand);
         underTest = new QuickstartCommand(rpgSystemCommandPreset);
     }
 
@@ -96,6 +98,7 @@ class QuickstartCommandTest {
         SoftAssertions.assertSoftly(a -> {
             a.assertThat(res.stream().map(AutoCompleteAnswer::getName)).containsExactly(
                     "Dungeon & Dragons 5e",
+                    "Dungeon & Dragons 5e - Alias",
                     "Dungeon & Dragons 5e Calculator",
                     "Dungeon & Dragons 5e Calculator 2",
                     "Dungeon & Dragons 5e without Dice Images",
@@ -103,6 +106,7 @@ class QuickstartCommandTest {
                     "Powered by the Apocalypse");
             a.assertThat(res.stream().map(AutoCompleteAnswer::getValue)).containsExactly(
                     "DND5_IMAGE",
+                    "DND5_ALIAS",
                     "DND5_CALC",
                     "DND5_CALC2",
                     "DND5",
@@ -118,6 +122,7 @@ class QuickstartCommandTest {
         SoftAssertions.assertSoftly(a -> {
             a.assertThat(res.stream().map(AutoCompleteAnswer::getName)).containsExactly(
                     "Dungeon & Dragons 5e",
+                    "Dungeon & Dragons 5e - Alias",
                     "Dungeon & Dragons 5e Calculator 2",
                     "Dungeon & Dragons 5e Kalkulator",
                     "Dungeon & Dragons 5e ohne Würfelbildern",
@@ -127,6 +132,7 @@ class QuickstartCommandTest {
                     "oWod / Storyteller System");
             a.assertThat(res.stream().map(AutoCompleteAnswer::getValue)).containsExactly(
                     "DND5_IMAGE",
+                    "DND5_ALIAS",
                     "DND5_CALC2",
                     "DND5_CALC",
                     "DND5",
@@ -140,8 +146,12 @@ class QuickstartCommandTest {
     @Test
     void getAutoCompleteAnswer_filterBrazil() {
         List<AutoCompleteAnswer> res = underTest.getAutoCompleteAnswer(new AutoCompleteRequest("system", "vampire", List.of()), Locale.of("PT", "br"), 1L, 1L);
-        assertThat(res.stream().map(AutoCompleteAnswer::getName)).containsExactly("Vampiro 5ed", "nWod / Crônicas das Trevas", "oWod / Sistema Storyteller");
-        assertThat(res.stream().map(AutoCompleteAnswer::getValue)).containsExactly("VAMPIRE_5ED", "NWOD", "OWOD");
+        assertThat(res.stream().map(AutoCompleteAnswer::getName)).containsExactly("Vampiro 5ed",
+                "nWod / Chronicles of Darkness - Alias",
+                "nWod / Crônicas das Trevas",
+                "oWod / Sistema Storyteller",
+                "oWod / Storyteller System - Alias");
+        assertThat(res.stream().map(AutoCompleteAnswer::getValue)).containsExactly("VAMPIRE_5ED", "NWOD_ALIAS", "NWOD", "OWOD", "OWOD_ALIAS");
     }
 
     @Test
@@ -151,6 +161,7 @@ class QuickstartCommandTest {
             a.assertThat(res.stream().map(AutoCompleteAnswer::getName)).containsExactly(
                     "A Song of Ice and Fire",
                     "Blades in the Dark",
+                    "Blades in the Dark - Alias",
                     "Blades in the Dark - Detail",
                     "Blades in the Dark without Dice Images",
                     "Bluebeard's Bride",
@@ -162,6 +173,7 @@ class QuickstartCommandTest {
                     "Cyberpunk Red",
                     "Dice Calculator",
                     "Dungeon & Dragons 5e",
+                    "Dungeon & Dragons 5e - Alias",
                     "Dungeon & Dragons 5e Calculator",
                     "Dungeon & Dragons 5e Calculator 2",
                     "Dungeon & Dragons 5e without Dice Images",
@@ -170,6 +182,7 @@ class QuickstartCommandTest {
                     "Exalted 3ed",
                     "Fallout",
                     "Fate",
+                    "Fate Alias",
                     "Fate without Dice Images",
                     "Forbidden Lands",
                     "Heroes of Cerulea",
@@ -188,7 +201,9 @@ class QuickstartCommandTest {
                     "Rêve de Dragon",
                     "Salvage Union BDR-V1.0",
                     "Savage Worlds",
+                    "Savage Worlds - Alias",
                     "Shadowrun",
+                    "Shadowrun - Alias",
                     "Shadowrun without Dice Images",
                     "Star Wars - West End Games D6 Rules, 2nd Edition REUP",
                     "The Expanse",
@@ -199,10 +214,13 @@ class QuickstartCommandTest {
                     "Vampire 5ed",
                     "Year Zero Engine: Alien",
                     "nWod / Chronicles of Darkness",
-                    "oWod / Storyteller System");
+                    "nWod / Chronicles of Darkness - Alias",
+                    "oWod / Storyteller System",
+                    "oWod / Storyteller System - Alias");
             a.assertThat(res.stream().map(AutoCompleteAnswer::getValue)).containsExactly(
                     "ASOIAF",
                     "BLADES_IN_THE_DARK_IMAGE",
+                    "BLADES_IN_THE_DARK_ALIAS",
                     "BLADES_IN_THE_DARK_DETAIL",
                     "BLADES_IN_THE_DARK",
                     "BLUEBEARD_BRIDE",
@@ -214,6 +232,7 @@ class QuickstartCommandTest {
                     "CYBERPUNK_RED",
                     "DICE_CALCULATOR",
                     "DND5_IMAGE",
+                    "DND5_ALIAS",
                     "DND5_CALC",
                     "DND5_CALC2",
                     "DND5",
@@ -222,6 +241,7 @@ class QuickstartCommandTest {
                     "EXALTED_3ED",
                     "FALLOUT",
                     "FATE_IMAGE",
+                    "FATE_ALIAS",
                     "FATE",
                     "FORBIDDEN_LANDS",
                     "HEROES_OF_CERULEA",
@@ -240,7 +260,9 @@ class QuickstartCommandTest {
                     "REVE_DE_DRAGON",
                     "SALVAGE_UNION",
                     "SAVAGE_WORLDS",
+                    "SAVAGE_WORLDS_ALIAS",
                     "SHADOWRUN_IMAGE",
+                    "SHADOWRUN_ALIAS",
                     "SHADOWRUN",
                     "STAR_WARS_D6",
                     "EXPANSE",
@@ -251,7 +273,9 @@ class QuickstartCommandTest {
                     "VAMPIRE_5ED",
                     "ALIEN",
                     "NWOD",
-                    "OWOD");
+                    "NWOD_ALIAS",
+                    "OWOD",
+                    "OWOD_ALIAS");
         });
     }
 }
