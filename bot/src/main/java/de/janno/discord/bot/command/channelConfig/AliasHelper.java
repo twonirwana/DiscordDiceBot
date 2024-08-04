@@ -54,7 +54,6 @@ public class AliasHelper {
             expressionWithOptionalLabelsAndAppliedAliases = applyAliasIfMatch(alias, expressionWithOptionalLabelsAndAppliedAliases, "channel");
         }
 
-
         return expressionWithOptionalLabelsAndAppliedAliases;
     }
 

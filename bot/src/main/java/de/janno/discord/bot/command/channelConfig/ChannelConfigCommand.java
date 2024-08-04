@@ -13,10 +13,7 @@ import de.janno.discord.bot.dice.image.DiceStyleAndColor;
 import de.janno.discord.bot.persistance.ChannelConfigDTO;
 import de.janno.discord.bot.persistance.Mapper;
 import de.janno.discord.bot.persistance.PersistenceManager;
-import de.janno.discord.connector.api.AutoCompleteAnswer;
-import de.janno.discord.connector.api.AutoCompleteRequest;
-import de.janno.discord.connector.api.SlashCommand;
-import de.janno.discord.connector.api.SlashEventAdaptor;
+import de.janno.discord.connector.api.*;
 import de.janno.discord.connector.api.slash.CommandDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinitionOption;
 import de.janno.discord.connector.api.slash.CommandDefinitionOptionChoice;
@@ -95,6 +92,7 @@ public class ChannelConfigCommand implements SlashCommand {
             .nameLocales(I18n.allNoneEnglishMessagesNames("channel_config.option.delete.name"))
             .description(I18n.getMessage("channel_config.option.delete.description", Locale.ENGLISH))
             .descriptionLocales(I18n.allNoneEnglishMessagesDescriptions("channel_config.option.delete.description"))
+            .option(SCOPE_OPTION)
             .option(CommandDefinitionOption.builder()
                     .type(CommandDefinitionOption.Type.STRING)
                     .name(ALIAS_NAME_OPTION_NAME)
@@ -102,8 +100,8 @@ public class ChannelConfigCommand implements SlashCommand {
                     .description(I18n.getMessage("channel_config.option.delete.aliasName.description", Locale.ENGLISH))
                     .descriptionLocales(I18n.allNoneEnglishMessagesDescriptions("channel_config.option.delete.aliasName.description"))
                     .required(true)
+                    .autoComplete(true)
                     .build())
-            .option(SCOPE_OPTION)
             .build();
     private static final CommandDefinitionOption DELETE_ALL_ALIAS_OPTION = CommandDefinitionOption.builder()
             .type(CommandDefinitionOption.Type.SUB_COMMAND)
@@ -244,7 +242,28 @@ public class ChannelConfigCommand implements SlashCommand {
 
     @Override
     public @NonNull List<AutoCompleteAnswer> getAutoCompleteAnswer(@NonNull AutoCompleteRequest autoCompleteRequest, @NonNull Locale userLocale, long channelId, long userId) {
-        return BaseCommandOptions.autoCompleteColorOption(autoCompleteRequest, userLocale);
+        if (BaseCommandOptions.DICE_IMAGE_COLOR_OPTION_NAME.equals(autoCompleteRequest.getFocusedOptionName())) {
+            return BaseCommandOptions.autoCompleteColorOption(autoCompleteRequest, userLocale);
+        }
+        if (ALIAS_NAME_OPTION_NAME.equals(autoCompleteRequest.getFocusedOptionName())) {
+            Optional<String> scopeOptionValue = autoCompleteRequest.getOptionValues().stream()
+                    .filter(o -> SCOPE_OPTION_NAME.equals(o.getOptionName()))
+                    .map(OptionValue::getOptionValue)
+                    .findFirst();
+
+            Set<String> validScopeValues = Set.of(SCOPE_OPTION_CHOICE_USER_CHANNEL_NAME, SCOPE_OPTION_CHOICE_CHANNEL_NAME);
+            if (scopeOptionValue.isEmpty() || !validScopeValues.contains(scopeOptionValue.get())) {
+                return List.of(new AutoCompleteAnswer(I18n.getMessage("alias.delete.autoComplete.missingScope.name", userLocale), ""));
+            }
+            Long userIdForAlias = SCOPE_OPTION_CHOICE_USER_CHANNEL_NAME.equals(scopeOptionValue.get()) ? userId : null;
+            List<Alias> existingAliases = loadAlias(channelId, userIdForAlias);
+            return existingAliases.stream()
+                    .filter(a -> a.getName().contains(autoCompleteRequest.getFocusedOptionValue()))
+                    .limit(25)
+                    .map(a -> new AutoCompleteAnswer(a.getName() + "->" + a.getValue(), a.getName()))
+                    .collect(Collectors.toList());
+        }
+        return List.of();
     }
 
     private String serializeConfig(DirectRollConfig channelConfig) {
@@ -372,7 +391,9 @@ public class ChannelConfigCommand implements SlashCommand {
 
             BotMetrics.incrementSlashStartMetricCounter(getCommandId() + "_aliasDelete");
             final List<Alias> existingAlias = loadAlias(event.getChannelId(), userId);
-
+            if(existingAlias.stream().noneMatch(alias -> alias.getName().equals(name))){
+                return event.reply(I18n.getMessage("channel_config.deletedAlias.notFound", userLocale, name), true);
+            }
             List<Alias> newAliasList = existingAlias.stream()
                     .filter(alias -> !alias.getName().equals(name))
                     .toList();
