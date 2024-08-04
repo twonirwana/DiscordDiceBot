@@ -25,7 +25,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class RerollAnswerHandlerTest {
 
     RerollAnswerHandler underTest;
-    private Expect expect;
+    Expect expect;
 
     @Test
     void checkPersistence() {

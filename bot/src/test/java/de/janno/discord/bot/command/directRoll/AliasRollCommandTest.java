@@ -35,7 +35,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class AliasRollCommandTest {
     private PersistenceManager persistenceManager;
-    private Expect expect;
+    Expect expect;
     private AliasRollCommand underTest;
 
     static Stream<Arguments> generateAllLocaleData() {
@@ -124,7 +124,7 @@ public class AliasRollCommandTest {
                 1L,
                 "channel_config",
                 USER_ALIAS_CONFIG_TYPE_ID,
-                Mapper.serializedObject(new AliasConfig(List.of(new Alias("a", "1d6"), new Alias("b", "2d6"))))));
+                Mapper.serializedObject(new AliasConfig(List.of(new Alias("a", "1d6", Alias.Type.Replace), new Alias("b", "2d6", Alias.Type.Replace))))));
 
         persistenceManager.saveChannelConfig(new ChannelConfigDTO(UUID.randomUUID(),
                 1L,
@@ -132,7 +132,7 @@ public class AliasRollCommandTest {
                 null,
                 "channel_config",
                 CHANNEL_ALIAS_CONFIG_TYPE_ID,
-                Mapper.serializedObject(new AliasConfig(List.of(new Alias("b", "1d8"), new Alias("c", "2d8"))))));
+                Mapper.serializedObject(new AliasConfig(List.of(new Alias("b", "1d8", Alias.Type.Replace), new Alias("c", "2d8", Alias.Type.Replace))))));
 
         persistenceManager.saveChannelConfig(new ChannelConfigDTO(UUID.randomUUID(),
                 1L,
@@ -140,7 +140,7 @@ public class AliasRollCommandTest {
                 1L,
                 "channel_config",
                 USER_ALIAS_CONFIG_TYPE_ID,
-                Mapper.serializedObject(new AliasConfig(List.of(new Alias("z", "1d10"), new Alias("a", "1d10"), new Alias("b", "1d10"))))));
+                Mapper.serializedObject(new AliasConfig(List.of(new Alias("z", "1d10", Alias.Type.Replace), new Alias("a", "1d10", Alias.Type.Replace), new Alias("b", "1d10", Alias.Type.Replace))))));
 
         persistenceManager.saveChannelConfig(new ChannelConfigDTO(UUID.randomUUID(),
                 1L,
@@ -148,7 +148,7 @@ public class AliasRollCommandTest {
                 null,
                 "channel_config",
                 CHANNEL_ALIAS_CONFIG_TYPE_ID,
-                Mapper.serializedObject(new AliasConfig(List.of(new Alias("z", "1d10"), new Alias("b", "1d10"), new Alias("c", "1d10"))))));
+                Mapper.serializedObject(new AliasConfig(List.of(new Alias("z", "1d10", Alias.Type.Replace), new Alias("b", "1d10", Alias.Type.Replace), new Alias("c", "1d10", Alias.Type.Replace))))));
 
         persistenceManager.saveChannelConfig(new ChannelConfigDTO(UUID.randomUUID(),
                 1L,
@@ -156,7 +156,7 @@ public class AliasRollCommandTest {
                 2L,
                 "channel_config",
                 USER_ALIAS_CONFIG_TYPE_ID,
-                Mapper.serializedObject(new AliasConfig(List.of(new Alias("y", "1d12"), new Alias("a", "1d12"), new Alias("b", "1d12"))))));
+                Mapper.serializedObject(new AliasConfig(List.of(new Alias("y", "1d12", Alias.Type.Replace), new Alias("a", "1d12", Alias.Type.Replace), new Alias("b", "1d12", Alias.Type.Replace))))));
     }
 
 }

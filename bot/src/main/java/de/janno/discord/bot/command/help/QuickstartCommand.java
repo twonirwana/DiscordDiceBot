@@ -136,17 +136,29 @@ public class QuickstartCommand implements SlashCommand {
                 final RpgSystemCommandPreset.PresetId presetId = presetIdOptional.get();
                 BotMetrics.incrementPresetMetricCounter(presetId.name());
                 BotMetrics.incrementSlashStartMetricCounter(getCommandId());
-                EmbedOrMessageDefinition commandAndMessageDefinition = rpgSystemCommandPreset.createMessage(presetId, newConfigUUID, guildId, channelId, userLocal);
+                Optional<EmbedOrMessageDefinition> commandAndMessageDefinition = rpgSystemCommandPreset.createMessage(presetId, newConfigUUID, guildId, channelId, userLocal);
                 String commandString = RpgSystemCommandPreset.getCommandString(presetId, userLocal);
-                return Mono.defer(() -> event.sendMessage(commandAndMessageDefinition))
-                        .doOnSuccess(v -> BotMetrics.timerNewButtonMessageMetricCounter(getCommandId(), stopwatch.elapsed()))
-                        .then(event.reply("`%s`".formatted(commandString), false))
-                        .doOnSuccess(v ->
-                                log.info("{}: '{}' {}ms",
-                                        event.getRequester().toLogString(),
-                                        presetId.name(),
-                                        stopwatch.elapsed(TimeUnit.MILLISECONDS)
-                                ));
+                if (commandAndMessageDefinition.isPresent()) {
+                    return Mono.defer(() -> event.sendMessage(commandAndMessageDefinition.get()))
+                            .doOnSuccess(v -> BotMetrics.timerNewButtonMessageMetricCounter(getCommandId(), stopwatch.elapsed()))
+                            .then(event.reply("`%s`".formatted(commandString), false))
+                            .doOnSuccess(v ->
+                                    log.info("{}: '{}' {}ms",
+                                            event.getRequester().toLogString(),
+                                            presetId.name(),
+                                            stopwatch.elapsed(TimeUnit.MILLISECONDS)
+                                    ));
+                } else {
+                    return Mono.defer(() -> event.reply("`%s`".formatted(commandString), false))
+                            .doOnSuccess(v -> BotMetrics.timerNewButtonMessageMetricCounter(getCommandId(), stopwatch.elapsed()))
+                            .doOnSuccess(v ->
+                                    log.info("{}: '{}' {}ms",
+                                            event.getRequester().toLogString(),
+                                            presetId.name(),
+                                            stopwatch.elapsed(TimeUnit.MILLISECONDS)
+                                    ));
+                }
+
             } else {
                 log.info("Can't match RPG system id: '{}'", systemId);
                 return event.reply(I18n.getMessage("quickstart.unknown.reply", userLocal, systemId), true);

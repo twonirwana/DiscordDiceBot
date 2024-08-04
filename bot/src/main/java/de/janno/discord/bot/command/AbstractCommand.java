@@ -3,7 +3,6 @@ package de.janno.discord.bot.command;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import de.janno.discord.bot.BaseCommandUtils;
-import de.janno.discord.bot.command.reroll.Config;
 import de.janno.discord.bot.persistance.MessageConfigDTO;
 import de.janno.discord.bot.persistance.MessageDataDTO;
 import de.janno.discord.bot.persistance.PersistenceManager;
@@ -22,7 +21,7 @@ import java.util.*;
 import java.util.function.Supplier;
 
 @Slf4j
-public abstract class AbstractCommand<C extends Config, S extends StateData> implements SlashCommand, ComponentInteractEventHandler {
+public abstract class AbstractCommand<C extends RollConfig, S extends StateData> implements SlashCommand, ComponentInteractEventHandler {
 
     protected final PersistenceManager persistenceManager;
     private final AbstractComponentInteractEventHandler<C, S> componentInteractEventHandler;
@@ -155,12 +154,6 @@ public abstract class AbstractCommand<C extends Config, S extends StateData> imp
             }
         };
     }
-
-
-    protected AnswerFormatType defaultAnswerFormat() {
-        return AnswerFormatType.full;
-    }
-
 
     @Override
     public @NonNull CommandDefinition getCommandDefinition() {

@@ -260,7 +260,20 @@ de.janno.discord.bot.command.channelConfig.ChannelConfigTest.getCommandDefinitio
         "name": "alias",
         "nameLocales": [ ],
         "description": "add, list or remove alias",
-        "descriptionLocales": [ ],
+        "descriptionLocales": [
+          {
+            "locale": "de",
+            "description": "hinzufügen, auflisten oder entfernen einen Alias"
+          },
+          {
+            "locale": "pt_BR",
+            "description": "adicionar, listar ou remover alias"
+          },
+          {
+            "locale": "fr",
+            "description": "ajouter, lister ou supprimer un alias"
+          }
+        ],
         "required": false,
         "choices": [ ],
         "options": [
@@ -339,7 +352,20 @@ de.janno.discord.bot.command.channelConfig.ChannelConfigTest.getCommandDefinitio
                 "name": "scope",
                 "nameLocales": [ ],
                 "description": "scope of the alias, if applies only to one user or more",
-                "descriptionLocales": [ ],
+                "descriptionLocales": [
+                  {
+                    "locale": "de",
+                    "description": "Scope des Alias, ob er nur für einen Benutzer gilt oder für mehrere"
+                  },
+                  {
+                    "locale": "pt_BR",
+                    "description": "escopo do alias, se for aplicável somente a um usuário ou mais"
+                  },
+                  {
+                    "locale": "fr",
+                    "description": "portée de l'alias, s'il ne s'applique qu'à un ou plusieurs utilisateurs"
+                  }
+                ],
                 "required": true,
                 "choices": [
                   {
@@ -350,6 +376,41 @@ de.janno.discord.bot.command.channelConfig.ChannelConfigTest.getCommandDefinitio
                   {
                     "name": "current_user_in_this_channel",
                     "value": "current_user_in_this_channel",
+                    "nameLocales": [ ]
+                  }
+                ],
+                "options": [ ],
+                "autoComplete": false
+              },
+              {
+                "type": "STRING",
+                "name": "type",
+                "nameLocales": [ ],
+                "description": "type of the alias, if it simply replaces the name with the value or uses regex",
+                "descriptionLocales": [
+                  {
+                    "locale": "de",
+                    "description": "Type des Alias, ob er einfach den Namen mit dem Wert ersetzt oder Regex benutzt"
+                  },
+                  {
+                    "locale": "pt_BR",
+                    "description": "do alias, se ele simplesmente substitui o nome pelo valor ou usa regex"
+                  },
+                  {
+                    "locale": "fr",
+                    "description": "de l'alias, s'il remplace simplement le nom par la valeur ou s'il utilise regex"
+                  }
+                ],
+                "required": false,
+                "choices": [
+                  {
+                    "name": "Replace",
+                    "value": "Replace",
+                    "nameLocales": [ ]
+                  },
+                  {
+                    "name": "Regex",
+                    "value": "Regex",
                     "nameLocales": [ ]
                   }
                 ],
@@ -383,28 +444,6 @@ de.janno.discord.bot.command.channelConfig.ChannelConfigTest.getCommandDefinitio
             "options": [
               {
                 "type": "STRING",
-                "name": "scope",
-                "nameLocales": [ ],
-                "description": "scope of the alias, if applies only to one user or more",
-                "descriptionLocales": [ ],
-                "required": true,
-                "choices": [
-                  {
-                    "name": "all_users_in_this_channel",
-                    "value": "all_users_in_this_channel",
-                    "nameLocales": [ ]
-                  },
-                  {
-                    "name": "current_user_in_this_channel",
-                    "value": "current_user_in_this_channel",
-                    "nameLocales": [ ]
-                  }
-                ],
-                "options": [ ],
-                "autoComplete": false
-              },
-              {
-                "type": "STRING",
                 "name": "name",
                 "nameLocales": [ ],
                 "description": "The name of the alias to delete",
@@ -425,7 +464,102 @@ de.janno.discord.bot.command.channelConfig.ChannelConfigTest.getCommandDefinitio
                 "required": true,
                 "choices": [ ],
                 "options": [ ],
-                "autoComplete": true
+                "autoComplete": false
+              },
+              {
+                "type": "STRING",
+                "name": "scope",
+                "nameLocales": [ ],
+                "description": "scope of the alias, if applies only to one user or more",
+                "descriptionLocales": [
+                  {
+                    "locale": "de",
+                    "description": "Scope des Alias, ob er nur für einen Benutzer gilt oder für mehrere"
+                  },
+                  {
+                    "locale": "pt_BR",
+                    "description": "escopo do alias, se for aplicável somente a um usuário ou mais"
+                  },
+                  {
+                    "locale": "fr",
+                    "description": "portée de l'alias, s'il ne s'applique qu'à un ou plusieurs utilisateurs"
+                  }
+                ],
+                "required": true,
+                "choices": [
+                  {
+                    "name": "all_users_in_this_channel",
+                    "value": "all_users_in_this_channel",
+                    "nameLocales": [ ]
+                  },
+                  {
+                    "name": "current_user_in_this_channel",
+                    "value": "current_user_in_this_channel",
+                    "nameLocales": [ ]
+                  }
+                ],
+                "options": [ ],
+                "autoComplete": false
+              }
+            ],
+            "autoComplete": false
+          },
+          {
+            "type": "SUB_COMMAND",
+            "name": "delete_all",
+            "nameLocales": [ ],
+            "description": "Delete all aliases",
+            "descriptionLocales": [
+              {
+                "locale": "de",
+                "description": "Lösche alle Aliases"
+              },
+              {
+                "locale": "pt_BR",
+                "description": "Excluir todos os aliases"
+              },
+              {
+                "locale": "fr",
+                "description": "Supprimer tous les alias"
+              }
+            ],
+            "required": false,
+            "choices": [ ],
+            "options": [
+              {
+                "type": "STRING",
+                "name": "scope",
+                "nameLocales": [ ],
+                "description": "scope of the alias, if applies only to one user or more",
+                "descriptionLocales": [
+                  {
+                    "locale": "de",
+                    "description": "Scope des Alias, ob er nur für einen Benutzer gilt oder für mehrere"
+                  },
+                  {
+                    "locale": "pt_BR",
+                    "description": "escopo do alias, se for aplicável somente a um usuário ou mais"
+                  },
+                  {
+                    "locale": "fr",
+                    "description": "portée de l'alias, s'il ne s'applique qu'à un ou plusieurs utilisateurs"
+                  }
+                ],
+                "required": true,
+                "choices": [
+                  {
+                    "name": "all_users_in_this_channel",
+                    "value": "all_users_in_this_channel",
+                    "nameLocales": [ ]
+                  },
+                  {
+                    "name": "current_user_in_this_channel",
+                    "value": "current_user_in_this_channel",
+                    "nameLocales": [ ]
+                  }
+                ],
+                "options": [ ],
+                "autoComplete": false
               }
             ],
             "autoComplete": false
@@ -457,7 +591,20 @@ de.janno.discord.bot.command.channelConfig.ChannelConfigTest.getCommandDefinitio
                 "name": "scope",
                 "nameLocales": [ ],
                 "description": "scope of the alias, if applies only to one user or more",
-                "descriptionLocales": [ ],
+                "descriptionLocales": [
+                  {
+                    "locale": "de",
+                    "description": "Scope des Alias, ob er nur für einen Benutzer gilt oder für mehrere"
+                  },
+                  {
+                    "locale": "pt_BR",
+                    "description": "escopo do alias, se for aplicável somente a um usuário ou mais"
+                  },
+                  {
+                    "locale": "fr",
+                    "description": "portée de l'alias, s'il ne s'applique qu'à un ou plusieurs utilisateurs"
+                  }
+                ],
                 "required": true,
                 "choices": [
                   {
@@ -528,7 +675,20 @@ de.janno.discord.bot.command.channelConfig.ChannelConfigTest.getCommandDefinitio
                 "name": "scope",
                 "nameLocales": [ ],
                 "description": "scope of the alias, if applies only to one user or more",
-                "descriptionLocales": [ ],
+                "descriptionLocales": [
+                  {
+                    "locale": "de",
+                    "description": "Scope des Alias, ob er nur für einen Benutzer gilt oder für mehrere"
+                  },
+                  {
+                    "locale": "pt_BR",
+                    "description": "escopo do alias, se for aplicável somente a um usuário ou mais"
+                  },
+                  {
+                    "locale": "fr",
+                    "description": "portée de l'alias, s'il ne s'applique qu'à un ou plusieurs utilisateurs"
+                  }
+                ],
                 "required": true,
                 "choices": [
                   {

@@ -23,7 +23,7 @@ class ClearCommandTest {
 
     PersistenceManager persistenceManager = mock(PersistenceManager.class);
     ClearCommand underTest = new ClearCommand(persistenceManager);
-    private Expect expect;
+    Expect expect;
 
     @Test
     void handleSlashCommandEvent() {

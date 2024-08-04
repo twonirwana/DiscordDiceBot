@@ -95,6 +95,23 @@ Please let me know if you have a good new preset or an improved version for an e
 |
 |===
 
+The quickstart command can also set alias to make direct rolls more comfortable.
+You can also set channel config default for the answer format to `without_expression` to hide the complex expression in the answers.
+See <<_channel_config>> for channel config
+
+[cols="1,1"]
+|===
+| Alias Name  | Alias Function
+
+|`Dungeon & Dragons 5e - Alias` | roll advantage with `adv` and disadvantage with `dis`
+|`Fate - Alias` | roll four fate dice with `4dF`
+|`nWod / Chronicles of Darkness - Alias` | roll with `w` e.g. `8w`
+|`oWod / Storyteller System - Alias` | roll with `r` e.g. `8r6` for 8 dice against target 6 and `re` for rolling with rerolling on 10
+|`Shadowrun - Alias` |  roll with `sr` e.g `8sr`
+|`Savage Worlds - Alias` | roll exploding dice with `r` e.g. `r10` for an exploding d10 and `sw` for a roll with wildcard dice e.g. `sw8`
+|`Blades in the Dark - Alias` | roll with `b` e.g. `4b` for 4 dice
+|===
+
 == Options
 
 === Language
@@ -550,13 +567,31 @@ The default value is true
 ==== Aliases
 
 It is possible to configure alias in a channel.
-Alias can be used with direct roll and custom dice.
-If a custom dice button is created that should use an alias, the alias musst exist before the button is created.
+Alias can be used with direct roll, sum_custom_set and custom_dice.
+If a button is created that should use an alias, the alias musst exist before the button is created.
 
 For example `/channel_config alias save name: att value: (2d20k1)+10+1d4 scope: current_user_in_this_channel` creates an attack alias for the user.
 Each time the user uses the slash command `/r expression: att`, the `att` will automatically replaced with `(2d20k1)+10+1d4`
 
 An alias has a name and a value and will replace each occurrence in the dice expression of its name with its value.
+
+WARNING: Alias can influence each other an this can break the logic
+
+There are two type of alias:
+
+===== Replace
+
+Replace alias simply search the name of the alias in the input and replace it with the value
+
+===== Regex
+
+Regex alias can be used to make a grouped match and replace.
+For example will the alias with the name: `(?<numberOfDice>\d+) wod (?<target>\d+)` and the value: `${numberOfDice}d10>=${target}c` transform the input `8 wod 7` to `8d10>=7c`.
+The best way to test your regex expression is with sites like https://regex101.com/
+
+WARNING: If you use regex named groups you can't use `$` in other parts of the expression
+
+===== Scope
 
 There are two scopes of alias:
 
@@ -565,15 +600,18 @@ There are two scopes of alias:
 
 The user specific alias will be applied first.
 
-There are four commands for each scope.
+===== Commands
+
+There are five commands
 
 * `save` creates or overwrites an alias
 * `multi_save` creates or overwrites multiple alias.
-Alias are seperated by `;` and the name and the value are seperated by `:`.
+Alias are seperated by `;` and the name and the value are seperated by `:` for replace alias and `::` for regex alias.
 For example: `/channel_config alias multi_save aliases: att:2d20;dmg:2d6+4= scope: current_user_in_this_channel` saves two alias:
 ** `att` with `2d20`
 ** `dmg` with `2d6+4=`
 * `delete` removes an alias by its name
+* `delete_all` removes all aliases
 * `list` provides a list of all alias
 
 === Fetch

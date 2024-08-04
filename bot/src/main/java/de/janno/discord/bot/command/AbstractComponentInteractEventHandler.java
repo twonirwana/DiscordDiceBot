@@ -6,7 +6,6 @@ import de.janno.discord.bot.AnswerInteractionType;
 import de.janno.discord.bot.BaseCommandUtils;
 import de.janno.discord.bot.BotMetrics;
 import de.janno.discord.bot.I18n;
-import de.janno.discord.bot.command.reroll.Config;
 import de.janno.discord.bot.command.reroll.RerollAnswerHandler;
 import de.janno.discord.bot.persistance.MessageConfigDTO;
 import de.janno.discord.bot.persistance.MessageDataDTO;
@@ -35,7 +34,7 @@ import java.util.function.Supplier;
 import static de.janno.discord.connector.api.BottomCustomIdUtils.CUSTOM_ID_DELIMITER;
 
 @Slf4j
-public abstract class AbstractComponentInteractEventHandler<C extends Config, S extends StateData> implements ComponentInteractEventHandler {
+public abstract class AbstractComponentInteractEventHandler<C extends RollConfig, S extends StateData> implements ComponentInteractEventHandler {
 
     protected final PersistenceManager persistenceManager;
     protected final Supplier<UUID> uuidSupplier;
@@ -142,7 +141,7 @@ public abstract class AbstractComponentInteractEventHandler<C extends Config, S 
 
         }
         Optional<EmbedOrMessageDefinition> newButtonMessage = createNewButtonMessage(configUUID, config, state, guildId, channelId);
-        if(answer.isPresent() || newButtonMessage.isPresent()){
+        if (answer.isPresent() || newButtonMessage.isPresent()) {
             BotMetrics.incrementButtonMetricCounter(getCommandId());
         }
 
