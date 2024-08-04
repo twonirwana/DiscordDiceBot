@@ -4438,6 +4438,26 @@ de.janno.discord.bot.command.help.QuickstartCommandMockTest.handleSlashCommandEv
 ]
 
 
+de.janno.discord.bot.command.help.QuickstartCommandMockTest.handleSlashCommandEvent[CANDELA_OBSCURA2_alias_de]=[
+  [ ]
+]
+
+
+de.janno.discord.bot.command.help.QuickstartCommandMockTest.handleSlashCommandEvent[CANDELA_OBSCURA2_alias_en]=[
+  [ ]
+]
+
+
+de.janno.discord.bot.command.help.QuickstartCommandMockTest.handleSlashCommandEvent[CANDELA_OBSCURA2_alias_fr]=[
+  [ ]
+]
+
+
+de.janno.discord.bot.command.help.QuickstartCommandMockTest.handleSlashCommandEvent[CANDELA_OBSCURA2_alias_pt_BR]=[
+  [ ]
+]
+
+
 de.janno.discord.bot.command.help.QuickstartCommandMockTest.handleSlashCommandEvent[CANDELA_OBSCURA2_de]=[
   [
     "reply: `/sum_custom_set start buttons: val('$r',2d6l1) if('$r'<=?3, 'Miss', '$r' in [5,4], 'Mixed Success', '$r' in [6], 'Full Success')@Action Roll: 0;val('$r',1d6) if('$r'<=?3, 'Miss', '$r' in [5,4], 'Mixed Success', '$r' in [6], 'Full Success')@Action Roll: 1;val('$r',2d6k1) if('$r'<=?3, 'Miss', '$r' in [5,4], 'Mixed Success', '$r' in [6], 'Full Success')@Action Roll: 2;val('$r',3d6k1) if('$r'<=?3, 'Miss', '$r' in [5,4], 'Mixed Success', '$r' in [6], 'Full Success')@Action Roll: 3;val('$r',4d6k1) if('$r'<=?3, 'Miss', '$r' in [5,4], 'Mixed Success', '$r' in [6], 'Full Success')@Action Roll: 4;val('$r',5d6k1) if('$r'<=?3, 'Miss', '$r' in [5,4], 'Mixed Success', '$r' in [6], 'Full Success')@Action Roll: 5;val('$r',6d6k1) if('$r'<=?3, 'Miss', '$r' in [5,4], 'Mixed Success', '$r' in [6], 'Full Success')@Action Roll: 6;val('$r',1d6) if('$r'<=?3, 'Miss (Gilded)', '$r' in [5,4], 'Mixed Success (Gilded)', '$r' in [6], 'Full Success (Gilded)')@+1 Gilded;val('$r',2d6k1) if('$r'<=?3, 'Miss (Gilded)', '$r' in [5,4], 'Mixed Success (Gilded)', '$r' in [6], 'Full Success (Gilded)')@+2 Gilded;val('$r',3d6k1) if('$r'<=?3, 'Miss (Gilded)', '$r' in [5,4], 'Mixed Success (Gilded)', '$r' in [6], 'Full Success (Gilded)')@+3 Gilded always_sum_result: false hide_expression_in_answer: true answer_format: without_expression answer_interaction: none dice_image_style: none dice_image_color: none`",
@@ -5258,6 +5278,26 @@ de.janno.discord.bot.command.help.QuickstartCommandMockTest.handleSlashCommandEv
 ]
 
 
+de.janno.discord.bot.command.help.QuickstartCommandMockTest.handleSlashCommandEvent[FALLOUT_alias_de]=[
+  [ ]
+]
+
+
+de.janno.discord.bot.command.help.QuickstartCommandMockTest.handleSlashCommandEvent[FALLOUT_alias_en]=[
+  [ ]
+]
+
+
+de.janno.discord.bot.command.help.QuickstartCommandMockTest.handleSlashCommandEvent[FALLOUT_alias_fr]=[
+  [ ]
+]
+
+
+de.janno.discord.bot.command.help.QuickstartCommandMockTest.handleSlashCommandEvent[FALLOUT_alias_pt_BR]=[
+  [ ]
+]
+
+
 de.janno.discord.bot.command.help.QuickstartCommandMockTest.handleSlashCommandEvent[FALLOUT_de]=[
   [
     "reply: `/custom_dice start buttons: 1d20;2d20;3d20;4d20;5d20;1d[🗡️/⚔️/❌/❌/☢️/☢️]@1 Combat Dice;2d[🗡️/⚔️/❌/❌/☢️/☢️]@2 Combat Dice;3d[🗡️/⚔️/❌/❌/☢️/☢️]@3 Combat Dice;4d[🗡️/⚔️/❌/❌/☢️/☢️]@4 Combat Dice;5d[🗡️/⚔️/❌/❌/☢️/☢️]@5 Combat Dice;1d[🧠/🧠/❤️/❤️/❤️/❤️/❤️/❤️/🤛/🤛/🤛/🤜/🤜/🤜/🦶/🦶/🦶/🥾/🥾/🥾]@Limb Dice answer_format: full answer_interaction: none dice_image_style: polyhedral_2d dice_image_color: cyan`",
@@ -5463,6 +5503,26 @@ de.janno.discord.bot.command.help.QuickstartCommandMockTest.handleSlashCommandEv
     "reply: `/custom_parameter start expression: replace(4d[＋,▢,−],'＋',1,'▢',0,'−',-1)+{Modificador:-4<=>10}= answer_format: without_expression answer_interaction: none dice_image_style: none dice_image_color: none`",
     "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Por favor selecione um valor para **Modificador**, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=-4, id=custom_parameter\u001Eid1\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=-3, id=custom_parameter\u001Eid2\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=-2, id=custom_parameter\u001Eid3\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=-1, id=custom_parameter\u001Eid4\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=0, id=custom_parameter\u001Eid5\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)]), ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=1, id=custom_parameter\u001Eid6\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=2, id=custom_parameter\u001Eid7\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=3, id=custom_parameter\u001Eid8\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=4, id=custom_parameter\u001Eid9\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=5, id=custom_parameter\u001Eid10\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)]), ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=6, id=custom_parameter\u001Eid11\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=7, id=custom_parameter\u001Eid12\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=8, id=custom_parameter\u001Eid13\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=9, id=custom_parameter\u001Eid14\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=10, id=custom_parameter\u001Eid15\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
   ]
+]
+
+
+de.janno.discord.bot.command.help.QuickstartCommandMockTest.handleSlashCommandEvent[FORBIDDEN_LANDS_alias_de]=[
+  [ ]
+]
+
+
+de.janno.discord.bot.command.help.QuickstartCommandMockTest.handleSlashCommandEvent[FORBIDDEN_LANDS_alias_en]=[
+  [ ]
+]
+
+
+de.janno.discord.bot.command.help.QuickstartCommandMockTest.handleSlashCommandEvent[FORBIDDEN_LANDS_alias_fr]=[
+  [ ]
+]
+
+
+de.janno.discord.bot.command.help.QuickstartCommandMockTest.handleSlashCommandEvent[FORBIDDEN_LANDS_alias_pt_BR]=[
+  [ ]
 ]
 
 
@@ -6543,6 +6603,26 @@ de.janno.discord.bot.command.help.QuickstartCommandMockTest.handleSlashCommandEv
     "reply: `/custom_parameter start expression: val('$r',{Quantidade de Dados:1<=>10}d!6) ('$r'==2c) + ('$r'==4c) + ('$r'==6c)= answer_format: without_expression answer_interaction: none dice_image_style: polyhedral_3d dice_image_color: red_and_white`",
     "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Por favor selecione um valor para **Quantidade de Dados**, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=1, id=custom_parameter\u001Eid1\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=2, id=custom_parameter\u001Eid2\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=3, id=custom_parameter\u001Eid3\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=4, id=custom_parameter\u001Eid4\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=5, id=custom_parameter\u001Eid5\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)]), ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=6, id=custom_parameter\u001Eid6\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=7, id=custom_parameter\u001Eid7\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=8, id=custom_parameter\u001Eid8\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=9, id=custom_parameter\u001Eid9\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=10, id=custom_parameter\u001Eid10\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
   ]
+]
+
+
+de.janno.discord.bot.command.help.QuickstartCommandMockTest.handleSlashCommandEvent[SALVAGE_UNION_alias_de]=[
+  [ ]
+]
+
+
+de.janno.discord.bot.command.help.QuickstartCommandMockTest.handleSlashCommandEvent[SALVAGE_UNION_alias_en]=[
+  [ ]
+]
+
+
+de.janno.discord.bot.command.help.QuickstartCommandMockTest.handleSlashCommandEvent[SALVAGE_UNION_alias_fr]=[
+  [ ]
+]
+
+
+de.janno.discord.bot.command.help.QuickstartCommandMockTest.handleSlashCommandEvent[SALVAGE_UNION_alias_pt_BR]=[
+  [ ]
 ]
 
 
