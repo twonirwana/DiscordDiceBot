@@ -444,30 +444,6 @@ de.janno.discord.bot.command.channelConfig.ChannelConfigTest.getCommandDefinitio
             "options": [
               {
                 "type": "STRING",
-                "name": "name",
-                "nameLocales": [ ],
-                "description": "The name of the alias to delete",
-                "descriptionLocales": [
-                  {
-                    "locale": "de",
-                    "description": "Der Name des Alias zum Löschen"
-                  },
-                  {
-                    "locale": "pt_BR",
-                    "description": "O nome do apelido para apagar"
-                  },
-                  {
-                    "locale": "fr",
-                    "description": "Le nom de l'alias à supprimer"
-                  }
-                ],
-                "required": true,
-                "choices": [ ],
-                "options": [ ],
-                "autoComplete": false
-              },
-              {
-                "type": "STRING",
                 "name": "scope",
                 "nameLocales": [ ],
                 "description": "scope of the alias, if applies only to one user or more",
@@ -500,6 +476,30 @@ de.janno.discord.bot.command.channelConfig.ChannelConfigTest.getCommandDefinitio
                 ],
                 "options": [ ],
                 "autoComplete": false
+              },
+              {
+                "type": "STRING",
+                "name": "name",
+                "nameLocales": [ ],
+                "description": "The name of the alias to delete",
+                "descriptionLocales": [
+                  {
+                    "locale": "de",
+                    "description": "Der Name des Alias zum Löschen"
+                  },
+                  {
+                    "locale": "pt_BR",
+                    "description": "O nome do apelido para apagar"
+                  },
+                  {
+                    "locale": "fr",
+                    "description": "Le nom de l'alias à supprimer"
+                  }
+                ],
+                "required": true,
+                "choices": [ ],
+                "options": [ ],
+                "autoComplete": true
               }
             ],
             "autoComplete": false
