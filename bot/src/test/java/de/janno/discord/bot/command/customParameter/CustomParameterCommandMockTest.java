@@ -1,10 +1,13 @@
 package de.janno.discord.bot.command.customParameter;
 
+import au.com.origin.snapshots.Expect;
+import au.com.origin.snapshots.junit5.SnapshotExtension;
 import de.janno.discord.bot.AnswerInteractionType;
 import de.janno.discord.bot.ButtonEventAdaptorMock;
 import de.janno.discord.bot.ButtonEventAdaptorMockFactory;
 import de.janno.discord.bot.SlashEventAdaptorMock;
 import de.janno.discord.bot.command.AnswerFormatType;
+import de.janno.discord.bot.command.channelConfig.ChannelConfigCommand;
 import de.janno.discord.bot.dice.CachingDiceEvaluator;
 import de.janno.discord.bot.dice.image.DiceImageStyle;
 import de.janno.discord.bot.dice.image.DiceStyleAndColor;
@@ -14,6 +17,7 @@ import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import de.janno.evaluator.dice.random.RandomNumberSupplier;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.List;
 import java.util.Locale;
@@ -22,9 +26,12 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@ExtendWith(SnapshotExtension.class)
+
 public class CustomParameterCommandMockTest {
 
     PersistenceManager persistenceManager;
+    private Expect expect;
 
     @BeforeEach
     void setup() {
@@ -553,5 +560,65 @@ public class CustomParameterCommandMockTest {
                 "editMessage: message:{numberOfDice}d{sides}\nPlease select value for **numberOfDice**, buttonValues=id1,id2,id3,id4,id5,id6,id7,id8,id9,id10",
                 "sendMessage: EmbedOrMessageDefinition(title=4d6 ⇒ 3, 2, 4, 4, descriptionOrContent=[3, 2, 4, 4], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED, userReference=true, sendToOtherChannelId=2)"
         );
+    }
+
+    @Test
+    void channelAlias() {
+        CustomParameterCommand underTest = new CustomParameterCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0)));
+        CustomParameterConfig config = new CustomParameterConfig(null, "{numberOfDice:1<=>10}d{sides:1/4/6/8/10/12/20/100}+att", AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
+
+        ChannelConfigCommand channelConfig = new ChannelConfigCommand(persistenceManager);
+
+        SlashEventAdaptorMock slashEvent1 = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
+                .name("alias")
+                .option(CommandInteractionOption.builder()
+                        .name("save")
+                        .option(CommandInteractionOption.builder().name("name").stringValue("att").build())
+                        .option(CommandInteractionOption.builder().name("value").stringValue("2d20+10").build())
+                        .build())
+                .option(CommandInteractionOption.builder().name("scope").stringValue("all_users_in_this_channel").build())
+                .build()));
+        channelConfig.handleSlashCommandEvent(slashEvent1, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"), Locale.ENGLISH).block();
+
+
+        ButtonEventAdaptorMockFactory<CustomParameterConfig, CustomParameterStateData> factory = new ButtonEventAdaptorMockFactory<>("custom_parameter", underTest, config, persistenceManager, false);
+
+        ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("id4");
+        underTest.handleComponentInteractEvent(click1).block();
+        ButtonEventAdaptorMock click2 = factory.getButtonClickOnLastButtonMessage("id3");
+        underTest.handleComponentInteractEvent(click2).block();
+
+        expect.scenario("click1").toMatchSnapshot(click1.getSortedActions());
+        expect.scenario("click2").toMatchSnapshot(click2.getSortedActions());
+    }
+
+    @Test
+    void userChannelAlias() {
+        CustomParameterCommand underTest = new CustomParameterCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0)));
+        CustomParameterConfig config = new CustomParameterConfig(null, "{numberOfDice:1<=>10}d{sides:1/4/6/8/10/12/20/100}+att", AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
+
+        ChannelConfigCommand channelConfig = new ChannelConfigCommand(persistenceManager);
+
+        SlashEventAdaptorMock slashEvent1 = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
+                .name("alias")
+                .option(CommandInteractionOption.builder()
+                        .name("save")
+                        .option(CommandInteractionOption.builder().name("name").stringValue("att").build())
+                        .option(CommandInteractionOption.builder().name("value").stringValue("2d20+10").build())
+                        .build())
+                .option(CommandInteractionOption.builder().name("scope").stringValue("current_user_in_this_channel").build())
+                .build()));
+        channelConfig.handleSlashCommandEvent(slashEvent1, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"), Locale.ENGLISH).block();
+
+
+        ButtonEventAdaptorMockFactory<CustomParameterConfig, CustomParameterStateData> factory = new ButtonEventAdaptorMockFactory<>("custom_parameter", underTest, config, persistenceManager, false);
+
+        ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("id4");
+        underTest.handleComponentInteractEvent(click1).block();
+        ButtonEventAdaptorMock click2 = factory.getButtonClickOnLastButtonMessage("id3");
+        underTest.handleComponentInteractEvent(click2).block();
+
+        expect.scenario("click1").toMatchSnapshot(click1.getSortedActions());
+        expect.scenario("click2").toMatchSnapshot(click2.getSortedActions());
     }
 }

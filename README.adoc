@@ -443,6 +443,10 @@ The first user that clicks on a button add his name to the message and only this
 Every user can still use the `Clear` button.
 The command uses the `without_expression` as default answer format.
 
+This command can also use alias (see the `channel_config` command).
+The substitution of the alias name with its value happen upon pressing last button.
+The alias must be created before the custom_parameter command is used and removing the alias can break existing button messages.
+
 ==== Examples
 
 ===== Vampire 5ed

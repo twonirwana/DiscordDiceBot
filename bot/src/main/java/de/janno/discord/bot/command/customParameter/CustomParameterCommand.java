@@ -8,6 +8,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import de.janno.discord.bot.I18n;
 import de.janno.discord.bot.command.*;
+import de.janno.discord.bot.command.channelConfig.AliasHelper;
 import de.janno.discord.bot.dice.CachingDiceEvaluator;
 import de.janno.discord.bot.dice.DiceEvaluatorAdapter;
 import de.janno.discord.bot.dice.image.DiceImageStyle;
@@ -285,10 +286,11 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     @Override
     protected @NonNull Optional<RollAnswer> getAnswer(CustomParameterConfig config, State<CustomParameterStateData> state, long channelId, long userId) {
         if (!hasMissingParameter(state)) {
-            String expression = getFilledExpression(config, state);
-            String label = getLabel(config, state);
-            String expressionWithoutSuffixLabel = removeSuffixLabelFromExpression(expression, label);
-            return Optional.of(diceEvaluatorAdapter.answerRollWithGivenLabel(expressionWithoutSuffixLabel,
+            final String expression = getFilledExpression(config, state);
+            final String label = getLabel(config, state);
+            final String expressionWithoutSuffixLabel = removeSuffixLabelFromExpression(expression, label);
+            final String expressionWithoutSuffixLabelAndAlias = AliasHelper.getAndApplyAliaseToExpression(channelId, userId, persistenceManager, expressionWithoutSuffixLabel);
+            return Optional.of(diceEvaluatorAdapter.answerRollWithGivenLabel(expressionWithoutSuffixLabelAndAlias,
                     label,
                     false,
                     config.getAnswerFormatType(),
@@ -547,15 +549,15 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
         if (createParameterListFromBaseExpression(getNextParameterExpression(config.getBaseExpression())).isEmpty()) {
             return Optional.of(I18n.getMessage("custom_parameter.validation.invalid.parameter.option", userLocale, getNextParameterExpression(config.getBaseExpression())));
         }
-        return validateAllPossibleStates(config);
+        return validateAllPossibleStates(config, channelId, userId);
     }
 
-    private Optional<String> validateAllPossibleStates(CustomParameterConfig config) {
+    private Optional<String> validateAllPossibleStates(CustomParameterConfig config, long channelId, long userId) {
 
         List<StateWithCustomIdAndParameter> allPossibleStatePermutations = allPossibleStatePermutations(config);
         Stopwatch stopwatch = Stopwatch.createStarted();
         Optional<String> result = allPossibleStatePermutations.parallelStream()
-                .map(s -> validateStateWithCustomIdAndParameter(config, s))
+                .map(s -> validateStateWithCustomIdAndParameter(config, s, channelId, userId))
                 .filter(Objects::nonNull)
                 .findFirst();
         log.debug("{} with parameter options {} in {}ms validated",
@@ -565,12 +567,14 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
         return result;
     }
 
-    private String validateStateWithCustomIdAndParameter(CustomParameterConfig config, StateWithCustomIdAndParameter aState) {
+    private String validateStateWithCustomIdAndParameter(CustomParameterConfig config, StateWithCustomIdAndParameter aState, long channelId, long userId) {
         if (!hasMissingParameter(aState.getState())) {
-            String expression = getFilledExpression(config, aState.getState());
-            String label = getLabel(config, aState.getState());
-            String expressionWithoutSuffixLabel = removeSuffixLabelFromExpression(expression, label);
-            Optional<String> validationMessage = diceEvaluatorAdapter.validateDiceExpressionWitOptionalLabel(expressionWithoutSuffixLabel,
+            final  String expression = getFilledExpression(config, aState.getState());
+            final   String label = getLabel(config, aState.getState());
+            final   String expressionWithoutSuffixLabel = removeSuffixLabelFromExpression(expression, label);
+            final String expressionWithoutSuffixLabelAndAlias = AliasHelper.getAndApplyAliaseToExpression(channelId, userId, persistenceManager, expressionWithoutSuffixLabel);
+
+            Optional<String> validationMessage = diceEvaluatorAdapter.validateDiceExpressionWitOptionalLabel(expressionWithoutSuffixLabelAndAlias,
                     "/%s %s".formatted(I18n.getMessage("custom_parameter.name", config.getConfigLocale()), I18n.getMessage("base.option.help", config.getConfigLocale())),
                     config.getConfigLocale());
             if (validationMessage.isPresent()) {
