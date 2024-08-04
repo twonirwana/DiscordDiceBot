@@ -4,6 +4,7 @@ import au.com.origin.snapshots.Expect;
 import au.com.origin.snapshots.junit5.SnapshotExtension;
 import de.janno.discord.bot.ButtonEventAdaptorMock;
 import de.janno.discord.bot.SlashEventAdaptorMock;
+import de.janno.discord.bot.command.channelConfig.ChannelConfigCommand;
 import de.janno.discord.bot.command.customDice.CustomDiceCommand;
 import de.janno.discord.bot.command.customParameter.CustomParameterCommand;
 import de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommand;
@@ -28,7 +29,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class WelcomeCommandMockTest {
 
     PersistenceManager persistenceManager;
-    private Expect expect;
+    Expect expect;
 
     @BeforeEach
     void setup() {
@@ -91,7 +92,8 @@ public class WelcomeCommandMockTest {
         CustomDiceCommand customDiceCommand = new CustomDiceCommand(persistenceManager, cachingDiceEvaluator);
         CustomParameterCommand customParameterCommand = new CustomParameterCommand(persistenceManager, cachingDiceEvaluator);
         SumCustomSetCommand sumCustomSetCommand = new SumCustomSetCommand(persistenceManager, cachingDiceEvaluator);
-        RpgSystemCommandPreset rpgSystemCommandPreset = new RpgSystemCommandPreset(persistenceManager, customParameterCommand, customDiceCommand, sumCustomSetCommand);
+        ChannelConfigCommand channelConfigCommand = new ChannelConfigCommand(persistenceManager);
+        RpgSystemCommandPreset rpgSystemCommandPreset = new RpgSystemCommandPreset(persistenceManager, customParameterCommand, customDiceCommand, sumCustomSetCommand, channelConfigCommand);
 
         return new WelcomeCommand(persistenceManager, rpgSystemCommandPreset, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"));
     }

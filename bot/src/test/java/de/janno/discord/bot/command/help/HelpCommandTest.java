@@ -18,7 +18,7 @@ class HelpCommandTest {
 
     HelpCommand underTest = new HelpCommand();
 
-    private Expect expect;
+    Expect expect;
 
     @Test
     public void getCommandDefinition() {

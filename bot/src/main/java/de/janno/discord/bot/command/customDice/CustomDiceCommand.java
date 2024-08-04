@@ -120,7 +120,7 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
     protected @NonNull CustomDiceConfig getConfigFromStartOptions(@NonNull CommandInteractionOption options, @NonNull Locale userLocale) {
         return getConfigOptionStringList(getButtonsFromCommandOption(options),
                 BaseCommandOptions.getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null),
-                BaseCommandOptions.getAnswerTypeFromStartCommandOption(options).orElse(defaultAnswerFormat()),
+                BaseCommandOptions.getAnswerTypeFromStartCommandOption(options).orElse(AnswerFormatType.full),
                 BaseCommandOptions.getAnswerInteractionFromStartCommandOption(options),
                 BaseCommandOptions.getDiceStyleOptionFromStartCommandOption(options).orElse(DiceImageStyle.polyhedral_3d),
                 BaseCommandOptions.getDiceColorOptionFromStartCommandOption(options).orElse(DiceImageStyle.polyhedral_3d.getDefaultColor()),

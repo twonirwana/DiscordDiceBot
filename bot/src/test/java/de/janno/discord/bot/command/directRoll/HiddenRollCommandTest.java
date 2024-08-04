@@ -21,7 +21,7 @@ import static org.mockito.Mockito.mock;
 public class HiddenRollCommandTest {
 
     HiddenDirectRollCommand underTest;
-    private Expect expect;
+    Expect expect;
 
     static Stream<Arguments> generateAllLocaleData() {
         return I18n.allSupportedLanguage().stream()

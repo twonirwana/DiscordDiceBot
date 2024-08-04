@@ -11,7 +11,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class RollAnswerConverter {
-    private static final Set<AnswerFormatType> EMBED_ANSWER_TYPES = ImmutableSet.of(AnswerFormatType.full, AnswerFormatType.without_expression, AnswerFormatType.only_dice);
+    private static final Set<AnswerFormatType> EMBED_ANSWER_TYPES = ImmutableSet.of(AnswerFormatType.full, AnswerFormatType.without_expression, AnswerFormatType.only_result, AnswerFormatType.only_dice);
 
     private static EmbedOrMessageDefinition.Type getMessageType(AnswerFormatType answerFormatType) {
         return EMBED_ANSWER_TYPES.contains(answerFormatType) ? EmbedOrMessageDefinition.Type.EMBED : EmbedOrMessageDefinition.Type.MESSAGE;
@@ -151,16 +151,7 @@ public class RollAnswerConverter {
                                     .map(r -> "\t\t__**%s ⇒ %s**__ %s".formatted(r.getExpression(), r.getResult(), r.getRollDetails()))
                                     .collect(Collectors.joining("\n")));
                 } else {
-                    String descriptionDetails = "";
-                    if (rollAnswer.getExpressionLabel() != null) {
-                        descriptionDetails += rollAnswer.getExpression();
-                        if (rollAnswer.getRollDetails() != null) {
-                            descriptionDetails += ": ";
-                            descriptionDetails += rollAnswer.getRollDetails();
-                        }
-                    } else {
-                        descriptionDetails += Optional.ofNullable(rollAnswer.getRollDetails()).orElse("");
-                    }
+                    String descriptionDetails = getDescriptionDetails(rollAnswer);
 
                     description = "__**%s ⇒ %s**__ %s".formatted(Optional.ofNullable(rollAnswer.getExpressionLabel()).orElse(rollAnswer.getExpression()),
                             rollAnswer.getResult(),
@@ -197,5 +188,19 @@ public class RollAnswerConverter {
             }
         };
 
+    }
+
+    private static String getDescriptionDetails(RollAnswer rollAnswer) {
+        String descriptionDetails = "";
+        if (rollAnswer.getExpressionLabel() != null) {
+            descriptionDetails += rollAnswer.getExpression();
+            if (rollAnswer.getRollDetails() != null) {
+                descriptionDetails += ": ";
+                descriptionDetails += rollAnswer.getRollDetails();
+            }
+        } else {
+            descriptionDetails += Optional.ofNullable(rollAnswer.getRollDetails()).orElse("");
+        }
+        return descriptionDetails;
     }
 }
