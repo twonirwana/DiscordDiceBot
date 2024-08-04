@@ -192,8 +192,27 @@ public class RpgSystemCommandPreset {
             ///custom_parameter start expression:  if((2d10<(1d6+1=))c=?0,'failure',(2d10<(1d6+1=))c=?1, 'mixed results', 'total success')
             case IRONSWORN ->
                     new CustomParameterConfig(null, I18n.getMessage("rpg.system.command.preset.IRONSWORN.expression", userLocale), AnswerFormatType.without_expression, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_RdD, DiceImageStyle.polyhedral_RdD.getDefaultColor()), userLocale);
+            //4dF:val('$r', 4d[＋,▢,−]) _ '['_ '$r' _ '] = ' _ replace('$r' ,'＋',1,'▢',0,'−',-1)=@4dF
             case FATE_ALIAS ->
                     new AliasConfig(ChannelConfigCommand.parseStringToMultiAliasList(I18n.getMessage("rpg.system.command.preset.FATE_ALIAS.expression", userLocale)));
+            //d20:d20;adv:2d20k1@Advantage;dis:2d20L1@Disadvantage
+            case DND5_ALIAS ->
+                    new AliasConfig(ChannelConfigCommand.parseStringToMultiAliasList(I18n.getMessage("rpg.system.command.preset.DND5_ALIAS.expression", userLocale)));
+            //w:d!10>=8c
+            case NWOD_ALIAS ->
+                    new AliasConfig(ChannelConfigCommand.parseStringToMultiAliasList(I18n.getMessage("rpg.system.command.preset.NWOD_ALIAS.expression", userLocale)));
+            //(?<numberOfDice>\\d+)r(?<target>\\d+)::val('roll',${numberOfDice}d10) ('roll'>=${target}c)-('roll'==1c)=@:${numberOfDice}d10 vs ${target};(?<numberOfDice>\\d+)re(?<target>\\d+)::val('roll',${numberOfDice}d!10) ('roll'>=${target}c)-('roll'==1c)=@:${numberOfDice}d10 vs ${target} with reroll on 10
+            case OWOD_ALIAS ->
+                    new AliasConfig(ChannelConfigCommand.parseStringToMultiAliasList(I18n.getMessage("rpg.system.command.preset.OWOD_ALIAS.expression", userLocale)));
+            //(?<numberOfDice>\\d+)sr::val('roll',${numberOfDice}d6) concat('roll'>4c, if('roll'==1c >? 'roll'c/2,' - Glitch!'))@${numberOfDice}d6
+            case SHADOWRUN_ALIAS ->
+                    new AliasConfig(ChannelConfigCommand.parseStringToMultiAliasList(I18n.getMessage("rpg.system.command.preset.SHADOWRUN_ALIAS.expression", userLocale)));
+            //r:d!!;sw(?<sides>\\\\d+)::1d!!${sides} + 1d!!6 k1@d${sides} Wildcard
+            case SAVAGE_WORLDS_ALIAS ->
+                    new AliasConfig(ChannelConfigCommand.parseStringToMultiAliasList(I18n.getMessage("rpg.system.command.preset.SAVAGE_WORLDS_ALIAS.expression", userLocale)));
+            // (?<numberOfDice>\\\\d+)b::val('diceRoll', if(${numberOfDice}=?0,2d6L1, ${numberOfDice}d6)) val('sixes','diceRoll'==6c) val('partials','diceRoll'>3<6c) if('sixes'>?1,'Critical Success - You do it with increased effect.', 'sixes'=?1,'Success - You do it.','partials' >? 0,'Partial Success - You do it but suffer severe harm, a serious complication or have reduced effect.','Failure - You suffer severe harm, a serious complication occurs, or you lose this opportunity for action.')@${numberOfDice} Dice
+            case BLADES_IN_THE_DARK_ALIAS ->
+                    new AliasConfig(ChannelConfigCommand.parseStringToMultiAliasList(I18n.getMessage("rpg.system.command.preset.BLADES_IN_THE_DARK_ALIAS.expression", userLocale)));
         };
     }
 
@@ -253,12 +272,17 @@ public class RpgSystemCommandPreset {
     public enum PresetId {
         DND5_IMAGE,
         DND5,
+        DND5_ALIAS,
         DND5_CALC,
         NWOD,
         OWOD,
+        NWOD_ALIAS,
+        OWOD_ALIAS,
         SHADOWRUN,
         SHADOWRUN_IMAGE,
+        SHADOWRUN_ALIAS,
         SAVAGE_WORLDS,
+        SAVAGE_WORLDS_ALIAS,
         FATE_IMAGE,
         FATE,
         FATE_ALIAS,
@@ -267,6 +291,7 @@ public class RpgSystemCommandPreset {
         OSR,
         TRAVELLER,
         BLADES_IN_THE_DARK,
+        BLADES_IN_THE_DARK_ALIAS,
         BLADES_IN_THE_DARK_IMAGE,
         BLADES_IN_THE_DARK_DETAIL,
         CALL_OF_CTHULHU_7ED,

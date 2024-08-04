@@ -69,7 +69,7 @@ public class AliasHelper {
                     try {
                         return matcher.replaceAll(alias.getValue());
                     } catch (IndexOutOfBoundsException | IllegalArgumentException e) {
-                        log.info("regex error with alias:{}, input:{}", alias.getName(), input, e);
+                        log.warn("regex error with alias:{}, input:{}", alias.getName(), input, e);
                         //invalid group count or named group in the replacement
                         return input;
                     }

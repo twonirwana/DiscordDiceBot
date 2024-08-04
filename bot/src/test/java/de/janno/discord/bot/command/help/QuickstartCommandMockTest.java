@@ -9,6 +9,7 @@ import de.janno.discord.bot.command.channelConfig.AliasHelper;
 import de.janno.discord.bot.command.channelConfig.ChannelConfigCommand;
 import de.janno.discord.bot.command.customDice.CustomDiceCommand;
 import de.janno.discord.bot.command.customParameter.CustomParameterCommand;
+import de.janno.discord.bot.command.directRoll.DirectRollCommand;
 import de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommand;
 import de.janno.discord.bot.dice.CachingDiceEvaluator;
 import de.janno.discord.bot.persistance.PersistenceManager;
@@ -70,6 +71,21 @@ public class QuickstartCommandMockTest {
 
     }
 
+    static Stream<Arguments> aliasRollData() {
+        return Stream.of(
+                Arguments.of(RpgSystemCommandPreset.PresetId.FATE_ALIAS, "4dF"),
+                Arguments.of(RpgSystemCommandPreset.PresetId.DND5_ALIAS, "adv"),
+                Arguments.of(RpgSystemCommandPreset.PresetId.NWOD_ALIAS, "8w"),
+                Arguments.of(RpgSystemCommandPreset.PresetId.OWOD_ALIAS, "8r6"),
+                Arguments.of(RpgSystemCommandPreset.PresetId.OWOD_ALIAS, "10re6"),
+                Arguments.of(RpgSystemCommandPreset.PresetId.SHADOWRUN_ALIAS, "10sr"),
+                Arguments.of(RpgSystemCommandPreset.PresetId.SAVAGE_WORLDS_ALIAS, "r4"),
+                Arguments.of(RpgSystemCommandPreset.PresetId.SAVAGE_WORLDS_ALIAS, "sw4"),
+                Arguments.of(RpgSystemCommandPreset.PresetId.BLADES_IN_THE_DARK_ALIAS, "0b"),
+                Arguments.of(RpgSystemCommandPreset.PresetId.BLADES_IN_THE_DARK_ALIAS, "5b")
+        );
+    }
+
     @ParameterizedTest(name = "{index} config={0}, locale={1}")
     @MethodSource("generateRpgSystemLocaleData")
     void handleSlashCommandEvent(RpgSystemCommandPreset.PresetId presetId, Locale userLocale) {
@@ -92,6 +108,37 @@ public class QuickstartCommandMockTest {
 
         expect.scenario(presetId.name() + "_" + userLocale).toMatchSnapshot(slashEventAdaptor.getSortedActions());
         expect.scenario(presetId.name() + "_alias_" + userLocale).toMatchSnapshot(AliasHelper.getChannelAlias(SlashEventAdaptorMock.CHANNEL_ID, persistenceManager));
+    }
+
+    @ParameterizedTest(name = "{index} system={0}, r={1}")
+    @MethodSource("aliasRollData")
+    void quickstartAlias_directRoll(RpgSystemCommandPreset.PresetId presetId, String rExpression) {
+        PersistenceManager persistenceManager = new PersistenceManagerImpl("jdbc:h2:mem:" + UUID.randomUUID(), null, null);
+        CachingDiceEvaluator cachingDiceEvaluator = new CachingDiceEvaluator(new RandomNumberSupplier(0));
+        CustomDiceCommand customDiceCommand = new CustomDiceCommand(persistenceManager, cachingDiceEvaluator);
+        CustomParameterCommand customParameterCommand = new CustomParameterCommand(persistenceManager, cachingDiceEvaluator);
+        SumCustomSetCommand sumCustomSetCommand = new SumCustomSetCommand(persistenceManager, cachingDiceEvaluator);
+        ChannelConfigCommand channelConfigCommand = new ChannelConfigCommand(persistenceManager);
+        RpgSystemCommandPreset rpgSystemCommandPreset = new RpgSystemCommandPreset(persistenceManager, customParameterCommand, customDiceCommand, sumCustomSetCommand, channelConfigCommand);
+        DirectRollCommand directRollCommand = new DirectRollCommand(persistenceManager, cachingDiceEvaluator);
+        QuickstartCommand underTest = new QuickstartCommand(rpgSystemCommandPreset);
+
+        SlashEventAdaptorMock quickstartAdaptor = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
+                .name("system")
+                .stringValue(presetId.name())
+                .build()));
+
+        StepVerifier.create(underTest.handleSlashCommandEvent(quickstartAdaptor, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"), Locale.ENGLISH)).verifyComplete();
+        expect.scenario(presetId.name() + "_" + rExpression + "_quickstart").toMatchSnapshot(quickstartAdaptor.getSortedActions());
+
+        SlashEventAdaptorMock directRollAdaptor = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
+                .name("expression")
+                .stringValue(rExpression)
+                .build()), Locale.ENGLISH);
+
+        StepVerifier.create(directRollCommand.handleSlashCommandEvent(directRollAdaptor, () -> UUID.fromString("00000000-0000-0000-0000-000000000001"), Locale.ENGLISH)).verifyComplete();
+
+        expect.scenario(presetId.name() + "_" + rExpression + "_directRoll").toMatchSnapshot(directRollAdaptor.getSortedActions());
     }
 
     @ParameterizedTest(name = "{index} config={0}, locale={1}")
