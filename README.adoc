@@ -52,6 +52,7 @@ Please let me know if you have a good new preset or an improved version for an e
 |`Bluebeard's Bride`
 |`Call of Cthulhu 7th Edition`
 |`Candela Obscura`
+|`Candela Obscura v2`
 |`City of Mist`
 |`Coin Toss`
 |`Cyberpunk Red`
@@ -63,8 +64,10 @@ Please let me know if you have a good new preset or an improved version for an e
 |`Dungeon Crawl Classics`
 |`EZD6`
 |`Exalted 3ed`
+|`Fallout`
 |`Fate`
 |`Fate without Dice Images`
+|`Forbidden Lands`
 |`Heroes of Cerulea`
 |`Hunter 5ed`
 |`Ironsworn`
@@ -79,6 +82,7 @@ Please let me know if you have a good new preset or an improved version for an e
 |`Rebellion Unplugged`
 |`Risus The Anything RPG "Evens Up"`
 |`Rêve de Dragon`
+|`Salvage Union BDR-V1.0`
 |`Savage Worlds`
 |`Shadowrun`
 |`Shadowrun without Dice Images`
