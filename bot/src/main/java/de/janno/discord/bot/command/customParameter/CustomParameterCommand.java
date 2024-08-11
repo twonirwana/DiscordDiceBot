@@ -500,7 +500,6 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
             buttons.add(ButtonDefinition.builder()
                     .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), CLEAR_BUTTON_ID, configUUID))
                     .label(I18n.getMessage("custom_parameter.button.label.clear", config.getConfigLocale()))
-                    .emoji(BotEmojiUtil.toDiscordString(BotEmojiUtil.EmojiKey.CANCEL_EMOJI_KEY))
                     .style(ButtonDefinition.Style.DANGER)
                     .build());
         }

@@ -20,6 +20,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 @ExtendWith(SnapshotExtension.class)
 
 public class DirectRollCommandMockTest {

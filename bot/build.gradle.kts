@@ -61,6 +61,12 @@ tasks.withType<JavaCompile> {
 
 tasks.test {
     useJUnitPlatform()
+    // set heap size for the test JVM(s)
+    minHeapSize = "128m"
+    maxHeapSize = "1024m"
+
+    // set JVM arguments for the test JVM(s)
+    jvmArgs = listOf("-XX:MaxMetaspaceSize=512m")
 }
 
 tasks.jacocoTestReport {

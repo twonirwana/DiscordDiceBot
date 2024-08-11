@@ -27,16 +27,3 @@ command:
   delayMessageDataDeletionMs: 10000
   fetch.delayMs: 60000
   clear.messageDeleteDelay: 1000
-emoji:
-  back:
-  roll:
-  cancel:
-  fate:
-  d20s20_rdd:
-  coinflip:
-  d6s6_rdd:
-  d6s6_black_gold:
-  d10s10_rdd:
-  d10s10_red:
-  d10s10_blue:
-  calculator:

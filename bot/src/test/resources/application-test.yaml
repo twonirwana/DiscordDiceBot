@@ -1,3 +1,7 @@
+db:
+  url: fjdbc:h2:mem:test_mem
+  user:
+  password:
 metric:
   url: localhost
   port: 9090
@@ -9,16 +13,3 @@ command:
 diceEvaluator:
   keepChildrenRolls: true
   cacheSize: 0
-emoji:
-  back: <:anticlockwiserotation:1>
-  roll: <:rollingdices:1>
-  cancel: <:cancel:1>
-  fate: <:fateplusdie:1>
-  d20s20_rdd: <:d20s20:1>
-  coinflip: <:coinflip:1>
-  d6s6_rdd: <:d6s6:1>
-  d6s6_black_gold: <:d6s6_black_and_gold:1>
-  d10s10_rdd: <:d10s10:1>
-  d10s10_red: <:d10s10_red:1>
-  d10s10_blue: <:d10s10_knots_blue:1>
-  calculator: <:calculator:1>

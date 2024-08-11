@@ -4,7 +4,6 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
-import de.janno.discord.bot.BotEmojiUtil;
 import de.janno.discord.bot.I18n;
 import de.janno.discord.bot.command.*;
 import de.janno.discord.bot.command.channelConfig.AliasHelper;
@@ -402,19 +401,16 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
                                 .label(I18n.getMessage("sum_custom_set.button.label.roll", configLocale))
                                 .disabled(rollDisabled)
                                 .style(ButtonDefinition.Style.SUCCESS)
-                                .emoji(BotEmojiUtil.toDiscordString(BotEmojiUtil.EmojiKey.ROLL_EMOJI_KEY))
                                 .build())
                         .add(ButtonDefinition.builder()
                                 .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), CLEAR_BUTTON_ID, configUUID))
                                 .label(I18n.getMessage("sum_custom_set.button.label.clear", configLocale))
                                 .style(ButtonDefinition.Style.DANGER)
-                                .emoji(BotEmojiUtil.toDiscordString(BotEmojiUtil.EmojiKey.CANCEL_EMOJI_KEY))
                                 .build())
                         .add(ButtonDefinition.builder()
                                 .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), BACK_BUTTON_ID, configUUID))
                                 .label(I18n.getMessage("sum_custom_set.button.label.back", configLocale))
                                 .style(ButtonDefinition.Style.SECONDARY)
-                                .emoji(BotEmojiUtil.toDiscordString(BotEmojiUtil.EmojiKey.BACK_EMOJI_KEY))
                                 .disabled(backDisabled)
                                 .build()).build(), config.isSystemButtonNewLine());
     }
