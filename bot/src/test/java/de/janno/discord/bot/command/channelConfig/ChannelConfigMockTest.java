@@ -7,6 +7,9 @@ import de.janno.discord.bot.command.directRoll.DirectRollCommand;
 import de.janno.discord.bot.dice.CachingDiceEvaluator;
 import de.janno.discord.bot.persistance.PersistenceManager;
 import de.janno.discord.bot.persistance.PersistenceManagerImpl;
+import de.janno.discord.connector.api.AutoCompleteAnswer;
+import de.janno.discord.connector.api.AutoCompleteRequest;
+import de.janno.discord.connector.api.OptionValue;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import de.janno.evaluator.dice.random.RandomNumberSupplier;
 import org.apache.commons.io.FileUtils;
@@ -20,11 +23,13 @@ import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 @ExtendWith(SnapshotExtension.class)
 public class ChannelConfigMockTest {
 
     PersistenceManager persistenceManager;
-    private Expect expect;
+    Expect expect;
 
     @BeforeEach
     void setup() throws IOException {
@@ -72,6 +77,94 @@ public class ChannelConfigMockTest {
         expect.scenario("slashEvent1").toMatchSnapshot(slashEvent1.getSortedActions());
         expect.scenario("slashEvent2").toMatchSnapshot(slashEvent2.getSortedActions());
         expect.scenario("slashEvent3").toMatchSnapshot(slashEvent3.getSortedActions());
+    }
+
+    @Test
+    void autoCompleteNoScope() {
+        ChannelConfigCommand channelConfig = new ChannelConfigCommand(persistenceManager);
+        List<AutoCompleteAnswer> res = channelConfig.getAutoCompleteAnswer(new AutoCompleteRequest("name", null, List.of()), Locale.ENGLISH, 1L, 1L);
+
+        expect.toMatchSnapshot(res);
+    }
+
+    @Test
+    void autoCompleteMatchingUserAliasScope() {
+        ChannelConfigCommand channelConfig = new ChannelConfigCommand(persistenceManager);
+
+        channelConfig.handleSlashCommandEvent( new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
+                .name("alias")
+                .option(CommandInteractionOption.builder()
+                        .name("save")
+                        .option(CommandInteractionOption.builder().name("name").stringValue("att").build())
+                        .option(CommandInteractionOption.builder().name("value").stringValue("2d20+10").build())
+                        .build())
+                .option(CommandInteractionOption.builder().name("scope").stringValue("current_user_in_this_channel").build())
+                .build())), () -> UUID.fromString("00000000-0000-0000-0000-000000000000"), Locale.ENGLISH).block();
+
+        channelConfig.handleSlashCommandEvent( new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
+                .name("alias")
+                .option(CommandInteractionOption.builder()
+                        .name("save")
+                        .option(CommandInteractionOption.builder().name("name").stringValue("att2").build())
+                        .option(CommandInteractionOption.builder().name("value").stringValue("3d20+10").build())
+                        .build())
+                .option(CommandInteractionOption.builder().name("scope").stringValue("all_users_in_this_channel").build())
+                .build())), () -> UUID.fromString("00000000-0000-0000-0000-000000000001"), Locale.ENGLISH).block();
+
+        channelConfig.handleSlashCommandEvent(new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
+                .name("alias")
+                .option(CommandInteractionOption.builder()
+                        .name("save")
+                        .option(CommandInteractionOption.builder().name("name").stringValue("Block").build())
+                        .option(CommandInteractionOption.builder().name("value").stringValue("3d8+4=").build())
+                        .build())
+                .option(CommandInteractionOption.builder().name("scope").stringValue("current_user_in_this_channel").build())
+                .build())), () -> UUID.fromString("00000000-0000-0000-0000-000000000002"), Locale.ENGLISH).block();
+
+
+        List<AutoCompleteAnswer> res = channelConfig.getAutoCompleteAnswer(new AutoCompleteRequest("name", "a", List.of(new OptionValue("scope", "current_user_in_this_channel"))), Locale.ENGLISH, 1L, 0L);
+
+        expect.toMatchSnapshot(res);
+    }
+
+    @Test
+    void autoCompleteMatchingChannelAliasScope() {
+        ChannelConfigCommand channelConfig = new ChannelConfigCommand(persistenceManager);
+
+        channelConfig.handleSlashCommandEvent( new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
+                .name("alias")
+                .option(CommandInteractionOption.builder()
+                        .name("save")
+                        .option(CommandInteractionOption.builder().name("name").stringValue("att").build())
+                        .option(CommandInteractionOption.builder().name("value").stringValue("2d20+10").build())
+                        .build())
+                .option(CommandInteractionOption.builder().name("scope").stringValue("all_users_in_this_channel").build())
+                .build())), () -> UUID.fromString("00000000-0000-0000-0000-000000000000"), Locale.ENGLISH).block();
+
+        channelConfig.handleSlashCommandEvent( new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
+                .name("alias")
+                .option(CommandInteractionOption.builder()
+                        .name("save")
+                        .option(CommandInteractionOption.builder().name("name").stringValue("att2").build())
+                        .option(CommandInteractionOption.builder().name("value").stringValue("3d20+10").build())
+                        .build())
+                .option(CommandInteractionOption.builder().name("scope").stringValue("current_user_in_this_channel").build())
+                .build())), () -> UUID.fromString("00000000-0000-0000-0000-000000000001"), Locale.ENGLISH).block();
+
+        channelConfig.handleSlashCommandEvent(new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
+                .name("alias")
+                .option(CommandInteractionOption.builder()
+                        .name("save")
+                        .option(CommandInteractionOption.builder().name("name").stringValue("Block").build())
+                        .option(CommandInteractionOption.builder().name("value").stringValue("3d8+4=").build())
+                        .build())
+                .option(CommandInteractionOption.builder().name("scope").stringValue("all_users_in_this_channel").build())
+                .build())), () -> UUID.fromString("00000000-0000-0000-0000-000000000002"), Locale.ENGLISH).block();
+
+
+        List<AutoCompleteAnswer> res = channelConfig.getAutoCompleteAnswer(new AutoCompleteRequest("name", "a", List.of(new OptionValue("scope", "all_users_in_this_channel"))), Locale.ENGLISH, 1L, 0L);
+
+        expect.toMatchSnapshot(res);
     }
 
     @Test
@@ -152,6 +245,106 @@ public class ChannelConfigMockTest {
                 .option(CommandInteractionOption.builder()
                         .name("delete")
                         .option(CommandInteractionOption.builder().name("name").stringValue("att").build())
+                        .build())
+                .option(CommandInteractionOption.builder().name("scope").stringValue("current_user_in_this_channel").build())
+                .build()));
+        channelConfig.handleSlashCommandEvent(slashEvent3, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"), Locale.ENGLISH).block();
+
+        SlashEventAdaptorMock slashEvent4 = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
+                .name("alias")
+                .option(CommandInteractionOption.builder()
+                        .name("list")
+                        .build())
+                .option(CommandInteractionOption.builder().name("scope").stringValue("current_user_in_this_channel").build())
+                .build()));
+        channelConfig.handleSlashCommandEvent(slashEvent4, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"), Locale.ENGLISH).block();
+
+        expect.scenario("slashEvent1").toMatchSnapshot(slashEvent1.getSortedActions());
+        expect.scenario("slashEvent2").toMatchSnapshot(slashEvent2.getSortedActions());
+        expect.scenario("slashEvent3").toMatchSnapshot(slashEvent3.getSortedActions());
+        expect.scenario("slashEvent4").toMatchSnapshot(slashEvent4.getSortedActions());
+    }
+
+    @Test
+    void channelAlias_createCreateDeleteAll() {
+        ChannelConfigCommand channelConfig = new ChannelConfigCommand(persistenceManager);
+
+        SlashEventAdaptorMock slashEvent1 = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
+                .name("alias")
+                .option(CommandInteractionOption.builder()
+                        .name("save")
+                        .option(CommandInteractionOption.builder().name("name").stringValue("att").build())
+                        .option(CommandInteractionOption.builder().name("value").stringValue("2d20+10").build())
+                        .build())
+                .option(CommandInteractionOption.builder().name("scope").stringValue("all_users_in_this_channel").build())
+                .build()));
+        channelConfig.handleSlashCommandEvent(slashEvent1, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"), Locale.ENGLISH).block();
+
+        SlashEventAdaptorMock slashEvent2 = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
+                .name("alias")
+                .option(CommandInteractionOption.builder()
+                        .name("save")
+                        .option(CommandInteractionOption.builder().name("name").stringValue("dmg").build())
+                        .option(CommandInteractionOption.builder().name("value").stringValue("3d6").build())
+                        .build())
+                .option(CommandInteractionOption.builder().name("scope").stringValue("all_users_in_this_channel").build())
+                .build()));
+        channelConfig.handleSlashCommandEvent(slashEvent1, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"), Locale.ENGLISH).block();
+
+        SlashEventAdaptorMock slashEvent3 = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
+                .name("alias")
+                .option(CommandInteractionOption.builder()
+                        .name("delete_all")
+                        .build())
+                .option(CommandInteractionOption.builder().name("scope").stringValue("all_users_in_this_channel").build())
+                .build()));
+        channelConfig.handleSlashCommandEvent(slashEvent3, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"), Locale.ENGLISH).block();
+
+        SlashEventAdaptorMock slashEvent4 = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
+                .name("alias")
+                .option(CommandInteractionOption.builder()
+                        .name("list")
+                        .build())
+                .option(CommandInteractionOption.builder().name("scope").stringValue("all_users_in_this_channel").build())
+                .build()));
+        channelConfig.handleSlashCommandEvent(slashEvent4, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"), Locale.ENGLISH).block();
+
+        expect.scenario("slashEvent1").toMatchSnapshot(slashEvent1.getSortedActions());
+        expect.scenario("slashEvent2").toMatchSnapshot(slashEvent2.getSortedActions());
+        expect.scenario("slashEvent3").toMatchSnapshot(slashEvent3.getSortedActions());
+        expect.scenario("slashEvent4").toMatchSnapshot(slashEvent4.getSortedActions());
+    }
+
+    @Test
+    void userChannelAlias_createCreateDeleteAll() {
+        ChannelConfigCommand channelConfig = new ChannelConfigCommand(persistenceManager);
+
+        SlashEventAdaptorMock slashEvent1 = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
+                .name("alias")
+                .option(CommandInteractionOption.builder()
+                        .name("save")
+                        .option(CommandInteractionOption.builder().name("name").stringValue("att").build())
+                        .option(CommandInteractionOption.builder().name("value").stringValue("2d20+10").build())
+                        .build())
+                .option(CommandInteractionOption.builder().name("scope").stringValue("current_user_in_this_channel").build())
+                .build()));
+        channelConfig.handleSlashCommandEvent(slashEvent1, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"), Locale.ENGLISH).block();
+
+        SlashEventAdaptorMock slashEvent2 = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
+                .name("alias")
+                .option(CommandInteractionOption.builder()
+                        .name("save")
+                        .option(CommandInteractionOption.builder().name("name").stringValue("dmg").build())
+                        .option(CommandInteractionOption.builder().name("value").stringValue("3d6").build())
+                        .build())
+                .option(CommandInteractionOption.builder().name("scope").stringValue("current_user_in_this_channel").build())
+                .build()));
+        channelConfig.handleSlashCommandEvent(slashEvent1, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"), Locale.ENGLISH).block();
+
+        SlashEventAdaptorMock slashEvent3 = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
+                .name("alias")
+                .option(CommandInteractionOption.builder()
+                        .name("delete_all")
                         .build())
                 .option(CommandInteractionOption.builder().name("scope").stringValue("current_user_in_this_channel").build())
                 .build()));

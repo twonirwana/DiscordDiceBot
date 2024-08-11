@@ -3,10 +3,9 @@ package de.janno.discord.bot.command.help;
 import com.google.common.base.Strings;
 import de.janno.discord.bot.AnswerInteractionType;
 import de.janno.discord.bot.I18n;
-import de.janno.discord.bot.command.AbstractCommand;
-import de.janno.discord.bot.command.AnswerFormatType;
-import de.janno.discord.bot.command.ButtonHelper;
-import de.janno.discord.bot.command.reroll.Config;
+import de.janno.discord.bot.command.*;
+import de.janno.discord.bot.command.channelConfig.AliasConfig;
+import de.janno.discord.bot.command.channelConfig.ChannelConfigCommand;
 import de.janno.discord.bot.command.customDice.CustomDiceCommand;
 import de.janno.discord.bot.command.customDice.CustomDiceConfig;
 import de.janno.discord.bot.command.customParameter.CustomParameterCommand;
@@ -16,17 +15,16 @@ import de.janno.discord.bot.command.sumCustomSet.SumCustomSetConfig;
 import de.janno.discord.bot.dice.image.DiceImageStyle;
 import de.janno.discord.bot.dice.image.DiceStyleAndColor;
 import de.janno.discord.bot.dice.image.provider.D6Dotted;
+import de.janno.discord.bot.dice.image.provider.PolyhedralSvgWithColor;
 import de.janno.discord.bot.persistance.PersistenceManager;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
 import javax.annotation.Nullable;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
-import java.util.UUID;
+import java.util.*;
 
-
+@RequiredArgsConstructor
 public class RpgSystemCommandPreset {
 
 
@@ -34,16 +32,7 @@ public class RpgSystemCommandPreset {
     private final CustomParameterCommand customParameterCommand;
     private final CustomDiceCommand customDiceCommand;
     private final SumCustomSetCommand sumCustomSetCommand;
-
-    public RpgSystemCommandPreset(PersistenceManager persistenceManager,
-                                  CustomParameterCommand customParameterCommand,
-                                  CustomDiceCommand customDiceCommand,
-                                  SumCustomSetCommand sumCustomSetCommand) {
-        this.persistenceManager = persistenceManager;
-        this.customParameterCommand = customParameterCommand;
-        this.customDiceCommand = customDiceCommand;
-        this.sumCustomSetCommand = sumCustomSetCommand;
-    }
+    private final ChannelConfigCommand channelConfigCommand;
 
 
     public static Config createConfig(PresetId presetId, Locale userLocale) {
@@ -157,6 +146,9 @@ public class RpgSystemCommandPreset {
             ///sum_custom_set start buttons: +2d6l1 col 'blue'@None;+1d6@1;+2d6@2;+3d6@3;+4d6@4;+5d6@5;+6d6@6;+1d6 col  'purple_white'@:star2: Add Gilded? always_sum_result: false answer_format: without_expression dice_image_style: polyhedral_knots
             case CANDELA_OBSCURA ->
                     new SumCustomSetConfig(null, ButtonHelper.parseString(I18n.getMessage("rpg.system.command.preset.CANDELA_OBSCURA.expression", userLocale)), false, true, false, null, null, AnswerFormatType.without_expression, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_knots, DiceImageStyle.polyhedral_knots.getDefaultColor()), userLocale);
+            ///sum_custom_set start buttons: val('$r',2d6l1) if('$r'<=?3, 'Miss', '$r' in [5,4], 'Mixed Success', '$r' in [6], 'Full Success')@Action Roll: 0 ;val('$r',1d6) if('$r'<=?3, 'Miss', '$r' in [5,4], 'Mixed Success', '$r' in [6], 'Full Success')@Action Roll: 1; val('$r',2d6k1) if('$r'<=?3, 'Miss', '$r' in [5,4], 'Mixed Success', '$r' in [6], 'Full Success')@Action Roll: 2; val('$r',3d6k1) if('$r'<=?3, 'Miss', '$r' in [5,4], 'Mixed Success', '$r' in [6], 'Full Success')@Action Roll: 3; val('$r',4d6k1) if('$r'<=?3, 'Miss', '$r' in [5,4], 'Mixed Success', '$r' in [6], 'Full Success')@Action Roll: 4; val('$r',5d6k1) if('$r'<=?3, 'Miss', '$r' in [5,4], 'Mixed Success', '$r' in [6], 'Full Success')@Action Roll: 5; val('$r',6d6k1) if('$r'<=?3, 'Miss', '$r' in [5,4], 'Mixed Success', '$r' in [6], 'Full Success')@Action Roll: 6;val('$r',1d6) if('$r'<=?3, 'Miss (Gilded)', '$r' in [5,4], 'Mixed Success (Gilded)', '$r' in [6], 'Full Success (Gilded)')@+1 Gilded; val('$r',2d6k1) if('$r'<=?3, 'Miss (Gilded)', '$r' in [5,4], 'Mixed Success (Gilded)', '$r' in [6], 'Full Success (Gilded)')@+2 Gilded ;val('$r',3d6k1) if('$r'<=?3, 'Miss (Gilded)', '$r' in [5,4], 'Mixed Success (Gilded)', '$r' in [6], 'Full Success (Gilded)')@+3 Gilded answer_format: without_expression dice_image_style: none
+            case CANDELA_OBSCURA2 ->
+                    new SumCustomSetConfig(null, ButtonHelper.parseString(I18n.getMessage("rpg.system.command.preset.CANDELA_OBSCURA2.expression", userLocale)), false, true, false, null, null, AnswerFormatType.without_expression, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, DiceImageStyle.none.getDefaultColor()), userLocale);
             //Prowlers & Paragons Ultimate Edition (https://www.drivethrurpg.com/product/346742/Prowlers--Paragons-Ultimate-Edition)
             ///custom_parameter start expression: val('$r',{number of dice:1<=>12}d6),
             //val('$total',replace('$r', [1/3/5], 0, [2/4], 1, [6], 2)=), '$total'_' successes' dice_image_style: polyhedral_alies_v1
@@ -183,6 +175,7 @@ public class RpgSystemCommandPreset {
             case PBTA ->
                     new CustomDiceConfig(null, ButtonHelper.parseString(I18n.getMessage("rpg.system.command.preset.PBTA.expression", userLocale)),
                             AnswerFormatType.without_expression, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_RdD, DiceImageStyle.polyhedral_RdD.getDefaultColor()), userLocale);
+            ///custom_parameter start expression: val('$w', 0) val('$fate', {Test: replace(1d12,11, 0,12,100)@⬟ Normal /(2r(replace(1d12,11, 0,12,100)))K1@⬟⬟ Favored /(2r(replace(1d12,11, 0,12,100)))L1@⬠⬠ Ill-Favored /200@✶Magical /val('$w', 1) replace(1d12,11, 0,12,100)@▢ Weary /replace(1d12,11, -666,12,100)@👁 Miserable /val('$w', 1) (2r(replace(1d12,11, 0,12,100)))K1@⬟⬟ ▢ /val('$w', 1) (2r(replace(1d12,11, 0,12,100)))L1@⬠⬠ ▢ /(2r(replace(1d12,11, -666,12,100)))K1@⬟⬟ 👁 /(2r(replace(1d12,11, -666,12,100)))L1@⬠⬠ 👁 /val('$w', 1) replace(1d12,11, -666,12,100)@⬟ ▢👁 /val('$w', 1) (2r(replace(1d12,11, -666,12,100)))K1@⬟⬟ ▢👁 /val('$w', 1) (2r(replace(1d12,11, -666,12,100)))L1@⬠⬠ ▢👁} ) val('$s', {Success Dice: 0d6@◇/1d6@◆/2d6@◆◆/3d6@◆◆◆/4d6@◆◆◆◆/5d6@◆◆◆◆◆/6d6@◆◆◆◆◆◆/7d6@7◆/8d6@8◆/9d6@9◆/10d6@10◆} ) val('$TN', {Target Number: 0@Aucun/12/13/14/15/16/17/18/19/20/21/22/23/24} ) concat('\n', if('$w'=?1, val('$s', '$s'>=4)), val('$t', ('$s'>5)c), val('$total', '$fate' + '$s'=), '   ', if('$fate'=?100, '[ᚠ]', '$fate'=?200, '[✶]', '$fate'=?-666, '[👁]', '[ '_'$total'_' ]' ), '   ', if('$fate'=?100, '⬟:ᚠ', '$fate'=?200, '', '$fate'=?0||'$fate'=?-666, '⬟:👁', '⬟:'_'$fate'), '   ', if('$fate'=?200||'$TN'=?0||'$total'>=?'$TN', '+++ SUCCESS ! +++', '--- FAILURE ! ---'), '   ', if('$total'>=?'$TN'&&'$t'>?0, '  [t] successes= '_'$t', '') ) answer_format: without_expression dice_image_style: polyhedral_RdD dice_image_color: default answer_interaction: none
             case THE_ONE_RING ->
                     new CustomParameterConfig(null, I18n.getMessage("rpg.system.command.preset.THE_ONE_RING.expression", userLocale), AnswerFormatType.without_expression, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_RdD, DiceImageStyle.polyhedral_RdD.getDefaultColor()), userLocale);
             case EZD6 ->
@@ -205,61 +198,120 @@ public class RpgSystemCommandPreset {
             case IRONSWORN ->
                     new CustomParameterConfig(null, I18n.getMessage("rpg.system.command.preset.IRONSWORN.expression", userLocale), AnswerFormatType.without_expression, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_RdD, DiceImageStyle.polyhedral_RdD.getDefaultColor()), userLocale);
 
+            // /custom_dice start buttons: val('$roll',d20=) if('$roll'=?20, 'Nailed It!', '$roll'  in [19,18,17,16,15,14,13,12,11] 'Success', '$roll'  in [10,9,8,7,6] 'Touch Choice', '$roll'  in [5,4,3,2] 'Failure', 'Cascade Failure')@Core;d20 @Heat Check; val('$roll',d20=) if('$roll'=?20, 'Reactor Overdrive: Your Mech’s reactor goes into overdrive. Your Mech can take any additional action this turn or Push their next roll within 10 minutes for free.', '$roll'  in [19,18,17,16,15,14,13,12,11] 'Reactor Overheat: Your Mech shuts down and gains the Vulnerable Trait. Your Mech will re-activate at the end of your next turn. In addition, your Mech takes an amount of SP damage equal to your current Heat.', '$roll'  in [10,9,8,7,6] 'Module Overload: One of your Mech’s Modules chosen at random or by the Mediator is destroyed.', '$roll'  in [5,4,3,2] 'System Overload: One of your Mech’s Systems chosen at random or by the Mediator is destroyed. ', 'Reactor Overload: Your Mech, Systems, Modules, and all Cargo, are destroyed in an explosive meltdown. See Table For More.')@Reactor Overload; val('$roll',d20=) if('$roll'=?20, 'You salvage the Mech Chassis, a System, and a Module of your choice mounted on it. They have the Damaged Condition. Everything else is considered destroyed.', '$roll'  in [19,18,17,16,15,14,13,12,11] 'You salvage the Mech Chassis, a System, or a Module of your choice mounted on it. They have the Damaged Condition. Everything else is considered destroyed.', '$roll'  in [10,9,8,7,6] 'You salvage a System or Module of your choice mounted on the Mech. It has the Damaged Condition. Everything else is considered destroyed.', '$roll'  in [5,4,3,2] 'You salvage half of the Salvage Value of the Mech Chassis in Scrap of its Tech Level, to a minimum of 1. Everything else is considered destroyed. ', 'The Mech is unsalvageable')@Mech Salvage; val('$roll',d20=) if('$roll'=?20, 'You find a Mech Chassis, System, or Module at the Tech Level of the area. It is in the damaged Condition.', '$roll'  in [19,18,17,16,15,14,13,12,11] 'You find 3 Scrap of the Tech Level of the area.', '$roll'  in [10,9,8,7,6] 'You find 2 Scrap of the Tech Level of the area.', '$roll'  in [5,4,3,2] 'You find 1 Scrap of the Tech Level of the area. ', 'You find nothing in this area')@Area Salvage;
+            case SALVAGE_UNION ->
+                    new CustomDiceConfig(null, ButtonHelper.parseString(I18n.getMessage("rpg.system.command.preset.SALVAGE_UNION.expression", userLocale)),
+                            AnswerFormatType.without_expression, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_RdD, DiceImageStyle.polyhedral_RdD.getDefaultColor()), userLocale);
+            // /custom_dice start buttons: 1d20;2d20;3d20;4d20;5d20;1d[🗡️/⚔️/❌/❌/☢️/☢️]@ 1 Combat Dice;2d[🗡️/⚔️/❌/❌/☢️/☢️]@ 2 Combat Dice;3d[🗡️/⚔️/❌/❌/☢️/☢️]@ 3 Combat Dice;4d[🗡️/⚔️/❌/❌/☢️/☢️]@ 4 Combat Dice;5d[🗡️/⚔️/❌/❌/☢️/☢️]@ 5 Combat Dice;1d[🧠/🧠/❤️/❤️/❤️/❤️/❤️/❤️/🤛/🤛/🤛/🤜/🤜/🤜/🦶/🦶/🦶/🥾/🥾/🥾]@ Limb Dice answer_format: full dice_image_style: polyhedral_2d dice_image_color: cyan'
+            case FALLOUT ->
+                    new CustomDiceConfig(null, ButtonHelper.parseString(I18n.getMessage("rpg.system.command.preset.FALLOUT.expression", userLocale)),
+                            AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_2d, PolyhedralSvgWithColor.CYAN), userLocale);
+
+            ///custom_parameter start expression:val('$b',{Base Dice:1<=>6}d6 col 'black_and_gold') val('$s',{Skill Dice:0<=>8}d6 col 'red_and_gold') val('$g',{Gear Dice:0<=>6}d6 col 'blue_and_gold') val('$a',{Artifact Dice:0@none/1d8@Mighty/1d10@Epic/1d12@Legendary} col 'green_and_gold') val('$sa',if('$a'=?12,4,'$a'>=?10,3,'$a'>=?8,2,'$a'>=?6,1,0)) val('$ts',('$b'+'$s'+'$g')==6c) '$ts'+'$sa'= answer_format:without_expression dice_image_style:polyhedral_alies_v2
+            case FORBIDDEN_LANDS ->
+                    new CustomParameterConfig(null, I18n.getMessage("rpg.system.command.preset.FORBIDDEN_LANDS.expression", userLocale),
+                            AnswerFormatType.without_expression, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v2, DiceImageStyle.polyhedral_alies_v2.getDefaultColor()), userLocale);
+
+            //4dF:val('$r', 4d[＋,▢,−]) _ '['_ '$r' _ '] = ' _ replace('$r' ,'＋',1,'▢',0,'−',-1)=@4dF
+            case FATE_ALIAS ->
+                    new AliasConfig(ChannelConfigCommand.parseStringToMultiAliasList(I18n.getMessage("rpg.system.command.preset.FATE_ALIAS.expression", userLocale)));
+            //d20:d20;adv:2d20k1@Advantage;dis:2d20L1@Disadvantage
+            case DND5_ALIAS ->
+                    new AliasConfig(ChannelConfigCommand.parseStringToMultiAliasList(I18n.getMessage("rpg.system.command.preset.DND5_ALIAS.expression", userLocale)));
+            //w:d!10>=8c
+            case NWOD_ALIAS ->
+                    new AliasConfig(ChannelConfigCommand.parseStringToMultiAliasList(I18n.getMessage("rpg.system.command.preset.NWOD_ALIAS.expression", userLocale)));
+            //(?<numberOfDice>\\d+)r(?<target>\\d+)::val('roll',${numberOfDice}d10) ('roll'>=${target}c)-('roll'==1c)=@:${numberOfDice}d10 vs ${target};(?<numberOfDice>\\d+)re(?<target>\\d+)::val('roll',${numberOfDice}d!10) ('roll'>=${target}c)-('roll'==1c)=@:${numberOfDice}d10 vs ${target} with reroll on 10
+            case OWOD_ALIAS ->
+                    new AliasConfig(ChannelConfigCommand.parseStringToMultiAliasList(I18n.getMessage("rpg.system.command.preset.OWOD_ALIAS.expression", userLocale)));
+            //(?<numberOfDice>\\d+)sr::val('roll',${numberOfDice}d6) concat('roll'>4c, if('roll'==1c >? 'roll'c/2,' - Glitch!'))@${numberOfDice}d6
+            case SHADOWRUN_ALIAS ->
+                    new AliasConfig(ChannelConfigCommand.parseStringToMultiAliasList(I18n.getMessage("rpg.system.command.preset.SHADOWRUN_ALIAS.expression", userLocale)));
+            //r:d!!;sw(?<sides>\\\\d+)::1d!!${sides} + 1d!!6 k1@d${sides} Wildcard
+            case SAVAGE_WORLDS_ALIAS ->
+                    new AliasConfig(ChannelConfigCommand.parseStringToMultiAliasList(I18n.getMessage("rpg.system.command.preset.SAVAGE_WORLDS_ALIAS.expression", userLocale)));
+            // (?<numberOfDice>\\\\d+)b::val('diceRoll', if(${numberOfDice}=?0,2d6L1, ${numberOfDice}d6)) val('sixes','diceRoll'==6c) val('partials','diceRoll'>3<6c) if('sixes'>?1,'Critical Success - You do it with increased effect.', 'sixes'=?1,'Success - You do it.','partials' >? 0,'Partial Success - You do it but suffer severe harm, a serious complication or have reduced effect.','Failure - You suffer severe harm, a serious complication occurs, or you lose this opportunity for action.')@${numberOfDice} Dice
+            case BLADES_IN_THE_DARK_ALIAS ->
+                    new AliasConfig(ChannelConfigCommand.parseStringToMultiAliasList(I18n.getMessage("rpg.system.command.preset.BLADES_IN_THE_DARK_ALIAS.expression", userLocale)));
         };
     }
 
     private static String getCommandIdForConfig(Config config) {
-        if (config instanceof CustomDiceConfig) {
-            return CustomDiceCommand.COMMAND_NAME;
-        } else if (config instanceof SumCustomSetConfig) {
-            return SumCustomSetCommand.COMMAND_NAME;
-        } else if (config instanceof CustomParameterConfig) {
-            return CustomParameterCommand.COMMAND_NAME;
+        switch (config) {
+            case CustomDiceConfig ignored -> {
+                return CustomDiceCommand.COMMAND_NAME;
+            }
+            case SumCustomSetConfig ignored -> {
+                return SumCustomSetCommand.COMMAND_NAME;
+            }
+            case CustomParameterConfig ignored -> {
+                return CustomParameterCommand.COMMAND_NAME;
+            }
+            case AliasConfig ignored -> {
+                return ChannelConfigCommand.COMMAND_NAME;
+            }
+            default -> throw new IllegalStateException("Could not find command id for config: " + config);
         }
-        throw new IllegalStateException("Could not find command id for config: " + config);
+
     }
 
     public static String getCommandString(PresetId presetId, Locale locale) {
         Config config = createConfig(presetId, locale);
+        if (config instanceof AliasConfig) {
+            return "/channel_config alias multi_save aliases:%s scope:all_users_in_this_channel".formatted(config.toCommandOptionsString());
+        }
         String commandId = getCommandIdForConfig(config);
         return "/%s start %s".formatted(commandId, config.toCommandOptionsString());
     }
 
-    public EmbedOrMessageDefinition createMessage(PresetId presetId, UUID newConfigUUID, @Nullable Long guildId, long channelId, Locale userLocale) {
+    public Optional<EmbedOrMessageDefinition> createMessage(PresetId presetId, UUID newConfigUUID, @Nullable Long guildId, long channelId, Locale userLocale) {
         Config config = createConfig(presetId, userLocale);
         return switch (config) {
             case CustomDiceConfig customDiceConfig ->
-                    startPreset(customDiceConfig, customDiceCommand, newConfigUUID, guildId, channelId);
+                    startMessagePreset(customDiceConfig, customDiceCommand, newConfigUUID, guildId, channelId);
             case SumCustomSetConfig sumCustomSetConfig ->
-                    startPreset(sumCustomSetConfig, sumCustomSetCommand, newConfigUUID, guildId, channelId);
+                    startMessagePreset(sumCustomSetConfig, sumCustomSetCommand, newConfigUUID, guildId, channelId);
             case CustomParameterConfig customParameterConfig ->
-                    startPreset(customParameterConfig, customParameterCommand, newConfigUUID, guildId, channelId);
+                    startMessagePreset(customParameterConfig, customParameterCommand, newConfigUUID, guildId, channelId);
+            case AliasConfig aliasConfig -> saveAlias(aliasConfig, newConfigUUID, guildId, channelId);
             default -> throw new IllegalStateException("Could not create valid config for: " + presetId);
         };
     }
 
-    private <C extends Config> EmbedOrMessageDefinition startPreset(C config, AbstractCommand<C, ?> command, UUID newConfigUUID, @Nullable Long guildId, long channelId) {
+    private <C extends RollConfig> Optional<EmbedOrMessageDefinition> startMessagePreset(C config, AbstractCommand<C, ?> command, UUID newConfigUUID, @Nullable Long guildId, long channelId) {
         command.createMessageConfig(newConfigUUID, guildId, channelId, config).ifPresent(persistenceManager::saveMessageConfig);
-        return command.createSlashResponseMessage(newConfigUUID, config, channelId);
+        return Optional.of(command.createSlashResponseMessage(newConfigUUID, config, channelId));
+    }
+
+    private Optional<EmbedOrMessageDefinition> saveAlias(AliasConfig config, UUID newConfigUUID, @Nullable Long guildId, long channelId) {
+        channelConfigCommand.saveAliasesConfig(config.getAliasList(), channelId, guildId, null, () -> newConfigUUID);
+        return Optional.empty();
     }
 
     @AllArgsConstructor
     public enum PresetId {
         DND5_IMAGE,
         DND5,
+        DND5_ALIAS,
         DND5_CALC,
         NWOD,
         OWOD,
+        NWOD_ALIAS,
+        OWOD_ALIAS,
         SHADOWRUN,
         SHADOWRUN_IMAGE,
+        SHADOWRUN_ALIAS,
         SAVAGE_WORLDS,
+        SAVAGE_WORLDS_ALIAS,
         FATE_IMAGE,
         FATE,
+        FATE_ALIAS,
         COIN,
         DICE_CALCULATOR,
         OSR,
         TRAVELLER,
         BLADES_IN_THE_DARK,
+        BLADES_IN_THE_DARK_ALIAS,
         BLADES_IN_THE_DARK_IMAGE,
         BLADES_IN_THE_DARK_DETAIL,
         CALL_OF_CTHULHU_7ED,
@@ -278,6 +330,7 @@ public class RpgSystemCommandPreset {
         PARANOIA,
         PUBLIC_ACCESS,
         CANDELA_OBSCURA,
+        CANDELA_OBSCURA2,
         PROWLERS_PARAGONS,
         BLUEBEARD_BRIDE,
         EXPANSE,
@@ -291,7 +344,10 @@ public class RpgSystemCommandPreset {
         REBELLION_UNPLUGGED,
         STAR_WARS_D6,
         OATHSWORN,
-        IRONSWORN;
+        IRONSWORN,
+        SALVAGE_UNION,
+        FALLOUT,
+        FORBIDDEN_LANDS;
 
         public static boolean isValid(String in) {
             return Arrays.stream(PresetId.values()).anyMatch(s -> s.name().equals(in));

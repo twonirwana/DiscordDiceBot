@@ -32,7 +32,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class SumCustomSetCommandMockTest {
 
     PersistenceManager persistenceManager;
-    private Expect expect;
+    Expect expect;
 
     @BeforeEach
     void setup() {

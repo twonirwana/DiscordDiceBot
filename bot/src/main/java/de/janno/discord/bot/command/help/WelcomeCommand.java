@@ -7,7 +7,7 @@ import de.janno.discord.bot.BotEmojiUtil;
 import de.janno.discord.bot.BotMetrics;
 import de.janno.discord.bot.I18n;
 import de.janno.discord.bot.command.*;
-import de.janno.discord.bot.command.reroll.Config;
+import de.janno.discord.bot.command.RollConfig;
 import de.janno.discord.bot.dice.image.DiceImageStyle;
 import de.janno.discord.bot.dice.image.DiceStyleAndColor;
 import de.janno.discord.bot.persistance.Mapper;
@@ -34,7 +34,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 @Slf4j
-public class WelcomeCommand extends AbstractCommand<Config, StateData> {
+public class WelcomeCommand extends AbstractCommand<RollConfig, StateData> {
 
     private static final String COMMAND_NAME = "welcome";
     private static final String CONFIG_TYPE_ID = "Config";
@@ -53,16 +53,16 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
     }
 
     @Override
-    protected ConfigAndState<Config, StateData> getMessageDataAndUpdateWithButtonValue(@NonNull MessageConfigDTO messageConfigDTO,
-                                                                                       @NonNull MessageDataDTO messageDataDTO,
-                                                                                       @NonNull String buttonValue,
-                                                                                       @NonNull String invokingUserName) {
+    protected ConfigAndState<RollConfig, StateData> getMessageDataAndUpdateWithButtonValue(@NonNull MessageConfigDTO messageConfigDTO,
+                                                                                           @NonNull MessageDataDTO messageDataDTO,
+                                                                                           @NonNull String buttonValue,
+                                                                                           @NonNull String invokingUserName) {
         return deserializeAndUpdateState(messageConfigDTO, buttonValue);
     }
 
-    ConfigAndState<Config, StateData> deserializeAndUpdateState(@NonNull MessageConfigDTO messageConfigDTO, @NonNull String buttonValue) {
+    ConfigAndState<RollConfig, StateData> deserializeAndUpdateState(@NonNull MessageConfigDTO messageConfigDTO, @NonNull String buttonValue) {
         Preconditions.checkArgument(CONFIG_TYPE_ID.equals(messageConfigDTO.getConfigClassId()), "Unknown configClassId: %s", messageConfigDTO.getConfigClassId());
-        final Config loadedConfig = Mapper.deserializeObject(messageConfigDTO.getConfig(), Config.class);
+        final RollConfig loadedConfig = Mapper.deserializeObject(messageConfigDTO.getConfig(), RollConfig.class);
         final State<StateData> updatedState = new State<>(buttonValue, StateData.empty());
         return new ConfigAndState<>(messageConfigDTO.getConfigUUID(), loadedConfig, updatedState);
     }
@@ -88,7 +88,7 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
     }
 
     @Override
-    public Optional<MessageConfigDTO> createMessageConfig(@NonNull UUID configUUID, @Nullable Long guildId, long channelId, @NonNull Config config) {
+    public Optional<MessageConfigDTO> createMessageConfig(@NonNull UUID configUUID, @Nullable Long guildId, long channelId, @NonNull RollConfig config) {
         return Optional.of(new MessageConfigDTO(configUUID, guildId, channelId, getCommandId(), CONFIG_TYPE_ID, Mapper.serializedObject(config)));
     }
 
@@ -107,7 +107,7 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
 
     @Override
     protected @NonNull Optional<EmbedOrMessageDefinition> createNewButtonMessageWithState(@NonNull UUID configUUID,
-                                                                                          @NonNull Config config,
+                                                                                          @NonNull RollConfig config,
                                                                                           @Nullable State<StateData> state,
                                                                                           @Nullable Long guildId,
                                                                                           long channelId) {
@@ -119,7 +119,7 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
         UUID newConfigUUID = uuidSupplier.get();
 
         final Optional<RpgSystemCommandPreset.PresetId> presetId = getPresetIdFromButton(state.getButtonValue());
-        return presetId.map(id -> rpgSystemCommandPreset.createMessage(id, newConfigUUID, guildId, channelId, config.getConfigLocale()));
+        return presetId.flatMap(id -> rpgSystemCommandPreset.createMessage(id, newConfigUUID, guildId, channelId, config.getConfigLocale()));
 
     }
 
@@ -150,7 +150,7 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
 
 
     @Override
-    protected void addFurtherActions(List<Mono<Void>> actions, ButtonEventAdaptor event, Config config, State<StateData> state) {
+    protected void addFurtherActions(List<Mono<Void>> actions, ButtonEventAdaptor event, RollConfig config, State<StateData> state) {
         Optional<RpgSystemCommandPreset.PresetId> presetId = getPresetIdFromButton(state.getButtonValue());
 
         if (presetId.isEmpty()) {
@@ -173,13 +173,13 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
     }
 
     @Override
-    protected @NonNull Optional<RollAnswer> getAnswer(Config config, State<StateData> state, long channelId, long userId) {
+    protected @NonNull Optional<RollAnswer> getAnswer(RollConfig config, State<StateData> state, long channelId, long userId) {
         return Optional.empty();
     }
 
     public Function<DiscordConnector.WelcomeRequest, EmbedOrMessageDefinition> getWelcomeMessage() {
         return request -> {
-            Config config = new Config(null, AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, DiceImageStyle.none.getDefaultColor()), request.guildLocale());
+            RollConfig config = new RollConfig(null, AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, DiceImageStyle.none.getDefaultColor()), request.guildLocale());
             UUID configUUID = uuidSupplier.get();
             final Optional<MessageConfigDTO> newMessageConfig = createMessageConfig(configUUID, request.guildId(), request.channelId(), config);
             newMessageConfig.ifPresent(persistenceManager::saveMessageConfig);
@@ -188,12 +188,12 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
     }
 
     @Override
-    protected Optional<ConfigAndState<Config, StateData>> createNewConfigAndStateIfMissing(String buttonValue) {
-        return Optional.of(new ConfigAndState<>(uuidSupplier.get(), new Config(null, AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, DiceImageStyle.none.getDefaultColor()), Locale.ENGLISH), new State<>(buttonValue, StateData.empty())));
+    protected Optional<ConfigAndState<RollConfig, StateData>> createNewConfigAndStateIfMissing(String buttonValue) {
+        return Optional.of(new ConfigAndState<>(uuidSupplier.get(), new RollConfig(null, AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, DiceImageStyle.none.getDefaultColor()), Locale.ENGLISH), new State<>(buttonValue, StateData.empty())));
     }
 
     @Override
-    public @NonNull EmbedOrMessageDefinition createSlashResponseMessage(@NonNull UUID configUUID, @NonNull Config config, long channelId) {
+    public @NonNull EmbedOrMessageDefinition createSlashResponseMessage(@NonNull UUID configUUID, @NonNull RollConfig config, long channelId) {
         return EmbedOrMessageDefinition.builder()
                 .type(EmbedOrMessageDefinition.Type.MESSAGE)
                 .descriptionOrContent(I18n.getMessage("welcome.message", config.getConfigLocale()))
@@ -229,8 +229,8 @@ public class WelcomeCommand extends AbstractCommand<Config, StateData> {
     }
 
     @Override
-    protected @NonNull Config getConfigFromStartOptions(@NonNull CommandInteractionOption options, @NonNull Locale userLocale) {
-        return new Config(null, AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, DiceImageStyle.none.getDefaultColor()), userLocale);
+    protected @NonNull RollConfig getConfigFromStartOptions(@NonNull CommandInteractionOption options, @NonNull Locale userLocale) {
+        return new RollConfig(null, AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, DiceImageStyle.none.getDefaultColor()), userLocale);
     }
 
 }

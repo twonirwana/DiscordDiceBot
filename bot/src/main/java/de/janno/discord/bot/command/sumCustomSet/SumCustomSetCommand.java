@@ -373,7 +373,7 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
         final List<ButtonIdLabelAndDiceExpression> buttons = ButtonHelper.parseString(buttonsOptionValue);
         final boolean alwaysSumResults = options.getBooleanSubOptionWithName(ALWAYS_SUM_RESULTS_COMMAND_OPTIONS_NAME).orElse(true);
         final Long answerTargetChannelId = BaseCommandOptions.getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null);
-        final AnswerFormatType answerType = BaseCommandOptions.getAnswerTypeFromStartCommandOption(options).orElse(defaultAnswerFormat());
+        final AnswerFormatType answerType = BaseCommandOptions.getAnswerTypeFromStartCommandOption(options).orElse(AnswerFormatType.full);
         final boolean hideExpressionInAnswer = options.getBooleanSubOptionWithName(HIDE_EXPRESSION_IN_ANSWER_OPTIONS_NAME).orElse(true);
         final boolean systemButtonNewLine = ENDS_WITH_DOUBLE_SEMICOLUMN_PATTERN.matcher(buttonsOptionValue).matches();
         final String prefix = options.getStringSubOptionWithName(PREFIX_OPTIONS_NAME).orElse(null);

@@ -20,7 +20,7 @@ import java.util.stream.Stream;
 @ExtendWith(SnapshotExtension.class)
 class BaseCommandOptionsTest {
 
-    private Expect expect;
+    Expect expect;
 
     static Stream<Arguments> generateColorLocaleData() {
         return Arrays.stream(DiceImageStyle.values())

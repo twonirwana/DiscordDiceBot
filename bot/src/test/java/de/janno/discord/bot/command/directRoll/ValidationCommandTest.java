@@ -38,7 +38,7 @@ import static org.mockito.Mockito.*;
 @ExtendWith(SnapshotExtension.class)
 class ValidationCommandTest {
     ValidationCommand underTest;
-    private Expect expect;
+    Expect expect;
 
     static Stream<Arguments> generateAllLocaleData() {
         return I18n.allSupportedLanguage().stream()

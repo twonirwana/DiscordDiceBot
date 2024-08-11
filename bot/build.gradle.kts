@@ -24,7 +24,7 @@ dependencies {
     implementation(libs.avaje.slf4j)
     implementation(libs.emoji)
     implementation("io.micrometer:micrometer-registry-prometheus:1.13.2")
-    implementation("com.h2database:h2:2.2.224")
+    implementation("com.h2database:h2:2.3.230")
     implementation("org.apache.derby:derby:10.17.1.0")
     implementation("org.apache.derby:derbyclient:10.17.1.0")
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.17.2")
@@ -40,7 +40,7 @@ dependencies {
 
     testImplementation("io.github.origin-energy:java-snapshot-testing-junit5:4.0.8")
     testImplementation("io.github.origin-energy:java-snapshot-testing-plugin-jackson:4.0.8")
-    testImplementation("io.projectreactor:reactor-test:3.6.7")
+    testImplementation("io.projectreactor:reactor-test:3.6.8")
     testImplementation("org.junit.jupiter:junit-jupiter-params:5.10.3")
     testImplementation("org.mockito:mockito-core:5.12.0")
     testImplementation("org.mockito:mockito-inline:5.2.0")

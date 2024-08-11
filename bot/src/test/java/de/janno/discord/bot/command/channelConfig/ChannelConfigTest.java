@@ -12,7 +12,7 @@ import static org.mockito.Mockito.mock;
 @ExtendWith(SnapshotExtension.class)
 public class ChannelConfigTest {
     ChannelConfigCommand underTest;
-    private Expect expect;
+    Expect expect;
 
 
     @BeforeEach

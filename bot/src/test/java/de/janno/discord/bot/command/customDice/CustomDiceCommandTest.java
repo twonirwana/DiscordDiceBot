@@ -42,7 +42,7 @@ class CustomDiceCommandTest {
 
     CustomDiceCommand underTest;
     PersistenceManager persistenceManager = mock(PersistenceManager.class);
-    private Expect expect;
+    Expect expect;
 
     private static Stream<Arguments> generateConfigOptionStringList() {
         return Stream.of(Arguments.of("", new CustomDiceConfig(null, ImmutableList.of(), AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH)),

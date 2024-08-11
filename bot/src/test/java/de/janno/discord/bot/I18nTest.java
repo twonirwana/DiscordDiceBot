@@ -74,4 +74,12 @@ class I18nTest {
         String res = I18n.getMessage("base.help.description", Locale.FRENCH, "custom_dice");
         assertThat(res).isEqualTo("Obtenir de l'aide pour `/custom_dice`");
     }
+
+    @Test
+    void testBackslash() {
+        String res = I18n.getMessage("rpg.system.command.preset.SAVAGE_WORLDS_ALIAS.expression", Locale.ENGLISH);
+        assertThat(res).isEqualTo("r:d!!;sw(?<sides>\\d+)::1d!!${sides} + 1d!!6 k1@d${sides} Wildcard");
+    }
+
+
 }

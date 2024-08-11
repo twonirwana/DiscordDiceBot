@@ -31,7 +31,7 @@ class FetchCommandMockTest {
 
     private final UUID uuid0 = UUID.fromString("00000000-0000-0000-0000-000000000000");
     private final UUID uuid1 = UUID.fromString("00000000-0000-0000-0000-000000000001");
-    private Expect expect;
+    Expect expect;
     private FetchCommand underTest;
     private CustomDiceCommand customDiceCommand;
     private CustomParameterCommand customParameterCommand;

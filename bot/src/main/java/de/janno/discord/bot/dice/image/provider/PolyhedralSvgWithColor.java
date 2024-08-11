@@ -45,7 +45,8 @@ public class PolyhedralSvgWithColor implements ImageProvider {
                     throw new RuntimeException(e);
                 }
             }));
-    private static final String RED = "red";
+    public static final String RED = "red";
+    public static final String CYAN = "cyan";
 
     private static final Map<String, Color> COLOR_MAP = ImmutableMap.<String, Color>builder()
             .put("white", Color.white)
@@ -59,7 +60,7 @@ public class PolyhedralSvgWithColor implements ImageProvider {
             .put("yellow", Color.yellow)
             .put("green", Color.green)
             .put("magenta", Color.magenta)
-            .put("cyan", Color.cyan)
+            .put(CYAN, Color.cyan)
             .put("blue", Color.blue)
             .put("indigo", new Color(75, 0, 130))
             .build();

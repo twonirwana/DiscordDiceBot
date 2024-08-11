@@ -339,5 +339,34 @@ public class DirectRollCommandMockTest {
         expect.scenario("event2").toMatchSnapshot(slashEvent2.getSortedActions());
     }
 
+    @Test
+    void channelRegexAlias() {
+        DirectRollCommand directRollCommand = new DirectRollCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0)));
+        ChannelConfigCommand channelConfig = new ChannelConfigCommand(persistenceManager);
+
+        SlashEventAdaptorMock slashEvent1 = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
+                .name("alias")
+                .option(CommandInteractionOption.builder()
+                        .name("save")
+                        .option(CommandInteractionOption.builder().name("name").stringValue("(\\d+)wod(\\d+)").build())
+                        .option(CommandInteractionOption.builder().name("value").stringValue("$1d10>=$2c").build())
+                        .option(CommandInteractionOption.builder().name("type").stringValue("Regex").build())
+                        .build())
+                .option(CommandInteractionOption.builder().name("scope").stringValue("all_users_in_this_channel").build())
+                .build()));
+        channelConfig.handleSlashCommandEvent(slashEvent1, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"), Locale.ENGLISH).block();
+
+
+        SlashEventAdaptorMock slashEvent2 = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
+                .name("expression")
+                .stringValue("8wod6")
+                .build()));
+        directRollCommand.handleSlashCommandEvent(slashEvent2, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"), Locale.ENGLISH).block();
+
+        assertThat(slashEvent1.getActions()).containsExactlyInAnyOrder("reply: `commandString`\nSaved new alias");
+        assertThat(slashEvent2.getActions()).containsExactlyInAnyOrder("acknowledgeAndRemoveSlash",
+                "sendMessage: EmbedOrMessageDefinition(title=8d10>=6c ⇒ 3, descriptionOrContent=, fields=[], componentRowDefinitions=[], hasImage=true, type=EMBED, userReference=true, sendToOtherChannelId=null)");
+    }
+
 
 }

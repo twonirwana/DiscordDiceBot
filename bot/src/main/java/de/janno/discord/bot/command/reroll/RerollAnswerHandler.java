@@ -90,7 +90,7 @@ public class RerollAnswerHandler extends AbstractComponentInteractEventHandler<R
                                 .build()), true);
     }
 
-    public static EmbedOrMessageDefinition createConfigAndApplyToAnswer(Config config,
+    public static EmbedOrMessageDefinition createConfigAndApplyToAnswer(RollConfig config,
                                                                         RollAnswer answer,
                                                                         EmbedOrMessageDefinition baseAnswer,
                                                                         String invokingUserName,
@@ -108,7 +108,7 @@ public class RerollAnswerHandler extends AbstractComponentInteractEventHandler<R
         return RerollAnswerHandler.applyToAnswer(baseAnswer, answer.getDieIdTypeAndValues(), config.getConfigLocale(), rerollConfigId);
     }
 
-    private static RerollAnswerConfig createNewRerollAnswerConfig(@NonNull Config parentConfig, @NonNull String expression, @Nullable String label, @NonNull List<DieIdTypeAndValue> dieIdTypeAndValues, int rerollCount, String owner) {
+    private static RerollAnswerConfig createNewRerollAnswerConfig(@NonNull RollConfig parentConfig, @NonNull String expression, @Nullable String label, @NonNull List<DieIdTypeAndValue> dieIdTypeAndValues, int rerollCount, String owner) {
 
         return new RerollAnswerConfig(null,
                 parentConfig.getAnswerFormatType(),

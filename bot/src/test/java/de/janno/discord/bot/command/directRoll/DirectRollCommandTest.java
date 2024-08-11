@@ -35,7 +35,7 @@ import static org.mockito.Mockito.*;
 @ExtendWith(SnapshotExtension.class)
 class DirectRollCommandTest {
     DirectRollCommand underTest;
-    private Expect expect;
+    Expect expect;
 
     static Stream<Arguments> generateAllLocaleData() {
         return I18n.allSupportedLanguage().stream()
