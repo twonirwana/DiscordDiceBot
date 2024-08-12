@@ -1,7 +1,7 @@
 de.janno.discord.bot.command.FetchCommandMockTest.fetchOldCustomDiceMessage=[
   [
     "acknowledgeAndRemoveSlash",
-    "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click on a button to roll the dice, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=att, id=custom_dice\u001E1_button\u001E00000000-0000-0000-0000-000000000001, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)",
+    "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click on a button to roll the dice, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=att, id=custom_dice\u001E1_button\u001E00000000-0000-0000-0000-000000000001, style=PRIMARY, disabled=false, emoji=null)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)",
     "getMessagesState: [-3]",
     "deleteMessageById: -3"
   ]
@@ -18,7 +18,7 @@ de.janno.discord.bot.command.FetchCommandMockTest.fetchOldCustomDiceMessageNotOl
 de.janno.discord.bot.command.FetchCommandMockTest.fetchOldCustomParameterMessage=[
   [
     "acknowledgeAndRemoveSlash",
-    "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent={numberOfDice}d{sides}\nPlease select value for **numberOfDice**, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=3, id=custom_parameter\u001Eid1\u001E00000000-0000-0000-0000-000000000001, style=PRIMARY, disabled=false), ButtonDefinition(label=4, id=custom_parameter\u001Eid2\u001E00000000-0000-0000-0000-000000000001, style=PRIMARY, disabled=false), ButtonDefinition(label=5, id=custom_parameter\u001Eid3\u001E00000000-0000-0000-0000-000000000001, style=PRIMARY, disabled=false), ButtonDefinition(label=6, id=custom_parameter\u001Eid4\u001E00000000-0000-0000-0000-000000000001, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)",
+    "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent={numberOfDice}d{sides}\nPlease select value for **numberOfDice**, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=3, id=custom_parameter\u001Eid1\u001E00000000-0000-0000-0000-000000000001, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=4, id=custom_parameter\u001Eid2\u001E00000000-0000-0000-0000-000000000001, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=5, id=custom_parameter\u001Eid3\u001E00000000-0000-0000-0000-000000000001, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=6, id=custom_parameter\u001Eid4\u001E00000000-0000-0000-0000-000000000001, style=PRIMARY, disabled=false, emoji=null)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)",
     "getMessagesState: [-3]",
     "deleteMessageById: -3"
   ]
@@ -28,7 +28,7 @@ de.janno.discord.bot.command.FetchCommandMockTest.fetchOldCustomParameterMessage
 de.janno.discord.bot.command.FetchCommandMockTest.fetchOldSumCustomSetMessage=[
   [
     "acknowledgeAndRemoveSlash",
-    "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click the buttons to add dice to the set and then on Roll, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Att, id=sum_custom_set\u001E1_button\u001E00000000-0000-0000-0000-000000000001, style=PRIMARY, disabled=false), ButtonDefinition(label=bonus, id=sum_custom_set\u001E2_button\u001E00000000-0000-0000-0000-000000000001, style=PRIMARY, disabled=false), ButtonDefinition(label=Roll, id=sum_custom_set\u001Eroll\u001E00000000-0000-0000-0000-000000000001, style=SUCCESS, disabled=true), ButtonDefinition(label=Clear, id=sum_custom_set\u001Eclear\u001E00000000-0000-0000-0000-000000000001, style=DANGER, disabled=false), ButtonDefinition(label=Back, id=sum_custom_set\u001Eback\u001E00000000-0000-0000-0000-000000000001, style=SECONDARY, disabled=true)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)",
+    "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click the buttons to add dice to the set and then on Roll, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Att, id=sum_custom_set\u001E1_button\u001E00000000-0000-0000-0000-000000000001, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=bonus, id=sum_custom_set\u001E2_button\u001E00000000-0000-0000-0000-000000000001, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=Roll, id=sum_custom_set\u001Eroll\u001E00000000-0000-0000-0000-000000000001, style=SUCCESS, disabled=true, emoji=null), ButtonDefinition(label=Clear, id=sum_custom_set\u001Eclear\u001E00000000-0000-0000-0000-000000000001, style=DANGER, disabled=false, emoji=null), ButtonDefinition(label=Back, id=sum_custom_set\u001Eback\u001E00000000-0000-0000-0000-000000000001, style=SECONDARY, disabled=true, emoji=null)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)",
     "getMessagesState: [-3]",
     "deleteMessageById: -3"
   ]
@@ -61,4 +61,32 @@ de.janno.discord.bot.command.FetchCommandMockTest.getCommandDefinition=[
 
 de.janno.discord.bot.command.FetchCommandMockTest.getId=[
   "fetch"
+]
+
+
+de.janno.discord.bot.command.FetchCommandMockTest.noOldMessage=[
+  [
+    "reply: No old button message in this channel found"
+  ]
+]
+
+
+de.janno.discord.bot.command.FetchCommandMockTest.noOldMessage_de=[
+  [
+    "reply: Es wurde keine alte Würfel-Nachricht im diesen Kanal gefunden"
+  ]
+]
+
+
+de.janno.discord.bot.command.FetchCommandMockTest.noOldMessage_fr=[
+  [
+    "reply: Aucun ancien message de bouton trouvé"
+  ]
+]
+
+
+de.janno.discord.bot.command.FetchCommandMockTest.noOldMessage_pt_BR=[
+  [
+    "reply: Nenhuma mensagem antiga do botão foi encontrada"
+  ]
 ]

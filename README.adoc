@@ -379,6 +379,15 @@ The reroll can be done multiple times, until the 'Finish' button is used.
 
 image:image/reroll.webp[image,600]
 
+=== Emoji Button
+
+image:image/custom_emoji_button.png[image,600]
+
+If a command creates a button with a label (usually the text after the `@`) then it is possible to give the button an emoji.
+It musst be a single emoji at the start of the label.
+It can be a unicode emoji or a custom discord emoji (provided with emoji selection button, on the right side of the message input).
+Commands with invalid emojis will fail and simply produce no button message.
+
 == Commands
 
 === Custom Dice

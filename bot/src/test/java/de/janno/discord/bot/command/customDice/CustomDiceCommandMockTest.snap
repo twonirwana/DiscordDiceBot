@@ -1,0 +1,242 @@
+de.janno.discord.bot.command.customDice.CustomDiceCommandMockTest.channelAlias=[
+  [
+    "editMessage: message:Click on a button to roll the dice, buttonValues=1_button",
+    "sendMessage: EmbedOrMessageDefinition(title=Dmg ⇒ 11, 10, 10, descriptionOrContent=2d20+10: [11, 10], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED, userReference=true, sendToOtherChannelId=2)"
+  ]
+]
+
+
+de.janno.discord.bot.command.customDice.CustomDiceCommandMockTest.legacy_id=[
+  [
+    "reply: The button uses an old format that isn't supported anymore. Please delete it and create a new button message with a slash command."
+  ]
+]
+
+
+de.janno.discord.bot.command.customDice.CustomDiceCommandMockTest.roll_answerChannel=[
+  [
+    "editMessage: message:Click on a button to roll the dice, buttonValues=1_button",
+    "sendMessage: EmbedOrMessageDefinition(title=Dmg ⇒ 3, descriptionOrContent=1d6: [3], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED, userReference=true, sendToOtherChannelId=2)"
+  ]
+]
+
+
+de.janno.discord.bot.command.customDice.CustomDiceCommandMockTest.roll_answerChannelTwice[event1]=[
+  [
+    "editMessage: message:Click on a button to roll the dice, buttonValues=1_button",
+    "sendMessage: EmbedOrMessageDefinition(title=Dmg ⇒ 3, descriptionOrContent=1d6: [3], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED, userReference=true, sendToOtherChannelId=2)"
+  ]
+]
+
+
+de.janno.discord.bot.command.customDice.CustomDiceCommandMockTest.roll_answerChannelTwice[event2]=[
+  [
+    "editMessage: message:Click on a button to roll the dice, buttonValues=1_button",
+    "sendMessage: EmbedOrMessageDefinition(title=Dmg ⇒ 1, descriptionOrContent=1d6: [1], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED, userReference=true, sendToOtherChannelId=2)"
+  ]
+]
+
+
+de.janno.discord.bot.command.customDice.CustomDiceCommandMockTest.roll_diceEvaluator_compact=[
+  [
+    "deleteMessageById: 0",
+    "editMessage: message:processing ..., buttonValues=",
+    "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click on a button to roll the dice, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=custom_dice\u001E1_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)",
+    "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=__**Dmg ⇒ 3**__  1d6: [3], fields=[], componentRowDefinitions=[], hasImage=false, type=MESSAGE, userReference=true, sendToOtherChannelId=null)"
+  ]
+]
+
+
+de.janno.discord.bot.command.customDice.CustomDiceCommandMockTest.roll_diceEvaluator_full=[
+  [
+    "deleteMessageById: 0",
+    "editMessage: message:processing ..., buttonValues=",
+    "sendMessage: EmbedOrMessageDefinition(title=Dmg ⇒ 3, descriptionOrContent=1d6: [3], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED, userReference=true, sendToOtherChannelId=null)",
+    "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click on a button to roll the dice, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=custom_dice\u001E1_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
+  ]
+]
+
+
+de.janno.discord.bot.command.customDice.CustomDiceCommandMockTest.roll_diceEvaluator_full_german=[
+  [
+    "deleteMessageById: 0",
+    "editMessage: message:Verarbeite ..., buttonValues=",
+    "sendMessage: EmbedOrMessageDefinition(title=Dmg ⇒ 3, descriptionOrContent=1d6: [3], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED, userReference=true, sendToOtherChannelId=null)",
+    "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Klick auf einen Button um zu würfeln, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=custom_dice\u001E1_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
+  ]
+]
+
+
+de.janno.discord.bot.command.customDice.CustomDiceCommandMockTest.roll_diceEvaluator_full_ptBR=[
+  [
+    "deleteMessageById: 0",
+    "editMessage: message:processando ..., buttonValues=",
+    "sendMessage: EmbedOrMessageDefinition(title=Dmg ⇒ 3, descriptionOrContent=1d6: [3], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED, userReference=true, sendToOtherChannelId=null)",
+    "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Clique em um botão para rolar os dados, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=custom_dice\u001E1_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
+  ]
+]
+
+
+de.janno.discord.bot.command.customDice.CustomDiceCommandMockTest.roll_diceEvaluator_full_with_images=[
+  [
+    "deleteMessageById: 0",
+    "editMessage: message:processing ..., buttonValues=",
+    "sendMessage: EmbedOrMessageDefinition(title=Dmg ⇒ 3, descriptionOrContent=1d6, fields=[], componentRowDefinitions=[], hasImage=true, type=EMBED, userReference=true, sendToOtherChannelId=null)",
+    "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click on a button to roll the dice, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=custom_dice\u001E1_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
+  ]
+]
+
+
+de.janno.discord.bot.command.customDice.CustomDiceCommandMockTest.roll_diceEvaluator_full_with_images_d100=[
+  [
+    "deleteMessageById: 0",
+    "editMessage: message:processing ..., buttonValues=",
+    "sendMessage: EmbedOrMessageDefinition(title=Dmg ⇒ 73, descriptionOrContent=1d100, fields=[], componentRowDefinitions=[], hasImage=true, type=EMBED, userReference=true, sendToOtherChannelId=null)",
+    "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click on a button to roll the dice, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=custom_dice\u001E1_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
+  ]
+]
+
+
+de.janno.discord.bot.command.customDice.CustomDiceCommandMockTest.roll_diceEvaluator_minimal=[
+  [
+    "deleteMessageById: 0",
+    "editMessage: message:processing ..., buttonValues=",
+    "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click on a button to roll the dice, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=custom_dice\u001E1_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)",
+    "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Dmg ⇒ 3, fields=[], componentRowDefinitions=[], hasImage=false, type=MESSAGE, userReference=true, sendToOtherChannelId=null)"
+  ]
+]
+
+
+de.janno.discord.bot.command.customDice.CustomDiceCommandMockTest.roll_diceEvaluator_onlyDice_multiResult=[
+  [
+    "deleteMessageById: 0",
+    "editMessage: message:processing ..., buttonValues=",
+    "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=, fields=[], componentRowDefinitions=[], hasImage=true, type=EMBED, userReference=true, sendToOtherChannelId=null)",
+    "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click on a button to roll the dice, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=custom_dice\u001E1_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
+  ]
+]
+
+
+de.janno.discord.bot.command.customDice.CustomDiceCommandMockTest.roll_diceEvaluator_onlyResult_multiResult=[
+  [
+    "deleteMessageById: 0",
+    "editMessage: message:processing ..., buttonValues=",
+    "sendMessage: EmbedOrMessageDefinition(title=Dmg, descriptionOrContent=**6**\n**3, 2**\n**3, 6, 3**, fields=[], componentRowDefinitions=[], hasImage=true, type=EMBED, userReference=true, sendToOtherChannelId=null)",
+    "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click on a button to roll the dice, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=custom_dice\u001E1_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
+  ]
+]
+
+
+de.janno.discord.bot.command.customDice.CustomDiceCommandMockTest.roll_diceEvaluator_onlyResult_with_images=[
+  [
+    "deleteMessageById: 0",
+    "editMessage: message:processing ..., buttonValues=",
+    "sendMessage: EmbedOrMessageDefinition(title=Dmg ⇒ 3, descriptionOrContent=null, fields=[], componentRowDefinitions=[], hasImage=true, type=EMBED, userReference=true, sendToOtherChannelId=null)",
+    "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click on a button to roll the dice, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=custom_dice\u001E1_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
+  ]
+]
+
+
+de.janno.discord.bot.command.customDice.CustomDiceCommandMockTest.roll_diceEvaluator_onlyResult_without_images=[
+  [
+    "deleteMessageById: 0",
+    "editMessage: message:processing ..., buttonValues=",
+    "sendMessage: EmbedOrMessageDefinition(title=Dmg ⇒ 3, descriptionOrContent=null, fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED, userReference=true, sendToOtherChannelId=null)",
+    "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click on a button to roll the dice, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=custom_dice\u001E1_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
+  ]
+]
+
+
+de.janno.discord.bot.command.customDice.CustomDiceCommandMockTest.roll_pinned=[
+  [
+    "editMessage: message:Click on a button to roll the dice, buttonValues=1_button",
+    "sendMessage: EmbedOrMessageDefinition(title=Dmg ⇒ 3, descriptionOrContent=1d6: [3], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED, userReference=true, sendToOtherChannelId=null)",
+    "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click on a button to roll the dice, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=custom_dice\u001E1_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
+  ]
+]
+
+
+de.janno.discord.bot.command.customDice.CustomDiceCommandMockTest.roll_pinnedTwice[event1]=[
+  [
+    "editMessage: message:Click on a button to roll the dice, buttonValues=1_button",
+    "sendMessage: EmbedOrMessageDefinition(title=Dmg ⇒ 3, descriptionOrContent=1d6: [3], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED, userReference=true, sendToOtherChannelId=null)",
+    "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click on a button to roll the dice, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=custom_dice\u001E1_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
+  ]
+]
+
+
+de.janno.discord.bot.command.customDice.CustomDiceCommandMockTest.roll_pinnedTwice[event2]=[
+  [
+    "deleteMessageById: 2",
+    "editMessage: message:processing ..., buttonValues=",
+    "getMessagesState: [0]",
+    "sendMessage: EmbedOrMessageDefinition(title=Dmg ⇒ 4, descriptionOrContent=1d6: [4], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED, userReference=true, sendToOtherChannelId=null)",
+    "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click on a button to roll the dice, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=custom_dice\u001E1_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
+  ]
+]
+
+
+de.janno.discord.bot.command.customDice.CustomDiceCommandMockTest.slash_start=[
+  [
+    "reply: commandString",
+    "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click on a button to roll the dice, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=1d6, id=custom_dice\u001E1_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=Attack, id=custom_dice\u001E2_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=3d10,3d10,3d10, id=custom_dice\u001E3_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
+  ]
+]
+
+
+de.janno.discord.bot.command.customDice.CustomDiceCommandMockTest.slash_start_multiLine[event1]=[
+  [
+    "reply: commandString",
+    "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click on a button to roll the dice, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=d[a b c, d,e ], id=custom_dice\u001E1_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=Attack Down, id=custom_dice\u001E2_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=3d10,3d10,3d10, id=custom_dice\u001E3_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
+  ]
+]
+
+
+de.janno.discord.bot.command.customDice.CustomDiceCommandMockTest.slash_start_multiLine[event2]=[
+  [
+    "deleteMessageById: 1",
+    "editMessage: message:processing ..., buttonValues=",
+    "sendMessage: EmbedOrMessageDefinition(title=d[a b c, d,e ] ⇒ e, descriptionOrContent=d[a\nb\nc,\nd,e\n]: [e], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED, userReference=true, sendToOtherChannelId=null)",
+    "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click on a button to roll the dice, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=d[a b c, d,e ], id=custom_dice\u001E1_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=Attack Down, id=custom_dice\u001E2_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=3d10,3d10,3d10, id=custom_dice\u001E3_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
+  ]
+]
+
+
+de.janno.discord.bot.command.customDice.CustomDiceCommandMockTest.slash_start_warn=[
+  [
+    "reply: commandString `3`: did not contain any random element, try for Example `d20` to roll a 20 sided die, `'a'`: did not contain any random element, try for Example `d20` to roll a 20 sided die",
+    "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click on a button to roll the dice, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=1d6, id=custom_dice\u001E1_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=Attack, id=custom_dice\u001E2_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=3d10,3d10,3d10, id=custom_dice\u001E3_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=3, id=custom_dice\u001E4_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label='a', id=custom_dice\u001E5_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
+  ]
+]
+
+
+de.janno.discord.bot.command.customDice.CustomDiceCommandMockTest.slash_targetChannelTheSame_error=[
+  [
+    "reply: The answer target channel must be not the same as the current channel, keep this option empty if the answer should appear in this channel"
+  ]
+]
+
+
+de.janno.discord.bot.command.customDice.CustomDiceCommandMockTest.userChannelAlias=[
+  [
+    "editMessage: message:Click on a button to roll the dice, buttonValues=1_button",
+    "sendMessage: EmbedOrMessageDefinition(title=Dmg ⇒ 11, 10, 10, descriptionOrContent=2d20+10: [11, 10], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED, userReference=true, sendToOtherChannelId=2)"
+  ]
+]
+
+
+de.janno.discord.bot.command.customDice.CustomDiceCommandMockTest.without_configUUID_existingLegacyData=[
+  [
+    "deleteMessageById: 0",
+    "editMessage: message:processing ..., buttonValues=",
+    "sendMessage: EmbedOrMessageDefinition(title=Dmg ⇒ 3, descriptionOrContent=1d6: [3], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED, userReference=true, sendToOtherChannelId=null)",
+    "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click on a button to roll the dice, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=custom_dice\u001E1_button\u001E00000000-0000-0000-0000-000000000001, style=PRIMARY, disabled=false, emoji=null)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
+  ]
+]
+
+
+de.janno.discord.bot.command.customDice.CustomDiceCommandMockTest.without_configUUID_missingData=[
+  [
+    "reply: Configuration for the message is missing, please create a new message with the slash command `/custom_dice start`"
+  ]
+]

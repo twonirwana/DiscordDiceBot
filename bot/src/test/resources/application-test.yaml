@@ -1,3 +1,7 @@
+db:
+  url: fjdbc:h2:mem:test_mem
+  user:
+  password:
 metric:
   url: localhost
   port: 9090

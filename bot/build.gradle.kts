@@ -22,6 +22,7 @@ dependencies {
     implementation(libs.commons.text)
     implementation(libs.avaje.config)
     implementation(libs.avaje.slf4j)
+    implementation(libs.emoji)
     implementation("io.micrometer:micrometer-registry-prometheus:1.13.2")
     implementation("com.h2database:h2:2.3.230")
     implementation("org.apache.derby:derby:10.17.1.0")
@@ -30,7 +31,6 @@ dependencies {
     implementation("org.apache.xmlgraphics:batik:1.17")
     implementation("org.apache.xmlgraphics:batik-transcoder:1.17")
     implementation("org.apache.xmlgraphics:batik-codec:1.17")
-    implementation("net.fellbaum:jemoji:1.4.1")
 
     testImplementation(libs.junit.jupiter.api)
     testRuntimeOnly(libs.junit.jupiter.engine)

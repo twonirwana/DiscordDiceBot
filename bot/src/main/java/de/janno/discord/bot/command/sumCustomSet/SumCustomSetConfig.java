@@ -81,7 +81,7 @@ public class SumCustomSetConfig extends RollConfig {
                     if (b.getDiceExpression().equals(b.getLabel())) {
                         return "%s%s".formatted(b.isNewLine() ? ";" : "", b.getDiceExpression());
                     }
-                    return "%s%s@%s".formatted(b.isNewLine() ? ";" : "", b.getDiceExpression(), b.getLabel());
+                    return "%s%s@%s%s".formatted(b.isNewLine() ? ";" : "", b.getDiceExpression(), Optional.ofNullable(b.getEmoji()).orElse(""), b.getLabel());
                 })
                 .collect(Collectors.joining(";"));
         if (systemButtonNewLine) {
