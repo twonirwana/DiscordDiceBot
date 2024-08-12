@@ -753,4 +753,3 @@ All functions are case insensitiv.
 * The `d6_dot` in `white` dice images are from https://game-icons.net/
 * The `d6_dot` in `black_and_gold` dice images are adapted from https://speakthesky.itch.io/typeface-dicier and the Infinite Revolution RPG
 * The `expance` dice images are adapted from https://github.com/Foxfyre/expanse
-* Icons from https://game-icons.net/ under https://creativecommons.org/licenses/by/3.0/[CC BY 3.0]

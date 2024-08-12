@@ -344,7 +344,7 @@ class WelcomeCommandTest {
                         "Dungeon & Dragons 5e",
                         "Dungeon & Dragons 5e without Dice Images",
                         "Fate",
-                        "Coin Toss",
+                        "🪙Coin Toss",
                         "nWod / Chronicles of Darkness",
                         "oWod / Storyteller System",
                         "Shadowrun",

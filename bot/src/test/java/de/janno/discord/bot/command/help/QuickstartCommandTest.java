@@ -169,7 +169,6 @@ class QuickstartCommandTest {
                     "Candela Obscura",
                     "Candela Obscura v2",
                     "City of Mist",
-                    "Coin Toss",
                     "Cyberpunk Red",
                     "Dice Calculator",
                     "Dungeon & Dragons 5e",
@@ -216,7 +215,8 @@ class QuickstartCommandTest {
                     "nWod / Chronicles of Darkness",
                     "nWod / Chronicles of Darkness - Alias",
                     "oWod / Storyteller System",
-                    "oWod / Storyteller System - Alias");
+                    "oWod / Storyteller System - Alias",
+                    "🪙Coin Toss");
             a.assertThat(res.stream().map(AutoCompleteAnswer::getValue)).containsExactly(
                     "ASOIAF",
                     "BLADES_IN_THE_DARK_IMAGE",
@@ -228,7 +228,6 @@ class QuickstartCommandTest {
                     "CANDELA_OBSCURA",
                     "CANDELA_OBSCURA2",
                     "CITY_OF_MIST",
-                    "COIN",
                     "CYBERPUNK_RED",
                     "DICE_CALCULATOR",
                     "DND5_IMAGE",
@@ -275,7 +274,8 @@ class QuickstartCommandTest {
                     "NWOD",
                     "NWOD_ALIAS",
                     "OWOD",
-                    "OWOD_ALIAS");
+                    "OWOD_ALIAS",
+                    "COIN");
         });
     }
 }
