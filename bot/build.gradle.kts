@@ -69,6 +69,7 @@ tasks.test {
     jvmArgs = listOf("-XX:MaxMetaspaceSize=512m")
 }
 
+
 tasks.jacocoTestReport {
     reports {
         xml.required.set(true)
