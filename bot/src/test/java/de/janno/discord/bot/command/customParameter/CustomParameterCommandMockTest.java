@@ -27,7 +27,6 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SnapshotExtension.class)
-
 public class CustomParameterCommandMockTest {
 
     PersistenceManager persistenceManager;
@@ -51,14 +50,8 @@ public class CustomParameterCommandMockTest {
         ButtonEventAdaptorMock click2 = factory.getButtonClickOnLastButtonMessage("id3");
         underTest.handleComponentInteractEvent(click2).block();
 
-        assertThat(click1.getActions()).containsExactlyInAnyOrder(
-                "editMessage: message:invokingUser: 4d{sides}\nPlease select value for **sides**, buttonValues=id1,id2,id3,id4,id5,id6,id7,id8,clear");
-        assertThat(click2.getActions()).containsExactlyInAnyOrder(
-                "editMessage: message:processing ..., buttonValues=",
-                "sendMessage: EmbedOrMessageDefinition(title=4d6 ⇒ 1, 1, 6, 3, descriptionOrContent=[1, 1, 6, 3], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED, userReference=true, sendToOtherChannelId=null)",
-                "deleteMessageById: 0",
-                "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent={numberOfDice}d{sides}\nPlease select value for **numberOfDice**, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=1, id=custom_parameterid100000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=2, id=custom_parameterid200000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=3, id=custom_parameterid300000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=4, id=custom_parameterid400000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=5, id=custom_parameterid500000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)]), ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=6, id=custom_parameterid600000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=7, id=custom_parameterid700000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=8, id=custom_parameterid800000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=9, id=custom_parameterid900000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=10, id=custom_parameterid1000000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
-        );
+        expect.scenario("event1").toMatchSnapshot(click1.getSortedActions());
+        expect.scenario("event2").toMatchSnapshot(click2.getSortedActions());
     }
 
     @Test
@@ -74,15 +67,8 @@ public class CustomParameterCommandMockTest {
         ButtonEventAdaptorMock click2 = factory.getButtonClickOnLastButtonMessage("id4");
         underTest.handleComponentInteractEvent(click2).block();
 
-        assertThat(click1.getActions()).containsExactlyInAnyOrder(
-                "editMessage: message:invokingUser: 1d{s}+{modi}=\n" +
-                        "Please select value for **s**, buttonValues=id1,id2,id3,id4,clear");
-        assertThat(click2.getActions()).containsExactlyInAnyOrder(
-                "editMessage: message:processing ..., buttonValues=",
-                "sendMessage: EmbedOrMessageDefinition(title=1d20+''= ⇒ 13, descriptionOrContent=[13], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED, userReference=true, sendToOtherChannelId=null)",
-                "deleteMessageById: 0",
-                "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent={n}d{s}+{modi}=\nPlease select value for **n**, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=1, id=custom_parameterid100000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=2, id=custom_parameterid200000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=3, id=custom_parameterid300000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=4, id=custom_parameterid400000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=5, id=custom_parameterid500000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)]), ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=6, id=custom_parameterid600000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=7, id=custom_parameterid700000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=8, id=custom_parameterid800000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=9, id=custom_parameterid900000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=10, id=custom_parameterid1000000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)]), ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=11, id=custom_parameterid1100000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=12, id=custom_parameterid1200000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=13, id=custom_parameterid1300000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=14, id=custom_parameterid1400000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=15, id=custom_parameterid1500000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
-        );
+        expect.scenario("event1").toMatchSnapshot(click1.getSortedActions());
+        expect.scenario("event2").toMatchSnapshot(click2.getSortedActions());
     }
 
     @Test
@@ -100,17 +86,9 @@ public class CustomParameterCommandMockTest {
         ButtonEventAdaptorMock click3 = factory.getButtonClickOnLastButtonMessage("id1");
         underTest.handleComponentInteractEvent(click3).block();
 
-        assertThat(click1.getActions()).containsExactlyInAnyOrder(
-                "editMessage: message:invokingUser: 1d{s}+{modi}=\n" +
-                        "Please select value for **s**, buttonValues=id1,id2,id3,id4,clear");
-        assertThat(click2.getActions()).containsExactlyInAnyOrder(
-                "editMessage: message:invokingUser: 1d10+{modi}=\n" +
-                        "Please select value for **modi**, buttonValues=id1,id2,id3,clear");
-        assertThat(click3.getActions()).containsExactlyInAnyOrder("editMessage: message:processing ..., buttonValues=",
-                "sendMessage: EmbedOrMessageDefinition(title=1d10+1= ⇒ 4, descriptionOrContent=[3], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED, userReference=true, sendToOtherChannelId=null)",
-                "deleteMessageById: 0",
-                "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent={n}d{s}+{modi}=\nPlease select value for **n**, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=1, id=custom_parameterid100000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=2, id=custom_parameterid200000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=3, id=custom_parameterid300000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=4, id=custom_parameterid400000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=5, id=custom_parameterid500000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)]), ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=6, id=custom_parameterid600000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=7, id=custom_parameterid700000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=8, id=custom_parameterid800000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=9, id=custom_parameterid900000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=10, id=custom_parameterid1000000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)]), ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=11, id=custom_parameterid1100000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=12, id=custom_parameterid1200000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=13, id=custom_parameterid1300000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=14, id=custom_parameterid1400000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=15, id=custom_parameterid1500000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
-        );
+        expect.scenario("event1").toMatchSnapshot(click1.getSortedActions());
+        expect.scenario("event2").toMatchSnapshot(click2.getSortedActions());
+        expect.scenario("event3").toMatchSnapshot(click3.getSortedActions());
     }
 
     @Test
@@ -126,25 +104,12 @@ public class CustomParameterCommandMockTest {
                 .build()));
         underTest.handleSlashCommandEvent(slashEvent, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"), Locale.ENGLISH).block();
 
-        assertThat(slashEvent.getActions()).containsExactlyInAnyOrder(
-                "reply: commandString",
-                "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Please select value for **bonus**, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=None, id=custom_parameterid100000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=Small Bonus, id=custom_parameterid200000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label= Big Bonus , id=custom_parameterid300000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
-        );
+        expect.scenario("event1").toMatchSnapshot(slashEvent.getSortedActions());
 
         Optional<ButtonEventAdaptorMock> buttonEventAdaptorMock = slashEvent.getFirstButtonEventMockOfLastButtonMessage();
         assertThat(buttonEventAdaptorMock).isPresent();
         underTest.handleComponentInteractEvent(buttonEventAdaptorMock.get()).block();
-        assertThat(buttonEventAdaptorMock.get().getActions()).containsExactlyInAnyOrder(
-                "editMessage: message:processing ..., buttonValues=",
-                """
-                        sendMessage: EmbedOrMessageDefinition(title=bonus: None ⇒ a
-                        b
-                        c, 0, descriptionOrContent=[a
-                        b
-                        c], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED, userReference=true, sendToOtherChannelId=null)""",
-                "deleteMessageById: 1",
-                "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Please select value for **bonus**, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=None, id=custom_parameterid100000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=Small Bonus, id=custom_parameterid200000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label= Big Bonus , id=custom_parameterid300000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
-        );
+        expect.scenario("event2").toMatchSnapshot(buttonEventAdaptorMock.get().getSortedActions());
     }
 
     @Test
@@ -162,20 +127,12 @@ public class CustomParameterCommandMockTest {
                 .build()));
         underTest.handleSlashCommandEvent(slashEvent, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"), Locale.ENGLISH).block();
 
-        assertThat(slashEvent.getActions()).containsExactlyInAnyOrder(
-                "reply: commandString",
-                "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Please select value for **n**, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=d20, id=custom_parameterid100000000-0000-0000-0000-000000000000, style=SUCCESS, disabled=false), ButtonDefinition(label=1d6, id=custom_parameterid200000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=2d8, id=custom_parameterid300000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
-        );
+        expect.scenario("event1").toMatchSnapshot(slashEvent.getSortedActions());
 
         Optional<ButtonEventAdaptorMock> buttonEventAdaptorMock = slashEvent.getFirstButtonEventMockOfLastButtonMessage();
         assertThat(buttonEventAdaptorMock).isPresent();
         underTest.handleComponentInteractEvent(buttonEventAdaptorMock.get()).block();
-        assertThat(buttonEventAdaptorMock.get().getActions()).containsExactlyInAnyOrder(
-                "editMessage: message:processing ..., buttonValues=",
-                "sendMessage: EmbedOrMessageDefinition(title=n: d20 ⇒ 20, descriptionOrContent=, fields=[], componentRowDefinitions=[], hasImage=true, type=EMBED, userReference=true, sendToOtherChannelId=null)",
-                "deleteMessageById: 1",
-                "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Please select value for **n**, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=d20, id=custom_parameterid100000000-0000-0000-0000-000000000000, style=SUCCESS, disabled=false), ButtonDefinition(label=1d6, id=custom_parameterid200000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=2d8, id=custom_parameterid300000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
-        );
+        expect.scenario("event2").toMatchSnapshot(buttonEventAdaptorMock.get().getSortedActions());
     }
 
     @Test
@@ -191,15 +148,8 @@ public class CustomParameterCommandMockTest {
         ButtonEventAdaptorMock click2 = factory.getButtonClickOnLastButtonMessage("id3");
         underTest.handleComponentInteractEvent(click2).block();
 
-        assertThat(click1.getActions()).containsExactlyInAnyOrder(
-                "editMessage: message:invokingUser: 4d{sides}\nBitte wähle den Wert für **sides**, buttonValues=id1,id2,id3,id4,id5,id6,id7,id8,clear"
-        );
-        assertThat(click2.getActions()).containsExactlyInAnyOrder(
-                "editMessage: message:Verarbeite ..., buttonValues=",
-                "sendMessage: EmbedOrMessageDefinition(title=4d6 ⇒ 1, 1, 6, 3, descriptionOrContent=[1, 1, 6, 3], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED, userReference=true, sendToOtherChannelId=null)",
-                "deleteMessageById: 0",
-                "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent={numberOfDice}d{sides}\nBitte wähle den Wert für **numberOfDice**, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=1, id=custom_parameterid100000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=2, id=custom_parameterid200000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=3, id=custom_parameterid300000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=4, id=custom_parameterid400000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=5, id=custom_parameterid500000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)]), ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=6, id=custom_parameterid600000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=7, id=custom_parameterid700000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=8, id=custom_parameterid800000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=9, id=custom_parameterid900000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=10, id=custom_parameterid1000000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
-        );
+        expect.scenario("event1").toMatchSnapshot(click1.getSortedActions());
+        expect.scenario("event2").toMatchSnapshot(click2.getSortedActions());
     }
 
     @Test
@@ -215,15 +165,8 @@ public class CustomParameterCommandMockTest {
         ButtonEventAdaptorMock click2 = factory.getButtonClickOnLastButtonMessage("id3");
         underTest.handleComponentInteractEvent(click2).block();
 
-        assertThat(click1.getActions()).containsExactlyInAnyOrder(
-                "editMessage: message:invokingUser: 4d{sides}\nPor favor selecione um valor para **sides**, buttonValues=id1,id2,id3,id4,id5,id6,id7,id8,clear"
-        );
-        assertThat(click2.getActions()).containsExactlyInAnyOrder(
-                "editMessage: message:processando ..., buttonValues=",
-                "sendMessage: EmbedOrMessageDefinition(title=4d6 ⇒ 1, 1, 6, 3, descriptionOrContent=[1, 1, 6, 3], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED, userReference=true, sendToOtherChannelId=null)",
-                "deleteMessageById: 0",
-                "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent={numberOfDice}d{sides}\nPor favor selecione um valor para **numberOfDice**, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=1, id=custom_parameterid100000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=2, id=custom_parameterid200000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=3, id=custom_parameterid300000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=4, id=custom_parameterid400000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=5, id=custom_parameterid500000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)]), ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=6, id=custom_parameterid600000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=7, id=custom_parameterid700000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=8, id=custom_parameterid800000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=9, id=custom_parameterid900000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=10, id=custom_parameterid1000000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
-        );
+        expect.scenario("event1").toMatchSnapshot(click1.getSortedActions());
+        expect.scenario("event2").toMatchSnapshot(click2.getSortedActions());
     }
 
     @Test
@@ -239,13 +182,8 @@ public class CustomParameterCommandMockTest {
         ButtonEventAdaptorMock click2 = factory.getButtonClickOnLastButtonMessage("id4");
         underTest.handleComponentInteractEvent(click2).block();
 
-        assertThat(click1.getActions()).containsExactlyInAnyOrder(
-                "editMessage: message:invokingUser: d['-','0','1']+{bonus}\nPlease select value for **bonus**, buttonValues=id1,id2,id3,id4,id5,id6,id7,id8,id9,id10,clear");
-        assertThat(click2.getActions()).containsExactlyInAnyOrder(
-                "editMessage: message:processing ..., buttonValues=",
-                "sendMessage: EmbedOrMessageDefinition(title=d['-','0','1']+4 ⇒ '1', 4, descriptionOrContent=['1'], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED, userReference=true, sendToOtherChannelId=null)",
-                "deleteMessageById: 0",
-                "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent={dice}+{bonus}\nPlease select value for **dice**, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=d4, id=custom_parameterid100000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=Fate, id=custom_parameterid200000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)");
+        expect.scenario("event1").toMatchSnapshot(click1.getSortedActions());
+        expect.scenario("event2").toMatchSnapshot(click2.getSortedActions());
     }
 
     @Test
@@ -259,12 +197,7 @@ public class CustomParameterCommandMockTest {
         ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("2");
         underTest.handleComponentInteractEvent(click1).block();
 
-        assertThat(click1.getActions()).containsExactlyInAnyOrder(
-                "editMessage: message:processing ..., buttonValues=",
-                "sendMessage: EmbedOrMessageDefinition(title=2 ⇒ 2, descriptionOrContent=, fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED, userReference=true, sendToOtherChannelId=null)",
-                "deleteMessageById: 0",
-                "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent={bonus}\nPlease select value for **bonus**, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=-5, id=custom_parameterid100000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=-4, id=custom_parameterid200000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=-3, id=custom_parameterid300000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=-2, id=custom_parameterid400000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=-1, id=custom_parameterid500000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)]), ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=0, id=custom_parameterid600000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=1, id=custom_parameterid700000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=2, id=custom_parameterid800000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=3, id=custom_parameterid900000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=4, id=custom_parameterid1000000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)]), ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=5, id=custom_parameterid1100000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
-        );
+        expect.toMatchSnapshot(click1.getSortedActions());
     }
 
     @Test
@@ -280,14 +213,8 @@ public class CustomParameterCommandMockTest {
         ButtonEventAdaptorMock click2 = factory.getButtonClickOnLastButtonMessage("id4");
         underTest.handleComponentInteractEvent(click2).block();
 
-        assertThat(click1.getActions()).containsExactlyInAnyOrder(
-                "editMessage: message:invokingUser: d['-','0','1']+{bonus}\nPlease select value for **bonus**, buttonValues=id1,id2,id3,id4,id5,id6,id7,id8,id9,id10,clear");
-        assertThat(click2.getActions()).containsExactlyInAnyOrder(
-                "editMessage: message:processing ..., buttonValues=",
-                "sendMessage: EmbedOrMessageDefinition(title=d['-','0','1']+4 ⇒ '1', 4, descriptionOrContent=['1'], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED, userReference=true, sendToOtherChannelId=null)",
-                "deleteMessageById: 0",
-                "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent={dice}+{bonus}\nPlease select value for **dice**, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=d4, id=custom_parameterid100000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=Fate, id=custom_parameterid200000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
-        );
+        expect.scenario("event1").toMatchSnapshot(click1.getSortedActions());
+        expect.scenario("event2").toMatchSnapshot(click2.getSortedActions());
     }
 
     @Test
@@ -303,14 +230,8 @@ public class CustomParameterCommandMockTest {
         ButtonEventAdaptorMock click2 = factory.getButtonClickOnLastButtonMessage("id3");
         underTest.handleComponentInteractEvent(click2).block();
 
-        assertThat(click1.getActions()).containsExactlyInAnyOrder(
-                "editMessage: message:invokingUser: 4d{sides}@Roll\nPlease select value for **sides**, buttonValues=id1,id2,id3,id4,id5,id6,id7,id8,clear");
-        assertThat(click2.getActions()).containsExactlyInAnyOrder(
-                "editMessage: message:processing ..., buttonValues=",
-                "sendMessage: EmbedOrMessageDefinition(title=Roll ⇒ 1, 1, 6, 3, descriptionOrContent=4d6: [1, 1, 6, 3], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED, userReference=true, sendToOtherChannelId=null)",
-                "deleteMessageById: 0",
-                "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent={numberOfDice}d{sides}@Roll\nPlease select value for **numberOfDice**, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=1, id=custom_parameterid100000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=2, id=custom_parameterid200000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=3, id=custom_parameterid300000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=4, id=custom_parameterid400000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=5, id=custom_parameterid500000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)]), ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=6, id=custom_parameterid600000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=7, id=custom_parameterid700000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=8, id=custom_parameterid800000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=9, id=custom_parameterid900000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=10, id=custom_parameterid1000000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
-        );
+        expect.scenario("event1").toMatchSnapshot(click1.getSortedActions());
+        expect.scenario("event2").toMatchSnapshot(click2.getSortedActions());
     }
 
     @Test
@@ -326,14 +247,8 @@ public class CustomParameterCommandMockTest {
         ButtonEventAdaptorMock click2 = factory.getButtonClickOnLastButtonMessage("id3");
         underTest.handleComponentInteractEvent(click2).block();
 
-        assertThat(click1.getActions()).containsExactlyInAnyOrder(
-                "editMessage: message:invokingUser: Please select value for **sides**, buttonValues=id1,id2,id3,id4,id5,id6,id7,id8,clear");
-        assertThat(click2.getActions()).containsExactlyInAnyOrder(
-                "editMessage: message:processing ..., buttonValues=",
-                "sendMessage: EmbedOrMessageDefinition(title=numberOfDice: 4, sides: 6 ⇒ 1, 1, 6, 3, descriptionOrContent=[1, 1, 6, 3], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED, userReference=true, sendToOtherChannelId=null)",
-                "deleteMessageById: 0",
-                "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Please select value for **numberOfDice**, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=1, id=custom_parameterid100000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=2, id=custom_parameterid200000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=3, id=custom_parameterid300000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=4, id=custom_parameterid400000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=5, id=custom_parameterid500000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)]), ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=6, id=custom_parameterid600000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=7, id=custom_parameterid700000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=8, id=custom_parameterid800000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=9, id=custom_parameterid900000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=10, id=custom_parameterid1000000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
-        );
+        expect.scenario("event1").toMatchSnapshot(click1.getSortedActions());
+        expect.scenario("event2").toMatchSnapshot(click2.getSortedActions());
     }
 
     @Test
@@ -349,14 +264,8 @@ public class CustomParameterCommandMockTest {
         ButtonEventAdaptorMock click2 = factory.getButtonClickOnLastButtonMessage("id3");
         underTest.handleComponentInteractEvent(click2).block();
 
-        assertThat(click1.getActions()).containsExactlyInAnyOrder(
-                "editMessage: message:invokingUser: Please select value for **sides**, buttonValues=id1,id2,id3,id4,id5,id6,id7,id8,clear");
-        assertThat(click2.getActions()).containsExactlyInAnyOrder(
-                "editMessage: message:processing ..., buttonValues=",
-                "sendMessage: EmbedOrMessageDefinition(title=Roll ⇒ 1, 1, 6, 3, descriptionOrContent=[1, 1, 6, 3], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED, userReference=true, sendToOtherChannelId=null)",
-                "deleteMessageById: 0",
-                "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Please select value for **numberOfDice**, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=1, id=custom_parameterid100000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=2, id=custom_parameterid200000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=3, id=custom_parameterid300000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=4, id=custom_parameterid400000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=5, id=custom_parameterid500000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)]), ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=6, id=custom_parameterid600000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=7, id=custom_parameterid700000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=8, id=custom_parameterid800000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=9, id=custom_parameterid900000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=10, id=custom_parameterid1000000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
-        );
+        expect.scenario("event1").toMatchSnapshot(click1.getSortedActions());
+        expect.scenario("event2").toMatchSnapshot(click2.getSortedActions());
     }
 
     @Test
@@ -372,14 +281,8 @@ public class CustomParameterCommandMockTest {
         ButtonEventAdaptorMock click2 = factory.getButtonClickOnLastButtonMessage("id3");
         underTest.handleComponentInteractEvent(click2).block();
 
-        assertThat(click1.getActions()).containsExactlyInAnyOrder(
-                "editMessage: message:invokingUser: Please select value for **sides**, buttonValues=id1,id2,id3,id4,id5,id6,id7,id8,clear");
-        assertThat(click2.getActions()).containsExactlyInAnyOrder(
-                "editMessage: message:processing ..., buttonValues=",
-                "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=__**numberOfDice: 4, sides: 6 ⇒ 1, 1, 6, 3**__  4d6: [1, 1, 6, 3], fields=[], componentRowDefinitions=[], hasImage=false, type=MESSAGE, userReference=true, sendToOtherChannelId=null)",
-                "deleteMessageById: 0",
-                "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Please select value for **numberOfDice**, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=1, id=custom_parameterid100000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=2, id=custom_parameterid200000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=3, id=custom_parameterid300000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=4, id=custom_parameterid400000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=5, id=custom_parameterid500000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)]), ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=6, id=custom_parameterid600000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=7, id=custom_parameterid700000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=8, id=custom_parameterid800000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=9, id=custom_parameterid900000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=10, id=custom_parameterid1000000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
-        );
+        expect.scenario("event1").toMatchSnapshot(click1.getSortedActions());
+        expect.scenario("event2").toMatchSnapshot(click2.getSortedActions());
     }
 
     @Test
@@ -395,14 +298,8 @@ public class CustomParameterCommandMockTest {
         ButtonEventAdaptorMock click2 = factory.getButtonClickOnLastButtonMessage("id3");
         underTest.handleComponentInteractEvent(click2).block();
 
-        assertThat(click1.getActions()).containsExactlyInAnyOrder(
-                "editMessage: message:invokingUser: Please select value for **sides**, buttonValues=id1,id2,id3,id4,id5,id6,id7,id8,clear");
-        assertThat(click2.getActions()).containsExactlyInAnyOrder(
-                "editMessage: message:processing ..., buttonValues=",
-                "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=numberOfDice: 4, sides: 6 ⇒ 1, 1, 6, 3, fields=[], componentRowDefinitions=[], hasImage=false, type=MESSAGE, userReference=true, sendToOtherChannelId=null)",
-                "deleteMessageById: 0",
-                "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Please select value for **numberOfDice**, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=1, id=custom_parameterid100000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=2, id=custom_parameterid200000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=3, id=custom_parameterid300000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=4, id=custom_parameterid400000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=5, id=custom_parameterid500000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)]), ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=6, id=custom_parameterid600000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=7, id=custom_parameterid700000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=8, id=custom_parameterid800000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=9, id=custom_parameterid900000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=10, id=custom_parameterid1000000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
-        );
+        expect.scenario("event1").toMatchSnapshot(click1.getSortedActions());
+        expect.scenario("event2").toMatchSnapshot(click2.getSortedActions());
     }
 
     @Test
@@ -420,16 +317,9 @@ public class CustomParameterCommandMockTest {
         ButtonEventAdaptorMock click3 = factory.getButtonClickOnLastButtonMessage("id3", "user1");
         underTest.handleComponentInteractEvent(click3).block();
 
-        assertThat(click1.getActions()).containsExactlyInAnyOrder(
-                "editMessage: message:user1: Please select value for **sides**, buttonValues=id1,id2,id3,id4,id5,id6,id7,id8,clear");
-        assertThat(click2.getActions()).containsExactlyInAnyOrder(
-                "editMessage: message:user1: Please select value for **sides**, buttonValues=id1,id2,id3,id4,id5,id6,id7,id8,clear");
-        assertThat(click3.getActions()).containsExactlyInAnyOrder(
-                "editMessage: message:processing ..., buttonValues=",
-                "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=numberOfDice: 4, sides: 6 ⇒ 1, 1, 6, 3, fields=[], componentRowDefinitions=[], hasImage=false, type=MESSAGE, userReference=true, sendToOtherChannelId=null)",
-                "deleteMessageById: 0",
-                "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Please select value for **numberOfDice**, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=1, id=custom_parameterid100000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=2, id=custom_parameterid200000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=3, id=custom_parameterid300000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=4, id=custom_parameterid400000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=5, id=custom_parameterid500000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)]), ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=6, id=custom_parameterid600000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=7, id=custom_parameterid700000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=8, id=custom_parameterid800000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=9, id=custom_parameterid900000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=10, id=custom_parameterid1000000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
-        );
+        expect.scenario("event1").toMatchSnapshot(click1.getSortedActions());
+        expect.scenario("event2").toMatchSnapshot(click2.getSortedActions());
+        expect.scenario("event3").toMatchSnapshot(click3.getSortedActions());
     }
 
     @Test
@@ -445,10 +335,8 @@ public class CustomParameterCommandMockTest {
         ButtonEventAdaptorMock click2 = factory.getButtonClickOnLastButtonMessage("clear");
         underTest.handleComponentInteractEvent(click2).block();
 
-        assertThat(click1.getActions()).containsExactlyInAnyOrder(
-                "editMessage: message:invokingUser: 4d{sides}\nPlease select value for **sides**, buttonValues=id1,id2,id3,id4,id5,id6,id7,id8,clear");
-        assertThat(click2.getActions()).containsExactlyInAnyOrder(
-                "editMessage: message:{numberOfDice}d{sides}\nPlease select value for **numberOfDice**, buttonValues=id1,id2,id3,id4,id5,id6,id7,id8,id9,id10");
+        expect.scenario("event1").toMatchSnapshot(click1.getSortedActions());
+        expect.scenario("event2").toMatchSnapshot(click2.getSortedActions());
     }
 
     @Test
@@ -464,13 +352,8 @@ public class CustomParameterCommandMockTest {
         ButtonEventAdaptorMock click2 = factory.getButtonClickOnLastButtonMessage("id3");
         underTest.handleComponentInteractEvent(click2).block();
 
-        assertThat(click1.getActions()).containsExactlyInAnyOrder(
-                "editMessage: message:invokingUser: 4d{sides}\nPlease select value for **sides**, buttonValues=id1,id2,id3,id4,id5,id6,id7,id8,clear");
-        assertThat(click2.getActions()).containsExactlyInAnyOrder(
-                "editMessage: message:{numberOfDice}d{sides}\nPlease select value for **numberOfDice**, buttonValues=id1,id2,id3,id4,id5,id6,id7,id8,id9,id10",
-                "sendMessage: EmbedOrMessageDefinition(title=4d6 ⇒ 1, 1, 6, 3, descriptionOrContent=[1, 1, 6, 3], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED, userReference=true, sendToOtherChannelId=null)",
-                "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent={numberOfDice}d{sides}\nPlease select value for **numberOfDice**, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=1, id=custom_parameterid100000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=2, id=custom_parameterid200000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=3, id=custom_parameterid300000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=4, id=custom_parameterid400000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=5, id=custom_parameterid500000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)]), ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=6, id=custom_parameterid600000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=7, id=custom_parameterid700000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=8, id=custom_parameterid800000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=9, id=custom_parameterid900000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=10, id=custom_parameterid1000000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
-        );
+        expect.scenario("event1").toMatchSnapshot(click1.getSortedActions());
+        expect.scenario("event2").toMatchSnapshot(click2.getSortedActions());
     }
 
     @Test
@@ -486,13 +369,8 @@ public class CustomParameterCommandMockTest {
         ButtonEventAdaptorMock click2 = factory.getButtonClickOnLastButtonMessage("id3");
         underTest.handleComponentInteractEvent(click2).block();
 
-        assertThat(click1.getActions()).containsExactlyInAnyOrder(
-                "editMessage: message:invokingUser: 4d{sides}\n" +
-                        "Please select value for **sides**, buttonValues=id1,id2,id3,id4,id5,id6,id7,id8,clear");
-        assertThat(click2.getActions()).containsExactlyInAnyOrder(
-                "editMessage: message:{numberOfDice}d{sides}\nPlease select value for **numberOfDice**, buttonValues=id1,id2,id3,id4,id5,id6,id7,id8,id9,id10",
-                "sendMessage: EmbedOrMessageDefinition(title=4d6 ⇒ 1, 1, 6, 3, descriptionOrContent=[1, 1, 6, 3], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED, userReference=true, sendToOtherChannelId=2)"
-        );
+        expect.scenario("event1").toMatchSnapshot(click1.getSortedActions());
+        expect.scenario("event2").toMatchSnapshot(click2.getSortedActions());
     }
 
     @Test
@@ -512,23 +390,10 @@ public class CustomParameterCommandMockTest {
         ButtonEventAdaptorMock click4 = factory.getButtonClickOnLastButtonMessage("id3");
         underTest.handleComponentInteractEvent(click4).block();
 
-        assertThat(click1.getActions()).containsExactlyInAnyOrder(
-                "editMessage: message:invokingUser: 4d{sides}\nPlease select value for **sides**, buttonValues=id1,id2,id3,id4,id5,id6,id7,id8,clear");
-        assertThat(click2.getActions()).containsExactlyInAnyOrder(
-                "editMessage: message:{numberOfDice}d{sides}\nPlease select value for **numberOfDice**, buttonValues=id1,id2,id3,id4,id5,id6,id7,id8,id9,id10",
-                "sendMessage: EmbedOrMessageDefinition(title=4d6 ⇒ 1, 1, 6, 3, descriptionOrContent=[1, 1, 6, 3], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED, userReference=true, sendToOtherChannelId=null)",
-                "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent={numberOfDice}d{sides}\nPlease select value for **numberOfDice**, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=1, id=custom_parameterid100000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=2, id=custom_parameterid200000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=3, id=custom_parameterid300000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=4, id=custom_parameterid400000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=5, id=custom_parameterid500000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)]), ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=6, id=custom_parameterid600000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=7, id=custom_parameterid700000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=8, id=custom_parameterid800000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=9, id=custom_parameterid900000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=10, id=custom_parameterid1000000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
-
-        );
-        assertThat(click3.getActions()).containsExactlyInAnyOrder(
-                "editMessage: message:invokingUser: 4d{sides}\nPlease select value for **sides**, buttonValues=id1,id2,id3,id4,id5,id6,id7,id8,clear");
-        assertThat(click4.getActions()).containsExactlyInAnyOrder(
-                "editMessage: message:processing ..., buttonValues=",
-                "sendMessage: EmbedOrMessageDefinition(title=4d6 ⇒ 3, 2, 4, 4, descriptionOrContent=[3, 2, 4, 4], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED, userReference=true, sendToOtherChannelId=null)",
-                "deleteMessageById: 2",
-                "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent={numberOfDice}d{sides}\nPlease select value for **numberOfDice**, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=1, id=custom_parameterid100000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=2, id=custom_parameterid200000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=3, id=custom_parameterid300000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=4, id=custom_parameterid400000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=5, id=custom_parameterid500000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)]), ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=6, id=custom_parameterid600000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=7, id=custom_parameterid700000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=8, id=custom_parameterid800000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=9, id=custom_parameterid900000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=10, id=custom_parameterid1000000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)",
-                "getMessagesState: [0]"
-        );
+        expect.scenario("event1").toMatchSnapshot(click1.getSortedActions());
+        expect.scenario("event2").toMatchSnapshot(click2.getSortedActions());
+        expect.scenario("event3").toMatchSnapshot(click3.getSortedActions());
+        expect.scenario("event4").toMatchSnapshot(click4.getSortedActions());
     }
 
     @Test
@@ -548,18 +413,10 @@ public class CustomParameterCommandMockTest {
         ButtonEventAdaptorMock click4 = factory.getButtonClickOnLastButtonMessage("id3");
         underTest.handleComponentInteractEvent(click4).block();
 
-        assertThat(click1.getActions()).containsExactlyInAnyOrder(
-                "editMessage: message:invokingUser: 4d{sides}\nPlease select value for **sides**, buttonValues=id1,id2,id3,id4,id5,id6,id7,id8,clear");
-        assertThat(click2.getActions()).containsExactlyInAnyOrder(
-                "editMessage: message:{numberOfDice}d{sides}\nPlease select value for **numberOfDice**, buttonValues=id1,id2,id3,id4,id5,id6,id7,id8,id9,id10",
-                "sendMessage: EmbedOrMessageDefinition(title=4d6 ⇒ 1, 1, 6, 3, descriptionOrContent=[1, 1, 6, 3], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED, userReference=true, sendToOtherChannelId=2)"
-        );
-        assertThat(click3.getActions()).containsExactlyInAnyOrder(
-                "editMessage: message:invokingUser: 4d{sides}\nPlease select value for **sides**, buttonValues=id1,id2,id3,id4,id5,id6,id7,id8,clear");
-        assertThat(click4.getActions()).containsExactlyInAnyOrder(
-                "editMessage: message:{numberOfDice}d{sides}\nPlease select value for **numberOfDice**, buttonValues=id1,id2,id3,id4,id5,id6,id7,id8,id9,id10",
-                "sendMessage: EmbedOrMessageDefinition(title=4d6 ⇒ 3, 2, 4, 4, descriptionOrContent=[3, 2, 4, 4], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED, userReference=true, sendToOtherChannelId=2)"
-        );
+        expect.scenario("event1").toMatchSnapshot(click1.getSortedActions());
+        expect.scenario("event2").toMatchSnapshot(click2.getSortedActions());
+        expect.scenario("event3").toMatchSnapshot(click3.getSortedActions());
+        expect.scenario("event4").toMatchSnapshot(click4.getSortedActions());
     }
 
     @Test

@@ -1,5 +1,7 @@
 package de.janno.discord.bot.command.customDice;
 
+import au.com.origin.snapshots.Expect;
+import au.com.origin.snapshots.junit5.SnapshotExtension;
 import com.google.common.collect.ImmutableList;
 import de.janno.discord.bot.AnswerInteractionType;
 import de.janno.discord.bot.ButtonEventAdaptorMock;
@@ -23,6 +25,7 @@ import org.h2.jdbcx.JdbcConnectionPool;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.io.File;
 import java.io.IOException;
@@ -40,8 +43,10 @@ import static de.janno.discord.bot.ButtonEventAdaptorMock.CHANNEL_ID;
 import static de.janno.discord.bot.ButtonEventAdaptorMock.GUILD_ID;
 import static org.assertj.core.api.Assertions.assertThat;
 
+@ExtendWith(SnapshotExtension.class)
 public class CustomDiceCommandMockTest {
     PersistenceManager persistenceManager;
+    private Expect expect;
 
     @BeforeEach
     void setup() throws IOException {
@@ -68,8 +73,7 @@ public class CustomDiceCommandMockTest {
 
         underTest.handleComponentInteractEvent(buttonEvent).block();
 
-        assertThat(buttonEvent.getActions()).containsExactlyInAnyOrder(
-                "reply: The button uses an old format that isn't supported anymore. Please delete it and create a new button message with a slash command.");
+        expect.toMatchSnapshot(buttonEvent.getSortedActions());
     }
 
     @Test
@@ -81,7 +85,7 @@ public class CustomDiceCommandMockTest {
         JdbcConnectionPool connectionPool = JdbcConnectionPool.create(url, null, null);
         UUID configUUID = UUID.fromString("00000000-0000-0000-0000-000000000001");
         long messageId = 0;
-        CustomDiceConfig config = new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "1d6", false, false)), AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
+        CustomDiceConfig config = new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "1d6", false, false, null)), AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
         try (Connection con = connectionPool.getConnection()) {
             try (PreparedStatement preparedStatement =
                          con.prepareStatement("INSERT INTO MESSAGE_DATA(CONFIG_ID, GUILD_ID, CHANNEL_ID, MESSAGE_ID, COMMAND_ID, STATE_CLASS_ID, STATE, CONFIG_CLASS_ID, CONFIG, CREATION_DATE) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
@@ -106,12 +110,7 @@ public class CustomDiceCommandMockTest {
 
         underTest.handleComponentInteractEvent(buttonEvent).block();
 
-        assertThat(buttonEvent.getActions()).containsExactlyInAnyOrder(
-                "editMessage: message:processing ..., buttonValues=",
-                "sendMessage: EmbedOrMessageDefinition(title=Dmg ⇒ 3, descriptionOrContent=1d6: [3], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED, userReference=true, sendToOtherChannelId=null)",
-                "deleteMessageById: 0",
-                "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click on a button to roll the dice, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=custom_dice1_button00000000-0000-0000-0000-000000000001, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
-        );
+        expect.toMatchSnapshot(buttonEvent.getSortedActions());
         assertThat(persistenceManager.getMessageConfig(configUUID)).isPresent();
         assertThat(persistenceManager.getMessageData(CHANNEL_ID, messageIdCounter.get())).isPresent();
     }
@@ -122,154 +121,110 @@ public class CustomDiceCommandMockTest {
         CustomDiceCommand underTest = new CustomDiceCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0)));
         ButtonEventAdaptorMock buttonEvent = new ButtonEventAdaptorMock("custom_dice", "1_button", new AtomicLong(0));
         UUID configUUID = UUID.fromString("00000000-0000-0000-0000-000000000001");
-        CustomDiceConfig config = new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "1d6", false, false)), AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
+        CustomDiceConfig config = new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "1d6", false, false, null)), AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
         underTest.createMessageConfig(configUUID, GUILD_ID, CHANNEL_ID, config).ifPresent(persistenceManager::saveMessageConfig);
 
 
         underTest.handleComponentInteractEvent(buttonEvent).block();
 
-        assertThat(buttonEvent.getActions()).containsExactlyInAnyOrder(
-                "reply: Configuration for the message is missing, please create a new message with the slash command `/custom_dice start`");
+        expect.toMatchSnapshot(buttonEvent.getSortedActions());
     }
 
     @Test
     void roll_diceEvaluator_full() {
         CustomDiceCommand underTest = new CustomDiceCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0)));
-        CustomDiceConfig config = new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "1d6", false, false)), AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
+        CustomDiceConfig config = new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "1d6", false, false, null)), AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
         ButtonEventAdaptorMockFactory<CustomDiceConfig, StateData> factory = new ButtonEventAdaptorMockFactory<>("custom_dice", underTest, config, persistenceManager, false);
         ButtonEventAdaptorMock buttonEvent = factory.getButtonClickOnLastButtonMessage("1_button");
 
         underTest.handleComponentInteractEvent(buttonEvent).block();
 
-        assertThat(buttonEvent.getActions()).containsExactlyInAnyOrder(
-                "editMessage: message:processing ..., buttonValues=",
-                "sendMessage: EmbedOrMessageDefinition(title=Dmg ⇒ 3, descriptionOrContent=1d6: [3], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED, userReference=true, sendToOtherChannelId=null)",
-                "deleteMessageById: 0",
-                "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click on a button to roll the dice, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=custom_dice1_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
-        );
+        expect.toMatchSnapshot(buttonEvent.getSortedActions());
     }
 
     @Test
     void roll_diceEvaluator_full_german() {
         CustomDiceCommand underTest = new CustomDiceCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0)));
-        CustomDiceConfig config = new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "1d6", false, false)), AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.GERMAN);
+        CustomDiceConfig config = new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "1d6", false, false, null)), AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.GERMAN);
         ButtonEventAdaptorMockFactory<CustomDiceConfig, StateData> factory = new ButtonEventAdaptorMockFactory<>("custom_dice", underTest, config, persistenceManager, false);
         ButtonEventAdaptorMock buttonEvent = factory.getButtonClickOnLastButtonMessage("1_button");
 
         underTest.handleComponentInteractEvent(buttonEvent).block();
 
-        assertThat(buttonEvent.getActions()).containsExactlyInAnyOrder(
-                "editMessage: message:Verarbeite ..., buttonValues=",
-                "sendMessage: EmbedOrMessageDefinition(title=Dmg ⇒ 3, descriptionOrContent=1d6: [3], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED, userReference=true, sendToOtherChannelId=null)",
-                "deleteMessageById: 0",
-                "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Klick auf einen Button um zu würfeln, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=custom_dice1_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
-        );
+        expect.toMatchSnapshot(buttonEvent.getSortedActions());
     }
 
     @Test
     void roll_diceEvaluator_full_ptBR() {
         CustomDiceCommand underTest = new CustomDiceCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0)));
-        CustomDiceConfig config = new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "1d6", false, false)), AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.of("pt", "BR"));
+        CustomDiceConfig config = new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "1d6", false, false, null)), AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.of("pt", "BR"));
         ButtonEventAdaptorMockFactory<CustomDiceConfig, StateData> factory = new ButtonEventAdaptorMockFactory<>("custom_dice", underTest, config, persistenceManager, false);
         ButtonEventAdaptorMock buttonEvent = factory.getButtonClickOnLastButtonMessage("1_button");
 
         underTest.handleComponentInteractEvent(buttonEvent).block();
 
-        assertThat(buttonEvent.getActions()).containsExactlyInAnyOrder(
-                "editMessage: message:processando ..., buttonValues=",
-                "sendMessage: EmbedOrMessageDefinition(title=Dmg ⇒ 3, descriptionOrContent=1d6: [3], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED, userReference=true, sendToOtherChannelId=null)",
-                "deleteMessageById: 0",
-                "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Clique em um botão para rolar os dados, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=custom_dice1_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
-        );
+        expect.toMatchSnapshot(buttonEvent.getSortedActions());
     }
 
     @Test
     void roll_diceEvaluator_full_with_images() {
         CustomDiceCommand underTest = new CustomDiceCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0)));
-        CustomDiceConfig config = new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "1d6", false, false)), AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v1, "black_and_gold"), Locale.ENGLISH);
+        CustomDiceConfig config = new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "1d6", false, false, null)), AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v1, "black_and_gold"), Locale.ENGLISH);
         ButtonEventAdaptorMockFactory<CustomDiceConfig, StateData> factory = new ButtonEventAdaptorMockFactory<>("custom_dice", underTest, config, persistenceManager, false);
         ButtonEventAdaptorMock buttonEvent = factory.getButtonClickOnLastButtonMessage("1_button");
 
         underTest.handleComponentInteractEvent(buttonEvent).block();
 
-        assertThat(buttonEvent.getActions()).containsExactlyInAnyOrder(
-                "editMessage: message:processing ..., buttonValues=",
-                "sendMessage: EmbedOrMessageDefinition(title=Dmg ⇒ 3, descriptionOrContent=1d6, fields=[], componentRowDefinitions=[], hasImage=true, type=EMBED, userReference=true, sendToOtherChannelId=null)",
-                "deleteMessageById: 0",
-                "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click on a button to roll the dice, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=custom_dice1_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
-        );
+        expect.toMatchSnapshot(buttonEvent.getSortedActions());
     }
 
     @Test
     void roll_diceEvaluator_onlyResult_with_images() {
         CustomDiceCommand underTest = new CustomDiceCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0)));
-        CustomDiceConfig config = new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "1d6", false, false)), AnswerFormatType.only_result, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v1, "black_and_gold"), Locale.ENGLISH);
+        CustomDiceConfig config = new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "1d6", false, false, null)), AnswerFormatType.only_result, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v1, "black_and_gold"), Locale.ENGLISH);
         ButtonEventAdaptorMockFactory<CustomDiceConfig, StateData> factory = new ButtonEventAdaptorMockFactory<>("custom_dice", underTest, config, persistenceManager, false);
         ButtonEventAdaptorMock buttonEvent = factory.getButtonClickOnLastButtonMessage("1_button");
 
         underTest.handleComponentInteractEvent(buttonEvent).block();
 
-        assertThat(buttonEvent.getActions()).containsExactlyInAnyOrder(
-                "editMessage: message:processing ..., buttonValues=",
-                "sendMessage: EmbedOrMessageDefinition(title=Dmg ⇒ 3, descriptionOrContent=null, fields=[], componentRowDefinitions=[], hasImage=true, type=EMBED, userReference=true, sendToOtherChannelId=null)",
-                "deleteMessageById: 0",
-                "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click on a button to roll the dice, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=custom_dice1_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
-        );
+        expect.toMatchSnapshot(buttonEvent.getSortedActions());
     }
 
     @Test
     void roll_diceEvaluator_onlyResult_multiResult() {
         CustomDiceCommand underTest = new CustomDiceCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0)));
-        CustomDiceConfig config = new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "1d6,2d6,3d6", false, false)), AnswerFormatType.only_result, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v1, "black_and_gold"), Locale.ENGLISH);
+        CustomDiceConfig config = new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "1d6,2d6,3d6", false, false, null)), AnswerFormatType.only_result, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v1, "black_and_gold"), Locale.ENGLISH);
         ButtonEventAdaptorMockFactory<CustomDiceConfig, StateData> factory = new ButtonEventAdaptorMockFactory<>("custom_dice", underTest, config, persistenceManager, false);
         ButtonEventAdaptorMock buttonEvent = factory.getButtonClickOnLastButtonMessage("1_button");
 
         underTest.handleComponentInteractEvent(buttonEvent).block();
 
-        assertThat(buttonEvent.getActions()).containsExactlyInAnyOrder(
-                "editMessage: message:processing ..., buttonValues=",
-                """
-                        sendMessage: EmbedOrMessageDefinition(title=Dmg, descriptionOrContent=**6**
-                        **3, 2**
-                        **3, 6, 3**, fields=[], componentRowDefinitions=[], hasImage=true, type=EMBED, userReference=true, sendToOtherChannelId=null)""",
-                "deleteMessageById: 0",
-                "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click on a button to roll the dice, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=custom_dice1_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
-        );
+        expect.toMatchSnapshot(buttonEvent.getSortedActions());
     }
 
     @Test
     void roll_diceEvaluator_onlyDice_multiResult() {
         CustomDiceCommand underTest = new CustomDiceCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0)));
-        CustomDiceConfig config = new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "1d6,2d6,3d6", false, false)), AnswerFormatType.only_dice, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v1, "black_and_gold"), Locale.ENGLISH);
+        CustomDiceConfig config = new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "1d6,2d6,3d6", false, false, null)), AnswerFormatType.only_dice, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v1, "black_and_gold"), Locale.ENGLISH);
         ButtonEventAdaptorMockFactory<CustomDiceConfig, StateData> factory = new ButtonEventAdaptorMockFactory<>("custom_dice", underTest, config, persistenceManager, false);
         ButtonEventAdaptorMock buttonEvent = factory.getButtonClickOnLastButtonMessage("1_button");
 
         underTest.handleComponentInteractEvent(buttonEvent).block();
 
-        assertThat(buttonEvent.getActions()).containsExactlyInAnyOrder(
-                "editMessage: message:processing ..., buttonValues=",
-                "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=, fields=[], componentRowDefinitions=[], hasImage=true, type=EMBED, userReference=true, sendToOtherChannelId=null)",
-                "deleteMessageById: 0",
-                "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click on a button to roll the dice, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=custom_dice1_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
-        );
+        expect.toMatchSnapshot(buttonEvent.getSortedActions());
     }
 
 
     @Test
     void roll_diceEvaluator_onlyResult_without_images() {
         CustomDiceCommand underTest = new CustomDiceCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0)));
-        CustomDiceConfig config = new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "1d6", false, false)), AnswerFormatType.only_result, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
+        CustomDiceConfig config = new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "1d6", false, false, null)), AnswerFormatType.only_result, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
         ButtonEventAdaptorMockFactory<CustomDiceConfig, StateData> factory = new ButtonEventAdaptorMockFactory<>("custom_dice", underTest, config, persistenceManager, false);
         ButtonEventAdaptorMock buttonEvent = factory.getButtonClickOnLastButtonMessage("1_button");
 
         underTest.handleComponentInteractEvent(buttonEvent).block();
 
-        assertThat(buttonEvent.getActions()).containsExactlyInAnyOrder(
-                "editMessage: message:processing ..., buttonValues=",
-                "sendMessage: EmbedOrMessageDefinition(title=Dmg ⇒ 3, descriptionOrContent=null, fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED, userReference=true, sendToOtherChannelId=null)",
-                "deleteMessageById: 0",
-                "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click on a button to roll the dice, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=custom_dice1_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
-        );
+        expect.toMatchSnapshot(buttonEvent.getSortedActions());
     }
 
     @Test
@@ -277,78 +232,59 @@ public class CustomDiceCommandMockTest {
         CustomDiceCommand underTest = new CustomDiceCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0)));
 
 
-        CustomDiceConfig config = new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "1d100", false, false)), AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v1, "black_and_gold"), Locale.ENGLISH);
+        CustomDiceConfig config = new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "1d100", false, false, null)), AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v1, "black_and_gold"), Locale.ENGLISH);
         ButtonEventAdaptorMockFactory<CustomDiceConfig, StateData> factory = new ButtonEventAdaptorMockFactory<>("custom_dice", underTest, config, persistenceManager, false);
         ButtonEventAdaptorMock buttonEvent = factory.getButtonClickOnLastButtonMessage("1_button");
 
         underTest.handleComponentInteractEvent(buttonEvent).block();
 
-        assertThat(buttonEvent.getActions()).containsExactlyInAnyOrder(
-                "editMessage: message:processing ..., buttonValues=",
-                "sendMessage: EmbedOrMessageDefinition(title=Dmg ⇒ 73, descriptionOrContent=1d100, fields=[], componentRowDefinitions=[], hasImage=true, type=EMBED, userReference=true, sendToOtherChannelId=null)",
-                "deleteMessageById: 0",
-                "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click on a button to roll the dice, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=custom_dice1_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
-        );
+        expect.toMatchSnapshot(buttonEvent.getSortedActions());
     }
 
     @Test
     void roll_diceEvaluator_compact() {
         CustomDiceCommand underTest = new CustomDiceCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0)));
 
-        CustomDiceConfig config = new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "1d6", false, false)), AnswerFormatType.compact, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
+        CustomDiceConfig config = new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "1d6", false, false, null)), AnswerFormatType.compact, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
         ButtonEventAdaptorMockFactory<CustomDiceConfig, StateData> factory = new ButtonEventAdaptorMockFactory<>("custom_dice", underTest, config, persistenceManager, false);
         ButtonEventAdaptorMock buttonEvent = factory.getButtonClickOnLastButtonMessage("1_button");
 
         underTest.handleComponentInteractEvent(buttonEvent).block();
 
-        assertThat(buttonEvent.getActions()).containsExactlyInAnyOrder(
-                "editMessage: message:processing ..., buttonValues=",
-                "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=__**Dmg ⇒ 3**__  1d6: [3], fields=[], componentRowDefinitions=[], hasImage=false, type=MESSAGE, userReference=true, sendToOtherChannelId=null)",
-                "deleteMessageById: 0",
-                "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click on a button to roll the dice, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=custom_dice1_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
-        );
+        expect.toMatchSnapshot(buttonEvent.getSortedActions());
     }
 
     @Test
     void roll_diceEvaluator_minimal() {
         CustomDiceCommand underTest = new CustomDiceCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0)));
 
-        CustomDiceConfig config = new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "1d6", false, false)), AnswerFormatType.minimal, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
+        CustomDiceConfig config = new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "1d6", false, false, null)), AnswerFormatType.minimal, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
         ButtonEventAdaptorMockFactory<CustomDiceConfig, StateData> factory = new ButtonEventAdaptorMockFactory<>("custom_dice", underTest, config, persistenceManager, false);
         ButtonEventAdaptorMock buttonEvent = factory.getButtonClickOnLastButtonMessage("1_button");
 
         underTest.handleComponentInteractEvent(buttonEvent).block();
 
-        assertThat(buttonEvent.getActions()).containsExactlyInAnyOrder(
-                "editMessage: message:processing ..., buttonValues=",
-                "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Dmg ⇒ 3, fields=[], componentRowDefinitions=[], hasImage=false, type=MESSAGE, userReference=true, sendToOtherChannelId=null)",
-                "deleteMessageById: 0",
-                "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click on a button to roll the dice, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=custom_dice1_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
-        );
+        expect.toMatchSnapshot(buttonEvent.getSortedActions());
     }
 
     @Test
     void roll_pinned() {
         CustomDiceCommand underTest = new CustomDiceCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0)));
 
-        CustomDiceConfig config = new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "1d6", false, false)), AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
+        CustomDiceConfig config = new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "1d6", false, false, null)), AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
         ButtonEventAdaptorMockFactory<CustomDiceConfig, StateData> factory = new ButtonEventAdaptorMockFactory<>("custom_dice", underTest, config, persistenceManager, true);
         ButtonEventAdaptorMock buttonEvent = factory.getButtonClickOnLastButtonMessage("1_button");
 
         underTest.handleComponentInteractEvent(buttonEvent).block();
 
-        assertThat(buttonEvent.getActions()).containsExactlyInAnyOrder(
-                "editMessage: message:Click on a button to roll the dice, buttonValues=1_button",
-                "sendMessage: EmbedOrMessageDefinition(title=Dmg ⇒ 3, descriptionOrContent=1d6: [3], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED, userReference=true, sendToOtherChannelId=null)",
-                "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click on a button to roll the dice, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=custom_dice1_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
-        );
+        expect.toMatchSnapshot(buttonEvent.getSortedActions());
     }
 
     @Test
     void roll_pinnedTwice() {
         CustomDiceCommand underTest = new CustomDiceCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0)));
 
-        CustomDiceConfig config = new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "1d6", false, false)), AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
+        CustomDiceConfig config = new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "1d6", false, false, null)), AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
         ButtonEventAdaptorMockFactory<CustomDiceConfig, StateData> factory = new ButtonEventAdaptorMockFactory<>("custom_dice", underTest, config, persistenceManager, true);
 
         ButtonEventAdaptorMock buttonEvent1 = factory.getButtonClickOnLastButtonMessage("1_button");
@@ -356,18 +292,9 @@ public class CustomDiceCommandMockTest {
         ButtonEventAdaptorMock buttonEvent2 = factory.getButtonClickOnLastButtonMessage("1_button");
         underTest.handleComponentInteractEvent(buttonEvent2).block();
 
-        assertThat(buttonEvent1.getActions()).containsExactlyInAnyOrder(
-                "editMessage: message:Click on a button to roll the dice, buttonValues=1_button",
-                "sendMessage: EmbedOrMessageDefinition(title=Dmg ⇒ 3, descriptionOrContent=1d6: [3], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED, userReference=true, sendToOtherChannelId=null)",
-                "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click on a button to roll the dice, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=custom_dice1_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
-        );
+        expect.scenario("event1").toMatchSnapshot(buttonEvent1.getSortedActions());
 
-        assertThat(buttonEvent2.getActions()).containsExactlyInAnyOrder(
-                "editMessage: message:processing ..., buttonValues=",
-                "sendMessage: EmbedOrMessageDefinition(title=Dmg ⇒ 4, descriptionOrContent=1d6: [4], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED, userReference=true, sendToOtherChannelId=null)",
-                "deleteMessageById: 2",
-                "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click on a button to roll the dice, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=custom_dice1_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)",
-                "getMessagesState: [0]");
+        expect.scenario("event2").toMatchSnapshot(buttonEvent2.getSortedActions());
     }
 
     @Test
@@ -383,9 +310,7 @@ public class CustomDiceCommandMockTest {
                 .build()));
         underTest.handleSlashCommandEvent(slashEvent, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"), Locale.ENGLISH).block();
 
-        assertThat(slashEvent.getActions()).containsExactlyInAnyOrder(
-                "reply: commandString",
-                "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click on a button to roll the dice, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=1d6, id=custom_dice1_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=Attack, id=custom_dice2_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=3d10,3d10,3d10, id=custom_dice3_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)");
+        expect.toMatchSnapshot(slashEvent.getSortedActions());
     }
 
     @Test
@@ -401,25 +326,12 @@ public class CustomDiceCommandMockTest {
                 .build()));
         underTest.handleSlashCommandEvent(slashEvent, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"), Locale.ENGLISH).block();
 
-        assertThat(slashEvent.getActions()).containsExactlyInAnyOrder(
-                "reply: commandString",
-                "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click on a button to roll the dice, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=d[a b c, d,e ], id=custom_dice1_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=Attack Down, id=custom_dice2_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=3d10,3d10,3d10, id=custom_dice3_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
-        );
+        expect.scenario("event1").toMatchSnapshot(slashEvent.getSortedActions());
 
         Optional<ButtonEventAdaptorMock> buttonEventAdaptorMock = slashEvent.getFirstButtonEventMockOfLastButtonMessage();
         assertThat(buttonEventAdaptorMock).isPresent();
         underTest.handleComponentInteractEvent(buttonEventAdaptorMock.get()).block();
-        assertThat(buttonEventAdaptorMock.get().getActions()).containsExactlyInAnyOrder(
-                "editMessage: message:processing ..., buttonValues=",
-                """
-                        sendMessage: EmbedOrMessageDefinition(title=d[a b c, d,e ] ⇒ e, descriptionOrContent=d[a
-                        b
-                        c,
-                        d,e
-                        ]: [e], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED, userReference=true, sendToOtherChannelId=null)""",
-                "deleteMessageById: 1",
-                "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click on a button to roll the dice, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=d[a b c, d,e ], id=custom_dice1_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=Attack Down, id=custom_dice2_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=3d10,3d10,3d10, id=custom_dice3_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
-        );
+        expect.scenario("event2").toMatchSnapshot(buttonEventAdaptorMock.get().getSortedActions());
     }
 
     @Test
@@ -435,9 +347,7 @@ public class CustomDiceCommandMockTest {
                 .build()));
         underTest.handleSlashCommandEvent(slashEvent, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"), Locale.ENGLISH).block();
 
-        assertThat(slashEvent.getActions()).containsExactlyInAnyOrder(
-                "reply: commandString `3`: did not contain any random element, try for Example `d20` to roll a 20 sided die, `'a'`: did not contain any random element, try for Example `d20` to roll a 20 sided die",
-                "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click on a button to roll the dice, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=1d6, id=custom_dice1_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=Attack, id=custom_dice2_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=3d10,3d10,3d10, id=custom_dice3_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label=3, id=custom_dice4_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false), ButtonDefinition(label='a', id=custom_dice5_button00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)");
+        expect.toMatchSnapshot(slashEvent.getSortedActions());
     }
 
     @Test
@@ -457,23 +367,20 @@ public class CustomDiceCommandMockTest {
                 .build()));
         underTest.handleSlashCommandEvent(slashEvent, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"), Locale.ENGLISH).block();
 
-        assertThat(slashEvent.getActions()).containsExactlyInAnyOrder("reply: The answer target channel must be not the same as the current channel, keep this option empty if the answer should appear in this channel");
+        expect.toMatchSnapshot(slashEvent.getSortedActions());
     }
 
     @Test
     void roll_answerChannel() {
         CustomDiceCommand underTest = new CustomDiceCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0)));
 
-        CustomDiceConfig config = new CustomDiceConfig(2L, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "1d6", false, false)), AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
+        CustomDiceConfig config = new CustomDiceConfig(2L, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "1d6", false, false, null)), AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
         ButtonEventAdaptorMockFactory<CustomDiceConfig, StateData> factory = new ButtonEventAdaptorMockFactory<>("custom_dice", underTest, config, persistenceManager, false);
         ButtonEventAdaptorMock buttonEvent = factory.getButtonClickOnLastButtonMessage("1_button");
 
         underTest.handleComponentInteractEvent(buttonEvent).block();
 
-        assertThat(buttonEvent.getActions()).containsExactlyInAnyOrder(
-                "editMessage: message:Click on a button to roll the dice, buttonValues=1_button",
-                "sendMessage: EmbedOrMessageDefinition(title=Dmg ⇒ 3, descriptionOrContent=1d6: [3], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED, userReference=true, sendToOtherChannelId=2)"
-        );
+        expect.toMatchSnapshot(buttonEvent.getSortedActions());
     }
 
     @Test
@@ -482,7 +389,7 @@ public class CustomDiceCommandMockTest {
         CachingDiceEvaluator cachingDiceEvaluator = new CachingDiceEvaluator(new RandomNumberSupplier(0));
         CustomDiceCommand underTest = new CustomDiceCommand(persistenceManager, cachingDiceEvaluator);
 
-        CustomDiceConfig config = new CustomDiceConfig(2L, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "1d6", false, false)), AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
+        CustomDiceConfig config = new CustomDiceConfig(2L, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "1d6", false, false, null)), AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
         ButtonEventAdaptorMockFactory<CustomDiceConfig, StateData> factory = new ButtonEventAdaptorMockFactory<>("custom_dice", underTest, config, persistenceManager, false);
 
         ButtonEventAdaptorMock buttonEvent1 = factory.getButtonClickOnLastButtonMessage("1_button");
@@ -491,14 +398,8 @@ public class CustomDiceCommandMockTest {
         ButtonEventAdaptorMock buttonEvent2 = factory.getButtonClickOnLastButtonMessage("1_button");
         underTest.handleComponentInteractEvent(buttonEvent2).block();
         assertThat(cachingDiceEvaluator.getCacheSize()).isEqualTo(1);
-        assertThat(buttonEvent1.getActions()).containsExactlyInAnyOrder(
-                "editMessage: message:Click on a button to roll the dice, buttonValues=1_button",
-                "sendMessage: EmbedOrMessageDefinition(title=Dmg ⇒ 3, descriptionOrContent=1d6: [3], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED, userReference=true, sendToOtherChannelId=2)"
-        );
-        assertThat(buttonEvent2.getActions()).containsExactlyInAnyOrder(
-                "editMessage: message:Click on a button to roll the dice, buttonValues=1_button",
-                "sendMessage: EmbedOrMessageDefinition(title=Dmg ⇒ 1, descriptionOrContent=1d6: [1], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED, userReference=true, sendToOtherChannelId=2)"
-        );
+        expect.scenario("event1").toMatchSnapshot(buttonEvent1.getSortedActions());
+        expect.scenario("event2").toMatchSnapshot(buttonEvent2.getSortedActions());
     }
 
     @Test
@@ -519,16 +420,13 @@ public class CustomDiceCommandMockTest {
         channelConfig.handleSlashCommandEvent(slashEvent1, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"), Locale.ENGLISH).block();
 
 
-        CustomDiceConfig config = new CustomDiceConfig(2L, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "att", false, false)), AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
+        CustomDiceConfig config = new CustomDiceConfig(2L, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "att", false, false, null)), AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
         ButtonEventAdaptorMockFactory<CustomDiceConfig, StateData> factory = new ButtonEventAdaptorMockFactory<>("custom_dice", underTest, config, persistenceManager, false);
         ButtonEventAdaptorMock buttonEvent = factory.getButtonClickOnLastButtonMessage("1_button");
 
         underTest.handleComponentInteractEvent(buttonEvent).block();
 
-        assertThat(buttonEvent.getActions()).containsExactlyInAnyOrder(
-                "editMessage: message:Click on a button to roll the dice, buttonValues=1_button",
-                "sendMessage: EmbedOrMessageDefinition(title=Dmg ⇒ 11, 10, 10, descriptionOrContent=2d20+10: [11, 10], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED, userReference=true, sendToOtherChannelId=2)"
-        );
+        expect.toMatchSnapshot(buttonEvent.getSortedActions());
     }
 
     @Test
@@ -549,15 +447,12 @@ public class CustomDiceCommandMockTest {
         channelConfig.handleSlashCommandEvent(slashEvent1, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"), Locale.ENGLISH).block();
 
 
-        CustomDiceConfig config = new CustomDiceConfig(2L, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "att", false, false)), AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
+        CustomDiceConfig config = new CustomDiceConfig(2L, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "att", false, false, null)), AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
         ButtonEventAdaptorMockFactory<CustomDiceConfig, StateData> factory = new ButtonEventAdaptorMockFactory<>("custom_dice", underTest, config, persistenceManager, false);
         ButtonEventAdaptorMock buttonEvent = factory.getButtonClickOnLastButtonMessage("1_button");
 
         underTest.handleComponentInteractEvent(buttonEvent).block();
 
-        assertThat(buttonEvent.getActions()).containsExactlyInAnyOrder(
-                "editMessage: message:Click on a button to roll the dice, buttonValues=1_button",
-                "sendMessage: EmbedOrMessageDefinition(title=Dmg ⇒ 11, 10, 10, descriptionOrContent=2d20+10: [11, 10], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED, userReference=true, sendToOtherChannelId=2)"
-        );
+        expect.toMatchSnapshot(buttonEvent.getSortedActions());
     }
 }
