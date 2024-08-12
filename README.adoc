@@ -363,6 +363,15 @@ Valid for d6 and the supported color are: `red` and `blue`.
 
 The dice image are from SeaGoatGames
 
+==== Marvel V2
+
+image:image/D6MarvelV2_red.png[image,600]
+image:image/D6MarvelV2_white.png[image,600]
+
+Valid for d6 and the supported color are: `red` and `white`.
+
+The dice image created by TheRedSoup
+
 === Answer Interaction
 
 Answer interaction option allow to change/interact with the result of a roll.
@@ -553,6 +562,7 @@ For example `/h expression:3d6` will simply roll 3d6 and show only the current u
 The result of the dice will be summed up per default.
 The output can be configured with the `channel_config` command.
 
+[#_channel_config]
 === Channel Config
 
 This command is used create a channel specific configuration.
@@ -739,7 +749,8 @@ All functions are case insensitiv.
 * Special thank to http://scriptarium.org[scriptarium.org]for the design of the  `polyhedral_RdD` dice images
 * Special thank to https://github.com/igorteuri[igorteuri] for the brazilian prologuise translation
 * Special thanks to https://github.com/Swiip[Matthieu Lux] for help with the `expance` dice images implementation and with the French translation
-* Special thank to SeaGoatGames for the design of the `marvel` dice images
+* Special thank to SeaGoatGames for the design of the `d6_marvel` dice images
+* Special thank to TheRedSoup for the design of the `d6_marvel_v2` dice images
 * The `polyhedral_3d` dice images where adapted from https://blendswap.com/blend/16634
 * The `d6_dot` in `white` dice images are from https://game-icons.net/
 * The `d6_dot` in `black_and_gold` dice images are adapted from https://speakthesky.itch.io/typeface-dicier and the Infinite Revolution RPG

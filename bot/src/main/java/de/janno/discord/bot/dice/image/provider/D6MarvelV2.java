@@ -4,13 +4,14 @@ import lombok.NonNull;
 
 import java.util.List;
 
-public class D6Dotted extends AbstractD6 {
+public class D6MarvelV2 extends AbstractD6 {
 
     public static final String WHITE = "white";
-    public static final String BLACK_AND_GOLD = "black_and_gold";
+    public static final String RED = "red";
 
-    public D6Dotted() {
-        super("dotted_");
+
+    public D6MarvelV2() {
+        super("marvel_v2_");
     }
 
     @Override
@@ -20,6 +21,8 @@ public class D6Dotted extends AbstractD6 {
 
     @Override
     public @NonNull List<String> getSupportedColors() {
-        return List.of(WHITE, BLACK_AND_GOLD);
+        return List.of(WHITE, RED);
     }
+
+
 }
