@@ -15,6 +15,7 @@ import de.janno.discord.bot.command.sumCustomSet.SumCustomSetConfig;
 import de.janno.discord.bot.dice.image.DiceImageStyle;
 import de.janno.discord.bot.dice.image.DiceStyleAndColor;
 import de.janno.discord.bot.dice.image.provider.D6Dotted;
+import de.janno.discord.bot.dice.image.provider.D6MarvelV2;
 import de.janno.discord.bot.dice.image.provider.PolyhedralSvgWithColor;
 import de.janno.discord.bot.persistance.PersistenceManager;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
@@ -168,8 +169,9 @@ public class RpgSystemCommandPreset {
             case HEROES_OF_CERULEA ->
                     new CustomDiceConfig(null, ButtonHelper.parseString(I18n.getMessage("rpg.system.command.preset.HEROES_OF_CERULEA.expression", userLocale)),
                             AnswerFormatType.without_expression, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_3d, DiceImageStyle.polyhedral_3d.getDefaultColor()), userLocale);
+            //custom_parameter start expression: val('$fRoll',1d6 col 'white')  val('$mRoll',1d6 col 'red') val('$rRoll',1d6 col 'white') val('$modi',{Modificator:-3<=>9}) if(('$fRoll' + '$mRoll' + '$rRoll'=) =? 3,val('$res','$fRoll' + '$mRoll' + '$rRoll'), val('$res','$fRoll' + replace('$mRoll',1,6) + '$rRoll')) val('$total', '$res' + '$modi'=)  val('$resTotal','$res' _ ' = ' _ '$total')  if('$mRoll'=?1, if(('$fRoll' + '$rRoll'=) =? 12,'$resTotal' _ ' Ultra Fantastic!', ('$fRoll' + '$rRoll'=) =? 2, '$resTotal' _ ' Botch!', '$resTotal' _' Fantastic!'), '$resTotal') answer_format: without_expression dice_image_style: d6_marvel_v2 dice_image_color: white
             case MARVEL ->
-                    new CustomParameterConfig(null, I18n.getMessage("rpg.system.command.preset.MARVEL.expression", userLocale), AnswerFormatType.without_expression, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.d6_marvel, "blue"), userLocale);
+                    new CustomParameterConfig(null, I18n.getMessage("rpg.system.command.preset.MARVEL.expression", userLocale), AnswerFormatType.without_expression, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.d6_marvel_v2, D6MarvelV2.WHITE), userLocale);
             case DND5_CALC2 ->
                     new SumCustomSetConfig(null, ButtonHelper.parseString(I18n.getMessage("rpg.system.command.preset.DND5_CALC2.expression", userLocale)), true, true, false, null, null, AnswerFormatType.without_expression, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v2, "blue_and_silver"), userLocale);
             case PBTA ->

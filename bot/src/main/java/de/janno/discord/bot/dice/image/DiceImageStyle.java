@@ -25,6 +25,7 @@ public enum DiceImageStyle {
     d6_dots(new D6Dotted()),
     expanse(new Expanse()),
     d6_marvel(new D6Marvel()),
+    d6_marvel_v2(new D6MarvelV2()),
     polyhedral_2d(new PolyhedralSvgWithColor()),
     polyhedral_alies_v1(new PolyhedralFileImageProvider("polyhedral_alies_v1", List.of("black_and_gold"), "black_and_gold"));
 

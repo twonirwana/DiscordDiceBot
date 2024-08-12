@@ -67,7 +67,8 @@ class ImageResultCreatorTest {
                 Arguments.of(DiceImageStyle.fate, List.of(-1, 0, 1)),
                 Arguments.of(DiceImageStyle.d6_dots, List.of(6)),
                 Arguments.of(DiceImageStyle.expanse, List.of(6)),
-                Arguments.of(DiceImageStyle.d6_marvel, List.of(6))
+                Arguments.of(DiceImageStyle.d6_marvel, List.of(6)),
+                Arguments.of(DiceImageStyle.d6_marvel_v2, List.of(6))
         );
     }
 
@@ -595,6 +596,27 @@ class ImageResultCreatorTest {
 
         assertThat(res).isNotNull();
         assertThat(getDataHash(res)).isEqualTo("bef02d399cfabbb7c5396af3d555206e07287deba7a281fca90e501f489f7279");
+    }
+    @Test
+    void getImageForRoll_marvelV2_white() throws ExpressionException, IOException {
+        RollResult rolls = new DiceEvaluator(new GivenNumberSupplier(1, 2, 3, 4, 5, 6), 1000, 10_000, true).evaluate("6d6");
+
+        Supplier<? extends InputStream> res = underTest.getImageForRoll(rolls, new DiceStyleAndColor(DiceImageStyle.d6_marvel_v2, "white"));
+
+        assertThat(res).isNotNull();
+        assertThat(getDataHash(res)).isEqualTo("ff342ac3bf8c5bc7cf70ac55b904718ae7bb1346267445dc131619fb44f731a2");
+    }
+
+
+
+    @Test
+    void getImageForRoll_marvelV2_red() throws ExpressionException, IOException {
+        RollResult rolls = new DiceEvaluator(new GivenNumberSupplier(1, 2, 3, 4, 5, 6), 1000, 10_000, true).evaluate("6d6");
+
+        Supplier<? extends InputStream> res = underTest.getImageForRoll(rolls, new DiceStyleAndColor(DiceImageStyle.d6_marvel_v2, "red"));
+
+        assertThat(res).isNotNull();
+        assertThat(getDataHash(res)).isEqualTo("685c2cc816eb9355d92100c01ea5bfc5cf6a908045c2846ed0d78b08ed8460d5");
     }
 
 

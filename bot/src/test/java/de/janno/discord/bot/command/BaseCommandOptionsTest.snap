@@ -142,6 +142,78 @@ de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption[d6_m
 ]
 
 
+de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption[d6_marvel_v2_de]=[
+  [
+    {
+      "name": "white",
+      "value": "white"
+    },
+    {
+      "name": "red",
+      "value": "red"
+    },
+    {
+      "name": "none",
+      "value": "none"
+    }
+  ]
+]
+
+
+de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption[d6_marvel_v2_en]=[
+  [
+    {
+      "name": "white",
+      "value": "white"
+    },
+    {
+      "name": "red",
+      "value": "red"
+    },
+    {
+      "name": "none",
+      "value": "none"
+    }
+  ]
+]
+
+
+de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption[d6_marvel_v2_fr]=[
+  [
+    {
+      "name": "white",
+      "value": "white"
+    },
+    {
+      "name": "red",
+      "value": "red"
+    },
+    {
+      "name": "none",
+      "value": "none"
+    }
+  ]
+]
+
+
+de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption[d6_marvel_v2_pt_BR]=[
+  [
+    {
+      "name": "white",
+      "value": "white"
+    },
+    {
+      "name": "red",
+      "value": "red"
+    },
+    {
+      "name": "none",
+      "value": "none"
+    }
+  ]
+]
+
+
 de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption[expanse_de]=[
   [
     {

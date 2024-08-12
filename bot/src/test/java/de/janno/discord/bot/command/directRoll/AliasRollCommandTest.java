@@ -34,8 +34,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 @ExtendWith(SnapshotExtension.class)
 
 public class AliasRollCommandTest {
-    private PersistenceManager persistenceManager;
     Expect expect;
+    private PersistenceManager persistenceManager;
     private AliasRollCommand underTest;
 
     static Stream<Arguments> generateAllLocaleData() {
@@ -124,7 +124,7 @@ public class AliasRollCommandTest {
                 1L,
                 "channel_config",
                 USER_ALIAS_CONFIG_TYPE_ID,
-                Mapper.serializedObject(new AliasConfig(List.of(new Alias("a", "1d6", Alias.Type.Replace), new Alias("b", "2d6", Alias.Type.Replace))))));
+                Mapper.serializedObject(new AliasConfig(List.of(new Alias("a", "1d6", Alias.Type.Replace), new Alias("aa", "1d6", Alias.Type.Regex), new Alias("b", "2d6", Alias.Type.Replace))))));
 
         persistenceManager.saveChannelConfig(new ChannelConfigDTO(UUID.randomUUID(),
                 1L,
@@ -132,7 +132,7 @@ public class AliasRollCommandTest {
                 null,
                 "channel_config",
                 CHANNEL_ALIAS_CONFIG_TYPE_ID,
-                Mapper.serializedObject(new AliasConfig(List.of(new Alias("b", "1d8", Alias.Type.Replace), new Alias("c", "2d8", Alias.Type.Replace))))));
+                Mapper.serializedObject(new AliasConfig(List.of(new Alias("b", "1d8", Alias.Type.Replace), new Alias("bb", "1d8", Alias.Type.Regex), new Alias("c", "2d8", Alias.Type.Replace))))));
 
         persistenceManager.saveChannelConfig(new ChannelConfigDTO(UUID.randomUUID(),
                 1L,

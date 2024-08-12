@@ -167,6 +167,11 @@ de.janno.discord.bot.command.channelConfig.ChannelConfigTest.getCommandDefinitio
                 "nameLocales": [ ]
               },
               {
+                "name": "d6_marvel_v2",
+                "value": "d6_marvel_v2",
+                "nameLocales": [ ]
+              },
+              {
                 "name": "polyhedral_2d",
                 "value": "polyhedral_2d",
                 "nameLocales": [ ]
