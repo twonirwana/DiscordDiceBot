@@ -169,9 +169,9 @@ public class RpgSystemCommandPreset {
             case HEROES_OF_CERULEA ->
                     new CustomDiceConfig(null, ButtonHelper.parseString(I18n.getMessage("rpg.system.command.preset.HEROES_OF_CERULEA.expression", userLocale)),
                             AnswerFormatType.without_expression, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_3d, DiceImageStyle.polyhedral_3d.getDefaultColor()), userLocale);
-            //custom_parameter start expression: val('$fRoll',1d6 col 'white')  val('$mRoll',1d6 col 'red') val('$rRoll',1d6 col 'white') val('$modi',{Modificator:-3<=>9}) if(('$fRoll' + '$mRoll' + '$rRoll'=) =? 3,val('$res','$fRoll' + '$mRoll' + '$rRoll'), val('$res','$fRoll' + replace('$mRoll',1,6) + '$rRoll')) val('$total', '$res' + '$modi'=)  val('$resTotal','$res' _ ' = ' _ '$total')  if('$mRoll'=?1, if(('$fRoll' + '$rRoll'=) =? 12,'$resTotal' _ ' Ultra Fantastic!', ('$fRoll' + '$rRoll'=) =? 2, '$resTotal' _ ' Botch!', '$resTotal' _' Fantastic!'), '$resTotal') answer_format: without_expression dice_image_style: d6_marvel_v2 dice_image_color: white
+            //custom_parameter start expression: val('$fRoll',1d6 col 'white')  val('$mRoll',1d6 col 'red') val('$rRoll',1d6 col 'white') val('$modi',{Modificator:-3<=>9}) if(('$fRoll' + '$mRoll' + '$rRoll'=) =? 3,val('$res','$fRoll' + '$mRoll' + '$rRoll'), val('$res','$fRoll' + replace('$mRoll',1,6) + '$rRoll')) val('$total', '$res' + '$modi'=)  val('$resTotal','$res' _ ' = ' _ '$total')  if('$mRoll'=?1, if(('$fRoll' + '$rRoll'=) =? 12,'$resTotal' _ ' Ultra Fantastic!', ('$fRoll' + '$rRoll'=) =? 2, '$resTotal' _ ' Botch!', '$resTotal' _' Fantastic!'), '$resTotal') answer_format: without_expression dice_image_style: d6_marvel_v2 dice_image_color: white answer_interaction: reroll
             case MARVEL ->
-                    new CustomParameterConfig(null, I18n.getMessage("rpg.system.command.preset.MARVEL.expression", userLocale), AnswerFormatType.without_expression, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.d6_marvel_v2, D6MarvelV2.WHITE), userLocale);
+                    new CustomParameterConfig(null, I18n.getMessage("rpg.system.command.preset.MARVEL.expression", userLocale), AnswerFormatType.without_expression, AnswerInteractionType.reroll, null, new DiceStyleAndColor(DiceImageStyle.d6_marvel_v2, D6MarvelV2.WHITE), userLocale);
             case DND5_CALC2 ->
                     new SumCustomSetConfig(null, ButtonHelper.parseString(I18n.getMessage("rpg.system.command.preset.DND5_CALC2.expression", userLocale)), true, true, false, null, null, AnswerFormatType.without_expression, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v2, "blue_and_silver"), userLocale);
             case PBTA ->
@@ -235,6 +235,9 @@ public class RpgSystemCommandPreset {
             // (?<numberOfDice>\\\\d+)b::val('diceRoll', if(${numberOfDice}=?0,2d6L1, ${numberOfDice}d6)) val('sixes','diceRoll'==6c) val('partials','diceRoll'>3<6c) if('sixes'>?1,'Critical Success - You do it with increased effect.', 'sixes'=?1,'Success - You do it.','partials' >? 0,'Partial Success - You do it but suffer severe harm, a serious complication or have reduced effect.','Failure - You suffer severe harm, a serious complication occurs, or you lose this opportunity for action.')@${numberOfDice} Dice
             case BLADES_IN_THE_DARK_ALIAS ->
                     new AliasConfig(ChannelConfigCommand.parseStringToMultiAliasList(I18n.getMessage("rpg.system.command.preset.BLADES_IN_THE_DARK_ALIAS.expression", userLocale)));
+            case CYBERPUNK_RED_ALIAS ->
+                    new AliasConfig(ChannelConfigCommand.parseStringToMultiAliasList(I18n.getMessage("rpg.system.command.preset.CYBERPUNK_RED_ALIAS.expression", userLocale)));
+
         };
     }
 
@@ -349,7 +352,8 @@ public class RpgSystemCommandPreset {
         IRONSWORN,
         SALVAGE_UNION,
         FALLOUT,
-        FORBIDDEN_LANDS;
+        FORBIDDEN_LANDS,
+        CYBERPUNK_RED_ALIAS;
 
         public static boolean isValid(String in) {
             return Arrays.stream(PresetId.values()).anyMatch(s -> s.name().equals(in));

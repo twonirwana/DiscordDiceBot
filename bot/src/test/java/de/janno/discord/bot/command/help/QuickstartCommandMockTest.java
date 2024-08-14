@@ -5,6 +5,7 @@ import au.com.origin.snapshots.junit5.SnapshotExtension;
 import de.janno.discord.bot.ButtonEventAdaptorMock;
 import de.janno.discord.bot.I18n;
 import de.janno.discord.bot.SlashEventAdaptorMock;
+import de.janno.discord.bot.command.IncrementingUUIDSupplier;
 import de.janno.discord.bot.command.channelConfig.AliasHelper;
 import de.janno.discord.bot.command.channelConfig.ChannelConfigCommand;
 import de.janno.discord.bot.command.customDice.CustomDiceCommand;
@@ -26,6 +27,7 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.util.*;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -146,9 +148,10 @@ public class QuickstartCommandMockTest {
     void config2CommandString_slashCommand_firstButton(RpgSystemCommandPreset.PresetId presetId, Locale userLocale) {
         PersistenceManager persistenceManager = new PersistenceManagerImpl("jdbc:h2:mem:" + UUID.randomUUID(), null, null);
         CachingDiceEvaluator cachingDiceEvaluator = new CachingDiceEvaluator((minExcl, maxIncl) -> minExcl + 1);
-        CustomDiceCommand customDiceCommand = new CustomDiceCommand(persistenceManager, cachingDiceEvaluator);
-        CustomParameterCommand customParameterCommand = new CustomParameterCommand(persistenceManager, cachingDiceEvaluator);
-        SumCustomSetCommand sumCustomSetCommand = new SumCustomSetCommand(persistenceManager, cachingDiceEvaluator);
+        Supplier<UUID> uuidSupplier = IncrementingUUIDSupplier.create();
+        CustomDiceCommand customDiceCommand = new CustomDiceCommand(persistenceManager, cachingDiceEvaluator, uuidSupplier);
+        CustomParameterCommand customParameterCommand = new CustomParameterCommand(persistenceManager, cachingDiceEvaluator, uuidSupplier);
+        SumCustomSetCommand sumCustomSetCommand = new SumCustomSetCommand(persistenceManager, cachingDiceEvaluator, uuidSupplier);
         ChannelConfigCommand channelConfigCommand = new ChannelConfigCommand(persistenceManager);
 
         String command = RpgSystemCommandPreset.getCommandString(presetId, userLocale);
@@ -160,21 +163,21 @@ public class QuickstartCommandMockTest {
                     .name("start")
                     .options(getOptionsFromString(commandOptions, customDiceCommand))
                     .build()), userLocale);
-            slashRes = customDiceCommand.handleSlashCommandEvent(slashEventAdaptor, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"), userLocale);
+            slashRes = customDiceCommand.handleSlashCommandEvent(slashEventAdaptor, uuidSupplier, userLocale);
         } else if (command.startsWith("/custom_parameter start")) {
             String commandOptions = command.substring(23);
             slashEventAdaptor = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
                     .name("start")
                     .options(getOptionsFromString(commandOptions, customParameterCommand))
                     .build()), userLocale);
-            slashRes = customParameterCommand.handleSlashCommandEvent(slashEventAdaptor, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"), userLocale);
+            slashRes = customParameterCommand.handleSlashCommandEvent(slashEventAdaptor, uuidSupplier, userLocale);
         } else if (command.startsWith("/sum_custom_set start")) {
             String commandOptions = command.substring(21);
             slashEventAdaptor = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
                     .name("start")
                     .options(getOptionsFromString(commandOptions, sumCustomSetCommand))
                     .build()), userLocale);
-            slashRes = sumCustomSetCommand.handleSlashCommandEvent(slashEventAdaptor, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"), userLocale);
+            slashRes = sumCustomSetCommand.handleSlashCommandEvent(slashEventAdaptor, uuidSupplier, userLocale);
         } else if (command.startsWith("/channel_config alias multi_save aliases")) {
             String aliases = command.substring(41, command.indexOf("scope:") - 1);
             slashEventAdaptor = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
@@ -191,7 +194,7 @@ public class QuickstartCommandMockTest {
                             .stringValue("all_users_in_this_channel")
                             .build())
                     .build()), userLocale);
-            slashRes = channelConfigCommand.handleSlashCommandEvent(slashEventAdaptor, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"), userLocale);
+            slashRes = channelConfigCommand.handleSlashCommandEvent(slashEventAdaptor, uuidSupplier, userLocale);
         } else {
             throw new IllegalStateException("Unknown command for " + presetId);
         }

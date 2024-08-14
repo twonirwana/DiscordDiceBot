@@ -107,6 +107,7 @@ See <<_channel_config>> for channel config
 |===
 | Alias Name  | Alias Function
 
+|`Cyberpunk Red - Alias` | roll with `cp`
 |`Dungeon & Dragons 5e - Alias` | roll advantage with `adv` and disadvantage with `dis`
 |`Fate - Alias` | roll four fate dice with `4dF`
 |`nWod / Chronicles of Darkness - Alias` | roll with `w` e.g. `8w`
