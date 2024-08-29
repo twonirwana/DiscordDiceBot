@@ -26,7 +26,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class DirectRollCommandMockTest {
     PersistenceManager persistenceManager;
-    private Expect expect;
+    Expect expect;
 
     @BeforeEach
     void setup() throws IOException {
@@ -366,8 +366,7 @@ public class DirectRollCommandMockTest {
         directRollCommand.handleSlashCommandEvent(slashEvent2, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"), Locale.ENGLISH).block();
 
         assertThat(slashEvent1.getActions()).containsExactlyInAnyOrder("reply: `commandString`\nSaved new alias");
-        assertThat(slashEvent2.getActions()).containsExactlyInAnyOrder("acknowledgeAndRemoveSlash",
-                "sendMessage: EmbedOrMessageDefinition(title=8d10>=6c ⇒ 3, descriptionOrContent=, fields=[], componentRowDefinitions=[], hasImage=true, type=EMBED, userReference=true, sendToOtherChannelId=null)");
+        assertThat(slashEvent2.getActions()).containsExactlyInAnyOrder("replyWithEmbedOrMessageDefinition: EmbedOrMessageDefinition(title=8d10>=6c ⇒ 3, descriptionOrContent=, fields=[], componentRowDefinitions=[], hasImage=true, type=EMBED, userReference=true, sendToOtherChannelId=null)");
     }
 
 

@@ -7240,8 +7240,7 @@ de.janno.discord.bot.command.help.QuickstartCommandMockTest.handleSlashCommandEv
 
 de.janno.discord.bot.command.help.QuickstartCommandMockTest.quickstartAlias_directRoll[BLADES_IN_THE_DARK_ALIAS_0b_directRoll]=[
   [
-    "acknowledgeAndRemoveSlash",
-    "sendMessage: EmbedOrMessageDefinition(title=0 Dice ⇒ Failure - You suffer severe harm, a serious complication occurs, or you lose this opportunity for action., descriptionOrContent=val('diceRoll', if(0=?0,2d6L1, 0d6)) val('sixes','diceRoll'==6c) val('partials','diceRoll'>3<6c) if('sixes'>?1,'Critical Success - You do it with increased effect.', 'sixes'=?1,'Success - You do it.','partials' >? 0,'Partial Success - You do it but suffer severe harm, a serious complication or have reduced effect.','Failure - You suffer severe harm, a serious complication occurs, or you lose this opportunity for action.'), fields=[], componentRowDefinitions=[], hasImage=true, type=EMBED, userReference=true, sendToOtherChannelId=null)"
+    "replyWithEmbedOrMessageDefinition: EmbedOrMessageDefinition(title=0 Dice ⇒ Failure - You suffer severe harm, a serious complication occurs, or you lose this opportunity for action., descriptionOrContent=val('diceRoll', if(0=?0,2d6L1, 0d6)) val('sixes','diceRoll'==6c) val('partials','diceRoll'>3<6c) if('sixes'>?1,'Critical Success - You do it with increased effect.', 'sixes'=?1,'Success - You do it.','partials' >? 0,'Partial Success - You do it but suffer severe harm, a serious complication or have reduced effect.','Failure - You suffer severe harm, a serious complication occurs, or you lose this opportunity for action.'), fields=[], componentRowDefinitions=[], hasImage=true, type=EMBED, userReference=true, sendToOtherChannelId=null)"
   ]
 ]
 
@@ -7255,8 +7254,7 @@ de.janno.discord.bot.command.help.QuickstartCommandMockTest.quickstartAlias_dire
 
 de.janno.discord.bot.command.help.QuickstartCommandMockTest.quickstartAlias_directRoll[BLADES_IN_THE_DARK_ALIAS_5b_directRoll]=[
   [
-    "acknowledgeAndRemoveSlash",
-    "sendMessage: EmbedOrMessageDefinition(title=5 Dice ⇒ Critical Success - You do it with increased effect., descriptionOrContent=val('diceRoll', if(5=?0,2d6L1, 5d6)) val('sixes','diceRoll'==6c) val('partials','diceRoll'>3<6c) if('sixes'>?1,'Critical Success - You do it with increased effect.', 'sixes'=?1,'Success - You do it.','partials' >? 0,'Partial Success - You do it but suffer severe harm, a serious complication or have reduced effect.','Failure - You suffer severe harm, a serious complication occurs, or you lose this opportunity for action.'), fields=[], componentRowDefinitions=[], hasImage=true, type=EMBED, userReference=true, sendToOtherChannelId=null)"
+    "replyWithEmbedOrMessageDefinition: EmbedOrMessageDefinition(title=5 Dice ⇒ Critical Success - You do it with increased effect., descriptionOrContent=val('diceRoll', if(5=?0,2d6L1, 5d6)) val('sixes','diceRoll'==6c) val('partials','diceRoll'>3<6c) if('sixes'>?1,'Critical Success - You do it with increased effect.', 'sixes'=?1,'Success - You do it.','partials' >? 0,'Partial Success - You do it but suffer severe harm, a serious complication or have reduced effect.','Failure - You suffer severe harm, a serious complication occurs, or you lose this opportunity for action.'), fields=[], componentRowDefinitions=[], hasImage=true, type=EMBED, userReference=true, sendToOtherChannelId=null)"
   ]
 ]
 
@@ -7270,8 +7268,7 @@ de.janno.discord.bot.command.help.QuickstartCommandMockTest.quickstartAlias_dire
 
 de.janno.discord.bot.command.help.QuickstartCommandMockTest.quickstartAlias_directRoll[DND5_ALIAS_adv_directRoll]=[
   [
-    "acknowledgeAndRemoveSlash",
-    "sendMessage: EmbedOrMessageDefinition(title=Advantage ⇒ 15, descriptionOrContent=2d20k1, fields=[], componentRowDefinitions=[], hasImage=true, type=EMBED, userReference=true, sendToOtherChannelId=null)"
+    "replyWithEmbedOrMessageDefinition: EmbedOrMessageDefinition(title=Advantage ⇒ 15, descriptionOrContent=2d20k1, fields=[], componentRowDefinitions=[], hasImage=true, type=EMBED, userReference=true, sendToOtherChannelId=null)"
   ]
 ]
 
@@ -7285,8 +7282,7 @@ de.janno.discord.bot.command.help.QuickstartCommandMockTest.quickstartAlias_dire
 
 de.janno.discord.bot.command.help.QuickstartCommandMockTest.quickstartAlias_directRoll[FATE_ALIAS_4dF_directRoll]=[
   [
-    "acknowledgeAndRemoveSlash",
-    "sendMessage: EmbedOrMessageDefinition(title=4dF ⇒ [▢, −, −, −] = -3, descriptionOrContent=val('$r', 4d[＋,▢,−]) _ '['_ '$r' _ '] = ' _ replace('$r' ,'＋',1,'▢',0,'−',-1)=: [▢, −, −, −], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED, userReference=true, sendToOtherChannelId=null)"
+    "replyWithEmbedOrMessageDefinition: EmbedOrMessageDefinition(title=4dF ⇒ [▢, −, −, −] = -3, descriptionOrContent=val('$r', 4d[＋,▢,−]) _ '['_ '$r' _ '] = ' _ replace('$r' ,'＋',1,'▢',0,'−',-1)=: [▢, −, −, −], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED, userReference=true, sendToOtherChannelId=null)"
   ]
 ]
 
@@ -7300,8 +7296,7 @@ de.janno.discord.bot.command.help.QuickstartCommandMockTest.quickstartAlias_dire
 
 de.janno.discord.bot.command.help.QuickstartCommandMockTest.quickstartAlias_directRoll[NWOD_ALIAS_8w_directRoll]=[
   [
-    "acknowledgeAndRemoveSlash",
-    "sendMessage: EmbedOrMessageDefinition(title=8d!10>=8c ⇒ 5, descriptionOrContent=, fields=[], componentRowDefinitions=[], hasImage=true, type=EMBED, userReference=true, sendToOtherChannelId=null)"
+    "replyWithEmbedOrMessageDefinition: EmbedOrMessageDefinition(title=8d!10>=8c ⇒ 5, descriptionOrContent=, fields=[], componentRowDefinitions=[], hasImage=true, type=EMBED, userReference=true, sendToOtherChannelId=null)"
   ]
 ]
 
@@ -7315,8 +7310,7 @@ de.janno.discord.bot.command.help.QuickstartCommandMockTest.quickstartAlias_dire
 
 de.janno.discord.bot.command.help.QuickstartCommandMockTest.quickstartAlias_directRoll[OWOD_ALIAS_10re6_directRoll]=[
   [
-    "acknowledgeAndRemoveSlash",
-    "sendMessage: EmbedOrMessageDefinition(title=10d10 vs 6 with reroll on 10 ⇒ 7, descriptionOrContent=val('roll',10d!10) ('roll'>=6c)-('roll'==1c)=, fields=[], componentRowDefinitions=[], hasImage=true, type=EMBED, userReference=true, sendToOtherChannelId=null)"
+    "replyWithEmbedOrMessageDefinition: EmbedOrMessageDefinition(title=10d10 vs 6 with reroll on 10 ⇒ 7, descriptionOrContent=val('roll',10d!10) ('roll'>=6c)-('roll'==1c)=, fields=[], componentRowDefinitions=[], hasImage=true, type=EMBED, userReference=true, sendToOtherChannelId=null)"
   ]
 ]
 
@@ -7330,8 +7324,7 @@ de.janno.discord.bot.command.help.QuickstartCommandMockTest.quickstartAlias_dire
 
 de.janno.discord.bot.command.help.QuickstartCommandMockTest.quickstartAlias_directRoll[OWOD_ALIAS_8r6_directRoll]=[
   [
-    "acknowledgeAndRemoveSlash",
-    "sendMessage: EmbedOrMessageDefinition(title=8d10 vs 6 ⇒ 2, descriptionOrContent=val('roll',8d10) ('roll'>=6c)-('roll'==1c)=, fields=[], componentRowDefinitions=[], hasImage=true, type=EMBED, userReference=true, sendToOtherChannelId=null)"
+    "replyWithEmbedOrMessageDefinition: EmbedOrMessageDefinition(title=8d10 vs 6 ⇒ 2, descriptionOrContent=val('roll',8d10) ('roll'>=6c)-('roll'==1c)=, fields=[], componentRowDefinitions=[], hasImage=true, type=EMBED, userReference=true, sendToOtherChannelId=null)"
   ]
 ]
 
@@ -7345,8 +7338,7 @@ de.janno.discord.bot.command.help.QuickstartCommandMockTest.quickstartAlias_dire
 
 de.janno.discord.bot.command.help.QuickstartCommandMockTest.quickstartAlias_directRoll[SAVAGE_WORLDS_ALIAS_r4_directRoll]=[
   [
-    "acknowledgeAndRemoveSlash",
-    "sendMessage: EmbedOrMessageDefinition(title=d!!4 ⇒ 5, descriptionOrContent=, fields=[], componentRowDefinitions=[], hasImage=true, type=EMBED, userReference=true, sendToOtherChannelId=null)"
+    "replyWithEmbedOrMessageDefinition: EmbedOrMessageDefinition(title=d!!4 ⇒ 5, descriptionOrContent=, fields=[], componentRowDefinitions=[], hasImage=true, type=EMBED, userReference=true, sendToOtherChannelId=null)"
   ]
 ]
 
@@ -7360,8 +7352,7 @@ de.janno.discord.bot.command.help.QuickstartCommandMockTest.quickstartAlias_dire
 
 de.janno.discord.bot.command.help.QuickstartCommandMockTest.quickstartAlias_directRoll[SAVAGE_WORLDS_ALIAS_sw4_directRoll]=[
   [
-    "acknowledgeAndRemoveSlash",
-    "sendMessage: EmbedOrMessageDefinition(title=d4 Wildcard ⇒ 3, descriptionOrContent=1d!!4 + 1d!!6 k1, fields=[], componentRowDefinitions=[], hasImage=true, type=EMBED, userReference=true, sendToOtherChannelId=null)"
+    "replyWithEmbedOrMessageDefinition: EmbedOrMessageDefinition(title=d4 Wildcard ⇒ 3, descriptionOrContent=1d!!4 + 1d!!6 k1, fields=[], componentRowDefinitions=[], hasImage=true, type=EMBED, userReference=true, sendToOtherChannelId=null)"
   ]
 ]
 
@@ -7375,8 +7366,7 @@ de.janno.discord.bot.command.help.QuickstartCommandMockTest.quickstartAlias_dire
 
 de.janno.discord.bot.command.help.QuickstartCommandMockTest.quickstartAlias_directRoll[SHADOWRUN_ALIAS_10sr_directRoll]=[
   [
-    "acknowledgeAndRemoveSlash",
-    "sendMessage: EmbedOrMessageDefinition(title=10d6 ⇒ 2, descriptionOrContent=val('roll',10d6) concat('roll'>4c, if('roll'==1c >? 'roll'c/2,' - Glitch!')), fields=[], componentRowDefinitions=[], hasImage=true, type=EMBED, userReference=true, sendToOtherChannelId=null)"
+    "replyWithEmbedOrMessageDefinition: EmbedOrMessageDefinition(title=10d6 ⇒ 2, descriptionOrContent=val('roll',10d6) concat('roll'>4c, if('roll'==1c >? 'roll'c/2,' - Glitch!')), fields=[], componentRowDefinitions=[], hasImage=true, type=EMBED, userReference=true, sendToOtherChannelId=null)"
   ]
 ]
 

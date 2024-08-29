@@ -27,7 +27,6 @@ import de.janno.discord.connector.api.slash.CommandDefinitionOption;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.Locale;
@@ -156,21 +155,22 @@ public class DirectRollCommand implements SlashCommand {
                                                  @NonNull RollAnswer answer,
                                                  @NonNull Stopwatch stopwatch,
                                                  @NonNull Locale userLocale) {
-        String replayMessage = Stream.of(commandString, answer.getWarning())
+        String warningMessage = Stream.of(commandString, answer.getWarning())
                 .filter(s -> !Strings.isNullOrEmpty(s))
                 .collect(Collectors.joining(" "));
-        return Flux.merge(Strings.isNullOrEmpty(answer.getWarning()) ? Mono.defer(event::acknowledgeAndRemoveSlash) : event.reply(replayMessage, true),
-                        Mono.defer(() -> event.sendMessage(RollAnswerConverter.toEmbedOrMessageDefinition(answer))
-                                .doOnSuccess(v ->
-                                        log.info("{}: '{}'={} -> {} in {}ms",
-                                                event.getRequester().toLogString(),
-                                                commandString.replace("`", ""),
-                                                diceExpression,
-                                                answer.toShortString(),
-                                                stopwatch.elapsed(TimeUnit.MILLISECONDS)
-                                        )))
-                )
-                .parallel().then();
+
+        Mono<Void> answerMono = Strings.isNullOrEmpty(answer.getWarning()) ?
+                Mono.defer(() -> event.replyWithEmbedOrMessageDefinition(RollAnswerConverter.toEmbedOrMessageDefinition(answer), false)) :
+                Mono.defer(() -> event.reply(warningMessage, true));
+        return answerMono
+                .doOnSuccess(v ->
+                        log.info("{}: '{}'={} -> {} in {}ms",
+                                event.getRequester().toLogString(),
+                                commandString.replace("`", ""),
+                                diceExpression,
+                                answer.toShortString(),
+                                stopwatch.elapsed(TimeUnit.MILLISECONDS)
+                        ));
     }
 
     private Mono<Void> replyValidationMessage(@NonNull SlashEventAdaptor event, @NonNull String validationMessage, @NonNull String commandString) {

@@ -91,7 +91,8 @@ public class SlashEventAdapterImpl extends DiscordAdapterImpl implements SlashEv
 
     @Override
     public Mono<Void> replyWithEmbedOrMessageDefinition(@NonNull EmbedOrMessageDefinition messageDefinition, boolean ephemeral) {
-        return replyWithEmbedOrMessageDefinition(event, messageDefinition, ephemeral)
+        return replyWithEmbedOrMessageDefinition(event, messageDefinition, ephemeral,
+                messageDefinition.isUserReference() ? event.getUser().getId() : null)
                 .onErrorResume(t -> handleException("Error on replay", t, true).ofType(InteractionHook.class))
                 .then();
     }
@@ -99,7 +100,7 @@ public class SlashEventAdapterImpl extends DiscordAdapterImpl implements SlashEv
 
     @Override
     public @NonNull Mono<Long> sendMessage(@NonNull EmbedOrMessageDefinition messageDefinition) {
-        MessageChannel targetChannel = Optional.ofNullable(messageDefinition.getSendToOtherChannelId())
+        final MessageChannel targetChannel = Optional.ofNullable(messageDefinition.getSendToOtherChannelId())
                 .flatMap(id -> Optional.ofNullable(event.getGuild())
                         .map(g -> (MessageChannel) g.getChannelById(GuildMessageChannel.class, id)))
                 .orElse(event.getInteraction().getMessageChannel());
@@ -135,15 +136,6 @@ public class SlashEventAdapterImpl extends DiscordAdapterImpl implements SlashEv
                 .map(g -> (MessageChannel) g.getChannelById(GuildMessageChannel.class, channelId))
                 .isPresent();
     }
-
-    @Override
-    public Mono<Void> acknowledgeAndRemoveSlash() {
-        return createMonoFrom(() -> event.reply("..."))
-                .onErrorResume(t -> handleException("Error on reply to slash", t, true).ofType(InteractionHook.class))
-                .flatMap(i -> createMonoFrom(i::deleteOriginal)
-                        .onErrorResume(t -> handleException("Error on deleting reply", t, true)));
-    }
-
 
     @Override
     public long getUserId() {

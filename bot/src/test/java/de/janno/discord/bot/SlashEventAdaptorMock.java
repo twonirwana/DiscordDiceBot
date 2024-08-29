@@ -129,12 +129,6 @@ public class SlashEventAdaptorMock implements SlashEventAdaptor {
     }
 
     @Override
-    public Mono<Void> acknowledgeAndRemoveSlash() {
-        actions.add("acknowledgeAndRemoveSlash");
-        return Mono.just("").then();
-    }
-
-    @Override
     public long getUserId() {
         return userId;
     }
