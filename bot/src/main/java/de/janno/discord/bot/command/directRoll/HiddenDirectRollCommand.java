@@ -97,7 +97,7 @@ public class HiddenDirectRollCommand extends DirectRollCommand implements Compon
 
         //only one button so we don't check the button id
         return Flux.merge(1,
-                        event.acknowledgeAndRemoveButtons(), //ephemeral message cant be deleted
+                        event.acknowledgeAndDeleteOriginal(),
                         event.sendMessage(event.getMessageDefinitionOfEventMessageWithoutButtons()
                                         .toBuilder()
                                         .userReference(true)

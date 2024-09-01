@@ -188,10 +188,9 @@ public class ButtonEventAdapterImpl extends DiscordAdapterImpl implements Button
     }
 
     @Override
-    public Mono<Void> acknowledgeAndRemoveButtons() {
-        return createMonoFrom(() -> event.editComponents(List.of()))
-                .onErrorResume(t -> handleException("Error on acknowledge and remove buttons", t, true).ofType(InteractionHook.class))
-                .then();
+    public Mono<Void> acknowledgeAndDeleteOriginal() {
+        return createMonoFrom(event::deferEdit)
+                .then(createMonoFrom(() -> event.getInteraction().getHook().deleteOriginal()));
     }
 
     @Override

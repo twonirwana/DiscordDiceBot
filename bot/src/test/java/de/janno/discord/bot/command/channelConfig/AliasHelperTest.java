@@ -31,6 +31,7 @@ public class AliasHelperTest {
                 Arguments.of(List.of(), List.of(new Alias("att", "1d20", Alias.Type.Regex)), "1d6@roll", "1d6@roll"),
                 Arguments.of(List.of(), List.of(new Alias("att", "1d20", Alias.Type.Regex)), "att@roll", "1d20@roll"),
                 Arguments.of(List.of(), List.of(new Alias("(\\d+)att", "$1d20", Alias.Type.Regex)), "3att@roll", "3d20@roll"),
+                Arguments.of(List.of(), List.of(new Alias("\\", "$1d20", Alias.Type.Regex)), "3d20@roll", "3d20@roll"), //invalid regex is ignored
                 Arguments.of(List.of(), List.of(new Alias("(\\d+)att", "$1d20+$2", Alias.Type.Regex)), "3att@roll", "3att@roll"),
                 Arguments.of(List.of(new Alias("(?<first>\\w+), (?<second>\\w+)", "${second}, ${first}", Alias.Type.Regex)), List.of(), "1d6, 2d8", "2d8, 1d6"),
                 Arguments.of(List.of(new Alias("(?<first>\\w+), (?<second>\\w+)", "${second} - ${first}", Alias.Type.Regex)), List.of(new Alias("(?<first>\\w+), (?<second>\\w+)", "${second} = ${first}", Alias.Type.Regex)), "1d6, 2d8", "2d8 = 1d6"),
