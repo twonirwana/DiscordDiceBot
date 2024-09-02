@@ -9,7 +9,7 @@ repositories {
 
 dependencies {
     implementation(project(":discord-connector"))
-    implementation("io.github.twonirwana:dice-evaluator:v0.9.0")
+    implementation("io.github.twonirwana:dice-evaluator:v0.9.1")
 
     implementation(libs.log4j.to.slf4j)
     implementation(libs.reactor.core)

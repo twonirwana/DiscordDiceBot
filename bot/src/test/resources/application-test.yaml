@@ -11,5 +11,5 @@ command:
   fetch.delayMs: 0
   clear.messageDeleteDelay: 10
 diceEvaluator:
-  keepChildrenRolls: true
+  keepChildrenRolls: false
   cacheSize: 0
