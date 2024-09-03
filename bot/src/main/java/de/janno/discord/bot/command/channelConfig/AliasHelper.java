@@ -13,6 +13,7 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 @Slf4j
 public class AliasHelper {
@@ -60,7 +61,13 @@ public class AliasHelper {
     private static String applyAliasIfMatch(Alias alias, String input, String scope) {
         switch (alias.getType()) {
             case Regex -> {
-                Pattern pattern = Pattern.compile(alias.getName());
+                Pattern pattern;
+                try {
+                    pattern = Pattern.compile(alias.getName());
+                } catch (PatternSyntaxException e) {
+                    log.info("invalid regex:{}", alias.getName(), e);
+                    return input;
+                }
                 Matcher matcher = pattern.matcher(input);
 
                 if (matcher.find()) {
@@ -68,7 +75,7 @@ public class AliasHelper {
                     try {
                         return matcher.replaceAll(alias.getValue());
                     } catch (IndexOutOfBoundsException | IllegalArgumentException e) {
-                        log.warn("regex error with alias:{}, input:{}", alias.getName(), input, e);
+                        log.info("regex error with alias:{}, input:{}", alias.getName(), input, e);
                         //invalid group count or named group in the replacement
                         return input;
                     }

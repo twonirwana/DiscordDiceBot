@@ -176,8 +176,8 @@ public class ButtonEventAdaptorMock implements ButtonEventAdaptor {
     }
 
     @Override
-    public Mono<Void> acknowledgeAndRemoveButtons() {
-        actions.add("acknowledgeAndRemoveButtons");
+    public Mono<Void> acknowledgeAndDeleteOriginal() {
+        actions.add("acknowledgeAndDeleteOriginal");
         return Mono.empty();
     }
 

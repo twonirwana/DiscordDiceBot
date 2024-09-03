@@ -134,8 +134,7 @@ de.janno.discord.bot.command.channelConfig.ChannelConfigMockTest.saveConfigDelet
 
 de.janno.discord.bot.command.channelConfig.ChannelConfigMockTest.saveConfigDelete_default[slashEvent3]=[
   [
-    "acknowledgeAndRemoveSlash",
-    "sendMessage: EmbedOrMessageDefinition(title=1d6 ⇒ 1, descriptionOrContent=, fields=[], componentRowDefinitions=[], hasImage=true, type=EMBED, userReference=true, sendToOtherChannelId=null)"
+    "replyWithEmbedOrMessageDefinition: EmbedOrMessageDefinition(title=1d6 ⇒ 1, descriptionOrContent=, fields=[], componentRowDefinitions=[], hasImage=true, type=EMBED, userReference=true, sendToOtherChannelId=null)"
   ]
 ]
 

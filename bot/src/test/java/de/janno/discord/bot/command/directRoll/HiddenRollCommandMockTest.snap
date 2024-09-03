@@ -15,7 +15,7 @@ de.janno.discord.bot.command.directRoll.HiddenRollCommandMockTest.channelAlias[e
 
 de.janno.discord.bot.command.directRoll.HiddenRollCommandMockTest.channelAlias[event3]=[
   [
-    "acknowledgeAndRemoveButtons",
+    "acknowledgeAndDeleteOriginal",
     "getMessageDefinitionOfEventMessageWithoutButtons",
     "sendMessage: EmbedOrMessageDefinition(title=2d20+10 ⇒ 36, descriptionOrContent=, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Reveal, id=h\u001Ereveal, style=PRIMARY, disabled=false, emoji=null)])], hasImage=true, type=EMBED, userReference=true, sendToOtherChannelId=null)"
   ]
@@ -46,7 +46,7 @@ de.janno.discord.bot.command.directRoll.HiddenRollCommandMockTest.roll_NoWarn=[
 
 de.janno.discord.bot.command.directRoll.HiddenRollCommandMockTest.roll_NoWarn[event2]=[
   [
-    "acknowledgeAndRemoveButtons",
+    "acknowledgeAndDeleteOriginal",
     "getMessageDefinitionOfEventMessageWithoutButtons",
     "sendMessage: EmbedOrMessageDefinition(title=20 ⇒ 20, descriptionOrContent=, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Reveal, id=h\u001Ereveal, style=PRIMARY, disabled=false, emoji=null)])], hasImage=false, type=EMBED, userReference=true, sendToOtherChannelId=null)"
   ]
@@ -70,7 +70,7 @@ de.janno.discord.bot.command.directRoll.HiddenRollCommandMockTest.roll_config_co
 
 de.janno.discord.bot.command.directRoll.HiddenRollCommandMockTest.roll_config_compact[event3]=[
   [
-    "acknowledgeAndRemoveButtons",
+    "acknowledgeAndDeleteOriginal",
     "getMessageDefinitionOfEventMessageWithoutButtons",
     "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=__**1d6 ⇒ 1**__  [1], fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Reveal, id=h\u001Ereveal, style=PRIMARY, disabled=false, emoji=null)])], hasImage=false, type=MESSAGE, userReference=true, sendToOtherChannelId=null)"
   ]
@@ -94,7 +94,7 @@ de.janno.discord.bot.command.directRoll.HiddenRollCommandMockTest.roll_config_fu
 
 de.janno.discord.bot.command.directRoll.HiddenRollCommandMockTest.roll_config_full_imageNone[event3]=[
   [
-    "acknowledgeAndRemoveButtons",
+    "acknowledgeAndDeleteOriginal",
     "getMessageDefinitionOfEventMessageWithoutButtons",
     "sendMessage: EmbedOrMessageDefinition(title=Roll ⇒ 1, descriptionOrContent=[1], fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Reveal, id=h\u001Ereveal, style=PRIMARY, disabled=false, emoji=null)])], hasImage=false, type=EMBED, userReference=true, sendToOtherChannelId=null)"
   ]
@@ -118,7 +118,7 @@ de.janno.discord.bot.command.directRoll.HiddenRollCommandMockTest.roll_config_mi
 
 de.janno.discord.bot.command.directRoll.HiddenRollCommandMockTest.roll_config_minimal[event3]=[
   [
-    "acknowledgeAndRemoveButtons",
+    "acknowledgeAndDeleteOriginal",
     "getMessageDefinitionOfEventMessageWithoutButtons",
     "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=1d6 ⇒ 1, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Reveal, id=h\u001Ereveal, style=PRIMARY, disabled=false, emoji=null)])], hasImage=false, type=MESSAGE, userReference=true, sendToOtherChannelId=null)"
   ]
@@ -142,7 +142,7 @@ de.janno.discord.bot.command.directRoll.HiddenRollCommandMockTest.roll_config_wi
 
 de.janno.discord.bot.command.directRoll.HiddenRollCommandMockTest.roll_config_withoutExpression[event3]=[
   [
-    "acknowledgeAndRemoveButtons",
+    "acknowledgeAndDeleteOriginal",
     "getMessageDefinitionOfEventMessageWithoutButtons",
     "sendMessage: EmbedOrMessageDefinition(title=Roll ⇒ 1, descriptionOrContent=, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Reveal, id=h\u001Ereveal, style=PRIMARY, disabled=false, emoji=null)])], hasImage=true, type=EMBED, userReference=true, sendToOtherChannelId=null)"
   ]
@@ -166,7 +166,7 @@ de.janno.discord.bot.command.directRoll.HiddenRollCommandMockTest.roll_config_wi
 
 de.janno.discord.bot.command.directRoll.HiddenRollCommandMockTest.roll_config_withoutExpression_withLabel[event3]=[
   [
-    "acknowledgeAndRemoveButtons",
+    "acknowledgeAndDeleteOriginal",
     "getMessageDefinitionOfEventMessageWithoutButtons",
     "sendMessage: EmbedOrMessageDefinition(title=test ⇒ 1, descriptionOrContent=, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Reveal, id=h\u001Ereveal, style=PRIMARY, disabled=false, emoji=null)])], hasImage=true, type=EMBED, userReference=true, sendToOtherChannelId=null)"
   ]
@@ -183,7 +183,7 @@ de.janno.discord.bot.command.directRoll.HiddenRollCommandMockTest.roll_default=[
 
 de.janno.discord.bot.command.directRoll.HiddenRollCommandMockTest.roll_default[event2]=[
   [
-    "acknowledgeAndRemoveButtons",
+    "acknowledgeAndDeleteOriginal",
     "getMessageDefinitionOfEventMessageWithoutButtons",
     "sendMessage: EmbedOrMessageDefinition(title=1d6 ⇒ 1, descriptionOrContent=, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Reveal, id=h\u001Ereveal, style=PRIMARY, disabled=false, emoji=null)])], hasImage=true, type=EMBED, userReference=true, sendToOtherChannelId=null)"
   ]
@@ -200,7 +200,7 @@ de.janno.discord.bot.command.directRoll.HiddenRollCommandMockTest.roll_default_w
 
 de.janno.discord.bot.command.directRoll.HiddenRollCommandMockTest.roll_default_withLabel[event2]=[
   [
-    "acknowledgeAndRemoveButtons",
+    "acknowledgeAndDeleteOriginal",
     "getMessageDefinitionOfEventMessageWithoutButtons",
     "sendMessage: EmbedOrMessageDefinition(title=test ⇒ 1, descriptionOrContent=1d6, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Reveal, id=h\u001Ereveal, style=PRIMARY, disabled=false, emoji=null)])], hasImage=true, type=EMBED, userReference=true, sendToOtherChannelId=null)"
   ]
@@ -224,7 +224,7 @@ de.janno.discord.bot.command.directRoll.HiddenRollCommandMockTest.userChannelAli
 
 de.janno.discord.bot.command.directRoll.HiddenRollCommandMockTest.userChannelAlias[event3]=[
   [
-    "acknowledgeAndRemoveButtons",
+    "acknowledgeAndDeleteOriginal",
     "getMessageDefinitionOfEventMessageWithoutButtons",
     "sendMessage: EmbedOrMessageDefinition(title=2d20+10 ⇒ 36, descriptionOrContent=, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Reveal, id=h\u001Ereveal, style=PRIMARY, disabled=false, emoji=null)])], hasImage=true, type=EMBED, userReference=true, sendToOtherChannelId=null)"
   ]

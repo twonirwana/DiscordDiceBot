@@ -139,16 +139,19 @@ public abstract class DiscordAdapterImpl implements DiscordAdapter {
     protected Mono<InteractionHook> replyWithEmbedOrMessageDefinition(
             @NonNull SlashCommandInteractionEvent event,
             @NonNull EmbedOrMessageDefinition messageDefinition,
-            boolean ephemeral) {
+            boolean ephemeral,
+            @Nullable String rollRequesterId) {
         LayoutComponent[] layoutComponents = MessageComponentConverter.componentRowDefinition2LayoutComponent(messageDefinition.getComponentRowDefinitions());
         switch (messageDefinition.getType()) {
             case EMBED -> {
-                EmbedBuilder builder = convertToEmbedMessage(messageDefinition, null, null, null);
+                //reply don't need avatar and name, they are already displayed
+                EmbedBuilder builder = convertToEmbedMessage(messageDefinition, null, null,  rollRequesterId);
                 final List<FileUpload> files = applyFiles(builder, messageDefinition);
                 return createMonoFrom(() -> event.replyEmbeds(builder.build()).setComponents(layoutComponents).setEphemeral(ephemeral).setFiles(files).setSuppressedNotifications(true))
                         .onErrorResume(t -> handleException("Error on replay embed message", t, false).ofType(InteractionHook.class));
             }
             case MESSAGE -> {
+                //reply don't need a name, they are already displayed
                 return createMonoFrom(() -> event.reply(convertToMessageCreateData(messageDefinition, null)).setComponents(layoutComponents).setEphemeral(ephemeral).setSuppressedNotifications(true))
                         .onErrorResume(t -> handleException("Error on replay message", t, false).ofType(InteractionHook.class));
             }

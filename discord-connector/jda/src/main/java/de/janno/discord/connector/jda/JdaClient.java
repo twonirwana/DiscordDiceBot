@@ -27,6 +27,7 @@ import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder;
 import net.dv8tion.jda.api.sharding.ShardManager;
 import net.dv8tion.jda.internal.utils.IOUtil;
 import okhttp3.OkHttpClient;
+import org.apache.commons.lang3.StringUtils;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
@@ -143,6 +144,7 @@ public class JdaClient {
                                     Mono.just(matchingHandler.getFirst())
                                             .map(command -> command.getAutoCompleteAnswer(fromEvent(event), LocaleConverter.toLocale(event.getUserLocale()), event.getChannel().getIdLong(), event.getUser().getIdLong()))
                                             .flatMap(a -> Mono.fromFuture(event.replyChoices(a.stream()
+                                                    .filter(alias -> StringUtils.isNoneBlank(alias.getName(), alias.getValue()))
                                                     .map(c -> new Command.Choice(c.getName(), c.getValue()))
                                                     .limit(25)
                                                     .toList()).submit()))

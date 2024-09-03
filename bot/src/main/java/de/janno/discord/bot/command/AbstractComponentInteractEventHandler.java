@@ -260,7 +260,13 @@ public abstract class AbstractComponentInteractEventHandler<C extends RollConfig
             BotMetrics.incrementDelayCounter(getCommandId(), true);
             long delay = delayBetweenButtonMessages - milliBetween;
             BotMetrics.delayTimer(getCommandId(), Duration.ofMillis(delay));
-            log.info("{}: Delaying button message creation for {}ms", event.getRequester().toLogString(), delay);
+            if (delay < 300) {
+                log.trace("{}: Delaying button message creation for {}ms", event.getRequester().toLogString(), delay);
+            } else if (delay < 600) {
+                log.debug("{}: Delaying button message creation for {}ms", event.getRequester().toLogString(), delay);
+            } else {
+                log.info("{}: Delaying button message creation for {}ms", event.getRequester().toLogString(), delay);
+            }
             return Duration.ofMillis(delay);
         }
         BotMetrics.incrementDelayCounter(getCommandId(), false);

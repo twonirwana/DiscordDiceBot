@@ -7,8 +7,7 @@ de.janno.discord.bot.command.directRoll.DirectRollCommandMockTest.channelAlias[e
 
 de.janno.discord.bot.command.directRoll.DirectRollCommandMockTest.channelAlias[event2]=[
   [
-    "acknowledgeAndRemoveSlash",
-    "sendMessage: EmbedOrMessageDefinition(title=2d20+10 ⇒ 36, descriptionOrContent=, fields=[], componentRowDefinitions=[], hasImage=true, type=EMBED, userReference=true, sendToOtherChannelId=null)"
+    "replyWithEmbedOrMessageDefinition: EmbedOrMessageDefinition(title=2d20+10 ⇒ 36, descriptionOrContent=, fields=[], componentRowDefinitions=[], hasImage=true, type=EMBED, userReference=true, sendToOtherChannelId=null)"
   ]
 ]
 
@@ -36,8 +35,7 @@ de.janno.discord.bot.command.directRoll.DirectRollCommandMockTest.roll_config_co
 
 de.janno.discord.bot.command.directRoll.DirectRollCommandMockTest.roll_config_compact[event2]=[
   [
-    "acknowledgeAndRemoveSlash",
-    "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=__**1d6 ⇒ 1**__  [1], fields=[], componentRowDefinitions=[], hasImage=false, type=MESSAGE, userReference=true, sendToOtherChannelId=null)"
+    "replyWithEmbedOrMessageDefinition: EmbedOrMessageDefinition(title=null, descriptionOrContent=__**1d6 ⇒ 1**__  [1], fields=[], componentRowDefinitions=[], hasImage=false, type=MESSAGE, userReference=true, sendToOtherChannelId=null)"
   ]
 ]
 
@@ -51,8 +49,7 @@ de.janno.discord.bot.command.directRoll.DirectRollCommandMockTest.roll_config_fu
 
 de.janno.discord.bot.command.directRoll.DirectRollCommandMockTest.roll_config_full_imageNone[event2]=[
   [
-    "acknowledgeAndRemoveSlash",
-    "sendMessage: EmbedOrMessageDefinition(title=Roll ⇒ 1, descriptionOrContent=[1], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED, userReference=true, sendToOtherChannelId=null)"
+    "replyWithEmbedOrMessageDefinition: EmbedOrMessageDefinition(title=Roll ⇒ 1, descriptionOrContent=[1], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED, userReference=true, sendToOtherChannelId=null)"
   ]
 ]
 
@@ -66,8 +63,7 @@ de.janno.discord.bot.command.directRoll.DirectRollCommandMockTest.roll_config_mi
 
 de.janno.discord.bot.command.directRoll.DirectRollCommandMockTest.roll_config_minimal[event2]=[
   [
-    "acknowledgeAndRemoveSlash",
-    "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=1d6 ⇒ 1, fields=[], componentRowDefinitions=[], hasImage=false, type=MESSAGE, userReference=true, sendToOtherChannelId=null)"
+    "replyWithEmbedOrMessageDefinition: EmbedOrMessageDefinition(title=null, descriptionOrContent=1d6 ⇒ 1, fields=[], componentRowDefinitions=[], hasImage=false, type=MESSAGE, userReference=true, sendToOtherChannelId=null)"
   ]
 ]
 
@@ -81,8 +77,7 @@ de.janno.discord.bot.command.directRoll.DirectRollCommandMockTest.roll_config_wi
 
 de.janno.discord.bot.command.directRoll.DirectRollCommandMockTest.roll_config_withoutExpression[event2]=[
   [
-    "acknowledgeAndRemoveSlash",
-    "sendMessage: EmbedOrMessageDefinition(title=Roll ⇒ 1, descriptionOrContent=, fields=[], componentRowDefinitions=[], hasImage=true, type=EMBED, userReference=true, sendToOtherChannelId=null)"
+    "replyWithEmbedOrMessageDefinition: EmbedOrMessageDefinition(title=Roll ⇒ 1, descriptionOrContent=, fields=[], componentRowDefinitions=[], hasImage=true, type=EMBED, userReference=true, sendToOtherChannelId=null)"
   ]
 ]
 
@@ -96,40 +91,35 @@ de.janno.discord.bot.command.directRoll.DirectRollCommandMockTest.roll_config_wi
 
 de.janno.discord.bot.command.directRoll.DirectRollCommandMockTest.roll_config_withoutExpression_withLabel[event2]=[
   [
-    "acknowledgeAndRemoveSlash",
-    "sendMessage: EmbedOrMessageDefinition(title=test ⇒ 1, descriptionOrContent=, fields=[], componentRowDefinitions=[], hasImage=true, type=EMBED, userReference=true, sendToOtherChannelId=null)"
+    "replyWithEmbedOrMessageDefinition: EmbedOrMessageDefinition(title=test ⇒ 1, descriptionOrContent=, fields=[], componentRowDefinitions=[], hasImage=true, type=EMBED, userReference=true, sendToOtherChannelId=null)"
   ]
 ]
 
 
 de.janno.discord.bot.command.directRoll.DirectRollCommandMockTest.roll_default=[
   [
-    "acknowledgeAndRemoveSlash",
-    "sendMessage: EmbedOrMessageDefinition(title=1d6 ⇒ 1, descriptionOrContent=, fields=[], componentRowDefinitions=[], hasImage=true, type=EMBED, userReference=true, sendToOtherChannelId=null)"
+    "replyWithEmbedOrMessageDefinition: EmbedOrMessageDefinition(title=1d6 ⇒ 1, descriptionOrContent=, fields=[], componentRowDefinitions=[], hasImage=true, type=EMBED, userReference=true, sendToOtherChannelId=null)"
   ]
 ]
 
 
 de.janno.discord.bot.command.directRoll.DirectRollCommandMockTest.roll_default_withLabel=[
   [
-    "acknowledgeAndRemoveSlash",
-    "sendMessage: EmbedOrMessageDefinition(title=test ⇒ 1, descriptionOrContent=1d6, fields=[], componentRowDefinitions=[], hasImage=true, type=EMBED, userReference=true, sendToOtherChannelId=null)"
+    "replyWithEmbedOrMessageDefinition: EmbedOrMessageDefinition(title=test ⇒ 1, descriptionOrContent=1d6, fields=[], componentRowDefinitions=[], hasImage=true, type=EMBED, userReference=true, sendToOtherChannelId=null)"
   ]
 ]
 
 
 de.janno.discord.bot.command.directRoll.DirectRollCommandMockTest.roll_multiLine=[
   [
-    "acknowledgeAndRemoveSlash",
-    "sendMessage: EmbedOrMessageDefinition(title=\nAttack\nDown\n ⇒ a\nb\nc, descriptionOrContent=d[a\nb\nc,\nd,e\n]: [a\nb\nc], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED, userReference=true, sendToOtherChannelId=null)"
+    "replyWithEmbedOrMessageDefinition: EmbedOrMessageDefinition(title=\nAttack\nDown\n ⇒ a\nb\nc, descriptionOrContent=d[a\nb\nc,\nd,e\n]: [a\nb\nc], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED, userReference=true, sendToOtherChannelId=null)"
   ]
 ]
 
 
 de.janno.discord.bot.command.directRoll.DirectRollCommandMockTest.roll_warn=[
   [
-    "reply: commandString did not contain any random element, try for Example `d20` to roll a 20 sided die",
-    "sendMessage: EmbedOrMessageDefinition(title=20 ⇒ 20, descriptionOrContent=, fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED, userReference=true, sendToOtherChannelId=null)"
+    "reply: commandString did not contain any random element, try for Example `d20` to roll a 20 sided die"
   ]
 ]
 
@@ -143,7 +133,6 @@ de.janno.discord.bot.command.directRoll.DirectRollCommandMockTest.userChannelAli
 
 de.janno.discord.bot.command.directRoll.DirectRollCommandMockTest.userChannelAlias[event2]=[
   [
-    "acknowledgeAndRemoveSlash",
-    "sendMessage: EmbedOrMessageDefinition(title=2d20+10 ⇒ 36, descriptionOrContent=, fields=[], componentRowDefinitions=[], hasImage=true, type=EMBED, userReference=true, sendToOtherChannelId=null)"
+    "replyWithEmbedOrMessageDefinition: EmbedOrMessageDefinition(title=2d20+10 ⇒ 36, descriptionOrContent=, fields=[], componentRowDefinitions=[], hasImage=true, type=EMBED, userReference=true, sendToOtherChannelId=null)"
   ]
 ]

@@ -62,7 +62,7 @@ public class FetchCommand implements SlashCommand {
                 oldestMessageIdWaitingToDeleted);
         log.info("{}: Fetch - {}",
                 event.getRequester().toLogString(),
-                messageConfigDTOOptional.map(m -> "found " + m.getCommandId()).orElse("not found"));
+                messageConfigDTOOptional.map(m -> "found %s - %s".formatted(m.getCommandId(), m.getConfigUUID())).orElse("not found"));
         if (messageConfigDTOOptional.isPresent()) {
             final MessageConfigDTO messageConfigDTO = messageConfigDTOOptional.get();
             final UUID configUUID = messageConfigDTO.getConfigUUID();
@@ -82,7 +82,8 @@ public class FetchCommand implements SlashCommand {
 
     private <C extends RollConfig> Mono<Void> moveButtonMessage(C config, AbstractCommand<C, ?> command, UUID configUUID, SlashEventAdaptor event) {
         EmbedOrMessageDefinition buttonMessage = command.createSlashResponseMessage(configUUID, config, event.getChannelId());
-        List<Mono<Void>> actions = List.of(Mono.defer(event::acknowledgeAndRemoveSlash),
+        List<Mono<Void>> actions = List.of(
+                Mono.defer(() -> event.reply(I18n.getMessage("fetch.reply", event.getRequester().getUserLocal()) , true)),
                 Mono.defer(() -> event.sendMessage(buttonMessage)
                                 .doOnNext(messageId -> command.createEmptyMessageData(configUUID, event.getGuildId(), event.getChannelId(), messageId)))
                         .flatMap(newMessageId -> MessageDeletionHelper.deleteOldMessageAndData(persistenceManager, newMessageId, null, configUUID, event.getChannelId(), event))
