@@ -11,7 +11,6 @@ import de.janno.discord.bot.persistance.PersistenceManager;
 import de.janno.discord.connector.api.AutoCompleteAnswer;
 import de.janno.discord.connector.api.AutoCompleteRequest;
 import de.janno.evaluator.dice.random.RandomNumberSupplier;
-import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -95,187 +94,24 @@ class QuickstartCommandTest {
     @Test
     void getAutoCompleteAnswer_filter() {
         List<AutoCompleteAnswer> res = underTest.getAutoCompleteAnswer(new AutoCompleteRequest("system", "du", List.of()), Locale.ENGLISH, 1L, 1L);
-        SoftAssertions.assertSoftly(a -> {
-            a.assertThat(res.stream().map(AutoCompleteAnswer::getName)).containsExactly(
-                    "Dungeon & Dragons 5e",
-                    "Dungeon & Dragons 5e - Alias",
-                    "Dungeon & Dragons 5e Calculator",
-                    "Dungeon & Dragons 5e Calculator 2",
-                    "Dungeon & Dragons 5e without Dice Images",
-                    "Dungeon Crawl Classics",
-                    "Powered by the Apocalypse");
-            a.assertThat(res.stream().map(AutoCompleteAnswer::getValue)).containsExactly(
-                    "DND5_IMAGE",
-                    "DND5_ALIAS",
-                    "DND5_CALC",
-                    "DND5_CALC2",
-                    "DND5",
-                    "DUNGEON_CRAWL_CLASSICS",
-                    "PBTA");
-        });
-
+        expect.toMatchSnapshot(res);
     }
 
     @Test
     void getAutoCompleteAnswer_filterGerman() {
         List<AutoCompleteAnswer> res = underTest.getAutoCompleteAnswer(new AutoCompleteRequest("system", "du", List.of()), Locale.GERMAN, 1L, 1L);
-        SoftAssertions.assertSoftly(a -> {
-            a.assertThat(res.stream().map(AutoCompleteAnswer::getName)).containsExactly(
-                    "Dungeon & Dragons 5e",
-                    "Dungeon & Dragons 5e - Alias",
-                    "Dungeon & Dragons 5e Calculator 2",
-                    "Dungeon & Dragons 5e Kalkulator",
-                    "Dungeon & Dragons 5e ohne Würfelbildern",
-                    "Dungeon Crawl Classics",
-                    "Powered by the Apocalypse",
-                    "nWod / Chronicles of Darkness",
-                    "oWod / Storyteller System");
-            a.assertThat(res.stream().map(AutoCompleteAnswer::getValue)).containsExactly(
-                    "DND5_IMAGE",
-                    "DND5_ALIAS",
-                    "DND5_CALC2",
-                    "DND5_CALC",
-                    "DND5",
-                    "DUNGEON_CRAWL_CLASSICS",
-                    "PBTA",
-                    "NWOD",
-                    "OWOD");
-        });
+        expect.toMatchSnapshot(res);
     }
 
     @Test
     void getAutoCompleteAnswer_filterBrazil() {
         List<AutoCompleteAnswer> res = underTest.getAutoCompleteAnswer(new AutoCompleteRequest("system", "vampire", List.of()), Locale.of("PT", "br"), 1L, 1L);
-        assertThat(res.stream().map(AutoCompleteAnswer::getName)).containsExactly("Vampiro 5ed",
-                "nWod / Chronicles of Darkness - Alias",
-                "nWod / Crônicas das Trevas",
-                "oWod / Sistema Storyteller",
-                "oWod / Storyteller System - Alias");
-        assertThat(res.stream().map(AutoCompleteAnswer::getValue)).containsExactly("VAMPIRE_5ED", "NWOD_ALIAS", "NWOD", "OWOD", "OWOD_ALIAS");
+        expect.toMatchSnapshot(res);
     }
 
     @Test
-    void getAutoCompleteAnswer_All() {
+    void getAutoCompleteAnswer_all() {
         List<AutoCompleteAnswer> res = underTest.getAutoCompleteAnswer(new AutoCompleteRequest("system", "", List.of()), Locale.ENGLISH, 1L, 1L);
-        SoftAssertions.assertSoftly(a -> {
-            a.assertThat(res.stream().map(AutoCompleteAnswer::getName)).containsExactly(
-                    "A Song of Ice and Fire",
-                    "Blades in the Dark",
-                    "Blades in the Dark - Alias",
-                    "Blades in the Dark - Detail",
-                    "Blades in the Dark without Dice Images",
-                    "Bluebeard's Bride",
-                    "Call of Cthulhu 7th Edition",
-                    "Candela Obscura",
-                    "Candela Obscura v2",
-                    "City of Mist",
-                    "Cyberpunk Red",
-                    "Dice Calculator",
-                    "Dungeon & Dragons 5e",
-                    "Dungeon & Dragons 5e - Alias",
-                    "Dungeon & Dragons 5e Calculator",
-                    "Dungeon & Dragons 5e Calculator 2",
-                    "Dungeon & Dragons 5e without Dice Images",
-                    "Dungeon Crawl Classics",
-                    "EZD6",
-                    "Exalted 3ed",
-                    "Fallout",
-                    "Fate",
-                    "Fate Alias",
-                    "Fate without Dice Images",
-                    "Forbidden Lands",
-                    "Heroes of Cerulea",
-                    "Hunter 5ed",
-                    "Ironsworn",
-                    "Kids on Brooms",
-                    "OSR",
-                    "Oathsworn",
-                    "One-Roll Engine",
-                    "Paranoia: Red Clearance Edition",
-                    "Powered by the Apocalypse",
-                    "Prowlers & Paragons Ultimate Edition",
-                    "Public Access",
-                    "Rebellion Unplugged",
-                    "Risus The Anything RPG \"Evens Up\"",
-                    "Rêve de Dragon",
-                    "Salvage Union BDR-V1.0",
-                    "Savage Worlds",
-                    "Savage Worlds - Alias",
-                    "Shadowrun",
-                    "Shadowrun - Alias",
-                    "Shadowrun without Dice Images",
-                    "Star Wars - West End Games D6 Rules, 2nd Edition REUP",
-                    "The Expanse",
-                    "The Marvel Multiverse Role-Playing Game",
-                    "The One Ring",
-                    "Tiny D6",
-                    "Traveller",
-                    "Vampire 5ed",
-                    "Year Zero Engine: Alien",
-                    "nWod / Chronicles of Darkness",
-                    "nWod / Chronicles of Darkness - Alias",
-                    "oWod / Storyteller System",
-                    "oWod / Storyteller System - Alias",
-                    "🪙Coin Toss");
-            a.assertThat(res.stream().map(AutoCompleteAnswer::getValue)).containsExactly(
-                    "ASOIAF",
-                    "BLADES_IN_THE_DARK_IMAGE",
-                    "BLADES_IN_THE_DARK_ALIAS",
-                    "BLADES_IN_THE_DARK_DETAIL",
-                    "BLADES_IN_THE_DARK",
-                    "BLUEBEARD_BRIDE",
-                    "CALL_OF_CTHULHU_7ED",
-                    "CANDELA_OBSCURA",
-                    "CANDELA_OBSCURA2",
-                    "CITY_OF_MIST",
-                    "CYBERPUNK_RED",
-                    "DICE_CALCULATOR",
-                    "DND5_IMAGE",
-                    "DND5_ALIAS",
-                    "DND5_CALC",
-                    "DND5_CALC2",
-                    "DND5",
-                    "DUNGEON_CRAWL_CLASSICS",
-                    "EZD6",
-                    "EXALTED_3ED",
-                    "FALLOUT",
-                    "FATE_IMAGE",
-                    "FATE_ALIAS",
-                    "FATE",
-                    "FORBIDDEN_LANDS",
-                    "HEROES_OF_CERULEA",
-                    "HUNTER_5ED",
-                    "IRONSWORN",
-                    "KIDS_ON_BROOMS",
-                    "OSR",
-                    "OATHSWORN",
-                    "ONE_ROLL_ENGINE",
-                    "PARANOIA",
-                    "PBTA",
-                    "PROWLERS_PARAGONS",
-                    "PUBLIC_ACCESS",
-                    "REBELLION_UNPLUGGED",
-                    "RISUS",
-                    "REVE_DE_DRAGON",
-                    "SALVAGE_UNION",
-                    "SAVAGE_WORLDS",
-                    "SAVAGE_WORLDS_ALIAS",
-                    "SHADOWRUN_IMAGE",
-                    "SHADOWRUN_ALIAS",
-                    "SHADOWRUN",
-                    "STAR_WARS_D6",
-                    "EXPANSE",
-                    "MARVEL",
-                    "THE_ONE_RING",
-                    "TINY_D6",
-                    "TRAVELLER",
-                    "VAMPIRE_5ED",
-                    "ALIEN",
-                    "NWOD",
-                    "NWOD_ALIAS",
-                    "OWOD",
-                    "OWOD_ALIAS",
-                    "COIN");
-        });
+        expect.toMatchSnapshot(res);
     }
 }

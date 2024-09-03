@@ -9,7 +9,7 @@ import de.janno.discord.bot.ButtonEventAdaptorMockFactory;
 import de.janno.discord.bot.command.AnswerFormatType;
 import de.janno.discord.bot.command.ButtonIdLabelAndDiceExpression;
 import de.janno.discord.bot.command.StateData;
-import de.janno.discord.bot.command.TestingUUIDSupplier;
+import de.janno.discord.bot.command.IncrementingUUIDSupplier;
 import de.janno.discord.bot.command.customDice.CustomDiceCommand;
 import de.janno.discord.bot.command.customDice.CustomDiceConfig;
 import de.janno.discord.bot.dice.CachingDiceEvaluator;
@@ -30,6 +30,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Locale;
 import java.util.UUID;
+import java.util.function.Supplier;
 
 @ExtendWith(SnapshotExtension.class)
 public class RerollAnswerHandlerMockTest {
@@ -56,7 +57,7 @@ public class RerollAnswerHandlerMockTest {
 
     @Test
     void customDice_reroll() {
-        TestingUUIDSupplier testingUUIDSupplier = new TestingUUIDSupplier();
+        Supplier<UUID> testingUUIDSupplier = IncrementingUUIDSupplier.create();
         CustomDiceCommand customDiceCommand = new CustomDiceCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0)), testingUUIDSupplier);
         RerollAnswerHandler rerollAnswerHandler = new RerollAnswerHandler(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(2)), testingUUIDSupplier);
         CustomDiceConfig config = new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "3d6+5d!4+3d[a/b/c/d]", false, false, null)), AnswerFormatType.full, AnswerInteractionType.reroll, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
