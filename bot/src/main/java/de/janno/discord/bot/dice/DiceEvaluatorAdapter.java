@@ -20,7 +20,9 @@ import org.apache.commons.lang3.StringUtils;
 import javax.annotation.Nullable;
 import java.io.InputStream;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -256,7 +258,8 @@ public class DiceEvaluatorAdapter {
                         .build();
             } else {
                 List<RollAnswer.RollResults> multiRollResults = rollResult.getRolls().stream()
-                        .map(r -> new RollAnswer.RollResults(r.getExpression(), getResult(r, sumUp), getRandomElementsStringUngrouped(r.getRandomElementsInRoll())))
+                        .map(r -> new RollAnswer.RollResults(r.getExpression(), getResult(r, sumUp),
+                                getRandomElementsString(r.getGroupedRandomElements())))
                         .collect(ImmutableList.toImmutableList());
                 return RollAnswer.builder()
                         .answerFormatType(answerFormatType)
@@ -294,27 +297,6 @@ public class DiceEvaluatorAdapter {
             return randomElementsInRoll.getFirst().stream().map(r -> r.getRollElement().toStringWithColorAndTag()).toList().toString();
         }
         return randomElementsInRoll.stream().map(l -> l.stream().map(r -> r.getRollElement().toStringWithColorAndTag()).toList().toString()).collect(Collectors.joining(" "));
-    }
-
-    //todo remove with next lib update
-    private String getRandomElementsStringUngrouped(ImmutableList<RandomElement> randomElementsInRoll) {
-        return getRandomElementsString(getGroupedRandomElements(randomElementsInRoll));
-    }
-
-    private ImmutableList<ImmutableList<RandomElement>> getGroupedRandomElements(ImmutableList<RandomElement> randomElementsInRoll) {
-        List<RollId> rollIds = randomElementsInRoll.stream()
-                .map(RandomElement::getDieId)
-                .map(DieId::getRollId)
-                .distinct()
-                .sorted()
-                .toList();
-
-        Map<RollId, List<RandomElement>> rollIdListMap = randomElementsInRoll.stream()
-                .collect(Collectors.groupingBy(r -> r.getDieId().getRollId()));
-
-        return rollIds.stream()
-                .map(rid -> rollIdListMap.get(rid).stream().sorted(Comparator.comparing(RandomElement::getDieId)).collect(ImmutableList.toImmutableList()))
-                .collect(ImmutableList.toImmutableList());
     }
 
 }
