@@ -723,6 +723,9 @@ de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandTest.getCommandDefi
         "options": [ ],
         "autoComplete": false
       }
+    ],
+    "integrationTypes": [
+      "GUILD_INSTALL"
     ]
   }
 ]

@@ -10,10 +10,6 @@ apply(plugin = "java")
 apply(plugin = "com.github.johnrengelman.shadow")
 apply(plugin = "jacoco")
 
-repositories {
-    mavenCentral()
-    maven { setUrl("https://jitpack.io") }
-}
 
 dependencies {
     implementation(project(":bot"))

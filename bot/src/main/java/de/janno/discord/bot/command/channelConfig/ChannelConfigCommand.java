@@ -14,10 +14,7 @@ import de.janno.discord.bot.persistance.ChannelConfigDTO;
 import de.janno.discord.bot.persistance.Mapper;
 import de.janno.discord.bot.persistance.PersistenceManager;
 import de.janno.discord.connector.api.*;
-import de.janno.discord.connector.api.slash.CommandDefinition;
-import de.janno.discord.connector.api.slash.CommandDefinitionOption;
-import de.janno.discord.connector.api.slash.CommandDefinitionOptionChoice;
-import de.janno.discord.connector.api.slash.CommandInteractionOption;
+import de.janno.discord.connector.api.slash.*;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
@@ -200,6 +197,7 @@ public class ChannelConfigCommand implements SlashCommand {
                 .nameLocales(I18n.allNoneEnglishMessagesNames("channel_config.name"))
                 .description(I18n.getMessage("channel_config.description", Locale.ENGLISH))
                 .descriptionLocales(I18n.allNoneEnglishMessagesDescriptions("channel_config.description"))
+                .integrationTypes(CommandIntegrationType.ALL)
                 .option(CommandDefinitionOption.builder()
                         .name(SAVE_DIRECT_ROLL_CONFIG_OPTION_NAME)
                         .nameLocales(I18n.allNoneEnglishMessagesNames("channel_config.option.save_direct_roll_config.name"))

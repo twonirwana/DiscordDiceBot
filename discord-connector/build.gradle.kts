@@ -2,9 +2,6 @@ plugins {
     id("java-library")
 }
 
-repositories {
-    mavenCentral()
-}
 
 dependencies {
     api(project(":discord-connector:api"))

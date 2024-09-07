@@ -441,6 +441,9 @@ de.janno.discord.bot.command.customDice.CustomDiceCommandTest.getCommandDefiniti
         "options": [ ],
         "autoComplete": false
       }
+    ],
+    "integrationTypes": [
+      "GUILD_INSTALL"
     ]
   }
 ]

@@ -538,6 +538,9 @@ de.janno.discord.bot.command.starter.StarterCommandTest.getCommandDefinition=[
         "options": [ ],
         "autoComplete": false
       }
+    ],
+    "integrationTypes": [
+      "GUILD_INSTALL"
     ]
   }
 ]

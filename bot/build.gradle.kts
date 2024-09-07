@@ -3,10 +3,6 @@ plugins {
     id("jacoco")
 }
 
-repositories {
-    mavenCentral()
-}
-
 dependencies {
     implementation(project(":discord-connector"))
     implementation("io.github.twonirwana:dice-evaluator:v0.9.1")
