@@ -2,6 +2,7 @@ package de.janno.discord.connector.jda;
 
 import de.janno.discord.connector.api.slash.*;
 import net.dv8tion.jda.api.interactions.DiscordLocale;
+import net.dv8tion.jda.api.interactions.IntegrationType;
 import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
@@ -31,7 +32,20 @@ public class ApplicationCommandConverter {
                 .nameLocales(discordLocale2LocaleName(slashCommand.getNameLocalizations()))
                 .descriptionLocales(discordLocale2LocaleDescription(slashCommand.getDescriptionLocalizations()))
                 .options(optionList)
+                .integrationTypes(integrationTypes2CommandIntegrationTypes(slashCommand.getIntegrationTypes()))
                 .build();
+    }
+
+    private static Set<IntegrationType> commandIntegrationTypes2IntegrationTypes(Set<CommandIntegrationType> commandIntegrationTypes) {
+        return commandIntegrationTypes.stream()
+                .map(i -> IntegrationType.valueOf(i.name()))
+                .collect(Collectors.toSet());
+    }
+
+    private static Set<CommandIntegrationType > integrationTypes2CommandIntegrationTypes(Set<IntegrationType> integrationTypes) {
+        return integrationTypes.stream()
+                .map(i -> CommandIntegrationType.valueOf(i.name()))
+                .collect(Collectors.toSet());
     }
 
     private static CommandDefinitionOption subcommandGroup2CommandDefinitionOption(Command.SubcommandGroup subcommandGroup) {
@@ -86,6 +100,7 @@ public class ApplicationCommandConverter {
         return new CommandDataImpl(commandDefinition.getName(), commandDefinition.getDescription())
                 .setNameLocalizations(localeName2DiscordLocaleMap(commandDefinition.getNameLocales()))
                 .setDescriptionLocalizations(localeDescription2DiscordLocaleMap(commandDefinition.getDescriptionLocales()))
+                .setIntegrationTypes(commandIntegrationTypes2IntegrationTypes(commandDefinition.getIntegrationTypes()))
                 .addSubcommands(commandDefinition.getOptions().stream()
                         .filter(c -> c.getType() == CommandDefinitionOption.Type.SUB_COMMAND)
                         .map(ApplicationCommandConverter::commandDefinitionOption2SubcommandData)

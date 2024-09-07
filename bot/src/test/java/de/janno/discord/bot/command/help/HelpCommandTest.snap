@@ -17,7 +17,11 @@ de.janno.discord.bot.command.help.HelpCommandTest.getCommandDefinition=[
         "description": "Aide aux commandes et liens pour plus d'informations"
       }
     ],
-    "options": [ ]
+    "options": [ ],
+    "integrationTypes": [
+      "GUILD_INSTALL",
+      "USER_INSTALL"
+    ]
   }
 ]
 

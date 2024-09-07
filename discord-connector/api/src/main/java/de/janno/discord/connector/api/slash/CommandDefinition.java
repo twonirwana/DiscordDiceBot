@@ -29,13 +29,21 @@ public class CommandDefinition {
     Set<CommandLocaleDescription> descriptionLocales;
     @Singular
     List<CommandDefinitionOption> options;
+    @Singular
+    Set<CommandIntegrationType> integrationTypes;
 
-    public CommandDefinition(@NonNull String name, @NonNull String description, Set<CommandLocaleName> nameLocales, Set<CommandLocaleDescription> descriptionLocales, List<CommandDefinitionOption> options) {
+    public CommandDefinition(@NonNull String name,
+                             @NonNull String description,
+                             Set<CommandLocaleName> nameLocales,
+                             Set<CommandLocaleDescription> descriptionLocales,
+                             List<CommandDefinitionOption> options,
+                             Set<CommandIntegrationType> integrationTypes) {
         this.name = name;
         this.description = description;
         this.nameLocales = nameLocales;
         this.descriptionLocales = descriptionLocales;
         this.options = options;
+        this.integrationTypes = (integrationTypes == null || integrationTypes.isEmpty()) ? Set.of(CommandIntegrationType.GUILD_INSTALL) : integrationTypes;
 
         //https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-naming
         Preconditions.checkArgument(NAME_PATTERN.matcher(name).matches(), "Invalid command name: %s", name);

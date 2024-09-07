@@ -22,6 +22,7 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.session.ReadyEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.interactions.Interaction;
 import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder;
 import net.dv8tion.jda.api.sharding.ShardManager;
@@ -41,6 +42,8 @@ import java.util.function.Function;
 
 @Slf4j
 public class JdaClient {
+
+    private final static String WITHOUT_GUILD = "without_guild";
 
     public JdaClient(@NonNull List<SlashCommand> slashCommands,
                      @NonNull List<ComponentInteractEventHandler> componentInteractEventHandlers,
@@ -135,7 +138,7 @@ public class JdaClient {
 
                                 Requester requester = new Requester(event.getInteraction().getUser().getName(),
                                         event.getChannel().getName(),
-                                        Optional.ofNullable(event.getInteraction().getGuild()).map(Guild::getName).orElse(""),
+                                        getGuildName(event.getInteraction()),
                                         event.getJDA().getShardInfo().getShardString(),
                                         userLocale);
                                 if (matchingHandler.size() != 1) {
@@ -171,10 +174,10 @@ public class JdaClient {
                                         .toList();
 
                                 Locale userLocale = LocaleConverter.toLocale(event.getInteraction().getUserLocale());
-
+                                //todo metric with:  event.getContext()
                                 Requester requester = new Requester(event.getInteraction().getUser().getName(),
                                         event.getChannel().getName(),
-                                        Optional.ofNullable(event.getInteraction().getGuild()).map(Guild::getName).orElse(""),
+                                        getGuildName(event.getInteraction()),
                                         event.getJDA().getShardInfo().getShardString(),
                                         userLocale);
                                 if (matchingHandler.size() != 1) {
@@ -206,10 +209,10 @@ public class JdaClient {
                                         .filter(command -> command.matchingComponentCustomId(event.getInteraction().getComponentId()))
                                         .toList();
                                 Locale userLocale = LocaleConverter.toLocale(event.getInteraction().getUserLocale());
-
+                                //todo metric  interaction.getContext()
                                 Requester requester = new Requester(event.getInteraction().getUser().getName(),
                                         event.getChannel().getName(),
-                                        Optional.ofNullable(event.getInteraction().getGuild()).map(Guild::getName).orElse(""),
+                                        getGuildName(event.getInteraction()),
                                         event.getJDA().getShardInfo().getShardString(),
                                         userLocale);
                                 if (matchingHandler.size() != 1) {
@@ -273,6 +276,13 @@ public class JdaClient {
         return Optional.of(channel)
                 .flatMap(g -> Optional.of(g.getGuild()).map(Guild::getSelfMember).map(m -> m.hasPermission(g, permission)))
                 .orElse(false);
+    }
+
+    private static String getGuildName(Interaction interaction) {
+        if (!interaction.hasFullGuild()) {
+            return WITHOUT_GUILD;
+        }
+        return Optional.ofNullable(interaction.getGuild()).map(Guild::getName).orElse(WITHOUT_GUILD);
     }
 
     private static void shutdown(JDA jda) {

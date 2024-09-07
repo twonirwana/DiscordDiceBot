@@ -58,7 +58,8 @@ public class SlashEventAdapterImpl extends DiscordAdapterImpl implements SlashEv
 
     @Override
     public Optional<String> checkPermissions(@NonNull Locale userLocale) {
-        return checkPermission(event.getMessageChannel(), event.getGuild(), false, userLocale);
+        Guild guild = event.hasFullGuild() ? event.getGuild() : null;
+        return checkPermission(event.getMessageChannel(), guild, false, userLocale);
     }
 
     @Override
