@@ -3,7 +3,6 @@ package de.janno.discord.bot.command.directRoll;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Stopwatch;
-import com.google.common.base.Strings;
 import de.janno.discord.bot.AnswerInteractionType;
 import de.janno.discord.bot.BotMetrics;
 import de.janno.discord.bot.I18n;
@@ -34,8 +33,6 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static de.janno.discord.bot.command.channelConfig.ChannelConfigCommand.DIRECT_ROLL_CONFIG_TYPE_ID;
 
@@ -155,13 +152,9 @@ public class DirectRollCommand implements SlashCommand {
                                                  @NonNull RollAnswer answer,
                                                  @NonNull Stopwatch stopwatch,
                                                  @NonNull Locale userLocale) {
-        String warningMessage = Stream.of(commandString, answer.getWarning())
-                .filter(s -> !Strings.isNullOrEmpty(s))
-                .collect(Collectors.joining(" "));
 
-        Mono<Void> answerMono = Strings.isNullOrEmpty(answer.getWarning()) ?
-                Mono.defer(() -> event.replyWithEmbedOrMessageDefinition(RollAnswerConverter.toEmbedOrMessageDefinition(answer), false)) :
-                Mono.defer(() -> event.reply(warningMessage, true));
+        //ignore warning, no good way to display it
+        Mono<Void> answerMono = Mono.defer(() -> event.replyWithEmbedOrMessageDefinition(RollAnswerConverter.toEmbedOrMessageDefinition(answer), false));
         return answerMono
                 .doOnSuccess(v ->
                         log.info("{}: '{}'={} -> {} in {}ms",
