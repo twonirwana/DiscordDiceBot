@@ -41,6 +41,9 @@ public class Parameter {
                                   @NonNull String nextPathId) {
         @Override
         public String toString() {
+            if (value.equals(label)) {
+                return value.replace("\n", " ");
+            }
             return "%s@%s".formatted(value, label).replace("\n", " ");
         }
     }

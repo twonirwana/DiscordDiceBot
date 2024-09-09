@@ -46,7 +46,7 @@ public class SelectedParameter {
         this.finished = Optional.ofNullable(finished).orElse(selectedValue != null);
         this.pathId = Optional.ofNullable(pathId).orElse(Parameter.NO_PATH);
         //legacy handling, if a parameter is finished then the next path is always set
-        if(this.finished && nextPathId == null) {
+        if (this.finished && nextPathId == null) {
             this.nextPathId = Parameter.NO_PATH;
         } else {
             this.nextPathId = nextPathId;
@@ -56,7 +56,7 @@ public class SelectedParameter {
 
     @JsonIgnore
     public String getShortString() {
-        return String.format("%s=%s", parameterExpression,
+        return "%s=%s".formatted(parameterExpression,
                 (Optional.ofNullable(labelOfSelectedValue).orElse(""))).replace("\n", " ");
     }
 

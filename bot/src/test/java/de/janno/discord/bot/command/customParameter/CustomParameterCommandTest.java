@@ -95,7 +95,7 @@ class CustomParameterCommandTest {
                 Arguments.of("{number:1<=>15!2!}d{sides!2!:1<=>15}", List.of(
                         new Parameter("{number:1<=>15!2!}", "number", IntStream.range(1, 16)
                                 .mapToObj(String::valueOf)
-                                .map(s -> new Parameter.ParameterOption(s, s, "id%s".formatted(s), false, "2"))
+                                .map(s -> new Parameter.ParameterOption(s, s, "id%s".formatted(s), false, ""))
                                 .toList(), ""),
                         new Parameter("{sides!2!:1<=>15}", "sides", IntStream.range(1, 16)
                                 .mapToObj(String::valueOf)
@@ -279,7 +279,7 @@ class CustomParameterCommandTest {
         UUID configUUID = UUID.randomUUID();
         long channelId = System.currentTimeMillis();
         long messageId = System.currentTimeMillis();
-        CustomParameterConfig config = new CustomParameterConfig(123L, "{n:1<=>15!2!}d{s!2!}", AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
+        CustomParameterConfig config = new CustomParameterConfig(123L, "{n:1!1!/2!2!/3!3!}d{s!2!}", AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
         Optional<MessageConfigDTO> toSave = underTest.createMessageConfig(configUUID, 1L, channelId, config);
         assertThat(toSave).isPresent();
 
@@ -288,14 +288,14 @@ class CustomParameterCommandTest {
 
         assertThat(toSave.get()).isEqualTo(loaded);
         CustomParameterStateData stateData = new CustomParameterStateData(List.of(
-                new SelectedParameter("{n:1<=>15!2!}", "n", null, null, false, "", null),
+                new SelectedParameter("{n:1!1!/2!2!/3!3!}", "n", null, null, false, "", null),
                 new SelectedParameter("{s!2!}", "s", null, null, false, "2", null)), "userName");
         MessageDataDTO messageDataDTO = new MessageDataDTO(configUUID, 1L, channelId, messageId, "custom_parameter", "CustomParameterStateDataV2", Mapper.serializedObject(stateData));
-        ConfigAndState<CustomParameterConfig, CustomParameterStateData> configAndState = underTest.deserializeAndUpdateState(loaded, messageDataDTO, "5", "userName");
+        ConfigAndState<CustomParameterConfig, CustomParameterStateData> configAndState = underTest.deserializeAndUpdateState(loaded, messageDataDTO, "2", "userName");
         assertThat(configAndState.getConfig()).isEqualTo(config);
         assertThat(configAndState.getConfigUUID()).isEqualTo(configUUID);
         assertThat(configAndState.getState().getData()).isEqualTo(new CustomParameterStateData(List.of(
-                new SelectedParameter("{n:1<=>15!2!}", "n", "5", "5", true, "", "2"),
+                new SelectedParameter("{n:1!1!/2!2!/3!3!}", "n", "2", "2", true, "", "2"),
                 new SelectedParameter("{s!2!}", "s", null, null, false, "2", null)), "userName"));
     }
 

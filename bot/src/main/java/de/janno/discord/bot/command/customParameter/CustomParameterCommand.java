@@ -214,12 +214,9 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
                 int min = getMinButtonFrom(parameterExpression);
                 int max = getMaxButtonFrom(parameterExpression);
                 AtomicInteger counter = new AtomicInteger(1);
-                final String rangeSplit = parameterExpression.split(RANGE_DELIMITER)[1];
-                final String rangeExpression = rangeSplit.substring(0, rangeSplit.length() - 1); //remove } at the ende
-                final String nextPathId = getPathId(rangeExpression);
                 builder.add(new Parameter(parameterExpression, name, IntStream.range(min, max + 1)
                         .mapToObj(String::valueOf)
-                        .map(s -> new Parameter.ParameterOption(s, s, createParameterOptionIdFromIndex(counter.getAndIncrement()), false, nextPathId))
+                        .map(s -> new Parameter.ParameterOption(s, s, createParameterOptionIdFromIndex(counter.getAndIncrement()), false, Parameter.NO_PATH))
                         .toList(), pathId));
             } else if (valueMatcher.find()) {
                 String buttonValueExpression = valueMatcher.group(1);
