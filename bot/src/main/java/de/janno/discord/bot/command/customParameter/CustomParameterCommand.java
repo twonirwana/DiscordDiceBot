@@ -64,6 +64,8 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     private static final String STATE_DATA_TYPE_ID_LEGACY = "CustomParameterStateData";
     private static final String CONFIG_TYPE_ID = "CustomParameterConfig";
     private final static Pattern LABEL_MATCHER = Pattern.compile("@[^}]+$", Pattern.DOTALL);
+    private final static String SKIPPED_BY_PATH_VALUE = "";
+    private final static String SKIPPED_BY_DIRECT_ROLL_VALUE = "''";
     private final DiceEvaluatorAdapter diceEvaluatorAdapter;
 
     public CustomParameterCommand(PersistenceManager persistenceManager, CachingDiceEvaluator cachingDiceEvaluator) {
@@ -122,7 +124,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
         ImmutableList<SelectedParameter> newSelectedParameterList = currentOrNewSelectedParameter.stream()
                 .map(sp -> {
                     if (directRoll.get()) {
-                        return new SelectedParameter(sp.getParameterExpression(), sp.getName(), null, null, true, sp.getPathId(), Parameter.NO_PATH);
+                        return new SelectedParameter(sp.getParameterExpression(), sp.getName(), SKIPPED_BY_DIRECT_ROLL_VALUE, null, true, sp.getPathId(), Parameter.NO_PATH);
                     }
                     if (Objects.equals(sp.getParameterExpression(), currentParameterExpression.get()) &&
                             (currentlyLockedForUser == null || Objects.equals(currentlyLockedForUser, invokingUser))) {
@@ -148,7 +150,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
                     if (removePathNotMathingThis.get() != null) {
                         if (!Objects.equals(sp.getPathId(), removePathNotMathingThis.get())) {
                             //all not matching paths get finished
-                            return new SelectedParameter(sp.getParameterExpression(), sp.getName(), null, null, true, sp.getPathId(), Parameter.NO_PATH);
+                            return new SelectedParameter(sp.getParameterExpression(), sp.getName(), SKIPPED_BY_PATH_VALUE, null, true, sp.getPathId(), Parameter.NO_PATH);
                         } else {
                             //after the first matching path no filter are applied
                             removePathNotMathingThis.set(null);
@@ -175,17 +177,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
         List<SelectedParameter> selectedParameters = Optional.ofNullable(state.getData()).map(CustomParameterStateData::getSelectedParameterValues).orElse(ImmutableList.of());
         for (SelectedParameter selectedParameter : selectedParameters) {
             if (selectedParameter.isFinished()) {
-                //todo set in value?
-                final String replaceString;
-                if (selectedParameter.getSelectedValue() != null) {
-                    replaceString = selectedParameter.getSelectedValue();
-                } else if(!Parameter.NO_PATH.equals(selectedParameter.getPathId())) {
-                    //skipped with path
-                    replaceString = "";
-                } else {
-                    replaceString = "''";
-                }
-                filledExpression = filledExpression.replace(selectedParameter.getParameterExpression(), replaceString);
+                filledExpression = filledExpression.replace(selectedParameter.getParameterExpression(), Optional.ofNullable(selectedParameter.getSelectedValue()).orElse(""));
             }
         }
         return filledExpression;
@@ -373,7 +365,8 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
                 label = null;
             } else {
                 label = Optional.ofNullable(state.getData()).map(CustomParameterStateData::getSelectedParameterValues).orElse(List.of()).stream()
-                        .filter(sp -> sp.getSelectedValue() != null)
+                        //skipped by path have value "", skipped by direct roll have "''" as value
+                        .filter(sp -> !Set.of(SKIPPED_BY_PATH_VALUE, SKIPPED_BY_DIRECT_ROLL_VALUE).contains(sp.getSelectedValue()) && sp.getSelectedValue() != null)
                         .map(sp -> "%s: %s".formatted(sp.getName(), sp.getLabelOfSelectedValue()))
                         .collect(Collectors.joining(", "));
             }
