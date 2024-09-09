@@ -8,23 +8,37 @@ import java.util.List;
 @Value
 public class Parameter {
 
-    //parameter with {} and range
-    @NonNull String parameterExpression;
-    @NonNull String name;
-    @NonNull List<ParameterOption> parameterOptions;
+    public static String NO_PATH = "";
 
-    public Parameter(@NonNull String parameterExpression, @NonNull String name, @NonNull List<ParameterOption> parameterOptions) {
-        this.parameterExpression = parameterExpression;
-        this.name = name;
-        this.parameterOptions = parameterOptions;
-    }
+    /**
+     * parameter with {} and range
+     */
+    @NonNull
+    String parameterExpression;
+    @NonNull
+    String name;
+
+    @NonNull
+    List<ParameterOption> parameterOptions;
+    /**
+     * The pathId of the parameter, the pathId musst match the nextPathId of the last selected parameterOption or this parameter will be skipped
+     */
+    @NonNull
+    String pathId;
 
     @Override
     public String toString() {
         return "%s of %s".formatted(name, parameterOptions).replace("\n", " ");
     }
 
-    public record ParameterOption(@NonNull String value, @NonNull String label, @NonNull String id, boolean directRoll) {
+    /**
+     * The nextPathId filters the next parameter, all parameter with a different pathId will be skipped
+     */
+    public record ParameterOption(@NonNull String value,
+                                  @NonNull String label,
+                                  @NonNull String id,
+                                  boolean directRoll,
+                                  @NonNull String nextPathId) {
         @Override
         public String toString() {
             return "%s@%s".formatted(value, label).replace("\n", " ");

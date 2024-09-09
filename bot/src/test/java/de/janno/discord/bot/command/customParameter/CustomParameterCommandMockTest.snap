@@ -241,6 +241,54 @@ de.janno.discord.bot.command.customParameter.CustomParameterCommandMockTest.roll
 ]
 
 
+de.janno.discord.bot.command.customParameter.CustomParameterCommandMockTest.roll_pathPool[event1]=[
+  [
+    "editMessage: message:invokingUser: /custom_parameter start expression} + '$n'd10{target!1!}{modifier!2!}\nPlease select value for **type**, buttonValues=id1,id2,clear"
+  ]
+]
+
+
+de.janno.discord.bot.command.customParameter.CustomParameterCommandMockTest.roll_pathPool[event2]=[
+  [
+    "editMessage: message:invokingUser: /custom_parameter start expression}{modifier!2!}\nPlease select value for **target**, buttonValues=id1,id2,id3,clear"
+  ]
+]
+
+
+de.janno.discord.bot.command.customParameter.CustomParameterCommandMockTest.roll_pathPool[event3]=[
+  [
+    "deleteMessageById: 0",
+    "editMessage: message:processing ..., buttonValues=",
+    "sendMessage: EmbedOrMessageDefinition(title=Error in: null, descriptionOrContent=No matching operator for 'ustom', non-functional text and value names must to be surrounded by '' or [], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED, userReference=true, sendToOtherChannelId=null)",
+    "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=/custom_parameter start expression}),{type} + '$n'd10{target!1!}{modifier!2!}\nPlease select value for **numberOfDice**, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=1, id=custom_parameter\u001Eid1\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=2, id=custom_parameter\u001Eid2\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=3, id=custom_parameter\u001Eid3\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=4, id=custom_parameter\u001Eid4\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=5, id=custom_parameter\u001Eid5\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null)]), ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=6, id=custom_parameter\u001Eid6\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=7, id=custom_parameter\u001Eid7\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=8, id=custom_parameter\u001Eid8\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=9, id=custom_parameter\u001Eid9\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=10, id=custom_parameter\u001Eid10\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
+  ]
+]
+
+
+de.janno.discord.bot.command.customParameter.CustomParameterCommandMockTest.roll_pathSum[event1]=[
+  [
+    "editMessage: message:invokingUser: /custom_parameter start expression} + '$n'd10{target!1!}{modifier!2!}\nPlease select value for **type**, buttonValues=id1,id2,clear"
+  ]
+]
+
+
+de.janno.discord.bot.command.customParameter.CustomParameterCommandMockTest.roll_pathSum[event2]=[
+  [
+    "editMessage: message:invokingUser: /custom_parameter start expression}\nPlease select value for **modifier**, buttonValues=id1,id2,id3,clear"
+  ]
+]
+
+
+de.janno.discord.bot.command.customParameter.CustomParameterCommandMockTest.roll_pathSum[event3]=[
+  [
+    "deleteMessageById: 0",
+    "editMessage: message:processing ..., buttonValues=",
+    "sendMessage: EmbedOrMessageDefinition(title=Error in: null, descriptionOrContent=No matching operator for 'ustom', non-functional text and value names must to be surrounded by '' or [], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED, userReference=true, sendToOtherChannelId=null)",
+    "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=/custom_parameter start expression}),{type} + '$n'd10{target!1!}{modifier!2!}\nPlease select value for **numberOfDice**, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=1, id=custom_parameter\u001Eid1\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=2, id=custom_parameter\u001Eid2\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=3, id=custom_parameter\u001Eid3\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=4, id=custom_parameter\u001Eid4\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=5, id=custom_parameter\u001Eid5\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null)]), ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=6, id=custom_parameter\u001Eid6\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=7, id=custom_parameter\u001Eid7\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=8, id=custom_parameter\u001Eid8\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=9, id=custom_parameter\u001Eid9\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=10, id=custom_parameter\u001Eid10\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
+  ]
+]
+
+
 de.janno.discord.bot.command.customParameter.CustomParameterCommandMockTest.roll_pinnedTwice[event1]=[
   [
     "editMessage: message:invokingUser: 4d{sides}\nPlease select value for **sides**, buttonValues=id1,id2,id3,id4,id5,id6,id7,id8,clear"
