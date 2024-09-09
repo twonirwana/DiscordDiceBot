@@ -39,20 +39,20 @@ class CustomParameterCommandTest {
 
     private static Stream<Arguments> generateParameterExpression2ButtonValuesData() {
         return Stream.of(
-                Arguments.of("{test}", IntStream.range(1, 16).mapToObj(i -> new CustomParameterCommand.ButtonLabelAndId(String.valueOf(i), "id%d".formatted(i), false)).toList()),
-                Arguments.of("{test!2!}", IntStream.range(1, 16).mapToObj(i -> new CustomParameterCommand.ButtonLabelAndId(String.valueOf(i), "id%d".formatted(i), false)).toList()),
-                Arguments.of("{!2!test}", IntStream.range(1, 16).mapToObj(i -> new CustomParameterCommand.ButtonLabelAndId(String.valueOf(i), "id%d".formatted(i), false)).toList()),
-                Arguments.of("{!2!test!3!}", IntStream.range(1, 16).mapToObj(i -> new CustomParameterCommand.ButtonLabelAndId(String.valueOf(i), "id%d".formatted(i), false)).toList()),
-                Arguments.of("{test:2<=>4}", IntStream.range(1, 4).mapToObj(i -> new CustomParameterCommand.ButtonLabelAndId(String.valueOf(i + 1), "id%d".formatted(i), false)).toList()),
-                Arguments.of("{test:2<=>4!3!}", IntStream.range(1, 4).mapToObj(i -> new CustomParameterCommand.ButtonLabelAndId(String.valueOf(i + 1), "id%d".formatted(i), false)).toList()),
-                Arguments.of("{test:2<=>1}", ImmutableList.of(new CustomParameterCommand.ButtonLabelAndId("2", "id1", false))),
-                Arguments.of("{test:-2<=>1}", IntStream.range(1, 5).mapToObj(i -> new CustomParameterCommand.ButtonLabelAndId(String.valueOf(i - 3), "id%d".formatted(i), false)).toList()),
-                Arguments.of("{test:-10<=>-5}", IntStream.range(1, 7).mapToObj(i -> new CustomParameterCommand.ButtonLabelAndId(String.valueOf(i - 11), "id%d".formatted(i), false)).toList()),
-                Arguments.of("{test:1d6/+5/abc}", ImmutableList.of(new CustomParameterCommand.ButtonLabelAndId("1d6", "id1", false), new CustomParameterCommand.ButtonLabelAndId("+5", "id2", false), new CustomParameterCommand.ButtonLabelAndId("abc", "id3", false))),
-                Arguments.of("{test:1d6!1!/+5!2!/abc!3!}", ImmutableList.of(new CustomParameterCommand.ButtonLabelAndId("1d6", "id1", false), new CustomParameterCommand.ButtonLabelAndId("+5", "id2", false), new CustomParameterCommand.ButtonLabelAndId("abc", "id3", false))),
-                Arguments.of("{test:1d6@d6/+5@Bonus/abc}", ImmutableList.of(new CustomParameterCommand.ButtonLabelAndId("d6", "id1", false), new CustomParameterCommand.ButtonLabelAndId("Bonus", "id2", false), new CustomParameterCommand.ButtonLabelAndId("abc", "id3", false))),
-                Arguments.of("{test!2!:1d6!1!@d6/+5@Bonus/abc}", ImmutableList.of(new CustomParameterCommand.ButtonLabelAndId("d6", "id1", false), new CustomParameterCommand.ButtonLabelAndId("Bonus", "id2", false), new CustomParameterCommand.ButtonLabelAndId("abc", "id3", false))),
-                Arguments.of("{test:1d6@!d6/+5@!/abc}", ImmutableList.of(new CustomParameterCommand.ButtonLabelAndId("d6", "id1", true), new CustomParameterCommand.ButtonLabelAndId("!", "id2", false), new CustomParameterCommand.ButtonLabelAndId("abc", "id3", false)))
+                Arguments.of("{test}", IntStream.range(1, 16).mapToObj(i -> new CustomParameterValidator.ButtonLabelAndId(String.valueOf(i), "id%d".formatted(i), false)).toList()),
+                Arguments.of("{test!2!}", IntStream.range(1, 16).mapToObj(i -> new CustomParameterValidator.ButtonLabelAndId(String.valueOf(i), "id%d".formatted(i), false)).toList()),
+                Arguments.of("{!2!test}", IntStream.range(1, 16).mapToObj(i -> new CustomParameterValidator.ButtonLabelAndId(String.valueOf(i), "id%d".formatted(i), false)).toList()),
+                Arguments.of("{!2!test!3!}", IntStream.range(1, 16).mapToObj(i -> new CustomParameterValidator.ButtonLabelAndId(String.valueOf(i), "id%d".formatted(i), false)).toList()),
+                Arguments.of("{test:2<=>4}", IntStream.range(1, 4).mapToObj(i -> new CustomParameterValidator.ButtonLabelAndId(String.valueOf(i + 1), "id%d".formatted(i), false)).toList()),
+                Arguments.of("{test:2<=>4!3!}", IntStream.range(1, 4).mapToObj(i -> new CustomParameterValidator.ButtonLabelAndId(String.valueOf(i + 1), "id%d".formatted(i), false)).toList()),
+                Arguments.of("{test:2<=>1}", ImmutableList.of(new CustomParameterValidator.ButtonLabelAndId("2", "id1", false))),
+                Arguments.of("{test:-2<=>1}", IntStream.range(1, 5).mapToObj(i -> new CustomParameterValidator.ButtonLabelAndId(String.valueOf(i - 3), "id%d".formatted(i), false)).toList()),
+                Arguments.of("{test:-10<=>-5}", IntStream.range(1, 7).mapToObj(i -> new CustomParameterValidator.ButtonLabelAndId(String.valueOf(i - 11), "id%d".formatted(i), false)).toList()),
+                Arguments.of("{test:1d6/+5/abc}", ImmutableList.of(new CustomParameterValidator.ButtonLabelAndId("1d6", "id1", false), new CustomParameterValidator.ButtonLabelAndId("+5", "id2", false), new CustomParameterValidator.ButtonLabelAndId("abc", "id3", false))),
+                Arguments.of("{test:1d6!1!/+5!2!/abc!3!}", ImmutableList.of(new CustomParameterValidator.ButtonLabelAndId("1d6", "id1", false), new CustomParameterValidator.ButtonLabelAndId("+5", "id2", false), new CustomParameterValidator.ButtonLabelAndId("abc", "id3", false))),
+                Arguments.of("{test:1d6@d6/+5@Bonus/abc}", ImmutableList.of(new CustomParameterValidator.ButtonLabelAndId("d6", "id1", false), new CustomParameterValidator.ButtonLabelAndId("Bonus", "id2", false), new CustomParameterValidator.ButtonLabelAndId("abc", "id3", false))),
+                Arguments.of("{test!2!:1d6!1!@d6/+5@Bonus/abc}", ImmutableList.of(new CustomParameterValidator.ButtonLabelAndId("d6", "id1", false), new CustomParameterValidator.ButtonLabelAndId("Bonus", "id2", false), new CustomParameterValidator.ButtonLabelAndId("abc", "id3", false))),
+                Arguments.of("{test:1d6@!d6/+5@!/abc}", ImmutableList.of(new CustomParameterValidator.ButtonLabelAndId("d6", "id1", true), new CustomParameterValidator.ButtonLabelAndId("!", "id2", false), new CustomParameterValidator.ButtonLabelAndId("abc", "id3", false)))
         );
     }
 
@@ -73,6 +73,7 @@ class CustomParameterCommandTest {
                 Arguments.of("{n}d{s:4/6/10/20@!20}*{modi:1/2/3}=", "The following expression is invalid: `15d20`__*__`''=`. The error is: '*' requires as left input a single decimal but was '[20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20]'. Try to sum the numbers together like (15d20=). Use /custom_parameter help to get more information on how to use the command."),
                 Arguments.of("1d6", "The expression needs at least one parameter expression like `{name}`"),
                 Arguments.of("{a1}{a2}{a3}{a4}{a6}", "The expression is allowed a maximum of 4 variables"),
+                Arguments.of("{a1}{a2}{a3:1!1!/2!2!}{a4!1!}{a6!2!}", null),
                 Arguments.of("{number:3<=>6}d{sides:6/10/12}", null),
                 Arguments.of("{number}{a:a/c/b/d/d}{sides:3<=>6}", "The following expression is invalid: `15`__a__`6`. The error is: No matching operator for 'a', non-functional text and value names must to be surrounded by '' or []. Use /custom_parameter help to get more information on how to use the command."),
                 Arguments.of("{number}d{sides:3/4/'ab'}", null),
@@ -176,9 +177,9 @@ class CustomParameterCommandTest {
 
     @ParameterizedTest(name = "{index} {0} -> {1}")
     @MethodSource("generateParameterExpression2ButtonValuesData")
-    void getButtonValues(String parameterExpression, List<CustomParameterCommand.ButtonLabelAndId> expectedResult) {
+    void getButtonValues(String parameterExpression, List<CustomParameterValidator.ButtonLabelAndId> expectedResult) {
         CustomParameterConfig config = new CustomParameterConfig(null, "1d6 + {a} + " + parameterExpression, AnswerFormatType.without_expression, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
-        List<CustomParameterCommand.ButtonLabelAndId> res = underTest.getButtons(config, parameterExpression);
+        List<CustomParameterValidator.ButtonLabelAndId> res = CustomParameterValidator.getButtons(config, parameterExpression);
         assertThat(res).isEqualTo(expectedResult);
     }
 
@@ -244,15 +245,15 @@ class CustomParameterCommandTest {
 
     @Test
     public void filterToCornerCases() {
-        List<CustomParameterCommand.ButtonLabelAndId> buttonLabelAndIds = List.of(
-                new CustomParameterCommand.ButtonLabelAndId("ignore", "1", false),
-                new CustomParameterCommand.ButtonLabelAndId("ignore", "2", false),
-                new CustomParameterCommand.ButtonLabelAndId("ignore", "3", false),
-                new CustomParameterCommand.ButtonLabelAndId("ignore", "4", false),
-                new CustomParameterCommand.ButtonLabelAndId("ignore", "5", false),
-                new CustomParameterCommand.ButtonLabelAndId("ignore", "6", false),
-                new CustomParameterCommand.ButtonLabelAndId("ignore", "7", false),
-                new CustomParameterCommand.ButtonLabelAndId("ignore", "8", true)
+        List<CustomParameterValidator.ButtonLabelAndId> buttonLabelAndIds = List.of(
+                new CustomParameterValidator.ButtonLabelAndId("ignore", "1", false),
+                new CustomParameterValidator.ButtonLabelAndId("ignore", "2", false),
+                new CustomParameterValidator.ButtonLabelAndId("ignore", "3", false),
+                new CustomParameterValidator.ButtonLabelAndId("ignore", "4", false),
+                new CustomParameterValidator.ButtonLabelAndId("ignore", "5", false),
+                new CustomParameterValidator.ButtonLabelAndId("ignore", "6", false),
+                new CustomParameterValidator.ButtonLabelAndId("ignore", "7", false),
+                new CustomParameterValidator.ButtonLabelAndId("ignore", "8", true)
         );
         List<Parameter.ParameterOption> parameterOptions = List.of(
                 new Parameter.ParameterOption("-2", "ignore", "1", false, ""),
@@ -265,9 +266,9 @@ class CustomParameterCommandTest {
                 new Parameter.ParameterOption("x", "ignore", "8", false, "")
         );
 
-        List<CustomParameterCommand.ButtonLabelAndId> res = underTest.filterToCornerCases(buttonLabelAndIds, parameterOptions);
+        List<CustomParameterValidator.ButtonLabelAndId> res = CustomParameterValidator.filterToCornerCases(buttonLabelAndIds, parameterOptions);
 
-        assertThat(res.stream().map(CustomParameterCommand.ButtonLabelAndId::getId)).containsExactlyInAnyOrder("1", "3", "5", "6", "7", "8");
+        assertThat(res.stream().map(CustomParameterValidator.ButtonLabelAndId::id)).containsExactlyInAnyOrder("1", "3", "5", "6", "7", "8");
     }
 
     @Test

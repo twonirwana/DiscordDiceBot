@@ -30,7 +30,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class CustomParameterCommandMockTest {
 
     PersistenceManager persistenceManager;
-    private Expect expect;
+    Expect expect;
 
     @BeforeEach
     void setup() {

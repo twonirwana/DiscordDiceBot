@@ -2,7 +2,6 @@ package de.janno.discord.bot.command.customParameter;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
-import com.google.common.base.Stopwatch;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -25,23 +24,19 @@ import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinitionOption;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import lombok.NonNull;
-import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Nullable;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 @Slf4j
 public class CustomParameterCommand extends AbstractCommand<CustomParameterConfig, CustomParameterStateData> {
@@ -78,7 +73,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
         this.diceEvaluatorAdapter = new DiceEvaluatorAdapter(cachingDiceEvaluator);
     }
 
-    private static @NonNull String getNextParameterExpression(@NonNull String expression) {
+    static @NonNull String getNextParameterExpression(@NonNull String expression) {
         Matcher matcher = PARAMETER_VARIABLE_PATTERN.matcher(expression);
         if (matcher.find()) {
             return matcher.group(0);
@@ -98,11 +93,11 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
                 .isPresent();
     }
 
-    private static CustomParameterStateData updateState(@Nullable List<SelectedParameter> currentlySelectedParameterList,
-                                                        @NonNull CustomParameterConfig config,
-                                                        @NonNull String buttonValue,
-                                                        @Nullable String currentlyLockedForUser,
-                                                        @NonNull String invokingUser) {
+    static CustomParameterStateData updateState(@Nullable List<SelectedParameter> currentlySelectedParameterList,
+                                                @NonNull CustomParameterConfig config,
+                                                @NonNull String buttonValue,
+                                                @Nullable String currentlyLockedForUser,
+                                                @NonNull String invokingUser) {
         final String shouldBeLockedForUser;
         List<SelectedParameter> currentOrNewSelectedParameter = Optional.ofNullable(currentlySelectedParameterList).orElse(config.getParameters().stream()
 
@@ -162,7 +157,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
         return new CustomParameterStateData(newSelectedParameterList, shouldBeLockedForUser);
     }
 
-    private static Optional<Parameter> getParameterForParameterExpression(@NonNull CustomParameterConfig config, @Nullable String parameterExpression) {
+    static Optional<Parameter> getParameterForParameterExpression(@NonNull CustomParameterConfig config, @Nullable String parameterExpression) {
         if (parameterExpression == null) {
             return Optional.empty();
         }
@@ -300,6 +295,35 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
         return Mapper.deserializeObject(messageConfigDTO.getConfig(), CustomParameterConfig.class);
     }
 
+    static String removeSuffixLabelFromExpression(@NonNull String expression, @Nullable String label) {
+        String atWithLabel = "@" + label;
+        if (label != null && expression.endsWith(atWithLabel)) { //only remove if the label is from the suffix
+            return expression.substring(0, expression.length() - atWithLabel.length());
+        }
+        return expression;
+    }
+
+    static String getLabel(CustomParameterConfig config, State<CustomParameterStateData> state) {
+        final String label;
+        Matcher labelMatcher = LABEL_MATCHER.matcher(removeRange(config.getBaseExpression()));
+
+        if (labelMatcher.find()) {
+            String match = labelMatcher.group();
+            label = match.substring(1); //remove @
+        } else {
+            if (config.getAnswerFormatType() == AnswerFormatType.full) {
+                label = null;
+            } else {
+                label = Optional.ofNullable(state.getData()).map(CustomParameterStateData::getSelectedParameterValues).orElse(List.of()).stream()
+                        //skipped by path have value "", skipped by direct roll have "''" as value
+                        .filter(sp -> !Set.of(SKIPPED_BY_PATH_VALUE, SKIPPED_BY_DIRECT_ROLL_VALUE).contains(sp.getSelectedValue()) && sp.getSelectedValue() != null)
+                        .map(sp -> "%s: %s".formatted(sp.getName(), sp.getLabelOfSelectedValue()))
+                        .collect(Collectors.joining(", "));
+            }
+        }
+        return label;
+    }
+
     @Override
     protected @NonNull EmbedOrMessageDefinition getHelpMessage(Locale userLocale) {
         return EmbedOrMessageDefinition.builder()
@@ -343,35 +367,6 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
                     config.getConfigLocale()));
         }
         return Optional.empty();
-    }
-
-    private String removeSuffixLabelFromExpression(@NonNull String expression, @Nullable String label) {
-        String atWithLabel = "@" + label;
-        if (label != null && expression.endsWith(atWithLabel)) { //only remove if the label is from the suffix
-            return expression.substring(0, expression.length() - atWithLabel.length());
-        }
-        return expression;
-    }
-
-    private String getLabel(CustomParameterConfig config, State<CustomParameterStateData> state) {
-        final String label;
-        Matcher labelMatcher = LABEL_MATCHER.matcher(removeRange(config.getBaseExpression()));
-
-        if (labelMatcher.find()) {
-            String match = labelMatcher.group();
-            label = match.substring(1); //remove @
-        } else {
-            if (config.getAnswerFormatType() == AnswerFormatType.full) {
-                label = null;
-            } else {
-                label = Optional.ofNullable(state.getData()).map(CustomParameterStateData::getSelectedParameterValues).orElse(List.of()).stream()
-                        //skipped by path have value "", skipped by direct roll have "''" as value
-                        .filter(sp -> !Set.of(SKIPPED_BY_PATH_VALUE, SKIPPED_BY_DIRECT_ROLL_VALUE).contains(sp.getSelectedValue()) && sp.getSelectedValue() != null)
-                        .map(sp -> "%s: %s".formatted(sp.getName(), sp.getLabelOfSelectedValue()))
-                        .collect(Collectors.joining(", "));
-            }
-        }
-        return label;
     }
 
     @Override
@@ -574,10 +569,6 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
         if (variableCount == 0) {
             return Optional.of(I18n.getMessage("custom_parameter.validation.variable.count.zero", userLocale));
         }
-        //todo maybe increase or trace path depth in validation
-        if (variableCount > 4) {
-            return Optional.of(I18n.getMessage("custom_parameter.validation.variable.count.max.four", userLocale));
-        }
         if (PARAMETER_NESTED_PATTERN.matcher(baseExpression).find()) {
             return Optional.of(I18n.getMessage("custom_parameter.validation.nested.brackets", userLocale));
         }
@@ -600,199 +591,6 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
         if (createParameterListFromBaseExpression(getNextParameterExpression(config.getBaseExpression())).isEmpty()) {
             return Optional.of(I18n.getMessage("custom_parameter.validation.invalid.parameter.option", userLocale, getNextParameterExpression(config.getBaseExpression())));
         }
-        return validateStates(config, channelId, userId);
+        return CustomParameterValidator.validateStates(config, channelId, userId, persistenceManager, diceEvaluatorAdapter);
     }
-
-    //todo put in extra class
-    private Optional<String> validateStates(CustomParameterConfig config, long channelId, long userId) {
-
-        List<StateWithCustomIdAndParameter> allPossibleStatePermutations = statePermutations(config);
-        Stopwatch stopwatch = Stopwatch.createStarted();
-        Optional<String> result = allPossibleStatePermutations.parallelStream()
-                .map(s -> validateStateWithCustomIdAndParameter(config, s, channelId, userId))
-                .filter(Objects::nonNull)
-                .findFirst();
-        log.debug("{} with parameter options {} in {}ms validated",
-                config.getBaseExpression().replace("\n", " "),
-                config.getParameters(),
-                stopwatch.elapsed(TimeUnit.MILLISECONDS));
-        return result;
-    }
-
-    private String validateStateWithCustomIdAndParameter(CustomParameterConfig config, StateWithCustomIdAndParameter aState, long channelId, long userId) {
-        if (!hasMissingParameter(aState.getState())) {
-            final String expression = getFilledExpression(config, aState.getState());
-            final String label = getLabel(config, aState.getState());
-            final String expressionWithoutSuffixLabel = removeSuffixLabelFromExpression(expression, label);
-            final String expressionWithoutSuffixLabelAndAlias = AliasHelper.getAndApplyAliaseToExpression(channelId, userId, persistenceManager, expressionWithoutSuffixLabel);
-
-            Optional<String> validationMessage = diceEvaluatorAdapter.validateDiceExpressionWitOptionalLabel(expressionWithoutSuffixLabelAndAlias,
-                    "/%s %s".formatted(I18n.getMessage("custom_parameter.name", config.getConfigLocale()), I18n.getMessage("base.option.help", config.getConfigLocale())),
-                    config.getConfigLocale());
-            if (validationMessage.isPresent()) {
-                return validationMessage.get();
-            }
-        }
-        if (hasMissingParameter(aState.getState()) && getParameterForParameterExpression(config, getCurrentParameterExpression(aState.getState()).orElse(null))
-                .map(Parameter::getParameterOptions)
-                .map(List::isEmpty)
-                .orElse(true)) {
-            return I18n.getMessage("custom_parameter.validation.invalid.parameter.option", config.getConfigLocale(), getCurrentParameterExpression(aState.getState()).orElse(""));
-        }
-        return null;
-    }
-
-    private List<StateWithCustomIdAndParameter> statePermutations(CustomParameterConfig config) {
-        List<StateWithCustomIdAndParameter> out = new ArrayList<>();
-        String parameterExpression = getNextParameterExpression(config.getBaseExpression());
-
-        Optional<Parameter> currentParameter = getParameterForParameterExpression(config, parameterExpression);
-        List<ButtonLabelAndId> buttonLabelAndIds = filterToCornerCases(getButtons(config, parameterExpression), currentParameter.map(Parameter::getParameterOptions).orElse(List.of()));
-
-        for (ButtonLabelAndId buttonLabelAndId : buttonLabelAndIds) {
-            State<CustomParameterStateData> nextState = new State<>(buttonLabelAndId.getId(), updateState(null, config, buttonLabelAndId.getId(), null, "test"));
-            out.add(new StateWithCustomIdAndParameter(buttonLabelAndId.getId(), nextState, buttonLabelAndIds));
-            out.addAll(getCornerStatePermutations(config, nextState));
-        }
-        return out;
-    }
-
-    List<ButtonLabelAndId> getButtons(CustomParameterConfig config, String parameterExpression) {
-        return getParameterForParameterExpression(config, parameterExpression)
-                .map(Parameter::getParameterOptions).orElse(List.of()).stream()
-                .map(vl -> new ButtonLabelAndId(vl.label(), vl.id(), vl.directRoll()))
-                .toList();
-    }
-
-    private List<StateWithCustomIdAndParameter> getCornerStatePermutations(CustomParameterConfig config, State<CustomParameterStateData> state) {
-        List<StateWithCustomIdAndParameter> out = new ArrayList<>();
-        Optional<String> parameterExpression = getCurrentParameterExpression(state);
-
-        if (parameterExpression.isPresent()) {
-
-            Optional<Parameter> currentParameter = getParameterForParameterExpression(config, parameterExpression.get());
-            List<ButtonLabelAndId> parameterValues = filterToCornerCases(getButtons(config, parameterExpression.get()), currentParameter.map(Parameter::getParameterOptions).orElse(List.of()));
-
-            for (ButtonLabelAndId parameterValue : parameterValues) {
-                State<CustomParameterStateData> nextState = new State<>(parameterValue.getId(),
-                        updateState(Optional.ofNullable(state.getData()).map(CustomParameterStateData::getSelectedParameterValues).orElse(List.of()), config,
-                                parameterValue.getId(), null, "test"));
-                out.add(new StateWithCustomIdAndParameter(parameterValue.getId(), nextState, parameterValues));
-                out.addAll(getCornerStatePermutations(config, nextState));
-            }
-        }
-        return out;
-    }
-
-    @VisibleForTesting
-    List<ButtonLabelAndId> filterToCornerCases(List<ButtonLabelAndId> in, List<Parameter.ParameterOption> parameterOptions) {
-
-        List<ButtonLabelIdValueAndNextPath> withValue = in.stream()
-                .map(b -> getValueFromId(b, parameterOptions)
-                        .map(s -> new ButtonLabelIdValueAndNextPath(s, getNextPathFromId(b, parameterOptions).orElse(Parameter.NO_PATH), b))
-                        .orElse(null))
-                .filter(Objects::nonNull)
-                .toList();
-        return Stream.of(
-                        getMaxNumeric(withValue).stream(),
-                        getMinNumeric(withValue).stream(),
-                        getZero(withValue).stream(),
-                        allNoneNumeric(withValue).stream(),
-                        getDirectRolls(withValue).stream(),
-                        allWithPath(withValue).stream()
-                )
-                .flatMap(Function.identity())
-                .map(ButtonLabelIdValueAndNextPath::getButtonLabelAndId)
-                .distinct()
-                .toList();
-    }
-
-    private Optional<String> getValueFromId(ButtonLabelAndId buttonLabelAndId, List<Parameter.ParameterOption> parameterOptions) {
-        return parameterOptions.stream()
-                .filter(po -> Objects.equals(buttonLabelAndId.getId(), po.id()))
-                .map(Parameter.ParameterOption::value)
-                .findFirst();
-    }
-
-    private Optional<String> getNextPathFromId(ButtonLabelAndId buttonLabelAndId, List<Parameter.ParameterOption> parameterOptions) {
-        return parameterOptions.stream()
-                .filter(po -> Objects.equals(buttonLabelAndId.getId(), po.id()))
-                .map(Parameter.ParameterOption::nextPathId)
-                .findFirst();
-    }
-
-    private List<ButtonLabelIdValueAndNextPath> getDirectRolls(List<ButtonLabelIdValueAndNextPath> in) {
-        return in.stream()
-                .filter(bv -> bv.getButtonLabelAndId().isDirectRoll())
-                .toList();
-    }
-
-    private Optional<ButtonLabelIdValueAndNextPath> getMaxNumeric(List<ButtonLabelIdValueAndNextPath> in) {
-        return in.stream()
-                .filter(bv -> isNumber(bv.getValue()))
-                .max(Comparator.comparing(buttonLabelAndValue -> Long.parseLong(buttonLabelAndValue.getValue())));
-    }
-
-    private Optional<ButtonLabelIdValueAndNextPath> getMinNumeric(List<ButtonLabelIdValueAndNextPath> in) {
-        return in.stream()
-                .filter(bv -> isNumber(bv.getValue()))
-                .min(Comparator.comparing(buttonLabelAndValue -> Long.parseLong(buttonLabelAndValue.getValue())));
-    }
-
-    private List<ButtonLabelIdValueAndNextPath> getZero(List<ButtonLabelIdValueAndNextPath> in) {
-        return in.stream()
-                .filter(bv -> Objects.equals(StringUtils.trim(bv.getValue()), "0"))
-                .toList();
-    }
-
-    private List<ButtonLabelIdValueAndNextPath> allNoneNumeric(List<ButtonLabelIdValueAndNextPath> in) {
-        return in.stream()
-                .filter(bv -> !isNumber(bv.getValue()))
-                .toList();
-    }
-
-    private List<ButtonLabelIdValueAndNextPath> allWithPath(List<ButtonLabelIdValueAndNextPath> in) {
-        return in.stream()
-                .filter(bv -> !isNumber(bv.getValue()))
-                .toList();
-    }
-
-    private boolean isNumber(String in) {
-        try {
-            Long.parseLong(in);
-            return true;
-        } catch (NumberFormatException e) {
-            return false;
-        }
-    }
-
-    @Value
-    private static class ButtonLabelIdValueAndNextPath {
-        @NonNull
-        String value;
-        @NonNull
-        String nextPathFromId;
-        @NonNull
-        CustomParameterCommand.ButtonLabelAndId buttonLabelAndId;
-    }
-
-    @Value
-    static class ButtonLabelAndId {
-        @NonNull
-        String label;
-        @NonNull
-        String id;
-        boolean directRoll;
-    }
-
-    @Value
-    private static class StateWithCustomIdAndParameter {
-        @NonNull
-        String customId;
-        @NonNull
-        State<CustomParameterStateData> state;
-        @NonNull
-        List<ButtonLabelAndId> buttonIdLabelAndDiceExpressions;
-    }
-
 }
