@@ -521,12 +521,24 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
         Parameter parameter = config.getParameters().stream()
                 .filter(p -> Objects.equals(p.getParameterExpression(), currentParameterExpression))
                 .findFirst().orElse(config.getParameters().getFirst());
+        final Set<String> openPaths;
+        //for a new message the state is null
+        if (state == null) {
+            openPaths = Set.of(Parameter.NO_PATH);
+        } else {
+            openPaths = Optional.of(state).map(State::getData).map(CustomParameterStateData::getSelectedParameterValues).orElse(List.of()).stream()
+                    .filter(s -> !s.isFinished())
+                    .filter(s -> !s.getParameterExpression().equals(currentParameterExpression))
+                    .map(SelectedParameter::getPathId)
+                    .collect(Collectors.toSet());
+        }
         List<ButtonDefinition> buttons = parameter.getParameterOptions().stream()
                 .map(vl -> {
-                    BotEmojiUtil.LabelAndEmoji labelAndEmoji = BotEmojiUtil.splitLabel(vl.label());
+                    final BotEmojiUtil.LabelAndEmoji labelAndEmoji = BotEmojiUtil.splitLabel(vl.label());
+                    final ButtonDefinition.Style style = vl.directRoll() || !openPaths.contains(vl.nextPathId()) ? ButtonDefinition.Style.SUCCESS : ButtonDefinition.Style.PRIMARY;
                     return ButtonDefinition.builder()
                             .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), vl.id(), configUUID))
-                            .style(vl.directRoll() ? ButtonDefinition.Style.SUCCESS : ButtonDefinition.Style.PRIMARY)
+                            .style(style)
                             .label(labelAndEmoji.labelWithoutLeadingEmoji())
                             .emoji(labelAndEmoji.emoji())
                             .build();
