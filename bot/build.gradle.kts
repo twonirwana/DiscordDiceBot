@@ -23,7 +23,7 @@ dependencies {
     implementation(libs.avaje.config)
     implementation(libs.avaje.slf4j)
     implementation(libs.emoji)
-    implementation("io.micrometer:micrometer-registry-prometheus:1.13.3")
+    implementation("io.micrometer:micrometer-registry-prometheus:1.13.4")
     implementation("com.h2database:h2:2.3.232")
     implementation("org.apache.derby:derby:10.17.1.0")
     implementation("org.apache.derby:derbyclient:10.17.1.0")
