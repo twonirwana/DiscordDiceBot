@@ -2,12 +2,17 @@ package de.janno.discord.connector.jda;
 
 import de.janno.discord.connector.api.slash.CommandDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinitionOption;
+import de.janno.discord.connector.api.slash.CommandIntegrationType;
+import net.dv8tion.jda.api.interactions.IntegrationType;
+import net.dv8tion.jda.api.interactions.InteractionContextType;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandGroupData;
 import net.dv8tion.jda.internal.interactions.CommandDataImpl;
 import org.junit.jupiter.api.Test;
+
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -25,6 +30,22 @@ class ApplicationCommandConverterTest {
         assertThat(commandData)
                 .usingRecursiveComparison()
                 .isNotEqualTo(ApplicationCommandConverter.commandDefinition2CommandData(commandDefinition));
+    }
+
+    @Test
+    void setInteractionType() {
+        CommandDefinition commandDefinition = CommandDefinition.builder()
+                .name("a")
+                .description("description")
+                .integrationTypes(Set.of(CommandIntegrationType.GUILD_INSTALL, CommandIntegrationType.USER_INSTALL))
+                .build();
+
+        CommandData res = ApplicationCommandConverter.commandDefinition2CommandData(commandDefinition);
+
+        assertThat(res.getIntegrationTypes())
+                .containsExactlyInAnyOrder(IntegrationType.GUILD_INSTALL, IntegrationType.USER_INSTALL);
+        assertThat(res.getContexts())
+                .containsExactlyInAnyOrder(InteractionContextType.GUILD, InteractionContextType.BOT_DM, InteractionContextType.PRIVATE_CHANNEL);
     }
 
     @Test
