@@ -174,7 +174,12 @@ public class JdaClient {
                                         .toList();
 
                                 Locale userLocale = LocaleConverter.toLocale(event.getInteraction().getUserLocale());
-                                //todo metric with:  event.getContext()
+
+                                //no central slash handler, therefore we set the metric here
+                                if (event.isUserInstalledInteractionOnly()) {
+                                    JdaMetrics.userInstallSlashCommand();
+                                }
+
                                 Requester requester = new Requester(event.getInteraction().getUser().getName(),
                                         event.getChannel().getName(),
                                         getGuildName(event.getInteraction()),
@@ -209,7 +214,7 @@ public class JdaClient {
                                         .filter(command -> command.matchingComponentCustomId(event.getInteraction().getComponentId()))
                                         .toList();
                                 Locale userLocale = LocaleConverter.toLocale(event.getInteraction().getUserLocale());
-                                //todo metric  interaction.getContext()
+
                                 Requester requester = new Requester(event.getInteraction().getUser().getName(),
                                         event.getChannel().getName(),
                                         getGuildName(event.getInteraction()),

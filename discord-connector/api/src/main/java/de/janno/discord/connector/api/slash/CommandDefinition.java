@@ -1,15 +1,13 @@
 package de.janno.discord.connector.api.slash;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableSortedSet;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.Singular;
 import lombok.Value;
 
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -30,20 +28,20 @@ public class CommandDefinition {
     @Singular
     List<CommandDefinitionOption> options;
     @Singular
-    Set<CommandIntegrationType> integrationTypes;
+    SortedSet<CommandIntegrationType> integrationTypes;
 
     public CommandDefinition(@NonNull String name,
                              @NonNull String description,
                              Set<CommandLocaleName> nameLocales,
                              Set<CommandLocaleDescription> descriptionLocales,
                              List<CommandDefinitionOption> options,
-                             Set<CommandIntegrationType> integrationTypes) {
+                             SortedSet<CommandIntegrationType> integrationTypes) {
         this.name = name;
         this.description = description;
         this.nameLocales = nameLocales;
         this.descriptionLocales = descriptionLocales;
         this.options = options;
-        this.integrationTypes = (integrationTypes == null || integrationTypes.isEmpty()) ? Set.of(CommandIntegrationType.GUILD_INSTALL) : integrationTypes;
+        this.integrationTypes = (integrationTypes == null || integrationTypes.isEmpty()) ? ImmutableSortedSet.of(CommandIntegrationType.GUILD_INSTALL) : integrationTypes;
 
         //https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-naming
         Preconditions.checkArgument(NAME_PATTERN.matcher(name).matches(), "Invalid command name: %s", name);

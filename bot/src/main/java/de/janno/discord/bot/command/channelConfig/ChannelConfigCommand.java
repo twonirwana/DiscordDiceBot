@@ -156,7 +156,7 @@ public class ChannelConfigCommand implements SlashCommand {
                     .descriptionLocales(I18n.allNoneEnglishMessagesDescriptions("channel_config.option.value.description"))
                     .required(true)
                     .build())
-            .option(SCOPE_OPTION)//todo only user scope for userApp install or maybe extra command?
+            .option(SCOPE_OPTION)
             .option(ALIAS_TYPE_OPTION)
             .build();
     private final PersistenceManager persistenceManager;
