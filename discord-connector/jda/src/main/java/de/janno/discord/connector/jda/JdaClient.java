@@ -137,9 +137,10 @@ public class JdaClient {
                                         event.getChannel().getName(),
                                         Optional.ofNullable(event.getInteraction().getGuild()).map(Guild::getName).orElse(""),
                                         event.getJDA().getShardInfo().getShardString(),
-                                        userLocale);
+                                        userLocale,
+                                        null);
                                 if (matchingHandler.size() != 1) {
-                                    log.error("{}: Invalid handler for {} -> {}", requester, event.getInteraction().getCommandId(), matchingHandler.stream().map(SlashCommand::getCommandId).toList());
+                                    log.error("{}: Invalid handler for {} -> {}", requester.toLogString(), event.getInteraction().getCommandId(), matchingHandler.stream().map(SlashCommand::getCommandId).toList());
                                 } else {
                                     Mono.just(matchingHandler.getFirst())
                                             .map(command -> command.getAutoCompleteAnswer(fromEvent(event), LocaleConverter.toLocale(event.getUserLocale()), event.getChannel().getIdLong(), event.getUser().getIdLong()))
@@ -176,9 +177,10 @@ public class JdaClient {
                                         event.getChannel().getName(),
                                         Optional.ofNullable(event.getInteraction().getGuild()).map(Guild::getName).orElse(""),
                                         event.getJDA().getShardInfo().getShardString(),
-                                        userLocale);
+                                        userLocale,
+                                        null);
                                 if (matchingHandler.size() != 1) {
-                                    log.error("{}: Invalid handler for {} -> {}", requester, event.getInteraction().getCommandId(), matchingHandler.stream().map(SlashCommand::getCommandId).toList());
+                                    log.error("{}: Invalid handler for {} -> {}", requester.toLogString(), event.getInteraction().getCommandId(), matchingHandler.stream().map(SlashCommand::getCommandId).toList());
                                 } else {
                                     Mono.just(matchingHandler.getFirst())
                                             .flatMap(command -> {
@@ -211,9 +213,10 @@ public class JdaClient {
                                         event.getChannel().getName(),
                                         Optional.ofNullable(event.getInteraction().getGuild()).map(Guild::getName).orElse(""),
                                         event.getJDA().getShardInfo().getShardString(),
-                                        userLocale);
+                                        userLocale,
+                                        BottomCustomIdUtils.getConfigUUIDFromCustomId(event.getInteraction().getComponentId()).orElse(null));
                                 if (matchingHandler.size() != 1) {
-                                    log.error("{}: Invalid handler for {} -> {}", requester, event.getInteraction().getComponentId(), matchingHandler.stream().map(ComponentInteractEventHandler::getCommandId).toList());
+                                    log.error("{}: Invalid handler for {} -> {}", requester.toLogString(), event.getInteraction().getComponentId(), matchingHandler.stream().map(ComponentInteractEventHandler::getCommandId).toList());
                                 } else {
                                     Mono.just(matchingHandler.getFirst())
                                             .flatMap(command -> {
@@ -221,7 +224,7 @@ public class JdaClient {
                                                 return command.handleComponentInteractEvent(new ButtonEventAdapterImpl(event, requester));
                                             })
                                             .onErrorResume(e -> {
-                                                log.error("ButtonInteractEvent Exception: ", e);
+                                                log.error("{} - ButtonInteractEvent Exception: ", requester.toLogString(), e);
                                                 return Mono.empty();
                                             })
                                             .subscribeOn(scheduler)

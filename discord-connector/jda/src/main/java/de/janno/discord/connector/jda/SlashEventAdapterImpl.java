@@ -148,7 +148,7 @@ public class SlashEventAdapterImpl extends DiscordAdapterImpl implements SlashEv
     }
 
     @Override
-    protected @NonNull String getGuildAndChannelName() {
+    protected @NonNull String getErrorRequester() {
         return requester.toLogString();
     }
 
