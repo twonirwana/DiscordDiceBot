@@ -149,7 +149,7 @@ public abstract class AbstractSlashCommand<C extends RollConfig> implements Slas
             }
             final Locale userOrConfigLocale = BaseCommandOptions.getLocaleOptionFromStartCommandOption(options)
                     .orElse(event.getRequester().getUserLocal());
-            Optional<String> validationMessage = getStartOptionsValidationMessage(options, event.getChannelId(), event.getUserId(), userOrConfigLocale);
+            Optional<String> validationMessage = getStartOptionsValidationMessage(options, event.getChannelId(), event.getUserId(), Optional.ofNullable(userOrConfigLocale).orElse(Locale.ENGLISH));
             if (validationMessage.isPresent()) {
                 log.info("{}: Validation message: {} for {}", event.getRequester().toLogString(),
                         validationMessage.get().replace("\n", " "),
@@ -157,7 +157,7 @@ public abstract class AbstractSlashCommand<C extends RollConfig> implements Slas
                 //todo i18n?
                 return event.reply(String.format("%s\n%s", commandString, validationMessage.get()), true);
             }
-            final C config = getConfigFromStartOptions(options, userOrConfigLocale);
+            final C config = getConfigFromStartOptions(options, Optional.ofNullable(userOrConfigLocale).orElse(Locale.ENGLISH));
             final UUID configUUID = uuidSupplier.get();
             BotMetrics.incrementSlashStartMetricCounter(getCommandId());
 
@@ -171,7 +171,7 @@ public abstract class AbstractSlashCommand<C extends RollConfig> implements Slas
                     commandString.replace("`", "").replace("\n", " "));
             String replayMessage = Stream.of(commandString, getConfigWarnMessage(config, userLocale).orElse(null))
                     .filter(s -> !Strings.isNullOrEmpty(s))
-                    .collect(Collectors.joining(" "));
+                    .collect(Collectors.joining("\n"));
 
             return event.reply(replayMessage, false)
                     .then(Mono.defer(() -> {

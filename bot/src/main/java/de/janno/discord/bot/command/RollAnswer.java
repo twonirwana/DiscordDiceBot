@@ -15,7 +15,7 @@ import java.util.Optional;
 import java.util.function.Supplier;
 
 @Value
-@Builder
+@Builder(toBuilder = true)
 public class RollAnswer {
     @NonNull
     AnswerFormatType answerFormatType;

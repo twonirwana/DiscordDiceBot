@@ -3,6 +3,8 @@ package de.janno.discord.bot.command.directRoll;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Stopwatch;
+import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
 import de.janno.discord.bot.AnswerInteractionType;
 import de.janno.discord.bot.BotMetrics;
 import de.janno.discord.bot.I18n;
@@ -54,6 +56,22 @@ public class DirectRollCommand implements SlashCommand {
         this.diceEvaluatorAdapter = new DiceEvaluatorAdapter(cachingDiceEvaluator);
         this.persistenceManager = persistenceManager;
         this.expressionOptionName = expressionOptionName;
+    }
+
+    private static EmbedOrMessageDefinition createAnswerWithOptionalWarning(RollAnswer answer) {
+        EmbedOrMessageDefinition answerMessage = RollAnswerConverter.toEmbedOrMessageDefinition(answer);
+        if (!Strings.isNullOrEmpty(answer.getWarning()) &&
+                answerMessage.getType() == EmbedOrMessageDefinition.Type.EMBED
+                && answerMessage.getFields().size() < 25) {
+            answerMessage = answerMessage.toBuilder()
+                    .fields(ImmutableList.<EmbedOrMessageDefinition.Field>builder()
+                            .addAll(answerMessage.getFields())
+                            .add(new EmbedOrMessageDefinition.Field("Warning", answer.getWarning(), false))
+                            .build()
+                    )
+                    .build();
+        }
+        return answerMessage;
     }
 
     @Override
@@ -153,8 +171,9 @@ public class DirectRollCommand implements SlashCommand {
                                                  @NonNull Stopwatch stopwatch,
                                                  @NonNull Locale userLocale) {
 
-        //ignore warning, no good way to display it
-        Mono<Void> answerMono = Mono.defer(() -> event.replyWithEmbedOrMessageDefinition(RollAnswerConverter.toEmbedOrMessageDefinition(answer), false));
+        final EmbedOrMessageDefinition answerMessage = createAnswerWithOptionalWarning(answer);
+
+        Mono<Void> answerMono = Mono.defer(() -> event.replyWithEmbedOrMessageDefinition(answerMessage, false));
         return answerMono
                 .doOnSuccess(v ->
                         log.info("{}: '{}'={} -> {} in {}ms",
