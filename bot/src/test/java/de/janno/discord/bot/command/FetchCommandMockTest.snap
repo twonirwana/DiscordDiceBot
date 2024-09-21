@@ -54,7 +54,10 @@ de.janno.discord.bot.command.FetchCommandMockTest.getCommandDefinition=[
         "description": "Déplace le dernier message du lancer de dés vers l'avant"
       }
     ],
-    "options": [ ]
+    "options": [ ],
+    "integrationTypes": [
+      "GUILD_INSTALL"
+    ]
   }
 ]
 

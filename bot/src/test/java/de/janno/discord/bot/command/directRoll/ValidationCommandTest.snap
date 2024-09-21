@@ -42,6 +42,10 @@ de.janno.discord.bot.command.directRoll.ValidationCommandTest.getCommandDefiniti
         "options": [ ],
         "autoComplete": true
       }
+    ],
+    "integrationTypes": [
+      "GUILD_INSTALL",
+      "USER_INSTALL"
     ]
   }
 ]

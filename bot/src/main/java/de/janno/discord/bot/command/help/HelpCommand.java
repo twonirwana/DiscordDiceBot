@@ -6,6 +6,7 @@ import de.janno.discord.connector.api.SlashCommand;
 import de.janno.discord.connector.api.SlashEventAdaptor;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinition;
+import de.janno.discord.connector.api.slash.CommandIntegrationType;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
@@ -26,6 +27,7 @@ public class HelpCommand implements SlashCommand {
         return CommandDefinition.builder()
                 .name(getCommandId())
                 .nameLocales(I18n.allNoneEnglishMessagesNames("help.name"))
+                .integrationTypes(CommandIntegrationType.ALL)
                 .description(I18n.getMessage("help.description", Locale.ENGLISH))
                 .descriptionLocales(I18n.allNoneEnglishMessagesDescriptions("help.description"))
                 .build();
@@ -34,9 +36,12 @@ public class HelpCommand implements SlashCommand {
     @Override
     public @NonNull Mono<Void> handleSlashCommandEvent(@NonNull SlashEventAdaptor event, @NonNull Supplier<UUID> uuidSupplier, @NonNull Locale userLocale) {
         BotMetrics.incrementSlashStartMetricCounter(getCommandId());
+
+        final String context = event.isUserInstallInteraction() ? "userInstall" : "guildInstall";
+
         return event.replyWithEmbedOrMessageDefinition(EmbedOrMessageDefinition.builder()
-                .field(new EmbedOrMessageDefinition.Field(I18n.getMessage("help.quickstart.field.name", userLocale), I18n.getMessage("help.quickstart.field.value", userLocale), false))
-                .field(new EmbedOrMessageDefinition.Field(I18n.getMessage("help.command.field.name", userLocale), I18n.getMessage("help.command.field.value", userLocale), false))
+                .field(new EmbedOrMessageDefinition.Field(I18n.getMessage("help.quickstart.field.name", userLocale), I18n.getMessage("help.quickstart.field.value." + context, userLocale), false))
+                .field(new EmbedOrMessageDefinition.Field(I18n.getMessage("help.command.field.name", userLocale), I18n.getMessage("help.command.field.value." + context, userLocale), false))
                 .field(new EmbedOrMessageDefinition.Field(I18n.getMessage("help.documentation.field.name", userLocale), I18n.getMessage("help.documentation.field.value", userLocale), false))
                 .field(new EmbedOrMessageDefinition.Field(I18n.getMessage("help.discord.server.field.name", userLocale), I18n.getMessage("help.discord.server.field.value", userLocale), false))
                 .build(), true);
