@@ -11,7 +11,7 @@ dependencies {
     implementation(libs.guava)
     implementation(libs.commons.lang3)
     implementation(libs.emoji)
-    implementation("org.jetbrains:annotations:24.1.0")
+    implementation("org.jetbrains:annotations:25.0.0")
 
     compileOnly(libs.lombok)
     annotationProcessor(libs.lombok)
