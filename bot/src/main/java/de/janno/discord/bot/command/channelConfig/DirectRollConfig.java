@@ -13,7 +13,6 @@ import lombok.Getter;
 import lombok.ToString;
 
 import java.util.Locale;
-import java.util.UUID;
 
 @EqualsAndHashCode(callSuper = true)
 @Getter

@@ -195,9 +195,7 @@ public class StarterCommand implements SlashCommand, ComponentInteractEventHandl
                     }));
             final Map<CommandIdAndNameId, String> nameMap = COMMAND_IDs.stream()
                     .filter(i -> createOptional.get().getStringSubOptionWithName(i.commandName()).isPresent())
-                    .collect(Collectors.toMap(Function.identity(), i -> {
-                        return createOptional.get().getStringSubOptionWithName(i.commandName()).orElseThrow();
-                    }));
+                    .collect(Collectors.toMap(Function.identity(), i -> createOptional.get().getStringSubOptionWithName(i.commandName()).orElseThrow()));
             if (configUUIDMap.isEmpty()) {
                 //todo i18n + validation
                 return event.reply("missing command", true);
