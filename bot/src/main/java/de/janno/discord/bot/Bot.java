@@ -17,6 +17,7 @@ import de.janno.discord.bot.command.help.QuickstartCommand;
 import de.janno.discord.bot.command.help.RpgSystemCommandPreset;
 import de.janno.discord.bot.command.help.WelcomeCommand;
 import de.janno.discord.bot.command.reroll.RerollAnswerHandler;
+import de.janno.discord.bot.command.starter.StarterCommand;
 import de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommand;
 import de.janno.discord.bot.dice.CachingDiceEvaluator;
 import de.janno.discord.bot.persistance.PersistenceManager;
@@ -59,6 +60,7 @@ public class Bot {
         WelcomeCommand welcomeCommand = new WelcomeCommand(persistenceManager, rpgSystemCommandPreset);
         HiddenDirectRollCommand hiddenDirectRollCommand = new HiddenDirectRollCommand(persistenceManager, cachingDiceEvaluator);
         RerollAnswerHandler rerollAnswerHandler = new RerollAnswerHandler(persistenceManager, cachingDiceEvaluator);
+        StarterCommand starterCommand = new StarterCommand(persistenceManager, customParameterCommand, customDiceCommand, sumCustomSetCommand);
         DiscordConnectorImpl.createAndStart(
                 List.of(customDiceCommand,
                         new DirectRollCommand(persistenceManager, cachingDiceEvaluator),
@@ -72,7 +74,8 @@ public class Bot {
                         new ClearCommand(persistenceManager),
                         new QuickstartCommand(rpgSystemCommandPreset),
                         new HelpCommand(),
-                        new FetchCommand(persistenceManager, customParameterCommand, customDiceCommand, sumCustomSetCommand)
+                        new FetchCommand(persistenceManager, customParameterCommand, customDiceCommand, sumCustomSetCommand),
+                        starterCommand
                 ),
                 List.of(customDiceCommand,
                         sumCustomSetCommand,
@@ -80,7 +83,8 @@ public class Bot {
                         welcomeCommand,
                         hiddenDirectRollCommand,
                         rerollAnswerHandler,
-                        new LegacyIdHandler()
+                        new LegacyIdHandler(),
+                        starterCommand
                 ),
                 welcomeCommand.getWelcomeMessage(),
                 allGuildIdsInPersistence);

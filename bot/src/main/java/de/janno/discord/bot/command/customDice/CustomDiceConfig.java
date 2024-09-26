@@ -17,6 +17,7 @@ import lombok.ToString;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @EqualsAndHashCode(callSuper = true)
@@ -34,9 +35,10 @@ public class CustomDiceConfig extends RollConfig {
                             @JsonProperty("answerInteractionType") AnswerInteractionType answerInteractionType,
                             @JsonProperty("resultImage") ResultImage resultImage,
                             @JsonProperty("diceImageStyle") DiceStyleAndColor diceStyleAndColor,
-                            @JsonProperty("configLocale") Locale configLocale
+                            @JsonProperty("configLocale") Locale configLocale,
+                            @JsonProperty("callStarterConfigAfterFinish") UUID callStarterConfigAfterFinish
     ) {
-        super(answerTargetChannelId, answerFormatType, answerInteractionType, resultImage, diceStyleAndColor, configLocale);
+        super(answerTargetChannelId, answerFormatType, answerInteractionType, resultImage, diceStyleAndColor, configLocale, callStarterConfigAfterFinish);
         this.buttonIdLabelAndDiceExpressions = buttonIdLabelAndDiceExpressions;
     }
 

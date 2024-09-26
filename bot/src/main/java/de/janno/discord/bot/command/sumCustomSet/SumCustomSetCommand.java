@@ -282,6 +282,7 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
         if (ROLL_BUTTON_ID.equals(state.getButtonValue())) {
             return Optional.of(I18n.getMessage("sum_custom_set.buttonMessage.empty", config.getConfigLocale()));
         } else if (CLEAR_BUTTON_ID.equals(state.getButtonValue())) {
+            //todo handle better with starterId -> new message not edit?
             return Optional.of(I18n.getMessage("sum_custom_set.buttonMessage.empty", config.getConfigLocale()));
         } else {
             if (Optional.ofNullable(state.getData())
@@ -389,7 +390,8 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
                 null, new DiceStyleAndColor(
                 BaseCommandOptions.getDiceStyleOptionFromStartCommandOption(options).orElse(DiceImageStyle.polyhedral_3d),
                 BaseCommandOptions.getDiceColorOptionFromStartCommandOption(options).orElse(DiceImageStyle.polyhedral_3d.getDefaultColor())),
-                userLocale);
+                userLocale,
+                null);
     }
 
     private List<ComponentRowDefinition> createButtonLayout(UUID configUUID, SumCustomSetConfig config, boolean rollDisabled, boolean backDisabled, Set<String> disableButtonIds, Locale configLocale) {

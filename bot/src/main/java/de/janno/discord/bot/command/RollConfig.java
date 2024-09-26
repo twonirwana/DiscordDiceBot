@@ -8,15 +8,10 @@ import de.janno.discord.bot.ResultImage;
 import de.janno.discord.bot.dice.image.DiceImageStyle;
 import de.janno.discord.bot.dice.image.DiceStyleAndColor;
 import de.janno.discord.bot.dice.image.LegacyImageConfigHelper;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NonNull;
-import lombok.ToString;
+import lombok.*;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Optional;
+import javax.annotation.Nullable;
+import java.util.*;
 
 /**
  * A configuration for a dice system. It will be created with the slash command and not modified afterwards.
@@ -39,13 +34,19 @@ public class RollConfig implements Config {
     @NonNull
     private final Locale configLocale;
 
+    @Nullable
+    @Setter
+    //todo builder?
+    private UUID callStarterConfigAfterFinish;
+
     @JsonCreator
     public RollConfig(@JsonProperty("answerTargetChannelId") Long answerTargetChannelId,
                       @JsonProperty("answerFormatType") AnswerFormatType answerFormatType,
                       @JsonProperty("answerInteractionType") AnswerInteractionType answerInteractionType,
                       @JsonProperty("resultImage") ResultImage resultImage,
                       @JsonProperty("diceImageStyle") DiceStyleAndColor diceStyleAndColor,
-                      @JsonProperty("configLocale") Locale configLocale
+                      @JsonProperty("configLocale") Locale configLocale,
+                      @JsonProperty("callStarterConfigAfterFinish") UUID callStarterConfigAfterFinish
     ) {
         this.answerTargetChannelId = answerTargetChannelId;
         this.answerFormatType = Optional.ofNullable(answerFormatType).orElse(AnswerFormatType.full);
@@ -59,6 +60,7 @@ public class RollConfig implements Config {
             this.diceStyleAndColor = new DiceStyleAndColor(DiceImageStyle.none, DiceImageStyle.none.getDefaultColor());
         }
         this.configLocale = Optional.ofNullable(configLocale).orElse(Locale.ENGLISH);
+        this.callStarterConfigAfterFinish = callStarterConfigAfterFinish;
     }
 
     public String toShortString() {

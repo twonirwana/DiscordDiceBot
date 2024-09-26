@@ -177,7 +177,7 @@ public class WelcomeCommand extends AbstractCommand<RollConfig, StateData> {
 
     public Function<DiscordConnector.WelcomeRequest, EmbedOrMessageDefinition> getWelcomeMessage() {
         return request -> {
-            RollConfig config = new RollConfig(null, AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, DiceImageStyle.none.getDefaultColor()), request.guildLocale());
+            RollConfig config = new RollConfig(null, AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, DiceImageStyle.none.getDefaultColor()), request.guildLocale(), null);
             UUID configUUID = uuidSupplier.get();
             final Optional<MessageConfigDTO> newMessageConfig = createMessageConfig(configUUID, request.guildId(), request.channelId(), config);
             newMessageConfig.ifPresent(persistenceManager::saveMessageConfig);
@@ -187,7 +187,7 @@ public class WelcomeCommand extends AbstractCommand<RollConfig, StateData> {
 
     @Override
     protected Optional<ConfigAndState<RollConfig, StateData>> createNewConfigAndStateIfMissing(String buttonValue) {
-        return Optional.of(new ConfigAndState<>(uuidSupplier.get(), new RollConfig(null, AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, DiceImageStyle.none.getDefaultColor()), Locale.ENGLISH), new State<>(buttonValue, StateData.empty())));
+        return Optional.of(new ConfigAndState<>(uuidSupplier.get(), new RollConfig(null, AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, DiceImageStyle.none.getDefaultColor()), Locale.ENGLISH, null), new State<>(buttonValue, StateData.empty())));
     }
 
     @Override
@@ -227,7 +227,7 @@ public class WelcomeCommand extends AbstractCommand<RollConfig, StateData> {
 
     @Override
     protected @NonNull RollConfig getConfigFromStartOptions(@NonNull CommandInteractionOption options, @NonNull Locale userLocale) {
-        return new RollConfig(null, AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, DiceImageStyle.none.getDefaultColor()), userLocale);
+        return new RollConfig(null, AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, DiceImageStyle.none.getDefaultColor()), userLocale, null);
     }
 
 }

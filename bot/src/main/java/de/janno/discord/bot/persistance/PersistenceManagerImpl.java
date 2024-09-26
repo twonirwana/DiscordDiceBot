@@ -2,8 +2,10 @@ package de.janno.discord.bot.persistance;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Stopwatch;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import de.janno.discord.bot.BotMetrics;
+import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
 import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.Tag;
 import lombok.NonNull;
@@ -13,10 +15,7 @@ import javax.annotation.Nullable;
 import javax.sql.DataSource;
 import java.sql.*;
 import java.time.LocalDateTime;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.ToDoubleFunction;
 
 import static io.micrometer.core.instrument.Metrics.globalRegistry;
@@ -486,6 +485,34 @@ public class PersistenceManagerImpl implements PersistenceManager {
                     return Optional.empty();
                 }
                 return Optional.of(messageConfigDTO);
+            }
+        } catch (Exception e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+
+    @Override
+    public @NonNull List<ChannelCommandConfigUUID> getChannelCommandConfigs(long channelId) {
+        try (Connection con = databaseConnector.getConnection()) {
+            try (PreparedStatement preparedStatement = con.prepareStatement(
+                    """
+                            SELECT MC.CONFIG_ID, MC.COMMAND_ID, MC.CREATION_DATE
+                            FROM MESSAGE_CONFIG MC
+                            WHERE MC.CHANNEL_ID = ?
+                            order by MC.CREATION_DATE desc
+                            """
+            )) {
+                preparedStatement.setLong(1, channelId);
+                preparedStatement.setMaxRows(100);
+                ResultSet resultSet = preparedStatement.executeQuery();
+                final ImmutableList.Builder<ChannelCommandConfigUUID> resultBuilder = ImmutableList.builder();
+                while (resultSet.next()) {
+                    resultBuilder.add(new ChannelCommandConfigUUID(resultSet.getString("COMMAND_ID"),
+                            resultSet.getObject("CREATION_DATE", LocalDateTime.class),
+                            resultSet.getObject("CONFIG_ID", UUID.class)));
+                }
+                return resultBuilder.build();
             }
         } catch (Exception e) {
             throw new IllegalStateException(e);

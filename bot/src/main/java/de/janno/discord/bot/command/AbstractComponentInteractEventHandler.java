@@ -7,6 +7,7 @@ import de.janno.discord.bot.BaseCommandUtils;
 import de.janno.discord.bot.BotMetrics;
 import de.janno.discord.bot.I18n;
 import de.janno.discord.bot.command.reroll.RerollAnswerHandler;
+import de.janno.discord.bot.command.starter.StarterCommand;
 import de.janno.discord.bot.persistance.MessageConfigDTO;
 import de.janno.discord.bot.persistance.MessageDataDTO;
 import de.janno.discord.bot.persistance.PersistenceManager;
@@ -140,7 +141,9 @@ public abstract class AbstractComponentInteractEventHandler<C extends RollConfig
                     })));
 
         }
-        Optional<EmbedOrMessageDefinition> newButtonMessage = createNewButtonMessage(configUUID, config, state, guildId, channelId);
+
+        final Optional<EmbedOrMessageDefinition> newButtonMessage = newButtonMessageOrStarter(configUUID, config, state, guildId, channelId);
+
         if (answer.isPresent() || newButtonMessage.isPresent()) {
             BotMetrics.incrementButtonMetricCounter(getCommandId());
         }
@@ -179,6 +182,18 @@ public abstract class AbstractComponentInteractEventHandler<C extends RollConfig
         return Flux.merge(1, actions.toArray(new Mono<?>[0]))
                 .parallel()
                 .then();
+    }
+
+    private @NonNull Optional<EmbedOrMessageDefinition> newButtonMessageOrStarter(@NonNull UUID configUUID,
+                                                                                  @NonNull C config,
+                                                                                  @Nullable State<S> state,
+                                                                                  @Nullable Long guildId,
+                                                                                  long channelId) {
+        final Optional<EmbedOrMessageDefinition> newButtonMessage = createNewButtonMessage(configUUID, config, state, guildId, channelId);
+        if (config.getCallStarterConfigAfterFinish() != null && newButtonMessage.isPresent()) {
+            return StarterCommand.getStarterMessage(persistenceManager, config.getCallStarterConfigAfterFinish());
+        }
+        return newButtonMessage;
     }
 
     private @NonNull Optional<MessageConfigDTO> getMessageConfigDTO(@Nullable UUID configId, long channelId, long messageId) {

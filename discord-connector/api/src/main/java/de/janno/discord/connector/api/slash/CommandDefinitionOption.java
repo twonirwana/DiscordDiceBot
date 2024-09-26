@@ -2,10 +2,7 @@ package de.janno.discord.connector.api.slash;
 
 
 import com.google.common.base.Preconditions;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Singular;
-import lombok.Value;
+import lombok.*;
 
 import java.util.*;
 import java.util.function.Function;
@@ -17,10 +14,13 @@ import java.util.stream.Collectors;
 public class CommandDefinitionOption {
 
     private final static Pattern NAME_PATTERN = Pattern.compile("^[-_\\p{L}\\p{N}\\p{sc=Deva}\\p{sc=Thai}]{1,32}$");
+    @NonNull
     Type type;
+    @NonNull
     String name;
     @Singular
     Set<CommandLocaleName> nameLocales;
+    @NonNull
     String description;
     @Singular
     Set<CommandLocaleDescription> descriptionLocales;
@@ -33,7 +33,7 @@ public class CommandDefinitionOption {
     Long maxValue;
     boolean autoComplete;
 
-    public CommandDefinitionOption(Type type, String name, Set<CommandLocaleName> nameLocales, String description,
+    public CommandDefinitionOption(@NonNull Type type, @NonNull String name, Set<CommandLocaleName> nameLocales, @NonNull String description,
                                    Set<CommandLocaleDescription> descriptionLocales, Boolean required, List<CommandDefinitionOptionChoice> choices,
                                    List<CommandDefinitionOption> options, Long minValue, Long maxValue, Boolean autoComplete) {
         this.type = type;

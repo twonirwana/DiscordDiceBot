@@ -15,6 +15,7 @@ import lombok.ToString;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.UUID;
 
 @EqualsAndHashCode(callSuper = true)
 @Getter
@@ -35,8 +36,9 @@ public class CustomParameterConfig extends RollConfig {
             @JsonProperty("answerInteractionType") AnswerInteractionType answerInteractionType,
             @JsonProperty("resultImage") ResultImage resultImage,
             @JsonProperty("diceImageStyle") DiceStyleAndColor diceStyleAndColor,
-            @JsonProperty("configLocale") Locale configLocale) {
-        super(answerTargetChannelId, answerFormatType, answerInteractionType, resultImage, diceStyleAndColor, configLocale);
+            @JsonProperty("configLocale") Locale configLocale,
+            @JsonProperty("callStarterConfigAfterFinish") UUID callStarterConfigAfterFinish) {
+        super(answerTargetChannelId, answerFormatType, answerInteractionType, resultImage, diceStyleAndColor, configLocale, callStarterConfigAfterFinish);
         this.baseExpression = baseExpression;
         this.parameters = CustomParameterCommand.createParameterListFromBaseExpression(baseExpression);
     }
