@@ -81,6 +81,10 @@ public abstract class AbstractCommand<C extends RollConfig, S extends StateData>
                 return AbstractCommand.this.getCurrentMessageContentChange(config, state);
             }
 
+            @Override
+            public @NonNull MessageDataDTO createEmptyMessageData(@NonNull UUID configUUID, @Nullable Long guildId, long channelId, long messageId) {
+                return AbstractCommand.this.createEmptyMessageData(configUUID, guildId, channelId, messageId);
+            }
         };
         slashCommand = new AbstractSlashCommand<>(persistenceManager) {
             @Override
@@ -152,6 +156,11 @@ public abstract class AbstractCommand<C extends RollConfig, S extends StateData>
             protected @NonNull Optional<String> getStartOptionsValidationMessage(@NonNull CommandInteractionOption options, long channelId, long userId, @NonNull Locale userLocale) {
                 return AbstractCommand.this.getStartOptionsValidationMessage(options, channelId, userId, userLocale);
             }
+
+            @Override
+            public @NonNull MessageDataDTO createEmptyMessageData(@NonNull UUID configUUID, @Nullable Long guildId, long channelId, long messageId) {
+                return AbstractCommand.this.createEmptyMessageData(configUUID, guildId, channelId, messageId);
+            }
         };
     }
 
@@ -199,11 +208,11 @@ public abstract class AbstractCommand<C extends RollConfig, S extends StateData>
      * On the creation of a message an empty state need to be saved so we know the message exists and we can remove it later, even on concurrent actions
      */
     @VisibleForTesting
-    public MessageDataDTO createEmptyMessageData(@NonNull UUID configUUID,
+    public @NonNull MessageDataDTO createEmptyMessageData(@NonNull UUID configUUID,
                                                  @Nullable Long guildId,
                                                  long channelId,
                                                  long messageId) {
-        return BaseCommandUtils.createEmptyMessageData(configUUID, guildId, channelId, messageId, getCommandId(), persistenceManager);
+        return BaseCommandUtils.createCleanupAndSaveEmptyMessageData(configUUID, guildId, channelId, messageId, getCommandId(), persistenceManager);
     }
 
     //visible for welcome command
