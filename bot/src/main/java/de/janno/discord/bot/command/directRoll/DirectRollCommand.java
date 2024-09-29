@@ -156,14 +156,16 @@ public class DirectRollCommand implements SlashCommand {
         //ignore warning, no good way to display it
         Mono<Void> answerMono = Mono.defer(() -> event.replyWithEmbedOrMessageDefinition(RollAnswerConverter.toEmbedOrMessageDefinition(answer), false));
         return answerMono
-                .doOnSuccess(v ->
-                        log.info("{}: '{}'={} -> {} in {}ms",
-                                event.getRequester().toLogString(),
-                                commandString.replace("`", ""),
-                                diceExpression,
-                                answer.toShortString(),
-                                stopwatch.elapsed(TimeUnit.MILLISECONDS)
-                        ));
+                .doOnSuccess(v -> {
+                    BotMetrics.timerAnswerMetricCounter(getCommandId(), stopwatch.elapsed());
+                    log.info("{}: '{}'={} -> {} in {}ms",
+                            event.getRequester().toLogString(),
+                            commandString.replace("`", ""),
+                            diceExpression,
+                            answer.toShortString(),
+                            stopwatch.elapsed(TimeUnit.MILLISECONDS)
+                    );
+                });
     }
 
     private Mono<Void> replyValidationMessage(@NonNull SlashEventAdaptor event, @NonNull String validationMessage, @NonNull String commandString) {

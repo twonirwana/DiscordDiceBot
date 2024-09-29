@@ -149,9 +149,8 @@ public abstract class AbstractComponentInteractEventHandler<C extends RollConfig
         if (newButtonMessage.isPresent() && answerTargetChannelId == null) {
             actions.add(Mono.defer(() -> event.sendMessage(newButtonMessage.get()))
                     .doOnNext(newMessageId -> createEmptyMessageData(configUUID, guildId, channelId, newMessageId))
-                    .flatMap(newMessageId -> MessageDeletionHelper.deleteOldMessageAndData(persistenceManager, newMessageId, event.getMessageId(), configUUID, channelId, event))
-                    .delaySubscription(calculateDelay(event))
-                    .doOnSuccess(v -> {
+                    .doOnNext(newMessageId -> {
+                        //delete has a delays therefore we write the metrics after the message creation
                         BotMetrics.timerNewButtonMessageMetricCounter(getCommandId(), stopwatch.elapsed());
                         if (answer.isEmpty()) {
                             log.info("{}: '{}'={} in {}ms",
@@ -162,6 +161,8 @@ public abstract class AbstractComponentInteractEventHandler<C extends RollConfig
                             );
                         }
                     })
+                    .flatMap(newMessageId -> MessageDeletionHelper.deleteOldMessageAndData(persistenceManager, newMessageId, event.getMessageId(), configUUID, channelId, event))
+                    .delaySubscription(calculateDelay(event))
                     .then());
             deleteCurrentButtonMessage = !keepExistingButtonMessage;
         } else {
@@ -240,7 +241,7 @@ public abstract class AbstractComponentInteractEventHandler<C extends RollConfig
                                                  @Nullable Long guildId,
                                                  long channelId,
                                                  long messageId) {
-        return BaseCommandUtils.createEmptyMessageData(configUUID, guildId, channelId, messageId, getCommandId(), persistenceManager);
+        return BaseCommandUtils.createCleanupAndSaveEmptyMessageData(configUUID, guildId, channelId, messageId, getCommandId(), persistenceManager);
     }
 
     protected abstract @NonNull Optional<RollAnswer> getAnswer(C config, State<S> state, long channelId, long userId);
