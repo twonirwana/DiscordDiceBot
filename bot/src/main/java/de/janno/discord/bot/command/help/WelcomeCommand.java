@@ -114,11 +114,16 @@ public class WelcomeCommand extends AbstractCommand<RollConfig, StateData> {
         }
 
         BotMetrics.incrementButtonMetricCounter(COMMAND_NAME);
-        UUID newConfigUUID = uuidSupplier.get();
 
-        final Optional<RpgSystemCommandPreset.PresetId> presetId = getPresetIdFromButton(state.getButtonValue());
-        return presetId.flatMap(id -> rpgSystemCommandPreset.createMessage(id, newConfigUUID, guildId, channelId, config.getConfigLocale()));
+        return getPresetIdFromButton(state.getButtonValue())
+                .flatMap(id -> rpgSystemCommandPreset.createMessage(id, uuidSupplier.get(), guildId, channelId, config.getConfigLocale()));
 
+    }
+
+    @Override
+    public @NonNull MessageDataDTO createEmptyMessageData(@NonNull UUID configUUID, @Nullable Long guildId, long channelId, long messageId) {
+        //there should be no saved message data for the welcome message, the created new button messages will create their own message data upon first interaction
+        return new MessageDataDTO(configUUID, guildId, channelId, messageId, getCommandId(), Mapper.NO_PERSISTED_STATE, null);
     }
 
     private Optional<RpgSystemCommandPreset.PresetId> getPresetIdFromButton(String buttonValue) {

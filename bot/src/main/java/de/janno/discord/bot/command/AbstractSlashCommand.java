@@ -117,11 +117,11 @@ public abstract class AbstractSlashCommand<C extends RollConfig> implements Slas
     /**
      * On the creation of a message an empty state need to be saved so we know the message exists and we can remove it later, even on concurrent actions
      */
-    protected MessageDataDTO createEmptyMessageData(@NonNull UUID configUUID,
-                                                    @Nullable Long guildId,
-                                                    long channelId,
-                                                    long messageId) {
-        return BaseCommandUtils.createEmptyMessageData(configUUID, guildId, channelId, messageId, getCommandId(), persistenceManager);
+    protected @NonNull MessageDataDTO createEmptyMessageData(@NonNull UUID configUUID,
+                                                                       @Nullable Long guildId,
+                                                                       long channelId,
+                                                                       long messageId) {
+        return BaseCommandUtils.createCleanupAndSaveEmptyMessageData(configUUID, guildId, channelId, messageId, getCommandId(), persistenceManager);
     }
 
 
