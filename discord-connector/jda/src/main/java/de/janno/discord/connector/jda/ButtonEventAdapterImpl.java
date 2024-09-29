@@ -178,7 +178,7 @@ public class ButtonEventAdapterImpl extends DiscordAdapterImpl implements Button
     }
 
     @Override
-    protected @NonNull String getGuildAndChannelName() {
+    protected @NonNull String getErrorRequester() {
         return requester.toLogString();
     }
 

@@ -138,7 +138,7 @@ public class ButtonEventAdaptorMock implements ButtonEventAdaptor {
 
     @Override
     public Requester getRequester() {
-        return new Requester("invokingUser", "channelName", "guildName", "[0 / 1]", Locale.ENGLISH);
+        return new Requester("invokingUser", "channelName", "guildName", "[0 / 1]", Locale.ENGLISH, null);
     }
 
     @Override
