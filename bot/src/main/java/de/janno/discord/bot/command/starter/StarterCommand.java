@@ -21,6 +21,7 @@ import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.stream.IntStreams;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.format.DateTimeFormatter;
@@ -100,10 +101,12 @@ public class StarterCommand implements SlashCommand, ComponentInteractEventHandl
     }
 
     public static Optional<EmbedOrMessageDefinition> getStarterMessage(PersistenceManager persistenceManager, UUID configUUID) {
-        //handle don't find
-        MessageConfigDTO messageConfigDTO = persistenceManager.getMessageConfig(configUUID).orElseThrow();
-        StarterConfig config = Mapper.deserializeObject(messageConfigDTO.getConfig(), StarterConfig.class);
-        return Optional.of(createButtonMessage(config));
+        Optional<MessageConfigDTO> messageConfigDTO = persistenceManager.getMessageConfig(configUUID);
+        if (messageConfigDTO.isPresent()) {
+            StarterConfig config = Mapper.deserializeObject(messageConfigDTO.get().getConfig(), StarterConfig.class);
+            return Optional.of(createButtonMessage(config));
+        }
+        return Optional.empty();
     }
 
     private static EmbedOrMessageDefinition createButtonMessage(StarterConfig config) {
@@ -124,11 +127,20 @@ public class StarterCommand implements SlashCommand, ComponentInteractEventHandl
     public Mono<Void> handleComponentInteractEvent(@NonNull ButtonEventAdaptor event) {
         final String buttonValue = BottomCustomIdUtils.getButtonValueFromCustomId(event.getCustomId());
         final UUID commandConfigUUID = UUID.fromString(buttonValue);
-        //todo what if not found
-        MessageConfigDTO messageConfigDTO = persistenceManager.getMessageConfig(commandConfigUUID).orElseThrow();
-        EmbedOrMessageDefinition embedOrMessageDefinition = getMessage(messageConfigDTO, commandConfigUUID, event.getChannelId());
-
-        return event.editMessage(embedOrMessageDefinition.getDescriptionOrContent(), embedOrMessageDefinition.getComponentRowDefinitions());
+        Optional<MessageConfigDTO> messageConfigDTO = persistenceManager.getMessageConfig(commandConfigUUID);
+        if (messageConfigDTO.isPresent()) {
+            EmbedOrMessageDefinition embedOrMessageDefinition = getMessage(messageConfigDTO.get(), commandConfigUUID, event.getChannelId());
+            //todo problematisch dann müsste man die followUp id in der Config wieder entfernen
+            if(event.isPinned()){
+                return event.acknowledge()
+                        .then(event.sendMessage(embedOrMessageDefinition))
+                        .then();
+            }
+            return event.editMessage(embedOrMessageDefinition.getDescriptionOrContent(), embedOrMessageDefinition.getComponentRowDefinitions());
+        }
+        //todo i18n
+        //todo handle pined
+        return event.reply("invallid config, recreate command", false);
 
     }
 
@@ -172,6 +184,7 @@ public class StarterCommand implements SlashCommand, ComponentInteractEventHandl
                                 .type(CommandDefinitionOption.Type.STRING)
                                 .required(false)
                                 .build())
+                        //todo optiopn always create new message (like pined)
                         .options(
                                 COMMAND_IDs.stream()
                                         .flatMap(i -> Stream.of(getButtonNameOption(i.commandName), getButtonCommandOption(i.commandId)))
@@ -197,10 +210,29 @@ public class StarterCommand implements SlashCommand, ComponentInteractEventHandl
                     .filter(i -> createOptional.get().getStringSubOptionWithName(i.commandName()).isPresent())
                     .collect(Collectors.toMap(Function.identity(), i -> createOptional.get().getStringSubOptionWithName(i.commandName()).orElseThrow()));
             if (configUUIDMap.isEmpty()) {
-                //todo i18n + validation
+                //todo i18n
                 return event.reply("missing command", true);
             }
-            //todo validate missing name for command
+            List<String> missingConfigs = configUUIDMap.keySet().stream()
+                    .filter(c -> !nameMap.containsKey(c))
+                    .map(CommandIdAndNameId::commandId)
+                    .sorted()
+                    .toList();
+            if (!missingConfigs.isEmpty()) {
+                //todo i18n
+                return event.reply("missing configs for names: " + String.join(", ", missingConfigs), true);
+            }
+
+            List<String> missingNames = nameMap.keySet().stream()
+                    .filter(c -> !configUUIDMap.containsKey(c))
+                    .map(CommandIdAndNameId::commandName)
+                    .sorted()
+                    .toList();
+            if (!missingNames.isEmpty()) {
+                //todo i18n
+                return event.reply("missing names for configs: " + String.join(", ", missingNames), true);
+            }
+
             final UUID newStarterConfigUUID = uuidSupplier.get();
 
             final List<StarterConfig.Command> commands = configUUIDMap.entrySet().stream()

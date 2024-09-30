@@ -168,6 +168,13 @@ public class ButtonEventAdapterImpl extends DiscordAdapterImpl implements Button
     }
 
     @Override
+    public @NonNull Mono<Void> acknowledge(){
+        return Mono.defer(() -> createMonoFrom(event::deferEdit)
+                .onErrorResume(t -> handleException("Error on deferEdit", t, true).ofType(InteractionHook.class))
+                .then());
+    }
+
+    @Override
     public @NonNull ParallelFlux<MessageState> getMessagesState(@NonNull Collection<Long> messageIds) {
         return getMessagesState(event.getMessageChannel(), messageIds);
     }

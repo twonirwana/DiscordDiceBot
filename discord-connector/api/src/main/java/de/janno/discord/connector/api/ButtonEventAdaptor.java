@@ -31,6 +31,8 @@ public interface ButtonEventAdaptor extends DiscordAdapter {
 
     Optional<String> checkPermissions(Long answerTargetChannelId, @NonNull Locale userLocale);
 
+    @NonNull Mono<Void> acknowledge();
+
     @NonNull
     OffsetDateTime getMessageCreationTime();
 
