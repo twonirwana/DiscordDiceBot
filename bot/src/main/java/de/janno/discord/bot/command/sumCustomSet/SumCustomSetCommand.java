@@ -224,13 +224,13 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
     }
 
     @Override
-    protected @NonNull Optional<EmbedOrMessageDefinition> createNewButtonMessageWithState(@NonNull UUID customUuid,
+    protected @NonNull Optional<EmbedOrMessageDefinition> createNewButtonMessageWithState(@NonNull UUID configUUID,
                                                                                           @NonNull SumCustomSetConfig config,
                                                                                           @Nullable State<SumCustomSetStateDataV2> state,
                                                                                           @Nullable Long guildId,
                                                                                           long channelId) {
         if (state == null) {
-            return Optional.of(createSlashResponseMessage(customUuid, config, channelId));
+            return Optional.of(createSlashResponseMessage(configUUID, config, channelId));
         }
         if (ROLL_BUTTON_ID.equals(state.getButtonValue()) && !Optional.ofNullable(state.getData())
                 .map(SumCustomSetStateDataV2::getDiceExpressions)
@@ -240,7 +240,7 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
             return Optional.of(EmbedOrMessageDefinition.builder()
                     .descriptionOrContent(I18n.getMessage("sum_custom_set.buttonMessage.empty", config.getConfigLocale()))
                     .type(EmbedOrMessageDefinition.Type.MESSAGE)
-                    .componentRowDefinitions(createButtonLayout(customUuid, config, true, true, disabledIds, config.getConfigLocale()))
+                    .componentRowDefinitions(createButtonLayout(configUUID, config, true, true, disabledIds, config.getConfigLocale()))
                     .build());
         }
         return Optional.empty();

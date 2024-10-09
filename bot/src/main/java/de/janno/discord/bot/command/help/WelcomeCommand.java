@@ -153,7 +153,7 @@ public class WelcomeCommand extends AbstractCommand<RollConfig, StateData> {
 
 
     @Override
-    protected void addFurtherActions(List<Mono<Void>> actions, ButtonEventAdaptor event, RollConfig config, State<StateData> state) {
+    protected Mono<Void> furtherAction(ButtonEventAdaptor event, RollConfig config, State<StateData> state, Timer timer) {
         Optional<RpgSystemCommandPreset.PresetId> presetId = getPresetIdFromButton(state.getButtonValue());
 
         if (presetId.isEmpty()) {
@@ -163,16 +163,20 @@ public class WelcomeCommand extends AbstractCommand<RollConfig, StateData> {
         } else {
             BotMetrics.incrementPresetMetricCounter(presetId.get().name());
             String commandString = RpgSystemCommandPreset.getCommandString(presetId.get(), event.getRequester().getUserLocal());
-            actions.add(Mono.defer(() -> event.sendMessage(EmbedOrMessageDefinition.builder()
+            return Mono.defer(() -> event.sendMessage(EmbedOrMessageDefinition.builder()
                             .type(EmbedOrMessageDefinition.Type.MESSAGE)
                             .shortedContent("`%s`".formatted(commandString))
-                            .build())).ofType(Void.class)
-                    .doOnSuccess(v ->
-                            log.info("{}: Welcome Button {}",
-                                    event.getRequester().toLogString(),
-                                    presetId.get().name()
-                            )));
+                            .build()))
+                    .ofType(Void.class)
+                    .doOnSuccess(v -> {
+                        log.info("{}: Welcome Button {}",
+                                event.getRequester().toLogString(),
+                                presetId.get().name()
+                        );
+                        timer.stopFurtherAction();
+                    });
         }
+        return Mono.empty();
     }
 
     @Override

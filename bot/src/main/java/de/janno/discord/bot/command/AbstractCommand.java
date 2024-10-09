@@ -21,15 +21,15 @@ import java.util.*;
 import java.util.function.Supplier;
 
 @Slf4j
-public abstract class AbstractCommand<C extends RollConfig, S extends StateData> implements SlashCommand, ComponentInteractEventHandler {
+public abstract class AbstractCommand<C extends RollConfig, S extends StateData> implements SlashCommand, ComponentCommand {
 
     protected final PersistenceManager persistenceManager;
-    private final AbstractComponentInteractEventHandler<C, S> componentInteractEventHandler;
-    private final AbstractSlashCommand<C> slashCommand;
+    private final ComponentCommandImpl<C, S> componentCommand;
+    private final SlashCommandImpl<C> slashCommand;
 
     protected AbstractCommand(PersistenceManager persistenceManager, Supplier<UUID> uuidSupplier) {
         this.persistenceManager = persistenceManager;
-        componentInteractEventHandler = new AbstractComponentInteractEventHandler<>(persistenceManager, uuidSupplier) {
+        componentCommand = new ComponentCommandImpl<>(persistenceManager, uuidSupplier) {
 
             @Override
             public @NonNull String getCommandId() {
@@ -57,8 +57,8 @@ public abstract class AbstractCommand<C extends RollConfig, S extends StateData>
             }
 
             @Override
-            protected void addFurtherActions(List<Mono<Void>> actions, ButtonEventAdaptor event, C config, State<S> state) {
-                AbstractCommand.this.addFurtherActions(actions, event, config, state);
+            protected Mono<Void> furtherAction(ButtonEventAdaptor event, C config, State<S> state, Timer timer) {
+                return AbstractCommand.this.furtherAction(event, config, state, timer);
             }
 
             @Override
@@ -86,7 +86,7 @@ public abstract class AbstractCommand<C extends RollConfig, S extends StateData>
                 return AbstractCommand.this.createEmptyMessageData(configUUID, guildId, channelId, messageId);
             }
         };
-        slashCommand = new AbstractSlashCommand<>(persistenceManager) {
+        slashCommand = new SlashCommandImpl<>(persistenceManager) {
             @Override
             protected @NonNull C getConfigFromStartOptions(@NonNull CommandInteractionOption options, @NonNull Locale userLocale) {
                 return AbstractCommand.this.getConfigFromStartOptions(options, userLocale);
@@ -209,9 +209,9 @@ public abstract class AbstractCommand<C extends RollConfig, S extends StateData>
      */
     @VisibleForTesting
     public @NonNull MessageDataDTO createEmptyMessageData(@NonNull UUID configUUID,
-                                                 @Nullable Long guildId,
-                                                 long channelId,
-                                                 long messageId) {
+                                                          @Nullable Long guildId,
+                                                          long channelId,
+                                                          long messageId) {
         return BaseCommandUtils.createCleanupAndSaveEmptyMessageData(configUUID, guildId, channelId, messageId, getCommandId(), persistenceManager);
     }
 
@@ -236,11 +236,11 @@ public abstract class AbstractCommand<C extends RollConfig, S extends StateData>
 
     @Override
     public Mono<Void> handleComponentInteractEvent(@NonNull ButtonEventAdaptor event) {
-        return componentInteractEventHandler.handleComponentInteractEvent(event);
+        return componentCommand.handleComponentInteractEvent(event);
     }
 
-    protected void addFurtherActions(List<Mono<Void>> actions, ButtonEventAdaptor event, C config, State<S> state) {
-
+    protected Mono<Void> furtherAction(ButtonEventAdaptor event, C config, State<S> state, Timer timer) {
+        return Mono.empty();
     }
 
     @Override

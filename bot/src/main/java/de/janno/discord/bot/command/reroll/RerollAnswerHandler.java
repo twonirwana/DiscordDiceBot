@@ -30,7 +30,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 @Slf4j
-public class RerollAnswerHandler extends AbstractComponentInteractEventHandler<RerollAnswerConfig, RerollAnswerStateData> {
+public class RerollAnswerHandler extends ComponentCommandImpl<RerollAnswerConfig, RerollAnswerStateData> {
     private static final String CONFIG_TYPE_ID = "RerollAnswerConfig";
     private static final String STATE_DATA_TYPE_ID = "RerollAnswerStateData";
     private static final String ROLL_BUTTON_ID = "roll";

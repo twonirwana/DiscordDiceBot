@@ -432,7 +432,11 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     }
 
     @Override
-    protected @NonNull Optional<EmbedOrMessageDefinition> createNewButtonMessageWithState(@NonNull UUID configUUID, @NonNull CustomParameterConfig config, @Nullable State<CustomParameterStateData> state, @Nullable Long guildId, long channelId) {
+    protected @NonNull Optional<EmbedOrMessageDefinition> createNewButtonMessageWithState(@NonNull UUID configUUID,
+                                                                                          @NonNull CustomParameterConfig config,
+                                                                                          @Nullable State<CustomParameterStateData> state,
+                                                                                          @Nullable Long guildId,
+                                                                                          long channelId) {
         if (state == null) {
             return Optional.of(createSlashResponseMessage(configUUID, config, channelId));
         }
@@ -475,7 +479,8 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
                 currentParameter.getName());
     }
 
-    private List<ComponentRowDefinition> getButtonLayoutWithOptionalState(@NonNull UUID configUUID, @NonNull CustomParameterConfig config, @Nullable State<CustomParameterStateData> state) {
+    private List<ComponentRowDefinition> getButtonLayoutWithOptionalState(@NonNull UUID
+                                                                                  configUUID, @NonNull CustomParameterConfig config, @Nullable State<CustomParameterStateData> state) {
         String currentParameterExpression = Optional.ofNullable(state)
                 .map(State::getData)
                 .flatMap(CustomParameterStateData::getNextUnselectedParameterExpression)
@@ -518,7 +523,8 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     }
 
     @Override
-    protected @NonNull Optional<String> getStartOptionsValidationMessage(@NonNull CommandInteractionOption options, long channelId, long userId, @NonNull Locale userLocale) {
+    protected @NonNull Optional<String> getStartOptionsValidationMessage(@NonNull CommandInteractionOption options,
+                                                                         long channelId, long userId, @NonNull Locale userLocale) {
         String baseExpression = options.getStringSubOptionWithName(EXPRESSION_OPTION_NAME).orElse("");
         log.trace("Start validating: {}", baseExpression.replace("\n", " "));
         int variableCount = 0;
@@ -572,11 +578,12 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
         return result;
     }
 
-    private String validateStateWithCustomIdAndParameter(CustomParameterConfig config, StateWithCustomIdAndParameter aState, long channelId, long userId) {
+    private String validateStateWithCustomIdAndParameter(CustomParameterConfig
+                                                                 config, StateWithCustomIdAndParameter aState, long channelId, long userId) {
         if (!hasMissingParameter(aState.getState())) {
-            final  String expression = getFilledExpression(config, aState.getState());
-            final   String label = getLabel(config, aState.getState());
-            final   String expressionWithoutSuffixLabel = removeSuffixLabelFromExpression(expression, label);
+            final String expression = getFilledExpression(config, aState.getState());
+            final String label = getLabel(config, aState.getState());
+            final String expressionWithoutSuffixLabel = removeSuffixLabelFromExpression(expression, label);
             final String expressionWithoutSuffixLabelAndAlias = AliasHelper.getAndApplyAliaseToExpression(channelId, userId, persistenceManager, expressionWithoutSuffixLabel);
 
             Optional<String> validationMessage = diceEvaluatorAdapter.validateDiceExpressionWitOptionalLabel(expressionWithoutSuffixLabelAndAlias,
@@ -617,7 +624,8 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
                 .toList();
     }
 
-    private List<StateWithCustomIdAndParameter> getCornerStatePermutations(CustomParameterConfig config, State<CustomParameterStateData> state) {
+    private List<StateWithCustomIdAndParameter> getCornerStatePermutations(CustomParameterConfig
+                                                                                   config, State<CustomParameterStateData> state) {
         List<StateWithCustomIdAndParameter> out = new ArrayList<>();
         Optional<String> parameterExpression = getCurrentParameterExpression(state);
 
@@ -638,7 +646,8 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     }
 
     @VisibleForTesting
-    List<ButtonLabelAndId> filterToCornerCases(List<ButtonLabelAndId> in, List<Parameter.ParameterOption> parameterOptions) {
+    List<ButtonLabelAndId> filterToCornerCases
+            (List<ButtonLabelAndId> in, List<Parameter.ParameterOption> parameterOptions) {
         List<ButtonLabelIdAndValue> withValue = in.stream()
                 .map(b -> getValueFromId(b, parameterOptions)
                         .map(s -> new ButtonLabelIdAndValue(s, b))
@@ -658,7 +667,8 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
                 .toList();
     }
 
-    private Optional<String> getValueFromId(ButtonLabelAndId buttonLabelAndId, List<Parameter.ParameterOption> parameterOptions) {
+    private Optional<String> getValueFromId(ButtonLabelAndId
+                                                    buttonLabelAndId, List<Parameter.ParameterOption> parameterOptions) {
         return parameterOptions.stream()
                 .filter(po -> Objects.equals(buttonLabelAndId.getId(), po.id()))
                 .map(Parameter.ParameterOption::value)
