@@ -204,7 +204,7 @@ de.janno.discord.bot.command.customDice.CustomDiceCommandMockTest.slash_start_mu
 
 de.janno.discord.bot.command.customDice.CustomDiceCommandMockTest.slash_start_warn=[
   [
-    "reply: commandString `3`: did not contain any random element, try for Example `d20` to roll a 20 sided die, `'a'`: did not contain any random element, try for Example `d20` to roll a 20 sided die",
+    "reply: commandString\n`3`: did not contain any random element, try for Example `d20` to roll a 20 sided die\n`'a'`: did not contain any random element, try for Example `d20` to roll a 20 sided die",
     "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click on a button to roll the dice, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=1d6, id=custom_dice\u001E1_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=Attack, id=custom_dice\u001E2_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=3d10,3d10,3d10, id=custom_dice\u001E3_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=3, id=custom_dice\u001E4_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label='a', id=custom_dice\u001E5_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
   ]
 ]
