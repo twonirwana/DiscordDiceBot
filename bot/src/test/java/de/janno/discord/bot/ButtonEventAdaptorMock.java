@@ -182,6 +182,12 @@ public class ButtonEventAdaptorMock implements ButtonEventAdaptor {
     }
 
     @Override
+    public @NonNull Mono<Void> acknowledge() {
+        actions.add("acknowledge");
+        return Mono.empty();
+    }
+
+    @Override
     public EmbedOrMessageDefinition getMessageDefinitionOfEventMessageWithoutButtons() {
         actions.add("getMessageDefinitionOfEventMessageWithoutButtons");
         return eventMessage;

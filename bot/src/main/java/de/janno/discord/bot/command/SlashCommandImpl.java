@@ -29,14 +29,14 @@ import java.util.stream.Stream;
 import static de.janno.discord.bot.command.BaseCommandOptions.*;
 
 @Slf4j
-public abstract class AbstractSlashCommand<C extends RollConfig> implements SlashCommand {
+public abstract class SlashCommandImpl<C extends RollConfig> implements SlashCommand {
 
     private static final String START_OPTION_NAME = "start";
     private static final String HELP_OPTION_NAME = "help";
 
     protected final PersistenceManager persistenceManager;
 
-    protected AbstractSlashCommand(PersistenceManager persistenceManager) {
+    protected SlashCommandImpl(PersistenceManager persistenceManager) {
         this.persistenceManager = persistenceManager;
     }
 
@@ -118,9 +118,9 @@ public abstract class AbstractSlashCommand<C extends RollConfig> implements Slas
      * On the creation of a message an empty state need to be saved so we know the message exists and we can remove it later, even on concurrent actions
      */
     protected @NonNull MessageDataDTO createEmptyMessageData(@NonNull UUID configUUID,
-                                                                       @Nullable Long guildId,
-                                                                       long channelId,
-                                                                       long messageId) {
+                                                             @Nullable Long guildId,
+                                                             long channelId,
+                                                             long messageId) {
         return BaseCommandUtils.createCleanupAndSaveEmptyMessageData(configUUID, guildId, channelId, messageId, getCommandId(), persistenceManager);
     }
 
@@ -186,7 +186,8 @@ public abstract class AbstractSlashCommand<C extends RollConfig> implements Slas
             BotMetrics.incrementSlashHelpMetricCounter(getCommandId());
             return event.replyWithEmbedOrMessageDefinition(getHelpMessage(event.getRequester().getUserLocal()), true);
         }
-        return Mono.empty();
+        log.error("Unknown command: {} from {}", event.getOptions(), event.getRequester().toLogString());
+        return event.reply("There was an error, try again", true);
     }
 
     protected @NonNull Optional<String> getStartOptionsValidationMessage(@NonNull CommandInteractionOption options, long channelId, long userId, @NonNull Locale userLocale) {

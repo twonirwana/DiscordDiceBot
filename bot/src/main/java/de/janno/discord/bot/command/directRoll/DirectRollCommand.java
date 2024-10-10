@@ -30,6 +30,7 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
+import java.time.Duration;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
@@ -152,7 +153,8 @@ public class DirectRollCommand implements SlashCommand {
 
         }
 
-        return Mono.empty();
+        log.error("Unknown command: {} from {}", event.getOptions(), event.getRequester().toLogString());
+        return event.reply("There was an error, try again", true);
     }
 
     protected EmbedOrMessageDefinition getHelpMessage(Locale userLocale) {
@@ -171,17 +173,18 @@ public class DirectRollCommand implements SlashCommand {
                                                  @NonNull Stopwatch stopwatch,
                                                  @NonNull Locale userLocale) {
 
-        final EmbedOrMessageDefinition answerMessage = createAnswerWithOptionalWarning(answer);
-
-        Mono<Void> answerMono = Mono.defer(() -> event.replyWithEmbedOrMessageDefinition(answerMessage, false));
-        return answerMono
-                .doOnSuccess(v -> {
-                    BotMetrics.timerAnswerMetricCounter(getCommandId(), stopwatch.elapsed());
-                    log.info("{}: '{}'={} -> {} in {}ms",
+        Duration untilAck = stopwatch.elapsed();
+        BotMetrics.timerAcknowledgeStartMetricCounter(getCommandId(), untilAck);
+        //ignore warning, no good way to display it, don't Mono.defer nothing is waiting
+        return event.replyWithEmbedOrMessageDefinition(createAnswerWithOptionalWarning(answer), false)
+                .doAfterTerminate(() -> {
+                    BotMetrics.timerAcknowledgeFinishedMetricCounter(getCommandId(), stopwatch.elapsed());
+                    log.info("{}: '{}'={} -> {} in start={}ms reply={}ms",
                             event.getRequester().toLogString(),
                             commandString.replace("`", ""),
                             diceExpression,
                             answer.toShortString(),
+                            untilAck.toMillis(),
                             stopwatch.elapsed(TimeUnit.MILLISECONDS)
                     );
                 });

@@ -43,7 +43,7 @@ import java.util.function.Function;
 public class JdaClient {
 
     public JdaClient(@NonNull List<SlashCommand> slashCommands,
-                     @NonNull List<ComponentInteractEventHandler> componentInteractEventHandlers,
+                     @NonNull List<ComponentCommand> componentCommands,
                      @NonNull Function<DiscordConnector.WelcomeRequest, EmbedOrMessageDefinition> welcomeMessageDefinition,
                      @NonNull Set<Long> allGuildIdsInPersistence) {
 
@@ -204,7 +204,7 @@ public class JdaClient {
                                 if (!BottomCustomIdUtils.isValidCustomId(event.getInteraction().getComponentId())) {
                                     log.warn("Custom id {} is not a valid custom id.", event.getInteraction().getComponentId());
                                 }
-                                List<ComponentInteractEventHandler> matchingHandler = componentInteractEventHandlers.stream()
+                                List<ComponentCommand> matchingHandler = componentCommands.stream()
                                         .filter(command -> command.matchingComponentCustomId(event.getInteraction().getComponentId()))
                                         .toList();
                                 Locale userLocale = LocaleConverter.toLocale(event.getInteraction().getUserLocale());
@@ -216,7 +216,7 @@ public class JdaClient {
                                         userLocale,
                                         BottomCustomIdUtils.getConfigUUIDFromCustomId(event.getInteraction().getComponentId()).orElse(null));
                                 if (matchingHandler.size() != 1) {
-                                    log.error("{}: Invalid handler for {} -> {}", requester.toLogString(), event.getInteraction().getComponentId(), matchingHandler.stream().map(ComponentInteractEventHandler::getCommandId).toList());
+                                    log.error("{}: Invalid handler for {} -> {}", requester.toLogString(), event.getInteraction().getComponentId(), matchingHandler.stream().map(ComponentCommand::getCommandId).toList());
                                 } else {
                                     Mono.just(matchingHandler.getFirst())
                                             .flatMap(command -> {

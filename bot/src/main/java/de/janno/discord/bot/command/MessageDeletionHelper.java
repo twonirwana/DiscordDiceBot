@@ -48,10 +48,10 @@ public class MessageDeletionHelper {
         return discordAdapter.getMessagesState(ids)
                 .flatMap(ms -> {
                     if (ms.isCanBeDeleted() && !ms.isPinned() && ms.isExists() && ms.getCreationTime() != null) {
-                        return discordAdapter.deleteMessageById(ms.getMessageId())
-                                .then(deleteMessageDataWithDelay(persistenceManager, channelId, ms.getMessageId()));
+                        return Mono.defer(() -> discordAdapter.deleteMessageById(ms.getMessageId()))
+                                .then(Mono.defer(() -> deleteMessageDataWithDelay(persistenceManager, channelId, ms.getMessageId())));
                     } else if (!ms.isExists()) {
-                        return deleteMessageDataWithDelay(persistenceManager, channelId, ms.getMessageId());
+                        return Mono.defer(() -> deleteMessageDataWithDelay(persistenceManager, channelId, ms.getMessageId()));
                     } else {
                         return Mono.empty();
                     }
@@ -61,7 +61,7 @@ public class MessageDeletionHelper {
     public static Mono<Void> deleteMessageDataWithDelay(PersistenceManager persistenceManager, long channelId, long messageId) {
         MessageIdAndChannelId messageIdAndChannelId = new MessageIdAndChannelId(messageId, channelId);
         MESSAGE_STATE_IDS_TO_DELETE.add(messageIdAndChannelId);
-        final Duration delay = Duration.ofMillis(io.avaje.config.Config.getLong("command.delayMessageDataDeletionMs", 10000));
+        final Duration delay = Duration.ofMillis(io.avaje.config.Config.getLong("command.delayMessageDataDeletionMs", 6000));
         return Mono.defer(() -> Mono.just(messageIdAndChannelId)
                 .delayElement(delay)
                 //add throttle?
