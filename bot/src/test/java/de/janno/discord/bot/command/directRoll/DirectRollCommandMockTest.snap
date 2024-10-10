@@ -119,7 +119,7 @@ de.janno.discord.bot.command.directRoll.DirectRollCommandMockTest.roll_multiLine
 
 de.janno.discord.bot.command.directRoll.DirectRollCommandMockTest.roll_warn=[
   [
-    "replyWithEmbedOrMessageDefinition: EmbedOrMessageDefinition(title=20 ⇒ 20, descriptionOrContent=, fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED, userReference=true, sendToOtherChannelId=null)"
+    "replyWithEmbedOrMessageDefinition: EmbedOrMessageDefinition(title=20 ⇒ 20, descriptionOrContent=, fields=[EmbedOrMessageDefinition.Field(name=Warning, value=did not contain any random element, try for Example `d20` to roll a 20 sided die, inline=false)], componentRowDefinitions=[], hasImage=false, type=EMBED, userReference=true, sendToOtherChannelId=null)"
   ]
 ]
 

@@ -5,7 +5,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.Objects;
 
-public interface ComponentInteractEventHandler {
+public interface ComponentCommand {
 
     Mono<Void> handleComponentInteractEvent(@NonNull ButtonEventAdaptor event);
 

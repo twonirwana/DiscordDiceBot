@@ -30,7 +30,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 @Slf4j
-public class RerollAnswerHandler extends AbstractComponentInteractEventHandler<RerollAnswerConfig, RerollAnswerStateData> {
+public class RerollAnswerHandler extends ComponentCommandImpl<RerollAnswerConfig, RerollAnswerStateData> {
     private static final String CONFIG_TYPE_ID = "RerollAnswerConfig";
     private static final String STATE_DATA_TYPE_ID = "RerollAnswerStateData";
     private static final String ROLL_BUTTON_ID = "roll";
@@ -217,7 +217,7 @@ public class RerollAnswerHandler extends AbstractComponentInteractEventHandler<R
     }
 
     @Override
-    protected Optional<List<ComponentRowDefinition>> getCurrentMessageComponentChange(UUID configUUID, RerollAnswerConfig config, State<RerollAnswerStateData> state, long channelId, long userId) {
+    protected Optional<List<ComponentRowDefinition>> getCurrentMessageComponentChange(UUID configUUID, RerollAnswerConfig config, State<RerollAnswerStateData> state, long channelId, long userId, boolean keepExistingButtonMessage) {
         if (Set.of(ROLL_BUTTON_ID, FINISH_BUTTON_ID).contains(state.getButtonValue())) {
             return Optional.of(List.of());
         }

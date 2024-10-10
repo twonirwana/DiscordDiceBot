@@ -41,6 +41,8 @@ public interface ButtonEventAdaptor extends DiscordAdapter {
      */
     Mono<Void> acknowledgeAndDeleteOriginal();
 
+    @NonNull Mono<Void> acknowledge();
+
     /**
      * Gives the message definition of the message where the button was clicked
      */

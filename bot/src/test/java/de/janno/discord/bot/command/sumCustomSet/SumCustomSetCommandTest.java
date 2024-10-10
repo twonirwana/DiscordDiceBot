@@ -61,7 +61,7 @@ class SumCustomSetCommandTest {
     @ParameterizedTest(name = "{index} config={0}, buttonId={1} -> {2}")
     @MethodSource("generateGetEditButtonMessageData")
     void getEditButtonMessage(State<SumCustomSetStateDataV2> state, String expected) {
-        Optional<String> res = underTest.getCurrentMessageContentChange(defaultConfig, state);
+        Optional<String> res = underTest.getCurrentMessageContentChange(defaultConfig, state, false);
         assertThat(res).contains(expected);
     }
 
@@ -155,7 +155,7 @@ class SumCustomSetCommandTest {
 
     @Test
     void getCurrentMessageContentChange_1d6() {
-        Optional<String> res = underTest.getCurrentMessageContentChange(defaultConfig, new State<>("+1d6", new SumCustomSetStateDataV2(List.of(new ExpressionAndLabel("1d6", "1d6")), "user1")));
+        Optional<String> res = underTest.getCurrentMessageContentChange(defaultConfig, new State<>("+1d6", new SumCustomSetStateDataV2(List.of(new ExpressionAndLabel("1d6", "1d6")), "user1")), false);
         assertThat(res).contains("user1: 1d6");
     }
 
