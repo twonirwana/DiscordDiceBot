@@ -248,7 +248,7 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
 
     @Override
     protected Optional<List<ComponentRowDefinition>> getCurrentMessageComponentChange(UUID customUuid, SumCustomSetConfig config, State<SumCustomSetStateDataV2> state, long channelId, long userId) {
-        if (state.getData() == null) {
+        if (state.getData() == null || ROLL_BUTTON_ID.equals(state.getButtonValue())) {
             return Optional.empty();
         }
         String expression = AliasHelper.getAndApplyAliaseToExpression(channelId, userId, persistenceManager, combineExpressions(state.getData().getDiceExpressions(), config.getPrefix(), config.getPostfix()));
@@ -257,6 +257,7 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
                 .map(List::isEmpty)
                 .orElse(true);
         Set<String> disabledIds = getDisabledButtonIds(config, state, channelId, userId);
+        //todo only update if the disabled button where changed, need current button state
         return Optional.of(createButtonLayout(customUuid, config, !diceEvaluatorAdapter.isValidExpression(expression), expressionIsEmpty, disabledIds, config.getConfigLocale()));
     }
 
@@ -280,7 +281,7 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
     @Override
     public @NonNull Optional<String> getCurrentMessageContentChange(SumCustomSetConfig config, State<SumCustomSetStateDataV2> state) {
         if (ROLL_BUTTON_ID.equals(state.getButtonValue())) {
-            return Optional.of(I18n.getMessage("sum_custom_set.buttonMessage.empty", config.getConfigLocale()));
+            return Optional.empty();
         } else if (CLEAR_BUTTON_ID.equals(state.getButtonValue())) {
             return Optional.of(I18n.getMessage("sum_custom_set.buttonMessage.empty", config.getConfigLocale()));
         } else {

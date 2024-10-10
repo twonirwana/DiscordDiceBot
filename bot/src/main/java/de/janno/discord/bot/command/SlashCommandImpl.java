@@ -187,7 +187,6 @@ public abstract class SlashCommandImpl<C extends RollConfig> implements SlashCom
             return event.replyWithEmbedOrMessageDefinition(getHelpMessage(event.getRequester().getUserLocal()), true);
         }
         log.error("Unknown command: {} from {}", event.getOptions(), event.getRequester().toLogString());
-        //todo i18n
         return event.reply("There was an error, try again", true);
     }
 

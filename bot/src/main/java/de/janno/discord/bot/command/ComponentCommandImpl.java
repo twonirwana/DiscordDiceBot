@@ -47,9 +47,6 @@ public abstract class ComponentCommandImpl<C extends RollConfig, S extends State
         final long channelId = event.getChannelId();
         final long userId = event.getUserId();
         final Long guildId = event.getGuildId();
-        if (guildId == null) {
-            BotMetrics.outsideGuildCounter("button");
-        }
         final boolean isLegacyMessage = BottomCustomIdUtils.isLegacyCustomId(event.getCustomId());
         if (isLegacyMessage) {
             BotMetrics.incrementLegacyButtonMetricCounter(getCommandId());
@@ -58,16 +55,22 @@ public abstract class ComponentCommandImpl<C extends RollConfig, S extends State
         }
         final String buttonValue = BottomCustomIdUtils.getButtonValueFromCustomId(event.getCustomId());
         final Optional<UUID> configUUIDFromCustomID = BottomCustomIdUtils.getConfigUUIDFromCustomId(event.getCustomId());
+        BotMetrics.incrementButtonMetricCounter(getCommandId());
+        if (guildId == null) {
+            BotMetrics.outsideGuildCounter("button");
+        }
+        if (event.isPinned()) {
+            BotMetrics.incrementPinnedButtonMetricCounter();
+        }
         BotMetrics.incrementButtonUUIDUsageMetricCounter(getCommandId(), configUUIDFromCustomID.isPresent());
+
         final Optional<MessageConfigDTO> messageConfigDTO = getMessageConfigDTO(configUUIDFromCustomID.orElse(null), channelId, eventMessageId);
         final Optional<ConfigAndState<C, S>> fallbackConfigAndState = createNewConfigAndStateIfMissing(buttonValue);
         if (messageConfigDTO.isEmpty() && fallbackConfigAndState.isEmpty()) {
             log.warn("{}: Missing messageData for channelId: {}, messageId: {} and commandName: {} ", event.getRequester().toLogString(), channelId, eventMessageId, getCommandId());
             return event.reply(I18n.getMessage("base.reply.missingConfig", event.getRequester().getUserLocal(), I18n.getMessage(getCommandId() + ".name", event.getRequester().getUserLocal())), false);
         }
-        if (event.isPinned()) {
-            BotMetrics.incrementPinnedButtonMetricCounter();
-        }
+
         final ConfigAndState<C, S> configAndState;
         final UUID configUUID;
         if (messageConfigDTO.isEmpty() && fallbackConfigAndState.isPresent()) {
@@ -87,37 +90,47 @@ public abstract class ComponentCommandImpl<C extends RollConfig, S extends State
             return event.editMessage(checkPermissions.get(), null);
         }
 
-        //reply to acknowledge the event, no defer -> reply directly
+        //update state bevor editing the event message
+        updateCurrentMessageStateData(configUUID, guildId, channelId, eventMessageId, config, state);
+        //reply/edit/acknowledge to the event message, no defer but directly call
         return replyToEvent(event, config, state, configUUID, guildId, channelId, userId, answerTargetChannelId, timer)
-                .then(
-                        //send answer messages
-                        Mono.defer(() -> sendAnswerMessage(event, config, state, guildId, channelId, userId, answerTargetChannelId, timer))
-                                //send new button message after the answer message, the new buttons message should be at the end
-                                .then(Mono.defer(() -> sendNewButtonMessageAndUpdateOldButtonMessage(event, config, state, configUUID, eventMessageId, guildId, channelId, answerTargetChannelId, timer))))
-                //delete old message
+                //send answer messages
+                .then(Mono.defer(() -> sendAnswerMessage(event, config, state, guildId, channelId, userId, answerTargetChannelId, timer))
+                        //create an optional new button message
+                        .then(Mono.defer(() -> createNewButtonMessage(configUUID, config, state, guildId, channelId).map(Mono::just).orElse(Mono.empty())
+                                //send the new button message, flatMap because we do it only if a new buttonMessage should be created
+                                .flatMap(nbm -> Mono.defer(() -> sendNewButtonMessage(event, nbm, configUUID, guildId, channelId, answerTargetChannelId, timer))
+                                        //delete the event message and event data if a new buttonMessage was created, flatMap because we do it only if a new buttonMessage is created
+                                        .flatMap(newButtonMessageId -> Mono.defer(() -> deleteEventMessageAndData(event, configUUID, eventMessageId, channelId, answerTargetChannelId, newButtonMessageId))))
+
+                        )))
+                //do further actions last
                 .then(Mono.defer(() -> furtherAction(event, config, state, timer)))
                 .doAfterTerminate(() -> {
-                    //todo only on answer or button message or further
-                    log.info("{}: '{}'={} in {}",
-                            event.getRequester().toLogString(),
-                            event.getCustomId().replace(CUSTOM_ID_DELIMITER, ":"),
-                            state.toShortString(),
-                            timer.toLog()
-                    );
-                })
-                ;
+                    //only logging if there is an answer or new button message, and not if the event message was only edited
+                    if (timer.getAnswerFinished() != null || timer.getNewButtonFinished() != null || timer.getFurtherActionFinished() != null) {
+                        log.info("{}: '{}'={} in {}",
+                                event.getRequester().toLogString(),
+                                event.getCustomId().replace(CUSTOM_ID_DELIMITER, ":"),
+                                state.toShortString(),
+                                timer.toLog()
+                        );
+                    }
+                });
     }
 
-    private @NonNull Mono<Void> replyToEvent(final ButtonEventAdaptor event,
-                                             final C config,
-                                             final State<S> state,
-                                             final UUID configUUID,
+    /**
+     * reply to the event by simply acknowledge, edit the message or sending a reply message
+     */
+    private @NonNull Mono<Void> replyToEvent(@NonNull final ButtonEventAdaptor event,
+                                             @NonNull final C config,
+                                             @NonNull final State<S> state,
+                                             @NonNull final UUID configUUID,
                                              final Long guildId,
                                              final long channelId,
                                              final long userId,
-                                             final Long answerTargetChannelId, //todo move?
-                                             final Timer timer
-    ) {
+                                             final Long answerTargetChannelId,
+                                             @NonNull final Timer timer) {
         final Optional<String> editMessage;
         final Optional<List<ComponentRowDefinition>> editMessageComponents;
         final boolean keepExistingButtonMessage = shouldKeepExistingButtonMessage(event);
@@ -133,22 +146,24 @@ public abstract class ComponentCommandImpl<C extends RollConfig, S extends State
             editMessage = getCurrentMessageContentChange(config, state);
             editMessageComponents = getCurrentMessageComponentChange(configUUID, config, state, channelId, userId);
         }
+        timer.stopStartAcknowledge();
         if (editMessage.isPresent() || editMessageComponents.isPresent()) {
             return event.editMessage(editMessage.orElse(null), editMessageComponents.orElse(null))
-                    .doOnSuccess(v -> timer.stopReplyOrAcknowledge());
+                    .doOnSuccess(v -> timer.stopReplyFinished());
         } else {
-            return event.acknowledge();
+            return event.acknowledge()
+                    .doOnSuccess(v -> timer.stopAcknowledgeFinished());
         }
     }
 
-    private @NonNull Mono<Void> sendAnswerMessage(final ButtonEventAdaptor event,
-                                                  final C config,
-                                                  final State<S> state,
+    private @NonNull Mono<Void> sendAnswerMessage(@NonNull final ButtonEventAdaptor event,
+                                                  @NonNull final C config,
+                                                  @NonNull final State<S> state,
                                                   final Long guildId,
                                                   final long channelId,
                                                   final long userId,
                                                   final Long answerTargetChannelId,
-                                                  final Timer timer) {
+                                                  @NonNull final Timer timer) {
         final Optional<RollAnswer> answer = getAnswer(config, state, channelId, userId);
         if (answer.isPresent()) {
             BotMetrics.incrementAnswerFormatCounter(config.getAnswerFormatType(), getCommandId());
@@ -171,45 +186,47 @@ public abstract class ComponentCommandImpl<C extends RollConfig, S extends State
     /**
      * Sends a new button message if needed. If a new button message was send then it returns true otherwise false
      */
-    private @NonNull Mono<Void> sendNewButtonMessageAndUpdateOldButtonMessage(final ButtonEventAdaptor event,
-                                                                              final C config,
-                                                                              final State<S> state,
-                                                                              final UUID configUUID,
-                                                                              final long eventMessageId,
-                                                                              final Long guildId,
-                                                                              final long channelId,
-                                                                              final Long answerTargetChannelId,
-                                                                              final Timer timer) {
-
-        Optional<EmbedOrMessageDefinition> newButtonMessage = createNewButtonMessage(configUUID, config, state, guildId, channelId);
+    private @NonNull Mono<Long> sendNewButtonMessage(@NonNull final ButtonEventAdaptor event,
+                                                     @NonNull final EmbedOrMessageDefinition newButtonMessage,
+                                                     @NonNull final UUID configUUID,
+                                                     final Long guildId,
+                                                     final long channelId,
+                                                     final Long answerTargetChannelId,
+                                                     @NonNull final Timer timer) {
 
 
-        if (newButtonMessage.isPresent() && answerTargetChannelId == null) {
-            final boolean deleteCurrentButtonMessage = !shouldKeepExistingButtonMessage(event);
-            return Mono.defer(() -> event.sendMessage(newButtonMessage.get())
+        if (answerTargetChannelId == null) {
+            return Mono.defer(() -> event.sendMessage(newButtonMessage)
                     .doOnNext(newMessageId -> createEmptyMessageData(configUUID, guildId, channelId, newMessageId))
-                    //delete has a delays therefore we write the metrics after the message creation
                     .doOnNext(newMessageId -> timer.stopNewButton())
-                    .flatMap(newMessageId -> MessageDeletionHelper.deleteOldMessageAndData(persistenceManager, newMessageId, event.getMessageId(), configUUID, channelId, event))
-                    //todo move out and combine with the other updateCurrentMessageStateData
-                    .then(Mono.defer(() -> {
-                        if (deleteCurrentButtonMessage) {
-                            return event.deleteMessageById(eventMessageId)
-                                    .then(MessageDeletionHelper.deleteMessageDataWithDelay(persistenceManager, channelId, eventMessageId));
-                        } else {
-                            //update the message if the old message is kept, for example reset it to start
-                            updateCurrentMessageStateData(configUUID, guildId, channelId, eventMessageId, config, state);
-                            return Mono.empty();
-                        }
-                    }))
                     .delaySubscription(calculateDelay(event)));
         }
-        //update message if no new message is sent
-        updateCurrentMessageStateData(configUUID, guildId, channelId, eventMessageId, config, state);
         return Mono.empty();
     }
 
-    private @NonNull Optional<MessageConfigDTO> getMessageConfigDTO(@Nullable UUID configId, long channelId, long messageId) {
+    /**
+     * deletes the old eventMessage and deletes it data
+     */
+    private @NonNull Mono<Void> deleteEventMessageAndData(@NonNull final ButtonEventAdaptor event,
+                                                          @NonNull final UUID configUUID,
+                                                          final long eventMessageId,
+                                                          final long channelId,
+                                                          final Long answerTargetChannelId,
+                                                          final long newButtonMessageId) {
+
+        return Mono.defer(() -> MessageDeletionHelper.deleteOldMessageAndData(persistenceManager, newButtonMessageId, event.getMessageId(), configUUID, channelId, event))
+                .then(Mono.defer(() -> {
+                    if (answerTargetChannelId == null && !shouldKeepExistingButtonMessage(event)) {
+                        return Mono.defer(() -> event.deleteMessageById(eventMessageId))
+                                .then(Mono.defer(() -> MessageDeletionHelper.deleteMessageDataWithDelay(persistenceManager, channelId, eventMessageId)));
+                    } else {
+                        return Mono.empty();
+                    }
+                }));
+    }
+
+    private @NonNull Optional<MessageConfigDTO> getMessageConfigDTO(@Nullable UUID configId, long channelId,
+                                                                    long messageId) {
         if (configId != null) {
             return persistenceManager.getMessageConfig(configId);
         }
@@ -217,7 +234,8 @@ public abstract class ComponentCommandImpl<C extends RollConfig, S extends State
         return persistenceManager.getConfigFromMessage(channelId, messageId);
     }
 
-    protected Optional<List<ComponentRowDefinition>> getCurrentMessageComponentChange(UUID configUUID, C config, State<S> state, long channelId, long userId) {
+    protected Optional<List<ComponentRowDefinition>> getCurrentMessageComponentChange(UUID configUUID, C
+            config, State<S> state, long channelId, long userId) {
         return Optional.empty();
     }
 
@@ -228,14 +246,16 @@ public abstract class ComponentCommandImpl<C extends RollConfig, S extends State
         return Optional.empty();
     }
 
-    private @NonNull MessageDataDTO getMessageDataDTOOrCreateNew(@NonNull UUID configId, @Nullable Long guildId, long channelId, long messageId) {
+    private @NonNull MessageDataDTO getMessageDataDTOOrCreateNew(@NonNull UUID configId, @Nullable Long guildId,
+                                                                 long channelId, long messageId) {
         Optional<MessageDataDTO> loadedData = persistenceManager.getMessageData(channelId, messageId);
         //if the messageData is missing we need to create a new one so we know the message exists and we can remove it later, even on concurrent actions
         return loadedData.orElseGet(() -> createEmptyMessageData(configId, guildId, channelId, messageId));
     }
 
 
-    protected abstract ConfigAndState<C, S> getMessageDataAndUpdateWithButtonValue(@NonNull MessageConfigDTO messageConfigDTO,
+    protected abstract ConfigAndState<C, S> getMessageDataAndUpdateWithButtonValue(@NonNull MessageConfigDTO
+                                                                                           messageConfigDTO,
                                                                                    @NonNull MessageDataDTO messageDataDTO,
                                                                                    @NonNull String buttonValue,
                                                                                    @NonNull String invokingUserName);
@@ -272,12 +292,14 @@ public abstract class ComponentCommandImpl<C extends RollConfig, S extends State
         return BaseCommandUtils.createCleanupAndSaveEmptyMessageData(configUUID, guildId, channelId, messageId, getCommandId(), persistenceManager);
     }
 
-    protected abstract @NonNull Optional<RollAnswer> getAnswer(C config, State<S> state, long channelId, long userId);
+    protected abstract @NonNull Optional<RollAnswer> getAnswer(C config, State<S> state, long channelId,
+                                                               long userId);
 
     /**
      * update the saved state if the current button message is not deleted. StateData need to be set to null if the there is an answer message
      */
-    protected void updateCurrentMessageStateData(UUID configUUID, @Nullable Long guildId, long channelId, long messageId, @NonNull C config, @NonNull State<S> state) {
+    protected void updateCurrentMessageStateData(UUID configUUID, @Nullable Long guildId, long channelId,
+                                                 long messageId, @NonNull C config, @NonNull State<S> state) {
     }
 
     private Duration calculateDelay(ButtonEventAdaptor event) {
@@ -302,10 +324,7 @@ public abstract class ComponentCommandImpl<C extends RollConfig, S extends State
         return Duration.ZERO;
     }
 
-
     protected Mono<Void> furtherAction(ButtonEventAdaptor event, C config, State<S> state, Timer timer) {
         return Mono.empty();
     }
-
-
 }
