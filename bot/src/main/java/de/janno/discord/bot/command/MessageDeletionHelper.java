@@ -5,7 +5,6 @@ import de.janno.discord.connector.api.DiscordAdapter;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 
 import javax.annotation.Nullable;
 import java.time.Duration;
