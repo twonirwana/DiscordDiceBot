@@ -1,6 +1,6 @@
 de.janno.discord.bot.command.customDice.CustomDiceCommandMockTest.channelAlias=[
   [
-    "editMessage: message:Click on a button to roll the dice, buttonValues=1_button",
+    "acknowledge",
     "sendMessage: EmbedOrMessageDefinition(title=Dmg ⇒ 11, 10, 10, descriptionOrContent=2d20+10: [11, 10], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED, userReference=true, sendToOtherChannelId=2)"
   ]
 ]
@@ -15,7 +15,7 @@ de.janno.discord.bot.command.customDice.CustomDiceCommandMockTest.legacy_id=[
 
 de.janno.discord.bot.command.customDice.CustomDiceCommandMockTest.roll_answerChannel=[
   [
-    "editMessage: message:Click on a button to roll the dice, buttonValues=1_button",
+    "acknowledge",
     "sendMessage: EmbedOrMessageDefinition(title=Dmg ⇒ 3, descriptionOrContent=1d6: [3], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED, userReference=true, sendToOtherChannelId=2)"
   ]
 ]
@@ -23,7 +23,7 @@ de.janno.discord.bot.command.customDice.CustomDiceCommandMockTest.roll_answerCha
 
 de.janno.discord.bot.command.customDice.CustomDiceCommandMockTest.roll_answerChannelTwice[event1]=[
   [
-    "editMessage: message:Click on a button to roll the dice, buttonValues=1_button",
+    "acknowledge",
     "sendMessage: EmbedOrMessageDefinition(title=Dmg ⇒ 3, descriptionOrContent=1d6: [3], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED, userReference=true, sendToOtherChannelId=2)"
   ]
 ]
@@ -31,7 +31,7 @@ de.janno.discord.bot.command.customDice.CustomDiceCommandMockTest.roll_answerCha
 
 de.janno.discord.bot.command.customDice.CustomDiceCommandMockTest.roll_answerChannelTwice[event2]=[
   [
-    "editMessage: message:Click on a button to roll the dice, buttonValues=1_button",
+    "acknowledge",
     "sendMessage: EmbedOrMessageDefinition(title=Dmg ⇒ 1, descriptionOrContent=1d6: [1], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED, userReference=true, sendToOtherChannelId=2)"
   ]
 ]
@@ -149,7 +149,7 @@ de.janno.discord.bot.command.customDice.CustomDiceCommandMockTest.roll_diceEvalu
 
 de.janno.discord.bot.command.customDice.CustomDiceCommandMockTest.roll_pinned=[
   [
-    "editMessage: message:Click on a button to roll the dice, buttonValues=1_button",
+    "acknowledge",
     "sendMessage: EmbedOrMessageDefinition(title=Dmg ⇒ 3, descriptionOrContent=1d6: [3], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED, userReference=true, sendToOtherChannelId=null)",
     "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click on a button to roll the dice, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=custom_dice\u001E1_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
   ]
@@ -158,7 +158,7 @@ de.janno.discord.bot.command.customDice.CustomDiceCommandMockTest.roll_pinned=[
 
 de.janno.discord.bot.command.customDice.CustomDiceCommandMockTest.roll_pinnedTwice[event1]=[
   [
-    "editMessage: message:Click on a button to roll the dice, buttonValues=1_button",
+    "acknowledge",
     "sendMessage: EmbedOrMessageDefinition(title=Dmg ⇒ 3, descriptionOrContent=1d6: [3], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED, userReference=true, sendToOtherChannelId=null)",
     "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click on a button to roll the dice, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=custom_dice\u001E1_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
   ]
@@ -219,7 +219,7 @@ de.janno.discord.bot.command.customDice.CustomDiceCommandMockTest.slash_targetCh
 
 de.janno.discord.bot.command.customDice.CustomDiceCommandMockTest.userChannelAlias=[
   [
-    "editMessage: message:Click on a button to roll the dice, buttonValues=1_button",
+    "acknowledge",
     "sendMessage: EmbedOrMessageDefinition(title=Dmg ⇒ 11, 10, 10, descriptionOrContent=2d20+10: [11, 10], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED, userReference=true, sendToOtherChannelId=2)"
   ]
 ]

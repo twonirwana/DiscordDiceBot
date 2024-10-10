@@ -357,8 +357,12 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
 
 
     @Override
-    protected Optional<List<ComponentRowDefinition>> getCurrentMessageComponentChange(UUID configUUID, CustomParameterConfig config, State<CustomParameterStateData> state, long channelId, long userId) {
+    protected Optional<List<ComponentRowDefinition>> getCurrentMessageComponentChange(UUID configUUID, CustomParameterConfig config, State<CustomParameterStateData> state, long channelId, long userId, boolean keepExistingButtonMessage) {
         if (!hasMissingParameter(state)) {
+            if(keepExistingButtonMessage){
+                //reset on roll and keep message
+                return Optional.of(getButtonLayoutWithOptionalState(configUUID, config, null));
+            }
             return Optional.empty();
         }
         return Optional.of(getButtonLayoutWithOptionalState(configUUID, config, state));
@@ -421,8 +425,12 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     }
 
     @Override
-    public @NonNull Optional<String> getCurrentMessageContentChange(CustomParameterConfig config, State<CustomParameterStateData> state) {
+    public @NonNull Optional<String> getCurrentMessageContentChange(CustomParameterConfig config, State<CustomParameterStateData> state, boolean keepExistingButtonMessage) {
         if (!hasMissingParameter(state)) {
+            if(keepExistingButtonMessage){
+                //reset message after roll and keep massage
+                return Optional.of(formatMessageContent(config, null, null));
+            }
             return Optional.empty();
         }
         String cleanName = Optional.ofNullable(state.getData())

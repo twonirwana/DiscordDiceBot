@@ -62,8 +62,8 @@ public abstract class AbstractCommand<C extends RollConfig, S extends StateData>
             }
 
             @Override
-            protected Optional<List<ComponentRowDefinition>> getCurrentMessageComponentChange(UUID configUUID, C config, State<S> state, long channelId, long userId) {
-                return AbstractCommand.this.getCurrentMessageComponentChange(configUUID, config, state, channelId, userId);
+            protected Optional<List<ComponentRowDefinition>> getCurrentMessageComponentChange(UUID configUUID, C config, State<S> state, long channelId, long userId, boolean keepExistingButtonMessage) {
+                return AbstractCommand.this.getCurrentMessageComponentChange(configUUID, config, state, channelId, userId, keepExistingButtonMessage);
             }
 
             @Override
@@ -77,8 +77,8 @@ public abstract class AbstractCommand<C extends RollConfig, S extends StateData>
             }
 
             @Override
-            public @NonNull Optional<String> getCurrentMessageContentChange(C config, State<S> state) {
-                return AbstractCommand.this.getCurrentMessageContentChange(config, state);
+            public @NonNull Optional<String> getCurrentMessageContentChange(C config, State<S> state, boolean keepExistingButtonMessage) {
+                return AbstractCommand.this.getCurrentMessageContentChange(config, state, keepExistingButtonMessage);
             }
 
             @Override
@@ -194,7 +194,7 @@ public abstract class AbstractCommand<C extends RollConfig, S extends StateData>
         return BaseCommandOptions.autoCompleteColorOption(autoCompleteRequest, userLocale);
     }
 
-    protected Optional<List<ComponentRowDefinition>> getCurrentMessageComponentChange(UUID configUUID, C config, State<S> state, long channelId, long userId) {
+    protected Optional<List<ComponentRowDefinition>> getCurrentMessageComponentChange(UUID configUUID, C config, State<S> state, long channelId, long userId, boolean keepExistingButtonMessage) {
         return Optional.empty();
     }
 
@@ -262,7 +262,7 @@ public abstract class AbstractCommand<C extends RollConfig, S extends StateData>
      * The text content for the old button message, after a button event. Returns null means no editing should be done.
      */
     @VisibleForTesting
-    public @NonNull Optional<String> getCurrentMessageContentChange(C config, State<S> state) {
+    public @NonNull Optional<String> getCurrentMessageContentChange(C config, State<S> state, boolean keepExistingButtonMessage) {
         return Optional.empty();
     }
 

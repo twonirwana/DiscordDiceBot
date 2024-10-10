@@ -133,19 +133,12 @@ public abstract class ComponentCommandImpl<C extends RollConfig, S extends State
                                              @NonNull final Timer timer) {
         final Optional<String> editMessage;
         final Optional<List<ComponentRowDefinition>> editMessageComponents;
-        final boolean keepExistingButtonMessage = shouldKeepExistingButtonMessage(event);
-        if (keepExistingButtonMessage || answerTargetChannelId != null) {
-            //if the old button is pined or the result is copied to another channel, the old message will be edited or reset to the slash default
-            editMessage = getCurrentMessageContentChange(config, state)
-                    .or(() -> createNewButtonMessage(configUUID, config, null, guildId, channelId).map(EmbedOrMessageDefinition::getDescriptionOrContent));
-            editMessageComponents = Optional.of(getCurrentMessageComponentChange(configUUID, config, state, channelId, userId)
-                    .orElse(createNewButtonMessage(configUUID, config, null, guildId, channelId)
-                            .map(EmbedOrMessageDefinition::getComponentRowDefinitions).orElse(List.of())));
-        } else {
-            //edit the current message if the command changes it or mark it as processing
-            editMessage = getCurrentMessageContentChange(config, state);
-            editMessageComponents = getCurrentMessageComponentChange(configUUID, config, state, channelId, userId);
-        }
+        final boolean keepExistingButtonMessage = shouldKeepExistingButtonMessage(event) || answerTargetChannelId != null;
+
+        //edit the current message if the command changes it or mark it as processing
+        editMessage = getCurrentMessageContentChange(config, state, keepExistingButtonMessage);
+        editMessageComponents = getCurrentMessageComponentChange(configUUID, config, state, channelId, userId, keepExistingButtonMessage);
+
         timer.stopStartAcknowledge();
         if (editMessage.isPresent() || editMessageComponents.isPresent()) {
             return event.editMessage(editMessage.orElse(null), editMessageComponents.orElse(null))
@@ -234,8 +227,7 @@ public abstract class ComponentCommandImpl<C extends RollConfig, S extends State
         return persistenceManager.getConfigFromMessage(channelId, messageId);
     }
 
-    protected Optional<List<ComponentRowDefinition>> getCurrentMessageComponentChange(UUID configUUID, C
-            config, State<S> state, long channelId, long userId) {
+    protected Optional<List<ComponentRowDefinition>> getCurrentMessageComponentChange(UUID configUUID, C config, State<S> state, long channelId, long userId, boolean keepExistingButtonMessage) {
         return Optional.empty();
     }
 
@@ -268,7 +260,7 @@ public abstract class ComponentCommandImpl<C extends RollConfig, S extends State
      * The text content for the old button message, after a button event. Returns null means no editing should be done.
      */
     @VisibleForTesting
-    public @NonNull Optional<String> getCurrentMessageContentChange(C config, State<S> state) {
+    public @NonNull Optional<String> getCurrentMessageContentChange(C config, State<S> state, boolean keepExistingButtonMessage) {
         return Optional.empty();
     }
 
