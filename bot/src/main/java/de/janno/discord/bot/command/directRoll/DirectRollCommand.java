@@ -3,6 +3,8 @@ package de.janno.discord.bot.command.directRoll;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Stopwatch;
+import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
 import de.janno.discord.bot.AnswerInteractionType;
 import de.janno.discord.bot.BotMetrics;
 import de.janno.discord.bot.I18n;
@@ -28,6 +30,7 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
+import java.time.Duration;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
@@ -54,6 +57,22 @@ public class DirectRollCommand implements SlashCommand {
         this.diceEvaluatorAdapter = new DiceEvaluatorAdapter(cachingDiceEvaluator);
         this.persistenceManager = persistenceManager;
         this.expressionOptionName = expressionOptionName;
+    }
+
+    private static EmbedOrMessageDefinition createAnswerWithOptionalWarning(RollAnswer answer) {
+        EmbedOrMessageDefinition answerMessage = RollAnswerConverter.toEmbedOrMessageDefinition(answer);
+        if (!Strings.isNullOrEmpty(answer.getWarning()) &&
+                answerMessage.getType() == EmbedOrMessageDefinition.Type.EMBED
+                && answerMessage.getFields().size() < 25) {
+            answerMessage = answerMessage.toBuilder()
+                    .fields(ImmutableList.<EmbedOrMessageDefinition.Field>builder()
+                            .addAll(answerMessage.getFields())
+                            .add(new EmbedOrMessageDefinition.Field("Warning", answer.getWarning(), false))
+                            .build()
+                    )
+                    .build();
+        }
+        return answerMessage;
     }
 
     @Override
@@ -134,7 +153,8 @@ public class DirectRollCommand implements SlashCommand {
 
         }
 
-        return Mono.empty();
+        log.error("Unknown command: {} from {}", event.getOptions(), event.getRequester().toLogString());
+        return event.reply("There was an error, try again", true);
     }
 
     protected EmbedOrMessageDefinition getHelpMessage(Locale userLocale) {
@@ -153,17 +173,21 @@ public class DirectRollCommand implements SlashCommand {
                                                  @NonNull Stopwatch stopwatch,
                                                  @NonNull Locale userLocale) {
 
-        //ignore warning, no good way to display it
-        Mono<Void> answerMono = Mono.defer(() -> event.replyWithEmbedOrMessageDefinition(RollAnswerConverter.toEmbedOrMessageDefinition(answer), false));
-        return answerMono
-                .doOnSuccess(v ->
-                        log.info("{}: '{}'={} -> {} in {}ms",
-                                event.getRequester().toLogString(),
-                                commandString.replace("`", ""),
-                                diceExpression,
-                                answer.toShortString(),
-                                stopwatch.elapsed(TimeUnit.MILLISECONDS)
-                        ));
+        Duration untilAck = stopwatch.elapsed();
+        BotMetrics.timerAcknowledgeStartMetricCounter(getCommandId(), untilAck);
+        //ignore warning, no good way to display it, don't Mono.defer nothing is waiting
+        return event.replyWithEmbedOrMessageDefinition(createAnswerWithOptionalWarning(answer), false)
+                .doAfterTerminate(() -> {
+                    BotMetrics.timerAcknowledgeFinishedMetricCounter(getCommandId(), stopwatch.elapsed());
+                    log.info("{}: '{}'={} -> {} in start={}ms reply={}ms",
+                            event.getRequester().toLogString(),
+                            commandString.replace("`", ""),
+                            diceExpression,
+                            answer.toShortString(),
+                            untilAck.toMillis(),
+                            stopwatch.elapsed(TimeUnit.MILLISECONDS)
+                    );
+                });
     }
 
     private Mono<Void> replyValidationMessage(@NonNull SlashEventAdaptor event, @NonNull String validationMessage, @NonNull String commandString) {

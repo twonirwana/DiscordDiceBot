@@ -4,13 +4,13 @@ import de.janno.discord.bot.BotMetrics;
 import de.janno.discord.bot.I18n;
 import de.janno.discord.connector.api.BottomCustomIdUtils;
 import de.janno.discord.connector.api.ButtonEventAdaptor;
-import de.janno.discord.connector.api.ComponentInteractEventHandler;
+import de.janno.discord.connector.api.ComponentCommand;
 import lombok.NonNull;
 import reactor.core.publisher.Mono;
 
 import java.util.Set;
 
-public class LegacyIdHandler implements ComponentInteractEventHandler {
+public class LegacyIdHandler implements ComponentCommand {
 
     private final static String COUNT_SUCCESSES_ID = "count_successes";
     private final static String FATE_ID = "fate";

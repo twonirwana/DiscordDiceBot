@@ -394,8 +394,12 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
 
 
     @Override
-    protected Optional<List<ComponentRowDefinition>> getCurrentMessageComponentChange(UUID configUUID, CustomParameterConfig config, State<CustomParameterStateData> state, long channelId, long userId) {
+    protected Optional<List<ComponentRowDefinition>> getCurrentMessageComponentChange(UUID configUUID, CustomParameterConfig config, State<CustomParameterStateData> state, long channelId, long userId, boolean keepExistingButtonMessage) {
         if (!hasMissingParameter(state)) {
+            if(keepExistingButtonMessage){
+                //reset on roll and keep message
+                return Optional.of(getButtonLayoutWithOptionalState(configUUID, config, null));
+            }
             return Optional.empty();
         }
         return Optional.of(getButtonLayoutWithOptionalState(configUUID, config, state));
@@ -458,8 +462,12 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     }
 
     @Override
-    public @NonNull Optional<String> getCurrentMessageContentChange(CustomParameterConfig config, State<CustomParameterStateData> state) {
+    public @NonNull Optional<String> getCurrentMessageContentChange(CustomParameterConfig config, State<CustomParameterStateData> state, boolean keepExistingButtonMessage) {
         if (!hasMissingParameter(state)) {
+            if(keepExistingButtonMessage){
+                //reset message after roll and keep massage
+                return Optional.of(formatMessageContent(config, null, null));
+            }
             return Optional.empty();
         }
         String cleanName = Optional.ofNullable(state.getData())
@@ -469,7 +477,11 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     }
 
     @Override
-    protected @NonNull Optional<EmbedOrMessageDefinition> createNewButtonMessageWithState(@NonNull UUID configUUID, @NonNull CustomParameterConfig config, @Nullable State<CustomParameterStateData> state, @Nullable Long guildId, long channelId) {
+    protected @NonNull Optional<EmbedOrMessageDefinition> createNewButtonMessageWithState(@NonNull UUID configUUID,
+                                                                                          @NonNull CustomParameterConfig config,
+                                                                                          @Nullable State<CustomParameterStateData> state,
+                                                                                          @Nullable Long guildId,
+                                                                                          long channelId) {
         if (state == null) {
             return Optional.of(createSlashResponseMessage(configUUID, config, channelId));
         }
@@ -512,7 +524,8 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
                 currentParameter.getName());
     }
 
-    private List<ComponentRowDefinition> getButtonLayoutWithOptionalState(@NonNull UUID configUUID, @NonNull CustomParameterConfig config, @Nullable State<CustomParameterStateData> state) {
+    private List<ComponentRowDefinition> getButtonLayoutWithOptionalState(@NonNull UUID
+                                                                                  configUUID, @NonNull CustomParameterConfig config, @Nullable State<CustomParameterStateData> state) {
         String currentParameterExpression = Optional.ofNullable(state)
                 .map(State::getData)
                 .flatMap(CustomParameterStateData::getNextUnselectedParameterExpression)
@@ -567,7 +580,8 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     }
 
     @Override
-    protected @NonNull Optional<String> getStartOptionsValidationMessage(@NonNull CommandInteractionOption options, long channelId, long userId, @NonNull Locale userLocale) {
+    protected @NonNull Optional<String> getStartOptionsValidationMessage(@NonNull CommandInteractionOption options,
+                                                                         long channelId, long userId, @NonNull Locale userLocale) {
         String baseExpression = options.getStringSubOptionWithName(EXPRESSION_OPTION_NAME).orElse("");
         log.trace("Start validating: {}", baseExpression.replace("\n", " "));
         int variableCount = 0;

@@ -23,14 +23,14 @@ dependencies {
     implementation(libs.avaje.config)
     implementation(libs.avaje.slf4j)
     implementation(libs.emoji)
-    implementation("io.micrometer:micrometer-registry-prometheus:1.13.3")
+    implementation("io.micrometer:micrometer-registry-prometheus:1.13.5")
     implementation("com.h2database:h2:2.3.232")
     implementation("org.apache.derby:derby:10.17.1.0")
     implementation("org.apache.derby:derbyclient:10.17.1.0")
-    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.17.2")
-    implementation("org.apache.xmlgraphics:batik:1.17")
-    implementation("org.apache.xmlgraphics:batik-transcoder:1.17")
-    implementation("org.apache.xmlgraphics:batik-codec:1.17")
+    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.18.0")
+    implementation("org.apache.xmlgraphics:batik:1.18")
+    implementation("org.apache.xmlgraphics:batik-transcoder:1.18")
+    implementation("org.apache.xmlgraphics:batik-codec:1.18")
 
     testImplementation(libs.junit.jupiter.api)
     testRuntimeOnly(libs.junit.jupiter.engine)
@@ -40,12 +40,12 @@ dependencies {
 
     testImplementation("io.github.origin-energy:java-snapshot-testing-junit5:4.0.8")
     testImplementation("io.github.origin-energy:java-snapshot-testing-plugin-jackson:4.0.8")
-    testImplementation("io.projectreactor:reactor-test:3.6.9")
-    testImplementation("org.junit.jupiter:junit-jupiter-params:5.11.0")
-    testImplementation("org.mockito:mockito-core:5.13.0")
+    testImplementation("io.projectreactor:reactor-test:3.6.10")
+    testImplementation("org.junit.jupiter:junit-jupiter-params:5.11.2")
+    testImplementation("org.mockito:mockito-core:5.14.1")
     testImplementation("org.mockito:mockito-inline:5.2.0")
     testImplementation("io.projectreactor:reactor-test")
-    testImplementation("commons-io:commons-io:2.16.1")
+    testImplementation("commons-io:commons-io:2.17.0")
 
 }
 

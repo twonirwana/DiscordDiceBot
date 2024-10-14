@@ -60,6 +60,8 @@ public class BotMetrics {
     private final static String ACTION_TAG = "action";
     private final static String DELAYED_TAG = "delayed";
     private static final String ANSWER_TIMER_PREFIX = "answerTimer";
+    private static final String ACK_START_TIMER_PREFIX = "acknowledgeStartTimer";
+    private static final String ACK_FINISHED_TIMER_PREFIX = "acknowledgeFinishedTimer";
     private static final String NEW_BUTTON_TIMER_PREFIX = "newButtonTimer";
     private static final String publishMetricsToUrl = Config.get("metric.url", "localhost");
     private static final int publishPort = Config.getInt("metric.port", 8080);
@@ -175,6 +177,24 @@ public class BotMetrics {
 
     public static void incrementDelayCounter(@NonNull String commandName, boolean isDelayed) {
         globalRegistry.counter(METRIC_PREFIX + METRIC_IS_DELAYED_PREFIX, Tags.of(COMMAND_TAG, commandName, DELAYED_TAG, String.valueOf(isDelayed))).increment();
+    }
+
+    public static void timerAcknowledgeStartMetricCounter(@NonNull String commandName, @NonNull Duration duration) {
+        Timer.builder(METRIC_PREFIX + ACK_START_TIMER_PREFIX)
+                .tags(Tags.of(COMMAND_TAG, commandName))
+                .publishPercentiles(0.5, 0.95, 0.99)
+                .publishPercentileHistogram(true)
+                .register(globalRegistry)
+                .record(duration);
+    }
+
+    public static void timerAcknowledgeFinishedMetricCounter(@NonNull String commandName, @NonNull Duration duration) {
+        Timer.builder(METRIC_PREFIX + ACK_FINISHED_TIMER_PREFIX)
+                .tags(Tags.of(COMMAND_TAG, commandName))
+                .publishPercentiles(0.5, 0.95, 0.99)
+                .publishPercentileHistogram(true)
+                .register(globalRegistry)
+                .record(duration);
     }
 
     public static void timerAnswerMetricCounter(@NonNull String commandName, @NonNull Duration duration) {
