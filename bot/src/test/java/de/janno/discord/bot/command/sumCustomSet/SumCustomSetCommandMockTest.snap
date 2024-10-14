@@ -372,6 +372,24 @@ de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandMockTest.roll_pinne
 ]
 
 
+de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandMockTest.slash_start_directRoll[event1]=[
+  [
+    "reply: commandString",
+    "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click the buttons to add dice to the set and then on Roll, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=d10, id=sum_custom_set\u001E1_button\u001E00000000-0000-0000-0000-000000000000, style=SUCCESS, disabled=false, emoji=null), ButtonDefinition(label=!, id=sum_custom_set\u001E2_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=+3, id=sum_custom_set\u001E3_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=d6, id=sum_custom_set\u001E4_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=Roll, id=sum_custom_set\u001Eroll\u001E00000000-0000-0000-0000-000000000000, style=SUCCESS, disabled=true, emoji=null)]), ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Clear, id=sum_custom_set\u001Eclear\u001E00000000-0000-0000-0000-000000000000, style=DANGER, disabled=false, emoji=null), ButtonDefinition(label=Back, id=sum_custom_set\u001Eback\u001E00000000-0000-0000-0000-000000000000, style=SECONDARY, disabled=true, emoji=null)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
+  ]
+]
+
+
+de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandMockTest.slash_start_directRoll[event2]=[
+  [
+    "acknowledge",
+    "deleteMessageById: 1",
+    "sendMessage: EmbedOrMessageDefinition(title=d10 ⇒ 1, descriptionOrContent=+1d10, fields=[], componentRowDefinitions=[], hasImage=true, type=EMBED, userReference=true, sendToOtherChannelId=null)",
+    "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click the buttons to add dice to the set and then on Roll, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=d10, id=sum_custom_set\u001E1_button\u001E00000000-0000-0000-0000-000000000000, style=SUCCESS, disabled=false, emoji=null), ButtonDefinition(label=!, id=sum_custom_set\u001E2_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=+3, id=sum_custom_set\u001E3_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=d6, id=sum_custom_set\u001E4_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=Roll, id=sum_custom_set\u001Eroll\u001E00000000-0000-0000-0000-000000000000, style=SUCCESS, disabled=true, emoji=null)]), ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Clear, id=sum_custom_set\u001Eclear\u001E00000000-0000-0000-0000-000000000000, style=DANGER, disabled=false, emoji=null), ButtonDefinition(label=Back, id=sum_custom_set\u001Eback\u001E00000000-0000-0000-0000-000000000000, style=SECONDARY, disabled=true, emoji=null)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
+  ]
+]
+
+
 de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandMockTest.slash_start_multiLine[event1]=[
   [
     "reply: commandString",
