@@ -207,7 +207,7 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
                 })
                 .filter(s -> !Strings.isNullOrEmpty(s))
                 .distinct()
-                .collect(Collectors.joining(", "))));
+                .collect(Collectors.joining("\n"))));
     }
 
 }

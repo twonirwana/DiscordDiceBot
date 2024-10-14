@@ -6,7 +6,7 @@ dependencies {
     implementation(project(":discord-connector:api"))
 
     //todo update on jda release of user install
-  /*  implementation("net.dv8tion:JDA:5.1.0") {
+  /*  implementation("net.dv8tion:JDA:5.1.2") {
         exclude(module = "opus-java")
     }*/
     implementation("com.github.freya022:JDA:f94446dd24")

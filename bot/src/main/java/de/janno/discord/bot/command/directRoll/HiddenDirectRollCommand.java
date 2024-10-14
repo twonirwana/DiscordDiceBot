@@ -9,7 +9,7 @@ import de.janno.discord.bot.dice.DiceEvaluatorAdapter;
 import de.janno.discord.bot.persistance.PersistenceManager;
 import de.janno.discord.connector.api.BottomCustomIdUtils;
 import de.janno.discord.connector.api.ButtonEventAdaptor;
-import de.janno.discord.connector.api.ComponentInteractEventHandler;
+import de.janno.discord.connector.api.ComponentCommand;
 import de.janno.discord.connector.api.SlashEventAdaptor;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
@@ -25,7 +25,7 @@ import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
-public class HiddenDirectRollCommand extends DirectRollCommand implements ComponentInteractEventHandler {
+public class HiddenDirectRollCommand extends DirectRollCommand implements ComponentCommand {
 
     public static final String ROLL_COMMAND_ID = "h";
     private static final String REVEAL_BUTTON_ID = "reveal";

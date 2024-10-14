@@ -124,7 +124,7 @@ public class SlashEventAdaptorMock implements SlashEventAdaptor {
 
     @Override
     public Requester getRequester() {
-        return new Requester("invokingUser", "channelName", "guildName", "[0 / 1]", userLocale);
+        return new Requester("invokingUser", "channelName", "guildName", "[0 / 1]", userLocale, null);
     }
 
     @Override

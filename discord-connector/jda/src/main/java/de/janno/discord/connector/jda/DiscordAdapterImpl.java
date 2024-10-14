@@ -145,7 +145,7 @@ public abstract class DiscordAdapterImpl implements DiscordAdapter {
         switch (messageDefinition.getType()) {
             case EMBED -> {
                 //reply don't need avatar and name, they are already displayed
-                EmbedBuilder builder = convertToEmbedMessage(messageDefinition, null, null,  rollRequesterId);
+                EmbedBuilder builder = convertToEmbedMessage(messageDefinition, null, null, rollRequesterId);
                 final List<FileUpload> files = applyFiles(builder, messageDefinition);
                 return createMonoFrom(() -> event.replyEmbeds(builder.build()).setComponents(layoutComponents).setEphemeral(ephemeral).setFiles(files).setSuppressedNotifications(true))
                         .onErrorResume(t -> handleException("Error on replay embed message", t, false).ofType(InteractionHook.class));
@@ -172,23 +172,23 @@ public abstract class DiscordAdapterImpl implements DiscordAdapter {
                                          boolean ignoreNotFound) {
         switch (throwable) {
             case InsufficientPermissionException ignored -> {
-                log.info("{}: Missing permissions: {} - {}", getGuildAndChannelName(), errorMessage, throwable.getMessage());
+                log.info("{}: Missing permissions: {} - {}", getErrorRequester(), errorMessage, throwable.getMessage());
                 return Mono.empty();
             }
             case ErrorResponseException ignored when ((ErrorResponseException) throwable).getErrorResponse() == ErrorResponse.MISSING_PERMISSIONS -> {
-                log.info("{}: Missing permissions: {} - {}", getGuildAndChannelName(), errorMessage, throwable.getMessage());
+                log.info("{}: Missing permissions: {} - {}", getErrorRequester(), errorMessage, throwable.getMessage());
                 return Mono.empty();
             }
             //we can check if the emoji exists, so the error is simply cached
             case ErrorResponseException ignored when ((ErrorResponseException) throwable).getSchemaErrors().stream()
                     .flatMap(se -> se.getErrors().stream())
                     .anyMatch(e -> "BUTTON_COMPONENT_INVALID_EMOJI".equals(e.getCode())) -> {
-                log.info("{}: Invalid emoji: {}", getGuildAndChannelName(), errorMessage);
+                log.info("{}: Invalid emoji: {}", getErrorRequester(), errorMessage);
                 return Mono.empty();
             }
             case ErrorResponseException ignored when ((ErrorResponseException) throwable).getErrorResponse().getCode() < 20000 && ignoreNotFound ->
-                    log.trace("{}: Not found: {}", getGuildAndChannelName(), errorMessage);
-            default -> log.error("{}: {}", getGuildAndChannelName(), errorMessage, throwable);
+                    log.trace("{}: Not found: {}", getErrorRequester(), errorMessage);
+            default -> log.error("{}: {}", getErrorRequester(), errorMessage, throwable);
         }
         return Mono.empty();
     }
@@ -264,7 +264,7 @@ public abstract class DiscordAdapterImpl implements DiscordAdapter {
         String result = I18n.getMessage("permission.missing", userLocale, String.join(", ", checks));
 
         log.info(String.format("'%s'.'%s': %s",
-                Optional.of(guild).map(Guild::getName).orElse("-"),
+                getErrorRequester(),
                 messageChannel.getName(),
                 result));
         return Optional.of(result);
@@ -278,7 +278,7 @@ public abstract class DiscordAdapterImpl implements DiscordAdapter {
 
     protected abstract @NonNull MessageChannel getMessageChannel();
 
-    protected abstract @NonNull String getGuildAndChannelName();
+    protected abstract @NonNull String getErrorRequester();
 
     protected @NonNull ParallelFlux<MessageState> getMessagesState(@NonNull MessageChannel messageChannel, @NonNull Collection<Long> messageIds) {
         return Flux.fromIterable(messageIds)

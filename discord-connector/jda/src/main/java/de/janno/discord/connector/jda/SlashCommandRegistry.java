@@ -1,6 +1,7 @@
 package de.janno.discord.connector.jda;
 
 import de.janno.discord.connector.api.SlashCommand;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.interactions.commands.Command;
@@ -15,6 +16,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+@Getter
 @Slf4j
 public class SlashCommandRegistry {
 
@@ -26,10 +28,6 @@ public class SlashCommandRegistry {
 
     public static Builder builder() {
         return new Builder();
-    }
-
-    public List<SlashCommand> getSlashCommands() {
-        return slashCommands;
     }
 
     public static class Builder {

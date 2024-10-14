@@ -88,7 +88,7 @@ class ValidationCommandTest {
         when(slashEventAdaptor.getOption(any())).thenReturn(Optional.of(interactionOption));
         when(slashEventAdaptor.reply(any(), anyBoolean())).thenReturn(Mono.just(mock(Void.class)));
         when(slashEventAdaptor.getCommandString()).thenReturn("/r expression:asdfasdf");
-        when(slashEventAdaptor.getRequester()).thenReturn(new Requester("user", "channel", "guild", "[0 / 1]", Locale.ENGLISH));
+        when(slashEventAdaptor.getRequester()).thenReturn(new Requester("user", "channel", "guild", "[0 / 1]", Locale.ENGLISH, null));
 
         Mono<Void> res = underTest.handleSlashCommandEvent(slashEventAdaptor, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"), Locale.ENGLISH);
 
@@ -120,7 +120,7 @@ class ValidationCommandTest {
         when(slashEventAdaptor.getChannelId()).thenReturn(1L);
         when(slashEventAdaptor.replyWithEmbedOrMessageDefinition(any(), anyBoolean())).thenReturn(Mono.just(mock(Void.class)));
         when(slashEventAdaptor.getCommandString()).thenReturn("/r expression:help");
-        when(slashEventAdaptor.getRequester()).thenReturn(new Requester("user", "channel", "guild", "[0 / 1]", Locale.ENGLISH));
+        when(slashEventAdaptor.getRequester()).thenReturn(new Requester("user", "channel", "guild", "[0 / 1]", Locale.ENGLISH, null));
 
 
         Mono<Void> res = underTest.handleSlashCommandEvent(slashEventAdaptor, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"), Locale.ENGLISH);

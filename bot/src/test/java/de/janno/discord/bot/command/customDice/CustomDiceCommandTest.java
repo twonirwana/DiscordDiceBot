@@ -186,7 +186,7 @@ class CustomDiceCommandTest {
 
     @Test
     void editButtonMessage() {
-        assertThat(underTest.getCurrentMessageContentChange(new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "2d6", "2d6", false, false, null), new ButtonIdLabelAndDiceExpression("2_button", "Attack", "1d20", false, false, null)), AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH), new State<>("2d6", StateData.empty()))).isEmpty();
+        assertThat(underTest.getCurrentMessageContentChange(new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "2d6", "2d6", false, false, null), new ButtonIdLabelAndDiceExpression("2_button", "Attack", "1d20", false, false, null)), AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH), new State<>("2d6", StateData.empty()), false)).isEmpty();
     }
 
     @Test
@@ -203,7 +203,7 @@ class CustomDiceCommandTest {
 
         when(event.sendMessage(any())).thenReturn(Mono.just(2L));
         when(event.deleteMessageById(anyLong())).thenReturn(Mono.empty());
-        when(event.getRequester()).thenReturn(new Requester("user", "channel", "guild", "[0 / 1]", Locale.ENGLISH));
+        when(event.getRequester()).thenReturn(new Requester("user", "channel", "guild", "[0 / 1]", Locale.ENGLISH, null));
         when(event.reply(any(), anyBoolean())).thenReturn(Mono.just(mock(Void.class)));
 
         Mono<Void> res = underTest.handleSlashCommandEvent(event, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"), Locale.ENGLISH);
@@ -285,7 +285,7 @@ class CustomDiceCommandTest {
         when(event.getOption("help")).thenReturn(Optional.of(CommandInteractionOption.builder()
                 .name("help")
                 .build()));
-        when(event.getRequester()).thenReturn(new Requester("userName", "channelName", "guildName", "shard 1/1", Locale.ENGLISH));
+        when(event.getRequester()).thenReturn(new Requester("userName", "channelName", "guildName", "shard 1/1", Locale.ENGLISH, null));
         when(event.replyWithEmbedOrMessageDefinition(any(), anyBoolean())).thenReturn(Mono.just(mock(Void.class)));
 
         Mono<Void> res = underTest.handleSlashCommandEvent(event, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"), Locale.ENGLISH);

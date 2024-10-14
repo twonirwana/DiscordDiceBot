@@ -21,15 +21,15 @@ import java.util.*;
 import java.util.function.Supplier;
 
 @Slf4j
-public abstract class AbstractCommand<C extends RollConfig, S extends StateData> implements SlashCommand, ComponentInteractEventHandler {
+public abstract class AbstractCommand<C extends RollConfig, S extends StateData> implements SlashCommand, ComponentCommand {
 
     protected final PersistenceManager persistenceManager;
-    private final AbstractComponentInteractEventHandler<C, S> componentInteractEventHandler;
-    private final AbstractSlashCommand<C> slashCommand;
+    private final ComponentCommandImpl<C, S> componentCommand;
+    private final SlashCommandImpl<C> slashCommand;
 
     protected AbstractCommand(PersistenceManager persistenceManager, Supplier<UUID> uuidSupplier) {
         this.persistenceManager = persistenceManager;
-        componentInteractEventHandler = new AbstractComponentInteractEventHandler<>(persistenceManager, uuidSupplier) {
+        componentCommand = new ComponentCommandImpl<>(persistenceManager, uuidSupplier) {
 
             @Override
             public @NonNull String getCommandId() {
@@ -57,13 +57,13 @@ public abstract class AbstractCommand<C extends RollConfig, S extends StateData>
             }
 
             @Override
-            protected void addFurtherActions(List<Mono<Void>> actions, ButtonEventAdaptor event, C config, State<S> state) {
-                AbstractCommand.this.addFurtherActions(actions, event, config, state);
+            protected Mono<Void> furtherAction(ButtonEventAdaptor event, C config, State<S> state, Timer timer) {
+                return AbstractCommand.this.furtherAction(event, config, state, timer);
             }
 
             @Override
-            protected Optional<List<ComponentRowDefinition>> getCurrentMessageComponentChange(UUID configUUID, C config, State<S> state, long channelId, long userId) {
-                return AbstractCommand.this.getCurrentMessageComponentChange(configUUID, config, state, channelId, userId);
+            protected Optional<List<ComponentRowDefinition>> getCurrentMessageComponentChange(UUID configUUID, C config, State<S> state, long channelId, long userId, boolean keepExistingButtonMessage) {
+                return AbstractCommand.this.getCurrentMessageComponentChange(configUUID, config, state, channelId, userId, keepExistingButtonMessage);
             }
 
             @Override
@@ -77,12 +77,16 @@ public abstract class AbstractCommand<C extends RollConfig, S extends StateData>
             }
 
             @Override
-            public @NonNull Optional<String> getCurrentMessageContentChange(C config, State<S> state) {
-                return AbstractCommand.this.getCurrentMessageContentChange(config, state);
+            public @NonNull Optional<String> getCurrentMessageContentChange(C config, State<S> state, boolean keepExistingButtonMessage) {
+                return AbstractCommand.this.getCurrentMessageContentChange(config, state, keepExistingButtonMessage);
             }
 
+            @Override
+            public @NonNull MessageDataDTO createEmptyMessageData(@NonNull UUID configUUID, @Nullable Long guildId, long channelId, long messageId) {
+                return AbstractCommand.this.createEmptyMessageData(configUUID, guildId, channelId, messageId);
+            }
         };
-        slashCommand = new AbstractSlashCommand<>(persistenceManager) {
+        slashCommand = new SlashCommandImpl<>(persistenceManager) {
             @Override
             protected @NonNull C getConfigFromStartOptions(@NonNull CommandInteractionOption options, @NonNull Locale userLocale) {
                 return AbstractCommand.this.getConfigFromStartOptions(options, userLocale);
@@ -152,6 +156,11 @@ public abstract class AbstractCommand<C extends RollConfig, S extends StateData>
             protected @NonNull Optional<String> getStartOptionsValidationMessage(@NonNull CommandInteractionOption options, long channelId, long userId, @NonNull Locale userLocale) {
                 return AbstractCommand.this.getStartOptionsValidationMessage(options, channelId, userId, userLocale);
             }
+
+            @Override
+            public @NonNull MessageDataDTO createEmptyMessageData(@NonNull UUID configUUID, @Nullable Long guildId, long channelId, long messageId) {
+                return AbstractCommand.this.createEmptyMessageData(configUUID, guildId, channelId, messageId);
+            }
         };
     }
 
@@ -185,7 +194,7 @@ public abstract class AbstractCommand<C extends RollConfig, S extends StateData>
         return BaseCommandOptions.autoCompleteColorOption(autoCompleteRequest, userLocale);
     }
 
-    protected Optional<List<ComponentRowDefinition>> getCurrentMessageComponentChange(UUID configUUID, C config, State<S> state, long channelId, long userId) {
+    protected Optional<List<ComponentRowDefinition>> getCurrentMessageComponentChange(UUID configUUID, C config, State<S> state, long channelId, long userId, boolean keepExistingButtonMessage) {
         return Optional.empty();
     }
 
@@ -199,11 +208,11 @@ public abstract class AbstractCommand<C extends RollConfig, S extends StateData>
      * On the creation of a message an empty state need to be saved so we know the message exists and we can remove it later, even on concurrent actions
      */
     @VisibleForTesting
-    public MessageDataDTO createEmptyMessageData(@NonNull UUID configUUID,
-                                                 @Nullable Long guildId,
-                                                 long channelId,
-                                                 long messageId) {
-        return BaseCommandUtils.createEmptyMessageData(configUUID, guildId, channelId, messageId, getCommandId(), persistenceManager);
+    public @NonNull MessageDataDTO createEmptyMessageData(@NonNull UUID configUUID,
+                                                          @Nullable Long guildId,
+                                                          long channelId,
+                                                          long messageId) {
+        return BaseCommandUtils.createCleanupAndSaveEmptyMessageData(configUUID, guildId, channelId, messageId, getCommandId(), persistenceManager);
     }
 
     //visible for welcome command
@@ -227,11 +236,11 @@ public abstract class AbstractCommand<C extends RollConfig, S extends StateData>
 
     @Override
     public Mono<Void> handleComponentInteractEvent(@NonNull ButtonEventAdaptor event) {
-        return componentInteractEventHandler.handleComponentInteractEvent(event);
+        return componentCommand.handleComponentInteractEvent(event);
     }
 
-    protected void addFurtherActions(List<Mono<Void>> actions, ButtonEventAdaptor event, C config, State<S> state) {
-
+    protected Mono<Void> furtherAction(ButtonEventAdaptor event, C config, State<S> state, Timer timer) {
+        return Mono.empty();
     }
 
     @Override
@@ -253,7 +262,7 @@ public abstract class AbstractCommand<C extends RollConfig, S extends StateData>
      * The text content for the old button message, after a button event. Returns null means no editing should be done.
      */
     @VisibleForTesting
-    public @NonNull Optional<String> getCurrentMessageContentChange(C config, State<S> state) {
+    public @NonNull Optional<String> getCurrentMessageContentChange(C config, State<S> state, boolean keepExistingButtonMessage) {
         return Optional.empty();
     }
 

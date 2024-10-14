@@ -11,7 +11,7 @@ import java.util.function.Function;
 
 public interface DiscordConnector {
     void start(@NonNull List<SlashCommand> slashCommands,
-               @NonNull List<ComponentInteractEventHandler> componentInteractEventHandlers,
+               @NonNull List<ComponentCommand> componentCommands,
                @NonNull Function<WelcomeRequest, EmbedOrMessageDefinition> welcomeMessageDefinition,
                @NonNull Set<Long> allServerIdsInPersistence) throws Exception;
 

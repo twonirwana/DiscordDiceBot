@@ -1,6 +1,6 @@
 package de.janno.discord.connector;
 
-import de.janno.discord.connector.api.ComponentInteractEventHandler;
+import de.janno.discord.connector.api.ComponentCommand;
 import de.janno.discord.connector.api.DiscordConnector;
 import de.janno.discord.connector.api.SlashCommand;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
@@ -14,19 +14,19 @@ import java.util.function.Function;
 public class DiscordConnectorImpl implements DiscordConnector {
     public static void createAndStart(
             @NonNull List<SlashCommand> slashCommands,
-            @NonNull List<ComponentInteractEventHandler> componentInteractEventHandlers,
+            @NonNull List<ComponentCommand> componentCommands,
             @NonNull Function<WelcomeRequest, EmbedOrMessageDefinition> welcomeMessageDefinition,
             @NonNull Set<Long> allGuildIdsInPersistence
     ) throws Exception {
-        new DiscordConnectorImpl().start(slashCommands, componentInteractEventHandlers, welcomeMessageDefinition, allGuildIdsInPersistence);
+        new DiscordConnectorImpl().start(slashCommands, componentCommands, welcomeMessageDefinition, allGuildIdsInPersistence);
     }
 
     @Override
     public void start(@NonNull List<SlashCommand> slashCommands,
-                      @NonNull List<ComponentInteractEventHandler> componentInteractEventHandlers,
+                      @NonNull List<ComponentCommand> componentCommands,
                       @NonNull Function<WelcomeRequest, EmbedOrMessageDefinition> welcomeMessageDefinition,
                       @NonNull Set<Long> allGuildIdsInPersistence
     ) throws Exception {
-        new JdaClient(slashCommands, componentInteractEventHandlers, welcomeMessageDefinition, allGuildIdsInPersistence);
+        new JdaClient(slashCommands, componentCommands, welcomeMessageDefinition, allGuildIdsInPersistence);
     }
 }

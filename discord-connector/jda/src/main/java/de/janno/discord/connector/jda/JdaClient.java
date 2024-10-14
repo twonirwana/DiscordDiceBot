@@ -46,7 +46,7 @@ public class JdaClient {
     private final static String WITHOUT_GUILD = "without_guild";
 
     public JdaClient(@NonNull List<SlashCommand> slashCommands,
-                     @NonNull List<ComponentInteractEventHandler> componentInteractEventHandlers,
+                     @NonNull List<ComponentCommand> componentCommands,
                      @NonNull Function<DiscordConnector.WelcomeRequest, EmbedOrMessageDefinition> welcomeMessageDefinition,
                      @NonNull Set<Long> allGuildIdsInPersistence) {
 
@@ -140,9 +140,10 @@ public class JdaClient {
                                         event.getChannel().getName(),
                                         getGuildName(event.getInteraction()),
                                         event.getJDA().getShardInfo().getShardString(),
-                                        userLocale);
+                                        userLocale,
+                                        null);
                                 if (matchingHandler.size() != 1) {
-                                    log.error("{}: Invalid handler for {} -> {}", requester, event.getInteraction().getCommandId(), matchingHandler.stream().map(SlashCommand::getCommandId).toList());
+                                    log.error("{}: Invalid handler for {} -> {}", requester.toLogString(), event.getInteraction().getCommandId(), matchingHandler.stream().map(SlashCommand::getCommandId).toList());
                                 } else {
                                     Mono.just(matchingHandler.getFirst())
                                             .map(command -> command.getAutoCompleteAnswer(fromEvent(event), LocaleConverter.toLocale(event.getUserLocale()), event.getChannel().getIdLong(), event.getUser().getIdLong()))
@@ -184,9 +185,10 @@ public class JdaClient {
                                         event.getChannel().getName(),
                                         getGuildName(event.getInteraction()),
                                         event.getJDA().getShardInfo().getShardString(),
-                                        userLocale);
+                                        userLocale,
+                                        null);
                                 if (matchingHandler.size() != 1) {
-                                    log.error("{}: Invalid handler for {} -> {}", requester, event.getInteraction().getCommandId(), matchingHandler.stream().map(SlashCommand::getCommandId).toList());
+                                    log.error("{}: Invalid handler for {} -> {}", requester.toLogString(), event.getInteraction().getCommandId(), matchingHandler.stream().map(SlashCommand::getCommandId).toList());
                                 } else {
                                     Mono.just(matchingHandler.getFirst())
                                             .flatMap(command -> {
@@ -210,7 +212,7 @@ public class JdaClient {
                                 if (!BottomCustomIdUtils.isValidCustomId(event.getInteraction().getComponentId())) {
                                     log.warn("Custom id {} is not a valid custom id.", event.getInteraction().getComponentId());
                                 }
-                                List<ComponentInteractEventHandler> matchingHandler = componentInteractEventHandlers.stream()
+                                List<ComponentCommand> matchingHandler = componentCommands.stream()
                                         .filter(command -> command.matchingComponentCustomId(event.getInteraction().getComponentId()))
                                         .toList();
                                 Locale userLocale = LocaleConverter.toLocale(event.getInteraction().getUserLocale());
@@ -219,9 +221,10 @@ public class JdaClient {
                                         event.getChannel().getName(),
                                         getGuildName(event.getInteraction()),
                                         event.getJDA().getShardInfo().getShardString(),
-                                        userLocale);
+                                        userLocale,
+                                        BottomCustomIdUtils.getConfigUUIDFromCustomId(event.getInteraction().getComponentId()).orElse(null));
                                 if (matchingHandler.size() != 1) {
-                                    log.error("{}: Invalid handler for {} -> {}", requester, event.getInteraction().getComponentId(), matchingHandler.stream().map(ComponentInteractEventHandler::getCommandId).toList());
+                                    log.error("{}: Invalid handler for {} -> {}", requester.toLogString(), event.getInteraction().getComponentId(), matchingHandler.stream().map(ComponentCommand::getCommandId).toList());
                                 } else {
                                     Mono.just(matchingHandler.getFirst())
                                             .flatMap(command -> {
@@ -229,7 +232,7 @@ public class JdaClient {
                                                 return command.handleComponentInteractEvent(new ButtonEventAdapterImpl(event, requester));
                                             })
                                             .onErrorResume(e -> {
-                                                log.error("ButtonInteractEvent Exception: ", e);
+                                                log.error("{} - ButtonInteractEvent Exception: ", requester.toLogString(), e);
                                                 return Mono.empty();
                                             })
                                             .subscribeOn(scheduler)
