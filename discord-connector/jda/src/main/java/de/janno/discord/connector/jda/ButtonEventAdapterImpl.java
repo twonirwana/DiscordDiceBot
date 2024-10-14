@@ -202,13 +202,6 @@ public class ButtonEventAdapterImpl extends DiscordAdapterImpl implements Button
     }
 
     @Override
-    public @NonNull Mono<Void> acknowledge() {
-        return createMonoFrom(event::deferEdit)
-                .onErrorResume(t -> handleException("Error on deferEdit", t, true).ofType(InteractionHook.class))
-                .then();
-    }
-
-    @Override
     public EmbedOrMessageDefinition getMessageDefinitionOfEventMessageWithoutButtons() {
         Message message = event.getMessage();
 

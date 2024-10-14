@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Slf4j
-public class StarterCommand implements SlashCommand, ComponentInteractEventHandler {
+public class StarterCommand implements SlashCommand, ComponentCommand {
 
     public static final String COMMAND_NAME = "starter";
     public static final String COMMAND_CREATE_OPTION = "create";
