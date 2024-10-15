@@ -7,8 +7,8 @@ import de.janno.discord.bot.command.StateData;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.Value;
-import javax.annotation.Nullable;
 
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -18,7 +18,8 @@ import java.util.stream.Collectors;
 @EqualsAndHashCode(callSuper = true)
 public class CustomParameterStateData extends StateData {
 
-    @NonNull List<SelectedParameter> selectedParameterValues;
+    @NonNull
+    List<SelectedParameter> selectedParameterValues;
     @Nullable
     String lockedForUserName;
 
