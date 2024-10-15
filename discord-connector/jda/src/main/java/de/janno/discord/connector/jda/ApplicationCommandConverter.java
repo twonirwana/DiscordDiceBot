@@ -1,7 +1,11 @@
 package de.janno.discord.connector.jda;
 
+import com.google.common.collect.ImmutableSortedSet;
 import de.janno.discord.connector.api.slash.*;
+import lombok.NonNull;
 import net.dv8tion.jda.api.interactions.DiscordLocale;
+import net.dv8tion.jda.api.interactions.IntegrationType;
+import net.dv8tion.jda.api.interactions.InteractionContextType;
 import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
@@ -31,7 +35,20 @@ public class ApplicationCommandConverter {
                 .nameLocales(discordLocale2LocaleName(slashCommand.getNameLocalizations()))
                 .descriptionLocales(discordLocale2LocaleDescription(slashCommand.getDescriptionLocalizations()))
                 .options(optionList)
+                .integrationTypes(integrationTypes2CommandIntegrationTypes(slashCommand.getIntegrationTypes()))
                 .build();
+    }
+
+    private static Set<IntegrationType> commandIntegrationTypes2IntegrationTypes(Set<CommandIntegrationType> commandIntegrationTypes) {
+        return commandIntegrationTypes.stream()
+                .map(i -> IntegrationType.valueOf(i.name()))
+                .collect(Collectors.toSet());
+    }
+
+    private static Set<CommandIntegrationType> integrationTypes2CommandIntegrationTypes(Set<IntegrationType> integrationTypes) {
+        return integrationTypes.stream()
+                .map(i -> CommandIntegrationType.valueOf(i.name()))
+                .collect(Collectors.toSet());
     }
 
     private static CommandDefinitionOption subcommandGroup2CommandDefinitionOption(Command.SubcommandGroup subcommandGroup) {
@@ -82,10 +99,24 @@ public class ApplicationCommandConverter {
                 .build();
     }
 
+    private static Set<InteractionContextType> getInteractionContextTypeFromInteractionTypes(@NonNull Set<CommandIntegrationType> interactionTypes) {
+        ImmutableSortedSet.Builder<InteractionContextType> builder = new ImmutableSortedSet.Builder<>(Enum::compareTo);
+        builder.add(InteractionContextType.BOT_DM);
+        if (interactionTypes.contains(CommandIntegrationType.GUILD_INSTALL)) {
+            builder.add(InteractionContextType.GUILD);
+        }
+        if (interactionTypes.contains(CommandIntegrationType.USER_INSTALL)) {
+            builder.add(InteractionContextType.PRIVATE_CHANNEL);
+        }
+        return builder.build();
+    }
+
     public static CommandData commandDefinition2CommandData(CommandDefinition commandDefinition) {
         return new CommandDataImpl(commandDefinition.getName(), commandDefinition.getDescription())
                 .setNameLocalizations(localeName2DiscordLocaleMap(commandDefinition.getNameLocales()))
                 .setDescriptionLocalizations(localeDescription2DiscordLocaleMap(commandDefinition.getDescriptionLocales()))
+                .setIntegrationTypes(commandIntegrationTypes2IntegrationTypes(commandDefinition.getIntegrationTypes()))
+                .setContexts(getInteractionContextTypeFromInteractionTypes(commandDefinition.getIntegrationTypes()))
                 .addSubcommands(commandDefinition.getOptions().stream()
                         .filter(c -> c.getType() == CommandDefinitionOption.Type.SUB_COMMAND)
                         .map(ApplicationCommandConverter::commandDefinitionOption2SubcommandData)

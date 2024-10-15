@@ -11,6 +11,7 @@ import de.janno.discord.connector.api.AutoCompleteRequest;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinitionOption;
+import de.janno.discord.connector.api.slash.CommandIntegrationType;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
@@ -63,6 +64,7 @@ public class ValidationCommand extends DirectRollCommand {
                 .nameLocales(I18n.allNoneEnglishMessagesNames("validation.name"))
                 .description(I18n.getMessage("validation.description", Locale.ENGLISH))
                 .descriptionLocales(I18n.allNoneEnglishMessagesDescriptions("validation.description"))
+                .integrationTypes(CommandIntegrationType.ALL)
                 .option(CommandDefinitionOption.builder()
                         .name(expressionOptionName)
                         .nameLocales(I18n.allNoneEnglishMessagesNames("validation.expression.name"))
