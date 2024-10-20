@@ -98,7 +98,14 @@ public abstract class ComponentCommandImpl<C extends RollConfig, S extends State
                 //send answer messages
                 .then(Mono.defer(() -> sendAnswerMessage(event, config, state, guildId, channelId, userId, answerTargetChannelId, timer))
                         //create an optional new button message
-                        .then(Mono.defer(() -> createNewButtonMessage(configUUID, config, state, guildId, channelId).map(Mono::just).orElse(Mono.empty())
+                        .then(Mono.defer(() -> createNewButtonMessage(configUUID, config, state, guildId, channelId, userId).map(Mono::just).orElse(Mono.empty())
+                                //update the new button message if a starter uuid is set
+                                .flatMap(bm -> {
+                                    if (config.getCallStarterConfigAfterFinish() != null) {
+                                        return StarterCommand.getStarterMessage(persistenceManager, config.getCallStarterConfigAfterFinish()).map(Mono::just).orElse(Mono.empty());
+                                    }
+                                    return Mono.just(bm);
+                                })
                                 //send the new button message, flatMap because we do it only if a new buttonMessage should be created
                                 .flatMap(nbm -> Mono.defer(() -> sendNewButtonMessage(event, nbm, configUUID, guildId, channelId, answerTargetChannelId, timer))
                                         //delete the event message and event data if a new buttonMessage was created, flatMap because we do it only if a new buttonMessage is created
@@ -166,7 +173,7 @@ public abstract class ComponentCommandImpl<C extends RollConfig, S extends State
             if (config.getAnswerInteractionType() == AnswerInteractionType.reroll &&
                     baseAnswer.getType() == EmbedOrMessageDefinition.Type.EMBED &&
                     baseAnswer.getComponentRowDefinitions().isEmpty()) {
-                answerMessage = RerollAnswerHandler.createConfigAndApplyToAnswer(config, answer.get(), baseAnswer, event.getInvokingGuildMemberName(), guildId, channelId, persistenceManager, uuidSupplier.get());
+                answerMessage = RerollAnswerHandler.createConfigAndApplyToAnswer(config, answer.get(), baseAnswer, event.getInvokingGuildMemberName(), guildId, channelId, userId, persistenceManager, uuidSupplier.get());
             } else {
                 answerMessage = baseAnswer;
             }
@@ -217,18 +224,6 @@ public abstract class ComponentCommandImpl<C extends RollConfig, S extends State
                         return Mono.empty();
                     }
                 }));
-    }
-
-    private @NonNull Optional<EmbedOrMessageDefinition> newButtonMessageOrStarter(@NonNull UUID configUUID,
-                                                                                  @NonNull C config,
-                                                                                  @Nullable State<S> state,
-                                                                                  @Nullable Long guildId,
-                                                                                  long channelId) {
-        final Optional<EmbedOrMessageDefinition> newButtonMessage = createNewButtonMessage(configUUID, config, state, guildId, channelId);
-        if (config.getCallStarterConfigAfterFinish() != null && newButtonMessage.isPresent()) {
-            return StarterCommand.getStarterMessage(persistenceManager, config.getCallStarterConfigAfterFinish());
-        }
-        return newButtonMessage;
     }
 
     private @NonNull Optional<MessageConfigDTO> getMessageConfigDTO(@Nullable UUID configId, long channelId,
@@ -284,7 +279,9 @@ public abstract class ComponentCommandImpl<C extends RollConfig, S extends State
                                                                                           @NonNull C config,
                                                                                           @Nullable State<S> state,
                                                                                           @Nullable Long guildId,
-                                                                                          long channelId);
+                                                                                          long channelId,
+                                                                                          long userId
+    );
 
     /**
      * On the creation of a message an empty state need to be saved so we know the message exists and we can remove it later, even on concurrent actions

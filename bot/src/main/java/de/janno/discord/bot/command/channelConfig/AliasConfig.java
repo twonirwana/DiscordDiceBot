@@ -6,6 +6,7 @@ import de.janno.discord.bot.command.Config;
 import lombok.NonNull;
 import lombok.Value;
 
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -17,9 +18,13 @@ public class AliasConfig implements Config {
     @NonNull
     List<Alias> aliasList;
 
+    @Nullable
+    String name;
+
     @JsonCreator
-    public AliasConfig(@NonNull @JsonProperty("aliasList") List<Alias> aliasList) {
+    public AliasConfig(@NonNull @JsonProperty("aliasList") List<Alias> aliasList, @Nullable @JsonProperty("name") String name) {
         this.aliasList = aliasList;
+        this.name = name;
     }
 
     @Override

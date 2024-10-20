@@ -46,7 +46,7 @@ public class RerollAnswerConfig extends RollConfig {
                               @JsonProperty("alwaysSumUp") boolean alwaysSumUp,
                               @JsonProperty("label") String label
     ) {
-        super(answerTargetChannelId, answerFormatType, answerInteractionType, resultImage, diceStyleAndColor, configLocale, null);
+        super(answerTargetChannelId, answerFormatType, answerInteractionType, resultImage, diceStyleAndColor, configLocale, null, null);
         this.expression = expression;
         this.dieIdTypeAndValues = dieIdTypeAndValues;
         this.rerollCount = rerollCount;

@@ -2,7 +2,6 @@ package de.janno.discord.bot.persistance;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Stopwatch;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import de.janno.discord.bot.BotMetrics;
 import io.micrometer.core.instrument.Gauge;
@@ -73,7 +72,7 @@ public class PersistenceManagerImpl implements PersistenceManager {
         Stopwatch stopwatch = Stopwatch.createStarted();
 
         try (Connection con = databaseConnector.getConnection()) {
-            try (PreparedStatement preparedStatement = con.prepareStatement("SELECT CONFIG_ID, CHANNEL_ID, GUILD_ID, COMMAND_ID, CONFIG_CLASS_ID, CONFIG FROM MESSAGE_CONFIG MC WHERE MC.CONFIG_ID = ?")) {
+            try (PreparedStatement preparedStatement = con.prepareStatement("SELECT CONFIG_ID, CHANNEL_ID, GUILD_ID, COMMAND_ID, CONFIG_CLASS_ID, CONFIG, CONFIG_NAME, CREATION_USER_ID FROM MESSAGE_CONFIG MC WHERE MC.CONFIG_ID = ?")) {
                 preparedStatement.setObject(1, configUUID);
                 ResultSet resultSet = preparedStatement.executeQuery();
                 MessageConfigDTO messageConfigDTO = transformResultSet2MessageConfigDTO(resultSet);
@@ -112,7 +111,9 @@ public class PersistenceManagerImpl implements PersistenceManager {
                     resultSet.getLong("CHANNEL_ID"),
                     resultSet.getString("COMMAND_ID"),
                     resultSet.getString("CONFIG_CLASS_ID"),
-                    resultSet.getString("CONFIG")
+                    resultSet.getString("CONFIG"),
+                    resultSet.getString("CONFIG_NAME"),
+                    resultSet.getObject("CREATION_USER_ID", Long.class)
             );
         }
         return null;
@@ -146,14 +147,16 @@ public class PersistenceManagerImpl implements PersistenceManager {
         Stopwatch stopwatch = Stopwatch.createStarted();
         try (Connection con = databaseConnector.getConnection()) {
             try (PreparedStatement preparedStatement =
-                         con.prepareStatement("INSERT INTO MESSAGE_CONFIG(CONFIG_ID, GUILD_ID, CHANNEL_ID, COMMAND_ID, CONFIG_CLASS_ID, CONFIG, CREATION_DATE) VALUES (?, ?, ?, ?, ?, ?, ?)")) {
+                         con.prepareStatement("INSERT INTO MESSAGE_CONFIG(CONFIG_ID, GUILD_ID, CHANNEL_ID, COMMAND_ID, CONFIG_CLASS_ID, CONFIG, CONFIG_NAME, CREATION_USER_ID, CREATION_DATE) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
                 preparedStatement.setObject(1, messageConfigDTO.getConfigUUID());
                 preparedStatement.setObject(2, messageConfigDTO.getGuildId());
                 preparedStatement.setObject(3, messageConfigDTO.getChannelId());
                 preparedStatement.setString(4, messageConfigDTO.getCommandId());
                 preparedStatement.setString(5, messageConfigDTO.getConfigClassId());
                 preparedStatement.setString(6, messageConfigDTO.getConfig());
-                preparedStatement.setTimestamp(7, Timestamp.valueOf(LocalDateTime.now()));
+                preparedStatement.setString(7, messageConfigDTO.getName());
+                preparedStatement.setObject(8, messageConfigDTO.getCreationUserId());
+                preparedStatement.setTimestamp(9, Timestamp.valueOf(LocalDateTime.now()));
                 preparedStatement.execute();
             }
         } catch (Exception e) {
@@ -307,7 +310,7 @@ public class PersistenceManagerImpl implements PersistenceManager {
         Stopwatch stopwatch = Stopwatch.createStarted();
 
         try (Connection con = databaseConnector.getConnection()) {
-            try (PreparedStatement preparedStatement = con.prepareStatement("SELECT CONFIG_ID, CHANNEL_ID, GUILD_ID, COMMAND_ID, USER_ID, CONFIG_CLASS_ID, CONFIG FROM CHANNEL_CONFIG CC WHERE CC.CHANNEL_ID = ? AND CC.CONFIG_CLASS_ID = ? AND CC.USER_ID = " + USER_ID_NULL_PLACEHOLDER)) {
+            try (PreparedStatement preparedStatement = con.prepareStatement("SELECT CONFIG_ID, CHANNEL_ID, GUILD_ID, COMMAND_ID, USER_ID, CONFIG_CLASS_ID, CONFIG, CONFIG_NAME FROM CHANNEL_CONFIG CC WHERE CC.CHANNEL_ID = ? AND CC.CONFIG_CLASS_ID = ? AND CC.USER_ID = " + USER_ID_NULL_PLACEHOLDER)) {
                 preparedStatement.setLong(1, channelId);
                 preparedStatement.setString(2, configClassId);
                 ResultSet resultSet = preparedStatement.executeQuery();
@@ -331,7 +334,7 @@ public class PersistenceManagerImpl implements PersistenceManager {
         Preconditions.checkArgument(!Objects.equals(userId, USER_ID_NULL_PLACEHOLDER), "The userId is not to be allowed to be %d".formatted(USER_ID_NULL_PLACEHOLDER));
 
         try (Connection con = databaseConnector.getConnection()) {
-            try (PreparedStatement preparedStatement = con.prepareStatement("SELECT CONFIG_ID, CHANNEL_ID, GUILD_ID, USER_ID, COMMAND_ID, CONFIG_CLASS_ID, CONFIG FROM CHANNEL_CONFIG CC WHERE CC.USER_ID = ? AND CC.CHANNEL_ID = ? AND CC.CONFIG_CLASS_ID = ?")) {
+            try (PreparedStatement preparedStatement = con.prepareStatement("SELECT CONFIG_ID, CHANNEL_ID, GUILD_ID, USER_ID, COMMAND_ID, CONFIG_CLASS_ID, CONFIG, CONFIG_NAME FROM CHANNEL_CONFIG CC WHERE CC.USER_ID = ? AND CC.CHANNEL_ID = ? AND CC.CONFIG_CLASS_ID = ?")) {
                 preparedStatement.setLong(1, userId);
                 preparedStatement.setLong(2, channelId);
                 preparedStatement.setString(3, configClassId);
@@ -360,7 +363,8 @@ public class PersistenceManagerImpl implements PersistenceManager {
                     userIdInDB == USER_ID_NULL_PLACEHOLDER ? null : userIdInDB,
                     resultSet.getString("COMMAND_ID"),
                     resultSet.getString("CONFIG_CLASS_ID"),
-                    resultSet.getString("CONFIG")
+                    resultSet.getString("CONFIG"),
+                    resultSet.getString("CONFIG_NAME")
             );
         }
         return null;
@@ -373,7 +377,7 @@ public class PersistenceManagerImpl implements PersistenceManager {
         try (Connection con = databaseConnector.getConnection()) {
             final long userId = channelConfigDTO.getUserId() == null ? USER_ID_NULL_PLACEHOLDER : channelConfigDTO.getUserId();
             try (PreparedStatement preparedStatement =
-                         con.prepareStatement("INSERT INTO CHANNEL_CONFIG(CONFIG_ID, GUILD_ID, CHANNEL_ID, USER_ID, COMMAND_ID, CONFIG_CLASS_ID, CONFIG, CREATION_DATE) VALUES (?, ?, ?, ?, ?, ?, ?, ?)")) {
+                         con.prepareStatement("INSERT INTO CHANNEL_CONFIG(CONFIG_ID, GUILD_ID, CHANNEL_ID, USER_ID, COMMAND_ID, CONFIG_CLASS_ID, CONFIG, CONFIG_NAME, CREATION_DATE) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
                 preparedStatement.setObject(1, channelConfigDTO.getConfigUUID());
                 preparedStatement.setObject(2, channelConfigDTO.getGuildId());
                 preparedStatement.setObject(3, channelConfigDTO.getChannelId());
@@ -381,7 +385,8 @@ public class PersistenceManagerImpl implements PersistenceManager {
                 preparedStatement.setString(5, channelConfigDTO.getCommandId());
                 preparedStatement.setString(6, channelConfigDTO.getConfigClassId());
                 preparedStatement.setString(7, channelConfigDTO.getConfig());
-                preparedStatement.setTimestamp(8, Timestamp.valueOf(LocalDateTime.now()));
+                preparedStatement.setString(8, channelConfigDTO.getName());
+                preparedStatement.setTimestamp(9, Timestamp.valueOf(LocalDateTime.now()));
                 preparedStatement.execute();
             }
         } catch (Exception e) {
@@ -490,28 +495,67 @@ public class PersistenceManagerImpl implements PersistenceManager {
         }
     }
 
-
     @Override
-    public @NonNull List<ChannelCommandConfigUUID> getChannelCommandConfigs(long channelId) {
+    public List<NamedCommand> getNamedCommandsForChannel(long userId, Long guildId) {
+        Stopwatch stopwatch = Stopwatch.createStarted();
         try (Connection con = databaseConnector.getConnection()) {
-            try (PreparedStatement preparedStatement = con.prepareStatement(
-                    """
-                            SELECT MC.CONFIG_ID, MC.COMMAND_ID, MC.CREATION_DATE
-                            FROM MESSAGE_CONFIG MC
-                            WHERE MC.CHANNEL_ID = ?
-                            order by MC.CREATION_DATE desc
-                            """
-            )) {
-                preparedStatement.setLong(1, channelId);
-                preparedStatement.setMaxRows(100);
-                ResultSet resultSet = preparedStatement.executeQuery();
-                final ImmutableList.Builder<ChannelCommandConfigUUID> resultBuilder = ImmutableList.builder();
-                while (resultSet.next()) {
-                    resultBuilder.add(new ChannelCommandConfigUUID(resultSet.getString("COMMAND_ID"),
-                            resultSet.getObject("CREATION_DATE", LocalDateTime.class),
-                            resultSet.getObject("CONFIG_ID", UUID.class)));
+            final String sql;
+            if (guildId != null) {
+                sql = """
+                        SELECT MC.CONFIG_ID, MC.COMMAND_ID, MC.CONFIG_NAME
+                        FROM MESSAGE_CONFIG MC
+                                 JOIN (SELECT md.COMMAND_ID, md.CONFIG_NAME, MAX(CREATION_DATE) AS LatestDate
+                                       FROM MESSAGE_CONFIG md
+                                       where (md.CREATION_USER_ID = ?
+                                           OR md.GUILD_ID = ?)
+                                         and md.CONFIG_NAME is not null
+                                       GROUP BY md.COMMAND_ID, md.CONFIG_NAME) Latest
+                                      ON MC.COMMAND_ID = Latest.COMMAND_ID
+                                          and mc.CONFIG_NAME = Latest.CONFIG_NAME
+                                          AND MC.CREATION_DATE = Latest.LatestDate
+                        where (MC.CREATION_USER_ID = ?
+                            OR MC.GUILD_ID = ?)
+                          and MC.CONFIG_NAME is not null;
+                        """;
+            } else {
+                sql = """
+                        SELECT MC.CONFIG_ID, MC.COMMAND_ID, MC.CONFIG_NAME
+                        FROM MESSAGE_CONFIG MC
+                                 JOIN (SELECT md.COMMAND_ID, md.CONFIG_NAME, MAX(CREATION_DATE) AS LatestDate
+                                       FROM MESSAGE_CONFIG md
+                                       where md.CREATION_USER_ID = ?
+                                         and md.CONFIG_NAME is not null
+                                       GROUP BY md.COMMAND_ID, md.CONFIG_NAME) Latest
+                                      ON MC.COMMAND_ID = Latest.COMMAND_ID
+                                          and mc.CONFIG_NAME = Latest.CONFIG_NAME
+                                          AND MC.CREATION_DATE = Latest.LatestDate
+                        where MC.CREATION_USER_ID = ?
+                          and MC.CONFIG_NAME is not null;
+                        """;
+            }
+            try (PreparedStatement preparedStatement = con.prepareStatement(sql)) {
+                if (guildId != null) {
+                    preparedStatement.setLong(1, userId);
+                    preparedStatement.setLong(2, guildId);
+                    preparedStatement.setLong(3, userId);
+                    preparedStatement.setLong(4, guildId);
+                } else {
+                    preparedStatement.setLong(1, userId);
+                    preparedStatement.setLong(2, userId);
                 }
-                return resultBuilder.build();
+
+                ResultSet resultSet = preparedStatement.executeQuery();
+                List<NamedCommand> result = new ArrayList<>();
+                while (resultSet.next()) {
+                    result.add(new NamedCommand(
+                            resultSet.getObject("CONFIG_ID", UUID.class),
+                            resultSet.getString("COMMAND_ID"),
+                            resultSet.getString("CONFIG_NAME")
+                    ));
+                }
+                BotMetrics.databaseTimer("getNamedCommandsForChannel", stopwatch.elapsed());
+                return result;
+
             }
         } catch (Exception e) {
             throw new IllegalStateException(e);

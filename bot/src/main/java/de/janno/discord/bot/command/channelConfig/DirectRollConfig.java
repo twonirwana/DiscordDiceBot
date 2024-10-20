@@ -27,9 +27,10 @@ public class DirectRollConfig extends RollConfig {
                             @JsonProperty("answerInteractionType") AnswerInteractionType answerInteractionType,
                             @JsonProperty("resultImage") ResultImage resultImage,
                             @JsonProperty("diceImageStyle") DiceStyleAndColor diceStyleAndColor,
-                            @JsonProperty("configLocale") Locale configLocale
+                            @JsonProperty("configLocale") Locale configLocale,
+                            @JsonProperty("name") String name
     ) {
-        super(answerTargetChannelId, answerFormatType, answerInteractionType, resultImage, diceStyleAndColor, configLocale, null);
+        super(answerTargetChannelId, answerFormatType, answerInteractionType, resultImage, diceStyleAndColor, configLocale, null, name);
         this.alwaysSumResult = alwaysSumResult == null || alwaysSumResult;
     }
 

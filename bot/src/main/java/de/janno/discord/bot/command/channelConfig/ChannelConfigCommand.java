@@ -241,7 +241,7 @@ public class ChannelConfigCommand implements SlashCommand {
     }
 
     @Override
-    public @NonNull List<AutoCompleteAnswer> getAutoCompleteAnswer(@NonNull AutoCompleteRequest autoCompleteRequest, @NonNull Locale userLocale, long channelId, long userId) {
+    public @NonNull List<AutoCompleteAnswer> getAutoCompleteAnswer(@NonNull AutoCompleteRequest autoCompleteRequest, @NonNull Locale userLocale, long channelId, Long guildId, long userId) {
         if (BaseCommandOptions.DICE_IMAGE_COLOR_OPTION_NAME.equals(autoCompleteRequest.getFocusedOptionName())) {
             return BaseCommandOptions.autoCompleteColorOption(autoCompleteRequest, userLocale);
         }
@@ -281,7 +281,8 @@ public class ChannelConfigCommand implements SlashCommand {
             String defaultDiceColor = BaseCommandOptions.getDiceColorOptionFromStartCommandOption(saveAction).orElse(DiceImageStyle.polyhedral_3d.getDefaultColor());
             final Locale userOrConfigLocale = BaseCommandOptions.getLocaleOptionFromStartCommandOption(saveAction)
                     .orElse(event.getRequester().getUserLocal());
-            DirectRollConfig config = new DirectRollConfig(null, alwaysSumResults, answerFormatType, answerInteractionType, null, new DiceStyleAndColor(diceImageStyle, defaultDiceColor), userOrConfigLocale);
+            final String name = BaseCommandOptions.getNameFromStartCommandOption(saveAction).orElse(null);
+            DirectRollConfig config = new DirectRollConfig(null, alwaysSumResults, answerFormatType, answerInteractionType, null, new DiceStyleAndColor(diceImageStyle, defaultDiceColor), userOrConfigLocale, name);
             BotMetrics.incrementSlashStartMetricCounter(getCommandId() + "_rollConfigSave");
             return Mono.defer(() -> {
                 persistenceManager.deleteChannelConfig(event.getChannelId(), DIRECT_ROLL_CONFIG_TYPE_ID);
@@ -291,7 +292,8 @@ public class ChannelConfigCommand implements SlashCommand {
                         null,
                         DirectRollCommand.ROLL_COMMAND_ID,
                         DIRECT_ROLL_CONFIG_TYPE_ID,
-                        serializeConfig(config)
+                        serializeConfig(config),
+                        config.getName()
                 ));
                 log.info("{}: '{}' -> {}",
                         event.getRequester().toLogString(),
@@ -325,7 +327,7 @@ public class ChannelConfigCommand implements SlashCommand {
         return event.reply(I18n.getMessage("channel_config.unknown.reply", userLocal), false);
     }
 
-    public void saveAliasesConfig(@NonNull List<Alias> aliases, long channelId, @Nullable Long guildId, @Nullable Long userId, @NonNull Supplier<UUID> uuidSupplier) {
+    public void saveAliasesConfig(@NonNull List<Alias> aliases, long channelId, @Nullable Long guildId, @Nullable Long userId, @NonNull Supplier<UUID> uuidSupplier, @Nullable String name) {
         final Set<String> newAliasNames = aliases.stream().map(Alias::getName).collect(Collectors.toSet());
         final List<Alias> existingAliasUnchanged = loadAlias(channelId, userId)
                 .stream()
@@ -336,7 +338,7 @@ public class ChannelConfigCommand implements SlashCommand {
                 .addAll(aliases)
                 .build();
         deleteAlias(channelId, userId);
-        saveAliasConfig(channelId, guildId, userId, new AliasConfig(newAliasList), uuidSupplier);
+        saveAliasConfig(channelId, guildId, userId, new AliasConfig(newAliasList, name), uuidSupplier);
 
     }
 
@@ -352,7 +354,8 @@ public class ChannelConfigCommand implements SlashCommand {
                     .orElse(Alias.Type.Replace);
 
             Alias alias = new Alias(name, value, type);
-            saveAliasesConfig(List.of(alias), event.getChannelId(), event.getGuildId(), userId, uuidSupplier);
+            //todo what is with the command name, double it?
+            saveAliasesConfig(List.of(alias), event.getChannelId(), event.getGuildId(), userId, uuidSupplier, null);
             log.info("{}: save {} alias: {}",
                     event.getRequester().toLogString(),
                     userId == null ? "channel" : "user channel",
@@ -377,7 +380,8 @@ public class ChannelConfigCommand implements SlashCommand {
                 return event.reply(I18n.getMessage("channel_config.missingSeparator.reply", userLocale, event.getCommandString(), String.join(NAME_VALUE_DELIMITER, missingNameValue)), true);
             }
             List<Alias> aliases = parseStringToMultiAliasList(aliasesString);
-            saveAliasesConfig(aliases, event.getChannelId(), event.getGuildId(), userId, uuidSupplier);
+            final String name = BaseCommandOptions.getNameFromStartCommandOption(commandInteractionOption).orElse(null);
+            saveAliasesConfig(aliases, event.getChannelId(), event.getGuildId(), userId, uuidSupplier, name);
 
             log.info("{}: save {} aliases: {}",
                     event.getRequester().toLogString(),
@@ -391,14 +395,15 @@ public class ChannelConfigCommand implements SlashCommand {
 
             BotMetrics.incrementSlashStartMetricCounter(getCommandId() + "_aliasDelete");
             final List<Alias> existingAlias = loadAlias(event.getChannelId(), userId);
-            if(existingAlias.stream().noneMatch(alias -> alias.getName().equals(name))){
+            if (existingAlias.stream().noneMatch(alias -> alias.getName().equals(name))) {
                 return event.reply(I18n.getMessage("channel_config.deletedAlias.notFound", userLocale, name), true);
             }
             List<Alias> newAliasList = existingAlias.stream()
                     .filter(alias -> !alias.getName().equals(name))
                     .toList();
             deleteAlias(event.getChannelId(), userId);
-            saveAliasConfig(event.getChannelId(), event.getGuildId(), userId, new AliasConfig(newAliasList), uuidSupplier);
+            //todo what happens with the name?
+            saveAliasConfig(event.getChannelId(), event.getGuildId(), userId, new AliasConfig(newAliasList, null), uuidSupplier);
             log.info("{}: delete {} alias: {}",
                     event.getRequester().toLogString(),
                     userId == null ? "channel" : "user channel",
@@ -448,6 +453,8 @@ public class ChannelConfigCommand implements SlashCommand {
                 userId,
                 getCommandId(),
                 userId == null ? CHANNEL_ALIAS_CONFIG_TYPE_ID : USER_ALIAS_CONFIG_TYPE_ID,
-                Mapper.serializedObject(aliasConfig)));
+                Mapper.serializedObject(aliasConfig),
+                aliasConfig.getName())
+        );
     }
 }

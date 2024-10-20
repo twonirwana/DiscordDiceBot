@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import de.janno.discord.bot.command.Config;
 import lombok.*;
 
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
@@ -21,17 +22,25 @@ public class StarterConfig implements Config {
     private final UUID id;
     @NonNull
     private final String message;
+    private final boolean startInNewMessage;
+    @Nullable
+    String name;
 
     @JsonCreator
     public StarterConfig(
             @JsonProperty("id") @NonNull UUID id,
             @JsonProperty("commands") @NonNull List<Command> commands,
             @JsonProperty("configLocale") @NonNull Locale configLocale,
-            @JsonProperty("message") @NonNull String  message) {
+            @JsonProperty("message") @NonNull String message,
+            @JsonProperty("name") String name,
+            @JsonProperty("startInNewMessage") boolean startInNewMessage
+    ) {
         this.id = id;
         this.commands = commands;
         this.configLocale = configLocale;
         this.message = message;
+        this.name = name;
+        this.startInNewMessage = startInNewMessage;
     }
 
 

@@ -69,8 +69,8 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
     }
 
     @Override
-    public Optional<MessageConfigDTO> createMessageConfig(@NonNull UUID configUUID, @Nullable Long guildId, long channelId, @NonNull CustomDiceConfig config) {
-        return Optional.of(new MessageConfigDTO(configUUID, guildId, channelId, getCommandId(), CONFIG_TYPE_ID, Mapper.serializedObject(config)));
+    public Optional<MessageConfigDTO> createMessageConfig(@NonNull UUID configUUID, @Nullable Long guildId, long channelId, long userId, @NonNull CustomDiceConfig config) {
+        return Optional.of(new MessageConfigDTO(configUUID, guildId, channelId, getCommandId(), CONFIG_TYPE_ID, Mapper.serializedObject(config), config.getName(), userId));
     }
 
     @Override
@@ -124,7 +124,8 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
                 BaseCommandOptions.getAnswerInteractionFromStartCommandOption(options),
                 BaseCommandOptions.getDiceStyleOptionFromStartCommandOption(options).orElse(DiceImageStyle.polyhedral_3d),
                 BaseCommandOptions.getDiceColorOptionFromStartCommandOption(options).orElse(DiceImageStyle.polyhedral_3d.getDefaultColor()),
-                userLocale
+                userLocale,
+                BaseCommandOptions.getNameFromStartCommandOption(options).orElse(null)
         );
     }
 
@@ -135,7 +136,8 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
                                                AnswerInteractionType answerInteractionType,
                                                DiceImageStyle diceImageStyle,
                                                String defaultDiceColor,
-                                               @NonNull Locale userLocale) {
+                                               @NonNull Locale userLocale,
+                                               String name) {
         return new CustomDiceConfig(channelId,
                 buttons,
                 answerFormatType,
@@ -143,7 +145,8 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
                 null,
                 new DiceStyleAndColor(diceImageStyle, defaultDiceColor),
                 userLocale,
-                null
+                null,
+                name
         );
     }
 
@@ -173,7 +176,8 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
                                                                                           @NonNull CustomDiceConfig config,
                                                                                           @Nullable State<StateData> state,
                                                                                           @Nullable Long guildId,
-                                                                                          long channelId) {
+                                                                                          long channelId,
+                                                                                          long userId) {
         return Optional.of(createSlashResponseMessage(configUUID, config, channelId));
     }
 

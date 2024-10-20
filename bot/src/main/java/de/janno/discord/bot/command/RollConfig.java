@@ -36,8 +36,11 @@ public class RollConfig implements Config {
 
     @Nullable
     @Setter
-    //todo builder?
+    //todo use builder instead setter?
     private UUID callStarterConfigAfterFinish;
+
+    @Nullable
+    private final String name;
 
     @JsonCreator
     public RollConfig(@JsonProperty("answerTargetChannelId") Long answerTargetChannelId,
@@ -46,7 +49,8 @@ public class RollConfig implements Config {
                       @JsonProperty("resultImage") ResultImage resultImage,
                       @JsonProperty("diceImageStyle") DiceStyleAndColor diceStyleAndColor,
                       @JsonProperty("configLocale") Locale configLocale,
-                      @JsonProperty("callStarterConfigAfterFinish") UUID callStarterConfigAfterFinish
+                      @JsonProperty("callStarterConfigAfterFinish") UUID callStarterConfigAfterFinish,
+                      @JsonProperty("name") String name
     ) {
         this.answerTargetChannelId = answerTargetChannelId;
         this.answerFormatType = Optional.ofNullable(answerFormatType).orElse(AnswerFormatType.full);
@@ -61,6 +65,7 @@ public class RollConfig implements Config {
         }
         this.configLocale = Optional.ofNullable(configLocale).orElse(Locale.ENGLISH);
         this.callStarterConfigAfterFinish = callStarterConfigAfterFinish;
+        this.name = name;
     }
 
     public String toShortString() {
@@ -75,6 +80,9 @@ public class RollConfig implements Config {
         out.add(String.format("%s: %s", BaseCommandOptions.DICE_IMAGE_COLOR_OPTION_NAME, diceStyleAndColor.getConfiguredDefaultColor()));
         if (answerTargetChannelId != null) {
             out.add(String.format("%s: <#%s>", BaseCommandOptions.TARGET_CHANNEL_OPTION_NAME, answerTargetChannelId));
+        }
+        if (name != null) {
+            out.add(String.format("%s: <#%s>", BaseCommandOptions.NAME_OPTION_NAME, name));
         }
         //language should be set over the client
         //out.add(String.format("%s: %s", BaseCommandOptions.LOCALE_OPTION_NAME, configLocale));

@@ -10,6 +10,7 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.ISnowflake;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.channel.concrete.NewsChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
@@ -23,6 +24,7 @@ import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.session.ReadyEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.Command;
+import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder;
 import net.dv8tion.jda.api.sharding.ShardManager;
 import net.dv8tion.jda.internal.utils.IOUtil;
@@ -38,6 +40,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 @Slf4j
 public class JdaClient {
@@ -80,10 +83,9 @@ public class JdaClient {
                                                 .ifPresent(textChannel -> {
                                                     EmbedOrMessageDefinition welcomeMessage = welcomeMessageDefinition.apply(new DiscordConnector.WelcomeRequest(event.getGuild().getIdLong(),
                                                             textChannel.getIdLong(), LocaleConverter.toLocale(event.getGuild().getLocale())));
-                                                    Mono.fromFuture(textChannel.sendMessage(
-                                                                            MessageComponentConverter.messageComponent2MessageLayout(welcomeMessage.getDescriptionOrContent(),
-                                                                                    welcomeMessage.getComponentRowDefinitions()))
-                                                                    .submit())
+                                                    createMonoFrom(() -> textChannel.sendMessage(
+                                                            MessageComponentConverter.messageComponent2MessageLayout(welcomeMessage.getDescriptionOrContent(),
+                                                                    welcomeMessage.getComponentRowDefinitions())))
                                                             .doOnSuccess(m -> {
                                                                 JdaMetrics.sendWelcomeMessage();
                                                                 log.info("Welcome message send in '{}'.'{}'",
@@ -143,12 +145,22 @@ public class JdaClient {
                                     log.error("{}: Invalid handler for {} -> {}", requester.toLogString(), event.getInteraction().getCommandId(), matchingHandler.stream().map(SlashCommand::getCommandId).toList());
                                 } else {
                                     Mono.just(matchingHandler.getFirst())
-                                            .map(command -> command.getAutoCompleteAnswer(fromEvent(event), LocaleConverter.toLocale(event.getUserLocale()), event.getChannel().getIdLong(), event.getUser().getIdLong()))
-                                            .flatMap(a -> Mono.fromFuture(event.replyChoices(a.stream()
+                                            .map(command -> command.getAutoCompleteAnswer(fromEvent(event),
+                                                    LocaleConverter.toLocale(event.getUserLocale()),
+                                                    event.getChannel().getIdLong(),
+                                                    Optional.ofNullable(event.getGuild()).map(ISnowflake::getIdLong).orElse(null),
+                                                    event.getUser().getIdLong()))
+                                            .flatMap(a -> createMonoFrom(() -> event.replyChoices(a.stream()
                                                     .filter(alias -> StringUtils.isNoneBlank(alias.getName(), alias.getValue()))
                                                     .map(c -> new Command.Choice(c.getName(), c.getValue()))
                                                     .limit(25)
-                                                    .toList()).submit()))
+                                                    .toList())
+                                            ))
+                                            .onErrorResume(t -> {
+                                                //todo more?
+                                                log.error(t.getMessage(), t);
+                                                return Mono.empty();
+                                            })
                                             .subscribeOn(scheduler)
                                             .subscribe();
                                 }
@@ -349,5 +361,13 @@ public class JdaClient {
                 log.warn("ShardId={}: Missing send message permission for channel id: {}", newsChannelId, newsChannelId);
             }
         });
+    }
+
+    protected static <T> Mono<T> createMonoFrom(Supplier<RestAction<T>> actionSupplier) {
+        try {
+            return Mono.fromFuture(actionSupplier.get().submit());
+        } catch (Throwable t) {
+            return Mono.error(t);
+        }
     }
 }

@@ -32,7 +32,7 @@ public class AliasRollCommand extends DirectRollCommand {
     }
 
     @Override
-    public @NonNull List<AutoCompleteAnswer> getAutoCompleteAnswer(@NonNull AutoCompleteRequest option, @NonNull Locale userLocale, long channelId, long userId) {
+    public @NonNull List<AutoCompleteAnswer> getAutoCompleteAnswer(@NonNull AutoCompleteRequest option, @NonNull Locale userLocale, long channelId, Long guildId, long userId) {
         List<Alias> channelAlias = AliasHelper.getChannelAlias(channelId, persistenceManager).stream().filter(a -> a.getType() == Alias.Type.Replace).toList();
         List<Alias> userAlias = AliasHelper.getUserChannelAlias(channelId, userId, persistenceManager).stream().filter(a -> a.getType() == Alias.Type.Replace).toList();
 
@@ -43,7 +43,7 @@ public class AliasRollCommand extends DirectRollCommand {
         }
         List<AutoCompleteAnswer> filteredAlias = combinedAlias.values().stream()
                 .filter(p -> Strings.isNullOrEmpty(option.getFocusedOptionValue()) ||
-                       p.getName().toLowerCase().contains(option.getFocusedOptionValue().toLowerCase()))
+                        p.getName().toLowerCase().contains(option.getFocusedOptionValue().toLowerCase()))
                 .sorted(Comparator.comparing(Alias::getName))
                 .map(p -> new AutoCompleteAnswer(p.getName(), p.getName()))
                 .collect(Collectors.toList());

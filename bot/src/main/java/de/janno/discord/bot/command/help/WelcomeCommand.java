@@ -39,6 +39,7 @@ public class WelcomeCommand extends AbstractCommand<RollConfig, StateData> {
     private final Supplier<UUID> uuidSupplier;
     private final RpgSystemCommandPreset rpgSystemCommandPreset;
 
+    //todo use Starter
     public WelcomeCommand(PersistenceManager persistenceManager, RpgSystemCommandPreset rpgSystemCommandPreset) {
         this(persistenceManager, rpgSystemCommandPreset, UUID::randomUUID);
     }
@@ -86,8 +87,8 @@ public class WelcomeCommand extends AbstractCommand<RollConfig, StateData> {
     }
 
     @Override
-    public Optional<MessageConfigDTO> createMessageConfig(@NonNull UUID configUUID, @Nullable Long guildId, long channelId, @NonNull RollConfig config) {
-        return Optional.of(new MessageConfigDTO(configUUID, guildId, channelId, getCommandId(), CONFIG_TYPE_ID, Mapper.serializedObject(config)));
+    public Optional<MessageConfigDTO> createMessageConfig(@NonNull UUID configUUID, @Nullable Long guildId, long channelId, long userId, @NonNull RollConfig config) {
+        return Optional.of(new MessageConfigDTO(configUUID, guildId, channelId, getCommandId(), CONFIG_TYPE_ID, Mapper.serializedObject(config), config.getName(), userId));
     }
 
     @Override
@@ -108,7 +109,8 @@ public class WelcomeCommand extends AbstractCommand<RollConfig, StateData> {
                                                                                           @NonNull RollConfig config,
                                                                                           @Nullable State<StateData> state,
                                                                                           @Nullable Long guildId,
-                                                                                          long channelId) {
+                                                                                          long channelId,
+                                                                                          long userId) {
         if (state == null) {
             return Optional.of(createSlashResponseMessage(configUUID, config, channelId));
         }
@@ -116,7 +118,7 @@ public class WelcomeCommand extends AbstractCommand<RollConfig, StateData> {
         BotMetrics.incrementButtonMetricCounter(COMMAND_NAME);
 
         return getPresetIdFromButton(state.getButtonValue())
-                .flatMap(id -> rpgSystemCommandPreset.createMessage(id, uuidSupplier.get(), guildId, channelId, config.getConfigLocale()));
+                .flatMap(id -> rpgSystemCommandPreset.createMessage(id, uuidSupplier.get(), guildId, channelId, -1, config.getConfigLocale()));
 
     }
 
@@ -186,9 +188,9 @@ public class WelcomeCommand extends AbstractCommand<RollConfig, StateData> {
 
     public Function<DiscordConnector.WelcomeRequest, EmbedOrMessageDefinition> getWelcomeMessage() {
         return request -> {
-            RollConfig config = new RollConfig(null, AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, DiceImageStyle.none.getDefaultColor()), request.guildLocale(), null);
+            RollConfig config = new RollConfig(null, AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, DiceImageStyle.none.getDefaultColor()), request.guildLocale(), null, null);
             UUID configUUID = uuidSupplier.get();
-            final Optional<MessageConfigDTO> newMessageConfig = createMessageConfig(configUUID, request.guildId(), request.channelId(), config);
+            final Optional<MessageConfigDTO> newMessageConfig = createMessageConfig(configUUID, request.guildId(), request.channelId(), -1, config);
             newMessageConfig.ifPresent(persistenceManager::saveMessageConfig);
             return createSlashResponseMessage(configUUID, config, request.channelId());
         };
@@ -196,7 +198,7 @@ public class WelcomeCommand extends AbstractCommand<RollConfig, StateData> {
 
     @Override
     protected Optional<ConfigAndState<RollConfig, StateData>> createNewConfigAndStateIfMissing(String buttonValue) {
-        return Optional.of(new ConfigAndState<>(uuidSupplier.get(), new RollConfig(null, AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, DiceImageStyle.none.getDefaultColor()), Locale.ENGLISH, null), new State<>(buttonValue, StateData.empty())));
+        return Optional.of(new ConfigAndState<>(uuidSupplier.get(), new RollConfig(null, AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, DiceImageStyle.none.getDefaultColor()), Locale.ENGLISH, null, null), new State<>(buttonValue, StateData.empty())));
     }
 
     @Override
@@ -236,7 +238,7 @@ public class WelcomeCommand extends AbstractCommand<RollConfig, StateData> {
 
     @Override
     protected @NonNull RollConfig getConfigFromStartOptions(@NonNull CommandInteractionOption options, @NonNull Locale userLocale) {
-        return new RollConfig(null, AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, DiceImageStyle.none.getDefaultColor()), userLocale, null);
+        return new RollConfig(null, AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, DiceImageStyle.none.getDefaultColor()), userLocale, null, null);
     }
 
 }

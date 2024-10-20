@@ -47,9 +47,10 @@ public class SumCustomSetConfig extends RollConfig {
                               @JsonProperty("resultImage") ResultImage resultImage,
                               @JsonProperty("diceImageStyle") DiceStyleAndColor diceStyleAndColor,
                               @JsonProperty("configLocale") Locale configLocale,
-                              @JsonProperty("callStarterConfigAfterFinish") UUID callStarterConfigAfterFinish
+                              @JsonProperty("callStarterConfigAfterFinish") UUID callStarterConfigAfterFinish,
+                              @JsonProperty("name") String name
     ) {
-        super(answerTargetChannelId, answerFormatType, answerInteractionType, resultImage, diceStyleAndColor, configLocale, callStarterConfigAfterFinish);
+        super(answerTargetChannelId, answerFormatType, answerInteractionType, resultImage, diceStyleAndColor, configLocale, callStarterConfigAfterFinish, name);
         this.labelAndExpression = labelAndExpression;
         this.alwaysSumResult = alwaysSumResult == null || alwaysSumResult;
         this.hideExpressionInStatusAndAnswer = Optional.ofNullable(hideExpressionInStatusAndAnswer).orElse(false);

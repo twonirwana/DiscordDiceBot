@@ -96,6 +96,7 @@ public class RerollAnswerHandler extends ComponentCommandImpl<RerollAnswerConfig
                                                                         String invokingUserName,
                                                                         Long guildId,
                                                                         long channelId,
+                                                                        long userId,
                                                                         PersistenceManager persistenceManager,
                                                                         UUID rerollConfigId) {
         RerollAnswerConfig rerollAnswerConfig = RerollAnswerHandler.createNewRerollAnswerConfig(config,
@@ -104,7 +105,7 @@ public class RerollAnswerHandler extends ComponentCommandImpl<RerollAnswerConfig
                 answer.getDieIdTypeAndValues(),
                 1,
                 invokingUserName);
-        createMessageConfig(rerollConfigId, guildId, channelId, rerollAnswerConfig).ifPresent(persistenceManager::saveMessageConfig);
+        createMessageConfig(rerollConfigId, guildId, channelId, userId, rerollAnswerConfig).ifPresent(persistenceManager::saveMessageConfig);
         return RerollAnswerHandler.applyToAnswer(baseAnswer, answer.getDieIdTypeAndValues(), config.getConfigLocale(), rerollConfigId);
     }
 
@@ -124,8 +125,8 @@ public class RerollAnswerHandler extends ComponentCommandImpl<RerollAnswerConfig
                 label);
     }
 
-    public static Optional<MessageConfigDTO> createMessageConfig(@NonNull UUID configUUID, @Nullable Long guildId, long channelId, @NonNull RerollAnswerConfig config) {
-        return Optional.of(new MessageConfigDTO(configUUID, guildId, channelId, COMMAND_ID, CONFIG_TYPE_ID, Mapper.serializedObject(config)));
+    public static Optional<MessageConfigDTO> createMessageConfig(@NonNull UUID configUUID, @Nullable Long guildId, long channelId, long userId, @NonNull RerollAnswerConfig config) {
+        return Optional.of(new MessageConfigDTO(configUUID, guildId, channelId, COMMAND_ID, CONFIG_TYPE_ID, Mapper.serializedObject(config), config.getName(), userId));
     }
 
     @Override
@@ -229,7 +230,8 @@ public class RerollAnswerHandler extends ComponentCommandImpl<RerollAnswerConfig
                                                                                  @NonNull RerollAnswerConfig config,
                                                                                  @Nullable State<RerollAnswerStateData> state,
                                                                                  @Nullable Long guildId,
-                                                                                 long channelId) {
+                                                                                 long channelId,
+                                                                                 long userId) {
         if (state == null) {
             return Optional.empty();
         }
@@ -253,7 +255,7 @@ public class RerollAnswerHandler extends ComponentCommandImpl<RerollAnswerConfig
             RerollAnswerConfig rerollAnswerConfig = createNewRerollAnswerConfig(config, config.getExpression(), config.getLabel(), rollAnswer.getDieIdTypeAndValues(), config.getRerollCount() + 1, config.getOwner());
 
             UUID newMessageUUID = uuidSupplier.get();
-            createMessageConfig(newMessageUUID, guildId, channelId, rerollAnswerConfig).ifPresent(persistenceManager::saveMessageConfig);
+            createMessageConfig(newMessageUUID, guildId, channelId, userId, rerollAnswerConfig).ifPresent(persistenceManager::saveMessageConfig);
 
             EmbedOrMessageDefinition newMessage = RerollAnswerHandler.applyToAnswer(RollAnswerConverter.toEmbedOrMessageDefinition(rollAnswer), rollAnswer.getDieIdTypeAndValues(), config.getConfigLocale(), newMessageUUID);
             newMessage = newMessage.toBuilder()

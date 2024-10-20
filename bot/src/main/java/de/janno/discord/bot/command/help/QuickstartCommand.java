@@ -63,10 +63,11 @@ public class QuickstartCommand implements SlashCommand {
     }
 
     @Override
-    public @NonNull List<AutoCompleteAnswer> getAutoCompleteAnswer(@NonNull AutoCompleteRequest option, @NonNull Locale userLocale, long channelId, long userId) {
+    public @NonNull List<AutoCompleteAnswer> getAutoCompleteAnswer(@NonNull AutoCompleteRequest option, @NonNull Locale userLocale, long channelId, Long guildId, long userId) {
         if (!SYSTEM_OPTION_NAME.equals(option.getFocusedOptionName())) {
             return List.of();
         }
+        //todo add named commands
         return Arrays.stream(RpgSystemCommandPreset.PresetId.values())
                 .filter(p -> matchRpgPreset(option.getFocusedOptionValue(), p, userLocale))
                 .sorted(Comparator.comparing(p -> p.getName(userLocale)))
@@ -126,17 +127,18 @@ public class QuickstartCommand implements SlashCommand {
         final UUID newConfigUUID = uuidSupplier.get();
         final Long guildId = event.getGuildId();
         final long channelId = event.getChannelId();
-        Optional<CommandInteractionOption> expressionOptional = event.getOption(SYSTEM_OPTION_NAME);
-        if (expressionOptional.isPresent()) {
-            final String systemId = expressionOptional
+        Optional<CommandInteractionOption> commandIdOptional = event.getOption(SYSTEM_OPTION_NAME);
+        if (commandIdOptional.isPresent()) {
+            final String systemId = commandIdOptional
                     .map(CommandInteractionOption::getStringValue)
                     .orElseThrow();
+            //todo handle named
             final Optional<RpgSystemCommandPreset.PresetId> presetIdOptional = getPresetId(systemId, userLocal);
             if (presetIdOptional.isPresent()) {
                 final RpgSystemCommandPreset.PresetId presetId = presetIdOptional.get();
                 BotMetrics.incrementPresetMetricCounter(presetId.name());
                 BotMetrics.incrementSlashStartMetricCounter(getCommandId());
-                Optional<EmbedOrMessageDefinition> commandAndMessageDefinition = rpgSystemCommandPreset.createMessage(presetId, newConfigUUID, guildId, channelId, userLocal);
+                Optional<EmbedOrMessageDefinition> commandAndMessageDefinition = rpgSystemCommandPreset.createMessage(presetId, newConfigUUID, guildId, channelId, event.getUserId(), userLocal);
                 String commandString = RpgSystemCommandPreset.getCommandString(presetId, userLocal);
                 if (commandAndMessageDefinition.isPresent()) {
                     return Mono.defer(() -> event.sendMessage(commandAndMessageDefinition.get()))

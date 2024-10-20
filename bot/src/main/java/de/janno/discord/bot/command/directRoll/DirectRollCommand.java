@@ -102,7 +102,15 @@ public class DirectRollCommand implements SlashCommand {
         return persistenceManager.getChannelConfig(channelId, DIRECT_ROLL_CONFIG_TYPE_ID)
                 .map(this::deserializeConfig)
                 //default direct roll config is english
-                .orElse(new DirectRollConfig(null, true, AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_3d, DiceImageStyle.polyhedral_3d.getDefaultColor()), Locale.ENGLISH));
+                .orElse(new DirectRollConfig(null,
+                        true,
+                        AnswerFormatType.full,
+                        AnswerInteractionType.none,
+                        null,
+                        new DiceStyleAndColor(DiceImageStyle.polyhedral_3d,
+                                DiceImageStyle.polyhedral_3d.getDefaultColor()),
+                        Locale.ENGLISH,
+                        null));
     }
 
     @VisibleForTesting

@@ -59,6 +59,8 @@ public abstract class SlashCommandImpl<C extends RollConfig> implements SlashCom
             baseOptions.add(ANSWER_INTERACTION_COMMAND_OPTION);
         }
 
+        baseOptions.add(NAME_COMMAND_OPTION);
+
         return CommandDefinition.builder()
                 .name(getCommandId())
                 .nameLocales(I18n.allNoneEnglishMessagesNames("%s.name".formatted(getCommandId())))
@@ -110,7 +112,7 @@ public abstract class SlashCommandImpl<C extends RollConfig> implements SlashCom
     }
 
     @Override
-    public @NonNull List<AutoCompleteAnswer> getAutoCompleteAnswer(@NonNull AutoCompleteRequest autoCompleteRequest, @NonNull Locale userLocale, long channelId, long userId) {
+    public @NonNull List<AutoCompleteAnswer> getAutoCompleteAnswer(@NonNull AutoCompleteRequest autoCompleteRequest, @NonNull Locale userLocale, long channelId, Long guildId, long userId) {
         return BaseCommandOptions.autoCompleteColorOption(autoCompleteRequest, userLocale);
     }
 
@@ -175,7 +177,7 @@ public abstract class SlashCommandImpl<C extends RollConfig> implements SlashCom
 
             return event.reply(replayMessage, false)
                     .then(Mono.defer(() -> {
-                        final Optional<MessageConfigDTO> newMessageConfig = createMessageConfig(configUUID, guildId, channelId, config);
+                        final Optional<MessageConfigDTO> newMessageConfig = createMessageConfig(configUUID, guildId, channelId, event.getUserId(), config);
                         newMessageConfig.ifPresent(persistenceManager::saveMessageConfig);
                         return event.sendMessage(createSlashResponseMessage(configUUID, config, channelId))
                                 .doOnNext(messageId -> createEmptyMessageData(configUUID, guildId, channelId, messageId))
@@ -205,6 +207,7 @@ public abstract class SlashCommandImpl<C extends RollConfig> implements SlashCom
     public abstract Optional<MessageConfigDTO> createMessageConfig(@NonNull UUID configUUID,
                                                                    @Nullable Long guildId,
                                                                    long channelId,
+                                                                   long userId,
                                                                    @NonNull C config);
 
     public abstract @NonNull EmbedOrMessageDefinition createSlashResponseMessage(@NonNull UUID configId, @NonNull C config, long channelId);

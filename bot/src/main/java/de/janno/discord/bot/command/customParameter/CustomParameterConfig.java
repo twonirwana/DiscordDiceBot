@@ -37,8 +37,9 @@ public class CustomParameterConfig extends RollConfig {
             @JsonProperty("resultImage") ResultImage resultImage,
             @JsonProperty("diceImageStyle") DiceStyleAndColor diceStyleAndColor,
             @JsonProperty("configLocale") Locale configLocale,
-            @JsonProperty("callStarterConfigAfterFinish") UUID callStarterConfigAfterFinish) {
-        super(answerTargetChannelId, answerFormatType, answerInteractionType, resultImage, diceStyleAndColor, configLocale, callStarterConfigAfterFinish);
+            @JsonProperty("callStarterConfigAfterFinish") UUID callStarterConfigAfterFinish,
+            @JsonProperty("name") String name) {
+        super(answerTargetChannelId, answerFormatType, answerInteractionType, resultImage, diceStyleAndColor, configLocale, callStarterConfigAfterFinish, name);
         this.baseExpression = baseExpression;
         this.parameters = CustomParameterCommand.createParameterListFromBaseExpression(baseExpression);
     }

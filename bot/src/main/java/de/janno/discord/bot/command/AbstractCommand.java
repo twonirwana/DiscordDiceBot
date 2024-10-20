@@ -42,8 +42,8 @@ public abstract class AbstractCommand<C extends RollConfig, S extends StateData>
             }
 
             @Override
-            protected @NonNull Optional<EmbedOrMessageDefinition> createNewButtonMessage(@NonNull UUID configId, @NonNull C config, @Nullable State<S> state, @Nullable Long guildId, long channelId) {
-                return AbstractCommand.this.createNewButtonMessageWithState(configId, config, state, guildId, channelId);
+            protected @NonNull Optional<EmbedOrMessageDefinition> createNewButtonMessage(@NonNull UUID configId, @NonNull C config, @Nullable State<S> state, @Nullable Long guildId, long channelId, long userId) {
+                return AbstractCommand.this.createNewButtonMessageWithState(configId, config, state, guildId, channelId, userId);
             }
 
             @Override
@@ -93,8 +93,8 @@ public abstract class AbstractCommand<C extends RollConfig, S extends StateData>
             }
 
             @Override
-            public Optional<MessageConfigDTO> createMessageConfig(@NonNull UUID configUUID, @Nullable Long guildId, long channelId, @NonNull C config) {
-                return AbstractCommand.this.createMessageConfig(configUUID, guildId, channelId, config);
+            public Optional<MessageConfigDTO> createMessageConfig(@NonNull UUID configUUID, @Nullable Long guildId, long channelId, long userId, @NonNull C config) {
+                return AbstractCommand.this.createMessageConfig(configUUID, guildId, channelId, userId, config);
             }
 
             @Override
@@ -148,8 +148,8 @@ public abstract class AbstractCommand<C extends RollConfig, S extends StateData>
             }
 
             @Override
-            public @NonNull List<AutoCompleteAnswer> getAutoCompleteAnswer(@NonNull AutoCompleteRequest autoCompleteRequest, @NonNull Locale userLocale, long channelId, long userId) {
-                return AbstractCommand.this.getAutoCompleteAnswer(autoCompleteRequest, userLocale, channelId, userId);
+            public @NonNull List<AutoCompleteAnswer> getAutoCompleteAnswer(@NonNull AutoCompleteRequest autoCompleteRequest, @NonNull Locale userLocale, long channelId, Long guildId, long userId) {
+                return AbstractCommand.this.getAutoCompleteAnswer(autoCompleteRequest, userLocale, channelId, guildId, userId);
             }
 
             @Override
@@ -190,7 +190,7 @@ public abstract class AbstractCommand<C extends RollConfig, S extends StateData>
     }
 
     @Override
-    public @NonNull List<AutoCompleteAnswer> getAutoCompleteAnswer(@NonNull AutoCompleteRequest autoCompleteRequest, @NonNull Locale userLocale, long channelId, long userId) {
+    public @NonNull List<AutoCompleteAnswer> getAutoCompleteAnswer(@NonNull AutoCompleteRequest autoCompleteRequest, @NonNull Locale userLocale, long channelId, Long guildId, long userId) {
         return BaseCommandOptions.autoCompleteColorOption(autoCompleteRequest, userLocale);
     }
 
@@ -219,6 +219,7 @@ public abstract class AbstractCommand<C extends RollConfig, S extends StateData>
     public abstract Optional<MessageConfigDTO> createMessageConfig(@NonNull UUID configUUID,
                                                                    @Nullable Long guildId,
                                                                    long channelId,
+                                                                   long userId,
                                                                    @NonNull C config);
 
     /**
@@ -273,7 +274,8 @@ public abstract class AbstractCommand<C extends RollConfig, S extends StateData>
                                                                                                    @NonNull C config,
                                                                                                    @Nullable State<S> state,
                                                                                                    @Nullable Long guildId,
-                                                                                                   long channelId);
+                                                                                                   long channelId,
+                                                                                                   long userId);
 
     protected abstract @NonNull Optional<RollAnswer> getAnswer(C config, State<S> state, long channelId, long userId);
 

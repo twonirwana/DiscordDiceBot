@@ -30,7 +30,7 @@ public class ValidationCommand extends DirectRollCommand {
     }
 
     @Override
-    public @NonNull List<AutoCompleteAnswer> getAutoCompleteAnswer(@NonNull AutoCompleteRequest option, @NonNull Locale userLocale, long channelId, long userId) {
+    public @NonNull List<AutoCompleteAnswer> getAutoCompleteAnswer(@NonNull AutoCompleteRequest option, @NonNull Locale userLocale, long channelId, Long guildId, long userId) {
         if (!expressionOptionName.equals(option.getFocusedOptionName())) {
             return List.of();
         }
