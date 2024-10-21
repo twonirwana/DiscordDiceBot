@@ -60,7 +60,7 @@ public class Bot {
         WelcomeCommand welcomeCommand = new WelcomeCommand(persistenceManager, rpgSystemCommandPreset);
         HiddenDirectRollCommand hiddenDirectRollCommand = new HiddenDirectRollCommand(persistenceManager, cachingDiceEvaluator);
         RerollAnswerHandler rerollAnswerHandler = new RerollAnswerHandler(persistenceManager, cachingDiceEvaluator);
-        StarterCommand starterCommand = new StarterCommand(persistenceManager, customParameterCommand, customDiceCommand, sumCustomSetCommand, channelConfigCommand);
+        StarterCommand starterCommand = new StarterCommand(persistenceManager, customParameterCommand, customDiceCommand, sumCustomSetCommand);
         DiscordConnectorImpl.createAndStart(
                 List.of(customDiceCommand,
                         new DirectRollCommand(persistenceManager, cachingDiceEvaluator),

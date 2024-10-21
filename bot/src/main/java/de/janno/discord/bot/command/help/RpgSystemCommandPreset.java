@@ -20,6 +20,7 @@ import de.janno.discord.bot.dice.image.provider.PolyhedralSvgWithColor;
 import de.janno.discord.bot.persistance.PersistenceManager;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
 import lombok.AllArgsConstructor;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
 import javax.annotation.Nullable;
@@ -276,6 +277,22 @@ public class RpgSystemCommandPreset {
     private Optional<EmbedOrMessageDefinition> saveAlias(AliasConfig config, UUID newConfigUUID, @Nullable Long guildId, long channelId) {
         channelConfigCommand.saveAliasesConfig(config.getAliasList(), channelId, guildId, null, () -> newConfigUUID, config.getName());
         return Optional.empty();
+    }
+
+    public static boolean matchRpgPreset(String typed, RpgSystemCommandPreset.PresetId presetId, @NonNull Locale userLocale) {
+        if (presetId.getName(userLocale).toLowerCase().contains(typed.toLowerCase())) {
+            return true;
+        }
+        if (presetId.getName(Locale.ENGLISH).toLowerCase().contains(typed.toLowerCase())) {
+            return true;
+        }
+        if (presetId.getSynonymes(userLocale).stream().anyMatch(n -> n.toLowerCase().contains(typed.toLowerCase()))) {
+            return true;
+        }
+        if (presetId.getSynonymes(Locale.ENGLISH).stream().anyMatch(n -> n.toLowerCase().contains(typed.toLowerCase()))) {
+            return true;
+        }
+        return false;
     }
 
     @AllArgsConstructor

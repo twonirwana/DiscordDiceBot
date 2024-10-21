@@ -9,10 +9,8 @@ import de.janno.discord.bot.command.AnswerFormatType;
 import de.janno.discord.bot.command.ButtonIdLabelAndDiceExpression;
 import de.janno.discord.bot.command.RollConfig;
 import de.janno.discord.bot.dice.image.DiceStyleAndColor;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NonNull;
-import lombok.ToString;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 import java.util.List;
 import java.util.Locale;
@@ -23,6 +21,7 @@ import java.util.stream.Collectors;
 @EqualsAndHashCode(callSuper = true)
 @Getter
 @ToString(callSuper = true)
+@SuperBuilder(toBuilder = true)
 @JsonIgnoreProperties(ignoreUnknown = true) //ignore legacy diceSystem field
 public class CustomDiceConfig extends RollConfig {
     @NonNull

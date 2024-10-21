@@ -42,6 +42,7 @@ public class FetchCommand implements SlashCommand {
 
     @Override
     public @NonNull CommandDefinition getCommandDefinition() {
+        //todo fetch last and fetch by name
         return CommandDefinition.builder()
                 .name(getCommandId())
                 .nameLocales(I18n.allNoneEnglishMessagesNames("fetch.name"))

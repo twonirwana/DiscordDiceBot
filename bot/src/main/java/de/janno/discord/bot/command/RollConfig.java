@@ -9,6 +9,7 @@ import de.janno.discord.bot.dice.image.DiceImageStyle;
 import de.janno.discord.bot.dice.image.DiceStyleAndColor;
 import de.janno.discord.bot.dice.image.LegacyImageConfigHelper;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 import javax.annotation.Nullable;
 import java.util.*;
@@ -19,6 +20,7 @@ import java.util.*;
 @EqualsAndHashCode
 @Getter
 @ToString
+@SuperBuilder(toBuilder = true)
 public class RollConfig implements Config {
 
     private final Long answerTargetChannelId;
@@ -35,9 +37,7 @@ public class RollConfig implements Config {
     private final Locale configLocale;
 
     @Nullable
-    @Setter
-    //todo use builder instead setter?
-    private UUID callStarterConfigAfterFinish;
+    private final UUID callStarterConfigAfterFinish;
 
     @Nullable
     private final String name;

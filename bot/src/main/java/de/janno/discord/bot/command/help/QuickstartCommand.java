@@ -68,8 +68,9 @@ public class QuickstartCommand implements SlashCommand {
             return List.of();
         }
         //todo add named commands
+        //todo add named alias
         return Arrays.stream(RpgSystemCommandPreset.PresetId.values())
-                .filter(p -> matchRpgPreset(option.getFocusedOptionValue(), p, userLocale))
+                .filter(p -> RpgSystemCommandPreset.matchRpgPreset(option.getFocusedOptionValue(), p, userLocale))
                 .sorted(Comparator.comparing(p -> p.getName(userLocale)))
                 .map(p -> new AutoCompleteAnswer(p.getName(userLocale), p.name()))
                 .collect(Collectors.toList());
@@ -80,21 +81,7 @@ public class QuickstartCommand implements SlashCommand {
         return ROLL_COMMAND_ID;
     }
 
-    private boolean matchRpgPreset(String typed, RpgSystemCommandPreset.PresetId presetId, @NonNull Locale userLocale) {
-        if (presetId.getName(userLocale).toLowerCase().contains(typed.toLowerCase())) {
-            return true;
-        }
-        if (presetId.getName(Locale.ENGLISH).toLowerCase().contains(typed.toLowerCase())) {
-            return true;
-        }
-        if (presetId.getSynonymes(userLocale).stream().anyMatch(n -> n.toLowerCase().contains(typed.toLowerCase()))) {
-            return true;
-        }
-        if (presetId.getSynonymes(Locale.ENGLISH).stream().anyMatch(n -> n.toLowerCase().contains(typed.toLowerCase()))) {
-            return true;
-        }
-        return false;
-    }
+
 
     @Override
     public @NonNull CommandDefinition getCommandDefinition() {

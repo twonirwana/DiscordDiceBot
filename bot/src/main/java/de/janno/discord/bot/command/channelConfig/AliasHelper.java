@@ -20,8 +20,7 @@ public class AliasHelper {
     public static final String CHANNEL_ALIAS_CONFIG_TYPE_ID = "AliasConfig";
     public static final String USER_ALIAS_CONFIG_TYPE_ID = "UserAliasConfig";
 
-    @VisibleForTesting
-    static AliasConfig deserializeAliasConfig(ChannelConfigDTO channelConfigDTO) {
+    public static AliasConfig deserializeAliasConfig(ChannelConfigDTO channelConfigDTO) {
         Preconditions.checkArgument(CHANNEL_ALIAS_CONFIG_TYPE_ID.equals(channelConfigDTO.getConfigClassId()) || USER_ALIAS_CONFIG_TYPE_ID.equals(channelConfigDTO.getConfigClassId()), "Unknown configClassId: %s", channelConfigDTO.getConfigClassId());
         return Mapper.deserializeObject(channelConfigDTO.getConfig(), AliasConfig.class);
     }
