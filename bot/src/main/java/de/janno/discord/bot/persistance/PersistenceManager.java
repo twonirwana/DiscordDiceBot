@@ -54,5 +54,5 @@ public interface PersistenceManager {
 
     void deleteMessageConfig(UUID configUUID);
 
-    List<NamedCommand> getNamedCommandsForChannel(long userId, Long guildId);
+    List<SavedNamedConfigId> getNamedCommandsForChannel(long userId, Long guildId);
 }

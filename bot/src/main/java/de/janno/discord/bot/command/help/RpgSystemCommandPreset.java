@@ -227,7 +227,7 @@ public class RpgSystemCommandPreset {
         };
     }
 
-    private static String getCommandIdForConfig(Config config) {
+    public static String getCommandIdForConfig(Config config) {
         switch (config) {
             case CustomDiceConfig ignored -> {
                 return CustomDiceCommand.COMMAND_NAME;
@@ -243,7 +243,22 @@ public class RpgSystemCommandPreset {
             }
             default -> throw new IllegalStateException("Could not find command id for config: " + config);
         }
+    }
 
+    public static String getConfigClassIdForConfig(Config config) {
+        switch (config) {
+            case CustomDiceConfig ignored -> {
+                return CustomDiceCommand.CONFIG_TYPE_ID;
+            }
+            case SumCustomSetConfig ignored -> {
+                return SumCustomSetCommand.CONFIG_TYPE_ID;
+            }
+            case CustomParameterConfig ignored -> {
+                return CustomParameterCommand.CONFIG_TYPE_ID;
+            }
+            //todo alias?
+            default -> throw new IllegalStateException("Could not find config class id for config: " + config);
+        }
     }
 
     public static String getCommandString(PresetId presetId, Locale locale) {

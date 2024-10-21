@@ -60,7 +60,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     private final static Pattern PARAMETER_OPTION_EMPTY_PATTERN = Pattern.compile(RANGE_DELIMITER + ".*" + BUTTON_VALUE_DELIMITER + "\\s*" + BUTTON_VALUE_DELIMITER + ".*}", Pattern.DOTALL);
     private static final String STATE_DATA_TYPE_ID = "CustomParameterStateDataV2";
     private static final String STATE_DATA_TYPE_ID_LEGACY = "CustomParameterStateData";
-    private static final String CONFIG_TYPE_ID = "CustomParameterConfig";
+    public static final String CONFIG_TYPE_ID = "CustomParameterConfig";
     private final static Pattern LABEL_MATCHER = Pattern.compile("@[^}]+$", Pattern.DOTALL);
     private final DiceEvaluatorAdapter diceEvaluatorAdapter;
 

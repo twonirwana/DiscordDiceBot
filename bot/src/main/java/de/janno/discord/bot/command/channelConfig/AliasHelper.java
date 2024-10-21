@@ -1,6 +1,5 @@
 package de.janno.discord.bot.command.channelConfig;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import de.janno.discord.bot.BotMetrics;
 import de.janno.discord.bot.persistance.ChannelConfigDTO;

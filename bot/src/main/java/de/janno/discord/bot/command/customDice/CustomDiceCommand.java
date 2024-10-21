@@ -35,7 +35,7 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
 
     public static final String COMMAND_NAME = "custom_dice";
     static final String BUTTONS_OPTION_NAME = "buttons";
-    private static final String CONFIG_TYPE_ID = "CustomDiceConfig";
+    public static final String CONFIG_TYPE_ID = "CustomDiceConfig";
     private final DiceEvaluatorAdapter diceEvaluatorAdapter;
 
     public CustomDiceCommand(PersistenceManager persistenceManager, CachingDiceEvaluator cachingDiceEvaluator) {

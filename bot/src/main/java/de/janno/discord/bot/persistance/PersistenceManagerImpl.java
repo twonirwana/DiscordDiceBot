@@ -496,7 +496,7 @@ public class PersistenceManagerImpl implements PersistenceManager {
     }
 
     @Override
-    public List<NamedCommand> getNamedCommandsForChannel(long userId, Long guildId) {
+    public List<SavedNamedConfigId> getNamedCommandsForChannel(long userId, Long guildId) {
         Stopwatch stopwatch = Stopwatch.createStarted();
         try (Connection con = databaseConnector.getConnection()) {
             final String sql;
@@ -545,9 +545,9 @@ public class PersistenceManagerImpl implements PersistenceManager {
                 }
 
                 ResultSet resultSet = preparedStatement.executeQuery();
-                List<NamedCommand> result = new ArrayList<>();
+                List<SavedNamedConfigId> result = new ArrayList<>();
                 while (resultSet.next()) {
-                    result.add(new NamedCommand(
+                    result.add(new SavedNamedConfigId(
                             resultSet.getObject("CONFIG_ID", UUID.class),
                             resultSet.getString("COMMAND_ID"),
                             resultSet.getString("CONFIG_NAME")

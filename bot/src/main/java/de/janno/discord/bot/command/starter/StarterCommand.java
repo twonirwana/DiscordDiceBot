@@ -3,6 +3,7 @@ package de.janno.discord.bot.command.starter;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import de.janno.discord.bot.command.*;
+import de.janno.discord.bot.command.channelConfig.AliasConfig;
 import de.janno.discord.bot.command.customDice.CustomDiceCommand;
 import de.janno.discord.bot.command.customDice.CustomDiceConfig;
 import de.janno.discord.bot.command.customParameter.CustomParameterCommand;
@@ -12,7 +13,6 @@ import de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommand;
 import de.janno.discord.bot.command.sumCustomSet.SumCustomSetConfig;
 import de.janno.discord.bot.persistance.Mapper;
 import de.janno.discord.bot.persistance.MessageConfigDTO;
-import de.janno.discord.bot.persistance.NamedCommand;
 import de.janno.discord.bot.persistance.PersistenceManager;
 import de.janno.discord.connector.api.*;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
@@ -107,19 +107,45 @@ public class StarterCommand implements SlashCommand, ComponentCommand {
     @Override
     public Mono<Void> handleComponentInteractEvent(@NonNull ButtonEventAdaptor event) {
         final UUID startedCommandConfigUUID = UUID.fromString(BottomCustomIdUtils.getButtonValueFromCustomId(event.getCustomId()));
-        final Optional<MessageConfigDTO> optionalStartedMessageConfigDTO = persistenceManager.getMessageConfig(startedCommandConfigUUID);
+        final Optional<SavedNamedConfig> optionalConfigToStart = getConfigForNamedCommand(startedCommandConfigUUID);
+        final long userId = event.getUserId();
+        final Long guildId = event.getGuildId();
+        final long channelId = event.getChannelId();
+        Optional<UUID> starterUUID = BottomCustomIdUtils.getConfigUUIDFromCustomId(event.getCustomId());
+        final Optional<StarterConfig> starterConfig = starterUUID
+                .flatMap(persistenceManager::getMessageConfig)
+                .flatMap(this::deserializeStarterMessage);
+        final boolean createNewMessage = event.isPinned() || starterConfig.map(StarterConfig::isStartInNewMessage).orElse(false);
+
+        //this is empty if the message is not in start phase
+        if (optionalConfigToStart.isPresent()) {
+            final NamedConfig configToStart = optionalConfigToStart.get().namedConfig();
+            final UUID config2StartUUID;
+
+            final Config updatedConfig2Start;
+            if (starterUUID.isPresent()) {
+                final RollConfig rollConfig = (RollConfig) configToStart.config();
+                final String commandId = configToStart.commandId();
+                final String configClassId = configToStart.configClassId();
+                if (createNewMessage && rollConfig.getCallStarterConfigAfterFinish() != null) {
+                    SavedNamedConfig savedUpdatedConfig = saveConfigToStart(rollConfig, null, guildId, channelId, userId, commandId, configClassId);
+                    updatedConfig2Start = savedUpdatedConfig.namedConfig().config();
+                    config2StartUUID = savedUpdatedConfig.configUUID();
+                } else if (!createNewMessage && rollConfig.getCallStarterConfigAfterFinish() == null) {
+                    SavedNamedConfig savedUpdatedConfig = saveConfigToStart(rollConfig, null, guildId, channelId, userId, commandId, configClassId);
+                    updatedConfig2Start = savedUpdatedConfig.namedConfig().config();
+                    config2StartUUID = savedUpdatedConfig.configUUID();
+                } else {
+                    updatedConfig2Start = configToStart.config();
+                    config2StartUUID = optionalConfigToStart.get().configUUID();
+                }
+            } else {
+                updatedConfig2Start = configToStart.config();
+                config2StartUUID = optionalConfigToStart.get().configUUID();
+            }
 
 
-        if (optionalStartedMessageConfigDTO.isPresent()) {
-            final MessageConfigDTO startedMessageConfigDTO = optionalStartedMessageConfigDTO.get();
-            //this is empty if the message is not in start phase
-            final Optional<StarterConfig> starterConfig = BottomCustomIdUtils.getConfigUUIDFromCustomId(event.getCustomId())
-                    .flatMap(persistenceManager::getMessageConfig)
-                    .flatMap(this::deserializeStarterMessage);
-            //todo test if remove pined works
-            boolean createNewMessage = event.isPinned() || starterConfig.map(StarterConfig::isStartInNewMessage).orElse(false);
-
-            EmbedOrMessageDefinition embedOrMessageDefinition = getMessage(startedMessageConfigDTO, startedCommandConfigUUID, event.getChannelId(), event.getUserId(), createNewMessage);
+            EmbedOrMessageDefinition embedOrMessageDefinition = getMessage(updatedConfig2Start, config2StartUUID, channelId);
             if (createNewMessage) {
                 return event.acknowledge()
                         .then(event.sendMessage(embedOrMessageDefinition))
@@ -135,65 +161,65 @@ public class StarterCommand implements SlashCommand, ComponentCommand {
     private Optional<StarterConfig> deserializeStarterMessage(MessageConfigDTO messageConfigDTO) {
         if (CONFIG_TYPE_ID.equals(messageConfigDTO.getConfigClassId())) {
             return Optional.of(Mapper.deserializeObject(messageConfigDTO.getConfig(), StarterConfig.class));
-
         }
         return Optional.empty();
     }
 
-    private EmbedOrMessageDefinition getMessage(MessageConfigDTO messageConfigDTO, UUID configUUID, long channelId, long userId, boolean createNewMessage) {
-        if (customDiceCommand.getCommandId().equals(messageConfigDTO.getCommandId())) {
-            CustomDiceConfig config = CustomDiceCommand.deserializeConfig(messageConfigDTO);
-            if (createNewMessage && config.getCallStarterConfigAfterFinish() != null) {
-                config = config.toBuilder()
-                        .callStarterConfigAfterFinish(null)
-                        .build();
-                configUUID = uuidSupplier.get();
-                persistenceManager.saveMessageConfig(new MessageConfigDTO(configUUID,
-                        messageConfigDTO.getGuildId(),
-                        messageConfigDTO.getChannelId(),
-                        messageConfigDTO.getCommandId(),
-                        messageConfigDTO.getConfigClassId(),
-                        Mapper.serializedObject(config),
-                        config.getName(),
-                        userId));
+    private Optional<SavedNamedConfig> getConfigForNamedCommand(UUID configUUID) {
+        Optional<MessageConfigDTO> optionalMessageConfigDTO = persistenceManager.getMessageConfig(configUUID);
+        if (optionalMessageConfigDTO.isPresent() && optionalMessageConfigDTO.get().getName() != null) {
+            MessageConfigDTO messageConfigDTO = optionalMessageConfigDTO.get();
+            if (customDiceCommand.getCommandId().equals(messageConfigDTO.getCommandId())) {
+                return Optional.of(new SavedNamedConfig(configUUID, new NamedConfig(messageConfigDTO.getName(), messageConfigDTO.getCommandId(), messageConfigDTO.getConfigClassId(), CustomDiceCommand.deserializeConfig(messageConfigDTO))));
+            } else if (customParameterCommand.getCommandId().equals(messageConfigDTO.getCommandId())) {
+                return Optional.of(new SavedNamedConfig(configUUID, new NamedConfig(messageConfigDTO.getName(), messageConfigDTO.getCommandId(), messageConfigDTO.getConfigClassId(), CustomParameterCommand.deserializeConfig(messageConfigDTO))));
+            } else if (sumCustomSetCommand.getCommandId().equals(messageConfigDTO.getCommandId())) {
+                return Optional.of(new SavedNamedConfig(configUUID, new NamedConfig(messageConfigDTO.getName(), messageConfigDTO.getCommandId(), messageConfigDTO.getConfigClassId(), SumCustomSetCommand.deserializeConfig(messageConfigDTO))));
             }
+        }
+        return Optional.empty();
+
+    }
+
+    private EmbedOrMessageDefinition getMessage(Config genericConfig, UUID configUUID, long channelId) {
+        if (genericConfig instanceof CustomDiceConfig config) {
             return customDiceCommand.createSlashResponseMessage(configUUID, config, channelId);
-        } else if (customParameterCommand.getCommandId().equals(messageConfigDTO.getCommandId())) {
-            CustomParameterConfig config = CustomParameterCommand.deserializeConfig(messageConfigDTO);
-            if (createNewMessage && config.getCallStarterConfigAfterFinish() != null) {
-                config = config.toBuilder()
-                        .callStarterConfigAfterFinish(null)
-                        .build();
-                configUUID = uuidSupplier.get();
-                persistenceManager.saveMessageConfig(new MessageConfigDTO(configUUID,
-                        messageConfigDTO.getGuildId(),
-                        messageConfigDTO.getChannelId(),
-                        messageConfigDTO.getCommandId(),
-                        messageConfigDTO.getConfigClassId(),
-                        Mapper.serializedObject(config),
-                        config.getName(),
-                        userId));
-            }
+        } else if (genericConfig instanceof CustomParameterConfig config) {
             return customParameterCommand.createSlashResponseMessage(configUUID, config, channelId);
-        } else if (sumCustomSetCommand.getCommandId().equals(messageConfigDTO.getCommandId())) {
-            SumCustomSetConfig config = SumCustomSetCommand.deserializeConfig(messageConfigDTO);
-            if (createNewMessage && config.getCallStarterConfigAfterFinish() != null) {
-                config = config.toBuilder()
-                        .callStarterConfigAfterFinish(null)
-                        .build();
-                configUUID = uuidSupplier.get();
-                persistenceManager.saveMessageConfig(new MessageConfigDTO(configUUID,
-                        messageConfigDTO.getGuildId(),
-                        messageConfigDTO.getChannelId(),
-                        messageConfigDTO.getCommandId(),
-                        messageConfigDTO.getConfigClassId(),
-                        Mapper.serializedObject(config),
-                        config.getName(),
-                        userId));
-            }
+        } else if (genericConfig instanceof SumCustomSetConfig config) {
             return sumCustomSetCommand.createSlashResponseMessage(configUUID, config, channelId);
         }
-        throw new IllegalArgumentException("Unknown command id: " + messageConfigDTO.getCommandId());
+        throw new IllegalArgumentException("Unknown config: " + genericConfig);
+    }
+
+    private Config updateCallStarterConfigAfterFinish(Config genericConfig, UUID starterConfigAfterFinish) {
+        return switch (genericConfig) {
+            case CustomDiceConfig config -> config.toBuilder()
+                    .callStarterConfigAfterFinish(starterConfigAfterFinish)
+                    .build();
+            case CustomParameterConfig config -> config.toBuilder()
+                    .callStarterConfigAfterFinish(starterConfigAfterFinish)
+                    .build();
+            case SumCustomSetConfig config -> config.toBuilder()
+                    .callStarterConfigAfterFinish(starterConfigAfterFinish)
+                    .build();
+            case null, default ->
+                    throw new IllegalStateException("command not supported:  %s".formatted(genericConfig));
+        };
+    }
+
+    private SavedNamedConfig saveConfigToStart(Config genericConfig, UUID starterConfigAfterFinish, Long guildId, long channelId, long userId, String commandId, String configClassId) {
+        final Config updatedConfig = updateCallStarterConfigAfterFinish(genericConfig, starterConfigAfterFinish);
+        final UUID newConfigUUID = uuidSupplier.get();
+        persistenceManager.saveMessageConfig(new MessageConfigDTO(newConfigUUID,
+                guildId,
+                channelId,
+                commandId,
+                configClassId,
+                Mapper.serializedObject(updatedConfig),
+                updatedConfig.getName(),
+                userId));
+        return new SavedNamedConfig(newConfigUUID, new NamedConfig(genericConfig.getName(), commandId, configClassId, updatedConfig));
     }
 
     @Override
@@ -244,27 +270,31 @@ public class StarterCommand implements SlashCommand, ComponentCommand {
     public @NonNull Mono<Void> handleSlashCommandEvent(@NonNull SlashEventAdaptor event, @NonNull Supplier<UUID> uuidSupplier, @NonNull Locale userLocale) {
         Optional<CommandInteractionOption> createOptional = event.getOption(COMMAND_CREATE_OPTION);
         final long userId = event.getUserId();
+        final Long guildId = event.getGuildId();
+        final long channelId = event.getChannelId();
         if (createOptional.isPresent()) {
-            final List<NameAndConfigUUID> selectedCommandNamesWithUUID = COMMAND_IDs.stream()
+            final List<NamedConfig> selectedCommandNamesWithUUID = COMMAND_IDs.stream()
                     .filter(i -> createOptional.get().getStringSubOptionWithName(i).isPresent())
                     .map(i -> createOptional.get().getStringSubOptionWithName(i).orElseThrow())
-                    .map(n -> new NameAndConfigUUID(n, getUuidForName(n, userLocale, uuidSupplier, event.getGuildId(), event.getChannelId(), userId, userLocale).orElse(null)))
-                    .filter(nu -> nu.configUUID != null)
+                    .flatMap(n -> getConfigForName(n, userLocale, guildId, userId).stream())
                     .toList();
 
-            //todo move to own methode?
             final UUID newStarterConfigUUID = uuidSupplier.get();
-
-            final List<StarterConfig.Command> commands = selectedCommandNamesWithUUID.stream()
-                    .map(nu -> {
-                        CommandIdAndConfigUUID updatedCommandConfigUUID = updateConfig(nu.configUUID(), newStarterConfigUUID, userId);
-                        return new StarterConfig.Command(nu.name(), updatedCommandConfigUUID.commandId(), updatedCommandConfigUUID.configUUID());
-                    }).toList();
 
             final String message = createOptional.get().getStringSubOptionWithName(COMMAND_MESSAGE_OPTION).orElse("Chose roll"); //todo i18n
             final String name = BaseCommandOptions.getNameFromStartCommandOption(createOptional.get()).orElse(null);
             final boolean openInNewMessage = createOptional.get().getBooleanSubOptionWithName(COMMAND_OPEN_IN_NEW_MESSAGE_OPTION).orElse(false);
-
+            final List<StarterConfig.Command> commands = selectedCommandNamesWithUUID.stream()
+                    .map(nu -> {
+                        final UUID starterConfigAfterFinish;
+                        if (openInNewMessage) {
+                            starterConfigAfterFinish = null;
+                        } else {
+                            starterConfigAfterFinish = newStarterConfigUUID;
+                        }
+                        final UUID savedConfig = saveConfigToStart(nu.config(), starterConfigAfterFinish, guildId, channelId, userId, nu.commandId(), nu.configClassId()).configUUID();
+                        return new StarterConfig.Command(nu.name(), savedConfig);
+                    }).toList();
             final StarterConfig starterConfig = new StarterConfig(newStarterConfigUUID, commands, userLocale, message, name, openInNewMessage);
 
             //todo metric
@@ -290,96 +320,27 @@ public class StarterCommand implements SlashCommand, ComponentCommand {
         return Mono.empty(); //todo
     }
 
-    private Optional<UUID> getUuidForName(String name, Locale locale, Supplier<UUID> uuidSupplier, @Nullable Long guildId, long channelId, long userId, Locale userLocale) {
-        Optional<UUID> savedNamedCommandUUID = persistenceManager.getNamedCommandsForChannel(userId, guildId).stream()
+
+    private Optional<NamedConfig> getConfigForName(String name, Locale locale, @Nullable Long guildId, long userId) {
+        Optional<NamedConfig> savedNamedCommandConfig = persistenceManager.getNamedCommandsForChannel(userId, guildId).stream()
                 .filter(nc -> Objects.equals(nc.name(), name))
-                .map(NamedCommand::id)
+                .flatMap(nc -> getConfigForNamedCommand(nc.id()).map(snc -> new NamedConfig(snc.namedConfig().name(), snc.namedConfig().commandId(), snc.namedConfig().configClassId(), snc.namedConfig().config())).stream())
                 .findFirst();
-        if (savedNamedCommandUUID.isPresent()) {
-            return savedNamedCommandUUID;
+        if (savedNamedCommandConfig.isPresent()) {
+            return savedNamedCommandConfig;
         }
 
         Optional<RpgSystemCommandPreset.PresetId> presetId = Arrays.stream(RpgSystemCommandPreset.PresetId.values())
                 .filter(p -> p.getName(locale).equals(name))
                 .findFirst();
         if (presetId.isPresent()) {
-            //todo don't save only to create new one later
-            UUID baseConfigUUID = uuidSupplier.get();
-            savePresetConfig(presetId.get(), baseConfigUUID, guildId, channelId, userId, userLocale);
-            return Optional.of(baseConfigUUID);
+            Config config = RpgSystemCommandPreset.createConfig(presetId.get(), locale);
+            String commandId = RpgSystemCommandPreset.getCommandIdForConfig(config);
+            //todo better?
+            String configClassId = RpgSystemCommandPreset.getConfigClassIdForConfig(config);
+            return Optional.of(new NamedConfig(name, commandId, configClassId, config));
         }
         return Optional.empty();
-    }
-
-    public void savePresetConfig(RpgSystemCommandPreset.PresetId presetId, UUID newConfigUUID, @Nullable Long guildId, long channelId, long userId, Locale userLocale) {
-        Config config = RpgSystemCommandPreset.createConfig(presetId, userLocale);
-        switch (config) {
-            case CustomDiceConfig customDiceConfig ->
-                    createPresetConfig(customDiceConfig, customDiceCommand, newConfigUUID, guildId, channelId, userId);
-            case SumCustomSetConfig sumCustomSetConfig ->
-                    createPresetConfig(sumCustomSetConfig, sumCustomSetCommand, newConfigUUID, guildId, channelId, userId);
-            case CustomParameterConfig customParameterConfig ->
-                    createPresetConfig(customParameterConfig, customParameterCommand, newConfigUUID, guildId, channelId, userId);
-            default -> throw new IllegalStateException("Could not create valid config for: " + presetId);
-        }
-    }
-
-    private <C extends RollConfig> void createPresetConfig(C config, AbstractCommand<C, ?> command, UUID newConfigUUID, @Nullable Long guildId, long channelId, long userId) {
-        command.createMessageConfig(newConfigUUID, guildId, channelId, userId, config).ifPresent(persistenceManager::saveMessageConfig);
-    }
-
-    //todo combine with getMessage
-    private CommandIdAndConfigUUID updateConfig(UUID configUUIDOfExistingCommand, UUID starterConfigUUID, long userId) {
-        UUID configUUIDForCopiedConfig = uuidSupplier.get();
-        Optional<MessageConfigDTO> optionalMessageConfigDTO = persistenceManager.getMessageConfig(configUUIDOfExistingCommand);
-        if (optionalMessageConfigDTO.isPresent()) {
-            final MessageConfigDTO messageConfigDTO = optionalMessageConfigDTO.get();
-            if (customDiceCommand.getCommandId().equals(messageConfigDTO.getCommandId())) {
-                CustomDiceConfig config = CustomDiceCommand.deserializeConfig(messageConfigDTO);
-                config = config.toBuilder()
-                        .callStarterConfigAfterFinish(starterConfigUUID)
-                        .build();
-                persistenceManager.saveMessageConfig(new MessageConfigDTO(configUUIDForCopiedConfig,
-                        messageConfigDTO.getGuildId(),
-                        messageConfigDTO.getChannelId(),
-                        messageConfigDTO.getCommandId(),
-                        messageConfigDTO.getConfigClassId(),
-                        Mapper.serializedObject(config),
-                        config.getName(),
-                        userId));
-            } else if (customParameterCommand.getCommandId().equals(messageConfigDTO.getCommandId())) {
-                CustomParameterConfig config = CustomParameterCommand.deserializeConfig(messageConfigDTO);
-                config = config.toBuilder()
-                        .callStarterConfigAfterFinish(starterConfigUUID)
-                        .build();
-                persistenceManager.saveMessageConfig(new MessageConfigDTO(configUUIDForCopiedConfig,
-                        messageConfigDTO.getGuildId(),
-                        messageConfigDTO.getChannelId(),
-                        messageConfigDTO.getCommandId(),
-                        messageConfigDTO.getConfigClassId(),
-                        Mapper.serializedObject(config),
-                        config.getName(),
-                        userId));
-            } else if (sumCustomSetCommand.getCommandId().equals(messageConfigDTO.getCommandId())) {
-                SumCustomSetConfig config = SumCustomSetCommand.deserializeConfig(messageConfigDTO);
-                config = config.toBuilder()
-                        .callStarterConfigAfterFinish(starterConfigUUID)
-                        .build();
-                persistenceManager.saveMessageConfig(new MessageConfigDTO(configUUIDForCopiedConfig,
-                        messageConfigDTO.getGuildId(),
-                        messageConfigDTO.getChannelId(),
-                        messageConfigDTO.getCommandId(),
-                        messageConfigDTO.getConfigClassId(),
-                        Mapper.serializedObject(config),
-                        config.getName(),
-                        userId));
-            } else {
-                throw new IllegalStateException("command not supported: " + messageConfigDTO.getCommandId());
-            }
-            return new CommandIdAndConfigUUID(messageConfigDTO.getCommandId(), configUUIDForCopiedConfig);
-        }
-
-        throw new IllegalStateException("UUID  not found: " + configUUIDOfExistingCommand);
     }
 
     @Override
@@ -400,6 +361,7 @@ public class StarterCommand implements SlashCommand, ComponentCommand {
         if (savedNamedAnswers.size() < MAX_AUTOCOMPLETE_OPTIONS) {
             presets = Arrays.stream(RpgSystemCommandPreset.PresetId.values())
                     .filter(p -> RpgSystemCommandPreset.matchRpgPreset(autoCompleteRequest.getFocusedOptionValue(), p, userLocale))
+                    .filter(p -> !(RpgSystemCommandPreset.createConfig(p, userLocale) instanceof AliasConfig))
                     .map(p -> new AutoCompleteAnswer(p.getName(userLocale), p.getName(userLocale)))
                     .sorted(Comparator.comparing(AutoCompleteAnswer::getName))
                     .filter(a -> !savedNamedAnswers.contains(a))
@@ -415,10 +377,12 @@ public class StarterCommand implements SlashCommand, ComponentCommand {
                 .build();
     }
 
-    private record NameAndConfigUUID(String name, UUID configUUID) {
+    private record NamedConfig(@NonNull String name, @NonNull String commandId, @NonNull String configClassId,
+                               @NonNull Config config) {
+    }
+
+    private record SavedNamedConfig(@NonNull UUID configUUID, @NonNull NamedConfig namedConfig) {
 
     }
 
-    private record CommandIdAndConfigUUID(String commandId, UUID configUUID) {
-    }
 }

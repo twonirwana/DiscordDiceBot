@@ -58,15 +58,12 @@ public class StarterConfig implements Config {
     @Value
     public static class Command {
         String name;
-        String commandId;
         UUID configUUID;
 
         @JsonCreator
         public Command(@JsonProperty("name") @NonNull String name,
-                       @JsonProperty("commandId") @NonNull String commandId,
                        @JsonProperty("configUUID") @NonNull UUID configUUID) {
             this.name = name;
-            this.commandId = commandId;
             this.configUUID = configUUID;
         }
     }

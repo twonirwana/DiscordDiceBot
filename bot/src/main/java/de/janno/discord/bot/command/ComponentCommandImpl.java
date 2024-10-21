@@ -94,7 +94,7 @@ public abstract class ComponentCommandImpl<C extends RollConfig, S extends State
         //update state bevor editing the event message
         updateCurrentMessageStateData(configUUID, guildId, channelId, eventMessageId, config, state);
         //reply/edit/acknowledge to the event message, no defer but directly call
-        return replyToEvent(event, config, state, configUUID, guildId, channelId, userId, answerTargetChannelId, timer)
+        return replyToEvent(event, config, state, configUUID, channelId, userId, answerTargetChannelId, timer)
                 //send answer messages
                 .then(Mono.defer(() -> sendAnswerMessage(event, config, state, guildId, channelId, userId, answerTargetChannelId, timer))
                         //create an optional new button message
@@ -134,7 +134,6 @@ public abstract class ComponentCommandImpl<C extends RollConfig, S extends State
                                              @NonNull final C config,
                                              @NonNull final State<S> state,
                                              @NonNull final UUID configUUID,
-                                             final Long guildId,
                                              final long channelId,
                                              final long userId,
                                              final Long answerTargetChannelId,
