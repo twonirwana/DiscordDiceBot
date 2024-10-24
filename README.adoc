@@ -4,19 +4,21 @@
 https://www.gnu.org/licenses/agpl-3.0[image:https://img.shields.io/badge/License-AGPL_v3-blue.svg[License: AGPL v3]] https://codecov.io/gh/twonirwana/DiscordDiceBot[image:https://codecov.io/gh/twonirwana/DiscordDiceBot/branch/main/graph/badge.svg?token=OLH7L312D7[codecov]]
 image:https://img.shields.io/github/actions/workflow/status/twonirwana/DiscordDiceBot/codeCov.yml?branch=main[GitHub Workflow Status]
 image:https://img.shields.io/discord/898657305883725834[link="https://discord.gg/e43BsqKpFr"]
-image:https://dcbadge.limes.pink/api/shield/812381127943782502?bot=true&style=flat&theme=clean-inverted[link="https://discord.com/api/oauth2/authorize?client_id=812381127943782502&permissions=274878023680&scope=applications.commands%20bot"]
+image:https://dcbadge.limes.pink/api/shield/812381127943782502?bot=true&style=flat&theme=clean-inverted[link="https://discord.com/oauth2/authorize?client_id=812381127943782502"]
 
 This bot is for rolling dice in discord.
 The bot needs to be configured with a slash command in a channel and then provides a message with buttons.
 Upon clicking on a button the bot will roll the stored dice expression for the button, post the result and move the message with the buttons to the bottom of the channel.
-If the message is pined, then it will only be copied and not moved.
 This allows user to roll dice without typing commands and thereby improves usability, especially for touchscreen users.
+
+If the message is pined, then it will only be copied and not moved.
 The bot supports Discord thread (the button message must be added after the thread creation), forum, Text in Voice, direct messages, and it is possible to send the answer in a different channel.
 It can provide images of the dice roll results and it is possible to configure channel or user specific aliases.
 
-image:image/example.webp[image]
+The bot can be user installed, this allows a user to use the slash commands (but no buttons) in server where the bot is not installed
 
-*Add to Discord channel by following this link*: https://discord.com/api/oauth2/authorize?client_id=812381127943782502&permissions=274878023680&scope=applications.commands%20bot[*Bot invite link*]
+image:image/example.webp[image]
+*Add to Discord channel by following this link*: https://discord.com/oauth2/authorize?client_id=812381127943782502[*Bot invite link*]
 
 *Discord Server for trying the bot, questions and feature suggestions*: https://discord.gg/e43BsqKpFr[Button Dice Roller Discord Server]
 

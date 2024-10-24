@@ -176,6 +176,9 @@ de.janno.discord.bot.command.help.WelcomeCommandTest.getCommandDefinition=[
         "options": [ ],
         "autoComplete": false
       }
+    ],
+    "integrationTypes": [
+      "GUILD_INSTALL"
     ]
   }
 ]
