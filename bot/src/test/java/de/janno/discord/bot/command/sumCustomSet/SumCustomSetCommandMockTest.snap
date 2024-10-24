@@ -1,20 +1,20 @@
 de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandMockTest.backBack[click1]=[
   [
-    "editMessage: message:invokingUser: +1d6, buttonValues=1_button,2_button,roll,clear,back"
+    "editMessage: message:invokingUser: +1d6, buttons=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=sum_custom_set\u001E1_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=bonus, id=sum_custom_set\u001E2_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=Roll, id=sum_custom_set\u001Eroll\u001E00000000-0000-0000-0000-000000000000, style=SUCCESS, disabled=false, emoji=null), ButtonDefinition(label=Clear, id=sum_custom_set\u001Eclear\u001E00000000-0000-0000-0000-000000000000, style=DANGER, disabled=false, emoji=null), ButtonDefinition(label=Back, id=sum_custom_set\u001Eback\u001E00000000-0000-0000-0000-000000000000, style=SECONDARY, disabled=false, emoji=null)])]"
   ]
 ]
 
 
 de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandMockTest.backBack[click2]=[
   [
-    "editMessage: message:Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back!"
+    "editMessage: message:Click the buttons to add dice to the set and then on Roll, buttons=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=sum_custom_set\u001E1_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=bonus, id=sum_custom_set\u001E2_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=Roll, id=sum_custom_set\u001Eroll\u001E00000000-0000-0000-0000-000000000000, style=SUCCESS, disabled=false, emoji=null), ButtonDefinition(label=Clear, id=sum_custom_set\u001Eclear\u001E00000000-0000-0000-0000-000000000000, style=DANGER, disabled=false, emoji=null), ButtonDefinition(label=Back, id=sum_custom_set\u001Eback\u001E00000000-0000-0000-0000-000000000000, style=SECONDARY, disabled=true, emoji=null)])]"
   ]
 ]
 
 
 de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandMockTest.channelAlias[click1]=[
   [
-    "editMessage: message:invokingUser: att, buttonValues=1_button,roll,clear,back"
+    "editMessage: message:invokingUser: att, buttons=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Attack, id=sum_custom_set\u001E1_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=Roll, id=sum_custom_set\u001Eroll\u001E00000000-0000-0000-0000-000000000000, style=SUCCESS, disabled=false, emoji=null), ButtonDefinition(label=Clear, id=sum_custom_set\u001Eclear\u001E00000000-0000-0000-0000-000000000000, style=DANGER, disabled=false, emoji=null), ButtonDefinition(label=Back, id=sum_custom_set\u001Eback\u001E00000000-0000-0000-0000-000000000000, style=SECONDARY, disabled=false, emoji=null)])]"
   ]
 ]
 
@@ -31,21 +31,21 @@ de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandMockTest.channelAli
 
 de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandMockTest.clear[click1]=[
   [
-    "editMessage: message:invokingUser: +1d6, buttonValues=1_button,2_button,roll,clear,back"
+    "editMessage: message:invokingUser: +1d6, buttons=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=sum_custom_set\u001E1_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=bonus, id=sum_custom_set\u001E2_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=Roll, id=sum_custom_set\u001Eroll\u001E00000000-0000-0000-0000-000000000000, style=SUCCESS, disabled=false, emoji=null), ButtonDefinition(label=Clear, id=sum_custom_set\u001Eclear\u001E00000000-0000-0000-0000-000000000000, style=DANGER, disabled=false, emoji=null), ButtonDefinition(label=Back, id=sum_custom_set\u001Eback\u001E00000000-0000-0000-0000-000000000000, style=SECONDARY, disabled=false, emoji=null)])]"
   ]
 ]
 
 
 de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandMockTest.clear[click2]=[
   [
-    "editMessage: message:Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll,clear,back!"
+    "editMessage: message:Click the buttons to add dice to the set and then on Roll, buttons=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=sum_custom_set\u001E1_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=bonus, id=sum_custom_set\u001E2_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=Roll, id=sum_custom_set\u001Eroll\u001E00000000-0000-0000-0000-000000000000, style=SUCCESS, disabled=false, emoji=null), ButtonDefinition(label=Clear, id=sum_custom_set\u001Eclear\u001E00000000-0000-0000-0000-000000000000, style=DANGER, disabled=false, emoji=null), ButtonDefinition(label=Back, id=sum_custom_set\u001Eback\u001E00000000-0000-0000-0000-000000000000, style=SECONDARY, disabled=true, emoji=null)])]"
   ]
 ]
 
 
 de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandMockTest.directRoll[click1]=[
   [
-    "editMessage: message:invokingUser: bonus, buttonValues=1_button,2_button,roll,clear,back"
+    "editMessage: message:invokingUser: bonus, buttons=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=sum_custom_set\u001E1_button\u001E00000000-0000-0000-0000-000000000000, style=SUCCESS, disabled=false, emoji=null)]), ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=bonus, id=sum_custom_set\u001E2_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=Roll, id=sum_custom_set\u001Eroll\u001E00000000-0000-0000-0000-000000000000, style=SUCCESS, disabled=false, emoji=null), ButtonDefinition(label=Clear, id=sum_custom_set\u001Eclear\u001E00000000-0000-0000-0000-000000000000, style=DANGER, disabled=false, emoji=null), ButtonDefinition(label=Back, id=sum_custom_set\u001Eback\u001E00000000-0000-0000-0000-000000000000, style=SECONDARY, disabled=false, emoji=null)])]"
   ]
 ]
 
@@ -62,28 +62,28 @@ de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandMockTest.directRoll
 
 de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandMockTest.directRoll_disabled[click1]=[
   [
-    "editMessage: message:invokingUser: bonus, buttonValues=1_button!,2_button,roll!,clear,back"
+    "editMessage: message:invokingUser: bonus, buttons=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=sum_custom_set\u001E1_button\u001E00000000-0000-0000-0000-000000000000, style=SUCCESS, disabled=true, emoji=null)]), ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=bonus, id=sum_custom_set\u001E2_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=Roll, id=sum_custom_set\u001Eroll\u001E00000000-0000-0000-0000-000000000000, style=SUCCESS, disabled=true, emoji=null), ButtonDefinition(label=Clear, id=sum_custom_set\u001Eclear\u001E00000000-0000-0000-0000-000000000000, style=DANGER, disabled=false, emoji=null), ButtonDefinition(label=Back, id=sum_custom_set\u001Eback\u001E00000000-0000-0000-0000-000000000000, style=SECONDARY, disabled=false, emoji=null)])]"
   ]
 ]
 
 
 de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandMockTest.roll_answerChannelTwice[click1]=[
   [
-    "editMessage: message:invokingUser: +1d6, buttonValues=1_button,2_button,roll,clear,back"
+    "editMessage: message:invokingUser: +1d6, buttons=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=sum_custom_set\u001E1_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=bonus, id=sum_custom_set\u001E2_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=Roll, id=sum_custom_set\u001Eroll\u001E00000000-0000-0000-0000-000000000000, style=SUCCESS, disabled=false, emoji=null), ButtonDefinition(label=Clear, id=sum_custom_set\u001Eclear\u001E00000000-0000-0000-0000-000000000000, style=DANGER, disabled=false, emoji=null), ButtonDefinition(label=Back, id=sum_custom_set\u001Eback\u001E00000000-0000-0000-0000-000000000000, style=SECONDARY, disabled=false, emoji=null)])]"
   ]
 ]
 
 
 de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandMockTest.roll_answerChannelTwice[click2]=[
   [
-    "editMessage: message:invokingUser: +1d6+2, buttonValues=1_button,2_button,roll,clear,back"
+    "editMessage: message:invokingUser: +1d6+2, buttons=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=sum_custom_set\u001E1_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=bonus, id=sum_custom_set\u001E2_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=Roll, id=sum_custom_set\u001Eroll\u001E00000000-0000-0000-0000-000000000000, style=SUCCESS, disabled=false, emoji=null), ButtonDefinition(label=Clear, id=sum_custom_set\u001Eclear\u001E00000000-0000-0000-0000-000000000000, style=DANGER, disabled=false, emoji=null), ButtonDefinition(label=Back, id=sum_custom_set\u001Eback\u001E00000000-0000-0000-0000-000000000000, style=SECONDARY, disabled=false, emoji=null)])]"
   ]
 ]
 
 
 de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandMockTest.roll_answerChannelTwice[click3]=[
   [
-    "editMessage: message:Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll!,clear,back!",
+    "editMessage: message:Click the buttons to add dice to the set and then on Roll, buttons=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=sum_custom_set\u001E1_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=bonus, id=sum_custom_set\u001E2_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=Roll, id=sum_custom_set\u001Eroll\u001E00000000-0000-0000-0000-000000000000, style=SUCCESS, disabled=true, emoji=null), ButtonDefinition(label=Clear, id=sum_custom_set\u001Eclear\u001E00000000-0000-0000-0000-000000000000, style=DANGER, disabled=false, emoji=null), ButtonDefinition(label=Back, id=sum_custom_set\u001Eback\u001E00000000-0000-0000-0000-000000000000, style=SECONDARY, disabled=true, emoji=null)])]",
     "sendMessage: EmbedOrMessageDefinition(title=+1d6+2 ⇒ 6, descriptionOrContent=+1d6+2: [4], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED, userReference=true, sendToOtherChannelId=2)"
   ]
 ]
@@ -91,14 +91,14 @@ de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandMockTest.roll_answe
 
 de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandMockTest.roll_answerChannelTwice[click4]=[
   [
-    "editMessage: message:invokingUser: +1d6, buttonValues=1_button,2_button,roll,clear,back"
+    "editMessage: message:invokingUser: +1d6, buttons=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=sum_custom_set\u001E1_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=bonus, id=sum_custom_set\u001E2_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=Roll, id=sum_custom_set\u001Eroll\u001E00000000-0000-0000-0000-000000000000, style=SUCCESS, disabled=false, emoji=null), ButtonDefinition(label=Clear, id=sum_custom_set\u001Eclear\u001E00000000-0000-0000-0000-000000000000, style=DANGER, disabled=false, emoji=null), ButtonDefinition(label=Back, id=sum_custom_set\u001Eback\u001E00000000-0000-0000-0000-000000000000, style=SECONDARY, disabled=false, emoji=null)])]"
   ]
 ]
 
 
 de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandMockTest.roll_answerChannelTwice[click5]=[
   [
-    "editMessage: message:Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll!,clear,back!",
+    "editMessage: message:Click the buttons to add dice to the set and then on Roll, buttons=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=sum_custom_set\u001E1_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=bonus, id=sum_custom_set\u001E2_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=Roll, id=sum_custom_set\u001Eroll\u001E00000000-0000-0000-0000-000000000000, style=SUCCESS, disabled=true, emoji=null), ButtonDefinition(label=Clear, id=sum_custom_set\u001Eclear\u001E00000000-0000-0000-0000-000000000000, style=DANGER, disabled=false, emoji=null), ButtonDefinition(label=Back, id=sum_custom_set\u001Eback\u001E00000000-0000-0000-0000-000000000000, style=SECONDARY, disabled=true, emoji=null)])]",
     "sendMessage: EmbedOrMessageDefinition(title=+1d6 ⇒ 6, descriptionOrContent=+1d6: [6], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED, userReference=true, sendToOtherChannelId=2)"
   ]
 ]
@@ -106,21 +106,21 @@ de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandMockTest.roll_answe
 
 de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandMockTest.roll_answerChannel[click1]=[
   [
-    "editMessage: message:invokingUser: +1d6, buttonValues=1_button,2_button,roll,clear,back"
+    "editMessage: message:invokingUser: +1d6, buttons=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=sum_custom_set\u001E1_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=bonus, id=sum_custom_set\u001E2_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=Roll, id=sum_custom_set\u001Eroll\u001E00000000-0000-0000-0000-000000000000, style=SUCCESS, disabled=false, emoji=null), ButtonDefinition(label=Clear, id=sum_custom_set\u001Eclear\u001E00000000-0000-0000-0000-000000000000, style=DANGER, disabled=false, emoji=null), ButtonDefinition(label=Back, id=sum_custom_set\u001Eback\u001E00000000-0000-0000-0000-000000000000, style=SECONDARY, disabled=false, emoji=null)])]"
   ]
 ]
 
 
 de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandMockTest.roll_answerChannel[click2]=[
   [
-    "editMessage: message:invokingUser: +1d6+2, buttonValues=1_button,2_button,roll,clear,back"
+    "editMessage: message:invokingUser: +1d6+2, buttons=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=sum_custom_set\u001E1_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=bonus, id=sum_custom_set\u001E2_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=Roll, id=sum_custom_set\u001Eroll\u001E00000000-0000-0000-0000-000000000000, style=SUCCESS, disabled=false, emoji=null), ButtonDefinition(label=Clear, id=sum_custom_set\u001Eclear\u001E00000000-0000-0000-0000-000000000000, style=DANGER, disabled=false, emoji=null), ButtonDefinition(label=Back, id=sum_custom_set\u001Eback\u001E00000000-0000-0000-0000-000000000000, style=SECONDARY, disabled=false, emoji=null)])]"
   ]
 ]
 
 
 de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandMockTest.roll_answerChannel[click3]=[
   [
-    "editMessage: message:Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll!,clear,back!",
+    "editMessage: message:Click the buttons to add dice to the set and then on Roll, buttons=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=sum_custom_set\u001E1_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=bonus, id=sum_custom_set\u001E2_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=Roll, id=sum_custom_set\u001Eroll\u001E00000000-0000-0000-0000-000000000000, style=SUCCESS, disabled=true, emoji=null), ButtonDefinition(label=Clear, id=sum_custom_set\u001Eclear\u001E00000000-0000-0000-0000-000000000000, style=DANGER, disabled=false, emoji=null), ButtonDefinition(label=Back, id=sum_custom_set\u001Eback\u001E00000000-0000-0000-0000-000000000000, style=SECONDARY, disabled=true, emoji=null)])]",
     "sendMessage: EmbedOrMessageDefinition(title=+1d6+2 ⇒ 6, descriptionOrContent=+1d6+2: [4], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED, userReference=true, sendToOtherChannelId=2)"
   ]
 ]
@@ -128,14 +128,14 @@ de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandMockTest.roll_answe
 
 de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandMockTest.roll_compact[click1]=[
   [
-    "editMessage: message:invokingUser: +1d6, buttonValues=1_button,2_button,roll,clear,back"
+    "editMessage: message:invokingUser: +1d6, buttons=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=sum_custom_set\u001E1_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=bonus, id=sum_custom_set\u001E2_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=Roll, id=sum_custom_set\u001Eroll\u001E00000000-0000-0000-0000-000000000000, style=SUCCESS, disabled=false, emoji=null), ButtonDefinition(label=Clear, id=sum_custom_set\u001Eclear\u001E00000000-0000-0000-0000-000000000000, style=DANGER, disabled=false, emoji=null), ButtonDefinition(label=Back, id=sum_custom_set\u001Eback\u001E00000000-0000-0000-0000-000000000000, style=SECONDARY, disabled=false, emoji=null)])]"
   ]
 ]
 
 
 de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandMockTest.roll_compact[click2]=[
   [
-    "editMessage: message:invokingUser: +1d6+2, buttonValues=1_button,2_button,roll,clear,back"
+    "editMessage: message:invokingUser: +1d6+2, buttons=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=sum_custom_set\u001E1_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=bonus, id=sum_custom_set\u001E2_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=Roll, id=sum_custom_set\u001Eroll\u001E00000000-0000-0000-0000-000000000000, style=SUCCESS, disabled=false, emoji=null), ButtonDefinition(label=Clear, id=sum_custom_set\u001Eclear\u001E00000000-0000-0000-0000-000000000000, style=DANGER, disabled=false, emoji=null), ButtonDefinition(label=Back, id=sum_custom_set\u001Eback\u001E00000000-0000-0000-0000-000000000000, style=SECONDARY, disabled=false, emoji=null)])]"
   ]
 ]
 
@@ -152,21 +152,21 @@ de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandMockTest.roll_compa
 
 de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandMockTest.roll_disabled[click1]=[
   [
-    "editMessage: message:invokingUser: bonus, buttonValues=1_button,2_button,roll!,clear,back"
+    "editMessage: message:invokingUser: bonus, buttons=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=sum_custom_set\u001E1_button\u001E00000000-0000-0000-0000-000000000000, style=SUCCESS, disabled=false, emoji=null)]), ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=bonus, id=sum_custom_set\u001E2_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=Roll, id=sum_custom_set\u001Eroll\u001E00000000-0000-0000-0000-000000000000, style=SUCCESS, disabled=true, emoji=null), ButtonDefinition(label=Clear, id=sum_custom_set\u001Eclear\u001E00000000-0000-0000-0000-000000000000, style=DANGER, disabled=false, emoji=null), ButtonDefinition(label=Back, id=sum_custom_set\u001Eback\u001E00000000-0000-0000-0000-000000000000, style=SECONDARY, disabled=false, emoji=null)])]"
   ]
 ]
 
 
 de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandMockTest.roll_fullExpression[click1]=[
   [
-    "editMessage: message:invokingUser: +1d6, buttonValues=1_button,2_button,roll,clear,back"
+    "editMessage: message:invokingUser: +1d6, buttons=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=sum_custom_set\u001E1_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=bonus, id=sum_custom_set\u001E2_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=Roll, id=sum_custom_set\u001Eroll\u001E00000000-0000-0000-0000-000000000000, style=SUCCESS, disabled=false, emoji=null), ButtonDefinition(label=Clear, id=sum_custom_set\u001Eclear\u001E00000000-0000-0000-0000-000000000000, style=DANGER, disabled=false, emoji=null), ButtonDefinition(label=Back, id=sum_custom_set\u001Eback\u001E00000000-0000-0000-0000-000000000000, style=SECONDARY, disabled=false, emoji=null)])]"
   ]
 ]
 
 
 de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandMockTest.roll_fullExpression[click2]=[
   [
-    "editMessage: message:invokingUser: +1d6+2, buttonValues=1_button,2_button,roll,clear,back"
+    "editMessage: message:invokingUser: +1d6+2, buttons=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=sum_custom_set\u001E1_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=bonus, id=sum_custom_set\u001E2_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=Roll, id=sum_custom_set\u001Eroll\u001E00000000-0000-0000-0000-000000000000, style=SUCCESS, disabled=false, emoji=null), ButtonDefinition(label=Clear, id=sum_custom_set\u001Eclear\u001E00000000-0000-0000-0000-000000000000, style=DANGER, disabled=false, emoji=null), ButtonDefinition(label=Back, id=sum_custom_set\u001Eback\u001E00000000-0000-0000-0000-000000000000, style=SECONDARY, disabled=false, emoji=null)])]"
   ]
 ]
 
@@ -183,14 +183,14 @@ de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandMockTest.roll_fullE
 
 de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandMockTest.roll_fullGerman[click1]=[
   [
-    "editMessage: message:invokingUser: +1d6, buttonValues=1_button,2_button,roll,clear,back"
+    "editMessage: message:invokingUser: +1d6, buttons=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=sum_custom_set\u001E1_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=bonus, id=sum_custom_set\u001E2_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=Würfeln, id=sum_custom_set\u001Eroll\u001E00000000-0000-0000-0000-000000000000, style=SUCCESS, disabled=false, emoji=null), ButtonDefinition(label=Löschen, id=sum_custom_set\u001Eclear\u001E00000000-0000-0000-0000-000000000000, style=DANGER, disabled=false, emoji=null), ButtonDefinition(label=Zurück, id=sum_custom_set\u001Eback\u001E00000000-0000-0000-0000-000000000000, style=SECONDARY, disabled=false, emoji=null)])]"
   ]
 ]
 
 
 de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandMockTest.roll_fullGerman[click2]=[
   [
-    "editMessage: message:invokingUser: +1d6+2, buttonValues=1_button,2_button,roll,clear,back"
+    "editMessage: message:invokingUser: +1d6+2, buttons=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=sum_custom_set\u001E1_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=bonus, id=sum_custom_set\u001E2_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=Würfeln, id=sum_custom_set\u001Eroll\u001E00000000-0000-0000-0000-000000000000, style=SUCCESS, disabled=false, emoji=null), ButtonDefinition(label=Löschen, id=sum_custom_set\u001Eclear\u001E00000000-0000-0000-0000-000000000000, style=DANGER, disabled=false, emoji=null), ButtonDefinition(label=Zurück, id=sum_custom_set\u001Eback\u001E00000000-0000-0000-0000-000000000000, style=SECONDARY, disabled=false, emoji=null)])]"
   ]
 ]
 
@@ -207,14 +207,14 @@ de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandMockTest.roll_fullG
 
 de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandMockTest.roll_full[click1]=[
   [
-    "editMessage: message:invokingUser: Dmg, buttonValues=1_button,2_button,roll,clear,back"
+    "editMessage: message:invokingUser: Dmg, buttons=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=sum_custom_set\u001E1_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=bonus, id=sum_custom_set\u001E2_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=Roll, id=sum_custom_set\u001Eroll\u001E00000000-0000-0000-0000-000000000000, style=SUCCESS, disabled=false, emoji=null), ButtonDefinition(label=Clear, id=sum_custom_set\u001Eclear\u001E00000000-0000-0000-0000-000000000000, style=DANGER, disabled=false, emoji=null), ButtonDefinition(label=Back, id=sum_custom_set\u001Eback\u001E00000000-0000-0000-0000-000000000000, style=SECONDARY, disabled=false, emoji=null)])]"
   ]
 ]
 
 
 de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandMockTest.roll_full[click2]=[
   [
-    "editMessage: message:invokingUser: Dmg bonus, buttonValues=1_button,2_button,roll,clear,back"
+    "editMessage: message:invokingUser: Dmg bonus, buttons=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=sum_custom_set\u001E1_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=bonus, id=sum_custom_set\u001E2_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=Roll, id=sum_custom_set\u001Eroll\u001E00000000-0000-0000-0000-000000000000, style=SUCCESS, disabled=false, emoji=null), ButtonDefinition(label=Clear, id=sum_custom_set\u001Eclear\u001E00000000-0000-0000-0000-000000000000, style=DANGER, disabled=false, emoji=null), ButtonDefinition(label=Back, id=sum_custom_set\u001Eback\u001E00000000-0000-0000-0000-000000000000, style=SECONDARY, disabled=false, emoji=null)])]"
   ]
 ]
 
@@ -231,14 +231,14 @@ de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandMockTest.roll_full[
 
 de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandMockTest.roll_full_ptBR[click1]=[
   [
-    "editMessage: message:invokingUser: +1d6, buttonValues=1_button,2_button,roll,clear,back"
+    "editMessage: message:invokingUser: +1d6, buttons=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=sum_custom_set\u001E1_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=bonus, id=sum_custom_set\u001E2_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=Rolar, id=sum_custom_set\u001Eroll\u001E00000000-0000-0000-0000-000000000000, style=SUCCESS, disabled=false, emoji=null), ButtonDefinition(label=Limpar, id=sum_custom_set\u001Eclear\u001E00000000-0000-0000-0000-000000000000, style=DANGER, disabled=false, emoji=null), ButtonDefinition(label=Voltar, id=sum_custom_set\u001Eback\u001E00000000-0000-0000-0000-000000000000, style=SECONDARY, disabled=false, emoji=null)])]"
   ]
 ]
 
 
 de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandMockTest.roll_full_ptBR[click2]=[
   [
-    "editMessage: message:invokingUser: +1d6+2, buttonValues=1_button,2_button,roll,clear,back"
+    "editMessage: message:invokingUser: +1d6+2, buttons=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=sum_custom_set\u001E1_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=bonus, id=sum_custom_set\u001E2_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=Rolar, id=sum_custom_set\u001Eroll\u001E00000000-0000-0000-0000-000000000000, style=SUCCESS, disabled=false, emoji=null), ButtonDefinition(label=Limpar, id=sum_custom_set\u001Eclear\u001E00000000-0000-0000-0000-000000000000, style=DANGER, disabled=false, emoji=null), ButtonDefinition(label=Voltar, id=sum_custom_set\u001Eback\u001E00000000-0000-0000-0000-000000000000, style=SECONDARY, disabled=false, emoji=null)])]"
   ]
 ]
 
@@ -255,21 +255,21 @@ de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandMockTest.roll_full_
 
 de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandMockTest.roll_locked[click1]=[
   [
-    "editMessage: message:invokingUser: +1d6, buttonValues=1_button,2_button,roll,clear,back"
+    "editMessage: message:invokingUser: +1d6, buttons=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=sum_custom_set\u001E1_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=bonus, id=sum_custom_set\u001E2_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=Roll, id=sum_custom_set\u001Eroll\u001E00000000-0000-0000-0000-000000000000, style=SUCCESS, disabled=false, emoji=null), ButtonDefinition(label=Clear, id=sum_custom_set\u001Eclear\u001E00000000-0000-0000-0000-000000000000, style=DANGER, disabled=false, emoji=null), ButtonDefinition(label=Back, id=sum_custom_set\u001Eback\u001E00000000-0000-0000-0000-000000000000, style=SECONDARY, disabled=false, emoji=null)])]"
   ]
 ]
 
 
 de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandMockTest.roll_locked[click2]=[
   [
-    "editMessage: message:invokingUser: +1d6, buttonValues=1_button,2_button,roll,clear,back"
+    "editMessage: message:invokingUser: +1d6, buttons=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=sum_custom_set\u001E1_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=bonus, id=sum_custom_set\u001E2_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=Roll, id=sum_custom_set\u001Eroll\u001E00000000-0000-0000-0000-000000000000, style=SUCCESS, disabled=false, emoji=null), ButtonDefinition(label=Clear, id=sum_custom_set\u001Eclear\u001E00000000-0000-0000-0000-000000000000, style=DANGER, disabled=false, emoji=null), ButtonDefinition(label=Back, id=sum_custom_set\u001Eback\u001E00000000-0000-0000-0000-000000000000, style=SECONDARY, disabled=false, emoji=null)])]"
   ]
 ]
 
 
 de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandMockTest.roll_locked[click3]=[
   [
-    "editMessage: message:invokingUser: +1d6+2, buttonValues=1_button,2_button,roll,clear,back"
+    "editMessage: message:invokingUser: +1d6+2, buttons=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=sum_custom_set\u001E1_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=bonus, id=sum_custom_set\u001E2_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=Roll, id=sum_custom_set\u001Eroll\u001E00000000-0000-0000-0000-000000000000, style=SUCCESS, disabled=false, emoji=null), ButtonDefinition(label=Clear, id=sum_custom_set\u001Eclear\u001E00000000-0000-0000-0000-000000000000, style=DANGER, disabled=false, emoji=null), ButtonDefinition(label=Back, id=sum_custom_set\u001Eback\u001E00000000-0000-0000-0000-000000000000, style=SECONDARY, disabled=false, emoji=null)])]"
   ]
 ]
 
@@ -286,14 +286,14 @@ de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandMockTest.roll_locke
 
 de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandMockTest.roll_minimal[click1]=[
   [
-    "editMessage: message:invokingUser: +1d6, buttonValues=1_button,2_button,roll,clear,back"
+    "editMessage: message:invokingUser: +1d6, buttons=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=sum_custom_set\u001E1_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=bonus, id=sum_custom_set\u001E2_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=Roll, id=sum_custom_set\u001Eroll\u001E00000000-0000-0000-0000-000000000000, style=SUCCESS, disabled=false, emoji=null), ButtonDefinition(label=Clear, id=sum_custom_set\u001Eclear\u001E00000000-0000-0000-0000-000000000000, style=DANGER, disabled=false, emoji=null), ButtonDefinition(label=Back, id=sum_custom_set\u001Eback\u001E00000000-0000-0000-0000-000000000000, style=SECONDARY, disabled=false, emoji=null)])]"
   ]
 ]
 
 
 de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandMockTest.roll_minimal[click2]=[
   [
-    "editMessage: message:invokingUser: +1d6+2, buttonValues=1_button,2_button,roll,clear,back"
+    "editMessage: message:invokingUser: +1d6+2, buttons=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=sum_custom_set\u001E1_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=bonus, id=sum_custom_set\u001E2_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=Roll, id=sum_custom_set\u001Eroll\u001E00000000-0000-0000-0000-000000000000, style=SUCCESS, disabled=false, emoji=null), ButtonDefinition(label=Clear, id=sum_custom_set\u001Eclear\u001E00000000-0000-0000-0000-000000000000, style=DANGER, disabled=false, emoji=null), ButtonDefinition(label=Back, id=sum_custom_set\u001Eback\u001E00000000-0000-0000-0000-000000000000, style=SECONDARY, disabled=false, emoji=null)])]"
   ]
 ]
 
@@ -310,21 +310,21 @@ de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandMockTest.roll_minim
 
 de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandMockTest.roll_pinnedTwice[click1]=[
   [
-    "editMessage: message:invokingUser: +1d6, buttonValues=1_button,2_button,roll,clear,back"
+    "editMessage: message:invokingUser: +1d6, buttons=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=sum_custom_set\u001E1_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=bonus, id=sum_custom_set\u001E2_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=Roll, id=sum_custom_set\u001Eroll\u001E00000000-0000-0000-0000-000000000000, style=SUCCESS, disabled=false, emoji=null), ButtonDefinition(label=Clear, id=sum_custom_set\u001Eclear\u001E00000000-0000-0000-0000-000000000000, style=DANGER, disabled=false, emoji=null), ButtonDefinition(label=Back, id=sum_custom_set\u001Eback\u001E00000000-0000-0000-0000-000000000000, style=SECONDARY, disabled=false, emoji=null)])]"
   ]
 ]
 
 
 de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandMockTest.roll_pinnedTwice[click2]=[
   [
-    "editMessage: message:invokingUser: +1d6+2, buttonValues=1_button,2_button,roll,clear,back"
+    "editMessage: message:invokingUser: +1d6+2, buttons=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=sum_custom_set\u001E1_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=bonus, id=sum_custom_set\u001E2_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=Roll, id=sum_custom_set\u001Eroll\u001E00000000-0000-0000-0000-000000000000, style=SUCCESS, disabled=false, emoji=null), ButtonDefinition(label=Clear, id=sum_custom_set\u001Eclear\u001E00000000-0000-0000-0000-000000000000, style=DANGER, disabled=false, emoji=null), ButtonDefinition(label=Back, id=sum_custom_set\u001Eback\u001E00000000-0000-0000-0000-000000000000, style=SECONDARY, disabled=false, emoji=null)])]"
   ]
 ]
 
 
 de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandMockTest.roll_pinnedTwice[click3]=[
   [
-    "editMessage: message:Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll!,clear,back!",
+    "editMessage: message:Click the buttons to add dice to the set and then on Roll, buttons=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=sum_custom_set\u001E1_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=bonus, id=sum_custom_set\u001E2_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=Roll, id=sum_custom_set\u001Eroll\u001E00000000-0000-0000-0000-000000000000, style=SUCCESS, disabled=true, emoji=null), ButtonDefinition(label=Clear, id=sum_custom_set\u001Eclear\u001E00000000-0000-0000-0000-000000000000, style=DANGER, disabled=false, emoji=null), ButtonDefinition(label=Back, id=sum_custom_set\u001Eback\u001E00000000-0000-0000-0000-000000000000, style=SECONDARY, disabled=true, emoji=null)])]",
     "sendMessage: EmbedOrMessageDefinition(title=+1d6+2 ⇒ 6, descriptionOrContent=+1d6+2: [4], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED, userReference=true, sendToOtherChannelId=null)",
     "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click the buttons to add dice to the set and then on Roll, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=sum_custom_set\u001E1_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=bonus, id=sum_custom_set\u001E2_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=Roll, id=sum_custom_set\u001Eroll\u001E00000000-0000-0000-0000-000000000000, style=SUCCESS, disabled=true, emoji=null), ButtonDefinition(label=Clear, id=sum_custom_set\u001Eclear\u001E00000000-0000-0000-0000-000000000000, style=DANGER, disabled=false, emoji=null), ButtonDefinition(label=Back, id=sum_custom_set\u001Eback\u001E00000000-0000-0000-0000-000000000000, style=SECONDARY, disabled=true, emoji=null)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
   ]
@@ -333,7 +333,7 @@ de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandMockTest.roll_pinne
 
 de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandMockTest.roll_pinnedTwice[click4]=[
   [
-    "editMessage: message:invokingUser: +1d6, buttonValues=1_button,2_button,roll,clear,back"
+    "editMessage: message:invokingUser: +1d6, buttons=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=sum_custom_set\u001E1_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=bonus, id=sum_custom_set\u001E2_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=Roll, id=sum_custom_set\u001Eroll\u001E00000000-0000-0000-0000-000000000000, style=SUCCESS, disabled=false, emoji=null), ButtonDefinition(label=Clear, id=sum_custom_set\u001Eclear\u001E00000000-0000-0000-0000-000000000000, style=DANGER, disabled=false, emoji=null), ButtonDefinition(label=Back, id=sum_custom_set\u001Eback\u001E00000000-0000-0000-0000-000000000000, style=SECONDARY, disabled=false, emoji=null)])]"
   ]
 ]
 
@@ -351,21 +351,21 @@ de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandMockTest.roll_pinne
 
 de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandMockTest.roll_pinned[click1]=[
   [
-    "editMessage: message:invokingUser: +1d6, buttonValues=1_button,2_button,roll,clear,back"
+    "editMessage: message:invokingUser: +1d6, buttons=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=sum_custom_set\u001E1_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=bonus, id=sum_custom_set\u001E2_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=Roll, id=sum_custom_set\u001Eroll\u001E00000000-0000-0000-0000-000000000000, style=SUCCESS, disabled=false, emoji=null), ButtonDefinition(label=Clear, id=sum_custom_set\u001Eclear\u001E00000000-0000-0000-0000-000000000000, style=DANGER, disabled=false, emoji=null), ButtonDefinition(label=Back, id=sum_custom_set\u001Eback\u001E00000000-0000-0000-0000-000000000000, style=SECONDARY, disabled=false, emoji=null)])]"
   ]
 ]
 
 
 de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandMockTest.roll_pinned[click2]=[
   [
-    "editMessage: message:invokingUser: +1d6+2, buttonValues=1_button,2_button,roll,clear,back"
+    "editMessage: message:invokingUser: +1d6+2, buttons=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=sum_custom_set\u001E1_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=bonus, id=sum_custom_set\u001E2_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=Roll, id=sum_custom_set\u001Eroll\u001E00000000-0000-0000-0000-000000000000, style=SUCCESS, disabled=false, emoji=null), ButtonDefinition(label=Clear, id=sum_custom_set\u001Eclear\u001E00000000-0000-0000-0000-000000000000, style=DANGER, disabled=false, emoji=null), ButtonDefinition(label=Back, id=sum_custom_set\u001Eback\u001E00000000-0000-0000-0000-000000000000, style=SECONDARY, disabled=false, emoji=null)])]"
   ]
 ]
 
 
 de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandMockTest.roll_pinned[click3]=[
   [
-    "editMessage: message:Click the buttons to add dice to the set and then on Roll, buttonValues=1_button,2_button,roll!,clear,back!",
+    "editMessage: message:Click the buttons to add dice to the set and then on Roll, buttons=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=sum_custom_set\u001E1_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=bonus, id=sum_custom_set\u001E2_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=Roll, id=sum_custom_set\u001Eroll\u001E00000000-0000-0000-0000-000000000000, style=SUCCESS, disabled=true, emoji=null), ButtonDefinition(label=Clear, id=sum_custom_set\u001Eclear\u001E00000000-0000-0000-0000-000000000000, style=DANGER, disabled=false, emoji=null), ButtonDefinition(label=Back, id=sum_custom_set\u001Eback\u001E00000000-0000-0000-0000-000000000000, style=SECONDARY, disabled=true, emoji=null)])]",
     "sendMessage: EmbedOrMessageDefinition(title=+1d6+2 ⇒ 6, descriptionOrContent=+1d6+2: [4], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED, userReference=true, sendToOtherChannelId=null)",
     "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click the buttons to add dice to the set and then on Roll, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=sum_custom_set\u001E1_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=bonus, id=sum_custom_set\u001E2_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=Roll, id=sum_custom_set\u001Eroll\u001E00000000-0000-0000-0000-000000000000, style=SUCCESS, disabled=true, emoji=null), ButtonDefinition(label=Clear, id=sum_custom_set\u001Eclear\u001E00000000-0000-0000-0000-000000000000, style=DANGER, disabled=false, emoji=null), ButtonDefinition(label=Back, id=sum_custom_set\u001Eback\u001E00000000-0000-0000-0000-000000000000, style=SECONDARY, disabled=true, emoji=null)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
   ]
@@ -400,14 +400,14 @@ de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandMockTest.slash_star
 
 de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandMockTest.slash_start_multiLine[event2]=[
   [
-    "editMessage: message:invokingUser: d[a b c, d,e ], buttonValues=1_button,2_button,3_button,roll,clear,back"
+    "editMessage: message:invokingUser: d[a b c, d,e ], buttons=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=d[a b c, d,e ], id=sum_custom_set\u001E1_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=Attack Down, id=sum_custom_set\u001E2_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=3d10,3d10,3d10, id=sum_custom_set\u001E3_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=Roll, id=sum_custom_set\u001Eroll\u001E00000000-0000-0000-0000-000000000000, style=SUCCESS, disabled=false, emoji=null), ButtonDefinition(label=Clear, id=sum_custom_set\u001Eclear\u001E00000000-0000-0000-0000-000000000000, style=DANGER, disabled=false, emoji=null)]), ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Back, id=sum_custom_set\u001Eback\u001E00000000-0000-0000-0000-000000000000, style=SECONDARY, disabled=false, emoji=null)])]"
   ]
 ]
 
 
 de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandMockTest.userChannelAlias[click1]=[
   [
-    "editMessage: message:invokingUser: att, buttonValues=1_button,roll,clear,back"
+    "editMessage: message:invokingUser: att, buttons=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Attack, id=sum_custom_set\u001E1_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=Roll, id=sum_custom_set\u001Eroll\u001E00000000-0000-0000-0000-000000000000, style=SUCCESS, disabled=false, emoji=null), ButtonDefinition(label=Clear, id=sum_custom_set\u001Eclear\u001E00000000-0000-0000-0000-000000000000, style=DANGER, disabled=false, emoji=null), ButtonDefinition(label=Back, id=sum_custom_set\u001Eback\u001E00000000-0000-0000-0000-000000000000, style=SECONDARY, disabled=false, emoji=null)])]"
   ]
 ]
 
