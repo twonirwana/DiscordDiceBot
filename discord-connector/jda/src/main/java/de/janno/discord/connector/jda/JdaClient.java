@@ -50,6 +50,7 @@ public class JdaClient {
                      @NonNull Function<DiscordConnector.WelcomeRequest, EmbedOrMessageDefinition> welcomeMessageDefinition,
                      @NonNull Set<Long> allGuildIdsInPersistence) {
 
+        //todo change to startup time
         final LocalDateTime welcomeMessageStartTimePlusBuffer = LocalDateTime.now().plus(Duration.of(Config.getLong("welcomeMessageStartTimePlusBufferSec"), ChronoUnit.SECONDS));
         final Scheduler scheduler = Schedulers.boundedElastic();
         final Set<Long> botInGuildIdSet = new ConcurrentSkipListSet<>();

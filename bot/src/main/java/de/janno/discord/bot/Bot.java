@@ -86,7 +86,7 @@ public class Bot {
                         new LegacyIdHandler(),
                         starterCommand
                 ),
-                welcomeCommand.getWelcomeMessage(),
+                starterCommand.getWelcomeMessage(),
                 allGuildIdsInPersistence);
     }
 

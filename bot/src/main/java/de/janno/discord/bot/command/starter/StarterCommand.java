@@ -2,6 +2,7 @@ package de.janno.discord.bot.command.starter;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
+import de.janno.discord.bot.I18n;
 import de.janno.discord.bot.command.*;
 import de.janno.discord.bot.command.channelConfig.AliasConfig;
 import de.janno.discord.bot.command.customDice.CustomDiceCommand;
@@ -11,6 +12,7 @@ import de.janno.discord.bot.command.customParameter.CustomParameterConfig;
 import de.janno.discord.bot.command.help.RpgSystemCommandPreset;
 import de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommand;
 import de.janno.discord.bot.command.sumCustomSet.SumCustomSetConfig;
+import de.janno.discord.bot.dice.DiceEvaluatorAdapter;
 import de.janno.discord.bot.persistance.Mapper;
 import de.janno.discord.bot.persistance.MessageConfigDTO;
 import de.janno.discord.bot.persistance.PersistenceManager;
@@ -25,6 +27,7 @@ import reactor.core.publisher.Mono;
 
 import javax.annotation.Nullable;
 import java.util.*;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
 
@@ -34,14 +37,25 @@ public class StarterCommand implements SlashCommand, ComponentCommand {
     public static final String COMMAND_NAME = "starter";
     public static final String COMMAND_CREATE_OPTION = "create";
     public static final String COMMAND_NAME_OPTION = "command_name";
-    public static final String COMMAND_MESSAGE_OPTION = "message";
-    public static final String COMMAND_OPEN_IN_NEW_MESSAGE_OPTION = "open_in_new_message";
+    private static final String COMMAND_WELCOME_OPTION = "welcome";
+    private static final String COMMAND_MESSAGE_OPTION = "message";
+    private static final String COMMAND_OPEN_IN_NEW_MESSAGE_OPTION = "open_in_new_message";
     private static final String CONFIG_TYPE_ID = "StarterConfig";
     private static final List<String> COMMAND_IDs = IntStream.range(1, 11).boxed()
             .map(i -> COMMAND_NAME_OPTION + "_" + i)
             .toList();
     private static final Set<String> SUPPORTED_COMMANDS = Set.of(CustomDiceCommand.COMMAND_NAME, CustomParameterCommand.COMMAND_NAME, SumCustomSetCommand.COMMAND_NAME);
     private final static int MAX_AUTOCOMPLETE_OPTIONS = 5;
+    private static final String HELP_OPTION_NAME = "help";
+    private final static List<RpgSystemCommandPreset.PresetId> WELCOME_COMMANDS = List.of(
+            RpgSystemCommandPreset.PresetId.DND5_IMAGE,
+            RpgSystemCommandPreset.PresetId.SHADOWRUN_IMAGE,
+            RpgSystemCommandPreset.PresetId.FATE_IMAGE,
+            RpgSystemCommandPreset.PresetId.COIN,
+            RpgSystemCommandPreset.PresetId.OWOD,
+            RpgSystemCommandPreset.PresetId.NWOD,
+            RpgSystemCommandPreset.PresetId.DICE_CALCULATOR,
+            RpgSystemCommandPreset.PresetId.DND5);
     private final CustomParameterCommand customParameterCommand;
     private final CustomDiceCommand customDiceCommand;
     private final SumCustomSetCommand sumCustomSetCommand;
@@ -73,6 +87,7 @@ public class StarterCommand implements SlashCommand, ComponentCommand {
                 .type(CommandDefinitionOption.Type.STRING)
                 .name(name)
                 .description(COMMAND_NAME_OPTION)
+                //todo i18n
                 //.nameLocales(I18n.allNoneEnglishMessagesNames("channel_config.option.aliasName.name"))
                 //.description(I18n.getMessage("channel_config.option.aliasName.description", Locale.ENGLISH))
                 //.descriptionLocales(I18n.allNoneEnglishMessagesDescriptions("channel_config.option.aliasName.description"))
@@ -208,7 +223,7 @@ public class StarterCommand implements SlashCommand, ComponentCommand {
         };
     }
 
-    private SavedNamedConfig saveConfigToStart(Config genericConfig, UUID starterConfigAfterFinish, Long guildId, long channelId, long userId, String commandId, String configClassId) {
+    private SavedNamedConfig saveConfigToStart(Config genericConfig, UUID starterConfigAfterFinish, Long guildId, long channelId, Long userId, String commandId, String configClassId) {
         final Config updatedConfig = updateCallStarterConfigAfterFinish(genericConfig, starterConfigAfterFinish);
         final UUID newConfigUUID = uuidSupplier.get();
         persistenceManager.saveMessageConfig(new MessageConfigDTO(newConfigUUID,
@@ -262,40 +277,46 @@ public class StarterCommand implements SlashCommand, ComponentCommand {
                                 .required(false)
                                 .build())
                         .build())
-                //todo help
+                .option(CommandDefinitionOption.builder()
+                        .name(COMMAND_WELCOME_OPTION)
+                        //todo i18n
+                        .description(COMMAND_WELCOME_OPTION)
+                        .type(CommandDefinitionOption.Type.SUB_COMMAND)
+                        .build()
+                )
+                .option(CommandDefinitionOption.builder()
+                        .name(HELP_OPTION_NAME)
+                        .nameLocales(I18n.allNoneEnglishMessagesNames("base.option.help"))
+                        .description(I18n.getMessage("base.help.description", Locale.ENGLISH, (I18n.getMessage("%s.name".formatted(getCommandId()), Locale.ENGLISH))))
+                        .descriptionLocales(I18n.allNoneEnglishDescriptionsWithKeys("base.help.description", "%s.name".formatted(getCommandId())))
+                        .type(CommandDefinitionOption.Type.SUB_COMMAND)
+                        .build())
                 .build();
     }
 
     @Override
     public @NonNull Mono<Void> handleSlashCommandEvent(@NonNull SlashEventAdaptor event, @NonNull Supplier<UUID> uuidSupplier, @NonNull Locale userLocale) {
-        Optional<CommandInteractionOption> createOptional = event.getOption(COMMAND_CREATE_OPTION);
+
+        Optional<CommandInteractionOption> helpOptional = event.getOption(HELP_OPTION_NAME);
+        if (helpOptional.isPresent()) {
+            return event.sendMessage(getHelpMessage(userLocale)).then();
+        }
+
         final long userId = event.getUserId();
         final Long guildId = event.getGuildId();
         final long channelId = event.getChannelId();
+        Optional<CommandInteractionOption> createOptional = event.getOption(COMMAND_CREATE_OPTION);
+        final StarterConfig starterConfig;
         if (createOptional.isPresent()) {
-            final List<NamedConfig> selectedCommandNamesWithUUID = COMMAND_IDs.stream()
-                    .filter(i -> createOptional.get().getStringSubOptionWithName(i).isPresent())
-                    .map(i -> createOptional.get().getStringSubOptionWithName(i).orElseThrow())
-                    .flatMap(n -> getConfigForName(n, userLocale, guildId, userId).stream())
-                    .toList();
+            starterConfig = createStartConfigFromCreateOption(createOptional.get(), guildId, channelId, userId, userLocale);
+        } else if (event.getOption(COMMAND_WELCOME_OPTION).isPresent()) {
+            starterConfig = createWelcomeStarterConfig(guildId, channelId, userId, userLocale);
+        } else {
+            starterConfig = null;
+        }
 
-            final UUID newStarterConfigUUID = uuidSupplier.get();
+        if (starterConfig != null) {
 
-            final String message = createOptional.get().getStringSubOptionWithName(COMMAND_MESSAGE_OPTION).orElse("Chose roll"); //todo i18n
-            final String name = BaseCommandOptions.getNameFromStartCommandOption(createOptional.get()).orElse(null);
-            final boolean openInNewMessage = createOptional.get().getBooleanSubOptionWithName(COMMAND_OPEN_IN_NEW_MESSAGE_OPTION).orElse(false);
-            final List<StarterConfig.Command> commands = selectedCommandNamesWithUUID.stream()
-                    .map(nu -> {
-                        final UUID starterConfigAfterFinish;
-                        if (openInNewMessage) {
-                            starterConfigAfterFinish = null;
-                        } else {
-                            starterConfigAfterFinish = newStarterConfigUUID;
-                        }
-                        final UUID savedConfig = saveConfigToStart(nu.config(), starterConfigAfterFinish, guildId, channelId, userId, nu.commandId(), nu.configClassId()).configUUID();
-                        return new StarterConfig.Command(nu.name(), savedConfig);
-                    }).toList();
-            final StarterConfig starterConfig = new StarterConfig(newStarterConfigUUID, commands, userLocale, message, name, openInNewMessage);
 
             //todo metric
             return Mono.defer(() -> {
@@ -320,6 +341,63 @@ public class StarterCommand implements SlashCommand, ComponentCommand {
         return Mono.empty(); //todo
     }
 
+    public Function<DiscordConnector.WelcomeRequest, EmbedOrMessageDefinition> getWelcomeMessage() {
+        return request -> {
+            StarterConfig starterConfig = createWelcomeStarterConfig(request.guildId(), request.channelId(), null, request.guildLocale());
+            persistenceManager.saveMessageConfig(new MessageConfigDTO(starterConfig.getId(),
+                    request.guildId(),
+                    request.channelId(),
+                    getCommandId(),
+                    CONFIG_TYPE_ID,
+                    Mapper.serializedObject(starterConfig),
+                    starterConfig.getName(),
+                    null));
+            return createButtonMessage(starterConfig);
+        };
+    }
+
+    private StarterConfig createWelcomeStarterConfig(Long guildId, long channelId, Long userId, Locale userLocale) {
+        final List<NamedConfig> selectedCommandNames = WELCOME_COMMANDS.stream()
+                .map(p -> createNameConfigFromPresetId(p.getName(userLocale), p, userLocale))
+                .toList();
+
+        final UUID newStarterConfigUUID = uuidSupplier.get();
+
+        final String message = I18n.getMessage("welcome.message", userLocale);
+        final List<StarterConfig.Command> commands = selectedCommandNames.stream()
+                .map(nu -> {
+                    final UUID savedConfig = saveConfigToStart(nu.config(), null, guildId, channelId, userId, nu.commandId(), nu.configClassId()).configUUID();
+                    return new StarterConfig.Command(nu.name(), savedConfig);
+                }).toList();
+        return new StarterConfig(newStarterConfigUUID, commands, userLocale, message, null, true);
+    }
+
+    private StarterConfig createStartConfigFromCreateOption(CommandInteractionOption createOption, Long guildId, long channelId, long userId, Locale userLocale) {
+        final List<NamedConfig> selectedCommandNames = COMMAND_IDs.stream()
+                .filter(i -> createOption.getStringSubOptionWithName(i).isPresent())
+                .map(i -> createOption.getStringSubOptionWithName(i).orElseThrow())
+                .flatMap(n -> getConfigForName(n, userLocale, guildId, userId).stream())
+                .toList();
+
+        final UUID newStarterConfigUUID = uuidSupplier.get();
+
+        final String message = createOption.getStringSubOptionWithName(COMMAND_MESSAGE_OPTION).orElse("Chose roll"); //todo i18n
+        final String name = BaseCommandOptions.getNameFromStartCommandOption(createOption).orElse(null);
+        final boolean openInNewMessage = createOption.getBooleanSubOptionWithName(COMMAND_OPEN_IN_NEW_MESSAGE_OPTION).orElse(false);
+        final List<StarterConfig.Command> commands = selectedCommandNames.stream()
+                .map(nu -> {
+                    final UUID starterConfigAfterFinish;
+                    if (openInNewMessage) {
+                        starterConfigAfterFinish = null;
+                    } else {
+                        starterConfigAfterFinish = newStarterConfigUUID;
+                    }
+                    final UUID savedConfig = saveConfigToStart(nu.config(), starterConfigAfterFinish, guildId, channelId, userId, nu.commandId(), nu.configClassId()).configUUID();
+                    return new StarterConfig.Command(nu.name(), savedConfig);
+                }).toList();
+        return new StarterConfig(newStarterConfigUUID, commands, userLocale, message, name, openInNewMessage);
+    }
+
 
     private Optional<NamedConfig> getConfigForName(String name, Locale locale, @Nullable Long guildId, long userId) {
         Optional<NamedConfig> savedNamedCommandConfig = persistenceManager.getNamedCommandsForChannel(userId, guildId).stream()
@@ -333,15 +411,27 @@ public class StarterCommand implements SlashCommand, ComponentCommand {
         Optional<RpgSystemCommandPreset.PresetId> presetId = Arrays.stream(RpgSystemCommandPreset.PresetId.values())
                 .filter(p -> p.getName(locale).equals(name))
                 .findFirst();
-        if (presetId.isPresent()) {
-            Config config = RpgSystemCommandPreset.createConfig(presetId.get(), locale);
-            String commandId = RpgSystemCommandPreset.getCommandIdForConfig(config);
-            //todo better?
-            String configClassId = RpgSystemCommandPreset.getConfigClassIdForConfig(config);
-            return Optional.of(new NamedConfig(name, commandId, configClassId, config));
-        }
-        return Optional.empty();
+        return presetId.map(id -> createNameConfigFromPresetId(name, id, locale));
     }
+
+    private NamedConfig createNameConfigFromPresetId(String name, RpgSystemCommandPreset.PresetId presetId, Locale locale) {
+        Config config = RpgSystemCommandPreset.createConfig(presetId, locale);
+        String commandId = RpgSystemCommandPreset.getCommandIdForConfig(config);
+        //todo better?
+        String configClassId = RpgSystemCommandPreset.getConfigClassIdForConfig(config);
+        return new NamedConfig(name, commandId, configClassId, config);
+    }
+
+    protected @NonNull EmbedOrMessageDefinition getHelpMessage(Locale userLocale) {
+        return EmbedOrMessageDefinition.builder()
+                //todo i18n
+                .descriptionOrContent(I18n.getMessage("custom_dice.help.message", userLocale) + "\n" + DiceEvaluatorAdapter.getHelp())
+                .field(new EmbedOrMessageDefinition.Field(I18n.getMessage("help.example.field.name", userLocale), I18n.getMessage("custom_dice.help.example.field.value", userLocale), false))
+                .field(new EmbedOrMessageDefinition.Field(I18n.getMessage("help.documentation.field.name", userLocale), I18n.getMessage("help.documentation.field.value", userLocale), false))
+                .field(new EmbedOrMessageDefinition.Field(I18n.getMessage("help.discord.server.field.name", userLocale), I18n.getMessage("help.discord.server.field.value", userLocale), false))
+                .build();
+    }
+
 
     @Override
     public @NonNull List<AutoCompleteAnswer> getAutoCompleteAnswer(@NonNull AutoCompleteRequest autoCompleteRequest, @NonNull Locale userLocale, long channelId, Long guildId, long userId) {
