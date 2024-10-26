@@ -124,6 +124,13 @@ de.janno.discord.bot.command.directRoll.DirectRollCommandMockTest.roll_warn=[
 ]
 
 
+de.janno.discord.bot.command.directRoll.DirectRollCommandMockTest.roll_warn_multi=[
+  [
+    "replyWithEmbedOrMessageDefinition: EmbedOrMessageDefinition(title=20,3,4,5, descriptionOrContent=null, fields=[EmbedOrMessageDefinition.Field(name=20 ⇒ 20, value=, inline=false), EmbedOrMessageDefinition.Field(name=3 ⇒ 3, value=, inline=false), EmbedOrMessageDefinition.Field(name=4 ⇒ 4, value=, inline=false), EmbedOrMessageDefinition.Field(name=5 ⇒ 5, value=, inline=false), EmbedOrMessageDefinition.Field(name=Warning, value=did not contain any random element, try for Example `d20` to roll a 20 sided die, inline=false)], componentRowDefinitions=[], hasImage=false, type=EMBED, userReference=true, sendToOtherChannelId=null)"
+  ]
+]
+
+
 de.janno.discord.bot.command.directRoll.DirectRollCommandMockTest.userChannelAlias[event1]=[
   [
     "reply: `commandString`\nSaved new alias"
