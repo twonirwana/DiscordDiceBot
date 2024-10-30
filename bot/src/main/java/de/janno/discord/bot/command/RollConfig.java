@@ -82,7 +82,7 @@ public class RollConfig implements Config {
             out.add(String.format("%s: <#%s>", BaseCommandOptions.TARGET_CHANNEL_OPTION_NAME, answerTargetChannelId));
         }
         if (name != null) {
-            out.add(String.format("%s: <#%s>", BaseCommandOptions.NAME_OPTION_NAME, name));
+            out.add(String.format("%s: %s", BaseCommandOptions.NAME_OPTION_NAME, name));
         }
         //language should be set over the client
         //out.add(String.format("%s: %s", BaseCommandOptions.LOCALE_OPTION_NAME, configLocale));

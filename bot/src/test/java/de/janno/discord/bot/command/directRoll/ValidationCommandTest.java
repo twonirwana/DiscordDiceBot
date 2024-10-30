@@ -58,21 +58,21 @@ class ValidationCommandTest {
 
     @Test
     void autoCompleteValid() {
-        List<AutoCompleteAnswer> res = underTest.getAutoCompleteAnswer(new AutoCompleteRequest("expression", "1d6", List.of()), Locale.ENGLISH, 1L, 1L);
+        List<AutoCompleteAnswer> res = underTest.getAutoCompleteAnswer(new AutoCompleteRequest("expression", "1d6", List.of()), Locale.ENGLISH, 1L, 1L, 0L);
 
         assertThat(res).containsExactly(new AutoCompleteAnswer("1d6", "1d6"));
     }
 
     @Test
     void autoComplete_wrongAction() {
-        List<AutoCompleteAnswer> res = underTest.getAutoCompleteAnswer(new AutoCompleteRequest("help", "1d6", List.of()), Locale.ENGLISH, 1L, 1L);
+        List<AutoCompleteAnswer> res = underTest.getAutoCompleteAnswer(new AutoCompleteRequest("help", "1d6", List.of()), Locale.ENGLISH, 1L, 1L, 0L);
 
         assertThat(res).isEmpty();
     }
 
     @Test
     void autoComplete_Invalid() {
-        List<AutoCompleteAnswer> res = underTest.getAutoCompleteAnswer(new AutoCompleteRequest("expression", "1d", List.of()), Locale.ENGLISH, 1L, 1L);
+        List<AutoCompleteAnswer> res = underTest.getAutoCompleteAnswer(new AutoCompleteRequest("expression", "1d", List.of()), Locale.ENGLISH, 1L, 1L, 0L);
 
         assertThat(res).containsExactly(new AutoCompleteAnswer("Operator d has right associativity but the right value was: empty", "1d"));
     }
@@ -166,11 +166,11 @@ class ValidationCommandTest {
                 resultImage: "polyhedral_3d_red_and_white"
                 """;
 
-        ChannelConfigDTO savedData = new ChannelConfigDTO(UUID.randomUUID(), 1L, 2L, null, "r", "DirectRollConfig", configString);
+        ChannelConfigDTO savedData = new ChannelConfigDTO(UUID.randomUUID(), 1L, 2L, null, "r", "DirectRollConfig", configString, null);
 
 
         DirectRollConfig res = underTest.deserializeConfig(savedData);
-        assertThat(res).isEqualTo(new DirectRollConfig(null, false, AnswerFormatType.without_expression, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_3d, "red_and_white"), Locale.ENGLISH));
+        assertThat(res).isEqualTo(new DirectRollConfig(null, false, AnswerFormatType.without_expression, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_3d, "red_and_white"), Locale.ENGLISH, null));
 
     }
 
@@ -187,11 +187,11 @@ class ValidationCommandTest {
                   configuredDefaultColor: "blue_and_silver"
                 """;
 
-        ChannelConfigDTO savedData = new ChannelConfigDTO(UUID.randomUUID(), 1L, 2L, null, "r", "DirectRollConfig", configString);
+        ChannelConfigDTO savedData = new ChannelConfigDTO(UUID.randomUUID(), 1L, 2L, null, "r", "DirectRollConfig", configString, null);
 
 
         DirectRollConfig res = underTest.deserializeConfig(savedData);
-        assertThat(res).isEqualTo(new DirectRollConfig(null, false, AnswerFormatType.without_expression, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v2, "blue_and_silver"), Locale.GERMAN));
+        assertThat(res).isEqualTo(new DirectRollConfig(null, false, AnswerFormatType.without_expression, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v2, "blue_and_silver"), Locale.GERMAN, null));
     }
 
 }

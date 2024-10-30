@@ -354,7 +354,6 @@ public class ChannelConfigCommand implements SlashCommand {
                     .orElse(Alias.Type.Replace);
 
             Alias alias = new Alias(name, value, type);
-            //todo what is with the command name, double it?
             saveAliasesConfig(List.of(alias), event.getChannelId(), event.getGuildId(), userId, uuidSupplier, null);
             log.info("{}: save {} alias: {}",
                     event.getRequester().toLogString(),
@@ -402,7 +401,6 @@ public class ChannelConfigCommand implements SlashCommand {
                     .filter(alias -> !alias.getName().equals(name))
                     .toList();
             deleteAlias(event.getChannelId(), userId);
-            //todo what happens with the name?
             saveAliasConfig(event.getChannelId(), event.getGuildId(), userId, new AliasConfig(newAliasList, null), uuidSupplier);
             log.info("{}: delete {} alias: {}",
                     event.getRequester().toLogString(),

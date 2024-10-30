@@ -142,11 +142,11 @@ class DirectRollCommandTest {
                 resultImage: "polyhedral_3d_red_and_white"
                 """;
 
-        ChannelConfigDTO savedData = new ChannelConfigDTO(UUID.randomUUID(), 1L, 2L, null, "r", "DirectRollConfig", configString);
+        ChannelConfigDTO savedData = new ChannelConfigDTO(UUID.randomUUID(), 1L, 2L, null, "r", "DirectRollConfig", configString, null);
 
 
         DirectRollConfig res = underTest.deserializeConfig(savedData);
-        assertThat(res).isEqualTo(new DirectRollConfig(null, false, AnswerFormatType.without_expression, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_3d, "red_and_white"), Locale.ENGLISH));
+        assertThat(res).isEqualTo(new DirectRollConfig(null, false, AnswerFormatType.without_expression, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_3d, "red_and_white"), Locale.ENGLISH, null));
     }
 
     @Test
@@ -161,11 +161,11 @@ class DirectRollCommandTest {
                   configuredDefaultColor: "blue_and_silver"
                 """;
 
-        ChannelConfigDTO savedData = new ChannelConfigDTO(UUID.randomUUID(), 1L, 2L, null, "r", "DirectRollConfig", configString);
+        ChannelConfigDTO savedData = new ChannelConfigDTO(UUID.randomUUID(), 1L, 2L, null, "r", "DirectRollConfig", configString, null);
 
 
         DirectRollConfig res = underTest.deserializeConfig(savedData);
-        assertThat(res).isEqualTo(new DirectRollConfig(null, false, AnswerFormatType.without_expression, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v2, "blue_and_silver"), Locale.ENGLISH));
+        assertThat(res).isEqualTo(new DirectRollConfig(null, false, AnswerFormatType.without_expression, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v2, "blue_and_silver"), Locale.ENGLISH, null));
     }
 
     @Test
@@ -181,11 +181,11 @@ class DirectRollCommandTest {
                   configuredDefaultColor: "blue_and_silver"
                 """;
 
-        ChannelConfigDTO savedData = new ChannelConfigDTO(UUID.randomUUID(), 1L, 2L, null, "r", "DirectRollConfig", configString);
+        ChannelConfigDTO savedData = new ChannelConfigDTO(UUID.randomUUID(), 1L, 2L, null, "r", "DirectRollConfig", configString, null);
 
 
         DirectRollConfig res = underTest.deserializeConfig(savedData);
-        assertThat(res).isEqualTo(new DirectRollConfig(null, false, AnswerFormatType.without_expression, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v2, "blue_and_silver"), Locale.GERMAN));
+        assertThat(res).isEqualTo(new DirectRollConfig(null, false, AnswerFormatType.without_expression, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v2, "blue_and_silver"), Locale.GERMAN, null));
     }
 
 }

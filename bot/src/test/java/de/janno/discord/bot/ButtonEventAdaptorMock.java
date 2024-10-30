@@ -24,6 +24,7 @@ public class ButtonEventAdaptorMock implements ButtonEventAdaptor {
 
     public static final long CHANNEL_ID = 1L;
     public static final Long GUILD_ID = null;
+    public static final Long USER_ID = 0L;
     private final String customId;
     private final long massageId;
     private final AtomicLong messageIdCounter;
@@ -106,7 +107,7 @@ public class ButtonEventAdaptorMock implements ButtonEventAdaptor {
 
     @Override
     public long getUserId() {
-        return 0;
+        return USER_ID;
     }
 
     @Override
@@ -120,7 +121,7 @@ public class ButtonEventAdaptorMock implements ButtonEventAdaptor {
     }
 
     @Override
-    public Mono<Void> editMessage(@Nullable String message, @Nullable List<ComponentRowDefinition> componentRowDefinitions) {
+    public @NonNull Mono<Void> editMessage(@Nullable String message, @Nullable List<ComponentRowDefinition> componentRowDefinitions) {
         actions.add(String.format("editMessage: message:%s, buttonValues=%s", message, Optional.ofNullable(componentRowDefinitions).stream()
                 .flatMap(Collection::stream)
                 .flatMap(r -> r.getButtonDefinitions().stream())
@@ -137,12 +138,12 @@ public class ButtonEventAdaptorMock implements ButtonEventAdaptor {
     }
 
     @Override
-    public Requester getRequester() {
+    public @NonNull Requester getRequester() {
         return new Requester("invokingUser", "channelName", "guildName", "[0 / 1]", Locale.ENGLISH, null);
     }
 
     @Override
-    public Optional<String> checkPermissions(Long answerTargetChannelId, @NonNull Locale userLocale) {
+    public @NonNull Optional<String> checkPermissions(Long answerTargetChannelId, @NonNull Locale userLocale) {
         return Optional.empty();
     }
 
@@ -176,7 +177,7 @@ public class ButtonEventAdaptorMock implements ButtonEventAdaptor {
     }
 
     @Override
-    public Mono<Void> acknowledgeAndDeleteOriginal() {
+    public @NonNull Mono<Void> acknowledgeAndDeleteOriginal() {
         actions.add("acknowledgeAndDeleteOriginal");
         return Mono.empty();
     }
@@ -188,7 +189,7 @@ public class ButtonEventAdaptorMock implements ButtonEventAdaptor {
     }
 
     @Override
-    public EmbedOrMessageDefinition getMessageDefinitionOfEventMessageWithoutButtons() {
+    public @NonNull EmbedOrMessageDefinition getMessageDefinitionOfEventMessageWithoutButtons() {
         actions.add("getMessageDefinitionOfEventMessageWithoutButtons");
         return eventMessage;
     }

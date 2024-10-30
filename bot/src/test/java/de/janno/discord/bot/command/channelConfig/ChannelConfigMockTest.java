@@ -82,7 +82,7 @@ public class ChannelConfigMockTest {
     @Test
     void autoCompleteNoScope() {
         ChannelConfigCommand channelConfig = new ChannelConfigCommand(persistenceManager);
-        List<AutoCompleteAnswer> res = channelConfig.getAutoCompleteAnswer(new AutoCompleteRequest("name", null, List.of()), Locale.ENGLISH, 1L, 1L);
+        List<AutoCompleteAnswer> res = channelConfig.getAutoCompleteAnswer(new AutoCompleteRequest("name", null, List.of()), Locale.ENGLISH, 1L, 1L, 0L);
 
         expect.toMatchSnapshot(res);
     }
@@ -122,7 +122,7 @@ public class ChannelConfigMockTest {
                 .build())), () -> UUID.fromString("00000000-0000-0000-0000-000000000002"), Locale.ENGLISH).block();
 
 
-        List<AutoCompleteAnswer> res = channelConfig.getAutoCompleteAnswer(new AutoCompleteRequest("name", "a", List.of(new OptionValue("scope", "current_user_in_this_channel"))), Locale.ENGLISH, 1L, 0L);
+        List<AutoCompleteAnswer> res = channelConfig.getAutoCompleteAnswer(new AutoCompleteRequest("name", "a", List.of(new OptionValue("scope", "current_user_in_this_channel"))), Locale.ENGLISH, 1L, 0L, 0L);
 
         expect.toMatchSnapshot(res);
     }
@@ -162,7 +162,7 @@ public class ChannelConfigMockTest {
                 .build())), () -> UUID.fromString("00000000-0000-0000-0000-000000000002"), Locale.ENGLISH).block();
 
 
-        List<AutoCompleteAnswer> res = channelConfig.getAutoCompleteAnswer(new AutoCompleteRequest("name", "a", List.of(new OptionValue("scope", "all_users_in_this_channel"))), Locale.ENGLISH, 1L, 0L);
+        List<AutoCompleteAnswer> res = channelConfig.getAutoCompleteAnswer(new AutoCompleteRequest("name", "a", List.of(new OptionValue("scope", "all_users_in_this_channel"))), Locale.ENGLISH, 1L, 0L, 0L);
 
         expect.toMatchSnapshot(res);
     }

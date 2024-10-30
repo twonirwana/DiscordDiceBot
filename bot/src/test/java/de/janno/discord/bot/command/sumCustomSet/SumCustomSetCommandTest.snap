@@ -5,7 +5,8 @@ de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandTest.configSerializ
     "channelId": 2,
     "commandId": "sum_custom_set",
     "configClassId": "SumCustomSetConfig",
-    "config": "---\nanswerTargetChannelId: 123\nlabelAndExpression:\n- buttonId: \"1_button\"\n  label: \"Label\"\n  diceExpression: \"+1d6\"\n  newLine: false\n  directRoll: false\n  emoji: null\n- buttonId: \"2_button\"\n  label: \"+2d4\"\n  diceExpression: \"+2d4\"\n  newLine: true\n  directRoll: false\n  emoji: \"🪙\"\nalwaysSumResult: true\nhideExpressionInStatusAndAnswer: true\nsystemButtonNewLine: true\nprefix: \"groupC(\"\npostfix: \")\"\nanswerFormatType: \"full\"\nanswerInteractionType: \"none\"\nconfigLocale: \"de\"\ndiceStyleAndColor:\n  diceImageStyle: \"polyhedral_alies_v2\"\n  configuredDefaultColor: \"blue_and_silver\"\n"
+    "config": "---\nanswerTargetChannelId: 123\nlabelAndExpression:\n- buttonId: \"1_button\"\n  label: \"Label\"\n  diceExpression: \"+1d6\"\n  newLine: false\n  directRoll: false\n  emoji: null\n- buttonId: \"2_button\"\n  label: \"+2d4\"\n  diceExpression: \"+2d4\"\n  newLine: true\n  directRoll: false\n  emoji: \"🪙\"\nalwaysSumResult: true\nhideExpressionInStatusAndAnswer: true\nsystemButtonNewLine: true\nprefix: \"groupC(\"\npostfix: \")\"\nanswerFormatType: \"full\"\nanswerInteractionType: \"none\"\nconfigLocale: \"de\"\ncallStarterConfigAfterFinish: null\nname: null\ndiceStyleAndColor:\n  diceImageStyle: \"polyhedral_alies_v2\"\n  configuredDefaultColor: \"blue_and_silver\"\n",
+    "creationUserId": 0
   }
 ]
 
@@ -667,6 +668,17 @@ de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandTest.getCommandDefi
                 "nameLocales": [ ]
               }
             ],
+            "options": [ ],
+            "autoComplete": false
+          },
+          {
+            "type": "STRING",
+            "name": "name",
+            "nameLocales": [ ],
+            "description": "A name to select the reuse the command with starter or quickstart",
+            "descriptionLocales": [ ],
+            "required": false,
+            "choices": [ ],
             "options": [ ],
             "autoComplete": false
           }

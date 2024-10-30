@@ -9,6 +9,8 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 @EqualsAndHashCode
 @Getter
@@ -46,13 +48,18 @@ public class StarterConfig implements Config {
 
     @Override
     public String toCommandOptionsString() {
-        //todo
-        return "";
+        AtomicInteger counter = new AtomicInteger(1);
+        String commandNames = commands.stream().map(Command::getName)
+                .map(n -> "%s_%d: %s".formatted(StarterCommand.COMMAND_NAME_OPTION, counter.getAndIncrement(), n))
+                .collect(Collectors.joining(" "));
+        return "create %s %s: %s %s: %s %s: %s".formatted(commandNames, StarterCommand.COMMAND_MESSAGE_OPTION, message, StarterCommand.COMMAND_NAME_OPTION, name, StarterCommand.COMMAND_OPEN_IN_NEW_MESSAGE_OPTION, startInNewMessage);
     }
 
     public Object toShortString() {
-        //todo
-        return "";
+        String commandsString = this.commands.stream()
+                .map(Command::toShortString)
+                .collect(Collectors.joining(", "));
+        return "[%s, %s, %s, %s, %s]".formatted(id, commandsString, message, name, startInNewMessage);
     }
 
     @Value
@@ -65,6 +72,10 @@ public class StarterConfig implements Config {
                        @JsonProperty("configUUID") @NonNull UUID configUUID) {
             this.name = name;
             this.configUUID = configUUID;
+        }
+
+        public String toShortString() {
+            return "%s:%s".formatted(name, configUUID);
         }
     }
 }

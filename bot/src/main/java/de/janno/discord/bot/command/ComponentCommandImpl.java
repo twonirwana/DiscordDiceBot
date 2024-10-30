@@ -24,6 +24,7 @@ import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Supplier;
@@ -86,7 +87,7 @@ public abstract class ComponentCommandImpl<C extends RollConfig, S extends State
         final State<S> state = configAndState.getState();
 
         final Long answerTargetChannelId = config.getAnswerTargetChannelId();
-        Optional<String> checkPermissions = event.checkPermissions(answerTargetChannelId, event.getRequester().getUserLocal());
+        Optional<String> checkPermissions = event.checkPermissions(answerTargetChannelId, Optional.ofNullable(event.getRequester().getUserLocal()).orElse(Locale.ENGLISH));
         if (checkPermissions.isPresent()) {
             return event.editMessage(checkPermissions.get(), null);
         }
@@ -138,13 +139,11 @@ public abstract class ComponentCommandImpl<C extends RollConfig, S extends State
                                              final long userId,
                                              final Long answerTargetChannelId,
                                              @NonNull final Timer timer) {
-        final Optional<String> editMessage;
-        final Optional<List<ComponentRowDefinition>> editMessageComponents;
         final boolean keepExistingButtonMessage = shouldKeepExistingButtonMessage(event) || answerTargetChannelId != null;
 
         //edit the current message if the command changes it or mark it as processing
-        editMessage = getCurrentMessageContentChange(config, state, keepExistingButtonMessage);
-        editMessageComponents = getCurrentMessageComponentChange(configUUID, config, state, channelId, userId, keepExistingButtonMessage);
+        final Optional<String> editMessage = getCurrentMessageContentChange(config, state, keepExistingButtonMessage);
+        final Optional<List<ComponentRowDefinition>> editMessageComponents = getCurrentMessageComponentChange(configUUID, config, state, channelId, userId, keepExistingButtonMessage);
 
         timer.stopStartAcknowledge();
         if (editMessage.isPresent() || editMessageComponents.isPresent()) {

@@ -1,7 +1,10 @@
 package de.janno.discord.bot.command.starter;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.ImmutableList;
+import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableSet;
+import de.janno.discord.bot.BotEmojiUtil;
+import de.janno.discord.bot.BotMetrics;
 import de.janno.discord.bot.I18n;
 import de.janno.discord.bot.command.*;
 import de.janno.discord.bot.command.channelConfig.AliasConfig;
@@ -29,21 +32,24 @@ import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 @Slf4j
 public class StarterCommand implements SlashCommand, ComponentCommand {
 
     public static final String COMMAND_NAME = "starter";
-    public static final String COMMAND_CREATE_OPTION = "create";
-    public static final String COMMAND_NAME_OPTION = "command_name";
+    static final String COMMAND_CREATE_OPTION = "create";
+    static final String COMMAND_NAME_OPTION = "command_name";
+    static final String COMMAND_MESSAGE_OPTION = "message";
+    static final String COMMAND_OPEN_IN_NEW_MESSAGE_OPTION = "open_in_new_message";
     private static final String COMMAND_WELCOME_OPTION = "welcome";
-    private static final String COMMAND_MESSAGE_OPTION = "message";
-    private static final String COMMAND_OPEN_IN_NEW_MESSAGE_OPTION = "open_in_new_message";
     private static final String CONFIG_TYPE_ID = "StarterConfig";
     private static final List<String> COMMAND_IDs = IntStream.range(1, 11).boxed()
             .map(i -> COMMAND_NAME_OPTION + "_" + i)
             .toList();
+    private static final Set<String> COMMAND_ID_SET = ImmutableSet.copyOf(COMMAND_IDs);
     private static final Set<String> SUPPORTED_COMMANDS = Set.of(CustomDiceCommand.COMMAND_NAME, CustomParameterCommand.COMMAND_NAME, SumCustomSetCommand.COMMAND_NAME);
     private final static int MAX_AUTOCOMPLETE_OPTIONS = 5;
     private static final String HELP_OPTION_NAME = "help";
@@ -85,12 +91,10 @@ public class StarterCommand implements SlashCommand, ComponentCommand {
     private static CommandDefinitionOption getButtonNameOption(String name) {
         return CommandDefinitionOption.builder()
                 .type(CommandDefinitionOption.Type.STRING)
+                //no i18n for the names, they are numbered
                 .name(name)
-                .description(COMMAND_NAME_OPTION)
-                //todo i18n
-                //.nameLocales(I18n.allNoneEnglishMessagesNames("channel_config.option.aliasName.name"))
-                //.description(I18n.getMessage("channel_config.option.aliasName.description", Locale.ENGLISH))
-                //.descriptionLocales(I18n.allNoneEnglishMessagesDescriptions("channel_config.option.aliasName.description"))
+                .description(I18n.getMessage("starter.option.command.name.description", Locale.ENGLISH))
+                .descriptionLocales(I18n.allNoneEnglishMessagesDescriptions("starter.option.command.name.description"))
                 .required(false)
                 .autoComplete(true)
                 .build();
@@ -108,8 +112,10 @@ public class StarterCommand implements SlashCommand, ComponentCommand {
     private static EmbedOrMessageDefinition createButtonMessage(StarterConfig config) {
 
         List<ButtonIdLabelAndDiceExpression> buttonIdLabelAndDiceExpressions = config.getCommands().stream()
-                //todo emoji
-                .map(c -> new ButtonIdLabelAndDiceExpression(c.getConfigUUID().toString(), c.getName(), "", false, false, null))
+                .map(c -> {
+                    BotEmojiUtil.LabelAndEmoji labelAndEmoji = BotEmojiUtil.splitLabel(c.getName());
+                    return new ButtonIdLabelAndDiceExpression(c.getConfigUUID().toString(), labelAndEmoji.labelWithoutLeadingEmoji(), "", false, false, labelAndEmoji.emoji());
+                })
                 .toList();
 
         return EmbedOrMessageDefinition.builder()
@@ -126,7 +132,7 @@ public class StarterCommand implements SlashCommand, ComponentCommand {
         final long userId = event.getUserId();
         final Long guildId = event.getGuildId();
         final long channelId = event.getChannelId();
-        Optional<UUID> starterUUID = BottomCustomIdUtils.getConfigUUIDFromCustomId(event.getCustomId());
+        final Optional<UUID> starterUUID = BottomCustomIdUtils.getConfigUUIDFromCustomId(event.getCustomId());
         final Optional<StarterConfig> starterConfig = starterUUID
                 .flatMap(persistenceManager::getMessageConfig)
                 .flatMap(this::deserializeStarterMessage);
@@ -134,6 +140,7 @@ public class StarterCommand implements SlashCommand, ComponentCommand {
 
         //this is empty if the message is not in start phase
         if (optionalConfigToStart.isPresent()) {
+            BotMetrics.incrementButtonMetricCounter(getCommandId());
             final NamedConfig configToStart = optionalConfigToStart.get().namedConfig();
             final UUID config2StartUUID;
 
@@ -159,16 +166,16 @@ public class StarterCommand implements SlashCommand, ComponentCommand {
                 config2StartUUID = optionalConfigToStart.get().configUUID();
             }
 
-
             EmbedOrMessageDefinition embedOrMessageDefinition = getMessage(updatedConfig2Start, config2StartUUID, channelId);
             if (createNewMessage) {
-                return event.acknowledge()
+                return event
+                        .reply("`/%s start %s`".formatted(configToStart.commandId(), updatedConfig2Start.toCommandOptionsString()), false)
                         .then(event.sendMessage(embedOrMessageDefinition))
                         .then();
             }
             return event.editMessage(embedOrMessageDefinition.getDescriptionOrContent(), embedOrMessageDefinition.getComponentRowDefinitions());
         }
-        //todo i18n
+        log.error("Invalid state in: {} ", event.getCustomId());
         return event.reply("invalid config, recreate command", false);
 
     }
@@ -247,22 +254,21 @@ public class StarterCommand implements SlashCommand, ComponentCommand {
         return CommandDefinition.builder()
                 .name(getCommandId())
                 .description(getCommandId())
-                //todo i18n
-                //.nameLocales(I18n.allNoneEnglishMessagesNames("r.name"))
-                // .description(I18n.getMessage("r.description", Locale.ENGLISH))
-                //  .descriptionLocales(I18n.allNoneEnglishMessagesDescriptions("r.description"))
+                .nameLocales(I18n.allNoneEnglishMessagesNames("starter.name"))
+                .description(I18n.getMessage("starter.description", Locale.ENGLISH))
+                .descriptionLocales(I18n.allNoneEnglishMessagesDescriptions("starter.description"))
                 .option(CommandDefinitionOption.builder()
                         .name(COMMAND_CREATE_OPTION)
                         .description(COMMAND_CREATE_OPTION)
                         .type(CommandDefinitionOption.Type.SUB_COMMAND)
-                        //todo i18n
-                        //.nameLocales(I18n.allNoneEnglishMessagesNames("r.name"))
-                        // .description(I18n.getMessage("r.description", Locale.ENGLISH))
-                        //  .descriptionLocales(I18n.allNoneEnglishMessagesDescriptions("r.description"))
+                        .nameLocales(I18n.allNoneEnglishMessagesNames("starter.option.create.name"))
+                        .description(I18n.getMessage("starter.option.create.description", Locale.ENGLISH))
+                        .descriptionLocales(I18n.allNoneEnglishMessagesDescriptions("starter.option.create.description"))
                         .option(CommandDefinitionOption.builder()
                                 .name(COMMAND_MESSAGE_OPTION)
-                                //todo i18n
-                                .description(COMMAND_MESSAGE_OPTION)
+                                .nameLocales(I18n.allNoneEnglishMessagesNames("starter.option.message.name"))
+                                .description(I18n.getMessage("starter.option.message.description", Locale.ENGLISH))
+                                .descriptionLocales(I18n.allNoneEnglishMessagesDescriptions("starter.option.message.description"))
                                 .type(CommandDefinitionOption.Type.STRING)
                                 .required(false)
                                 .build())
@@ -271,16 +277,18 @@ public class StarterCommand implements SlashCommand, ComponentCommand {
                                 .toList())
                         .option(CommandDefinitionOption.builder()
                                 .name(COMMAND_OPEN_IN_NEW_MESSAGE_OPTION)
-                                //todo i18n
-                                .description(COMMAND_OPEN_IN_NEW_MESSAGE_OPTION)
+                                .nameLocales(I18n.allNoneEnglishMessagesNames("starter.option.new.message.name"))
+                                .description(I18n.getMessage("starter.option.new.message.description", Locale.ENGLISH))
+                                .descriptionLocales(I18n.allNoneEnglishMessagesDescriptions("starter.option.new.message.description"))
                                 .type(CommandDefinitionOption.Type.BOOLEAN)
                                 .required(false)
                                 .build())
                         .build())
                 .option(CommandDefinitionOption.builder()
                         .name(COMMAND_WELCOME_OPTION)
-                        //todo i18n
-                        .description(COMMAND_WELCOME_OPTION)
+                        .nameLocales(I18n.allNoneEnglishMessagesNames("starter.option.welcome.name"))
+                        .description(I18n.getMessage("starter.option.welcome.description", Locale.ENGLISH))
+                        .descriptionLocales(I18n.allNoneEnglishMessagesDescriptions("starter.option.welcome.description"))
                         .type(CommandDefinitionOption.Type.SUB_COMMAND)
                         .build()
                 )
@@ -311,14 +319,15 @@ public class StarterCommand implements SlashCommand, ComponentCommand {
             starterConfig = createStartConfigFromCreateOption(createOptional.get(), guildId, channelId, userId, userLocale);
         } else if (event.getOption(COMMAND_WELCOME_OPTION).isPresent()) {
             starterConfig = createWelcomeStarterConfig(guildId, channelId, userId, userLocale);
+        } else if (event.getOption(HELP_OPTION_NAME).isPresent()) {
+            BotMetrics.incrementSlashHelpMetricCounter(getCommandId());
+            return event.replyWithEmbedOrMessageDefinition(getHelpMessage(event.getRequester().getUserLocal()), true);
         } else {
             starterConfig = null;
         }
 
         if (starterConfig != null) {
-
-
-            //todo metric
+            BotMetrics.incrementSlashStartMetricCounter(getCommandId());
             return Mono.defer(() -> {
                 persistenceManager.saveMessageConfig(new MessageConfigDTO(starterConfig.getId(),
                         event.getGuildId(),
@@ -334,11 +343,11 @@ public class StarterCommand implements SlashCommand, ComponentCommand {
                         event.getCommandString().replace("`", ""),
                         starterConfig.toShortString()
                 );
-                //todo better string
                 return event.reply(event.getCommandString(), false);
             }).then(event.sendMessage(createButtonMessage(starterConfig)).then());
         }
-        return Mono.empty(); //todo
+        log.error("Unknown command: {} from {}", event.getOptions(), event.getRequester().toLogString());
+        return event.reply("There was an error, try again", true);
     }
 
     public Function<DiscordConnector.WelcomeRequest, EmbedOrMessageDefinition> getWelcomeMessage() {
@@ -381,7 +390,7 @@ public class StarterCommand implements SlashCommand, ComponentCommand {
 
         final UUID newStarterConfigUUID = uuidSupplier.get();
 
-        final String message = createOption.getStringSubOptionWithName(COMMAND_MESSAGE_OPTION).orElse("Chose roll"); //todo i18n
+        final String message = createOption.getStringSubOptionWithName(COMMAND_MESSAGE_OPTION).orElse(I18n.getMessage("starter.message.default", userLocale));
         final String name = BaseCommandOptions.getNameFromStartCommandOption(createOption).orElse(null);
         final boolean openInNewMessage = createOption.getBooleanSubOptionWithName(COMMAND_OPEN_IN_NEW_MESSAGE_OPTION).orElse(false);
         final List<StarterConfig.Command> commands = selectedCommandNames.stream()
@@ -416,17 +425,15 @@ public class StarterCommand implements SlashCommand, ComponentCommand {
 
     private NamedConfig createNameConfigFromPresetId(String name, RpgSystemCommandPreset.PresetId presetId, Locale locale) {
         Config config = RpgSystemCommandPreset.createConfig(presetId, locale);
-        String commandId = RpgSystemCommandPreset.getCommandIdForConfig(config);
-        //todo better?
-        String configClassId = RpgSystemCommandPreset.getConfigClassIdForConfig(config);
+        String commandId = presetId.getCommandId();
+        String configClassId = presetId.getConfigClassType();
         return new NamedConfig(name, commandId, configClassId, config);
     }
 
     protected @NonNull EmbedOrMessageDefinition getHelpMessage(Locale userLocale) {
         return EmbedOrMessageDefinition.builder()
-                //todo i18n
-                .descriptionOrContent(I18n.getMessage("custom_dice.help.message", userLocale) + "\n" + DiceEvaluatorAdapter.getHelp())
-                .field(new EmbedOrMessageDefinition.Field(I18n.getMessage("help.example.field.name", userLocale), I18n.getMessage("custom_dice.help.example.field.value", userLocale), false))
+                .descriptionOrContent(I18n.getMessage("starter.help.message", userLocale) + "\n" + DiceEvaluatorAdapter.getHelp())
+                .field(new EmbedOrMessageDefinition.Field(I18n.getMessage("help.example.field.name", userLocale), I18n.getMessage("starter.help.example.field.value", userLocale), false))
                 .field(new EmbedOrMessageDefinition.Field(I18n.getMessage("help.documentation.field.name", userLocale), I18n.getMessage("help.documentation.field.value", userLocale), false))
                 .field(new EmbedOrMessageDefinition.Field(I18n.getMessage("help.discord.server.field.name", userLocale), I18n.getMessage("help.discord.server.field.value", userLocale), false))
                 .build();
@@ -440,7 +447,7 @@ public class StarterCommand implements SlashCommand, ComponentCommand {
         }
 
         final List<AutoCompleteAnswer> savedNamedAnswers = persistenceManager.getNamedCommandsForChannel(userId, guildId).stream()
-                .filter(nc -> nc.name().toLowerCase().contains(autoCompleteRequest.getFocusedOptionValue().toLowerCase()))
+                .filter(nc -> Strings.isNullOrEmpty(autoCompleteRequest.getFocusedOptionValue()) || nc.name().toLowerCase().contains(autoCompleteRequest.getFocusedOptionValue().toLowerCase()))
                 .filter(nc -> SUPPORTED_COMMANDS.contains(nc.commandId()))
                 .map(n -> new AutoCompleteAnswer(n.name(), n.name()))
                 .sorted(Comparator.comparing(AutoCompleteAnswer::getName))
@@ -461,10 +468,15 @@ public class StarterCommand implements SlashCommand, ComponentCommand {
             presets = List.of();
         }
 
-        return ImmutableList.<AutoCompleteAnswer>builder()
-                .addAll(savedNamedAnswers)
-                .addAll(presets)
-                .build();
+        final Set<String> alreadyUsedNames = autoCompleteRequest.getOptionValues().stream()
+                .filter(ov -> COMMAND_ID_SET.contains(ov.getOptionName()))
+                .map(OptionValue::getOptionValue)
+                .filter(n -> !Strings.isNullOrEmpty(n))
+                .collect(Collectors.toSet());
+
+        return Stream.concat(savedNamedAnswers.stream(), presets.stream())
+                .filter(a -> !alreadyUsedNames.contains(a.getValue()))
+                .toList();
     }
 
     private record NamedConfig(@NonNull String name, @NonNull String commandId, @NonNull String configClassId,

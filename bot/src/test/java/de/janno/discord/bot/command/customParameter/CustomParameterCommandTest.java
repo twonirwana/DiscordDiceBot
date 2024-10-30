@@ -144,7 +144,7 @@ class CustomParameterCommandTest {
     @ParameterizedTest(name = "{index} {0} -> {1}")
     @MethodSource("generateParameterExpression2ButtonValuesData")
     void getButtonValues(String parameterExpression, List<CustomParameterCommand.ButtonLabelAndId> expectedResult) {
-        CustomParameterConfig config = new CustomParameterConfig(null, "1d6 + {a} + " + parameterExpression, AnswerFormatType.without_expression, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
+        CustomParameterConfig config = new CustomParameterConfig(null, "1d6 + {a} + " + parameterExpression, AnswerFormatType.without_expression, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH, null, null);
         List<CustomParameterCommand.ButtonLabelAndId> res = underTest.getButtons(config, parameterExpression);
         assertThat(res).isEqualTo(expectedResult);
     }
@@ -251,8 +251,8 @@ class CustomParameterCommandTest {
         UUID configUUID = UUID.randomUUID();
         long channelId = System.currentTimeMillis();
         long messageId = System.currentTimeMillis();
-        CustomParameterConfig config = new CustomParameterConfig(123L, "{n}d{s}", AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
-        Optional<MessageConfigDTO> toSave = underTest.createMessageConfig(configUUID, 1L, channelId, config);
+        CustomParameterConfig config = new CustomParameterConfig(123L, "{n}d{s}", AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH, null, null);
+        Optional<MessageConfigDTO> toSave = underTest.createMessageConfig(configUUID, 1L, channelId, 0L, config);
         assertThat(toSave).isPresent();
 
         persistenceManager.saveMessageConfig(toSave.get());
@@ -278,7 +278,7 @@ class CustomParameterCommandTest {
                 ---
                 answerTargetChannelId: 123
                 baseExpression: "{n}d{s}"
-                """);
+                """, null, null);
         MessageDataDTO messageDataDTO = new MessageDataDTO(configUUID, 1L, 1660644934298L, 1660644934298L, "custom_parameter",
                 "CustomParameterStateData", """
                 ---
@@ -288,7 +288,7 @@ class CustomParameterCommandTest {
                 """);
 
         ConfigAndState<CustomParameterConfig, CustomParameterStateData> configAndState = underTest.deserializeAndUpdateState(messageConfigDTO, messageDataDTO, "3", "userName");
-        assertThat(configAndState.getConfig()).isEqualTo(new CustomParameterConfig(123L, "{n}d{s}", AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH));
+        assertThat(configAndState.getConfig()).isEqualTo(new CustomParameterConfig(123L, "{n}d{s}", AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH, null, null));
         assertThat(configAndState.getConfigUUID()).isEqualTo(configUUID);
         assertThat(configAndState.getState().getData()).isEqualTo(new CustomParameterStateData(List.of(
                 new SelectedParameter("{n}", "n", "3", "3", true),
@@ -303,7 +303,7 @@ class CustomParameterCommandTest {
                 answerTargetChannelId: 123
                 baseExpression: "{n}d{s}"
                 diceParserSystem: "DICE_EVALUATOR"
-                """);
+                """, null, null);
         MessageDataDTO messageDataDTO = new MessageDataDTO(configUUID, 1L, 1660644934298L, 1660644934298L, "custom_parameter",
                 "CustomParameterStateData", """
                 ---
@@ -313,7 +313,7 @@ class CustomParameterCommandTest {
                 """);
 
         ConfigAndState<CustomParameterConfig, CustomParameterStateData> configAndState = underTest.deserializeAndUpdateState(messageConfigDTO, messageDataDTO, "3", "userName");
-        assertThat(configAndState.getConfig()).isEqualTo(new CustomParameterConfig(123L, "{n}d{s}", AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH));
+        assertThat(configAndState.getConfig()).isEqualTo(new CustomParameterConfig(123L, "{n}d{s}", AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH, null, null));
         assertThat(configAndState.getConfigUUID()).isEqualTo(configUUID);
         assertThat(configAndState.getState().getData()).isEqualTo(new CustomParameterStateData(List.of(
                 new SelectedParameter("{n}", "n", "3", "3", true),
@@ -329,7 +329,7 @@ class CustomParameterCommandTest {
                 baseExpression: "{n}d{s}"
                 diceParserSystem: "DICE_EVALUATOR"
                 answerFormatType: compact
-                """);
+                """, null, null);
         MessageDataDTO messageDataDTO = new MessageDataDTO(configUUID, 1L, 1660644934298L, 1660644934298L, "custom_parameter",
                 "CustomParameterStateData", """
                 ---
@@ -339,7 +339,7 @@ class CustomParameterCommandTest {
                 """);
 
         ConfigAndState<CustomParameterConfig, CustomParameterStateData> configAndState = underTest.deserializeAndUpdateState(messageConfigDTO, messageDataDTO, "3", "userName");
-        assertThat(configAndState.getConfig()).isEqualTo(new CustomParameterConfig(123L, "{n}d{s}", AnswerFormatType.compact, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH));
+        assertThat(configAndState.getConfig()).isEqualTo(new CustomParameterConfig(123L, "{n}d{s}", AnswerFormatType.compact, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH, null, null));
         assertThat(configAndState.getConfigUUID()).isEqualTo(configUUID);
         assertThat(configAndState.getState().getData()).isEqualTo(new CustomParameterStateData(List.of(
                 new SelectedParameter("{n}", "n", "3", "3", true),
@@ -355,7 +355,7 @@ class CustomParameterCommandTest {
                 baseExpression: "{n}d{s}"
                 diceParserSystem: "DICE_EVALUATOR"
                 answerFormatType: compact
-                """);
+                """, null, null);
         MessageDataDTO messageDataDTO = new MessageDataDTO(configUUID, 1L, 1660644934298L, 1660644934298L, "custom_parameter",
                 "CustomParameterStateDataV2", """
                 ---
@@ -372,7 +372,7 @@ class CustomParameterCommandTest {
                 """);
 
         ConfigAndState<CustomParameterConfig, CustomParameterStateData> configAndState = underTest.deserializeAndUpdateState(messageConfigDTO, messageDataDTO, "3", "userName");
-        assertThat(configAndState.getConfig()).isEqualTo(new CustomParameterConfig(123L, "{n}d{s}", AnswerFormatType.compact, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH));
+        assertThat(configAndState.getConfig()).isEqualTo(new CustomParameterConfig(123L, "{n}d{s}", AnswerFormatType.compact, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH, null, null));
         assertThat(configAndState.getConfigUUID()).isEqualTo(configUUID);
         assertThat(configAndState.getState().getData()).isEqualTo(new CustomParameterStateData(List.of(
                 new SelectedParameter("{n}", "n", "5", "bonus", true),
@@ -391,7 +391,7 @@ class CustomParameterCommandTest {
                 diceStyleAndColor:
                     diceImageStyle: "polyhedral_alies_v2"
                     configuredDefaultColor: "blue_and_silver"
-                """);
+                """, null, null);
         MessageDataDTO messageDataDTO = new MessageDataDTO(configUUID, 1L, 1660644934298L, 1660644934298L, "custom_parameter",
                 "CustomParameterStateDataV2", """
                 ---
@@ -408,7 +408,7 @@ class CustomParameterCommandTest {
                 """);
 
         ConfigAndState<CustomParameterConfig, CustomParameterStateData> configAndState = underTest.deserializeAndUpdateState(messageConfigDTO, messageDataDTO, "3", "userName");
-        assertThat(configAndState.getConfig()).isEqualTo(new CustomParameterConfig(123L, "{n}d{s}", AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v2, "blue_and_silver"), Locale.ENGLISH));
+        assertThat(configAndState.getConfig()).isEqualTo(new CustomParameterConfig(123L, "{n}d{s}", AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v2, "blue_and_silver"), Locale.ENGLISH, null, null));
         assertThat(configAndState.getConfigUUID()).isEqualTo(configUUID);
         assertThat(configAndState.getState().getData()).isEqualTo(new CustomParameterStateData(List.of(
                 new SelectedParameter("{n}", "n", "5", "bonus", true),
@@ -428,7 +428,7 @@ class CustomParameterCommandTest {
                 diceStyleAndColor:
                     diceImageStyle: "polyhedral_alies_v2"
                     configuredDefaultColor: "blue_and_silver"
-                """);
+                """, null, null);
         MessageDataDTO messageDataDTO = new MessageDataDTO(configUUID, 1L, 1660644934298L, 1660644934298L, "custom_parameter",
                 "CustomParameterStateDataV2", """
                 ---
@@ -447,7 +447,7 @@ class CustomParameterCommandTest {
                 """);
 
         ConfigAndState<CustomParameterConfig, CustomParameterStateData> configAndState = underTest.deserializeAndUpdateState(messageConfigDTO, messageDataDTO, "3", "userName");
-        assertThat(configAndState.getConfig()).isEqualTo(new CustomParameterConfig(123L, "{n}d{s}", AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v2, "blue_and_silver"), Locale.GERMAN));
+        assertThat(configAndState.getConfig()).isEqualTo(new CustomParameterConfig(123L, "{n}d{s}", AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v2, "blue_and_silver"), Locale.GERMAN, null, null));
         assertThat(configAndState.getConfigUUID()).isEqualTo(configUUID);
         assertThat(configAndState.getState().getData()).isEqualTo(new CustomParameterStateData(List.of(
                 new SelectedParameter("{n}", "n", "5", "bonus", true),
@@ -467,7 +467,7 @@ class CustomParameterCommandTest {
                 diceStyleAndColor:
                     diceImageStyle: "polyhedral_alies_v2"
                     configuredDefaultColor: "blue_and_silver"
-                """);
+                """, null, null);
         MessageDataDTO messageDataDTO = new MessageDataDTO(configUUID, 1L, 1660644934298L, 1660644934298L, "custom_parameter",
                 "CustomParameterStateDataV2", """
                 ---
@@ -484,7 +484,7 @@ class CustomParameterCommandTest {
                 """);
 
         ConfigAndState<CustomParameterConfig, CustomParameterStateData> configAndState = underTest.deserializeAndUpdateState(messageConfigDTO, messageDataDTO, "3", "userName");
-        assertThat(configAndState.getConfig()).isEqualTo(new CustomParameterConfig(123L, "{n}d{s}", AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v2, "blue_and_silver"), Locale.GERMAN));
+        assertThat(configAndState.getConfig()).isEqualTo(new CustomParameterConfig(123L, "{n}d{s}", AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v2, "blue_and_silver"), Locale.GERMAN, null, null));
         assertThat(configAndState.getConfigUUID()).isEqualTo(configUUID);
         assertThat(configAndState.getState().getData()).isEqualTo(new CustomParameterStateData(List.of(
                 new SelectedParameter("{n}", "n", "5", "bonus", true),
@@ -494,8 +494,8 @@ class CustomParameterCommandTest {
     @Test
     void configSerialization() {
         UUID configUUID = UUID.fromString("00000000-0000-0000-0000-000000000000");
-        CustomParameterConfig config = new CustomParameterConfig(123L, "{n}d{s}", AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v2, "blue_and_silver"), Locale.GERMAN);
-        Optional<MessageConfigDTO> toSave = underTest.createMessageConfig(configUUID, 1L, 2L, config);
+        CustomParameterConfig config = new CustomParameterConfig(123L, "{n}d{s}", AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v2, "blue_and_silver"), Locale.GERMAN, null, null);
+        Optional<MessageConfigDTO> toSave = underTest.createMessageConfig(configUUID, 1L, 2L, 0L, config);
         assertThat(toSave).isPresent();
 
         expect.toMatchSnapshot(toSave.get());

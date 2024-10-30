@@ -66,15 +66,15 @@ class ClearCommandTest {
         underTest = new ClearCommand(persistenceManager);
 
         UUID configUUID = UUID.randomUUID();
-        persistenceManager.saveMessageConfig(new MessageConfigDTO(configUUID, guildId, channelId, "commandId", "configClass", "config"));
+        persistenceManager.saveMessageConfig(new MessageConfigDTO(configUUID, guildId, channelId, "commandId", "configClass", "config", null, null));
         UUID config2UUID = UUID.randomUUID();
-        persistenceManager.saveMessageConfig(new MessageConfigDTO(config2UUID, guildId, otherChannelId, "commandId", "configClass", "config"));
+        persistenceManager.saveMessageConfig(new MessageConfigDTO(config2UUID, guildId, otherChannelId, "commandId", "configClass", "config", null, null));
 
         persistenceManager.saveMessageData(new MessageDataDTO(configUUID, guildId, channelId, messageId, "commandId", "stateDataClassId", "stateData"));
         persistenceManager.saveMessageData(new MessageDataDTO(config2UUID, guildId, otherChannelId, otherMessageId, "commandId", "stateDataClassId", "stateData"));
 
-        persistenceManager.saveChannelConfig(new ChannelConfigDTO(UUID.randomUUID(), guildId, channelId, null, "commandId", configClassId, "config"));
-        persistenceManager.saveChannelConfig(new ChannelConfigDTO(UUID.randomUUID(), guildId, otherChannelId, null, "commandId", configClassId, "config"));
+        persistenceManager.saveChannelConfig(new ChannelConfigDTO(UUID.randomUUID(), guildId, channelId, null, "commandId", configClassId, "config", null));
+        persistenceManager.saveChannelConfig(new ChannelConfigDTO(UUID.randomUUID(), guildId, otherChannelId, null, "commandId", configClassId, "config", null));
 
         SlashEventAdaptorMock slashEventAdaptorMock = new SlashEventAdaptorMock(List.of());
 

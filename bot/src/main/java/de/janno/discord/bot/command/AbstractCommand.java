@@ -57,11 +57,6 @@ public abstract class AbstractCommand<C extends RollConfig, S extends StateData>
             }
 
             @Override
-            protected Mono<Void> furtherAction(ButtonEventAdaptor event, C config, State<S> state, Timer timer) {
-                return AbstractCommand.this.furtherAction(event, config, state, timer);
-            }
-
-            @Override
             protected Optional<List<ComponentRowDefinition>> getCurrentMessageComponentChange(UUID configUUID, C config, State<S> state, long channelId, long userId, boolean keepExistingButtonMessage) {
                 return AbstractCommand.this.getCurrentMessageComponentChange(configUUID, config, state, channelId, userId, keepExistingButtonMessage);
             }
@@ -238,10 +233,6 @@ public abstract class AbstractCommand<C extends RollConfig, S extends StateData>
     @Override
     public Mono<Void> handleComponentInteractEvent(@NonNull ButtonEventAdaptor event) {
         return componentCommand.handleComponentInteractEvent(event);
-    }
-
-    protected Mono<Void> furtherAction(ButtonEventAdaptor event, C config, State<S> state, Timer timer) {
-        return Mono.empty();
     }
 
     @Override

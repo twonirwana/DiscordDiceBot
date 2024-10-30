@@ -93,25 +93,25 @@ class QuickstartCommandTest {
 
     @Test
     void getAutoCompleteAnswer_filter() {
-        List<AutoCompleteAnswer> res = underTest.getAutoCompleteAnswer(new AutoCompleteRequest("system", "du", List.of()), Locale.ENGLISH, 1L, 1L);
+        List<AutoCompleteAnswer> res = underTest.getAutoCompleteAnswer(new AutoCompleteRequest("system", "du", List.of()), Locale.ENGLISH, 1L, 1L, 0L);
         expect.toMatchSnapshot(res);
     }
 
     @Test
     void getAutoCompleteAnswer_filterGerman() {
-        List<AutoCompleteAnswer> res = underTest.getAutoCompleteAnswer(new AutoCompleteRequest("system", "du", List.of()), Locale.GERMAN, 1L, 1L);
+        List<AutoCompleteAnswer> res = underTest.getAutoCompleteAnswer(new AutoCompleteRequest("system", "du", List.of()), Locale.GERMAN, 1L, 1L, 0L);
         expect.toMatchSnapshot(res);
     }
 
     @Test
     void getAutoCompleteAnswer_filterBrazil() {
-        List<AutoCompleteAnswer> res = underTest.getAutoCompleteAnswer(new AutoCompleteRequest("system", "vampire", List.of()), Locale.of("PT", "br"), 1L, 1L);
+        List<AutoCompleteAnswer> res = underTest.getAutoCompleteAnswer(new AutoCompleteRequest("system", "vampire", List.of()), Locale.of("PT", "br"), 1L, 1L, 0L);
         expect.toMatchSnapshot(res);
     }
 
     @Test
     void getAutoCompleteAnswer_all() {
-        List<AutoCompleteAnswer> res = underTest.getAutoCompleteAnswer(new AutoCompleteRequest("system", "", List.of()), Locale.ENGLISH, 1L, 1L);
+        List<AutoCompleteAnswer> res = underTest.getAutoCompleteAnswer(new AutoCompleteRequest("system", "", List.of()), Locale.ENGLISH, 1L, 1L, 0L);
         expect.toMatchSnapshot(res);
     }
 }

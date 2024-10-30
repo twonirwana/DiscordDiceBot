@@ -70,7 +70,6 @@ public class Bot {
                         channelConfigCommand,
                         sumCustomSetCommand,
                         customParameterCommand,
-                        welcomeCommand,
                         new ClearCommand(persistenceManager),
                         new QuickstartCommand(rpgSystemCommandPreset),
                         new HelpCommand(),

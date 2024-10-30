@@ -5,6 +5,7 @@ de.janno.discord.bot.command.reroll.RerollAnswerHandlerTest.configSerialization=
     "channelId": 2,
     "commandId": "reroll_answer",
     "configClassId": "RerollAnswerConfig",
-    "config": "---\nanswerTargetChannelId: 123\nanswerFormatType: \"full\"\nconfigLocale: \"en\"\nanswerInteractionType: \"reroll\"\nexpression: \"2d6\"\ndieIdTypeAndValues:\n- dieIdDb:\n    expressionPositionStartInc: 1\n    value: \"d\"\n    reEvaluateCounter: 0\n    dieIndex: 0\n    reroll: 0\n  value: \"2\"\n  numberSupplierValue: 2\n  diceSides: 6\n  selectedFrom: null\n- dieIdDb:\n    expressionPositionStartInc: 1\n    value: \"d\"\n    reEvaluateCounter: 0\n    dieIndex: 1\n    reroll: 0\n  value: \"5\"\n  numberSupplierValue: 5\n  diceSides: 6\n  selectedFrom: null\nrerollCount: 0\nowner: \"owner\"\nalwaysSumUp: true\nlabel: \"roll\"\ndiceStyleAndColor:\n  diceImageStyle: \"none\"\n  configuredDefaultColor: \"none\"\n"
+    "config": "---\nanswerTargetChannelId: 123\nanswerFormatType: \"full\"\nconfigLocale: \"en\"\nanswerInteractionType: \"reroll\"\nexpression: \"2d6\"\ndieIdTypeAndValues:\n- dieIdDb:\n    expressionPositionStartInc: 1\n    value: \"d\"\n    reEvaluateCounter: 0\n    dieIndex: 0\n    reroll: 0\n  value: \"2\"\n  numberSupplierValue: 2\n  diceSides: 6\n  selectedFrom: null\n- dieIdDb:\n    expressionPositionStartInc: 1\n    value: \"d\"\n    reEvaluateCounter: 0\n    dieIndex: 1\n    reroll: 0\n  value: \"5\"\n  numberSupplierValue: 5\n  diceSides: 6\n  selectedFrom: null\nrerollCount: 0\nowner: \"owner\"\nalwaysSumUp: true\nlabel: \"roll\"\ndiceStyleAndColor:\n  diceImageStyle: \"none\"\n  configuredDefaultColor: \"none\"\ncallStarterConfigAfterFinish: null\nname: null\n",
+    "creationUserId": 0
   }
 ]

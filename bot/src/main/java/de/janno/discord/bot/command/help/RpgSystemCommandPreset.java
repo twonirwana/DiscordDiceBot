@@ -5,6 +5,7 @@ import de.janno.discord.bot.AnswerInteractionType;
 import de.janno.discord.bot.I18n;
 import de.janno.discord.bot.command.*;
 import de.janno.discord.bot.command.channelConfig.AliasConfig;
+import de.janno.discord.bot.command.channelConfig.AliasHelper;
 import de.janno.discord.bot.command.channelConfig.ChannelConfigCommand;
 import de.janno.discord.bot.command.customDice.CustomDiceCommand;
 import de.janno.discord.bot.command.customDice.CustomDiceConfig;
@@ -20,6 +21,7 @@ import de.janno.discord.bot.dice.image.provider.PolyhedralSvgWithColor;
 import de.janno.discord.bot.persistance.PersistenceManager;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
@@ -227,47 +229,32 @@ public class RpgSystemCommandPreset {
         };
     }
 
-    public static String getCommandIdForConfig(Config config) {
-        switch (config) {
-            case CustomDiceConfig ignored -> {
-                return CustomDiceCommand.COMMAND_NAME;
-            }
-            case SumCustomSetConfig ignored -> {
-                return SumCustomSetCommand.COMMAND_NAME;
-            }
-            case CustomParameterConfig ignored -> {
-                return CustomParameterCommand.COMMAND_NAME;
-            }
-            case AliasConfig ignored -> {
-                return ChannelConfigCommand.COMMAND_NAME;
-            }
-            default -> throw new IllegalStateException("Could not find command id for config: " + config);
-        }
-    }
-
-    public static String getConfigClassIdForConfig(Config config) {
-        switch (config) {
-            case CustomDiceConfig ignored -> {
-                return CustomDiceCommand.CONFIG_TYPE_ID;
-            }
-            case SumCustomSetConfig ignored -> {
-                return SumCustomSetCommand.CONFIG_TYPE_ID;
-            }
-            case CustomParameterConfig ignored -> {
-                return CustomParameterCommand.CONFIG_TYPE_ID;
-            }
-            //todo alias?
-            default -> throw new IllegalStateException("Could not find config class id for config: " + config);
-        }
-    }
-
     public static String getCommandString(PresetId presetId, Locale locale) {
         Config config = createConfig(presetId, locale);
         if (config instanceof AliasConfig) {
             return "/channel_config alias multi_save aliases:%s scope:all_users_in_this_channel".formatted(config.toCommandOptionsString());
         }
-        String commandId = getCommandIdForConfig(config);
+        String commandId = presetId.getCommandId();
         return "/%s start %s".formatted(commandId, config.toCommandOptionsString());
+    }
+
+    public static boolean matchRpgPreset(String typed, RpgSystemCommandPreset.PresetId presetId, @NonNull Locale userLocale) {
+        if (Strings.isNullOrEmpty(typed)) {
+            return true;
+        }
+        if (presetId.getName(userLocale).toLowerCase().contains(typed.toLowerCase())) {
+            return true;
+        }
+        if (presetId.getName(Locale.ENGLISH).toLowerCase().contains(typed.toLowerCase())) {
+            return true;
+        }
+        if (presetId.getSynonymes(userLocale).stream().anyMatch(n -> n.toLowerCase().contains(typed.toLowerCase()))) {
+            return true;
+        }
+        if (presetId.getSynonymes(Locale.ENGLISH).stream().anyMatch(n -> n.toLowerCase().contains(typed.toLowerCase()))) {
+            return true;
+        }
+        return false;
     }
 
     public Optional<EmbedOrMessageDefinition> createMessage(PresetId presetId, UUID newConfigUUID, @Nullable Long guildId, long channelId, long userId, Locale userLocale) {
@@ -294,83 +281,72 @@ public class RpgSystemCommandPreset {
         return Optional.empty();
     }
 
-    public static boolean matchRpgPreset(String typed, RpgSystemCommandPreset.PresetId presetId, @NonNull Locale userLocale) {
-        if (presetId.getName(userLocale).toLowerCase().contains(typed.toLowerCase())) {
-            return true;
-        }
-        if (presetId.getName(Locale.ENGLISH).toLowerCase().contains(typed.toLowerCase())) {
-            return true;
-        }
-        if (presetId.getSynonymes(userLocale).stream().anyMatch(n -> n.toLowerCase().contains(typed.toLowerCase()))) {
-            return true;
-        }
-        if (presetId.getSynonymes(Locale.ENGLISH).stream().anyMatch(n -> n.toLowerCase().contains(typed.toLowerCase()))) {
-            return true;
-        }
-        return false;
-    }
-
     @AllArgsConstructor
+    @Getter
+    //todo test getter
     public enum PresetId {
-        DND5_IMAGE,
-        DND5,
-        DND5_ALIAS,
-        DND5_CALC,
-        NWOD,
-        OWOD,
-        NWOD_ALIAS,
-        OWOD_ALIAS,
-        SHADOWRUN,
-        SHADOWRUN_IMAGE,
-        SHADOWRUN_ALIAS,
-        SAVAGE_WORLDS,
-        SAVAGE_WORLDS_ALIAS,
-        FATE_IMAGE,
-        FATE,
-        FATE_ALIAS,
-        COIN,
-        DICE_CALCULATOR,
-        OSR,
-        TRAVELLER,
-        BLADES_IN_THE_DARK,
-        BLADES_IN_THE_DARK_ALIAS,
-        BLADES_IN_THE_DARK_IMAGE,
-        BLADES_IN_THE_DARK_DETAIL,
-        CALL_OF_CTHULHU_7ED,
-        EXALTED_3ED,
-        VAMPIRE_5ED,
-        HUNTER_5ED,
-        ONE_ROLL_ENGINE,
-        DUNGEON_CRAWL_CLASSICS,
-        TINY_D6,
-        CYBERPUNK_RED,
-        ASOIAF,
-        CITY_OF_MIST,
-        RISUS,
-        KIDS_ON_BROOMS,
-        REVE_DE_DRAGON,
-        PARANOIA,
-        PUBLIC_ACCESS,
-        CANDELA_OBSCURA,
-        CANDELA_OBSCURA2,
-        PROWLERS_PARAGONS,
-        BLUEBEARD_BRIDE,
-        EXPANSE,
-        ALIEN,
-        HEROES_OF_CERULEA,
-        MARVEL,
-        DND5_CALC2,
-        PBTA,
-        THE_ONE_RING,
-        EZD6,
-        REBELLION_UNPLUGGED,
-        STAR_WARS_D6,
-        OATHSWORN,
-        IRONSWORN,
-        SALVAGE_UNION,
-        FALLOUT,
-        FORBIDDEN_LANDS,
-        CYBERPUNK_RED_ALIAS;
+        DND5_IMAGE(CustomDiceCommand.COMMAND_NAME, CustomDiceCommand.CONFIG_TYPE_ID),
+        DND5(CustomDiceCommand.COMMAND_NAME, CustomDiceCommand.CONFIG_TYPE_ID),
+        DND5_ALIAS(ChannelConfigCommand.COMMAND_NAME, AliasHelper.CHANNEL_ALIAS_CONFIG_TYPE_ID),
+        DND5_CALC(SumCustomSetCommand.COMMAND_NAME, SumCustomSetCommand.CONFIG_TYPE_ID),
+        NWOD(CustomParameterCommand.COMMAND_NAME, CustomParameterCommand.CONFIG_TYPE_ID),
+        OWOD(CustomParameterCommand.COMMAND_NAME, CustomParameterCommand.CONFIG_TYPE_ID),
+        NWOD_ALIAS(ChannelConfigCommand.COMMAND_NAME, AliasHelper.CHANNEL_ALIAS_CONFIG_TYPE_ID),
+        OWOD_ALIAS(ChannelConfigCommand.COMMAND_NAME, AliasHelper.CHANNEL_ALIAS_CONFIG_TYPE_ID),
+        SHADOWRUN(CustomParameterCommand.COMMAND_NAME, CustomParameterCommand.CONFIG_TYPE_ID),
+        SHADOWRUN_IMAGE(CustomParameterCommand.COMMAND_NAME, CustomParameterCommand.CONFIG_TYPE_ID),
+        SHADOWRUN_ALIAS(ChannelConfigCommand.COMMAND_NAME, AliasHelper.CHANNEL_ALIAS_CONFIG_TYPE_ID),
+        SAVAGE_WORLDS(CustomParameterCommand.COMMAND_NAME, CustomParameterCommand.CONFIG_TYPE_ID),
+        SAVAGE_WORLDS_ALIAS(ChannelConfigCommand.COMMAND_NAME, AliasHelper.CHANNEL_ALIAS_CONFIG_TYPE_ID),
+        FATE_IMAGE(CustomParameterCommand.COMMAND_NAME, CustomParameterCommand.CONFIG_TYPE_ID),
+        FATE(CustomParameterCommand.COMMAND_NAME, CustomParameterCommand.CONFIG_TYPE_ID),
+        FATE_ALIAS(ChannelConfigCommand.COMMAND_NAME, AliasHelper.CHANNEL_ALIAS_CONFIG_TYPE_ID),
+        COIN(CustomDiceCommand.COMMAND_NAME, CustomDiceCommand.CONFIG_TYPE_ID),
+        DICE_CALCULATOR(SumCustomSetCommand.COMMAND_NAME, SumCustomSetCommand.CONFIG_TYPE_ID),
+        OSR(CustomDiceCommand.COMMAND_NAME, CustomDiceCommand.CONFIG_TYPE_ID),
+        TRAVELLER(SumCustomSetCommand.COMMAND_NAME, SumCustomSetCommand.CONFIG_TYPE_ID),
+        BLADES_IN_THE_DARK(CustomParameterCommand.COMMAND_NAME, CustomParameterCommand.CONFIG_TYPE_ID),
+        BLADES_IN_THE_DARK_ALIAS(ChannelConfigCommand.COMMAND_NAME, AliasHelper.CHANNEL_ALIAS_CONFIG_TYPE_ID),
+        BLADES_IN_THE_DARK_IMAGE(CustomParameterCommand.COMMAND_NAME, CustomParameterCommand.CONFIG_TYPE_ID),
+        BLADES_IN_THE_DARK_DETAIL(CustomParameterCommand.COMMAND_NAME, CustomParameterCommand.CONFIG_TYPE_ID),
+        CALL_OF_CTHULHU_7ED(CustomDiceCommand.COMMAND_NAME, CustomDiceCommand.CONFIG_TYPE_ID),
+        EXALTED_3ED(CustomParameterCommand.COMMAND_NAME, CustomParameterCommand.CONFIG_TYPE_ID),
+        VAMPIRE_5ED(CustomParameterCommand.COMMAND_NAME, CustomParameterCommand.CONFIG_TYPE_ID),
+        HUNTER_5ED(CustomParameterCommand.COMMAND_NAME, CustomParameterCommand.CONFIG_TYPE_ID),
+        ONE_ROLL_ENGINE(CustomParameterCommand.COMMAND_NAME, CustomParameterCommand.CONFIG_TYPE_ID),
+        DUNGEON_CRAWL_CLASSICS(SumCustomSetCommand.COMMAND_NAME, SumCustomSetCommand.CONFIG_TYPE_ID),
+        TINY_D6(CustomDiceCommand.COMMAND_NAME, CustomDiceCommand.CONFIG_TYPE_ID),
+        CYBERPUNK_RED(CustomParameterCommand.COMMAND_NAME, CustomParameterCommand.CONFIG_TYPE_ID),
+        ASOIAF(CustomParameterCommand.COMMAND_NAME, CustomParameterCommand.CONFIG_TYPE_ID),
+        CITY_OF_MIST(CustomParameterCommand.COMMAND_NAME, CustomParameterCommand.CONFIG_TYPE_ID),
+        RISUS(CustomParameterCommand.COMMAND_NAME, CustomParameterCommand.CONFIG_TYPE_ID),
+        KIDS_ON_BROOMS(CustomParameterCommand.COMMAND_NAME, CustomParameterCommand.CONFIG_TYPE_ID),
+        REVE_DE_DRAGON(CustomDiceCommand.COMMAND_NAME, CustomDiceCommand.CONFIG_TYPE_ID),
+        PARANOIA(CustomDiceCommand.COMMAND_NAME, CustomDiceCommand.CONFIG_TYPE_ID),
+        PUBLIC_ACCESS(CustomDiceCommand.COMMAND_NAME, CustomDiceCommand.CONFIG_TYPE_ID),
+        CANDELA_OBSCURA(SumCustomSetCommand.COMMAND_NAME, SumCustomSetCommand.CONFIG_TYPE_ID),
+        CANDELA_OBSCURA2(SumCustomSetCommand.COMMAND_NAME, SumCustomSetCommand.CONFIG_TYPE_ID),
+        PROWLERS_PARAGONS(CustomParameterCommand.COMMAND_NAME, CustomParameterCommand.CONFIG_TYPE_ID),
+        BLUEBEARD_BRIDE(CustomParameterCommand.COMMAND_NAME, CustomParameterCommand.CONFIG_TYPE_ID),
+        EXPANSE(CustomDiceCommand.COMMAND_NAME, CustomDiceCommand.CONFIG_TYPE_ID),
+        ALIEN(CustomParameterCommand.COMMAND_NAME, CustomParameterCommand.CONFIG_TYPE_ID),
+        HEROES_OF_CERULEA(CustomDiceCommand.COMMAND_NAME, CustomDiceCommand.CONFIG_TYPE_ID),
+        MARVEL(CustomParameterCommand.COMMAND_NAME, CustomParameterCommand.CONFIG_TYPE_ID),
+        DND5_CALC2(SumCustomSetCommand.COMMAND_NAME, SumCustomSetCommand.CONFIG_TYPE_ID),
+        PBTA(CustomDiceCommand.COMMAND_NAME, CustomDiceCommand.CONFIG_TYPE_ID),
+        THE_ONE_RING(CustomParameterCommand.COMMAND_NAME, CustomParameterCommand.CONFIG_TYPE_ID),
+        EZD6(CustomDiceCommand.COMMAND_NAME, CustomDiceCommand.CONFIG_TYPE_ID),
+        REBELLION_UNPLUGGED(CustomDiceCommand.COMMAND_NAME, CustomDiceCommand.CONFIG_TYPE_ID),
+        STAR_WARS_D6(CustomParameterCommand.COMMAND_NAME, CustomParameterCommand.CONFIG_TYPE_ID),
+        OATHSWORN(SumCustomSetCommand.COMMAND_NAME, SumCustomSetCommand.CONFIG_TYPE_ID),
+        IRONSWORN(CustomParameterCommand.COMMAND_NAME, CustomParameterCommand.CONFIG_TYPE_ID),
+        SALVAGE_UNION(CustomDiceCommand.COMMAND_NAME, CustomDiceCommand.CONFIG_TYPE_ID),
+        FALLOUT(CustomDiceCommand.COMMAND_NAME, CustomDiceCommand.CONFIG_TYPE_ID),
+        FORBIDDEN_LANDS(CustomParameterCommand.COMMAND_NAME, CustomParameterCommand.CONFIG_TYPE_ID),
+        CYBERPUNK_RED_ALIAS(ChannelConfigCommand.COMMAND_NAME, AliasHelper.CHANNEL_ALIAS_CONFIG_TYPE_ID);
+
+        private final String commandId;
+        private final String configClassType;
 
         public static boolean isValid(String in) {
             return Arrays.stream(PresetId.values()).anyMatch(s -> s.name().equals(in));

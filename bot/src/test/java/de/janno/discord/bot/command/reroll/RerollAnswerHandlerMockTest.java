@@ -60,7 +60,7 @@ public class RerollAnswerHandlerMockTest {
         Supplier<UUID> testingUUIDSupplier = IncrementingUUIDSupplier.create();
         CustomDiceCommand customDiceCommand = new CustomDiceCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0)), testingUUIDSupplier);
         RerollAnswerHandler rerollAnswerHandler = new RerollAnswerHandler(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(2)), testingUUIDSupplier);
-        CustomDiceConfig config = new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "3d6+5d!4+3d[a/b/c/d]", false, false, null)), AnswerFormatType.full, AnswerInteractionType.reroll, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
+        CustomDiceConfig config = new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "3d6+5d!4+3d[a/b/c/d]", false, false, null)), AnswerFormatType.full, AnswerInteractionType.reroll, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH, null, null);
         ButtonEventAdaptorMockFactory<CustomDiceConfig, StateData> factory = new ButtonEventAdaptorMockFactory<>("custom_dice", customDiceCommand, config, persistenceManager, false);
         ButtonEventAdaptorMock buttonEvent = factory.getButtonClickOnLastButtonMessage("1_button");
 

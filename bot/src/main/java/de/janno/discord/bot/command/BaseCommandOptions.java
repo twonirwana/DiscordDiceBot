@@ -99,7 +99,6 @@ public final class BaseCommandOptions {
     public static final String NAME_OPTION_NAME = "name";
     public static final CommandDefinitionOption NAME_COMMAND_OPTION = CommandDefinitionOption.builder()
             .name(NAME_OPTION_NAME)
-            //todo i18n
             .nameLocales(I18n.allNoneEnglishMessagesNames("base.option.name.name"))
             .description(I18n.getMessage("base.option.name.description", Locale.ENGLISH))
             .descriptionLocales(I18n.allNoneEnglishMessagesDescriptions("base.option.name.description"))

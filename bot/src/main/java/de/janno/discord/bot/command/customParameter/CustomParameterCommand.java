@@ -108,7 +108,6 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
                 .map(SelectedParameter::getParameterExpression)
                 .findFirst();
         if (CLEAR_BUTTON_ID.equals(buttonValue) || currentParameterExpression.isEmpty()) {
-            //todo handle better with starterId -> new message not edit?
             ImmutableList<SelectedParameter> newSelectedParameterList = config.getParameters().stream()
                     .map(sp -> new SelectedParameter(sp.getParameterExpression(), sp.getName(), null, null, false)).collect(ImmutableList.toImmutableList());
             return new CustomParameterStateData(newSelectedParameterList, null);
@@ -135,8 +134,11 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
                                     .filter(vl -> vl.value().equals(buttonValue))
                                     .findFirst();
                         }
-                        //todo can produce errors if the state was already updated but the buttons are not
-                        Parameter.ParameterOption selectedParameter = selectedParameterOption.orElseThrow(() -> new RuntimeException("Found no parameter in for value %s in %s".formatted(buttonValue, parameters)));
+                        if(selectedParameterOption.isEmpty()){
+                            //can happen if the state was already updated but the buttons are not because of a discord error
+                            return sp;
+                        }
+                        Parameter.ParameterOption selectedParameter = selectedParameterOption.get();
                         if (selectedParameter.directRoll()) {
                             directRoll.set(true);
                         }

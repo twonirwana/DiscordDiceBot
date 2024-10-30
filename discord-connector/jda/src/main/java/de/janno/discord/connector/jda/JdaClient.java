@@ -50,8 +50,7 @@ public class JdaClient {
                      @NonNull Function<DiscordConnector.WelcomeRequest, EmbedOrMessageDefinition> welcomeMessageDefinition,
                      @NonNull Set<Long> allGuildIdsInPersistence) {
 
-        //todo change to startup time
-        final LocalDateTime welcomeMessageStartTimePlusBuffer = LocalDateTime.now().plus(Duration.of(Config.getLong("welcomeMessageStartTimePlusBufferSec"), ChronoUnit.SECONDS));
+        final LocalDateTime startTime = LocalDateTime.now();
         final Scheduler scheduler = Schedulers.boundedElastic();
         final Set<Long> botInGuildIdSet = new ConcurrentSkipListSet<>();
         final Duration timeout = Duration.of(Config.getLong("http.timeoutSec"), ChronoUnit.SECONDS);
@@ -78,7 +77,7 @@ public class JdaClient {
                                     log.info("Bot started in guild: name='{}', memberCount={}", event.getGuild().getName(),
                                             event.getGuild().getMemberCount());
                                     botInGuildIdSet.add(event.getGuild().getIdLong());
-                                    if (LocalDateTime.now().isAfter(welcomeMessageStartTimePlusBuffer)) {
+                                    if (LocalDateTime.now().isAfter(startTime.plus(Duration.of(Config.getLong("welcomeMessageStartTimePlusBufferSec"), ChronoUnit.SECONDS)))) {
                                         Optional.ofNullable(event.getGuild().getSystemChannel())
                                                 .filter(GuildMessageChannel::canTalk)
                                                 .ifPresent(textChannel -> {
@@ -158,7 +157,7 @@ public class JdaClient {
                                                     .toList())
                                             ))
                                             .onErrorResume(t -> {
-                                                //todo more?
+                                                //todo better?
                                                 log.error(t.getMessage(), t);
                                                 return Mono.empty();
                                             })
