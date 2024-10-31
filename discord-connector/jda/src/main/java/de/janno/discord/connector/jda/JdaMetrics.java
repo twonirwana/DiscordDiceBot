@@ -20,6 +20,7 @@ public class JdaMetrics {
 
     private static final String METRIC_PREFIX = "dice.";
     private static final String METRIC_WELCOME_COUNTER_PREFIX = "welcomeCounter";
+    private static final String METRIC_USER_INSTALL_PREFIX = "userInstall";
     private static final String USER_LOCALE = "userLocale";
     private static final String SHARD_ID = "shardId";
 
@@ -90,5 +91,9 @@ public class JdaMetrics {
             return in.toUpperCase();
         }
         return in.substring(in.length() - 2).toUpperCase();
+    }
+
+    public static void userInstallSlashCommand() {
+        globalRegistry.counter(METRIC_PREFIX + METRIC_USER_INSTALL_PREFIX).increment();
     }
 }

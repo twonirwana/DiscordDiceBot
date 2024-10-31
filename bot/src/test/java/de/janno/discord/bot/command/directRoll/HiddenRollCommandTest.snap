@@ -42,6 +42,9 @@ de.janno.discord.bot.command.directRoll.HiddenRollCommandTest.getCommandDefiniti
         "options": [ ],
         "autoComplete": false
       }
+    ],
+    "integrationTypes": [
+      "GUILD_INSTALL"
     ]
   }
 ]
