@@ -28,8 +28,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @ExtendWith(SnapshotExtension.class)
 public class WelcomeCommandMockTest {
 
-  /*
-  //todo
+
   PersistenceManager persistenceManager;
     Expect expect;
 
@@ -100,7 +99,6 @@ public class WelcomeCommandMockTest {
         return new WelcomeCommand(persistenceManager, rpgSystemCommandPreset, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"));
     }
 
-*/
 
 
 }
