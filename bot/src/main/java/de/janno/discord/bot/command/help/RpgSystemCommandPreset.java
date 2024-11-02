@@ -30,14 +30,11 @@ import java.util.*;
 
 @RequiredArgsConstructor
 public class RpgSystemCommandPreset {
-
-
     private final PersistenceManager persistenceManager;
     private final CustomParameterCommand customParameterCommand;
     private final CustomDiceCommand customDiceCommand;
     private final SumCustomSetCommand sumCustomSetCommand;
     private final ChannelConfigCommand channelConfigCommand;
-
 
     public static Config createConfig(PresetId presetId, Locale userLocale) {
         return switch (presetId) {
@@ -283,7 +280,6 @@ public class RpgSystemCommandPreset {
 
     @AllArgsConstructor
     @Getter
-    //todo test getter
     public enum PresetId {
         DND5_IMAGE(CustomDiceCommand.COMMAND_NAME, CustomDiceCommand.CONFIG_TYPE_ID),
         DND5(CustomDiceCommand.COMMAND_NAME, CustomDiceCommand.CONFIG_TYPE_ID),

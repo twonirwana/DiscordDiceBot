@@ -16,9 +16,6 @@ public interface PersistenceManager {
 
     void deleteAllMessageConfigForChannel(long channelId);
 
-    @NonNull
-    Optional<MessageConfigDTO> getConfigFromMessage(long channelId, long messageId);
-
     void saveMessageConfig(@NonNull MessageConfigDTO messageConfigDTO);
 
     @NonNull

@@ -120,29 +120,6 @@ public class PersistenceManagerImpl implements PersistenceManager {
     }
 
     @Override
-    public @NonNull Optional<MessageConfigDTO> getConfigFromMessage(long channelId, long messageId) {
-        Stopwatch stopwatch = Stopwatch.createStarted();
-
-        try (Connection con = databaseConnector.getConnection()) {
-            try (PreparedStatement preparedStatement = con.prepareStatement("SELECT CONFIG_ID, GUILD_ID, CHANNEL_ID, COMMAND_ID, CONFIG_CLASS_ID, CONFIG, null as CONFIG_NAME, null as CREATION_USER_ID FROM MESSAGE_DATA MC WHERE MC.CHANNEL_ID = ? AND MC.MESSAGE_ID = ? AND MC.CONFIG_CLASS_ID IS NOT NULL")) {
-                preparedStatement.setLong(1, channelId);
-                preparedStatement.setLong(2, messageId);
-                ResultSet resultSet = preparedStatement.executeQuery();
-                MessageConfigDTO messageConfigDTO = transformResultSet2MessageConfigDTO(resultSet);
-
-                BotMetrics.databaseTimer("getConfigFromMessage", stopwatch.elapsed());
-
-                if (messageConfigDTO == null) {
-                    return Optional.empty();
-                }
-                return Optional.of(messageConfigDTO);
-            }
-        } catch (Exception e) {
-            throw new IllegalStateException(e);
-        }
-    }
-
-    @Override
     public void saveMessageConfig(@NonNull MessageConfigDTO messageConfigDTO) {
         Stopwatch stopwatch = Stopwatch.createStarted();
         try (Connection con = databaseConnector.getConnection()) {

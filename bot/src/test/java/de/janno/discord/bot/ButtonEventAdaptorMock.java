@@ -35,6 +35,8 @@ public class ButtonEventAdaptorMock implements ButtonEventAdaptor {
     private final EmbedOrMessageDefinition eventMessage;
     @Getter
     private final List<EmbedOrMessageDefinition> sendMessages = new ArrayList<>();
+    @Getter
+    private List<ComponentRowDefinition> editedComponentRowDefinition;
 
     public ButtonEventAdaptorMock(String commandId, String buttonValue, UUID configUUID, AtomicLong messageIdCounter, Set<Long> pinnedMessageIds) {
         this(commandId, buttonValue, configUUID, messageIdCounter, pinnedMessageIds, "invokingUser");
@@ -42,7 +44,6 @@ public class ButtonEventAdaptorMock implements ButtonEventAdaptor {
 
     public ButtonEventAdaptorMock(String commandId, String buttonValue, EmbedOrMessageDefinition eventMessage) {
         this(commandId, buttonValue, null, new AtomicLong(), null, "invokingUser", eventMessage);
-
     }
 
     public ButtonEventAdaptorMock(String commandId, String buttonValue, UUID configUUID, AtomicLong messageIdCounter, Set<Long> pinnedMessageIds, String invokingUser, EmbedOrMessageDefinition eventMessage) {
@@ -86,6 +87,13 @@ public class ButtonEventAdaptorMock implements ButtonEventAdaptor {
         this.eventMessage = null;
     }
 
+    public static ButtonEventAdaptorMock ofCustomId(String customId, long messageId) {
+        return new ButtonEventAdaptorMock(BottomCustomIdUtils.getCommandNameFromCustomId(customId),
+                BottomCustomIdUtils.getButtonValueFromCustomId(customId),
+                BottomCustomIdUtils.getConfigUUIDFromCustomId(customId).orElseThrow(),
+                new AtomicLong(messageId), Set.of(), "invokingUser");
+    }
+
     public List<String> getSortedActions() {
         return actions.stream().sorted(String::compareTo).toList();
     }
@@ -127,6 +135,7 @@ public class ButtonEventAdaptorMock implements ButtonEventAdaptor {
                 .flatMap(r -> r.getButtonDefinitions().stream())
                 .map(bd -> BottomCustomIdUtils.getButtonValueFromCustomId(bd.getId()) + (bd.isDisabled() ? "!" : ""))
                 .collect(Collectors.joining(","))));
+        this.editedComponentRowDefinition = componentRowDefinitions;
         return Mono.just("").then();
     }
 

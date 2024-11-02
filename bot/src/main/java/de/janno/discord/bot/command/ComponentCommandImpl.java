@@ -57,6 +57,11 @@ public abstract class ComponentCommandImpl<C extends RollConfig, S extends State
         }
         final String buttonValue = BottomCustomIdUtils.getButtonValueFromCustomId(event.getCustomId());
         final Optional<UUID> configUUIDFromCustomID = BottomCustomIdUtils.getConfigUUIDFromCustomId(event.getCustomId());
+        BotMetrics.incrementButtonUUIDUsageMetricCounter(getCommandId(), configUUIDFromCustomID.isPresent());
+        if (configUUIDFromCustomID.isEmpty()) {
+            log.info("{}: Legacy id {}", event.getRequester().toLogString(), event.getCustomId());
+            return event.reply(I18n.getMessage("base.reply.legacyButtonId", event.getRequester().getUserLocal()), false);
+        }
         BotMetrics.incrementButtonMetricCounter(getCommandId());
         if (guildId == null) {
             BotMetrics.outsideGuildCounter("button");
@@ -64,9 +69,7 @@ public abstract class ComponentCommandImpl<C extends RollConfig, S extends State
         if (event.isPinned()) {
             BotMetrics.incrementPinnedButtonMetricCounter();
         }
-        BotMetrics.incrementButtonUUIDUsageMetricCounter(getCommandId(), configUUIDFromCustomID.isPresent());
-
-        final Optional<MessageConfigDTO> messageConfigDTO = getMessageConfigDTO(configUUIDFromCustomID.orElse(null), channelId, eventMessageId);
+        final Optional<MessageConfigDTO> messageConfigDTO = persistenceManager.getMessageConfig(configUUIDFromCustomID.get());
         final Optional<ConfigAndState<C, S>> fallbackConfigAndState = createNewConfigAndStateIfMissing(buttonValue);
         if (messageConfigDTO.isEmpty() && fallbackConfigAndState.isEmpty()) {
             log.warn("{}: Missing messageData for channelId: {}, messageId: {} and commandName: {} ", event.getRequester().toLogString(), channelId, eventMessageId, getCommandId());
@@ -222,15 +225,6 @@ public abstract class ComponentCommandImpl<C extends RollConfig, S extends State
                         return Mono.empty();
                     }
                 }));
-    }
-
-    private @NonNull Optional<MessageConfigDTO> getMessageConfigDTO(@Nullable UUID configId, long channelId,
-                                                                    long messageId) {
-        if (configId != null) {
-            return persistenceManager.getMessageConfig(configId);
-        }
-        //todo remove option without configId
-        return persistenceManager.getConfigFromMessage(channelId, messageId);
     }
 
     protected Optional<List<ComponentRowDefinition>> getCurrentMessageComponentChange(UUID configUUID, C config, State<S> state, long channelId, long userId, boolean keepExistingButtonMessage) {

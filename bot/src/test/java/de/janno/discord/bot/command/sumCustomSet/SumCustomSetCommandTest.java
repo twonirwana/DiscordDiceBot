@@ -908,7 +908,7 @@ class SumCustomSetCommandTest {
     }
 
     @Test
-    void deserialization() {
+    void deserialization_legancy10() {
         UUID configUUID = UUID.randomUUID();
         MessageConfigDTO messageConfigDTO = new MessageConfigDTO(configUUID, 1L, 1660644934298L, "sum_custom_set", "SumCustomSetConfig", """
                 ---
@@ -954,12 +954,81 @@ class SumCustomSetCommandTest {
     }
 
     @Test
+    void deserialization() {
+        UUID configUUID = UUID.randomUUID();
+        MessageConfigDTO messageConfigDTO = new MessageConfigDTO(configUUID, 1L, 1660644934298L, "sum_custom_set", "SumCustomSetConfig", """
+                ---
+                answerTargetChannelId: 123
+                labelAndExpression:
+                - buttonId: "1_button"
+                  label: "+1d6"
+                  diceExpression: "+1d6"
+                  newLine: false
+                - buttonId: "2_button"
+                  label: "Bonus"
+                  diceExpression: "+2d4"
+                  newLine: true
+                  emoji: "🪙"
+                diceParserSystem: "DICE_EVALUATOR"
+                alwaysSumResult: true
+                hideExpressionInStatusAndAnswer: true
+                systemButtonNewLine: true
+                prefix: "groupC("
+                postfix: ")"
+                answerFormatType: "full"
+                configLocale: "de"
+                diceStyleAndColor:
+                  diceImageStyle: "polyhedral_alies_v2"
+                  configuredDefaultColor: "blue_and_silver"
+                callStarterConfigAfterFinish: "00000000-1000-0000-0000-000000000000"
+                name: "RollName"
+                """, null, null);
+        MessageDataDTO messageDataDTO = new MessageDataDTO(configUUID, 1L, 1660644934298L, 1660644934298L, "sum_custom_set",
+                "SumCustomSetStateDataV2", """
+                ---
+                diceExpressions:
+                - expression: "+2d4"
+                  label: "Bonus"
+                lockedForUserName: "testUser"
+                """);
+
+        ConfigAndState<SumCustomSetConfig, SumCustomSetStateDataV2> configAndState = underTest.deserializeAndUpdateState(messageConfigDTO, messageDataDTO, "1_button", "testUser");
+        assertThat(configAndState.getConfig()).isEqualTo(new SumCustomSetConfig(123L, List.of(
+                new ButtonIdLabelAndDiceExpression("1_button", "+1d6", "+1d6", false, false, null),
+                new ButtonIdLabelAndDiceExpression("2_button", "Bonus", "+2d4", true, false, "🪙")
+        ), true,
+                true,
+                true,
+                "groupC(", ")",
+                AnswerFormatType.full,
+                AnswerInteractionType.none,
+                null,
+                new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v2, "blue_and_silver"),
+                Locale.GERMAN,
+                UUID.fromString("00000000-1000-0000-0000-000000000000"),
+                "RollName"
+        ));
+        assertThat(configAndState.getConfigUUID()).isEqualTo(configUUID);
+        assertThat(configAndState.getState().getData()).isEqualTo(new SumCustomSetStateDataV2(List.of(new ExpressionAndLabel("+2d4", "Bonus"), new ExpressionAndLabel("+1d6", "+1d6")), "testUser"));
+    }
+
+    @Test
     void configSerialization() {
         UUID configUUID = UUID.fromString("00000000-0000-0000-0000-000000000000");
         SumCustomSetConfig config = new SumCustomSetConfig(123L, List.of(
                 new ButtonIdLabelAndDiceExpression("1_button", "Label", "+1d6", false, false, null),
                 new ButtonIdLabelAndDiceExpression("2_button", "+2d4", "+2d4", true, false, "🪙")
-        ), true, true, true, "groupC(", ")", AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v2, "blue_and_silver"), Locale.GERMAN, null, null);
+        ), true,
+                true,
+                true,
+                "groupC(", ")",
+                AnswerFormatType.full,
+                AnswerInteractionType.none,
+                null,
+                new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v2, "blue_and_silver"),
+                Locale.GERMAN,
+                UUID.fromString("00000000-1000-0000-0000-000000000000"),
+                "RollName");
         Optional<MessageConfigDTO> toSave = underTest.createMessageConfig(configUUID, 1L, 2L, 0L, config);
         assertThat(toSave).isPresent();
 

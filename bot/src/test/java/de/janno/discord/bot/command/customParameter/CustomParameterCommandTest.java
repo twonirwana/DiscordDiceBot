@@ -251,7 +251,15 @@ class CustomParameterCommandTest {
         UUID configUUID = UUID.randomUUID();
         long channelId = System.currentTimeMillis();
         long messageId = System.currentTimeMillis();
-        CustomParameterConfig config = new CustomParameterConfig(123L, "{n}d{s}", AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH, null, null);
+        CustomParameterConfig config = new CustomParameterConfig(123L,
+                "{n}d{s}",
+                AnswerFormatType.full,
+                AnswerInteractionType.none,
+                null,
+                new DiceStyleAndColor(DiceImageStyle.none, "none"),
+                Locale.ENGLISH,
+                UUID.fromString("00000000-1000-0000-0000-000000000000"),
+                "RollName");
         Optional<MessageConfigDTO> toSave = underTest.createMessageConfig(configUUID, 1L, channelId, 0L, config);
         assertThat(toSave).isPresent();
 
@@ -455,7 +463,7 @@ class CustomParameterCommandTest {
     }
 
     @Test
-    void deserialization() {
+    void deserialization_legacy7() {
         UUID configUUID = UUID.randomUUID();
         MessageConfigDTO messageConfigDTO = new MessageConfigDTO(configUUID, 1L, 1660644934298L, "custom_parameter", "CustomParameterConfig", """
                 ---
@@ -492,9 +500,65 @@ class CustomParameterCommandTest {
     }
 
     @Test
+    void deserialization() {
+        UUID configUUID = UUID.randomUUID();
+        MessageConfigDTO messageConfigDTO = new MessageConfigDTO(configUUID, 1L, 1660644934298L, "custom_parameter", "CustomParameterConfig", """
+                ---
+                answerTargetChannelId: 123
+                baseExpression: "{n}d{s}"
+                answerFormatType: "full"
+                answerInteractionType: "none"
+                configLocale: "de"
+                callStarterConfigAfterFinish: "00000000-1000-0000-0000-000000000000"
+                name: "RollName"
+                diceStyleAndColor:
+                  diceImageStyle: "polyhedral_alies_v2"
+                  configuredDefaultColor: "blue_and_silver"
+                """, null, null);
+        MessageDataDTO messageDataDTO = new MessageDataDTO(configUUID, 1L, 1660644934298L, 1660644934298L, "custom_parameter",
+                "CustomParameterStateDataV2", """
+                ---
+                selectedParameterValues:
+                - parameterExpression: "{n}"
+                  name: "n"
+                  selectedValue: "5"
+                  labelOfSelectedValue: "bonus"
+                - parameterExpression: "{s}"
+                  name: "s"
+                  selectedValue: null
+                  labelOfSelectedValue: null
+                lockedForUserName: "userName"
+                """);
+
+        ConfigAndState<CustomParameterConfig, CustomParameterStateData> configAndState = underTest.deserializeAndUpdateState(messageConfigDTO, messageDataDTO, "3", "userName");
+        assertThat(configAndState.getConfig()).isEqualTo(new CustomParameterConfig(123L,
+                "{n}d{s}",
+                AnswerFormatType.full,
+                AnswerInteractionType.none,
+                null,
+                new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v2,
+                        "blue_and_silver"),
+                Locale.GERMAN,
+                UUID.fromString("00000000-1000-0000-0000-000000000000"),
+                "RollName"));
+        assertThat(configAndState.getConfigUUID()).isEqualTo(configUUID);
+        assertThat(configAndState.getState().getData()).isEqualTo(new CustomParameterStateData(List.of(
+                new SelectedParameter("{n}", "n", "5", "bonus", true),
+                new SelectedParameter("{s}", "s", "3", "3", true)), "userName"));
+    }
+
+    @Test
     void configSerialization() {
         UUID configUUID = UUID.fromString("00000000-0000-0000-0000-000000000000");
-        CustomParameterConfig config = new CustomParameterConfig(123L, "{n}d{s}", AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v2, "blue_and_silver"), Locale.GERMAN, null, null);
+        CustomParameterConfig config = new CustomParameterConfig(123L,
+                "{n}d{s}",
+                AnswerFormatType.full,
+                AnswerInteractionType.none,
+                null,
+                new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v2, "blue_and_silver"),
+                Locale.GERMAN,
+                UUID.fromString("00000000-1000-0000-0000-000000000000"),
+                "RollName");
         Optional<MessageConfigDTO> toSave = underTest.createMessageConfig(configUUID, 1L, 2L, 0L, config);
         assertThat(toSave).isPresent();
 

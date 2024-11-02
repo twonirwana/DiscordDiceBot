@@ -596,10 +596,8 @@ class CustomDiceCommandTest {
         assertThat(configAndState.getState().getData()).isEqualTo(StateData.empty());
     }
 
-    //todo updated deserialization
-
     @Test
-    void deserialization() {
+    void deserialization_legacy9() {
         UUID configUUID = UUID.randomUUID();
         MessageConfigDTO savedData = new MessageConfigDTO(configUUID, 1L, 1660644934298L, "custom_dice", "CustomDiceConfig", """
                 ---
@@ -634,11 +632,63 @@ class CustomDiceCommandTest {
     }
 
     @Test
+    void deserialization() {
+        UUID configUUID = UUID.randomUUID();
+        MessageConfigDTO savedData = new MessageConfigDTO(configUUID, 1L, 1660644934298L, "custom_dice", "CustomDiceConfig", """
+                ---
+                answerTargetChannelId: 123
+                buttonIdLabelAndDiceExpressions:
+                - buttonId: "1_button"
+                  label: "Label"
+                  diceExpression: "+1d6"
+                  newLine: false
+                  directRoll: false
+                  emoji: null
+                - buttonId: "2_button"
+                  label: "+2d4"
+                  diceExpression: "+2d4"
+                  newLine: true
+                  directRoll: false
+                  emoji: "🪙"
+                answerFormatType: "compact"
+                answerInteractionType: "none"
+                configLocale: "de"
+                callStarterConfigAfterFinish: "00000000-0000-0000-0000-100000000000"
+                name: "Name"
+                diceStyleAndColor:
+                  diceImageStyle: "polyhedral_alies_v2"
+                  configuredDefaultColor: "blue_and_silver"
+                """, null, null);
+
+
+        ConfigAndState<CustomDiceConfig, StateData> configAndState = underTest.deserializeAndUpdateState(savedData, "3");
+        assertThat(configAndState.getConfig()).isEqualTo(new CustomDiceConfig(123L, ImmutableList.of(
+                new ButtonIdLabelAndDiceExpression("1_button", "Label", "+1d6", false, false, null),
+                new ButtonIdLabelAndDiceExpression("2_button", "+2d4", "+2d4", true, false, "🪙")),
+                AnswerFormatType.compact,
+                AnswerInteractionType.none,
+                null,
+                new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v2, "blue_and_silver"),
+                Locale.GERMAN,
+                UUID.fromString("00000000-0000-0000-0000-100000000000"),
+                "Name"));
+        assertThat(configAndState.getConfigUUID()).isEqualTo(configUUID);
+        assertThat(configAndState.getState().getData()).isEqualTo(StateData.empty());
+    }
+
+    @Test
     void configSerialization() {
         UUID configUUID = UUID.fromString("00000000-0000-0000-0000-000000000000");
         CustomDiceConfig config = new CustomDiceConfig(123L, ImmutableList.of(
                 new ButtonIdLabelAndDiceExpression("1_button", "Label", "+1d6", false, false, null),
-                new ButtonIdLabelAndDiceExpression("2_button", "+2d4", "+2d4", true, false, "🪙")), AnswerFormatType.compact, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v2, "blue_and_silver"), Locale.GERMAN, UUID.fromString("00000000-0000-0000-0000-100000000000"), "Name");
+                new ButtonIdLabelAndDiceExpression("2_button", "+2d4", "+2d4", true, false, "🪙")),
+                AnswerFormatType.compact,
+                AnswerInteractionType.none,
+                null,
+                new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v2, "blue_and_silver"),
+                Locale.GERMAN,
+                UUID.fromString("00000000-0000-0000-0000-100000000000"),
+                "Name");
         Optional<MessageConfigDTO> toSave = underTest.createMessageConfig(configUUID, 1L, 2L, 0L, config);
         assertThat(toSave).isPresent();
 

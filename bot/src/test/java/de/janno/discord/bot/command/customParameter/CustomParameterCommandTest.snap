@@ -5,7 +5,8 @@ de.janno.discord.bot.command.customParameter.CustomParameterCommandTest.configSe
     "channelId": 2,
     "commandId": "custom_parameter",
     "configClassId": "CustomParameterConfig",
-    "config": "---\nanswerTargetChannelId: 123\nbaseExpression: \"{n}d{s}\"\nanswerFormatType: \"full\"\nanswerInteractionType: \"none\"\nconfigLocale: \"de\"\ncallStarterConfigAfterFinish: null\nname: null\ndiceStyleAndColor:\n  diceImageStyle: \"polyhedral_alies_v2\"\n  configuredDefaultColor: \"blue_and_silver\"\n",
+    "config": "---\nanswerTargetChannelId: 123\nbaseExpression: \"{n}d{s}\"\nanswerFormatType: \"full\"\nanswerInteractionType: \"none\"\nconfigLocale: \"de\"\ncallStarterConfigAfterFinish: \"00000000-1000-0000-0000-000000000000\"\nname: \"RollName\"\ndiceStyleAndColor:\n  diceImageStyle: \"polyhedral_alies_v2\"\n  configuredDefaultColor: \"blue_and_silver\"\n",
+    "name": "RollName",
     "creationUserId": 0
   }
 ]

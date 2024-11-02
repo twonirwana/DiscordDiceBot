@@ -180,7 +180,8 @@ public class StarterCommand implements SlashCommand, ComponentCommand {
 
     }
 
-    private Optional<StarterConfig> deserializeStarterMessage(MessageConfigDTO messageConfigDTO) {
+    @VisibleForTesting
+    Optional<StarterConfig> deserializeStarterMessage(MessageConfigDTO messageConfigDTO) {
         if (CONFIG_TYPE_ID.equals(messageConfigDTO.getConfigClassId())) {
             return Optional.of(Mapper.deserializeObject(messageConfigDTO.getConfig(), StarterConfig.class));
         }
@@ -230,7 +231,7 @@ public class StarterCommand implements SlashCommand, ComponentCommand {
         };
     }
 
-    private SavedNamedConfig saveConfigToStart(Config genericConfig, UUID starterConfigAfterFinish, Long guildId, long channelId, Long userId, String commandId, String configClassId) {
+    SavedNamedConfig saveConfigToStart(Config genericConfig, UUID starterConfigAfterFinish, Long guildId, long channelId, Long userId, String commandId, String configClassId) {
         final Config updatedConfig = updateCallStarterConfigAfterFinish(genericConfig, starterConfigAfterFinish);
         final UUID newConfigUUID = uuidSupplier.get();
         persistenceManager.saveMessageConfig(new MessageConfigDTO(newConfigUUID,
@@ -305,11 +306,6 @@ public class StarterCommand implements SlashCommand, ComponentCommand {
     @Override
     public @NonNull Mono<Void> handleSlashCommandEvent(@NonNull SlashEventAdaptor event, @NonNull Supplier<UUID> uuidSupplier, @NonNull Locale userLocale) {
 
-        Optional<CommandInteractionOption> helpOptional = event.getOption(HELP_OPTION_NAME);
-        if (helpOptional.isPresent()) {
-            return event.sendMessage(getHelpMessage(userLocale)).then();
-        }
-
         final long userId = event.getUserId();
         final Long guildId = event.getGuildId();
         final long channelId = event.getChannelId();
@@ -329,14 +325,12 @@ public class StarterCommand implements SlashCommand, ComponentCommand {
         if (starterConfig != null) {
             BotMetrics.incrementSlashStartMetricCounter(getCommandId());
             return Mono.defer(() -> {
-                persistenceManager.saveMessageConfig(new MessageConfigDTO(starterConfig.getId(),
-                        event.getGuildId(),
-                        event.getChannelId(),
-                        getCommandId(),
-                        CONFIG_TYPE_ID,
-                        Mapper.serializedObject(starterConfig),
-                        starterConfig.getName(),
-                        userId));
+                persistenceManager.saveMessageConfig(
+                        createMessageConfig(starterConfig.getId(),
+                                event.getGuildId(),
+                                event.getChannelId(),
+                                userId,
+                                starterConfig));
 
                 log.info("{}: '{}' -> {}",
                         event.getRequester().toLogString(),
@@ -353,16 +347,25 @@ public class StarterCommand implements SlashCommand, ComponentCommand {
     public Function<DiscordConnector.WelcomeRequest, EmbedOrMessageDefinition> getWelcomeMessage() {
         return request -> {
             StarterConfig starterConfig = createWelcomeStarterConfig(request.guildId(), request.channelId(), null, request.guildLocale());
-            persistenceManager.saveMessageConfig(new MessageConfigDTO(starterConfig.getId(),
+            persistenceManager.saveMessageConfig(createMessageConfig(starterConfig.getId(),
                     request.guildId(),
                     request.channelId(),
-                    getCommandId(),
-                    CONFIG_TYPE_ID,
-                    Mapper.serializedObject(starterConfig),
-                    starterConfig.getName(),
-                    null));
+                    null,
+                    starterConfig));
             return createButtonMessage(starterConfig);
         };
+    }
+
+    @VisibleForTesting
+    MessageConfigDTO createMessageConfig(@NonNull UUID configUUID, @Nullable Long guildId, long channelId, Long userId, @NonNull StarterConfig config) {
+        return new MessageConfigDTO(configUUID,
+                guildId,
+                channelId,
+                getCommandId(),
+                CONFIG_TYPE_ID,
+                Mapper.serializedObject(config),
+                config.getName(),
+                userId);
     }
 
     private StarterConfig createWelcomeStarterConfig(Long guildId, long channelId, Long userId, Locale userLocale) {
@@ -430,7 +433,7 @@ public class StarterCommand implements SlashCommand, ComponentCommand {
         return new NamedConfig(name, commandId, configClassId, config);
     }
 
-    protected @NonNull EmbedOrMessageDefinition getHelpMessage(Locale userLocale) {
+    private @NonNull EmbedOrMessageDefinition getHelpMessage(Locale userLocale) {
         return EmbedOrMessageDefinition.builder()
                 .descriptionOrContent(I18n.getMessage("starter.help.message", userLocale) + "\n" + DiceEvaluatorAdapter.getHelp())
                 .field(new EmbedOrMessageDefinition.Field(I18n.getMessage("help.example.field.name", userLocale), I18n.getMessage("starter.help.example.field.value", userLocale), false))
@@ -445,14 +448,25 @@ public class StarterCommand implements SlashCommand, ComponentCommand {
         if (!new HashSet<>(COMMAND_IDs).contains(autoCompleteRequest.getFocusedOptionName())) {
             return List.of();
         }
+        final Set<String> alreadyUsedNames = autoCompleteRequest.getOptionValues().stream()
+                .filter(ov -> COMMAND_ID_SET.contains(ov.getOptionName()))
+                .map(OptionValue::getOptionValue)
+                .filter(n -> !Strings.isNullOrEmpty(n))
+                .collect(Collectors.toSet());
 
         final List<AutoCompleteAnswer> savedNamedAnswers = persistenceManager.getNamedCommandsForChannel(userId, guildId).stream()
                 .filter(nc -> Strings.isNullOrEmpty(autoCompleteRequest.getFocusedOptionValue()) || nc.name().toLowerCase().contains(autoCompleteRequest.getFocusedOptionValue().toLowerCase()))
                 .filter(nc -> SUPPORTED_COMMANDS.contains(nc.commandId()))
                 .map(n -> new AutoCompleteAnswer(n.name(), n.name()))
                 .sorted(Comparator.comparing(AutoCompleteAnswer::getName))
+                .filter(a -> !alreadyUsedNames.contains(a.getValue()))
                 .limit(MAX_AUTOCOMPLETE_OPTIONS)
                 .toList();
+
+        final Set<String> alreadyUsedNamesAndSavedNamed = ImmutableSet.<String>builder()
+                .addAll(alreadyUsedNames)
+                .addAll(savedNamedAnswers.stream().map(AutoCompleteAnswer::getName).collect(Collectors.toSet()))
+                .build();
 
         final List<AutoCompleteAnswer> presets;
         if (savedNamedAnswers.size() < MAX_AUTOCOMPLETE_OPTIONS) {
@@ -461,21 +475,14 @@ public class StarterCommand implements SlashCommand, ComponentCommand {
                     .filter(p -> !(RpgSystemCommandPreset.createConfig(p, userLocale) instanceof AliasConfig))
                     .map(p -> new AutoCompleteAnswer(p.getName(userLocale), p.getName(userLocale)))
                     .sorted(Comparator.comparing(AutoCompleteAnswer::getName))
-                    .filter(a -> !savedNamedAnswers.contains(a))
+                    .filter(a -> !alreadyUsedNamesAndSavedNamed.contains(a.getName()))
                     .limit(MAX_AUTOCOMPLETE_OPTIONS - savedNamedAnswers.size())
                     .toList();
         } else {
             presets = List.of();
         }
 
-        final Set<String> alreadyUsedNames = autoCompleteRequest.getOptionValues().stream()
-                .filter(ov -> COMMAND_ID_SET.contains(ov.getOptionName()))
-                .map(OptionValue::getOptionValue)
-                .filter(n -> !Strings.isNullOrEmpty(n))
-                .collect(Collectors.toSet());
-
         return Stream.concat(savedNamedAnswers.stream(), presets.stream())
-                .filter(a -> !alreadyUsedNames.contains(a.getValue()))
                 .toList();
     }
 
