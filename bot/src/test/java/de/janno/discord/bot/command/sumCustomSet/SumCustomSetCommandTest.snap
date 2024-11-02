@@ -676,8 +676,21 @@ de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandTest.getCommandDefi
             "type": "STRING",
             "name": "name",
             "nameLocales": [ ],
-            "description": "A name to select the reuse the command with starter or quickstart",
-            "descriptionLocales": [ ],
+            "description": "A name to reuse the command with starter or quickstart command",
+            "descriptionLocales": [
+              {
+                "locale": "de",
+                "description": "Ein Name zur Wiederverwendung des Befehls mit dem starter oder quickstart Befehl"
+              },
+              {
+                "locale": "pt_BR",
+                "description": "Um nome para reutilizar o comando com o comando starter ou quickstart"
+              },
+              {
+                "locale": "fr",
+                "description": "Un nom pour réutiliser la commande avec la commande starter ou quickstart"
+              }
+            ],
             "required": false,
             "choices": [ ],
             "options": [ ],

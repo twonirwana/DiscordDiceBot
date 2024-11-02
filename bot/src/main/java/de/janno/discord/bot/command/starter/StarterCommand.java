@@ -458,8 +458,9 @@ public class StarterCommand implements SlashCommand, ComponentCommand {
                 .filter(nc -> Strings.isNullOrEmpty(autoCompleteRequest.getFocusedOptionValue()) || nc.name().toLowerCase().contains(autoCompleteRequest.getFocusedOptionValue().toLowerCase()))
                 .filter(nc -> SUPPORTED_COMMANDS.contains(nc.commandId()))
                 .map(n -> new AutoCompleteAnswer(n.name(), n.name()))
-                .sorted(Comparator.comparing(AutoCompleteAnswer::getName))
+                .distinct()
                 .filter(a -> !alreadyUsedNames.contains(a.getValue()))
+                .sorted(Comparator.comparing(AutoCompleteAnswer::getName))
                 .limit(MAX_AUTOCOMPLETE_OPTIONS)
                 .toList();
 
@@ -474,8 +475,9 @@ public class StarterCommand implements SlashCommand, ComponentCommand {
                     .filter(p -> RpgSystemCommandPreset.matchRpgPreset(autoCompleteRequest.getFocusedOptionValue(), p, userLocale))
                     .filter(p -> !(RpgSystemCommandPreset.createConfig(p, userLocale) instanceof AliasConfig))
                     .map(p -> new AutoCompleteAnswer(p.getName(userLocale), p.getName(userLocale)))
-                    .sorted(Comparator.comparing(AutoCompleteAnswer::getName))
+                    .distinct()
                     .filter(a -> !alreadyUsedNamesAndSavedNamed.contains(a.getName()))
+                    .sorted(Comparator.comparing(AutoCompleteAnswer::getName))
                     .limit(MAX_AUTOCOMPLETE_OPTIONS - savedNamedAnswers.size())
                     .toList();
         } else {

@@ -137,10 +137,6 @@ de.janno.discord.bot.command.starter.StarterCommandTest.getAutoCompleteAnswer_do
       "value": "Dungeon & Dragons 5e"
     },
     {
-      "name": "Dungeon & Dragons 5e",
-      "value": "Dungeon & Dragons 5e"
-    },
-    {
       "name": "Dungeon & Dragons 5e Calculator",
       "value": "Dungeon & Dragons 5e Calculator"
     },
@@ -166,14 +162,40 @@ de.janno.discord.bot.command.starter.StarterCommandTest.getCommandDefinition=[
     "name": "starter",
     "description": "Combine multiple named commands",
     "nameLocales": [ ],
-    "descriptionLocales": [ ],
+    "descriptionLocales": [
+      {
+        "locale": "de",
+        "description": "Kombinieren mehrerer benannter Befehle"
+      },
+      {
+        "locale": "pt_BR",
+        "description": "Combinar vários comandos nomeados"
+      },
+      {
+        "locale": "fr",
+        "description": "Combiner plusieurs commandes nommées"
+      }
+    ],
     "options": [
       {
         "type": "SUB_COMMAND",
         "name": "create",
         "nameLocales": [ ],
         "description": "Create a new custom starter message",
-        "descriptionLocales": [ ],
+        "descriptionLocales": [
+          {
+            "locale": "de",
+            "description": "Erstellen einen neuen benutzerdefinierten Starter"
+          },
+          {
+            "locale": "pt_BR",
+            "description": "Criar uma nova mensagem inicial personalizada"
+          },
+          {
+            "locale": "fr",
+            "description": "Créer un nouveau message de départ personnalisé"
+          }
+        ],
         "required": false,
         "choices": [ ],
         "options": [
@@ -182,7 +204,20 @@ de.janno.discord.bot.command.starter.StarterCommandTest.getCommandDefinition=[
             "name": "message",
             "nameLocales": [ ],
             "description": "Set a custom text for the starter message",
-            "descriptionLocales": [ ],
+            "descriptionLocales": [
+              {
+                "locale": "de",
+                "description": "Einen eigenen Text für die Startmeldung festlegen"
+              },
+              {
+                "locale": "pt_BR",
+                "description": "Definir um texto personalizado para a mensagem inicial"
+              },
+              {
+                "locale": "fr",
+                "description": "Définir un texte personnalisé pour le message de départ"
+              }
+            ],
             "required": false,
             "choices": [ ],
             "options": [ ],
@@ -192,8 +227,21 @@ de.janno.discord.bot.command.starter.StarterCommandTest.getCommandDefinition=[
             "type": "STRING",
             "name": "command_name_1",
             "nameLocales": [ ],
-            "description": "A named or quickstart command that should be added to the starter. Start typing to filter.",
-            "descriptionLocales": [ ],
+            "description": "A named command that should be added to the starter. Start typing to filter.",
+            "descriptionLocales": [
+              {
+                "locale": "de",
+                "description": "Ein benannter Befehl, der dem Starter hinzugefügt werden soll. Beginnen die Eingabe, um zu filtern"
+              },
+              {
+                "locale": "pt_BR",
+                "description": "Um comando nomeado que deve ser adicionado ao starter. Comece a digitar para filtrar."
+              },
+              {
+                "locale": "fr",
+                "description": "Une commande nommée qui doit être ajoutée au démarreur. Commencez à taper pour filtrer."
+              }
+            ],
             "required": false,
             "choices": [ ],
             "options": [ ],
@@ -203,8 +251,21 @@ de.janno.discord.bot.command.starter.StarterCommandTest.getCommandDefinition=[
             "type": "STRING",
             "name": "command_name_2",
             "nameLocales": [ ],
-            "description": "A named or quickstart command that should be added to the starter. Start typing to filter.",
-            "descriptionLocales": [ ],
+            "description": "A named command that should be added to the starter. Start typing to filter.",
+            "descriptionLocales": [
+              {
+                "locale": "de",
+                "description": "Ein benannter Befehl, der dem Starter hinzugefügt werden soll. Beginnen die Eingabe, um zu filtern"
+              },
+              {
+                "locale": "pt_BR",
+                "description": "Um comando nomeado que deve ser adicionado ao starter. Comece a digitar para filtrar."
+              },
+              {
+                "locale": "fr",
+                "description": "Une commande nommée qui doit être ajoutée au démarreur. Commencez à taper pour filtrer."
+              }
+            ],
             "required": false,
             "choices": [ ],
             "options": [ ],
@@ -214,8 +275,21 @@ de.janno.discord.bot.command.starter.StarterCommandTest.getCommandDefinition=[
             "type": "STRING",
             "name": "command_name_3",
             "nameLocales": [ ],
-            "description": "A named or quickstart command that should be added to the starter. Start typing to filter.",
-            "descriptionLocales": [ ],
+            "description": "A named command that should be added to the starter. Start typing to filter.",
+            "descriptionLocales": [
+              {
+                "locale": "de",
+                "description": "Ein benannter Befehl, der dem Starter hinzugefügt werden soll. Beginnen die Eingabe, um zu filtern"
+              },
+              {
+                "locale": "pt_BR",
+                "description": "Um comando nomeado que deve ser adicionado ao starter. Comece a digitar para filtrar."
+              },
+              {
+                "locale": "fr",
+                "description": "Une commande nommée qui doit être ajoutée au démarreur. Commencez à taper pour filtrer."
+              }
+            ],
             "required": false,
             "choices": [ ],
             "options": [ ],
@@ -225,8 +299,21 @@ de.janno.discord.bot.command.starter.StarterCommandTest.getCommandDefinition=[
             "type": "STRING",
             "name": "command_name_4",
             "nameLocales": [ ],
-            "description": "A named or quickstart command that should be added to the starter. Start typing to filter.",
-            "descriptionLocales": [ ],
+            "description": "A named command that should be added to the starter. Start typing to filter.",
+            "descriptionLocales": [
+              {
+                "locale": "de",
+                "description": "Ein benannter Befehl, der dem Starter hinzugefügt werden soll. Beginnen die Eingabe, um zu filtern"
+              },
+              {
+                "locale": "pt_BR",
+                "description": "Um comando nomeado que deve ser adicionado ao starter. Comece a digitar para filtrar."
+              },
+              {
+                "locale": "fr",
+                "description": "Une commande nommée qui doit être ajoutée au démarreur. Commencez à taper pour filtrer."
+              }
+            ],
             "required": false,
             "choices": [ ],
             "options": [ ],
@@ -236,8 +323,21 @@ de.janno.discord.bot.command.starter.StarterCommandTest.getCommandDefinition=[
             "type": "STRING",
             "name": "command_name_5",
             "nameLocales": [ ],
-            "description": "A named or quickstart command that should be added to the starter. Start typing to filter.",
-            "descriptionLocales": [ ],
+            "description": "A named command that should be added to the starter. Start typing to filter.",
+            "descriptionLocales": [
+              {
+                "locale": "de",
+                "description": "Ein benannter Befehl, der dem Starter hinzugefügt werden soll. Beginnen die Eingabe, um zu filtern"
+              },
+              {
+                "locale": "pt_BR",
+                "description": "Um comando nomeado que deve ser adicionado ao starter. Comece a digitar para filtrar."
+              },
+              {
+                "locale": "fr",
+                "description": "Une commande nommée qui doit être ajoutée au démarreur. Commencez à taper pour filtrer."
+              }
+            ],
             "required": false,
             "choices": [ ],
             "options": [ ],
@@ -247,8 +347,21 @@ de.janno.discord.bot.command.starter.StarterCommandTest.getCommandDefinition=[
             "type": "STRING",
             "name": "command_name_6",
             "nameLocales": [ ],
-            "description": "A named or quickstart command that should be added to the starter. Start typing to filter.",
-            "descriptionLocales": [ ],
+            "description": "A named command that should be added to the starter. Start typing to filter.",
+            "descriptionLocales": [
+              {
+                "locale": "de",
+                "description": "Ein benannter Befehl, der dem Starter hinzugefügt werden soll. Beginnen die Eingabe, um zu filtern"
+              },
+              {
+                "locale": "pt_BR",
+                "description": "Um comando nomeado que deve ser adicionado ao starter. Comece a digitar para filtrar."
+              },
+              {
+                "locale": "fr",
+                "description": "Une commande nommée qui doit être ajoutée au démarreur. Commencez à taper pour filtrer."
+              }
+            ],
             "required": false,
             "choices": [ ],
             "options": [ ],
@@ -258,8 +371,21 @@ de.janno.discord.bot.command.starter.StarterCommandTest.getCommandDefinition=[
             "type": "STRING",
             "name": "command_name_7",
             "nameLocales": [ ],
-            "description": "A named or quickstart command that should be added to the starter. Start typing to filter.",
-            "descriptionLocales": [ ],
+            "description": "A named command that should be added to the starter. Start typing to filter.",
+            "descriptionLocales": [
+              {
+                "locale": "de",
+                "description": "Ein benannter Befehl, der dem Starter hinzugefügt werden soll. Beginnen die Eingabe, um zu filtern"
+              },
+              {
+                "locale": "pt_BR",
+                "description": "Um comando nomeado que deve ser adicionado ao starter. Comece a digitar para filtrar."
+              },
+              {
+                "locale": "fr",
+                "description": "Une commande nommée qui doit être ajoutée au démarreur. Commencez à taper pour filtrer."
+              }
+            ],
             "required": false,
             "choices": [ ],
             "options": [ ],
@@ -269,8 +395,21 @@ de.janno.discord.bot.command.starter.StarterCommandTest.getCommandDefinition=[
             "type": "STRING",
             "name": "command_name_8",
             "nameLocales": [ ],
-            "description": "A named or quickstart command that should be added to the starter. Start typing to filter.",
-            "descriptionLocales": [ ],
+            "description": "A named command that should be added to the starter. Start typing to filter.",
+            "descriptionLocales": [
+              {
+                "locale": "de",
+                "description": "Ein benannter Befehl, der dem Starter hinzugefügt werden soll. Beginnen die Eingabe, um zu filtern"
+              },
+              {
+                "locale": "pt_BR",
+                "description": "Um comando nomeado que deve ser adicionado ao starter. Comece a digitar para filtrar."
+              },
+              {
+                "locale": "fr",
+                "description": "Une commande nommée qui doit être ajoutée au démarreur. Commencez à taper pour filtrer."
+              }
+            ],
             "required": false,
             "choices": [ ],
             "options": [ ],
@@ -280,8 +419,21 @@ de.janno.discord.bot.command.starter.StarterCommandTest.getCommandDefinition=[
             "type": "STRING",
             "name": "command_name_9",
             "nameLocales": [ ],
-            "description": "A named or quickstart command that should be added to the starter. Start typing to filter.",
-            "descriptionLocales": [ ],
+            "description": "A named command that should be added to the starter. Start typing to filter.",
+            "descriptionLocales": [
+              {
+                "locale": "de",
+                "description": "Ein benannter Befehl, der dem Starter hinzugefügt werden soll. Beginnen die Eingabe, um zu filtern"
+              },
+              {
+                "locale": "pt_BR",
+                "description": "Um comando nomeado que deve ser adicionado ao starter. Comece a digitar para filtrar."
+              },
+              {
+                "locale": "fr",
+                "description": "Une commande nommée qui doit être ajoutée au démarreur. Commencez à taper pour filtrer."
+              }
+            ],
             "required": false,
             "choices": [ ],
             "options": [ ],
@@ -291,8 +443,21 @@ de.janno.discord.bot.command.starter.StarterCommandTest.getCommandDefinition=[
             "type": "STRING",
             "name": "command_name_10",
             "nameLocales": [ ],
-            "description": "A named or quickstart command that should be added to the starter. Start typing to filter.",
-            "descriptionLocales": [ ],
+            "description": "A named command that should be added to the starter. Start typing to filter.",
+            "descriptionLocales": [
+              {
+                "locale": "de",
+                "description": "Ein benannter Befehl, der dem Starter hinzugefügt werden soll. Beginnen die Eingabe, um zu filtern"
+              },
+              {
+                "locale": "pt_BR",
+                "description": "Um comando nomeado que deve ser adicionado ao starter. Comece a digitar para filtrar."
+              },
+              {
+                "locale": "fr",
+                "description": "Une commande nommée qui doit être ajoutée au démarreur. Commencez à taper pour filtrer."
+              }
+            ],
             "required": false,
             "choices": [ ],
             "options": [ ],
@@ -303,7 +468,20 @@ de.janno.discord.bot.command.starter.StarterCommandTest.getCommandDefinition=[
             "name": "open_in_new_message",
             "nameLocales": [ ],
             "description": "Set true to create new button messages otherwise reuse the starter message",
-            "descriptionLocales": [ ],
+            "descriptionLocales": [
+              {
+                "locale": "de",
+                "description": "Setzen Sie true, um immer neue Button Message zu erstellen"
+              },
+              {
+                "locale": "pt_BR",
+                "description": "Defina true para criar novas mensagens de botão; caso contrário, reutilize a mensagem inicial"
+              },
+              {
+                "locale": "fr",
+                "description": "Mettre true pour créer de nouveaux messages de bouton, sinon réutiliser le message de départ"
+              }
+            ],
             "required": false,
             "choices": [ ],
             "options": [ ],
@@ -317,7 +495,20 @@ de.janno.discord.bot.command.starter.StarterCommandTest.getCommandDefinition=[
         "name": "welcome",
         "nameLocales": [ ],
         "description": "Creates the default welcome message in this channel",
-        "descriptionLocales": [ ],
+        "descriptionLocales": [
+          {
+            "locale": "de",
+            "description": "Erstellt die Standardbegrüßungsnachricht in diesem Kanal"
+          },
+          {
+            "locale": "pt_BR",
+            "description": "Cria a mensagem de boas-vindas padrão nesse canal"
+          },
+          {
+            "locale": "fr",
+            "description": "Crée le message de bienvenue par défaut dans ce canal"
+          }
+        ],
         "required": false,
         "choices": [ ],
         "options": [ ],
@@ -327,19 +518,19 @@ de.janno.discord.bot.command.starter.StarterCommandTest.getCommandDefinition=[
         "type": "SUB_COMMAND",
         "name": "help",
         "nameLocales": [ ],
-        "description": "Get help for `/r`",
+        "description": "Get help for `/starter`",
         "descriptionLocales": [
           {
             "locale": "de",
-            "description": "Hilfe für `/r`"
+            "description": "Hilfe für `/starter`"
           },
           {
             "locale": "pt_BR",
-            "description": "Consiga ajuda para `/r`"
+            "description": "Consiga ajuda para `/starter`"
           },
           {
             "locale": "fr",
-            "description": "Obtenir de l'aide pour `/r`"
+            "description": "Obtenir de l'aide pour `/starter`"
           }
         ],
         "required": false,
