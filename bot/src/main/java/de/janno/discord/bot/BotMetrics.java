@@ -17,7 +17,6 @@ import io.micrometer.core.instrument.binder.system.UptimeMetrics;
 import io.micrometer.prometheusmetrics.PrometheusConfig;
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry;
 import lombok.NonNull;
-import reactor.core.scheduler.Schedulers;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
