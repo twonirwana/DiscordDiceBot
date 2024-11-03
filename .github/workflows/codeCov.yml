@@ -13,12 +13,13 @@ on:
   pull_request:
     branches: [ main ]
 
+permissions:
+  checks: write
+
 jobs:
   build:
 
     runs-on: ubuntu-latest
-    permissions:
-      checks: write
     steps:
     - uses: actions/checkout@v4
     - name: Set up JDK 21
