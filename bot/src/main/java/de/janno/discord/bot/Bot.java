@@ -61,6 +61,7 @@ public class Bot {
         HiddenDirectRollCommand hiddenDirectRollCommand = new HiddenDirectRollCommand(persistenceManager, cachingDiceEvaluator);
         RerollAnswerHandler rerollAnswerHandler = new RerollAnswerHandler(persistenceManager, cachingDiceEvaluator);
         StarterCommand starterCommand = new StarterCommand(persistenceManager, customParameterCommand, customDiceCommand, sumCustomSetCommand);
+        QuickstartCommand quickstartCommand = new QuickstartCommand(persistenceManager, customParameterCommand, customDiceCommand, sumCustomSetCommand, channelConfigCommand);
         DiscordConnectorImpl.createAndStart(
                 List.of(customDiceCommand,
                         new DirectRollCommand(persistenceManager, cachingDiceEvaluator),
@@ -71,7 +72,7 @@ public class Bot {
                         sumCustomSetCommand,
                         customParameterCommand,
                         new ClearCommand(persistenceManager),
-                        new QuickstartCommand(rpgSystemCommandPreset),
+                        quickstartCommand,
                         new HelpCommand(),
                         new FetchCommand(persistenceManager, customParameterCommand, customDiceCommand, sumCustomSetCommand),
                         starterCommand

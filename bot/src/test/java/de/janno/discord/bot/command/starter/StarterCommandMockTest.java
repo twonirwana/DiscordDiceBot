@@ -59,6 +59,11 @@ class StarterCommandMockTest {
                         .map(l -> Arguments.of(d, l)));
     }
 
+    @Test
+    void debug(){
+        createPreset(RpgSystemCommandPreset.PresetId.FATE, Locale.ENGLISH);
+    }
+
     @BeforeEach
     void setup() throws IOException {
         File cacheDirectory = new File("imageCache/");

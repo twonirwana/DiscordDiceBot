@@ -37,48 +37,12 @@ class QuickstartCommandTest {
         CustomParameterCommand customParameterCommand = new CustomParameterCommand(persistenceManager, cachingDiceEvaluator);
         SumCustomSetCommand sumCustomSetCommand = new SumCustomSetCommand(persistenceManager, cachingDiceEvaluator);
         ChannelConfigCommand channelConfigCommand = new ChannelConfigCommand(persistenceManager);
-        RpgSystemCommandPreset rpgSystemCommandPreset = new RpgSystemCommandPreset(persistenceManager, customParameterCommand, customDiceCommand, sumCustomSetCommand, channelConfigCommand);
-        underTest = new QuickstartCommand(rpgSystemCommandPreset);
+        underTest = new QuickstartCommand(persistenceManager, customParameterCommand, customDiceCommand, sumCustomSetCommand, channelConfigCommand);
     }
 
     @Test
     void getCommandId() {
         assertThat(underTest.getCommandId()).isEqualTo("quickstart");
-    }
-
-    @Test
-    void getPresetId_idMatch() {
-        Optional<RpgSystemCommandPreset.PresetId> res = QuickstartCommand.getPresetId("DND5", Locale.ENGLISH);
-
-        assertThat(res).contains(RpgSystemCommandPreset.PresetId.DND5);
-    }
-
-    @Test
-    void getPresetId_nameMatch() {
-        Optional<RpgSystemCommandPreset.PresetId> res = QuickstartCommand.getPresetId("Dungeon & dragons 5e ", Locale.ENGLISH);
-
-        assertThat(res).contains(RpgSystemCommandPreset.PresetId.DND5_IMAGE);
-    }
-
-    @Test
-    void getPresetId_synonymeMatch() {
-        Optional<RpgSystemCommandPreset.PresetId> res = QuickstartCommand.getPresetId(" reve de Dragon", Locale.ENGLISH);
-
-        assertThat(res).contains(RpgSystemCommandPreset.PresetId.REVE_DE_DRAGON);
-    }
-
-    @Test
-    void getPresetId_nameStartsWith() {
-        Optional<RpgSystemCommandPreset.PresetId> res = QuickstartCommand.getPresetId(" oWod ", Locale.ENGLISH);
-
-        assertThat(res).contains(RpgSystemCommandPreset.PresetId.OWOD);
-    }
-
-    @Test
-    void getPresetId_noMatch() {
-        Optional<RpgSystemCommandPreset.PresetId> res = QuickstartCommand.getPresetId(" Opus Anima ", Locale.ENGLISH);
-
-        assertThat(res).isEmpty();
     }
 
     @Test

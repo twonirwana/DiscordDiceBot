@@ -2,239 +2,23 @@ de.janno.discord.bot.command.help.QuickstartCommandTest.getAutoCompleteAnswer_al
   [
     {
       "name": "A Song of Ice and Fire",
-      "value": "ASOIAF"
+      "value": "A Song of Ice and Fire"
     },
     {
       "name": "Blades in the Dark",
-      "value": "BLADES_IN_THE_DARK_IMAGE"
+      "value": "Blades in the Dark"
     },
     {
       "name": "Blades in the Dark - Alias",
-      "value": "BLADES_IN_THE_DARK_ALIAS"
+      "value": "Blades in the Dark - Alias"
     },
     {
       "name": "Blades in the Dark - Detail",
-      "value": "BLADES_IN_THE_DARK_DETAIL"
+      "value": "Blades in the Dark - Detail"
     },
     {
       "name": "Blades in the Dark without Dice Images",
-      "value": "BLADES_IN_THE_DARK"
-    },
-    {
-      "name": "Bluebeard's Bride",
-      "value": "BLUEBEARD_BRIDE"
-    },
-    {
-      "name": "Call of Cthulhu 7th Edition",
-      "value": "CALL_OF_CTHULHU_7ED"
-    },
-    {
-      "name": "Candela Obscura",
-      "value": "CANDELA_OBSCURA"
-    },
-    {
-      "name": "Candela Obscura v2",
-      "value": "CANDELA_OBSCURA2"
-    },
-    {
-      "name": "City of Mist",
-      "value": "CITY_OF_MIST"
-    },
-    {
-      "name": "Cyberpunk - Alias",
-      "value": "CYBERPUNK_RED_ALIAS"
-    },
-    {
-      "name": "Cyberpunk Red",
-      "value": "CYBERPUNK_RED"
-    },
-    {
-      "name": "Dice Calculator",
-      "value": "DICE_CALCULATOR"
-    },
-    {
-      "name": "Dungeon & Dragons 5e",
-      "value": "DND5_IMAGE"
-    },
-    {
-      "name": "Dungeon & Dragons 5e - Alias",
-      "value": "DND5_ALIAS"
-    },
-    {
-      "name": "Dungeon & Dragons 5e Calculator",
-      "value": "DND5_CALC"
-    },
-    {
-      "name": "Dungeon & Dragons 5e Calculator 2",
-      "value": "DND5_CALC2"
-    },
-    {
-      "name": "Dungeon & Dragons 5e without Dice Images",
-      "value": "DND5"
-    },
-    {
-      "name": "Dungeon Crawl Classics",
-      "value": "DUNGEON_CRAWL_CLASSICS"
-    },
-    {
-      "name": "EZD6",
-      "value": "EZD6"
-    },
-    {
-      "name": "Exalted 3ed",
-      "value": "EXALTED_3ED"
-    },
-    {
-      "name": "Fallout",
-      "value": "FALLOUT"
-    },
-    {
-      "name": "Fate",
-      "value": "FATE_IMAGE"
-    },
-    {
-      "name": "Fate Alias",
-      "value": "FATE_ALIAS"
-    },
-    {
-      "name": "Fate without Dice Images",
-      "value": "FATE"
-    },
-    {
-      "name": "Forbidden Lands",
-      "value": "FORBIDDEN_LANDS"
-    },
-    {
-      "name": "Heroes of Cerulea",
-      "value": "HEROES_OF_CERULEA"
-    },
-    {
-      "name": "Hunter 5ed",
-      "value": "HUNTER_5ED"
-    },
-    {
-      "name": "Ironsworn",
-      "value": "IRONSWORN"
-    },
-    {
-      "name": "Kids on Brooms",
-      "value": "KIDS_ON_BROOMS"
-    },
-    {
-      "name": "OSR",
-      "value": "OSR"
-    },
-    {
-      "name": "Oathsworn",
-      "value": "OATHSWORN"
-    },
-    {
-      "name": "One-Roll Engine",
-      "value": "ONE_ROLL_ENGINE"
-    },
-    {
-      "name": "Paranoia: Red Clearance Edition",
-      "value": "PARANOIA"
-    },
-    {
-      "name": "Powered by the Apocalypse",
-      "value": "PBTA"
-    },
-    {
-      "name": "Prowlers & Paragons Ultimate Edition",
-      "value": "PROWLERS_PARAGONS"
-    },
-    {
-      "name": "Public Access",
-      "value": "PUBLIC_ACCESS"
-    },
-    {
-      "name": "Rebellion Unplugged",
-      "value": "REBELLION_UNPLUGGED"
-    },
-    {
-      "name": "Risus The Anything RPG \"Evens Up\"",
-      "value": "RISUS"
-    },
-    {
-      "name": "Rêve de Dragon",
-      "value": "REVE_DE_DRAGON"
-    },
-    {
-      "name": "Salvage Union BDR-V1.0",
-      "value": "SALVAGE_UNION"
-    },
-    {
-      "name": "Savage Worlds",
-      "value": "SAVAGE_WORLDS"
-    },
-    {
-      "name": "Savage Worlds - Alias",
-      "value": "SAVAGE_WORLDS_ALIAS"
-    },
-    {
-      "name": "Shadowrun",
-      "value": "SHADOWRUN_IMAGE"
-    },
-    {
-      "name": "Shadowrun - Alias",
-      "value": "SHADOWRUN_ALIAS"
-    },
-    {
-      "name": "Shadowrun without Dice Images",
-      "value": "SHADOWRUN"
-    },
-    {
-      "name": "Star Wars - West End Games D6 Rules, 2nd Edition REUP",
-      "value": "STAR_WARS_D6"
-    },
-    {
-      "name": "The Expanse",
-      "value": "EXPANSE"
-    },
-    {
-      "name": "The Marvel Multiverse Role-Playing Game",
-      "value": "MARVEL"
-    },
-    {
-      "name": "The One Ring",
-      "value": "THE_ONE_RING"
-    },
-    {
-      "name": "Tiny D6",
-      "value": "TINY_D6"
-    },
-    {
-      "name": "Traveller",
-      "value": "TRAVELLER"
-    },
-    {
-      "name": "Vampire 5ed",
-      "value": "VAMPIRE_5ED"
-    },
-    {
-      "name": "Year Zero Engine: Alien",
-      "value": "ALIEN"
-    },
-    {
-      "name": "nWod / Chronicles of Darkness",
-      "value": "NWOD"
-    },
-    {
-      "name": "nWod / Chronicles of Darkness - Alias",
-      "value": "NWOD_ALIAS"
-    },
-    {
-      "name": "oWod / Storyteller System",
-      "value": "OWOD"
-    },
-    {
-      "name": "oWod / Storyteller System - Alias",
-      "value": "OWOD_ALIAS"
-    },
-    {
-      "name": "🪙Coin Toss",
-      "value": "COIN"
+      "value": "Blades in the Dark without Dice Images"
     }
   ]
 ]
@@ -244,31 +28,23 @@ de.janno.discord.bot.command.help.QuickstartCommandTest.getAutoCompleteAnswer_fi
   [
     {
       "name": "Dungeon & Dragons 5e",
-      "value": "DND5_IMAGE"
+      "value": "Dungeon & Dragons 5e"
     },
     {
       "name": "Dungeon & Dragons 5e - Alias",
-      "value": "DND5_ALIAS"
+      "value": "Dungeon & Dragons 5e - Alias"
     },
     {
       "name": "Dungeon & Dragons 5e Calculator",
-      "value": "DND5_CALC"
+      "value": "Dungeon & Dragons 5e Calculator"
     },
     {
       "name": "Dungeon & Dragons 5e Calculator 2",
-      "value": "DND5_CALC2"
+      "value": "Dungeon & Dragons 5e Calculator 2"
     },
     {
       "name": "Dungeon & Dragons 5e without Dice Images",
-      "value": "DND5"
-    },
-    {
-      "name": "Dungeon Crawl Classics",
-      "value": "DUNGEON_CRAWL_CLASSICS"
-    },
-    {
-      "name": "Powered by the Apocalypse",
-      "value": "PBTA"
+      "value": "Dungeon & Dragons 5e without Dice Images"
     }
   ]
 ]
@@ -278,23 +54,23 @@ de.janno.discord.bot.command.help.QuickstartCommandTest.getAutoCompleteAnswer_fi
   [
     {
       "name": "Vampiro 5ed",
-      "value": "VAMPIRE_5ED"
+      "value": "Vampiro 5ed"
     },
     {
       "name": "nWod / Chronicles of Darkness - Alias",
-      "value": "NWOD_ALIAS"
+      "value": "nWod / Chronicles of Darkness - Alias"
     },
     {
       "name": "nWod / Crônicas das Trevas",
-      "value": "NWOD"
+      "value": "nWod / Crônicas das Trevas"
     },
     {
       "name": "oWod / Sistema Storyteller",
-      "value": "OWOD"
+      "value": "oWod / Sistema Storyteller"
     },
     {
       "name": "oWod / Storyteller System - Alias",
-      "value": "OWOD_ALIAS"
+      "value": "oWod / Storyteller System - Alias"
     }
   ]
 ]
@@ -304,39 +80,23 @@ de.janno.discord.bot.command.help.QuickstartCommandTest.getAutoCompleteAnswer_fi
   [
     {
       "name": "Dungeon & Dragons 5e",
-      "value": "DND5_IMAGE"
+      "value": "Dungeon & Dragons 5e"
     },
     {
       "name": "Dungeon & Dragons 5e - Alias",
-      "value": "DND5_ALIAS"
+      "value": "Dungeon & Dragons 5e - Alias"
     },
     {
       "name": "Dungeon & Dragons 5e Calculator 2",
-      "value": "DND5_CALC2"
+      "value": "Dungeon & Dragons 5e Calculator 2"
     },
     {
       "name": "Dungeon & Dragons 5e Kalkulator",
-      "value": "DND5_CALC"
+      "value": "Dungeon & Dragons 5e Kalkulator"
     },
     {
       "name": "Dungeon & Dragons 5e ohne Würfelbildern",
-      "value": "DND5"
-    },
-    {
-      "name": "Dungeon Crawl Classics",
-      "value": "DUNGEON_CRAWL_CLASSICS"
-    },
-    {
-      "name": "Powered by the Apocalypse",
-      "value": "PBTA"
-    },
-    {
-      "name": "nWod / Chronicles of Darkness",
-      "value": "NWOD"
-    },
-    {
-      "name": "oWod / Storyteller System",
-      "value": "OWOD"
+      "value": "Dungeon & Dragons 5e ohne Würfelbildern"
     }
   ]
 ]

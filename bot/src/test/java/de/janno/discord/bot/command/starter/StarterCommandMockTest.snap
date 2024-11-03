@@ -4856,7 +4856,7 @@ de.janno.discord.bot.command.starter.StarterCommandMockTest.createWithUserNamed_
 
 de.janno.discord.bot.command.starter.StarterCommandMockTest.createWithUserNamed_newMassage[event2]=[
   [
-    "reply: `/custom_dice start buttons: 2d6@Roll answer_format: full answer_interaction: none dice_image_style: d6_dots dice_image_color: white name: named_!uniqueKey1!`",
+    "reply: **named_!uniqueKey1!:** `/custom_dice start buttons: 2d6@Roll answer_format: full answer_interaction: none dice_image_style: d6_dots dice_image_color: white name: named_!uniqueKey1!`",
     "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click on a button to roll the dice, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Roll, id=custom_dice\u001E1\u001E00000000-0000-0000-0001-000000000002, style=PRIMARY, disabled=false, emoji=null)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
   ]
 ]
@@ -4893,6 +4893,31 @@ de.janno.discord.bot.command.starter.StarterCommandMockTest.createWithUserNamed_
     "deleteMessageById: 1",
     "sendMessage: EmbedOrMessageDefinition(title=Roll ⇒ 1, 4, descriptionOrContent=2d6, fields=[], componentRowDefinitions=[], hasImage=true, type=EMBED, userReference=true, sendToOtherChannelId=null)",
     "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=custom name, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=named_!uniqueKey1!, id=starter\u001E00000000-0000-0000-0001-000000000002\u001E00000000-0000-0000-0001-000000000001, style=PRIMARY, disabled=false, emoji=null)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
+  ]
+]
+
+
+de.janno.discord.bot.command.starter.StarterCommandMockTest.debug[FATE_event1_en]=[
+  [
+    "reply: commandString",
+    "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=custom name, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Fate without Dice Images, id=starter\u001E00000000-0000-0000-0001-000000000001\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
+  ]
+]
+
+
+de.janno.discord.bot.command.starter.StarterCommandMockTest.debug[FATE_event2_en]=[
+  [
+    "editMessage: message:Please select value for **Modifier**, buttonValues=id1,id2,id3,id4,id5,id6,id7,id8,id9,id10,id11,id12,id13,id14,id15"
+  ]
+]
+
+
+de.janno.discord.bot.command.starter.StarterCommandMockTest.debug[FATE_event3_en]=[
+  [
+    "acknowledge",
+    "deleteMessageById: 1",
+    "sendMessage: EmbedOrMessageDefinition(title=Modifier: -4 ⇒ -4, descriptionOrContent=[＋, ＋, −, −], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED, userReference=true, sendToOtherChannelId=null)",
+    "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=custom name, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Fate without Dice Images, id=starter\u001E00000000-0000-0000-0001-000000000001\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
   ]
 ]
 
