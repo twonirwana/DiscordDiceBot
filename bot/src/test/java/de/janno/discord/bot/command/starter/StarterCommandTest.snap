@@ -543,7 +543,7 @@ de.janno.discord.bot.command.starter.StarterCommandTest.getCommandDefinition=[
 ]
 
 
-de.janno.discord.bot.command.starter.StarterCommandTest.testWelcomeMessage[DE]=[
+de.janno.discord.bot.command.starter.StarterCommandTest.testWelcomeMessage[de]=[
   {
     "descriptionOrContent": "Willkommen zum Button Dice Bot,\nbenutzte eine der Beispiel Buttons um eine der RPG Systeme zu starten, verwenden `quickstart system` um eines von vielen RPG Voreinstellungen oder benutzte ein Slash Befehl um ein benutzerdefiniertes System zu erstellen (siehe https://github.com/twonirwana/DiscordDiceBot für Details oder benutzt `/help`).\nDu kannst außerdem `/r` benutzten um direkt zu würfel.\nBesuch uns für Hilfe oder Feature-Anfrage auf unseren Discord Server: https://discord.gg/e43BsqKpFr",
     "fields": [ ],
@@ -612,7 +612,7 @@ de.janno.discord.bot.command.starter.StarterCommandTest.testWelcomeMessage[DE]=[
 ]
 
 
-de.janno.discord.bot.command.starter.StarterCommandTest.testWelcomeMessage[EN]=[
+de.janno.discord.bot.command.starter.StarterCommandTest.testWelcomeMessage[en]=[
   {
     "descriptionOrContent": "Welcome to the Button Dice Bot,\nuse one of the example buttons below to start one of the RPG dice systems, use `/quickstart system` to select one of many RPG presets or use the slash command to configure your own custom dice system (see https://github.com/twonirwana/DiscordDiceBot for details or the slash command `/help`).\nYou can also use the slash command `/r` to directly roll dice with.\nFor help or feature request come to the support discord server: https://discord.gg/e43BsqKpFr",
     "fields": [ ],
@@ -681,7 +681,7 @@ de.janno.discord.bot.command.starter.StarterCommandTest.testWelcomeMessage[EN]=[
 ]
 
 
-de.janno.discord.bot.command.starter.StarterCommandTest.testWelcomeMessage[FR]=[
+de.janno.discord.bot.command.starter.StarterCommandTest.testWelcomeMessage[fr]=[
   {
     "descriptionOrContent": "Bienvenue sur le Button Dice Bot,\nUtilisez l'un des boutons d'exemple ci-dessous pour lancer l'un des systèmes de dés RPG, utilisez `/quickstart système` pour sélectionner l'un des nombreux presets RPG ou utilisez la commande slash pour configurer votre propre système de dés personnalisé (voir https://github.com/twonirwana/DiscordDiceBot pour plus de détails ou la commande slash `/help`).\nVous pouvez également utiliser la commande slash `/r` pour lancer directement les dés.\nPour obtenir de l'aide ou demander une fonctionnalité, venez sur le serveur discord de support : https://discord.gg/e43BsqKpFr",
     "fields": [ ],

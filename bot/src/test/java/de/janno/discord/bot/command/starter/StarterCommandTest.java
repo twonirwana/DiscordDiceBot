@@ -3,6 +3,7 @@ package de.janno.discord.bot.command.starter;
 import au.com.origin.snapshots.Expect;
 import au.com.origin.snapshots.junit5.SnapshotExtension;
 import de.janno.discord.bot.AnswerInteractionType;
+import de.janno.discord.bot.I18n;
 import de.janno.discord.bot.command.AnswerFormatType;
 import de.janno.discord.bot.command.ButtonIdLabelAndDiceExpression;
 import de.janno.discord.bot.command.IncrementingUUIDSupplier;
@@ -26,7 +27,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.File;
 import java.io.IOException;
@@ -34,6 +36,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -46,6 +49,11 @@ class StarterCommandTest {
     StarterCommand underTest;
 
     CustomDiceCommand customDiceCommand;
+
+    static Stream<Arguments> generateLocaleData() {
+        return I18n.allSupportedLanguage().stream()
+                .map(Arguments::of);
+    }
 
     @BeforeEach
     void setup() throws IOException {
@@ -67,9 +75,9 @@ class StarterCommandTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"EN", "DE", "FR", "pt_BR"})
-    void testWelcomeMessage(String locale) {
-        expect.scenario(locale).toMatchSnapshot(underTest.getWelcomeMessage().apply(new DiscordConnector.WelcomeRequest(null, 1, Locale.of(locale))));
+    @MethodSource("generateLocaleData")
+    void testWelcomeMessage(Locale locale) {
+        expect.scenario(locale.toString()).toMatchSnapshot(underTest.getWelcomeMessage().apply(new DiscordConnector.WelcomeRequest(null, 1, locale)));
     }
 
     @Test
