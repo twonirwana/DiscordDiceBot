@@ -182,10 +182,9 @@ public class DirectRollCommand implements SlashCommand {
         return event.replyWithEmbedOrMessageDefinition(createAnswerWithOptionalWarning(answer), false)
                 .doAfterTerminate(() -> {
                     BotMetrics.timerAcknowledgeFinishedMetricCounter(getCommandId(), stopwatch.elapsed());
-                    log.info("{}: '{}'={} -> {} in start={}ms reply={}ms",
+                    log.info("{}: {} = {} in start={}ms reply={}ms",
                             event.getRequester().toLogString(),
-                            commandString.replace("`", ""),
-                            diceExpression,
+                            getCommandId(),
                             answer.toShortString(),
                             untilAck.toMillis(),
                             stopwatch.elapsed(TimeUnit.MILLISECONDS)

@@ -19,8 +19,8 @@ import de.janno.discord.bot.persistance.PersistenceManager;
 import de.janno.discord.bot.persistance.PersistenceManagerImpl;
 import de.janno.discord.connector.api.AutoCompleteAnswer;
 import de.janno.discord.connector.api.AutoCompleteRequest;
-import de.janno.discord.connector.api.DiscordConnector;
 import de.janno.discord.connector.api.OptionValue;
+import de.janno.discord.connector.api.WelcomeMessageCreator;
 import de.janno.evaluator.dice.random.RandomNumberSupplier;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.BeforeEach;
@@ -77,7 +77,7 @@ class StarterCommandTest {
     @ParameterizedTest
     @MethodSource("generateLocaleData")
     void testWelcomeMessage(Locale locale) {
-        expect.scenario(locale.toString()).toMatchSnapshot(underTest.getWelcomeMessage().apply(new DiscordConnector.WelcomeRequest(null, 1, locale)));
+        expect.scenario(locale.toString()).toMatchSnapshot(underTest.getWelcomeMessage().getWelcomeMessage(new WelcomeMessageCreator.WelcomeRequest(null, 1, locale)));
     }
 
     @Test

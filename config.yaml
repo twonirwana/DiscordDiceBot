@@ -24,6 +24,6 @@ diceEvaluator:
   errorContextSize: 6
 command:
   minDelayBetweenButtonMessagesMs: 1000
-  delayMessageDataDeletionMs: 10000
+  delayMessageDataDeletionMs: 3000
   fetch.delayMs: 60000
   clear.messageDeleteDelay: 1000

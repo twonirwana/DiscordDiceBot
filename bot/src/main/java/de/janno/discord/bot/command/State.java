@@ -2,6 +2,7 @@ package de.janno.discord.bot.command;
 
 import lombok.NonNull;
 import lombok.Value;
+
 import javax.annotation.Nullable;
 
 import java.util.Optional;
@@ -19,6 +20,6 @@ public class State<T extends StateData> {
         String persistedStateValues = Optional.ofNullable(data)
                 .map(d -> data.getShortStringValues())
                 .orElse("");
-        return String.format("[%s]", persistedStateValues).replace("\n", " ");
+        return String.format("%s [%s]", buttonValue, persistedStateValues).replace("\n", " ");
     }
 }

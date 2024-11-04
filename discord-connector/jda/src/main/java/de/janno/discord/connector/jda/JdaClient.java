@@ -2,7 +2,6 @@ package de.janno.discord.connector.jda;
 
 import com.google.common.base.Strings;
 import de.janno.discord.connector.api.*;
-import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
 import io.avaje.config.Config;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -39,7 +38,6 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.ConcurrentSkipListSet;
-import java.util.function.Function;
 import java.util.function.Supplier;
 
 @Slf4j
@@ -47,7 +45,7 @@ public class JdaClient {
 
     public JdaClient(@NonNull List<SlashCommand> slashCommands,
                      @NonNull List<ComponentCommand> componentCommands,
-                     @NonNull Function<DiscordConnector.WelcomeRequest, EmbedOrMessageDefinition> welcomeMessageDefinition,
+                     @NonNull WelcomeMessageCreator welcomeMessageCreator,
                      @NonNull Set<Long> allGuildIdsInPersistence) {
 
         final LocalDateTime startTime = LocalDateTime.now();
@@ -81,11 +79,13 @@ public class JdaClient {
                                         Optional.ofNullable(event.getGuild().getSystemChannel())
                                                 .filter(GuildMessageChannel::canTalk)
                                                 .ifPresent(textChannel -> {
-                                                    EmbedOrMessageDefinition welcomeMessage = welcomeMessageDefinition.apply(new DiscordConnector.WelcomeRequest(event.getGuild().getIdLong(),
-                                                            textChannel.getIdLong(), LocaleConverter.toLocale(event.getGuild().getLocale())));
+                                                    final WelcomeMessageCreator.WelcomeRequest request = new WelcomeMessageCreator.WelcomeRequest(event.getGuild().getIdLong(),
+                                                            textChannel.getIdLong(), LocaleConverter.toLocale(event.getGuild().getLocale()));
+                                                    final WelcomeMessageCreator.MessageAndConfigId welcomeMessageAndConfigId = welcomeMessageCreator.getWelcomeMessage(request);
                                                     createMonoFrom(() -> textChannel.sendMessage(
-                                                            MessageComponentConverter.messageComponent2MessageLayout(welcomeMessage.getDescriptionOrContent(),
-                                                                    welcomeMessage.getComponentRowDefinitions())))
+                                                            MessageComponentConverter.messageComponent2MessageLayout(welcomeMessageAndConfigId.embedOrMessageDefinition().getDescriptionOrContent(),
+                                                                    welcomeMessageAndConfigId.embedOrMessageDefinition().getComponentRowDefinitions())))
+                                                            .doOnNext(m -> welcomeMessageCreator.processMessageId(request, welcomeMessageAndConfigId.configUUID(), m.getIdLong()))
                                                             .doOnSuccess(m -> {
                                                                 JdaMetrics.sendWelcomeMessage();
                                                                 log.info("Welcome message send in '{}'.'{}'",
