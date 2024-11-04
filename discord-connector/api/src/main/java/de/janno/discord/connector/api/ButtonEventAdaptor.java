@@ -25,11 +25,11 @@ public interface ButtonEventAdaptor extends DiscordAdapter {
 
     String getInvokingGuildMemberName();
 
-    Mono<Void> editMessage(@Nullable String message, @Nullable List<ComponentRowDefinition> componentRowDefinitions);
+    @NonNull Mono<Void> editMessage(@Nullable String message, @Nullable List<ComponentRowDefinition> componentRowDefinitions);
 
-    Requester getRequester();
+    @NonNull Requester getRequester();
 
-    Optional<String> checkPermissions(Long answerTargetChannelId, @NonNull Locale userLocale);
+    @NonNull Optional<String> checkPermissions(Long answerTargetChannelId, @NonNull Locale userLocale);
 
     @NonNull
     OffsetDateTime getMessageCreationTime();
@@ -37,12 +37,12 @@ public interface ButtonEventAdaptor extends DiscordAdapter {
     /**
      * acknowledge the event and delete original event
      */
-    Mono<Void> acknowledgeAndDeleteOriginal();
+    @NonNull Mono<Void> acknowledgeAndDeleteOriginal();
 
     @NonNull Mono<Void> acknowledge();
 
     /**
      * Gives the message definition of the message where the button was clicked
      */
-    EmbedOrMessageDefinition getMessageDefinitionOfEventMessageWithoutButtons();
+    @NonNull EmbedOrMessageDefinition getMessageDefinitionOfEventMessageWithoutButtons();
 }

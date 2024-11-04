@@ -44,7 +44,7 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
     private static final String CLEAR_BUTTON_ID = "clear";
     private static final String BACK_BUTTON_ID = "back";
 
-    private static final String CONFIG_TYPE_ID = "SumCustomSetConfig";
+    public static final String CONFIG_TYPE_ID = "SumCustomSetConfig";
     private static final String STATE_DATA_TYPE_ID = "SumCustomSetStateDataV2";
     private static final String STATE_DATA_TYPE_LEGACY_ID = "SumCustomSetStateData";
     private final static Pattern ENDS_WITH_DOUBLE_SEMICOLUMN_PATTERN = Pattern.compile(".*;\\s*;\\s*$", Pattern.DOTALL);
@@ -128,8 +128,8 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
     }
 
     @Override
-    public Optional<MessageConfigDTO> createMessageConfig(@NonNull UUID configUUID, @Nullable Long guildId, long channelId, @NonNull SumCustomSetConfig config) {
-        return Optional.of(new MessageConfigDTO(configUUID, guildId, channelId, getCommandId(), CONFIG_TYPE_ID, Mapper.serializedObject(config)));
+    public Optional<MessageConfigDTO> createMessageConfig(@NonNull UUID configUUID, @Nullable Long guildId, long channelId, long userId, @NonNull SumCustomSetConfig config) {
+        return Optional.of(new MessageConfigDTO(configUUID, guildId, channelId, getCommandId(), CONFIG_TYPE_ID, Mapper.serializedObject(config), config.getName(), userId));
     }
 
     @Override
@@ -228,7 +228,8 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
                                                                                           @NonNull SumCustomSetConfig config,
                                                                                           @Nullable State<SumCustomSetStateDataV2> state,
                                                                                           @Nullable Long guildId,
-                                                                                          long channelId) {
+                                                                                          long channelId,
+                                                                                          long userId) {
         if (state == null) {
             return Optional.of(createSlashResponseMessage(configUUID, config, channelId));
         }
@@ -384,6 +385,7 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
         final boolean systemButtonNewLine = ENDS_WITH_DOUBLE_SEMICOLUMN_PATTERN.matcher(buttonsOptionValue).matches();
         final String prefix = options.getStringSubOptionWithName(PREFIX_OPTIONS_NAME).orElse(null);
         final String postfix = options.getStringSubOptionWithName(POSTFIX_OPTIONS_NAME).orElse(null);
+        final String name = BaseCommandOptions.getNameFromStartCommandOption(options).orElse(null);
         return new SumCustomSetConfig(answerTargetChannelId,
                 buttons,
                 alwaysSumResults,
@@ -396,7 +398,9 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
                 null, new DiceStyleAndColor(
                 BaseCommandOptions.getDiceStyleOptionFromStartCommandOption(options).orElse(DiceImageStyle.polyhedral_3d),
                 BaseCommandOptions.getDiceColorOptionFromStartCommandOption(options).orElse(DiceImageStyle.polyhedral_3d.getDefaultColor())),
-                userLocale);
+                userLocale,
+                null,
+                name);
     }
 
     private List<ComponentRowDefinition> createButtonLayout(UUID configUUID, SumCustomSetConfig config, boolean rollDisabled, boolean backDisabled, Set<String> disableButtonIds, Locale configLocale) {

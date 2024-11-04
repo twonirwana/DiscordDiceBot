@@ -14,15 +14,18 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.ToString;
+import lombok.experimental.SuperBuilder;
 
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @EqualsAndHashCode(callSuper = true)
 @Getter
 @ToString(callSuper = true)
+@SuperBuilder(toBuilder = true)
 @JsonIgnoreProperties(ignoreUnknown = true) //ignore legacy diceSystem field
 public class SumCustomSetConfig extends RollConfig {
     @NonNull
@@ -45,9 +48,11 @@ public class SumCustomSetConfig extends RollConfig {
                               @JsonProperty("answerInteractionType") AnswerInteractionType answerInteractionType,
                               @JsonProperty("resultImage") ResultImage resultImage,
                               @JsonProperty("diceImageStyle") DiceStyleAndColor diceStyleAndColor,
-                              @JsonProperty("configLocale") Locale configLocale
+                              @JsonProperty("configLocale") Locale configLocale,
+                              @JsonProperty("callStarterConfigAfterFinish") UUID callStarterConfigAfterFinish,
+                              @JsonProperty("name") String name
     ) {
-        super(answerTargetChannelId, answerFormatType, answerInteractionType, resultImage, diceStyleAndColor, configLocale);
+        super(answerTargetChannelId, answerFormatType, answerInteractionType, resultImage, diceStyleAndColor, configLocale, callStarterConfigAfterFinish, name);
         this.labelAndExpression = labelAndExpression;
         this.alwaysSumResult = alwaysSumResult == null || alwaysSumResult;
         this.hideExpressionInStatusAndAnswer = Optional.ofNullable(hideExpressionInStatusAndAnswer).orElse(false);

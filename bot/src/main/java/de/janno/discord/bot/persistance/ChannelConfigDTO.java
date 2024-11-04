@@ -23,4 +23,6 @@ public class ChannelConfigDTO {
     String configClassId;
     @NonNull
     String config;
+    @Nullable
+    String name;
 }

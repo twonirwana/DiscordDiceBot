@@ -23,6 +23,7 @@ public class ButtonEventAdaptorMock implements ButtonEventAdaptor {
 
     public static final long CHANNEL_ID = 1L;
     public static final Long GUILD_ID = null;
+    public static final Long USER_ID = 0L;
     private final String customId;
     private final long massageId;
     private final AtomicLong messageIdCounter;
@@ -33,6 +34,8 @@ public class ButtonEventAdaptorMock implements ButtonEventAdaptor {
     private final EmbedOrMessageDefinition eventMessage;
     @Getter
     private final List<EmbedOrMessageDefinition> sendMessages = new ArrayList<>();
+    @Getter
+    private List<ComponentRowDefinition> editedComponentRowDefinition;
 
     public ButtonEventAdaptorMock(String commandId, String buttonValue, UUID configUUID, AtomicLong messageIdCounter, Set<Long> pinnedMessageIds) {
         this(commandId, buttonValue, configUUID, messageIdCounter, pinnedMessageIds, "invokingUser");
@@ -40,7 +43,6 @@ public class ButtonEventAdaptorMock implements ButtonEventAdaptor {
 
     public ButtonEventAdaptorMock(String commandId, String buttonValue, EmbedOrMessageDefinition eventMessage) {
         this(commandId, buttonValue, null, new AtomicLong(), null, "invokingUser", eventMessage);
-
     }
 
     public ButtonEventAdaptorMock(String commandId, String buttonValue, UUID configUUID, AtomicLong messageIdCounter, Set<Long> pinnedMessageIds, String invokingUser, EmbedOrMessageDefinition eventMessage) {
@@ -84,6 +86,13 @@ public class ButtonEventAdaptorMock implements ButtonEventAdaptor {
         this.eventMessage = null;
     }
 
+    public static ButtonEventAdaptorMock ofCustomId(String customId, long messageId) {
+        return new ButtonEventAdaptorMock(BottomCustomIdUtils.getCommandNameFromCustomId(customId),
+                BottomCustomIdUtils.getButtonValueFromCustomId(customId),
+                BottomCustomIdUtils.getConfigUUIDFromCustomId(customId).orElseThrow(),
+                new AtomicLong(messageId), Set.of(), "invokingUser");
+    }
+
     public List<String> getSortedActions() {
         return actions.stream().sorted(String::compareTo).toList();
     }
@@ -105,7 +114,7 @@ public class ButtonEventAdaptorMock implements ButtonEventAdaptor {
 
     @Override
     public long getUserId() {
-        return 0;
+        return USER_ID;
     }
 
     @Override
@@ -119,8 +128,9 @@ public class ButtonEventAdaptorMock implements ButtonEventAdaptor {
     }
 
     @Override
-    public Mono<Void> editMessage(@Nullable String message, @Nullable List<ComponentRowDefinition> componentRowDefinitions) {
+    public @NonNull Mono<Void> editMessage(@Nullable String message, @Nullable List<ComponentRowDefinition> componentRowDefinitions) {
         actions.add(String.format("editMessage: message:%s, buttons=%s", message, componentRowDefinitions));
+        this.editedComponentRowDefinition = componentRowDefinitions;
         return Mono.just("").then();
     }
 
@@ -132,12 +142,12 @@ public class ButtonEventAdaptorMock implements ButtonEventAdaptor {
     }
 
     @Override
-    public Requester getRequester() {
+    public @NonNull Requester getRequester() {
         return new Requester("invokingUser", "channelName", "guildName", "[0 / 1]", Locale.ENGLISH, null);
     }
 
     @Override
-    public Optional<String> checkPermissions(Long answerTargetChannelId, @NonNull Locale userLocale) {
+    public @NonNull Optional<String> checkPermissions(Long answerTargetChannelId, @NonNull Locale userLocale) {
         return Optional.empty();
     }
 
@@ -171,7 +181,7 @@ public class ButtonEventAdaptorMock implements ButtonEventAdaptor {
     }
 
     @Override
-    public Mono<Void> acknowledgeAndDeleteOriginal() {
+    public @NonNull Mono<Void> acknowledgeAndDeleteOriginal() {
         actions.add("acknowledgeAndDeleteOriginal");
         return Mono.empty();
     }
@@ -183,7 +193,7 @@ public class ButtonEventAdaptorMock implements ButtonEventAdaptor {
     }
 
     @Override
-    public EmbedOrMessageDefinition getMessageDefinitionOfEventMessageWithoutButtons() {
+    public @NonNull EmbedOrMessageDefinition getMessageDefinitionOfEventMessageWithoutButtons() {
         actions.add("getMessageDefinitionOfEventMessageWithoutButtons");
         return eventMessage;
     }

@@ -96,6 +96,14 @@ public final class BaseCommandOptions {
             .descriptionLocales(I18n.allNoneEnglishMessagesDescriptions("base.option.target_channel.description"))
             .type(CommandDefinitionOption.Type.CHANNEL)
             .build();
+    public static final String NAME_OPTION_NAME = "name";
+    public static final CommandDefinitionOption NAME_COMMAND_OPTION = CommandDefinitionOption.builder()
+            .name(NAME_OPTION_NAME)
+            .nameLocales(I18n.allNoneEnglishMessagesNames("base.option.name.name"))
+            .description(I18n.getMessage("base.option.name.description", Locale.ENGLISH))
+            .descriptionLocales(I18n.allNoneEnglishMessagesDescriptions("base.option.name.description"))
+            .type(CommandDefinitionOption.Type.STRING)
+            .build();
 
     public static AnswerInteractionType getAnswerInteractionFromStartCommandOption(@NonNull CommandInteractionOption options) {
         return options.getStringSubOptionWithName(ANSWER_INTERACTION_OPTION_NAME)
@@ -143,5 +151,9 @@ public final class BaseCommandOptions {
 
     public static Optional<Locale> getLocaleOptionFromStartCommandOption(@NonNull CommandInteractionOption options) {
         return options.getStringSubOptionWithName(LOCALE_OPTION_NAME).map(Locale::of);
+    }
+
+    public static Optional<String> getNameFromStartCommandOption(@NonNull CommandInteractionOption options) {
+        return options.getStringSubOptionWithName(NAME_OPTION_NAME);
     }
 }

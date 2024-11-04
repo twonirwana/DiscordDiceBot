@@ -12,13 +12,16 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.ToString;
+import lombok.experimental.SuperBuilder;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.UUID;
 
 @EqualsAndHashCode(callSuper = true)
 @Getter
 @ToString(callSuper = true)
+@SuperBuilder(toBuilder = true)
 @JsonIgnoreProperties(ignoreUnknown = true) //ignore legacy diceSystem field
 public class CustomParameterConfig extends RollConfig {
     @NonNull
@@ -35,8 +38,10 @@ public class CustomParameterConfig extends RollConfig {
             @JsonProperty("answerInteractionType") AnswerInteractionType answerInteractionType,
             @JsonProperty("resultImage") ResultImage resultImage,
             @JsonProperty("diceImageStyle") DiceStyleAndColor diceStyleAndColor,
-            @JsonProperty("configLocale") Locale configLocale) {
-        super(answerTargetChannelId, answerFormatType, answerInteractionType, resultImage, diceStyleAndColor, configLocale);
+            @JsonProperty("configLocale") Locale configLocale,
+            @JsonProperty("callStarterConfigAfterFinish") UUID callStarterConfigAfterFinish,
+            @JsonProperty("name") String name) {
+        super(answerTargetChannelId, answerFormatType, answerInteractionType, resultImage, diceStyleAndColor, configLocale, callStarterConfigAfterFinish, name);
         this.baseExpression = baseExpression;
         this.parameters = CustomParameterCommand.createParameterListFromBaseExpression(baseExpression);
     }

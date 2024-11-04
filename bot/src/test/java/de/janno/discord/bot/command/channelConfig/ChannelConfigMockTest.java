@@ -23,8 +23,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 @ExtendWith(SnapshotExtension.class)
 public class ChannelConfigMockTest {
 
@@ -82,7 +80,7 @@ public class ChannelConfigMockTest {
     @Test
     void autoCompleteNoScope() {
         ChannelConfigCommand channelConfig = new ChannelConfigCommand(persistenceManager);
-        List<AutoCompleteAnswer> res = channelConfig.getAutoCompleteAnswer(new AutoCompleteRequest("name", null, List.of()), Locale.ENGLISH, 1L, 1L);
+        List<AutoCompleteAnswer> res = channelConfig.getAutoCompleteAnswer(new AutoCompleteRequest("name", null, List.of()), Locale.ENGLISH, 1L, 1L, 0L);
 
         expect.toMatchSnapshot(res);
     }
@@ -91,7 +89,7 @@ public class ChannelConfigMockTest {
     void autoCompleteMatchingUserAliasScope() {
         ChannelConfigCommand channelConfig = new ChannelConfigCommand(persistenceManager);
 
-        channelConfig.handleSlashCommandEvent( new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
+        channelConfig.handleSlashCommandEvent(new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
                 .name("alias")
                 .option(CommandInteractionOption.builder()
                         .name("save")
@@ -101,7 +99,7 @@ public class ChannelConfigMockTest {
                 .option(CommandInteractionOption.builder().name("scope").stringValue("current_user_in_this_channel").build())
                 .build())), () -> UUID.fromString("00000000-0000-0000-0000-000000000000"), Locale.ENGLISH).block();
 
-        channelConfig.handleSlashCommandEvent( new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
+        channelConfig.handleSlashCommandEvent(new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
                 .name("alias")
                 .option(CommandInteractionOption.builder()
                         .name("save")
@@ -122,7 +120,7 @@ public class ChannelConfigMockTest {
                 .build())), () -> UUID.fromString("00000000-0000-0000-0000-000000000002"), Locale.ENGLISH).block();
 
 
-        List<AutoCompleteAnswer> res = channelConfig.getAutoCompleteAnswer(new AutoCompleteRequest("name", "a", List.of(new OptionValue("scope", "current_user_in_this_channel"))), Locale.ENGLISH, 1L, 0L);
+        List<AutoCompleteAnswer> res = channelConfig.getAutoCompleteAnswer(new AutoCompleteRequest("name", "a", List.of(new OptionValue("scope", "current_user_in_this_channel"))), Locale.ENGLISH, 1L, 0L, 0L);
 
         expect.toMatchSnapshot(res);
     }
@@ -131,7 +129,7 @@ public class ChannelConfigMockTest {
     void autoCompleteMatchingChannelAliasScope() {
         ChannelConfigCommand channelConfig = new ChannelConfigCommand(persistenceManager);
 
-        channelConfig.handleSlashCommandEvent( new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
+        channelConfig.handleSlashCommandEvent(new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
                 .name("alias")
                 .option(CommandInteractionOption.builder()
                         .name("save")
@@ -141,7 +139,7 @@ public class ChannelConfigMockTest {
                 .option(CommandInteractionOption.builder().name("scope").stringValue("all_users_in_this_channel").build())
                 .build())), () -> UUID.fromString("00000000-0000-0000-0000-000000000000"), Locale.ENGLISH).block();
 
-        channelConfig.handleSlashCommandEvent( new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
+        channelConfig.handleSlashCommandEvent(new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
                 .name("alias")
                 .option(CommandInteractionOption.builder()
                         .name("save")
@@ -162,7 +160,7 @@ public class ChannelConfigMockTest {
                 .build())), () -> UUID.fromString("00000000-0000-0000-0000-000000000002"), Locale.ENGLISH).block();
 
 
-        List<AutoCompleteAnswer> res = channelConfig.getAutoCompleteAnswer(new AutoCompleteRequest("name", "a", List.of(new OptionValue("scope", "all_users_in_this_channel"))), Locale.ENGLISH, 1L, 0L);
+        List<AutoCompleteAnswer> res = channelConfig.getAutoCompleteAnswer(new AutoCompleteRequest("name", "a", List.of(new OptionValue("scope", "all_users_in_this_channel"))), Locale.ENGLISH, 1L, 0L, 0L);
 
         expect.toMatchSnapshot(res);
     }

@@ -6,6 +6,7 @@ import de.janno.discord.bot.BaseCommandUtils;
 import de.janno.discord.bot.BotMetrics;
 import de.janno.discord.bot.I18n;
 import de.janno.discord.bot.command.reroll.RerollAnswerHandler;
+import de.janno.discord.bot.command.starter.StarterCommand;
 import de.janno.discord.bot.persistance.MessageConfigDTO;
 import de.janno.discord.bot.persistance.MessageDataDTO;
 import de.janno.discord.bot.persistance.PersistenceManager;
@@ -23,6 +24,7 @@ import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Supplier;
@@ -55,6 +57,11 @@ public abstract class ComponentCommandImpl<C extends RollConfig, S extends State
         }
         final String buttonValue = BottomCustomIdUtils.getButtonValueFromCustomId(event.getCustomId());
         final Optional<UUID> configUUIDFromCustomID = BottomCustomIdUtils.getConfigUUIDFromCustomId(event.getCustomId());
+        BotMetrics.incrementButtonUUIDUsageMetricCounter(getCommandId(), configUUIDFromCustomID.isPresent());
+        if (configUUIDFromCustomID.isEmpty()) {
+            log.info("{}: Legacy id {}", event.getRequester().toLogString(), event.getCustomId());
+            return event.reply(I18n.getMessage("base.reply.legacyButtonId", event.getRequester().getUserLocal()), false);
+        }
         BotMetrics.incrementButtonMetricCounter(getCommandId());
         if (guildId == null) {
             BotMetrics.outsideGuildCounter("button");
@@ -62,9 +69,7 @@ public abstract class ComponentCommandImpl<C extends RollConfig, S extends State
         if (event.isPinned()) {
             BotMetrics.incrementPinnedButtonMetricCounter();
         }
-        BotMetrics.incrementButtonUUIDUsageMetricCounter(getCommandId(), configUUIDFromCustomID.isPresent());
-
-        final Optional<MessageConfigDTO> messageConfigDTO = getMessageConfigDTO(configUUIDFromCustomID.orElse(null), channelId, eventMessageId);
+        final Optional<MessageConfigDTO> messageConfigDTO = persistenceManager.getMessageConfig(configUUIDFromCustomID.get());
         final Optional<ConfigAndState<C, S>> fallbackConfigAndState = createNewConfigAndStateIfMissing(buttonValue);
         if (messageConfigDTO.isEmpty() && fallbackConfigAndState.isEmpty()) {
             log.warn("{}: Missing messageData for channelId: {}, messageId: {} and commandName: {} ", event.getRequester().toLogString(), channelId, eventMessageId, getCommandId());
@@ -85,7 +90,7 @@ public abstract class ComponentCommandImpl<C extends RollConfig, S extends State
         final State<S> state = configAndState.getState();
 
         final Long answerTargetChannelId = config.getAnswerTargetChannelId();
-        Optional<String> checkPermissions = event.checkPermissions(answerTargetChannelId, event.getRequester().getUserLocal());
+        Optional<String> checkPermissions = event.checkPermissions(answerTargetChannelId, Optional.ofNullable(event.getRequester().getUserLocal()).orElse(Locale.ENGLISH));
         if (checkPermissions.isPresent()) {
             return event.editMessage(checkPermissions.get(), null);
         }
@@ -93,11 +98,18 @@ public abstract class ComponentCommandImpl<C extends RollConfig, S extends State
         //update state bevor editing the event message
         updateCurrentMessageStateData(configUUID, guildId, channelId, eventMessageId, config, state);
         //reply/edit/acknowledge to the event message, no defer but directly call
-        return replyToEvent(event, config, state, configUUID, guildId, channelId, userId, answerTargetChannelId, timer)
+        return replyToEvent(event, config, state, configUUID, channelId, userId, answerTargetChannelId, timer)
                 //send answer messages
                 .then(Mono.defer(() -> sendAnswerMessage(event, config, state, guildId, channelId, userId, answerTargetChannelId, timer))
                         //create an optional new button message
-                        .then(Mono.defer(() -> createNewButtonMessage(configUUID, config, state, guildId, channelId).map(Mono::just).orElse(Mono.empty())
+                        .then(Mono.defer(() -> createNewButtonMessage(configUUID, config, state, guildId, channelId, userId).map(Mono::just).orElse(Mono.empty())
+                                //update the new button message if a starter uuid is set
+                                .flatMap(bm -> {
+                                    if (config.getCallStarterConfigAfterFinish() != null) {
+                                        return StarterCommand.getStarterMessage(persistenceManager, config.getCallStarterConfigAfterFinish()).map(Mono::just).orElse(Mono.empty());
+                                    }
+                                    return Mono.just(bm);
+                                })
                                 //send the new button message, flatMap because we do it only if a new buttonMessage should be created
                                 .flatMap(nbm -> Mono.defer(() -> sendNewButtonMessage(event, nbm, configUUID, guildId, channelId, answerTargetChannelId, timer))
                                         //delete the event message and event data if a new buttonMessage was created, flatMap because we do it only if a new buttonMessage is created
@@ -126,18 +138,15 @@ public abstract class ComponentCommandImpl<C extends RollConfig, S extends State
                                              @NonNull final C config,
                                              @NonNull final State<S> state,
                                              @NonNull final UUID configUUID,
-                                             final Long guildId,
                                              final long channelId,
                                              final long userId,
                                              final Long answerTargetChannelId,
                                              @NonNull final Timer timer) {
-        final Optional<String> editMessage;
-        final Optional<List<ComponentRowDefinition>> editMessageComponents;
         final boolean keepExistingButtonMessage = shouldKeepExistingButtonMessage(event) || answerTargetChannelId != null;
 
         //edit the current message if the command changes it or mark it as processing
-        editMessage = getCurrentMessageContentChange(config, state, keepExistingButtonMessage);
-        editMessageComponents = getCurrentMessageComponentChange(configUUID, config, state, channelId, userId, keepExistingButtonMessage);
+        final Optional<String> editMessage = getCurrentMessageContentChange(config, state, keepExistingButtonMessage);
+        final Optional<List<ComponentRowDefinition>> editMessageComponents = getCurrentMessageComponentChange(configUUID, config, state, channelId, userId, keepExistingButtonMessage);
 
         timer.stopStartAcknowledge();
         if (editMessage.isPresent() || editMessageComponents.isPresent()) {
@@ -165,7 +174,7 @@ public abstract class ComponentCommandImpl<C extends RollConfig, S extends State
             if (config.getAnswerInteractionType() == AnswerInteractionType.reroll &&
                     baseAnswer.getType() == EmbedOrMessageDefinition.Type.EMBED &&
                     baseAnswer.getComponentRowDefinitions().isEmpty()) {
-                answerMessage = RerollAnswerHandler.createConfigAndApplyToAnswer(config, answer.get(), baseAnswer, event.getInvokingGuildMemberName(), guildId, channelId, persistenceManager, uuidSupplier.get());
+                answerMessage = RerollAnswerHandler.createConfigAndApplyToAnswer(config, answer.get(), baseAnswer, event.getInvokingGuildMemberName(), guildId, channelId, userId, persistenceManager, uuidSupplier.get());
             } else {
                 answerMessage = baseAnswer;
             }
@@ -218,15 +227,6 @@ public abstract class ComponentCommandImpl<C extends RollConfig, S extends State
                 }));
     }
 
-    private @NonNull Optional<MessageConfigDTO> getMessageConfigDTO(@Nullable UUID configId, long channelId,
-                                                                    long messageId) {
-        if (configId != null) {
-            return persistenceManager.getMessageConfig(configId);
-        }
-        //todo remove option without configId
-        return persistenceManager.getConfigFromMessage(channelId, messageId);
-    }
-
     protected Optional<List<ComponentRowDefinition>> getCurrentMessageComponentChange(UUID configUUID, C config, State<S> state, long channelId, long userId, boolean keepExistingButtonMessage) {
         return Optional.empty();
     }
@@ -271,7 +271,9 @@ public abstract class ComponentCommandImpl<C extends RollConfig, S extends State
                                                                                           @NonNull C config,
                                                                                           @Nullable State<S> state,
                                                                                           @Nullable Long guildId,
-                                                                                          long channelId);
+                                                                                          long channelId,
+                                                                                          long userId
+    );
 
     /**
      * On the creation of a message an empty state need to be saved so we know the message exists and we can remove it later, even on concurrent actions

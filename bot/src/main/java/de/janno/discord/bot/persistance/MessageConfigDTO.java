@@ -22,5 +22,9 @@ public class MessageConfigDTO {
     String configClassId;
     @NonNull
     String config;
+    @Nullable
+    String name;
+    @Nullable
+    Long creationUserId;
 
 }

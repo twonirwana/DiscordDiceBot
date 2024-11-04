@@ -49,6 +49,7 @@ public class QuickstartCommandMockTest {
                 .filter(o -> o.getName().equals("start"))
                 .flatMap(o -> o.getOptions().stream())
                 .map(CommandDefinitionOption::getName)
+                .map(s -> s + ":")
                 .toList();
 
         List<Integer> indexToSplit = commandStartOptions.stream()
@@ -97,12 +98,11 @@ public class QuickstartCommandMockTest {
         CustomParameterCommand customParameterCommand = new CustomParameterCommand(persistenceManager, cachingDiceEvaluator);
         SumCustomSetCommand sumCustomSetCommand = new SumCustomSetCommand(persistenceManager, cachingDiceEvaluator);
         ChannelConfigCommand channelConfigCommand = new ChannelConfigCommand(persistenceManager);
-        RpgSystemCommandPreset rpgSystemCommandPreset = new RpgSystemCommandPreset(persistenceManager, customParameterCommand, customDiceCommand, sumCustomSetCommand, channelConfigCommand);
-        QuickstartCommand underTest = new QuickstartCommand(rpgSystemCommandPreset);
+        QuickstartCommand underTest = new QuickstartCommand(persistenceManager, customParameterCommand, customDiceCommand, sumCustomSetCommand, channelConfigCommand);
 
         SlashEventAdaptorMock slashEventAdaptor = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
                 .name("system")
-                .stringValue(presetId.name())
+                .stringValue(presetId.getName(userLocale))
                 .build()));
 
         Mono<Void> res = underTest.handleSlashCommandEvent(slashEventAdaptor, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"), userLocale);
@@ -121,9 +121,8 @@ public class QuickstartCommandMockTest {
         CustomParameterCommand customParameterCommand = new CustomParameterCommand(persistenceManager, cachingDiceEvaluator);
         SumCustomSetCommand sumCustomSetCommand = new SumCustomSetCommand(persistenceManager, cachingDiceEvaluator);
         ChannelConfigCommand channelConfigCommand = new ChannelConfigCommand(persistenceManager);
-        RpgSystemCommandPreset rpgSystemCommandPreset = new RpgSystemCommandPreset(persistenceManager, customParameterCommand, customDiceCommand, sumCustomSetCommand, channelConfigCommand);
         DirectRollCommand directRollCommand = new DirectRollCommand(persistenceManager, cachingDiceEvaluator);
-        QuickstartCommand underTest = new QuickstartCommand(rpgSystemCommandPreset);
+        QuickstartCommand underTest = new QuickstartCommand(persistenceManager, customParameterCommand, customDiceCommand, sumCustomSetCommand, channelConfigCommand);
 
         SlashEventAdaptorMock quickstartAdaptor = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
                 .name("system")

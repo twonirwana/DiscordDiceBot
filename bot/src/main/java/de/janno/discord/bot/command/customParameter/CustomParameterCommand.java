@@ -57,7 +57,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     private final static Pattern PARAMETER_OPTION_EMPTY_PATTERN = Pattern.compile(RANGE_DELIMITER + ".*" + BUTTON_VALUE_DELIMITER + "\\s*" + BUTTON_VALUE_DELIMITER + ".*}", Pattern.DOTALL);
     private static final String STATE_DATA_TYPE_ID = "CustomParameterStateDataV2";
     private static final String STATE_DATA_TYPE_ID_LEGACY = "CustomParameterStateData";
-    private static final String CONFIG_TYPE_ID = "CustomParameterConfig";
+    public static final String CONFIG_TYPE_ID = "CustomParameterConfig";
     private final static Pattern LABEL_MATCHER = Pattern.compile("@[^}]+$", Pattern.DOTALL);
     private final static String SKIPPED_BY_PATH_VALUE = "";
     private final static String SKIPPED_BY_DIRECT_ROLL_VALUE = "''";
@@ -135,7 +135,11 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
                                     .filter(vl -> vl.value().equals(buttonValue))
                                     .findFirst();
                         }
-                        Parameter.ParameterOption selectedParameter = selectedParameterOption.orElseThrow(() -> new RuntimeException("Found no parameter in for value %s in %s".formatted(buttonValue, parameters)));
+                        if(selectedParameterOption.isEmpty()){
+                            //can happen if the state was already updated but the buttons are not because of a discord error
+                            return sp;
+                        }
+                        Parameter.ParameterOption selectedParameter = selectedParameterOption.get();
                         if (selectedParameter.directRoll()) {
                             directRoll.set(true);
                         }
@@ -371,6 +375,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
         String baseExpression = options.getStringSubOptionWithName(EXPRESSION_OPTION_NAME).orElse("").trim().replace("\\n", "\n");
         Long answerTargetChannelId = BaseCommandOptions.getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null);
         AnswerFormatType answerType = BaseCommandOptions.getAnswerTypeFromStartCommandOption(options).orElse(AnswerFormatType.without_expression);
+        final String name = BaseCommandOptions.getNameFromStartCommandOption(options).orElse(null);
         return new CustomParameterConfig(answerTargetChannelId,
                 baseExpression,
                 answerType,
@@ -379,7 +384,9 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
                 new DiceStyleAndColor(
                         BaseCommandOptions.getDiceStyleOptionFromStartCommandOption(options).orElse(DiceImageStyle.polyhedral_3d),
                         BaseCommandOptions.getDiceColorOptionFromStartCommandOption(options).orElse(DiceImageStyle.polyhedral_3d.getDefaultColor())),
-                userLocale
+                userLocale,
+                null,
+                name
         );
     }
 
@@ -396,7 +403,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     @Override
     protected Optional<List<ComponentRowDefinition>> getCurrentMessageComponentChange(UUID configUUID, CustomParameterConfig config, State<CustomParameterStateData> state, long channelId, long userId, boolean keepExistingButtonMessage) {
         if (!hasMissingParameter(state)) {
-            if(keepExistingButtonMessage){
+            if (keepExistingButtonMessage) {
                 //reset on roll and keep message
                 return Optional.of(getButtonLayoutWithOptionalState(configUUID, config, null));
             }
@@ -445,8 +452,8 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     }
 
     @Override
-    public Optional<MessageConfigDTO> createMessageConfig(@NonNull UUID configUUID, @Nullable Long guildId, long channelId, @NonNull CustomParameterConfig config) {
-        return Optional.of(new MessageConfigDTO(configUUID, guildId, channelId, getCommandId(), CONFIG_TYPE_ID, Mapper.serializedObject(config)));
+    public Optional<MessageConfigDTO> createMessageConfig(@NonNull UUID configUUID, @Nullable Long guildId, long channelId, long userId, @NonNull CustomParameterConfig config) {
+        return Optional.of(new MessageConfigDTO(configUUID, guildId, channelId, getCommandId(), CONFIG_TYPE_ID, Mapper.serializedObject(config), config.getName(), userId));
     }
 
     @Override
@@ -464,7 +471,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     @Override
     public @NonNull Optional<String> getCurrentMessageContentChange(CustomParameterConfig config, State<CustomParameterStateData> state, boolean keepExistingButtonMessage) {
         if (!hasMissingParameter(state)) {
-            if(keepExistingButtonMessage){
+            if (keepExistingButtonMessage) {
                 //reset message after roll and keep massage
                 return Optional.of(formatMessageContent(config, null, null));
             }
@@ -481,7 +488,8 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
                                                                                           @NonNull CustomParameterConfig config,
                                                                                           @Nullable State<CustomParameterStateData> state,
                                                                                           @Nullable Long guildId,
-                                                                                          long channelId) {
+                                                                                          long channelId,
+                                                                                          long userId) {
         if (state == null) {
             return Optional.of(createSlashResponseMessage(configUUID, config, channelId));
         }

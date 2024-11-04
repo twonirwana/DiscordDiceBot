@@ -5,7 +5,9 @@ de.janno.discord.bot.command.customDice.CustomDiceCommandTest.configSerializatio
     "channelId": 2,
     "commandId": "custom_dice",
     "configClassId": "CustomDiceConfig",
-    "config": "---\nanswerTargetChannelId: 123\nbuttonIdLabelAndDiceExpressions:\n- buttonId: \"1_button\"\n  label: \"Label\"\n  diceExpression: \"+1d6\"\n  newLine: false\n  directRoll: false\n  emoji: null\n- buttonId: \"2_button\"\n  label: \"+2d4\"\n  diceExpression: \"+2d4\"\n  newLine: true\n  directRoll: false\n  emoji: \"🪙\"\nanswerFormatType: \"compact\"\nanswerInteractionType: \"none\"\nconfigLocale: \"de\"\ndiceStyleAndColor:\n  diceImageStyle: \"polyhedral_alies_v2\"\n  configuredDefaultColor: \"blue_and_silver\"\n"
+    "config": "---\nanswerTargetChannelId: 123\nbuttonIdLabelAndDiceExpressions:\n- buttonId: \"1_button\"\n  label: \"Label\"\n  diceExpression: \"+1d6\"\n  newLine: false\n  directRoll: false\n  emoji: null\n- buttonId: \"2_button\"\n  label: \"+2d4\"\n  diceExpression: \"+2d4\"\n  newLine: true\n  directRoll: false\n  emoji: \"🪙\"\nanswerFormatType: \"compact\"\nanswerInteractionType: \"none\"\nconfigLocale: \"de\"\ncallStarterConfigAfterFinish: \"00000000-0000-0000-0000-100000000000\"\nname: \"Name\"\ndiceStyleAndColor:\n  diceImageStyle: \"polyhedral_alies_v2\"\n  configuredDefaultColor: \"blue_and_silver\"\n",
+    "name": "Name",
+    "creationUserId": 0
   }
 ]
 
@@ -385,6 +387,30 @@ de.janno.discord.bot.command.customDice.CustomDiceCommandTest.getCommandDefiniti
                 "nameLocales": [ ]
               }
             ],
+            "options": [ ],
+            "autoComplete": false
+          },
+          {
+            "type": "STRING",
+            "name": "name",
+            "nameLocales": [ ],
+            "description": "A name to reuse the command with starter or quickstart command",
+            "descriptionLocales": [
+              {
+                "locale": "de",
+                "description": "Ein Name zur Wiederverwendung des Befehls mit dem starter oder quickstart Befehl"
+              },
+              {
+                "locale": "pt_BR",
+                "description": "Um nome para reutilizar o comando com o comando starter ou quickstart"
+              },
+              {
+                "locale": "fr",
+                "description": "Un nom pour réutiliser la commande avec la commande starter ou quickstart"
+              }
+            ],
+            "required": false,
+            "choices": [ ],
             "options": [ ],
             "autoComplete": false
           }

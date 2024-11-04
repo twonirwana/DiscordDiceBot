@@ -69,10 +69,35 @@ public class AliasHelperTest {
                   value: "3d6+4"
                 """;
 
-        ChannelConfigDTO savedData = new ChannelConfigDTO(UUID.fromString("00000000-0000-0000-0000-000000000000"), 1L, 2L, null, "r", "AliasConfig", aliasString);
+        ChannelConfigDTO savedData = new ChannelConfigDTO(UUID.fromString("00000000-0000-0000-0000-000000000000"), 1L, 2L, null, "r", "AliasConfig", aliasString, null);
 
         AliasConfig res = AliasHelper.deserializeAliasConfig(savedData);
-        assertThat(res).isEqualTo(new AliasConfig(List.of(new Alias("att", "d20+5", Alias.Type.Replace), new Alias("par", "d20+3", Alias.Type.Replace), new Alias("dmg", "3d6+4", Alias.Type.Replace))));
+        assertThat(res).isEqualTo(new AliasConfig(List.of(new Alias("att", "d20+5", Alias.Type.Replace), new Alias("par", "d20+3", Alias.Type.Replace), new Alias("dmg", "3d6+4", Alias.Type.Replace)), null));
+
+    }
+
+    @Test
+    void deserialization_alias_legcacy2() {
+
+        String aliasString = """
+                ---
+                aliasList:
+                - name: "att"
+                  value: "d20+5"
+                  type: Replace
+                - name: "par"
+                  value: "d20+3"
+                  type: Regex
+                - name: "dmg"
+                  value: "3d6+4"
+                  type: Regex
+                """;
+
+        ChannelConfigDTO savedData = new ChannelConfigDTO(UUID.fromString("00000000-0000-0000-0000-000000000000"), 1L, 2L, null, "r", "AliasConfig", aliasString, null);
+
+        AliasConfig res = AliasHelper.deserializeAliasConfig(savedData);
+        assertThat(res)
+                .isEqualTo(new AliasConfig(List.of(new Alias("att", "d20+5", Alias.Type.Replace), new Alias("par", "d20+3", Alias.Type.Regex), new Alias("dmg", "3d6+4", Alias.Type.Regex)), null));
 
     }
 
@@ -91,13 +116,14 @@ public class AliasHelperTest {
                 - name: "dmg"
                   value: "3d6+4"
                   type: Regex
+                name: alias name
                 """;
 
-        ChannelConfigDTO savedData = new ChannelConfigDTO(UUID.fromString("00000000-0000-0000-0000-000000000000"), 1L, 2L, null, "r", "AliasConfig", aliasString);
+        ChannelConfigDTO savedData = new ChannelConfigDTO(UUID.fromString("00000000-0000-0000-0000-000000000000"), 1L, 2L, null, "r", "AliasConfig", aliasString, "alias name");
 
         AliasConfig res = AliasHelper.deserializeAliasConfig(savedData);
         assertThat(res)
-                .isEqualTo(new AliasConfig(List.of(new Alias("att", "d20+5", Alias.Type.Replace), new Alias("par", "d20+3", Alias.Type.Regex), new Alias("dmg", "3d6+4", Alias.Type.Regex))));
+                .isEqualTo(new AliasConfig(List.of(new Alias("att", "d20+5", Alias.Type.Replace), new Alias("par", "d20+3", Alias.Type.Regex), new Alias("dmg", "3d6+4", Alias.Type.Regex)), "alias name"));
 
     }
 }

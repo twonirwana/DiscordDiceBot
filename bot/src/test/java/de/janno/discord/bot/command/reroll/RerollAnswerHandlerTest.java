@@ -42,7 +42,7 @@ class RerollAnswerHandlerTest {
                 new DieIdTypeAndValue(DieIdDb.fromDieId(dieId1), "2", 2, 6, null),
                 new DieIdTypeAndValue(DieIdDb.fromDieId(dieId2), "5", 5, 6, null)
         ), 0, "userName", true, "roll");
-        Optional<MessageConfigDTO> toSave = RerollAnswerHandler.createMessageConfig(configUUID, 1L, channelId, config);
+        Optional<MessageConfigDTO> toSave = RerollAnswerHandler.createMessageConfig(configUUID, 1L, channelId, 0L, config);
         assertThat(toSave).isPresent();
 
         persistenceManager.saveMessageConfig(toSave.get());
@@ -99,7 +99,7 @@ class RerollAnswerHandlerTest {
                 diceStyleAndColor:
                   diceImageStyle: "none"
                   configuredDefaultColor: "none"
-                """);
+                """, null, null);
         MessageDataDTO messageDataDTO = new MessageDataDTO(configUUID, 1L, 1660644934298L, 1660644934298L, "reroll_answer",
                 "RerollAnswerStateData", """
                 ---
@@ -130,7 +130,7 @@ class RerollAnswerHandlerTest {
                 new DieIdTypeAndValue(DieIdDb.fromDieId(DieId.of(1, "d", 0, 0, 0)), "2", 2, 6, null),
                 new DieIdTypeAndValue(DieIdDb.fromDieId(DieId.of(1, "d", 0, 1, 0)), "5", 5, 6, null)
         ), 0, "owner", true, "roll");
-        Optional<MessageConfigDTO> toSave = RerollAnswerHandler.createMessageConfig(configUUID, 1L, 2L, config);
+        Optional<MessageConfigDTO> toSave = RerollAnswerHandler.createMessageConfig(configUUID, 1L, 2L, 0L, config);
         assertThat(toSave).isPresent();
 
         expect.toMatchSnapshot(toSave.get());

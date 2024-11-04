@@ -94,7 +94,7 @@ public class ButtonEventAdapterImpl extends DiscordAdapterImpl implements Button
 
 
     @Override
-    public Mono<Void> editMessage(String message, List<ComponentRowDefinition> componentRowDefinitions) {
+    public @NonNull Mono<Void> editMessage(String message, List<ComponentRowDefinition> componentRowDefinitions) {
         if (message == null && componentRowDefinitions == null) {
             return Mono.empty();
         }
@@ -135,7 +135,7 @@ public class ButtonEventAdapterImpl extends DiscordAdapterImpl implements Button
     }
 
     @Override
-    public Optional<String> checkPermissions(Long answerTargetChannelId, @NonNull Locale userLocale) {
+    public @NonNull Optional<String> checkPermissions(Long answerTargetChannelId, @NonNull Locale userLocale) {
         Optional<String> primaryChannelPermissionCheck = checkPermission(event.getMessageChannel(), event.getGuild(), true, userLocale);
         if (primaryChannelPermissionCheck.isPresent()) {
             return primaryChannelPermissionCheck;
@@ -168,6 +168,13 @@ public class ButtonEventAdapterImpl extends DiscordAdapterImpl implements Button
     }
 
     @Override
+    public @NonNull Mono<Void> acknowledge(){
+        return Mono.defer(() -> createMonoFrom(event::deferEdit)
+                .onErrorResume(t -> handleException("Error on deferEdit", t, true).ofType(InteractionHook.class))
+                .then());
+    }
+
+    @Override
     public @NonNull ParallelFlux<MessageState> getMessagesState(@NonNull Collection<Long> messageIds) {
         return getMessagesState(event.getMessageChannel(), messageIds);
     }
@@ -188,21 +195,14 @@ public class ButtonEventAdapterImpl extends DiscordAdapterImpl implements Button
     }
 
     @Override
-    public Mono<Void> acknowledgeAndDeleteOriginal() {
+    public @NonNull Mono<Void> acknowledgeAndDeleteOriginal() {
         return createMonoFrom(event::deferEdit)
                 .onErrorResume(t -> handleException("Error on deferEdit", t, true).ofType(InteractionHook.class))
                 .then(createMonoFrom(() -> event.getInteraction().getHook().deleteOriginal()));
     }
 
     @Override
-    public @NonNull Mono<Void> acknowledge() {
-        return createMonoFrom(event::deferEdit)
-                .onErrorResume(t -> handleException("Error on deferEdit", t, true).ofType(InteractionHook.class))
-                .then();
-    }
-
-    @Override
-    public EmbedOrMessageDefinition getMessageDefinitionOfEventMessageWithoutButtons() {
+    public @NonNull EmbedOrMessageDefinition getMessageDefinitionOfEventMessageWithoutButtons() {
         Message message = event.getMessage();
 
         final String descriptionOrContent;

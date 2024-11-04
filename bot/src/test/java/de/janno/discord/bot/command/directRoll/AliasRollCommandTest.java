@@ -72,7 +72,7 @@ public class AliasRollCommandTest {
     @Test
     void autoCompleteNoAlias() {
 
-        List<AutoCompleteAnswer> res = underTest.getAutoCompleteAnswer(new AutoCompleteRequest("alias_or_expression", null, List.of()), Locale.ENGLISH, 1L, 1L);
+        List<AutoCompleteAnswer> res = underTest.getAutoCompleteAnswer(new AutoCompleteRequest("alias_or_expression", null, List.of()), Locale.ENGLISH, 1L, 1L, 1L);
 
         assertThat(res.stream().map(AutoCompleteAnswer::getName)).containsExactly("No alias configured in this channel, add them with `/channel_config alias save`");
         assertThat(res.stream().map(AutoCompleteAnswer::getValue)).containsExactly("help");
@@ -82,7 +82,7 @@ public class AliasRollCommandTest {
     void autoCompleteValid() {
         createAlias();
 
-        List<AutoCompleteAnswer> res = underTest.getAutoCompleteAnswer(new AutoCompleteRequest("alias_or_expression", null, List.of()), Locale.ENGLISH, 1L, 1L);
+        List<AutoCompleteAnswer> res = underTest.getAutoCompleteAnswer(new AutoCompleteRequest("alias_or_expression", null, List.of()), Locale.ENGLISH, 1L, 0L, 1L);
 
         assertThat(res.stream().map(AutoCompleteAnswer::getName)).containsExactly("a", "b", "c");
         assertThat(res.stream().map(AutoCompleteAnswer::getValue)).containsExactly("a", "b", "c");
@@ -92,7 +92,7 @@ public class AliasRollCommandTest {
     void autoCompleteValid_noUserAlias() {
         createAlias();
 
-        List<AutoCompleteAnswer> res = underTest.getAutoCompleteAnswer(new AutoCompleteRequest("alias_or_expression", null, List.of()), Locale.ENGLISH, 1L, 3L);
+        List<AutoCompleteAnswer> res = underTest.getAutoCompleteAnswer(new AutoCompleteRequest("alias_or_expression", null, List.of()), Locale.ENGLISH, 1L, 0L, 3L);
 
         assertThat(res.stream().map(AutoCompleteAnswer::getName)).containsExactly("b", "c");
         assertThat(res.stream().map(AutoCompleteAnswer::getValue)).containsExactly("b", "c");
@@ -102,7 +102,7 @@ public class AliasRollCommandTest {
     void autoCompleteFilter() {
         createAlias();
 
-        List<AutoCompleteAnswer> res = underTest.getAutoCompleteAnswer(new AutoCompleteRequest("alias_or_expression", "b", List.of()), Locale.ENGLISH, 1L, 1L);
+        List<AutoCompleteAnswer> res = underTest.getAutoCompleteAnswer(new AutoCompleteRequest("alias_or_expression", "b", List.of()), Locale.ENGLISH, 1L, 0L, 1L);
 
         assertThat(res.stream().map(AutoCompleteAnswer::getName)).containsExactly("b");
         assertThat(res.stream().map(AutoCompleteAnswer::getValue)).containsExactly("b");
@@ -112,7 +112,7 @@ public class AliasRollCommandTest {
     void autoCompleteFilterNotFound() {
         createAlias();
 
-        List<AutoCompleteAnswer> res = underTest.getAutoCompleteAnswer(new AutoCompleteRequest("alias_or_expression", "bc", List.of()), Locale.ENGLISH, 1L, 1L);
+        List<AutoCompleteAnswer> res = underTest.getAutoCompleteAnswer(new AutoCompleteRequest("alias_or_expression", "bc", List.of()), Locale.ENGLISH, 1L, 0L, 1L);
 
         assertThat(res).isEmpty();
     }
@@ -124,7 +124,9 @@ public class AliasRollCommandTest {
                 1L,
                 "channel_config",
                 USER_ALIAS_CONFIG_TYPE_ID,
-                Mapper.serializedObject(new AliasConfig(List.of(new Alias("a", "1d6", Alias.Type.Replace), new Alias("aa", "1d6", Alias.Type.Regex), new Alias("b", "2d6", Alias.Type.Replace))))));
+                Mapper.serializedObject(new AliasConfig(List.of(new Alias("a", "1d6", Alias.Type.Replace), new Alias("aa", "1d6", Alias.Type.Regex), new Alias("b", "2d6", Alias.Type.Replace)), null)),
+                null
+        ));
 
         persistenceManager.saveChannelConfig(new ChannelConfigDTO(UUID.randomUUID(),
                 1L,
@@ -132,7 +134,8 @@ public class AliasRollCommandTest {
                 null,
                 "channel_config",
                 CHANNEL_ALIAS_CONFIG_TYPE_ID,
-                Mapper.serializedObject(new AliasConfig(List.of(new Alias("b", "1d8", Alias.Type.Replace), new Alias("bb", "1d8", Alias.Type.Regex), new Alias("c", "2d8", Alias.Type.Replace))))));
+                Mapper.serializedObject(new AliasConfig(List.of(new Alias("b", "1d8", Alias.Type.Replace), new Alias("bb", "1d8", Alias.Type.Regex), new Alias("c", "2d8", Alias.Type.Replace)), null)),
+                null));
 
         persistenceManager.saveChannelConfig(new ChannelConfigDTO(UUID.randomUUID(),
                 1L,
@@ -140,7 +143,8 @@ public class AliasRollCommandTest {
                 1L,
                 "channel_config",
                 USER_ALIAS_CONFIG_TYPE_ID,
-                Mapper.serializedObject(new AliasConfig(List.of(new Alias("z", "1d10", Alias.Type.Replace), new Alias("a", "1d10", Alias.Type.Replace), new Alias("b", "1d10", Alias.Type.Replace))))));
+                Mapper.serializedObject(new AliasConfig(List.of(new Alias("z", "1d10", Alias.Type.Replace), new Alias("a", "1d10", Alias.Type.Replace), new Alias("b", "1d10", Alias.Type.Replace)), null)),
+                null));
 
         persistenceManager.saveChannelConfig(new ChannelConfigDTO(UUID.randomUUID(),
                 1L,
@@ -148,7 +152,8 @@ public class AliasRollCommandTest {
                 null,
                 "channel_config",
                 CHANNEL_ALIAS_CONFIG_TYPE_ID,
-                Mapper.serializedObject(new AliasConfig(List.of(new Alias("z", "1d10", Alias.Type.Replace), new Alias("b", "1d10", Alias.Type.Replace), new Alias("c", "1d10", Alias.Type.Replace))))));
+                Mapper.serializedObject(new AliasConfig(List.of(new Alias("z", "1d10", Alias.Type.Replace), new Alias("b", "1d10", Alias.Type.Replace), new Alias("c", "1d10", Alias.Type.Replace)), null)),
+                null));
 
         persistenceManager.saveChannelConfig(new ChannelConfigDTO(UUID.randomUUID(),
                 1L,
@@ -156,7 +161,8 @@ public class AliasRollCommandTest {
                 2L,
                 "channel_config",
                 USER_ALIAS_CONFIG_TYPE_ID,
-                Mapper.serializedObject(new AliasConfig(List.of(new Alias("y", "1d12", Alias.Type.Replace), new Alias("a", "1d12", Alias.Type.Replace), new Alias("b", "1d12", Alias.Type.Replace))))));
+                Mapper.serializedObject(new AliasConfig(List.of(new Alias("y", "1d12", Alias.Type.Replace), new Alias("a", "1d12", Alias.Type.Replace), new Alias("b", "1d12", Alias.Type.Replace)), null)),
+                null));
     }
 
 }

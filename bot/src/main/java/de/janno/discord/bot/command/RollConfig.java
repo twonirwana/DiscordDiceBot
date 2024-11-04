@@ -8,15 +8,11 @@ import de.janno.discord.bot.ResultImage;
 import de.janno.discord.bot.dice.image.DiceImageStyle;
 import de.janno.discord.bot.dice.image.DiceStyleAndColor;
 import de.janno.discord.bot.dice.image.LegacyImageConfigHelper;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NonNull;
-import lombok.ToString;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Optional;
+import javax.annotation.Nullable;
+import java.util.*;
 
 /**
  * A configuration for a dice system. It will be created with the slash command and not modified afterwards.
@@ -24,6 +20,7 @@ import java.util.Optional;
 @EqualsAndHashCode
 @Getter
 @ToString
+@SuperBuilder(toBuilder = true)
 public class RollConfig implements Config {
 
     private final Long answerTargetChannelId;
@@ -39,13 +36,21 @@ public class RollConfig implements Config {
     @NonNull
     private final Locale configLocale;
 
+    @Nullable
+    private final UUID callStarterConfigAfterFinish;
+
+    @Nullable
+    private final String name;
+
     @JsonCreator
     public RollConfig(@JsonProperty("answerTargetChannelId") Long answerTargetChannelId,
                       @JsonProperty("answerFormatType") AnswerFormatType answerFormatType,
                       @JsonProperty("answerInteractionType") AnswerInteractionType answerInteractionType,
                       @JsonProperty("resultImage") ResultImage resultImage,
                       @JsonProperty("diceImageStyle") DiceStyleAndColor diceStyleAndColor,
-                      @JsonProperty("configLocale") Locale configLocale
+                      @JsonProperty("configLocale") Locale configLocale,
+                      @JsonProperty("callStarterConfigAfterFinish") UUID callStarterConfigAfterFinish,
+                      @JsonProperty("name") String name
     ) {
         this.answerTargetChannelId = answerTargetChannelId;
         this.answerFormatType = Optional.ofNullable(answerFormatType).orElse(AnswerFormatType.full);
@@ -59,6 +64,8 @@ public class RollConfig implements Config {
             this.diceStyleAndColor = new DiceStyleAndColor(DiceImageStyle.none, DiceImageStyle.none.getDefaultColor());
         }
         this.configLocale = Optional.ofNullable(configLocale).orElse(Locale.ENGLISH);
+        this.callStarterConfigAfterFinish = callStarterConfigAfterFinish;
+        this.name = name;
     }
 
     public String toShortString() {
@@ -73,6 +80,9 @@ public class RollConfig implements Config {
         out.add(String.format("%s: %s", BaseCommandOptions.DICE_IMAGE_COLOR_OPTION_NAME, diceStyleAndColor.getConfiguredDefaultColor()));
         if (answerTargetChannelId != null) {
             out.add(String.format("%s: <#%s>", BaseCommandOptions.TARGET_CHANNEL_OPTION_NAME, answerTargetChannelId));
+        }
+        if (name != null) {
+            out.add(String.format("%s: %s", BaseCommandOptions.NAME_OPTION_NAME, name));
         }
         //language should be set over the client
         //out.add(String.format("%s: %s", BaseCommandOptions.LOCALE_OPTION_NAME, configLocale));

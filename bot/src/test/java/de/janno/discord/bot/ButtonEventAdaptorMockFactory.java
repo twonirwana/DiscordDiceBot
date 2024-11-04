@@ -11,8 +11,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
 
-import static de.janno.discord.bot.ButtonEventAdaptorMock.CHANNEL_ID;
-import static de.janno.discord.bot.ButtonEventAdaptorMock.GUILD_ID;
+import static de.janno.discord.bot.ButtonEventAdaptorMock.*;
 
 public class ButtonEventAdaptorMockFactory<C extends RollConfig, S extends StateData> {
     private final String commandId;
@@ -24,7 +23,7 @@ public class ButtonEventAdaptorMockFactory<C extends RollConfig, S extends State
         this.commandId = commandId;
         this.messageIdCounter = new AtomicLong(0);
         this.pinnedMessageIds = firstMessagePinned ? Sets.newHashSet(messageIdCounter.get()) : Collections.emptySet();
-        command.createMessageConfig(configUUID, GUILD_ID, CHANNEL_ID, config).ifPresent(persistenceManager::saveMessageConfig);
+        command.createMessageConfig(configUUID, GUILD_ID, CHANNEL_ID, USER_ID, config).ifPresent(persistenceManager::saveMessageConfig);
         command.createEmptyMessageData(configUUID, GUILD_ID, CHANNEL_ID, messageIdCounter.get());
     }
 

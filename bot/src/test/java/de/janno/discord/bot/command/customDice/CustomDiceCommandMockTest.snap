@@ -227,16 +227,13 @@ de.janno.discord.bot.command.customDice.CustomDiceCommandMockTest.userChannelAli
 
 de.janno.discord.bot.command.customDice.CustomDiceCommandMockTest.without_configUUID_existingLegacyData=[
   [
-    "acknowledge",
-    "deleteMessageById: 0",
-    "sendMessage: EmbedOrMessageDefinition(title=Dmg ⇒ 3, descriptionOrContent=1d6: [3], fields=[], componentRowDefinitions=[], hasImage=false, type=EMBED, userReference=true, sendToOtherChannelId=null)",
-    "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click on a button to roll the dice, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Dmg, id=custom_dice\u001E1_button\u001E00000000-0000-0000-0000-000000000001, style=PRIMARY, disabled=false, emoji=null)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
+    "reply: The button uses an old format that isn't supported anymore. Please delete it and create a new button message with a slash command."
   ]
 ]
 
 
 de.janno.discord.bot.command.customDice.CustomDiceCommandMockTest.without_configUUID_missingData=[
   [
-    "reply: Configuration for the message is missing, please create a new message with the slash command `/custom_dice start`"
+    "reply: The button uses an old format that isn't supported anymore. Please delete it and create a new button message with a slash command."
   ]
 ]

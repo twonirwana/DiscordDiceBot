@@ -42,6 +42,7 @@ The bot has list a ready to play list of presets for many RPG systems.
 Simple select a system out of the list or keep typing to search and filter in the list.
 All these presets are realised with the user available commands and dice expression and can be adapted and extended.
 Please let me know if you have a good new preset or an improved version for an existing preset.
+The quickstart will show a user also all named commands other user have created at the same server and all named commands the user himself has created in any server.
 
 [cols="1,1"]
 |===
@@ -398,6 +399,11 @@ It musst be a single emoji at the start of the label.
 It can be a unicode emoji or a custom discord emoji (provided with emoji selection button, on the right side of the message input).
 Commands with invalid emojis will fail and simply produce no button message.
 
+=== Name
+
+Commands can be given names.
+Named commands can be recreated with the `quickstart` command or reused with the `starter` command.
+
 == Commands
 
 === Custom Dice
@@ -650,6 +656,16 @@ For example: `/channel_config alias multi_save aliases: att:2d20;dmg:2d6+4= scop
 * `delete` removes an alias by its name
 * `delete_all` removes all aliases
 * `list` provides a list of all alias
+
+=== Starter
+
+Starter creates a wrapper command, that allows it to switch between multiple commands or recreate commands with a click on the button.
+The user can add 1 to 10 named commands (created by him self in any server, by another user in the same server or one of the commands defined in quickstart).
+In the resulting message, the user musst then first select one of the named commands, use it to create a roll and then message will reset to the selection named commands.
+
+If the option `open_in_new_message: true` is set or the command is pinned, then it will not transform itself in the named command but create a new command message, as if it was created with the slash command.
+
+The option `message` allows it to set a custom message.
 
 === Fetch
 
