@@ -176,7 +176,7 @@ public class StarterCommand implements SlashCommand, ComponentCommand {
                 return event
                         .reply("**%s:** `/%s start %s`".formatted(configToStart.name(), configToStart.commandId(), updatedConfig2Start.toCommandOptionsString()), false)
                         .then(event.sendMessage(embedOrMessageDefinition))
-                        //create a empty messageData so it is possible to clear the starter
+                        //create an empty messageData so it is possible to clear the starter
                         .doOnNext(messageId -> createEmptyMessageData(config2StartUUID, guildId, channelId, messageId))
                         .then();
             }
@@ -316,7 +316,7 @@ public class StarterCommand implements SlashCommand, ComponentCommand {
                         return event.reply(event.getCommandString(), false);
                     })
                     .then(event.sendMessage(createButtonMessage(starterConfig))
-                            //create a empty messageData so it is possible to clear the starter
+                            //create an empty messageData so it is possible to clear the starter
                             .doOnNext(messageId -> createEmptyMessageData(starterConfig.getId(), guildId, channelId, messageId))
                             .then());
         }
@@ -343,7 +343,7 @@ public class StarterCommand implements SlashCommand, ComponentCommand {
 
             @Override
             public void processMessageId(WelcomeRequest request, UUID configUUID, long messageId) {
-                //create a empty messageData so it is possible to clear the starter
+                //create an empty messageData so it is possible to clear the starter
                 createEmptyMessageData(configUUID, request.guildId(), request.channelId(), messageId);
             }
         };
