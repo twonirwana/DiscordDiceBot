@@ -4,7 +4,6 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Stopwatch;
 import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableList;
 import de.janno.discord.bot.AnswerInteractionType;
 import de.janno.discord.bot.BotMetrics;
 import de.janno.discord.bot.I18n;
@@ -65,11 +64,7 @@ public class DirectRollCommand implements SlashCommand {
                 answerMessage.getType() == EmbedOrMessageDefinition.Type.EMBED
                 && answerMessage.getFields().size() < 25) {
             answerMessage = answerMessage.toBuilder()
-                    .fields(ImmutableList.<EmbedOrMessageDefinition.Field>builder()
-                            .addAll(answerMessage.getFields())
-                            .add(new EmbedOrMessageDefinition.Field("Warning", answer.getWarning(), false))
-                            .build()
-                    )
+                    .field(new EmbedOrMessageDefinition.Field("Warning", answer.getWarning(), false))
                     .build();
         }
         return answerMessage;

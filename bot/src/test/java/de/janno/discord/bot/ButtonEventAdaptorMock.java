@@ -16,7 +16,6 @@ import javax.annotation.Nullable;
 import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.stream.Collectors;
 
 import static de.janno.discord.connector.api.BottomCustomIdUtils.CUSTOM_ID_DELIMITER;
 
@@ -130,11 +129,7 @@ public class ButtonEventAdaptorMock implements ButtonEventAdaptor {
 
     @Override
     public @NonNull Mono<Void> editMessage(@Nullable String message, @Nullable List<ComponentRowDefinition> componentRowDefinitions) {
-        actions.add(String.format("editMessage: message:%s, buttonValues=%s", message, Optional.ofNullable(componentRowDefinitions).stream()
-                .flatMap(Collection::stream)
-                .flatMap(r -> r.getButtonDefinitions().stream())
-                .map(bd -> BottomCustomIdUtils.getButtonValueFromCustomId(bd.getId()) + (bd.isDisabled() ? "!" : ""))
-                .collect(Collectors.joining(","))));
+        actions.add(String.format("editMessage: message:%s, buttons=%s", message, componentRowDefinitions));
         this.editedComponentRowDefinition = componentRowDefinitions;
         return Mono.just("").then();
     }

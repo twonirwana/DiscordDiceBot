@@ -447,6 +447,10 @@ This will provide a button called `Attack` which rolls with a personalized modif
 image:image/custom_parameter.webp[image]
 
 Use for example the slash command `/custom_parameter expression:{numberOfDice:1\<\=>10}d{sides:4@D4/6@D6/8@D8/12@D12/20@D20}` to create a message with a dice expression, where the user can fill the parameter with buttons.
+The user can click on the buttons to fill all open parameter from left to right.
+When all parameter are selected then the expression will be rolled.
+The first user that clicks on a button add his name to the message and only this user can select further parameter.
+Every user can still use the `Clear` button.
 For the dice expression see the section <<Dice Expression Notation>>.
 The parameter have the format `+{name}+`.
 If there is no range given, then button for the values 1-15 are presented.
@@ -459,17 +463,22 @@ It is possible to add an optional label to each value in the format `value@label
 For example `{bonus:0@None/3@Small Bonus/5@Big Bonus}` will show on the buttons 'None', 'Small Bonus' and 'Big Bonus' but apply the values 0, 3 or 5 to the expression
 
 If the label of a parameter option starts with a `!` e.g. `{sides:1d6@default/2d6@bonus/d20@!direct}` then the button is as a green direct roll button.
-This means that if it is clicked then all following parameter will skipped and in the expression replaced with `''`.
+This means that if it is clicked then all following parameter will be skipped and in the expression replaced with `''`.
 
 For example:
-`/custom_parameter start expression: {n}d{s:4/6/10/20@!20}+{modi:+1/+2/+3}=` let you select first the number of die, then the type of dice and then a modification.
+`/custom_parameter start expression: +{n}+d{s:4/6/10/20@!20}+{modi:+1/+2/+3}=` let you select first the number of die, then the type of dice and then a modification.
 But if you select `20` it will skip the modification selection and directly roll the selected number of d20.
 
+It is possible to skip parameter if specific buttons are selected.
+It is possible to give a parameter and a slash parameter options a path ID.
+The id is set by adding a number or word surrounded by `!` at the end of the parameter name or the slash option.
+If an option is selected that has a path ID then all following parameter that don't match the path ID are skipped.
+All skipped parameter will be removed from the expression, that means replaced with an empty string.
+
+For example:
+`/custom_parameter start expression: val('$n',{numberOfDice:1\<\=>10}),{type:''!1!@pool/''!2!@sum/''!3!@simple} + '$n'd10{target!1!:>=4c@4/>=6c@6/>=8c@8}{modifier!2!:+1=@+1/+2=@+2/+3=@+3}` let you select first the number of die, then if you want to roll a pool test against a target number, sum all dice together with a modifier or make a simple roll without any logic.
+
 An expression can have up to 4 parameter.
-The user can click on the buttons to fill all open parameter of the expression.
-If all parameter are selected then the expression will be rolled.
-The first user that clicks on a button add his name to the message and only this user can select further parameter.
-Every user can still use the `Clear` button.
 The command uses the `without_expression` as default answer format.
 
 This command can also use alias (see the `channel_config` command).
@@ -517,7 +526,7 @@ Discord allows a maximum of 5 rows with each 5 buttons.
 The text after an optional `@` will be used as label for the button.
 
 If the label starts with a `!` e.g. `d20@!d20` then the button is as a green direct roll button.
-This means that if it is clicked then its value will be added to the expression and the roll is directly triggered and it not necessary to click additionally on the `Roll` button.
+This means that if it is clicked then its value will be added to the expression and the roll is directly triggered and it is not necessary to click additionally on the `Roll` button.
 Direct roll buttons are only enabled if the resulting expression is valid.
 
 If the option `always_sum_result` is `true` (the default) then the result of the dice will be added together, the equivalent of adding `=` at the end of the expression.
@@ -609,7 +618,7 @@ Each time the user uses the slash command `/r expression: att`, the `att` will a
 
 An alias has a name and a value and will replace each occurrence in the dice expression of its name with its value.
 
-WARNING: Alias can influence each other an this can break the logic
+WARNING: Alias can influence each other and this can break the logic
 
 There are two type of alias:
 

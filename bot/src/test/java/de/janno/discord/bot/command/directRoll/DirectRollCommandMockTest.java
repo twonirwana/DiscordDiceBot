@@ -75,6 +75,18 @@ public class DirectRollCommandMockTest {
                 .build()));
         directRollCommand.handleSlashCommandEvent(slashEvent, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"), Locale.ENGLISH).block();
 
+        expect.toMatchSnapshot(slashEvent.getSortedActions());
+    }
+
+    @Test
+    void roll_warn_multi() {
+        DirectRollCommand directRollCommand = new DirectRollCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0)));
+
+        SlashEventAdaptorMock slashEvent = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
+                .name("expression")
+                .stringValue("20,3,4,5")
+                .build()));
+        directRollCommand.handleSlashCommandEvent(slashEvent, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"), Locale.ENGLISH).block();
 
         expect.toMatchSnapshot(slashEvent.getSortedActions());
     }

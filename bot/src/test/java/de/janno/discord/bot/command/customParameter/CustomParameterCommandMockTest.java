@@ -55,6 +55,48 @@ public class CustomParameterCommandMockTest {
     }
 
     @Test
+    void roll_pathPool() {
+        CustomParameterCommand underTest = new CustomParameterCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0)));
+
+
+        CustomParameterConfig config = new CustomParameterConfig(null, "/custom_parameter start expression: val('$n',{numberOfDice:1<=>10}),{type:''!1!@pool/''!2!@sum} + '$n'd10{target!1!:>=4c@4/>=6c@6/>=8c@8}{modifier!2!:+1=@+1/+2=@+2/+3=@+3}",
+                AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
+        ButtonEventAdaptorMockFactory<CustomParameterConfig, CustomParameterStateData> factory = new ButtonEventAdaptorMockFactory<>("custom_parameter", underTest, config, persistenceManager, false);
+
+        ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("id5");
+        underTest.handleComponentInteractEvent(click1).block();
+        ButtonEventAdaptorMock click2 = factory.getButtonClickOnLastButtonMessage("id1");
+        underTest.handleComponentInteractEvent(click2).block();
+        ButtonEventAdaptorMock click3 = factory.getButtonClickOnLastButtonMessage("id2");
+        underTest.handleComponentInteractEvent(click3).block();
+
+        expect.scenario("event1").toMatchSnapshot(click1.getSortedActions());
+        expect.scenario("event2").toMatchSnapshot(click2.getSortedActions());
+        expect.scenario("event3").toMatchSnapshot(click3.getSortedActions());
+    }
+
+    @Test
+    void roll_pathSum() {
+        CustomParameterCommand underTest = new CustomParameterCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0)));
+
+
+        CustomParameterConfig config = new CustomParameterConfig(null, "/custom_parameter start expression: val('$n',{numberOfDice:1<=>10}),{type:''!1!@pool/''!2!@sum} + '$n'd10{target!1!:>=4c@4/>=6c@6/>=8c@8}{modifier!2!:+1=@+1/+2=@+2/+3=@+3}",
+                AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
+        ButtonEventAdaptorMockFactory<CustomParameterConfig, CustomParameterStateData> factory = new ButtonEventAdaptorMockFactory<>("custom_parameter", underTest, config, persistenceManager, false);
+
+        ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("id5");
+        underTest.handleComponentInteractEvent(click1).block();
+        ButtonEventAdaptorMock click2 = factory.getButtonClickOnLastButtonMessage("id2");
+        underTest.handleComponentInteractEvent(click2).block();
+        ButtonEventAdaptorMock click3 = factory.getButtonClickOnLastButtonMessage("id2");
+        underTest.handleComponentInteractEvent(click3).block();
+
+        expect.scenario("event1").toMatchSnapshot(click1.getSortedActions());
+        expect.scenario("event2").toMatchSnapshot(click2.getSortedActions());
+        expect.scenario("event3").toMatchSnapshot(click3.getSortedActions());
+    }
+
+    @Test
     void roll_direct() {
         CustomParameterCommand underTest = new CustomParameterCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0)));
 
