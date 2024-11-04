@@ -60,7 +60,7 @@ public class CustomParameterCommandMockTest {
 
 
         CustomParameterConfig config = new CustomParameterConfig(null, "/custom_parameter start expression: val('$n',{numberOfDice:1<=>10}),{type:''!1!@pool/''!2!@sum} + '$n'd10{target!1!:>=4c@4/>=6c@6/>=8c@8}{modifier!2!:+1=@+1/+2=@+2/+3=@+3}",
-                AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
+                AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH, null, null);
         ButtonEventAdaptorMockFactory<CustomParameterConfig, CustomParameterStateData> factory = new ButtonEventAdaptorMockFactory<>("custom_parameter", underTest, config, persistenceManager, false);
 
         ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("id5");
@@ -81,7 +81,7 @@ public class CustomParameterCommandMockTest {
 
 
         CustomParameterConfig config = new CustomParameterConfig(null, "/custom_parameter start expression: val('$n',{numberOfDice:1<=>10}),{type:''!1!@pool/''!2!@sum} + '$n'd10{target!1!:>=4c@4/>=6c@6/>=8c@8}{modifier!2!:+1=@+1/+2=@+2/+3=@+3}",
-                AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH);
+                AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH, null, null);
         ButtonEventAdaptorMockFactory<CustomParameterConfig, CustomParameterStateData> factory = new ButtonEventAdaptorMockFactory<>("custom_parameter", underTest, config, persistenceManager, false);
 
         ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("id5");
