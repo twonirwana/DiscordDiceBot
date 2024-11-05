@@ -6,12 +6,10 @@ import lombok.Builder;
 import lombok.NonNull;
 import lombok.Singular;
 import lombok.Value;
-import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Nullable;
 import java.io.InputStream;
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Supplier;
 
 @Value
@@ -42,15 +40,7 @@ public class RollAnswer {
     List<DieIdTypeAndValue> dieIdTypeAndValues;
 
     public String toShortString() {
-        String fieldStringList = Optional.ofNullable(multiRollResults)
-                .map(f -> f.stream()
-                        .map(RollResults::toShortString)
-                        .toList().toString())
-                .orElse(null);
-
-        return String.format("%s=%s", expression,
-                        Joiner.on(",").skipNulls().join(result, StringUtils.abbreviate(rollDetails, 100), errorMessage, warning, fieldStringList))
-                .replace("\n", " ");
+        return Joiner.on(",").skipNulls().join(expression, errorMessage).replace("\n", " ");
     }
 
     @Value

@@ -201,30 +201,6 @@ de.janno.discord.bot.command.starter.StarterCommandTest.getCommandDefinition=[
         "options": [
           {
             "type": "STRING",
-            "name": "message",
-            "nameLocales": [ ],
-            "description": "Set a custom text for the starter message",
-            "descriptionLocales": [
-              {
-                "locale": "de",
-                "description": "Einen eigenen Text für die Startmeldung festlegen"
-              },
-              {
-                "locale": "pt_BR",
-                "description": "Definir um texto personalizado para a mensagem inicial"
-              },
-              {
-                "locale": "fr",
-                "description": "Définir un texte personnalisé pour le message de départ"
-              }
-            ],
-            "required": false,
-            "choices": [ ],
-            "options": [ ],
-            "autoComplete": false
-          },
-          {
-            "type": "STRING",
             "name": "command_name_1",
             "nameLocales": [ ],
             "description": "A named command that should be added to the starter. Start typing to filter.",
@@ -242,7 +218,7 @@ de.janno.discord.bot.command.starter.StarterCommandTest.getCommandDefinition=[
                 "description": "Une commande nommée qui doit être ajoutée au démarreur. Commencez à taper pour filtrer."
               }
             ],
-            "required": false,
+            "required": true,
             "choices": [ ],
             "options": [ ],
             "autoComplete": true
@@ -464,6 +440,30 @@ de.janno.discord.bot.command.starter.StarterCommandTest.getCommandDefinition=[
             "autoComplete": true
           },
           {
+            "type": "STRING",
+            "name": "message",
+            "nameLocales": [ ],
+            "description": "Set a custom text for the starter message",
+            "descriptionLocales": [
+              {
+                "locale": "de",
+                "description": "Einen eigenen Text für die Startmeldung festlegen"
+              },
+              {
+                "locale": "pt_BR",
+                "description": "Definir um texto personalizado para a mensagem inicial"
+              },
+              {
+                "locale": "fr",
+                "description": "Définir un texte personnalisé pour le message de départ"
+              }
+            ],
+            "required": false,
+            "choices": [ ],
+            "options": [ ],
+            "autoComplete": false
+          },
+          {
             "type": "BOOLEAN",
             "name": "open_in_new_message",
             "nameLocales": [ ],
@@ -545,275 +545,287 @@ de.janno.discord.bot.command.starter.StarterCommandTest.getCommandDefinition=[
 
 de.janno.discord.bot.command.starter.StarterCommandTest.testWelcomeMessage[de]=[
   {
-    "descriptionOrContent": "Willkommen zum Button Dice Bot,\nbenutzte eine der Beispiel Buttons um eine der RPG Systeme zu starten, verwenden `quickstart system` um eines von vielen RPG Voreinstellungen oder benutzte ein Slash Befehl um ein benutzerdefiniertes System zu erstellen (siehe https://github.com/twonirwana/DiscordDiceBot für Details oder benutzt `/help`).\nDu kannst außerdem `/r` benutzten um direkt zu würfel.\nBesuch uns für Hilfe oder Feature-Anfrage auf unseren Discord Server: https://discord.gg/e43BsqKpFr",
-    "fields": [ ],
-    "componentRowDefinitions": [
-      {
-        "buttonDefinitions": [
-          {
-            "label": "Dungeon & Dragons 5e",
-            "id": "starter\u001E00000000-0000-0000-0001-000000000001\u001E00000000-0000-0000-0001-000000000000",
-            "style": "PRIMARY",
-            "disabled": false
-          },
-          {
-            "label": "Shadowrun",
-            "id": "starter\u001E00000000-0000-0000-0001-000000000002\u001E00000000-0000-0000-0001-000000000000",
-            "style": "PRIMARY",
-            "disabled": false
-          },
-          {
-            "label": "Fate",
-            "id": "starter\u001E00000000-0000-0000-0001-000000000003\u001E00000000-0000-0000-0001-000000000000",
-            "style": "PRIMARY",
-            "disabled": false
-          },
-          {
-            "label": "Münzwurf",
-            "id": "starter\u001E00000000-0000-0000-0001-000000000004\u001E00000000-0000-0000-0001-000000000000",
-            "style": "PRIMARY",
-            "disabled": false,
-            "emoji": "🪙"
-          },
-          {
-            "label": "oWod / Storyteller System",
-            "id": "starter\u001E00000000-0000-0000-0001-000000000005\u001E00000000-0000-0000-0001-000000000000",
-            "style": "PRIMARY",
-            "disabled": false
-          }
-        ]
-      },
-      {
-        "buttonDefinitions": [
-          {
-            "label": "nWod / Chronicles of Darkness",
-            "id": "starter\u001E00000000-0000-0000-0001-000000000006\u001E00000000-0000-0000-0001-000000000000",
-            "style": "PRIMARY",
-            "disabled": false
-          },
-          {
-            "label": "Würfel Kalkulator",
-            "id": "starter\u001E00000000-0000-0000-0001-000000000007\u001E00000000-0000-0000-0001-000000000000",
-            "style": "PRIMARY",
-            "disabled": false
-          },
-          {
-            "label": "Dungeon & Dragons 5e ohne Würfelbildern",
-            "id": "starter\u001E00000000-0000-0000-0001-000000000008\u001E00000000-0000-0000-0001-000000000000",
-            "style": "PRIMARY",
-            "disabled": false
-          }
-        ]
-      }
-    ],
-    "type": "MESSAGE",
-    "userReference": false
+    "embedOrMessageDefinition": {
+      "descriptionOrContent": "Willkommen zum Button Dice Bot,\nbenutzte eine der Beispiel Buttons um eine der RPG Systeme zu starten, verwenden `quickstart system` um eines von vielen RPG Voreinstellungen oder benutzte ein Slash Befehl um ein benutzerdefiniertes System zu erstellen (siehe https://github.com/twonirwana/DiscordDiceBot für Details oder benutzt `/help`).\nDu kannst außerdem `/r` benutzten um direkt zu würfel.\nBesuch uns für Hilfe oder Feature-Anfrage auf unseren Discord Server: https://discord.gg/e43BsqKpFr",
+      "fields": [ ],
+      "componentRowDefinitions": [
+        {
+          "buttonDefinitions": [
+            {
+              "label": "Dungeon & Dragons 5e",
+              "id": "starter\u001E00000000-0000-0000-0001-000000000001\u001E00000000-0000-0000-0001-000000000000",
+              "style": "PRIMARY",
+              "disabled": false
+            },
+            {
+              "label": "Shadowrun",
+              "id": "starter\u001E00000000-0000-0000-0001-000000000002\u001E00000000-0000-0000-0001-000000000000",
+              "style": "PRIMARY",
+              "disabled": false
+            },
+            {
+              "label": "Fate",
+              "id": "starter\u001E00000000-0000-0000-0001-000000000003\u001E00000000-0000-0000-0001-000000000000",
+              "style": "PRIMARY",
+              "disabled": false
+            },
+            {
+              "label": "Münzwurf",
+              "id": "starter\u001E00000000-0000-0000-0001-000000000004\u001E00000000-0000-0000-0001-000000000000",
+              "style": "PRIMARY",
+              "disabled": false,
+              "emoji": "🪙"
+            },
+            {
+              "label": "oWod / Storyteller System",
+              "id": "starter\u001E00000000-0000-0000-0001-000000000005\u001E00000000-0000-0000-0001-000000000000",
+              "style": "PRIMARY",
+              "disabled": false
+            }
+          ]
+        },
+        {
+          "buttonDefinitions": [
+            {
+              "label": "nWod / Chronicles of Darkness",
+              "id": "starter\u001E00000000-0000-0000-0001-000000000006\u001E00000000-0000-0000-0001-000000000000",
+              "style": "PRIMARY",
+              "disabled": false
+            },
+            {
+              "label": "Würfel Kalkulator",
+              "id": "starter\u001E00000000-0000-0000-0001-000000000007\u001E00000000-0000-0000-0001-000000000000",
+              "style": "PRIMARY",
+              "disabled": false
+            },
+            {
+              "label": "Dungeon & Dragons 5e ohne Würfelbildern",
+              "id": "starter\u001E00000000-0000-0000-0001-000000000008\u001E00000000-0000-0000-0001-000000000000",
+              "style": "PRIMARY",
+              "disabled": false
+            }
+          ]
+        }
+      ],
+      "type": "MESSAGE",
+      "userReference": false
+    },
+    "configUUID": "00000000-0000-0000-0001-000000000000"
   }
 ]
 
 
 de.janno.discord.bot.command.starter.StarterCommandTest.testWelcomeMessage[en]=[
   {
-    "descriptionOrContent": "Welcome to the Button Dice Bot,\nuse one of the example buttons below to start one of the RPG dice systems, use `/quickstart system` to select one of many RPG presets or use the slash command to configure your own custom dice system (see https://github.com/twonirwana/DiscordDiceBot for details or the slash command `/help`).\nYou can also use the slash command `/r` to directly roll dice with.\nFor help or feature request come to the support discord server: https://discord.gg/e43BsqKpFr",
-    "fields": [ ],
-    "componentRowDefinitions": [
-      {
-        "buttonDefinitions": [
-          {
-            "label": "Dungeon & Dragons 5e",
-            "id": "starter\u001E00000000-0000-0000-0001-000000000001\u001E00000000-0000-0000-0001-000000000000",
-            "style": "PRIMARY",
-            "disabled": false
-          },
-          {
-            "label": "Shadowrun",
-            "id": "starter\u001E00000000-0000-0000-0001-000000000002\u001E00000000-0000-0000-0001-000000000000",
-            "style": "PRIMARY",
-            "disabled": false
-          },
-          {
-            "label": "Fate",
-            "id": "starter\u001E00000000-0000-0000-0001-000000000003\u001E00000000-0000-0000-0001-000000000000",
-            "style": "PRIMARY",
-            "disabled": false
-          },
-          {
-            "label": "Coin Toss",
-            "id": "starter\u001E00000000-0000-0000-0001-000000000004\u001E00000000-0000-0000-0001-000000000000",
-            "style": "PRIMARY",
-            "disabled": false,
-            "emoji": "🪙"
-          },
-          {
-            "label": "oWod / Storyteller System",
-            "id": "starter\u001E00000000-0000-0000-0001-000000000005\u001E00000000-0000-0000-0001-000000000000",
-            "style": "PRIMARY",
-            "disabled": false
-          }
-        ]
-      },
-      {
-        "buttonDefinitions": [
-          {
-            "label": "nWod / Chronicles of Darkness",
-            "id": "starter\u001E00000000-0000-0000-0001-000000000006\u001E00000000-0000-0000-0001-000000000000",
-            "style": "PRIMARY",
-            "disabled": false
-          },
-          {
-            "label": "Dice Calculator",
-            "id": "starter\u001E00000000-0000-0000-0001-000000000007\u001E00000000-0000-0000-0001-000000000000",
-            "style": "PRIMARY",
-            "disabled": false
-          },
-          {
-            "label": "Dungeon & Dragons 5e without Dice Images",
-            "id": "starter\u001E00000000-0000-0000-0001-000000000008\u001E00000000-0000-0000-0001-000000000000",
-            "style": "PRIMARY",
-            "disabled": false
-          }
-        ]
-      }
-    ],
-    "type": "MESSAGE",
-    "userReference": false
+    "embedOrMessageDefinition": {
+      "descriptionOrContent": "Welcome to the Button Dice Bot,\nuse one of the example buttons below to start one of the RPG dice systems, use `/quickstart system` to select one of many RPG presets or use the slash command to configure your own custom dice system (see https://github.com/twonirwana/DiscordDiceBot for details or the slash command `/help`).\nYou can also use the slash command `/r` to directly roll dice with.\nFor help or feature request come to the support discord server: https://discord.gg/e43BsqKpFr",
+      "fields": [ ],
+      "componentRowDefinitions": [
+        {
+          "buttonDefinitions": [
+            {
+              "label": "Dungeon & Dragons 5e",
+              "id": "starter\u001E00000000-0000-0000-0001-000000000001\u001E00000000-0000-0000-0001-000000000000",
+              "style": "PRIMARY",
+              "disabled": false
+            },
+            {
+              "label": "Shadowrun",
+              "id": "starter\u001E00000000-0000-0000-0001-000000000002\u001E00000000-0000-0000-0001-000000000000",
+              "style": "PRIMARY",
+              "disabled": false
+            },
+            {
+              "label": "Fate",
+              "id": "starter\u001E00000000-0000-0000-0001-000000000003\u001E00000000-0000-0000-0001-000000000000",
+              "style": "PRIMARY",
+              "disabled": false
+            },
+            {
+              "label": "Coin Toss",
+              "id": "starter\u001E00000000-0000-0000-0001-000000000004\u001E00000000-0000-0000-0001-000000000000",
+              "style": "PRIMARY",
+              "disabled": false,
+              "emoji": "🪙"
+            },
+            {
+              "label": "oWod / Storyteller System",
+              "id": "starter\u001E00000000-0000-0000-0001-000000000005\u001E00000000-0000-0000-0001-000000000000",
+              "style": "PRIMARY",
+              "disabled": false
+            }
+          ]
+        },
+        {
+          "buttonDefinitions": [
+            {
+              "label": "nWod / Chronicles of Darkness",
+              "id": "starter\u001E00000000-0000-0000-0001-000000000006\u001E00000000-0000-0000-0001-000000000000",
+              "style": "PRIMARY",
+              "disabled": false
+            },
+            {
+              "label": "Dice Calculator",
+              "id": "starter\u001E00000000-0000-0000-0001-000000000007\u001E00000000-0000-0000-0001-000000000000",
+              "style": "PRIMARY",
+              "disabled": false
+            },
+            {
+              "label": "Dungeon & Dragons 5e without Dice Images",
+              "id": "starter\u001E00000000-0000-0000-0001-000000000008\u001E00000000-0000-0000-0001-000000000000",
+              "style": "PRIMARY",
+              "disabled": false
+            }
+          ]
+        }
+      ],
+      "type": "MESSAGE",
+      "userReference": false
+    },
+    "configUUID": "00000000-0000-0000-0001-000000000000"
   }
 ]
 
 
 de.janno.discord.bot.command.starter.StarterCommandTest.testWelcomeMessage[fr]=[
   {
-    "descriptionOrContent": "Bienvenue sur le Button Dice Bot,\nUtilisez l'un des boutons d'exemple ci-dessous pour lancer l'un des systèmes de dés RPG, utilisez `/quickstart système` pour sélectionner l'un des nombreux presets RPG ou utilisez la commande slash pour configurer votre propre système de dés personnalisé (voir https://github.com/twonirwana/DiscordDiceBot pour plus de détails ou la commande slash `/help`).\nVous pouvez également utiliser la commande slash `/r` pour lancer directement les dés.\nPour obtenir de l'aide ou demander une fonctionnalité, venez sur le serveur discord de support : https://discord.gg/e43BsqKpFr",
-    "fields": [ ],
-    "componentRowDefinitions": [
-      {
-        "buttonDefinitions": [
-          {
-            "label": "Dungeon & Dragons 5e",
-            "id": "starter\u001E00000000-0000-0000-0001-000000000001\u001E00000000-0000-0000-0001-000000000000",
-            "style": "PRIMARY",
-            "disabled": false
-          },
-          {
-            "label": "Shadowrun",
-            "id": "starter\u001E00000000-0000-0000-0001-000000000002\u001E00000000-0000-0000-0001-000000000000",
-            "style": "PRIMARY",
-            "disabled": false
-          },
-          {
-            "label": "Fate",
-            "id": "starter\u001E00000000-0000-0000-0001-000000000003\u001E00000000-0000-0000-0001-000000000000",
-            "style": "PRIMARY",
-            "disabled": false
-          },
-          {
-            "label": "Pile ou face",
-            "id": "starter\u001E00000000-0000-0000-0001-000000000004\u001E00000000-0000-0000-0001-000000000000",
-            "style": "PRIMARY",
-            "disabled": false,
-            "emoji": "🪙"
-          },
-          {
-            "label": "oWod / Monde des ténèbres",
-            "id": "starter\u001E00000000-0000-0000-0001-000000000005\u001E00000000-0000-0000-0001-000000000000",
-            "style": "PRIMARY",
-            "disabled": false
-          }
-        ]
-      },
-      {
-        "buttonDefinitions": [
-          {
-            "label": "nWod / Chroniques des ténèbres",
-            "id": "starter\u001E00000000-0000-0000-0001-000000000006\u001E00000000-0000-0000-0001-000000000000",
-            "style": "PRIMARY",
-            "disabled": false
-          },
-          {
-            "label": "Calculatrice de dés",
-            "id": "starter\u001E00000000-0000-0000-0001-000000000007\u001E00000000-0000-0000-0001-000000000000",
-            "style": "PRIMARY",
-            "disabled": false
-          },
-          {
-            "label": "Dungeon & Dragons 5e sans images de dés",
-            "id": "starter\u001E00000000-0000-0000-0001-000000000008\u001E00000000-0000-0000-0001-000000000000",
-            "style": "PRIMARY",
-            "disabled": false
-          }
-        ]
-      }
-    ],
-    "type": "MESSAGE",
-    "userReference": false
+    "embedOrMessageDefinition": {
+      "descriptionOrContent": "Bienvenue sur le Button Dice Bot,\nUtilisez l'un des boutons d'exemple ci-dessous pour lancer l'un des systèmes de dés RPG, utilisez `/quickstart système` pour sélectionner l'un des nombreux presets RPG ou utilisez la commande slash pour configurer votre propre système de dés personnalisé (voir https://github.com/twonirwana/DiscordDiceBot pour plus de détails ou la commande slash `/help`).\nVous pouvez également utiliser la commande slash `/r` pour lancer directement les dés.\nPour obtenir de l'aide ou demander une fonctionnalité, venez sur le serveur discord de support : https://discord.gg/e43BsqKpFr",
+      "fields": [ ],
+      "componentRowDefinitions": [
+        {
+          "buttonDefinitions": [
+            {
+              "label": "Dungeon & Dragons 5e",
+              "id": "starter\u001E00000000-0000-0000-0001-000000000001\u001E00000000-0000-0000-0001-000000000000",
+              "style": "PRIMARY",
+              "disabled": false
+            },
+            {
+              "label": "Shadowrun",
+              "id": "starter\u001E00000000-0000-0000-0001-000000000002\u001E00000000-0000-0000-0001-000000000000",
+              "style": "PRIMARY",
+              "disabled": false
+            },
+            {
+              "label": "Fate",
+              "id": "starter\u001E00000000-0000-0000-0001-000000000003\u001E00000000-0000-0000-0001-000000000000",
+              "style": "PRIMARY",
+              "disabled": false
+            },
+            {
+              "label": "Pile ou face",
+              "id": "starter\u001E00000000-0000-0000-0001-000000000004\u001E00000000-0000-0000-0001-000000000000",
+              "style": "PRIMARY",
+              "disabled": false,
+              "emoji": "🪙"
+            },
+            {
+              "label": "oWod / Monde des ténèbres",
+              "id": "starter\u001E00000000-0000-0000-0001-000000000005\u001E00000000-0000-0000-0001-000000000000",
+              "style": "PRIMARY",
+              "disabled": false
+            }
+          ]
+        },
+        {
+          "buttonDefinitions": [
+            {
+              "label": "nWod / Chroniques des ténèbres",
+              "id": "starter\u001E00000000-0000-0000-0001-000000000006\u001E00000000-0000-0000-0001-000000000000",
+              "style": "PRIMARY",
+              "disabled": false
+            },
+            {
+              "label": "Calculatrice de dés",
+              "id": "starter\u001E00000000-0000-0000-0001-000000000007\u001E00000000-0000-0000-0001-000000000000",
+              "style": "PRIMARY",
+              "disabled": false
+            },
+            {
+              "label": "Dungeon & Dragons 5e sans images de dés",
+              "id": "starter\u001E00000000-0000-0000-0001-000000000008\u001E00000000-0000-0000-0001-000000000000",
+              "style": "PRIMARY",
+              "disabled": false
+            }
+          ]
+        }
+      ],
+      "type": "MESSAGE",
+      "userReference": false
+    },
+    "configUUID": "00000000-0000-0000-0001-000000000000"
   }
 ]
 
 
 de.janno.discord.bot.command.starter.StarterCommandTest.testWelcomeMessage[pt_BR]=[
   {
-    "descriptionOrContent": "Boas vindas ao Button Dice Bot,\nuse um dos botões de exemplo abaixo para começar com um sistema de RPG, use `/quickstart sistema` para selecionar um ou vários RPGs predefinidos ou uso o comando da barra para configurar seu próprio sistema personalizado de dados(veja https://github.com/twonirwana/DiscordDiceBot para detalhes (inglês) ou use o comando barra `/help`).\nVocê também pode usar o comando `/r` para rolar dados de forma direta.\nPara ajuda ou solicitar novos recursos vá até o servidor de suporte no discord (inglês): https://discord.gg/e43BsqKpFr",
-    "fields": [ ],
-    "componentRowDefinitions": [
-      {
-        "buttonDefinitions": [
-          {
-            "label": "Dungeon & Dragons 5e",
-            "id": "starter\u001E00000000-0000-0000-0001-000000000001\u001E00000000-0000-0000-0001-000000000000",
-            "style": "PRIMARY",
-            "disabled": false
-          },
-          {
-            "label": "Shadowrun",
-            "id": "starter\u001E00000000-0000-0000-0001-000000000002\u001E00000000-0000-0000-0001-000000000000",
-            "style": "PRIMARY",
-            "disabled": false
-          },
-          {
-            "label": "Fate",
-            "id": "starter\u001E00000000-0000-0000-0001-000000000003\u001E00000000-0000-0000-0001-000000000000",
-            "style": "PRIMARY",
-            "disabled": false
-          },
-          {
-            "label": "Cara ou Coroa",
-            "id": "starter\u001E00000000-0000-0000-0001-000000000004\u001E00000000-0000-0000-0001-000000000000",
-            "style": "PRIMARY",
-            "disabled": false,
-            "emoji": "🪙"
-          },
-          {
-            "label": "oWod / Sistema Storyteller",
-            "id": "starter\u001E00000000-0000-0000-0001-000000000005\u001E00000000-0000-0000-0001-000000000000",
-            "style": "PRIMARY",
-            "disabled": false
-          }
-        ]
-      },
-      {
-        "buttonDefinitions": [
-          {
-            "label": "nWod / Crônicas das Trevas",
-            "id": "starter\u001E00000000-0000-0000-0001-000000000006\u001E00000000-0000-0000-0001-000000000000",
-            "style": "PRIMARY",
-            "disabled": false
-          },
-          {
-            "label": "Calculadora de dados",
-            "id": "starter\u001E00000000-0000-0000-0001-000000000007\u001E00000000-0000-0000-0001-000000000000",
-            "style": "PRIMARY",
-            "disabled": false
-          },
-          {
-            "label": "Dungeon & Dragons 5e sem imagens de dados",
-            "id": "starter\u001E00000000-0000-0000-0001-000000000008\u001E00000000-0000-0000-0001-000000000000",
-            "style": "PRIMARY",
-            "disabled": false
-          }
-        ]
-      }
-    ],
-    "type": "MESSAGE",
-    "userReference": false
+    "embedOrMessageDefinition": {
+      "descriptionOrContent": "Boas vindas ao Button Dice Bot,\nuse um dos botões de exemplo abaixo para começar com um sistema de RPG, use `/quickstart sistema` para selecionar um ou vários RPGs predefinidos ou uso o comando da barra para configurar seu próprio sistema personalizado de dados(veja https://github.com/twonirwana/DiscordDiceBot para detalhes (inglês) ou use o comando barra `/help`).\nVocê também pode usar o comando `/r` para rolar dados de forma direta.\nPara ajuda ou solicitar novos recursos vá até o servidor de suporte no discord (inglês): https://discord.gg/e43BsqKpFr",
+      "fields": [ ],
+      "componentRowDefinitions": [
+        {
+          "buttonDefinitions": [
+            {
+              "label": "Dungeon & Dragons 5e",
+              "id": "starter\u001E00000000-0000-0000-0001-000000000001\u001E00000000-0000-0000-0001-000000000000",
+              "style": "PRIMARY",
+              "disabled": false
+            },
+            {
+              "label": "Shadowrun",
+              "id": "starter\u001E00000000-0000-0000-0001-000000000002\u001E00000000-0000-0000-0001-000000000000",
+              "style": "PRIMARY",
+              "disabled": false
+            },
+            {
+              "label": "Fate",
+              "id": "starter\u001E00000000-0000-0000-0001-000000000003\u001E00000000-0000-0000-0001-000000000000",
+              "style": "PRIMARY",
+              "disabled": false
+            },
+            {
+              "label": "Cara ou Coroa",
+              "id": "starter\u001E00000000-0000-0000-0001-000000000004\u001E00000000-0000-0000-0001-000000000000",
+              "style": "PRIMARY",
+              "disabled": false,
+              "emoji": "🪙"
+            },
+            {
+              "label": "oWod / Sistema Storyteller",
+              "id": "starter\u001E00000000-0000-0000-0001-000000000005\u001E00000000-0000-0000-0001-000000000000",
+              "style": "PRIMARY",
+              "disabled": false
+            }
+          ]
+        },
+        {
+          "buttonDefinitions": [
+            {
+              "label": "nWod / Crônicas das Trevas",
+              "id": "starter\u001E00000000-0000-0000-0001-000000000006\u001E00000000-0000-0000-0001-000000000000",
+              "style": "PRIMARY",
+              "disabled": false
+            },
+            {
+              "label": "Calculadora de dados",
+              "id": "starter\u001E00000000-0000-0000-0001-000000000007\u001E00000000-0000-0000-0001-000000000000",
+              "style": "PRIMARY",
+              "disabled": false
+            },
+            {
+              "label": "Dungeon & Dragons 5e sem imagens de dados",
+              "id": "starter\u001E00000000-0000-0000-0001-000000000008\u001E00000000-0000-0000-0001-000000000000",
+              "style": "PRIMARY",
+              "disabled": false
+            }
+          ]
+        }
+      ],
+      "type": "MESSAGE",
+      "userReference": false
+    },
+    "configUUID": "00000000-0000-0000-0001-000000000000"
   }
 ]

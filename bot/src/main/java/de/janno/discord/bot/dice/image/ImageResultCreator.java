@@ -74,10 +74,7 @@ public class ImageResultCreator {
             Files.createDirectories(Paths.get("%s/%s/".formatted(CACHE_FOLDER, folderName)));
             File cacheIndex = new File("%s/%s/%s".formatted(CACHE_FOLDER, folderName, CACHE_INDEX_FILE));
             if (!cacheIndex.exists()) {
-                boolean createdCacheFolder = cacheIndex.createNewFile();
-                if (createdCacheFolder) {
-                    log.info("created new image cache folder");
-                }
+                cacheIndex.createNewFile();
             }
         } catch (IOException e) {
             throw new RuntimeException(e);

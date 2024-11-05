@@ -21,6 +21,7 @@ import de.janno.discord.bot.command.sumCustomSet.SumCustomSetConfig;
 import de.janno.discord.bot.dice.DiceEvaluatorAdapter;
 import de.janno.discord.bot.persistance.Mapper;
 import de.janno.discord.bot.persistance.MessageConfigDTO;
+import de.janno.discord.bot.persistance.MessageDataDTO;
 import de.janno.discord.bot.persistance.PersistenceManager;
 import de.janno.discord.connector.api.*;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
@@ -33,7 +34,6 @@ import reactor.core.publisher.Mono;
 
 import javax.annotation.Nullable;
 import java.util.*;
-import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -98,7 +98,8 @@ public class StarterCommand implements SlashCommand, ComponentCommand {
                 .name(name)
                 .description(I18n.getMessage("starter.option.command.name.description", Locale.ENGLISH))
                 .descriptionLocales(I18n.allNoneEnglishMessagesDescriptions("starter.option.command.name.description"))
-                .required(false)
+                //the first is mandatory because at least on command need to be selected
+                .required(name.equals(COMMAND_IDs.getFirst()))
                 .autoComplete(true)
                 .build();
     }
@@ -175,6 +176,8 @@ public class StarterCommand implements SlashCommand, ComponentCommand {
                 return event
                         .reply("**%s:** `/%s start %s`".formatted(configToStart.name(), configToStart.commandId(), updatedConfig2Start.toCommandOptionsString()), false)
                         .then(event.sendMessage(embedOrMessageDefinition))
+                        //create an empty messageData so it is possible to clear the starter
+                        .doOnNext(messageId -> createEmptyMessageData(config2StartUUID, guildId, channelId, messageId))
                         .then();
             }
             return event.editMessage(embedOrMessageDefinition.getDescriptionOrContent(), embedOrMessageDefinition.getComponentRowDefinitions());
@@ -204,8 +207,7 @@ public class StarterCommand implements SlashCommand, ComponentCommand {
     }
 
 
-
-    SavedNamedConfig saveConfigToStart(Config genericConfig, UUID starterConfigAfterFinish, Long guildId, long channelId, Long userId, String commandId, String configClassId) {
+    private SavedNamedConfig saveConfigToStart(Config genericConfig, UUID starterConfigAfterFinish, Long guildId, long channelId, Long userId, String commandId, String configClassId) {
         final Config updatedConfig = NamedCommandHelper.updateCallStarterConfigAfterFinish(genericConfig, starterConfigAfterFinish);
         final UUID newConfigUUID = uuidSupplier.get();
         persistenceManager.saveMessageConfig(new MessageConfigDTO(newConfigUUID,
@@ -239,6 +241,9 @@ public class StarterCommand implements SlashCommand, ComponentCommand {
                         .nameLocales(I18n.allNoneEnglishMessagesNames("starter.option.create.name"))
                         .description(I18n.getMessage("starter.option.create.description", Locale.ENGLISH))
                         .descriptionLocales(I18n.allNoneEnglishMessagesDescriptions("starter.option.create.description"))
+                        .options(COMMAND_IDs.stream()
+                                .map(StarterCommand::getButtonNameOption)
+                                .toList())
                         .option(CommandDefinitionOption.builder()
                                 .name(COMMAND_MESSAGE_OPTION)
                                 .nameLocales(I18n.allNoneEnglishMessagesNames("starter.option.message.name"))
@@ -247,9 +252,6 @@ public class StarterCommand implements SlashCommand, ComponentCommand {
                                 .type(CommandDefinitionOption.Type.STRING)
                                 .required(false)
                                 .build())
-                        .options(COMMAND_IDs.stream()
-                                .map(StarterCommand::getButtonNameOption)
-                                .toList())
                         .option(CommandDefinitionOption.builder()
                                 .name(COMMAND_OPEN_IN_NEW_MESSAGE_OPTION)
                                 .nameLocales(I18n.allNoneEnglishMessagesNames("starter.option.new.message.name"))
@@ -299,34 +301,51 @@ public class StarterCommand implements SlashCommand, ComponentCommand {
         if (starterConfig != null) {
             BotMetrics.incrementSlashStartMetricCounter(getCommandId());
             return Mono.defer(() -> {
-                persistenceManager.saveMessageConfig(
-                        createMessageConfig(starterConfig.getId(),
-                                event.getGuildId(),
-                                event.getChannelId(),
-                                userId,
-                                starterConfig));
+                        persistenceManager.saveMessageConfig(
+                                createMessageConfig(starterConfig.getId(),
+                                        event.getGuildId(),
+                                        event.getChannelId(),
+                                        userId,
+                                        starterConfig));
 
-                log.info("{}: '{}' -> {}",
-                        event.getRequester().toLogString(),
-                        event.getCommandString().replace("`", ""),
-                        starterConfig.toShortString()
-                );
-                return event.reply(event.getCommandString(), false);
-            }).then(event.sendMessage(createButtonMessage(starterConfig)).then());
+                        log.info("{}: '{}' -> {}",
+                                event.getRequester().toLogString(),
+                                event.getCommandString().replace("`", ""),
+                                starterConfig.toShortString()
+                        );
+                        return event.reply(event.getCommandString(), false);
+                    })
+                    .then(event.sendMessage(createButtonMessage(starterConfig))
+                            //create an empty messageData so it is possible to clear the starter
+                            .doOnNext(messageId -> createEmptyMessageData(starterConfig.getId(), guildId, channelId, messageId))
+                            .then());
         }
         log.error("Unknown command: {} from {}", event.getOptions(), event.getRequester().toLogString());
         return event.reply("There was an error, try again", true);
     }
 
-    public Function<DiscordConnector.WelcomeRequest, EmbedOrMessageDefinition> getWelcomeMessage() {
-        return request -> {
-            StarterConfig starterConfig = createWelcomeStarterConfig(request.guildId(), request.channelId(), null, request.guildLocale());
-            persistenceManager.saveMessageConfig(createMessageConfig(starterConfig.getId(),
-                    request.guildId(),
-                    request.channelId(),
-                    null,
-                    starterConfig));
-            return createButtonMessage(starterConfig);
+    private void createEmptyMessageData(@NonNull UUID configUUID, @Nullable Long guildId, long channelId, long messageId) {
+        persistenceManager.saveMessageData(new MessageDataDTO(configUUID, guildId, channelId, messageId, getCommandId(), Mapper.NO_PERSISTED_STATE, null));
+    }
+
+    public WelcomeMessageCreator getWelcomeMessage() {
+        return new WelcomeMessageCreator() {
+            @Override
+            public MessageAndConfigId getWelcomeMessage(WelcomeRequest request) {
+                StarterConfig starterConfig = createWelcomeStarterConfig(request.guildId(), request.channelId(), null, request.guildLocale());
+                persistenceManager.saveMessageConfig(createMessageConfig(starterConfig.getId(),
+                        request.guildId(),
+                        request.channelId(),
+                        null,
+                        starterConfig));
+                return new MessageAndConfigId(createButtonMessage(starterConfig), starterConfig.getId());
+            }
+
+            @Override
+            public void processMessageId(WelcomeRequest request, UUID configUUID, long messageId) {
+                //create an empty messageData so it is possible to clear the starter
+                createEmptyMessageData(configUUID, request.guildId(), request.channelId(), messageId);
+            }
         };
     }
 

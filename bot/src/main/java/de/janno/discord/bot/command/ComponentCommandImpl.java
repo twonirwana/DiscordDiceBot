@@ -29,8 +29,6 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Supplier;
 
-import static de.janno.discord.connector.api.BottomCustomIdUtils.CUSTOM_ID_DELIMITER;
-
 @Slf4j
 public abstract class ComponentCommandImpl<C extends RollConfig, S extends StateData> implements ComponentCommand {
 
@@ -44,7 +42,7 @@ public abstract class ComponentCommandImpl<C extends RollConfig, S extends State
 
     @Override
     public final Mono<Void> handleComponentInteractEvent(@NonNull ButtonEventAdaptor event) {
-        final Timer timer = new Timer(getCommandId());
+        final ComponentInteractionContext componentInteractionContext = new ComponentInteractionContext(getCommandId());
         final long eventMessageId = event.getMessageId();
         final long channelId = event.getChannelId();
         final long userId = event.getUserId();
@@ -98,9 +96,9 @@ public abstract class ComponentCommandImpl<C extends RollConfig, S extends State
         //update state bevor editing the event message
         updateCurrentMessageStateData(configUUID, guildId, channelId, eventMessageId, config, state);
         //reply/edit/acknowledge to the event message, no defer but directly call
-        return replyToEvent(event, config, state, configUUID, channelId, userId, answerTargetChannelId, timer)
+        return replyToEvent(event, config, state, configUUID, channelId, userId, answerTargetChannelId, componentInteractionContext)
                 //send answer messages
-                .then(Mono.defer(() -> sendAnswerMessage(event, config, state, guildId, channelId, userId, answerTargetChannelId, timer))
+                .then(Mono.defer(() -> sendAnswerMessage(event, config, state, guildId, channelId, userId, answerTargetChannelId, componentInteractionContext))
                         //create an optional new button message
                         .then(Mono.defer(() -> createNewButtonMessage(configUUID, config, state, guildId, channelId, userId).map(Mono::just).orElse(Mono.empty())
                                 //update the new button message if a starter uuid is set
@@ -111,21 +109,19 @@ public abstract class ComponentCommandImpl<C extends RollConfig, S extends State
                                     return Mono.just(bm);
                                 })
                                 //send the new button message, flatMap because we do it only if a new buttonMessage should be created
-                                .flatMap(nbm -> Mono.defer(() -> sendNewButtonMessage(event, nbm, configUUID, guildId, channelId, answerTargetChannelId, timer))
+                                .flatMap(nbm -> Mono.defer(() -> sendNewButtonMessage(event, nbm, configUUID, guildId, channelId, answerTargetChannelId, componentInteractionContext))
                                         //delete the event message and event data if a new buttonMessage was created, flatMap because we do it only if a new buttonMessage is created
                                         .flatMap(newButtonMessageId -> Mono.defer(() -> deleteEventMessageAndData(event, configUUID, eventMessageId, channelId, answerTargetChannelId, newButtonMessageId))))
 
                         )))
-                //do further actions last
-                .then(Mono.defer(() -> furtherAction(event, config, state, timer)))
                 .doAfterTerminate(() -> {
                     //only logging if there is an answer or new button message, and not if the event message was only edited
-                    if (timer.getAnswerFinished() != null || timer.getNewButtonFinished() != null || timer.getFurtherActionFinished() != null) {
-                        log.info("{}: '{}'={} in {}",
+                    if (componentInteractionContext.getAnswerFinished() != null || componentInteractionContext.getNewButtonFinished() != null) {
+                        log.info("{}: {}-{} = {}",
                                 event.getRequester().toLogString(),
-                                event.getCustomId().replace(CUSTOM_ID_DELIMITER, ":"),
+                                getCommandId(),
                                 state.toShortString(),
-                                timer.toLog()
+                                componentInteractionContext.toLog()
                         );
                     }
                 });
@@ -141,20 +137,20 @@ public abstract class ComponentCommandImpl<C extends RollConfig, S extends State
                                              final long channelId,
                                              final long userId,
                                              final Long answerTargetChannelId,
-                                             @NonNull final Timer timer) {
+                                             @NonNull final ComponentInteractionContext componentInteractionContext) {
         final boolean keepExistingButtonMessage = shouldKeepExistingButtonMessage(event) || answerTargetChannelId != null;
 
         //edit the current message if the command changes it or mark it as processing
         final Optional<String> editMessage = getCurrentMessageContentChange(config, state, keepExistingButtonMessage);
         final Optional<List<ComponentRowDefinition>> editMessageComponents = getCurrentMessageComponentChange(configUUID, config, state, channelId, userId, keepExistingButtonMessage);
 
-        timer.stopStartAcknowledge();
+        componentInteractionContext.stopStartAcknowledge();
         if (editMessage.isPresent() || editMessageComponents.isPresent()) {
             return event.editMessage(editMessage.orElse(null), editMessageComponents.orElse(null))
-                    .doOnSuccess(v -> timer.stopReplyFinished());
+                    .doOnSuccess(v -> componentInteractionContext.stopReplyFinished());
         } else {
             return event.acknowledge()
-                    .doOnSuccess(v -> timer.stopAcknowledgeFinished());
+                    .doOnSuccess(v -> componentInteractionContext.stopAcknowledgeFinished());
         }
     }
 
@@ -165,10 +161,11 @@ public abstract class ComponentCommandImpl<C extends RollConfig, S extends State
                                                   final long channelId,
                                                   final long userId,
                                                   final Long answerTargetChannelId,
-                                                  @NonNull final Timer timer) {
+                                                  @NonNull final ComponentInteractionContext componentInteractionContext) {
         final Optional<RollAnswer> answer = getAnswer(config, state, channelId, userId);
         if (answer.isPresent()) {
             BotMetrics.incrementAnswerFormatCounter(config.getAnswerFormatType(), getCommandId());
+            componentInteractionContext.setAnswerText(answer.get().toShortString());
             EmbedOrMessageDefinition baseAnswer = RollAnswerConverter.toEmbedOrMessageDefinition(answer.get());
             final EmbedOrMessageDefinition answerMessage;
             if (config.getAnswerInteractionType() == AnswerInteractionType.reroll &&
@@ -179,7 +176,7 @@ public abstract class ComponentCommandImpl<C extends RollConfig, S extends State
                 answerMessage = baseAnswer;
             }
             return event.sendMessage(answerMessage.toBuilder().sendToOtherChannelId(answerTargetChannelId).build()).then()
-                    .doOnSuccess(v -> timer.stopAnswer());
+                    .doOnSuccess(v -> componentInteractionContext.stopAnswer());
 
         }
         return Mono.empty();
@@ -194,13 +191,13 @@ public abstract class ComponentCommandImpl<C extends RollConfig, S extends State
                                                      final Long guildId,
                                                      final long channelId,
                                                      final Long answerTargetChannelId,
-                                                     @NonNull final Timer timer) {
+                                                     @NonNull final ComponentInteractionContext componentInteractionContext) {
 
 
         if (answerTargetChannelId == null) {
             return Mono.defer(() -> event.sendMessage(newButtonMessage)
                     .doOnNext(newMessageId -> createEmptyMessageData(configUUID, guildId, channelId, newMessageId))
-                    .doOnNext(newMessageId -> timer.stopNewButton())
+                    .doOnNext(newMessageId -> componentInteractionContext.stopNewButton())
                     .delaySubscription(calculateDelay(event)));
         }
         return Mono.empty();
@@ -316,9 +313,5 @@ public abstract class ComponentCommandImpl<C extends RollConfig, S extends State
         }
         BotMetrics.incrementDelayCounter(getCommandId(), false);
         return Duration.ZERO;
-    }
-
-    protected Mono<Void> furtherAction(ButtonEventAdaptor event, C config, State<S> state, Timer timer) {
-        return Mono.empty();
     }
 }
