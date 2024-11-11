@@ -9,7 +9,7 @@ repositories {
 dependencies {
     implementation(project(":discord-connector:api"))
 
-    implementation("net.dv8tion:JDA:5.2.0") {
+    implementation("net.dv8tion:JDA:5.2.1") {
         exclude(module = "opus-java")
     }
     implementation(libs.reactor.core)
