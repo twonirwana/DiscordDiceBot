@@ -23,7 +23,6 @@ import reactor.core.publisher.Mono;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
-import java.util.function.Function;
 import java.util.function.Supplier;
 
 @Slf4j
@@ -54,12 +53,8 @@ public class FetchCommand implements SlashCommand {
     public @NonNull Mono<Void> handleSlashCommandEvent(@NonNull SlashEventAdaptor event, @NonNull Supplier<UUID> uuidSupplier, @NonNull Locale userLocal) {
         BotMetrics.incrementSlashStartMetricCounter(getCommandId());
         long fetchDelayMs = io.avaje.config.Config.getLong("command.fetch.delayMs", 60_000);
-        Long oldestMessageIdWaitingToDeleted = MessageDeletionHelper.getMessageWaitingToBeDeleted(event.getChannelId()).stream()
-                .min(Comparator.comparing(Function.identity()))
-                .orElse(null);
-        Optional<MessageConfigDTO> messageConfigDTOOptional = persistenceManager.getLastMessageDataInChannel(event.getChannelId(),
-                LocalDateTime.now().minus(fetchDelayMs, ChronoUnit.MILLIS),
-                oldestMessageIdWaitingToDeleted);
+        Optional<MessageConfigDTO> messageConfigDTOOptional = persistenceManager.getNewestMessageDataInChannel(event.getChannelId(),
+                LocalDateTime.now().minus(fetchDelayMs, ChronoUnit.MILLIS), Set.of(customDiceCommand.getCommandId(), customParameterCommand.getCommandId(), sumCustomSetCommand.getCommandId()));
         log.info("{}: Fetch - {}",
                 event.getRequester().toLogString(),
                 messageConfigDTOOptional.map(m -> "found %s - %s".formatted(m.getCommandId(), m.getConfigUUID())).orElse("not found"));
@@ -83,7 +78,7 @@ public class FetchCommand implements SlashCommand {
     private <C extends RollConfig> Mono<Void> moveButtonMessage(C config, AbstractCommand<C, ?> command, UUID configUUID, SlashEventAdaptor event) {
         EmbedOrMessageDefinition buttonMessage = command.createSlashResponseMessage(configUUID, config, event.getChannelId());
         List<Mono<Void>> actions = List.of(
-                Mono.defer(() -> event.reply(I18n.getMessage("fetch.reply", event.getRequester().getUserLocal()) , true)),
+                Mono.defer(() -> event.reply(I18n.getMessage("fetch.reply", event.getRequester().getUserLocal()), true)),
                 Mono.defer(() -> event.sendMessage(buttonMessage)
                                 .doOnNext(messageId -> command.createEmptyMessageData(configUUID, event.getGuildId(), event.getChannelId(), messageId)))
                         .flatMap(newMessageId -> MessageDeletionHelper.deleteOldMessageAndData(persistenceManager, newMessageId, null, configUUID, event.getChannelId(), event))

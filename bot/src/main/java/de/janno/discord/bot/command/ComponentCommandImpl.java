@@ -217,7 +217,7 @@ public abstract class ComponentCommandImpl<C extends RollConfig, S extends State
                 .then(Mono.defer(() -> {
                     if (answerTargetChannelId == null && !shouldKeepExistingButtonMessage(event)) {
                         return Mono.defer(() -> event.deleteMessageById(eventMessageId))
-                                .then(Mono.defer(() -> MessageDeletionHelper.deleteMessageDataWithDelay(persistenceManager, channelId, eventMessageId)));
+                                .then(Mono.defer(() -> MessageDeletionHelper.markAsDeleted(persistenceManager, channelId, eventMessageId)));
                     } else {
                         return Mono.empty();
                     }

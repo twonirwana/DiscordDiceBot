@@ -12,9 +12,14 @@ import lombok.extern.slf4j.Slf4j;
 import javax.annotation.Nullable;
 import javax.sql.DataSource;
 import java.sql.*;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.function.ToDoubleFunction;
+import java.util.stream.Collectors;
 
 import static io.micrometer.core.instrument.Metrics.globalRegistry;
 
@@ -50,7 +55,30 @@ public class PersistenceManagerImpl implements PersistenceManager {
                 throw new RuntimeException(e);
             }
         }));
+
+        ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
+        executorService.scheduleAtFixedRate(this::deleteOldMessageDataThatAreMarked, 0, io.avaje.config.Config.getLong("db.deleteMarkMessageDataIntervalInMilliSec", 10_000), TimeUnit.MILLISECONDS);
     }
+
+    private void deleteOldMessageDataThatAreMarked() {
+        Stopwatch stopwatch = Stopwatch.createStarted();
+        final Duration delay = Duration.ofMillis(io.avaje.config.Config.getLong("command.delayMessageDataDeletionMs", 10_000));
+        LocalDateTime deleteAllBefore = LocalDateTime.now().minus(delay);
+
+        try (Connection con = databaseConnector.getConnection()) {
+            try (PreparedStatement preparedStatement = con.prepareStatement("DELETE FROM MESSAGE_DATA WHERE MARKED_DELETED IS NOT NULL AND MARKED_DELETED < ?")) {
+                preparedStatement.setObject(1, deleteAllBefore);
+                long deleted = preparedStatement.executeUpdate();
+                if (deleted > 0) {
+                    log.trace("deleted message_data: " + deleted);
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        BotMetrics.databaseTimer("deleteOldMessageDataThatAreMarked", stopwatch.elapsed());
+    }
+
 
     private MessageDataDTO transformResultSet2MessageDataDTO(ResultSet resultSet) throws SQLException {
         if (resultSet.next()) {
@@ -166,10 +194,10 @@ public class PersistenceManagerImpl implements PersistenceManager {
     }
 
     @Override
-    public @NonNull Set<Long> getAllMessageIdsForConfig(@NonNull UUID configUUID) {
+    public @NonNull Set<Long> getAllActiveMessageIdsForConfig(@NonNull UUID configUUID) {
         Stopwatch stopwatch = Stopwatch.createStarted();
         try (Connection con = databaseConnector.getConnection()) {
-            try (PreparedStatement preparedStatement = con.prepareStatement("SELECT DISTINCT MC.MESSAGE_ID FROM MESSAGE_DATA MC WHERE MC.CONFIG_ID = ?")) {
+            try (PreparedStatement preparedStatement = con.prepareStatement("SELECT DISTINCT MD.MESSAGE_ID FROM MESSAGE_DATA MD WHERE MD.CONFIG_ID = ? AND MD.MARKED_DELETED is null")) {
                 preparedStatement.setObject(1, configUUID);
                 ResultSet resultSet = preparedStatement.executeQuery();
                 final ImmutableSet.Builder<Long> resultBuilder = ImmutableSet.builder();
@@ -179,6 +207,22 @@ public class PersistenceManagerImpl implements PersistenceManager {
                 BotMetrics.databaseTimer("getAllMessageIdsForConfig", stopwatch.elapsed());
 
                 return resultBuilder.build();
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void markAsDeleted(long channelId, long messageId) {
+        Stopwatch stopwatch = Stopwatch.createStarted();
+        try (Connection con = databaseConnector.getConnection()) {
+            try (PreparedStatement preparedStatement = con.prepareStatement("UPDATE MESSAGE_DATA SET MARKED_DELETED = ?  WHERE CHANNEL_ID = ? AND MESSAGE_ID = ?")) {
+                preparedStatement.setObject(1, LocalDateTime.now());
+                preparedStatement.setLong(2, channelId);
+                preparedStatement.setLong(3, messageId);
+                preparedStatement.execute();
+                BotMetrics.databaseTimer("markAsDeleted", stopwatch.elapsed());
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -438,24 +482,24 @@ public class PersistenceManagerImpl implements PersistenceManager {
     }
 
     @Override
-    public Optional<MessageConfigDTO> getLastMessageDataInChannel(long channelId, LocalDateTime since, @Nullable Long alreadyDeletedMessageId) {
+    public Optional<MessageConfigDTO> getNewestMessageDataInChannel(long channelId, LocalDateTime since, Set<String> commandIds) {
         Stopwatch stopwatch = Stopwatch.createStarted();
         try (Connection con = databaseConnector.getConnection()) {
-            try (PreparedStatement preparedStatement =
-                         con.prepareStatement(
-                                 """
-                                         SELECT MC.CONFIG_ID, MC.CHANNEL_ID, MC.GUILD_ID, MC.COMMAND_ID, MC.CONFIG_CLASS_ID, MC.CONFIG, MC.CONFIG_NAME, MC.CREATION_USER_ID
-                                         FROM MESSAGE_CONFIG MC
-                                                  join MESSAGE_DATA MD on mc.CONFIG_ID = md.CONFIG_ID
-                                         WHERE MD.CHANNEL_ID = ?
-                                         AND MD.CREATION_DATE < ?
-                                         AND MD.MESSAGE_ID < ?
-                                         order by MD.CREATION_DATE desc
-                                         """
-                         )) {
+            final String sql = """
+                    SELECT MC.CONFIG_ID, MC.CHANNEL_ID, MC.GUILD_ID, MC.COMMAND_ID, MC.CONFIG_CLASS_ID, MC.CONFIG, MC.CONFIG_NAME, MC.CREATION_USER_ID
+                    FROM MESSAGE_CONFIG MC
+                             join MESSAGE_DATA MD on mc.CONFIG_ID = md.CONFIG_ID
+                    WHERE MD.CHANNEL_ID = ?
+                    AND MD.CREATION_DATE < ?
+                    AND MD.COMMAND_ID in ("""
+                    + commandIds.stream().map("'%s'"::formatted).collect(Collectors.joining(","))
+                    + """
+                    ) AND MD.MARKED_DELETED is null
+                    order by MD.CREATION_DATE desc
+                    """;
+            try (PreparedStatement preparedStatement = con.prepareStatement(sql)) {
                 preparedStatement.setLong(1, channelId);
                 preparedStatement.setTimestamp(2, Timestamp.valueOf(since));
-                preparedStatement.setLong(3, Optional.ofNullable(alreadyDeletedMessageId).orElse(Long.MAX_VALUE));
                 preparedStatement.setMaxRows(1);
                 ResultSet resultSet = preparedStatement.executeQuery();
                 MessageConfigDTO messageConfigDTO = transformResultSet2MessageConfigDTO(resultSet);
