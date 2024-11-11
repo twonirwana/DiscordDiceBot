@@ -23,7 +23,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SnapshotExtension.class)
 class MessageDeletionHelperTest {
-    private Expect expect;
+    Expect expect;
 
     @Test
     void deleteMessageAndData_notExist() {
@@ -44,7 +44,7 @@ class MessageDeletionHelperTest {
 
         MessageDeletionHelper.deleteOldMessageAndData(persistenceManager, 1L, 0L, configUUID, 1L, buttonEventAdaptorMock).block();
 
-        assertThat(persistenceManager.getAllMessageIdsForConfig(configUUID)).containsExactly(1L);
+        assertThat(persistenceManager.getAllActiveMessageIdsForConfig(configUUID)).containsExactly(1L);
         assertThat(buttonEventAdaptorMock.getActions()).containsExactly();
     }
 
@@ -61,7 +61,7 @@ class MessageDeletionHelperTest {
 
         MessageDeletionHelper.deleteOldMessageAndData(persistenceManager, 6L, 0L, configUUID, 1L, buttonEventAdaptorMock).block();
 
-        assertThat(persistenceManager.getAllMessageIdsForConfig(configUUID)).containsExactlyInAnyOrder(2L, 6L);
+        assertThat(persistenceManager.getAllActiveMessageIdsForConfig(configUUID)).containsExactlyInAnyOrder(2L, 6L);
         expect.toMatchSnapshot(buttonEventAdaptorMock.getSortedActions());
     }
 
@@ -82,7 +82,7 @@ class MessageDeletionHelperTest {
         MessageDeletionHelper.deleteOldMessageAndData(persistenceManager, 6L, 0L, configUUID, 1L, buttonEventAdaptorMock).block();
         Thread.sleep(200);
 
-        assertThat(persistenceManager.getAllMessageIdsForConfig(configUUID)).containsExactlyInAnyOrder(2L, 6L);
+        assertThat(persistenceManager.getAllActiveMessageIdsForConfig(configUUID)).containsExactlyInAnyOrder(2L, 6L);
         expect.toMatchSnapshot(buttonEventAdaptorMock.getSortedActions());
     }
 }

@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Flux;
 
 import java.time.Duration;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -20,7 +21,7 @@ class PersistenceManagerImplTest {
     }
 
     @Test
-    void getAllMessageIdsForConfig() {
+    void getAllActiveMessageIdsForConfig() {
         UUID uuid = UUID.randomUUID();
         Flux.range(1, 3)
                 .map(i -> new MessageDataDTO(uuid, 1L, 1L, i, "testCommand", "testConfigClass", "configClass"))
@@ -29,7 +30,7 @@ class PersistenceManagerImplTest {
                 .blockLast();
         underTest.saveMessageData(new MessageDataDTO(UUID.randomUUID(), 1L, 2L, 5L, "testCommand", "testConfigClass", "configClass"));
 
-        Set<Long> res = underTest.getAllMessageIdsForConfig(uuid);
+        Set<Long> res = underTest.getAllActiveMessageIdsForConfig(uuid);
         System.out.println(res);
         assertThat(res).containsExactlyInAnyOrder(3L, 2L, 1L);
     }
@@ -43,6 +44,23 @@ class PersistenceManagerImplTest {
 
         assertThat(underTest.getMessageData(2L, 4L)).isEmpty();
         assertThat(underTest.getMessageData(2L, 5L)).isPresent();
+    }
+
+    @Test
+    void markDeleteThenDeleteMessage() throws InterruptedException {
+        io.avaje.config.Config.setProperty("db.deleteMarkMessageDataIntervalInMilliSec", "100");
+        underTest = new PersistenceManagerImpl("jdbc:h2:mem:" + UUID.randomUUID(), null, null);
+        UUID uuid = UUID.randomUUID();
+        underTest.saveMessageData(new MessageDataDTO(uuid, 1L, 2L, 4L, "testCommand", "testConfigClass", "configClass"));
+        underTest.markAsDeleted(2L, 4L);
+
+        Optional<MessageDataDTO> res = underTest.getMessageData(2L, 4L);
+        assertThat(res.map(MessageDataDTO::getConfigUUID)).contains(uuid);
+
+        Thread.sleep(100);
+
+        Optional<MessageDataDTO> resAfterTime = underTest.getMessageData(2L, 4L);
+        assertThat(resAfterTime.map(MessageDataDTO::getConfigUUID)).isEmpty();
     }
 
     @Test

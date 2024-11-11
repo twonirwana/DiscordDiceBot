@@ -13,6 +13,7 @@ db:
   url: jdbc:h2:file:./persistence/dice_config;AUTO_SERVER=TRUE;DB_CLOSE_DELAY=5
   user:
   password:
+  deleteMarkMessageDataIntervalInMilliSec: 10000
 metric:
   url: localhost
   port: 8080
@@ -24,6 +25,6 @@ diceEvaluator:
   errorContextSize: 6
 command:
   minDelayBetweenButtonMessagesMs: 1000
-  delayMessageDataDeletionMs: 3000
+  delayMessageDataDeletionMs: 10000
   fetch.delayMs: 60000
   clear.messageDeleteDelay: 1000
