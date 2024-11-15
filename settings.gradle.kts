@@ -8,7 +8,7 @@ include("bot")
 dependencyResolutionManagement {
     versionCatalogs {
         create("libs") {
-            library("lombok", "org.projectlombok:lombok:1.18.34")
+            library("lombok", "org.projectlombok:lombok:1.18.36")
             library("micrometer-core", "io.micrometer:micrometer-core:1.14.0")
             library("reactor-core", "io.projectreactor:reactor-core:3.7.0")
             library("guava", "com.google.guava:guava:33.3.1-jre")
