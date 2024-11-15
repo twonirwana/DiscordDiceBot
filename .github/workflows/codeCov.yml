@@ -37,7 +37,7 @@ jobs:
         report_paths: '**/build/test-results/test/TEST-*.xml'
     - name: Run the testCodeCoverageReport
       run: ./gradlew testCodeCoverageReport
-    - uses: codecov/codecov-action@v4
+    - uses: codecov/codecov-action@v5
       env:
         CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
       with:
