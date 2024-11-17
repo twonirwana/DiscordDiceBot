@@ -476,7 +476,7 @@ If an option is selected that has a path ID then all following parameter that do
 All skipped parameter will be removed from the expression, that means replaced with an empty string.
 
 For example:
-`/custom_parameter start expression: val('$n',{numberOfDice:1\<\=>10}),{type:''!1!@pool/''!2!@sum/''!3!@simple} + '$n'd10{target!1!:>=4c@4/>=6c@6/>=8c@8}{modifier!2!:+1=@+1/+2=@+2/+3=@+3}` let you select first the number of die, then if you want to roll a pool test against a target number, sum all dice together with a modifier or make a simple roll without any logic.
+`/custom_parameter start expression: val('$n',{numberOfDice:1\<\=>10}),{type:''!1!@pool/''!2!@sum/''!3!@simple} + '$n' d10{target!1!:>=4c@4/>=6c@6/>=8c@8}{modifier!2!:+1=@+1/+2=@+2/+3=@+3}` let you select first the number of die, then if you want to roll a pool test against a target number, sum all dice together with a modifier or make a simple roll without any logic.
 
 An expression can have up to 4 parameter.
 The command uses the `without_expression` as default answer format.
