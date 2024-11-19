@@ -17,7 +17,32 @@ de.janno.discord.bot.command.ClearCommandTest.getCommandDefinition=[
         "description": "Supprime tous les messages des boutons et les données sauvegardées du bot pour ce canal."
       }
     ],
-    "options": [ ]
+    "options": [
+      {
+        "type": "STRING",
+        "name": "name",
+        "nameLocales": [ ],
+        "description": "Limits clear to commands with the selected name",
+        "descriptionLocales": [
+          {
+            "locale": "de",
+            "description": "Limitiert clear auf Befehle mit dem ausgewählten Namen"
+          },
+          {
+            "locale": "pt_BR",
+            "description": "Limita a limpeza a comandos com o nome selecionado"
+          },
+          {
+            "locale": "fr",
+            "description": "Limite l'accès aux commandes portant le nom sélectionné"
+          }
+        ],
+        "required": false,
+        "choices": [ ],
+        "options": [ ],
+        "autoComplete": true
+      }
+    ]
   }
 ]
 

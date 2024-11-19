@@ -1,6 +1,7 @@
 package de.janno.discord.bot.persistance;
 
 import com.google.common.base.Preconditions;
+import com.google.common.base.Stopwatch;
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.Resources;
 import io.micrometer.core.instrument.util.IOUtils;
@@ -19,6 +20,7 @@ import java.time.format.DateTimeFormatterBuilder;
 import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -101,6 +103,7 @@ public class DatabaseInitiator {
                 .filter(m -> !alreadyAppliedMigrations.contains(m.getName()))
                 .sorted(Comparator.comparing(Migration::getOrder))
                 .forEach(m -> {
+                    Stopwatch stopwatch = Stopwatch.createStarted();
                     log.info("Start executing {}", m.getName());
                     try (Connection connection = databaseConnector.getConnection()) {
                         Statement statement = connection.createStatement();
@@ -115,7 +118,7 @@ public class DatabaseInitiator {
                         log.error("Error in {}", m.getName());
                         throw new RuntimeException(e);
                     }
-                    log.info("Finish executing {}", m.getName());
+                    log.info("Finish executing {} in {}ms", m.getName(), stopwatch.elapsed(TimeUnit.MILLISECONDS));
                 });
     }
 

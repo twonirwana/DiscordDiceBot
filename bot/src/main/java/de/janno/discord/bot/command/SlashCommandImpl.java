@@ -1,5 +1,6 @@
 package de.janno.discord.bot.command;
 
+import com.google.common.base.Stopwatch;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import de.janno.discord.bot.BaseCommandUtils;
@@ -21,7 +22,9 @@ import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
 import javax.annotation.Nullable;
+import java.time.Duration;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -129,6 +132,7 @@ public abstract class SlashCommandImpl<C extends RollConfig> implements SlashCom
 
     @Override
     public final @NonNull Mono<Void> handleSlashCommandEvent(@NonNull SlashEventAdaptor event, @NonNull Supplier<UUID> uuidSupplier, @NonNull Locale userLocale) {
+        Stopwatch stopwatch = Stopwatch.createStarted();
         Optional<String> checkPermissions = event.checkPermissions(userLocale);
         if (checkPermissions.isPresent()) {
             return event.reply(checkPermissions.get(), false);
@@ -168,13 +172,11 @@ public abstract class SlashCommandImpl<C extends RollConfig> implements SlashCom
             if (guildId == null) {
                 BotMetrics.outsideGuildCounter("slash");
             }
-            log.info("{}: '{}'",
-                    event.getRequester().toLogString(),
-                    commandString.replace("`", "").replace("\n", " "));
+
             String replayMessage = Stream.of(commandString, getConfigWarnMessage(config, userLocale).orElse(null))
                     .filter(s -> !Strings.isNullOrEmpty(s))
                     .collect(Collectors.joining("\n"));
-
+            Duration untilAck = stopwatch.elapsed();
             return event.reply(replayMessage, false)
                     .then(Mono.defer(() -> {
                         final Optional<MessageConfigDTO> newMessageConfig = createMessageConfig(configUUID, guildId, channelId, event.getUserId(), config);
@@ -182,8 +184,15 @@ public abstract class SlashCommandImpl<C extends RollConfig> implements SlashCom
                         return event.sendMessage(createSlashResponseMessage(configUUID, config, channelId))
                                 .doOnNext(messageId -> createEmptyMessageData(configUUID, guildId, channelId, messageId))
                                 .then();
-                    }));
-
+                    }))
+                    .doAfterTerminate(() -> {
+                        log.info("{}: {} in start={}ms reply={}ms",
+                                event.getRequester().toLogString(),
+                                commandString.replace("`", "").replace("\n", " "),
+                                untilAck.toMillis(),
+                                stopwatch.elapsed(TimeUnit.MILLISECONDS)
+                        );
+                    });
         } else if (event.getOption(HELP_OPTION_NAME).isPresent()) {
             BotMetrics.incrementSlashHelpMetricCounter(getCommandId());
             return event.replyWithEmbedOrMessageDefinition(getHelpMessage(event.getRequester().getUserLocal()), true);

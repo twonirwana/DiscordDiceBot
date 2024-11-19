@@ -2,6 +2,7 @@ package de.janno.discord.bot.persistance;
 
 import lombok.NonNull;
 
+import javax.annotation.Nullable;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -13,7 +14,7 @@ public interface PersistenceManager {
     @NonNull
     Optional<MessageConfigDTO> getMessageConfig(@NonNull UUID configUUID);
 
-    void deleteAllMessageConfigForChannel(long channelId);
+    void deleteAllMessageConfigForChannel(long channelId, @Nullable String name);
 
     void saveMessageConfig(@NonNull MessageConfigDTO messageConfigDTO);
 
@@ -28,7 +29,7 @@ public interface PersistenceManager {
     void deleteStateForMessage(long channelId, long messageId);
 
     @NonNull
-    Set<Long> deleteMessageDataForChannel(long channelId);
+    Set<Long> deleteMessageDataForChannel(long channelId, @Nullable String name);
 
     void saveMessageData(@NonNull MessageDataDTO messageState);
 

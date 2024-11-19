@@ -26,7 +26,7 @@ public class Requester {
                 .or(() -> Optional.ofNullable(userName))
                 .orElse("");
         if (configUUID != null) {
-            return "%s:%s".formatted(configUUID, name);
+            return "%s: %s".formatted(configUUID, name);
         }
         return name;
     }

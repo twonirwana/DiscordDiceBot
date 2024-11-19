@@ -52,8 +52,9 @@ class FetchCommandMockTest {
 
     @AfterEach
     void cleanup() {
-        io.avaje.config.Config.setProperty("command.delayMessageDataDeletionMs", "10");
-        io.avaje.config.Config.setProperty("command.fetch.delayMs", "0");
+        io.avaje.config.Config.setProperty("db.deleteMarkMessageDataIntervalInMilliSec", "0");
+        io.avaje.config.Config.setProperty("db.deleteMarkMessageDataStartDelayMilliSec", "0");
+        io.avaje.config.Config.setProperty("db.delayMessageDataDeletionMs", "0");
     }
 
 
@@ -99,7 +100,7 @@ class FetchCommandMockTest {
 
     @Test
     void fetchOldCustomDiceMessage() throws InterruptedException {
-        io.avaje.config.Config.setProperty("command.delayMessageDataDeletionMs", "1000");
+        io.avaje.config.Config.setProperty("db.delayMessageDataDeletionMs", "1000");
         io.avaje.config.Config.setProperty("command.fetch.delayMs", "50");
 
         CustomDiceConfig otherConfig = new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "att", "2d20", false, false, null)), AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH, null, null);
@@ -143,7 +144,7 @@ class FetchCommandMockTest {
 
     @Test
     void fetchOldSumCustomSetMessage() throws InterruptedException {
-        io.avaje.config.Config.setProperty("command.delayMessageDataDeletionMs", "1000");
+        io.avaje.config.Config.setProperty("db.delayMessageDataDeletionMs", "1000");
         io.avaje.config.Config.setProperty("command.fetch.delayMs", "50");
 
         SumCustomSetConfig otherConfig = new SumCustomSetConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Att", "+2d20", false, false, null),
@@ -169,7 +170,7 @@ class FetchCommandMockTest {
 
     @Test
     void fetchOldCustomParameterMessage() throws InterruptedException {
-        io.avaje.config.Config.setProperty("command.delayMessageDataDeletionMs", "1000");
+        io.avaje.config.Config.setProperty("db.delayMessageDataDeletionMs", "1000");
         io.avaje.config.Config.setProperty("command.fetch.delayMs", "50");
 
         CustomParameterConfig otherConfig = new CustomParameterConfig(null, "{numberOfDice:3<=>6}d{sides:6/8/10/12}", AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH, null, null);

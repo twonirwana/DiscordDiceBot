@@ -1,5 +1,6 @@
 package de.janno.discord.bot.persistance;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Flux;
@@ -46,9 +47,17 @@ class PersistenceManagerImplTest {
         assertThat(underTest.getMessageData(2L, 5L)).isPresent();
     }
 
+    @AfterEach
+    void cleanup() {
+        io.avaje.config.Config.setProperty("db.deleteMarkMessageDataIntervalInMilliSec", "0");
+        io.avaje.config.Config.setProperty("db.deleteMarkMessageDataStartDelayMilliSec", "0");
+        io.avaje.config.Config.setProperty("db.delayMessageDataDeletionMs", "0");
+    }
+
+
     @Test
     void markDeleteThenDeleteMessage() throws InterruptedException {
-        io.avaje.config.Config.setProperty("db.deleteMarkMessageDataIntervalInMilliSec", "100");
+        io.avaje.config.Config.setProperty("db.deleteMarkMessageDataIntervalInMilliSec", "50");
         underTest = new PersistenceManagerImpl("jdbc:h2:mem:" + UUID.randomUUID(), null, null);
         UUID uuid = UUID.randomUUID();
         underTest.saveMessageData(new MessageDataDTO(uuid, 1L, 2L, 4L, "testCommand", "testConfigClass", "configClass"));
@@ -64,17 +73,95 @@ class PersistenceManagerImplTest {
     }
 
     @Test
-    void deleteDataForChannel() {
-        underTest.saveMessageData(new MessageDataDTO(UUID.randomUUID(), 1L, 2L, 4L, "testCommand", "testConfigClass", "configClass"));
-        underTest.saveMessageData(new MessageDataDTO(UUID.randomUUID(), 1L, 2L, 5L, "testCommand", "testConfigClass", "configClass"));
-        underTest.saveMessageData(new MessageDataDTO(UUID.randomUUID(), 1L, 3L, 6L, "testCommand", "testConfigClass", "configClass"));
+    void deleteMessageDataForChannel() throws InterruptedException {
+        io.avaje.config.Config.setProperty("db.delayMessageDataDeletionMs", "0");
+        UUID config1 = UUID.randomUUID();
+        UUID config2 = UUID.randomUUID();
+        UUID config3 = UUID.randomUUID();
+        underTest.saveMessageData(new MessageDataDTO(config1, 1L, 2L, 4L, "testCommand", "testStateClass", "stateData"));
+        underTest.saveMessageData(new MessageDataDTO(config2, 1L, 2L, 5L, "testCommand", "testStateClass", "stateData"));
+        underTest.saveMessageData(new MessageDataDTO(config3, 1L, 3L, 6L, "testCommand", "testStateClass", "stateData"));
+        underTest.saveMessageConfig(new MessageConfigDTO(config1, 1L, 2L, "testCommand", "testConfigClass", "configClass", null, null));
+        underTest.saveMessageConfig(new MessageConfigDTO(config2, 1L, 2L, "testCommand", "testConfigClass", "configClass", null, null));
+        underTest.saveMessageConfig(new MessageConfigDTO(config3, 1L, 3L, "testCommand", "testConfigClass", "configClass", null, null));
+        Thread.sleep(10);
 
-        Set<Long> res = underTest.deleteMessageDataForChannel(2L);
+        Set<Long> res = underTest.deleteMessageDataForChannel(2L, null);
+        underTest.deleteOldMessageDataThatAreMarked();
 
         assertThat(res).containsExactly(4L, 5L);
         assertThat(underTest.getMessageData(2L, 4L)).isEmpty();
         assertThat(underTest.getMessageData(2L, 5L)).isEmpty();
         assertThat(underTest.getMessageData(3L, 6L)).isPresent();
+        //not delete by this methode but by deleteAllMessageConfigForChannel
+        assertThat(underTest.getMessageConfig(config1)).isPresent();
+        assertThat(underTest.getMessageConfig(config2)).isPresent();
+        assertThat(underTest.getMessageConfig(config3)).isPresent();
+    }
+
+    @Test
+    void deleteMessageDataForChannel_name() throws InterruptedException {
+        io.avaje.config.Config.setProperty("db.delayMessageDataDeletionMs", "0");
+        UUID config1 = UUID.randomUUID();
+        UUID config2 = UUID.randomUUID();
+        UUID config3 = UUID.randomUUID();
+        underTest.saveMessageData(new MessageDataDTO(config1, 1L, 2L, 4L, "testCommand", "testStateClass", "stateData"));
+        underTest.saveMessageData(new MessageDataDTO(config2, 1L, 2L, 5L, "testCommand", "testStateClass", "stateData"));
+        underTest.saveMessageData(new MessageDataDTO(config3, 1L, 3L, 6L, "testCommand", "testStateClass", "stateData"));
+        underTest.saveMessageConfig(new MessageConfigDTO(config1, 1L, 2L, "testCommand", "testConfigClass", "configClass", "name1", null));
+        underTest.saveMessageConfig(new MessageConfigDTO(config2, 1L, 2L, "testCommand", "testConfigClass", "configClass", "name2", null));
+        underTest.saveMessageConfig(new MessageConfigDTO(config3, 1L, 3L, "testCommand", "testConfigClass", "configClass", "name1", null));
+        Thread.sleep(10);
+
+        Set<Long> res = underTest.deleteMessageDataForChannel(2L, "name1");
+        underTest.deleteOldMessageDataThatAreMarked();
+
+        assertThat(res).containsExactly(4L);
+        assertThat(underTest.getMessageData(2L, 4L)).isEmpty();
+        assertThat(underTest.getMessageData(2L, 5L)).isPresent();
+        assertThat(underTest.getMessageData(3L, 6L)).isPresent();
+
+        //not delete by this methode but by deleteAllMessageConfigForChannel
+        assertThat(underTest.getMessageConfig(config1)).isPresent();
+        assertThat(underTest.getMessageConfig(config2)).isPresent();
+        assertThat(underTest.getMessageConfig(config3)).isPresent();
+    }
+
+    @Test
+    void deleteAllMessageConfigForChannel() {
+        io.avaje.config.Config.setProperty("db.delayMessageDataDeletionMs", "0");
+        UUID config1 = UUID.randomUUID();
+        UUID config2 = UUID.randomUUID();
+        UUID config3 = UUID.randomUUID();
+        underTest.saveMessageConfig(new MessageConfigDTO(config1, 1L, 2L, "testCommand", "testConfigClass", "configClass", null, null));
+        underTest.saveMessageConfig(new MessageConfigDTO(config2, 1L, 2L, "testCommand", "testConfigClass", "configClass", null, null));
+        underTest.saveMessageConfig(new MessageConfigDTO(config3, 1L, 3L, "testCommand", "testConfigClass", "configClass", null, null));
+
+
+        underTest.deleteAllMessageConfigForChannel(2L, null);
+
+        assertThat(underTest.getMessageConfig(config1)).isEmpty();
+        assertThat(underTest.getMessageConfig(config2)).isEmpty();
+        assertThat(underTest.getMessageConfig(config3)).isPresent();
+    }
+
+    @Test
+    void deleteAllMessageConfigForChannel_name() {
+        io.avaje.config.Config.setProperty("db.delayMessageDataDeletionMs", "0");
+        UUID config1 = UUID.randomUUID();
+        UUID config2 = UUID.randomUUID();
+        UUID config3 = UUID.randomUUID();
+        underTest.saveMessageConfig(new MessageConfigDTO(config1, 1L, 2L, "testCommand", "testConfigClass", "configClass", "name1", null));
+        underTest.saveMessageConfig(new MessageConfigDTO(config2, 1L, 2L, "testCommand", "testConfigClass", "configClass", "name2", null));
+        underTest.saveMessageConfig(new MessageConfigDTO(config3, 1L, 3L, "testCommand", "testConfigClass", "configClass", "name1", null));
+
+
+        underTest.deleteAllMessageConfigForChannel(2L, "name1");
+
+
+        assertThat(underTest.getMessageConfig(config1)).isEmpty();
+        assertThat(underTest.getMessageConfig(config2)).isPresent();
+        assertThat(underTest.getMessageConfig(config3)).isPresent();
     }
 
     @Test

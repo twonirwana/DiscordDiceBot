@@ -230,7 +230,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
                         .filter(s -> !Strings.isNullOrEmpty(s))
                         .map(s -> {
                             //if a label exists
-                            if (s.contains(DiceEvaluatorAdapter.LABEL_DELIMITER)) {
+                            if (s.contains(DiceEvaluatorAdapter.LABEL_DELIMITER) && s.split(DiceEvaluatorAdapter.LABEL_DELIMITER).length == 2) {
                                 String[] split = s.split(DiceEvaluatorAdapter.LABEL_DELIMITER);
                                 final String parameterOptionExpressionWithPath = split[0];
                                 final String nextPathId = getPathId(parameterOptionExpressionWithPath);
@@ -245,7 +245,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
                                     cleanLable = label;
                                     directRoll = false;
                                 }
-                                if (split.length == 2 && !Strings.isNullOrEmpty(parameterOptionExpression) && !Strings.isNullOrEmpty(split[1])) {
+                                if (!Strings.isNullOrEmpty(parameterOptionExpression) && !Strings.isNullOrEmpty(split[1])) {
                                     return new Parameter.ParameterOption(parameterOptionExpression, cleanLable, createParameterOptionIdFromIndex(counter.getAndIncrement()), directRoll, nextPathId);
                                 }
                             }
