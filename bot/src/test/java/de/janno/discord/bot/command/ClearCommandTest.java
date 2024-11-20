@@ -182,4 +182,19 @@ class ClearCommandTest {
         assertThat(res.stream().map(AutoCompleteAnswer::getName)).containsExactly("name1", "name2");
     }
 
+    @Test
+    void getAutoCompleteAnswer_filter() {
+        persistenceManager = new PersistenceManagerImpl("jdbc:h2:mem:" + UUID.randomUUID(), null, null);
+        underTest = new ClearCommand(persistenceManager);
+        persistenceManager.saveMessageConfig(new MessageConfigDTO(UUID.randomUUID(), 2L, 1L, "testCommand", "testConfigClass", "configClass", "name1", 0L));
+        persistenceManager.saveMessageConfig(new MessageConfigDTO(UUID.randomUUID(), 2L, 1L, "testCommand", "testConfigClass", "configClass", "name1", 0L));
+        persistenceManager.saveMessageConfig(new MessageConfigDTO(UUID.randomUUID(), 2L, 1L, "testCommand", "testConfigClass", "configClass", "name2", 0L));
+        persistenceManager.saveMessageConfig(new MessageConfigDTO(UUID.randomUUID(), 2L, 2L, "testCommand", "testConfigClass", "configClass", "name3", 0L));
+        persistenceManager.saveMessageConfig(new MessageConfigDTO(UUID.randomUUID(), 1L, 3L, "testCommand", "testConfigClass", "configClass", "name4", null));
+
+        List<AutoCompleteAnswer> res =  underTest.getAutoCompleteAnswer(new AutoCompleteRequest("name", "e2", List.of()), Locale.ENGLISH, 1L, 2L, 3L);
+
+        assertThat(res.stream().map(AutoCompleteAnswer::getName)).containsExactly( "name2");
+    }
+
 }
