@@ -2,7 +2,6 @@ package de.janno.discord.bot.command;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
-import de.janno.discord.bot.BaseCommandUtils;
 import de.janno.discord.bot.persistance.MessageConfigDTO;
 import de.janno.discord.bot.persistance.MessageDataDTO;
 import de.janno.discord.bot.persistance.PersistenceManager;
@@ -187,7 +186,6 @@ public abstract class AbstractCommand<C extends RollConfig, S extends StateData>
                                                                                    @NonNull MessageDataDTO messageDataDTO,
                                                                                    @NonNull String buttonValue,
                                                                                    @NonNull String invokingUserName);
-
 
 
     //visible for welcome command
