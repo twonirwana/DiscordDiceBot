@@ -211,7 +211,7 @@ public class RerollAnswerHandler extends ComponentCommandImpl<RerollAnswerConfig
     }
 
     public Mono<Void> deleteMessageConfigWithDelay(UUID configUUID) {
-        final Duration delay = Duration.ofMillis(io.avaje.config.Config.getLong("command.delayMessageDataDeletionMs", 10000));
+        final Duration delay = Duration.ofMillis(io.avaje.config.Config.getLong("db.delayMessageDataDeletionMs", 10000));
         return Mono.defer(() -> Mono.just(configUUID)
                 .delayElement(delay)
                 .doOnNext(persistenceManager::deleteMessageConfig).ofType(Void.class));

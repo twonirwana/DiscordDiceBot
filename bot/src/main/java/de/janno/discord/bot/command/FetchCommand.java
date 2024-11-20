@@ -1,5 +1,6 @@
 package de.janno.discord.bot.command;
 
+import de.janno.discord.bot.BaseCommandUtils;
 import de.janno.discord.bot.BotMetrics;
 import de.janno.discord.bot.I18n;
 import de.janno.discord.bot.command.customDice.CustomDiceCommand;
@@ -80,7 +81,7 @@ public class FetchCommand implements SlashCommand {
         List<Mono<Void>> actions = List.of(
                 Mono.defer(() -> event.reply(I18n.getMessage("fetch.reply", event.getRequester().getUserLocal()), true)),
                 Mono.defer(() -> event.sendMessage(buttonMessage)
-                                .doOnNext(messageId -> command.createEmptyMessageData(configUUID, event.getGuildId(), event.getChannelId(), messageId)))
+                                .doOnNext(messageId -> BaseCommandUtils.createCleanupAndSaveEmptyMessageData(configUUID, event.getGuildId(), event.getChannelId(), messageId, getCommandId(), persistenceManager)))
                         .flatMap(newMessageId -> MessageDeletionHelper.deleteOldMessageAndData(persistenceManager, newMessageId, null, configUUID, event.getChannelId(), event))
                         .then());
         return Flux.merge(1, actions.toArray(new Mono<?>[0]))

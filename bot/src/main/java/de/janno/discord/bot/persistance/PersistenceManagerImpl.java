@@ -1,7 +1,9 @@
 package de.janno.discord.bot.persistance;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Stopwatch;
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
 import de.janno.discord.bot.BotMetrics;
 import io.micrometer.core.instrument.Gauge;
@@ -45,6 +47,15 @@ public class PersistenceManagerImpl implements PersistenceManager {
         queryGauge("db.messageData-7d.active", "select count (MESSAGE_ID) from MESSAGE_DATA where (CURRENT_TIMESTAMP - CREATION_DATE) <= interval '10080' MINUTE;", databaseConnector.getDataSource(), Set.of());
         queryGauge("db.messageData-1d.active", "select count (MESSAGE_ID) from MESSAGE_DATA where (CURRENT_TIMESTAMP - CREATION_DATE) <= interval '1440' MINUTE;", databaseConnector.getDataSource(), Set.of());
 
+        long interval = io.avaje.config.Config.getLong("db.deleteMarkMessageDataIntervalInMilliSec", 10_000);
+        if (interval > 0) {
+            ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
+            executorService.scheduleAtFixedRate(this::deleteOldMessageDataThatAreMarked,
+                    io.avaje.config.Config.getLong("db.deleteMarkMessageDataStartDelayMilliSec", 0),
+                    interval,
+                    TimeUnit.MILLISECONDS);
+            Runtime.getRuntime().addShutdownHook(new Thread(executorService::shutdownNow));
+        }
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             log.info("start db shutdown");
             databaseConnector.dispose();
@@ -56,13 +67,13 @@ public class PersistenceManagerImpl implements PersistenceManager {
             }
         }));
 
-        ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
-        executorService.scheduleAtFixedRate(this::deleteOldMessageDataThatAreMarked, 0, io.avaje.config.Config.getLong("db.deleteMarkMessageDataIntervalInMilliSec", 10_000), TimeUnit.MILLISECONDS);
+
     }
 
-    private void deleteOldMessageDataThatAreMarked() {
+    @VisibleForTesting
+    void deleteOldMessageDataThatAreMarked() {
         Stopwatch stopwatch = Stopwatch.createStarted();
-        final Duration delay = Duration.ofMillis(io.avaje.config.Config.getLong("command.delayMessageDataDeletionMs", 10_000));
+        final Duration delay = Duration.ofMillis(io.avaje.config.Config.getLong("db.delayMessageDataDeletionMs", 10_000));
         LocalDateTime deleteAllBefore = LocalDateTime.now().minus(delay);
 
         try (Connection con = databaseConnector.getConnection()) {
@@ -70,7 +81,7 @@ public class PersistenceManagerImpl implements PersistenceManager {
                 preparedStatement.setObject(1, deleteAllBefore);
                 long deleted = preparedStatement.executeUpdate();
                 if (deleted > 0) {
-                    log.trace("deleted message_data: " + deleted);
+                    log.trace("deleted message_data: {}", deleted);
                 }
             }
         } catch (SQLException e) {
@@ -118,13 +129,23 @@ public class PersistenceManagerImpl implements PersistenceManager {
     }
 
     @Override
-    public void deleteAllMessageConfigForChannel(long channelId) {
+    public void deleteAllMessageConfigForChannel(long channelId, @Nullable String name) {
         Stopwatch stopwatch = Stopwatch.createStarted();
         try (Connection con = databaseConnector.getConnection()) {
-            try (PreparedStatement preparedStatement = con.prepareStatement("DELETE FROM MESSAGE_CONFIG WHERE CHANNEL_ID = ?")) {
+            final String deleteConfig;
+            if (Strings.isNullOrEmpty(name)) {
+                deleteConfig = "DELETE FROM MESSAGE_CONFIG WHERE CHANNEL_ID = ?";
+            } else {
+                deleteConfig = "DELETE FROM MESSAGE_CONFIG WHERE CHANNEL_ID = ? and CONFIG_NAME = ?";
+            }
+            try (PreparedStatement preparedStatement = con.prepareStatement(deleteConfig)) {
                 preparedStatement.setLong(1, channelId);
+                if (!Strings.isNullOrEmpty(name)) {
+                    preparedStatement.setString(2, name);
+                }
                 preparedStatement.execute();
             }
+
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -261,23 +282,43 @@ public class PersistenceManagerImpl implements PersistenceManager {
     }
 
     @Override
-    public @NonNull Set<Long> deleteMessageDataForChannel(long channelId) {
+    public @NonNull Set<Long> deleteMessageDataForChannel(long channelId, String name) {
         Stopwatch stopwatch = Stopwatch.createStarted();
-        final ImmutableSet<Long> ids;
+        final ImmutableSet<Long> messageIds;
         try (Connection con = databaseConnector.getConnection()) {
             con.setAutoCommit(false);
-            try (PreparedStatement preparedStatement = con.prepareStatement("SELECT DISTINCT MC.MESSAGE_ID FROM MESSAGE_DATA MC WHERE MC.CHANNEL_ID = ?")) {
+            final String messageIdSql;
+            if (Strings.isNullOrEmpty(name)) {
+                messageIdSql = "SELECT DISTINCT MD.MESSAGE_ID FROM MESSAGE_DATA MD WHERE MD.CHANNEL_ID = ?";
+            } else {
+                messageIdSql = "SELECT DISTINCT MD.MESSAGE_ID FROM MESSAGE_DATA MD JOIN MESSAGE_CONFIG MC ON MC.CONFIG_ID = MD.CONFIG_ID WHERE MD.CHANNEL_ID = ? and MC.CONFIG_NAME = ?";
+            }
+            try (PreparedStatement preparedStatement = con.prepareStatement(messageIdSql)) {
                 preparedStatement.setObject(1, channelId);
-                ResultSet resultSet = preparedStatement.executeQuery();
-                final ImmutableSet.Builder<Long> resultBuilder = ImmutableSet.builder();
-                while (resultSet.next()) {
-                    resultBuilder.add(resultSet.getLong("MESSAGE_ID"));
+                if (!Strings.isNullOrEmpty(name)) {
+                    preparedStatement.setString(2, name);
                 }
-                ids = resultBuilder.build();
+                ResultSet resultSet = preparedStatement.executeQuery();
+                final ImmutableSet.Builder<Long> messageIdBuilder = ImmutableSet.builder();
+                while (resultSet.next()) {
+                    messageIdBuilder.add(resultSet.getLong("MESSAGE_ID"));
+                }
+                messageIds = messageIdBuilder.build();
+            }
+            final String markDeletedSql;
+
+            if (Strings.isNullOrEmpty(name)) {
+                markDeletedSql = "UPDATE MESSAGE_DATA SET MARKED_DELETED = ? WHERE CHANNEL_ID = ?";
+            } else {
+                markDeletedSql = "UPDATE MESSAGE_DATA SET MARKED_DELETED = ?  where message_id in (SELECT DISTINCT MD.MESSAGE_ID FROM MESSAGE_DATA MD JOIN MESSAGE_CONFIG MC ON MC.CONFIG_ID = MD.CONFIG_ID WHERE MD.CHANNEL_ID = ? and MC.CONFIG_NAME = ?)";
             }
 
-            try (PreparedStatement preparedStatement = con.prepareStatement("DELETE FROM MESSAGE_DATA WHERE CHANNEL_ID = ?")) {
-                preparedStatement.setLong(1, channelId);
+            try (PreparedStatement preparedStatement = con.prepareStatement(markDeletedSql)) {
+                preparedStatement.setObject(1, LocalDateTime.now());
+                preparedStatement.setLong(2, channelId);
+                if (!Strings.isNullOrEmpty(name)) {
+                    preparedStatement.setString(3, name);
+                }
                 preparedStatement.execute();
             }
             con.commit();
@@ -285,7 +326,7 @@ public class PersistenceManagerImpl implements PersistenceManager {
             throw new RuntimeException(e);
         }
         BotMetrics.databaseTimer("deleteDataForChannel", stopwatch.elapsed());
-        return ids;
+        return messageIds;
     }
 
     @Override
@@ -517,7 +558,7 @@ public class PersistenceManagerImpl implements PersistenceManager {
     }
 
     @Override
-    public List<SavedNamedConfigId> getNamedCommandsForChannel(long userId, Long guildId) {
+    public List<SavedNamedConfigId> getLastUsedNamedCommandsOfUserAndGuild(long userId, Long guildId) {
         Stopwatch stopwatch = Stopwatch.createStarted();
         try (Connection con = databaseConnector.getConnection()) {
             final String sql;
@@ -536,7 +577,8 @@ public class PersistenceManagerImpl implements PersistenceManager {
                                           AND MC.CREATION_DATE = Latest.LatestDate
                         where (MC.CREATION_USER_ID = ?
                             OR MC.GUILD_ID = ?)
-                          and MC.CONFIG_NAME is not null;
+                          and MC.CONFIG_NAME is not null
+                        order by MC.CONFIG_NAME;
                         """;
             } else {
                 sql = """
@@ -551,7 +593,8 @@ public class PersistenceManagerImpl implements PersistenceManager {
                                           and mc.CONFIG_NAME = Latest.CONFIG_NAME
                                           AND MC.CREATION_DATE = Latest.LatestDate
                         where MC.CREATION_USER_ID = ?
-                          and MC.CONFIG_NAME is not null;
+                          and MC.CONFIG_NAME is not null
+                        order by MC.CONFIG_NAME;
                         """;
             }
             try (PreparedStatement preparedStatement = con.prepareStatement(sql)) {
@@ -574,7 +617,35 @@ public class PersistenceManagerImpl implements PersistenceManager {
                             resultSet.getString("CONFIG_NAME")
                     ));
                 }
-                BotMetrics.databaseTimer("getNamedCommandsForChannel", stopwatch.elapsed());
+                BotMetrics.databaseTimer("getNamedCommandsOfUserAndGuild", stopwatch.elapsed());
+                return result;
+
+            }
+        } catch (Exception e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    @Override
+    public List<String> getNamedCommandsChannel(long channelId) {
+        Stopwatch stopwatch = Stopwatch.createStarted();
+        try (Connection con = databaseConnector.getConnection()) {
+            try (PreparedStatement preparedStatement = con.prepareStatement("""
+                    SELECT DISTINCT MC.CONFIG_NAME
+                    FROM MESSAGE_CONFIG MC
+                    where MC.CHANNEL_ID = ?
+                      and MC.CONFIG_NAME is not null
+                    order by MC.CONFIG_NAME;
+                    """)) {
+
+                preparedStatement.setLong(1, channelId);
+
+                ResultSet resultSet = preparedStatement.executeQuery();
+                List<String> result = new ArrayList<>();
+                while (resultSet.next()) {
+                    result.add(resultSet.getString("CONFIG_NAME"));
+                }
+                BotMetrics.databaseTimer("getNamedCommandsChannel", stopwatch.elapsed());
                 return result;
 
             }

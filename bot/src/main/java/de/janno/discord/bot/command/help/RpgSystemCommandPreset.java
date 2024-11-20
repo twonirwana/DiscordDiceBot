@@ -81,7 +81,7 @@ public class RpgSystemCommandPreset {
             case BLADES_IN_THE_DARK ->
                     new CustomParameterConfig(null, I18n.getMessage("rpg.system.command.preset.BLADES_IN_THE_DARK.expression", userLocale), AnswerFormatType.without_expression, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, DiceImageStyle.none.getDefaultColor()), userLocale, null, I18n.getMessage("rpg.system.command.preset.BLADES_IN_THE_DARK.name", userLocale));
             case BLADES_IN_THE_DARK_IMAGE ->
-                    new CustomParameterConfig(null, I18n.getMessage("rpg.system.command.preset.BLADES_IN_THE_DARK.expression", userLocale), AnswerFormatType.without_expression, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_RdD, DiceImageStyle.polyhedral_RdD.getDefaultColor()), userLocale, null, I18n.getMessage("rpg.system.command.preset.BLADES_IN_THE_DARK.name", userLocale));
+                    new CustomParameterConfig(null, I18n.getMessage("rpg.system.command.preset.BLADES_IN_THE_DARK.expression", userLocale), AnswerFormatType.without_expression, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_RdD, DiceImageStyle.polyhedral_RdD.getDefaultColor()), userLocale, null, I18n.getMessage("rpg.system.command.preset.BLADES_IN_THE_DARK_IMAGE.name", userLocale));
             case BLADES_IN_THE_DARK_DETAIL ->
                     new CustomParameterConfig(null, I18n.getMessage("rpg.system.command.preset.BLADES_IN_THE_DARK_DETAIL.expression", userLocale), AnswerFormatType.without_expression, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_RdD, DiceImageStyle.polyhedral_RdD.getDefaultColor()), userLocale, null, I18n.getMessage("rpg.system.command.preset.BLADES_IN_THE_DARK_DETAIL.name", userLocale));
             //7th Edition Call of Cthulhu: custom_dice start buttons:  1d100; 2d100L1@1d100 Advantage; 2d100K1@1d100 Penalty; 1d3; 1d4; 1d6; 1d8; 1d10; 1d12; 1d20; 3d6
@@ -92,10 +92,10 @@ public class RpgSystemCommandPreset {
                     new CustomParameterConfig(null, I18n.getMessage("rpg.system.command.preset.EXALTED_3ED.expression", userLocale), AnswerFormatType.without_expression, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_3d, DiceImageStyle.polyhedral_3d.getDefaultColor()), userLocale, null, I18n.getMessage("rpg.system.command.preset.EXALTED_3ED.name", userLocale));
             //Vampire 5ed /custom_parameter start expression: val('$r',{regular dice:1<=>16}d10 col 'blue') val('$h',{hunger dice:0<=>5}d10 col 'purple_dark') val('$s',('$r'+'$h')>=6c) val('$rt','$r'==10c) val('$ht','$h'==10c) val('$ho','$h'==1c) val('$2s',((('$rt'+'$ht'=))/2)*2) val('$ts',('$s'+'$2s'=)) concat('successes: ', '$ts', ifE('$ts',0,ifG('$ho',1,' bestial failure' , ''),''), ifE('$rt' mod 2, 1, ifE('$ht' mod 2, 1, ' messy critical', ''), '')) answer_format: without_expression
             case VAMPIRE_5ED ->
-                    new CustomParameterConfig(null, I18n.getMessage("rpg.system.command.preset.VAMPIRE_5ED.expression", userLocale), AnswerFormatType.without_expression, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_knots, DiceImageStyle.polyhedral_knots.getDefaultColor()), userLocale, null, I18n.getMessage("rpg.system.command.preset.VAMPIRE_5ED.name", userLocale));
+                    new CustomParameterConfig(null, I18n.getMessage("rpg.system.command.preset.VAMPIRE_5ED.expression", userLocale), AnswerFormatType.without_expression, AnswerInteractionType.reroll, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_knots, DiceImageStyle.polyhedral_knots.getDefaultColor()), userLocale, null, I18n.getMessage("rpg.system.command.preset.VAMPIRE_5ED.name", userLocale));
             //Hunter 5ed /custom_parameter start expression: val('$r',{Regular D10 Dice:1<=>16}d10 col 'blue') val('$h', {Desperation Dice:0<=>5}d10 col'purple_dark') val('$s',('$r'+'$h')>=6c) val('$rt','$r'==10c) val('$ht','$h'==10c) val('$ho','$h'==1c) val('$2s',((('$rt'+'$ht'=))/2)*2) val('$ts',('$s'+'$2s'=)) concat('successes: ', '$ts', ifE('$ts',0,ifG('$ho',1,' bestial failure' , ''),''), ifE('$rt' mod 2, 1, ifE('$ht' mod 2, 1, ' messy critical', ''), '')) answer_format: without_expression dice_image_style: polyhedral_knots
             case HUNTER_5ED ->
-                    new CustomParameterConfig(null, I18n.getMessage("rpg.system.command.preset.HUNTER_5ED.expression", userLocale), AnswerFormatType.without_expression, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_knots, DiceImageStyle.polyhedral_knots.getDefaultColor()), userLocale, null, I18n.getMessage("rpg.system.command.preset.HUNTER_5ED.name", userLocale));
+                    new CustomParameterConfig(null, I18n.getMessage("rpg.system.command.preset.HUNTER_5ED.expression", userLocale), AnswerFormatType.without_expression, AnswerInteractionType.reroll, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_knots, DiceImageStyle.polyhedral_knots.getDefaultColor()), userLocale, null, I18n.getMessage("rpg.system.command.preset.HUNTER_5ED.name", userLocale));
             //One-Roll Engine /custom_parameter start expression: groupc({Number of Dice:1<=>10}d10+({Number of Extra Die:0@0/10@1/2r10@2/3r10@3/4r10@4})>={Difficulty:1<=>10})
             case ONE_ROLL_ENGINE ->
                     new CustomParameterConfig(null, I18n.getMessage("rpg.system.command.preset.ONE_ROLL_ENGINE.expression", userLocale), AnswerFormatType.without_expression, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_3d, DiceImageStyle.polyhedral_3d.getDefaultColor()), userLocale, null, I18n.getMessage("rpg.system.command.preset.ONE_ROLL_ENGINE.name", userLocale));
@@ -222,7 +222,16 @@ public class RpgSystemCommandPreset {
                     new AliasConfig(ChannelConfigCommand.parseStringToMultiAliasList(I18n.getMessage("rpg.system.command.preset.BLADES_IN_THE_DARK_ALIAS.expression", userLocale)), I18n.getMessage("rpg.system.command.preset.BLADES_IN_THE_DARK_ALIAS.name", userLocale));
             case CYBERPUNK_RED_ALIAS ->
                     new AliasConfig(ChannelConfigCommand.parseStringToMultiAliasList(I18n.getMessage("rpg.system.command.preset.CYBERPUNK_RED_ALIAS.expression", userLocale)), I18n.getMessage("rpg.system.command.preset.CYBERPUNK_RED_ALIAS.name", userLocale));
-
+            // Warhammer Age of Sigmar: Soulbound /custom_parameter start expression: val('$Pool',{Pool:1<=>20}d6 col 'blue_and_gold') val('$Success', ('$Pool'>={Difficulty:2<=>6})c) val ('$Complexity', {Complexity:1<=>20}) val('$Test', ('$Success'>='$Complexity')c) val('$Overcast', '$Success' - '$Complexity'=) concat('$Success'_' successes ; '_if('$Test'>?0,'Success ('_'$Overcast'_' overcast)','Failure')) dice_image_style: polyhedral_alies_v2 dice_image_color: blue_and_gold answer_interaction: reroll
+            case WARHAMMER_AOS ->
+                    new CustomParameterConfig(null, I18n.getMessage("rpg.system.command.preset.WARHAMMER_AOS.expression", userLocale), AnswerFormatType.without_expression, AnswerInteractionType.reroll, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v2, "blue_and_gold"), userLocale, null, I18n.getMessage("rpg.system.command.preset.WARHAMMER_AOS.name", userLocale));
+            // Ghostbusters: A Frightfully Cheerful Roleplaying Game First Edition & Spooktacular  /custom_parameter start expression: val('$dice',{Dice Pool:1<=>25}),val('$diff',{Difficulty:5@Easy Job/10@Normal Job/20@Hard Job/30@Impossible Job}) val('$ghost', 1d6 col 'green_and_white'), if('$ghost'=?6,val('$res',('$dice' -1=)d6=), val('$res', ('$dice' -1=)d6+ '$ghost'=)), '$res' _ ' vs ' _ '$diff' _ ': ' _ if('$res' >=? '$diff', 'success', 'failure') _ if('$ghost'=?6, ' and something bad happens', '')
+            case GHOSTBUSTERS ->
+                    new CustomParameterConfig(null, I18n.getMessage("rpg.system.command.preset.GHOSTBUSTERS.expression", userLocale), AnswerFormatType.without_expression, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_RdD, DiceImageStyle.polyhedral_RdD.getDefaultColor()), userLocale, null, I18n.getMessage("rpg.system.command.preset.GHOSTBUSTERS.name", userLocale));
+            // Shadowdark /sum_custom_set start buttons: d4;d6;d8;d10;d12;d20;d100;1;2;3;4;5;(2d20k1)@D20 Advantage;(2d20L1)@D20 Disadvantage;;-@Minus;+@Plus;5x3d6=@!Stats;,@Split always_sum_result: true hide_expression_in_answer: false answer_format: full dice_image_style: polyhedral_3d dice_image_color: red_and_white answer_interaction: none
+            case SHADOWDARK -> new SumCustomSetConfig(null,
+                    ButtonHelper.parseString(I18n.getMessage("rpg.system.command.preset.SHADOWDARK.expression", userLocale)),
+                    true, false, false, null, null, AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_3d, DiceImageStyle.polyhedral_3d.getDefaultColor()), userLocale, null, I18n.getMessage("rpg.system.command.preset.SHADOWDARK.name", userLocale));
         };
     }
 
@@ -339,7 +348,10 @@ public class RpgSystemCommandPreset {
         SALVAGE_UNION(CustomDiceCommand.COMMAND_NAME, CustomDiceCommand.CONFIG_TYPE_ID),
         FALLOUT(CustomDiceCommand.COMMAND_NAME, CustomDiceCommand.CONFIG_TYPE_ID),
         FORBIDDEN_LANDS(CustomParameterCommand.COMMAND_NAME, CustomParameterCommand.CONFIG_TYPE_ID),
-        CYBERPUNK_RED_ALIAS(ChannelConfigCommand.COMMAND_NAME, AliasHelper.CHANNEL_ALIAS_CONFIG_TYPE_ID);
+        CYBERPUNK_RED_ALIAS(ChannelConfigCommand.COMMAND_NAME, AliasHelper.CHANNEL_ALIAS_CONFIG_TYPE_ID),
+        WARHAMMER_AOS(CustomParameterCommand.COMMAND_NAME, CustomParameterCommand.CONFIG_TYPE_ID),
+        SHADOWDARK(SumCustomSetCommand.COMMAND_NAME, SumCustomSetCommand.CONFIG_TYPE_ID),
+        GHOSTBUSTERS(CustomParameterCommand.COMMAND_NAME, CustomParameterCommand.CONFIG_TYPE_ID);
 
         private final String commandId;
         private final String configClassType;

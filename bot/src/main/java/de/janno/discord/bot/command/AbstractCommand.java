@@ -2,7 +2,6 @@ package de.janno.discord.bot.command;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
-import de.janno.discord.bot.BaseCommandUtils;
 import de.janno.discord.bot.persistance.MessageConfigDTO;
 import de.janno.discord.bot.persistance.MessageDataDTO;
 import de.janno.discord.bot.persistance.PersistenceManager;
@@ -75,11 +74,6 @@ public abstract class AbstractCommand<C extends RollConfig, S extends StateData>
             public @NonNull Optional<String> getCurrentMessageContentChange(C config, State<S> state, boolean keepExistingButtonMessage) {
                 return AbstractCommand.this.getCurrentMessageContentChange(config, state, keepExistingButtonMessage);
             }
-
-            @Override
-            public @NonNull MessageDataDTO createEmptyMessageData(@NonNull UUID configUUID, @Nullable Long guildId, long channelId, long messageId) {
-                return AbstractCommand.this.createEmptyMessageData(configUUID, guildId, channelId, messageId);
-            }
         };
         slashCommand = new SlashCommandImpl<>(persistenceManager) {
             @Override
@@ -151,11 +145,6 @@ public abstract class AbstractCommand<C extends RollConfig, S extends StateData>
             protected @NonNull Optional<String> getStartOptionsValidationMessage(@NonNull CommandInteractionOption options, long channelId, long userId, @NonNull Locale userLocale) {
                 return AbstractCommand.this.getStartOptionsValidationMessage(options, channelId, userId, userLocale);
             }
-
-            @Override
-            public @NonNull MessageDataDTO createEmptyMessageData(@NonNull UUID configUUID, @Nullable Long guildId, long channelId, long messageId) {
-                return AbstractCommand.this.createEmptyMessageData(configUUID, guildId, channelId, messageId);
-            }
         };
     }
 
@@ -198,17 +187,6 @@ public abstract class AbstractCommand<C extends RollConfig, S extends StateData>
                                                                                    @NonNull String buttonValue,
                                                                                    @NonNull String invokingUserName);
 
-
-    /**
-     * On the creation of a message an empty state need to be saved so we know the message exists and we can remove it later, even on concurrent actions
-     */
-    @VisibleForTesting
-    public @NonNull MessageDataDTO createEmptyMessageData(@NonNull UUID configUUID,
-                                                          @Nullable Long guildId,
-                                                          long channelId,
-                                                          long messageId) {
-        return BaseCommandUtils.createCleanupAndSaveEmptyMessageData(configUUID, guildId, channelId, messageId, getCommandId(), persistenceManager);
-    }
 
     //visible for welcome command
     public abstract Optional<MessageConfigDTO> createMessageConfig(@NonNull UUID configUUID,

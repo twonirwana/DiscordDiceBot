@@ -19,6 +19,7 @@ import de.janno.discord.connector.api.SlashCommand;
 import de.janno.discord.connector.api.slash.CommandDefinitionOption;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import de.janno.evaluator.dice.random.RandomNumberSupplier;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -36,6 +37,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class QuickstartCommandMockTest {
 
     Expect expect;
+    PersistenceManager persistenceManager;
 
     static Stream<Arguments> generateRpgSystemLocaleData() {
         return Arrays.stream(RpgSystemCommandPreset.PresetId.values())
@@ -89,10 +91,16 @@ public class QuickstartCommandMockTest {
         );
     }
 
+    @BeforeEach
+    void setup() {
+        io.avaje.config.Config.setProperty("db.deleteMarkMessageDataIntervalInMilliSec", "0");
+        persistenceManager = new PersistenceManagerImpl("jdbc:h2:mem:" + UUID.randomUUID(), null, null);
+
+    }
+
     @ParameterizedTest(name = "{index} config={0}, locale={1}")
     @MethodSource("generateRpgSystemLocaleData")
     void handleSlashCommandEvent(RpgSystemCommandPreset.PresetId presetId, Locale userLocale) {
-        PersistenceManager persistenceManager = new PersistenceManagerImpl("jdbc:h2:mem:" + UUID.randomUUID(), null, null);
         CachingDiceEvaluator cachingDiceEvaluator = new CachingDiceEvaluator(new RandomNumberSupplier(0));
         CustomDiceCommand customDiceCommand = new CustomDiceCommand(persistenceManager, cachingDiceEvaluator);
         CustomParameterCommand customParameterCommand = new CustomParameterCommand(persistenceManager, cachingDiceEvaluator);

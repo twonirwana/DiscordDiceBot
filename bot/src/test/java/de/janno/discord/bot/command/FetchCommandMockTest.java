@@ -4,6 +4,7 @@ import au.com.origin.snapshots.Expect;
 import au.com.origin.snapshots.junit5.SnapshotExtension;
 import com.google.common.collect.ImmutableList;
 import de.janno.discord.bot.AnswerInteractionType;
+import de.janno.discord.bot.BaseCommandUtils;
 import de.janno.discord.bot.SlashEventAdaptorMock;
 import de.janno.discord.bot.command.customDice.CustomDiceCommand;
 import de.janno.discord.bot.command.customDice.CustomDiceConfig;
@@ -52,8 +53,9 @@ class FetchCommandMockTest {
 
     @AfterEach
     void cleanup() {
-        io.avaje.config.Config.setProperty("command.delayMessageDataDeletionMs", "10");
-        io.avaje.config.Config.setProperty("command.fetch.delayMs", "0");
+        io.avaje.config.Config.setProperty("db.deleteMarkMessageDataIntervalInMilliSec", "0");
+        io.avaje.config.Config.setProperty("db.deleteMarkMessageDataStartDelayMilliSec", "0");
+        io.avaje.config.Config.setProperty("db.delayMessageDataDeletionMs", "0");
     }
 
 
@@ -99,21 +101,21 @@ class FetchCommandMockTest {
 
     @Test
     void fetchOldCustomDiceMessage() throws InterruptedException {
-        io.avaje.config.Config.setProperty("command.delayMessageDataDeletionMs", "1000");
+        io.avaje.config.Config.setProperty("db.delayMessageDataDeletionMs", "1000");
         io.avaje.config.Config.setProperty("command.fetch.delayMs", "50");
 
         CustomDiceConfig otherConfig = new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "att", "2d20", false, false, null)), AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH, null, null);
         customDiceCommand.createMessageConfig(uuid1, fetchEvent.getGuildId(), fetchEvent.getChannelId(), fetchEvent.getUserId(), otherConfig)
                 .ifPresent(m -> persistenceManager.saveMessageConfig(m));
-        customDiceCommand.createEmptyMessageData(uuid1, fetchEvent.getGuildId(), fetchEvent.getChannelId(), -3L);
+        BaseCommandUtils.createCleanupAndSaveEmptyMessageData(uuid1, fetchEvent.getGuildId(), fetchEvent.getChannelId(), -3L, customDiceCommand.getCommandId(), persistenceManager);
         Thread.sleep(100);
         CustomDiceConfig config = new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "1d6", false, false, null)), AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH, null, null);
         customDiceCommand.createMessageConfig(uuid0, fetchEvent.getGuildId(), fetchEvent.getChannelId(), fetchEvent.getUserId(), config)
                 .ifPresent(m -> persistenceManager.saveMessageConfig(m));
-        customDiceCommand.createEmptyMessageData(uuid0, fetchEvent.getGuildId(), fetchEvent.getChannelId(), -2L);
+        BaseCommandUtils.createCleanupAndSaveEmptyMessageData(uuid0, fetchEvent.getGuildId(), fetchEvent.getChannelId(), -2L, customDiceCommand.getCommandId(), persistenceManager);
         MessageDeletionHelper.markAsDeleted(persistenceManager, fetchEvent.getChannelId(), -2).subscribe();
 
-        customDiceCommand.createEmptyMessageData(uuid0, fetchEvent.getGuildId(), fetchEvent.getChannelId(), -1L);
+        BaseCommandUtils.createCleanupAndSaveEmptyMessageData(uuid0, fetchEvent.getGuildId(), fetchEvent.getChannelId(), -1L, customDiceCommand.getCommandId(), persistenceManager);
 
         underTest.handleSlashCommandEvent(fetchEvent, () -> uuid0, Locale.ENGLISH).block();
         expect.toMatchSnapshot(fetchEvent.getActions());
@@ -125,15 +127,15 @@ class FetchCommandMockTest {
         CustomDiceConfig otherConfig = new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "att", "2d20", false, false, null)), AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH, null, null);
         customDiceCommand.createMessageConfig(uuid1, fetchEvent.getGuildId(), fetchEvent.getChannelId(), fetchEvent.getUserId(), otherConfig)
                 .ifPresent(m -> persistenceManager.saveMessageConfig(m));
-        customDiceCommand.createEmptyMessageData(uuid1, fetchEvent.getGuildId(), fetchEvent.getChannelId(), -3L);
+        BaseCommandUtils.createCleanupAndSaveEmptyMessageData(uuid1, fetchEvent.getGuildId(), fetchEvent.getChannelId(), -3L, customDiceCommand.getCommandId(), persistenceManager);
 
         CustomDiceConfig config = new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "1d6", false, false, null)), AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH, null, null);
         customDiceCommand.createMessageConfig(uuid0, fetchEvent.getGuildId(), fetchEvent.getChannelId(), fetchEvent.getUserId(), config)
                 .ifPresent(m -> persistenceManager.saveMessageConfig(m));
-        customDiceCommand.createEmptyMessageData(uuid0, fetchEvent.getGuildId(), fetchEvent.getChannelId(), -2L);
+        BaseCommandUtils.createCleanupAndSaveEmptyMessageData(uuid0, fetchEvent.getGuildId(), fetchEvent.getChannelId(), -2L, customDiceCommand.getCommandId(), persistenceManager);
         MessageDeletionHelper.markAsDeleted(persistenceManager, fetchEvent.getChannelId(), -2).subscribe();
 
-        customDiceCommand.createEmptyMessageData(uuid0, fetchEvent.getGuildId(), fetchEvent.getChannelId(), -1L);
+        BaseCommandUtils.createCleanupAndSaveEmptyMessageData(uuid0, fetchEvent.getGuildId(), fetchEvent.getChannelId(), -1L, customDiceCommand.getCommandId(), persistenceManager);
 
         Thread.sleep(100);
         underTest.handleSlashCommandEvent(fetchEvent, () -> uuid0, Locale.ENGLISH).block();
@@ -143,24 +145,24 @@ class FetchCommandMockTest {
 
     @Test
     void fetchOldSumCustomSetMessage() throws InterruptedException {
-        io.avaje.config.Config.setProperty("command.delayMessageDataDeletionMs", "1000");
+        io.avaje.config.Config.setProperty("db.delayMessageDataDeletionMs", "1000");
         io.avaje.config.Config.setProperty("command.fetch.delayMs", "50");
 
         SumCustomSetConfig otherConfig = new SumCustomSetConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Att", "+2d20", false, false, null),
                 new ButtonIdLabelAndDiceExpression("2_button", "bonus", "+5", false, false, null)), true, true, false, null, null, AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH, null, null);
         sumCustomSetCommand.createMessageConfig(uuid1, fetchEvent.getGuildId(), fetchEvent.getChannelId(), fetchEvent.getUserId(), otherConfig)
                 .ifPresent(m -> persistenceManager.saveMessageConfig(m));
-        sumCustomSetCommand.createEmptyMessageData(uuid1, fetchEvent.getGuildId(), fetchEvent.getChannelId(), -3L);
+        BaseCommandUtils.createCleanupAndSaveEmptyMessageData(uuid1, fetchEvent.getGuildId(), fetchEvent.getChannelId(), -3L, customDiceCommand.getCommandId(), persistenceManager);
         Thread.sleep(50);
 
         SumCustomSetConfig config = new SumCustomSetConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "+1d6", false, false, null),
                 new ButtonIdLabelAndDiceExpression("2_button", "bonus", "+2", false, false, null)), true, true, false, null, null, AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH, null, null);
         sumCustomSetCommand.createMessageConfig(uuid0, fetchEvent.getGuildId(), fetchEvent.getChannelId(), fetchEvent.getUserId(), config)
                 .ifPresent(m -> persistenceManager.saveMessageConfig(m));
-        customDiceCommand.createEmptyMessageData(uuid0, fetchEvent.getGuildId(), fetchEvent.getChannelId(), -2L);
+        BaseCommandUtils.createCleanupAndSaveEmptyMessageData(uuid0, fetchEvent.getGuildId(), fetchEvent.getChannelId(), -2L, customDiceCommand.getCommandId(), persistenceManager);
         MessageDeletionHelper.markAsDeleted(persistenceManager, fetchEvent.getChannelId(), -2).subscribe();
 
-        sumCustomSetCommand.createEmptyMessageData(uuid0, fetchEvent.getGuildId(), fetchEvent.getChannelId(), -1L);
+        BaseCommandUtils.createCleanupAndSaveEmptyMessageData(uuid0, fetchEvent.getGuildId(), fetchEvent.getChannelId(), -1L, customDiceCommand.getCommandId(), persistenceManager);
 
         underTest.handleSlashCommandEvent(fetchEvent, () -> uuid0, Locale.ENGLISH).block();
 
@@ -169,22 +171,22 @@ class FetchCommandMockTest {
 
     @Test
     void fetchOldCustomParameterMessage() throws InterruptedException {
-        io.avaje.config.Config.setProperty("command.delayMessageDataDeletionMs", "1000");
+        io.avaje.config.Config.setProperty("db.delayMessageDataDeletionMs", "1000");
         io.avaje.config.Config.setProperty("command.fetch.delayMs", "50");
 
         CustomParameterConfig otherConfig = new CustomParameterConfig(null, "{numberOfDice:3<=>6}d{sides:6/8/10/12}", AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH, null, null);
         customParameterCommand.createMessageConfig(uuid1, fetchEvent.getGuildId(), fetchEvent.getChannelId(), fetchEvent.getUserId(), otherConfig)
                 .ifPresent(m -> persistenceManager.saveMessageConfig(m));
-        customParameterCommand.createEmptyMessageData(uuid1, fetchEvent.getGuildId(), fetchEvent.getChannelId(), -3L);
+        BaseCommandUtils.createCleanupAndSaveEmptyMessageData(uuid1, fetchEvent.getGuildId(), fetchEvent.getChannelId(), -3L, customDiceCommand.getCommandId(), persistenceManager);
         Thread.sleep(50);
 
         CustomParameterConfig config = new CustomParameterConfig(null, "{numberOfDice:1<=>10}d{sides:1/4/6/8/10/12/20/100}", AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH, null, null);
         customParameterCommand.createMessageConfig(uuid0, fetchEvent.getGuildId(), fetchEvent.getChannelId(), fetchEvent.getUserId(), config)
                 .ifPresent(m -> persistenceManager.saveMessageConfig(m));
-        customParameterCommand.createEmptyMessageData(uuid0, fetchEvent.getGuildId(), fetchEvent.getChannelId(), -2L);
+        BaseCommandUtils.createCleanupAndSaveEmptyMessageData(uuid0, fetchEvent.getGuildId(), fetchEvent.getChannelId(), -2L, customDiceCommand.getCommandId(), persistenceManager);
         MessageDeletionHelper.markAsDeleted(persistenceManager, fetchEvent.getChannelId(), -2).subscribe();
 
-        customParameterCommand.createEmptyMessageData(uuid0, fetchEvent.getGuildId(), fetchEvent.getChannelId(), -1L);
+        BaseCommandUtils.createCleanupAndSaveEmptyMessageData(uuid0, fetchEvent.getGuildId(), fetchEvent.getChannelId(), -1L, customDiceCommand.getCommandId(), persistenceManager);
 
         underTest.handleSlashCommandEvent(fetchEvent, () -> uuid0, Locale.ENGLISH).block();
 
