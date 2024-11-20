@@ -62,9 +62,9 @@ public class ClearCommand implements SlashCommand {
             return List.of();
         }
 
-        return persistenceManager.getNamedCommandsForChannel(userId, null).stream()
-                .filter(nc -> Strings.isNullOrEmpty(autoCompleteRequest.getFocusedOptionValue()) || nc.name().toLowerCase().contains(autoCompleteRequest.getFocusedOptionValue().toLowerCase()))
-                .map(n -> new AutoCompleteAnswer(n.name(), n.name()))
+        return persistenceManager.getNamedCommandsChannel(channelId).stream()
+                .filter(nc -> Strings.isNullOrEmpty(autoCompleteRequest.getFocusedOptionValue()) || nc.toLowerCase().contains(autoCompleteRequest.getFocusedOptionValue().toLowerCase()))
+                .map(n -> new AutoCompleteAnswer(n, n))
                 .distinct()
                 .sorted(Comparator.comparing(AutoCompleteAnswer::getName))
                 .limit(5)
@@ -77,7 +77,6 @@ public class ClearCommand implements SlashCommand {
 
         final String name = event.getOption(NAME_OPTION).map(CommandInteractionOption::getStringValue).orElse(null);
 
-
         return event.reply(I18n.getMessage("clear.reply", userLocal), false)
                 .then(Mono.just(persistenceManager.deleteMessageDataForChannel(event.getChannelId(), name))
                         .flux()
@@ -87,7 +86,9 @@ public class ClearCommand implements SlashCommand {
                         .doOnTerminate(() -> log.info("Finish delete"))
                         .then())
                 .doOnSuccess(v -> {
-                    persistenceManager.deleteAllChannelConfig(event.getChannelId());
+                    if (Strings.isNullOrEmpty(name)) {
+                        persistenceManager.deleteAllChannelConfig(event.getChannelId());
+                    }
                     persistenceManager.deleteAllMessageConfigForChannel(event.getChannelId(), name);
                 });
     }

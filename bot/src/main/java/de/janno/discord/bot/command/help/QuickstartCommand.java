@@ -2,6 +2,7 @@ package de.janno.discord.bot.command.help;
 
 import com.google.common.base.Stopwatch;
 import com.google.common.base.Strings;
+import de.janno.discord.bot.BaseCommandUtils;
 import de.janno.discord.bot.BotMetrics;
 import de.janno.discord.bot.I18n;
 import de.janno.discord.bot.command.Config;
@@ -58,7 +59,7 @@ public class QuickstartCommand implements SlashCommand {
             return List.of();
         }
 
-        final List<AutoCompleteAnswer> savedNamedAnswers = persistenceManager.getNamedCommandsForChannel(userId, guildId).stream()
+        final List<AutoCompleteAnswer> savedNamedAnswers = persistenceManager.getLastUsedNamedCommandsOfUserAndGuild(userId, guildId).stream()
                 .filter(nc -> Strings.isNullOrEmpty(autoCompleteRequest.getFocusedOptionValue()) || nc.name().toLowerCase().contains(autoCompleteRequest.getFocusedOptionValue().toLowerCase()))
                 .filter(nc -> SUPPORTED_COMMANDS.contains(nc.commandId()))
                 .map(n -> new AutoCompleteAnswer(n.name(), n.name()))
@@ -172,6 +173,7 @@ public class QuickstartCommand implements SlashCommand {
                 }
                 if (commandAndMessageDefinition.isPresent()) {
                     return Mono.defer(() -> event.sendMessage(commandAndMessageDefinition.get()))
+                            .doOnNext(messageId -> BaseCommandUtils.createCleanupAndSaveEmptyMessageData(newConfigUUID, guildId, channelId, messageId, getCommandId(), persistenceManager))
                             .doOnSuccess(v -> BotMetrics.timerNewButtonMessageMetricCounter(getCommandId(), stopwatch.elapsed()))
                             .then(event.reply(commandString, false))
                             .doOnSuccess(v ->

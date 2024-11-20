@@ -122,6 +122,7 @@ public abstract class SlashCommandImpl<C extends RollConfig> implements SlashCom
     /**
      * On the creation of a message an empty state need to be saved so we know the message exists and we can remove it later, even on concurrent actions
      */
+
     protected @NonNull MessageDataDTO createEmptyMessageData(@NonNull UUID configUUID,
                                                              @Nullable Long guildId,
                                                              long channelId,

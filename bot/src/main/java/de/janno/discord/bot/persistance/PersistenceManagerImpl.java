@@ -558,7 +558,7 @@ public class PersistenceManagerImpl implements PersistenceManager {
     }
 
     @Override
-    public List<SavedNamedConfigId> getNamedCommandsForChannel(long userId, Long guildId) {
+    public List<SavedNamedConfigId> getLastUsedNamedCommandsOfUserAndGuild(long userId, Long guildId) {
         Stopwatch stopwatch = Stopwatch.createStarted();
         try (Connection con = databaseConnector.getConnection()) {
             final String sql;
@@ -577,7 +577,8 @@ public class PersistenceManagerImpl implements PersistenceManager {
                                           AND MC.CREATION_DATE = Latest.LatestDate
                         where (MC.CREATION_USER_ID = ?
                             OR MC.GUILD_ID = ?)
-                          and MC.CONFIG_NAME is not null;
+                          and MC.CONFIG_NAME is not null
+                        order by MC.CONFIG_NAME;
                         """;
             } else {
                 sql = """
@@ -592,7 +593,8 @@ public class PersistenceManagerImpl implements PersistenceManager {
                                           and mc.CONFIG_NAME = Latest.CONFIG_NAME
                                           AND MC.CREATION_DATE = Latest.LatestDate
                         where MC.CREATION_USER_ID = ?
-                          and MC.CONFIG_NAME is not null;
+                          and MC.CONFIG_NAME is not null
+                        order by MC.CONFIG_NAME;
                         """;
             }
             try (PreparedStatement preparedStatement = con.prepareStatement(sql)) {
@@ -615,7 +617,35 @@ public class PersistenceManagerImpl implements PersistenceManager {
                             resultSet.getString("CONFIG_NAME")
                     ));
                 }
-                BotMetrics.databaseTimer("getNamedCommandsForChannel", stopwatch.elapsed());
+                BotMetrics.databaseTimer("getNamedCommandsOfUserAndGuild", stopwatch.elapsed());
+                return result;
+
+            }
+        } catch (Exception e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    @Override
+    public List<String> getNamedCommandsChannel(long channelId) {
+        Stopwatch stopwatch = Stopwatch.createStarted();
+        try (Connection con = databaseConnector.getConnection()) {
+            try (PreparedStatement preparedStatement = con.prepareStatement("""
+                    SELECT DISTINCT MC.CONFIG_NAME
+                    FROM MESSAGE_CONFIG MC
+                    where MC.CHANNEL_ID = ?
+                      and MC.CONFIG_NAME is not null
+                    order by MC.CONFIG_NAME;
+                    """)) {
+
+                preparedStatement.setLong(1, channelId);
+
+                ResultSet resultSet = preparedStatement.executeQuery();
+                List<String> result = new ArrayList<>();
+                while (resultSet.next()) {
+                    result.add(resultSet.getString("CONFIG_NAME"));
+                }
+                BotMetrics.databaseTimer("getNamedCommandsChannel", stopwatch.elapsed());
                 return result;
 
             }

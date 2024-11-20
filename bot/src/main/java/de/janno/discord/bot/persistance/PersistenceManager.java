@@ -53,5 +53,10 @@ public interface PersistenceManager {
 
     void deleteMessageConfig(UUID configUUID);
 
-    List<SavedNamedConfigId> getNamedCommandsForChannel(long userId, Long guildId);
+    /**
+     * If there are commands with the same name, the last used one will be returned
+     */
+    List<SavedNamedConfigId> getLastUsedNamedCommandsOfUserAndGuild(long userId, Long guildId);
+
+    List<String> getNamedCommandsChannel(long channelId);
 }

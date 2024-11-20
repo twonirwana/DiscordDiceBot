@@ -5,6 +5,8 @@ import au.com.origin.snapshots.junit5.SnapshotExtension;
 import com.google.common.collect.ImmutableSet;
 import de.janno.discord.bot.SlashEventAdaptorMock;
 import de.janno.discord.bot.persistance.*;
+import de.janno.discord.connector.api.AutoCompleteAnswer;
+import de.janno.discord.connector.api.AutoCompleteRequest;
 import de.janno.discord.connector.api.SlashEventAdaptor;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import org.junit.jupiter.api.AfterEach;
@@ -150,9 +152,34 @@ class ClearCommandTest {
         assertThat(persistenceManager.getMessageData(otherChannelId, otherMessageId)).isPresent();
         assertThat(persistenceManager.getMessageData(channelId, message2Id)).isPresent();
 
-        assertThat(persistenceManager.getChannelConfig(channelId, configClassId)).isEmpty();
+        assertThat(persistenceManager.getChannelConfig(channelId, configClassId)).isPresent();
         assertThat(persistenceManager.getChannelConfig(otherChannelId, configClassId)).isPresent();
 
+    }
+
+    @Test
+    void getAutoCompleteAnswer_empty() {
+        persistenceManager = new PersistenceManagerImpl("jdbc:h2:mem:" + UUID.randomUUID(), null, null);
+        underTest = new ClearCommand(persistenceManager);
+
+       List<AutoCompleteAnswer> res =  underTest.getAutoCompleteAnswer(new AutoCompleteRequest("name", "", List.of()), Locale.ENGLISH, 1L, 2L, 3L);
+
+       assertThat(res).isEmpty();
+    }
+
+    @Test
+    void getAutoCompleteAnswer_hit() {
+        persistenceManager = new PersistenceManagerImpl("jdbc:h2:mem:" + UUID.randomUUID(), null, null);
+        underTest = new ClearCommand(persistenceManager);
+        persistenceManager.saveMessageConfig(new MessageConfigDTO(UUID.randomUUID(), 2L, 1L, "testCommand", "testConfigClass", "configClass", "name1", 0L));
+        persistenceManager.saveMessageConfig(new MessageConfigDTO(UUID.randomUUID(), 2L, 1L, "testCommand", "testConfigClass", "configClass", "name1", 0L));
+        persistenceManager.saveMessageConfig(new MessageConfigDTO(UUID.randomUUID(), 2L, 1L, "testCommand", "testConfigClass", "configClass", "name2", 0L));
+        persistenceManager.saveMessageConfig(new MessageConfigDTO(UUID.randomUUID(), 2L, 2L, "testCommand", "testConfigClass", "configClass", "name3", 0L));
+        persistenceManager.saveMessageConfig(new MessageConfigDTO(UUID.randomUUID(), 1L, 3L, "testCommand", "testConfigClass", "configClass", "name4", null));
+
+        List<AutoCompleteAnswer> res =  underTest.getAutoCompleteAnswer(new AutoCompleteRequest("name", "", List.of()), Locale.ENGLISH, 1L, 2L, 3L);
+
+        assertThat(res.stream().map(AutoCompleteAnswer::getName)).containsExactly("name1", "name2");
     }
 
 }

@@ -3,6 +3,7 @@ package de.janno.discord.bot.command.starter;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
+import de.janno.discord.bot.BaseCommandUtils;
 import de.janno.discord.bot.BotEmojiUtil;
 import de.janno.discord.bot.BotMetrics;
 import de.janno.discord.bot.I18n;
@@ -21,7 +22,6 @@ import de.janno.discord.bot.command.sumCustomSet.SumCustomSetConfig;
 import de.janno.discord.bot.dice.DiceEvaluatorAdapter;
 import de.janno.discord.bot.persistance.Mapper;
 import de.janno.discord.bot.persistance.MessageConfigDTO;
-import de.janno.discord.bot.persistance.MessageDataDTO;
 import de.janno.discord.bot.persistance.PersistenceManager;
 import de.janno.discord.connector.api.*;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
@@ -325,7 +325,7 @@ public class StarterCommand implements SlashCommand, ComponentCommand {
     }
 
     private void createEmptyMessageData(@NonNull UUID configUUID, @Nullable Long guildId, long channelId, long messageId) {
-        persistenceManager.saveMessageData(new MessageDataDTO(configUUID, guildId, channelId, messageId, getCommandId(), Mapper.NO_PERSISTED_STATE, null));
+        BaseCommandUtils.createCleanupAndSaveEmptyMessageData(configUUID, guildId, channelId, messageId, getCommandId(), persistenceManager);
     }
 
     public WelcomeMessageCreator getWelcomeMessage() {
@@ -423,7 +423,7 @@ public class StarterCommand implements SlashCommand, ComponentCommand {
                 .filter(n -> !Strings.isNullOrEmpty(n))
                 .collect(Collectors.toSet());
 
-        final List<AutoCompleteAnswer> savedNamedAnswers = persistenceManager.getNamedCommandsForChannel(userId, guildId).stream()
+        final List<AutoCompleteAnswer> savedNamedAnswers = persistenceManager.getLastUsedNamedCommandsOfUserAndGuild(userId, guildId).stream()
                 .filter(nc -> Strings.isNullOrEmpty(autoCompleteRequest.getFocusedOptionValue()) || nc.name().toLowerCase().contains(autoCompleteRequest.getFocusedOptionValue().toLowerCase()))
                 .filter(nc -> SUPPORTED_COMMANDS.contains(nc.commandId()))
                 .map(n -> new AutoCompleteAnswer(n.name(), n.name()))

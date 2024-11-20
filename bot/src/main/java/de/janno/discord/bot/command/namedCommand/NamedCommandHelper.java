@@ -21,7 +21,7 @@ import java.util.*;
 public final class NamedCommandHelper {
 
     public static Optional<NamedConfig> getConfigForName(PersistenceManager persistenceManager, String name, Locale locale, @Nullable Long guildId, long userId) {
-        Optional<NamedConfig> savedNamedCommandConfig = persistenceManager.getNamedCommandsForChannel(userId, guildId).stream()
+        Optional<NamedConfig> savedNamedCommandConfig = persistenceManager.getLastUsedNamedCommandsOfUserAndGuild(userId, guildId).stream()
                 .filter(nc -> Objects.equals(nc.name(), name))
                 .flatMap(nc -> getConfigForNamedCommand(persistenceManager, nc.id()).map(snc -> new NamedConfig(snc.namedConfig().name(), snc.namedConfig().commandId(), snc.namedConfig().configClassId(), snc.namedConfig().config())).stream())
                 .findFirst();
