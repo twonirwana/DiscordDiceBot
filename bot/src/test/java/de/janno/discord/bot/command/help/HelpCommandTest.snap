@@ -17,11 +17,29 @@ de.janno.discord.bot.command.help.HelpCommandTest.getCommandDefinition=[
         "description": "Aide aux commandes et liens pour plus d'informations"
       }
     ],
-    "options": [ ]
+    "options": [ ],
+    "integrationTypes": [
+      "GUILD_INSTALL",
+      "USER_INSTALL"
+    ]
   }
 ]
 
 
 de.janno.discord.bot.command.help.HelpCommandTest.getId=[
   "help"
+]
+
+
+de.janno.discord.bot.command.help.HelpCommandTest.handleSlashCommandEvent=[
+  [
+    "replyWithEmbedOrMessageDefinition: EmbedOrMessageDefinition(title=null, descriptionOrContent=null, fields=[EmbedOrMessageDefinition.Field(name=Quickstart, value=Write `/welcome start` or `/quickstart system` to use pre-made RPG commands, inline=false), EmbedOrMessageDefinition.Field(name=Command help, value=Add `help` after a command to get specific help for it, e.g. `/custom_dice help`, inline=false), EmbedOrMessageDefinition.Field(name=Full documentation, value=https://github.com/twonirwana/DiscordDiceBot, inline=false), EmbedOrMessageDefinition.Field(name=Discord Server for News, Help and Feature Requests, value=https://discord.gg/e43BsqKpFr, inline=false)], componentRowDefinitions=[], hasImage=false, type=EMBED, userReference=false, sendToOtherChannelId=null)"
+  ]
+]
+
+
+de.janno.discord.bot.command.help.HelpCommandTest.handleSlashCommandEvent_userInstall=[
+  [
+    "replyWithEmbedOrMessageDefinition: EmbedOrMessageDefinition(title=null, descriptionOrContent=null, fields=[EmbedOrMessageDefinition.Field(name=Quickstart, value=Write `/r expression: d20` to roll a twenty sided die, inline=false), EmbedOrMessageDefinition.Field(name=Command help, value=Add `help` after a command to get specific help for it, e.g. `/r expression: help`, inline=false), EmbedOrMessageDefinition.Field(name=Full documentation, value=https://github.com/twonirwana/DiscordDiceBot, inline=false), EmbedOrMessageDefinition.Field(name=Discord Server for News, Help and Feature Requests, value=https://discord.gg/e43BsqKpFr, inline=false)], componentRowDefinitions=[], hasImage=false, type=EMBED, userReference=false, sendToOtherChannelId=null)"
+  ]
 ]

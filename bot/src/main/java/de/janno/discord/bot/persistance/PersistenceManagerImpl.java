@@ -566,12 +566,12 @@ public class PersistenceManagerImpl implements PersistenceManager {
                 sql = """
                         SELECT MC.CONFIG_ID, MC.COMMAND_ID, MC.CONFIG_NAME
                         FROM MESSAGE_CONFIG MC
-                                 JOIN (SELECT md.COMMAND_ID, md.CONFIG_NAME, MAX(CREATION_DATE) AS LatestDate
-                                       FROM MESSAGE_CONFIG md
-                                       where (md.CREATION_USER_ID = ?
-                                           OR md.GUILD_ID = ?)
-                                         and md.CONFIG_NAME is not null
-                                       GROUP BY md.COMMAND_ID, md.CONFIG_NAME) Latest
+                                 JOIN (SELECT MC2.COMMAND_ID, MC2.CONFIG_NAME, MAX(MC2.CREATION_DATE) AS LatestDate
+                                       FROM MESSAGE_CONFIG MC2
+                                       where (MC2.CREATION_USER_ID = ?
+                                           OR MC2.GUILD_ID = ?)
+                                         and MC2.CONFIG_NAME is not null
+                                       GROUP BY MC2.COMMAND_ID, MC2.CONFIG_NAME) Latest
                                       ON MC.COMMAND_ID = Latest.COMMAND_ID
                                           and mc.CONFIG_NAME = Latest.CONFIG_NAME
                                           AND MC.CREATION_DATE = Latest.LatestDate
@@ -584,11 +584,11 @@ public class PersistenceManagerImpl implements PersistenceManager {
                 sql = """
                         SELECT MC.CONFIG_ID, MC.COMMAND_ID, MC.CONFIG_NAME
                         FROM MESSAGE_CONFIG MC
-                                 JOIN (SELECT md.COMMAND_ID, md.CONFIG_NAME, MAX(CREATION_DATE) AS LatestDate
-                                       FROM MESSAGE_CONFIG md
-                                       where md.CREATION_USER_ID = ?
-                                         and md.CONFIG_NAME is not null
-                                       GROUP BY md.COMMAND_ID, md.CONFIG_NAME) Latest
+                                 JOIN (SELECT MC2.COMMAND_ID, MC2.CONFIG_NAME, MAX(MC2.CREATION_DATE) AS LatestDate
+                                       FROM MESSAGE_CONFIG MC2
+                                       where MC2.CREATION_USER_ID = ?
+                                         and MC2.CONFIG_NAME is not null
+                                       GROUP BY MC2.COMMAND_ID, MC2.CONFIG_NAME) Latest
                                       ON MC.COMMAND_ID = Latest.COMMAND_ID
                                           and mc.CONFIG_NAME = Latest.CONFIG_NAME
                                           AND MC.CREATION_DATE = Latest.LatestDate

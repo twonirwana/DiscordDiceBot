@@ -248,7 +248,7 @@ class PersistenceManagerImplTest {
     }
 
     @Test
-    void getLastUsedNamedCommandsOfUserAndGuild() {
+    void getLastUsedNamedCommandsOfUserAndGuild() throws InterruptedException {
         UUID config1 = UUID.randomUUID();
         UUID config2 = UUID.randomUUID();
         UUID config3 = UUID.randomUUID();
@@ -256,27 +256,27 @@ class PersistenceManagerImplTest {
         UUID config5 = UUID.randomUUID();
         UUID config6 = UUID.randomUUID();
         UUID config7 = UUID.randomUUID();
-        underTest.saveMessageData(new MessageDataDTO(config1, 1L, 2L, 4L, "testCommand", "testStateClass", "stateData"));
-        underTest.saveMessageData(new MessageDataDTO(config2, 1L, 2L, 5L, "testCommand", "testStateClass", "stateData"));
-        underTest.saveMessageData(new MessageDataDTO(config3, 1L, 3L, 6L, "testCommand", "testStateClass", "stateData"));
-        underTest.saveMessageData(new MessageDataDTO(config4, 1L, 2L, 7L, "testCommand", "testStateClass", "stateData"));
-        underTest.saveMessageData(new MessageDataDTO(config5, 1L, 2L, 8L, "testCommand", "testStateClass", "stateData"));
-        underTest.saveMessageData(new MessageDataDTO(config6, 3L, 2L, 9L, "testCommand", "testStateClass", "stateData"));
-        underTest.saveMessageData(new MessageDataDTO(config7, 3L, 2L, 10L, "testCommand", "testStateClass", "stateData"));
 
         underTest.saveMessageConfig(new MessageConfigDTO(config1, 1L, 2L, "testCommand", "testConfigClass", "configClass", "name1", 0L));
+        Thread.sleep(10);
         underTest.saveMessageConfig(new MessageConfigDTO(config2, 1L, 2L, "testCommand", "testConfigClass", "configClass", "name2", 0L));
+        Thread.sleep(10);
         underTest.saveMessageConfig(new MessageConfigDTO(config3, 1L, 3L, "testCommand", "testConfigClass", "configClass", "name1", 0L));
+        Thread.sleep(10);
         underTest.saveMessageConfig(new MessageConfigDTO(config4, 1L, 2L, "testCommand", "testConfigClass", "configClass", "name1", 0L));
+        Thread.sleep(10);
         underTest.saveMessageConfig(new MessageConfigDTO(config5, 1L, 2L, "testCommand", "testConfigClass", "configClass", null, 0L));
+        Thread.sleep(10);
         underTest.saveMessageConfig(new MessageConfigDTO(config6, 3L, 2L, "testCommand", "testConfigClass", "configClass", null, 0L));
+        Thread.sleep(10);
         underTest.saveMessageConfig(new MessageConfigDTO(config7, 3L, 3L, "testCommand", "testConfigClass", "configClass", "name3", 0L));
+        Thread.sleep(10);
 
 
         List<SavedNamedConfigId> res = underTest.getLastUsedNamedCommandsOfUserAndGuild(0L, 1L);
 
-        assertThat(res.stream().map(SavedNamedConfigId::name)).containsExactly("name1", "name2", "name3");
         assertThat(res.stream().map(SavedNamedConfigId::id)).containsExactly(config4, config2, config7);
+        assertThat(res.stream().map(SavedNamedConfigId::name)).containsExactly("name1", "name2", "name3");
 
     }
 

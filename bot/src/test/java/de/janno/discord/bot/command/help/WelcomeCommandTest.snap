@@ -1,0 +1,178 @@
+
+de.janno.discord.bot.command.help.WelcomeCommandTest.getCommandDefinition=[
+  {
+    "name": "welcome",
+    "description": "Displays the welcome message",
+    "nameLocales": [ ],
+    "descriptionLocales": [
+      {
+        "locale": "de",
+        "description": "Erzeuge eine Wegkommensnachricht"
+      },
+      {
+        "locale": "pt_BR",
+        "description": "Exibe a mensagem de boas vindas"
+      },
+      {
+        "locale": "fr",
+        "description": "Affiche le message de bienvenue"
+      }
+    ],
+    "options": [
+      {
+        "type": "SUB_COMMAND",
+        "name": "start",
+        "nameLocales": [ ],
+        "description": "Displays the welcome message",
+        "descriptionLocales": [
+          {
+            "locale": "de",
+            "description": "Erzeuge eine Wegkommensnachricht"
+          },
+          {
+            "locale": "pt_BR",
+            "description": "Exibe a mensagem de boas vindas"
+          },
+          {
+            "locale": "fr",
+            "description": "Affiche le message de bienvenue"
+          }
+        ],
+        "required": false,
+        "choices": [ ],
+        "options": [
+          {
+            "type": "STRING",
+            "name": "language",
+            "nameLocales": [ ],
+            "description": "The language of the bot messages",
+            "descriptionLocales": [
+              {
+                "locale": "de",
+                "description": "Die Sprach des Bots"
+              },
+              {
+                "locale": "pt_BR",
+                "description": "O idioma da mensagem do bot"
+              },
+              {
+                "locale": "fr",
+                "description": "La langue des messages du robot"
+              }
+            ],
+            "required": false,
+            "choices": [
+              {
+                "name": "English",
+                "value": "en",
+                "nameLocales": [
+                  {
+                    "locale": "de",
+                    "choice": "Englisch"
+                  },
+                  {
+                    "locale": "pt_BR",
+                    "choice": "Inglês"
+                  },
+                  {
+                    "locale": "fr",
+                    "choice": "Anglais"
+                  }
+                ]
+              },
+              {
+                "name": "German",
+                "value": "de",
+                "nameLocales": [
+                  {
+                    "locale": "de",
+                    "choice": "Deutsch"
+                  },
+                  {
+                    "locale": "pt_BR",
+                    "choice": "Alemão"
+                  },
+                  {
+                    "locale": "fr",
+                    "choice": "Allemand"
+                  }
+                ]
+              },
+              {
+                "name": "Portuguese (Brazil)",
+                "value": "pt_BR",
+                "nameLocales": [
+                  {
+                    "locale": "de",
+                    "choice": "Brasilianisches Portugiesisch"
+                  },
+                  {
+                    "locale": "pt_BR",
+                    "choice": "Português Brasileiro"
+                  },
+                  {
+                    "locale": "fr",
+                    "choice": "Portugais du Brésil"
+                  }
+                ]
+              },
+              {
+                "name": "French",
+                "value": "fr",
+                "nameLocales": [
+                  {
+                    "locale": "de",
+                    "choice": "Französisch"
+                  },
+                  {
+                    "locale": "pt_BR",
+                    "choice": "Francês"
+                  },
+                  {
+                    "locale": "fr",
+                    "choice": "Français"
+                  }
+                ]
+              }
+            ],
+            "options": [ ],
+            "autoComplete": false
+          }
+        ],
+        "autoComplete": false
+      },
+      {
+        "type": "SUB_COMMAND",
+        "name": "help",
+        "nameLocales": [ ],
+        "description": "Get help for `/welcome`",
+        "descriptionLocales": [
+          {
+            "locale": "de",
+            "description": "Hilfe für `/welcome`"
+          },
+          {
+            "locale": "pt_BR",
+            "description": "Consiga ajuda para `/welcome`"
+          },
+          {
+            "locale": "fr",
+            "description": "Obtenir de l'aide pour `/welcome`"
+          }
+        ],
+        "required": false,
+        "choices": [ ],
+        "options": [ ],
+        "autoComplete": false
+      }
+    ],
+    "integrationTypes": [
+      "GUILD_INSTALL"
+    ]
+  }
+]
+
+
+de.janno.discord.bot.command.help.WelcomeCommandTest.getId=[
+  "welcome"
+]

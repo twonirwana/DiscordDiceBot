@@ -42,6 +42,9 @@ de.janno.discord.bot.command.ClearCommandTest.getCommandDefinition=[
         "options": [ ],
         "autoComplete": true
       }
+    ],
+    "integrationTypes": [
+      "GUILD_INSTALL"
     ]
   }
 ]
