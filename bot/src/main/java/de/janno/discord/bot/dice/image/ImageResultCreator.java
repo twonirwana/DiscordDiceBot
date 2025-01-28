@@ -67,6 +67,19 @@ public class ImageResultCreator {
     public ImageResultCreator(int maxRollCombinationToCache) {
         createCacheIndexFileIfMissing();
         MAX_ROLL_COMBINATION_TO_CACHE = BigInteger.valueOf(maxRollCombinationToCache);
+        Arrays.stream(DiceImageStyle.values())
+                .flatMap(s -> s.getSupportedColors().stream()
+                        .map(c -> DiceImageStyle.combineStyleAndColorName(s, c)))
+                .forEach(ri -> {
+                    createFolderIfMissing(ri);
+                    Gauge.builder("diceImage.cache", () -> {
+                        try (Stream<Path> files = Files.list(Paths.get("%s/%s/".formatted(CACHE_FOLDER, ri)))) {
+                            return files.count();
+                        } catch (IOException e) {
+                            return -1;
+                        }
+                    }).tag("type", ri).register(globalRegistry);
+                });
     }
 
     private void createFolderIfMissing(String folderName) {
@@ -85,16 +98,7 @@ public class ImageResultCreator {
         Arrays.stream(DiceImageStyle.values())
                 .flatMap(s -> s.getSupportedColors().stream()
                         .map(c -> DiceImageStyle.combineStyleAndColorName(s, c)))
-                .forEach(ri -> {
-                    createFolderIfMissing(ri);
-                    Gauge.builder("diceImage.cache", () -> {
-                        try (Stream<Path> files = Files.list(Paths.get("%s/%s/".formatted(CACHE_FOLDER, ri)))) {
-                            return files.count();
-                        } catch (IOException e) {
-                            return -1;
-                        }
-                    }).tag("type", ri).register(globalRegistry);
-                });
+                .forEach(this::createFolderIfMissing);
     }
 
     @VisibleForTesting
