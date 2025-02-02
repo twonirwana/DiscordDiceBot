@@ -22,6 +22,7 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.session.ReadyEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.interactions.Interaction;
 import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder;
@@ -42,6 +43,8 @@ import java.util.function.Supplier;
 
 @Slf4j
 public class JdaClient {
+
+    private final static String WITHOUT_GUILD = "without_guild";
 
     public JdaClient(@NonNull List<SlashCommand> slashCommands,
                      @NonNull List<ComponentCommand> componentCommands,
@@ -137,7 +140,7 @@ public class JdaClient {
 
                                 Requester requester = new Requester(event.getInteraction().getUser().getName(),
                                         event.getChannel().getName(),
-                                        Optional.ofNullable(event.getInteraction().getGuild()).map(Guild::getName).orElse(""),
+                                        getGuildName(event.getInteraction()),
                                         event.getJDA().getShardInfo().getShardString(),
                                         userLocale,
                                         null);
@@ -185,9 +188,14 @@ public class JdaClient {
 
                                 Locale userLocale = LocaleConverter.toLocale(event.getInteraction().getUserLocale());
 
+                                //no central slash handler, therefore we set the metric here
+                                if (event.isFromGuild() && !event.isFromAttachedGuild()) { //has guild but it is not attached
+                                    JdaMetrics.userInstallSlashCommand();
+                                }
+
                                 Requester requester = new Requester(event.getInteraction().getUser().getName(),
                                         event.getChannel().getName(),
-                                        Optional.ofNullable(event.getInteraction().getGuild()).map(Guild::getName).orElse(""),
+                                        getGuildName(event.getInteraction()),
                                         event.getJDA().getShardInfo().getShardString(),
                                         userLocale,
                                         null);
@@ -223,7 +231,7 @@ public class JdaClient {
 
                                 Requester requester = new Requester(event.getInteraction().getUser().getName(),
                                         event.getChannel().getName(),
-                                        Optional.ofNullable(event.getInteraction().getGuild()).map(Guild::getName).orElse(""),
+                                        getGuildName(event.getInteraction()),
                                         event.getJDA().getShardInfo().getShardString(),
                                         userLocale,
                                         BottomCustomIdUtils.getConfigUUIDFromCustomId(event.getInteraction().getComponentId()).orElse(null));
@@ -288,6 +296,13 @@ public class JdaClient {
         return Optional.of(channel)
                 .flatMap(g -> Optional.of(g.getGuild()).map(Guild::getSelfMember).map(m -> m.hasPermission(g, permission)))
                 .orElse(false);
+    }
+
+    private static String getGuildName(Interaction interaction) {
+        if (!interaction.isFromAttachedGuild()) {
+            return WITHOUT_GUILD;
+        }
+        return Optional.ofNullable(interaction.getGuild()).map(Guild::getName).orElse(WITHOUT_GUILD);
     }
 
     private static void shutdown(JDA jda) {

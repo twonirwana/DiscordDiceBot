@@ -441,6 +441,9 @@ de.janno.discord.bot.command.customParameter.CustomParameterCommandTest.getComma
         "options": [ ],
         "autoComplete": false
       }
+    ],
+    "integrationTypes": [
+      "GUILD_INSTALL"
     ]
   }
 ]

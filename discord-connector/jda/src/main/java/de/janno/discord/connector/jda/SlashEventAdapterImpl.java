@@ -40,6 +40,7 @@ public class SlashEventAdapterImpl extends DiscordAdapterImpl implements SlashEv
     @NonNull
     private final String invokingGuildMemberName;
 
+
     public SlashEventAdapterImpl(@NonNull SlashCommandInteractionEvent event, @NonNull Requester requester) {
         this.event = event;
         this.requester = requester;
@@ -47,7 +48,6 @@ public class SlashEventAdapterImpl extends DiscordAdapterImpl implements SlashEv
         this.commandString = String.format("`%s`", event.getCommandString());
         this.guildId = Optional.ofNullable(event.getGuild()).map(Guild::getIdLong).orElse(null);
         this.invokingGuildMemberName = Optional.ofNullable(event.getMember()).map(Member::getEffectiveName).orElse(event.getUser().getName());
-
     }
 
     @Nullable
@@ -58,7 +58,8 @@ public class SlashEventAdapterImpl extends DiscordAdapterImpl implements SlashEv
 
     @Override
     public Optional<String> checkPermissions(@NonNull Locale userLocale) {
-        return checkPermission(event.getMessageChannel(), event.getGuild(), false, userLocale);
+        Guild guild = event.isFromAttachedGuild() ? event.getGuild() : null;
+        return checkPermission(event.getMessageChannel(), guild, false, userLocale);
     }
 
     @Override
@@ -140,6 +141,11 @@ public class SlashEventAdapterImpl extends DiscordAdapterImpl implements SlashEv
     @Override
     public long getUserId() {
         return event.getUser().getIdLong();
+    }
+
+    @Override
+    public boolean isUserInstallInteraction() {
+        return event.isFromGuild() && !event.isFromAttachedGuild(); //has guild but it is not attached
     }
 
     @Override

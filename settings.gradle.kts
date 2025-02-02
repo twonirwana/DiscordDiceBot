@@ -4,8 +4,10 @@ include("discord-connector:api")
 include("discord-connector:jda")
 include("bot")
 
-
 dependencyResolutionManagement {
+    repositories {
+        mavenCentral()
+    }
     versionCatalogs {
         create("libs") {
             library("lombok", "org.projectlombok:lombok:1.18.36")

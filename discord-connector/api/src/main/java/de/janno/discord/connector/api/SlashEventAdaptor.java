@@ -27,4 +27,6 @@ public interface SlashEventAdaptor extends DiscordAdapter {
     boolean isValidAnswerChannel(long channelId);
 
     long getUserId();
+
+    boolean isUserInstallInteraction();
 }

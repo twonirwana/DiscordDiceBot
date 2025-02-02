@@ -8,6 +8,7 @@ import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import lombok.Getter;
 import lombok.NonNull;
+import lombok.Setter;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.ParallelFlux;
@@ -26,6 +27,9 @@ public class SlashEventAdaptorMock implements SlashEventAdaptor {
     private final List<EmbedOrMessageDefinition> allReplays = new ArrayList<>();
     private final long userId;
     private final Locale userLocale;
+    @Getter
+    @Setter
+    private boolean userInstallInteraction = false;
 
     @Getter
     private Optional<ButtonEventAdaptorMock> firstButtonEventMockOfLastButtonMessage = Optional.empty();

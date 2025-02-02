@@ -716,6 +716,10 @@ de.janno.discord.bot.command.channelConfig.ChannelConfigTest.getCommandDefinitio
         ],
         "autoComplete": false
       }
+    ],
+    "integrationTypes": [
+      "GUILD_INSTALL",
+      "USER_INSTALL"
     ]
   }
 ]

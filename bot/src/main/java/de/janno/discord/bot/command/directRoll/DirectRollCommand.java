@@ -24,6 +24,7 @@ import de.janno.discord.connector.api.SlashEventAdaptor;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinitionOption;
+import de.janno.discord.connector.api.slash.CommandIntegrationType;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -82,6 +83,7 @@ public class DirectRollCommand implements SlashCommand {
                 .nameLocales(I18n.allNoneEnglishMessagesNames("r.name"))
                 .description(I18n.getMessage("r.description", Locale.ENGLISH))
                 .descriptionLocales(I18n.allNoneEnglishMessagesDescriptions("r.description"))
+                .integrationTypes(CommandIntegrationType.ALL)
                 .option(CommandDefinitionOption.builder()
                         .name(expressionOptionName)
                         .nameLocales(I18n.allNoneEnglishMessagesNames("r.expression.name"))
