@@ -5,11 +5,9 @@ plugins {
 dependencies {
     implementation(project(":discord-connector:api"))
 
-    //todo update on jda release of user install
-  /*  implementation("net.dv8tion:JDA:5.2.3") {
+    implementation("net.dv8tion:JDA:5.3.0") {
         exclude(module = "opus-java")
-    }*/
-    implementation("com.github.freya022:JDA:4b031a7283")
+    }
     implementation(libs.reactor.core)
     implementation(libs.logback.classic)
     implementation(libs.log4j.to.slf4j)
