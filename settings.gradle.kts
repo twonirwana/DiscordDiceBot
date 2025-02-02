@@ -5,13 +5,8 @@ include("discord-connector:jda")
 include("bot")
 
 dependencyResolutionManagement {
-    //todo only mavenCentral() when user install is in the jda release
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
         mavenCentral()
-        maven {
-            setUrl("https://jitpack.io")
-        }
     }
     versionCatalogs {
         create("libs") {
