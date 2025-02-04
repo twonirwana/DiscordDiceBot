@@ -11,7 +11,7 @@ public class BotEmojiUtil {
     private static final Pattern START_WITH_EMOJI_PATTERN = Pattern.compile("^<a?:([a-zA-Z0-9_]+):([0-9]+)>");
 
     private static String getLeadingUnicodeEmoji(String in) {
-        if (EmojiManager.containsEmoji(in)
+        if (EmojiManager.containsAnyEmoji(in)
                 && in.startsWith(EmojiManager.extractEmojisInOrder(in).getFirst().getEmoji())) {
             return EmojiManager.extractEmojisInOrder(in).getFirst().getEmoji();
         }
