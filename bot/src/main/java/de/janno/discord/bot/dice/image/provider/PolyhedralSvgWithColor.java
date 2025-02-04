@@ -171,7 +171,7 @@ public class PolyhedralSvgWithColor implements ImageProvider {
 
         if (isExactlyOneEmoji(diceValue) ||
                 //one or two non emoji characters
-                (!EmojiManager.containsEmoji(diceValue)
+                (!EmojiManager.containsAnyEmoji(diceValue)
                         && diceValue.length() <= 2
                         && !diceValue.isEmpty())) {
             final String validatedColor;
