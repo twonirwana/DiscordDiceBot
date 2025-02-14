@@ -23,7 +23,7 @@ dependencyResolutionManagement {
             library("commons-text", "org.apache.commons:commons-text:1.13.0")
             library("avaje-config", "io.avaje:avaje-config:4.0")
             library("avaje-slf4j", "io.avaje:avaje-applog-slf4j:1.0")
-            library("emoji", "net.fellbaum:jemoji:1.7.0")
+            library("emoji", "net.fellbaum:jemoji:1.7.1")
         }
     }
 }
