@@ -17,7 +17,7 @@ dependencyResolutionManagement {
             library("junit-jupiter-api", "org.junit.jupiter:junit-jupiter-api:5.11.4")
             library("junit-jupiter-engine", "org.junit.jupiter:junit-jupiter-engine:5.11.4")
             library("assertj-core", "org.assertj:assertj-core:3.27.3")
-            library("logback-classic", "ch.qos.logback:logback-classic:1.5.16")
+            library("logback-classic", "ch.qos.logback:logback-classic:1.5.17")
             library("log4j-to-slf4j", "org.apache.logging.log4j:log4j-to-slf4j:2.24.3")
             library("commons-lang3", "org.apache.commons:commons-lang3:3.17.0")
             library("commons-text", "org.apache.commons:commons-text:1.13.0")
