@@ -74,7 +74,7 @@ public class DatabaseInitiator {
                 while (entries.hasMoreElements()) {
                     ZipEntry entry = entries.nextElement();
                     String backup = IOUtils.toString(zipFile.getInputStream(entry), StandardCharsets.UTF_8);
-                    log.info("Finished loading backup script");
+                    log.info("Finished loading backup script: " + entry.getName());
                     try (Connection connection = databaseConnector.getConnection()) {
                         Statement statement = connection.createStatement();
                         statement.execute(backup);
