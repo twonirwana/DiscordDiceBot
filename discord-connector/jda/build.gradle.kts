@@ -22,8 +22,8 @@ dependencies {
     annotationProcessor(libs.lombok)
     testImplementation(libs.assertj.core)
 
-    testImplementation(libs.junit.jupiter.api)
-    testRuntimeOnly(libs.junit.jupiter.engine)
+    testImplementation("org.junit.jupiter:junit-jupiter:5.12.0")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
 java {
