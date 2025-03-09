@@ -1,5 +1,6 @@
 package de.janno.discord.bot.persistance;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.ImmutableList;
@@ -40,6 +41,7 @@ public class DatabaseInitiator {
             .add("6_configGuildNull.sql")
             .add("7_configName.sql")
             .add("8_messageData_delete.sql")
+            .add("9_messageConfig_deleteIndex.sql")
             .build();
     private final static String BACKUP_FILE_NAME = "backup.zip";
     private static final DateTimeFormatter DATE_TIME_FORMATTER = new DateTimeFormatterBuilder()
@@ -64,14 +66,15 @@ public class DatabaseInitiator {
     }
 
     private static void applyBackupFile(DatabaseConnector databaseConnector) {
-        if (Files.exists(Path.of(BACKUP_FILE_NAME))) {
+        final Path path = Path.of(BACKUP_FILE_NAME);
+        if (Files.exists(path)) {
             log.info("Start importing backup");
             try (ZipFile zipFile = new ZipFile(BACKUP_FILE_NAME)) {
                 Enumeration<? extends ZipEntry> entries = zipFile.entries();
                 while (entries.hasMoreElements()) {
                     ZipEntry entry = entries.nextElement();
                     String backup = IOUtils.toString(zipFile.getInputStream(entry), StandardCharsets.UTF_8);
-                    log.info("Finished loading backup script");
+                    log.info("Finished loading backup script: " + entry.getName());
                     try (Connection connection = databaseConnector.getConnection()) {
                         Statement statement = connection.createStatement();
                         statement.execute(backup);
@@ -84,7 +87,7 @@ public class DatabaseInitiator {
             }
             try {
                 String backupMoveName = "applied_backup_" + LocalDateTime.now().format(DATE_TIME_FORMATTER) + ".zip";
-                Files.move(Path.of(BACKUP_FILE_NAME), Path.of(backupMoveName));
+                Files.move(path, Path.of(backupMoveName));
                 log.info("Finished importing backup and moved to {}", backupMoveName);
             } catch (IOException e) {
                 throw new RuntimeException(e);
@@ -109,9 +112,16 @@ public class DatabaseInitiator {
                         Statement statement = connection.createStatement();
                         statement.execute(m.getSql());
                         try (PreparedStatement preparedStatement =
-                                     connection.prepareStatement("INSERT INTO DB_VERSION(MIGRATION_NAME, CREATION_DATE) VALUES (?, ?)")) {
+                                     connection.prepareStatement("""
+                                             INSERT INTO DB_VERSION(MIGRATION_NAME, CREATION_DATE) SELECT ?, ? WHERE NOT EXISTS (
+                                                 SELECT 1
+                                                 FROM DB_VERSION
+                                                 WHERE MIGRATION_NAME = ?
+                                             );
+                                             """)) {
                             preparedStatement.setString(1, m.getName());
                             preparedStatement.setTimestamp(2, Timestamp.valueOf(LocalDateTime.now()));
+                            preparedStatement.setString(3, m.getName());
                             preparedStatement.execute();
                         }
                     } catch (SQLException e) {
@@ -122,7 +132,8 @@ public class DatabaseInitiator {
                 });
     }
 
-    private static List<String> getAlreadyAppliedMigrations(DatabaseConnector databaseConnector) {
+    @VisibleForTesting
+    static List<String> getAlreadyAppliedMigrations(DatabaseConnector databaseConnector) {
         try (Connection connection = databaseConnector.getConnection()) {
             Statement statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery("select MIGRATION_NAME from DB_VERSION");
