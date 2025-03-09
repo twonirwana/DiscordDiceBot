@@ -100,6 +100,7 @@ public class AliasHelper {
         if (userId == null) {
             userChannelAlias = List.of();
         } else {
+            //todo combine request with getChannelAlias to a single db request
             userChannelAlias = getUserChannelAlias(channelId, userId, persistenceManager);
         }
         return applyAliaseToExpression(channelAlias, userChannelAlias, expressionWithOptionalLabel);
