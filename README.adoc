@@ -120,7 +120,7 @@ See <<_channel_config>> for channel config
 |`Shadowrun - Alias` |  roll with `sr` e.g `8sr`
 |`Savage Worlds - Alias` | roll exploding dice with `r` e.g. `r10` for an exploding d10 and `sw` for a roll with wildcard dice e.g. `sw8`
 |`Blades in the Dark - Alias` | roll with `b` e.g. `4b` for 4 dice
-|`Otherscape - Alias` | roll with `o` + power e.g. `o+1` for power 1. User
+|`Otherscape - Alias` | roll with `o` + power e.g. `o+1` for roll with power 1. 
 |===
 
 == Options
