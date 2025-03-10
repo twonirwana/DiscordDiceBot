@@ -232,6 +232,10 @@ public class RpgSystemCommandPreset {
             case SHADOWDARK -> new SumCustomSetConfig(null,
                     ButtonHelper.parseString(I18n.getMessage("rpg.system.command.preset.SHADOWDARK.expression", userLocale)),
                     true, false, false, null, null, AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_3d, DiceImageStyle.polyhedral_3d.getDefaultColor()), userLocale, null, I18n.getMessage("rpg.system.command.preset.SHADOWDARK.name", userLocale));
+            case OTHERSCAPE ->
+                    new CustomParameterConfig(null, I18n.getMessage("rpg.system.command.preset.OTHERSCAPE.expression", userLocale), AnswerFormatType.without_expression, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_RdD, DiceImageStyle.polyhedral_RdD.getDefaultColor()), userLocale, null, I18n.getMessage("rpg.system.command.preset.OTHERSCAPE.name", userLocale));
+            case OTHERSCAPE_ALIAS ->
+                    new AliasConfig(ChannelConfigCommand.parseStringToMultiAliasList(I18n.getMessage("rpg.system.command.preset.OTHERSCAPE_ALIAS.expression", userLocale)), I18n.getMessage("rpg.system.command.preset.OTHERSCAPE_ALIAS.name", userLocale));
         };
     }
 
@@ -351,7 +355,9 @@ public class RpgSystemCommandPreset {
         CYBERPUNK_RED_ALIAS(ChannelConfigCommand.COMMAND_NAME, AliasHelper.CHANNEL_ALIAS_CONFIG_TYPE_ID),
         WARHAMMER_AOS(CustomParameterCommand.COMMAND_NAME, CustomParameterCommand.CONFIG_TYPE_ID),
         SHADOWDARK(SumCustomSetCommand.COMMAND_NAME, SumCustomSetCommand.CONFIG_TYPE_ID),
-        GHOSTBUSTERS(CustomParameterCommand.COMMAND_NAME, CustomParameterCommand.CONFIG_TYPE_ID);
+        GHOSTBUSTERS(CustomParameterCommand.COMMAND_NAME, CustomParameterCommand.CONFIG_TYPE_ID),
+        OTHERSCAPE(CustomParameterCommand.COMMAND_NAME, CustomParameterCommand.CONFIG_TYPE_ID),
+        OTHERSCAPE_ALIAS(ChannelConfigCommand.COMMAND_NAME, AliasHelper.CHANNEL_ALIAS_CONFIG_TYPE_ID);
 
         private final String commandId;
         private final String configClassType;

@@ -75,11 +75,14 @@ public final class NamedCommandHelper {
         Optional<MessageConfigDTO> optionalMessageConfigDTO = persistenceManager.getMessageConfig(configUUID);
         if (optionalMessageConfigDTO.isPresent() && optionalMessageConfigDTO.get().getName() != null) {
             MessageConfigDTO messageConfigDTO = optionalMessageConfigDTO.get();
-            if (CustomDiceCommand.COMMAND_NAME.equals(messageConfigDTO.getCommandId())) {
+            if (CustomDiceCommand.COMMAND_NAME.equals(messageConfigDTO.getCommandId())
+                    && CustomDiceCommand.CONFIG_TYPE_ID.equals(messageConfigDTO.getConfigClassId())) {
                 return Optional.of(new SavedNamedConfig(configUUID, new NamedConfig(messageConfigDTO.getName(), messageConfigDTO.getCommandId(), messageConfigDTO.getConfigClassId(), CustomDiceCommand.deserializeConfig(messageConfigDTO))));
-            } else if (CustomParameterCommand.COMMAND_NAME.equals(messageConfigDTO.getCommandId())) {
+            } else if (CustomParameterCommand.COMMAND_NAME.equals(messageConfigDTO.getCommandId())
+                    && CustomParameterCommand.CONFIG_TYPE_ID.equals(messageConfigDTO.getConfigClassId())) {
                 return Optional.of(new SavedNamedConfig(configUUID, new NamedConfig(messageConfigDTO.getName(), messageConfigDTO.getCommandId(), messageConfigDTO.getConfigClassId(), CustomParameterCommand.deserializeConfig(messageConfigDTO))));
-            } else if (SumCustomSetCommand.COMMAND_NAME.equals(messageConfigDTO.getCommandId())) {
+            } else if (SumCustomSetCommand.COMMAND_NAME.equals(messageConfigDTO.getCommandId())
+                    && SumCustomSetCommand.CONFIG_TYPE_ID.equals(messageConfigDTO.getConfigClassId())) {
                 return Optional.of(new SavedNamedConfig(configUUID, new NamedConfig(messageConfigDTO.getName(), messageConfigDTO.getCommandId(), messageConfigDTO.getConfigClassId(), SumCustomSetCommand.deserializeConfig(messageConfigDTO))));
             }
         }
