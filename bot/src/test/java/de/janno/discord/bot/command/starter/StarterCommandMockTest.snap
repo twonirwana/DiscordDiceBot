@@ -3306,6 +3306,106 @@ de.janno.discord.bot.command.starter.StarterCommandMockTest.createPreset[OSR_eve
 ]
 
 
+de.janno.discord.bot.command.starter.StarterCommandMockTest.createPreset[OTHERSCAPE_event1_de]=[
+  [
+    "reply: commandString",
+    "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=custom name, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Otherscape, id=starter\u001E00000000-0000-0000-0001-000000000001\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
+  ]
+]
+
+
+de.janno.discord.bot.command.starter.StarterCommandMockTest.createPreset[OTHERSCAPE_event1_en]=[
+  [
+    "reply: commandString",
+    "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=custom name, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Otherscape, id=starter\u001E00000000-0000-0000-0001-000000000001\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
+  ]
+]
+
+
+de.janno.discord.bot.command.starter.StarterCommandMockTest.createPreset[OTHERSCAPE_event1_fr]=[
+  [
+    "reply: commandString",
+    "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=custom name, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Otherscape, id=starter\u001E00000000-0000-0000-0001-000000000001\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
+  ]
+]
+
+
+de.janno.discord.bot.command.starter.StarterCommandMockTest.createPreset[OTHERSCAPE_event1_pt_BR]=[
+  [
+    "reply: commandString",
+    "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=custom name, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Otherscape, id=starter\u001E00000000-0000-0000-0001-000000000001\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
+  ]
+]
+
+
+de.janno.discord.bot.command.starter.StarterCommandMockTest.createPreset[OTHERSCAPE_event2_de]=[
+  [
+    "editMessage: message:Bitte wähle den Wert für **Power**, buttons=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=-3, id=custom_parameter\u001Eid1\u001E00000000-0000-0000-0001-000000000001, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=-2, id=custom_parameter\u001Eid2\u001E00000000-0000-0000-0001-000000000001, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=-1, id=custom_parameter\u001Eid3\u001E00000000-0000-0000-0001-000000000001, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=0, id=custom_parameter\u001Eid4\u001E00000000-0000-0000-0001-000000000001, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=1, id=custom_parameter\u001Eid5\u001E00000000-0000-0000-0001-000000000001, style=PRIMARY, disabled=false, emoji=null)]), ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=2, id=custom_parameter\u001Eid6\u001E00000000-0000-0000-0001-000000000001, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=3, id=custom_parameter\u001Eid7\u001E00000000-0000-0000-0001-000000000001, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=4, id=custom_parameter\u001Eid8\u001E00000000-0000-0000-0001-000000000001, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=5, id=custom_parameter\u001Eid9\u001E00000000-0000-0000-0001-000000000001, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=6, id=custom_parameter\u001Eid10\u001E00000000-0000-0000-0001-000000000001, style=PRIMARY, disabled=false, emoji=null)])]"
+  ]
+]
+
+
+de.janno.discord.bot.command.starter.StarterCommandMockTest.createPreset[OTHERSCAPE_event2_en]=[
+  [
+    "editMessage: message:Please select value for **Power**, buttons=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=-3, id=custom_parameter\u001Eid1\u001E00000000-0000-0000-0001-000000000001, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=-2, id=custom_parameter\u001Eid2\u001E00000000-0000-0000-0001-000000000001, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=-1, id=custom_parameter\u001Eid3\u001E00000000-0000-0000-0001-000000000001, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=0, id=custom_parameter\u001Eid4\u001E00000000-0000-0000-0001-000000000001, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=1, id=custom_parameter\u001Eid5\u001E00000000-0000-0000-0001-000000000001, style=PRIMARY, disabled=false, emoji=null)]), ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=2, id=custom_parameter\u001Eid6\u001E00000000-0000-0000-0001-000000000001, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=3, id=custom_parameter\u001Eid7\u001E00000000-0000-0000-0001-000000000001, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=4, id=custom_parameter\u001Eid8\u001E00000000-0000-0000-0001-000000000001, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=5, id=custom_parameter\u001Eid9\u001E00000000-0000-0000-0001-000000000001, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=6, id=custom_parameter\u001Eid10\u001E00000000-0000-0000-0001-000000000001, style=PRIMARY, disabled=false, emoji=null)])]"
+  ]
+]
+
+
+de.janno.discord.bot.command.starter.StarterCommandMockTest.createPreset[OTHERSCAPE_event2_fr]=[
+  [
+    "editMessage: message:Veuillez sélectionner la valeur de **Power**, buttons=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=-3, id=custom_parameter\u001Eid1\u001E00000000-0000-0000-0001-000000000001, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=-2, id=custom_parameter\u001Eid2\u001E00000000-0000-0000-0001-000000000001, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=-1, id=custom_parameter\u001Eid3\u001E00000000-0000-0000-0001-000000000001, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=0, id=custom_parameter\u001Eid4\u001E00000000-0000-0000-0001-000000000001, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=1, id=custom_parameter\u001Eid5\u001E00000000-0000-0000-0001-000000000001, style=PRIMARY, disabled=false, emoji=null)]), ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=2, id=custom_parameter\u001Eid6\u001E00000000-0000-0000-0001-000000000001, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=3, id=custom_parameter\u001Eid7\u001E00000000-0000-0000-0001-000000000001, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=4, id=custom_parameter\u001Eid8\u001E00000000-0000-0000-0001-000000000001, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=5, id=custom_parameter\u001Eid9\u001E00000000-0000-0000-0001-000000000001, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=6, id=custom_parameter\u001Eid10\u001E00000000-0000-0000-0001-000000000001, style=PRIMARY, disabled=false, emoji=null)])]"
+  ]
+]
+
+
+de.janno.discord.bot.command.starter.StarterCommandMockTest.createPreset[OTHERSCAPE_event2_pt_BR]=[
+  [
+    "editMessage: message:Por favor selecione um valor para **Power**, buttons=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=-3, id=custom_parameter\u001Eid1\u001E00000000-0000-0000-0001-000000000001, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=-2, id=custom_parameter\u001Eid2\u001E00000000-0000-0000-0001-000000000001, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=-1, id=custom_parameter\u001Eid3\u001E00000000-0000-0000-0001-000000000001, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=0, id=custom_parameter\u001Eid4\u001E00000000-0000-0000-0001-000000000001, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=1, id=custom_parameter\u001Eid5\u001E00000000-0000-0000-0001-000000000001, style=PRIMARY, disabled=false, emoji=null)]), ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=2, id=custom_parameter\u001Eid6\u001E00000000-0000-0000-0001-000000000001, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=3, id=custom_parameter\u001Eid7\u001E00000000-0000-0000-0001-000000000001, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=4, id=custom_parameter\u001Eid8\u001E00000000-0000-0000-0001-000000000001, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=5, id=custom_parameter\u001Eid9\u001E00000000-0000-0000-0001-000000000001, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=6, id=custom_parameter\u001Eid10\u001E00000000-0000-0000-0001-000000000001, style=PRIMARY, disabled=false, emoji=null)])]"
+  ]
+]
+
+
+de.janno.discord.bot.command.starter.StarterCommandMockTest.createPreset[OTHERSCAPE_event3_de]=[
+  [
+    "acknowledge",
+    "deleteMessageById: 1",
+    "sendMessage: EmbedOrMessageDefinition(title=Power: -3 ⇒ Result: 2 = Miss, descriptionOrContent=, fields=[], componentRowDefinitions=[], hasImage=true, type=EMBED, userReference=true, sendToOtherChannelId=null)",
+    "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=custom name, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Otherscape, id=starter\u001E00000000-0000-0000-0001-000000000001\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
+  ]
+]
+
+
+de.janno.discord.bot.command.starter.StarterCommandMockTest.createPreset[OTHERSCAPE_event3_en]=[
+  [
+    "acknowledge",
+    "deleteMessageById: 1",
+    "sendMessage: EmbedOrMessageDefinition(title=Power: -3 ⇒ Result: 2 = Miss, descriptionOrContent=, fields=[], componentRowDefinitions=[], hasImage=true, type=EMBED, userReference=true, sendToOtherChannelId=null)",
+    "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=custom name, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Otherscape, id=starter\u001E00000000-0000-0000-0001-000000000001\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
+  ]
+]
+
+
+de.janno.discord.bot.command.starter.StarterCommandMockTest.createPreset[OTHERSCAPE_event3_fr]=[
+  [
+    "acknowledge",
+    "deleteMessageById: 1",
+    "sendMessage: EmbedOrMessageDefinition(title=Power: -3 ⇒ Result: 2 = Miss, descriptionOrContent=, fields=[], componentRowDefinitions=[], hasImage=true, type=EMBED, userReference=true, sendToOtherChannelId=null)",
+    "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=custom name, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Otherscape, id=starter\u001E00000000-0000-0000-0001-000000000001\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
+  ]
+]
+
+
+de.janno.discord.bot.command.starter.StarterCommandMockTest.createPreset[OTHERSCAPE_event3_pt_BR]=[
+  [
+    "acknowledge",
+    "deleteMessageById: 1",
+    "sendMessage: EmbedOrMessageDefinition(title=Power: -3 ⇒ Result: 2 = Miss, descriptionOrContent=, fields=[], componentRowDefinitions=[], hasImage=true, type=EMBED, userReference=true, sendToOtherChannelId=null)",
+    "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=custom name, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Otherscape, id=starter\u001E00000000-0000-0000-0001-000000000001\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
+  ]
+]
+
+
 de.janno.discord.bot.command.starter.StarterCommandMockTest.createPreset[OWOD_event1_de]=[
   [
     "reply: commandString",

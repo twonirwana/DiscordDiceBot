@@ -258,6 +258,50 @@ de.janno.discord.bot.command.help.QuickstartCommandMockTest.config2CommandString
 ]
 
 
+de.janno.discord.bot.command.help.QuickstartCommandMockTest.config2CommandString_slashCommand_firstButton[alias:OTHERSCAPE_ALIAS_de]=[
+  [
+    {
+      "name": "o\\s*(?<Power>\\s*[+-]\\s*\\d*)",
+      "value": "val('!p',${Power}), val('!r',2d6=), val('!e',('!p'+1)k1), val('!rp','!r' + '!p'=), 'Result: ' _ '!rp' _ ' = ' _  if('!r'=?2,'Snake Eye: Miss','!r'=?12,'Boxcar: Strong Hit with Effect ' _'!e',('!r'+'!p'=)<?7,'Miss',('!r'+'!p'=)<?10,'Mixed Hit with Effect '_'!e',('!r'+'!p'=)>=?10, 'Strong Hit with Effect '_'!e' )@Roll",
+      "type": "Regex"
+    }
+  ]
+]
+
+
+de.janno.discord.bot.command.help.QuickstartCommandMockTest.config2CommandString_slashCommand_firstButton[alias:OTHERSCAPE_ALIAS_en]=[
+  [
+    {
+      "name": "o\\s*(?<Power>\\s*[+-]\\s*\\d*)",
+      "value": "val('!p',${Power}), val('!r',2d6=), val('!e',('!p'+1)k1), val('!rp','!r' + '!p'=), 'Result: ' _ '!rp' _ ' = ' _  if('!r'=?2,'Snake Eye: Miss','!r'=?12,'Boxcar: Strong Hit with Effect ' _'!e',('!r'+'!p'=)<?7,'Miss',('!r'+'!p'=)<?10,'Mixed Hit with Effect '_'!e',('!r'+'!p'=)>=?10, 'Strong Hit with Effect '_'!e' )@Roll",
+      "type": "Regex"
+    }
+  ]
+]
+
+
+de.janno.discord.bot.command.help.QuickstartCommandMockTest.config2CommandString_slashCommand_firstButton[alias:OTHERSCAPE_ALIAS_fr]=[
+  [
+    {
+      "name": "o\\s*(?<Power>\\s*[+-]\\s*\\d*)",
+      "value": "val('!p',${Power}), val('!r',2d6=), val('!e',('!p'+1)k1), val('!rp','!r' + '!p'=), 'Result: ' _ '!rp' _ ' = ' _  if('!r'=?2,'Snake Eye: Miss','!r'=?12,'Boxcar: Strong Hit with Effect ' _'!e',('!r'+'!p'=)<?7,'Miss',('!r'+'!p'=)<?10,'Mixed Hit with Effect '_'!e',('!r'+'!p'=)>=?10, 'Strong Hit with Effect '_'!e' )@Roll",
+      "type": "Regex"
+    }
+  ]
+]
+
+
+de.janno.discord.bot.command.help.QuickstartCommandMockTest.config2CommandString_slashCommand_firstButton[alias:OTHERSCAPE_ALIAS_pt_BR]=[
+  [
+    {
+      "name": "o\\s*(?<Power>\\s*[+-]\\s*\\d*)",
+      "value": "val('!p',${Power}), val('!r',2d6=), val('!e',('!p'+1)k1), val('!rp','!r' + '!p'=), 'Result: ' _ '!rp' _ ' = ' _  if('!r'=?2,'Snake Eye: Miss','!r'=?12,'Boxcar: Strong Hit with Effect ' _'!e',('!r'+'!p'=)<?7,'Miss',('!r'+'!p'=)<?10,'Mixed Hit with Effect '_'!e',('!r'+'!p'=)>=?10, 'Strong Hit with Effect '_'!e' )@Roll",
+      "type": "Regex"
+    }
+  ]
+]
+
+
 de.janno.discord.bot.command.help.QuickstartCommandMockTest.config2CommandString_slashCommand_firstButton[alias:OWOD_ALIAS_de]=[
   [
     {
@@ -1634,6 +1678,46 @@ de.janno.discord.bot.command.help.QuickstartCommandMockTest.config2CommandString
     "deleteMessageById: 1",
     "sendMessage: EmbedOrMessageDefinition(title=D20 ⇒ 1, descriptionOrContent=, fields=[], componentRowDefinitions=[], hasImage=true, type=EMBED, userReference=true, sendToOtherChannelId=null)",
     "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Clique em um botão para rolar os dados, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=D20, id=custom_dice\u001E1_button\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=D6, id=custom_dice\u001E2_button\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=2D6, id=custom_dice\u001E3_button\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=D4, id=custom_dice\u001E4_button\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=D8, id=custom_dice\u001E5_button\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null)]), ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=Atributos, id=custom_dice\u001E6_button\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=Ouro, id=custom_dice\u001E7_button\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=D100, id=custom_dice\u001E8_button\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=D10, id=custom_dice\u001E9_button\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=D12, id=custom_dice\u001E10_button\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
+  ]
+]
+
+
+de.janno.discord.bot.command.help.QuickstartCommandMockTest.config2CommandString_slashCommand_firstButton[firstButtonEvent:OTHERSCAPE_de]=[
+  [
+    "acknowledge",
+    "deleteMessageById: 1",
+    "sendMessage: EmbedOrMessageDefinition(title=Power: -3 ⇒ Result: -1 = Snake Eye: Miss, descriptionOrContent=, fields=[], componentRowDefinitions=[], hasImage=true, type=EMBED, userReference=true, sendToOtherChannelId=null)",
+    "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Bitte wähle den Wert für **Power**, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=-3, id=custom_parameter\u001Eid1\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=-2, id=custom_parameter\u001Eid2\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=-1, id=custom_parameter\u001Eid3\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=0, id=custom_parameter\u001Eid4\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=1, id=custom_parameter\u001Eid5\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null)]), ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=2, id=custom_parameter\u001Eid6\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=3, id=custom_parameter\u001Eid7\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=4, id=custom_parameter\u001Eid8\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=5, id=custom_parameter\u001Eid9\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=6, id=custom_parameter\u001Eid10\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
+  ]
+]
+
+
+de.janno.discord.bot.command.help.QuickstartCommandMockTest.config2CommandString_slashCommand_firstButton[firstButtonEvent:OTHERSCAPE_en]=[
+  [
+    "acknowledge",
+    "deleteMessageById: 1",
+    "sendMessage: EmbedOrMessageDefinition(title=Power: -3 ⇒ Result: -1 = Snake Eye: Miss, descriptionOrContent=, fields=[], componentRowDefinitions=[], hasImage=true, type=EMBED, userReference=true, sendToOtherChannelId=null)",
+    "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Please select value for **Power**, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=-3, id=custom_parameter\u001Eid1\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=-2, id=custom_parameter\u001Eid2\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=-1, id=custom_parameter\u001Eid3\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=0, id=custom_parameter\u001Eid4\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=1, id=custom_parameter\u001Eid5\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null)]), ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=2, id=custom_parameter\u001Eid6\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=3, id=custom_parameter\u001Eid7\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=4, id=custom_parameter\u001Eid8\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=5, id=custom_parameter\u001Eid9\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=6, id=custom_parameter\u001Eid10\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
+  ]
+]
+
+
+de.janno.discord.bot.command.help.QuickstartCommandMockTest.config2CommandString_slashCommand_firstButton[firstButtonEvent:OTHERSCAPE_fr]=[
+  [
+    "acknowledge",
+    "deleteMessageById: 1",
+    "sendMessage: EmbedOrMessageDefinition(title=Power: -3 ⇒ Result: -1 = Snake Eye: Miss, descriptionOrContent=, fields=[], componentRowDefinitions=[], hasImage=true, type=EMBED, userReference=true, sendToOtherChannelId=null)",
+    "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Veuillez sélectionner la valeur de **Power**, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=-3, id=custom_parameter\u001Eid1\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=-2, id=custom_parameter\u001Eid2\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=-1, id=custom_parameter\u001Eid3\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=0, id=custom_parameter\u001Eid4\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=1, id=custom_parameter\u001Eid5\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null)]), ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=2, id=custom_parameter\u001Eid6\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=3, id=custom_parameter\u001Eid7\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=4, id=custom_parameter\u001Eid8\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=5, id=custom_parameter\u001Eid9\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=6, id=custom_parameter\u001Eid10\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
+  ]
+]
+
+
+de.janno.discord.bot.command.help.QuickstartCommandMockTest.config2CommandString_slashCommand_firstButton[firstButtonEvent:OTHERSCAPE_pt_BR]=[
+  [
+    "acknowledge",
+    "deleteMessageById: 1",
+    "sendMessage: EmbedOrMessageDefinition(title=Power: -3 ⇒ Result: -1 = Snake Eye: Miss, descriptionOrContent=, fields=[], componentRowDefinitions=[], hasImage=true, type=EMBED, userReference=true, sendToOtherChannelId=null)",
+    "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Por favor selecione um valor para **Power**, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=-3, id=custom_parameter\u001Eid1\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=-2, id=custom_parameter\u001Eid2\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=-1, id=custom_parameter\u001Eid3\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=0, id=custom_parameter\u001Eid4\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=1, id=custom_parameter\u001Eid5\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null)]), ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=2, id=custom_parameter\u001Eid6\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=3, id=custom_parameter\u001Eid7\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=4, id=custom_parameter\u001Eid8\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=5, id=custom_parameter\u001Eid9\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=6, id=custom_parameter\u001Eid10\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
   ]
 ]
 
@@ -3562,6 +3646,66 @@ de.janno.discord.bot.command.help.QuickstartCommandMockTest.config2CommandString
 ]
 
 
+de.janno.discord.bot.command.help.QuickstartCommandMockTest.config2CommandString_slashCommand_firstButton[slashCommand:OTHERSCAPE_ALIAS_de]=[
+  [
+    "reply: `commandString`\nNeuer Alias gespeichert"
+  ]
+]
+
+
+de.janno.discord.bot.command.help.QuickstartCommandMockTest.config2CommandString_slashCommand_firstButton[slashCommand:OTHERSCAPE_ALIAS_en]=[
+  [
+    "reply: `commandString`\nSaved new alias"
+  ]
+]
+
+
+de.janno.discord.bot.command.help.QuickstartCommandMockTest.config2CommandString_slashCommand_firstButton[slashCommand:OTHERSCAPE_ALIAS_fr]=[
+  [
+    "reply: `commandString`\nIl a enregistré un nouvel alias"
+  ]
+]
+
+
+de.janno.discord.bot.command.help.QuickstartCommandMockTest.config2CommandString_slashCommand_firstButton[slashCommand:OTHERSCAPE_ALIAS_pt_BR]=[
+  [
+    "reply: `commandString`\nNovo apelido salvo"
+  ]
+]
+
+
+de.janno.discord.bot.command.help.QuickstartCommandMockTest.config2CommandString_slashCommand_firstButton[slashCommand:OTHERSCAPE_de]=[
+  [
+    "reply: commandString",
+    "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Bitte wähle den Wert für **Power**, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=-3, id=custom_parameter\u001Eid1\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=-2, id=custom_parameter\u001Eid2\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=-1, id=custom_parameter\u001Eid3\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=0, id=custom_parameter\u001Eid4\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=1, id=custom_parameter\u001Eid5\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null)]), ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=2, id=custom_parameter\u001Eid6\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=3, id=custom_parameter\u001Eid7\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=4, id=custom_parameter\u001Eid8\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=5, id=custom_parameter\u001Eid9\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=6, id=custom_parameter\u001Eid10\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
+  ]
+]
+
+
+de.janno.discord.bot.command.help.QuickstartCommandMockTest.config2CommandString_slashCommand_firstButton[slashCommand:OTHERSCAPE_en]=[
+  [
+    "reply: commandString",
+    "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Please select value for **Power**, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=-3, id=custom_parameter\u001Eid1\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=-2, id=custom_parameter\u001Eid2\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=-1, id=custom_parameter\u001Eid3\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=0, id=custom_parameter\u001Eid4\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=1, id=custom_parameter\u001Eid5\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null)]), ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=2, id=custom_parameter\u001Eid6\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=3, id=custom_parameter\u001Eid7\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=4, id=custom_parameter\u001Eid8\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=5, id=custom_parameter\u001Eid9\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=6, id=custom_parameter\u001Eid10\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
+  ]
+]
+
+
+de.janno.discord.bot.command.help.QuickstartCommandMockTest.config2CommandString_slashCommand_firstButton[slashCommand:OTHERSCAPE_fr]=[
+  [
+    "reply: commandString",
+    "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Veuillez sélectionner la valeur de **Power**, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=-3, id=custom_parameter\u001Eid1\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=-2, id=custom_parameter\u001Eid2\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=-1, id=custom_parameter\u001Eid3\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=0, id=custom_parameter\u001Eid4\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=1, id=custom_parameter\u001Eid5\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null)]), ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=2, id=custom_parameter\u001Eid6\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=3, id=custom_parameter\u001Eid7\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=4, id=custom_parameter\u001Eid8\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=5, id=custom_parameter\u001Eid9\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=6, id=custom_parameter\u001Eid10\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
+  ]
+]
+
+
+de.janno.discord.bot.command.help.QuickstartCommandMockTest.config2CommandString_slashCommand_firstButton[slashCommand:OTHERSCAPE_pt_BR]=[
+  [
+    "reply: commandString",
+    "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Por favor selecione um valor para **Power**, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=-3, id=custom_parameter\u001Eid1\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=-2, id=custom_parameter\u001Eid2\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=-1, id=custom_parameter\u001Eid3\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=0, id=custom_parameter\u001Eid4\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=1, id=custom_parameter\u001Eid5\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null)]), ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=2, id=custom_parameter\u001Eid6\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=3, id=custom_parameter\u001Eid7\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=4, id=custom_parameter\u001Eid8\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=5, id=custom_parameter\u001Eid9\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=6, id=custom_parameter\u001Eid10\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
+  ]
+]
+
+
 de.janno.discord.bot.command.help.QuickstartCommandMockTest.config2CommandString_slashCommand_firstButton[slashCommand:OWOD_ALIAS_de]=[
   [
     "reply: `commandString`\nNeuer Alias gespeichert"
@@ -4404,28 +4548,28 @@ de.janno.discord.bot.command.help.QuickstartCommandMockTest.handleSlashCommandEv
 
 de.janno.discord.bot.command.help.QuickstartCommandMockTest.handleSlashCommandEvent[BLADES_IN_THE_DARK_ALIAS_de]=[
   [
-    "reply: `**Blades in the Dark - Alias:** `/channel_config alias multi_save aliases:(?<numberOfDice>\\d+)b::val('diceRoll', if(${numberOfDice}=?0,2d6L1, ${numberOfDice}d6)) val('sixes','diceRoll'==6c) val('partials','diceRoll'>3<6c) if('sixes'>?1,'Critical Success - You do it with increased effect.', 'sixes'=?1,'Success - You do it.','partials' >? 0,'Partial Success - You do it but suffer severe harm, a serious complication or have reduced effect.','Failure - You suffer severe harm, a serious complication occurs, or you lose this opportunity for action.')@${numberOfDice} Dice scope:all_users_in_this_channel``"
+    "reply: **Blades in the Dark - Alias:** `/channel_config alias multi_save aliases:(?<numberOfDice>\\d+)b::val('diceRoll', if(${numberOfDice}=?0,2d6L1, ${numberOfDice}d6)) val('sixes','diceRoll'==6c) val('partials','diceRoll'>3<6c) if('sixes'>?1,'Critical Success - You do it with increased effect.', 'sixes'=?1,'Success - You do it.','partials' >? 0,'Partial Success - You do it but suffer severe harm, a serious complication or have reduced effect.','Failure - You suffer severe harm, a serious complication occurs, or you lose this opportunity for action.')@${numberOfDice} Dice scope:all_users_in_this_channel`"
   ]
 ]
 
 
 de.janno.discord.bot.command.help.QuickstartCommandMockTest.handleSlashCommandEvent[BLADES_IN_THE_DARK_ALIAS_en]=[
   [
-    "reply: `**Blades in the Dark - Alias:** `/channel_config alias multi_save aliases:(?<numberOfDice>\\d+)b::val('diceRoll', if(${numberOfDice}=?0,2d6L1, ${numberOfDice}d6)) val('sixes','diceRoll'==6c) val('partials','diceRoll'>3<6c) if('sixes'>?1,'Critical Success - You do it with increased effect.', 'sixes'=?1,'Success - You do it.','partials' >? 0,'Partial Success - You do it but suffer severe harm, a serious complication or have reduced effect.','Failure - You suffer severe harm, a serious complication occurs, or you lose this opportunity for action.')@${numberOfDice} Dice scope:all_users_in_this_channel``"
+    "reply: **Blades in the Dark - Alias:** `/channel_config alias multi_save aliases:(?<numberOfDice>\\d+)b::val('diceRoll', if(${numberOfDice}=?0,2d6L1, ${numberOfDice}d6)) val('sixes','diceRoll'==6c) val('partials','diceRoll'>3<6c) if('sixes'>?1,'Critical Success - You do it with increased effect.', 'sixes'=?1,'Success - You do it.','partials' >? 0,'Partial Success - You do it but suffer severe harm, a serious complication or have reduced effect.','Failure - You suffer severe harm, a serious complication occurs, or you lose this opportunity for action.')@${numberOfDice} Dice scope:all_users_in_this_channel`"
   ]
 ]
 
 
 de.janno.discord.bot.command.help.QuickstartCommandMockTest.handleSlashCommandEvent[BLADES_IN_THE_DARK_ALIAS_fr]=[
   [
-    "reply: `**Blades in the Dark - Alias:** `/channel_config alias multi_save aliases:(?<numberOfDice>\\d+)b::val('diceRoll', if(${numberOfDice}=?0,2d6L1, ${numberOfDice}d6)) val('sixes','diceRoll'==6c) val('partials','diceRoll'>3<6c) if('sixes'>?1,'Critical Success - You do it with increased effect.', 'sixes'=?1,'Success - You do it.','partials' >? 0,'Partial Success - You do it but suffer severe harm, a serious complication or have reduced effect.','Failure - You suffer severe harm, a serious complication occurs, or you lose this opportunity for action.')@${numberOfDice} Dice scope:all_users_in_this_channel``"
+    "reply: **Blades in the Dark - Alias:** `/channel_config alias multi_save aliases:(?<numberOfDice>\\d+)b::val('diceRoll', if(${numberOfDice}=?0,2d6L1, ${numberOfDice}d6)) val('sixes','diceRoll'==6c) val('partials','diceRoll'>3<6c) if('sixes'>?1,'Critical Success - You do it with increased effect.', 'sixes'=?1,'Success - You do it.','partials' >? 0,'Partial Success - You do it but suffer severe harm, a serious complication or have reduced effect.','Failure - You suffer severe harm, a serious complication occurs, or you lose this opportunity for action.')@${numberOfDice} Dice scope:all_users_in_this_channel`"
   ]
 ]
 
 
 de.janno.discord.bot.command.help.QuickstartCommandMockTest.handleSlashCommandEvent[BLADES_IN_THE_DARK_ALIAS_pt_BR]=[
   [
-    "reply: `**Blades in the Dark - Alias:** `/channel_config alias multi_save aliases:(?<numberOfDice>\\d+)b::val('diceRoll', if(${numberOfDice}=?0,2d6L1, ${numberOfDice}d6)) val('sixes','diceRoll'==6c) val('partials','diceRoll'>3<6c) if('sixes'>?1,'Critical Success - You do it with increased effect.', 'sixes'=?1,'Success - You do it.','partials' >? 0,'Partial Success - You do it but suffer severe harm, a serious complication or have reduced effect.','Failure - You suffer severe harm, a serious complication occurs, or you lose this opportunity for action.')@${numberOfDice} Dice scope:all_users_in_this_channel``"
+    "reply: **Blades in the Dark - Alias:** `/channel_config alias multi_save aliases:(?<numberOfDice>\\d+)b::val('diceRoll', if(${numberOfDice}=?0,2d6L1, ${numberOfDice}d6)) val('sixes','diceRoll'==6c) val('partials','diceRoll'>3<6c) if('sixes'>?1,'Critical Success - You do it with increased effect.', 'sixes'=?1,'Success - You do it.','partials' >? 0,'Partial Success - You do it but suffer severe harm, a serious complication or have reduced effect.','Failure - You suffer severe harm, a serious complication occurs, or you lose this opportunity for action.')@${numberOfDice} Dice scope:all_users_in_this_channel`"
   ]
 ]
 
@@ -4944,28 +5088,28 @@ de.janno.discord.bot.command.help.QuickstartCommandMockTest.handleSlashCommandEv
 
 de.janno.discord.bot.command.help.QuickstartCommandMockTest.handleSlashCommandEvent[CYBERPUNK_RED_ALIAS_de]=[
   [
-    "reply: `**Cyberpunk - Alias:** `/channel_config alias multi_save aliases:cp:val('$roll', 1d!10) if('$roll'=?1, '$roll'-1d!10, '$roll')@Roll scope:all_users_in_this_channel``"
+    "reply: **Cyberpunk - Alias:** `/channel_config alias multi_save aliases:cp:val('$roll', 1d!10) if('$roll'=?1, '$roll'-1d!10, '$roll')@Roll scope:all_users_in_this_channel`"
   ]
 ]
 
 
 de.janno.discord.bot.command.help.QuickstartCommandMockTest.handleSlashCommandEvent[CYBERPUNK_RED_ALIAS_en]=[
   [
-    "reply: `**Cyberpunk - Alias:** `/channel_config alias multi_save aliases:cp:val('$roll', 1d!10) if('$roll'=?1, '$roll'-1d!10, '$roll')@Roll scope:all_users_in_this_channel``"
+    "reply: **Cyberpunk - Alias:** `/channel_config alias multi_save aliases:cp:val('$roll', 1d!10) if('$roll'=?1, '$roll'-1d!10, '$roll')@Roll scope:all_users_in_this_channel`"
   ]
 ]
 
 
 de.janno.discord.bot.command.help.QuickstartCommandMockTest.handleSlashCommandEvent[CYBERPUNK_RED_ALIAS_fr]=[
   [
-    "reply: `**Cyberpunk - Alias:** `/channel_config alias multi_save aliases:cp:val('$roll', 1d!10) if('$roll'=?1, '$roll'-1d!10, '$roll')@Roll scope:all_users_in_this_channel``"
+    "reply: **Cyberpunk - Alias:** `/channel_config alias multi_save aliases:cp:val('$roll', 1d!10) if('$roll'=?1, '$roll'-1d!10, '$roll')@Roll scope:all_users_in_this_channel`"
   ]
 ]
 
 
 de.janno.discord.bot.command.help.QuickstartCommandMockTest.handleSlashCommandEvent[CYBERPUNK_RED_ALIAS_pt_BR]=[
   [
-    "reply: `**Cyberpunk - Alias:** `/channel_config alias multi_save aliases:cp:val('$roll', 1d!10) if('$roll'=?1, '$roll'-1d!10, '$roll')@Roll scope:all_users_in_this_channel``"
+    "reply: **Cyberpunk - Alias:** `/channel_config alias multi_save aliases:cp:val('$roll', 1d!10) if('$roll'=?1, '$roll'-1d!10, '$roll')@Roll scope:all_users_in_this_channel`"
   ]
 ]
 
@@ -5160,28 +5304,28 @@ de.janno.discord.bot.command.help.QuickstartCommandMockTest.handleSlashCommandEv
 
 de.janno.discord.bot.command.help.QuickstartCommandMockTest.handleSlashCommandEvent[DND5_ALIAS_de]=[
   [
-    "reply: `**Dungeon & Dragons 5e - Alias:** `/channel_config alias multi_save aliases:d20:d20;adv:2d20k1@Advantage;dis:2d20L1@Disadvantage scope:all_users_in_this_channel``"
+    "reply: **Dungeon & Dragons 5e - Alias:** `/channel_config alias multi_save aliases:d20:d20;adv:2d20k1@Advantage;dis:2d20L1@Disadvantage scope:all_users_in_this_channel`"
   ]
 ]
 
 
 de.janno.discord.bot.command.help.QuickstartCommandMockTest.handleSlashCommandEvent[DND5_ALIAS_en]=[
   [
-    "reply: `**Dungeon & Dragons 5e - Alias:** `/channel_config alias multi_save aliases:d20:d20;adv:2d20k1@Advantage;dis:2d20L1@Disadvantage scope:all_users_in_this_channel``"
+    "reply: **Dungeon & Dragons 5e - Alias:** `/channel_config alias multi_save aliases:d20:d20;adv:2d20k1@Advantage;dis:2d20L1@Disadvantage scope:all_users_in_this_channel`"
   ]
 ]
 
 
 de.janno.discord.bot.command.help.QuickstartCommandMockTest.handleSlashCommandEvent[DND5_ALIAS_fr]=[
   [
-    "reply: `**Dungeon & Dragons 5e - Alias:** `/channel_config alias multi_save aliases:d20:d20;adv:2d20k1@Advantage;dis:2d20L1@Disadvantage scope:all_users_in_this_channel``"
+    "reply: **Dungeon & Dragons 5e - Alias:** `/channel_config alias multi_save aliases:d20:d20;adv:2d20k1@Advantage;dis:2d20L1@Disadvantage scope:all_users_in_this_channel`"
   ]
 ]
 
 
 de.janno.discord.bot.command.help.QuickstartCommandMockTest.handleSlashCommandEvent[DND5_ALIAS_pt_BR]=[
   [
-    "reply: `**Dungeon & Dragons 5e - Alias:** `/channel_config alias multi_save aliases:d20:d20;adv:2d20k1@Advantage;dis:2d20L1@Disadvantage scope:all_users_in_this_channel``"
+    "reply: **Dungeon & Dragons 5e - Alias:** `/channel_config alias multi_save aliases:d20:d20;adv:2d20k1@Advantage;dis:2d20L1@Disadvantage scope:all_users_in_this_channel`"
   ]
 ]
 
@@ -5700,28 +5844,28 @@ de.janno.discord.bot.command.help.QuickstartCommandMockTest.handleSlashCommandEv
 
 de.janno.discord.bot.command.help.QuickstartCommandMockTest.handleSlashCommandEvent[FATE_ALIAS_de]=[
   [
-    "reply: `**Fate Alias:** `/channel_config alias multi_save aliases:4dF:val('$r', 4d[＋,▢,−]) _ '['_ '$r' _ '] = ' _ replace('$r' ,'＋',1,'▢',0,'−',-1)=@4dF scope:all_users_in_this_channel``"
+    "reply: **Fate Alias:** `/channel_config alias multi_save aliases:4dF:val('$r', 4d[＋,▢,−]) _ '['_ '$r' _ '] = ' _ replace('$r' ,'＋',1,'▢',0,'−',-1)=@4dF scope:all_users_in_this_channel`"
   ]
 ]
 
 
 de.janno.discord.bot.command.help.QuickstartCommandMockTest.handleSlashCommandEvent[FATE_ALIAS_en]=[
   [
-    "reply: `**Fate Alias:** `/channel_config alias multi_save aliases:4dF:val('$r', 4d[＋,▢,−]) _ '['_ '$r' _ '] = ' _ replace('$r' ,'＋',1,'▢',0,'−',-1)=@4dF scope:all_users_in_this_channel``"
+    "reply: **Fate Alias:** `/channel_config alias multi_save aliases:4dF:val('$r', 4d[＋,▢,−]) _ '['_ '$r' _ '] = ' _ replace('$r' ,'＋',1,'▢',0,'−',-1)=@4dF scope:all_users_in_this_channel`"
   ]
 ]
 
 
 de.janno.discord.bot.command.help.QuickstartCommandMockTest.handleSlashCommandEvent[FATE_ALIAS_fr]=[
   [
-    "reply: `**Fate Alias:** `/channel_config alias multi_save aliases:4dF:val('$r', 4d[＋,▢,−]) _ '['_ '$r' _ '] = ' _ replace('$r' ,'＋',1,'▢',0,'−',-1)=@4dF scope:all_users_in_this_channel``"
+    "reply: **Fate Alias:** `/channel_config alias multi_save aliases:4dF:val('$r', 4d[＋,▢,−]) _ '['_ '$r' _ '] = ' _ replace('$r' ,'＋',1,'▢',0,'−',-1)=@4dF scope:all_users_in_this_channel`"
   ]
 ]
 
 
 de.janno.discord.bot.command.help.QuickstartCommandMockTest.handleSlashCommandEvent[FATE_ALIAS_pt_BR]=[
   [
-    "reply: `**Fate Alias:** `/channel_config alias multi_save aliases:4dF:val('$r', 4d[＋,▢,−]) _ '['_ '$r' _ '] = ' _ replace('$r' ,'＋',1,'▢',0,'−',-1)=@4dF scope:all_users_in_this_channel``"
+    "reply: **Fate Alias:** `/channel_config alias multi_save aliases:4dF:val('$r', 4d[＋,▢,−]) _ '['_ '$r' _ '] = ' _ replace('$r' ,'＋',1,'▢',0,'−',-1)=@4dF scope:all_users_in_this_channel`"
   ]
 ]
 
@@ -6240,28 +6384,28 @@ de.janno.discord.bot.command.help.QuickstartCommandMockTest.handleSlashCommandEv
 
 de.janno.discord.bot.command.help.QuickstartCommandMockTest.handleSlashCommandEvent[NWOD_ALIAS_de]=[
   [
-    "reply: `**nWod / Chronicles of Darkness - Alias:** `/channel_config alias multi_save aliases:w:d!10>=8c scope:all_users_in_this_channel``"
+    "reply: **nWod / Chronicles of Darkness - Alias:** `/channel_config alias multi_save aliases:w:d!10>=8c scope:all_users_in_this_channel`"
   ]
 ]
 
 
 de.janno.discord.bot.command.help.QuickstartCommandMockTest.handleSlashCommandEvent[NWOD_ALIAS_en]=[
   [
-    "reply: `**nWod / Chronicles of Darkness - Alias:** `/channel_config alias multi_save aliases:w:d!10>=8c scope:all_users_in_this_channel``"
+    "reply: **nWod / Chronicles of Darkness - Alias:** `/channel_config alias multi_save aliases:w:d!10>=8c scope:all_users_in_this_channel`"
   ]
 ]
 
 
 de.janno.discord.bot.command.help.QuickstartCommandMockTest.handleSlashCommandEvent[NWOD_ALIAS_fr]=[
   [
-    "reply: `**nWod / Chronicles of Darkness - Alias:** `/channel_config alias multi_save aliases:w:d!10>=8c scope:all_users_in_this_channel``"
+    "reply: **nWod / Chronicles of Darkness - Alias:** `/channel_config alias multi_save aliases:w:d!10>=8c scope:all_users_in_this_channel`"
   ]
 ]
 
 
 de.janno.discord.bot.command.help.QuickstartCommandMockTest.handleSlashCommandEvent[NWOD_ALIAS_pt_BR]=[
   [
-    "reply: `**nWod / Chronicles of Darkness - Alias:** `/channel_config alias multi_save aliases:w:d!10>=8c scope:all_users_in_this_channel``"
+    "reply: **nWod / Chronicles of Darkness - Alias:** `/channel_config alias multi_save aliases:w:d!10>=8c scope:all_users_in_this_channel`"
   ]
 ]
 
@@ -6474,6 +6618,130 @@ de.janno.discord.bot.command.help.QuickstartCommandMockTest.handleSlashCommandEv
 ]
 
 
+de.janno.discord.bot.command.help.QuickstartCommandMockTest.handleSlashCommandEvent[OTHERSCAPE_ALIAS_alias_de]=[
+  [
+    {
+      "name": "o\\s*(?<Power>\\s*[+-]\\s*\\d*)",
+      "value": "val('!p',${Power}), val('!r',2d6=), val('!e',('!p'+1)k1), val('!rp','!r' + '!p'=), 'Result: ' _ '!rp' _ ' = ' _  if('!r'=?2,'Snake Eye: Miss','!r'=?12,'Boxcar: Strong Hit with Effect ' _'!e',('!r'+'!p'=)<?7,'Miss',('!r'+'!p'=)<?10,'Mixed Hit with Effect '_'!e',('!r'+'!p'=)>=?10, 'Strong Hit with Effect '_'!e' )@Roll",
+      "type": "Regex"
+    }
+  ]
+]
+
+
+de.janno.discord.bot.command.help.QuickstartCommandMockTest.handleSlashCommandEvent[OTHERSCAPE_ALIAS_alias_en]=[
+  [
+    {
+      "name": "o\\s*(?<Power>\\s*[+-]\\s*\\d*)",
+      "value": "val('!p',${Power}), val('!r',2d6=), val('!e',('!p'+1)k1), val('!rp','!r' + '!p'=), 'Result: ' _ '!rp' _ ' = ' _  if('!r'=?2,'Snake Eye: Miss','!r'=?12,'Boxcar: Strong Hit with Effect ' _'!e',('!r'+'!p'=)<?7,'Miss',('!r'+'!p'=)<?10,'Mixed Hit with Effect '_'!e',('!r'+'!p'=)>=?10, 'Strong Hit with Effect '_'!e' )@Roll",
+      "type": "Regex"
+    }
+  ]
+]
+
+
+de.janno.discord.bot.command.help.QuickstartCommandMockTest.handleSlashCommandEvent[OTHERSCAPE_ALIAS_alias_fr]=[
+  [
+    {
+      "name": "o\\s*(?<Power>\\s*[+-]\\s*\\d*)",
+      "value": "val('!p',${Power}), val('!r',2d6=), val('!e',('!p'+1)k1), val('!rp','!r' + '!p'=), 'Result: ' _ '!rp' _ ' = ' _  if('!r'=?2,'Snake Eye: Miss','!r'=?12,'Boxcar: Strong Hit with Effect ' _'!e',('!r'+'!p'=)<?7,'Miss',('!r'+'!p'=)<?10,'Mixed Hit with Effect '_'!e',('!r'+'!p'=)>=?10, 'Strong Hit with Effect '_'!e' )@Roll",
+      "type": "Regex"
+    }
+  ]
+]
+
+
+de.janno.discord.bot.command.help.QuickstartCommandMockTest.handleSlashCommandEvent[OTHERSCAPE_ALIAS_alias_pt_BR]=[
+  [
+    {
+      "name": "o\\s*(?<Power>\\s*[+-]\\s*\\d*)",
+      "value": "val('!p',${Power}), val('!r',2d6=), val('!e',('!p'+1)k1), val('!rp','!r' + '!p'=), 'Result: ' _ '!rp' _ ' = ' _  if('!r'=?2,'Snake Eye: Miss','!r'=?12,'Boxcar: Strong Hit with Effect ' _'!e',('!r'+'!p'=)<?7,'Miss',('!r'+'!p'=)<?10,'Mixed Hit with Effect '_'!e',('!r'+'!p'=)>=?10, 'Strong Hit with Effect '_'!e' )@Roll",
+      "type": "Regex"
+    }
+  ]
+]
+
+
+de.janno.discord.bot.command.help.QuickstartCommandMockTest.handleSlashCommandEvent[OTHERSCAPE_ALIAS_de]=[
+  [
+    "reply: **Otherscape - Alias:** `/channel_config alias multi_save aliases:o\\s*(?<Power>\\s*[+-]\\s*\\d*)::val('!p',${Power}), val('!r',2d6=), val('!e',('!p'+1)k1), val('!rp','!r' + '!p'=), 'Result: ' _ '!rp' _ ' = ' _  if('!r'=?2,'Snake Eye: Miss','!r'=?12,'Boxcar: Strong Hit with Effect ' _'!e',('!r'+'!p'=)<?7,'Miss',('!r'+'!p'=)<?10,'Mixed Hit with Effect '_'!e',('!r'+'!p'=)>=?10, 'Strong Hit with Effect '_'!e' )@Roll scope:all_users_in_this_channel`"
+  ]
+]
+
+
+de.janno.discord.bot.command.help.QuickstartCommandMockTest.handleSlashCommandEvent[OTHERSCAPE_ALIAS_en]=[
+  [
+    "reply: **Otherscape - Alias:** `/channel_config alias multi_save aliases:o\\s*(?<Power>\\s*[+-]\\s*\\d*)::val('!p',${Power}), val('!r',2d6=), val('!e',('!p'+1)k1), val('!rp','!r' + '!p'=), 'Result: ' _ '!rp' _ ' = ' _  if('!r'=?2,'Snake Eye: Miss','!r'=?12,'Boxcar: Strong Hit with Effect ' _'!e',('!r'+'!p'=)<?7,'Miss',('!r'+'!p'=)<?10,'Mixed Hit with Effect '_'!e',('!r'+'!p'=)>=?10, 'Strong Hit with Effect '_'!e' )@Roll scope:all_users_in_this_channel`"
+  ]
+]
+
+
+de.janno.discord.bot.command.help.QuickstartCommandMockTest.handleSlashCommandEvent[OTHERSCAPE_ALIAS_fr]=[
+  [
+    "reply: **Otherscape - Alias:** `/channel_config alias multi_save aliases:o\\s*(?<Power>\\s*[+-]\\s*\\d*)::val('!p',${Power}), val('!r',2d6=), val('!e',('!p'+1)k1), val('!rp','!r' + '!p'=), 'Result: ' _ '!rp' _ ' = ' _  if('!r'=?2,'Snake Eye: Miss','!r'=?12,'Boxcar: Strong Hit with Effect ' _'!e',('!r'+'!p'=)<?7,'Miss',('!r'+'!p'=)<?10,'Mixed Hit with Effect '_'!e',('!r'+'!p'=)>=?10, 'Strong Hit with Effect '_'!e' )@Roll scope:all_users_in_this_channel`"
+  ]
+]
+
+
+de.janno.discord.bot.command.help.QuickstartCommandMockTest.handleSlashCommandEvent[OTHERSCAPE_ALIAS_pt_BR]=[
+  [
+    "reply: **Otherscape - Alias:** `/channel_config alias multi_save aliases:o\\s*(?<Power>\\s*[+-]\\s*\\d*)::val('!p',${Power}), val('!r',2d6=), val('!e',('!p'+1)k1), val('!rp','!r' + '!p'=), 'Result: ' _ '!rp' _ ' = ' _  if('!r'=?2,'Snake Eye: Miss','!r'=?12,'Boxcar: Strong Hit with Effect ' _'!e',('!r'+'!p'=)<?7,'Miss',('!r'+'!p'=)<?10,'Mixed Hit with Effect '_'!e',('!r'+'!p'=)>=?10, 'Strong Hit with Effect '_'!e' )@Roll scope:all_users_in_this_channel`"
+  ]
+]
+
+
+de.janno.discord.bot.command.help.QuickstartCommandMockTest.handleSlashCommandEvent[OTHERSCAPE_alias_de]=[
+  [ ]
+]
+
+
+de.janno.discord.bot.command.help.QuickstartCommandMockTest.handleSlashCommandEvent[OTHERSCAPE_alias_en]=[
+  [ ]
+]
+
+
+de.janno.discord.bot.command.help.QuickstartCommandMockTest.handleSlashCommandEvent[OTHERSCAPE_alias_fr]=[
+  [ ]
+]
+
+
+de.janno.discord.bot.command.help.QuickstartCommandMockTest.handleSlashCommandEvent[OTHERSCAPE_alias_pt_BR]=[
+  [ ]
+]
+
+
+de.janno.discord.bot.command.help.QuickstartCommandMockTest.handleSlashCommandEvent[OTHERSCAPE_de]=[
+  [
+    "reply: **Otherscape:** `/custom_parameter start expression: val('$p',{Power:-3<=>6}), val('$r',2d6=), val('$e',('$p'+1)k1), val('$rp','$r' + '$p'=), 'Result: ' _ '$rp' _ ' = ' _  if('$r'=?2,'Snake Eye: Miss','$r'=?12,'Boxcar: Strong Hit with Effect ' _'$e',('$r'+'$p'=)<?7,'Miss',('$r'+'$p'=)<?10,'Mixed Hit with Effect '_'$e',('$r'+'$p'=)>=?10, 'Strong Hit with Effect '_'$e') answer_format: without_expression answer_interaction: none dice_image_style: polyhedral_RdD dice_image_color: default name: Otherscape`",
+    "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Bitte wähle den Wert für **Power**, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=-3, id=custom_parameter\u001Eid1\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=-2, id=custom_parameter\u001Eid2\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=-1, id=custom_parameter\u001Eid3\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=0, id=custom_parameter\u001Eid4\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=1, id=custom_parameter\u001Eid5\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null)]), ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=2, id=custom_parameter\u001Eid6\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=3, id=custom_parameter\u001Eid7\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=4, id=custom_parameter\u001Eid8\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=5, id=custom_parameter\u001Eid9\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=6, id=custom_parameter\u001Eid10\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
+  ]
+]
+
+
+de.janno.discord.bot.command.help.QuickstartCommandMockTest.handleSlashCommandEvent[OTHERSCAPE_en]=[
+  [
+    "reply: **Otherscape:** `/custom_parameter start expression: val('$p',{Power:-3<=>6}), val('$r',2d6=), val('$e',('$p'+1)k1), val('$rp','$r' + '$p'=), 'Result: ' _ '$rp' _ ' = ' _  if('$r'=?2,'Snake Eye: Miss','$r'=?12,'Boxcar: Strong Hit with Effect ' _'$e',('$r'+'$p'=)<?7,'Miss',('$r'+'$p'=)<?10,'Mixed Hit with Effect '_'$e',('$r'+'$p'=)>=?10, 'Strong Hit with Effect '_'$e') answer_format: without_expression answer_interaction: none dice_image_style: polyhedral_RdD dice_image_color: default name: Otherscape`",
+    "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Please select value for **Power**, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=-3, id=custom_parameter\u001Eid1\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=-2, id=custom_parameter\u001Eid2\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=-1, id=custom_parameter\u001Eid3\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=0, id=custom_parameter\u001Eid4\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=1, id=custom_parameter\u001Eid5\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null)]), ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=2, id=custom_parameter\u001Eid6\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=3, id=custom_parameter\u001Eid7\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=4, id=custom_parameter\u001Eid8\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=5, id=custom_parameter\u001Eid9\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=6, id=custom_parameter\u001Eid10\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
+  ]
+]
+
+
+de.janno.discord.bot.command.help.QuickstartCommandMockTest.handleSlashCommandEvent[OTHERSCAPE_fr]=[
+  [
+    "reply: **Otherscape:** `/custom_parameter start expression: val('$p',{Power:-3<=>6}), val('$r',2d6=), val('$e',('$p'+1)k1), val('$rp','$r' + '$p'=), 'Result: ' _ '$rp' _ ' = ' _  if('$r'=?2,'Snake Eye: Miss','$r'=?12,'Boxcar: Strong Hit with Effect ' _'$e',('$r'+'$p'=)<?7,'Miss',('$r'+'$p'=)<?10,'Mixed Hit with Effect '_'$e',('$r'+'$p'=)>=?10, 'Strong Hit with Effect '_'$e') answer_format: without_expression answer_interaction: none dice_image_style: polyhedral_RdD dice_image_color: default name: Otherscape`",
+    "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Veuillez sélectionner la valeur de **Power**, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=-3, id=custom_parameter\u001Eid1\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=-2, id=custom_parameter\u001Eid2\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=-1, id=custom_parameter\u001Eid3\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=0, id=custom_parameter\u001Eid4\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=1, id=custom_parameter\u001Eid5\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null)]), ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=2, id=custom_parameter\u001Eid6\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=3, id=custom_parameter\u001Eid7\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=4, id=custom_parameter\u001Eid8\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=5, id=custom_parameter\u001Eid9\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=6, id=custom_parameter\u001Eid10\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
+  ]
+]
+
+
+de.janno.discord.bot.command.help.QuickstartCommandMockTest.handleSlashCommandEvent[OTHERSCAPE_pt_BR]=[
+  [
+    "reply: **Otherscape:** `/custom_parameter start expression: val('$p',{Power:-3<=>6}), val('$r',2d6=), val('$e',('$p'+1)k1), val('$rp','$r' + '$p'=), 'Result: ' _ '$rp' _ ' = ' _  if('$r'=?2,'Snake Eye: Miss','$r'=?12,'Boxcar: Strong Hit with Effect ' _'$e',('$r'+'$p'=)<?7,'Miss',('$r'+'$p'=)<?10,'Mixed Hit with Effect '_'$e',('$r'+'$p'=)>=?10, 'Strong Hit with Effect '_'$e') answer_format: without_expression answer_interaction: none dice_image_style: polyhedral_RdD dice_image_color: default name: Otherscape`",
+    "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Por favor selecione um valor para **Power**, fields=[], componentRowDefinitions=[ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=-3, id=custom_parameter\u001Eid1\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=-2, id=custom_parameter\u001Eid2\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=-1, id=custom_parameter\u001Eid3\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=0, id=custom_parameter\u001Eid4\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=1, id=custom_parameter\u001Eid5\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null)]), ComponentRowDefinition(buttonDefinitions=[ButtonDefinition(label=2, id=custom_parameter\u001Eid6\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=3, id=custom_parameter\u001Eid7\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=4, id=custom_parameter\u001Eid8\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=5, id=custom_parameter\u001Eid9\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=6, id=custom_parameter\u001Eid10\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
+  ]
+]
+
+
 de.janno.discord.bot.command.help.QuickstartCommandMockTest.handleSlashCommandEvent[OWOD_ALIAS_alias_de]=[
   [
     {
@@ -6540,28 +6808,28 @@ de.janno.discord.bot.command.help.QuickstartCommandMockTest.handleSlashCommandEv
 
 de.janno.discord.bot.command.help.QuickstartCommandMockTest.handleSlashCommandEvent[OWOD_ALIAS_de]=[
   [
-    "reply: `**oWod / Storyteller System - Alias:** `/channel_config alias multi_save aliases:(?<numberOfDice>\\d+)r(?<target>\\d+)::val('roll',${numberOfDice}d10) ('roll'>=${target}c)-('roll'==1c)=@${numberOfDice}d10 vs ${target};(?<numberOfDice>\\d+)re(?<target>\\d+)::val('roll',${numberOfDice}d!10) ('roll'>=${target}c)-('roll'==1c)=@${numberOfDice}d10 vs ${target} with reroll on 10 scope:all_users_in_this_channel``"
+    "reply: **oWod / Storyteller System - Alias:** `/channel_config alias multi_save aliases:(?<numberOfDice>\\d+)r(?<target>\\d+)::val('roll',${numberOfDice}d10) ('roll'>=${target}c)-('roll'==1c)=@${numberOfDice}d10 vs ${target};(?<numberOfDice>\\d+)re(?<target>\\d+)::val('roll',${numberOfDice}d!10) ('roll'>=${target}c)-('roll'==1c)=@${numberOfDice}d10 vs ${target} with reroll on 10 scope:all_users_in_this_channel`"
   ]
 ]
 
 
 de.janno.discord.bot.command.help.QuickstartCommandMockTest.handleSlashCommandEvent[OWOD_ALIAS_en]=[
   [
-    "reply: `**oWod / Storyteller System - Alias:** `/channel_config alias multi_save aliases:(?<numberOfDice>\\d+)r(?<target>\\d+)::val('roll',${numberOfDice}d10) ('roll'>=${target}c)-('roll'==1c)=@${numberOfDice}d10 vs ${target};(?<numberOfDice>\\d+)re(?<target>\\d+)::val('roll',${numberOfDice}d!10) ('roll'>=${target}c)-('roll'==1c)=@${numberOfDice}d10 vs ${target} with reroll on 10 scope:all_users_in_this_channel``"
+    "reply: **oWod / Storyteller System - Alias:** `/channel_config alias multi_save aliases:(?<numberOfDice>\\d+)r(?<target>\\d+)::val('roll',${numberOfDice}d10) ('roll'>=${target}c)-('roll'==1c)=@${numberOfDice}d10 vs ${target};(?<numberOfDice>\\d+)re(?<target>\\d+)::val('roll',${numberOfDice}d!10) ('roll'>=${target}c)-('roll'==1c)=@${numberOfDice}d10 vs ${target} with reroll on 10 scope:all_users_in_this_channel`"
   ]
 ]
 
 
 de.janno.discord.bot.command.help.QuickstartCommandMockTest.handleSlashCommandEvent[OWOD_ALIAS_fr]=[
   [
-    "reply: `**oWod / Storyteller System - Alias:** `/channel_config alias multi_save aliases:(?<numberOfDice>\\d+)r(?<target>\\d+)::val('roll',${numberOfDice}d10) ('roll'>=${target}c)-('roll'==1c)=@${numberOfDice}d10 vs ${target};(?<numberOfDice>\\d+)re(?<target>\\d+)::val('roll',${numberOfDice}d!10) ('roll'>=${target}c)-('roll'==1c)=@${numberOfDice}d10 vs ${target} with reroll on 10 scope:all_users_in_this_channel``"
+    "reply: **oWod / Storyteller System - Alias:** `/channel_config alias multi_save aliases:(?<numberOfDice>\\d+)r(?<target>\\d+)::val('roll',${numberOfDice}d10) ('roll'>=${target}c)-('roll'==1c)=@${numberOfDice}d10 vs ${target};(?<numberOfDice>\\d+)re(?<target>\\d+)::val('roll',${numberOfDice}d!10) ('roll'>=${target}c)-('roll'==1c)=@${numberOfDice}d10 vs ${target} with reroll on 10 scope:all_users_in_this_channel`"
   ]
 ]
 
 
 de.janno.discord.bot.command.help.QuickstartCommandMockTest.handleSlashCommandEvent[OWOD_ALIAS_pt_BR]=[
   [
-    "reply: `**oWod / Storyteller System - Alias:** `/channel_config alias multi_save aliases:(?<numberOfDice>\\d+)r(?<target>\\d+)::val('roll',${numberOfDice}d10) ('roll'>=${target}c)-('roll'==1c)=@${numberOfDice}d10 vs ${target};(?<numberOfDice>\\d+)re(?<target>\\d+)::val('roll',${numberOfDice}d!10) ('roll'>=${target}c)-('roll'==1c)=@${numberOfDice}d10 vs ${target} with reroll on 10 scope:all_users_in_this_channel``"
+    "reply: **oWod / Storyteller System - Alias:** `/channel_config alias multi_save aliases:(?<numberOfDice>\\d+)r(?<target>\\d+)::val('roll',${numberOfDice}d10) ('roll'>=${target}c)-('roll'==1c)=@${numberOfDice}d10 vs ${target};(?<numberOfDice>\\d+)re(?<target>\\d+)::val('roll',${numberOfDice}d!10) ('roll'>=${target}c)-('roll'==1c)=@${numberOfDice}d10 vs ${target} with reroll on 10 scope:all_users_in_this_channel`"
   ]
 ]
 
@@ -7100,28 +7368,28 @@ de.janno.discord.bot.command.help.QuickstartCommandMockTest.handleSlashCommandEv
 
 de.janno.discord.bot.command.help.QuickstartCommandMockTest.handleSlashCommandEvent[SAVAGE_WORLDS_ALIAS_de]=[
   [
-    "reply: `**Savage Worlds - Alias:** `/channel_config alias multi_save aliases:r:d!!;sw(?<sides>\\d+)::1d!!${sides} + 1d!!6 k1@d${sides} Wildcard scope:all_users_in_this_channel``"
+    "reply: **Savage Worlds - Alias:** `/channel_config alias multi_save aliases:r:d!!;sw(?<sides>\\d+)::1d!!${sides} + 1d!!6 k1@d${sides} Wildcard scope:all_users_in_this_channel`"
   ]
 ]
 
 
 de.janno.discord.bot.command.help.QuickstartCommandMockTest.handleSlashCommandEvent[SAVAGE_WORLDS_ALIAS_en]=[
   [
-    "reply: `**Savage Worlds - Alias:** `/channel_config alias multi_save aliases:r:d!!;sw(?<sides>\\d+)::1d!!${sides} + 1d!!6 k1@d${sides} Wildcard scope:all_users_in_this_channel``"
+    "reply: **Savage Worlds - Alias:** `/channel_config alias multi_save aliases:r:d!!;sw(?<sides>\\d+)::1d!!${sides} + 1d!!6 k1@d${sides} Wildcard scope:all_users_in_this_channel`"
   ]
 ]
 
 
 de.janno.discord.bot.command.help.QuickstartCommandMockTest.handleSlashCommandEvent[SAVAGE_WORLDS_ALIAS_fr]=[
   [
-    "reply: `**Savage Worlds - Alias:** `/channel_config alias multi_save aliases:r:d!!;sw(?<sides>\\d+)::1d!!${sides} + 1d!!6 k1@d${sides} Wildcard scope:all_users_in_this_channel``"
+    "reply: **Savage Worlds - Alias:** `/channel_config alias multi_save aliases:r:d!!;sw(?<sides>\\d+)::1d!!${sides} + 1d!!6 k1@d${sides} Wildcard scope:all_users_in_this_channel`"
   ]
 ]
 
 
 de.janno.discord.bot.command.help.QuickstartCommandMockTest.handleSlashCommandEvent[SAVAGE_WORLDS_ALIAS_pt_BR]=[
   [
-    "reply: `**Savage Worlds - Alias:** `/channel_config alias multi_save aliases:r:d!!;sw(?<sides>\\d+)::1d!!${sides} + 1d!!6 k1@d${sides} Wildcard scope:all_users_in_this_channel``"
+    "reply: **Savage Worlds - Alias:** `/channel_config alias multi_save aliases:r:d!!;sw(?<sides>\\d+)::1d!!${sides} + 1d!!6 k1@d${sides} Wildcard scope:all_users_in_this_channel`"
   ]
 ]
 
@@ -7276,28 +7544,28 @@ de.janno.discord.bot.command.help.QuickstartCommandMockTest.handleSlashCommandEv
 
 de.janno.discord.bot.command.help.QuickstartCommandMockTest.handleSlashCommandEvent[SHADOWRUN_ALIAS_de]=[
   [
-    "reply: `**Shadowrun - Alias:** `/channel_config alias multi_save aliases:(?<numberOfDice>\\d+)sr::val('roll',${numberOfDice}d6) concat('roll'>4c, if('roll'==1c >? 'roll'c/2,' - Glitch!'))@${numberOfDice}d6 scope:all_users_in_this_channel``"
+    "reply: **Shadowrun - Alias:** `/channel_config alias multi_save aliases:(?<numberOfDice>\\d+)sr::val('roll',${numberOfDice}d6) concat('roll'>4c, if('roll'==1c >? 'roll'c/2,' - Glitch!'))@${numberOfDice}d6 scope:all_users_in_this_channel`"
   ]
 ]
 
 
 de.janno.discord.bot.command.help.QuickstartCommandMockTest.handleSlashCommandEvent[SHADOWRUN_ALIAS_en]=[
   [
-    "reply: `**Shadowrun - Alias:** `/channel_config alias multi_save aliases:(?<numberOfDice>\\d+)sr::val('roll',${numberOfDice}d6) concat('roll'>4c, if('roll'==1c >? 'roll'c/2,' - Glitch!'))@${numberOfDice}d6 scope:all_users_in_this_channel``"
+    "reply: **Shadowrun - Alias:** `/channel_config alias multi_save aliases:(?<numberOfDice>\\d+)sr::val('roll',${numberOfDice}d6) concat('roll'>4c, if('roll'==1c >? 'roll'c/2,' - Glitch!'))@${numberOfDice}d6 scope:all_users_in_this_channel`"
   ]
 ]
 
 
 de.janno.discord.bot.command.help.QuickstartCommandMockTest.handleSlashCommandEvent[SHADOWRUN_ALIAS_fr]=[
   [
-    "reply: `**Shadowrun - Alias:** `/channel_config alias multi_save aliases:(?<numberOfDice>\\d+)sr::val('roll',${numberOfDice}d6) concat('roll'>4c, if('roll'==1c >? 'roll'c/2,' - Glitch!'))@${numberOfDice}d6 scope:all_users_in_this_channel``"
+    "reply: **Shadowrun - Alias:** `/channel_config alias multi_save aliases:(?<numberOfDice>\\d+)sr::val('roll',${numberOfDice}d6) concat('roll'>4c, if('roll'==1c >? 'roll'c/2,' - Glitch!'))@${numberOfDice}d6 scope:all_users_in_this_channel`"
   ]
 ]
 
 
 de.janno.discord.bot.command.help.QuickstartCommandMockTest.handleSlashCommandEvent[SHADOWRUN_ALIAS_pt_BR]=[
   [
-    "reply: `**Shadowrun - Alias:** `/channel_config alias multi_save aliases:(?<numberOfDice>\\d+)sr::val('roll',${numberOfDice}d6) concat('roll'>4c, if('roll'==1c >? 'roll'c/2,' - Glitch!'))@${numberOfDice}d6 scope:all_users_in_this_channel``"
+    "reply: **Shadowrun - Alias:** `/channel_config alias multi_save aliases:(?<numberOfDice>\\d+)sr::val('roll',${numberOfDice}d6) concat('roll'>4c, if('roll'==1c >? 'roll'c/2,' - Glitch!'))@${numberOfDice}d6 scope:all_users_in_this_channel`"
   ]
 ]
 
@@ -7727,7 +7995,7 @@ de.janno.discord.bot.command.help.QuickstartCommandMockTest.quickstartAlias_dire
 
 de.janno.discord.bot.command.help.QuickstartCommandMockTest.quickstartAlias_directRoll[BLADES_IN_THE_DARK_ALIAS_0b_quickstart]=[
   [
-    "reply: `**BLADES_IN_THE_DARK_ALIAS:** `/channel_config alias multi_save aliases:(?<numberOfDice>\\d+)b::val('diceRoll', if(${numberOfDice}=?0,2d6L1, ${numberOfDice}d6)) val('sixes','diceRoll'==6c) val('partials','diceRoll'>3<6c) if('sixes'>?1,'Critical Success - You do it with increased effect.', 'sixes'=?1,'Success - You do it.','partials' >? 0,'Partial Success - You do it but suffer severe harm, a serious complication or have reduced effect.','Failure - You suffer severe harm, a serious complication occurs, or you lose this opportunity for action.')@${numberOfDice} Dice scope:all_users_in_this_channel``"
+    "reply: **BLADES_IN_THE_DARK_ALIAS:** `/channel_config alias multi_save aliases:(?<numberOfDice>\\d+)b::val('diceRoll', if(${numberOfDice}=?0,2d6L1, ${numberOfDice}d6)) val('sixes','diceRoll'==6c) val('partials','diceRoll'>3<6c) if('sixes'>?1,'Critical Success - You do it with increased effect.', 'sixes'=?1,'Success - You do it.','partials' >? 0,'Partial Success - You do it but suffer severe harm, a serious complication or have reduced effect.','Failure - You suffer severe harm, a serious complication occurs, or you lose this opportunity for action.')@${numberOfDice} Dice scope:all_users_in_this_channel`"
   ]
 ]
 
@@ -7741,7 +8009,7 @@ de.janno.discord.bot.command.help.QuickstartCommandMockTest.quickstartAlias_dire
 
 de.janno.discord.bot.command.help.QuickstartCommandMockTest.quickstartAlias_directRoll[BLADES_IN_THE_DARK_ALIAS_5b_quickstart]=[
   [
-    "reply: `**BLADES_IN_THE_DARK_ALIAS:** `/channel_config alias multi_save aliases:(?<numberOfDice>\\d+)b::val('diceRoll', if(${numberOfDice}=?0,2d6L1, ${numberOfDice}d6)) val('sixes','diceRoll'==6c) val('partials','diceRoll'>3<6c) if('sixes'>?1,'Critical Success - You do it with increased effect.', 'sixes'=?1,'Success - You do it.','partials' >? 0,'Partial Success - You do it but suffer severe harm, a serious complication or have reduced effect.','Failure - You suffer severe harm, a serious complication occurs, or you lose this opportunity for action.')@${numberOfDice} Dice scope:all_users_in_this_channel``"
+    "reply: **BLADES_IN_THE_DARK_ALIAS:** `/channel_config alias multi_save aliases:(?<numberOfDice>\\d+)b::val('diceRoll', if(${numberOfDice}=?0,2d6L1, ${numberOfDice}d6)) val('sixes','diceRoll'==6c) val('partials','diceRoll'>3<6c) if('sixes'>?1,'Critical Success - You do it with increased effect.', 'sixes'=?1,'Success - You do it.','partials' >? 0,'Partial Success - You do it but suffer severe harm, a serious complication or have reduced effect.','Failure - You suffer severe harm, a serious complication occurs, or you lose this opportunity for action.')@${numberOfDice} Dice scope:all_users_in_this_channel`"
   ]
 ]
 
@@ -7755,7 +8023,7 @@ de.janno.discord.bot.command.help.QuickstartCommandMockTest.quickstartAlias_dire
 
 de.janno.discord.bot.command.help.QuickstartCommandMockTest.quickstartAlias_directRoll[DND5_ALIAS_adv_quickstart]=[
   [
-    "reply: `**DND5_ALIAS:** `/channel_config alias multi_save aliases:d20:d20;adv:2d20k1@Advantage;dis:2d20L1@Disadvantage scope:all_users_in_this_channel``"
+    "reply: **DND5_ALIAS:** `/channel_config alias multi_save aliases:d20:d20;adv:2d20k1@Advantage;dis:2d20L1@Disadvantage scope:all_users_in_this_channel`"
   ]
 ]
 
@@ -7769,7 +8037,7 @@ de.janno.discord.bot.command.help.QuickstartCommandMockTest.quickstartAlias_dire
 
 de.janno.discord.bot.command.help.QuickstartCommandMockTest.quickstartAlias_directRoll[FATE_ALIAS_4dF_quickstart]=[
   [
-    "reply: `**FATE_ALIAS:** `/channel_config alias multi_save aliases:4dF:val('$r', 4d[＋,▢,−]) _ '['_ '$r' _ '] = ' _ replace('$r' ,'＋',1,'▢',0,'−',-1)=@4dF scope:all_users_in_this_channel``"
+    "reply: **FATE_ALIAS:** `/channel_config alias multi_save aliases:4dF:val('$r', 4d[＋,▢,−]) _ '['_ '$r' _ '] = ' _ replace('$r' ,'＋',1,'▢',0,'−',-1)=@4dF scope:all_users_in_this_channel`"
   ]
 ]
 
@@ -7783,7 +8051,7 @@ de.janno.discord.bot.command.help.QuickstartCommandMockTest.quickstartAlias_dire
 
 de.janno.discord.bot.command.help.QuickstartCommandMockTest.quickstartAlias_directRoll[NWOD_ALIAS_8w_quickstart]=[
   [
-    "reply: `**NWOD_ALIAS:** `/channel_config alias multi_save aliases:w:d!10>=8c scope:all_users_in_this_channel``"
+    "reply: **NWOD_ALIAS:** `/channel_config alias multi_save aliases:w:d!10>=8c scope:all_users_in_this_channel`"
   ]
 ]
 
@@ -7797,7 +8065,7 @@ de.janno.discord.bot.command.help.QuickstartCommandMockTest.quickstartAlias_dire
 
 de.janno.discord.bot.command.help.QuickstartCommandMockTest.quickstartAlias_directRoll[OWOD_ALIAS_10re6_quickstart]=[
   [
-    "reply: `**OWOD_ALIAS:** `/channel_config alias multi_save aliases:(?<numberOfDice>\\d+)r(?<target>\\d+)::val('roll',${numberOfDice}d10) ('roll'>=${target}c)-('roll'==1c)=@${numberOfDice}d10 vs ${target};(?<numberOfDice>\\d+)re(?<target>\\d+)::val('roll',${numberOfDice}d!10) ('roll'>=${target}c)-('roll'==1c)=@${numberOfDice}d10 vs ${target} with reroll on 10 scope:all_users_in_this_channel``"
+    "reply: **OWOD_ALIAS:** `/channel_config alias multi_save aliases:(?<numberOfDice>\\d+)r(?<target>\\d+)::val('roll',${numberOfDice}d10) ('roll'>=${target}c)-('roll'==1c)=@${numberOfDice}d10 vs ${target};(?<numberOfDice>\\d+)re(?<target>\\d+)::val('roll',${numberOfDice}d!10) ('roll'>=${target}c)-('roll'==1c)=@${numberOfDice}d10 vs ${target} with reroll on 10 scope:all_users_in_this_channel`"
   ]
 ]
 
@@ -7811,7 +8079,7 @@ de.janno.discord.bot.command.help.QuickstartCommandMockTest.quickstartAlias_dire
 
 de.janno.discord.bot.command.help.QuickstartCommandMockTest.quickstartAlias_directRoll[OWOD_ALIAS_8r6_quickstart]=[
   [
-    "reply: `**OWOD_ALIAS:** `/channel_config alias multi_save aliases:(?<numberOfDice>\\d+)r(?<target>\\d+)::val('roll',${numberOfDice}d10) ('roll'>=${target}c)-('roll'==1c)=@${numberOfDice}d10 vs ${target};(?<numberOfDice>\\d+)re(?<target>\\d+)::val('roll',${numberOfDice}d!10) ('roll'>=${target}c)-('roll'==1c)=@${numberOfDice}d10 vs ${target} with reroll on 10 scope:all_users_in_this_channel``"
+    "reply: **OWOD_ALIAS:** `/channel_config alias multi_save aliases:(?<numberOfDice>\\d+)r(?<target>\\d+)::val('roll',${numberOfDice}d10) ('roll'>=${target}c)-('roll'==1c)=@${numberOfDice}d10 vs ${target};(?<numberOfDice>\\d+)re(?<target>\\d+)::val('roll',${numberOfDice}d!10) ('roll'>=${target}c)-('roll'==1c)=@${numberOfDice}d10 vs ${target} with reroll on 10 scope:all_users_in_this_channel`"
   ]
 ]
 
@@ -7825,7 +8093,7 @@ de.janno.discord.bot.command.help.QuickstartCommandMockTest.quickstartAlias_dire
 
 de.janno.discord.bot.command.help.QuickstartCommandMockTest.quickstartAlias_directRoll[SAVAGE_WORLDS_ALIAS_r4_quickstart]=[
   [
-    "reply: `**SAVAGE_WORLDS_ALIAS:** `/channel_config alias multi_save aliases:r:d!!;sw(?<sides>\\d+)::1d!!${sides} + 1d!!6 k1@d${sides} Wildcard scope:all_users_in_this_channel``"
+    "reply: **SAVAGE_WORLDS_ALIAS:** `/channel_config alias multi_save aliases:r:d!!;sw(?<sides>\\d+)::1d!!${sides} + 1d!!6 k1@d${sides} Wildcard scope:all_users_in_this_channel`"
   ]
 ]
 
@@ -7839,7 +8107,7 @@ de.janno.discord.bot.command.help.QuickstartCommandMockTest.quickstartAlias_dire
 
 de.janno.discord.bot.command.help.QuickstartCommandMockTest.quickstartAlias_directRoll[SAVAGE_WORLDS_ALIAS_sw4_quickstart]=[
   [
-    "reply: `**SAVAGE_WORLDS_ALIAS:** `/channel_config alias multi_save aliases:r:d!!;sw(?<sides>\\d+)::1d!!${sides} + 1d!!6 k1@d${sides} Wildcard scope:all_users_in_this_channel``"
+    "reply: **SAVAGE_WORLDS_ALIAS:** `/channel_config alias multi_save aliases:r:d!!;sw(?<sides>\\d+)::1d!!${sides} + 1d!!6 k1@d${sides} Wildcard scope:all_users_in_this_channel`"
   ]
 ]
 
@@ -7853,6 +8121,6 @@ de.janno.discord.bot.command.help.QuickstartCommandMockTest.quickstartAlias_dire
 
 de.janno.discord.bot.command.help.QuickstartCommandMockTest.quickstartAlias_directRoll[SHADOWRUN_ALIAS_10sr_quickstart]=[
   [
-    "reply: `**SHADOWRUN_ALIAS:** `/channel_config alias multi_save aliases:(?<numberOfDice>\\d+)sr::val('roll',${numberOfDice}d6) concat('roll'>4c, if('roll'==1c >? 'roll'c/2,' - Glitch!'))@${numberOfDice}d6 scope:all_users_in_this_channel``"
+    "reply: **SHADOWRUN_ALIAS:** `/channel_config alias multi_save aliases:(?<numberOfDice>\\d+)sr::val('roll',${numberOfDice}d6) concat('roll'>4c, if('roll'==1c >? 'roll'c/2,' - Glitch!'))@${numberOfDice}d6 scope:all_users_in_this_channel`"
   ]
 ]

@@ -183,7 +183,7 @@ public class QuickstartCommand implements SlashCommand {
                                             stopwatch.elapsed(TimeUnit.MILLISECONDS)
                                     ));
                 } else {
-                    return Mono.defer(() -> event.reply("`%s`".formatted(commandString), false))
+                    return Mono.defer(() -> event.reply(commandString, false))
                             .doOnSuccess(v -> BotMetrics.timerNewButtonMessageMetricCounter(getCommandId(), stopwatch.elapsed()))
                             .doOnSuccess(v ->
                                     log.info("{}: '{}' {}ms",
