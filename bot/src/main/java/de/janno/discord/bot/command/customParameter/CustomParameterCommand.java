@@ -20,8 +20,10 @@ import de.janno.discord.bot.persistance.PersistenceManager;
 import de.janno.discord.connector.api.BottomCustomIdUtils;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
+import de.janno.discord.connector.api.message.DropdownDefinition;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinitionOption;
+import de.janno.discord.connector.api.slash.CommandDefinitionOptionChoice;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -42,7 +44,11 @@ import java.util.stream.IntStream;
 public class CustomParameterCommand extends AbstractCommand<CustomParameterConfig, CustomParameterStateData> {
 
     public static final String COMMAND_NAME = "custom_parameter";
+    public static final String CONFIG_TYPE_ID = "CustomParameterConfig";
     static final String EXPRESSION_OPTION_NAME = "expression";
+    static final String INPUT_TYPE_NAME = "input_type";
+    static final String INPUT_TYPE_BUTTON = "button";
+    static final String INPUT_TYPE_DROPDOWN = "dropdown";
     private static final String CLEAR_BUTTON_ID = "clear";
     private final static Pattern PARAMETER_VARIABLE_PATTERN = Pattern.compile("\\Q{\\E.*?\\Q}\\E", Pattern.DOTALL);
     private final static Pattern PARAMETER_EMPTY_PATTERN = Pattern.compile("\\{\\s*}", Pattern.DOTALL);
@@ -57,7 +63,6 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     private final static Pattern PARAMETER_OPTION_EMPTY_PATTERN = Pattern.compile(RANGE_DELIMITER + ".*" + BUTTON_VALUE_DELIMITER + "\\s*" + BUTTON_VALUE_DELIMITER + ".*}", Pattern.DOTALL);
     private static final String STATE_DATA_TYPE_ID = "CustomParameterStateDataV2";
     private static final String STATE_DATA_TYPE_ID_LEGACY = "CustomParameterStateData";
-    public static final String CONFIG_TYPE_ID = "CustomParameterConfig";
     private final static Pattern LABEL_MATCHER = Pattern.compile("@[^}]+$", Pattern.DOTALL);
     private final static String SKIPPED_BY_PATH_VALUE = "";
     private final static String SKIPPED_BY_DIRECT_ROLL_VALUE = "''";
@@ -100,7 +105,6 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
                                                 @NonNull String invokingUser) {
         final String shouldBeLockedForUser;
         List<SelectedParameter> currentOrNewSelectedParameter = Optional.ofNullable(currentlySelectedParameterList).orElse(config.getParameters().stream()
-
                 .map(p -> new SelectedParameter(p.getParameterExpression(), p.getName(), null, null, false, p.getPathId(), null))
                 .toList());
         Optional<String> currentParameterExpression = currentOrNewSelectedParameter.stream()
@@ -112,18 +116,22 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
                     .map(p -> new SelectedParameter(p.getParameterExpression(), p.getName(), null, null, false, p.getPathId(), null)).collect(ImmutableList.toImmutableList());
             return new CustomParameterStateData(newSelectedParameterList, null);
         } else {
+            //todo lock user with dropdown?
             shouldBeLockedForUser = Optional.ofNullable(currentlyLockedForUser).orElse(invokingUser);
         }
         final AtomicBoolean directRoll = new AtomicBoolean(false);
-        final AtomicReference<String> removePathNotMathingThis = new AtomicReference<>(null);
+        final AtomicReference<String> removePathNotMatchingThis = new AtomicReference<>(null);
         ImmutableList<SelectedParameter> newSelectedParameterList = currentOrNewSelectedParameter.stream()
                 .map(sp -> {
                     if (directRoll.get()) {
                         return new SelectedParameter(sp.getParameterExpression(), sp.getName(), SKIPPED_BY_DIRECT_ROLL_VALUE, null, true, sp.getPathId(), Parameter.NO_PATH);
                     }
-                    if (Objects.equals(sp.getParameterExpression(), currentParameterExpression.get()) &&
+                    if ((Objects.equals(sp.getParameterExpression(), currentParameterExpression.get()) ||
+                            //dropdowns can update all parameter
+                            config.getInputType() == CustomParameterConfig.InputType.dropdown) &&
+                            //todo locked user and dropdown?
                             (currentlyLockedForUser == null || Objects.equals(currentlyLockedForUser, invokingUser))) {
-                        List<Parameter.ParameterOption> parameters = getParameterForParameterExpression(config, sp.getParameterExpression())
+                        final List<Parameter.ParameterOption> parameters = getParameterForParameterExpression(config, sp.getParameterExpression())
                                 .map(Parameter::getParameterOptions).orElse(List.of());
                         Optional<Parameter.ParameterOption> selectedParameterOption = parameters.stream()
                                 .filter(vl -> vl.id().equals(buttonValue))
@@ -135,7 +143,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
                                     .filter(vl -> vl.value().equals(buttonValue))
                                     .findFirst();
                         }
-                        if(selectedParameterOption.isEmpty()){
+                        if (selectedParameterOption.isEmpty()) {
                             //can happen if the state was already updated but the buttons are not because of a discord error
                             return sp;
                         }
@@ -143,16 +151,16 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
                         if (selectedParameter.directRoll()) {
                             directRoll.set(true);
                         }
-                        removePathNotMathingThis.set(selectedParameter.nextPathId());
+                        removePathNotMatchingThis.set(selectedParameter.nextPathId());
                         return new SelectedParameter(sp.getParameterExpression(), sp.getName(), selectedParameter.value(), selectedParameter.label(), true, sp.getPathId(), selectedParameter.nextPathId());
                     }
-                    if (removePathNotMathingThis.get() != null) {
-                        if (!Objects.equals(sp.getPathId(), removePathNotMathingThis.get())) {
+                    if (removePathNotMatchingThis.get() != null) {
+                        if (!Objects.equals(sp.getPathId(), removePathNotMatchingThis.get())) {
                             //all not matching paths get finished
                             return new SelectedParameter(sp.getParameterExpression(), sp.getName(), SKIPPED_BY_PATH_VALUE, null, true, sp.getPathId(), Parameter.NO_PATH);
                         } else {
                             //after the first matching path no filter are applied
-                            removePathNotMathingThis.set(null);
+                            removePathNotMatchingThis.set(null);
                             return sp.copy();
                         }
                     }
@@ -204,15 +212,15 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
         return in.replace("!" + pathId + "!", "");
     }
 
-    static List<Parameter> createParameterListFromBaseExpression(String expression) {
+    static List<Parameter> createParameterListFromBaseExpression(String expression, CustomParameterConfig.InputType inputType) {
         Matcher variableMatcher = PARAMETER_VARIABLE_PATTERN.matcher(expression);
         ImmutableList.Builder<Parameter> builder = ImmutableList.builder();
         while (variableMatcher.find()) {
             String parameterExpression = variableMatcher.group();
             String expressionWithoutRange = removeRange(parameterExpression);
-            String name = expressionWithoutRange.substring(1, expressionWithoutRange.length() - 1);
-            String pathId = getPathId(name);
-            name = removePathString(name, pathId);
+            String nameAndOptionalPath = expressionWithoutRange.substring(1, expressionWithoutRange.length() - 1);
+            String pathId = getPathId(nameAndOptionalPath);
+            String name = removePathString(nameAndOptionalPath, pathId);
             Matcher valueMatcher = BUTTON_VALUE_PATTERN.matcher(parameterExpression);
             if (BUTTON_RANGE_PATTERN.matcher(parameterExpression).find()) {
                 int min = getMinButtonFrom(parameterExpression);
@@ -220,7 +228,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
                 AtomicInteger counter = new AtomicInteger(1);
                 builder.add(new Parameter(parameterExpression, name, IntStream.range(min, max + 1)
                         .mapToObj(String::valueOf)
-                        .map(s -> new Parameter.ParameterOption(s, s, createParameterOptionIdFromIndex(counter.getAndIncrement()), false, Parameter.NO_PATH))
+                        .map(s -> new Parameter.ParameterOption(s, s, createParameterOptionIdFromIndex(counter.getAndIncrement(), inputType, name), false, Parameter.NO_PATH))
                         .toList(), pathId));
             } else if (valueMatcher.find()) {
                 String buttonValueExpression = valueMatcher.group(1);
@@ -246,20 +254,20 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
                                     directRoll = false;
                                 }
                                 if (!Strings.isNullOrEmpty(parameterOptionExpression) && !Strings.isNullOrEmpty(split[1])) {
-                                    return new Parameter.ParameterOption(parameterOptionExpression, cleanLable, createParameterOptionIdFromIndex(counter.getAndIncrement()), directRoll, nextPathId);
+                                    return new Parameter.ParameterOption(parameterOptionExpression, cleanLable, createParameterOptionIdFromIndex(counter.getAndIncrement(), inputType, name), directRoll, nextPathId);
                                 }
                             }
                             //without label
                             final String nextPathId = getPathId(s);
                             final String parameterOptionExpression = removePathString(s, nextPathId);
-                            return new Parameter.ParameterOption(parameterOptionExpression, parameterOptionExpression, createParameterOptionIdFromIndex(counter.getAndIncrement()), false, nextPathId);
+                            return new Parameter.ParameterOption(parameterOptionExpression, parameterOptionExpression, createParameterOptionIdFromIndex(counter.getAndIncrement(), inputType, name), false, nextPathId);
 
                         })
                         .toList(), pathId));
             } else {
                 builder.add(new Parameter(parameterExpression, name, IntStream.range(1, 16)
                         .boxed()
-                        .map(s -> new Parameter.ParameterOption(String.valueOf(s), String.valueOf(s), createParameterOptionIdFromIndex(s), false, Parameter.NO_PATH))
+                        .map(s -> new Parameter.ParameterOption(String.valueOf(s), String.valueOf(s), createParameterOptionIdFromIndex(s, inputType, name), false, Parameter.NO_PATH))
                         .toList(), Parameter.NO_PATH));
             }
         }
@@ -267,8 +275,11 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
         return builder.build();
     }
 
-    private static String createParameterOptionIdFromIndex(int index) {
-        return "id%d".formatted(index);
+    private static String createParameterOptionIdFromIndex(int index, CustomParameterConfig.InputType inputType, String parameterName) {
+        if (inputType == CustomParameterConfig.InputType.button_legacy) {
+            return "id%d".formatted(index);
+        }
+        return "%s-id%d".formatted(parameterName, index);
     }
 
     @VisibleForTesting
@@ -342,7 +353,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
 
     @Override
     protected @NonNull List<CommandDefinitionOption> getStartOptions() {
-        return ImmutableList.of(
+        return List.of(
                 CommandDefinitionOption.builder()
                         .name(EXPRESSION_OPTION_NAME)
                         .nameLocales(I18n.allNoneEnglishMessagesNames("custom_parameter.option.expression.name"))
@@ -350,7 +361,19 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
                         .descriptionLocales(I18n.allNoneEnglishMessagesDescriptions("custom_parameter.option.expression.description"))
                         .required(true)
                         .type(CommandDefinitionOption.Type.STRING)
-                        .build());
+                        .build(),
+                CommandDefinitionOption.builder()
+                        .name(INPUT_TYPE_NAME)
+                        .description(I18n.getMessage("custom_parameter.option.inputType.description", Locale.ENGLISH))
+                        .descriptionLocales(I18n.allNoneEnglishMessagesDescriptions("custom_parameter.option.inputType.description"))
+                        .required(false)
+                        .choices(List.of(
+                                CommandDefinitionOptionChoice.builder().name(INPUT_TYPE_BUTTON).value(INPUT_TYPE_BUTTON).build(),
+                                CommandDefinitionOptionChoice.builder().name(INPUT_TYPE_DROPDOWN).value(INPUT_TYPE_DROPDOWN).build()
+                        ))
+                        .type(CommandDefinitionOption.Type.STRING)
+                        .build()
+        );
     }
 
     @Override
@@ -376,6 +399,9 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
         Long answerTargetChannelId = BaseCommandOptions.getAnswerTargetChannelIdFromStartCommandOption(options).orElse(null);
         AnswerFormatType answerType = BaseCommandOptions.getAnswerTypeFromStartCommandOption(options).orElse(AnswerFormatType.without_expression);
         final String name = BaseCommandOptions.getNameFromStartCommandOption(options).orElse(null);
+        final CustomParameterConfig.InputType inputType = options.getStringSubOptionWithName(INPUT_TYPE_NAME)
+                .map(CustomParameterConfig.InputType::fromString)
+                .orElse(CustomParameterConfig.InputType.button);
         return new CustomParameterConfig(answerTargetChannelId,
                 baseExpression,
                 answerType,
@@ -386,7 +412,8 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
                         BaseCommandOptions.getDiceColorOptionFromStartCommandOption(options).orElse(DiceImageStyle.polyhedral_3d.getDefaultColor())),
                 userLocale,
                 null,
-                name
+                name,
+                inputType
         );
     }
 
@@ -395,7 +422,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
         return EmbedOrMessageDefinition.builder()
                 .type(EmbedOrMessageDefinition.Type.MESSAGE)
                 .descriptionOrContent(formatMessageContent(config, null, null))
-                .componentRowDefinitions(getButtonLayoutWithOptionalState(configUUID, config, null))
+                .componentRowDefinitions(getComponentLayoutWithOptionalState(configUUID, config, null))
                 .build();
     }
 
@@ -405,11 +432,14 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
         if (!hasMissingParameter(state)) {
             if (keepExistingButtonMessage) {
                 //reset on roll and keep message
-                return Optional.of(getButtonLayoutWithOptionalState(configUUID, config, null));
+                return Optional.of(getComponentLayoutWithOptionalState(configUUID, config, null));
             }
             return Optional.empty();
         }
-        return Optional.of(getButtonLayoutWithOptionalState(configUUID, config, state));
+        if (config.getInputType() == CustomParameterConfig.InputType.dropdown) {
+            return Optional.empty();
+        }
+        return Optional.of(getComponentLayoutWithOptionalState(configUUID, config, state));
     }
 
     @Override
@@ -477,6 +507,9 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
             }
             return Optional.empty();
         }
+        if (config.getInputType() == CustomParameterConfig.InputType.dropdown) {
+            return Optional.empty();
+        }
         String cleanName = Optional.ofNullable(state.getData())
                 .map(CustomParameterStateData::getLockedForUserName)
                 .orElse("");
@@ -498,13 +531,16 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
             return Optional.of(EmbedOrMessageDefinition.builder()
                     .type(EmbedOrMessageDefinition.Type.MESSAGE)
                     .descriptionOrContent(formatMessageContent(config, state, null))
-                    .componentRowDefinitions(getButtonLayoutWithOptionalState(configUUID, config, null))
+                    .componentRowDefinitions(getComponentLayoutWithOptionalState(configUUID, config, null))
                     .build());
         }
         return Optional.empty();
     }
 
     private String formatMessageContent(CustomParameterConfig config, State<CustomParameterStateData> state, String userName) {
+        if (config.getInputType() == CustomParameterConfig.InputType.dropdown) {
+            return I18n.getMessage("custom_parameter.select.dropdown", config.getConfigLocale());
+        }
         Parameter currentParameter = Optional.ofNullable(state)
                 .map(State::getData)
                 .flatMap(CustomParameterStateData::getNextUnselectedParameterExpression)
@@ -532,8 +568,20 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
                 currentParameter.getName());
     }
 
-    private List<ComponentRowDefinition> getButtonLayoutWithOptionalState(@NonNull UUID
-                                                                                  configUUID, @NonNull CustomParameterConfig config, @Nullable State<CustomParameterStateData> state) {
+    private List<ComponentRowDefinition> getComponentLayoutWithOptionalState(@NonNull UUID configUUID,
+                                                                             @NonNull CustomParameterConfig config,
+                                                                             @Nullable State<CustomParameterStateData> state) {
+        if (config.getInputType() == CustomParameterConfig.InputType.dropdown) {
+            return getDropdownLayout(configUUID, config);
+        } else if (config.getInputType() == CustomParameterConfig.InputType.button || config.getInputType() == CustomParameterConfig.InputType.button_legacy) {
+            return getButtonLayout(configUUID, config, state);
+        }
+        throw new IllegalArgumentException("Unsupported input type: " + config.getInputType());
+    }
+
+    private List<ComponentRowDefinition> getButtonLayout(@NonNull UUID configUUID,
+                                                         @NonNull CustomParameterConfig config,
+                                                         @Nullable State<CustomParameterStateData> state) {
         String currentParameterExpression = Optional.ofNullable(state)
                 .map(State::getData)
                 .flatMap(CustomParameterStateData::getNextUnselectedParameterExpression)
@@ -553,6 +601,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
                     .map(SelectedParameter::getPathId)
                     .collect(Collectors.toSet());
         }
+
         List<ButtonDefinition> buttons = parameter.getParameterOptions().stream()
                 .map(vl -> {
                     final BotEmojiUtil.LabelAndEmoji labelAndEmoji = BotEmojiUtil.splitLabel(vl.label());
@@ -573,8 +622,33 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
                     .style(ButtonDefinition.Style.DANGER)
                     .build());
         }
+
         return Lists.partition(buttons, 5).stream()
-                .map(bl -> ComponentRowDefinition.builder().buttonDefinitions(bl)
+                .map(bl -> ComponentRowDefinition.builder().componentDefinitions(bl)
+                        .build())
+                .collect(Collectors.toList());
+    }
+
+    private List<ComponentRowDefinition> getDropdownLayout(@NonNull UUID configUUID,
+                                                           @NonNull CustomParameterConfig config) {
+        return config.getParameters().stream()
+                .map(p -> ComponentRowDefinition.builder()
+                        .componentDefinition(DropdownDefinition.builder()
+                                .id(p.getName())
+                                .options(p.getParameterOptions().stream()
+                                        .map(b -> {
+                                            final BotEmojiUtil.LabelAndEmoji labelAndEmoji = BotEmojiUtil.splitLabel(b.label());
+                                            return DropdownDefinition.DropdownOption.builder()
+                                                    .value(BottomCustomIdUtils.createButtonCustomId(getCommandId(), b.id(), configUUID))
+                                                    .label(labelAndEmoji.labelWithoutLeadingEmoji())
+                                                    .emoji(labelAndEmoji.emoji())
+                                                    .build();
+                                        })
+                                        .toList()
+                                )
+                                .maxValues(1)
+                                .placeholder(p.getName())
+                                .build())
                         .build())
                 .collect(Collectors.toList());
     }
@@ -593,6 +667,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
         String baseExpression = options.getStringSubOptionWithName(EXPRESSION_OPTION_NAME).orElse("");
         log.trace("Start validating: {}", baseExpression.replace("\n", " "));
         int variableCount = 0;
+        //todo validation dropdown -> no path, no variable with same name
         Matcher variableMatcher = PARAMETER_VARIABLE_PATTERN.matcher(baseExpression);
         while (variableMatcher.find()) {
             variableCount++;
@@ -619,8 +694,9 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
             return Optional.of(I18n.getMessage("custom_parameter.validation.invalid.character", userLocale, SELECTED_PARAMETER_DELIMITER));
         }
         CustomParameterConfig config = getConfigFromStartOptions(options, userLocale);
-        if (createParameterListFromBaseExpression(getNextParameterExpression(config.getBaseExpression())).isEmpty()) {
-            return Optional.of(I18n.getMessage("custom_parameter.validation.invalid.parameter.option", userLocale, getNextParameterExpression(config.getBaseExpression())));
+        String nextParameterExpression = getNextParameterExpression(config.getBaseExpression());
+        if (createParameterListFromBaseExpression(nextParameterExpression, config.getInputType()).isEmpty()) {
+            return Optional.of(I18n.getMessage("custom_parameter.validation.invalid.parameter.option", userLocale, nextParameterExpression));
         }
         return CustomParameterValidator.validateStates(config, channelId, userId, persistenceManager, diceEvaluatorAdapter);
     }

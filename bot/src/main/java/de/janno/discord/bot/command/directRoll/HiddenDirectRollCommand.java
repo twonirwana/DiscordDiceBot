@@ -67,7 +67,7 @@ public class HiddenDirectRollCommand extends DirectRollCommand implements Compon
                                                  @NonNull Locale userLocale) {
         EmbedOrMessageDefinition embedOrMessageDefinition = RollAnswerConverter.toEmbedOrMessageDefinition(answer).toBuilder()
                 .componentRowDefinition(ComponentRowDefinition.builder()
-                        .buttonDefinition(ButtonDefinition.builder()
+                        .componentDefinition(ButtonDefinition.builder()
                                 .id(BottomCustomIdUtils.createButtonCustomIdWithoutConfigId(getCommandId(), REVEAL_BUTTON_ID))
                                 .label(I18n.getMessage("h.button.reveal.label", userLocale)).build())
                         .build()
