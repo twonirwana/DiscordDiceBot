@@ -7,6 +7,7 @@ import de.janno.discord.bot.SlashEventAdaptorMock;
 import de.janno.discord.bot.persistance.*;
 import de.janno.discord.connector.api.AutoCompleteAnswer;
 import de.janno.discord.connector.api.AutoCompleteRequest;
+import de.janno.discord.connector.api.Requester;
 import de.janno.discord.connector.api.SlashEventAdaptor;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import org.junit.jupiter.api.AfterEach;
@@ -36,7 +37,7 @@ class ClearCommandTest {
         when(slashEventAdaptor.getChannelId()).thenReturn(0L);
         when(persistenceManager.deleteMessageDataForChannel(anyLong(), isNull())).thenReturn(ImmutableSet.of(1L, 2L));
         when(slashEventAdaptor.deleteMessageById(anyLong())).thenReturn(Mono.empty());
-
+        when(slashEventAdaptor.getRequester()).thenReturn(new Requester("user", "channel", "guild", "shard", Locale.ENGLISH, null));
         Mono<Void> res = underTest.handleSlashCommandEvent(slashEventAdaptor, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"), Locale.ENGLISH);
         StepVerifier.create(res).verifyComplete();
 
@@ -162,9 +163,9 @@ class ClearCommandTest {
         persistenceManager = new PersistenceManagerImpl("jdbc:h2:mem:" + UUID.randomUUID(), null, null);
         underTest = new ClearCommand(persistenceManager);
 
-       List<AutoCompleteAnswer> res =  underTest.getAutoCompleteAnswer(new AutoCompleteRequest("name", "", List.of()), Locale.ENGLISH, 1L, 2L, 3L);
+        List<AutoCompleteAnswer> res = underTest.getAutoCompleteAnswer(new AutoCompleteRequest("name", "", List.of()), Locale.ENGLISH, 1L, 2L, 3L);
 
-       assertThat(res).isEmpty();
+        assertThat(res).isEmpty();
     }
 
     @Test
@@ -177,7 +178,7 @@ class ClearCommandTest {
         persistenceManager.saveMessageConfig(new MessageConfigDTO(UUID.randomUUID(), 2L, 2L, "testCommand", "testConfigClass", "configClass", "name3", 0L));
         persistenceManager.saveMessageConfig(new MessageConfigDTO(UUID.randomUUID(), 1L, 3L, "testCommand", "testConfigClass", "configClass", "name4", null));
 
-        List<AutoCompleteAnswer> res =  underTest.getAutoCompleteAnswer(new AutoCompleteRequest("name", "", List.of()), Locale.ENGLISH, 1L, 2L, 3L);
+        List<AutoCompleteAnswer> res = underTest.getAutoCompleteAnswer(new AutoCompleteRequest("name", "", List.of()), Locale.ENGLISH, 1L, 2L, 3L);
 
         assertThat(res.stream().map(AutoCompleteAnswer::getName)).containsExactly("name1", "name2");
     }
@@ -192,9 +193,9 @@ class ClearCommandTest {
         persistenceManager.saveMessageConfig(new MessageConfigDTO(UUID.randomUUID(), 2L, 2L, "testCommand", "testConfigClass", "configClass", "name3", 0L));
         persistenceManager.saveMessageConfig(new MessageConfigDTO(UUID.randomUUID(), 1L, 3L, "testCommand", "testConfigClass", "configClass", "name4", null));
 
-        List<AutoCompleteAnswer> res =  underTest.getAutoCompleteAnswer(new AutoCompleteRequest("name", "e2", List.of()), Locale.ENGLISH, 1L, 2L, 3L);
+        List<AutoCompleteAnswer> res = underTest.getAutoCompleteAnswer(new AutoCompleteRequest("name", "e2", List.of()), Locale.ENGLISH, 1L, 2L, 3L);
 
-        assertThat(res.stream().map(AutoCompleteAnswer::getName)).containsExactly( "name2");
+        assertThat(res.stream().map(AutoCompleteAnswer::getName)).containsExactly("name2");
     }
 
 }
