@@ -102,7 +102,7 @@ class StarterCommandMockTest {
         underTest.handleComponentInteractEvent(buttonEventAdaptorMock).block();
         expect.scenario(presetId.name() + "_" + "event2" + "_" + locale).toMatchSnapshot(buttonEventAdaptorMock.getSortedActions());
 
-        String buttonId = buttonEventAdaptorMock.getEditedComponentRowDefinition().getFirst().getButtonDefinitions().getFirst().getId();
+        String buttonId = buttonEventAdaptorMock.getEditedComponentRowDefinition().getFirst().getComponentDefinitions().getFirst().getId();
 
         final ComponentCommand componentCommand = switch (presetId.getCommandId()) {
             case CustomDiceCommand.COMMAND_NAME -> customDiceCommand;
@@ -145,7 +145,7 @@ class StarterCommandMockTest {
         underTest.handleComponentInteractEvent(buttonEventAdaptorMock).block();
         expect.scenario("event2").toMatchSnapshot(buttonEventAdaptorMock.getSortedActions());
 
-        String buttonId = buttonEventAdaptorMock.getEditedComponentRowDefinition().getFirst().getButtonDefinitions().getFirst().getId();
+        String buttonId = buttonEventAdaptorMock.getEditedComponentRowDefinition().getFirst().getComponentDefinitions().getFirst().getId();
 
         ButtonEventAdaptorMock buttonEventAdaptorMock2 = ButtonEventAdaptorMock.ofCustomId(buttonId, buttonEventAdaptorMock.getMessageId());
 
@@ -185,7 +185,7 @@ class StarterCommandMockTest {
         underTest.handleComponentInteractEvent(buttonEventAdaptorMock).block();
         expect.scenario("event2").toMatchSnapshot(buttonEventAdaptorMock.getSortedActions());
 
-        String buttonId = buttonEventAdaptorMock.getSendMessages().getFirst().getComponentRowDefinitions().getFirst().getButtonDefinitions().getFirst().getId();
+        String buttonId = buttonEventAdaptorMock.getSendMessages().getFirst().getComponentRowDefinitions().getFirst().getComponentDefinitions().getFirst().getId();
 
         ButtonEventAdaptorMock buttonEventAdaptorMock2 = ButtonEventAdaptorMock.ofCustomId(buttonId, buttonEventAdaptorMock.getMessageId());
 

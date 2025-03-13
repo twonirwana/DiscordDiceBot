@@ -13,6 +13,7 @@ import de.janno.discord.bot.persistance.MessageConfigDTO;
 import de.janno.discord.bot.persistance.PersistenceManager;
 import de.janno.discord.connector.api.ButtonEventAdaptor;
 import de.janno.discord.connector.api.message.ButtonDefinition;
+import de.janno.discord.connector.api.message.ComponentDefinition;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
 import de.janno.evaluator.dice.random.RandomNumberSupplier;
 import org.junit.jupiter.api.BeforeEach;
@@ -61,8 +62,8 @@ class WelcomeCommandTest {
         assertThat(res.map(EmbedOrMessageDefinition::getComponentRowDefinitions)
                 .stream()
                 .flatMap(Collection::stream)
-                .flatMap(s -> s.getButtonDefinitions().stream())
-                .map(ButtonDefinition::getId))
+                .flatMap(s -> s.getComponentDefinitions().stream())
+                .map(ComponentDefinition::getId))
                 .containsExactly("custom_dice1_button00000000-0000-0000-0000-000000000000",
                         "custom_dice2_button00000000-0000-0000-0000-000000000000",
                         "custom_dice3_button00000000-0000-0000-0000-000000000000",
@@ -81,8 +82,8 @@ class WelcomeCommandTest {
         assertThat(res.map(EmbedOrMessageDefinition::getComponentRowDefinitions)
                 .stream()
                 .flatMap(Collection::stream)
-                .flatMap(s -> s.getButtonDefinitions().stream())
-                .map(ButtonDefinition::getLabel))
+                .flatMap(s -> s.getComponentDefinitions().stream())
+                .map(ComponentDefinition::getLabelOrPlaceholder))
                 .containsExactly("D20",
                         "D20 Advantage",
                         "D20 Disadvantage",
@@ -109,14 +110,14 @@ class WelcomeCommandTest {
         assertThat(res.map(EmbedOrMessageDefinition::getComponentRowDefinitions)
                 .stream()
                 .flatMap(Collection::stream)
-                .flatMap(s -> s.getButtonDefinitions().stream())
-                .map(ButtonDefinition::getId))
+                .flatMap(s -> s.getComponentDefinitions().stream())
+                .map(ComponentDefinition::getId))
                 .containsExactly("custom_dice1_button00000000-0000-0000-0000-000000000000");
         assertThat(res.map(EmbedOrMessageDefinition::getComponentRowDefinitions)
                 .stream()
                 .flatMap(Collection::stream)
-                .flatMap(s -> s.getButtonDefinitions().stream())
-                .map(ButtonDefinition::getLabel))
+                .flatMap(s -> s.getComponentDefinitions().stream())
+                .map(ComponentDefinition::getLabelOrPlaceholder))
                 .containsExactly("Coin Toss");
     }
 
@@ -130,8 +131,8 @@ class WelcomeCommandTest {
         assertThat(res.map(EmbedOrMessageDefinition::getComponentRowDefinitions)
                 .stream()
                 .flatMap(Collection::stream)
-                .flatMap(s -> s.getButtonDefinitions().stream())
-                .map(ButtonDefinition::getId))
+                .flatMap(s -> s.getComponentDefinitions().stream())
+                .map(ComponentDefinition::getId))
                 .containsExactly("custom_parameterid100000000-0000-0000-0000-000000000000",
                         "custom_parameterid200000000-0000-0000-0000-000000000000",
                         "custom_parameterid300000000-0000-0000-0000-000000000000",
@@ -150,8 +151,8 @@ class WelcomeCommandTest {
         assertThat(res.map(EmbedOrMessageDefinition::getComponentRowDefinitions)
                 .stream()
                 .flatMap(Collection::stream)
-                .flatMap(s -> s.getButtonDefinitions().stream())
-                .map(ButtonDefinition::getLabel))
+                .flatMap(s -> s.getComponentDefinitions().stream())
+                .map(ComponentDefinition::getLabelOrPlaceholder))
                 .containsExactly("1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15");
     }
 
@@ -164,8 +165,8 @@ class WelcomeCommandTest {
         assertThat(res.map(EmbedOrMessageDefinition::getComponentRowDefinitions)
                 .stream()
                 .flatMap(Collection::stream)
-                .flatMap(s -> s.getButtonDefinitions().stream())
-                .map(ButtonDefinition::getId))
+                .flatMap(s -> s.getComponentDefinitions().stream())
+                .map(ComponentDefinition::getId))
                 .containsExactly("custom_parameterid100000000-0000-0000-0000-000000000000",
                         "custom_parameterid200000000-0000-0000-0000-000000000000",
                         "custom_parameterid300000000-0000-0000-0000-000000000000",
@@ -184,8 +185,8 @@ class WelcomeCommandTest {
         assertThat(res.map(EmbedOrMessageDefinition::getComponentRowDefinitions)
                 .stream()
                 .flatMap(Collection::stream)
-                .flatMap(s -> s.getButtonDefinitions().stream())
-                .map(ButtonDefinition::getLabel))
+                .flatMap(s -> s.getComponentDefinitions().stream())
+                .map(ComponentDefinition::getLabelOrPlaceholder))
                 .containsExactly("1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15");
 
 
@@ -200,8 +201,8 @@ class WelcomeCommandTest {
         assertThat(res.map(EmbedOrMessageDefinition::getComponentRowDefinitions)
                 .stream()
                 .flatMap(Collection::stream)
-                .flatMap(s -> s.getButtonDefinitions().stream())
-                .map(ButtonDefinition::getId))
+                .flatMap(s -> s.getComponentDefinitions().stream())
+                .map(ComponentDefinition::getId))
                 .containsExactly("custom_parameterid100000000-0000-0000-0000-000000000000",
                         "custom_parameterid200000000-0000-0000-0000-000000000000",
                         "custom_parameterid300000000-0000-0000-0000-000000000000",
@@ -225,8 +226,8 @@ class WelcomeCommandTest {
         assertThat(res.map(EmbedOrMessageDefinition::getComponentRowDefinitions)
                 .stream()
                 .flatMap(Collection::stream)
-                .flatMap(s -> s.getButtonDefinitions().stream())
-                .map(ButtonDefinition::getLabel))
+                .flatMap(s -> s.getComponentDefinitions().stream())
+                .map(ComponentDefinition::getLabelOrPlaceholder))
                 .containsExactly("1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20");
 
     }
@@ -239,8 +240,8 @@ class WelcomeCommandTest {
         assertThat(res.map(EmbedOrMessageDefinition::getComponentRowDefinitions)
                 .stream()
                 .flatMap(Collection::stream)
-                .flatMap(s -> s.getButtonDefinitions().stream())
-                .map(ButtonDefinition::getId))
+                .flatMap(s -> s.getComponentDefinitions().stream())
+                .map(ComponentDefinition::getId))
                 .containsExactly("sum_custom_set1_button00000000-0000-0000-0000-000000000000",
                         "sum_custom_set2_button00000000-0000-0000-0000-000000000000",
                         "sum_custom_set3_button00000000-0000-0000-0000-000000000000",
@@ -269,8 +270,8 @@ class WelcomeCommandTest {
         assertThat(res.map(EmbedOrMessageDefinition::getComponentRowDefinitions)
                 .stream()
                 .flatMap(Collection::stream)
-                .flatMap(s -> s.getButtonDefinitions().stream())
-                .map(ButtonDefinition::getLabel))
+                .flatMap(s -> s.getComponentDefinitions().stream())
+                .map(ComponentDefinition::getLabelOrPlaceholder))
                 .containsExactly("7",
                         "8",
                         "9",
