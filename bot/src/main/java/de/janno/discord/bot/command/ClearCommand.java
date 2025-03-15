@@ -1,5 +1,6 @@
 package de.janno.discord.bot.command;
 
+import com.google.common.base.Stopwatch;
 import com.google.common.base.Strings;
 import de.janno.discord.bot.BotMetrics;
 import de.janno.discord.bot.I18n;
@@ -21,6 +22,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
 @Slf4j
@@ -76,14 +78,15 @@ public class ClearCommand implements SlashCommand {
         BotMetrics.incrementSlashStartMetricCounter(getCommandId());
 
         final String name = event.getOption(NAME_OPTION).map(CommandInteractionOption::getStringValue).orElse(null);
-
+        Stopwatch deleteStopwatch = Stopwatch.createStarted();
         return event.reply(I18n.getMessage("clear.reply", userLocal), false)
                 .then(Mono.just(persistenceManager.deleteMessageDataForChannel(event.getChannelId(), name))
                         .flux()
                         .flatMap(Flux::fromIterable)
                         .delayElements(Duration.ofMillis(io.avaje.config.Config.getLong("command.clear.messageDeleteDelay", 1000)))
-                        .flatMap(event::deleteMessageById)
-                        .doOnTerminate(() -> log.info("Finish delete"))
+                        .flatMap(messageId -> event.deleteMessageById(messageId).thenReturn(messageId))
+                        .count()
+                        .doOnSuccess(c -> log.info("{}: Finish delete of {} messages in {}ms", event.getRequester().toLogString(), c, deleteStopwatch.elapsed(TimeUnit.MILLISECONDS)))
                         .then())
                 .doOnSuccess(v -> {
                     if (Strings.isNullOrEmpty(name)) {
