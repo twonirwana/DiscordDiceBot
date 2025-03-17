@@ -22,7 +22,7 @@ dependencies {
     annotationProcessor(libs.lombok)
     testImplementation(libs.assertj.core)
 
-    testImplementation("org.junit.jupiter:junit-jupiter:5.12.0")
+    testImplementation("org.junit.jupiter:junit-jupiter:5.12.1")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
