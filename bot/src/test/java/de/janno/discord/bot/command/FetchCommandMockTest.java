@@ -174,13 +174,13 @@ class FetchCommandMockTest {
         io.avaje.config.Config.setProperty("db.delayMessageDataDeletionMs", "1000");
         io.avaje.config.Config.setProperty("command.fetch.delayMs", "50");
 
-        CustomParameterConfig otherConfig = new CustomParameterConfig(null, "{numberOfDice:3<=>6}d{sides:6/8/10/12}", AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH, null, null);
+        CustomParameterConfig otherConfig = new CustomParameterConfig(null, "{numberOfDice:3<=>6}d{sides:6/8/10/12}", AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH, null, null, CustomParameterConfig.InputType.button);
         customParameterCommand.createMessageConfig(uuid1, fetchEvent.getGuildId(), fetchEvent.getChannelId(), fetchEvent.getUserId(), otherConfig)
                 .ifPresent(m -> persistenceManager.saveMessageConfig(m));
         BaseCommandUtils.createCleanupAndSaveEmptyMessageData(uuid1, fetchEvent.getGuildId(), fetchEvent.getChannelId(), -3L, customDiceCommand.getCommandId(), persistenceManager);
         Thread.sleep(50);
 
-        CustomParameterConfig config = new CustomParameterConfig(null, "{numberOfDice:1<=>10}d{sides:1/4/6/8/10/12/20/100}", AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH, null, null);
+        CustomParameterConfig config = new CustomParameterConfig(null, "{numberOfDice:1<=>10}d{sides:1/4/6/8/10/12/20/100}", AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH, null, null, CustomParameterConfig.InputType.button);
         customParameterCommand.createMessageConfig(uuid0, fetchEvent.getGuildId(), fetchEvent.getChannelId(), fetchEvent.getUserId(), config)
                 .ifPresent(m -> persistenceManager.saveMessageConfig(m));
         BaseCommandUtils.createCleanupAndSaveEmptyMessageData(uuid0, fetchEvent.getGuildId(), fetchEvent.getChannelId(), -2L, customDiceCommand.getCommandId(), persistenceManager);

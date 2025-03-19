@@ -8,7 +8,9 @@ import de.janno.discord.bot.I18n;
 import de.janno.discord.bot.dice.DiceEvaluatorAdapter;
 import de.janno.discord.connector.api.BottomCustomIdUtils;
 import de.janno.discord.connector.api.message.ButtonDefinition;
+import de.janno.discord.connector.api.message.ComponentDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
+import de.janno.discord.connector.api.slash.CommandDefinition;
 
 import javax.annotation.Nullable;
 import java.util.*;
@@ -68,7 +70,7 @@ public class ButtonHelper {
         List<ButtonDefinition> currentRow = new ArrayList<>();
         for (ButtonIdLabelAndDiceExpressionExtension button : buttons) {
             if (currentRow.size() == 5 || (button.buttonIdLabelAndDiceExpression.isNewLine() && !currentRow.isEmpty())) {
-                rows.add(ComponentRowDefinition.builder().buttonDefinitions(currentRow).build());
+                rows.add(ComponentRowDefinition.builder().componentDefinitions(currentRow).build());
                 currentRow = new ArrayList<>();
             }
             final ButtonDefinition.Style style;
@@ -86,7 +88,7 @@ public class ButtonHelper {
                     .build());
         }
         if (!currentRow.isEmpty()) {
-            rows.add(ComponentRowDefinition.builder().buttonDefinitions(currentRow).build());
+            rows.add(ComponentRowDefinition.builder().componentDefinitions(currentRow).build());
         }
 
         return rows;
@@ -97,10 +99,10 @@ public class ButtonHelper {
     }
 
     public static List<ComponentRowDefinition> extendButtonLayout(List<ComponentRowDefinition> current, List<ButtonDefinition> additionalButtonDefinitions, boolean newLine) {
-        final List<List<ButtonDefinition>> rows = current.stream()
-                .map(r -> (List<ButtonDefinition>) new ArrayList<>(r.getButtonDefinitions()))
+        final List<List<ComponentDefinition>> rows = current.stream()
+                .map(r -> (List<ComponentDefinition>) new ArrayList<>(r.getComponentDefinitions()))
                 .collect(Collectors.toList());
-        List<ButtonDefinition> currentRow;
+        List<ComponentDefinition> currentRow;
         if (rows.isEmpty() || newLine) {
             currentRow = new ArrayList<>();
             rows.add(currentRow);
@@ -116,7 +118,7 @@ public class ButtonHelper {
         }
 
         return rows.stream()
-                .map(r -> ComponentRowDefinition.builder().buttonDefinitions(r).build())
+                .map(r -> ComponentRowDefinition.builder().componentDefinitions(r).build())
                 .toList();
     }
 
