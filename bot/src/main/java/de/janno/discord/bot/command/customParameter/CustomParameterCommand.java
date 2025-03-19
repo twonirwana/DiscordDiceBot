@@ -116,8 +116,12 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
                     .map(p -> new SelectedParameter(p.getParameterExpression(), p.getName(), null, null, false, p.getPathId(), null)).collect(ImmutableList.toImmutableList());
             return new CustomParameterStateData(newSelectedParameterList, null);
         } else {
-            //todo lock user with dropdown?
-            shouldBeLockedForUser = Optional.ofNullable(currentlyLockedForUser).orElse(invokingUser);
+            if (config.getInputType() == CustomParameterConfig.InputType.button) {
+                shouldBeLockedForUser = Optional.ofNullable(currentlyLockedForUser).orElse(invokingUser);
+            } else {
+                //todo locking for dropdown
+                shouldBeLockedForUser = null;
+            }
         }
         final AtomicBoolean directRoll = new AtomicBoolean(false);
         final AtomicReference<String> removePathNotMatchingThis = new AtomicReference<>(null);
@@ -129,7 +133,6 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
                     if ((Objects.equals(sp.getParameterExpression(), currentParameterExpression.get()) ||
                             //dropdowns can update all parameter
                             config.getInputType() == CustomParameterConfig.InputType.dropdown) &&
-                            //todo locked user and dropdown?
                             (currentlyLockedForUser == null || Objects.equals(currentlyLockedForUser, invokingUser))) {
                         final List<Parameter.ParameterOption> parameters = getParameterForParameterExpression(config, sp.getParameterExpression())
                                 .map(Parameter::getParameterOptions).orElse(List.of());
