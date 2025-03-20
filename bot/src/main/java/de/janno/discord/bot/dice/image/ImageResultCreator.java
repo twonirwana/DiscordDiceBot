@@ -15,7 +15,7 @@ import io.micrometer.core.instrument.Gauge;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
-import javax.annotation.Nullable;
+
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -128,7 +128,7 @@ public class ImageResultCreator {
 
     }
 
-    public @Nullable Supplier<? extends InputStream> getImageForRoll(@NonNull RollResult rollResult, @Nullable DiceStyleAndColor diceStyleAndColor) {
+    public Supplier<? extends InputStream> getImageForRoll(@NonNull RollResult rollResult, DiceStyleAndColor diceStyleAndColor) {
         if (diceStyleAndColor == null) {
             return null;
         }
@@ -162,7 +162,7 @@ public class ImageResultCreator {
         }
     }
 
-    private @Nullable Supplier<? extends InputStream> createNewFileForRoll(RollResult rollResult, File file, String name, DiceStyleAndColor diceStyleAndColor) {
+    private Supplier<? extends InputStream> createNewFileForRoll(RollResult rollResult, File file, String name, DiceStyleAndColor diceStyleAndColor) {
         Stopwatch stopwatch = Stopwatch.createStarted();
 
         final List<List<BufferedImage>> images = rollResult.getGroupedRandomElements().stream()

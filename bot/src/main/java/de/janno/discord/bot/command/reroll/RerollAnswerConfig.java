@@ -13,7 +13,7 @@ import lombok.NonNull;
 import lombok.ToString;
 import org.apache.commons.lang3.NotImplementedException;
 
-import javax.annotation.Nullable;
+
 import java.util.List;
 import java.util.Locale;
 
@@ -29,7 +29,7 @@ public class RerollAnswerConfig extends RollConfig {
     @NonNull
     private final String owner;
     private final boolean alwaysSumUp;
-    @Nullable
+    
     private final String label;
 
     @JsonCreator

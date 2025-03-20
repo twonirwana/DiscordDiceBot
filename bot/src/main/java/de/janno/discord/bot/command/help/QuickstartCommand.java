@@ -32,7 +32,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
-import javax.annotation.Nullable;
+
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
@@ -113,7 +113,7 @@ public class QuickstartCommand implements SlashCommand {
                 .build();
     }
 
-    private Optional<EmbedOrMessageDefinition> getMessage(Config genericConfig, UUID configUUID, long channelId, @Nullable Long guildId) {
+    private Optional<EmbedOrMessageDefinition> getMessage(Config genericConfig, UUID configUUID, long channelId, Long guildId) {
         return switch (genericConfig) {
             case CustomDiceConfig config ->
                     Optional.of(customDiceCommand.createSlashResponseMessage(configUUID, config, channelId));

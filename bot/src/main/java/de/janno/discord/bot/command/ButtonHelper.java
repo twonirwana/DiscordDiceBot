@@ -10,7 +10,7 @@ import de.janno.discord.connector.api.BottomCustomIdUtils;
 import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
 
-import javax.annotation.Nullable;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -178,6 +178,6 @@ public class ButtonHelper {
     }
 
     public record ButtonIdLabelAndDiceExpressionExtension(ButtonIdLabelAndDiceExpression buttonIdLabelAndDiceExpression,
-                                                          boolean disabled, @Nullable ButtonDefinition.Style style) {
+                                                          boolean disabled, ButtonDefinition.Style style) {
     }
 }

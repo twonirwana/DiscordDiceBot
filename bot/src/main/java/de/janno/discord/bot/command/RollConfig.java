@@ -8,10 +8,12 @@ import de.janno.discord.bot.ResultImage;
 import de.janno.discord.bot.dice.image.DiceImageStyle;
 import de.janno.discord.bot.dice.image.DiceStyleAndColor;
 import de.janno.discord.bot.dice.image.LegacyImageConfigHelper;
-import lombok.*;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NonNull;
+import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
-import javax.annotation.Nullable;
 import java.util.*;
 
 /**
@@ -36,10 +38,10 @@ public class RollConfig implements Config {
     @NonNull
     private final Locale configLocale;
 
-    @Nullable
+
     private final UUID callStarterConfigAfterFinish;
 
-    @Nullable
+
     private final String name;
 
     @JsonCreator

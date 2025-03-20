@@ -24,7 +24,7 @@ import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
-import javax.annotation.Nullable;
+
 import java.util.*;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
@@ -74,7 +74,7 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
     }
 
     @Override
-    protected void updateCurrentMessageStateData(UUID configUUID, @Nullable Long guildId, long channelId, long messageId, @NonNull SumCustomSetConfig config, @NonNull State<SumCustomSetStateDataV2> state) {
+    protected void updateCurrentMessageStateData(UUID configUUID, Long guildId, long channelId, long messageId, @NonNull SumCustomSetConfig config, @NonNull State<SumCustomSetStateDataV2> state) {
         if (ROLL_BUTTON_ID.equals(state.getButtonValue())) {
             persistenceManager.deleteStateForMessage(channelId, messageId);
             //message data so we knew the button message exists
@@ -128,7 +128,7 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
     }
 
     @Override
-    public Optional<MessageConfigDTO> createMessageConfig(@NonNull UUID configUUID, @Nullable Long guildId, long channelId, long userId, @NonNull SumCustomSetConfig config) {
+    public Optional<MessageConfigDTO> createMessageConfig(@NonNull UUID configUUID, Long guildId, long channelId, long userId, @NonNull SumCustomSetConfig config) {
         return Optional.of(new MessageConfigDTO(configUUID, guildId, channelId, getCommandId(), CONFIG_TYPE_ID, Mapper.serializedObject(config), config.getName(), userId));
     }
 
@@ -226,8 +226,8 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
     @Override
     protected @NonNull Optional<EmbedOrMessageDefinition> createNewButtonMessageWithState(@NonNull UUID configUUID,
                                                                                           @NonNull SumCustomSetConfig config,
-                                                                                          @Nullable State<SumCustomSetStateDataV2> state,
-                                                                                          @Nullable Long guildId,
+                                                                                          State<SumCustomSetStateDataV2> state,
+                                                                                          Long guildId,
                                                                                           long channelId,
                                                                                           long userId) {
         if (state == null) {
@@ -265,7 +265,7 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
         return Optional.of(createButtonLayout(configUUID, config, !diceEvaluatorAdapter.isValidExpression(expression), expressionIsEmpty, disabledIds, config.getConfigLocale()));
     }
 
-    private Set<String> getDisabledButtonIds(@NonNull SumCustomSetConfig config, @Nullable State<SumCustomSetStateDataV2> state, long channelId, @Nullable Long userId) {
+    private Set<String> getDisabledButtonIds(@NonNull SumCustomSetConfig config, State<SumCustomSetStateDataV2> state, long channelId, Long userId) {
         return config.getLabelAndExpression().stream()
                 .filter(ButtonIdLabelAndDiceExpression::isDirectRoll)
                 .filter(b -> {
@@ -316,7 +316,7 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
     private State<SumCustomSetStateDataV2> updateStateWithButtonValue(@NonNull final String buttonValue,
                                                                       @NonNull final List<ExpressionAndLabel> currentExpressions,
                                                                       @NonNull final String invokingUserName,
-                                                                      @Nullable final String lockedToUser,
+                                                                      final String lockedToUser,
                                                                       @NonNull final List<ButtonIdLabelAndDiceExpression> buttonIdLabelAndDiceExpressions) {
         if (CLEAR_BUTTON_ID.equals(buttonValue)) {
             return new State<>(buttonValue, new SumCustomSetStateDataV2(ImmutableList.of(), null));

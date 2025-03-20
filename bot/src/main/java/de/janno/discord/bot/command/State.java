@@ -3,7 +3,7 @@ package de.janno.discord.bot.command;
 import lombok.NonNull;
 import lombok.Value;
 
-import javax.annotation.Nullable;
+
 
 import java.util.Optional;
 
@@ -13,7 +13,7 @@ public class State<T extends StateData> {
     @NonNull
     String buttonValue;
 
-    @Nullable
+    
     T data;
 
     public String toShortString() {

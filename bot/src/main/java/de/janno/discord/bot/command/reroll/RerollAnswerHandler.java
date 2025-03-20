@@ -23,7 +23,7 @@ import org.apache.commons.lang3.StringUtils;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
-import javax.annotation.Nullable;
+
 import java.time.Duration;
 import java.util.*;
 import java.util.function.Supplier;
@@ -109,7 +109,7 @@ public class RerollAnswerHandler extends ComponentCommandImpl<RerollAnswerConfig
         return RerollAnswerHandler.applyToAnswer(baseAnswer, answer.getDieIdTypeAndValues(), config.getConfigLocale(), rerollConfigId);
     }
 
-    private static RerollAnswerConfig createNewRerollAnswerConfig(@NonNull RollConfig parentConfig, @NonNull String expression, @Nullable String label, @NonNull List<DieIdTypeAndValue> dieIdTypeAndValues, int rerollCount, String owner) {
+    private static RerollAnswerConfig createNewRerollAnswerConfig(@NonNull RollConfig parentConfig, @NonNull String expression, String label, @NonNull List<DieIdTypeAndValue> dieIdTypeAndValues, int rerollCount, String owner) {
 
         return new RerollAnswerConfig(null,
                 parentConfig.getAnswerFormatType(),
@@ -125,7 +125,7 @@ public class RerollAnswerHandler extends ComponentCommandImpl<RerollAnswerConfig
                 label);
     }
 
-    public static Optional<MessageConfigDTO> createMessageConfig(@NonNull UUID configUUID, @Nullable Long guildId, long channelId, long userId, @NonNull RerollAnswerConfig config) {
+    public static Optional<MessageConfigDTO> createMessageConfig(@NonNull UUID configUUID, Long guildId, long channelId, long userId, @NonNull RerollAnswerConfig config) {
         return Optional.of(new MessageConfigDTO(configUUID, guildId, channelId, COMMAND_ID, CONFIG_TYPE_ID, Mapper.serializedObject(config), config.getName(), userId));
     }
 
@@ -198,7 +198,7 @@ public class RerollAnswerHandler extends ComponentCommandImpl<RerollAnswerConfig
     }
 
     @Override
-    protected void updateCurrentMessageStateData(UUID configUUID, @Nullable Long guildId, long channelId, long messageId, @NonNull RerollAnswerConfig config, @NonNull State<RerollAnswerStateData> state) {
+    protected void updateCurrentMessageStateData(UUID configUUID, Long guildId, long channelId, long messageId, @NonNull RerollAnswerConfig config, @NonNull State<RerollAnswerStateData> state) {
         if (Set.of(ROLL_BUTTON_ID, FINISH_BUTTON_ID).contains(state.getButtonValue())) {
             persistenceManager.deleteStateForMessage(channelId, messageId);
             deleteMessageConfigWithDelay(configUUID)
@@ -228,8 +228,8 @@ public class RerollAnswerHandler extends ComponentCommandImpl<RerollAnswerConfig
     @Override
     protected @NonNull Optional<EmbedOrMessageDefinition> createNewButtonMessage(@NonNull UUID configId,
                                                                                  @NonNull RerollAnswerConfig config,
-                                                                                 @Nullable State<RerollAnswerStateData> state,
-                                                                                 @Nullable Long guildId,
+                                                                                 State<RerollAnswerStateData> state,
+                                                                                 Long guildId,
                                                                                  long channelId,
                                                                                  long userId) {
         if (state == null) {
@@ -277,7 +277,7 @@ public class RerollAnswerHandler extends ComponentCommandImpl<RerollAnswerConfig
         return true;
     }
 
-    private List<ComponentRowDefinition> createButtonLayout(UUID configUUID, RerollAnswerConfig config, @Nullable RerollAnswerStateData stateData) {
+    private List<ComponentRowDefinition> createButtonLayout(UUID configUUID, RerollAnswerConfig config, RerollAnswerStateData stateData) {
         Set<DieId> alreadySelectedButtons = Optional.ofNullable(stateData).stream()
                 .flatMap(s -> s.getRerollDice().stream())
                 .map(DieIdDb::toDieId)

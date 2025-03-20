@@ -27,7 +27,7 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
-import javax.annotation.Nullable;
+
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -93,10 +93,10 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
                 .isPresent();
     }
 
-    static CustomParameterStateData updateState(@Nullable List<SelectedParameter> currentlySelectedParameterList,
+    static CustomParameterStateData updateState(List<SelectedParameter> currentlySelectedParameterList,
                                                 @NonNull CustomParameterConfig config,
                                                 @NonNull String buttonValue,
-                                                @Nullable String currentlyLockedForUser,
+                                                String currentlyLockedForUser,
                                                 @NonNull String invokingUser) {
         final String shouldBeLockedForUser;
         List<SelectedParameter> currentOrNewSelectedParameter = Optional.ofNullable(currentlySelectedParameterList).orElse(config.getParameters().stream()
@@ -161,7 +161,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
         return new CustomParameterStateData(newSelectedParameterList, shouldBeLockedForUser);
     }
 
-    static Optional<Parameter> getParameterForParameterExpression(@NonNull CustomParameterConfig config, @Nullable String parameterExpression) {
+    static Optional<Parameter> getParameterForParameterExpression(@NonNull CustomParameterConfig config, String parameterExpression) {
         if (parameterExpression == null) {
             return Optional.empty();
         }
@@ -296,7 +296,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
         return Mapper.deserializeObject(messageConfigDTO.getConfig(), CustomParameterConfig.class);
     }
 
-    static String removeSuffixLabelFromExpression(@NonNull String expression, @Nullable String label) {
+    static String removeSuffixLabelFromExpression(@NonNull String expression, String label) {
         String atWithLabel = "@" + label;
         if (label != null && expression.endsWith(atWithLabel)) { //only remove if the label is from the suffix
             return expression.substring(0, expression.length() - atWithLabel.length());
@@ -452,12 +452,12 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     }
 
     @Override
-    public Optional<MessageConfigDTO> createMessageConfig(@NonNull UUID configUUID, @Nullable Long guildId, long channelId, long userId, @NonNull CustomParameterConfig config) {
+    public Optional<MessageConfigDTO> createMessageConfig(@NonNull UUID configUUID, Long guildId, long channelId, long userId, @NonNull CustomParameterConfig config) {
         return Optional.of(new MessageConfigDTO(configUUID, guildId, channelId, getCommandId(), CONFIG_TYPE_ID, Mapper.serializedObject(config), config.getName(), userId));
     }
 
     @Override
-    protected void updateCurrentMessageStateData(UUID configUUID, @Nullable Long guildId, long channelId, long messageId, @NonNull CustomParameterConfig config, @NonNull State<CustomParameterStateData> state) {
+    protected void updateCurrentMessageStateData(UUID configUUID, Long guildId, long channelId, long messageId, @NonNull CustomParameterConfig config, @NonNull State<CustomParameterStateData> state) {
         if (!hasMissingParameter(state)) {
             persistenceManager.deleteStateForMessage(channelId, messageId);
             //message data so we knew the button message exists
@@ -486,8 +486,8 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     @Override
     protected @NonNull Optional<EmbedOrMessageDefinition> createNewButtonMessageWithState(@NonNull UUID configUUID,
                                                                                           @NonNull CustomParameterConfig config,
-                                                                                          @Nullable State<CustomParameterStateData> state,
-                                                                                          @Nullable Long guildId,
+                                                                                          State<CustomParameterStateData> state,
+                                                                                          Long guildId,
                                                                                           long channelId,
                                                                                           long userId) {
         if (state == null) {
@@ -533,7 +533,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     }
 
     private List<ComponentRowDefinition> getButtonLayoutWithOptionalState(@NonNull UUID
-                                                                                  configUUID, @NonNull CustomParameterConfig config, @Nullable State<CustomParameterStateData> state) {
+                                                                                  configUUID, @NonNull CustomParameterConfig config, State<CustomParameterStateData> state) {
         String currentParameterExpression = Optional.ofNullable(state)
                 .map(State::getData)
                 .flatMap(CustomParameterStateData::getNextUnselectedParameterExpression)
@@ -579,7 +579,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
                 .collect(Collectors.toList());
     }
 
-    private boolean hasAnySelectedValues(@Nullable State<CustomParameterStateData> state) {
+    private boolean hasAnySelectedValues(State<CustomParameterStateData> state) {
         return Optional.ofNullable(state)
                 .map(State::getData)
                 .map(CustomParameterStateData::getSelectedParameterValues)
