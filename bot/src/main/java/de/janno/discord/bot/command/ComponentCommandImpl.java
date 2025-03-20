@@ -19,7 +19,7 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
-import javax.annotation.Nullable;
+
 import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
@@ -235,7 +235,7 @@ public abstract class ComponentCommandImpl<C extends RollConfig, S extends State
         return Optional.empty();
     }
 
-    private @NonNull MessageDataDTO getMessageDataDTOOrCreateNew(@NonNull UUID configId, @Nullable Long guildId,
+    private @NonNull MessageDataDTO getMessageDataDTOOrCreateNew(@NonNull UUID configId, Long guildId,
                                                                  long channelId, long messageId) {
         Optional<MessageDataDTO> loadedData = persistenceManager.getMessageData(channelId, messageId);
         //if the messageData is missing we need to create a new one so we know the message exists and we can remove it later, even on concurrent actions
@@ -266,8 +266,8 @@ public abstract class ComponentCommandImpl<C extends RollConfig, S extends State
      */
     protected abstract @NonNull Optional<EmbedOrMessageDefinition> createNewButtonMessage(@NonNull UUID configId,
                                                                                           @NonNull C config,
-                                                                                          @Nullable State<S> state,
-                                                                                          @Nullable Long guildId,
+                                                                                          State<S> state,
+                                                                                          Long guildId,
                                                                                           long channelId,
                                                                                           long userId
     );
@@ -277,7 +277,7 @@ public abstract class ComponentCommandImpl<C extends RollConfig, S extends State
      */
     @VisibleForTesting
     public MessageDataDTO createEmptyMessageData(@NonNull UUID configUUID,
-                                                 @Nullable Long guildId,
+                                                 Long guildId,
                                                  long channelId,
                                                  long messageId) {
         return BaseCommandUtils.createCleanupAndSaveEmptyMessageData(configUUID, guildId, channelId, messageId, getCommandId(), persistenceManager);
@@ -289,7 +289,7 @@ public abstract class ComponentCommandImpl<C extends RollConfig, S extends State
     /**
      * update the saved state if the current button message is not deleted. StateData need to be set to null if the there is an answer message
      */
-    protected void updateCurrentMessageStateData(UUID configUUID, @Nullable Long guildId, long channelId,
+    protected void updateCurrentMessageStateData(UUID configUUID, Long guildId, long channelId,
                                                  long messageId, @NonNull C config, @NonNull State<S> state) {
     }
 

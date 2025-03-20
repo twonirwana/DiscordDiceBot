@@ -8,7 +8,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.Value;
 
-import javax.annotation.Nullable;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -20,13 +20,13 @@ public class CustomParameterStateData extends StateData {
 
     @NonNull
     List<SelectedParameter> selectedParameterValues;
-    @Nullable
+    
     String lockedForUserName;
 
     @JsonCreator
     public CustomParameterStateData(
             @JsonProperty("selectedParameterValues") @NonNull List<SelectedParameter> selectedParameterValues,
-            @JsonProperty("lockedForUserName") @Nullable String lockedForUserName) {
+            @JsonProperty("lockedForUserName") String lockedForUserName) {
         this.selectedParameterValues = selectedParameterValues;
         this.lockedForUserName = lockedForUserName;
     }

@@ -25,7 +25,7 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
-import javax.annotation.Nullable;
+
 import java.util.*;
 
 @RequiredArgsConstructor
@@ -267,7 +267,7 @@ public class RpgSystemCommandPreset {
         return false;
     }
 
-    public Optional<EmbedOrMessageDefinition> createMessage(PresetId presetId, UUID newConfigUUID, @Nullable Long guildId, long channelId, long userId, Locale userLocale) {
+    public Optional<EmbedOrMessageDefinition> createMessage(PresetId presetId, UUID newConfigUUID, Long guildId, long channelId, long userId, Locale userLocale) {
         Config config = createConfig(presetId, userLocale);
         return switch (config) {
             case CustomDiceConfig customDiceConfig ->
@@ -281,12 +281,12 @@ public class RpgSystemCommandPreset {
         };
     }
 
-    private <C extends RollConfig> Optional<EmbedOrMessageDefinition> startMessagePreset(C config, AbstractCommand<C, ?> command, UUID newConfigUUID, @Nullable Long guildId, long channelId, long userId) {
+    private <C extends RollConfig> Optional<EmbedOrMessageDefinition> startMessagePreset(C config, AbstractCommand<C, ?> command, UUID newConfigUUID, Long guildId, long channelId, long userId) {
         command.createMessageConfig(newConfigUUID, guildId, channelId, userId, config).ifPresent(persistenceManager::saveMessageConfig);
         return Optional.of(command.createSlashResponseMessage(newConfigUUID, config, channelId));
     }
 
-    private Optional<EmbedOrMessageDefinition> saveAlias(AliasConfig config, UUID newConfigUUID, @Nullable Long guildId, long channelId) {
+    private Optional<EmbedOrMessageDefinition> saveAlias(AliasConfig config, UUID newConfigUUID, Long guildId, long channelId) {
         channelConfigCommand.saveAliasesConfig(config.getAliasList(), channelId, guildId, null, () -> newConfigUUID, config.getName());
         return Optional.empty();
     }

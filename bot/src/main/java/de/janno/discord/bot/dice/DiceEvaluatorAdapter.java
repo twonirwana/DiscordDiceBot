@@ -17,7 +17,7 @@ import io.avaje.config.Config;
 import lombok.NonNull;
 import org.apache.commons.lang3.StringUtils;
 
-import javax.annotation.Nullable;
+
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.util.List;
@@ -208,7 +208,7 @@ public class DiceEvaluatorAdapter {
     }
 
     public RollAnswer answerRollWithGivenLabel(String expression,
-                                               @Nullable String label,
+                                               String label,
                                                boolean sumUp,
                                                AnswerFormatType answerFormatType,
                                                DiceStyleAndColor styleAndColor,
@@ -218,7 +218,7 @@ public class DiceEvaluatorAdapter {
     }
 
     public RollAnswer answerRollWithGivenLabel(String expression,
-                                               @Nullable String label,
+                                               String label,
                                                boolean sumUp,
                                                AnswerFormatType answerFormatType,
                                                DiceStyleAndColor styleAndColor,

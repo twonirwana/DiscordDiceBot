@@ -5,7 +5,6 @@ import de.janno.discord.bot.persistance.MessageDataDTO;
 import de.janno.discord.bot.persistance.PersistenceManager;
 import lombok.NonNull;
 
-import javax.annotation.Nullable;
 import java.util.UUID;
 
 public class BaseCommandUtils {
@@ -14,7 +13,7 @@ public class BaseCommandUtils {
      * Create a new message data with empty state, delete other states for this and save it
      */
     public static MessageDataDTO createCleanupAndSaveEmptyMessageData(@NonNull UUID configUUID,
-                                                                      @Nullable Long guildId,
+                                                                      Long guildId,
                                                                       long channelId,
                                                                       long messageId,
                                                                       String commandId,

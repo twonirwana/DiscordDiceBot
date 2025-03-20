@@ -8,7 +8,7 @@ import de.janno.discord.bot.persistance.PersistenceManager;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
-import javax.annotation.Nullable;
+
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -94,7 +94,7 @@ public class AliasHelper {
 
     }
 
-    public static String getAndApplyAliaseToExpression(long channelId, @Nullable Long userId, PersistenceManager persistenceManager, final String expressionWithOptionalLabel) {
+    public static String getAndApplyAliaseToExpression(long channelId, Long userId, PersistenceManager persistenceManager, final String expressionWithOptionalLabel) {
         final List<Alias> channelAlias = getChannelAlias(channelId, persistenceManager);
         final List<Alias> userChannelAlias;
         if (userId == null) {

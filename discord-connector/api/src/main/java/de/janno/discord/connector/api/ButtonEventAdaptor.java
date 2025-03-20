@@ -5,7 +5,6 @@ import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
 import lombok.NonNull;
 import reactor.core.publisher.Mono;
 
-import javax.annotation.Nullable;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Locale;
@@ -25,7 +24,11 @@ public interface ButtonEventAdaptor extends DiscordAdapter {
 
     String getInvokingGuildMemberName();
 
-    @NonNull Mono<Void> editMessage(@Nullable String message, @Nullable List<ComponentRowDefinition> componentRowDefinitions);
+    /**
+     * @param message can be null for no changes
+     * @param componentRowDefinitions can be null for no changes
+     */
+    @NonNull Mono<Void> editMessage(String message, List<ComponentRowDefinition> componentRowDefinitions);
 
     @NonNull Requester getRequester();
 

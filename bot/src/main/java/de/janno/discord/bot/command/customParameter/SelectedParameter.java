@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.NonNull;
 import lombok.Value;
 
-import javax.annotation.Nullable;
+
 import java.util.Optional;
 
 @Value
@@ -17,9 +17,9 @@ public class SelectedParameter {
     String parameterExpression;
     @NonNull
     String name;
-    @Nullable
+    
     String selectedValue;
-    @Nullable
+    
     String labelOfSelectedValue;
     boolean finished;
     @NonNull
@@ -28,17 +28,17 @@ public class SelectedParameter {
      * if the selection is finished then nextPathId contains the pathId of the selected parameterOption.
      * It is null if finished=false
      */
-    @Nullable
+    
     String nextPathId;
 
     @JsonCreator
     public SelectedParameter(@JsonProperty("parameterExpression") @NonNull String parameterExpression,
                              @JsonProperty("name") @NonNull String name,
-                             @JsonProperty("selectedValue") @Nullable String selectedValue,
-                             @JsonProperty("labelOfSelectedValue") @Nullable String labelOfSelectedValue,
-                             @JsonProperty("finished") @Nullable Boolean finished,
-                             @JsonProperty("pathId") @Nullable String pathId,
-                             @JsonProperty("nextPathId") @Nullable String nextPathId) {
+                             @JsonProperty("selectedValue") String selectedValue,
+                             @JsonProperty("labelOfSelectedValue") String labelOfSelectedValue,
+                             @JsonProperty("finished") Boolean finished,
+                             @JsonProperty("pathId") String pathId,
+                             @JsonProperty("nextPathId") String nextPathId) {
         this.parameterExpression = parameterExpression;
         this.name = name;
         this.selectedValue = selectedValue;

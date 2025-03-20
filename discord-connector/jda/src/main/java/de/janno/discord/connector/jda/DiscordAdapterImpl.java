@@ -30,11 +30,10 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.ParallelFlux;
 
-import javax.annotation.Nullable;
 import java.awt.*;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 import java.util.*;
+import java.util.List;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -62,10 +61,10 @@ public abstract class DiscordAdapterImpl implements DiscordAdapter {
     protected Mono<Message> sendMessageWithOptionalReference(
             @NonNull MessageChannel messageChannel,
             @NonNull EmbedOrMessageDefinition messageDefinition,
-            @Nullable String rollRequesterName,
-            @Nullable String rollRequesterMention,
-            @Nullable String rollRequesterAvatar,
-            @Nullable String rollRequesterId) {
+            String rollRequesterName,
+            String rollRequesterMention,
+            String rollRequesterAvatar,
+            String rollRequesterId) {
         LayoutComponent[] layoutComponents = MessageComponentConverter.componentRowDefinition2LayoutComponent(messageDefinition.getComponentRowDefinitions());
         switch (messageDefinition.getType()) {
             case EMBED -> {
@@ -85,7 +84,7 @@ public abstract class DiscordAdapterImpl implements DiscordAdapter {
 
 
     private MessageCreateData convertToMessageCreateData(@NonNull EmbedOrMessageDefinition messageDefinition,
-                                                         @Nullable String rollRequesterMention) {
+                                                         String rollRequesterMention) {
         Preconditions.checkArgument(messageDefinition.getType() == EmbedOrMessageDefinition.Type.MESSAGE);
         MessageCreateBuilder builder = new MessageCreateBuilder();
         final String answerString;
@@ -104,9 +103,9 @@ public abstract class DiscordAdapterImpl implements DiscordAdapter {
     }
 
     private EmbedBuilder convertToEmbedMessage(@NonNull EmbedOrMessageDefinition messageDefinition,
-                                               @Nullable String rollRequesterName,
-                                               @Nullable String rollRequesterAvatar,
-                                               @Nullable String rollRequesterId) {
+                                               String rollRequesterName,
+                                               String rollRequesterAvatar,
+                                               String rollRequesterId) {
         Preconditions.checkArgument(messageDefinition.getType() == EmbedOrMessageDefinition.Type.EMBED);
         EmbedBuilder builder = new EmbedBuilder();
         if (!Strings.isNullOrEmpty(messageDefinition.getTitle())) {
@@ -140,7 +139,7 @@ public abstract class DiscordAdapterImpl implements DiscordAdapter {
             @NonNull SlashCommandInteractionEvent event,
             @NonNull EmbedOrMessageDefinition messageDefinition,
             boolean ephemeral,
-            @Nullable String rollRequesterId) {
+            String rollRequesterId) {
         LayoutComponent[] layoutComponents = MessageComponentConverter.componentRowDefinition2LayoutComponent(messageDefinition.getComponentRowDefinitions());
         switch (messageDefinition.getType()) {
             case EMBED -> {
@@ -199,7 +198,7 @@ public abstract class DiscordAdapterImpl implements DiscordAdapter {
      * @param allowLegacyPermission if this is set to true only the old set of permissions is checked, so old button messages work as created. Should be removed in the future.
      * @return Optional message with the missing permissions
      */
-    protected Optional<String> checkPermission(@NonNull MessageChannel messageChannel, @Nullable Guild guild, boolean allowLegacyPermission, Locale userLocale) {
+    protected Optional<String> checkPermission(@NonNull MessageChannel messageChannel, Guild guild, boolean allowLegacyPermission, Locale userLocale) {
         if (guild == null) {
             //Permissions are only in guild context available
             return Optional.empty();

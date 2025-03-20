@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.NonNull;
 import lombok.Value;
 
-import javax.annotation.Nullable;
+
 import java.util.Optional;
 
 @Value
@@ -18,7 +18,7 @@ public class ButtonIdLabelAndDiceExpression {
     String diceExpression;
     boolean newLine;
     boolean directRoll;
-    @Nullable
+    
     String emoji;
 
     @JsonCreator
@@ -26,9 +26,9 @@ public class ButtonIdLabelAndDiceExpression {
             @JsonProperty("buttonId") @NonNull String buttonId,
             @JsonProperty("label") @NonNull String label,
             @JsonProperty("diceExpression") @NonNull String diceExpression,
-            @JsonProperty("newLine") @Nullable Boolean newLine,
-            @JsonProperty("directRoll") @Nullable Boolean directRoll,
-            @JsonProperty("emoji") @Nullable String emoji) {
+            @JsonProperty("newLine") Boolean newLine,
+            @JsonProperty("directRoll") Boolean directRoll,
+            @JsonProperty("emoji") String emoji) {
         this.buttonId = buttonId;
         this.label = label;
         this.diceExpression = diceExpression;

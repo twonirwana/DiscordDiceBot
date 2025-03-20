@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableSet;
 import io.micrometer.core.instrument.binder.db.DatabaseTableMetrics;
 import lombok.NonNull;
 import org.h2.jdbcx.JdbcConnectionPool;
-import javax.annotation.Nullable;
+
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -16,7 +16,7 @@ public class DatabaseConnector {
 
     private final JdbcConnectionPool connectionPool;
 
-    public DatabaseConnector(@NonNull String url, @Nullable String user, @Nullable String password) {
+    public DatabaseConnector(@NonNull String url, String user, String password) {
         connectionPool = JdbcConnectionPool.create(url, user, password);
         new DatabaseTableMetrics(connectionPool, "h2", "MESSAGE_DATA", ImmutableSet.of()).bindTo(globalRegistry);
         new DatabaseTableMetrics(connectionPool, "h2", "MESSAGE_CONFIG", ImmutableSet.of()).bindTo(globalRegistry);

@@ -11,7 +11,7 @@ import io.micrometer.core.instrument.Tag;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
-import javax.annotation.Nullable;
+
 import javax.sql.DataSource;
 import java.sql.*;
 import java.time.Duration;
@@ -31,7 +31,7 @@ public class PersistenceManagerImpl implements PersistenceManager {
     private final static long USER_ID_NULL_PLACEHOLDER = -1L;
     private final DatabaseConnector databaseConnector;
 
-    public PersistenceManagerImpl(@NonNull String url, @Nullable String user, @Nullable String password) {
+    public PersistenceManagerImpl(@NonNull String url, String user, String password) {
         databaseConnector = new DatabaseConnector(url, user, password);
         DatabaseInitiator.initialize(databaseConnector);
 
@@ -129,7 +129,7 @@ public class PersistenceManagerImpl implements PersistenceManager {
     }
 
     @Override
-    public void deleteAllMessageConfigForChannel(long channelId, @Nullable String name) {
+    public void deleteAllMessageConfigForChannel(long channelId, String name) {
         Stopwatch stopwatch = Stopwatch.createStarted();
         try (Connection con = databaseConnector.getConnection()) {
             final String deleteConfig;

@@ -7,7 +7,6 @@ import de.janno.discord.bot.BaseCommandUtils;
 import de.janno.discord.bot.BotMetrics;
 import de.janno.discord.bot.I18n;
 import de.janno.discord.bot.persistance.MessageConfigDTO;
-import de.janno.discord.bot.persistance.MessageDataDTO;
 import de.janno.discord.bot.persistance.PersistenceManager;
 import de.janno.discord.connector.api.AutoCompleteAnswer;
 import de.janno.discord.connector.api.AutoCompleteRequest;
@@ -21,7 +20,6 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
-import javax.annotation.Nullable;
 import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -201,7 +199,7 @@ public abstract class SlashCommandImpl<C extends RollConfig> implements SlashCom
 
     //visible for welcome command
     public abstract Optional<MessageConfigDTO> createMessageConfig(@NonNull UUID configUUID,
-                                                                   @Nullable Long guildId,
+                                                                   Long guildId,
                                                                    long channelId,
                                                                    long userId,
                                                                    @NonNull C config);

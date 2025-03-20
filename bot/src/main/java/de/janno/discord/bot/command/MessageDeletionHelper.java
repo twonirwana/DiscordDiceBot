@@ -6,7 +6,7 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
-import javax.annotation.Nullable;
+
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
@@ -19,7 +19,7 @@ public class MessageDeletionHelper {
     public static Mono<Void> deleteOldMessageAndData(
             PersistenceManager persistenceManager,
             long newMessageId,
-            @Nullable Long currentMessageId,
+            Long currentMessageId,
             @NonNull UUID configUUID,
             long channelId,
             @NonNull DiscordAdapter discordAdapter) {

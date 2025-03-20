@@ -10,7 +10,7 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.ToString;
 
-import javax.annotation.Nullable;
+
 import java.io.Serializable;
 import java.util.List;
 
@@ -23,17 +23,17 @@ public class DieIdTypeAndValue implements Serializable {
     private final int numberSupplierValue;
     @NonNull
     private final String value;
-    @Nullable
+    
     private final Integer diceSides;
-    @Nullable
+    
     private final List<String> selectedFrom;
 
     @JsonCreator
     public DieIdTypeAndValue(@JsonProperty("dieIdDb") @NonNull DieIdDb dieIdDb,
                              @JsonProperty("value") @NonNull String value,
                              @JsonProperty("numberSupplierValue") int numberSupplierValue,
-                             @JsonProperty("diceSides") @Nullable Integer diceSides,
-                             @JsonProperty("selectedFrom") @Nullable List<String> selectedFrom) {
+                             @JsonProperty("diceSides") Integer diceSides,
+                             @JsonProperty("selectedFrom") List<String> selectedFrom) {
         this.dieIdDb = dieIdDb;
         this.value = value;
         this.numberSupplierValue = numberSupplierValue;

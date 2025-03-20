@@ -7,6 +7,7 @@ dependencies {
 
     implementation("net.dv8tion:JDA:5.3.0") {
         exclude(module = "opus-java")
+        exclude(module = "tink")
     }
     implementation(libs.reactor.core)
     implementation(libs.logback.classic)

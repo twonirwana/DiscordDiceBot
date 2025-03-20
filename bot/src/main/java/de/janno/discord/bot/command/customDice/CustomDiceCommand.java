@@ -22,7 +22,7 @@ import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
-import javax.annotation.Nullable;
+
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -69,7 +69,7 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
     }
 
     @Override
-    public Optional<MessageConfigDTO> createMessageConfig(@NonNull UUID configUUID, @Nullable Long guildId, long channelId, long userId, @NonNull CustomDiceConfig config) {
+    public Optional<MessageConfigDTO> createMessageConfig(@NonNull UUID configUUID, Long guildId, long channelId, long userId, @NonNull CustomDiceConfig config) {
         return Optional.of(new MessageConfigDTO(configUUID, guildId, channelId, getCommandId(), CONFIG_TYPE_ID, Mapper.serializedObject(config), config.getName(), userId));
     }
 
@@ -174,8 +174,8 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
     @Override
     protected @NonNull Optional<EmbedOrMessageDefinition> createNewButtonMessageWithState(@NonNull UUID configUUID,
                                                                                           @NonNull CustomDiceConfig config,
-                                                                                          @Nullable State<StateData> state,
-                                                                                          @Nullable Long guildId,
+                                                                                          State<StateData> state,
+                                                                                          Long guildId,
                                                                                           long channelId,
                                                                                           long userId) {
         return Optional.of(createSlashResponseMessage(configUUID, config, channelId));
