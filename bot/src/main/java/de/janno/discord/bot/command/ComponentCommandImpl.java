@@ -143,15 +143,24 @@ public abstract class ComponentCommandImpl<C extends RollConfig, S extends State
         //edit the current message if the command changes it or mark it as processing
         final Optional<String> editMessage = getCurrentMessageContentChange(config, state, keepExistingButtonMessage);
         final Optional<List<ComponentRowDefinition>> editMessageComponents = getCurrentMessageComponentChange(configUUID, config, state, channelId, userId, keepExistingButtonMessage);
+        final Optional<String> ephemeralMessage = replyEphemeralMessage(config, state, event.getInvokingGuildMemberName());
 
         componentInteractionContext.stopStartAcknowledge();
         if (editMessage.isPresent() || editMessageComponents.isPresent()) {
             return event.editMessage(editMessage.orElse(null), editMessageComponents.orElse(null))
                     .doOnSuccess(v -> componentInteractionContext.stopReplyFinished());
+        } else if (ephemeralMessage.isPresent()) {
+            return event.reply(ephemeralMessage.get(), true);
         } else {
             return event.acknowledge()
                     .doOnSuccess(v -> componentInteractionContext.stopAcknowledgeFinished());
         }
+    }
+
+    protected Optional<String> replyEphemeralMessage(@NonNull final C config,
+                                                     @NonNull final State<S> state,
+                                                     final String invokingUserName) {
+        return Optional.empty();
     }
 
     private @NonNull Mono<Void> sendAnswerMessage(@NonNull final ButtonEventAdaptor event,

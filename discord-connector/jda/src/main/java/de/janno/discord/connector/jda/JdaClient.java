@@ -223,7 +223,13 @@ public class JdaClient {
                             @Override
                             public void onStringSelectInteraction(@NonNull StringSelectInteractionEvent event) {
                                 //todo multi selection support
-                                onComponentEvent(event.getSelectedOptions().getFirst().getValue(), event, componentCommands, scheduler);
+                                String value = !event.getSelectedOptions().isEmpty() ? event.getSelectedOptions().getFirst().getValue() : null;
+                                if (value == null) {
+                                    event.getInteraction().deferEdit().complete();
+                                    //deselect of selection
+                                    return;
+                                }
+                                onComponentEvent(value, event, componentCommands, scheduler);
                             }
 
                             @Override

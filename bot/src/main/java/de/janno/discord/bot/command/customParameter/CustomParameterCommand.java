@@ -116,12 +116,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
                     .map(p -> new SelectedParameter(p.getParameterExpression(), p.getName(), null, null, false, p.getPathId(), null)).collect(ImmutableList.toImmutableList());
             return new CustomParameterStateData(newSelectedParameterList, null);
         } else {
-            if (config.getInputType() == CustomParameterConfig.InputType.button) {
-                shouldBeLockedForUser = Optional.ofNullable(currentlyLockedForUser).orElse(invokingUser);
-            } else {
-                //todo locking for dropdown
-                shouldBeLockedForUser = null;
-            }
+            shouldBeLockedForUser = Optional.ofNullable(currentlyLockedForUser).orElse(invokingUser);
         }
         final AtomicBoolean directRoll = new AtomicBoolean(false);
         final AtomicReference<String> removePathNotMatchingThis = new AtomicReference<>(null);
@@ -340,6 +335,17 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     }
 
     @Override
+    protected Optional<String> replyEphemeralMessage(@NonNull CustomParameterConfig config, @NonNull State<CustomParameterStateData> state, String invokingUserName) {
+        if (state.getData() != null &&
+                state.getData().getLockedForUserName() != null &&
+                !state.getData().getLockedForUserName().equals(invokingUserName) &&
+                config.getInputType() == CustomParameterConfig.InputType.dropdown) {
+            return Optional.of("Already locked for user: " + state.getData().getLockedForUserName());
+        }
+        return Optional.empty();
+    }
+
+    @Override
     protected @NonNull EmbedOrMessageDefinition getHelpMessage(Locale userLocale) {
         return EmbedOrMessageDefinition.builder()
                 .descriptionOrContent(I18n.getMessage("custom_parameter.help.message", userLocale) + " \n" + DiceEvaluatorAdapter.getHelp())
@@ -510,7 +516,8 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
             }
             return Optional.empty();
         }
-        if (config.getInputType() == CustomParameterConfig.InputType.dropdown) {
+
+        if (config.getInputType() == CustomParameterConfig.InputType.dropdown && !CLEAR_BUTTON_ID.equals(state.getButtonValue())) {
             return Optional.empty();
         }
         String cleanName = Optional.ofNullable(state.getData())
@@ -634,7 +641,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
 
     private List<ComponentRowDefinition> getDropdownLayout(@NonNull UUID configUUID,
                                                            @NonNull CustomParameterConfig config) {
-        return config.getParameters().stream()
+        List<ComponentRowDefinition> dropdowns = config.getParameters().stream()
                 .map(p -> ComponentRowDefinition.builder()
                         .componentDefinition(DropdownDefinition.builder()
                                 .id(p.getName())
@@ -654,6 +661,17 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
                                 .build())
                         .build())
                 .collect(Collectors.toList());
+
+        return ImmutableList.<ComponentRowDefinition>builder()
+                .addAll(dropdowns)
+                .add(ComponentRowDefinition.builder()
+                        .componentDefinition(ButtonDefinition.builder()
+                                .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), CLEAR_BUTTON_ID, configUUID))
+                                .label(I18n.getMessage("custom_parameter.button.label.clear", config.getConfigLocale()))
+                                .style(ButtonDefinition.Style.DANGER)
+                                .build())
+                        .build())
+                .build();
     }
 
     private boolean hasAnySelectedValues(@Nullable State<CustomParameterStateData> state) {

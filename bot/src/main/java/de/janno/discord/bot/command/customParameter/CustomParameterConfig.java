@@ -45,7 +45,7 @@ public class CustomParameterConfig extends RollConfig {
         super(answerTargetChannelId, answerFormatType, answerInteractionType, resultImage, diceStyleAndColor, configLocale, callStarterConfigAfterFinish, name);
         this.baseExpression = baseExpression;
         this.inputType = Optional.ofNullable(inputType).orElse(InputType.button_legacy);
-        this.parameters = CustomParameterCommand.createParameterListFromBaseExpression(baseExpression, inputType);
+        this.parameters = CustomParameterCommand.createParameterListFromBaseExpression(baseExpression, this.inputType);
     }
 
     @Override
