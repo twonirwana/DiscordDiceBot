@@ -13,7 +13,7 @@ import org.apache.batik.transcoder.TranscoderInput;
 import org.apache.batik.transcoder.TranscoderOutput;
 import org.apache.batik.transcoder.image.PNGTranscoder;
 import org.apache.commons.io.IOUtils;
-import javax.annotation.Nullable;
+
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -163,7 +163,7 @@ public class PolyhedralSvgWithColor implements ImageProvider {
     }
 
     @Override
-    public @NonNull List<BufferedImage> getImageForString(int totalDieSides, @NonNull String diceValue, @Nullable String color) {
+    public @NonNull List<BufferedImage> getImageForString(int totalDieSides, @NonNull String diceValue, String color) {
         if (!DICE_IMAGE_MAP.containsKey(totalDieSides) || totalDieSides == 100) {
             return List.of();
         }

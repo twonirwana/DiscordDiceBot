@@ -16,7 +16,7 @@ import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
-import javax.annotation.Nullable;
+
 import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
@@ -62,7 +62,7 @@ public class WelcomeCommand extends ComponentCommandImpl<RollConfig, StateData> 
     }
 
     @Override
-    public @NonNull MessageDataDTO createEmptyMessageData(@NonNull UUID configUUID, @Nullable Long guildId, long channelId, long messageId) {
+    public @NonNull MessageDataDTO createEmptyMessageData(@NonNull UUID configUUID, Long guildId, long channelId, long messageId) {
         //there should be no saved message data for the welcome message, the created new button messages will create their own message data upon first interaction
         return new MessageDataDTO(configUUID, guildId, channelId, messageId, getCommandId(), Mapper.NO_PERSISTED_STATE, null);
     }
@@ -93,7 +93,7 @@ public class WelcomeCommand extends ComponentCommandImpl<RollConfig, StateData> 
     }
 
     @Override
-    protected @NonNull Optional<EmbedOrMessageDefinition> createNewButtonMessage(@NonNull UUID configId, @NonNull RollConfig config, @Nullable State<StateData> state, @Nullable Long guildId, long channelId, long userId) {
+    protected @NonNull Optional<EmbedOrMessageDefinition> createNewButtonMessage(@NonNull UUID configId, @NonNull RollConfig config, State<StateData> state, Long guildId, long channelId, long userId) {
         if (state == null) {
             return Optional.empty();
         }

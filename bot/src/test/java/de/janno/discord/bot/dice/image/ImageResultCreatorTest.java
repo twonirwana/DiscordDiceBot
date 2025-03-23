@@ -16,7 +16,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import javax.annotation.Nullable;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,7 +29,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class ImageResultCreatorTest {
     private final ImageResultCreator underTest = new ImageResultCreator();
 
-    private static String getDataHash(@Nullable Supplier<? extends InputStream> data) throws IOException {
+    private static String getDataHash(Supplier<? extends InputStream> data) throws IOException {
         if (data == null) {
             return null;
         }

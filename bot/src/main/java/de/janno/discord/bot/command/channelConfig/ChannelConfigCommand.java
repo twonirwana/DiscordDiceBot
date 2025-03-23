@@ -19,7 +19,6 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
-import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -325,7 +324,7 @@ public class ChannelConfigCommand implements SlashCommand {
         return event.reply(I18n.getMessage("channel_config.unknown.reply", userLocal), false);
     }
 
-    public void saveAliasesConfig(@NonNull List<Alias> aliases, long channelId, @Nullable Long guildId, @Nullable Long userId, @NonNull Supplier<UUID> uuidSupplier, @Nullable String name) {
+    public void saveAliasesConfig(@NonNull List<Alias> aliases, long channelId, Long guildId, Long userId, @NonNull Supplier<UUID> uuidSupplier, String name) {
         final Set<String> newAliasNames = aliases.stream().map(Alias::getName).collect(Collectors.toSet());
         final List<Alias> existingAliasUnchanged = loadAlias(channelId, userId)
                 .stream()
@@ -340,7 +339,7 @@ public class ChannelConfigCommand implements SlashCommand {
 
     }
 
-    private Mono<Void> handelChannelEvent(@NonNull SlashEventAdaptor event, @Nullable Long userId, @NonNull Supplier<UUID> uuidSupplier, @NonNull Locale userLocale) {
+    private Mono<Void> handelChannelEvent(@NonNull SlashEventAdaptor event, Long userId, @NonNull Supplier<UUID> uuidSupplier, @NonNull Locale userLocale) {
         if (event.getOption(SAVE_ALIAS_OPTION_NAME).isPresent()) {
             String scope = userId == null ? "channelAliasSave" : "user_channelAliasSave";
             BotMetrics.incrementSlashStartMetricCounter(getCommandId() + "_" + scope);
@@ -442,7 +441,7 @@ public class ChannelConfigCommand implements SlashCommand {
         }
     }
 
-    private void saveAliasConfig(long channelId, @Nullable Long guildId, Long userId, @NonNull AliasConfig aliasConfig, @NonNull Supplier<UUID> uuidSupplier) {
+    private void saveAliasConfig(long channelId, Long guildId, Long userId, @NonNull AliasConfig aliasConfig, @NonNull Supplier<UUID> uuidSupplier) {
         persistenceManager.saveChannelConfig(new ChannelConfigDTO(uuidSupplier.get(),
                 guildId,
                 channelId,

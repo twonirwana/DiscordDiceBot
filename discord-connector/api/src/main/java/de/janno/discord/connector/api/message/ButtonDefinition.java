@@ -8,7 +8,6 @@ import lombok.Value;
 import net.fellbaum.jemoji.EmojiManager;
 import org.apache.commons.lang3.StringUtils;
 
-import javax.annotation.Nullable;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Pattern;
@@ -24,10 +23,12 @@ public class ButtonDefinition implements ComponentDefinition {
     @NonNull
     ButtonDefinition.Style style;
     boolean disabled;
-    @Nullable
+    /**
+     * null if no emoji is set
+     */
     String emoji;
 
-    ButtonDefinition(@NonNull String label, @NonNull String id, Style style, boolean disabled, @Nullable String emoji) {
+    ButtonDefinition(@NonNull String label, @NonNull String id, Style style, boolean disabled, String emoji) {
         //https://discord.com/developers/docs/interactions/message-components#button-object
         Preconditions.checkArgument(id.length() <= 100, String.format("ID '%s' is to long", id));
         Preconditions.checkArgument(StringUtils.isNoneBlank(label) || emoji != null, "label and emoji are empty");

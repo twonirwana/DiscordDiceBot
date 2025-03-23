@@ -12,7 +12,7 @@ import de.janno.discord.connector.api.message.ComponentDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinition;
 
-import javax.annotation.Nullable;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -180,6 +180,6 @@ public class ButtonHelper {
     }
 
     public record ButtonIdLabelAndDiceExpressionExtension(ButtonIdLabelAndDiceExpression buttonIdLabelAndDiceExpression,
-                                                          boolean disabled, @Nullable ButtonDefinition.Style style) {
+                                                          boolean disabled, ButtonDefinition.Style style) {
     }
 }

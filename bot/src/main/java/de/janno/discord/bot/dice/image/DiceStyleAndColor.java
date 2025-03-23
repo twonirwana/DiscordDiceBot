@@ -6,7 +6,6 @@ import de.janno.evaluator.dice.RandomElement;
 import lombok.NonNull;
 import lombok.Value;
 
-import javax.annotation.Nullable;
 import java.awt.image.BufferedImage;
 import java.util.List;
 import java.util.Optional;
@@ -20,7 +19,7 @@ public class DiceStyleAndColor {
     String configuredDefaultColor;
 
     public DiceStyleAndColor(@NonNull @JsonProperty("diceImageStyle") DiceImageStyle diceImageStyle,
-                             @Nullable @JsonProperty("configuredDefaultColor") String configuredDefaultColor) {
+                             @JsonProperty("configuredDefaultColor") String configuredDefaultColor) {
         this.diceImageStyle = diceImageStyle;
         this.configuredDefaultColor = Optional.ofNullable(configuredDefaultColor)
                 .map(c -> {

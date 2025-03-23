@@ -3,7 +3,6 @@ package de.janno.discord.bot.persistance;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import lombok.Value;
-import javax.annotation.Nullable;
 
 import java.util.UUID;
 
@@ -17,14 +16,13 @@ public class MessageDataDTO {
 
     @NonNull
     UUID configUUID;
-    @Nullable Long guildId;
+    Long guildId;
     long channelId;
     long messageId;
     @NonNull
     String commandId;
     @NonNull
     String stateDataClassId;
-    @Nullable
     String stateData;
 
 }

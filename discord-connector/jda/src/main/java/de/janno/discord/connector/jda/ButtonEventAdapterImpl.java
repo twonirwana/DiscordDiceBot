@@ -21,7 +21,6 @@ import org.apache.commons.lang3.StringUtils;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.ParallelFlux;
 
-import javax.annotation.Nullable;
 import java.io.InputStream;
 import java.time.OffsetDateTime;
 import java.util.Collection;
@@ -39,7 +38,9 @@ public class ButtonEventAdapterImpl extends DiscordAdapterImpl implements Button
     private final String customId;
     private final long messageId;
     private final long channelId;
-    @Nullable
+    /**
+     * null if the button event is not in a guild
+     */
     private final Long guildId;
     private final long userId;
     private final boolean isPinned;
@@ -67,7 +68,6 @@ public class ButtonEventAdapterImpl extends DiscordAdapterImpl implements Button
         return userId;
     }
 
-    @Nullable
     @Override
     public Long getGuildId() {
         return guildId;

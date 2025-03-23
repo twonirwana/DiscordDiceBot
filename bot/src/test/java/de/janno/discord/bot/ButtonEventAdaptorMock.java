@@ -12,7 +12,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.ParallelFlux;
 
-import javax.annotation.Nullable;
+
 import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
@@ -128,7 +128,7 @@ public class ButtonEventAdaptorMock implements ButtonEventAdaptor {
     }
 
     @Override
-    public @NonNull Mono<Void> editMessage(@Nullable String message, @Nullable List<ComponentRowDefinition> componentRowDefinitions) {
+    public @NonNull Mono<Void> editMessage(String message, List<ComponentRowDefinition> componentRowDefinitions) {
         actions.add(String.format("editMessage: message:%s, buttons=%s", message, componentRowDefinitions));
         this.editedComponentRowDefinition = componentRowDefinitions;
         return Mono.just("").then();

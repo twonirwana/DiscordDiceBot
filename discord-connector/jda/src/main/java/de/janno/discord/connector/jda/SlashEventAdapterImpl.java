@@ -18,7 +18,6 @@ import org.apache.commons.lang3.StringUtils;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.ParallelFlux;
 
-import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
@@ -35,7 +34,9 @@ public class SlashEventAdapterImpl extends DiscordAdapterImpl implements SlashEv
     private final long channelId;
     @NonNull
     private final String commandString;
-    @Nullable
+    /**
+     * null if the button event is not in a guild
+     */
     private final Long guildId;
     @NonNull
     private final String invokingGuildMemberName;
@@ -50,7 +51,6 @@ public class SlashEventAdapterImpl extends DiscordAdapterImpl implements SlashEv
         this.invokingGuildMemberName = Optional.ofNullable(event.getMember()).map(Member::getEffectiveName).orElse(event.getUser().getName());
     }
 
-    @Nullable
     @Override
     public Long getGuildId() {
         return guildId;

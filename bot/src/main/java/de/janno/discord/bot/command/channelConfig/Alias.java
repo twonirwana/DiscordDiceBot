@@ -6,7 +6,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.NonNull;
 import lombok.Value;
 
-import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.Optional;
 
@@ -26,7 +25,7 @@ public class Alias {
     @JsonCreator
     public Alias(@NonNull @JsonProperty("name") String name,
                  @NonNull @JsonProperty("value") String value,
-                 @Nullable @JsonProperty("type") Type type) {
+                 @JsonProperty("type") Type type) {
         this.name = name;
         this.value = value;
         this.type = Optional.ofNullable(type).orElse(Type.Replace);

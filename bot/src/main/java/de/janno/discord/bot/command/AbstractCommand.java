@@ -15,7 +15,7 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
-import javax.annotation.Nullable;
+
 import java.util.*;
 import java.util.function.Supplier;
 
@@ -41,7 +41,7 @@ public abstract class AbstractCommand<C extends RollConfig, S extends StateData>
             }
 
             @Override
-            protected @NonNull Optional<EmbedOrMessageDefinition> createNewButtonMessage(@NonNull UUID configId, @NonNull C config, @Nullable State<S> state, @Nullable Long guildId, long channelId, long userId) {
+            protected @NonNull Optional<EmbedOrMessageDefinition> createNewButtonMessage(@NonNull UUID configId, @NonNull C config, State<S> state, Long guildId, long channelId, long userId) {
                 return AbstractCommand.this.createNewButtonMessageWithState(configId, config, state, guildId, channelId, userId);
             }
 
@@ -51,7 +51,7 @@ public abstract class AbstractCommand<C extends RollConfig, S extends StateData>
             }
 
             @Override
-            protected void updateCurrentMessageStateData(UUID configUUID, @Nullable Long guildId, long channelId, long messageId, @NonNull C config, @NonNull State<S> state) {
+            protected void updateCurrentMessageStateData(UUID configUUID, Long guildId, long channelId, long messageId, @NonNull C config, @NonNull State<S> state) {
                 AbstractCommand.this.updateCurrentMessageStateData(configUUID, guildId, channelId, messageId, config, state);
             }
 
@@ -87,7 +87,7 @@ public abstract class AbstractCommand<C extends RollConfig, S extends StateData>
             }
 
             @Override
-            public Optional<MessageConfigDTO> createMessageConfig(@NonNull UUID configUUID, @Nullable Long guildId, long channelId, long userId, @NonNull C config) {
+            public Optional<MessageConfigDTO> createMessageConfig(@NonNull UUID configUUID, Long guildId, long channelId, long userId, @NonNull C config) {
                 return AbstractCommand.this.createMessageConfig(configUUID, guildId, channelId, userId, config);
             }
 
@@ -199,7 +199,7 @@ public abstract class AbstractCommand<C extends RollConfig, S extends StateData>
 
     //visible for welcome command
     public abstract Optional<MessageConfigDTO> createMessageConfig(@NonNull UUID configUUID,
-                                                                   @Nullable Long guildId,
+                                                                   Long guildId,
                                                                    long channelId,
                                                                    long userId,
                                                                    @NonNull C config);
@@ -207,7 +207,7 @@ public abstract class AbstractCommand<C extends RollConfig, S extends StateData>
     /**
      * update the saved state if the current button message is not deleted. StateData need to be set to null if the there is a answer message
      */
-    protected void updateCurrentMessageStateData(UUID configUUID, @Nullable Long guildId, long channelId, long messageId, @NonNull C config, @NonNull State<S> state) {
+    protected void updateCurrentMessageStateData(UUID configUUID, Long guildId, long channelId, long messageId, @NonNull C config, @NonNull State<S> state) {
     }
 
     /**
@@ -250,8 +250,8 @@ public abstract class AbstractCommand<C extends RollConfig, S extends StateData>
      */
     protected abstract @NonNull Optional<EmbedOrMessageDefinition> createNewButtonMessageWithState(@NonNull UUID configId,
                                                                                                    @NonNull C config,
-                                                                                                   @Nullable State<S> state,
-                                                                                                   @Nullable Long guildId,
+                                                                                                   State<S> state,
+                                                                                                   Long guildId,
                                                                                                    long channelId,
                                                                                                    long userId);
 

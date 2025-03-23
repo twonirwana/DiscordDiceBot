@@ -32,7 +32,7 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
-import javax.annotation.Nullable;
+
 import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -324,7 +324,7 @@ public class StarterCommand implements SlashCommand, ComponentCommand {
         return event.reply("There was an error, try again", true);
     }
 
-    private void createEmptyMessageData(@NonNull UUID configUUID, @Nullable Long guildId, long channelId, long messageId) {
+    private void createEmptyMessageData(@NonNull UUID configUUID, Long guildId, long channelId, long messageId) {
         BaseCommandUtils.createCleanupAndSaveEmptyMessageData(configUUID, guildId, channelId, messageId, getCommandId(), persistenceManager);
     }
 
@@ -350,7 +350,7 @@ public class StarterCommand implements SlashCommand, ComponentCommand {
     }
 
     @VisibleForTesting
-    MessageConfigDTO createMessageConfig(@NonNull UUID configUUID, @Nullable Long guildId, long channelId, Long userId, @NonNull StarterConfig config) {
+    MessageConfigDTO createMessageConfig(@NonNull UUID configUUID, Long guildId, long channelId, Long userId, @NonNull StarterConfig config) {
         return new MessageConfigDTO(configUUID,
                 guildId,
                 channelId,
