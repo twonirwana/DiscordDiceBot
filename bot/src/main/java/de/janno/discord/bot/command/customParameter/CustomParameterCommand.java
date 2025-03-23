@@ -29,7 +29,6 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
-
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -580,7 +579,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
 
     private List<ComponentRowDefinition> getComponentLayoutWithOptionalState(@NonNull UUID configUUID,
                                                                              @NonNull CustomParameterConfig config,
-                                                                             @Nullable State<CustomParameterStateData> state) {
+                                                                             State<CustomParameterStateData> state) {
         if (config.getInputType() == CustomParameterConfig.InputType.dropdown) {
             return getDropdownLayout(configUUID, config);
         } else if (config.getInputType() == CustomParameterConfig.InputType.button || config.getInputType() == CustomParameterConfig.InputType.button_legacy) {
@@ -591,7 +590,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
 
     private List<ComponentRowDefinition> getButtonLayout(@NonNull UUID configUUID,
                                                          @NonNull CustomParameterConfig config,
-                                                          State<CustomParameterStateData> state) {
+                                                         State<CustomParameterStateData> state) {
         String currentParameterExpression = Optional.ofNullable(state)
                 .map(State::getData)
                 .flatMap(CustomParameterStateData::getNextUnselectedParameterExpression)
