@@ -661,16 +661,20 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
                         .build())
                 .collect(Collectors.toList());
 
-        return ImmutableList.<ComponentRowDefinition>builder()
-                .addAll(dropdowns)
-                .add(ComponentRowDefinition.builder()
-                        .componentDefinition(ButtonDefinition.builder()
-                                .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), CLEAR_BUTTON_ID, configUUID))
-                                .label(I18n.getMessage("custom_parameter.button.label.clear", config.getConfigLocale()))
-                                .style(ButtonDefinition.Style.DANGER)
-                                .build())
-                        .build())
-                .build();
+        //clear button is only needed if there are multiple dropdowns
+        if (dropdowns.size() > 1) {
+            return ImmutableList.<ComponentRowDefinition>builder()
+                    .addAll(dropdowns)
+                    .add(ComponentRowDefinition.builder()
+                            .componentDefinition(ButtonDefinition.builder()
+                                    .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), CLEAR_BUTTON_ID, configUUID))
+                                    .label(I18n.getMessage("custom_parameter.button.label.clear", config.getConfigLocale()))
+                                    .style(ButtonDefinition.Style.DANGER)
+                                    .build())
+                            .build())
+                    .build();
+        }
+        return dropdowns;
     }
 
     private boolean hasAnySelectedValues(State<CustomParameterStateData> state) {

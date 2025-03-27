@@ -225,6 +225,7 @@ public class JdaClient {
                                 //todo multi selection support
                                 String value = !event.getSelectedOptions().isEmpty() ? event.getSelectedOptions().getFirst().getValue() : null;
                                 if (value == null) {
+                                    //todo better handling of deselect with event.getComponentId()
                                     event.getInteraction().deferEdit().complete();
                                     //deselect of selection
                                     return;
