@@ -15,6 +15,7 @@ import de.janno.discord.bot.persistance.PersistenceManagerImpl;
 import de.janno.discord.connector.api.Requester;
 import de.janno.discord.connector.api.SlashEventAdaptor;
 import de.janno.discord.connector.api.message.ButtonDefinition;
+import de.janno.discord.connector.api.message.ComponentDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
 import de.janno.discord.connector.api.slash.CommandDefinitionOption;
@@ -171,8 +172,8 @@ class CustomDiceCommandTest {
     void getButtonLayoutWithState() {
         List<ComponentRowDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "2d6", "2d6", false, false, null), new ButtonIdLabelAndDiceExpression("2_button", "Attack", "1d20", false, false, null)), AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH, null, null), new State<>("2d6", StateData.empty()), 1L, 2L, 0L)
                 .orElseThrow().getComponentRowDefinitions();
-        assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel)).containsExactly("2d6", "Attack");
-        assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getId)).containsExactly("custom_dice1_button00000000-0000-0000-0000-000000000000", "custom_dice2_button00000000-0000-0000-0000-000000000000");
+        assertThat(res.stream().flatMap(l -> l.getComponentDefinitions().stream()).map(ComponentDefinition::getLabelOrPlaceholder)).containsExactly("2d6", "Attack");
+        assertThat(res.stream().flatMap(l -> l.getComponentDefinitions().stream()).map(ComponentDefinition::getId)).containsExactly("custom_dice1_button00000000-0000-0000-0000-000000000000", "custom_dice2_button00000000-0000-0000-0000-000000000000");
     }
 
     @Test
@@ -180,8 +181,8 @@ class CustomDiceCommandTest {
         List<ComponentRowDefinition> res = underTest.createSlashResponseMessage(UUID.fromString("00000000-0000-0000-0000-000000000000"), new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "2d6", "2d6", false, false, null), new ButtonIdLabelAndDiceExpression("2_button", "Attack", "1d20", false, false, null)), AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH, null, null), 1L)
                 .getComponentRowDefinitions();
 
-        assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel)).containsExactly("2d6", "Attack");
-        assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getId)).containsExactly("custom_dice1_button00000000-0000-0000-0000-000000000000", "custom_dice2_button00000000-0000-0000-0000-000000000000");
+        assertThat(res.stream().flatMap(l -> l.getComponentDefinitions().stream()).map(ComponentDefinition::getLabelOrPlaceholder)).containsExactly("2d6", "Attack");
+        assertThat(res.stream().flatMap(l -> l.getComponentDefinitions().stream()).map(ComponentDefinition::getId)).containsExactly("custom_dice1_button00000000-0000-0000-0000-000000000000", "custom_dice2_button00000000-0000-0000-0000-000000000000");
     }
 
     @Test
@@ -218,15 +219,15 @@ class CustomDiceCommandTest {
                 .type(EmbedOrMessageDefinition.Type.MESSAGE)
                 .descriptionOrContent("Click on a button to roll the dice")
                 .componentRowDefinitions(ImmutableList.of(ComponentRowDefinition.builder()
-                        .buttonDefinition(ButtonDefinition.builder()
+                        .componentDefinition(ButtonDefinition.builder()
                                 .id("custom_dice1_button00000000-0000-0000-0000-000000000000")
                                 .label("1d6")
                                 .build())
-                        .buttonDefinition(ButtonDefinition.builder()
+                        .componentDefinition(ButtonDefinition.builder()
                                 .id("custom_dice2_button00000000-0000-0000-0000-000000000000")
                                 .label("Attack")
                                 .build())
-                        .buttonDefinition(ButtonDefinition.builder()
+                        .componentDefinition(ButtonDefinition.builder()
                                 .id("custom_dice3_button00000000-0000-0000-0000-000000000000")
                                 .label("3d10,3d10,3d10")
                                 .build())

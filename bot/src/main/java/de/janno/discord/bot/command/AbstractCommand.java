@@ -56,6 +56,11 @@ public abstract class AbstractCommand<C extends RollConfig, S extends StateData>
             }
 
             @Override
+            protected Optional<String> replyEphemeralMessage(@NonNull C config, @NonNull State<S> state, String invokingUserName) {
+                return AbstractCommand.this.replyEphemeralMessage(config, state, invokingUserName);
+            }
+
+            @Override
             protected Optional<List<ComponentRowDefinition>> getCurrentMessageComponentChange(UUID configUUID, C config, State<S> state, long channelId, long userId, boolean keepExistingButtonMessage) {
                 return AbstractCommand.this.getCurrentMessageComponentChange(configUUID, config, state, channelId, userId, keepExistingButtonMessage);
             }
@@ -146,6 +151,10 @@ public abstract class AbstractCommand<C extends RollConfig, S extends StateData>
                 return AbstractCommand.this.getStartOptionsValidationMessage(options, channelId, userId, userLocale);
             }
         };
+    }
+
+    protected Optional<String> replyEphemeralMessage(@NonNull C config, @NonNull State<S> state, String invokingUserName) {
+        return Optional.empty();
     }
 
     @Override

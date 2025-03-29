@@ -11,7 +11,6 @@ import io.micrometer.core.instrument.Tag;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
-
 import javax.sql.DataSource;
 import java.sql.*;
 import java.time.Duration;
@@ -21,7 +20,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.function.ToDoubleFunction;
-import java.util.stream.Collectors;
 
 import static io.micrometer.core.instrument.Metrics.globalRegistry;
 
@@ -325,7 +323,11 @@ public class PersistenceManagerImpl implements PersistenceManager {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-        BotMetrics.databaseTimer("deleteDataForChannel", stopwatch.elapsed());
+        if (name == null) {
+            BotMetrics.databaseTimer("deleteDataForChannel", stopwatch.elapsed());
+        } else {
+            BotMetrics.databaseTimer("deleteDataForChannelForName", stopwatch.elapsed());
+        }
         return messageIds;
     }
 
@@ -532,15 +534,13 @@ public class PersistenceManagerImpl implements PersistenceManager {
                              join MESSAGE_DATA MD on mc.CONFIG_ID = md.CONFIG_ID
                     WHERE MD.CHANNEL_ID = ?
                     AND MD.CREATION_DATE < ?
-                    AND MD.COMMAND_ID in ("""
-                    + commandIds.stream().map("'%s'"::formatted).collect(Collectors.joining(","))
-                    + """
-                    ) AND MD.MARKED_DELETED is null
+                    AND MD.COMMAND_ID = ANY (?) AND MD.MARKED_DELETED is null
                     order by MD.CREATION_DATE desc
                     """;
             try (PreparedStatement preparedStatement = con.prepareStatement(sql)) {
                 preparedStatement.setLong(1, channelId);
                 preparedStatement.setTimestamp(2, Timestamp.valueOf(since));
+                preparedStatement.setObject(3, commandIds.toArray(new String[0]));
                 preparedStatement.setMaxRows(1);
                 ResultSet resultSet = preparedStatement.executeQuery();
                 MessageConfigDTO messageConfigDTO = transformResultSet2MessageConfigDTO(resultSet);

@@ -18,10 +18,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.Duration;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Locale;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
@@ -86,7 +83,11 @@ public class ClearCommand implements SlashCommand {
                         .delayElements(Duration.ofMillis(io.avaje.config.Config.getLong("command.clear.messageDeleteDelay", 1000)))
                         .flatMap(messageId -> event.deleteMessageById(messageId).thenReturn(messageId))
                         .count()
-                        .doOnSuccess(c -> log.info("{}: Finish delete of {} messages in {}ms", event.getRequester().toLogString(), c, deleteStopwatch.elapsed(TimeUnit.MILLISECONDS)))
+                        .doOnSuccess(c -> log.info("{}: Finish delete{} with {} messages in {}ms",
+                                event.getRequester().toLogString(),
+                                Optional.ofNullable(name).map(" of '%s'"::formatted).orElse(""),
+                                c,
+                                deleteStopwatch.elapsed(TimeUnit.MILLISECONDS)))
                         .then())
                 .doOnSuccess(v -> {
                     if (Strings.isNullOrEmpty(name)) {

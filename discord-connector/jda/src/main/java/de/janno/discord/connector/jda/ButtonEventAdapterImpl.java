@@ -14,7 +14,7 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
-import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.GenericComponentInteractionCreateEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.utils.AttachmentProxy;
 import org.apache.commons.lang3.StringUtils;
@@ -33,7 +33,7 @@ import java.util.function.Supplier;
 @Slf4j
 public class ButtonEventAdapterImpl extends DiscordAdapterImpl implements ButtonEventAdaptor {
     @NonNull
-    private final ButtonInteractionEvent event;
+    private final GenericComponentInteractionCreateEvent event;
     @NonNull
     private final String customId;
     private final long messageId;
@@ -49,12 +49,13 @@ public class ButtonEventAdapterImpl extends DiscordAdapterImpl implements Button
     @NonNull
     private final String invokingGuildMemberName;
 
-    public ButtonEventAdapterImpl(@NonNull ButtonInteractionEvent event,
+    public ButtonEventAdapterImpl(@NonNull String customId,
+                                  @NonNull GenericComponentInteractionCreateEvent event,
                                   @NonNull Requester requester) {
         this.event = event;
         this.requester = requester;
         this.messageId = event.getMessageIdLong();
-        this.customId = event.getInteraction().getComponentId();
+        this.customId = customId;
         this.isPinned = event.getMessage().isPinned();
         this.guildId = Optional.ofNullable(event.getGuild()).map(Guild::getIdLong).orElse(null);
         this.channelId = event.getChannel().getIdLong();

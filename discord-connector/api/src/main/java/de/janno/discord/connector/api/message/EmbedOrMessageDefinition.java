@@ -60,8 +60,8 @@ public class EmbedOrMessageDefinition {
             Preconditions.checkArgument(image == null, "Message have no image");
         }
         Preconditions.checkArgument(componentRowDefinitions.size() <= 5, "Too many component rows in %s, max is 5", componentRowDefinitions);
-        List<String> duplicatedComponentKeys = componentRowDefinitions.stream().flatMap(r -> r.getButtonDefinitions().stream())
-                .collect(Collectors.groupingBy(ButtonDefinition::getId, Collectors.counting()))
+        List<String> duplicatedComponentKeys = componentRowDefinitions.stream().flatMap(r -> r.getComponentDefinitions().stream())
+                .collect(Collectors.groupingBy(ComponentDefinition::getId, Collectors.counting()))
                 .entrySet().stream()
                 .filter(e -> e.getValue() > 1)
                 .map(Map.Entry::getKey)

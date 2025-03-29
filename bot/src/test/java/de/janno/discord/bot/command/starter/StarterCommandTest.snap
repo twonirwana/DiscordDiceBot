@@ -553,7 +553,7 @@ de.janno.discord.bot.command.starter.StarterCommandTest.testWelcomeMessage[de]=[
       "fields": [ ],
       "componentRowDefinitions": [
         {
-          "buttonDefinitions": [
+          "componentDefinitions": [
             {
               "label": "Dungeon & Dragons 5e",
               "id": "starter\u001E00000000-0000-0000-0001-000000000001\u001E00000000-0000-0000-0001-000000000000",
@@ -588,7 +588,7 @@ de.janno.discord.bot.command.starter.StarterCommandTest.testWelcomeMessage[de]=[
           ]
         },
         {
-          "buttonDefinitions": [
+          "componentDefinitions": [
             {
               "label": "nWod / Chronicles of Darkness",
               "id": "starter\u001E00000000-0000-0000-0001-000000000006\u001E00000000-0000-0000-0001-000000000000",
@@ -625,7 +625,7 @@ de.janno.discord.bot.command.starter.StarterCommandTest.testWelcomeMessage[en]=[
       "fields": [ ],
       "componentRowDefinitions": [
         {
-          "buttonDefinitions": [
+          "componentDefinitions": [
             {
               "label": "Dungeon & Dragons 5e",
               "id": "starter\u001E00000000-0000-0000-0001-000000000001\u001E00000000-0000-0000-0001-000000000000",
@@ -660,7 +660,7 @@ de.janno.discord.bot.command.starter.StarterCommandTest.testWelcomeMessage[en]=[
           ]
         },
         {
-          "buttonDefinitions": [
+          "componentDefinitions": [
             {
               "label": "nWod / Chronicles of Darkness",
               "id": "starter\u001E00000000-0000-0000-0001-000000000006\u001E00000000-0000-0000-0001-000000000000",
@@ -697,7 +697,7 @@ de.janno.discord.bot.command.starter.StarterCommandTest.testWelcomeMessage[fr]=[
       "fields": [ ],
       "componentRowDefinitions": [
         {
-          "buttonDefinitions": [
+          "componentDefinitions": [
             {
               "label": "Dungeon & Dragons 5e",
               "id": "starter\u001E00000000-0000-0000-0001-000000000001\u001E00000000-0000-0000-0001-000000000000",
@@ -732,7 +732,7 @@ de.janno.discord.bot.command.starter.StarterCommandTest.testWelcomeMessage[fr]=[
           ]
         },
         {
-          "buttonDefinitions": [
+          "componentDefinitions": [
             {
               "label": "nWod / Chroniques des ténèbres",
               "id": "starter\u001E00000000-0000-0000-0001-000000000006\u001E00000000-0000-0000-0001-000000000000",
@@ -769,7 +769,7 @@ de.janno.discord.bot.command.starter.StarterCommandTest.testWelcomeMessage[pt_BR
       "fields": [ ],
       "componentRowDefinitions": [
         {
-          "buttonDefinitions": [
+          "componentDefinitions": [
             {
               "label": "Dungeon & Dragons 5e",
               "id": "starter\u001E00000000-0000-0000-0001-000000000001\u001E00000000-0000-0000-0001-000000000000",
@@ -804,7 +804,7 @@ de.janno.discord.bot.command.starter.StarterCommandTest.testWelcomeMessage[pt_BR
           ]
         },
         {
-          "buttonDefinitions": [
+          "componentDefinitions": [
             {
               "label": "nWod / Crônicas das Trevas",
               "id": "starter\u001E00000000-0000-0000-0001-000000000006\u001E00000000-0000-0000-0001-000000000000",

@@ -70,12 +70,12 @@ public class RerollAnswerHandlerMockTest {
 
         EmbedOrMessageDefinition answer = buttonEvent.getSendMessages().getFirst();
 
-        String dieIdButton = answer.getComponentRowDefinitions().getFirst().getButtonDefinitions().getFirst().getId();
+        String dieIdButton = answer.getComponentRowDefinitions().getFirst().getComponentDefinitions().getFirst().getId();
         ButtonEventAdaptorMock answerButtonMessage1 = new ButtonEventAdaptorMock(dieIdButton, 2);
         rerollAnswerHandler.handleComponentInteractEvent(answerButtonMessage1).block();
         expect.scenario("select").toMatchSnapshot(answerButtonMessage1.getSortedActions());
 
-        String secondDieIdButton = answer.getComponentRowDefinitions().getFirst().getButtonDefinitions().getLast().getId();
+        String secondDieIdButton = answer.getComponentRowDefinitions().getFirst().getComponentDefinitions().getLast().getId();
         ButtonEventAdaptorMock answerButtonMessage2 = new ButtonEventAdaptorMock(secondDieIdButton, 2);
         rerollAnswerHandler.handleComponentInteractEvent(answerButtonMessage2).block();
         expect.scenario("secondSelect").toMatchSnapshot(answerButtonMessage2.getSortedActions());
@@ -88,12 +88,12 @@ public class RerollAnswerHandlerMockTest {
         rerollAnswerHandler.handleComponentInteractEvent(answerButtonMessage4).block();
         expect.scenario("reselect").toMatchSnapshot(answerButtonMessage4.getSortedActions());
 
-        String rollIdButton = answer.getComponentRowDefinitions().getLast().getButtonDefinitions().getFirst().getId();
+        String rollIdButton = answer.getComponentRowDefinitions().getLast().getComponentDefinitions().getFirst().getId();
         ButtonEventAdaptorMock answerButtonMessage5 = new ButtonEventAdaptorMock(rollIdButton, 2);
         rerollAnswerHandler.handleComponentInteractEvent(answerButtonMessage5).block();
         expect.scenario("reroll").toMatchSnapshot(answerButtonMessage5.getSortedActions());
 
-        String finishIdButton = answerButtonMessage5.getSendMessages().getFirst().getComponentRowDefinitions().getLast().getButtonDefinitions().getLast().getId();
+        String finishIdButton = answerButtonMessage5.getSendMessages().getFirst().getComponentRowDefinitions().getLast().getComponentDefinitions().getLast().getId();
         ButtonEventAdaptorMock answerButtonMessage6 = new ButtonEventAdaptorMock(finishIdButton, 2);
         rerollAnswerHandler.handleComponentInteractEvent(answerButtonMessage6).block();
         expect.scenario("finish").toMatchSnapshot(answerButtonMessage6.getSortedActions());
