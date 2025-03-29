@@ -5,12 +5,10 @@ import com.google.common.base.Strings;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.Value;
-import net.fellbaum.jemoji.EmojiManager;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Objects;
 import java.util.Optional;
-import java.util.regex.Pattern;
 
 @Value
 @Builder
