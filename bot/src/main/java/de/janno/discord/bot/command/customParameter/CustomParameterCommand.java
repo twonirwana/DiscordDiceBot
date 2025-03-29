@@ -39,6 +39,8 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static de.janno.discord.bot.command.customParameter.Parameter.NO_PATH;
+
 @Slf4j
 public class CustomParameterCommand extends AbstractCommand<CustomParameterConfig, CustomParameterStateData> {
 
@@ -122,7 +124,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
         ImmutableList<SelectedParameter> newSelectedParameterList = currentOrNewSelectedParameter.stream()
                 .map(sp -> {
                     if (directRoll.get()) {
-                        return new SelectedParameter(sp.getParameterExpression(), sp.getName(), SKIPPED_BY_DIRECT_ROLL_VALUE, null, true, sp.getPathId(), Parameter.NO_PATH);
+                        return new SelectedParameter(sp.getParameterExpression(), sp.getName(), SKIPPED_BY_DIRECT_ROLL_VALUE, null, true, sp.getPathId(), NO_PATH);
                     }
                     if ((Objects.equals(sp.getParameterExpression(), currentParameterExpression.get()) ||
                             //dropdowns can update all parameter
@@ -154,7 +156,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
                     if (removePathNotMatchingThis.get() != null) {
                         if (!Objects.equals(sp.getPathId(), removePathNotMatchingThis.get())) {
                             //all not matching paths get finished
-                            return new SelectedParameter(sp.getParameterExpression(), sp.getName(), SKIPPED_BY_PATH_VALUE, null, true, sp.getPathId(), Parameter.NO_PATH);
+                            return new SelectedParameter(sp.getParameterExpression(), sp.getName(), SKIPPED_BY_PATH_VALUE, null, true, sp.getPathId(), NO_PATH);
                         } else {
                             //after the first matching path no filter are applied
                             removePathNotMatchingThis.set(null);
@@ -199,14 +201,18 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
         if (idMatcher.find()) {
             return idMatcher.group(1);
         }
-        return Parameter.NO_PATH;
+        return NO_PATH;
     }
 
     private static String removePathString(String in, String pathId) {
-        if (Parameter.NO_PATH.equals(pathId)) {
+        if (NO_PATH.equals(pathId)) {
             return in;
         }
         return in.replace("!" + pathId + "!", "");
+    }
+
+    private static String getNameAndOptionalPath(String parameterExpressionWithoutRange) {
+        return parameterExpressionWithoutRange.substring(1, parameterExpressionWithoutRange.length() - 1);
     }
 
     static List<Parameter> createParameterListFromBaseExpression(String expression, CustomParameterConfig.InputType inputType) {
@@ -215,7 +221,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
         while (variableMatcher.find()) {
             String parameterExpression = variableMatcher.group();
             String expressionWithoutRange = removeRange(parameterExpression);
-            String nameAndOptionalPath = expressionWithoutRange.substring(1, expressionWithoutRange.length() - 1);
+            String nameAndOptionalPath = getNameAndOptionalPath(expressionWithoutRange);
             String pathId = getPathId(nameAndOptionalPath);
             String name = removePathString(nameAndOptionalPath, pathId);
             Matcher valueMatcher = BUTTON_VALUE_PATTERN.matcher(parameterExpression);
@@ -225,7 +231,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
                 AtomicInteger counter = new AtomicInteger(1);
                 builder.add(new Parameter(parameterExpression, name, IntStream.range(min, max + 1)
                         .mapToObj(String::valueOf)
-                        .map(s -> new Parameter.ParameterOption(s, s, createParameterOptionIdFromIndex(counter.getAndIncrement(), inputType, name), false, Parameter.NO_PATH))
+                        .map(s -> new Parameter.ParameterOption(s, s, createParameterOptionIdFromIndex(counter.getAndIncrement(), inputType, name), false, NO_PATH))
                         .toList(), pathId));
             } else if (valueMatcher.find()) {
                 String buttonValueExpression = valueMatcher.group(1);
@@ -243,7 +249,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
                                 final String label = split[1];
                                 final boolean directRoll;
                                 final String cleanLable;
-                                if (label.startsWith("!") && Parameter.NO_PATH.equals(nextPathId) && label.length() > 1) {
+                                if (label.startsWith("!") && NO_PATH.equals(nextPathId) && label.length() > 1) {
                                     directRoll = true;
                                     cleanLable = label.substring(1);
                                 } else {
@@ -264,8 +270,8 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
             } else {
                 builder.add(new Parameter(parameterExpression, name, IntStream.range(1, 16)
                         .boxed()
-                        .map(s -> new Parameter.ParameterOption(String.valueOf(s), String.valueOf(s), createParameterOptionIdFromIndex(s, inputType, name), false, Parameter.NO_PATH))
-                        .toList(), Parameter.NO_PATH));
+                        .map(s -> new Parameter.ParameterOption(String.valueOf(s), String.valueOf(s), createParameterOptionIdFromIndex(s, inputType, name), false, NO_PATH))
+                        .toList(), NO_PATH));
             }
         }
 
@@ -602,7 +608,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
         final Set<String> openPaths;
         //for a new message the state is null
         if (state == null) {
-            openPaths = Set.of(Parameter.NO_PATH);
+            openPaths = Set.of(NO_PATH);
         } else {
             openPaths = Optional.of(state).map(State::getData).map(CustomParameterStateData::getSelectedParameterValues).orElse(List.of()).stream()
                     .filter(s -> !s.isFinished())
@@ -691,7 +697,6 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
         String baseExpression = options.getStringSubOptionWithName(EXPRESSION_OPTION_NAME).orElse("");
         log.trace("Start validating: {}", baseExpression.replace("\n", " "));
         int variableCount = 0;
-        //todo validation dropdown -> no path, no variable with same name
         Matcher variableMatcher = PARAMETER_VARIABLE_PATTERN.matcher(baseExpression);
         while (variableMatcher.find()) {
             variableCount++;
@@ -718,6 +723,22 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
             return Optional.of(I18n.getMessage("custom_parameter.validation.invalid.character", userLocale, SELECTED_PARAMETER_DELIMITER));
         }
         CustomParameterConfig config = getConfigFromStartOptions(options, userLocale);
+        if (config.getInputType() == CustomParameterConfig.InputType.dropdown) {
+            //duplicate parameter name is not allowed with dropdowns
+            for (Map.Entry<String, List<String>> e : config.getParameters().stream()
+                    .map(Parameter::getName)
+                    .collect(Collectors.groupingBy(p -> p)).entrySet()) {
+                if (e.getValue().size() > 1) {
+                    return Optional.of(I18n.getMessage("custom_parameter.validation.dropdown.duplicate.name", userLocale, e.getKey()));
+                }
+            }
+            //pathId is not allowed with dropdowns
+            if (config.getParameters().stream()
+                    .anyMatch(p -> !NO_PATH.equals(getPathId(getNameAndOptionalPath(removeRange(p.getParameterExpression())))))) {
+                return Optional.of(I18n.getMessage("custom_parameter.validation.dropdown.path", userLocale));
+            }
+
+        }
         String nextParameterExpression = getNextParameterExpression(config.getBaseExpression());
         if (createParameterListFromBaseExpression(nextParameterExpression, config.getInputType()).isEmpty()) {
             return Optional.of(I18n.getMessage("custom_parameter.validation.invalid.parameter.option", userLocale, nextParameterExpression));

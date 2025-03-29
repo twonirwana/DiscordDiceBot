@@ -55,6 +55,37 @@ public class CustomParameterCommandMockTest {
     }
 
     @Test
+    void roll_multi_dropdown() {
+        CustomParameterCommand underTest = new CustomParameterCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0)));
+
+
+        CustomParameterConfig config = new CustomParameterConfig(null, "{numberOfDice:1<=>10}d{sides:1/4/6/8/10/12/20/100}", AnswerFormatType.without_expression, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH, null, null, CustomParameterConfig.InputType.dropdown);
+        ButtonEventAdaptorMockFactory<CustomParameterConfig, CustomParameterStateData> factory = new ButtonEventAdaptorMockFactory<>("custom_parameter", underTest, config, persistenceManager, false);
+
+        ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("numberOfDice-id4");
+        underTest.handleComponentInteractEvent(click1).block();
+        ButtonEventAdaptorMock click2 = factory.getButtonClickOnLastButtonMessage("sides-id3");
+        underTest.handleComponentInteractEvent(click2).block();
+
+        expect.scenario("event1").toMatchSnapshot(click1.getSortedActions());
+        expect.scenario("event2").toMatchSnapshot(click2.getSortedActions());
+    }
+
+    @Test
+    void roll_single_dropdown() {
+        CustomParameterCommand underTest = new CustomParameterCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0)));
+
+
+        CustomParameterConfig config = new CustomParameterConfig(null, "d{sides:1/4/6/8/10/12/20/100}", AnswerFormatType.without_expression, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH, null, null, CustomParameterConfig.InputType.dropdown);
+        ButtonEventAdaptorMockFactory<CustomParameterConfig, CustomParameterStateData> factory = new ButtonEventAdaptorMockFactory<>("custom_parameter", underTest, config, persistenceManager, false);
+
+        ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("sides-id4");
+        underTest.handleComponentInteractEvent(click1).block();
+
+        expect.scenario("event1").toMatchSnapshot(click1.getSortedActions());
+    }
+
+    @Test
     void roll_pathPool() {
         CustomParameterCommand underTest = new CustomParameterCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0)));
 

@@ -224,10 +224,10 @@ public class JdaClient {
                             public void onStringSelectInteraction(@NonNull StringSelectInteractionEvent event) {
                                 //todo multi selection support
                                 String value = !event.getSelectedOptions().isEmpty() ? event.getSelectedOptions().getFirst().getValue() : null;
+                                //deselect of selection
                                 if (value == null) {
                                     //todo better handling of deselect with event.getComponentId()
                                     event.getInteraction().deferEdit().complete();
-                                    //deselect of selection
                                     return;
                                 }
                                 onComponentEvent(value, event, componentCommands, scheduler);
