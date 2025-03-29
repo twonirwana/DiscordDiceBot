@@ -1,0 +1,81 @@
+de.janno.discord.connector.jda.MessageComponentConverterTest.messageComponent2MessageLayout=[
+  {
+    "content": "welcome",
+    "embeds": [ ],
+    "files": [ ],
+    "components": [
+      {
+        "components": [
+          {
+            "id": "id",
+            "label": "label",
+            "style": "SECONDARY",
+            "disabled": true,
+            "emoji": {
+              "name": "😁"
+            },
+            "messageCompatible": true,
+            "modalCompatible": false
+          }
+        ],
+        "empty": false,
+        "enabled": false,
+        "valid": true,
+        "disabled": true,
+        "messageCompatible": true,
+        "modalCompatible": false
+      },
+      {
+        "components": [
+          {
+            "id": "id",
+            "placeholder": "placeholder",
+            "minValues": 1,
+            "maxValues": 1,
+            "disabled": true,
+            "options": [
+              {
+                "label": "label",
+                "value": "value",
+                "description": "description",
+                "isDefault": true,
+                "emoji": {
+                  "name": "😁"
+                },
+                "default": true
+              }
+            ],
+            "messageCompatible": true,
+            "modalCompatible": false
+          }
+        ],
+        "empty": false,
+        "enabled": false,
+        "valid": true,
+        "disabled": true,
+        "messageCompatible": true,
+        "modalCompatible": false
+      }
+    ],
+    "mentions": {
+      "mentionParse": [
+        "USER",
+        "ROLE",
+        "CHANNEL",
+        "EMOJI",
+        "HERE",
+        "EVERYONE",
+        "SLASH_COMMAND"
+      ],
+      "mentionUsers": [ ],
+      "mentionRoles": [ ],
+      "mentionRepliedUser": true
+    },
+    "tts": false,
+    "flags": 4096,
+    "suppressedNotifications": true,
+    "mentionRepliedUser": true,
+    "voiceMessage": false,
+    "suppressEmbeds": false
+  }
+]

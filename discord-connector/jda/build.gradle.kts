@@ -25,6 +25,8 @@ dependencies {
 
     testImplementation("org.junit.jupiter:junit-jupiter:5.12.1")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    testImplementation("io.github.origin-energy:java-snapshot-testing-junit5:4.0.8")
+    testImplementation("io.github.origin-energy:java-snapshot-testing-plugin-jackson:4.0.8")
 }
 
 java {
