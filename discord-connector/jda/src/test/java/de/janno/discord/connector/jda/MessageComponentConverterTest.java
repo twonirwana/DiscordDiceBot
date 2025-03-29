@@ -41,6 +41,7 @@ class MessageComponentConverterTest {
                                 .build()))
                         .build()).build()
         ));
-        expect.toMatchSnapshot(messageCreateData);
+        //use JsonObjectComparator or otherwise the non-deterministic order in the json will produce fails
+        expect.comparator(new JsonObjectComparator()).toMatchSnapshot(messageCreateData);
     }
 }
