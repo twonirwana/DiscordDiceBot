@@ -30,7 +30,7 @@ public class MessageDeletionHelper {
                 .filter(id -> id != newMessageId)
                 .collect(Collectors.toSet());
 
-        if (ids.size() > 5) { //there should be not many old message data
+        if (ids.size() > 100) { //there should be not many old message data
             log.warn(String.format("ConfigUUID %s had %d to many messageData persisted", configUUID, ids.size()));
         }
 

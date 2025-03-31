@@ -20,6 +20,8 @@ import net.dv8tion.jda.api.events.guild.GuildReadyEvent;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.GenericComponentInteractionCreateEvent;
+import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
 import net.dv8tion.jda.api.events.session.ReadyEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.Interaction;
@@ -219,37 +221,21 @@ public class JdaClient {
                             }
 
                             @Override
-                            public void onButtonInteraction(@NonNull ButtonInteractionEvent event) {
-                                log.trace("ComponentEvent: {} from {}", event.getInteraction().getComponentId(), event.getInteraction().getUser().getName());
-                                if (!BottomCustomIdUtils.isValidCustomId(event.getInteraction().getComponentId())) {
-                                    log.warn("Custom id {} is not a valid custom id.", event.getInteraction().getComponentId());
+                            public void onStringSelectInteraction(@NonNull StringSelectInteractionEvent event) {
+                                //todo multi selection support
+                                String value = !event.getSelectedOptions().isEmpty() ? event.getSelectedOptions().getFirst().getValue() : null;
+                                //deselect of selection
+                                if (value == null) {
+                                    //todo better handling of deselect with event.getComponentId()
+                                    event.getInteraction().deferEdit().complete();
+                                    return;
                                 }
-                                List<ComponentCommand> matchingHandler = componentCommands.stream()
-                                        .filter(command -> command.matchingComponentCustomId(event.getInteraction().getComponentId()))
-                                        .toList();
-                                Locale userLocale = LocaleConverter.toLocale(event.getInteraction().getUserLocale());
+                                onComponentEvent(value, event, componentCommands, scheduler);
+                            }
 
-                                Requester requester = new Requester(event.getInteraction().getUser().getName(),
-                                        event.getChannel().getName(),
-                                        getGuildName(event.getInteraction()),
-                                        event.getJDA().getShardInfo().getShardString(),
-                                        userLocale,
-                                        BottomCustomIdUtils.getConfigUUIDFromCustomId(event.getInteraction().getComponentId()).orElse(null));
-                                if (matchingHandler.size() != 1) {
-                                    log.error("{}: Invalid handler for {} -> {}", requester.toLogString(), event.getInteraction().getComponentId(), matchingHandler.stream().map(ComponentCommand::getCommandId).toList());
-                                } else {
-                                    Mono.just(matchingHandler.getFirst())
-                                            .flatMap(command -> {
-                                                JdaMetrics.userLocalInteraction(userLocale);
-                                                return command.handleComponentInteractEvent(new ButtonEventAdapterImpl(event, requester));
-                                            })
-                                            .onErrorResume(e -> {
-                                                log.error("{} - ButtonInteractEvent Exception: ", requester.toLogString(), e);
-                                                return Mono.empty();
-                                            })
-                                            .subscribeOn(scheduler)
-                                            .subscribe();
-                                }
+                            @Override
+                            public void onButtonInteraction(@NonNull ButtonInteractionEvent event) {
+                                onComponentEvent(event.getComponentId(), event, componentCommands, scheduler);
                             }
                         }
                 )
@@ -290,6 +276,39 @@ public class JdaClient {
         SlashCommandRegistry.builder()
                 .addSlashCommands(slashCommands)
                 .registerSlashCommands(shardManager.getShards().getFirst(), disableCommandUpdate);
+    }
+
+    private static void onComponentEvent(final String customId, GenericComponentInteractionCreateEvent event, List<ComponentCommand> componentCommands, Scheduler scheduler) {
+        log.trace("ComponentEvent: {} from {}", customId, event.getInteraction().getUser().getName());
+        if (!BottomCustomIdUtils.isValidCustomId(customId)) {
+            log.warn("Custom id {} is not a valid custom id.", customId);
+        }
+        List<ComponentCommand> matchingHandler = componentCommands.stream()
+                .filter(command -> command.matchingComponentCustomId(customId))
+                .toList();
+        Locale userLocale = LocaleConverter.toLocale(event.getInteraction().getUserLocale());
+
+        Requester requester = new Requester(event.getInteraction().getUser().getName(),
+                event.getChannel().getName(),
+                getGuildName(event.getInteraction()),
+                event.getJDA().getShardInfo().getShardString(),
+                userLocale,
+                BottomCustomIdUtils.getConfigUUIDFromCustomId(customId).orElse(null));
+        if (matchingHandler.size() != 1) {
+            log.error("{}: Invalid handler for {} -> {}", requester.toLogString(), customId, matchingHandler.stream().map(ComponentCommand::getCommandId).toList());
+        } else {
+            Mono.just(matchingHandler.getFirst())
+                    .flatMap(command -> {
+                        JdaMetrics.userLocalInteraction(userLocale);
+                        return command.handleComponentInteractEvent(new ButtonEventAdapterImpl(customId, event, requester));
+                    })
+                    .onErrorResume(e -> {
+                        log.error("{} - ButtonInteractEvent Exception: ", requester.toLogString(), e);
+                        return Mono.empty();
+                    })
+                    .subscribeOn(scheduler)
+                    .subscribe();
+        }
     }
 
     private static boolean hasPermission(GuildMessageChannel channel, Permission permission) {

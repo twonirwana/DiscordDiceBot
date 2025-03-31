@@ -18,7 +18,7 @@ de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandTest.createSlashRes
     "fields": [ ],
     "componentRowDefinitions": [
       {
-        "buttonDefinitions": [
+        "componentDefinitions": [
           {
             "label": "1d6",
             "id": "sum_custom_set\u001E1_button\u001E00000000-0000-0000-0000-000000000000",
@@ -52,7 +52,7 @@ de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandTest.createSlashRes
         ]
       },
       {
-        "buttonDefinitions": [
+        "componentDefinitions": [
           {
             "label": "Clear",
             "id": "sum_custom_set\u001Eclear\u001E00000000-0000-0000-0000-000000000000",
@@ -80,7 +80,7 @@ de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandTest.getButtonMessa
     "fields": [ ],
     "componentRowDefinitions": [
       {
-        "buttonDefinitions": [
+        "componentDefinitions": [
           {
             "label": "1d6",
             "id": "sum_custom_set\u001E1_button\u001E00000000-0000-0000-0000-000000000000",
@@ -114,7 +114,7 @@ de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandTest.getButtonMessa
         ]
       },
       {
-        "buttonDefinitions": [
+        "componentDefinitions": [
           {
             "label": "Clear",
             "id": "sum_custom_set\u001Eclear\u001E00000000-0000-0000-0000-000000000000",
@@ -142,7 +142,7 @@ de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandTest.getButtonMessa
     "fields": [ ],
     "componentRowDefinitions": [
       {
-        "buttonDefinitions": [
+        "componentDefinitions": [
           {
             "label": "1d6",
             "id": "sum_custom_set\u001E1_button\u001E00000000-0000-0000-0000-000000000000",
@@ -176,7 +176,7 @@ de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandTest.getButtonMessa
         ]
       },
       {
-        "buttonDefinitions": [
+        "componentDefinitions": [
           {
             "label": "Clear",
             "id": "sum_custom_set\u001Eclear\u001E00000000-0000-0000-0000-000000000000",

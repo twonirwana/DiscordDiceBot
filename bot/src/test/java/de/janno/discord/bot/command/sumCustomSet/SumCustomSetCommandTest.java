@@ -10,6 +10,7 @@ import de.janno.discord.bot.dice.image.DiceImageStyle;
 import de.janno.discord.bot.dice.image.DiceStyleAndColor;
 import de.janno.discord.bot.persistance.*;
 import de.janno.discord.connector.api.message.ButtonDefinition;
+import de.janno.discord.connector.api.message.ComponentDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
@@ -236,9 +237,9 @@ class SumCustomSetCommandTest {
         List<ComponentRowDefinition> res = underTest.createNewButtonMessageWithState(UUID.fromString("00000000-0000-0000-0000-000000000000"), defaultConfig, new State<>("roll", new SumCustomSetStateDataV2(List.of(new ExpressionAndLabel("1d6", "1d6")), "user1")), 1L, 2L, 0L)
                 .orElseThrow().getComponentRowDefinitions();
 
-        assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel))
+        assertThat(res.stream().flatMap(l -> l.getComponentDefinitions().stream()).map(ComponentDefinition::getLabelOrPlaceholder))
                 .containsExactly("1d6", "3d6", "4", "2d10min10", "Roll", "Clear", "Back");
-        assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getId))
+        assertThat(res.stream().flatMap(l -> l.getComponentDefinitions().stream()).map(ComponentDefinition::getId))
                 .containsExactly("sum_custom_set1_button00000000-0000-0000-0000-000000000000",
                         "sum_custom_set2_button00000000-0000-0000-0000-000000000000",
                         "sum_custom_set3_button00000000-0000-0000-0000-000000000000",
@@ -252,9 +253,9 @@ class SumCustomSetCommandTest {
     void getButtonLayout() {
         List<ComponentRowDefinition> res = underTest.createSlashResponseMessage(UUID.fromString("00000000-0000-0000-0000-000000000000"), defaultConfig, 1L).getComponentRowDefinitions();
 
-        assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel))
+        assertThat(res.stream().flatMap(l -> l.getComponentDefinitions().stream()).map(ComponentDefinition::getLabelOrPlaceholder))
                 .containsExactly("1d6", "3d6", "4", "2d10min10", "Roll", "Clear", "Back");
-        assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getId))
+        assertThat(res.stream().flatMap(l -> l.getComponentDefinitions().stream()).map(ComponentDefinition::getId))
                 .containsExactly("sum_custom_set1_button00000000-0000-0000-0000-000000000000",
                         "sum_custom_set2_button00000000-0000-0000-0000-000000000000",
                         "sum_custom_set3_button00000000-0000-0000-0000-000000000000",
@@ -274,11 +275,11 @@ class SumCustomSetCommandTest {
 
         List<ComponentRowDefinition> res = underTest.createSlashResponseMessage(UUID.fromString("00000000-0000-0000-0000-000000000000"), defaultConfig, 1L).getComponentRowDefinitions();
 
-        assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel))
+        assertThat(res.stream().flatMap(l -> l.getComponentDefinitions().stream()).map(ComponentDefinition::getLabelOrPlaceholder))
                 .containsExactly("1d6", "3d6", "4*", "Roll", "Clear", "Back");
-        assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::isDisabled))
+        assertThat(res.stream().flatMap(l -> l.getComponentDefinitions().stream()).map(ComponentDefinition::isDisabled))
                 .containsExactly(false, false, true, true, false, true);
-        assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getId))
+        assertThat(res.stream().flatMap(l -> l.getComponentDefinitions().stream()).map(ComponentDefinition::getId))
                 .containsExactly("sum_custom_set1_button00000000-0000-0000-0000-000000000000",
                         "sum_custom_set2_button00000000-0000-0000-0000-000000000000",
                         "sum_custom_set3_button00000000-0000-0000-0000-000000000000",
@@ -293,7 +294,7 @@ class SumCustomSetCommandTest {
                 new SumCustomSetConfig(null, ButtonHelper.parseString("+1d4;+1d6;+1d7;+1d8;+1d10;+1d12;+1d14;+1d16;+1d20;+1d24;+1d16;+1d30;+1d100;+1;+2;+3;+4;+5;-1;-2;-3;-4"), true, true, false, null, null, AnswerFormatType.without_expression, AnswerInteractionType.none, ResultImage.none, null, Locale.ENGLISH, null, null), 1L
         ).getComponentRowDefinitions();
 
-        assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getLabel))
+        assertThat(res.stream().flatMap(l -> l.getComponentDefinitions().stream()).map(ComponentDefinition::getLabelOrPlaceholder))
                 .containsExactly("+1d4",
                         "+1d6",
                         "+1d7",
@@ -319,7 +320,7 @@ class SumCustomSetCommandTest {
                         "Roll",
                         "Clear",
                         "Back");
-        assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getId))
+        assertThat(res.stream().flatMap(l -> l.getComponentDefinitions().stream()).map(ComponentDefinition::getId))
                 .containsExactly("sum_custom_set1_button00000000-0000-0000-0000-000000000000",
                         "sum_custom_set2_button00000000-0000-0000-0000-000000000000",
                         "sum_custom_set3_button00000000-0000-0000-0000-000000000000",
@@ -354,32 +355,32 @@ class SumCustomSetCommandTest {
         ).getComponentRowDefinitions();
 
         assertThat(res).hasSize(5);
-        assertThat(res.get(0).getButtonDefinitions().stream().map(ButtonDefinition::getLabel)).containsExactly("+1d4",
+        assertThat(res.get(0).getComponentDefinitions().stream().map(ComponentDefinition::getLabelOrPlaceholder)).containsExactly("+1d4",
                 "+1d6",
                 "+1d7",
                 "+1d8",
                 "+1d10");
-        assertThat(res.get(1).getButtonDefinitions().stream().map(ButtonDefinition::getLabel)).containsExactly("+1d12",
+        assertThat(res.get(1).getComponentDefinitions().stream().map(ComponentDefinition::getLabelOrPlaceholder)).containsExactly("+1d12",
                 "+1d14",
                 "+1d16",
                 "+1d20");
 
-        assertThat(res.get(2).getButtonDefinitions().stream().map(ButtonDefinition::getLabel)).containsExactly("+1",
+        assertThat(res.get(2).getComponentDefinitions().stream().map(ComponentDefinition::getLabelOrPlaceholder)).containsExactly("+1",
                 "+2",
                 "+3",
                 "+4",
                 "+5");
 
-        assertThat(res.get(3).getButtonDefinitions().stream().map(ButtonDefinition::getLabel)).containsExactly("-1",
+        assertThat(res.get(3).getComponentDefinitions().stream().map(ComponentDefinition::getLabelOrPlaceholder)).containsExactly("-1",
                 "-2",
                 "-3",
                 "-4");
 
-        assertThat(res.get(4).getButtonDefinitions().stream().map(ButtonDefinition::getLabel)).containsExactly("Roll",
+        assertThat(res.get(4).getComponentDefinitions().stream().map(ComponentDefinition::getLabelOrPlaceholder)).containsExactly("Roll",
                 "Clear",
                 "Back");
 
-        assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getId))
+        assertThat(res.stream().flatMap(l -> l.getComponentDefinitions().stream()).map(ComponentDefinition::getId))
                 .containsExactly("sum_custom_set1_button00000000-0000-0000-0000-000000000000",
                         "sum_custom_set2_button00000000-0000-0000-0000-000000000000",
                         "sum_custom_set3_button00000000-0000-0000-0000-000000000000",
@@ -410,33 +411,33 @@ class SumCustomSetCommandTest {
         ).getComponentRowDefinitions();
 
         assertThat(res).hasSize(5);
-        assertThat(res.get(0).getButtonDefinitions().stream().map(ButtonDefinition::getLabel)).containsExactly("+1d4",
+        assertThat(res.get(0).getComponentDefinitions().stream().map(ComponentDefinition::getLabelOrPlaceholder)).containsExactly("+1d4",
                 "+1d6",
                 "+1d7",
                 "+1d8",
                 "+1d10");
-        assertThat(res.get(1).getButtonDefinitions().stream().map(ButtonDefinition::getLabel)).containsExactly("+1d12",
+        assertThat(res.get(1).getComponentDefinitions().stream().map(ComponentDefinition::getLabelOrPlaceholder)).containsExactly("+1d12",
                 "+1d14",
                 "+1d16",
                 "+1d20");
 
-        assertThat(res.get(2).getButtonDefinitions().stream().map(ButtonDefinition::getLabel)).containsExactly("+1",
+        assertThat(res.get(2).getComponentDefinitions().stream().map(ComponentDefinition::getLabelOrPlaceholder)).containsExactly("+1",
                 "+2",
                 "+3",
                 "+4",
                 "+5");
 
-        assertThat(res.get(3).getButtonDefinitions().stream().map(ButtonDefinition::getLabel)).containsExactly("-1",
+        assertThat(res.get(3).getComponentDefinitions().stream().map(ComponentDefinition::getLabelOrPlaceholder)).containsExactly("-1",
                 "-2",
                 "-3",
                 "-4",
                 "Roll");
 
-        assertThat(res.get(4).getButtonDefinitions().stream().map(ButtonDefinition::getLabel)).containsExactly(
+        assertThat(res.get(4).getComponentDefinitions().stream().map(ComponentDefinition::getLabelOrPlaceholder)).containsExactly(
                 "Clear",
                 "Back");
 
-        assertThat(res.stream().flatMap(l -> l.getButtonDefinitions().stream()).map(ButtonDefinition::getId))
+        assertThat(res.stream().flatMap(l -> l.getComponentDefinitions().stream()).map(ComponentDefinition::getId))
                 .containsExactly("sum_custom_set1_button00000000-0000-0000-0000-000000000000",
                         "sum_custom_set2_button00000000-0000-0000-0000-000000000000",
                         "sum_custom_set3_button00000000-0000-0000-0000-000000000000",

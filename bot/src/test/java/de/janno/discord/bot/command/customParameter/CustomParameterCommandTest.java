@@ -39,26 +39,27 @@ class CustomParameterCommandTest {
 
     private static Stream<Arguments> generateParameterExpression2ButtonValuesData() {
         return Stream.of(
-                Arguments.of("{test}", IntStream.range(1, 16).mapToObj(i -> new CustomParameterValidator.ButtonLabelAndId(String.valueOf(i), "id%d".formatted(i), false)).toList()),
-                Arguments.of("{test!2!}", IntStream.range(1, 16).mapToObj(i -> new CustomParameterValidator.ButtonLabelAndId(String.valueOf(i), "id%d".formatted(i), false)).toList()),
-                Arguments.of("{!2!test}", IntStream.range(1, 16).mapToObj(i -> new CustomParameterValidator.ButtonLabelAndId(String.valueOf(i), "id%d".formatted(i), false)).toList()),
-                Arguments.of("{!2!test!3!}", IntStream.range(1, 16).mapToObj(i -> new CustomParameterValidator.ButtonLabelAndId(String.valueOf(i), "id%d".formatted(i), false)).toList()),
-                Arguments.of("{test:2<=>4}", IntStream.range(1, 4).mapToObj(i -> new CustomParameterValidator.ButtonLabelAndId(String.valueOf(i + 1), "id%d".formatted(i), false)).toList()),
-                Arguments.of("{test:2<=>4!3!}", IntStream.range(1, 4).mapToObj(i -> new CustomParameterValidator.ButtonLabelAndId(String.valueOf(i + 1), "id%d".formatted(i), false)).toList()),
-                Arguments.of("{test:2<=>1}", ImmutableList.of(new CustomParameterValidator.ButtonLabelAndId("2", "id1", false))),
-                Arguments.of("{test:-2<=>1}", IntStream.range(1, 5).mapToObj(i -> new CustomParameterValidator.ButtonLabelAndId(String.valueOf(i - 3), "id%d".formatted(i), false)).toList()),
-                Arguments.of("{test:-10<=>-5}", IntStream.range(1, 7).mapToObj(i -> new CustomParameterValidator.ButtonLabelAndId(String.valueOf(i - 11), "id%d".formatted(i), false)).toList()),
-                Arguments.of("{test:1d6/+5/abc}", ImmutableList.of(new CustomParameterValidator.ButtonLabelAndId("1d6", "id1", false), new CustomParameterValidator.ButtonLabelAndId("+5", "id2", false), new CustomParameterValidator.ButtonLabelAndId("abc", "id3", false))),
-                Arguments.of("{test:1d6!1!/+5!2!/abc!3!}", ImmutableList.of(new CustomParameterValidator.ButtonLabelAndId("1d6", "id1", false), new CustomParameterValidator.ButtonLabelAndId("+5", "id2", false), new CustomParameterValidator.ButtonLabelAndId("abc", "id3", false))),
-                Arguments.of("{test:1d6@d6/+5@Bonus/abc}", ImmutableList.of(new CustomParameterValidator.ButtonLabelAndId("d6", "id1", false), new CustomParameterValidator.ButtonLabelAndId("Bonus", "id2", false), new CustomParameterValidator.ButtonLabelAndId("abc", "id3", false))),
-                Arguments.of("{test!2!:1d6!1!@d6/+5@Bonus/abc}", ImmutableList.of(new CustomParameterValidator.ButtonLabelAndId("d6", "id1", false), new CustomParameterValidator.ButtonLabelAndId("Bonus", "id2", false), new CustomParameterValidator.ButtonLabelAndId("abc", "id3", false))),
-                Arguments.of("{test:1d6@!d6/+5@!/abc}", ImmutableList.of(new CustomParameterValidator.ButtonLabelAndId("d6", "id1", true), new CustomParameterValidator.ButtonLabelAndId("!", "id2", false), new CustomParameterValidator.ButtonLabelAndId("abc", "id3", false)))
+                Arguments.of("{test}", IntStream.range(1, 16).mapToObj(i -> new CustomParameterValidator.ButtonLabelAndId(String.valueOf(i), "test-id%d".formatted(i), false)).toList()),
+                Arguments.of("{test!2!}", IntStream.range(1, 16).mapToObj(i -> new CustomParameterValidator.ButtonLabelAndId(String.valueOf(i), "test-id%d".formatted(i), false)).toList()),
+                Arguments.of("{!2!test}", IntStream.range(1, 16).mapToObj(i -> new CustomParameterValidator.ButtonLabelAndId(String.valueOf(i), "!2!test-id%d".formatted(i), false)).toList()),
+                Arguments.of("{!2!test!3!}", IntStream.range(1, 16).mapToObj(i -> new CustomParameterValidator.ButtonLabelAndId(String.valueOf(i), "-id%d".formatted(i), false)).toList()),
+                Arguments.of("{test:2<=>4}", IntStream.range(1, 4).mapToObj(i -> new CustomParameterValidator.ButtonLabelAndId(String.valueOf(i + 1), "test-id%d".formatted(i), false)).toList()),
+                Arguments.of("{test:2<=>4!3!}", IntStream.range(1, 4).mapToObj(i -> new CustomParameterValidator.ButtonLabelAndId(String.valueOf(i + 1), "test-id%d".formatted(i), false)).toList()),
+                Arguments.of("{test:2<=>1}", ImmutableList.of(new CustomParameterValidator.ButtonLabelAndId("2", "test-id1", false))),
+                Arguments.of("{test:-2<=>1}", IntStream.range(1, 5).mapToObj(i -> new CustomParameterValidator.ButtonLabelAndId(String.valueOf(i - 3), "test-id%d".formatted(i), false)).toList()),
+                Arguments.of("{test:-10<=>-5}", IntStream.range(1, 7).mapToObj(i -> new CustomParameterValidator.ButtonLabelAndId(String.valueOf(i - 11), "test-id%d".formatted(i), false)).toList()),
+                Arguments.of("{test:1d6/+5/abc}", ImmutableList.of(new CustomParameterValidator.ButtonLabelAndId("1d6", "test-id1", false), new CustomParameterValidator.ButtonLabelAndId("+5", "test-id2", false), new CustomParameterValidator.ButtonLabelAndId("abc", "test-id3", false))),
+                Arguments.of("{test:1d6!1!/+5!2!/abc!3!}", ImmutableList.of(new CustomParameterValidator.ButtonLabelAndId("1d6", "test-id1", false), new CustomParameterValidator.ButtonLabelAndId("+5", "test-id2", false), new CustomParameterValidator.ButtonLabelAndId("abc", "test-id3", false))),
+                Arguments.of("{test:1d6@d6/+5@Bonus/abc}", ImmutableList.of(new CustomParameterValidator.ButtonLabelAndId("d6", "test-id1", false), new CustomParameterValidator.ButtonLabelAndId("Bonus", "test-id2", false), new CustomParameterValidator.ButtonLabelAndId("abc", "test-id3", false))),
+                Arguments.of("{test!2!:1d6!1!@d6/+5@Bonus/abc}", ImmutableList.of(new CustomParameterValidator.ButtonLabelAndId("d6", "test-id1", false), new CustomParameterValidator.ButtonLabelAndId("Bonus", "test-id2", false), new CustomParameterValidator.ButtonLabelAndId("abc", "test-id3", false))),
+                Arguments.of("{test:1d6@!d6/+5@!/abc}", ImmutableList.of(new CustomParameterValidator.ButtonLabelAndId("d6", "test-id1", true), new CustomParameterValidator.ButtonLabelAndId("!", "test-id2", false), new CustomParameterValidator.ButtonLabelAndId("abc", "test-id3", false)))
         );
     }
 
     public static Stream<Arguments> generateValidationData() {
         return Stream.of(
                 Arguments.of("{number}d{sides}", null),
+                Arguments.of("{number}d{number}", null),
                 Arguments.of("{number}d{sides}@{label:attack/damage}", null),
                 Arguments.of("{number}d{{sides}}", "Nested brackets are not allowed"),
                 Arguments.of("{number}d{{{sides}}}", "Nested brackets are not allowed"),
@@ -83,68 +84,95 @@ class CustomParameterCommandTest {
         );
     }
 
+    public static Stream<Arguments> generateValidationDropdownData() {
+        return Stream.of(
+                Arguments.of("{number}d{sides}", null),
+                Arguments.of("{number}d{number}", "Parameter name `number` is used more than once"),
+                Arguments.of("{number}d{sides}@{label:attack/damage}", null),
+                Arguments.of("{number}d{{sides}}", "Nested brackets are not allowed"),
+                Arguments.of("{number}d{{{sides}}}", "Nested brackets are not allowed"),
+                Arguments.of("{number}d{sid{es}", "All brackets must be closed"),
+                Arguments.of("{number}d{sid}es}", "All brackets must be closed"),
+                Arguments.of("{number}d{sides\t}", "Expression contains invalid character: `\t`"),
+                Arguments.of("{number}d\t{sides}", "Expression contains invalid character: `\t`"),
+                Arguments.of("{number}d{sides:/}", null), //invalid range is mapped to 1-15
+                Arguments.of("{number}d{}", "A parameter expression must not be empty"),
+                Arguments.of("{number}d{ }", "A parameter expression must not be empty"),
+                Arguments.of("val('s',{sides:4@D4/6@D6/8@D8/12@D12/20@D20/20@!1D20}) val('n',{numberOfDice:1<=>10}) 'n'd's'", "The following expression is invalid: `') 'n'`__d__`'s'`. The error is: 'd' requires as left input a single integer but was '[]'. Try to sum the numbers together like ('n'=). Use /custom_parameter help to get more information on how to use the command."),
+                Arguments.of("{n}d{s:4/6/10/20@!20}*{modi:1/2/3}=", "The following expression is invalid: `15d20`__*__`''=`. The error is: '*' requires as left input a single decimal but was '[20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20]'. Try to sum the numbers together like (15d20=). Use /custom_parameter help to get more information on how to use the command."),
+                Arguments.of("1d6", "The expression needs at least one parameter expression like `{name}`"),
+                Arguments.of("{a1}{a2}{a3}{a4}{a6}", "The expression is allowed a maximum of 4 variables"),
+                Arguments.of("{a1}{a3:1!1!/2!2!}{a4!1!}{a6!2!}", "Path IDs are not allowed with dropdowns"),
+                Arguments.of("{number:3<=>6}d{sides:6/10/12}", null),
+                Arguments.of("{number}{a:a/c/b/d/d}{sides:3<=>6}", "The following expression is invalid: `15`__a__`6`. The error is: No matching operator for 'a', non-functional text and value names must to be surrounded by '' or []. Use /custom_parameter help to get more information on how to use the command."),
+                Arguments.of("{number}d{sides:3/4/'ab'}", null),
+                Arguments.of("{number}d{sides:3/4/'ab'}@roll", null),
+                Arguments.of("{würfel:1d6@1W6/2d6@2W6/3d6@3W6/4d6@4W6//1d20@!1d20/3d20@!3d20}+{modi:1<=>21}=", "A parameter option must not be empty"),
+                Arguments.of("{number}d{sides:['11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111','21111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111']@big,6}@roll", null)
+        );
+    }
+
     public static Stream<Arguments> generateExpression2Parameters() {
         return Stream.of(
                 Arguments.of("{number}d{sides}", List.of(new Parameter("{number}", "number", IntStream.range(1, 16)
                         .mapToObj(String::valueOf)
-                        .map(s -> new Parameter.ParameterOption(s, s, "id%s".formatted(s), false, ""))
+                        .map(s -> new Parameter.ParameterOption(s, s, "number-id%s".formatted(s), false, ""))
                         .toList(), ""), new Parameter("{sides}", "sides", IntStream.range(1, 16)
                         .mapToObj(String::valueOf)
-                        .map(s -> new Parameter.ParameterOption(s, s, "id%s".formatted(s), false, ""))
+                        .map(s -> new Parameter.ParameterOption(s, s, "sides-id%s".formatted(s), false, ""))
                         .toList(), ""))),
                 Arguments.of("{number:1<=>15!2!}d{sides!2!:1<=>15}", List.of(
                         new Parameter("{number:1<=>15!2!}", "number", IntStream.range(1, 16)
                                 .mapToObj(String::valueOf)
-                                .map(s -> new Parameter.ParameterOption(s, s, "id%s".formatted(s), false, ""))
+                                .map(s -> new Parameter.ParameterOption(s, s, "number-id%s".formatted(s), false, ""))
                                 .toList(), ""),
                         new Parameter("{sides!2!:1<=>15}", "sides", IntStream.range(1, 16)
                                 .mapToObj(String::valueOf)
-                                .map(s -> new Parameter.ParameterOption(s, s, "id%s".formatted(s), false, ""))
+                                .map(s -> new Parameter.ParameterOption(s, s, "sides-id%s".formatted(s), false, ""))
                                 .toList(), "2"))),
                 Arguments.of("{number}d{sides:-2<=>2}", List.of(
                         new Parameter("{number}", "number", IntStream.range(1, 16)
                                 .mapToObj(String::valueOf)
-                                .map(s -> new Parameter.ParameterOption(s, s, "id%s".formatted(s), false, ""))
+                                .map(s -> new Parameter.ParameterOption(s, s, "number-id%s".formatted(s), false, ""))
                                 .toList(), ""),
                         new Parameter("{sides:-2<=>2}", "sides", IntStream.range(1, 6)
                                 .boxed()
-                                .map(s -> new Parameter.ParameterOption(String.valueOf(s - 3), String.valueOf(s - 3), "id%s".formatted(s), false, ""))
+                                .map(s -> new Parameter.ParameterOption(String.valueOf(s - 3), String.valueOf(s - 3), "sides-id%s".formatted(s), false, ""))
                                 .toList(), ""))),
                 Arguments.of("{number}d{sides:4/12/+5}", List.of(
                         new Parameter("{number}", "number", IntStream.range(1, 16)
                                 .mapToObj(String::valueOf)
-                                .map(s -> new Parameter.ParameterOption(s, s, "id%s".formatted(s), false, ""))
+                                .map(s -> new Parameter.ParameterOption(s, s, "number-id%s".formatted(s), false, ""))
                                 .toList(), ""),
-                        new Parameter("{sides:4/12/+5}", "sides", List.of(new Parameter.ParameterOption("4", "4", "id1", false, ""),
-                                new Parameter.ParameterOption("12", "12", "id2", false, ""),
-                                new Parameter.ParameterOption("+5", "+5", "id3", false, "")), ""))),
+                        new Parameter("{sides:4/12/+5}", "sides", List.of(new Parameter.ParameterOption("4", "4", "sides-id1", false, ""),
+                                new Parameter.ParameterOption("12", "12", "sides-id2", false, ""),
+                                new Parameter.ParameterOption("+5", "+5", "sides-id3", false, "")), ""))),
                 Arguments.of("{number:4!4!/6/8}d{4sides!4!:4/8/12}{sides:2/3/4}", List.of(
                         new Parameter("{number:4!4!/6/8}", "number", List.of(
-                                new Parameter.ParameterOption("4", "4", "id1", false, "4"),
-                                new Parameter.ParameterOption("6", "6", "id2", false, ""),
-                                new Parameter.ParameterOption("8", "8", "id3", false, "")), ""),
+                                new Parameter.ParameterOption("4", "4", "number-id1", false, "4"),
+                                new Parameter.ParameterOption("6", "6", "number-id2", false, ""),
+                                new Parameter.ParameterOption("8", "8", "number-id3", false, "")), ""),
                         new Parameter("{4sides!4!:4/8/12}", "4sides", List.of(
-                                new Parameter.ParameterOption("4", "4", "id1", false, ""),
-                                new Parameter.ParameterOption("8", "8", "id2", false, ""),
-                                new Parameter.ParameterOption("12", "12", "id3", false, "")), "4"),
+                                new Parameter.ParameterOption("4", "4", "4sides-id1", false, ""),
+                                new Parameter.ParameterOption("8", "8", "4sides-id2", false, ""),
+                                new Parameter.ParameterOption("12", "12", "4sides-id3", false, "")), "4"),
                         new Parameter("{sides:2/3/4}", "sides", List.of(
-                                new Parameter.ParameterOption("2", "2", "id1", false, ""),
-                                new Parameter.ParameterOption("3", "3", "id2", false, ""),
-                                new Parameter.ParameterOption("4", "4", "id3", false, "")), ""))
+                                new Parameter.ParameterOption("2", "2", "sides-id1", false, ""),
+                                new Parameter.ParameterOption("3", "3", "sides-id2", false, ""),
+                                new Parameter.ParameterOption("4", "4", "sides-id3", false, "")), ""))
                 ),
                 Arguments.of("{number}d{sides:4@D4/12@D12/+5@Bonus}", List.of(new Parameter("{number}", "number", IntStream.range(1, 16)
                         .mapToObj(String::valueOf)
-                        .map(s -> new Parameter.ParameterOption(s, s, "id%s".formatted(s), false, ""))
-                        .toList(), ""), new Parameter("{sides:4@D4/12@D12/+5@Bonus}", "sides", List.of(new Parameter.ParameterOption("4", "D4", "id1", false, ""),
-                        new Parameter.ParameterOption("12", "D12", "id2", false, ""),
-                        new Parameter.ParameterOption("+5", "Bonus", "id3", false, "")), "")))
+                        .map(s -> new Parameter.ParameterOption(s, s, "number-id%s".formatted(s), false, ""))
+                        .toList(), ""), new Parameter("{sides:4@D4/12@D12/+5@Bonus}", "sides", List.of(new Parameter.ParameterOption("4", "D4", "sides-id1", false, ""),
+                        new Parameter.ParameterOption("12", "D12", "sides-id2", false, ""),
+                        new Parameter.ParameterOption("+5", "Bonus", "sides-id3", false, "")), "")))
         );
     }
 
     @BeforeEach
     void setup() {
         underTest = new CustomParameterCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0)));
-
     }
 
     @ParameterizedTest
@@ -178,7 +206,7 @@ class CustomParameterCommandTest {
     @ParameterizedTest(name = "{index} {0} -> {1}")
     @MethodSource("generateParameterExpression2ButtonValuesData")
     void getButtonValues(String parameterExpression, List<CustomParameterValidator.ButtonLabelAndId> expectedResult) {
-        CustomParameterConfig config = new CustomParameterConfig(null, "1d6 + {a} + " + parameterExpression, AnswerFormatType.without_expression, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH, null, null);
+        CustomParameterConfig config = new CustomParameterConfig(null, "1d6 + {a} + " + parameterExpression, AnswerFormatType.without_expression, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH, null, null, CustomParameterConfig.InputType.button);
         List<CustomParameterValidator.ButtonLabelAndId> res = CustomParameterValidator.getButtons(config, parameterExpression);
         assertThat(res).isEqualTo(expectedResult);
     }
@@ -186,7 +214,7 @@ class CustomParameterCommandTest {
     @ParameterizedTest(name = "{index} {0} -> {1}")
     @MethodSource("generateExpression2Parameters")
     void createParameterListFromBaseExpression(String parameterExpression, List<Parameter> expectedResult) {
-        List<Parameter> res = CustomParameterCommand.createParameterListFromBaseExpression(parameterExpression);
+        List<Parameter> res = CustomParameterCommand.createParameterListFromBaseExpression(parameterExpression, CustomParameterConfig.InputType.button);
         assertThat(res).isEqualTo(expectedResult);
     }
 
@@ -200,6 +228,27 @@ class CustomParameterCommandTest {
                 .option(CommandInteractionOption.builder()
                         .name("expression")
                         .stringValue(slashExpression).build())
+                .build(), 0L, 0L, Locale.ENGLISH);
+        if (expectedResult == null) {
+            assertThat(res).isEmpty();
+        } else {
+            assertThat(res).contains(expectedResult);
+        }
+    }
+
+    @ParameterizedTest(name = "{index} config={0} -> {1}")
+    @MethodSource("generateValidationDropdownData")
+    void validateDropdown(String slashExpression, String expectedResult) {
+        underTest = new CustomParameterCommand(persistenceManager, new CachingDiceEvaluator((minExcl, maxIncl) -> maxIncl));
+
+        Optional<String> res = underTest.getStartOptionsValidationMessage(CommandInteractionOption.builder()
+                .name("start")
+                .option(CommandInteractionOption.builder()
+                        .name("expression")
+                        .stringValue(slashExpression).build())
+                .option(CommandInteractionOption.builder()
+                        .name("input_type")
+                        .stringValue("dropdown").build())
                 .build(), 0L, 0L, Locale.ENGLISH);
         if (expectedResult == null) {
             assertThat(res).isEmpty();
@@ -287,7 +336,7 @@ class CustomParameterCommandTest {
                 new DiceStyleAndColor(DiceImageStyle.none, "none"),
                 Locale.ENGLISH,
                 UUID.fromString("00000000-1000-0000-0000-000000000000"),
-                "RollName");
+                "RollName", CustomParameterConfig.InputType.button);
         Optional<MessageConfigDTO> toSave = underTest.createMessageConfig(configUUID, 1L, channelId, 0L, config);
         assertThat(toSave).isPresent();
 
@@ -324,7 +373,7 @@ class CustomParameterCommandTest {
                 """);
 
         ConfigAndState<CustomParameterConfig, CustomParameterStateData> configAndState = underTest.deserializeAndUpdateState(messageConfigDTO, messageDataDTO, "3", "userName");
-        assertThat(configAndState.getConfig()).isEqualTo(new CustomParameterConfig(123L, "{n}d{s}", AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH, null, null));
+        assertThat(configAndState.getConfig()).isEqualTo(new CustomParameterConfig(123L, "{n}d{s}", AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH, null, null, CustomParameterConfig.InputType.button_legacy));
         assertThat(configAndState.getConfigUUID()).isEqualTo(configUUID);
         assertThat(configAndState.getState().getData()).isEqualTo(new CustomParameterStateData(List.of(
                 new SelectedParameter("{n}", "n", "3", "3", true, "", ""),
@@ -349,7 +398,7 @@ class CustomParameterCommandTest {
                 """);
 
         ConfigAndState<CustomParameterConfig, CustomParameterStateData> configAndState = underTest.deserializeAndUpdateState(messageConfigDTO, messageDataDTO, "3", "userName");
-        assertThat(configAndState.getConfig()).isEqualTo(new CustomParameterConfig(123L, "{n}d{s}", AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH, null, null));
+        assertThat(configAndState.getConfig()).isEqualTo(new CustomParameterConfig(123L, "{n}d{s}", AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH, null, null, CustomParameterConfig.InputType.button_legacy));
         assertThat(configAndState.getConfigUUID()).isEqualTo(configUUID);
         assertThat(configAndState.getState().getData()).isEqualTo(new CustomParameterStateData(List.of(
                 new SelectedParameter("{n}", "n", "3", "3", true, "", ""),
@@ -375,7 +424,7 @@ class CustomParameterCommandTest {
                 """);
 
         ConfigAndState<CustomParameterConfig, CustomParameterStateData> configAndState = underTest.deserializeAndUpdateState(messageConfigDTO, messageDataDTO, "3", "userName");
-        assertThat(configAndState.getConfig()).isEqualTo(new CustomParameterConfig(123L, "{n}d{s}", AnswerFormatType.compact, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH, null, null));
+        assertThat(configAndState.getConfig()).isEqualTo(new CustomParameterConfig(123L, "{n}d{s}", AnswerFormatType.compact, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH, null, null, CustomParameterConfig.InputType.button_legacy));
         assertThat(configAndState.getConfigUUID()).isEqualTo(configUUID);
         assertThat(configAndState.getState().getData()).isEqualTo(new CustomParameterStateData(List.of(
                 new SelectedParameter("{n}", "n", "3", "3", true, "", ""),
@@ -408,7 +457,7 @@ class CustomParameterCommandTest {
                 """);
 
         ConfigAndState<CustomParameterConfig, CustomParameterStateData> configAndState = underTest.deserializeAndUpdateState(messageConfigDTO, messageDataDTO, "3", "userName");
-        assertThat(configAndState.getConfig()).isEqualTo(new CustomParameterConfig(123L, "{n}d{s}", AnswerFormatType.compact, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH, null, null));
+        assertThat(configAndState.getConfig()).isEqualTo(new CustomParameterConfig(123L, "{n}d{s}", AnswerFormatType.compact, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH, null, null, CustomParameterConfig.InputType.button_legacy));
         assertThat(configAndState.getConfigUUID()).isEqualTo(configUUID);
         assertThat(configAndState.getState().getData()).isEqualTo(new CustomParameterStateData(List.of(
                 new SelectedParameter("{n}", "n", "5", "bonus", true, "", ""),
@@ -444,7 +493,7 @@ class CustomParameterCommandTest {
                 """);
 
         ConfigAndState<CustomParameterConfig, CustomParameterStateData> configAndState = underTest.deserializeAndUpdateState(messageConfigDTO, messageDataDTO, "3", "userName");
-        assertThat(configAndState.getConfig()).isEqualTo(new CustomParameterConfig(123L, "{n}d{s}", AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v2, "blue_and_silver"), Locale.ENGLISH, null, null));
+        assertThat(configAndState.getConfig()).isEqualTo(new CustomParameterConfig(123L, "{n}d{s}", AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v2, "blue_and_silver"), Locale.ENGLISH, null, null, CustomParameterConfig.InputType.button_legacy));
         assertThat(configAndState.getConfigUUID()).isEqualTo(configUUID);
         assertThat(configAndState.getState().getData()).isEqualTo(new CustomParameterStateData(List.of(
                 new SelectedParameter("{n}", "n", "5", "bonus", true, "", ""),
@@ -483,7 +532,7 @@ class CustomParameterCommandTest {
                 """);
 
         ConfigAndState<CustomParameterConfig, CustomParameterStateData> configAndState = underTest.deserializeAndUpdateState(messageConfigDTO, messageDataDTO, "3", "userName");
-        assertThat(configAndState.getConfig()).isEqualTo(new CustomParameterConfig(123L, "{n}d{s}", AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v2, "blue_and_silver"), Locale.GERMAN, null, null));
+        assertThat(configAndState.getConfig()).isEqualTo(new CustomParameterConfig(123L, "{n}d{s}", AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v2, "blue_and_silver"), Locale.GERMAN, null, null, CustomParameterConfig.InputType.button_legacy));
         assertThat(configAndState.getConfigUUID()).isEqualTo(configUUID);
         assertThat(configAndState.getState().getData()).isEqualTo(new CustomParameterStateData(List.of(
                 new SelectedParameter("{n}", "n", "5", "bonus", true, "", ""),
@@ -520,7 +569,7 @@ class CustomParameterCommandTest {
                 """);
 
         ConfigAndState<CustomParameterConfig, CustomParameterStateData> configAndState = underTest.deserializeAndUpdateState(messageConfigDTO, messageDataDTO, "3", "userName");
-        assertThat(configAndState.getConfig()).isEqualTo(new CustomParameterConfig(123L, "{n}d{s}", AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v2, "blue_and_silver"), Locale.GERMAN, null, null));
+        assertThat(configAndState.getConfig()).isEqualTo(new CustomParameterConfig(123L, "{n}d{s}", AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v2, "blue_and_silver"), Locale.GERMAN, null, null, CustomParameterConfig.InputType.button_legacy));
         assertThat(configAndState.getConfigUUID()).isEqualTo(configUUID);
         assertThat(configAndState.getState().getData()).isEqualTo(new CustomParameterStateData(List.of(
                 new SelectedParameter("{n}", "n", "5", "bonus", true, "", ""),
@@ -528,7 +577,7 @@ class CustomParameterCommandTest {
     }
 
     @Test
-    void deserialization() {
+    void deserialization_legacy8() {
         UUID configUUID = UUID.randomUUID();
         MessageConfigDTO messageConfigDTO = new MessageConfigDTO(configUUID, 1L, 1660644934298L, "custom_parameter", "CustomParameterConfig", """
                 ---
@@ -574,13 +623,69 @@ class CustomParameterCommandTest {
                         "blue_and_silver"),
                 Locale.GERMAN,
                 UUID.fromString("00000000-1000-0000-0000-000000000000"),
-                "RollName"));
+                "RollName",
+                CustomParameterConfig.InputType.button_legacy));
         assertThat(configAndState.getConfigUUID()).isEqualTo(configUUID);
         assertThat(configAndState.getState().getData()).isEqualTo(new CustomParameterStateData(List.of(
                 new SelectedParameter("{n}", "n", "5", "bonus", true, "", "2"),
                 new SelectedParameter("{s}", "s", "3", "3", true, "2", "")), "userName"));
     }
 
+    @Test
+    void deserialization() {
+        UUID configUUID = UUID.randomUUID();
+        MessageConfigDTO messageConfigDTO = new MessageConfigDTO(configUUID, 1L, 1660644934298L, "custom_parameter", "CustomParameterConfig", """
+                ---
+                answerTargetChannelId: 123
+                baseExpression: "{n}d{s}"
+                answerFormatType: "full"
+                answerInteractionType: "none"
+                configLocale: "de"
+                callStarterConfigAfterFinish: "00000000-1000-0000-0000-000000000000"
+                name: "RollName"
+                inputType: "button"
+                diceStyleAndColor:
+                  diceImageStyle: "polyhedral_alies_v2"
+                  configuredDefaultColor: "blue_and_silver"
+                """, null, null);
+        MessageDataDTO messageDataDTO = new MessageDataDTO(configUUID, 1L, 1660644934298L, 1660644934298L, "custom_parameter",
+                "CustomParameterStateDataV2", """
+                ---
+                selectedParameterValues:
+                - parameterExpression: "{n}"
+                  name: "n"
+                  selectedValue: "5"
+                  labelOfSelectedValue: "bonus"
+                  finished: true
+                  pathId: ""
+                  nextPathId: "2"
+                - parameterExpression: "{s}"
+                  name: "s"
+                  selectedValue: null
+                  labelOfSelectedValue: null
+                  finished: false
+                  pathId: "2"
+                  nextPathId:
+                lockedForUserName: "userName"
+                """);
+
+        ConfigAndState<CustomParameterConfig, CustomParameterStateData> configAndState = underTest.deserializeAndUpdateState(messageConfigDTO, messageDataDTO, "3", "userName");
+        assertThat(configAndState.getConfig()).isEqualTo(new CustomParameterConfig(123L,
+                "{n}d{s}",
+                AnswerFormatType.full,
+                AnswerInteractionType.none,
+                null,
+                new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v2,
+                        "blue_and_silver"),
+                Locale.GERMAN,
+                UUID.fromString("00000000-1000-0000-0000-000000000000"),
+                "RollName",
+                CustomParameterConfig.InputType.button));
+        assertThat(configAndState.getConfigUUID()).isEqualTo(configUUID);
+        assertThat(configAndState.getState().getData()).isEqualTo(new CustomParameterStateData(List.of(
+                new SelectedParameter("{n}", "n", "5", "bonus", true, "", "2"),
+                new SelectedParameter("{s}", "s", "3", "3", true, "2", "")), "userName"));
+    }
 
     @Test
     void configSerialization() {
@@ -593,7 +698,8 @@ class CustomParameterCommandTest {
                 new DiceStyleAndColor(DiceImageStyle.polyhedral_alies_v2, "blue_and_silver"),
                 Locale.GERMAN,
                 UUID.fromString("00000000-1000-0000-0000-000000000000"),
-                "RollName");
+                "RollName",
+                CustomParameterConfig.InputType.button);
         Optional<MessageConfigDTO> toSave = underTest.createMessageConfig(configUUID, 1L, 2L, 0L, config);
         assertThat(toSave).isPresent();
 

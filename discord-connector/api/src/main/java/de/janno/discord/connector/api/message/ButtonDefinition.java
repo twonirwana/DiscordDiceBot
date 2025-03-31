@@ -5,17 +5,14 @@ import com.google.common.base.Strings;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.Value;
-import net.fellbaum.jemoji.EmojiManager;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Objects;
 import java.util.Optional;
-import java.util.regex.Pattern;
 
 @Value
 @Builder
-public class ButtonDefinition {
-    private static final Pattern IS_EMOJI_PATTERN = Pattern.compile("^<a?:([a-zA-Z0-9_]+):([0-9]+)>$");
+public class ButtonDefinition implements ComponentDefinition {
     @NonNull
     String label;
     @NonNull
@@ -33,7 +30,7 @@ public class ButtonDefinition {
         Preconditions.checkArgument(id.length() <= 100, String.format("ID '%s' is to long", id));
         Preconditions.checkArgument(StringUtils.isNoneBlank(label) || emoji != null, "label and emoji are empty");
         Preconditions.checkArgument(!Strings.isNullOrEmpty(id), "id is empty");
-        Preconditions.checkArgument(emoji == null || isEmoji(emoji), "invalid emoji: " + emoji);
+        Preconditions.checkArgument(emoji == null || EmojiHelper.isEmoji(emoji), "invalid emoji: " + emoji);
         this.label = Optional.of(label).map(s -> StringUtils.abbreviate(s.replace("\n", " "), 80)).orElse(null);
         this.id = id;
         this.style = Objects.requireNonNullElse(style, Style.PRIMARY);
@@ -41,8 +38,9 @@ public class ButtonDefinition {
         this.emoji = emoji;
     }
 
-    private static boolean isEmoji(String in) {
-        return EmojiManager.isEmoji(in) || IS_EMOJI_PATTERN.matcher(in).find();
+    @Override
+    public String getLabelOrPlaceholder() {
+        return label;
     }
 
     public enum Style {

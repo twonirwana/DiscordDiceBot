@@ -4,6 +4,7 @@ import de.janno.discord.connector.api.MessageState;
 import de.janno.discord.connector.api.Requester;
 import de.janno.discord.connector.api.SlashEventAdaptor;
 import de.janno.discord.connector.api.message.ButtonDefinition;
+import de.janno.discord.connector.api.message.ComponentDefinition;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import lombok.Getter;
@@ -104,8 +105,8 @@ public class SlashEventAdaptorMock implements SlashEventAdaptor {
         actions.add(String.format("sendMessage: %s", messageDefinition));
         long messageId = 1L;
         messageDefinition.getComponentRowDefinitions().stream()
-                .flatMap(s -> s.getButtonDefinitions().stream())
-                .map(ButtonDefinition::getId)
+                .flatMap(s -> s.getComponentDefinitions().stream())
+                .map(ComponentDefinition::getId)
                 .findFirst().ifPresent(id ->
                         firstButtonEventMockOfLastButtonMessage = Optional.of(new ButtonEventAdaptorMock(id, messageId))
                 );

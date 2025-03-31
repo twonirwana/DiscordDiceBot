@@ -120,7 +120,7 @@ See <<_channel_config>> for channel config
 |`Shadowrun - Alias` |  roll with `sr` e.g `8sr`
 |`Savage Worlds - Alias` | roll exploding dice with `r` e.g. `r10` for an exploding d10 and `sw` for a roll with wildcard dice e.g. `sw8`
 |`Blades in the Dark - Alias` | roll with `b` e.g. `4b` for 4 dice
-|`Otherscape - Alias` | roll with `o` + power e.g. `o+1` for roll with power 1. 
+|`Otherscape - Alias` | roll with `o` + power e.g. `o+1` for roll with power 1.
 |===
 
 == Options
@@ -489,6 +489,11 @@ The command uses the `without_expression` as default answer format.
 This command can also use alias (see the `channel_config` command).
 The substitution of the alias name with its value happen upon pressing last button.
 The alias must be created before the custom_parameter command is used and removing the alias can break existing button messages.
+
+With the option `input_type: dropdown` the command will display all the parameter as dropdown in a single message.
+The expression will be rolled as soon as all parameters are selected.
+The first user selecting a parameter will lock the message and other user can only press the `Clear` button, which will also remove the lock.
+If `input_type: dropdown` is used path IDs are not allowed and parameter name are required to be unique.
 
 ==== Examples
 

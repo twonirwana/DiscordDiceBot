@@ -12,7 +12,7 @@ import de.janno.discord.bot.dice.image.DiceStyleAndColor;
 import de.janno.discord.bot.persistance.MessageConfigDTO;
 import de.janno.discord.bot.persistance.PersistenceManager;
 import de.janno.discord.connector.api.ButtonEventAdaptor;
-import de.janno.discord.connector.api.message.ButtonDefinition;
+import de.janno.discord.connector.api.message.ComponentDefinition;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
 import de.janno.evaluator.dice.random.RandomNumberSupplier;
 import org.junit.jupiter.api.BeforeEach;
@@ -61,8 +61,8 @@ class WelcomeCommandTest {
         assertThat(res.map(EmbedOrMessageDefinition::getComponentRowDefinitions)
                 .stream()
                 .flatMap(Collection::stream)
-                .flatMap(s -> s.getButtonDefinitions().stream())
-                .map(ButtonDefinition::getId))
+                .flatMap(s -> s.getComponentDefinitions().stream())
+                .map(ComponentDefinition::getId))
                 .containsExactly("custom_dice1_button00000000-0000-0000-0000-000000000000",
                         "custom_dice2_button00000000-0000-0000-0000-000000000000",
                         "custom_dice3_button00000000-0000-0000-0000-000000000000",
@@ -81,8 +81,8 @@ class WelcomeCommandTest {
         assertThat(res.map(EmbedOrMessageDefinition::getComponentRowDefinitions)
                 .stream()
                 .flatMap(Collection::stream)
-                .flatMap(s -> s.getButtonDefinitions().stream())
-                .map(ButtonDefinition::getLabel))
+                .flatMap(s -> s.getComponentDefinitions().stream())
+                .map(ComponentDefinition::getLabelOrPlaceholder))
                 .containsExactly("D20",
                         "D20 Advantage",
                         "D20 Disadvantage",
@@ -109,14 +109,14 @@ class WelcomeCommandTest {
         assertThat(res.map(EmbedOrMessageDefinition::getComponentRowDefinitions)
                 .stream()
                 .flatMap(Collection::stream)
-                .flatMap(s -> s.getButtonDefinitions().stream())
-                .map(ButtonDefinition::getId))
+                .flatMap(s -> s.getComponentDefinitions().stream())
+                .map(ComponentDefinition::getId))
                 .containsExactly("custom_dice1_button00000000-0000-0000-0000-000000000000");
         assertThat(res.map(EmbedOrMessageDefinition::getComponentRowDefinitions)
                 .stream()
                 .flatMap(Collection::stream)
-                .flatMap(s -> s.getButtonDefinitions().stream())
-                .map(ButtonDefinition::getLabel))
+                .flatMap(s -> s.getComponentDefinitions().stream())
+                .map(ComponentDefinition::getLabelOrPlaceholder))
                 .containsExactly("Coin Toss");
     }
 
@@ -130,28 +130,28 @@ class WelcomeCommandTest {
         assertThat(res.map(EmbedOrMessageDefinition::getComponentRowDefinitions)
                 .stream()
                 .flatMap(Collection::stream)
-                .flatMap(s -> s.getButtonDefinitions().stream())
-                .map(ButtonDefinition::getId))
-                .containsExactly("custom_parameterid100000000-0000-0000-0000-000000000000",
-                        "custom_parameterid200000000-0000-0000-0000-000000000000",
-                        "custom_parameterid300000000-0000-0000-0000-000000000000",
-                        "custom_parameterid400000000-0000-0000-0000-000000000000",
-                        "custom_parameterid500000000-0000-0000-0000-000000000000",
-                        "custom_parameterid600000000-0000-0000-0000-000000000000",
-                        "custom_parameterid700000000-0000-0000-0000-000000000000",
-                        "custom_parameterid800000000-0000-0000-0000-000000000000",
-                        "custom_parameterid900000000-0000-0000-0000-000000000000",
-                        "custom_parameterid1000000000-0000-0000-0000-000000000000",
-                        "custom_parameterid1100000000-0000-0000-0000-000000000000",
-                        "custom_parameterid1200000000-0000-0000-0000-000000000000",
-                        "custom_parameterid1300000000-0000-0000-0000-000000000000",
-                        "custom_parameterid1400000000-0000-0000-0000-000000000000",
-                        "custom_parameterid1500000000-0000-0000-0000-000000000000");
+                .flatMap(s -> s.getComponentDefinitions().stream())
+                .map(ComponentDefinition::getId))
+                .containsExactly("custom_parameterNumber of Dice-id100000000-0000-0000-0000-000000000000",
+                        "custom_parameterNumber of Dice-id200000000-0000-0000-0000-000000000000",
+                        "custom_parameterNumber of Dice-id300000000-0000-0000-0000-000000000000",
+                        "custom_parameterNumber of Dice-id400000000-0000-0000-0000-000000000000",
+                        "custom_parameterNumber of Dice-id500000000-0000-0000-0000-000000000000",
+                        "custom_parameterNumber of Dice-id600000000-0000-0000-0000-000000000000",
+                        "custom_parameterNumber of Dice-id700000000-0000-0000-0000-000000000000",
+                        "custom_parameterNumber of Dice-id800000000-0000-0000-0000-000000000000",
+                        "custom_parameterNumber of Dice-id900000000-0000-0000-0000-000000000000",
+                        "custom_parameterNumber of Dice-id1000000000-0000-0000-0000-000000000000",
+                        "custom_parameterNumber of Dice-id1100000000-0000-0000-0000-000000000000",
+                        "custom_parameterNumber of Dice-id1200000000-0000-0000-0000-000000000000",
+                        "custom_parameterNumber of Dice-id1300000000-0000-0000-0000-000000000000",
+                        "custom_parameterNumber of Dice-id1400000000-0000-0000-0000-000000000000",
+                        "custom_parameterNumber of Dice-id1500000000-0000-0000-0000-000000000000");
         assertThat(res.map(EmbedOrMessageDefinition::getComponentRowDefinitions)
                 .stream()
                 .flatMap(Collection::stream)
-                .flatMap(s -> s.getButtonDefinitions().stream())
-                .map(ButtonDefinition::getLabel))
+                .flatMap(s -> s.getComponentDefinitions().stream())
+                .map(ComponentDefinition::getLabelOrPlaceholder))
                 .containsExactly("1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15");
     }
 
@@ -164,28 +164,28 @@ class WelcomeCommandTest {
         assertThat(res.map(EmbedOrMessageDefinition::getComponentRowDefinitions)
                 .stream()
                 .flatMap(Collection::stream)
-                .flatMap(s -> s.getButtonDefinitions().stream())
-                .map(ButtonDefinition::getId))
-                .containsExactly("custom_parameterid100000000-0000-0000-0000-000000000000",
-                        "custom_parameterid200000000-0000-0000-0000-000000000000",
-                        "custom_parameterid300000000-0000-0000-0000-000000000000",
-                        "custom_parameterid400000000-0000-0000-0000-000000000000",
-                        "custom_parameterid500000000-0000-0000-0000-000000000000",
-                        "custom_parameterid600000000-0000-0000-0000-000000000000",
-                        "custom_parameterid700000000-0000-0000-0000-000000000000",
-                        "custom_parameterid800000000-0000-0000-0000-000000000000",
-                        "custom_parameterid900000000-0000-0000-0000-000000000000",
-                        "custom_parameterid1000000000-0000-0000-0000-000000000000",
-                        "custom_parameterid1100000000-0000-0000-0000-000000000000",
-                        "custom_parameterid1200000000-0000-0000-0000-000000000000",
-                        "custom_parameterid1300000000-0000-0000-0000-000000000000",
-                        "custom_parameterid1400000000-0000-0000-0000-000000000000",
-                        "custom_parameterid1500000000-0000-0000-0000-000000000000");
+                .flatMap(s -> s.getComponentDefinitions().stream())
+                .map(ComponentDefinition::getId))
+                .containsExactly("custom_parameterNumber of Dice-id100000000-0000-0000-0000-000000000000",
+                        "custom_parameterNumber of Dice-id200000000-0000-0000-0000-000000000000",
+                        "custom_parameterNumber of Dice-id300000000-0000-0000-0000-000000000000",
+                        "custom_parameterNumber of Dice-id400000000-0000-0000-0000-000000000000",
+                        "custom_parameterNumber of Dice-id500000000-0000-0000-0000-000000000000",
+                        "custom_parameterNumber of Dice-id600000000-0000-0000-0000-000000000000",
+                        "custom_parameterNumber of Dice-id700000000-0000-0000-0000-000000000000",
+                        "custom_parameterNumber of Dice-id800000000-0000-0000-0000-000000000000",
+                        "custom_parameterNumber of Dice-id900000000-0000-0000-0000-000000000000",
+                        "custom_parameterNumber of Dice-id1000000000-0000-0000-0000-000000000000",
+                        "custom_parameterNumber of Dice-id1100000000-0000-0000-0000-000000000000",
+                        "custom_parameterNumber of Dice-id1200000000-0000-0000-0000-000000000000",
+                        "custom_parameterNumber of Dice-id1300000000-0000-0000-0000-000000000000",
+                        "custom_parameterNumber of Dice-id1400000000-0000-0000-0000-000000000000",
+                        "custom_parameterNumber of Dice-id1500000000-0000-0000-0000-000000000000");
         assertThat(res.map(EmbedOrMessageDefinition::getComponentRowDefinitions)
                 .stream()
                 .flatMap(Collection::stream)
-                .flatMap(s -> s.getButtonDefinitions().stream())
-                .map(ButtonDefinition::getLabel))
+                .flatMap(s -> s.getComponentDefinitions().stream())
+                .map(ComponentDefinition::getLabelOrPlaceholder))
                 .containsExactly("1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15");
 
 
@@ -200,33 +200,33 @@ class WelcomeCommandTest {
         assertThat(res.map(EmbedOrMessageDefinition::getComponentRowDefinitions)
                 .stream()
                 .flatMap(Collection::stream)
-                .flatMap(s -> s.getButtonDefinitions().stream())
-                .map(ButtonDefinition::getId))
-                .containsExactly("custom_parameterid100000000-0000-0000-0000-000000000000",
-                        "custom_parameterid200000000-0000-0000-0000-000000000000",
-                        "custom_parameterid300000000-0000-0000-0000-000000000000",
-                        "custom_parameterid400000000-0000-0000-0000-000000000000",
-                        "custom_parameterid500000000-0000-0000-0000-000000000000",
-                        "custom_parameterid600000000-0000-0000-0000-000000000000",
-                        "custom_parameterid700000000-0000-0000-0000-000000000000",
-                        "custom_parameterid800000000-0000-0000-0000-000000000000",
-                        "custom_parameterid900000000-0000-0000-0000-000000000000",
-                        "custom_parameterid1000000000-0000-0000-0000-000000000000",
-                        "custom_parameterid1100000000-0000-0000-0000-000000000000",
-                        "custom_parameterid1200000000-0000-0000-0000-000000000000",
-                        "custom_parameterid1300000000-0000-0000-0000-000000000000",
-                        "custom_parameterid1400000000-0000-0000-0000-000000000000",
-                        "custom_parameterid1500000000-0000-0000-0000-000000000000",
-                        "custom_parameterid1600000000-0000-0000-0000-000000000000",
-                        "custom_parameterid1700000000-0000-0000-0000-000000000000",
-                        "custom_parameterid1800000000-0000-0000-0000-000000000000",
-                        "custom_parameterid1900000000-0000-0000-0000-000000000000",
-                        "custom_parameterid2000000000-0000-0000-0000-000000000000");
+                .flatMap(s -> s.getComponentDefinitions().stream())
+                .map(ComponentDefinition::getId))
+                .containsExactly("custom_parameternumber of dice-id100000000-0000-0000-0000-000000000000",
+                        "custom_parameternumber of dice-id200000000-0000-0000-0000-000000000000",
+                        "custom_parameternumber of dice-id300000000-0000-0000-0000-000000000000",
+                        "custom_parameternumber of dice-id400000000-0000-0000-0000-000000000000",
+                        "custom_parameternumber of dice-id500000000-0000-0000-0000-000000000000",
+                        "custom_parameternumber of dice-id600000000-0000-0000-0000-000000000000",
+                        "custom_parameternumber of dice-id700000000-0000-0000-0000-000000000000",
+                        "custom_parameternumber of dice-id800000000-0000-0000-0000-000000000000",
+                        "custom_parameternumber of dice-id900000000-0000-0000-0000-000000000000",
+                        "custom_parameternumber of dice-id1000000000-0000-0000-0000-000000000000",
+                        "custom_parameternumber of dice-id1100000000-0000-0000-0000-000000000000",
+                        "custom_parameternumber of dice-id1200000000-0000-0000-0000-000000000000",
+                        "custom_parameternumber of dice-id1300000000-0000-0000-0000-000000000000",
+                        "custom_parameternumber of dice-id1400000000-0000-0000-0000-000000000000",
+                        "custom_parameternumber of dice-id1500000000-0000-0000-0000-000000000000",
+                        "custom_parameternumber of dice-id1600000000-0000-0000-0000-000000000000",
+                        "custom_parameternumber of dice-id1700000000-0000-0000-0000-000000000000",
+                        "custom_parameternumber of dice-id1800000000-0000-0000-0000-000000000000",
+                        "custom_parameternumber of dice-id1900000000-0000-0000-0000-000000000000",
+                        "custom_parameternumber of dice-id2000000000-0000-0000-0000-000000000000");
         assertThat(res.map(EmbedOrMessageDefinition::getComponentRowDefinitions)
                 .stream()
                 .flatMap(Collection::stream)
-                .flatMap(s -> s.getButtonDefinitions().stream())
-                .map(ButtonDefinition::getLabel))
+                .flatMap(s -> s.getComponentDefinitions().stream())
+                .map(ComponentDefinition::getLabelOrPlaceholder))
                 .containsExactly("1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20");
 
     }
@@ -239,8 +239,8 @@ class WelcomeCommandTest {
         assertThat(res.map(EmbedOrMessageDefinition::getComponentRowDefinitions)
                 .stream()
                 .flatMap(Collection::stream)
-                .flatMap(s -> s.getButtonDefinitions().stream())
-                .map(ButtonDefinition::getId))
+                .flatMap(s -> s.getComponentDefinitions().stream())
+                .map(ComponentDefinition::getId))
                 .containsExactly("sum_custom_set1_button00000000-0000-0000-0000-000000000000",
                         "sum_custom_set2_button00000000-0000-0000-0000-000000000000",
                         "sum_custom_set3_button00000000-0000-0000-0000-000000000000",
@@ -269,8 +269,8 @@ class WelcomeCommandTest {
         assertThat(res.map(EmbedOrMessageDefinition::getComponentRowDefinitions)
                 .stream()
                 .flatMap(Collection::stream)
-                .flatMap(s -> s.getButtonDefinitions().stream())
-                .map(ButtonDefinition::getLabel))
+                .flatMap(s -> s.getComponentDefinitions().stream())
+                .map(ComponentDefinition::getLabelOrPlaceholder))
                 .containsExactly("7",
                         "8",
                         "9",

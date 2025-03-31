@@ -1,6 +1,7 @@
 package de.janno.discord.bot.command;
 
 import de.janno.discord.connector.api.message.ButtonDefinition;
+import de.janno.discord.connector.api.message.ComponentDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -116,7 +117,7 @@ class ButtonHelperTest {
                 new ButtonIdLabelAndDiceExpression("2", "2", "2", false, false, null)));
 
         assertThat(res).hasSize(1);
-        assertThat(res.getFirst().getButtonDefinitions()).containsExactly(ButtonDefinition.builder().id("id\u001E1\u001E00000000-0000-0000-0000-000000000000").label("1").disabled(false).style(ButtonDefinition.Style.PRIMARY).build(),
+        assertThat(res.getFirst().getComponentDefinitions()).containsExactly(ButtonDefinition.builder().id("id\u001E1\u001E00000000-0000-0000-0000-000000000000").label("1").disabled(false).style(ButtonDefinition.Style.PRIMARY).build(),
                 ButtonDefinition.builder().id("id\u001E2\u001E00000000-0000-0000-0000-000000000000").label("2").disabled(false).style(ButtonDefinition.Style.PRIMARY).build()
         );
     }
@@ -127,19 +128,19 @@ class ButtonHelperTest {
                 new ButtonIdLabelAndDiceExpression("2", "2", "2", true, false, null)));
 
         assertThat(res).hasSize(2);
-        assertThat(res.get(0).getButtonDefinitions()).containsExactly(ButtonDefinition.builder().id("id\u001E1\u001E00000000-0000-0000-0000-000000000000").label("1").disabled(false).style(ButtonDefinition.Style.PRIMARY).build());
-        assertThat(res.get(1).getButtonDefinitions()).containsExactly(ButtonDefinition.builder().id("id\u001E2\u001E00000000-0000-0000-0000-000000000000").label("2").disabled(false).style(ButtonDefinition.Style.PRIMARY).build());
+        assertThat(res.get(0).getComponentDefinitions()).containsExactly(ButtonDefinition.builder().id("id\u001E1\u001E00000000-0000-0000-0000-000000000000").label("1").disabled(false).style(ButtonDefinition.Style.PRIMARY).build());
+        assertThat(res.get(1).getComponentDefinitions()).containsExactly(ButtonDefinition.builder().id("id\u001E2\u001E00000000-0000-0000-0000-000000000000").label("2").disabled(false).style(ButtonDefinition.Style.PRIMARY).build());
     }
 
     @Test
     public void extendButtonLayout() {
         List<ComponentRowDefinition> res = ButtonHelper.extendButtonLayout(List.of(ComponentRowDefinition.builder()
-                        .buttonDefinition(ButtonDefinition.builder().id("id\u001E1\u001E00000000-0000-0000-0000-000000000000").label("1").build())
+                        .componentDefinition(ButtonDefinition.builder().id("id\u001E1\u001E00000000-0000-0000-0000-000000000000").label("1").build())
                         .build()),
                 List.of(ButtonDefinition.builder().id("id\u001E2\u001E00000000-0000-0000-0000-000000000000").label("2").build()), false);
 
         assertThat(res).hasSize(1);
-        assertThat(res.getFirst().getButtonDefinitions()).containsExactly(
+        assertThat(res.getFirst().getComponentDefinitions()).containsExactly(
                 ButtonDefinition.builder().id("id\u001E1\u001E00000000-0000-0000-0000-000000000000").label("1").disabled(false).style(ButtonDefinition.Style.PRIMARY).build(),
                 ButtonDefinition.builder().id("id\u001E2\u001E00000000-0000-0000-0000-000000000000").label("2").disabled(false).style(ButtonDefinition.Style.PRIMARY).build());
     }
@@ -148,10 +149,10 @@ class ButtonHelperTest {
     public void extendButtonLayoutFive() {
         List<ComponentRowDefinition> res = ButtonHelper.extendButtonLayout(List.of(
                         ComponentRowDefinition.builder()
-                                .buttonDefinition(ButtonDefinition.builder().id("1").label("1").build())
-                                .buttonDefinition(ButtonDefinition.builder().id("2").label("2").build())
-                                .buttonDefinition(ButtonDefinition.builder().id("3").label("3").build())
-                                .buttonDefinition(ButtonDefinition.builder().id("4").label("4").build())
+                                .componentDefinition(ButtonDefinition.builder().id("1").label("1").build())
+                                .componentDefinition(ButtonDefinition.builder().id("2").label("2").build())
+                                .componentDefinition(ButtonDefinition.builder().id("3").label("3").build())
+                                .componentDefinition(ButtonDefinition.builder().id("4").label("4").build())
                                 .build()
                 ),
                 List.of(
@@ -160,18 +161,18 @@ class ButtonHelperTest {
                 ), false);
 
         assertThat(res).hasSize(2);
-        assertThat(res.get(0).getButtonDefinitions().stream().map(ButtonDefinition::getId)).containsExactly("1", "2", "3", "4", "5");
-        assertThat(res.get(1).getButtonDefinitions().stream().map(ButtonDefinition::getId)).containsExactly("6");
+        assertThat(res.get(0).getComponentDefinitions().stream().map(ComponentDefinition::getId)).containsExactly("1", "2", "3", "4", "5");
+        assertThat(res.get(1).getComponentDefinitions().stream().map(ComponentDefinition::getId)).containsExactly("6");
     }
 
     @Test
     public void extendButtonLayoutLineBreak() {
         List<ComponentRowDefinition> res = ButtonHelper.extendButtonLayout(List.of(
                         ComponentRowDefinition.builder()
-                                .buttonDefinition(ButtonDefinition.builder().id("1").label("1").build())
-                                .buttonDefinition(ButtonDefinition.builder().id("2").label("2").build())
-                                .buttonDefinition(ButtonDefinition.builder().id("3").label("3").build())
-                                .buttonDefinition(ButtonDefinition.builder().id("4").label("4").build())
+                                .componentDefinition(ButtonDefinition.builder().id("1").label("1").build())
+                                .componentDefinition(ButtonDefinition.builder().id("2").label("2").build())
+                                .componentDefinition(ButtonDefinition.builder().id("3").label("3").build())
+                                .componentDefinition(ButtonDefinition.builder().id("4").label("4").build())
                                 .build()
                 ),
                 List.of(
@@ -180,8 +181,8 @@ class ButtonHelperTest {
                 ), true);
 
         assertThat(res).hasSize(2);
-        assertThat(res.get(0).getButtonDefinitions().stream().map(ButtonDefinition::getId)).containsExactly("1", "2", "3", "4");
-        assertThat(res.get(1).getButtonDefinitions().stream().map(ButtonDefinition::getId)).containsExactly("5", "6");
+        assertThat(res.get(0).getComponentDefinitions().stream().map(ComponentDefinition::getId)).containsExactly("1", "2", "3", "4");
+        assertThat(res.get(1).getComponentDefinitions().stream().map(ComponentDefinition::getId)).containsExactly("5", "6");
     }
 
 
