@@ -90,7 +90,7 @@ public abstract class ComponentCommandImpl<C extends RollConfig, S extends State
         final Long answerTargetChannelId = config.getAnswerTargetChannelId();
         Optional<String> checkPermissions = event.checkPermissions(answerTargetChannelId, Optional.ofNullable(event.getRequester().getUserLocal()).orElse(Locale.ENGLISH));
         if (checkPermissions.isPresent()) {
-            return event.reply(checkPermissions.get(), false);
+            return event.editMessage(checkPermissions.get(), null);
         }
 
         //update state bevor editing the event message
