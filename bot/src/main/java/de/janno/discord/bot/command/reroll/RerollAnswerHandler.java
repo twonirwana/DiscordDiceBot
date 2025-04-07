@@ -259,7 +259,7 @@ public class RerollAnswerHandler extends ComponentCommandImpl<RerollAnswerConfig
 
             EmbedOrMessageDefinition newMessage = RerollAnswerHandler.applyToAnswer(RollAnswerConverter.toEmbedOrMessageDefinition(rollAnswer), rollAnswer.getDieIdTypeAndValues(), config.getConfigLocale(), newMessageUUID);
             newMessage = newMessage.toBuilder()
-                    .title(config.getRerollCount() + ": " + newMessage.getTitle())
+                    .shortedTitle(config.getRerollCount() + ": " + newMessage.getTitle())
                     .build();
             return Optional.of(newMessage);
 
